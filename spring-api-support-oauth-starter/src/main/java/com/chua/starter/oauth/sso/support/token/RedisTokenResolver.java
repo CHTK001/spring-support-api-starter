@@ -46,7 +46,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.TOKEN_
  * @author CH
  */
 @Slf4j
-@Extension("redis")
+@com.chua.common.support.annotations.Spi("redis")
 @SuppressWarnings("ALL")
 public class RedisTokenResolver implements TokenResolver {
 
@@ -87,7 +87,16 @@ public class RedisTokenResolver implements TokenResolver {
             return ReturnResult.error(checkResult.getMsg());
         }
 
-        TokenGeneration tokenGeneration = ServiceProvider.of(TokenGeneration.class).getExtension(authServerProperties.getTokenGeneration());
+        // 根据authType选择TokenGeneration：jwt走jwtTokenGeneration，其他走配置的TokenGeneration
+        TokenGeneration tokenGeneration;
+        if ("jwt".equalsIgnoreCase(authType) || "JWT".equalsIgnoreCase(authType)) {
+            tokenGeneration = ServiceProvider.of(TokenGeneration.class).getExtension("jwt");
+        } else {
+            tokenGeneration = ServiceProvider.of(TokenGeneration.class).getExtension(authServerProperties.getTokenGeneration());
+        }
+        if (tokenGeneration == null) {
+            return ReturnResult.error("Token生成器不可用");
+        }
         userResult.setAddress(address);
         String uid = userResult.getUid();
 

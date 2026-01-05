@@ -97,9 +97,20 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
             // 构建用户信息
             UserResume userResume = buildUserResume(authUser, platform);
             
+            // 添加appId支持：从请求中提取appId并设置到UserResume
+            String appId = com.chua.common.support.utils.MapUtils.getString(authInformation.getBodyData(), "x-oauth-app-id");
+            if (StringUtils.isBlank(appId)) {
+                appId = authInformation.getRequestHeaderValue("x-oauth-app-id");
+            }
+            if (StringUtils.isNotBlank(appId)) {
+                userResume.setAppId(appId);
+                log.debug("OAuth2认证中提取到appId: {}", maskAppId(appId));
+            }
+            
             String json = Json.toJson(userResume);
-            log.info("OAuth2 认证成功: platform={}, uuid={}, username={}", 
-                    platform, authUser.getUuid(), authUser.getUsername());
+            log.info("OAuth2 认证成功: platform={}, uuid={}, username={}, appId={}", 
+                    platform, authUser.getUuid(), authUser.getUsername(),
+                    userResume.getAppId() != null ? maskAppId(userResume.getAppId()) : "null");
             
             return ReturnResult.ok(authInformation.encodeHex(json));
 
@@ -182,5 +193,15 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
                  "google", "microsoft", "taobao", "douyin", "feishu" -> true;
             default -> false;
         };
+    }
+    
+    /**
+     * 脱敏AppId
+     */
+    private String maskAppId(String appId) {
+        if (appId == null || appId.length() < 8) {
+            return "***";
+        }
+        return appId.substring(0, 4) + "..." + appId.substring(appId.length() - 4);
     }
 }

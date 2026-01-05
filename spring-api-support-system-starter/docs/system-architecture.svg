@@ -1,0 +1,211 @@
+<svg width="1400" height="1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 20px; font-weight: bold; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; }
+      .small-text { font-family: Arial, sans-serif; font-size: 10px; }
+      .layer-box { fill: #f5f5f5; stroke: #757575; stroke-width: 2; }
+      .module-box { fill: #e3f2fd; stroke: #1976d2; stroke-width: 2; }
+      .component-box { fill: #fff; stroke: #424242; stroke-width: 1.5; }
+      .external-box { fill: #fff3e0; stroke: #ff9800; stroke-width: 2; }
+      .arrow { stroke: #424242; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .dependency-arrow { stroke: #1976d2; stroke-width: 2; fill: none; marker-end: url(#arrowhead-blue); stroke-dasharray: 3,3; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#424242" />
+    </marker>
+    <marker id="arrowhead-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#1976d2" />
+    </marker>
+  </defs>
+  
+  <!-- 标题 -->
+  <text x="700" y="30" text-anchor="middle" class="title">系统完整架构图</text>
+  
+  <!-- 模块依赖层 -->
+  <rect x="50" y="60" width="1300" height="180" class="layer-box" rx="5"/>
+  <text x="700" y="85" text-anchor="middle" class="subtitle">模块依赖关系</text>
+  
+  <!-- spring-api-support-system-starter -->
+  <rect x="550" y="100" width="300" height="60" class="module-box" rx="3"/>
+  <text x="700" y="125" text-anchor="middle" class="subtitle">spring-api-support-system-starter</text>
+  <text x="700" y="145" text-anchor="middle" class="text">系统应用 (System Application)</text>
+  
+  <!-- spring-api-support-common-system-starter -->
+  <rect x="550" y="180" width="300" height="50" class="module-box" rx="3"/>
+  <text x="700" y="205" text-anchor="middle" class="subtitle">spring-api-support-common-system-starter</text>
+  <text x="700" y="225" text-anchor="middle" class="small-text">系统服务模块</text>
+  
+  <!-- spring-api-support-common-oauth-starter -->
+  <rect x="550" y="250" width="300" height="50" class="module-box" rx="3"/>
+  <text x="700" y="275" text-anchor="middle" class="subtitle">spring-api-support-common-oauth-starter</text>
+  <text x="700" y="295" text-anchor="middle" class="small-text">OAuth认证模块</text>
+  
+  <!-- spring-api-support-common-entity-starter -->
+  <rect x="200" y="250" width="250" height="50" class="module-box" rx="3"/>
+  <text x="325" y="275" text-anchor="middle" class="subtitle">spring-api-support-common-entity-starter</text>
+  <text x="325" y="295" text-anchor="middle" class="small-text">实体定义</text>
+  
+  <!-- spring-api-support-common-configuration-starter -->
+  <rect x="900" y="250" width="300" height="50" class="module-box" rx="3"/>
+  <text x="1050" y="275" text-anchor="middle" class="subtitle">spring-api-support-common-configuration-starter</text>
+  <text x="1050" y="295" text-anchor="middle" class="small-text">配置定义</text>
+  
+  <!-- 依赖箭头 -->
+  <line x1="700" y1="160" x2="700" y2="180" class="dependency-arrow"/>
+  <line x1="700" y1="230" x2="700" y2="250" class="dependency-arrow"/>
+  <line x1="450" y1="275" x2="550" y2="275" class="dependency-arrow"/>
+  <line x1="850" y1="275" x2="900" y2="275" class="dependency-arrow"/>
+  
+  <!-- 系统分层架构 -->
+  <rect x="50" y="260" width="1300" height="380" class="layer-box" rx="5"/>
+  <text x="700" y="285" text-anchor="middle" class="subtitle">系统分层架构</text>
+  
+  <!-- API层 -->
+  <rect x="80" y="300" width="1240" height="80" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="3"/>
+  <text x="700" y="325" text-anchor="middle" class="subtitle">API 层 (Controller Layer)</text>
+  <text x="120" y="350" class="text">SystemAdminController</text>
+  <text x="120" y="370" class="small-text">• 用户管理接口 (/v1/user/*)</text>
+  <text x="400" y="350" class="text">角色管理接口</text>
+  <text x="400" y="370" class="small-text">• 角色管理接口 (/v1/role/*)</text>
+  <text x="700" y="350" class="text">菜单管理接口</text>
+  <text x="700" y="370" class="small-text">• 菜单管理接口 (/v1/menu/*)</text>
+  <text x="1000" y="350" class="text">部门管理接口</text>
+  <text x="1000" y="370" class="small-text">• 部门管理接口 (/v1/dept/*)</text>
+  
+  <!-- 箭头 -->
+  <line x1="700" y1="380" x2="700" y2="420" class="arrow"/>
+  <text x="710" y="405" class="small-text">调用</text>
+  
+  <!-- Service层 -->
+  <rect x="80" y="420" width="1240" height="100" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="3"/>
+  <text x="700" y="445" text-anchor="middle" class="subtitle">服务层 (Service Layer)</text>
+  <text x="120" y="470" class="text">UserService</text>
+  <text x="120" y="490" class="small-text">• 用户业务逻辑</text>
+  <text x="120" y="510" class="small-text">• 用户状态管理</text>
+  <text x="400" y="470" class="text">RoleService</text>
+  <text x="400" y="490" class="small-text">• 角色业务逻辑</text>
+  <text x="400" y="510" class="small-text">• 权限分配</text>
+  <text x="700" y="470" class="text">MenuService</text>
+  <text x="700" y="490" class="small-text">• 菜单业务逻辑</text>
+  <text x="700" y="510" class="small-text">• 路由生成</text>
+  <text x="1000" y="470" class="text">DeptService</text>
+  <text x="1000" y="490" class="small-text">• 部门业务逻辑</text>
+  <text x="1000" y="510" class="small-text">• 树形结构管理</text>
+  
+  <!-- 箭头 -->
+  <line x1="700" y1="520" x2="700" y2="560" class="arrow"/>
+  <text x="710" y="545" class="small-text">调用</text>
+  
+  <!-- Mapper层 -->
+  <rect x="80" y="560" width="1240" height="60" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="3"/>
+  <text x="700" y="585" text-anchor="middle" class="subtitle">数据访问层 (Mapper Layer)</text>
+  <text x="300" y="610" class="text">UserMapper | RoleMapper | MenuMapper | DeptMapper</text>
+  <text x="700" y="610" class="small-text">• MyBatis-Plus 数据访问</text>
+  
+  <!-- 箭头 -->
+  <line x1="700" y1="620" x2="700" y2="660" class="arrow"/>
+  <text x="710" y="645" class="small-text">SQL执行</text>
+  
+  <!-- 数据库层 -->
+  <rect x="80" y="660" width="1240" height="60" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="3"/>
+  <text x="700" y="685" text-anchor="middle" class="subtitle">数据库层 (Database Layer)</text>
+  <text x="300" y="710" class="text">sys_user | sys_role | sys_menu | sys_dept | sys_tenant</text>
+  <text x="700" y="710" class="small-text">MySQL 8.0+</text>
+  
+  <!-- 外部依赖和中间件 -->
+  <rect x="50" y="660" width="1300" height="200" class="layer-box" rx="5"/>
+  <text x="700" y="685" text-anchor="middle" class="subtitle">外部依赖与中间件</text>
+  
+  <!-- OAuth服务 -->
+  <rect x="100" y="700" width="200" height="80" class="external-box" rx="3"/>
+  <text x="200" y="725" text-anchor="middle" class="subtitle">OAuth 认证服务</text>
+  <text x="120" y="745" class="text">• Token 验证</text>
+  <text x="120" y="765" class="text">• 用户认证</text>
+  
+  <!-- Redis缓存 -->
+  <rect x="350" y="700" width="200" height="80" class="external-box" rx="3"/>
+  <text x="450" y="725" text-anchor="middle" class="subtitle">Redis 缓存</text>
+  <text x="370" y="745" class="text">• 用户信息缓存</text>
+  <text x="370" y="765" class="text">• 菜单权限缓存</text>
+  
+  <!-- MySQL数据库 -->
+  <rect x="600" y="700" width="200" height="80" class="external-box" rx="3"/>
+  <text x="700" y="725" text-anchor="middle" class="subtitle">MySQL 数据库</text>
+  <text x="620" y="745" class="text">• 系统数据存储</text>
+  <text x="620" y="765" class="text">• 租户数据存储</text>
+  
+  <!-- WebSocket/RSocket -->
+  <rect x="850" y="700" width="200" height="80" class="external-box" rx="3"/>
+  <text x="950" y="725" text-anchor="middle" class="subtitle">WebSocket/RSocket</text>
+  <text x="870" y="745" class="text">• 租户同步消息</text>
+  <text x="870" y="765" class="text">• 实时推送</text>
+  
+  <!-- Swagger文档 -->
+  <rect x="1100" y="700" width="200" height="80" class="external-box" rx="3"/>
+  <text x="1200" y="725" text-anchor="middle" class="subtitle">Swagger API 文档</text>
+  <text x="1120" y="745" class="text">• API 接口文档</text>
+  <text x="1120" y="765" class="text">• 在线测试</text>
+  
+  <!-- 连接线 -->
+  <line x1="200" y1="700" x2="200" y2="640" class="arrow"/>
+  <line x1="450" y1="700" x2="450" y2="640" class="arrow"/>
+  <line x1="700" y1="700" x2="700" y2="640" class="arrow"/>
+  <line x1="950" y1="700" x2="950" y2="640" class="arrow"/>
+  
+  <!-- 租户同步架构 -->
+  <rect x="50" y="880" width="1300" height="100" class="layer-box" rx="5"/>
+  <text x="700" y="905" text-anchor="middle" class="subtitle">租户同步机制</text>
+  
+  <!-- 平台端 -->
+  <rect x="100" y="920" width="250" height="50" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="3"/>
+  <text x="225" y="940" text-anchor="middle" class="text" font-weight="bold">平台端 (Server)</text>
+  <text x="225" y="960" text-anchor="middle" class="small-text">TenantServerSyncPublisher</text>
+  
+  <!-- 消息传输 -->
+  <line x1="350" y1="945" x2="500" y2="945" class="arrow"/>
+  <text x="425" y="935" text-anchor="middle" class="small-text">WebSocket/RSocket</text>
+  
+  <!-- 租户端 -->
+  <rect x="500" y="920" width="250" height="50" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="3"/>
+  <text x="625" y="940" text-anchor="middle" class="text" font-weight="bold">租户端 (Client)</text>
+  <text x="625" y="960" text-anchor="middle" class="small-text">TenantClientSyncHandler</text>
+  
+  <!-- SPI提供者 -->
+  <line x1="750" y1="945" x2="900" y2="945" class="arrow"/>
+  <text x="825" y="935" text-anchor="middle" class="small-text">SPI路由</text>
+  
+  <rect x="900" y="920" width="250" height="50" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="3"/>
+  <text x="1025" y="940" text-anchor="middle" class="text" font-weight="bold">TenantDataSyncProvider</text>
+  <text x="1025" y="960" text-anchor="middle" class="small-text">DefaultTenantDataSyncProvider</text>
+  
+  <!-- 数据持久化 -->
+  <line x1="1150" y1="945" x2="1250" y2="945" class="arrow"/>
+  
+  <rect x="1250" y="920" width="80" height="50" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="3"/>
+  <text x="1290" y="950" text-anchor="middle" class="small-text">租户</text>
+  <text x="1290" y="965" text-anchor="middle" class="small-text">数据库</text>
+  
+  <!-- 配置模块说明 -->
+  <rect x="50" y="1000" width="1300" height="0" class="layer-box" rx="5"/>
+  <text x="700" y="1025" text-anchor="middle" class="subtitle">配置模块</text>
+  <text x="200" y="1050" class="text">application.yml (主配置)</text>
+  <text x="200" y="1070" class="text">application-common.yml (通用配置)</text>
+  <text x="200" y="1090" class="text">application-mybatis.yml (MyBatis配置)</text>
+  <text x="200" y="1110" class="text">application-swagger.yml (Swagger配置)</text>
+  <text x="200" y="1130" class="text">application-api.yml (API配置)</text>
+  <text x="200" y="1150" class="text">application-ip.yml (IP解析配置)</text>
+  <text x="200" y="1170" class="text">application-actuator.yml (监控配置)</text>
+  
+  <text x="700" y="1050" class="text">功能开关</text>
+  <text x="700" y="1070" class="small-text">plugin.system.server.enable</text>
+  <text x="700" y="1090" class="small-text">plugin.system.server.cache.enable</text>
+  <text x="700" y="1110" class="small-text">plugin.system.server.log.enable</text>
+  
+  <text x="1100" y="1050" class="text">端口配置</text>
+  <text x="1100" y="1070" class="small-text">server.port: 18170</text>
+  <text x="1100" y="1090" class="small-text">context-path: /system/api</text>
+</svg>
+
+

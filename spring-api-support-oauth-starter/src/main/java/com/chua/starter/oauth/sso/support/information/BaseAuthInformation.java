@@ -391,4 +391,12 @@ public abstract class BaseAuthInformation implements AuthInformation {
     public String getEncryption() {
         return encryption;
     }
+
+    /**
+     * 获取原始数据（供验证器使用）
+     * @return 原始数据
+     */
+    protected String getData() {
+        return data;
+    }
 }

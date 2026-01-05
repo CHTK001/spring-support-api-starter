@@ -5,6 +5,7 @@ import com.chua.common.support.annotations.SpiDefault;
 import com.chua.common.support.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
@@ -45,10 +46,33 @@ public class DefaultAuthorizationHandler implements AuthorizationHandler {
         }
 
         UserResume userResult = resolve.getData();
+        
+        // 添加appId支持：从请求中提取appId并设置到UserResume
+        String appId = MapUtils.getString(authInformation.getBodyData(), "x-oauth-app-id");
+        if (StringUtils.isBlank(appId)) {
+            appId = authInformation.getRequestHeaderValue("x-oauth-app-id");
+        }
+        if (StringUtils.isNotBlank(appId)) {
+            userResult.setAppId(appId);
+            log.debug("Token认证中提取到appId: {}", maskAppId(appId));
+        }
+        
         String json = Json.toJson(userResult);
         
-        log.info("Token认证成功: userId={}", userResult.getUserId());
+        log.info("Token认证成功: userId={}, appId={}", 
+                userResult.getUserId(), 
+                userResult.getAppId() != null ? maskAppId(userResult.getAppId()) : "null");
         return ReturnResult.ok(authInformation.encodeHex(json));
+    }
+    
+    /**
+     * 脱敏AppId
+     */
+    private String maskAppId(String appId) {
+        if (appId == null || appId.length() < 8) {
+            return "***";
+        }
+        return appId.substring(0, 4) + "..." + appId.substring(appId.length() - 4);
     }
 
     @Override
