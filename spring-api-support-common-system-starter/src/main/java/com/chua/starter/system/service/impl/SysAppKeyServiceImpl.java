@@ -44,15 +44,6 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     private static final String IP_WILDCARD = "*";
 
     @Override
-    @Cacheable(value = "appKey:info", key = "#appId", unless = "#result == null")
-    public SysAppKey getByAppId(String appId) {
-        if (StringUtils.isBlank(appId)) {
-            return null;
-        }
-        return baseMapper.selectByAppId(appId);
-    }
-
-    @Override
     @Cacheable(value = "appKey:secret", key = "#appKey", unless = "#result == null")
     public SysAppKey getByAppKey(String appKey) {
         if (StringUtils.isBlank(appKey)) {
@@ -62,69 +53,68 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     }
 
     @Override
-    public boolean verify(String appId, String secret) {
-        SysAppKey appKey = getByAppId(appId);
-        if (appKey == null) {
-            log.warn("AppKey不存在: appId={}", appId);
+    public boolean verify(String appKey, String secret) {
+        SysAppKey dbAppKey = getByAppKey(appKey);
+        if (dbAppKey == null) {
+            log.warn("AppKey不存在: appKey={}", maskAppKey(appKey));
             return false;
         }
 
         // 检查状态（使用Integer.equals避免NPE）
-        if (!Integer.valueOf(STATUS_ENABLED).equals(appKey.getSysAppKeyStatus())) {
-            log.warn("AppKey已禁用: appId={}", appId);
+        if (!Integer.valueOf(STATUS_ENABLED).equals(dbAppKey.getSysAppKeyStatus())) {
+            log.warn("AppKey已禁用: appKey={}", maskAppKey(appKey));
             return false;
         }
 
         // 检查过期时间
-        if (appKey.getSysAppKeyExpireTime() != null) {
+        if (dbAppKey.getSysAppKeyExpireTime() != null) {
             long currentTime = System.currentTimeMillis() / MILLIS_PER_SECOND;
-            if (currentTime > appKey.getSysAppKeyExpireTime()) {
-                log.warn("AppKey已过期: appId={}, expireTime={}", appId, appKey.getSysAppKeyExpireTime());
+            if (currentTime > dbAppKey.getSysAppKeyExpireTime()) {
+                log.warn("AppKey已过期: appKey={}, expireTime={}", maskAppKey(appKey), dbAppKey.getSysAppKeyExpireTime());
                 return false;
             }
         }
 
-        // 验证密钥
-        boolean valid = secret.equals(appKey.getSysAppKeySecret());
+        // 验证密钥（appKey和secret应该相同，或者secret是appKey对应的密钥）
+        boolean valid = appKey.equals(dbAppKey.getSysAppKeySecret()) || secret.equals(dbAppKey.getSysAppKeySecret());
         if (!valid) {
-            log.warn("AppKey密钥验证失败: appId={}", appId);
+            log.warn("AppKey密钥验证失败: appKey={}", maskAppKey(appKey));
         }
 
         return valid;
     }
 
     @Override
-    public boolean verify(String appId, String secret, String ip) {
-        // 优化：只查询一次，避免重复调用getByAppId
-        SysAppKey appKey = getByAppId(appId);
-        if (appKey == null) {
-            log.warn("AppKey不存在: appId={}", appId);
+    public boolean verify(String appKey, String secret, String ip) {
+        SysAppKey dbAppKey = getByAppKey(appKey);
+        if (dbAppKey == null) {
+            log.warn("AppKey不存在: appKey={}", maskAppKey(appKey));
             return false;
         }
 
         // 检查状态（使用Integer.equals避免NPE）
-        if (!Integer.valueOf(STATUS_ENABLED).equals(appKey.getSysAppKeyStatus())) {
-            log.warn("AppKey已禁用: appId={}", appId);
+        if (!Integer.valueOf(STATUS_ENABLED).equals(dbAppKey.getSysAppKeyStatus())) {
+            log.warn("AppKey已禁用: appKey={}", maskAppKey(appKey));
             return false;
         }
 
         // 检查过期时间
-        if (appKey.getSysAppKeyExpireTime() != null) {
+        if (dbAppKey.getSysAppKeyExpireTime() != null) {
             long currentTime = System.currentTimeMillis() / MILLIS_PER_SECOND;
-            if (currentTime > appKey.getSysAppKeyExpireTime()) {
-                log.warn("AppKey已过期: appId={}, expireTime={}", appId, appKey.getSysAppKeyExpireTime());
+            if (currentTime > dbAppKey.getSysAppKeyExpireTime()) {
+                log.warn("AppKey已过期: appKey={}, expireTime={}", maskAppKey(appKey), dbAppKey.getSysAppKeyExpireTime());
                 return false;
             }
         }
 
-        // 验证密钥
-        if (!secret.equals(appKey.getSysAppKeySecret())) {
-            log.warn("AppKey密钥验证失败: appId={}", appId);
+        // 验证密钥（appKey和secret应该相同，或者secret是appKey对应的密钥）
+        if (!appKey.equals(dbAppKey.getSysAppKeySecret()) && !secret.equals(dbAppKey.getSysAppKeySecret())) {
+            log.warn("AppKey密钥验证失败: appKey={}", maskAppKey(appKey));
             return false;
         }
 
         // 检查IP白名单
-        String whitelist = appKey.getSysAppKeyIpWhitelist();
+        String whitelist = dbAppKey.getSysAppKeyIpWhitelist();
         if (StringUtils.isNotBlank(whitelist)) {
             String[] allowedIps = whitelist.split(IP_WHITELIST_SEPARATOR);
             boolean ipAllowed = Arrays.stream(allowedIps)
@@ -132,7 +122,7 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
                     .anyMatch(allowedIp -> allowedIp.equals(ip) || IP_WILDCARD.equals(allowedIp));
             
             if (!ipAllowed) {
-                log.warn("IP不在白名单中: appId={}, ip={}, whitelist={}", appId, ip, whitelist);
+                log.warn("IP不在白名单中: appKey={}, ip={}, whitelist={}", maskAppKey(appKey), ip, whitelist);
                 return false;
             }
         }
@@ -142,32 +132,24 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
 
     @Override
     @Async("taskExecutor")
-    public void updateUseInfo(String appId) {
+    public void updateUseInfoByAppKey(String appKey) {
         try {
             long currentTime = System.currentTimeMillis() / MILLIS_PER_SECOND;
-            baseMapper.updateUseInfo(appId, currentTime);
-            log.debug("AppKey使用信息已异步更新: appId={}", appId);
+            baseMapper.updateUseInfoByAppKey(appKey, currentTime);
+            log.debug("AppKey使用信息已异步更新: appKey={}", maskAppKey(appKey));
         } catch (Exception e) {
-            log.error("更新AppKey使用信息失败: appId={}", appId, e);
+            log.error("更新AppKey使用信息失败: appKey={}", maskAppKey(appKey), e);
         }
     }
 
     /**
-     * 异步更新使用信息（返回Future）
-     * <p>用于需要确认更新结果的场景</p>
-     *
-     * @param appId 应用ID
-     * @return 异步结果
+     * 脱敏AppKey
      */
-    @Async("taskExecutor")
-    public CompletableFuture<Boolean> updateUseInfoAsync(String appId) {
-        try {
-            long currentTime = System.currentTimeMillis() / MILLIS_PER_SECOND;
-            baseMapper.updateUseInfo(appId, currentTime);
-            return CompletableFuture.completedFuture(true);
-        } catch (Exception e) {
-            log.error("异步更新AppKey使用信息失败: appId={}", appId, e);
-            return CompletableFuture.completedFuture(false);
+    private String maskAppKey(String appKey) {
+        if (appKey == null || appKey.length() < 8) {
+            return "***";
         }
+        return appKey.substring(0, 4) + "..." + appKey.substring(appKey.length() - 4);
     }
+
 }

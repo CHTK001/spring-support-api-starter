@@ -34,7 +34,8 @@ public class DatabaseSecretKeyResolver implements SecretKeyResolver {
         }
         
         try {
-            SysAppKey appKey = sysAppKeyService.getByAppId(accessKey);
+            // 先尝试通过 AppKey 查询
+            SysAppKey appKey = sysAppKeyService.getByAppKey(accessKey);
             if (appKey == null) {
                 log.warn("AK不存在: ak={}", maskKey(accessKey));
                 return null;

@@ -39,7 +39,7 @@ import java.util.Set;
  *     server:
  *       token-name: x-oauth-token
  *       expire: 86400
- *       protocols: [http, grpc, jwt, jwt-rsa]
+ *       protocols: [http, armeria, rsocket, oauth2]
  *       token-management: redis
  * }</pre>
  *
@@ -164,10 +164,10 @@ public class AuthServerProperties {
      * 可选值：
      * </p>
      * <ul>
-     * <li><strong>armeria</strong> - Armeria协议，基于Netty的高性能异步框架，支持HTTP/2和gRPC，【推荐】</li>
+     * <li><strong>armeria</strong> - Armeria协议，基于Netty的高性能异步框架，支持HTTP/2，【推荐】</li>
      * <li><strong>http</strong> - HTTP协议，基于RESTful API，兼容性好</li>
      * <li><strong>oauth2</strong> - OAuth 2.0标准协议，符合RFC 6749规范</li>
-     * <li><strong>grpc</strong> - gRPC协议，基于HTTP/2，支持流式通信，性能优异</li>
+     * <li><strong>rsocket</strong> - RSocket协议，响应式流协议，支持双向通信</li>
      * <li><strong>tcp</strong> - TCP协议，二进制传输，高性能</li>
      * <li><strong>udp</strong> - UDP协议，无连接，极致性能</li>
      * <li><strong>custom</strong> - 自定义协议</li>
@@ -372,17 +372,6 @@ public class AuthServerProperties {
     private Set<String> user = new HashSet<>();
 
     /**
-     * gRPC服务器端口
-     * <p>
-     * gRPC协议服务器监听端口
-     * </p>
-     * <p>
-     * 默认值：9090
-     * </p>
-     */
-    private Integer grpcPort = 9090;
-
-    /**
      * Armeria服务器端口
      * <p>
      * Armeria协议服务器监听端口
@@ -403,44 +392,6 @@ public class AuthServerProperties {
      * </p>
      */
     private Integer rsocketPort = 7000;
-
-    /**
-     * 是否启用gRPC TLS加密
-     * <p>
-     * 生产环境建议启用TLS加密以确保通信安全
-     * </p>
-     * <p>
-     * 默认值：false
-     * </p>
-     */
-    private boolean grpcEnableTls = false;
-
-    /**
-     * gRPC TLS证书链文件路径
-     * <p>
-     * 启用TLS时需要配置证书文件路径
-     * </p>
-     */
-    private String grpcCertChainFile;
-
-    /**
-     * gRPC TLS私钥文件路径
-     * <p>
-     * 启用TLS时需要配置私钥文件路径
-     * </p>
-     */
-    private String grpcPrivateKeyFile;
-
-    /**
-     * gRPC最大入站消息大小（字节）
-     * <p>
-     * 限制客户端发送的单个消息的最大大小
-     * </p>
-     * <p>
-     * 默认值：4MB
-     * </p>
-     */
-    private int grpcMaxInboundMessageSize = 4 * 1024 * 1024;
 
     /**
      * JWT 配置

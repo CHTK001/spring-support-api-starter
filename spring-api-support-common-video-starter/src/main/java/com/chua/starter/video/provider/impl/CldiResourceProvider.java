@@ -20,10 +20,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 参考pansou
+ * Cldi 资源搜索提供器
+ *
+ * <p>参考 pansou 项目的 HTML 结构解析实现，
+ * 通过关键字在 Cldi 站点搜索资源并封装为 {@link VideoInfoResult} 分页结果。</p>
  *
  * @author CH
- * @link https://github.com/fish2018/pansou/blob/main/plugin/cldi/html%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90.md
+ * @see <a href="https://github.com/fish2018/pansou/blob/main/plugin/cldi/html%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90.md">pansou cldi 解析说明</a>
  * @since 2025/9/19 11:39
  */
 @Spi("cldi")
@@ -32,6 +35,9 @@ public class CldiResourceProvider extends AbstractResourceProvider implements Do
         super(videoSource);
     }
 
+    /**
+     * 简单本地调试入口
+     */
     public static void main(String[] args) {
         VideoSearch videoSearch = new VideoSearch();
         videoSearch.setKeyword("凡人修仙传");
@@ -39,11 +45,18 @@ public class CldiResourceProvider extends AbstractResourceProvider implements Do
         cldiResourceProvider.searchResource(videoSearch);
     }
 
+    /**
+     * 根据关键字和分页条件搜索资源
+     *
+     * @param videoSearch 搜索条件
+     * @return 分页结果
+     */
     @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String videoSourceUrl = StringUtils.defaultString(videoSource.getVideoSourceUrl(), "https://wvmzbxki.1122132.xyz");
-        //https://[域名]/search-[关键词]-[分类]-[排序]-[页码].html
-        String url = videoSourceUrl + "/search-" + (URLEncoder.encode(StringUtils.defaultString(videoSearch.getKeyword(), ""), StandardCharsets.UTF_8))
+        // https://[域名]/search-[关键词]-[分类]-[排序]-[页码].html
+        String encodedKeyword = URLEncoder.encode(StringUtils.defaultString(videoSearch.getKeyword(), ""), StandardCharsets.UTF_8);
+        String url = videoSourceUrl + "/search-" + encodedKeyword
                 + "-1"
                 + "-2"
                 + "-" + videoSearch.getPage() + ".html";

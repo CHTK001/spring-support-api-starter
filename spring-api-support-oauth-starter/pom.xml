@@ -138,6 +138,22 @@
             <artifactId>utils-support-armeria-starter</artifactId>
             <version>4.0.0.33</version>
         </dependency>
+
+        <!-- RSocket 依赖 -->
+        <dependency>
+            <groupId>io.rsocket</groupId>
+            <artifactId>rsocket-core</artifactId>
+            <version>1.1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.rsocket</groupId>
+            <artifactId>rsocket-transport-netty</artifactId>
+            <version>1.1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-rsocket</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,0 +1,153 @@
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; }
+      .text { font-family: Arial, sans-serif; font-size: 12px; }
+      .small-text { font-family: Arial, sans-serif; font-size: 10px; }
+      .server-box { fill: #e3f2fd; stroke: #1976d2; stroke-width: 2; }
+      .client-box { fill: #f3e5f5; stroke: #7b1fa2; stroke-width: 2; }
+      .component-box { fill: #fff; stroke: #424242; stroke-width: 1.5; }
+      .arrow { stroke: #424242; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .message-line { stroke: #ff9800; stroke-width: 2; fill: none; stroke-dasharray: 5,5; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#424242" />
+    </marker>
+  </defs>
+  
+  <!-- 平台端区域 -->
+  <rect x="50" y="30" width="500" height="350" class="server-box" rx="5"/>
+  <text x="300" y="55" text-anchor="middle" class="title">平台端 (Server)</text>
+  
+  <!-- System Server -->
+  <rect x="80" y="80" width="440" height="100" class="component-box" rx="3"/>
+  <text x="300" y="100" text-anchor="middle" class="subtitle">System Server (系统服务)</text>
+  <text x="100" y="125" class="text">• 租户管理 (Tenant Management)</text>
+  <text x="100" y="145" class="text">• 服务管理 (Service Management)</text>
+  <text x="100" y="165" class="text">• 菜单管理 (Menu Management)</text>
+  
+  <!-- 箭头 -->
+  <line x1="300" y1="180" x2="300" y2="220" class="arrow"/>
+  <text x="310" y="205" class="small-text">租户数据变更</text>
+  
+  <!-- TenantServerSyncPublisher -->
+  <rect x="80" y="230" width="440" height="80" class="component-box" rx="3"/>
+  <text x="300" y="255" text-anchor="middle" class="subtitle">TenantServerSyncPublisher (租户同步发布器)</text>
+  <text x="100" y="275" class="text">• 监听租户数据变更</text>
+  <text x="100" y="295" class="text">• 发布同步消息</text>
+  
+  <!-- 消息传输线 -->
+  <line x1="300" y1="310" x2="300" y2="360" class="message-line"/>
+  <text x="310" y="340" class="small-text">WebSocket/RSocket</text>
+  
+  <!-- 消息类型 -->
+  <rect x="80" y="360" width="440" height="10" fill="none" stroke="none"/>
+  <text x="100" y="385" class="small-text">tenant/update (租户更新) | tenant/delete (租户删除)</text>
+  <text x="100" y="400" class="small-text">tenant/service (服务绑定) | tenant/menu (菜单同步)</text>
+  
+  <!-- 租户端区域 -->
+  <rect x="650" y="30" width="500" height="350" class="client-box" rx="5"/>
+  <text x="900" y="55" text-anchor="middle" class="title">租户端 (Client)</text>
+  
+  <!-- TenantClientSyncHandler -->
+  <rect x="680" y="80" width="440" height="80" class="component-box" rx="3"/>
+  <text x="900" y="105" text-anchor="middle" class="subtitle">TenantClientSyncHandler (租户同步处理器)</text>
+  <text x="700" y="125" class="text">• 接收同步消息</text>
+  <text x="700" y="145" class="text">• 路由到对应的同步提供者</text>
+  
+  <!-- 箭头 -->
+  <line x1="900" y1="160" x2="900" y2="200" class="arrow"/>
+  <text x="910" y="185" class="small-text">SPI 机制</text>
+  
+  <!-- TenantDataSyncProvider -->
+  <rect x="680" y="210" width="440" height="120" class="component-box" rx="3"/>
+  <text x="900" y="235" text-anchor="middle" class="subtitle">TenantDataSyncProvider (同步提供者接口)</text>
+  
+  <!-- DefaultTenantDataSyncProvider -->
+  <rect x="700" y="250" width="200" height="70" fill="#e8f5e9" stroke="#4caf50" stroke-width="1.5" rx="2"/>
+  <text x="800" y="270" text-anchor="middle" class="text" font-weight="bold">DefaultTenantDataSyncProvider</text>
+  <text x="800" y="290" text-anchor="middle" class="small-text">(默认JDBC实现)</text>
+  <text x="710" y="310" class="small-text">• syncTenantUser()</text>
+  <text x="710" y="325" class="small-text">• syncTenantMenu()</text>
+  
+  <!-- CustomTenantDataSyncProvider -->
+  <rect x="920" y="250" width="180" height="70" fill="#fff3e0" stroke="#ff9800" stroke-width="1.5" rx="2"/>
+  <text x="1010" y="270" text-anchor="middle" class="text" font-weight="bold">CustomTenantDataSyncProvider</text>
+  <text x="1010" y="290" text-anchor="middle" class="small-text">(自定义实现)</text>
+  <text x="930" y="310" class="small-text">• 支持扩展</text>
+  <text x="930" y="325" class="small-text">• 自定义同步逻辑</text>
+  
+  <!-- 箭头 -->
+  <line x1="900" y1="330" x2="900" y2="360" class="arrow"/>
+  <text x="910" y="350" class="small-text">数据持久化</text>
+  
+  <!-- 租户数据库 -->
+  <rect x="680" y="360" width="440" height="10" class="component-box" rx="3"/>
+  <text x="900" y="385" text-anchor="middle" class="subtitle">租户数据库 (Tenant Database)</text>
+  <text x="700" y="405" class="text">• sys_user (用户表) | sys_menu (菜单表)</text>
+  <text x="700" y="425" class="text">• sys_role (角色表) | sys_tenant (租户表)</text>
+  
+  <!-- 流程步骤说明 -->
+  <rect x="50" y="420" width="1100" height="350" fill="#fafafa" stroke="#757575" stroke-width="1" rx="5"/>
+  <text x="600" y="450" text-anchor="middle" class="title">租户同步流程</text>
+  
+  <!-- 流程步骤 -->
+  <circle cx="100" cy="500" r="25" fill="#1976d2" stroke="#0d47a1" stroke-width="2"/>
+  <text x="100" y="507" text-anchor="middle" class="text" fill="white" font-weight="bold">1</text>
+  <rect x="140" y="475" width="200" height="50" class="component-box" rx="3"/>
+  <text x="240" y="495" text-anchor="middle" class="subtitle">租户数据变更</text>
+  <text x="150" y="515" class="small-text">在平台端进行租户的创建、更新、</text>
+  <text x="150" y="530" class="small-text">删除或服务绑定操作</text>
+  
+  <circle cx="100" cy="600" r="25" fill="#1976d2" stroke="#0d47a1" stroke-width="2"/>
+  <text x="100" y="607" text-anchor="middle" class="text" fill="white" font-weight="bold">2</text>
+  <rect x="140" y="575" width="200" height="50" class="component-box" rx="3"/>
+  <text x="240" y="595" text-anchor="middle" class="subtitle">同步消息发布</text>
+  <text x="150" y="615" class="small-text">TenantServerSyncPublisher 监听</text>
+  <text x="150" y="630" class="small-text">到变更后发布同步消息</text>
+  
+  <circle cx="400" cy="500" r="25" fill="#7b1fa2" stroke="#4a148c" stroke-width="2"/>
+  <text x="400" y="507" text-anchor="middle" class="text" fill="white" font-weight="bold">3</text>
+  <rect x="440" y="475" width="200" height="50" class="component-box" rx="3"/>
+  <text x="540" y="495" text-anchor="middle" class="subtitle">消息传输</text>
+  <text x="450" y="515" class="small-text">同步消息通过长连接推送</text>
+  <text x="450" y="530" class="small-text">到所有连接的租户端</text>
+  
+  <circle cx="400" cy="600" r="25" fill="#7b1fa2" stroke="#4a148c" stroke-width="2"/>
+  <text x="400" y="607" text-anchor="middle" class="text" fill="white" font-weight="bold">4</text>
+  <rect x="440" y="575" width="200" height="50" class="component-box" rx="3"/>
+  <text x="540" y="595" text-anchor="middle" class="subtitle">消息接收</text>
+  <text x="450" y="615" class="small-text">租户端的 TenantClientSyncHandler</text>
+  <text x="450" y="630" class="small-text">接收同步消息</text>
+  
+  <circle cx="700" cy="500" r="25" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+  <text x="700" y="507" text-anchor="middle" class="text" fill="white" font-weight="bold">5</text>
+  <rect x="740" y="475" width="200" height="50" class="component-box" rx="3"/>
+  <text x="840" y="495" text-anchor="middle" class="subtitle">SPI 路由</text>
+  <text x="750" y="515" class="small-text">根据消息类型，路由到对应的</text>
+  <text x="750" y="530" class="small-text">TenantDataSyncProvider 实现</text>
+  
+  <circle cx="700" cy="600" r="25" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+  <text x="700" y="607" text-anchor="middle" class="text" fill="white" font-weight="bold">6</text>
+  <rect x="740" y="575" width="200" height="50" class="component-box" rx="3"/>
+  <text x="840" y="595" text-anchor="middle" class="subtitle">数据同步</text>
+  <text x="750" y="615" class="small-text">同步提供者执行具体的同步逻辑</text>
+  <text x="750" y="630" class="small-text">(如 JDBC 操作、API 调用等)</text>
+  
+  <circle cx="1000" cy="550" r="25" fill="#4caf50" stroke="#1b5e20" stroke-width="2"/>
+  <text x="1000" y="557" text-anchor="middle" class="text" fill="white" font-weight="bold">7</text>
+  <rect x="1040" y="525" width="200" height="50" class="component-box" rx="3"/>
+  <text x="1140" y="545" text-anchor="middle" class="subtitle">数据持久化</text>
+  <text x="1050" y="565" class="small-text">将同步的数据写入</text>
+  <text x="1050" y="580" class="small-text">租户数据库</text>
+  
+  <!-- 连接线 -->
+  <line x1="340" y1="500" x2="400" y2="500" class="arrow"/>
+  <line x1="400" y1="550" x2="400" y2="600" class="arrow"/>
+  <line x1="400" y1="600" x2="700" y2="600" class="arrow"/>
+  <line x1="700" y1="600" x2="700" y2="550" class="arrow"/>
+  <line x1="700" y1="550" x2="1000" y2="550" class="arrow"/>
+  <line x1="100" y1="525" x2="100" y2="600" class="arrow"/>
+</svg>
+

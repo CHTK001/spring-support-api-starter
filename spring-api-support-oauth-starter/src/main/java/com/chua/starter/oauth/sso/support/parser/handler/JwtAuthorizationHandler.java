@@ -16,7 +16,6 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.crypto.SecretKey;
 import java.security.PublicKey;
@@ -67,12 +66,10 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
         }
 
         try {
-            // 如果启用了 Redis 存储，先检查 Token 是否在黑名单中
-            if (jwtConfig.isStoreInRedis()) {
-                if (isTokenBlacklisted(authInformation, jwtToken)) {
-                    log.warn("JWT Token 已被撤销");
-                    return ReturnResult.error("Token 已被撤销");
-                }
+            // 检查 Token 是否在黑名单中（无论是否启用Redis存储，都需要检查黑名单）
+            if (isTokenBlacklisted(authInformation, jwtToken)) {
+                log.warn("JWT Token 已被撤销");
+                return ReturnResult.error("Token 已被撤销");
             }
 
             // 解析并验证 JWT
@@ -181,6 +178,11 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
         if (claims.containsKey("deptId")) {
             userResume.setDeptId(claims.get("deptId", String.class));
         }
+        
+        // 添加appId支持
+        if (claims.containsKey("appId")) {
+            userResume.setAppId(claims.get("appId", String.class));
+        }
 
         // 计算剩余过期时间
         if (claims.getExpiration() != null) {
@@ -194,15 +196,17 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
     /**
      * 检查 Token 是否在黑名单中
      */
-    @SuppressWarnings("unchecked")
     private boolean isTokenBlacklisted(OauthAuthInformation authInformation, String token) {
         try {
-            RedisTemplate<String, Object> redisTemplate = authInformation.getApplicationContext()
-                    .getBean("stringRedisTemplate", RedisTemplate.class);
+            // 使用TokenBlacklistService检查黑名单
+            com.chua.starter.oauth.sso.support.token.TokenBlacklistService tokenBlacklistService = 
+                    authInformation.getApplicationContext()
+                    .getBean(com.chua.starter.oauth.sso.support.token.TokenBlacklistService.class);
             
-            String blacklistKey = "jwt:blacklist:" + token;
-            Boolean exists = redisTemplate.hasKey(blacklistKey);
-            return Boolean.TRUE.equals(exists);
+            if (tokenBlacklistService != null) {
+                return tokenBlacklistService.isBlacklisted(token);
+            }
+            return false;
         } catch (Exception e) {
             log.warn("检查 JWT 黑名单失败: {}", e.getMessage());
             return false;

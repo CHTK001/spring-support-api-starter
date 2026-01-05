@@ -61,6 +61,7 @@ import static com.chua.common.support.constant.CommonConstant.EMPTY;
  */
 @Controller
 @Extension("http")
+@com.chua.common.support.annotations.Spi("http")
 @Slf4j
 @Conditional(OnBeanCondition.class)
 @RequestMapping
