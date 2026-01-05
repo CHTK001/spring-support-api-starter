@@ -21,8 +21,6 @@ public final class OauthAuthorization implements Authorization {
     private final String cookie;
     private final String subProtocol;
     private final String userCode;
-    private final String requestFingerprint;
-    private final boolean verifyFingerprint;
     final ApplicationContext applicationContext;
     final LoginCheck loginCheck;
     private final OauthAuthInformation authInformation;
@@ -32,8 +30,6 @@ public final class OauthAuthorization implements Authorization {
                               String cookie,
                               String subProtocol,
                               String userCode,
-                              String requestFingerprint,
-                              boolean verifyFingerprint,
                               ApplicationContext applicationContext,
                               LoginCheck loginCheck) {
         this.authInformation = authInformation;
@@ -41,8 +37,6 @@ public final class OauthAuthorization implements Authorization {
         this.cookie = cookie;
         this.subProtocol = subProtocol;
         this.userCode = userCode;
-        this.requestFingerprint = requestFingerprint;
-        this.verifyFingerprint = verifyFingerprint;
         this.applicationContext = applicationContext;
         this.loginCheck = loginCheck;
     }

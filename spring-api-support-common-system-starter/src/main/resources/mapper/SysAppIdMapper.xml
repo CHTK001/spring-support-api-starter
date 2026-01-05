@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.system.mapper.SysAppIdMapper">
+
+    <resultMap id="BaseResultMap" type="com.chua.starter.entity.system.SysAppId">
+        <id column="app_id_id" jdbcType="INTEGER" property="appIdId"/>
+        <result column="app_id_value" jdbcType="VARCHAR" property="appIdValue"/>
+        <result column="app_id_name" jdbcType="VARCHAR" property="appIdName"/>
+        <result column="app_id_description" jdbcType="VARCHAR" property="appIdDescription"/>
+        <result column="app_key_id" jdbcType="INTEGER" property="appKeyId"/>
+        <result column="app_key_value" jdbcType="VARCHAR" property="appKeyValue"/>
+        <result column="app_id_status" jdbcType="INTEGER" property="appIdStatus"/>
+        <result column="app_id_expire_time" jdbcType="BIGINT" property="appIdExpireTime"/>
+        <result column="app_id_last_use_time" jdbcType="BIGINT" property="appIdLastUseTime"/>
+        <result column="app_id_use_count" jdbcType="BIGINT" property="appIdUseCount"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="app_id_scope" jdbcType="VARCHAR" property="appIdScope"/>
+        <result column="app_id_grant_types" jdbcType="VARCHAR" property="appIdGrantTypes"/>
+        <result column="app_id_redirect_uris" jdbcType="VARCHAR" property="appIdRedirectUris"/>
+        <result column="app_id_remark" jdbcType="VARCHAR" property="appIdRemark"/>
+        <result column="delete_flag" jdbcType="INTEGER" property="deleteFlag"/>
+        <result column="create_name" jdbcType="VARCHAR" property="createName"/>
+        <result column="create_by" jdbcType="INTEGER" property="createBy"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_name" jdbcType="VARCHAR" property="updateName"/>
+        <result column="update_by" jdbcType="INTEGER" property="updateBy"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        app_id_id, app_id_value, app_id_name, app_id_description, app_key_id, app_key_value,
+        app_id_status, app_id_expire_time, app_id_last_use_time, app_id_use_count, user_id,
+        app_id_scope, app_id_grant_types, app_id_redirect_uris, app_id_remark, delete_flag,
+        create_name, create_by, create_time, update_time, update_name, update_by
+    </sql>
+
+    <!-- 根据 appId值 查询 -->
+    <select id="selectByAppIdValue" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM app_id
+        WHERE app_id_value = #{appIdValue}
+          AND delete_flag = 0
+    </select>
+
+</mapper>
+

@@ -2,7 +2,9 @@ package com.chua.starter.oauth.sso.support.core;
 
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.entity.system.SysAppKey;
+import com.chua.starter.entity.system.SysAppId;
 import com.chua.starter.system.service.SysAppKeyService;
+import com.chua.starter.system.service.SysAppIdService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -36,6 +38,9 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class OAuth2CoreService {
+
+    private final SysAppKeyService sysAppKeyService;
+    private final SysAppIdService sysAppIdService;
 
     /**
      * Redis 键前缀 - 授权码
@@ -241,13 +246,21 @@ public class OAuth2CoreService {
      * @return 验证结果
      */
     public ScopeValidationResult validateScope(String clientId, String requestedScope) {
-        SysAppKey appKey = sysAppKeyService.getByAppId(clientId);
-        if (appKey == null) {
-            return ScopeValidationResult.failure("客户端不存在");
+        // 先尝试通过 AppId 查询
+        SysAppId appId = sysAppIdService.getByAppIdValue(clientId);
+        Set<String> allowedScopes;
+        if (appId != null) {
+            // 获取 AppId 允许的 scope
+            allowedScopes = parseScopes(appId.getAppIdScope());
+        } else {
+            // 如果 AppId 不存在，尝试通过 AppKey 查询
+            SysAppKey appKey = sysAppKeyService.getByAppKey(clientId);
+            if (appKey == null) {
+                return ScopeValidationResult.failure("客户端不存在");
+            }
+            // 获取 AppKey 允许的 scope
+            allowedScopes = parseScopes(appKey.getSysAppKeyScope());
         }
-
-        // 获取客户端允许的 scope
-        Set<String> allowedScopes = parseScopes(appKey.getSysAppKeyScope());
         if (allowedScopes.isEmpty()) {
             allowedScopes = DEFAULT_SCOPES;
         }
@@ -282,12 +295,21 @@ public class OAuth2CoreService {
      * @return 是否允许
      */
     public boolean isGrantTypeAllowed(String clientId, String grantType) {
-        SysAppKey appKey = sysAppKeyService.getByAppId(clientId);
-        if (appKey == null) {
-            return false;
+        // 先尝试通过 AppId 查询
+        SysAppId appId = sysAppIdService.getByAppIdValue(clientId);
+        Set<String> allowedGrantTypes;
+        if (appId != null) {
+            // 获取 AppId 允许的 grant types
+            allowedGrantTypes = parseScopes(appId.getAppIdGrantTypes());
+        } else {
+            // 如果 AppId 不存在，尝试通过 AppKey 查询
+            SysAppKey appKey = sysAppKeyService.getByAppKey(clientId);
+            if (appKey == null) {
+                return false;
+            }
+            // 获取 AppKey 允许的 grant types
+            allowedGrantTypes = parseScopes(appKey.getSysAppKeyGrantTypes());
         }
-
-        Set<String> allowedGrantTypes = parseScopes(appKey.getSysAppKeyGrantTypes());
         if (allowedGrantTypes.isEmpty()) {
             allowedGrantTypes = DEFAULT_GRANT_TYPES;
         }
@@ -307,12 +329,19 @@ public class OAuth2CoreService {
             return false;
         }
 
-        SysAppKey appKey = sysAppKeyService.getByAppId(clientId);
-        if (appKey == null) {
-            return false;
+        // 先尝试通过 AppId 查询
+        SysAppId appId = sysAppIdService.getByAppIdValue(clientId);
+        String allowedUris;
+        if (appId != null) {
+            allowedUris = appId.getAppIdRedirectUris();
+        } else {
+            // 如果 AppId 不存在，尝试通过 AppKey 查询
+            SysAppKey appKey = sysAppKeyService.getByAppKey(clientId);
+            if (appKey == null) {
+                return false;
+            }
+            allowedUris = appKey.getSysAppKeyRedirectUris();
         }
-
-        String allowedUris = appKey.getSysAppKeyRedirectUris();
         if (StringUtils.isBlank(allowedUris)) {
             // 未配置回调地址限制，默认允许（兼容旧客户端）
             log.warn("客户端未配置回调地址限制: clientId={}", clientId);

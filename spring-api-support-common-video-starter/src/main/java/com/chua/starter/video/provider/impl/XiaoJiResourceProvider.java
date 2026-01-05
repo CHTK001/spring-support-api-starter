@@ -24,18 +24,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 参考pansou
+ * 小鸡影视资源提供器
+ *
+ * <p>参考 pansou 对小鸡影视站点的 HTML 结构解析，
+ * 将检索结果页和详情页解析为 {@link VideoInfoResult} 及下载列表。</p>
  *
  * @author CH
- * @link https://github.com/fish2018/pansou/blob/main/plugin/xiaoji/html%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90.md
+ * @see <a href="https://github.com/fish2018/pansou/blob/main/plugin/xiaoji/html%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90.md">pansou xiaoji 解析说明</a>
  * @since 2025/9/19 11:39
  */
-@Spi("cldi")
+@Spi("xiaoji")
 public class XiaoJiResourceProvider extends AbstractResourceProvider implements DownloadLinkProvider {
     public XiaoJiResourceProvider(VideoSource videoSource) {
         super(videoSource);
     }
 
+    /**
+     * 简单本地调试入口
+     */
     public static void main(String[] args) {
         VideoSearch videoSearch = new VideoSearch();
         videoSearch.setKeyword("凡人修仙传");
@@ -43,9 +49,17 @@ public class XiaoJiResourceProvider extends AbstractResourceProvider implements 
         cldiResourceProvider.searchResource(videoSearch);
     }
 
+    /**
+     * 根据关键字搜索资源列表
+     *
+     * @param videoSearch 搜索条件
+     * @return 分页结果
+     */
     @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
-        String videoSourceUrl = StringUtils.defaultString(videoSource.getVideoSourceUrl(), "https://www.xiaojitv.com/?s=%s").formatted(videoSearch.getKeyword());
+        String videoSourceUrl = StringUtils
+                .defaultString(videoSource.getVideoSourceUrl(), "https://www.xiaojitv.com/?s=%s")
+                .formatted(videoSearch.getKeyword());
 
         HttpResponse httpResponse = HttpClient.get(videoSourceUrl)
                 .userAgent(videoSource.getVideoSourceUserAgent())
@@ -101,6 +115,12 @@ public class XiaoJiResourceProvider extends AbstractResourceProvider implements 
         );
     }
 
+    /**
+     * 解析详情页，补充导演、演员、别名、类型等信息
+     *
+     * @param downloadUrls 详情页地址
+     * @param videoInfoResult 待补充的信息对象
+     */
     private void findDetail(String downloadUrls, VideoInfoResult videoInfoResult) {
         HttpResponse httpResponse = HttpClient.get(downloadUrls).userAgent(videoSource.getVideoSourceUserAgent()).execute();
         JsoupResponse jsoup = httpResponse.toJsoup(JsoupResponse.Mappings.builder().build());
@@ -135,6 +155,12 @@ public class XiaoJiResourceProvider extends AbstractResourceProvider implements 
         registerDownloadUrl(videoInfoResult, doubanId);
     }
 
+    /**
+     * 根据豆瓣 ID 拉取下载资源列表并注册到视频信息中
+     *
+     * @param videoInfoResult 视频信息
+     * @param doubanId        豆瓣 ID
+     */
     private void registerDownloadUrl(VideoInfoResult videoInfoResult, String doubanId) {
         HttpResponse httpResponse = HttpClient.post("https://www.xiaojitv.com/wp-admin/admin-ajax.php")
                 .formUrlencoded()
@@ -153,6 +179,9 @@ public class XiaoJiResourceProvider extends AbstractResourceProvider implements 
         videoInfoResult.setDownloadList(videoDownloads);
     }
 
+    /**
+     * 将接口返回的资源列表转换为 {@link VideoDownload} 列表
+     */
     private void registerDownloadUrls(DownloadList.DataDTO datum, List<VideoDownload> videoDownloads) {
         List<DownloadList.DataDTO.ResourcesDTO> resources = datum.getResources();
         for (DownloadList.DataDTO.ResourcesDTO resourceItem : resources) {
@@ -170,6 +199,12 @@ public class XiaoJiResourceProvider extends AbstractResourceProvider implements 
 
     }
 
+    /**
+     * 仅返回下载地址列表的轻量查询
+     *
+     * @param keyword 关键字
+     * @return 下载地址列表
+     */
     @Override
     public ListReturnResult<String> searchDownloadUrls(String keyword) {
         VideoSearch videoSearch = new VideoSearch();

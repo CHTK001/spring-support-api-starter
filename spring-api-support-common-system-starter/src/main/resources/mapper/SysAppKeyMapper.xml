@@ -30,15 +30,6 @@
         create_name, create_by, create_time, update_time, update_name, update_by
     </sql>
 
-    <!-- 根据 appId 查询 -->
-    <select id="selectByAppId" resultMap="BaseResultMap">
-        SELECT
-        <include refid="Base_Column_List"/>
-        FROM sys_app_key
-        WHERE sys_app_key_app_id = #{appId}
-          AND sys_app_key_delete = 0
-    </select>
-
     <!-- 根据 appKey(密钥) 查询 -->
     <select id="selectByAppKey" resultMap="BaseResultMap">
         SELECT

@@ -12,14 +12,6 @@ import com.chua.starter.entity.system.SysAppKey;
 public interface SysAppKeyService extends IService<SysAppKey> {
 
     /**
-     * 根据 appId 查询应用密钥
-     *
-     * @param appId 应用ID
-     * @return 应用密钥
-     */
-    SysAppKey getByAppId(String appId);
-
-    /**
      * 根据 appKey(密钥) 查询应用密钥
      * <p>类似大模型的认证方式，直接通过密钥查询</p>
      *
@@ -29,28 +21,28 @@ public interface SysAppKeyService extends IService<SysAppKey> {
     SysAppKey getByAppKey(String appKey);
 
     /**
-     * 验证 appId 和 secret
+     * 验证 appKey 和 secret
      *
-     * @param appId  应用ID
-     * @param secret 应用密钥
+     * @param appKey 应用密钥
+     * @param secret 应用密钥（与appKey相同，用于兼容）
      * @return 是否验证通过
      */
-    boolean verify(String appId, String secret);
+    boolean verify(String appKey, String secret);
 
     /**
-     * 验证 appId、secret 和 IP
+     * 验证 appKey、secret 和 IP
      *
-     * @param appId  应用ID
-     * @param secret 应用密钥
+     * @param appKey 应用密钥
+     * @param secret 应用密钥（与appKey相同，用于兼容）
      * @param ip     客户端IP
      * @return 是否验证通过
      */
-    boolean verify(String appId, String secret, String ip);
+    boolean verify(String appKey, String secret, String ip);
 
     /**
-     * 更新使用次数和最后使用时间
+     * 更新使用次数和最后使用时间（通过appKey值）
      *
-     * @param appId 应用ID
+     * @param appKey 应用密钥（sys_app_key_secret）
      */
-    void updateUseInfo(String appId);
+    void updateUseInfoByAppKey(String appKey);
 }

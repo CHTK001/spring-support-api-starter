@@ -159,11 +159,6 @@ public class AuthServerConfigValidator {
         }
 
         log.info("【配置校验】已启用协议: {}", protocols);
-
-        // 检查gRPC TLS配置
-        if (protocols.contains("grpc") && !authServerProperties.isGrpcEnableTls()) {
-            warnings.add("gRPC协议未启用TLS加密，生产环境建议开启 plugin.oauth.server.grpc-enable-tls=true");
-        }
     }
 
     /**

@@ -63,7 +63,7 @@ spring:
     name: system
   profiles:
     active: dev
-    include: plugin,mybatis,swagger,api,ip,report,actuator
+    include: common,mybatis,swagger,api,ip,actuator
 
 server:
   port: 18170
@@ -71,7 +71,7 @@ server:
     context-path: /system/api
 ```
 
-**插件配置文件**：`config/application-plugin.yml`
+**插件配置文件**：`config/application-common.yml`
 
 ```yaml
 plugin:
@@ -79,6 +79,14 @@ plugin:
     server:
       # 启用系统服务（默认true）
       enable: true
+      # 缓存配置
+      cache:
+        enable: true
+        expire: 3600
+      # 日志配置
+      log:
+        enable: true
+        async: true
 ```
 
 ### 4. 启动服务
@@ -108,7 +116,7 @@ spring-api-support-system-starter/
 └── src/main/resources/
     ├── application.yml                  # 主配置
     ├── config/
-    │   ├── application-plugin.yml       # 插件配置
+    │   ├── application-common.yml       # 通用配置
     │   ├── application-mybatis.yml      # MyBatis配置
     │   ├── application-swagger.yml      # Swagger配置
     │   └── ...
@@ -119,7 +127,7 @@ spring-api-support-system-starter/
 
 ### 功能开关配置
 
-**配置文件**：`config/application-plugin.yml`
+**配置文件**：`config/application-common.yml`
 
 ```yaml
 plugin:
@@ -135,12 +143,11 @@ plugin:
 
 系统服务依赖以下配置模块（通过 `spring.profiles.include` 引入）：
 
-- **plugin** - 插件功能开关
+- **common** - 通用功能开关配置
 - **mybatis** - MyBatis 数据库配置
 - **swagger** - API 文档配置
 - **api** - API 统一配置
 - **ip** - IP 地址解析配置
-- **report** - 上报客户端配置
 - **actuator** - 监控端点配置
 
 ## 📋 API 接口
@@ -219,7 +226,13 @@ curl -X POST http://localhost:18170/system/api/v1/role/1/perms \
   }'
 ```
 
-## 🏗️ 依赖关系
+## 🏗️ 系统架构
+
+### 完整系统架构图
+
+![系统完整架构图](docs/system-architecture.svg)
+
+### 模块依赖关系
 
 ```
 spring-api-support-system-starter (系统应用)
@@ -230,6 +243,61 @@ spring-api-support-common-oauth-starter (OAuth认证模块)
     ↓ 依赖
 spring-api-support-common-entity-starter (实体定义)
 spring-api-support-common-configuration-starter (配置定义)
+```
+
+### 租户同步架构
+
+系统支持多租户架构，通过同步机制实现租户数据的实时同步：
+
+![租户同步架构图](docs/tenant-sync-architecture.svg)
+
+### 租户同步流程
+
+1. **租户数据变更**：在平台端进行租户的创建、更新、删除或服务绑定操作
+2. **同步消息发布**：`TenantServerSyncPublisher` 监听到变更后，通过 WebSocket/RSocket 发布同步消息
+3. **消息传输**：同步消息通过长连接推送到所有连接的租户端
+4. **消息接收**：租户端的 `TenantClientSyncHandler` 接收同步消息
+5. **SPI 路由**：根据消息类型，路由到对应的 `TenantDataSyncProvider` 实现
+6. **数据同步**：同步提供者执行具体的同步逻辑（如 JDBC 操作、API 调用等）
+7. **数据持久化**：将同步的数据写入租户数据库
+
+### 同步消息类型
+
+| 消息主题 | 说明 | 触发时机 |
+|---------|------|---------|
+| `tenant/update` | 租户更新 | 租户信息修改时 |
+| `tenant/delete` | 租户删除 | 租户删除时 |
+| `tenant/service` | 服务绑定 | 租户服务绑定变更时 |
+| `tenant/menu` | 菜单同步 | 租户菜单权限变更时 |
+
+### 配置说明
+
+**平台端配置**（`application-common.yml`）：
+
+```yaml
+plugin:
+  mybatis-plus:
+    tenant:
+      server:
+        enable: true          # 启用服务端模式
+        sync-enable: true     # 启用同步功能
+        sync-module: rsocket-sync  # 同步模块类型
+```
+
+**租户端配置**（`application-common.yml`）：
+
+```yaml
+plugin:
+  mybatis-plus:
+    tenant:
+      client:
+        enable: true          # 启用客户端模式
+        sync-enable: true     # 启用同步功能
+        sync-module: rsocket-sync  # 同步模块类型
+      sync-protocol:
+        enable: true
+        protocol: rsocket
+        server-address: ws://platform-server:19280
 ```
 
 ## 📊 数据库表结构
