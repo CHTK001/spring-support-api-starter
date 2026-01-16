@@ -51,9 +51,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Map;
 
-import static com.chua.common.support.constant.CommonConstant.EMPTY;
-
-
 /**
  * http
  *

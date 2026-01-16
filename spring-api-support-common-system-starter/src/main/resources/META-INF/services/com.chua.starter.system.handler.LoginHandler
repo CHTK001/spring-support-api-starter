@@ -1,0 +1,2 @@
+com.chua.starter.system.handler.DefaultLoginHandler
+com.chua.starter.system.handler.WeixinMiniLoginHandler

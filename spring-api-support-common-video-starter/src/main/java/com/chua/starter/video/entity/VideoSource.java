@@ -13,7 +13,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 
-import static com.chua.common.support.sql.SortCondition.SortDirection.ASC;
+import static com.chua.common.support.data.sql.SortCondition.SortDirection.ASC;
 
 /**
  * @author CH

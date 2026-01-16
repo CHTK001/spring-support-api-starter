@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.chua</groupId>
-        <artifactId>spring-support-api-starter</artifactId>
+        <artifactId>spring-support-api-parent</artifactId>
         <version>4.0.0</version>
     </parent>
 
@@ -14,8 +14,8 @@
     <description>租户管理模块 - 提供多租户管理功能，包括租户管理、服务管理、服务模块管理，以及租户数据同步等核心功能</description>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -51,8 +51,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
+                    <source>25</source>
+                    <target>25</target>
                 </configuration>
             </plugin>
         </plugins>

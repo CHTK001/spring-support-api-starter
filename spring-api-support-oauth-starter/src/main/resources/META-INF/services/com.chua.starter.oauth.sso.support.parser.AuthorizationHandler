@@ -1,3 +1,0 @@
-com.chua.starter.oauth.sso.support.parser.handler.JwtAuthorizationHandler
-com.chua.starter.oauth.sso.support.parser.handler.DefaultAuthorizationHandler
-com.chua.starter.oauth.sso.support.parser.handler.AppKeyAuthorizationHandler
