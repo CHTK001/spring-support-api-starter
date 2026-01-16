@@ -1,5 +1,0 @@
-com.chua.starter.system.login.GiteeLoginService
-com.chua.starter.system.login.TemporaryTokenLoginService
-com.chua.starter.system.login.TenantUserLoginService
-com.chua.starter.system.login.UserLoginService
-com.chua.starter.system.login.WeixinMiniAppLoginService
