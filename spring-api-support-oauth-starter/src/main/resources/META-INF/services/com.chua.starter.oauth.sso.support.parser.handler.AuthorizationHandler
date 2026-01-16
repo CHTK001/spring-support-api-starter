@@ -1,4 +1,5 @@
+com.chua.starter.oauth.sso.support.parser.handler.AppIdAuthorizationHandler
+com.chua.starter.oauth.sso.support.parser.handler.AppKeyAuthorizationHandler
+com.chua.starter.oauth.sso.support.parser.handler.DefaultAuthorizationHandler
 com.chua.starter.oauth.sso.support.parser.handler.JwtAuthorizationHandler
 com.chua.starter.oauth.sso.support.parser.handler.OAuth2AuthorizationHandler
-com.chua.starter.oauth.sso.support.parser.handler.DefaultAuthorizationHandler
-com.chua.starter.oauth.sso.support.parser.handler.AppKeyAuthorizationHandler

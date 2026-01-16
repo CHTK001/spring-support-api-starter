@@ -1,0 +1,6 @@
+com.chua.starter.monitor.handler.AddressRateLimitServletFilterHandler
+com.chua.starter.monitor.handler.DefaultServletFilterHandler
+com.chua.starter.monitor.handler.FileStorageServletFilterHandler
+com.chua.starter.monitor.handler.HttpsServletFilterHandler
+com.chua.starter.monitor.handler.IPRateLimitServletFilterHandler
+com.chua.starter.monitor.handler.ServiceDiscoveryServletFilterHandler

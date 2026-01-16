@@ -10,8 +10,8 @@
      * 模块描述: 通用服务模块
      *
      * 入参说明:
-     *   - maven.compiler.source: 指定源代码的Java版本，例如: 21
-     *   - maven.compiler.target: 指定编译后的Java版本，例如: 21
+     *   - maven.compiler.source: 指定源代码的Java版本，例如: 25
+     *   - maven.compiler.target: 指定编译后的Java版本，例如: 25
      *   - project.build.sourceEncoding: 指定项目构建时使用的源码编码格式，例如: UTF-8
      *
      * 依赖说明:
@@ -21,7 +21,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.chua</groupId>
-        <artifactId>spring-support-api-starter</artifactId>
+        <artifactId>spring-support-api-parent</artifactId>
         <version>4.0.0</version>
     </parent>
 
@@ -30,8 +30,8 @@
     <name>Spring API Support Common Service Starter</name>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
