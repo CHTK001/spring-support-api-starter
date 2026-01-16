@@ -41,7 +41,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.util.List;
 import java.util.Optional;
 
-import static com.chua.common.support.constant.CommonConstant.EMPTY;
 import static com.chua.common.support.constant.Constants.CAPTCHA_SESSION_KEY;
 import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERROR;
 
@@ -81,7 +80,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     @SuppressWarnings("ALL")
     public ReturnResult<LoginResult> checkVerifyCode(LoginData loginData, HttpServletRequest request) {
         String code = loginData.getVerifyCodeKey();
-        String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse(EMPTY).toString();
+        String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse("").toString();
         if (StringUtils.isNotBlank(sessionKey)) {
             if (!code.equalsIgnoreCase(sessionKey)) {
                 return ReturnResult.failure(RESOURCE_CAPTCHA_ERROR, "校验码不正确");

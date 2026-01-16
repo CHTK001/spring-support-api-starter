@@ -1,0 +1,7 @@
+com.chua.starter.video.provider.impl.BilibiliResourceProvider
+com.chua.starter.video.provider.impl.DoubanResourceProvider
+com.chua.starter.video.provider.impl.InSystemResourceProvider
+com.chua.starter.video.provider.impl.TmdbResourceProvider
+com.chua.starter.video.provider.impl.WanouResourceProvider
+com.chua.starter.video.provider.impl.WuJiResourceProvider
+com.chua.starter.video.provider.impl.YoukuResourceProvider

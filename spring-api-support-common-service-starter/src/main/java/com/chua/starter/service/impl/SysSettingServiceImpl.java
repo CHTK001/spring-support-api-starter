@@ -44,7 +44,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.chua.common.support.constant.CommonConstant.EMPTY;
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 /**
@@ -259,9 +258,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
 
         AuthConfig authConfig = AuthConfig.builder()
-                .clientId(ObjectUtils.firstNonNull(sysSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_KEY, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), EMPTY).toString())
-                .clientSecret(ObjectUtils.firstNonNull(sysSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_SECRET, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), EMPTY).toString())
-                .redirectUri(ObjectUtils.firstNonNull(sysSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_REDIRECT_URI, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), EMPTY).toString())
+                .clientId(ObjectUtils.firstNonNull(sysSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_KEY, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
+                .clientSecret(ObjectUtils.firstNonNull(sysSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_SECRET, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
+                .redirectUri(ObjectUtils.firstNonNull(sysSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_REDIRECT_URI, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
                 .build();
         String state = AuthStateUtils.createState();
         authStateCache.cache(state + "_userId", RequestUtils.getUserId());

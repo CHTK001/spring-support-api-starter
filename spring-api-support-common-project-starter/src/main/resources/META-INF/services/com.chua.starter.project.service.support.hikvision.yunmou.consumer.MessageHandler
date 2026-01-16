@@ -1,0 +1,3 @@
+com.chua.starter.project.service.support.hikvision.yunmou.consumer.OpenDeviceAlarmMessageHandler
+com.chua.starter.project.service.support.hikvision.yunmou.consumer.OpenDeviceOnofflineMessageHandler
+com.chua.starter.project.service.support.hikvision.yunmou.consumer.OpenEventAccessMessageHandler

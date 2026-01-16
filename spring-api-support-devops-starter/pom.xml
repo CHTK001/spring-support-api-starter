@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.chua</groupId>
-        <artifactId>spring-support-api-starter</artifactId>
+        <artifactId>spring-support-api-parent</artifactId>
         <version>4.0.0</version>
     </parent>
 
@@ -45,7 +45,6 @@
                 <filtering>false</filtering>
                 <includes>
                     <include>**/*.bat</include>
-                    <include>**/*.cmd</include>
                 </includes>
             </resource>
         </resources>

@@ -1,0 +1,8 @@
+com.chua.starter.monitor.job.route.strategy.ExecutorRouteAll
+com.chua.starter.monitor.job.route.strategy.ExecutorRouteConsistentHash
+com.chua.starter.monitor.job.route.strategy.ExecutorRouteFirst
+com.chua.starter.monitor.job.route.strategy.ExecutorRouteLast
+com.chua.starter.monitor.job.route.strategy.ExecutorRouteLFU
+com.chua.starter.monitor.job.route.strategy.ExecutorRouteLRU
+com.chua.starter.monitor.job.route.strategy.ExecutorRouteRandom
+com.chua.starter.monitor.job.route.strategy.ExecutorRouteRound

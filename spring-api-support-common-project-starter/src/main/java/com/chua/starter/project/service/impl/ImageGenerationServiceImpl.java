@@ -31,7 +31,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.*;
 
-import static com.chua.common.support.constant.CommonConstant.EMPTY;
 
 
 /**
@@ -147,14 +146,14 @@ public class ImageGenerationServiceImpl implements ImageGenerationService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return EMPTY;
+        return "";
     }
 
     private static String createBase64File(String sysProjectLocationTempPath, String image) {
         //data:image/png;base64,
-        String substring = image.substring(0, image.indexOf(";base64,")).replace("data:", EMPTY);
+        String substring = image.substring(0, image.indexOf(";base64,")).replace("data:", "");
         String base64Url = image.substring(image.indexOf(";base64,") + 8);
-        String suffix = EMPTY;
+        String suffix = "";
         if (substring.startsWith("image") || substring.startsWith("video") || substring.startsWith("audio")) {
             suffix = substring.substring(substring.indexOf("/") + 1);
         }

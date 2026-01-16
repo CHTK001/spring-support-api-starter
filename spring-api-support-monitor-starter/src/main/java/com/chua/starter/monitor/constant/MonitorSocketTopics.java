@@ -211,6 +211,25 @@ public final class MonitorSocketTopics {
             private Desktop() {
             }
         }
+
+        /**
+         * WebRTC 相关 (基于 WebRTC 实时视频流)
+         */
+        public static final class WebRTC {
+            public static final String CONNECT = "remote:webrtc:connect";
+            public static final String CONNECTED = "remote:webrtc:connected";
+            public static final String DISCONNECT = "remote:webrtc:disconnect";
+            public static final String DISCONNECTED = "remote:webrtc:disconnected";
+            public static final String OFFER = "remote:webrtc:offer";
+            public static final String ANSWER = "remote:webrtc:answer";
+            public static final String ICE_CANDIDATE = "remote:webrtc:ice_candidate";
+            public static final String STREAM_STARTED = "remote:webrtc:stream_started";
+            public static final String STREAM_STATS = "remote:webrtc:stream_stats";
+            public static final String ERROR = "remote:webrtc:error";
+
+            private WebRTC() {
+            }
+        }
     }
 
     /**
