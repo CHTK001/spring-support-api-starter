@@ -23,7 +23,7 @@ public class GuestDefaultSetting implements Upgrade<GuestDefaultSetting> {
 
     @Override
     public void upgrade(GuestDefaultSetting guestDefaultSetting) {
-        this.checkCodeOpen = guestDefaultSetting.isCheckCodeOpen();
-        this.checkTotpCodeOpen = guestDefaultSetting.isCheckTotpCodeOpen();
+        this.checkCodeOpen = guestDefaultSetting.checkCodeOpen;
+        this.checkTotpCodeOpen = guestDefaultSetting.checkTotpCodeOpen;
     }
 }

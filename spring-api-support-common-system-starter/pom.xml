@@ -1,115 +1,112 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.chua</groupId>
-        <artifactId>spring-support-api-parent</artifactId>
-        <version>4.0.0</version>
-    </parent>
+<?xml version='1.0' encoding='utf-8'?>
+<ns0:project xmlns:ns0="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <ns0:modelVersion>4.0.0</ns0:modelVersion>
+    <ns0:parent>
+        <ns0:groupId>com.chua</ns0:groupId>
+        <ns0:artifactId>spring-support-api-parent</ns0:artifactId>
+        <ns0:version>${project.version}</ns0:version>
+    </ns0:parent>
 
-    <artifactId>spring-api-support-common-system-starter</artifactId>
-    <name>Spring API Support Common System Starter</name>
-    <description>基础功能模块 - 提供系统通用功能支持，包括配置管理、服务发现、Excel处理、Swagger文档、MyBatis集成等核心组件
-    </description>
+    <ns0:artifactId>spring-api-support-common-system-starter</ns0:artifactId>
+    <ns0:name>Spring API Support Common System Starter</ns0:name>
+    <ns0:description>基础功能模块 - 提供系统通用功能支持，包括配置管理、服务发现、Excel处理、Swagger文档、MyBatis集成等核心组件
+    </ns0:description>
 
-    <properties>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <ns0:properties>
+        <ns0:maven.compiler.source>25</ns0:maven.compiler.source>
+        <ns0:maven.compiler.target>25</ns0:maven.compiler.target>
+        <ns0:project.build.sourceEncoding>UTF-8</ns0:project.build.sourceEncoding>
+    </ns0:properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-entity-starter</artifactId>
-        </dependency>
+    <ns0:dependencies>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-api-support-common-entity-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-service-starter</artifactId>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-api-support-common-service-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <!-- OAuth客户端 - 用于登录认证 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-oauth-client-starter</artifactId>
-        </dependency>
+        
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-support-oauth-client-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <!-- 动态数据源 - 用于多租户切换 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-datasource-starter</artifactId>
-            <optional>true</optional>
-        </dependency>
+        
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-support-datasource-starter</ns0:artifactId>
+            <ns0:optional>true</ns0:optional>
+        </ns0:dependency>
 
-        <!-- Redis支持 - 用于缓存和会话管理 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-redis-starter</artifactId>
-        </dependency>
+        
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-support-redis-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                    <groupId>org.springframework.boot</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>org.springframework.boot</ns0:groupId>
+            <ns0:artifactId>spring-boot-starter-data-redis</ns0:artifactId>
+            <ns0:exclusions>
+                <ns0:exclusion>
+                    <ns0:artifactId>spring-boot-starter-logging</ns0:artifactId>
+                    <ns0:groupId>org.springframework.boot</ns0:groupId>
+                </ns0:exclusion>
+            </ns0:exclusions>
+        </ns0:dependency>
 
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <version>5.1.2</version>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>redis.clients</ns0:groupId>
+            <ns0:artifactId>jedis</ns0:artifactId>
+            </ns0:dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-swagger-starter</artifactId>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-support-swagger-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-mybatis-starter</artifactId>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-support-mybatis-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-configuration-starter</artifactId>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-api-support-common-configuration-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <!-- 腾讯微信小程序支持 - 用于微信登录（可选） -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-tencent-starter</artifactId>
-            <optional>true</optional>
-        </dependency>
-    </dependencies>
+        
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-support-tencent-starter</ns0:artifactId>
+            <ns0:optional>true</ns0:optional>
+        </ns0:dependency>
+    </ns0:dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>25</source>
-                    <target>25</target>
-                </configuration>
-            </plugin>
-        </plugins>
+    <ns0:build>
+        <ns0:plugins>
+            <ns0:plugin>
+                <ns0:groupId>org.apache.maven.plugins</ns0:groupId>
+                <ns0:artifactId>maven-compiler-plugin</ns0:artifactId>
+                <ns0:configuration>
+                    <ns0:source>25</ns0:source>
+                    <ns0:target>25</ns0:target>
+                </ns0:configuration>
+            </ns0:plugin>
+        </ns0:plugins>
 
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
+        <ns0:resources>
+            <ns0:resource>
+                <ns0:directory>src/main/resources</ns0:directory>
+                <ns0:includes>
+                    <ns0:include>**/*</ns0:include>
+                </ns0:includes>
+            </ns0:resource>
+        </ns0:resources>
+    </ns0:build>
 
-</project>
+</ns0:project>

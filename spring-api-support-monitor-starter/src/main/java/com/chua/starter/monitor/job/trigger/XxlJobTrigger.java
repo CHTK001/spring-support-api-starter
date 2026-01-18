@@ -7,8 +7,7 @@ import com.chua.starter.monitor.entity.MonitorJob;
 import com.chua.starter.monitor.entity.MonitorJobLog;
 import com.chua.starter.monitor.job.JobConfig;
 import com.chua.starter.monitor.job.TriggerTypeEnum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -19,8 +18,8 @@ import java.util.stream.Collectors;
  * job trigger
  * Created by xuxueli on 17/7/13.
  */
+@Slf4j
 public class XxlJobTrigger {
-    private static final Logger logger = LoggerFactory.getLogger(XxlJobTrigger.class);
 
     /**
      * trigger job

@@ -3,6 +3,7 @@ package com.chua.starter.service.logback;
 import ch.qos.logback.classic.pattern.ClassicConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import org.slf4j.MDC;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 
 /**
  * Logback日志TraceId转换器
@@ -14,6 +15,7 @@ import org.slf4j.MDC;
  * @since 2025/12/05
  * @version 1.0.0
  */
+@ConditionalOnClass(name = "ch.qos.logback.classic.pattern.ClassicConverter")
 public class TraceMessageConverter extends ClassicConverter {
 
     /**

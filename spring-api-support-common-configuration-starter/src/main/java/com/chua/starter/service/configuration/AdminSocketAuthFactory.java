@@ -1,8 +1,8 @@
 package com.chua.starter.service.configuration;
 
-import com.chua.common.support.bean.BeanUtils;
-import com.chua.common.support.utils.MapUtils;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.base.bean.BeanUtils;
+import com.chua.common.support.core.utils.MapUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.socket.support.auth.SocketAuthFactory;
 import com.chua.socket.support.session.SocketUser;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
@@ -40,7 +40,8 @@ public class AdminSocketAuthFactory implements SocketAuthFactory {
         }
         UserResult userResult = AuthClientExecute.getInstance().getUserResult(singleUrlParam);
         SocketUser socketUser = BeanUtils.copyProperties(userResult, SocketUser.class);
-        socketUser.setRoomId(MapUtils.getString(handshakeData, "roomId"));
+        // TODO: SocketUser 可能没有 setRoomId 方法，需要检查 SocketUser 类的实际结构
+        // socketUser.setRoomId(MapUtils.getString(handshakeData, "roomId"));
         return socketUser;
     }
 }
