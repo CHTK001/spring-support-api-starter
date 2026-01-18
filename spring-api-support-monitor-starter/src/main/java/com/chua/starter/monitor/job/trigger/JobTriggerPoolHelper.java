@@ -2,8 +2,7 @@ package com.chua.starter.monitor.job.trigger;
 
 import com.chua.starter.monitor.job.JobConfig;
 import com.chua.starter.monitor.job.TriggerTypeEnum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,8 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author xuxueli 2018-07-03 21:08:07
  */
+@Slf4j
 public class JobTriggerPoolHelper {
-    private static final Logger logger = LoggerFactory.getLogger(JobTriggerPoolHelper.class);
 
 
     // ---------------------- trigger pool ----------------------

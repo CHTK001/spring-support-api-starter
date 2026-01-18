@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -27,7 +26,6 @@ public class SysCity implements Serializable {
      */
     @TableId(value = "sys_city_code", type = IdType.INPUT)
     @Schema(description = "区划代码")
-    @ApiModelProperty("区划代码")
     private String sysCityCode;
 
     /**
@@ -35,7 +33,6 @@ public class SysCity implements Serializable {
      */
     @TableField("sys_city_area_code")
     @Schema(description = "地区区号")
-    @ApiModelProperty("地区区号")
     private String sysCityAreaCode;
 
     /**
@@ -43,7 +40,6 @@ public class SysCity implements Serializable {
      */
     @TableField("sys_city_name")
     @Schema(description = "区划名称")
-    @ApiModelProperty("区划名称")
     private String sysCityName;
 
     /**
@@ -51,7 +47,6 @@ public class SysCity implements Serializable {
      */
     @TableField("sys_city_level")
     @Schema(description = "区划级别: 1省(直辖市) 2地级市(市辖区) 3县级市(区) 4乡镇(街道) 5村(社区、居委会)")
-    @ApiModelProperty("区划级别")
     private Integer sysCityLevel;
 
     /**
@@ -59,14 +54,12 @@ public class SysCity implements Serializable {
      */
     @TableField("sys_city_parent_code")
     @Schema(description = "父级区划代码")
-    @ApiModelProperty("父级区划代码")
     private String sysCityParentCode;
 
     /**
      * 树路径
      */
     @TableField("sys_city_tree_path")
-    @ApiModelProperty("树路径")
     @Schema(description = "树路径")
     private String sysCityTreePath;
 
@@ -75,7 +68,6 @@ public class SysCity implements Serializable {
      */
     @TableField("sys_city_short_name")
     @Schema(description = "简称")
-    @ApiModelProperty("简称")
     private String sysCityShortName;
 
     /**
@@ -83,7 +75,6 @@ public class SysCity implements Serializable {
      */
     @TableField("sys_city_merger_name")
     @Schema(description = "全称")
-    @ApiModelProperty("全称")
     private String sysCityMergerName;
 
     /**
@@ -91,7 +82,6 @@ public class SysCity implements Serializable {
      */
     @TableField("sys_city_pinyin")
     @Schema(description = "拼音")
-    @ApiModelProperty("拼音")
     private String sysCityPinyin;
 
     /**
@@ -99,7 +89,6 @@ public class SysCity implements Serializable {
      */
     @TableField("sys_city_lng")
     @Schema(description = "经度")
-    @ApiModelProperty("经度")
     private Double sysCityLng;
 
     /**
@@ -107,7 +96,6 @@ public class SysCity implements Serializable {
      */
     @TableField("sys_city_lat")
     @Schema(description = "纬度")
-    @ApiModelProperty("纬度")
     private Double sysCityLat;
 
     /**
@@ -115,7 +103,6 @@ public class SysCity implements Serializable {
      */
     @TableField("sys_city_sort")
     @Schema(description = "排序")
-    @ApiModelProperty("排序")
     private Integer sysCitySort;
 
     /**

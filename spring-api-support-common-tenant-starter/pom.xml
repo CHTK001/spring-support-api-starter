@@ -1,76 +1,74 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.chua</groupId>
-        <artifactId>spring-support-api-parent</artifactId>
-        <version>4.0.0</version>
-    </parent>
+<?xml version='1.0' encoding='utf-8'?>
+<ns0:project xmlns:ns0="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <ns0:modelVersion>4.0.0</ns0:modelVersion>
+    <ns0:parent>
+        <ns0:groupId>com.chua</ns0:groupId>
+        <ns0:artifactId>spring-support-api-parent</ns0:artifactId>
+        <ns0:version>${project.version}</ns0:version>
+    </ns0:parent>
 
-    <artifactId>spring-api-support-common-tenant-starter</artifactId>
-    <name>Spring API Support Common Tenant Starter</name>
-    <description>租户管理模块 - 提供多租户管理功能，包括租户管理、服务管理、服务模块管理，以及租户数据同步等核心功能</description>
+    <ns0:artifactId>spring-api-support-common-tenant-starter</ns0:artifactId>
+    <ns0:name>Spring API Support Common Tenant Starter</ns0:name>
+    <ns0:description>租户管理模块 - 提供多租户管理功能，包括租户管理、服务管理、服务模块管理，以及租户数据同步等核心功能</ns0:description>
 
-    <properties>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <ns0:properties>
+        <ns0:maven.compiler.source>25</ns0:maven.compiler.source>
+        <ns0:maven.compiler.target>25</ns0:maven.compiler.target>
+        <ns0:project.build.sourceEncoding>UTF-8</ns0:project.build.sourceEncoding>
+    </ns0:properties>
 
-    <dependencies>
-        <!-- 系统模块 - 提供 SysUser、SysMenu 等实体和服务 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-system-starter</artifactId>
-        </dependency>
+    <ns0:dependencies>
+        
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-api-support-common-system-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <!-- MyBatis 基础模块 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-mybatis-starter</artifactId>
-        </dependency>
+        
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-support-mybatis-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <!-- Swagger API文档 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-swagger-starter</artifactId>
-        </dependency>
+        
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-support-swagger-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <!-- 同步协议模块 -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-sync-starter</artifactId>
-        </dependency>
-    </dependencies>
+        
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-support-sync-starter</ns0:artifactId>
+        </ns0:dependency>
+    </ns0:dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>25</source>
-                    <target>25</target>
-                </configuration>
-            </plugin>
-        </plugins>
+    <ns0:build>
+        <ns0:plugins>
+            <ns0:plugin>
+                <ns0:groupId>org.apache.maven.plugins</ns0:groupId>
+                <ns0:artifactId>maven-compiler-plugin</ns0:artifactId>
+                <ns0:configuration>
+                    <ns0:source>25</ns0:source>
+                    <ns0:target>25</ns0:target>
+                </ns0:configuration>
+            </ns0:plugin>
+        </ns0:plugins>
 
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
+        <ns0:resources>
+            <ns0:resource>
+                <ns0:directory>src/main/resources</ns0:directory>
+                <ns0:includes>
+                    <ns0:include>**/*</ns0:include>
+                </ns0:includes>
+            </ns0:resource>
+            <ns0:resource>
+                <ns0:directory>src/main/java</ns0:directory>
+                <ns0:includes>
+                    <ns0:include>**/*.xml</ns0:include>
+                </ns0:includes>
+            </ns0:resource>
+        </ns0:resources>
+    </ns0:build>
 
-</project>
+</ns0:project>

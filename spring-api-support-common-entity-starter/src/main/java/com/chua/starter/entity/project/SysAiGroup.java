@@ -5,8 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.chua.starter.mybatis.pojo.SysBase;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
@@ -22,7 +20,6 @@ import lombok.EqualsAndHashCode;
 /**
  * 分组
  */
-@ApiModel(description = "分组")
 @Schema(description = "分组")
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -32,7 +29,6 @@ public class SysAiGroup extends SysBase {
      * ID
      */
     @TableId(value = "sys_ai_group_id", type = IdType.AUTO)
-    @ApiModelProperty(value = "ID")
     @Schema(description = "ID")
     private Integer sysAiGroupId;
 
@@ -40,7 +36,6 @@ public class SysAiGroup extends SysBase {
      * 名称
      */
     @TableField(value = "sys_ai_group_name")
-    @ApiModelProperty(value = "名称")
     @Schema(description = "名称")
     private String sysAiGroupName;
 
@@ -48,7 +43,6 @@ public class SysAiGroup extends SysBase {
      * 项目ID
      */
     @TableField(value = "sys_project_id")
-    @ApiModelProperty(value = "项目ID")
     @Schema(description = "项目ID")
     private Integer sysProjectId;
 
@@ -56,7 +50,6 @@ public class SysAiGroup extends SysBase {
      * 账号ID
      */
     @TableField(value = "sys_user_id")
-    @ApiModelProperty(value = "账号ID")
     @Schema(description = "账号ID")
     private String sysUserId;
 
@@ -64,7 +57,6 @@ public class SysAiGroup extends SysBase {
      * 分组颜色
      */
     @TableField(value = "sys_ai_group_color")
-    @ApiModelProperty(value = "分组颜色")
     @Schema(description = "分组颜色")
     private String sysAiGroupColor;
 
@@ -72,7 +64,6 @@ public class SysAiGroup extends SysBase {
      * 分组配置
      */
     @TableField(value = "sys_ai_group_config")
-    @ApiModelProperty(value = "分组配置")
     @Schema(description = "分组配置")
     private String sysAiGroupConfig;
 }
