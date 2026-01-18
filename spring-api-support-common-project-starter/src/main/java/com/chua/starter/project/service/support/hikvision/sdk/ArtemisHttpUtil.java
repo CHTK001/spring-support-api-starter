@@ -27,8 +27,7 @@ import com.chua.starter.project.service.support.hikvision.sdk.enums.Method;
 import com.chua.starter.project.service.support.hikvision.sdk.util.MessageDigestUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,8 +35,8 @@ import java.util.Map;
 import static com.chua.starter.project.service.support.hikvision.sdk.constant.ContentType.CONTENT_TYPE_FORM;
 import static com.chua.starter.project.service.support.hikvision.sdk.constant.ContentType.CONTENT_TYPE_TEXT;
 
+@Slf4j
 public class ArtemisHttpUtil {
-    private static final Logger logger = LoggerFactory.getLogger(ArtemisHttpUtil.class);
 
     //自定义参与签名Header前缀（可选,默认只有"X-Ca-"开头的参与到Header签名）
     //private final static List<String> CUSTOM_HEADERS_TO_SIGN_PREFIX = new ArrayList<String>();
