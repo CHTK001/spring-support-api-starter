@@ -1,89 +1,81 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.chua</groupId>
-        <artifactId>spring-support-api-parent</artifactId>
-        <version>4.0.0</version>
-    </parent>
+<?xml version='1.0' encoding='utf-8'?>
+<ns0:project xmlns:ns0="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <ns0:modelVersion>4.0.0</ns0:modelVersion>
+    <ns0:parent>
+        <ns0:groupId>com.chua</ns0:groupId>
+        <ns0:artifactId>spring-support-api-parent</ns0:artifactId>
+        <ns0:version>${project.version}</ns0:version>
+    </ns0:parent>
 
-    <artifactId>spring-api-support-common-project-starter</artifactId>
-    <name>spring-api-support-common-project-starter</name>
-    <description>通用项目模块，提供基础的项目结构和通用配置支持</description>
+    <ns0:artifactId>spring-api-support-common-project-starter</ns0:artifactId>
+    <ns0:name>spring-api-support-common-project-starter</ns0:name>
+    <ns0:description>通用项目模块，提供基础的项目结构和通用配置支持</ns0:description>
 
-    <properties>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <ns0:properties>
+        <ns0:maven.compiler.source>25</ns0:maven.compiler.source>
+        <ns0:maven.compiler.target>25</ns0:maven.compiler.target>
+        <ns0:project.build.sourceEncoding>UTF-8</ns0:project.build.sourceEncoding>
+    </ns0:properties>
 
-    <dependencies>
+    <ns0:dependencies>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-entity-starter</artifactId>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-api-support-common-entity-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <!-- 邮件模块不存在，暂时注释
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-email-starter</artifactId>
-        </dependency>
-        -->
+        
 
-        <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-            <version>2.0.54</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-configuration-starter</artifactId>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.alibaba.fastjson2</ns0:groupId>
+            <ns0:artifactId>fastjson2</ns0:artifactId>
+            </ns0:dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-api-support-common-configuration-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-service-starter</artifactId>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-api-support-common-service-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-deeplearning-starter</artifactId>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>utils-support-deeplearning-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-advanced-starter</artifactId>
-            <version>${utils.version}</version>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>utils-support-advanced-starter</ns0:artifactId>
+            <ns0:version>${utils.version}</ns0:version>
+        </ns0:dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-socket-sse-starter</artifactId>
-            <version>${module.version}</version>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-support-socket-sse-starter</ns0:artifactId>
+            <ns0:version>${module.version}</ns0:version>
+        </ns0:dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-baidu-starter</artifactId>
-            <scope>provided</scope>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>utils-support-baidu-starter</ns0:artifactId>
+            <ns0:scope>provided</ns0:scope>
+        </ns0:dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-zhipu-starter</artifactId>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>utils-support-zhipu-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-xunfei-starter</artifactId>
-        </dependency>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>utils-support-xunfei-starter</ns0:artifactId>
+        </ns0:dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-tencent-starter</artifactId>
-        </dependency>
-    </dependencies>
-</project>
+        <ns0:dependency>
+            <ns0:groupId>com.chua</ns0:groupId>
+            <ns0:artifactId>spring-support-tencent-starter</ns0:artifactId>
+        </ns0:dependency>
+    </ns0:dependencies>
+</ns0:project>

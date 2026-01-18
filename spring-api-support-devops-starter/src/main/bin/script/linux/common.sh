@@ -73,6 +73,23 @@ CHARSET=UTF-8
 
 # 备份目录（默认 <base>/backup）
 BACKUP_DIR=
+
+# ZGC 垃圾收集器（可选，通过 start.sh --zgc 设置）
+# USE_ZGC=
+
+# 堆内存大小（可选，通过 start.sh --2g 或 --memory 设置）
+# MEMORY_SIZE=
+
+# Java 25 预览特性（可选，通过 start.sh --enable-preview 设置）
+# ENABLE_PREVIEW=
+
+# Java 模块（可选，通过 start.sh --add-modules 设置）
+# ADD_MODULES=
+
+# Java 25 内存优化参数（默认开启）
+# USE_COMPACT_OBJECT_HEADERS="true"
+# USE_COMPRESSED_OOPS="true"
+# USE_COMPRESSED_CLASS_POINTERS="true"
 EOF
   info "已生成默认环境文件: ${var_env_file}"
 }

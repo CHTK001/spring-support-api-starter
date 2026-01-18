@@ -27,15 +27,15 @@
         <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-common-tenant-starter</module>
         <module>spring-api-support-devops-starter</module>
-    </modules><version>4.0.0</version>
+    </modules><version>4.0.0.36</version>
 
     <properties>
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
-        <module.version>4.0.0.35</module.version>
-        <utils.version>4.0.0.33</utils.version>
+        <module.version>4.0.0.36</module.version>
+        <utils.version>4.0.0.35</utils.version>
         <spring-boot.version>3.2.3</spring-boot.version>
         <!-- devops 模块路径（使用多模块根目录，避免子模块继承后路径叠加） -->
         <devops.dir>${maven.multiModuleProjectDirectory}/spring-api-support-devops-starter</devops.dir>
@@ -80,6 +80,15 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Spring Boot BOM - 统一管理 Spring Boot 相关依赖版本 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>3.5.9</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            
             <!-- DevOps 统一配置模块 (包含 log4j2-spring.xml) -->
             <dependency>
                 <groupId>com.chua</groupId>

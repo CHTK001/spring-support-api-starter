@@ -1,14 +1,15 @@
 package com.chua.starter.service.configuration;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.chua.common.support.constant.Action;
-import com.chua.common.support.converter.Converter;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.constant.Action;
+import com.chua.common.support.base.converter.Converter;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.reflection.MetaObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +19,8 @@ import java.time.LocalTime;
 import java.util.Date;
 import java.util.function.Supplier;
 
-import static com.chua.common.support.constant.Action.CREATE;
-import static com.chua.common.support.constant.Action.UPDATE;
+import static com.chua.common.support.core.constant.Action.CREATE;
+import static com.chua.common.support.core.constant.Action.UPDATE;
 
 /**
  * mybatis-plus 字段自动填充
@@ -29,11 +30,11 @@ import static com.chua.common.support.constant.Action.UPDATE;
  * @since 2022/10/14
  */
 @Component
-@RequiredArgsConstructor
 @ConditionalOnClass(name = {"com.baomidou.mybatisplus.core.handlers.MetaObjectHandler"})
 public class IbatisMetaObjectHandler implements MetaObjectHandler {
 
-    private final AuthClientProperties authProperties;
+    @Autowired(required = false)
+    private AuthClientProperties authProperties;
 
     /**
      * 新增填充创建时间

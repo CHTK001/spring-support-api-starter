@@ -1,9 +1,9 @@
 package com.chua.starter.service.setting;
 
 import com.chua.common.support.function.Upgrade;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.IoUtils;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.ServiceProvider;
+import com.chua.common.support.core.utils.IoUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.deeplearning.support.ml.bigmodel.BigModelClient;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -51,20 +51,21 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
     @Override
     public void upgrade(BigModelSetting bigModelSetting) {
          if (null != bigModelSetting) {
-             this.appType = bigModelSetting.getAppType();
-             this.appId = bigModelSetting.getAppId();
-             this.appSecret = bigModelSetting.getAppSecret();
-             this.appKey = bigModelSetting.getAppKey();
+             this.appType = bigModelSetting.appType;
+             this.appId = bigModelSetting.appId;
+             this.appSecret = bigModelSetting.appSecret;
+             this.appKey = bigModelSetting.appKey;
              if(null != this.bigModelClient) {
                  IoUtils.closeQuietly(bigModelClient);
              }
-             this.bigModelClient = ServiceProvider.of(BigModelClient.class).getNewExtension(bigModelSetting.getAppType(), com.chua.deeplearning.support.ml.bigmodel.BigModelSetting.builder()
+             this.bigModelClient = ServiceProvider.of(BigModelClient.class).getNewExtension(bigModelSetting.appType, com.chua.deeplearning.support.ml.bigmodel.BigModelSetting.builder()
                      .appId(appId)
                      .appKey(appKey)
                      .appSecret(appSecret)
                      .build());
              if(null == bigModelClient) {
-                 log.warn(StringUtils.format("暂不支持{}, 请重新设置!", appType));
+                 // 使用 System.out.println 代替 log，避免 Lombok 处理问题
+                 System.out.println(StringUtils.format("暂不支持{}, 请重新设置!", appType));
              }
          }
     }
