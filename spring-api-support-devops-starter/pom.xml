@@ -1,50 +1,51 @@
 <?xml version='1.0' encoding='utf-8'?>
-<ns0:project xmlns:ns0="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <ns0:modelVersion>4.0.0</ns0:modelVersion>
-    <ns0:parent>
-        <ns0:groupId>com.chua</ns0:groupId>
-        <ns0:artifactId>spring-support-api-parent</ns0:artifactId>
-        <ns0:version>${project.version}</ns0:version>
-    </ns0:parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>spring-support-api-parent</artifactId>
+        <version>${project.version}</version>
+    <relativePath>../pom.xml</relativePath>
+    </parent>
 
-    <ns0:artifactId>spring-api-support-devops-starter</ns0:artifactId>
-    <ns0:packaging>jar</ns0:packaging>
-    <ns0:name>DevOps Unified Management Module</ns0:name>
-    <ns0:description>统一配置模板和管理脚本，通过 Spring Boot profile 动态合并配置</ns0:description>
+    <artifactId>spring-api-support-devops-starter</artifactId>
+    <packaging>jar</packaging>
+    <name>DevOps Unified Management Module</name>
+    <description>统一配置模板和管理脚本，通过 Spring Boot profile 动态合并配置</description>
 
-    <ns0:dependencies>
+    <dependencies>
         
-        <ns0:dependency>
-            <ns0:groupId>org.fusesource.jansi</ns0:groupId>
-            <ns0:artifactId>jansi</ns0:artifactId>
-            </ns0:dependency>
-    </ns0:dependencies>
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            </dependency>
+    </dependencies>
 
-    <ns0:build>
-        <ns0:resources>
-            <ns0:resource>
-                <ns0:directory>src/main/resources</ns0:directory>
-                <ns0:filtering>false</ns0:filtering>
-            </ns0:resource>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
             
-            <ns0:resource>
-                <ns0:directory>src/main/bin</ns0:directory>
-                <ns0:targetPath>bin</ns0:targetPath>
-                <ns0:filtering>false</ns0:filtering>
-                <ns0:includes>
-                    <ns0:include>**/*.sh</ns0:include>
-                </ns0:includes>
-            </ns0:resource>
+            <resource>
+                <directory>src/main/bin</directory>
+                <targetPath>bin</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.sh</include>
+                </includes>
+            </resource>
             
-            <ns0:resource>
-                <ns0:directory>src/main/bin</ns0:directory>
-                <ns0:targetPath>bin</ns0:targetPath>
-                <ns0:filtering>false</ns0:filtering>
-                <ns0:includes>
-                    <ns0:include>**/*.bat</ns0:include>
-                </ns0:includes>
-            </ns0:resource>
-        </ns0:resources>
-    </ns0:build>
+            <resource>
+                <directory>src/main/bin</directory>
+                <targetPath>bin</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.bat</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 
-</ns0:project>
+</project>
