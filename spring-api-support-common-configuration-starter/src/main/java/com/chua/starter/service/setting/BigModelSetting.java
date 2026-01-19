@@ -1,22 +1,21 @@
 package com.chua.starter.service.setting;
 
 import com.chua.common.support.function.Upgrade;
-import com.chua.common.support.core.utils.ServiceProvider;
-import com.chua.common.support.core.utils.IoUtils;
-import com.chua.common.support.core.utils.StringUtils;
-import com.chua.deeplearning.support.ml.bigmodel.BigModelClient;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 大模型设置类，用于存储和处理与大模型应用相关的配置信息
+ * 注意: BigModel 功能暂时禁用，因为 utils-support-deeplearning-starter 不可用
  *
  * @author CH
  * @since 2024/9/10
  */
 @Data
-@Slf4j
 public class BigModelSetting implements Upgrade<BigModelSetting> {
+
+    private static final Logger log = LoggerFactory.getLogger(BigModelSetting.class);
 
     /**
      * 应用类型，标识大模型应用的类别
@@ -38,16 +37,6 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
      */
     private String appKey;
 
-
-    private BigModelClient bigModelClient;
-
-    public BigModelClient getBigModelClient() {
-        if(null == bigModelClient) {
-            throw new RuntimeException(StringUtils.format("暂不支持{}, 请重新设置!", appType));
-        }
-        return bigModelClient;
-    }
-
     @Override
     public void upgrade(BigModelSetting bigModelSetting) {
          if (null != bigModelSetting) {
@@ -55,18 +44,7 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
              this.appId = bigModelSetting.appId;
              this.appSecret = bigModelSetting.appSecret;
              this.appKey = bigModelSetting.appKey;
-             if(null != this.bigModelClient) {
-                 IoUtils.closeQuietly(bigModelClient);
-             }
-             this.bigModelClient = ServiceProvider.of(BigModelClient.class).getNewExtension(bigModelSetting.appType, com.chua.deeplearning.support.ml.bigmodel.BigModelSetting.builder()
-                     .appId(appId)
-                     .appKey(appKey)
-                     .appSecret(appSecret)
-                     .build());
-             if(null == bigModelClient) {
-                 // 使用 System.out.println 代替 log，避免 Lombok 处理问题
-                 System.out.println(StringUtils.format("暂不支持{}, 请重新设置!", appType));
-             }
+             log.warn("BigModel 功能已禁用，appType: {}", appType);
          }
     }
 }
