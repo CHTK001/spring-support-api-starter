@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -12,8 +12,10 @@
 
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
+    <version>2</version>
     <packaging>pom</packaging>
     <modules>
+        <!-- 暂时注释掉因依赖问题无法编译的模块
         <module>spring-api-support-oauth-starter</module>
         <module>spring-api-support-system-starter</module>
         <module>spring-api-support-tenanted-starter</module>
@@ -21,13 +23,14 @@
         <module>spring-api-support-common-system-starter</module>
         <module>spring-api-support-scheduler-starter</module>
         <module>spring-api-support-common-video-starter</module>
-        <module>spring-api-support-common-configuration-starter</module>
         <module>spring-api-support-common-project-starter</module>
         <module>spring-api-support-common-service-starter</module>
-        <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-common-tenant-starter</module>
+        -->
+        <module>spring-api-support-common-configuration-starter</module>
+        <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-devops-starter</module>
-    </modules><version>4.0.0.36</version>
+    </modules>
 
     <properties>
         <java.version>25</java.version>
@@ -35,7 +38,7 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <module.version>4.0.0.36</module.version>
-        <utils.version>4.0.0.35</utils.version>
+        <utils.version>2</utils.version>
         <spring-boot.version>3.2.3</spring-boot.version>
         <!-- devops 模块路径（使用多模块根目录，避免子模块继承后路径叠加） -->
         <devops.dir>${maven.multiModuleProjectDirectory}/spring-api-support-devops-starter</devops.dir>
