@@ -1,41 +1,42 @@
 <?xml version='1.0' encoding='utf-8'?>
-<ns0:project xmlns:ns0="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <ns0:modelVersion>4.0.0</ns0:modelVersion>
-    <ns0:parent>
-        <ns0:groupId>com.chua</ns0:groupId>
-        <ns0:artifactId>spring-support-api-parent</ns0:artifactId>
-        <ns0:version>${project.version}</ns0:version>
-    </ns0:parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>spring-support-api-parent</artifactId>
+        <version>${project.version}</version>
+    <relativePath>../pom.xml</relativePath>
+    </parent>
 
-    <ns0:artifactId>spring-api-support-scheduler-starter</ns0:artifactId>
-    <ns0:description>定时任务</ns0:description>
+    <artifactId>spring-api-support-scheduler-starter</artifactId>
+    <description>定时任务</description>
 
-    <ns0:properties>
-        <ns0:maven.compiler.source>25</ns0:maven.compiler.source>
-        <ns0:maven.compiler.target>25</ns0:maven.compiler.target>
-        <ns0:project.build.sourceEncoding>UTF-8</ns0:project.build.sourceEncoding>
-    </ns0:properties>
-    <ns0:dependencies>
+    <properties>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
         
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-api-support-devops-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-devops-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-api-support-common-system-starter</ns0:artifactId>
-            </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-system-starter</artifactId>
+            </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-job-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-job-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>mysql</ns0:groupId>
-            <ns0:artifactId>mysql-connector-java</ns0:artifactId>
-            </ns0:dependency>
-    </ns0:dependencies>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            </dependency>
+    </dependencies>
 
-</ns0:project>
+</project>

@@ -1,512 +1,513 @@
 <?xml version='1.0' encoding='utf-8'?>
-<ns0:project xmlns:ns0="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <ns0:modelVersion>4.0.0</ns0:modelVersion>
-    <ns0:parent>
-        <ns0:groupId>com.chua</ns0:groupId>
-        <ns0:artifactId>spring-support-api-parent</ns0:artifactId>
-        <ns0:version>${project.version}</ns0:version>
-    </ns0:parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>spring-support-api-parent</artifactId>
+        <version>${project.version}</version>
+    <relativePath>../pom.xml</relativePath>
+    </parent>
 
-    <ns0:artifactId>spring-api-support-monitor-starter</ns0:artifactId>
-    <ns0:description>运维端</ns0:description>
+    <artifactId>spring-api-support-monitor-starter</artifactId>
+    <description>运维端</description>
 
-    <ns0:properties>
-        <ns0:maven.compiler.source>25</ns0:maven.compiler.source>
-        <ns0:maven.compiler.target>25</ns0:maven.compiler.target>
-        <ns0:project.build.sourceEncoding>UTF-8</ns0:project.build.sourceEncoding>
-        <ns0:hutool.version>5.8.34</ns0:hutool.version>
-        <ns0:docker-java-version>3.4.0</ns0:docker-java-version>
-        <ns0:jna-version>5.14.0</ns0:jna-version>
-        <ns0:oshi.version>6.4.8</ns0:oshi.version>
+    <properties>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <hutool.version>5.8.34</hutool.version>
+        <docker-java-version>3.4.0</docker-java-version>
+        <jna-version>5.14.0</jna-version>
+        <oshi.version>6.4.8</oshi.version>
 
-    </ns0:properties>
-    <ns0:dependencies>
+    </properties>
+    <dependencies>
         
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-api-support-devops-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-devops-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>cn.hutool</ns0:groupId>
-            <ns0:artifactId>hutool-all</ns0:artifactId>
-            <ns0:version>${hutool.version}</ns0:version>
-        </ns0:dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>io.netty</ns0:groupId>
-            <ns0:artifactId>netty-all</ns0:artifactId>
-            </ns0:dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-netty-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-netty-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-api-support-common-system-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-system-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-view-starter</ns0:artifactId>
-        </ns0:dependency>
-
-        
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-onlyoffice-starter</ns0:artifactId>
-        </ns0:dependency>
-        
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-common-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-view-starter</artifactId>
+        </dependency>
 
         
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-sync-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-onlyoffice-starter</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+        </dependency>
 
         
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-job-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-sync-starter</artifactId>
+        </dependency>
 
         
-        <ns0:dependency>
-            <ns0:groupId>com.github.oshi</ns0:groupId>
-            <ns0:artifactId>oshi-core</ns0:artifactId>
-            <ns0:version>${oshi.version}</ns0:version>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-job-starter</artifactId>
+        </dependency>
 
         
-        <ns0:dependency>
-            <ns0:groupId>org.springframework.boot</ns0:groupId>
-            <ns0:artifactId>spring-boot-starter-websocket</ns0:artifactId>
-            <ns0:optional>true</ns0:optional>
-            <ns0:exclusions>
-                <ns0:exclusion>
-                    <ns0:artifactId>spring-boot-starter-tomcat</ns0:artifactId>
-                    <ns0:groupId>org.springframework.boot</ns0:groupId>
-                </ns0:exclusion>
-                <ns0:exclusion>
-                    <ns0:groupId>org.springframework.boot</ns0:groupId>
-                    <ns0:artifactId>spring-boot-starter-logging</ns0:artifactId>
-                </ns0:exclusion>
-            </ns0:exclusions>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>${oshi.version}</version>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-configcenter-starter</ns0:artifactId>
-        </ns0:dependency>
+        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-configcenter-starter</artifactId>
+        </dependency>
 
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-calcite-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-calcite-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-socket-io-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-socket-io-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-datasource-starter</ns0:artifactId>
-            <ns0:exclusions>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-datasource-starter</artifactId>
+            <exclusions>
                 
-                <ns0:exclusion>
-                    <ns0:groupId>ch.qos.logback</ns0:groupId>
-                    <ns0:artifactId>logback-classic</ns0:artifactId>
-                </ns0:exclusion>
-                <ns0:exclusion>
-                    <ns0:groupId>ch.qos.logback</ns0:groupId>
-                    <ns0:artifactId>logback-core</ns0:artifactId>
-                </ns0:exclusion>
-            </ns0:exclusions>
-        </ns0:dependency>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-guacamole-starter</ns0:artifactId>
-        </ns0:dependency>
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-mybatis-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-guacamole-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-mybatis-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-swagger-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-swagger-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-redis-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-redis-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-report-client-starter</ns0:artifactId>
-            <ns0:exclusions>
-                <ns0:exclusion>
-                    <ns0:artifactId>jpom-core-common</ns0:artifactId>
-                    <ns0:groupId>cn.keepbx.jpom</ns0:groupId>
-                </ns0:exclusion>
-            </ns0:exclusions>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-report-client-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jpom-core-common</artifactId>
+                    <groupId>cn.keepbx.jpom</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-report-client-arthas-starter</ns0:artifactId>
-        </ns0:dependency>
-
-        
-        <ns0:dependency>
-            <ns0:groupId>com.google.guava</ns0:groupId>
-            <ns0:artifactId>guava</ns0:artifactId>
-            </ns0:dependency>
-
-        <ns0:dependency>
-            <ns0:groupId>org.apache.commons</ns0:groupId>
-            <ns0:artifactId>commons-compress</ns0:artifactId>
-            </ns0:dependency>
-
-        <ns0:dependency>
-            <ns0:groupId>mysql</ns0:groupId>
-            <ns0:artifactId>mysql-connector-java</ns0:artifactId>
-            </ns0:dependency>
-
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-common-starter</ns0:artifactId>
-            <ns0:exclusions>
-                <ns0:exclusion>
-                    <ns0:artifactId>utils-support-log-starter</ns0:artifactId>
-                    <ns0:groupId>com.chua</ns0:groupId>
-                </ns0:exclusion>
-            </ns0:exclusions>
-        </ns0:dependency>
-
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-email-starter</ns0:artifactId>
-        </ns0:dependency>
-
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-ssh-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-report-client-arthas-starter</artifactId>
+        </dependency>
 
         
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-remote-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-common-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>utils-support-log-starter</artifactId>
+                    <groupId>com.chua</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-email-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-ssh-starter</artifactId>
+        </dependency>
 
         
-        <ns0:dependency>
-            <ns0:groupId>org.apache.guacamole</ns0:groupId>
-            <ns0:artifactId>guacamole-common</ns0:artifactId>
-            </ns0:dependency>
-
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-api-support-common-service-starter</ns0:artifactId>
-        </ns0:dependency>
-
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-api-support-common-project-starter</ns0:artifactId>
-        </ns0:dependency>
-
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-datasource-starter</ns0:artifactId>
-        </ns0:dependency>
-
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-image-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-remote-starter</artifactId>
+        </dependency>
 
         
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-acme-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>org.apache.guacamole</groupId>
+            <artifactId>guacamole-common</artifactId>
+            </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-service-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-project-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-datasource-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-image-starter</artifactId>
+        </dependency>
 
         
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-advanced-starter</ns0:artifactId>
-            <ns0:version>${utils.version}</ns0:version>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-acme-starter</artifactId>
+        </dependency>
 
         
-        <ns0:dependency>
-            <ns0:groupId>org.jsoup</ns0:groupId>
-            <ns0:artifactId>jsoup</ns0:artifactId>
-            </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-advanced-starter</artifactId>
+            <version>${utils.version}</version>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>redis.clients</ns0:groupId>
-            <ns0:artifactId>jedis</ns0:artifactId>
-            </ns0:dependency>
+        
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            </dependency>
+
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            </dependency>
 
 
         
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-zookeeper-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-zookeeper-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>org.apache.zookeeper</ns0:groupId>
-            <ns0:artifactId>zookeeper</ns0:artifactId>
-            <ns0:exclusions>
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <exclusions>
                 
-                <ns0:exclusion>
-                    <ns0:groupId>ch.qos.reload4j</ns0:groupId>
-                    <ns0:artifactId>reload4j</ns0:artifactId>
-                </ns0:exclusion>
-                <ns0:exclusion>
-                    <ns0:groupId>org.slf4j</ns0:groupId>
-                    <ns0:artifactId>slf4j-reload4j</ns0:artifactId>
-                </ns0:exclusion>
-                <ns0:exclusion>
-                    <ns0:groupId>log4j</ns0:groupId>
-                    <ns0:artifactId>log4j</ns0:artifactId>
-                </ns0:exclusion>
-                <ns0:exclusion>
-                    <ns0:groupId>org.slf4j</ns0:groupId>
-                    <ns0:artifactId>slf4j-log4j12</ns0:artifactId>
-                </ns0:exclusion>
-                <ns0:exclusion>
-                    <ns0:groupId>ch.qos.logback</ns0:groupId>
-                    <ns0:artifactId>logback-core</ns0:artifactId>
-                </ns0:exclusion>
-                <ns0:exclusion>
-                    <ns0:groupId>ch.qos.logback</ns0:groupId>
-                    <ns0:artifactId>logback-classic</ns0:artifactId>
-                </ns0:exclusion>
-            </ns0:exclusions>
-        </ns0:dependency>
+                <exclusion>
+                    <groupId>ch.qos.reload4j</groupId>
+                    <artifactId>reload4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-reload4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-minio-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-minio-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-ftp-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-ftp-starter</artifactId>
+        </dependency>
 
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-alibaba-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-alibaba-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-baidu-starter</ns0:artifactId>
-            <ns0:exclusions>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-baidu-starter</artifactId>
+            <exclusions>
                 
-                <ns0:exclusion>
-                    <ns0:groupId>org.slf4j</ns0:groupId>
-                    <ns0:artifactId>slf4j-reload4j</ns0:artifactId>
-                </ns0:exclusion>
-                <ns0:exclusion>
-                    <ns0:groupId>ch.qos.reload4j</ns0:groupId>
-                    <ns0:artifactId>reload4j</ns0:artifactId>
-                </ns0:exclusion>
-                <ns0:exclusion>
-                    <ns0:groupId>log4j</ns0:groupId>
-                    <ns0:artifactId>log4j</ns0:artifactId>
-                </ns0:exclusion>
-                <ns0:exclusion>
-                    <ns0:groupId>ch.qos.logback</ns0:groupId>
-                    <ns0:artifactId>logback-classic</ns0:artifactId>
-                </ns0:exclusion>
-                <ns0:exclusion>
-                    <ns0:groupId>ch.qos.logback</ns0:groupId>
-                    <ns0:artifactId>logback-core</ns0:artifactId>
-                </ns0:exclusion>
-            </ns0:exclusions>
-        </ns0:dependency>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-reload4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.reload4j</groupId>
+                    <artifactId>reload4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-nacos-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-nacos-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-influxdb-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-influxdb-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-aspose-email-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-aspose-email-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-aspose-starter</ns0:artifactId>
-        </ns0:dependency>
-
-        
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>utils-support-docker-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-aspose-starter</artifactId>
+        </dependency>
 
         
-        <ns0:dependency>
-            <ns0:groupId>org.projectlombok</ns0:groupId>
-            <ns0:artifactId>lombok</ns0:artifactId>
-            <ns0:scope>provided</ns0:scope>
-        </ns0:dependency>
-    </ns0:dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-docker-starter</artifactId>
+        </dependency>
 
-    <ns0:build>
-        <ns0:plugins>
-            <ns0:plugin>
-                <ns0:groupId>org.apache.maven.plugins</ns0:groupId>
-                <ns0:artifactId>maven-compiler-plugin</ns0:artifactId>
-                <ns0:configuration>
-                    <ns0:source>25</ns0:source>
-                    <ns0:target>25</ns0:target>
-                </ns0:configuration>
-            </ns0:plugin>
+        
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
-            
-            <ns0:plugin>
-                <ns0:groupId>org.codehaus.gmavenplus</ns0:groupId>
-                <ns0:artifactId>gmavenplus-plugin</ns0:artifactId>
-            </ns0:plugin>
-
-            
-            <ns0:plugin>
-                <ns0:groupId>org.apache.maven.plugins</ns0:groupId>
-                <ns0:artifactId>maven-jar-plugin</ns0:artifactId>
-                <ns0:version>3.3.0</ns0:version>
-                <ns0:configuration>
-                    <ns0:excludes>
-                        <ns0:exclude>*.yml</ns0:exclude>
-                        <ns0:exclude>*.yaml</ns0:exclude>
-                        <ns0:exclude>*.properties</ns0:exclude>
-                        <ns0:exclude>logback*.xml</ns0:exclude>
-                        <ns0:exclude>log4j2*.xml</ns0:exclude>
-                        <ns0:exclude>config/**</ns0:exclude>
-                    </ns0:excludes>
-                    <ns0:archive>
-                        <ns0:manifest>
-                            <ns0:mainClass>com.chua.starter.monitor.MonitorServerApplication</ns0:mainClass>
-                            <ns0:addClasspath>true</ns0:addClasspath>
-                            <ns0:classpathPrefix>lib/</ns0:classpathPrefix>
-                        </ns0:manifest>
-                        <ns0:manifestEntries>
-                            <ns0:Class-Path>config/</ns0:Class-Path>
-                        </ns0:manifestEntries>
-                    </ns0:archive>
-                </ns0:configuration>
-            </ns0:plugin>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>25</source>
+                    <target>25</target>
+                </configuration>
+            </plugin>
 
             
-            <ns0:plugin>
-                <ns0:groupId>org.apache.maven.plugins</ns0:groupId>
-                <ns0:artifactId>maven-dependency-plugin</ns0:artifactId>
-                <ns0:version>3.6.1</ns0:version>
-                <ns0:executions>
-                    <ns0:execution>
-                        <ns0:id>copy-dependencies</ns0:id>
-                        <ns0:phase>package</ns0:phase>
-                        <ns0:goals>
-                            <ns0:goal>copy-dependencies</ns0:goal>
-                        </ns0:goals>
-                        <ns0:configuration>
-                            <ns0:outputDirectory>${project.build.directory}/lib</ns0:outputDirectory>
-                            <ns0:excludeTransitive>false</ns0:excludeTransitive>
-                            <ns0:stripVersion>false</ns0:stripVersion>
-                            <ns0:includeScope>runtime</ns0:includeScope>
-                        </ns0:configuration>
-                    </ns0:execution>
-                </ns0:executions>
-            </ns0:plugin>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+            </plugin>
 
             
-            <ns0:plugin>
-                <ns0:groupId>org.apache.maven.plugins</ns0:groupId>
-                <ns0:artifactId>maven-resources-plugin</ns0:artifactId>
-                <ns0:version>3.3.1</ns0:version>
-                <ns0:executions>
-                    <ns0:execution>
-                        <ns0:id>copy-resources</ns0:id>
-                        <ns0:phase>package</ns0:phase>
-                        <ns0:goals>
-                            <ns0:goal>copy-resources</ns0:goal>
-                        </ns0:goals>
-                        <ns0:configuration>
-                            <ns0:outputDirectory>${project.build.directory}/config</ns0:outputDirectory>
-                            <ns0:resources>
-                                <ns0:resource>
-                                    <ns0:directory>src/main/resources</ns0:directory>
-                                    <ns0:includes>
-                                        <ns0:include>*.yml</ns0:include>
-                                        <ns0:include>*.yaml</ns0:include>
-                                        <ns0:include>*.properties</ns0:include>
-                                        <ns0:include>logback*.xml</ns0:include>
-                                        <ns0:include>log4j2*.xml</ns0:include>
-                                        <ns0:include>config/**</ns0:include>
-                                    </ns0:includes>
-                                </ns0:resource>
-                            </ns0:resources>
-                        </ns0:configuration>
-                    </ns0:execution>
-                </ns0:executions>
-            </ns0:plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <excludes>
+                        <exclude>*.yml</exclude>
+                        <exclude>*.yaml</exclude>
+                        <exclude>*.properties</exclude>
+                        <exclude>logback*.xml</exclude>
+                        <exclude>log4j2*.xml</exclude>
+                        <exclude>config/**</exclude>
+                    </excludes>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.chua.starter.monitor.MonitorServerApplication</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                        </manifest>
+                        <manifestEntries>
+                            <Class-Path>config/</Class-Path>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
 
             
-            <ns0:plugin>
-                <ns0:groupId>org.apache.maven.plugins</ns0:groupId>
-                <ns0:artifactId>maven-assembly-plugin</ns0:artifactId>
-                <ns0:version>3.6.0</ns0:version>
-                <ns0:configuration>
-                    <ns0:descriptors>
-                        <ns0:descriptor>${devops.dir}/src/main/assembly/dist.xml</ns0:descriptor>
-                    </ns0:descriptors>
-                </ns0:configuration>
-                <ns0:executions>
-                    <ns0:execution>
-                        <ns0:id>make-assembly</ns0:id>
-                        <ns0:phase>package</ns0:phase>
-                        <ns0:goals>
-                            <ns0:goal>single</ns0:goal>
-                        </ns0:goals>
-                    </ns0:execution>
-                </ns0:executions>
-            </ns0:plugin>
-        </ns0:plugins>
-        <ns0:resources>
-            <ns0:resource>
-                <ns0:directory>src/main/resources</ns0:directory>
-            </ns0:resource>
-            <ns0:resource>
-                <ns0:directory>src/main/java</ns0:directory>
-                <ns0:includes>
-                    <ns0:include>**/*.xml</ns0:include>
-                </ns0:includes>
-            </ns0:resource>
-        </ns0:resources>
-    </ns0:build>
-</ns0:project>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <excludeTransitive>false</excludeTransitive>
+                            <stripVersion>false</stripVersion>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/config</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <includes>
+                                        <include>*.yml</include>
+                                        <include>*.yaml</include>
+                                        <include>*.properties</include>
+                                        <include>logback*.xml</include>
+                                        <include>log4j2*.xml</include>
+                                        <include>config/**</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <descriptors>
+                        <descriptor>${devops.dir}/src/main/assembly/dist.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>
