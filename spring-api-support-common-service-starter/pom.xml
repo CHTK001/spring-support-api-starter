@@ -1,72 +1,73 @@
 <?xml version='1.0' encoding='utf-8'?>
-<ns0:project xmlns:ns0="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     
-    <ns0:modelVersion>4.0.0</ns0:modelVersion>
-    <ns0:parent>
-        <ns0:groupId>com.chua</ns0:groupId>
-        <ns0:artifactId>spring-support-api-parent</ns0:artifactId>
-        <ns0:version>${project.version}</ns0:version>
-    </ns0:parent>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>spring-support-api-parent</artifactId>
+        <version>${project.version}</version>
+    <relativePath>../pom.xml</relativePath>
+    </parent>
 
-    <ns0:artifactId>spring-api-support-common-service-starter</ns0:artifactId>
-    <ns0:description>通用服务模块，提供基础服务支持能力，包括OAuth认证、通用实体管理等功能</ns0:description>
-    <ns0:name>Spring API Support Common Service Starter</ns0:name>
+    <artifactId>spring-api-support-common-service-starter</artifactId>
+    <description>通用服务模块，提供基础服务支持能力，包括OAuth认证、通用实体管理等功能</description>
+    <name>Spring API Support Common Service Starter</name>
 
-    <ns0:properties>
-        <ns0:maven.compiler.source>25</ns0:maven.compiler.source>
-        <ns0:maven.compiler.target>25</ns0:maven.compiler.target>
-        <ns0:project.build.sourceEncoding>UTF-8</ns0:project.build.sourceEncoding>
-    </ns0:properties>
+    <properties>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
-    <ns0:dependencies>
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-api-support-common-entity-starter</ns0:artifactId>
-        </ns0:dependency>
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-common-starter</ns0:artifactId>
-        </ns0:dependency>
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-oauth-client-starter</ns0:artifactId>
-        </ns0:dependency>
+    <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-entity-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-common-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-oauth-client-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-api-support-common-configuration-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-configuration-starter</artifactId>
+        </dependency>
 
-        <ns0:dependency>
-            <ns0:groupId>io.github.resilience4j</ns0:groupId>
-            <ns0:artifactId>resilience4j-ratelimiter</ns0:artifactId>
-            <ns0:scope>compile</ns0:scope>
-        </ns0:dependency>
-        <ns0:dependency>
-            <ns0:groupId>io.github.resilience4j</ns0:groupId>
-            <ns0:artifactId>resilience4j-annotations</ns0:artifactId>
-            <ns0:scope>compile</ns0:scope>
-        </ns0:dependency>
-
-        
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-socket-io-starter</ns0:artifactId>
-            <ns0:optional>true</ns0:optional>
-        </ns0:dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-ratelimiter</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-annotations</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
         
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-redis-starter</ns0:artifactId>
-        </ns0:dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-socket-io-starter</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         
-        <ns0:dependency>
-            <ns0:groupId>com.chua</ns0:groupId>
-            <ns0:artifactId>spring-support-job-starter</ns0:artifactId>
-            <ns0:optional>true</ns0:optional>
-        </ns0:dependency>
-    </ns0:dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-redis-starter</artifactId>
+        </dependency>
 
-</ns0:project>
+        
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-job-starter</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+</project>
