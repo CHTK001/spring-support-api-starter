@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 大模型设置类，用于存储和处理与大模型应用相关的配置信息
- * 注意: BigModel 功能暂时禁用，因为 utils-support-deeplearning-starter 不可用
+ * 注意: BigModel 功能需要 utils-support-deeplearning-starter 模块
  *
  * @author CH
  * @since 2024/9/10
@@ -37,15 +37,27 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
      */
     private String appKey;
 
+    /**
+     * BigModel 客户端实例（需要 deeplearning 模块）
+     */
+    private Object bigModelClient;
+
+    public Object getBigModelClient() {
+        if (bigModelClient == null) {
+            throw new RuntimeException("BigModel 功能未启用，请确保 utils-support-deeplearning-starter 模块可用");
+        }
+        return bigModelClient;
+    }
+
     @Override
     public void upgrade(BigModelSetting bigModelSetting) {
-         if (null != bigModelSetting) {
-             this.appType = bigModelSetting.appType;
-             this.appId = bigModelSetting.appId;
-             this.appSecret = bigModelSetting.appSecret;
-             this.appKey = bigModelSetting.appKey;
-             log.warn("BigModel 功能已禁用，appType: {}", appType);
-         }
+        if (null != bigModelSetting) {
+            this.appType = bigModelSetting.appType;
+            this.appId = bigModelSetting.appId;
+            this.appSecret = bigModelSetting.appSecret;
+            this.appKey = bigModelSetting.appKey;
+            log.warn("BigModel 功能需要 utils-support-deeplearning-starter 模块，appType: {}", appType);
+        }
     }
 }
 

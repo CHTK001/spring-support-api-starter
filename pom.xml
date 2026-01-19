@@ -15,7 +15,10 @@
     <version>3</version>
     <packaging>pom</packaging>
     <modules>
-        <!-- 暂时注释掉因依赖问题无法编译的模块
+        <!-- 以下模块因缺少依赖暂时无法编译：
+             - utils-support-deeplearning-starter (DJL API 不兼容)
+             - io.swagger.annotations (Swagger 2.x)
+             - 其他 OSS/Protocol 相关类
         <module>spring-api-support-oauth-starter</module>
         <module>spring-api-support-system-starter</module>
         <module>spring-api-support-tenanted-starter</module>
