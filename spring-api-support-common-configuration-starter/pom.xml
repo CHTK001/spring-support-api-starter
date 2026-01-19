@@ -43,23 +43,25 @@
       <artifactId>spring-support-oauth-client-starter</artifactId>
       <scope>provided</scope>
     </dependency>
-    <!-- dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-deeplearning-starter</artifactId>
-            <scope>provided</scope>
-        </dependency -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-deeplearning-starter</artifactId>
+      <version>${utils.version}</version>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-support-redis-starter</artifactId>
       <scope>provided</scope>
     </dependency>
-    <!-- dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-extension-starter</artifactId>
-            <version>${utils.version}</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-extension-starter</artifactId>
+      <version>${utils.version}</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
