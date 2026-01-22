@@ -1,7 +1,7 @@
 package com.chua.starter.service.job;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.utils.FileUtils;
+import com.chua.common.support.core.utils.FileUtils;
 import com.chua.starter.entity.service.SysFileSystem;
 import com.chua.starter.entity.service.SysFileSystemPart;
 import com.chua.starter.entity.service.SysFileSystemSetting;

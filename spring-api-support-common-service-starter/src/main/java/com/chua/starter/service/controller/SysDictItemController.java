@@ -2,8 +2,8 @@ package com.chua.starter.service.controller;
 
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.validator.group.AddGroup;
-import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.common.support.base.validator.group.AddGroup;
+import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
@@ -22,7 +22,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
@@ -109,7 +109,7 @@ public class SysDictItemController {
     @GetMapping("/page")
     public ReturnPageResult<SysDictItem> page(@ParameterObject Query<SysDictItem> query, Integer sysDictId, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if(null == sysDictId) {
-            return ReturnPageResult.illegal("字典不能为空");
+            return PageResultUtils.error("字典不能为空");
         }
         return PageResultUtils.ok(sysDictItemService.pageForItem(query, sysDictId, roles));
     }
@@ -121,7 +121,7 @@ public class SysDictItemController {
      */
     @Operation(summary = "删除字典子项")
     @DeleteMapping("/delete")
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:dict:item:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysDictItemId) {
         if (null == sysDictItemId) {

@@ -1,8 +1,10 @@
 package com.chua.starter.video.provider.impl;
 
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.converter.Converter;
-import com.chua.common.support.http.HttpClient;
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.base.converter.Converter;
+import com.chua.common.support.network.http.HttpClient;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.starter.video.entity.VideoSource;
 import com.chua.starter.video.pojo.VideoInfoResult;
@@ -47,7 +49,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {
-            return ReturnPageResult.error("关键词不能为空");
+            return ReturnPageResultUtils.error("关键词不能为空");
         }
 
         log.info("从豆瓣资源检索视频: {}", keyword);
@@ -100,7 +102,7 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
                         Matcher matcher = pattern.matcher(html);
 
                         if (!matcher.find()) {
-                            return ReturnPageResult.ok(Collections.emptyList());
+                            return ReturnPageResultUtils.ok(Collections.emptyList(), videoSearch.getPage(), videoSearch.getPageSize());
                         }
                         String url = matcher.group(1);
                         detailDoc = Jsoup.connect(url)
@@ -232,16 +234,16 @@ public class DoubanResourceProvider extends AbstractResourceProvider {
             }
 
             if (results.isEmpty()) {
-                return ReturnPageResult.error("豆瓣资源未找到相关视频");
+                return ReturnPageResultUtils.error("豆瓣资源未找到相关视频");
             }
 
-            return ReturnPageResult.ok(results);
+            return ReturnPageResultUtils.ok(results, videoSearch.getPage(), videoSearch.getPageSize());
         } catch (IOException e) {
             log.error("豆瓣资源检索失败", e);
-            return ReturnPageResult.error("豆瓣资源检索失败: " + e.getMessage());
+            return ReturnPageResultUtils.error("豆瓣资源检索失败: " + e.getMessage());
         } catch (Exception e) {
             log.error("豆瓣资源检索过程中发生未知错误", e);
-            return ReturnPageResult.error("豆瓣资源检索失败: " + e.getMessage());
+            return ReturnPageResultUtils.error("豆瓣资源检索失败: " + e.getMessage());
         }
     }
 }

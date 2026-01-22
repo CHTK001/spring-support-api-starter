@@ -1,10 +1,10 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
-import com.chua.common.support.annotations.Extension;
-import com.chua.common.support.task.limit.RateLimiter;
+import com.chua.common.support.core.annotation.Extension;
+import com.chua.common.support.resilience.rate.RateLimiter;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.MapUtils;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.utils.MapUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.oauth.client.support.entity.AuthRequest;
@@ -58,7 +58,7 @@ import java.util.Map;
  */
 @Controller
 @Extension("http")
-@com.chua.common.support.annotations.Spi("http")
+@com.chua.common.support.core.annotation.Spi("http")
 @Slf4j
 @Conditional(OnBeanCondition.class)
 @RequestMapping

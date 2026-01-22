@@ -1,6 +1,6 @@
 package com.chua.starter.project.scheduler.device;
 
-import com.chua.common.support.utils.ThreadUtils;
+import com.chua.common.support.core.utils.ThreadUtils;
 import com.chua.starter.project.mapper.SysProjectMapper;
 import com.chua.starter.project.service.support.CameraService;
 import com.chua.starter.entity.project.SysProject;

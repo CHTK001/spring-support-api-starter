@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.pojo.response;
 
-import com.chua.common.support.lang.page.Page;
+import com.chua.common.support.lang.code.PageResult;
 import com.chua.email.support.metadata.MailMessage;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -55,7 +55,7 @@ public class EmailFetchResponse {
      * 分页数据
      */
     @Schema(description = "分页数据")
-    private Page<MailMessage> record;
+    private PageResult<MailMessage> record;
 
     /**
      * 邮件文件夹

@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.sync.handler;
 
-import com.chua.common.support.annotations.Spi;
+import com.chua.common.support.core.annotation.Spi;
 import com.chua.starter.monitor.service.node.NodeUrlQpsService;
 import com.chua.sync.support.spi.SyncMessageHandler;
 import lombok.extern.slf4j.Slf4j;

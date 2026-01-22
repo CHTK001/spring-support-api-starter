@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.arthas;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.net.NetAddress;
+import com.chua.common.support.network.net.NetAddress;
 import com.chua.starter.monitor.pojo.node.OnlineNodeInfo;
 import com.chua.starter.monitor.service.node.NodeManagementService;
 import io.swagger.annotations.Api;

@@ -1,10 +1,10 @@
 package com.chua.starter.monitor.handler;
 
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.annotations.SpiOrder;
-import com.chua.common.support.protocol.storage.BucketAddress;
-import com.chua.common.support.protocol.storage.SignedFileAccessHandler;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.core.annotation.SpiOrder;
+import com.chua.common.support.network.protocol.storage.BucketAddress;
+import com.chua.common.support.network.protocol.storage.SignedFileAccessHandler;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.monitor.entity.SystemFileShare;
 import com.chua.starter.monitor.service.file.SystemFileShareService;
 import com.google.common.cache.Cache;

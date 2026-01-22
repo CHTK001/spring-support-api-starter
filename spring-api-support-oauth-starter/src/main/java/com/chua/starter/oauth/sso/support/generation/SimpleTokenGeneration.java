@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.generation;
 
-import com.chua.common.support.annotations.Extension;
+import com.chua.common.support.core.annotation.Extension;
 import org.apache.commons.codec.digest.DigestUtils;
 
 /**

@@ -2,21 +2,21 @@ package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.binary.ByteSource;
-import com.chua.common.support.binary.ByteSourceArray;
-import com.chua.common.support.binary.ByteSourceFile;
+import com.chua.common.support.io.binary.ByteSource;
+import com.chua.common.support.io.binary.ByteSourceArray;
+import com.chua.common.support.io.binary.ByteSourceFile;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.oss.FileStorage;
-import com.chua.common.support.oss.extension.NamingResolver;
-import com.chua.common.support.oss.metadata.MapMetadata;
-import com.chua.common.support.oss.metadata.Metadata;
-import com.chua.common.support.oss.request.PutObjectRequest;
-import com.chua.common.support.oss.result.PutObjectResult;
-import com.chua.common.support.oss.setting.BucketSetting;
-import com.chua.common.support.utils.FileUtils;
-import com.chua.common.support.utils.IdUtils;
-import com.chua.common.support.utils.StringUtils;
-import com.chua.common.support.utils.UrlUtils;
+import com.chua.common.support.storage.oss.FileStorage;
+import com.chua.common.support.storage.oss.extension.NamingResolver;
+import com.chua.common.support.storage.oss.metadata.MapMetadata;
+import com.chua.common.support.storage.oss.metadata.Metadata;
+import com.chua.common.support.storage.oss.request.PutObjectRequest;
+import com.chua.common.support.storage.oss.result.PutObjectResult;
+import com.chua.common.support.storage.oss.setting.BucketSetting;
+import com.chua.common.support.core.utils.FileUtils;
+import com.chua.common.support.core.utils.IdUtils;
+import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.core.utils.UrlUtils;
 import com.chua.starter.entity.service.SysFileSystem;
 import com.chua.starter.entity.service.SysFileSystemPart;
 import com.chua.starter.entity.service.SysFileSystemSetting;
@@ -102,7 +102,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         try (FileStorage fileStorage = FileStorage.createStorage(request.getOssType(), bucketSetting)) {
             return ReturnResult.guess(fileStorage.putObject(PutObjectRequest.builder()
                     .byteSource(new ByteSourceArray(multipartFile.getInputStream()))
-                    .fileName(StringUtils.defaultString(request.getFileName(), IdUtils.createUlid() + "." + FileUtils.getExtension(multipartFile.getOriginalFilename())))
+                    .fileName(StringUtils.defaultString(request.getFileName(), IdUtils.createSimpleUuid() + "." + FileUtils.getExtension(multipartFile.getOriginalFilename())))
                     .metadata(new MapMetadata(Collections.emptyMap()))
                     .build()));
         } catch (Exception e) {
@@ -119,7 +119,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         try (FileStorage fileStorage = FileStorage.createStorage(request.getFileBucket(), bucketSetting)) {
             return ReturnResult.guess(fileStorage.putObject(PutObjectRequest.builder()
                     .byteSource(new ByteSourceFile(file))
-                    .fileName(StringUtils.defaultString(request.getFileName(), IdUtils.createUlid() + "." + FileUtils.getExtension(file.getName())))
+                    .fileName(StringUtils.defaultString(request.getFileName(), IdUtils.createSimpleUuid() + "." + FileUtils.getExtension(file.getName())))
                     .metadata(new MapMetadata(Collections.emptyMap()))
                     .build()));
         } catch (Exception e) {
@@ -157,7 +157,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
                 .nameResolver(new NamingResolver() {
                     @Override
                     public String transform(Metadata metadata, ByteSource byteSource) {
-                        return StringUtils.defaultString(request.getFileName(), IdUtils.createUlid() + "." + FileUtils.getExtension(originalFilename));
+                        return StringUtils.defaultString(request.getFileName(), IdUtils.createSimpleUuid() + "." + FileUtils.getExtension(originalFilename));
                     }
                 })
                 .accessKeyId(environment.getProperty("plugin.sso." + request.getOssType().toLowerCase() + ".app-id"))
@@ -177,11 +177,11 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         
         long fileSize = request.getFileSize();
         int chunkCount = (int) Math.ceil((double) fileSize / chunkSize);
-        String taskUid = IdUtils.createUlid();
+        String taskUid = IdUtils.createSimpleUuid();
 
         SysFileSystem sysFileSystem = new SysFileSystem();
         sysFileSystem.setSysFileSystemTid(taskUid);
-        sysFileSystem.setSysFileSystemName(StringUtils.defaultString(request.getFileName(), IdUtils.createUlid() + "." + FileUtils.getExtension(request.getFileType())));
+        sysFileSystem.setSysFileSystemName(StringUtils.defaultString(request.getFileName(), IdUtils.createSimpleUuid() + "." + FileUtils.getExtension(request.getFileType())));
         sysFileSystem.setSysFileSystemOriginalName(request.getFileName());
         sysFileSystem.setSysFileSystemChunkTotal(chunkCount);
         sysFileSystem.setSysFileSystemChunkUploaded(0);

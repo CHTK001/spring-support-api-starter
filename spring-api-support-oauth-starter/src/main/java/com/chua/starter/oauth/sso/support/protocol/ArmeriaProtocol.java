@@ -1,10 +1,10 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
-import com.chua.common.support.annotations.Extension;
-import com.chua.common.support.json.Json;
+import com.chua.common.support.core.annotation.Extension;
+import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.MapUtils;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.utils.MapUtils;
 import com.chua.starter.oauth.client.support.entity.AuthRequest;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
@@ -52,7 +52,7 @@ import java.util.Map;
  */
 @Component
 @Extension("armeria")
-@com.chua.common.support.annotations.Spi("armeria")
+@com.chua.common.support.core.annotation.Spi("armeria")
 @Slf4j
 @Conditional(OnBeanCondition.class)
 @RequiredArgsConstructor

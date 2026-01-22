@@ -1,8 +1,8 @@
 package com.chua.starter.oauth.sso.support.condition;
 
 
-import com.chua.common.support.utils.ArrayUtils;
-import com.chua.common.support.utils.ClassUtils;
+import com.chua.common.support.core.utils.ArrayUtils;
+import com.chua.common.support.core.utils.ClassUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;

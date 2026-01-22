@@ -1,11 +1,11 @@
 package com.chua.starter.system.handler;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.collection.ImmutableBuilder;
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.base.collection.ImmutableBuilder;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.configuration.SpringBeanUtils;
+import com.chua.common.support.core.utils.StringUtils;
+import com.chua.spring.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.entity.system.SysUserThirdParty;
 import com.chua.starter.oauth.client.support.enums.AuthType;

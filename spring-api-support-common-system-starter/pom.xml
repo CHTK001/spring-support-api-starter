@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>3</version>
+    <version>4.0.0.36</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>spring-api-support-common-system-starter</artifactId>
@@ -68,6 +68,15 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-support-tencent-starter</artifactId>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>

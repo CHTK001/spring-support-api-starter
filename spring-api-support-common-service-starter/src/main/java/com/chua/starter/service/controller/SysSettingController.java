@@ -1,11 +1,11 @@
 package com.chua.starter.service.controller;
 
-import com.chua.common.support.annotations.Ignore;
-import com.chua.common.support.bean.BeanUtils;
+import com.chua.common.support.core.annotation.Ignore;
+import com.chua.common.support.base.bean.BeanUtils;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.validator.group.AddGroup;
-import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.common.support.base.validator.group.AddGroup;
+import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.api.annotations.ApiPlatform;
 import com.chua.starter.mybatis.entity.Query;

@@ -1,16 +1,16 @@
 package com.chua.starter.video.provider.impl;
 
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.converter.Converter;
-import com.chua.common.support.http.HttpClient;
-import com.chua.common.support.http.HttpResponse;
-import com.chua.common.support.http.JsoupResponse;
-import com.chua.common.support.json.Json;
-import com.chua.common.support.json.JsonArray;
-import com.chua.common.support.json.JsonObject;
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.base.converter.Converter;
+import com.chua.common.support.network.http.HttpClient;
+import com.chua.common.support.network.http.HttpResponse;
+import com.chua.common.support.network.http.JsoupResponse;
+import com.chua.common.support.text.json.Json;
+import com.chua.common.support.text.json.JsonArray;
+import com.chua.common.support.text.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.objects.annotation.AutoInject;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.video.entity.VideoPlayAddress;
 import com.chua.starter.video.entity.VideoPlayAddressChannel;

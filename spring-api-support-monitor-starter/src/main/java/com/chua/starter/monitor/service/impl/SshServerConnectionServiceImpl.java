@@ -2,8 +2,8 @@ package com.chua.starter.monitor.service.impl;
 
 // 项目内部依赖
 
-import com.chua.common.support.protocol.ClientSetting;
-import com.chua.common.support.protocol.client.ProtocolClientFactory;
+import com.chua.common.support.network.protocol.ClientSetting;
+import com.chua.common.support.network.protocol.client.ProtocolClientFactory;
 import com.chua.ssh.support.client.SshClient;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;

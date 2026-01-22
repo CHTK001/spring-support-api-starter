@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.arthas.support;
 
-import com.chua.common.support.net.NetAddress;
+import com.chua.common.support.network.net.NetAddress;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

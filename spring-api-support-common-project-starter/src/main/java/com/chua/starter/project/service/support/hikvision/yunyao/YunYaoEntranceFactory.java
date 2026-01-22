@@ -4,7 +4,7 @@ package com.chua.starter.project.service.support.hikvision.yunyao;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.chua.common.support.bean.BeanUtils;
+import com.chua.common.support.base.bean.BeanUtils;
 import com.chua.starter.project.service.support.hikvision.HiYunMouHttpClientResult;
 import com.chua.starter.project.service.support.hikvision.HiYunYaoClient;
 import com.chua.starter.project.service.support.hikvision.HiYunYaoClientUtils;

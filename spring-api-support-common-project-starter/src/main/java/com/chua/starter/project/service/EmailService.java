@@ -1,6 +1,6 @@
 package com.chua.starter.project.service;
 
-import com.chua.advanced.support.lang.mail.Email;
+import com.chua.extension.support.lang.mail.Email;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.result.PushResult;
 import com.chua.starter.entity.project.SysEmailTemplate;

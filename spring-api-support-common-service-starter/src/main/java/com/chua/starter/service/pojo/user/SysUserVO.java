@@ -3,7 +3,7 @@ package com.chua.starter.service.pojo.user;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.chua.common.support.validator.group.AddGroup;
+import com.chua.common.support.base.validator.group.AddGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
 import com.chua.starter.entity.system.SysRole;
 import io.swagger.annotations.ApiModelProperty;

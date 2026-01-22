@@ -1,8 +1,8 @@
 package com.chua.starter.tenant.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.chua.common.support.validator.group.AddGroup;
-import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.common.support.base.validator.group.AddGroup;
+import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

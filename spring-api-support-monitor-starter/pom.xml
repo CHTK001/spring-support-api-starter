@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>3</version>
+    <version>4.0.0.36</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>spring-api-support-monitor-starter</artifactId>
@@ -196,7 +196,7 @@
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>utils-support-advanced-starter</artifactId>
+      <artifactId>utils-support-extension-starter</artifactId>
       <version>${utils.version}</version>
     </dependency>
     <dependency>
@@ -289,10 +289,6 @@
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>utils-support-aspose-email-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.chua</groupId>
       <artifactId>utils-support-aspose-starter</artifactId>
     </dependency>
     <dependency>
@@ -303,6 +299,10 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-annotations</artifactId>
     </dependency>
   </dependencies>
   <build>

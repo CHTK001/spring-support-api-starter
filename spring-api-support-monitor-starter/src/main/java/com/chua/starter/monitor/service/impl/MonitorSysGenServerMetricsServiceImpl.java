@@ -2,9 +2,9 @@ package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chua.advanced.support.indicator.TimeIndicator;
+import com.chua.extension.support.indicator.TimeIndicator;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
@@ -82,7 +82,13 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
 
             if (result.isSuccess() && result.getData() != null) {
                 List<MonitorSysGenServerMetrics> metricsList = result.getData().stream()
-                    .map(it -> convertTimeIndicatorToMetrics(it, monitorSysGenServerId))
+                    .map(it -> {
+                        // 转换 redis 包下的 TimeIndicator 到 extension 包下的 TimeIndicator
+                        var ti = new TimeIndicator("");
+                        ti.setTimestamp(it.getTimestamp());
+                        ti.setValue(it.getValue());
+                        return convertTimeIndicatorToMetrics(ti, monitorSysGenServerId);
+                    })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
@@ -223,7 +229,13 @@ public class MonitorSysGenServerMetricsServiceImpl implements MonitorSysGenServe
 
             if (result.isOk() && result.getData() != null) {
                 List<MonitorSysGenServerMetrics> metricsList = result.getData().stream()
-                    .map(indicator -> convertTimeIndicatorToMetrics(indicator, serverId))
+                    .map(it -> {
+                        // 转换 redis 包下的 TimeIndicator 到 extension 包下的 TimeIndicator
+                        var ti = new TimeIndicator("");
+                        ti.setTimestamp(it.getTimestamp());
+                        ti.setValue(it.getValue());
+                        return convertTimeIndicatorToMetrics(ti, serverId);
+                    })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 

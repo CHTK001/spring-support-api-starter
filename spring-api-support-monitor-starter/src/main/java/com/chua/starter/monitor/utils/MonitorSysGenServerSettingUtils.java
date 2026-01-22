@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.utils;
 
-import com.chua.common.support.json.Json;
+import com.chua.common.support.text.json.Json;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.pojo.file.FileManagementApiConfig;
 import com.chua.starter.monitor.enums.DataReportMethod;

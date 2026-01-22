@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.guacamole;
 
-import com.chua.common.support.utils.MapUtils;
+import com.chua.common.support.core.utils.MapUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 

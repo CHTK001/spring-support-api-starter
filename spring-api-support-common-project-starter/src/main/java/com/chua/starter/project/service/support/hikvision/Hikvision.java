@@ -1,9 +1,9 @@
 package com.chua.starter.project.service.support.hikvision;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.chua.common.support.annotations.Spi;
+import com.chua.common.support.core.annotation.Spi;
 import com.chua.common.support.objects.annotation.AutoInject;
-import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.core.utils.CollectionUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.project.service.SysProjectService;
 import com.chua.starter.project.service.support.CameraService;

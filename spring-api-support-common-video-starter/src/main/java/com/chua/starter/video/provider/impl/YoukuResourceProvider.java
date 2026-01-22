@@ -1,6 +1,8 @@
 package com.chua.starter.video.provider.impl;
 
-import com.chua.common.support.annotations.Spi;
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+
+import com.chua.common.support.core.annotation.Spi;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.starter.video.entity.VideoSource;
 import com.chua.starter.video.pojo.VideoInfoResult;
@@ -38,7 +40,7 @@ public class YoukuResourceProvider extends AbstractResourceProvider {
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {
-            return ReturnPageResult.error("关键词不能为空");
+            return ReturnPageResultUtils.error("关键词不能为空");
         }
 
         log.info("从优酷资源检索视频: {}", keyword);
@@ -117,13 +119,13 @@ public class YoukuResourceProvider extends AbstractResourceProvider {
             }
 
             if (results.isEmpty()) {
-                return ReturnPageResult.error("优酷资源未找到相关视频");
+                return ReturnPageResultUtils.error("优酷资源未找到相关视频");
             }
 
-            return ReturnPageResult.ok(results);
+            return ReturnPageResultUtils.ok(results, videoSearch.getPage(), videoSearch.getPageSize());
         } catch (Exception e) {
             log.error("优酷资源检索失败", e);
-            return ReturnPageResult.error("优酷资源检索失败: " + e.getMessage());
+            return ReturnPageResultUtils.error("优酷资源检索失败: " + e.getMessage());
         }
     }
 

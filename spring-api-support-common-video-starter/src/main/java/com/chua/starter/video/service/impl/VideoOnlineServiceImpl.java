@@ -1,5 +1,7 @@
 package com.chua.starter.video.service.impl;
 
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.pojo.VideoSearch;
@@ -26,7 +28,7 @@ public class VideoOnlineServiceImpl implements VideoOnlineService {
     @Override
     public ReturnPageResult<VideoInfoResult> findVideoByKeyword(VideoSearch videoSearch) {
         if (!StringUtils.hasText(videoSearch.getKeyword())) {
-            return ReturnPageResult.error("视频名称不能为空");
+            return ReturnPageResultUtils.error("视频名称不能为空");
         }
 
         return resourceSearchManager.searchFromAllResources(videoSearch);

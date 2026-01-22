@@ -3,7 +3,7 @@ package com.chua.starter.project.service.support.hikvision.adaptor;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.chua.common.support.bean.BeanMap;
+import com.chua.common.support.base.bean.BeanMap;
 import com.chua.starter.project.service.support.hikvision.HikvisionClient;
 import com.chua.starter.project.service.support.hikvision.query.FaceInfo;
 import com.chua.starter.project.service.support.hikvision.query.FaceInfoForUpdate;

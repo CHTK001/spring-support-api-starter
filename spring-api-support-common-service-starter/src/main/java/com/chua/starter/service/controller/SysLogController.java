@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
 /**
@@ -56,7 +56,7 @@ public class SysLogController {
      */
     @Operation(summary = "删除系统日志")
     @DeleteMapping("/delete")
-    @Transactional(rollbackOn = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:log:delete", role = {AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long logId) {
         if (null == logId) {

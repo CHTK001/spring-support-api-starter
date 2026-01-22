@@ -1,6 +1,6 @@
 package com.chua.starter.project.pojo.vincent;
 
-import com.chua.common.support.validator.group.SelectGroup;
+import com.chua.common.support.base.validator.group.SelectGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

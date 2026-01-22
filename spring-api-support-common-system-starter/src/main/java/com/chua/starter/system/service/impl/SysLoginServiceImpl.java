@@ -3,8 +3,8 @@ package com.chua.starter.system.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.function.Joiner;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
@@ -41,7 +41,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.util.List;
 import java.util.Optional;
 
-import static com.chua.common.support.constant.Constants.CAPTCHA_SESSION_KEY;
+import static com.chua.common.support.core.constant.Constants.CAPTCHA_SESSION_KEY;
 import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERROR;
 
 /**
@@ -106,7 +106,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     public UserInfoVO getUserLoginInfo() {
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         UserInfoVO userInfoVO = new UserInfoVO();
-        com.chua.common.support.bean.BeanUtils.copyProperties(userLoginInfo.getExt(), userInfoVO);
+        com.chua.common.support.base.bean.BeanUtils.copyProperties(userLoginInfo.getExt(), userInfoVO);
         userInfoVO.setAvatar(userLoginInfo.getOption("sysUserAvatar"));
         userInfoVO.setTenantId(userLoginInfo.getTenantId());
         userInfoVO.setRoles(userLoginInfo.getRoles());
