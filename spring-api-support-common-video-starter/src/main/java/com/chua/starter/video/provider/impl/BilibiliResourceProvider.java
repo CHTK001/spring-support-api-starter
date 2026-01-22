@@ -1,9 +1,11 @@
 package com.chua.starter.video.provider.impl;
 
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.converter.Converter;
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.base.converter.Converter;
 import com.chua.common.support.lang.code.ReturnPageResult;
-import com.chua.common.support.utils.ObjectUtils;
+import com.chua.common.support.core.utils.ObjectUtils;
 import com.chua.starter.video.entity.VideoSource;
 import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.pojo.VideoSearch;
@@ -46,7 +48,7 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {
-            return ReturnPageResult.error("关键词不能为空");
+            return ReturnPageResultUtils.error("关键词不能为空");
         }
 
         log.info("从B站资源检索视频: {}", keyword);
@@ -131,18 +133,18 @@ public class BilibiliResourceProvider extends AbstractResourceProvider {
                     }
                 } else {
                     String message = rootNode.path("message").asText("未知错误");
-                    return ReturnPageResult.error("B站API返回错误: " + message);
+                    return ReturnPageResultUtils.error("B站API返回错误: " + message);
                 }
             }
 
             if (results.isEmpty()) {
-                return ReturnPageResult.error("B站资源未找到相关视频");
+                return ReturnPageResultUtils.error("B站资源未找到相关视频");
             }
 
-            return ReturnPageResult.ok(results);
+            return ReturnPageResultUtils.ok(results, videoSearch.getPage(), videoSearch.getPageSize());
         } catch (Exception e) {
             log.error("B站资源检索失败", e);
-            return ReturnPageResult.error("B站资源检索失败: " + e.getMessage());
+            return ReturnPageResultUtils.error("B站资源检索失败: " + e.getMessage());
         }
     }
 

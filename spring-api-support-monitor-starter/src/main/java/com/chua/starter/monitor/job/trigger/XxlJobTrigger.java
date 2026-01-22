@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.job.trigger;
 
-import com.chua.common.support.discovery.Discovery;
+import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.report.client.starter.job.TriggerParam;
 import com.chua.starter.monitor.entity.MonitorJob;
@@ -41,7 +41,7 @@ public class XxlJobTrigger {
         // load data
         MonitorJob jobInfo = JobConfig.getInstance().loadById(jobId);
         if (jobInfo == null) {
-            logger.warn(">>>>>>>>>>>> trigger fail, jobId invalid，jobId={}", jobId);
+            log.warn(">>>>>>>>>>>> trigger fail, jobId invalid，jobId={}", jobId);
             return;
         }
         if (executorParam != null) {
@@ -78,7 +78,7 @@ public class XxlJobTrigger {
         jobLog.setJobLogTriggerTime(new Date());
         jobLog.setJobLogTriggerDate(LocalDate.now());
         JobConfig.getInstance().saveLog(jobLog);
-        logger.debug(">>>>>>>>>>> job trigger start, jobId:{}", jobLog.getJobLogId());
+        log.debug(">>>>>>>>>>> job trigger start, jobId:{}", jobLog.getJobLogId());
 
         // 2、init trigger-param
         TriggerParam triggerParam = new TriggerParam();
@@ -116,7 +116,7 @@ public class XxlJobTrigger {
 //        jobLog.setJobLogTriggerMsg(triggerMsgSb);
         JobConfig.getInstance().updateLog(jobLog);
 
-        logger.debug(">>>>>>>>>>> job trigger end, jobId:{}", jobLog.getJobLogId());
+        log.debug(">>>>>>>>>>> job trigger end, jobId:{}", jobLog.getJobLogId());
     }
 
     /**
@@ -132,7 +132,7 @@ public class XxlJobTrigger {
         try {
             runResult = JobConfig.getInstance().run(jobLog, address, triggerParam);
         } catch (Exception e) {
-            logger.error(">>>>>>>>>>> job trigger error, please check if the executor[{}] is running.", address, e);
+            log.error(">>>>>>>>>>> job trigger error, please check if the executor[{}] is running.", address, e);
             runResult = ReturnResult.illegal(e);
         }
 

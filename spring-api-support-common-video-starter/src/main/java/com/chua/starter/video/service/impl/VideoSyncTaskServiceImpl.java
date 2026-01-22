@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
-import static com.chua.common.support.utils.StringUtils.format;
+import static com.chua.common.support.core.utils.StringUtils.format;
 
 /**
  * 视频同步任务服务实现
@@ -122,7 +122,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
                     int currentPageInPage = videoSyncProcessConfig.getCurrentPageInPage();
                     String message = format("开始同步视频({})【{}】, 进度{}/{}, 当页页内进度{}/{}, 当前同步的视频数量:{}",
                             videoType,
-                            com.chua.common.support.utils.StringUtils.defaultString(video.getVideoName(), video.getVideoTitle()),
+                            com.chua.common.support.core.utils.StringUtils.defaultString(video.getVideoName(), video.getVideoTitle()),
                             page,
                             totalPages,
                             currentPageInPage,

@@ -1,9 +1,9 @@
 package com.chua.starter.oauth.sso.support.parser.handler;
 
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.json.Json;
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 import lombok.extern.slf4j.Slf4j;
@@ -98,7 +98,7 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
             UserResume userResume = buildUserResume(authUser, platform);
             
             // 添加appId支持：从请求中提取appId并设置到UserResume
-            String appId = com.chua.common.support.utils.MapUtils.getString(authInformation.getBodyData(), "x-oauth-app-id");
+            String appId = com.chua.common.support.core.utils.MapUtils.getString(authInformation.getBodyData(), "x-oauth-app-id");
             if (StringUtils.isBlank(appId)) {
                 appId = authInformation.getRequestHeaderValue("x-oauth-app-id");
             }

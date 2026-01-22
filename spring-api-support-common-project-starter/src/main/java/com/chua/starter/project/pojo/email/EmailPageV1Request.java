@@ -1,6 +1,6 @@
 package com.chua.starter.project.pojo.email;
 
-import com.chua.common.support.validator.group.SelectGroup;
+import com.chua.common.support.base.validator.group.SelectGroup;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.entity.project.SysEmailTemplate;
 import io.swagger.v3.oas.annotations.media.Schema;

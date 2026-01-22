@@ -1,13 +1,13 @@
 package com.chua.starter.service.task;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.binary.ByteSourceArray;
-import com.chua.common.support.oss.FileStorage;
-import com.chua.common.support.oss.metadata.MapMetadata;
-import com.chua.common.support.oss.request.PutObjectRequest;
-import com.chua.common.support.oss.result.PutObjectResult;
-import com.chua.common.support.oss.setting.BucketSetting;
-import com.chua.common.support.utils.FileUtils;
+import com.chua.common.support.io.binary.ByteSourceArray;
+import com.chua.common.support.storage.oss.FileStorage;
+import com.chua.common.support.storage.oss.metadata.MapMetadata;
+import com.chua.common.support.storage.oss.request.PutObjectRequest;
+import com.chua.common.support.storage.oss.result.PutObjectResult;
+import com.chua.common.support.storage.oss.setting.BucketSetting;
+import com.chua.common.support.core.utils.FileUtils;
 import com.chua.starter.entity.service.SysFileSystem;
 import com.chua.starter.entity.service.SysFileSystemPart;
 import com.chua.starter.service.SysFileSystemPartService;

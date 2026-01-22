@@ -1,13 +1,17 @@
 package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.deeplearning.support.ml.bigmodel.generations.image.VincentDiagramSetting;
-import com.chua.deeplearning.support.ml.bigmodel.generations.video.*;
-import com.chua.common.support.json.Json;
+import com.chua.deeplearning.support.core.function.model.ImageToVideoGenerator;
+import com.chua.deeplearning.support.core.request.VideoGenerationsAddTaskV1Request;
+import com.chua.deeplearning.support.core.request.VideoGenerationsSearchTaskV1Request;
+import com.chua.deeplearning.support.core.response.VideoGenerationsAddTaskV1Response;
+import com.chua.deeplearning.support.core.response.VideoGenerationsSearchTaskV1Response;
+import com.chua.deeplearning.support.ml.client.generations.image.VincentDiagramSetting;
+import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.ObjectUtils;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.utils.ObjectUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.project.mapper.SysAiVincentTaskMapper;
 import com.chua.starter.project.service.SysAiModuleService;
 import com.chua.starter.project.service.SysProjectService;
@@ -58,7 +62,7 @@ public class VideoGenerationServiceImpl implements VideoGenerationService {
         if (null == sysProject) {
             throw new RuntimeException("项目不存在");
         }
-        VideoGenerationsClient videoGenerationsClient = ServiceProvider.of(VideoGenerationsClient.class)
+        ImageToVideoGenerator videoGenerationsClient = ServiceProvider.of(ImageToVideoGenerator.class)
                 .getNewExtension(sysProject.getSysProjectDictItemCode(),
                         VincentDiagramSetting.builder()
                                 .host(StringUtils.defaultString(sysAiModule.getSysAiModuleUrl(), sysProject.getSysProjectEndpoint()))
@@ -95,7 +99,7 @@ public class VideoGenerationServiceImpl implements VideoGenerationService {
         task.setSysProjectId(sysProjectId);
         task.setSysAiModuleId(sysAiModule.getSysAiModuleId());
         task.setSysAiVincentTaskCondition(Json.toJson(taskV1Request));
-        task.setSysAiVincentTaskUid(vincentDiagramAddTaskV1Response.getOutput().getTaskId());
+        task.setSysAiVincentTaskUid(vincentDiagramAddTaskV1Response.getTaskId());
         VideoGenerationsAddTaskV1Response.OutputDTO output = vincentDiagramAddTaskV1Response.getOutput();
         if ("FAILURE".equals(output.getTaskStatus())) {
             task.setSysAiVincentTaskStatus(2);
@@ -135,7 +139,7 @@ public class VideoGenerationServiceImpl implements VideoGenerationService {
         response.setRequestId(vincentDiagramAddTaskV1Response.getRequestId());
         response.setOutput(new VincentDiagramV1AddTaskResponse.OutputDTO());
         response.getOutput().setTaskStatus(vincentDiagramAddTaskV1Response.getOutput().getTaskStatus());
-        response.getOutput().setTaskId(vincentDiagramAddTaskV1Response.getOutput().getTaskId());
+        response.getOutput().setTaskId(vincentDiagramAddTaskV1Response.getTaskId());
         response.getOutput().setImages(vincentDiagramAddTaskV1Response.getOutput().getImages());
         return ReturnResult.success(response);
     }
@@ -151,7 +155,7 @@ public class VideoGenerationServiceImpl implements VideoGenerationService {
         if (null == sysProject) {
             throw new RuntimeException("项目不存在");
         }
-        VideoGenerationsClient videoGenerationsClient = ServiceProvider.of(VideoGenerationsClient.class)
+        ImageToVideoGenerator videoGenerationsClient = ServiceProvider.of(ImageToVideoGenerator.class)
                 .getNewExtension(sysProject.getSysProjectDictItemCode(),
                         VincentDiagramSetting.builder()
                                 .host(sysProject.getSysProjectEndpoint())
@@ -176,8 +180,8 @@ public class VideoGenerationServiceImpl implements VideoGenerationService {
         //FAILED：任务执行失败
         //UNKNOWN：任务不存在或状态未知
         String taskStatus = output.getTaskStatus();
-        List<String> imageList = Optional.ofNullable(output.getResults()).orElse(Collections.emptyList())
-                .stream().map(VideoGenerationsSearchTaskV1Response.OutputDTO.ResultsDTO::getUrl).toList();
+        List<String> imageList = Optional.ofNullable(videoGenerationsSearchTaskV1Response.getResults()).orElse(Collections.emptyList())
+                .stream().map(VideoGenerationsSearchTaskV1Response.ResultsDTO::getUrl).toList();
         String images = String.join(",", imageList);
         String taskLocalUrl = ImageGenerationServiceImpl.createTaskLocalUrl(StringUtils.defaultString(sysProject.getSysProjectLocationTempPath(), LOCATION_PATH), imageList);
         sysAiVincentTaskMapper.update(Wrappers.<SysAiVincentTask>lambdaUpdate()

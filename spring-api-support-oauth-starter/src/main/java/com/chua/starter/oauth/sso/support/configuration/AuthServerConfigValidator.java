@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.configuration;
 
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

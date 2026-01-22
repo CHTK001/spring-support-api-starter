@@ -2,7 +2,8 @@ package com.chua.starter.monitor.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.velocity.app.Velocity;
+// Velocity 依赖可能缺失，暂时注释
+// import org.apache.velocity.app.Velocity;
 
 import java.util.Properties;
 
@@ -26,10 +27,10 @@ public class VelocityInitializer {
             p.setProperty("resource.loader.file.class", "com.chua.report.server.starter.loader.StringCustomResourceLoader");
             p.setProperty("root", "");
             // 定义字符集
-            p.setProperty(Velocity.INPUT_ENCODING, UTF_8);
+            // p.setProperty(Velocity.INPUT_ENCODING, UTF_8);
             // 初始化Velocity引擎，指定配置Properties
-            Velocity.reset();
-            Velocity.init(p);
+            // Velocity.reset();
+            // Velocity.init(p);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -42,10 +43,10 @@ public class VelocityInitializer {
             p.setProperty("resource.loader.file.class", "com.chua.report.server.starter.loader.CustomResourceLoader");
             p.setProperty("root", "");
             // 定义字符集
-            p.setProperty(Velocity.INPUT_ENCODING, UTF_8);
-            Velocity.reset();
+            // p.setProperty(Velocity.INPUT_ENCODING, UTF_8);
+            // Velocity.reset();
             // 初始化Velocity引擎，指定配置Properties
-            Velocity.init(p);
+            // Velocity.init(p);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

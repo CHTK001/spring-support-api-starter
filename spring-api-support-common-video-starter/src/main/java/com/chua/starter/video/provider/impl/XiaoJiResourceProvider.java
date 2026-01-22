@@ -1,13 +1,13 @@
 package com.chua.starter.video.provider.impl;
 
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.http.HttpClient;
-import com.chua.common.support.http.HttpResponse;
-import com.chua.common.support.http.JsoupResponse;
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.network.http.HttpClient;
+import com.chua.common.support.network.http.HttpResponse;
+import com.chua.common.support.network.http.JsoupResponse;
 import com.chua.common.support.lang.code.ListReturnResult;
 import com.chua.common.support.lang.code.ReturnPageResult;
-import com.chua.common.support.utils.MapUtils;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.MapUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.video.entity.VideoDownload;
 import com.chua.starter.video.entity.VideoSource;
@@ -210,7 +210,7 @@ public class XiaoJiResourceProvider extends AbstractResourceProvider implements 
         VideoSearch videoSearch = new VideoSearch();
         videoSearch.setKeyword(keyword);
         ReturnPageResult<VideoInfoResult> videoInfoResultReturnPageResult = searchResource(videoSearch);
-        return (ListReturnResult<String>) ListReturnResult.ok(videoInfoResultReturnPageResult.getData().getData().stream().map(VideoInfoResult::getDownloadUrls)
+        return (ListReturnResult<String>) ListReturnResult.ok(videoInfoResultReturnPageResult.data().getData().stream().map(VideoInfoResult::getDownloadUrls)
                 .collect(Collectors.toList()));
     }
 

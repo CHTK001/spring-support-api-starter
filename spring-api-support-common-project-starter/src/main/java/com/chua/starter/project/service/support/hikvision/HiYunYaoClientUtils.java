@@ -1,7 +1,7 @@
 package com.chua.starter.project.service.support.hikvision;
 
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
-import com.chua.common.support.json.Json;
+import com.chua.common.support.text.json.Json;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;

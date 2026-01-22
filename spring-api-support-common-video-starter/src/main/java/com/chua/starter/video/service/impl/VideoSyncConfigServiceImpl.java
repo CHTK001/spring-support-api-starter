@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.IdUtils;
+import com.chua.common.support.core.utils.IdUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.entity.VideoSyncConfig;

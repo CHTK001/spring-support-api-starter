@@ -1,12 +1,17 @@
 package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.deeplearning.support.ml.bigmodel.resolution.*;
-import com.chua.common.support.binary.ByteSourceMultiFile;
-import com.chua.common.support.json.Json;
+import com.chua.deeplearning.support.core.function.model.ImageToResolutionGenerator;
+import com.chua.deeplearning.support.core.request.ImageResolutionAddTaskV1Request;
+import com.chua.deeplearning.support.core.request.ImageResolutionSearchTaskV1Request;
+import com.chua.deeplearning.support.core.response.ImageResolutionAddTaskV1Response;
+import com.chua.deeplearning.support.core.response.ImageResolutionSearchTaskV1Response;
+import com.chua.deeplearning.support.ml.client.resolution.ResolutionSetting;
+import com.chua.common.support.io.binary.ByteSourceMultiFile;
+import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.project.mapper.SysAiVincentTaskMapper;
 import com.chua.starter.project.service.ImageResolutionService;
 import com.chua.starter.project.service.SysAiModuleService;
@@ -53,9 +58,9 @@ public class ImageResolutionServiceImpl implements ImageResolutionService {
         if (null == sysProject) {
             throw new RuntimeException("项目不存在");
         }
-        ImageResolutionClient imageResolutionClient = ServiceProvider.of(ImageResolutionClient.class)
+        ImageToResolutionGenerator imageResolutionClient = ServiceProvider.of(ImageToResolutionGenerator.class)
                 .getNewExtension(sysProject.getSysProjectDictItemCode(),
-                        ResolutionSetting.builder()
+                        com.chua.deeplearning.support.ml.client.resolution.ResolutionSetting.builder()
                                 .host(StringUtils.defaultString(sysAiModule.getSysAiModuleUrl(), sysProject.getSysProjectEndpoint()))
                                 .appId(sysProject.getSysProjectAppId())
                                 .appSecret(sysProject.getSysProjectAppSecret())
@@ -98,9 +103,9 @@ public class ImageResolutionServiceImpl implements ImageResolutionService {
         if (null == sysProject) {
             throw new RuntimeException("项目不存在");
         }
-        ImageResolutionClient imageResolutionClient = ServiceProvider.of(ImageResolutionClient.class)
+        ImageToResolutionGenerator imageResolutionClient = ServiceProvider.of(ImageToResolutionGenerator.class)
                 .getNewExtension(sysProject.getSysProjectDictItemCode(),
-                        ResolutionSetting.builder()
+                        com.chua.deeplearning.support.ml.client.resolution.ResolutionSetting.builder()
                                 .host(sysProject.getSysProjectEndpoint())
                                 .appId(sysProject.getSysProjectAppId())
                                 .appSecret(sysProject.getSysProjectAppSecret())
@@ -117,12 +122,13 @@ public class ImageResolutionServiceImpl implements ImageResolutionService {
                         .region(request.getRegion())
                         .build()
         );
-        String taskStatus = imageResolutionSearchTaskV1Response.getTaskStatus();
+        Integer progress = imageResolutionSearchTaskV1Response.getProgress();
+        String taskStatus = progress != null && progress >= 100 ? "SUCCESS" : (progress != null && progress > 0 ? "PROCESSING" : "PENDING");
         String images = imageResolutionSearchTaskV1Response.getImage();
         String taskLocalUrl = ImageGenerationServiceImpl.createTaskLocalUrl(StringUtils.defaultString(sysProject.getSysProjectLocationTempPath(), LOCATION_PATH), Collections.singletonList(images));
         sysAiVincentTaskMapper.update(Wrappers.<SysAiVincentTask>lambdaUpdate()
                 .set(SysAiVincentTask::getSysAiVincentTaskStatus, ImageGenerationServiceImpl.getStatus(taskStatus))
-                .set(SysAiVincentTask::getSysAiVincentTaskRequestId, imageResolutionSearchTaskV1Response.getTaskId())
+                .set(SysAiVincentTask::getSysAiVincentTaskRequestId, progress != null ? String.valueOf(progress) : null)
                 .set(SysAiVincentTask::getSysAiVincentTaskUrl, images)
                 .set(SysAiVincentTask::getSysAiVincentTaskLocalUrl, taskLocalUrl)
                 .eq(SysAiVincentTask::getSysAiVincentTaskUid, request.getTaskId())

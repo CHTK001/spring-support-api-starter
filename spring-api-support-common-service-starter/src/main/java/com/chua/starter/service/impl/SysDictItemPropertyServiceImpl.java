@@ -3,7 +3,7 @@ package com.chua.starter.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.core.utils.CollectionUtils;
 import com.chua.starter.service.SysDictItemPropertyService;
 import com.chua.starter.service.SysDictItemService;
 import com.chua.starter.service.mapper.SysDictItemPropertyMapper;

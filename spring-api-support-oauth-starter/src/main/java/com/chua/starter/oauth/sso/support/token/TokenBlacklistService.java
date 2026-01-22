@@ -1,7 +1,7 @@
 package com.chua.starter.oauth.sso.support.token;
 
-import com.chua.common.support.utils.DigestUtils;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.DigestUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;

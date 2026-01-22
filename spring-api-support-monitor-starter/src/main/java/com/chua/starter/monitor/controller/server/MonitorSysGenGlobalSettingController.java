@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.controller.server;
 
-import com.chua.common.support.annotations.OnRouterEvent;
+import com.chua.common.support.core.annotation.OnRouterEvent;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenGlobalSetting;
 import com.chua.starter.monitor.service.server.MonitorSysGenGlobalSettingService;

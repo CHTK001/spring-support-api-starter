@@ -45,7 +45,7 @@ public class JobTriggerPoolHelper {
         //triggerPool.shutdown();
         fastTriggerPool.shutdownNow();
         slowTriggerPool.shutdownNow();
-        logger.info(">>>>>>>>> job trigger thread pool shutdown success.");
+        log.info(">>>>>>>>> job trigger thread pool shutdown success.");
     }
 
 
@@ -85,7 +85,7 @@ public class JobTriggerPoolHelper {
                 // 执行触发逻辑
                 XxlJobTrigger.trigger(jobId, triggerType, failRetryCount, executorShardingParam, executorParam);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             } finally {
 
                 // 检查并更新超时计数Map

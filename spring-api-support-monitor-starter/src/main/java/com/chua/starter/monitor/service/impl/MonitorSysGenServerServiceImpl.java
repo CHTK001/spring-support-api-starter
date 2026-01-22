@@ -5,11 +5,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.advanced.support.indicator.TimeIndicator;
+import com.chua.extension.support.indicator.TimeIndicator;
 import com.chua.common.support.function.Splitter;
-import com.chua.common.support.json.Json;
+import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.entity.FileSystemSetting;
@@ -2507,11 +2507,11 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 String key = REDIS_METRICS_PREFIX + serverId + ":" + metricType;
 
                 // 使用timeSeriesService查询数据
-                ReturnResult<List<TimeIndicator>> queryResult = timeSeriesService.range(key, startTimestamp,
+                var queryResult = timeSeriesService.range(key, startTimestamp,
                         endTimestamp, false, 1000);
 
                 if (queryResult.isSuccess() && queryResult.getData() != null) {
-                    for (TimeIndicator indicator : queryResult.getData()) {
+                    for (var indicator : queryResult.getData()) {
                         Map<String, Object> dataPoint = new HashMap<>();
                         dataPoint.put("timestamp", indicator.getTimestamp());
                         dataPoint.put("metricType", metricType);
@@ -2552,11 +2552,11 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 String key = REDIS_METRICS_PREFIX + serverId + ":" + metricType;
 
                 // 使用timeSeriesService查询数据
-                ReturnResult<List<TimeIndicator>> queryResult = timeSeriesService.range(key, startTimestamp,
+                var queryResult = timeSeriesService.range(key, startTimestamp,
                         endTimestamp, false, 1000);
 
                 if (queryResult.isSuccess() && queryResult.getData() != null) {
-                    for (TimeIndicator indicator : queryResult.getData()) {
+                    for (var indicator : queryResult.getData()) {
                         Map<String, Object> dataPoint = new HashMap<>();
                         dataPoint.put("timestamp", indicator.getTimestamp());
                         dataPoint.put("metricType", metricType);

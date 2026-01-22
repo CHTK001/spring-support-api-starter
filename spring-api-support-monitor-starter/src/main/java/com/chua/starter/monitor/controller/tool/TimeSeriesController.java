@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.controller;
 
-import com.chua.advanced.support.indicator.DataIndicator;
-import com.chua.advanced.support.indicator.TimeIndicator;
+import com.chua.extension.support.indicator.DataIndicator;
+import com.chua.extension.support.indicator.TimeIndicator;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.redis.support.constant.RedisConstant;
 import com.chua.starter.monitor.pojo.IndicatorQuery;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.chua.redis.support.constant.RedisConstant.REDIS_SIMPLE_SERIES_PREFIX;
 
@@ -45,11 +46,25 @@ public class TimeSeriesController {
     @Operation(summary = "查询指标信息")
     @GetMapping("series")
     public ReturnResult<List<TimeIndicator>> list(IndicatorQuery indicatorQuery) {
-        return timeSeriesService.range(RedisConstant.REDIS_TIME_SERIES_PREFIX + indicatorQuery.getName(),
+        var result = timeSeriesService.range(RedisConstant.REDIS_TIME_SERIES_PREFIX + indicatorQuery.getName(),
                 indicatorQuery.getFromTimestamp(),
                 indicatorQuery.getToTimestamp(),
                 indicatorQuery.isLatest(),
                 indicatorQuery.getCount());
+        if (result == null || !result.isSuccess()) {
+            return result != null ? ReturnResult.error(result.getMsg()) : ReturnResult.error("查询失败");
+        }
+        var data = result.getData();
+        if (data == null) {
+            return ReturnResult.ok(List.of());
+        }
+        var converted = data.stream().map(item -> {
+            var ti = new TimeIndicator("");
+            ti.setTimestamp(item.getTimestamp());
+            ti.setValue(item.getValue());
+            return ti;
+        }).collect(Collectors.toList());
+        return ReturnResult.ok(converted);
     }
 
 
@@ -73,11 +88,28 @@ public class TimeSeriesController {
     @Operation(summary = "查询指标信息")
     @GetMapping("multi")
     public ReturnResult<Map<String, List<TimeIndicator>>> mRange(IndicatorQuery indicatorQuery) {
-        return timeSeriesService.mRange(RedisConstant.REDIS_TIME_SERIES_PREFIX + indicatorQuery.getName(),
+        var result = timeSeriesService.mRange(RedisConstant.REDIS_TIME_SERIES_PREFIX + indicatorQuery.getName(),
                 indicatorQuery.getFromTimestamp(),
                 indicatorQuery.getToTimestamp(),
                 indicatorQuery.isLatest(),
                 indicatorQuery.getCount());
+        if (result == null || !result.isSuccess()) {
+            return result != null ? ReturnResult.error(result.getMsg()) : ReturnResult.error("查询失败");
+        }
+        var data = result.getData();
+        if (data == null) {
+            return ReturnResult.ok(Map.of());
+        }
+        var converted = data.entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> entry.getValue().stream().map(item -> {
+                    var ti = new TimeIndicator("");
+                    ti.setTimestamp(item.getTimestamp());
+                    ti.setValue(item.getValue());
+                    return ti;
+                }).collect(Collectors.toList())
+        ));
+        return ReturnResult.ok(converted);
     }
     /**
      * 查询基本信息。
@@ -88,7 +120,18 @@ public class TimeSeriesController {
     @Operation(summary = "查询指标信息")
     @GetMapping("get")
     public ReturnResult<DataIndicator> get(IndicatorQuery indicatorQuery) {
-        return timeSeriesService.get(REDIS_SIMPLE_SERIES_PREFIX + indicatorQuery.getName(), indicatorQuery.getFromTimestamp(), indicatorQuery.getToTimestamp(), indicatorQuery.getCount());
+        var result = timeSeriesService.get(REDIS_SIMPLE_SERIES_PREFIX + indicatorQuery.getName(), indicatorQuery.getFromTimestamp(), indicatorQuery.getToTimestamp(), indicatorQuery.getCount());
+        if (result == null || !result.isSuccess()) {
+            return result != null ? ReturnResult.error(result.getMsg()) : ReturnResult.error("查询失败");
+        }
+        var data = result.getData();
+        if (data == null) {
+            return ReturnResult.error("数据为空");
+        }
+        var di = new DataIndicator("");
+        di.setTimestamp(data.getTimestamp());
+        di.setValue(data.getValue() != null ? String.valueOf(data.getValue()) : "");
+        return ReturnResult.ok(di);
     }
     /**
      * 查询基本信息。

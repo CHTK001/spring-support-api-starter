@@ -1,7 +1,7 @@
 package com.chua.starter.oauth.sso.support.information;
 
-import com.chua.common.support.utils.MapUtils;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.MapUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.parser.OauthAuthorization;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
@@ -49,7 +49,7 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    protected String getRequestHeader(Object request, String headerName) {
+    public String getRequestHeader(Object request, String headerName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getHeader(headerName);
         } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest) {

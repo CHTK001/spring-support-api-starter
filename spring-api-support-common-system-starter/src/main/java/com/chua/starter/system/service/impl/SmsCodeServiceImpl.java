@@ -1,14 +1,14 @@
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.collection.ImmutableBuilder;
-import com.chua.common.support.json.JsonObject;
+import com.chua.common.support.base.collection.ImmutableBuilder;
+import com.chua.common.support.text.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.MessagePush;
 import com.chua.common.support.lang.message.option.TemplateSetting;
 import com.chua.common.support.lang.message.result.PushResult;
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.CollectionUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
@@ -197,7 +197,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
         Map<String, Object> ext = ImmutableBuilder.<String, Object>builderOfMap()
                 .put("loginType", "sms")
                 .put("phone", phone)
-                .put("address", RequestUtils.getIpAddress())
+                .put("address", RequestUtils.getIpAddress(httpRequest))
                 .build();
 
         LoginAuthResult accessToken = AuthClientExecute.getInstance()

@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.FileUtils;
-import com.chua.common.support.utils.MapUtils;
+import com.chua.common.support.core.utils.FileUtils;
+import com.chua.common.support.core.utils.MapUtils;
 import com.chua.starter.monitor.pojo.node.NodeMyBatisMapperDTO;
 import com.chua.starter.monitor.pojo.node.OnlineNodeInfo;
 import com.chua.starter.monitor.service.node.NodeManagementService;
@@ -328,7 +328,7 @@ public class NodeMyBatisConfigServiceImpl implements NodeMyBatisConfigService {
         return String.format("http://%s:%d/%s", 
                 nodeInfo.getIpAddress(), 
                 nodeInfo.getPort(),
-                com.chua.common.support.utils.StringUtils.removeStart(
+                com.chua.common.support.core.utils.StringUtils.removeStart(
                         FileUtils.normalize(String.format("%s/%s/%s", contextPath, actuatorPath, endpoint)), "/"));
     }
 

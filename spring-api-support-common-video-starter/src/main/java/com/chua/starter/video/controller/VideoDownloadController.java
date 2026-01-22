@@ -2,7 +2,7 @@ package com.chua.starter.video.controller;
 
 import com.chua.common.support.lang.code.ListReturnResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.validator.group.AddGroup;
+import com.chua.common.support.base.validator.group.AddGroup;
 import com.chua.starter.video.entity.VideoDownload;
 import com.chua.starter.video.service.VideoDownloadService;
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,6 +1,6 @@
 package com.chua.starter.service.impl;
 
-import com.chua.common.support.json.Json;
+import com.chua.common.support.text.json.Json;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.information;
 
-import com.chua.common.support.converter.Converter;
+import com.chua.common.support.base.converter.Converter;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.parser.Authorization;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;

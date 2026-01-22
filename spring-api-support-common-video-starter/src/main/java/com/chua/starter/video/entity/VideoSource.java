@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.chua.common.support.utils.ArrayUtils;
+import com.chua.common.support.core.utils.ArrayUtils;
 import com.chua.starter.mybatis.pojo.SysBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -13,7 +13,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 
-import static com.chua.common.support.data.sql.SortCondition.SortDirection.ASC;
+import static com.chua.common.support.core.utils.ArrayUtils.SortDirection.ASC;
 
 /**
  * @author CH

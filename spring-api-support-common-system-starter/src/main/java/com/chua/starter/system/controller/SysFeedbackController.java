@@ -1,9 +1,9 @@
 package com.chua.starter.system.controller;
 
-import com.chua.common.support.annotations.Ignore;
+import com.chua.common.support.core.annotation.Ignore;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.system.model.feedback.FeedbackStatisticV1Response;

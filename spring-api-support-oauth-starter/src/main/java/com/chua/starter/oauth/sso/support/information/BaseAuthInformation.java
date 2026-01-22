@@ -1,11 +1,11 @@
 package com.chua.starter.oauth.sso.support.information;
 
-import com.chua.common.support.converter.Converter;
+import com.chua.common.support.base.converter.Converter;
 import com.chua.common.support.crypto.Codec;
-import com.chua.common.support.json.Json;
-import com.chua.common.support.json.JsonObject;
-import com.chua.common.support.utils.IdUtils;
-import com.chua.common.support.utils.SignUtils;
+import com.chua.common.support.text.json.Json;
+import com.chua.common.support.text.json.JsonObject;
+import com.chua.common.support.core.utils.IdUtils;
+import com.chua.common.support.core.utils.SignUtils;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.controller.OAuthAdminController;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;

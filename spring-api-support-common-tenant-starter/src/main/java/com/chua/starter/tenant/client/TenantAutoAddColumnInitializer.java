@@ -1,10 +1,11 @@
 package com.chua.starter.tenant.client;
 
-import com.chua.common.support.datasource.dialect.Dialect;
-import com.chua.common.support.datasource.dialect.DialectFactory;
-import com.chua.common.support.datasource.meta.ColumnMetadata;
-import com.chua.common.support.datasource.meta.TableMetadata;
-import com.chua.common.support.datasource.type.JavaType;
+// TODO: 这些类已移除，需要重构或使用替代方案
+// import com.chua.common.support.datasource.dialect.Dialect;
+// import com.chua.common.support.datasource.dialect.DialectFactory;
+// import com.chua.common.support.datasource.meta.ColumnMetadata;
+// import com.chua.common.support.datasource.meta.TableMetadata;
+// import com.chua.common.support.datasource.type.JavaType;
 import com.chua.starter.tenant.constant.TenantDbConstants;
 import com.chua.starter.tenant.properties.TenantProperties;
 import lombok.RequiredArgsConstructor;
@@ -46,8 +47,9 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
 
     /**
      * 数据库方言（懒加载）
+     * TODO: Dialect 类已移除，需要重构
      */
-    private Dialect dialect;
+    // private Dialect dialect;
 
     /**
      * 执行初始化逻辑
@@ -195,86 +197,22 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
     /**
      * 为指定表添加租户字段
      * <p>
-     * 使用 utils-common 的 TableMetadata 和 ColumnMetadata 生成 DDL 语句
+     * TODO: Dialect、TableMetadata、ColumnMetadata 类已移除，需要重构
+     * 暂时使用简单的 SQL 语句实现
      * </p>
      *
      * @param tableName 表名
      */
     private void addTenantColumn(String tableName) {
         try {
-            // 获取数据库方言
-            Dialect currentDialect = getDialect();
-            if (currentDialect == null) {
-                log.error("[租户自动加字段] 无法获取数据库方言，跳过表: {}", tableName);
-                return;
-            }
-
-            // 构建表元数据
-            TableMetadata tableMetadata = new TableMetadata();
-            tableMetadata.setName(tableName);
-
-            // 构建租户字段的列元数据
-            ColumnMetadata columnMetadata = createTenantColumnMetadata();
-
-            // 使用 TableMetadata 生成 ADD COLUMN SQL
-            String alterSql = tableMetadata.sqlAddColumn(currentDialect, columnMetadata);
+            // 使用简单的 ALTER TABLE 语句
+            String alterSql = "ALTER TABLE " + tableName + " ADD COLUMN " + TenantDbConstants.TENANT_ID_COLUMN + " VARCHAR(64) COMMENT '租户ID'";
             log.debug("[租户自动加字段] 生成的SQL: {}", alterSql);
 
             jdbcTemplate.execute(alterSql);
             log.info("[租户自动加字段] 已补齐租户字段: table={}, column={}", tableName, TenantDbConstants.TENANT_ID_COLUMN);
         } catch (Exception e) {
             log.error("[租户自动加字段] 补齐租户字段失败: table={}", tableName, e);
-        }
-    }
-
-    /**
-     * 创建租户字段的列元数据
-     *
-     * @return 列元数据
-     */
-    private ColumnMetadata createTenantColumnMetadata() {
-        ColumnMetadata columnMetadata = new ColumnMetadata();
-        columnMetadata.setColumnName(TenantDbConstants.TENANT_ID_COLUMN);
-        columnMetadata.setComment("租户ID");
-        columnMetadata.setNullable(true);
-        columnMetadata.setLength(64);
-        // 设置 Java 类型为 String，对应 VARCHAR
-        columnMetadata.setJavaType(new JavaType(String.class, "VARCHAR"));
-        return columnMetadata;
-    }
-
-    /**
-     * 获取数据库方言（懒加载）
-     *
-     * @return 数据库方言
-     */
-    private Dialect getDialect() {
-        if (dialect != null) {
-            return dialect;
-        }
-
-        DataSource dataSource = jdbcTemplate.getDataSource();
-        if (dataSource == null) {
-            log.error("[租户自动加字段] 无法获取数据源");
-            return null;
-        }
-
-        try (Connection connection = dataSource.getConnection()) {
-            DatabaseMetaData metaData = connection.getMetaData();
-            String url = metaData.getURL();
-            String driverName = metaData.getDriverName();
-            log.debug("[租户自动加字段] 数据库URL: {}, 驱动: {}", url, driverName);
-
-            // 使用 DialectFactory 创建方言
-            dialect = DialectFactory.createDialect(url, driverName);
-
-            if (dialect != null) {
-                log.debug("[租户自动加字段] 使用数据库方言: {}", dialect.getClass().getSimpleName());
-            }
-            return dialect;
-        } catch (Exception e) {
-            log.error("[租户自动加字段] 获取数据库方言失败", e);
-            return null;
         }
     }
 }

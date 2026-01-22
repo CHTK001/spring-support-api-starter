@@ -1,6 +1,6 @@
 package com.chua.starter.project.pojo.sms;
 
-import com.chua.common.support.validator.group.SelectGroup;
+import com.chua.common.support.base.validator.group.SelectGroup;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.entity.project.SysSmsTemplate;
 import io.swagger.v3.oas.annotations.media.Schema;

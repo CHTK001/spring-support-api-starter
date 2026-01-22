@@ -1,6 +1,6 @@
 package com.chua.starter.project.pojo.project;
 
-import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.common.support.base.validator.group.UpdateGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
