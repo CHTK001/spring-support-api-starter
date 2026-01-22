@@ -1,5 +1,7 @@
 package com.chua.starter.monitor.controller.alert;
 
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;
@@ -51,7 +53,7 @@ public class AlertHistoryController {
             return alertHistoryService.pageAlerts(query);
         } catch (Exception e) {
             log.error("分页查询告警历史失败", e);
-            return ReturnPageResult.error("分页查询告警历史失败: " + e.getMessage());
+            return ReturnPageResultUtils.error("分页查询告警历史失败: " + e.getMessage());
         }
     }
 

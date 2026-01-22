@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.job.route;
 
-import com.chua.common.support.discovery.Discovery;
+import com.chua.common.support.network.discovery.Discovery;
 import com.chua.report.client.starter.job.TriggerParam;
 
 import java.util.Set;

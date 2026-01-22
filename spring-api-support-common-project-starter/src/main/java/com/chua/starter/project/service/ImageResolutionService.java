@@ -1,7 +1,7 @@
 package com.chua.starter.project.service;
 
-import com.chua.deeplearning.support.ml.bigmodel.resolution.ImageResolutionAddTaskV1Response;
-import com.chua.deeplearning.support.ml.bigmodel.resolution.ImageResolutionSearchTaskV1Response;
+import com.chua.deeplearning.support.core.response.ImageResolutionAddTaskV1Response;
+import com.chua.deeplearning.support.core.response.ImageResolutionSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.project.pojo.vincent.ImageResolutionAddTaskV2Request;
 import com.chua.starter.project.pojo.vincent.ImageResolutionSearchTaskV2Request;

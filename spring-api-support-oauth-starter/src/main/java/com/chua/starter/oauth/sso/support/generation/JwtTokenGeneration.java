@@ -1,8 +1,8 @@
 package com.chua.starter.oauth.sso.support.generation;
 
-import com.chua.common.support.annotations.Extension;
+import com.chua.common.support.core.annotation.Extension;
 import com.chua.common.support.objects.annotation.AutoInject;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

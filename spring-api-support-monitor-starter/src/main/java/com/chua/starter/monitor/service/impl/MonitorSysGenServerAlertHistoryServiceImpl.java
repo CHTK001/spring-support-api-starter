@@ -1,5 +1,7 @@
 package com.chua.starter.monitor.service.impl;
 
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -7,8 +9,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.CollectionUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;
 import com.chua.starter.monitor.enums.AlertLevel;
 import com.chua.starter.monitor.enums.AlertStatus;
@@ -497,7 +499,7 @@ public class MonitorSysGenServerAlertHistoryServiceImpl
             return PageResultUtils.ok(result);
         } catch (Exception e) {
             log.error("分页查询告警历史失败", e);
-            return ReturnPageResult.error("分页查询告警历史失败: " + e.getMessage());
+            return ReturnPageResultUtils.error("分页查询告警历史失败: " + e.getMessage());
         }
     }
 

@@ -3,7 +3,7 @@ package com.chua.starter.system.pojo;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.chua.common.support.validator.group.AddGroup;
+import com.chua.common.support.base.validator.group.AddGroup;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;

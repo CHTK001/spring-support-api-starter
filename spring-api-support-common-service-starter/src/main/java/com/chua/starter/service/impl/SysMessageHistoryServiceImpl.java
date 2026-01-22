@@ -3,7 +3,7 @@ package com.chua.starter.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.SysMessageHistoryService;
 import com.chua.starter.service.mapper.SysMessageHistoryMapper;

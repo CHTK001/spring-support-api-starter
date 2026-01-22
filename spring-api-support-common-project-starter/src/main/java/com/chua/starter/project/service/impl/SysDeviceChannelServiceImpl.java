@@ -3,7 +3,7 @@ package com.chua.starter.project.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.core.utils.CollectionUtils;
 import com.chua.starter.project.mapper.SysDeviceChannelMapper;
 import com.chua.starter.project.service.SysDeviceChannelService;
 import com.chua.starter.entity.project.SysDeviceChannel;

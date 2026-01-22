@@ -97,7 +97,7 @@ public class ArtemisHttpUtil {
                 headers.put(HttpHeader.HTTP_HEADER_CONTENT_TYPE, CONTENT_TYPE_TEXT);
             }
 
-            logger.info(path.get(httpSchema));
+            log.info(path.get(httpSchema));
             Request request = new Request(Method.GET, httpSchema + artemisConfig.host,
                     path.get(httpSchema), artemisConfig.appKey, artemisConfig.appSecret, Constants.DEFAULT_TIMEOUT);
             request.setHeaders(headers);
@@ -107,7 +107,7 @@ public class ArtemisHttpUtil {
             Response response = Client.execute(request);
             responseStr = response.getBody();
         } catch (Exception e) {
-            logger.error("the Artemis GET Request is failed[doGetArtemis]", e);
+            log.error("the Artemis GET Request is failed[doGetArtemis]", e);
         }
         return responseStr;
     }
@@ -149,7 +149,7 @@ public class ArtemisHttpUtil {
                 headers.put(HttpHeader.HTTP_HEADER_CONTENT_TYPE, CONTENT_TYPE_TEXT);
             }
 
-            logger.info(path.get(httpSchema));
+            log.info(path.get(httpSchema));
             Request request = new Request(Method.GET, httpSchema + artemisConfig.host,
                     path.get(httpSchema), artemisConfig.appKey, artemisConfig.appSecret, Constants.DEFAULT_TIMEOUT);
             request.setHeaders(headers);
@@ -159,7 +159,7 @@ public class ArtemisHttpUtil {
             Response response = Client.execute(request);
             responseStr = response.getBody();
         } catch (Exception e) {
-            logger.error("the Artemis GET Request is failed[doGetArtemis]", e);
+            log.error("the Artemis GET Request is failed[doGetArtemis]", e);
         }
         return responseStr;
     }
@@ -220,7 +220,7 @@ public class ArtemisHttpUtil {
             httpResponse = response.getResponse();
 
         } catch (Exception e) {
-            logger.error("the Artemis GET Request is failed[doGetArtemis]", e);
+            log.error("the Artemis GET Request is failed[doGetArtemis]", e);
         }
 
         return httpResponse;
@@ -289,7 +289,7 @@ public class ArtemisHttpUtil {
             responseStr = getResponseResult(response);
 
         } catch (Exception e) {
-            logger.error("the Artemis PostForm Request is failed[doPostFormArtemis]", e);
+            log.error("the Artemis PostForm Request is failed[doPostFormArtemis]", e);
         }
         return responseStr;
     }
@@ -351,7 +351,7 @@ public class ArtemisHttpUtil {
             responseStr = getResponseResult(response);
 
         } catch (Exception e) {
-            logger.error("the Artemis PostForm Request is failed[doPostFormArtemis]", e);
+            log.error("the Artemis PostForm Request is failed[doPostFormArtemis]", e);
         }
         return responseStr;
     }
@@ -416,7 +416,7 @@ public class ArtemisHttpUtil {
             response = response1.getResponse();
 
         } catch (Exception e) {
-            logger.error("the Artemis PostForm Request is failed[doPostFormImgArtemis]", e);
+            log.error("the Artemis PostForm Request is failed[doPostFormImgArtemis]", e);
         }
         return response;
     }
@@ -478,7 +478,7 @@ public class ArtemisHttpUtil {
             responseStr = getResponseResult(response);
 
         } catch (Exception e) {
-            logger.error("the Artemis PostString Request is failed[doPostStringArtemis]", e);
+            log.error("the Artemis PostString Request is failed[doPostStringArtemis]", e);
         }
         return responseStr;
     }
@@ -535,7 +535,7 @@ public class ArtemisHttpUtil {
             responseStr = getResponseResult(response);
 
         } catch (Exception e) {
-            logger.error("the Artemis PostString Request is failed[doPostStringArtemis]", e);
+            log.error("the Artemis PostString Request is failed[doPostStringArtemis]", e);
         }
         return responseStr;
     }
@@ -599,7 +599,7 @@ public class ArtemisHttpUtil {
             responseStr = response.getResponse();
 
         } catch (Exception e) {
-            logger.error("the Artemis PostString Request is failed[doPostStringArtemis]", e);
+            log.error("the Artemis PostString Request is failed[doPostStringArtemis]", e);
         }
         return responseStr;
     }
@@ -656,7 +656,7 @@ public class ArtemisHttpUtil {
 
             responseStr = getResponseResult(response);
         } catch (Exception e) {
-            logger.error("the Artemis PostBytes Request is failed[doPostBytesArtemis]", e);
+            log.error("the Artemis PostBytes Request is failed[doPostBytesArtemis]", e);
         }
         return responseStr;
     }
@@ -711,7 +711,7 @@ public class ArtemisHttpUtil {
 
             responseStr = getResponseResult(response);
         } catch (Exception e) {
-            logger.error("the Artemis PostBytes Request is failed[doPostBytesArtemis]", e);
+            log.error("the Artemis PostBytes Request is failed[doPostBytesArtemis]", e);
         }
         return responseStr;
     }
@@ -765,7 +765,7 @@ public class ArtemisHttpUtil {
             responseStr = getResponseResult(response);
 
         } catch (Exception e) {
-            logger.error("the Artemis PutString Request is failed[doPutStringArtemis]", e);
+            log.error("the Artemis PutString Request is failed[doPutStringArtemis]", e);
         }
         return responseStr;
     }
@@ -817,7 +817,7 @@ public class ArtemisHttpUtil {
 
             responseStr = getResponseResult(response);
         } catch (Exception e) {
-            logger.error("the Artemis PutBytes Request is failed[doPutBytesArtemis]", e);
+            log.error("the Artemis PutBytes Request is failed[doPutBytesArtemis]", e);
         }
         return responseStr;
     }
@@ -862,7 +862,7 @@ public class ArtemisHttpUtil {
 
             responseStr = getResponseResult(response);
         } catch (Exception e) {
-            logger.error("the Artemis DELETE Request is failed[doDeleteArtemis]", e);
+            log.error("the Artemis DELETE Request is failed[doDeleteArtemis]", e);
         }
         return responseStr;
     }
@@ -879,12 +879,12 @@ public class ArtemisHttpUtil {
 
         if (String.valueOf(statusCode).startsWith(SUCC_PRE) || String.valueOf(statusCode).startsWith(REDIRECT_PRE)) {//调用Artemis网关成功
             responseStr = response.getBody();
-            logger.debug("the Artemis Request is Success,statusCode:" + statusCode + " SuccessMsg:" + response.getBody());
+            log.debug("the Artemis Request is Success,statusCode:" + statusCode + " SuccessMsg:" + response.getBody());
 
         } else {
             String msg = response.getErrorMessage();
             responseStr = response.getBody();
-            logger.error("the Artemis Request is Failed,statusCode:" + statusCode + " errorMsg:" + msg);
+            log.error("the Artemis Request is Failed,statusCode:" + statusCode + " errorMsg:" + msg);
         }
         return responseStr;
     }

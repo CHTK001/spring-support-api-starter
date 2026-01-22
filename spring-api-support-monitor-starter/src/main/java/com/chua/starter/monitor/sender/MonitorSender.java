@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.sender;
 
-import com.chua.common.support.discovery.Discovery;
+import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.lang.code.ReturnCode;
 import com.chua.report.client.starter.job.TriggerParam;
 import com.chua.starter.monitor.entity.MonitorJobLog;
@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
 
-import static com.chua.common.support.utils.MathUtils.ZERO;
+import static com.chua.common.support.core.utils.MathUtils.ZERO;
 
 /**
  * 监控发送

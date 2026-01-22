@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.spi;
 
-import com.chua.common.support.annotations.SpiDescribe;
+import com.chua.common.support.core.annotation.SpiDescribe;
 import com.chua.starter.monitor.entity.MonitorSysGenMessagePushTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;
 

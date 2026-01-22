@@ -1,11 +1,11 @@
 package com.chua.starter.project.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.deeplearning.support.ml.PredictResult;
-import com.chua.deeplearning.support.ml.feature.DetectionConfiguration;
-import com.chua.deeplearning.support.ml.function.FaceDetector;
+import com.chua.deeplearning.support.core.result.PredictResult;
+import com.chua.deeplearning.support.core.feature.DetectionConfiguration;
+import com.chua.deeplearning.support.core.function.Detector;
 import com.chua.deeplearning.support.ml.identification.IdentificationEngine;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.project.pojo.ImageRequest;
 import com.chua.starter.project.service.OcrService;
 import com.chua.starter.project.service.SysAiModuleService;
@@ -66,11 +66,12 @@ public class OcrServiceImpl implements OcrService {
         if (null == identificationEngine) {
             throw new RuntimeException("暂不支持");
         }
-        FaceDetector faceDetector = identificationEngine.get(request.getProvider(), FaceDetector.class);
-        if (null == faceDetector) {
+        Detector detector = identificationEngine.get(request.getProvider(), Detector.class);
+        if (null == detector) {
             throw new RuntimeException("暂不支持");
         }
 
-        return ReturnResult.of(faceDetector.predict(file));
+        var result = detector.detect(file);
+        return ReturnResult.of(result.isEmpty() ? PredictResult.empty() : result.top1());
     }
 }

@@ -2,13 +2,13 @@ package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.bean.BeanUtils;
+import com.chua.common.support.base.bean.BeanUtils;
 import com.chua.common.support.function.Joiner;
 import com.chua.common.support.function.SafeConsumer;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.treenode.TreeNode;
-import com.chua.common.support.utils.StringUtils;
-import com.chua.common.support.utils.TreeUtils;
+import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.core.utils.TreeUtils;
 import com.chua.starter.entity.system.SysDept;
 import com.chua.starter.system.mapper.SysDeptMapper;
 import com.chua.starter.system.constant.SystemConstant;

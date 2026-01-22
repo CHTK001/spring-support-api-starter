@@ -1,9 +1,9 @@
 package com.chua.starter.system.controller;
 
-import com.chua.common.support.annotations.Ignore;
-import com.chua.common.support.constant.Constants;
-import com.chua.common.support.utils.IdUtils;
-import com.chua.common.support.utils.RandomUtils;
+import com.chua.common.support.core.annotation.Ignore;
+import com.chua.common.support.core.constant.Constants;
+import com.chua.common.support.core.utils.IdUtils;
+import com.chua.common.support.core.utils.RandomUtils;
 import com.chua.starter.common.support.constant.CaptchaTypeEnum;
 import com.chua.starter.common.support.properties.CaptchaProperties;
 import com.chua.starter.oauth.client.support.annotation.TokenForIgnore;
@@ -126,7 +126,7 @@ public class CaptchaController {
         String captchaBase64 = captcha.toBase64();
         HttpSession session = request.getSession();
         session.setAttribute(Constants.CAPTCHA_SESSION_KEY, captchaText);
-        String ulid = IdUtils.createUlid();
+        String ulid = IdUtils.createSimpleUuid();
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
         valueOperations.set(ulid, captchaText, 30, TimeUnit.SECONDS);
         return CaptchaResult.builder()

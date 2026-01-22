@@ -1,7 +1,7 @@
 package com.chua.starter.tenant.client;
 
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.utils.MapUtils;
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.core.utils.MapUtils;
 import com.chua.sync.support.spi.SyncMessageHandler;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.properties.TenantProperties;

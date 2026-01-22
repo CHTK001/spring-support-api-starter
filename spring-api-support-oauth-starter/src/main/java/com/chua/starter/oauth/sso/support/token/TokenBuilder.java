@@ -1,7 +1,7 @@
 package com.chua.starter.oauth.sso.support.token;
 
-import com.chua.common.support.utils.DigestUtils;
-import com.chua.common.support.utils.IdUtils;
+import com.chua.common.support.core.utils.DigestUtils;
+import com.chua.common.support.core.utils.IdUtils;
 
 /**
  * Token 生成工具

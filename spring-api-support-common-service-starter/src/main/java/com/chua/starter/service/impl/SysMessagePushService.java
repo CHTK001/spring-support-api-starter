@@ -1,6 +1,6 @@
 package com.chua.starter.service.impl;
 
-import com.chua.common.support.json.Json;
+import com.chua.common.support.text.json.Json;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.starter.entity.service.SysMessage;

@@ -1,6 +1,6 @@
 package com.chua.starter.service.task;
 
-import com.chua.common.support.utils.NumberUtils;
+import com.chua.common.support.core.utils.NumberUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.service.SysMessageHistoryService;
 import com.chua.starter.service.SysMessageService;

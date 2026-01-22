@@ -2,7 +2,7 @@ package com.chua.starter.video.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.starter.video.entity.VideoSource;
 import com.chua.starter.video.mapper.VideoSourceMapper;
 import com.chua.starter.video.pojo.FunctionType;

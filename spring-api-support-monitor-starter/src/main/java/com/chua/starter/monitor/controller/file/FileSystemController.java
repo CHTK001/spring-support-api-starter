@@ -1,5 +1,7 @@
 package com.chua.starter.monitor.controller.file;
 
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.FileSystem;
@@ -70,7 +72,7 @@ public class FileSystemController {
             return fileSystemService.pageFor(query, fileSystem);
         } catch (Exception e) {
             log.error("分页查询文件列表失败", e);
-            return ReturnPageResult.error("查询失败: " + e.getMessage());
+            return ReturnPageResultUtils.error("查询失败: " + e.getMessage());
         }
     }
 

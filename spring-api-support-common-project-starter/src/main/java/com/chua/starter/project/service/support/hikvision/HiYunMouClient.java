@@ -5,7 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.function.InitializingAware;
-import com.chua.common.support.utils.ThreadUtils;
+import com.chua.common.support.core.utils.ThreadUtils;
 import com.chua.starter.project.service.support.hikvision.adaptor.CarFactory;
 import com.chua.starter.project.service.support.hikvision.adaptor.FaceFactory;
 import com.chua.starter.project.service.support.hikvision.adaptor.MetroCardFactory;

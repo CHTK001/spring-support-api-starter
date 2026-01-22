@@ -1,5 +1,7 @@
 package com.chua.starter.video.service.impl;
 
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+
 import com.chua.common.support.lang.code.PageResult;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.starter.video.pojo.VideoInfoResult;
@@ -38,14 +40,14 @@ public class ResourceSearchManagerImpl implements ResourceSearchManager {
     public ReturnPageResult<VideoInfoResult> searchFromAllResources(VideoSearch videoSearch) {
         String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {
-            return ReturnPageResult.error("关键词不能为空");
+            return ReturnPageResultUtils.error("关键词不能为空");
         }
 
         List<VideoInfoResult> result = new ArrayList<>();
         List<ResourceProvider> availableProviders = videoSourceService.getAvailableProviders(SEARCH);
 
         if (availableProviders.isEmpty()) {
-            return ReturnPageResult.error("没有可用的资源提供者");
+            return ReturnPageResultUtils.error("没有可用的资源提供者");
         }
 
         CountDownLatch latch = new CountDownLatch(availableProviders.size());
@@ -67,11 +69,11 @@ public class ResourceSearchManagerImpl implements ResourceSearchManager {
                     .start(() -> {
                         try {
                             ReturnPageResult<VideoInfoResult> searchResult = provider.searchResource(newVideoSearch);
-                            if (searchResult.isOk() && !searchResult.isEmpty()) {
-                                List<VideoInfoResult> data = searchResult.getData().getData();
+                            if ((searchResult.data() != null && searchResult.data().getData() != null && !searchResult.data().getData().isEmpty())) {
+                                List<VideoInfoResult> data = searchResult.data().getData();
                                 registerIntoUpdateDatabase(data);
                                 result.addAll(data);
-                                counter.addAndGet(searchResult.getData().getTotal());
+                                counter.addAndGet(searchResult.data().getTotal());
                             }
                         } catch (Exception e) {
                             log.error("从资源 [{}] 检索视频时发生错误", videoSearch.getPlatform(), e);
@@ -92,10 +94,10 @@ public class ResourceSearchManagerImpl implements ResourceSearchManager {
         }
 
         if (result.isEmpty()) {
-            return ReturnPageResult.error("未找到相关视频资源");
+            return ReturnPageResultUtils.error("未找到相关视频资源");
         }
-        ReturnPageResult<VideoInfoResult> returnPageResult = ReturnPageResult.ok(result);
-        PageResult<VideoInfoResult> data = returnPageResult.getData();
+        ReturnPageResult<VideoInfoResult> returnPageResult = ReturnPageResultUtils.ok(result, videoSearch.getPage(), videoSearch.getPageSize());
+        PageResult<VideoInfoResult> data = returnPageResult.data();
         data.setTotal(counter.get());
 
         return returnPageResult;

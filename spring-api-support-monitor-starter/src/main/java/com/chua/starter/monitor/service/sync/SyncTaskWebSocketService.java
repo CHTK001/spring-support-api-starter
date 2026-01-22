@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.service.sync;
 
-import com.chua.common.support.json.Json;
+import com.chua.common.support.text.json.Json;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.entity.MonitorSyncTask;

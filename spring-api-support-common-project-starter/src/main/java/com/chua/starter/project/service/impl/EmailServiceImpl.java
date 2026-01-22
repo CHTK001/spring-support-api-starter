@@ -1,13 +1,13 @@
 package com.chua.starter.project.service.impl;
 
-import com.chua.advanced.support.lang.mail.Email;
-import com.chua.advanced.support.lang.mail.MailSender;
+import com.chua.extension.support.lang.mail.Email;
+import com.chua.extension.support.lang.mail.MailSender;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.advanced.support.lang.mail.MailConfiguration;
+import com.chua.extension.support.lang.mail.MailConfiguration;
 import com.chua.common.support.lang.message.MessageCode;
 import com.chua.common.support.lang.message.result.PushResult;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.project.service.EmailService;
 import com.chua.starter.service.setting.SmtpSetting;
@@ -34,11 +34,16 @@ public class EmailServiceImpl implements EmailService {
             return ReturnResult.fail("收件人不能为空");
         }
         SmtpSetting smtpSetting = GlobalSettingFactory.getInstance().get("smtp", SmtpSetting.class);
-        MailSender mailSender = smtpSetting.getMailSender();
         if(StringUtils.isEmpty(smtpSetting.getFrom())) {
             return ReturnResult.fail("邮件设置 - 发送账号未设置");
         }
-
+        
+        MailConfiguration mailConfiguration = new MailConfiguration();
+        mailConfiguration.setSmtpHost(smtpSetting.getHost());
+        mailConfiguration.setPassword(smtpSetting.getPassword());
+        mailConfiguration.setSmtpPort(smtpSetting.getPort());
+        MailSender mailSender = ServiceProvider.of(MailSender.class).getNewExtension("html", mailConfiguration);
+        
         if(null == mailSender) {
             return ReturnResult.fail("暂不支持邮件发送/邮件设置未设置");
         }

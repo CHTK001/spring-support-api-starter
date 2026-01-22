@@ -1,7 +1,7 @@
 package com.chua.starter.video.provider.impl;
 
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.video.entity.VideoSource;
 
 /**

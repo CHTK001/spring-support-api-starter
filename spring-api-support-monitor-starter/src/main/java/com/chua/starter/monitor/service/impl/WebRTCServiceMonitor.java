@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.service.impl;
 
-import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.remote.support.webrtc.WebRTCService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;

@@ -2,8 +2,8 @@ package com.chua.starter.system.controller;
 
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.validator.group.AddGroup;
-import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.common.support.base.validator.group.AddGroup;
+import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.UserLog;

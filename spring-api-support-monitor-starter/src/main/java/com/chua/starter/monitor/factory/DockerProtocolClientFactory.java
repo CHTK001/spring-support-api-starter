@@ -1,9 +1,10 @@
 package com.chua.starter.monitor.factory;
 
-import com.chua.common.support.lang.exception.NotSupportedException;
-import com.chua.common.support.protocol.ClientSetting;
-import com.chua.common.support.utils.ObjectUtils;
-import com.chua.docker.support.client.CmdDockerProtocolClient;
+import com.chua.common.support.core.exception.UnsupportedPlatformException;
+import com.chua.common.support.network.protocol.ClientSetting;
+import com.chua.common.support.core.utils.ObjectUtils;
+// CmdDockerProtocolClient 已重构，通过 SPI 方式创建（使用 "cmd" 类型）
+// import com.chua.docker.support.client.CmdDockerProtocolClient;
 import com.chua.docker.support.client.DockerProtocolClient;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
@@ -77,7 +78,7 @@ public class DockerProtocolClientFactory {
         if (setting.getMonitorSysGenServerSettingDockerEnabled() == null ||
                 setting.getMonitorSysGenServerSettingDockerEnabled() != 1) {
             log.debug("服务器未启用Docker - serverId: {}, serverName: {}", serverId, serverName);
-            throw new NotSupportedException(String.format("服务器[%s](ID:%d)未启用Docker", serverName, serverId));
+            throw new RuntimeException(String.format("服务器[%s](ID:%d)未启用Docker", serverName, serverId));
         }
 
         try {
@@ -333,8 +334,8 @@ public class DockerProtocolClientFactory {
                 .build();
 
         try {
-            // 使用CMD Docker客户端
-            CmdDockerProtocolClient client = CmdDockerProtocolClient.of(clientSetting);
+            // 使用CMD Docker客户端（通过SPI创建，类型为"cmd"）
+            DockerProtocolClient client = DockerProtocolClient.of(clientSetting);
             log.info("CMD Docker客户端创建成功 - serverId: {}, serverName: {}, 将通过SSH({}@{}:{})执行docker命令",
                     serverId, server.getMonitorSysGenServerName(), username, host, port);
             return client;

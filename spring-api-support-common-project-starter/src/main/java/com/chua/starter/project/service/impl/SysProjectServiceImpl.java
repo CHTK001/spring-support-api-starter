@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.function.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.common.support.utils.IdUtils;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.CollectionUtils;
+import com.chua.common.support.core.utils.IdUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.service.cache.CacheCustomTenantedKeyGenerator;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.constant.CacheConstant;
@@ -180,7 +180,7 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
         if (null == sysProject.getSysProjectStatus()) {
             sysProject.setSysProjectStatus(1);
         }
-        sysProject.setSysProjectCode(IdUtils.createUlid());
+        sysProject.setSysProjectCode(IdUtils.fastUuid());
         return transactionTemplate.execute(it -> {
             baseMapper.insert(sysProject);
             saveOrUpdateDefault(sysProject);

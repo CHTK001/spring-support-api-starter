@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.util;
 
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.spi.definition.ServiceDefinition;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.spi.definition.ServiceDefinition;
 import com.chua.starter.monitor.annotation.SpiMeta;
 import com.chua.starter.monitor.annotation.SpiParam;
 import com.chua.starter.monitor.pojo.sync.SpiInfo;

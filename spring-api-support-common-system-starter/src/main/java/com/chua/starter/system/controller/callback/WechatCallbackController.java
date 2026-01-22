@@ -1,12 +1,12 @@
 package com.chua.starter.system.controller.callback;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.annotations.Ignore;
-import com.chua.common.support.collection.ImmutableBuilder;
-import com.chua.common.support.constant.CommonConstant;
-import com.chua.common.support.json.Json;
-import com.chua.common.support.utils.DigestUtils;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.annotation.Ignore;
+import com.chua.common.support.base.collection.ImmutableBuilder;
+import com.chua.common.support.core.constant.CommonConstant;
+import com.chua.common.support.text.json.Json;
+import com.chua.common.support.core.utils.DigestUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.entity.service.SysSetting;
@@ -214,7 +214,7 @@ public class WechatCallbackController {
         Map<String, Object> ext = ImmutableBuilder.<String, Object>builderOfMap()
                 .put("loginType", THIRD_PARTY_TYPE)
                 .put("thirdPartyType", THIRD_PARTY_TYPE)
-                .put("address", RequestUtils.getIpAddress()).build();
+                .put("address", RequestUtils.getIpAddress(request)).build();
 
         LoginAuthResult accessToken = AuthClientExecute.getInstance()
                 .getAccessToken(String.valueOf(userThirdParty.getSysUserId()), null, AuthType.THIRD_PARTY, ext);

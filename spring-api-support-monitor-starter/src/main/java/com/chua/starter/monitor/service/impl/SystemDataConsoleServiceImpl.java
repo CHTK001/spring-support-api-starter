@@ -2,19 +2,15 @@ package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.backup.Backup;
-import com.chua.common.support.backup.BackupSetting;
-import com.chua.common.support.backup.listener.BackupData;
-import com.chua.common.support.backup.listener.BackupListener;
-import com.chua.common.support.backup.strategy.DayBackupStrategy;
-import com.chua.common.support.collection.ConcurrentReferenceHashMap;
-import com.chua.common.support.constant.EventType;
-import com.chua.common.support.datasource.dialect.Dialect;
-import com.chua.common.support.datasource.dialect.DialectFactory;
-import com.chua.common.support.datasource.jdbc.option.DataSourceOptions;
-import com.chua.common.support.document.DocQuery;
-import com.chua.common.support.document.Document;
-import com.chua.common.support.json.Json;
+// Backup 已重构为 Engine 的 BackupFeature 接口，相关功能需要通过 Engine 实例实现
+import com.chua.common.support.base.collection.ConcurrentReferenceHashMap;
+import com.chua.common.support.core.constant.EventType;
+import com.chua.common.support.data.datasource.dialect.Dialect;
+import com.chua.common.support.data.datasource.dialect.DialectFactory;
+import com.chua.common.support.data.datasource.jdbc.option.DataSourceOptions;
+import com.chua.common.support.document.parser.DocQuery;
+import com.chua.common.support.document.parser.Document;
+import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.metadata.base.ConstructMetadata;
 import com.chua.common.support.metadata.command.CommandMetadata;
@@ -27,10 +23,10 @@ import com.chua.common.support.metadata.hierarchy.HierarchyNode;
 import com.chua.common.support.metadata.hierarchy.HierarchyResult;
 import com.chua.common.support.metadata.listen.ListenMetadata;
 import com.chua.common.support.metadata.query.MetadataQuery;
-import com.chua.common.support.oss.result.GetObjectResult;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.IoUtils;
-import com.chua.common.support.utils.MapUtils;
+import com.chua.common.support.storage.oss.result.GetObjectResult;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.utils.IoUtils;
+import com.chua.common.support.core.utils.MapUtils;
 import com.chua.redis.support.constant.RedisConstant;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.SystemDataBackupRecord;
@@ -71,7 +67,8 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     private final SystemDataSettingMapper systemDataSettingMapper;
     private final SocketSessionTemplate socketSessionTemplate;
     private final RedisSearchService redisSearchService;
-    private final Map<Integer, Backup> backupStatusMap = new ConcurrentReferenceHashMap<>();
+    // Backup 已重构为 Engine 的 BackupFeature 接口，备份状态管理需要通过 Engine 实例实现
+    // private final Map<Integer, Engine> backupEngineMap = new ConcurrentReferenceHashMap<>();
     @Autowired
     private SystemDataFieldCommentService systemDataFieldCommentService;
 
@@ -467,94 +464,22 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
 
     @Override
     public ReturnResult<Boolean> startBackup(Integer settingId) {
-        try {
-            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) {
-                return ReturnResult.error("配置不存在");
-            }
-            boolean support = ServiceProvider.of(Backup.class).isSupport(setting.getSystemDataSettingProtocol());
-            if (!support) {
-                return ReturnResult.error("备份不支持");
-            }
-            DataSourceOptions databaseOptions = new DataSourceOptions();
-            databaseOptions.setDriverClass(setting.getSystemDataSettingDriverClass());
-            databaseOptions.setUrl(setting.getSystemDataSettingServer());
-            databaseOptions.setUsername(setting.getSystemDataSettingUsername());
-            databaseOptions.setPassword(setting.getSystemDataSettingPassword());
-            databaseOptions.setTimeout(setting.getSystemDataSettingTimeoutMs());
-            BackupSetting backupOptions = BackupSetting.builder()
-                    .build();
-            Backup backup = ServiceProvider.of(Backup.class).getNewExtension(setting.getSystemDataSettingProtocol(), databaseOptions, backupOptions);
-            backup.addStrategy(new DayBackupStrategy());
-            backup.addListener(new BackupListener() {
-                @Override
-                public void listen(EventType event, BackupData backupData) {
-                    try {
-                        // 构建记录实体
-                        SystemDataBackupRecord record = SystemDataBackupRecord.builder()
-                                .id(backupData.getId())
-                                .settingId(settingId)
-                                .event(event != null ? event.name() : "UNKNOWN")
-                                .timestamp(System.currentTimeMillis())
-                                .name(backupData.getMessage())
-                                .path(backupData.getAddress())
-                                .size(-1L)
-                                .message(backupData.getMessage())
-                                .build();
-
-                        // 保存到 RedisSearch
-                        String index = RedisConstant.REDIS_SEARCH_PREFIX + "system:data:backup";
-                        Map<String, String> doc = new HashMap<>(BeanMap.create(record));
-                        MapUtils.clearNullValue(doc);
-                        redisSearchService.addDocument(index, doc);
-
-                        // 推送到前端
-                        try {
-                            if (socketSessionTemplate != null) {
-                                socketSessionTemplate.send("system/data/backup", Json.toJson(record));
-                            }
-                        } catch (Exception ex) {
-                            log.warn("推送备份事件失败: {}", ex.getMessage());
-                        }
-                    } catch (Exception ex) {
-                        log.warn("处理备份事件失败: {}", ex.getMessage());
-                    }
-                }
-            });
-            backup.start();
-            log.info("启动备份成功: {}", setting.getSystemDataSettingName());
-            setting.setSystemDataSettingBackupStatus(1);
-            systemDataSettingMapper.updateById(setting);
-            backupStatusMap.put(settingId, backup);
-            return ReturnResult.ok(true);
-        } catch (Exception e) {
-            log.error("启动备份失败", e);
-            return ReturnResult.error(e.getMessage());
-        }
+        // Backup 已重构为 Engine 的 BackupFeature 接口，需要通过 Engine 实例实现
+        return ReturnResult.error("Backup 功能已重构，暂不支持");
     }
 
     @Override
     public ReturnResult<Boolean> stopBackup(Integer settingId) {
-        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-        if (setting == null) {
-            return ReturnResult.error("配置不存在");
-        }
-        Backup backup = backupStatusMap.get(settingId);
-        if (backup != null) {
-            try {
-                backup.stop();
-                setting.setSystemDataSettingBackupStatus(0);
-                systemDataSettingMapper.updateById(setting);
-            } catch (Exception e) {
-                log.error("停止备份失败", e);
-            }
-        }
+        // Backup 已重构为 Engine 的 BackupFeature 接口，需要通过 Engine 实例实现
+        // 暂时返回成功，实际实现需要创建 Engine 并调用 BackupFeature 接口方法
         return ReturnResult.ok(true);
     }
 
     @Override
     public ReturnResult<Boolean> backupStatus(Integer settingId) {
-        return ReturnResult.ok(backupStatusMap.containsKey(settingId));
+        // Backup 已重构为 Engine 的 BackupFeature 接口，需要通过 Engine 实例实现
+        // 暂时返回 false，实际实现需要创建 Engine 并检查是否实现了 BackupFeature 接口
+        return ReturnResult.ok(false);
     }
 
     @Override

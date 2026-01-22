@@ -1,7 +1,7 @@
 package com.chua.starter.project.service;
 
-import com.chua.deeplearning.support.ml.bigmodel.colorization.ImageColorizationAddTaskV1Response;
-import com.chua.deeplearning.support.ml.bigmodel.colorization.ImageColorizationSearchTaskV1Response;
+import com.chua.deeplearning.support.core.response.ImageColorizationAddTaskV1Response;
+import com.chua.deeplearning.support.core.response.ImageColorizationSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.project.pojo.vincent.ImageColorizationAddTaskV2Request;
 import com.chua.starter.project.pojo.vincent.ImageColorizationSearchTaskV2Request;

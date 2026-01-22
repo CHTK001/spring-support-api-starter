@@ -1,15 +1,15 @@
 package com.chua.starter.video.provider.impl;
 
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.converter.Converter;
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.base.converter.Converter;
 import com.chua.common.support.function.Splitter;
-import com.chua.common.support.http.HttpClient;
-import com.chua.common.support.http.HttpResponse;
+import com.chua.common.support.network.http.HttpClient;
+import com.chua.common.support.network.http.HttpResponse;
 import com.chua.common.support.lang.code.PageResult;
 import com.chua.common.support.lang.code.ReturnCode;
 import com.chua.common.support.lang.code.ReturnPageResult;
-import com.chua.common.support.lang.date.DateUtils;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.time.date.DateUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.video.entity.VideoDownload;
 import com.chua.starter.video.entity.VideoSource;
 import com.chua.starter.video.pojo.VideoInfoResult;
@@ -87,11 +87,7 @@ public class WanouResourceProvider extends AbstractResourceProvider {
                         .toList()
                 )
                 .build();
-        ReturnPageResult<VideoInfoResult> returnPageResult = ReturnPageResult.of();
-        returnPageResult.setData(pageResult);
-        returnPageResult.setCode(ReturnCode.SUCCESS.getCode());
-        returnPageResult.setMsg(ReturnCode.SUCCESS.getMsg());
-        return returnPageResult;
+        return ReturnPageResult.of(pageResult);
     }
 
     private void registerDownload(List<VideoDownload> videoDownloads, String vodDownFrom, String vodDownUrl) {

@@ -1,6 +1,6 @@
 package com.chua.starter.service.pojo.sso;
 
-import com.chua.common.support.validator.group.UploadGroup;
+import com.chua.common.support.base.validator.group.UploadGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

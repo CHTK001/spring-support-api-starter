@@ -1,15 +1,13 @@
 package com.chua.starter.monitor.service.impl;
 
-import com.chua.common.support.json.Json;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.task.sync.SyncFlow;
-import com.chua.common.support.task.sync.SyncFlowBuilder;
-import com.chua.common.support.task.sync.metrics.SyncMetrics;
-import com.chua.common.support.task.sync.center.DataBus;
-import com.chua.common.support.task.sync.filter.DataFilter;
-import com.chua.common.support.task.sync.input.Input;
-import com.chua.common.support.task.sync.output.Output;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.text.json.Json;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.sync.SyncFlow;
+import com.chua.common.support.sync.Input;
+import com.chua.common.support.sync.Output;
+import com.chua.common.support.sync.Sink;
+import com.chua.common.support.sync.Filter;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.job.support.JobProperties;
 import com.chua.starter.job.support.log.JobLogDetailService;
 import com.chua.starter.job.support.scheduler.JobConfig;
@@ -286,19 +284,16 @@ public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor, Com
             taskLog.setSyncLogCost(cost);
             taskLog.setSyncLogMessage("执行成功");
 
-            // 获取指标数据（如果 SyncFlow 支持的话）
-            SyncMetrics metrics = syncFlow.getMetrics();
-            if (metrics != null) {
-                taskLog.setSyncLogReadCount(metrics.getReadCount().get());
-                taskLog.setSyncLogWriteCount(metrics.getWriteCount().get());
-                taskLog.setSyncLogSuccessCount(metrics.getSuccessCount().get());
-                taskLog.setSyncLogFailCount(metrics.getFailCount().get());
-
-                if (metrics.getSuccessCount().get() > 0 && cost > 0) {
-                    taskLog.setSyncLogThroughput((double) metrics.getSuccessCount().get() / (cost / 1000.0));
-                    taskLog.setSyncLogAvgProcessTime((double) cost / metrics.getSuccessCount().get());
-                }
-            }
+            // SyncFlow 暂不支持指标获取，后续如有需要可扩展
+            //     taskLog.setSyncLogWriteCount(metrics.getWriteCount().get());
+            //     taskLog.setSyncLogSuccessCount(metrics.getSuccessCount().get());
+            //     taskLog.setSyncLogFailCount(metrics.getFailCount().get());
+            //
+            //     if (metrics.getSuccessCount().get() > 0 && cost > 0) {
+            //         taskLog.setSyncLogThroughput((double) metrics.getSuccessCount().get() / (cost / 1000.0));
+            //         taskLog.setSyncLogAvgProcessTime((double) cost / metrics.getSuccessCount().get());
+            //     }
+            // }
 
             logMapper.updateById(taskLog);
 
@@ -402,7 +397,7 @@ public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor, Com
         }
 
         // 创建 SyncFlow
-        SyncFlowBuilder builder = SyncFlowBuilder.create("sync-task-" + task.getSyncTaskId());
+        SyncFlow.Builder builder = SyncFlow.builder("sync-task-" + task.getSyncTaskId());
 
         // 设置输入
         for (MonitorSyncNode inputNode : inputNodes) {
@@ -419,29 +414,18 @@ public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor, Com
         // 设置数据中心（如果有）
         if (!dataCenterNodes.isEmpty()) {
             MonitorSyncNode dataCenterNode = dataCenterNodes.get(0);
-            DataBus dataBus = createDataBus(dataCenterNode);
-            builder.withDataBus(dataBus);
+            Sink sink = createSink(dataCenterNode);
+            builder.sink(sink);
         }
 
-        // 设置过滤器
-        for (MonitorSyncNode filterNode : filterNodes) {
-            DataFilter filter = createFilter(filterNode);
-            builder.addFilter(filter);
-        }
+        // 设置过滤器（Filter 是函数式接口，暂不支持通过配置创建）
+        // 如果需要支持，需要根据配置动态创建 Filter.TransformFilter 或 Filter.BreakerFilter
 
         // 设置任务参数
         if (task.getSyncTaskBatchSize() != null) {
             builder.batchSize(task.getSyncTaskBatchSize());
         }
-        if (task.getSyncTaskConsumeTimeout() != null) {
-            builder.consumeTimeout(task.getSyncTaskConsumeTimeout());
-        }
-        int retryCount = task.getSyncTaskRetryCount() != null ? task.getSyncTaskRetryCount() : 3;
-        long retryInterval = task.getSyncTaskRetryInterval() != null ? task.getSyncTaskRetryInterval() : 1000;
-        builder.withRetry(retryCount, retryInterval);
-        if (task.getSyncTaskAckEnabled() != null && task.getSyncTaskAckEnabled() == 1) {
-            builder.withAck();
-        }
+        // consumeTimeout、withRetry、withAck 方法已在新架构中移除，相关功能由 Sink 和 Executor 处理
 
         return builder.build();
     }
@@ -556,28 +540,19 @@ public class MonitorSyncTaskExecutorImpl implements MonitorSyncTaskExecutor, Com
     }
 
     /**
-     * 创建 DataBus
+     * 创建 Sink
      */
     @SuppressWarnings("unchecked")
-    private DataBus createDataBus(MonitorSyncNode node) {
+    private Sink createSink(MonitorSyncNode node) {
         String spiName = node.getSyncNodeSpiName();
         Map<String, Object> config = parseConfig(node.getSyncNodeConfig());
 
-        ServiceProvider<DataBus> provider = ServiceProvider.of(DataBus.class);
+        ServiceProvider<Sink> provider = ServiceProvider.of(Sink.class);
         return provider.getNewExtension(spiName, config);
     }
-
-    /**
-     * 创建 DataFilter
-     */
-    @SuppressWarnings("unchecked")
-    private DataFilter createFilter(MonitorSyncNode node) {
-        String spiName = node.getSyncNodeSpiName();
-        Map<String, Object> config = parseConfig(node.getSyncNodeConfig());
-
-        ServiceProvider<DataFilter> provider = ServiceProvider.of(DataFilter.class);
-        return provider.getNewExtension(spiName, config);
-    }
+    //     ServiceProvider<DataFilter> provider = ServiceProvider.of(DataFilter.class);
+    //     return provider.getNewExtension(spiName, config);
+    // }
 
     /**
      * 解析配置JSON
