@@ -3,7 +3,7 @@ package com.chua.starter.project.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.project.mapper.SysAiVincentTemplateMapper;
 import com.chua.starter.project.service.SysAiVincentTemplateService;
 import com.chua.starter.entity.project.SysAiVincentTemplate;

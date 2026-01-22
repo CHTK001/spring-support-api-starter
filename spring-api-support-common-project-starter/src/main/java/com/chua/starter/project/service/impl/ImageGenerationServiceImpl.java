@@ -2,13 +2,18 @@ package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chua.deeplearning.support.ml.bigmodel.generations.image.*;
-import com.chua.common.support.json.Json;
+import com.chua.deeplearning.support.core.function.model.ImageToImageGenerator;
+import com.chua.deeplearning.support.core.request.ImageGenerationsAddTaskV1Request;
+import com.chua.deeplearning.support.core.request.ImageGenerationsSearchTaskV1Request;
+import com.chua.deeplearning.support.core.response.ImageGenerationsAddTaskV1Response;
+import com.chua.deeplearning.support.core.response.ImageGenerationsSearchTaskV1Response;
+import com.chua.deeplearning.support.ml.client.generations.image.VincentDiagramSetting;
+import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.FileUtils;
-import com.chua.common.support.utils.StringUtils;
-import com.chua.common.support.utils.UrlUtils;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.utils.FileUtils;
+import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.core.utils.UrlUtils;
 import com.chua.starter.project.mapper.SysAiVincentTaskMapper;
 import com.chua.starter.project.service.ImageGenerationService;
 import com.chua.starter.project.service.SysAiModuleService;
@@ -65,7 +70,7 @@ public class ImageGenerationServiceImpl implements ImageGenerationService {
         if (null == sysProject) {
             throw new RuntimeException("项目不存在");
         }
-        ImageGenerationsClient vincentDiagramClient = ServiceProvider.of(ImageGenerationsClient.class)
+        ImageToImageGenerator vincentDiagramClient = ServiceProvider.of(ImageToImageGenerator.class)
                 .getNewExtension(sysProject.getSysProjectDictItemCode(),
                         VincentDiagramSetting.builder()
                                 .host(StringUtils.defaultString(sysAiModule.getSysAiModuleUrl(), sysProject.getSysProjectEndpoint()))
@@ -203,7 +208,7 @@ public class ImageGenerationServiceImpl implements ImageGenerationService {
         if (null == sysProject) {
             throw new RuntimeException("项目不存在");
         }
-        ImageGenerationsClient vincentDiagramClient = ServiceProvider.of(ImageGenerationsClient.class)
+        ImageToImageGenerator vincentDiagramClient = ServiceProvider.of(ImageToImageGenerator.class)
                 .getNewExtension(sysProject.getSysProjectDictItemCode(),
                         VincentDiagramSetting.builder()
                                 .host(sysProject.getSysProjectEndpoint())
@@ -231,8 +236,8 @@ public class ImageGenerationServiceImpl implements ImageGenerationService {
         //UNKNOWN：任务不存在或状态未知
         String taskStatus = null == output ? "SUCCESS" : output.getTaskStatus();
         if (null != output) {
-            List<String> imageList = Optional.ofNullable(output.getResults()).orElse(Collections.emptyList())
-                    .stream().map(ImageGenerationsSearchTaskV1Response.OutputDTO.ResultsDTO::getUrl).toList();
+            List<String> imageList = Optional.ofNullable(vincentDiagramSearchTaskV1Response.getResults()).orElse(Collections.emptyList())
+                    .stream().map(ImageGenerationsSearchTaskV1Response.ResultsDTO::getUrl).toList();
             String images = String.join(",", imageList);
             String taskLocalUrl = createTaskLocalUrl(StringUtils.defaultString(sysProject.getSysProjectLocationTempPath(), LOCATION_PATH), imageList);
             sysAiVincentTaskMapper.update(Wrappers.<SysAiVincentTask>lambdaUpdate()

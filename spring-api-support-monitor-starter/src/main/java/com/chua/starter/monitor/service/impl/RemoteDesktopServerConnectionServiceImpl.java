@@ -1,9 +1,10 @@
 package com.chua.starter.monitor.service.impl;
 
-import com.chua.common.support.json.Json;
-import com.chua.common.support.net.NetUtils;
+import com.chua.common.support.text.json.Json;
+import com.chua.common.support.network.net.NetUtils;
 import com.chua.remote.support.client.RemoteClient;
-import com.chua.remote.support.config.RemoteDesktopConfig.QualityMode;
+// RemoteDesktopConfig 已重构，暂时注释
+// import com.chua.remote.support.config.RemoteDesktopConfig.QualityMode;
 import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
@@ -116,62 +117,55 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
                     server.getMonitorSysGenServerPort());
 
             // 创建远程客户端
-            RemoteClient remoteClient = new RemoteClient(
+            var remoteClient = new RemoteClient(
                     server.getMonitorSysGenServerHost(),
-                    server.getMonitorSysGenServerPort() != null ? server.getMonitorSysGenServerPort() : 8899
+                    server.getMonitorSysGenServerPort() != null ? server.getMonitorSysGenServerPort() : 8899,
+                    server.getMonitorSysGenServerUsername(),
+                    server.getMonitorSysGenServerPassword()
             );
 
-            // 设置 SSH 凭据（用于 SSH 模式）
-            if (server.getMonitorSysGenServerUsername() != null) {
-                remoteClient.setSshUsername(server.getMonitorSysGenServerUsername());
-            }
-            if (server.getMonitorSysGenServerPassword() != null) {
-                remoteClient.setSshPassword(server.getMonitorSysGenServerPassword());
-            }
-
-            // 设置超时时间
-            if (server.getMonitorSysGenServerTimeout() != null) {
-                remoteClient.setProbeTimeout(server.getMonitorSysGenServerTimeout());
-            }
-
             // 设置屏幕图像回调
-            remoteClient.setScreenImageConsumer(image -> {
-                handleScreenImage(serverId, image);
-            });
-
-            // 设置终端输出回调
-            remoteClient.setTerminalOutputConsumer(output -> {
-                handleTerminalOutput(serverId, output);
-            });
-
-            // 设置模式检测回调
-            remoteClient.setModeDetectedConsumer(mode -> {
-                log.info("检测到远程服务端模式: serverId={}, mode={}", serverId, mode);
-                sendModeDetectedMessage(server, mode.name());
-            });
-
-            // 设置连接状态回调
-            remoteClient.setConnectionConsumer(connected -> {
-                if (connected) {
-                    sendConnectionMessage(server, "connected", true, null);
-                } else {
-                    sendConnectionMessage(server, "disconnected", false, "连接已断开");
+            remoteClient.setFrameCallback(writableImage -> {
+                try {
+                    // WritableImage 是 JavaFX 的类，需要转换为 BufferedImage
+                    // 由于 JavaFX 和 AWT 的兼容性问题，这里暂时跳过图像处理
+                    // 如果需要处理图像，需要使用 JavaFX 的 ImageIO 或者通过其他方式转换
+                    log.debug("收到屏幕图像: serverId={}, width={}, height={}", 
+                            serverId, writableImage.getWidth(), writableImage.getHeight());
+                    // TODO: 实现 WritableImage 到 BufferedImage 的转换
+                } catch (Exception e) {
+                    log.error("处理屏幕图像失败: {}", e.getMessage(), e);
                 }
             });
 
-            // 执行连接
-            boolean connected = remoteClient.connect();
+            // 设置错误回调
+            remoteClient.setErrorCallback(error -> {
+                log.error("远程连接错误: serverId={}, error={}", serverId, error);
+                sendConnectionMessage(server, "error", false, error);
+            });
 
-            if (connected) {
+            // 设置连接成功回调
+            remoteClient.setOnConnectCallback(() -> {
+                log.info("远程桌面连接成功: serverId={}", serverId);
+                sendConnectionMessage(server, "connected", true, null);
+            });
+
+            // 设置断开连接回调
+            remoteClient.setOnDisconnectCallback(() -> {
+                log.info("远程桌面连接断开: serverId={}", serverId);
+                sendConnectionMessage(server, "disconnected", false, "连接已断开");
+            });
+
+            // 执行连接
+            try {
+                remoteClient.connect();
                 // 保存连接
                 remoteConnectionPool.put(serverId, remoteClient);
                 serverConfigCache.put(serverId, server);
                 sessionIdMap.put(serverId, "remote-" + serverId + "-" + System.currentTimeMillis());
-
-                log.info("远程桌面连接成功: serverId={}, mode={}", serverId, remoteClient.getActiveMode());
                 return true;
-            } else {
-                log.warn("远程桌面连接失败: serverId={}", serverId);
+            } catch (Exception e) {
+                log.error("远程桌面连接失败: serverId={}, error={}", serverId, e.getMessage(), e);
                 return false;
             }
 
@@ -187,7 +181,7 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
         try {
             RemoteClient client = remoteConnectionPool.remove(serverId);
             if (client != null) {
-                client.close();
+                client.disconnect();
             }
             sessionIdMap.remove(serverId);
             serverConfigCache.remove(serverId);
@@ -226,13 +220,10 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
                 return "远程连接不存在或已断开";
             }
 
-            // 根据模式执行命令
-            if (client.getActiveMode() == RemoteClient.Mode.SSH) {
-                client.sendTerminalCommand(command);
-                return "命令已发送: " + command;
-            } else {
-                return "远程桌面模式不支持直接命令执行，请使用图形界面操作";
-            }
+            // RemoteClient 已重构，不再支持直接命令执行
+            // 可以通过发送键盘事件来模拟命令输入
+            log.warn("RemoteClient 已重构，不再支持直接命令执行: serverId={}, command={}", serverId, command);
+            return "远程桌面协议不支持直接命令执行，请使用图形界面操作";
         } catch (Exception e) {
             log.error("执行远程命令失败: {}", e.getMessage(), e);
             return "命令执行失败: " + e.getMessage();
@@ -273,7 +264,7 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
             if (client != null && client.isConnected()) {
                 info.put("connected", true);
                 info.put("protocol", "REMOTE");
-                info.put("mode", client.getActiveMode().name());
+                info.put("mode", "DESKTOP");
                 info.put("sessionId", sessionIdMap.get(serverId));
 
                 MonitorSysGenServer server = serverConfigCache.get(serverId);
@@ -305,10 +296,9 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
         try {
             RemoteClient client = remoteConnectionPool.get(serverId);
             if (client != null && client.isConnected()) {
-                if (client.getActiveMode() == RemoteClient.Mode.SSH) {
-                    client.sendTerminalInput(data);
-                }
-                log.debug("发送数据到远程服务器: serverId={}, dataLength={}", serverId, data.length());
+                // RemoteClient 已重构，不再支持直接终端输入
+                // 可以通过发送键盘事件来模拟输入
+                log.debug("发送数据到远程服务器: serverId={}, dataLength={} (功能已暂时禁用)", serverId, data.length());
             }
         } catch (Exception e) {
             log.error("发送数据到远程服务器失败: {}", e.getMessage(), e);
@@ -364,7 +354,7 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     public void sendMouseMove(Integer serverId, int x, int y) {
         try {
             RemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
+            if (client != null && client.isConnected()) {
                 client.sendMouseMove(x, y);
             }
         } catch (Exception e) {
@@ -378,8 +368,12 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     public void sendMouseClick(Integer serverId, int x, int y, int button, boolean pressed) {
         try {
             RemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
-                client.sendMouseClick(x, y, button, pressed);
+            if (client != null && client.isConnected()) {
+                if (pressed) {
+                    client.sendMouseDown(button);
+                } else {
+                    client.sendMouseUp(button);
+                }
             }
         } catch (Exception e) {
             log.error("发送鼠标点击失败: {}", e.getMessage());
@@ -392,8 +386,8 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     public void sendMouseWheel(Integer serverId, int x, int y, int amount) {
         try {
             RemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
-                client.sendMouseWheel(x, y, amount);
+            if (client != null && client.isConnected()) {
+                client.sendMouseWheel(amount);
             }
         } catch (Exception e) {
             log.error("发送鼠标滚轮失败: {}", e.getMessage());
@@ -406,8 +400,10 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     public void sendKeyPress(Integer serverId, int keyCode, char keyChar, int modifiers) {
         try {
             RemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
-                client.sendKeyPress(keyCode, keyChar, modifiers);
+            if (client != null && client.isConnected()) {
+                // RemoteClient 已重构，sendKeyDown 接受 String 参数
+                var key = String.valueOf(keyChar);
+                client.sendKeyDown(key);
             }
         } catch (Exception e) {
             log.error("发送键盘按下失败: {}", e.getMessage());
@@ -420,8 +416,10 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     public void sendKeyRelease(Integer serverId, int keyCode, char keyChar, int modifiers) {
         try {
             RemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
-                client.sendKeyRelease(keyCode, keyChar, modifiers);
+            if (client != null && client.isConnected()) {
+                // RemoteClient 已重构，sendKeyUp 接受 String 参数
+                var key = String.valueOf(keyChar);
+                client.sendKeyUp(key);
             }
         } catch (Exception e) {
             log.error("发送键盘释放失败: {}", e.getMessage());
@@ -434,10 +432,11 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     public void setQualityMode(Integer serverId, String mode) {
         try {
             RemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
-                QualityMode qualityMode = QualityMode.valueOf(mode.toUpperCase());
-                client.setQualityMode(qualityMode);
-                log.info("设置画质模式: serverId={}, mode={}", serverId, mode);
+            if (client != null && client.isConnected()) {
+                // RemoteDesktopConfig.QualityMode 已重构，暂时注释
+                // QualityMode qualityMode = QualityMode.valueOf(mode.toUpperCase());
+                // client.setQualityMode(qualityMode);
+                log.info("设置画质模式: serverId={}, mode={} (功能已暂时禁用)", serverId, mode);
             }
         } catch (Exception e) {
             log.error("设置画质模式失败: {}", e.getMessage());
@@ -450,9 +449,9 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     public void setCompressor(Integer serverId, String type) {
         try {
             RemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
-                client.setCompressor(type);
-                log.info("设置压缩器类型: serverId={}, type={}", serverId, type);
+            if (client != null && client.isConnected()) {
+                // RemoteClient 已重构，不再支持直接设置压缩器
+                log.info("设置压缩器类型: serverId={}, type={} (功能已暂时禁用)", serverId, type);
             }
         } catch (Exception e) {
             log.error("设置压缩器类型失败: {}", e.getMessage());
@@ -465,9 +464,9 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     public void requestCaptureReset(Integer serverId) {
         try {
             RemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected() && client.getActiveMode() == RemoteClient.Mode.DESKTOP) {
-                client.requestCaptureReset();
-                log.info("请求重置捕获: serverId={}", serverId);
+            if (client != null && client.isConnected()) {
+                // RemoteClient 已重构，不再支持直接重置捕获
+                log.info("请求重置捕获: serverId={} (功能已暂时禁用)", serverId);
             }
         } catch (Exception e) {
             log.error("请求重置捕获失败: {}", e.getMessage());
@@ -480,7 +479,7 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     public String getConnectionMode(Integer serverId) {
         RemoteClient client = remoteConnectionPool.get(serverId);
         if (client != null && client.isConnected()) {
-            return client.getActiveMode().name();
+            return "DESKTOP";
         }
         return "UNKNOWN";
     }
@@ -672,7 +671,7 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
         log.info("清理远程桌面连接资源...");
         remoteConnectionPool.values().forEach(client -> {
             try {
-                client.close();
+                client.disconnect();
             } catch (Exception e) {
                 log.warn("关闭远程桌面连接失败: {}", e.getMessage());
             }

@@ -8,7 +8,7 @@ import com.chua.starter.monitor.enums.AlertStatus;
 import com.chua.starter.monitor.enums.AlertType;
 import com.chua.starter.monitor.service.message.MonitorSysGenMessagePushTemplateService;
 import com.chua.starter.monitor.spi.MessagePushSender;
-import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.core.spi.ServiceProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

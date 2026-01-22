@@ -1,14 +1,14 @@
 package com.chua.starter.project.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.deeplearning.support.ml.PredictResult;
-import com.chua.deeplearning.support.ml.compare.Compare;
-import com.chua.deeplearning.support.ml.feature.DetectionConfiguration;
-import com.chua.deeplearning.support.ml.function.FaceDetector;
-import com.chua.deeplearning.support.ml.function.FaceFeature;
+import com.chua.deeplearning.support.core.result.PredictResult;
+import com.chua.deeplearning.support.core.function.api.Similar;
+import com.chua.deeplearning.support.core.function.Detector;
+import com.chua.deeplearning.support.core.function.Feature;
+import com.chua.deeplearning.support.core.feature.DetectionConfiguration;
+import com.chua.deeplearning.support.core.composite.Recognizer;
 import com.chua.deeplearning.support.ml.identification.IdentificationEngine;
-import com.chua.deeplearning.support.ml.recognizer.Recognizer;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.project.pojo.ImageRequest;
 import com.chua.starter.project.service.FaceService;
 import com.chua.starter.project.service.SysAiModuleService;
@@ -47,12 +47,13 @@ public class FaceServiceImpl implements FaceService {
         if (null == identificationEngine) {
             throw new RuntimeException("暂不支持");
         }
-        FaceDetector faceDetector = identificationEngine.get(request.getProvider(), FaceDetector.class);
+        Detector faceDetector = identificationEngine.get(request.getProvider(), Detector.class);
         if (null == faceDetector) {
             throw new RuntimeException("暂不支持");
         }
 
-        return ReturnResult.of(faceDetector.predict(file));
+        var result = faceDetector.detect(file);
+        return ReturnResult.of(result.isEmpty() ? PredictResult.empty() : result.top1());
     }
 
     @Override
@@ -70,12 +71,12 @@ public class FaceServiceImpl implements FaceService {
         if (null == identificationEngine) {
             throw new RuntimeException("暂不支持");
         }
-        FaceFeature faceFeature = identificationEngine.get(request.getProvider(), FaceFeature.class);
+        Feature faceFeature = identificationEngine.get(request.getProvider(), Feature.class);
         if (null == faceFeature) {
             throw new RuntimeException("暂不支持");
         }
 
-        return ReturnResult.of(faceFeature.predict(file));
+        return ReturnResult.of(faceFeature.extract(file));
     }
 
     @Override
@@ -98,7 +99,7 @@ public class FaceServiceImpl implements FaceService {
             throw new RuntimeException("暂不支持");
         }
 
-        return ReturnResult.of(recognizer.predict(file));
+        return ReturnResult.of(recognizer.recognize(file));
     }
 
     @Override
@@ -116,12 +117,27 @@ public class FaceServiceImpl implements FaceService {
         if (null == identificationEngine) {
             throw new RuntimeException("暂不支持");
         }
-        Compare compare = identificationEngine.get(request.getProvider(), Compare.class);
-        if (null == compare) {
+        Similar<float[]> similar = identificationEngine.get(request.getProvider(), Similar.class);
+        if (null == similar) {
             throw new RuntimeException("暂不支持");
         }
-
-        return ReturnResult.of(compare.calculateSimilar(file, file2));
+        
+        Feature feature = identificationEngine.get(request.getProvider(), Feature.class);
+        if (null == feature) {
+            throw new RuntimeException("暂不支持");
+        }
+        
+        PredictResult feature1 = feature.extract(file);
+        PredictResult feature2 = feature.extract(file2);
+        
+        if (feature1.getValue() instanceof float[] && feature2.getValue() instanceof float[]) {
+            double similarity = similar.featureSimilarity((float[]) feature1.getValue(), (float[]) feature2.getValue());
+            PredictResult result = new PredictResult();
+            result.setValue(similarity);
+            return ReturnResult.of(result);
+        }
+        
+        throw new RuntimeException("特征提取失败");
     }
 
     /**

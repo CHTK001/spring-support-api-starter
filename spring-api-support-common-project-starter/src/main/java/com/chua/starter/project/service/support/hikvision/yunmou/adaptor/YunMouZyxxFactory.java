@@ -2,7 +2,7 @@ package com.chua.starter.project.service.support.hikvision.yunmou.adaptor;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.chua.common.support.utils.PageUtils;
+import com.chua.common.support.core.utils.PageUtils;
 import com.chua.starter.project.service.support.hikvision.HikvisionClient;
 import com.chua.starter.project.service.support.hikvision.adaptor.sub.ZyxxFactory;
 import com.chua.starter.project.service.support.hikvision.result.DeviceResourceResourcesResult;

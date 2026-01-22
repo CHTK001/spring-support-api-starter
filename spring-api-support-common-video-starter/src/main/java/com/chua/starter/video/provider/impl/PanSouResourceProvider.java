@@ -1,6 +1,8 @@
 package com.chua.starter.video.provider.impl;
 
-import com.chua.common.support.converter.Converter;
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+
+import com.chua.common.support.base.converter.Converter;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.starter.video.entity.PanResource;
 import com.chua.starter.video.entity.VideoDownload;
@@ -57,7 +59,7 @@ public class PanSouResourceProvider extends AbstractResourceProvider {
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
         String keyword = videoSearch.getKeyword();
         if (!StringUtils.hasText(keyword)) {
-            return ReturnPageResult.error("关键词不能为空");
+            return ReturnPageResultUtils.error("关键词不能为空");
         }
 
         log.info("使用PanSou搜索网盘资源: {}", keyword);
@@ -81,15 +83,15 @@ public class PanSouResourceProvider extends AbstractResourceProvider {
             }
 
             if (results.isEmpty()) {
-                return ReturnPageResult.error("未找到相关网盘资源");
+                return ReturnPageResultUtils.error("未找到相关网盘资源");
             }
 
             log.info("PanSou搜索完成，找到{}个资源", results.size());
-            return ReturnPageResult.ok(results);
+            return ReturnPageResultUtils.ok(results, videoSearch.getPage(), videoSearch.getPageSize());
 
         } catch (Exception e) {
             log.error("PanSou资源搜索失败", e);
-            return ReturnPageResult.error("网盘资源搜索失败: " + e.getMessage());
+            return ReturnPageResultUtils.error("网盘资源搜索失败: " + e.getMessage());
         }
     }
 

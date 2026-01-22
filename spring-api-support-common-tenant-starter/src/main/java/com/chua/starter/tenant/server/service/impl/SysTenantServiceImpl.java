@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.common.support.utils.IdUtils;
+import com.chua.common.support.core.utils.CollectionUtils;
+import com.chua.common.support.core.utils.IdUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.entity.SysTenantService;
@@ -111,7 +111,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         }
 
         if (StringUtils.isBlank(sysTenant.getSysTenantGid())) {
-            sysTenant.setSysTenantGid(IdUtils.createUlid());
+            sysTenant.setSysTenantGid(IdUtils.createSimpleUuid());
         }
 
         save(sysTenant);

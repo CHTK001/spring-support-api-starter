@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.starter.monitor.entity.MonitorSysGenAlertPushConfig;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerAlertHistory;

@@ -1,8 +1,8 @@
 //package com.chua.starter.monitor.util;
 //
-//import com.chua.common.support.lang.date.DateTime;
-//import com.chua.common.support.utils.FileUtils;
-//import com.chua.common.support.utils.StringUtils;
+//import com.chua.common.support.time.date.DateTime;
+//import com.chua.common.support.core.utils.FileUtils;
+//import com.chua.common.support.core.utils.StringUtils;
 ////import com.chua.starter.monitor.entity.MonitorSysGenColumn;
 ////import com.chua.starter.monitor.entity.MonitorSysGenTable;
 ////import com.chua.starter.monitor.entity.MonitorSysGenTemplate;
@@ -22,8 +22,8 @@
 //import java.util.List;
 //import java.util.Set;
 //
-//import static com.chua.common.support.constant.CommonConstant.SYMBOL_EMPTY;
-//import static com.chua.common.support.constant.NameConstant.*;
+//import static com.chua.common.support.core.constant.CommonConstant.SYMBOL_EMPTY;
+//import static com.chua.common.support.core.constant.NameConstant.*;
 //
 ///**
 // * 模板处理工具类

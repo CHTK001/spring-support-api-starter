@@ -1,8 +1,8 @@
 package com.chua.starter.oauth.sso.support.parser;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 import com.chua.starter.oauth.sso.support.parser.handler.AuthorizationHandler;

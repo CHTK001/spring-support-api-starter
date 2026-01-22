@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.validator;
 
-import com.chua.common.support.annotations.SpiDefault;
+import com.chua.common.support.core.annotation.SpiDefault;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.starter.entity.system.SysAppKey;
 import com.chua.starter.entity.system.SysAppId;

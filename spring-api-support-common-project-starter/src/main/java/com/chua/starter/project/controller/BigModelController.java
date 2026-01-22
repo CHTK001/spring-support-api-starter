@@ -2,7 +2,7 @@ package com.chua.starter.project.controller;
 
 import com.chua.deeplearning.support.ml.bigmodel.BigModelResponse;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.validator.group.SelectGroup;
+import com.chua.common.support.base.validator.group.SelectGroup;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.project.service.BigModelService;
 import com.chua.starter.project.pojo.bigmodel.BigModelRequest;

@@ -1,6 +1,6 @@
 package com.chua.starter.system.controller;
 
-import com.chua.common.support.annotations.Ignore;
+import com.chua.common.support.core.annotation.Ignore;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.system.pojo.LoginResult;
 import com.chua.starter.system.pojo.SmsCodeRequest;

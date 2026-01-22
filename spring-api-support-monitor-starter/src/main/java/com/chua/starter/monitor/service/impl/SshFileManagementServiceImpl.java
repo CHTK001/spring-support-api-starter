@@ -1,9 +1,9 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.protocol.ClientSetting;
-import com.chua.common.support.protocol.client.FileClient;
-import com.chua.common.support.protocol.client.ProtocolClientFactory;
+import com.chua.common.support.network.protocol.ClientSetting;
+import com.chua.common.support.network.protocol.client.FileClient;
+import com.chua.common.support.network.protocol.client.ProtocolClientFactory;
 import com.chua.starter.monitor.pojo.file.FileInfo;
 import com.chua.starter.monitor.pojo.file.FileOperationRequest;
 import com.chua.starter.monitor.pojo.file.FileOperationResponse;
@@ -51,7 +51,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
             }
 
             // 获取文件列表
-            List<com.chua.common.support.lang.file.FileInfo> commonFileInfos = fileClient.listFiles(path);
+            List<com.chua.common.support.io.file.FileInfo> commonFileInfos = fileClient.listFiles(path);
             if (commonFileInfos == null) {
                 commonFileInfos = new ArrayList<>();
             }
@@ -530,7 +530,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
                 return ReturnResult.error("文件不存在: " + path);
             }
 
-            com.chua.common.support.lang.file.FileInfo commonFileInfo = fileClient.getFileInfo(path);
+            com.chua.common.support.io.file.FileInfo commonFileInfo = fileClient.getFileInfo(path);
             if (commonFileInfo != null) {
                 FileInfo fileInfo = convertToFileInfo(commonFileInfo);
                 return ReturnResult.ok(fileInfo);
@@ -818,7 +818,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
      */
     private FileInfo buildFileTree(FileClient fileClient, String path, int maxDepth, Boolean includeHidden) {
         try {
-            com.chua.common.support.lang.file.FileInfo commonFileInfo = fileClient.getFileInfo(path);
+            com.chua.common.support.io.file.FileInfo commonFileInfo = fileClient.getFileInfo(path);
             if (commonFileInfo == null) {
                 return null;
             }
@@ -826,14 +826,14 @@ public class SshFileManagementServiceImpl implements FileManagementService {
             FileInfo fileInfo = convertToFileInfo(commonFileInfo);
 
             if (fileInfo.getIsDirectory() && maxDepth > 0) {
-                List<com.chua.common.support.lang.file.FileInfo> children = fileClient.listFiles(path);
-                if (children != null) {
-                    List<FileInfo> childrenList = new ArrayList<>();
-                    for (com.chua.common.support.lang.file.FileInfo child : children) {
+            List<com.chua.common.support.io.file.FileInfo> children = fileClient.listFiles(path);
+            if (children != null) {
+                List<FileInfo> childrenList = new ArrayList<>();
+                for (com.chua.common.support.io.file.FileInfo child : children) {
                         if (!Boolean.TRUE.equals(includeHidden) && child.getName().startsWith(".")) {
                             continue;
                         }
-                        FileInfo childInfo = buildFileTree(fileClient, child.getPath(), maxDepth - 1, includeHidden);
+                        FileInfo childInfo = buildFileTree(fileClient, child.getName(), maxDepth - 1, includeHidden);
                         if (childInfo != null) {
                             childrenList.add(childInfo);
                         }
@@ -855,7 +855,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
      * @param commonFileInfo 通用文件信息
      * @return 文件信息
      */
-    private FileInfo convertToFileInfo(com.chua.common.support.lang.file.FileInfo commonFileInfo) {
+    private FileInfo convertToFileInfo(com.chua.common.support.io.file.FileInfo commonFileInfo) {
         FileInfo fileInfo = new FileInfo();
         fileInfo.setName(commonFileInfo.getName());
         fileInfo.setPath(commonFileInfo.getPath());
@@ -936,12 +936,12 @@ public class SshFileManagementServiceImpl implements FileManagementService {
                 return;
             }
 
-            List<com.chua.common.support.lang.file.FileInfo> files = fileClient.listFiles(searchPath);
+            List<com.chua.common.support.io.file.FileInfo> files = fileClient.listFiles(searchPath);
             if (files == null) {
                 return;
             }
 
-            for (com.chua.common.support.lang.file.FileInfo file : files) {
+            for (com.chua.common.support.io.file.FileInfo file : files) {
                 if (matchedFiles.size() >= maxResults) {
                     break;
                 }
@@ -973,11 +973,11 @@ public class SshFileManagementServiceImpl implements FileManagementService {
             }
 
             long totalSize = 0;
-            List<com.chua.common.support.lang.file.FileInfo> files = fileClient.listFiles(path);
+            List<com.chua.common.support.io.file.FileInfo> files = fileClient.listFiles(path);
             if (files != null) {
-                for (com.chua.common.support.lang.file.FileInfo file : files) {
+                for (com.chua.common.support.io.file.FileInfo file : files) {
                     if (file.isDirectory()) {
-                        totalSize += calculateDirectorySize(fileClient, file.getPath());
+                        totalSize += calculateDirectorySize(fileClient, file.getName());
                     } else {
                         totalSize += file.getSize();
                     }
@@ -1011,7 +1011,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
     private void calculateFileStatistics(FileClient fileClient, String path, Map<String, Object> statistics,
             boolean includeSubdirectories) {
         try {
-            List<com.chua.common.support.lang.file.FileInfo> files = fileClient.listFiles(path);
+            List<com.chua.common.support.io.file.FileInfo> files = fileClient.listFiles(path);
             if (files == null) {
                 return;
             }
@@ -1020,11 +1020,11 @@ public class SshFileManagementServiceImpl implements FileManagementService {
             int dirCount = (Integer) statistics.get("totalDirectories");
             long totalSize = (Long) statistics.get("totalSize");
 
-            for (com.chua.common.support.lang.file.FileInfo file : files) {
+            for (com.chua.common.support.io.file.FileInfo file : files) {
                 if (file.isDirectory()) {
                     dirCount++;
                     if (includeSubdirectories) {
-                        calculateFileStatistics(fileClient, file.getPath(), statistics, true);
+                        calculateFileStatistics(fileClient, file.getName(), statistics, true);
                     }
                 } else {
                     fileCount++;

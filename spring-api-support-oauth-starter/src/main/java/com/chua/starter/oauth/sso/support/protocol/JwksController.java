@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
-import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.starter.oauth.sso.support.generation.JwtTokenGeneration;
 import com.chua.starter.oauth.sso.support.generation.TokenGeneration;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;

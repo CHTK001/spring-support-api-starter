@@ -1,9 +1,9 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
-import com.chua.common.support.annotations.Extension;
+import com.chua.common.support.core.annotation.Extension;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
@@ -15,6 +15,7 @@ import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.chua.starter.system.service.SysAppKeyService;
 import com.chua.starter.system.service.SysAppIdService;
 import com.chua.starter.entity.system.SysAppId;
+import com.chua.starter.entity.system.SysAppKey;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

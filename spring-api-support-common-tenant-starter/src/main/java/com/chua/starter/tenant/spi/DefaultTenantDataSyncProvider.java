@@ -1,6 +1,6 @@
 package com.chua.starter.tenant.spi;
 
-import com.chua.common.support.utils.MapUtils;
+import com.chua.common.support.core.utils.MapUtils;
 import com.chua.starter.entity.system.SysMenu;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.tenant.entity.SysTenant;

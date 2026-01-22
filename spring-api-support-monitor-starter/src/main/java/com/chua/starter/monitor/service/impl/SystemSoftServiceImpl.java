@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.service.impl;
 
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -7,9 +8,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.PageResult;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.unit.size.SizeUnit;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.math.unit.size.SizeUnit;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.docker.support.client.DockerProtocolClient;
 import com.chua.docker.support.client.DockerPullImage;
 import com.chua.docker.support.online.*;
@@ -255,13 +256,13 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             int s = (size == null || size < 1) ? 10 : Math.min(size, 10000);
             String kw = StringUtils.defaultString(keyword, "");
             if (!StringUtils.hasText(kw)) {
-                return ReturnPageResult.ok(PageResult.<SystemSoft>builder().data(java.util.Collections.emptyList()).total(0).pageNo(p).pageSize(s).build());
+                return ReturnPageResult.of(PageResult.<SystemSoft>builder().data(java.util.Collections.emptyList()).total(0).pageNo(p).pageSize(s).build());
             }
 
             List<SystemSoftRegistry> registries = systemSoftRegistryMapper.selectDefaultRegistries();
             if (registries == null || registries.isEmpty()) {
                 log.warn("未找到默认仓库，无法进行在线搜索");
-                return ReturnPageResult.ok(PageResult.<SystemSoft>builder().data(java.util.Collections.emptyList()).total(0).pageNo(p).pageSize(s).build());
+                return ReturnPageResult.of(PageResult.<SystemSoft>builder().data(java.util.Collections.emptyList()).total(0).pageNo(p).pageSize(s).build());
             }
 
             Map<String, SystemSoft> resultMap = new LinkedHashMap<>();
@@ -280,14 +281,14 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                 DockerOnlineSearchProvider matched = getDockerOnlineSearchProvider(dockerRegistry);
                 if (matched == null) {
                     log.warn("未发现任何 DockerOnlineSearchProvider SPI 实现");
-                    return ReturnPageResult.ok(PageResult.<SystemSoft>builder().data(List.of()).total(0).pageNo(p).pageSize(s).build());
+                    return ReturnPageResult.of(PageResult.<SystemSoft>builder().data(List.of()).total(0).pageNo(p).pageSize(s).build());
                 }
 
                 DockerOnlineSearchTagProvider matchedTagProvider = getDockerOnlineSearchTagProvider(dockerRegistry);
 
                 var pageResult = matched.search(kw.trim(), p, s, dockerRegistry);
-                List<DockerSearchItem> items = pageResult != null && pageResult.getData() != null ? pageResult.getData().getData() : java.util.Collections.emptyList();
-                long providerTotal = pageResult != null && pageResult.getData() != null ? pageResult.getData().getTotal() : 0L;
+                List<DockerSearchItem> items = pageResult != null && pageResult.data() != null ? pageResult.data().getData() : java.util.Collections.emptyList();
+                long providerTotal = pageResult != null && pageResult.data() != null ? pageResult.data().getTotal() : 0L;
                 totalSum += providerTotal;
                 if (items == null || items.isEmpty()) {
                     continue;
@@ -322,7 +323,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
 
             List<SystemSoft> result = new ArrayList<>(resultMap.values());
 
-            return ReturnPageResult.ok(PageResult.<SystemSoft>builder()
+            return ReturnPageResult.of(PageResult.<SystemSoft>builder()
                     .data(result)
                     .total(totalSum)
                     .pageNo(p)
@@ -330,7 +331,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                     .build());
         } catch (Exception e) {
             log.error("在线关键字搜索异常 - keyword: {}", keyword, e);
-            return ReturnPageResult.error("在线搜索异常: " + e.getMessage());
+            return ReturnPageResult.of(PageResult.<SystemSoft>builder().data(List.of()).total(0).pageNo(1).pageSize(10).build());
         }
     }
 
@@ -448,7 +449,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
      * @return 系统软件版本
      */
     private List<SystemSoftVersion> createSystemSoftVersion(String image, ReturnPageResult<DockerTagItem> dockerTagItemReturnPageResult) {
-        PageResult<DockerTagItem> data = dockerTagItemReturnPageResult.getData();
+        PageResult<DockerTagItem> data = dockerTagItemReturnPageResult.data();
         long total = data != null ? data.getTotal() : 0L;
         if (total <= 0) {
             return List.of();
@@ -587,11 +588,11 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
 
             // 搜索软件
             var pageResult = searchProvider.search(softwareName, 1, 10, dockerRegistry);
-            if (pageResult == null || pageResult.getData() == null || pageResult.getData().getData() == null) {
+            if (pageResult == null || pageResult.data() == null || pageResult.data().getData() == null) {
                 return ReturnResult.error("未找到该软件");
             }
 
-            List<DockerSearchItem> items = pageResult.getData().getData();
+            List<DockerSearchItem> items = pageResult.data().getData();
             if (items.isEmpty()) {
                 return ReturnResult.error("未找到该软件");
             }
@@ -643,7 +644,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                             ? "library/" + soft.getSystemSoftDockerImage()
                             : soft.getSystemSoftDockerImage();
                     ReturnPageResult<DockerTagItem> tagsResult = tagProvider.listTags(imageName, 1, 100, dockerRegistry);
-                    if (tagsResult != null && tagsResult.getData() != null) {
+                    if (tagsResult != null && tagsResult.data() != null) {
                         List<SystemSoftVersion> versions = createSystemSoftVersion(item.getImage(), tagsResult);
                         if (!versions.isEmpty()) {
                             versions.forEach(v -> v.setSystemSoftId(soft.getSystemSoftId()));
@@ -842,8 +843,8 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                                     : systemSoft.getSystemSoftDockerImage();
 
                             ReturnPageResult<DockerTagItem> tagsResult = tagProvider.listTags(imageName, 1, 100, dockerRegistry);
-                            if (tagsResult != null && tagsResult.getData() != null && tagsResult.getData().getData() != null) {
-                                List<String> onlineTags = tagsResult.getData().getData().stream()
+                            if (tagsResult != null && tagsResult.data() != null && tagsResult.data().getData() != null) {
+                                List<String> onlineTags = tagsResult.data().getData().stream()
                                         .map(DockerTagItem::getTag)
                                         .filter(StringUtils::hasText)
                                         .collect(Collectors.toList());

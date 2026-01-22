@@ -1,7 +1,7 @@
 package com.chua.starter.system.pojo.role;
 
-import com.chua.common.support.validator.group.SelectGroup;
-import com.chua.common.support.validator.group.UpdateGroup;
+import com.chua.common.support.base.validator.group.SelectGroup;
+import com.chua.common.support.base.validator.group.UpdateGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

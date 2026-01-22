@@ -1,15 +1,11 @@
 package com.chua.starter.monitor.job;
 
-import com.chua.common.support.json.Json;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.task.sync.SyncFlow;
-import com.chua.common.support.task.sync.SyncFlowBuilder;
-import com.chua.common.support.task.sync.metrics.SyncMetrics;
-import com.chua.common.support.task.sync.center.DataBus;
-import com.chua.common.support.task.sync.filter.DataFilter;
-import com.chua.common.support.task.sync.input.Input;
-import com.chua.common.support.task.sync.output.Output;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.text.json.Json;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.sync.SyncFlow;
+import com.chua.common.support.sync.Input;
+import com.chua.common.support.sync.Output;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.job.support.handler.JobHandler;
 import com.chua.starter.job.support.log.DefaultJobLog;
 import com.chua.starter.job.support.thread.JobContext;
@@ -97,20 +93,8 @@ public abstract class DynamicSyncTaskHandler implements JobHandler {
             syncFlow.start();
             long cost = System.currentTimeMillis() - startTime;
 
-            // 获取指标
-            SyncMetrics metrics = syncFlow.getMetrics();
-            if (metrics != null) {
-                DefaultJobLog.log(String.format(
-                        "同步完成, 读取: %d, 写入: %d, 成功: %d, 失败: %d, 耗时: %dms",
-                        metrics.getReadCount().get(),
-                        metrics.getWriteCount().get(),
-                        metrics.getSuccessCount().get(),
-                        metrics.getFailCount().get(),
-                        cost
-                ));
-            } else {
-                DefaultJobLog.log("同步完成, 耗时: " + cost + "ms");
-            }
+            // TODO: SyncMetrics 功能已重构，需要重新实现
+            DefaultJobLog.log("同步完成, 耗时: " + cost + "ms");
 
         } catch (Exception e) {
             DefaultJobLog.log("同步任务执行失败: " + e.getMessage());
@@ -122,7 +106,7 @@ public abstract class DynamicSyncTaskHandler implements JobHandler {
      * 构建 SyncFlow
      */
     private SyncFlow buildSyncFlow(SyncFlowConfig config) {
-        SyncFlowBuilder builder = SyncFlowBuilder.create("dynamic-sync-task");
+        SyncFlow.Builder builder = SyncFlow.builder("dynamic-sync-task");
 
         // 创建 Input
         if (config.getInputType() != null) {
@@ -136,30 +120,31 @@ public abstract class DynamicSyncTaskHandler implements JobHandler {
             builder.addOutput(output);
         }
 
-        // 创建 DataBus（可选）
-        if (config.getDataCenterType() != null) {
-            DataBus dataBus = createDataBus(config.getDataCenterType(), config.getDataCenterConfig());
-            builder.withDataBus(dataBus);
-        }
+        // TODO: DataBus 功能已重构，需要重新实现
+        // if (config.getDataCenterType() != null) {
+        //     DataBus dataBus = createDataBus(config.getDataCenterType(), config.getDataCenterConfig());
+        //     builder.withDataBus(dataBus);
+        // }
 
-        // 创建过滤器（可选）
-        if (config.getFilters() != null) {
-            for (Map.Entry<String, Map<String, Object>> entry : config.getFilters().entrySet()) {
-                DataFilter filter = createFilter(entry.getKey(), entry.getValue());
-                builder.addFilter(filter);
-            }
-        }
+        // TODO: DataFilter 功能已重构，需要重新实现
+        // if (config.getFilters() != null) {
+        //     for (Map.Entry<String, Map<String, Object>> entry : config.getFilters().entrySet()) {
+        //         DataFilter filter = createFilter(entry.getKey(), entry.getValue());
+        //         builder.addFilter(filter);
+        //     }
+        // }
 
         // 设置参数
         if (config.getBatchSize() != null) {
             builder.batchSize(config.getBatchSize());
         }
-        if (config.getConsumeTimeout() != null) {
-            builder.consumeTimeout(config.getConsumeTimeout());
-        }
-        if (config.getRetryCount() != null) {
-            builder.withRetry(config.getRetryCount(), config.getRetryInterval() != null ? config.getRetryInterval() : 1000);
-        }
+        // TODO: consumeTimeout、withRetry 方法已重构，需要重新实现
+        // if (config.getConsumeTimeout() != null) {
+        //     builder.consumeTimeout(config.getConsumeTimeout());
+        // }
+        // if (config.getRetryCount() != null) {
+        //     builder.withRetry(config.getRetryCount(), config.getRetryInterval() != null ? config.getRetryInterval() : 1000);
+        // }
 
         return builder.build();
     }
@@ -174,15 +159,17 @@ public abstract class DynamicSyncTaskHandler implements JobHandler {
         return provider.getNewExtension(type, config != null ? config : new HashMap<>());
     }
 
-    private DataBus createDataBus(String type, Map<String, Object> config) {
-        ServiceProvider<DataBus> provider = ServiceProvider.of(DataBus.class);
-        return provider.getNewExtension(type, config != null ? config : new HashMap<>());
-    }
+    // TODO: DataBus 功能已重构，需要重新实现
+    // private DataBus createDataBus(String type, Map<String, Object> config) {
+    //     ServiceProvider<DataBus> provider = ServiceProvider.of(DataBus.class);
+    //     return provider.getNewExtension(type, config != null ? config : new HashMap<>());
+    // }
 
-    private DataFilter createFilter(String type, Map<String, Object> config) {
-        ServiceProvider<DataFilter> provider = ServiceProvider.of(DataFilter.class);
-        return provider.getNewExtension(type, config != null ? config : new HashMap<>());
-    }
+    // TODO: DataFilter 功能已重构，需要重新实现
+    // private DataFilter createFilter(String type, Map<String, Object> config) {
+    //     ServiceProvider<DataFilter> provider = ServiceProvider.of(DataFilter.class);
+    //     return provider.getNewExtension(type, config != null ? config : new HashMap<>());
+    // }
 
     /**
      * 同步流配置

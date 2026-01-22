@@ -12,7 +12,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.ColumnDefault;
+// Hibernate 注解已移除，使用 MyBatis Plus 的默认值处理
+// import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -64,7 +65,8 @@ public class MonitorJobLog extends SysBase {
     @TableField(value = "job_log_execute_code")
     @ApiModelProperty(value="客户端执行任务的结果; FAILURE: 失败; SUCCESS: 成功; PADDING: 执行中")
     @Schema(description="客户端执行任务的结果; FAILURE: 失败; SUCCESS: 成功; PADDING: 执行中")
-    @ColumnDefault("PADDING")
+    // Hibernate 注解已移除，默认值在数据库层面处理
+    // @ColumnDefault("PADDING")
     private String jobLogExecuteCode;
     /**
      * 执行对应的标识

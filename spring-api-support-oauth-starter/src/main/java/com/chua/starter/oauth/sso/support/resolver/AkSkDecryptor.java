@@ -1,8 +1,8 @@
 package com.chua.starter.oauth.sso.support.resolver;
 
 import com.chua.common.support.crypto.Codec;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**

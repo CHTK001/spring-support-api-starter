@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.pojo.app;
 
-import com.chua.common.support.utils.MapUtils;
+import com.chua.common.support.core.utils.MapUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

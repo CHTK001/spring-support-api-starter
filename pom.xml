@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -12,13 +12,9 @@
 
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>3</version>
+    <version>4.0.0.36</version>
     <packaging>pom</packaging>
     <modules>
-        <!-- 以下模块因缺少依赖暂时无法编译：
-             - utils-support-deeplearning-starter (DJL API 不兼容)
-             - io.swagger.annotations (Swagger 2.x)
-             - 其他 OSS/Protocol 相关类
         <module>spring-api-support-oauth-starter</module>
         <module>spring-api-support-system-starter</module>
         <module>spring-api-support-tenanted-starter</module>
@@ -29,7 +25,6 @@
         <module>spring-api-support-common-project-starter</module>
         <module>spring-api-support-common-service-starter</module>
         <module>spring-api-support-common-tenant-starter</module>
-        -->
         <module>spring-api-support-common-configuration-starter</module>
         <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-devops-starter</module>
@@ -41,7 +36,7 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <module.version>4.0.0.36</module.version>
-        <utils.version>3</utils.version>
+        <utils.version>4.0.0.35</utils.version>
         <spring-boot.version>3.2.3</spring-boot.version>
         <!-- devops 模块路径（使用多模块根目录，避免子模块继承后路径叠加） -->
         <devops.dir>${maven.multiModuleProjectDirectory}/spring-api-support-devops-starter</devops.dir>
@@ -677,12 +672,53 @@
                 <artifactId>jansi</artifactId>
                 <version>2.4.1</version>
             </dependency>
+            <!-- Swagger 2.x annotations -->
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>1.6.14</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-models</artifactId>
+                <version>1.6.14</version>
+            </dependency>
+            <!-- Jakarta Servlet API -->
+            <dependency>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>6.0.0</version>
+            </dependency>
+            <!-- utils-support-extension-starter -->
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-extension-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
         <pluginManagement>
             <plugins>
+                <!-- Maven Compiler Plugin 配置 Lombok 注解处理器 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.14.0</version>
+                    <configuration>
+                        <source>25</source>
+                        <target>25</target>
+                        <encoding>UTF-8</encoding>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>1.18.42</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
                 <!-- YAML 配置合并插件 -->
                 <plugin>
                     <groupId>org.codehaus.gmavenplus</groupId>
@@ -706,7 +742,7 @@
                         <dependency>
                             <groupId>org.apache.groovy</groupId>
                             <artifactId>groovy</artifactId>
-                            <version>4.0.15</version>
+                            <version>5.0.0</version>
                         </dependency>
                         <dependency>
                             <groupId>org.yaml</groupId>

@@ -1,10 +1,10 @@
 package com.chua.starter.video.provider.impl;
 
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.http.HttpClient;
-import com.chua.common.support.http.HttpResponse;
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.network.http.HttpClient;
+import com.chua.common.support.network.http.HttpResponse;
 import com.chua.common.support.lang.code.ReturnPageResult;
-import com.chua.common.support.lang.date.DateUtils;
+import com.chua.common.support.time.date.DateUtils;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.video.entity.VideoMark;
 import com.chua.starter.video.entity.VideoSource;

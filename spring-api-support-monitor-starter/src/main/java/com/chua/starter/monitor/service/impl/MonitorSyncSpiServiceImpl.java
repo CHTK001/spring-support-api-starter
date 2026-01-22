@@ -1,11 +1,11 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.task.sync.center.DataBus;
-import com.chua.common.support.task.sync.filter.DataFilter;
-import com.chua.common.support.task.sync.input.Input;
-import com.chua.common.support.task.sync.output.Output;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.sync.Input;
+import com.chua.common.support.sync.Output;
+import com.chua.common.support.sync.Sink;
+import com.chua.common.support.sync.Filter;
 import com.chua.starter.monitor.adapter.SpiConfigAdapterManager;
 import com.chua.starter.monitor.annotation.SpiMeta;
 import com.chua.starter.monitor.pojo.sync.SpiInfo;
@@ -71,23 +71,18 @@ public class MonitorSyncSpiServiceImpl implements MonitorSyncSpiService {
     @Override
     public ReturnResult<List<SpiInfo>> getDataCenterList() {
         try {
-            List<SpiInfo> list = getSpiList(DataBus.class, TYPE_DATA_CENTER);
+            List<SpiInfo> list = getSpiList(Sink.class, TYPE_DATA_CENTER);
             return ReturnResult.ok(list);
         } catch (Exception e) {
-            log.error("获取 DataBus SPI 列表失败", e);
+            log.error("获取 DataCenter SPI 列表失败", e);
             return ReturnResult.error("获取失败: " + e.getMessage());
         }
     }
 
     @Override
     public ReturnResult<List<SpiInfo>> getDataFilterList() {
-        try {
-            List<SpiInfo> list = getSpiList(DataFilter.class, TYPE_FILTER);
-            return ReturnResult.ok(list);
-        } catch (Exception e) {
-            log.error("获取 DataFilter SPI 列表失败", e);
-            return ReturnResult.error("获取失败: " + e.getMessage());
-        }
+        // Filter 是函数式接口，不支持 SPI，返回空列表
+        return ReturnResult.ok(new ArrayList<>());
     }
 
     @Override
@@ -149,8 +144,8 @@ public class MonitorSyncSpiServiceImpl implements MonitorSyncSpiService {
             SpiTypeList result = new SpiTypeList();
             result.setInput(getSpiList(Input.class, TYPE_INPUT));
             result.setOutput(getSpiList(Output.class, TYPE_OUTPUT));
-            result.setDataCenter(getSpiList(DataBus.class, TYPE_DATA_CENTER));
-            result.setFilter(getSpiList(DataFilter.class, TYPE_FILTER));
+            result.setDataCenter(getSpiList(Sink.class, TYPE_DATA_CENTER));
+            result.setFilter(new ArrayList<>());
             return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("获取所有 SPI 类型失败", e);
@@ -263,9 +258,10 @@ public class MonitorSyncSpiServiceImpl implements MonitorSyncSpiService {
             case TYPE_OUTPUT:
                 return Output.class;
             case TYPE_DATA_CENTER:
-                return DataBus.class;
+                return Sink.class;
             case TYPE_FILTER:
-                return DataFilter.class;
+                // Filter 是函数式接口，不支持 SPI
+                return null;
             default:
                 return null;
         }
@@ -744,12 +740,12 @@ public class MonitorSyncSpiServiceImpl implements MonitorSyncSpiService {
             }
 
             // 尝试使用 SPI 创建实例
-            ServiceProvider<DataBus> provider = ServiceProvider.of(DataBus.class);
-            DataBus dataBus = provider.getNewExtension(spiName, config);
-            if (dataBus != null) {
+            ServiceProvider<Sink> provider = ServiceProvider.of(Sink.class);
+            Sink sink = provider.getNewExtension(spiName, config);
+            if (sink != null) {
                 return ReturnResult.ok("连接测试成功");
             }
-            return ReturnResult.error("无法创建 DataBus 实例");
+            return ReturnResult.error("无法创建 Sink 实例");
         } catch (Exception e) {
             return ReturnResult.error("连接测试失败: " + e.getMessage());
         }

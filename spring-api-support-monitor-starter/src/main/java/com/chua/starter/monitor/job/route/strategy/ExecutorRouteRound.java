@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.job.route.strategy;
 
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.discovery.Discovery;
-import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.network.discovery.Discovery;
+import com.chua.common.support.core.utils.CollectionUtils;
 import com.chua.report.client.starter.job.TriggerParam;
 import com.chua.starter.monitor.job.route.ExecutorRouter;
 

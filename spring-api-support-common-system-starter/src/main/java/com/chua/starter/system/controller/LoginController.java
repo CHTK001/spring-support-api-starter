@@ -1,8 +1,8 @@
 package com.chua.starter.system.controller;
 
-import com.chua.common.support.constant.Action;
+import com.chua.common.support.core.constant.Action;
 import com.chua.common.support.task.debounce.Debounce;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.UserLog;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
-import static com.chua.starter.common.support.logger.SysLoggerPointcutAdvisor.X_REQ_FINGERPRINT;
+import static com.chua.starter.common.support.logger.AbstractLoggerPointcutAdvisor.X_REQ_FINGERPRINT;
 
 /**
  * 登录

@@ -1,14 +1,14 @@
 package com.chua.starter.video.provider.impl;
 
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.converter.Converter;
-import com.chua.common.support.http.HttpClient;
-import com.chua.common.support.http.HttpResponse;
-import com.chua.common.support.json.Json;
-import com.chua.common.support.json.JsonObject;
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.base.converter.Converter;
+import com.chua.common.support.network.http.HttpClient;
+import com.chua.common.support.network.http.HttpResponse;
+import com.chua.common.support.text.json.Json;
+import com.chua.common.support.text.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.objects.annotation.AutoInject;
-import com.chua.common.support.utils.*;
+import com.chua.common.support.core.utils.*;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.video.entity.*;
 import com.chua.starter.video.mapper.VideoSourceMapper;
@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 
-import static com.chua.common.support.constant.CommonConstant.EMPTY_STRING;
+import static com.chua.common.support.core.constant.CommonConstant.EMPTY_STRING;
 import static com.chua.starter.video.provider.impl.GuanYingResourceProvider.EmbeddedDownload.DownlistDTO;
 import static com.chua.starter.video.provider.impl.GuanYingResourceProvider.EmbeddedDownload.PanlistDTO;
 import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_STATUS_ERROR;

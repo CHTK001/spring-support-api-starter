@@ -3,13 +3,14 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.datasource.jdbc.option.DataSourceOptions;
+import com.chua.common.support.data.datasource.jdbc.option.DataSourceOptions;
+import com.chua.common.support.lang.code.PageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.metadata.command.CommandMetadataFactory;
 import com.chua.common.support.metadata.command.CommandResult;
 import com.chua.common.support.metadata.command.ObjectResultItem;
 import com.chua.common.support.task.retry.RetryerFlow;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.email.support.metadata.EmailServiceMetadata;
 import com.chua.email.support.metadata.MailMessage;
 import com.chua.starter.monitor.entity.SystemDataEmailHistory;
@@ -85,11 +86,41 @@ public class SystemDataEmailHistoryServiceImpl extends ServiceImpl<SystemDataEma
             if (null == data) {
                 return ReturnResult.error("拉取邮件失败: 获取邮件失败");
             }
-            com.chua.common.support.lang.page.Page<MailMessage> page = (com.chua.common.support.lang.page.Page<MailMessage>) data.getNewRows();
+            // 获取邮件列表
+            Object pageObj = data.getNewRows();
             // 保存到数据库
             int savedCount = 0;
             int updatedCount = 0;
-            List<MailMessage> emails = page.getData();
+            List<MailMessage> emails;
+            PageResult<MailMessage> page;
+            if (pageObj instanceof PageResult<?> pageResult) {
+                // 如果是 PageResult 类型
+                page = (PageResult<MailMessage>) pageResult;
+                emails = page.getData();
+            } else if (pageObj instanceof List<?> list) {
+                // 如果直接是列表
+                emails = list.stream()
+                        .filter(MailMessage.class::isInstance)
+                        .map(MailMessage.class::cast)
+                        .toList();
+                page = PageResult.<MailMessage>builder()
+                        .data(emails)
+                        .total(emails.size())
+                        .pageNo(1)
+                        .pageSize(emails.size())
+                        .totalPages(1)
+                        .build();
+            } else {
+                // 其他类型，尝试转换为列表
+                emails = List.of();
+                page = PageResult.<MailMessage>builder()
+                        .data(emails)
+                        .total(0)
+                        .pageNo(1)
+                        .pageSize(0)
+                        .totalPages(0)
+                        .build();
+            }
             for (MailMessage email : emails) {
                 SystemDataEmailHistory existing = emailHistoryMapper.selectByMessageId(
                         email.getMessageId(), settingId);

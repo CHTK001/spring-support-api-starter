@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.entity.service.SysSetting;
 import com.chua.starter.entity.service.SysSettingHistory;
 import com.chua.starter.mybatis.entity.Query;

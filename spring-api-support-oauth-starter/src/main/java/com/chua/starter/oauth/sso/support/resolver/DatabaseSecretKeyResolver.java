@@ -1,7 +1,7 @@
 package com.chua.starter.oauth.sso.support.resolver;
 
-import com.chua.common.support.annotations.Extension;
-import com.chua.common.support.annotations.SpiDefault;
+import com.chua.common.support.core.annotation.Extension;
+import com.chua.common.support.core.annotation.SpiDefault;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.starter.entity.system.SysAppKey;
 import com.chua.starter.system.service.SysAppKeyService;

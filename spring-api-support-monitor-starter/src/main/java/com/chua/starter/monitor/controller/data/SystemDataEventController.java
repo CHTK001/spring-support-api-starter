@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.controller.data;
 
-import com.chua.common.support.json.Json;
+import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.redis.support.constant.RedisConstant;
 import com.chua.socket.support.session.SocketSessionTemplate;

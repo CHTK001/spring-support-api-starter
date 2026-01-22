@@ -3,14 +3,14 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.backup.Backup;
-import com.chua.common.support.bean.BeanUtils;
-import com.chua.common.support.document.Document;
+// Backup 已重构为 Engine 的 BackupFeature 接口，能力判断需要通过 Engine 实例检查
+import com.chua.common.support.base.bean.BeanUtils;
+import com.chua.common.support.document.parser.Document;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.metadata.query.MetadataQuery;
-import com.chua.common.support.net.NetAddress;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.ObjectUtils;
+import com.chua.common.support.network.net.NetAddress;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.utils.ObjectUtils;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
 import com.chua.starter.monitor.pojo.data.SystemDataSettingPageItem;
@@ -171,8 +171,9 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
             decryptSensitiveData(setting);
             SystemDataSettingPageItem item = new SystemDataSettingPageItem();
             BeanUtils.copyProperties(setting, item);
-            // 能力判断（SPI）
-            boolean backup = ServiceProvider.of(Backup.class).isSupport(setting.getSystemDataSettingProtocol());
+            // Backup 已重构为 Engine 的 BackupFeature 接口，需要创建 Engine 实例才能判断
+            // 由于这里只是能力展示，暂时设置为 false，实际使用时需要通过 Engine 实例检查
+            boolean backup = false;
             boolean document = ServiceProvider.of(Document.class).isSupport(setting.getSystemDataSettingType());
             boolean isFile = "FILE".equalsIgnoreCase(setting.getSystemDataSettingMode());
             item.setCapabilitiesBackup(backup);

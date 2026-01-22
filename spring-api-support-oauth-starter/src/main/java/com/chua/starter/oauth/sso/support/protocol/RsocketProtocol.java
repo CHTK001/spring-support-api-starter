@@ -1,8 +1,8 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
-import com.chua.common.support.annotations.Extension;
-import com.chua.common.support.annotations.Spi;
-import com.chua.common.support.json.Json;
+import com.chua.common.support.core.annotation.Extension;
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.entity.AuthRequest;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;

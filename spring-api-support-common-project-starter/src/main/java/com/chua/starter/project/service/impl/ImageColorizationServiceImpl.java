@@ -1,12 +1,17 @@
 package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.deeplearning.support.ml.bigmodel.colorization.*;
-import com.chua.common.support.binary.ByteSourceMultiFile;
-import com.chua.common.support.json.Json;
+import com.chua.deeplearning.support.core.function.model.ImageToColorizationGenerator;
+import com.chua.deeplearning.support.core.request.ImageColorizationAddTaskV1Request;
+import com.chua.deeplearning.support.core.request.ImageColorizationSearchTaskV1Request;
+import com.chua.deeplearning.support.core.response.ImageColorizationAddTaskV1Response;
+import com.chua.deeplearning.support.core.response.ImageColorizationSearchTaskV1Response;
+import com.chua.deeplearning.support.ml.client.colorization.ColorizationSetting;
+import com.chua.common.support.io.binary.ByteSourceMultiFile;
+import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.project.mapper.SysAiVincentTaskMapper;
 import com.chua.starter.project.service.ImageColorizationService;
 import com.chua.starter.project.service.SysAiModuleService;
@@ -53,7 +58,7 @@ public class ImageColorizationServiceImpl implements ImageColorizationService {
         if (null == sysProject) {
             throw new RuntimeException("项目不存在");
         }
-        ImageColorizationClient imageResolutionClient = ServiceProvider.of(ImageColorizationClient.class)
+        ImageToColorizationGenerator imageResolutionClient = ServiceProvider.of(ImageToColorizationGenerator.class)
                 .getNewExtension(sysProject.getSysProjectDictItemCode(),
                         ColorizationSetting.builder()
                                 .host(StringUtils.defaultString(sysAiModule.getSysAiModuleUrl(), sysProject.getSysProjectEndpoint()))
@@ -97,7 +102,7 @@ public class ImageColorizationServiceImpl implements ImageColorizationService {
         if (null == sysProject) {
             throw new RuntimeException("项目不存在");
         }
-        ImageColorizationClient colorizationSearchTaskV1Response = ServiceProvider.of(ImageColorizationClient.class)
+        ImageToColorizationGenerator colorizationSearchTaskV1Response = ServiceProvider.of(ImageToColorizationGenerator.class)
                 .getNewExtension(sysProject.getSysProjectDictItemCode(),
                         ColorizationSetting.builder()
                                 .host(sysProject.getSysProjectEndpoint())
@@ -116,12 +121,13 @@ public class ImageColorizationServiceImpl implements ImageColorizationService {
                         .region(request.getRegion())
                         .build()
         );
-        String taskStatus = imageResolutionSearchTaskV1Response.getTaskStatus();
+        Integer progress = imageResolutionSearchTaskV1Response.getProgress();
         String images = imageResolutionSearchTaskV1Response.getImage();
+        String taskStatus = progress != null && progress >= 100 ? "SUCCESS" : (progress != null && progress > 0 ? "PROCESSING" : "PENDING");
         String taskLocalUrl = ImageGenerationServiceImpl.createTaskLocalUrl(StringUtils.defaultString(sysProject.getSysProjectLocationTempPath(), LOCATION_PATH), Collections.singletonList(images));
         sysAiVincentTaskMapper.update(Wrappers.<SysAiVincentTask>lambdaUpdate()
                 .set(SysAiVincentTask::getSysAiVincentTaskStatus, ImageGenerationServiceImpl.getStatus(taskStatus))
-                .set(SysAiVincentTask::getSysAiVincentTaskRequestId, imageResolutionSearchTaskV1Response.getTaskId())
+                .set(SysAiVincentTask::getSysAiVincentTaskRequestId, imageResolutionSearchTaskV1Response.getProgress() != null ? String.valueOf(imageResolutionSearchTaskV1Response.getProgress()) : null)
                 .set(SysAiVincentTask::getSysAiVincentTaskUrl, images)
                 .set(SysAiVincentTask::getSysAiVincentTaskLocalUrl, taskLocalUrl)
                 .eq(SysAiVincentTask::getSysAiVincentTaskUid, request.getTaskId())

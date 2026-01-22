@@ -3,7 +3,7 @@ package com.chua.starter.monitor.pojo.node;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * 日志等级设置请求

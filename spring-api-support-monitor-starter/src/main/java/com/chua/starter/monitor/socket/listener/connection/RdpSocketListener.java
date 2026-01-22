@@ -1,8 +1,8 @@
 package com.chua.starter.monitor.socket.listener.connection;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.chua.common.support.json.Json;
-import com.chua.common.support.json.JsonObject;
+import com.chua.common.support.text.json.Json;
+import com.chua.common.support.text.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.socket.support.SocketListener;
 import com.chua.socket.support.annotations.OnEvent;

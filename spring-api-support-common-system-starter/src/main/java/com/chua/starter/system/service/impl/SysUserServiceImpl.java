@@ -4,13 +4,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.bean.BeanUtils;
+import com.chua.common.support.base.bean.BeanUtils;
 import com.chua.common.support.geo.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.common.support.utils.DigestUtils;
-import com.chua.common.support.utils.RandomUtils;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.utils.CollectionUtils;
+import com.chua.common.support.core.utils.DigestUtils;
+import com.chua.common.support.core.utils.RandomUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.service.IptablesService;
 import com.chua.starter.common.support.utils.RequestUtils;
@@ -192,7 +192,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUserUpdate.setSysUserDelete(SystemConstant.NOT_DELETED);
         sysUserUpdate.setSysUserStatus(SystemConstant.USER_STATUS_ENABLED);
         sysUserUpdate.setSysUserRegisterIp(RequestUtils.getIpAddress(request));
-        sysUserUpdate.setSysUserLastIp(RequestUtils.getIpAddress());
+        sysUserUpdate.setSysUserLastIp(RequestUtils.getIpAddress(request));
         if (org.apache.commons.lang3.StringUtils.isNotBlank(sysUserUpdate.getSysUserLastIp())) {
             ReturnResult<GeoCity> returnResult = iptablesService.transferAddress(sysUserUpdate.getSysUserLastIp());
             if (returnResult.isOk()) {

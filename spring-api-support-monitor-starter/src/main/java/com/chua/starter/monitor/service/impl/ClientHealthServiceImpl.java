@@ -10,7 +10,7 @@ import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.json.Json;
+import com.chua.common.support.text.json.Json;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
