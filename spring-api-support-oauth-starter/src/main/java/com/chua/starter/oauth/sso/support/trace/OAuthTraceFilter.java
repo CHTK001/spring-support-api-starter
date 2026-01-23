@@ -29,7 +29,7 @@ public class OAuthTraceFilter implements Filter, Ordered {
      * 需要追踪的路径
      */
     private static final Set<String> TRACE_PATHS = Set.of(
-            "/login", "/logout", "/oauth", "/upgrade", "/temporary-token", "/online/list", "/online/status"
+            "/login", "/logout", "/oauth", "/upgrade", "/temporary-token"
     );
 
     @Override
@@ -137,8 +137,6 @@ public class OAuthTraceFilter implements Filter, Ordered {
             return "UPGRADE";
         } else if (uri.endsWith("/temporary-token")) {
             return "TEMP_TOKEN";
-        } else if (uri.contains("/online")) {
-            return "ONLINE_QUERY";
         }
         return "UNKNOWN";
     }

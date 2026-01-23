@@ -5,6 +5,10 @@ import com.chua.common.support.resilience.rate.RateLimiter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.common.support.core.utils.MapUtils;
+import com.chua.common.support.text.json.Json;
+import com.chua.common.support.network.protocol.Protocol;
+import com.chua.common.support.network.protocol.ProtocolSetting;
+import com.chua.common.support.network.protocol.server.ProtocolServer;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.oauth.client.support.entity.AuthRequest;
@@ -15,11 +19,11 @@ import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.advice.AdviceView;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
-import com.chua.starter.oauth.sso.support.controller.OAuthAdminController;
 import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
 import com.chua.starter.oauth.sso.support.information.LogoutAuthInformation;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 import com.chua.starter.oauth.sso.support.information.TemporaryTokenAuthInformation;
+import com.chua.starter.oauth.sso.support.information.ProtocolServerAuthInformation;
 import com.chua.starter.oauth.sso.support.parser.TemporaryTokenAuthorization;
 import com.chua.starter.oauth.sso.support.information.UpgradeAuthInformation;
 import com.chua.starter.oauth.sso.support.parser.LoginAuthorization;
@@ -33,6 +37,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import com.chua.common.support.network.protocol.request.ServletRequest;
+import com.chua.common.support.network.protocol.request.ServletResponse;
+import com.chua.common.support.network.protocol.ProtocolSetting;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,13 +49,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Conditional;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -56,12 +59,11 @@ import java.util.Map;
  *
  * @author CH
  */
-@Controller
+@Component
 @Extension("http")
 @com.chua.common.support.core.annotation.Spi("http")
 @Slf4j
 @Conditional(OnBeanCondition.class)
-@RequestMapping
 @RequiredArgsConstructor
 @Tag(name = "认证服务", description = "提供HTTP协议的认证服务接口")
 public class HttpProtocol implements Protocol, InitializingBean {
@@ -70,347 +72,361 @@ public class HttpProtocol implements Protocol, InitializingBean {
 
     final LoginCheck loginCheck;
 
-
     final ApplicationContext applicationContext;
 
     @Value("${plugin.auth.server.context-path:}")
     private String contextPath;
-    /**
-     * 登录
-     *
-     * @return 登录页
-     */
-    @Operation(
-            summary = "用户登录",
-            description = "处理用户登录请求，验证用户身份并颁发访问令牌",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "登录成功，返回令牌"),
-                    @ApiResponse(responseCode = "401", description = "登录失败，用户名或密码错误")
-            }
-    )
-    @ResponseBody
-    @PostMapping("/login")
-    @RateLimiter(value = 30, mode = "ip", message = "登录请求过于频繁，请30秒后重试")
-    public ReturnResult<String> login(
-            @Parameter(description = "认证请求信息", required = true) @RequestBody AuthRequest authRequest,
-            HttpServletRequest request,
-            HttpServletResponse response,
-            RedirectAttributes redirectAttributes,
-            RedirectAttributes modelMap
-    ) {
-        long startTime = System.currentTimeMillis();
-        String clientIp = request.getRemoteAddr();
-        String userAgent = request.getHeader("User-Agent");
-        
-        log.debug("========== 登录请求开始 ==========");
-        log.debug("客户端IP: {}, User-Agent: {}", clientIp, userAgent);
-        log.debug("请求头 x-oauth-uuid: {}", request.getHeader("x-oauth-uuid"));
-        log.debug("请求头 x-oauth-serial: {}", request.getHeader("x-oauth-serial"));
-        log.debug("请求头 x-oauth-encode: {}", request.getHeader("x-oauth-encode"));
-        log.debug("请求数据长度: {}", authRequest.getData() != null ? authRequest.getData().length() : 0);
-        
-        LoginAuthInformation authInformation = new LoginAuthInformation(
-                authServerProperties,
-                authRequest.getData(),
-                request,
-                response,
-                applicationContext,
-                loginCheck);
-        
-        if(!authInformation.isSuccessful()) {
-            log.warn("登录请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
-                    authInformation.errorMessage(), clientIp, System.currentTimeMillis() - startTime);
-            return ReturnResult.illegal(authInformation.errorMessage());
-        }
-        
-        log.debug("登录请求解析成功, 开始认证...");
-        LoginAuthorization authorization = authInformation.authorization();
-        ReturnResult<String> authentication = authorization.authentication();
-        
-        if(authentication.isFailure()) {
-            long cost = System.currentTimeMillis() - startTime;
-            log.warn("登录认证失败: {}, 客户端IP: {}, 耗时: {}ms", 
-                    authentication.getMsg(), clientIp, cost);
-            // 记录失败请求
-            OAuthAdminController.recordRequest("LOGIN", clientIp, null, false, authentication.getMsg(), cost);
-            return ReturnResult.error(authentication.getMsg());
-        }
-        
-        long cost = System.currentTimeMillis() - startTime;
-        log.info("登录认证成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);
-        log.debug("========== 登录请求结束 ==========");
-        // 记录成功请求
-        OAuthAdminController.recordRequest("LOGIN", clientIp, null, true, "登录成功", cost);
-        return authentication;
-    }
-
-
-    /**
-     * 登出
-     *
-     * @return 登出
-     */
-    @PostMapping("/logout")
-    @ResponseBody
-    @Operation(summary = "登出")
-    @RateLimiter(value = 60, mode = "ip", message = "登出请求过于频繁，请稍后重试")
-    public ReturnResult<String> logout(@RequestBody AuthRequest authRequest,
-                                        HttpServletRequest request, HttpServletResponse response) {
-        long startTime = System.currentTimeMillis();
-        String clientIp = request.getRemoteAddr();
-        
-        log.debug("========== 登出请求开始 ==========");
-        log.debug("客户端IP: {}", clientIp);
-        
-        LogoutAuthInformation authInformation = new LogoutAuthInformation(
-                authServerProperties,
-                authRequest.getData(),
-                request,
-                response,
-                applicationContext,
-                loginCheck);
-        if(!authInformation.isSuccessful()) {
-            log.warn("登出请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
-                    authInformation.errorMessage(), clientIp, System.currentTimeMillis() - startTime);
-            return ReturnResult.illegal(authInformation.errorMessage());
-        }
-        LogoutAuthorization authorization = authInformation.authorization();
-        ReturnResult<String> authentication = authorization.authentication();
-        if(authentication.isFailure()) {
-            long cost = System.currentTimeMillis() - startTime;
-            log.warn("登出失败: {}, 客户端IP: {}, 耗时: {}ms", 
-                    authentication.getMsg(), clientIp, cost);
-            OAuthAdminController.recordRequest("LOGOUT", clientIp, null, false, authentication.getMsg(), cost);
-            return ReturnResult.error(authentication.getMsg());
-        }
-        
-        long cost = System.currentTimeMillis() - startTime;
-        log.info("登出成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);
-        log.debug("========== 登出请求结束 ==========");
-        OAuthAdminController.recordRequest("LOGOUT", clientIp, null, true, "登出成功", cost);
-        return authentication;
-    }
-
-    /**
-     * 登出API（内部调用）
-     * <p>
-     * 用于处理API方式的用户登出请求，支持不同的登出类型：
-     * - SINGLE: 单点登出，仅登出当前会话
-     * - ALL: 全局登出，登出用户所有会话
-     * </p>
-     *
-     * @param data     加密的登出数据
-     * @param type     登出类型
-     * @param request  HTTP请求
-     * @param response HTTP响应
-     * @return 登出结果
-     */
-    private ReturnResult<String> logoutApi(String data, LogoutType type, HttpServletRequest request, HttpServletResponse response) {
-        long startTime = System.currentTimeMillis();
-        String clientIp = request.getRemoteAddr();
-        
-        log.debug("========== API登出请求开始 ==========");
-        log.debug("客户端IP: {}, 登出类型: {}", clientIp, type);
-        
-        if (Strings.isNullOrEmpty(data)) {
-            log.info("API登出成功(无数据) - 客户端IP: {}", clientIp);
-            return ReturnResult.ok();
-        }
-
-        try {
-            // 构建登出请求
-            AuthRequest authRequest = new AuthRequest();
-            authRequest.setData(data);
-            authRequest.setType(type.name());
-            
-            // 委托给标准登出流程处理
-            LogoutAuthInformation authInformation = new LogoutAuthInformation(
-                    authServerProperties,
-                    data,
-                    request,
-                    response,
-                    applicationContext,
-                    loginCheck);
-            
-            if (!authInformation.isSuccessful()) {
-                log.warn("API登出请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
-                        authInformation.errorMessage(), clientIp, System.currentTimeMillis() - startTime);
-                return ReturnResult.illegal(authInformation.errorMessage());
-            }
-            
-            LogoutAuthorization authorization = authInformation.authorization();
-            ReturnResult<String> result = authorization.authentication();
-            
-            if (result.isFailure()) {
-                log.warn("API登出失败: {}, 客户端IP: {}, 耗时: {}ms", 
-                        result.getMsg(), clientIp, System.currentTimeMillis() - startTime);
-            } else {
-                log.info("API登出成功 - 客户端IP: {}, 登出类型: {}, 耗时: {}ms", 
-                        clientIp, type, System.currentTimeMillis() - startTime);
-            }
-            
-            log.debug("========== API登出请求结束 ==========");
-            return result;
-        } catch (Exception e) {
-            log.error("API登出异常 - 客户端IP: {}, 异常: {}", clientIp, e.getMessage(), e);
-            return ReturnResult.error("登出失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 鉴权
-     *
-     * @return 鉴权
-     */
-    @PostMapping("/oauth")
-    @ResponseBody
-    @RateLimiter(value = 200, mode = "ip", message = "鉴权请求过于频繁，请稍后重试")
-    @Operation(
-            summary = "用户鉴权",
-            description = "验证用户权限，确认用户身份和访问权限",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "鉴权成功"),
-                    @ApiResponse(responseCode = "401", description = "鉴权失败")
-            }
-    )
-    public ReturnResult<String> oauth(
-            @Parameter(description = "认证请求信息", required = true) @RequestBody AuthRequest authRequest,
-            HttpServletRequest request,
-            HttpServletResponse response) {
-        long startTime = System.currentTimeMillis();
-        String clientIp = request.getRemoteAddr();
-        
-        log.debug("========== 鉴权请求开始 ==========");
-        log.debug("客户端IP: {}", clientIp);
-        
-        OauthAuthInformation authInformation = new OauthAuthInformation(
-                authServerProperties,
-                authRequest.getData(),
-                request,
-                response,
-                applicationContext,
-                loginCheck);
-        if(!authInformation.isSuccessful()) {
-            log.warn("鉴权请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
-                    authInformation.errorMessage(), clientIp, System.currentTimeMillis() - startTime);
-            return ReturnResult.illegal(authInformation.errorMessage());
-        }
-        OauthAuthorization authorization = authInformation.authorization();
-        ReturnResult<String> result = authorization.authentication();
-        
-        long cost = System.currentTimeMillis() - startTime;
-        if(result.isFailure()) {
-            log.debug("鉴权失败: {}, 客户端IP: {}, 耗时: {}ms", result.getMsg(), clientIp, cost);
-            OAuthAdminController.recordRequest("OAUTH", clientIp, null, false, result.getMsg(), cost);
-        } else {
-            log.debug("鉴权成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);
-            OAuthAdminController.recordRequest("OAUTH", clientIp, null, true, "鉴权成功", cost);
-        }
-        log.debug("========== 鉴权请求结束 ==========");
-        return result;
-    }
-
-    /**
-     * 执行升级操作的方法。
-     *
-     * @param request  HttpServletRequest对象，用于获取客户端请求的相关信息。
-     * @param response HttpServletResponse对象，用于向客户端发送响应。
-     * @return ReturnResult<String> 包含升级操作结果的返回对象，其中可能包含成功与否、错误信息等。
-     */
-    @PostMapping("/upgrade")
-    @ResponseBody
-    @RateLimiter(value = 60, mode = "ip", message = "令牌刷新请求过于频繁，请稍后重试")
-    @Operation(
-            summary = "令牌升级",
-            description = "升级用户令牌，刷新令牌有效期或权限",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "升级成功"),
-                    @ApiResponse(responseCode = "401", description = "升级失败，无效的令牌")
-            }
-    )
-    public ReturnResult<String> upgrade(
-            @RequestBody AuthRequest authRequest,
-            HttpServletRequest request,
-            HttpServletResponse response) {
-        long startTime = System.currentTimeMillis();
-        String clientIp = request.getRemoteAddr();
-        
-        log.debug("========== 令牌升级请求开始 ==========");
-        log.debug("客户端IP: {}", clientIp);
-        
-        UpgradeAuthInformation authInformation = new UpgradeAuthInformation(
-                authServerProperties,
-                authRequest.getData(),
-                request,
-                response,
-                applicationContext,
-                loginCheck);
-        if(!authInformation.isSuccessful()) {
-            log.warn("令牌升级请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
-                    authInformation.errorMessage(), clientIp, System.currentTimeMillis() - startTime);
-            return ReturnResult.illegal(authInformation.errorMessage());
-        }
-        UpgradeAuthorization authorization = authInformation.authorization();
-        ReturnResult<String> result = authorization.authentication();
-        
-        long cost = System.currentTimeMillis() - startTime;
-        if(result.isFailure()) {
-            log.warn("令牌升级失败: {}, 客户端IP: {}, 耗时: {}ms", result.getMsg(), clientIp, cost);
-            OAuthAdminController.recordRequest("UPGRADE", clientIp, null, false, result.getMsg(), cost);
-        } else {
-            log.info("令牌升级成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);
-            OAuthAdminController.recordRequest("UPGRADE", clientIp, null, true, "令牌升级成功", cost);
-        }
-        log.debug("========== 令牌升级请求结束 ==========");
-        return result;
-    }
-
-
-    /**
-     * 创建临时令牌
-     * <p>基于源令牌创建一个短期有效的临时令牌</p>
-     *
-     * @param authRequest 认证请求
-     * @param request     HTTP请求
-     * @param response    HTTP响应
-     * @return 临时令牌结果
-     */
-    @PostMapping("/temporary-token")
-    @ResponseBody
-    @RateLimiter(value = 30, mode = "ip", message = "临时令牌创建请求过于频繁，请稍后重试")
-    @Operation(
-            summary = "创建临时令牌",
-            description = "基于已有令牌创建短期有效的临时令牌，支持指定过期时间和允许访问的URL",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "创建成功"),
-                    @ApiResponse(responseCode = "401", description = "源令牌无效")
-            }
-    )
-    public ReturnResult<String> createTemporaryToken(
-            @Parameter(description = "认证请求信息", required = true) @RequestBody AuthRequest authRequest,
-            HttpServletRequest request,
-            HttpServletResponse response) {
-        // 使用 TemporaryTokenAuthInformation 解析请求
-        TemporaryTokenAuthInformation authInformation = new TemporaryTokenAuthInformation(
-                authServerProperties,
-                authRequest.getData(),
-                request,
-                response,
-                applicationContext,
-                loginCheck);
-
-        if (!authInformation.isSuccessful()) {
-            log.warn("临时令牌请求解析失败: {}, 客户端IP: {}",
-                    authInformation.errorMessage(), authInformation.getClientIp());
-            return ReturnResult.illegal(authInformation.errorMessage());
-        }
-
-        // 使用 TemporaryTokenAuthorization 执行创建逻辑
-        TemporaryTokenAuthorization authorization = authInformation.authorization();
-        return authorization.authentication();
-    }
+    
+    private ProtocolServer protocolServer;
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        // 检查是否启用 http 协议
+        if (!authServerProperties.getProtocols().contains("http")) {
+            log.info("HTTP 协议未启用，跳过 ProtocolServer 启动");
+            return;
+        }
+        
+        try {
+            // 获取 Protocol 实例
+            var protocol = ServiceProvider.of(Protocol.class).getExtension("http");
+            if (protocol == null) {
+                log.warn("未找到 HTTP Protocol 实现，跳过 ProtocolServer 启动");
+                return;
+            }
+            
+            // 创建 ProtocolSetting
+            var protocolSetting = ProtocolSetting.builder()
+                    .port(authServerProperties.getArmeriaPort() != null ? 
+                            authServerProperties.getArmeriaPort() : 8080)
+                    .build();
+            
+            // 创建并启动 ProtocolServer
+            protocolServer = protocol.createServer(protocolSetting);
+            registerProtocolServerRoutes(protocolServer);
+            protocolServer.start();
+            
+            log.info("[OAuth][HTTP] ProtocolServer 启动成功，端口: {}", protocolSetting.getPort());
+        } catch (Exception e) {
+            log.error("[OAuth][HTTP] ProtocolServer 启动失败", e);
+        }
+    }
+    
+    /**
+     * 注册 ProtocolServer 路由
+     *
+     * @param server ProtocolServer 实例
+     */
+    private void registerProtocolServerRoutes(ProtocolServer server) {
+        String path = contextPath != null && !contextPath.isEmpty() ? contextPath : "";
+        
+        // 登录端点
+        server.post(path + "/login", (request, response) -> {
+            try {
+                String body = extractBody(request);
+                AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
+                if (authRequest == null) {
+                    authRequest = new AuthRequest();
+                }
+                
+                var protocolRequest = new ProtocolServerAuthInformation.ProtocolServerRequest(request);
+                var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
+                
+                long startTime = System.currentTimeMillis();
+                String clientIp = protocolRequest.getRemoteAddr();
+                
+                log.debug("[OAuth][HTTP] 登录请求开始，客户端IP: {}", clientIp);
+                
+                var authInformation = new LoginAuthInformation(
+                        authServerProperties,
+                        authRequest.getData(),
+                        protocolRequest,
+                        protocolResponse,
+                        applicationContext,
+                        loginCheck);
+                
+                if (!authInformation.isSuccessful()) {
+                    long cost = System.currentTimeMillis() - startTime;
+                    log.warn("[OAuth][HTTP] 登录请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                            authInformation.errorMessage(), clientIp, cost);
+                    writeResponse(response, ReturnResult.illegal(authInformation.errorMessage()));
+                    return;
+                }
+                
+                var authorization = authInformation.authorization();
+                var result = authorization.authentication();
+                
+                long cost = System.currentTimeMillis() - startTime;
+                if (result.isFailure()) {
+                    log.warn("[OAuth][HTTP] 登录认证失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                            result.getMsg(), clientIp, cost);
+                } else {
+                    log.info("[OAuth][HTTP] 登录认证成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);
+                }
+                
+                writeResponse(response, result);
+            } catch (Exception e) {
+                log.error("[OAuth][HTTP] 登录处理异常", e);
+                writeResponse(response, ReturnResult.error("登录失败: " + e.getMessage()));
+            }
+        });
+        
+        // 登出端点
+        server.post(path + "/logout", (request, response) -> {
+            try {
+                String body = extractBody(request);
+                AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
+                if (authRequest == null) {
+                    authRequest = new AuthRequest();
+                }
+                
+                var protocolRequest = new ProtocolServerAuthInformation.ProtocolServerRequest(request);
+                var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
+                
+                long startTime = System.currentTimeMillis();
+                String clientIp = protocolRequest.getRemoteAddr();
+                
+                log.debug("[OAuth][HTTP] 登出请求开始，客户端IP: {}", clientIp);
+                
+                var authInformation = new LogoutAuthInformation(
+                        authServerProperties,
+                        authRequest.getData(),
+                        protocolRequest,
+                        protocolResponse,
+                        applicationContext,
+                        loginCheck);
+                
+                if (!authInformation.isSuccessful()) {
+                    long cost = System.currentTimeMillis() - startTime;
+                    log.warn("[OAuth][HTTP] 登出请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                            authInformation.errorMessage(), clientIp, cost);
+                    writeResponse(response, ReturnResult.illegal(authInformation.errorMessage()));
+                    return;
+                }
+                
+                var authorization = authInformation.authorization();
+                var result = authorization.authentication();
+                
+                long cost = System.currentTimeMillis() - startTime;
+                if (result.isFailure()) {
+                    log.warn("[OAuth][HTTP] 登出失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                            result.getMsg(), clientIp, cost);
+                } else {
+                    log.info("[OAuth][HTTP] 登出成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);
+                }
+                
+                writeResponse(response, result);
+            } catch (Exception e) {
+                log.error("[OAuth][HTTP] 登出处理异常", e);
+                writeResponse(response, ReturnResult.error("登出失败: " + e.getMessage()));
+            }
+        });
+        
+        // 鉴权端点
+        server.post(path + "/oauth", (request, response) -> {
+            try {
+                String body = extractBody(request);
+                AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
+                if (authRequest == null) {
+                    authRequest = new AuthRequest();
+                }
+                
+                var protocolRequest = new ProtocolServerAuthInformation.ProtocolServerRequest(request);
+                var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
+                
+                long startTime = System.currentTimeMillis();
+                String clientIp = protocolRequest.getRemoteAddr();
+                
+                log.debug("[OAuth][HTTP] 鉴权请求开始，客户端IP: {}", clientIp);
+                
+                var authInformation = new OauthAuthInformation(
+                        authServerProperties,
+                        authRequest.getData(),
+                        protocolRequest,
+                        protocolResponse,
+                        applicationContext,
+                        loginCheck);
+                
+                if (!authInformation.isSuccessful()) {
+                    long cost = System.currentTimeMillis() - startTime;
+                    log.warn("[OAuth][HTTP] 鉴权请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                            authInformation.errorMessage(), clientIp, cost);
+                    writeResponse(response, ReturnResult.illegal(authInformation.errorMessage()));
+                    return;
+                }
+                
+                var authorization = authInformation.authorization();
+                var result = authorization.authentication();
+                
+                long cost = System.currentTimeMillis() - startTime;
+                if (result.isFailure()) {
+                    log.debug("[OAuth][HTTP] 鉴权失败: {}, 客户端IP: {}, 耗时: {}ms", result.getMsg(), clientIp, cost);
+                } else {
+                    log.debug("[OAuth][HTTP] 鉴权成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);
+                }
+                
+                writeResponse(response, result);
+            } catch (Exception e) {
+                log.error("[OAuth][HTTP] 鉴权处理异常", e);
+                writeResponse(response, ReturnResult.error("鉴权失败: " + e.getMessage()));
+            }
+        });
+        
+        // 升级端点
+        server.post(path + "/upgrade", (request, response) -> {
+            try {
+                String body = extractBody(request);
+                AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
+                if (authRequest == null) {
+                    authRequest = new AuthRequest();
+                }
+                
+                var protocolRequest = new ProtocolServerAuthInformation.ProtocolServerRequest(request);
+                var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
+                
+                long startTime = System.currentTimeMillis();
+                String clientIp = protocolRequest.getRemoteAddr();
+                
+                log.debug("[OAuth][HTTP] 令牌升级请求开始，客户端IP: {}", clientIp);
+                
+                var authInformation = new UpgradeAuthInformation(
+                        authServerProperties,
+                        authRequest.getData(),
+                        protocolRequest,
+                        protocolResponse,
+                        applicationContext,
+                        loginCheck);
+                
+                if (!authInformation.isSuccessful()) {
+                    long cost = System.currentTimeMillis() - startTime;
+                    log.warn("[OAuth][HTTP] 令牌升级请求解析失败: {}, 客户端IP: {}, 耗时: {}ms", 
+                            authInformation.errorMessage(), clientIp, cost);
+                    writeResponse(response, ReturnResult.illegal(authInformation.errorMessage()));
+                    return;
+                }
+                
+                var authorization = authInformation.authorization();
+                var result = authorization.authentication();
+                
+                long cost = System.currentTimeMillis() - startTime;
+                if (result.isFailure()) {
+                    log.warn("[OAuth][HTTP] 令牌升级失败: {}, 客户端IP: {}, 耗时: {}ms", result.getMsg(), clientIp, cost);
+                } else {
+                    log.info("[OAuth][HTTP] 令牌升级成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);
+                }
+                
+                writeResponse(response, result);
+            } catch (Exception e) {
+                log.error("[OAuth][HTTP] 令牌升级处理异常", e);
+                writeResponse(response, ReturnResult.error("令牌升级失败: " + e.getMessage()));
+            }
+        });
+        
+        // 临时令牌端点
+        server.post(path + "/temporary-token", (request, response) -> {
+            try {
+                String body = extractBody(request);
+                AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
+                if (authRequest == null) {
+                    authRequest = new AuthRequest();
+                }
+                
+                var protocolRequest = new ProtocolServerAuthInformation.ProtocolServerRequest(request);
+                var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
+                
+                var authInformation = new TemporaryTokenAuthInformation(
+                        authServerProperties,
+                        authRequest.getData(),
+                        protocolRequest,
+                        protocolResponse,
+                        applicationContext,
+                        loginCheck);
+                
+                if (!authInformation.isSuccessful()) {
+                    log.warn("[OAuth][HTTP] 临时令牌请求解析失败: {}, 客户端IP: {}",
+                            authInformation.errorMessage(), authInformation.getClientIp());
+                    writeResponse(response, ReturnResult.illegal(authInformation.errorMessage()));
+                    return;
+                }
+                
+                var authorization = authInformation.authorization();
+                var result = authorization.authentication();
+                
+                writeResponse(response, result);
+            } catch (Exception e) {
+                log.error("[OAuth][HTTP] 临时令牌处理异常", e);
+                writeResponse(response, ReturnResult.error("临时令牌创建失败: " + e.getMessage()));
+            }
+        });
+    }
+    
+    /**
+     * 从 ServletRequest 提取请求体
+     */
+    private String extractBody(ServletRequest request) {
+        try {
+            byte[] body = request.getBody();
+            if (body == null || body.length == 0) {
+                return "";
+            }
+            return new String(body, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.error("[OAuth][HTTP] 提取请求体失败", e);
+            return "";
+        }
+    }
+    
+    /**
+     * 写入响应
+     */
+    private void writeResponse(ServletResponse response, ReturnResult<?> result) {
+        try {
+            response.setContentType("application/json;charset=UTF-8");
+            response.setStatus(200);
+            response.setBodyString(Json.toJson(result));
+        } catch (Exception e) {
+            log.error("[OAuth][HTTP] 写入响应失败", e);
+        }
+    }
+    
+    @Override
+    public ProtocolSetting getProtocolSetting() {
+        return ProtocolSetting.builder()
+                .port(authServerProperties.getArmeriaPort() != null ? 
+                        authServerProperties.getArmeriaPort() : 8080)
+                .build();
+    }
+    
+    @Override
+    public String getProtocolName() {
+        return "http";
+    }
+    
+    @Override
+    public Class<? extends ProtocolServer> getServerType() {
+        return ProtocolServer.class;
+    }
+    
+    @Override
+    public ProtocolServer createServer(ProtocolSetting protocolSetting) {
+        var protocol = ServiceProvider.of(Protocol.class).getExtension("http");
+        if (protocol == null) {
+            throw new IllegalStateException("未找到 HTTP Protocol 实现");
+        }
+        return protocol.createServer(protocolSetting);
+    }
+    
+    @Override
+    public Class<? extends com.chua.common.support.network.protocol.client.BaseProtocolClient> getClientType() {
+        return com.chua.common.support.network.protocol.client.BaseProtocolClient.class;
+    }
+    
+    @Override
+    public com.chua.common.support.network.protocol.client.ProtocolClient createClient(ProtocolSetting protocolSetting) {
+        var protocol = ServiceProvider.of(Protocol.class).getExtension("http");
+        if (protocol == null) {
+            throw new IllegalStateException("未找到 HTTP Protocol 实现");
+        }
+        return protocol.createClient(protocolSetting);
     }
 }

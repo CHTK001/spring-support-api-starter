@@ -5,7 +5,6 @@ import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
-import com.chua.starter.oauth.sso.support.controller.OAuthAdminController;
 import com.chua.starter.oauth.sso.support.information.TemporaryTokenAuthInformation;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.google.common.base.Strings;
@@ -58,7 +57,6 @@ public final class TemporaryTokenAuthorization implements Authorization {
         // 验证源令牌是否存在
         if (Strings.isNullOrEmpty(sourceToken)) {
             log.warn("临时令牌创建失败: 源令牌为空, 客户端IP: {}", clientIp);
-            recordRequest(clientIp, false, "源令牌为空", startTime);
             return ReturnResult.illegal("源令牌不能为空");
         }
 
@@ -67,7 +65,6 @@ public final class TemporaryTokenAuthorization implements Authorization {
         TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
         if (tokenResolver == null) {
             log.error("临时令牌创建失败: TokenResolver 不可用, tokenManagement: {}", tokenManagement);
-            recordRequest(clientIp, false, "令牌服务不可用", startTime);
             return ReturnResult.error("令牌服务不可用");
         }
 
@@ -75,7 +72,6 @@ public final class TemporaryTokenAuthorization implements Authorization {
         ReturnResult<UserResume> resolveResult = tokenResolver.resolve(null, sourceToken);
         if (resolveResult.isFailure()) {
             log.warn("临时令牌创建失败: 源令牌无效, 客户端IP: {}, 错误: {}", clientIp, resolveResult.getMsg());
-            recordRequest(clientIp, false, "源令牌无效", startTime);
             return ReturnResult.error("源令牌无效");
         }
 
@@ -93,7 +89,6 @@ public final class TemporaryTokenAuthorization implements Authorization {
         ReturnResult<LoginResult> createResult = tokenResolver.createToken(clientIp, temporaryUser, "TEMPORARY");
         if (createResult.isFailure()) {
             log.warn("临时令牌创建失败: {}, 客户端IP: {}", createResult.getMsg(), clientIp);
-            recordRequest(clientIp, false, createResult.getMsg(), startTime);
             return ReturnResult.error(createResult.getMsg());
         }
 
@@ -102,8 +97,6 @@ public final class TemporaryTokenAuthorization implements Authorization {
         log.info("临时令牌创建成功, 用户: {}, 客户端IP: {}, 过期时间: {}秒, 耗时: {}ms",
                 sourceUserResume.getUsername(), clientIp, expireTime, cost);
         log.debug("========== 临时令牌创建结束 ==========");
-
-        recordRequest(clientIp, true, "临时令牌创建成功", startTime);
 
         // 返回加密后的临时令牌
         return ReturnResult.ok(authInformation.encodeHex(loginResult.getToken()));
@@ -136,18 +129,5 @@ public final class TemporaryTokenAuthorization implements Authorization {
         temporaryUser.setExt(options);
 
         return temporaryUser;
-    }
-
-    /**
-     * 记录请求信息
-     *
-     * @param clientIp  客户端IP
-     * @param success   是否成功
-     * @param message   消息
-     * @param startTime 开始时间
-     */
-    private void recordRequest(String clientIp, boolean success, String message, long startTime) {
-        long cost = System.currentTimeMillis() - startTime;
-        OAuthAdminController.recordRequest("TEMPORARY_TOKEN", clientIp, null, success, message, cost);
     }
 }
