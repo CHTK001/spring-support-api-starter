@@ -4,12 +4,17 @@ import com.chua.common.support.core.annotation.Extension;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.text.json.Json;
+import com.chua.common.support.network.protocol.Protocol;
+import com.chua.common.support.network.protocol.ProtocolSetting;
+import com.chua.common.support.network.protocol.server.ProtocolServer;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
 import com.chua.starter.oauth.sso.support.core.OAuth2CoreService;
+import com.chua.starter.oauth.sso.support.information.ProtocolServerAuthInformation;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.chua.starter.system.service.SysAppKeyService;
@@ -19,6 +24,9 @@ import com.chua.starter.entity.system.SysAppKey;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import com.chua.common.support.network.protocol.request.ServletRequest;
+import com.chua.common.support.network.protocol.request.ServletResponse;
+import com.chua.common.support.network.protocol.ProtocolSetting;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,13 +35,14 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.Base64;
 
 /**
  * OAuth 2.0 标准协议服务端实现
@@ -51,11 +60,10 @@ import java.util.*;
  * @since 2025-12-15
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc6749">RFC 6749 - OAuth 2.0</a>
  */
-@Controller
+@Component
 @Extension("oauth2")
 @Slf4j
 @Conditional(OnBeanCondition.class)
-@RequestMapping("/oauth2")
 @RequiredArgsConstructor
 @Tag(name = "OAuth 2.0认证服务", description = "提供符合RFC 6749规范的OAuth 2.0认证服务接口")
 public class Oauth2Protocol implements Protocol, InitializingBean {
@@ -66,196 +74,492 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
     private final SysAppKeyService sysAppKeyService;
     private final SysAppIdService sysAppIdService;
     private final OAuth2CoreService oAuth2CoreService;
+    
+    private ProtocolServer protocolServer;
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        log.info("OAuth 2.0 协议服务已启动");
-    }
-
-    // ==================== 授权端点 (Authorization Endpoint) ====================
-
-    /**
-     * OAuth 2.0 授权端点
-     * <p>
-     * 支持 authorization_code 授权流程，包括 PKCE 扩展。
-     * 用户需要先登录，然后调用此端点获取授权码。
-     * </p>
-     */
-    @GetMapping("/authorize")
-    @Operation(summary = "授权端点", description = "获取授权码，支持 PKCE")
-    public void authorize(
-            @Parameter(description = "响应类型") @RequestParam("response_type") String responseType,
-            @Parameter(description = "客户端ID") @RequestParam("client_id") String clientId,
-            @Parameter(description = "回调地址") @RequestParam("redirect_uri") String redirectUri,
-            @Parameter(description = "权限范围") @RequestParam(value = "scope", required = false) String scope,
-            @Parameter(description = "状态码") @RequestParam(value = "state", required = false) String state,
-            @Parameter(description = "PKCE code_challenge") @RequestParam(value = "code_challenge", required = false) String codeChallenge,
-            @Parameter(description = "PKCE 方法") @RequestParam(value = "code_challenge_method", required = false) String codeChallengeMethod,
-            @RequestHeader(value = "x-oauth-token", required = false) String token,
-            HttpServletRequest request,
-            HttpServletResponse response) throws Exception {
-
-        log.info("OAuth2 授权请求: clientId={}, responseType={}, scope={}", clientId, responseType, scope);
-
-        // 验证 response_type
-        if (!"code".equals(responseType)) {
-            sendAuthorizeError(response, redirectUri, state, "unsupported_response_type", "只支持 response_type=code");
+        // 检查是否启用 oauth2 协议
+        if (!authServerProperties.getProtocols().contains("oauth2")) {
+            log.info("[OAuth][OAuth2] OAuth2 协议未启用，跳过 ProtocolServer 启动");
             return;
         }
-
-        // 验证客户端存在（先尝试 AppId，再尝试 AppKey）
-        SysAppId appId = sysAppIdService.getByAppIdValue(clientId);
-        SysAppKey appKey = null;
-        if (appId == null) {
-            appKey = sysAppKeyService.getByAppKey(clientId);
-            if (appKey == null) {
-                sendAuthorizeError(response, redirectUri, state, "invalid_client", "客户端不存在");
+        
+        try {
+            // 获取 Protocol 实例
+            var protocol = ServiceProvider.of(Protocol.class).getExtension("http");
+            if (protocol == null) {
+                log.warn("[OAuth][OAuth2] 未找到 HTTP Protocol 实现，跳过 ProtocolServer 启动");
                 return;
             }
+            
+            // 创建 ProtocolSetting
+            var protocolSetting = ProtocolSetting.builder()
+                    .port(authServerProperties.getArmeriaPort() != null ? 
+                            authServerProperties.getArmeriaPort() : 8080)
+                    .build();
+            
+            // 创建并启动 ProtocolServer
+            protocolServer = protocol.createServer(protocolSetting);
+            registerProtocolServerRoutes(protocolServer);
+            protocolServer.start();
+            
+            log.info("[OAuth][OAuth2] ProtocolServer 启动成功，端口: {}", protocolSetting.getPort());
+        } catch (Exception e) {
+            log.error("[OAuth][OAuth2] ProtocolServer 启动失败", e);
         }
-
-        // 验证 redirect_uri
-        if (!oAuth2CoreService.isRedirectUriValid(clientId, redirectUri)) {
-            sendAuthorizeError(response, redirectUri, state, "invalid_request", "无效的回调地址");
-            return;
-        }
-
-        // 验证 grant_type
-        if (!oAuth2CoreService.isGrantTypeAllowed(clientId, "authorization_code")) {
-            sendAuthorizeError(response, redirectUri, state, "unauthorized_client", "客户端未授权使用 authorization_code 模式");
-            return;
-        }
-
-        // 验证 scope
-        OAuth2CoreService.ScopeValidationResult scopeResult = oAuth2CoreService.validateScope(clientId, scope);
-        if (!scopeResult.valid()) {
-            sendAuthorizeError(response, redirectUri, state, "invalid_scope", scopeResult.errorMessage());
-            return;
-        }
-
-        // 验证用户已登录
-        TokenResolver tokenResolver = getTokenResolver();
-        if (tokenResolver == null || StringUtils.isBlank(token)) {
-            sendAuthorizeError(response, redirectUri, state, "access_denied", "用户未登录");
-            return;
-        }
-
-        ReturnResult<UserResume> userResult = tokenResolver.resolve(null, token);
-        if (!userResult.isOk() || userResult.getData() == null) {
-            sendAuthorizeError(response, redirectUri, state, "access_denied", "用户未登录或令牌已过期");
-            return;
-        }
-
-        UserResume user = userResult.getData();
-
-        // 生成授权码
-        String code = oAuth2CoreService.generateAuthorizationCode(
-                clientId, redirectUri, scope, state,
-                codeChallenge, codeChallengeMethod,
-                user.getUserId(), user.getUsername());
-
-        // 重定向到回调地址
-        String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
-                .queryParam("code", code)
-                .queryParamIfPresent("state", Optional.ofNullable(state))
-                .build().toUriString();
-
-        log.info("OAuth2 授权成功: clientId={}, userId={}", clientId, user.getUserId());
-        response.sendRedirect(redirectUrl);
     }
-
+    
+    /**
+     * 注册 ProtocolServer 路由
+     *
+     * @param server ProtocolServer 实例
+     */
+    private void registerProtocolServerRoutes(ProtocolServer server) {
+        // OAuth2 授权端点 (GET)
+        server.get("/oauth2/authorize", (request, response) -> {
+            try {
+                var protocolRequest = new ProtocolServerAuthInformation.ProtocolServerRequest(request);
+                var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
+                
+                String responseType = protocolRequest.getParameter("response_type");
+                String clientId = protocolRequest.getParameter("client_id");
+                String redirectUri = protocolRequest.getParameter("redirect_uri");
+                String scope = protocolRequest.getParameter("scope");
+                String state = protocolRequest.getParameter("state");
+                String codeChallenge = protocolRequest.getParameter("code_challenge");
+                String codeChallengeMethod = protocolRequest.getParameter("code_challenge_method");
+                String token = protocolRequest.getHeader("x-oauth-token");
+                
+                log.info("[OAuth][OAuth2] 授权请求: clientId={}, responseType={}, scope={}", clientId, responseType, scope);
+                
+                // 验证 response_type
+                if (!"code".equals(responseType)) {
+                    sendAuthorizeError(response, redirectUri, state, "unsupported_response_type", "只支持 response_type=code");
+                    return;
+                }
+                
+                // 验证客户端存在
+                var appId = sysAppIdService.getByAppIdValue(clientId);
+                var appKey = appId == null ? sysAppKeyService.getByAppKey(clientId) : null;
+                if (appId == null && appKey == null) {
+                    sendAuthorizeError(response, redirectUri, state, "invalid_client", "客户端不存在");
+                    return;
+                }
+                
+                // 验证 redirect_uri
+                if (!oAuth2CoreService.isRedirectUriValid(clientId, redirectUri)) {
+                    sendAuthorizeError(response, redirectUri, state, "invalid_request", "无效的回调地址");
+                    return;
+                }
+                
+                // 验证 grant_type
+                if (!oAuth2CoreService.isGrantTypeAllowed(clientId, "authorization_code")) {
+                    sendAuthorizeError(response, redirectUri, state, "unauthorized_client", "客户端未授权使用 authorization_code 模式");
+                    return;
+                }
+                
+                // 验证 scope
+                var scopeResult = oAuth2CoreService.validateScope(clientId, scope);
+                if (!scopeResult.valid()) {
+                    sendAuthorizeError(response, redirectUri, state, "invalid_scope", scopeResult.errorMessage());
+                    return;
+                }
+                
+                // 验证用户已登录
+                var tokenResolver = getTokenResolver();
+                if (tokenResolver == null || StringUtils.isBlank(token)) {
+                    sendAuthorizeError(response, redirectUri, state, "access_denied", "用户未登录");
+                    return;
+                }
+                
+                var userResult = tokenResolver.resolve(null, token);
+                if (!userResult.isOk() || userResult.getData() == null) {
+                    sendAuthorizeError(response, redirectUri, state, "access_denied", "用户未登录或令牌已过期");
+                    return;
+                }
+                
+                var user = userResult.getData();
+                
+                // 生成授权码
+                String code = oAuth2CoreService.generateAuthorizationCode(
+                        clientId, redirectUri, scope, state,
+                        codeChallenge, codeChallengeMethod,
+                        user.getUserId(), user.getUsername());
+                
+                // 重定向到回调地址
+                String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
+                        .queryParam("code", code)
+                        .queryParamIfPresent("state", Optional.ofNullable(state))
+                        .build().toUriString();
+                
+                log.info("[OAuth][OAuth2] 授权成功: clientId={}, userId={}", clientId, user.getUserId());
+                protocolResponse.sendRedirect(redirectUrl);
+            } catch (Exception e) {
+                log.error("[OAuth][OAuth2] 授权处理异常", e);
+                try {
+                    response.setStatus(500);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setBodyString(Json.toJson(Map.of("error", "server_error", "error_description", e.getMessage())));
+                } catch (Exception ex) {
+                    log.error("[OAuth][OAuth2] 写入错误响应失败", ex);
+                }
+            }
+        });
+        
+        // OAuth2 Token 端点 (POST)
+        server.post("/oauth2/token", (request, response) -> {
+            try {
+                var protocolRequest = new ProtocolServerAuthInformation.ProtocolServerRequest(request);
+                var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
+                
+                String body = extractBody(request);
+                Map<String, String> params = parseFormUrlEncoded(body);
+                
+                String grantType = params.get("grant_type");
+                String clientId = params.get("client_id");
+                String clientSecret = params.get("client_secret");
+                String username = params.get("username");
+                String password = params.get("password");
+                String refreshToken = params.get("refresh_token");
+                String scope = params.get("scope");
+                String code = params.get("code");
+                String redirectUri = params.get("redirect_uri");
+                String codeVerifier = params.get("code_verifier");
+                
+                log.info("[OAuth][OAuth2] Token请求 - grant_type: {}, client_id: {}", grantType, clientId);
+                
+                // 从 Authorization头解析Basic认证
+                if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
+                    String[] credentials = extractBasicCredentials(protocolRequest);
+                    if (credentials != null) {
+                        clientId = credentials[0];
+                        clientSecret = credentials[1];
+                    }
+                }
+                
+                // 验证授权类型是否允许
+                if (!oAuth2CoreService.isGrantTypeAllowed(clientId, grantType)) {
+                    protocolResponse.setStatus(400);
+                    writeJsonResponse(response, buildErrorResponse("unauthorized_client", "客户端未授权使用此授权类型: " + grantType));
+                    return;
+                }
+                
+                // authorization_code 模式不需要验证 client_secret（如果使用 PKCE）
+                if (!"authorization_code".equalsIgnoreCase(grantType)) {
+                    // 验证客户端凭据
+                    if (!validateClientCredentials(clientId, clientSecret)) {
+                        protocolResponse.setStatus(401);
+                        writeJsonResponse(response, buildErrorResponse("invalid_client", "客户端认证失败"));
+                        return;
+                    }
+                }
+                
+                // 验证 scope
+                if (StringUtils.isNotBlank(scope)) {
+                    var scopeResult = oAuth2CoreService.validateScope(clientId, scope);
+                    if (!scopeResult.valid()) {
+                        protocolResponse.setStatus(400);
+                        writeJsonResponse(response, buildErrorResponse("invalid_scope", scopeResult.errorMessage()));
+                        return;
+                    }
+                }
+                
+                // 根据 grant_type处理不同的授权模式
+                Map<String, Object> result = switch (grantType.toLowerCase()) {
+                    case "authorization_code" -> handleAuthorizationCode(code, redirectUri, codeVerifier, clientId, clientSecret, scope, protocolResponse);
+                    case "client_credentials" -> handleClientCredentials(clientId, scope, protocolResponse);
+                    case "password" -> handlePasswordGrant(username, password, scope, protocolRequest, protocolResponse);
+                    case "refresh_token" -> handleRefreshToken(refreshToken, scope, protocolResponse);
+                    default -> {
+                        protocolResponse.setStatus(400);
+                        yield buildErrorResponse("unsupported_grant_type", "不支持的授权类型: " + grantType);
+                    }
+                };
+                
+                writeJsonResponse(response, result);
+            } catch (Exception e) {
+                log.error("[OAuth][OAuth2] Token处理异常", e);
+                try {
+                    response.setStatus(500);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setBodyString(Json.toJson(buildErrorResponse("server_error", e.getMessage())));
+                } catch (Exception ex) {
+                    log.error("[OAuth][OAuth2] 写入错误响应失败", ex);
+                }
+            }
+        });
+        
+        // OAuth2 Revoke 端点 (POST)
+        server.post("/oauth2/revoke", (request, response) -> {
+            try {
+                var protocolRequest = new ProtocolServerAuthInformation.ProtocolServerRequest(request);
+                var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
+                
+                String body = extractBody(request);
+                Map<String, String> params = parseFormUrlEncoded(body);
+                String token = params.get("token");
+                
+                log.info("[OAuth][OAuth2] Revoke请求");
+                
+                // 验证客户端凭据
+                String[] credentials = extractBasicCredentials(protocolRequest);
+                if (credentials == null || !validateClientCredentials(credentials[0], credentials[1])) {
+                    protocolResponse.setStatus(401);
+                    return;
+                }
+                
+                var tokenResolver = getTokenResolver();
+                if (tokenResolver != null) {
+                    tokenResolver.logout(token);
+                }
+                
+                // RFC 7009: 无论成功与否都返回200
+                protocolResponse.setStatus(200);
+            } catch (Exception e) {
+                log.error("[OAuth][OAuth2] Revoke处理异常", e);
+            }
+        });
+        
+        // OAuth2 Introspect 端点 (POST)
+        server.post("/oauth2/introspect", (request, response) -> {
+            try {
+                var protocolRequest = new ProtocolServerAuthInformation.ProtocolServerRequest(request);
+                var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
+                
+                String body = extractBody(request);
+                Map<String, String> params = parseFormUrlEncoded(body);
+                String token = params.get("token");
+                
+                log.debug("[OAuth][OAuth2] Introspect请求");
+                
+                // 验证客户端凭据
+                String[] credentials = extractBasicCredentials(protocolRequest);
+                if (credentials == null || !validateClientCredentials(credentials[0], credentials[1])) {
+                    protocolResponse.setStatus(401);
+                    writeJsonResponse(response, Map.of("active", false));
+                    return;
+                }
+                
+                var tokenResolver = getTokenResolver();
+                if (tokenResolver == null) {
+                    writeJsonResponse(response, Map.of("active", false));
+                    return;
+                }
+                
+                var result = tokenResolver.resolve(null, token);
+                if (!result.isOk() || result.getData() == null) {
+                    writeJsonResponse(response, Map.of("active", false));
+                    return;
+                }
+                
+                var userResume = result.getData();
+                Map<String, Object> introspectResponse = new LinkedHashMap<>();
+                introspectResponse.put("active", true);
+                introspectResponse.put("sub", userResume.getUserId());
+                introspectResponse.put("username", userResume.getUsername());
+                introspectResponse.put("token_type", "Bearer");
+                if (userResume.getExpireTime() != null) {
+                    introspectResponse.put("exp", System.currentTimeMillis() / 1000 + userResume.getExpireTime());
+                }
+                introspectResponse.put("iat", System.currentTimeMillis() / 1000);
+                
+                writeJsonResponse(response, introspectResponse);
+            } catch (Exception e) {
+                log.error("[OAuth][OAuth2] Introspect处理异常", e);
+                try {
+                    response.setStatus(500);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setBodyString(Json.toJson(Map.of("active", false)));
+                } catch (Exception ex) {
+                    log.error("[OAuth][OAuth2] 写入错误响应失败", ex);
+                }
+            }
+        });
+        
+        // OAuth2 UserInfo 端点 (GET)
+        server.get("/oauth2/userinfo", (request, response) -> {
+            try {
+                var protocolRequest = new ProtocolServerAuthInformation.ProtocolServerRequest(request);
+                var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
+                
+                String authHeader = protocolRequest.getHeader("Authorization");
+                if (StringUtils.isBlank(authHeader) || !authHeader.startsWith("Bearer ")) {
+                    protocolResponse.setStatus(401);
+                    writeJsonResponse(response, Map.of("error", "invalid_token", "error_description", "缺少或无效的访问令牌"));
+                    return;
+                }
+                
+                String token = authHeader.substring(7);
+                
+                var tokenResolver = getTokenResolver();
+                if (tokenResolver == null) {
+                    protocolResponse.setStatus(500);
+                    writeJsonResponse(response, Map.of("error", "server_error"));
+                    return;
+                }
+                
+                var result = tokenResolver.resolve(null, token);
+                if (!result.isOk() || result.getData() == null) {
+                    protocolResponse.setStatus(401);
+                    writeJsonResponse(response, Map.of("error", "invalid_token", "error_description", "令牌无效或已过期"));
+                    return;
+                }
+                
+                var userResume = result.getData();
+                Map<String, Object> userInfo = new LinkedHashMap<>();
+                userInfo.put("sub", userResume.getUserId());
+                userInfo.put("name", userResume.getNickName());
+                userInfo.put("preferred_username", userResume.getUsername());
+                
+                if (userResume.getExt() != null) {
+                    Map<String, Object> ext = userResume.getExt();
+                    if (ext.containsKey("email")) {
+                        userInfo.put("email", ext.get("email"));
+                    }
+                    if (ext.containsKey("phone")) {
+                        userInfo.put("phone_number", ext.get("phone"));
+                    }
+                }
+                
+                writeJsonResponse(response, userInfo);
+            } catch (Exception e) {
+                log.error("[OAuth][OAuth2] UserInfo处理异常", e);
+                try {
+                    response.setStatus(500);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setBodyString(Json.toJson(Map.of("error", "server_error")));
+                } catch (Exception ex) {
+                    log.error("[OAuth][OAuth2] 写入错误响应失败", ex);
+                }
+            }
+        });
+        
+        // OAuth2 服务发现端点 (GET)
+        server.get("/oauth2/.well-known/oauth-authorization-server", (request, response) -> {
+            try {
+                var protocolRequest = new ProtocolServerAuthInformation.ProtocolServerRequest(request);
+                var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
+                
+                String baseUrl = getBaseUrl(protocolRequest);
+                
+                Map<String, Object> metadata = new LinkedHashMap<>();
+                metadata.put("issuer", baseUrl);
+                metadata.put("token_endpoint", baseUrl + "/oauth2/token");
+                metadata.put("revocation_endpoint", baseUrl + "/oauth2/revoke");
+                metadata.put("introspection_endpoint", baseUrl + "/oauth2/introspect");
+                metadata.put("userinfo_endpoint", baseUrl + "/oauth2/userinfo");
+                metadata.put("grant_types_supported", Arrays.asList(
+                        "authorization_code",
+                        "client_credentials",
+                        "password",
+                        "refresh_token"
+                ));
+                metadata.put("authorization_endpoint", baseUrl + "/oauth2/authorize");
+                metadata.put("code_challenge_methods_supported", Arrays.asList("S256", "plain"));
+                metadata.put("token_endpoint_auth_methods_supported", Arrays.asList(
+                        "client_secret_basic",
+                        "client_secret_post"
+                ));
+                metadata.put("response_types_supported", Collections.singletonList("token"));
+                metadata.put("scopes_supported", Arrays.asList("read", "write", "admin"));
+                
+                writeJsonResponse(response, metadata);
+            } catch (Exception e) {
+                log.error("[OAuth][OAuth2] 服务发现处理异常", e);
+                try {
+                    response.setStatus(500);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setBodyString(Json.toJson(Map.of("error", "server_error")));
+                } catch (Exception ex) {
+                    log.error("[OAuth][OAuth2] 写入错误响应失败", ex);
+                }
+            }
+        });
+    }
+    
+    /**
+     * 从 ServletRequest 提取请求体
+     */
+    private String extractBody(ServletRequest request) {
+        try {
+            byte[] body = request.getBody();
+            if (body == null || body.length == 0) {
+                return "";
+            }
+            return new String(body, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            log.error("[OAuth][OAuth2] 提取请求体失败", e);
+            return "";
+        }
+    }
+    
+    /**
+     * 解析 form-urlencoded 格式的请求体
+     */
+    private Map<String, String> parseFormUrlEncoded(String body) {
+        Map<String, String> params = new HashMap<>();
+        if (StringUtils.isBlank(body)) {
+            return params;
+        }
+        String[] pairs = body.split("&");
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=", 2);
+            if (keyValue.length == 2) {
+                try {
+                    params.put(keyValue[0], URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8));
+                } catch (Exception e) {
+                    params.put(keyValue[0], keyValue[1]);
+                }
+            }
+        }
+        return params;
+    }
+    
+    /**
+     * 写入 JSON 响应
+     */
+    private void writeJsonResponse(ServletResponse response, Object data) {
+        try {
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setStatus(200);
+            response.setBodyString(Json.toJson(data));
+        } catch (Exception e) {
+            log.error("[OAuth][OAuth2] 写入响应失败", e);
+        }
+    }
+    
     /**
      * 发送授权错误重定向
      */
-    private void sendAuthorizeError(HttpServletResponse response, String redirectUri,
-                                    String state, String error, String description) throws Exception {
-        if (StringUtils.isBlank(redirectUri)) {
-            response.setStatus(400);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().write("{\"error\":\"" + error + "\",\"error_description\":\"" + description + "\"}");
-            return;
+    private void sendAuthorizeError(ServletResponse response, String redirectUri,
+                                    String state, String error, String description) {
+        try {
+            if (StringUtils.isBlank(redirectUri)) {
+                response.setStatus(400);
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                response.setBodyString("{\"error\":\"" + error + "\",\"error_description\":\"" + description + "\"}");
+                return;
+            }
+        
+            String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
+                    .queryParam("error", error)
+                    .queryParam("error_description", URLEncoder.encode(description, StandardCharsets.UTF_8))
+                    .queryParamIfPresent("state", Optional.ofNullable(state))
+                    .build().toUriString();
+            
+            // 创建 ProtocolServerResponse 包装器以使用 sendRedirect 方法
+            var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
+            protocolResponse.sendRedirect(redirectUrl);
+        } catch (Exception e) {
+            log.error("[OAuth][OAuth2] 发送授权错误失败", e);
+            response.setStatus(500);
+            response.setBodyString("{\"error\":\"server_error\"}");
         }
-
-        String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
-                .queryParam("error", error)
-                .queryParam("error_description", URLEncoder.encode(description, StandardCharsets.UTF_8))
-                .queryParamIfPresent("state", Optional.ofNullable(state))
-                .build().toUriString();
-
-        response.sendRedirect(redirectUrl);
     }
 
-    // ==================== 令牌端点 (Token Endpoint) ====================
-
-    /**
-     * OAuth 2.0 Token端点
-     */
-    @PostMapping(value = "/token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    @Operation(summary = "令牌端点", description = "获取访问令牌")
-    public Map<String, Object> token(
-            @Parameter(description = "授权类型") @RequestParam("grant_type") String grantType,
-            @Parameter(description = "客户端ID") @RequestParam(value = "client_id", required = false) String clientId,
-            @Parameter(description = "客户端密钥") @RequestParam(value = "client_secret", required = false) String clientSecret,
-            @Parameter(description = "用户名") @RequestParam(value = "username", required = false) String username,
-            @Parameter(description = "密码") @RequestParam(value = "password", required = false) String password,
-            @Parameter(description = "刷新令牌") @RequestParam(value = "refresh_token", required = false) String refreshToken,
-            @Parameter(description = "权限范围") @RequestParam(value = "scope", required = false) String scope,
-            @Parameter(description = "授权码") @RequestParam(value = "code", required = false) String code,
-            @Parameter(description = "回调地址") @RequestParam(value = "redirect_uri", required = false) String redirectUri,
-            @Parameter(description = "PKCE code_verifier") @RequestParam(value = "code_verifier", required = false) String codeVerifier,
-            HttpServletRequest request,
-            HttpServletResponse response) {
-
-        log.info("OAuth2 Token请求 - grant_type: {}, client_id: {}", grantType, clientId);
-
-        // 从 Authorization头解析Basic认证
-        if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
-            String[] credentials = extractBasicCredentials(request);
-            if (credentials != null) {
-                clientId = credentials[0];
-                clientSecret = credentials[1];
-            }
-        }
-
-        // 验证授权类型是否允许
-        if (!oAuth2CoreService.isGrantTypeAllowed(clientId, grantType)) {
-            response.setStatus(400);
-            return buildErrorResponse("unauthorized_client", "客户端未授权使用此授权类型: " + grantType);
-        }
-
-        // authorization_code 模式不需要验证 client_secret（如果使用 PKCE）
-        if (!"authorization_code".equalsIgnoreCase(grantType)) {
-            // 验证客户端凭据
-            if (!validateClientCredentials(clientId, clientSecret)) {
-                response.setStatus(401);
-                return buildErrorResponse("invalid_client", "客户端认证失败");
-            }
-        }
-
-        // 验证 scope
-        if (StringUtils.isNotBlank(scope)) {
-            OAuth2CoreService.ScopeValidationResult scopeResult = oAuth2CoreService.validateScope(clientId, scope);
-            if (!scopeResult.valid()) {
-                response.setStatus(400);
-                return buildErrorResponse("invalid_scope", scopeResult.errorMessage());
-            }
-        }
-
-        // 根据 grant_type处理不同的授权模式
-        return switch (grantType.toLowerCase()) {
-            case "authorization_code" -> handleAuthorizationCode(code, redirectUri, codeVerifier, clientId, clientSecret, scope, response);
-            case "client_credentials" -> handleClientCredentials(clientId, scope, response);
-            case "password" -> handlePasswordGrant(username, password, scope, request, response);
-            case "refresh_token" -> handleRefreshToken(refreshToken, scope, response);
-            default -> {
-                response.setStatus(400);
-                yield buildErrorResponse("unsupported_grant_type", "不支持的授权类型: " + grantType);
-            }
-        };
-    }
-
+    // ==================== 辅助方法 ====================
+    
     /**
      * 处理授权码模式
      */
@@ -425,162 +729,6 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
         return tokenResponse;
     }
 
-    /**
-     * 令牌撤销端点 (RFC 7009)
-     */
-    @PostMapping(value = "/revoke", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    @ResponseBody
-    public void revoke(
-            @RequestParam("token") String token,
-            @RequestParam(value = "token_type_hint", required = false) String tokenTypeHint,
-            HttpServletRequest request,
-            HttpServletResponse response) {
-
-        log.info("OAuth2 Revoke请求 - tokenTypeHint: {}", tokenTypeHint);
-
-        // 验证客户端凭据
-        String[] credentials = extractBasicCredentials(request);
-        if (credentials == null || !validateClientCredentials(credentials[0], credentials[1])) {
-            response.setStatus(401);
-            return;
-        }
-
-        TokenResolver tokenResolver = getTokenResolver();
-        if (tokenResolver != null) {
-            tokenResolver.logout(token);
-        }
-
-        // RFC 7009: 无论成功与否都返回200
-        response.setStatus(200);
-    }
-
-    /**
-     * 令牌内省端点 (RFC 7662)
-     */
-    @PostMapping(value = "/introspect", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public Map<String, Object> introspect(
-            @RequestParam("token") String token,
-            @RequestParam(value = "token_type_hint", required = false) String tokenTypeHint,
-            HttpServletRequest request,
-            HttpServletResponse response) {
-
-        log.debug("OAuth2 Introspect请求");
-
-        // 验证客户端凭据
-        String[] credentials = extractBasicCredentials(request);
-        if (credentials == null || !validateClientCredentials(credentials[0], credentials[1])) {
-            response.setStatus(401);
-            return Map.of("active", false);
-        }
-
-        TokenResolver tokenResolver = getTokenResolver();
-        if (tokenResolver == null) {
-            return Map.of("active", false);
-        }
-
-        ReturnResult<UserResume> result = tokenResolver.resolve(null, token);
-        if (!result.isOk() || result.getData() == null) {
-            return Map.of("active", false);
-        }
-
-        UserResume userResume = result.getData();
-
-        Map<String, Object> introspectResponse = new LinkedHashMap<>();
-        introspectResponse.put("active", true);
-        introspectResponse.put("sub", userResume.getUserId());
-        introspectResponse.put("username", userResume.getUsername());
-        introspectResponse.put("token_type", "Bearer");
-        if (userResume.getExpireTime() != null) {
-            introspectResponse.put("exp", System.currentTimeMillis() / 1000 + userResume.getExpireTime());
-        }
-        introspectResponse.put("iat", System.currentTimeMillis() / 1000);
-
-        return introspectResponse;
-    }
-
-    /**
-     * 用户信息端点
-     */
-    @GetMapping(value = "/userinfo", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public Map<String, Object> userinfo(HttpServletRequest request, HttpServletResponse response) {
-        String authHeader = request.getHeader("Authorization");
-        if (StringUtils.isBlank(authHeader) || !authHeader.startsWith("Bearer ")) {
-            response.setStatus(401);
-            return Map.of("error", "invalid_token", "error_description", "缺少或无效的访问令牌");
-        }
-
-        String token = authHeader.substring(7);
-
-        TokenResolver tokenResolver = getTokenResolver();
-        if (tokenResolver == null) {
-            response.setStatus(500);
-            return Map.of("error", "server_error");
-        }
-
-        ReturnResult<UserResume> result = tokenResolver.resolve(null, token);
-        if (!result.isOk() || result.getData() == null) {
-            response.setStatus(401);
-            return Map.of("error", "invalid_token", "error_description", "令牌无效或已过期");
-        }
-
-        UserResume userResume = result.getData();
-
-        Map<String, Object> userInfo = new LinkedHashMap<>();
-        userInfo.put("sub", userResume.getUserId());
-        userInfo.put("name", userResume.getNickName());
-        userInfo.put("preferred_username", userResume.getUsername());
-
-        if (userResume.getExt() != null) {
-            Map<String, Object> ext = userResume.getExt();
-            if (ext.containsKey("email")) {
-                userInfo.put("email", ext.get("email"));
-            }
-            if (ext.containsKey("phone")) {
-                userInfo.put("phone_number", ext.get("phone"));
-            }
-        }
-
-        return userInfo;
-    }
-
-    /**
-     * OAuth 2.0 服务发现端点 (RFC 8414)
-     */
-    @GetMapping(value = "/.well-known/oauth-authorization-server", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public Map<String, Object> authorizationServerMetadata(HttpServletRequest request) {
-        String baseUrl = getBaseUrl(request);
-
-        Map<String, Object> metadata = new LinkedHashMap<>();
-        metadata.put("issuer", baseUrl);
-        metadata.put("token_endpoint", baseUrl + "/oauth2/token");
-        metadata.put("revocation_endpoint", baseUrl + "/oauth2/revoke");
-        metadata.put("introspection_endpoint", baseUrl + "/oauth2/introspect");
-        metadata.put("userinfo_endpoint", baseUrl + "/oauth2/userinfo");
-
-        metadata.put("grant_types_supported", Arrays.asList(
-                "authorization_code",
-                "client_credentials",
-                "password",
-                "refresh_token"
-        ));
-
-        metadata.put("authorization_endpoint", baseUrl + "/oauth2/authorize");
-        metadata.put("code_challenge_methods_supported", Arrays.asList("S256", "plain"));
-
-        metadata.put("token_endpoint_auth_methods_supported", Arrays.asList(
-                "client_secret_basic",
-                "client_secret_post"
-        ));
-
-        metadata.put("response_types_supported", Collections.singletonList("token"));
-        metadata.put("scopes_supported", Arrays.asList("read", "write", "admin"));
-
-        return metadata;
-    }
 
     // ==================== 辅助方法 ====================
 
@@ -708,5 +856,46 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
 
         url.append(contextPath);
         return url.toString();
+    }
+    
+    @Override
+    public ProtocolSetting getProtocolSetting() {
+        return ProtocolSetting.builder()
+                .port(authServerProperties.getArmeriaPort() != null ? 
+                        authServerProperties.getArmeriaPort() : 8080)
+                .build();
+    }
+    
+    @Override
+    public String getProtocolName() {
+        return "oauth2";
+    }
+    
+    @Override
+    public Class<? extends ProtocolServer> getServerType() {
+        return ProtocolServer.class;
+    }
+    
+    @Override
+    public ProtocolServer createServer(ProtocolSetting protocolSetting) {
+        var protocol = ServiceProvider.of(Protocol.class).getExtension("http");
+        if (protocol == null) {
+            throw new IllegalStateException("未找到 HTTP Protocol 实现");
+        }
+        return protocol.createServer(protocolSetting);
+    }
+    
+    @Override
+    public Class<? extends com.chua.common.support.network.protocol.client.BaseProtocolClient> getClientType() {
+        return com.chua.common.support.network.protocol.client.BaseProtocolClient.class;
+    }
+    
+    @Override
+    public com.chua.common.support.network.protocol.client.ProtocolClient createClient(ProtocolSetting protocolSetting) {
+        var protocol = ServiceProvider.of(Protocol.class).getExtension("http");
+        if (protocol == null) {
+            throw new IllegalStateException("未找到 HTTP Protocol 实现");
+        }
+        return protocol.createClient(protocolSetting);
     }
 }

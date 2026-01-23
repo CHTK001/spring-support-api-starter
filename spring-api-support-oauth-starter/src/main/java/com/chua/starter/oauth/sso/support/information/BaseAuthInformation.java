@@ -7,7 +7,6 @@ import com.chua.common.support.text.json.JsonObject;
 import com.chua.common.support.core.utils.IdUtils;
 import com.chua.common.support.core.utils.SignUtils;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
-import com.chua.starter.oauth.sso.support.controller.OAuthAdminController;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.resolver.AkSkDecryptor;
 import com.chua.starter.oauth.sso.support.trace.ServerTraceContext;
@@ -132,18 +131,6 @@ public abstract class BaseAuthInformation implements AuthInformation {
             traceContext.startSpan("server_decrypt");
         }
         
-        // Debug 模式下输出详细信息
-        if (OAuthAdminController.isDebugMode()) {
-            log.info("【DEBUG】========== 认证数据解析开始 ==========");
-            log.info("【DEBUG】客户端IP: {}", clientIp);
-            log.info("【DEBUG】UUID: {}", uuid);
-            log.info("【DEBUG】Serial: {}", serial != null ? serial.substring(0, Math.min(16, serial.length())) + "..." : "null");
-            log.info("【DEBUG】Protocol: {}", protocol);
-            log.info("【DEBUG】IsEncode: {}", isEncode);
-            log.info("【DEBUG】Encryption: {}", encryption);
-            log.info("【DEBUG】Data长度: {}", data != null ? data.length() : 0);
-        }
-        
         log.debug("开始解析认证数据, uuid: {}, isEncode: {}, encryption: {}", uuid, isEncode, encryption);
         
         try {
@@ -166,11 +153,6 @@ public abstract class BaseAuthInformation implements AuthInformation {
                     this.bodyData.putAll(jsonObject);
                     success.set(true);
                     log.debug("JSON数据解析成功, 字段数: {}", bodyData.size());
-                    
-                    if (OAuthAdminController.isDebugMode()) {
-                        log.info("【DEBUG】解析成功 - 字段: {}", bodyData.keySet());
-                        logSensitiveFields();
-                    }
                 } else {
                     log.warn("JSON数据解析失败，数据为空或格式错误");
                 }
@@ -201,12 +183,6 @@ public abstract class BaseAuthInformation implements AuthInformation {
                 }
             }
             
-            if (OAuthAdminController.isDebugMode()) {
-                log.info("【DEBUG】解密密钥长度: {}", decodeKey != null ? decodeKey.length() : 0);
-                log.info("【DEBUG】解密后数据长度: {}", decryptedData != null ? decryptedData.length() : 0);
-                log.info("【DEBUG】AK/SK启用: {}, AK: {}", authServerProperties.isOpenCheckAkSk(), maskKey(accessKey));
-            }
-            
             JsonObject jsonObject = Json.getJsonObject(decryptedData);
             if (jsonObject != null) {
                 this.bodyData.putAll(jsonObject);
@@ -218,21 +194,12 @@ public abstract class BaseAuthInformation implements AuthInformation {
                 }
                 
                 log.debug("加密数据解析成功, 字段数: {}, 耗时: {}ms", bodyData.size(), System.currentTimeMillis() - startTime);
-                
-                if (OAuthAdminController.isDebugMode()) {
-                    log.info("【DEBUG】解密解析成功 - 字段: {}", bodyData.keySet());
-                    logSensitiveFields();
-                }
             } else {
                 log.warn("加密数据解析失败，解密后的JSON为空");
             }
         } catch (Exception e) {
             log.error("认证数据解析异常: {}, uuid: {}, 耗时: {}ms", e.getMessage(), uuid, System.currentTimeMillis() - startTime);
             log.debug("解析异常详情", e);
-            
-            if (OAuthAdminController.isDebugMode()) {
-                log.info("【DEBUG】解析异常: {}", e.getMessage());
-            }
         } finally {
             // 结束解密 Span
             if (traceContext != null) {
@@ -273,37 +240,9 @@ public abstract class BaseAuthInformation implements AuthInformation {
      */
     private void logRequestCompletion(long startTime, String clientIp) {
         long cost = System.currentTimeMillis() - startTime;
-        if (OAuthAdminController.isDebugMode()) {
-            log.info("【DEBUG】解析耗时: {}ms, 结果: {}", cost, success.get() ? "成功" : "失败");
-            log.info("【DEBUG】========== 认证数据解析结束 ==========");
-        }
+        log.debug("解析耗时: {}ms, 结果: {}", cost, success.get() ? "成功" : "失败");
     }
 
-    /**
-     * 输出敏感字段（脱敏）
-     */
-    private void logSensitiveFields() {
-        String username = bodyData.get("x-oauth-username") != null ? 
-                bodyData.get("x-oauth-username").toString() : null;
-        String loginType = bodyData.get("x-oauth-login-type") != null ? 
-                bodyData.get("x-oauth-login-type").toString() : null;
-        String token = bodyData.get("x-oauth-token") != null ? 
-                maskToken(bodyData.get("x-oauth-token").toString()) : null;
-        
-        log.info("【DEBUG】用户名: {}, 登录类型: {}, Token: {}", 
-                username, loginType, token);
-    }
-
-    /**
-     * 脱敏 Token
-     */
-    private String maskToken(String token) {
-        if (token == null || token.length() < 10) {
-            return "***";
-        }
-        return token.substring(0, 6) + "..." + token.substring(token.length() - 4);
-    }
-    
     /**
      * 脱敏密钥
      */
