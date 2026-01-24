@@ -980,6 +980,41 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
             }
         }
     }
+
+    @Override
+    public ReturnResult<Map<String, Long>> getOverviewStats() {
+        log.info("[容器管理][概览统计] 获取容器概览统计");
+        try {
+            var total = count();
+            var running = lambdaQuery()
+                    .eq(SystemSoftContainer::getSystemSoftContainerStatus, SystemSoftContainerStatus.RUNNING)
+                    .count();
+            var stopped = lambdaQuery()
+                    .eq(SystemSoftContainer::getSystemSoftContainerStatus, SystemSoftContainerStatus.STOPPED)
+                    .count();
+            var error = lambdaQuery()
+                    .in(SystemSoftContainer::getSystemSoftContainerStatus,
+                            SystemSoftContainerStatus.CREATE_FAILED,
+                            SystemSoftContainerStatus.START_FAILED,
+                            SystemSoftContainerStatus.RESTART_FAILED,
+                            SystemSoftContainerStatus.STOP_FAILED,
+                            SystemSoftContainerStatus.DELETE_FAILED,
+                            SystemSoftContainerStatus.DEAD)
+                    .count();
+
+            var stats = new HashMap<String, Long>();
+            stats.put("total", total);
+            stats.put("running", running);
+            stats.put("stopped", stopped);
+            stats.put("error", error);
+
+            log.info("[容器管理][概览统计] 统计完成 - 总数: {}, 运行中: {}, 已停止: {}, 错误: {}", total, running, stopped, error);
+            return ReturnResult.ok(stats);
+        } catch (Exception e) {
+            log.error("[容器管理][概览统计] 获取统计失败", e);
+            return ReturnResult.error("获取容器概览统计失败: " + e.getMessage());
+        }
+    }
 }
 
 
