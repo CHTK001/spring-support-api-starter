@@ -132,67 +132,67 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
                 String token = protocolRequest.getHeader("x-oauth-token");
                 
                 log.info("[OAuth][OAuth2] 授权请求: clientId={}, responseType={}, scope={}", clientId, responseType, scope);
-                
-                // 验证 response_type
-                if (!"code".equals(responseType)) {
-                    sendAuthorizeError(response, redirectUri, state, "unsupported_response_type", "只支持 response_type=code");
-                    return;
-                }
-                
+
+        // 验证 response_type
+        if (!"code".equals(responseType)) {
+            sendAuthorizeError(response, redirectUri, state, "unsupported_response_type", "只支持 response_type=code");
+            return;
+        }
+
                 // 验证客户端存在
                 var appId = sysAppIdService.getByAppIdValue(clientId);
                 var appKey = appId == null ? sysAppKeyService.getByAppKey(clientId) : null;
                 if (appId == null && appKey == null) {
-                    sendAuthorizeError(response, redirectUri, state, "invalid_client", "客户端不存在");
-                    return;
-                }
-                
-                // 验证 redirect_uri
-                if (!oAuth2CoreService.isRedirectUriValid(clientId, redirectUri)) {
-                    sendAuthorizeError(response, redirectUri, state, "invalid_request", "无效的回调地址");
-                    return;
-                }
-                
-                // 验证 grant_type
-                if (!oAuth2CoreService.isGrantTypeAllowed(clientId, "authorization_code")) {
-                    sendAuthorizeError(response, redirectUri, state, "unauthorized_client", "客户端未授权使用 authorization_code 模式");
-                    return;
-                }
-                
-                // 验证 scope
+                sendAuthorizeError(response, redirectUri, state, "invalid_client", "客户端不存在");
+                return;
+        }
+
+        // 验证 redirect_uri
+        if (!oAuth2CoreService.isRedirectUriValid(clientId, redirectUri)) {
+            sendAuthorizeError(response, redirectUri, state, "invalid_request", "无效的回调地址");
+            return;
+        }
+
+        // 验证 grant_type
+        if (!oAuth2CoreService.isGrantTypeAllowed(clientId, "authorization_code")) {
+            sendAuthorizeError(response, redirectUri, state, "unauthorized_client", "客户端未授权使用 authorization_code 模式");
+            return;
+        }
+
+        // 验证 scope
                 var scopeResult = oAuth2CoreService.validateScope(clientId, scope);
-                if (!scopeResult.valid()) {
-                    sendAuthorizeError(response, redirectUri, state, "invalid_scope", scopeResult.errorMessage());
-                    return;
-                }
-                
-                // 验证用户已登录
+        if (!scopeResult.valid()) {
+            sendAuthorizeError(response, redirectUri, state, "invalid_scope", scopeResult.errorMessage());
+            return;
+        }
+
+        // 验证用户已登录
                 var tokenResolver = getTokenResolver();
-                if (tokenResolver == null || StringUtils.isBlank(token)) {
-                    sendAuthorizeError(response, redirectUri, state, "access_denied", "用户未登录");
-                    return;
-                }
-                
+        if (tokenResolver == null || StringUtils.isBlank(token)) {
+            sendAuthorizeError(response, redirectUri, state, "access_denied", "用户未登录");
+            return;
+        }
+
                 var userResult = tokenResolver.resolve(null, token);
-                if (!userResult.isOk() || userResult.getData() == null) {
-                    sendAuthorizeError(response, redirectUri, state, "access_denied", "用户未登录或令牌已过期");
-                    return;
-                }
-                
+        if (!userResult.isOk() || userResult.getData() == null) {
+            sendAuthorizeError(response, redirectUri, state, "access_denied", "用户未登录或令牌已过期");
+            return;
+        }
+
                 var user = userResult.getData();
-                
-                // 生成授权码
-                String code = oAuth2CoreService.generateAuthorizationCode(
-                        clientId, redirectUri, scope, state,
-                        codeChallenge, codeChallengeMethod,
-                        user.getUserId(), user.getUsername());
-                
-                // 重定向到回调地址
-                String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
-                        .queryParam("code", code)
-                        .queryParamIfPresent("state", Optional.ofNullable(state))
-                        .build().toUriString();
-                
+
+        // 生成授权码
+        String code = oAuth2CoreService.generateAuthorizationCode(
+                clientId, redirectUri, scope, state,
+                codeChallenge, codeChallengeMethod,
+                user.getUserId(), user.getUsername());
+
+        // 重定向到回调地址
+        String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
+                .queryParam("code", code)
+                .queryParamIfPresent("state", Optional.ofNullable(state))
+                .build().toUriString();
+
                 log.info("[OAuth][OAuth2] 授权成功: clientId={}, userId={}", clientId, user.getUserId());
                 protocolResponse.sendRedirect(redirectUrl);
             } catch (Exception e) {
@@ -228,54 +228,54 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
                 String codeVerifier = params.get("code_verifier");
                 
                 log.info("[OAuth][OAuth2] Token请求 - grant_type: {}, client_id: {}", grantType, clientId);
-                
-                // 从 Authorization头解析Basic认证
-                if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
+
+        // 从 Authorization头解析Basic认证
+        if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
                     String[] credentials = extractBasicCredentials(protocolRequest);
-                    if (credentials != null) {
-                        clientId = credentials[0];
-                        clientSecret = credentials[1];
-                    }
-                }
-                
-                // 验证授权类型是否允许
-                if (!oAuth2CoreService.isGrantTypeAllowed(clientId, grantType)) {
+            if (credentials != null) {
+                clientId = credentials[0];
+                clientSecret = credentials[1];
+            }
+        }
+
+        // 验证授权类型是否允许
+        if (!oAuth2CoreService.isGrantTypeAllowed(clientId, grantType)) {
                     protocolResponse.setStatus(400);
                     writeJsonResponse(response, buildErrorResponse("unauthorized_client", "客户端未授权使用此授权类型: " + grantType));
                     return;
-                }
-                
-                // authorization_code 模式不需要验证 client_secret（如果使用 PKCE）
-                if (!"authorization_code".equalsIgnoreCase(grantType)) {
-                    // 验证客户端凭据
-                    if (!validateClientCredentials(clientId, clientSecret)) {
+        }
+
+        // authorization_code 模式不需要验证 client_secret（如果使用 PKCE）
+        if (!"authorization_code".equalsIgnoreCase(grantType)) {
+            // 验证客户端凭据
+            if (!validateClientCredentials(clientId, clientSecret)) {
                         protocolResponse.setStatus(401);
                         writeJsonResponse(response, buildErrorResponse("invalid_client", "客户端认证失败"));
                         return;
-                    }
-                }
-                
-                // 验证 scope
-                if (StringUtils.isNotBlank(scope)) {
+            }
+        }
+
+        // 验证 scope
+        if (StringUtils.isNotBlank(scope)) {
                     var scopeResult = oAuth2CoreService.validateScope(clientId, scope);
-                    if (!scopeResult.valid()) {
+            if (!scopeResult.valid()) {
                         protocolResponse.setStatus(400);
                         writeJsonResponse(response, buildErrorResponse("invalid_scope", scopeResult.errorMessage()));
                         return;
-                    }
-                }
-                
-                // 根据 grant_type处理不同的授权模式
+            }
+        }
+
+        // 根据 grant_type处理不同的授权模式
                 Map<String, Object> result = switch (grantType.toLowerCase()) {
                     case "authorization_code" -> handleAuthorizationCode(code, redirectUri, codeVerifier, clientId, clientSecret, scope, protocolResponse);
                     case "client_credentials" -> handleClientCredentials(clientId, scope, protocolResponse);
                     case "password" -> handlePasswordGrant(username, password, scope, protocolRequest, protocolResponse);
                     case "refresh_token" -> handleRefreshToken(refreshToken, scope, protocolResponse);
-                    default -> {
+            default -> {
                         protocolResponse.setStatus(400);
-                        yield buildErrorResponse("unsupported_grant_type", "不支持的授权类型: " + grantType);
-                    }
-                };
+                yield buildErrorResponse("unsupported_grant_type", "不支持的授权类型: " + grantType);
+            }
+        };
                 
                 writeJsonResponse(response, result);
             } catch (Exception e) {
@@ -559,7 +559,7 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
     }
 
     // ==================== 辅助方法 ====================
-    
+
     /**
      * 处理授权码模式
      */

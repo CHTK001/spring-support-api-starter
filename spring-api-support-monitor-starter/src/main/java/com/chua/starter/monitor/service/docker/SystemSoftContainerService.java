@@ -129,6 +129,13 @@ public interface SystemSoftContainerService extends IService<SystemSoftContainer
     ReturnResult<Integer> syncContainerStatus(Integer serverId);
 
     /**
+     * 获取容器概览统计
+     *
+     * @return 容器统计信息（总数、运行中、已停止、错误）
+     */
+    ReturnResult<Map<String, Long>> getOverviewStats();
+
+    /**
      * 启动容器日志推送
      *
      * @param containerId 容器ID
