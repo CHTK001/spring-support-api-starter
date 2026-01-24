@@ -250,10 +250,21 @@ public class SystemSoftContainerController {
      * @return 同步结果
      */
     @GetMapping("/sync")
-    @Operation(summary = "同步容器状态", description = "同步指定服务器的容器状态")
+    @Operation(summary = "同步容器状态", description = "同步指定服务器的容器状态，serverId为空时同步所有服务器")
     public ReturnResult<Integer> syncContainerStatus(
-            @Parameter(description = "服务器ID") @RequestParam Integer serverId) {
+            @Parameter(description = "服务器ID") @RequestParam(required = false) Integer serverId) {
         return systemSoftContainerService.syncContainerStatus(serverId);
+    }
+
+    /**
+     * 获取容器概览统计
+     *
+     * @return 容器统计信息（总数、运行中、已停止、错误）
+     */
+    @GetMapping("/overview-stats")
+    @Operation(summary = "获取容器概览统计", description = "获取容器的总体统计信息，包括总数、运行中、已停止、错误数量")
+    public ReturnResult<Map<String, Long>> getOverviewStats() {
+        return systemSoftContainerService.getOverviewStats();
     }
 
     /**
