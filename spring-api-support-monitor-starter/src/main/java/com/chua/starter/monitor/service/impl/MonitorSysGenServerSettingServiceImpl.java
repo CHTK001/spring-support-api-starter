@@ -1359,6 +1359,7 @@ public class MonitorSysGenServerSettingServiceImpl
      *
      * @deprecated 暂未使用，预留给将来的配置变更历史记录功能
      */
+    @Deprecated
     @SuppressWarnings("unused")
     private void recordSettingHistory(Integer serverId, Long settingId,
                                       MonitorSysGenServerSettingHistory.ChangeType changeType, String description, String user) {

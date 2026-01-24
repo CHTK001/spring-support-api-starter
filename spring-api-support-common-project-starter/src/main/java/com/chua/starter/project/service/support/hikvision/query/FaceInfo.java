@@ -42,11 +42,13 @@ public class FaceInfo {
          * 1-男性，2-女性，UNKNOWN-未知
          */
         @JsonProperty("sex")
+        @Builder.Default
         private String sex = "UNKNOWN";
         /**
          * 人脸的证件类别，111-身份证，OTHER-其它证件
          */
         @JsonProperty("certificateType")
+        @Builder.Default
         private String certificateType = "OTHER";
         /**
          * 人脸的证件号码信息。1~20个数字、字母。

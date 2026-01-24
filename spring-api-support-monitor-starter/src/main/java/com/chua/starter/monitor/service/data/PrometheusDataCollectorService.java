@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Service
+@SuppressWarnings({"deprecation", "removal"})
 public class PrometheusDataCollectorService {
 
     private final RestTemplate restTemplate;
@@ -35,14 +37,16 @@ public class PrometheusDataCollectorService {
     /**
      * 创建配置好的RestTemplate
      */
+    @SuppressWarnings({"deprecation", "removal"})
     private RestTemplate createRestTemplate() {
         RestTemplate template = new RestTemplate();
         template.setInterceptors(Collections.singletonList(new RestTemplateTraceIdInterceptor()));
         // 设置超时时间
+        // 注意：setConnectTimeout 和 setReadTimeout 在 Spring 6 中已过时，但暂无替代方案
         org.springframework.http.client.HttpComponentsClientHttpRequestFactory factory =
             new org.springframework.http.client.HttpComponentsClientHttpRequestFactory();
-        factory.setConnectTimeout(10000); // 10秒连接超时
-        factory.setReadTimeout(30000);    // 30秒读取超时
+        factory.setConnectTimeout(Duration.ofSeconds(10)); // 10秒连接超时
+        factory.setReadTimeout(Duration.ofSeconds(30));    // 30秒读取超时
         template.setRequestFactory(factory);
 
         return template;

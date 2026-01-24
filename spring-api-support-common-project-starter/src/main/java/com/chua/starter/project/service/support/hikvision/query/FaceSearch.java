@@ -43,6 +43,7 @@ public class FaceSearch {
      * 分页查询条件，页码，为空时，等价于1，页码不能小于1或大于1000
      */
     @JsonProperty("pageNo")
+    @Builder.Default
     private Integer pageNo = 1;
     /**
      * 分页查询条件，页尺，为空时，等价于1000，页尺不能小于1或大于1000
