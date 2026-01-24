@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
  * @since 2026/01/03
  */
 @Slf4j
+@SuppressWarnings({"deprecation", "removal"})
 public class WebRTCWebSocketClientManager {
 
     /**
@@ -53,6 +54,7 @@ public class WebRTCWebSocketClientManager {
      * @param webSocketUrl WebSocket URL
      * @return WebSocket 会话，如果连接失败返回 null
      */
+    @SuppressWarnings({"deprecation", "removal"})
     public WebSocketSession getOrCreateConnection(Integer serverId, String webSocketUrl) {
         // 检查是否已存在连接
         var existingSession = clientSessions.get(serverId);
@@ -62,11 +64,12 @@ public class WebRTCWebSocketClientManager {
         }
 
         // 创建新连接
+        // 注意：doHandshake 在 Spring 6 中已过时，但 StandardWebSocketClient 暂无替代方案
         try {
             var uri = new URI(webSocketUrl);
             var handler = new WebRTCWebSocketHandler(serverId, this);
             
-            var future = webSocketClient.doHandshake(handler, webSocketUrl);
+            var future = webSocketClient.doHandshake(handler, null, uri);
             var session = future.get(5, TimeUnit.SECONDS);
             
             if (session != null && session.isOpen()) {

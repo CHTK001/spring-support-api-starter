@@ -102,11 +102,13 @@ public class ConfigManagementDTO {
         /**
          * 页码
          */
+        @Builder.Default
         private Integer pageNum = 1;
 
         /**
          * 页大小
          */
+        @Builder.Default
         private Integer pageSize = 10;
     }
 
@@ -224,11 +226,13 @@ public class ConfigManagementDTO {
         /**
          * 页码
          */
+        @Builder.Default
         private Integer pageNum = 1;
 
         /**
          * 页大小
          */
+        @Builder.Default
         private Integer pageSize = 10;
     }
 

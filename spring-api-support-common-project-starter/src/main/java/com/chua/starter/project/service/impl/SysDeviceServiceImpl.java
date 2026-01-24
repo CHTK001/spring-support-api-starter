@@ -355,9 +355,10 @@ public class SysDeviceServiceImpl extends ServiceImpl<SysDeviceCameraMapper, Sys
 
     @Override
     public ReturnResult<List<OnOffline>> check(CheckDeviceOnlineV1Request request) {
+        var deviceIds = request.getSysDeviceCameraIds();
         List<SysDevice> sysDevices = baseMapper.selectList(
                 Wrappers.<SysDevice>lambdaQuery()
-                        .in(SysDevice::getSysDeviceId, request.getSysDeviceCameraIds())
+                        .in(SysDevice::getSysDeviceId, deviceIds != null && deviceIds.length > 0 ? (Object[]) deviceIds : new Object[0])
         );
         if (CollectionUtils.isEmpty(sysDevices)) {
             return ReturnResult.illegal("设备不存在");
