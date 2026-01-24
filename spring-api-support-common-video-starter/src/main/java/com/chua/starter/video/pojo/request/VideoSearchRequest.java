@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -16,6 +17,7 @@ import java.io.Serializable;
  * @since 2024/6/21
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 @ApiModel(description = "视频搜索请求")
 public class VideoSearchRequest extends Query<VideoInfo> implements Serializable {
 

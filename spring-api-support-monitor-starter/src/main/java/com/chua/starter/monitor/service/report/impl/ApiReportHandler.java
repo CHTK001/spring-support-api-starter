@@ -28,6 +28,7 @@ import java.util.Map;
  * @since 2024/12/25
  * @deprecated 此类名称将在后续版本更改为 NodeReportHandler
  */
+@Deprecated
 @Slf4j
 @Component
 @RequiredArgsConstructor
