@@ -1,12 +1,13 @@
 package com.chua.starter.monitor.service.impl;
 
-import com.chua.common.support.text.json.Json;
 import com.chua.common.support.network.net.NetUtils;
+import com.chua.common.support.text.json.Json;
+import com.chua.remote.support.client.ClientBuilder;
 import com.chua.remote.support.client.RemoteClient;
 // RemoteDesktopConfig 已重构，暂时注释
 // import com.chua.remote.support.config.RemoteDesktopConfig.QualityMode;
-import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.message.ServerWebSocketMessage;
@@ -17,17 +18,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-
-import javax.imageio.ImageIO;
-import java.io.ByteArrayOutputStream;
 
 /**
  * 远程桌面服务器连接服务实现 (基于 utils-support-remote-starter)
@@ -45,6 +41,26 @@ import java.io.ByteArrayOutputStream;
 @Slf4j
 @RequiredArgsConstructor
 public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectionService {
+
+    /**
+     * 默认远程桌面端口
+     */
+    private static final int DEFAULT_REMOTE_PORT = 21115;
+
+    /**
+     * 鼠标动作: 按下
+     */
+    private static final int MOUSE_ACTION_DOWN = 0;
+
+    /**
+     * 鼠标动作: 释放
+     */
+    private static final int MOUSE_ACTION_UP = 1;
+
+    /**
+     * 鼠标动作: 移动
+     */
+    private static final int MOUSE_ACTION_MOVE = 2;
 
     private final SocketSessionTemplate socketSessionTemplate;
     private final MonitorSysGenServerSettingService monitorSysGenServerSettingService;
@@ -116,58 +132,34 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
                     server.getMonitorSysGenServerHost(),
                     server.getMonitorSysGenServerPort());
 
-            // 创建远程客户端
-            var remoteClient = new RemoteClient(
-                    server.getMonitorSysGenServerHost(),
-                    server.getMonitorSysGenServerPort() != null ? server.getMonitorSysGenServerPort() : 8899,
-                    server.getMonitorSysGenServerUsername(),
-                    server.getMonitorSysGenServerPassword()
-            );
+            var port = server.getMonitorSysGenServerPort() != null
+                    ? server.getMonitorSysGenServerPort()
+                    : DEFAULT_REMOTE_PORT;
+            var uri = "tcp://" + server.getMonitorSysGenServerHost() + ":" + port + "/";
 
-            // 设置屏幕图像回调
-            remoteClient.setFrameCallback(writableImage -> {
-                try {
-                    // WritableImage 是 JavaFX 的类，需要转换为 BufferedImage
-                    // 由于 JavaFX 和 AWT 的兼容性问题，这里暂时跳过图像处理
-                    // 如果需要处理图像，需要使用 JavaFX 的 ImageIO 或者通过其他方式转换
-                    log.debug("收到屏幕图像: serverId={}, width={}, height={}", 
-                            serverId, writableImage.getWidth(), writableImage.getHeight());
-                    // TODO: 实现 WritableImage 到 BufferedImage 的转换
-                } catch (Exception e) {
-                    log.error("处理屏幕图像失败: {}", e.getMessage(), e);
-                }
-            });
-
-            // 设置错误回调
-            remoteClient.setErrorCallback(error -> {
-                log.error("远程连接错误: serverId={}, error={}", serverId, error);
-                sendConnectionMessage(server, "error", false, error);
-            });
-
-            // 设置连接成功回调
-            remoteClient.setOnConnectCallback(() -> {
-                log.info("远程桌面连接成功: serverId={}", serverId);
-                sendConnectionMessage(server, "connected", true, null);
-            });
-
-            // 设置断开连接回调
-            remoteClient.setOnDisconnectCallback(() -> {
-                log.info("远程桌面连接断开: serverId={}", serverId);
-                sendConnectionMessage(server, "disconnected", false, "连接已断开");
-            });
+            var remoteClient = ClientBuilder.create()
+                    .server(uri)
+                    .size(1920, 1080)
+                    .mouseControl(true)
+                    .keyboardControl(true)
+                    .buildJavaFX();
 
             // 执行连接
-            try {
-                remoteClient.connect();
-                // 保存连接
-                remoteConnectionPool.put(serverId, remoteClient);
-                serverConfigCache.put(serverId, server);
-                sessionIdMap.put(serverId, "remote-" + serverId + "-" + System.currentTimeMillis());
-                return true;
-            } catch (Exception e) {
-                log.error("远程桌面连接失败: serverId={}, error={}", serverId, e.getMessage(), e);
+            var connected = remoteClient.connect(uri);
+            if (!connected) {
+                log.error("远程桌面连接失败: serverId={}, uri={}", serverId, uri);
+                sendConnectionMessage(server, "connect_error", false, "无法连接到远程桌面服务");
                 return false;
             }
+
+            // 保存连接
+            remoteConnectionPool.put(serverId, remoteClient);
+            serverConfigCache.put(serverId, server);
+            sessionIdMap.put(serverId, "remote-" + serverId + "-" + System.currentTimeMillis());
+
+            log.info("远程桌面连接成功: serverId={}, uri={}", serverId, uri);
+            sendConnectionMessage(server, "connected", true, null);
+            return true;
 
         } catch (Exception e) {
             log.error("远程桌面连接失败: {}", e.getMessage(), e);
@@ -353,9 +345,9 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     public void sendMouseMove(Integer serverId, int x, int y) {
         try {
-            RemoteClient client = remoteConnectionPool.get(serverId);
+            var client = remoteConnectionPool.get(serverId);
             if (client != null && client.isConnected()) {
-                client.sendMouseMove(x, y);
+                client.sendMouseEvent(x, y, 0, MOUSE_ACTION_MOVE);
             }
         } catch (Exception e) {
             log.error("发送鼠标移动失败: {}", e.getMessage());
@@ -367,12 +359,12 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     public void sendMouseClick(Integer serverId, int x, int y, int button, boolean pressed) {
         try {
-            RemoteClient client = remoteConnectionPool.get(serverId);
+            var client = remoteConnectionPool.get(serverId);
             if (client != null && client.isConnected()) {
                 if (pressed) {
-                    client.sendMouseDown(button);
+                    client.sendMouseEvent(x, y, button, MOUSE_ACTION_DOWN);
                 } else {
-                    client.sendMouseUp(button);
+                    client.sendMouseEvent(x, y, button, MOUSE_ACTION_UP);
                 }
             }
         } catch (Exception e) {
@@ -385,10 +377,8 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     public void sendMouseWheel(Integer serverId, int x, int y, int amount) {
         try {
-            RemoteClient client = remoteConnectionPool.get(serverId);
-            if (client != null && client.isConnected()) {
-                client.sendMouseWheel(amount);
-            }
+            // 当前 RemoteClient 接口不再提供滚轮事件，暂时仅记录日志
+            log.info("发送鼠标滚轮事件(暂不支持具体实现): serverId={}, x={}, y={}, amount={}", serverId, x, y, amount);
         } catch (Exception e) {
             log.error("发送鼠标滚轮失败: {}", e.getMessage());
         }
@@ -399,11 +389,9 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     public void sendKeyPress(Integer serverId, int keyCode, char keyChar, int modifiers) {
         try {
-            RemoteClient client = remoteConnectionPool.get(serverId);
+            var client = remoteConnectionPool.get(serverId);
             if (client != null && client.isConnected()) {
-                // RemoteClient 已重构，sendKeyDown 接受 String 参数
-                var key = String.valueOf(keyChar);
-                client.sendKeyDown(key);
+                client.sendKeyEvent(keyCode, true);
             }
         } catch (Exception e) {
             log.error("发送键盘按下失败: {}", e.getMessage());
@@ -415,11 +403,9 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
      */
     public void sendKeyRelease(Integer serverId, int keyCode, char keyChar, int modifiers) {
         try {
-            RemoteClient client = remoteConnectionPool.get(serverId);
+            var client = remoteConnectionPool.get(serverId);
             if (client != null && client.isConnected()) {
-                // RemoteClient 已重构，sendKeyUp 接受 String 参数
-                var key = String.valueOf(keyChar);
-                client.sendKeyUp(key);
+                client.sendKeyEvent(keyCode, false);
             }
         } catch (Exception e) {
             log.error("发送键盘释放失败: {}", e.getMessage());
@@ -487,62 +473,15 @@ public class RemoteDesktopServerConnectionServiceImpl implements ServerConnectio
     // ==================== 内部方法 ====================
 
     /**
-     * 处理屏幕图像
+     * 图像处理逻辑已废弃
+     * <p>
+     * 当前 RemoteClient 接口不再提供图像回调，后续如果需要支持远程桌面画面传输，
+     * 需要基于新的协议能力重新实现该部分逻辑。
+     * </p>
      */
-    private void handleScreenImage(Integer serverId, BufferedImage image) {
-        try {
-            // 将图像转换为字节数组
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(image, "png", baos);
-            byte[] imageBytes = baos.toByteArray();
-
-            // 优先使用二进制回调
-            BinaryDataCallback binaryCallback = binaryDataCallbackMap.get(serverId);
-            if (binaryCallback != null) {
-                // 构建带格式头的二进制数据: [4字节格式长度][png][imageBytes]
-                byte[] formatBytes = "png".getBytes(java.nio.charset.StandardCharsets.UTF_8);
-                byte[] packedData = new byte[4 + formatBytes.length + imageBytes.length];
-                // 写入格式长度 (Big Endian)
-                packedData[0] = (byte) ((formatBytes.length >> 24) & 0xFF);
-                packedData[1] = (byte) ((formatBytes.length >> 16) & 0xFF);
-                packedData[2] = (byte) ((formatBytes.length >> 8) & 0xFF);
-                packedData[3] = (byte) (formatBytes.length & 0xFF);
-                // 写入格式字符串
-                System.arraycopy(formatBytes, 0, packedData, 4, formatBytes.length);
-                // 写入图像数据
-                System.arraycopy(imageBytes, 0, packedData, 4 + formatBytes.length, imageBytes.length);
-                binaryCallback.onData(packedData);
-                return;
-            }
-
-            // 回退到 Base64 方式
-            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-
-            // 发送到前端
-            ServerWebSocketMessage message = ServerWebSocketMessage.builder()
-                    .messageType("remote_screen")
-                    .serverId(serverId)
-                    .serverName("远程桌面服务器")
-                    .data(Map.of(
-                            "type", "screen",
-                            "image", base64Image,
-                            "width", image.getWidth(),
-                            "height", image.getHeight()
-                    ))
-                    .timestamp(System.currentTimeMillis())
-                    .build();
-
-            String topic = MonitorSocketTopics.Remote.Rdp.CONNECT;
-            socketSessionTemplate.send(topic, Json.toJson(message));
-
-            // 调用数据回调
-            DataCallback callback = dataCallbackMap.get(serverId);
-            if (callback != null) {
-                callback.onData(base64Image);
-            }
-        } catch (Exception e) {
-            log.error("处理屏幕图像失败: {}", e.getMessage());
-        }
+    @SuppressWarnings("unused")
+    private void handleScreenImage(Integer serverId, Object image) {
+        log.warn("当前版本远程桌面客户端不再提供屏幕图像回调, serverId={}", serverId);
     }
 
     /**
