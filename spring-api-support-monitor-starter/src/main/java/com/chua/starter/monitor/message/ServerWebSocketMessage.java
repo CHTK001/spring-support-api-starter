@@ -456,6 +456,46 @@ public class ServerWebSocketMessage implements Serializable {
     }
 
     /**
+     * 创建远程桌面连接消息
+     */
+    public static ServerWebSocketMessage createRemoteDesktopConnectMessage(Integer serverId, String serverName,
+                                                                           String serverHost, Integer serverPort, String websocketUrl) {
+        Map<String, Object> connectData = new HashMap<>();
+        connectData.put("host", serverHost);
+        connectData.put("websocketPort", serverPort);
+        connectData.put("websocketUrl", websocketUrl);
+
+        return ServerWebSocketMessage.builder().messageType(MessageType.REMOTE_DESKTOP_CONNECTED).serverId(serverId)
+                .serverName(serverName).serverHost(serverHost).serverPort(serverPort)
+                .serverProtocol("REMOTE_DESKTOP").connectTime(LocalDateTime.now())
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .data(connectData)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建远程桌面断开连接消息
+     */
+    public static ServerWebSocketMessage createRemoteDesktopDisconnectMessage(Integer serverId, String serverName,
+                                                                              String reason) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.REMOTE_DESKTOP_DISCONNECTED).serverId(serverId)
+                .serverName(serverName).errorMessage(reason)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
+     * 创建远程桌面错误消息
+     */
+    public static ServerWebSocketMessage createRemoteDesktopErrorMessage(Integer serverId, String serverName,
+                                                                         String errorMessage) {
+        return ServerWebSocketMessage.builder().messageType(MessageType.REMOTE_DESKTOP_ERROR).serverId(serverId)
+                .serverName(serverName).errorMessage(errorMessage)
+                .dataId(serverId != null ? String.valueOf(serverId) : null)
+                .timestamp(System.currentTimeMillis()).build();
+    }
+
+    /**
      * 消息类型常量
      */
     public static class MessageType {
@@ -508,5 +548,18 @@ public class ServerWebSocketMessage implements Serializable {
         public static final String NODE_STATISTICS_UPDATE = "node_statistics_update";
         public static final String NODE_CONNECT = "node_connect";
         public static final String NODE_DISCONNECT = "node_disconnect";
+
+        // 远程桌面相关消息类型
+        public static final String REMOTE_DESKTOP_CONNECT = "remote_desktop_connect";
+        public static final String REMOTE_DESKTOP_CONNECTED = "remote_desktop_connected";
+        public static final String REMOTE_DESKTOP_DISCONNECT = "remote_desktop_disconnect";
+        public static final String REMOTE_DESKTOP_DISCONNECTED = "remote_desktop_disconnected";
+        public static final String REMOTE_DESKTOP_SCREEN = "remote_desktop_screen";
+        public static final String REMOTE_DESKTOP_MOUSE_MOVE = "remote_desktop_mouse_move";
+        public static final String REMOTE_DESKTOP_MOUSE_CLICK = "remote_desktop_mouse_click";
+        public static final String REMOTE_DESKTOP_MOUSE_WHEEL = "remote_desktop_mouse_wheel";
+        public static final String REMOTE_DESKTOP_KEY_PRESS = "remote_desktop_key_press";
+        public static final String REMOTE_DESKTOP_KEY_RELEASE = "remote_desktop_key_release";
+        public static final String REMOTE_DESKTOP_ERROR = "remote_desktop_error";
     }
 }
