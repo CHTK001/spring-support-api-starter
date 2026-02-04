@@ -3,7 +3,7 @@ package com.chua.starter.project.service.impl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.deeplearning.support.core.result.PredictResult;
 import com.chua.deeplearning.support.core.feature.DetectionConfiguration;
-import com.chua.deeplearning.support.core.function.Detector;
+import com.chua.deeplearning.support.core.function.api.Detector;
 import com.chua.deeplearning.support.ml.identification.IdentificationEngine;
 import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.project.pojo.ImageRequest;
