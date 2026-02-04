@@ -12,7 +12,7 @@
 
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>4.0.0.36</version>
+    <version>4.0.0.37</version>
     <packaging>pom</packaging>
     <modules>
         <module>spring-api-support-oauth-starter</module>
@@ -35,8 +35,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
-        <module.version>4.0.0.36</module.version>
-        <utils.version>4.0.0.35</utils.version>
+        <module.version>4.0.0.37</module.version>
+        <utils.version>4.0.0.36</utils.version>
         <spring-boot.version>3.2.3</spring-boot.version>
         <!-- devops 模块路径（使用多模块根目录，避免子模块继承后路径叠加） -->
         <devops.dir>${maven.multiModuleProjectDirectory}/spring-api-support-devops-starter</devops.dir>
