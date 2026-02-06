@@ -1,3 +1,4 @@
+
 # ===========================================
 # API 统一配置
 # ===========================================
@@ -16,8 +17,6 @@ plugin:
     # SPI扩展点映射配置
     # ===========================================
     spi:
-      # 开启SPI虚拟映射
-      enable: true
       # 虚拟映射配置（别名 -> 接口全限定名）
       mapping:
         # 负载均衡策略
@@ -30,3 +29,7 @@ plugin:
         fileStorage: com.chua.common.support.oss.FileStorage
         # 图片处理器
         ImageSettingProcessor: com.chua.common.support.protocol.filter.storage.image.ImageSettingProcessor
+spring:
+  threads:
+    virtual:
+      enabled: true

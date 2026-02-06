@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.controller;
+package com.chua.starter.monitor.controller.tool;
 
 import com.chua.extension.support.indicator.DataIndicator;
 import com.chua.extension.support.indicator.TimeIndicator;
