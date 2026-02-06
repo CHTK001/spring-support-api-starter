@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.controller;
+package com.chua.starter.monitor.controller.tool;
 
 import com.chua.common.support.core.utils.MapUtils;
 import com.chua.starter.common.support.api.annotations.ApiReturnFormatIgnore;

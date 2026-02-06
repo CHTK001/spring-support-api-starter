@@ -21,6 +21,8 @@
 - **Redis** - 缓存和 Token 存储
 - **OAuth 2.0** - 认证授权协议
 - **Swagger/OpenAPI** - API 文档
+- **Undertow** - 轻量级 Servlet 容器（替代 Tomcat）
+- **Virtual Threads** - 虚拟线程并发模型
 
 ## 项目结构
 

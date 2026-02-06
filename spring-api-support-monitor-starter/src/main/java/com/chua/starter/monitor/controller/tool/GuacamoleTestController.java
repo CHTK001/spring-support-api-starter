@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.controller;
+package com.chua.starter.monitor.controller.tool;
 
 import com.chua.starter.monitor.guacamole.GuacamoleConnectionManager;
 import com.chua.starter.monitor.guacamole.GuacamoleTunnel;

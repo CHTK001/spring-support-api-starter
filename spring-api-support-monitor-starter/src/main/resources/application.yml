@@ -9,7 +9,7 @@ spring:
     # 当前激活的配置文件
     active: dev
     # 包含的配置文件列表(dev放在最后确保数据源配置生效)
-    include: plugin,mybatis,swagger,socket,api,ip,report,actuator
+    include: plugin,mybatis,swagger,socket,api,report,actuator
   main:
     # 允许Bean定义覆盖，解决Bean名称冲突问题
     allow-bean-definition-overriding: true
@@ -23,32 +23,3 @@ server:
   servlet:
     # 上下文路径
     context-path: /monitor/api
-
-# ===========================================
-# 插件启用配置
-# ===========================================
-plugin:
-  log:
-    enable: true
-  captcha:
-    enable: true
-  optional:
-    enable: true
-  mybatis:
-    enable: true
-  redis:
-    server:
-      enable: true
-  oauth:
-    client:
-      enable: true
-    temp:
-      open: true
-  api:
-    uniform: true
-    version:
-      enable: true
-    spi:
-      enable: true
-    deprecated:
-      enable: true
