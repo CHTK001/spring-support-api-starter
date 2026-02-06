@@ -25,6 +25,10 @@ resources/
 
 通过 `spring-support-common-starter` 的 `ProfileEnvironmentPostProcessor` 自动加载。
 
+### 默认性能配置
+
+- 默认启用虚拟线程：`spring.threads.virtual.enabled=true`（位于 ops-default/application-api.yml）
+
 ### 配置优先级（高 → 低）
 
 ```
