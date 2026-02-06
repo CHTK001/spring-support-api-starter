@@ -108,6 +108,7 @@
 - 控制台空白：检查节点是否正确上报 `report.client.arthas.port`
 - 资源404：检查 `GET /v1/arthas/console/{nodeId}/` 是否正常返回 HTML/静态资源
 - WS 失败：检查 `WS /v1/arthas/console/{nodeId}/ws` 是否可连通，以及上游 tunnel 状态
+- 启动报错 `ServletWebServerFactory` 缺失：确保引入 `spring-boot-starter-web` 以提供嵌入式 Servlet 容器
 
 ---
 
