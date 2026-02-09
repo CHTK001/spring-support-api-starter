@@ -19,7 +19,7 @@ import java.util.Map;
  * @author CH
  * @since 2024/12/18
  */
-@RestController
+@RestController("guacamoleTestToolController")
 @RequestMapping("/guacamole")
 @Api(tags = "Guacamole测试接口")
 @Tag(name = "Guacamole测试接口", description = "用于测试Guacamole连接功能")

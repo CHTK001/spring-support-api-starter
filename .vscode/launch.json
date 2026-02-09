@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-MonitorServerApplication<spring-api-support-monitor-starter>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.chua.starter.monitor.MonitorServerApplication",
+            "projectName": "spring-api-support-monitor-starter",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
