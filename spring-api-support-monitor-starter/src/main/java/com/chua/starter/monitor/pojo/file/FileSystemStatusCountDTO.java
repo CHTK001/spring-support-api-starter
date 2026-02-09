@@ -3,10 +3,6 @@ package com.chua.starter.monitor.pojo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * 文件系统状态统计DTO
@@ -15,10 +11,6 @@ import lombok.NoArgsConstructor;
  * @author CH
  * @since 2024/12/30
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @ApiModel(description = "文件系统状态统计")
 @Schema(description = "文件系统状态统计")
 public class FileSystemStatusCountDTO {
@@ -43,6 +35,29 @@ public class FileSystemStatusCountDTO {
     @ApiModelProperty(value = "状态名称")
     @Schema(description = "状态名称")
     private String statusName;
+
+    public FileSystemStatusCountDTO() {
+    }
+
+    public Integer getFileSystemStatus() {
+        return fileSystemStatus;
+    }
+
+    public void setFileSystemStatus(Integer fileSystemStatus) {
+        this.fileSystemStatus = fileSystemStatus;
+    }
+
+    public Long getCount() {
+        return count;
+    }
+
+    public void setCount(Long count) {
+        this.count = count;
+    }
+
+    public void setStatusName(String statusName) {
+        this.statusName = statusName;
+    }
 
     /**
      * 根据状态码获取状态名称

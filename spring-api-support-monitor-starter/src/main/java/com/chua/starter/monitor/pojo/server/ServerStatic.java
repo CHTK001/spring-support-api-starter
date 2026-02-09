@@ -1,7 +1,6 @@
 package com.chua.starter.monitor.pojo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
 
 /**
  * 服务器信息统计
@@ -9,7 +8,6 @@ import lombok.Data;
  * @author CH
  * @since 2025/9/1 13:31
  */
-@Data
 @Schema(description = "服务器信息统计")
 public class ServerStatic {
 
@@ -35,4 +33,36 @@ public class ServerStatic {
     @Schema(description = "数据源离线")
     private Integer dataSourceOffline;
 
+    public Integer getDataSourceType() {
+        return dataSourceType;
+    }
+
+    public void setDataSourceType(Integer dataSourceType) {
+        this.dataSourceType = dataSourceType;
+    }
+
+    public Integer getDataSourceTotal() {
+        return dataSourceTotal;
+    }
+
+    public void setDataSourceTotal(Integer dataSourceTotal) {
+        this.dataSourceTotal = dataSourceTotal;
+    }
+
+    public Integer getDataSourceOnline() {
+        return dataSourceOnline;
+    }
+
+    public void setDataSourceOnline(Integer dataSourceOnline) {
+        this.dataSourceOnline = dataSourceOnline;
+    }
+
+    public Integer getDataSourceOffline() {
+        return dataSourceOffline;
+    }
+
+    public void setDataSourceOffline(Integer dataSourceOffline) {
+        this.dataSourceOffline = dataSourceOffline;
+    }
 }
+

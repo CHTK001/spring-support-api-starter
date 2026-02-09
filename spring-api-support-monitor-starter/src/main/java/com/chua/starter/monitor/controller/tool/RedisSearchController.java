@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author CH
  * @since 2024/5/13
  */
-@RestController
+@RestController("redisSearchToolController")
 @RequestMapping("v1/search")
 @Tag(name = "全文检索信息")
 @RequiredArgsConstructor

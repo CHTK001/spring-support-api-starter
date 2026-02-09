@@ -28,7 +28,7 @@ import static com.chua.redis.support.constant.RedisConstant.REDIS_SIMPLE_SERIES_
  * @author CH
  * @since 2024/5/13
  */
-@RestController
+@RestController("timeSeriesToolController")
 @RequestMapping("v1/time")
 @Tag(name = "时序信息")
 @RequiredArgsConstructor

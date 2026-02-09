@@ -18,7 +18,7 @@ import java.util.Set;
  * @since 2025/6/5 8:45
  */
 @Tag(name = "用户接口")
-@RestController
+@RestController("emptyToolController")
 @RequestMapping("/v2/login")
 @RequiredArgsConstructor
 public class EmptyController {
