@@ -19,7 +19,7 @@ import java.io.IOException;
  * @author CH
  * @since 2024/12/28
  */
-@RestController
+@RestController("imageToolV2Controller")
 @Slf4j
 @Api(tags = "图片工具管理")
 @Tag(name = "图片工具管理")

@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * @author CH
  */
-@RestController
+@RestController("documentToolController")
 @Slf4j
 @Api(tags = "文档转发接口")
 @Tag(name = "文档转发接口")

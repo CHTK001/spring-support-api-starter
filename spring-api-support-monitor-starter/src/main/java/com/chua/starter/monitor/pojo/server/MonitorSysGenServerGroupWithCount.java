@@ -4,8 +4,6 @@ import com.chua.starter.monitor.entity.MonitorSysGenServerGroup;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * 服务器分组（包含服务器数量）
@@ -13,8 +11,6 @@ import lombok.EqualsAndHashCode;
  * @author CH
  * @since 2025/01/11
  */
-@Data
-@EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "MonitorSysGenServerGroupWithCount", description = "服务器分组（包含服务器数量）")
 @Schema(description = "服务器分组（包含服务器数量）")
 public class MonitorSysGenServerGroupWithCount extends MonitorSysGenServerGroup {
@@ -55,5 +51,13 @@ public class MonitorSysGenServerGroupWithCount extends MonitorSysGenServerGroup 
             this.setUpdateTime(group.getUpdateTime());
         }
         this.serverCount = 0;
+    }
+
+    public Integer getServerCount() {
+        return serverCount;
+    }
+
+    public void setServerCount(Integer serverCount) {
+        this.serverCount = serverCount;
     }
 }
