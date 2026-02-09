@@ -1,0 +1,3 @@
+com.chua.socketio.support.spi.SocketIOProvider
+com.chua.rsocket.support.spi.RSocketProvider
+com.chua.starter.sse.support.socket.SseSocketProvider

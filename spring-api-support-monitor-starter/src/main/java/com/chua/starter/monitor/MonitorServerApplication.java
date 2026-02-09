@@ -10,6 +10,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 
 /**
  * 配置中心服务
@@ -20,7 +22,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableConfigurationProperties({ReportGenProperties.class, MonitorProperties.class})
 @MapperScan("com.chua.starter.monitor.mapper")
 @ServletComponentScan
-@ConditionalOnProperty(prefix = "plugin.monitor.server", name = "enable", havingValue = "true", matchIfMissing = false)
+@ComponentScan(basePackages = "com.chua.starter.monitor")
 @SpringBootApplication
 public class MonitorServerApplication {
 
