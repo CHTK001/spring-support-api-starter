@@ -137,7 +137,11 @@
                 <version>${project.version}</version>
             </dependency>
 
-
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-sync-data-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
