@@ -4,6 +4,7 @@
 
 - 同步相关实体、Mapper、Service、配置与 WebSocket 推送能力已统一迁移到 spring-support-sync-starter
 - 本模块仅保留 Sync 控制器与业务编排，依赖 spring-support-sync-starter 提供的同步能力
+- 同步任务配置前缀统一使用 `plugin.sync`
 - 同步任务实时推送 Topic 固定如下：
   - `monitor:sync:status`
   - `monitor:sync:log`
@@ -13,6 +14,145 @@
   - `syncTaskJobHandler`：支持按任务ID触发
   - `jsonSyncTaskHandler`：支持 JSON 配置触发
   - `DynamicSyncTaskHandler`：支持 Groovy 脚本触发
+
+### 同步任务配置
+
+```yaml
+plugin:
+  sync:
+    enabled: true
+    auto-create-table: false
+    websocket-enabled: true
+    scheduler-enabled: true
+    default-batch-size: 1000
+    default-consume-timeout: 30000
+    default-retry-count: 3
+    default-retry-interval: 1000
+    log-retention-days: 30
+    log-cleanup-enabled: true
+```
+
+### 同步任务接口
+
+**任务管理**
+
+- `GET /v1/sync/task/list`：分页查询任务列表
+  - 参数：`page`、`size`、`taskName`、`taskStatus`、`orderBy`、`desc`
+- `POST /v1/sync/task/create`：创建任务
+- `PUT /v1/sync/task/update`：更新任务
+- `DELETE /v1/sync/task/delete/{taskId}`：删除任务
+- `POST /v1/sync/task/start/{taskId}`：启动任务
+- `POST /v1/sync/task/stop/{taskId}`：停止任务
+- `POST /v1/sync/task/execute/{taskId}`：手动执行一次
+- `POST /v1/sync/task/copy/{taskId}?newName=xxx`：复制任务
+- `GET /v1/sync/task/design/{taskId}`：获取任务设计
+- `POST /v1/sync/task/design/{taskId}`：保存任务设计
+- `POST /v1/sync/task/validate`：验证任务设计
+- `GET /v1/sync/task/logs/{taskId}?page=1&size=10`：获取任务执行日志
+- `GET /v1/sync/task/log/{logId}`：获取日志详情
+- `GET /v1/sync/task/nodes/{taskId}`：获取任务节点列表
+- `GET /v1/sync/task/connections/{taskId}`：获取任务连线列表
+- `GET /v1/sync/task/statistics`：获取全局执行统计
+  - 参数：`startTime`、`endTime`、`granularity`（hour/day）
+- `GET /v1/sync/task/statistics/{taskId}`：获取指定任务统计
+  - 参数：`startTime`、`endTime`、`granularity`（hour/day）
+
+**表管理**
+
+- `GET /v1/sync/task/table/status`：检查同步表状态
+- `POST /v1/sync/task/table/initialize?force=false`：初始化同步表
+
+**输出表管理**
+
+- `POST /v1/sync/task/output/table/exists?tableName=xxx`：检查输出表是否存在（Body：nodeConfig）
+- `POST /v1/sync/task/output/table/create?tableName=xxx`：创建输出表（Body：nodeConfig + columns）
+- `POST /v1/sync/task/output/table/structure?tableName=xxx`：获取输出表结构（Body：nodeConfig）
+- `POST /v1/sync/task/output/table/preview-sql?tableName=xxx&dbType=mysql`：预览建表SQL（Body：columns）
+- `POST /v1/sync/task/output/table/sync-structure?tableName=xxx`：同步输出表结构（Body：nodeConfig + columns）
+
+**SPI 管理**
+
+- `GET /v1/sync/spi/all`：获取所有SPI类型列表
+- `GET /v1/sync/spi/input`：获取Input SPI列表
+- `GET /v1/sync/spi/output`：获取Output SPI列表
+- `GET /v1/sync/spi/datacenter`：获取DataCenter SPI列表
+- `GET /v1/sync/spi/filter`：获取Filter SPI列表
+- `GET /v1/sync/spi/parameters?spiType=INPUT&spiName=xxx`：获取SPI参数定义
+- `POST /v1/sync/spi/validate?spiType=INPUT&spiName=xxx`：验证SPI配置（Body：config）
+- `POST /v1/sync/spi/test?spiType=INPUT&spiName=xxx`：测试SPI连接（Body：config）
+
+### 同步任务数据结构
+
+**MonitorSyncTask（任务基础信息）**
+
+- `syncTaskId`：任务ID（更新时必填）
+- `syncTaskName`：任务名称（必填）
+- `syncTaskDesc`：任务描述
+- `syncTaskStatus`：任务状态（STOPPED/RUNNING/ERROR）
+- `syncTaskBatchSize`：批次大小
+- `syncTaskConsumeTimeout`：消费超时时间(毫秒)
+- `syncTaskRetryCount`：重试次数
+- `syncTaskRetryInterval`：重试间隔(毫秒)
+- `syncTaskSyncInterval`：同步间隔(毫秒)
+- `syncTaskAckEnabled`：ACK开关（0/1）
+- `syncTaskTransactionEnabled`：事务开关（0/1）
+- `syncTaskCron`：Cron 表达式
+- `syncTaskLayout`：前端连线布局JSON
+
+**SyncTaskQuery（任务列表查询参数）**
+
+- `page`：页码
+- `size`：每页大小
+- `taskName`：任务名称（模糊匹配）
+- `taskStatus`：任务状态（STOPPED/RUNNING/ERROR）
+- `orderBy`：排序字段（默认 syncTaskCreateTime）
+- `desc`：是否降序（默认 true）
+
+**SyncTaskDesign（任务设计）**
+
+- `task`：任务基础信息（MonitorSyncTask）
+- `nodes`：节点列表（MonitorSyncNode）
+- `connections`：连线列表（MonitorSyncConnection）
+- `layout`：前端布局数据
+
+**ColumnDefinition（输出建表列定义）**
+
+- `name`：列名
+- `type`：列类型（VARCHAR/INT/BIGINT/TEXT/DATETIME/DATE/DECIMAL/BOOLEAN/FLOAT/DOUBLE/BLOB/JSON）
+- `length`：列长度
+- `scale`：小数位数
+- `nullable`：是否可为空
+- `defaultValue`：默认值
+- `primaryKey`：是否主键
+- `autoIncrement`：是否自增
+- `comment`：列注释
+- `order`：列顺序
+- `sourceField`：源字段名
+
+**SpiInfo（SPI信息）**
+
+- `name`：SPI名称
+- `displayName`：显示名称
+- `description`：描述
+- `type`：类型（INPUT/OUTPUT/DATA_CENTER/FILTER）
+- `className`：实现类
+- `icon`：图标
+- `color`：颜色
+- `parameters`：参数列表（SpiParameter）
+- `order`：排序
+- `available`：是否可用
+
+**SpiParameter（SPI参数定义）**
+
+- `name`：参数名称
+- `label`：显示名称
+- `description`：描述
+- `type`：参数类型（string/number/boolean/select/password/textarea/json）
+- `defaultValue`：默认值
+- `required`：是否必填
+- `sensitive`：是否敏感
+- `placeholder`：占位符
+- `options`：可选值列表
 
 ## 新增：Docker 软件库在线搜索与多默认仓库（2025-10-20）
 
