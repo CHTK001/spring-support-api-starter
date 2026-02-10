@@ -4,7 +4,7 @@ import com.chua.common.support.text.json.Json;
 import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
-import com.chua.starter.monitor.message.ServerWebSocketMessage;
+import com.chua.starter.sync.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.server.ServerConnectionService;
 import com.chua.starter.monitor.service.server.SshCommandService;
 import lombok.extern.slf4j.Slf4j;
