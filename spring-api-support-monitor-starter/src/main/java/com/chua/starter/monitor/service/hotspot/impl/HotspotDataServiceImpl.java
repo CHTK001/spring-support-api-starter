@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service.hotspot.impl;
 import com.chua.common.support.text.json.Json;
 import com.chua.starter.monitor.pojo.HotspotReportData;
 import com.chua.starter.monitor.service.hotspot.HotspotDataService;
-import com.chua.sync.support.client.SyncClient;
+import com.chua.starter.sync.support.client.SyncClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

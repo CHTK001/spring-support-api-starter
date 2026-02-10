@@ -1,6 +1,6 @@
 package com.chua.starter.tenant.server.sync;
 
-import com.chua.sync.support.server.SyncServer;
+import com.chua.starter.sync.support.server.SyncServer;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.properties.TenantProperties;
 import lombok.extern.slf4j.Slf4j;

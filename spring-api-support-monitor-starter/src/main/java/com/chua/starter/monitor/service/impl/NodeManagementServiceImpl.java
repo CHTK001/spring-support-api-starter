@@ -2,8 +2,8 @@ package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.core.utils.MapUtils;
-import com.chua.sync.support.pojo.ClientInfo;
-import com.chua.sync.support.server.SyncServer;
+import com.chua.starter.sync.support.pojo.ClientInfo;
+import com.chua.starter.sync.support.server.SyncServer;
 import com.chua.starter.monitor.pojo.node.NodeStatistics;
 import com.chua.starter.monitor.pojo.node.OnlineNodeInfo;
 import com.chua.starter.monitor.service.node.NodeSystemService;

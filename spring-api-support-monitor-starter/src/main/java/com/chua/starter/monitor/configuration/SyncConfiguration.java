@@ -12,9 +12,10 @@ import com.chua.starter.monitor.service.server.MonitorSysGenServerDeviceReportSe
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.service.alert.UnifiedAlertService;
-import com.chua.sync.support.pojo.ClientInfo;
-import com.chua.sync.support.server.SyncServer;
-import com.chua.sync.support.spi.SyncMessageHandler;
+import com.chua.starter.sync.support.configuration.SyncAutoConfiguration;
+import com.chua.starter.sync.support.pojo.ClientInfo;
+import com.chua.starter.sync.support.server.SyncServer;
+import com.chua.starter.sync.support.spi.SyncMessageHandler;
 
 import java.util.function.BiConsumer;
 
@@ -41,7 +42,7 @@ import java.util.Map;
  * @since 2024/12/05
  */
 @Slf4j
-@AutoConfiguration(after = com.chua.sync.support.configuration.SyncAutoConfiguration.class)
+@AutoConfiguration(after = SyncAutoConfiguration.class)
 @ConditionalOnClass(SyncServer.class)
 @ConditionalOnBean(SyncServer.class)
 public class SyncConfiguration {
