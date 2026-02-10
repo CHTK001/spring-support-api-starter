@@ -9,7 +9,7 @@ import com.chua.socket.support.session.SocketSession;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
-import com.chua.starter.monitor.message.ServerWebSocketMessage;
+import com.chua.starter.sync.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.impl.WebRTCServiceMonitor;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.webrtc.WebRTCWebSocketClientManager;
@@ -461,4 +461,3 @@ public class WebRTCSocketListener implements SocketListener {
         }
     }
 }
-

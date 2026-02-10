@@ -10,7 +10,7 @@ import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.text.json.Json;
-import com.chua.starter.monitor.message.ServerWebSocketMessage;
+import com.chua.starter.sync.message.ServerWebSocketMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

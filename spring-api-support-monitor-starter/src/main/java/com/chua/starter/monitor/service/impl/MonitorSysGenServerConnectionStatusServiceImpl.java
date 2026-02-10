@@ -5,7 +5,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerConnectionStatus;
-import com.chua.starter.monitor.message.ServerWebSocketMessage;
+import com.chua.starter.sync.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerConnectionStatusMapper;
 import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionCheckResult;
 import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionHealthReport;
