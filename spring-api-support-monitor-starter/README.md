@@ -1,5 +1,19 @@
 # spring-api-support-monitor-starter
 
+## 新增：同步功能迁移至 spring-support-sync-starter（2026-02-09）
+
+- 同步相关实体、Mapper、Service、配置与 WebSocket 推送能力已统一迁移到 spring-support-sync-starter
+- 本模块仅保留 Sync 控制器与业务编排，依赖 spring-support-sync-starter 提供的同步能力
+- 同步任务实时推送 Topic 固定如下：
+  - `monitor:sync:status`
+  - `monitor:sync:log`
+  - `monitor:sync:progress`
+  - `monitor:sync:metrics`
+- 同步任务 Job 处理器 Bean：
+  - `syncTaskJobHandler`：支持按任务ID触发
+  - `jsonSyncTaskHandler`：支持 JSON 配置触发
+  - `DynamicSyncTaskHandler`：支持 Groovy 脚本触发
+
 ## 新增：Docker 软件库在线搜索与多默认仓库（2025-10-20）
 
 - 在线搜索优化：关键词为空直接返回空列表，避免不必要请求；前端亦本地拦截，减少网络开销。
