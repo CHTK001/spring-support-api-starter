@@ -10,7 +10,7 @@ import com.chua.starter.monitor.pojo.node.NodeMetricsDTO;
 import com.chua.starter.monitor.pojo.node.OnlineNodeInfo;
 import com.chua.starter.monitor.service.node.NodeControlService;
 import com.chua.starter.monitor.service.node.NodeManagementService;
-import com.chua.sync.support.server.SyncServer;
+import com.chua.starter.sync.support.server.SyncServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 节点控制服务实现类

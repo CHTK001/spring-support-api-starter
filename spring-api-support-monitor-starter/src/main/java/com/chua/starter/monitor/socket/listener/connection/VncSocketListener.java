@@ -9,7 +9,7 @@ import com.chua.socket.support.session.SocketSession;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
-import com.chua.starter.sync.message.ServerWebSocketMessage;
+import com.chua.starter.sync.support.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.server.ServerConnectionService;
 import lombok.extern.slf4j.Slf4j;

@@ -16,7 +16,7 @@ import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.mapper.MonitorSysGenServerMapper;
-import com.chua.starter.sync.message.ServerWebSocketMessage;
+import com.chua.starter.sync.support.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.pojo.BatchOperationResultDTO;
 import com.chua.starter.monitor.pojo.ImportServerConfigResultDTO;
 import com.chua.starter.monitor.pojo.ServerConnectionStatusDTO;

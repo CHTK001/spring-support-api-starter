@@ -2,7 +2,7 @@ package com.chua.starter.monitor.sync.handler;
 
 import com.chua.common.support.core.annotation.Spi;
 import com.chua.starter.monitor.service.node.NodeUrlQpsService;
-import com.chua.sync.support.spi.SyncMessageHandler;
+import com.chua.starter.sync.support.spi.SyncMessageHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
