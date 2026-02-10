@@ -18,8 +18,8 @@ import com.chua.starter.monitor.sender.MonitorSender;
 import com.chua.starter.monitor.service.app.MonitorAppService;
 import com.chua.starter.monitor.service.job.MonitorJobLogService;
 import com.chua.starter.monitor.service.job.MonitorJobService;
-import com.chua.sync.support.pojo.ClientInfo;
-import com.chua.sync.support.server.SyncServer;
+import com.chua.starter.sync.support.pojo.ClientInfo;
+import com.chua.starter.sync.support.server.SyncServer;
 import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationContext;
 

@@ -4,7 +4,7 @@ import com.chua.common.support.network.discovery.Discovery;
 import com.chua.common.support.lang.code.ReturnCode;
 import com.chua.report.client.starter.job.TriggerParam;
 import com.chua.starter.monitor.entity.MonitorJobLog;
-import com.chua.sync.support.server.SyncServer;
+import com.chua.starter.sync.support.server.SyncServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;

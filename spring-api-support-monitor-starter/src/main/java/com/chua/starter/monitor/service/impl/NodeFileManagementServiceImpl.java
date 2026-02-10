@@ -7,8 +7,9 @@ import com.chua.starter.monitor.pojo.file.FileOperationResponse;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.file.FileManagementService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
-import com.chua.sync.support.pojo.ClientInfo;
-import com.chua.sync.support.server.SyncServer;
+import com.chua.starter.sync.support.pojo.ClientInfo;
+import com.chua.starter.sync.support.server.SyncServer;
+import com.chua.starter.sync.support.spi.SyncMessageHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,7 +81,7 @@ public class NodeFileManagementServiceImpl implements FileManagementService {
         if (responseHandlerRegistered || syncServer == null) {
             return;
         }
-        syncServer.registerHandler("monitor/file/response", new com.chua.sync.support.spi.SyncMessageHandler() {
+        syncServer.registerHandler("monitor/file/response", new SyncMessageHandler() {
             @Override
             public String getName() {
                 return "fileResponseHandler";

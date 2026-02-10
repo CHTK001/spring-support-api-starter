@@ -7,7 +7,7 @@ import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
-import com.chua.starter.sync.message.ServerWebSocketMessage;
+import com.chua.starter.sync.support.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.utils.LocalSystemDataCollector;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
