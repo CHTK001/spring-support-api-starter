@@ -1,10 +1,10 @@
 package com.chua.starter.monitor.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.sync.pojo.sync.SpiInfo;
-import com.chua.starter.sync.pojo.sync.SpiParameter;
-import com.chua.starter.sync.pojo.sync.SpiTypeList;
-import com.chua.starter.sync.service.sync.MonitorSyncSpiService;
+import com.chua.sync.data.support.service.sync.MonitorSyncSpiService;
+import com.chua.sync.data.support.sync.SpiInfo;
+import com.chua.sync.data.support.sync.SpiParameter;
+import com.chua.sync.data.support.sync.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
