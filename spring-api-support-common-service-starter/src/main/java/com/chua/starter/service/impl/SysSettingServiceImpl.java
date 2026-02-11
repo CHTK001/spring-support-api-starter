@@ -38,12 +38,15 @@ import me.zhyd.oauth.utils.AuthStateUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
@@ -51,12 +54,12 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 /**
  *
  * @since 2024/8/7
- * @author CH    
+ * @author CH
  */
 @Slf4j
 @Service
 @Lazy(false)
-public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean {
+public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean, ApplicationListener<ApplicationReadyEvent> {
 
     @Autowired
     @Lazy
@@ -99,6 +102,51 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     static final String[] APP_KEY = new String[]{"appKey", "clientId"};
     static final String[] APP_SECRET = new String[]{"appSecret", "clientSecret"};
     static final String[] APP_REDIRECT_URI = new String[]{"redirectUri"};
+
+    /**
+     * Socket 配置项名称：SocketUrl
+     */
+    private static final String SOCKET_SETTING_URL = "SocketUrl";
+
+    /**
+     * Socket 配置项名称：SocketOpen
+     */
+    private static final String SOCKET_SETTING_OPEN = "SocketOpen";
+
+    /**
+     * Socket 配置项名称：SocketPath
+     */
+    private static final String SOCKET_SETTING_PATH = "SocketPath";
+
+    /**
+     * Socket 配置项名称：SocketProtocol
+     */
+    private static final String SOCKET_SETTING_PROTOCOL = "SocketProtocol";
+
+    /**
+     * Socket 配置项分组：config
+     */
+    private static final String SOCKET_SETTING_GROUP = "config";
+
+    /**
+     * SocketUrl 配置备注
+     */
+    private static final String SOCKET_REMARK_URL = "socket.io服务器地址";
+
+    /**
+     * SocketOpen 配置备注
+     */
+    private static final String SOCKET_REMARK_OPEN = "socket.io是否开启";
+
+    /**
+     * SocketPath 配置备注
+     */
+    private static final String SOCKET_REMARK_PATH = "socket.io路径";
+
+    /**
+     * SocketProtocol 配置备注
+     */
+    private static final String SOCKET_REMARK_PROTOCOL = "socket.io协议类型";
 
     @Override
     public List<SysSetting> list(SysSettingUpdate sysSettingUpdate, Set<String> roles) {
@@ -317,35 +365,42 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         globalSettingFactory.register("default", new GuestDefaultSetting());
         globalSettingFactory.register("smtp", new SmtpSetting());
         globalSettingFactory.register("sms", new SmsSetting());
-        if(ClassUtils.isPresent("com.chua.report.client.starter.setting.ReportExpireSetting")) {
+        if (ClassUtils.isPresent("com.chua.report.client.starter.setting.ReportExpireSetting")) {
             globalSettingFactory.register("expire", ClassUtils.forObject("com.chua.report.client.starter.setting.ReportExpireSetting"));
         }
+    }
+
+    /**
+     * 应用启动完成后加载并注册系统配置。
+     *
+     * @param event 应用就绪事件
+     */
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent event) {
         upgrade();
     }
 
     private void upgrade() {
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
-        ThreadUtils.newStaticThreadPool().execute(() -> {
-            // 使用 RetryProvider 进行重试：等待数据库表初始化完成
-            try {
-                RetryerFlow.with(() -> {
-                    List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
-                            .eq(SysSetting::getSysSettingStatus, 1)
-                    );
-                    register(globalSettingFactory, list);
-                    // 同步Socket配置
-                    syncSocketConfig();
-                    log.info("系统配置加载完成，共 {} 条配置", list.size());
-                    return null;
-                })
-                .maxAttempts(10)
-                .waitDurationMs(3000)
-                .fixed()
-                .onException(e -> log.debug("配置加载失败，3000ms 后重试:{}", e.getMessage()))
-                .execute();
-            } catch (Throwable e) {
-                log.warn("配置加载失败（已重试10次）:{}", e.getMessage());
-            }
+        // 使用 RetryerFlow 的虚拟线程支持，直接使用虚拟线程执行
+        RetryerFlow.with(() -> {
+            List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
+                    .eq(SysSetting::getSysSettingStatus, 1)
+            );
+            register(globalSettingFactory, list);
+            // 同步Socket配置
+            syncSocketConfig();
+            log.info("[系统配置][初始化] 系统配置加载完成，共 {} 条配置", list.size());
+            return null;
+        })
+        .maxAttempts(10)
+        .waitDurationMs(3000)
+        .fixed()
+        .onException(e -> log.debug("配置加载失败，3000ms 后重试:{}", e.getMessage()))
+        .executeAsync()
+        .exceptionally(throwable -> {
+            log.warn("配置加载失败（已重试10次）:{}", throwable.getMessage());
+            return null;
         });
     }
 
@@ -356,60 +411,72 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     private void syncSocketConfig() {
         try {
             // 构建Socket URL
-            String socketUrl = String.format("http://%s:%d", socketHost, socketPort);
-            
-            // 同步 SocketUrl
-            syncSettingValue("SocketUrl", "config", socketUrl, "socket.io服务器地址");
-            
-            // 同步 SocketOpen
-            syncSettingValue("SocketOpen", "config", String.valueOf(socketEnable), "socket.io是否开启");
-            
-            // 同步 SocketPath
-            syncSettingValue("SocketPath", "config", socketPath, "socket.io路径");
-            
-            // 同步 SocketProtocol
-            syncSettingValue("SocketProtocol", "config", socketProtocol, "socket.io协议类型");
-            
-            log.info("Socket配置同步完成: url={}, enabled={}, path={}, protocol={}", socketUrl, socketEnable, socketPath, socketProtocol);
+            var socketUrl = String.format("http://%s:%d", socketHost, socketPort);
+
+            var desired = new LinkedHashMap<String, SysSettingDesiredValue>(4);
+            desired.put(SOCKET_SETTING_URL, new SysSettingDesiredValue(socketUrl, SOCKET_REMARK_URL));
+            desired.put(SOCKET_SETTING_OPEN, new SysSettingDesiredValue(String.valueOf(socketEnable), SOCKET_REMARK_OPEN));
+            desired.put(SOCKET_SETTING_PATH, new SysSettingDesiredValue(socketPath, SOCKET_REMARK_PATH));
+            desired.put(SOCKET_SETTING_PROTOCOL, new SysSettingDesiredValue(socketProtocol, SOCKET_REMARK_PROTOCOL));
+
+            // 只查询一次，拿到 Socket 相关配置后统一对比并更新/新增
+            var existList = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
+                    .eq(SysSetting::getSysSettingGroup, SOCKET_SETTING_GROUP)
+                    .in(SysSetting::getSysSettingName, desired.keySet()));
+
+            var existMap = existList.stream().collect(Collectors.toMap(SysSetting::getSysSettingName, it -> it, (a, b) -> a));
+            var toUpdate = new ArrayList<SysSetting>(existMap.size());
+            var toInsert = new ArrayList<SysSetting>(desired.size());
+
+            for (var entry : desired.entrySet()) {
+                var name = entry.getKey();
+                var expected = entry.getValue();
+
+                var exist = existMap.get(name);
+                if (exist != null) {
+                    if (!StringUtils.equals(expected.value(), exist.getSysSettingValue())) {
+                        exist.setSysSettingValue(expected.value());
+                        toUpdate.add(exist);
+                    }
+                    continue;
+                }
+
+                var newSetting = new SysSetting();
+                newSetting.setSysSettingName(name);
+                newSetting.setSysSettingGroup(SOCKET_SETTING_GROUP);
+                newSetting.setSysSettingValue(expected.value());
+                newSetting.setSysSettingRemark(expected.remark());
+                newSetting.setSysSettingStatus(1);
+                newSetting.setSysSettingInSystem(1);
+                newSetting.setSysSettingSort(0);
+                toInsert.add(newSetting);
+            }
+
+            if (!toUpdate.isEmpty()) {
+                updateBatchById(toUpdate);
+                for (var item : toUpdate) {
+                    sysSettingService.clearCache(item);
+                }
+            }
+
+            if (!toInsert.isEmpty()) {
+                saveBatch(toInsert);
+            }
+
+            log.info("[系统配置][Socket同步] Socket配置同步完成: url={}, enabled={}, path={}, protocol={}",
+                    socketUrl, socketEnable, socketPath, socketProtocol);
         } catch (Exception e) {
-            log.warn("Socket配置同步失败: {}", e.getMessage());
+            log.warn("[系统配置][Socket同步] Socket配置同步失败: {}", e.getMessage());
         }
     }
 
     /**
-     * 同步单个配置值到数据库
-     * @param name 配置名称
-     * @param group 配置分组
-     * @param value 配置值
+     * Socket 配置期望值
+     *
+     * @param value  配置值
      * @param remark 配置备注
      */
-    private void syncSettingValue(String name, String group, String value, String remark) {
-        SysSetting setting = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery()
-                .eq(SysSetting::getSysSettingName, name)
-                .eq(SysSetting::getSysSettingGroup, group));
-        
-        if (setting != null) {
-            // 配置存在，检查值是否需要更新
-            if (!value.equals(setting.getSysSettingValue())) {
-                setting.setSysSettingValue(value);
-                baseMapper.updateById(setting);
-                // 清理缓存
-                sysSettingService.clearCache(setting);
-                log.debug("配置已更新: {}={}", name, value);
-            }
-        } else {
-            // 配置不存在，创建新配置
-            SysSetting newSetting = new SysSetting();
-            newSetting.setSysSettingName(name);
-            newSetting.setSysSettingGroup(group);
-            newSetting.setSysSettingValue(value);
-            newSetting.setSysSettingRemark(remark);
-            newSetting.setSysSettingStatus(1);
-            newSetting.setSysSettingInSystem(1);
-            newSetting.setSysSettingSort(0);
-            baseMapper.insert(newSetting);
-            log.debug("配置已创建: {}={}", name, value);
-        }
+    private record SysSettingDesiredValue(String value, String remark) {
     }
 
     /**

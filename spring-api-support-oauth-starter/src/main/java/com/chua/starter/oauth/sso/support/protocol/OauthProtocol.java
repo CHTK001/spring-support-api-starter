@@ -5,5 +5,5 @@ package com.chua.starter.oauth.sso.support.protocol;
  *
  * @author CH
  */
-public interface Protocol {
+public interface OauthProtocol {
 }

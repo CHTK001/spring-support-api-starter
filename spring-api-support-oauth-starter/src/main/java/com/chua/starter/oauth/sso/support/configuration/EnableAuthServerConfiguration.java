@@ -10,7 +10,7 @@ import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.properties.CasProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyBinderProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyLoginProperties;
-import com.chua.starter.oauth.sso.support.protocol.Protocol;
+import com.chua.starter.oauth.sso.support.protocol.OauthProtocol;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -107,9 +107,9 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
             return;
         }
         List<Class<?>> tpl = new ArrayList<>();
-        Map<String, Class<Protocol>> listType = ServiceProvider.of(Protocol.class).listType();
-        for (Map.Entry<String, Class<Protocol>> entry : listType.entrySet()) {
-            Class<Protocol> protocol = entry.getValue();
+        Map<String, Class<OauthProtocol>> listType = ServiceProvider.of(OauthProtocol.class).listType();
+        for (Map.Entry<String, Class<OauthProtocol>> entry : listType.entrySet()) {
+            Class<OauthProtocol> protocol = entry.getValue();
             if (tpl.contains(protocol) && !protocols.contains(entry.getKey())) {
                 continue;
             }

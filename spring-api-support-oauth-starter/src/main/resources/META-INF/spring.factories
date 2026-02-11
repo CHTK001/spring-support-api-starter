@@ -7,7 +7,7 @@ com.chua.starter.oauth.sso.support.protocol.OAuthProtocolHandler=\
   com.chua.starter.oauth.sso.support.protocol.handler.CustomProtocolHandler,\
   com.chua.starter.oauth.sso.support.protocol.handler.JwtProtocolHandler,\
   com.chua.starter.oauth.sso.support.protocol.handler.JwtRsaProtocolHandler
-com.chua.starter.oauth.sso.support.protocol.Protocol=\
-  com.chua.starter.oauth.sso.support.protocol.HttpProtocol,\
+com.chua.starter.oauth.sso.support.protocol.OauthProtocol=\
+  com.chua.starter.oauth.sso.support.protocol.HttpOauthProtocol,\
   com.chua.starter.oauth.sso.support.protocol.TcpProtocol,\
   com.chua.starter.oauth.sso.support.protocol.UdpProtocol

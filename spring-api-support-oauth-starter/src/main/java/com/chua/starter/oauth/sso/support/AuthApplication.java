@@ -23,9 +23,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
         info = @Info(
                 title = "统一认证中心API",
                 version = "4.0.0",
-                description = "提供单点登录、第三方登录和认证授权功能",
-                contact = @Contact(name = "CH", email = "admin@example.com"),
-                license = @License(name = "Private License", url = "https://example.com")
+                description = "提供单点登录、第三方登录和认证授权功能"
         )
 )
 public class AuthApplication {
