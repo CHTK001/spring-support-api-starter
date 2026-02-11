@@ -4,6 +4,8 @@ import com.chua.common.support.text.json.Json;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @ConditionalOnClass(name = "com.chua.socket.support.session.SocketSessionTemplate")
+@ConditionalOnBean(SocketSessionTemplate.class)
 public class FileUploadProgressPushService {
 
     private final SocketSessionTemplate socketSessionTemplate;
