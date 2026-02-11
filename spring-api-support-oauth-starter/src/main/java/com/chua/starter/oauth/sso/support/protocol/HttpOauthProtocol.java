@@ -1,22 +1,15 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
 import com.chua.common.support.core.annotation.Extension;
-import com.chua.common.support.resilience.rate.RateLimiter;
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.base.collection.Options;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.core.spi.ServiceProvider;
-import com.chua.common.support.core.utils.MapUtils;
 import com.chua.common.support.text.json.Json;
 import com.chua.common.support.network.protocol.Protocol;
 import com.chua.common.support.network.protocol.ProtocolSetting;
 import com.chua.common.support.network.protocol.server.ProtocolServer;
-import com.chua.starter.common.support.utils.CookieUtil;
-import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.oauth.client.support.entity.AuthRequest;
-import com.chua.starter.oauth.client.support.enums.LogoutType;
-import com.chua.starter.oauth.client.support.user.LoginResult;
-import com.chua.starter.oauth.client.support.user.UserResult;
-import com.chua.starter.oauth.client.support.user.UserResume;
-import com.chua.starter.oauth.sso.support.advice.AdviceView;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
 import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
@@ -24,25 +17,11 @@ import com.chua.starter.oauth.sso.support.information.LogoutAuthInformation;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 import com.chua.starter.oauth.sso.support.information.TemporaryTokenAuthInformation;
 import com.chua.starter.oauth.sso.support.information.ProtocolServerAuthInformation;
-import com.chua.starter.oauth.sso.support.parser.TemporaryTokenAuthorization;
 import com.chua.starter.oauth.sso.support.information.UpgradeAuthInformation;
-import com.chua.starter.oauth.sso.support.parser.LoginAuthorization;
-import com.chua.starter.oauth.sso.support.parser.LogoutAuthorization;
-import com.chua.starter.oauth.sso.support.parser.OauthAuthorization;
-import com.chua.starter.oauth.sso.support.parser.UpgradeAuthorization;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
-import com.chua.starter.oauth.sso.support.token.TokenResolver;
-import com.google.common.base.Strings;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import com.chua.common.support.network.protocol.request.ServletRequest;
 import com.chua.common.support.network.protocol.request.ServletResponse;
-import com.chua.common.support.network.protocol.ProtocolSetting;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -52,7 +31,6 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 /**
  * http
@@ -61,12 +39,12 @@ import java.util.Map;
  */
 @Component
 @Extension("http")
-@com.chua.common.support.core.annotation.Spi("http")
+@Spi("http")
 @Slf4j
 @Conditional(OnBeanCondition.class)
 @RequiredArgsConstructor
 @Tag(name = "认证服务", description = "提供HTTP协议的认证服务接口")
-public class HttpProtocol implements Protocol, InitializingBean {
+public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
 
     final AuthServerProperties authServerProperties;
 
@@ -86,21 +64,22 @@ public class HttpProtocol implements Protocol, InitializingBean {
             log.info("HTTP 协议未启用，跳过 ProtocolServer 启动");
             return;
         }
-        
+        // 创建 ProtocolSetting
+        var protocolSetting = ProtocolSetting.builder()
+                .port(authServerProperties.getArmeriaPort() != null ?
+                        authServerProperties.getArmeriaPort() : 8080)
+                // 统一由底层 HTTP ProtocolServer 的 contextPath 处理路由前缀，避免业务侧手工拼接 path
+                .options(Options.of("contextPath", contextPath))
+                .build();
         try {
             // 获取 Protocol 实例
-            var protocol = ServiceProvider.of(Protocol.class).getExtension("http");
+            var protocol = ServiceProvider.of(Protocol.class).getNewExtension("http", protocolSetting);
             if (protocol == null) {
                 log.warn("未找到 HTTP Protocol 实现，跳过 ProtocolServer 启动");
                 return;
             }
             
-            // 创建 ProtocolSetting
-            var protocolSetting = ProtocolSetting.builder()
-                    .port(authServerProperties.getArmeriaPort() != null ? 
-                            authServerProperties.getArmeriaPort() : 8080)
-                    .build();
-            
+
             // 创建并启动 ProtocolServer
             protocolServer = protocol.createServer(protocolSetting);
             registerProtocolServerRoutes(protocolServer);
@@ -118,10 +97,8 @@ public class HttpProtocol implements Protocol, InitializingBean {
      * @param server ProtocolServer 实例
      */
     private void registerProtocolServerRoutes(ProtocolServer server) {
-        String path = contextPath != null && !contextPath.isEmpty() ? contextPath : "";
-        
         // 登录端点
-        server.post(path + "/login", (request, response) -> {
+        server.post("/login", (request, response) -> {
             try {
                 String body = extractBody(request);
                 AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
@@ -172,7 +149,7 @@ public class HttpProtocol implements Protocol, InitializingBean {
         });
         
         // 登出端点
-        server.post(path + "/logout", (request, response) -> {
+        server.post("/logout", (request, response) -> {
             try {
                 String body = extractBody(request);
                 AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
@@ -223,7 +200,7 @@ public class HttpProtocol implements Protocol, InitializingBean {
         });
         
         // 鉴权端点
-        server.post(path + "/oauth", (request, response) -> {
+        server.post("/oauth", (request, response) -> {
             try {
                 String body = extractBody(request);
                 AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
@@ -273,7 +250,7 @@ public class HttpProtocol implements Protocol, InitializingBean {
         });
         
         // 升级端点
-        server.post(path + "/upgrade", (request, response) -> {
+        server.post("/upgrade", (request, response) -> {
             try {
                 String body = extractBody(request);
                 AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
@@ -323,7 +300,7 @@ public class HttpProtocol implements Protocol, InitializingBean {
         });
         
         // 临时令牌端点
-        server.post(path + "/temporary-token", (request, response) -> {
+        server.post("/temporary-token", (request, response) -> {
             try {
                 String body = extractBody(request);
                 AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
@@ -359,7 +336,7 @@ public class HttpProtocol implements Protocol, InitializingBean {
             }
         });
     }
-    
+
     /**
      * 从 ServletRequest 提取请求体
      */
@@ -387,46 +364,5 @@ public class HttpProtocol implements Protocol, InitializingBean {
         } catch (Exception e) {
             log.error("[OAuth][HTTP] 写入响应失败", e);
         }
-    }
-    
-    @Override
-    public ProtocolSetting getProtocolSetting() {
-        return ProtocolSetting.builder()
-                .port(authServerProperties.getArmeriaPort() != null ? 
-                        authServerProperties.getArmeriaPort() : 8080)
-                .build();
-    }
-    
-    @Override
-    public String getProtocolName() {
-        return "http";
-    }
-    
-    @Override
-    public Class<? extends ProtocolServer> getServerType() {
-        return ProtocolServer.class;
-    }
-    
-    @Override
-    public ProtocolServer createServer(ProtocolSetting protocolSetting) {
-        var protocol = ServiceProvider.of(Protocol.class).getExtension("http");
-        if (protocol == null) {
-            throw new IllegalStateException("未找到 HTTP Protocol 实现");
-        }
-        return protocol.createServer(protocolSetting);
-    }
-    
-    @Override
-    public Class<? extends com.chua.common.support.network.protocol.client.BaseProtocolClient> getClientType() {
-        return com.chua.common.support.network.protocol.client.BaseProtocolClient.class;
-    }
-    
-    @Override
-    public com.chua.common.support.network.protocol.client.ProtocolClient createClient(ProtocolSetting protocolSetting) {
-        var protocol = ServiceProvider.of(Protocol.class).getExtension("http");
-        if (protocol == null) {
-            throw new IllegalStateException("未找到 HTTP Protocol 实现");
-        }
-        return protocol.createClient(protocolSetting);
     }
 }
