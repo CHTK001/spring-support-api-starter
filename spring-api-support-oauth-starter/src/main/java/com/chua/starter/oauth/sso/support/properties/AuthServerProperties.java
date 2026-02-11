@@ -380,7 +380,7 @@ public class AuthServerProperties {
      * 默认值：9091
      * </p>
      */
-    private Integer armeriaPort = 9091;
+    private Integer armeriaPort = 19180;
 
     /**
      * RSocket服务器端口
