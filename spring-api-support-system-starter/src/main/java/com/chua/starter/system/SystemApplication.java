@@ -33,9 +33,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         info = @Info(
                 title = "系统管理服务API",
                 version = "4.0.0",
-                description = "提供用户管理、角色管理、菜单管理、部门管理等系统管理功能",
-                contact = @Contact(name = "CH", email = "admin@example.com"),
-                license = @License(name = "Private License", url = "https://example.com")
+                description = "提供用户管理、角色管理、菜单管理、部门管理等系统管理功能"
         )
 )
 public class SystemApplication {
