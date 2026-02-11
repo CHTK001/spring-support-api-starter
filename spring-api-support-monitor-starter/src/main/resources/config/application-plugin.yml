@@ -2,6 +2,10 @@
 # 插件功能开关配置
 # ===========================================
 plugin:
+  mybatis:
+    # 启用 MyBatis Plus 扩展（BaseMapper 通用方法等）
+    enable: true
+
   monitor:
     server:
       # 启用监控服务
