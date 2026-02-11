@@ -45,7 +45,7 @@ import java.net.InetSocketAddress;
 @Slf4j
 @Conditional(OnBeanCondition.class)
 @RequiredArgsConstructor
-public class RsocketProtocol implements Protocol, InitializingBean, DisposableBean {
+public class RsocketOauthProtocol implements OauthProtocol, InitializingBean, DisposableBean {
 
     private final AuthServerProperties authServerProperties;
     private final LoginCheck loginCheck;

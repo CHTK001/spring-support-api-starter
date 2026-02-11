@@ -66,7 +66,7 @@ import java.util.Base64;
 @Conditional(OnBeanCondition.class)
 @RequiredArgsConstructor
 @Tag(name = "OAuth 2.0认证服务", description = "提供符合RFC 6749规范的OAuth 2.0认证服务接口")
-public class Oauth2Protocol implements Protocol, InitializingBean {
+public class Oauth2Protocol implements OauthProtocol, InitializingBean {
 
     private final AuthServerProperties authServerProperties;
     private final LoginCheck loginCheck;
@@ -856,46 +856,5 @@ public class Oauth2Protocol implements Protocol, InitializingBean {
 
         url.append(contextPath);
         return url.toString();
-    }
-    
-    @Override
-    public ProtocolSetting getProtocolSetting() {
-        return ProtocolSetting.builder()
-                .port(authServerProperties.getArmeriaPort() != null ? 
-                        authServerProperties.getArmeriaPort() : 8080)
-                .build();
-    }
-    
-    @Override
-    public String getProtocolName() {
-        return "oauth2";
-    }
-    
-    @Override
-    public Class<? extends ProtocolServer> getServerType() {
-        return ProtocolServer.class;
-    }
-    
-    @Override
-    public ProtocolServer createServer(ProtocolSetting protocolSetting) {
-        var protocol = ServiceProvider.of(Protocol.class).getExtension("http");
-        if (protocol == null) {
-            throw new IllegalStateException("未找到 HTTP Protocol 实现");
-        }
-        return protocol.createServer(protocolSetting);
-    }
-    
-    @Override
-    public Class<? extends com.chua.common.support.network.protocol.client.BaseProtocolClient> getClientType() {
-        return com.chua.common.support.network.protocol.client.BaseProtocolClient.class;
-    }
-    
-    @Override
-    public com.chua.common.support.network.protocol.client.ProtocolClient createClient(ProtocolSetting protocolSetting) {
-        var protocol = ServiceProvider.of(Protocol.class).getExtension("http");
-        if (protocol == null) {
-            throw new IllegalStateException("未找到 HTTP Protocol 实现");
-        }
-        return protocol.createClient(protocolSetting);
     }
 }
