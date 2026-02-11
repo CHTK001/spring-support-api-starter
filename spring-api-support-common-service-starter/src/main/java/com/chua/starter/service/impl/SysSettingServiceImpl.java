@@ -9,6 +9,8 @@ import com.chua.common.support.text.json.Json;
 import com.chua.common.support.text.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.core.utils.*;
+import com.chua.common.support.task.retry.RetryProvider;
+import com.chua.common.support.task.retry.RetryerFlow;
 import com.chua.starter.common.support.api.decode.ApiRequestDecodeSetting;
 import com.chua.starter.common.support.api.encode.ApiResponseEncodeConfiguration;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
@@ -324,12 +326,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     private void upgrade() {
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
         ThreadUtils.newStaticThreadPool().execute(() -> {
-            // 重试机制：等待数据库表初始化完成
-            int maxRetries = 10;
-            int retryDelayMs = 3000;
-            
-            for (int i = 0; i < maxRetries; i++) {
-                try {
+            // 使用 RetryProvider 进行重试：等待数据库表初始化完成
+            try {
+                RetryerFlow.with(() -> {
                     List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
                             .eq(SysSetting::getSysSettingStatus, 1)
                     );
@@ -337,20 +336,15 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                     // 同步Socket配置
                     syncSocketConfig();
                     log.info("系统配置加载完成，共 {} 条配置", list.size());
-                    return; // 成功后退出
-                } catch (Throwable e) {
-                    if (i < maxRetries - 1) {
-                        log.debug("配置加载失败，{}ms 后重试 ({}/{}):{}", retryDelayMs, i + 1, maxRetries, e.getMessage());
-                        try {
-                            Thread.sleep(retryDelayMs);
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
-                            return;
-                        }
-                    } else {
-                        log.warn("配置加载失败（已重试{}次）:{}", maxRetries, e.getMessage());
-                    }
-                }
+                    return null;
+                })
+                .maxAttempts(10)
+                .waitDurationMs(3000)
+                .fixed()
+                .onException(e -> log.debug("配置加载失败，3000ms 后重试:{}", e.getMessage()))
+                .execute();
+            } catch (Throwable e) {
+                log.warn("配置加载失败（已重试10次）:{}", e.getMessage());
             }
         });
     }

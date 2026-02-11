@@ -82,7 +82,7 @@ INSERT INTO `sys_ai_vincent_style` VALUES (9, 34, '黑白漫画', 'heibaimanhua'
 INSERT INTO `sys_ai_vincent_style` VALUES (10, 34, '写实', 'xieshi', 'https://qcloudimg.tencent-cloud.cn/image/document/19c066e3ee8f25069b8834a93f337df3.jpg');
 INSERT INTO `sys_ai_vincent_style` VALUES (11, 34, '动漫', 'dongman', 'https://qcloudimg.tencent-cloud.cn/image/document/20271b79b5a5aa8ff49ec07bb488edc9.png');
 INSERT INTO `sys_ai_vincent_style` VALUES (12, 34, '毕加索', 'bijiasuo', 'https://qcloudimg.tencent-cloud.cn/image/document/dc45004da5225aebb89af48fadc8731c.png');
-INSERT INTO `sys_ai_vincent_style` VALUES (13, 34, '赛博朋克', 'saibopengke', 'https://qcloudimg.tencent-cloud.cn/image/document/3e633ceff357c72a1b07db07199669c6.png');
+
 INSERT INTO `sys_ai_vincent_style` VALUES (14, 34, '油画', 'youhua', 'https://qcloudimg.tencent-cloud.cn/image/document/ee58c19eb93298d4175c1d0f88490a94.png');
 INSERT INTO `sys_ai_vincent_style` VALUES (15, 34, '马赛克', 'masaike', 'https://qcloudimg.tencent-cloud.cn/image/document/112378e0f4ee1d78c9f306daa8fbff85.png');
 INSERT INTO `sys_ai_vincent_style` VALUES (16, 34, '青花瓷', 'qinghuaci', 'https://qcloudimg.tencent-cloud.cn/image/document/d82963705b50cb90ee66bd060177c71b.png');
@@ -113,7 +113,7 @@ INSERT INTO `sys_ai_vincent_style` VALUES (40, 33, '印象派2', '119', 'https:/
 INSERT INTO `sys_ai_vincent_style` VALUES (41, 33, '2.5D', '110', NULL);
 INSERT INTO `sys_ai_vincent_style` VALUES (42, 33, '古典肖像画', '111', 'https://tse1-mm.cn.bing.net/th/id/OIP-C.xIpdK_hc45tsFmKOPD5WZAHaKa?rs=1&pid=ImgDetMain');
 INSERT INTO `sys_ai_vincent_style` VALUES (43, 33, '黑白素描画', '112', 'https://c-ssl.duitang.com/uploads/item/201705/28/20170528024853_rz5te.jpeg');
-INSERT INTO `sys_ai_vincent_style` VALUES (44, 33, '赛博朋克', '113', 'https://qcloudimg.tencent-cloud.cn/image/document/3e633ceff357c72a1b07db07199669c6.png');
+
 INSERT INTO `sys_ai_vincent_style` VALUES (45, 33, '科幻风格', '114', 'https://img.cgmol.com/excellentwork/20190514/164066_20190514110224xsedrgxjpo9tpq5.jpg');
 INSERT INTO `sys_ai_vincent_style` VALUES (46, 33, '暗黑风格', '115', 'https://img.3dmgame.com/UploadFiles/201108/20110802091135913.jpg');
 INSERT INTO `sys_ai_vincent_style` VALUES (47, 33, '3D', '116', 'https://qcloudimg.tencent-cloud.cn/image/document/19fa3321dacd17cf7689fd47f8629005.jpg');
