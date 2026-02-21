@@ -129,7 +129,7 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
                 .setUnionId(userIds[1])
                 .setRoles(roleCodes)
                 .setRolesByRole(roleInfos)
-                .setDeptId(String.valueOf(user.getSysDeptId()))
+                .setDeptId(Converter.convertIfNecessary(user.getSysDeptId(), String.class))
                 .setDataPermission(dataPermission)
                 .setDataPermissionRule(dataPermissionRule)
                 .setPermission(permissions)

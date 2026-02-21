@@ -62,6 +62,10 @@ public class RsocketOauthProtocol implements OauthProtocol, InitializingBean, Di
      * 初始化 RSocket 服务器
      */
     private void initializeRsocketServer() {
+        if (!authServerProperties.getProtocols().contains("rsocket")) {
+            log.info("[OAuth][Armeria] 协议未启用，跳过 ProtocolServer 启动");
+            return;
+        }
         try {
             int port = authServerProperties.getRsocketPort() != null ?
                     authServerProperties.getRsocketPort() : 7000;
