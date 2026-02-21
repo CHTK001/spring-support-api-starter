@@ -92,7 +92,12 @@ public class RedisTokenResolver implements TokenResolver {
         if ("jwt".equalsIgnoreCase(authType) || "JWT".equalsIgnoreCase(authType)) {
             tokenGeneration = ServiceProvider.of(TokenGeneration.class).getExtension("jwt");
         } else {
-            tokenGeneration = ServiceProvider.of(TokenGeneration.class).getExtension(authServerProperties.getTokenGeneration());
+            // 配置为空时回退到默认实现，避免空指针导致登录直接失败
+            String generationName = "default";
+            if (null != authServerProperties && StringUtils.isNotBlank(authServerProperties.getTokenGeneration())) {
+                generationName = authServerProperties.getTokenGeneration();
+            }
+            tokenGeneration = ServiceProvider.of(TokenGeneration.class).getExtension(generationName);
         }
         if (tokenGeneration == null) {
             return ReturnResult.error("Token生成器不可用");
@@ -205,6 +210,10 @@ public class RedisTokenResolver implements TokenResolver {
             } catch (Exception ignored) {
             }
         }
+        // 未注入配置时，采用默认多点登录策略，避免空指针导致登录直接失败
+        if (null == authServerProperties || null == authServerProperties.getOnline()) {
+            return AuthServerProperties.Online.MULTIPLE;
+        }
         return authServerProperties.getOnline();
     }
 
@@ -221,6 +230,10 @@ public class RedisTokenResolver implements TokenResolver {
                 }
             } catch (Exception ignored) {
             }
+        }
+        // 未注入配置时，回退到默认的在线数量限制（与 AuthServerProperties 默认值保持一致）
+        if (null == authServerProperties) {
+            return 3;
         }
         return authServerProperties.getMaxOnlineCount();
     }

@@ -930,39 +930,39 @@ ARTHAS_HTTP_PORT=8563
 
 ## Docker 场景测试建议
 
-以示例工程 `spring-demo-app` 为例，推荐按如下步骤在本地通过 Docker 验证脚本能力：
+以示例工程 `spring-sync-app` 为例，推荐按如下步骤在本地通过 Docker 验证脚本能力：
 
 ### 1. 构建镜像
 
 ```bash
-docker build -f spring-demo-app/Dockerfile -t spring-demo-app:dev .
+docker build -f spring-sync-app/Dockerfile -t spring-sync-app:dev .
 ```
 
 ### 2. 启动容器
 
 ```bash
 # 基础启动
-docker run --rm -d --name spring-demo-app -p 18080:8080 spring-demo-app:dev
+docker run --rm -d --name spring-sync-app -p 18080:8080 spring-sync-app:dev
 
 # 启用 SkyWalking
-docker run --rm -d --name spring-demo-app-sky \
+docker run --rm -d --name spring-sync-app-sky \
   -e SKYWALKING_ENABLED=true \
   -e SKYWALKING_DIST_URL=https://archive.apache.org/dist/skywalking/java-agent/8.16.0/apache-skywalking-java-agent-8.16.0.tgz \
   -e SW_AGENT_COLLECTOR_BACKEND_SERVICES=skywalking-oap:11800 \
-  -p 18081:8080 spring-demo-app:dev
+  -p 18081:8080 spring-sync-app:dev
 
 # 启用 Arthas
-docker run --rm -d --name spring-demo-app-arthas \
+docker run --rm -d --name spring-sync-app-arthas \
   -e ARTHAS_ENABLED=true \
   -e ARTHAS_BOOT_URL=https://arthas.aliyun.com/download/arthas-boot.jar \
-  -p 18082:8080 -p 3658:3658 -p 8563:8563 spring-demo-app:dev
+  -p 18082:8080 -p 3658:3658 -p 8563:8563 spring-sync-app:dev
 ```
 
 ### 3. 容器内验证脚本
 
 ```bash
 # 进入容器
-docker exec -it spring-demo-app /bin/sh
+docker exec -it spring-sync-app /bin/sh
 
 # 执行脚本
 cd /opt/app
@@ -982,8 +982,8 @@ localhost
 EOF
 
 # 启动多个容器（模拟多节点）
-docker run -d --name node1 -p 18080:8080 spring-demo-app:dev
-docker run -d --name node2 -p 18081:8080 spring-demo-app:dev
+docker run -d --name node1 -p 18080:8080 spring-sync-app:dev
+docker run -d --name node2 -p 18081:8080 spring-sync-app:dev
 
 # 在容器内执行集群命令
 docker exec -it node1 /bin/sh -c "cd /opt/app && ./bin/cluster.sh -f cluster_hosts.txt -c start"

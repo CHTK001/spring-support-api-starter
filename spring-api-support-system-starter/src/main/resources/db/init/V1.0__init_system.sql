@@ -260,6 +260,7 @@ CREATE TABLE `sys_user_log` (
     `sys_log_cost` int(11) NULL DEFAULT NULL COMMENT '耗时(毫秒) - 登录操作耗时',
     `sys_log_from` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作类型 - LOGIN:登录, LOGOUT:登出',
     `sys_log_status` int(11) NULL DEFAULT NULL COMMENT '操作状态 - 0:失败, 1:成功',
+    `sys_log_message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '响应消息 - 登录/登出结果描述',
     `sys_log_fingerprint` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '浏览器指纹 - 用于设备识别的指纹',
     `sys_log_login_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '登录方式 - WEB:网页, APP:应用, GITEE:Gitee等',
     `sys_dept_id` int(11) NULL DEFAULT NULL COMMENT '所属机构ID - 用户所属的部门ID',

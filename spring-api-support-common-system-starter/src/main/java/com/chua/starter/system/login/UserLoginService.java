@@ -66,7 +66,7 @@ public class UserLoginService extends AbstractUserLoginService {
                 .eq(StringUtils.isNotEmpty(principal), SysUser::getSysUserUsername, principal)
                 .or()
                 .eq(StringUtils.isNotEmpty(principal), SysUser::getSysUserPhone, principal)
-                .last("limit 1"));
+                 ,false);
 
         log.debug("用户查询耗时: {}ms", System.currentTimeMillis() - startTime);
 
@@ -106,7 +106,7 @@ public class UserLoginService extends AbstractUserLoginService {
                 .select(SysUser::getSysUserId, SysUser::getSysUserUsername, SysUser::getSysUserStatus,
                         SysUser::getSysDeptId, SysUser::getSysUserPhone, SysUser::getSysUserNickname)
                 .eq(SysUser::getSysUserId, userResult.getUserId())
-                .last("limit 1"));
+                , false);
 
         if (null == user) {
             log.warn("用户信息刷新失败: 用户不存在 ID={}", userResult.getUserId());
