@@ -12,7 +12,6 @@
   <properties>
     <maven.compiler.source>25</maven.compiler.source>
     <maven.compiler.target>25</maven.compiler.target>
-    <netty.version>4.1.116.Final</netty.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <grpc.version>1.58.0</grpc.version>
     <protobuf.version>3.24.4</protobuf.version>
@@ -28,21 +27,14 @@
       <artifactId>spring-api-support-common-system-starter</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.github.whvcse</groupId>
-      <artifactId>easy-captcha</artifactId>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-mybatis-starter</artifactId>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-support-swagger-starter</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-service-starter</artifactId>
@@ -64,14 +56,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-undertow</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.dataformat</groupId>
-      <artifactId>jackson-dataformat-xml</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>fastjson</artifactId>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
@@ -101,28 +85,11 @@
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>spring-support-datasource-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.chua</groupId>
       <artifactId>utils-support-armeria-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.rsocket</groupId>
-      <artifactId>rsocket-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.rsocket</groupId>
-      <artifactId>rsocket-transport-netty</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-rsocket</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>

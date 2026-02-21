@@ -10,9 +10,9 @@
         <Property name="DEFAULT_VALUE">N/A</Property>
         
         <!-- 控制台彩色日志格式 (包含 MDC) -->
-        <Property name="CONSOLE_PATTERN">%style{[%d{yyyy-MM-dd HH:mm:ss}]}{red} %highlight{[%-5level]} %style{[%X{traceId:-}]}{yellow} %style{[%X{userId:-}]}{green} %style{[%X{requestIp:-}]}{magenta} %style{[%t]}{blue} %style{[%logger:%L]}{cyan} - %m%n%xEx</Property>
+        <Property name="CONSOLE_PATTERN">%style{[%d{yyyy-MM-dd HH:mm:ss}]}{red} %highlight{[%-5level]} %style{[%replace{%X{traceId}}{^$}{N/A}]}{yellow} %style{[%replace{%X{userId}}{^$}{N/A}]}{green} %style{[%replace{%X{requestIp}}{^$}{N/A}]}{magenta} %style{[%t]}{blue} %style{[%logger:%L]}{cyan} - %m%n%xEx</Property>
         <!-- 文件日志格式 (包含 MDC) -->
-        <Property name="FILE_PATTERN">[%d{yyyy-MM-dd HH:mm:ss}] [%-5level] [%X{traceId:-}] [%X{userId:-}] [%X{requestIp:-}] [%t] [%logger:%L] - %m%n</Property>
+        <Property name="FILE_PATTERN">[%d{yyyy-MM-dd HH:mm:ss}] [%-5level] [%replace{%X{traceId}}{^$}{N/A}] [%replace{%X{userId}}{^$}{N/A}] [%replace{%X{requestIp}}{^$}{N/A}] [%t] [%logger:%L] - %m%n</Property>
     </Properties>
 
     <Appenders>

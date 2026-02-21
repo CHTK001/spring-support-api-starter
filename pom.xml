@@ -56,12 +56,6 @@
             <optional>true</optional>
         </dependency>
 
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-common-starter</artifactId>
-            <version>${utils.version}</version>
-        </dependency>
-
         <!-- 排除 Spring Boot 默认的 Logback -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

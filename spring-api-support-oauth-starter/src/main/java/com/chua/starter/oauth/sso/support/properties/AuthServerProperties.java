@@ -179,7 +179,7 @@ public class AuthServerProperties {
      * 默认值：[armeria, http] - 默认启用Armeria高性能协议，同时保留HTTP兼容
      * </p>
      */
-    private List<String> protocols = Lists.newArrayList("armeria", "http");
+    private List<String> protocols = Lists.newArrayList("armeria", "rsocket");
 
     /**
      * 是否启用AK/SK密钥校验
@@ -308,19 +308,6 @@ public class AuthServerProperties {
      */
     private String authenticate = "redis";
 
-    /**
-     * 服务上下文路径
-     * <p>
-     * OAuth认证服务的URL路径前缀
-     * </p>
-     * <p>
-     * 例如：/oauth、/auth等
-     * </p>
-     * <p>
-     * 默认值：null（使用根路径）
-     * </p>
-     */
-    private String contextPath;
 
     /**
      * 用户在线模式

@@ -52,7 +52,7 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
 
     final ApplicationContext applicationContext;
 
-    @Value("${plugin.auth.server.context-path:}")
+    @Value("${server.servlet.context-path:}")
     private String contextPath;
     
     private ProtocolServer protocolServer;
@@ -68,6 +68,7 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
         var protocolSetting = ProtocolSetting.builder()
                 .port(authServerProperties.getArmeriaPort() != null ?
                         authServerProperties.getArmeriaPort() : 8080)
+                .protocol("http")
                 // 统一由底层 HTTP ProtocolServer 的 contextPath 处理路由前缀，避免业务侧手工拼接 path
                 .options(Options.of("contextPath", contextPath))
                 .build();

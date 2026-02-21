@@ -66,9 +66,9 @@ public final class LoginAuthorization implements Authorization {
         long startTime = System.currentTimeMillis();
         String clientAddress = MapUtils.getString(this.ext, "address");
         
-        log.debug("========== 登录认证开始 ==========");
-        log.debug("用户名: {}, 登录类型: {}, 应用名: {}", username, loginType, appName);
-        log.debug("客户端地址: {}, 扩展参数: {}", clientAddress, ext != null ? ext.keySet() : "null");
+        log.info("========== 登录认证开始 ==========");
+        log.info("用户名: {}, 登录类型: {}, 应用名: {}", username, loginType, appName);
+        log.info("客户端地址: {}, 扩展参数: {}", clientAddress, ext != null ? ext.keySet() : "null");
         
         ReturnResult<LoginResult> returnResult = loginCheck.doLogin(clientAddress,
                 username,

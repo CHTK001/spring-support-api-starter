@@ -18,7 +18,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  */
 @SpringBootApplication(scanBasePackages = {"com.chua.starter.oauth.sso", "com.chua.starter.service"})
 @EnableConfigurationProperties({AuthServerProperties.class})
-@MapperScan({"com.chua.starter.oauth.sso", "com.chua.starter.service.mapper"})
+@MapperScan({
+        "com.chua.starter.oauth.sso",
+        "com.chua.starter.service.mapper",
+        "com.chua.starter.system.mapper"
+})
 @OpenAPIDefinition(
         info = @Info(
                 title = "统一认证中心API",

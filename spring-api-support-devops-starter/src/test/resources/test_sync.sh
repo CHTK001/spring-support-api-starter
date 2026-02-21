@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # sync.sh 测试脚本
-# 使用 docker (spring-demo-app) 测试 sync.sh 的所有能力
+# 使用 docker (spring-sync-app) 测试 sync.sh 的所有能力
 
 set -e
 
@@ -38,9 +38,9 @@ echo "=========================================="
 echo "1. 构建 Docker 镜像..."
 echo "=========================================="
 cd "${PROJECT_ROOT}"
-if [ ! -f "spring-demo-app/target/spring-demo-app-1.0.0.jar" ]; then
-    echo "构建 spring-demo-app..."
-    cd spring-demo-app
+if [ ! -f "spring-sync-app/target/spring-sync-app-1.0.0.jar" ]; then
+    echo "构建 spring-sync-app..."
+    cd spring-sync-app
     mvn -q -DskipTests package
     cd ..
 fi
@@ -53,7 +53,7 @@ cd "${PROJECT_ROOT}"
 
 # 构建 docker 镜像
 echo "构建 Docker 镜像..."
-docker build -t spring-demo-app:test -f spring-demo-app/Dockerfile .
+docker build -t spring-sync-app:test -f spring-sync-app/Dockerfile .
 
 # 创建测试网络
 echo ""
@@ -71,7 +71,7 @@ docker run -d \
     --name sync-test-master \
     --network sync-test-network \
     -p 18080:8080 \
-    spring-demo-app:test
+    spring-sync-app:test
 
 # 等待 master 启动
 sleep 5
@@ -92,7 +92,7 @@ docker run -d \
     --name sync-test-node1 \
     --network sync-test-network \
     -p 18081:8080 \
-    spring-demo-app:test
+    spring-sync-app:test
 
 # 启动 node2 容器
 echo ""
@@ -103,7 +103,7 @@ docker run -d \
     --name sync-test-node2 \
     --network sync-test-network \
     -p 18082:8080 \
-    spring-demo-app:test
+    spring-sync-app:test
 
 # 等待节点启动
 sleep 5
