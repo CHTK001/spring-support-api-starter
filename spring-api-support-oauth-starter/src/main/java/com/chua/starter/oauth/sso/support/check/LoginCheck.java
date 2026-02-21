@@ -58,8 +58,8 @@ public class LoginCheck {
      */
     public ReturnResult<LoginResult> doLogin(String address, String principal, String credential, String authType, Object ext) {
         long startTime = System.currentTimeMillis();
-        log.debug("========== 登录检测开始 ==========");
-        log.debug("用户标识: {}, 认证类型: {}, 客户端地址: {}", principal, authType, address);
+        log.info("========== 登录检测开始 ==========");
+        log.info("用户标识: {}, 认证类型: {}, 客户端地址: {}", principal, authType, address);
 
         // 检查账户是否被锁定
         if (loginAttemptService != null && loginAttemptService.isAccountLocked(principal)) {

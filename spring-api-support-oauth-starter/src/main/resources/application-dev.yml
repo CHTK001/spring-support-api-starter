@@ -9,6 +9,8 @@ spring:
       host: 172.16.0.40
       port: 16379
       database: 15
+
 logging:
   level:
-    com.chua.starter.sso.mapper: debug
+    org.mybatis: debug
+    com.baomidou.mybatisplus: debug

@@ -52,7 +52,7 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
 
     final ApplicationContext applicationContext;
 
-    @Value("${plugin.auth.server.context-path:}")
+    @Value("${server.servlet.context-path:}")
     private String contextPath;
 
     private ProtocolServer protocolServer;
@@ -65,6 +65,7 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
             return;
         }
         var protocolSetting = ProtocolSetting.builder()
+                .protocol("armeria")
                 .port(authServerProperties.getArmeriaPort() != null ? authServerProperties.getArmeriaPort() : 19180)
                 // 统一由 Armeria 底层根据 contextPath 处理路由前缀，业务侧仅注册相对路径
                 .options(Options.of("contextPath", contextPath))

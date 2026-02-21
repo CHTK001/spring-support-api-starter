@@ -27,6 +27,7 @@ import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -74,6 +75,7 @@ import java.util.*;
  * @see LoginCheck 登录检查服务
  */
 @Slf4j
+@Configuration
 @RequiredArgsConstructor
 @EnableConfigurationProperties({AuthServerProperties.class, ThirdPartyBinderProperties.class, CasProperties.class, ThirdPartyLoginProperties.class})
 public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPostProcessor,
@@ -110,7 +112,7 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
         Map<String, Class<OauthProtocol>> listType = ServiceProvider.of(OauthProtocol.class).listType();
         for (Map.Entry<String, Class<OauthProtocol>> entry : listType.entrySet()) {
             Class<OauthProtocol> protocol = entry.getValue();
-            if (tpl.contains(protocol) && !protocols.contains(entry.getKey())) {
+            if (!protocols.contains(entry.getKey().toLowerCase())) {
                 continue;
             }
             tpl.add(protocol);
