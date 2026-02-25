@@ -1,12 +1,18 @@
+# ===========================================
+# 应用程序基础配置
+# ===========================================
 spring:
   main:
-    web-application-type: none
+    web-application-type: none  # 应用类型：非 Web（仅作为后端服务）
   profiles:
-    active: dev
-    include: plugin,mybatis,socket,report,ip,actuator
+    active: dev                  # 当前激活的环境
+    include: plugin,mybatis,socket,report,ip,actuator  # 引入的公共配置模块
   application:
-    name: oss
+    name: oss                    # 应用名称（OAuth 认证服务）
 
+ # ===========================================
+ # 服务器配置
+ # ===========================================
 server:
   servlet:
-    context-path: /oauth
+    context-path: /oauth         # 上下文路径
