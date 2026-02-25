@@ -1,14 +1,20 @@
+# ===========================================
+# 应用程序基础配置
+# ===========================================
 spring:
   application:
-    name: system
+    name: system                            # 应用名称（系统服务）
   profiles:
-    active: dev
-    include: common,mybatis,swagger,api,ip,actuator
+    active: dev                             # 当前激活的环境
+    include: common,mybatis,swagger,api,ip,actuator  # 引入的公共配置模块
 
+# ===========================================
+# 服务器配置
+# ===========================================
 server:
-  port: 18170
+  port: 18170                               # 系统服务端口
   servlet:
-    context-path: /system/api
+    context-path: /system/api               # 上下文路径
 
 # ===========================================
 # 插件启用配置
