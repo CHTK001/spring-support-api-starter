@@ -1,16 +1,22 @@
+# ===========================================
+# 应用程序基础配置
+# ===========================================
 spring:
   application:
-    name: scheduler
+    name: scheduler                         # 应用名称（调度中心服务）
   profiles:
-    active: dev
-    include: mybatis,swagger,socket,control,codec,ip,discovery,tenant
+    active: dev                             # 当前激活的环境
+    include: mybatis,swagger,socket,control,codec,ip,discovery,tenant  # 引入的公共配置模块
 
+# ===========================================
+# 服务器配置
+# ===========================================
 server:
-  port: -1
+  port: -1                                  # 服务端口（-1 表示仅作为后台任务节点，不对外暴露端口）
   servlet:
-    context-path: /scheduler/api
+    context-path: /scheduler/api            # 调度接口上下文路径
   http2:
-    enabled: true
+    enabled: true                           # 启用 HTTP/2 支持
 
 # ===========================================
 # 插件启用配置
