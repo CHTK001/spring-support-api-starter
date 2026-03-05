@@ -63,4 +63,11 @@ public class SysUserLayout extends SysBase implements Serializable {
     @TableField(value = "sys_layout_user_id")
     @Schema(description = "所属用户ID")
     private Integer sysLayoutUserId;
+
+    /**
+     * 用户偏好配置（lay-setting 配置，JSON格式）
+     */
+    @TableField(value = "sys_layout_preference")
+    @Schema(description = "用户偏好配置")
+    private String sysLayoutPreference;
 }

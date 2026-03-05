@@ -86,6 +86,40 @@ public class SysUserController {
             @Parameter(hidden = true) @UserValue("sysUserId") Long userId, @RequestBody UserLayout userLayout) {
         return ReturnResult.ok(sysUserService.saveUserLayout(userId, userLayout));
     }
+
+    /**
+     * 获取当前用户偏好配置
+     *
+     * @return 获取当前用户偏好配置
+     */
+    @Operation(summary = "获取当前用户偏好配置")
+    @GetMapping("/preference")
+    public ReturnResult<String> getUserPreference(
+            @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        var userLayout = sysUserService.getUserLayout(userId, roles);
+        return ReturnResult.ok(userLayout != null ? userLayout.getPreference() : null);
+    }
+
+    /**
+     * 保存当前用户偏好配置
+     *
+     * @return 保存结果
+     */
+    @Operation(summary = "保存当前用户偏好配置")
+    @PutMapping("/preference")
+    public ReturnResult<Boolean> saveUserPreference(
+            @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
+            @RequestBody(required = false) String preference) {
+        var userLayout = sysUserService.getUserLayout(userId, null);
+        if (userLayout == null) {
+            userLayout = new UserLayout();
+        }
+        // 如果 preference 为 null，设置为空字符串
+        userLayout.setPreference(preference != null ? preference : "{}");
+        sysUserService.saveUserLayout(userId, userLayout);
+        return ReturnResult.ok(true);
+    }
     /**
      * 删除用户
      *
