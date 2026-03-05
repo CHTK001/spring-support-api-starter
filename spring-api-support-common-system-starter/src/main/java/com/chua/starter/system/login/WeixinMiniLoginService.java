@@ -2,13 +2,15 @@ package com.chua.starter.system.login;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.core.utils.DigestUtils;
+import com.chua.starter.entity.system.SysUser;
+import com.chua.starter.entity.system.SysUserThirdParty;
+import com.chua.starter.entity.system.SysWechatUser;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
-import com.chua.starter.entity.system.SysUser;
-import com.chua.starter.entity.system.SysUserThirdParty;
 import com.chua.starter.system.constant.SystemConstant;
 import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
+import com.chua.starter.system.mapper.SysWechatUserMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,9 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
 
     @Autowired
     private SysUserThirdPartyMapper sysUserThirdPartyMapper;
+
+    @Autowired
+    private SysWechatUserMapper sysWechatUserMapper;
 
     @Override
     protected String getLoginTypePrefix() {
@@ -113,6 +118,9 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
             return new UserResume("账号已被禁用");
         }
 
+        // 记录或更新微信用户基础信息
+        saveOrUpdateWechatUser(sysUserId, openId);
+
         log.info("微信小程序登录成功: {} (ID:{}), OpenID={}", user.getSysUserUsername(), user.getSysUserId(), openId);
         return loginInfo(user.getSysUserUsername(), user, address);
     }
@@ -129,5 +137,35 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
         UserResume result = loginInfo(userResult.getUsername(), user, null);
         result.setLoginType(userResult.getLoginType());
         return result;
+    }
+
+    /**
+     * 保存或更新微信用户信息
+     *
+     * @param sysUserId 系统用户ID
+     * @param openId    微信OpenID
+     */
+    private void saveOrUpdateWechatUser(Integer sysUserId, String openId) {
+        if (sysUserId == null || openId == null || openId.isEmpty()) {
+            return;
+        }
+
+        SysWechatUser wechatUser = sysWechatUserMapper.selectOne(
+                Wrappers.<SysWechatUser>lambdaQuery()
+                        .eq(SysWechatUser::getSysWechatOpenId, openId)
+        );
+
+        if (wechatUser == null) {
+            var newWechatUser = new SysWechatUser();
+            newWechatUser.setSysUserId(sysUserId);
+            newWechatUser.setSysWechatOpenId(openId);
+            sysWechatUserMapper.insert(newWechatUser);
+            return;
+        }
+
+        if (!sysUserId.equals(wechatUser.getSysUserId())) {
+            wechatUser.setSysUserId(sysUserId);
+            sysWechatUserMapper.updateById(wechatUser);
+        }
     }
 }

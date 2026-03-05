@@ -18,6 +18,7 @@ import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.system.properties.SystemSecurityProperties;
 import com.chua.starter.service.SysSettingService;
+import com.chua.starter.system.mapper.SysWechatUserMapper;
 import com.chua.starter.system.pojo.LoginResult;
 import com.chua.starter.system.service.SysLoginCallbackService;
 import com.chua.starter.system.service.SysLoginService;
@@ -69,6 +70,7 @@ public class WechatCallbackController {
     final SysSettingService sysSettingService;
     final AuthClientProperties authProperties;
     final SystemSecurityProperties securityProperties;
+    final SysWechatUserMapper sysWechatUserMapper;
 
     /**
      * 微信账号绑定回调
@@ -148,6 +150,9 @@ public class WechatCallbackController {
         }
         sysUserThirdPartyService.save(sysUserThirdParty);
 
+        // 保存或更新微信用户信息
+        saveOrUpdateWechatUser(Integer.valueOf(userId), authUser);
+
         log.info("微信账号绑定成功: userId={}, openId={}", userId, authUser.getUuid());
         return view;
     }
@@ -219,6 +224,9 @@ public class WechatCallbackController {
         LoginAuthResult accessToken = AuthClientExecute.getInstance()
                 .getAccessToken(String.valueOf(userThirdParty.getSysUserId()), null, AuthType.THIRD_PARTY, ext);
 
+        // 保存或更新微信用户信息
+        saveOrUpdateWechatUser(userThirdParty.getSysUserId(), authUser);
+
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(sysLoginService.getUserLoginInfo(accessToken.getToken()))
                 .tokenType("Bearer")
@@ -236,6 +244,43 @@ public class WechatCallbackController {
 
         log.info("微信登录成功: userId={}", userThirdParty.getSysUserId());
         return view;
+    }
+
+    /**
+     * 保存或更新微信用户信息
+     *
+     * @param sysUserId 系统用户ID
+     * @param authUser  微信返回的用户信息
+     */
+    private void saveOrUpdateWechatUser(Integer sysUserId, AuthUser authUser) {
+        if (sysUserId == null || authUser == null) {
+            return;
+        }
+
+        String openId = authUser.getUuid();
+        if (openId == null || openId.isEmpty()) {
+            return;
+        }
+
+        var wechatUser = sysWechatUserMapper.selectOne(
+                Wrappers.<com.chua.starter.entity.system.SysWechatUser>lambdaQuery()
+                        .eq(com.chua.starter.entity.system.SysWechatUser::getSysWechatOpenId, openId)
+        );
+
+        if (wechatUser == null) {
+            var newWechatUser = new com.chua.starter.entity.system.SysWechatUser();
+            newWechatUser.setSysUserId(sysUserId);
+            newWechatUser.setSysWechatOpenId(openId);
+            newWechatUser.setSysWechatNickname(authUser.getNickname());
+            newWechatUser.setSysWechatAvatar(authUser.getAvatar());
+            sysWechatUserMapper.insert(newWechatUser);
+            return;
+        }
+
+        wechatUser.setSysUserId(sysUserId);
+        wechatUser.setSysWechatNickname(authUser.getNickname());
+        wechatUser.setSysWechatAvatar(authUser.getAvatar());
+        sysWechatUserMapper.updateById(wechatUser);
     }
 
     /**

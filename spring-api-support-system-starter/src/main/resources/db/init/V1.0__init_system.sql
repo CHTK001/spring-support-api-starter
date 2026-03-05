@@ -14,6 +14,8 @@
  *   - sys_log: 系统操作日志表
  *   - sys_sfc: 组件库表
  *   - sys_sfc_install: 用户安装组件表
+ *   - sys_user_third_party: 用户第三方绑定表
+ *   - sys_wechat_user: 微信用户表
  *
  * @author System
  * @since 2025-01-01
@@ -231,6 +233,7 @@ CREATE TABLE `sys_user_layout` (
     `sys_layout_grid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '网格配置 - JSON格式的网格参数',
     `sys_layout_component` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件配置 - JSON格式的组件列表',
     `sys_layout_user_id` int(11) NULL DEFAULT NULL COMMENT '所属用户ID - 关联用户表',
+    `sys_layout_preference` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '用户偏好配置 - lay-setting 配置（JSON格式）',
     `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
     `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人ID',
     `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -354,6 +357,50 @@ CREATE TABLE `sys_sfc_install` (
     INDEX `idx_sfc_id` (`sys_sfc_id`) USING BTREE COMMENT '组件ID索引',
     UNIQUE INDEX `uk_user_sfc` (`user_id`, `sys_sfc_id`) USING BTREE COMMENT '用户-组件唯一索引'
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户安装组件表 - 存储用户已安装的组件列表' ROW_FORMAT = Dynamic;
+
+-- =====================================================
+-- 13. 用户第三方绑定表 (sys_user_third_party)
+-- 用途: 存储用户与第三方平台的绑定关系
+-- =====================================================
+DROP TABLE IF EXISTS `sys_user_third_party`;
+CREATE TABLE `sys_user_third_party`  (
+    `sys_user_third_party_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `sys_user_third_party_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '三方类型，如: gitee、wx_mini_app 等',
+    `sys_user_third_party_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '第三方信息名称',
+    `sys_user_third_party_value` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '第三方信息值',
+    `sys_user_id` int(11) NULL DEFAULT NULL COMMENT '当前系统用户ID',
+    `sys_user_third_party_uid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '第三方用户ID',
+    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人ID',
+    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`sys_user_third_party_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户三方绑定表 - 存储用户与第三方平台的绑定关系' ROW_FORMAT = DYNAMIC;
+
+-- =====================================================
+-- 14. 微信用户表 (sys_wechat_user)
+-- 用途: 存储通过微信体系接入的用户基础信息
+-- =====================================================
+DROP TABLE IF EXISTS `sys_wechat_user`;
+CREATE TABLE `sys_wechat_user` (
+    `sys_wechat_user_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID - 主键自增',
+    `sys_wechat_open_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '微信 openid - 微信登录的OpenID',
+    `sys_wechat_union_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '微信 unionid - 微信开放平台的UnionID',
+    `sys_wechat_nickname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '昵称 - 微信用户昵称',
+    `sys_wechat_avatar` varchar(4000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '头像 - 微信用户头像URL',
+    `sys_user_id` int(11) NULL DEFAULT NULL COMMENT '绑定的系统用户ID - 关联用户表',
+    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人ID',
+    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`sys_wechat_user_id`) USING BTREE,
+    INDEX `idx_user_id` (`sys_user_id`) USING BTREE COMMENT '系统用户ID索引',
+    INDEX `idx_open_id` (`sys_wechat_open_id`) USING BTREE COMMENT '微信OpenID索引'
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '微信用户表 - 存储通过微信体系接入的用户基础信息' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
 -- 初始数据 - 默认角色

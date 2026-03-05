@@ -18,9 +18,11 @@ import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.handler.LoginHandler;
 import com.chua.starter.system.service.SysLoginService;
 import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
+import com.chua.starter.system.mapper.SysWechatUserMapper;
 import me.zhyd.oauth.cache.AuthStateCache;
 import me.zhyd.oauth.request.AuthRequest;
 import com.chua.starter.entity.system.SysUserThirdParty;
+import com.chua.starter.entity.system.SysWechatUser;
 import com.chua.starter.system.pojo.RefreshToken;
 import com.chua.starter.system.pojo.ThirdPartyUnbindRequest;
 import com.chua.starter.system.pojo.LoginResult;
@@ -38,8 +40,11 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.chua.common.support.core.constant.Constants.CAPTCHA_SESSION_KEY;
 import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERROR;
@@ -58,8 +63,14 @@ public class SysLoginServiceImpl implements SysLoginService {
 
     public static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
 
+    /**
+     * 微信第三方类型
+     */
+    private static final String THIRD_PARTY_TYPE_WECHAT = "wechat";
+
     private final AuthClientProperties authProperties;
     private final SysUserThirdPartyMapper sysUserThirdPartyMapper;
+    private final SysWechatUserMapper sysWechatUserMapper;
     private final RedisTemplate redisTemplate;
     private final SysSettingService sysSettingService;
 
@@ -169,8 +180,25 @@ public class SysLoginServiceImpl implements SysLoginService {
 
     @Override
     public ReturnResult<List<String>> thirdBindInfo(String userId) {
-        List<SysUserThirdParty> sysUserThirdParties = sysUserThirdPartyMapper.selectList(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserId, userId));
-        return ReturnResult.ok(sysUserThirdParties.stream().map(SysUserThirdParty::getSysUserThirdPartyType).distinct().toList());
+        List<SysUserThirdParty> sysUserThirdParties = sysUserThirdPartyMapper.selectList(
+                Wrappers.<SysUserThirdParty>lambdaQuery()
+                        .eq(SysUserThirdParty::getSysUserId, userId));
+
+        Set<String> result = new LinkedHashSet<>();
+        sysUserThirdParties.stream()
+                .map(SysUserThirdParty::getSysUserThirdPartyType)
+                .filter(StringUtils::isNotBlank)
+                .map(it -> it.toLowerCase(Locale.ROOT))
+                .forEach(result::add);
+
+        Long wechatCount = sysWechatUserMapper.selectCount(
+                Wrappers.<SysWechatUser>lambdaQuery()
+                        .eq(SysWechatUser::getSysUserId, userId));
+        if (wechatCount != null && wechatCount > 0) {
+            result.add(THIRD_PARTY_TYPE_WECHAT);
+        }
+
+        return ReturnResult.ok(List.copyOf(result));
     }
 
     @Override
@@ -178,7 +206,19 @@ public class SysLoginServiceImpl implements SysLoginService {
         if (StringUtils.isBlank(thirdPartyUnbindRequest.getLoginType())) {
             return ReturnResult.fail("登录类型不能为空");
         }
-        if (sysUserThirdPartyMapper.delete(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserId, userId).eq(SysUserThirdParty::getSysUserThirdPartyType, thirdPartyUnbindRequest.getLoginType())) > 0) {
+
+        int deleteCount = sysUserThirdPartyMapper.delete(
+                Wrappers.<SysUserThirdParty>lambdaQuery()
+                        .eq(SysUserThirdParty::getSysUserId, userId)
+                        .eq(SysUserThirdParty::getSysUserThirdPartyType, thirdPartyUnbindRequest.getLoginType()));
+
+        if (THIRD_PARTY_TYPE_WECHAT.equalsIgnoreCase(thirdPartyUnbindRequest.getLoginType())) {
+            sysWechatUserMapper.delete(
+                    Wrappers.<SysWechatUser>lambdaQuery()
+                            .eq(SysWechatUser::getSysUserId, userId));
+        }
+
+        if (deleteCount > 0) {
             return ReturnResult.ok();
         }
         return ReturnResult.fail("解绑失败");

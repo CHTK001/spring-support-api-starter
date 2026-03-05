@@ -42,4 +42,10 @@ public class UserLayout {
      */
     @Schema(description = "组件列表")
     private String component;
+
+    /**
+     * 用户偏好配置（lay-setting 配置，JSON格式）
+     */
+    @Schema(description = "用户偏好配置")
+    private String preference;
 }

@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-@LoginType("GITHUB")
+@LoginType("github")
 @Tag(name = "Github登录", description = "基于Github OAuth的用户登录验证")
 public class GithubLoginService extends AbstractUserLoginService {
 
