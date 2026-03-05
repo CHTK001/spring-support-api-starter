@@ -276,6 +276,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             userLayout.setLayout(sysUserLayout.getSysLayoutLayout());
             userLayout.setGrid(sysUserLayout.getSysLayoutGrid());
             userLayout.setComponent(sysUserLayout.getSysLayoutComponent());
+            userLayout.setPreference(sysUserLayout.getSysLayoutPreference());
             return userLayout;
         }
         return null;
@@ -290,6 +291,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUserLayout.setSysLayoutComponent(userLayout.getComponent());
         sysUserLayout.setSysLayoutGrid(userLayout.getGrid());
         sysUserLayout.setSysLayoutLayout(userLayout.getLayout());
+        sysUserLayout.setSysLayoutPreference(userLayout.getPreference());
         sysUserLayout.setSysLayoutUserId(Math.toIntExact(userId));
 
         if(null == sysUserLayout.getSysLayoutId()) {
