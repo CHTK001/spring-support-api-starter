@@ -360,6 +360,26 @@ CREATE TABLE `sys_user`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
+-- Table structure for sys_wechat_user
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_wechat_user`;
+CREATE TABLE `sys_wechat_user`  (
+  `sys_wechat_user_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `sys_wechat_open_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '微信 openid',
+  `sys_wechat_union_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '微信 unionid',
+  `sys_wechat_nickname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '昵称',
+  `sys_wechat_avatar` varchar(4000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '头像',
+  `sys_user_id` int(11) NULL DEFAULT NULL COMMENT '绑定的系统用户ID',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`sys_wechat_user_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '微信用户表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
 -- Records of sys_user
 -- ----------------------------
 INSERT INTO `sys_user` VALUES (1, 'sa', '超级管理员', '53006d111477a9b5b16c4b38ac8fad69', '123456', 0, 1, '12345678901', 'test@qq.com', NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, '192.168.110.79', NULL, 9, NULL, 'b2fe2a1217dd70078efbaaf4f969ed3d37a5ea2eb1577006922e541f9e00ee6ab8d2d590ea5b4dcddccfa04ad65985e1a9f565dd9f017170d6911e5991dba0f4', NULL, NULL, NULL, '2024-08-28 10:09:26', 'sa', 1);

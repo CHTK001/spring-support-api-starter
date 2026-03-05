@@ -1,0 +1,16 @@
+package com.chua.starter.system.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.chua.starter.entity.system.SysWechatUser;
+import org.apache.ibatis.annotations.Mapper;
+
+/**
+ * 微信用户表 Mapper
+ *
+ * 负责微信用户基础信息的增删改查
+ */
+@Mapper
+public interface SysWechatUserMapper extends BaseMapper<SysWechatUser> {
+}
+
+
