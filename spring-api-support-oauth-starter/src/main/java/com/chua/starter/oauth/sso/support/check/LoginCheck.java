@@ -222,6 +222,47 @@ public class LoginCheck {
     }
 
     /**
+     * 第三方登录检查（JustAuth）
+     * <p>
+     * 将 JustAuth 的 AuthUser 对象转换为系统登录流程。
+     * 用于处理 OAuth2 第三方平台（Gitee、Github、微信等）的登录。
+     * </p>
+     *
+     * @param authUser JustAuth 的用户对象
+     * @param request HTTP 请求对象
+     * @return 登录结果，包含令牌和用户信息；如果登录失败返回 null
+     */
+    public LoginResult check(me.zhyd.oauth.model.AuthUser authUser, jakarta.servlet.http.HttpServletRequest request) {
+        if (authUser == null) {
+            log.warn("AuthUser 为空，无法进行登录检查");
+            return null;
+        }
+        
+        String address = com.chua.starter.common.support.utils.RequestUtils.getIpAddress(request);
+        String platform = authUser.getSource();
+        
+        log.info("第三方登录检查: platform={}, uuid={}, username={}", 
+                platform, authUser.getUuid(), authUser.getUsername());
+        
+        // 调用 doLogin 方法进行登录
+        ReturnResult<LoginResult> result = doLogin(
+                address,
+                authUser.getUuid(),
+                authUser.getUsername(),
+                platform,
+                authUser
+        );
+        
+        if (result != null && result.isOk()) {
+            return result.getData();
+        }
+        
+        log.warn("第三方登录失败: platform={}, uuid={}, msg={}", 
+                platform, authUser.getUuid(), result != null ? result.getMsg() : "result为null");
+        return null;
+    }
+
+    /**
      * 获取用户信息
      * <p>通过 SPI 机制根据登录类型获取对应的 UserInfoService 实现</p>
      *

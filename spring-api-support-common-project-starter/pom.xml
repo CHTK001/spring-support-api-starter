@@ -11,8 +11,8 @@
   <name>spring-api-support-common-project-starter</name>
   <description>通用项目模块，提供基础的项目结构和通用配置支持</description>
   <properties>
-    <maven.compiler.source>25</maven.compiler.source>
-    <maven.compiler.target>25</maven.compiler.target>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencies>

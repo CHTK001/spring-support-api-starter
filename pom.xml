@@ -1,13 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion><!--SpringBoot父项目依赖管理-->
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.9</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <groupId>com.chua</groupId>
@@ -38,13 +36,14 @@
         <module.version>4.0.0.37</module.version>
         <utils.version>4.0.0.36</utils.version>
         <spring-boot.version>3.2.3</spring-boot.version>
-        <!-- devops 模块路径（使用多模块根目录，避免子模块继承后路径叠加） -->
+        <lombok.version>1.18.44</lombok.version>
+        
         <devops.dir>${maven.multiModuleProjectDirectory}/spring-api-support-devops-starter</devops.dir>
         <assembly.plugin.version>3.6.0</assembly.plugin.version>
     </properties>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -56,7 +55,7 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- 排除 Spring Boot 默认的 Logback -->
+        
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -68,7 +67,7 @@
             </exclusions>
         </dependency>
 
-        <!-- 使用 Log4j2 -->
+        
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
@@ -78,7 +77,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Spring Boot BOM - 统一管理 Spring Boot 相关依赖版本 -->
+            
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -87,7 +86,7 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- DevOps 统一配置模块 (包含 log4j2-spring.xml) -->
+            
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-devops-starter</artifactId>
@@ -544,7 +543,7 @@
                 <artifactId>utils-support-docker-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
-            <!-- ACME 证书支持 -->
+            
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-acme-starter</artifactId>
@@ -569,7 +568,7 @@
                 <version>${module.version}</version>
             </dependency>
 
-            <!-- Third-party dependencies -->
+            
             <dependency>
                 <groupId>com.github.whvcse</groupId>
                 <artifactId>easy-captcha</artifactId>
@@ -695,7 +694,7 @@
                 <artifactId>jansi</artifactId>
                 <version>2.4.1</version>
             </dependency>
-            <!-- Swagger 2.x annotations -->
+            
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
@@ -706,13 +705,13 @@
                 <artifactId>swagger-models</artifactId>
                 <version>1.6.14</version>
             </dependency>
-            <!-- Jakarta Servlet API -->
+            
             <dependency>
                 <groupId>jakarta.servlet</groupId>
                 <artifactId>jakarta.servlet-api</artifactId>
                 <version>6.0.0</version>
             </dependency>
-            <!-- utils-support-extension-starter -->
+            
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-extension-starter</artifactId>
@@ -778,25 +777,45 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Maven Compiler Plugin 配置 Lombok 注解处理器 -->
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.14.0</version>
+                    <version>3.15.0</version>
                     <configuration>
                         <source>25</source>
                         <target>25</target>
+                        <release>25</release>
                         <encoding>UTF-8</encoding>
+                        <useIncrementalCompilation>false</useIncrementalCompilation>
+                        <fork>true</fork>
+                        <meminitial>512m</meminitial>
+                        <maxmem>2048m</maxmem>
+                        <compilerArgs>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
+                            <arg>-J--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</arg>
+                            <arg>-parameters</arg>
+                            <arg>-proc:full</arg>
+                        </compilerArgs>
                         <annotationProcessorPaths>
                             <path>
                                 <groupId>org.projectlombok</groupId>
                                 <artifactId>lombok</artifactId>
-                                <version>1.18.42</version>
+                                <version>${lombok.version}</version>
                             </path>
                         </annotationProcessorPaths>
                     </configuration>
                 </plugin>
-                <!-- YAML 配置合并插件 -->
+                
                 <plugin>
                     <groupId>org.codehaus.gmavenplus</groupId>
                     <artifactId>gmavenplus-plugin</artifactId>
@@ -861,7 +880,7 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin><!-- 复制解压脚本到压缩包同级目录（处理换行符） -->
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
@@ -875,22 +894,22 @@
                                 </goals>
                                 <configuration>
                                     <target>
-                                        <!-- 复制并转换Linux脚本为LF -->
+                                        
                                         <copy todir="${project.build.directory}" overwrite="true">
-                                            <fileset dir="${devops.dir}/src/main/extract" includes="*.sh"/>
+                                            <fileset dir="${devops.dir}/src/main/extract" includes="*.sh" />
                                             <filterchain>
-                                                <expandproperties/>
+                                                <expandproperties />
                                             </filterchain>
                                         </copy>
-                                        <fixcrlf srcdir="${project.build.directory}" includes="*.sh" eol="lf"/>
-                                        <!-- 复制并转换Windows脚本为CRLF -->
+                                        <fixcrlf srcdir="${project.build.directory}" includes="*.sh" eol="lf" />
+                                        
                                         <copy todir="${project.build.directory}" overwrite="true">
-                                            <fileset dir="${devops.dir}/src/main/extract" includes="*.bat"/>
+                                            <fileset dir="${devops.dir}/src/main/extract" includes="*.bat" />
                                             <filterchain>
-                                                <expandproperties/>
+                                                <expandproperties />
                                             </filterchain>
                                         </copy>
-                                        <fixcrlf srcdir="${project.build.directory}" includes="*.bat" eol="crlf"/>
+                                        <fixcrlf srcdir="${project.build.directory}" includes="*.bat" eol="crlf" />
                                     </target>
                                 </configuration>
                             </execution>
@@ -902,4 +921,3 @@
     </profiles>
 
 </project>
-
