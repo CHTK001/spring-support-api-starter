@@ -131,7 +131,10 @@ public abstract class BaseAuthInformation implements AuthInformation {
             traceContext.startSpan("server_decrypt");
         }
         
-        log.debug("开始解析认证数据, uuid: {}, isEncode: {}, encryption: {}", uuid, isEncode, encryption);
+        log.debug("[decodeData] uuid={}, isEncode={}, encryption={}, data长度={}, serial长度={}", 
+                uuid, isEncode, encryption, 
+                data != null ? data.length() : 0,
+                serial != null ? serial.length() : 0);
         
         try {
             // 尝试从缓存获取解密结果
@@ -147,7 +150,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
             }
             
             if (!isEncode) {
-                log.debug("未加密模式，直接解析JSON数据");
+                log.debug("[decodeData] 未加密模式，直接解析JSON数据");
                 JsonObject jsonObject = Json.getJsonObject(data);
                 if (jsonObject != null) {
                     this.bodyData.putAll(jsonObject);
@@ -198,8 +201,8 @@ public abstract class BaseAuthInformation implements AuthInformation {
                 log.warn("加密数据解析失败，解密后的JSON为空");
             }
         } catch (Exception e) {
-            log.error("认证数据解析异常: {}, uuid: {}, 耗时: {}ms", e.getMessage(), uuid, System.currentTimeMillis() - startTime);
-            log.debug("解析异常详情", e);
+            log.error("[decodeData] 认证数据解析异常: {}, uuid: {}, 耗时: {}ms", e.getMessage(), uuid, System.currentTimeMillis() - startTime);
+            log.error("[decodeData] 解析异常详情", e);
         } finally {
             // 结束解密 Span
             if (traceContext != null) {
@@ -263,7 +266,13 @@ public abstract class BaseAuthInformation implements AuthInformation {
 
     @Override
     public boolean isSuccessful() {
-        return success.get() && (authServerProperties.isSignVerify() && SignUtils.verifySignFromMap(this.sign, this.bodyData));
+        if (!success.get()) {
+            return false;
+        }
+        if (!authServerProperties.isSignVerify()) {
+            return true;
+        }
+        return SignUtils.verifySignFromMap(this.sign, this.bodyData);
     }
 
     @Override

@@ -7,8 +7,12 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.entity.AuthRequest;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
+import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
+import com.chua.starter.oauth.sso.support.information.LogoutAuthInformation;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 import com.chua.starter.oauth.sso.support.information.RsocketAuthInformation;
+import com.chua.starter.oauth.sso.support.information.TemporaryTokenAuthInformation;
+import com.chua.starter.oauth.sso.support.information.UpgradeAuthInformation;
 import com.chua.starter.oauth.sso.support.parser.OauthAuthorization;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import io.rsocket.Payload;
@@ -170,32 +174,93 @@ public class RsocketOauthProtocol implements OauthProtocol, InitializingBean, Di
      * 处理登录请求
      */
     private ReturnResult<String> handleLogin(String body, Payload payload) {
-        // TODO: 实现登录逻辑
-        return ReturnResult.error("登录功能待实现");
+        try {
+            RsocketAuthInformation.RsocketRequest rsocketRequest = createRsocketRequest(payload);
+            RsocketAuthInformation.RsocketResponse rsocketResponse = new RsocketAuthInformation.RsocketResponse();
+
+            // RsocketRequest 实现了 HttpServletRequest，可直接使用 HTTP 构造函数
+            LoginAuthInformation authInformation = new LoginAuthInformation(
+                    authServerProperties, body, (jakarta.servlet.http.HttpServletRequest) rsocketRequest,
+                    (jakarta.servlet.http.HttpServletResponse) rsocketResponse, applicationContext, loginCheck);
+
+            if (!authInformation.isSuccessful()) {
+                return ReturnResult.illegal(authInformation.errorMessage());
+            }
+
+            return authInformation.authorization().authentication();
+        } catch (Exception e) {
+            log.error("[RSocket] 登录失败", e);
+            return ReturnResult.error("登录失败: " + e.getMessage());
+        }
     }
 
     /**
      * 处理登出请求
      */
     private ReturnResult<String> handleLogout(String body, Payload payload) {
-        // TODO: 实现登出逻辑
-        return ReturnResult.error("登出功能待实现");
+        try {
+            RsocketAuthInformation.RsocketRequest rsocketRequest = createRsocketRequest(payload);
+            RsocketAuthInformation.RsocketResponse rsocketResponse = new RsocketAuthInformation.RsocketResponse();
+
+            LogoutAuthInformation authInformation = new LogoutAuthInformation(
+                    authServerProperties, body, (jakarta.servlet.http.HttpServletRequest) rsocketRequest,
+                    (jakarta.servlet.http.HttpServletResponse) rsocketResponse, applicationContext, loginCheck);
+
+            if (!authInformation.isSuccessful()) {
+                return ReturnResult.illegal(authInformation.errorMessage());
+            }
+
+            return authInformation.authorization().authentication();
+        } catch (Exception e) {
+            log.error("[RSocket] 登出失败", e);
+            return ReturnResult.error("登出失败: " + e.getMessage());
+        }
     }
 
     /**
-     * 处理升级请求
+     * 处理升级请求（token 刷新/升级）
      */
     private ReturnResult<String> handleUpgrade(String body, Payload payload) {
-        // TODO: 实现升级逻辑
-        return ReturnResult.error("升级功能待实现");
+        try {
+            RsocketAuthInformation.RsocketRequest rsocketRequest = createRsocketRequest(payload);
+            RsocketAuthInformation.RsocketResponse rsocketResponse = new RsocketAuthInformation.RsocketResponse();
+
+            UpgradeAuthInformation authInformation = new UpgradeAuthInformation(
+                    authServerProperties, body, (jakarta.servlet.http.HttpServletRequest) rsocketRequest,
+                    (jakarta.servlet.http.HttpServletResponse) rsocketResponse, applicationContext, loginCheck);
+
+            if (!authInformation.isSuccessful()) {
+                return ReturnResult.illegal(authInformation.errorMessage());
+            }
+
+            return authInformation.authorization().authentication();
+        } catch (Exception e) {
+            log.error("[RSocket] Token 升级失败", e);
+            return ReturnResult.error("Token升级失败: " + e.getMessage());
+        }
     }
 
     /**
      * 处理临时令牌请求
      */
     private ReturnResult<String> handleTemporaryToken(String body, Payload payload) {
-        // TODO: 实现临时令牌逻辑
-        return ReturnResult.error("临时令牌功能待实现");
+        try {
+            RsocketAuthInformation.RsocketRequest rsocketRequest = createRsocketRequest(payload);
+            RsocketAuthInformation.RsocketResponse rsocketResponse = new RsocketAuthInformation.RsocketResponse();
+
+            TemporaryTokenAuthInformation authInformation = new TemporaryTokenAuthInformation(
+                    authServerProperties, body, (jakarta.servlet.http.HttpServletRequest) rsocketRequest,
+                    (jakarta.servlet.http.HttpServletResponse) rsocketResponse, applicationContext, loginCheck);
+
+            if (!authInformation.isSuccessful()) {
+                return ReturnResult.illegal(authInformation.errorMessage());
+            }
+
+            return authInformation.authorization().authentication();
+        } catch (Exception e) {
+            log.error("[RSocket] 临时令牌生成失败", e);
+            return ReturnResult.error("临时令牌生成失败: " + e.getMessage());
+        }
     }
 
     /**
