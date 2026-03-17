@@ -50,12 +50,33 @@ public final class LogoutAuthorization implements Authorization {
 
     @Override
     public ReturnResult<String> authentication() {
+        long startTime = System.currentTimeMillis();
+        String traceId = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+
+        log.info("[LOGOUT][traceId={}] 开始: uid={}, logoutType={}", traceId,
+                uid != null && uid.length() > 8 ? uid.substring(0, 8) + "..." : uid, logoutType);
+
         String tokenManagement = authInformation.getAuthServerProperties().getTokenManagement();
         TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
         if (null == tokenResolver) {
+            log.error("[LOGOUT][traceId={}] 失败: 认证服务器无法认证, tokenManagement={}", traceId, tokenManagement);
             return ReturnResult.error("认证服务器无法认证");
         }
-        tokenResolver.logout(uid, LogoutType.valueOf(logoutType));
+
+        LogoutType type;
+        try {
+            type = LogoutType.valueOf(logoutType);
+        } catch (Exception e) {
+            log.warn("[LOGOUT][traceId={}] 非法 logoutType={}, 使用默认 LOGOUT", traceId, logoutType);
+            type = LogoutType.LOGOUT;
+        }
+
+        tokenResolver.logout(uid, type);
+
+        long cost = System.currentTimeMillis() - startTime;
+        log.info("[LOGOUT][traceId={}] 成功: uid={}, type={}, 耗时={}ms", traceId,
+                uid != null && uid.length() > 8 ? uid.substring(0, 8) + "..." : uid, type, cost);
+
         return ReturnResult.ok(authInformation.encodeHex("SUCCESS"));
     }
 

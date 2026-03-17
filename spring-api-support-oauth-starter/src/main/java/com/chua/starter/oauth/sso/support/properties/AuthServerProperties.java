@@ -145,6 +145,23 @@ public class AuthServerProperties {
     private boolean renew;
 
     /**
+     * 刷新令牌轮换
+     * <p>
+     * 使用 refreshToken 换取新 accessToken 时，是否同时生成新的 refreshToken（旧的失效）
+     * </p>
+     * <p>
+     * false（默认）：refreshToken 不轮换，旧 refreshToken 继续有效，直到自然过期
+     * </p>
+     * <p>
+     * true：每次刷新都生成新的 refreshToken，旧的立即失效（更安全，但客户端需保存新值）
+     * </p>
+     * <p>
+     * 默认值：false
+     * </p>
+     */
+    private boolean refreshTokenRotation = false;
+
+    /**
      * 服务密钥
      * <p>
      * 用于令牌签名和加密的主密钥
