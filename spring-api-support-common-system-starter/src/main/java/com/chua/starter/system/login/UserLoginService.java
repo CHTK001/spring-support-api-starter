@@ -58,6 +58,7 @@ public class UserLoginService extends AbstractUserLoginService {
             return lockedResult;
         }
 
+        log.debug("[UserLoginService] 开始查询用户: {}", principal);
         // 查询用户信息 - 支持用户名或手机号登录
         SysUser user = sysUserMapper.selectOne(Wrappers.<SysUser>lambdaQuery()
                 .select(SysUser::getSysUserId, SysUser::getSysUserUsername, SysUser::getSysUserPassword,
@@ -68,7 +69,7 @@ public class UserLoginService extends AbstractUserLoginService {
                 .eq(StringUtils.isNotEmpty(principal), SysUser::getSysUserPhone, principal)
                  ,false);
 
-        log.debug("用户查询耗时: {}ms", System.currentTimeMillis() - startTime);
+        log.debug("[UserLoginService] 用户查询耗时: {}ms, 结果: {}", System.currentTimeMillis() - startTime, user != null ? "找到" : "未找到");
 
         if (null == user) {
             log.info("登录失败: 用户不存在 {}, IP: {}", principal, address);

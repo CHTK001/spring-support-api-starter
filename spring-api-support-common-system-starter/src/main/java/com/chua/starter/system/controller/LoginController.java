@@ -11,6 +11,7 @@ import com.chua.starter.oauth.client.support.annotation.TokenForIgnore;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
+import com.chua.starter.oauth.client.support.protocol.AbstractProtocol;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.system.pojo.RefreshToken;
@@ -105,12 +106,39 @@ public class LoginController {
     @UserLog(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @DeleteMapping("/logout")
     @SysLog
-    public ReturnResult<String> logout(@UserValue("token") String uid, String loginType, HttpServletRequest request, HttpServletResponse response) {
+    public ReturnResult<String> logout(@UserValue("token") String uid, String loginType,
+                                       @RequestHeader(name = "x-oauth-logout-type", required = false) String logoutTypeHeader,
+                                       HttpServletRequest request, HttpServletResponse response) {
+        // @UserValue("token") 在白名单请求中无法从用户上下文获取，fallback 到 x-oauth-token header
+        if (StringUtils.isEmpty(uid)) {
+            uid = request.getHeader("x-oauth-token");
+        }
+        // fallback 到 Authorization header
+        if (StringUtils.isEmpty(uid)) {
+            String authHeader = request.getHeader("Authorization");
+            if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith("Bearer ")) {
+                uid = authHeader.substring(7).trim();
+            }
+        }
+        // fallback 到 cookie
+        if (StringUtils.isEmpty(uid)) {
+            uid = CookieUtil.getValue(request, "x-oauth-cookie");
+        }
         if (StringUtils.isEmpty(uid)) {
             return ReturnResult.ok("注销成功");
         }
+
+        // 支持通过 x-oauth-logout-type 头指定登出类型（默认单设备登出）
+        LogoutType logoutType = LogoutType.LOGOUT;
+        if (StringUtils.isNotBlank(logoutTypeHeader)) {
+            try {
+                logoutType = LogoutType.valueOf(logoutTypeHeader);
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
-        LoginAuthResult accessToken = clientExecute.logout(uid, loginType, LogoutType.LOGOUT);
+        LoginAuthResult accessToken = clientExecute.logout(uid, loginType, logoutType);
         if (null == accessToken) {
             return ReturnResult.error("退出失败请稍后重试");
         }
@@ -119,6 +147,11 @@ public class LoginController {
             return ReturnResult.error(accessToken.getMessage());
         }
 
+        // 清除本地 Guava 缓存，防止登出后旧 token 仍命中缓存
+        AbstractProtocol.invalidateCache(uid);
+        if (logoutType == LogoutType.LOGOUT_ALL) {
+            AbstractProtocol.invalidateAllCache();
+        }
         CookieUtil.remove(request, response, "x-oauth-cookie");
         return ReturnResult.ok("注销成功");
     }

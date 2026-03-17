@@ -43,24 +43,33 @@ public final class UpgradeAuthorization implements Authorization {
 
     @Override
     public ReturnResult<String> authentication() {
+        long startTime = System.currentTimeMillis();
         String tokenManagement = authInformation.getAuthServerProperties().getTokenManagement();
         TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
         if (null == tokenResolver) {
             return ReturnResult.error("认证服务器无法认证");
         }
 
-        ReturnResult<UserResume> returnResult = null;
-        if("refresh".equalsIgnoreCase(upgradeType)) {
+        log.info("[Upgrade] 开始: type={}, token={}...", upgradeType,
+                token != null && token.length() > 8 ? token.substring(0, 8) : token);
+
+        ReturnResult<UserResume> returnResult;
+        if ("refresh".equalsIgnoreCase(upgradeType)) {
             returnResult = tokenResolver.upgradeForRefresh(token, refreshToken);
-        } else if("version".equalsIgnoreCase(upgradeType)) {
+        } else if ("version".equalsIgnoreCase(upgradeType)) {
             returnResult = tokenResolver.upgradeForVersion(token, refreshToken);
         } else {
             returnResult = tokenResolver.upgradeForTimestamp(token, refreshToken);
         }
 
-        if(!returnResult.isSuccess()) {
+        long cost = System.currentTimeMillis() - startTime;
+        if (!returnResult.isSuccess()) {
+            log.warn("[Upgrade] 失败: type={}, 原因={}, 耗时={}ms", upgradeType, returnResult.getMsg(), cost);
             return ReturnResult.error(returnResult.getMsg());
         }
+
+        log.info("[Upgrade] 成功: type={}, userId={}, 耗时={}ms",
+                upgradeType, returnResult.getData() != null ? returnResult.getData().getUserId() : "?", cost);
 
         UserResume userResult = returnResult.getData();
         String json = Json.toJson(userResult);

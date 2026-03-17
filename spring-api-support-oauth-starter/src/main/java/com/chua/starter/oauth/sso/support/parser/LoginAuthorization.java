@@ -64,42 +64,39 @@ public final class LoginAuthorization implements Authorization {
     @Override
     public ReturnResult<String> authentication() {
         long startTime = System.currentTimeMillis();
+        String traceId = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         String clientAddress = MapUtils.getString(this.ext, "address");
-        
-        log.info("========== 登录认证开始 ==========");
-        log.info("用户名: {}, 登录类型: {}, 应用名: {}", username, loginType, appName);
-        log.info("客户端地址: {}, 扩展参数: {}", clientAddress, ext != null ? ext.keySet() : "null");
-        
+
+        log.info("[LOGIN][traceId={}] 开始: user={}, type={}, app={}, ip={}",
+                traceId, username, loginType, appName, clientAddress);
+
         ReturnResult<LoginResult> returnResult = loginCheck.doLogin(clientAddress,
                 username,
                 password,
                 loginType,
                 ext
         );
-        
+
         long authCost = System.currentTimeMillis() - startTime;
 
-        if(!returnResult.isOk()) {
-            log.warn("登录认证失败: 用户={}, 类型={}, 原因={}, 耗时={}ms", 
-                    username, loginType, returnResult.getMsg(), authCost);
+        if (!returnResult.isOk()) {
+            log.warn("[LOGIN][traceId={}] 失败: user={}, type={}, 原因={}, 耗时={}ms",
+                    traceId, username, loginType, returnResult.getMsg(), authCost);
             sysUserLogService.asyncSaveUserLog(createLoginLog(returnResult, this, authCost));
             return ReturnResult.illegal(returnResult.getMsg());
         }
-        
+
         LoginResult returnResultData = returnResult.getData();
-        log.debug("登录认证通过, 用户ID: {}, Token长度: {}", 
-                returnResultData.getUserResume().getUserId(),
-                returnResultData.getToken() != null ? returnResultData.getToken().length() : 0);
-        
+        String userId = returnResultData.getUserResume() != null ? returnResultData.getUserResume().getUserId() : "?";
+
+        log.info("[LOGIN][traceId={}] 成功: user={}, userId={}, type={}, 耗时={}ms",
+                traceId, username, userId, loginType, authCost);
+
         CookieUtil.set(response, authServerProperties.getCookieName(), returnResultData.getToken(), true);
-        log.debug("Cookie已设置: {}", authServerProperties.getCookieName());
-        
+
         String json = Json.toJson(returnResultData);
         sysUserLogService.asyncSaveUserLog(createLoginLog(returnResult, this, authCost));
-        
-        log.info("登录认证成功: 用户={}, 类型={}, 耗时={}ms", username, loginType, authCost);
-        log.debug("========== 登录认证结束 ==========");
-        
+
         return ReturnResult.ok(authInformation.encodeHex(json));
     }
 
@@ -123,12 +120,12 @@ public final class LoginAuthorization implements Authorization {
         sysUserLog.setSysLogUsername(loginAuthorization.username);
         sysUserLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
         sysUserLog.setSysLogUrl("/login");
+        sysUserLog.setSysLogFrom(returnResult.isOk() ? "LOGIN" : "LOGIN_FAIL");
         sysUserLog.setSysLogAppName(appName);
         sysUserLog.setSysLogLoginType(loginAuthorization.loginType);
         sysUserLog.setSysLogCost(BigDecimal.valueOf(cost));
         sysUserLog.setSysLogStatus(returnResult.isOk() ? 1 : 0);
         sysUserLog.setSysLogMessage(returnResult.getMsg());
-
         return sysUserLog;
     }
 
