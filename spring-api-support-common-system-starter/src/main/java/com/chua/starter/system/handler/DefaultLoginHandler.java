@@ -42,7 +42,7 @@ public class DefaultLoginHandler implements LoginHandler {
         String address = getIpAddress(request);
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         long startTime = System.currentTimeMillis();
-        LoginAuthResult accessToken = clientExecute.getAccessToken(loginData.getUsername(), loginData.getPassword(), AuthType.valueOf(loginData.getLoginType()),
+        LoginAuthResult accessToken = clientExecute.getAccessToken(loginData.getUsername(), loginData.getPassword(), AuthType.fromCode(loginData.getLoginType()),
                 ImmutableBuilder.<String, Object>builderOfMap()
                         .put("address", address)
                         .put("fingerprint", fingerprint)

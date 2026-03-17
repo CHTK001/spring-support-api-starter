@@ -161,7 +161,7 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
         });
 
         // 鉴权端点
-        server.post("/oauth", (request, response) -> {
+        server.post("/verify", (request, response) -> {
             try {
                 String body = extractBody(request);
                 AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);

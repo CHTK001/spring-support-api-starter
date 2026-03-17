@@ -69,12 +69,18 @@ public class LoginCheck {
             return ReturnResult.noAuth(message);
         }
 
+        // authType 为空或 NONE 时，fallback 到默认的 WEB 登录
+        String resolvedAuthType = (StringUtils.isBlank(authType) || "NONE".equalsIgnoreCase(authType))
+                ? "WEB" : authType;
+
         // 使用 SPI 机制获取 UserInfoService 实现
-        UserInfoService userInfoService = ServiceProvider.of(UserInfoService.class).getExtension(authType);
+        UserInfoService userInfoService = ServiceProvider.of(UserInfoService.class).getExtension(resolvedAuthType);
         if (userInfoService == null) {
-            log.warn("未找到匹配的认证服务: authType={}", authType);
-            return ReturnResult.noAuth("未找到匹配的认证服务");
+            log.warn("未找到匹配的认证服务: authType={}", resolvedAuthType);
+            return ReturnResult.noAuth("不支持该登录/鉴权方式: " + resolvedAuthType);
         }
+        // 用解析后的类型替换原始值，保证后续 loginType 记录正确
+        authType = resolvedAuthType;
         
         log.debug("通过SPI获取到UserInfoService: {}", userInfoService.getClass().getSimpleName());
         
@@ -87,8 +93,7 @@ public class LoginCheck {
                     System.currentTimeMillis() - checkStartTime,
                     userResume != null ? (Strings.isNullOrEmpty(userResume.getMessage()) ? "成功" : "失败:" + userResume.getMessage()) : "null");
         } catch (Exception e) {
-            log.error("用户认证异常: {}, 类型: {}, 异常信息: {}", principal, authType, e.getMessage());
-            log.debug("认证异常详情", e);
+            log.error("用户认证异常: {}, 类型: {}, 异常信息: {}", principal, authType, e.getMessage(), e);
             return ReturnResult.noAuth("认证异常: " + e.getMessage());
         }
         

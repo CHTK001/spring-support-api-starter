@@ -10,7 +10,29 @@ spring:
       port: 16379
       database: 15
 
+# ===========================================
+# OAuth 服务端配置
+# ===========================================
+plugin:
+  oauth:
+    server:
+      # 签名校验开关（默认 true，生产环境必须开启）
+      # 关闭后跳过 x-oauth-sign 验证，仅用于调试
+      sign-verify: true
+      # 令牌过期时间（秒），默认 3 天
+      expire: 259200
+      # 刷新令牌过期时间（秒），默认 4 天
+      refresh-expire: 345600
+      # 令牌自动续期（每次鉴权成功后重置过期时间）
+      renew: false
+      # 用户在线模式：SINGLE / MULTIPLE / LIMIT
+      online: SINGLE
+      # 是否开启 AK/SK 校验
+      open-check-ak-sk: false
+
 logging:
   level:
     org.mybatis: debug
     com.baomidou.mybatisplus: debug
+    com.chua.starter.oauth.sso: INFO
+    com.chua.starter.oauth.sso.support.information.BaseAuthInformation: WARN
