@@ -82,7 +82,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
         this.sign = getRequestHeader(request, "x-oauth-sign");
         this.accessKey = getRequestHeader(request, "x-oauth-ak");
         this.isEncode = Converter.convertIfNecessary(
-            StringUtils.defaultIfBlank(getRequestHeader(request, "x-oauth-encode"), "true"), 
+            StringUtils.defaultIfBlank(getRequestHeader(request, "x-oauth-encode"), "false"), 
             Boolean.class);
         
         this.decodeData();
@@ -170,6 +170,13 @@ public abstract class BaseAuthInformation implements AuthInformation {
             
             String decodeKey = Codec.build(encryption, uuid).decodeHex(serial);
             log.debug("解密后的密钥长度: {}", decodeKey != null ? decodeKey.length() : 0);
+            
+            if (decodeKey == null) {
+                log.error("[decodeData] serial 解密失败，无法获取数据密钥，uuid={}, serial长度={}", 
+                        uuid, serial != null ? serial.length() : 0);
+                logRequestCompletion(startTime, clientIp);
+                return;
+            }
             
             String decryptedData = Codec.build(encryption, decodeKey).decodeHex(data);
             log.debug("解密后的数据长度: {}", decryptedData != null ? decryptedData.length() : 0);

@@ -71,13 +71,89 @@ public final class LogoutAuthorization implements Authorization {
             type = LogoutType.LOGOUT;
         }
 
-        tokenResolver.logout(uid, type);
+        // 如果 uid 为空但 token 不为空，尝试从 token 中提取 uid
+        String actualUid = uid;
+        if (actualUid == null && token != null && token.length() > 0) {
+            try {
+                // 尝试从 JWT token 中提取 uid
+                if (isJwtToken(token)) {
+                    actualUid = extractUidFromJwt(token);
+                    log.info("[LOGOUT][traceId={}] 从 JWT token 中提取 uid={}", traceId, actualUid);
+                } else {
+                    // 对于普通 token，使用 token 本身作为 uid
+                    actualUid = token;
+                    log.info("[LOGOUT][traceId={}] 使用 token 作为 uid", traceId);
+                }
+            } catch (Exception e) {
+                log.warn("[LOGOUT][traceId={}] 从 token 提取 uid 失败: {}", traceId, e.getMessage());
+                // 如果提取失败，使用 token 本身
+                actualUid = token;
+            }
+        }
+
+        if (actualUid == null) {
+            log.error("[LOGOUT][traceId={}] 失败: uid 和 token 均为空", traceId);
+            return ReturnResult.error("登出失败: 缺少用户标识");
+        }
+
+        tokenResolver.logout(actualUid, type);
 
         long cost = System.currentTimeMillis() - startTime;
         log.info("[LOGOUT][traceId={}] 成功: uid={}, type={}, 耗时={}ms", traceId,
-                uid != null && uid.length() > 8 ? uid.substring(0, 8) + "..." : uid, type, cost);
+                actualUid != null && actualUid.length() > 8 ? actualUid.substring(0, 8) + "..." : actualUid, type, cost);
 
         return ReturnResult.ok(authInformation.encodeHex("SUCCESS"));
+    }
+
+    /**
+     * 判断是否为 JWT token（三段式，以 . 分隔）
+     */
+    private boolean isJwtToken(String token) {
+        if (token == null || token.isEmpty()) {
+            return false;
+        }
+        // 移除 Bearer 前缀
+        String actualToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+        String[] parts = actualToken.split("\\.");
+        return parts.length == 3;
+    }
+
+    /**
+     * 从 JWT token 中提取 uid（sub 字段）
+     */
+    private String extractUidFromJwt(String token) {
+        try {
+            // 移除 Bearer 前缀
+            String actualToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+            
+            // JWT 格式: header.payload.signature
+            String[] parts = actualToken.split("\\.");
+            if (parts.length != 3) {
+                throw new IllegalArgumentException("Invalid JWT format");
+            }
+
+            // 解码 payload（Base64URL）
+            String payload = parts[1];
+            // Base64URL 解码
+            byte[] decodedBytes = java.util.Base64.getUrlDecoder().decode(payload);
+            String payloadJson = new String(decodedBytes, java.nio.charset.StandardCharsets.UTF_8);
+
+            // 解析 JSON 获取 sub 字段
+            @SuppressWarnings("unchecked")
+            java.util.Map<String, Object> jsonMap = com.chua.common.support.text.json.Json.fromJson(payloadJson, java.util.Map.class);
+            Object subObj = jsonMap.get("sub");
+            if (subObj == null) {
+                throw new IllegalArgumentException("JWT payload missing 'sub' field");
+            }
+            String sub = String.valueOf(subObj);
+            if (sub.isEmpty()) {
+                throw new IllegalArgumentException("JWT payload 'sub' field is empty");
+            }
+            return sub;
+        } catch (Exception e) {
+            log.warn("从 JWT token 提取 uid 失败: {}", e.getMessage());
+            throw new RuntimeException("Failed to extract uid from JWT token", e);
+        }
     }
 
 }

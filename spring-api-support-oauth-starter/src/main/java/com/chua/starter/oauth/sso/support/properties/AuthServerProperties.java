@@ -410,7 +410,7 @@ public class AuthServerProperties {
         /**
          * 是否启用 JWT 认证
          */
-        private boolean enabled = false;
+        private boolean enabled = true;  // 默认启用
 
         /**
          * JWT 签名算法

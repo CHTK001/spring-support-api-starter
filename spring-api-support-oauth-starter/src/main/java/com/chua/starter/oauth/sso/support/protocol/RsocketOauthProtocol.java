@@ -32,6 +32,7 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 /**
  * RSocket 协议实现
@@ -97,8 +98,20 @@ public class RsocketOauthProtocol implements OauthProtocol, InitializingBean, Di
      * @return 响应
      */
     private Mono<Payload> handleRequest(Payload payload) {
+        // 共享的 rsocketResponse，用于收集响应头（如 x-oauth-response-serial）
+        RsocketAuthInformation.RsocketResponse sharedResponse = new RsocketAuthInformation.RsocketResponse();
         try {
-            String route = payload.getMetadataUtf8();
+            // metadata 是 JSON，需要解析出 route 字段
+            String metadataRaw = payload.getMetadataUtf8();
+            String route = metadataRaw;
+            try {
+                var metaObj = com.chua.common.support.text.json.Json.getJsonObject(metadataRaw);
+                if (metaObj != null && metaObj.containsKey("route")) {
+                    route = "/" + metaObj.getString("route");
+                }
+            } catch (Exception ignored) {
+                // 非 JSON 格式则直接用原始值
+            }
             String body = payload.getDataUtf8();
 
             log.debug("RSocket 请求: route={}, bodyLength={}", route, body != null ? body.length() : 0);
@@ -107,25 +120,31 @@ public class RsocketOauthProtocol implements OauthProtocol, InitializingBean, Di
             ReturnResult<String> result;
             switch (route) {
                 case "/oauth":
-                    result = handleOauth(body, payload);
+                    result = handleOauth(body, payload, sharedResponse);
                     break;
                 case "/login":
-                    result = handleLogin(body, payload);
+                    result = handleLogin(body, payload, sharedResponse);
                     break;
                 case "/logout":
-                    result = handleLogout(body, payload);
+                    result = handleLogout(body, payload, sharedResponse);
                     break;
                 case "/upgrade":
-                    result = handleUpgrade(body, payload);
+                    result = handleUpgrade(body, payload, sharedResponse);
                     break;
                 case "/temporary-token":
-                    result = handleTemporaryToken(body, payload);
+                    result = handleTemporaryToken(body, payload, sharedResponse);
                     break;
                 default:
                     result = ReturnResult.error("不支持的路由: " + route);
             }
 
             String responseBody = Json.toJson(result);
+            // 把响应头（如 x-oauth-response-serial）放到 metadata 里传给客户端
+            Map<String, String> responseHeaders = sharedResponse.getAllHeaders();
+            if (!responseHeaders.isEmpty()) {
+                String responseMeta = Json.toJson(responseHeaders);
+                return Mono.just(DefaultPayload.create(responseBody, responseMeta));
+            }
             return Mono.just(DefaultPayload.create(responseBody));
 
         } catch (Exception e) {
@@ -138,20 +157,19 @@ public class RsocketOauthProtocol implements OauthProtocol, InitializingBean, Di
     /**
      * 处理 OAuth 认证请求
      */
-    private ReturnResult<String> handleOauth(String body, Payload payload) {
+    private ReturnResult<String> handleOauth(String body, Payload payload, RsocketAuthInformation.RsocketResponse sharedResponse) {
         try {
             AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
 
             // 创建适配器请求/响应对象
             RsocketAuthInformation.RsocketRequest rsocketRequest = createRsocketRequest(payload);
-            RsocketAuthInformation.RsocketResponse rsocketResponse = new RsocketAuthInformation.RsocketResponse();
 
             // 创建认证信息
             OauthAuthInformation authInformation = new OauthAuthInformation(
                     authServerProperties,
                     authRequest.getData(),
                     rsocketRequest,
-                    rsocketResponse,
+                    sharedResponse,
                     applicationContext,
                     loginCheck);
 
@@ -173,15 +191,17 @@ public class RsocketOauthProtocol implements OauthProtocol, InitializingBean, Di
     /**
      * 处理登录请求
      */
-    private ReturnResult<String> handleLogin(String body, Payload payload) {
+    private ReturnResult<String> handleLogin(String body, Payload payload, RsocketAuthInformation.RsocketResponse sharedResponse) {
         try {
+            AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
+            if (authRequest == null) authRequest = new AuthRequest();
+
             RsocketAuthInformation.RsocketRequest rsocketRequest = createRsocketRequest(payload);
-            RsocketAuthInformation.RsocketResponse rsocketResponse = new RsocketAuthInformation.RsocketResponse();
 
             // RsocketRequest 实现了 HttpServletRequest，可直接使用 HTTP 构造函数
             LoginAuthInformation authInformation = new LoginAuthInformation(
-                    authServerProperties, body, (jakarta.servlet.http.HttpServletRequest) rsocketRequest,
-                    (jakarta.servlet.http.HttpServletResponse) rsocketResponse, applicationContext, loginCheck);
+                    authServerProperties, authRequest.getData(), (jakarta.servlet.http.HttpServletRequest) rsocketRequest,
+                    (jakarta.servlet.http.HttpServletResponse) sharedResponse, applicationContext, loginCheck);
 
             if (!authInformation.isSuccessful()) {
                 return ReturnResult.illegal(authInformation.errorMessage());
@@ -197,14 +217,16 @@ public class RsocketOauthProtocol implements OauthProtocol, InitializingBean, Di
     /**
      * 处理登出请求
      */
-    private ReturnResult<String> handleLogout(String body, Payload payload) {
+    private ReturnResult<String> handleLogout(String body, Payload payload, RsocketAuthInformation.RsocketResponse sharedResponse) {
         try {
+            AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
+            if (authRequest == null) authRequest = new AuthRequest();
+
             RsocketAuthInformation.RsocketRequest rsocketRequest = createRsocketRequest(payload);
-            RsocketAuthInformation.RsocketResponse rsocketResponse = new RsocketAuthInformation.RsocketResponse();
 
             LogoutAuthInformation authInformation = new LogoutAuthInformation(
-                    authServerProperties, body, (jakarta.servlet.http.HttpServletRequest) rsocketRequest,
-                    (jakarta.servlet.http.HttpServletResponse) rsocketResponse, applicationContext, loginCheck);
+                    authServerProperties, authRequest.getData(), (jakarta.servlet.http.HttpServletRequest) rsocketRequest,
+                    (jakarta.servlet.http.HttpServletResponse) sharedResponse, applicationContext, loginCheck);
 
             if (!authInformation.isSuccessful()) {
                 return ReturnResult.illegal(authInformation.errorMessage());
@@ -220,14 +242,16 @@ public class RsocketOauthProtocol implements OauthProtocol, InitializingBean, Di
     /**
      * 处理升级请求（token 刷新/升级）
      */
-    private ReturnResult<String> handleUpgrade(String body, Payload payload) {
+    private ReturnResult<String> handleUpgrade(String body, Payload payload, RsocketAuthInformation.RsocketResponse sharedResponse) {
         try {
+            AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
+            if (authRequest == null) authRequest = new AuthRequest();
+
             RsocketAuthInformation.RsocketRequest rsocketRequest = createRsocketRequest(payload);
-            RsocketAuthInformation.RsocketResponse rsocketResponse = new RsocketAuthInformation.RsocketResponse();
 
             UpgradeAuthInformation authInformation = new UpgradeAuthInformation(
-                    authServerProperties, body, (jakarta.servlet.http.HttpServletRequest) rsocketRequest,
-                    (jakarta.servlet.http.HttpServletResponse) rsocketResponse, applicationContext, loginCheck);
+                    authServerProperties, authRequest.getData(), (jakarta.servlet.http.HttpServletRequest) rsocketRequest,
+                    (jakarta.servlet.http.HttpServletResponse) sharedResponse, applicationContext, loginCheck);
 
             if (!authInformation.isSuccessful()) {
                 return ReturnResult.illegal(authInformation.errorMessage());
@@ -243,14 +267,16 @@ public class RsocketOauthProtocol implements OauthProtocol, InitializingBean, Di
     /**
      * 处理临时令牌请求
      */
-    private ReturnResult<String> handleTemporaryToken(String body, Payload payload) {
+    private ReturnResult<String> handleTemporaryToken(String body, Payload payload, RsocketAuthInformation.RsocketResponse sharedResponse) {
         try {
+            AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
+            if (authRequest == null) authRequest = new AuthRequest();
+
             RsocketAuthInformation.RsocketRequest rsocketRequest = createRsocketRequest(payload);
-            RsocketAuthInformation.RsocketResponse rsocketResponse = new RsocketAuthInformation.RsocketResponse();
 
             TemporaryTokenAuthInformation authInformation = new TemporaryTokenAuthInformation(
-                    authServerProperties, body, (jakarta.servlet.http.HttpServletRequest) rsocketRequest,
-                    (jakarta.servlet.http.HttpServletResponse) rsocketResponse, applicationContext, loginCheck);
+                    authServerProperties, authRequest.getData(), (jakarta.servlet.http.HttpServletRequest) rsocketRequest,
+                    (jakarta.servlet.http.HttpServletResponse) sharedResponse, applicationContext, loginCheck);
 
             if (!authInformation.isSuccessful()) {
                 return ReturnResult.illegal(authInformation.errorMessage());
@@ -286,17 +312,26 @@ public class RsocketOauthProtocol implements OauthProtocol, InitializingBean, Di
         // RSocket 的 metadata 通常包含路由和元数据信息
         String metadata = payload.getMetadataUtf8();
         if (metadata != null && !metadata.isEmpty()) {
-            // 解析 metadata，提取 Header 信息
-            // 这里假设 metadata 是 JSON 格式，包含 headers 字段
             try {
-                var metadataObj = Json.getJsonObject(metadata);
-                if (metadataObj.containsKey("headers")) {
-                    var headers = metadataObj.getJSONObject("headers");
-                    headers.forEach((key, value) -> {
-                        if (value != null) {
+                var metadataObj = com.chua.common.support.text.json.Json.getJsonObject(metadata);
+                if (metadataObj != null) {
+                    // 客户端发送的 metadata 是平铺 JSON，所有 x-oauth-* 字段直接作为 header
+                    metadataObj.forEach((key, value) -> {
+                        if (key != null && !key.equals("route") && value != null) {
                             rsocketRequest.setHeader(key, value.toString());
                         }
                     });
+                    // 兼容旧格式：如果有 headers 子对象
+                    if (metadataObj.containsKey("headers")) {
+                        var headers = metadataObj.getJSONObject("headers");
+                        if (headers != null) {
+                            headers.forEach((key, value) -> {
+                                if (value != null) {
+                                    rsocketRequest.setHeader(key, value.toString());
+                                }
+                            });
+                        }
+                    }
                 }
             } catch (Exception e) {
                 log.debug("解析 RSocket metadata 失败", e);
