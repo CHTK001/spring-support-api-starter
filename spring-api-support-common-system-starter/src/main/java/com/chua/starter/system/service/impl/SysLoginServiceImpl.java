@@ -127,14 +127,29 @@ public class SysLoginServiceImpl implements SysLoginService {
 
     @Override
     public UserInfoVO getUserLoginInfo(String token) {
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes == null || StringUtils.isBlank(token)) {
+        if (StringUtils.isBlank(token)) {
             return new UserInfoVO();
         }
-
-        ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
-        attributes.getRequest().setAttribute(authProperties.getTokenName(), token);
-        return getUserLoginInfo();
+        // 直接用 token 去鉴权服务器获取用户信息，不依赖 request header
+        UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult(token);
+        if (userLoginInfo == null || userLoginInfo.getExt() == null || userLoginInfo.getExt().isEmpty()) {
+            // fallback: 通过 request attribute 设置 token 再获取
+            RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+            if (requestAttributes != null) {
+                ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
+                attributes.getRequest().setAttribute(authProperties.getTokenName(), token);
+                com.chua.starter.oauth.client.support.execute.AuthSessionUtils.removeUserInfo();
+                return getUserLoginInfo();
+            }
+            return new UserInfoVO();
+        }
+        UserInfoVO userInfoVO = new UserInfoVO();
+        com.chua.common.support.base.bean.BeanUtils.copyProperties(userLoginInfo.getExt(), userInfoVO);
+        userInfoVO.setAvatar(userLoginInfo.getOption("sysUserAvatar"));
+        userInfoVO.setTenantId(userLoginInfo.getTenantId());
+        userInfoVO.setRoles(userLoginInfo.getRoles());
+        userInfoVO.setPerms(userLoginInfo.getPermission());
+        return userInfoVO;
     }
 
     @Override

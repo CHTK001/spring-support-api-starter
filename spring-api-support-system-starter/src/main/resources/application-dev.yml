@@ -21,7 +21,13 @@ logging:
 
 plugin:
   oauth:
-    address: http://127.0.0.1:19180/oauth
-    enable-encryption: false
+    address: http://127.0.0.1:19180
+    protocol: armeria
+    enable-encryption: true
+    login-page: /oauth/login
+    logout-page: /oauth/logout
+    oauth-url: /oauth/verify
+    temporary-token-page: /oauth/temporary-token
+    upgrade-page: /oauth/upgrade
     whitelist:
       - /**/refresh-token
