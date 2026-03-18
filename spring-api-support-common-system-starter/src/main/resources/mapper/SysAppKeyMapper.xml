@@ -5,6 +5,7 @@
     <resultMap id="BaseResultMap" type="com.chua.starter.entity.system.SysAppKey">
         <id column="sys_app_key_id" jdbcType="INTEGER" property="sysAppKeyId"/>
         <result column="sys_app_key_app_id" jdbcType="VARCHAR" property="sysAppKeyAppId"/>
+        <result column="app_key" jdbcType="VARCHAR" property="sysAppKeyAppKey"/>
         <result column="sys_app_key_secret" jdbcType="VARCHAR" property="sysAppKeySecret"/>
         <result column="sys_app_key_name" jdbcType="VARCHAR" property="sysAppKeyName"/>
         <result column="sys_user_id" jdbcType="INTEGER" property="sysUserId"/>
@@ -15,6 +16,9 @@
         <result column="sys_app_key_remark" jdbcType="VARCHAR" property="sysAppKeyRemark"/>
         <result column="sys_app_key_last_used_time" jdbcType="BIGINT" property="sysAppKeyLastUsedTime"/>
         <result column="sys_app_key_use_count" jdbcType="INTEGER" property="sysAppKeyUseCount"/>
+        <result column="sys_app_key_scope" jdbcType="VARCHAR" property="sysAppKeyScope"/>
+        <result column="sys_app_key_grant_types" jdbcType="VARCHAR" property="sysAppKeyGrantTypes"/>
+        <result column="sys_app_key_redirect_uris" jdbcType="VARCHAR" property="sysAppKeyRedirectUris"/>
         <result column="create_name" jdbcType="VARCHAR" property="createName"/>
         <result column="create_by" jdbcType="INTEGER" property="createBy"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
@@ -24,9 +28,10 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        sys_app_key_id, sys_app_key_app_id, sys_app_key_secret, sys_app_key_name,
+        sys_app_key_id, sys_app_key_app_id, app_key, sys_app_key_secret, sys_app_key_name,
         sys_user_id, sys_app_key_status, sys_app_key_delete, sys_app_key_expire_time,
         sys_app_key_ip_whitelist, sys_app_key_remark, sys_app_key_last_used_time, sys_app_key_use_count,
+        sys_app_key_scope, sys_app_key_grant_types, sys_app_key_redirect_uris,
         create_name, create_by, create_time, update_time, update_name, update_by
     </sql>
 
@@ -35,7 +40,7 @@
         SELECT
         <include refid="Base_Column_List"/>
         FROM sys_app_key
-        WHERE sys_app_key_secret = #{appKey}
+        WHERE app_key = #{appKey}
           AND sys_app_key_delete = 0
     </select>
 

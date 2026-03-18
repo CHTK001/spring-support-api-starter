@@ -10,6 +10,7 @@ import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.annotation.TokenForIgnore;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
+import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.protocol.AbstractProtocol;
 import com.chua.starter.oauth.client.support.provider.LoginData;
@@ -20,6 +21,10 @@ import com.chua.starter.system.pojo.UserInfoVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.service.SysLoginService;
 import com.chua.starter.system.service.SysUserService;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -32,9 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Set;
 
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 import static com.chua.starter.common.support.logger.AbstractLoggerPointcutAdvisor.X_REQ_FINGERPRINT;
@@ -180,5 +182,92 @@ public class LoginController {
     @GetMapping("/menu")
     public ReturnResult<List<SysMenuVO>> getUserMenu(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return sysUserService.getUserMenu(roles);
+    }
+
+    /**
+     * 创建临时令牌
+     *
+     * @param body 请求体，可包含 expireTime（秒，默认10，最大3600）和 allowedUrls（逗号分隔的URL列表）
+     * @return 临时令牌
+     */
+    @Operation(summary = "创建临时令牌")
+    @PostMapping("/temporary-token")
+    @SysLog
+    public ReturnResult<String> createTemporaryToken(
+            @RequestBody(required = false) Map<String, Object> body) {
+        int expireTime = 10;
+        List<String> allowedUrls = null;
+
+        if (body != null) {
+            Object expireObj = body.get("expireTime");
+            if (expireObj instanceof Number n) {
+                expireTime = n.intValue();
+            } else if (expireObj instanceof String s) {
+                try { expireTime = Integer.parseInt(s); } catch (NumberFormatException ignored) {}
+            }
+            Object urlsObj = body.get("allowedUrls");
+            if (urlsObj instanceof List<?> list) {
+                allowedUrls = list.stream().map(Object::toString).toList();
+            } else if (urlsObj instanceof String s && StringUtils.isNotBlank(s)) {
+                allowedUrls = List.of(s.split(","));
+            }
+        }
+
+        AuthClientExecute clientExecute = AuthClientExecute.getInstance();
+        LoginAuthResult result = clientExecute.createTemporaryToken(expireTime, allowedUrls);
+        if (result == null) {
+            return ReturnResult.error("创建临时令牌失败");
+        }
+        if (result.getCode() != 200) {
+            return ReturnResult.error(result.getMessage());
+        }
+        return ReturnResult.ok(result.getToken());
+    }
+
+    /**
+     * Token 升级（VERSION 刷新用户信息 / TIMESTAMP 续期）
+     *
+     * @param upgradeType 升级类型：VERSION（刷新用户信息）/ TIMESTAMP（续期）
+     * @param token       当前 accessToken（从 Header 获取）
+     * @return 升级结果，包含新 token 信息
+     */
+    @Operation(summary = "Token升级（VERSION刷新用户信息/TIMESTAMP续期）")
+    @PostMapping("/upgrade")
+    @SysLog
+    public ReturnResult<LoginResult> upgrade(
+            @RequestHeader(name = "x-oauth-upgrade-type", defaultValue = "VERSION") String upgradeType,
+            @UserValue("token") String token,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        if (StringUtils.isEmpty(token)) {
+            token = request.getHeader("x-oauth-token");
+        }
+        if (StringUtils.isEmpty(token)) {
+            return ReturnResult.error("未登录");
+        }
+
+        UpgradeType type;
+        try {
+            type = UpgradeType.valueOf(upgradeType.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ReturnResult.error("不支持的升级类型: " + upgradeType);
+        }
+
+        AuthClientExecute clientExecute = AuthClientExecute.getInstance();
+        com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(token, type);
+        if (upgrade == null) {
+            return ReturnResult.error("升级失败");
+        }
+
+        // 清除本地缓存，确保下次请求重新从服务端获取最新用户信息
+        AbstractProtocol.invalidateCache(token);
+
+        LoginResult loginResult = LoginResult.builder()
+                .userInfo(sysLoginService.getUserLoginInfo(upgrade.getToken()))
+                .tokenType("Bearer")
+                .accessToken(upgrade.getToken())
+                .refreshToken(upgrade.getRefreshToken())
+                .build();
+        return ReturnResult.ok(loginResult);
     }
 }
