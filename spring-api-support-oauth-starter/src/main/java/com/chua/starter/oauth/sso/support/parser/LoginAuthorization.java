@@ -5,12 +5,14 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.network.net.UserAgent;
 import com.chua.common.support.core.utils.MapUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
+import com.chua.starter.common.support.utils.IpUtils;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.system.service.SysUserLogService;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.entity.system.SysUserLog;
+import com.chua.starter.common.support.service.IptablesService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -33,6 +35,7 @@ public final class LoginAuthorization implements Authorization {
     private final HttpServletResponse response;
     private final AuthServerProperties authServerProperties;
     private final SysUserLogService sysUserLogService;
+    private final IptablesService iptablesService;
     final ApplicationContext applicationContext;
     final LoginCheck loginCheck;
     private final LoginAuthInformation authInformation;
@@ -59,6 +62,12 @@ public final class LoginAuthorization implements Authorization {
         this.sysUserLogService = sysUserLogService;
         this.applicationContext = applicationContext;
         this.loginCheck = loginCheck;
+        // 可选注入 IptablesService（用于 IP 归属地解析）
+        IptablesService iptSvc = null;
+        try {
+            iptSvc = applicationContext.getBean(IptablesService.class);
+        } catch (Exception ignored) {}
+        this.iptablesService = iptSvc;
     }
 
     @Override
@@ -112,10 +121,19 @@ public final class LoginAuthorization implements Authorization {
     private SysUserLog createLoginLog(ReturnResult<LoginResult> returnResult, LoginAuthorization loginAuthorization, long cost) {
         Map<String, String> stringMap = this.ext;
         SysUserLog sysUserLog = new SysUserLog();
-        sysUserLog.setSysLogIp(MapUtils.getString(stringMap, "address"));
-        sysUserLog.setSysLogFingerprint(MapUtils.getString(stringMap, "fingerprint"));
-        sysUserLog.setSysLogUa(MapUtils.getString(stringMap, "ua"));
-        UserAgent userAgent = UserAgent.parseUserAgentString(MapUtils.getString(stringMap, "ua"));
+        String ip = MapUtils.getString(stringMap, "address");
+        sysUserLog.setSysLogIp(ip);
+        String ua = MapUtils.getString(stringMap, "ua");
+        sysUserLog.setSysLogUa(ua);
+
+        // 指纹：优先用客户端上报的，fallback 到 UA 生成的伪指纹
+        String fingerprint = MapUtils.getString(stringMap, "fingerprint");
+        if (fingerprint == null || fingerprint.isBlank()) {
+            fingerprint = IpUtils.fingerprintFromUserAgent(ua);
+        }
+        sysUserLog.setSysLogFingerprint(fingerprint);
+
+        UserAgent userAgent = UserAgent.parseUserAgentString(ua);
         sysUserLog.setSysLogBrowser(userAgent.getBrowser().toString());
         sysUserLog.setSysLogUsername(loginAuthorization.username);
         sysUserLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
@@ -126,6 +144,20 @@ public final class LoginAuthorization implements Authorization {
         sysUserLog.setSysLogCost(BigDecimal.valueOf(cost));
         sysUserLog.setSysLogStatus(returnResult.isOk() ? 1 : 0);
         sysUserLog.setSysLogMessage(returnResult.getMsg());
+
+        // IP 归属地解析
+        if (iptablesService != null && ip != null && !ip.isBlank()) {
+            try {
+                com.chua.common.support.lang.code.ReturnResult<com.chua.common.support.geo.GeoCity> geoResult =
+                        iptablesService.transferAddress(ip);
+                if (geoResult != null && geoResult.isOk() && geoResult.getData() != null) {
+                    com.chua.common.support.geo.GeoCity city = geoResult.getData();
+                    sysUserLog.setSysLogAddress(city.toString());
+                    sysUserLog.setSysLogIsp(city.getIsp());
+                }
+            } catch (Exception ignored) {}
+        }
+
         return sysUserLog;
     }
 
