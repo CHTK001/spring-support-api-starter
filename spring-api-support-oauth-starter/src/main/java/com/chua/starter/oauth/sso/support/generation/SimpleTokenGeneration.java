@@ -12,6 +12,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 public class SimpleTokenGeneration implements TokenGeneration {
     @Override
     public String generation(String key) {
+        if (key == null) {
+            key = java.util.UUID.randomUUID().toString();
+        }
         return DigestUtils.sha512Hex(DigestUtils.md5Hex(key));
     }
 }

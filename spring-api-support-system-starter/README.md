@@ -102,6 +102,22 @@ cd spring-api-support-system-starter
 mvn spring-boot:run
 ```
 
+### 5. 静态登录联调模式
+
+本模块支持 `dev-static` 静态登录模式，用于本地只启动系统服务和系统前端时联调，无需额外启动 OAuth 服务端。
+
+```bash
+mvn -pl spring-api-support-system-starter spring-boot:run -Dspring-boot.run.profiles=dev-static -Dspring-boot.run.arguments=--server.port=18175
+```
+
+关键点：
+
+- `application.yml` 默认激活 `dev-static`
+- `application-dev-static.yml` 将 `plugin.oauth.protocol` 设为 `static`
+- 本地联调脚本默认把 system 启到 `18175`，避免和现有 `18170` 实例冲突
+- 前端登录页会提供“静态登录测试”入口，适合开发/测试环境快速进入系统
+- 如需完整单点登录链路，请改用 `dev` 并同时启动 `spring-api-support-oauth-starter`
+
 ## 📦 模块结构
 
 ```

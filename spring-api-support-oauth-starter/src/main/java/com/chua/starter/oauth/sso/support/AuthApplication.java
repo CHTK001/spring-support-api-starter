@@ -9,6 +9,8 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * 单点登录
@@ -16,6 +18,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  * @author CH
  * @since 2022/7/25 10:59
  */
+@EnableCaching
+@EnableAsync
 @SpringBootApplication(scanBasePackages = {"com.chua.starter.oauth.sso", "com.chua.starter.service"})
 @EnableConfigurationProperties({AuthServerProperties.class})
 @MapperScan({

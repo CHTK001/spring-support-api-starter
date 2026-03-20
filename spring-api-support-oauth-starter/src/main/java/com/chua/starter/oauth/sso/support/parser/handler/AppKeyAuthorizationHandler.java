@@ -55,9 +55,10 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
                 return ReturnResult.error("AppKey不存在或无效");
             }
 
-            // 检查状态
-            if (dbAppKey.getSysAppKeyStatus() != null && dbAppKey.getSysAppKeyStatus() != 0) {
-                log.warn("AppKey已禁用: appKey={}", maskAppKey(appKey));
+            // 检查状态（0=禁用，1=启用）
+            // 使用 Integer.valueOf(0).equals() 避免 NPE，并正确处理 null 值
+            if (Integer.valueOf(0).equals(dbAppKey.getSysAppKeyStatus())) {
+                log.warn("AppKey已禁用: appKey={}, status={}", maskAppKey(appKey), dbAppKey.getSysAppKeyStatus());
                 return ReturnResult.error("AppKey已禁用");
             }
 

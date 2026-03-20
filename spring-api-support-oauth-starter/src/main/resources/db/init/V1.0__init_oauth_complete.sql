@@ -96,18 +96,22 @@ COMMENT = 'AppId应用标识表 - 存储AppId相关信息，与app_key表是并�
 -- =====================================================
 DROP TABLE IF EXISTS `sys_app_key`;
 CREATE TABLE `sys_app_key` (
-    `sys_app_key_id` int NOT NULL AUTO_INCREMENT COMMENT '应用ID - 主键自增',
-    `sys_app_key_app_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'AppKey - 应用访问密钥，类似用户名',
-    `sys_app_key_app_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '应用名称 - 应用的显示名称',
-    `sys_app_key_secret` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'AppSecret - 应用访问密钥，类似密码（需加密存储）',
-    `sys_app_key_description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '应用描述 - 应用的详细说明',
-    `sys_app_key_whitelist` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'IP白名单 - 允许访问的IP地址列表，逗号分隔，如"192.168.1.1,10.0.0.1"',
-    `sys_app_key_status` int NULL DEFAULT 1 COMMENT '应用状态 - 0:禁用, 1:启用',
-    `sys_app_key_expire_time` bigint NULL DEFAULT NULL COMMENT '过期时间 - Unix时间戳(毫秒)，NULL表示永不过期',
-    `sys_app_key_last_use` datetime NULL DEFAULT NULL COMMENT '最后使用时间 - 最近一次使用该密钥的时间',
-    `sys_app_key_use_count` bigint NULL DEFAULT 0 COMMENT '使用次数 - 该密钥累计被调用的次数',
-    `sys_app_key_enable_fingerprint` int NULL DEFAULT 0 COMMENT '是否启用指纹检测 - 0:不启用, 1:启用，启用后认证时会验证客户端指纹',
-    `sys_app_key_fingerprint_whitelist` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '允许的指纹列表 - 多个指纹用逗号分隔，用于指纹白名单验证',
+    `sys_app_key_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `sys_app_key_app_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '应用ID',
+    `app_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'AppKey - 应用访问密钥',
+    `sys_app_key_secret` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'AppSecret - 应用访问密钥（需加密存储）',
+    `sys_app_key_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '应用名称',
+    `sys_user_id` int NULL DEFAULT NULL COMMENT '用户ID',
+    `sys_app_key_status` int NULL DEFAULT 0 COMMENT '状态：0-禁用，1-启用',
+    `sys_app_key_delete` int NULL DEFAULT 0 COMMENT '删除标记：0-未删除，1-已删除',
+    `sys_app_key_expire_time` bigint NULL DEFAULT NULL COMMENT '过期时间 - Unix时间戳(秒)',
+    `sys_app_key_ip_whitelist` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'IP白名单',
+    `sys_app_key_remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
+    `sys_app_key_last_used_time` bigint NULL DEFAULT NULL COMMENT '最后使用时间',
+    `sys_app_key_use_count` int NULL DEFAULT 0 COMMENT '使用次数',
+    `sys_app_key_scope` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '允许的权限范围，多个用逗号分隔',
+    `sys_app_key_grant_types` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '允许的授权类型，多个用逗号分隔',
+    `sys_app_key_redirect_uris` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '允许的回调地址，多个用逗号分隔',
     `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
     `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
     `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -115,9 +119,10 @@ CREATE TABLE `sys_app_key` (
     `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
     `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
     PRIMARY KEY (`sys_app_key_id`) USING BTREE,
-    UNIQUE INDEX `uk_app_key` (`sys_app_key_app_key`) USING BTREE COMMENT 'AppKey唯一索引 - 确保AppKey不重复',
-    INDEX `idx_status` (`sys_app_key_status`) USING BTREE COMMENT '状态索引 - 用于快速查询启用的应用',
-    INDEX `idx_expire_time` (`sys_app_key_expire_time`) USING BTREE COMMENT '过期时间索引 - 用于清理过期密钥'
+    UNIQUE INDEX `uk_app_key` (`app_key`) USING BTREE COMMENT 'AppKey唯一索引',
+    INDEX `idx_status` (`sys_app_key_status`) USING BTREE COMMENT '状态索引',
+    INDEX `idx_user_id` (`sys_user_id`) USING BTREE COMMENT '用户ID索引',
+    INDEX `idx_delete` (`sys_app_key_delete`) USING BTREE COMMENT '删除标记索引'
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
 COMMENT = 'OAuth应用密钥表 - 存储第三方应用的AK/SK，用于API访问认证' ROW_FORMAT = DYNAMIC;
 
