@@ -64,6 +64,7 @@ public class DefaultLoginHandler implements LoginHandler {
                 .tokenType("Bearer")
                 .accessToken(accessToken.getToken())
                 .refreshToken(accessToken.getRefreshToken())
+                .expires(null != accessToken.getUserResume() ? accessToken.getUserResume().getExpireTime() : null)
                 .build();
         CookieUtil.set(response, "x-oauth-cookie", accessToken.getToken(), true);
         return ReturnResult.success(loginResult);

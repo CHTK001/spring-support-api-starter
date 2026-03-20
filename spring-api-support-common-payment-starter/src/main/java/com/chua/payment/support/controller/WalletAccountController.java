@@ -1,0 +1,113 @@
+package com.chua.payment.support.controller;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.payment.support.channel.*;
+import com.chua.payment.support.common.PageResult;
+import com.chua.payment.support.dto.WalletRechargeDTO;
+import com.chua.payment.support.dto.WalletTransferDTO;
+import com.chua.payment.support.dto.WalletWithdrawDTO;
+import com.chua.payment.support.entity.MerchantChannel;
+import com.chua.payment.support.entity.WalletAccountLog;
+import com.chua.payment.support.service.MerchantChannelService;
+import com.chua.payment.support.service.WalletAccountService;
+import com.chua.payment.support.vo.WalletAccountVO;
+import com.chua.starter.common.support.annotations.Permission;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * 钱包账户控制器
+ */
+@RestController
+@RequestMapping("/api/wallet")
+@RequiredArgsConstructor
+public class WalletAccountController {
+
+    private final WalletAccountService walletAccountService;
+    private final MerchantChannelService merchantChannelService;
+    private final PaymentChannelRegistry paymentChannelRegistry;
+
+    @GetMapping("/account")
+    @Permission(value = "payment:wallet:view", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN, AuthConstant.OPS})
+    public ReturnResult<WalletAccountVO> getAccount(@RequestParam Long merchantId,
+                                              @RequestParam Long userId) {
+        return ReturnResult.success(walletAccountService.getAccount(merchantId, userId));
+    }
+
+    @PostMapping("/account/recharge")
+    @Permission(value = "payment:wallet:recharge", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<RechargeResult> recharge(@RequestBody WalletRechargeDTO dto) {
+        MerchantChannel channel = merchantChannelService.getWalletChannel(dto.getMerchantId());
+        PaymentChannel paymentChannel = paymentChannelRegistry.getChannel("WALLET", "BALANCE");
+
+        RechargeRequest request = new RechargeRequest();
+        request.setRechargeNo(dto.getRechargeNo());
+        request.setMerchantId(dto.getMerchantId());
+        request.setUserId(dto.getUserId());
+        request.setAmount(dto.getAmount());
+        request.setOperator(dto.getOperator());
+        request.setRemark(dto.getRemark());
+
+        RechargeResult result = paymentChannel.recharge(channel, request);
+        return ReturnResult.success(result);
+    }
+
+    @PostMapping("/account/transfer")
+    @Permission(value = "payment:wallet:transfer", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<TransferResult> transfer(@RequestBody WalletTransferDTO dto) {
+        MerchantChannel channel = merchantChannelService.getWalletChannel(dto.getMerchantId());
+        PaymentChannel paymentChannel = paymentChannelRegistry.getChannel("WALLET", "BALANCE");
+
+        TransferRequest request = new TransferRequest();
+        request.setTransferNo(dto.getTransferNo());
+        request.setMerchantId(dto.getMerchantId());
+        request.setFromUserId(dto.getFromUserId());
+        request.setToUserId(dto.getToUserId());
+        request.setAmount(dto.getAmount());
+        request.setOperator(dto.getOperator());
+        request.setRemark(dto.getRemark());
+
+        TransferResult result = paymentChannel.transfer(channel, request);
+        return ReturnResult.success(result);
+    }
+
+    @PostMapping("/account/withdraw")
+    @Permission(value = "payment:wallet:withdraw", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<WithdrawResult> withdraw(@RequestBody WalletWithdrawDTO dto) {
+        MerchantChannel channel = merchantChannelService.getWalletChannel(dto.getMerchantId());
+        PaymentChannel paymentChannel = paymentChannelRegistry.getChannel("WALLET", "BALANCE");
+
+        WithdrawRequest request = new WithdrawRequest();
+        request.setWithdrawNo(dto.getWithdrawNo());
+        request.setMerchantId(dto.getMerchantId());
+        request.setUserId(dto.getUserId());
+        request.setAmount(dto.getAmount());
+        request.setBankAccount(dto.getBankAccount());
+        request.setBankName(dto.getBankName());
+        request.setAccountName(dto.getAccountName());
+        request.setOperator(dto.getOperator());
+        request.setRemark(dto.getRemark());
+
+        WithdrawResult result = paymentChannel.withdraw(channel, request);
+        return ReturnResult.success(result);
+    }
+
+    @GetMapping("/account/log/page")
+    @Permission(value = "payment:wallet:view", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN, AuthConstant.OPS})
+    public ReturnResult<PageResult<WalletAccountLog>> pageLogs(@RequestParam(defaultValue = "1") int pageNum,
+                                                         @RequestParam(defaultValue = "10") int pageSize,
+                                                         @RequestParam(required = false) Long merchantId,
+                                                         @RequestParam(required = false) Long userId,
+                                                         @RequestParam(required = false) String bizType,
+                                                         @RequestParam(required = false) String bizNo) {
+        Page<WalletAccountLog> page = walletAccountService.pageLogs(pageNum, pageSize, merchantId, userId, bizType, bizNo);
+        return ReturnResult.success(PageResult.of(page));
+    }
+}

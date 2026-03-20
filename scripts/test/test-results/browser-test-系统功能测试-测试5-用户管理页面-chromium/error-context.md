@@ -1,0 +1,75 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - img [ref=e5]
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - img [ref=e11]
+      - generic [ref=e13]: 开发环境
+    - button "现代简约" [ref=e16] [cursor=pointer]:
+      - img [ref=e17]
+      - generic [ref=e19]: 现代简约
+      - img [ref=e20]
+    - generic [ref=e23]:
+      - switch
+      - img [ref=e28] [cursor=pointer]
+    - button "简体中文 语言" [ref=e33] [cursor=pointer]:
+      - img [ref=e35]
+      - generic [ref=e37]:
+        - generic [ref=e38]: 简体中文
+        - generic [ref=e39]: 语言
+      - img [ref=e41]
+  - generic [ref=e44]:
+    - img [ref=e47]
+    - generic [ref=e87]:
+      - generic [ref=e90]:
+        - generic [ref=e91]:
+          - img [ref=e101] [cursor=pointer]
+          - generic [ref=e107]:
+            - heading "后台管理系统" [level=2] [ref=e109]:
+              - generic [ref=e112]: 后台管理系统
+            - paragraph [ref=e114]:
+              - generic [ref=e115]: ✨
+              - text: 欢迎回来，请登录您的账户
+              - generic [ref=e116]: ✨
+            - generic [ref=e118]: 安全登录
+        - generic [ref=e120]:
+          - generic [ref=e122]:
+            - generic [ref=e123]: 用户名
+            - generic [ref=e127]:
+              - img [ref=e130]
+              - textbox "账号" [ref=e132]
+          - generic [ref=e134]:
+            - generic [ref=e135]: 密码
+            - generic [ref=e139]:
+              - img [ref=e142]
+              - textbox "密码" [ref=e144]
+          - button "登录" [ref=e147] [cursor=pointer]:
+            - generic [ref=e149]: 登录
+      - generic [ref=e150]:
+        - generic [ref=e151]: 选择登录方式
+        - generic [ref=e152]:
+          - generic [ref=e153] [cursor=pointer]:
+            - img [ref=e156]
+            - generic [ref=e158]:
+              - generic [ref=e160]: 账号登录
+              - generic [ref=e161]: 账号/手机号登录
+          - generic [ref=e162] [cursor=pointer]:
+            - img [ref=e165]
+            - generic [ref=e169]:
+              - generic [ref=e171]: 租户登录
+              - generic [ref=e172]: 租户账号/手机号登录
+          - generic [ref=e173] [cursor=pointer]:
+            - img [ref=e176]
+            - generic [ref=e179]:
+              - generic [ref=e181]: 短信登录
+              - generic [ref=e182]: 手机号验证码登录
+          - generic [ref=e183] [cursor=pointer]:
+            - img [ref=e186]
+            - generic [ref=e189]:
+              - generic [ref=e190]:
+                - generic [ref=e191]: 静态登录测试
+                - generic [ref=e192]: 开发环境
+              - generic [ref=e193]: 开发/测试环境下直接走静态 SSO，免启动 OAuth 服务
+```
