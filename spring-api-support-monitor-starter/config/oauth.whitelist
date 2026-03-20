@@ -1,0 +1,2 @@
+# Local whitelist for sync frontend verification
+/v1/sync/**

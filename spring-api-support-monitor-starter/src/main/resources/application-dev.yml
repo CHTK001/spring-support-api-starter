@@ -65,7 +65,7 @@ spring:
 logging:
   level:
     # Mapper接口日志级别
-    com.chua.starter.admin.support.mapper: debug
+    com.chua.starter.monitor.mapper: debug
 
 # ===========================================
 # OAuth认证配置

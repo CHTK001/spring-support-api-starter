@@ -16,7 +16,7 @@ spring:
       mode: always
 logging:
   level:
-    com.chua.starter.admin.support.mapper: debug
+    com.chua.starter.system.mapper: debug
 
 
 plugin:
