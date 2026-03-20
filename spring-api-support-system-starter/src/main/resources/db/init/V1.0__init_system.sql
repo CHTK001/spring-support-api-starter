@@ -11,6 +11,7 @@
  *   - sys_user_config: 用户配置表(第三方绑定)
  *   - sys_user_layout: 用户布局配置表
  *   - sys_user_log: 用户登录日志表
+ *   - sys_sms_log: 短信发送日志表
  *   - sys_log: 系统操作日志表
  *   - sys_sfc: 组件库表
  *   - sys_sfc_install: 用户安装组件表
@@ -280,7 +281,37 @@ CREATE TABLE `sys_user_log` (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户登录日志表 - 记录用户登录登出操作' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 10. 系统操作日志表 (sys_log)
+-- 10. 短信日志表 (sys_sms_log)
+-- 用途: 记录短信发送历史
+-- =====================================================
+DROP TABLE IF EXISTS `sys_sms_log`;
+CREATE TABLE `sys_sms_log` (
+    `sys_sms_log_id` int NOT NULL AUTO_INCREMENT COMMENT '日志ID - 主键自增',
+    `sys_sms_log_target` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '接收人 - 手机号码',
+    `sys_sms_log_template_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板ID - 使用的模板编码',
+    `sys_sms_log_param` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板参数 - JSON格式的模板变量',
+    `sys_sms_log_content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '发送内容 - 最终发送的短信内容',
+    `sys_sms_cost` decimal(10, 2) NULL DEFAULT NULL COMMENT '耗时 - 发送耗时(毫秒)',
+    `sys_sms_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '返回码 - 短信平台返回的状态码',
+    `sys_sms_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '返回消息 - 短信平台返回的消息',
+    `sys_sms_app_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '短信厂家 - 使用的短信服务商',
+    `sys_sms_app_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '短信AppID',
+    `sys_sms_app_sign` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '短信签名',
+    `sys_project_id` int NULL DEFAULT NULL COMMENT '项目ID - 关联sys_project表',
+    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
+    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`sys_sms_log_id`) USING BTREE,
+    INDEX `idx_target` (`sys_sms_log_target`) USING BTREE COMMENT '接收人索引',
+    INDEX `idx_project_id` (`sys_project_id`) USING BTREE COMMENT '项目ID索引',
+    INDEX `idx_create_time` (`create_time`) USING BTREE COMMENT '创建时间索引'
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '短信日志表 - 记录短信发送历史' ROW_FORMAT = DYNAMIC;
+
+-- =====================================================
+-- 11. 系统操作日志表 (sys_log)
 -- 用途: 记录系统通用操作日志
 -- =====================================================
 DROP TABLE IF EXISTS `sys_log`;
@@ -305,7 +336,7 @@ CREATE TABLE `sys_log` (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统操作日志表 - 记录系统通用操作日志' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 11. 组件库表 (sys_sfc)
+-- 12. 组件库表 (sys_sfc)
 -- 用途: 存储可配置的前端组件信息
 -- =====================================================
 DROP TABLE IF EXISTS `sys_sfc`;
@@ -338,7 +369,7 @@ CREATE TABLE `sys_sfc` (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '组件库表 - 存储可配置的前端组件信息' ROW_FORMAT = Dynamic;
 
 -- =====================================================
--- 12. 用户安装组件表 (sys_sfc_install)
+-- 13. 用户安装组件表 (sys_sfc_install)
 -- 用途: 存储用户已安装的组件列表
 -- =====================================================
 DROP TABLE IF EXISTS `sys_sfc_install`;
@@ -359,7 +390,7 @@ CREATE TABLE `sys_sfc_install` (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户安装组件表 - 存储用户已安装的组件列表' ROW_FORMAT = Dynamic;
 
 -- =====================================================
--- 13. 用户第三方绑定表 (sys_user_third_party)
+-- 14. 用户第三方绑定表 (sys_user_third_party)
 -- 用途: 存储用户与第三方平台的绑定关系
 -- =====================================================
 DROP TABLE IF EXISTS `sys_user_third_party`;
@@ -380,7 +411,7 @@ CREATE TABLE `sys_user_third_party`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户三方绑定表 - 存储用户与第三方平台的绑定关系' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 14. 微信用户表 (sys_wechat_user)
+-- 15. 微信用户表 (sys_wechat_user)
 -- 用途: 存储通过微信体系接入的用户基础信息
 -- =====================================================
 DROP TABLE IF EXISTS `sys_wechat_user`;
@@ -412,10 +443,91 @@ INSERT INTO `sys_role` (`sys_role_id`, `sys_role_name`, `sys_role_code`, `sys_ro
 (4, '普通用户', 'USER', 0, 1, 4, '普通用户', 0);
 
 -- =====================================================
+-- 初始数据 - 支付菜单与权限
+-- =====================================================
+INSERT INTO `sys_menu` VALUES (73, 'paymentWalletManage', '/payment/wallet', NULL, '钱包管理', 'payment:wallet:view', 42, '0,42,73', '/manage/payment-wallet', 'ri:wallet-3-line', NULL, 0, 5, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (72, '', '', '', '钱包充值', 'payment:wallet:recharge', 73, '0,42,73,72', '', '', NULL, 3, 2, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (71, '', '', '', '钱包查看', 'payment:wallet:view', 73, '0,42,73,71', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (70, '', '', '', '交易流水查看', 'payment:transaction:view', 45, '0,42,45,70', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (69, '', '', '', '退款查看', 'payment:refund:view', 46, '0,42,46,69', '', '', NULL, 3, 3, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (68, '', '', '', '订单查看', 'payment:order:view', 44, '0,42,44,68', '', '', NULL, 3, 8, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (67, '', '', '', '支付方式查看', 'payment:channel:view', 43, '0,42,43,67', '', '', NULL, 3, 11, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (66, '', '', '', '商户查看', 'payment:merchant:view', 43, '0,42,43,66', '', '', NULL, 3, 12, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (65, '', '', '', '标记失败', 'payment:refund:fail', 46, '0,42,46,65', '', '', NULL, 3, 2, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (64, '', '', '', '标记成功', 'payment:refund:success', 46, '0,42,46,64', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (63, '', '', '', '删除', 'payment:order:delete', 44, '0,42,44,63', '', '', NULL, 3, 7, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (62, '', '', '', '退款处理', 'payment:order:refund', 44, '0,42,44,62', '', '', NULL, 3, 6, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (61, '', '', '', '完成', 'payment:order:complete', 44, '0,42,44,61', '', '', NULL, 3, 5, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (60, '', '', '', '取消', 'payment:order:cancel', 44, '0,42,44,60', '', '', NULL, 3, 4, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (59, '', '', '', '同步状态', 'payment:order:sync', 44, '0,42,44,59', '', '', NULL, 3, 3, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (58, '', '', '', '支付处理', 'payment:order:pay', 44, '0,42,44,58', '', '', NULL, 3, 2, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (57, '', '', '', '创建订单', 'payment:order:create', 44, '0,42,44,57', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (56, '', '', '', '开通指引', 'payment:channel:guide', 43, '0,42,43,56', '', '', NULL, 3, 10, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (55, '', '', '', '禁用支付方式', 'payment:channel:disable', 43, '0,42,43,55', '', '', NULL, 3, 9, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (54, '', '', '', '启用支付方式', 'payment:channel:enable', 43, '0,42,43,54', '', '', NULL, 3, 8, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (53, '', '', '', '编辑支付方式', 'payment:channel:edit', 43, '0,42,43,53', '', '', NULL, 3, 7, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (52, '', '', '', '新增支付方式', 'payment:channel:add', 43, '0,42,43,52', '', '', NULL, 3, 6, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (51, '', '', '', '删除商户', 'payment:merchant:delete', 43, '0,42,43,51', '', '', NULL, 3, 5, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (50, '', '', '', '停用商户', 'payment:merchant:deactivate', 43, '0,42,43,50', '', '', NULL, 3, 4, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (49, '', '', '', '激活商户', 'payment:merchant:activate', 43, '0,42,43,49', '', '', NULL, 3, 3, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (48, '', '', '', '编辑商户', 'payment:merchant:edit', 43, '0,42,43,48', '', '', NULL, 3, 2, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (47, '', '', '', '新增商户', 'payment:merchant:add', 43, '0,42,43,47', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (46, 'paymentRefundManage', '/payment/refund', NULL, '退款管理', 'payment:refund:view', 42, '0,42,46', '/manage/payment-refund', 'ri:refund-2-line', NULL, 0, 4, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (45, 'paymentTransactionManage', '/payment/transaction', NULL, '交易流水', 'payment:transaction:view', 42, '0,42,45', '/manage/payment-transaction', 'ri:exchange-funds-line', NULL, 0, 3, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (44, 'paymentOrderManage', '/payment/order', NULL, '订单管理', 'payment:order:view', 42, '0,42,44', '/manage/payment-order', 'ri:file-list-3-line', NULL, 0, 2, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (43, 'paymentMerchantManage', '/payment/merchant', NULL, '商户管理', 'payment:merchant:view,payment:channel:view', 42, '0,42,43', '/manage/payment-merchant', 'ri:store-2-line', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
+INSERT INTO `sys_menu` VALUES (42, 'payment', '/payment', NULL, '支付管理', NULL, 0, '0,42', '/payment', 'ri:secure-payment-line', NULL, 0, 7, 0, 1, 0, 0, '/payment/merchant', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, 'ADMIN,SUPER_ADMIN', NULL, NULL);
+
+INSERT INTO `sys_role_menu` VALUES (232, 3, 73);
+INSERT INTO `sys_role_menu` VALUES (231, 2, 73);
+INSERT INTO `sys_role_menu` VALUES (229, 3, 71);
+INSERT INTO `sys_role_menu` VALUES (228, 3, 70);
+INSERT INTO `sys_role_menu` VALUES (227, 3, 69);
+INSERT INTO `sys_role_menu` VALUES (226, 3, 68);
+INSERT INTO `sys_role_menu` VALUES (225, 3, 67);
+INSERT INTO `sys_role_menu` VALUES (224, 3, 66);
+INSERT INTO `sys_role_menu` VALUES (223, 3, 46);
+INSERT INTO `sys_role_menu` VALUES (222, 3, 45);
+INSERT INTO `sys_role_menu` VALUES (221, 3, 44);
+INSERT INTO `sys_role_menu` VALUES (220, 3, 43);
+INSERT INTO `sys_role_menu` VALUES (219, 3, 42);
+INSERT INTO `sys_role_menu` VALUES (218, 2, 72);
+INSERT INTO `sys_role_menu` VALUES (217, 2, 71);
+INSERT INTO `sys_role_menu` VALUES (216, 2, 70);
+INSERT INTO `sys_role_menu` VALUES (215, 2, 69);
+INSERT INTO `sys_role_menu` VALUES (214, 2, 68);
+INSERT INTO `sys_role_menu` VALUES (213, 2, 67);
+INSERT INTO `sys_role_menu` VALUES (212, 2, 66);
+INSERT INTO `sys_role_menu` VALUES (211, 2, 65);
+INSERT INTO `sys_role_menu` VALUES (230, 2, 64);
+INSERT INTO `sys_role_menu` VALUES (210, 2, 63);
+INSERT INTO `sys_role_menu` VALUES (209, 2, 62);
+INSERT INTO `sys_role_menu` VALUES (208, 2, 61);
+INSERT INTO `sys_role_menu` VALUES (207, 2, 60);
+INSERT INTO `sys_role_menu` VALUES (206, 2, 59);
+INSERT INTO `sys_role_menu` VALUES (205, 2, 58);
+INSERT INTO `sys_role_menu` VALUES (204, 2, 57);
+INSERT INTO `sys_role_menu` VALUES (203, 2, 56);
+INSERT INTO `sys_role_menu` VALUES (202, 2, 55);
+INSERT INTO `sys_role_menu` VALUES (201, 2, 54);
+INSERT INTO `sys_role_menu` VALUES (200, 2, 53);
+INSERT INTO `sys_role_menu` VALUES (199, 2, 52);
+INSERT INTO `sys_role_menu` VALUES (198, 2, 51);
+INSERT INTO `sys_role_menu` VALUES (197, 2, 50);
+INSERT INTO `sys_role_menu` VALUES (196, 2, 49);
+INSERT INTO `sys_role_menu` VALUES (195, 2, 48);
+INSERT INTO `sys_role_menu` VALUES (194, 2, 47);
+INSERT INTO `sys_role_menu` VALUES (193, 2, 46);
+INSERT INTO `sys_role_menu` VALUES (192, 2, 45);
+INSERT INTO `sys_role_menu` VALUES (191, 2, 44);
+INSERT INTO `sys_role_menu` VALUES (190, 2, 43);
+INSERT INTO `sys_role_menu` VALUES (189, 2, 42);
+
+-- =====================================================
 -- 初始数据 - 默认超级管理员账号
 -- 账号: sa  密码: 123456 (MD5加盐加密)
 -- =====================================================
-INSERT INTO `sys_user` (`sys_user_id`, `sys_user_username`, `sys_user_nickname`, `sys_user_password`, `sys_user_salt`, `sys_user_delete`, `sys_user_status`, `sys_user_in_system`) VALUES 
+INSERT INTO `sys_user` (`sys_user_id`, `sys_user_username`, `sys_user_nickname`, `sys_user_password`, `sys_user_salt`, `sys_user_delete`, `sys_user_status`, `sys_user_in_system`) VALUES
 (1, 'sa', '超级管理员', '53006d111477a9b5b16c4b38ac8fad69', '123456', 0, 1, 1);
 
 -- =====================================================

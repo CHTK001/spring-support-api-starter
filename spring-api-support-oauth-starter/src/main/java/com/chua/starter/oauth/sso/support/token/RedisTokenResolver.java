@@ -146,6 +146,11 @@ public class RedisTokenResolver implements TokenResolver {
         loginResult.setRefreshToken(refreshToken);
         // 设置浏览器指纹到返回结果
         loginResult.setFingerprint(userResult.getFingerprint());
+
+        log.info("[TOKEN][userId={}] 创建成功: mode={}, expire={}s, refreshExpire={}s, token={}...",
+                userId, getOnlineMode(userResult), expire, refreshExpire,
+                token.length() > 8 ? token.substring(0, 8) : token);
+
         return ReturnResult.ok(loginResult);
     }
 
@@ -255,6 +260,27 @@ public class RedisTokenResolver implements TokenResolver {
             return keys.size();
         } catch (Exception e) {
             return 0;
+        }
+    }
+
+    /**
+     * 删除用户所有Token（基于 userIdHash，不依赖 userId，即使 token 已从 Redis 删除也能工作）
+     *
+     * @param userIdHash userIdHash（从 token 中提取的32位 MD5）
+     */
+    private void deleteUserAllTokensByHash(String userIdHash) {
+        if (StringUtils.isBlank(userIdHash)) {
+            return;
+        }
+        // 删除所有 AccessToken
+        Set<String> tokenKeys = scanKeys(TOKEN_PRE + TokenBuilder.buildAccessTokenPatternByHash(userIdHash));
+        if (!tokenKeys.isEmpty()) {
+            stringRedisTemplate.delete(tokenKeys);
+        }
+        // 删除所有 RefreshToken
+        Set<String> refreshKeys = scanKeys(TOKEN_REFRESH_PRE + TokenBuilder.buildRefreshTokenPatternByHash(userIdHash));
+        if (!refreshKeys.isEmpty()) {
+            stringRedisTemplate.delete(refreshKeys);
         }
     }
 
@@ -390,7 +416,11 @@ public class RedisTokenResolver implements TokenResolver {
 
         // SINGLE 模式：踢掉该用户所有旧设备
         if (onlineMode == AuthServerProperties.Online.SINGLE) {
-            deleteUserAllTokens(userResult.getUserId());
+            String userId = userResult.getUserId();
+            int before = countUserOnlineTokens(userId);
+            deleteUserAllTokens(userId);
+            log.info("[SINGLE][userId={}] 单点登录踢出旧设备: 踢出数量={}, 新token={}...",
+                    userId, before, newToken.length() > 8 ? newToken.substring(0, 8) : newToken);
         }
         // LIMIT 模式：在 checkOnlineLimit 已检查，达到上限直接拒绝，不踢旧设备
         // MULTIPLE 模式：不限制
@@ -457,29 +487,44 @@ public class RedisTokenResolver implements TokenResolver {
     @Override
     @SuppressWarnings("ALL")
     public void logout(String token) {
+        long startTime = System.currentTimeMillis();
         String tokenRedisKey = TOKEN_PRE + token;
         Object s = stringRedisTemplate.opsForValue().get(tokenRedisKey);
-        UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
-        if (null != userResult) {
-            // 记录登出日志（登录类型从 UserResult 获取）
-            String loginType = StringUtils.isNotBlank(userResult.getLoginType()) ? userResult.getLoginType() : DEFAULT_LOGIN_TYPE;
-            recordLogoutLog(userResult, loginType, LogoutType.LOGOUT);
+        UserResult userResult = null;
+        if (s instanceof Map map) {
+            userResult = BeanUtils.copyProperties(map, UserResult.class);
+        } else if (s instanceof UserResult ur) {
+            userResult = ur;
+        } else if (s != null) {
+            userResult = BeanUtils.copyProperties(s, UserResult.class);
+        }
 
-            // 将 Token 加入黑名单
+        // 无论 userResult 是否为 null，都删除 token（防止僵尸 token）
+        stringRedisTemplate.delete(tokenRedisKey);
+
+        if (null != userResult) {
+            String loginType = StringUtils.isNotBlank(userResult.getLoginType()) ? userResult.getLoginType() : DEFAULT_LOGIN_TYPE;
+            long cost = System.currentTimeMillis() - startTime;
+            log.info("[LOGOUT][userId={}] 登出: user={}, type={}, token={}...",
+                    userResult.getUserId(), userResult.getUsername(), loginType,
+                    token.length() > 8 ? token.substring(0, 8) : token);
+
+            recordLogoutLog(userResult, loginType, LogoutType.LOGOUT, cost);
+
             if (tokenBlacklistService != null) {
                 long expire = userResult.getExpireTime() != null ? userResult.getExpireTime() : DEFAULT_EXPIRE_SECONDS;
-                tokenBlacklistService.addToBlacklist(token, TokenBlacklistService.BlacklistReason.LOGOUT, 
+                tokenBlacklistService.addToBlacklist(token, TokenBlacklistService.BlacklistReason.LOGOUT,
                         expire, userResult.getUserId(), userResult.getUsername());
             }
 
-            // 删除 Token
-            stringRedisTemplate.delete(TOKEN_PRE + token);
-            
-            // 删除 RefreshToken
             String refreshToken = userResult.getRefreshToken();
             if (StringUtils.isNotEmpty(refreshToken)) {
                 logoutRefresh(refreshToken);
+                log.debug("[LOGOUT][userId={}] refreshToken 已删除", userResult.getUserId());
             }
+        } else {
+            log.warn("[LOGOUT] token 不存在或已过期: token={}...",
+                    token.length() > 8 ? token.substring(0, 8) : token);
         }
     }
 
@@ -487,9 +532,33 @@ public class RedisTokenResolver implements TokenResolver {
     @SuppressWarnings("ALL")
     public void logout(String uid, LogoutType type) {
         if (type == LogoutType.UN_REGISTER || type == LogoutType.LOGOUT_ALL) {
-            // 全部登出：删除该用户的所有 Token 和 RefreshToken
-            recordLogoutLogByUid(uid, DEFAULT_LOGIN_TYPE, type);
-            unRegisterUid(uid);
+            // uid 实际上是 token，优先从 token 结构中提取 userIdHash（即使 token 已从 Redis 删除也能工作）
+            String userIdHash = TokenBuilder.extractUserIdHash(uid);
+            String realUserId = uid;
+
+            // 尝试从 Redis 获取真实 userId（用于日志记录）
+            Object s = stringRedisTemplate.opsForValue().get(TOKEN_PRE + uid);
+            if (s != null) {
+                UserResult ur = null;
+                if (s instanceof Map map) {
+                    ur = BeanUtils.copyProperties(map, UserResult.class);
+                } else if (s instanceof UserResult u) {
+                    ur = u;
+                } else {
+                    ur = BeanUtils.copyProperties(s, UserResult.class);
+                }
+                if (ur != null && StringUtils.isNotBlank(ur.getUserId())) {
+                    realUserId = ur.getUserId();
+                }
+            }
+            recordLogoutLogByUid(realUserId, DEFAULT_LOGIN_TYPE, type);
+
+            // 优先用 userIdHash 直接删除（不依赖 Redis 中的 token 是否存在）
+            if (userIdHash != null) {
+                deleteUserAllTokensByHash(userIdHash);
+            } else {
+                deleteUserAllTokens(realUserId);
+            }
             return;
         }
 
@@ -514,7 +583,18 @@ public class RedisTokenResolver implements TokenResolver {
     private void kickByToken(String token) {
         String tokenRedisKey = TOKEN_PRE + token;
         Object s = stringRedisTemplate.opsForValue().get(tokenRedisKey);
-        UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
+        UserResult userResult = null;
+        if (s instanceof Map map) {
+            userResult = BeanUtils.copyProperties(map, UserResult.class);
+        } else if (s instanceof UserResult ur) {
+            userResult = ur;
+        } else if (s != null) {
+            userResult = BeanUtils.copyProperties(s, UserResult.class);
+        }
+        
+        // 无论 userResult 是否为 null，都删除 token
+        stringRedisTemplate.delete(tokenRedisKey);
+        
         if (null != userResult) {
             // 记录踢下线日志
             String loginType = StringUtils.isNotBlank(userResult.getLoginType()) ? userResult.getLoginType() : DEFAULT_LOGIN_TYPE;
@@ -526,9 +606,6 @@ public class RedisTokenResolver implements TokenResolver {
                 tokenBlacklistService.addToBlacklist(token, TokenBlacklistService.BlacklistReason.KICKED, 
                         expire, userResult.getUserId(), userResult.getUsername());
             }
-
-            // 删除 Token
-            stringRedisTemplate.delete(TOKEN_PRE + token);
             
             // 删除 RefreshToken
             String refreshToken = userResult.getRefreshToken();
@@ -607,15 +684,23 @@ public class RedisTokenResolver implements TokenResolver {
 
     @Override
     public ReturnResult<UserResume> upgradeForTimestamp(String token, String refreshToken) {
-        ReturnResult<UserResume> userResultReturnResult = upgradeForVersion(token, token);
-        if (!userResultReturnResult.isOk()) {
-            return userResultReturnResult;
+        String redisKey = TOKEN_PRE + token;
+        Object s = stringRedisTemplate.opsForValue().get(redisKey);
+        if (null == s) {
+            return ReturnResult.noAuth();
         }
 
-        if (authServerProperties.isRenew()) {
-            resetExpire(userResultReturnResult.getData(), token);
+        UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
+        // TIMESTAMP 升级：无条件重置过期时间（续期），不刷新用户信息
+        long expire = calculateExpireTime(userResult);
+        userResult.setExpireTime(expire);
+        stringRedisTemplate.opsForValue().set(redisKey, userResult);
+        if (expire > 0) {
+            stringRedisTemplate.expire(redisKey, Duration.ofSeconds(expire));
         }
-        return ReturnResult.ok(userResultReturnResult.getData());
+        log.info("[Upgrade][TIMESTAMP] token续期成功: expire={}s, token={}...", expire,
+                token.length() > 8 ? token.substring(0, 8) : token);
+        return ReturnResult.ok(userResult);
     }
 
     @Override
@@ -629,15 +714,30 @@ public class RedisTokenResolver implements TokenResolver {
         UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
         UserResume newUserResult = loginCheck.getUserInfo(userResult);
         if (null == newUserResult || null == newUserResult.getUserId()) {
+            // 无法获取新用户信息时，返回原有 userResult（保持 token 不变）
+            userResult.setToken(token);
+            userResult.setRefreshToken(refreshToken);
             return ReturnResult.ok(userResult);
         }
 
+        // 确保 token 字段被设置（无论 newUserResult 是 UserResult 还是 UserResume 子类）
         if (newUserResult instanceof UserResult userResult1) {
             userResult1.setToken(token);
-            userResult1.setRefreshToken(refreshToken);
+            // 保留原有 refreshToken（不使用传入的参数，因为调用方可能传的是 AT）
+            if (StringUtils.isBlank(userResult1.getRefreshToken())) {
+                userResult1.setRefreshToken(userResult.getRefreshToken());
+            }
+        } else {
+            // 非 UserResult 类型：将新用户信息合并到原 userResult 中，保留 token
+            org.springframework.beans.BeanUtils.copyProperties(newUserResult, userResult);
+            userResult.setToken(token);
+            // 保留原有 refreshToken
+            newUserResult = userResult;
         }
 
         stringRedisTemplate.opsForValue().set(redisKey, newUserResult);
+        log.info("[Upgrade][VERSION] 用户信息已刷新: userId={}, token={}...", newUserResult.getUserId(),
+                token.length() > 8 ? token.substring(0, 8) : token);
         return ReturnResult.ok(newUserResult);
     }
 
@@ -655,7 +755,7 @@ public class RedisTokenResolver implements TokenResolver {
             return ReturnResult.noAuth();
         }
 
-        // 使用 TokenBuilder 生成新的 Token（保持相同的 uidHash）
+        // 使用 TokenBuilder 生成新的 AccessToken（保持相同的 uidHash）
         String userIdHash = TokenBuilder.extractUserIdHash(refreshToken);
         String uidHash = TokenBuilder.extractUidHash(refreshToken);
         if (userIdHash == null || uidHash == null) {
@@ -663,40 +763,61 @@ public class RedisTokenResolver implements TokenResolver {
         }
         
         String newToken = TokenBuilder.generateAccessToken(oldUserResult.getUserId(), uidHash);
-        String newRefreshToken = TokenBuilder.generateRefreshToken(oldUserResult.getUserId(), uidHash);
 
-        // 将旧 Token 加入黑名单并删除
-        if (StringUtils.isNotBlank(token)) {
+        // 将旧 AccessToken 加入黑名单并删除
+        // token 参数可能为 null（客户端 refresh 接口不传旧 AT），此时从 refreshToken 存储的 userResult 中获取
+        String oldToken = StringUtils.isNotBlank(token) ? token : oldUserResult.getToken();
+        if (StringUtils.isNotBlank(oldToken)) {
             if (tokenBlacklistService != null) {
-                tokenBlacklistService.addToBlacklist(token, TokenBlacklistService.BlacklistReason.REVOKED);
+                tokenBlacklistService.addToBlacklist(oldToken, TokenBlacklistService.BlacklistReason.REVOKED);
             }
-            stringRedisTemplate.delete(TOKEN_PRE + token);
+            Boolean deleted = stringRedisTemplate.delete(TOKEN_PRE + oldToken);
+            log.debug("[OAuth] 旧 AccessToken 已删除: {}..., deleted={}", oldToken.length() > 8 ? oldToken.substring(0, 8) : oldToken, deleted);
         }
-        // 将旧 RefreshToken 加入黑名单并删除
-        if (tokenBlacklistService != null) {
-            tokenBlacklistService.addToBlacklist(refreshToken, TokenBlacklistService.BlacklistReason.REVOKED);
-        }
-        stringRedisTemplate.delete(redisRefreshKey);
 
         // 计算过期时间
         long expire = calculateExpireTime(oldUserResult);
         long refreshExpire = calculateRefreshExpireTime(oldUserResult);
 
-        // 更新用户信息
-        oldUserResult.setToken(newToken);
-        oldUserResult.setRefreshToken(newRefreshToken);
-        oldUserResult.setExpireTime(expire);
-        oldUserResult.setRefreshExpireTime(refreshExpire);
+        // 判断是否轮换 refreshToken
+        boolean rotation = authServerProperties != null && authServerProperties.isRefreshTokenRotation();
+        String finalRefreshToken;
+        if (rotation) {
+            // 轮换：生成新 refreshToken，旧的加入黑名单并删除
+            String newRefreshToken = TokenBuilder.generateRefreshToken(oldUserResult.getUserId(), uidHash);
+            if (tokenBlacklistService != null) {
+                tokenBlacklistService.addToBlacklist(refreshToken, TokenBlacklistService.BlacklistReason.REVOKED);
+            }
+            stringRedisTemplate.delete(redisRefreshKey);
+            finalRefreshToken = newRefreshToken;
+            // 存储新 RefreshToken
+            String newRefreshRedisKey = TOKEN_REFRESH_PRE + newRefreshToken;
+            oldUserResult.setRefreshToken(newRefreshToken);
+            oldUserResult.setRefreshExpireTime(refreshExpire);
+            stringRedisTemplate.opsForValue().set(newRefreshRedisKey, oldUserResult);
+            if (refreshExpire > 0) {
+                stringRedisTemplate.expire(newRefreshRedisKey, Duration.ofSeconds(refreshExpire));
+            }
+            log.debug("[OAuth] refreshToken 轮换，旧={}, 新={}", refreshToken, newRefreshToken);
+        } else {
+            // 不轮换：旧 refreshToken 继续有效，只更新其中存储的 token 引用
+            finalRefreshToken = refreshToken;
+            oldUserResult.setRefreshToken(refreshToken);
+            oldUserResult.setRefreshExpireTime(refreshExpire);
+            // 更新 refreshToken 对应的用户信息（token 字段指向新 accessToken）
+            stringRedisTemplate.opsForValue().set(redisRefreshKey, oldUserResult);
+            // refreshToken 过期时间不变（不重置）
+            log.debug("[OAuth] refreshToken 不轮换，refreshToken={} 继续有效", refreshToken);
+        }
 
-        // 存储新 Token
+        // 更新用户信息并存储新 AccessToken
+        oldUserResult.setToken(newToken);
+        oldUserResult.setExpireTime(expire);
+
         String newRedisKey = TOKEN_PRE + newToken;
-        String newRefreshRedisKey = TOKEN_REFRESH_PRE + newRefreshToken;
         stringRedisTemplate.opsForValue().set(newRedisKey, oldUserResult);
-        stringRedisTemplate.opsForValue().set(newRefreshRedisKey, oldUserResult);
-        
         if (expire > 0) {
             stringRedisTemplate.expire(newRedisKey, Duration.ofSeconds(expire));
-            stringRedisTemplate.expire(newRefreshRedisKey, Duration.ofSeconds(refreshExpire));
         }
 
         return ReturnResult.ok(oldUserResult, oldUserResult.getLoginType());
@@ -771,8 +892,9 @@ public class RedisTokenResolver implements TokenResolver {
      * @param userResult 用户结果对象
      * @param loginType  登录类型
      * @param logoutType 登出类型
+     * @param cost       耗时（毫秒），-1 表示未知
      */
-    private void recordLogoutLog(UserResult userResult, String loginType, LogoutType logoutType) {
+    private void recordLogoutLog(UserResult userResult, String loginType, LogoutType logoutType, long cost) {
         if (userResult == null || sysUserLogService == null) {
             return;
         }
@@ -783,27 +905,55 @@ public class RedisTokenResolver implements TokenResolver {
             userLog.setSysLogIp(userResult.getAddress());
             userLog.setSysLogLoginType(loginType);
             userLog.setSysLogFrom("LOGOUT");
-            userLog.setSysLogStatus(1); // 登出默认成功
+            userLog.setSysLogStatus(1);
             userLog.setSysLogUrl("/logout");
+            userLog.setSysLogMessage(logoutType.name());
+            if (cost >= 0) {
+                userLog.setSysLogCost(java.math.BigDecimal.valueOf(cost));
+            }
 
-            // 设置登出类型信息
-            Map<String, Object> ext = Map.of(
-                "logoutType", logoutType.name(),
-                "userId", userResult.getUserId()
-            );
-            userLog.setSysLogParam(Json.toJson(ext));
+            // 从 ext 中补充浏览器/系统信息
+            Map<String, Object> ext = userResult.getExt();
+            if (ext != null) {
+                Object ua = ext.get("ua");
+                if (ua != null) {
+                    userLog.setSysLogUa(ua.toString());
+                    try {
+                        com.chua.common.support.network.net.UserAgent userAgent =
+                                com.chua.common.support.network.net.UserAgent.parseUserAgentString(ua.toString());
+                        userLog.setSysLogBrowser(userAgent.getBrowser().toString());
+                        userLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
+                    } catch (Exception ignored) {}
+                }
+                Object fingerprint = ext.get("fingerprint");
+                if (fingerprint != null) {
+                    userLog.setSysLogFingerprint(fingerprint.toString());
+                }
+            }
+
+            Map<String, Object> param = new java.util.LinkedHashMap<>();
+            param.put("logoutType", logoutType.name());
+            param.put("userId", userResult.getUserId());
+            userLog.setSysLogParam(Json.toJson(param));
 
             sysUserLogService.asyncSaveUserLog(userLog);
         } catch (Exception e) {
-            // 日志记录失败不应影响登出流程，只记录错误
-            log.error("记录登出日志失败, username={}, error={}", userResult.getUsername(), e.getMessage());
+            log.error("[LOGOUT] 记录日志失败: user={}, error={}", userResult.getUsername(), e.getMessage());
         }
     }
 
     /**
-     * 根据用户ID记录登出日志
+     * 记录登出日志（不含耗时，兼容旧调用）
+     */
+    private void recordLogoutLog(UserResult userResult, String loginType, LogoutType logoutType) {
+        recordLogoutLog(userResult, loginType, logoutType, -1);
+    }
+
+    /**
+     * 根据用户ID记录登出日志（LOGOUT_ALL / UN_REGISTER 场景）
+     * <p>uid 此时是真实的 userId（已在调用方从 token 解析出来）</p>
      *
-     * @param uid        用户ID
+     * @param uid        用户ID（数据库主键）
      * @param loginType  登录类型
      * @param logoutType 登出类型
      */
@@ -813,23 +963,59 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         try {
+            // 尝试从 Redis 中找到该用户的任意一个 token，获取真实 username
+            String username = null;
+            String address = null;
+            Map<String, Object> ext = null;
+            try {
+                Set<String> tokenKeys = scanKeys(TOKEN_PRE + TokenBuilder.buildAccessTokenPattern(uid));
+                for (String tokenKey : tokenKeys) {
+                    Object val = stringRedisTemplate.opsForValue().get(tokenKey);
+                    if (val != null) {
+                        UserResult ur = BeanUtils.copyProperties(val, UserResult.class);
+                        if (ur != null) {
+                            username = ur.getUsername();
+                            address = ur.getAddress();
+                            ext = ur.getExt();
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception ignored) {}
+
             SysUserLog userLog = new SysUserLog();
-            userLog.setSysLogUsername("UID:" + uid);
+            userLog.setSysLogUsername(username != null ? username : uid);
+            userLog.setSysLogIp(address);
             userLog.setSysLogLoginType(loginType);
             userLog.setSysLogFrom("LOGOUT");
-            userLog.setSysLogStatus(1); // 登出默认成功
+            userLog.setSysLogStatus(1);
             userLog.setSysLogUrl("/logout");
 
-            // 设置登出类型信息
-            Map<String, Object> ext = Map.of(
-                "logoutType", logoutType.name(),
-                "userId", uid
-            );
-            userLog.setSysLogParam(Json.toJson(ext));
+            // 从 ext 补充浏览器/系统信息
+            if (ext != null) {
+                Object ua = ext.get("ua");
+                if (ua != null) {
+                    userLog.setSysLogUa(ua.toString());
+                    try {
+                        com.chua.common.support.network.net.UserAgent userAgent =
+                                com.chua.common.support.network.net.UserAgent.parseUserAgentString(ua.toString());
+                        userLog.setSysLogBrowser(userAgent.getBrowser().toString());
+                        userLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
+                    } catch (Exception ignored) {}
+                }
+                Object fingerprint = ext.get("fingerprint");
+                if (fingerprint != null) {
+                    userLog.setSysLogFingerprint(fingerprint.toString());
+                }
+            }
+
+            Map<String, Object> param = new java.util.LinkedHashMap<>();
+            param.put("logoutType", logoutType.name());
+            param.put("userId", uid);
+            userLog.setSysLogParam(Json.toJson(param));
 
             sysUserLogService.asyncSaveUserLog(userLog);
         } catch (Exception e) {
-            // 日志记录失败不应影响登出流程，只记录错误
             log.error("记录登出日志失败, uid={}, error={}", uid, e.getMessage());
         }
     }

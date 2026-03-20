@@ -42,7 +42,7 @@ public class DefaultLoginHandler implements LoginHandler {
         String address = getIpAddress(request);
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         long startTime = System.currentTimeMillis();
-        LoginAuthResult accessToken = clientExecute.getAccessToken(loginData.getUsername(), loginData.getPassword(), AuthType.valueOf(loginData.getLoginType()),
+        LoginAuthResult accessToken = clientExecute.getAccessToken(loginData.getUsername(), loginData.getPassword(), AuthType.fromCode(loginData.getLoginType()),
                 ImmutableBuilder.<String, Object>builderOfMap()
                         .put("address", address)
                         .put("fingerprint", fingerprint)
@@ -64,6 +64,7 @@ public class DefaultLoginHandler implements LoginHandler {
                 .tokenType("Bearer")
                 .accessToken(accessToken.getToken())
                 .refreshToken(accessToken.getRefreshToken())
+                .expires(null != accessToken.getUserResume() ? accessToken.getUserResume().getExpireTime() : null)
                 .build();
         CookieUtil.set(response, "x-oauth-cookie", accessToken.getToken(), true);
         return ReturnResult.success(loginResult);

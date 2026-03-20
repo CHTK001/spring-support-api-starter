@@ -23,3 +23,8 @@ server:
   servlet:
     # 上下文路径
     context-path: /monitor/api
+
+plugin:
+  api:
+    platform:
+      name: MONITOR

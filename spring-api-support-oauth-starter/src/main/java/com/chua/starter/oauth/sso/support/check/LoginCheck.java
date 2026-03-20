@@ -69,12 +69,18 @@ public class LoginCheck {
             return ReturnResult.noAuth(message);
         }
 
+        // authType 为空或 NONE 时，fallback 到默认的 WEB 登录
+        String resolvedAuthType = (StringUtils.isBlank(authType) || "NONE".equalsIgnoreCase(authType))
+                ? "WEB" : authType;
+
         // 使用 SPI 机制获取 UserInfoService 实现
-        UserInfoService userInfoService = ServiceProvider.of(UserInfoService.class).getExtension(authType);
+        UserInfoService userInfoService = ServiceProvider.of(UserInfoService.class).getExtension(resolvedAuthType);
         if (userInfoService == null) {
-            log.warn("未找到匹配的认证服务: authType={}", authType);
-            return ReturnResult.noAuth("未找到匹配的认证服务");
+            log.warn("未找到匹配的认证服务: authType={}", resolvedAuthType);
+            return ReturnResult.noAuth("不支持该登录/鉴权方式: " + resolvedAuthType);
         }
+        // 用解析后的类型替换原始值，保证后续 loginType 记录正确
+        authType = resolvedAuthType;
         
         log.debug("通过SPI获取到UserInfoService: {}", userInfoService.getClass().getSimpleName());
         
@@ -87,8 +93,7 @@ public class LoginCheck {
                     System.currentTimeMillis() - checkStartTime,
                     userResume != null ? (Strings.isNullOrEmpty(userResume.getMessage()) ? "成功" : "失败:" + userResume.getMessage()) : "null");
         } catch (Exception e) {
-            log.error("用户认证异常: {}, 类型: {}, 异常信息: {}", principal, authType, e.getMessage());
-            log.debug("认证异常详情", e);
+            log.error("用户认证异常: {}, 类型: {}, 异常信息: {}", principal, authType, e.getMessage(), e);
             return ReturnResult.noAuth("认证异常: " + e.getMessage());
         }
         
@@ -219,6 +224,47 @@ public class LoginCheck {
         
         String encryptedUserId = DigestUtils.aesEncrypt(userResume.getUserId(), authServerProperties.getServiceKey());
         return userResume.getUid() + ":" + encryptedUserId;
+    }
+
+    /**
+     * 第三方登录检查（JustAuth）
+     * <p>
+     * 将 JustAuth 的 AuthUser 对象转换为系统登录流程。
+     * 用于处理 OAuth2 第三方平台（Gitee、Github、微信等）的登录。
+     * </p>
+     *
+     * @param authUser JustAuth 的用户对象
+     * @param request HTTP 请求对象
+     * @return 登录结果，包含令牌和用户信息；如果登录失败返回 null
+     */
+    public LoginResult check(me.zhyd.oauth.model.AuthUser authUser, jakarta.servlet.http.HttpServletRequest request) {
+        if (authUser == null) {
+            log.warn("AuthUser 为空，无法进行登录检查");
+            return null;
+        }
+        
+        String address = com.chua.starter.common.support.utils.RequestUtils.getIpAddress(request);
+        String platform = authUser.getSource();
+        
+        log.info("第三方登录检查: platform={}, uuid={}, username={}", 
+                platform, authUser.getUuid(), authUser.getUsername());
+        
+        // 调用 doLogin 方法进行登录
+        ReturnResult<LoginResult> result = doLogin(
+                address,
+                authUser.getUuid(),
+                authUser.getUsername(),
+                platform,
+                authUser
+        );
+        
+        if (result != null && result.isOk()) {
+            return result.getData();
+        }
+        
+        log.warn("第三方登录失败: platform={}, uuid={}, msg={}", 
+                platform, authUser.getUuid(), result != null ? result.getMsg() : "result为null");
+        return null;
     }
 
     /**

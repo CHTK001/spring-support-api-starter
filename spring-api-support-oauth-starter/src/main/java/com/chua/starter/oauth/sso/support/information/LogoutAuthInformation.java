@@ -92,12 +92,14 @@ public class LogoutAuthInformation extends BaseAuthInformation {
     @SuppressWarnings("unchecked")
     @Override
     public LogoutAuthorization authorization() {
+        HttpServletResponse httpResponse = (getResponse() instanceof HttpServletResponse)
+                ? (HttpServletResponse) getResponse() : null;
         return new LogoutAuthorization(this,
                 MapUtils.getString(this.getBodyData(), "x-oauth-token"),
                 MapUtils.getString(this.getBodyData(), "x-oauth-cookie"),
                 MapUtils.getString(this.getBodyData(), "x-oauth-uid"),
                 MapUtils.getString(this.getBodyData(), "x-oauth-logout-type"),
-                (HttpServletResponse) getResponse(),
+                httpResponse,
                 getAuthServerProperties(),
                 applicationContext,
                 loginCheck);

@@ -101,13 +101,28 @@ public class LoginAuthInformation extends BaseAuthInformation {
     @SuppressWarnings("unchecked")
     @Override
     public LoginAuthorization authorization() {
+        // Armeria 协议下 response 不是 HttpServletResponse，安全转换，Cookie 由客户端自行处理
+        HttpServletResponse httpResponse = (getResponse() instanceof HttpServletResponse)
+                ? (HttpServletResponse) getResponse() : null;
+        // 安全转换 ext map：将所有 value 转为 String，避免 JSON 反序列化产生 Integer 等类型导致 ClassCastException
+        Object rawExt = MapUtils.getObject(this.getBodyData(), "x-oauth-ext");
+        Map<String, String> extMap = null;
+        if (rawExt instanceof Map) {
+            extMap = new java.util.HashMap<>();
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) rawExt).entrySet()) {
+                if (entry.getKey() != null) {
+                    extMap.put(String.valueOf(entry.getKey()),
+                            entry.getValue() != null ? String.valueOf(entry.getValue()) : null);
+                }
+            }
+        }
         return new LoginAuthorization(this,
                 MapUtils.getString(this.getBodyData(), "x-oauth-username"),
                 MapUtils.getString(this.getBodyData(), "x-oauth-password"),
                 MapUtils.getString(this.getBodyData(), "x-oauth-auth-type"),
                 MapUtils.getString(this.getBodyData(), "x-oauth-param-app-name"),
-                (Map<String, String>) MapUtils.getObject(this.getBodyData(), "x-oauth-ext"),
-                (HttpServletResponse) getResponse(),
+                extMap,
+                httpResponse,
                 getAuthServerProperties(),
                 sysUserLogService,
                 applicationContext,

@@ -24,9 +24,9 @@ import java.util.concurrent.CompletableFuture;
 public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey> implements SysAppKeyService {
 
     /**
-     * AppKey启用状态
+     * AppKey启用状态（1=启用，0=禁用）
      */
-    private static final int STATUS_ENABLED = 0;
+    private static final int STATUS_ENABLED = 1;
 
     /**
      * 毫秒转秒的除数

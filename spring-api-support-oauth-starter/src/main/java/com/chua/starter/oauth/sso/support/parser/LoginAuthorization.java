@@ -5,12 +5,14 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.network.net.UserAgent;
 import com.chua.common.support.core.utils.MapUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
+import com.chua.starter.common.support.utils.IpUtils;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.system.service.SysUserLogService;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.entity.system.SysUserLog;
+import com.chua.starter.common.support.service.IptablesService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -33,6 +35,7 @@ public final class LoginAuthorization implements Authorization {
     private final HttpServletResponse response;
     private final AuthServerProperties authServerProperties;
     private final SysUserLogService sysUserLogService;
+    private final IptablesService iptablesService;
     final ApplicationContext applicationContext;
     final LoginCheck loginCheck;
     private final LoginAuthInformation authInformation;
@@ -59,47 +62,50 @@ public final class LoginAuthorization implements Authorization {
         this.sysUserLogService = sysUserLogService;
         this.applicationContext = applicationContext;
         this.loginCheck = loginCheck;
+        // 可选注入 IptablesService（用于 IP 归属地解析）
+        IptablesService iptSvc = null;
+        try {
+            iptSvc = applicationContext.getBean(IptablesService.class);
+        } catch (Exception ignored) {}
+        this.iptablesService = iptSvc;
     }
 
     @Override
     public ReturnResult<String> authentication() {
         long startTime = System.currentTimeMillis();
+        String traceId = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         String clientAddress = MapUtils.getString(this.ext, "address");
-        
-        log.info("========== 登录认证开始 ==========");
-        log.info("用户名: {}, 登录类型: {}, 应用名: {}", username, loginType, appName);
-        log.info("客户端地址: {}, 扩展参数: {}", clientAddress, ext != null ? ext.keySet() : "null");
-        
+
+        log.info("[LOGIN][traceId={}] 开始: user={}, type={}, app={}, ip={}",
+                traceId, username, loginType, appName, clientAddress);
+
         ReturnResult<LoginResult> returnResult = loginCheck.doLogin(clientAddress,
                 username,
                 password,
                 loginType,
                 ext
         );
-        
+
         long authCost = System.currentTimeMillis() - startTime;
 
-        if(!returnResult.isOk()) {
-            log.warn("登录认证失败: 用户={}, 类型={}, 原因={}, 耗时={}ms", 
-                    username, loginType, returnResult.getMsg(), authCost);
+        if (!returnResult.isOk()) {
+            log.warn("[LOGIN][traceId={}] 失败: user={}, type={}, 原因={}, 耗时={}ms",
+                    traceId, username, loginType, returnResult.getMsg(), authCost);
             sysUserLogService.asyncSaveUserLog(createLoginLog(returnResult, this, authCost));
             return ReturnResult.illegal(returnResult.getMsg());
         }
-        
+
         LoginResult returnResultData = returnResult.getData();
-        log.debug("登录认证通过, 用户ID: {}, Token长度: {}", 
-                returnResultData.getUserResume().getUserId(),
-                returnResultData.getToken() != null ? returnResultData.getToken().length() : 0);
-        
+        String userId = returnResultData.getUserResume() != null ? returnResultData.getUserResume().getUserId() : "?";
+
+        log.info("[LOGIN][traceId={}] 成功: user={}, userId={}, type={}, 耗时={}ms",
+                traceId, username, userId, loginType, authCost);
+
         CookieUtil.set(response, authServerProperties.getCookieName(), returnResultData.getToken(), true);
-        log.debug("Cookie已设置: {}", authServerProperties.getCookieName());
-        
+
         String json = Json.toJson(returnResultData);
         sysUserLogService.asyncSaveUserLog(createLoginLog(returnResult, this, authCost));
-        
-        log.info("登录认证成功: 用户={}, 类型={}, 耗时={}ms", username, loginType, authCost);
-        log.debug("========== 登录认证结束 ==========");
-        
+
         return ReturnResult.ok(authInformation.encodeHex(json));
     }
 
@@ -115,19 +121,42 @@ public final class LoginAuthorization implements Authorization {
     private SysUserLog createLoginLog(ReturnResult<LoginResult> returnResult, LoginAuthorization loginAuthorization, long cost) {
         Map<String, String> stringMap = this.ext;
         SysUserLog sysUserLog = new SysUserLog();
-        sysUserLog.setSysLogIp(MapUtils.getString(stringMap, "address"));
-        sysUserLog.setSysLogFingerprint(MapUtils.getString(stringMap, "fingerprint"));
-        sysUserLog.setSysLogUa(MapUtils.getString(stringMap, "ua"));
-        UserAgent userAgent = UserAgent.parseUserAgentString(MapUtils.getString(stringMap, "ua"));
+        String ip = MapUtils.getString(stringMap, "address");
+        sysUserLog.setSysLogIp(ip);
+        String ua = MapUtils.getString(stringMap, "ua");
+        sysUserLog.setSysLogUa(ua);
+
+        // 指纹：优先用客户端上报的，fallback 到 UA 生成的伪指纹
+        String fingerprint = MapUtils.getString(stringMap, "fingerprint");
+        if (fingerprint == null || fingerprint.isBlank()) {
+            fingerprint = IpUtils.fingerprintFromUserAgent(ua);
+        }
+        sysUserLog.setSysLogFingerprint(fingerprint);
+
+        UserAgent userAgent = UserAgent.parseUserAgentString(ua);
         sysUserLog.setSysLogBrowser(userAgent.getBrowser().toString());
         sysUserLog.setSysLogUsername(loginAuthorization.username);
         sysUserLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
         sysUserLog.setSysLogUrl("/login");
+        sysUserLog.setSysLogFrom(returnResult.isOk() ? "LOGIN" : "LOGIN_FAIL");
         sysUserLog.setSysLogAppName(appName);
         sysUserLog.setSysLogLoginType(loginAuthorization.loginType);
         sysUserLog.setSysLogCost(BigDecimal.valueOf(cost));
         sysUserLog.setSysLogStatus(returnResult.isOk() ? 1 : 0);
         sysUserLog.setSysLogMessage(returnResult.getMsg());
+
+        // IP 归属地解析
+        if (iptablesService != null && ip != null && !ip.isBlank()) {
+            try {
+                com.chua.common.support.lang.code.ReturnResult<com.chua.common.support.geo.GeoCity> geoResult =
+                        iptablesService.transferAddress(ip);
+                if (geoResult != null && geoResult.isOk() && geoResult.getData() != null) {
+                    com.chua.common.support.geo.GeoCity city = geoResult.getData();
+                    sysUserLog.setSysLogAddress(city.toString());
+                    sysUserLog.setSysLogIsp(city.getIsp());
+                }
+            } catch (Exception ignored) {}
+        }
 
         return sysUserLog;
     }
