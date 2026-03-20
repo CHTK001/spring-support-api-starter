@@ -1,33 +1,22 @@
-
 # ===========================================
-# API 统一配置
+# API 共享基础配置
 # ===========================================
+# 说明：
+# 1. 这里只保留跨服务复用的 API 基线配置
+# 2. 平台身份（plugin.api.platform.name）必须由各业务模块自己声明
 plugin:
   api:
-    # -----------------------------------------
-    # 平台配置
-    # -----------------------------------------
-    platform:
-      # 开启平台标识
+    encode:
       enable: true
-      # 平台类型（枚举：SYSTEM/TENANT/MONITOR/SCHEDULER/OAUTH）
-      # 优先级高于 alias-name
-      name: SYSTEM
-    # ===========================================
-    # SPI扩展点映射配置
-    # ===========================================
+    decode:
+      enable: true
     spi:
-      # 虚拟映射配置（别名 -> 接口全限定名）
       mapping:
-        # 负载均衡策略
+        balance: com.chua.common.support.lang.robin.Robin
         robin: com.chua.common.support.lang.robin.Robin
-        # 服务发现
         serviceDiscovery: com.chua.common.support.discovery.ServiceDiscovery
-        # 文件存储插件
         fileStoragePlugin: com.chua.common.support.image.filter.ImageFilter
-        # 文件存储
         fileStorage: com.chua.common.support.oss.FileStorage
-        # 图片处理器
         ImageSettingProcessor: com.chua.common.support.protocol.filter.storage.image.ImageSettingProcessor
 spring:
   threads:

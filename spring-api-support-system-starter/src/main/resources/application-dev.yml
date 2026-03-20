@@ -16,13 +16,12 @@ spring:
       mode: always
 logging:
   level:
-    com.chua.starter.admin.support.mapper: debug
+    com.chua.starter.system.mapper: debug
 
 
 plugin:
   oauth:
     address: http://127.0.0.1:19180
-    protocol: armeria
     enable-encryption: true
     login-page: /oauth/login
     logout-page: /oauth/logout

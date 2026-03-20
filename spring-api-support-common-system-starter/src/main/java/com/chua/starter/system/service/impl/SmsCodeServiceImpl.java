@@ -2,6 +2,7 @@ package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.base.collection.ImmutableBuilder;
+import com.chua.common.support.text.json.Json;
 import com.chua.common.support.text.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.message.MessagePush;
@@ -12,7 +13,9 @@ import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
+import com.chua.starter.entity.project.SysSmsLog;
 import com.chua.starter.entity.system.SysUser;
+import com.chua.starter.system.mapper.SysSmsLogMapper;
 import com.chua.starter.system.mapper.SysUserMapper;
 import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
@@ -31,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -67,9 +71,13 @@ public class SmsCodeServiceImpl implements SmsCodeService {
      */
     private static final int SEND_INTERVAL_SECONDS = 60;
 
+    private static final int LOG_MESSAGE_MAX_LENGTH = 255;
+    private static final int LOG_PARAM_MAX_LENGTH = 255;
+
     private final StringRedisTemplate stringRedisTemplate;
     private final SysUserMapper sysUserMapper;
     private final SysLoginService sysLoginService;
+    private final SysSmsLogMapper sysSmsLogMapper;
 
     @Override
     public ReturnResult<Boolean> sendCode(SmsCodeRequest request) {
@@ -108,21 +116,23 @@ public class SmsCodeServiceImpl implements SmsCodeService {
         String code = String.format("%0" + CODE_LENGTH + "d", (int) (Math.random() * Math.pow(10, CODE_LENGTH)));
         log.info("生成短信验证码: phone={}, code={}", phone, code);
 
+        TemplateSetting setting = TemplateSetting.builder()
+                .templateParam(JsonObject.create().fluentPut("code", code))
+                .signCode(smsSetting.getAppSign())
+                .build();
+
         // 发送短信
         try {
             MessagePush messagePush = smsSetting.getMessagePush();
-            TemplateSetting setting = TemplateSetting.builder()
-                    .templateParam(JsonObject.create().fluentPut("code", code))
-                    .signCode(smsSetting.getAppSign())
-                    .build();
-
             List<PushResult> results = messagePush.publish(new String[]{phone}, setting);
             if (CollectionUtils.isEmpty(results)) {
                 log.error("短信发送失败: phone={}, 无返回结果", phone);
+                saveSmsLog(phone, code, bizType, smsSetting, setting, null, "短信发送失败");
                 return ReturnResult.fail("短信发送失败");
             }
 
             PushResult result = results.getFirst();
+            saveSmsLog(phone, code, bizType, smsSetting, setting, result, null);
             if (!result.isSuccess()) {
                 log.error("短信发送失败: phone={}, msg={}", phone, result.getMessage());
                 return ReturnResult.fail("短信发送失败: " + result.getMessage());
@@ -131,6 +141,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
             log.info("短信发送成功: phone={}", phone);
         } catch (Exception e) {
             log.error("短信发送异常: phone={}", phone, e);
+            saveSmsLog(phone, code, bizType, smsSetting, setting, null, e.getMessage());
             return ReturnResult.fail("短信发送失败: " + e.getMessage());
         }
 
@@ -213,6 +224,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
                 .userInfo(sysLoginService.getUserLoginInfo(accessToken.getToken()))
                 .tokenType("Bearer")
                 .accessToken(accessToken.getToken())
+                .refreshToken(accessToken.getRefreshToken())
                 .build();
 
         // 设置 Cookie
@@ -220,5 +232,45 @@ public class SmsCodeServiceImpl implements SmsCodeService {
 
         log.info("短信验证码登录成功: phone={}, userId={}", phone, user.getSysUserId());
         return ReturnResult.ok(loginResult);
+    }
+
+    private void saveSmsLog(String phone,
+                            String code,
+                            String bizType,
+                            SmsSetting smsSetting,
+                            TemplateSetting setting,
+                            PushResult result,
+                            String fallbackMessage) {
+        try {
+            SysSmsLog sysSmsLog = new SysSmsLog();
+            sysSmsLog.setSysSmsLogTarget(phone);
+            sysSmsLog.setSysSmsLogTemplateId(setting.getTemplateId());
+            sysSmsLog.setSysSmsLogContent("bizType=" + bizType);
+            sysSmsLog.setSysSmsLogParam(truncate(Json.toJson(JsonObject.create()
+                    .fluentPut("bizType", bizType)
+                    .fluentPut("code", code)
+                    .fluentPut("templateParam", setting.getTemplateParam())), LOG_PARAM_MAX_LENGTH));
+            sysSmsLog.setSysSmsAppType(smsSetting.getAppType());
+            sysSmsLog.setSysSmsAppId(smsSetting.getAppId());
+            sysSmsLog.setSysSmsAppSign(smsSetting.getAppSign());
+            if (result != null) {
+                sysSmsLog.setSysSmsCode(result.getCode() == null ? null : result.getCode().name());
+                sysSmsLog.setSysSmsMessage(truncate(result.getMessage(), LOG_MESSAGE_MAX_LENGTH));
+                sysSmsLog.setSysSmsCost(result.getCost() == null ? null : BigDecimal.valueOf(result.getCost()));
+            } else {
+                sysSmsLog.setSysSmsCode("FAILURE");
+                sysSmsLog.setSysSmsMessage(truncate(fallbackMessage, LOG_MESSAGE_MAX_LENGTH));
+            }
+            sysSmsLogMapper.insert(sysSmsLog);
+        } catch (Exception e) {
+            log.warn("保存短信发送日志失败: phone={}, error={}", phone, e.getMessage());
+        }
+    }
+
+    private String truncate(String value, int maxLength) {
+        if (StringUtils.isEmpty(value) || value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength);
     }
 }
