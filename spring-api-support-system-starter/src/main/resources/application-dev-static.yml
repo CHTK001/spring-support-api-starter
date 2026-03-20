@@ -1,0 +1,4 @@
+plugin:
+  oauth:
+    # 本地联调默认使用静态 SSO，避免开发时额外启动 OAuth 服务端。
+    protocol: static

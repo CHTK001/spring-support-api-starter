@@ -7,7 +7,7 @@ spring:
     allow-bean-definition-overriding: true
   profiles:
     active: dev                  # 当前激活的环境
-    include: plugin,mybatis,socket,report,ip,actuator  # 引入的公共配置模块
+    include: plugin,mybatis,socket,report,api,ip,actuator  # 引入的公共配置模块
   application:
     name: oss                    # 应用名称（OAuth 认证服务）
 
@@ -21,3 +21,8 @@ server:
 logging:
   level:
     com.linecorp.armeria.server.HttpServerHandler: ERROR
+
+plugin:
+  api:
+    platform:
+      name: OAUTH

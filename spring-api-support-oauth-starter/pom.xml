@@ -117,9 +117,9 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.15.0</version>
         <configuration>
-          <source>25</source>
-          <target>25</target>
-          <release>25</release>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+          <release>${java.version}</release>
           <encoding>UTF-8</encoding>
           <useIncrementalCompilation>false</useIncrementalCompilation>
           <fork>true</fork>
@@ -158,7 +158,8 @@
             <exclude>*.yml</exclude>
             <exclude>*.yaml</exclude>
             <exclude>*.properties</exclude>
-            <exclude>*.xml</exclude>
+            <exclude>logback*.xml</exclude>
+            <exclude>log4j2*.xml</exclude>
             <exclude>config/**</exclude>
           </excludes>
           <archive>
@@ -213,7 +214,8 @@
                     <include>*.yml</include>
                     <include>*.yaml</include>
                     <include>*.properties</include>
-                    <include>*.xml</include>
+                    <include>logback*.xml</include>
+                    <include>log4j2*.xml</include>
                     <include>config/**</include>
                   </includes>
                 </resource>
@@ -234,7 +236,7 @@
         <executions>
           <execution>
             <id>make-assembly</id>
-            <phase>none</phase>
+            <phase>package</phase>
             <goals>
               <goal>single</goal>
             </goals>

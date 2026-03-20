@@ -5,7 +5,10 @@ spring:
   application:
     name: system                            # 应用名称（系统服务）
   profiles:
-    active: dev                             # 当前激活的环境
+    active: dev-static                      # 默认激活本地静态联调环境
+    group:
+      dev-static:
+        - dev
     include: common,mybatis,swagger,api,ip,actuator  # 引入的公共配置模块
 
 # ===========================================
