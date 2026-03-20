@@ -97,7 +97,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
                 .selectAll(SysUserLog.class)
                 .selectAs(SysDept::getSysDeptName, SysUserLog::getSysDeptName)
                 .leftJoin(SysDept.class, SysDept::getSysDeptId, SysUserLog::getSysDeptId)
-                .in(SysUserLog::getSysLogFrom, "LOGIN", "LOGOUT")
+                .in(SysUserLog::getSysLogFrom, "LOGIN", "LOGIN_FAIL", "LOGOUT")
                 .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogUsername()), SysUserLog::getSysLogUsername, sysUserLogQuery.getSysLogUsername())
                 .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogFrom()), SysUserLog::getSysLogFrom, sysUserLogQuery.getSysLogFrom())
                 .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogAddress()), SysUserLog::getSysLogAddress, sysUserLogQuery.getSysLogAddress())
@@ -133,9 +133,29 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         }
         Thread.ofVirtual().start(() -> {
             try {
+                // 如果有 IP 且地址为空，尝试解析 IP 归属地
+                if (StringUtils.isNotBlank(sysUserLog.getSysLogIp())
+                        && StringUtils.isBlank(sysUserLog.getSysLogAddress())) {
+                    try {
+                        ReturnResult<GeoCity> geo = iptablesService.transferAddress(sysUserLog.getSysLogIp());
+                        if (geo != null && geo.isOk() && geo.getData() != null) {
+                            sysUserLog.setSysLogAddress(geo.getData().toString());
+                            sysUserLog.setSysLogIsp(geo.getData().getIsp());
+                        }
+                    } catch (Exception e) {
+                        log.debug("[UserLog] IP 解析失败: ip={}", sysUserLog.getSysLogIp());
+                    }
+                }
                 baseMapper.insert(sysUserLog);
+                log.info("[UserLog] 保存成功: from={}, user={}, status={}, ip={}, address={}",
+                        sysUserLog.getSysLogFrom(),
+                        sysUserLog.getSysLogUsername(),
+                        sysUserLog.getSysLogStatus(),
+                        sysUserLog.getSysLogIp(),
+                        sysUserLog.getSysLogAddress());
             } catch (Exception e) {
-                log.error("异步保存用户日志失败: {}", e.getMessage());
+                log.error("[UserLog] 保存失败: from={}, user={}, error={}",
+                        sysUserLog.getSysLogFrom(), sysUserLog.getSysLogUsername(), e.getMessage());
             }
         });
     }

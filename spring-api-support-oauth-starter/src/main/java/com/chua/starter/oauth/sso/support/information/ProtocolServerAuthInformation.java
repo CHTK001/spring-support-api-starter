@@ -46,28 +46,44 @@ public class ProtocolServerAuthInformation {
             if (protocolRequest != null) {
                 this.remoteAddr = protocolRequest.getRemoteAddr();
                 this.remotePort = protocolRequest.getRemotePort();
-                // 从 ProtocolServer 的 ServletRequest 获取 headers
-                if (protocolRequest.getHeaders() != null) {
-                    var requestHeaders = protocolRequest.getHeaders();
-                    if (requestHeaders != null) {
+                // 从 ProtocolServer 的 ServletRequest 获取 headers（统一转小写，HTTP headers 大小写不敏感）
+                // 优先使用 RequestHeaders.forEach，同时也通过 getHeaderNames 枚举兜底
+                var requestHeaders = protocolRequest.getHeaders();
+                if (requestHeaders != null) {
+                    try {
                         requestHeaders.forEach((name, value) -> {
                             if (name != null && value != null) {
-                                headers.put(name, value);
+                                headers.put(name.toLowerCase(), value);
                             }
                         });
+                    } catch (Exception ignored) {
+                        // forEach 失败时通过 getHeaderNames 枚举
+                    }
+                }
+                // 兜底：通过 getHeaderNames 枚举（防止 forEach 未覆盖所有 header）
+                var headerNames = protocolRequest.getHeaderNames();
+                if (headerNames != null) {
+                    while (headerNames.hasMoreElements()) {
+                        String name = headerNames.nextElement();
+                        if (name != null) {
+                            String value = protocolRequest.getHeader(name);
+                            if (value != null) {
+                                headers.put(name.toLowerCase(), value);
+                            }
+                        }
                     }
                 }
             }
         }
 
         public void setHeader(String name, String value) {
-            headers.put(name, value);
+            headers.put(name != null ? name.toLowerCase() : name, value);
         }
 
         @Override
         public String getHeader(String name) {
-            // 从 headers 获取
-            return headers.get(name);
+            // 统一转小写查找，HTTP headers 大小写不敏感
+            return name != null ? headers.get(name.toLowerCase()) : null;
         }
 
         @Override
@@ -247,13 +263,17 @@ public class ProtocolServerAuthInformation {
         @Override
         public void setHeader(String name, String value) {
             headers.put(name, value);
-            // ProtocolServer 的 ServletResponse 可能没有 setHeader 方法
+            if (protocolResponse != null) {
+                protocolResponse.addHeader(name, value);
+            }
         }
 
         @Override
         public void addHeader(String name, String value) {
             headers.put(name, value);
-            // ProtocolServer 的 ServletResponse 可能没有 addHeader 方法
+            if (protocolResponse != null) {
+                protocolResponse.addHeader(name, value);
+            }
         }
 
         @Override

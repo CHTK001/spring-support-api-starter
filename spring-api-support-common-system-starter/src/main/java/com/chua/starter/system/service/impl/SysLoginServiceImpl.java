@@ -116,25 +116,60 @@ public class SysLoginServiceImpl implements SysLoginService {
     @Override
     public UserInfoVO getUserLoginInfo() {
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
-        UserInfoVO userInfoVO = new UserInfoVO();
-        com.chua.common.support.base.bean.BeanUtils.copyProperties(userLoginInfo.getExt(), userInfoVO);
-        userInfoVO.setAvatar(userLoginInfo.getOption("sysUserAvatar"));
-        userInfoVO.setTenantId(userLoginInfo.getTenantId());
-        userInfoVO.setRoles(userLoginInfo.getRoles());
-        userInfoVO.setPerms(userLoginInfo.getPermission());
-        return userInfoVO;
+        return buildUserInfo(userLoginInfo);
     }
 
     @Override
     public UserInfoVO getUserLoginInfo(String token) {
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        if (requestAttributes == null || StringUtils.isBlank(token)) {
+        if (StringUtils.isBlank(token)) {
             return new UserInfoVO();
         }
+        // 直接用 token 去鉴权服务器获取用户信息，不依赖 request header
+        UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult(token);
+        if (userLoginInfo == null || userLoginInfo.getExt() == null || userLoginInfo.getExt().isEmpty()) {
+            // fallback: 通过 request attribute 设置 token 再获取
+            RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+            if (requestAttributes != null) {
+                ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
+                attributes.getRequest().setAttribute(authProperties.getTokenName(), token);
+                com.chua.starter.oauth.client.support.execute.AuthSessionUtils.removeUserInfo();
+                return getUserLoginInfo();
+            }
+            return new UserInfoVO();
+        }
+        return buildUserInfo(userLoginInfo);
+    }
 
-        ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
-        attributes.getRequest().setAttribute(authProperties.getTokenName(), token);
-        return getUserLoginInfo();
+    private UserInfoVO buildUserInfo(UserResult userLoginInfo) {
+        UserInfoVO userInfoVO = new UserInfoVO();
+        if (userLoginInfo == null) {
+            return userInfoVO;
+        }
+        if (userLoginInfo.getExt() != null && !userLoginInfo.getExt().isEmpty()) {
+            com.chua.common.support.base.bean.BeanUtils.copyProperties(userLoginInfo.getExt(), userInfoVO);
+        }
+        if (userInfoVO.getSysUserUsername() == null) {
+            userInfoVO.setSysUserUsername(userLoginInfo.getUsername());
+        }
+        if (userInfoVO.getSysUserNickname() == null) {
+            userInfoVO.setSysUserNickname(StringUtils.isNotBlank(userLoginInfo.getNickName()) ? userLoginInfo.getNickName() : userLoginInfo.getUsername());
+        }
+        if (userInfoVO.getSysUserPhone() == null) {
+            userInfoVO.setSysUserPhone(userLoginInfo.getPhone());
+        }
+        if (userInfoVO.getSysUserId() == null && StringUtils.isNotBlank(userLoginInfo.getUserId())) {
+            try {
+                userInfoVO.setSysUserId(Integer.parseInt(userLoginInfo.getUserId()));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        if (StringUtils.isBlank(userInfoVO.getAvatar())) {
+            userInfoVO.setAvatar(userLoginInfo.getOption("sysUserAvatar"));
+        }
+        userInfoVO.setTenantId(userLoginInfo.getTenantId());
+        userInfoVO.setRoles(userLoginInfo.getRoles());
+        userInfoVO.setPerms(userLoginInfo.getPermission());
+        return userInfoVO;
     }
 
     @Override
@@ -149,6 +184,7 @@ public class SysLoginServiceImpl implements SysLoginService {
                 .tokenType("Bearer")
                 .refreshToken(upgrade.getRefreshToken())
                 .accessToken(upgrade.getToken())
+                .expires(null != upgrade.getUserResume() ? upgrade.getUserResume().getExpireTime() : null)
                 .build();
         CookieUtil.set(response, "x-oauth-cookie", upgrade.getToken(), true);
         return ReturnResult.success(loginResult);

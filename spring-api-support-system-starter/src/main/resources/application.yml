@@ -5,7 +5,10 @@ spring:
   application:
     name: system                            # 应用名称（系统服务）
   profiles:
-    active: dev                             # 当前激活的环境
+    active: dev-static                      # 默认激活本地静态联调环境
+    group:
+      dev-static:
+        - dev
     include: common,mybatis,swagger,api,ip,actuator  # 引入的公共配置模块
 
 # ===========================================
@@ -17,30 +20,10 @@ server:
     context-path: /system/api               # 上下文路径
 
 # ===========================================
-# 插件启用配置
+# Actuator 配置
 # ===========================================
-plugin:
-  log:
-    enable: true
-  captcha:
-    enable: true
-  optional:
-    enable: true
-  mybatis:
-    enable: true
-  redis:
-    server:
-      enable: true
-  oauth:
-    client:
-      enable: true
-    temp:
-      open: true
-  api:
-    uniform: true
-    version:
-      enable: true
-    spi:
-      enable: true
-    deprecated:
-      enable: true
+management:
+  endpoints:
+    web:
+      exposure:
+        exclude: mybatis-extension

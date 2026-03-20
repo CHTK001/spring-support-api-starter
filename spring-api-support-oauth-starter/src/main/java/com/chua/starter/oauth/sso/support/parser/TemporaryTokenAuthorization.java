@@ -112,6 +112,7 @@ public final class TemporaryTokenAuthorization implements Authorization {
      */
     private UserResult buildTemporaryUser(UserResume sourceUserResume, long expireTime, String allowedUrls) {
         UserResult temporaryUser = new UserResult();
+        temporaryUser.setUid(sourceUserResume.getUid());
         temporaryUser.setUserId(sourceUserResume.getUserId());
         temporaryUser.setUsername(sourceUserResume.getUsername());
         temporaryUser.setRoles(sourceUserResume.getRoles());

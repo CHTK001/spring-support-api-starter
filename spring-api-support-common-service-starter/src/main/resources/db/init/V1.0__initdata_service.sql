@@ -38,6 +38,7 @@ INSERT INTO `sys_dict_item` VALUES (10, 1, '讯飞', 'XUN_FEI', NULL, 1, 1, '', 
 INSERT INTO `sys_setting` VALUES (1, 'CheckCodeOpen', 'false', 'Boolean', 'default', 1, 4, 0, 1, 0, NULL, 15, NULL, '验证码开关', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (2, 'SystemName', '后台管理系统', 'String', 'default', 1, 0, 0, 1, 0, NULL, 15, NULL, '系统标题', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (3, 'SlidingBlockOpen', 'false', 'Boolean', 'default', 1, 5, 0, 1, 0, NULL, 15, NULL, '滑动验证码', NULL, NULL, NULL, NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (17, 'OpenSmsLogin', 'true', 'Boolean', 'default', 1, 6, 0, 1, 0, NULL, 15, NULL, '短信登录开关', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (4, 'CrashPageOpen', 'false', 'Boolean', 'config', 1, 9, 0, 1, 0, NULL, 26, NULL, '调试模式崩溃当前页', 'sa', NULL, NOW(), NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (5, 'CodecResponseOpen', 'false', 'Boolean', 'config', 1, 10, 0, 1, 0, NULL, 26, NULL, '返回加密', 'sa', NULL, NOW(), NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (6, 'WatermarkOpen', 'false', 'Boolean', 'config', 1, 5, 0, 1, 0, NULL, 26, NULL, '水印', 'sa', NULL, NOW(), NOW(), 'sa', 1);
