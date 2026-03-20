@@ -4,9 +4,10 @@
 spring:
   main:
     web-application-type: none  # 应用类型：非 Web（仅作为后端服务）
+    allow-bean-definition-overriding: true
   profiles:
     active: dev                  # 当前激活的环境
-    include: plugin,mybatis,socket,report,ip,actuator  # 引入的公共配置模块
+    include: plugin,mybatis,socket,report,api,ip,actuator  # 引入的公共配置模块
   application:
     name: oss                    # 应用名称（OAuth 认证服务）
 
@@ -16,3 +17,12 @@ spring:
 server:
   servlet:
     context-path: /oauth         # 上下文路径
+
+logging:
+  level:
+    com.linecorp.armeria.server.HttpServerHandler: ERROR
+
+plugin:
+  api:
+    platform:
+      name: OAUTH

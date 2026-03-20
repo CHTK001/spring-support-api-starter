@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -10,8 +10,6 @@
   <artifactId>spring-api-support-oauth-starter</artifactId>
   <description>OAuth单点登录系统</description>
   <properties>
-    <maven.compiler.source>25</maven.compiler.source>
-    <maven.compiler.target>25</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <grpc.version>1.58.0</grpc.version>
     <protobuf.version>3.24.4</protobuf.version>
@@ -117,9 +115,38 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.15.0</version>
         <configuration>
-          <source>25</source>
-          <target>25</target>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+          <release>${java.version}</release>
+          <encoding>UTF-8</encoding>
+          <useIncrementalCompilation>false</useIncrementalCompilation>
+          <fork>true</fork>
+          <meminitial>512m</meminitial>
+          <maxmem>2048m</maxmem>
+          <compilerArgs>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</arg>
+            <arg>-parameters</arg>
+            <arg>-proc:full</arg>
+          </compilerArgs>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>1.18.44</version>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
       <plugin>
@@ -131,7 +158,8 @@
             <exclude>*.yml</exclude>
             <exclude>*.yaml</exclude>
             <exclude>*.properties</exclude>
-            <exclude>*.xml</exclude>
+            <exclude>logback*.xml</exclude>
+            <exclude>log4j2*.xml</exclude>
             <exclude>config/**</exclude>
           </excludes>
           <archive>
@@ -186,7 +214,8 @@
                     <include>*.yml</include>
                     <include>*.yaml</include>
                     <include>*.properties</include>
-                    <include>*.xml</include>
+                    <include>logback*.xml</include>
+                    <include>log4j2*.xml</include>
                     <include>config/**</include>
                   </includes>
                 </resource>

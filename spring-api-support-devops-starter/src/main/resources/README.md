@@ -6,9 +6,12 @@
 resources/
 ├── ops-default/                # 兜底配置（所有环境共用）
 │   ├── application-actuator.yml
+│   ├── application-api.yml
+│   ├── application-ip.yml
 │   ├── application-mybatis.yml
 │   ├── application-swagger.yml
-│   └── application-jackson.yml
+│   ├── application-jackson.yml
+│   └── spy.properties
 ├── ops-dev/                    # dev 环境配置
 │   ├── application-mybatis.yml
 │   ├── application-jackson.yml

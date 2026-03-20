@@ -16,9 +16,17 @@ spring:
       mode: always
 logging:
   level:
-    com.chua.starter.admin.support.mapper: debug
+    com.chua.starter.system.mapper: debug
 
 
 plugin:
   oauth:
-    address: http://127.0.0.1:19180/oauth
+    address: http://127.0.0.1:19180
+    enable-encryption: true
+    login-page: /oauth/login
+    logout-page: /oauth/logout
+    oauth-url: /oauth/verify
+    temporary-token-page: /oauth/temporary-token
+    upgrade-page: /oauth/upgrade
+    whitelist:
+      - /**/refresh-token
