@@ -183,7 +183,7 @@ $env:Path = $javaPath
 Write-Step "预构建 system 上游模块，确保使用最新本地依赖 ..."
 Push-Location $script:BackendRoot
 try {
-  & mvn '-pl' 'spring-api-support-common-system-starter,!spring-api-support-common-payment-starter' '-am' '-Dmaven.test.skip=true' '-P!dist' 'install'
+  & mvn '-pl' 'spring-api-support-common-system-starter' '-am' '-Dmaven.test.skip=true' '-P!dist' 'install'
   if ($LASTEXITCODE -ne 0) {
     throw "system 上游模块构建失败。"
   }

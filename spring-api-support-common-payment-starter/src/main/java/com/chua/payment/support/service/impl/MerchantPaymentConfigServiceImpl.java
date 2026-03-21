@@ -83,7 +83,8 @@ public class MerchantPaymentConfigServiceImpl implements MerchantPaymentConfigSe
         }
 
         if (config.getOrderTimeoutMinutes() != null && config.getOrderTimeoutMinutes() > 0) {
-            LocalDateTime expireTime = order.getCreateTime().plusMinutes(config.getOrderTimeoutMinutes());
+            LocalDateTime baseTime = order.getCreatedAt() != null ? order.getCreatedAt() : LocalDateTime.now();
+            LocalDateTime expireTime = baseTime.plusMinutes(config.getOrderTimeoutMinutes());
             if (LocalDateTime.now().isAfter(expireTime)) {
                 throw new PaymentException("订单已超时，无法继续支付");
             }
