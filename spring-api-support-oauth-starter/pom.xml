@@ -10,7 +10,6 @@
   <artifactId>spring-api-support-oauth-starter</artifactId>
   <description>OAuth单点登录系统</description>
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <grpc.version>1.58.0</grpc.version>
     <protobuf.version>3.24.4</protobuf.version>
     <protoc.version>3.24.4</protoc.version>
@@ -114,45 +113,7 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.15.0</version>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-          <release>${java.version}</release>
-          <encoding>UTF-8</encoding>
-          <useIncrementalCompilation>false</useIncrementalCompilation>
-          <fork>true</fork>
-          <meminitial>512m</meminitial>
-          <maxmem>2048m</maxmem>
-          <compilerArgs>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
-            <arg>-J--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED</arg>
-            <arg>-parameters</arg>
-            <arg>-proc:full</arg>
-          </compilerArgs>
-          <annotationProcessorPaths>
-            <path>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-              <version>1.18.44</version>
-            </path>
-          </annotationProcessorPaths>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.3.0</version>
         <configuration>
           <excludes>
             <exclude>*.yml</exclude>
@@ -177,7 +138,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.6.1</version>
         <executions>
           <execution>
             <id>copy-dependencies</id>
@@ -197,7 +157,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>3.3.1</version>
         <executions>
           <execution>
             <id>copy-resources</id>
@@ -227,7 +186,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.6.0</version>
         <configuration>
           <descriptors>
             <descriptor>${devops.dir}/src/main/assembly/dist.xml</descriptor>

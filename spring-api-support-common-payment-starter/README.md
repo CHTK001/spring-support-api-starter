@@ -1,8 +1,11 @@
-# 支付系统模块
+# 支付系统模块（已归档）
+
+> 当前支付主线已迁移到 `spring-support-parent-starter/spring-support-payment-starter`。
+> `spring-api-support-common-payment-starter` 已退出根 POM 主构建，仅保留目录作为迁移存档，不再作为运行时依赖或继续演进的功能模块。
 
 ## 功能概述
 
-支付系统提供完整的支付解决方案,包括:
+本目录保留的是历史实现快照。当前有效支付能力由 `spring-support-payment-starter` 提供，包括:
 
 - 商户管理(增删改查/激活/停用)
 - 支付渠道配置(微信/支付宝/综合支付/钱包)
@@ -23,6 +26,16 @@
 - 微信支付SDK
 - 支付宝SDK
 - SPI 扩展机制
+
+## 当前状态
+
+- 主构建: 不再包含本模块
+- 系统端依赖: 已切换为 `spring-support-payment-starter`
+- 保留目的: 迁移留档、差异追溯
+
+## 历史说明
+
+以下内容仅用于理解历史实现，不再作为当前主线接入说明。
 
 ## 快速开始
 

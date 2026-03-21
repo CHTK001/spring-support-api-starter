@@ -9,9 +9,6 @@
   </parent>
   <artifactId>spring-api-support-system-starter</artifactId>
   <description>平台端</description>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>com.chua</groupId>
@@ -24,6 +21,10 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-system-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-payment-starter</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -57,7 +58,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.3.0</version>
         <configuration>
           <excludes>
             <exclude>*.yml</exclude>
@@ -82,7 +82,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.6.1</version>
         <executions>
           <execution>
             <id>copy-dependencies</id>
@@ -102,7 +101,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>3.3.1</version>
         <executions>
           <execution>
             <id>copy-resources</id>
@@ -132,7 +130,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.6.0</version>
         <configuration>
           <descriptors>
             <descriptor>${devops.dir}/src/main/assembly/dist.xml</descriptor>
