@@ -9,9 +9,6 @@
   </parent>
   <artifactId>spring-api-support-common-video-starter</artifactId>
   <description>视频服务</description>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>com.chua</groupId>

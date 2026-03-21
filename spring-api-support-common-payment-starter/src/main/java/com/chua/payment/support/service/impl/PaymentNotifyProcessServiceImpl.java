@@ -16,11 +16,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * 支付回调处理服务实现
@@ -39,26 +43,27 @@ public class PaymentNotifyProcessServiceImpl implements PaymentNotifyProcessServ
     @Transactional(rollbackFor = Exception.class)
     public PaymentNotifyLog logNotify(String notifyType, Long merchantId, String channelType, String channelSubType,
                                        HttpServletRequest request, String body) {
-        PaymentNotifyLog log = new PaymentNotifyLog();
-        log.setNotifyType(notifyType);
-        log.setMerchantId(merchantId);
-        log.setChannelType(channelType);
-        log.setChannelSubType(channelSubType);
-        log.setRequestHeaders(extractHeaders(request));
-        log.setRequestBody(body);
-        log.setRequestParams(extractParams(request));
-        log.setProcessStatus("PENDING");
-        log.setRetryCount(0);
-        log.setReceivedAt(LocalDateTime.now());
-        notifyLogMapper.insert(log);
+        PaymentNotifyLog notifyLog = new PaymentNotifyLog();
+        notifyLog.setNotifyType(notifyType);
+        notifyLog.setMerchantId(merchantId);
+        notifyLog.setChannelType(channelType);
+        notifyLog.setChannelSubType(channelSubType);
+        notifyLog.setRequestHeaders(extractHeaders(request));
+        notifyLog.setRequestBody(body);
+        notifyLog.setRequestParams(extractParams(request));
+        notifyLog.setProcessStatus("PENDING");
+        notifyLog.setRetryCount(0);
+        notifyLog.setReceivedAt(LocalDateTime.now());
+        notifyLog.setReceivedTime(LocalDateTime.now());
+        notifyLogMapper.insert(notifyLog);
 
         eventPublisher.publishEvent(new PaymentNotifyReceivedEvent(
-            this, log.getTenantId(), log.getMerchantId(), log.getId(),
+            this, null, notifyLog.getMerchantId(), notifyLog.getId(),
             notifyType, channelType, channelSubType,
-            log.getOrderNo(), log.getRefundNo(), log.getSignVerified()
+            notifyLog.getOrderNo(), notifyLog.getRefundNo(), isSignVerified(notifyLog.getSignVerified())
         ));
 
-        return log;
+        return notifyLog;
     }
 
     @Override
@@ -69,11 +74,11 @@ public class PaymentNotifyProcessServiceImpl implements PaymentNotifyProcessServ
             log.setProcessedAt(LocalDateTime.now());
             notifyLogMapper.updateById(log);
 
-            paymentNotifyService.handlePaymentNotify(log.getChannelType(), log.getChannelSubType(), log.getRequestBody());
+            dispatchNotify(log, false);
 
             markSuccess(log.getId(), "支付回调处理成功");
         } catch (Exception e) {
-            log.error("处理支付回调失败", e);
+            PaymentNotifyProcessServiceImpl.log.error("处理支付回调失败", e);
             markFailedAndRecordError(log.getId(), e.getClass().getSimpleName(), e.getMessage(), getStackTrace(e));
         }
     }
@@ -86,11 +91,11 @@ public class PaymentNotifyProcessServiceImpl implements PaymentNotifyProcessServ
             log.setProcessedAt(LocalDateTime.now());
             notifyLogMapper.updateById(log);
 
-            paymentNotifyService.handleRefundNotify(log.getChannelType(), log.getChannelSubType(), log.getRequestBody());
+            dispatchNotify(log, true);
 
             markSuccess(log.getId(), "退款回调处理成功");
         } catch (Exception e) {
-            log.error("处理退款回调失败", e);
+            PaymentNotifyProcessServiceImpl.log.error("处理退款回调失败", e);
             markFailedAndRecordError(log.getId(), e.getClass().getSimpleName(), e.getMessage(), getStackTrace(e));
         }
     }
@@ -123,7 +128,7 @@ public class PaymentNotifyProcessServiceImpl implements PaymentNotifyProcessServ
         PaymentNotifyError error = new PaymentNotifyError();
         error.setNotifyLogId(logId);
         error.setNotifyType(log.getNotifyType());
-        error.setTenantId(log.getTenantId());
+        error.setTenantId(null);
         error.setMerchantId(log.getMerchantId());
         error.setOrderNo(log.getOrderNo());
         error.setRefundNo(log.getRefundNo());
@@ -138,7 +143,7 @@ public class PaymentNotifyProcessServiceImpl implements PaymentNotifyProcessServ
         notifyErrorMapper.insert(error);
 
         eventPublisher.publishEvent(new PaymentNotifyFailedEvent(
-            this, log.getTenantId(), log.getMerchantId(), logId,
+            this, null, log.getMerchantId(), logId,
             error.getId(), log.getNotifyType(), log.getOrderNo(), log.getRefundNo(),
             errorType, errorMessage
         ));
@@ -172,13 +177,15 @@ public class PaymentNotifyProcessServiceImpl implements PaymentNotifyProcessServ
                 processPaymentNotify(log);
             } else if ("REFUND".equals(error.getNotifyType())) {
                 processRefundNotify(log);
+            } else {
+                dispatchNotify(log, false);
             }
 
             error.setStatus("RESOLVED");
             error.setResolvedAt(LocalDateTime.now());
             notifyErrorMapper.updateById(error);
         } catch (Exception e) {
-            log.error("重试回调处理失败", e);
+            PaymentNotifyProcessServiceImpl.log.error("重试回调处理失败", e);
             error.setStatus("PENDING");
             error.setRetryCount(error.getRetryCount() + 1);
             error.setNextRetryTime(calculateNextRetryTime(error.getRetryCount()));
@@ -204,6 +211,101 @@ public class PaymentNotifyProcessServiceImpl implements PaymentNotifyProcessServ
             params.append(key).append("=").append(String.join(",", values)).append("&");
         });
         return params.toString();
+    }
+
+    private void dispatchNotify(PaymentNotifyLog notifyLog, boolean refundNotify) {
+        if (notifyLog == null) {
+            throw new PaymentException("回调日志不存在");
+        }
+        if (notifyLog.getChannelId() == null) {
+            throw new PaymentException("回调日志缺少 channelId，无法重放");
+        }
+        String normalizedType = upper(firstNonBlank(notifyLog.getNotifyType(), refundNotify ? "REFUND" : "PAYMENT"));
+        if (normalizedType.contains("WECHAT") || "WECHAT".equalsIgnoreCase(notifyLog.getChannelType())) {
+            Map<String, String> headers = parseHeaders(notifyLog.getRequestHeaders());
+            if (refundNotify || normalizedType.contains("REFUND")) {
+                paymentNotifyService.handleWechatRefundNotify(
+                        notifyLog.getChannelId(),
+                        headers.get("Wechatpay-Serial"),
+                        headers.get("Wechatpay-Timestamp"),
+                        headers.get("Wechatpay-Nonce"),
+                        headers.get("Wechatpay-Signature"),
+                        headers.get("Wechatpay-Signature-Type"),
+                        notifyLog.getRequestBody());
+                return;
+            }
+            paymentNotifyService.handleWechatPayNotify(
+                    notifyLog.getChannelId(),
+                    headers.get("Wechatpay-Serial"),
+                    headers.get("Wechatpay-Timestamp"),
+                    headers.get("Wechatpay-Nonce"),
+                    headers.get("Wechatpay-Signature"),
+                    headers.get("Wechatpay-Signature-Type"),
+                    notifyLog.getRequestBody());
+            return;
+        }
+        if (normalizedType.contains("ALIPAY") || "ALIPAY".equalsIgnoreCase(notifyLog.getChannelType())) {
+            paymentNotifyService.handleAlipayPayNotify(notifyLog.getChannelId(), parseParams(notifyLog.getRequestParams()));
+            return;
+        }
+        throw new PaymentException("不支持的回调重放类型: " + notifyLog.getNotifyType());
+    }
+
+    private Map<String, String> parseHeaders(String headers) {
+        Map<String, String> result = new LinkedHashMap<>();
+        if (!StringUtils.hasText(headers)) {
+            return result;
+        }
+        for (String line : headers.split("\\R")) {
+            if (!StringUtils.hasText(line)) {
+                continue;
+            }
+            int idx = line.indexOf(':');
+            if (idx <= 0) {
+                continue;
+            }
+            result.put(line.substring(0, idx).trim(), line.substring(idx + 1).trim());
+        }
+        return result;
+    }
+
+    private Map<String, String> parseParams(String params) {
+        Map<String, String> result = new LinkedHashMap<>();
+        if (!StringUtils.hasText(params)) {
+            return result;
+        }
+        for (String pair : params.split("&")) {
+            if (!StringUtils.hasText(pair)) {
+                continue;
+            }
+            int idx = pair.indexOf('=');
+            if (idx <= 0) {
+                result.put(pair, "");
+                continue;
+            }
+            result.put(pair.substring(0, idx), pair.substring(idx + 1));
+        }
+        return result;
+    }
+
+    private Boolean isSignVerified(Integer signVerified) {
+        return signVerified != null && signVerified == 1;
+    }
+
+    private String upper(String value) {
+        return value == null ? null : value.toUpperCase(Locale.ROOT);
+    }
+
+    private String firstNonBlank(String... values) {
+        if (values == null) {
+            return null;
+        }
+        for (String value : values) {
+            if (StringUtils.hasText(value)) {
+                return value;
+            }
+        }
+        return null;
     }
 
     private String getStackTrace(Throwable throwable) {
