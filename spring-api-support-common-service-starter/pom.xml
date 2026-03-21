@@ -10,11 +10,6 @@
   <artifactId>spring-api-support-common-service-starter</artifactId>
   <description>通用服务模块，提供基础服务支持能力，包括OAuth认证、通用实体管理等功能</description>
   <name>Spring API Support Common Service Starter</name>
-  <properties>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>com.chua</groupId>

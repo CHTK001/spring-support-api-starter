@@ -33,6 +33,7 @@ import com.chua.payment.support.mapper.MerchantMapper;
 import com.chua.payment.support.mapper.PaymentOrderMapper;
 import com.chua.payment.support.service.OrderStateLogService;
 import com.chua.payment.support.service.OrderStateMachineService;
+import com.chua.payment.support.service.MerchantPaymentConfigService;
 import com.chua.payment.support.service.PaymentOrderService;
 import com.chua.payment.support.service.PaymentRefundOrderService;
 import com.chua.payment.support.service.TransactionRecordService;
@@ -145,7 +146,7 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
 
         eventPublisher.publishEvent(new OrderCreatedEvent(
                 this,
-                order.getTenantId(),
+                null,
                 order.getMerchantId(),
                 order.getId(),
                 order.getOrderNo(),
@@ -311,7 +312,7 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         if (transitionResult == OrderTransitionResult.APPLIED) {
             recordTransaction(latest, "PAY", latest.getPaidAmount(), 1, thirdPartyOrderNo, null, null, "支付成功");
             eventPublisher.publishEvent(new PaymentSuccessEvent(
-                this, latest.getTenantId(), latest.getMerchantId(), latest.getId(),
+                this, null, latest.getMerchantId(), latest.getId(),
                 latest.getOrderNo(), latest.getUserId(), latest.getPaidAmount(),
                 thirdPartyOrderNo, latest.getChannelType(), latest.getChannelSubType()
             ));
@@ -536,7 +537,7 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
                     responsePayload,
                     firstNonBlank(remark, "退款成功"));
             eventPublisher.publishEvent(new RefundSuccessEvent(
-                this, latestOrder.getTenantId(), latestOrder.getMerchantId(), latestOrder.getId(),
+                this, null, latestOrder.getMerchantId(), latestOrder.getId(),
                 latestOrder.getOrderNo(), latestRefundOrder.getId(), latestRefundOrder.getRefundNo(),
                 latestOrder.getUserId(), latestRefundOrder.getRefundAmount(),
                 firstNonBlank(latestRefundOrder.getThirdPartyRefundNo(), thirdPartyRefundNo),
@@ -678,7 +679,75 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         if (!Integer.valueOf(ChannelStatus.ENABLED.getCode()).equals(channel.getStatus())) {
             throw new PaymentException("支付方式未启用");
         }
-        return channel;
+        return resolveEffectiveChannel(channel, dto.getMerchantId());
+    }
+
+    private MerchantChannel resolveEffectiveChannel(MerchantChannel channel, Long merchantId) {
+        if (channel == null || !"COMPOSITE".equalsIgnoreCase(channel.getChannelType())
+                || !"AGGREGATE_ROUTE".equalsIgnoreCase(channel.getChannelSubType())) {
+            return channel;
+        }
+        Long targetChannelId = resolveRouteChannelId(channel);
+        if (targetChannelId == null) {
+            throw new PaymentException("综合支付路由未配置 targetChannelId 或 defaultChannelId");
+        }
+        if (channel.getId() != null && channel.getId().equals(targetChannelId)) {
+            throw new PaymentException("综合支付路由不能指向自身");
+        }
+        MerchantChannel targetChannel = merchantChannelMapper.selectById(targetChannelId);
+        if (targetChannel == null) {
+            throw new PaymentException("综合支付路由目标渠道不存在: " + targetChannelId);
+        }
+        if (!merchantId.equals(targetChannel.getMerchantId())) {
+            throw new PaymentException("综合支付路由目标渠道和订单商户不匹配");
+        }
+        if ("COMPOSITE".equalsIgnoreCase(targetChannel.getChannelType())) {
+            throw new PaymentException("综合支付路由不能嵌套 COMPOSITE 渠道");
+        }
+        if (!Integer.valueOf(ChannelStatus.ENABLED.getCode()).equals(targetChannel.getStatus())) {
+            throw new PaymentException("综合支付路由目标渠道未启用");
+        }
+        if (!paymentChannelRegistry.supports(targetChannel.getChannelType(), targetChannel.getChannelSubType())) {
+            throw new PaymentException("综合支付路由目标渠道当前版本不可执行: "
+                    + targetChannel.getChannelType() + "/" + targetChannel.getChannelSubType());
+        }
+        return targetChannel;
+    }
+
+    private Long resolveRouteChannelId(MerchantChannel channel) {
+        if (!StringUtils.hasText(channel.getExtConfig())) {
+            return null;
+        }
+        try {
+            java.util.Map<String, Object> config = objectMapper.readValue(channel.getExtConfig(), new com.fasterxml.jackson.core.type.TypeReference<java.util.Map<String, Object>>() {
+            });
+            return parseLong(config.get("targetChannelId"), config.get("defaultChannelId"));
+        } catch (Exception e) {
+            throw new PaymentException("综合支付路由配置格式错误", e);
+        }
+    }
+
+    private Long parseLong(Object... values) {
+        if (values == null) {
+            return null;
+        }
+        for (Object value : values) {
+            if (value == null) {
+                continue;
+            }
+            if (value instanceof Number number) {
+                return number.longValue();
+            }
+            String text = String.valueOf(value).trim();
+            if (!text.isEmpty()) {
+                try {
+                    return Long.parseLong(text);
+                } catch (NumberFormatException e) {
+                    throw new PaymentException("综合支付路由 channelId 格式错误: " + text, e);
+                }
+            }
+        }
+        return null;
     }
 
     private PaymentOrder findActiveOrderByBusinessOrderNo(Long merchantId, String businessOrderNo) {

@@ -1,4 +1,7 @@
-# 支付模块完整实现计划
+# 支付模块完整实现计划（归档）
+
+> 该计划对应 `spring-api-support-common-payment-starter` 的历史迁移阶段。
+> 截至 2026-03-21，主支付实现已统一收敛到 `spring-support-payment-starter`，本目录仅作为归档参考。
 
 ## 一、需求概述
 
@@ -107,8 +110,8 @@
 ### ✅ 已完成集成
 
 #### 1. 后端模块集成
-- ✅ `spring-api-support-common-payment-starter` 已加入根 POM 的 `<modules>`
-- ✅ `spring-api-support-common-system-starter` 已依赖 payment starter
+- 历史状态: `spring-api-support-common-payment-starter` 曾加入根 POM 的 `<modules>`
+- 当前状态: 根 POM 已移除该模块，`spring-api-support-system-starter` 已直接依赖 `spring-support-payment-starter`
 - ✅ `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 已存在
 - ✅ `PaymentAutoConfiguration` 已配置组件扫描
 
@@ -268,18 +271,7 @@
 
 ## 八、结论
 
-**当前完成度: 95%**
+**归档结论**
 
-核心功能已全部实现并集成,剩余工作主要是:
-1. 确认前端路由自动加载机制
-2. 可选的数据库增量迁移脚本
-3. 配置文档完善
-
-所有用户需求的功能点均已实现:
-- ✅ 商户增删改查、激活
-- ✅ 支付方式开通(微信/支付宝/综合/钱包)
-- ✅ 订单状态机、删除、退款
-- ✅ 开通流程引导(抽屉/弹窗)
-- ✅ 前端完整管理界面
-
-系统已具备生产可用性,可进行功能验证和测试。
+该文档对应的模块已退出主构建。
+当前应以 `spring-support-payment-starter` 作为唯一支付功能承载模块继续维护与发布。

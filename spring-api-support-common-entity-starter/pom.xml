@@ -10,11 +10,6 @@
   <artifactId>spring-api-support-common-entity-starter</artifactId>
   <name>Spring API Support Common Entity Starter</name>
   <description>统一实体模块 - 存放所有API模块的实体类</description>
-  <properties>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>com.chua</groupId>

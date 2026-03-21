@@ -63,7 +63,7 @@ public class PaymentOrderTimeoutTask {
         List<PaymentOrder> timeoutOrders = orderMapper.selectList(new LambdaQueryWrapper<PaymentOrder>()
                 .eq(PaymentOrder::getMerchantId, config.getMerchantId())
                 .in(PaymentOrder::getStatus, "PENDING", "PAYING")
-                .lt(PaymentOrder::getCreateTime, expireTime)
+                .lt(PaymentOrder::getCreatedAt, expireTime)
                 .last("limit 100"));
 
         log.info("商户 {} 找到 {} 个超时订单", config.getMerchantId(), timeoutOrders.size());
