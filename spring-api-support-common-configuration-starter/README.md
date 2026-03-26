@@ -159,6 +159,39 @@ spring:
       write-dates-as-timestamps: false
 ```
 
+## 📘 请求追踪策略文档
+
+当前仓库内的请求追踪策略模块文档已经单独收口，优先看下面两份：
+
+- [单元测试报告](./docs/请求追踪单元测试报告.md)
+- [集成手册](./docs/request-trace-integration-manual.md)
+
+如果要启用请求追踪策略模块，请重点关注：
+
+- `@RequestTraceStrategy` 只对显式标注的接口生效
+- `request.trace.strategy.config-storage-type` 控制运行时配置存储
+- `request.trace.strategy.ai-*` 控制持久化配置不存在时的 AI 默认值
+- 数据库型存储实现依赖 `spring-api-support-common-service-starter`
+
+推荐先在 Spring 配置中补齐这组默认值：
+
+```yaml
+request:
+  trace:
+    strategy:
+      config-storage-type: database
+      ai-summary-enabled: true
+      ai-model: deepseek-chat
+      ai-rate-limit-enabled: true
+      ai-rate-limit-window-seconds: 60
+      ai-rate-limit-max-requests: 30
+      ai-timeout-ms: 1500
+```
+
+运行时页面可直接访问：
+
+- `/request-trace-live.html`
+
 ## 🎯 设计原则
 
 ### 1. 约定优于配置
