@@ -250,6 +250,33 @@ public class SystemDataConsoleController {
                                                 @RequestBody InsertRowRequest req) {
         return ReturnResult.ok(systemDataConsoleService.insertTableRow(id, req));
     }
+
+    /**
+     * 获取集群状态。
+     */
+    @GetMapping("/{id}/cluster/status")
+    @ApiOperation("获取集群状态")
+    public ReturnResult<java.util.Map<String, Object>> clusterStatus(@PathVariable Integer id) {
+        return systemDataConsoleService.getClusterStatus(id);
+    }
+
+    /**
+     * 获取集群健康状态。
+     */
+    @GetMapping("/{id}/cluster/health")
+    @ApiOperation("获取集群健康状态")
+    public ReturnResult<String> clusterHealth(@PathVariable Integer id) {
+        return systemDataConsoleService.getClusterHealth(id);
+    }
+
+    /**
+     * 获取集群节点列表。
+     */
+    @GetMapping("/{id}/cluster/nodes")
+    @ApiOperation("获取集群节点列表")
+    public ReturnResult<java.util.List<java.util.Map<String, Object>>> clusterNodes(@PathVariable Integer id) {
+        return systemDataConsoleService.getClusterNodes(id);
+    }
 }
 
 

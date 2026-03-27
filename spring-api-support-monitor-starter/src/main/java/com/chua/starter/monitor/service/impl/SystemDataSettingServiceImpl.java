@@ -3,14 +3,14 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-// Backup 已重构为 Engine 的 BackupFeature 接口，能力判断需要通过 Engine 实例检查
 import com.chua.common.support.base.bean.BeanUtils;
-import com.chua.common.support.document.parser.Document;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.metadata.query.MetadataQuery;
 import com.chua.common.support.network.net.NetAddress;
-import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.common.support.core.utils.ObjectUtils;
+import com.chua.starter.monitor.engine.SystemDataCapability;
+import com.chua.starter.monitor.engine.SystemDataEngine;
+import com.chua.starter.monitor.engine.SystemDataEngineFactory;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.mapper.SystemDataSettingMapper;
 import com.chua.starter.monitor.pojo.data.SystemDataSettingPageItem;
@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.GeneralSecurityException;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
@@ -54,38 +55,21 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
     private static final String SECRET_KEY = "MySecretKey12345"; // 16字节密钥
 
     final SystemDataConsoleService systemDataConsoleService;
+    final SystemDataEngineFactory systemDataEngineFactory;
 
     @Override
     public ReturnResult<Boolean> saveOrUpdateSetting(SystemDataSetting setting) {
         try {
-            String systemDataSettingServer = setting.getSystemDataSettingServer();
-            if(systemDataSettingServer != null && null == setting.getSystemDataSettingProtocol()) {
-                // 从连接地址解析协议
-                NetAddress netAddress = NetAddress.of(systemDataSettingServer);
-                setting.setSystemDataSettingProtocol(netAddress.getProtocol());
-                setting.setSystemDataSettingHost(netAddress.getHost());
-                setting.setSystemDataSettingPort(netAddress.getPort(8080));
-            } else if (isBlank(systemDataSettingServer) && setting.getSystemDataSettingProtocol() != null) {
-                // 如果没有连接地址，则根据协议自动拼接
-                String generatedUrl = buildConnectionUrl(setting);
-                if (generatedUrl != null) {
-                    setting.setSystemDataSettingServer(generatedUrl);
-                }
-            }
-            
-            // 在保存前加密敏感数据
-            encryptSensitiveData(setting);
-            
-            if (setting.getSystemDataSettingId() == null) {
-                setting.setSystemDataSettingTimeoutMs(ObjectUtils.defaultIfNull(setting.getSystemDataSettingTimeoutMs(), 10_000));
-                save(setting);
+            SystemDataSetting persistence = prepareForPersistence(setting);
+            if (persistence.getSystemDataSettingId() == null) {
+                persistence.setSystemDataSettingTimeoutMs(ObjectUtils.defaultIfNull(persistence.getSystemDataSettingTimeoutMs(), 10_000));
+                save(persistence);
             } else {
-                Boolean systemDataSettingIdle = setting.getSystemDataSettingIdle();
-                Boolean systemDataSettingEnabled = setting.getSystemDataSettingEnabled();
-                if (updateById(setting) && null != systemDataSettingEnabled && systemDataSettingEnabled && null != systemDataSettingIdle && systemDataSettingIdle) {
-                    systemDataConsoleService.getRoot(setting.getSystemDataSettingId(), new MetadataQuery());
+                Boolean systemDataSettingIdle = persistence.getSystemDataSettingIdle();
+                Boolean systemDataSettingEnabled = persistence.getSystemDataSettingEnabled();
+                if (updateById(persistence) && null != systemDataSettingEnabled && systemDataSettingEnabled && null != systemDataSettingIdle && systemDataSettingIdle) {
+                    systemDataConsoleService.getRoot(persistence.getSystemDataSettingId(), new MetadataQuery());
                 }
-
             }
             return ReturnResult.ok(true);
         } catch (Exception e) {
@@ -171,14 +155,13 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
             decryptSensitiveData(setting);
             SystemDataSettingPageItem item = new SystemDataSettingPageItem();
             BeanUtils.copyProperties(setting, item);
-            // Backup 已重构为 Engine 的 BackupFeature 接口，需要创建 Engine 实例才能判断
-            // 由于这里只是能力展示，暂时设置为 false，实际使用时需要通过 Engine 实例检查
-            boolean backup = false;
-            boolean document = ServiceProvider.of(Document.class).isSupport(setting.getSystemDataSettingType());
-            boolean isFile = "FILE".equalsIgnoreCase(setting.getSystemDataSettingMode());
-            item.setCapabilitiesBackup(backup);
-            item.setCapabilitiesDocument(document);
-            item.setCapabilitiesFile(isFile);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                java.util.Map<String, Boolean> capabilityMap = engine.capabilities();
+                item.setCapabilityLevels(engine.capabilityLevels());
+                applyCapabilities(item, capabilityMap);
+            } catch (Exception e) {
+                log.warn("分析数据源能力失败: {}", setting.getSystemDataSettingId(), e);
+            }
             return item;
         }).toList());
         return ReturnResult.ok(result);
@@ -187,9 +170,9 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
     @Override
     public ReturnResult<String> uploadJdbcDriver(Integer id, MultipartFile file) {
         try {
-            SystemDataSetting setting = getById(id);
+            SystemDataSetting setting = baseMapper.selectById(id);
             if (setting == null) { return ReturnResult.error("配置不存在"); }
-            String baseDir = System.getProperty("login.home") + File.separator + "data-drivers";
+            String baseDir = System.getProperty("login.home", System.getProperty("user.dir", ".")) + File.separator + "data-drivers";
             Files.createDirectories(Path.of(baseDir));
             String filename = file.getOriginalFilename();
             if (filename == null || filename.isEmpty()) {
@@ -239,7 +222,15 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
         if (encryptedText == null || encryptedText.isEmpty()) {
             return encryptedText;
         }
-        
+
+        try {
+            return decryptInternal(encryptedText);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return encryptedText;
+        }
+    }
+
+    private static String decryptInternal(String encryptedText) {
         try {
             SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), ALGORITHM);
             Cipher cipher = Cipher.getInstance(ALGORITHM);
@@ -247,8 +238,8 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
             byte[] decodedBytes = Base64.getDecoder().decode(encryptedText);
             byte[] decryptedBytes = cipher.doFinal(decodedBytes);
             return new String(decryptedBytes, StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            return encryptedText;
+        } catch (GeneralSecurityException e) {
+            throw new IllegalStateException("解密失败", e);
         }
     }
 
@@ -261,30 +252,16 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
         if (setting == null) {
             return;
         }
-        
-        // 加密密码
-        if (setting.getSystemDataSettingPassword() != null && !setting.getSystemDataSettingPassword().isEmpty()) {
-            setting.setSystemDataSettingPassword(encrypt(setting.getSystemDataSettingPassword()));
-        }
-        
-        // 加密连接字符串（可能包含敏感信息）
-        if (setting.getSystemDataSettingServer() != null && !setting.getSystemDataSettingServer().isEmpty()) {
-            // 只有当连接字符串包含密码信息时才加密
-            if (setting.getSystemDataSettingServer().contains("password=") || 
-                setting.getSystemDataSettingServer().contains("pwd=")) {
-                setting.setSystemDataSettingServer(encrypt(setting.getSystemDataSettingServer()));
-            }
-        }
-        
-        // 加密配置JSON（可能包含敏感信息）
-        if (setting.getSystemDataSettingConfig() != null && !setting.getSystemDataSettingConfig().isEmpty()) {
-            // 只有当配置包含密码相关信息时才加密
-            if (setting.getSystemDataSettingConfig().contains("password") || 
-                setting.getSystemDataSettingConfig().contains("secret") ||
-                setting.getSystemDataSettingConfig().contains("token")) {
-                setting.setSystemDataSettingConfig(encrypt(setting.getSystemDataSettingConfig()));
-            }
-        }
+
+        setting.setSystemDataSettingPassword(
+                encodeSensitiveValue(setting.getSystemDataSettingPassword(), true)
+        );
+        setting.setSystemDataSettingServer(
+                encodeSensitiveValue(setting.getSystemDataSettingServer(), shouldEncryptServer(setting.getSystemDataSettingServer()))
+        );
+        setting.setSystemDataSettingConfig(
+                encodeSensitiveValue(setting.getSystemDataSettingConfig(), shouldEncryptConfig(setting.getSystemDataSettingConfig()))
+        );
     }
 
     /**
@@ -310,6 +287,96 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
         // 解密配置JSON
         if (setting.getSystemDataSettingConfig() != null && !setting.getSystemDataSettingConfig().isEmpty()) {
             setting.setSystemDataSettingConfig(decrypt(setting.getSystemDataSettingConfig()));
+        }
+    }
+
+    public static SystemDataSetting copySetting(SystemDataSetting source) {
+        if (source == null) {
+            return null;
+        }
+        SystemDataSetting target = new SystemDataSetting();
+        BeanUtils.copyProperties(source, target);
+        return target;
+    }
+
+    private SystemDataSetting prepareForPersistence(SystemDataSetting setting) {
+        SystemDataSetting persistence = copySetting(setting);
+        normalizeConnection(persistence);
+        mergeRawSensitiveFields(persistence);
+        encryptSensitiveData(persistence);
+        return persistence;
+    }
+
+    private void normalizeConnection(SystemDataSetting setting) {
+        String systemDataSettingServer = decrypt(setting.getSystemDataSettingServer());
+        setting.setSystemDataSettingServer(systemDataSettingServer);
+        if (systemDataSettingServer != null && null == setting.getSystemDataSettingProtocol()) {
+            NetAddress netAddress = NetAddress.of(systemDataSettingServer);
+            setting.setSystemDataSettingProtocol(netAddress.getProtocol());
+            setting.setSystemDataSettingHost(netAddress.getHost());
+            setting.setSystemDataSettingPort(netAddress.getPort(8080));
+        } else if (isBlank(systemDataSettingServer) && setting.getSystemDataSettingProtocol() != null) {
+            String generatedUrl = buildConnectionUrl(setting);
+            if (generatedUrl != null) {
+                setting.setSystemDataSettingServer(generatedUrl);
+            }
+        }
+    }
+
+    private void mergeRawSensitiveFields(SystemDataSetting setting) {
+        Integer id = setting.getSystemDataSettingId();
+        if (id == null) {
+            return;
+        }
+        SystemDataSetting storedSetting = baseMapper.selectById(id);
+        if (storedSetting == null) {
+            return;
+        }
+        if (setting.getSystemDataSettingPassword() == null) {
+            setting.setSystemDataSettingPassword(storedSetting.getSystemDataSettingPassword());
+        }
+        if (setting.getSystemDataSettingServer() == null) {
+            setting.setSystemDataSettingServer(storedSetting.getSystemDataSettingServer());
+        }
+        if (setting.getSystemDataSettingConfig() == null) {
+            setting.setSystemDataSettingConfig(storedSetting.getSystemDataSettingConfig());
+        }
+    }
+
+    private static String encodeSensitiveValue(String value, boolean encryptRequired) {
+        if (value == null || value.isEmpty() || !encryptRequired || isEncryptedText(value)) {
+            return value;
+        }
+        return encrypt(value);
+    }
+
+    private static boolean shouldEncryptServer(String value) {
+        if (value == null || value.isEmpty()) {
+            return false;
+        }
+        String lowerValue = value.toLowerCase();
+        return lowerValue.contains("password=") || lowerValue.contains("pwd=");
+    }
+
+    private static boolean shouldEncryptConfig(String value) {
+        if (value == null || value.isEmpty()) {
+            return false;
+        }
+        String lowerValue = value.toLowerCase();
+        return lowerValue.contains("password")
+                || lowerValue.contains("secret")
+                || lowerValue.contains("token");
+    }
+
+    private static boolean isEncryptedText(String value) {
+        if (value == null || value.isEmpty()) {
+            return false;
+        }
+        try {
+            String decryptedText = decryptInternal(value);
+            return value.equals(encrypt(decryptedText));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return false;
         }
     }
 
@@ -534,6 +601,30 @@ public class SystemDataSettingServiceImpl extends ServiceImpl<SystemDataSettingM
         } catch (Exception e) {
             log.warn("解析额外参数失败: {}", e.getMessage());
         }
+    }
+
+    private void applyCapabilities(SystemDataSettingPageItem item, java.util.Map<String, Boolean> capabilityMap) {
+        item.setCapabilitiesBackup(capabilityMap.getOrDefault(SystemDataCapability.BACKUP.getKey(), false));
+        item.setCapabilitiesBackupLifecycle(capabilityMap.getOrDefault(SystemDataCapability.BACKUP_LIFECYCLE.getKey(), false));
+        item.setCapabilitiesTableBackup(capabilityMap.getOrDefault(SystemDataCapability.TABLE_BACKUP.getKey(), false));
+        item.setCapabilitiesDocument(capabilityMap.getOrDefault(SystemDataCapability.DOCUMENT.getKey(), false));
+        item.setCapabilitiesFile(capabilityMap.getOrDefault(SystemDataCapability.FILE.getKey(), false));
+        item.setCapabilitiesHierarchy(capabilityMap.getOrDefault(SystemDataCapability.HIERARCHY.getKey(), false));
+        item.setCapabilitiesCommand(capabilityMap.getOrDefault(SystemDataCapability.COMMAND.getKey(), false));
+        item.setCapabilitiesOrmSearch(capabilityMap.getOrDefault(SystemDataCapability.ORM_SEARCH.getKey(), false));
+        item.setCapabilitiesOrmUpdate(capabilityMap.getOrDefault(SystemDataCapability.ORM_UPDATE.getKey(), false));
+        item.setCapabilitiesSqlQuery(capabilityMap.getOrDefault(SystemDataCapability.SQL_QUERY.getKey(), false));
+        item.setCapabilitiesSqlUpdate(capabilityMap.getOrDefault(SystemDataCapability.SQL_UPDATE.getKey(), false));
+        item.setCapabilitiesStructure(capabilityMap.getOrDefault(SystemDataCapability.STRUCTURE.getKey(), false));
+        item.setCapabilitiesIndexes(capabilityMap.getOrDefault(SystemDataCapability.INDEXES.getKey(), false));
+        item.setCapabilitiesPartitions(capabilityMap.getOrDefault(SystemDataCapability.PARTITIONS.getKey(), false));
+        item.setCapabilitiesRowMutation(capabilityMap.getOrDefault(SystemDataCapability.ROW_MUTATION.getKey(), false));
+        item.setCapabilitiesKv(capabilityMap.getOrDefault(SystemDataCapability.KV.getKey(), false));
+        item.setCapabilitiesTimeSeries(capabilityMap.getOrDefault(SystemDataCapability.TIME_SERIES.getKey(), false));
+        item.setCapabilitiesTopic(capabilityMap.getOrDefault(SystemDataCapability.TOPIC.getKey(), false));
+        item.setCapabilitiesTopicAdmin(capabilityMap.getOrDefault(SystemDataCapability.TOPIC_ADMIN.getKey(), false));
+        item.setCapabilitiesCluster(capabilityMap.getOrDefault(SystemDataCapability.CLUSTER.getKey(), false));
+        item.setCapabilitiesNode(capabilityMap.getOrDefault(SystemDataCapability.NODE.getKey(), false));
     }
 }
 

@@ -2,6 +2,11 @@
 
 多租户管理模块，提供租户、服务、菜单的管理和同步功能。
 
+## 文档入口
+
+- [租户同步接入文档](./docs/TENANT_SYNC_ACCESS_GUIDE.md)
+- [租户同步测试文档](./docs/TENANT_SYNC_TEST_GUIDE.md)
+
 ## 功能特性
 
 - **租户管理**: 租户的增删改查、状态管理

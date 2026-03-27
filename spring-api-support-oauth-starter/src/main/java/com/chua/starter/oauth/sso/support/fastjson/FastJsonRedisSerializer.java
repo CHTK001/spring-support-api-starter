@@ -1,7 +1,6 @@
 package com.chua.starter.oauth.sso.support.fastjson;//package com.chua.starter.oauth.server.support.fastjson;
 
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONPath;
 import com.alibaba.fastjson2.JSONReader;
 import com.alibaba.fastjson2.JSONWriter;
 import com.alibaba.fastjson2.filter.Filter;

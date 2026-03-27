@@ -6,7 +6,7 @@
     <id>web</id>
     <formats>
         <!-- 压缩格式 -->
-        <format>zip</format>
+        <format>tar.gz</format>
     </formats>
 
 

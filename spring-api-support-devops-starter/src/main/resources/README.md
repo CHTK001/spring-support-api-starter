@@ -107,6 +107,8 @@ bin/
 ├── env.sh / env.bat              # 环境变量管理
 ├── analyze.sh / analyze.bat      # 资源分析
 ├── debug.sh / debug.bat          # 调试模式启动
+├── service.sh / service.bat      # 服务挂载/卸载与 systemd 管理
+├── gui.sh                        # 交互式快捷控制台（F 键 + 字母快捷键）
 ├── cluster.sh / cluster.bat      # 集群管理
 ├── skywalking.sh                 # SkyWalking 管理
 ├── arthas.sh                     # Arthas 管理
@@ -591,7 +593,7 @@ env.sh [选项] [变量名=值 ...]
 
 **用法：**
 ```bash
-analyze.sh [-a] [-o 输出文件]
+analyze.sh [-a] [-o 输出文件] [--api-log 日志文件] [--oom-log 日志文件] [--top 数量]
 ```
 
 **参数说明：**
@@ -600,11 +602,15 @@ analyze.sh [-a] [-o 输出文件]
 |------|------|------|
 | `-a` | 使用 AI 分析（需要配置 AI API） | `analyze.sh -a` |
 | `-o 文件` | 将分析结果输出到文件 | `analyze.sh -o config.txt` |
+| `--api-log 文件` | 指定 API 访问日志（默认扫描 `<base>/logs`） | `analyze.sh --api-log access.log` |
+| `--oom-log 文件` | 指定 OOM 分析日志（默认扫描 `<base>/logs/*.log`） | `analyze.sh --oom-log app.log` |
+| `--top 数量` | 热点接口输出条数（默认 10） | `analyze.sh --top 20` |
 | `-h, --help` | 显示帮助信息 | `analyze.sh -h` |
 
 **说明：**
 - 分析当前系统资源和使用情况，推荐最优 JVM 配置
-- 包括 Xms、Xmx、GC 参数等
+- 包括 Xms、Xmx、GC 参数、API 热点与 OOM 风险
+- 支持指定日志源分析刷屏/爬虫/扫描行为
 - 可以结合 AI 进行更智能的分析
 
 **示例：**
@@ -614,6 +620,9 @@ analyze.sh [-a] [-o 输出文件]
 
 # 输出到文件
 ./bin/analyze.sh -o jvm-config.txt
+
+# 指定 API 与 OOM 日志分析
+./bin/analyze.sh --api-log /data/logs/access.log --oom-log /data/logs/app.log --top 20
 
 # AI 分析（需要配置 AI API）
 ./bin/analyze.sh -a
@@ -652,6 +661,45 @@ debug.sh [-f] [-j JAVA_HOME] [-jvm "JVM参数"] [-t 时区] [--charset 编码] [
 
 # 调试模式启动并查看日志
 ./bin/debug.sh -f -d 5005
+```
+
+---
+
+### 13.1 service.sh - 服务挂载与系统服务管理
+
+用于将应用挂载为 `systemd` 服务，支持 `mount/unmount/start/stop/restart/status`。
+
+```bash
+# 挂载并启动服务
+./bin/service.sh mount --name api-monitor --start
+
+# 卸载服务
+./bin/service.sh unmount --name api-monitor
+```
+
+---
+
+### 13.2 gui.sh - 快捷控制台（键盘快捷方式）
+
+提供交互式键盘快捷操作控制台，支持 `F 键 + 字母快捷键` 调用常用脚本。
+
+常用快捷键：
+- `F1/S` 状态
+- `F2/T` 启动
+- `F3/P` 停止
+- `F4/R` 重启
+- `F5/L` 日志
+- `A` 分析
+- `G` 升级（交互输入包路径）
+- `K` 回滚（交互输入包路径）
+- `H` 帮助，`Q` 退出
+
+```bash
+# 查看帮助
+./bin/gui.sh --help
+
+# 非交互自检（CI 场景）
+./bin/gui.sh --self-test
 ```
 
 ---

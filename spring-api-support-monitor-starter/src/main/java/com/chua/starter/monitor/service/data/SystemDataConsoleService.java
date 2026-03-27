@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.service.data;
 
+import com.chua.common.support.data.query.FeatureSupportLevel;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.metadata.command.CommandResult;
 import com.chua.common.support.metadata.hierarchy.HierarchyMetadata;
@@ -406,14 +407,46 @@ public interface SystemDataConsoleService {
 
     /**
      * 检测数据库能力
-     * 返回数据库是否支持索引和分区功能
+     * 返回统一能力快照，兼容旧版 supportsXxx alias
      *
      * @param settingId 设置ID
-     * @return 数据库能力信息，包含 supportsIndexes 和 supportsPartitions
+     * @return 数据库能力信息
      * @author CH
      * @since 2024-12-10
      */
     Map<String, Boolean> getDatabaseCapabilities(Integer settingId);
+
+    /**
+     * 检测数据库能力级别。
+     *
+     * @param settingId 设置ID
+     * @return 数据库能力级别信息，值为 NONE/ATTACHED/FULL
+     */
+    Map<String, FeatureSupportLevel> getDatabaseCapabilityLevels(Integer settingId);
+
+    /**
+     * 获取集群状态。
+     *
+     * @param settingId 设置ID
+     * @return 集群状态
+     */
+    ReturnResult<Map<String, Object>> getClusterStatus(Integer settingId);
+
+    /**
+     * 获取集群健康状态。
+     *
+     * @param settingId 设置ID
+     * @return 集群健康状态
+     */
+    ReturnResult<String> getClusterHealth(Integer settingId);
+
+    /**
+     * 获取集群节点列表。
+     *
+     * @param settingId 设置ID
+     * @return 节点列表
+     */
+    ReturnResult<List<Map<String, Object>>> getClusterNodes(Integer settingId);
 }
 
 

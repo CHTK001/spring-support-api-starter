@@ -78,7 +78,7 @@ public class SysTenantController {
     @GetMapping("get")
     @Operation(summary = "获取租户详情")
     @Permission("sys:tenant:get")
-    public ReturnResult<SysTenant> getForSysTenant(@Parameter(description = "租户ID") Integer sysTenantId) {
+    public ReturnResult<SysTenant> getForSysTenant(@Parameter(description = "租户ID") String sysTenantId) {
         return sysTenantService.getForSysTenant(sysTenantId);
     }
 
@@ -127,7 +127,7 @@ public class SysTenantController {
     @DeleteMapping("delete")
     @Operation(summary = "删除租户")
     @Permission("sys:tenant:delete")
-    public ReturnResult<Boolean> deleteForSysTenant(@Parameter(description = "租户ID") Integer sysTenantId) {
+    public ReturnResult<Boolean> deleteForSysTenant(@Parameter(description = "租户ID") String sysTenantId) {
         return sysTenantService.deleteForSysTenant(sysTenantId);
     }
 
@@ -155,7 +155,7 @@ public class SysTenantController {
     @Operation(summary = "更新租户状态")
     @Permission("sys:tenant:status")
     public ReturnResult<Boolean> updateStatusForSysTenant(
-            @Parameter(description = "租户ID") Integer sysTenantId,
+            @Parameter(description = "租户ID") String sysTenantId,
             @Parameter(description = "状态值: 0-启用, 1-禁用") Integer status) {
         return sysTenantService.updateStatusForSysTenant(sysTenantId, status);
     }

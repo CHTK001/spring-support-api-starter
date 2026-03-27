@@ -101,7 +101,7 @@ set_var() {
   fi
   
   # 使用已修复的 set_env_var 函数来处理特殊字符
-  set_env_var "${var_name}" "${var_value}" "${ENV_FILE}"
+  set_env_var "${var_name}" "${var_value}"
   info "已设置: ${var_name}=${var_value}"
 }
 
@@ -149,6 +149,7 @@ unset_var() {
 reset_env() {
   var_base_dir="$(get_base_dir)"
   var_env_file="${var_base_dir}/bin/app.env"
+  BACKUP_FILE=""
   
   # 备份现有配置
   if [ -f "${var_env_file}" ]; then
@@ -175,7 +176,9 @@ BACKUP_DIR=
 EOF
   
   info "已重置环境变量配置为默认值"
-  info "提示: 备份文件保存在 ${BACKUP_FILE}"
+  if [ -n "${BACKUP_FILE}" ]; then
+    info "提示: 备份文件保存在 ${BACKUP_FILE}"
+  fi
 }
 
 # 解析参数
@@ -270,4 +273,3 @@ elif [ "${MODE}" = "unset" ]; then
 elif [ "${MODE}" = "reset" ]; then
   reset_env
 fi
-

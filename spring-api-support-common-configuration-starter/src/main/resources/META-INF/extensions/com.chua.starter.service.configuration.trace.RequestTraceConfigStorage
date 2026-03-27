@@ -1,0 +1,2 @@
+com.chua.starter.service.configuration.trace.storage.InMemoryRequestTraceConfigStorage
+com.chua.starter.service.configuration.trace.storage.RedisRequestTraceConfigStorage

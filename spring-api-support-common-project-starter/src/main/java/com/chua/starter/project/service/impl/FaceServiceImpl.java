@@ -5,7 +5,7 @@ import com.chua.deeplearning.support.core.result.PredictResult;
 import com.chua.deeplearning.support.core.function.api.Similar;
 import com.chua.deeplearning.support.core.function.api.Detector;
 import com.chua.deeplearning.support.core.function.api.Feature;
-import com.chua.deeplearning.support.core.feature.DetectionConfiguration;
+import com.chua.common.support.ai.DetectionConfiguration;
 import com.chua.deeplearning.support.core.composite.Recognizer;
 import com.chua.deeplearning.support.ml.identification.IdentificationEngine;
 import com.chua.common.support.core.utils.StringUtils;

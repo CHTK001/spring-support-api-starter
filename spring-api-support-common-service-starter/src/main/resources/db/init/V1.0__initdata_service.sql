@@ -35,6 +35,13 @@ INSERT INTO `sys_dict_item` VALUES (10, 1, '讯飞', 'XUN_FEI', NULL, 1, 1, '', 
 -- =====================================================
 -- 初始数据 - 系统配置
 -- =====================================================
+INSERT INTO `sys_setting_group` VALUES (1, '默认配置', 'default', 'ep:setting', 1, '系统默认配置', 1, 0, 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting_group` VALUES (2, '系统配置', 'config', 'ep:tools', 1, '系统基础运行配置', 2, 0, 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting_group` VALUES (3, '单点登录', 'sso', 'ri:shield-user-line', 1, '第三方登录总开关', 3, 0, 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting_group` VALUES (4, 'Gitee登录', 'gitee', 'simple-icons:gitee', 1, 'Gitee OAuth配置', 4, 0, 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting_group` VALUES (5, 'GitHub登录', 'github', 'simple-icons:github', 1, 'GitHub OAuth配置', 5, 0, 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting_group` VALUES (6, 'Google登录', 'google', 'simple-icons:google', 1, 'Google OAuth配置', 6, 0, 'sa', 1, NOW(), NOW(), 'sa', 1);
+
 INSERT INTO `sys_setting` VALUES (1, 'CheckCodeOpen', 'false', 'Boolean', 'default', 1, 4, 0, 1, 0, NULL, 15, NULL, '验证码开关', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (2, 'SystemName', '后台管理系统', 'String', 'default', 1, 0, 0, 1, 0, NULL, 15, NULL, '系统标题', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (3, 'SlidingBlockOpen', 'false', 'Boolean', 'default', 1, 5, 0, 1, 0, NULL, 15, NULL, '滑动验证码', NULL, NULL, NULL, NOW(), 'sa', 1);
@@ -52,6 +59,18 @@ INSERT INTO `sys_setting` VALUES (13, 'WatermarkAlpha', '0.35', 'Number', 'confi
 INSERT INTO `sys_setting` VALUES (14, 'WatermarkRotate', '-30', 'Number', 'config', 1, 7, 0, 1, 0, NULL, 26, NULL, '水印角度', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (15, 'CodecRequestOpen', 'false', 'Boolean', 'config', 1, 14, 0, 1, 0, NULL, 26, NULL, '请求加密', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (16, 'CodecRequestKey', '0123456789abcdef', 'String', 'config', 1, 3, 0, 1, 1, NULL, 26, NULL, '请求加密密钥', NULL, NULL, NULL, NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (18, 'Gitee', 'false', 'Boolean', 'sso', 1, 1, 0, 1, 0, NULL, 1, NULL, 'Gitee登录开关', 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (19, 'Github', 'false', 'Boolean', 'sso', 1, 2, 0, 1, 0, NULL, 1, NULL, 'GitHub登录开关', 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (20, 'Google', 'false', 'Boolean', 'sso', 1, 3, 0, 1, 0, NULL, 1, NULL, 'Google登录开关', 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (21, 'clientId', '', 'String', 'gitee', 1, 1, 0, 1, 0, NULL, 1, NULL, 'Gitee Client ID', 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (22, 'clientSecret', '', 'Password', 'gitee', 1, 2, 0, 1, 0, NULL, 1, NULL, 'Gitee Client Secret', 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (23, 'redirectUri', 'http://127.0.0.1:18170/system/api/v2/third/login/gitee/callback', 'String', 'gitee', 1, 3, 0, 1, 0, NULL, 1, NULL, 'Gitee回调地址', 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (24, 'clientId', '', 'String', 'github', 1, 1, 0, 1, 0, NULL, 1, NULL, 'GitHub Client ID', 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (25, 'clientSecret', '', 'Password', 'github', 1, 2, 0, 1, 0, NULL, 1, NULL, 'GitHub Client Secret', 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (26, 'redirectUri', 'http://127.0.0.1:18170/system/api/v2/third/login/github/callback', 'String', 'github', 1, 3, 0, 1, 0, NULL, 1, NULL, 'GitHub回调地址', 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (27, 'clientId', '', 'String', 'google', 1, 1, 0, 1, 0, NULL, 1, NULL, 'Google Client ID', 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (28, 'clientSecret', '', 'Password', 'google', 1, 2, 0, 1, 0, NULL, 1, NULL, 'Google Client Secret', 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (29, 'redirectUri', 'http://127.0.0.1:18170/system/api/v2/third/login/google/callback', 'String', 'google', 1, 3, 0, 1, 0, NULL, 1, NULL, 'Google回调地址', 'sa', 1, NOW(), NOW(), 'sa', 1);
 
 -- =====================================================
 -- 初始数据 - 文件系统分组

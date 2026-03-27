@@ -50,6 +50,12 @@ Spring API Support OAuth Starter 是一个功能完整的 OAuth 认证服务端/
 - **加密传输** - 支持多种加密算法
 - **IP 白名单** - IP 访问控制
 
+## 📚 相关文档
+
+- `单点登录接入说明.MD`
+- `单点登录完整测试报告.MD`
+- `OAUTH_TEST_CHECKLIST.md`
+
 ## 🚀 快速开始
 
 ### Maven 依赖
@@ -181,6 +187,7 @@ CREATE TABLE `sys_app_key` (
   `sys_user_id` int COMMENT '用户ID',
   `sys_app_key_status` tinyint DEFAULT 1 COMMENT '状态：0-禁用，1-启用',
   `sys_app_key_delete` tinyint DEFAULT 0 COMMENT '删除标记：0-未删除，1-已删除',
+  `sys_app_key_valid_days` int NOT NULL DEFAULT 30 COMMENT '有效天数，0表示不限时',
   `sys_app_key_expire_time` bigint COMMENT '过期时间（时间戳）',
   `sys_app_key_ip_whitelist` varchar(500) COMMENT 'IP白名单，多个用逗号分隔',
   `sys_app_key_remark` varchar(500) COMMENT '备注',
@@ -383,7 +390,7 @@ String sign = DigestUtils.md5Hex(sb.toString());
 1. 从请求中提取 `appKey`（通过 `userCode` 参数传递）
 2. **从 `sys_app_key` 表查询 AppKey，验证是否与数据库一致**
 3. 检查 AppKey 状态（是否启用）
-4. 检查 AppKey 过期时间
+4. 检查 AppKey 有效天数与过期时间（`sys_app_key_valid_days = 0` 表示不限时）
 5. 通过 `code` 参数获取用户信息
 6. 返回用户信息（`UserResume`）
 
@@ -460,8 +467,8 @@ x-sign: calculated_signature
 1. 在 `sys_app_key` 表中创建应用：
 
 ```sql
-INSERT INTO sys_app_key (app_key, sys_app_key_secret, sys_app_key_name, sys_app_key_status)
-VALUES ('ak_test_123', 'sk_test_456', '测试应用', 1);
+INSERT INTO sys_app_key (app_key, sys_app_key_secret, sys_app_key_name, sys_app_key_status, sys_app_key_valid_days)
+VALUES ('ak_test_123', 'sk_test_456', '测试应用', 1, 30);
 ```
 
 2. 在 `app_id` 表中创建应用：

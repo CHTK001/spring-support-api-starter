@@ -653,8 +653,12 @@ public class RedisTokenResolver implements TokenResolver {
             return ReturnResult.noAuth();
         }
 
+        if (tokenBlacklistService == null) {
+            return ReturnResult.noAuth("黑名单服务不可用");
+        }
+
         // 检查 Token 是否在黑名单中
-        if (tokenBlacklistService != null && tokenBlacklistService.isBlacklisted(cv)) {
+        if (tokenBlacklistService.isBlacklisted(cv)) {
             return ReturnResult.noAuth("Token已失效");
         }
 
@@ -671,8 +675,7 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         // 检查用户是否被全局拉黑
-        if (tokenBlacklistService != null && userResult != null 
-                && tokenBlacklistService.isUserBlacklisted(userResult.getUserId())) {
+        if (userResult != null && tokenBlacklistService.isUserBlacklisted(userResult.getUserId())) {
             return ReturnResult.noAuth("用户已被禁用");
         }
 

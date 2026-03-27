@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
@@ -54,6 +55,9 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
 
     @Value("${server.servlet.context-path:}")
     private String contextPath;
+
+    @Autowired(required = false)
+    private Oauth2Protocol oauth2Protocol;
     
     private ProtocolServer protocolServer;
 
@@ -336,6 +340,11 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
                 writeResponse(response, ReturnResult.error("临时令牌创建失败: " + e.getMessage()));
             }
         });
+
+        if (authServerProperties.getProtocols().contains("oauth2") && oauth2Protocol != null) {
+            oauth2Protocol.registerProtocolServerRoutes(server);
+            log.info("[OAuth][HTTP] 已挂载 OAuth2 路由到 HTTP ProtocolServer");
+        }
     }
 
     /**

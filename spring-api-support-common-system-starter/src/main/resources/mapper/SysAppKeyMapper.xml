@@ -12,6 +12,7 @@
         <result column="sys_app_key_status" jdbcType="INTEGER" property="sysAppKeyStatus"/>
         <result column="sys_app_key_delete" jdbcType="INTEGER" property="sysAppKeyDelete"/>
         <result column="sys_app_key_expire_time" jdbcType="BIGINT" property="sysAppKeyExpireTime"/>
+        <result column="sys_app_key_valid_days" jdbcType="INTEGER" property="sysAppKeyValidDays"/>
         <result column="sys_app_key_ip_whitelist" jdbcType="VARCHAR" property="sysAppKeyIpWhitelist"/>
         <result column="sys_app_key_remark" jdbcType="VARCHAR" property="sysAppKeyRemark"/>
         <result column="sys_app_key_last_used_time" jdbcType="BIGINT" property="sysAppKeyLastUsedTime"/>
@@ -29,7 +30,7 @@
 
     <sql id="Base_Column_List">
         sys_app_key_id, sys_app_key_app_id, app_key, sys_app_key_secret, sys_app_key_name,
-        sys_user_id, sys_app_key_status, sys_app_key_delete, sys_app_key_expire_time,
+        sys_user_id, sys_app_key_status, sys_app_key_delete, sys_app_key_expire_time, sys_app_key_valid_days,
         sys_app_key_ip_whitelist, sys_app_key_remark, sys_app_key_last_used_time, sys_app_key_use_count,
         sys_app_key_scope, sys_app_key_grant_types, sys_app_key_redirect_uris,
         create_name, create_by, create_time, update_time, update_name, update_by

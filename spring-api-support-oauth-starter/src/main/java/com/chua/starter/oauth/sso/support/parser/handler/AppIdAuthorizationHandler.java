@@ -12,6 +12,7 @@ import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.system.service.SysAppIdService;
 import com.chua.starter.entity.system.SysAppId;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
+import com.chua.starter.oauth.sso.support.token.TokenBlacklistService;
 import com.chua.starter.oauth.sso.support.validator.AppIdValidator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -74,6 +75,13 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
                     log.warn("AppId已过期: appId={}", maskAppId(appId));
                     return ReturnResult.error("AppId已过期");
                 }
+            }
+
+            TokenBlacklistService tokenBlacklistService = applicationContext.getBean(TokenBlacklistService.class);
+            String userId = String.valueOf(dbAppId.getUserId());
+            if (tokenBlacklistService.isUserBlacklisted(userId)) {
+                log.warn("AppId关联用户在黑名单中: appId={}, userId={}", maskAppId(appId), userId);
+                return ReturnResult.error("用户已被禁用");
             }
 
             // 验证 appId（使用默认验证器）
