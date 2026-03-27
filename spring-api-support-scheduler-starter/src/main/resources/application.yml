@@ -12,7 +12,7 @@ spring:
 # 服务器配置
 # ===========================================
 server:
-  port: -1                                  # 服务端口（-1 表示仅作为后台任务节点，不对外暴露端口）
+  port: 18083                               # 服务端口
   servlet:
     context-path: /scheduler/api            # 调度接口上下文路径
   http2:
@@ -52,3 +52,26 @@ plugin:
       enable: true
   job:
     enable: true
+    config-table-enabled: true
+    table-init-mode: UPDATE
+  scheduler:
+    job-platform:
+      enabled: true
+      remote-dispatch-enabled: true
+      dispatch-interval-ms: 1000
+      dispatch-batch-size: 200
+      namespaces:
+        default:
+          job: sys_job
+          log: sys_job_log
+          log-detail: sys_job_log_detail
+          log-backup: sys_job_log_backup
+        payment:
+          prefix: payment
+          # executors:
+          #   - name: payment-local
+          #     base-url: http://127.0.0.1:18081/payment/api
+          #     access-token: job-secret
+          #     dispatch-path: /v1/job-executor/dispatch
+          #     connect-timeout-ms: 3000
+          #     read-timeout-ms: 10000

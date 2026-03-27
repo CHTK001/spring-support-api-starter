@@ -161,7 +161,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
-    public ReturnResult<Boolean> deleteForSysTenant(Integer sysTenantId) {
+    public ReturnResult<Boolean> deleteForSysTenant(String sysTenantId) {
         log.debug("删除租户, ID: {}", sysTenantId);
 
         return transactionTemplate.execute(status -> {
@@ -181,7 +181,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
-    public ReturnResult<SysTenant> getForSysTenant(Integer sysTenantId) {
+    public ReturnResult<SysTenant> getForSysTenant(String sysTenantId) {
         log.debug("获取租户详情, ID: {}", sysTenantId);
         SysTenant sysTenant = getById(sysTenantId);
         if (sysTenant == null) {
@@ -218,18 +218,18 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
                 }
                 log.info("租户服务绑定成功, 绑定数量: {}", tenantServices.size());
 
-                // 发布服务更新
-                if (syncPublisher != null) {
-                    List<Integer> menuIds = sysTenantServiceMapper.getMenuByTenantId(request.getSysTenantId());
-                    syncPublisher.publishServiceUpdate(request.getSysTenantId(), menuIds);
-                }
+            }
+
+            if (syncPublisher != null) {
+                List<Integer> menuIds = sysTenantServiceMapper.getMenuByTenantId(request.getSysTenantId());
+                syncPublisher.publishServiceUpdate(request.getSysTenantId(), menuIds);
             }
             return ReturnResult.ok();
         });
     }
 
     @Override
-    public ReturnResult<Boolean> updateStatusForSysTenant(Integer sysTenantId, Integer status) {
+    public ReturnResult<Boolean> updateStatusForSysTenant(String sysTenantId, Integer status) {
         log.debug("更新租户状态, ID: {}, 状态: {}", sysTenantId, status);
 
         boolean result = update(Wrappers.<SysTenant>lambdaUpdate()

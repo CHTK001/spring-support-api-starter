@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.controller.data;
 
+import com.chua.common.support.data.query.FeatureSupportLevel;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.data.ColumnInfo;
 import com.chua.starter.monitor.pojo.data.TableStructureInfo;
@@ -522,6 +523,25 @@ public class SystemDataConsoleStructureController {
         } catch (Exception e) {
             log.error("检测数据库能力失败", e);
             return ReturnResult.error("检测数据库能力失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 检测数据库能力级别
+     *
+     * @param settingId 数据源设置ID
+     * @return 数据库能力级别信息，值为 NONE/ATTACHED/FULL
+     */
+    @GetMapping("/capability-levels")
+    @Operation(summary = "检测数据库能力级别")
+    public ReturnResult<Map<String, FeatureSupportLevel>> getDatabaseCapabilityLevels(
+            @Parameter(description = "数据源设置ID", example = "1")
+            @PathVariable("settingId") Integer settingId) {
+        try {
+            return ReturnResult.ok(systemDataConsoleService.getDatabaseCapabilityLevels(settingId));
+        } catch (Exception e) {
+            log.error("检测数据库能力级别失败", e);
+            return ReturnResult.error("检测数据库能力级别失败: " + e.getMessage());
         }
     }
 }

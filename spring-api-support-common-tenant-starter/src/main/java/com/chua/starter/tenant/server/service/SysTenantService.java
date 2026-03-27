@@ -58,7 +58,7 @@ public interface SysTenantService extends IService<SysTenant> {
      * @param sysTenantId 租户ID
      * @return 删除结果
      */
-    ReturnResult<Boolean> deleteForSysTenant(Integer sysTenantId);
+    ReturnResult<Boolean> deleteForSysTenant(String sysTenantId);
 
     /**
      * 根据ID获取租户详情
@@ -66,7 +66,7 @@ public interface SysTenantService extends IService<SysTenant> {
      * @param sysTenantId 租户ID
      * @return 租户详情
      */
-    ReturnResult<SysTenant> getForSysTenant(Integer sysTenantId);
+    ReturnResult<SysTenant> getForSysTenant(String sysTenantId);
 
     /**
      * 绑定租户服务
@@ -83,7 +83,7 @@ public interface SysTenantService extends IService<SysTenant> {
      * @param status      状态值
      * @return 更新结果
      */
-    ReturnResult<Boolean> updateStatusForSysTenant(Integer sysTenantId, Integer status);
+    ReturnResult<Boolean> updateStatusForSysTenant(String sysTenantId, Integer status);
 
     /**
      * 获取租户统计数据

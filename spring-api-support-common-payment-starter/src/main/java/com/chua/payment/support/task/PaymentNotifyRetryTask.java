@@ -6,6 +6,7 @@ import com.chua.payment.support.mapper.PaymentNotifyErrorMapper;
 import com.chua.payment.support.service.PaymentNotifyProcessService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,11 +14,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 回调异常处理定时任务
+ * 回调异常处理定时任务。
+ * <p>
+ * 该类只作为 internal 引擎下的本地调度实现；job 模式下应由统一任务引擎触发，
+ * 避免与配置表中的支付 Job 形成双轨调度。
+ * </p>
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "plugin.payment.scheduler", name = "engine", havingValue = "internal", matchIfMissing = true)
 public class PaymentNotifyRetryTask {
 
     private final PaymentNotifyErrorMapper notifyErrorMapper;

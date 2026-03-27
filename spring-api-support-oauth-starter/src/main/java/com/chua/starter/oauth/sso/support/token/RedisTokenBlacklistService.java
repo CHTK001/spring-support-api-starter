@@ -1,7 +1,8 @@
 package com.chua.starter.oauth.sso.support.token;
 
-import com.chua.common.support.objects.annotation.AutoInject;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.util.Set;
  */
 @Slf4j
 @Service
+@Primary
 public class RedisTokenBlacklistService implements TokenBlacklistService {
 
     /**
@@ -34,7 +36,7 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
      */
     private static final long DEFAULT_EXPIRE_SECONDS = 86400L;
 
-    @AutoInject
+    @Autowired(required = false)
     private RedisTemplate<String, Object> stringRedisTemplate;
 
     @Override
@@ -84,8 +86,8 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
         } catch (Exception e) {
             log.error("[BLACKLIST] 检查 Token 黑名单失败: token={}..., error={}",
                     maskToken(token), e.getMessage());
-            // 出错时返回 false，避免误拦截
-            return false;
+            // 安全优先：黑名单校验失败时拒绝放行，避免黑名单穿透
+            return true;
         }
     }
 
@@ -137,8 +139,8 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
             return Boolean.TRUE.equals(stringRedisTemplate.hasKey(key));
         } catch (Exception e) {
             log.error("[BLACKLIST] 检查用户黑名单失败: userId={}, error={}", userId, e.getMessage());
-            // 出错时返回 false，避免误拦截
-            return false;
+            // 安全优先：黑名单校验失败时拒绝放行，避免黑名单穿透
+            return true;
         }
     }
 

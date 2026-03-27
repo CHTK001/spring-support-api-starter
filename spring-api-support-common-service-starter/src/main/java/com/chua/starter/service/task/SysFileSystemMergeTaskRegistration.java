@@ -11,11 +11,11 @@ import com.chua.common.support.core.utils.FileUtils;
 import com.chua.starter.entity.service.SysFileSystem;
 import com.chua.starter.entity.service.SysFileSystemPart;
 import com.chua.starter.service.SysFileSystemPartService;
+import com.chua.starter.service.utils.FileStorageSupport;
 import com.chua.starter.service.properties.FileSystemProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
@@ -44,7 +44,7 @@ public class SysFileSystemMergeTaskRegistration {
 
     private final SysFileSystemPartService sysFileSystemPartService;
     private final FileSystemProperties fileSystemProperties;
-    private final Environment environment;
+    private final FileStorageSupport fileStorageSupport;
 
     private ThreadPoolExecutor executor;
 
@@ -154,16 +154,14 @@ public class SysFileSystemMergeTaskRegistration {
      * @return 上传结果
      */
     private PutObjectResult uploadToStorage(SysFileSystem sysFileSystem, byte[] data) {
-        BucketSetting bucketSetting = BucketSetting.builder()
-                .bucket(sysFileSystem.getSysFileSystemBucket())
-                .accessKeyId(environment.getProperty("plugin.sso." + sysFileSystem.getSysFileSystemType().toLowerCase() + ".app-id"))
-                .accessKeySecret(environment.getProperty("plugin.sso." + sysFileSystem.getSysFileSystemType().toLowerCase() + ".app-secret"))
-                .charset(StandardCharsets.UTF_8)
-                .endpoint(environment.getProperty("plugin.sso." + sysFileSystem.getSysFileSystemType().toLowerCase() + ".endpoint", "oss/system"))
-                .region(environment.getProperty("plugin.sso." + sysFileSystem.getSysFileSystemType().toLowerCase() + ".region"))
-                .build();
+        BucketSetting bucketSetting = fileStorageSupport.createUploadBucketSetting(
+                sysFileSystem.getSysFileSystemType(),
+                sysFileSystem.getSysFileSystemBucket(),
+                sysFileSystem.getSysFileSystemOriginalName(),
+                sysFileSystem.getSysFileSystemName()
+        );
 
-        try (FileStorage fileStorage = FileStorage.createStorage(sysFileSystem.getSysFileSystemType(), bucketSetting)) {
+        try (FileStorage fileStorage = fileStorageSupport.createStorage(sysFileSystem.getSysFileSystemType(), bucketSetting)) {
             return fileStorage.putObject(PutObjectRequest.builder()
                     .byteSource(new ByteSourceArray(data))
                     .fileName(sysFileSystem.getSysFileSystemName())

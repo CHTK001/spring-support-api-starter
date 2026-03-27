@@ -60,22 +60,37 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -j)
+      if [ $# -lt 2 ]; then
+        die "-j 需要指定 JAVA_HOME 或 java 可执行文件路径"
+      fi
       JAVA_HOME_ARG="${2:-}"
       shift 2
       ;;
     -jvm)
+      if [ $# -lt 2 ]; then
+        die "-jvm 需要指定 JVM 参数字符串"
+      fi
       JVM_EXTRA="${2:-}"
       shift 2
       ;;
     -t)
+      if [ $# -lt 2 ]; then
+        die "-t 需要指定时区，例如: -t Asia/Shanghai"
+      fi
       TIMEZONE_ARG="${2:-}"
       shift 2
       ;;
     --charset)
+      if [ $# -lt 2 ]; then
+        die "--charset 需要指定编码，例如: --charset UTF-8"
+      fi
       CHARSET_ARG="${2:-}"
       shift 2
       ;;
     -p)
+      if [ $# -lt 2 ]; then
+        die "-p 需要指定端口号，例如: -p 8080"
+      fi
       SERVER_PORT_ARG="${2:-}"
       if ! validate_port "${SERVER_PORT_ARG}"; then
         die "无效的端口号: ${SERVER_PORT_ARG}（必须是 1-65535 之间的数字）"
@@ -116,6 +131,9 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     --memory)
+      if [ $# -lt 2 ]; then
+        die "--memory 需要指定内存大小，例如: --memory 2g"
+      fi
       MEMORY_SIZE_ARG="${2:-}"
       if [ -z "${MEMORY_SIZE_ARG}" ]; then
         die "--memory 需要指定内存大小，例如: --memory 2g"
@@ -127,6 +145,9 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     --add-modules)
+      if [ $# -lt 2 ]; then
+        die "--add-modules 需要指定模块列表，例如: --add-modules java.base,java.sql"
+      fi
       ADD_MODULES_ARG="${2:-}"
       if [ -z "${ADD_MODULES_ARG}" ]; then
         die "--add-modules 需要指定模块列表，例如: --add-modules java.base,java.sql"
@@ -234,6 +255,11 @@ fi
 load_env
 
 JAVA_BIN="$(resolve_java "${JAVA_HOME_ARG}")"
+JAVA_MAJOR_VERSION="$(get_java_major_version "${JAVA_BIN}" || true)"
+if [ -z "${JAVA_MAJOR_VERSION}" ]; then
+  warn "无法识别 Java 主版本，将按保守模式处理版本相关 JVM 参数"
+  JAVA_MAJOR_VERSION="0"
+fi
 JAR_FILE="$(get_jar_file)"
 PID_FILE="$(get_pid_file)"
 CONSOLE_LOG="$(get_console_log)"
@@ -299,8 +325,12 @@ fi
 # 处理 ZGC 配置
 ZGC_EFFECTIVE="${ZGC_FLAG:-${USE_ZGC:-false}}"
 if [ "${ZGC_EFFECTIVE}" = "true" ]; then
-  JAVA_OPTS="${JAVA_OPTS} -XX:+UseZGC"
-  info "已启用 ZGC 垃圾收集器"
+  if [ "${JAVA_MAJOR_VERSION}" -ge 11 ]; then
+    JAVA_OPTS="${JAVA_OPTS} -XX:+UseZGC"
+    info "已启用 ZGC 垃圾收集器"
+  else
+    warn "当前 Java ${JAVA_MAJOR_VERSION} 不支持 ZGC，已跳过 -XX:+UseZGC"
+  fi
 fi
 
 # 处理内存配置
@@ -315,21 +345,33 @@ fi
 # 处理 Java 25 原始头参数
 ENABLE_PREVIEW_EFFECTIVE="${ENABLE_PREVIEW_FLAG:-${ENABLE_PREVIEW:-false}}"
 if [ "${ENABLE_PREVIEW_EFFECTIVE}" = "true" ]; then
-  JAVA_OPTS="${JAVA_OPTS} --enable-preview"
-  info "已启用 Java 预览特性"
+  if [ "${JAVA_MAJOR_VERSION}" -ge 12 ]; then
+    JAVA_OPTS="${JAVA_OPTS} --enable-preview"
+    info "已启用 Java 预览特性"
+  else
+    warn "当前 Java ${JAVA_MAJOR_VERSION} 不支持 --enable-preview，已跳过"
+  fi
 fi
 
 ADD_MODULES_VAL="${ADD_MODULES_ARG:-${ADD_MODULES:-}}"
 if [ -n "${ADD_MODULES_VAL}" ]; then
-  JAVA_OPTS="${JAVA_OPTS} --add-modules ${ADD_MODULES_VAL}"
-  info "已添加 Java 模块: ${ADD_MODULES_VAL}"
+  if [ "${JAVA_MAJOR_VERSION}" -ge 9 ]; then
+    JAVA_OPTS="${JAVA_OPTS} --add-modules ${ADD_MODULES_VAL}"
+    info "已添加 Java 模块: ${ADD_MODULES_VAL}"
+  else
+    warn "当前 Java ${JAVA_MAJOR_VERSION} 不支持 --add-modules，已跳过: ${ADD_MODULES_VAL}"
+  fi
 fi
 
 # 处理 Java 25 内存优化参数（默认开启）
 USE_COMPACT_OBJECT_HEADERS="${USE_COMPACT_OBJECT_HEADERS:-true}"
 if [ "${USE_COMPACT_OBJECT_HEADERS}" = "true" ]; then
-  JAVA_OPTS="${JAVA_OPTS} -XX:+UseCompactObjectHeaders"
-  info "已启用紧凑对象头"
+  if [ "${JAVA_MAJOR_VERSION}" -ge 25 ]; then
+    JAVA_OPTS="${JAVA_OPTS} -XX:+UseCompactObjectHeaders"
+    info "已启用紧凑对象头"
+  else
+    info "当前 Java ${JAVA_MAJOR_VERSION} 不支持紧凑对象头，已跳过 -XX:+UseCompactObjectHeaders"
+  fi
 fi
 
 USE_COMPRESSED_OOPS="${USE_COMPRESSED_OOPS:-true}"
@@ -425,7 +467,10 @@ detect_gc_conflict() {
   fi
   
   # 统计不同的 GC 参数数量
-  var_gc_count="$(echo "${var_gc_params}" | tr ' ' '\n' | grep -cE '\-XX:\+Use' || echo "0")"
+  var_gc_count="$(echo "${var_gc_params}" | tr ' ' '\n' | grep -cE '\-XX:\+Use' 2>/dev/null || true)"
+  if [ -z "${var_gc_count}" ]; then
+    var_gc_count="0"
+  fi
   if [ "${var_gc_count}" -gt 1 ]; then
     warn "检测到多个 GC 参数冲突:${var_gc_params}"
     warn "建议：只保留一个 GC 参数，优先级：快速设置（--zgc） > app.env（JVM_ARGS） > 命令行（-jvm）"
@@ -525,5 +570,3 @@ fi
 if [ "${FOLLOW_LOG}" = "true" ]; then
   "${BIN_DIR}/logs.sh" -f
 fi
-
-

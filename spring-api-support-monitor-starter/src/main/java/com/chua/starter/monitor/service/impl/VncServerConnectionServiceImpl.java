@@ -1,16 +1,15 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.text.json.Json;
-import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.network.net.NetUtils;
 import com.chua.guacamole.support.client.GuacamoleClient;
 import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.pojo.server.ProxyConnectionInfo;
 import com.chua.starter.sync.support.message.ServerWebSocketMessage;
-import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.server.ProxyInstanceResolver;
 import com.chua.starter.monitor.service.server.ServerConnectionService;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +49,7 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
      * 服务器配置缓存
      */
     private final Map<Integer, MonitorSysGenServer> serverConfigCache = new ConcurrentHashMap<>();
-    private final MonitorSysGenServerSettingService monitorSysGenServerSettingService;
+    private final ProxyInstanceResolver proxyInstanceResolver;
 
     @Override
     public String getProtocol() {
@@ -65,16 +64,11 @@ public class VncServerConnectionServiceImpl implements ServerConnectionService {
     @Override
     public boolean connect(MonitorSysGenServer server) {
         try {
-            Integer monitorSysGenServerProxyId = server.getMonitorSysGenServerProxyId();
-            if(null == monitorSysGenServerProxyId) {
+            ProxyConnectionInfo proxyConnectionInfo = proxyInstanceResolver.resolve(server);
+            if (proxyConnectionInfo == null || !proxyConnectionInfo.hasEndpoint()) {
                 return NetUtils.isConnectable(server.getMonitorSysGenServerHost(), server.getMonitorSysGenServerPort());
             }
-            ReturnResult<MonitorSysGenServerSetting> serverConfigResult = monitorSysGenServerSettingService.getByServerId(server.getMonitorSysGenServerId());
-            if(!serverConfigResult.isOk()) {
-                return false;
-            }
-            MonitorSysGenServerSetting serverConfig = serverConfigResult.getData();
-            return NetUtils.isConnectable(serverConfig.getMonitorSysGenServerSettingProxyHost(), serverConfig.getMonitorSysGenServerSettingProxyPort());
+            return NetUtils.isConnectable(proxyConnectionInfo.getProxyHost(), proxyConnectionInfo.getProxyPort());
         } catch (Exception e) {
             log.error("VNC连接失败: {}", e.getMessage(), e);
             sendConnectionMessage(server, "connect_error", false, e.getMessage());

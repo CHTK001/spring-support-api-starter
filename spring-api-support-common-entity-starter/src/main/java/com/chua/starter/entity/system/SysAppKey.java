@@ -82,6 +82,13 @@ public class SysAppKey implements Serializable {
     private Long sysAppKeyExpireTime;
 
     /**
+     * 有效天数，0 表示不限时
+     */
+    @TableField("sys_app_key_valid_days")
+    @Schema(description = "有效天数，0表示不限时")
+    private Integer sysAppKeyValidDays;
+
+    /**
      * IP白名单
      */
     @Schema(description = "IP白名单")

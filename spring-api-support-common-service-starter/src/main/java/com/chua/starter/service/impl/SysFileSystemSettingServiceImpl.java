@@ -11,11 +11,12 @@ import com.chua.common.support.network.protocol.filter.FileStorageServletFilter;
 import com.chua.common.support.network.protocol.filter.ViewServletFilter;
 import com.chua.common.support.network.protocol.server.ProtocolServer;
 import com.chua.common.support.network.protocol.storage.FileStorageFactory;
-import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.entity.service.SysFileSystemSetting;
 import com.chua.starter.service.SysFileSystemSettingService;
 import com.chua.starter.service.mapper.SysFileSystemSettingMapper;
+import com.chua.starter.service.utils.FileStorageSupport;
+import com.chua.starter.service.utils.ProtocolServerSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
      * 文件服务器实例Key
      */
     private static final String FILE_SERVER_KEY = "file_system_server";
+    private final FileStorageSupport fileStorageSupport;
 
     @Override
     public SysFileSystemSetting getEnabledSettingForFileSystem() {
@@ -133,7 +135,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
             }
 
             // 启动服务器
-            serverInstance.start();
+            ProtocolServerSupport.startIfNecessary(serverInstance);
 
             // 保存实例
             FILE_SERVER_INSTANCES.put(FILE_SERVER_KEY, serverInstance);
@@ -164,7 +166,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
             }
 
             // 停止服务器
-            serverInstance.stop();
+            ProtocolServerSupport.stopQuietly(serverInstance);
 
             // 移除实例
             FILE_SERVER_INSTANCES.remove(FILE_SERVER_KEY);
@@ -236,8 +238,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
                     .build();
 
             // 创建HTTP服务器实例
-            ServiceProvider<ProtocolServer> serviceProvider = ServiceProvider.of(ProtocolServer.class);
-            ProtocolServer serverInstance = serviceProvider.getNewExtension("http", serverSetting);
+            ProtocolServer serverInstance = ProtocolServerSupport.create("http", serverSetting);
 
             if (serverInstance == null) {
                 log.error("无法创建HTTP服务器实例");
@@ -256,10 +257,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
             FileStorageServletFilter fileStorageFilter = new FileStorageServletFilter(fileStorageSetting);
 
             // 添加本地文件存储
-            BucketSetting bucketSetting = BucketSetting.builder()
-                    .bucket(contextPath)
-                    .endpoint(storagePath)
-                    .build();
+            BucketSetting bucketSetting = fileStorageSupport.createLocalBucketSetting(contextPath, storagePath);
             FileStorage localStorage = new FileSystemFileStorage(bucketSetting);
             fileStorageFilter.addFileStorage(contextPath, localStorage);
 

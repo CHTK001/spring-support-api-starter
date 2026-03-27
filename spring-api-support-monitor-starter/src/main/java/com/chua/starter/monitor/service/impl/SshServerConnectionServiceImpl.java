@@ -3,11 +3,12 @@ package com.chua.starter.monitor.service.impl;
 // 项目内部依赖
 
 import com.chua.common.support.network.protocol.ClientSetting;
-import com.chua.common.support.network.protocol.client.ProtocolClientFactory;
 import com.chua.ssh.support.client.SshClient;
+import com.chua.starter.service.utils.ProtocolClientSupport;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.pojo.server.ProxyConnectionInfo;
+import com.chua.starter.monitor.service.server.ProxyInstanceResolver;
 import com.chua.starter.monitor.service.server.ServerConnectionService;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class SshServerConnectionServiceImpl implements ServerConnectionService {
 
-    private final MonitorSysGenServerSettingService monitorSysGenServerSettingService;
+    private final ProxyInstanceResolver proxyInstanceResolver;
 
     /**
      * 连接状态映射
@@ -71,8 +72,22 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
             if (server.getMonitorSysGenServerTimeout() != null) {
                 config.connectTimeoutMillis(server.getMonitorSysGenServerTimeout());
             }
+            ProxyConnectionInfo proxyConnectionInfo = proxyInstanceResolver.resolve(server);
+            if (proxyConnectionInfo != null && proxyConnectionInfo.hasEndpoint()) {
+                log.info("SSH客户端使用代理: {}:{} ({})",
+                        proxyConnectionInfo.getProxyHost(), proxyConnectionInfo.getProxyPort(),
+                        proxyConnectionInfo.getSource());
+                config.proxyHost(proxyConnectionInfo.getProxyHost());
+                config.proxyPort(proxyConnectionInfo.getProxyPort());
+                if (proxyConnectionInfo.getProxyUsername() != null) {
+                    config.proxyUsername(proxyConnectionInfo.getProxyUsername());
+                }
+                if (proxyConnectionInfo.getProxyPassword() != null) {
+                    config.proxyPassword(proxyConnectionInfo.getProxyPassword());
+                }
+            }
             ClientSetting clientSetting = config.build();
-            SshClient sshClient = ProtocolClientFactory.create(server.getMonitorSysGenServerId(), SshClient.class, clientSetting);
+            SshClient sshClient = ProtocolClientSupport.create(server.getMonitorSysGenServerId(), SshClient.class, clientSetting);
             serverConfigCache.put(serverId, server);
             connectionStatusMap.put(serverId, sshClient);
 
@@ -114,7 +129,7 @@ public class SshServerConnectionServiceImpl implements ServerConnectionService {
         try {
             // 清理连接状态
             connectionStatusMap.remove(serverId);
-            ProtocolClientFactory.uncreated(serverId);
+            ProtocolClientSupport.destroy(serverId, SshClient.class);
             serverConfigCache.remove(serverId);
 
             log.info("SSH连接已断开: serverId={}", serverId);

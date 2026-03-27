@@ -499,6 +499,9 @@ public class MonitorSysGenServerSettingServiceImpl
             // 验证代理配置（仅在启用代理时验证）
             if (setting.getMonitorSysGenServerSettingProxyEnabled() != null
                     && setting.getMonitorSysGenServerSettingProxyEnabled() == 1) {
+                if (setting.getMonitorSysGenServerSettingProxyInstanceId() != null) {
+                    return ReturnResult.ok(true, "配置验证通过");
+                }
 
                 // 代理类型验证
                 if (StringUtils.isBlank(setting.getMonitorSysGenServerSettingProxyType())) {

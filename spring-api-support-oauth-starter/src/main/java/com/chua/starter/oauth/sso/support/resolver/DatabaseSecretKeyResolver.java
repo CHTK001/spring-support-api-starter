@@ -4,6 +4,7 @@ import com.chua.common.support.core.annotation.Extension;
 import com.chua.common.support.core.annotation.SpiDefault;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.starter.entity.system.SysAppKey;
+import com.chua.starter.oauth.sso.support.token.TokenBlacklistService;
 import com.chua.starter.system.service.SysAppKeyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -23,8 +24,13 @@ import org.springframework.cache.annotation.Cacheable;
 @SpiDefault
 public class DatabaseSecretKeyResolver implements SecretKeyResolver {
 
+    private static final int STATUS_ENABLED = 1;
+
     @AutoInject
     private SysAppKeyService sysAppKeyService;
+
+    @AutoInject
+    private TokenBlacklistService tokenBlacklistService;
 
     @Override
     @Cacheable(value = "aksk:secret", key = "#accessKey", unless = "#result == null")
@@ -42,18 +48,25 @@ public class DatabaseSecretKeyResolver implements SecretKeyResolver {
             }
             
             // 检查状态
-            if (appKey.getSysAppKeyStatus() != null && appKey.getSysAppKeyStatus() != 0) {
+            if (!Integer.valueOf(STATUS_ENABLED).equals(appKey.getSysAppKeyStatus())) {
                 log.warn("AK已禁用: ak={}", maskKey(accessKey));
                 return null;
             }
             
             // 检查过期时间
-            if (appKey.getSysAppKeyExpireTime() != null) {
-                long currentTime = System.currentTimeMillis() / 1000;
-                if (currentTime > appKey.getSysAppKeyExpireTime()) {
-                    log.warn("AK已过期: ak={}", maskKey(accessKey));
-                    return null;
-                }
+            if (sysAppKeyService.isExpired(appKey)) {
+                log.warn("AK已过期: ak={}, expireTime={}, validDays={}",
+                        maskKey(accessKey),
+                        sysAppKeyService.resolveExpireTime(appKey),
+                        appKey.getSysAppKeyValidDays());
+                return null;
+            }
+
+            String userId = String.valueOf(appKey.getSysUserId());
+            if (tokenBlacklistService == null || tokenBlacklistService.isUserBlacklisted(userId)) {
+                log.warn("AK关联用户在黑名单中或黑名单服务不可用: ak={}, userId={}",
+                        maskKey(accessKey), userId);
+                return null;
             }
             
             return appKey.getSysAppKeySecret();

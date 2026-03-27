@@ -20,8 +20,8 @@ import com.chua.starter.monitor.mapper.MonitorAcmeOrderMapper;
 import com.chua.starter.monitor.pojo.acme.AcmeApplyCertRequest;
 import com.chua.starter.monitor.properties.AcmeProperties;
 import com.chua.common.support.network.protocol.ClientSetting;
-import com.chua.common.support.network.protocol.client.ProtocolClientFactory;
 import com.chua.ssh.support.client.SshClient;
+import com.chua.starter.service.utils.ProtocolClientSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -357,7 +357,7 @@ public class AcmeCertificateAsyncService {
                     .clientType("ssh")
                     .connectTimeoutMillis(30000)
                     .build();
-            sshClient = ProtocolClientFactory.create(clientId, SshClient.class, setting);
+            sshClient = ProtocolClientSupport.create(clientId, SshClient.class, setting);
             log.info("[ACME-ASYNC] SSH连接成功: {}@{}", request.getSshUsername(), request.getSshHost());
 
             String webroot = request.getWebrootPath();
@@ -382,7 +382,7 @@ public class AcmeCertificateAsyncService {
         } finally {
             if (sshClient != null) {
                 try {
-                    ProtocolClientFactory.uncreated(clientId);
+                    ProtocolClientSupport.destroy(clientId, SshClient.class);
                 } catch (Exception e) {
                     log.warn("[ACME-ASYNC] 关闭SSH连接失败: {}", e.getMessage());
                 }

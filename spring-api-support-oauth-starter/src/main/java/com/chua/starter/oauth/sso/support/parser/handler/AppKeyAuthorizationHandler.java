@@ -12,6 +12,7 @@ import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.system.service.SysAppKeyService;
 import com.chua.starter.entity.system.SysAppKey;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
+import com.chua.starter.oauth.sso.support.token.TokenBlacklistService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 
@@ -63,12 +64,19 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
             }
 
             // 检查过期时间
-            if (dbAppKey.getSysAppKeyExpireTime() != null) {
-                long currentTime = System.currentTimeMillis() / 1000;
-                if (currentTime > dbAppKey.getSysAppKeyExpireTime()) {
-                    log.warn("AppKey已过期: appKey={}", maskAppKey(appKey));
-                    return ReturnResult.error("AppKey已过期");
-                }
+            if (appKeyService.isExpired(dbAppKey)) {
+                log.warn("AppKey已过期: appKey={}, expireTime={}, validDays={}",
+                        maskAppKey(appKey),
+                        appKeyService.resolveExpireTime(dbAppKey),
+                        dbAppKey.getSysAppKeyValidDays());
+                return ReturnResult.error("AppKey已过期");
+            }
+
+            TokenBlacklistService tokenBlacklistService = applicationContext.getBean(TokenBlacklistService.class);
+            String userId = String.valueOf(dbAppKey.getSysUserId());
+            if (tokenBlacklistService.isUserBlacklisted(userId)) {
+                log.warn("AppKey关联用户在黑名单中: appKey={}, userId={}", maskAppKey(appKey), userId);
+                return ReturnResult.error("用户已被禁用");
             }
 
 

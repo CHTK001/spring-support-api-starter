@@ -203,13 +203,14 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
                     authInformation.getApplicationContext()
                     .getBean(com.chua.starter.oauth.sso.support.token.TokenBlacklistService.class);
             
-            if (tokenBlacklistService != null) {
-                return tokenBlacklistService.isBlacklisted(token);
+            if (tokenBlacklistService == null) {
+                log.error("JWT 黑名单服务不可用，拒绝放行");
+                return true;
             }
-            return false;
+            return tokenBlacklistService.isBlacklisted(token);
         } catch (Exception e) {
             log.warn("检查 JWT 黑名单失败: {}", e.getMessage());
-            return false;
+            return true;
         }
     }
 

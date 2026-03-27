@@ -24,6 +24,66 @@ usage() {
 EOF
 }
 
+is_deprecated_row() {
+  var_desc="${1:-}"
+  case "${var_desc}" in
+    *废弃*)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+detect_row_category() {
+  var_param="${1:-}"
+  var_desc="${2:-}"
+
+  case "${var_param}" in
+    -Xms*|-Xmx*|-Xss*|-XX:MetaspaceSize=*|-XX:MaxMetaspaceSize=*|-XX:+UseCompactObjectHeaders|-XX:+UseCompressedOops|-XX:+UseCompressedClassPointers)
+      echo "memory"
+      return 0
+      ;;
+    -XX:+UseG1GC|-XX:+UseZGC|-XX:+UseShenandoahGC|-XX:+UseParallelGC|-XX:+UseConcMarkSweepGC)
+      echo "gc"
+      return 0
+      ;;
+    -XX:MaxGCPauseMillis=*|-XX:+UseG1GC\ -XX:G1HeapRegionSize=*)
+      echo "performance"
+      return 0
+      ;;
+    -Xlog:gc*|-XX:+PrintGCDetails|-XX:+PrintGCDateStamps|-XX:+HeapDumpOnOutOfMemoryError|-XX:HeapDumpPath=*)
+      echo "debug"
+      return 0
+      ;;
+    --add-modules*|--enable-preview|-Duser.timezone=*|-Dfile.encoding=*)
+      echo "other"
+      return 0
+      ;;
+    *)
+      ;;
+  esac
+
+  case "${var_desc}" in
+    *内存*|*元空间*|*对象头*|*指针*)
+      echo "memory"
+      ;;
+    *垃圾收集器*|*GC*)
+      echo "gc"
+      ;;
+    *性能*|*暂停时间*)
+      echo "performance"
+      ;;
+    *日志*|*转储*|*Dump*)
+      echo "debug"
+      ;;
+    *)
+      echo "other"
+      ;;
+  esac
+}
+
 # 打印表格行（参数名、中文名、用法、描述、适用版本）
 print_table_row() {
   var_param="${1}"
@@ -31,6 +91,16 @@ print_table_row() {
   var_usage="${3}"
   var_desc="${4}"
   var_versions="${5}"
+
+  var_category="$(detect_row_category "${var_param}" "${var_desc}")"
+
+  if [ "${SHOW_ALL:-false}" != "true" ] && is_deprecated_row "${var_desc}"; then
+    return 0
+  fi
+
+  if [ -n "${CATEGORY:-}" ] && [ "${CATEGORY}" != "${var_category}" ]; then
+    return 0
+  fi
   
   # 使用更宽的列宽以适应中文显示
   # 参数名(40) | 中文名称(18) | 用法(30) | 描述(60) | 适用版本(12)
@@ -554,6 +624,14 @@ while [ $# -gt 0 ]; do
       if [ -z "${CATEGORY}" ]; then
         die "--category 需要指定分类，例如: -c memory"
       fi
+      CATEGORY="$(echo "${CATEGORY}" | tr '[:upper:]' '[:lower:]')"
+      case "${CATEGORY}" in
+        memory|gc|performance|debug|other)
+          ;;
+        *)
+          die "不支持的分类: ${CATEGORY}（支持: memory, gc, performance, debug, other）"
+          ;;
+      esac
       shift 2
       ;;
     -h|--help)
@@ -598,4 +676,3 @@ fi
 echo ""
 info "提示: 使用 -a 参数可查看所有参数（包括已废弃的）"
 info "提示: 使用 -c 参数可按分类查看参数"
-

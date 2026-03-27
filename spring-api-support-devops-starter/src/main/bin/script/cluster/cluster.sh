@@ -28,6 +28,7 @@ usage() {
     * user@host               # 远程主机（指定用户，默认端口 22）
     * user@host:port          # 远程主机（指定用户和端口）
     * localhost 或 127.0.0.1  # 本地节点（直接执行，不使用 ssh）
+    * localhost|/opt/app/node1 # 本地节点并指定部署目录（用于本地多节点）
   - hosts 文件每行一个主机，空行/以 # 开头会忽略
   - 远程默认执行 <remoteBase>/bin 下脚本
   - SSH 认证方式（按优先级）:
@@ -150,20 +151,20 @@ if [ -n "${NODE_OP}" ]; then
     add)
       if [ -z "${NODE_ARG}" ]; then
         warn "[cluster] 添加节点需要提供节点地址"
-        warn "[cluster] 格式: host, host:port, user@host, user@host:port, localhost, 127.0.0.1"
+        warn "[cluster] 格式: host, host:port, user@host, user@host:port, localhost, 127.0.0.1, localhost|/path"
         exit 1
       fi
       
-      # 验证格式：支持 host, host:port, user@host, user@host:port, localhost, 127.0.0.1
-      if ! echo "${NODE_ARG}" | grep -qE '^([^@:]+@)?[^@:]+(:[0-9]+)?$|^localhost$|^127\.0\.0\.1$'; then
+      # 验证格式：支持 host, host:port, user@host, user@host:port, localhost, 127.0.0.1, localhost|/path
+      if ! echo "${NODE_ARG}" | grep -qE '^([^@:|]+@)?[^@:|]+(:[0-9]+)?$|^(localhost|127\.0\.0\.1)(\|.+)?$'; then
         warn "[cluster] 节点格式错误"
-        warn "[cluster] 支持格式: host, host:port, user@host, user@host:port, localhost, 127.0.0.1"
+        warn "[cluster] 支持格式: host, host:port, user@host, user@host:port, localhost, 127.0.0.1, localhost|/path"
         exit 1
       fi
       
       # 检查是否已存在
       if [ -f "${HOSTS_FILE}" ]; then
-        if grep -q "^[[:space:]]*${NODE_ARG}[[:space:]]*$" "${HOSTS_FILE}" 2>/dev/null; then
+        if grep -F -x -q "${NODE_ARG}" "${HOSTS_FILE}" 2>/dev/null; then
           warn "[cluster] 节点已存在: ${NODE_ARG}"
           exit 1
         fi
@@ -334,7 +335,7 @@ case "${COMMAND}" in
     ;;
   *)
     warn "[cluster] 不支持命令: ${COMMAND}"
-    warn "[cluster] 支持的命令: start/stop/restart/logs/upgrade/rollback/status/test"
+    warn "[cluster] 支持的命令: start/stop/restart/logs/upgrade/rollback/status/test/health"
     exit 1
     ;;
 esac
@@ -363,7 +364,7 @@ fi
 parse_node() {
   # 解析节点地址，返回 user, host, port
   # 格式: host, host:port, user@host, user@host:port, localhost, 127.0.0.1
-  var_node="${1:-}"
+  var_node="$(extract_node_endpoint "${1:-}")"
   
   # 本地节点
   if [ "${var_node}" = "localhost" ] || [ "${var_node}" = "127.0.0.1" ]; then
@@ -391,6 +392,56 @@ parse_node() {
   echo "${var_user}"
   echo "${var_host}"
   echo "${var_port}"
+}
+
+extract_node_endpoint() {
+  var_node="${1:-}"
+  echo "${var_node}" | cut -d'|' -f1
+}
+
+extract_node_local_path() {
+  var_node="${1:-}"
+  if echo "${var_node}" | grep -q "|"; then
+    echo "${var_node}" | cut -d'|' -f2-
+  else
+    echo ""
+  fi
+}
+
+is_local_endpoint() {
+  var_endpoint="${1:-}"
+  [ "${var_endpoint}" = "localhost" ] || [ "${var_endpoint}" = "127.0.0.1" ]
+}
+
+validate_node_address() {
+  var_node_addr="${1:-}"
+  var_endpoint="$(extract_node_endpoint "${var_node_addr}")"
+  var_local_path="$(extract_node_local_path "${var_node_addr}")"
+
+  if [ -z "${var_endpoint}" ]; then
+    return 1
+  fi
+
+  if ! echo "${var_endpoint}" | grep -qE '^([^@:]+@)?[^@:]+(:[0-9]+)?$|^localhost$|^127\.0\.0\.1$'; then
+    return 1
+  fi
+
+  if [ -n "${var_local_path}" ] && ! is_local_endpoint "${var_endpoint}"; then
+    # 仅本地节点支持 endpoint|path
+    return 1
+  fi
+
+  return 0
+}
+
+resolve_local_base_dir() {
+  var_node_addr="${1:-}"
+  var_local_path="$(extract_node_local_path "${var_node_addr}")"
+  if [ -n "${var_local_path}" ]; then
+    echo "${var_local_path}"
+  else
+    echo "$(get_base_dir)"
+  fi
 }
 
 # 执行远程命令的函数
@@ -468,10 +519,9 @@ execute_remote_cmd() {
     # 路径验证
     REMOTE_DIR_ABS=""
     
-    # 本地节点验证：使用 get_base_dir 而不是 REMOTE_DIR
+    # 本地节点验证：支持 endpoint|path 指定本地部署目录
     if [ "${NODE_USER}" = "local" ]; then
-      # 本地节点直接使用当前基础目录
-      REMOTE_DIR_ABS="$(get_base_dir)"
+      REMOTE_DIR_ABS="$(resolve_local_base_dir "${var_host}")"
       if [ ! -d "${REMOTE_DIR_ABS}" ]; then
         warn "[cluster] ${var_host} -> 本地目录不存在: ${REMOTE_DIR_ABS}"
         return 1
@@ -559,10 +609,9 @@ execute_remote_cmd() {
   REMOTE_DIR_ABS=""
   REMOTE_SCRIPT_PATH=""
   
-  # 本地节点验证：使用 get_base_dir 而不是 REMOTE_DIR
+  # 本地节点验证：支持 endpoint|path 指定本地部署目录
   if [ "${NODE_USER}" = "local" ]; then
-    # 本地节点直接使用当前基础目录
-    REMOTE_DIR_ABS="$(get_base_dir)"
+    REMOTE_DIR_ABS="$(resolve_local_base_dir "${var_host}")"
     if [ ! -d "${REMOTE_DIR_ABS}" ]; then
       warn "[cluster] ${var_host} -> 本地目录不存在: ${REMOTE_DIR_ABS}"
       return 1
@@ -653,9 +702,9 @@ execute_remote_cmd() {
     ESCAPED_PACKAGE="'${ESCAPED_PACKAGE}'"
   fi
   if [ -n "${var_pass_args}" ]; then
-    # 转义参数中的特殊字符（保持参数结构）
-    ESCAPED_ARGS="$(printf '%s\n' "${var_pass_args}" | sed "s/'/'\\\\''/g")"
-    ESCAPED_ARGS="'${ESCAPED_ARGS}'"
+    # --args 期望透传原始参数串（例如: -p 18080 --memory 2g）。
+    # 如果整体再加一层引号，会导致远端收到单个参数（如 "-p 18080"），参数拆分失效。
+    ESCAPED_ARGS="${var_pass_args}"
   fi
   
   if [ "${var_command}" = "upgrade" ] || [ "${var_command}" = "rollback" ]; then
@@ -753,8 +802,19 @@ while IFS= read -r host || [ -n "${host}" ]; do
       continue
       ;;
   esac
+
+  if ! validate_node_address "${host}"; then
+    warn "[cluster] 跳过无效节点格式: ${host}"
+    continue
+  fi
+
   NODES="${NODES}${NODES:+ }${host}"
 done < "${HOSTS_FILE}"
+
+if [ -z "${NODES}" ]; then
+  warn "[cluster] hosts 文件中没有有效节点: ${HOSTS_FILE}"
+  exit 1
+fi
 
 # 升级、回滚、启动、重启默认使用串行执行（逐个节点处理，减少风险）
 if [ "${COMMAND}" = "upgrade" ] || [ "${COMMAND}" = "rollback" ] || [ "${COMMAND}" = "start" ] || [ "${COMMAND}" = "restart" ]; then
@@ -943,5 +1003,3 @@ echo "=========================================="
 if [ "${FAIL_COUNT}" -gt 0 ]; then
   exit 1
 fi
-
-

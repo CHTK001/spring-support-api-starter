@@ -31,6 +31,27 @@ SHOW_JVM="false"
 SHOW_MEMORY="false"
 SHOW_THREAD_DUMP="false"
 
+get_connection_count() {
+  var_pid="${1:-}"
+  if [ -z "${var_pid}" ]; then
+    echo "0"
+    return 0
+  fi
+
+  var_count="0"
+  if command -v ss >/dev/null 2>&1; then
+    # ss 输出中按 pid=xxxx 匹配，兼容 pid=123,fd=...
+    var_count="$(ss -H -anp 2>/dev/null | grep -c "pid=${var_pid}" || echo "0")"
+  elif command -v lsof >/dev/null 2>&1; then
+    var_count="$(lsof -nP -a -p "${var_pid}" -i 2>/dev/null | awk 'NR>1 {count++} END {print count+0}')"
+  elif command -v netstat >/dev/null 2>&1; then
+    # 仅在 netstat 支持 -p 时可见 PID/程序名
+    var_count="$(netstat -anp 2>/dev/null | grep -c "[[:space:]]${var_pid}/" || echo "0")"
+  fi
+
+  echo "${var_count}" | awk '{print int($1+0)}'
+}
+
 while [ $# -gt 0 ]; do
   case "$1" in
     -f)
@@ -38,7 +59,13 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -i)
+      if [ $# -lt 2 ]; then
+        die "-i 需要指定刷新间隔秒数，例如: -i 2"
+      fi
       INTERVAL="${2:-2}"
+      if ! echo "${INTERVAL}" | grep -qE '^[0-9]+$' || [ "${INTERVAL}" -lt 1 ]; then
+        die "无效的刷新间隔: ${INTERVAL}（必须是大于等于 1 的整数）"
+      fi
       shift 2
       ;;
     -j)
@@ -114,7 +141,7 @@ show_status() {
   
   if command -v ps >/dev/null 2>&1; then
     # 获取进程详细信息（兼容不同系统的 ps 命令）
-    PPID=""
+    PARENT_PID=""
     USER=""
     CPU="0.0"
     MEM="0.0"
@@ -125,7 +152,7 @@ show_status() {
     
     # 尝试 Linux 标准格式
     if ps -p "${PID}" >/dev/null 2>&1; then
-      PPID="$(ps -p "${PID}" -o ppid= 2>/dev/null | tr -d ' ' || true)"
+      PARENT_PID="$(ps -p "${PID}" -o ppid= 2>/dev/null | tr -d ' ' || true)"
       USER="$(ps -p "${PID}" -o user= 2>/dev/null | tr -d ' ' || true)"
       CPU="$(ps -p "${PID}" -o %cpu= 2>/dev/null | tr -d ' ' || echo "0.0")"
       MEM="$(ps -p "${PID}" -o %mem= 2>/dev/null | tr -d ' ' || echo "0.0")"
@@ -136,8 +163,8 @@ show_status() {
     fi
     
     # 如果 Linux 格式失败，尝试 BSD/macOS 格式
-    if [ -z "${PPID}" ] && ps "${PID}" >/dev/null 2>&1; then
-      PPID="$(ps -p "${PID}" -o ppid= 2>/dev/null | tr -d ' ' || true)"
+    if [ -z "${PARENT_PID}" ] && ps "${PID}" >/dev/null 2>&1; then
+      PARENT_PID="$(ps -p "${PID}" -o ppid= 2>/dev/null | tr -d ' ' || true)"
       USER="$(ps -p "${PID}" -o user= 2>/dev/null | tr -d ' ' || true)"
       CPU="$(ps -p "${PID}" -o %cpu= 2>/dev/null | tr -d ' ' || echo "0.0")"
       MEM="$(ps -p "${PID}" -o %mem= 2>/dev/null | tr -d ' ' || echo "0.0")"
@@ -147,8 +174,8 @@ show_status() {
       CMD="$(ps -p "${PID}" -o command= 2>/dev/null | sed 's/^[[:space:]]*//' || true)"
     fi
     
-    if [ -n "${PPID}" ]; then
-      echo "PPID: ${PPID}"
+    if [ -n "${PARENT_PID}" ]; then
+      echo "PPID: ${PARENT_PID}"
     fi
     
     if [ -n "${USER}" ]; then
@@ -371,25 +398,13 @@ show_status() {
   
   # 默认显示更多信息（即使没有指定参数）
   if [ "${SHOW_JVM}" != "true" ] && [ "${SHOW_MEMORY}" != "true" ] && [ "${SHOW_THREAD_DUMP}" != "true" ]; then
-    # 显示网络连接数
-    if command -v netstat >/dev/null 2>&1; then
-      NETSTAT_COUNT="$(netstat -an 2>/dev/null | grep -c "${PID}" || echo "0")"
-      if [ "${NETSTAT_COUNT}" -gt 0 ]; then
-        echo ""
-        echo "----------------------------------------"
-        echo "网络连接"
-        echo "----------------------------------------"
-        echo "连接数: ${NETSTAT_COUNT}"
-      fi
-    elif command -v ss >/dev/null 2>&1; then
-      SS_COUNT="$(ss -anp 2>/dev/null | grep -c "pid=${PID}" || echo "0")"
-      if [ "${SS_COUNT}" -gt 0 ]; then
-        echo ""
-        echo "----------------------------------------"
-        echo "网络连接"
-        echo "----------------------------------------"
-        echo "连接数: ${SS_COUNT}"
-      fi
+    NET_CONN_COUNT="$(get_connection_count "${PID}")"
+    if [ "${NET_CONN_COUNT}" -gt 0 ]; then
+      echo ""
+      echo "----------------------------------------"
+      echo "网络连接"
+      echo "----------------------------------------"
+      echo "连接数: ${NET_CONN_COUNT}"
     fi
     
     # 显示文件描述符
@@ -415,7 +430,12 @@ if [ "${FOLLOW_MODE}" = "true" ]; then
   trap 'echo ""; info "监控已停止"; exit 0' INT TERM
   
   while true; do
-    clear
+    if command -v clear >/dev/null 2>&1; then
+      clear
+    else
+      # 兼容最小系统：ANSI 清屏 + 光标回到左上角
+      printf '\033[2J\033[H'
+    fi
     if ! show_status; then
       echo ""
       info "应用已停止，退出监控"
@@ -427,5 +447,3 @@ else
   # 单次显示模式
   show_status
 fi
-
-
