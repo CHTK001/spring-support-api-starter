@@ -8,17 +8,16 @@ import com.chua.common.support.core.constant.EventType;
 import com.chua.common.support.data.datasource.dialect.Dialect;
 import com.chua.common.support.data.datasource.dialect.DialectFactory;
 import com.chua.common.support.data.datasource.jdbc.option.DataSourceOptions;
+import com.chua.common.support.data.query.FeatureSupportLevel;
 import com.chua.common.support.document.parser.DocQuery;
 import com.chua.common.support.document.parser.Document;
 import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.metadata.base.ConstructMetadata;
 import com.chua.common.support.metadata.command.CommandMetadata;
-import com.chua.common.support.metadata.command.CommandMetadataFactory;
 import com.chua.common.support.metadata.command.CommandResult;
 import com.chua.common.support.metadata.command.ResultItem;
 import com.chua.common.support.metadata.hierarchy.HierarchyMetadata;
-import com.chua.common.support.metadata.hierarchy.HierarchyMetadataFactory;
 import com.chua.common.support.metadata.hierarchy.HierarchyNode;
 import com.chua.common.support.metadata.hierarchy.HierarchyResult;
 import com.chua.common.support.metadata.listen.ListenMetadata;
@@ -27,8 +26,15 @@ import com.chua.common.support.storage.oss.result.GetObjectResult;
 import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.common.support.core.utils.IoUtils;
 import com.chua.common.support.core.utils.MapUtils;
+import com.chua.common.support.storage.backup.Backup;
+import com.chua.common.support.storage.backup.BackupSetting;
 import com.chua.redis.support.constant.RedisConstant;
 import com.chua.socket.support.session.SocketSessionTemplate;
+import com.chua.starter.monitor.engine.SystemDataCapability;
+import com.chua.starter.monitor.engine.SystemDataEngine;
+import com.chua.starter.monitor.engine.SystemDataEngineFactory;
+import com.chua.starter.monitor.engine.feature.SystemDataClusterFeature;
+import com.chua.starter.monitor.engine.feature.SystemDataNodeFeature;
 import com.chua.starter.monitor.entity.SystemDataBackupRecord;
 import com.chua.starter.monitor.entity.SystemDataFieldComment;
 import com.chua.starter.monitor.entity.SystemDataSetting;
@@ -67,10 +73,29 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     private final SystemDataSettingMapper systemDataSettingMapper;
     private final SocketSessionTemplate socketSessionTemplate;
     private final RedisSearchService redisSearchService;
-    // Backup 已重构为 Engine 的 BackupFeature 接口，备份状态管理需要通过 Engine 实例实现
-    // private final Map<Integer, Engine> backupEngineMap = new ConcurrentReferenceHashMap<>();
+    private final SystemDataEngineFactory systemDataEngineFactory;
+    private final Map<Integer, Backup> backupEngineMap = new ConcurrentReferenceHashMap<>();
     @Autowired
     private SystemDataFieldCommentService systemDataFieldCommentService;
+
+    private SystemDataSetting getSettingOrThrow(Integer settingId) {
+        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+        if (setting == null) {
+            throw new RuntimeException("配置不存在");
+        }
+        SystemDataSettingServiceImpl.decryptSensitiveData(setting);
+        return setting;
+    }
+
+    private BackupSetting buildBackupSetting(SystemDataSetting setting) {
+        String baseDir = System.getProperty("login.home", System.getProperty("user.dir", "."));
+        return BackupSetting.builder()
+                .path(baseDir + java.io.File.separator + "data-backup" + java.io.File.separator + "system-data"
+                        + java.io.File.separator + setting.getSystemDataSettingId())
+                .retentionDays(30)
+                .expireDays(7)
+                .build();
+    }
 
     @Override
     public ReturnResult<HierarchyResult<HierarchyNode>> getRoot(Integer settingId, MetadataQuery query) {
@@ -80,9 +105,12 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
             return ReturnResult.ok(metadata.getRootNodes(query));
         } catch (Exception e) {
             log.error("获取根节点失败", e);
-            try {
-                metadata.close();
-            } catch (Exception ignored) {
+            if (metadata != null) {
+                try {
+                    metadata.close();
+                } catch (Exception closeException) {
+                    log.debug("关闭层级元数据失败", closeException);
+                }
             }
             return ReturnResult.error(e.getMessage());
         }
@@ -247,7 +275,8 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
                 if (children != null && children.getData() != null) {
                     columnNodes = children.getData();
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("加载表字段节点失败: {}", nodePath, e);
             }
 
             List<ColumnInfo> columns = new ArrayList<>();
@@ -282,16 +311,11 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
             }
             TableOpenResponse resp = new TableOpenResponse();
             // 2) 查询数据：优先使用 metadata 的 data 行为，不可用则回退到 SQL 执行
-            try {
-                metadataQuery.setQueryId("1");
-                ReturnResult<CommandResult> data1 = execute(settingId, "data", "SELECT * FROM " + schemaName + "." + tableName, metadataQuery);
-
-                if (data1.isOk()) {
-                    CommandResult data = data1.getData();
-                    resp.setRows(data.getData().getRows());
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            metadataQuery.setQueryId("1");
+            ReturnResult<CommandResult> data1 = execute(settingId, "data", "SELECT * FROM " + schemaName + "." + tableName, metadataQuery);
+            if (data1.isOk()) {
+                CommandResult data = data1.getData();
+                resp.setRows(data.getData().getRows());
             }
 
             // 3) 合并字段注释：手动优先
@@ -314,7 +338,7 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
             resp.setColumns(columns);
             resp.setColumnComments(columnComments);
             return ReturnResult.ok(resp);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             log.error("打开表失败", e);
             return ReturnResult.error(e.getMessage());
         }
@@ -356,34 +380,28 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
 
     @Override
     public Boolean renameTable(Integer settingId, String nodePath, String newName) {
-        HierarchyMetadata orCreateHierarchy = getOrCreateHierarchy(settingId);
-        if (orCreateHierarchy instanceof ConstructMetadata constructMetaData) {
-            String[] pathParts = nodePath.split("/");
-            String schemaName = pathParts[1];
-            String tableName = pathParts[2];
-            try {
-                return !constructMetaData.renameTable(schemaName, tableName, newName).hasError();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        SystemDataSetting setting = getSettingOrThrow(settingId);
+        try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+            if (!engine.supports(SystemDataCapability.STRUCTURE)) {
+                return null;
             }
+            return engine.renameTable(nodePath, newName);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     @Override
     public Boolean backupTable(Integer settingId, String nodePath, String backupName) {
-        HierarchyMetadata orCreateHierarchy = getOrCreateHierarchy(settingId);
-        if (orCreateHierarchy instanceof ConstructMetadata constructMetaData) {
-            String[] pathParts = nodePath.split("/");
-            String schemaName = pathParts[1];
-            String tableName = pathParts[2];
-            try {
-                return !constructMetaData.copyTableStructure(schemaName, tableName, backupName).hasError();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        SystemDataSetting setting = getSettingOrThrow(settingId);
+        try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+            if (!engine.supports(SystemDataCapability.TABLE_BACKUP)) {
+                return null;
             }
+            return engine.backupTable(nodePath, backupName);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     @Override
@@ -394,36 +412,34 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     @Override
     public ReturnResult<CommandResult> execute(Integer settingId, String type, String command, MetadataQuery query) {
         try {
-            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) {
-                return ReturnResult.error("配置不存在");
-            }
+            SystemDataSetting setting = getSettingOrThrow(settingId);
 
             if (command.startsWith("\"") && command.endsWith("\"")) {
                 command = command.substring(1, command.length() - 1);
             }
 
             command = command.replace("\\n", " ");
-            DataSourceOptions options = buildOptions(setting);
-            CommandMetadata metadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(), setting.getSystemDataSettingType(), options);
-            CommandResult result = StringUtils.isBlank(type) ? metadata.executeCommand(command) : metadata.executeCommand(type, command, true);
-            if (result.isSuccess() && StringUtils.isNotBlank(query.getQueryId())) {
-                ResultItem data = result.getData();
-                if(null == data.getColumns()) {
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                CommandMetadata metadata = engine.command();
+                CommandResult result = StringUtils.isBlank(type) ? metadata.executeCommand(command) : metadata.executeCommand(type, command, true);
+                if (result.isSuccess() && query != null && StringUtils.isNotBlank(query.getQueryId())) {
+                    ResultItem data = result.getData();
+                    if(null == data.getColumns()) {
+                        return ReturnResult.ok(result);
+                    }
+                    List<SystemDataFieldComment> list = systemDataFieldCommentService.list(
+                            Wrappers.<SystemDataFieldComment>lambdaQuery()
+                                    .eq(SystemDataFieldComment::getSystemDataFieldCommentSettingId, settingId)
+                                    .likeRight(SystemDataFieldComment::getSystemDataFieldCommentNodePath, query.getQueryId())
+                    );
+                    Map<String, String> columnComments = list.stream().collect(Collectors.toMap(SystemDataFieldComment::getSystemDataFieldCommentColumnName, SystemDataFieldComment::getSystemDataFieldCommentComment));
+                    data.getColumns().forEach(column -> {
+                        column.setComment(columnComments.getOrDefault(column.getName(), column.getComment()));
+                    });
                     return ReturnResult.ok(result);
                 }
-                List<SystemDataFieldComment> list = systemDataFieldCommentService.list(
-                        Wrappers.<SystemDataFieldComment>lambdaQuery()
-                                .eq(SystemDataFieldComment::getSystemDataFieldCommentSettingId, settingId)
-                                .likeRight(SystemDataFieldComment::getSystemDataFieldCommentNodePath, query.getQueryId())
-                );
-                Map<String, String> columnComments = list.stream().collect(Collectors.toMap(SystemDataFieldComment::getSystemDataFieldCommentColumnName, SystemDataFieldComment::getSystemDataFieldCommentComment));
-                data.getColumns().forEach(column -> {
-                    column.setComment(columnComments.getOrDefault(column.getName(), column.getComment()));
-                });
-                return ReturnResult.ok(result);
+                return ReturnResult.fail(result.getErrorMessage());
             }
-            return ReturnResult.fail(result.getErrorMessage());
         } catch (Exception e) {
             log.error("执行命令失败", e);
             return ReturnResult.error(e.getMessage());
@@ -433,28 +449,24 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     @Override
     public ReturnResult<ResponseEntity<byte[]>> generateDocument(Integer settingId) {
         try {
-            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) {
-                return ReturnResult.error("配置不存在");
-            }
-            boolean support = ServiceProvider.of(Document.class).isSupport(setting.getSystemDataSettingType());
-            if (!support) {
-                return ReturnResult.error("文档不支持");
-            }
-
-            DataSourceOptions options = buildOptions(setting);
-            Document document = ServiceProvider.of(Document.class).getNewExtension(setting.getSystemDataSettingType(), options);
-            if (document == null) {
-                return ReturnResult.error("文档组件不可用");
-            }
-            try (GetObjectResult getObjectResult = document.create(DocQuery.builder()
-                    .type(DocQuery.Type.HTML)
-                    .build());
-                 InputStream inputStream = getObjectResult.getInputStream()) {
-                return ReturnResult.ok(ResponseEntity.ok()
-                        .contentType(MediaType.parseMediaType(getObjectResult.getMediaType().toString()))
-                        .body(IoUtils.toByteArray(inputStream))
-                );
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                if (!engine.supports(SystemDataCapability.DOCUMENT)) {
+                    return ReturnResult.error("文档不支持");
+                }
+                Document document = engine.document();
+                if (document == null) {
+                    return ReturnResult.error("文档组件不可用");
+                }
+                try (GetObjectResult getObjectResult = document.create(DocQuery.builder()
+                        .type(DocQuery.Type.HTML)
+                        .build());
+                     InputStream inputStream = getObjectResult.getInputStream()) {
+                    return ReturnResult.ok(ResponseEntity.ok()
+                            .contentType(MediaType.parseMediaType(getObjectResult.getMediaType().toString()))
+                            .body(IoUtils.toByteArray(inputStream))
+                    );
+                }
             }
         } catch (Exception e) {
             log.error("生成文档失败", e);
@@ -464,29 +476,62 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
 
     @Override
     public ReturnResult<Boolean> startBackup(Integer settingId) {
-        // Backup 已重构为 Engine 的 BackupFeature 接口，需要通过 Engine 实例实现
-        return ReturnResult.error("Backup 功能已重构，暂不支持");
+        try {
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            Backup old = backupEngineMap.get(settingId);
+            if (old != null) {
+                return ReturnResult.ok(true);
+            }
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                if (!engine.supports(SystemDataCapability.BACKUP_LIFECYCLE)) {
+                    return ReturnResult.error("当前数据源不支持备份生命周期");
+                }
+                Backup backup = engine.createBackup(buildBackupSetting(setting));
+                backup.start();
+                backupEngineMap.put(settingId, backup);
+                setting.setSystemDataSettingBackupStatus(1);
+                systemDataSettingMapper.updateById(setting);
+                return ReturnResult.ok(true);
+            }
+        } catch (Exception e) {
+            log.error("启动备份失败", e);
+            return ReturnResult.error(e.getMessage());
+        }
     }
 
     @Override
     public ReturnResult<Boolean> stopBackup(Integer settingId) {
-        // Backup 已重构为 Engine 的 BackupFeature 接口，需要通过 Engine 实例实现
-        // 暂时返回成功，实际实现需要创建 Engine 并调用 BackupFeature 接口方法
-        return ReturnResult.ok(true);
+        try {
+            Backup backup = backupEngineMap.remove(settingId);
+            if (backup != null) {
+                backup.stop();
+            }
+            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+            if (setting != null) {
+                setting.setSystemDataSettingBackupStatus(0);
+                systemDataSettingMapper.updateById(setting);
+            }
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("停止备份失败", e);
+            return ReturnResult.error(e.getMessage());
+        }
     }
 
     @Override
     public ReturnResult<Boolean> backupStatus(Integer settingId) {
-        // Backup 已重构为 Engine 的 BackupFeature 接口，需要通过 Engine 实例实现
-        // 暂时返回 false，实际实现需要创建 Engine 并检查是否实现了 BackupFeature 接口
-        return ReturnResult.ok(false);
+        if (backupEngineMap.containsKey(settingId)) {
+            return ReturnResult.ok(true);
+        }
+        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
+        return ReturnResult.ok(setting != null && Integer.valueOf(1).equals(setting.getSystemDataSettingBackupStatus()));
     }
 
     @Override
     public HierarchyMetadata getOrCreateHierarchy(Integer settingId) {
-        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-        DataSourceOptions options = buildOptions(setting);
-        HierarchyMetadata hierarchy = HierarchyMetadataFactory.createHierarchy(String.valueOf(setting.getSystemDataSettingId()), setting.getSystemDataSettingType(), options);
+        SystemDataSetting setting = getSettingOrThrow(settingId);
+        SystemDataEngine engine = systemDataEngineFactory.create(setting);
+        HierarchyMetadata hierarchy = engine.hierarchy();
         registerIdle(hierarchy, setting);
         return hierarchy;
     }
@@ -513,24 +558,25 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     }
 
     public static DataSourceOptions buildOptions(SystemDataSetting setting) {
-        SystemDataSettingServiceImpl.decryptSensitiveData(setting);
+        SystemDataSetting resolvedSetting = SystemDataSettingServiceImpl.copySetting(setting);
+        SystemDataSettingServiceImpl.decryptSensitiveData(resolvedSetting);
         DataSourceOptions.DatabaseBuilder builder = DataSourceOptions.builder()
-                .name(setting.getSystemDataSettingName())
-                .url(StringUtils.isNotBlank(setting.getSystemDataSettingServer())
-                        ? setting.getSystemDataSettingServer()
-                        : (setting.getSystemDataSettingHost() + ":" + setting.getSystemDataSettingPort()))
-                .databaseName(setting.getSystemDataSettingDatabase())
-                .policy(setting.getSystemDataSettingPolicy())
-                .username(StringUtils.isNotBlank(setting.getSystemDataSettingUsername()) ? setting.getSystemDataSettingUsername() : null)
-                .password(StringUtils.isNotBlank(setting.getSystemDataSettingPassword()) ? setting.getSystemDataSettingPassword() : null);
+                .name(resolvedSetting.getSystemDataSettingName())
+                .url(StringUtils.isNotBlank(resolvedSetting.getSystemDataSettingServer())
+                        ? resolvedSetting.getSystemDataSettingServer()
+                        : (resolvedSetting.getSystemDataSettingHost() + ":" + resolvedSetting.getSystemDataSettingPort()))
+                .databaseName(resolvedSetting.getSystemDataSettingDatabase())
+                .policy(resolvedSetting.getSystemDataSettingPolicy())
+                .username(StringUtils.isNotBlank(resolvedSetting.getSystemDataSettingUsername()) ? resolvedSetting.getSystemDataSettingUsername() : null)
+                .password(StringUtils.isNotBlank(resolvedSetting.getSystemDataSettingPassword()) ? resolvedSetting.getSystemDataSettingPassword() : null);
 
         // 如果上传过驱动文件，优先告知 DataSourceOptions 使用对应驱动
-        if (StringUtils.isNotBlank(setting.getSystemDataSettingDriverClass())) {
-            builder.driverClassName(setting.getSystemDataSettingDriverClass());
+        if (StringUtils.isNotBlank(resolvedSetting.getSystemDataSettingDriverClass())) {
+            builder.driverClassName(resolvedSetting.getSystemDataSettingDriverClass());
         }
         DataSourceOptions options = builder.build();
-        if (StringUtils.isNotBlank(setting.getSystemDataSettingDriverPath())) {
-            options.setDriverPath(setting.getSystemDataSettingDriverPath());
+        if (StringUtils.isNotBlank(resolvedSetting.getSystemDataSettingDriverPath())) {
+            options.setDriverPath(resolvedSetting.getSystemDataSettingDriverPath());
         }
         return options;
     }
@@ -648,179 +694,72 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
 
     @Override
     public Boolean addColumn(Integer settingId, StructureMetadata.AddColumnRequest req) {
-        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-        if (setting == null) {
-            throw new RuntimeException("数据源配置不存在");
+        SystemDataSetting setting = getSettingOrThrow(settingId);
+        try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+            return engine.addColumn(req);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        Dialect dialect = getDialect(setting);
-        char openQuote = dialect.openQuote();
-        char closeQuote = dialect.closeQuote();
-
-        StringBuilder sql = new StringBuilder();
-        sql.append("ALTER TABLE ").append(quoteIdentifier(req.getTableName(), openQuote, closeQuote));
-        sql.append(" ADD COLUMN ").append(quoteIdentifier(req.getColumnName(), openQuote, closeQuote));
-        sql.append(" ").append(req.getDataType());
-
-        if (Boolean.FALSE.equals(req.getNullable())) {
-            sql.append(" NOT NULL");
-        }
-        if (StringUtils.isNotBlank(req.getDefaultValue())) {
-            sql.append(" DEFAULT ").append(req.getDefaultValue());
-        }
-        if (StringUtils.isNotBlank(req.getComment())) {
-            sql.append(" COMMENT '").append(req.getComment().replace("'", "''")).append("'");
-        }
-        // 位置控制
-        if ("FIRST".equalsIgnoreCase(req.getPosition())) {
-            sql.append(" FIRST");
-        } else if ("AFTER".equalsIgnoreCase(req.getPosition()) && StringUtils.isNotBlank(req.getAfterColumn())) {
-            sql.append(" AFTER ").append(quoteIdentifier(req.getAfterColumn(), openQuote, closeQuote));
-        }
-
-        return executeAlterSql(settingId, sql.toString());
     }
 
     @Override
     public Boolean modifyColumn(Integer settingId, StructureMetadata.ModifyColumnRequest req) {
-        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-        if (setting == null) {
-            throw new RuntimeException("数据源配置不存在");
+        SystemDataSetting setting = getSettingOrThrow(settingId);
+        try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+            return engine.modifyColumn(req);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        Dialect dialect = getDialect(setting);
-        char openQuote = dialect.openQuote();
-        char closeQuote = dialect.closeQuote();
-
-        StringBuilder sql = new StringBuilder();
-        sql.append("ALTER TABLE ").append(quoteIdentifier(req.getTableName(), openQuote, closeQuote));
-
-        // 判断是否需要重命名
-        if (StringUtils.isNotBlank(req.getNewColumnName()) && !req.getNewColumnName().equals(req.getOldColumnName())) {
-            // MySQL使用CHANGE COLUMN重命名
-            sql.append(" CHANGE COLUMN ").append(quoteIdentifier(req.getOldColumnName(), openQuote, closeQuote));
-            sql.append(" ").append(quoteIdentifier(req.getNewColumnName(), openQuote, closeQuote));
-        } else {
-            // MySQL使用MODIFY COLUMN修改字段
-            sql.append(" MODIFY COLUMN ").append(quoteIdentifier(req.getOldColumnName(), openQuote, closeQuote));
-        }
-
-        sql.append(" ").append(req.getDataType());
-
-        if (Boolean.FALSE.equals(req.getNullable())) {
-            sql.append(" NOT NULL");
-        } else {
-            sql.append(" NULL");
-        }
-        if (StringUtils.isNotBlank(req.getDefaultValue())) {
-            sql.append(" DEFAULT ").append(req.getDefaultValue());
-        }
-        if (StringUtils.isNotBlank(req.getComment())) {
-            sql.append(" COMMENT '").append(req.getComment().replace("'", "''")).append("'");
-        }
-
-        return executeAlterSql(settingId, sql.toString());
     }
 
     @Override
     public Boolean dropColumn(Integer settingId, StructureMetadata.DropColumnRequest req) {
-        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-        if (setting == null) {
-            throw new RuntimeException("数据源配置不存在");
+        SystemDataSetting setting = getSettingOrThrow(settingId);
+        try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+            return engine.dropColumn(req);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        Dialect dialect = getDialect(setting);
-        char openQuote = dialect.openQuote();
-        char closeQuote = dialect.closeQuote();
-
-        String sql = "ALTER TABLE " + quoteIdentifier(req.getTableName(), openQuote, closeQuote)
-                + " DROP COLUMN " + quoteIdentifier(req.getColumnName(), openQuote, closeQuote);
-        return executeAlterSql(settingId, sql);
     }
 
     @Override
     public Boolean batchDropColumn(Integer settingId, StructureMetadata.BatchDropColumnRequest req) {
-        if (req.getColumnNames() == null || req.getColumnNames().isEmpty()) {
-            return true;
+        SystemDataSetting setting = getSettingOrThrow(settingId);
+        try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+            return engine.batchDropColumn(req);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        for (String columnName : req.getColumnNames()) {
-            StructureMetadata.DropColumnRequest dropReq = new StructureMetadata.DropColumnRequest();
-            dropReq.setTableName(req.getTableName());
-            dropReq.setColumnName(columnName);
-            dropColumn(settingId, dropReq);
-        }
-        return true;
     }
 
     @Override
     public Boolean batchAddColumn(Integer settingId, StructureMetadata.BatchAddColumnRequest req) {
-        if (req.getColumns() == null || req.getColumns().isEmpty()) {
-            return true;
+        SystemDataSetting setting = getSettingOrThrow(settingId);
+        try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+            return engine.batchAddColumn(req);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        for (StructureMetadata.AddColumnRequest addReq : req.getColumns()) {
-            addReq.setTableName(req.getTableName());
-            addColumn(settingId, addReq);
-        }
-        return true;
     }
 
     @Override
     public Boolean batchModifyColumn(Integer settingId, StructureMetadata.BatchModifyColumnRequest req) {
-        if (req.getColumns() == null || req.getColumns().isEmpty()) {
-            return true;
+        SystemDataSetting setting = getSettingOrThrow(settingId);
+        try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+            return engine.batchModifyColumn(req);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        for (StructureMetadata.ModifyColumnRequest modifyReq : req.getColumns()) {
-            modifyReq.setTableName(req.getTableName());
-            modifyColumn(settingId, modifyReq);
-        }
-        return true;
     }
 
     @Override
     public Boolean reorderColumn(Integer settingId, StructureMetadata.ReorderColumnRequest req) {
-        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-        if (setting == null) {
-            throw new RuntimeException("数据源配置不存在");
+        SystemDataSetting setting = getSettingOrThrow(settingId);
+        try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+            return engine.reorderColumn(req);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        Dialect dialect = getDialect(setting);
-        char openQuote = dialect.openQuote();
-        char closeQuote = dialect.closeQuote();
-
-        // 先获取字段信息
-        List<ColumnInfo> columns = listColumns(settingId, req.getTableName());
-        ColumnInfo targetColumn = columns.stream()
-                .filter(c -> c.getName().equals(req.getColumnName()))
-                .findFirst()
-                .orElse(null);
-
-        if (targetColumn == null) {
-            throw new RuntimeException("字段不存在: " + req.getColumnName());
-        }
-
-        StringBuilder sql = new StringBuilder();
-        sql.append("ALTER TABLE ").append(quoteIdentifier(req.getTableName(), openQuote, closeQuote));
-        sql.append(" MODIFY COLUMN ").append(quoteIdentifier(req.getColumnName(), openQuote, closeQuote));
-        sql.append(" ").append(targetColumn.getFullType());
-
-        if (Boolean.FALSE.equals(targetColumn.getNullable())) {
-            sql.append(" NOT NULL");
-        }
-        if (StringUtils.isNotBlank(targetColumn.getDefaultValue())) {
-            sql.append(" DEFAULT ").append(targetColumn.getDefaultValue());
-        }
-        if (StringUtils.isNotBlank(targetColumn.getComment())) {
-            sql.append(" COMMENT '").append(targetColumn.getComment().replace("'", "''")).append("'");
-        }
-
-        // 位置控制
-        if ("FIRST".equalsIgnoreCase(req.getPosition())) {
-            sql.append(" FIRST");
-        } else if ("AFTER".equalsIgnoreCase(req.getPosition()) && StringUtils.isNotBlank(req.getAfterColumn())) {
-            sql.append(" AFTER ").append(quoteIdentifier(req.getAfterColumn(), openQuote, closeQuote));
-        }
-
-        return executeAlterSql(settingId, sql.toString());
     }
 
     @Override
@@ -889,79 +828,38 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
         }
     }
 
+    private Boolean executeParameterizedUpdate(SystemDataSetting setting, String sql, Object... args) {
+        try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+            if (engine.supports(SystemDataCapability.SQL_UPDATE)) {
+                return engine.executeUpdate(sql, args) >= 0;
+            }
+            CommandMetadata commandMetadata = engine.command();
+            CommandResult result = commandMetadata.executeCommand(sql);
+            return result != null && result.isSuccess();
+        } catch (Exception e) {
+            log.error("执行参数化更新失败: {}", sql, e);
+            return false;
+        }
+    }
+
     @Override
     public Boolean modifyTableComment(Integer settingId, StructureMetadata.ModifyTableCommentRequest req) {
-        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-        if (setting == null) {
-            throw new RuntimeException("数据源配置不存在");
+        SystemDataSetting setting = getSettingOrThrow(settingId);
+        try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+            return engine.modifyTableComment(req);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        Dialect dialect = getDialect(setting);
-        char openQuote = dialect.openQuote();
-        char closeQuote = dialect.closeQuote();
-
-        String tableName = req.getTableName();
-        String comment = req.getComment();
-        String escapedComment = comment != null ? comment.replace("'", "''") : "";
-
-        String sql = "ALTER TABLE " + quoteIdentifier(tableName, openQuote, closeQuote)
-                + " COMMENT '" + escapedComment + "'";
-        return executeAlterSql(settingId, sql);
     }
 
     @Override
     public Boolean batchModifyTableStructure(Integer settingId, StructureMetadata.BatchTableStructureRequest req) {
-        SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-        if (setting == null) {
-            throw new RuntimeException("数据源配置不存在");
+        SystemDataSetting setting = getSettingOrThrow(settingId);
+        try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+            return engine.batchModifyTableStructure(req);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        log.info("开始批量修改表结构: {}", req.getTableName());
-
-        // 1. 先删除字段
-        if (req.getDropColumns() != null && !req.getDropColumns().isEmpty()) {
-            for (String columnName : req.getDropColumns()) {
-                StructureMetadata.DropColumnRequest dropReq = new StructureMetadata.DropColumnRequest();
-                dropReq.setTableName(req.getTableName());
-                dropReq.setColumnName(columnName);
-                dropColumn(settingId, dropReq);
-            }
-        }
-
-        // 2. 添加新字段
-        if (req.getAddColumns() != null && !req.getAddColumns().isEmpty()) {
-            for (StructureMetadata.AddColumnRequest addReq : req.getAddColumns()) {
-                addReq.setTableName(req.getTableName());
-                addColumn(settingId, addReq);
-            }
-        }
-
-        // 3. 修改已有字段
-        if (req.getModifyColumns() != null && !req.getModifyColumns().isEmpty()) {
-            for (StructureMetadata.ModifyColumnRequest modifyReq : req.getModifyColumns()) {
-                modifyReq.setTableName(req.getTableName());
-                modifyColumn(settingId, modifyReq);
-            }
-        }
-
-        // 4. 调整字段顺序
-        if (req.getReorderColumns() != null && !req.getReorderColumns().isEmpty()) {
-            for (StructureMetadata.ReorderColumnRequest reorderReq : req.getReorderColumns()) {
-                reorderReq.setTableName(req.getTableName());
-                reorderColumn(settingId, reorderReq);
-            }
-        }
-
-        // 5. 修改表注释
-        if (StringUtils.isNotBlank(req.getTableComment())) {
-            StructureMetadata.ModifyTableCommentRequest commentReq = new StructureMetadata.ModifyTableCommentRequest();
-            commentReq.setTableName(req.getTableName());
-            commentReq.setComment(req.getTableComment());
-            modifyTableComment(settingId, commentReq);
-        }
-
-        log.info("批量修改表结构完成: {}", req.getTableName());
-        return true;
     }
 
     /**
@@ -1014,35 +912,10 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     @Override
     public Boolean updateTableRow(Integer settingId, UpdateRowRequest req) {
         try {
-            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) {
-                log.error("数据源配置不存在: {}", settingId);
-                return false;
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                return engine.updateRow(req);
             }
-            Dialect dialect = getDialect(setting);
-            char openQuote = dialect.openQuote();
-            char closeQuote = dialect.closeQuote();
-
-            // 构建 UPDATE SQL
-            String tableName = quoteIdentifier(req.getTableName(), openQuote, closeQuote);
-            String columnName = quoteIdentifier(req.getColumnName(), openQuote, closeQuote);
-            String primaryKey = quoteIdentifier(req.getPrimaryKey(), openQuote, closeQuote);
-
-            String sql;
-            if (req.getNewValue() == null) {
-                sql = String.format("UPDATE %s SET %s = NULL WHERE %s = '%s'",
-                        tableName, columnName, primaryKey, req.getPrimaryValue());
-            } else {
-                sql = String.format("UPDATE %s SET %s = '%s' WHERE %s = '%s'",
-                        tableName, columnName, req.getNewValue(), primaryKey, req.getPrimaryValue());
-            }
-
-            log.info("执行更新SQL: {}", sql);
-            DataSourceOptions options = buildOptions(setting);
-            CommandMetadata commandMetadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(), setting.getSystemDataSettingType(), options);
-            CommandResult result = commandMetadata.executeCommand(sql);
-
-            return result != null && result.isSuccess();
         } catch (Exception e) {
             log.error("更新表数据行失败", e);
             return false;
@@ -1052,28 +925,10 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     @Override
     public Boolean deleteTableRow(Integer settingId, DeleteRowRequest req) {
         try {
-            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) {
-                log.error("数据源配置不存在: {}", settingId);
-                return false;
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                return engine.deleteRow(req);
             }
-            Dialect dialect = getDialect(setting);
-            char openQuote = dialect.openQuote();
-            char closeQuote = dialect.closeQuote();
-
-            // 构建 DELETE SQL
-            String tableName = quoteIdentifier(req.getTableName(), openQuote, closeQuote);
-            String primaryKey = quoteIdentifier(req.getPrimaryKey(), openQuote, closeQuote);
-
-            String sql = String.format("DELETE FROM %s WHERE %s = '%s'",
-                    tableName, primaryKey, req.getPrimaryValue());
-
-            log.info("执行删除SQL: {}", sql);
-            DataSourceOptions options = buildOptions(setting);
-            CommandMetadata commandMetadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(), setting.getSystemDataSettingType(), options);
-            CommandResult result = commandMetadata.executeCommand(sql);
-
-            return result != null && result.isSuccess();
         } catch (Exception e) {
             log.error("删除表数据行失败", e);
             return false;
@@ -1083,50 +938,10 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     @Override
     public Boolean insertTableRow(Integer settingId, InsertRowRequest req) {
         try {
-            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) {
-                log.error("数据源配置不存在: {}", settingId);
-                return false;
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                return engine.insertRow(req);
             }
-            Dialect dialect = getDialect(setting);
-            char openQuote = dialect.openQuote();
-            char closeQuote = dialect.closeQuote();
-
-            Map<String, Object> data = req.getData();
-            if (data == null || data.isEmpty()) {
-                log.error("插入数据为空");
-                return false;
-            }
-
-            // 构建 INSERT SQL
-            String tableName = quoteIdentifier(req.getTableName(), openQuote, closeQuote);
-            StringBuilder columns = new StringBuilder();
-            StringBuilder values = new StringBuilder();
-
-            boolean first = true;
-            for (Map.Entry<String, Object> entry : data.entrySet()) {
-                if (!first) {
-                    columns.append(", ");
-                    values.append(", ");
-                }
-                columns.append(quoteIdentifier(entry.getKey(), openQuote, closeQuote));
-                if (entry.getValue() == null) {
-                    values.append("NULL");
-                } else {
-                    values.append("'").append(entry.getValue()).append("'");
-                }
-                first = false;
-            }
-
-            String sql = String.format("INSERT INTO %s (%s) VALUES (%s)",
-                    tableName, columns, values);
-
-            log.info("执行插入SQL: {}", sql);
-            DataSourceOptions options = buildOptions(setting);
-            CommandMetadata commandMetadata = CommandMetadataFactory.create(setting.getSystemDataSettingId(), setting.getSystemDataSettingType(), options);
-            CommandResult result = commandMetadata.executeCommand(sql);
-
-            return result != null && result.isSuccess();
         } catch (Exception e) {
             log.error("插入表数据行失败", e);
             return false;
@@ -1139,24 +954,15 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     public List<Map<String, Object>> getTableIndexes(Integer settingId, String tableName) {
         try {
             log.info("获取表索引列表: settingId={}, tableName={}", settingId, tableName);
-            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) {
-                log.warn("数据源设置不存在: settingId={}", settingId);
-                return Collections.emptyList();
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                if (!engine.supports(SystemDataCapability.INDEXES)) {
+                    return Collections.emptyList();
+                }
+                List<Map<String, Object>> indexes = engine.getIndexes(tableName);
+                log.debug("获取到 {} 个索引", indexes.size());
+                return indexes;
             }
-
-            DataSourceOptions options = buildOptions(setting);
-            StructureMetadata structureMetadata = ServiceProvider.of(StructureMetadata.class)
-                    .getNewExtension(setting.getSystemDataSettingType(), options);
-
-            if (structureMetadata == null) {
-                log.warn("不支持的数据源类型: {}", setting.getSystemDataSettingType());
-                return Collections.emptyList();
-            }
-
-            List<Map<String, Object>> indexes = structureMetadata.getIndexes(tableName);
-            log.debug("获取到 {} 个索引", indexes.size());
-            return indexes;
         } catch (Exception e) {
             log.error("获取表索引列表失败", e);
             return Collections.emptyList();
@@ -1167,24 +973,15 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     public Boolean createIndex(Integer settingId, StructureMetadata.CreateIndexRequest req) {
         try {
             log.info("创建索引: settingId={}, request={}", settingId, req);
-            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) {
-                log.warn("数据源设置不存在: settingId={}", settingId);
-                return false;
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                if (!engine.supports(SystemDataCapability.INDEXES)) {
+                    return false;
+                }
+                boolean success = engine.createIndex(req);
+                log.info("创建索引{}: {}", success ? "成功" : "失败", req.getIndexName());
+                return success;
             }
-
-            DataSourceOptions options = buildOptions(setting);
-            StructureMetadata structureMetadata = ServiceProvider.of(StructureMetadata.class)
-                    .getNewExtension(setting.getSystemDataSettingType(), options);
-
-            if (structureMetadata == null) {
-                log.warn("不支持的数据源类型: {}", setting.getSystemDataSettingType());
-                return false;
-            }
-
-            boolean success = structureMetadata.createIndex(req);
-            log.info("创建索引{}: {}", success ? "成功" : "失败", req.getIndexName());
-            return success;
         } catch (Exception e) {
             log.error("创建索引失败", e);
             return false;
@@ -1195,24 +992,15 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     public Boolean dropIndex(Integer settingId, String tableName, String indexName) {
         try {
             log.info("删除索引: settingId={}, tableName={}, indexName={}", settingId, tableName, indexName);
-            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) {
-                log.warn("数据源设置不存在: settingId={}", settingId);
-                return false;
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                if (!engine.supports(SystemDataCapability.INDEXES)) {
+                    return false;
+                }
+                boolean success = engine.dropIndex(tableName, indexName);
+                log.info("删除索引{}: {}", success ? "成功" : "失败", indexName);
+                return success;
             }
-
-            DataSourceOptions options = buildOptions(setting);
-            StructureMetadata structureMetadata = ServiceProvider.of(StructureMetadata.class)
-                    .getNewExtension(setting.getSystemDataSettingType(), options);
-
-            if (structureMetadata == null) {
-                log.warn("不支持的数据源类型: {}", setting.getSystemDataSettingType());
-                return false;
-            }
-
-            boolean success = structureMetadata.dropIndex(tableName, indexName);
-            log.info("删除索引{}: {}", success ? "成功" : "失败", indexName);
-            return success;
         } catch (Exception e) {
             log.error("删除索引失败", e);
             return false;
@@ -1225,24 +1013,15 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     public List<Map<String, Object>> getTablePartitions(Integer settingId, String tableName) {
         try {
             log.info("获取表分区列表: settingId={}, tableName={}", settingId, tableName);
-            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) {
-                log.warn("数据源设置不存在: settingId={}", settingId);
-                return Collections.emptyList();
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                if (!engine.supports(SystemDataCapability.PARTITIONS)) {
+                    return Collections.emptyList();
+                }
+                List<Map<String, Object>> partitions = engine.getPartitions(tableName);
+                log.debug("获取到 {} 个分区", partitions.size());
+                return partitions;
             }
-
-            DataSourceOptions options = buildOptions(setting);
-            StructureMetadata structureMetadata = ServiceProvider.of(StructureMetadata.class)
-                    .getNewExtension(setting.getSystemDataSettingType(), options);
-
-            if (structureMetadata == null) {
-                log.warn("不支持的数据源类型: {}", setting.getSystemDataSettingType());
-                return Collections.emptyList();
-            }
-
-            List<Map<String, Object>> partitions = structureMetadata.getPartitions(tableName);
-            log.debug("获取到 {} 个分区", partitions.size());
-            return partitions;
         } catch (Exception e) {
             log.error("获取表分区列表失败", e);
             return Collections.emptyList();
@@ -1253,24 +1032,15 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     public Boolean createPartition(Integer settingId, StructureMetadata.CreatePartitionRequest req) {
         try {
             log.info("创建分区: settingId={}, request={}", settingId, req);
-            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) {
-                log.warn("数据源设置不存在: settingId={}", settingId);
-                return false;
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                if (!engine.supports(SystemDataCapability.PARTITIONS)) {
+                    return false;
+                }
+                boolean success = engine.createPartition(req);
+                log.info("创建分区{}: {}", success ? "成功" : "失败", req.getPartitionName());
+                return success;
             }
-
-            DataSourceOptions options = buildOptions(setting);
-            StructureMetadata structureMetadata = ServiceProvider.of(StructureMetadata.class)
-                    .getNewExtension(setting.getSystemDataSettingType(), options);
-
-            if (structureMetadata == null) {
-                log.warn("不支持的数据源类型: {}", setting.getSystemDataSettingType());
-                return false;
-            }
-
-            boolean success = structureMetadata.createPartition(req);
-            log.info("创建分区{}: {}", success ? "成功" : "失败", req.getPartitionName());
-            return success;
         } catch (Exception e) {
             log.error("创建分区失败", e);
             return false;
@@ -1281,24 +1051,15 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
     public Boolean dropPartition(Integer settingId, String tableName, String partitionName) {
         try {
             log.info("删除分区: settingId={}, tableName={}, partitionName={}", settingId, tableName, partitionName);
-            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) {
-                log.warn("数据源设置不存在: settingId={}", settingId);
-                return false;
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                if (!engine.supports(SystemDataCapability.PARTITIONS)) {
+                    return false;
+                }
+                boolean success = engine.dropPartition(tableName, partitionName);
+                log.info("删除分区{}: {}", success ? "成功" : "失败", partitionName);
+                return success;
             }
-
-            DataSourceOptions options = buildOptions(setting);
-            StructureMetadata structureMetadata = ServiceProvider.of(StructureMetadata.class)
-                    .getNewExtension(setting.getSystemDataSettingType(), options);
-
-            if (structureMetadata == null) {
-                log.warn("不支持的数据源类型: {}", setting.getSystemDataSettingType());
-                return false;
-            }
-
-            boolean success = structureMetadata.dropPartition(tableName, partitionName);
-            log.info("删除分区{}: {}", success ? "成功" : "失败", partitionName);
-            return success;
         } catch (Exception e) {
             log.error("删除分区失败", e);
             return false;
@@ -1307,54 +1068,97 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
 
     @Override
     public Map<String, Boolean> getDatabaseCapabilities(Integer settingId) {
-        Map<String, Boolean> capabilities = new HashMap<>();
+        Map<String, Boolean> capabilities = new LinkedHashMap<>();
         try {
             log.info("检测数据库能力: settingId={}", settingId);
-            SystemDataSetting setting = systemDataSettingMapper.selectById(settingId);
-            if (setting == null) {
-                log.warn("数据源设置不存在: settingId={}", settingId);
-                capabilities.put("supportsIndexes", false);
-                capabilities.put("supportsPartitions", false);
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                capabilities.putAll(engine.capabilities());
+                putLegacyCapabilityAliases(capabilities);
                 return capabilities;
             }
-
-            String dbType = setting.getSystemDataSettingType();
-            log.debug("数据库类型: {}", dbType);
-
-            // 根据数据库类型判断能力
-            boolean supportsIndexes = true; // 大部分数据库都支持索引
-            boolean supportsPartitions = false;
-
-            if (dbType != null) {
-                String type = dbType.toLowerCase();
-                // MySQL 5.7+ 支持分区
-                if (type.contains("mysql")) {
-                    supportsPartitions = true;
-                }
-                // PostgreSQL 10+ 支持分区
-                else if (type.contains("postgresql") || type.contains("postgres")) {
-                    supportsPartitions = true;
-                }
-                // Oracle 支持分区
-                else if (type.contains("oracle")) {
-                    supportsPartitions = true;
-                }
-                // SQL Server 2016+ 支持分区
-                else if (type.contains("sqlserver") || type.contains("mssql")) {
-                    supportsPartitions = true;
-                }
-            }
-
-            capabilities.put("supportsIndexes", supportsIndexes);
-            capabilities.put("supportsPartitions", supportsPartitions);
-            log.info("数据库能力检测结果: supportsIndexes={}, supportsPartitions={}", 
-                    supportsIndexes, supportsPartitions);
-            return capabilities;
         } catch (Exception e) {
             log.error("检测数据库能力失败", e);
-            capabilities.put("supportsIndexes", false);
-            capabilities.put("supportsPartitions", false);
+            putDefaultCapabilities(capabilities, false);
+            putLegacyCapabilityAliases(capabilities);
             return capabilities;
+        }
+    }
+
+    @Override
+    public Map<String, FeatureSupportLevel> getDatabaseCapabilityLevels(Integer settingId) {
+        Map<String, FeatureSupportLevel> capabilityLevels = new LinkedHashMap<>();
+        try {
+            log.info("检测数据库能力级别: settingId={}", settingId);
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                capabilityLevels.putAll(engine.capabilityLevels());
+                return capabilityLevels;
+            }
+        } catch (Exception e) {
+            log.error("检测数据库能力级别失败", e);
+            putDefaultCapabilityLevels(capabilityLevels);
+            return capabilityLevels;
+        }
+    }
+
+    @Override
+    public ReturnResult<Map<String, Object>> getClusterStatus(Integer settingId) {
+        try {
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                if (!engine.supports(SystemDataCapability.CLUSTER)) {
+                    return ReturnResult.error("当前数据源不支持集群能力");
+                }
+                SystemDataClusterFeature clusterFeature = engine.requireFeature(
+                        SystemDataCapability.CLUSTER,
+                        SystemDataClusterFeature.class
+                );
+                return ReturnResult.ok(clusterFeature.cluster(null).getClusterStatus());
+            }
+        } catch (Exception e) {
+            log.error("获取集群状态失败", e);
+            return ReturnResult.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<String> getClusterHealth(Integer settingId) {
+        try {
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                if (!engine.supports(SystemDataCapability.CLUSTER)) {
+                    return ReturnResult.error("当前数据源不支持集群能力");
+                }
+                SystemDataClusterFeature clusterFeature = engine.requireFeature(
+                        SystemDataCapability.CLUSTER,
+                        SystemDataClusterFeature.class
+                );
+                return ReturnResult.ok(clusterFeature.cluster(null).getClusterHealth());
+            }
+        } catch (Exception e) {
+            log.error("获取集群健康状态失败", e);
+            return ReturnResult.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<List<Map<String, Object>>> getClusterNodes(Integer settingId) {
+        try {
+            SystemDataSetting setting = getSettingOrThrow(settingId);
+            try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+                if (!engine.supports(SystemDataCapability.NODE)) {
+                    return ReturnResult.error("当前数据源不支持节点能力");
+                }
+                SystemDataNodeFeature nodeFeature = engine.requireFeature(
+                        SystemDataCapability.NODE,
+                        SystemDataNodeFeature.class
+                );
+                return ReturnResult.ok(nodeFeature.node(null).list());
+            }
+        } catch (Exception e) {
+            log.error("获取集群节点失败", e);
+            return ReturnResult.error(e.getMessage());
         }
     }
 
@@ -1380,6 +1184,27 @@ public class SystemDataConsoleServiceImpl implements SystemDataConsoleService, C
                 }
             }
         });
+    }
+
+    private void putDefaultCapabilities(Map<String, Boolean> capabilities, boolean value) {
+        for (SystemDataCapability capability : SystemDataCapability.values()) {
+            capabilities.put(capability.getKey(), value);
+        }
+    }
+
+    private void putLegacyCapabilityAliases(Map<String, Boolean> capabilities) {
+        for (SystemDataCapability capability : SystemDataCapability.values()) {
+            capabilities.put(
+                    capability.getLegacyAliasKey(),
+                    capabilities.getOrDefault(capability.getKey(), false)
+            );
+        }
+    }
+
+    private void putDefaultCapabilityLevels(Map<String, FeatureSupportLevel> capabilityLevels) {
+        for (SystemDataCapability capability : SystemDataCapability.values()) {
+            capabilityLevels.put(capability.getKey(), FeatureSupportLevel.NONE);
+        }
     }
 }
 

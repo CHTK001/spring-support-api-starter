@@ -2,12 +2,16 @@ package com.chua.starter.tenant.client;
 
 import com.chua.common.support.core.annotation.Spi;
 import com.chua.common.support.core.utils.MapUtils;
+import com.chua.starter.sync.support.client.SyncClient;
 import com.chua.starter.sync.support.spi.SyncMessageHandler;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.properties.TenantProperties;
 import com.chua.starter.tenant.spi.TenantDataSyncProvider;
-import lombok.extern.slf4j.Slf4j;
+import com.chua.starter.tenant.sync.TenantSyncMessageSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -15,6 +19,9 @@ import org.springframework.stereotype.Component;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * 租户客户端同步处理器
@@ -26,27 +33,46 @@ import java.util.Map;
  * @version 1.0.0
  * @since 2024/12/06
  */
-@Slf4j
 @Component
 @Spi("tenant")
 @ConditionalOnClass(SyncMessageHandler.class)
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".client", name = "enable", havingValue = "true")
 public class TenantClientSyncHandler implements SyncMessageHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(TenantClientSyncHandler.class);
+
     /**
      * 租户同步主题
      */
     public static final String TOPIC_TENANT = "tenant";
-    public static final String TOPIC_TENANT_UPDATE = "tenant/update";
-    public static final String TOPIC_TENANT_DELETE = "tenant/delete";
-    public static final String TOPIC_TENANT_SERVICE = "tenant/service";
-    public static final String TOPIC_TENANT_MENU = "tenant/menu";
+    public static final String TOPIC_TENANT_UPDATE = TenantSyncMessageSupport.TOPIC_TENANT_UPDATE;
+    public static final String TOPIC_TENANT_DELETE = TenantSyncMessageSupport.TOPIC_TENANT_DELETE;
+    public static final String TOPIC_TENANT_SERVICE = TenantSyncMessageSupport.TOPIC_TENANT_SERVICE;
+    public static final String TOPIC_TENANT_MENU = TenantSyncMessageSupport.TOPIC_TENANT_MENU;
 
     @Autowired
     private TenantProperties tenantProperties;
 
     @Autowired(required = false)
     private List<TenantDataSyncProvider> syncProviders;
+
+    @Autowired
+    private ObjectProvider<SyncClient> syncClientProvider;
+
+    /**
+     * 已处理消息缓存
+     */
+    private final ConcurrentMap<String, Long> processedMessages = new ConcurrentHashMap<>();
+
+    /**
+     * 每个租户主题最近一次成功应用的消息时间戳。
+     */
+    private final ConcurrentMap<String, Long> latestAppliedTimestamps = new ConcurrentHashMap<>();
+
+    /**
+     * 最近一次收到本租户同步消息的时间戳。
+     */
+    private final AtomicLong lastReceivedSyncMessageTime = new AtomicLong(0L);
 
     @Override
     public String getName() {
@@ -78,13 +104,36 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
 
         log.debug("[租户客户端] 收到消息: topic={}", topic);
 
-        return switch (topic) {
-            case TOPIC_TENANT_UPDATE -> handleTenantUpdate(data);
-            case TOPIC_TENANT_DELETE -> handleTenantDelete(data);
-            case TOPIC_TENANT_SERVICE -> handleServiceUpdate(data);
-            case TOPIC_TENANT_MENU -> handleMenuUpdate(data);
-            default -> handleCustomTopic(topic, data);
-        };
+        if (shouldIgnoreMessage(data)) {
+            return Map.of("success", true, "ignored", true);
+        }
+
+        TenantSyncMessageSupport.VerificationResult verificationResult = verifySignature(data);
+        if (!verificationResult.isValid()) {
+            log.warn("[租户客户端] 忽略签名校验失败的同步消息: topic={}, reason={}",
+                    topic, verificationResult.getMessage());
+            return Map.of("success", false, "message", verificationResult.getMessage(), "invalidSignature", true);
+        }
+
+        markSyncMessageReceived();
+
+        Object result;
+        if (isDuplicateMessage(data)) {
+            result = Map.of("success", true, "duplicate", true);
+        } else if (isOutOfOrderMessage(topic, data)) {
+            result = Map.of("success", true, "outOfOrder", true);
+        } else {
+            result = switch (topic) {
+                case TOPIC_TENANT_UPDATE -> handleTenantUpdate(data);
+                case TOPIC_TENANT_DELETE -> handleTenantDelete(data);
+                case TOPIC_TENANT_SERVICE -> handleServiceUpdate(data);
+                case TOPIC_TENANT_MENU -> handleMenuUpdate(data);
+                default -> handleCustomTopic(topic, data);
+            };
+        }
+        markAppliedMessage(topic, data, result);
+        sendAck(topic, data, result);
+        return result;
     }
 
     /**
@@ -110,7 +159,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         }
 
         try {
-            SysTenant tenant = convertToTenant(data);
+            SysTenant tenant = convertToTenant(TenantSyncMessageSupport.resolveTenantPayload(data));
             if (tenant == null || tenant.getSysTenantId() == null) {
                 log.warn("[租户客户端] 租户数据不完整");
                 return Map.of("success", false, "message", "租户数据不完整");
@@ -135,14 +184,15 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         }
 
         try {
-            Integer tenantId = MapUtils.getInteger(data, "sysTenantId", 0);
-            if (tenantId == 0) {
+            String tenantId = TenantSyncMessageSupport.resolveTargetTenantId(data);
+            if (!TenantSyncMessageSupport.hasText(tenantId)) {
                 return Map.of("success", false, "message", "租户ID为空");
             }
 
             SysTenant tenant = new SysTenant();
-            tenant.setSysTenantId(String.valueOf(tenantId));
+            tenant.setSysTenantId(tenantId);
             provider.syncTenantUser(tenant, "delete");
+            provider.syncMenuData(tenantId, List.of(), TenantSyncMessageSupport.OP_REPLACE);
             
             log.info("[租户客户端] 租户 {} 删除成功", tenantId);
             return Map.of("success", true);
@@ -163,14 +213,21 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         }
 
         try {
-            Integer tenantId = MapUtils.getInteger(data, "tenantId", 0);
-            List<Integer> menuIds = (List<Integer>) data.get("menuIds");
+            String tenantId = TenantSyncMessageSupport.resolveTargetTenantId(data);
+            List<Integer> menuIds = toIntegerList(data.get(TenantSyncMessageSupport.MENU_IDS));
+            List<Map<String, Object>> menus = (List<Map<String, Object>>) data.get(TenantSyncMessageSupport.MENUS);
 
-            if (tenantId == 0) {
+            if (!TenantSyncMessageSupport.hasText(tenantId)) {
                 return Map.of("success", false, "message", "租户ID为空");
             }
 
-            boolean result = provider.syncTenantMenu(tenantId, menuIds);
+            boolean result;
+            if (menus != null && !menus.isEmpty()) {
+                result = provider.syncMenuData(tenantId, menus, TenantSyncMessageSupport.OP_REPLACE);
+            } else {
+                result = provider.syncTenantMenu(tenantId, menuIds);
+            }
+
             log.info("[租户客户端] 租户 {} 服务更新，菜单数: {}", tenantId, menuIds != null ? menuIds.size() : 0);
             return Map.of("success", result);
         } catch (Exception e) {
@@ -190,11 +247,11 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         }
 
         try {
-            Integer tenantId = MapUtils.getInteger(data, "tenantId", 0);
-            String operation = MapUtils.getString(data, "operation");
+            String tenantId = TenantSyncMessageSupport.resolveTargetTenantId(data);
+            String operation = MapUtils.getString(data, TenantSyncMessageSupport.OPERATION);
             List<Map<String, Object>> menus = (List<Map<String, Object>>) data.get("menus");
 
-            if (tenantId == 0) {
+            if (!TenantSyncMessageSupport.hasText(tenantId)) {
                 return Map.of("success", false, "message", "租户ID为空");
             }
 
@@ -217,6 +274,261 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
             return null;
         }
         return provider.handleRawData(topic, data);
+    }
+
+    /**
+     * 是否忽略该消息
+     */
+    private boolean shouldIgnoreMessage(Map<String, Object> data) {
+        String localTenantId = tenantProperties.getClient().getTenantId();
+        String targetTenantId = TenantSyncMessageSupport.resolveTargetTenantId(data);
+        if (!TenantSyncMessageSupport.hasText(localTenantId)) {
+            if (TenantSyncMessageSupport.hasText(targetTenantId)) {
+                log.warn("[租户客户端] 未配置 tenantId，忽略定向租户消息: targetTenantId={}", targetTenantId);
+                return true;
+            }
+            return false;
+        }
+
+        return TenantSyncMessageSupport.hasText(targetTenantId) && !localTenantId.equals(targetTenantId);
+    }
+
+    private TenantSyncMessageSupport.VerificationResult verifySignature(Map<String, Object> data) {
+        if (!tenantProperties.isClientSyncSignEnabled()) {
+            return TenantSyncMessageSupport.VerificationResult.skip("client sign 未启用");
+        }
+
+        long allowedSkewMillis = Math.max(0L, tenantProperties.getClient().getSyncSignAllowedClockSkewSeconds()) * 1000L;
+        return TenantSyncMessageSupport.verifySignature(
+                data,
+                tenantProperties.getClient().getSyncSignSecret(),
+                allowedSkewMillis
+        );
+    }
+
+    /**
+     * 是否重复消息
+     */
+    private boolean isDuplicateMessage(Map<String, Object> data) {
+        if (!tenantProperties.getClient().isSyncDeduplicateMessages()) {
+            return false;
+        }
+
+        cleanupProcessedMessages();
+        cleanupAppliedTimestamps();
+
+        String messageId = TenantSyncMessageSupport.resolveMessageId(data);
+        if (!TenantSyncMessageSupport.hasText(messageId)) {
+            return false;
+        }
+
+        long now = System.currentTimeMillis();
+        Long previous = processedMessages.putIfAbsent(messageId, now);
+        return previous != null;
+    }
+
+    /**
+     * 是否为乱序旧消息。
+     */
+    private boolean isOutOfOrderMessage(String topic, Map<String, Object> data) {
+        if (!tenantProperties.getClient().isSyncIgnoreOutOfOrderMessages() || !shouldTrackOrdering(topic)) {
+            return false;
+        }
+
+        long timestamp = TenantSyncMessageSupport.resolveTimestamp(data);
+        if (timestamp <= 0) {
+            return false;
+        }
+
+        String orderingKey = buildOrderingKey(topic, data);
+        Long latestTimestamp = latestAppliedTimestamps.get(orderingKey);
+        if (latestTimestamp == null || timestamp >= latestTimestamp) {
+            return false;
+        }
+
+        log.warn("[租户客户端] 忽略乱序旧消息: topic={}, tenantId={}, timestamp={}, latestTimestamp={}",
+                topic, TenantSyncMessageSupport.resolveTargetTenantId(data), timestamp, latestTimestamp);
+        return true;
+    }
+
+    private void markAppliedMessage(String topic, Map<String, Object> data, Object result) {
+        if (!tenantProperties.getClient().isSyncIgnoreOutOfOrderMessages()
+                || !shouldTrackOrdering(topic)
+                || !isSuccessfulResult(result)) {
+            return;
+        }
+
+        cleanupAppliedTimestamps();
+
+        long timestamp = TenantSyncMessageSupport.resolveTimestamp(data);
+        if (timestamp <= 0) {
+            return;
+        }
+
+        latestAppliedTimestamps.merge(buildOrderingKey(topic, data), timestamp, Math::max);
+    }
+
+    private void cleanupAppliedTimestamps() {
+        if (latestAppliedTimestamps.isEmpty()) {
+            return;
+        }
+
+        long expireBefore = System.currentTimeMillis()
+                - tenantProperties.getClient().getSyncDeduplicateWindowSeconds() * 1000L;
+        latestAppliedTimestamps.entrySet().removeIf(entry -> entry.getValue() < expireBefore);
+
+        int maxSize = tenantProperties.getClient().getSyncDeduplicateMaxSize();
+        if (maxSize > 0 && latestAppliedTimestamps.size() > maxSize) {
+            latestAppliedTimestamps.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue())
+                    .limit(latestAppliedTimestamps.size() - maxSize)
+                    .map(Map.Entry::getKey)
+                    .toList()
+                    .forEach(latestAppliedTimestamps::remove);
+        }
+    }
+
+    private boolean shouldTrackOrdering(String topic) {
+        return TOPIC_TENANT_UPDATE.equals(topic)
+                || TOPIC_TENANT_DELETE.equals(topic)
+                || TOPIC_TENANT_SERVICE.equals(topic)
+                || TOPIC_TENANT_MENU.equals(topic);
+    }
+
+    private String buildOrderingKey(String topic, Map<String, Object> data) {
+        String tenantId = TenantSyncMessageSupport.resolveTargetTenantId(data);
+        if (!TenantSyncMessageSupport.hasText(tenantId)) {
+            tenantId = tenantProperties.getClient().getTenantId();
+        }
+        if (!TenantSyncMessageSupport.hasText(tenantId)) {
+            tenantId = "*";
+        }
+        return topic + ":" + tenantId;
+    }
+
+    private boolean isSuccessfulResult(Object result) {
+        if (!(result instanceof Map<?, ?> resultMap)) {
+            return true;
+        }
+
+        Object success = resultMap.get("success");
+        return !Boolean.FALSE.equals(success);
+    }
+
+    private void sendAck(String topic, Map<String, Object> data, Object result) {
+        if (!tenantProperties.isClientSyncAckEnabled() || !shouldTrackOrdering(topic) || data == null || data.isEmpty()) {
+            return;
+        }
+
+        String sourceMessageId = TenantSyncMessageSupport.resolveMessageId(data);
+        if (!TenantSyncMessageSupport.hasText(sourceMessageId)) {
+            return;
+        }
+
+        SyncClient syncClient = syncClientProvider.getIfAvailable();
+        if (syncClient == null || !syncClient.isConnected()) {
+            log.debug("[租户客户端] SyncClient 不可用，跳过 ACK: topic={}, messageId={}", topic, sourceMessageId);
+            return;
+        }
+
+        String tenantId = TenantSyncMessageSupport.resolveTargetTenantId(data);
+        if (!TenantSyncMessageSupport.hasText(tenantId)) {
+            tenantId = tenantProperties.getClient().getTenantId();
+        }
+
+        boolean success = isSuccessfulResult(result);
+        String status = resolveAckStatus(result);
+        String errorMessage = resolveAckErrorMessage(result, success);
+        Map<String, Object> ack = TenantSyncMessageSupport.createAck(
+                tenantId,
+                topic,
+                data,
+                success,
+                status,
+                errorMessage
+        );
+        if (tenantProperties.isClientSyncSignEnabled()) {
+            TenantSyncMessageSupport.sign(ack, tenantProperties.getClient().getSyncSignSecret());
+        }
+
+        syncClient.publish(TenantSyncMessageSupport.TOPIC_TENANT_SYNC_ACK, ack);
+        log.debug("[租户客户端] 已发送同步 ACK: tenantId={}, topic={}, sourceMessageId={}, success={}, status={}",
+                tenantId, topic, sourceMessageId, success, status);
+    }
+
+    private String resolveAckStatus(Object result) {
+        if (!(result instanceof Map<?, ?> resultMap)) {
+            return TenantSyncMessageSupport.ACK_STATUS_APPLIED;
+        }
+
+        if (Boolean.TRUE.equals(resultMap.get("duplicate"))) {
+            return TenantSyncMessageSupport.ACK_STATUS_DUPLICATE;
+        }
+        if (Boolean.TRUE.equals(resultMap.get("outOfOrder"))) {
+            return TenantSyncMessageSupport.ACK_STATUS_OUT_OF_ORDER;
+        }
+        if (Boolean.FALSE.equals(resultMap.get("success"))) {
+            return TenantSyncMessageSupport.ACK_STATUS_FAILED;
+        }
+        return TenantSyncMessageSupport.ACK_STATUS_APPLIED;
+    }
+
+    private String resolveAckErrorMessage(Object result, boolean success) {
+        if (success || !(result instanceof Map<?, ?> resultMap)) {
+            return null;
+        }
+        Object message = resultMap.get("message");
+        return message == null ? null : String.valueOf(message);
+    }
+
+    /**
+     * 清理过期消息缓存
+     */
+    private void cleanupProcessedMessages() {
+        if (processedMessages.isEmpty()) {
+            return;
+        }
+
+        long expireBefore = System.currentTimeMillis()
+                - tenantProperties.getClient().getSyncDeduplicateWindowSeconds() * 1000L;
+        processedMessages.entrySet().removeIf(entry -> entry.getValue() < expireBefore);
+
+        int maxSize = tenantProperties.getClient().getSyncDeduplicateMaxSize();
+        if (maxSize > 0 && processedMessages.size() > maxSize) {
+            processedMessages.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue())
+                    .limit(processedMessages.size() - maxSize)
+                    .map(Map.Entry::getKey)
+                    .toList()
+                    .forEach(processedMessages::remove);
+        }
+    }
+
+    public boolean hasReceivedSyncMessageSince(long timestamp) {
+        return lastReceivedSyncMessageTime.get() >= timestamp;
+    }
+
+    private void markSyncMessageReceived() {
+        lastReceivedSyncMessageTime.set(System.currentTimeMillis());
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Integer> toIntegerList(Object rawValue) {
+        if (!(rawValue instanceof List<?> values) || values.isEmpty()) {
+            return List.of();
+        }
+        return values.stream()
+                .map(value -> {
+                    if (value instanceof Number number) {
+                        return number.intValue();
+                    }
+                    if (value instanceof String stringValue && !stringValue.isBlank()) {
+                        return Integer.parseInt(stringValue);
+                    }
+                    return null;
+                })
+                .filter(java.util.Objects::nonNull)
+                .toList();
     }
 
     /**

@@ -1602,6 +1602,7 @@ CREATE TABLE `monitor_sys_gen_server_setting`  (
   `monitor_sys_gen_server_setting_docker_tls_enabled` int NULL DEFAULT NULL COMMENT 'Docker TLS验证',
   `monitor_sys_gen_server_setting_docker_cert_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'Docker证书路径',
   `monitor_sys_gen_server_setting_proxy_enabled` int NULL DEFAULT NULL COMMENT '是否使用代理',
+  `monitor_sys_gen_server_setting_proxy_instance_id` int NULL DEFAULT NULL COMMENT '代理实例ID',
   `monitor_sys_gen_server_setting_proxy_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '代理类型',
   `monitor_sys_gen_server_setting_proxy_host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '代理服务器地址',
   `monitor_sys_gen_server_setting_proxy_port` int NULL DEFAULT NULL COMMENT '代理服务器端口',

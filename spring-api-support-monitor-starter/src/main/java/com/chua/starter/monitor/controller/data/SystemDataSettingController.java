@@ -1,14 +1,14 @@
 package com.chua.starter.monitor.controller.data;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chua.common.support.storage.backup.Backup;
 import com.chua.common.support.data.datasource.jdbc.option.DataSourceOptions;
-import com.chua.common.support.document.parser.Document;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.metadata.base.SchemaMetadata;
 import com.chua.common.support.metadata.hierarchy.HierarchyMetadata;
 import com.chua.common.support.metadata.hierarchy.HierarchyMetadataFactory;
-import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.starter.monitor.engine.SystemDataCapability;
+import com.chua.starter.monitor.engine.SystemDataEngine;
+import com.chua.starter.monitor.engine.SystemDataEngineFactory;
 import com.chua.starter.monitor.entity.SystemDataSetting;
 import com.chua.starter.monitor.pojo.ServerStatic;
 import com.chua.starter.monitor.pojo.app.SystemCapabilities;
@@ -48,6 +48,7 @@ public class SystemDataSettingController {
 
     private final SystemDataSettingService systemDataSettingService;
     private final SystemDataConsoleService dataConsoleService;
+    private final SystemDataEngineFactory systemDataEngineFactory;
 
     /**
      * 查询全部数据配置
@@ -132,24 +133,48 @@ public class SystemDataSettingController {
             return ReturnResult.error("不存在");
         }
         SystemCapabilities capabilities = new SystemCapabilities();
-        // 通过 SPI 判断能力
-        boolean backup = ServiceProvider.of(Backup.class).isSupport(setting.getSystemDataSettingType());
-        boolean document = ServiceProvider.of(Document.class).isSupport(setting.getSystemDataSettingType());
-        boolean isFile = "FILE".equalsIgnoreCase(setting.getSystemDataSettingMode());
-        capabilities.setBackup(backup);
-        capabilities.setDocument(document);
-        capabilities.setFile(isFile);
+        try (SystemDataEngine engine = systemDataEngineFactory.create(setting)) {
+            Map<String, Boolean> capabilityMap = engine.capabilities();
+            capabilities.setCapabilityLevels(engine.capabilityLevels());
+            applyCapabilities(capabilities, capabilityMap);
+        } catch (Exception e) {
+            log.warn("分析数据源能力失败: {}", id, e);
+        }
         DataSourceOptions options = SystemDataConsoleServiceImpl.buildOptions(setting);
         if (setting.getSystemDataSettingServer() != null && setting.getSystemDataSettingServer().toLowerCase().startsWith("jdbc:")) {
             HierarchyMetadata jdbcHierarchy = HierarchyMetadataFactory.createJdbcHierarchy(options);
             if(jdbcHierarchy instanceof SchemaMetadata schemaMetadata) {
                 Map<String, Boolean> ability = schemaMetadata.ability();
-                capabilities.setEmailExists(ability.getOrDefault("idle", false));
+                capabilities.setEmailIdle(ability.getOrDefault("idle", false));
                 capabilities.setEmailExists(ability.getOrDefault("exists", false));
 
             }
         }
         return ReturnResult.ok(capabilities);
+    }
+
+    private void applyCapabilities(SystemCapabilities capabilities, Map<String, Boolean> capabilityMap) {
+        capabilities.setBackup(capabilityMap.getOrDefault(SystemDataCapability.BACKUP.getKey(), false));
+        capabilities.setBackupLifecycle(capabilityMap.getOrDefault(SystemDataCapability.BACKUP_LIFECYCLE.getKey(), false));
+        capabilities.setTableBackup(capabilityMap.getOrDefault(SystemDataCapability.TABLE_BACKUP.getKey(), false));
+        capabilities.setDocument(capabilityMap.getOrDefault(SystemDataCapability.DOCUMENT.getKey(), false));
+        capabilities.setFile(capabilityMap.getOrDefault(SystemDataCapability.FILE.getKey(), false));
+        capabilities.setHierarchy(capabilityMap.getOrDefault(SystemDataCapability.HIERARCHY.getKey(), false));
+        capabilities.setCommand(capabilityMap.getOrDefault(SystemDataCapability.COMMAND.getKey(), false));
+        capabilities.setOrmSearch(capabilityMap.getOrDefault(SystemDataCapability.ORM_SEARCH.getKey(), false));
+        capabilities.setOrmUpdate(capabilityMap.getOrDefault(SystemDataCapability.ORM_UPDATE.getKey(), false));
+        capabilities.setSqlQuery(capabilityMap.getOrDefault(SystemDataCapability.SQL_QUERY.getKey(), false));
+        capabilities.setSqlUpdate(capabilityMap.getOrDefault(SystemDataCapability.SQL_UPDATE.getKey(), false));
+        capabilities.setStructure(capabilityMap.getOrDefault(SystemDataCapability.STRUCTURE.getKey(), false));
+        capabilities.setIndexes(capabilityMap.getOrDefault(SystemDataCapability.INDEXES.getKey(), false));
+        capabilities.setPartitions(capabilityMap.getOrDefault(SystemDataCapability.PARTITIONS.getKey(), false));
+        capabilities.setRowMutation(capabilityMap.getOrDefault(SystemDataCapability.ROW_MUTATION.getKey(), false));
+        capabilities.setKv(capabilityMap.getOrDefault(SystemDataCapability.KV.getKey(), false));
+        capabilities.setTimeSeries(capabilityMap.getOrDefault(SystemDataCapability.TIME_SERIES.getKey(), false));
+        capabilities.setTopic(capabilityMap.getOrDefault(SystemDataCapability.TOPIC.getKey(), false));
+        capabilities.setTopicAdmin(capabilityMap.getOrDefault(SystemDataCapability.TOPIC_ADMIN.getKey(), false));
+        capabilities.setCluster(capabilityMap.getOrDefault(SystemDataCapability.CLUSTER.getKey(), false));
+        capabilities.setNode(capabilityMap.getOrDefault(SystemDataCapability.NODE.getKey(), false));
     }
 
     /**
@@ -259,4 +284,3 @@ public class SystemDataSettingController {
         return systemDataSettingService.saveConsoleConfig(id, config);
     }
 }
-

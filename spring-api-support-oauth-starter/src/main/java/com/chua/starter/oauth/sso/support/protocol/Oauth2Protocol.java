@@ -8,6 +8,7 @@ import com.chua.common.support.text.json.Json;
 import com.chua.common.support.network.protocol.Protocol;
 import com.chua.common.support.network.protocol.ProtocolSetting;
 import com.chua.common.support.network.protocol.server.ProtocolServer;
+import com.chua.common.support.base.collection.Options;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
@@ -16,6 +17,7 @@ import com.chua.starter.oauth.sso.support.condition.OnBeanCondition;
 import com.chua.starter.oauth.sso.support.core.OAuth2CoreService;
 import com.chua.starter.oauth.sso.support.information.ProtocolServerAuthInformation;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
+import com.chua.starter.oauth.sso.support.token.TokenBlacklistService;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.chua.starter.system.service.SysAppKeyService;
 import com.chua.starter.system.service.SysAppIdService;
@@ -36,6 +38,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URLDecoder;
@@ -74,6 +77,10 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     private final SysAppKeyService sysAppKeyService;
     private final SysAppIdService sysAppIdService;
     private final OAuth2CoreService oAuth2CoreService;
+    private final TokenBlacklistService tokenBlacklistService;
+
+    @Value("${server.servlet.context-path:}")
+    private String contextPath;
     
     private ProtocolServer protocolServer;
 
@@ -84,21 +91,31 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
             log.info("[OAuth][OAuth2] OAuth2 协议未启用，跳过 ProtocolServer 启动");
             return;
         }
+
+        // 当 HTTP 协议已启用时，OAuth2 路由复用同一个 ProtocolServer，避免重复占用端口。
+        if (authServerProperties.getProtocols().contains("http")) {
+            log.info("[OAuth][OAuth2] 复用 HTTP ProtocolServer 注册 OAuth2 路由");
+            return;
+        }
         
         try {
+            var protocolSetting = ProtocolSetting.builder()
+                    .port(authServerProperties.getArmeriaPort() != null ?
+                            authServerProperties.getArmeriaPort() : 8080)
+                    .protocol("http")
+                    .options(Options.of("contextPath", contextPath))
+                    .build();
+
             // 获取 Protocol 实例
-            var protocol = ServiceProvider.of(Protocol.class).getExtension("http");
+            var protocol = ServiceProvider.of(Protocol.class).getNewExtension("http", protocolSetting);
+            if (protocol == null) {
+                protocol = ServiceProvider.of(Protocol.class).getNewExtension("armeria", protocolSetting);
+            }
             if (protocol == null) {
                 log.warn("[OAuth][OAuth2] 未找到 HTTP Protocol 实现，跳过 ProtocolServer 启动");
                 return;
             }
-            
-            // 创建 ProtocolSetting
-            var protocolSetting = ProtocolSetting.builder()
-                    .port(authServerProperties.getArmeriaPort() != null ? 
-                            authServerProperties.getArmeriaPort() : 8080)
-                    .build();
-            
+
             // 创建并启动 ProtocolServer
             protocolServer = protocol.createServer(protocolSetting);
             registerProtocolServerRoutes(protocolServer);
@@ -115,7 +132,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
      *
      * @param server ProtocolServer 实例
      */
-    private void registerProtocolServerRoutes(ProtocolServer server) {
+    public void registerProtocolServerRoutes(ProtocolServer server) {
         // OAuth2 授权端点 (GET)
         server.get("/oauth2/authorize", (request, response) -> {
             try {
@@ -140,7 +157,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
         }
 
                 // 验证客户端存在
-                var appId = sysAppIdService.getByAppIdValue(clientId);
+                var appId = getAppIdSafely(clientId);
                 var appKey = appId == null ? sysAppKeyService.getByAppKey(clientId) : null;
                 if (appId == null && appKey == null) {
                 sendAuthorizeError(response, redirectUri, state, "invalid_client", "客户端不存在");
@@ -754,7 +771,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
         
         try {
             // 先尝试通过 AppId 验证
-            SysAppId appId = sysAppIdService.getByAppIdValue(clientId);
+            SysAppId appId = getAppIdSafely(clientId);
             if (appId != null) {
                 // 验证 AppId 状态和过期时间
                 if (appId.getAppIdStatus() != null && appId.getAppIdStatus() != 1) {
@@ -768,6 +785,10 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
                         return false;
                     }
                 }
+                if (tokenBlacklistService == null || tokenBlacklistService.isUserBlacklisted(String.valueOf(appId.getUserId()))) {
+                    log.warn("AppId关联用户在黑名单中或黑名单服务不可用: clientId={}, userId={}", clientId, appId.getUserId());
+                    return false;
+                }
                 // AppId 验证通过，更新使用信息
                 sysAppIdService.updateUseInfo(clientId);
                 log.debug("OAuth2客户端验证通过（AppId）: clientId={}", clientId);
@@ -775,6 +796,12 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
             }
             
             // 如果 AppId 不存在，尝试通过 AppKey 验证
+            SysAppKey appKey = sysAppKeyService.getByAppKey(clientId);
+            if (appKey != null && (tokenBlacklistService == null
+                    || tokenBlacklistService.isUserBlacklisted(String.valueOf(appKey.getSysUserId())))) {
+                log.warn("AppKey关联用户在黑名单中或黑名单服务不可用: clientId={}, userId={}", clientId, appKey.getSysUserId());
+                return false;
+            }
             boolean verified = sysAppKeyService.verify(clientId, clientSecret);
             if (verified) {
                 // 验证通过后更新使用信息
@@ -787,6 +814,19 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
         } catch (Exception e) {
             log.error("OAuth2客户端验证异常: clientId={}, error={}", clientId, e.getMessage());
             return false;
+        }
+    }
+
+    /**
+     * 安全查询 AppId。
+     * <p>当前部分环境只保留 AppKey 体系，没有 app_id 表；此时应继续回退到 AppKey 校验。</p>
+     */
+    private SysAppId getAppIdSafely(String clientId) {
+        try {
+            return sysAppIdService.getByAppIdValue(clientId);
+        } catch (Exception e) {
+            log.warn("查询AppId失败，回退到AppKey流程: clientId={}, error={}", clientId, e.getMessage());
+            return null;
         }
     }
 

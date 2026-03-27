@@ -57,7 +57,7 @@ public interface TenantDataSyncProvider {
      * @param menuIds  菜单ID列表
      * @return 同步结果
      */
-    boolean syncTenantMenu(Integer tenantId, List<Integer> menuIds);
+    boolean syncTenantMenu(String tenantId, List<Integer> menuIds);
 
     /**
      * 批量同步菜单数据
@@ -70,7 +70,7 @@ public interface TenantDataSyncProvider {
      * @param operation 操作类型: create, update, delete
      * @return 同步结果
      */
-    boolean syncMenuData(Integer tenantId, List<Map<String, Object>> menus, String operation);
+    boolean syncMenuData(String tenantId, List<Map<String, Object>> menus, String operation);
 
     /**
      * 处理原始同步数据

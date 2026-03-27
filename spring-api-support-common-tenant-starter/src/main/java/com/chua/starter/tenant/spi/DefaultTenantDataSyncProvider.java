@@ -5,18 +5,27 @@ import com.chua.starter.entity.system.SysMenu;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.properties.TenantProperties;
+import com.chua.starter.tenant.sync.TenantSyncMessageSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
- * 默认租户数据同步提供者
+ * 默认租户数据同步提供者。
  * <p>
- * 使用 JDBC 直接操作数据库，同步租户用户和菜单数据
+ * 默认实现优先保证租户端独立库可用：
+ * <ul>
+ *     <li>租户用户同步采用幂等 upsert/delete</li>
+ *     <li>菜单全量同步采用 replace 语义</li>
+ *     <li>仅收到 menuIds 时只做租户菜单裁剪，不再依赖本地存在平台主菜单模板</li>
+ * </ul>
  * </p>
  *
  * @author CH
@@ -28,15 +37,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final TenantProperties tenantProperties;
-
-    /**
-     * 操作类型常量
-     */
     private static final String OP_CREATE = "create";
     private static final String OP_UPDATE = "update";
     private static final String OP_DELETE = "delete";
+
+    private final JdbcTemplate jdbcTemplate;
+    private final TenantProperties tenantProperties;
 
     @Override
     public String getName() {
@@ -49,6 +55,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SysUser syncTenantUser(SysTenant tenant, String operation) {
         if (tenant == null || tenant.getSysTenantId() == null) {
             log.warn("[租户同步] 租户信息不完整，无法同步用户");
@@ -59,7 +66,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         String tenantIdColumn = tenantProperties.getEffectiveTenantIdColumn();
 
         try {
-            return switch (operation) {
+            return switch (normalizeOperation(operation)) {
                 case OP_CREATE -> createTenantUser(tenant, tenantIdColumn);
                 case OP_UPDATE -> updateTenantUser(tenant, tenantIdColumn);
                 case OP_DELETE -> {
@@ -67,7 +74,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
                     yield null;
                 }
                 default -> {
-                    log.warn("[租户同步] 未知操作类型: {}", operation);
+                    log.warn("[租户同步] 未知租户用户操作类型: {}", operation);
                     yield null;
                 }
             };
@@ -77,12 +84,8 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         }
     }
 
-    /**
-     * 创建租户用户
-     */
     private SysUser createTenantUser(SysTenant tenant, String tenantIdColumn) {
-        String checkSql = String.format(
-                "SELECT COUNT(*) FROM sys_user WHERE %s = ?", tenantIdColumn);
+        String checkSql = String.format("SELECT COUNT(*) FROM sys_user WHERE %s = ?", tenantIdColumn);
         Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, tenant.getSysTenantId());
 
         if (count != null && count > 0) {
@@ -92,10 +95,10 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
         String insertSql = String.format("""
                 INSERT INTO sys_user (
-                    sys_user_name, sys_user_login_name, sys_user_password, 
-                    sys_user_phone, sys_user_email, sys_user_status, 
+                    sys_user_name, sys_user_login_name, sys_user_password,
+                    sys_user_phone, sys_user_email, sys_user_status,
                     %s, create_time, update_time
-                ) VALUES (?, ?, ?, ?, ?, 0, ?, NOW(), NOW())
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
                 """, tenantIdColumn);
 
         jdbcTemplate.update(insertSql,
@@ -104,63 +107,66 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
                 tenant.getSysTenantPassword(),
                 tenant.getSysTenantPhone(),
                 tenant.getSysTenantEmail(),
+                tenant.getSysTenantStatus() == null ? 0 : tenant.getSysTenantStatus(),
                 tenant.getSysTenantId()
         );
 
         log.info("[租户同步] 创建租户用户成功: tenantId={}, username={}",
                 tenant.getSysTenantId(), tenant.getSysTenantUsername());
-
-        SysUser user = new SysUser();
-        user.setSysUserNickname(tenant.getSysTenantName());
-        user.setSysUserUsername(tenant.getSysTenantUsername());
-        return user;
+        return toSysUser(tenant);
     }
 
-    /**
-     * 更新租户用户
-     */
     private SysUser updateTenantUser(SysTenant tenant, String tenantIdColumn) {
-        String updateSql = String.format("""
-                UPDATE sys_user SET 
-                    sys_user_name = ?, 
-                    sys_user_login_name = ?, 
-                    sys_user_phone = ?, 
+        StringBuilder updateSql = new StringBuilder("""
+                UPDATE sys_user SET
+                    sys_user_name = ?,
+                    sys_user_login_name = ?,
+                    sys_user_phone = ?,
                     sys_user_email = ?,
-                    sys_user_status = ?,
-                    update_time = NOW()
-                WHERE %s = ?
-                """, tenantIdColumn);
+                    sys_user_status = ?
+                """);
+        List<Object> params = new ArrayList<>();
+        params.add(tenant.getSysTenantName());
+        params.add(tenant.getSysTenantUsername());
+        params.add(tenant.getSysTenantPhone());
+        params.add(tenant.getSysTenantEmail());
+        params.add(tenant.getSysTenantStatus());
 
-        int rows = jdbcTemplate.update(updateSql,
-                tenant.getSysTenantName(),
-                tenant.getSysTenantUsername(),
-                tenant.getSysTenantPhone(),
-                tenant.getSysTenantEmail(),
-                tenant.getSysTenantStatus(),
-                tenant.getSysTenantId()
-        );
+        if (TenantSyncMessageSupport.hasText(tenant.getSysTenantPassword())) {
+            updateSql.append(", sys_user_password = ?");
+            params.add(tenant.getSysTenantPassword());
+        }
+
+        updateSql.append(", update_time = NOW() WHERE ").append(tenantIdColumn).append(" = ?");
+        params.add(tenant.getSysTenantId());
+
+        int rows = jdbcTemplate.update(updateSql.toString(), params.toArray());
+        if (rows == 0) {
+            log.info("[租户同步] 租户用户不存在，转为创建: tenantId={}", tenant.getSysTenantId());
+            return createTenantUser(tenant, tenantIdColumn);
+        }
 
         log.info("[租户同步] 更新租户用户: tenantId={}, rows={}", tenant.getSysTenantId(), rows);
-
-        SysUser user = new SysUser();
-        user.setSysUserNickname(tenant.getSysTenantName());
-        user.setSysUserUsername(tenant.getSysTenantUsername());
-        return user;
+        return toSysUser(tenant);
     }
 
-    /**
-     * 删除租户用户
-     */
     private void deleteTenantUser(String tenantId, String tenantIdColumn) {
-        String deleteSql = String.format(
-                "DELETE FROM sys_user WHERE %s = ?", tenantIdColumn);
+        String deleteSql = String.format("DELETE FROM sys_user WHERE %s = ?", tenantIdColumn);
         int rows = jdbcTemplate.update(deleteSql, tenantId);
         log.info("[租户同步] 删除租户用户: tenantId={}, rows={}", tenantId, rows);
     }
 
+    private SysUser toSysUser(SysTenant tenant) {
+        SysUser user = new SysUser();
+        user.setSysUserNickname(tenant.getSysTenantName());
+        user.setSysUserUsername(tenant.getSysTenantUsername());
+        return user;
+    }
+
     @Override
-    public boolean syncTenantMenu(Integer tenantId, List<Integer> menuIds) {
-        if (tenantId == null) {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean syncTenantMenu(String tenantId, List<Integer> menuIds) {
+        if (!TenantSyncMessageSupport.hasText(tenantId)) {
             log.warn("[租户同步] 租户ID为空，无法同步菜单");
             return false;
         }
@@ -168,37 +174,26 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         String tenantIdColumn = tenantProperties.getEffectiveTenantIdColumn();
 
         try {
-            // 先删除该租户的所有菜单关联
-            String deleteSql = String.format(
-                    "DELETE FROM sys_menu WHERE %s = ?", tenantIdColumn);
-            jdbcTemplate.update(deleteSql, tenantId);
-
             if (menuIds == null || menuIds.isEmpty()) {
+                String deleteSql = String.format("DELETE FROM sys_menu WHERE %s = ?", tenantIdColumn);
+                jdbcTemplate.update(deleteSql, tenantId);
                 log.info("[租户同步] 清空租户菜单: tenantId={}", tenantId);
                 return true;
             }
 
-            // 复制菜单数据到租户
-            String copySql = String.format("""
-                    INSERT INTO sys_menu (
-                        sys_menu_parent_id, sys_menu_name, sys_menu_path, 
-                        sys_menu_component, sys_menu_icon, sys_menu_sort, 
-                        sys_menu_status, sys_menu_type, %s, 
-                        create_time, update_time
-                    )
-                    SELECT 
-                        sys_menu_parent_id, sys_menu_name, sys_menu_path, 
-                        sys_menu_component, sys_menu_icon, sys_menu_sort, 
-                        sys_menu_status, sys_menu_type, ?, 
-                        NOW(), NOW()
-                    FROM sys_menu 
-                    WHERE sys_menu_id IN (%s) AND (%s IS NULL OR %s = 0)
-                    """, tenantIdColumn, 
-                    String.join(",", menuIds.stream().map(String::valueOf).toList()),
-                    tenantIdColumn, tenantIdColumn);
+            String placeholders = menuIds.stream().map(menuId -> "?").collect(Collectors.joining(","));
+            String deleteSql = String.format(
+                    "DELETE FROM sys_menu WHERE %s = ? AND sys_menu_id NOT IN (%s)",
+                    tenantIdColumn, placeholders);
 
-            int rows = jdbcTemplate.update(copySql, tenantId);
-            log.info("[租户同步] 同步租户菜单: tenantId={}, menuCount={}, rows={}",
+            Object[] params = new Object[menuIds.size() + 1];
+            params[0] = tenantId;
+            for (int i = 0; i < menuIds.size(); i++) {
+                params[i + 1] = menuIds.get(i);
+            }
+            int rows = jdbcTemplate.update(deleteSql, params);
+
+            log.info("[租户同步] 裁剪租户菜单完成: tenantId={}, 保留菜单数={}, 删除数量={}",
                     tenantId, menuIds.size(), rows);
             return true;
         } catch (Exception e) {
@@ -208,24 +203,38 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
     }
 
     @Override
-    public boolean syncMenuData(Integer tenantId, List<Map<String, Object>> menus, String operation) {
-        if (tenantId == null) {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean syncMenuData(String tenantId, List<Map<String, Object>> menus, String operation) {
+        if (!TenantSyncMessageSupport.hasText(tenantId)) {
             log.warn("[租户同步] 租户ID为空，无法同步菜单数据");
             return false;
         }
 
         String tenantIdColumn = tenantProperties.getEffectiveTenantIdColumn();
+        String normalizedOperation = normalizeOperation(operation);
+        List<Map<String, Object>> safeMenus = menus == null ? List.of() : menus;
 
         try {
-            for (Map<String, Object> menu : menus) {
-                switch (operation) {
-                    case OP_CREATE, OP_UPDATE -> upsertMenu(tenantId, menu, tenantIdColumn);
-                    case OP_DELETE -> deleteMenu(tenantId, menu, tenantIdColumn);
-                    default -> log.warn("[租户同步] 未知菜单操作类型: {}", operation);
+            switch (normalizedOperation) {
+                case OP_CREATE, OP_UPDATE -> {
+                    for (Map<String, Object> menu : safeMenus) {
+                        upsertMenu(tenantId, menu, tenantIdColumn);
+                    }
+                }
+                case OP_DELETE -> {
+                    for (Map<String, Object> menu : safeMenus) {
+                        deleteMenu(tenantId, menu, tenantIdColumn);
+                    }
+                }
+                case TenantSyncMessageSupport.OP_REPLACE, TenantSyncMessageSupport.MODE_FULL -> replaceMenus(tenantId, safeMenus, tenantIdColumn);
+                default -> {
+                    log.warn("[租户同步] 未知菜单操作类型: {}", operation);
+                    return false;
                 }
             }
+
             log.info("[租户同步] 同步菜单数据完成: tenantId={}, count={}, operation={}",
-                    tenantId, menus.size(), operation);
+                    tenantId, safeMenus.size(), normalizedOperation);
             return true;
         } catch (Exception e) {
             log.error("[租户同步] 同步菜单数据失败: tenantId={}", tenantId, e);
@@ -233,57 +242,129 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         }
     }
 
-    /**
-     * 插入或更新菜单
-     */
-    private void upsertMenu(Integer tenantId, Map<String, Object> menu, String tenantIdColumn) {
-        Integer menuId = MapUtils.getInteger(menu, "sysMenuId", 0);
-        String menuName = MapUtils.getString(menu, "sysMenuName");
-        String menuPath = MapUtils.getString(menu, "sysMenuPath");
-        String menuComponent = MapUtils.getString(menu, "sysMenuComponent");
-        String menuIcon = MapUtils.getString(menu, "sysMenuIcon");
-        Integer menuSort = MapUtils.getInteger(menu, "sysMenuSort", 0);
-        Integer menuStatus = MapUtils.getInteger(menu, "sysMenuStatus", 0);
-        Integer menuType = MapUtils.getInteger(menu, "sysMenuType", 0);
-        Integer parentId = MapUtils.getInteger(menu, "sysMenuParentId", 0);
+    private void replaceMenus(String tenantId, List<Map<String, Object>> menus, String tenantIdColumn) {
+        String deleteSql = String.format("DELETE FROM sys_menu WHERE %s = ?", tenantIdColumn);
+        jdbcTemplate.update(deleteSql, tenantId);
 
-        // 检查是否存在
-        String checkSql = String.format(
-                "SELECT COUNT(*) FROM sys_menu WHERE sys_menu_id = ? AND %s = ?", tenantIdColumn);
-        Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, menuId, tenantId);
-
-        if (count != null && count > 0) {
-            // 更新
-            String updateSql = String.format("""
-                    UPDATE sys_menu SET 
-                        sys_menu_name = ?, sys_menu_path = ?, sys_menu_component = ?,
-                        sys_menu_icon = ?, sys_menu_sort = ?, sys_menu_status = ?,
-                        sys_menu_type = ?, sys_menu_parent_id = ?, update_time = NOW()
-                    WHERE sys_menu_id = ? AND %s = ?
-                    """, tenantIdColumn);
-            jdbcTemplate.update(updateSql, menuName, menuPath, menuComponent, menuIcon,
-                    menuSort, menuStatus, menuType, parentId, menuId, tenantId);
-        } else {
-            // 插入
-            String insertSql = String.format("""
-                    INSERT INTO sys_menu (
-                        sys_menu_id, sys_menu_name, sys_menu_path, sys_menu_component,
-                        sys_menu_icon, sys_menu_sort, sys_menu_status, sys_menu_type,
-                        sys_menu_parent_id, %s, create_time, update_time
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-                    """, tenantIdColumn);
-            jdbcTemplate.update(insertSql, menuId, menuName, menuPath, menuComponent,
-                    menuIcon, menuSort, menuStatus, menuType, parentId, tenantId);
+        for (Map<String, Object> menu : menus) {
+            insertMenu(tenantId, toSysMenu(menu), tenantIdColumn);
         }
     }
 
-    /**
-     * 删除菜单
-     */
-    private void deleteMenu(Integer tenantId, Map<String, Object> menu, String tenantIdColumn) {
+    private void upsertMenu(String tenantId, Map<String, Object> menu, String tenantIdColumn) {
+        SysMenu sysMenu = toSysMenu(menu);
+        if (sysMenu.getSysMenuId() == null) {
+            log.warn("[租户同步] 菜单ID为空，忽略数据: {}", menu);
+            return;
+        }
+
+        String checkSql = String.format(
+                "SELECT COUNT(*) FROM sys_menu WHERE sys_menu_id = ? AND %s = ?",
+                tenantIdColumn);
+        Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, sysMenu.getSysMenuId(), tenantId);
+
+        if (count != null && count > 0) {
+            updateMenu(tenantId, sysMenu, tenantIdColumn);
+            return;
+        }
+        insertMenu(tenantId, sysMenu, tenantIdColumn);
+    }
+
+    private void updateMenu(String tenantId, SysMenu menu, String tenantIdColumn) {
+        String updateSql = String.format("""
+                UPDATE sys_menu SET
+                    sys_menu_name = ?, sys_menu_path = ?, sys_menu_i18n = ?, sys_menu_title = ?,
+                    sys_menu_perm = ?, sys_menu_pid = ?, sys_menu_tree_id = ?, sys_menu_component = ?,
+                    sys_menu_icon = ?, sys_menu_extra_icon = ?, sys_menu_type = ?, sys_menu_sort = ?,
+                    sys_menu_hidden = ?, sys_menu_show_parent = ?, sys_menu_hidden_tag = ?, sys_menu_fixed_tag = ?,
+                    sys_menu_redirect = ?, sys_menu_enter_transition = ?, sys_menu_leave_transition = ?,
+                    sys_menu_active_path = ?, sys_menu_frame_src = ?, sys_menu_keep_alive = ?,
+                    sys_menu_role = ?, sys_menu_home = ?, sys_menu_engine = ?, update_time = NOW()
+                WHERE sys_menu_id = ? AND %s = ?
+                """, tenantIdColumn);
+
+        jdbcTemplate.update(updateSql,
+                menu.getSysMenuName(), menu.getSysMenuPath(), menu.getSysMenuI18n(), menu.getSysMenuTitle(),
+                menu.getSysMenuPerm(), menu.getSysMenuPid(), menu.getSysMenuTreeId(), menu.getSysMenuComponent(),
+                menu.getSysMenuIcon(), menu.getSysMenuExtraIcon(), menu.getSysMenuType(), menu.getSysMenuSort(),
+                menu.getSysMenuHidden(), menu.getSysMenuShowParent(), menu.getSysMenuHiddenTag(), menu.getSysMenuFixedTag(),
+                menu.getSysMenuRedirect(), menu.getSysMenuEnterTransition(), menu.getSysMenuLeaveTransition(),
+                menu.getSysMenuActivePath(), menu.getSysMenuFrameSrc(), menu.getSysMenuKeepAlive(),
+                menu.getSysMenuRole(), menu.getSysMenuHome(), menu.getSysMenuEngine(),
+                menu.getSysMenuId(), tenantId);
+    }
+
+    private void insertMenu(String tenantId, SysMenu menu, String tenantIdColumn) {
+        String insertSql = String.format("""
+                INSERT INTO sys_menu (
+                    sys_menu_id, sys_menu_name, sys_menu_path, sys_menu_i18n, sys_menu_title,
+                    sys_menu_perm, sys_menu_pid, sys_menu_tree_id, sys_menu_component,
+                    sys_menu_icon, sys_menu_extra_icon, sys_menu_type, sys_menu_sort,
+                    sys_menu_hidden, sys_menu_show_parent, sys_menu_hidden_tag, sys_menu_fixed_tag,
+                    sys_menu_redirect, sys_menu_enter_transition, sys_menu_leave_transition, sys_menu_active_path,
+                    sys_menu_frame_src, sys_menu_keep_alive, sys_menu_role, sys_menu_home,
+                    sys_menu_engine, %s, create_time, update_time
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+                """, tenantIdColumn);
+
+        jdbcTemplate.update(insertSql,
+                menu.getSysMenuId(), menu.getSysMenuName(), menu.getSysMenuPath(), menu.getSysMenuI18n(), menu.getSysMenuTitle(),
+                menu.getSysMenuPerm(), menu.getSysMenuPid(), menu.getSysMenuTreeId(), menu.getSysMenuComponent(),
+                menu.getSysMenuIcon(), menu.getSysMenuExtraIcon(), menu.getSysMenuType(), menu.getSysMenuSort(),
+                menu.getSysMenuHidden(), menu.getSysMenuShowParent(), menu.getSysMenuHiddenTag(), menu.getSysMenuFixedTag(),
+                menu.getSysMenuRedirect(), menu.getSysMenuEnterTransition(), menu.getSysMenuLeaveTransition(), menu.getSysMenuActivePath(),
+                menu.getSysMenuFrameSrc(), menu.getSysMenuKeepAlive(), menu.getSysMenuRole(), menu.getSysMenuHome(),
+                menu.getSysMenuEngine(), tenantId);
+    }
+
+    private void deleteMenu(String tenantId, Map<String, Object> menu, String tenantIdColumn) {
         Integer menuId = MapUtils.getInteger(menu, "sysMenuId", 0);
-        String deleteSql = String.format(
-                "DELETE FROM sys_menu WHERE sys_menu_id = ? AND %s = ?", tenantIdColumn);
+        if (menuId == 0) {
+            return;
+        }
+        String deleteSql = String.format("DELETE FROM sys_menu WHERE sys_menu_id = ? AND %s = ?", tenantIdColumn);
         jdbcTemplate.update(deleteSql, menuId, tenantId);
+    }
+
+    private SysMenu toSysMenu(Map<String, Object> menu) {
+        SysMenu sysMenu = new SysMenu();
+        if (menu == null) {
+            return sysMenu;
+        }
+
+        sysMenu.setSysMenuId(MapUtils.getInteger(menu, "sysMenuId", null));
+        sysMenu.setSysMenuName(MapUtils.getString(menu, "sysMenuName"));
+        sysMenu.setSysMenuPath(MapUtils.getString(menu, "sysMenuPath"));
+        sysMenu.setSysMenuI18n(MapUtils.getString(menu, "sysMenuI18n"));
+        sysMenu.setSysMenuTitle(MapUtils.getString(menu, "sysMenuTitle"));
+        sysMenu.setSysMenuPerm(MapUtils.getString(menu, "sysMenuPerm"));
+        sysMenu.setSysMenuPid(MapUtils.getInteger(menu, "sysMenuPid", 0));
+        sysMenu.setSysMenuTreeId(MapUtils.getString(menu, "sysMenuTreeId"));
+        sysMenu.setSysMenuComponent(MapUtils.getString(menu, "sysMenuComponent"));
+        sysMenu.setSysMenuIcon(MapUtils.getString(menu, "sysMenuIcon"));
+        sysMenu.setSysMenuExtraIcon(MapUtils.getString(menu, "sysMenuExtraIcon"));
+        sysMenu.setSysMenuType(MapUtils.getInteger(menu, "sysMenuType", 0));
+        sysMenu.setSysMenuSort(MapUtils.getInteger(menu, "sysMenuSort", 0));
+        sysMenu.setSysMenuHidden(MapUtils.getInteger(menu, "sysMenuHidden", 0));
+        sysMenu.setSysMenuShowParent(MapUtils.getInteger(menu, "sysMenuShowParent", 0));
+        sysMenu.setSysMenuHiddenTag(MapUtils.getInteger(menu, "sysMenuHiddenTag", 0));
+        sysMenu.setSysMenuFixedTag(MapUtils.getInteger(menu, "sysMenuFixedTag", 0));
+        sysMenu.setSysMenuRedirect(MapUtils.getString(menu, "sysMenuRedirect"));
+        sysMenu.setSysMenuEnterTransition(MapUtils.getString(menu, "sysMenuEnterTransition"));
+        sysMenu.setSysMenuLeaveTransition(MapUtils.getString(menu, "sysMenuLeaveTransition"));
+        sysMenu.setSysMenuActivePath(MapUtils.getString(menu, "sysMenuActivePath"));
+        sysMenu.setSysMenuFrameSrc(MapUtils.getString(menu, "sysMenuFrameSrc"));
+        sysMenu.setSysMenuKeepAlive(MapUtils.getInteger(menu, "sysMenuKeepAlive", 0));
+        sysMenu.setSysMenuRole(MapUtils.getString(menu, "sysMenuRole"));
+        sysMenu.setSysMenuHome(MapUtils.getInteger(menu, "sysMenuHome", 0));
+        sysMenu.setSysMenuEngine(MapUtils.getInteger(menu, "sysMenuEngine", 0));
+        return sysMenu;
+    }
+
+    private String normalizeOperation(String operation) {
+        if (!TenantSyncMessageSupport.hasText(operation)) {
+            return OP_UPDATE;
+        }
+        return operation.trim().toLowerCase();
     }
 }

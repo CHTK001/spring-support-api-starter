@@ -19,20 +19,20 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
      * @param sysTenantId 绉熸埛
      * @param menuIds     鍙敤菜单
      */
-    void removeByTenantId(@Param("sysTenantId") Integer sysTenantId, @Param("menuIds") Set<Integer> menuIds);
+    void removeByTenantId(@Param("sysTenantId") String sysTenantId, @Param("menuIds") Set<Integer> menuIds);
 
     /**
      * 删除所有"
      *
      * @param sysTenantId 绉熸埛
      */
-    void removeAllByTenantId(@Param("sysTenantId") Integer sysTenantId);
+    void removeAllByTenantId(@Param("sysTenantId") String sysTenantId);
     /**
      * 保存
      *
      * @param sysMenu     菜单
      * @param sysTenantId 绉熸埛
      */
-    void saveForTenant(@Param("sysMenu") SysMenu sysMenu, @Param("sysTenantId") Integer sysTenantId);
+    void saveForTenant(@Param("sysMenu") SysMenu sysMenu, @Param("sysTenantId") String sysTenantId);
 
 }

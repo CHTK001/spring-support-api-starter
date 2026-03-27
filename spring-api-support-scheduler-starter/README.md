@@ -12,6 +12,7 @@
 - ✅ Cron 表达式支持
 - ✅ 任务执行日志
 - ✅ 任务失败重试
+- ✅ 多业务命名空间任务表
 
 ### 📊 任务监控
 
@@ -76,19 +77,59 @@ cd spring-api-support-scheduler-starter
 mvn spring-boot:run
 ```
 
+#### 浏览器/H2 演示模式
+
+如果只是要在本机快速验证 `job-console`、命名空间表初始化和简单登录，可以直接启用内置的 `browser` profile：
+
+```bash
+cd spring-api-support-scheduler-starter/target
+java -Xmx768m -XX:MaxMetaspaceSize=256m -jar spring-api-support-scheduler-starter-4.0.0.37.jar --spring.profiles.active=browser
+```
+
+这个 profile 会自动：
+
+- 切到 H2 内存库，避免依赖本地 MySQL/Redis
+- 关闭 OAuth 客户端与远程分发轮询
+- 使用 `DROP_CREATE` 重建 `sys_job*` 和命名空间前缀派生表
+- 保留 `job-console` 的简单账号密码登录，默认仍是 `admin/admin123456`
+
+### 4. 简单控制台
+
+调度中心内置了一个轻量 `job-console` 静态页，适合直接随 Spring 模块发布：
+
+- 控制台首页：`/scheduler/api/job-console`
+- 登录页：`/scheduler/api/job-console/login`
+- 登录状态：`/scheduler/api/job-console/auth/status`
+- 登录接口：`POST /scheduler/api/job-console/auth/login`
+- 控制台会话 API：`/scheduler/api/job-console/api/**`
+
+默认开启简单账号密码校验，默认账号密码为：
+
+- 用户名：`admin`
+- 密码：`admin123456`
+
+这套页面不再在某个业务 app 下单独维护，而是统一来自 monorepo 里的 Spring 共享页应用：
+
+- 共享页面入口：[pages/spring/src/index.ts](/H:/workspace/2/vue-support-parent-starter/pages/spring/src/index.ts)
+- 发布应用：[apps/vue-support-spring-pages-starter/README.md](/H:/workspace/2/vue-support-parent-starter/apps/vue-support-spring-pages-starter/README.md)
+
+`job-console` 默认不再直连 `/v1/job-platform/**`。页面构建后的默认根路径是 `/job-console/api/**`，登录成功后的 Session 就能直接驱动页面取数和管理任务；只有在你主动改成直连平台 API 时，才需要额外填写 OAuth 认证头。
+
 ## 📋 API 接口
 
 ### 任务管理接口
 
 ```
-GET    /v1/job/page               # 任务分页查询
-GET    /v1/job/{id}               # 获取任务详情
-POST   /v1/job                    # 创建任务
-PUT    /v1/job/{id}               # 更新任务
-DELETE /v1/job/{id}               # 删除任务
-POST   /v1/job/{id}/start         # 启动任务
-POST   /v1/job/{id}/stop          # 停止任务
-POST   /v1/job/{id}/execute       # 立即执行任务
+GET    /v1/job-platform/namespaces                    # 查询任务命名空间
+GET    /v1/job-platform/{namespace}/job/page          # 任务分页查询
+GET    /v1/job-platform/{namespace}/job/{id}          # 获取任务详情
+POST   /v1/job-platform/{namespace}/job               # 创建任务
+PUT    /v1/job-platform/{namespace}/job/{id}          # 更新任务
+DELETE /v1/job-platform/{namespace}/job/{id}          # 删除任务
+POST   /v1/job-platform/{namespace}/job/{id}/start    # 启动任务
+POST   /v1/job-platform/{namespace}/job/{id}/stop     # 停止任务
+POST   /v1/job-platform/{namespace}/job/{id}/trigger  # 立即执行任务
+GET    /v1/job-platform/{namespace}/job-log/page      # 任务日志分页查询
 ```
 
 ### 任务日志接口
@@ -108,21 +149,67 @@ POST   /v1/job/log/clear          # 清空日志
 
 ```yaml
 plugin:
+  job:
+    enable: true
+    config-table-enabled: true
+    table-init-mode: UPDATE
   scheduler:
-    server:
-      # 是否启用调度服务
-      # 默认: true
-      # 说明: 设置为false时，调度服务不会启动
-      enable: true
-
-      # 任务线程池配置
-      core-pool-size: 10
-      max-pool-size: 20
-      queue-capacity: 100
-
-      # 任务失败重试次数
-      max-retry-times: 3
+    job-platform:
+      enabled: true
+      remote-dispatch-enabled: true
+      dispatch-interval-ms: 1000
+      dispatch-batch-size: 200
+      namespaces:
+        default:
+          job: sys_job
+          log: sys_job_log
+          log-detail: sys_job_log_detail
+          log-backup: sys_job_log_backup
+        payment:
+          prefix: payment
+          executors:
+            - name: payment-local
+              base-url: http://127.0.0.1:18081/payment/api
+              access-token: job-secret
 ```
+
+命名空间用于把不同业务的任务表隔离开。调度平台通过 `namespace` 选择对应物理表，但字段定义保持 `spring-support-job-starter` 内置模型不变。未显式指定完整表名时，会按前缀自动派生出 `payment_sys_job / payment_sys_job_log / payment_sys_job_log_detail / payment_sys_job_log_backup`。
+
+当命名空间配置了 `executors` 后，`scheduler-starter` 会承担类似 XXL-Job admin 的职责：
+
+- 轮询命名空间任务表
+- 计算下次触发时间并抢占本次触发
+- 调用远程业务服务暴露的 `/v1/job-executor/dispatch`
+- 由业务服务里的 `spring-support-job-starter` 执行真正的 `@Job` 方法
+
+## 支付任务接入说明
+
+当前 `scheduler-starter` 已支持管理 `payment` 命名空间对应的任务表，例如：
+
+- `payment_sys_job`
+- `payment_sys_job_log`
+- `payment_sys_job_log_detail`
+- `payment_sys_job_log_backup`
+
+但要注意：
+
+- 仅有“任务表管理能力”并不等于“任务可执行”
+- 如果某类任务对应的 Bean 不在 `scheduler-starter` 进程内，平台只能管表，不能真正执行该任务
+
+因此对支付任务有两种模式：
+
+1. 本地执行模式
+   - `spring-api-support-payment-starter` 使用 `plugin.payment.scheduler.engine=job`
+   - 支付服务自己装载支付任务 Bean，并通过 `spring-support-job-starter` 本地轮询执行
+   - `scheduler-starter` 只作为统一任务管理平台
+
+2. 中心推送模式
+   - `scheduler-starter` 轮询 `payment` 命名空间任务表，并把命中的任务推送到配置的 payment 执行器
+   - payment 服务需要开启 `plugin.job.remote-executor.enabled=true`
+   - payment 服务应关闭 `plugin.job.config-table-enabled`，避免和调度中心同时轮询同一批任务
+   - 如果 payment 执行器也访问同一套 job 表，日志仍会落到统一的 `payment_sys_job_log*`
+
+当前仓库已经具备这两种模式的基础设施，但第 2 种模式还需要你按部署环境补齐执行器地址和访问口令。
 
 ## 🔧 使用示例
 

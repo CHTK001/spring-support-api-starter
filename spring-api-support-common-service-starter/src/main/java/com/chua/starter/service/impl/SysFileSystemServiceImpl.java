@@ -35,9 +35,9 @@ import com.chua.starter.service.pojo.sso.SysFileUploadTaskResponse;
 import com.chua.starter.service.properties.FileSystemProperties;
 import com.chua.starter.service.task.SysFileSystemMergeTaskRegistration;
 import com.chua.starter.service.task.SysFileSystemWrapper;
+import com.chua.starter.service.utils.FileStorageSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,7 +59,6 @@ import java.util.List;
 @Service
 public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, SysFileSystem> implements SysFileSystemService {
 
-    private final Environment environment;
     /**
      * 默认分片大小：100MB
      */
@@ -69,6 +68,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     private final SysFileSystemSettingService sysFileSystemSettingService;
     private final FileSystemProperties fileSystemProperties;
     private final SysFileSystemMergeTaskRegistration mergeTaskRegistration;
+    private final FileStorageSupport fileStorageSupport;
 
     /**
      * 上传进度推送服务（可选依赖）
@@ -76,17 +76,18 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     private FileUploadProgressPushService progressPushService;
 
     @Autowired
-    public SysFileSystemServiceImpl(Environment environment, TransactionTemplate transactionTemplate,
+    public SysFileSystemServiceImpl(TransactionTemplate transactionTemplate,
                                     SysFileSystemPartService sysFileSystemPartService,
                                     SysFileSystemSettingService sysFileSystemSettingService,
                                     FileSystemProperties fileSystemProperties,
-                                    SysFileSystemMergeTaskRegistration mergeTaskRegistration) {
-        this.environment = environment;
+                                    SysFileSystemMergeTaskRegistration mergeTaskRegistration,
+                                    FileStorageSupport fileStorageSupport) {
         this.transactionTemplate = transactionTemplate;
         this.sysFileSystemPartService = sysFileSystemPartService;
         this.sysFileSystemSettingService = sysFileSystemSettingService;
         this.fileSystemProperties = fileSystemProperties;
         this.mergeTaskRegistration = mergeTaskRegistration;
+        this.fileStorageSupport = fileStorageSupport;
     }
 
     @Autowired(required = false)
@@ -99,7 +100,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         log.info("开始上传文件: fileName={}, bucket={}", multipartFile.getOriginalFilename(), request.getFileBucket());
         BucketSetting bucketSetting = createSetting(request, multipartFile.getOriginalFilename());
 
-        try (FileStorage fileStorage = FileStorage.createStorage(request.getOssType(), bucketSetting)) {
+        try (FileStorage fileStorage = fileStorageSupport.createStorage(request.getOssType(), bucketSetting)) {
             return ReturnResult.guess(fileStorage.putObject(PutObjectRequest.builder()
                     .byteSource(new ByteSourceArray(multipartFile.getInputStream()))
                     .fileName(StringUtils.defaultString(request.getFileName(), IdUtils.createSimpleUuid() + "." + FileUtils.getExtension(multipartFile.getOriginalFilename())))
@@ -116,7 +117,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         log.info("开始上传文件: fileName={}, bucket={}", file.getName(), request.getFileBucket());
         BucketSetting bucketSetting = createSetting(request, file.getName());
 
-        try (FileStorage fileStorage = FileStorage.createStorage(request.getFileBucket(), bucketSetting)) {
+        try (FileStorage fileStorage = fileStorageSupport.createStorage(request.getOssType(), bucketSetting)) {
             return ReturnResult.guess(fileStorage.putObject(PutObjectRequest.builder()
                     .byteSource(new ByteSourceFile(file))
                     .fileName(StringUtils.defaultString(request.getFileName(), IdUtils.createSimpleUuid() + "." + FileUtils.getExtension(file.getName())))
@@ -152,20 +153,12 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
      * @return 存储设置
      */
     private BucketSetting createSetting(SysFileUploadRequest request, String originalFilename) {
-        return BucketSetting.builder()
-                .bucket(request.getFileBucket())
-                .nameResolver(new NamingResolver() {
-                    @Override
-                    public String transform(Metadata metadata, ByteSource byteSource) {
-                        return StringUtils.defaultString(request.getFileName(), IdUtils.createSimpleUuid() + "." + FileUtils.getExtension(originalFilename));
-                    }
-                })
-                .accessKeyId(environment.getProperty("plugin.sso." + request.getOssType().toLowerCase() + ".app-id"))
-                .accessKeySecret(environment.getProperty("plugin.sso." + request.getOssType().toLowerCase() + ".app-secret"))
-                .charset(StandardCharsets.UTF_8)
-                .endpoint(environment.getProperty("plugin.sso." + request.getOssType().toLowerCase() + ".endpoint", "oss/system"))
-                .region(environment.getProperty("plugin.sso." + request.getOssType().toLowerCase() + ".region"))
-                .build();
+        return fileStorageSupport.createUploadBucketSetting(
+                request.getOssType(),
+                request.getFileBucket(),
+                originalFilename,
+                request.getFileName()
+        );
     }
 
     @Override

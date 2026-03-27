@@ -529,6 +529,14 @@ public class MonitorSysGenServerSetting extends SysBase {
     private Integer monitorSysGenServerSettingProxyEnabled;
 
     /**
+     * 代理实例ID
+     */
+    @TableField(value = "monitor_sys_gen_server_setting_proxy_instance_id")
+    @ApiModelProperty(value = "代理实例ID")
+    @Schema(description = "代理实例ID")
+    private Integer monitorSysGenServerSettingProxyInstanceId;
+
+    /**
      * 代理类型 (HTTP, SOCKS4, SOCKS5)
      *
      * @see MonitorSysGenServerSettingController#getTemplate

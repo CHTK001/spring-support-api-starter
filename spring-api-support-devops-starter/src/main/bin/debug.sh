@@ -40,6 +40,7 @@ TIMEZONE_ARG=""
 CHARSET_ARG=""
 SERVER_PORT_ARG=""
 DEBUG_PORT="5005"
+DEBUG_PORT_SET="false"
 SKYWALKING_FLAG=""
 ARTHAS_FLAG=""
 DUMP_FLAG=""
@@ -52,27 +53,49 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -j)
+      if [ $# -lt 2 ]; then
+        die "-j 需要指定 JAVA_HOME 或 java 可执行文件路径"
+      fi
       JAVA_HOME_ARG="${2:-}"
       shift 2
       ;;
     -jvm)
+      if [ $# -lt 2 ]; then
+        die "-jvm 需要指定 JVM 参数字符串"
+      fi
       JVM_EXTRA="${2:-}"
       shift 2
       ;;
     -t)
+      if [ $# -lt 2 ]; then
+        die "-t 需要指定时区，例如: -t Asia/Shanghai"
+      fi
       TIMEZONE_ARG="${2:-}"
       shift 2
       ;;
     --charset)
+      if [ $# -lt 2 ]; then
+        die "--charset 需要指定编码，例如: --charset UTF-8"
+      fi
       CHARSET_ARG="${2:-}"
       shift 2
       ;;
     -p)
+      if [ $# -lt 2 ]; then
+        die "-p 需要指定端口号，例如: -p 8080"
+      fi
       SERVER_PORT_ARG="${2:-}"
+      if ! validate_port "${SERVER_PORT_ARG}"; then
+        die "无效的端口号: ${SERVER_PORT_ARG}（必须是 1-65535 之间的数字）"
+      fi
       shift 2
       ;;
     -d)
+      if [ $# -lt 2 ]; then
+        die "-d 需要指定调试端口，例如: -d 5005"
+      fi
       DEBUG_PORT="${2:-5005}"
+      DEBUG_PORT_SET="true"
       if ! validate_port "${DEBUG_PORT}"; then
         die "无效的调试端口号: ${DEBUG_PORT}（必须是 1-65535 之间的数字）"
       fi
@@ -134,7 +157,7 @@ fi
 if [ -z "${SERVER_PORT_ARG}" ] && [ -n "${SERVER_PORT:-}" ]; then
   SERVER_PORT_ARG="${SERVER_PORT}"
 fi
-if [ -z "${DEBUG_PORT}" ] && [ -n "${DEBUG_PORT_SAVED:-}" ]; then
+if [ "${DEBUG_PORT_SET}" != "true" ] && [ -n "${DEBUG_PORT_SAVED:-}" ]; then
   DEBUG_PORT="${DEBUG_PORT_SAVED}"
 fi
 if [ -z "${SKYWALKING_FLAG}" ] && [ "${SKYWALKING_ENABLED:-false}" = "true" ]; then
@@ -148,6 +171,10 @@ if [ -z "${DUMP_FLAG}" ] && [ "${DUMP_ON_OOM:-false}" = "true" ]; then
 fi
 if [ -z "${DUMP_PATH_ARG}" ] && [ -n "${DUMP_PATH:-}" ]; then
   DUMP_PATH_ARG="${DUMP_PATH}"
+fi
+
+if ! validate_port "${DEBUG_PORT}"; then
+  die "无效的调试端口号: ${DEBUG_PORT}（必须是 1-65535 之间的数字）"
 fi
 
 # 如果命令行提供了参数，写入 env（保存配置）
@@ -220,7 +247,13 @@ if [ -n "${CHARSET_VAL}" ]; then
 fi
 
 # 启用远程调试
-JAVA_OPTS="${JAVA_OPTS} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${DEBUG_PORT}"
+JAVA_MAJOR="$(get_java_major_version "${JAVA_BIN}")"
+DEBUG_ADDRESS="${DEBUG_PORT}"
+if [ "${JAVA_MAJOR}" -ge 9 ] 2>/dev/null; then
+  # Java 9+ 支持 address=*:port，允许远程连接
+  DEBUG_ADDRESS="*:${DEBUG_PORT}"
+fi
+JAVA_OPTS="${JAVA_OPTS} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${DEBUG_ADDRESS}"
 
 SKYWALKING_EFFECTIVE="${SKYWALKING_FLAG:-${SKYWALKING_ENABLED:-false}}"
 if [ "${SKYWALKING_EFFECTIVE}" = "true" ]; then
@@ -296,5 +329,3 @@ fi
 if [ "${FOLLOW_LOG}" = "true" ]; then
   "${BIN_DIR}/logs.sh" -f
 fi
-
-

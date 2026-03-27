@@ -23,16 +23,17 @@ usage() {
   - 同步 master 目录结构和代码到 cluster node
   - 默认排除 backup 目录，可通过 --exclude 添加更多排除目录
   - 远程节点项目地址默认与 master 路径一致（保持相同目录结构）
-  - 本地节点可通过 --path 指定项目路径（用于本地存在多个 node 的场景）
+  - 本地节点可通过 --path 或 节点地址中的 |路径 指定项目路径（用于本地多个 node）
   - 节点地址格式支持:
     * host                    # 远程主机（默认端口 22）
     * host:port               # 远程主机（指定端口）
     * user@host               # 远程主机（指定用户，默认端口 22）
     * user@host:port          # 远程主机（指定用户和端口）
     * localhost 或 127.0.0.1  # 本地节点（直接执行，不使用 ssh）
+    * localhost|/opt/app/node1 # 本地节点并指定部署目录
   - hosts 文件格式:
     * 每行一个主机，空行/以 # 开头会忽略
-    * 支持设置 master: # master: host 或 # master: user@host:port
+    * 支持设置 master: # master: host 或 # master: user@host:port 或 # master: localhost|/path
     * 如果不设置 master，默认使用当前执行目录作为 master
   - 无参数时默认从 hosts 文件读取 master 和所有 node，将 master 同步到所有 node
   - SSH 认证方式（按优先级）:
@@ -61,6 +62,9 @@ usage() {
 
   # 同步到本地节点，指定项目路径
   sync.sh --node localhost --path /opt/app/node1
+
+  # 同步到本地节点（地址内指定路径）
+  sync.sh --node localhost|/opt/app/node2
 
   # 排除多个目录
   sync.sh -f hosts.txt --exclude backup --exclude logs --exclude target
@@ -136,9 +140,48 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-# 解析节点信息（复用 cluster.sh 的逻辑）
-parse_node() {
+# 解析节点信息（支持 endpoint|/local/path）
+extract_node_endpoint() {
   var_node="${1:-}"
+  echo "${var_node}" | cut -d'|' -f1
+}
+
+extract_node_local_path() {
+  var_node="${1:-}"
+  if echo "${var_node}" | grep -q "|"; then
+    echo "${var_node}" | cut -d'|' -f2-
+  else
+    echo ""
+  fi
+}
+
+is_local_endpoint() {
+  var_endpoint="${1:-}"
+  [ "${var_endpoint}" = "localhost" ] || [ "${var_endpoint}" = "127.0.0.1" ]
+}
+
+validate_node_address() {
+  var_node_addr="${1:-}"
+  var_endpoint="$(extract_node_endpoint "${var_node_addr}")"
+  var_local_path="$(extract_node_local_path "${var_node_addr}")"
+
+  if [ -z "${var_endpoint}" ]; then
+    return 1
+  fi
+
+  if ! echo "${var_endpoint}" | grep -qE '^([^@:]+@)?[^@:]+(:[0-9]+)?$|^localhost$|^127\.0\.0\.1$'; then
+    return 1
+  fi
+
+  if [ -n "${var_local_path}" ] && ! is_local_endpoint "${var_endpoint}"; then
+    return 1
+  fi
+
+  return 0
+}
+
+parse_node() {
+  var_node="$(extract_node_endpoint "${1:-}")"
   
   # 本地节点
   if [ "${var_node}" = "localhost" ] || [ "${var_node}" = "127.0.0.1" ]; then
@@ -191,8 +234,11 @@ sync_from_master_to_node() {
   
   # 获取 master 的基础目录
   if [ "${MASTER_USER}" = "local" ]; then
-    # master 是本地
-    MASTER_BASE_DIR="$(get_base_dir)"
+    # master 是本地，优先使用 master|/path
+    MASTER_BASE_DIR="$(extract_node_local_path "${var_master}")"
+    if [ -z "${MASTER_BASE_DIR}" ]; then
+      MASTER_BASE_DIR="$(get_base_dir)"
+    fi
   else
     # master 是远程，假设远程路径与本地路径结构一致（默认 /opt/app）
     # 可以通过环境变量 SYNC_MASTER_BASE_DIR 指定
@@ -202,6 +248,10 @@ sync_from_master_to_node() {
   
   # 确定 node 的目标路径（默认与 master 路径一致）
   NODE_TARGET_PATH="${MASTER_BASE_DIR}"
+  NODE_LOCAL_PATH="$(extract_node_local_path "${var_node}")"
+  if [ -n "${NODE_LOCAL_PATH}" ]; then
+    NODE_TARGET_PATH="${NODE_LOCAL_PATH}"
+  fi
   
   # 同步逻辑
   if [ "${NODE_USER}" = "local" ]; then
@@ -223,6 +273,11 @@ sync_from_master_to_node() {
       if [ "${var_dry_run}" = "true" ]; then
         RSYNC_CMD="${RSYNC_CMD} --dry-run"
       fi
+      if [ "${MASTER_BASE_DIR}" = "${NODE_TARGET_PATH}" ]; then
+        info "[sync] ${var_node} -> 源目录与目标目录一致，跳过同步"
+        return 0
+      fi
+
       RSYNC_CMD="${RSYNC_CMD} \"${MASTER_BASE_DIR}/\" \"${NODE_TARGET_PATH}/\""
       
       if command -v stdbuf >/dev/null 2>&1; then
@@ -406,10 +461,13 @@ sync_to_node() {
   
   # 确定远程路径
   REMOTE_TARGET_PATH=""
+  NODE_LOCAL_PATH="$(extract_node_local_path "${var_host}")"
   if [ "${NODE_USER}" = "local" ]; then
     # 本地节点
     if [ -n "${var_remote_path}" ]; then
       REMOTE_TARGET_PATH="${var_remote_path}"
+    elif [ -n "${NODE_LOCAL_PATH}" ]; then
+      REMOTE_TARGET_PATH="${NODE_LOCAL_PATH}"
     else
       REMOTE_TARGET_PATH="${LOCAL_BASE_DIR}"
     fi
@@ -434,6 +492,11 @@ sync_to_node() {
       info "[sync] ${var_host} -> 预览模式"
     fi
     
+    if [ "${LOCAL_BASE_DIR}" = "${REMOTE_TARGET_PATH}" ]; then
+      info "[sync] ${var_host} -> 源目录与目标目录一致，跳过同步"
+      return 0
+    fi
+
     RSYNC_CMD="${RSYNC_CMD} \"${LOCAL_BASE_DIR}/\" \"${REMOTE_TARGET_PATH}/\""
     
     # 使用 stdbuf 确保实时输出，类似 docker pull 的效果
@@ -457,6 +520,11 @@ sync_to_node() {
     fi
   else
     # 远程节点
+    if [ -n "${NODE_LOCAL_PATH}" ]; then
+      warn "[sync] ${var_host} -> 远程节点不支持 endpoint|path 格式"
+      return 1
+    fi
+
     if [ -n "${var_remote_path}" ]; then
       REMOTE_TARGET_PATH="${var_remote_path}"
     else
@@ -566,6 +634,10 @@ read_hosts_file() {
     # 检查是否是 master 配置: # master: host 或 #master: host
     if echo "${line_trimmed}" | grep -qiE "^#\s*master\s*:"; then
       MASTER_FOUND="$(echo "${line_trimmed}" | sed -E 's/^#\s*master\s*:\s*//i' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+      if [ -n "${MASTER_FOUND}" ] && ! validate_node_address "${MASTER_FOUND}"; then
+        warn "[sync] 忽略无效的 master 配置: ${MASTER_FOUND}"
+        MASTER_FOUND=""
+      fi
       continue
     fi
     
@@ -575,6 +647,11 @@ read_hosts_file() {
         continue
         ;;
     esac
+
+    if ! validate_node_address "${line_trimmed}"; then
+      warn "[sync] 忽略无效节点格式: ${line_trimmed}"
+      continue
+    fi
     
     # 普通节点
     if [ -z "${NODES_FOUND}" ]; then
@@ -598,6 +675,12 @@ fi
 
 # 如果指定了单个节点，使用当前目录作为 master 同步到该节点
 if [ -n "${NODE_ADDRESS}" ]; then
+  if ! validate_node_address "${NODE_ADDRESS}"; then
+    warn "[sync] 无效节点地址: ${NODE_ADDRESS}"
+    warn "[sync] 支持格式: host, host:port, user@host, user@host:port, localhost, 127.0.0.1, localhost|/path"
+    exit 1
+  fi
+
   info "[sync] 从当前目录同步到节点: ${NODE_ADDRESS}"
   if sync_to_node "${NODE_ADDRESS}" "${REMOTE_PATH}" "${EXCLUDE_DIRS}" "${SSH_PASSWORD}" "${TIMEOUT}" "${DRY_RUN}"; then
     info "[sync] 同步完成"
@@ -698,4 +781,3 @@ if [ "${FAIL_COUNT}" -gt 0 ]; then
 fi
 
 exit 0
-

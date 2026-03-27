@@ -9,6 +9,7 @@ import com.chua.common.support.function.Splitter;
 import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.network.net.NetUtils;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.entity.FileSystemSetting;
@@ -22,8 +23,10 @@ import com.chua.starter.monitor.pojo.ImportServerConfigResultDTO;
 import com.chua.starter.monitor.pojo.ServerConnectionStatusDTO;
 import com.chua.starter.monitor.pojo.ServerMonitoringStatusDTO;
 import com.chua.starter.monitor.pojo.ServerStatisticsDTO;
+import com.chua.starter.monitor.pojo.server.ProxyConnectionInfo;
 import com.chua.starter.monitor.pojo.server.ServerWithConfigDto;
 import com.chua.starter.monitor.service.server.DelayedUpdateService;
+import com.chua.starter.monitor.service.server.ProxyInstanceResolver;
 import com.chua.starter.monitor.service.server.ServerConnectionService;
 import com.chua.starter.monitor.service.server.ServerConnectionWebSocketService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
@@ -73,6 +76,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
     @Lazy
     private ReportManager reportManager;
     private final List<ServerConnectionService> connectionServices;
+    private final ProxyInstanceResolver proxyInstanceResolver;
     @Autowired
     @Lazy
     private ServerConnectionWebSocketService webSocketService;
@@ -1366,30 +1370,19 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 return ReturnResult.error("服务器不存在");
             }
 
-            // 检查是否配置了代理
-            if (server.getMonitorSysGenServerProxyId() == null) {
+            ProxyConnectionInfo proxyConnectionInfo = proxyInstanceResolver.resolve(server);
+            if (proxyConnectionInfo == null || !proxyConnectionInfo.hasEndpoint()) {
                 return ReturnResult.error("服务器未配置代理");
             }
-//
-//            // 获取代理信息
-//            MonitorProxy proxy = monitorProxyService.getById(server.getMonitorSysGenServerProxyId());
-//            if (proxy == null) {
-//                return ReturnResult.error("代理配置不存在");
-//            }
-//
-//            // 检查是否配置了Guacamole代理
-//            if (!"GUACAMOLE".equalsIgnoreCase(proxy.getProxyProtocol())) {
-//                return ReturnResult.error("服务器未配置Guacamole代理");
-//            }
-//
-//            if (proxy.getProxyHost() == null || proxy.getProxyPort() == null) {
-//                return ReturnResult.error("代理服务器地址或端口未配置");
-//            }
+            if (!proxyConnectionInfo.isGuacamoleProxy()) {
+                return ReturnResult.error("服务器未配置Guacamole代理");
+            }
 
             // 构建Guacamole连接URL
-            String proxyUrl = null;
-//            String.format("http://%s:%d/guacamole/#/client/%s", proxy.getProxyHost(),
-//                    proxy.getProxyPort(), generateGuacamoleConnectionId(server));
+            String proxyUrl = String.format("http://%s:%d/guacamole/#/client/%s",
+                    proxyConnectionInfo.getProxyHost(),
+                    proxyConnectionInfo.getProxyPort(),
+                    generateGuacamoleConnectionId(server));
 
             return ReturnResult.ok(proxyUrl);
         } catch (Exception e) {
@@ -1406,19 +1399,13 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                 return ReturnResult.error("服务器不存在");
             }
 
-//            // 获取代理信息
-//            MonitorProxy proxy = monitorProxyService.getById(server.getMonitorSysGenServerProxyId());
-//            if (proxy == null) {
-//                return ReturnResult.error("代理配置不存在");
-//            }
-//
-//            if (proxy.getProxyHost() == null || proxy.getProxyPort() == null) {
-//                return ReturnResult.error("代理服务器地址或端口未配置");
-//            }
+            ProxyConnectionInfo proxyConnectionInfo = proxyInstanceResolver.resolve(server);
+            if (proxyConnectionInfo == null || !proxyConnectionInfo.hasEndpoint()) {
+                return ReturnResult.error("代理配置不存在");
+            }
 
-            // TODO: 实现代理连接测试逻辑
-            // 这里可以尝试连接到代理服务器，验证连接是否正常
-            return ReturnResult.ok(true);
+            boolean connected = NetUtils.isConnectable(proxyConnectionInfo.getProxyHost(), proxyConnectionInfo.getProxyPort());
+            return ReturnResult.of(connected, connected ? "代理连接正常" : "代理连接失败");
         } catch (Exception e) {
             log.error("测试代理连接失败: serverId={}", id, e);
             return ReturnResult.error("测试代理连接失败: " + e.getMessage());
@@ -1528,6 +1515,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             }
 
             Map<String, Object> config = new HashMap<>();
+            MonitorSysGenServerSetting setting = null;
 
             // 从配置表获取上报配置
             try {
@@ -1535,7 +1523,7 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
                         .getOrCreateSetting(server.getMonitorSysGenServerId());
 
                 if (settingResult.isOk() && settingResult.getData() != null) {
-                    MonitorSysGenServerSetting setting = settingResult.getData();
+                    setting = settingResult.getData();
                     config.put("reportEnabled", setting.getMonitorSysGenServerSettingReportEnabled());
                     config.put("dataReportMethod", setting.getMonitorSysGenServerSettingDataReportMethod());
                     config.put("prometheusHost", setting.getMonitorSysGenServerSettingPrometheusHost());
@@ -1557,20 +1545,13 @@ public class MonitorSysGenServerServiceImpl extends ServiceImpl<MonitorSysGenSer
             }
 
             // 获取代理配置
-            String proxyType = null;
-            String proxyHost = null;
-            Integer proxyPort = null;
-//            if (server.getMonitorSysGenServerProxyId() != null) {
-//                MonitorProxy proxy = monitorProxyService.getById(server.getMonitorSysGenServerProxyId());
-//                if (proxy != null) {
-//                    proxyType = proxy.getProxyProtocol();
-//                    proxyHost = proxy.getProxyHost();
-//                    proxyPort = proxy.getProxyPort();
-//                }
-//            }
-            config.put("proxyType", proxyType);
-            config.put("proxyHost", proxyHost);
-            config.put("proxyPort", proxyPort);
+            ProxyConnectionInfo proxyConnectionInfo = proxyInstanceResolver.resolve(server, setting);
+            config.put("proxyInstanceId", setting != null
+                    ? setting.getMonitorSysGenServerSettingProxyInstanceId()
+                    : (proxyConnectionInfo != null ? proxyConnectionInfo.getProxyInstanceId() : null));
+            config.put("proxyType", proxyConnectionInfo != null ? proxyConnectionInfo.getProxyType() : null);
+            config.put("proxyHost", proxyConnectionInfo != null ? proxyConnectionInfo.getProxyHost() : null);
+            config.put("proxyPort", proxyConnectionInfo != null ? proxyConnectionInfo.getProxyPort() : null);
 
             return ReturnResult.ok(config);
         } catch (Exception e) {

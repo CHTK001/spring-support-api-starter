@@ -15,8 +15,10 @@
     <modules>
         <module>spring-api-support-oauth-starter</module>
         <module>spring-api-support-system-starter</module>
+        <module>spring-api-support-payment-starter</module>
         <module>spring-api-support-tenanted-starter</module>
         <module>spring-api-support-monitor-starter</module>
+        <module>spring-api-support-device-starter</module>
         <module>spring-api-support-common-system-starter</module>
         <module>spring-api-support-scheduler-starter</module>
         <module>spring-api-support-common-video-starter</module>
@@ -57,7 +59,6 @@
         <zookeeper.version>3.9.2</zookeeper.version>
         <fastjson2.version>2.0.52</fastjson2.version>
         <resilience4j.version>2.2.0</resilience4j.version>
-        <jansi.version>2.4.1</jansi.version>
         <swagger.annotations.version>1.6.14</swagger.annotations.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <gmavenplus-plugin.version>3.0.2</gmavenplus-plugin.version>
@@ -76,29 +77,6 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
     </dependencies>
 
@@ -166,6 +144,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-common-project-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-api-support-device-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -627,6 +611,12 @@
                 <version>${module.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-proxy-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
+
             
             <dependency>
                 <groupId>mysql</groupId>
@@ -703,12 +693,6 @@
                 <artifactId>resilience4j-annotations</artifactId>
                 <version>${resilience4j.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.fusesource.jansi</groupId>
-                <artifactId>jansi</artifactId>
-                <version>${jansi.version}</version>
-            </dependency>
-            
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
@@ -893,13 +877,51 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-devops-scripts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/bin</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${devops.dir}/src/main/bin</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>*.sh</include>
+                                        <include>*.bat</include>
+                                        <include>*.cmd</include>
+                                        <include>app.env</include>
+                                    </includes>
+                                </resource>
+                                <resource>
+                                    <directory>${devops.dir}/src/main/bin/script</directory>
+                                    <targetPath>script</targetPath>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>**/*.sh</include>
+                                        <include>**/*.bat</include>
+                                        <include>**/*.cmd</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
         <profile>
             <id>dist</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <build>
                 <plugins>
