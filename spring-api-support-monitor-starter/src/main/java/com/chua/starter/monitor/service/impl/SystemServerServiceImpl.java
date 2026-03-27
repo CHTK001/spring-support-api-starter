@@ -27,6 +27,7 @@ import com.chua.starter.monitor.service.server.SystemServerService;
 import com.chua.starter.monitor.service.server.SystemServerSettingFileStorageService;
 import com.chua.starter.monitor.service.server.SystemServerSettingItemService;
 import com.chua.starter.monitor.service.server.SystemServerSettingService;
+import com.chua.starter.service.utils.ProtocolServerSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -360,7 +361,6 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
      * 通过SPI机制创建服务器实例
      */
     private ProtocolServer createServerInstance(SystemServer server) throws Exception {
-        ServiceProvider<ProtocolServer> serviceProvider = ServiceProvider.of(ProtocolServer.class);
         ServerSetting.ServerSettingBuilder builder = ServerSetting.builder()
                 .serverId(String.valueOf(server.getSystemServerId()))
                 .host(server.getSystemServerHost())
@@ -373,7 +373,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
             builder.connectionTimeoutMillis(server.getSystemServerTimeout());
         }
         ServerSetting serverSetting = builder.build();
-        return serviceProvider.getNewExtension(server.getSystemServerType(), serverSetting);
+        return ProtocolServerSupport.create(server.getSystemServerType(), serverSetting);
     }
 
     /**
@@ -439,14 +439,14 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
      * 启动服务器实例
      */
     private void startServerInstance(ProtocolServer serverInstance) throws Exception {
-        serverInstance.start();
+        ProtocolServerSupport.startIfNecessary(serverInstance);
     }
 
     /**
      * 停止服务器实例
      */
     private void stopServerInstance(ProtocolServer serverInstance) throws Exception {
-        serverInstance.stop();
+        ProtocolServerSupport.stopQuietly(serverInstance);
     }
 
     /**

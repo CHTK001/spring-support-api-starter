@@ -246,7 +246,7 @@ public class OAuth2CoreService {
      */
     public ScopeValidationResult validateScope(String clientId, String requestedScope) {
         // 先尝试通过 AppId 查询
-        SysAppId appId = sysAppIdService.getByAppIdValue(clientId);
+        SysAppId appId = getAppIdSafely(clientId);
         Set<String> allowedScopes;
         if (appId != null) {
             // 获取 AppId 允许的 scope
@@ -295,7 +295,7 @@ public class OAuth2CoreService {
      */
     public boolean isGrantTypeAllowed(String clientId, String grantType) {
         // 先尝试通过 AppId 查询
-        SysAppId appId = sysAppIdService.getByAppIdValue(clientId);
+        SysAppId appId = getAppIdSafely(clientId);
         Set<String> allowedGrantTypes;
         if (appId != null) {
             // 获取 AppId 允许的 grant types
@@ -329,7 +329,7 @@ public class OAuth2CoreService {
         }
 
         // 先尝试通过 AppId 查询
-        SysAppId appId = sysAppIdService.getByAppIdValue(clientId);
+        SysAppId appId = getAppIdSafely(clientId);
         String allowedUris;
         if (appId != null) {
             allowedUris = appId.getAppIdRedirectUris();
@@ -384,6 +384,19 @@ public class OAuth2CoreService {
             }
         }
         return result;
+    }
+
+    /**
+     * 安全查询 AppId。
+     * <p>部分部署仅启用 AppKey，数据库中不存在 app_id 表时应回退到 AppKey 流程，而不是直接抛 500。</p>
+     */
+    private SysAppId getAppIdSafely(String clientId) {
+        try {
+            return sysAppIdService.getByAppIdValue(clientId);
+        } catch (Exception e) {
+            log.warn("查询AppId失败，回退到AppKey流程: clientId={}, error={}", clientId, e.getMessage());
+            return null;
+        }
     }
 
     /**

@@ -46,6 +46,8 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 @RequestMapping("/v2/setting")
 @RequiredArgsConstructor
 public class SysSettingController {
+    public static final String SETTING_LIST_CACHE_KEY_PREFIX = "sys:setting:v2:";
+    private static final String RUNTIME_PUBLIC_CODEC_REQUEST_KEY = "CodecRequestKey";
 
     private final SysSettingService sysSettingService;
     private final SysSettingHistoryService sysSettingHistoryService;
@@ -87,11 +89,18 @@ public class SysSettingController {
     @Operation(summary = "设置列表")
     @GetMapping("/list")
     @Permission(role = {ADMIN, SUPER_ADMIN})
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:' + #sysSettingUpdate.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingController).SETTING_LIST_CACHE_KEY_PREFIX + #sysSettingUpdate.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysSettingVO>> list(@ParameterObject  SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         List<SysSetting> list = sysSettingService.list(sysSettingUpdate, roles);
         if(!AuthConstant.hasAdmin(roles)) {
-            list = list.stream().filter(it -> null != it.getSysSettingAdmin() && it.getSysSettingAdmin() != 1).toList();
+            list = list.stream()
+                    .filter(it -> {
+                        if (RUNTIME_PUBLIC_CODEC_REQUEST_KEY.equals(it.getSysSettingName())) {
+                            return true;
+                        }
+                        return null == it.getSysSettingAdmin() || it.getSysSettingAdmin() != 1;
+                    })
+                    .toList();
         }
         return ReturnResult.ok(BeanUtils.copyPropertiesList(list, SysSettingVO.class));
     }

@@ -3,11 +3,11 @@ package com.chua.starter.monitor.service.impl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.network.protocol.ClientSetting;
 import com.chua.common.support.network.protocol.client.FileClient;
-import com.chua.common.support.network.protocol.client.ProtocolClientFactory;
 import com.chua.starter.monitor.pojo.file.FileInfo;
 import com.chua.starter.monitor.pojo.file.FileOperationRequest;
 import com.chua.starter.monitor.pojo.file.FileOperationResponse;
 import com.chua.ssh.support.client.SftpClient;
+import com.chua.starter.service.utils.ProtocolClientSupport;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.service.file.FileManagementService;
@@ -810,7 +810,7 @@ public class SshFileManagementServiceImpl implements FileManagementService {
             config.connectTimeoutMillis(server.getMonitorSysGenServerTimeout());
         }
 
-        return ProtocolClientFactory.create(server.getMonitorSysGenServerId(), SftpClient.class, config.build());
+        return ProtocolClientSupport.create(server.getMonitorSysGenServerId(), SftpClient.class, config.build());
     }
 
     /**

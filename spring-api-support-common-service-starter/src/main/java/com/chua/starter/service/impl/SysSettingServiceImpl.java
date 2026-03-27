@@ -39,6 +39,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Lazy;
@@ -60,6 +61,8 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 @Service
 @Lazy(false)
 public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean, ApplicationListener<ApplicationReadyEvent> {
+    private static final String SETTING_LIST_CACHE_KEY_LEGACY_PREFIX = "sys:setting:";
+    private static final String SETTING_LIST_CACHE_KEY_PREFIX = "sys:setting:v2:";
 
     @Autowired
     @Lazy
@@ -189,7 +192,13 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public ReturnResult<Boolean> update(Set<String> roles, SysSetting sysSetting) {
+        if (null == sysSetting || null == sysSetting.getSysSettingId()) {
+            return ReturnResult.fail("配置ID不能为空");
+        }
         SysSetting sysSetting1 = baseMapper.selectById(sysSetting.getSysSettingId());
+        if (null == sysSetting1) {
+            return ReturnResult.fail("配置不存在, 请刷新后重试!");
+        }
         Integer sysRoleInSystem = sysSetting1.getSysSettingInSystem();
         if(!AuthConstant.isSuperAdmin(roles)) {
             if(null != sysRoleInSystem && sysRoleInSystem == 1) {
@@ -211,10 +220,12 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             }
         }
         SysSetting version = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSysSettingName, "version"));
-        version.setSysSettingConfig(UUID.randomUUID().toString());
         List<SysSetting> sysSettings = new LinkedList<>();
         sysSettings.add(sysSetting);
-        sysSettings.add(version);
+        if (null != version) {
+            version.setSysSettingConfig(UUID.randomUUID().toString());
+            sysSettings.add(version);
+        }
         sysSettingService.updateBatchById(sysSettings);
         // 记录更新历史
         try {
@@ -225,9 +236,12 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             log.warn("记录配置更新历史失败: {}", e.getMessage());
         }
 
-        if(null != sysSetting.getSysSettingStatus() && sysSetting.getSysSettingStatus() == 1) {
+        Integer runtimeStatus = ObjectUtils.defaultIfNull(sysSetting.getSysSettingStatus(), sysSetting1.getSysSettingStatus());
+        if (null != runtimeStatus && runtimeStatus == 1) {
             GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
-            upgradeVersion(version);
+            if (null != version) {
+                upgradeVersion(version);
+            }
         }
         sysSettingService.clearCache(sysSetting);
         return ReturnResult.of(sysSetting);
@@ -279,9 +293,14 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public ReturnResult<Boolean> updateBatch(Set<String> roles, List<SysSetting> sysSettings) {
+        if (null == sysSettings || sysSettings.isEmpty()) {
+            return ReturnResult.fail("配置不能为空");
+        }
         SysSetting version = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSysSettingName, "version"));
-        version.setSysSettingConfig(UUID.randomUUID().toString());
-        sysSettings.add(version);
+        if (null != version) {
+            version.setSysSettingConfig(UUID.randomUUID().toString());
+            sysSettings.add(version);
+        }
         sysSettingService.updateBatchById(sysSettings);
         for (SysSetting setting : sysSettings) {
             sysSettingService.clearCache(setting);
@@ -292,26 +311,48 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> getAuthRequest(ThirdLoginData loginData) {
+        String loginType = StringUtils.trimToEmpty(loginData.getLoginType()).toLowerCase(Locale.ROOT);
+        if (StringUtils.isBlank(loginType)) {
+            log.warn("第三方登录类型为空");
+            return null;
+        }
+
         List<SysSetting> sysSettings = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
-                .in(SysSetting::getSysSettingGroup, loginData.getLoginType(), "sso")
+                .in(SysSetting::getSysSettingGroup, loginType, "sso")
                 .eq(SysSetting::getSysSettingStatus, 1)
         );
 
         Set<SysSetting> sso = sysSettings.stream().filter(item -> StringUtils.equals(item.getSysSettingGroup(), "sso"))
-                .filter(item -> StringUtils.equals(item.getSysSettingName(), loginData.getLoginType()))
+                .filter(item -> StringUtils.equalsIgnoreCase(item.getSysSettingName(), loginType))
                 .filter(item -> StringUtils.equals(CommonConstant.TRUE, item.getSysSettingValue())).collect(Collectors.toUnmodifiableSet());
 
         if(sso.isEmpty()) {
+            log.warn("第三方登录开关未开启: loginType={}", loginType);
             return null;
         }
+
+        List<SysSetting> providerSettings = sysSettings.stream()
+                .filter(item -> StringUtils.equals(item.getSysSettingGroup(), loginType))
+                .toList();
 
         AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
 
         AuthConfig authConfig = AuthConfig.builder()
-                .clientId(ObjectUtils.firstNonNull(sysSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_KEY, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
-                .clientSecret(ObjectUtils.firstNonNull(sysSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_SECRET, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
-                .redirectUri(ObjectUtils.firstNonNull(sysSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_REDIRECT_URI, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
+                .clientId(ObjectUtils.firstNonNull(providerSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_KEY, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
+                .clientSecret(ObjectUtils.firstNonNull(providerSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_SECRET, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
+                .redirectUri(ObjectUtils.firstNonNull(providerSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_REDIRECT_URI, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
                 .build();
+        if (StringUtils.isBlank(authConfig.getClientId())
+                || StringUtils.isBlank(authConfig.getClientSecret())
+                || StringUtils.isBlank(authConfig.getRedirectUri())) {
+            log.warn("第三方登录配置不完整: loginType={}, clientIdPresent={}, clientSecretPresent={}, redirectUriPresent={}",
+                    loginType,
+                    StringUtils.isNotBlank(authConfig.getClientId()),
+                    StringUtils.isNotBlank(authConfig.getClientSecret()),
+                    StringUtils.isNotBlank(authConfig.getRedirectUri()));
+            return null;
+        }
+
         String state = AuthStateUtils.createState();
         authStateCache.cache(state + "_userId", RequestUtils.getUserId());
         authStateCache.cache(state + "_thirdType", loginData.getThirdType());
@@ -320,7 +361,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         authStateCache.cache(state + "_clientSecret", authConfig.getClientSecret());
         authStateCache.cache(state + "_callback", authConfig.getRedirectUri());
         authStateCache.cache(state + "_system_callback", loginData.getCallback());
-        return switch (loginData.getLoginType().toLowerCase()) {
+        return switch (loginType) {
             case "gitee" -> new SysSettingThirdPartyRequest<>(new AuthGiteeRequest(authConfig, authStateCache), authStateCache, state);
             case "wechat" -> new SysSettingThirdPartyRequest<>(new AuthWeChatOpenRequest(authConfig, authStateCache), authStateCache, state);
             case "wechat_mp" -> new SysSettingThirdPartyRequest<>(new AuthWeChatMpRequest(authConfig, authStateCache), authStateCache, state);
@@ -350,7 +391,10 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
      * @return 是否成功
      */
     @Override
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator")
+    @Caching(evict = {
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_LEGACY_PREFIX + "' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator"),
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_PREFIX + "' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator")
+    })
     public SysSetting clearCache(SysSetting sysSetting) {
         return sysSetting;
     }

@@ -8,6 +8,7 @@ import com.chua.payment.support.mapper.PaymentOrderMapper;
 import com.chua.payment.support.service.PaymentOrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -15,11 +16,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 订单超时处理定时任务
+ * 订单超时处理定时任务。
+ * <p>
+ * 这里只保留 internal 引擎下的本地调度兜底。切到 {@code plugin.payment.scheduler.engine=job}
+ * 后，应由 job-starter 从任务表轮询并触发对应支付 Job，避免重复执行。
+ * </p>
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "plugin.payment.scheduler", name = "engine", havingValue = "internal", matchIfMissing = true)
 public class PaymentOrderTimeoutTask {
 
     private final PaymentOrderMapper orderMapper;

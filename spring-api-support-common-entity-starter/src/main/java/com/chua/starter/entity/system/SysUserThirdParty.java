@@ -85,6 +85,10 @@ public class SysUserThirdParty extends SysBase implements Serializable {
          */
         GITHUB,
         /**
+         * Google
+         */
+        GOOGLE,
+        /**
          * 微信小程序
          */
         WX_MINI_APP,

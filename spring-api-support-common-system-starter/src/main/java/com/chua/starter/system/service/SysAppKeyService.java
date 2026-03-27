@@ -40,6 +40,22 @@ public interface SysAppKeyService extends IService<SysAppKey> {
     boolean verify(String appKey, String secret, String ip);
 
     /**
+     * 判断应用密钥是否已过期
+     *
+     * @param appKey 应用密钥实体
+     * @return 是否已过期
+     */
+    boolean isExpired(SysAppKey appKey);
+
+    /**
+     * 解析应用密钥实际生效的过期时间（秒）
+     *
+     * @param appKey 应用密钥实体
+     * @return 过期时间戳（秒），不限时返回 null
+     */
+    Long resolveExpireTime(SysAppKey appKey);
+
+    /**
      * 更新使用次数和最后使用时间（通过appKey值）
      *
      * @param appKey 应用密钥（sys_app_key_secret）

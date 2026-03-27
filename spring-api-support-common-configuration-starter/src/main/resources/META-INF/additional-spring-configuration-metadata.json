@@ -1,0 +1,45 @@
+{
+  "properties": [
+    {
+      "name": "request.trace.strategy.config-storage-type",
+      "type": "java.lang.String",
+      "defaultValue": "database",
+      "description": "请求追踪动态配置的存储类型，可选 database、redis、memory。"
+    },
+    {
+      "name": "request.trace.strategy.ai-summary-enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "当持久化配置不存在时，是否默认启用 AI 摘要。"
+    },
+    {
+      "name": "request.trace.strategy.ai-model",
+      "type": "java.lang.String",
+      "description": "当持久化配置不存在时，默认使用的 AI 模型名称。"
+    },
+    {
+      "name": "request.trace.strategy.ai-rate-limit-enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "当持久化配置不存在时，是否默认启用 AI 调用限流。"
+    },
+    {
+      "name": "request.trace.strategy.ai-rate-limit-window-seconds",
+      "type": "java.lang.Integer",
+      "defaultValue": 60,
+      "description": "当持久化配置不存在时，AI 调用限流窗口秒数。"
+    },
+    {
+      "name": "request.trace.strategy.ai-rate-limit-max-requests",
+      "type": "java.lang.Integer",
+      "defaultValue": 30,
+      "description": "当持久化配置不存在时，AI 限流窗口内允许的最大调用次数。"
+    },
+    {
+      "name": "request.trace.strategy.ai-timeout-ms",
+      "type": "java.lang.Long",
+      "defaultValue": 1500,
+      "description": "当持久化配置不存在时，AI 模型调用的默认超时时间。"
+    }
+  ]
+}

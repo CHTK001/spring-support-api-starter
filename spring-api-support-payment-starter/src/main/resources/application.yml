@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: payment
+  profiles:
+    active: dev-static
+    group:
+      dev-static:
+        - dev
+
+server:
+  port: 18190
+  servlet:
+    context-path: /payment/api
+
+management:
+  endpoints:
+    web:
+      exposure:
+        exclude: mybatis-extension

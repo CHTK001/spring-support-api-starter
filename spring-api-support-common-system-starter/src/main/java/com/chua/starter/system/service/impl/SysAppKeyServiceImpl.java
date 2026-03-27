@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * 应用密钥 Service 实现
@@ -32,6 +31,16 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
      * 毫秒转秒的除数
      */
     private static final long MILLIS_PER_SECOND = 1000L;
+
+    /**
+     * 一天的秒数
+     */
+    private static final long SECONDS_PER_DAY = 24L * 60L * 60L;
+
+    /**
+     * 默认有效天数
+     */
+    private static final int DEFAULT_VALID_DAYS = 30;
 
     /**
      * IP白名单分隔符
@@ -67,12 +76,12 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
         }
 
         // 检查过期时间
-        if (dbAppKey.getSysAppKeyExpireTime() != null) {
-            long currentTime = System.currentTimeMillis() / MILLIS_PER_SECOND;
-            if (currentTime > dbAppKey.getSysAppKeyExpireTime()) {
-                log.warn("AppKey已过期: appKey={}, expireTime={}", maskAppKey(appKey), dbAppKey.getSysAppKeyExpireTime());
-                return false;
-            }
+        if (isExpired(dbAppKey)) {
+            log.warn("AppKey已过期: appKey={}, expireTime={}, validDays={}",
+                    maskAppKey(appKey),
+                    resolveExpireTime(dbAppKey),
+                    dbAppKey.getSysAppKeyValidDays());
+            return false;
         }
 
         // 验证密钥（appKey和secret应该相同，或者secret是appKey对应的密钥）
@@ -99,12 +108,12 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
         }
 
         // 检查过期时间
-        if (dbAppKey.getSysAppKeyExpireTime() != null) {
-            long currentTime = System.currentTimeMillis() / MILLIS_PER_SECOND;
-            if (currentTime > dbAppKey.getSysAppKeyExpireTime()) {
-                log.warn("AppKey已过期: appKey={}, expireTime={}", maskAppKey(appKey), dbAppKey.getSysAppKeyExpireTime());
-                return false;
-            }
+        if (isExpired(dbAppKey)) {
+            log.warn("AppKey已过期: appKey={}, expireTime={}, validDays={}",
+                    maskAppKey(appKey),
+                    resolveExpireTime(dbAppKey),
+                    dbAppKey.getSysAppKeyValidDays());
+            return false;
         }
 
         // 验证密钥（appKey和secret应该相同，或者secret是appKey对应的密钥）
@@ -140,6 +149,43 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
         } catch (Exception e) {
             log.error("更新AppKey使用信息失败: appKey={}", maskAppKey(appKey), e);
         }
+    }
+
+    @Override
+    public boolean isExpired(SysAppKey appKey) {
+        Long expireTime = resolveExpireTime(appKey);
+        if (expireTime == null) {
+            return false;
+        }
+        long currentTime = System.currentTimeMillis() / MILLIS_PER_SECOND;
+        return currentTime > expireTime;
+    }
+
+    @Override
+    public Long resolveExpireTime(SysAppKey appKey) {
+        if (appKey == null) {
+            return null;
+        }
+
+        Integer validDays = appKey.getSysAppKeyValidDays();
+        if (Integer.valueOf(0).equals(validDays)) {
+            return null;
+        }
+
+        if (appKey.getSysAppKeyExpireTime() != null) {
+            return appKey.getSysAppKeyExpireTime();
+        }
+
+        if (appKey.getCreateTime() == null) {
+            return null;
+        }
+
+        int effectiveValidDays = validDays == null ? DEFAULT_VALID_DAYS : validDays;
+        if (effectiveValidDays <= 0) {
+            return null;
+        }
+
+        return (appKey.getCreateTime().getTime() / MILLIS_PER_SECOND) + effectiveValidDays * SECONDS_PER_DAY;
     }
 
     /**

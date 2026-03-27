@@ -2,7 +2,6 @@ package com.chua.starter.monitor.service.impl;
 
 import com.chua.common.support.base.collection.Options;
 import com.chua.common.support.text.json.Json;
-import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.network.net.NetUtils;
 import com.chua.common.support.network.protocol.ClientSetting;
 import com.chua.common.support.core.utils.MapUtils;
@@ -11,9 +10,9 @@ import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerMetrics;
-import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
+import com.chua.starter.monitor.pojo.server.ProxyConnectionInfo;
 import com.chua.starter.sync.support.message.ServerWebSocketMessage;
-import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
+import com.chua.starter.monitor.service.server.ProxyInstanceResolver;
 import com.chua.starter.monitor.service.server.ServerConnectionService;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RdpServerConnectionServiceImpl implements ServerConnectionService {
 
     private final SocketSessionTemplate socketSessionTemplate;
-    private final MonitorSysGenServerSettingService monitorSysGenServerSettingService;
+    private final ProxyInstanceResolver proxyInstanceResolver;
     /**
      * RDP连接池 (使用GuacamoleClient)
      */
@@ -62,7 +61,7 @@ public class RdpServerConnectionServiceImpl implements ServerConnectionService {
     /**
      * 创建GuacamoleClient
      */
-    public static GuacamoleClient createGuacamoleClient(MonitorSysGenServer server, MonitorSysGenServerSettingService monitorSysGenServerSettingService, Map<String, String> query) {
+    public GuacamoleClient createGuacamoleClient(MonitorSysGenServer server, Map<String, String> query) {
         ClientSetting.ClientSettingBuilder<?, ?> config = ClientSetting.builder();
         config.host(server.getMonitorSysGenServerHost());
         config.port(server.getMonitorSysGenServerPort() != null ?
@@ -71,34 +70,28 @@ public class RdpServerConnectionServiceImpl implements ServerConnectionService {
         config.password(server.getMonitorSysGenServerPassword());
         config.protocol(server.getMonitorSysGenServerProtocol().toLowerCase());
 
-        // 检查是否配置了代理 - 代理配置已迁移到服务器设置中
-        try {
-            ReturnResult<MonitorSysGenServerSetting> settingResult =
-                    monitorSysGenServerSettingService.getByServerId(server.getMonitorSysGenServerId());
-            if (settingResult.isOk() && settingResult.getData() != null) {
-                MonitorSysGenServerSetting setting = settingResult.getData();
-                if (setting.getMonitorSysGenServerSettingProxyEnabled() == 1) {
-                    String proxyHost = setting.getMonitorSysGenServerSettingProxyHost();
-                    Integer proxyPort = setting.getMonitorSysGenServerSettingProxyPort();
-                    if (proxyHost != null && proxyPort != null) {
-                        log.info("RDP客户端使用代理: {}:{}", proxyHost, proxyPort);
-                        config.proxyHost(proxyHost);
-                        config.proxyPort(proxyPort);
-                    }
-
-                    // RDP 安全相关参数
-                    config.options(new Options()
-                            .addOption("security", MapUtils.getString(query, "security", "any"))
-                            .addOption("ignore-cert", MapUtils.getString(query, "ignore-cert", "true"))
-                            .addOption("server-layout", MapUtils.getString(query, "server-layout", "en-us-qwerty"))
-                            .addOption("width", MapUtils.getString(query, "width", "1920"))
-                            .addOption("height", MapUtils.getString(query, "height", "1080"))
-                    );
-                }
+        ProxyConnectionInfo proxyConnectionInfo = proxyInstanceResolver.resolve(server);
+        if (proxyConnectionInfo != null && proxyConnectionInfo.hasEndpoint()) {
+            log.info("RDP客户端使用代理: {}:{} ({})",
+                    proxyConnectionInfo.getProxyHost(), proxyConnectionInfo.getProxyPort(),
+                    proxyConnectionInfo.getSource());
+            config.proxyHost(proxyConnectionInfo.getProxyHost());
+            config.proxyPort(proxyConnectionInfo.getProxyPort());
+            if (proxyConnectionInfo.getProxyUsername() != null) {
+                config.proxyUsername(proxyConnectionInfo.getProxyUsername());
             }
-        } catch (Exception e) {
-            log.warn("获取代理配置失败，将使用直连: {}", e.getMessage());
+            if (proxyConnectionInfo.getProxyPassword() != null) {
+                config.proxyPassword(proxyConnectionInfo.getProxyPassword());
+            }
         }
+
+        config.options(new Options()
+                .addOption("security", MapUtils.getString(query, "security", "any"))
+                .addOption("ignore-cert", MapUtils.getString(query, "ignore-cert", "true"))
+                .addOption("server-layout", MapUtils.getString(query, "server-layout", "en-us-qwerty"))
+                .addOption("width", MapUtils.getString(query, "width", "1920"))
+                .addOption("height", MapUtils.getString(query, "height", "1080"))
+        );
 
         if (server.getMonitorSysGenServerTimeout() != null) {
             config.connectTimeoutMillis(server.getMonitorSysGenServerTimeout());
@@ -115,16 +108,11 @@ public class RdpServerConnectionServiceImpl implements ServerConnectionService {
     @Override
     public boolean connect(MonitorSysGenServer server) {
         try {
-            Integer monitorSysGenServerProxyId = server.getMonitorSysGenServerProxyId();
-            if(null == monitorSysGenServerProxyId) {
+            ProxyConnectionInfo proxyConnectionInfo = proxyInstanceResolver.resolve(server);
+            if (proxyConnectionInfo == null || !proxyConnectionInfo.hasEndpoint()) {
                 return NetUtils.isConnectable(server.getMonitorSysGenServerHost(), server.getMonitorSysGenServerPort());
             }
-            ReturnResult<MonitorSysGenServerSetting> serverConfigResult = monitorSysGenServerSettingService.getByServerId(server.getMonitorSysGenServerId());
-            if(!serverConfigResult.isOk()) {
-                return false;
-            }
-            MonitorSysGenServerSetting serverConfig = serverConfigResult.getData();
-            return NetUtils.isConnectable(serverConfig.getMonitorSysGenServerSettingProxyHost(), serverConfig.getMonitorSysGenServerSettingProxyPort());
+            return NetUtils.isConnectable(proxyConnectionInfo.getProxyHost(), proxyConnectionInfo.getProxyPort());
         } catch (Exception e) {
             log.error("RDP连接失败: {}", e.getMessage(), e);
             sendConnectionMessage(server, "connect_error", false, e.getMessage());

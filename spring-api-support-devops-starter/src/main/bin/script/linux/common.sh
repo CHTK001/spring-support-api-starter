@@ -47,9 +47,45 @@ load_env() {
   var_base_dir="$(get_base_dir)"
   var_env_file="${var_base_dir}/bin/app.env"
   if [ -f "${var_env_file}" ]; then
+    # 限制 app.env 只允许 KEY=VALUE 形式，避免 source 时执行非预期脚本片段
+    if ! validate_env_file "${var_env_file}"; then
+      die "环境文件格式不安全，请检查: ${var_env_file}"
+    fi
     # shellcheck source=/dev/null
     . "${var_env_file}"
   fi
+}
+
+validate_env_file() {
+  var_env_file="${1:-}"
+  if [ -z "${var_env_file}" ] || [ ! -f "${var_env_file}" ]; then
+    return 1
+  fi
+
+  var_line_no=0
+  while IFS= read -r var_line || [ -n "${var_line}" ]; do
+    var_line_no=$((var_line_no + 1))
+    var_trimmed="$(echo "${var_line}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+
+    # 空行和注释行放行
+    if [ -z "${var_trimmed}" ] || [ "$(echo "${var_trimmed}" | cut -c1)" = "#" ]; then
+      continue
+    fi
+
+    # 仅允许 KEY=VALUE 形式
+    if ! echo "${var_trimmed}" | grep -qE '^[A-Za-z_][A-Za-z0-9_]*='; then
+      warn "环境文件第 ${var_line_no} 行格式非法: ${var_trimmed}"
+      return 1
+    fi
+
+    # 拒绝命令替换，避免在 source 时执行命令
+    if echo "${var_trimmed}" | grep -q '\$(' || echo "${var_trimmed}" | grep -q '`'; then
+      warn "环境文件第 ${var_line_no} 行包含危险命令替换: ${var_trimmed}"
+      return 1
+    fi
+  done < "${var_env_file}"
+
+  return 0
 }
 
 ensure_env_file() {
@@ -184,6 +220,44 @@ resolve_java() {
   die "未找到 java，请通过 -j 指定 JAVA_HOME 或配置 JAVA_HOME"
 }
 
+get_java_major_version() {
+  var_java_bin="${1:-java}"
+  if [ -z "${var_java_bin}" ]; then
+    return 1
+  fi
+
+  var_version_line="$("${var_java_bin}" -version 2>&1 | head -n 1 || true)"
+  if [ -z "${var_version_line}" ]; then
+    return 1
+  fi
+
+  # 兼容:
+  # - openjdk version "1.8.0_412"
+  # - openjdk version "17.0.12" 2024-07-16
+  var_version="$(echo "${var_version_line}" | sed -n 's/.*"\([^"]*\)".*/\1/p')"
+  if [ -z "${var_version}" ]; then
+    var_version="$(echo "${var_version_line}" | cut -d' ' -f3 | tr -d '"' || true)"
+  fi
+  if [ -z "${var_version}" ]; then
+    return 1
+  fi
+
+  case "${var_version}" in
+    1.*)
+      var_major="$(echo "${var_version}" | cut -d'.' -f2)"
+      ;;
+    *)
+      var_major="$(echo "${var_version}" | cut -d'.' -f1)"
+      ;;
+  esac
+
+  var_major="$(echo "${var_major}" | sed 's/[^0-9].*$//')"
+  if [ -z "${var_major}" ]; then
+    return 1
+  fi
+  echo "${var_major}"
+}
+
 get_app_name() {
   if [ -n "${APP_NAME:-}" ]; then
     echo "${APP_NAME}"
@@ -198,6 +272,21 @@ get_app_version() {
   else
     echo "unknown"
   fi
+}
+
+is_runtime_jar_candidate() {
+  var_jar_path="${1:-}"
+  if [ -z "${var_jar_path}" ] || [ ! -f "${var_jar_path}" ]; then
+    return 1
+  fi
+
+  var_jar_name="$(basename "${var_jar_path}")"
+  case "${var_jar_name}" in
+    *-sources.jar|*-javadoc.jar|*-tests.jar|*-test.jar|original-*.jar)
+      return 1
+      ;;
+  esac
+  return 0
 }
 
 get_jar_file() {
@@ -221,9 +310,22 @@ get_jar_file() {
     return 0
   fi
 
-  # 兜底：如果版本信息不可靠，则在目录下自动探测唯一的 jar
+  # 兜底 1：优先匹配应用名前缀，避免捡到 sources/tests/original 包
   for var_jar in "${var_base_dir}"/*.jar; do
-    if [ -f "${var_jar}" ]; then
+    if is_runtime_jar_candidate "${var_jar}"; then
+      var_jar_name="$(basename "${var_jar}")"
+      case "${var_jar_name}" in
+        "${var_name}"*.jar)
+          echo "${var_jar}"
+          return 0
+          ;;
+      esac
+    fi
+  done
+
+  # 兜底 2：取第一个可运行候选 jar
+  for var_jar in "${var_base_dir}"/*.jar; do
+    if is_runtime_jar_candidate "${var_jar}"; then
       echo "${var_jar}"
       return 0
     fi
@@ -506,5 +608,3 @@ validate_directory() {
   fi
   return 1
 }
-
-

@@ -66,8 +66,17 @@
                 <if test="request.sysProjectId != null">
                     AND sys_project_id = #{request.sysProjectId}
                 </if>
+                <if test="request.sysProjectName != null and request.sysProjectName != ''">
+                    AND sys_project_name LIKE CONCAT('%', #{request.sysProjectName}, '%')
+                </if>
                 <if test="request.sysProjectGroup != null">
                     AND sys_project_group = #{request.sysProjectGroup}
+                </if>
+                <if test="request.sysProjectStatus != null">
+                    AND sys_project_status = #{request.sysProjectStatus}
+                </if>
+                <if test="request.sysProjectDelete != null">
+                    AND sys_project_delete = #{request.sysProjectDelete}
                 </if>
 
                 <if test="request.sysProjectVender != null">

@@ -12,34 +12,42 @@
     <packaging>jar</packaging>
     <name>DevOps Unified Management Module</name>
     <description>统一配置模板和管理脚本，通过 Spring Boot profile 动态合并配置</description>
-    <dependencies>
-        <dependency>
-            <groupId>org.fusesource.jansi</groupId>
-            <artifactId>jansi</artifactId>
-        </dependency>
-    </dependencies>
     <build>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
             </resource>
-            <resource>
-                <directory>src/main/bin</directory>
-                <targetPath>bin</targetPath>
-                <filtering>false</filtering>
-                <includes>
-                    <include>**/*.sh</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/bin</directory>
-                <targetPath>bin</targetPath>
-                <filtering>false</filtering>
-                <includes>
-                    <include>**/*.bat</include>
-                </includes>
-            </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <testRelease>8</testRelease>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>devops-script-smoke-test-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>script-test</classifier>
+                            <archive>
+                                <manifest>
+                                    <mainClass>com.chua.starter.devops.test.DevopsScriptSmokeApp</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>

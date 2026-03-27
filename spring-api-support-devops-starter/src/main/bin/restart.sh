@@ -28,35 +28,39 @@ EOF
 }
 
 WAIT_SECONDS="30"
-PASS_ARGS=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
     -t)
+      if [ $# -lt 2 ]; then
+        die "-t 需要指定等待秒数，例如: -t 30"
+      fi
       WAIT_SECONDS="${2:-30}"
+      if ! echo "${WAIT_SECONDS}" | grep -qE '^[0-9]+$'; then
+        die "无效的等待秒数: ${WAIT_SECONDS}"
+      fi
       shift 2
       ;;
     -h|--help)
       usage
       exit 0
       ;;
-    *)
-      if [ -z "${PASS_ARGS}" ]; then
-        PASS_ARGS="$1"
-      else
-        PASS_ARGS="${PASS_ARGS} $1"
-      fi
+    --)
       shift
+      break
+      ;;
+    *)
+      # 其余参数原样透传给 start.sh，避免字符串拼接导致参数被错误拆分
+      break
       ;;
   esac
 done
 
 info "重启应用"
 "${BIN_DIR}/stop.sh" -t "${WAIT_SECONDS}"
-if [ -n "${PASS_ARGS}" ]; then
-  "${BIN_DIR}/start.sh" ${PASS_ARGS}
+if [ $# -gt 0 ]; then
+  "${BIN_DIR}/start.sh" "$@"
 else
   "${BIN_DIR}/start.sh"
 fi
-
 

@@ -536,4 +536,88 @@ CREATE TABLE `sys_file_system_part` (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
 COMMENT = '文件系统分片表 - 存储分片上传的每个分片信息' ROW_FORMAT = DYNAMIC;
 
+-- =====================================================
+-- 19. 请求追踪原始记录表 (sys_request_trace_raw)
+-- 用途: 持久化注解命中的请求原始事件，用于热点/刷屏/爬虫分析
+-- =====================================================
+DROP TABLE IF EXISTS `sys_request_trace_raw`;
+CREATE TABLE `sys_request_trace_raw` (
+    `sys_request_trace_raw_id` bigint NOT NULL AUTO_INCREMENT COMMENT '原始记录ID - 主键自增',
+    `sys_request_trace_time` datetime NULL DEFAULT NULL COMMENT '请求时间',
+    `sys_request_trace_trace_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '追踪ID',
+    `sys_request_trace_strategy_code` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '策略编码',
+    `sys_request_trace_method` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求方法',
+    `sys_request_trace_path` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求路径',
+    `sys_request_trace_route` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '路由模板',
+    `sys_request_trace_query` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '查询参数',
+    `sys_request_trace_url` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求地址',
+    `sys_request_trace_status` int NULL DEFAULT NULL COMMENT '响应状态码',
+    `sys_request_trace_duration_ms` bigint NULL DEFAULT NULL COMMENT '耗时毫秒',
+    `sys_request_trace_client_ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户端IP',
+    `sys_request_trace_browser` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '浏览器',
+    `sys_request_trace_user_agent` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '浏览器标识',
+    `sys_request_trace_app_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '应用名称',
+    `sys_request_trace_user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户ID',
+    `sys_request_trace_username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户名',
+    `sys_request_trace_fingerprint` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户端指纹',
+    `sys_request_trace_token_hash` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '令牌摘要',
+    `sys_request_trace_signals` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '命中信号',
+    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
+    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`sys_request_trace_raw_id`) USING BTREE,
+    INDEX `idx_request_time` (`sys_request_trace_time`) USING BTREE COMMENT '请求时间索引',
+    INDEX `idx_trace_id` (`sys_request_trace_trace_id`) USING BTREE COMMENT '追踪ID索引',
+    INDEX `idx_strategy_code` (`sys_request_trace_strategy_code`) USING BTREE COMMENT '策略编码索引',
+    INDEX `idx_client_ip` (`sys_request_trace_client_ip`) USING BTREE COMMENT '客户端IP索引',
+    INDEX `idx_user_id` (`sys_request_trace_user_id`) USING BTREE COMMENT '用户ID索引'
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
+COMMENT = '请求追踪原始记录表 - 持久化行为分析原始事件' ROW_FORMAT = DYNAMIC;
+
+-- =====================================================
+-- 20. 请求追踪行为分析结果表 (sys_request_trace_behavior)
+-- 用途: 持久化AI/规则分析后的风险结果，用于审计与处置
+-- =====================================================
+DROP TABLE IF EXISTS `sys_request_trace_behavior`;
+CREATE TABLE `sys_request_trace_behavior` (
+    `sys_request_trace_behavior_id` bigint NOT NULL AUTO_INCREMENT COMMENT '行为结果ID - 主键自增',
+    `sys_request_trace_request_time` datetime NULL DEFAULT NULL COMMENT '请求时间',
+    `sys_request_trace_analyzed_at` datetime NULL DEFAULT NULL COMMENT '分析时间',
+    `sys_request_trace_trace_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '追踪ID',
+    `sys_request_trace_strategy_code` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '策略编码',
+    `sys_request_trace_route` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '路由',
+    `sys_request_trace_url` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求地址',
+    `sys_request_trace_status` int NULL DEFAULT NULL COMMENT '响应状态码',
+    `sys_request_trace_duration_ms` bigint NULL DEFAULT NULL COMMENT '耗时毫秒',
+    `sys_request_trace_client_ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户端IP',
+    `sys_request_trace_browser` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '浏览器',
+    `sys_request_trace_user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户ID',
+    `sys_request_trace_username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户名',
+    `sys_request_trace_fingerprint` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户端指纹',
+    `sys_request_trace_user_agent` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '浏览器标识',
+    `sys_request_trace_signals` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '命中信号',
+    `sys_request_trace_related_request_count` bigint NULL DEFAULT NULL COMMENT '关联请求数量',
+    `sys_request_trace_distinct_path_count` bigint NULL DEFAULT NULL COMMENT '扫描路径数量',
+    `sys_request_trace_risk_level` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '风险等级',
+    `sys_request_trace_summary` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '规则摘要',
+    `sys_request_trace_ai_summary` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'AI摘要',
+    `sys_request_trace_extra` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '扩展信息',
+    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
+    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`sys_request_trace_behavior_id`) USING BTREE,
+    INDEX `idx_behavior_request_time` (`sys_request_trace_request_time`) USING BTREE COMMENT '请求时间索引',
+    INDEX `idx_behavior_analyzed_at` (`sys_request_trace_analyzed_at`) USING BTREE COMMENT '分析时间索引',
+    INDEX `idx_behavior_trace_id` (`sys_request_trace_trace_id`) USING BTREE COMMENT '追踪ID索引',
+    INDEX `idx_behavior_strategy` (`sys_request_trace_strategy_code`) USING BTREE COMMENT '策略编码索引',
+    INDEX `idx_behavior_risk_level` (`sys_request_trace_risk_level`) USING BTREE COMMENT '风险等级索引'
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
+COMMENT = '请求追踪行为分析结果表 - 持久化风险分析结论' ROW_FORMAT = DYNAMIC;
+
 SET FOREIGN_KEY_CHECKS = 1;

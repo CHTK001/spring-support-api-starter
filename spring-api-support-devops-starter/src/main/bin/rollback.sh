@@ -121,7 +121,7 @@ case "${PACKAGE_PATH}" in
       die "解压失败或目录结构异常: ${PACKAGE_PATH}"
     fi
     info "覆盖发布目录（保留原目录结构）"
-    cp -R "${ROLLBACK_ROOT}/" "${BASE_DIR}/"
+    cp -R "${ROLLBACK_ROOT}/." "${BASE_DIR}/"
     rm -rf "${TMP_DIR}"
     ;;
   *.zip)
@@ -137,7 +137,7 @@ case "${PACKAGE_PATH}" in
       die "解压失败或目录结构异常: ${PACKAGE_PATH}"
     fi
     info "覆盖发布目录（保留原目录结构）"
-    cp -R "${ROLLBACK_ROOT}/" "${BASE_DIR}/"
+    cp -R "${ROLLBACK_ROOT}/." "${BASE_DIR}/"
     rm -rf "${TMP_DIR}"
     ;;
   *)
@@ -153,5 +153,4 @@ fi
 
 info "启动应用"
 "${BIN_DIR}/start.sh"
-
 

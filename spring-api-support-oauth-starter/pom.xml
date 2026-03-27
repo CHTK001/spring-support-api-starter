@@ -44,10 +44,6 @@
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter-tomcat</artifactId>
         </exclusion>
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-logging</artifactId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -65,6 +61,10 @@
     <dependency>
       <groupId>me.zhyd.oauth</groupId>
       <artifactId>JustAuth</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.alibaba.fastjson2</groupId>
+      <artifactId>fastjson2</artifactId>
     </dependency>
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
@@ -180,24 +180,6 @@
                 </resource>
               </resources>
             </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptors>
-            <descriptor>${devops.dir}/src/main/assembly/dist.xml</descriptor>
-          </descriptors>
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>
