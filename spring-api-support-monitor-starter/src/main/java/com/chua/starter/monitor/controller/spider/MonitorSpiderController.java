@@ -2,12 +2,16 @@ package com.chua.starter.monitor.controller.spider;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.monitor.entity.*;
+import com.chua.starter.monitor.properties.SpiderProperties;
 import com.chua.starter.monitor.pojo.spider.*;
+import com.chua.starter.monitor.service.data.SystemDataSettingService;
 import com.chua.starter.monitor.service.spider.*;
+import com.chua.starter.monitor.support.SpiderConsoleSessionSupport;
+import jakarta.servlet.http.HttpServletRequest;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import io.swagger.annotations.Api;
@@ -15,8 +19,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 /**
  * 爬虫管理控制器
@@ -39,7 +46,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequestMapping("/v1/spider")
 @Api(tags = "爬虫管理")
 @Tag(name = "爬虫管理")
-@RequiredArgsConstructor
 public class MonitorSpiderController {
 
     private final MonitorSpiderTaskService taskService;
@@ -47,9 +53,60 @@ public class MonitorSpiderController {
     private final MonitorSpiderConnectionService connectionService;
     private final MonitorSpiderDataService dataService;
     private final MonitorSpiderLogService logService;
+    private final SpiderProperties spiderProperties;
+    private final SpiderSchemaService spiderSchemaService;
+    private final SpiderOutputTableService spiderOutputTableService;
+    private final SystemDataSettingService systemDataSettingService;
 
     // 存储运行中的任务状态
     private static final Map<Integer, SpiderRunStatus> runningTasks = new ConcurrentHashMap<>();
+
+    private static final class SpiderAuthenticationException extends RuntimeException {
+        private SpiderAuthenticationException(String message) {
+            super(message);
+        }
+    }
+
+    public MonitorSpiderController(
+            MonitorSpiderTaskService taskService,
+            MonitorSpiderNodeService nodeService,
+            MonitorSpiderConnectionService connectionService,
+            MonitorSpiderDataService dataService,
+            MonitorSpiderLogService logService,
+            SpiderProperties spiderProperties,
+            SpiderSchemaService spiderSchemaService,
+            SpiderOutputTableService spiderOutputTableService,
+            @Nullable SystemDataSettingService systemDataSettingService) {
+        this.taskService = taskService;
+        this.nodeService = nodeService;
+        this.connectionService = connectionService;
+        this.dataService = dataService;
+        this.logService = logService;
+        this.spiderProperties = spiderProperties;
+        this.spiderSchemaService = spiderSchemaService;
+        this.spiderOutputTableService = spiderOutputTableService;
+        this.systemDataSettingService = systemDataSettingService;
+    }
+
+    @ModelAttribute
+    public void ensureAuthenticated(HttpServletRequest request) {
+        SpiderProperties.WebAuthConfig config = spiderProperties.getWebAuth();
+        if (config == null || "none".equalsIgnoreCase(config.getMode())) {
+            return;
+        }
+        if (!SpiderConsoleSessionSupport.isAuthenticated(request)) {
+            throw new SpiderAuthenticationException("未登录");
+        }
+    }
+
+    @ExceptionHandler(SpiderAuthenticationException.class)
+    public ResponseEntity<Map<String, Object>> handleAuthenticationException(SpiderAuthenticationException e) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("code", "401");
+        body.put("message", e.getMessage());
+        body.put("success", false);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
 
     // ======================== 任务管理 ========================
 
@@ -311,6 +368,129 @@ public class MonitorSpiderController {
         return ReturnResult.ok(result);
     }
 
+    // ======================== 数据库支持 ========================
+
+    /**
+     * 获取爬虫表状态
+     */
+    @GetMapping("/table/status")
+    @Operation(summary = "获取爬虫表状态")
+    public ReturnResult<SpiderTableStatus> getTableStatus() {
+        return executeSafely("获取爬虫表状态", spiderSchemaService::checkTableStatus);
+    }
+
+    /**
+     * 初始化爬虫表
+     */
+    @PostMapping("/table/initialize")
+    @Operation(summary = "初始化爬虫表")
+    public ReturnResult<Boolean> initializeTables(@RequestParam(defaultValue = "false") boolean force) {
+        return executeSafely("初始化爬虫表", () -> spiderSchemaService.initializeTables(force));
+    }
+
+    /**
+     * 获取可用数据库数据源
+     */
+    @GetMapping("/data-source/options")
+    @Operation(summary = "获取爬虫可用数据库数据源")
+    public ReturnResult<List<SpiderDataSourceOption>> getDataSourceOptions() {
+        return executeSafely("获取爬虫数据库数据源", () -> {
+            List<SpiderDataSourceOption> result = new ArrayList<>();
+
+            SpiderDataSourceOption builtin = new SpiderDataSourceOption();
+            builtin.setBuiltin(true);
+            builtin.setSettingId(null);
+            builtin.setName("当前监控库");
+            builtin.setType("JDBC");
+            builtin.setEnabled(true);
+            result.add(builtin);
+
+            if (systemDataSettingService == null) {
+                return result;
+            }
+
+            for (SystemDataSetting setting : systemDataSettingService.list()) {
+                if (!isJdbcSetting(setting)) {
+                    continue;
+                }
+
+                SpiderDataSourceOption option = new SpiderDataSourceOption();
+                option.setBuiltin(false);
+                option.setSettingId(setting.getSystemDataSettingId());
+                option.setName(setting.getSystemDataSettingName());
+                option.setType(setting.getSystemDataSettingType());
+                option.setUrl(setting.getSystemDataSettingServer());
+                option.setDatabase(setting.getSystemDataSettingDatabase());
+                option.setEnabled(Boolean.TRUE.equals(setting.getSystemDataSettingEnabled()));
+                result.add(option);
+            }
+            return result;
+        });
+    }
+
+    /**
+     * 检查输出表是否存在
+     */
+    @PostMapping("/output/table/exists")
+    @Operation(summary = "检查爬虫输出表是否存在")
+    public ReturnResult<Boolean> outputTableExists(
+            @RequestParam String tableName,
+            @RequestBody(required = false) SpiderOutputTableRequest request) {
+        return executeSafely("检查输出表是否存在",
+                () -> spiderOutputTableService.tableExists(tableName, request == null ? null : request.getDataSourceSettingId()));
+    }
+
+    /**
+     * 预览输出表建表SQL
+     */
+    @PostMapping("/output/table/preview-sql")
+    @Operation(summary = "预览爬虫输出表建表SQL")
+    public ReturnResult<String> previewOutputTableSql(
+            @RequestParam String tableName,
+            @RequestParam(defaultValue = "mysql") String dbType,
+            @RequestBody SpiderOutputTableRequest request) {
+        return executeSafely("预览输出表建表SQL",
+                () -> spiderOutputTableService.previewCreateTableSql(tableName, request, dbType));
+    }
+
+    /**
+     * 创建输出表
+     */
+    @PostMapping("/output/table/create")
+    @Operation(summary = "创建爬虫输出表")
+    public ReturnResult<Boolean> createOutputTable(
+            @RequestParam String tableName,
+            @RequestParam(defaultValue = "mysql") String dbType,
+            @RequestBody SpiderOutputTableRequest request) {
+        return executeSafely("创建输出表",
+                () -> spiderOutputTableService.createTable(tableName, request, dbType));
+    }
+
+    /**
+     * 获取输出表结构
+     */
+    @PostMapping("/output/table/structure")
+    @Operation(summary = "获取爬虫输出表结构")
+    public ReturnResult<com.chua.starter.monitor.pojo.data.TableStructureInfo> getOutputTableStructure(
+            @RequestParam String tableName,
+            @RequestBody(required = false) SpiderOutputTableRequest request) {
+        return executeSafely("获取输出表结构",
+                () -> spiderOutputTableService.getTableStructure(tableName, request == null ? null : request.getDataSourceSettingId()));
+    }
+
+    /**
+     * 同步输出表结构
+     */
+    @PostMapping("/output/table/sync-structure")
+    @Operation(summary = "同步爬虫输出表结构")
+    public ReturnResult<Boolean> syncOutputTableStructure(
+            @RequestParam String tableName,
+            @RequestParam(defaultValue = "mysql") String dbType,
+            @RequestBody SpiderOutputTableRequest request) {
+        return executeSafely("同步输出表结构",
+                () -> spiderOutputTableService.syncStructure(tableName, request, dbType));
+    }
+
     // ======================== 网页解析 ========================
 
     /**
@@ -319,21 +499,16 @@ public class MonitorSpiderController {
     @GetMapping("/preview")
     @Operation(summary = "预览网页")
     public ReturnResult<Map<String, Object>> preview(@RequestParam String url) {
-        try {
-            Document doc = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-                    .timeout(30000)
-                    .get();
-            
+        return executeSafely("预览网页", () -> {
+            Document doc = loadDocument(url);
             Map<String, Object> result = new HashMap<>();
             result.put("html", doc.html());
+            result.put("bodyHtml", doc.body() == null ? "" : doc.body().html());
             result.put("title", doc.title());
             result.put("baseUrl", doc.baseUri());
-            return ReturnResult.ok(result);
-        } catch (Exception e) {
-            log.error("[Spider] 预览网页失败: url={}", url, e);
-            return ReturnResult.illegal("预览失败: " + e.getMessage());
-        }
+            result.put("url", url);
+            return result;
+        });
     }
 
     /**
@@ -341,56 +516,31 @@ public class MonitorSpiderController {
      */
     @GetMapping("/parse-html")
     @Operation(summary = "解析HTML结构")
-    public ReturnResult<Map<String, Object>> parseHtml(@RequestParam String url) {
-        try {
-            Document doc = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-                    .timeout(30000)
-                    .get();
-            
-            Map<String, Object> tree = parseElement(doc.body(), "/html/body", 0);
-            
+    public ReturnResult<Map<String, Object>> parseHtml(
+            @RequestParam String url,
+            @RequestParam(required = false) Integer maxDepth,
+            @RequestParam(required = false) Integer maxChildren) {
+        return executeSafely("解析HTML结构", () -> {
+            Document doc = loadDocument(url);
+            int resolvedMaxDepth = maxDepth == null ? spiderProperties.getPreviewMaxDepth() : maxDepth;
+            int resolvedMaxChildren = maxChildren == null ? spiderProperties.getPreviewMaxChildren() : maxChildren;
+            int[] counter = new int[]{0};
+
+            Element body = doc.body();
+            Map<String, Object> tree = body == null
+                    ? Collections.emptyMap()
+                    : parseElement(body, buildElementXpath(body), 0, resolvedMaxDepth, resolvedMaxChildren, counter);
+
             Map<String, Object> result = new HashMap<>();
             result.put("tree", tree);
             result.put("rawHtml", doc.html());
-            return ReturnResult.ok(result);
-        } catch (Exception e) {
-            log.error("[Spider] 解析HTML失败: url={}", url, e);
-            return ReturnResult.illegal("解析失败: " + e.getMessage());
-        }
-    }
-
-    private Map<String, Object> parseElement(Element element, String xpath, int depth) {
-        if (depth > 10) return null; // 限制深度
-        
-        Map<String, Object> node = new HashMap<>();
-        node.put("tag", element.tagName());
-        node.put("id", element.id());
-        node.put("class", element.className());
-        node.put("xpath", xpath);
-        node.put("text", element.ownText().length() > 100 ? element.ownText().substring(0, 100) + "..." : element.ownText());
-        
-        List<Map<String, Object>> children = new ArrayList<>();
-        Elements childElements = element.children();
-        Map<String, Integer> tagCounts = new HashMap<>();
-        
-        for (Element child : childElements) {
-            String tag = child.tagName();
-            int index = tagCounts.getOrDefault(tag, 0) + 1;
-            tagCounts.put(tag, index);
-            
-            String childXpath = xpath + "/" + tag + "[" + index + "]";
-            Map<String, Object> childNode = parseElement(child, childXpath, depth + 1);
-            if (childNode != null) {
-                children.add(childNode);
-            }
-        }
-        
-        if (!children.isEmpty()) {
-            node.put("children", children);
-        }
-        
-        return node;
+            result.put("title", doc.title());
+            result.put("baseUrl", doc.baseUri());
+            result.put("nodeCount", counter[0]);
+            result.put("maxDepth", resolvedMaxDepth);
+            result.put("maxChildren", resolvedMaxChildren);
+            return result;
+        });
     }
 
     /**
@@ -399,35 +549,32 @@ public class MonitorSpiderController {
     @PostMapping("/test-selector")
     @Operation(summary = "测试选择器")
     public ReturnResult<List<String>> testSelector(@RequestBody SelectorTestRequest request) {
-        try {
-            Document doc = Jsoup.connect(request.getUrl())
-                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-                    .timeout(30000)
-                    .get();
-            
+        return executeSafely("测试选择器", () -> {
+            Document doc = loadDocument(request);
+            Elements elements = selectElements(doc, request);
             List<String> results = new ArrayList<>();
-            Elements elements;
-            
-            if ("CSS".equalsIgnoreCase(request.getType())) {
-                elements = doc.select(request.getSelector());
-            } else {
-                // 简单的XPath支持
-                elements = doc.selectXpath(request.getSelector());
-            }
-            
             for (Element element : elements) {
-                String text = element.text();
-                if (text.length() > 200) {
-                    text = text.substring(0, 200) + "...";
-                }
-                results.add(text);
+                results.add(abbreviate(element.text(), spiderProperties.getPreviewTextLimit()));
             }
-            
-            return ReturnResult.ok(results);
-        } catch (Exception e) {
-            log.error("[Spider] 测试选择器失败", e);
-            return ReturnResult.illegal("测试失败: " + e.getMessage());
-        }
+            return results;
+        });
+    }
+
+    /**
+     * 获取选择器匹配节点详情
+     */
+    @PostMapping("/inspect-selector")
+    @Operation(summary = "获取选择器匹配节点详情")
+    public ReturnResult<List<Map<String, Object>>> inspectSelector(@RequestBody SelectorTestRequest request) {
+        return executeSafely("获取选择器匹配节点详情", () -> {
+            Document doc = loadDocument(request);
+            Elements elements = selectElements(doc, request);
+            List<Map<String, Object>> results = new ArrayList<>();
+            for (Element element : elements) {
+                results.add(buildElementSummary(element));
+            }
+            return results;
+        });
     }
 
     /**
@@ -436,8 +583,25 @@ public class MonitorSpiderController {
     @PostMapping("/generate-xpath")
     @Operation(summary = "生成XPath")
     public ReturnResult<String> generateXpath(@RequestBody XPathGenerateRequest request) {
-        // 简单返回elementPath
-        return ReturnResult.ok(request.getElementPath());
+        return executeSafely("生成XPath", () -> {
+            if (StringUtils.isEmpty(request.getElementPath())) {
+                throw new IllegalArgumentException("elementPath不能为空");
+            }
+            if (request.getElementPath().startsWith("/")) {
+                return request.getElementPath();
+            }
+
+            if (StringUtils.isEmpty(request.getUrl())) {
+                return request.getElementPath();
+            }
+
+            Document doc = loadDocument(request.getUrl());
+            Elements elements = doc.select(request.getElementPath());
+            if (elements.isEmpty()) {
+                throw new IllegalArgumentException("未找到对应节点");
+            }
+            return buildElementXpath(elements.first());
+        });
     }
 
     // ======================== SPI 管理 ========================
@@ -759,6 +923,236 @@ public class MonitorSpiderController {
     @Operation(summary = "删除连接")
     public ReturnResult<Boolean> deleteConnection(@PathVariable Integer connectionId) {
         return ReturnResult.ok(connectionService.removeById(connectionId));
+    }
+
+    // ======================== 内部方法 ========================
+
+    private <T> ReturnResult<T> executeSafely(String action, Supplier<T> supplier) {
+        try {
+            return ReturnResult.ok(supplier.get());
+        } catch (IllegalArgumentException e) {
+            log.warn("[Spider] {}参数错误: {}", action, e.getMessage());
+            return ReturnResult.illegal(e.getMessage());
+        } catch (Exception e) {
+            log.error("[Spider] {}失败", action, e);
+            return ReturnResult.illegal(action + "失败: " + e.getMessage());
+        }
+    }
+
+    private boolean isJdbcSetting(SystemDataSetting setting) {
+        if (setting == null) {
+            return false;
+        }
+        if ("JDBC".equalsIgnoreCase(setting.getSystemDataSettingType())) {
+            return true;
+        }
+        return StringUtils.isNotEmpty(setting.getSystemDataSettingServer())
+                && setting.getSystemDataSettingServer().toLowerCase(Locale.ROOT).startsWith("jdbc:");
+    }
+
+    private Document loadDocument(String url) {
+        if (StringUtils.isEmpty(url)) {
+            throw new IllegalArgumentException("url不能为空");
+        }
+        try {
+            return Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                    .timeout(Math.max(1, spiderProperties.getRequestTimeoutSeconds()) * 1000)
+                    .get();
+        } catch (Exception e) {
+            throw new IllegalStateException("加载页面失败: " + e.getMessage(), e);
+        }
+    }
+
+    private Document loadDocument(SelectorTestRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("请求不能为空");
+        }
+        if (StringUtils.isNotEmpty(request.getHtml())) {
+            return Jsoup.parse(request.getHtml(), StringUtils.isEmpty(request.getUrl()) ? "" : request.getUrl());
+        }
+        return loadDocument(request.getUrl());
+    }
+
+    private Elements selectElements(Document doc, SelectorTestRequest request) {
+        if (request == null || StringUtils.isEmpty(request.getSelector())) {
+            throw new IllegalArgumentException("selector不能为空");
+        }
+        String type = StringUtils.isEmpty(request.getType()) ? "XPATH" : request.getType();
+        if ("CSS".equalsIgnoreCase(type)) {
+            return doc.select(request.getSelector());
+        }
+        return doc.selectXpath(request.getSelector());
+    }
+
+    private Map<String, Object> parseElement(
+            Element element,
+            String xpath,
+            int depth,
+            int maxDepth,
+            int maxChildren,
+            int[] counter) {
+        if (element == null || depth > maxDepth) {
+            return null;
+        }
+
+        counter[0]++;
+        Map<String, Object> node = buildElementSummary(element, xpath);
+        node.put("depth", depth);
+
+        Elements childElements = element.children();
+        node.put("childCount", childElements.size());
+        if (depth >= maxDepth || childElements.isEmpty()) {
+            return node;
+        }
+
+        int limit = Math.max(0, Math.min(maxChildren, childElements.size()));
+        List<Map<String, Object>> children = new ArrayList<>(limit);
+        for (int i = 0; i < limit; i++) {
+            Element child = childElements.get(i);
+            Map<String, Object> childNode = parseElement(
+                    child,
+                    buildElementXpath(child),
+                    depth + 1,
+                    maxDepth,
+                    maxChildren,
+                    counter);
+            if (childNode != null) {
+                children.add(childNode);
+            }
+        }
+
+        if (!children.isEmpty()) {
+            node.put("children", children);
+        }
+        if (childElements.size() > limit) {
+            node.put("childrenTruncated", true);
+            node.put("truncatedCount", childElements.size() - limit);
+        }
+        return node;
+    }
+
+    private Map<String, Object> buildElementSummary(Element element) {
+        return buildElementSummary(element, buildElementXpath(element));
+    }
+
+    private Map<String, Object> buildElementSummary(Element element, String xpath) {
+        Map<String, Object> node = new LinkedHashMap<>();
+        String previewText = StringUtils.isNotEmpty(element.ownText()) ? element.ownText() : element.text();
+        node.put("tag", element.tagName());
+        node.put("displayName", buildDisplayName(element));
+        node.put("id", element.id());
+        node.put("class", element.className());
+        node.put("xpath", xpath);
+        node.put("cssSelector", buildCssSelector(element));
+        node.put("text", abbreviate(previewText, spiderProperties.getPreviewTextLimit()));
+        node.put("ownText", abbreviate(element.ownText(), spiderProperties.getPreviewTextLimit()));
+        node.put("attributes", extractAttributes(element));
+        node.put("htmlSnippet", abbreviate(element.outerHtml(), 500));
+        node.put("hasChildren", !element.children().isEmpty());
+        return node;
+    }
+
+    private String buildDisplayName(Element element) {
+        StringBuilder builder = new StringBuilder(element.tagName());
+        if (StringUtils.isNotEmpty(element.id())) {
+            builder.append("#").append(element.id());
+        }
+        if (!element.classNames().isEmpty()) {
+            int index = 0;
+            for (String className : element.classNames()) {
+                builder.append(".").append(className);
+                index++;
+                if (index >= 2) {
+                    break;
+                }
+            }
+        }
+        return builder.toString();
+    }
+
+    private Map<String, String> extractAttributes(Element element) {
+        Map<String, String> attributes = new LinkedHashMap<>();
+        element.attributes().forEach(attribute ->
+                attributes.put(attribute.getKey(), abbreviate(attribute.getValue(), 120)));
+        return attributes;
+    }
+
+    private String buildCssSelector(Element element) {
+        LinkedList<String> selectors = new LinkedList<>();
+        Element current = element;
+        int guard = 0;
+        while (current != null && guard++ < 6) {
+            StringBuilder builder = new StringBuilder(current.tagName());
+            if (StringUtils.isNotEmpty(current.id())) {
+                builder.append("#").append(current.id());
+                selectors.addFirst(builder.toString());
+                break;
+            }
+
+            if (!current.classNames().isEmpty()) {
+                int index = 0;
+                for (String className : current.classNames()) {
+                    builder.append(".").append(className);
+                    index++;
+                    if (index >= 2) {
+                        break;
+                    }
+                }
+            }
+
+            if (current.parent() != null && !"#root".equals(current.parent().tagName())) {
+                int sameTagIndex = 1;
+                Element sibling = current.previousElementSibling();
+                while (sibling != null) {
+                    if (current.tagName().equals(sibling.tagName())) {
+                        sameTagIndex++;
+                    }
+                    sibling = sibling.previousElementSibling();
+                }
+                builder.append(":nth-of-type(").append(sameTagIndex).append(")");
+            }
+
+            selectors.addFirst(builder.toString());
+            current = current.parent();
+            if (current != null && "#root".equals(current.tagName())) {
+                break;
+            }
+        }
+        return String.join(" > ", selectors);
+    }
+
+    private String buildElementXpath(Element element) {
+        LinkedList<String> paths = new LinkedList<>();
+        Element current = element;
+        while (current != null && !"#root".equals(current.tagName())) {
+            String tag = current.tagName();
+            if (current.parent() == null || "#root".equals(current.parent().tagName())) {
+                paths.addFirst("/" + tag);
+            } else {
+                int index = 1;
+                Element sibling = current.previousElementSibling();
+                while (sibling != null) {
+                    if (tag.equals(sibling.tagName())) {
+                        index++;
+                    }
+                    sibling = sibling.previousElementSibling();
+                }
+                paths.addFirst("/" + tag + "[" + index + "]");
+            }
+            current = current.parent();
+        }
+        return String.join("", paths);
+    }
+
+    private String abbreviate(String value, int maxLength) {
+        if (value == null) {
+            return "";
+        }
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, Math.max(0, maxLength)) + "...";
     }
 
     // ======================== 批量操作 ========================
