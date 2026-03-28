@@ -10,3 +10,22 @@ plugin:
     server:
       # 启用监控服务
       enable: true
+    spider:
+      # 启用爬虫模块
+      enabled: true
+      web-auth:
+        # 独立认证，避免依赖宿主系统登录态
+        mode: embedded
+        username: admin
+        password: admin123
+        session-timeout: 3600
+      # 启动时自动补齐爬虫相关表结构
+      auto-create-table: false
+      # 页面预览请求超时（秒）
+      request-timeout-seconds: 30
+      # DOM 解析深度限制
+      preview-max-depth: 10
+      # 每层最多返回子节点数
+      preview-max-children: 50
+      # 文本预览最大长度
+      preview-text-limit: 200

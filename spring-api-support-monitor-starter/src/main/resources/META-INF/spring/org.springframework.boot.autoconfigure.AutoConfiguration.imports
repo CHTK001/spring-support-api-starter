@@ -1,1 +1,3 @@
+com.chua.starter.monitor.configuration.SpiderAutoConfiguration
+com.chua.starter.monitor.configuration.SpiderOauthWhitelistConfiguration
 com.chua.starter.monitor.configuration.SyncConfiguration

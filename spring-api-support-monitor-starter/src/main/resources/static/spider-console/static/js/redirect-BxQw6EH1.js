@@ -1,0 +1,1 @@
+import{g as c,m as s,u as p,o as u,c as m}from"./vendor-ui-DXFgmDTA.js";const l=c({name:"Redirect",__name:"redirect",setup(_){const{currentRoute:r,replace:t}=s(),{params:a,query:n}=p(r),{path:e}=a,o=Array.isArray(e)?e.join("/"):e;return t({path:"/"+o,query:n}),(i,d)=>(u(),m("div"))}});export{l as default};
