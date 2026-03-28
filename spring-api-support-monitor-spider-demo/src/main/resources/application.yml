@@ -1,0 +1,42 @@
+server:
+  port: 19171
+
+spring:
+  application:
+    name: spider-demo
+  main:
+    banner-mode: "off"
+    lazy-initialization: true
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+knife4j:
+  enable: false
+
+plugin:
+  api:
+    uniform: false
+    encode:
+      enable: false
+    decode:
+      enable: false
+  oauth:
+    enable: false
+  monitor:
+    spider:
+      enabled: true
+      auto-create-table: false
+      request-timeout-seconds: 10
+      preview-max-depth: 10
+      preview-max-children: 50
+      preview-text-limit: 200
+
+logging:
+  level:
+    root: INFO
+    org.springframework: WARN
+    com.chua: INFO

@@ -11,6 +11,7 @@ import lombok.Data;
 @Data
 public class SelectorTestRequest {
     private String url;
+    private String html;
     private String selector;
     private String type;
 }
