@@ -24,6 +24,11 @@
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
+      <artifactId>spring-api-support-monitor-starter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
       <artifactId>spring-support-payment-starter</artifactId>
     </dependency>
     <dependency>
