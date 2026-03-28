@@ -15,6 +15,7 @@
     <modules>
         <module>spring-api-support-oauth-starter</module>
         <module>spring-api-support-system-starter</module>
+        <module>spring-api-support-oshi-starter</module>
         <module>spring-api-support-payment-starter</module>
         <module>spring-api-support-tenanted-starter</module>
         <module>spring-api-support-monitor-starter</module>
@@ -145,6 +146,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-common-project-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-api-support-oshi-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -414,6 +421,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-netty-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-oshi-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
 
