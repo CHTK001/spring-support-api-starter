@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 独立设备事件接口。
  */
 @Slf4j
-@RestController
+@RestController("deviceSysDeviceEventController")
 @RequiredArgsConstructor
 @Api(tags = "独立设备事件接口")
 @Tag(name = "独立设备事件接口")

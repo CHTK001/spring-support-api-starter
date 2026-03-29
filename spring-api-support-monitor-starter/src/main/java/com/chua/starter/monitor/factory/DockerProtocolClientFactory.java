@@ -1,6 +1,5 @@
 package com.chua.starter.monitor.factory;
 
-import com.chua.common.support.core.exception.UnsupportedPlatformException;
 import com.chua.common.support.network.protocol.ClientSetting;
 import com.chua.common.support.core.utils.ObjectUtils;
 // CmdDockerProtocolClient 已重构，通过 SPI 方式创建（使用 "cmd" 类型）
@@ -18,6 +17,9 @@ import org.springframework.util.StringUtils;
 
 import com.chua.starter.monitor.pojo.docker.DockerClientCreateResult;
 
+import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -58,9 +60,12 @@ public class DockerProtocolClientFactory {
 
         // 先从缓存中获取
         DockerProtocolClient cachedClient = clientCache.get(serverId);
-        if (cachedClient != null && cachedClient.isConnected()) {
-            log.debug("从缓存中获取Docker客户端 - serverId: {}", serverId);
-            return cachedClient;
+        if (cachedClient != null) {
+            if (isClientConnected(cachedClient)) {
+                log.debug("从缓存中获取Docker客户端 - serverId: {}", serverId);
+                return cachedClient;
+            }
+            removeBrokenClient(serverId, cachedClient);
         }
 
         // 获取服务器配置
@@ -84,7 +89,7 @@ public class DockerProtocolClientFactory {
         try {
             DockerProtocolClient client = createClientFromSetting(setting);
             if (client != null) {
-                client.connect();
+                connectAndValidate(client, serverId, serverName);
                 // 缓存客户端实例
                 clientCache.put(serverId, client);
                 log.info("成功创建Docker客户端 - serverId: {}, serverName: {}, connectionType: {}",
@@ -120,9 +125,12 @@ public class DockerProtocolClientFactory {
             try {
                 // 先从缓存中获取
                 DockerProtocolClient cachedClient = clientCache.get(serverId);
-                if (cachedClient != null && cachedClient.isConnected()) {
-                    result.addSuccess(serverId, cachedClient);
-                    continue;
+                if (cachedClient != null) {
+                    if (isClientConnected(cachedClient)) {
+                        result.addSuccess(serverId, cachedClient);
+                        continue;
+                    }
+                    removeBrokenClient(serverId, cachedClient);
                 }
 
                 // 获取服务器配置
@@ -148,7 +156,7 @@ public class DockerProtocolClientFactory {
                 // 创建客户端
                 DockerProtocolClient client = createClientFromSetting(setting);
                 if (client != null) {
-                    client.connect();
+                    connectAndValidate(client, serverId, serverName);
                     clientCache.put(serverId, client);
                     result.addSuccess(serverId, client);
                     log.info("成功创建Docker客户端 - serverId: {}, serverName: {}", serverId, serverName);
@@ -167,6 +175,39 @@ public class DockerProtocolClientFactory {
 
         log.info("批量创建Docker客户端完成 - {}", result.getSummary());
         return result;
+    }
+
+    private void connectAndValidate(DockerProtocolClient client, Integer serverId, String serverName) {
+        client.connect();
+        if (!isClientConnected(client)) {
+            closeQuietly(client);
+            throw new IllegalStateException(String.format("服务器[%s](ID:%d)连接已建立但不可用", serverName, serverId));
+        }
+    }
+
+    private boolean isClientConnected(DockerProtocolClient client) {
+        try {
+            return client != null && client.isConnected();
+        } catch (Exception e) {
+            log.debug("检测Docker客户端连接状态失败: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    private void removeBrokenClient(Integer serverId, DockerProtocolClient client) {
+        clientCache.remove(serverId, client);
+        closeQuietly(client);
+    }
+
+    private void closeQuietly(DockerProtocolClient client) {
+        if (client == null) {
+            return;
+        }
+        try {
+            client.close();
+        } catch (Exception e) {
+            log.debug("关闭Docker客户端失败: {}", e.getMessage());
+        }
     }
 
     /**
@@ -257,9 +298,9 @@ public class DockerProtocolClientFactory {
             return null;
         }
 
-        String dockerHost = "unix://" + socketPath;
-        log.debug("创建Unix Socket Docker客户端 - socketPath: {}", dockerHost);
-        return DockerProtocolClient.of(dockerHost);
+        Integer timeout = ObjectUtils.defaultIfNull(
+                setting.getMonitorSysGenServerSettingDockerConnectTimeoutMillis(), 30_000);
+        return createUnixSocketClient(setting.getMonitorSysGenServerId(), socketPath, timeout);
     }
 
     /**
@@ -325,24 +366,72 @@ public class DockerProtocolClientFactory {
                     setting.getMonitorSysGenServerSettingDockerConnectTimeoutMillis(), 30_000);
         }
 
+        String socketPath = resolveDockerSocketPath(setting);
+        if (isLocalDockerHost(host) && isUnixSocketAvailable(socketPath)) {
+            log.info("SHELL模式检测到本机Docker，回退使用Unix Socket - serverId: {}, serverName: {}, socketPath: {}",
+                    serverId, server.getMonitorSysGenServerName(), socketPath);
+            return createUnixSocketClient(serverId, socketPath, timeout);
+        }
+
+        throw new UnsupportedOperationException(String.format(
+                "服务器[%s](ID:%d)当前SHELL模式不可用，请改用TCP或UNIX_SOCKET；如为同机Docker，请配置socketPath并确保%s可访问",
+                server.getMonitorSysGenServerName(), serverId, socketPath));
+    }
+
+    private DockerProtocolClient createUnixSocketClient(Integer serverId, String socketPath, Integer timeout) {
+        String dockerHost = normalizeUnixSocketPath(socketPath);
+        long timeoutMillis = ObjectUtils.defaultIfNull(timeout, 30_000);
         ClientSetting clientSetting = ClientSetting.builder()
-                .host(host)
-                .port(port)
-                .username(username)
-                .password(password)
-                .connectTimeoutMillis(timeout)
+                .url(dockerHost)
+                .connectTimeoutMillis(timeoutMillis)
+                .readTimeoutMillis(timeoutMillis)
+                .writeTimeoutMillis(timeoutMillis)
                 .build();
+        log.debug("创建Unix Socket Docker客户端 - serverId: {}, socketPath: {}", serverId, dockerHost);
+        return DockerProtocolClient.of(clientSetting);
+    }
+
+    private String resolveDockerSocketPath(MonitorSysGenServerSetting setting) {
+        String socketPath = setting.getMonitorSysGenServerSettingDockerSocketPath();
+        if (StringUtils.hasText(socketPath)) {
+            return socketPath.trim();
+        }
+        return "/var/run/docker.sock";
+    }
+
+    private String normalizeUnixSocketPath(String socketPath) {
+        String normalized = socketPath.trim();
+        if (normalized.startsWith("unix://")) {
+            return normalized;
+        }
+        if (!normalized.startsWith("/")) {
+            normalized = "/" + normalized;
+        }
+        return "unix://" + normalized;
+    }
+
+    private boolean isLocalDockerHost(String host) {
+        if (!StringUtils.hasText(host)) {
+            return false;
+        }
 
         try {
-            // 使用CMD Docker客户端（通过SPI创建，类型为"cmd"）
-            DockerProtocolClient client = DockerProtocolClient.of(clientSetting);
-            log.info("CMD Docker客户端创建成功 - serverId: {}, serverName: {}, 将通过SSH({}@{}:{})执行docker命令",
-                    serverId, server.getMonitorSysGenServerName(), username, host, port);
-            return client;
+            InetAddress address = InetAddress.getByName(host);
+            return address.isLoopbackAddress() || address.isAnyLocalAddress();
         } catch (Exception e) {
-            log.error("创建CMD Docker客户端失败 - serverId: {}, host: {}, error: {}",
-                    serverId, host, e.getMessage(), e);
-            return null;
+            return "localhost".equalsIgnoreCase(host);
+        }
+    }
+
+    private boolean isUnixSocketAvailable(String socketPath) {
+        try {
+            String normalized = socketPath.startsWith("unix://")
+                    ? socketPath.substring("unix://".length())
+                    : socketPath;
+            return Files.exists(Path.of(normalized));
+        } catch (Exception e) {
+            log.debug("检测Unix Socket失败 - socketPath: {}, error: {}", socketPath, e.getMessage());
+            return false;
         }
     }
 

@@ -2,10 +2,10 @@ package com.chua.starter.monitor.service.docker;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.docker.support.client.DockerPullImage;
 import com.chua.starter.monitor.entity.SystemSoftImage;
 import com.chua.starter.monitor.entity.SystemSoftImageStatus;
-import com.chua.docker.support.client.DockerPullImage;
-import com.chua.docker.support.client.DockerCreateContainer;
+import com.chua.starter.monitor.pojo.docker.DockerCreateContainerRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -73,7 +73,7 @@ public interface SystemSoftImageService extends IService<SystemSoftImage> {
      * @param config  容器配置
      * @return 创建结果
      */
-    ReturnResult<Boolean> createContainer(Integer imageId, DockerCreateContainer config);
+    ReturnResult<Boolean> createContainer(Integer imageId, DockerCreateContainerRequest config);
 
     /**
      * 删除镜像（从服务器中删除）

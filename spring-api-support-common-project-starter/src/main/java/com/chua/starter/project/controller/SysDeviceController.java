@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author CH
  * @since 2024/9/4
  */
-@RestController
+@RestController("projectSysDeviceController")
 @Slf4j
 @Api(tags = "设备接口")
 @Tag(name = "设备接口")
