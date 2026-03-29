@@ -14,6 +14,9 @@ spring:
 # OAuth 服务端配置
 # ===========================================
 plugin:
+  api:
+    encode:
+      enable: false
   oauth:
     server:
       # 签名校验开关（默认 true，生产环境必须开启）

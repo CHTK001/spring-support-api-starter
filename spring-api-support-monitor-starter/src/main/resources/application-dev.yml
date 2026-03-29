@@ -75,6 +75,6 @@ plugin:
     # 开启OAuth认证
     enable: true
     # 认证服务器地址
-    address: http://172.16.3.66:19180/oauth
+    address: http://172.16.0.40:19180/oauth
     # 认证协议（http/http-lite/static）
-    protocol: static
+    protocol: http

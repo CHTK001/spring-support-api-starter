@@ -5,14 +5,20 @@ import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.entity.SystemSoftContainer;
 import com.chua.starter.monitor.entity.SystemSoftContainerStats;
+import com.chua.starter.monitor.enums.DockerConnectionType;
 import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
 import com.chua.starter.monitor.mapper.SystemSoftContainerMapper;
 import com.chua.starter.monitor.service.docker.SystemSoftContainerStatsService;
+import com.chua.starter.monitor.service.impl.SystemSoftContainerServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import com.github.dockerjava.api.model.Statistics;
 
+import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +59,10 @@ public class DockerStatsPushStep {
                 return;
             }
 
+            if (shouldSkipUnavailableLocalDocker(server, setting)) {
+                return;
+            }
+
             // 获取Docker客户端
             var dockerClient = dockerProtocolClientFactory.createClient(server.getMonitorSysGenServerId());
             if (dockerClient == null) {
@@ -90,6 +100,57 @@ public class DockerStatsPushStep {
             }
         } catch (Exception e) {
             log.error("执行Docker状态推送任务失败: serverId={}", server.getMonitorSysGenServerId(), e);
+        }
+    }
+
+    private boolean shouldSkipUnavailableLocalDocker(MonitorSysGenServer server, MonitorSysGenServerSetting setting) {
+        String connectionType = setting.getMonitorSysGenServerSettingDockerConnectionType();
+        if (!StringUtils.hasText(connectionType)) {
+            return false;
+        }
+
+        DockerConnectionType dockerConnectionType;
+        try {
+            dockerConnectionType = DockerConnectionType.valueOf(connectionType.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+
+        String socketPath = resolveSocketPath(setting);
+        return switch (dockerConnectionType) {
+            case UNIX_SOCKET, SOCKET -> !isUnixSocketAvailable(socketPath);
+            case LOCAL, SHELL -> isLocalHost(server != null ? server.getMonitorSysGenServerHost() : null)
+                    && !isUnixSocketAvailable(socketPath);
+            default -> false;
+        };
+    }
+
+    private String resolveSocketPath(MonitorSysGenServerSetting setting) {
+        String socketPath = setting.getMonitorSysGenServerSettingDockerSocketPath();
+        return StringUtils.hasText(socketPath) ? socketPath.trim() : "/var/run/docker.sock";
+    }
+
+    private boolean isUnixSocketAvailable(String socketPath) {
+        try {
+            String normalized = socketPath.startsWith("unix://")
+                    ? socketPath.substring("unix://".length())
+                    : socketPath;
+            return Files.exists(Path.of(normalized));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean isLocalHost(String host) {
+        if (!StringUtils.hasText(host)) {
+            return false;
+        }
+
+        try {
+            InetAddress address = InetAddress.getByName(host);
+            return address.isLoopbackAddress() || address.isAnyLocalAddress();
+        } catch (Exception e) {
+            return "localhost".equalsIgnoreCase(host);
         }
     }
 
@@ -179,6 +240,7 @@ public class DockerStatsPushStep {
 
             // 设置记录时间
             containerStats.setSystemSoftContainerStatsRecordTime(java.time.LocalDateTime.now());
+            SystemSoftContainerServiceImpl.normalizeStatsSnapshot(containerStats);
 
             // 保存到数据库
             systemSoftContainerStatsService.save(containerStats);

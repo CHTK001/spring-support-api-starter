@@ -53,12 +53,22 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
     @Autowired
     private RedisClient redisClient;
     private RedisSearch redisSearch;
+    private volatile boolean redisAvailable = false;
+    private volatile String unavailableReason = "Redis not initialized";
 
     @PostConstruct
     public void init() {
-        this.redisSearch = redisClient.getRedisSearch();
-        initTraceIndex();
-        log.info("[AgentDataStorage] Agent 数据存储服务初始化完成");
+        try {
+            this.redisSearch = redisClient.getRedisSearch();
+            initTraceIndex();
+            redisAvailable = true;
+            unavailableReason = "";
+            log.info("[AgentDataStorage] Agent 数据存储服务初始化完成");
+        } catch (Exception e) {
+            redisAvailable = false;
+            unavailableReason = e.getMessage();
+            log.warn("[AgentDataStorage] Redis 不可用，Agent 数据能力降级: {}", e.getMessage(), e);
+        }
     }
 
     /**
@@ -100,6 +110,9 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 
     @Override
     public ReturnResult<Boolean> storeTraceForAgent(String sessionId, Map<String, Object> traceData) {
+        if (!ensureAvailable("链路追踪存储")) {
+            return unavailableBooleanResult("链路追踪存储");
+        }
         try {
             String linkId = MapUtils.getString(traceData, "linkId");
             String spanId = MapUtils.getString(traceData, "id");
@@ -179,6 +192,9 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
     @Override
     public ReturnResult<List<AgentTraceDTO>> searchTracesForAgent(String keyword, Long startTime, Long endTime,
                                                                    int offset, int limit) {
+        if (!ensureAvailable("链路追踪查询")) {
+            return unavailableListResult("链路追踪查询");
+        }
         try {
             StringBuilder queryBuilder = new StringBuilder();
 
@@ -220,6 +236,9 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 
     @Override
     public ReturnResult<AgentTraceDTO> getTraceByLinkIdForAgent(String linkId) {
+        if (!ensureAvailable("链路详情查询")) {
+            return unavailableObjectResult("链路详情查询");
+        }
         try {
             SearchQuery query = new SearchQuery();
             query.setIndex(TRACE_INDEX_NAME);
@@ -250,6 +269,9 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 
     @Override
     public ReturnResult<Boolean> storeServiceInstanceForAgent(String sessionId, Map<String, Object> instanceData) {
+        if (!ensureAvailable("服务关系存储")) {
+            return unavailableBooleanResult("服务关系存储");
+        }
         try {
             String sourceName = MapUtils.getString(instanceData, "sourceName", "");
             String sourceHost = MapUtils.getString(instanceData, "sourceHost", "");
@@ -288,6 +310,9 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 
     @Override
     public ReturnResult<Map<String, Object>> getServiceTopologyForAgent() {
+        if (!ensureAvailable("服务拓扑查询")) {
+            return unavailableMapResult("服务拓扑查询");
+        }
         JedisPool jedisPool = redisClient.getJedisPool();
         try (Jedis jedis = jedisPool.getResource()) {
             Set<String> relations = jedis.smembers(SERVICE_KEY + ":relations");
@@ -346,6 +371,9 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 
     @Override
     public ReturnResult<List<AgentServiceInstanceDTO>> getServiceRelationsForAgent(String serviceName) {
+        if (!ensureAvailable("服务关系查询")) {
+            return unavailableListResult("服务关系查询");
+        }
         JedisPool jedisPool = redisClient.getJedisPool();
         try (Jedis jedis = jedisPool.getResource()) {
             Set<String> relations = jedis.smembers(SERVICE_KEY + ":relations");
@@ -384,6 +412,9 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 
     @Override
     public ReturnResult<Boolean> storeFileHandleForAgent(String sessionId, Map<String, Object> handleData) {
+        if (!ensureAvailable("文件句柄存储")) {
+            return unavailableBooleanResult("文件句柄存储");
+        }
         try {
             String ipAddress = MapUtils.getString(handleData, "ipAddress", "");
             int port = MapUtils.getInteger(handleData, "port", 0);
@@ -422,6 +453,9 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 
     @Override
     public ReturnResult<List<AgentFileHandleDTO>> getFileHandlesForAgent(String ipAddress, Integer port) {
+        if (!ensureAvailable("文件句柄查询")) {
+            return unavailableListResult("文件句柄查询");
+        }
         JedisPool jedisPool = redisClient.getJedisPool();
         try (Jedis jedis = jedisPool.getResource()) {
             String key = FILE_HANDLE_PREFIX + ipAddress + ":" + port;
@@ -456,6 +490,9 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 
     @Override
     public ReturnResult<Map<String, Object>> getFileHandleStatsForAgent() {
+        if (!ensureAvailable("文件句柄统计")) {
+            return unavailableMapResult("文件句柄统计");
+        }
         JedisPool jedisPool = redisClient.getJedisPool();
         try (Jedis jedis = jedisPool.getResource()) {
             Set<String> keys = jedis.keys(FILE_HANDLE_PREFIX + "*");
@@ -579,5 +616,29 @@ public class AgentDataStorageServiceImpl implements AgentDataStorageService {
                 storeServiceInstanceForAgent("system", instance);
             }
         }
+    }
+
+    private boolean ensureAvailable(String operation) {
+        if (redisAvailable) {
+            return true;
+        }
+        log.warn("[AgentDataStorage] {}已跳过，Redis 不可用: {}", operation, unavailableReason);
+        return false;
+    }
+
+    private ReturnResult<Boolean> unavailableBooleanResult(String operation) {
+        return ReturnResult.error(operation + "不可用，Redis 未连接: " + unavailableReason);
+    }
+
+    private <T> ReturnResult<List<T>> unavailableListResult(String operation) {
+        return ReturnResult.error(operation + "不可用，Redis 未连接: " + unavailableReason);
+    }
+
+    private ReturnResult<Map<String, Object>> unavailableMapResult(String operation) {
+        return ReturnResult.error(operation + "不可用，Redis 未连接: " + unavailableReason);
+    }
+
+    private <T> ReturnResult<T> unavailableObjectResult(String operation) {
+        return ReturnResult.error(operation + "不可用，Redis 未连接: " + unavailableReason);
     }
 }
