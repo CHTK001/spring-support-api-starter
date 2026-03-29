@@ -3,22 +3,31 @@ package com.chua.starter.monitor.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.core.utils.StringUtils;
-import com.chua.docker.support.client.DockerCreateContainer;
 import com.chua.docker.support.client.DockerProtocolClient;
 import com.chua.docker.support.client.DockerPullImage;
 import com.chua.starter.monitor.callback.WebSocketContainerCreateCallback;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.entity.SystemSoft;
 import com.chua.starter.monitor.entity.SystemSoftImage;
 import com.chua.starter.monitor.entity.SystemSoftImageStatus;
 import com.chua.starter.monitor.enums.OperationType;
 import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
-import com.chua.starter.monitor.pojo.docker.DockerClientCreateResult;
 import com.chua.starter.monitor.mapper.SystemSoftImageMapper;
 import com.chua.starter.monitor.mapper.SystemSoftMapper;
+import com.chua.starter.monitor.pojo.docker.DockerClientCreateResult;
+import com.chua.starter.monitor.pojo.docker.DockerCreateContainerRequest;
 import com.chua.starter.monitor.service.docker.DockerCallbackService;
+import com.chua.starter.monitor.service.docker.SystemSoftContainerService;
 import com.chua.starter.monitor.service.docker.SystemSoftImageService;
-import com.chua.starter.monitor.constant.MonitorSocketTopics;
+import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Image;
+import com.github.dockerjava.api.model.InternetProtocol;
+import com.github.dockerjava.api.model.Ports;
+import com.github.dockerjava.api.model.RestartPolicy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +35,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +63,9 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
     @Autowired
     @Lazy
     private com.chua.starter.monitor.service.docker.SystemSoftRecordService systemSoftRecordService;
+    @Autowired
+    @Lazy
+    private SystemSoftContainerService systemSoftContainerService;
 
     /**
      * 根据条件查询镜像列表
@@ -211,7 +225,7 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
      * @return 创建结果
      */
     @Override
-    public ReturnResult<Boolean> createContainer(Integer imageId, DockerCreateContainer config) {
+    public ReturnResult<Boolean> createContainer(Integer imageId, DockerCreateContainerRequest config) {
         log.info("创建容器 - 镜像ID: {}", imageId);
 
         // 创建操作记录（先记录）
@@ -223,6 +237,8 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
         record.setSystemSoftRecordStartTime(java.time.LocalDateTime.now());
         record.setSystemSoftRecordTime(java.time.LocalDateTime.now());
 
+        DockerCreateContainerRequest request = config != null ? config : new DockerCreateContainerRequest();
+        WebSocketContainerCreateCallback callback = null;
         try {
             // 获取镜像信息
             SystemSoftImage image = systemSoftImageMapper.selectById(imageId);
@@ -244,10 +260,10 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
             record.setSystemServerId(image.getSystemSoftImageServerId());
 
             // 获取容器名称（如果配置中没有提供，则生成一个默认名称）
-            String containerName = config.getContainerName();
+            String containerName = request.getContainerName();
             if (!StringUtils.hasText(containerName)) {
                 containerName = "container-" + image.getSystemSoftImageName().replace("/", "-") + "-" + System.currentTimeMillis();
-                config.setContainerName(containerName);
+                request.setContainerName(containerName);
             }
             
             // 设置记录参数
@@ -273,16 +289,10 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
             }
 
             // 构造完整的镜像名称（如果配置中没有提供）
-            if (!StringUtils.hasText(config.getImageName())) {
-                String fullImageName = image.getSystemSoftImageName();
-                if (StringUtils.hasText(image.getSystemSoftImageTag())) {
-                    fullImageName = image.getSystemSoftImageName() + ":" + image.getSystemSoftImageTag();
-                }
-                config.setImageName(fullImageName);
-            }
+            request.setImageName(resolveImageName(image, request.getImageName()));
 
             // 创建WebSocket回调处理器，传入完整的关联信息
-            var callback = new WebSocketContainerCreateCallback(
+            callback = new WebSocketContainerCreateCallback(
                     dockerCallbackService.getSocketSessionTemplate(), 
                     OperationType.CREATE, 
                     containerName,
@@ -290,11 +300,33 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
                     image.getSystemSoftId(),
                     serverId);
 
-            // 执行启动操作（创建容器带回调）
-            log.info("开始创建容器(带回调): {} 使用镜像: {}, 记录ID: {}", containerName, config.getImageName(), record.getSystemSoftRecordId());
-            dockerCallbackService.createContainerWithCallback(dockerClient, config, callback);
+            log.info("开始创建容器: {} 使用镜像: {}, 记录ID: {}, autoStart: {}",
+                    containerName, request.getImageName(), record.getSystemSoftRecordId(), request.shouldAutoStart());
+            callback.onStart(null);
 
-            log.info("创建容器请求已发送 - 镜像ID: {}, 记录ID: {}", imageId, record.getSystemSoftRecordId());
+            String dockerContainerId = createDockerContainer(dockerClient, request);
+            boolean autoStarted = false;
+            if (request.shouldAutoStart()) {
+                autoStarted = dockerClient.startContainerById(dockerContainerId);
+                if (!autoStarted) {
+                    throw new IllegalStateException("容器创建成功，但启动失败");
+                }
+            }
+
+            callback.onComplete();
+            syncContainerStatusQuietly(serverId);
+
+            record.setSystemSoftRecordStatus(1); // 1: 成功
+            record.setSystemSoftRecordMessage(autoStarted ? "创建并启动容器成功" : "创建容器成功");
+            record.setSystemSoftRecordContainerId(dockerContainerId);
+            record.setSystemSoftRecordResult(String.format("containerName=%s, dockerContainerId=%s, autoStarted=%s",
+                    containerName, dockerContainerId, autoStarted));
+            record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+            record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+            systemSoftRecordService.updateById(record);
+
+            log.info("创建容器成功 - 镜像ID: {}, 容器名: {}, Docker容器ID: {}, 记录ID: {}",
+                    imageId, containerName, dockerContainerId, record.getSystemSoftRecordId());
             return ReturnResult.ok(true);
         } catch (Exception e) {
             // 更新记录状态为失败
@@ -308,9 +340,232 @@ public class SystemSoftImageServiceImpl extends ServiceImpl<SystemSoftImageMappe
                 log.warn("更新记录状态为失败时出错: {}", updateEx.getMessage());
             }
 
+            if (callback != null) {
+                try {
+                    callback.onError(e);
+                } catch (Exception callbackEx) {
+                    log.warn("推送容器创建失败事件出错: {}", callbackEx.getMessage());
+                }
+            }
+
             log.error("创建容器失败 - 错误信息: {}", e.getMessage(), e);
             return ReturnResult.error("创建容器失败: " + e.getMessage());
         }
+    }
+
+    private String createDockerContainer(DockerProtocolClient dockerClient, DockerCreateContainerRequest config) {
+        CreateContainerCmd createContainerCmd = dockerClient.getDockerClient().createContainerCmd(config.getImageName());
+        HostConfig hostConfig = new HostConfig();
+        boolean hasHostConfig = false;
+
+        if (StringUtils.hasText(config.getContainerName())) {
+            createContainerCmd.withName(config.getContainerName());
+        }
+
+        List<String> environmentVariables = normalizeStringList(config.getEnvironmentVariables());
+        if (!environmentVariables.isEmpty()) {
+            createContainerCmd.withEnv(environmentVariables);
+        }
+
+        List<ExposedPort> exposedPorts = new ArrayList<>();
+        Ports portBindings = new Ports();
+        for (String binding : normalizeStringList(config.getPortBindings())) {
+            ParsedPortBinding parsedPortBinding = parsePortBinding(binding);
+            ExposedPort exposedPort = new ExposedPort(
+                    parsedPortBinding.containerPort(),
+                    "udp".equals(parsedPortBinding.protocol()) ? InternetProtocol.UDP : InternetProtocol.TCP
+            );
+            Ports.Binding hostBinding = StringUtils.hasText(parsedPortBinding.hostIp())
+                    ? Ports.Binding.bindIpAndPort(parsedPortBinding.hostIp(), parsedPortBinding.hostPort())
+                    : Ports.Binding.bindPort(parsedPortBinding.hostPort());
+            portBindings.bind(exposedPort, hostBinding);
+            exposedPorts.add(exposedPort);
+        }
+        if (!exposedPorts.isEmpty()) {
+            hostConfig.withPortBindings(portBindings);
+            createContainerCmd.withExposedPorts(exposedPorts);
+            hasHostConfig = true;
+        }
+
+        List<Bind> binds = normalizeStringList(config.getVolumeBindings()).stream()
+                .map(Bind::parse)
+                .toList();
+        if (!binds.isEmpty()) {
+            hostConfig.withBinds(binds);
+            hasHostConfig = true;
+        }
+
+        if (config.getAutoRemove() != null) {
+            hostConfig.withAutoRemove(config.getAutoRemove());
+            hasHostConfig = true;
+        }
+        if (StringUtils.hasText(config.getRestartPolicy())) {
+            hostConfig.withRestartPolicy(RestartPolicy.parse(config.getRestartPolicy()));
+            hasHostConfig = true;
+        }
+        if (StringUtils.hasText(config.getNetworkMode())) {
+            hostConfig.withNetworkMode(config.getNetworkMode());
+            hasHostConfig = true;
+        }
+        if (config.getCpuLimit() != null && config.getCpuLimit() > 0) {
+            hostConfig.withNanoCPUs(config.getCpuLimit());
+            hasHostConfig = true;
+        }
+        if (config.getMemoryLimit() != null && config.getMemoryLimit() > 0) {
+            hostConfig.withMemory(config.getMemoryLimit());
+            hasHostConfig = true;
+        }
+        if (config.getPrivileged() != null) {
+            hostConfig.withPrivileged(config.getPrivileged());
+            hasHostConfig = true;
+        }
+
+        List<String> dnsServers = normalizeStringList(config.getDnsServers());
+        if (!dnsServers.isEmpty()) {
+            hostConfig.withDns(dnsServers);
+            hasHostConfig = true;
+        }
+
+        List<String> extraHosts = normalizeStringList(config.getExtraHosts());
+        if (!extraHosts.isEmpty()) {
+            hostConfig.withExtraHosts(extraHosts.toArray(new String[0]));
+            hasHostConfig = true;
+        }
+
+        if (StringUtils.hasText(config.getHostname())) {
+            createContainerCmd.withHostName(config.getHostname());
+        }
+        if (StringUtils.hasText(config.getUser())) {
+            createContainerCmd.withUser(config.getUser());
+        }
+        if (StringUtils.hasText(config.getWorkingDirectory())) {
+            createContainerCmd.withWorkingDir(config.getWorkingDirectory());
+        }
+
+        Map<String, String> labels = parseKeyValueList(config.getLabels());
+        if (!labels.isEmpty()) {
+            createContainerCmd.withLabels(labels);
+        }
+
+        List<String> command = buildCommand(config.getCommand(), config.getArgs());
+        if (!command.isEmpty()) {
+            createContainerCmd.withCmd(command);
+        }
+
+        if (hasHostConfig) {
+            createContainerCmd.withHostConfig(hostConfig);
+        }
+
+        CreateContainerResponse response = createContainerCmd.exec();
+        if (response == null || !StringUtils.hasText(response.getId())) {
+            throw new IllegalStateException("创建容器失败，未返回容器ID");
+        }
+        return response.getId();
+    }
+
+    private String resolveImageName(SystemSoftImage image, String requestedImageName) {
+        if (StringUtils.hasText(requestedImageName)) {
+            return requestedImageName;
+        }
+
+        String fullImageName = image.getSystemSoftImageName();
+        if (StringUtils.hasText(image.getSystemSoftImageTag())) {
+            fullImageName = image.getSystemSoftImageName() + ":" + image.getSystemSoftImageTag();
+        }
+        return fullImageName;
+    }
+
+    private List<String> buildCommand(String command, String args) {
+        List<String> result = new ArrayList<>();
+        appendTokens(result, command);
+        appendTokens(result, args);
+        return result;
+    }
+
+    private void appendTokens(List<String> target, String value) {
+        if (!StringUtils.hasText(value)) {
+            return;
+        }
+
+        for (String token : value.trim().split("\\s+")) {
+            if (StringUtils.hasText(token)) {
+                target.add(token);
+            }
+        }
+    }
+
+    private List<String> normalizeStringList(List<String> values) {
+        if (values == null || values.isEmpty()) {
+            return List.of();
+        }
+
+        List<String> result = new ArrayList<>();
+        for (String value : values) {
+            if (StringUtils.hasText(value)) {
+                result.add(value.trim());
+            }
+        }
+        return result;
+    }
+
+    private ParsedPortBinding parsePortBinding(String binding) {
+        if (!StringUtils.hasText(binding)) {
+            throw new IllegalArgumentException("端口映射不能为空");
+        }
+
+        String normalized = binding.trim();
+        String protocol = "tcp";
+        int protocolIndex = normalized.lastIndexOf('/');
+        if (protocolIndex >= 0 && protocolIndex < normalized.length() - 1) {
+            protocol = normalized.substring(protocolIndex + 1).trim().toLowerCase();
+            normalized = normalized.substring(0, protocolIndex);
+        }
+
+        String[] parts = normalized.split(":");
+        if (parts.length == 2) {
+            return new ParsedPortBinding(null, parsePort(parts[0], binding), parsePort(parts[1], binding), protocol);
+        }
+        if (parts.length == 3) {
+            return new ParsedPortBinding(parts[0].trim(), parsePort(parts[1], binding), parsePort(parts[2], binding), protocol);
+        }
+
+        throw new IllegalArgumentException("端口映射格式不正确: " + binding);
+    }
+
+    private int parsePort(String port, String rawBinding) {
+        try {
+            return Integer.parseInt(port.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("端口映射格式不正确: " + rawBinding, e);
+        }
+    }
+
+    private Map<String, String> parseKeyValueList(List<String> values) {
+        Map<String, String> result = new LinkedHashMap<>();
+        for (String value : normalizeStringList(values)) {
+            int index = value.indexOf('=');
+            if (index <= 0) {
+                continue;
+            }
+
+            String key = value.substring(0, index).trim();
+            String itemValue = value.substring(index + 1).trim();
+            if (StringUtils.hasText(key)) {
+                result.put(key, itemValue);
+            }
+        }
+        return result;
+    }
+
+    private void syncContainerStatusQuietly(Integer serverId) {
+        try {
+            systemSoftContainerService.syncContainerStatus(serverId);
+        } catch (Exception e) {
+            log.warn("同步容器状态失败 - serverId: {}, error: {}", serverId, e.getMessage());
+        }
+    }
+
+    private record ParsedPortBinding(String hostIp, int hostPort, int containerPort, String protocol) {
     }
 
     /**

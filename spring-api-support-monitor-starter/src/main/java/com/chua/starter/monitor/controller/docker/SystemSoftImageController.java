@@ -1,18 +1,20 @@
 package com.chua.starter.monitor.controller.docker;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemSoftImage;
 import com.chua.starter.monitor.entity.SystemSoftImageStatus;
+import com.chua.starter.monitor.pojo.docker.DockerCreateContainerRequest;
 import com.chua.starter.monitor.service.docker.SystemSoftImageService;
-import com.chua.docker.support.client.DockerCreateContainer;
 import com.chua.docker.support.client.DockerPullImage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,7 +59,15 @@ public class SystemSoftImageController {
         try {
             log.debug("分页查询镜像列表, page: {}, size: {}", page, size);
 
-            IPage<SystemSoftImage> pageResult = systemSoftImageService.page(new Page<>(page, size));
+            LambdaQueryWrapper<SystemSoftImage> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(serverId != null, SystemSoftImage::getSystemSoftImageServerId, serverId);
+            queryWrapper.eq(softId != null, SystemSoftImage::getSystemSoftId, softId);
+            queryWrapper.eq(status != null, SystemSoftImage::getSystemSoftImageStatus, status);
+            applyImageKeywordFilter(queryWrapper, imageName);
+            queryWrapper.orderByDesc(SystemSoftImage::getSystemSoftImageCreated)
+                    .orderByDesc(SystemSoftImage::getCreateTime);
+
+            IPage<SystemSoftImage> pageResult = systemSoftImageService.page(new Page<>(page, size), queryWrapper);
             log.debug("分页查询镜像列表成功, count: {}", pageResult.getRecords().size());
             return ReturnResult.ok(pageResult);
 
@@ -128,7 +138,7 @@ public class SystemSoftImageController {
     @Operation(summary = "创建容器", description = "基于镜像创建容器")
     public ReturnResult<Boolean> createContainer(
             @Parameter(description = "镜像ID") @PathVariable Integer id,
-            @Parameter(description = "容器配置") @RequestBody(required = false) DockerCreateContainer config) {
+            @Parameter(description = "容器配置") @RequestBody(required = false) DockerCreateContainerRequest config) {
         return systemSoftImageService.createContainer(id, config);
     }
 
@@ -250,6 +260,22 @@ public class SystemSoftImageController {
         public void setServerIds(List<Integer> serverIds) {
             this.serverIds = serverIds;
         }
+    }
+
+    private void applyImageKeywordFilter(LambdaQueryWrapper<SystemSoftImage> queryWrapper, String imageName) {
+        if (!StringUtils.hasText(imageName)) {
+            return;
+        }
+
+        String keyword = imageName.trim();
+        queryWrapper.and(wrapper -> wrapper
+                .like(SystemSoftImage::getSystemSoftImageName, keyword)
+                .or()
+                .like(SystemSoftImage::getSystemSoftImageTag, keyword)
+                .or()
+                .like(SystemSoftImage::getSystemSoftImageFullName, keyword)
+                .or()
+                .like(SystemSoftImage::getSystemSoftImageImageId, keyword));
     }
 
 }

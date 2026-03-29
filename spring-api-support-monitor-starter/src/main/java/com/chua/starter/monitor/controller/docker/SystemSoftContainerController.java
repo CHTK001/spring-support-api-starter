@@ -1,16 +1,19 @@
 package com.chua.starter.monitor.controller.docker;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemSoftContainer;
 import com.chua.starter.monitor.entity.SystemSoftContainerStats;
+import com.chua.starter.monitor.entity.SystemSoftContainerStatus;
 import com.chua.starter.monitor.service.docker.SystemSoftContainerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,7 +55,15 @@ public class SystemSoftContainerController {
         try {
             log.debug("分页查询容器列表, page: {}, size: {}", page, size);
 
-            IPage<SystemSoftContainer> pageResult = systemSoftContainerService.page(new Page<>(page, size));
+            LambdaQueryWrapper<SystemSoftContainer> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(serverId != null, SystemSoftContainer::getSystemServerId, serverId);
+            queryWrapper.eq(softId != null, SystemSoftContainer::getSystemSoftId, softId);
+            applyStatusFilter(queryWrapper, status);
+            applyKeywordFilter(queryWrapper, containerName);
+            queryWrapper.orderByDesc(SystemSoftContainer::getCreateTime)
+                    .orderByDesc(SystemSoftContainer::getSystemSoftContainerCreatedTime);
+
+            IPage<SystemSoftContainer> pageResult = systemSoftContainerService.page(new Page<>(page, size), queryWrapper);
             log.debug("分页查询容器列表成功, count: {}", pageResult.getRecords().size());
             return ReturnResult.ok(pageResult);
 
@@ -336,5 +347,49 @@ public class SystemSoftContainerController {
     public static class BatchOperationRequest {
         private java.util.List<Integer> containerIds;
         private String operation;
+    }
+
+    private void applyStatusFilter(LambdaQueryWrapper<SystemSoftContainer> queryWrapper, String status) {
+        if (!StringUtils.hasText(status)) {
+            return;
+        }
+
+        String normalized = status.trim().toUpperCase();
+        switch (normalized) {
+            case "ERROR":
+                queryWrapper.in(SystemSoftContainer::getSystemSoftContainerStatus,
+                        SystemSoftContainerStatus.CREATE_FAILED,
+                        SystemSoftContainerStatus.START_FAILED,
+                        SystemSoftContainerStatus.RESTART_FAILED,
+                        SystemSoftContainerStatus.STOP_FAILED,
+                        SystemSoftContainerStatus.DELETE_FAILED,
+                        SystemSoftContainerStatus.DEAD);
+                return;
+            case "STOPPED":
+                queryWrapper.in(SystemSoftContainer::getSystemSoftContainerStatus,
+                        SystemSoftContainerStatus.STOPPED,
+                        SystemSoftContainerStatus.EXITED);
+                return;
+            default:
+        }
+
+        SystemSoftContainerStatus resolved = SystemSoftContainerStatus.fromCode(normalized);
+        if (resolved != null) {
+            queryWrapper.eq(SystemSoftContainer::getSystemSoftContainerStatus, resolved);
+        }
+    }
+
+    private void applyKeywordFilter(LambdaQueryWrapper<SystemSoftContainer> queryWrapper, String containerName) {
+        if (!StringUtils.hasText(containerName)) {
+            return;
+        }
+
+        String keyword = containerName.trim();
+        queryWrapper.and(wrapper -> wrapper
+                .like(SystemSoftContainer::getSystemSoftContainerName, keyword)
+                .or()
+                .like(SystemSoftContainer::getSystemSoftContainerImage, keyword)
+                .or()
+                .like(SystemSoftContainer::getSystemSoftContainerDockerId, keyword));
     }
 }

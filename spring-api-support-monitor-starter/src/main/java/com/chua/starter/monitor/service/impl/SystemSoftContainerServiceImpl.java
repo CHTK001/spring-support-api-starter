@@ -1,27 +1,49 @@
 package com.chua.starter.monitor.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.docker.support.client.DockerProtocolClient;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
+import com.chua.starter.monitor.entity.SystemSoft;
 import com.chua.starter.monitor.entity.SystemSoftContainer;
 import com.chua.starter.monitor.entity.SystemSoftContainerStats;
 import com.chua.starter.monitor.entity.SystemSoftContainerStatus;
+import com.chua.starter.monitor.entity.SystemSoftImage;
 import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
 import com.chua.starter.monitor.mapper.SystemSoftContainerMapper;
+import com.chua.starter.monitor.mapper.SystemSoftImageMapper;
+import com.chua.starter.monitor.mapper.SystemSoftMapper;
 import com.chua.starter.monitor.service.docker.DockerCallbackService;
 import com.chua.starter.monitor.service.docker.SystemSoftContainerService;
 import com.chua.starter.monitor.service.docker.SystemSoftContainerStatsService;
 import com.chua.starter.monitor.service.docker.SystemSoftRecordService;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.Container;
+import com.github.dockerjava.api.model.ContainerMount;
+import com.github.dockerjava.api.model.ContainerPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * 系统软件容器管理服务实现类
@@ -36,8 +58,25 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("ALL")
 public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContainerMapper, SystemSoftContainer> implements SystemSoftContainerService {
 
+    private static final int MAX_DOCKER_ID_LENGTH = 100;
+    private static final int MAX_CONTAINER_NAME_LENGTH = 255;
+    private static final int MAX_IMAGE_LENGTH = 255;
+    private static final int MAX_IMAGE_TAG_LENGTH = 100;
+    private static final int MAX_PORTS_LENGTH = 255;
+    private static final int MAX_ENV_LENGTH = 255;
+    private static final int MAX_VOLUMES_LENGTH = 255;
+    private static final int MAX_NETWORKS_LENGTH = 255;
+    private static final int MAX_COMMAND_LENGTH = 255;
+    private static final int MAX_ARGS_LENGTH = 255;
+    private static final int MAX_CONFIG_LENGTH = 255;
+    private static final int MAX_HEALTH_STATUS_LENGTH = 50;
+    private static final int MAX_SUMMARY_SEGMENT_LENGTH = 512;
+    private static final int MAX_STATS_TEXT_LENGTH = 255;
+
     private final SystemSoftContainerMapper systemSoftContainerMapper;
     private final DockerProtocolClientFactory dockerProtocolClientFactory;
+    private final SystemSoftMapper systemSoftMapper;
+    private final SystemSoftImageMapper systemSoftImageMapper;
     @Autowired
     @Lazy
     private DockerCallbackService dockerCallbackService;
@@ -208,8 +247,9 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
         log.debug("根据条件查询容器列表 - 服务器ID: {}, 软件ID: {}, 状态: {}, 容器名称: {}", serverId, softId, status, containerName);
 
         try {
-            // 查询数据库中的容器列表
-            List<SystemSoftContainer> containerList = systemSoftContainerMapper.selectList(null);
+            LambdaQueryWrapper<SystemSoftContainer> queryWrapper = new LambdaQueryWrapper<>();
+            applyContainerFilters(queryWrapper, serverId, softId, status, containerName);
+            List<SystemSoftContainer> containerList = systemSoftContainerMapper.selectList(queryWrapper);
             log.debug("根据条件查询容器列表完成");
             return ReturnResult.ok(containerList);
         } catch (Exception e) {
@@ -646,10 +686,8 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
                 return ReturnResult.error("无法创建Docker客户端");
             }
 
-            // 获取日志
-            // 使用基于ID的方法替代ByName方法
             int logLines = lines != null ? lines : 100;
-            String logs = dockerClient.getContainerLogsById(container.getSystemSoftContainerDockerId(), logLines, false);
+            String logs = getContainerLogsSnapshot(dockerClient, container.getSystemSoftContainerDockerId(), logLines);
             log.info("获取容器日志成功 - 容器ID: {}", containerId);
             return ReturnResult.ok(logs);
         } catch (Exception e) {
@@ -692,6 +730,8 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
             SystemSoftContainerStats containerStats = new SystemSoftContainerStats();
             containerStats.setSystemSoftContainerStatsContainerId(container.getSystemSoftContainerDockerId());
             containerStats.setSystemSoftContainerStatsContainerName(container.getSystemSoftContainerName());
+            containerStats.setSystemSoftContainerId(container.getSystemSoftContainerId());
+            containerStats.setSystemSoftImageId(container.getSystemSoftImageId());
 
             // 设置基本信息
             containerStats.setSystemSoftContainerStatsImage(stats.getConfig() != null ? stats.getConfig().getImage() : "");
@@ -714,7 +754,9 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
                 containerStats.setSystemSoftContainerStatsLabels(stats.getConfig().getLabels().toString());
             }
 
-            systemSoftContainerStatsService.save(containerStats);
+            containerStats.setSystemSoftContainerStatsRecordTime(LocalDateTime.now());
+            normalizeStatsSnapshot(containerStats);
+            saveContainerStatsQuietly(containerStats, containerId);
 
             log.info("获取容器统计信息成功 - 容器ID: {}", containerId);
             return ReturnResult.ok(containerStats);
@@ -722,6 +764,51 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
             log.error("获取容器统计信息失败: {}", e.getMessage(), e);
             return ReturnResult.error("获取容器统计信息失败: " + e.getMessage());
         }
+    }
+
+    private void saveContainerStatsQuietly(SystemSoftContainerStats containerStats, Integer containerId) {
+        try {
+            systemSoftContainerStatsService.save(containerStats);
+        } catch (Exception e) {
+            log.warn("保存容器统计快照失败 - 容器ID: {}", containerId, e);
+        }
+    }
+
+    public static void normalizeStatsSnapshot(SystemSoftContainerStats containerStats) {
+        if (containerStats == null) {
+            return;
+        }
+
+        containerStats.setSystemSoftContainerStatsContainerId(
+                fitColumn(containerStats.getSystemSoftContainerStatsContainerId(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsContainerName(
+                fitColumn(containerStats.getSystemSoftContainerStatsContainerName(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsStatus(
+                fitColumn(containerStats.getSystemSoftContainerStatsStatus(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsStartedAt(
+                fitColumn(containerStats.getSystemSoftContainerStatsStartedAt(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsImage(
+                fitColumn(containerStats.getSystemSoftContainerStatsImage(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsCommand(
+                fitColumn(containerStats.getSystemSoftContainerStatsCommand(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsCreated(
+                fitColumn(containerStats.getSystemSoftContainerStatsCreated(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsPorts(
+                fitColumn(containerStats.getSystemSoftContainerStatsPorts(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsLabels(
+                fitColumn(containerStats.getSystemSoftContainerStatsLabels(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsStatusDetail(
+                fitColumn(containerStats.getSystemSoftContainerStatsStatusDetail(), MAX_STATS_TEXT_LENGTH)
+        );
     }
 
     /**
@@ -735,26 +822,470 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
         log.info("同步容器状态 - 服务器ID: {}", serverId);
 
         try {
-            // 获取Docker客户端
             DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
             if (dockerClient == null) {
                 log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
                 return ReturnResult.error("无法创建Docker客户端");
             }
 
-            // 获取所有容器
-            // 根据文档，DockerProtocolClient有listContainers方法
-            Object containers = dockerClient.listContainers();
+            List<Container> containers = dockerClient.listContainers(true);
+            List<SystemSoftContainer> existingContainers = systemSoftContainerMapper.selectByServerId(serverId);
+            Map<String, SystemSoftContainer> existingByDockerId = existingContainers.stream()
+                    .filter(item -> StringUtils.hasText(item.getSystemSoftContainerDockerId()))
+                    .collect(Collectors.toMap(
+                            SystemSoftContainer::getSystemSoftContainerDockerId,
+                            item -> item,
+                            (left, right) -> left,
+                            LinkedHashMap::new
+                    ));
 
-            // 更新数据库中的容器状态
-            // 这里应该根据实际获取的容器信息更新数据库记录
-            int updatedCount = 0; // 模拟更新数量
+            List<SystemSoftImage> serverImages = systemSoftImageMapper.selectList(null).stream()
+                    .filter(item -> Objects.equals(serverId, item.getSystemSoftImageServerId()))
+                    .toList();
+            Map<String, SystemSoftImage> imageByDockerId = serverImages.stream()
+                    .filter(item -> StringUtils.hasText(item.getSystemSoftImageImageId()))
+                    .collect(Collectors.toMap(
+                            SystemSoftImage::getSystemSoftImageImageId,
+                            item -> item,
+                            (left, right) -> left,
+                            LinkedHashMap::new
+                    ));
+            Map<String, SystemSoftImage> imageByFullName = serverImages.stream()
+                    .filter(item -> StringUtils.hasText(item.getSystemSoftImageFullName()))
+                    .collect(Collectors.toMap(
+                            item -> item.getSystemSoftImageFullName().toLowerCase(),
+                            item -> item,
+                            (left, right) -> left,
+                            LinkedHashMap::new
+                    ));
+
+            Set<String> activeDockerIds = new LinkedHashSet<>();
+            int syncedCount = 0;
+
+            for (Container container : containers) {
+                if (container == null || !StringUtils.hasText(container.getId())) {
+                    continue;
+                }
+
+                activeDockerIds.add(container.getId());
+                InspectContainerResponse inspect = dockerClient.inspectContainerById(container.getId());
+                SystemSoftImage matchedImage = findMatchedImage(container, imageByDockerId, imageByFullName);
+                Integer softId = matchedImage != null
+                        ? matchedImage.getSystemSoftId()
+                        : findOrCreateSoftwareByImageName(extractImageName(container.getImage()));
+                if (softId == null) {
+                    log.warn("容器未匹配到软件记录，将以容器维度继续同步 - serverId: {}, dockerId: {}, image: {}",
+                            serverId, container.getId(), container.getImage());
+                }
+
+                SystemSoftContainer entity = existingByDockerId.get(container.getId());
+                boolean isNew = entity == null;
+                if (isNew) {
+                    entity = new SystemSoftContainer();
+                    entity.setCreateTime(LocalDateTime.now());
+                }
+
+                fillContainerEntity(entity, serverId, softId, matchedImage, container, inspect);
+                entity.setUpdateTime(LocalDateTime.now());
+
+                if (isNew) {
+                    systemSoftContainerMapper.insert(entity);
+                } else {
+                    systemSoftContainerMapper.updateById(entity);
+                }
+                syncedCount++;
+            }
+
+            int removedCount = 0;
+            for (SystemSoftContainer existingContainer : existingContainers) {
+                String dockerId = existingContainer.getSystemSoftContainerDockerId();
+                if (StringUtils.hasText(dockerId) && !activeDockerIds.contains(dockerId)) {
+                    systemSoftContainerMapper.deleteById(existingContainer.getSystemSoftContainerId());
+                    removedCount++;
+                }
+            }
 
             log.info("同步容器状态成功 - 服务器ID: {}", serverId);
-            return ReturnResult.ok(updatedCount);
+            return ReturnResult.ok(syncedCount + removedCount);
         } catch (Exception e) {
             log.error("同步容器状态失败: {}", e.getMessage(), e);
             return ReturnResult.error("同步容器状态失败: " + e.getMessage());
+        }
+    }
+
+    private void fillContainerEntity(SystemSoftContainer entity, Integer serverId, Integer softId, SystemSoftImage matchedImage,
+                                     Container container, InspectContainerResponse inspect) {
+        if (softId != null || entity.getSystemSoftId() == null) {
+            entity.setSystemSoftId(softId);
+        }
+        entity.setSystemServerId(serverId);
+        entity.setSystemSoftImageId(matchedImage != null ? matchedImage.getSystemSoftImageId() : null);
+        entity.setSystemSoftContainerDockerId(fitColumn(container.getId(), MAX_DOCKER_ID_LENGTH));
+        entity.setSystemSoftContainerName(fitColumn(resolveContainerName(container), MAX_CONTAINER_NAME_LENGTH));
+        entity.setSystemSoftContainerImage(fitColumn(extractImageName(container.getImage()), MAX_IMAGE_LENGTH));
+        entity.setSystemSoftContainerImageTag(fitColumn(extractImageTag(container.getImage()), MAX_IMAGE_TAG_LENGTH));
+        entity.setSystemSoftContainerStatus(resolveContainerStatus(container, inspect));
+        entity.setSystemSoftContainerPorts(fitColumn(formatPorts(container.getPorts()), MAX_PORTS_LENGTH));
+        entity.setSystemSoftContainerCommand(fitColumn(container.getCommand(), MAX_COMMAND_LENGTH));
+        entity.setSystemSoftContainerConfig(buildContainerConfigSummary(container, inspect));
+        entity.setSystemSoftContainerCreatedTime(toLocalDateTime(container.getCreated()));
+
+        if (inspect == null) {
+            return;
+        }
+
+        if (inspect.getConfig() != null) {
+            entity.setSystemSoftContainerEnv(fitColumn(joinValues(inspect.getConfig().getEnv()), MAX_ENV_LENGTH));
+            entity.setSystemSoftContainerArgs(fitColumn(joinValues(inspect.getArgs()), MAX_ARGS_LENGTH));
+        }
+
+        if (inspect.getState() != null) {
+            entity.setSystemSoftContainerStartedTime(toLocalDateTime(inspect.getState().getStartedAt()));
+            entity.setSystemSoftContainerFinishedTime(toLocalDateTime(inspect.getState().getFinishedAt()));
+            if (inspect.getState().getHealth() != null) {
+                entity.setSystemSoftContainerHealthStatus(
+                        fitColumn(inspect.getState().getHealth().getStatus(), MAX_HEALTH_STATUS_LENGTH)
+                );
+            }
+        }
+
+        entity.setSystemSoftContainerRestartCount(inspect.getRestartCount());
+        entity.setSystemSoftContainerNetworks(fitColumn(formatNetworks(inspect), MAX_NETWORKS_LENGTH));
+        entity.setSystemSoftContainerVolumes(fitColumn(formatMounts(container.getMounts()), MAX_VOLUMES_LENGTH));
+
+        if (inspect.getHostConfig() != null) {
+            String restartPolicyName = inspect.getHostConfig().getRestartPolicy() != null
+                    ? inspect.getHostConfig().getRestartPolicy().getName()
+                    : null;
+            entity.setSystemSoftContainerAutoRestart(
+                    StringUtils.hasText(restartPolicyName) && !"no".equalsIgnoreCase(restartPolicyName) ? 1 : 0
+            );
+            Long nanoCpus = inspect.getHostConfig().getNanoCPUs();
+            if (nanoCpus != null && nanoCpus > 0) {
+                entity.setSystemSoftContainerCpuLimit(nanoCpus / 1_000_000_000D);
+            }
+            Long memory = inspect.getHostConfig().getMemory();
+            if (memory != null && memory > 0) {
+                entity.setSystemSoftContainerMemoryLimit(memory / (1024 * 1024));
+            }
+        }
+    }
+
+    private String buildContainerConfigSummary(Container container, InspectContainerResponse inspect) {
+        if (inspect == null) {
+            return null;
+        }
+
+        List<String> summary = new ArrayList<>();
+        appendSummary(summary, "name", resolveContainerName(container));
+        appendSummary(summary, "image", container != null ? container.getImage() : null);
+
+        if (inspect.getConfig() != null) {
+            appendSummary(summary, "hostName", inspect.getConfig().getHostName());
+            appendSummary(summary, "workingDir", inspect.getConfig().getWorkingDir());
+            appendSummary(summary, "entrypoint", joinValues(inspect.getConfig().getEntrypoint()));
+            appendSummary(summary, "cmd", joinValues(inspect.getConfig().getCmd()));
+            appendSummary(summary, "labels", formatLabels(inspect.getConfig().getLabels()));
+        }
+
+        if (inspect.getState() != null) {
+            appendSummary(summary, "state", inspect.getState().getStatus());
+        }
+
+        if (inspect.getHostConfig() != null) {
+            appendSummary(summary, "networkMode", inspect.getHostConfig().getNetworkMode());
+            String restartPolicyName = inspect.getHostConfig().getRestartPolicy() != null
+                    ? inspect.getHostConfig().getRestartPolicy().getName()
+                    : null;
+            appendSummary(summary, "restartPolicy", restartPolicyName);
+        }
+
+        String compactSummary = summary.isEmpty() ? inspect.toString() : String.join(" | ", summary);
+        return fitColumn(compactSummary, MAX_CONFIG_LENGTH);
+    }
+
+    private void appendSummary(List<String> summary, String key, String value) {
+        if (!StringUtils.hasText(value)) {
+            return;
+        }
+        summary.add(key + "=" + fitColumn(value, MAX_SUMMARY_SEGMENT_LENGTH));
+    }
+
+    private String formatLabels(Map<String, String> labels) {
+        if (labels == null || labels.isEmpty()) {
+            return null;
+        }
+        return labels.entrySet().stream()
+                .filter(entry -> StringUtils.hasText(entry.getKey()))
+                .map(entry -> entry.getKey() + "=" + fitColumn(entry.getValue(), 120))
+                .collect(Collectors.joining(","));
+    }
+
+    private SystemSoftImage findMatchedImage(Container container, Map<String, SystemSoftImage> imageByDockerId,
+                                             Map<String, SystemSoftImage> imageByFullName) {
+        if (container == null) {
+            return null;
+        }
+
+        if (StringUtils.hasText(container.getImageId())) {
+            SystemSoftImage image = imageByDockerId.get(container.getImageId());
+            if (image != null) {
+                return image;
+            }
+        }
+
+        if (StringUtils.hasText(container.getImage())) {
+            return imageByFullName.get(container.getImage().toLowerCase());
+        }
+        return null;
+    }
+
+    private Integer findOrCreateSoftwareByImageName(String imageName) {
+        if (!StringUtils.hasText(imageName)) {
+            return null;
+        }
+
+        try {
+            SystemSoft existingSoft = systemSoftMapper.selectByDockerImage(imageName);
+            if (existingSoft != null) {
+                return existingSoft.getSystemSoftId();
+            }
+
+            String simpleName = imageName;
+            if (imageName.contains("/")) {
+                String[] parts = imageName.split("/");
+                simpleName = parts[parts.length - 1];
+            }
+
+            SystemSoft softByCode = systemSoftMapper.selectBySoftCode(simpleName);
+            if (softByCode != null) {
+                return softByCode.getSystemSoftId();
+            }
+
+            SystemSoft newSoft = new SystemSoft();
+            newSoft.setSystemSoftName(simpleName);
+            newSoft.setSystemSoftCode(simpleName);
+            newSoft.setSystemSoftDockerImage(imageName);
+            newSoft.setSystemSoftDesc("从服务器容器自动创建");
+            newSoft.setSystemSoftIsOfficial(0);
+            newSoft.setSystemSoftStatus(1);
+            newSoft.setCreateTime(LocalDateTime.now());
+            newSoft.setUpdateTime(LocalDateTime.now());
+            systemSoftMapper.insert(newSoft);
+            return newSoft.getSystemSoftId();
+        } catch (Exception e) {
+            log.error("查找或创建软件记录失败 - imageName: {}, error: {}", imageName, e.getMessage(), e);
+            return null;
+        }
+    }
+
+    private void applyContainerFilters(LambdaQueryWrapper<SystemSoftContainer> queryWrapper,
+                                       Integer serverId,
+                                       Integer softId,
+                                       String status,
+                                       String containerName) {
+        queryWrapper.eq(serverId != null, SystemSoftContainer::getSystemServerId, serverId);
+        queryWrapper.eq(softId != null, SystemSoftContainer::getSystemSoftId, softId);
+        applyContainerStatusFilter(queryWrapper, status);
+        applyContainerKeywordFilter(queryWrapper, containerName);
+        queryWrapper.orderByDesc(SystemSoftContainer::getCreateTime)
+                .orderByDesc(SystemSoftContainer::getSystemSoftContainerCreatedTime);
+    }
+
+    private void applyContainerStatusFilter(LambdaQueryWrapper<SystemSoftContainer> queryWrapper, String status) {
+        if (!StringUtils.hasText(status)) {
+            return;
+        }
+
+        String normalized = status.trim().toUpperCase();
+        switch (normalized) {
+            case "ERROR":
+                queryWrapper.in(SystemSoftContainer::getSystemSoftContainerStatus,
+                        SystemSoftContainerStatus.CREATE_FAILED,
+                        SystemSoftContainerStatus.START_FAILED,
+                        SystemSoftContainerStatus.RESTART_FAILED,
+                        SystemSoftContainerStatus.STOP_FAILED,
+                        SystemSoftContainerStatus.DELETE_FAILED,
+                        SystemSoftContainerStatus.DEAD);
+                return;
+            case "STOPPED":
+                queryWrapper.in(SystemSoftContainer::getSystemSoftContainerStatus,
+                        SystemSoftContainerStatus.STOPPED,
+                        SystemSoftContainerStatus.EXITED);
+                return;
+            default:
+        }
+
+        SystemSoftContainerStatus resolved = SystemSoftContainerStatus.fromCode(normalized);
+        if (resolved != null) {
+            queryWrapper.eq(SystemSoftContainer::getSystemSoftContainerStatus, resolved);
+        }
+    }
+
+    private void applyContainerKeywordFilter(LambdaQueryWrapper<SystemSoftContainer> queryWrapper, String containerName) {
+        if (!StringUtils.hasText(containerName)) {
+            return;
+        }
+
+        String keyword = containerName.trim();
+        queryWrapper.and(wrapper -> wrapper
+                .like(SystemSoftContainer::getSystemSoftContainerName, keyword)
+                .or()
+                .like(SystemSoftContainer::getSystemSoftContainerImage, keyword)
+                .or()
+                .like(SystemSoftContainer::getSystemSoftContainerDockerId, keyword));
+    }
+
+    private SystemSoftContainerStatus resolveContainerStatus(String status) {
+        if (!StringUtils.hasText(status)) {
+            return null;
+        }
+        SystemSoftContainerStatus resolved = SystemSoftContainerStatus.fromCode(status.trim().toUpperCase());
+        return resolved != null ? resolved : SystemSoftContainerStatus.STOPPED;
+    }
+
+    private SystemSoftContainerStatus resolveContainerStatus(Container container, InspectContainerResponse inspect) {
+        String rawStatus = null;
+        if (inspect != null && inspect.getState() != null && StringUtils.hasText(inspect.getState().getStatus())) {
+            rawStatus = inspect.getState().getStatus();
+        } else if (container != null && StringUtils.hasText(container.getState())) {
+            rawStatus = container.getState();
+        }
+
+        if (!StringUtils.hasText(rawStatus)) {
+            return SystemSoftContainerStatus.STOPPED;
+        }
+
+        return switch (rawStatus.trim().toLowerCase()) {
+            case "running" -> SystemSoftContainerStatus.RUNNING;
+            case "paused" -> SystemSoftContainerStatus.PAUSED;
+            case "restarting" -> SystemSoftContainerStatus.RESTARTING;
+            case "created" -> SystemSoftContainerStatus.CREATED;
+            case "exited" -> SystemSoftContainerStatus.STOPPED;
+            case "dead" -> SystemSoftContainerStatus.STOPPED;
+            default -> SystemSoftContainerStatus.STOPPED;
+        };
+    }
+
+    private String resolveContainerName(Container container) {
+        if (container == null || container.getNames() == null || container.getNames().length == 0) {
+            return null;
+        }
+        String name = container.getNames()[0];
+        if (name != null && name.startsWith("/")) {
+            return name.substring(1);
+        }
+        return name;
+    }
+
+    private String extractImageName(String fullImageName) {
+        if (!StringUtils.hasText(fullImageName)) {
+            return fullImageName;
+        }
+        int lastColonIndex = fullImageName.lastIndexOf(':');
+        int lastSlashIndex = fullImageName.lastIndexOf('/');
+        if (lastColonIndex > lastSlashIndex) {
+            return fullImageName.substring(0, lastColonIndex);
+        }
+        return fullImageName;
+    }
+
+    private String extractImageTag(String fullImageName) {
+        if (!StringUtils.hasText(fullImageName)) {
+            return null;
+        }
+        int lastColonIndex = fullImageName.lastIndexOf(':');
+        int lastSlashIndex = fullImageName.lastIndexOf('/');
+        if (lastColonIndex > lastSlashIndex && lastColonIndex < fullImageName.length() - 1) {
+            return fullImageName.substring(lastColonIndex + 1);
+        }
+        return "latest";
+    }
+
+    private String formatPorts(ContainerPort[] ports) {
+        if (ports == null || ports.length == 0) {
+            return null;
+        }
+        return java.util.Arrays.stream(ports)
+                .filter(Objects::nonNull)
+                .map(port -> {
+                    String hostPort = port.getPublicPort() != null ? String.valueOf(port.getPublicPort()) : "";
+                    String containerPort = port.getPrivatePort() != null ? String.valueOf(port.getPrivatePort()) : "";
+                    String protocol = StringUtils.hasText(port.getType()) ? "/" + port.getType() : "";
+                    if (StringUtils.hasText(hostPort)) {
+                        return hostPort + ":" + containerPort + protocol;
+                    }
+                    return containerPort + protocol;
+                })
+                .collect(Collectors.joining(","));
+    }
+
+    private String formatMounts(List<ContainerMount> mounts) {
+        if (mounts == null || mounts.isEmpty()) {
+            return null;
+        }
+        return mounts.stream()
+                .filter(Objects::nonNull)
+                .map(item -> {
+                    if (StringUtils.hasText(item.getSource()) && StringUtils.hasText(item.getDestination())) {
+                        return item.getSource() + ":" + item.getDestination();
+                    }
+                    return StringUtils.hasText(item.getDestination()) ? item.getDestination() : item.toString();
+                })
+                .collect(Collectors.joining(","));
+    }
+
+    private String formatNetworks(InspectContainerResponse inspect) {
+        if (inspect == null || inspect.getNetworkSettings() == null || inspect.getNetworkSettings().getNetworks() == null) {
+            return null;
+        }
+        return String.join(",", inspect.getNetworkSettings().getNetworks().keySet());
+    }
+
+    private String joinValues(String[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
+        List<String> result = new ArrayList<>();
+        for (String value : values) {
+            if (StringUtils.hasText(value)) {
+                result.add(value);
+            }
+        }
+        return result.isEmpty() ? null : String.join(",", result);
+    }
+
+    static String fitColumn(String value, int maxLength) {
+        if (value == null || maxLength <= 0 || value.length() <= maxLength) {
+            return value;
+        }
+        if (maxLength <= 3) {
+            return value.substring(0, maxLength);
+        }
+        return value.substring(0, maxLength - 3) + "...";
+    }
+
+    private LocalDateTime toLocalDateTime(Long epochSeconds) {
+        if (epochSeconds == null || epochSeconds <= 0) {
+            return null;
+        }
+        long timestamp = epochSeconds > 1_000_000_000_000L ? epochSeconds : epochSeconds * 1000;
+        return Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    private LocalDateTime toLocalDateTime(String time) {
+        if (!StringUtils.hasText(time) || time.startsWith("0001-01-01")) {
+            return null;
+        }
+        try {
+            return OffsetDateTime.parse(time).toLocalDateTime();
+        } catch (DateTimeParseException ignored) {
+            try {
+                return LocalDateTime.parse(time);
+            } catch (DateTimeParseException ex) {
+                log.debug("解析容器时间失败 - time: {}", time);
+                return null;
+            }
         }
     }
 
@@ -935,30 +1466,33 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
         public void run() {
             try {
                 // 获取初始日志
-                String initialLogs = dockerClient.getContainerLogsById(containerId, lines, false);
+                String previousLogs = getContainerLogsSnapshot(dockerClient, containerId, lines);
 
                 // 推送初始日志
                 Map<String, Object> message = new java.util.HashMap<>();
                 message.put("type", "container_log");
                 message.put("containerId", dbContainerId);
-                message.put("logs", initialLogs);
+                message.put("log", previousLogs);
+                message.put("logs", previousLogs);
                 message.put("timestamp", java.time.LocalDateTime.now());
-                socketSessionTemplate.send("container_log", message);
+                socketSessionTemplate.send(MonitorSocketTopics.Monitor.Docker.CONTAINER_LOG, message);
 
                 // 持续跟踪日志
                 while (running && !Thread.currentThread().isInterrupted()) {
                     try {
-                        // 获取最新的日志（只获取最后几行）
-                        String latestLogs = dockerClient.getContainerLogsById(containerId, 10, true);
+                        String latestLogs = getContainerLogsSnapshot(dockerClient, containerId, lines);
+                        String deltaLogs = extractIncrementalLogs(previousLogs, latestLogs);
+                        previousLogs = latestLogs;
 
-                        if (latestLogs != null && !latestLogs.isEmpty()) {
+                        if (StringUtils.hasText(deltaLogs)) {
                             // 推送最新日志
                             message = new java.util.HashMap<>();
                             message.put("type", "container_log_update");
                             message.put("containerId", dbContainerId);
-                            message.put("logs", latestLogs);
+                            message.put("log", deltaLogs);
+                            message.put("logs", deltaLogs);
                             message.put("timestamp", java.time.LocalDateTime.now());
-                            socketSessionTemplate.send("container_log_update", message);
+                            socketSessionTemplate.send(MonitorSocketTopics.Monitor.Docker.CONTAINER_LOG, message);
                         }
 
                         // 休眠一段时间避免过于频繁的请求
@@ -979,6 +1513,35 @@ public class SystemSoftContainerServiceImpl extends ServiceImpl<SystemSoftContai
                 running = false;
             }
         }
+    }
+
+    private static String getContainerLogsSnapshot(DockerProtocolClient dockerClient, String containerDockerId, int lines) {
+        int logLines = lines > 0 ? lines : 100;
+        String logs = dockerClient.getContainerLogs(containerDockerId, logLines);
+        return logs == null ? "" : logs;
+    }
+
+    static String extractIncrementalLogs(String previousLogs, String latestLogs) {
+        if (!StringUtils.hasText(latestLogs)) {
+            return "";
+        }
+        if (!StringUtils.hasText(previousLogs)) {
+            return latestLogs;
+        }
+        if (latestLogs.equals(previousLogs)) {
+            return "";
+        }
+        if (latestLogs.startsWith(previousLogs)) {
+            return latestLogs.substring(previousLogs.length());
+        }
+
+        int maxOverlap = Math.min(previousLogs.length(), latestLogs.length());
+        for (int i = maxOverlap; i > 0; i--) {
+            if (previousLogs.regionMatches(previousLogs.length() - i, latestLogs, 0, i)) {
+                return latestLogs.substring(i);
+            }
+        }
+        return latestLogs;
     }
 
     @Override

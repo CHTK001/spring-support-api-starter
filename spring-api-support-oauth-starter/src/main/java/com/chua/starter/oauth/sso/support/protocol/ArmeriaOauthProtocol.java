@@ -164,38 +164,9 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
             }
         });
 
-        // 鉴权端点
-        server.post("/verify", (request, response) -> {
-            try {
-                String body = extractBody(request);
-                AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
-                if (authRequest == null) {
-                    authRequest = new AuthRequest();
-                }
-
-                var protocolRequest = new ProtocolServerAuthInformation.ProtocolServerRequest(request);
-                var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
-
-                var authInformation = new OauthAuthInformation(
-                        authServerProperties,
-                        authRequest.getData(),
-                        protocolRequest,
-                        protocolResponse,
-                        applicationContext,
-                        loginCheck);
-
-                if (!authInformation.isSuccessful()) {
-                    writeResponse(response, ReturnResult.illegal(authInformation.errorMessage()));
-                    return;
-                }
-
-                var result = authInformation.authorization().authentication();
-                writeResponse(response, result);
-            } catch (Exception e) {
-                log.error("[OAuth][Armeria] 鉴权处理异常", e);
-                writeResponse(response, ReturnResult.error("鉴权失败: " + e.getMessage()));
-            }
-        });
+        // 鉴权端点，兼容历史 /oauth 客户端
+        server.post("/verify", this::handleVerifyRequest);
+        server.post("/oauth", this::handleVerifyRequest);
 
         // 升级端点
         server.post("/upgrade", (request, response) -> {
@@ -398,6 +369,38 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
                 writeResponse(response, ReturnResult.error("临时令牌创建失败: " + e.getMessage()));
             }
         });
+    }
+
+    private void handleVerifyRequest(ServletRequest request, ServletResponse response) {
+        try {
+            String body = extractBody(request);
+            AuthRequest authRequest = Json.fromJson(body, AuthRequest.class);
+            if (authRequest == null) {
+                authRequest = new AuthRequest();
+            }
+
+            var protocolRequest = new ProtocolServerAuthInformation.ProtocolServerRequest(request);
+            var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
+
+            var authInformation = new OauthAuthInformation(
+                    authServerProperties,
+                    authRequest.getData(),
+                    protocolRequest,
+                    protocolResponse,
+                    applicationContext,
+                    loginCheck);
+
+            if (!authInformation.isSuccessful()) {
+                writeResponse(response, ReturnResult.illegal(authInformation.errorMessage()));
+                return;
+            }
+
+            var result = authInformation.authorization().authentication();
+            writeResponse(response, result);
+        } catch (Exception e) {
+            log.error("[OAuth][Armeria] 鉴权处理异常", e);
+            writeResponse(response, ReturnResult.error("鉴权失败: " + e.getMessage()));
+        }
     }
 
     /**

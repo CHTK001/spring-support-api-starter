@@ -1,5 +1,6 @@
 package com.chua.starter.oauth.sso.support;
 
+import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
@@ -21,7 +22,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableCaching
 @EnableAsync
 @SpringBootApplication(scanBasePackages = {"com.chua.starter.oauth.sso", "com.chua.starter.service"})
-@EnableConfigurationProperties({AuthServerProperties.class})
+@EnableConfigurationProperties({AuthServerProperties.class, AuthClientProperties.class})
 @MapperScan({
         "com.chua.starter.oauth.sso",
         "com.chua.starter.service.mapper",
