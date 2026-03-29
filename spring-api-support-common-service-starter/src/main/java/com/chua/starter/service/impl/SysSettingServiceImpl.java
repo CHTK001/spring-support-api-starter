@@ -2,6 +2,7 @@ package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.chua.common.support.network.net.NetUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.core.constant.CommonConstant;
 import com.chua.common.support.function.Splitter;
@@ -46,6 +47,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.Inet4Address;
+import java.net.NetworkInterface;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -87,7 +90,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     /**
      * Socket服务路径
      */
-    @Value("${plugin.socket.path:/socket.io}")
+    @Value("${plugin.socket.room[0].context-path:${plugin.socket.path:/socket.io}}")
     private String socketPath;
 
     /**
@@ -95,6 +98,18 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
      */
     @Value("${plugin.socket.room[0].port:29181}")
     private int socketPort;
+
+    /**
+     * Socket 对外发布主机地址
+     */
+    @Value("${plugin.socket.publish-host:}")
+    private String socketPublishHost;
+
+    /**
+     * Socket 对外发布端口
+     */
+    @Value("${plugin.socket.publish-port:-1}")
+    private int socketPublishPort;
 
     /**
      * Socket服务协议类型
@@ -455,7 +470,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     private void syncSocketConfig() {
         try {
             // 构建Socket URL
-            var socketUrl = String.format("http://%s:%d", socketHost, socketPort);
+            var publishHost = resolveSocketPublishHost();
+            var publishPort = resolveSocketPublishPort();
+            var socketUrl = String.format("http://%s:%d", publishHost, publishPort);
 
             var desired = new LinkedHashMap<String, SysSettingDesiredValue>(4);
             desired.put(SOCKET_SETTING_URL, new SysSettingDesiredValue(socketUrl, SOCKET_REMARK_URL));
@@ -512,6 +529,148 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         } catch (Exception e) {
             log.warn("[系统配置][Socket同步] Socket配置同步失败: {}", e.getMessage());
         }
+    }
+
+    private String resolveSocketPublishHost() {
+        if (StringUtils.isNotBlank(socketPublishHost)) {
+            return socketPublishHost.trim();
+        }
+
+        if (NetUtils.isAnyHost(socketHost) || NetUtils.isLocalHost(socketHost) || "localhost".equalsIgnoreCase(socketHost)) {
+            var preferredHost = resolvePreferredSocketPublishHost();
+            if (StringUtils.isNotBlank(preferredHost)) {
+                return preferredHost;
+            }
+
+            return NetUtils.getLocalHost();
+        }
+
+        return socketHost;
+    }
+
+    private String resolvePreferredSocketPublishHost() {
+        try {
+            List<String> candidates = new ArrayList<>();
+            List<String> fallbackCandidates = new ArrayList<>();
+            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            interfaces.sort(Comparator.comparingInt(NetworkInterface::getIndex));
+
+            for (NetworkInterface item : interfaces) {
+                if (!item.isUp() || item.isLoopback()) {
+                    continue;
+                }
+
+                String interfaceName = StringUtils.defaultString(item.getName(), "").toLowerCase(Locale.ROOT);
+                String displayName = StringUtils.defaultString(item.getDisplayName(), "").toLowerCase(Locale.ROOT);
+                boolean dockerLikeInterface = isDockerLikeInterface(interfaceName, displayName);
+
+                for (var address : Collections.list(item.getInetAddresses())) {
+                    if (!(address instanceof Inet4Address) || address.isLoopbackAddress() || address.isLinkLocalAddress()) {
+                        continue;
+                    }
+
+                    String hostAddress = address.getHostAddress();
+                    if (StringUtils.isBlank(hostAddress)) {
+                        continue;
+                    }
+
+                    if (dockerLikeInterface || isDockerLikeAddress(hostAddress)) {
+                        fallbackCandidates.add(hostAddress);
+                        continue;
+                    }
+
+                    candidates.add(hostAddress);
+                }
+            }
+
+            if (!candidates.isEmpty()) {
+                candidates.sort(this::compareSocketPublishHost);
+                return candidates.get(0);
+            }
+
+            if (!fallbackCandidates.isEmpty()) {
+                fallbackCandidates.sort(this::compareSocketPublishHost);
+                return fallbackCandidates.get(0);
+            }
+        } catch (Exception e) {
+            log.debug("[系统配置][Socket同步] 解析对外发布地址失败: {}", e.getMessage());
+        }
+
+        return null;
+    }
+
+    private int compareSocketPublishHost(String left, String right) {
+        return Integer.compare(scoreSocketPublishHost(right), scoreSocketPublishHost(left));
+    }
+
+    private int scoreSocketPublishHost(String host) {
+        if (StringUtils.isBlank(host)) {
+            return Integer.MIN_VALUE;
+        }
+
+        if (host.startsWith("192.168.")) {
+            return 300;
+        }
+
+        if (host.startsWith("10.")) {
+            return 250;
+        }
+
+        if (isSiteLocal172Address(host)) {
+            return 200;
+        }
+
+        return 100;
+    }
+
+    private boolean isSiteLocal172Address(String host) {
+        if (!host.startsWith("172.")) {
+            return false;
+        }
+
+        String[] parts = host.split("\\.");
+        if (parts.length < 2) {
+            return false;
+        }
+
+        try {
+            int second = Integer.parseInt(parts[1]);
+            return second >= 16 && second <= 31;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private boolean isDockerLikeInterface(String name, String displayName) {
+        return name.startsWith("docker")
+                || name.startsWith("br-")
+                || name.startsWith("veth")
+                || displayName.contains("docker")
+                || displayName.contains("container")
+                || displayName.contains("podman")
+                || displayName.contains("virtual");
+    }
+
+    private boolean isDockerLikeAddress(String host) {
+        return host.startsWith("172.17.")
+                || host.startsWith("172.18.")
+                || host.startsWith("172.19.")
+                || host.startsWith("172.20.")
+                || host.startsWith("172.21.")
+                || host.startsWith("172.22.")
+                || host.startsWith("172.23.")
+                || host.startsWith("172.24.")
+                || host.startsWith("172.25.")
+                || host.startsWith("172.26.")
+                || host.startsWith("172.27.")
+                || host.startsWith("172.28.")
+                || host.startsWith("172.29.")
+                || host.startsWith("172.30.")
+                || host.startsWith("172.31.");
+    }
+
+    private int resolveSocketPublishPort() {
+        return socketPublishPort > 0 ? socketPublishPort : socketPort;
     }
 
     /**

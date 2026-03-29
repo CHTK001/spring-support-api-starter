@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 独立设备通道接口。
  */
 @Slf4j
-@RestController
+@RestController("deviceSysDeviceChannelController")
 @RequiredArgsConstructor
 @Api(tags = "独立设备通道接口")
 @Tag(name = "独立设备通道接口")
