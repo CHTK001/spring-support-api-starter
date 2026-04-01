@@ -19,7 +19,6 @@
         <module>spring-api-support-payment-starter</module>
         <module>spring-api-support-tenanted-starter</module>
         <module>spring-api-support-monitor-starter</module>
-        <module>spring-api-support-monitor-spider-demo</module>
         <module>spring-api-support-device-starter</module>
         <module>spring-api-support-common-system-starter</module>
         <module>spring-api-support-scheduler-starter</module>
