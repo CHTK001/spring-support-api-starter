@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+﻿<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -10,7 +10,7 @@
 
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>4.0.0.37</version>
+    <version>4.0.0.41</version>
     <packaging>pom</packaging>
     <modules>
         <module>spring-api-support-oauth-starter</module>
@@ -38,7 +38,7 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <module.version>${project.version}</module.version>
-        <utils.version>4.0.0.36</utils.version>
+        <utils.version>4.0.0.40</utils.version>
         <lombok.version>1.18.44</lombok.version>
         <maven.compiler.proc>full</maven.compiler.proc>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
@@ -48,7 +48,7 @@
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <surefire.jvm.args></surefire.jvm.args>
         <spring.boot.version>3.5.9</spring.boot.version>
-        <spring-support-webrtc.version>4.0.0.35</spring-support-webrtc.version>
+        <spring-support-webrtc.version>4.0.0.41</spring-support-webrtc.version>
         <netty.version>4.2.7.Final</netty.version>
         <mysql.connector.version>8.0.33</mysql.connector.version>
         <jedis.version>5.1.0</jedis.version>
@@ -1000,3 +1000,4 @@
     </profiles>
 
 </project>
+

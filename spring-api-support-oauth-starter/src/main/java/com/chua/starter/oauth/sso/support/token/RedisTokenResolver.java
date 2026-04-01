@@ -142,7 +142,8 @@ public class RedisTokenResolver implements TokenResolver {
             stringRedisTemplate.expire(redisRefreshKey, Duration.ofSeconds(refreshExpire));
         }
 
-        LoginResult loginResult = new LoginResult(token);
+        LoginResult loginResult = new LoginResult();
+        loginResult.setToken(token);
         loginResult.setRefreshToken(refreshToken);
         // 设置浏览器指纹到返回结果
         loginResult.setFingerprint(userResult.getFingerprint());
