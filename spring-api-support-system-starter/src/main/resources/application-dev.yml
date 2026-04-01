@@ -21,7 +21,7 @@ logging:
 
 plugin:
   oauth:
-    address: http://127.0.0.1:19180
+    address: http://172.16.0.40:19180
     enable-encryption: true
     login-page: /oauth/login
     logout-page: /oauth/logout
