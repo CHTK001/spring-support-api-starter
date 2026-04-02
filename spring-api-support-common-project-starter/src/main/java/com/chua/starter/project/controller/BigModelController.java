@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Tag(name = "大语言模型接口")
 @RequestMapping("/v2/api/language")
 @RequiredArgsConstructor
+@ConditionalOnClass(name = "com.chua.deeplearning.support.ml.bigmodel.BigModelCallback")
 public class BigModelController {
 
     final BigModelService bigModelService;

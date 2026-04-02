@@ -27,6 +27,7 @@ import com.chua.starter.project.pojo.bigmodel.BigModelRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -44,6 +45,7 @@ import java.util.concurrent.ExecutorService;
  */
 @Service
 @RequiredArgsConstructor
+@ConditionalOnClass(name = "com.chua.deeplearning.support.ml.bigmodel.BigModelCallback")
 public class BigModelServiceImpl implements BigModelService, InitializingBean {
 
 

@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -200,25 +201,22 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'", keyGenerator = "customTenantedKeyGenerator")
+    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu) {
         if (null == sysMenu) {
             return ReturnResult.error("菜单不存在");
         }
-        String menuTreeId = "";
-        if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == SystemConstant.ROOT_NODE_ID) {
-            sysMenu.setSysMenuPid(SystemConstant.ROOT_NODE_ID);
-            menuTreeId = Joiner.on(",").join(SystemConstant.ROOT_NODE_ID, sysMenu.getSysMenuId());
-        } else {
-            SysMenu parentSysMenu = baseMapper.selectById(sysMenu.getSysMenuPid());
-            if(null == parentSysMenu) {
-                return ReturnResult.error("父级菜单不存在");
-            }
-
-            if(StringUtils.transArrayContains(parentSysMenu.getSysMenuTreeId(), String.valueOf(sysMenu.getSysMenuId()))) {
-                return ReturnResult.error("涓嶈兘选择鑷繁浣滀负父级菜单");
-            }
-
-            menuTreeId = Joiner.on(",").join( parentSysMenu.getSysMenuTreeId(), sysMenu.getSysMenuId());
+        if (null == sysMenu.getSysMenuId()) {
+            return ReturnResult.error("菜单ID不能为空");
+        }
+        String menuTreeId;
+        try {
+            menuTreeId = resolveMenuTreeId(sysMenu.getSysMenuId(), sysMenu.getSysMenuPid(), true);
+        } catch (IllegalArgumentException e) {
+            return ReturnResult.error(e.getMessage());
+        }
+        if (null == menuTreeId) {
+            return ReturnResult.error("父级菜单不存在");
         }
         sysMenu.setSysMenuTreeId(menuTreeId);
         return ReturnResult.of(baseMapper.updateById(sysMenu) > 0);
@@ -226,22 +224,44 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'", keyGenerator = "customTenantedKeyGenerator")
+    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles) {
-        String menuTreeId = "";
-        if(null == sysMenu.getSysMenuPid() || sysMenu.getSysMenuPid() == SystemConstant.ROOT_NODE_ID) {
+        if (null == sysMenu) {
+            return ReturnResult.error("菜单不存在");
+        }
+        sysMenu.setSysMenuId(null);
+        if (null == sysMenu.getSysMenuPid()) {
             sysMenu.setSysMenuPid(SystemConstant.ROOT_NODE_ID);
-            menuTreeId = Joiner.on(",").join(SystemConstant.ROOT_NODE_ID, sysMenu.getSysMenuId());
-        } else {
-            SysMenu parentSysMenu = baseMapper.selectById(sysMenu.getSysMenuPid());
-            if(null == parentSysMenu) {
-                return ReturnResult.error("父级菜单不存在");
-            }
-            menuTreeId = Joiner.on(",").join( parentSysMenu.getSysMenuTreeId(), sysMenu.getSysMenuId());
+        }
+        baseMapper.insert(sysMenu);
+        String menuTreeId;
+        try {
+            menuTreeId = resolveMenuTreeId(sysMenu.getSysMenuId(), sysMenu.getSysMenuPid(), false);
+        } catch (IllegalArgumentException e) {
+            return ReturnResult.error(e.getMessage());
+        }
+        if (null == menuTreeId) {
+            return ReturnResult.error("父级菜单不存在");
         }
         sysMenu.setSysMenuTreeId(menuTreeId);
-        baseMapper.insert(sysMenu);
-        return ReturnResult.guess(sysMenu);
+        if (baseMapper.updateById(sysMenu) <= 0) {
+            return ReturnResult.error("保存菜单失败");
+        }
+        return ReturnResult.guess(baseMapper.selectById(sysMenu.getSysMenuId()));
     }
 
+    private String resolveMenuTreeId(Integer menuId, Integer parentMenuId, boolean validateSelfReference) {
+        if (null == parentMenuId || parentMenuId == SystemConstant.ROOT_NODE_ID) {
+            return Joiner.on(",").join(SystemConstant.ROOT_NODE_ID, menuId);
+        }
+        SysMenu parentSysMenu = baseMapper.selectById(parentMenuId);
+        if (null == parentSysMenu) {
+            return null;
+        }
+        if (validateSelfReference && StringUtils.transArrayContains(parentSysMenu.getSysMenuTreeId(), String.valueOf(menuId))) {
+            throw new IllegalArgumentException("不能选择自身作为父级菜单");
+        }
+        return Joiner.on(",").join(parentSysMenu.getSysMenuTreeId(), menuId);
+    }
 
 }
