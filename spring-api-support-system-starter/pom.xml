@@ -11,25 +11,36 @@
   <description>平台端</description>
   <dependencies>
     <dependency>
-      <groupId>com.chua</groupId>
-      <artifactId>spring-api-support-devops-starter</artifactId>
-    </dependency>
-    <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-system-starter</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>spring-support-job-starter</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>spring-support-socket-io-starter</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>spring-api-support-monitor-starter</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.chua</groupId>
-      <artifactId>spring-support-payment-starter</artifactId>
+      <artifactId>spring-api-support-common-service-starter</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>spring-support-job-starter</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>spring-support-socket-io-starter</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -48,6 +59,20 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-support-report-client-starter</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>spring-support-job-starter</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>spring-support-sync-starter</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>spring-support-socket-io-starter</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>redis.clients</groupId>
@@ -56,6 +81,26 @@
   </dependencies>
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>${maven-antrun-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>clean-runtime-layout</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <delete dir="${project.build.directory}/lib" quiet="true" />
+                <delete dir="${project.build.directory}/config" quiet="true" />
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
