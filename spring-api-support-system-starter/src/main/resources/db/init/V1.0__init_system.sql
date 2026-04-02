@@ -443,97 +443,77 @@ INSERT INTO `sys_role` (`sys_role_id`, `sys_role_name`, `sys_role_code`, `sys_ro
 (4, '普通用户', 'USER', 0, 1, 4, '普通用户', 0);
 
 -- =====================================================
--- 初始数据 - 支付菜单与权限
+-- 初始数据 - 系统基础菜单与权限
+-- 仅保留当前 system 应用实际依赖的 system/common-service 基线能力
 -- =====================================================
-INSERT INTO `sys_menu` VALUES (73, 'paymentWalletManage', '/payment/wallet', NULL, '钱包管理', 'payment:wallet:view', 42, '0,42,73', '/manage/payment-wallet', 'ri:wallet-3-line', NULL, 0, 5, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (72, '', '', '', '钱包充值', 'payment:wallet:recharge', 73, '0,42,73,72', '', '', NULL, 3, 2, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (71, '', '', '', '钱包查看', 'payment:wallet:view', 73, '0,42,73,71', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (70, '', '', '', '交易流水查看', 'payment:transaction:view', 45, '0,42,45,70', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (69, '', '', '', '退款查看', 'payment:refund:view', 46, '0,42,46,69', '', '', NULL, 3, 3, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (68, '', '', '', '订单查看', 'payment:order:view', 44, '0,42,44,68', '', '', NULL, 3, 8, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (67, '', '', '', '支付方式查看', 'payment:channel:view', 43, '0,42,43,67', '', '', NULL, 3, 11, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (66, '', '', '', '商户查看', 'payment:merchant:view', 43, '0,42,43,66', '', '', NULL, 3, 12, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (65, '', '', '', '标记失败', 'payment:refund:fail', 46, '0,42,46,65', '', '', NULL, 3, 2, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (64, '', '', '', '标记成功', 'payment:refund:success', 46, '0,42,46,64', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (63, '', '', '', '删除', 'payment:order:delete', 44, '0,42,44,63', '', '', NULL, 3, 7, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (62, '', '', '', '退款处理', 'payment:order:refund', 44, '0,42,44,62', '', '', NULL, 3, 6, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (61, '', '', '', '完成', 'payment:order:complete', 44, '0,42,44,61', '', '', NULL, 3, 5, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (60, '', '', '', '取消', 'payment:order:cancel', 44, '0,42,44,60', '', '', NULL, 3, 4, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (59, '', '', '', '同步状态', 'payment:order:sync', 44, '0,42,44,59', '', '', NULL, 3, 3, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (58, '', '', '', '支付处理', 'payment:order:pay', 44, '0,42,44,58', '', '', NULL, 3, 2, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (57, '', '', '', '创建订单', 'payment:order:create', 44, '0,42,44,57', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (56, '', '', '', '开通指引', 'payment:channel:guide', 43, '0,42,43,56', '', '', NULL, 3, 10, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (55, '', '', '', '禁用支付方式', 'payment:channel:disable', 43, '0,42,43,55', '', '', NULL, 3, 9, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (54, '', '', '', '启用支付方式', 'payment:channel:enable', 43, '0,42,43,54', '', '', NULL, 3, 8, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (53, '', '', '', '编辑支付方式', 'payment:channel:edit', 43, '0,42,43,53', '', '', NULL, 3, 7, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (52, '', '', '', '新增支付方式', 'payment:channel:add', 43, '0,42,43,52', '', '', NULL, 3, 6, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (51, '', '', '', '删除商户', 'payment:merchant:delete', 43, '0,42,43,51', '', '', NULL, 3, 5, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (50, '', '', '', '停用商户', 'payment:merchant:deactivate', 43, '0,42,43,50', '', '', NULL, 3, 4, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (49, '', '', '', '激活商户', 'payment:merchant:activate', 43, '0,42,43,49', '', '', NULL, 3, 3, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (48, '', '', '', '编辑商户', 'payment:merchant:edit', 43, '0,42,43,48', '', '', NULL, 3, 2, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (47, '', '', '', '新增商户', 'payment:merchant:add', 43, '0,42,43,47', '', '', NULL, 3, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (46, 'paymentRefundManage', '/payment/refund', NULL, '退款管理', 'payment:refund:view', 42, '0,42,46', '/manage/payment-refund', 'ri:refund-2-line', NULL, 0, 4, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (45, 'paymentTransactionManage', '/payment/transaction', NULL, '交易流水', 'payment:transaction:view', 42, '0,42,45', '/manage/payment-transaction', 'ri:exchange-funds-line', NULL, 0, 3, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (44, 'paymentOrderManage', '/payment/order', NULL, '订单管理', 'payment:order:view', 42, '0,42,44', '/manage/payment-order', 'ri:file-list-3-line', NULL, 0, 2, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (43, 'paymentMerchantManage', '/payment/merchant', NULL, '商户管理', 'payment:merchant:view,payment:channel:view', 42, '0,42,43', '/manage/payment-merchant', 'ri:store-2-line', NULL, 0, 1, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
-INSERT INTO `sys_menu` VALUES (42, 'payment', '/payment', NULL, '支付管理', NULL, 0, '0,42', '/payment', 'ri:secure-payment-line', NULL, 0, 7, 0, 1, 0, 0, '/payment/merchant', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, 'ADMIN,SUPER_ADMIN', NULL, NULL);
+INSERT INTO `sys_menu` (
+    `sys_menu_id`, `sys_menu_name`, `sys_menu_path`, `sys_menu_i18n`, `sys_menu_title`, `sys_menu_perm`,
+    `sys_menu_pid`, `sys_menu_tree_id`, `sys_menu_component`, `sys_menu_icon`, `sys_menu_type`, `sys_menu_sort`,
+    `sys_menu_hidden`, `sys_menu_show_parent`, `sys_menu_hidden_tag`, `sys_menu_fixed_tag`, `sys_menu_redirect`,
+    `sys_menu_keep_alive`, `create_name`, `create_by`, `create_time`, `update_time`, `update_name`, `update_by`,
+    `sys_menu_role`, `sys_menu_home`, `sys_menu_engine`
+) VALUES
+(1, 'system', '/manage', NULL, '系统管理', NULL, 0, '0,1', '/manage', 'ep:setting', 0, 2, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
+(2, 'menu', '/manage/menu', NULL, '菜单管理', NULL, 1, '0,1,2', '/manage/menu/index', 'ep:menu', 0, 1, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(3, 'setting', '/manage/setting', '', '系统配置', '', 1, '0,1,3', '@pages/common/setting/index.vue', 'ep:setting', 0, 999, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(4, 'role', '/manage/role', NULL, '角色管理', NULL, 1, '0,1,4', '/manage/role/index', 'ri:shield-user-line', 0, 2, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
+(5, '', '', '', '新增', 'sys:role:add', 4, '0,1,4', '', '', 3, 1, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL),
+(6, '', '', '', '删除', 'sys:role:delete', 4, '0,1,4', '', '', 3, 1, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL),
+(7, '', '', '', '修改', 'sys:role:update', 4, '0,1,4', '', '', 3, 1, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL),
+(8, 'login', '/manage/login', '', '用户管理', '', 1, '0,1,8', '/manage/login/index', 'ri:user-settings-line', 0, 3, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
+(9, 'userLog', '/manage/log/login', '', '登录日志', '', 1, '0,1,9', '/manage/log/login/index', 'ep:alarm-clock', 0, 998, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
+(11, 'dept', '/manage/dept', '', '机构管理', '', 1, '0,1,11', '/manage/dept/index', 'ep:star', 0, 5, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
+(12, '', '', '', '删除', 'sys:login:delete', 8, '0,1,8', '', '', 3, 1, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL),
+(13, '', '', '', '编辑', 'sys:login:update', 8, '0,1,8', '', '', 3, 1, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL),
+(14, '', '', '', '新增', 'sys:login:add', 8, '0,1,8,14', '', '', 3, 1, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
+(15, 'dict', '/manage/dict', '', '字典管理', '', 1, '0,1,15', '/manage/dict/index', 'humbleicons:dashboard', 0, 6, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL);
 
-INSERT INTO `sys_role_menu` VALUES (232, 3, 73);
-INSERT INTO `sys_role_menu` VALUES (231, 2, 73);
-INSERT INTO `sys_role_menu` VALUES (229, 3, 71);
-INSERT INTO `sys_role_menu` VALUES (228, 3, 70);
-INSERT INTO `sys_role_menu` VALUES (227, 3, 69);
-INSERT INTO `sys_role_menu` VALUES (226, 3, 68);
-INSERT INTO `sys_role_menu` VALUES (225, 3, 67);
-INSERT INTO `sys_role_menu` VALUES (224, 3, 66);
-INSERT INTO `sys_role_menu` VALUES (223, 3, 46);
-INSERT INTO `sys_role_menu` VALUES (222, 3, 45);
-INSERT INTO `sys_role_menu` VALUES (221, 3, 44);
-INSERT INTO `sys_role_menu` VALUES (220, 3, 43);
-INSERT INTO `sys_role_menu` VALUES (219, 3, 42);
-INSERT INTO `sys_role_menu` VALUES (218, 2, 72);
-INSERT INTO `sys_role_menu` VALUES (217, 2, 71);
-INSERT INTO `sys_role_menu` VALUES (216, 2, 70);
-INSERT INTO `sys_role_menu` VALUES (215, 2, 69);
-INSERT INTO `sys_role_menu` VALUES (214, 2, 68);
-INSERT INTO `sys_role_menu` VALUES (213, 2, 67);
-INSERT INTO `sys_role_menu` VALUES (212, 2, 66);
-INSERT INTO `sys_role_menu` VALUES (211, 2, 65);
-INSERT INTO `sys_role_menu` VALUES (230, 2, 64);
-INSERT INTO `sys_role_menu` VALUES (210, 2, 63);
-INSERT INTO `sys_role_menu` VALUES (209, 2, 62);
-INSERT INTO `sys_role_menu` VALUES (208, 2, 61);
-INSERT INTO `sys_role_menu` VALUES (207, 2, 60);
-INSERT INTO `sys_role_menu` VALUES (206, 2, 59);
-INSERT INTO `sys_role_menu` VALUES (205, 2, 58);
-INSERT INTO `sys_role_menu` VALUES (204, 2, 57);
-INSERT INTO `sys_role_menu` VALUES (203, 2, 56);
-INSERT INTO `sys_role_menu` VALUES (202, 2, 55);
-INSERT INTO `sys_role_menu` VALUES (201, 2, 54);
-INSERT INTO `sys_role_menu` VALUES (200, 2, 53);
-INSERT INTO `sys_role_menu` VALUES (199, 2, 52);
-INSERT INTO `sys_role_menu` VALUES (198, 2, 51);
-INSERT INTO `sys_role_menu` VALUES (197, 2, 50);
-INSERT INTO `sys_role_menu` VALUES (196, 2, 49);
-INSERT INTO `sys_role_menu` VALUES (195, 2, 48);
-INSERT INTO `sys_role_menu` VALUES (194, 2, 47);
-INSERT INTO `sys_role_menu` VALUES (193, 2, 46);
-INSERT INTO `sys_role_menu` VALUES (192, 2, 45);
-INSERT INTO `sys_role_menu` VALUES (191, 2, 44);
-INSERT INTO `sys_role_menu` VALUES (190, 2, 43);
-INSERT INTO `sys_role_menu` VALUES (189, 2, 42);
+INSERT INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu_id`) VALUES
+(82, 2, 4),
+(83, 2, 5),
+(84, 2, 6),
+(85, 2, 7),
+(86, 2, 8),
+(87, 2, 12),
+(88, 2, 13),
+(89, 2, 14),
+(90, 2, 1),
+(91, 2, 2),
+(92, 2, 11),
+(93, 2, 15),
+(96, 2, 9),
+(97, 2, 3),
+(131, 3, 2),
+(132, 3, 4),
+(133, 3, 5),
+(134, 3, 6),
+(135, 3, 7),
+(136, 3, 8),
+(137, 3, 12),
+(138, 3, 13),
+(139, 3, 14),
+(140, 3, 9),
+(141, 3, 11),
+(142, 3, 15),
+(143, 3, 1);
 
 -- =====================================================
--- 初始数据 - 默认超级管理员账号
--- 账号: sa  密码: 123456 (MD5加盐加密)
+-- 初始数据 - 默认系统账号
+-- 账号: sa / admin / ops
+-- 密码: 123456 (前端先 MD5，再由后端执行 MD5(md5(password)+salt))
 -- =====================================================
 INSERT INTO `sys_user` (`sys_user_id`, `sys_user_username`, `sys_user_nickname`, `sys_user_password`, `sys_user_salt`, `sys_user_delete`, `sys_user_status`, `sys_user_in_system`) VALUES
-(1, 'sa', '超级管理员', '53006d111477a9b5b16c4b38ac8fad69', '123456', 0, 1, 1);
+(1, 'sa', '超级管理员', '5f1d7a84db00d2fce00b31a7fc73224f', '123456', 0, 1, 1),
+(2, 'admin', '管理员', '5f1d7a84db00d2fce00b31a7fc73224f', '123456', 0, 1, 1),
+(3, 'ops', '运维', '5f1d7a84db00d2fce00b31a7fc73224f', '123456', 0, 1, 1);
 
 -- =====================================================
--- 初始数据 - 超级管理员角色关联
+-- 初始数据 - 默认账号角色关联
 -- =====================================================
-INSERT INTO `sys_user_role` (`sys_user_id`, `sys_role_id`) VALUES (1, 1);
+INSERT INTO `sys_user_role` (`sys_user_id`, `sys_role_id`) VALUES
+(1, 1),
+(2, 2),
+(3, 3);
 
 -- =====================================================
 -- 初始数据 - 默认组织机构

@@ -1,8 +1,8 @@
 package com.chua.starter.service.configuration.trace;
 
-import com.chua.deeplearning.support.ml.bigmodel.BigModelClient;
-import com.chua.deeplearning.support.ml.bigmodel.BigModelRequest;
-import com.chua.deeplearning.support.ml.bigmodel.BigModelResponse;
+import com.chua.common.support.ai.bigmodel.BigModelClient;
+import com.chua.common.support.ai.bigmodel.BigModelRequest;
+import com.chua.common.support.ai.bigmodel.BigModelResponse;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.service.setting.BigModelSetting;
 import lombok.extern.slf4j.Slf4j;
