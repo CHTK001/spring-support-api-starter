@@ -260,6 +260,7 @@ CREATE TABLE `sys_user_log` (
     `sys_log_ua` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'User-Agent - 浏览器完整的UA字符串',
     `sys_log_browser` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '浏览器 - 浏览器类型和版本',
     `sys_log_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求地址 - 登录的API地址',
+    `sys_log_app_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '应用名称 - 请求来源应用标识',
     `sys_log_param` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求参数 - 登录请求的参数(脱敏)',
     `sys_log_cost` int(11) NULL DEFAULT NULL COMMENT '耗时(毫秒) - 登录操作耗时',
     `sys_log_from` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作类型 - LOGIN:登录, LOGOUT:登出',
