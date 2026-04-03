@@ -46,10 +46,8 @@ INSERT INTO `sys_setting` VALUES (1, 'CheckCodeOpen', 'false', 'Boolean', 'defau
 INSERT INTO `sys_setting` VALUES (2, 'SystemName', '后台管理系统', 'String', 'default', 1, 0, 0, 1, 0, NULL, 15, NULL, '系统标题', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (3, 'SlidingBlockOpen', 'false', 'Boolean', 'default', 1, 5, 0, 1, 0, NULL, 15, NULL, '滑动验证码', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (17, 'OpenSmsLogin', 'true', 'Boolean', 'default', 1, 6, 0, 1, 0, NULL, 15, NULL, '短信登录开关', NULL, NULL, NULL, NOW(), 'sa', 1);
-INSERT INTO `sys_setting` VALUES (4, 'CrashPageOpen', 'false', 'Boolean', 'config', 1, 9, 0, 1, 0, NULL, 26, NULL, '调试模式崩溃当前页', 'sa', NULL, NOW(), NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (5, 'CodecResponseOpen', 'false', 'Boolean', 'config', 1, 10, 0, 1, 0, NULL, 26, NULL, '返回加密', 'sa', NULL, NOW(), NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (6, 'WatermarkOpen', 'false', 'Boolean', 'config', 1, 5, 0, 1, 0, NULL, 26, NULL, '水印', 'sa', NULL, NOW(), NOW(), 'sa', 1);
-INSERT INTO `sys_setting` VALUES (7, 'LoopDebuggerOpen', 'false', 'Boolean', 'config', 1, 11, 0, 1, 0, NULL, 26, NULL, '循环debugger', 'sa', NULL, NOW(), NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (8, 'Version', '1', 'Number', 'config', 1, 4, 0, 1, 0, NULL, 123, 'fe7db08a-1001-4e7b-95ab-776a569a85c0', '系统版本', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (9, 'SocketUrl', 'http://127.0.0.1:29181', 'Array', 'config', 1, 2, 0, 1, 0, 1, 26, NULL, 'socket.io服务器地址', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (10, 'SocketOpen', 'false', 'Boolean', 'config', 1, 12, 0, 1, 0, 1, 26, NULL, 'socket.io是否开启', NULL, NULL, NULL, NOW(), 'sa', 1);
