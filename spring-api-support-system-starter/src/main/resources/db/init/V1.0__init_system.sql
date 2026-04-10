@@ -56,7 +56,21 @@ CREATE TABLE `sys_dept` (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '组织机构表 - 存储系统的部门/组织架构信息' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 2. 角色表 (sys_role)
+-- 2. 部门负责人关系表 (sys_dept_principal_rel)
+-- 用途: 存储部门与负责人的多对多关系
+-- =====================================================
+DROP TABLE IF EXISTS `sys_dept_principal_rel`;
+CREATE TABLE `sys_dept_principal_rel` (
+    `sys_dept_principal_rel_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '关系ID - 主键自增',
+    `sys_dept_id` int(11) NOT NULL COMMENT '部门ID - 关联组织机构表',
+    `sys_user_id` int(11) NOT NULL COMMENT '负责人用户ID - 关联用户表',
+    PRIMARY KEY (`sys_dept_principal_rel_id`) USING BTREE,
+    UNIQUE INDEX `uk_dept_user` (`sys_dept_id`, `sys_user_id`) USING BTREE COMMENT '部门负责人唯一索引',
+    INDEX `idx_principal_user_id` (`sys_user_id`) USING BTREE COMMENT '负责人用户索引'
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '部门负责人关系表 - 存储部门负责人的多对多关系' ROW_FORMAT = DYNAMIC;
+
+-- =====================================================
+-- 3. 角色表 (sys_role)
 -- 用途: 存储系统角色信息，用于权限控制
 -- =====================================================
 DROP TABLE IF EXISTS `sys_role`;
@@ -84,7 +98,7 @@ CREATE TABLE `sys_role` (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色表 - 存储系统角色信息，用于RBAC权限控制' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 3. 菜单表 (sys_menu)
+-- 4. 菜单表 (sys_menu)
 -- 用途: 存储系统菜单/权限点信息，支持树形结构
 -- =====================================================
 DROP TABLE IF EXISTS `sys_menu`;
@@ -127,7 +141,40 @@ CREATE TABLE `sys_menu` (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单表 - 存储系统菜单和按钮权限信息' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 4. 角色-菜单关系表 (sys_role_menu)
+-- 5. 小程序菜单卡片表 (sys_mini_menu)
+-- 用途: 存储小程序首页卡片配置，与PC菜单完全分离
+-- =====================================================
+DROP TABLE IF EXISTS `sys_mini_menu`;
+CREATE TABLE `sys_mini_menu` (
+    `sys_mini_menu_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '小程序菜单ID - 主键自增',
+    `sys_mini_menu_title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡片标题',
+    `sys_mini_menu_subtitle` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡片副标题',
+    `sys_mini_menu_category` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡片分组',
+    `sys_mini_menu_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '小程序页面路径',
+    `sys_mini_menu_jump_mode` int(11) NULL DEFAULT 0 COMMENT '跳转模式 - 0:普通页面, 1:tabBar页面, 2:webview',
+    `sys_mini_menu_icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡片图标',
+    `sys_mini_menu_cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡片封面/背景',
+    `sys_mini_menu_badge` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '角标文案',
+    `sys_mini_menu_badge_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '角标样式',
+    `sys_mini_menu_perm` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '权限标识',
+    `sys_mini_menu_role` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属角色编码',
+    `sys_mini_menu_sort` int(11) NULL DEFAULT 1 COMMENT '排序优先级',
+    `sys_mini_menu_keep_alive` int(11) NULL DEFAULT 0 COMMENT '是否缓存 - 0:否, 1:是',
+    `sys_mini_menu_hidden` int(11) NULL DEFAULT 0 COMMENT '是否隐藏 - 0:显示, 1:隐藏',
+    `sys_mini_menu_description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡片说明',
+    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人ID',
+    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`sys_mini_menu_id`) USING BTREE,
+    INDEX `idx_mini_menu_sort` (`sys_mini_menu_sort`) USING BTREE COMMENT '排序索引',
+    INDEX `idx_mini_menu_perm` (`sys_mini_menu_perm`) USING BTREE COMMENT '权限标识索引'
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '小程序菜单卡片表 - 存储小程序首页卡片与权限配置' ROW_FORMAT = DYNAMIC;
+
+-- =====================================================
+-- 6. 角色-菜单关系表 (sys_role_menu)
 -- 用途: 存储角色与菜单的多对多关系
 -- =====================================================
 DROP TABLE IF EXISTS `sys_role_menu`;
@@ -441,7 +488,9 @@ INSERT INTO `sys_role` (`sys_role_id`, `sys_role_name`, `sys_role_code`, `sys_ro
 (1, '超级管理员', 'SUPER_ADMIN', 1, 1, 1, '系统超级管理员，拥有所有权限', 0),
 (2, '管理员', 'ADMIN', 1, 1, 2, '系统管理员', 0),
 (3, '运维', 'OPS', 1, 1, 3, '运维人员', 0),
-(4, '普通用户', 'USER', 0, 1, 4, '普通用户', 0);
+(4, '普通用户', 'USER', 0, 1, 4, '普通用户', 0),
+(5, '部门负责人', 'DEPT_LEADER', 1, 1, 5, '负责部门及子部门账号管理', 0),
+(6, '游客', 'GUEST', 1, 1, 6, '游客账号', 0);
 
 -- =====================================================
 -- 初始数据 - 系统基础菜单与权限

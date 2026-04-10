@@ -52,6 +52,19 @@ INSERT INTO `sys_dept` VALUES (4, '二级机构 - 2', 1, '0,1,4', 'l22', NULL, N
 INSERT INTO `sys_dept` VALUES (5, '三级机构', 2, '0,1,2,5', 'l3', NULL, NULL, 0, 0, NULL, NULL, NULL, 'sa', 1, '2025-02-13 14:36:39', '2025-02-13 14:36:39', 'sa', 1);
 
 -- ----------------------------
+-- Table structure for sys_dept_principal_rel
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_dept_principal_rel`;
+CREATE TABLE `sys_dept_principal_rel`  (
+  `sys_dept_principal_rel_id` int(11) NOT NULL AUTO_INCREMENT,
+  `sys_dept_id` int(11) NOT NULL COMMENT '部门ID',
+  `sys_user_id` int(11) NOT NULL COMMENT '负责人用户ID',
+  PRIMARY KEY (`sys_dept_principal_rel_id`) USING BTREE,
+  UNIQUE INDEX `uk_dept_user`(`sys_dept_id`, `sys_user_id`) USING BTREE,
+  INDEX `idx_principal_user_id`(`sys_user_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '部门负责人关系表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
 -- Table structure for sys_log
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_log`;
@@ -116,6 +129,38 @@ CREATE TABLE `sys_menu`  (
   `sys_menu_engine` int(11) NULL DEFAULT NULL COMMENT '是否engine布局主页；0: 否',
   PRIMARY KEY (`sys_menu_id` DESC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 74 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for sys_mini_menu
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_mini_menu`;
+CREATE TABLE `sys_mini_menu`  (
+  `sys_mini_menu_id` int(11) NOT NULL AUTO_INCREMENT,
+  `sys_mini_menu_title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡片标题',
+  `sys_mini_menu_subtitle` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡片副标题',
+  `sys_mini_menu_category` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡片分组',
+  `sys_mini_menu_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '小程序页面路径',
+  `sys_mini_menu_jump_mode` int(11) NULL DEFAULT 0 COMMENT '跳转模式; 0:普通页面 1:tabBar页面 2:webview',
+  `sys_mini_menu_icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡片图标',
+  `sys_mini_menu_cover` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡片封面/背景',
+  `sys_mini_menu_badge` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '角标文案',
+  `sys_mini_menu_badge_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '角标样式',
+  `sys_mini_menu_perm` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '权限标识',
+  `sys_mini_menu_role` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属角色编码',
+  `sys_mini_menu_sort` int(11) NULL DEFAULT 1 COMMENT '排序优先级',
+  `sys_mini_menu_keep_alive` int(11) NULL DEFAULT 0 COMMENT '是否缓存；0:否',
+  `sys_mini_menu_hidden` int(11) NULL DEFAULT 0 COMMENT '是否隐藏；0:显示',
+  `sys_mini_menu_description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡片说明',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`sys_mini_menu_id`) USING BTREE,
+  INDEX `idx_mini_menu_sort`(`sys_mini_menu_sort`) USING BTREE,
+  INDEX `idx_mini_menu_perm`(`sys_mini_menu_perm`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '小程序菜单卡片表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_menu
@@ -220,6 +265,8 @@ INSERT INTO `sys_role` VALUES (1, '超级管理员', 'SUPER_ADMIN', 1, 1, 1, '�
 INSERT INTO `sys_role` VALUES (2, '管理员', 'ADMIN', 1, 1, 1, '超级管理员', 0, NULL, NULL, NULL, 1, NULL, NULL, NULL, '2024-08-21 13:49:40', 'sa', 1);
 INSERT INTO `sys_role` VALUES (3, '运维', 'OPS', 1, 1, 1, '运维', 0, NULL, NULL, NULL, 1, NULL, NULL, NULL, '2025-02-13 11:31:33', 'sa', 1);
 INSERT INTO `sys_role` VALUES (4, '机构', 'DEPT', 1, 1, 1, '机构账号', 0, 1, 16, 256, NULL, 'sa', 1, '2025-02-13 15:19:04', '2025-02-13 15:19:23', 'sa', 1);
+INSERT INTO `sys_role` VALUES (5, '部门负责人', 'DEPT_LEADER', 1, 1, 5, '负责部门及子部门账号管理', 0, NULL, NULL, NULL, NULL, 'sa', 1, NOW(), NOW(), 'sa', 1);
+INSERT INTO `sys_role` VALUES (6, '游客', 'GUEST', 1, 1, 6, '游客账号', 0, NULL, NULL, NULL, NULL, 'sa', 1, NOW(), NOW(), 'sa', 1);
 
 -- ----------------------------
 -- Table structure for sys_role_menu

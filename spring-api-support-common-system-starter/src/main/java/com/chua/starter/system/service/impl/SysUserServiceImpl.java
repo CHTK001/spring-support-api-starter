@@ -19,15 +19,18 @@ import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.system.mapper.SysUserMapper;
+import com.chua.starter.system.mapper.SysUserLogMapper;
 import com.chua.starter.system.model.user.SysUserQuery;
 import com.chua.starter.entity.system.*;
 import com.chua.starter.system.mapper.SysRoleMapper;
 import com.chua.starter.system.mapper.SysUserLayoutMapper;
+import com.chua.starter.system.pojo.menu.SysMiniMenuVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.pojo.user.SysUserVO;
 import com.chua.starter.system.pojo.user.UserLayout;
+import com.chua.starter.system.service.SysMiniMenuService;
 import com.chua.starter.system.service.SysMenuService;
 import com.chua.starter.system.service.SysUserRoleService;
 import com.chua.starter.system.service.SysUserService;
@@ -59,21 +62,29 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     final RestTemplate restTemplate;
     final RedisTemplate redisTemplate;
     final SysMenuService sysMenuService;
+    final SysMiniMenuService sysMiniMenuService;
     final IptablesService iptablesService;
     final SysUserLayoutMapper sysUserLayoutMapper;
+    final SysUserLogMapper sysUserLogMapper;
     final SystemSecurityProperties securityProperties;
     private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
 
     @Override
     public IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles) {
-        IPage<SysUser> sysUserPage = baseMapper.selectPageUser(sysUserQuery.createPage(), sysUserQuery, AuthConstant.hasAdmin(roles));
+        IPage<SysUser> sysUserPage = baseMapper.selectPageUser(sysUserQuery.createPage(), sysUserQuery);
 
         List<SysUser> records1 = sysUserPage.getRecords();
         Page<SysUserVO> result = new Page<>();
+        List<SysUserVO> sysUserVos = records1.stream().map(it -> {
+            SysUserVO item = BeanUtils.copyProperties(it, SysUserVO.class);
+            normalizeLastLoginState(it, item);
+            return item;
+        }).collect(Collectors.toList());
+        enrichLastLoginInfo(sysUserVos);
         result.setCurrent(sysUserPage.getCurrent())
                 .setSize(sysUserPage.getSize())
                 .setTotal(sysUserPage.getTotal())
-                .setRecords(records1.stream().map(it -> BeanUtils.copyProperties(it, SysUserVO.class)).collect(Collectors.toList()));
+                .setRecords(sysUserVos);
         List<SysUserVO> records = result.getRecords();
         if (CollectionUtils.isEmpty(records)) {
             return result;
@@ -191,22 +202,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUserUpdate.setSysUserInSystem(SystemConstant.IN_SYSTEM_NO);
         sysUserUpdate.setSysUserDelete(SystemConstant.NOT_DELETED);
         sysUserUpdate.setSysUserStatus(SystemConstant.USER_STATUS_ENABLED);
+        sysUserUpdate.setSysUserLongCount(0);
         sysUserUpdate.setSysUserRegisterIp(RequestUtils.getIpAddress(request));
-        sysUserUpdate.setSysUserLastIp(RequestUtils.getIpAddress(request));
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(sysUserUpdate.getSysUserLastIp())) {
-            ReturnResult<GeoCity> returnResult = iptablesService.transferAddress(sysUserUpdate.getSysUserLastIp());
-            if (returnResult.isOk()) {
-                GeoCity geoCity = returnResult.getData();
-                sysUserUpdate.setSysUserLastAddress(geoCity.getProvince() + " " + geoCity.getCity());
-            }
-        }
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(sysUserUpdate.getSysUserRegisterIp())) {
-            ReturnResult<GeoCity> returnResult = iptablesService.transferAddress(sysUserUpdate.getSysUserRegisterIp());
-            if (returnResult.isOk()) {
-                GeoCity geoCity = returnResult.getData();
-                sysUserUpdate.setSysUserRegisterAddress(geoCity.getProvince() + " " + geoCity.getCity());
-            }
-        }
+        sysUserUpdate.setSysUserRegisterAddress(resolveGeoAddress(sysUserUpdate.getSysUserRegisterIp()));
         return ReturnResult.ok(transactionTemplate.execute(status -> {
             save(sysUserUpdate);
             if (CollectionUtils.isNotEmpty(sysUserUpdate.getRoleIds())) {
@@ -226,8 +224,97 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles) {
-        return sysMenuService.list(new SysMenu(), roles, 3);
+    public ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles, Integer sysMenuEngine) {
+        SysMenu sysMenu = new SysMenu();
+        sysMenu.setSysMenuEngine(null == sysMenuEngine ? 0 : sysMenuEngine);
+        return sysMenuService.list(sysMenu, roles, 3);
+    }
+
+    @Override
+    public ReturnResult<List<SysMiniMenuVO>> getUserMiniMenu(Set<String> roles) {
+        return sysMiniMenuService.listUserMenus(roles);
+    }
+
+    private String resolveGeoAddress(String rawIp) {
+        String ip = normalizeClientIp(rawIp);
+        if (org.apache.commons.lang3.StringUtils.isBlank(ip)) {
+            return null;
+        }
+        try {
+            ReturnResult<GeoCity> returnResult = iptablesService.transferAddress(ip);
+            if (null == returnResult || !returnResult.isOk() || null == returnResult.getData()) {
+                return null;
+            }
+            GeoCity geoCity = returnResult.getData();
+            String province = Optional.ofNullable(geoCity.getProvince()).orElse("");
+            String city = Optional.ofNullable(geoCity.getCity()).orElse("");
+            String address = (province + " " + city).trim();
+            return address.isEmpty() ? null : address;
+        } catch (Exception e) {
+            log.warn("[SysUser] 解析IP归属地失败: ip={}", ip, e);
+            return null;
+        }
+    }
+
+    private String normalizeClientIp(String rawIp) {
+        if (org.apache.commons.lang3.StringUtils.isBlank(rawIp)) {
+            return null;
+        }
+        return Arrays.stream(rawIp.split(","))
+                .map(String::trim)
+                .filter(org.apache.commons.lang3.StringUtils::isNotBlank)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private void normalizeLastLoginState(SysUser source, SysUserVO target) {
+        if (null == source || null == target) {
+            return;
+        }
+        Integer loginCount = source.getSysUserLongCount();
+        if (null != loginCount && loginCount > 0) {
+            return;
+        }
+        target.setSysUserLastIp(null);
+        target.setSysUserLastAddress(null);
+    }
+
+    private void enrichLastLoginInfo(List<SysUserVO> records) {
+        if (CollectionUtils.isEmpty(records)) {
+            return;
+        }
+        List<String> usernames = records.stream()
+                .map(SysUserVO::getSysUserUsername)
+                .filter(StringUtils::isNotBlank)
+                .distinct()
+                .toList();
+        if (CollectionUtils.isEmpty(usernames)) {
+            return;
+        }
+        Map<String, SysUserLog> latestLogByUsername = sysUserLogMapper.listLatestLoginLogsByUsernames(usernames).stream()
+                .filter(log -> StringUtils.isNotBlank(log.getSysLogUsername()))
+                .collect(Collectors.toMap(
+                        SysUserLog::getSysLogUsername,
+                        log -> log,
+                        (first, ignored) -> first,
+                        LinkedHashMap::new
+                ));
+        if (latestLogByUsername.isEmpty()) {
+            return;
+        }
+        for (SysUserVO record : records) {
+            SysUserLog latestLog = latestLogByUsername.get(record.getSysUserUsername());
+            if (null == latestLog) {
+                continue;
+            }
+            if (StringUtils.isNotBlank(latestLog.getSysLogIp())) {
+                record.setSysUserLastIp(latestLog.getSysLogIp());
+            }
+            if (StringUtils.isNotBlank(latestLog.getSysLogAddress())) {
+                record.setSysUserLastAddress(latestLog.getSysLogAddress());
+            }
+            record.setSysUserLastLoginTime(latestLog.getCreateTime());
+        }
     }
 
 
@@ -309,10 +396,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             response.setContentType("text/csv;charset=UTF-8");
             response.setHeader("Content-Disposition", "attachment;filename=users_" + System.currentTimeMillis() + ".csv");
             response.setCharacterEncoding("UTF-8");
-            // BOM for Excel UTF-8
-            response.getOutputStream().write(new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF});
-            
-            java.io.PrintWriter writer = response.getWriter();
+            var outputStream = response.getOutputStream();
+            // 统一走 OutputStream，避免 getOutputStream/getWriter 混用触发 IllegalStateException
+            outputStream.write(new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF});
+            java.io.PrintWriter writer = new java.io.PrintWriter(
+                    new java.io.OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8),
+                    false
+            );
             // CSV头
             writer.println("用户名,昵称,邮箱,手机号,性别,部门,角色,状态,备注");
             
@@ -348,10 +438,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             response.setContentType("text/csv;charset=UTF-8");
             response.setHeader("Content-Disposition", "attachment;filename=user_import_template.csv");
             response.setCharacterEncoding("UTF-8");
-            // BOM for Excel UTF-8
-            response.getOutputStream().write(new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF});
-            
-            java.io.PrintWriter writer = response.getWriter();
+            var outputStream = response.getOutputStream();
+            outputStream.write(new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF});
+            java.io.PrintWriter writer = new java.io.PrintWriter(
+                    new java.io.OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8),
+                    false
+            );
             // CSV头
             writer.println("用户名(*),昵称(*),邮箱,手机号,性别(0男/1女),部门ID,角色编码(多个用;分隔),状态(0禁用/1启用),备注");
             // 示例数据
