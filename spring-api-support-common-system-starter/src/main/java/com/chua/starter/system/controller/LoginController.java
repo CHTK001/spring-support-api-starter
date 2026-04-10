@@ -18,6 +18,7 @@ import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.system.pojo.RefreshToken;
 import com.chua.starter.system.pojo.LoginResult;
 import com.chua.starter.system.pojo.UserInfoVO;
+import com.chua.starter.system.pojo.menu.SysMiniMenuVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.service.SysLoginService;
 import com.chua.starter.system.service.SysUserService;
@@ -180,8 +181,17 @@ public class LoginController {
      */
     @Operation(summary = "获取当前登录用户菜单")
     @GetMapping("/menu")
-    public ReturnResult<List<SysMenuVO>> getUserMenu(@Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return sysUserService.getUserMenu(roles);
+    public ReturnResult<List<SysMenuVO>> getUserMenu(
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @RequestParam(required = false, defaultValue = "0") Integer sysMenuEngine) {
+        return sysUserService.getUserMenu(roles, sysMenuEngine);
+    }
+
+    @Operation(summary = "获取当前登录用户小程序菜单")
+    @GetMapping("/mini-menu")
+    public ReturnResult<List<SysMiniMenuVO>> getUserMiniMenu(
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        return sysUserService.getUserMiniMenu(roles);
     }
 
     /**
@@ -263,7 +273,9 @@ public class LoginController {
         AbstractProtocol.invalidateCache(token);
 
         LoginResult loginResult = LoginResult.builder()
-                .userInfo(sysLoginService.getUserLoginInfo(upgrade.getToken()))
+                .userInfo(upgrade.getUserResume() != null
+                        ? sysLoginService.buildUserInfo(upgrade.getUserResume())
+                        : sysLoginService.getUserLoginInfo(upgrade.getToken()))
                 .tokenType("Bearer")
                 .accessToken(upgrade.getToken())
                 .refreshToken(upgrade.getRefreshToken())

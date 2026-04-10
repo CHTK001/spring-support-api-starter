@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.system.model.user.SysUserQuery;
 import com.chua.starter.entity.system.SysUser;
+import com.chua.starter.system.pojo.menu.SysMiniMenuVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
@@ -85,7 +86,9 @@ public interface SysUserService extends IService<SysUser> {
      * @param roles 用户的角色集合，用于筛选菜单
      * @return 菜单列表对象，包含当前登录用户可以访问的菜单信息
      */
-    ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles);
+    ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles, Integer sysMenuEngine);
+
+    ReturnResult<List<SysMiniMenuVO>> getUserMiniMenu(Set<String> roles);
 
     /**
      * 更新指定用户的登录密码
