@@ -27,12 +27,8 @@ logging:
 
 plugin:
   oauth:
-    address: http://172.16.0.40:19180
-    enable-encryption: true
-    login-page: /oauth/login
-    logout-page: /oauth/logout
-    oauth-url: /oauth/verify
-    temporary-token-page: /oauth/temporary-token
-    upgrade-page: /oauth/upgrade
-    whitelist:
-      - /**/refresh-token
+    address: http://172.16.0.40:19180/oauth
+
+soft:
+  management:
+    enable: false

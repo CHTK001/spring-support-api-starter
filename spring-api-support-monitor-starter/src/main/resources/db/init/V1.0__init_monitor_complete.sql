@@ -1,4 +1,4 @@
--- Monitor System Schema
+﻿-- Monitor System Schema
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -1842,166 +1842,6 @@ CREATE TABLE `server_info_builder`  (
   `os_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
-DROP TABLE IF EXISTS `soft_service`;
-CREATE TABLE `soft_service`  (
-  `soft_service_id` int NOT NULL AUTO_INCREMENT,
-  `soft_service_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '名称',
-  `soft_service_logo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'logo',
-  `soft_service_category` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分类',
-  `soft_service_os` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作系统',
-  `soft_service_install_command` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '安装命令',
-  `soft_service_install_command_type` int NULL DEFAULT NULL COMMENT '安装命令类型（0:单行命令，1:脚本）',
-  `soft_service_install_success_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '安装命令成功标识，多个标识用逗号分隔，支持通配符',
-  `soft_service_install_failure_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '安装命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识',
-  `soft_service_uninstall_command` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '卸载命令',
-  `soft_service_uninstall_command_type` int NULL DEFAULT NULL COMMENT '卸载命令类型（0:单行命令，1:脚本）',
-  `soft_service_uninstall_success_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卸载命令成功标识，多个标识用逗号分隔，支持通配符',
-  `soft_service_uninstall_failure_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卸载命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识',
-  `soft_service_start_command` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '启动命令',
-  `soft_service_start_command_type` int NULL DEFAULT NULL COMMENT '启动命令类型（0:单行命令，1:脚本）',
-  `soft_service_start_success_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '启动命令成功标识，多个标识用逗号分隔，支持通配符',
-  `soft_service_start_failure_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '启动命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识',
-  `soft_service_stop_command` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '停止命令',
-  `soft_service_stop_command_type` int NULL DEFAULT NULL COMMENT '停止命令类型（0:单行命令，1:脚本）',
-  `soft_service_stop_success_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '停止命令成功标识，多个标识用逗号分隔，支持通配符',
-  `soft_service_stop_failure_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '停止命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识',
-  `soft_service_restart_command` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '重启命令',
-  `soft_service_restart_command_type` int NULL DEFAULT NULL COMMENT '重启命令类型（0:单行命令，1:脚本）',
-  `soft_service_restart_success_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '重启命令成功标识，多个标识用逗号分隔，支持通配符',
-  `soft_service_restart_failure_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '重启命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识',
-  `soft_service_status_check_command` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '服务状态检查命令',
-  `soft_service_status_check_command_type` int NULL DEFAULT NULL COMMENT '服务状态检查命令类型（0:单行命令，1:脚本）',
-  `soft_service_status_check_success_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务状态检查成功标识，多个标识用逗号分隔，支持通配符',
-  `soft_service_status_check_failure_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务状态检查失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识',
-  `soft_service_installed` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '是否安装',
-  `soft_service_log_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '日志路径',
-  `soft_service_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
-  `soft_service_version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '版本号',
-  `soft_service_download_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '下载地址',
-  `soft_service_tags` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '标签',
-  `install_count` int NULL DEFAULT NULL COMMENT '安装次数',
-  `favorite_count` int NULL DEFAULT NULL COMMENT '收藏次数',
-  `soft_service_default_port` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '默认端口',
-  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
-  `create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
-  `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
-  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
-  PRIMARY KEY (`soft_service_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
-
-DROP TABLE IF EXISTS `soft_service_install`;
-CREATE TABLE `soft_service_install`  (
-  `install_id` int NOT NULL AUTO_INCREMENT COMMENT '安装记录ID',
-  `ssh_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'SSH ID，关联MachineSshModel的ID',
-  `soft_service_id` int NULL DEFAULT NULL COMMENT '软件服务ID',
-  `install_status` int NULL DEFAULT NULL COMMENT '安装状态：0-未安装，1-安装中，2-安装成功，3-安装失败',
-  `install_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '安装路径',
-  `install_log_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '安装日志路径',
-  `service_log_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务日志路径',
-  `install_version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '安装版本',
-  `install_time` bigint NULL DEFAULT NULL COMMENT '安装时间',
-  `install_last_start_time` bigint NULL DEFAULT NULL COMMENT '最后一次启动时间',
-  `install_last_stop_time` bigint NULL DEFAULT NULL COMMENT '最后一次停止时间',
-  `install_run_status` int NULL DEFAULT NULL COMMENT '运行状态：0-未运行，1-运行中',
-  `install_config_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置文件目录',
-  `install_last_check_time` bigint NULL DEFAULT NULL COMMENT '最后一次状态检查时间',
-  `command_timeout` int NULL DEFAULT NULL COMMENT '命令执行超时时间（毫秒），如果未设置，则使用默认超时时间',
-  `install_command_timeout` int NULL DEFAULT NULL COMMENT '安装命令执行超时时间（毫秒），如果未设置，则使用通用超时时间',
-  `uninstall_command_timeout` int NULL DEFAULT NULL COMMENT '卸载命令执行超时时间（毫秒），如果未设置，则使用通用超时时间',
-  `start_command_timeout` int NULL DEFAULT NULL COMMENT '启动命令执行超时时间（毫秒），如果未设置，则使用通用超时时间',
-  `stop_command_timeout` int NULL DEFAULT NULL COMMENT '停止命令执行超时时间（毫秒），如果未设置，则使用通用超时时间',
-  `restart_command_timeout` int NULL DEFAULT NULL COMMENT '重启命令执行超时时间（毫秒），如果未设置，则使用通用超时时间',
-  `status_check_command_timeout` int NULL DEFAULT NULL COMMENT '状态检查命令执行超时时间（毫秒），如果未设置，则使用通用超时时间',
-  `soft_service_install_command` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '安装命令',
-  `soft_service_install_command_type` int NULL DEFAULT NULL COMMENT '安装命令类型（0:单行命令，1:脚本）',
-  `soft_service_uninstall_command` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '卸载命令',
-  `soft_service_uninstall_command_type` int NULL DEFAULT NULL COMMENT '卸载命令类型（0:单行命令，1:脚本）',
-  `soft_service_start_command` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '启动命令',
-  `soft_service_start_command_type` int NULL DEFAULT NULL COMMENT '启动命令类型（0:单行命令，1:脚本）',
-  `soft_service_stop_command` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '停止命令',
-  `soft_service_stop_command_type` int NULL DEFAULT NULL COMMENT '停止命令类型（0:单行命令，1:脚本）',
-  `soft_service_restart_command` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '重启命令',
-  `soft_service_restart_command_type` int NULL DEFAULT NULL COMMENT '重启命令类型（0:单行命令，1:脚本）',
-  `soft_service_status_check_command` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '服务状态检查命令',
-  `soft_service_status_check_command_type` int NULL DEFAULT NULL COMMENT '服务状态检查命令类型（0:单行命令，1:脚本）',
-  `soft_service_status_check_success_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务状态检查成功标识，多个标识用逗号分隔，支持通配符',
-  `soft_service_status_check_failure_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务状态检查失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识',
-  `soft_service_install_success_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '软件服务安装命令成功标识，多个标识用逗号分隔，支持通配符',
-  `soft_service_install_failure_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '软件服务安装命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识',
-  `soft_service_uninstall_success_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '软件服务卸载命令成功标识，多个标识用逗号分隔，支持通配符',
-  `soft_service_uninstall_failure_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '软件服务卸载命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识',
-  `soft_service_start_success_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '软件服务启动命令成功标识，多个标识用逗号分隔，支持通配符',
-  `soft_service_start_failure_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '软件服务启动命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识',
-  `soft_service_stop_success_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '软件服务停止命令成功标识，多个标识用逗号分隔，支持通配符',
-  `soft_service_stop_failure_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '软件服务停止命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识',
-  `soft_service_restart_success_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '软件服务重启命令成功标识，多个标识用逗号分隔，支持通配符',
-  `soft_service_restart_failure_flag` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '软件服务重启命令失败标识，多个标识用逗号分隔，支持通配符，优先级高于成功标识',
-  `service_config` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '服务配置项，JSON格式存储',
-  `install_path_custom` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '自定义安装路径',
-  `install_port` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '安装端口',
-  `install_default_port` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '默认端口',
-  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
-  `create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
-  `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
-  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
-  PRIMARY KEY (`install_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
-
-DROP TABLE IF EXISTS `soft_service_log`;
-CREATE TABLE `soft_service_log`  (
-  `soft_service_log_id` int NOT NULL AUTO_INCREMENT COMMENT '日志ID',
-  `install_id` int NULL DEFAULT NULL COMMENT '安装ID',
-  `soft_service_id` int NULL DEFAULT NULL COMMENT '软件服务ID',
-  `ssh_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'SSH ID',
-  `log_type` int NULL DEFAULT NULL COMMENT '日志类型：1-安装，2-卸载，3-启动，4-停止，5-重启，6-状态检查',
-  `log_content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '日志内容',
-  `log_status` int NULL DEFAULT NULL COMMENT '日志状态：0-进行中，1-成功，2-失败',
-  `log_time` bigint NULL DEFAULT NULL COMMENT '日志时间',
-  `log_file_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '日志文件路径',
-  `log_operation_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '日志操作类型：install, uninstall, start, stop, restart, status',
-  `log_duration` bigint NULL DEFAULT NULL COMMENT '日志执行耗时（毫秒）',
-  `log_command` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '日志执行命令',
-  `log_error` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '日志执行错误信息',
-  `log_end_time` bigint NULL DEFAULT NULL COMMENT '日志结束时间',
-  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int NULL DEFAULT NULL COMMENT '创建人',
-  `create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
-  `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
-  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int NULL DEFAULT NULL COMMENT '更新人',
-  PRIMARY KEY (`soft_service_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
-
-DROP TABLE IF EXISTS `soft_service_version`;
-CREATE TABLE `soft_service_version`  (
-  `soft_service_id` int NOT NULL AUTO_INCREMENT COMMENT '软件服务ID',
-  `version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '版本号',
-  `download_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '下载地址',
-  `release_time` datetime(6) NULL DEFAULT NULL COMMENT '发布时间',
-  `version_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '版本描述',
-  `is_current` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '是否为当前版本',
-  `is_installable` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '是否可以安装，根据安装脚本是否存在来决定',
-  `install_command` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '安装命令',
-  PRIMARY KEY (`soft_service_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
-
-DROP TABLE IF EXISTS `soft_service_version_builder`;
-CREATE TABLE `soft_service_version_builder`  (
-  `soft_service_id` int NOT NULL AUTO_INCREMENT,
-  `version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
-  `download_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
-  `release_time` datetime(6) NULL DEFAULT NULL,
-  `version_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
-  `is_current` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
-  `is_installable` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
-  `install_command` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
-  PRIMARY KEY (`soft_service_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
-
 DROP TABLE IF EXISTS `system_data_backup_record`;
 CREATE TABLE `system_data_backup_record`  (
   `id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '记录ID',
@@ -2351,8 +2191,8 @@ CREATE TABLE `system_soft`  (
   PRIMARY KEY (`system_soft_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
-DROP TABLE IF EXISTS `system_soft_container`;
-CREATE TABLE `system_soft_container`  (
+DROP TABLE IF EXISTS `docker_container`;
+CREATE TABLE `docker_container`  (
   `system_soft_container_id` int NOT NULL AUTO_INCREMENT COMMENT '系统软件容器ID',
   `system_soft_id` int NULL DEFAULT NULL COMMENT '关联的软件ID',
   `system_soft_version_id` int NULL DEFAULT NULL COMMENT '关联的软件版本ID',
@@ -2391,8 +2231,8 @@ CREATE TABLE `system_soft_container`  (
   PRIMARY KEY (`system_soft_container_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
-DROP TABLE IF EXISTS `system_soft_container_stats`;
-CREATE TABLE `system_soft_container_stats`  (
+DROP TABLE IF EXISTS `docker_container_stats`;
+CREATE TABLE `docker_container_stats`  (
   `system_soft_container_stats_id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `system_soft_container_stats_container_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '容器ID',
   `system_soft_container_stats_container_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '容器名称',
@@ -2424,8 +2264,8 @@ CREATE TABLE `system_soft_container_stats`  (
   PRIMARY KEY (`system_soft_container_stats_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
-DROP TABLE IF EXISTS `system_soft_image`;
-CREATE TABLE `system_soft_image`  (
+DROP TABLE IF EXISTS `docker_image`;
+CREATE TABLE `docker_image`  (
   `system_soft_image_id` int NOT NULL AUTO_INCREMENT COMMENT '系统软件镜像ID',
   `system_soft_id` int NULL DEFAULT NULL COMMENT '关联的软件ID',
   `system_soft_image_server_id` int NULL DEFAULT NULL COMMENT '关联的服务器ID',
@@ -2553,8 +2393,10 @@ CREATE TABLE `system_soft_version`  (
   `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`system_soft_version_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'docker软件版本' ROW_FORMAT = Dynamic;
-
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'docker软件版本' ROW_FORMAT = Dynamic;
+
+
+
 DROP TABLE IF EXISTS `maintenance_group`;
 CREATE TABLE `maintenance_group`
 (
@@ -2969,51 +2811,5 @@ CREATE TABLE `monitor_spider_log` (
   KEY `idx_task_id` (`spider_task_id`),
   KEY `idx_log_time` (`spider_log_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='爬虫日志表';
-
--- ==================== 系统软件操作日志表 ====================
-DROP TABLE IF EXISTS `system_soft_operation_log`;
-CREATE TABLE `system_soft_operation_log` (
-  `log_id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '日志ID',
-  `operation_id` VARCHAR(64) DEFAULT NULL COMMENT '操作ID（UUID，用于关联同一操作的多条日志）',
-  `operation_type` VARCHAR(50) DEFAULT NULL COMMENT '操作类型（PULL_IMAGE/CREATE_CONTAINER/START_CONTAINER/STOP_CONTAINER/REMOVE_CONTAINER等）',
-  `operation_target` VARCHAR(255) DEFAULT NULL COMMENT '操作目标（镜像名/容器名）',
-  `container_id` INT DEFAULT NULL COMMENT '关联的容器ID',
-  `image_id` INT DEFAULT NULL COMMENT '关联的镜像ID',
-  `soft_id` INT DEFAULT NULL COMMENT '关联的软件ID',
-  `server_id` INT DEFAULT NULL COMMENT '关联的服务器ID',
-  `record_id` INT DEFAULT NULL COMMENT '关联的操作记录ID',
-  `log_level` VARCHAR(20) DEFAULT 'INFO' COMMENT '日志级别（INFO/WARN/ERROR/DEBUG）',
-  `log_message` VARCHAR(5000) DEFAULT NULL COMMENT '日志消息',
-  `log_detail` TEXT DEFAULT NULL COMMENT '日志详情（JSON格式，存储进度、状态等详细信息）',
-  `progress` INT DEFAULT 0 COMMENT '操作进度（0-100）',
-  `status` VARCHAR(20) DEFAULT NULL COMMENT '操作状态（PENDING/RUNNING/SUCCESS/FAILED/CANCELLED）',
-  `docker_status` VARCHAR(100) DEFAULT NULL COMMENT 'Docker响应状态',
-  `docker_progress` VARCHAR(500) DEFAULT NULL COMMENT 'Docker响应进度信息',
-  `error_message` VARCHAR(2000) DEFAULT NULL COMMENT '错误信息',
-  `error_stack` TEXT DEFAULT NULL COMMENT '错误堆栈',
-  `log_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '日志时间',
-  `start_time` DATETIME DEFAULT NULL COMMENT '操作开始时间',
-  `end_time` DATETIME DEFAULT NULL COMMENT '操作结束时间',
-  `duration` BIGINT DEFAULT NULL COMMENT '操作耗时（毫秒）',
-  `operator` VARCHAR(100) DEFAULT NULL COMMENT '操作用户',
-  `client_ip` VARCHAR(50) DEFAULT NULL COMMENT '客户端IP',
-  `ext_data` TEXT DEFAULT NULL COMMENT '扩展字段（JSON格式）',
-  `create_name` VARCHAR(255) DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` INT DEFAULT NULL COMMENT '创建人',
-  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `update_name` VARCHAR(255) DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` INT DEFAULT NULL COMMENT '更新人',
-  PRIMARY KEY (`log_id`),
-  INDEX `idx_operation_id` (`operation_id`),
-  INDEX `idx_operation_type` (`operation_type`),
-  INDEX `idx_container_id` (`container_id`),
-  INDEX `idx_image_id` (`image_id`),
-  INDEX `idx_server_id` (`server_id`),
-  INDEX `idx_record_id` (`record_id`),
-  INDEX `idx_status` (`status`),
-  INDEX `idx_log_time` (`log_time`),
-  INDEX `idx_log_level` (`log_level`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统软件操作日志表';
 
 SET FOREIGN_KEY_CHECKS = 1;

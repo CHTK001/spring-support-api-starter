@@ -28,12 +28,16 @@ import org.springframework.data.redis.core.ValueOperations;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
-import java.util.HashSet;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,6 +53,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.TOKEN_
 @com.chua.common.support.core.annotation.Spi("redis")
 @SuppressWarnings("ALL")
 public class RedisTokenResolver implements TokenResolver {
+    private static final String AUTH_VERSION = "authVersion";
 
     /**
      * 默认Token过期时间（秒），1天
@@ -371,38 +376,64 @@ public class RedisTokenResolver implements TokenResolver {
         if (ext == null || ext.isEmpty()) {
             return;
         }
-        
+
         Map<String, Object> sanitized = new HashMap<>(ext.size());
+        for (Map.Entry<String, Object> entry : ext.entrySet()) {
+            sanitized.put(entry.getKey(), sanitizeExtValue(entry.getValue()));
+        }
+
+        userResult.setExt(sanitized);
+    }
+
+    private Object sanitizeExtValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        
-        for (Map.Entry<String, Object> entry : ext.entrySet()) {
-            Object value = entry.getValue();
-            if (value == null) {
-                sanitized.put(entry.getKey(), null);
-            } else if (value instanceof LocalDateTime localDateTime) {
-                // LocalDateTime 转为字符串
-                sanitized.put(entry.getKey(), localDateTime.format(dateTimeFormatter));
-            } else if (value instanceof LocalDate localDate) {
-                // LocalDate 转为字符串
-                sanitized.put(entry.getKey(), localDate.format(dateFormatter));
-            } else if (value instanceof Date date) {
-                // Date 转为时间戳
-                sanitized.put(entry.getKey(), date.getTime());
-            } else if (value instanceof String || value instanceof Number || value instanceof Boolean) {
-                // 基本类型直接保留
-                sanitized.put(entry.getKey(), value);
-            } else {
-                // 其他类型尝试转为字符串
-                try {
-                    sanitized.put(entry.getKey(), value.toString());
-                } catch (Exception e) {
-                    // 转换失败则跳过
-                }
-            }
+        if (value instanceof LocalDateTime localDateTime) {
+            return localDateTime.format(dateTimeFormatter);
         }
-        
-        userResult.setExt(sanitized);
+        if (value instanceof LocalDate localDate) {
+            return localDate.format(dateFormatter);
+        }
+        if (value instanceof Date date) {
+            return date.getTime();
+        }
+        if (value instanceof String || value instanceof Number || value instanceof Boolean) {
+            return value;
+        }
+        if (value instanceof Map<?, ?> mapValue) {
+            Map<String, Object> sanitizedMap = new LinkedHashMap<>();
+            for (Map.Entry<?, ?> entry : mapValue.entrySet()) {
+                if (entry.getKey() == null) {
+                    continue;
+                }
+                sanitizedMap.put(String.valueOf(entry.getKey()), sanitizeExtValue(entry.getValue()));
+            }
+            return sanitizedMap;
+        }
+        if (value instanceof Collection<?> collectionValue) {
+            List<Object> sanitizedList = new ArrayList<>(collectionValue.size());
+            for (Object item : collectionValue) {
+                sanitizedList.add(sanitizeExtValue(item));
+            }
+            return sanitizedList;
+        }
+        if (value.getClass().isArray()) {
+            int length = java.lang.reflect.Array.getLength(value);
+            List<Object> sanitizedList = new ArrayList<>(length);
+            for (int i = 0; i < length; i++) {
+                sanitizedList.add(sanitizeExtValue(java.lang.reflect.Array.get(value, i)));
+            }
+            return sanitizedList;
+        }
+        try {
+            return value.toString();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -716,6 +747,21 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
+        String currentAuthVersion = resolveAuthVersion(userResult);
+        String latestAuthVersion = loginCheck.getAuthVersion(userResult);
+        if (StringUtils.isNotBlank(currentAuthVersion)
+                && StringUtils.isNotBlank(latestAuthVersion)
+                && currentAuthVersion.equals(latestAuthVersion)) {
+            userResult.setToken(token);
+            if (StringUtils.isBlank(userResult.getRefreshToken())) {
+                userResult.setRefreshToken(refreshToken);
+            }
+            log.info("[Upgrade][VERSION] 用户态未变化，复用Redis缓存: userId={}, token={}...",
+                    userResult.getUserId(),
+                    token.length() > 8 ? token.substring(0, 8) : token);
+            return ReturnResult.ok(userResult);
+        }
+
         UserResume newUserResult = loginCheck.getUserInfo(userResult);
         if (null == newUserResult || null == newUserResult.getUserId()) {
             // 无法获取新用户信息时，返回原有 userResult（保持 token 不变）
@@ -739,10 +785,34 @@ public class RedisTokenResolver implements TokenResolver {
             newUserResult = userResult;
         }
 
+        String currentRefreshToken = userResult.getRefreshToken();
+        if (newUserResult instanceof UserResult refreshedUserResult) {
+            sanitizeExt(refreshedUserResult);
+            if (StringUtils.isNotBlank(refreshedUserResult.getRefreshToken())) {
+                currentRefreshToken = refreshedUserResult.getRefreshToken();
+            }
+        }
         stringRedisTemplate.opsForValue().set(redisKey, newUserResult);
+        if (StringUtils.isNotBlank(currentRefreshToken)) {
+            String refreshRedisKey = TOKEN_REFRESH_PRE + currentRefreshToken;
+            Long refreshTtl = stringRedisTemplate.getExpire(refreshRedisKey);
+            if (refreshTtl != null && refreshTtl > 0) {
+                stringRedisTemplate.opsForValue().set(refreshRedisKey, newUserResult, Duration.ofSeconds(refreshTtl));
+            } else {
+                stringRedisTemplate.opsForValue().set(refreshRedisKey, newUserResult);
+            }
+        }
         log.info("[Upgrade][VERSION] 用户信息已刷新: userId={}, token={}...", newUserResult.getUserId(),
                 token.length() > 8 ? token.substring(0, 8) : token);
         return ReturnResult.ok(newUserResult);
+    }
+
+    private String resolveAuthVersion(UserResume userResume) {
+        if (userResume == null || userResume.getExt() == null) {
+            return null;
+        }
+        Object authVersion = userResume.getExt().get(AUTH_VERSION);
+        return authVersion == null ? null : String.valueOf(authVersion);
     }
 
     @Override
@@ -915,10 +985,30 @@ public class RedisTokenResolver implements TokenResolver {
             if (cost >= 0) {
                 userLog.setSysLogCost(java.math.BigDecimal.valueOf(cost));
             }
+            if (userResult.getUserId() != null) {
+                try {
+                    userLog.setCreateBy(Integer.parseInt(userResult.getUserId()));
+                } catch (NumberFormatException ignored) {
+                }
+            }
 
             // 从 ext 中补充浏览器/系统信息
             Map<String, Object> ext = userResult.getExt();
             if (ext != null) {
+                Object createBy = ext.get("sysUserId");
+                if (createBy != null) {
+                    try {
+                        userLog.setCreateBy(Integer.parseInt(createBy.toString()));
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+                Object sysDeptId = ext.get("sysDeptId");
+                if (sysDeptId != null) {
+                    try {
+                        userLog.setSysDeptId(Integer.parseInt(sysDeptId.toString()));
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
                 Object ua = ext.get("ua");
                 if (ua != null) {
                     userLog.setSysLogUa(ua.toString());
@@ -994,9 +1084,20 @@ public class RedisTokenResolver implements TokenResolver {
             userLog.setSysLogFrom("LOGOUT");
             userLog.setSysLogStatus(1);
             userLog.setSysLogUrl("/logout");
+            try {
+                userLog.setCreateBy(Integer.parseInt(uid));
+            } catch (NumberFormatException ignored) {
+            }
 
             // 从 ext 补充浏览器/系统信息
             if (ext != null) {
+                Object sysDeptId = ext.get("sysDeptId");
+                if (sysDeptId != null) {
+                    try {
+                        userLog.setSysDeptId(Integer.parseInt(sysDeptId.toString()));
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
                 Object ua = ext.get("ua");
                 if (ua != null) {
                     userLog.setSysLogUa(ua.toString());

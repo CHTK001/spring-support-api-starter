@@ -29,8 +29,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -60,7 +65,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         } else {
             list = Collections.emptyList();
         }
-        List<SysMenu> sysMenus = sysMenuService.listAll();
+        List<SysMenu> sysMenus = filterMenusByEngine(
+                sysMenuService.listAll(),
+                null == sysMenu ? null : sysMenu.getSysMenuEngine()
+        );
 
         List<SysMenu> filterMenus = Collections.emptyList();
         if (AuthConstant.isSuperAdmin(roles) || AuthConstant.isAdmin(roles)) {
@@ -76,25 +84,60 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         }
 
 
-        return ReturnResult.ok(TreeUtils.toTree(filterMenus, sysMenu1 -> {
-            SysMenuSettingVO sysMenuSettingVO = new SysMenuSettingVO();
-            BeanUtils.copyProperties(sysMenu1, sysMenuSettingVO);
-
-            TreeNode<SysMenuSettingVO> treeNode = new TreeNode<>();
-            treeNode.setId(sysMenuSettingVO.getSysMenuId().toString());
-            treeNode.setLabel(sysMenuSettingVO.getSysMenuName());
-            treeNode.setValue(sysMenuSettingVO.getSysMenuName());
-            treeNode.setPid(sysMenuSettingVO.getSysMenuPid().toString());
-            treeNode.setExt(sysMenuSettingVO);
-            treeNode.setChildrenConsumer(sysMenuSettingVO::setChildren);
-
-            return treeNode;
-        }));
+        return ReturnResult.ok(buildMenuSettingTree(filterMenus));
     }
 
     @Override
     public ReturnResult<List<SysMenu>> all(SysMenu sysMenu, Set<String> roles) {
-        return ReturnResult.ok(listAll());
+        return ReturnResult.ok(filterMenusByEngine(
+                listAll(),
+                null == sysMenu ? null : sysMenu.getSysMenuEngine()
+        ));
+    }
+
+    private List<SysMenuSettingVO> buildMenuSettingTree(List<SysMenu> menus) {
+        if (CollectionUtils.isEmpty(menus)) {
+            return Collections.emptyList();
+        }
+
+        Map<Integer, SysMenuSettingVO> nodeMap = new LinkedHashMap<>();
+        menus.forEach(menu -> {
+            SysMenuSettingVO settingVO = new SysMenuSettingVO();
+            BeanUtils.copyProperties(menu, settingVO);
+            settingVO.setChildren(new ArrayList<>());
+            nodeMap.put(settingVO.getSysMenuId(), settingVO);
+        });
+
+        List<SysMenuSettingVO> roots = new ArrayList<>();
+        nodeMap.values().forEach(node -> {
+            Integer parentId = node.getSysMenuPid();
+            SysMenuSettingVO parent = null == parentId ? null : nodeMap.get(parentId);
+            if (null != parent && !Objects.equals(parent.getSysMenuId(), node.getSysMenuId())) {
+                parent.getChildren().add(node);
+                return;
+            }
+            roots.add(node);
+        });
+
+        Comparator<SysMenuSettingVO> comparator = Comparator
+                .comparing((SysMenuSettingVO item) -> ObjectUtils.defaultIfNull(item.getSysMenuSort(), Integer.MAX_VALUE))
+                .thenComparing(item -> ObjectUtils.defaultIfNull(item.getSysMenuId(), Integer.MAX_VALUE));
+        sortMenuSettingTree(roots, comparator);
+        return roots;
+    }
+
+    private void sortMenuSettingTree(List<SysMenuSettingVO> nodes, Comparator<SysMenuSettingVO> comparator) {
+        if (CollectionUtils.isEmpty(nodes)) {
+            return;
+        }
+        nodes.sort(comparator);
+        nodes.forEach(node -> {
+            if (CollectionUtils.isEmpty(node.getChildren())) {
+                node.setChildren(Collections.emptyList());
+                return;
+            }
+            sortMenuSettingTree(node.getChildren(), comparator);
+        });
     }
 
     @Override
@@ -105,7 +148,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                         .leftJoin(SysRole.class, SysRole::getSysRoleId, SysRole::getSysRoleId)
                         .in(SysRole::getSysRoleCode, roles)
         );
-        List<SysMenu> sysMenus = sysMenuService.listAll();
+        List<SysMenu> sysMenus = filterMenusByEngine(
+                sysMenuService.listAll(),
+                null == sysMenu ? null : sysMenu.getSysMenuEngine()
+        );
         if(ignoreType > -1) {
             sysMenus = sysMenus.stream().filter(sysMenu1 -> sysMenu1.getSysMenuType() != ignoreType).toList();
         }
@@ -139,9 +185,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             sysMenuVO.setPath(sysMenu1.getSysMenuPath());
             sysMenuVO.setSysMenuId(sysMenu1.getSysMenuId());
             sysMenuVO.setSysMenuPid(sysMenu1.getSysMenuPid());
+            sysMenuVO.setSysMenuType(sysMenu1.getSysMenuType());
+            sysMenuVO.setSysMenuEngine(sysMenu1.getSysMenuEngine());
             sysMenuVO.setComponent(sysMenu1.getSysMenuComponent());
             sysMenuVO.setRedirect(sysMenu1.getSysMenuRedirect());
-            sysMenuVO.setRedirect(sysMenu1.getSysMenuEnterTransition());
             sysMenuVO.setLeaveTransition(sysMenu1.getSysMenuLeaveTransition());
             sysMenuVO.setEnterTransition(sysMenu1.getSysMenuEnterTransition());
             SysMenuVO.Meta meta = new SysMenuVO.Meta();
@@ -154,7 +201,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             meta.setExtraIcon(sysMenu1.getSysMenuExtraIcon());
             meta.setTitle(sysMenu1.getSysMenuTitle());
             meta.setI18nKey(sysMenu1.getSysMenuI18n());
-            meta.setFrameSrc(sysMenu1.getSysMenuFrameSrc());
+            meta.setFrameSrc(ObjectUtils.equal(sysMenu1.getSysMenuType(), 1) ? sysMenu1.getSysMenuFrameSrc() : null);
             meta.setActivePath(sysMenu1.getSysMenuActivePath());
             meta.setAuths(Splitter.on(",").trimResults().omitEmptyStrings().splitToList(sysMenu1.getSysMenuPerm()));
             meta.setShowLink(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuHidden(), 0), 0));
@@ -190,7 +237,20 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     public IPage<SysMenu> pageForMenu(Query<SysMenu> query, SysMenu sysMenu, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysMenu>lambdaQuery()
                 .like(StringUtils.isNotBlank(sysMenu.getSysMenuName()), SysMenu::getSysMenuName, sysMenu.getSysMenuName())
+                .eq(null != sysMenu.getSysMenuEngine(), SysMenu::getSysMenuEngine, sysMenu.getSysMenuEngine())
         );
+    }
+
+    private List<SysMenu> filterMenusByEngine(List<SysMenu> sysMenus, Integer sysMenuEngine) {
+        if (CollectionUtils.isEmpty(sysMenus)) {
+            return Collections.emptyList();
+        }
+        if (null == sysMenuEngine) {
+            return sysMenus;
+        }
+        return sysMenus.stream()
+                .filter(menu -> Objects.equals(ObjectUtils.defaultIfNull(menu.getSysMenuEngine(), 0), sysMenuEngine))
+                .toList();
     }
 
     @Override

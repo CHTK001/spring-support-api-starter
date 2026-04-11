@@ -68,6 +68,11 @@
             <artifactId>spring-support-proxy-starter</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-soft-starter</artifactId>
+            <version>${module.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
             <version>${oshi.version}</version>

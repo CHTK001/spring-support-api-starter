@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.system.mapper.SysDeptPrincipalRelMapper">
+  <select id="selectManagedDeptScopesByUserId" resultType="com.chua.starter.entity.system.SysDept">
+    SELECT
+      sd.sys_dept_id,
+      sd.sys_dept_tree_id
+    FROM sys_dept_principal_rel rel
+      INNER JOIN sys_dept sd ON sd.sys_dept_id = rel.sys_dept_id
+    WHERE rel.sys_user_id = #{userId}
+    GROUP BY sd.sys_dept_id, sd.sys_dept_tree_id
+  </select>
+</mapper>

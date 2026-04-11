@@ -4,9 +4,9 @@ import com.chua.docker.support.callback.DockerResultCallback;
 import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.enums.OperationType;
-import com.chua.starter.monitor.entity.SystemSoftImage;
-import com.chua.starter.monitor.entity.SystemSoftImageStatus;
-import com.chua.starter.monitor.service.docker.SystemSoftImageService;
+import com.chua.starter.monitor.entity.DockerImage;
+import com.chua.starter.monitor.entity.DockerImageStatus;
+import com.chua.starter.monitor.service.docker.DockerImageService;
 import com.github.dockerjava.api.model.PullResponseItem;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ import java.util.Map;
  * @version 1.0.0
  * @see DockerResultCallback Docker回调接口
  * @see SocketSessionTemplate WebSocket会话模板
- * @see SystemSoftImageService 系统软件镜像服务
+ * @see DockerImageService 系统软件镜像服务
  * @since 2024/01/01
  */
 @Slf4j
@@ -66,7 +66,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
      * <p>
      * 用于更新数据库中镜像的状态信息。
      */
-    private final SystemSoftImageService systemSoftImageService;
+    private final DockerImageService systemSoftImageService;
 
     /**
      * 镜像ID
@@ -139,7 +139,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
      */
     public StatusUpdatingWebSocketDockerPullCallback(SocketSessionTemplate socketSessionTemplate,
                                                      OperationType operationType, String imageName,
-                                                     SystemSoftImageService systemSoftImageService, Integer imageId) {
+                                                     DockerImageService systemSoftImageService, Integer imageId) {
         this.socketSessionTemplate = socketSessionTemplate;
         this.operationType = operationType;
         this.imageName = imageName;
@@ -317,7 +317,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
             socketSessionTemplate.sendObject(MonitorSocketTopics.Monitor.Docker.IMAGE_PULL_PROGRESS, message);
 
             // 更新数据库中的镜像状态为拉取中
-            updateImageStatus(SystemSoftImageStatus.PULLING, null);
+            updateImageStatus(DockerImageStatus.PULLING, null);
 
         } catch (Exception e) {
             log.error("发送Docker开始WebSocket消息失败", e);
@@ -360,7 +360,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
             socketSessionTemplate.sendObject(MonitorSocketTopics.Monitor.Docker.IMAGE_PULL_PROGRESS, message);
 
             // 更新数据库中的镜像状态为拉取失败，并记录错误信息
-            updateImageStatus(SystemSoftImageStatus.PULL_FAILED, throwable.getMessage());
+            updateImageStatus(DockerImageStatus.PULL_FAILED, throwable.getMessage());
 
         } catch (Exception e) {
             log.error("发送Docker错误WebSocket消息失败", e);
@@ -419,7 +419,7 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
 
             // 如果没有错误，更新数据库中的镜像状态为可用，并补充镜像详细信息
             if (!hasError) {
-                updateImageStatus(SystemSoftImageStatus.AVAILABLE, null);
+                updateImageStatus(DockerImageStatus.AVAILABLE, null);
             }
 
         } catch (Exception e) {
@@ -435,10 +435,10 @@ public class StatusUpdatingWebSocketDockerPullCallback implements com.chua.docke
      * @param status       新的状态
      * @param errorMessage 错误信息（如果有的话）
      */
-    private void updateImageStatus(SystemSoftImageStatus status, String errorMessage) {
+    private void updateImageStatus(DockerImageStatus status, String errorMessage) {
         try {
             if (imageId != null && systemSoftImageService != null) {
-                SystemSoftImage image = systemSoftImageService.getById(imageId);
+                DockerImage image = systemSoftImageService.getById(imageId);
                 if (image != null) {
                     image.setSystemSoftImageStatus(status);
                     // 如果有Docker镜像ID，则更新到数据库中

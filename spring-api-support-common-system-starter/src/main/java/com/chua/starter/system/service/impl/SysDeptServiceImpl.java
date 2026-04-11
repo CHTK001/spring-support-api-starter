@@ -13,11 +13,16 @@ import com.chua.starter.entity.system.SysDept;
 import com.chua.starter.system.mapper.SysDeptMapper;
 import com.chua.starter.system.constant.SystemConstant;
 import com.chua.starter.system.pojo.dept.SysDeptVO;
+import com.chua.starter.system.service.SysDeptPrincipalRelService;
 import com.chua.starter.system.service.SysDeptService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 部门服务实现类
@@ -27,18 +32,29 @@ import java.util.Set;
  * @since 2024/8/7
  */
 @Service
-public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> implements SysDeptService{
+@RequiredArgsConstructor
+public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> implements SysDeptService {
+
+    private final SysDeptPrincipalRelService sysDeptPrincipalRelService;
 
     @Override
     public List<SysDeptVO> list(SysDept sysDept, Set<String> roles) {
         List<SysDept> sysDepts = baseMapper.selectList(
                 Wrappers.<SysDept>lambdaQuery()
-                        .likeRight(StringUtils.isNotEmpty(sysDept.getSysDeptName()), SysDept::getSysDeptName, sysDept.getSysDeptName())
                         .orderByAsc(SysDept::getSysDeptSort)
                         .orderByDesc(SysDept::getCreateTime)
         );
+        sysDeptPrincipalRelService.fillPrincipalInfo(sysDepts);
+        Map<Integer, Integer> memberCountMap = baseMapper.selectMemberCounts().stream()
+                .filter(item -> null != item.get("sysDeptId"))
+                .collect(Collectors.toMap(
+                        item -> ((Number) item.get("sysDeptId")).intValue(),
+                        item -> ((Number) item.get("memberCount")).intValue(),
+                        (left, right) -> right
+                ));
+        sysDepts.forEach(item -> item.setMemberCount(memberCountMap.getOrDefault(item.getSysDeptId(), 0)));
 
-        return TreeUtils.toTree(sysDepts, sysDept1 -> {
+        List<SysDeptVO> tree = TreeUtils.toTree(sysDepts, sysDept1 -> {
             SysDeptVO sysDeptVO = BeanUtils.copyProperties(sysDept1, SysDeptVO.class);
             TreeNode<SysDeptVO> treeNode = new TreeNode<>();
             treeNode.setId(String.valueOf(sysDeptVO.getSysDeptId()));
@@ -52,6 +68,10 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
             });
             return treeNode;
         });
+        if (StringUtils.isEmpty(sysDept.getSysDeptName())) {
+            return tree;
+        }
+        return filterTreeByName(tree, sysDept.getSysDeptName());
     }
 
     @Override
@@ -73,7 +93,11 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
             String menuTreeId = Joiner.on(",").join(parentSysDept.getSysDeptTreeId(), sysDept.getSysDeptId());
             sysDept.setSysDeptTreeId(menuTreeId);
         }
-        return ReturnResult.guess(baseMapper.updateById(sysDept) > 0);
+        boolean updated = baseMapper.updateById(sysDept) > 0;
+        if (updated) {
+            sysDeptPrincipalRelService.syncDeptPrincipals(sysDept.getSysDeptId(), sysDept.getPrincipalUserIds());
+        }
+        return ReturnResult.guess(updated);
     }
 
     @Override
@@ -98,6 +122,39 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         baseMapper.insert(sysDept);
         sysDept.setSysDeptTreeId(Joiner.on(",").join(parentTreeId, sysDept.getSysDeptId()));
         baseMapper.updateById(sysDept);
+        sysDeptPrincipalRelService.syncDeptPrincipals(sysDept.getSysDeptId(), sysDept.getPrincipalUserIds());
         return ReturnResult.guess(sysDept);
+    }
+
+    private List<SysDeptVO> filterTreeByName(List<SysDeptVO> source, String keyword) {
+        if (null == source || source.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<SysDeptVO> result = new ArrayList<>();
+        for (SysDeptVO item : source) {
+            SysDeptVO filtered = filterTreeNode(item, keyword);
+            if (null != filtered) {
+                result.add(filtered);
+            }
+        }
+        return result;
+    }
+
+    private SysDeptVO filterTreeNode(SysDeptVO node, String keyword) {
+        List<SysDeptVO> matchedChildren = filterTreeByName(node.getChildren(), keyword);
+        boolean selfMatched = startsWithIgnoreCase(node.getSysDeptName(), keyword);
+        if (!selfMatched && matchedChildren.isEmpty()) {
+            return null;
+        }
+        SysDeptVO copy = BeanUtils.copyProperties(node, SysDeptVO.class);
+        copy.setChildren(matchedChildren);
+        return copy;
+    }
+
+    private boolean startsWithIgnoreCase(String value, String prefix) {
+        if (StringUtils.isEmpty(value) || StringUtils.isEmpty(prefix)) {
+            return false;
+        }
+        return value.regionMatches(true, 0, prefix, 0, prefix.length());
     }
 }

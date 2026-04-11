@@ -29,6 +29,14 @@ public interface SimpleSysUserService extends IService<SysUser> {
     ReturnResult<Boolean> unbind(Integer sysUserId);
 
     /**
+     * 获取用户当前 TOTP 状态
+     *
+     * @param sysUserId 用户ID
+     * @return 状态结果
+     */
+    ReturnResult<Boolean> status(Integer sysUserId);
+
+    /**
      * 生成一个返回结果，具体结构和内容由 ReturnBodyResult 定义
      *
      * @return 返回一个 ReturnBodyResult 对象，包含生成的结果信息

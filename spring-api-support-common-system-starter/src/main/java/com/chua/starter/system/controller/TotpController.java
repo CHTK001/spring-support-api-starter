@@ -53,6 +53,17 @@ public class TotpController {
     }
 
     /**
+     * 查询当前用户 2FA 状态
+     * @param sysUserId sysUserId
+     * @return ReturnResult
+     */
+    @Operation(summary = "查询2fa状态")
+    @GetMapping("/status")
+    public ReturnResult<Boolean> status(@Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId) {
+        return simpleSysUserService.status(sysUserId);
+    }
+
+    /**
      * 生成
      * @param sysUserId sysUserId
      * @return ReturnResult

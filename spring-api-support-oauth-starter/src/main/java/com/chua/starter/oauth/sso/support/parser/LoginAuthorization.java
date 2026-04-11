@@ -145,6 +145,33 @@ public final class LoginAuthorization implements Authorization {
         sysUserLog.setSysLogStatus(returnResult.isOk() ? 1 : 0);
         sysUserLog.setSysLogMessage(returnResult.getMsg());
 
+        if (returnResult.isOk() && returnResult.getData() != null && returnResult.getData().getUserResume() != null) {
+            String userId = returnResult.getData().getUserResume().getUserId();
+            if (userId != null) {
+                try {
+                    sysUserLog.setCreateBy(Integer.parseInt(userId));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+            Map<String, Object> userExt = returnResult.getData().getUserResume().getExt();
+            if (userExt != null) {
+                Object createBy = userExt.get("sysUserId");
+                if (createBy != null) {
+                    try {
+                        sysUserLog.setCreateBy(Integer.parseInt(createBy.toString()));
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+                Object sysDeptId = userExt.get("sysDeptId");
+                if (sysDeptId != null) {
+                    try {
+                        sysUserLog.setSysDeptId(Integer.parseInt(sysDeptId.toString()));
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+        }
+
         // IP 归属地解析
         if (iptablesService != null && ip != null && !ip.isBlank()) {
             try {

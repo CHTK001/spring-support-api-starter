@@ -295,4 +295,25 @@ public class LoginCheck {
             return null;
         }
     }
+
+    public String getAuthVersion(UserResult userResult) {
+        try {
+            String loginType = userResult.getLoginType();
+            if (StringUtils.isBlank(loginType)) {
+                log.warn("登录类型为空，无法获取认证版本");
+                return null;
+            }
+
+            UserInfoService userInfoService = ServiceProvider.of(UserInfoService.class).getExtension(loginType);
+            if (null == userInfoService) {
+                log.warn("未找到匹配的 UserInfoService: loginType={}", loginType);
+                return null;
+            }
+
+            return userInfoService.authVersion(userResult);
+        } catch (Exception e) {
+            log.error("获取认证版本异常", e);
+            return null;
+        }
+    }
 }

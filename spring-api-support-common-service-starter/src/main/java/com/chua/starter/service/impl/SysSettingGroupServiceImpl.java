@@ -55,8 +55,8 @@ public class SysSettingGroupServiceImpl extends ServiceImpl<SysSettingGroupMappe
     }
 
     @Override
-    public ReturnResult<Boolean> deleteForGroup(@NonNull Long sysSettingGroupMapperId) {
-        return ReturnResult.of(removeById(sysSettingGroupMapperId));
+    public ReturnResult<Boolean> deleteForGroup(@NonNull Long sysSettingGroupId) {
+        return ReturnResult.of(removeById(sysSettingGroupId));
     }
 
     @Override

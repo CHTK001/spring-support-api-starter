@@ -3,12 +3,15 @@ package com.chua.starter.system.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import com.chua.starter.mybatis.annotations.DataScope;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.system.model.user.SysUserQuery;
+import com.chua.starter.system.annotations.PrivilegedVisibility;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,6 +36,26 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
     Set<String> selectPermission(@Param("userId") Integer userId);
 
     /**
+     * 查询登录授权画像
+     * <p>聚合角色、权限、部门数据权限，减少登录/升级链路的数据库往返次数</p>
+     *
+     * @param userId 用户ID
+     * @return 授权画像行
+     */
+    @DataScope(enabled = false)
+    List<Map<String, Object>> selectAuthRows(@Param("userId") Integer userId);
+
+    /**
+     * 查询用户认证版本签名
+     * <p>用于 VERSION 升级前快速判断用户态是否发生变化</p>
+     *
+     * @param userId 用户ID
+     * @return 认证版本签名
+     */
+    @DataScope(enabled = false)
+    String selectAuthVersion(@Param("userId") Integer userId);
+
+    /**
      * 自定义查询用户（包含关联信息）
      * <p>登录时使用，不需要数据权限过滤</p>
      *
@@ -48,11 +71,11 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      *
      * @param page    分页对象
      * @param query   查询条件
-     * @param isAdmin 是否管理员
      * @return 用户分页列表
      */
-    @DataScope
-    IPage<SysUser> selectPageUser(Page<SysUser> page, @Param("query") SysUserQuery query, @Param("isAdmin") boolean isAdmin);
+    @DataScope(value = DataFilterTypeEnum.SELF, useUserPermission = false, deptAlias = "su", userAlias = "su")
+    @PrivilegedVisibility(userAlias = "su")
+    IPage<SysUser> selectPageUser(Page<SysUser> page, @Param("query") SysUserQuery query);
 
     /**
      * 根据用户名查询用户

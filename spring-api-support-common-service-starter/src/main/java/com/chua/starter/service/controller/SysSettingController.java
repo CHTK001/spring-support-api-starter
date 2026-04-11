@@ -63,7 +63,18 @@ public class SysSettingController {
     @GetMapping("/page")
     @ApiPlatform("system")
     @Permission(role = {ADMIN, SUPER_ADMIN})
-    public ReturnPageResult<SysSetting> pageForSetting(@ParameterObject  Query<SysSetting> query, @ParameterObject  SysSetting sysSetting, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnPageResult<SysSetting> pageForSetting(
+            @ParameterObject Query<SysSetting> query,
+            @ParameterObject SysSetting sysSetting,
+            @RequestParam(required = false) String sysSettingValueType,
+            @RequestParam(required = false) Integer sysSettingInSystem,
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+        if (null != sysSettingValueType && !sysSettingValueType.isBlank()) {
+            sysSetting.setSysSettingValueType(sysSettingValueType);
+        }
+        if (null != sysSettingInSystem) {
+            sysSetting.setSysSettingInSystem(sysSettingInSystem);
+        }
         return PageResultUtils.ok(sysSettingService.pageForSetting(query, sysSetting, roles));
     }
     /**
@@ -114,7 +125,7 @@ public class SysSettingController {
     @DeleteMapping("/delete")
     @ApiPlatform("system")
     @Permission(value = "sys:setting:delete", role = {ADMIN, SUPER_ADMIN})
-    public ReturnResult<Boolean> delete(Long sysSettingId) {
+    public ReturnResult<Boolean> delete(@Parameter(hidden = true) @UserValue("roles") Set<String> roles, Long sysSettingId) {
         if (null == sysSettingId) {
             return ReturnResult.illegal("设置信息不存在");
         }

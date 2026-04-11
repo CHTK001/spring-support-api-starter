@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.SystemSoft;
-import com.chua.starter.monitor.entity.SystemSoftImage;
+import com.chua.starter.monitor.entity.DockerImage;
 
 import java.util.List;
 import java.util.Map;
@@ -228,10 +228,10 @@ public interface SystemSoftService extends IService<SystemSoft> {
      * @param params   拉取参数
      * @return 拉取结果
      */
-    ReturnResult<SystemSoftImage> pullDockerImageWithCallback(Integer softId, Integer serverId, String imageTag, Map<String, Object> params);
+    ReturnResult<DockerImage> pullDockerImageWithCallback(Integer softId, Integer serverId, String imageTag, Map<String, Object> params);
     
     /**
-     * 从服务器同步Docker镜像到SystemSoftImage表
+     * 从服务器同步Docker镜像到DockerImage表
      *
      * @param serverIds 服务器ID列表
      * @return 同步结果（包含operationId和同步数量）

@@ -2,27 +2,28 @@ package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.geo.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.time.date.DateUtils;
 import com.chua.common.support.core.utils.ObjectUtils;
 import com.chua.common.support.core.utils.StringUtils;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.common.support.logger.UserLoggerInfo;
 import com.chua.starter.common.support.service.IptablesService;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.entity.system.SysDept;
 import com.chua.starter.entity.system.SysUserLog;
 import com.chua.starter.system.mapper.SysUserLogMapper;
 import com.chua.starter.system.pojo.user.log.SysUserLogQuery;
 import com.chua.starter.system.service.SysUserLogService;
-import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -92,26 +93,85 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     @Override
-    public IPage<SysUserLog> pageForUserLog(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Set<String> roles) {
-        return baseMapper.selectPage(query.createPage(), MPJWrappers.<SysUserLog>lambdaJoin()
-                .selectAll(SysUserLog.class)
-                .selectAs(SysDept::getSysDeptName, SysUserLog::getSysDeptName)
-                .leftJoin(SysDept.class, SysDept::getSysDeptId, SysUserLog::getSysDeptId)
-                .in(SysUserLog::getSysLogFrom, "LOGIN", "LOGIN_FAIL", "LOGOUT")
-                .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogUsername()), SysUserLog::getSysLogUsername, sysUserLogQuery.getSysLogUsername())
-                .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogFrom()), SysUserLog::getSysLogFrom, sysUserLogQuery.getSysLogFrom())
-                .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogAddress()), SysUserLog::getSysLogAddress, sysUserLogQuery.getSysLogAddress())
-                .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogIp()), SysUserLog::getSysLogIp, sysUserLogQuery.getSysLogIp())
-                .eq(ObjectUtils.isNotEmpty(sysUserLogQuery.getSysLogStatus()), SysUserLog::getSysLogStatus, sysUserLogQuery.getSysLogStatus())
-                .ge(null != sysUserLogQuery.getStartDate(), SysUserLog::getCreateTime, sysUserLogQuery.getStartDate())
-                .le(null != sysUserLogQuery.getEndDate(), SysUserLog::getCreateTime, sysUserLogQuery.getEndDate())
-                .orderByDesc(SysUserLog::getCreateTime)
+    public IPage<SysUserLog> pageForUserLog(Query<SysUserLog> query,
+                                            SysUserLogQuery sysUserLogQuery,
+                                            Integer sysUserId,
+                                            Set<String> roles,
+                                            List<String> managedDeptTreeIds) {
+        SysUserLogQuery normalizedQuery = normalizeUserLogQuery(sysUserLogQuery);
+        boolean isSuperAdmin = roles != null && roles.contains(AuthConstant.SUPER_ADMIN);
+        boolean isAdmin = !isSuperAdmin && roles != null && roles.contains(AuthConstant.ADMIN);
+        boolean isDeptLeader = !isSuperAdmin && !isAdmin && roles != null && roles.contains("DEPT_LEADER");
+        Page<SysUserLog> page = query.createPage();
+        Long total = baseMapper.countForUserLog(
+                normalizedQuery,
+                sysUserId,
+                isSuperAdmin,
+                isAdmin,
+                isDeptLeader,
+                managedDeptTreeIds
         );
+        long safeTotal = null == total ? 0L : total;
+        page.setTotal(safeTotal);
+        if (safeTotal <= 0) {
+            page.setRecords(List.of());
+            return page;
+        }
+        long offset = Math.max(page.getCurrent() - 1, 0) * page.getSize();
+        page.setRecords(baseMapper.listForUserLog(
+                normalizedQuery,
+                sysUserId,
+                isSuperAdmin,
+                isAdmin,
+                isDeptLeader,
+                managedDeptTreeIds,
+                offset,
+                page.getSize()
+        ));
+        return page;
+    }
+
+    private SysUserLogQuery normalizeUserLogQuery(SysUserLogQuery source) {
+        SysUserLogQuery target = null == source ? new SysUserLogQuery() : source;
+        target.setSysLogUsername(normalizeNullableString(target.getSysLogUsername()));
+        target.setSysLogFrom(normalizeNullableString(target.getSysLogFrom()));
+        target.setSysLogAddress(normalizeNullableString(target.getSysLogAddress()));
+        target.setSysLogIp(normalizeNullableString(target.getSysLogIp()));
+        target.setStartDate(normalizeNullableString(target.getStartDate()));
+        target.setEndDate(normalizeNullableString(target.getEndDate()));
+        return target;
+    }
+
+    private String normalizeNullableString(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+        return value.trim();
     }
 
     @Override
     public ReturnResult<Boolean> delete(Long userLogId) {
         return baseMapper.deleteById(userLogId) > 0 ? ReturnResult.ok() : ReturnResult.error();
+    }
+
+    @Override
+    public ReturnResult<Integer> cleanup(SysUserLogQuery sysUserLogQuery,
+                                         Integer sysUserId,
+                                         Set<String> roles,
+                                         List<String> managedDeptTreeIds) {
+        SysUserLogQuery normalizedQuery = normalizeUserLogQuery(sysUserLogQuery);
+        boolean isSuperAdmin = roles != null && roles.contains(AuthConstant.SUPER_ADMIN);
+        boolean isAdmin = !isSuperAdmin && roles != null && roles.contains(AuthConstant.ADMIN);
+        boolean isDeptLeader = !isSuperAdmin && !isAdmin && roles != null && roles.contains("DEPT_LEADER");
+        int deletedCount = baseMapper.deleteForUserLog(
+                normalizedQuery,
+                sysUserId,
+                isSuperAdmin,
+                isAdmin,
+                isDeptLeader,
+                managedDeptTreeIds
+        );
+        return ReturnResult.ok(deletedCount);
     }
 
     @Override

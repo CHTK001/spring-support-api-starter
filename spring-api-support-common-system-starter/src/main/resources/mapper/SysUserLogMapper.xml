@@ -24,4 +24,119 @@
     sys_log_id, sys_log_username, sys_log_address, sys_log_url, sys_log_param, sys_log_from, 
     sys_log_status, sys_log_message, create_name, create_by, create_time, update_time, update_name, update_by
   </sql>
+
+  <sql id="UserLogJoinSql">
+    FROM sys_user_log sul
+    LEFT JOIN sys_dept sd ON sd.sys_dept_id = sul.sys_dept_id
+    LEFT JOIN (
+      SELECT
+        su.sys_user_username,
+        GROUP_CONCAT(DISTINCT sr.sys_role_code ORDER BY sr.sys_role_sort ASC SEPARATOR ',') AS sys_log_role_codes,
+        GROUP_CONCAT(DISTINCT sr.sys_role_name ORDER BY sr.sys_role_sort ASC SEPARATOR '、') AS sys_log_role_names
+      FROM sys_user su
+      LEFT JOIN sys_user_role sur ON sur.sys_user_id = su.sys_user_id
+      LEFT JOIN sys_role sr ON sr.sys_role_id = sur.sys_role_id
+      GROUP BY su.sys_user_username
+    ) sur ON sur.sys_user_username = sul.sys_log_username
+  </sql>
+
+  <sql id="UserLogWhereSql">
+    <where>
+      sul.sys_log_from IN ('LOGIN', 'LOGIN_FAIL', 'LOGOUT')
+      <choose>
+        <when test="isSuperAdmin">
+        </when>
+        <when test="isAdmin">
+          AND sul.sys_log_username &lt;&gt; 'sa'
+        </when>
+        <when test="isDeptLeader">
+          AND sul.sys_log_username &lt;&gt; 'sa'
+          AND NOT EXISTS (
+            SELECT 1
+            FROM sys_user privileged_su
+            LEFT JOIN sys_user_role privileged_sur ON privileged_sur.sys_user_id = privileged_su.sys_user_id
+            LEFT JOIN sys_role privileged_sr ON privileged_sr.sys_role_id = privileged_sur.sys_role_id
+            WHERE privileged_su.sys_user_username = sul.sys_log_username
+              AND privileged_sr.sys_role_code IN ('ADMIN', 'SUPER_ADMIN')
+          )
+          AND (
+            sul.create_by = #{sysUserId}
+            <if test="managedDeptTreeIds != null and managedDeptTreeIds.size() > 0">
+              OR EXISTS (
+                SELECT 1
+                FROM sys_dept managed_sd
+                WHERE managed_sd.sys_dept_id = sul.sys_dept_id
+                  AND (
+                    <foreach collection="managedDeptTreeIds" item="treeId" separator=" OR ">
+                      managed_sd.sys_dept_tree_id LIKE CONCAT(#{treeId}, '%')
+                    </foreach>
+                  )
+              )
+            </if>
+          )
+        </when>
+        <otherwise>
+          AND sul.create_by = #{sysUserId}
+        </otherwise>
+      </choose>
+      <if test="query.sysLogUsername != null and query.sysLogUsername != ''">
+        AND sul.sys_log_username LIKE CONCAT('%', #{query.sysLogUsername}, '%')
+      </if>
+      <if test="query.sysLogFrom != null and query.sysLogFrom != ''">
+        AND sul.sys_log_from LIKE CONCAT('%', #{query.sysLogFrom}, '%')
+      </if>
+      <if test="query.sysLogAddress != null and query.sysLogAddress != ''">
+        AND sul.sys_log_address LIKE CONCAT('%', #{query.sysLogAddress}, '%')
+      </if>
+      <if test="query.sysLogIp != null and query.sysLogIp != ''">
+        AND sul.sys_log_ip LIKE CONCAT('%', #{query.sysLogIp}, '%')
+      </if>
+      <if test="query.sysLogStatus != null">
+        AND sul.sys_log_status = #{query.sysLogStatus}
+      </if>
+      <if test="query.startDate != null and query.startDate != ''">
+        AND sul.create_time <![CDATA[>=]]> #{query.startDate}
+      </if>
+      <if test="query.endDate != null and query.endDate != ''">
+        AND sul.create_time <![CDATA[<=]]> #{query.endDate}
+      </if>
+    </where>
+  </sql>
+
+  <select id="countForUserLog" resultType="java.lang.Long">
+    SELECT COUNT(*)
+    <include refid="UserLogJoinSql" />
+    <include refid="UserLogWhereSql" />
+  </select>
+
+  <select id="listForUserLog" resultType="com.chua.starter.entity.system.SysUserLog">
+    SELECT
+      sul.*,
+      sd.sys_dept_name,
+      sur.sys_log_role_codes,
+      sur.sys_log_role_names
+    <include refid="UserLogJoinSql" />
+    <include refid="UserLogWhereSql" />
+    ORDER BY sul.create_time DESC
+    LIMIT #{offset}, #{limit}
+  </select>
+
+  <select id="listLatestLoginLogsByUsernames" resultType="com.chua.starter.entity.system.SysUserLog">
+    SELECT
+      sul.*
+    FROM sys_user_log sul
+    WHERE sul.sys_log_from = 'LOGIN'
+      AND sul.sys_log_status = 1
+      AND sul.sys_log_username IN
+      <foreach collection="usernames" item="username" open="(" close=")" separator=",">
+        #{username}
+      </foreach>
+    ORDER BY sul.create_time DESC, sul.sys_log_id DESC
+  </select>
+
+  <delete id="deleteForUserLog">
+    DELETE sul
+    FROM sys_user_log sul
+    <include refid="UserLogWhereSql" />
+  </delete>
 </mapper>
