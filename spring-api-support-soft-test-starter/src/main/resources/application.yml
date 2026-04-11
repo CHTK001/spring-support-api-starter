@@ -49,7 +49,7 @@ plugin:
   datasource:
     script:
       enable: true
-      script-path: classpath*:db/init/*.sql,classpath*:db/migration/*.sql
+      script-path: classpath*:db/init/*.sql
       scan-mode: ONCE
       migration-scan-mode: ALWAYS
       data-scan-mode: NONE
