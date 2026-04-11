@@ -3,6 +3,7 @@ package com.chua.starter.system.service;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.system.pojo.RefreshToken;
 import com.chua.starter.system.pojo.ThirdPartyUnbindRequest;
 import com.chua.starter.system.pojo.LoginResult;
@@ -46,6 +47,14 @@ public interface SysLoginService {
      * @return 用户信息
      */
     UserInfoVO getUserLoginInfo(String token);
+
+    /**
+     * 将登录态用户信息转换为前端用户信息
+     *
+     * @param userResume 登录态用户信息
+     * @return 用户信息
+     */
+    UserInfoVO buildUserInfo(UserResume userResume);
 
     /**
      * 刷新token

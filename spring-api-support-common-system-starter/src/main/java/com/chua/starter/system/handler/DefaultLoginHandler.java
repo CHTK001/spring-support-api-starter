@@ -60,7 +60,9 @@ public class DefaultLoginHandler implements LoginHandler {
         }
 
         LoginResult loginResult = LoginResult.builder()
-                .userInfo(sysLoginService.getUserLoginInfo(accessToken.getToken()))
+                .userInfo(accessToken.getUserResume() != null
+                        ? sysLoginService.buildUserInfo(accessToken.getUserResume())
+                        : sysLoginService.getUserLoginInfo(accessToken.getToken()))
                 .tokenType("Bearer")
                 .accessToken(accessToken.getToken())
                 .refreshToken(accessToken.getRefreshToken())
@@ -79,11 +81,10 @@ public class DefaultLoginHandler implements LoginHandler {
      * @return 检查结果
      */
     protected ReturnResult<LoginResult> checkEnvironment(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request) {
-        String code = loginData.getVerifyCodeKey();
-        if (StringUtils.isEmpty(code)) {
+        ReturnResult<LoginResult> result = sysLoginService.checkEnvironment(loginData, request);
+        if (null == result && StringUtils.isEmpty(loginData.getVerifyCodeKey())) {
             log.debug("未提供验证码，跳过验证码检查");
-            return null;
         }
-        return sysLoginService.checkVerifyCode(loginData, request);
+        return result;
     }
 }

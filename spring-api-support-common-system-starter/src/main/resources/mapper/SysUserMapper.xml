@@ -15,6 +15,88 @@
       AND sm.sys_menu_perm IS NOT NULL
   </select>
 
+  <select id="selectAuthRows" resultType="java.util.HashMap">
+    SELECT
+      sr.sys_role_id,
+      sr.sys_role_name,
+      sr.sys_role_code,
+      sr.sys_role_readable,
+      sr.sys_role_writeable,
+      sr.sys_role_executable,
+      sm.sys_menu_perm,
+      sd.sys_dept_data_permission,
+      sd.sys_dept_data_permission_dept_id
+    FROM sys_user su
+      LEFT JOIN sys_dept sd ON sd.sys_dept_id = su.sys_dept_id
+      LEFT JOIN sys_user_role sur ON sur.sys_user_id = su.sys_user_id
+      LEFT JOIN sys_role sr ON sr.sys_role_id = sur.sys_role_id
+        AND sr.sys_role_status = 0
+      LEFT JOIN sys_role_menu srm ON srm.sys_role_id = sr.sys_role_id
+      LEFT JOIN sys_menu sm ON sm.sys_menu_id = srm.sys_menu_id
+        AND sm.sys_menu_type = 3
+      AND sm.sys_menu_perm IS NOT NULL
+    WHERE su.sys_user_id = #{userId}
+  </select>
+
+  <select id="selectAuthVersion" resultType="java.lang.String">
+    SELECT MD5(CONCAT_WS('|',
+      COALESCE(CAST(su.sys_user_id AS CHAR), ''),
+      COALESCE(su.sys_user_username, ''),
+      COALESCE(su.sys_user_nickname, ''),
+      COALESCE(su.sys_user_phone, ''),
+      COALESCE(CAST(su.sys_user_status AS CHAR), ''),
+      COALESCE(CAST(su.sys_dept_id AS CHAR), ''),
+      COALESCE(DATE_FORMAT(su.update_time, '%Y-%m-%d %H:%i:%s'), ''),
+      COALESCE(CAST(sd.sys_dept_data_permission AS CHAR), ''),
+      COALESCE(sd.sys_dept_data_permission_dept_id, ''),
+      COALESCE(DATE_FORMAT(sd.update_time, '%Y-%m-%d %H:%i:%s'), ''),
+      COALESCE((
+        SELECT GROUP_CONCAT(CONCAT_WS(':',
+          sur.sys_role_id,
+          COALESCE(sr.sys_role_code, ''),
+          COALESCE(CAST(sr.sys_role_status AS CHAR), ''),
+          COALESCE(CAST(sr.sys_role_readable AS CHAR), ''),
+          COALESCE(CAST(sr.sys_role_writeable AS CHAR), ''),
+          COALESCE(CAST(sr.sys_role_executable AS CHAR), ''),
+          COALESCE(DATE_FORMAT(sr.update_time, '%Y-%m-%d %H:%i:%s'), '')
+        ) ORDER BY sur.sys_role_id SEPARATOR ',')
+        FROM sys_user_role sur
+          LEFT JOIN sys_role sr ON sr.sys_role_id = sur.sys_role_id
+        WHERE sur.sys_user_id = su.sys_user_id
+      ), ''),
+      COALESCE((
+        SELECT GROUP_CONCAT(CONCAT_WS(':',
+          srm.sys_role_id,
+          srm.sys_menu_id,
+          COALESCE(sm.sys_menu_perm, ''),
+          COALESCE(DATE_FORMAT(sm.update_time, '%Y-%m-%d %H:%i:%s'), '')
+        ) ORDER BY srm.sys_role_id, srm.sys_menu_id SEPARATOR ',')
+        FROM sys_role_menu srm
+          LEFT JOIN sys_menu sm ON sm.sys_menu_id = srm.sys_menu_id
+            AND sm.sys_menu_type = 3
+        WHERE srm.sys_role_id IN (
+          SELECT sur2.sys_role_id
+          FROM sys_user_role sur2
+          WHERE sur2.sys_user_id = su.sys_user_id
+        )
+      ), ''),
+      COALESCE((
+        SELECT GROUP_CONCAT(CONCAT_WS(':',
+          rel.sys_dept_id,
+          COALESCE(sd2.sys_dept_tree_id, ''),
+          COALESCE(DATE_FORMAT(sd2.update_time, '%Y-%m-%d %H:%i:%s'), '')
+        ) ORDER BY rel.sys_dept_id SEPARATOR ',')
+        FROM sys_dept_principal_rel rel
+          LEFT JOIN sys_dept sd2 ON sd2.sys_dept_id = rel.sys_dept_id
+        WHERE rel.sys_user_id = su.sys_user_id
+      ), '')
+    ))
+    FROM sys_user su
+      LEFT JOIN sys_dept sd ON sd.sys_dept_id = su.sys_dept_id
+    WHERE su.sys_user_id = #{userId}
+    LIMIT 1
+  </select>
+
   <select id="selectCustomOne" resultType="com.chua.starter.entity.system.SysUser">
     SELECT
       su.*,
@@ -28,12 +110,9 @@
     SELECT
         su.*
     FROM sys_user su
-    LEFT JOIN sys_user_role sur on su.sys_user_id = sur.sys_user_id
-    LEFT JOIN sys_role sr on sur.sys_role_id = sr.sys_role_id
 
     <where>
       AND su.sys_user_delete = 0
-      AND (sr.sys_role_code <![CDATA[<>]]> 'SUPER_ADMIN' OR sr.sys_role_code IS NULL)
 
       <if test="query.username != null and query.username != ''">
         AND su.sys_user_username LIKE CONCAT('%', #{query.username}, '%')
@@ -58,10 +137,6 @@
       <if test="query.sysDeptId != null">
         AND su.sys_dept_id IN (SELECT sys_dept_id FROM sys_dept WHERE sys_dept_tree_id LIKE CONCAT(
             (SELECT sys_dept_tree_id FROM sys_dept WHERE sys_dept_id = #{query.sysDeptId}), '%'))
-      </if>
-
-      <if test="!isAdmin">
-        AND sr.sys_role_code <![CDATA[<>]]> 'ADMIN'
       </if>
 
       ORDER BY su.create_time DESC

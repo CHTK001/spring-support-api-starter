@@ -32,13 +32,13 @@ public interface SysSettingGroupService extends IService<SysSettingGroup> {
     /**
      * 删除指定ID的配置组
      *
-     * @param sysSettingGroupMapperId 配置组主键ID。
+     * @param sysSettingGroupId 配置组主键ID。
      *                                示例：1L
      * @return 返回操作结果，布尔值表示是否删除成功。
      * 成功时返回 {@link ReturnResult#ok(Object)}，
      * 失败时返回 {@link ReturnResult#illegal(String)}
      */
-    ReturnResult<Boolean> deleteForGroup(@NonNull Long sysSettingGroupMapperId);
+    ReturnResult<Boolean> deleteForGroup(@NonNull Long sysSettingGroupId);
 
     /**
      * 根据配置组获取配置列表

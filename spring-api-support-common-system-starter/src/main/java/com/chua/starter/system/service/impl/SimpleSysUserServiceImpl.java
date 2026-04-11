@@ -86,6 +86,17 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
         return ReturnResult.of(updated);
     }
 
+    @Override
+    public ReturnResult<Boolean> status(Integer sysUserId) {
+        SysUser sysUser = getById(sysUserId);
+        if (sysUser == null) {
+            log.warn("[SimpleSysUserService] 查询2FA状态失败，用户不存在，sysUserId={}", sysUserId);
+            return ReturnResult.illegal("用户信息不存在");
+        }
+
+        return ReturnResult.ok(StringUtils.isNotEmpty(sysUser.getSysUserTotpCode()));
+    }
+
     /**
      * 生成 2FA 密钥内容
      * <p>

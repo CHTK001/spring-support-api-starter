@@ -3,13 +3,13 @@ package com.chua.starter.monitor.task.manager.step;
 import com.chua.docker.support.client.DockerProtocolClient;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.entity.SystemSoftContainer;
-import com.chua.starter.monitor.entity.SystemSoftContainerStats;
+import com.chua.starter.monitor.entity.DockerContainer;
+import com.chua.starter.monitor.entity.DockerContainerStats;
 import com.chua.starter.monitor.enums.DockerConnectionType;
 import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
-import com.chua.starter.monitor.mapper.SystemSoftContainerMapper;
-import com.chua.starter.monitor.service.docker.SystemSoftContainerStatsService;
-import com.chua.starter.monitor.service.impl.SystemSoftContainerServiceImpl;
+import com.chua.starter.monitor.mapper.DockerContainerMapper;
+import com.chua.starter.monitor.service.docker.DockerContainerStatsService;
+import com.chua.starter.monitor.service.impl.DockerContainerServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -36,8 +36,8 @@ import java.util.Map;
 public class DockerStatsPushStep {
 
     private final DockerProtocolClientFactory dockerProtocolClientFactory;
-    private final SystemSoftContainerMapper systemSoftContainerMapper;
-    private final SystemSoftContainerStatsService systemSoftContainerStatsService;
+    private final DockerContainerMapper systemSoftContainerMapper;
+    private final DockerContainerStatsService systemSoftContainerStatsService;
 
     /**
      * 执行Docker状态推送任务
@@ -83,14 +83,14 @@ public class DockerStatsPushStep {
             }
 
             // 获取该服务器下的所有容器
-            List<SystemSoftContainer> containers = systemSoftContainerMapper.selectByServerId(server.getMonitorSysGenServerId());
+            List<DockerContainer> containers = systemSoftContainerMapper.selectByServerId(server.getMonitorSysGenServerId());
 
             if (containers.isEmpty()) {
                 return;
             }
 
             // 收集并推送每个容器的状态
-            for (SystemSoftContainer container : containers) {
+            for (DockerContainer container : containers) {
                 try {
                     collectAndPushContainerStats(dockerClient, container, server);
                 } catch (Exception e) {
@@ -161,7 +161,7 @@ public class DockerStatsPushStep {
      * @param container    容器信息
      * @param server       服务器信息
      */
-    private void collectAndPushContainerStats(DockerProtocolClient dockerClient, SystemSoftContainer container, MonitorSysGenServer server) {
+    private void collectAndPushContainerStats(DockerProtocolClient dockerClient, DockerContainer container, MonitorSysGenServer server) {
         try {
             // 检查容器是否有Docker ID
             if (container.getSystemSoftContainerDockerId() == null ||
@@ -175,8 +175,8 @@ public class DockerStatsPushStep {
                 return;
             }
 
-            // 转换为SystemSoftContainerStats实体
-            SystemSoftContainerStats containerStats = new SystemSoftContainerStats();
+            // 转换为DockerContainerStats实体
+            DockerContainerStats containerStats = new DockerContainerStats();
             containerStats.setSystemSoftContainerStatsContainerId(container.getSystemSoftContainerDockerId());
             containerStats.setSystemSoftContainerStatsContainerName(container.getSystemSoftContainerName());
 
@@ -240,7 +240,7 @@ public class DockerStatsPushStep {
 
             // 设置记录时间
             containerStats.setSystemSoftContainerStatsRecordTime(java.time.LocalDateTime.now());
-            SystemSoftContainerServiceImpl.normalizeStatsSnapshot(containerStats);
+            DockerContainerServiceImpl.normalizeStatsSnapshot(containerStats);
 
             // 保存到数据库
             systemSoftContainerStatsService.save(containerStats);
@@ -258,7 +258,7 @@ public class DockerStatsPushStep {
     /**
      * 提取CPU统计信息
      */
-    private void extractCpuStats(Map<String, Object> statsMap, SystemSoftContainerStats containerStats) {
+    private void extractCpuStats(Map<String, Object> statsMap, DockerContainerStats containerStats) {
         try {
             Object cpuStats = statsMap.get("cpu_stats");
             Object preCpuStats = statsMap.get("precpu_stats");
@@ -306,7 +306,7 @@ public class DockerStatsPushStep {
     /**
      * 提取内存统计信息
      */
-    private void extractMemoryStats(Map<String, Object> statsMap, SystemSoftContainerStats containerStats) {
+    private void extractMemoryStats(Map<String, Object> statsMap, DockerContainerStats containerStats) {
         try {
             Object memoryStats = statsMap.get("memory_stats");
             if (memoryStats instanceof Map) {
@@ -341,7 +341,7 @@ public class DockerStatsPushStep {
     /**
      * 提取网络统计信息
      */
-    private void extractNetworkStats(Map<String, Object> statsMap, SystemSoftContainerStats containerStats) {
+    private void extractNetworkStats(Map<String, Object> statsMap, DockerContainerStats containerStats) {
         try {
             Object networkStats = statsMap.get("networks");
             if (networkStats instanceof Map) {
@@ -374,7 +374,7 @@ public class DockerStatsPushStep {
     /**
      * 提取磁盘统计信息
      */
-    private void extractDiskStats(Map<String, Object> statsMap, SystemSoftContainerStats containerStats) {
+    private void extractDiskStats(Map<String, Object> statsMap, DockerContainerStats containerStats) {
         try {
             Object blkioStats = statsMap.get("blkio_stats");
             if (blkioStats instanceof Map) {

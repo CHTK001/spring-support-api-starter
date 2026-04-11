@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 组织机构/部门表
@@ -52,6 +53,18 @@ public class SysDept extends SysBase implements Serializable {
     @Schema(description = "部门负责人")
     @Size(max = 255, message = "部门负责人最大长度需小于255")
     private String sysDeptPrincipal;
+
+    @TableField(exist = false)
+    @Schema(description = "负责人用户ID集合")
+    private List<Integer> principalUserIds;
+
+    @TableField(exist = false)
+    @Schema(description = "负责人名称集合")
+    private List<String> principalUserNames;
+
+    @TableField(exist = false)
+    @Schema(description = "部门人数")
+    private Integer memberCount;
 
     /**
      * 负责人联系方式
@@ -119,4 +132,5 @@ public class SysDept extends SysBase implements Serializable {
     @TableField(value = "sys_dept_data_permission_dept_id")
     @Schema(description = "数据权限可见的部门ID列表(逗号分隔)")
     private String sysDeptDataPermissionDeptId;
+
 }

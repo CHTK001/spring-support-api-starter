@@ -50,6 +50,18 @@ public class SysDeptVO {
     @Schema(description = "状态")
     private Integer sysDeptStatus;
 
+    @Schema(description = "部门负责人")
+    private String sysDeptPrincipal;
+
+    @Schema(description = "负责人用户ID集合")
+    private List<Integer> principalUserIds;
+
+    @Schema(description = "负责人名称集合")
+    private List<String> principalUserNames;
+
+    @Schema(description = "部门人数")
+    private Integer memberCount;
+
     /**
      * 瀛愰儴闂"     */
     @Schema(description = "瀛愰儴闂")

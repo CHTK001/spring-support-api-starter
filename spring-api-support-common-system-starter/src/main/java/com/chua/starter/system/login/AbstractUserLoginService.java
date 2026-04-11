@@ -9,12 +9,14 @@ import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import com.chua.starter.oauth.client.support.user.RoleInfo;
+import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.client.support.user.UserInfoService;
 import com.chua.starter.system.constant.SystemConstant;
 import com.chua.starter.system.mapper.SysDeptMapper;
 import com.chua.starter.system.mapper.SysUserMapper;
 import com.chua.starter.system.properties.SystemSecurityProperties;
+import com.chua.starter.system.service.SysDeptPrincipalRelService;
 import com.chua.starter.entity.system.SysDept;
 import com.chua.starter.entity.system.SysRole;
 import com.chua.starter.entity.system.SysUser;
@@ -46,6 +48,8 @@ import static com.chua.starter.common.support.constant.DataFilterTypeEnum.ALL;
  */
 @Slf4j
 public abstract class AbstractUserLoginService implements UserInfoService, Constant {
+    private static final String DEPT_LEADER = "DEPT_LEADER";
+    private static final String AUTH_VERSION = "authVersion";
 
     @Autowired
     protected SystemSecurityProperties securityProperties;
@@ -58,6 +62,9 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
 
     @Autowired
     protected SysDeptMapper sysDeptMapper;
+
+    @Autowired
+    protected SysDeptPrincipalRelService sysDeptPrincipalRelService;
 
     /**
      * 构建用户登录信息
@@ -84,40 +91,30 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
             sysUserMapper.updateById(user);
         }
 
-        // 获取用户角色信息
-        List<SysRole> roles = getRole(user);
-
-        LinkedHashSet<String> roleCodes = roles.stream()
-                .map(SysRole::getSysRoleCode)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        LinkedHashSet<RoleInfo> roleInfos = roles.stream()
-                .map(this::convertToRoleInfo)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        // 获取部门数据权限
-        Integer sysDeptId = user.getSysDeptId();
-        DataFilterTypeEnum dataPermission = ALL;
-        String dataPermissionRule = "";
+        LoginAuthProfile authProfile = resolveAuthProfile(user);
+        LinkedHashSet<String> roleCodes = authProfile.roleCodes;
+        LinkedHashSet<RoleInfo> roleInfos = authProfile.roleInfos;
+        DataFilterTypeEnum dataPermission = authProfile.dataPermission;
+        String dataPermissionRule = authProfile.dataPermissionRule;
+        Set<String> permissions = authProfile.permissions;
         String userDashboardGrid = "";
         String userDashboard = "";
 
-        if (null != sysDeptId) {
-            SysDept sysDept = sysDeptMapper.selectOne(
-                    Wrappers.<SysDept>lambdaQuery()
-                            .eq(SysDept::getSysDeptId, sysDeptId)
-                            .select(SysDept::getSysDeptDataPermission, SysDept::getSysDeptDataPermissionDeptId),
-                    false);
-            if (null != sysDept) {
-                dataPermission = ObjectUtils.defaultIfNull(
-                        DataFilterTypeEnum.getByCode(sysDept.getSysDeptDataPermission()), ALL);
-                dataPermissionRule = sysDept.getSysDeptDataPermissionDeptId();
-            }
+        List<Integer> managedDeptIds = Collections.emptyList();
+        List<String> managedDeptTreeIds = Collections.emptyList();
+        if (roleCodes.contains(DEPT_LEADER)) {
+            List<SysDept> managedDeptScopes = sysDeptPrincipalRelService.listManagedDeptScopes(user.getSysUserId());
+            managedDeptIds = managedDeptScopes.stream()
+                    .map(SysDept::getSysDeptId)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .toList();
+            managedDeptTreeIds = managedDeptScopes.stream()
+                    .map(SysDept::getSysDeptTreeId)
+                    .filter(StringUtils::isNotEmpty)
+                    .distinct()
+                    .toList();
         }
-
-        // 获取用户权限信息
-        Set<String> permissions = getPermission(user);
 
         // 生成用户唯一标识
         String[] userIds = generateUserIds(user);
@@ -138,6 +135,10 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
                 .setNickName(user.getSysUserNickname())
                 .setExt(ImmutableBuilder.builderOfMap(String.class, Object.class)
                         .put(user)
+                        .put(AUTH_VERSION, authVersion(user))
+                        .put("sysDeptId", user.getSysDeptId())
+                        .put("managedDeptIds", managedDeptIds)
+                        .put("managedDeptTreeIds", managedDeptTreeIds)
                         .put("userDashboardGrid", userDashboardGrid)
                         .put("userDashboard", userDashboard)
                         .remove("password", "salt", "userEnable", "address", "lastArea",
@@ -148,6 +149,54 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         customizeUserResult(result, user);
 
         return result;
+    }
+
+    @Override
+    public String authVersion(UserResult userResult) {
+        if (userResult == null || StringUtils.isEmpty(userResult.getUserId())) {
+            return null;
+        }
+        return authVersion(Converter.convertIfNecessary(userResult.getUserId(), Integer.class));
+    }
+
+    protected String authVersion(SysUser user) {
+        return user == null ? null : authVersion(user.getSysUserId());
+    }
+
+    protected String authVersion(Integer userId) {
+        return userId == null ? null : sysUserMapper.selectAuthVersion(userId);
+    }
+
+    private LoginAuthProfile resolveAuthProfile(SysUser user) {
+        LoginAuthProfile profile = new LoginAuthProfile();
+        List<Map<String, Object>> authRows = sysUserMapper.selectAuthRows(user.getSysUserId());
+        if (authRows == null || authRows.isEmpty()) {
+            return profile;
+        }
+
+        for (Map<String, Object> authRow : authRows) {
+            if (profile.dataPermission == ALL) {
+                Integer permissionCode = Converter.convertIfNecessary(authRow.get("sys_dept_data_permission"), Integer.class);
+                DataFilterTypeEnum resolvedPermission = DataFilterTypeEnum.getByCode(permissionCode);
+                if (resolvedPermission != null) {
+                    profile.dataPermission = resolvedPermission;
+                }
+                profile.dataPermissionRule = ObjectUtils.defaultIfNull(
+                        Converter.convertIfNecessary(authRow.get("sys_dept_data_permission_dept_id"), String.class), "");
+            }
+
+            String roleCode = Converter.convertIfNecessary(authRow.get("sys_role_code"), String.class);
+            if (StringUtils.isNotEmpty(roleCode)) {
+                profile.roleCodes.add(roleCode);
+                profile.roleInfos.add(toRoleInfo(authRow, roleCode));
+            }
+
+            String permission = Converter.convertIfNecessary(authRow.get("sys_menu_perm"), String.class);
+            if (StringUtils.isNotEmpty(permission)) {
+                profile.permissions.add(permission);
+            }
+        }
+        return profile;
     }
 
     /**
@@ -186,6 +235,20 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
                 || role.getSysRoleWriteable() == SystemConstant.PERMISSION_ENABLED);
         item.setExecutable(role.getSysRoleExecutable() == null
                 || role.getSysRoleExecutable() == SystemConstant.PERMISSION_ENABLED);
+        return item;
+    }
+
+    private RoleInfo toRoleInfo(Map<String, Object> authRow, String roleCode) {
+        RoleInfo item = new RoleInfo();
+        item.setRoleCode(roleCode);
+        item.setRoleName(Converter.convertIfNecessary(authRow.get("sys_role_name"), String.class));
+
+        Integer readable = Converter.convertIfNecessary(authRow.get("sys_role_readable"), Integer.class);
+        Integer writeable = Converter.convertIfNecessary(authRow.get("sys_role_writeable"), Integer.class);
+        Integer executable = Converter.convertIfNecessary(authRow.get("sys_role_executable"), Integer.class);
+        item.setReadable(readable == null || readable == SystemConstant.PERMISSION_ENABLED);
+        item.setWriteable(writeable == null || writeable == SystemConstant.PERMISSION_ENABLED);
+        item.setExecutable(executable == null || executable == SystemConstant.PERMISSION_ENABLED);
         return item;
     }
 
@@ -229,6 +292,14 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
             log.warn("获取用户权限失败: 用户ID={}, 错误={}", user.getSysUserId(), e.getMessage());
             return Collections.emptySet();
         }
+    }
+
+    private static final class LoginAuthProfile {
+        private final LinkedHashSet<String> roleCodes = new LinkedHashSet<>();
+        private final LinkedHashSet<RoleInfo> roleInfos = new LinkedHashSet<>();
+        private final LinkedHashSet<String> permissions = new LinkedHashSet<>();
+        private DataFilterTypeEnum dataPermission = ALL;
+        private String dataPermissionRule = "";
     }
 
     /**

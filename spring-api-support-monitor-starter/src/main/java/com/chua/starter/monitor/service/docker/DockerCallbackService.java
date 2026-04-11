@@ -30,11 +30,11 @@ import java.io.File;
 public class DockerCallbackService {
 
     private final SocketSessionTemplate socketSessionTemplate;
-    private final SystemSoftImageService systemSoftImageService;
-    private final SystemSoftContainerService systemSoftContainerService;
+    private final DockerImageService systemSoftImageService;
+    private final DockerContainerService systemSoftContainerService;
     public DockerCallbackService(SocketSessionTemplate socketSessionTemplate,
-                                 SystemSoftImageService systemSoftImageService,
-                                 SystemSoftContainerService systemSoftContainerService) {
+                                 DockerImageService systemSoftImageService,
+                                 DockerContainerService systemSoftContainerService) {
         this.socketSessionTemplate = socketSessionTemplate;
         this.systemSoftImageService = systemSoftImageService;
         this.systemSoftContainerService = systemSoftContainerService;

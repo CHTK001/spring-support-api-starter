@@ -1,0 +1,1589 @@
+package com.chua.starter.monitor.service.impl;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.core.utils.StringUtils;
+import com.chua.docker.support.client.DockerProtocolClient;
+import com.chua.starter.monitor.constant.MonitorSocketTopics;
+import com.chua.starter.monitor.entity.SystemSoft;
+import com.chua.starter.monitor.entity.DockerContainer;
+import com.chua.starter.monitor.entity.DockerContainerStats;
+import com.chua.starter.monitor.entity.DockerContainerStatus;
+import com.chua.starter.monitor.entity.DockerImage;
+import com.chua.starter.monitor.factory.DockerProtocolClientFactory;
+import com.chua.starter.monitor.mapper.DockerContainerMapper;
+import com.chua.starter.monitor.mapper.DockerImageMapper;
+import com.chua.starter.monitor.mapper.SystemSoftMapper;
+import com.chua.starter.monitor.service.docker.DockerCallbackService;
+import com.chua.starter.monitor.service.docker.DockerContainerService;
+import com.chua.starter.monitor.service.docker.DockerContainerStatsService;
+import com.chua.starter.monitor.service.docker.SystemSoftRecordService;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.Container;
+import com.github.dockerjava.api.model.ContainerMount;
+import com.github.dockerjava.api.model.ContainerPort;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+/**
+ * 系统软件容器管理服务实现类
+ *
+ * @author CH
+ * @version 1.0
+ * @since 2025/01/15
+ */
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@SuppressWarnings("ALL")
+public class DockerContainerServiceImpl extends ServiceImpl<DockerContainerMapper, DockerContainer> implements DockerContainerService {
+
+    private static final int MAX_DOCKER_ID_LENGTH = 100;
+    private static final int MAX_CONTAINER_NAME_LENGTH = 255;
+    private static final int MAX_IMAGE_LENGTH = 255;
+    private static final int MAX_IMAGE_TAG_LENGTH = 100;
+    private static final int MAX_PORTS_LENGTH = 255;
+    private static final int MAX_ENV_LENGTH = 255;
+    private static final int MAX_VOLUMES_LENGTH = 255;
+    private static final int MAX_NETWORKS_LENGTH = 255;
+    private static final int MAX_COMMAND_LENGTH = 255;
+    private static final int MAX_ARGS_LENGTH = 255;
+    private static final int MAX_CONFIG_LENGTH = 255;
+    private static final int MAX_HEALTH_STATUS_LENGTH = 50;
+    private static final int MAX_SUMMARY_SEGMENT_LENGTH = 512;
+    private static final int MAX_STATS_TEXT_LENGTH = 255;
+
+    private final DockerContainerMapper systemSoftContainerMapper;
+    private final DockerProtocolClientFactory dockerProtocolClientFactory;
+    private final SystemSoftMapper systemSoftMapper;
+    private final DockerImageMapper systemSoftImageMapper;
+    @Autowired
+    @Lazy
+    private DockerCallbackService dockerCallbackService;
+    @Autowired
+    @Lazy
+    private SystemSoftRecordService systemSoftRecordService;
+
+    // 用于存储日志推送任务的Map
+    private final Map<Integer, LogPushTask> logPushTasks = new ConcurrentHashMap<>();
+    private final DockerContainerStatsService systemSoftContainerStatsService;
+
+    /**
+     * 创建容器
+     *
+     * @param softId        软件ID
+     * @param serverId      服务器ID
+     * @param containerName 容器名称
+     * @param imageTag      镜像标签
+     * @param params        创建参数（端口映射、环境变量、数据卷等）
+     * @return 创建结果
+     */
+    @Override
+    public ReturnResult<Boolean> createContainer(Integer softId, Integer serverId, String containerName, String imageTag, Map<String, Object> params) {
+        log.info("创建容器 - 软件ID: {}, 服务器ID: {}, 容器名称: {}, 镜像标签: {}", softId, serverId, containerName, imageTag);
+
+        // 创建操作记录（先记录）
+        com.chua.starter.monitor.entity.SystemSoftRecord record = new com.chua.starter.monitor.entity.SystemSoftRecord();
+        record.setSystemSoftId(softId);
+        record.setSystemServerId(serverId);
+        record.setSystemSoftRecordOperationType("CREATE_CONTAINER");
+        record.setSystemSoftRecordMethod("createContainer");
+        record.setSystemSoftRecordMessage("开始创建容器");
+        record.setSystemSoftRecordParams(String.format("containerName=%s, imageTag=%s", containerName, imageTag));
+        record.setSystemSoftRecordStatus(0); // 0: 进行中
+        record.setSystemSoftRecordStartTime(java.time.LocalDateTime.now());
+        record.setSystemSoftRecordTime(java.time.LocalDateTime.now());
+
+        // 保存记录到数据库（不管成功失败都记录）
+        systemSoftRecordService.save(record);
+
+        try {
+            // 获取Docker客户端
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+
+                // 更新记录状态为失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("无法创建Docker客户端");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            // 提取参数
+            Map<String, String> environment = extractStringMap(params, "env");
+            Map<String, String> portBindings = extractStringMap(params, "ports");
+            Map<String, String> volumeBindings = extractStringMap(params, "volumes");
+
+            // 创建容器
+            String dockerContainerId = dockerClient.createContainer(
+                imageTag,
+                containerName,
+                environment,     // 环境变量
+                portBindings,    // 端口映射
+                volumeBindings   // 数据卷
+            );
+
+            if (dockerContainerId == null || dockerContainerId.isEmpty()) {
+                log.error("创建容器失败 - 软件ID: {}, 服务器ID: {}", softId, serverId);
+
+                // 更新记录状态为失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("创建容器失败，返回的容器ID为空");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+
+                return ReturnResult.error("创建容器失败");
+            }
+
+            // 成功后才保存容器信息到数据库
+            DockerContainer container = new DockerContainer();
+            container.setSystemSoftId(softId);
+            container.setSystemServerId(serverId);
+            container.setSystemSoftContainerName(containerName);
+            container.setSystemSoftContainerDockerId(dockerContainerId);
+            container.setSystemSoftContainerStatus(DockerContainerStatus.CREATED); // 已创建
+            container.setSystemSoftContainerImage(imageTag);
+
+            boolean saveResult = super.save(container);
+            if (!saveResult) {
+                log.error("保存容器信息到数据库失败 - 容器名称: {}", containerName);
+
+                // 更新记录状态为失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("保存容器信息到数据库失败");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+
+                return ReturnResult.error("保存容器信息失败");
+            }
+
+            // 更新记录状态为成功
+            record.setSystemSoftRecordStatus(1); // 1: 成功
+            record.setSystemSoftRecordMessage("创建容器成功");
+            record.setSystemSoftRecordContainerId(dockerContainerId);
+            record.setSystemSoftRecordResult(String.format("容器ID: %d, Docker容器ID: %s", container.getSystemSoftContainerId(), dockerContainerId));
+            record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+            record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+            systemSoftRecordService.updateById(record);
+
+            log.info("创建容器成功 - 容器ID: {}, Docker容器ID: {}, 记录ID: {}", container.getSystemSoftContainerId(), dockerContainerId, record.getSystemSoftRecordId());
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            // 更新记录状态为失败
+            try {
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("创建容器失败: " + e.getMessage());
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+            } catch (Exception updateEx) {
+                log.warn("更新记录状态为失败时出错: {}", updateEx.getMessage());
+            }
+
+            log.error("创建容器失败: {}", e.getMessage(), e);
+            return ReturnResult.error("创建容器失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 从参数中提取字符串映射
+     *
+     * @param params 参数映射
+     * @param key    键名
+     * @return 字符串映射
+     */
+    private Map<String, String> extractStringMap(Map<String, Object> params, String key) {
+        if (params == null) {
+            return null;
+        }
+
+        Object obj = params.get(key);
+        if (obj instanceof Map) {
+            Map<String, String> result = new HashMap<>();
+            ((Map<?, ?>) obj).forEach((k, v) -> result.put(k.toString(), v.toString()));
+            return result;
+        }
+
+        return null;
+    }
+
+    /**
+     * 根据条件查询容器列表
+     *
+     * @param serverId      服务器ID
+     * @param softId        软件ID
+     * @param status        容器状态
+     * @param containerName 容器名称
+     * @return 容器列表
+     */
+    @Override
+    public ReturnResult<List<DockerContainer>> selectContainerList(Integer serverId, Integer softId, String status, String containerName) {
+        log.debug("根据条件查询容器列表 - 服务器ID: {}, 软件ID: {}, 状态: {}, 容器名称: {}", serverId, softId, status, containerName);
+
+        try {
+            LambdaQueryWrapper<DockerContainer> queryWrapper = new LambdaQueryWrapper<>();
+            applyContainerFilters(queryWrapper, serverId, softId, status, containerName);
+            List<DockerContainer> containerList = systemSoftContainerMapper.selectList(queryWrapper);
+            log.debug("根据条件查询容器列表完成");
+            return ReturnResult.ok(containerList);
+        } catch (Exception e) {
+            log.error("根据条件查询容器列表失败: {}", e.getMessage(), e);
+            return ReturnResult.error("查询失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 启动容器
+     *
+     * @param containerId 容器ID
+     * @return 启动结果
+     */
+    @Override
+    public ReturnResult<Boolean> startContainer(Integer containerId) {
+        log.info("启动容器 - 容器ID: {}", containerId);
+
+        // 创建操作记录（先记录）
+        com.chua.starter.monitor.entity.SystemSoftRecord record = new com.chua.starter.monitor.entity.SystemSoftRecord();
+        record.setSystemSoftRecordOperationType("START_CONTAINER");
+        record.setSystemSoftRecordMethod("startContainer");
+        record.setSystemSoftRecordMessage("开始启动容器");
+        record.setSystemSoftRecordParams(String.format("containerId=%d", containerId));
+        record.setSystemSoftRecordStatus(0); // 0: 进行中
+        record.setSystemSoftRecordStartTime(java.time.LocalDateTime.now());
+        record.setSystemSoftRecordTime(java.time.LocalDateTime.now());
+
+        try {
+            // 获取容器信息
+            DockerContainer container = systemSoftContainerMapper.selectById(containerId);
+            if (container == null) {
+                log.error("容器不存在 - 容器ID: {}", containerId);
+
+                // 记录失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("容器不存在");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.save(record);
+
+                return ReturnResult.error("容器不存在");
+            }
+
+            // 设置记录的关联信息
+            record.setSystemSoftId(container.getSystemSoftId());
+            record.setSystemServerId(container.getSystemServerId());
+            record.setSystemSoftRecordContainerId(container.getSystemSoftContainerDockerId());
+
+            // 保存记录到数据库（不管成功失败都记录）
+            systemSoftRecordService.save(record);
+
+            // 获取Docker客户端
+            Integer serverId = container.getSystemServerId();
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+
+                // 更新记录状态为失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("无法创建Docker客户端");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            // 执行启动操作
+            dockerClient.startContainerById(container.getSystemSoftContainerDockerId());
+
+            // 成功后才更新容器状态为运行中
+            container.setSystemSoftContainerStatus(DockerContainerStatus.RUNNING);
+            systemSoftContainerMapper.updateById(container);
+
+            // 更新记录状态为成功
+            record.setSystemSoftRecordStatus(1); // 1: 成功
+            record.setSystemSoftRecordMessage("启动容器成功");
+            record.setSystemSoftRecordResult("容器已启动");
+            record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+            record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+            systemSoftRecordService.updateById(record);
+
+            log.info("启动容器成功 - 容器ID: {}, 记录ID: {}", containerId, record.getSystemSoftRecordId());
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            // 更新记录状态为失败
+            try {
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("启动容器失败: " + e.getMessage());
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+            } catch (Exception updateEx) {
+                log.warn("更新记录状态为失败时出错: {}", updateEx.getMessage());
+            }
+
+            log.error("启动容器失败: {}", e.getMessage(), e);
+            return ReturnResult.error("启动容器失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 停止容器
+     *
+     * @param containerId 容器ID
+     * @return 停止结果
+     */
+    @Override
+    public ReturnResult<Boolean> stopContainer(Integer containerId) {
+        log.info("停止容器 - 容器ID: {}", containerId);
+
+        // 创建操作记录（先记录）
+        com.chua.starter.monitor.entity.SystemSoftRecord record = new com.chua.starter.monitor.entity.SystemSoftRecord();
+        record.setSystemSoftRecordOperationType("STOP_CONTAINER");
+        record.setSystemSoftRecordMethod("stopContainer");
+        record.setSystemSoftRecordMessage("开始停止容器");
+        record.setSystemSoftRecordParams(String.format("containerId=%d", containerId));
+        record.setSystemSoftRecordStatus(0); // 0: 进行中
+        record.setSystemSoftRecordStartTime(java.time.LocalDateTime.now());
+        record.setSystemSoftRecordTime(java.time.LocalDateTime.now());
+
+        try {
+            // 获取容器信息
+            DockerContainer container = systemSoftContainerMapper.selectById(containerId);
+            if (container == null) {
+                log.error("容器不存在 - 容器ID: {}", containerId);
+
+                // 记录失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("容器不存在");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.save(record);
+
+                return ReturnResult.error("容器不存在");
+            }
+
+            // 设置记录的关联信息
+            record.setSystemSoftId(container.getSystemSoftId());
+            record.setSystemServerId(container.getSystemServerId());
+            record.setSystemSoftRecordContainerId(container.getSystemSoftContainerDockerId());
+
+            // 保存记录到数据库（不管成功失败都记录）
+            systemSoftRecordService.save(record);
+
+            // 获取Docker客户端
+            Integer serverId = container.getSystemServerId();
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+
+                // 更新记录状态为失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("无法创建Docker客户端");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            // 执行停止操作
+            dockerClient.stopContainerById(container.getSystemSoftContainerDockerId());
+
+            // 成功后才更新容器状态为已停止
+            container.setSystemSoftContainerStatus(DockerContainerStatus.STOPPED);
+            systemSoftContainerMapper.updateById(container);
+
+            // 更新记录状态为成功
+            record.setSystemSoftRecordStatus(1); // 1: 成功
+            record.setSystemSoftRecordMessage("停止容器成功");
+            record.setSystemSoftRecordResult("容器已停止");
+            record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+            record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+            systemSoftRecordService.updateById(record);
+
+            log.info("停止容器成功 - 容器ID: {}, 记录ID: {}", containerId, record.getSystemSoftRecordId());
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            // 更新记录状态为失败
+            try {
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("停止容器失败: " + e.getMessage());
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+            } catch (Exception updateEx) {
+                log.warn("更新记录状态为失败时出错: {}", updateEx.getMessage());
+            }
+
+            log.error("停止容器失败: {}", e.getMessage(), e);
+            return ReturnResult.error("停止容器失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 重启容器
+     *
+     * @param containerId 容器ID
+     * @return 重启结果
+     */
+    @Override
+    public ReturnResult<Boolean> restartContainer(Integer containerId) {
+        log.info("重启容器 - 容器ID: {}", containerId);
+
+        // 创建操作记录（先记录）
+        com.chua.starter.monitor.entity.SystemSoftRecord record = new com.chua.starter.monitor.entity.SystemSoftRecord();
+        record.setSystemSoftRecordOperationType("RESTART_CONTAINER");
+        record.setSystemSoftRecordMethod("restartContainer");
+        record.setSystemSoftRecordMessage("开始重启容器");
+        record.setSystemSoftRecordParams(String.format("containerId=%d", containerId));
+        record.setSystemSoftRecordStatus(0); // 0: 进行中
+        record.setSystemSoftRecordStartTime(java.time.LocalDateTime.now());
+        record.setSystemSoftRecordTime(java.time.LocalDateTime.now());
+
+        try {
+            // 获取容器信息
+            DockerContainer container = systemSoftContainerMapper.selectById(containerId);
+            if (container == null) {
+                log.error("容器不存在 - 容器ID: {}", containerId);
+
+                // 记录失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("容器不存在");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.save(record);
+
+                return ReturnResult.error("容器不存在");
+            }
+
+            // 设置记录的关联信息
+            record.setSystemSoftId(container.getSystemSoftId());
+            record.setSystemServerId(container.getSystemServerId());
+            record.setSystemSoftRecordContainerId(container.getSystemSoftContainerDockerId());
+
+            // 保存记录到数据库（不管成功失败都记录）
+            systemSoftRecordService.save(record);
+
+            // 获取Docker客户端
+            Integer serverId = container.getSystemServerId();
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+
+                // 更新记录状态为失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("无法创建Docker客户端");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            // 执行重启操作
+            dockerClient.restartContainerById(container.getSystemSoftContainerDockerId());
+
+            // 成功后才更新容器状态为运行中
+            container.setSystemSoftContainerStatus(DockerContainerStatus.RUNNING);
+            systemSoftContainerMapper.updateById(container);
+
+            // 更新记录状态为成功
+            record.setSystemSoftRecordStatus(1); // 1: 成功
+            record.setSystemSoftRecordMessage("重启容器成功");
+            record.setSystemSoftRecordResult("容器已重启");
+            record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+            record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+            systemSoftRecordService.updateById(record);
+
+            log.info("重启容器成功 - 容器ID: {}, 记录ID: {}", containerId, record.getSystemSoftRecordId());
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            // 更新记录状态为失败
+            try {
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("重启容器失败: " + e.getMessage());
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+            } catch (Exception updateEx) {
+                log.warn("更新记录状态为失败时出错: {}", updateEx.getMessage());
+            }
+
+            log.error("重启容器失败: {}", e.getMessage(), e);
+            return ReturnResult.error("重启容器失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 删除容器（从服务器中删除）
+     *
+     * @param containerId 容器ID
+     * @param force       是否强制删除
+     * @return 删除结果
+     */
+    @Override
+    public ReturnResult<Boolean> removeContainer(Integer containerId, Boolean force) {
+        log.info("删除容器 - 容器ID: {}, 强制删除: {}", containerId, force);
+
+        // 创建操作记录（先记录）
+        com.chua.starter.monitor.entity.SystemSoftRecord record = new com.chua.starter.monitor.entity.SystemSoftRecord();
+        record.setSystemSoftRecordOperationType("REMOVE_CONTAINER");
+        record.setSystemSoftRecordMethod("removeContainer");
+        record.setSystemSoftRecordMessage("开始删除容器");
+        record.setSystemSoftRecordParams(String.format("containerId=%d, force=%b", containerId, force != null ? force : false));
+        record.setSystemSoftRecordStatus(0); // 0: 进行中
+        record.setSystemSoftRecordStartTime(java.time.LocalDateTime.now());
+        record.setSystemSoftRecordTime(java.time.LocalDateTime.now());
+
+        try {
+            // 获取容器信息
+            DockerContainer container = systemSoftContainerMapper.selectById(containerId);
+            if (container == null) {
+                log.error("容器不存在 - 容器ID: {}", containerId);
+
+                // 记录失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("容器不存在");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.save(record);
+
+                return ReturnResult.error("容器不存在");
+            }
+
+            // 设置记录的关联信息
+            record.setSystemSoftId(container.getSystemSoftId());
+            record.setSystemServerId(container.getSystemServerId());
+            record.setSystemSoftRecordContainerId(container.getSystemSoftContainerDockerId());
+
+            // 保存记录到数据库（不管成功失败都记录）
+            systemSoftRecordService.save(record);
+
+            // 获取Docker客户端
+            Integer serverId = container.getSystemServerId();
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+
+                // 更新记录状态为失败
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("无法创建Docker客户端");
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            // 执行删除操作
+            dockerClient.removeContainerById(container.getSystemSoftContainerDockerId(), force != null ? force : false);
+
+            // 成功后才从数据库删除记录
+            super.removeById(containerId);
+
+            // 更新记录状态为成功
+            record.setSystemSoftRecordStatus(1); // 1: 成功
+            record.setSystemSoftRecordMessage("删除容器成功");
+            record.setSystemSoftRecordResult("容器已删除");
+            record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+            record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+            systemSoftRecordService.updateById(record);
+
+            log.info("删除容器成功 - 容器ID: {}, 强制删除: {}, 记录ID: {}", containerId, force, record.getSystemSoftRecordId());
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            // 更新记录状态为失败
+            try {
+                record.setSystemSoftRecordStatus(2); // 2: 失败
+                record.setSystemSoftRecordErrorMessage("删除容器失败: " + e.getMessage());
+                record.setSystemSoftRecordEndTime(java.time.LocalDateTime.now());
+                record.setSystemSoftRecordDuration(java.time.Duration.between(record.getSystemSoftRecordStartTime(), record.getSystemSoftRecordEndTime()).toMillis());
+                systemSoftRecordService.updateById(record);
+            } catch (Exception updateEx) {
+                log.warn("更新记录状态为失败时出错: {}", updateEx.getMessage());
+            }
+
+            log.error("删除容器失败: {}", e.getMessage(), e);
+            return ReturnResult.error("删除容器失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取容器详情
+     *
+     * @param containerId 容器ID
+     * @return 容器详情
+     */
+    @Override
+    public ReturnResult<DockerContainer> getContainerDetails(Integer containerId) {
+        log.info("获取容器详情 - 容器ID: {}", containerId);
+
+        try {
+            DockerContainer container = systemSoftContainerMapper.selectById(containerId);
+            if (container == null) {
+                log.error("容器不存在 - 容器ID: {}", containerId);
+                return ReturnResult.error("容器不存在");
+            }
+
+            log.info("获取容器详情成功 - 容器ID: {}", containerId);
+            return ReturnResult.ok(container);
+        } catch (Exception e) {
+            log.error("获取容器详情失败: {}", e.getMessage(), e);
+            return ReturnResult.error("获取容器详情失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取容器日志
+     *
+     * @param containerId 容器ID
+     * @param lines       日志行数（默认100行）
+     * @return 容器日志
+     */
+    @Override
+    public ReturnResult<String> getContainerLogs(Integer containerId, Integer lines) {
+        log.info("获取容器日志 - 容器ID: {}, 行数: {}", containerId, lines);
+
+        try {
+            // 获取容器信息
+            DockerContainer container = systemSoftContainerMapper.selectById(containerId);
+            if (container == null) {
+                log.error("容器不存在 - 容器ID: {}", containerId);
+                return ReturnResult.error("容器不存在");
+            }
+
+            // 获取Docker客户端
+            Integer serverId = container.getSystemServerId();
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            int logLines = lines != null ? lines : 100;
+            String logs = getContainerLogsSnapshot(dockerClient, container.getSystemSoftContainerDockerId(), logLines);
+            log.info("获取容器日志成功 - 容器ID: {}", containerId);
+            return ReturnResult.ok(logs);
+        } catch (Exception e) {
+            log.error("获取容器日志失败: {}", e.getMessage(), e);
+            return ReturnResult.error("获取容器日志失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取容器统计信息
+     *
+     * @param containerId 容器ID
+     * @return 统计信息（CPU、内存、网络、磁盘等）
+     */
+    @Override
+    public ReturnResult<DockerContainerStats> getContainerStats(Integer containerId) {
+        log.info("获取容器统计信息 - 容器ID: {}", containerId);
+
+        try {
+            // 获取容器信息
+            DockerContainer container = systemSoftContainerMapper.selectById(containerId);
+            if (container == null) {
+                log.error("容器不存在 - 容器ID: {}", containerId);
+                return ReturnResult.error("容器不存在");
+            }
+
+            // 获取Docker客户端
+            Integer serverId = container.getSystemServerId();
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            // 获取统计信息
+            // 使用基于ID的方法替代ByName方法
+            com.github.dockerjava.api.command.InspectContainerResponse stats = dockerClient.inspectContainerById(container.getSystemSoftContainerDockerId());
+
+            // 转换为DockerContainerStats实体
+            DockerContainerStats containerStats = new DockerContainerStats();
+            containerStats.setSystemSoftContainerStatsContainerId(container.getSystemSoftContainerDockerId());
+            containerStats.setSystemSoftContainerStatsContainerName(container.getSystemSoftContainerName());
+            containerStats.setSystemSoftContainerId(container.getSystemSoftContainerId());
+            containerStats.setSystemSoftImageId(container.getSystemSoftImageId());
+
+            // 设置基本信息
+            containerStats.setSystemSoftContainerStatsImage(stats.getConfig() != null ? stats.getConfig().getImage() : "");
+            containerStats.setSystemSoftContainerStatsCommand(stats.getConfig() != null ? String.join(" ", stats.getConfig().getCmd() != null ? stats.getConfig().getCmd() : new String[0]) : "");
+            containerStats.setSystemSoftContainerStatsCreated(stats.getCreated() != null ? stats.getCreated() : "");
+
+            // 设置状态信息
+            if (stats.getState() != null) {
+                containerStats.setSystemSoftContainerStatsStatus(stats.getState().getStatus());
+                containerStats.setSystemSoftContainerStatsStartedAt(stats.getState().getStartedAt() != null ? stats.getState().getStartedAt() : "");
+            }
+
+            // 设置网络信息
+            if (stats.getNetworkSettings() != null && stats.getNetworkSettings().getPorts() != null) {
+                containerStats.setSystemSoftContainerStatsPorts(stats.getNetworkSettings().getPorts().toString());
+            }
+
+            // 设置标签信息
+            if (stats.getConfig() != null && stats.getConfig().getLabels() != null) {
+                containerStats.setSystemSoftContainerStatsLabels(stats.getConfig().getLabels().toString());
+            }
+
+            containerStats.setSystemSoftContainerStatsRecordTime(LocalDateTime.now());
+            normalizeStatsSnapshot(containerStats);
+            saveContainerStatsQuietly(containerStats, containerId);
+
+            log.info("获取容器统计信息成功 - 容器ID: {}", containerId);
+            return ReturnResult.ok(containerStats);
+        } catch (Exception e) {
+            log.error("获取容器统计信息失败: {}", e.getMessage(), e);
+            return ReturnResult.error("获取容器统计信息失败: " + e.getMessage());
+        }
+    }
+
+    private void saveContainerStatsQuietly(DockerContainerStats containerStats, Integer containerId) {
+        try {
+            systemSoftContainerStatsService.save(containerStats);
+        } catch (Exception e) {
+            log.warn("保存容器统计快照失败 - 容器ID: {}", containerId, e);
+        }
+    }
+
+    public static void normalizeStatsSnapshot(DockerContainerStats containerStats) {
+        if (containerStats == null) {
+            return;
+        }
+
+        containerStats.setSystemSoftContainerStatsContainerId(
+                fitColumn(containerStats.getSystemSoftContainerStatsContainerId(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsContainerName(
+                fitColumn(containerStats.getSystemSoftContainerStatsContainerName(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsStatus(
+                fitColumn(containerStats.getSystemSoftContainerStatsStatus(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsStartedAt(
+                fitColumn(containerStats.getSystemSoftContainerStatsStartedAt(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsImage(
+                fitColumn(containerStats.getSystemSoftContainerStatsImage(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsCommand(
+                fitColumn(containerStats.getSystemSoftContainerStatsCommand(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsCreated(
+                fitColumn(containerStats.getSystemSoftContainerStatsCreated(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsPorts(
+                fitColumn(containerStats.getSystemSoftContainerStatsPorts(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsLabels(
+                fitColumn(containerStats.getSystemSoftContainerStatsLabels(), MAX_STATS_TEXT_LENGTH)
+        );
+        containerStats.setSystemSoftContainerStatsStatusDetail(
+                fitColumn(containerStats.getSystemSoftContainerStatsStatusDetail(), MAX_STATS_TEXT_LENGTH)
+        );
+    }
+
+    /**
+     * 同步容器状态
+     *
+     * @param serverId 服务器ID
+     * @return 同步结果
+     */
+    @Override
+    public ReturnResult<Integer> syncContainerStatus(Integer serverId) {
+        log.info("同步容器状态 - 服务器ID: {}", serverId);
+
+        try {
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            List<Container> containers = dockerClient.listContainers(true);
+            List<DockerContainer> existingContainers = systemSoftContainerMapper.selectByServerId(serverId);
+            Map<String, DockerContainer> existingByDockerId = existingContainers.stream()
+                    .filter(item -> StringUtils.hasText(item.getSystemSoftContainerDockerId()))
+                    .collect(Collectors.toMap(
+                            DockerContainer::getSystemSoftContainerDockerId,
+                            item -> item,
+                            (left, right) -> left,
+                            LinkedHashMap::new
+                    ));
+
+            List<DockerImage> serverImages = systemSoftImageMapper.selectList(null).stream()
+                    .filter(item -> Objects.equals(serverId, item.getSystemSoftImageServerId()))
+                    .toList();
+            Map<String, DockerImage> imageByDockerId = serverImages.stream()
+                    .filter(item -> StringUtils.hasText(item.getSystemSoftImageImageId()))
+                    .collect(Collectors.toMap(
+                            DockerImage::getSystemSoftImageImageId,
+                            item -> item,
+                            (left, right) -> left,
+                            LinkedHashMap::new
+                    ));
+            Map<String, DockerImage> imageByFullName = serverImages.stream()
+                    .filter(item -> StringUtils.hasText(item.getSystemSoftImageFullName()))
+                    .collect(Collectors.toMap(
+                            item -> item.getSystemSoftImageFullName().toLowerCase(),
+                            item -> item,
+                            (left, right) -> left,
+                            LinkedHashMap::new
+                    ));
+
+            Set<String> activeDockerIds = new LinkedHashSet<>();
+            int syncedCount = 0;
+
+            for (Container container : containers) {
+                if (container == null || !StringUtils.hasText(container.getId())) {
+                    continue;
+                }
+
+                activeDockerIds.add(container.getId());
+                InspectContainerResponse inspect = dockerClient.inspectContainerById(container.getId());
+                DockerImage matchedImage = findMatchedImage(container, imageByDockerId, imageByFullName);
+                Integer softId = matchedImage != null
+                        ? matchedImage.getSystemSoftId()
+                        : findOrCreateSoftwareByImageName(extractImageName(container.getImage()));
+                if (softId == null) {
+                    log.warn("容器未匹配到软件记录，将以容器维度继续同步 - serverId: {}, dockerId: {}, image: {}",
+                            serverId, container.getId(), container.getImage());
+                }
+
+                DockerContainer entity = existingByDockerId.get(container.getId());
+                boolean isNew = entity == null;
+                if (isNew) {
+                    entity = new DockerContainer();
+                    entity.setCreateTime(LocalDateTime.now());
+                }
+
+                fillContainerEntity(entity, serverId, softId, matchedImage, container, inspect);
+                entity.setUpdateTime(LocalDateTime.now());
+
+                if (isNew) {
+                    systemSoftContainerMapper.insert(entity);
+                } else {
+                    systemSoftContainerMapper.updateById(entity);
+                }
+                syncedCount++;
+            }
+
+            int removedCount = 0;
+            for (DockerContainer existingContainer : existingContainers) {
+                String dockerId = existingContainer.getSystemSoftContainerDockerId();
+                if (StringUtils.hasText(dockerId) && !activeDockerIds.contains(dockerId)) {
+                    systemSoftContainerMapper.deleteById(existingContainer.getSystemSoftContainerId());
+                    removedCount++;
+                }
+            }
+
+            log.info("同步容器状态成功 - 服务器ID: {}", serverId);
+            return ReturnResult.ok(syncedCount + removedCount);
+        } catch (Exception e) {
+            log.error("同步容器状态失败: {}", e.getMessage(), e);
+            return ReturnResult.error("同步容器状态失败: " + e.getMessage());
+        }
+    }
+
+    private void fillContainerEntity(DockerContainer entity, Integer serverId, Integer softId, DockerImage matchedImage,
+                                     Container container, InspectContainerResponse inspect) {
+        if (softId != null || entity.getSystemSoftId() == null) {
+            entity.setSystemSoftId(softId);
+        }
+        entity.setSystemServerId(serverId);
+        entity.setSystemSoftImageId(matchedImage != null ? matchedImage.getSystemSoftImageId() : null);
+        entity.setSystemSoftContainerDockerId(fitColumn(container.getId(), MAX_DOCKER_ID_LENGTH));
+        entity.setSystemSoftContainerName(fitColumn(resolveContainerName(container), MAX_CONTAINER_NAME_LENGTH));
+        entity.setSystemSoftContainerImage(fitColumn(extractImageName(container.getImage()), MAX_IMAGE_LENGTH));
+        entity.setSystemSoftContainerImageTag(fitColumn(extractImageTag(container.getImage()), MAX_IMAGE_TAG_LENGTH));
+        entity.setSystemSoftContainerStatus(resolveContainerStatus(container, inspect));
+        entity.setSystemSoftContainerPorts(fitColumn(formatPorts(container.getPorts()), MAX_PORTS_LENGTH));
+        entity.setSystemSoftContainerCommand(fitColumn(container.getCommand(), MAX_COMMAND_LENGTH));
+        entity.setSystemSoftContainerConfig(buildContainerConfigSummary(container, inspect));
+        entity.setSystemSoftContainerCreatedTime(toLocalDateTime(container.getCreated()));
+
+        if (inspect == null) {
+            return;
+        }
+
+        if (inspect.getConfig() != null) {
+            entity.setSystemSoftContainerEnv(fitColumn(joinValues(inspect.getConfig().getEnv()), MAX_ENV_LENGTH));
+            entity.setSystemSoftContainerArgs(fitColumn(joinValues(inspect.getArgs()), MAX_ARGS_LENGTH));
+        }
+
+        if (inspect.getState() != null) {
+            entity.setSystemSoftContainerStartedTime(toLocalDateTime(inspect.getState().getStartedAt()));
+            entity.setSystemSoftContainerFinishedTime(toLocalDateTime(inspect.getState().getFinishedAt()));
+            if (inspect.getState().getHealth() != null) {
+                entity.setSystemSoftContainerHealthStatus(
+                        fitColumn(inspect.getState().getHealth().getStatus(), MAX_HEALTH_STATUS_LENGTH)
+                );
+            }
+        }
+
+        entity.setSystemSoftContainerRestartCount(inspect.getRestartCount());
+        entity.setSystemSoftContainerNetworks(fitColumn(formatNetworks(inspect), MAX_NETWORKS_LENGTH));
+        entity.setSystemSoftContainerVolumes(fitColumn(formatMounts(container.getMounts()), MAX_VOLUMES_LENGTH));
+
+        if (inspect.getHostConfig() != null) {
+            String restartPolicyName = inspect.getHostConfig().getRestartPolicy() != null
+                    ? inspect.getHostConfig().getRestartPolicy().getName()
+                    : null;
+            entity.setSystemSoftContainerAutoRestart(
+                    StringUtils.hasText(restartPolicyName) && !"no".equalsIgnoreCase(restartPolicyName) ? 1 : 0
+            );
+            Long nanoCpus = inspect.getHostConfig().getNanoCPUs();
+            if (nanoCpus != null && nanoCpus > 0) {
+                entity.setSystemSoftContainerCpuLimit(nanoCpus / 1_000_000_000D);
+            }
+            Long memory = inspect.getHostConfig().getMemory();
+            if (memory != null && memory > 0) {
+                entity.setSystemSoftContainerMemoryLimit(memory / (1024 * 1024));
+            }
+        }
+    }
+
+    private String buildContainerConfigSummary(Container container, InspectContainerResponse inspect) {
+        if (inspect == null) {
+            return null;
+        }
+
+        List<String> summary = new ArrayList<>();
+        appendSummary(summary, "name", resolveContainerName(container));
+        appendSummary(summary, "image", container != null ? container.getImage() : null);
+
+        if (inspect.getConfig() != null) {
+            appendSummary(summary, "hostName", inspect.getConfig().getHostName());
+            appendSummary(summary, "workingDir", inspect.getConfig().getWorkingDir());
+            appendSummary(summary, "entrypoint", joinValues(inspect.getConfig().getEntrypoint()));
+            appendSummary(summary, "cmd", joinValues(inspect.getConfig().getCmd()));
+            appendSummary(summary, "labels", formatLabels(inspect.getConfig().getLabels()));
+        }
+
+        if (inspect.getState() != null) {
+            appendSummary(summary, "state", inspect.getState().getStatus());
+        }
+
+        if (inspect.getHostConfig() != null) {
+            appendSummary(summary, "networkMode", inspect.getHostConfig().getNetworkMode());
+            String restartPolicyName = inspect.getHostConfig().getRestartPolicy() != null
+                    ? inspect.getHostConfig().getRestartPolicy().getName()
+                    : null;
+            appendSummary(summary, "restartPolicy", restartPolicyName);
+        }
+
+        String compactSummary = summary.isEmpty() ? inspect.toString() : String.join(" | ", summary);
+        return fitColumn(compactSummary, MAX_CONFIG_LENGTH);
+    }
+
+    private void appendSummary(List<String> summary, String key, String value) {
+        if (!StringUtils.hasText(value)) {
+            return;
+        }
+        summary.add(key + "=" + fitColumn(value, MAX_SUMMARY_SEGMENT_LENGTH));
+    }
+
+    private String formatLabels(Map<String, String> labels) {
+        if (labels == null || labels.isEmpty()) {
+            return null;
+        }
+        return labels.entrySet().stream()
+                .filter(entry -> StringUtils.hasText(entry.getKey()))
+                .map(entry -> entry.getKey() + "=" + fitColumn(entry.getValue(), 120))
+                .collect(Collectors.joining(","));
+    }
+
+    private DockerImage findMatchedImage(Container container, Map<String, DockerImage> imageByDockerId,
+                                             Map<String, DockerImage> imageByFullName) {
+        if (container == null) {
+            return null;
+        }
+
+        if (StringUtils.hasText(container.getImageId())) {
+            DockerImage image = imageByDockerId.get(container.getImageId());
+            if (image != null) {
+                return image;
+            }
+        }
+
+        if (StringUtils.hasText(container.getImage())) {
+            return imageByFullName.get(container.getImage().toLowerCase());
+        }
+        return null;
+    }
+
+    private Integer findOrCreateSoftwareByImageName(String imageName) {
+        if (!StringUtils.hasText(imageName)) {
+            return null;
+        }
+
+        try {
+            SystemSoft existingSoft = systemSoftMapper.selectByDockerImage(imageName);
+            if (existingSoft != null) {
+                return existingSoft.getSystemSoftId();
+            }
+
+            String simpleName = imageName;
+            if (imageName.contains("/")) {
+                String[] parts = imageName.split("/");
+                simpleName = parts[parts.length - 1];
+            }
+
+            SystemSoft softByCode = systemSoftMapper.selectBySoftCode(simpleName);
+            if (softByCode != null) {
+                return softByCode.getSystemSoftId();
+            }
+
+            SystemSoft newSoft = new SystemSoft();
+            newSoft.setSystemSoftName(simpleName);
+            newSoft.setSystemSoftCode(simpleName);
+            newSoft.setSystemSoftDockerImage(imageName);
+            newSoft.setSystemSoftDesc("从服务器容器自动创建");
+            newSoft.setSystemSoftIsOfficial(0);
+            newSoft.setSystemSoftStatus(1);
+            newSoft.setCreateTime(LocalDateTime.now());
+            newSoft.setUpdateTime(LocalDateTime.now());
+            systemSoftMapper.insert(newSoft);
+            return newSoft.getSystemSoftId();
+        } catch (Exception e) {
+            log.error("查找或创建软件记录失败 - imageName: {}, error: {}", imageName, e.getMessage(), e);
+            return null;
+        }
+    }
+
+    private void applyContainerFilters(LambdaQueryWrapper<DockerContainer> queryWrapper,
+                                       Integer serverId,
+                                       Integer softId,
+                                       String status,
+                                       String containerName) {
+        queryWrapper.eq(serverId != null, DockerContainer::getSystemServerId, serverId);
+        queryWrapper.eq(softId != null, DockerContainer::getSystemSoftId, softId);
+        applyContainerStatusFilter(queryWrapper, status);
+        applyContainerKeywordFilter(queryWrapper, containerName);
+        queryWrapper.orderByDesc(DockerContainer::getCreateTime)
+                .orderByDesc(DockerContainer::getSystemSoftContainerCreatedTime);
+    }
+
+    private void applyContainerStatusFilter(LambdaQueryWrapper<DockerContainer> queryWrapper, String status) {
+        if (!StringUtils.hasText(status)) {
+            return;
+        }
+
+        String normalized = status.trim().toUpperCase();
+        switch (normalized) {
+            case "ERROR":
+                queryWrapper.in(DockerContainer::getSystemSoftContainerStatus,
+                        DockerContainerStatus.CREATE_FAILED,
+                        DockerContainerStatus.START_FAILED,
+                        DockerContainerStatus.RESTART_FAILED,
+                        DockerContainerStatus.STOP_FAILED,
+                        DockerContainerStatus.DELETE_FAILED,
+                        DockerContainerStatus.DEAD);
+                return;
+            case "STOPPED":
+                queryWrapper.in(DockerContainer::getSystemSoftContainerStatus,
+                        DockerContainerStatus.STOPPED,
+                        DockerContainerStatus.EXITED);
+                return;
+            default:
+        }
+
+        DockerContainerStatus resolved = DockerContainerStatus.fromCode(normalized);
+        if (resolved != null) {
+            queryWrapper.eq(DockerContainer::getSystemSoftContainerStatus, resolved);
+        }
+    }
+
+    private void applyContainerKeywordFilter(LambdaQueryWrapper<DockerContainer> queryWrapper, String containerName) {
+        if (!StringUtils.hasText(containerName)) {
+            return;
+        }
+
+        String keyword = containerName.trim();
+        queryWrapper.and(wrapper -> wrapper
+                .like(DockerContainer::getSystemSoftContainerName, keyword)
+                .or()
+                .like(DockerContainer::getSystemSoftContainerImage, keyword)
+                .or()
+                .like(DockerContainer::getSystemSoftContainerDockerId, keyword));
+    }
+
+    private DockerContainerStatus resolveContainerStatus(String status) {
+        if (!StringUtils.hasText(status)) {
+            return null;
+        }
+        DockerContainerStatus resolved = DockerContainerStatus.fromCode(status.trim().toUpperCase());
+        return resolved != null ? resolved : DockerContainerStatus.STOPPED;
+    }
+
+    private DockerContainerStatus resolveContainerStatus(Container container, InspectContainerResponse inspect) {
+        String rawStatus = null;
+        if (inspect != null && inspect.getState() != null && StringUtils.hasText(inspect.getState().getStatus())) {
+            rawStatus = inspect.getState().getStatus();
+        } else if (container != null && StringUtils.hasText(container.getState())) {
+            rawStatus = container.getState();
+        }
+
+        if (!StringUtils.hasText(rawStatus)) {
+            return DockerContainerStatus.STOPPED;
+        }
+
+        return switch (rawStatus.trim().toLowerCase()) {
+            case "running" -> DockerContainerStatus.RUNNING;
+            case "paused" -> DockerContainerStatus.PAUSED;
+            case "restarting" -> DockerContainerStatus.RESTARTING;
+            case "created" -> DockerContainerStatus.CREATED;
+            case "exited" -> DockerContainerStatus.STOPPED;
+            case "dead" -> DockerContainerStatus.STOPPED;
+            default -> DockerContainerStatus.STOPPED;
+        };
+    }
+
+    private String resolveContainerName(Container container) {
+        if (container == null || container.getNames() == null || container.getNames().length == 0) {
+            return null;
+        }
+        String name = container.getNames()[0];
+        if (name != null && name.startsWith("/")) {
+            return name.substring(1);
+        }
+        return name;
+    }
+
+    private String extractImageName(String fullImageName) {
+        if (!StringUtils.hasText(fullImageName)) {
+            return fullImageName;
+        }
+        int lastColonIndex = fullImageName.lastIndexOf(':');
+        int lastSlashIndex = fullImageName.lastIndexOf('/');
+        if (lastColonIndex > lastSlashIndex) {
+            return fullImageName.substring(0, lastColonIndex);
+        }
+        return fullImageName;
+    }
+
+    private String extractImageTag(String fullImageName) {
+        if (!StringUtils.hasText(fullImageName)) {
+            return null;
+        }
+        int lastColonIndex = fullImageName.lastIndexOf(':');
+        int lastSlashIndex = fullImageName.lastIndexOf('/');
+        if (lastColonIndex > lastSlashIndex && lastColonIndex < fullImageName.length() - 1) {
+            return fullImageName.substring(lastColonIndex + 1);
+        }
+        return "latest";
+    }
+
+    private String formatPorts(ContainerPort[] ports) {
+        if (ports == null || ports.length == 0) {
+            return null;
+        }
+        return java.util.Arrays.stream(ports)
+                .filter(Objects::nonNull)
+                .map(port -> {
+                    String hostPort = port.getPublicPort() != null ? String.valueOf(port.getPublicPort()) : "";
+                    String containerPort = port.getPrivatePort() != null ? String.valueOf(port.getPrivatePort()) : "";
+                    String protocol = StringUtils.hasText(port.getType()) ? "/" + port.getType() : "";
+                    if (StringUtils.hasText(hostPort)) {
+                        return hostPort + ":" + containerPort + protocol;
+                    }
+                    return containerPort + protocol;
+                })
+                .collect(Collectors.joining(","));
+    }
+
+    private String formatMounts(List<ContainerMount> mounts) {
+        if (mounts == null || mounts.isEmpty()) {
+            return null;
+        }
+        return mounts.stream()
+                .filter(Objects::nonNull)
+                .map(item -> {
+                    if (StringUtils.hasText(item.getSource()) && StringUtils.hasText(item.getDestination())) {
+                        return item.getSource() + ":" + item.getDestination();
+                    }
+                    return StringUtils.hasText(item.getDestination()) ? item.getDestination() : item.toString();
+                })
+                .collect(Collectors.joining(","));
+    }
+
+    private String formatNetworks(InspectContainerResponse inspect) {
+        if (inspect == null || inspect.getNetworkSettings() == null || inspect.getNetworkSettings().getNetworks() == null) {
+            return null;
+        }
+        return String.join(",", inspect.getNetworkSettings().getNetworks().keySet());
+    }
+
+    private String joinValues(String[] values) {
+        if (values == null || values.length == 0) {
+            return null;
+        }
+        List<String> result = new ArrayList<>();
+        for (String value : values) {
+            if (StringUtils.hasText(value)) {
+                result.add(value);
+            }
+        }
+        return result.isEmpty() ? null : String.join(",", result);
+    }
+
+    static String fitColumn(String value, int maxLength) {
+        if (value == null || maxLength <= 0 || value.length() <= maxLength) {
+            return value;
+        }
+        if (maxLength <= 3) {
+            return value.substring(0, maxLength);
+        }
+        return value.substring(0, maxLength - 3) + "...";
+    }
+
+    private LocalDateTime toLocalDateTime(Long epochSeconds) {
+        if (epochSeconds == null || epochSeconds <= 0) {
+            return null;
+        }
+        long timestamp = epochSeconds > 1_000_000_000_000L ? epochSeconds : epochSeconds * 1000;
+        return Instant.ofEpochMilli(timestamp).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    private LocalDateTime toLocalDateTime(String time) {
+        if (!StringUtils.hasText(time) || time.startsWith("0001-01-01")) {
+            return null;
+        }
+        try {
+            return OffsetDateTime.parse(time).toLocalDateTime();
+        } catch (DateTimeParseException ignored) {
+            try {
+                return LocalDateTime.parse(time);
+            } catch (DateTimeParseException ex) {
+                log.debug("解析容器时间失败 - time: {}", time);
+                return null;
+            }
+        }
+    }
+
+    /**
+     * 启动容器日志推送
+     *
+     * @param containerId 容器ID
+     * @param lines       日志行数（默认100行）
+     * @return 启动结果
+     */
+    @Override
+    public ReturnResult<Boolean> startContainerLog(Integer containerId, Integer lines) {
+        log.info("启动容器日志推送 - 容器ID: {}, 行数: {}", containerId, lines);
+
+        try {
+            // 获取容器信息
+            DockerContainer container = systemSoftContainerMapper.selectById(containerId);
+            if (container == null) {
+                log.error("容器不存在 - 容器ID: {}", containerId);
+                return ReturnResult.error("容器不存在");
+            }
+
+            // 获取Docker客户端
+            Integer serverId = container.getSystemServerId();
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            // 检查是否已经存在日志推送任务
+            if (logPushTasks.containsKey(containerId)) {
+                LogPushTask existingTask = logPushTasks.get(containerId);
+                if (existingTask.isRunning()) {
+                    log.info("容器日志推送已在运行 - 容器ID: {}", containerId);
+                    return ReturnResult.ok(true);
+                }
+            }
+
+            // 创建并启动日志推送任务
+            int logLines = lines != null ? lines : 100;
+            LogPushTask logPushTask = new LogPushTask(
+                    dockerClient,
+                    container.getSystemSoftContainerDockerId(),
+                    containerId,
+                    logLines,
+                    dockerCallbackService.getSocketSessionTemplate()
+            );
+
+            logPushTask.start();
+            logPushTasks.put(containerId, logPushTask);
+
+            log.info("启动容器日志推送成功 - 容器ID: {}", containerId);
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("启动容器日志推送失败: {}", e.getMessage(), e);
+            return ReturnResult.error("启动容器日志推送失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 停止容器日志推送
+     *
+     * @param containerId 容器ID
+     * @return 停止结果
+     */
+    @Override
+    public ReturnResult<Boolean> stopContainerLog(Integer containerId) {
+        log.info("停止容器日志推送 - 容器ID: {}", containerId);
+
+        try {
+            // 获取容器信息
+            DockerContainer container = systemSoftContainerMapper.selectById(containerId);
+            if (container == null) {
+                log.error("容器不存在 - 容器ID: {}", containerId);
+                return ReturnResult.error("容器不存在");
+            }
+
+            // 检查是否存在日志推送任务
+            if (!logPushTasks.containsKey(containerId)) {
+                log.info("容器日志推送任务不存在 - 容器ID: {}", containerId);
+                return ReturnResult.ok(true);
+            }
+
+            // 停止日志推送任务
+            LogPushTask logPushTask = logPushTasks.get(containerId);
+            logPushTask.stop();
+            logPushTasks.remove(containerId);
+
+            log.info("停止容器日志推送成功 - 容器ID: {}", containerId);
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("停止容器日志推送失败: {}", e.getMessage(), e);
+            return ReturnResult.error("停止容器日志推送失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 在容器中执行命令
+     *
+     * @param containerId 容器ID
+     * @param command     要执行的命令
+     * @return 执行结果
+     */
+    @Override
+    public ReturnResult<String> execCommand(Integer containerId, String command) {
+        log.info("在容器中执行命令 - 容器ID: {}, 命令: {}", containerId, command);
+
+        try {
+            // 获取容器信息
+            DockerContainer container = systemSoftContainerMapper.selectById(containerId);
+            if (container == null) {
+                log.error("容器不存在 - 容器ID: {}", containerId);
+                return ReturnResult.error("容器不存在");
+            }
+
+            // 获取Docker客户端
+            Integer serverId = container.getSystemServerId();
+            DockerProtocolClient dockerClient = dockerProtocolClientFactory.createClient(serverId);
+            if (dockerClient == null) {
+                log.error("无法创建Docker客户端 - 服务器ID: {}", serverId);
+                return ReturnResult.error("无法创建Docker客户端");
+            }
+
+            // 执行命令
+            String result = dockerClient.execCommand(container.getSystemSoftContainerDockerId(), command.split(" "));
+
+            log.info("在容器中执行命令成功 - 容器ID: {}", containerId);
+            return ReturnResult.ok(result);
+        } catch (Exception e) {
+            log.error("在容器中执行命令失败: {}", e.getMessage(), e);
+            return ReturnResult.error("在容器中执行命令失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 日志推送任务类
+     */
+    private static class LogPushTask implements Runnable {
+        private final DockerProtocolClient dockerClient;
+        private final String containerId;
+        private final Integer dbContainerId;
+        private final int lines;
+        private final com.chua.socket.support.session.SocketSessionTemplate socketSessionTemplate;
+        private volatile boolean running = false;
+        private Thread thread;
+
+        public LogPushTask(DockerProtocolClient dockerClient, String containerId, Integer dbContainerId, int lines,
+                           com.chua.socket.support.session.SocketSessionTemplate socketSessionTemplate) {
+            this.dockerClient = dockerClient;
+            this.containerId = containerId;
+            this.dbContainerId = dbContainerId;
+            this.lines = lines;
+            this.socketSessionTemplate = socketSessionTemplate;
+        }
+
+        public void start() {
+            if (!running) {
+                running = true;
+                thread = new Thread(this);
+                thread.setDaemon(true);
+                thread.start();
+            }
+        }
+
+        public void stop() {
+            running = false;
+            if (thread != null) {
+                thread.interrupt();
+            }
+        }
+
+        public boolean isRunning() {
+            return running;
+        }
+
+        @Override
+        public void run() {
+            try {
+                // 获取初始日志
+                String previousLogs = getContainerLogsSnapshot(dockerClient, containerId, lines);
+
+                // 推送初始日志
+                Map<String, Object> message = new java.util.HashMap<>();
+                message.put("type", "container_log");
+                message.put("containerId", dbContainerId);
+                message.put("log", previousLogs);
+                message.put("logs", previousLogs);
+                message.put("timestamp", java.time.LocalDateTime.now());
+                socketSessionTemplate.send(MonitorSocketTopics.Monitor.Docker.CONTAINER_LOG, message);
+
+                // 持续跟踪日志
+                while (running && !Thread.currentThread().isInterrupted()) {
+                    try {
+                        String latestLogs = getContainerLogsSnapshot(dockerClient, containerId, lines);
+                        String deltaLogs = extractIncrementalLogs(previousLogs, latestLogs);
+                        previousLogs = latestLogs;
+
+                        if (StringUtils.hasText(deltaLogs)) {
+                            // 推送最新日志
+                            message = new java.util.HashMap<>();
+                            message.put("type", "container_log_update");
+                            message.put("containerId", dbContainerId);
+                            message.put("log", deltaLogs);
+                            message.put("logs", deltaLogs);
+                            message.put("timestamp", java.time.LocalDateTime.now());
+                            socketSessionTemplate.send(MonitorSocketTopics.Monitor.Docker.CONTAINER_LOG, message);
+                        }
+
+                        // 休眠一段时间避免过于频繁的请求
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    } catch (Exception e) {
+                        if (running) {
+                            log.warn("获取容器日志时发生错误: {}", e.getMessage());
+                        }
+                        Thread.sleep(5000); // 出错时等待更长时间
+                    }
+                }
+            } catch (Exception e) {
+                log.error("日志推送任务执行失败: {}", e.getMessage(), e);
+            } finally {
+                running = false;
+            }
+        }
+    }
+
+    private static String getContainerLogsSnapshot(DockerProtocolClient dockerClient, String containerDockerId, int lines) {
+        int logLines = lines > 0 ? lines : 100;
+        String logs = dockerClient.getContainerLogs(containerDockerId, logLines);
+        return logs == null ? "" : logs;
+    }
+
+    static String extractIncrementalLogs(String previousLogs, String latestLogs) {
+        if (!StringUtils.hasText(latestLogs)) {
+            return "";
+        }
+        if (!StringUtils.hasText(previousLogs)) {
+            return latestLogs;
+        }
+        if (latestLogs.equals(previousLogs)) {
+            return "";
+        }
+        if (latestLogs.startsWith(previousLogs)) {
+            return latestLogs.substring(previousLogs.length());
+        }
+
+        int maxOverlap = Math.min(previousLogs.length(), latestLogs.length());
+        for (int i = maxOverlap; i > 0; i--) {
+            if (previousLogs.regionMatches(previousLogs.length() - i, latestLogs, 0, i)) {
+                return latestLogs.substring(i);
+            }
+        }
+        return latestLogs;
+    }
+
+    @Override
+    public ReturnResult<Map<String, Long>> getOverviewStats() {
+        log.info("[容器管理][概览统计] 获取容器概览统计");
+        try {
+            var total = count();
+            var running = lambdaQuery()
+                    .eq(DockerContainer::getSystemSoftContainerStatus, DockerContainerStatus.RUNNING)
+                    .count();
+            var stopped = lambdaQuery()
+                    .eq(DockerContainer::getSystemSoftContainerStatus, DockerContainerStatus.STOPPED)
+                    .count();
+            var error = lambdaQuery()
+                    .in(DockerContainer::getSystemSoftContainerStatus,
+                            DockerContainerStatus.CREATE_FAILED,
+                            DockerContainerStatus.START_FAILED,
+                            DockerContainerStatus.RESTART_FAILED,
+                            DockerContainerStatus.STOP_FAILED,
+                            DockerContainerStatus.DELETE_FAILED,
+                            DockerContainerStatus.DEAD)
+                    .count();
+
+            var stats = new HashMap<String, Long>();
+            stats.put("total", total);
+            stats.put("running", running);
+            stats.put("stopped", stopped);
+            stats.put("error", error);
+
+            log.info("[容器管理][概览统计] 统计完成 - 总数: {}, 运行中: {}, 已停止: {}, 错误: {}", total, running, stopped, error);
+            return ReturnResult.ok(stats);
+        } catch (Exception e) {
+            log.error("[容器管理][概览统计] 获取统计失败", e);
+            return ReturnResult.error("获取容器概览统计失败: " + e.getMessage());
+        }
+    }
+}
+
+
+
+
+
+
+
+

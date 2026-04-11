@@ -1,11 +1,28 @@
 package com.chua.starter.system.configuration;
 
+import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
+import com.chua.starter.common.support.oauth.AuthService;
+import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
+import com.chua.starter.oauth.client.support.runtime.OauthClientRuntimeContext;
+import com.chua.starter.service.configuration.SystemCacheConfiguration;
 import com.chua.starter.system.properties.SystemSecurityProperties;
+import com.chua.starter.system.interceptor.PrivilegedVisibilityDataPermissionHandler;
+import com.chua.starter.system.interceptor.PrivilegedVisibilityInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
+
+import java.util.function.Supplier;
 
 /**
  * 系统统一认证自动配置
@@ -17,6 +34,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Slf4j
 @Configuration
+@Import(SystemCacheConfiguration.class)
 @ComponentScan(basePackages = {
         "com.chua.starter.system"
 })
@@ -29,5 +47,74 @@ public class SystemAutoConfiguration {
      */
     public SystemAutoConfiguration() {
         log.info("系统统一认证模块已启用");
+    }
+
+    @Bean
+    public InnerInterceptor privilegedVisibilityInnerInterceptor(
+            @Qualifier("authService") ObjectProvider<AuthService> authServiceProvider,
+            @Qualifier("defaultAuthService") ObjectProvider<AuthService> defaultAuthServiceProvider) {
+        Supplier<AuthService> authServiceSupplier = () -> {
+            AuthService authService = authServiceProvider.getIfAvailable();
+            return null != authService ? authService : defaultAuthServiceProvider.getIfAvailable();
+        };
+        return new PrivilegedVisibilityInterceptor(
+                new PrivilegedVisibilityDataPermissionHandler(authServiceSupplier),
+                authServiceSupplier);
+    }
+
+    @Bean
+    public ApplicationRunner authClientPropertiesBridge(
+            ApplicationContext applicationContext,
+            Environment environment,
+            ObjectProvider<AuthClientProperties> authClientPropertiesProvider) {
+        return args -> {
+            AuthClientProperties authClientProperties = authClientPropertiesProvider.getIfAvailable();
+            if (authClientProperties == null) {
+                log.warn("[OAuth配置桥接]未找到 AuthClientProperties Bean，跳过桥接");
+                return;
+            }
+
+            String address = firstNonBlank(
+                    authClientProperties.getAddress(),
+                    environment.getProperty("plugin.oauth.address"),
+                    environment.getProperty("plugin.oauth.auth-address"));
+            if (StringUtils.hasText(address) && !StringUtils.hasText(authClientProperties.getAddress())) {
+                authClientProperties.setAddress(address);
+            }
+
+            String loginAddress = firstNonBlank(
+                    resolve(environment, authClientProperties.getLoginAddress()),
+                    environment.getProperty("plugin.oauth.login-address"),
+                    environment.getProperty("plugin.oauth.auth-address"),
+                    address);
+            if (StringUtils.hasText(loginAddress) && !StringUtils.hasText(authClientProperties.getLoginAddress())) {
+                authClientProperties.setLoginAddress(loginAddress);
+            }
+
+            OauthClientRuntimeContext.setApplicationContext(applicationContext);
+            OauthClientRuntimeContext.setEnvironment(environment);
+            OauthClientRuntimeContext.setAuthClientProperties(authClientProperties);
+
+            log.info("[OAuth配置桥接] address={}, loginAddress={}, protocol={}",
+                    authClientProperties.getAddress(),
+                    authClientProperties.getLoginAddress(),
+                    authClientProperties.getProtocol());
+        };
+    }
+
+    private static String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (StringUtils.hasText(value)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    private static String resolve(Environment environment, String value) {
+        if (!StringUtils.hasText(value)) {
+            return value;
+        }
+        return environment.resolvePlaceholders(value);
     }
 }
