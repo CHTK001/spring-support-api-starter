@@ -62,7 +62,9 @@ public class TenantLoginHandler extends DefaultLoginHandler {
         }
 
         LoginResult loginResult = LoginResult.builder()
-                .userInfo(sysLoginService.getUserLoginInfo(accessToken.getToken()))
+                .userInfo(accessToken.getUserResume() != null
+                        ? sysLoginService.buildUserInfo(accessToken.getUserResume())
+                        : sysLoginService.getUserLoginInfo(accessToken.getToken()))
                 .tokenType("Bearer")
                 .accessToken(accessToken.getToken())
                 .refreshToken(accessToken.getRefreshToken())

@@ -5,6 +5,11 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.chua.common.support.base.validator.group.AddGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.chua.starter.entity.system.SysRole;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,6 +20,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -56,6 +62,23 @@ public class SysUserVO extends SysBase implements Serializable {
     @Schema(description = "名称")
     @Size(max = 255, message = "名称最大长度需小于255")
     private String sysUserNickname;
+
+    /**
+     * 头像
+     */
+    @TableField(value = "sys_user_avatar")
+    @ApiModelProperty(value = "头像")
+    @Schema(description = "头像")
+    @Size(max = 4000, message = "头像最大长度需小于4000")
+    private String sysUserAvatar;
+
+    /**
+     * 部门ID
+     */
+    @TableField(value = "sys_dept_id")
+    @ApiModelProperty(value = "部门ID")
+    @Schema(description = "部门ID")
+    private Integer sysDeptId;
 
     /**
      * 是否启用: 0:禁用
@@ -143,6 +166,26 @@ public class SysUserVO extends SysBase implements Serializable {
     @Schema(description = "注册IP")
     @Size(max = 255, message = "注册IP最大长度需小于255")
     private String sysUserRegisterIp;
+
+    /**
+     * 注册地点
+     */
+    @TableField(value = "sys_user_register_address")
+    @ApiModelProperty(value = "注册地点")
+    @Schema(description = "注册地点")
+    @Size(max = 255, message = "注册地点最大长度需小于255")
+    private String sysUserRegisterAddress;
+
+    /**
+     * 最后登录时间
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "最后登录时间")
+    @Schema(description = "最后登录时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime sysUserLastLoginTime;
 
     /**
      * 角色列表(系统生成)

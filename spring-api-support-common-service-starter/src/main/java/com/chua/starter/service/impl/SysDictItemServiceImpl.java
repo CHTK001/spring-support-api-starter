@@ -63,6 +63,9 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         IPage<SysDictItem> sysDictItemIPage = baseMapper.selectPageForQuery(query.createPage(), sysDictId);
         return ReturnPageResultUtils.preconditioning(sysDictItemIPage)
                 .mapping(SysDictItem::getSysDictItemId, (ids, it) -> {
+                    if (CollectionUtils.isEmpty(ids)) {
+                        return;
+                    }
                     Map<Integer, List<SysDictItemProperty>> collect = sysDictItemPropertyMapper.selectList(
                                     Wrappers.<SysDictItemProperty>lambdaQuery()
                                             .in(SysDictItemProperty::getSysDictItemId, ids)

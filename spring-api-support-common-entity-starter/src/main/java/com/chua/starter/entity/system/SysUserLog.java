@@ -170,4 +170,18 @@ public class SysUserLog extends SysBase implements Serializable {
     @TableField(exist = false)
     @Schema(description = "机构名称(非数据库字段)")
     private String sysDeptName;
+
+    /**
+     * 账号角色编码列表(非数据库字段)
+     */
+    @TableField(exist = false)
+    @Schema(description = "账号角色编码列表(非数据库字段)")
+    private String sysLogRoleCodes;
+
+    /**
+     * 账号角色名称列表(非数据库字段)
+     */
+    @TableField(exist = false)
+    @Schema(description = "账号角色名称列表(非数据库字段)")
+    private String sysLogRoleNames;
 }

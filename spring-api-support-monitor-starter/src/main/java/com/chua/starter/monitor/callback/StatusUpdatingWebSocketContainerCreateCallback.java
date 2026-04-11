@@ -4,9 +4,9 @@ import com.chua.docker.support.callback.CreateContainerCallback;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.enums.OperationType;
-import com.chua.starter.monitor.entity.SystemSoftContainer;
-import com.chua.starter.monitor.entity.SystemSoftContainerStatus;
-import com.chua.starter.monitor.service.docker.SystemSoftContainerService;
+import com.chua.starter.monitor.entity.DockerContainer;
+import com.chua.starter.monitor.entity.DockerContainerStatus;
+import com.chua.starter.monitor.service.docker.DockerContainerService;
 import com.github.dockerjava.api.model.ResponseItem;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ import java.util.Map;
  * @version 1.0.0
  * @see CreateContainerCallback 容器创建回调接口
  * @see SocketSessionTemplate WebSocket会话模板
- * @see SystemSoftContainerService 系统软件容器服务
+ * @see DockerContainerService 系统软件容器服务
  * @since 2025/09/22
  */
 @Slf4j
@@ -66,7 +66,7 @@ public class StatusUpdatingWebSocketContainerCreateCallback implements CreateCon
      * <p>
      * 用于更新数据库中容器的状态信息。
      */
-    private final SystemSoftContainerService systemSoftContainerService;
+    private final DockerContainerService systemSoftContainerService;
 
     /**
      * 容器ID
@@ -125,7 +125,7 @@ public class StatusUpdatingWebSocketContainerCreateCallback implements CreateCon
      */
     public StatusUpdatingWebSocketContainerCreateCallback(SocketSessionTemplate socketSessionTemplate,
                                                           OperationType operationType, String containerName,
-                                                          SystemSoftContainerService systemSoftContainerService, Integer containerId) {
+                                                          DockerContainerService systemSoftContainerService, Integer containerId) {
         this.socketSessionTemplate = socketSessionTemplate;
         this.operationType = operationType;
         this.containerName = containerName;
@@ -203,7 +203,7 @@ public class StatusUpdatingWebSocketContainerCreateCallback implements CreateCon
             socketSessionTemplate.send(MonitorSocketTopics.Monitor.Docker.START, message);
 
             // 更新数据库中的容器状态为创建中
-            updateContainerStatus(SystemSoftContainerStatus.CREATING, null);
+            updateContainerStatus(DockerContainerStatus.CREATING, null);
 
         } catch (Exception e) {
             log.error("发送Docker开始WebSocket消息失败", e);
@@ -240,7 +240,7 @@ public class StatusUpdatingWebSocketContainerCreateCallback implements CreateCon
             socketSessionTemplate.send(MonitorSocketTopics.Monitor.Docker.ERROR, message);
 
             // 更新数据库中的容器状态为创建失败，并记录错误信息
-            updateContainerStatus(SystemSoftContainerStatus.CREATE_FAILED, throwable.getMessage());
+            updateContainerStatus(DockerContainerStatus.CREATE_FAILED, throwable.getMessage());
 
         } catch (Exception e) {
             log.error("发送Docker错误WebSocket消息失败", e);
@@ -280,7 +280,7 @@ public class StatusUpdatingWebSocketContainerCreateCallback implements CreateCon
 
             // 如果没有错误，更新数据库中的容器状态为已创建，并补充容器详细信息
             if (!hasError) {
-                updateContainerStatus(SystemSoftContainerStatus.CREATED, null);
+                updateContainerStatus(DockerContainerStatus.CREATED, null);
             }
 
         } catch (Exception e) {
@@ -296,10 +296,10 @@ public class StatusUpdatingWebSocketContainerCreateCallback implements CreateCon
      * @param status       新的状态
      * @param errorMessage 错误信息（如果有的话）
      */
-    private void updateContainerStatus(SystemSoftContainerStatus status, String errorMessage) {
+    private void updateContainerStatus(DockerContainerStatus status, String errorMessage) {
         try {
             if (containerId != null && systemSoftContainerService != null) {
-                SystemSoftContainer container = systemSoftContainerService.getById(containerId);
+                DockerContainer container = systemSoftContainerService.getById(containerId);
                 if (container != null) {
                     container.setSystemSoftContainerStatus(status);
                     // 如果有Docker容器ID，则更新到数据库中

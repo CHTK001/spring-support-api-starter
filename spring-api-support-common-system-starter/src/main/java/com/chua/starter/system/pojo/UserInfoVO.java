@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -82,6 +83,12 @@ public class UserInfoVO {
     @Schema(description = "租户ID")
     private String tenantId;
 
+    @Schema(description = "主部门ID")
+    private Integer sysDeptId;
+
+    @Schema(description = "负责部门ID集合")
+    private List<Integer> managedDeptIds;
+
     /**
      * 用户角色编码集合
      */
@@ -93,4 +100,19 @@ public class UserInfoVO {
      */
     @Schema(description = "用户权限标识集合")
     private Set<String> perms;
+
+    @Schema(description = "当前用户协议版本")
+    private String agreementVersion;
+
+    @Schema(description = "当前用户协议更新时间")
+    private String agreementUpdatedAt;
+
+    @Schema(description = "用户已确认的协议版本")
+    private String agreementAcceptedVersion;
+
+    @Schema(description = "用户确认协议时间")
+    private String agreementAcceptedAt;
+
+    @Schema(description = "是否需要确认最新协议")
+    private Boolean agreementNeedConfirm;
 }

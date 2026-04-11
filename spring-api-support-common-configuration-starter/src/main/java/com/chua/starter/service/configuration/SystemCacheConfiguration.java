@@ -32,7 +32,7 @@ public class SystemCacheConfiguration {
      * 缓存配置
      * @return CacheManager
      */
-    @Bean(SystemConstant.CACHE_WITH_REDIS)
+    @Bean({SystemConstant.CACHE_WITH_REDIS, "cacheWithRedis"})
     @Primary
     public CacheManager getDefaultCacheManager(RedisConnectionFactory factory, CacheProperties cacheProperties) {
         int ttl = DEFAULT_TTL_SECONDS;

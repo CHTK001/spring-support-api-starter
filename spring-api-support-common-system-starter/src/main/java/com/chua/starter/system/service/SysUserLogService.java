@@ -7,6 +7,7 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.entity.system.SysUserLog;
 import com.chua.starter.system.pojo.user.log.SysUserLogQuery;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,7 +28,11 @@ public interface SysUserLogService extends IService<SysUserLog> {
      * @param roles 用户角色集合，用于根据角色筛选日志
      * @return 返回包含用户日志的分页数据对象
      */
-    IPage<SysUserLog> pageForUserLog(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Set<String> roles);
+    IPage<SysUserLog> pageForUserLog(Query<SysUserLog> query,
+                                     SysUserLogQuery sysUserLogQuery,
+                                     Integer sysUserId,
+                                     Set<String> roles,
+                                     List<String> managedDeptTreeIds);
 
     /**
      * 删除指定的用户日志
@@ -37,6 +42,20 @@ public interface SysUserLogService extends IService<SysUserLog> {
      * @return 返回一个包含操作结果的对象，对象中的数据字段表示操作是否成功
      */
     ReturnResult<Boolean> delete(Long userLogId);
+
+    /**
+     * 按条件批量清理登录日志
+     *
+     * @param sysUserLogQuery     查询条件
+     * @param sysUserId           当前用户ID
+     * @param roles               当前用户角色
+     * @param managedDeptTreeIds  当前用户负责的部门树
+     * @return 删除数量
+     */
+    ReturnResult<Integer> cleanup(SysUserLogQuery sysUserLogQuery,
+                                  Integer sysUserId,
+                                  Set<String> roles,
+                                  List<String> managedDeptTreeIds);
 
     /**
      * 获取当前用户的日志

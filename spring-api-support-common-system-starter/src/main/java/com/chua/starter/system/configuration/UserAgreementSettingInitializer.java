@@ -1,0 +1,116 @@
+package com.chua.starter.system.configuration;
+
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.chua.starter.entity.service.SysSetting;
+import com.chua.starter.entity.service.SysSettingGroup;
+import com.chua.starter.system.constant.SystemConstant;
+import com.chua.starter.service.mapper.SysSettingGroupMapper;
+import com.chua.starter.service.mapper.SysSettingMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+
+/**
+ * 用户协议配置初始化
+ */
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class UserAgreementSettingInitializer implements ApplicationRunner {
+
+    private static final String GROUP_CODE = "userAgreement";
+
+    private final SysSettingMapper sysSettingMapper;
+    private final SysSettingGroupMapper sysSettingGroupMapper;
+    private final Map<String, CacheManager> cacheManagers;
+
+    @Override
+    public void run(ApplicationArguments args) {
+        boolean changed = false;
+        changed |= ensureGroup();
+        changed |= ensureSetting("title", "用户协议", "协议标题", "String", 10);
+        changed |= ensureSetting("label", "System Console Agreement", "协议副标题", "String", 20);
+        changed |= ensureSetting("headline", "平台访问与数据使用说明", "协议头部说明", "String", 30);
+        changed |= ensureSetting("description", "账户中心、个人信息下拉与登录安全能力共用同一份协议定义，支持前端静态兜底与后端统一下发。", "协议摘要", "TextArea", 40);
+        changed |= ensureSetting("version", "2026.04", "协议版本", "String", 50);
+        changed |= ensureSetting("updatedAt", "2026-04-09", "协议更新时间", "String", 60);
+        changed |= ensureSetting("section.scope", "本系统仅面向已授权账号使用，账号、消息、日志、菜单与配置数据均纳入平台审计范围。", "使用范围", "TextArea", 70);
+        changed |= ensureSetting("section.account", "用户应妥善保管账号、密码与 OTP 动态口令，不得共享账号或绕过权限边界访问未授权数据。", "账号责任", "TextArea", 80);
+        changed |= ensureSetting("section.data", "涉及个人信息、部门信息、登录日志与系统消息时，应在业务授权范围内查看、导出和处理。", "数据合规", "TextArea", 90);
+        changed |= ensureSetting("section.feedback", "发现异常登录、越权访问、消息异常或配置错误时，应立即停止高风险操作并通过帮助与反馈入口上报。", "异常反馈", "TextArea", 100);
+        if (changed) {
+            clearCache();
+        }
+    }
+
+    private boolean ensureGroup() {
+        SysSettingGroup existed = sysSettingGroupMapper.selectOne(
+                Wrappers.<SysSettingGroup>lambdaQuery()
+                        .eq(SysSettingGroup::getSysSettingGroupCode, GROUP_CODE)
+                        .last("limit 1")
+        );
+        if (existed != null) {
+            return false;
+        }
+
+        SysSettingGroup group = new SysSettingGroup();
+        group.setSysSettingGroupName("用户协议");
+        group.setSysSettingGroupCode(GROUP_CODE);
+        group.setSysSettingGroupIcon("ri:file-text-line");
+        group.setSysSettingGroupEnable(Boolean.TRUE);
+        group.setSysSettingGroupRemark("统一维护登录协议、账户中心协议与确认版本。");
+        group.setSysSettingGroupSort(60);
+        group.setSysSettingGroupUseProjectInterface(Boolean.FALSE);
+        sysSettingGroupMapper.insert(group);
+        log.info("[用户协议] 已自动初始化配置组: {}", GROUP_CODE);
+        return true;
+    }
+
+    private boolean ensureSetting(String name, String value, String remark, String valueType, int sort) {
+        SysSetting existed = sysSettingMapper.selectOne(
+                Wrappers.<SysSetting>lambdaQuery()
+                        .eq(SysSetting::getSysSettingGroup, GROUP_CODE)
+                        .eq(SysSetting::getSysSettingName, name)
+                        .last("limit 1")
+        );
+        if (existed != null) {
+            return false;
+        }
+
+        SysSetting setting = new SysSetting();
+        setting.setSysSettingName(name);
+        setting.setSysSettingGroup(GROUP_CODE);
+        setting.setSysSettingValue(value);
+        setting.setSysSettingRemark(remark);
+        setting.setSysSettingValueType(valueType);
+        setting.setSysSettingSort(sort);
+        setting.setSysSettingStatus(1);
+        setting.setSysSettingAdmin(1);
+        setting.setSysSettingCollect(0);
+        setting.setSysSettingInSystem(1);
+        setting.setSysSettingAppInner(0);
+        sysSettingMapper.insert(setting);
+        return true;
+    }
+
+    private void clearCache() {
+        cacheManagers.forEach((cacheName, manager) -> {
+            Cache namedCache = manager.getCache(cacheName);
+            if (namedCache != null) {
+                namedCache.clear();
+            }
+            manager.getCacheNames().forEach(existingCacheName -> {
+                Cache cache = manager.getCache(existingCacheName);
+                if (cache != null) {
+                    cache.clear();
+                }
+            });
+        });
+    }
+}

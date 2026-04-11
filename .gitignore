@@ -5,6 +5,10 @@ target/
 #忽略所有.idea目录
 .idea/
 #忽略所有.iml文件
+logs/
+.vscode/
+temp/
+tmp/
 *.iml
 *.log
 *.ipr
@@ -27,4 +31,6 @@ rebel.xml
 .cache*.json
 *.class
 *Test.java
+!spring-api-support-common-project-starter/src/test/java/com/chua/starter/project/service/impl/CapSpotServiceImplTest.java
+!spring-api-support-common-project-starter/src/test/java/com/chua/starter/project/controller/ImageCapSpotControllerTest.java
 /.runtime/
