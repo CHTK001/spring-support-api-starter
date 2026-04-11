@@ -59,16 +59,19 @@ public class SysSettingGroupController {
      * @return 更新设置
      */
     @Operation(summary = "删除设置")
-    @DeleteMapping("/delete")
+    @RequestMapping(value = "/delete", method = {RequestMethod.DELETE, RequestMethod.POST})
     @ApiPlatform("system")
     @Permission(value = "sys:setting:group:delete", role = {ADMIN, SUPER_ADMIN})
     @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'", keyGenerator = "customTenantedKeyGenerator")
-    public ReturnResult<Boolean> delete(Long sysSettingGroupMapperId) {
-        if (null == sysSettingGroupMapperId) {
+    public ReturnResult<Boolean> delete(@Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+                                        @RequestParam(value = "sysSettingGroupId", required = false) Long sysSettingGroupId,
+                                        @RequestParam(value = "sysSettingGroupMapperId", required = false) Long legacySysSettingGroupId) {
+        Long targetGroupId = null != sysSettingGroupId ? sysSettingGroupId : legacySysSettingGroupId;
+        if (null == targetGroupId) {
             return ReturnResult.illegal("设置信息不存在");
         }
 
-        return sysSettingGroupService.deleteForGroup(sysSettingGroupMapperId);
+        return sysSettingGroupService.deleteForGroup(targetGroupId);
     }
 
 

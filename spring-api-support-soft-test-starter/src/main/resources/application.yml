@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: soft-test
+  profiles:
+    active: dev
+    include: common,mybatis,swagger,api,actuator
+
+server:
+  port: 18171
+  servlet:
+    context-path: /soft-test/api
+
+management:
+  endpoints:
+    web:
+      exposure:
+        exclude: mybatis-extension
+
+plugin:
+  server:
+    enable: true
+    remote-gateway:
+      enable: true
+    metrics:
+      enable: true
+      cache-enabled: true
+  soft:
+    server:
+      enable: true
+  oauth:
+    enable: false
+  socket:
+    enable: true
+    protocol: socketio
+    host: 0.0.0.0
+    codec-type: sm2
+    encrypt-mode: auto
+    encrypt-enabled: true
+    room:
+      - client-id: default
+        port: 29191
+        context-path: /socket.io
+  redis:
+    server:
+      enable: true
+      open-embedded: true
+      host: 127.0.0.1
+      port: 6379
+  datasource:
+    script:
+      enable: true
+      script-path: classpath*:db/init/*.sql,classpath*:db/migration/*.sql
+      scan-mode: ONCE
+      migration-scan-mode: ALWAYS
+      data-scan-mode: NONE
+      continue-on-error: false

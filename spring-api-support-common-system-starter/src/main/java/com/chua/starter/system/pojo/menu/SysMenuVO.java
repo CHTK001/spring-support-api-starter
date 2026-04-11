@@ -135,6 +135,9 @@ public class SysMenuVO {
     @Schema(description = "重定向地址")
     private String sysMenuRedirect;
 
+    @Schema(description = "菜单端类型; 0:PC 1:小程序")
+    private Integer sysMenuEngine;
+
     /**
      * 子菜单
      */

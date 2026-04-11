@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SOFT_TEST_DATASOURCE_URL:jdbc:mysql://172.16.0.40:3306/soft_test?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
+    username: ${SOFT_TEST_DATASOURCE_USERNAME:root}
+    password: ${SOFT_TEST_DATASOURCE_PASSWORD:root@}
+    hikari:
+      pool-name: SoftTestHikariPool
+      minimum-idle: 1
+      maximum-pool-size: 6
+      connection-timeout: 5000
+      idle-timeout: 60000
+      max-lifetime: 300000
+      connection-test-query: SELECT 1
+  sql:
+    init:
+      mode: never
+
+mybatis-plus:
+  encryptor:
+    mode: ${SOFT_TEST_MYBATIS_ENCRYPTOR_MODE:auto}
+    password: ${SOFT_TEST_MYBATIS_ENCRYPTOR_PASSWORD:softkey123456789}
+
+logging:
+  level:
+    com.chua.starter.soft.support.mapper: debug
+
+soft:
+  test:
+    bootstrap:
+      enabled: ${SOFT_TEST_BOOTSTRAP_ENABLED:true}
+      reset-state: ${SOFT_TEST_BOOTSTRAP_RESET_STATE:true}
+    local:
+      username: ${SOFT_TEST_LOCAL_USERNAME:yemen}
+      base-directory: ${SOFT_TEST_LOCAL_BASE_DIRECTORY:H:/workspace/2/tmp/soft-runtime/local}
+    remote:
+      host: ${SOFT_TEST_REMOTE_HOST:8.139.4.229}
+      port: ${SOFT_TEST_REMOTE_PORT:22}
+      username: ${SOFT_TEST_REMOTE_USERNAME:root}
+      password: "${SOFT_TEST_REMOTE_PASSWORD:Yaq.K11qiRenWen>a<6XsJlbEN}"
+      base-directory: ${SOFT_TEST_REMOTE_BASE_DIRECTORY:/opt/soft-runtime}

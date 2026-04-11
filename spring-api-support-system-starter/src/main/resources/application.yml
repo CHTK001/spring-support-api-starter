@@ -27,3 +27,9 @@ management:
     web:
       exposure:
         exclude: mybatis-extension
+
+plugin:
+  mybatis:
+    data:
+      scope:
+        enable: true

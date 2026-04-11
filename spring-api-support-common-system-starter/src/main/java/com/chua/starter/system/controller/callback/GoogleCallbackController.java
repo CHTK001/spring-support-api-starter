@@ -164,7 +164,9 @@ public class GoogleCallbackController {
         LoginAuthResult accessToken = AuthClientExecute.getInstance()
                 .getAccessToken(String.valueOf(userThirdParty.getSysUserId()), null, AuthType.THIRD_PARTY, ext);
         LoginResult loginResult = LoginResult.builder()
-                .userInfo(sysLoginService.getUserLoginInfo(accessToken.getToken()))
+                .userInfo(accessToken.getUserResume() != null
+                        ? sysLoginService.buildUserInfo(accessToken.getUserResume())
+                        : sysLoginService.getUserLoginInfo(accessToken.getToken()))
                 .tokenType("Bearer")
                 .accessToken(accessToken.getToken())
                 .build();

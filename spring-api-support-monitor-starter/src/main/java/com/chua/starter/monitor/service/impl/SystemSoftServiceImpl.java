@@ -52,9 +52,9 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
     private final SystemSoftMapper systemSoftMapper;
     private final SystemSoftRegistryMapper systemSoftRegistryMapper;
     private final SystemSoftVersionService systemSoftVersionService;
-    private final SystemSoftImageMapper systemSoftImageMapper;
+    private final DockerImageMapper systemSoftImageMapper;
     private final SystemSoftRecordMapper systemSoftRecordMapper;
-    private final SystemSoftContainerMapper systemSoftContainerMapper;
+    private final DockerContainerMapper systemSoftContainerMapper;
     private final DockerProtocolClientFactory dockerProtocolClientFactory;
     private final SocketSessionTemplate socketSessionTemplate;
     private final MonitorSysGenServerMapper monitorSysGenServerMapper;
@@ -161,8 +161,8 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
 
             // 检查是否有关联的镜像或容器
             Long imageCount = systemSoftImageMapper.selectCount(
-                    Wrappers.<SystemSoftImage>lambdaQuery()
-                            .eq(SystemSoftImage::getSystemSoftId, softId)
+                    Wrappers.<DockerImage>lambdaQuery()
+                            .eq(DockerImage::getSystemSoftId, softId)
             );
 
             if (imageCount != null && imageCount > 0) {
@@ -170,8 +170,8 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             }
 
             Long containerCount = systemSoftContainerMapper.selectCount(
-                    Wrappers.<SystemSoftContainer>lambdaQuery()
-                            .eq(SystemSoftContainer::getSystemSoftId, softId)
+                    Wrappers.<DockerContainer>lambdaQuery()
+                            .eq(DockerContainer::getSystemSoftId, softId)
             );
 
             if (containerCount != null && containerCount > 0) {
@@ -698,7 +698,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
 
             // 仅记录安装计划（兼容旧实现），不触发拉取
             for (Integer serverId : serverIds) {
-                SystemSoftImage image = new SystemSoftImage();
+                DockerImage image = new DockerImage();
                 image.setSystemSoftId(softId);
                 image.setSystemSoftImageServerId(serverId);
                 image.setSystemSoftImageName(systemSoft.getSystemSoftDockerImage());
@@ -746,13 +746,13 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             for (Integer serverId : serverIds) {
                 try {
                     // 创建镜像记录（状态: PULLING）
-                    SystemSoftImage image = new SystemSoftImage();
+                    DockerImage image = new DockerImage();
                     image.setSystemSoftId(softId);
                     image.setSystemSoftImageServerId(serverId);
                     image.setSystemSoftImageName(imageName);
                     image.setSystemSoftImageTag(imageTag);
                     image.setSystemSoftImageFullName(fullImage);
-                    image.setSystemSoftImageStatus(SystemSoftImageStatus.PULLING);
+                    image.setSystemSoftImageStatus(DockerImageStatus.PULLING);
                     image.setCreateTime(LocalDateTime.now());
                     image.setUpdateTime(LocalDateTime.now());
                     systemSoftImageMapper.insert(image);
@@ -762,7 +762,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                     if (dockerClient == null) {
                         log.warn("无法创建Docker客户端, serverId: {}", serverId);
                         // 标记失败
-                        image.setSystemSoftImageStatus(SystemSoftImageStatus.PULL_FAILED);
+                        image.setSystemSoftImageStatus(DockerImageStatus.PULL_FAILED);
                         image.setUpdateTime(LocalDateTime.now());
                         systemSoftImageMapper.updateById(image);
                         continue;
@@ -1009,7 +1009,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
      * @see StatusUpdatingWebSocketDockerPullCallback 状态更新WebSocket回调处理器
      */
     @Override
-    public ReturnResult<SystemSoftImage> pullDockerImageWithCallback(Integer softId, Integer serverId, String imageTag, java.util.Map<String, Object> params) {
+    public ReturnResult<DockerImage> pullDockerImageWithCallback(Integer softId, Integer serverId, String imageTag, java.util.Map<String, Object> params) {
         log.info("拉取Docker镜像(带回调) - 软件ID: {}, 服务器ID: {}, 镜像标签: {}", softId, serverId, imageTag);
 
         try {
@@ -1030,13 +1030,13 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
             }
 
             // 创建镜像记录
-            SystemSoftImage image = new SystemSoftImage();
+            DockerImage image = new DockerImage();
             image.setSystemSoftId(softId);
             image.setSystemSoftImageServerId(serverId);
             image.setSystemSoftImageName(imageName);
             image.setSystemSoftImageTag(imageTag);
             image.setSystemSoftImageFullName(fullImageName);
-            image.setSystemSoftImageStatus(SystemSoftImageStatus.PULLING); // 拉取中
+            image.setSystemSoftImageStatus(DockerImageStatus.PULLING); // 拉取中
             image.setCreateTime(LocalDateTime.now());
             systemSoftImageMapper.insert(image);
 
@@ -1061,8 +1061,8 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
         } catch (Exception e) {
             // 更新镜像状态为拉取失败
             try {
-                SystemSoftImage image = new SystemSoftImage();
-                image.setSystemSoftImageStatus(SystemSoftImageStatus.PULL_FAILED);
+                DockerImage image = new DockerImage();
+                image.setSystemSoftImageStatus(DockerImageStatus.PULL_FAILED);
                 systemSoftImageMapper.updateById(image);
             } catch (Exception updateEx) {
                 log.warn("更新镜像状态为拉取失败时出错: {}", updateEx.getMessage());
@@ -1300,22 +1300,22 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                             SystemSoft soft = findOrCreateSoftByImageName(name);
 
                             // 检查镜像是否已存在
-                            LambdaQueryWrapper<SystemSoftImage> wrapper = Wrappers.lambdaQuery();
-                            wrapper.eq(SystemSoftImage::getSystemSoftId, soft.getSystemSoftId())
-                                    .eq(SystemSoftImage::getSystemSoftImageServerId, serverId)
-                                    .eq(SystemSoftImage::getSystemSoftImageImageId, image.getId());
-                            SystemSoftImage existing = systemSoftImageMapper.selectOne(wrapper);
+                            LambdaQueryWrapper<DockerImage> wrapper = Wrappers.lambdaQuery();
+                            wrapper.eq(DockerImage::getSystemSoftId, soft.getSystemSoftId())
+                                    .eq(DockerImage::getSystemSoftImageServerId, serverId)
+                                    .eq(DockerImage::getSystemSoftImageImageId, image.getId());
+                            DockerImage existing = systemSoftImageMapper.selectOne(wrapper);
 
                             if (existing != null) {
                                 // 更新现有记录
                                 existing.setSystemSoftImageTag(tag);
                                 existing.setSystemSoftImageSize(image.getSize());
-                                existing.setSystemSoftImageStatus(SystemSoftImageStatus.AVAILABLE);
+                                existing.setSystemSoftImageStatus(DockerImageStatus.AVAILABLE);
                                 existing.setUpdateTime(LocalDateTime.now());
                                 systemSoftImageMapper.updateById(existing);
                             } else {
                                 // 创建新记录
-                                SystemSoftImage newImage = new SystemSoftImage();
+                                DockerImage newImage = new DockerImage();
                                 newImage.setSystemSoftId(soft.getSystemSoftId());
                                 newImage.setSystemSoftImageServerId(serverId);
                                 newImage.setSystemSoftImageServerName(server.getMonitorSysGenServerName());
@@ -1324,7 +1324,7 @@ public class SystemSoftServiceImpl extends ServiceImpl<SystemSoftMapper, SystemS
                                 newImage.setSystemSoftImageTag(tag);
                                 newImage.setSystemSoftImageFullName(imageName);
                                 newImage.setSystemSoftImageSize(image.getSize());
-                                newImage.setSystemSoftImageStatus(SystemSoftImageStatus.AVAILABLE);
+                                newImage.setSystemSoftImageStatus(DockerImageStatus.AVAILABLE);
                                 newImage.setCreateTime(LocalDateTime.now());
                                 systemSoftImageMapper.insert(newImage);
                             }

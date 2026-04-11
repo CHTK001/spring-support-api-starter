@@ -20,4 +20,13 @@
     sys_dept_id, sys_dept_name, sys_dept_pid, sys_dept_tree_id, create_name, create_by, 
     create_time, update_time, update_name, update_by
   </sql>
+  <select id="selectMemberCounts" resultType="java.util.HashMap">
+    SELECT
+      sys_dept_id AS sysDeptId,
+      COUNT(1) AS memberCount
+    FROM sys_user
+    WHERE sys_user_delete = 0
+      AND sys_dept_id IS NOT NULL
+    GROUP BY sys_dept_id
+  </select>
 </mapper>

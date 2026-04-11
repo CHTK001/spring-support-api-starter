@@ -23,6 +23,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -60,8 +66,18 @@ public class SysUserLogController {
      */
     @Operation(summary = "操作日志分页列表")
     @GetMapping("/page")
-    public ReturnPageResult<SysUserLog> pageForRole(@ParameterObject Query<SysUserLog> query, @ParameterObject SysUserLogQuery sysUserLogQuery, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return PageResultUtils.ok(sysUserLogService.pageForUserLog(query, sysUserLogQuery, roles));
+    public ReturnPageResult<SysUserLog> pageForRole(@ParameterObject Query<SysUserLog> query,
+                                                    @ParameterObject SysUserLogQuery sysUserLogQuery,
+                                                    @Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId,
+                                                    @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+                                                    @Parameter(hidden = true) @UserValue("managedDeptTreeIds") Object managedDeptTreeIds) {
+        return PageResultUtils.ok(sysUserLogService.pageForUserLog(
+                query,
+                sysUserLogQuery,
+                sysUserId,
+                roles,
+                normalizeManagedDeptTreeIds(managedDeptTreeIds)
+        ));
     }
 
     /**
@@ -81,6 +97,99 @@ public class SysUserLogController {
         }
 
         return sysUserLogService.delete(userLogId);
+    }
+
+    /**
+     * 按时间范围清理登录日志
+     */
+    @Operation(summary = "按条件清理登录日志")
+    @DeleteMapping("/cleanup")
+    @SysLog
+    @UserLog
+    @Transactional(rollbackFor = Exception.class)
+    @Permission(value = "sys:log:login:cleanup", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Integer> cleanup(@ParameterObject SysUserLogQuery sysUserLogQuery,
+                                         @Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId,
+                                         @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+                                         @Parameter(hidden = true) @UserValue("managedDeptTreeIds") Object managedDeptTreeIds) {
+        String startDate = null == sysUserLogQuery ? null : sysUserLogQuery.getStartDate();
+        String endDate = null == sysUserLogQuery ? null : sysUserLogQuery.getEndDate();
+        if ((null == startDate || startDate.isBlank()) && (null == endDate || endDate.isBlank())) {
+            return ReturnResult.illegal("请至少选择一个时间条件");
+        }
+        return sysUserLogService.cleanup(
+                sysUserLogQuery,
+                sysUserId,
+                roles,
+                normalizeManagedDeptTreeIds(managedDeptTreeIds)
+        );
+    }
+
+    private List<String> normalizeManagedDeptTreeIds(Object managedDeptTreeIds) {
+        if (managedDeptTreeIds == null) {
+            return Collections.emptyList();
+        }
+        if (managedDeptTreeIds instanceof Collection<?> collection) {
+            List<String> values = new ArrayList<>(collection.size());
+            for (Object item : collection) {
+                String normalized = normalizeDeptTreeIdToken(item);
+                if (normalized != null) {
+                    values.add(normalized);
+                }
+            }
+            return values;
+        }
+        if (managedDeptTreeIds.getClass().isArray()) {
+            int length = Array.getLength(managedDeptTreeIds);
+            List<String> values = new ArrayList<>(length);
+            for (int i = 0; i < length; i++) {
+                String normalized = normalizeDeptTreeIdToken(Array.get(managedDeptTreeIds, i));
+                if (normalized != null) {
+                    values.add(normalized);
+                }
+            }
+            return values;
+        }
+        if (managedDeptTreeIds instanceof String value) {
+            if (value.isBlank()) {
+                return Collections.emptyList();
+            }
+            String cleaned = value.trim();
+            if (cleaned.startsWith("[") && cleaned.endsWith("]") && cleaned.length() >= 2) {
+                cleaned = cleaned.substring(1, cleaned.length() - 1);
+            }
+            if (cleaned.isBlank()) {
+                return Collections.emptyList();
+            }
+            String[] split = cleaned.split(",");
+            List<String> values = new ArrayList<>(split.length);
+            for (String item : split) {
+                String normalized = normalizeDeptTreeIdToken(item);
+                if (normalized != null) {
+                    values.add(normalized);
+                }
+            }
+            return values;
+        }
+        String normalized = normalizeDeptTreeIdToken(managedDeptTreeIds);
+        return normalized == null ? Collections.emptyList() : Collections.singletonList(normalized);
+    }
+
+    private String normalizeDeptTreeIdToken(Object value) {
+        if (value == null) {
+            return null;
+        }
+        String normalized = String.valueOf(value).trim();
+        if (normalized.isBlank()) {
+            return null;
+        }
+        while (normalized.startsWith("[") || normalized.startsWith("\"") || normalized.startsWith("'")) {
+            normalized = normalized.substring(1).trim();
+        }
+        while (normalized.endsWith("]") || normalized.endsWith("\"") || normalized.endsWith("'")) {
+            normalized = normalized.substring(0, normalized.length() - 1).trim();
+        }
+        return normalized.isBlank() ? null : normalized;
     }
 
 }

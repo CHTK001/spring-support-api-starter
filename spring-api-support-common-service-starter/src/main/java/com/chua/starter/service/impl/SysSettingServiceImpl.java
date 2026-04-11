@@ -298,12 +298,21 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public IPage<SysSetting> pageForSetting(Query<SysSetting> query, SysSetting sysSetting, Set<String> roles) {
-        return baseMapper.selectPage(query.createPage(), Wrappers.<SysSetting>lambdaQuery()
+        var queryWrapper = Wrappers.<SysSetting>lambdaQuery()
                 .like(StringUtils.isNotBlank(sysSetting.getSysSettingGroup()), SysSetting::getSysSettingGroup, sysSetting.getSysSettingGroup())
                 .like(StringUtils.isNotBlank(sysSetting.getSysSettingName()), SysSetting::getSysSettingName, sysSetting.getSysSettingName())
                 .like(StringUtils.isNotBlank(sysSetting.getSysSettingRemark()), SysSetting::getSysSettingRemark, sysSetting.getSysSettingRemark())
-                .orderByDesc(SysSetting::getCreateTime)
-        );
+                .eq(StringUtils.isNotBlank(sysSetting.getSysSettingValueType()), SysSetting::getSysSettingValueType, sysSetting.getSysSettingValueType())
+                .eq(null != sysSetting.getSysSettingInSystem(), SysSetting::getSysSettingInSystem, sysSetting.getSysSettingInSystem())
+                .orderByDesc(SysSetting::getCreateTime);
+        log.debug("设置分页筛选参数: group={}, name={}, remark={}, valueType={}, inSystem={}, sqlSegment={}",
+                sysSetting.getSysSettingGroup(),
+                sysSetting.getSysSettingName(),
+                sysSetting.getSysSettingRemark(),
+                sysSetting.getSysSettingValueType(),
+                sysSetting.getSysSettingInSystem(),
+                queryWrapper.getSqlSegment());
+        return baseMapper.selectPage(query.createPage(), queryWrapper);
     }
 
     @Override
@@ -536,7 +545,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             return socketPublishHost.trim();
         }
 
-        if (NetUtils.isAnyHost(socketHost) || NetUtils.isLocalHost(socketHost) || "localhost".equalsIgnoreCase(socketHost)) {
+        if (isSocketLocalPublishHost(socketHost)) {
             var preferredHost = resolvePreferredSocketPublishHost();
             if (StringUtils.isNotBlank(preferredHost)) {
                 return preferredHost;
@@ -546,6 +555,24 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
 
         return socketHost;
+    }
+
+    private boolean isSocketLocalPublishHost(String host) {
+        if (StringUtils.isBlank(host)) {
+            return true;
+        }
+
+        String normalizedHost = host.trim();
+        if ("localhost".equalsIgnoreCase(normalizedHost)) {
+            return true;
+        }
+
+        try {
+            return NetUtils.isAnyHost(normalizedHost) || NetUtils.isLocalHost(normalizedHost);
+        } catch (Exception e) {
+            log.debug("[系统配置][Socket同步] 判断本地Socket地址失败: host={}, error={}", normalizedHost, e.getMessage());
+            return false;
+        }
     }
 
     private String resolvePreferredSocketPublishHost() {

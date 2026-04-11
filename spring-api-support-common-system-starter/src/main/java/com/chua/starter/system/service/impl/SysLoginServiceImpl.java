@@ -12,13 +12,21 @@ import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.entity.service.SysSetting;
+import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.service.SysSettingService;
+import com.chua.starter.service.SimpleSysUserService;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.handler.LoginHandler;
 import com.chua.starter.system.service.SysLoginService;
+import com.chua.starter.system.service.SysUserService;
 import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.system.mapper.SysWechatUserMapper;
+import com.chua.starter.system.pojo.user.UserLayout;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import me.zhyd.oauth.cache.AuthStateCache;
 import me.zhyd.oauth.request.AuthRequest;
 import com.chua.starter.entity.system.SysUserThirdParty;
@@ -62,6 +70,11 @@ import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERRO
 public class SysLoginServiceImpl implements SysLoginService {
 
     public static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
+    private static final String USER_AGREEMENT_GROUP = "userAgreement";
+    private static final String DEFAULT_AGREEMENT_VERSION = "2026.04";
+    private static final String DEFAULT_AGREEMENT_UPDATED_AT = "2026-04-09";
+    private static final String AGREEMENT_ACCEPTED_VERSION_KEY = "agreementAcceptedVersion";
+    private static final String AGREEMENT_ACCEPTED_AT_KEY = "agreementAcceptedAt";
 
     /**
      * 微信第三方类型
@@ -73,6 +86,9 @@ public class SysLoginServiceImpl implements SysLoginService {
     private final SysWechatUserMapper sysWechatUserMapper;
     private final RedisTemplate redisTemplate;
     private final SysSettingService sysSettingService;
+    private final SimpleSysUserService simpleSysUserService;
+    private final SysUserService sysUserService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public ReturnResult<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
@@ -113,6 +129,66 @@ public class SysLoginServiceImpl implements SysLoginService {
         return ReturnResult.failure(RESOURCE_CAPTCHA_ERROR, "请重新刷新校验码");
     }
 
+    public ReturnResult<LoginResult> checkEnvironment(LoginData loginData, HttpServletRequest request) {
+        String code = loginData.getVerifyCodeKey();
+        boolean totpRequired = requiresTotp(loginData.getUsername());
+        boolean hasCaptchaContext = hasCaptchaContext(loginData, request);
+
+        if (totpRequired) {
+            if (StringUtils.isBlank(code)) {
+                return ReturnResult.failure(RESOURCE_CAPTCHA_ERROR, "请输入动态验证码");
+            }
+
+            if (hasCaptchaContext) {
+                return checkVerifyCode(loginData, request);
+            }
+
+            ReturnResult<Boolean> verifyResult = simpleSysUserService.verify(code, loginData.getUsername());
+            if (verifyResult == null || !Boolean.TRUE.equals(verifyResult.getData())) {
+                return ReturnResult.failure(
+                        RESOURCE_CAPTCHA_ERROR,
+                        StringUtils.defaultString(verifyResult != null ? verifyResult.getMsg() : null, "动态验证码错误或已过期")
+                );
+            }
+            return null;
+        }
+
+        if (StringUtils.isBlank(code)) {
+            return null;
+        }
+
+        if (hasCaptchaContext) {
+            return checkVerifyCode(loginData, request);
+        }
+
+        return null;
+    }
+
+    private boolean hasCaptchaContext(LoginData loginData, HttpServletRequest request) {
+        String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse("").toString();
+        return StringUtils.isNotBlank(sessionKey) || StringUtils.isNotBlank(loginData.getVerifyCodeUlid());
+    }
+
+    private boolean requiresTotp(String username) {
+        if (!isTotpLoginEnabled() || StringUtils.isBlank(username)) {
+            return false;
+        }
+
+        SysUser sysUser = simpleSysUserService.lambdaQuery()
+                .eq(SysUser::getSysUserUsername, username)
+                .select(SysUser::getSysUserId, SysUser::getSysUserTotpCode)
+                .one();
+        return null != sysUser && StringUtils.isNotBlank(sysUser.getSysUserTotpCode());
+    }
+
+    private boolean isTotpLoginEnabled() {
+        SysSetting setting = sysSettingService.lambdaQuery()
+                .eq(SysSetting::getSysSettingGroup, "default")
+                .eq(SysSetting::getSysSettingName, "CheckTotpCodeOpen")
+                .one();
+        return null != setting && Boolean.parseBoolean(setting.getSysSettingValue());
+    }
+
     @Override
     public UserInfoVO getUserLoginInfo() {
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
@@ -140,7 +216,8 @@ public class SysLoginServiceImpl implements SysLoginService {
         return buildUserInfo(userLoginInfo);
     }
 
-    private UserInfoVO buildUserInfo(UserResult userLoginInfo) {
+    @Override
+    public UserInfoVO buildUserInfo(UserResume userLoginInfo) {
         UserInfoVO userInfoVO = new UserInfoVO();
         if (userLoginInfo == null) {
             return userInfoVO;
@@ -169,7 +246,62 @@ public class SysLoginServiceImpl implements SysLoginService {
         userInfoVO.setTenantId(userLoginInfo.getTenantId());
         userInfoVO.setRoles(userLoginInfo.getRoles());
         userInfoVO.setPerms(userLoginInfo.getPermission());
+        enrichAgreementStatus(userInfoVO);
         return userInfoVO;
+    }
+
+    private void enrichAgreementStatus(UserInfoVO userInfoVO) {
+        String agreementVersion = resolveAgreementSetting("version", DEFAULT_AGREEMENT_VERSION);
+        String agreementUpdatedAt = resolveAgreementSetting("updatedAt", DEFAULT_AGREEMENT_UPDATED_AT);
+        userInfoVO.setAgreementVersion(agreementVersion);
+        userInfoVO.setAgreementUpdatedAt(agreementUpdatedAt);
+        userInfoVO.setAgreementAcceptedVersion("");
+        userInfoVO.setAgreementAcceptedAt("");
+        userInfoVO.setAgreementNeedConfirm(StringUtils.isNotBlank(agreementVersion));
+
+        Integer sysUserId = userInfoVO.getSysUserId();
+        if (sysUserId == null) {
+            return;
+        }
+
+        try {
+            UserLayout userLayout = sysUserService.getUserLayout(Long.valueOf(sysUserId), null);
+            String preference = userLayout != null ? userLayout.getPreference() : null;
+            String acceptedVersion = resolvePreferenceValue(preference, AGREEMENT_ACCEPTED_VERSION_KEY);
+            String acceptedAt = resolvePreferenceValue(preference, AGREEMENT_ACCEPTED_AT_KEY);
+            userInfoVO.setAgreementAcceptedVersion(acceptedVersion);
+            userInfoVO.setAgreementAcceptedAt(acceptedAt);
+            userInfoVO.setAgreementNeedConfirm(
+                    StringUtils.isNotBlank(agreementVersion) && !agreementVersion.equalsIgnoreCase(acceptedVersion)
+            );
+        } catch (Exception ex) {
+            log.debug("[用户协议] 读取用户协议确认状态失败: userId={}", sysUserId, ex);
+        }
+    }
+
+    private String resolveAgreementSetting(String settingName, String fallbackValue) {
+        SysSetting setting = sysSettingService.lambdaQuery()
+                .eq(SysSetting::getSysSettingGroup, USER_AGREEMENT_GROUP)
+                .eq(SysSetting::getSysSettingName, settingName)
+                .last("limit 1")
+                .one();
+        if (setting == null || StringUtils.isBlank(setting.getSysSettingValue())) {
+            return fallbackValue;
+        }
+        return setting.getSysSettingValue();
+    }
+
+    private String resolvePreferenceValue(String preference, String key) {
+        if (StringUtils.isBlank(preference) || StringUtils.isBlank(key)) {
+            return "";
+        }
+        try {
+            JsonNode rootNode = objectMapper.readTree(preference);
+            return rootNode.path(key).asText("");
+        } catch (Exception ex) {
+            log.debug("[用户协议] 解析用户偏好失败: key={}", key, ex);
+            return "";
+        }
     }
 
     @Override
@@ -180,7 +312,7 @@ public class SysLoginServiceImpl implements SysLoginService {
             return ReturnResult.failure("登录已过期");
         }
         LoginResult loginResult = LoginResult.builder()
-                .userInfo(getUserLoginInfo(upgrade.getToken()))
+                .userInfo(buildUserInfo(upgrade.getUserResume()))
                 .tokenType("Bearer")
                 .refreshToken(upgrade.getRefreshToken())
                 .accessToken(upgrade.getToken())
