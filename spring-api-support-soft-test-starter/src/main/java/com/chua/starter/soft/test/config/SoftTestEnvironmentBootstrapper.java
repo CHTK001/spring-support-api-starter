@@ -89,6 +89,10 @@ public class SoftTestEnvironmentBootstrapper implements ApplicationRunner {
         }
     }
 
+    /**
+     * 每次 soft-test 重置环境后同步一份可复验的远程网关配置，
+     * 避免旧的全局设置残留在数据库里，导致远程服务器入口消失。
+     */
     private void bootstrapRemoteGatewaySettings(List<ServerHost> hosts) {
         if (!environment.getProperty(
                 "soft.test.remote-gateway.bootstrap-enabled",
@@ -114,7 +118,7 @@ public class SoftTestEnvironmentBootstrapper implements ApplicationRunner {
             }
             boolean remoteHost = !"LOCAL".equalsIgnoreCase(host.getServerType());
             serverRemoteGatewaySettingsService.saveHostSettings(
-                    host.getServerId(),
+                    Math.toIntExact(host.getServerId()),
                     ServerRemoteGatewaySettings.builder()
                             .inheritGlobal(remoteHost)
                             .enabled(remoteHost)
@@ -220,10 +224,16 @@ public class SoftTestEnvironmentBootstrapper implements ApplicationRunner {
         return environment.getProperty("soft.test.local.base-directory", "H:/workspace/2/tmp/soft-runtime/local");
     }
 
+    /**
+     * 远程网关 provider 允许通过环境变量覆盖，默认走 guacamole 兼容实现。
+     */
     private String remoteGatewayProvider() {
         return environment.getProperty("soft.test.remote-gateway.provider", "guacamole");
     }
 
+    /**
+     * 软测环境默认指向已验收通过的 Guacamole 宿主机入口。
+     */
     private String remoteGatewayUrl() {
         return environment.getProperty(
                 "soft.test.remote-gateway.url",
