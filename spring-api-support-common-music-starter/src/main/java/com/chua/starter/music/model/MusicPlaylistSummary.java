@@ -14,4 +14,6 @@ public class MusicPlaylistSummary {
     private String author;
     private Integer trackCount;
     private String accentColor;
+    private Long playCount;
+    private Long commentCount;
 }

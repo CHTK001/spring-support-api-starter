@@ -1,11 +1,15 @@
 package com.chua.starter.music.spi;
 
 import com.chua.starter.music.model.MusicOverview;
+import com.chua.starter.music.model.MusicPlaylistCategoryCatalog;
+import com.chua.starter.music.model.MusicPlaylistCategoryResult;
 import com.chua.starter.music.model.MusicPlaylistDetail;
 import com.chua.starter.music.model.MusicPlaylistSearchResult;
 import com.chua.starter.music.model.MusicSearchResult;
 import com.chua.starter.music.model.MusicSourceOption;
 import com.chua.starter.music.model.MusicTrackDetail;
+
+import java.util.List;
 
 /**
  * 音乐音源 SPI。
@@ -31,6 +35,32 @@ public interface MusicSourceProvider {
      * 搜索歌单。
      */
     MusicPlaylistSearchResult searchPlaylists(String keyword, int page, int pageSize);
+
+    /**
+     * 歌单分类目录。
+     */
+    default MusicPlaylistCategoryCatalog getPlaylistCategoryCatalog() {
+        return MusicPlaylistCategoryCatalog.builder()
+                .source(getSource().getCode())
+                .hotTags(List.of())
+                .groups(List.of())
+                .build();
+    }
+
+    /**
+     * 按分类读取歌单。
+     */
+    default MusicPlaylistCategoryResult getCategoryPlaylists(String tagId, int page, int pageSize) {
+        return MusicPlaylistCategoryResult.builder()
+                .source(getSource().getCode())
+                .tagId(tagId)
+                .categoryName(tagId)
+                .page(page)
+                .pageSize(pageSize)
+                .total(0L)
+                .playlists(List.of())
+                .build();
+    }
 
     /**
      * 读取歌单详情。

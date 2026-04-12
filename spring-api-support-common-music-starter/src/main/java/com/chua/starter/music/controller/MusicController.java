@@ -2,6 +2,8 @@ package com.chua.starter.music.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.music.model.MusicOverview;
+import com.chua.starter.music.model.MusicPlaylistCategoryCatalog;
+import com.chua.starter.music.model.MusicPlaylistCategoryResult;
 import com.chua.starter.music.model.MusicPlaylistDetail;
 import com.chua.starter.music.model.MusicPlaylistSearchResult;
 import com.chua.starter.music.model.MusicSearchResult;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -68,6 +71,23 @@ public class MusicController {
         return ReturnResult.ok(musicFacadeService.searchPlaylists(source, keyword, page, pageSize));
     }
 
+    @GetMapping("/playlist/categories")
+    @Operation(summary = "获取歌单分类")
+    public ReturnResult<MusicPlaylistCategoryCatalog> playlistCategories(
+            @RequestParam(required = false) String source) {
+        return ReturnResult.ok(musicFacadeService.getPlaylistCategoryCatalog(source));
+    }
+
+    @GetMapping("/playlist/category")
+    @Operation(summary = "按分类获取歌单")
+    public ReturnResult<MusicPlaylistCategoryResult> categoryPlaylists(
+            @RequestParam(required = false) String source,
+            @RequestParam(required = false) String tagId,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "20") Integer pageSize) {
+        return ReturnResult.ok(musicFacadeService.getCategoryPlaylists(source, tagId, page, pageSize));
+    }
+
     @GetMapping("/playlist/{source}/{playlistId}")
     @Operation(summary = "获取歌单详情")
     public ReturnResult<MusicPlaylistDetail> playlistDetail(
@@ -95,10 +115,26 @@ public class MusicController {
     }
 
     private MusicTrackDetail rewriteTrackStreamUrl(MusicTrackDetail trackDetail) {
-        trackDetail.setStreamUrl(ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/v1/music/track/{source}/{trackId}/stream")
-                .buildAndExpand(trackDetail.getSource(), trackDetail.getTrackId())
-                .toUriString());
-        return trackDetail;
+        String streamUrl = trackDetail.getStreamUrl();
+        if (StringUtils.hasText(streamUrl)) {
+            streamUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/v1/music/track/{source}/{trackId}/stream")
+                    .buildAndExpand(trackDetail.getSource(), trackDetail.getTrackId())
+                    .toUriString();
+        }
+        return MusicTrackDetail.builder()
+                .trackId(trackDetail.getTrackId())
+                .source(trackDetail.getSource())
+                .title(trackDetail.getTitle())
+                .artist(trackDetail.getArtist())
+                .album(trackDetail.getAlbum())
+                .coverUrl(trackDetail.getCoverUrl())
+                .streamUrl(streamUrl)
+                .durationSeconds(trackDetail.getDurationSeconds())
+                .lyrics(trackDetail.getLyrics())
+                .playCount(trackDetail.getPlayCount())
+                .commentCount(trackDetail.getCommentCount())
+                .comments(trackDetail.getComments())
+                .build();
     }
 }

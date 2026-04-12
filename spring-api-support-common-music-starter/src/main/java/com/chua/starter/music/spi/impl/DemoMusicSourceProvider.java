@@ -2,6 +2,10 @@ package com.chua.starter.music.spi.impl;
 
 import com.chua.common.support.core.annotation.Spi;
 import com.chua.starter.music.model.MusicOverview;
+import com.chua.starter.music.model.MusicPlaylistCategory;
+import com.chua.starter.music.model.MusicPlaylistCategoryCatalog;
+import com.chua.starter.music.model.MusicPlaylistCategoryGroup;
+import com.chua.starter.music.model.MusicPlaylistCategoryResult;
 import com.chua.starter.music.model.MusicPlaylistDetail;
 import com.chua.starter.music.model.MusicPlaylistSearchResult;
 import com.chua.starter.music.model.MusicPlaylistSummary;
@@ -20,6 +24,36 @@ import java.util.stream.Collectors;
 
 @Spi("demo")
 public class DemoMusicSourceProvider implements MusicSourceProvider {
+
+    private static final List<MusicPlaylistCategory> HOT_TAGS = List.of(
+            tag("", "热门", true),
+            tag("late-night", "深夜", true),
+            tag("city-pop", "城市流行", true),
+            tag("focus", "专注", true)
+    );
+
+    private static final List<MusicPlaylistCategoryGroup> CATEGORY_GROUPS = List.of(
+            MusicPlaylistCategoryGroup.builder()
+                    .groupId("scene")
+                    .name("场景")
+                    .tags(List.of(
+                            tag("commute", "通勤", false),
+                            tag("focus", "专注", false),
+                            tag("night-drive", "夜驾", false)
+                    ))
+                    .build(),
+            MusicPlaylistCategoryGroup.builder()
+                    .groupId("style")
+                    .name("风格")
+                    .tags(List.of(
+                            tag("city-pop", "城市流行", false),
+                            tag("synthwave", "合成浪潮", false),
+                            tag("ambient", "氛围", false)
+                    ))
+                    .build()
+    );
+
+    private static final Map<String, List<String>> CATEGORY_PLAYLISTS = createCategoryPlaylists();
 
     private static final List<MusicTrackDetail> TRACKS = List.of(
             track("starlit-drift", "Starlit Drift", "Lumen Harbor", "Signal Bloom", 228,
@@ -119,6 +153,40 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
     }
 
     @Override
+    public MusicPlaylistCategoryCatalog getPlaylistCategoryCatalog() {
+        return MusicPlaylistCategoryCatalog.builder()
+                .source("demo")
+                .hotTags(HOT_TAGS)
+                .groups(CATEGORY_GROUPS)
+                .build();
+    }
+
+    @Override
+    public MusicPlaylistCategoryResult getCategoryPlaylists(String tagId, int page, int pageSize) {
+        String actualTagId = tagId == null ? "" : tagId.trim();
+        List<String> playlistIds = CATEGORY_PLAYLISTS.getOrDefault(actualTagId, CATEGORY_PLAYLISTS.getOrDefault("", List.of()));
+        List<MusicPlaylistSummary> matched = playlistIds.stream()
+                .map(PLAYLISTS::get)
+                .filter(item -> item != null)
+                .map(this::toPlaylistSummary)
+                .collect(Collectors.toList());
+        int fromIndex = Math.max(0, (page - 1) * pageSize);
+        int toIndex = Math.min(matched.size(), fromIndex + pageSize);
+        List<MusicPlaylistSummary> pageItems = fromIndex >= matched.size()
+                ? List.of()
+                : matched.subList(fromIndex, toIndex);
+        return MusicPlaylistCategoryResult.builder()
+                .source("demo")
+                .tagId(actualTagId)
+                .categoryName(resolveCategoryName(actualTagId))
+                .page(page)
+                .pageSize(pageSize)
+                .total((long) matched.size())
+                .playlists(pageItems)
+                .build();
+    }
+
+    @Override
     public MusicPlaylistDetail getPlaylistDetail(String playlistId) {
         MusicPlaylistDetail detail = PLAYLISTS.get(playlistId);
         if (detail == null) {
@@ -194,6 +262,43 @@ public class DemoMusicSourceProvider implements MusicSourceProvider {
                 List.of("quiet-heat", "night-trace", "analog-heart")
         ));
         return result;
+    }
+
+    private static Map<String, List<String>> createCategoryPlaylists() {
+        Map<String, List<String>> result = new LinkedHashMap<>();
+        result.put("", List.of("after-neon", "velvet-transit"));
+        result.put("late-night", List.of("after-neon"));
+        result.put("city-pop", List.of("after-neon"));
+        result.put("focus", List.of("velvet-transit"));
+        result.put("commute", List.of("after-neon", "velvet-transit"));
+        result.put("night-drive", List.of("after-neon"));
+        result.put("synthwave", List.of("after-neon"));
+        result.put("ambient", List.of("velvet-transit"));
+        return result;
+    }
+
+    private static MusicPlaylistCategory tag(String tagId, String name, boolean hot) {
+        return MusicPlaylistCategory.builder()
+                .tagId(tagId)
+                .name(name)
+                .hot(hot)
+                .build();
+    }
+
+    private String resolveCategoryName(String tagId) {
+        if (tagId == null || tagId.isBlank()) {
+            return "热门";
+        }
+        return HOT_TAGS.stream()
+                .filter(item -> item.getTagId().equals(tagId))
+                .findFirst()
+                .map(MusicPlaylistCategory::getName)
+                .orElseGet(() -> CATEGORY_GROUPS.stream()
+                        .flatMap(item -> item.getTags().stream())
+                        .filter(item -> item.getTagId().equals(tagId))
+                        .findFirst()
+                        .map(MusicPlaylistCategory::getName)
+                        .orElse("分类歌单"));
     }
 
     private static MusicPlaylistDetail playlist(String playlistId, String title, String description,
