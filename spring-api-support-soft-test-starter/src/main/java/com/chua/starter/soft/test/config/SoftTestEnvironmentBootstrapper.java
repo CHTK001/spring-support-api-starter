@@ -1,6 +1,8 @@
 package com.chua.starter.soft.test.config;
 
 import com.chua.starter.server.support.entity.ServerHost;
+import com.chua.starter.server.support.model.ServerRemoteGatewaySettings;
+import com.chua.starter.server.support.service.ServerRemoteGatewaySettingsService;
 import com.chua.starter.server.support.service.ServerHostService;
 import com.chua.starter.soft.support.entity.SoftTarget;
 import com.chua.starter.soft.support.service.SoftManagementService;
@@ -31,17 +33,20 @@ public class SoftTestEnvironmentBootstrapper implements ApplicationRunner {
 
     private final JdbcTemplate jdbcTemplate;
     private final ServerHostService serverHostService;
+    private final ServerRemoteGatewaySettingsService serverRemoteGatewaySettingsService;
     private final SoftManagementService softManagementService;
     private final Environment environment;
 
     public SoftTestEnvironmentBootstrapper(
             JdbcTemplate jdbcTemplate,
             ServerHostService serverHostService,
+            ServerRemoteGatewaySettingsService serverRemoteGatewaySettingsService,
             SoftManagementService softManagementService,
             Environment environment
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.serverHostService = serverHostService;
+        this.serverRemoteGatewaySettingsService = serverRemoteGatewaySettingsService;
         this.softManagementService = softManagementService;
         this.environment = environment;
     }
@@ -55,7 +60,9 @@ public class SoftTestEnvironmentBootstrapper implements ApplicationRunner {
         if (environment.getProperty("soft.test.bootstrap.reset-state", Boolean.class, Boolean.TRUE)) {
             resetRuntimeState();
         }
-        bootstrapSoftTargets(bootstrapServerHosts());
+        List<ServerHost> hosts = bootstrapServerHosts();
+        bootstrapRemoteGatewaySettings(hosts);
+        bootstrapSoftTargets(hosts);
     }
 
     private void resetRuntimeState() {
@@ -80,6 +87,47 @@ public class SoftTestEnvironmentBootstrapper implements ApplicationRunner {
         for (ServerHost host : hosts) {
             softManagementService.saveTarget(buildSoftTarget(host));
         }
+    }
+
+    private void bootstrapRemoteGatewaySettings(List<ServerHost> hosts) {
+        if (!environment.getProperty(
+                "soft.test.remote-gateway.bootstrap-enabled",
+                Boolean.class,
+                Boolean.TRUE)) {
+            log.info("[soft-test] 远程网关引导已禁用");
+            return;
+        }
+        ServerRemoteGatewaySettings globalSettings = ServerRemoteGatewaySettings.builder()
+                .inheritGlobal(false)
+                .enabled(hasRemotePassword())
+                .provider(remoteGatewayProvider())
+                .gatewayUrl(remoteGatewayUrl())
+                .protocol(null)
+                .launchPath("/#/client/")
+                .websocketPath("/guacamole/websocket-tunnel")
+                .connectionId(null)
+                .build();
+        serverRemoteGatewaySettingsService.saveGlobalSettings(globalSettings);
+        for (ServerHost host : hosts) {
+            if (host.getServerId() == null) {
+                continue;
+            }
+            boolean remoteHost = !"LOCAL".equalsIgnoreCase(host.getServerType());
+            serverRemoteGatewaySettingsService.saveHostSettings(
+                    host.getServerId(),
+                    ServerRemoteGatewaySettings.builder()
+                            .inheritGlobal(remoteHost)
+                            .enabled(remoteHost)
+                            .provider(remoteHost ? null : remoteGatewayProvider())
+                            .gatewayUrl(remoteHost ? null : remoteGatewayUrl())
+                            .protocol(null)
+                            .launchPath("/#/client/")
+                            .websocketPath("/guacamole/websocket-tunnel")
+                            .connectionId(remoteHost ? null : "server-" + host.getServerId())
+                            .build());
+        }
+        log.info("[soft-test] 已同步远程网关默认配置: provider={}, gateway={}",
+                remoteGatewayProvider(), remoteGatewayUrl());
     }
 
     private ServerHost localServerHost() {
@@ -170,6 +218,16 @@ public class SoftTestEnvironmentBootstrapper implements ApplicationRunner {
 
     private String localBaseDirectory() {
         return environment.getProperty("soft.test.local.base-directory", "H:/workspace/2/tmp/soft-runtime/local");
+    }
+
+    private String remoteGatewayProvider() {
+        return environment.getProperty("soft.test.remote-gateway.provider", "guacamole");
+    }
+
+    private String remoteGatewayUrl() {
+        return environment.getProperty(
+                "soft.test.remote-gateway.url",
+                "http://172.16.0.40:18088/guacamole");
     }
 
     private String currentUsername() {
