@@ -29,3 +29,18 @@ plugin:
       preview-max-children: 50
       # 文本预览最大长度
       preview-text-limit: 200
+      ai:
+        # 是否启用 Spider AI 分析
+        enabled: true
+        # 默认模型编码，为空时使用全局 llm 默认模型
+        default-model: ""
+        # 单次分析的最大 tokens
+        max-tokens: 1800
+        # 模型温度
+        temperature: 0.2
+        # 参与分析的 HTML 最大字符数
+        max-html-chars: 12000
+        # 参与分析的 DOM 节点摘要上限
+        max-node-count: 40
+        # 选择器命中摘要上限
+        max-selector-matches: 8

@@ -72,6 +72,20 @@ public class SchedulerJobPlatformProperties {
     public static class Namespace extends JobProperties.Table {
 
         /**
+         * 执行器来源 SPI 名称。
+         * <p>
+         * 该值对应 {@code SchedulerExecutorResolver} 的 SPI 名称，
+         * 默认使用 {@code DISCOVERY}。
+         * </p>
+         */
+        private String executorMode = "DISCOVERY";
+
+        /**
+         * 基于服务发现的执行器配置。
+         */
+        private Discovery discovery = new Discovery();
+
+        /**
          * 当前命名空间可用的远程执行器列表。
          * <p>
          * 未配置时，平台只负责管理表，不参与执行；配置后，平台会把命中的任务
@@ -79,6 +93,53 @@ public class SchedulerJobPlatformProperties {
          * </p>
          */
         private List<Executor> executors = new ArrayList<>();
+    }
+
+    @Data
+    public static class Discovery {
+
+        /**
+         * 是否启用 discovery 执行器解析。
+         */
+        private boolean enabled = true;
+
+        /**
+         * discovery 协议，例如 nacos / zookeeper。
+         * 为空时使用默认 DiscoveryService。
+         */
+        private String protocol;
+
+        /**
+         * discovery 命名空间。
+         * 为空时按 `/job-executor/{namespace}` 自动推导。
+         */
+        private String namespace;
+
+        /**
+         * 执行器上下文路径。
+         * 为空时优先读取 discovery metadata 中的 contextPath。
+         */
+        private String basePath;
+
+        /**
+         * 平台调用执行器时使用的访问口令。
+         */
+        private String accessToken;
+
+        /**
+         * 远程执行器下发路径。
+         */
+        private String dispatchPath = DEFAULT_DISPATCH_PATH;
+
+        /**
+         * 连接超时，单位毫秒。
+         */
+        private long connectTimeoutMs = 3000L;
+
+        /**
+         * 读取超时，单位毫秒。
+         */
+        private long readTimeoutMs = 10000L;
     }
 
     @Data

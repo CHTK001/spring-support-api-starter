@@ -310,7 +310,12 @@ public class LoginCheck {
                 return null;
             }
 
-            return userInfoService.authVersion(userResult);
+            var authVersionMethod = userInfoService.getClass().getMethod("authVersion", UserResult.class);
+            Object value = authVersionMethod.invoke(userInfoService, userResult);
+            return value == null ? null : value.toString();
+        } catch (NoSuchMethodException e) {
+            log.debug("当前 UserInfoService 未提供 authVersion 能力: {}", userResult.getLoginType());
+            return null;
         } catch (Exception e) {
             log.error("获取认证版本异常", e);
             return null;

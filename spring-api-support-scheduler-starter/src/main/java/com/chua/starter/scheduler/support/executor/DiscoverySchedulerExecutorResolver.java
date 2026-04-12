@@ -1,0 +1,209 @@
+package com.chua.starter.scheduler.support.executor;
+
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.core.annotation.SpiCondition;
+import com.chua.common.support.network.discovery.Discovery;
+import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
+import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.util.StringUtils;
+
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Discovery 执行器解析器。
+ * <p>
+ * 这里不直接依赖 discovery-starter 类型签名，避免缺少该模块时影响调度中心启动。
+ * </p>
+ */
+@Spi({"DISCOVERY", "discovery"})
+@SpiCondition("com.chua.starter.discovery.support.service.DiscoveryService")
+public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorResolver {
+
+    private static final String DISCOVERY_SERVICE_CLASS = "com.chua.starter.discovery.support.service.DiscoveryService";
+    private static final long DEFAULT_CONNECT_TIMEOUT_MS = 3000L;
+    private static final long DEFAULT_READ_TIMEOUT_MS = 10000L;
+
+    @Override
+    public List<SchedulerJobPlatformProperties.Executor> resolve(SchedulerExecutorResolveContext context) {
+        if (context == null || context.namespaceProperties() == null) {
+            return List.of();
+        }
+
+        SchedulerJobPlatformProperties.Discovery discoveryProperties = context.namespaceProperties().getDiscovery();
+        if (discoveryProperties != null && !discoveryProperties.isEnabled()) {
+            return List.of();
+        }
+
+        Object discoveryService = discoveryService(context.beanFactory());
+        if (discoveryService == null) {
+            return List.of();
+        }
+
+        String discoveryNamespace = resolveDiscoveryNamespace(context.namespace(), discoveryProperties);
+        if (!StringUtils.hasText(discoveryNamespace)) {
+            return List.of();
+        }
+
+        Set<Discovery> discoveries = loadDiscoveries(discoveryService, discoveryProperties, discoveryNamespace);
+        if (discoveries == null || discoveries.isEmpty()) {
+            return List.of();
+        }
+
+        return discoveries.stream()
+                .map(discovery -> toExecutor(discovery, discoveryProperties))
+                .filter(this::hasUsableBaseUrl)
+                .toList();
+    }
+
+    private Object discoveryService(ListableBeanFactory beanFactory) {
+        if (beanFactory == null) {
+            return null;
+        }
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (classLoader == null) {
+            classLoader = DiscoverySchedulerExecutorResolver.class.getClassLoader();
+        }
+        if (!org.springframework.util.ClassUtils.isPresent(DISCOVERY_SERVICE_CLASS, classLoader)) {
+            return null;
+        }
+
+        try {
+            Class<?> discoveryServiceType = org.springframework.util.ClassUtils.forName(DISCOVERY_SERVICE_CLASS, classLoader);
+            Map<String, ?> beans = beanFactory.getBeansOfType(discoveryServiceType);
+            if (beans.isEmpty()) {
+                return null;
+            }
+            return beans.values().iterator().next();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<Discovery> loadDiscoveries(Object discoveryService,
+                                           SchedulerJobPlatformProperties.Discovery discoveryProperties,
+                                           String discoveryNamespace) {
+        try {
+            String discoveryProtocol = discoveryProperties == null ? null : trimToNull(discoveryProperties.getProtocol());
+            if (StringUtils.hasText(discoveryProtocol)) {
+                Method method = discoveryService.getClass().getMethod("getDiscoveryAll", String.class, String.class);
+                return (Set<Discovery>) method.invoke(discoveryService, discoveryProtocol, discoveryNamespace);
+            }
+
+            Method method = discoveryService.getClass().getMethod("getDiscoveryAll", String.class);
+            return (Set<Discovery>) method.invoke(discoveryService, discoveryNamespace);
+        } catch (Exception e) {
+            return Set.of();
+        }
+    }
+
+    private SchedulerJobPlatformProperties.Executor toExecutor(Discovery discovery,
+                                                               SchedulerJobPlatformProperties.Discovery discoveryProperties) {
+        SchedulerJobPlatformProperties.Executor executor = new SchedulerJobPlatformProperties.Executor();
+        executor.setName(resolveDiscoveryExecutorName(discovery));
+        executor.setBaseUrl(buildDiscoveryBaseUrl(discovery, discoveryProperties));
+        executor.setAccessToken(resolveDiscoveryAccessToken(discovery, discoveryProperties));
+        executor.setDispatchPath(resolveDiscoveryDispatchPath(discovery, discoveryProperties));
+        executor.setConnectTimeoutMs(discoveryProperties == null ? DEFAULT_CONNECT_TIMEOUT_MS : discoveryProperties.getConnectTimeoutMs());
+        executor.setReadTimeoutMs(discoveryProperties == null ? DEFAULT_READ_TIMEOUT_MS : discoveryProperties.getReadTimeoutMs());
+        return executor;
+    }
+
+    private String resolveDiscoveryExecutorName(Discovery discovery) {
+        if (discovery == null) {
+            return null;
+        }
+        String serverId = trimToNull(discovery.getServerId());
+        if (StringUtils.hasText(serverId)) {
+            return serverId;
+        }
+        return trimToNull(discovery.getId());
+    }
+
+    private String buildDiscoveryBaseUrl(Discovery discovery,
+                                         SchedulerJobPlatformProperties.Discovery discoveryProperties) {
+        if (discovery == null || !StringUtils.hasText(discovery.getHost()) || discovery.getPort() <= 0) {
+            return null;
+        }
+
+        String protocol = StringUtils.hasText(discovery.getProtocol()) ? discovery.getProtocol().trim() : "http";
+        String basePath = resolveDiscoveryBasePath(discovery, discoveryProperties);
+        return protocol + "://" + discovery.getHost() + ":" + discovery.getPort() + normalizePath(basePath);
+    }
+
+    private String resolveDiscoveryBasePath(Discovery discovery,
+                                            SchedulerJobPlatformProperties.Discovery discoveryProperties) {
+        String configuredBasePath = discoveryProperties == null ? null : trimToNull(discoveryProperties.getBasePath());
+        if (StringUtils.hasText(configuredBasePath)) {
+            return configuredBasePath;
+        }
+        if (discovery != null && discovery.getMetadata() != null) {
+            Object contextPath = discovery.getMetadata().get("contextPath");
+            if (contextPath != null && StringUtils.hasText(contextPath.toString())) {
+                return contextPath.toString().trim();
+            }
+        }
+        return "";
+    }
+
+    private String resolveDiscoveryAccessToken(Discovery discovery,
+                                               SchedulerJobPlatformProperties.Discovery discoveryProperties) {
+        if (discoveryProperties != null && StringUtils.hasText(discoveryProperties.getAccessToken())) {
+            return discoveryProperties.getAccessToken().trim();
+        }
+        if (discovery != null && discovery.getMetadata() != null) {
+            Object accessToken = discovery.getMetadata().get("accessToken");
+            if (accessToken != null && StringUtils.hasText(accessToken.toString())) {
+                return accessToken.toString().trim();
+            }
+        }
+        return null;
+    }
+
+    private String resolveDiscoveryDispatchPath(Discovery discovery,
+                                                SchedulerJobPlatformProperties.Discovery discoveryProperties) {
+        if (discoveryProperties != null && StringUtils.hasText(discoveryProperties.getDispatchPath())) {
+            return normalizePath(discoveryProperties.getDispatchPath());
+        }
+        if (discovery != null && discovery.getMetadata() != null) {
+            Object dispatchPath = discovery.getMetadata().get("dispatchPath");
+            if (dispatchPath != null && StringUtils.hasText(dispatchPath.toString())) {
+                return normalizePath(dispatchPath.toString());
+            }
+        }
+        return "/v1/job-executor/dispatch";
+    }
+
+    private String resolveDiscoveryNamespace(String namespace,
+                                             SchedulerJobPlatformProperties.Discovery discoveryProperties) {
+        String configuredNamespace = discoveryProperties == null ? null : trimToNull(discoveryProperties.getNamespace());
+        if (StringUtils.hasText(configuredNamespace)) {
+            return configuredNamespace;
+        }
+        return StringUtils.hasText(namespace) ? "/job-executor/" + namespace.trim() : null;
+    }
+
+    private boolean hasUsableBaseUrl(SchedulerJobPlatformProperties.Executor executor) {
+        return executor != null
+                && executor.getBaseUrl() != null
+                && !executor.getBaseUrl().trim().isEmpty();
+    }
+
+    private String normalizePath(String path) {
+        String value = trimToNull(path);
+        if (!StringUtils.hasText(value)) {
+            return "";
+        }
+        return value.startsWith("/") ? value : "/" + value;
+    }
+
+    private String trimToNull(String value) {
+        if (!StringUtils.hasText(value)) {
+            return null;
+        }
+        return value.trim();
+    }
+}
