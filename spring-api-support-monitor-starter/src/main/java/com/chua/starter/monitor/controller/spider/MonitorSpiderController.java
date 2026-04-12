@@ -8,7 +8,6 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.*;
 import com.chua.starter.monitor.properties.SpiderProperties;
 import com.chua.starter.monitor.pojo.spider.*;
-import com.chua.starter.monitor.service.data.SystemDataSettingService;
 import com.chua.starter.monitor.service.spider.*;
 import com.chua.starter.monitor.support.SpiderConsoleSessionSupport;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +21,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -56,7 +54,7 @@ public class MonitorSpiderController {
     private final SpiderProperties spiderProperties;
     private final SpiderSchemaService spiderSchemaService;
     private final SpiderOutputTableService spiderOutputTableService;
-    private final SystemDataSettingService systemDataSettingService;
+    private final SpiderAiService spiderAiService;
 
     // 存储运行中的任务状态
     private static final Map<Integer, SpiderRunStatus> runningTasks = new ConcurrentHashMap<>();
@@ -76,7 +74,7 @@ public class MonitorSpiderController {
             SpiderProperties spiderProperties,
             SpiderSchemaService spiderSchemaService,
             SpiderOutputTableService spiderOutputTableService,
-            @Nullable SystemDataSettingService systemDataSettingService) {
+            SpiderAiService spiderAiService) {
         this.taskService = taskService;
         this.nodeService = nodeService;
         this.connectionService = connectionService;
@@ -85,7 +83,7 @@ public class MonitorSpiderController {
         this.spiderProperties = spiderProperties;
         this.spiderSchemaService = spiderSchemaService;
         this.spiderOutputTableService = spiderOutputTableService;
-        this.systemDataSettingService = systemDataSettingService;
+        this.spiderAiService = spiderAiService;
     }
 
     @ModelAttribute
@@ -404,26 +402,6 @@ public class MonitorSpiderController {
             builtin.setType("JDBC");
             builtin.setEnabled(true);
             result.add(builtin);
-
-            if (systemDataSettingService == null) {
-                return result;
-            }
-
-            for (SystemDataSetting setting : systemDataSettingService.list()) {
-                if (!isJdbcSetting(setting)) {
-                    continue;
-                }
-
-                SpiderDataSourceOption option = new SpiderDataSourceOption();
-                option.setBuiltin(false);
-                option.setSettingId(setting.getSystemDataSettingId());
-                option.setName(setting.getSystemDataSettingName());
-                option.setType(setting.getSystemDataSettingType());
-                option.setUrl(setting.getSystemDataSettingServer());
-                option.setDatabase(setting.getSystemDataSettingDatabase());
-                option.setEnabled(Boolean.TRUE.equals(setting.getSystemDataSettingEnabled()));
-                result.add(option);
-            }
             return result;
         });
     }
@@ -602,6 +580,24 @@ public class MonitorSpiderController {
             }
             return buildElementXpath(elements.first());
         });
+    }
+
+    /**
+     * 获取 Spider AI 状态
+     */
+    @GetMapping("/ai/status")
+    @Operation(summary = "获取 Spider AI 状态")
+    public ReturnResult<SpiderAiStatus> aiStatus() {
+        return executeSafely("获取 Spider AI 状态", this::requireSpiderAiServiceStatus);
+    }
+
+    /**
+     * AI 分析当前页面与选择器
+     */
+    @PostMapping("/ai/analyze")
+    @Operation(summary = "Spider AI 页面分析")
+    public ReturnResult<SpiderAiAnalyzeResponse> analyzeByAi(@RequestBody SpiderAiAnalyzeRequest request) {
+        return executeSafely("Spider AI 页面分析", () -> requireSpiderAiService().analyzePage(request));
     }
 
     // ======================== SPI 管理 ========================
@@ -939,15 +935,15 @@ public class MonitorSpiderController {
         }
     }
 
-    private boolean isJdbcSetting(SystemDataSetting setting) {
-        if (setting == null) {
-            return false;
+    private SpiderAiService requireSpiderAiService() {
+        if (spiderAiService == null) {
+            throw new IllegalStateException("未检测到 BigModelService，Spider AI 不可用");
         }
-        if ("JDBC".equalsIgnoreCase(setting.getSystemDataSettingType())) {
-            return true;
-        }
-        return StringUtils.isNotEmpty(setting.getSystemDataSettingServer())
-                && setting.getSystemDataSettingServer().toLowerCase(Locale.ROOT).startsWith("jdbc:");
+        return spiderAiService;
+    }
+
+    private SpiderAiStatus requireSpiderAiServiceStatus() {
+        return requireSpiderAiService().status();
     }
 
     private Document loadDocument(String url) {

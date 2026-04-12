@@ -6,6 +6,7 @@
 - 新增爬虫表结构初始化能力，脚本位于 `src/main/resources/db/spider/V1.0__init_spider_tables.sql`
 - 新增爬虫输出表管理接口，支持检查表是否存在、预览建表 SQL、创建表、读取表结构、同步缺失字段
 - 增强网页可视化解析接口，返回更完整的 DOM 树、XPath、CSS Selector、属性信息和节点摘要，便于前端做可视化编排与 XPath 回填
+- 新增 Spider AI 分析接口，可结合页面 HTML、DOM 摘要和当前选择器生成抓取建议
 
 ### 爬虫模块配置
 
@@ -19,6 +20,14 @@ plugin:
       preview-max-depth: 10
       preview-max-children: 50
       preview-text-limit: 200
+      ai:
+        enabled: true
+        default-model: ""
+        max-tokens: 1800
+        temperature: 0.2
+        max-html-chars: 12000
+        max-node-count: 40
+        max-selector-matches: 8
 ```
 
 ### 爬虫模块接口
@@ -27,6 +36,10 @@ plugin:
 
 - `GET /v1/spider/table/status`：检查爬虫表是否完整
 - `POST /v1/spider/table/initialize?force=false`：初始化/补齐爬虫表
+
+### 爬虫测试页
+
+- `GET /spider-console/lab`：打开轻量 Spider Lab，直接测试页面预览、DOM 解析、选择器命中、Spider AI 分析和表结构初始化
 
 **数据库输出**
 
@@ -44,6 +57,11 @@ plugin:
 - `POST /v1/spider/test-selector`：测试 XPath/CSS 选择器，支持直接传 `html`
 - `POST /v1/spider/inspect-selector`：获取命中节点的 XPath、CSS Selector、属性和 HTML 摘要
 - `POST /v1/spider/generate-xpath`：将 CSS 路径转换为 XPath，或直接返回已选 XPath
+
+**Spider AI**
+
+- `GET /v1/spider/ai/status`：读取 Spider AI 状态与支持模型列表
+- `POST /v1/spider/ai/analyze`：分析当前页面、HTML 片段和选择器，输出字段建议、选择器建议和抓取策略
 
 ## 新增：同步功能迁移至 spring-support-sync-starter（2026-02-09）
 

@@ -69,8 +69,7 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-soft-starter</artifactId>
-            <version>${module.version}</version>
+            <artifactId>spring-support-panel-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.oshi</groupId>
@@ -127,10 +126,6 @@
                     <artifactId>logback-core</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-guacamole-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
@@ -191,16 +186,16 @@
             <artifactId>utils-support-remote-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.guacamole</groupId>
-            <artifactId>guacamole-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-service-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-project-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-music-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>

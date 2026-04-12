@@ -1,5 +1,6 @@
 package com.chua.starter.scheduler.support;
 
+import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.job.support.JobNumberGenerator;
 import com.chua.starter.job.support.entity.SysJob;
@@ -8,8 +9,11 @@ import com.chua.starter.job.support.remote.RemoteJobTriggerResponse;
 import com.chua.starter.job.support.scheduler.JobDispatchModeEnum;
 import com.chua.starter.job.support.scheduler.TriggerTypeEnum;
 import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
+import com.chua.starter.scheduler.support.executor.SchedulerExecutorResolveContext;
+import com.chua.starter.scheduler.support.executor.SchedulerExecutorResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
@@ -65,6 +69,7 @@ public class SchedulerRemoteExecutorDispatcher {
 
     private final SchedulerJobPlatformProperties platformProperties;
     private final ObjectProvider<RestTemplateBuilder> restTemplateBuilderProvider;
+    private final ListableBeanFactory beanFactory;
     private final SchedulerNamespaceTableResolver namespaceTableResolver;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final Map<String, AtomicInteger> namespaceCursor = new ConcurrentHashMap<>();
@@ -275,20 +280,23 @@ public class SchedulerRemoteExecutorDispatcher {
         }
     }
 
-    private List<SchedulerJobPlatformProperties.Executor> resolveExecutors(String namespace, SysJob job) {
-        List<SchedulerJobPlatformProperties.Executor> namespaceExecutors = executors(namespace);
-        List<SchedulerJobPlatformProperties.Executor> jobOverrides = buildOverrideExecutors(job, namespaceExecutors);
-        return jobOverrides.isEmpty() ? namespaceExecutors : jobOverrides;
+    List<SchedulerJobPlatformProperties.Executor> resolveExecutors(String namespace, SysJob job) {
+        SchedulerJobPlatformProperties.Namespace namespaceProperties = namespaceProperties(trimToNull(namespace));
+        List<SchedulerJobPlatformProperties.Executor> jobOverrides = buildOverrideExecutors(job, namespaceProperties);
+        if (!jobOverrides.isEmpty()) {
+            return jobOverrides;
+        }
+        return executors(namespace, namespaceProperties);
     }
 
     private List<SchedulerJobPlatformProperties.Executor> buildOverrideExecutors(SysJob job,
-                                                                                 List<SchedulerJobPlatformProperties.Executor> namespaceExecutors) {
+                                                                                 SchedulerJobPlatformProperties.Namespace namespaceProperties) {
         String addressValue = job == null ? null : trimToNull(job.getJobRemoteExecutorAddress());
         if (!StringUtils.hasText(addressValue)) {
             return List.of();
         }
 
-        SchedulerJobPlatformProperties.Executor template = namespaceExecutors.isEmpty() ? null : namespaceExecutors.get(0);
+        SchedulerJobPlatformProperties.Executor template = overrideTemplate(namespaceProperties);
         List<SchedulerJobPlatformProperties.Executor> overrides = new ArrayList<>();
         for (String address : addressValue.split("[,;\\r\\n]+")) {
             String normalizedAddress = trimToNull(address);
@@ -310,19 +318,64 @@ public class SchedulerRemoteExecutorDispatcher {
     }
 
     private List<SchedulerJobPlatformProperties.Executor> executors(String namespace) {
+        return executors(namespace, namespaceProperties(trimToNull(namespace)));
+    }
+
+    private List<SchedulerJobPlatformProperties.Executor> executors(String namespace,
+                                                                    SchedulerJobPlatformProperties.Namespace namespaceProperties) {
         String normalizedNamespace = trimToNull(namespace);
         if (!StringUtils.hasText(normalizedNamespace) || platformProperties.getNamespaces() == null) {
             return List.of();
         }
+        if (namespaceProperties == null) {
+            return List.of();
+        }
+
+        SchedulerExecutorResolver resolver = executorResolver(namespaceProperties.getExecutorMode());
+        if (resolver == null) {
+            log.warn("[Scheduler] 未找到执行器来源 SPI: namespace={}, executorMode={}",
+                    normalizedNamespace, trimToNull(namespaceProperties.getExecutorMode()));
+            return List.of();
+        }
+
+        return resolver.resolve(new SchedulerExecutorResolveContext(normalizedNamespace, namespaceProperties, beanFactory));
+    }
+
+    private SchedulerJobPlatformProperties.Namespace namespaceProperties(String namespace) {
+        if (!StringUtils.hasText(namespace) || platformProperties.getNamespaces() == null) {
+            return null;
+        }
         return platformProperties.getNamespaces().entrySet().stream()
-                .filter(entry -> normalizedNamespace.equalsIgnoreCase(entry.getKey()))
+                .filter(entry -> namespace.equalsIgnoreCase(entry.getKey()))
                 .findFirst()
                 .map(Map.Entry::getValue)
-                .map(SchedulerJobPlatformProperties.Namespace::getExecutors)
-                .orElse(List.of())
-                .stream()
-                .filter(this::hasUsableBaseUrl)
-                .toList();
+                .orElse(null);
+    }
+
+    private SchedulerJobPlatformProperties.Executor overrideTemplate(SchedulerJobPlatformProperties.Namespace namespaceProperties) {
+        if (namespaceProperties == null) {
+            return null;
+        }
+
+        String executorMode = trimToNull(namespaceProperties.getExecutorMode());
+        if ("DISCOVERY".equalsIgnoreCase(executorMode)) {
+            SchedulerJobPlatformProperties.Discovery discoveryProperties = namespaceProperties.getDiscovery();
+            SchedulerJobPlatformProperties.Executor executor = new SchedulerJobPlatformProperties.Executor();
+            if (discoveryProperties != null) {
+                executor.setAccessToken(trimToNull(discoveryProperties.getAccessToken()));
+                executor.setDispatchPath(normalizePath(discoveryProperties.getDispatchPath()));
+                executor.setConnectTimeoutMs(discoveryProperties.getConnectTimeoutMs());
+                executor.setReadTimeoutMs(discoveryProperties.getReadTimeoutMs());
+            }
+            return executor;
+        }
+
+        return namespaceProperties.getExecutors().isEmpty() ? null : namespaceProperties.getExecutors().get(0);
+    }
+
+    private SchedulerExecutorResolver executorResolver(String executorMode) {
+        String mode = StringUtils.hasText(executorMode) ? executorMode.trim() : "DISCOVERY";
+        return ServiceProvider.of(SchedulerExecutorResolver.class).getNewExtension(mode);
     }
 
     private List<SchedulerJobPlatformProperties.Executor> orderedExecutors(String namespace,
@@ -339,10 +392,6 @@ public class SchedulerRemoteExecutorDispatcher {
             ordered.add(executors.get((start + i) % executors.size()));
         }
         return ordered;
-    }
-
-    private boolean hasUsableBaseUrl(SchedulerJobPlatformProperties.Executor executor) {
-        return executor != null && StringUtils.hasText(trimToNull(executor.getBaseUrl()));
     }
 
     private String normalizeBaseUrl(String baseUrl) {

@@ -19,6 +19,7 @@ tmp/
 *.iml
 *.jar
 *.html
+!spring-api-support-monitor-starter/src/main/resources/static/spider-console/lab.html
 rebel.xml
 *.db
 *.png

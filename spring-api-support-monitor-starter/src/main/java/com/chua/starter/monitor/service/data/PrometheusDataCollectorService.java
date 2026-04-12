@@ -2,7 +2,7 @@ package com.chua.starter.monitor.service.data;
 
 import com.chua.starter.common.support.log.RestTemplateTraceIdInterceptor;
 import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
-import com.chua.starter.monitor.pojo.ServerMetricsData;
+import com.chua.starter.monitor.pojo.server.ServerMetricsData;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;

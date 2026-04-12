@@ -605,7 +605,7 @@ public class MonitorSysGenServerGroupServiceImpl
             java.util.Map<String, Object> detailedStats = new java.util.HashMap<>(basicStats.getData());
 
             // 获取服务器统计信息
-            ReturnResult<com.chua.starter.monitor.pojo.ServerStatisticsDTO> serverStats = serverService
+            ReturnResult<com.chua.starter.monitor.pojo.server.ServerStatisticsDTO> serverStats = serverService
                     .getServerStatistics();
             if (serverStats.isSuccess() && serverStats.getData() != null) {
                 detailedStats.put("total_servers", serverStats.getData().getTotalServers());
