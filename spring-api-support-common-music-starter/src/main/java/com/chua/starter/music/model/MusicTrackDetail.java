@@ -3,6 +3,8 @@ package com.chua.starter.music.model;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 public class MusicTrackDetail {
@@ -15,4 +17,7 @@ public class MusicTrackDetail {
     private String streamUrl;
     private Integer durationSeconds;
     private String lyrics;
+    private Long playCount;
+    private Long commentCount;
+    private List<MusicComment> comments;
 }
