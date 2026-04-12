@@ -2,11 +2,11 @@ package com.chua.starter.service.configuration;
 
 import com.chua.starter.redis.support.CacheConfiguration;
 import com.chua.starter.service.constant.SystemConstant;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -18,7 +18,7 @@ import java.time.Duration;
  * @author CH
  * @since 2024/8/8
  */
-@SpringBootApplication
+@Configuration
 @EnableConfigurationProperties(CacheProperties.class)
 @ConditionalOnClass({RedisConnectionFactory.class, CacheConfiguration.class})
 public class SystemCacheConfiguration {

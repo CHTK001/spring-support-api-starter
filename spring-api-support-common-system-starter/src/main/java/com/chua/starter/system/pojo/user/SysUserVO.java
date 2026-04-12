@@ -64,6 +64,15 @@ public class SysUserVO extends SysBase implements Serializable {
     private String sysUserNickname;
 
     /**
+     * 居住地址
+     */
+    @TableField(value = "sys_user_full_address")
+    @ApiModelProperty(value = "居住地址")
+    @Schema(description = "居住地址")
+    @Size(max = 400, message = "居住地址最大长度需小于400")
+    private String sysUserFullAddress;
+
+    /**
      * 头像
      */
     @TableField(value = "sys_user_avatar")

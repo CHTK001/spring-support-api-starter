@@ -198,6 +198,24 @@
                 <version>${module.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-ai-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-server-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-soft-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
+
 
             <dependency>
                 <groupId>com.chua</groupId>
