@@ -16,25 +16,7 @@
   <dependencies>
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>spring-support-server-starter</artifactId>
-      <version>${module.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-web</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.chua</groupId>
-      <artifactId>spring-support-soft-starter</artifactId>
-      <version>${module.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-web</artifactId>
-        </exclusion>
-      </exclusions>
+      <artifactId>spring-api-support-common-system-starter</artifactId>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>

@@ -5,7 +5,6 @@ import com.chua.starter.monitor.performance.SystemPerformanceController;
 import com.chua.starter.monitor.performance.SystemPerformanceService;
 import com.chua.starter.monitor.performance.SystemPerformanceServiceImpl;
 import com.chua.starter.monitor.performance.SystemPerformanceSettingInitializer;
-import com.chua.starter.monitor.service.data.SystemDataSettingService;
 import com.chua.starter.monitor.utils.LocalSystemDataCollector;
 import com.chua.starter.service.SysSettingService;
 import com.chua.starter.service.mapper.SysSettingGroupMapper;
@@ -30,7 +29,7 @@ import org.springframework.context.annotation.Bean;
         "com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration"
 })
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnClass({SysSettingMapper.class, LocalSystemDataCollector.class, SystemDataSettingService.class})
+@ConditionalOnClass({SysSettingMapper.class, LocalSystemDataCollector.class})
 public class PerformanceMonitorAutoConfiguration {
 
     @Bean
