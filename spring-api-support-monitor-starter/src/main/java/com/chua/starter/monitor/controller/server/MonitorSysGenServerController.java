@@ -271,7 +271,7 @@ public class MonitorSysGenServerController {
      */
     @Operation(summary = "获取服务器连接状态")
     @GetMapping("status")
-    public ReturnResult<com.chua.starter.monitor.pojo.ServerConnectionStatusDTO> getConnectionStatus(
+    public ReturnResult<com.chua.starter.monitor.pojo.server.ServerConnectionStatusDTO> getConnectionStatus(
             @Parameter(name = "服务器ID") String id) {
         return monitorSysGenServerService.getConnectionStatus(id);
     }
@@ -407,7 +407,7 @@ public class MonitorSysGenServerController {
      */
     @Operation(summary = "获取服务器监控状态")
     @GetMapping("monitoring-status")
-    public ReturnResult<com.chua.starter.monitor.pojo.ServerMonitoringStatusDTO> getMonitoringStatus(
+    public ReturnResult<com.chua.starter.monitor.pojo.server.ServerMonitoringStatusDTO> getMonitoringStatus(
             @Parameter(name = "服务器ID") String id) {
         return monitorSysGenServerService.getMonitoringStatus(id);
     }
@@ -443,7 +443,7 @@ public class MonitorSysGenServerController {
      */
     @Operation(summary = "批量操作服务器")
     @PostMapping("batch-operation")
-    public ReturnResult<com.chua.starter.monitor.pojo.BatchOperationResultDTO> batchOperation(
+    public ReturnResult<com.chua.starter.monitor.pojo.server.BatchOperationResultDTO> batchOperation(
             @RequestBody BatchOperationRequest request) {
         return monitorSysGenServerService.batchOperation(request.getIds(), request.getAction());
     }
@@ -455,7 +455,7 @@ public class MonitorSysGenServerController {
      */
     @Operation(summary = "获取服务器统计信息")
     @GetMapping("statistics")
-    public ReturnResult<com.chua.starter.monitor.pojo.ServerStatisticsDTO> getServerStatistics() {
+    public ReturnResult<com.chua.starter.monitor.pojo.server.ServerStatisticsDTO> getServerStatistics() {
         return monitorSysGenServerService.getServerStatistics();
     }
 
@@ -479,7 +479,7 @@ public class MonitorSysGenServerController {
      */
     @Operation(summary = "导入服务器配置")
     @PostMapping("import")
-    public ReturnResult<com.chua.starter.monitor.pojo.ImportServerConfigResultDTO> importServerConfig(
+    public ReturnResult<com.chua.starter.monitor.pojo.server.ImportServerConfigResultDTO> importServerConfig(
             @RequestBody String configData) {
         return monitorSysGenServerService.importServerConfig(configData);
     }

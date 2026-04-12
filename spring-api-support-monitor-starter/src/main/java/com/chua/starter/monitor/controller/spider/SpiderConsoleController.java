@@ -18,4 +18,9 @@ public class SpiderConsoleController {
     public String login() {
         return "redirect:/spider-console/login.html";
     }
+
+    @GetMapping({"/spider-console/lab", "/spider-console/lab/"})
+    public String lab() {
+        return "redirect:/spider-console/lab.html";
+    }
 }

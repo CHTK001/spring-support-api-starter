@@ -1,18 +1,12 @@
 package com.chua.starter.monitor.service.spider;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.metadata.command.CommandResult;
-import com.chua.common.support.metadata.query.MetadataQuery;
 import com.chua.starter.monitor.pojo.data.ColumnInfo;
 import com.chua.starter.monitor.pojo.data.TableStructureInfo;
 import com.chua.starter.monitor.pojo.spider.SpiderOutputColumnDefinition;
 import com.chua.starter.monitor.pojo.spider.SpiderOutputTableRequest;
-import com.chua.starter.monitor.service.data.SystemDataConsoleService;
-import com.chua.starter.monitor.spi.metadata.StructureMetadata;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -38,36 +32,25 @@ public class SpiderOutputTableService {
     private static final Pattern NUMERIC = Pattern.compile("^-?\\d+(\\.\\d+)?$");
 
     private final JdbcTemplate jdbcTemplate;
-    private final SystemDataConsoleService systemDataConsoleService;
 
-    public SpiderOutputTableService(JdbcTemplate jdbcTemplate,
-                                    @Nullable SystemDataConsoleService systemDataConsoleService) {
+    public SpiderOutputTableService(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.systemDataConsoleService = systemDataConsoleService;
     }
 
     public boolean tableExists(String tableName, Integer dataSourceSettingId) {
         validateIdentifier(tableName, "表名");
-        if (dataSourceSettingId == null) {
-            Integer count = jdbcTemplate.queryForObject("""
-                    SELECT COUNT(1)
-                    FROM information_schema.TABLES
-                    WHERE TABLE_SCHEMA = DATABASE()
-                      AND TABLE_NAME = ?
-                    """, Integer.class, tableName);
-            return count != null && count > 0;
-        }
-
-        return requireSystemDataConsoleService().listTables(dataSourceSettingId).stream()
-                .anyMatch(it -> tableName.equalsIgnoreCase(it));
+        Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(1)
+                FROM information_schema.TABLES
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = ?
+                """, Integer.class, tableName);
+        return count != null && count > 0;
     }
 
     public TableStructureInfo getTableStructure(String tableName, Integer dataSourceSettingId) {
         validateIdentifier(tableName, "表名");
-        if (dataSourceSettingId == null) {
-            return getLocalTableStructure(tableName);
-        }
-        return requireSystemDataConsoleService().getTableStructure(dataSourceSettingId, tableName);
+        return getLocalTableStructure(tableName);
     }
 
     public String previewCreateTableSql(String tableName, SpiderOutputTableRequest request, String dbType) {
@@ -103,17 +86,15 @@ public class SpiderOutputTableService {
 
     public boolean createTable(String tableName, SpiderOutputTableRequest request, String dbType) {
         String sql = previewCreateTableSql(tableName, request, dbType);
-        Integer dataSourceSettingId = request == null ? null : request.getDataSourceSettingId();
-        return executeSql(sql, dataSourceSettingId);
+        return executeSql(sql, null);
     }
 
     public boolean syncStructure(String tableName, SpiderOutputTableRequest request, String dbType) {
-        Integer dataSourceSettingId = request == null ? null : request.getDataSourceSettingId();
-        if (!tableExists(tableName, dataSourceSettingId)) {
+        if (!tableExists(tableName, null)) {
             return createTable(tableName, request, dbType);
         }
 
-        TableStructureInfo structure = getTableStructure(tableName, dataSourceSettingId);
+        TableStructureInfo structure = getTableStructure(tableName, null);
         Map<String, ColumnInfo> existing = structure.getColumns() == null
                 ? Map.of()
                 : structure.getColumns().stream()
@@ -130,30 +111,12 @@ public class SpiderOutputTableService {
                 .toList();
 
         for (SpiderOutputColumnDefinition column : missing) {
-            if (dataSourceSettingId == null) {
-                String alterSql = "ALTER TABLE " + quote(tableName) + " ADD COLUMN " + buildColumnDefinition(column);
-                executeSql(alterSql, null);
-            } else {
-                StructureMetadata.AddColumnRequest addColumnRequest = new StructureMetadata.AddColumnRequest();
-                addColumnRequest.setTableName(tableName);
-                addColumnRequest.setColumnName(column.getName());
-                addColumnRequest.setDataType(resolveDataType(column));
-                addColumnRequest.setNullable(defaultNullable(column));
-                addColumnRequest.setDefaultValue(column.getDefaultValue());
-                addColumnRequest.setComment(column.getComment());
-                requireSystemDataConsoleService().addColumn(dataSourceSettingId, addColumnRequest);
-            }
+            String alterSql = "ALTER TABLE " + quote(tableName) + " ADD COLUMN " + buildColumnDefinition(column);
+            executeSql(alterSql, null);
         }
 
         if (StringUtils.isNotBlank(request.getTableComment())) {
-            if (dataSourceSettingId == null) {
-                executeSql("ALTER TABLE " + quote(tableName) + " COMMENT='" + escapeSqlComment(request.getTableComment()) + "'", null);
-            } else {
-                StructureMetadata.ModifyTableCommentRequest commentRequest = new StructureMetadata.ModifyTableCommentRequest();
-                commentRequest.setTableName(tableName);
-                commentRequest.setComment(request.getTableComment());
-                requireSystemDataConsoleService().modifyTableComment(dataSourceSettingId, commentRequest);
-            }
+            executeSql("ALTER TABLE " + quote(tableName) + " COMMENT='" + escapeSqlComment(request.getTableComment()) + "'", null);
         }
         return true;
     }
@@ -269,16 +232,7 @@ public class SpiderOutputTableService {
     }
 
     private boolean executeSql(String sql, Integer dataSourceSettingId) {
-        if (dataSourceSettingId == null) {
-            jdbcTemplate.execute(sql);
-            return true;
-        }
-
-        ReturnResult<CommandResult> result = requireSystemDataConsoleService()
-                .execute(dataSourceSettingId, "sql", sql, new MetadataQuery());
-        if (result == null || !result.isSuccess()) {
-            throw new IllegalStateException(result == null ? "执行 SQL 失败" : result.getMsg());
-        }
+        jdbcTemplate.execute(sql);
         return true;
     }
 
@@ -366,12 +320,5 @@ public class SpiderOutputTableService {
             return number.intValue();
         }
         return null;
-    }
-
-    private SystemDataConsoleService requireSystemDataConsoleService() {
-        if (systemDataConsoleService == null) {
-            throw new IllegalStateException("当前宿主未启用外部数据源控制台能力，无法操作外部数据源");
-        }
-        return systemDataConsoleService;
     }
 }

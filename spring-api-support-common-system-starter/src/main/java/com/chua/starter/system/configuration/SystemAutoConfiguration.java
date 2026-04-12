@@ -3,7 +3,6 @@ package com.chua.starter.system.configuration;
 import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.chua.starter.common.support.oauth.AuthService;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
-import com.chua.starter.oauth.client.support.runtime.OauthClientRuntimeContext;
 import com.chua.starter.service.configuration.SystemCacheConfiguration;
 import com.chua.starter.system.properties.SystemSecurityProperties;
 import com.chua.starter.system.interceptor.PrivilegedVisibilityDataPermissionHandler;
@@ -90,10 +89,6 @@ public class SystemAutoConfiguration {
             if (StringUtils.hasText(loginAddress) && !StringUtils.hasText(authClientProperties.getLoginAddress())) {
                 authClientProperties.setLoginAddress(loginAddress);
             }
-
-            OauthClientRuntimeContext.setApplicationContext(applicationContext);
-            OauthClientRuntimeContext.setEnvironment(environment);
-            OauthClientRuntimeContext.setAuthClientProperties(authClientProperties);
 
             log.info("[OAuth配置桥接] address={}, loginAddress={}, protocol={}",
                     authClientProperties.getAddress(),

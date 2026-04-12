@@ -151,7 +151,6 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         return result;
     }
 
-    @Override
     public String authVersion(UserResult userResult) {
         if (userResult == null || StringUtils.isEmpty(userResult.getUserId())) {
             return null;

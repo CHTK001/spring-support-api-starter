@@ -10,13 +10,12 @@ import com.chua.starter.monitor.mapper.MonitorSpiderLogMapper;
 import com.chua.starter.monitor.mapper.MonitorSpiderNodeMapper;
 import com.chua.starter.monitor.mapper.MonitorSpiderTaskMapper;
 import com.chua.starter.monitor.properties.SpiderProperties;
-import com.chua.starter.monitor.service.data.SystemDataConsoleService;
-import com.chua.starter.monitor.service.data.SystemDataSettingService;
 import com.chua.starter.monitor.service.spider.MonitorSpiderConnectionService;
 import com.chua.starter.monitor.service.spider.MonitorSpiderDataService;
 import com.chua.starter.monitor.service.spider.MonitorSpiderLogService;
 import com.chua.starter.monitor.service.spider.MonitorSpiderNodeService;
 import com.chua.starter.monitor.service.spider.MonitorSpiderTaskService;
+import com.chua.starter.monitor.service.spider.SpiderAiService;
 import com.chua.starter.monitor.service.spider.SpiderOutputTableService;
 import com.chua.starter.monitor.service.spider.SpiderSchemaInitializer;
 import com.chua.starter.monitor.service.spider.SpiderSchemaService;
@@ -38,6 +37,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.lang.Nullable;
+import com.chua.starter.project.service.BigModelService;
 
 import javax.sql.DataSource;
 
@@ -155,10 +155,15 @@ public class SpiderAutoConfiguration {
     @Bean
     @ConditionalOnBean(JdbcTemplate.class)
     @ConditionalOnMissingBean(SpiderOutputTableService.class)
-    public SpiderOutputTableService spiderOutputTableService(
-            JdbcTemplate jdbcTemplate,
-            @Nullable SystemDataConsoleService systemDataConsoleService) {
-        return new SpiderOutputTableService(jdbcTemplate, systemDataConsoleService);
+    public SpiderOutputTableService spiderOutputTableService(JdbcTemplate jdbcTemplate) {
+        return new SpiderOutputTableService(jdbcTemplate);
+    }
+
+    @Bean
+    @ConditionalOnBean(BigModelService.class)
+    @ConditionalOnMissingBean(SpiderAiService.class)
+    public SpiderAiService spiderAiService(BigModelService bigModelService, SpiderProperties spiderProperties) {
+        return new SpiderAiService(bigModelService, spiderProperties);
     }
 
     @Bean
@@ -193,7 +198,7 @@ public class SpiderAutoConfiguration {
             SpiderProperties spiderProperties,
             SpiderSchemaService spiderSchemaService,
             SpiderOutputTableService spiderOutputTableService,
-            @Nullable SystemDataSettingService systemDataSettingService) {
+            @Nullable SpiderAiService spiderAiService) {
         return new MonitorSpiderController(
                 taskService,
                 nodeService,
@@ -203,7 +208,7 @@ public class SpiderAutoConfiguration {
                 spiderProperties,
                 spiderSchemaService,
                 spiderOutputTableService,
-                systemDataSettingService
+                spiderAiService
         );
     }
 

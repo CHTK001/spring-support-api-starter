@@ -3,7 +3,7 @@ package com.chua.starter.monitor.service.impl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.core.utils.FileUtils;
 import com.chua.common.support.core.utils.MapUtils;
-import com.chua.starter.monitor.pojo.BatchOperationResultDTO;
+import com.chua.starter.monitor.pojo.server.BatchOperationResultDTO;
 import com.chua.starter.monitor.pojo.node.NodeLoggerConfigDTO;
 import com.chua.starter.monitor.pojo.node.NodeLoggerStatsDTO;
 import com.chua.starter.monitor.pojo.node.OnlineNodeInfo;
