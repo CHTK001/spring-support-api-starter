@@ -149,7 +149,7 @@ public class SoftTestEnvironmentBootstrapper implements ApplicationRunner {
     }
 
     private String remoteHost() {
-        return environment.getProperty("soft.test.remote.host", "8.139.4.229");
+        return environment.getProperty("soft.test.remote.host", "172.16.0.40");
     }
 
     private Integer remotePort() {
@@ -165,7 +165,7 @@ public class SoftTestEnvironmentBootstrapper implements ApplicationRunner {
     }
 
     private String remoteBaseDirectory() {
-        return environment.getProperty("soft.test.remote.base-directory", "/opt/soft-runtime");
+        return environment.getProperty("soft.test.remote.base-directory", "/opt");
     }
 
     private String localBaseDirectory() {

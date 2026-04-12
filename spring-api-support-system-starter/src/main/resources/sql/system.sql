@@ -163,6 +163,33 @@ CREATE TABLE `sys_mini_menu`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '小程序菜单卡片表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
+-- Table structure for sys_feedback
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_feedback`;
+CREATE TABLE `sys_feedback`  (
+  `sys_feedback_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '反馈ID',
+  `sys_feedback_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '反馈类型',
+  `sys_feedback_images` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '反馈图片(多个逗号分隔)',
+  `sys_feedback_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '反馈内容',
+  `sys_feedback_status` int(11) NULL DEFAULT 0 COMMENT '反馈状态;0:未处理 1:已处理',
+  `sys_feedback_deal_by` int(11) NULL DEFAULT NULL COMMENT '处理人ID',
+  `sys_feedback_deal_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '处理人名称',
+  `sys_feedback_recover_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '回复内容',
+  `sys_feedback_recover_time` datetime NULL DEFAULT NULL COMMENT '回复时间',
+  `sys_feedback_recover_images` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '回复图片(多个逗号分隔)',
+  `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`sys_feedback_id`) USING BTREE,
+  INDEX `idx_feedback_type`(`sys_feedback_type`) USING BTREE,
+  INDEX `idx_feedback_status`(`sys_feedback_status`) USING BTREE,
+  INDEX `idx_feedback_create_time`(`create_time`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统反馈表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
 -- Records of sys_menu
 -- ----------------------------
 INSERT INTO `sys_menu` VALUES (73, 'paymentWalletManage', '/payment/wallet', NULL, '钱包管理', 'payment:wallet:view', 42, '0,42,73', '/manage/payment-wallet', 'ri:wallet-3-line', NULL, 0, 5, 0, 1, 0, 0, '', '', '', '', '', 0, 'sa', 1, NOW(), NULL, NULL, NULL, '', NULL, NULL);
