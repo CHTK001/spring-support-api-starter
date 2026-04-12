@@ -13,4 +13,6 @@ public class MusicTrackSummary {
     private String album;
     private String coverUrl;
     private Integer durationSeconds;
+    private Long playCount;
+    private Long commentCount;
 }

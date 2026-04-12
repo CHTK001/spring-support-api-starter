@@ -20,6 +20,11 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-protocol-starter</artifactId>
+            <version>${utils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>spring-support-swagger-starter</artifactId>
         </dependency>
         <dependency>
