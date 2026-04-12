@@ -1,5 +1,7 @@
 package com.chua.starter.music.service;
 
+import com.chua.common.support.network.http.HttpClient;
+import com.chua.common.support.network.http.HttpResponse;
 import com.chua.starter.music.model.MusicTrackDetail;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -12,10 +14,7 @@ import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
+import java.util.Optional;
 
 /**
  * 将外部音频资源统一转成当前服务的 HTTP 流。
@@ -29,70 +28,73 @@ public class MusicStreamProxyService {
             return ResponseEntity.notFound().build();
         }
 
-        try {
-            HttpURLConnection connection = openConnection(trackDetail.getStreamUrl(), rangeHeader);
-            int status = connection.getResponseCode();
-            if (status >= HttpStatus.BAD_REQUEST.value()) {
-                log.warn("Music stream upstream failed, trackId={}, source={}, status={}",
-                        trackDetail.getTrackId(), trackDetail.getSource(), status);
-                connection.disconnect();
-                return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
-            }
-
-            HttpHeaders headers = new HttpHeaders();
-            copyHeader(connection, headers, HttpHeaders.ACCEPT_RANGES);
-            copyHeader(connection, headers, HttpHeaders.CACHE_CONTROL);
-            copyHeader(connection, headers, HttpHeaders.CONTENT_DISPOSITION);
-            copyHeader(connection, headers, HttpHeaders.CONTENT_RANGE);
-            copyHeader(connection, headers, HttpHeaders.ETAG);
-            copyHeader(connection, headers, HttpHeaders.LAST_MODIFIED);
-
-            MediaType mediaType = parseMediaType(connection.getContentType());
-            if (mediaType != null) {
-                headers.setContentType(mediaType);
-            }
-
-            long contentLength = connection.getContentLengthLong();
-            if (contentLength >= 0) {
-                headers.setContentLength(contentLength);
-            }
-
-            StreamingResponseBody body = outputStream -> {
-                try (InputStream inputStream = connection.getInputStream()) {
-                    StreamUtils.copy(inputStream, outputStream);
-                    outputStream.flush();
-                } finally {
-                    connection.disconnect();
-                }
-            };
-
-            return ResponseEntity.status(HttpStatusCode.valueOf(status))
-                    .headers(headers)
-                    .body(body);
-        } catch (IOException ex) {
-            log.warn("Music stream proxy failed, trackId={}, source={}",
-                    trackDetail.getTrackId(), trackDetail.getSource(), ex);
+        HttpResponse response = HttpClient.get(trackDetail.getStreamUrl())
+                .header(HttpHeaders.USER_AGENT, "spring-support-music-proxy/1.0")
+                .header(HttpHeaders.ACCEPT_ENCODING, "identity")
+                .header(StringUtils.hasText(rangeHeader), HttpHeaders.RANGE, rangeHeader)
+                .connectTimeout(10_000)
+                .readTimeout(60_000)
+                .retry(0)
+                .execute();
+        int status = response.code();
+        if (status >= HttpStatus.BAD_REQUEST.value()) {
+            log.warn("Music stream upstream failed, trackId={}, source={}, status={}",
+                    trackDetail.getTrackId(), trackDetail.getSource(), status);
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
         }
-    }
 
-    private HttpURLConnection openConnection(String streamUrl, String rangeHeader) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) URI.create(streamUrl).toURL().openConnection();
-        connection.setConnectTimeout(10_000);
-        connection.setReadTimeout(60_000);
-        connection.setInstanceFollowRedirects(true);
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty(HttpHeaders.USER_AGENT, "spring-support-music-proxy/1.0");
-        if (StringUtils.hasText(rangeHeader)) {
-            connection.setRequestProperty(HttpHeaders.RANGE, rangeHeader);
+        HttpHeaders headers = new HttpHeaders();
+        copyHeader(response, headers, HttpHeaders.ACCEPT_RANGES);
+        copyHeader(response, headers, HttpHeaders.CACHE_CONTROL);
+        copyHeader(response, headers, HttpHeaders.CONTENT_DISPOSITION);
+        copyHeader(response, headers, HttpHeaders.CONTENT_RANGE);
+        copyHeader(response, headers, HttpHeaders.ETAG);
+        copyHeader(response, headers, HttpHeaders.LAST_MODIFIED);
+
+        MediaType mediaType = parseMediaType(response.header(HttpHeaders.CONTENT_TYPE));
+        if (mediaType != null) {
+            headers.setContentType(mediaType);
         }
-        return connection;
+
+        byte[] bodyBytes = response.getBodyBytes();
+        if (bodyBytes == null || bodyBytes.length == 0) {
+            log.warn("Music stream upstream returned empty body, trackId={}, source={}, status={}",
+                    trackDetail.getTrackId(), trackDetail.getSource(), status);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
+        }
+
+        long contentLength = parseContentLength(Optional.ofNullable(response.header(HttpHeaders.CONTENT_LENGTH)));
+        if (contentLength >= 0) {
+            headers.setContentLength(contentLength);
+        } else {
+            headers.setContentLength(bodyBytes.length);
+        }
+
+        StreamingResponseBody body = outputStream -> {
+            StreamUtils.copy(bodyBytes, outputStream);
+            outputStream.flush();
+        };
+
+        return ResponseEntity.status(HttpStatusCode.valueOf(status))
+                .headers(headers)
+                .body(body);
     }
 
-    private void copyHeader(HttpURLConnection connection, HttpHeaders headers, String headerName) {
-        String headerValue = connection.getHeaderField(headerName);
+    private void copyHeader(HttpResponse response, HttpHeaders headers, String headerName) {
+        String headerValue = response.header(headerName);
         if (StringUtils.hasText(headerValue)) {
             headers.set(headerName, headerValue);
+        }
+    }
+
+    private long parseContentLength(Optional<String> contentLength) {
+        if (contentLength.isEmpty() || !StringUtils.hasText(contentLength.get())) {
+            return -1L;
+        }
+        try {
+            return Long.parseLong(contentLength.get());
+        } catch (NumberFormatException ignored) {
+            return -1L;
         }
     }
 
