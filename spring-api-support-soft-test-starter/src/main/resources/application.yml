@@ -21,6 +21,14 @@ plugin:
     enable: true
     remote-gateway:
       enable: true
+      default-provider: ${SOFT_TEST_REMOTE_GATEWAY_PROVIDER:guacamole}
+    guacamole:
+      enable: true
+      gateway-url: ${SOFT_TEST_GUACAMOLE_GATEWAY_URL:http://172.16.0.40:18088/guacamole}
+      auth-mode: ${SOFT_TEST_GUACAMOLE_AUTH_MODE:json}
+      json-secret-key: ${SOFT_TEST_GUACAMOLE_JSON_SECRET_KEY:7a4b42e80d68305bb13f2b0be3b4b0d1}
+      default-linux-protocol: ssh
+      default-windows-protocol: rdp
     metrics:
       enable: true
       cache-enabled: true

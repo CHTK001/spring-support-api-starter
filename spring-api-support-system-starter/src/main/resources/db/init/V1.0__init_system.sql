@@ -188,7 +188,35 @@ CREATE TABLE `sys_role_menu` (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色-菜单关系表 - 存储角色与菜单的多对多映射关系' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 5. 用户表 (sys_user)
+-- 7. 系统反馈表 (sys_feedback)
+-- 用途: 存储帮助与反馈、异常上报等用户反馈内容
+-- =====================================================
+DROP TABLE IF EXISTS `sys_feedback`;
+CREATE TABLE `sys_feedback` (
+    `sys_feedback_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '反馈ID - 主键自增',
+    `sys_feedback_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '反馈类型 - 如BUG、SUGGESTION、OTHER',
+    `sys_feedback_images` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '反馈图片 - 多个图片地址逗号分隔',
+    `sys_feedback_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '反馈内容 - 用户提交的问题描述或建议',
+    `sys_feedback_status` int(11) NULL DEFAULT 0 COMMENT '反馈状态 - 0:未处理, 1:已处理',
+    `sys_feedback_deal_by` int(11) NULL DEFAULT NULL COMMENT '处理人ID - 关联系统用户',
+    `sys_feedback_deal_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '处理人名称',
+    `sys_feedback_recover_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '回复内容 - 管理员处理回复',
+    `sys_feedback_recover_time` datetime NULL DEFAULT NULL COMMENT '回复时间 - 处理反馈的时间',
+    `sys_feedback_recover_images` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '回复图片 - 管理员回复附图',
+    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人ID',
+    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`sys_feedback_id`) USING BTREE,
+    INDEX `idx_feedback_type` (`sys_feedback_type`) USING BTREE COMMENT '反馈类型索引',
+    INDEX `idx_feedback_status` (`sys_feedback_status`) USING BTREE COMMENT '反馈状态索引',
+    INDEX `idx_feedback_create_time` (`create_time`) USING BTREE COMMENT '创建时间索引'
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统反馈表 - 存储帮助与反馈和异常上报信息' ROW_FORMAT = DYNAMIC;
+
+-- =====================================================
+-- 8. 用户表 (sys_user)
 -- 用途: 存储系统用户账号信息
 -- =====================================================
 DROP TABLE IF EXISTS `sys_user`;
@@ -229,7 +257,7 @@ CREATE TABLE `sys_user` (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表 - 存储系统用户账号基本信息' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 6. 用户-角色关系表 (sys_user_role)
+-- 9. 用户-角色关系表 (sys_user_role)
 -- 用途: 存储用户与角色的多对多关系
 -- =====================================================
 DROP TABLE IF EXISTS `sys_user_role`;
@@ -243,7 +271,7 @@ CREATE TABLE `sys_user_role` (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户-角色关系表 - 存储用户与角色的多对多映射关系' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 7. 用户配置表 (sys_user_config)
+-- 10. 用户配置表 (sys_user_config)
 -- 用途: 存储用户的第三方账号绑定信息
 -- =====================================================
 DROP TABLE IF EXISTS `sys_user_config`;
