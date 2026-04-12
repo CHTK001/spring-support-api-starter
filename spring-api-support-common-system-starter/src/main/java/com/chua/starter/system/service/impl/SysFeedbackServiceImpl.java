@@ -1,10 +1,15 @@
 package com.chua.starter.system.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.common.support.core.utils.ObjectUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.entity.system.SysFeedback;
+import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.system.model.feedback.FeedbackStatisticV1Response;
 import com.chua.starter.system.mapper.SysFeedbackMapper;
 import com.chua.starter.system.pojo.feedback.FeedbackIssueV1Request;
@@ -12,8 +17,10 @@ import com.chua.starter.system.pojo.feedback.FeedbackV1Request;
 import com.chua.starter.system.service.SysFeedbackService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,12 +50,69 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
 
     @Override
     public ReturnPageResult<SysFeedback> pageFor(FeedbackV1Request feedbackV1Request) {
-        return null;
+        FeedbackV1Request request =
+                feedbackV1Request == null ? new FeedbackV1Request() : feedbackV1Request;
+        Page<SysFeedback> page = request.createFullPage();
+        return PageResultUtils.ok(
+                page(
+                        page,
+                        Wrappers.<SysFeedback>lambdaQuery()
+                                .eq(
+                                        StringUtils.isNotBlank(request.getSysFeedbackType()),
+                                        SysFeedback::getSysFeedbackType,
+                                        request.getSysFeedbackType()
+                                )
+                                .like(
+                                        StringUtils.isNotBlank(request.getSysFeedbackContent()),
+                                        SysFeedback::getSysFeedbackContent,
+                                        request.getSysFeedbackContent()
+                                )
+                                .like(
+                                        StringUtils.isNotBlank(request.getSysFeedbackImages()),
+                                        SysFeedback::getSysFeedbackImages,
+                                        request.getSysFeedbackImages()
+                                )
+                                .orderByDesc(SysFeedback::getCreateTime)
+                                .orderByDesc(SysFeedback::getSysFeedbackId)
+                )
+        );
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> issue(FeedbackIssueV1Request request, UserResume userResume) {
-        return null;
+        if (request == null || request.getSysFeedbackId() == null) {
+            return ReturnResult.illegal("反馈ID不能为空");
+        }
+
+        SysFeedback sysFeedback = getById(request.getSysFeedbackId());
+        if (sysFeedback == null) {
+            return ReturnResult.illegal("反馈不存在");
+        }
+
+        if (StringUtils.isBlank(request.getSysFeedbackRecoverContent())) {
+            return ReturnResult.illegal("回复内容不能为空");
+        }
+
+        sysFeedback.setSysFeedbackStatus(1);
+        sysFeedback.setSysFeedbackRecoverContent(request.getSysFeedbackRecoverContent());
+        sysFeedback.setSysFeedbackRecoverImages(request.getSysFeedbackRecoverImages());
+        sysFeedback.setSysFeedbackRecoverTime(LocalDateTime.now());
+
+        if (userResume != null) {
+            sysFeedback.setSysFeedbackDealName(userResume.getUsername());
+            if (StringUtils.isNotBlank(userResume.getUserId())) {
+                try {
+                    sysFeedback.setSysFeedbackDealBy(Integer.parseInt(userResume.getUserId()));
+                } catch (NumberFormatException e) {
+                    log.warn("反馈处理人ID格式不正确: {}", userResume.getUserId());
+                }
+            }
+            sysFeedback.setUpdateName(userResume.getUsername());
+            sysFeedback.setUpdateBy(ObjectUtils.defaultIfNull(sysFeedback.getSysFeedbackDealBy(), sysFeedback.getUpdateBy()));
+        }
+
+        return ReturnResult.of(updateById(sysFeedback));
     }
 
     @Override

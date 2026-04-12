@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS `sys_feedback` (
+  `sys_feedback_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '反馈ID',
+  `sys_feedback_type` varchar(255) DEFAULT NULL COMMENT '反馈类型',
+  `sys_feedback_images` text DEFAULT NULL COMMENT '反馈图片(多个逗号分隔)',
+  `sys_feedback_content` text DEFAULT NULL COMMENT '反馈内容',
+  `sys_feedback_status` int(11) DEFAULT 0 COMMENT '反馈状态;0:未处理 1:已处理',
+  `sys_feedback_deal_by` int(11) DEFAULT NULL COMMENT '处理人ID',
+  `sys_feedback_deal_name` varchar(255) DEFAULT NULL COMMENT '处理人名称',
+  `sys_feedback_recover_content` text DEFAULT NULL COMMENT '回复内容',
+  `sys_feedback_recover_time` datetime DEFAULT NULL COMMENT '回复时间',
+  `sys_feedback_recover_images` text DEFAULT NULL COMMENT '回复图片(多个逗号分隔)',
+  `create_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int(11) DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int(11) DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`sys_feedback_id`) USING BTREE,
+  KEY `idx_feedback_type` (`sys_feedback_type`) USING BTREE,
+  KEY `idx_feedback_status` (`sys_feedback_status`) USING BTREE,
+  KEY `idx_feedback_create_time` (`create_time`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='系统反馈表' ROW_FORMAT=DYNAMIC;
