@@ -8,6 +8,7 @@ import com.chua.common.support.core.utils.StringUtils;
 import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
+import com.chua.starter.service.SysMessageService;
 import com.chua.starter.entity.system.SysFeedback;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.system.model.feedback.FeedbackStatisticV1Response;
@@ -15,6 +16,7 @@ import com.chua.starter.system.mapper.SysFeedbackMapper;
 import com.chua.starter.system.pojo.feedback.FeedbackIssueV1Request;
 import com.chua.starter.system.pojo.feedback.FeedbackV1Request;
 import com.chua.starter.system.service.SysFeedbackService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +38,11 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFeedback> implements SysFeedbackService {
+    private static final String FEEDBACK_MESSAGE_URL = "/message/center";
+
+    private final SysMessageService sysMessageService;
 
     /**
      * 反馈类型名称映射
@@ -112,7 +118,13 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
             sysFeedback.setUpdateBy(ObjectUtils.defaultIfNull(sysFeedback.getSysFeedbackDealBy(), sysFeedback.getUpdateBy()));
         }
 
-        return ReturnResult.of(updateById(sysFeedback));
+        boolean updated = updateById(sysFeedback);
+        if (!updated) {
+            return ReturnResult.of(false);
+        }
+
+        pushFeedbackResultMessage(sysFeedback, userResume);
+        return ReturnResult.ok(true);
     }
 
     @Override
@@ -173,6 +185,51 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
         } catch (Exception e) {
             log.error("获取反馈统计数据失败", e);
             return ReturnResult.error("获取统计数据失败");
+        }
+    }
+
+    private void pushFeedbackResultMessage(SysFeedback sysFeedback, UserResume userResume) {
+        Integer receiverId = parseUserId(sysFeedback.getCreateBy());
+        if (receiverId == null || receiverId <= 0) {
+            return;
+        }
+
+        String dealName = userResume != null && StringUtils.isNotBlank(userResume.getUsername())
+                ? userResume.getUsername()
+                : ObjectUtils.defaultIfNull(sysFeedback.getSysFeedbackDealName(), "系统");
+        String typeName = TYPE_NAME_MAP.getOrDefault(sysFeedback.getSysFeedbackType(), "反馈");
+        String title = typeName + "已处理";
+        String content = String.format(
+                "%s 已处理你提交的反馈，处理结果：%s",
+                dealName,
+                ObjectUtils.defaultIfNull(sysFeedback.getSysFeedbackRecoverContent(), "暂无回复内容")
+        );
+
+        com.chua.starter.entity.service.SysMessage message = new com.chua.starter.entity.service.SysMessage();
+        message.setSysMessageTitle(title);
+        message.setSysMessageContent(content);
+        message.setSysMessageType(com.chua.starter.entity.service.SysMessage.Type.NOTICE);
+        message.setSysMessageLevel(com.chua.starter.entity.service.SysMessage.Level.NORMAL);
+        message.setSysMessageSenderId(0);
+        message.setSysMessageSenderName(dealName);
+        message.setSysMessageReceiverId(receiverId);
+        message.setSysMessageReceiverName(sysFeedback.getCreateName());
+        message.setSysMessageBizType("feedback");
+        message.setSysMessageBizId(String.valueOf(sysFeedback.getSysFeedbackId()));
+        message.setSysMessageUrl(FEEDBACK_MESSAGE_URL);
+        sysMessageService.sendMessage(message);
+    }
+
+    private Integer parseUserId(Object rawUserId) {
+        String normalizedUserId = rawUserId == null ? "" : String.valueOf(rawUserId).trim();
+        if (StringUtils.isBlank(normalizedUserId)) {
+            return null;
+        }
+        try {
+            return Integer.parseInt(normalizedUserId);
+        } catch (NumberFormatException ex) {
+            log.warn("反馈提交人ID格式不正确: {}", normalizedUserId);
+            return null;
         }
     }
 }
