@@ -1,0 +1,11 @@
+[ {
+  "panelSourceId" : "panel-source-8cd9345e-c965-4c49-82c3-8bbe38069483",
+  "panelSourceType" : "JDBC",
+  "panelConnectionName" : "Panel Playground",
+  "panelHost" : "172.16.0.40",
+  "panelPort" : 3306,
+  "panelUsername" : "root",
+  "panelPassword" : "root@",
+  "panelFavorite" : false,
+  "panelUpdatedAt" : "2026-04-13T22:33:49.701496200+08:00"
+} ]

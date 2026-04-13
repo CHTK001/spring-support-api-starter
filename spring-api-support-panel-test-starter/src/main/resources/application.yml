@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: panel-test
+  profiles:
+    active: dev
+
+server:
+  port: 58080
+
+panel:
+  enabled: true
+  jdbc-enabled: true
+  ai-enabled: false
+  datasource-store-path: ${user.dir}/.panel/panel-datasources.json
+
+plugin:
+  oauth:
+    enable: false
