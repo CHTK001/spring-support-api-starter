@@ -51,7 +51,14 @@ public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
 
     @Override
     public MusicSearchResult search(String keyword, int page, int pageSize) {
-        return searchResult(keyword, page, pageSize, 0L, List.of());
+        MusicSearchResult result = kuwoMusicSourceProvider.search(keyword, page, pageSize);
+        if (result == null || result.getTracks() == null) {
+            return searchResult(keyword, page, pageSize, 0L, List.of());
+        }
+        List<MusicTrackSummary> tracks = result.getTracks().stream()
+                .map(this::toBodianTrackSummary)
+                .collect(Collectors.toList());
+        return searchResult(keyword, page, pageSize, result.getTotal() == null ? 0L : result.getTotal(), tracks);
     }
 
     @Override
@@ -195,6 +202,18 @@ public class BodianMusicSourceProvider extends AbstractHttpMusicSourceProvider {
                 .map(String::trim)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    private MusicTrackSummary toBodianTrackSummary(MusicTrackSummary track) {
+        return MusicTrackSummary.builder()
+                .trackId(track.getTrackId())
+                .source(getSource().getCode())
+                .title(track.getTitle())
+                .artist(track.getArtist())
+                .album(track.getAlbum())
+                .coverUrl(track.getCoverUrl())
+                .durationSeconds(track.getDurationSeconds())
+                .build();
     }
 
     private String joinArtists(JsonNode node) {
