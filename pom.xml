@@ -296,6 +296,18 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
+                <artifactId>utils-support-hikvision-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-dahua-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
                 <artifactId>utils-support-tencent-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
