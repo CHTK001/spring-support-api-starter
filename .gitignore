@@ -12,6 +12,7 @@ target/
 *.ps1
 *.md
 *.cmd
+.panel
 .vscode
 .tmp
 *bak
@@ -23,3 +24,5 @@ logs/!/patch/
 .runtime/
 logs/
 tmp/
+spring-api-support-common-music-demo
+spring-api-support-soft-test-starter
