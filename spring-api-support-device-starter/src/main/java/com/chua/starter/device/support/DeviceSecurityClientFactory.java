@@ -4,9 +4,9 @@ import com.chua.cloud.support.security.SecurityClient;
 import com.chua.cloud.support.security.SecurityConfig;
 import com.chua.cloud.support.security.SecurityClientFactory;
 import com.chua.cloud.support.security.enums.PlatformType;
+import com.chua.starter.device.service.DeviceMerchantStoreService;
 import com.chua.starter.entity.project.SysProject;
 import com.chua.starter.entity.service.SysDictItem;
-import com.chua.starter.project.service.SysProjectService;
 import com.chua.starter.service.SysDictItemService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +32,7 @@ public class DeviceSecurityClientFactory {
     private static final String DEFAULT_HIKVISION_YUNMOU_API = "https://api2.hik-cloud.com";
     private static final String DEFAULT_HIKVISION_YUNYAO_API = "https://open.hikyun.com";
 
-    private final SysProjectService sysProjectService;
+    private final DeviceMerchantStoreService deviceMerchantStoreService;
     private final SysDictItemService sysDictItemService;
 
     public SecurityClient create(Integer sysProjectId) {
@@ -44,7 +44,7 @@ public class DeviceSecurityClientFactory {
     }
 
     public SysProject getDeviceMerchant(Integer sysProjectId) {
-        SysProject sysProject = sysProjectService.getOne(sysProjectId);
+        SysProject sysProject = deviceMerchantStoreService.getOne(sysProjectId);
         if (sysProject == null) {
             throw new IllegalArgumentException("设备商户不存在");
         }

@@ -8,7 +8,7 @@
  *   - sys_device: 设备管理表
  *   - sys_device_channel: 设备通道表
  *   - sys_device_org: 设备组织表
- *   - sys_device_record: 设备记录表
+ *   - sys_device_camera_record: 设备记录表
  *   - sys_device_card_event: 门禁事件表
  *   - sys_device_message_event: 设备消息事件表
  *   - sys_ai_module: AI模型分类表
@@ -169,7 +169,7 @@ CREATE TABLE `sys_device` (
     INDEX `idx_device_type` (`sys_device_type`) USING BTREE COMMENT '设备类型索引',
     INDEX `idx_device_online` (`sys_device_online`) USING BTREE COMMENT '在线状态索引',
     INDEX `idx_dept_id` (`sys_dept_id`) USING BTREE COMMENT '机构ID索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
 COMMENT = '设备管理表 - 管理摄像头、门禁等IoT设备' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
@@ -194,7 +194,7 @@ CREATE TABLE `sys_device_channel` (
     PRIMARY KEY (`sys_device_channel_id`) USING BTREE,
     INDEX `idx_serial_number` (`sys_device_serial_number`) USING BTREE COMMENT '设备序列号索引',
     INDEX `idx_channel_status` (`sys_device_channel_status`) USING BTREE COMMENT '通道状态索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
 COMMENT = '设备通道表 - 管理设备的视频/报警通道' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
@@ -217,24 +217,24 @@ CREATE TABLE `sys_device_org` (
     PRIMARY KEY (`sys_device_org_id`) USING BTREE,
     INDEX `idx_org_pid` (`sys_device_org_pid`) USING BTREE COMMENT '上级组织索引',
     INDEX `idx_project_id` (`sys_project_id`) USING BTREE COMMENT '项目ID索引'
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
 COMMENT = '设备组织表 - 管理设备的组织架构' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 7. 设备记录表 (sys_device_record)
+-- 7. 设备记录表 (sys_device_camera_record)
 -- 用途: 记录设备操作历史
 -- =====================================================
-DROP TABLE IF EXISTS `sys_device_record`;
-CREATE TABLE `sys_device_record` (
-    `sys_camera_record_id` int NOT NULL AUTO_INCREMENT COMMENT '记录ID - 主键自增',
+DROP TABLE IF EXISTS `sys_device_camera_record`;
+CREATE TABLE `sys_device_camera_record` (
+    `sys_device_camera_record_id` int NOT NULL AUTO_INCREMENT COMMENT '记录ID - 主键自增',
     `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
     `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
     `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
     `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
     `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
     `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_camera_record_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
+    PRIMARY KEY (`sys_device_camera_record_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
 COMMENT = '设备记录表 - 记录摄像头操作历史' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
@@ -260,7 +260,7 @@ CREATE TABLE `sys_device_card_event` (
     PRIMARY KEY (`sys_device_card_event_id`) USING BTREE,
     INDEX `idx_event_time` (`sys_device_card_event_time`) USING BTREE COMMENT '事件时间索引',
     INDEX `idx_serial_number` (`sys_device_serial_number`) USING BTREE COMMENT '设备序列号索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
 COMMENT = '门禁事件表 - 记录门禁刷卡事件' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
@@ -300,7 +300,7 @@ CREATE TABLE `sys_device_message_event` (
     INDEX `idx_data_time` (`sys_device_message_event_data_time`) USING BTREE COMMENT '事件时间索引',
     INDEX `idx_serial_number` (`sys_device_serial_number`) USING BTREE COMMENT '设备序列号索引',
     INDEX `idx_event_type` (`sys_device_message_event_type`) USING BTREE COMMENT '事件类型索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
 COMMENT = '设备消息事件表 - 记录设备上报的消息事件' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
