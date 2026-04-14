@@ -7,32 +7,32 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.cloud.support.security.SecurityClient;
 import com.chua.cloud.support.security.entity.AccessRecord;
 import com.chua.cloud.support.security.entity.Channel;
-import com.chua.cloud.support.security.entity.Device;
+
 import com.chua.common.support.core.utils.CollectionUtils;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.text.json.JsonObject;
+import com.chua.starter.device.pojo.DeviceOnlineStatus;
+import com.chua.starter.device.pojo.DeviceOnlineTimelinePoint;
+import com.chua.starter.device.pojo.request.CardDevicePageV1Request;
+import com.chua.starter.device.pojo.request.CheckDeviceOnlineV1Request;
+import com.chua.starter.device.pojo.request.DevicePageV1Request;
+import com.chua.starter.device.pojo.request.DevicePreviewUrlV1Request;
+import com.chua.starter.device.pojo.request.DeviceTimelineV1Request;
+import com.chua.starter.device.pojo.request.SyncV1Request;
+import com.chua.starter.device.pojo.request.TemplatePageV1Request;
+import com.chua.starter.device.mapper.SysDeviceCameraRecordMapper;
+import com.chua.starter.device.mapper.SysDeviceCardEventMapper;
+import com.chua.starter.device.mapper.SysDeviceChannelMapper;
+import com.chua.starter.device.mapper.SysDeviceMapper;
+import com.chua.starter.device.mapper.SysDeviceMessageEventMapper;
+import com.chua.starter.device.mapper.SysDeviceOrgMapper;
 import com.chua.starter.device.support.DeviceSecurityClientFactory;
-import com.chua.starter.entity.project.SysDevice;
-import com.chua.starter.entity.project.SysDeviceCameraRecord;
-import com.chua.starter.entity.project.SysDeviceCardEvent;
-import com.chua.starter.entity.project.SysDeviceChannel;
-import com.chua.starter.entity.project.SysDeviceMessageEvent;
-import com.chua.starter.entity.project.SysDeviceOrg;
-import com.chua.starter.project.mapper.SysDeviceCameraMapper;
-import com.chua.starter.project.mapper.SysDeviceCameraRecordMapper;
-import com.chua.starter.project.mapper.SysDeviceCardEventMapper;
-import com.chua.starter.project.mapper.SysDeviceChannelMapper;
-import com.chua.starter.project.mapper.SysDeviceMessageEventMapper;
-import com.chua.starter.project.mapper.SysDeviceOrgMapper;
-import com.chua.starter.project.pojo.device.CardDevicePageV1Request;
-import com.chua.starter.project.pojo.device.CheckDeviceOnlineV1Request;
-import com.chua.starter.project.pojo.device.DevicePageV1Request;
-import com.chua.starter.project.pojo.device.DevicePreviewUrlV1Request;
-import com.chua.starter.project.pojo.device.DeviceTimelineV1Request;
-import com.chua.starter.project.pojo.project.SyncV1Request;
-import com.chua.starter.project.pojo.project.TemplatePageV1Request;
-import com.chua.starter.project.service.support.hikvision.query.SysDeviceCameraOnOffline;
-import com.chua.starter.project.service.support.hikvision.result.OnOffline;
+import com.chua.starter.entity.device.SysDevice;
+import com.chua.starter.entity.device.SysDeviceCameraRecord;
+import com.chua.starter.entity.device.SysDeviceCardEvent;
+import com.chua.starter.entity.device.SysDeviceChannel;
+import com.chua.starter.entity.device.SysDeviceMessageEvent;
+import com.chua.starter.entity.device.SysDeviceOrg;
 import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DeviceService extends ServiceImpl<SysDeviceCameraMapper, SysDevice> {
+public class DeviceService extends ServiceImpl<SysDeviceMapper, SysDevice> {
 
     private static final int DEVICE_SYNC_PAGE_SIZE = 100;
     private static final int CHANNEL_SYNC_PAGE_SIZE = 100;
@@ -177,7 +177,7 @@ public class DeviceService extends ServiceImpl<SysDeviceCameraMapper, SysDevice>
         ));
     }
 
-    public ReturnResult<List<SysDeviceCameraOnOffline>> timeline(DeviceTimelineV1Request request) {
+    public ReturnResult<List<DeviceOnlineTimelinePoint>> timeline(DeviceTimelineV1Request request) {
         SysDevice sysDevice = baseMapper.selectById(request.getSysDeviceCameraId());
         if (sysDevice == null) {
             return ReturnResult.illegal("设备不存在");
@@ -193,7 +193,7 @@ public class DeviceService extends ServiceImpl<SysDeviceCameraMapper, SysDevice>
             log.debug("查询设备时间线时实时检测失败, sysDeviceId={}", sysDevice.getSysDeviceId(), e);
         }
 
-        SysDeviceCameraOnOffline timeline = new SysDeviceCameraOnOffline();
+        DeviceOnlineTimelinePoint timeline = new DeviceOnlineTimelinePoint();
         timeline.setCollectTime(sysDevice.getUpdateTime() == null ? LocalDateTime.now() : sysDevice.getUpdateTime());
         timeline.setOnline(online);
         return ReturnResult.ok(List.of(timeline));
@@ -203,7 +203,7 @@ public class DeviceService extends ServiceImpl<SysDeviceCameraMapper, SysDevice>
     public ReturnResult<Boolean> syncTemplate(SyncV1Request request) {
         try (SecurityClient client = deviceSecurityClientFactory.create(request.getSysProjectId())) {
             int syncedCount = 0;
-            for (Device remoteDevice : queryAllDevices(client)) {
+            for (com.chua.cloud.support.security.entity.Device remoteDevice : queryAllDevices(client)) {
                 SysDevice sysDevice = saveOrUpdateDevice(request.getSysProjectId(), remoteDevice);
                 syncDeviceChannels(client, sysDevice, remoteDevice);
                 syncedCount++;
@@ -263,7 +263,7 @@ public class DeviceService extends ServiceImpl<SysDeviceCameraMapper, SysDevice>
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ReturnResult<List<OnOffline>> check(CheckDeviceOnlineV1Request request) {
+    public ReturnResult<List<DeviceOnlineStatus>> check(CheckDeviceOnlineV1Request request) {
         List<Integer> deviceIds = parseDeviceIds(request.getSysDeviceCameraIds());
         if (CollectionUtils.isEmpty(deviceIds)) {
             return ReturnResult.illegal("设备ID不能为空");
@@ -279,7 +279,7 @@ public class DeviceService extends ServiceImpl<SysDeviceCameraMapper, SysDevice>
                 .filter(it -> it.getSysProjectId() != null)
                 .collect(Collectors.groupingBy(SysDevice::getSysProjectId));
 
-        List<OnOffline> result = new ArrayList<>();
+        List<DeviceOnlineStatus> result = new ArrayList<>();
         for (Map.Entry<Integer, List<SysDevice>> entry : grouped.entrySet()) {
             try (SecurityClient client = deviceSecurityClientFactory.create(entry.getKey())) {
                 for (SysDevice sysDevice : entry.getValue()) {
@@ -287,7 +287,7 @@ public class DeviceService extends ServiceImpl<SysDeviceCameraMapper, SysDevice>
                     sysDevice.setSysDeviceOnline(online);
                     sysDevice.setUpdateTime(LocalDateTime.now());
 
-                    OnOffline onOffline = new OnOffline();
+                    DeviceOnlineStatus onOffline = new DeviceOnlineStatus();
                     onOffline.setSysCameraTemplateSerialNumber(sysDevice.getSysDeviceSerialNumber());
                     onOffline.setOnline(online);
                     result.add(onOffline);
@@ -423,7 +423,7 @@ public class DeviceService extends ServiceImpl<SysDeviceCameraMapper, SysDevice>
         }
     }
 
-    private SysDevice saveOrUpdateDevice(Integer sysProjectId, Device remoteDevice) {
+    private SysDevice saveOrUpdateDevice(Integer sysProjectId, com.chua.cloud.support.security.entity.Device remoteDevice) {
         SysDevice sysDevice = baseMapper.selectOne(
                 Wrappers.<SysDevice>lambdaQuery()
                         .eq(SysDevice::getSysProjectId, sysProjectId)
@@ -458,7 +458,7 @@ public class DeviceService extends ServiceImpl<SysDeviceCameraMapper, SysDevice>
         return sysDevice;
     }
 
-    private void syncDeviceChannels(SecurityClient client, SysDevice sysDevice, Device remoteDevice) {
+    private void syncDeviceChannels(SecurityClient client, SysDevice sysDevice, com.chua.cloud.support.security.entity.Device remoteDevice) {
         List<Channel> channels = queryAllChannels(client, remoteDevice);
         if (CollectionUtils.isEmpty(channels)) {
             List<SysDeviceChannel> existingChannels = sysDeviceChannelMapper.selectList(
@@ -520,10 +520,10 @@ public class DeviceService extends ServiceImpl<SysDeviceCameraMapper, SysDevice>
         baseMapper.updateById(sysDevice);
     }
 
-    private List<Device> queryAllDevices(SecurityClient client) {
-        List<Device> result = new ArrayList<>();
+    private List<com.chua.cloud.support.security.entity.Device> queryAllDevices(SecurityClient client) {
+        List<com.chua.cloud.support.security.entity.Device> result = new ArrayList<>();
         for (int pageNo = 1; pageNo <= MAX_SYNC_PAGES; pageNo++) {
-            List<Device> pageList = client.device().queryDevices(pageNo, DEVICE_SYNC_PAGE_SIZE);
+            List<com.chua.cloud.support.security.entity.Device> pageList = client.device().queryDevices(pageNo, DEVICE_SYNC_PAGE_SIZE);
             if (CollectionUtils.isEmpty(pageList)) {
                 break;
             }
@@ -535,7 +535,7 @@ public class DeviceService extends ServiceImpl<SysDeviceCameraMapper, SysDevice>
         return result;
     }
 
-    private List<Channel> queryAllChannels(SecurityClient client, Device remoteDevice) {
+    private List<Channel> queryAllChannels(SecurityClient client, com.chua.cloud.support.security.entity.Device remoteDevice) {
         try {
             List<Channel> result = new ArrayList<>();
             String deviceId = firstNonBlank(remoteDevice.getDeviceId(), remoteDevice.getDeviceSerial());
