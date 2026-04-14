@@ -28,14 +28,21 @@ public class MusicStreamProxyService {
             return ResponseEntity.notFound().build();
         }
 
-        HttpResponse response = HttpClient.get(trackDetail.getStreamUrl())
-                .header(HttpHeaders.USER_AGENT, "spring-support-music-proxy/1.0")
-                .header(HttpHeaders.ACCEPT_ENCODING, "identity")
-                .header(StringUtils.hasText(rangeHeader), HttpHeaders.RANGE, rangeHeader)
-                .connectTimeout(10_000)
-                .readTimeout(60_000)
-                .retry(0)
-                .execute();
+        HttpResponse response;
+        try {
+            response = HttpClient.get(trackDetail.getStreamUrl())
+                    .header(HttpHeaders.USER_AGENT, "spring-support-music-proxy/1.0")
+                    .header(HttpHeaders.ACCEPT_ENCODING, "identity")
+                    .header(StringUtils.hasText(rangeHeader), HttpHeaders.RANGE, rangeHeader)
+                    .connectTimeout(10_000)
+                    .readTimeout(60_000)
+                    .retry(0)
+                    .execute();
+        } catch (Exception ex) {
+            log.warn("Music stream upstream call failed, trackId={}, source={}, message={}",
+                    trackDetail.getTrackId(), trackDetail.getSource(), ex.getMessage(), ex);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
+        }
         int status = response.code();
         if (status >= HttpStatus.BAD_REQUEST.value()) {
             log.warn("Music stream upstream failed, trackId={}, source={}, status={}",
