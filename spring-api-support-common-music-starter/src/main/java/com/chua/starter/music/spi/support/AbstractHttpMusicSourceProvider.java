@@ -11,6 +11,7 @@ import com.chua.starter.music.model.MusicTrackSummary;
 import com.chua.starter.music.spi.MusicSourceProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.net.URLEncoder;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+@Slf4j
 public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProvider {
 
     protected static final ObjectMapper MAPPER = JsonUtils.getSharedMapper();
@@ -27,6 +29,12 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
     protected static final String MOBILE_UA =
             "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
+    private static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 10_000;
+    private static final int DEFAULT_READ_TIMEOUT_MILLIS = 20_000;
+    private static final String CONNECT_TIMEOUT_PROPERTY = "music.http.connect-timeout-millis";
+    private static final String CONNECT_TIMEOUT_ENV = "MUSIC_HTTP_CONNECT_TIMEOUT_MILLIS";
+    private static final String READ_TIMEOUT_PROPERTY = "music.http.read-timeout-millis";
+    private static final String READ_TIMEOUT_ENV = "MUSIC_HTTP_READ_TIMEOUT_MILLIS";
 
     protected JsonNode getJson(String url) {
         return getJson(url, null);
@@ -35,8 +43,8 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     protected JsonNode getJson(String url, Consumer<HttpClientBuilder> customizer) {
         HttpClientBuilder builder = HttpClient.get(url)
                 .userAgent(DESKTOP_UA)
-                .connectTimeout(10_000)
-                .readTimeout(20_000)
+                .connectTimeout(connectTimeoutMillis())
+                .readTimeout(readTimeoutMillis())
                 .retry(0);
         if (customizer != null) {
             customizer.accept(builder);
@@ -51,8 +59,8 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     protected String getText(String url, Consumer<HttpClientBuilder> customizer) {
         HttpClientBuilder builder = HttpClient.get(url)
                 .userAgent(DESKTOP_UA)
-                .connectTimeout(10_000)
-                .readTimeout(20_000)
+                .connectTimeout(connectTimeoutMillis())
+                .readTimeout(readTimeoutMillis())
                 .retry(0);
         if (customizer != null) {
             customizer.accept(builder);
@@ -67,8 +75,8 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
                 .json()
                 .userAgent(DESKTOP_UA)
                 .body(JsonUtils.toJson(body))
-                .connectTimeout(10_000)
-                .readTimeout(20_000)
+                .connectTimeout(connectTimeoutMillis())
+                .readTimeout(readTimeoutMillis())
                 .retry(0);
         if (customizer != null) {
             customizer.accept(builder);
@@ -80,8 +88,8 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
         HttpClientBuilder builder = HttpClient.post(url)
                 .userAgent(DESKTOP_UA)
                 .form(form)
-                .connectTimeout(10_000)
-                .readTimeout(20_000)
+                .connectTimeout(connectTimeoutMillis())
+                .readTimeout(readTimeoutMillis())
                 .retry(0);
         if (customizer != null) {
             customizer.accept(builder);
@@ -92,8 +100,8 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     protected HttpResponse getResponse(String url, Consumer<HttpClientBuilder> customizer) {
         HttpClientBuilder builder = HttpClient.get(url)
                 .userAgent(DESKTOP_UA)
-                .connectTimeout(10_000)
-                .readTimeout(20_000)
+                .connectTimeout(connectTimeoutMillis())
+                .readTimeout(readTimeoutMillis())
                 .retry(0);
         if (customizer != null) {
             customizer.accept(builder);
@@ -181,6 +189,32 @@ public abstract class AbstractHttpMusicSourceProvider implements MusicSourceProv
     protected void assertOk(HttpResponse response, String url) {
         if (response == null || !response.isOk()) {
             throw new IllegalStateException("音乐接口请求失败: " + url);
+        }
+    }
+
+    protected int connectTimeoutMillis() {
+        return resolveTimeoutMillis(CONNECT_TIMEOUT_PROPERTY, CONNECT_TIMEOUT_ENV, DEFAULT_CONNECT_TIMEOUT_MILLIS);
+    }
+
+    protected int readTimeoutMillis() {
+        return resolveTimeoutMillis(READ_TIMEOUT_PROPERTY, READ_TIMEOUT_ENV, DEFAULT_READ_TIMEOUT_MILLIS);
+    }
+
+    private int resolveTimeoutMillis(String propertyName, String envName, int defaultValue) {
+        String configured = System.getProperty(propertyName);
+        if (!StringUtils.hasText(configured)) {
+            configured = System.getenv(envName);
+        }
+        if (!StringUtils.hasText(configured)) {
+            return defaultValue;
+        }
+        try {
+            int timeoutMillis = Integer.parseInt(configured.trim());
+            return timeoutMillis > 0 ? timeoutMillis : defaultValue;
+        } catch (NumberFormatException ex) {
+            log.warn("Ignore invalid music timeout configuration, property={}, env={}, value={}",
+                    propertyName, envName, configured);
+            return defaultValue;
         }
     }
 }
