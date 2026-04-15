@@ -199,7 +199,7 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-device-starter</artifactId>
+            <artifactId>spring-api-support-common-project-device-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
