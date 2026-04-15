@@ -24,5 +24,7 @@ logs/!/patch/
 .runtime/
 logs/
 tmp/
+.tmp-edge-gitee-*/
+.tmp-edge-*/
 spring-api-support-common-music-demo
 spring-api-support-soft-test-starter
