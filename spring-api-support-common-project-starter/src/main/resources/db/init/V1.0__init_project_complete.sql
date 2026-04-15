@@ -1,27 +1,16 @@
-/*
+﻿/*
  * 项目管理模块 - 数据库初始化脚本
  * 
  * 包含表:
  *   - sys_project: 项目管理表
  *   - sys_project_default: 项目默认配置表
  *   - sys_secret: 密钥管理表
- *   - sys_device: 设备管理表
- *   - sys_device_channel: 设备通道表
- *   - sys_device_org: 设备组织表
- *   - sys_device_camera_record: 设备记录表
- *   - sys_device_card_event: 门禁事件表
- *   - sys_device_message_event: 设备消息事件表
- *   - sys_ai_module: AI模型分类表
- *   - sys_ai_vincent_setting: 文生图模型参数表
- *   - sys_ai_vincent_style: 文生图风格表
- *   - sys_ai_vincent_task: 文生图任务表
- *   - sys_ai_vincent_template: 文生图模板表
  *   - sys_sms_template: 短信模板表
  *   - sys_sms_log: 短信日志表
  *   - sys_email_template: 邮件模板表
  *   - sys_email_log: 邮件日志表
  *
- * 用于项目配置管理、设备接入、AI服务集成、消息发送等功能
+ * 用于项目配置管理、消息发送等基础功能
  *
  * @author System
  * @since 2025-01-01
@@ -122,326 +111,7 @@ CREATE TABLE `sys_secret` (
 COMMENT = '密钥管理表 - 独立管理各类服务的密钥信息' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 4. 设备管理表 (sys_device)
--- 用途: 管理摄像头、门禁等IoT设备
--- =====================================================
-DROP TABLE IF EXISTS `sys_device`;
-CREATE TABLE `sys_device` (
-    `sys_device_id` int NOT NULL AUTO_INCREMENT COMMENT '设备ID - 主键自增',
-    `sys_project_id` int NULL DEFAULT NULL COMMENT '项目ID - 关联sys_project表',
-    `sys_device_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备名称',
-    `sys_device_serial_number` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备序列号 - 设备唯一标识',
-    `sys_device_org_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组织编码 - 所属组织的编码',
-    `sys_device_org_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组织名称',
-    `sys_device_channel_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '通道名称',
-    `sys_device_channel_number` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '通道号',
-    `sys_device_channel_count` int NULL DEFAULT NULL COMMENT '通道数量',
-    `sys_device_status` int NULL DEFAULT 1 COMMENT '设备状态 - 0:禁用, 1:启用',
-    `sys_device_position` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '安装位置 - 设备物理安装位置描述',
-    `sys_device_version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '固件版本',
-    `sys_device_resource_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '资源类型',
-    `sys_device_account` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备账号 - 设备登录账号',
-    `sys_device_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备密码 - 设备登录密码(加密存储)',
-    `sys_device_rtsp` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'RTSP地址 - 视频流推流地址',
-    `sys_device_rtsp_webrtc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'WebRTC地址 - RTSP转WebRTC的地址',
-    `sys_device_channels` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '通道列表 - JSON格式的通道信息',
-    `sys_device_owner` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属者编码 - 设备所有者唯一标识',
-    `sys_device_description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备描述',
-    `sys_device_online` int NULL DEFAULT 0 COMMENT '在线状态 - 0:离线, 1:在线',
-    `sys_device_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备类型 - 关联字典表ID=7',
-    `sys_device_latitude` decimal(10, 6) NULL DEFAULT NULL COMMENT '纬度 - GPS纬度坐标',
-    `sys_device_longitude` decimal(10, 6) NULL DEFAULT NULL COMMENT '经度 - GPS经度坐标',
-    `sys_device_net_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '网络地址 - 设备IP地址',
-    `sys_device_net_physical_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'MAC地址 - 设备物理地址',
-    `sys_device_validate_code` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '验证码 - 设备绑定验证码',
-    `sys_device_main_subtype` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '主码流编码 - 高清主码流标识',
-    `sys_device_sub_subtype` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '子码流编码 - 标清子码流标识',
-    `sys_dept_id` int NULL DEFAULT NULL COMMENT '机构ID - 关联组织机构表',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_device_id`) USING BTREE,
-    UNIQUE INDEX `uk_serial_number` (`sys_device_serial_number`) USING BTREE COMMENT '序列号唯一索引',
-    INDEX `idx_project_id` (`sys_project_id`) USING BTREE COMMENT '项目ID索引',
-    INDEX `idx_device_type` (`sys_device_type`) USING BTREE COMMENT '设备类型索引',
-    INDEX `idx_device_online` (`sys_device_online`) USING BTREE COMMENT '在线状态索引',
-    INDEX `idx_dept_id` (`sys_dept_id`) USING BTREE COMMENT '机构ID索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
-COMMENT = '设备管理表 - 管理摄像头、门禁等IoT设备' ROW_FORMAT = DYNAMIC;
-
--- =====================================================
--- 5. 设备通道表 (sys_device_channel)
--- 用途: 管理设备的视频/报警通道
--- =====================================================
-DROP TABLE IF EXISTS `sys_device_channel`;
-CREATE TABLE `sys_device_channel` (
-    `sys_device_channel_id` int NOT NULL AUTO_INCREMENT COMMENT '通道ID - 主键自增',
-    `sys_device_channel_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '通道名称',
-    `sys_device_channel_no` int NULL DEFAULT NULL COMMENT '通道号',
-    `sys_device_serial_number` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备序列号 - 关联设备表',
-    `sys_device_channel_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '通道类型 - 10300:视频通道, 10302:报警输入',
-    `sys_device_channel_status` int NULL DEFAULT 1 COMMENT '通道状态 - -1:未上报, 0:离线, 1:在线',
-    `sys_device_channel_use` int NULL DEFAULT 1 COMMENT '通道启用状态 - 0:禁用, 1:启用',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_device_channel_id`) USING BTREE,
-    INDEX `idx_serial_number` (`sys_device_serial_number`) USING BTREE COMMENT '设备序列号索引',
-    INDEX `idx_channel_status` (`sys_device_channel_status`) USING BTREE COMMENT '通道状态索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
-COMMENT = '设备通道表 - 管理设备的视频/报警通道' ROW_FORMAT = DYNAMIC;
-
--- =====================================================
--- 6. 设备组织表 (sys_device_org)
--- 用途: 管理设备的组织架构
--- =====================================================
-DROP TABLE IF EXISTS `sys_device_org`;
-CREATE TABLE `sys_device_org` (
-    `sys_device_org_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '组织ID - 主键',
-    `sys_device_org_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组织名称',
-    `sys_device_org_pid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '上级组织ID',
-    `sys_device_org_tree_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组织树路径',
-    `sys_project_id` int NULL DEFAULT NULL COMMENT '项目ID - 关联sys_project表',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_device_org_id`) USING BTREE,
-    INDEX `idx_org_pid` (`sys_device_org_pid`) USING BTREE COMMENT '上级组织索引',
-    INDEX `idx_project_id` (`sys_project_id`) USING BTREE COMMENT '项目ID索引'
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
-COMMENT = '设备组织表 - 管理设备的组织架构' ROW_FORMAT = DYNAMIC;
-
--- =====================================================
--- 7. 设备记录表 (sys_device_camera_record)
--- 用途: 记录设备操作历史
--- =====================================================
-DROP TABLE IF EXISTS `sys_device_camera_record`;
-CREATE TABLE `sys_device_camera_record` (
-    `sys_device_camera_record_id` int NOT NULL AUTO_INCREMENT COMMENT '记录ID - 主键自增',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_device_camera_record_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
-COMMENT = '设备记录表 - 记录摄像头操作历史' ROW_FORMAT = DYNAMIC;
-
--- =====================================================
--- 8. 门禁事件表 (sys_device_card_event)
--- 用途: 记录门禁刷卡事件
--- =====================================================
-DROP TABLE IF EXISTS `sys_device_card_event`;
-CREATE TABLE `sys_device_card_event` (
-    `sys_device_card_event_id` int NOT NULL AUTO_INCREMENT COMMENT '事件ID - 主键自增',
-    `sys_device_card_event_time` datetime NULL DEFAULT NULL COMMENT '事件时间',
-    `sys_device_serial_number` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备序列号',
-    `sys_device_card_event_person_involved` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '涉事人ID',
-    `sys_device_card_event_person_involved_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '涉事人姓名',
-    `sys_device_card_event_major_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '主事件类型',
-    `sys_device_card_event_minor_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '次事件类型',
-    `sys_device_card_event_message_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '消息ID',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_device_card_event_id`) USING BTREE,
-    INDEX `idx_event_time` (`sys_device_card_event_time`) USING BTREE COMMENT '事件时间索引',
-    INDEX `idx_serial_number` (`sys_device_serial_number`) USING BTREE COMMENT '设备序列号索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
-COMMENT = '门禁事件表 - 记录门禁刷卡事件' ROW_FORMAT = DYNAMIC;
-
--- =====================================================
--- 9. 设备消息事件表 (sys_device_message_event)
--- 用途: 记录设备上报的消息事件
--- =====================================================
-DROP TABLE IF EXISTS `sys_device_message_event`;
-CREATE TABLE `sys_device_message_event` (
-    `sys_device_message_event_id` int NOT NULL AUTO_INCREMENT COMMENT '事件ID - 主键自增',
-    `sys_device_message_event_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '事件类型',
-    `sys_device_message_event_event_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '事件唯一ID',
-    `sys_device_message_event_data_time` datetime NULL DEFAULT NULL COMMENT '事件数据时间',
-    `sys_device_message_event_employee_no` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '人员工号',
-    `sys_device_message_event_employee_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '人员姓名',
-    `sys_device_message_event_card_no` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '卡号',
-    `sys_device_serial_number` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备序列号',
-    `sys_device_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备名称',
-    `sys_device_message_event_channel_no` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '触发通道号',
-    `sys_device_message_event_channel_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '触发通道名称',
-    `sys_device_message_event_location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '触发位置',
-    `sys_device_message_event_card_reader_kind` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '读卡器类型 - 1:IC, 2:身份证, 3:二维码',
-    `sys_device_message_event_card_reader_no` int NULL DEFAULT NULL COMMENT '读卡器编号',
-    `sys_device_message_event_door_no` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '门编号',
-    `sys_device_message_event_event_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '消息事件类型',
-    `sys_device_message_event_event_type_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '消息事件类型名称',
-    `sys_device_message_event_event_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '事件码',
-    `sys_device_message_event_event_description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '事件描述',
-    `sys_device_message_event_event_source` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '事件来源',
-    `sys_device_message_event_event_picture_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '事件图片URL',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_device_message_event_id`) USING BTREE,
-    INDEX `idx_data_time` (`sys_device_message_event_data_time`) USING BTREE COMMENT '事件时间索引',
-    INDEX `idx_serial_number` (`sys_device_serial_number`) USING BTREE COMMENT '设备序列号索引',
-    INDEX `idx_event_type` (`sys_device_message_event_type`) USING BTREE COMMENT '事件类型索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci
-COMMENT = '设备消息事件表 - 记录设备上报的消息事件' ROW_FORMAT = DYNAMIC;
-
--- =====================================================
--- 10. AI模型分类表 (sys_ai_module)
--- 用途: 管理各类AI模型配置
--- =====================================================
-DROP TABLE IF EXISTS `sys_ai_module`;
-CREATE TABLE `sys_ai_module` (
-    `sys_ai_module_id` int NOT NULL AUTO_INCREMENT COMMENT '模型ID - 主键自增',
-    `sys_ai_module_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型名称 - 模型的显示名称',
-    `sys_ai_module_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型编码 - 模型的API标识码',
-    `sys_project_id` int NULL DEFAULT NULL COMMENT '项目ID - 关联sys_project表',
-    `sys_ai_module_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型说明 - 模型功能描述',
-    `sys_ai_module_status` int NULL DEFAULT 1 COMMENT '模型状态 - 0:禁用, 1:启用',
-    `sys_ai_module_sort` int NULL DEFAULT 0 COMMENT '排序号',
-    `sys_ai_module_manufacturers` int NULL DEFAULT NULL COMMENT '厂商 - 关联字典表ID=1',
-    `sys_ai_module_role_setting` int NULL DEFAULT 0 COMMENT '是否存在角色设置 - 0:不存在, 1:存在',
-    `sys_ai_module_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'LLM' COMMENT '模型类型 - LLM:大语言模型, VINCENT:文生图, VIDEO:文生视频, RESOLUTION:超分辨率, COLORIZATION:图像上色',
-    `sys_ai_module_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型单独地址 - 独立的API端点URL',
-    `sys_ai_module_version` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型版本',
-    `sys_ai_module_vlm` int NULL DEFAULT 0 COMMENT '是否VLM模型 - 0:否, 1:是(视觉语言模型，支持图片输入)',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_ai_module_id`) USING BTREE,
-    INDEX `idx_project_id` (`sys_project_id`) USING BTREE COMMENT '项目ID索引',
-    INDEX `idx_module_type` (`sys_ai_module_type`) USING BTREE COMMENT '模型类型索引',
-    INDEX `idx_module_status` (`sys_ai_module_status`) USING BTREE COMMENT '状态索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
-COMMENT = 'AI模型分类表 - 管理各类AI模型配置' ROW_FORMAT = DYNAMIC;
-
--- =====================================================
--- 11. 文生图模型参数表 (sys_ai_vincent_setting)
--- 用途: 配置文生图/文生视频模型的详细参数
--- =====================================================
-DROP TABLE IF EXISTS `sys_ai_vincent_setting`;
-CREATE TABLE `sys_ai_vincent_setting` (
-    `sys_ai_vincent_id` int NOT NULL AUTO_INCREMENT COMMENT '配置ID - 主键自增',
-    `sys_ai_module_id` int NULL DEFAULT NULL COMMENT '所属模型ID - 关联sys_ai_module表',
-    `sys_ai_vincent_support_async` int NULL DEFAULT 0 COMMENT '是否支持异步 - 0:同步, 1:异步任务',
-    `sys_ai_vincent_support_ref_image` int NULL DEFAULT 0 COMMENT '支持参考图 - 0:不支持, 1:支持图生图',
-    `sys_ai_vincent_support_audio` int NULL DEFAULT 0 COMMENT '支持AI音效 - 0:不支持, 1:支持',
-    `sys_ai_vincent_supported_style` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '支持的风格 - 逗号分隔的风格标识列表',
-    `sys_ai_vincent_supported_number` int NULL DEFAULT 1 COMMENT '支持输出张数 - 单次生成的最大图片数量',
-    `sys_ai_vincent_supported_size` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '支持的尺寸 - 逗号分隔的尺寸列表(如"1024*1024,720*1280")',
-    `sys_ai_vincent_supported_max_size` int NULL DEFAULT NULL COMMENT '支持的最大尺寸 - 最大边长像素值',
-    `sys_ai_vincent_supported_fps` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '支持的FPS - 视频帧率',
-    `sys_ai_vincent_supported_quality` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '支持的视频质量',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_ai_vincent_id`) USING BTREE,
-    UNIQUE INDEX `uk_module_id` (`sys_ai_module_id`) USING BTREE COMMENT '模型ID唯一索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
-COMMENT = '文生图模型参数表 - 配置文生图/文生视频模型的详细参数' ROW_FORMAT = DYNAMIC;
-
--- =====================================================
--- 12. 文生图风格表 (sys_ai_vincent_style)
--- 用途: 定义文生图模型支持的风格选项
--- =====================================================
-DROP TABLE IF EXISTS `sys_ai_vincent_style`;
-CREATE TABLE `sys_ai_vincent_style` (
-    `sys_ai_vincent_style_id` int NOT NULL AUTO_INCREMENT COMMENT '风格ID - 主键自增',
-    `sys_ai_module_id` int NULL DEFAULT NULL COMMENT '所属模型ID - 关联sys_ai_module表',
-    `sys_ai_vincent_style_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '风格名称 - 显示给用户的风格名称',
-    `sys_ai_vincent_style_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '风格编码 - 调用API时使用的风格标识',
-    `sys_ai_vincent_style_image` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '风格示例图 - 风格效果预览图URL',
-    PRIMARY KEY (`sys_ai_vincent_style_id`) USING BTREE,
-    INDEX `idx_module_id` (`sys_ai_module_id`) USING BTREE COMMENT '模型ID索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
-COMMENT = '文生图风格表 - 定义文生图模型支持的风格选项' ROW_FORMAT = DYNAMIC;
-
--- =====================================================
--- 13. 文生图任务表 (sys_ai_vincent_task)
--- 用途: 记录文生图异步任务的执行状态
--- =====================================================
-DROP TABLE IF EXISTS `sys_ai_vincent_task`;
-CREATE TABLE `sys_ai_vincent_task` (
-    `sys_ai_vincent_task_id` int NOT NULL AUTO_INCREMENT COMMENT '任务ID - 主键自增',
-    `sys_ai_vincent_task_uid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '任务唯一标识 - 第三方平台返回的任务ID',
-    `sys_ai_vincent_task_status` int NULL DEFAULT 0 COMMENT '任务状态 - 0:进行中, 1:已完成, 2:失败',
-    `sys_project_id` int NULL DEFAULT NULL COMMENT '项目ID - 关联sys_project表',
-    `sys_ai_module_id` int NULL DEFAULT NULL COMMENT '模型ID - 关联sys_ai_module表',
-    `sys_ai_vincent_task_condition` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '生成参数 - JSON格式的生成条件',
-    `sys_ai_vincent_task_url` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '生成结果URL - 生成的图片/视频URL',
-    `sys_ai_vincent_task_local_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '本地保存URL - 下载到本地后的文件路径',
-    `sys_ai_vincent_task_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '任务类型 - VINCENT:文生图, VIDEO:文生视频',
-    `sys_ai_vincent_task_request_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '请求ID - 本地生成的请求追踪ID',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_ai_vincent_task_id`) USING BTREE,
-    UNIQUE INDEX `uk_task_uid` (`sys_ai_vincent_task_uid`) USING BTREE COMMENT '任务UID唯一索引',
-    INDEX `idx_task_status` (`sys_ai_vincent_task_status`) USING BTREE COMMENT '任务状态索引',
-    INDEX `idx_create_by` (`create_by`) USING BTREE COMMENT '创建人索引',
-    INDEX `idx_create_time` (`create_time`) USING BTREE COMMENT '创建时间索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
-COMMENT = '文生图任务表 - 记录文生图异步任务的执行状态' ROW_FORMAT = DYNAMIC;
-
--- =====================================================
--- 14. 文生图模板表 (sys_ai_vincent_template)
--- 用途: 预设的文生图模板配置
--- =====================================================
-DROP TABLE IF EXISTS `sys_ai_vincent_template`;
-CREATE TABLE `sys_ai_vincent_template` (
-    `sys_ai_vincent_template_id` int NOT NULL AUTO_INCREMENT COMMENT '模板ID - 主键自增',
-    `sys_ai_module_id` int NULL DEFAULT NULL COMMENT '所属模型ID - 关联sys_ai_module表',
-    `sys_ai_vincent_template_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板名称',
-    `sys_ai_vincent_template_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板类型标识',
-    `sys_ai_vincent_template_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板预览图URL',
-    `sys_ai_vincent_template_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板描述 - 模板用途说明',
-    `sys_ai_vincent_template_sort` int NULL DEFAULT 0 COMMENT '排序号',
-    `sys_ai_vincent_template_model_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型ID - 第三方平台的模型标识',
-    `sys_ai_vincent_template_model_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型名称',
-    `sys_ai_vincent_template_category` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模板分类 - combining_images:组合图, style:风格等',
-    `sys_ai_vincent_template_train_model` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '训练模型',
-    `sys_ai_vincent_template_recommend_prompt` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '推荐提示词 - 示例prompt',
-    `sys_ai_vincent_template_resolutions` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '推荐分辨率',
-    `sys_ai_vincent_template_word` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '关键词说明',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_ai_vincent_template_id`) USING BTREE,
-    INDEX `idx_module_id` (`sys_ai_module_id`) USING BTREE COMMENT '模型ID索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
-COMMENT = '文生图模板表 - 预设的文生图模板配置' ROW_FORMAT = DYNAMIC;
-
--- =====================================================
--- 15. 短信模板表 (sys_sms_template)
+-- 4. 短信模板表 (sys_sms_template)
 -- 用途: 管理短信发送模板
 -- =====================================================
 DROP TABLE IF EXISTS `sys_sms_template`;
@@ -478,7 +148,7 @@ CREATE TABLE `sys_sms_template` (
 COMMENT = '短信模板表 - 管理短信发送模板' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 16. 短信日志表 (sys_sms_log)
+-- 5. 短信日志表 (sys_sms_log)
 -- 用途: 记录短信发送历史
 -- =====================================================
 DROP TABLE IF EXISTS `sys_sms_log`;
@@ -509,7 +179,7 @@ CREATE TABLE `sys_sms_log` (
 COMMENT = '短信日志表 - 记录短信发送历史' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 17. 邮件模板表 (sys_email_template)
+-- 6. 邮件模板表 (sys_email_template)
 -- 用途: 管理邮件发送模板
 -- =====================================================
 DROP TABLE IF EXISTS `sys_email_template`;
@@ -547,7 +217,7 @@ CREATE TABLE `sys_email_template` (
 COMMENT = '邮件模板表 - 管理邮件发送模板' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 18. 邮件日志表 (sys_email_log)
+-- 7. 邮件日志表 (sys_email_log)
 -- 用途: 记录邮件发送历史
 -- =====================================================
 DROP TABLE IF EXISTS `sys_email_log`;
@@ -579,3 +249,4 @@ CREATE TABLE `sys_email_log` (
 COMMENT = '邮件日志表 - 记录邮件发送历史' ROW_FORMAT = DYNAMIC;
 
 SET FOREIGN_KEY_CHECKS = 1;
+

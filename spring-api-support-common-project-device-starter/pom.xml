@@ -10,9 +10,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>spring-api-support-device-starter</artifactId>
-    <name>spring-api-support-device-starter</name>
-    <description>独立设备模块，负责设备商户、设备同步与预览编排</description>
+    <artifactId>spring-api-support-common-project-device-starter</artifactId>
+    <name>spring-api-support-common-project-device-starter</name>
+    <description>通用项目设备模块，负责设备商户、设备同步与预览编排</description>
 
     <dependencies>
         <dependency>
@@ -33,11 +33,17 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-project-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-hikvision-starter</artifactId>
+            <version>${utils.version}</version>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-dahua-starter</artifactId>
+            <version>${utils.version}</version>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
