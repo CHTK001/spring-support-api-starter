@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenServerLoginRecordMapper">
+
+    <select id="getTopNLoginRecords" resultType="com.chua.starter.monitor.entity.MonitorSysGenServerLoginRecord">
+        SELECT * FROM monitor_sys_gen_server_login_record
+        WHERE 1=1
+        <if test="serverId != null">
+            AND server_id = #{serverId}
+        </if>
+        ORDER BY login_time DESC
+        LIMIT #{topN}
+    </select>
+
+</mapper>

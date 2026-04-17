@@ -13,6 +13,7 @@ import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.sync.support.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
 import com.chua.starter.monitor.service.server.ServerConnectionService;
+import com.chua.starter.monitor.service.server.ServerLoginRecordService;
 import com.chua.starter.monitor.service.server.SshCommandService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,10 @@ public class SshSocketListener implements SocketListener {
     @Autowired
     @Lazy
     private List<ServerConnectionService> serverConnectionServices;
+
+    @Autowired
+    @Lazy
+    private ServerLoginRecordService serverLoginRecordService;
 
     public SshSocketListener(SshCommandService sshCommandService) {
         this.sshCommandService = sshCommandService;
@@ -84,20 +89,33 @@ public class SshSocketListener implements SocketListener {
                 return;
             }
 
+            // 获取登录信息
+            String username = server.getUsername();
+            String loginIp = session.getRemoteAddress();
+            String host = server.getMonitorSysGenServerHost();
+            String serverName = server.getMonitorSysGenServerName();
+
             boolean connected = sshCommandService.connectSSH(server);
             if (connected) {
                 sessionServerMap.put(session.getId(), serverId);
                 serverSessionMap.put(serverId, session);
-                
+
+                // 记录登录成功
+                serverLoginRecordService.recordLoginSuccess(
+                        serverId, serverName, host, username, "SSH", loginIp);
+
                 ServerWebSocketMessage response = ServerWebSocketMessage.createSSHConnectMessage(
                         serverId,
-                        server.getMonitorSysGenServerName(),
-                        server.getMonitorSysGenServerHost(),
+                        serverName,
+                        host,
                         server.getMonitorSysGenServerPort()
                 );
                 socketSessionTemplate.send(MonitorSocketTopics.Remote.Ssh.CONNECT, Json.toJson(response));
                 log.info("SSH连接成功: serverId={}", serverId);
             } else {
+                // 记录登录失败
+                serverLoginRecordService.recordLoginFailed(
+                        serverId, serverName, host, username, "SSH", loginIp, "SSH连接失败");
                 session.send(MonitorSocketTopics.Remote.Ssh.ERROR, ReturnResult.illegal("SSH连接失败"));
             }
         } catch (Exception e) {

@@ -16,6 +16,10 @@
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
+      <artifactId>spring-support-job-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-system-starter</artifactId>
       <exclusions>
         <exclusion>
