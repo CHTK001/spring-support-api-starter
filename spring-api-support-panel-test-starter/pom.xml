@@ -32,6 +32,31 @@
       <artifactId>h2</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-ssh-starter</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-zookeeper-starter</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongodb-driver-sync</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.influxdb</groupId>
+      <artifactId>influxdb-client-java</artifactId>
+      <version>3.4.0</version>
+    </dependency>
   </dependencies>
 
   <build>
