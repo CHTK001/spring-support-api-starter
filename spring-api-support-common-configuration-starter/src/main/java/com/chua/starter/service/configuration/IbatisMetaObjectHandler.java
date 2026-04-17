@@ -47,12 +47,7 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
             registerField(metaObject, "createTime", CREATE);
         }
 
-
-        AuthClientExecute clientExecute = AuthClientExecute.getInstance();
-        if(clientExecute.whiteList()) {
-            return;
-        }
-        UserResult userLoginInfo = clientExecute.getUserResult();
+        UserResult userLoginInfo = getCurrentUser();
         if(null != userLoginInfo) {
             if (metaObject.hasGetter("createBy")) {
                 registerField(metaObject, "createBy", userLoginInfo.getOption("sysUserId", userLoginInfo.getUserId()), CREATE);
@@ -88,11 +83,7 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
             registerField(metaObject, "updateTime", UPDATE);
         }
 
-        AuthClientExecute clientExecute = AuthClientExecute.getInstance();
-        if(clientExecute.whiteList()) {
-            return;
-        }
-        UserResult userLoginInfo = clientExecute.getUserResult();
+        UserResult userLoginInfo = getCurrentUser();
         if(null != userLoginInfo) {
             if (metaObject.hasGetter("updateBy")) {
                 registerField(metaObject, "updateBy", userLoginInfo.getOption("sysUserId", userLoginInfo.getUserId()), UPDATE);
@@ -104,6 +95,17 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
                 registerField(metaObject, "operationUser", StringUtils.defaultString(userLoginInfo.getOption("userRealName"), userLoginInfo.getUsername()), UPDATE);
             }
         }
+    }
+
+    private UserResult getCurrentUser() {
+        if (authProperties != null && !authProperties.isEnable()) {
+            return null;
+        }
+        AuthClientExecute clientExecute = AuthClientExecute.getInstance();
+        if (clientExecute.whiteList()) {
+            return null;
+        }
+        return clientExecute.getSafeUserResult();
     }
 
     private void registerField(MetaObject metaObject, String name, Action action) {

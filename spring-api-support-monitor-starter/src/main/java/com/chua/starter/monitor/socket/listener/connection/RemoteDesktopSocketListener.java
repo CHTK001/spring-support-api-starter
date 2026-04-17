@@ -11,6 +11,7 @@ import com.chua.starter.monitor.constant.MonitorSocketTopics;
 import com.chua.starter.monitor.entity.MonitorSysGenServer;
 import com.chua.starter.sync.support.message.ServerWebSocketMessage;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.server.ServerLoginRecordService;
 import com.chua.starter.monitor.service.impl.RemoteDesktopServiceMonitor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,10 @@ public class RemoteDesktopSocketListener implements SocketListener {
     @Lazy
     private RemoteDesktopServiceMonitor remoteDesktopService;
 
+    @Autowired
+    @Lazy
+    private ServerLoginRecordService serverLoginRecordService;
+
     // 存储会话与服务器的映射关系
     private final Map<String, Integer> sessionServerMap = new ConcurrentHashMap<>();
     private final Map<Integer, SocketSession> serverSessionMap = new ConcurrentHashMap<>();
@@ -68,15 +73,28 @@ public class RemoteDesktopSocketListener implements SocketListener {
                 return;
             }
 
+            // 获取登录信息
+            String username = server.getUsername();
+            String loginIp = session.getRemoteAddress();
+            String host = server.getMonitorSysGenServerHost();
+            String serverName = server.getMonitorSysGenServerName();
+
             // 启动远程桌面服务
             var handles = remoteDesktopService.startService(serverId, null, null);
             if (handles.isEmpty()) {
+                // 记录登录失败
+                serverLoginRecordService.recordLoginFailed(
+                        serverId, serverName, host, username, "RDP", loginIp, "远程桌面服务启动失败");
                 session.send(MonitorSocketTopics.Remote.Desktop.ERROR, ReturnResult.illegal("远程桌面服务启动失败"));
                 return;
             }
 
             sessionServerMap.put(session.getId(), serverId);
             serverSessionMap.put(serverId, session);
+
+            // 记录登录成功
+            serverLoginRecordService.recordLoginSuccess(
+                    serverId, serverName, host, username, "RDP", loginIp);
 
             var host = remoteDesktopService.getDefaultHost();
             var wsPort = remoteDesktopService.getDefaultWebSocketPort();

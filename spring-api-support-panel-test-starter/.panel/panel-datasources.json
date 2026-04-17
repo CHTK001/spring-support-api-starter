@@ -1,11 +1,47 @@
 [ {
+  "panelSourceId" : "panel-source-75d75b71-9013-4678-948e-4209b6b10aea",
+  "panelSourceType" : "ZOOKEEPER",
+  "panelConnectionName" : "测试zookeeper",
+  "panelHost" : "172.16.0.40",
+  "panelPort" : 2181,
+  "panelUsername" : "root",
+  "panelPassword" : "Yaq.K11qiRenWen>a<6XsJlbEN",
+  "panelDialectType" : "MYSQL",
+  "panelFavorite" : false,
+  "panelUpdatedAt" : "2026-04-16T19:42:18.806509500+08:00"
+}, {
   "panelSourceId" : "panel-source-c94db999-7b7a-47ac-84cc-b87f7fbb5fa1",
   "panelSourceType" : "JDBC",
-  "panelConnectionName" : "测试",
+  "panelConnectionName" : "测试mysql",
   "panelHost" : "172.16.0.40",
   "panelPort" : 3306,
   "panelUsername" : "root",
   "panelPassword" : "root@",
+  "panelDialectType" : "MYSQL",
+  "panelDriverClassName" : "com.mysql.cj.jdbc.Driver",
   "panelFavorite" : false,
-  "panelUpdatedAt" : "2026-04-14T22:34:45.529628300+08:00"
+  "panelUpdatedAt" : "2026-04-16T16:38:38.689085+08:00"
+}, {
+  "panelSourceId" : "panel-source-7e1b2847-da09-4d94-b638-2457d39847f3",
+  "panelSourceType" : "REDIS",
+  "panelConnectionName" : "测试redis",
+  "panelHost" : "172.16.0.40",
+  "panelPort" : 16379,
+  "panelPassword" : "",
+  "panelDialectType" : "MYSQL",
+  "panelDriverClassName" : "com.mysql.cj.jdbc.Driver",
+  "panelFavorite" : false,
+  "panelUpdatedAt" : "2026-04-16T13:25:42.784801100+08:00"
+}, {
+  "panelSourceId" : "panel-source-2b87e8dc-689e-4f6c-bd46-c7e988289fd0",
+  "panelSourceType" : "NGINX",
+  "panelConnectionName" : "测试nginx",
+  "panelHost" : "8.139.4.229",
+  "panelPort" : 22,
+  "panelUsername" : "root",
+  "panelPassword" : "Yaq.K11qiRenWen>a<6XsJlbEN",
+  "panelDialectType" : "MYSQL",
+  "panelDriverClassName" : "com.mysql.cj.jdbc.Driver",
+  "panelFavorite" : false,
+  "panelUpdatedAt" : "2026-04-16T13:25:35.066976300+08:00"
 } ]

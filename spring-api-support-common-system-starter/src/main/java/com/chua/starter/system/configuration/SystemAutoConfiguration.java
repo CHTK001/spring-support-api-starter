@@ -3,7 +3,6 @@ package com.chua.starter.system.configuration;
 import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.chua.starter.common.support.oauth.AuthService;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
-import com.chua.starter.service.configuration.SystemCacheConfiguration;
 import com.chua.starter.system.properties.SystemSecurityProperties;
 import com.chua.starter.system.interceptor.PrivilegedVisibilityDataPermissionHandler;
 import com.chua.starter.system.interceptor.PrivilegedVisibilityInterceptor;
@@ -17,7 +16,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
@@ -33,7 +31,6 @@ import java.util.function.Supplier;
  */
 @Slf4j
 @Configuration
-@Import(SystemCacheConfiguration.class)
 @ComponentScan(basePackages = {
         "com.chua.starter.system"
 })
