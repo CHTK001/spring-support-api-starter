@@ -29,11 +29,7 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-service-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-project-starter</artifactId>
+            <artifactId>spring-support-project-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>

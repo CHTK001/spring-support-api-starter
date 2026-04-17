@@ -1,7 +1,7 @@
 package com.chua.starter.project.controller;
 
-import com.chua.deeplearning.support.core.response.ImageColorizationAddTaskV1Response;
-import com.chua.deeplearning.support.core.response.ImageColorizationSearchTaskV1Response;
+import com.chua.common.support.ai.response.ImageColorizationAddTaskV1Response;
+import com.chua.common.support.ai.response.ImageColorizationSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.base.validator.group.SelectGroup;
 import com.chua.starter.project.service.ImageColorizationService;

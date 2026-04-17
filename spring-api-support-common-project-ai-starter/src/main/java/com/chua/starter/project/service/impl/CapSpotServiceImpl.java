@@ -61,7 +61,7 @@ public class CapSpotServiceImpl implements CapSpotService {
 
     protected IdentificationEngine createIdentificationEngine(SysProject sysProject,
                                                               DetectionConfiguration detectionConfiguration) {
-        return IdentificationEngine.of(sysProject.getSysProjectDictItemCode(), detectionConfiguration);
+        return IdentificationEngine.of(String.valueOf(sysProject.getSysProjectVender()), detectionConfiguration);
     }
 
     private DetectionConfiguration buildDetectionConfiguration(SysProject sysProject, ImageRequest request) {

@@ -1,11 +1,11 @@
 package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.deeplearning.support.core.function.model.ImageToColorizationGenerator;
-import com.chua.deeplearning.support.core.request.ImageColorizationAddTaskV1Request;
-import com.chua.deeplearning.support.core.request.ImageColorizationSearchTaskV1Request;
-import com.chua.deeplearning.support.core.response.ImageColorizationAddTaskV1Response;
-import com.chua.deeplearning.support.core.response.ImageColorizationSearchTaskV1Response;
+import com.chua.common.support.ai.ImageToColorizationGenerator;
+import com.chua.common.support.ai.request.ImageColorizationAddTaskV1Request;
+import com.chua.common.support.ai.request.ImageColorizationSearchTaskV1Request;
+import com.chua.common.support.ai.response.ImageColorizationAddTaskV1Response;
+import com.chua.common.support.ai.response.ImageColorizationSearchTaskV1Response;
 import com.chua.deeplearning.support.ml.client.colorization.ColorizationSetting;
 import com.chua.common.support.io.binary.ByteSourceMultiFile;
 import com.chua.common.support.text.json.Json;
@@ -59,7 +59,7 @@ public class ImageColorizationServiceImpl implements ImageColorizationService {
             throw new RuntimeException("项目不存在");
         }
         ImageToColorizationGenerator imageResolutionClient = ServiceProvider.of(ImageToColorizationGenerator.class)
-                .getNewExtension(sysProject.getSysProjectDictItemCode(),
+                .getNewExtension(String.valueOf(sysProject.getSysProjectVender()),
                         ColorizationSetting.builder()
                                 .host(StringUtils.defaultString(sysAiModule.getSysAiModuleUrl(), sysProject.getSysProjectEndpoint()))
                                 .appId(sysProject.getSysProjectAppId())
@@ -103,7 +103,7 @@ public class ImageColorizationServiceImpl implements ImageColorizationService {
             throw new RuntimeException("项目不存在");
         }
         ImageToColorizationGenerator colorizationSearchTaskV1Response = ServiceProvider.of(ImageToColorizationGenerator.class)
-                .getNewExtension(sysProject.getSysProjectDictItemCode(),
+                .getNewExtension(String.valueOf(sysProject.getSysProjectVender()),
                         ColorizationSetting.builder()
                                 .host(sysProject.getSysProjectEndpoint())
                                 .appId(sysProject.getSysProjectAppId())
