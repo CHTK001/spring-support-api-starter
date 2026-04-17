@@ -7,8 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.core.utils.ObjectUtils;
-import com.chua.starter.service.cache.CacheCustomTenantedKeyGenerator;
-import com.chua.starter.common.support.configuration.SpringBeanUtils;
+import com.chua.starter.common.support.cache.TenantedKeyGenerator;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.project.mapper.SysAiModuleMapper;
@@ -16,8 +15,8 @@ import com.chua.starter.project.mapper.SysAiVincentSettingMapper;
 import com.chua.starter.project.service.SysAiModuleService;
 import com.chua.starter.entity.project.SysAiModule;
 import com.chua.starter.entity.project.SysAiVincentSetting;
-import com.chua.starter.entity.service.SysDictItem;
 import com.chua.starter.entity.project.SysProject;
+import com.chua.spring.support.configuration.SpringBeanUtils;
 import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
@@ -86,8 +85,6 @@ public class SysAiModuleServiceImpl extends ServiceImpl<SysAiModuleMapper, SysAi
                 new Page<>(query.getPage(), query.getPageSize()),
                 MPJWrappers.<SysAiModule>lambdaJoin()
                         .selectAll(SysAiModule.class)
-                        .selectAs(SysDictItem::getSysDictItemName, SysAiModule::getSysApiModuleManufacturersLabel)
-                        .leftJoin(SysDictItem.class, SysDictItem::getSysDictItemId, SysAiModule::getSysAiModuleManufacturers)
                         .eq(SysAiModule::getSysAiModuleType, sysAiModuleType)
                         .eq(ObjectUtils.isNotEmpty(sysProjectId), SysAiModule::getSysProjectId, sysProjectId)
                         .orderByAsc(SysAiModule::getSysAiModuleSort)
@@ -147,7 +144,7 @@ public class SysAiModuleServiceImpl extends ServiceImpl<SysAiModuleMapper, SysAi
     }
 
     @Override
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:ai:module:' + #model + ':' + #sysProjectId", keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:ai:module:' + #model + ':' + #sysProjectId", keyGenerator = "tenantedKeyGenerator")
     public SysAiModule getOneByCode(Integer sysProjectId, String model) {
         return com.chua.common.support.core.utils.CollectionUtils.findFirst(baseMapper.selectList(
                 Wrappers.<SysAiModule>lambdaQuery()
@@ -158,7 +155,7 @@ public class SysAiModuleServiceImpl extends ServiceImpl<SysAiModuleMapper, SysAi
     }
 
     private void clearDefaultCache(String model, Integer sysProjectId) {
-        StringBuilder keyPref = SpringBeanUtils.getBean(CacheCustomTenantedKeyGenerator.class).getKeyPref();
+        StringBuilder keyPref = SpringBeanUtils.getBean(TenantedKeyGenerator.class).getKeyPrefix();
         SpringBeanUtils.getBean(CacheConstant.REDIS_CACHE_ALWAYS, CacheManager.class)
                 .getCache(CacheConstant.REDIS_CACHE_ALWAYS)
                 .evict(keyPref.toString() + "sys:ai:module:" + model + ":" + sysProjectId);

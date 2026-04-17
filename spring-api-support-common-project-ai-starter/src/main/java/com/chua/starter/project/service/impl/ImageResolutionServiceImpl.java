@@ -1,11 +1,11 @@
 package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.deeplearning.support.core.function.model.ImageToResolutionGenerator;
-import com.chua.deeplearning.support.core.request.ImageResolutionAddTaskV1Request;
-import com.chua.deeplearning.support.core.request.ImageResolutionSearchTaskV1Request;
-import com.chua.deeplearning.support.core.response.ImageResolutionAddTaskV1Response;
-import com.chua.deeplearning.support.core.response.ImageResolutionSearchTaskV1Response;
+import com.chua.common.support.ai.ImageToResolutionGenerator;
+import com.chua.common.support.ai.request.ImageResolutionAddTaskV1Request;
+import com.chua.common.support.ai.request.ImageResolutionSearchTaskV1Request;
+import com.chua.common.support.ai.response.ImageResolutionAddTaskV1Response;
+import com.chua.common.support.ai.response.ImageResolutionSearchTaskV1Response;
 import com.chua.deeplearning.support.ml.client.resolution.ResolutionSetting;
 import com.chua.common.support.io.binary.ByteSourceMultiFile;
 import com.chua.common.support.text.json.Json;
@@ -59,7 +59,7 @@ public class ImageResolutionServiceImpl implements ImageResolutionService {
             throw new RuntimeException("项目不存在");
         }
         ImageToResolutionGenerator imageResolutionClient = ServiceProvider.of(ImageToResolutionGenerator.class)
-                .getNewExtension(sysProject.getSysProjectDictItemCode(),
+                .getNewExtension(String.valueOf(sysProject.getSysProjectVender()),
                         com.chua.deeplearning.support.ml.client.resolution.ResolutionSetting.builder()
                                 .host(StringUtils.defaultString(sysAiModule.getSysAiModuleUrl(), sysProject.getSysProjectEndpoint()))
                                 .appId(sysProject.getSysProjectAppId())
@@ -104,7 +104,7 @@ public class ImageResolutionServiceImpl implements ImageResolutionService {
             throw new RuntimeException("项目不存在");
         }
         ImageToResolutionGenerator imageResolutionClient = ServiceProvider.of(ImageToResolutionGenerator.class)
-                .getNewExtension(sysProject.getSysProjectDictItemCode(),
+                .getNewExtension(String.valueOf(sysProject.getSysProjectVender()),
                         com.chua.deeplearning.support.ml.client.resolution.ResolutionSetting.builder()
                                 .host(sysProject.getSysProjectEndpoint())
                                 .appId(sysProject.getSysProjectAppId())

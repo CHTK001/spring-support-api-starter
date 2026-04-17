@@ -6,8 +6,6 @@ import com.chua.cloud.support.security.SecurityClientFactory;
 import com.chua.cloud.support.security.enums.PlatformType;
 import com.chua.starter.device.service.DeviceMerchantStoreService;
 import com.chua.starter.entity.project.SysProject;
-import com.chua.starter.entity.service.SysDictItem;
-import com.chua.starter.service.SysDictItemService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -27,13 +25,11 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class DeviceSecurityClientFactory {
 
-    private static final int PROJECT_FUNCTION_DICT_ID = 6;
     private static final String DEVICE_FUNCTION_CODE = "SHE_BEI";
     private static final String DEFAULT_HIKVISION_YUNMOU_API = "https://api2.hik-cloud.com";
     private static final String DEFAULT_HIKVISION_YUNYAO_API = "https://open.hikyun.com";
 
     private final DeviceMerchantStoreService deviceMerchantStoreService;
-    private final SysDictItemService sysDictItemService;
 
     public SecurityClient create(Integer sysProjectId) {
         return create(getDeviceMerchant(sysProjectId));
@@ -54,22 +50,18 @@ public class DeviceSecurityClientFactory {
         return sysProject;
     }
 
-    public Integer getDeviceFunctionId() {
-        SysDictItem sysDictItem = sysDictItemService.getTypeIdByName(DEVICE_FUNCTION_CODE, PROJECT_FUNCTION_DICT_ID);
-        if (sysDictItem == null || sysDictItem.getSysDictItemId() == null) {
-            throw new IllegalStateException("未找到设备功能字典项: " + DEVICE_FUNCTION_CODE);
-        }
-        return sysDictItem.getSysDictItemId();
+    public String getDeviceFunctionCode() {
+        return DEVICE_FUNCTION_CODE;
     }
 
     public String appendDeviceFunction(String sysProjectFunction) {
         Set<String> functionIds = splitCsv(sysProjectFunction);
-        functionIds.add(String.valueOf(getDeviceFunctionId()));
+        functionIds.add(getDeviceFunctionCode());
         return String.join(",", functionIds);
     }
 
     private boolean hasDeviceFunction(SysProject sysProject) {
-        return splitCsv(sysProject.getSysProjectFunction()).contains(String.valueOf(getDeviceFunctionId()));
+        return splitCsv(sysProject.getSysProjectFunction()).contains(getDeviceFunctionCode());
     }
 
     private SecurityConfig toSecurityConfig(SysProject sysProject) {
@@ -101,32 +93,32 @@ public class DeviceSecurityClientFactory {
     }
 
     private PlatformType resolvePlatformType(SysProject sysProject) {
-        String code = StringUtils.upperCase(StringUtils.defaultString(sysProject.getSysProjectDictItemCode()), Locale.ROOT);
-        String label = StringUtils.defaultString(sysProject.getSysProjectDictItemLabel());
+        String vendorCode = sysProject.getSysProjectVender() == null ? "" : String.valueOf(sysProject.getSysProjectVender());
+        String code = StringUtils.upperCase(vendorCode, Locale.ROOT);
 
         PlatformType exactType = PlatformType.fromCode(StringUtils.lowerCase(code, Locale.ROOT));
         if (exactType != null) {
             return exactType;
         }
-        if (code.contains("YUN_MOU") || label.contains("云眸")) {
+        if (code.contains("YUN_MOU") || code.contains("云眸")) {
             return PlatformType.HIKVISION_YUNMOU;
         }
-        if (code.contains("YUN_YAO") || label.contains("云耀") || label.contains("云曜") || label.contains("云耀")) {
+        if (code.contains("YUN_YAO") || code.contains("云耀") || code.contains("云曜")) {
             return PlatformType.HIKVISION_YUNYAO;
         }
-        if (code.contains("HAI_KANG") || code.contains("HIKVISION") || label.contains("海康")) {
+        if (code.contains("HAI_KANG") || code.contains("HIKVISION") || code.contains("海康")) {
             return PlatformType.HIKVISION_ISECURE;
         }
-        if (code.contains("DA_HUA") || code.contains("DAHUA") || label.contains("大华")) {
+        if (code.contains("DA_HUA") || code.contains("DAHUA") || code.contains("大华")) {
             return PlatformType.DAHUA_DSS;
         }
-        if (code.contains("YU_SHI") || code.contains("UNIVIEW") || label.contains("宇视")) {
+        if (code.contains("YU_SHI") || code.contains("UNIVIEW") || code.contains("宇视")) {
             return PlatformType.UNIVIEW;
         }
-        if (code.contains("HUA_WEI") || code.contains("HUAWEI") || label.contains("华为")) {
+        if (code.contains("HUA_WEI") || code.contains("HUAWEI") || code.contains("华为")) {
             return PlatformType.HUAWEI;
         }
-        throw new IllegalArgumentException("暂不支持的设备厂家: " + firstNonBlank(label, code));
+        throw new IllegalArgumentException("暂不支持的设备厂家: " + firstNonBlank(code));
     }
 
     private String resolveApiUrl(SysProject sysProject, PlatformType platformType) {

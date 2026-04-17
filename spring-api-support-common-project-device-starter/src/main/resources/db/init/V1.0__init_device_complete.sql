@@ -42,7 +42,7 @@ CREATE TABLE `sys_device` (
     `sys_device_owner` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属者编码 - 设备所有者唯一标识',
     `sys_device_description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备描述',
     `sys_device_online` int NULL DEFAULT 0 COMMENT '在线状态 - 0:离线, 1:在线',
-    `sys_device_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备类型 - 关联字典表ID=7',
+    `sys_device_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '设备类型 - 前端固定值',
     `sys_device_latitude` decimal(10, 6) NULL DEFAULT NULL COMMENT '纬度 - GPS纬度坐标',
     `sys_device_longitude` decimal(10, 6) NULL DEFAULT NULL COMMENT '经度 - GPS经度坐标',
     `sys_device_net_address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '网络地址 - 设备IP地址',

@@ -35,10 +35,10 @@ public class SysSmsTemplate extends SysBase implements Serializable {
     private Integer sysProjectId;
 
     /**
-     * 子类别字典表(dictId=6)
+     * 类别
      */
     @TableField(value = "sys_project_type")
-    @Schema(description="类别字典表(dictId=6)")
+    @Schema(description="类别(前端固定值)")
     @NotNull(message = "类别不能为空", groups = {AddGroup.class})
     private Integer sysProjectType;
 
@@ -54,12 +54,6 @@ public class SysSmsTemplate extends SysBase implements Serializable {
     @TableField(value = "sys_sms_template_category")
     @Schema(description="模板类别")
     private Integer sysSmsTemplateCategory;
-    /**
-     * 模板类别
-     */
-    @TableField(exist = false)
-    @Schema(description="模板类别")
-    private String sysSmsTemplateCategoryLabel;
 
     /**
      * 名称

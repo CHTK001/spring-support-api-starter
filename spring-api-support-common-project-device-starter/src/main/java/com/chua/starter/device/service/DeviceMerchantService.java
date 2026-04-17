@@ -79,7 +79,7 @@ public class DeviceMerchantService {
         if (query.getSysProjectDelete() == null) {
             query.setSysProjectDelete(0);
         }
-        query.setSysProjectFunction(String.valueOf(deviceSecurityClientFactory.getDeviceFunctionId()));
+        query.setSysProjectFunction(deviceSecurityClientFactory.getDeviceFunctionCode());
         return query;
     }
 }
