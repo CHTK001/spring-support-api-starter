@@ -1,6 +1,6 @@
 package com.chua.starter.project.controller;
 
-import com.chua.deeplearning.support.ml.bigmodel.BigModelResponse;
+import com.chua.common.support.ai.bigmodel.BigModelResponse;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.base.validator.group.SelectGroup;
 import com.chua.starter.mybatis.entity.Query;
@@ -30,7 +30,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Tag(name = "大语言模型接口")
 @RequestMapping("/v2/api/language")
 @RequiredArgsConstructor
-@ConditionalOnClass(name = "com.chua.deeplearning.support.ml.bigmodel.BigModelCallback")
+@ConditionalOnClass(name = "com.chua.common.support.ai.bigmodel.BigModelCallback")
 public class BigModelController {
 
     final BigModelService bigModelService;

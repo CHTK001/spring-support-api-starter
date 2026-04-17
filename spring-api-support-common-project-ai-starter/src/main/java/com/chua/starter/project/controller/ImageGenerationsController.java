@@ -1,6 +1,6 @@
 package com.chua.starter.project.controller;
 
-import com.chua.deeplearning.support.core.response.ImageGenerationsSearchTaskV1Response;
+import com.chua.common.support.ai.response.ImageGenerationsSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.base.validator.group.SelectGroup;
 import com.chua.starter.oauth.client.support.annotation.UserValue;

@@ -1,7 +1,7 @@
 package com.chua.starter.project.controller;
 
-import com.chua.deeplearning.support.core.response.ImageResolutionAddTaskV1Response;
-import com.chua.deeplearning.support.core.response.ImageResolutionSearchTaskV1Response;
+import com.chua.common.support.ai.response.ImageResolutionAddTaskV1Response;
+import com.chua.common.support.ai.response.ImageResolutionSearchTaskV1Response;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.base.validator.group.SelectGroup;
 import com.chua.starter.project.service.ImageResolutionService;

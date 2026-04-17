@@ -1,9 +1,9 @@
 package com.chua.starter.project.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.deeplearning.support.core.result.PredictResult;
+import com.chua.common.support.ai.result.PredictResult;
 import com.chua.common.support.ai.DetectionConfiguration;
-import com.chua.deeplearning.support.core.function.api.Detector;
+import com.chua.common.support.ai.Detector;
 import com.chua.deeplearning.support.ml.identification.IdentificationEngine;
 import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.project.pojo.ImageRequest;
@@ -62,7 +62,7 @@ public class OcrServiceImpl implements OcrService {
                 .loadModelPath(sysProject.getSysProjectLocalPath())
                 .modelName(request.getModel())
                 .build();
-        IdentificationEngine identificationEngine = IdentificationEngine.of(sysProject.getSysProjectDictItemCode(), detectionConfiguration);
+        IdentificationEngine identificationEngine = IdentificationEngine.of(String.valueOf(sysProject.getSysProjectVender()), detectionConfiguration);
         if (null == identificationEngine) {
             throw new RuntimeException("暂不支持");
         }

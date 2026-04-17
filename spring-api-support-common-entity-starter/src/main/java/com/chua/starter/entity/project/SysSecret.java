@@ -58,20 +58,6 @@ public class SysSecret extends SysBase implements Serializable {
     @Size(max = 255, message = "api地址最大长度要小于 255")
     private String sysSecretApiAddress;
     /**
-     * 字典项ID(字典10000)
-     */
-    @TableField(value = "sys_secret_dict_item_id")
-    @Schema(description = "厂家字典项ID(字典1)")
-    @Size(max = 11, message = "厂家字典项ID(字典1)最大长度要小于 11")
-    private Integer sysSecretDictItemId;
-    /**
-     * 字典项ID(字典10000)名称
-     */
-    @TableField(exist = false)
-    @Schema(description = "厂家字典项ID(字典2)名称")
-    private String sysSecretDictItemName;
-
-    /**
      * appid
      */
     @TableField(value = "sys_secret_app_id")

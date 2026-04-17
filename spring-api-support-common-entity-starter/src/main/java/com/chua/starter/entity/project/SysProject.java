@@ -143,31 +143,17 @@ public class SysProject extends SysBase {
     private String sysProjectLocationOssAddress;
 
     /**
-     * 厂家(字典1)
+     * 厂家编码
      */
     @TableField(value = "sys_project_vender")
-    @Schema(description="厂家(字典1)")
-    private Integer sysProjectVender;
+    @Schema(description="厂家编码(前端固定值)")
+    private String sysProjectVender;
     /**
      * 排序
      */
     @TableField(value = "sys_project_sort")
     @Schema(description = "排序")
     private Integer sysProjectSort;
-
-    /**
-     * 厂家(字典1)
-     */
-    @TableField(exist = false)
-    @Schema(description = "厂家编码(字典1)")
-    private String sysProjectDictItemCode;
-
-    /**
-     * 厂家(字典1)
-     */
-    @TableField(exist = false)
-    @Schema(description = "厂家名称(字典1)")
-    private String sysProjectDictItemLabel;
 
     /**
      * 描述
@@ -177,10 +163,10 @@ public class SysProject extends SysBase {
     private String sysProjectRemark;
 
     /**
-     * 功能; 字典表6
+     * 功能; 前端固定值
      */
     @TableField(value = "sys_project_function")
-    @Schema(description="功能; 字典表6")
+    @Schema(description="功能; 前端固定值")
     private String sysProjectFunction;
 
     /**

@@ -1,11 +1,11 @@
 package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.deeplearning.support.core.function.model.ImageToVideoGenerator;
-import com.chua.deeplearning.support.core.request.VideoGenerationsAddTaskV1Request;
-import com.chua.deeplearning.support.core.request.VideoGenerationsSearchTaskV1Request;
-import com.chua.deeplearning.support.core.response.VideoGenerationsAddTaskV1Response;
-import com.chua.deeplearning.support.core.response.VideoGenerationsSearchTaskV1Response;
+import com.chua.common.support.ai.ImageToVideoGenerator;
+import com.chua.common.support.ai.request.VideoGenerationsAddTaskV1Request;
+import com.chua.common.support.ai.request.VideoGenerationsSearchTaskV1Request;
+import com.chua.common.support.ai.response.VideoGenerationsAddTaskV1Response;
+import com.chua.common.support.ai.response.VideoGenerationsSearchTaskV1Response;
 import com.chua.deeplearning.support.ml.client.generations.image.VincentDiagramSetting;
 import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -63,7 +63,7 @@ public class VideoGenerationServiceImpl implements VideoGenerationService {
             throw new RuntimeException("项目不存在");
         }
         ImageToVideoGenerator videoGenerationsClient = ServiceProvider.of(ImageToVideoGenerator.class)
-                .getNewExtension(sysProject.getSysProjectDictItemCode(),
+                .getNewExtension(String.valueOf(sysProject.getSysProjectVender()),
                         VincentDiagramSetting.builder()
                                 .host(StringUtils.defaultString(sysAiModule.getSysAiModuleUrl(), sysProject.getSysProjectEndpoint()))
                                 .appId(sysProject.getSysProjectAppId())
@@ -156,7 +156,7 @@ public class VideoGenerationServiceImpl implements VideoGenerationService {
             throw new RuntimeException("项目不存在");
         }
         ImageToVideoGenerator videoGenerationsClient = ServiceProvider.of(ImageToVideoGenerator.class)
-                .getNewExtension(sysProject.getSysProjectDictItemCode(),
+                .getNewExtension(String.valueOf(sysProject.getSysProjectVender()),
                         VincentDiagramSetting.builder()
                                 .host(sysProject.getSysProjectEndpoint())
                                 .appId(sysProject.getSysProjectAppId())

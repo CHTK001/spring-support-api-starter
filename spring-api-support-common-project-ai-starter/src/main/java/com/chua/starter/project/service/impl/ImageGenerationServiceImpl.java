@@ -2,11 +2,11 @@ package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chua.deeplearning.support.core.function.model.ImageToImageGenerator;
-import com.chua.deeplearning.support.core.request.ImageGenerationsAddTaskV1Request;
-import com.chua.deeplearning.support.core.request.ImageGenerationsSearchTaskV1Request;
-import com.chua.deeplearning.support.core.response.ImageGenerationsAddTaskV1Response;
-import com.chua.deeplearning.support.core.response.ImageGenerationsSearchTaskV1Response;
+import com.chua.common.support.ai.ImageToImageGenerator;
+import com.chua.common.support.ai.request.ImageGenerationsAddTaskV1Request;
+import com.chua.common.support.ai.request.ImageGenerationsSearchTaskV1Request;
+import com.chua.common.support.ai.response.ImageGenerationsAddTaskV1Response;
+import com.chua.common.support.ai.response.ImageGenerationsSearchTaskV1Response;
 import com.chua.deeplearning.support.ml.client.generations.image.VincentDiagramSetting;
 import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -71,7 +71,7 @@ public class ImageGenerationServiceImpl implements ImageGenerationService {
             throw new RuntimeException("项目不存在");
         }
         ImageToImageGenerator vincentDiagramClient = ServiceProvider.of(ImageToImageGenerator.class)
-                .getNewExtension(sysProject.getSysProjectDictItemCode(),
+                .getNewExtension(String.valueOf(sysProject.getSysProjectVender()),
                         VincentDiagramSetting.builder()
                                 .host(StringUtils.defaultString(sysAiModule.getSysAiModuleUrl(), sysProject.getSysProjectEndpoint()))
                                 .appId(sysProject.getSysProjectAppId())
@@ -209,7 +209,7 @@ public class ImageGenerationServiceImpl implements ImageGenerationService {
             throw new RuntimeException("项目不存在");
         }
         ImageToImageGenerator vincentDiagramClient = ServiceProvider.of(ImageToImageGenerator.class)
-                .getNewExtension(sysProject.getSysProjectDictItemCode(),
+                .getNewExtension(String.valueOf(sysProject.getSysProjectVender()),
                         VincentDiagramSetting.builder()
                                 .host(sysProject.getSysProjectEndpoint())
                                 .appId(sysProject.getSysProjectAppId())
