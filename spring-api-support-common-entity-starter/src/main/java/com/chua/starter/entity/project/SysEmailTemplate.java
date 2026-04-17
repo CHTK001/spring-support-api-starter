@@ -31,10 +31,10 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysProjectId;
 
     /**
-     * 类别字典表(dictId=6)
+     * 类别
      */
     @TableField(value = "sys_project_type")
-    @Schema(description="类别字典表(dictId=6)")
+    @Schema(description="类别(前端固定值)")
     private Integer sysProjectType;
 
     /**
@@ -45,17 +45,11 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysEmailTemplateSort;
 
     /**
-     * 子类型; (dictId = 2)
+     * 子类型
      */
     @TableField(value = "sys_email_template_category")
-    @Schema(description="子类型; (dictId = 2)")
+    @Schema(description="子类型(前端固定值)")
     private Integer sysEmailTemplateCategory;
-    /**
-     * 模板类别
-     */
-    @TableField(exist = false)
-    @Schema(description="模板类别")
-    private String sysEmailTemplateCategoryLabel;
 
     /**
      * 名称

@@ -1,12 +1,12 @@
 package com.chua.starter.project.service.impl;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.deeplearning.support.core.result.PredictResult;
-import com.chua.deeplearning.support.core.function.api.Similar;
-import com.chua.deeplearning.support.core.function.api.Detector;
-import com.chua.deeplearning.support.core.function.api.Feature;
+import com.chua.common.support.ai.result.PredictResult;
+import com.chua.common.support.ai.Similar;
+import com.chua.common.support.ai.Detector;
+import com.chua.common.support.ai.Feature;
 import com.chua.common.support.ai.DetectionConfiguration;
-import com.chua.deeplearning.support.core.composite.Recognizer;
+import com.chua.common.support.ai.Recognizer;
 import com.chua.deeplearning.support.ml.identification.IdentificationEngine;
 import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.project.pojo.ImageRequest;
@@ -43,7 +43,7 @@ public class FaceServiceImpl implements FaceService {
                 .loadModelPath(sysProject.getSysProjectEndpoint())
                 .modelName(request.getModel())
                 .build();
-        IdentificationEngine identificationEngine = IdentificationEngine.of(sysProject.getSysProjectDictItemCode(), detectionConfiguration);
+        IdentificationEngine identificationEngine = IdentificationEngine.of(String.valueOf(sysProject.getSysProjectVender()), detectionConfiguration);
         if (null == identificationEngine) {
             throw new RuntimeException("暂不支持");
         }
@@ -67,7 +67,7 @@ public class FaceServiceImpl implements FaceService {
                 .loadModelPath(sysProject.getSysProjectEndpoint())
                 .modelName(request.getModel())
                 .build();
-        IdentificationEngine identificationEngine = IdentificationEngine.of(sysProject.getSysProjectDictItemCode(), detectionConfiguration);
+        IdentificationEngine identificationEngine = IdentificationEngine.of(String.valueOf(sysProject.getSysProjectVender()), detectionConfiguration);
         if (null == identificationEngine) {
             throw new RuntimeException("暂不支持");
         }
@@ -90,7 +90,7 @@ public class FaceServiceImpl implements FaceService {
                 .loadModelPath(sysProject.getSysProjectEndpoint())
                 .modelName(request.getModel())
                 .build();
-        IdentificationEngine identificationEngine = IdentificationEngine.of(sysProject.getSysProjectDictItemCode(), detectionConfiguration);
+        IdentificationEngine identificationEngine = IdentificationEngine.of(String.valueOf(sysProject.getSysProjectVender()), detectionConfiguration);
         if (null == identificationEngine) {
             throw new RuntimeException("暂不支持");
         }
@@ -113,7 +113,7 @@ public class FaceServiceImpl implements FaceService {
                 .loadModelPath(sysProject.getSysProjectEndpoint())
                 .modelName(request.getModel())
                 .build();
-        IdentificationEngine identificationEngine = IdentificationEngine.of(sysProject.getSysProjectDictItemCode(), detectionConfiguration);
+        IdentificationEngine identificationEngine = IdentificationEngine.of(String.valueOf(sysProject.getSysProjectVender()), detectionConfiguration);
         if (null == identificationEngine) {
             throw new RuntimeException("暂不支持");
         }

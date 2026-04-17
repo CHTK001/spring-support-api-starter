@@ -78,7 +78,7 @@ CREATE TABLE `sys_ai_module` (
     `sys_ai_module_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型说明 - 模型功能描述',
     `sys_ai_module_status` int NULL DEFAULT 1 COMMENT '模型状态 - 0:禁用, 1:启用',
     `sys_ai_module_sort` int NULL DEFAULT 0 COMMENT '排序号',
-    `sys_ai_module_manufacturers` int NULL DEFAULT NULL COMMENT '厂商 - 关联字典表ID=1',
+    `sys_ai_module_manufacturers` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '厂商编码 - 前端固定值',
     `sys_ai_module_role_setting` int NULL DEFAULT 0 COMMENT '是否存在角色设置 - 0:不存在, 1:存在',
     `sys_ai_module_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'LLM' COMMENT '模型类型 - LLM:大语言模型, VINCENT:文生图, VIDEO:文生视频, RESOLUTION:超分辨率, COLORIZATION:图像上色',
     `sys_ai_module_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模型单独地址 - 独立的API端点URL',

@@ -1,7 +1,7 @@
 package com.chua.starter.project.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.deeplearning.support.core.result.PredictResult;
+import com.chua.common.support.ai.result.PredictResult;
 import com.chua.starter.project.pojo.ImageRequest;
 
 import java.io.File;

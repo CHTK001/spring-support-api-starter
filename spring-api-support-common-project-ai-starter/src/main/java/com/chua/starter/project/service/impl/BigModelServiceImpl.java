@@ -1,11 +1,11 @@
 package com.chua.starter.project.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.deeplearning.support.ml.bigmodel.BigModelCallback;
-import com.chua.deeplearning.support.ml.bigmodel.BigModelClient;
-import com.chua.deeplearning.support.ml.bigmodel.BigModelRequest.HistoryMessage;
-import com.chua.deeplearning.support.ml.bigmodel.BigModelResponse;
-import com.chua.deeplearning.support.ml.bigmodel.BigModelSetting;
+import com.chua.common.support.ai.bigmodel.BigModelCallback;
+import com.chua.common.support.ai.bigmodel.BigModelClient;
+import com.chua.common.support.ai.bigmodel.BigModelRequest.HistoryMessage;
+import com.chua.common.support.ai.bigmodel.BigModelResponse;
+import com.chua.common.support.ai.bigmodel.BigModelSetting;
 import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnCode;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -30,7 +30,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,7 +44,7 @@ import java.util.concurrent.ExecutorService;
  */
 @Service
 @RequiredArgsConstructor
-@ConditionalOnClass(name = "com.chua.deeplearning.support.ml.bigmodel.BigModelCallback")
+@ConditionalOnClass(name = "com.chua.common.support.ai.bigmodel.BigModelCallback")
 public class BigModelServiceImpl implements BigModelService, InitializingBean {
 
 
@@ -57,8 +56,8 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
     @Override
     public ReturnResult<BigModelResponse> call(Query<?> query, BigModelRequest request) {
         BigModelSetting bigModelSetting = GlobalSettingFactory.getInstance().get("llm", BigModelSetting.class);
-        BigModelClient bigModelClient = bigModelSetting.getBigModelClient();
-        return ReturnResult.of(bigModelClient.call(com.chua.deeplearning.support.ml.bigmodel.BigModelRequest.builder()
+        BigModelClient bigModelClient = BigModelClient.create(bigModelSetting);
+        return ReturnResult.of(bigModelClient.call(com.chua.common.support.ai.bigmodel.BigModelRequest.builder()
                 .prompt(request.getUser())
                 .system(request.getSystem())
                 .model(request.getModel())
@@ -98,7 +97,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
                 .build();
 
         BigModelClient bigModelClient = ServiceProvider.of(BigModelClient.class)
-                .getNewExtension(sysProject.getSysProjectDictItemCode(), binModelSetting);
+                .getNewExtension(String.valueOf(sysProject.getSysProjectVender()), binModelSetting);
         if (null == bigModelClient) {
             throw new RuntimeException("暂不支持");
         }
@@ -121,7 +120,7 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
         SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
         executorService.execute(() -> {
             try {
-                bigModelClient.callStream(com.chua.deeplearning.support.ml.bigmodel.BigModelRequest.builder()
+                bigModelClient.callStream(com.chua.common.support.ai.bigmodel.BigModelRequest.builder()
                                 .prompt(request.getUser())
                                 .files(request.getFiles())
                                 .system(request.getSystem())
@@ -200,9 +199,9 @@ public class BigModelServiceImpl implements BigModelService, InitializingBean {
     @Override
     public ReturnResult<String[]> models() {
         BigModelSetting bigModelSetting = GlobalSettingFactory.getInstance().get("llm", BigModelSetting.class);
-        BigModelClient bigModelClient = bigModelSetting.getBigModelClient();
+        BigModelClient bigModelClient = BigModelClient.create(bigModelSetting);
         return ReturnResult.of(bigModelClient.supportedModels().stream()
-                .map(com.chua.deeplearning.support.ml.bigmodel.BigModelMetadata::name)
+                .map(com.chua.common.support.ai.bigmodel.BigModelMetadata::name)
                 .toArray(String[]::new));
     }
 
