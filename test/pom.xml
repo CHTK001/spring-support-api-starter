@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.chua</groupId>
+    <artifactId>spring-support-api-parent</artifactId>
+    <version>4.0.0.41</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>spring-api-support-test-parent</artifactId>
+  <packaging>pom</packaging>
+  <name>spring-api-support-test-parent</name>
+  <description>spring-support-api-parent 测试聚合模块</description>
+
+  <modules>
+    <module>spring-api-support-panel-test-starter</module>
+    <module>spring-api-support-soft-test-starter</module>
+    <module>spring-api-support-common-music-demo</module>
+    <module>spring-api-support-protocol-test-starter</module>
+  </modules>
+</project>

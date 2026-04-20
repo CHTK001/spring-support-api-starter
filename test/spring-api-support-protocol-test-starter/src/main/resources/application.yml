@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: protocol-test
+  profiles:
+    active: dev
+  autoconfigure:
+    exclude:
+      - com.chua.starter.proxy.support.ProxyManagementConfiguration
+
+server:
+  port: 19181
+
+plugin:
+  datasource:
+    script:
+      enable: false
+  proxy:
+    enable: true
+    auto-restart-running: false
+    crypto-secret-key: dev-proxy-test-key
+  oauth:
+    enable: false
+
+protocol:
+  test:
+    bootstrap:
+      enabled: true
+      auto-start: true
+    proxy:
+      port: 19190
