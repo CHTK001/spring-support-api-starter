@@ -34,9 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 系统服务器配置表服务实现类
@@ -329,14 +329,21 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
             if (setting == null) {
                 return ReturnResult.error("配置不存在");
             }
+            if (config == null) {
+                config = new HashMap<>();
+            }
 
             // 更新配置项
+            int order = 1;
             for (Map.Entry<String, Object> entry : config.entrySet()) {
+                if (entry.getKey() == null || entry.getKey().trim().isEmpty()) {
+                    continue;
+                }
                 SystemServerSettingItem item = new SystemServerSettingItem();
                 item.setSystemServerSettingItemSettingId(settingId);
                 item.setSystemServerSettingItemName(entry.getKey());
-                item.setSystemServerSettingItemValue(entry.getValue().toString());
-                item.setSystemServerSettingItemOrder(1);
+                item.setSystemServerSettingItemValue(stringValue(entry.getValue()));
+                item.setSystemServerSettingItemOrder(order++);
                 systemServerSettingItemService.remove(
                         Wrappers.<SystemServerSettingItem>lambdaQuery()
                                 .eq(SystemServerSettingItem::getSystemServerSettingItemSettingId, settingId)
@@ -456,7 +463,14 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
                 Wrappers.lambdaQuery(SystemServerSettingItem.class)
                         .eq(SystemServerSettingItem::getSystemServerSettingItemSettingId, id)
         );
-        return ReturnResult.ok(list.stream().collect(Collectors.toMap(SystemServerSettingItem::getSystemServerSettingItemName, SystemServerSettingItem::getSystemServerSettingItemValue)));
+        Map<String, Object> config = new HashMap<>();
+        for (SystemServerSettingItem item : list) {
+            if (item == null || item.getSystemServerSettingItemName() == null || item.getSystemServerSettingItemName().trim().isEmpty()) {
+                continue;
+            }
+            config.put(item.getSystemServerSettingItemName(), stringValue(item.getSystemServerSettingItemValue()));
+        }
+        return ReturnResult.ok(config);
     }
 
     /**
@@ -511,12 +525,118 @@ public class SystemServerSettingServiceImpl extends ServiceImpl<SystemServerSett
     private void createDefaultConfigItems(Integer settingId, String filterType) {
         try {
             ReturnResult<List<Map<String, Object>>> configItemsResult = getServletFilterConfigItems(filterType);
-            if (configItemsResult.isOk() && configItemsResult.getData() != null) {
-                // 这里需要调用SystemServerSettingItemService来创建配置项
-                // 具体实现在SystemServerSettingItemServiceImpl中
+            List<SystemServerSettingItem> defaultItems = new ArrayList<>();
+            if (configItemsResult.isOk() && configItemsResult.getData() != null && !configItemsResult.getData().isEmpty()) {
+                int order = 1;
+                for (Map<String, Object> itemMap : configItemsResult.getData()) {
+                    SystemServerSettingItem item = toSettingItem(settingId, itemMap, order++);
+                    if (item != null) {
+                        defaultItems.add(item);
+                    }
+                }
+            }
+            if (defaultItems.isEmpty() && "fileStorage".equalsIgnoreCase(filterType)) {
+                defaultItems = createFileStorageDefaultConfigItems(settingId);
+            }
+            if (!defaultItems.isEmpty()) {
+                systemServerSettingItemService.batchSaveItems(settingId, defaultItems);
             }
         } catch (Exception e) {
+            log.warn("创建默认配置项失败: settingId={}, filterType={}", settingId, filterType, e);
         }
+    }
+
+    private SystemServerSettingItem toSettingItem(Integer settingId, Map<String, Object> itemMap, int order) {
+        if (itemMap == null || itemMap.isEmpty()) {
+            return null;
+        }
+        String name = firstNonEmptyValue(itemMap, "name", "key", "field", "prop");
+        if (name == null || name.trim().isEmpty()) {
+            return null;
+        }
+        String defaultValue = stringValue(firstNonNull(
+                itemMap.get("defaultValue"),
+                itemMap.get("value"),
+                itemMap.get("default")
+        ));
+
+        SystemServerSettingItem item = new SystemServerSettingItem();
+        item.setSystemServerSettingItemSettingId(settingId);
+        item.setSystemServerSettingItemName(name);
+        item.setSystemServerSettingItemValue(defaultValue);
+        item.setSystemServerSettingItemDescription(firstNonEmptyValue(itemMap, "description", "label", "title"));
+        item.setSystemServerSettingItemType(firstNonEmptyValue(itemMap, "type", "inputType", "dataType"));
+        item.setSystemServerSettingItemRequired(toBoolean(firstNonNull(itemMap.get("required"), itemMap.get("isRequired"))));
+        item.setSystemServerSettingItemDefaultValue(defaultValue);
+        item.setSystemServerSettingItemValidationRule(firstNonEmptyValue(itemMap, "validationRule", "rule", "pattern"));
+        item.setSystemServerSettingItemOrder(order);
+        return item;
+    }
+
+    private List<SystemServerSettingItem> createFileStorageDefaultConfigItems(Integer settingId) {
+        Map<String, String> defaults = new LinkedHashMap<>();
+        defaults.put("openSetting", "false");
+        defaults.put("openPlugin", "false");
+        defaults.put("openRange", "false");
+        defaults.put("openPreview", "false");
+        defaults.put("openDownload", "false");
+        defaults.put("openWebjars", "true");
+        defaults.put("openRemoteFile", "false");
+        defaults.put("openWatermark", "false");
+        defaults.put("watermark", "");
+        defaults.put("watermarkColor", "");
+        defaults.put("watermarkX", "0");
+        defaults.put("watermarkY", "0");
+        defaults.put("watermarkWay", "NORMAL");
+        defaults.put("plugins", "");
+        defaults.put("settings", "");
+
+        List<SystemServerSettingItem> items = new ArrayList<>(defaults.size());
+        int order = 1;
+        for (Map.Entry<String, String> entry : defaults.entrySet()) {
+            SystemServerSettingItem item = new SystemServerSettingItem();
+            item.setSystemServerSettingItemSettingId(settingId);
+            item.setSystemServerSettingItemName(entry.getKey());
+            item.setSystemServerSettingItemValue(entry.getValue());
+            item.setSystemServerSettingItemDefaultValue(entry.getValue());
+            item.setSystemServerSettingItemOrder(order++);
+            items.add(item);
+        }
+        return items;
+    }
+
+    private String firstNonEmptyValue(Map<String, Object> itemMap, String... keys) {
+        for (String key : keys) {
+            Object value = itemMap.get(key);
+            String text = stringValue(value);
+            if (!text.isEmpty()) {
+                return text;
+            }
+        }
+        return "";
+    }
+
+    private Object firstNonNull(Object... values) {
+        for (Object value : values) {
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    private Boolean toBoolean(Object value) {
+        if (value == null) {
+            return false;
+        }
+        if (value instanceof Boolean boolValue) {
+            return boolValue;
+        }
+        return Boolean.parseBoolean(stringValue(value));
+    }
+
+    private String stringValue(Object value) {
+        return value == null ? "" : String.valueOf(value);
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.chua.common.support.network.protocol.storage.FileStorageFactory;
 import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.common.support.core.utils.MapUtils;
 import com.chua.common.support.core.utils.ObjectUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.monitor.entity.SystemServerSetting;
 import com.chua.starter.monitor.entity.SystemServerSettingFileStorage;
@@ -20,9 +21,9 @@ import com.chua.starter.monitor.service.server.SystemServerSettingFileStorageSer
 import com.chua.starter.monitor.service.server.SystemServerSettingItemService;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 文件存储过滤器
@@ -132,7 +133,14 @@ public class FileStorageServletFilterHandler implements ServletFilterHandler {
                 Wrappers.<SystemServerSettingItem>lambdaQuery().eq(SystemServerSettingItem::getSystemServerSettingItemSettingId, setting.getSystemServerSettingId())
         );
 
-        Map<String, String> collect = list.stream().collect(Collectors.toMap(SystemServerSettingItem::getSystemServerSettingItemName, SystemServerSettingItem::getSystemServerSettingItemValue));
+        Map<String, String> collect = new HashMap<>();
+        for (SystemServerSettingItem item : list) {
+            if (item == null || StringUtils.isEmpty(item.getSystemServerSettingItemName())) {
+                continue;
+            }
+            collect.put(item.getSystemServerSettingItemName(),
+                    ObjectUtils.defaultIfNull(item.getSystemServerSettingItemValue(), ""));
+        }
         FileStorageFactory.FileStorageSetting.FileStorageSettingBuilder builder = FileStorageFactory.FileStorageSetting.builder();
         builder.openSetting(MapUtils.getBoolean(collect, "openSetting", false));
         builder.openPlugin(MapUtils.getBoolean(collect, "openPlugin", false));
@@ -146,9 +154,20 @@ public class FileStorageServletFilterHandler implements ServletFilterHandler {
         builder.watermarkColor(MapUtils.getString(collect, "watermarkColor", ""));
         builder.watermarkX(MapUtils.getIntValue(collect, "watermarkX", 0));
         builder.watermarkY(MapUtils.getIntValue(collect, "watermarkY", 0));
-        builder.watermarkWay(WatermarkUtils.WatermarkWay.valueOf(MapUtils.getString(collect, "watermarkWay", "NORMAL").toUpperCase()));
-        builder.plugins(MapUtils.getStringArray(collect, "plugins" ));
-        builder.settings(MapUtils.getStringArray(collect, "settings"));
+        builder.watermarkWay(resolveWatermarkWay(MapUtils.getString(collect, "watermarkWay", "NORMAL")));
+        builder.plugins(ObjectUtils.defaultIfNull(MapUtils.getStringArray(collect, "plugins"), new String[0]));
+        builder.settings(ObjectUtils.defaultIfNull(MapUtils.getStringArray(collect, "settings"), new String[0]));
         return builder.build();
+    }
+
+    private WatermarkUtils.WatermarkWay resolveWatermarkWay(String watermarkWay) {
+        try {
+            return WatermarkUtils.WatermarkWay.valueOf(
+                    ObjectUtils.defaultIfNull(watermarkWay, "NORMAL").toUpperCase()
+            );
+        } catch (Exception e) {
+            log.warn("解析 fileStorage watermarkWay 失败，使用默认值 NORMAL, watermarkWay={}", watermarkWay);
+            return WatermarkUtils.WatermarkWay.NORMAL;
+        }
     }
 }
