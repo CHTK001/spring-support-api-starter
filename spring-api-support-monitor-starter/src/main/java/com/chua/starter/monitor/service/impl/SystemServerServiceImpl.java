@@ -172,7 +172,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
 
         } catch (Exception e) {
             log.error("启动服务器失败: serverId={}", serverId, e);
-            return ReturnResult.error("启动服务器失败: " + e.getMessage());
+            return ReturnResult.error("启动服务器失败: " + safeErrorMessage(e));
         }
     }
 
@@ -220,7 +220,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
 
         } catch (Exception e) {
             log.error("停止服务器失败: serverId={}", serverId, e);
-            return ReturnResult.error("停止服务器失败: " + e.getMessage());
+            return ReturnResult.error("停止服务器失败: " + safeErrorMessage(e));
         }
     }
 
@@ -257,7 +257,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
             return startServer(serverId);
         } catch (Exception e) {
             log.error("重启服务器失败: serverId={}", serverId, e);
-            return ReturnResult.error("重启服务器失败: " + e.getMessage());
+            return ReturnResult.error("重启服务器失败: " + safeErrorMessage(e));
         }
     }
 
@@ -429,6 +429,13 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
             if (action == Action.DELETE) {
                 new HotloadingDeleteServletFilterHandler(serverInstance, systemServerSettingType).update(decryptedSetting);
             }
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "应用配置失败: type=" + systemServerSettingType +
+                            ", name=" + setting.getSystemServerSettingName() +
+                            ", cause=" + safeErrorMessage(e),
+                    e
+            );
         } finally {
             log.debug("应用配置到服务器实例: 类型：{}, 配置名称{}",
                     systemServerSettingType, setting.getSystemServerSettingName());
@@ -660,5 +667,15 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
                 decryptPassword(setting.getSystemServerSettingHttpsKeystorePassword())
             );
         }
+    }
+
+    private String safeErrorMessage(Throwable throwable) {
+        if (throwable == null) {
+            return "UnknownError";
+        }
+        if (throwable.getMessage() != null && !throwable.getMessage().isBlank()) {
+            return throwable.getMessage();
+        }
+        return throwable.getClass().getSimpleName();
     }
 }
