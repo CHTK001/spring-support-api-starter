@@ -11,10 +11,6 @@
   <description>租户端</description>
   <dependencies>
     <dependency>
-      <groupId>com.chua</groupId>
-      <artifactId>spring-api-support-devops-starter</artifactId>
-    </dependency>
-    <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
     </dependency>

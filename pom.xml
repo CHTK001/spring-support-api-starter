@@ -23,7 +23,6 @@
         <module>spring-api-support-common-system-starter</module>
         <module>spring-api-support-scheduler-starter</module>
         <module>spring-api-support-common-video-starter</module>
-        <module>spring-api-support-common-project-starter</module>
         <module>spring-api-support-common-project-device-starter</module>
         <module>spring-api-support-common-project-ai-starter</module>
         <module>spring-api-support-common-music-starter</module>
@@ -31,7 +30,6 @@
         <module>spring-api-support-common-tenant-starter</module>
         <module>spring-api-support-common-configuration-starter</module>
         <module>spring-api-support-common-entity-starter</module>
-        <module>spring-api-support-devops-starter</module>
     </modules>
 
     <properties>
@@ -69,8 +67,6 @@
         <groovy.version>5.0.0</groovy.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-        
-        <devops.dir>${maven.multiModuleProjectDirectory}/spring-api-support-devops-starter</devops.dir>
         <assembly.plugin.version>3.6.0</assembly.plugin.version>
     </properties>
 
@@ -118,11 +114,6 @@
             
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-api-support-devops-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-common-configuration-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -142,12 +133,6 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-common-entity-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>spring-api-support-common-project-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -677,7 +662,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-proxy-starter</artifactId>
+                <artifactId>spring-support-protocol-starter</artifactId>
                 <version>${module.version}</version>
             </dependency>
 
@@ -880,39 +865,6 @@
                 </plugin>
                 
                 <plugin>
-                    <groupId>org.codehaus.gmavenplus</groupId>
-                    <artifactId>gmavenplus-plugin</artifactId>
-                    <version>${gmavenplus-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>merge-yaml</id>
-                            <phase>process-resources</phase>
-                            <goals>
-                                <goal>execute</goal>
-                            </goals>
-                            <configuration>
-                                <scripts>
-                                    <script>
-                                        file:///${project.basedir}/../spring-api-support-devops-starter/src/main/scripts/merge-yaml.groovy
-                                    </script>
-                                </scripts>
-                            </configuration>
-                        </execution>
-                    </executions>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.apache.groovy</groupId>
-                            <artifactId>groovy</artifactId>
-                            <version>${groovy.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.yaml</groupId>
-                            <artifactId>snakeyaml</artifactId>
-                            <version>${snakeyaml.version}</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
@@ -947,44 +899,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-devops-scripts</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/bin</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${devops.dir}/src/main/bin</directory>
-                                    <filtering>true</filtering>
-                                    <includes>
-                                        <include>*.sh</include>
-                                        <include>*.bat</include>
-                                        <include>*.cmd</include>
-                                        <include>app.env</include>
-                                    </includes>
-                                </resource>
-                                <resource>
-                                    <directory>${devops.dir}/src/main/bin/script</directory>
-                                    <targetPath>script</targetPath>
-                                    <filtering>true</filtering>
-                                    <includes>
-                                        <include>**/*.sh</include>
-                                        <include>**/*.bat</include>
-                                        <include>**/*.cmd</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -995,61 +909,6 @@
             </activation>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <version>${assembly.plugin.version}</version>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>${devops.dir}/src/main/assembly/dist.xml</descriptor>
-                            </descriptors>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <finalName>${project.artifactId}-${project.version}</finalName>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>make-dist</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>${maven-antrun-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>copy-extract-scripts</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target>
-                                        
-                                        <copy todir="${project.build.directory}" overwrite="true">
-                                            <fileset dir="${devops.dir}/src/main/extract" includes="*.sh" />
-                                            <filterchain>
-                                                <expandproperties />
-                                            </filterchain>
-                                        </copy>
-                                        <fixcrlf srcdir="${project.build.directory}" includes="*.sh" eol="lf" />
-                                        
-                                        <copy todir="${project.build.directory}" overwrite="true">
-                                            <fileset dir="${devops.dir}/src/main/extract" includes="*.bat" />
-                                            <filterchain>
-                                                <expandproperties />
-                                            </filterchain>
-                                        </copy>
-                                        <fixcrlf srcdir="${project.build.directory}" includes="*.bat" eol="crlf" />
-                                    </target>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                 </plugins>
             </build>
         </profile>

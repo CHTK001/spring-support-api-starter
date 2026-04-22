@@ -7,7 +7,7 @@ import com.chua.starter.monitor.entity.MonitorSysGenServerSetting;
 import com.chua.starter.monitor.pojo.server.ProxyConnectionInfo;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerSettingService;
 import com.chua.starter.monitor.service.server.ProxyInstanceResolver;
-import com.chua.starter.proxy.support.entity.SystemServer;
+import com.chua.starter.protocol.support.entity.SystemServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
@@ -23,7 +23,7 @@ public class ProxyInstanceResolverImpl implements ProxyInstanceResolver {
     private static final String SOURCE_LEGACY_SERVER = "LEGACY_SERVER";
 
     private final MonitorSysGenServerSettingService monitorSysGenServerSettingService;
-    private final ObjectProvider<com.chua.starter.proxy.support.service.server.SystemServerService>
+    private final ObjectProvider<com.chua.starter.protocol.support.service.server.SystemServerService>
             proxySystemServerServiceProvider;
 
     @Override
@@ -86,7 +86,7 @@ public class ProxyInstanceResolverImpl implements ProxyInstanceResolver {
     }
 
     private ProxyConnectionInfo resolveFromProxyInstance(Integer proxyInstanceId, String source) {
-        com.chua.starter.proxy.support.service.server.SystemServerService proxySystemServerService =
+        com.chua.starter.protocol.support.service.server.SystemServerService proxySystemServerService =
                 proxySystemServerServiceProvider.getIfAvailable();
         if (proxySystemServerService == null) {
             log.debug("代理管理模块未启用，无法解析代理实例: proxyInstanceId={}", proxyInstanceId);

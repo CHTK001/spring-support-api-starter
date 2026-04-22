@@ -74,8 +74,8 @@ public class RemoteDesktopSocketListener implements SocketListener {
             }
 
             // 获取登录信息
-            String username = server.getUsername();
-            String loginIp = session.getRemoteAddress();
+            String username = server.getMonitorSysGenServerUsername();
+            String loginIp = resolveLoginIp(session);
             String host = server.getMonitorSysGenServerHost();
             String serverName = server.getMonitorSysGenServerName();
 
@@ -96,13 +96,13 @@ public class RemoteDesktopSocketListener implements SocketListener {
             serverLoginRecordService.recordLoginSuccess(
                     serverId, serverName, host, username, "RDP", loginIp);
 
-            var host = remoteDesktopService.getDefaultHost();
+            var remoteHost = remoteDesktopService.getDefaultHost();
             var wsPort = remoteDesktopService.getDefaultWebSocketPort();
-            var wsUrl = remoteDesktopService.getWebSocketUrl(serverId, host, wsPort);
+            var wsUrl = remoteDesktopService.getWebSocketUrl(serverId, remoteHost, wsPort);
 
             Map<String, Object> connectData = Map.of(
                     "serverId", serverId,
-                    "host", host,
+                    "host", remoteHost,
                     "websocketPort", wsPort,
                     "websocketUrl", wsUrl,
                     "handles", handles
@@ -111,7 +111,7 @@ public class RemoteDesktopSocketListener implements SocketListener {
             ServerWebSocketMessage response = ServerWebSocketMessage.createRemoteDesktopConnectMessage(
                     serverId,
                     server.getMonitorSysGenServerName(),
-                    host,
+                    remoteHost,
                     wsPort,
                     wsUrl
             );
@@ -416,6 +416,19 @@ public class RemoteDesktopSocketListener implements SocketListener {
         } catch (Exception e) {
             log.error("[远程桌面][Socket] 广播消息失败: {}", e.getMessage(), e);
         }
+    }
+
+    private String resolveLoginIp(SocketSession session) {
+        if (session == null) {
+            return "";
+        }
+        if (session.getUser() != null) {
+            Object value = session.getUser().getExtra("ip");
+            if (value != null) {
+                return String.valueOf(value);
+            }
+        }
+        return session.getClientId();
     }
 
     /**
