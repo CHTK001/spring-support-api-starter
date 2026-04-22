@@ -1,8 +1,0 @@
-# Jackson dev 环境
-spring:
-  jackson:
-    default-property-inclusion: always
-
-plugin:
-  jackson:
-    include-null: true

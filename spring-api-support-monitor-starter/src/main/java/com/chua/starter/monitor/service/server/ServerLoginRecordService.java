@@ -1,9 +1,10 @@
 package com.chua.starter.monitor.service.server;
 
-import com.chua.common.support.spi.ExtensionLoader;
 import com.chua.starter.monitor.entity.MonitorSysGenServerLoginRecord;
 import com.chua.starter.monitor.spi.ServerLoginRecordProvider;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,17 +16,22 @@ import java.time.LocalDateTime;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ServerLoginRecordService {
 
     private static final int DEFAULT_TOP_N = 10;
+
+    private final ObjectProvider<ServerLoginRecordProvider> loginRecordProvider;
 
     /**
      * 获取登录记录提供者
      */
     private ServerLoginRecordProvider getProvider() {
         try {
-            ExtensionLoader<ServerLoginRecordProvider> loader = ExtensionLoader.getExtensionLoader(ServerLoginRecordProvider.class);
-            return loader.getExtension("database");
+            return loginRecordProvider.orderedStream()
+                    .filter(provider -> "database".equalsIgnoreCase(provider.provider()))
+                    .findFirst()
+                    .orElse(null);
         } catch (Exception e) {
             log.warn("获取登录记录提供者失败", e);
             return null;

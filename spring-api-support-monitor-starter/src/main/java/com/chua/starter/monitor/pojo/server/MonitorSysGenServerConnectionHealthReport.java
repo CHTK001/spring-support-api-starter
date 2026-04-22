@@ -1,4 +1,4 @@
-package com.chua.starter.monitor.pojo;
+package com.chua.starter.monitor.pojo.server;
 
 import com.chua.starter.monitor.entity.MonitorSysGenServerConnectionStatus;
 import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionStatistics;

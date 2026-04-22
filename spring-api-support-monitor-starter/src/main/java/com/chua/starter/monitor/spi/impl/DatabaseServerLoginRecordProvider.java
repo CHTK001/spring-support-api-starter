@@ -7,6 +7,7 @@ import com.chua.starter.monitor.mapper.MonitorSysGenServerLoginRecordMapper;
 import com.chua.starter.monitor.spi.ServerLoginRecordProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.List;
 @SpiDescribe("数据库登录记录提供者")
 @RequiredArgsConstructor
 @Slf4j
+@Service
 public class DatabaseServerLoginRecordProvider implements ServerLoginRecordProvider {
 
     private final MonitorSysGenServerLoginRecordMapper loginRecordMapper;
