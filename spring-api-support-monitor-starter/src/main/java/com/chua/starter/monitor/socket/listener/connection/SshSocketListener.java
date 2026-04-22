@@ -90,8 +90,8 @@ public class SshSocketListener implements SocketListener {
             }
 
             // 获取登录信息
-            String username = server.getUsername();
-            String loginIp = session.getRemoteAddress();
+            String username = server.getMonitorSysGenServerUsername();
+            String loginIp = resolveLoginIp(session);
             String host = server.getMonitorSysGenServerHost();
             String serverName = server.getMonitorSysGenServerName();
 
@@ -449,6 +449,19 @@ public class SshSocketListener implements SocketListener {
         } catch (Exception e) {
             log.error("广播消息失败: {}", e.getMessage(), e);
         }
+    }
+
+    private String resolveLoginIp(SocketSession session) {
+        if (session == null) {
+            return "";
+        }
+        if (session.getUser() != null) {
+            Object value = session.getUser().getExtra("ip");
+            if (value != null) {
+                return String.valueOf(value);
+            }
+        }
+        return session.getClientId();
     }
 
     /**

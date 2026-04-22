@@ -23,10 +23,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-devops-starter</artifactId>
-        </dependency>
-        <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>${hutool.version}</version>
@@ -65,7 +61,7 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-proxy-starter</artifactId>
+            <artifactId>spring-support-protocol-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
@@ -191,7 +187,7 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-project-starter</artifactId>
+            <artifactId>spring-support-project-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
@@ -200,6 +196,10 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-project-device-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-project-ai-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
