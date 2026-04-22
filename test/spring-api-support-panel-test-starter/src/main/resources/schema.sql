@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS sys_setting (
 CREATE TABLE IF NOT EXISTS sys_project (
     sys_project_id INT AUTO_INCREMENT PRIMARY KEY,
     sys_project_name VARCHAR(255),
-    sys_project_icon CLOB,
+    sys_project_icon TEXT,
     sys_project_group VARCHAR(255),
     sys_project_code VARCHAR(255),
     sys_project_app_id VARCHAR(255),
