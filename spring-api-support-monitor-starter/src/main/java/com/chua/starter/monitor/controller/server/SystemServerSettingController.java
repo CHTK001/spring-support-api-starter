@@ -249,6 +249,14 @@ public class SystemServerSettingController {
         return systemServerSettingService.updateServletFilterConfig(id, config);
     }
 
+    @PostMapping("/{id}/config")
+    @ApiOperation("保存ServletFilter配置")
+    public ReturnResult<Boolean> saveServletFilterConfig(
+            @ApiParam("配置ID") @PathVariable Integer id,
+            @ApiParam("配置数据") @RequestBody Map<String, Object> config) {
+        return systemServerSettingService.saveFilterConfig(id, config);
+    }
+
     /**
      * 获取ServletFilter配置
      */

@@ -21,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -664,6 +665,63 @@ public class MonitorSysGenServerController {
     }
 
     /**
+     * 端口搜索
+     *
+     * 用于服务器详情页快速定位某个端口的监听/占用情况。
+     * 当前实现为轻量占位接口：返回结构保持稳定，便于前端完成交互闭环；
+     * 后续可在 service 中接入真实的端口扫描/进程映射能力。
+     */
+    @Operation(summary = "端口搜索", description = "根据端口查询服务器端口占用与管理入口（占位实现）")
+    @GetMapping("port/search")
+    public ReturnResult<List<ServerPortSearchResult>> searchPort(
+            @Parameter(name = "服务器ID") @RequestParam Integer serverId,
+            @Parameter(name = "端口") @RequestParam Integer port) {
+        List<ServerPortSearchResult> results = new ArrayList<>();
+        if (serverId == null || serverId <= 0 || port == null || port <= 0) {
+            return ReturnResult.illegal(REQUEST_PARAM_ERROR, "serverId/port 参数不合法");
+        }
+        ServerPortSearchResult item = new ServerPortSearchResult();
+        item.setServerId(serverId);
+        item.setPort(port);
+        item.setProtocol("TCP");
+        item.setState("UNKNOWN");
+        item.setProcessName("-");
+        item.setPid(null);
+        item.setServiceName("-");
+        item.setMessage("端口搜索占位结果（待接入真实扫描能力）");
+        results.add(item);
+        return ReturnResult.ok(results);
+    }
+
+    /**
+     * 关闭端口（占位）
+     */
+    @Operation(summary = "关闭端口", description = "对端口执行关闭动作（占位实现）")
+    @PostMapping("port/close")
+    public ReturnResult<Boolean> closePort(
+            @Parameter(name = "服务器ID") @RequestParam Integer serverId,
+            @Parameter(name = "端口") @RequestParam Integer port) {
+        if (serverId == null || serverId <= 0 || port == null || port <= 0) {
+            return ReturnResult.illegal(REQUEST_PARAM_ERROR, "serverId/port 参数不合法");
+        }
+        return ReturnResult.ok(true, "已受理关闭端口请求（占位实现）");
+    }
+
+    /**
+     * 强制管理端口（占位）
+     */
+    @Operation(summary = "强制管理端口", description = "将端口纳入强制管理（占位实现）")
+    @PostMapping("port/force-manage")
+    public ReturnResult<Boolean> forceManagePort(
+            @Parameter(name = "服务器ID") @RequestParam Integer serverId,
+            @Parameter(name = "端口") @RequestParam Integer port) {
+        if (serverId == null || serverId <= 0 || port == null || port <= 0) {
+            return ReturnResult.illegal(REQUEST_PARAM_ERROR, "serverId/port 参数不合法");
+        }
+        return ReturnResult.ok(true, "已受理强制管理请求（占位实现）");
+    }
+
+    /**
      * 测试Prometheus连接
      *
      * @param serverId 服务器ID
@@ -790,6 +848,84 @@ public class MonitorSysGenServerController {
 
         public void setTargetName(String targetName) {
             this.targetName = targetName;
+        }
+    }
+
+    /**
+     * 端口搜索结果（给前端稳定结构）
+     */
+    public static class ServerPortSearchResult {
+        private Integer serverId;
+        private Integer port;
+        private String protocol;
+        private String state;
+        private Integer pid;
+        private String processName;
+        private String serviceName;
+        private String message;
+
+        public Integer getServerId() {
+            return serverId;
+        }
+
+        public void setServerId(Integer serverId) {
+            this.serverId = serverId;
+        }
+
+        public Integer getPort() {
+            return port;
+        }
+
+        public void setPort(Integer port) {
+            this.port = port;
+        }
+
+        public String getProtocol() {
+            return protocol;
+        }
+
+        public void setProtocol(String protocol) {
+            this.protocol = protocol;
+        }
+
+        public String getState() {
+            return state;
+        }
+
+        public void setState(String state) {
+            this.state = state;
+        }
+
+        public Integer getPid() {
+            return pid;
+        }
+
+        public void setPid(Integer pid) {
+            this.pid = pid;
+        }
+
+        public String getProcessName() {
+            return processName;
+        }
+
+        public void setProcessName(String processName) {
+            this.processName = processName;
+        }
+
+        public String getServiceName() {
+            return serviceName;
+        }
+
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
         }
     }
 }

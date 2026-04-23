@@ -195,11 +195,11 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-project-device-starter</artifactId>
+            <artifactId>spring-support-common-project-device-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-project-ai-starter</artifactId>
+            <artifactId>spring-support-ai-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>

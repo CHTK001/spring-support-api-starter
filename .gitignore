@@ -12,9 +12,11 @@ target/
 *.ps1
 *.md
 *.cmd
-.panel
-.vscode
+.panel/
+.continue/
+.vscode/
 .tmp
+org/
 *bak
 logs/!/patch/
 /.runtime/
