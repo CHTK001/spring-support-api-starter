@@ -23,8 +23,6 @@
         <module>spring-api-support-common-system-starter</module>
         <module>spring-api-support-scheduler-starter</module>
         <module>spring-api-support-common-video-starter</module>
-        <module>spring-api-support-common-project-device-starter</module>
-        <module>spring-api-support-common-project-ai-starter</module>
         <module>spring-api-support-common-music-starter</module>
         <module>spring-api-support-common-service-starter</module>
         <module>spring-api-support-common-tenant-starter</module>
@@ -138,13 +136,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-api-support-common-project-device-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>spring-api-support-common-project-ai-starter</artifactId>
+                <artifactId>spring-support-common-project-device-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

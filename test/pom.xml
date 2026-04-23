@@ -21,5 +21,6 @@
     <module>spring-api-support-soft-test-starter</module>
     <module>spring-api-support-common-music-demo</module>
     <module>spring-api-support-protocol-test-starter</module>
+    <module>spring-api-support-ai-test-starter</module>
   </modules>
 </project>
