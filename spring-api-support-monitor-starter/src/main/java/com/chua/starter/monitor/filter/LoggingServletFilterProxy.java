@@ -38,7 +38,7 @@ public class LoggingServletFilterProxy {
     public static void wrap(SystemServerSetting setting, ServletFilter servletFilter, ServletEvent event) {
         ServletRequest request = event.getRequest();
         SystemServerLog logItem = new SystemServerLog();
-        logItem.setServerId(setting.getSystemServerSettingId());
+        logItem.setServerId(setting.getSystemServerSettingServerId());
         logItem.setFilterType(servletFilter.getClass().getName());
         logItem.setProcessStatus(event.getStatus().name());
         logItem.setClientIp(event.getClientIp());

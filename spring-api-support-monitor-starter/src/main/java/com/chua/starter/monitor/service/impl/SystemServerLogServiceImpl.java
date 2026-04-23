@@ -5,9 +5,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.network.protocol.firewall.FirewallAction;
+import com.chua.common.support.network.protocol.firewall.FirewallEvent;
+import com.chua.common.support.network.protocol.firewall.FirewallEventQuery;
+import com.chua.common.support.network.protocol.firewall.FirewallMetrics;
+import com.chua.common.support.network.protocol.firewall.FirewallMetricsQuery;
+import com.chua.common.support.network.protocol.filter.FirewallServletFilter;
+import com.chua.common.support.network.protocol.server.ProtocolServer;
 import com.chua.starter.monitor.entity.SystemServerLog;
 import com.chua.starter.monitor.mapper.SystemServerLogMapper;
 import com.chua.starter.monitor.service.server.SystemServerLogService;
+import com.chua.starter.monitor.service.server.SystemServerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -31,6 +40,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SystemServerLogServiceImpl extends ServiceImpl<SystemServerLogMapper, SystemServerLog> implements SystemServerLogService {
+
+    private final SystemServerService systemServerService;
 
     private final ThreadPoolExecutor executor = new ThreadPoolExecutor(
             2, Math.max(4, Runtime.getRuntime().availableProcessors()),
@@ -115,6 +126,59 @@ public class SystemServerLogServiceImpl extends ServiceImpl<SystemServerLogMappe
         }
     }
 
+    @Override
+    public ReturnResult<List<FirewallEvent>> getFirewallEvents(Integer serverId, String clientIp, String action, LocalDateTime startTime, LocalDateTime endTime, Integer limit) {
+        try {
+            FirewallServletFilter filter = resolveFirewallFilter(serverId);
+            if (filter == null) {
+                return ReturnResult.success(new ArrayList<>());
+            }
+            FirewallEventQuery query = new FirewallEventQuery();
+            query.setServerId(serverId);
+            query.setServerKey(String.valueOf(serverId));
+            query.setClientIp(StringUtils.isEmpty(clientIp) ? null : clientIp.trim());
+            query.setAction(parseAction(action));
+            query.setStartTime(startTime);
+            query.setEndTime(endTime);
+            query.setLimit(limit == null || limit <= 0 ? 500 : limit);
+            return ReturnResult.success(filter.queryEvents(query));
+        } catch (Exception e) {
+            log.error("查询防火墙事件失败: serverId={}", serverId, e);
+            return ReturnResult.error("查询防火墙事件失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ReturnResult<FirewallMetrics> getFirewallMetrics(Integer serverId, LocalDateTime startTime, LocalDateTime endTime) {
+        try {
+            FirewallServletFilter filter = resolveFirewallFilter(serverId);
+            FirewallMetricsQuery query = new FirewallMetricsQuery();
+            query.setServerId(serverId);
+            query.setServerKey(String.valueOf(serverId));
+            query.setStartTime(startTime);
+            query.setEndTime(endTime);
+            if (filter == null) {
+                FirewallMetrics empty = new FirewallMetrics();
+                empty.setServerId(serverId);
+                empty.setServerKey(String.valueOf(serverId));
+                empty.setWindowStart(startTime);
+                empty.setWindowEnd(endTime == null ? LocalDateTime.now() : endTime);
+                return ReturnResult.success(empty);
+            }
+            FirewallMetrics metrics = filter.queryMetrics(query);
+            if (metrics.getWindowEnd() == null) {
+                metrics.setWindowEnd(endTime == null ? LocalDateTime.now() : endTime);
+            }
+            if (metrics.getWindowStart() == null) {
+                metrics.setWindowStart(startTime);
+            }
+            return ReturnResult.success(metrics);
+        } catch (Exception e) {
+            log.error("查询防火墙指标失败: serverId={}", serverId, e);
+            return ReturnResult.error("查询防火墙指标失败: " + e.getMessage());
+        }
+    }
+
     /**
      * 异步记录系统服务器日志
      *
@@ -142,6 +206,25 @@ public class SystemServerLogServiceImpl extends ServiceImpl<SystemServerLogMappe
 
     private String safe(String v) {
         return StringUtils.isEmpty(v) ? "" : v.replaceAll(",", " ");
+    }
+
+    private FirewallServletFilter resolveFirewallFilter(Integer serverId) {
+        ProtocolServer runningServer = systemServerService.getRunningServerInstance(serverId);
+        if (runningServer == null) {
+            return null;
+        }
+        return runningServer.getFilter(FirewallServletFilter.class);
+    }
+
+    private FirewallAction parseAction(String action) {
+        if (StringUtils.isEmpty(action)) {
+            return null;
+        }
+        try {
+            return FirewallAction.valueOf(action.trim().toUpperCase());
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
     }
 }
 

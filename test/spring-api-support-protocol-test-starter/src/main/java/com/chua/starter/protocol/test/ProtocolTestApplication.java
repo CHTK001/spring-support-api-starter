@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  * @author CH
  */
-@SpringBootApplication(scanBasePackages = "com.chua.starter.protocol.test")
+@SpringBootApplication
 public class ProtocolTestApplication {
 
     /**

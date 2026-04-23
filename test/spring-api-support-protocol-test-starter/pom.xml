@@ -24,22 +24,22 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>utils-support-common-starter</artifactId>
-      <version>4.0.0.36</version>
+      <version>${utils.version}</version>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>utils-support-protocol-starter</artifactId>
-      <version>4.0.0.36</version>
+      <version>${utils.version}</version>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>utils-support-netty-starter</artifactId>
-      <version>4.0.0.36</version>
+      <version>${utils.version}</version>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>utils-support-ftp-starter</artifactId>
-      <version>4.0.0.36</version>
+      <version>${utils.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

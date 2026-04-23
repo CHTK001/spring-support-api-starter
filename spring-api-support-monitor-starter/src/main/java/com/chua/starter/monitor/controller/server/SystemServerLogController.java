@@ -3,6 +3,8 @@ package com.chua.starter.monitor.controller.server;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.network.protocol.firewall.FirewallEvent;
+import com.chua.common.support.network.protocol.firewall.FirewallMetrics;
 import com.chua.starter.monitor.entity.SystemServerLog;
 import com.chua.starter.monitor.service.server.SystemServerLogService;
 import io.swagger.annotations.Api;
@@ -19,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -45,6 +48,31 @@ public class SystemServerLogController {
     ) {
         Page<SystemServerLog> page = new Page<>(current, size);
         return logService.pageLogs(page, serverId, filterType, processStatus, clientIp, startTime, endTime);
+    }
+
+    @GetMapping("/firewall/events")
+    @Operation(summary = "查询防火墙事件")
+    @ApiOperation("查询防火墙事件")
+    public ReturnResult<List<FirewallEvent>> firewallEvents(
+            @RequestParam("serverId") Integer serverId,
+            @RequestParam(value = "clientIp", required = false) String clientIp,
+            @RequestParam(value = "action", required = false) String action,
+            @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime,
+            @RequestParam(value = "limit", required = false) Integer limit
+    ) {
+        return logService.getFirewallEvents(serverId, clientIp, action, startTime, endTime, limit);
+    }
+
+    @GetMapping("/firewall/metrics")
+    @Operation(summary = "查询防火墙指标")
+    @ApiOperation("查询防火墙指标")
+    public ReturnResult<FirewallMetrics> firewallMetrics(
+            @RequestParam("serverId") Integer serverId,
+            @RequestParam(value = "startTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startTime,
+            @RequestParam(value = "endTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime
+    ) {
+        return logService.getFirewallMetrics(serverId, startTime, endTime);
     }
 
     @GetMapping("/export")
