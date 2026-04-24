@@ -29,6 +29,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -101,9 +102,10 @@ public class SysSettingController {
     @GetMapping("/list")
     @Permission(role = {ADMIN, SUPER_ADMIN})
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingController).SETTING_LIST_CACHE_KEY_PREFIX + #sysSettingUpdate.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator")
-    public ReturnResult<List<SysSettingVO>> list(@ParameterObject  SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnResult<List<SysSettingVO>> list(@ParameterObject SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") HashSet<String> roles) {
+        Set<String> safeRoles = null == roles ? Collections.emptySet() : roles;
         List<SysSetting> list = sysSettingService.list(sysSettingUpdate, roles);
-        if(!AuthConstant.hasAdmin(roles)) {
+        if(!AuthConstant.hasAdmin(safeRoles)) {
             list = list.stream()
                     .filter(it -> {
                         if (RUNTIME_PUBLIC_CODEC_REQUEST_KEY.equals(it.getSysSettingName())) {
