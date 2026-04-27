@@ -6,7 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * 独立 Panel 联调测试后端。
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "com.chua.starter.panel.test",
+        "com.chua.starter.project"
+})
 public class PanelTestApplication {
 
     public static void main(String[] args) {
