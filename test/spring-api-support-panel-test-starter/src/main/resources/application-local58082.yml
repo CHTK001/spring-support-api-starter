@@ -1,0 +1,28 @@
+﻿spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://172.16.0.40:3306/panel_test_verify?useSSL=false&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true
+    username: root
+    password: root@
+  data:
+    redis:
+      host: 172.16.0.40
+      port: 16379
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+logging:
+  level:
+    com.chua.starter.panel: debug
+    com.chua.starter.project: debug
+server:
+  port: 58082
+panel:
+  enabled: true
+  jdbc-enabled: true
+  ai-enabled: false
+  datasource-store-path: ${user.dir}/.panel/panel-datasources.json
+plugin:
+  oauth:
+    enable: false
