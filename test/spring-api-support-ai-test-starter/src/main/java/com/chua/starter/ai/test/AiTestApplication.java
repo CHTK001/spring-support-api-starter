@@ -6,7 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * 独立 AI 联调测试后端。
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "com.chua.starter.ai.test",
+        "com.chua.starter.spider"
+})
 public class AiTestApplication {
 
     public static void main(String[] args) {

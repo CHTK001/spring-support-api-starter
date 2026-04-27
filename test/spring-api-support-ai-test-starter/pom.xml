@@ -29,7 +29,33 @@
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
+      <artifactId>spring-support-spider-starter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-spider-starter</artifactId>
+      <version>${utils.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-playwright-starter</artifactId>
+      <version>${utils.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
       <artifactId>utils-support-siliconflow-starter</artifactId>
+      <version>4.0.0.40</version>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-tencent-hunyuan-starter</artifactId>
       <version>4.0.0.40</version>
     </dependency>
     <dependency>
