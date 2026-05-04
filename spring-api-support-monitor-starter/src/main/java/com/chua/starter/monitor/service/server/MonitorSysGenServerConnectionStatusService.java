@@ -2,9 +2,9 @@ package com.chua.starter.monitor.service.server;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServerConnectionStatus;
-import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionCheckResult;
-import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionHealthReport;
-import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionStatistics;
+import com.chua.starter.monitor.pojo.server.MonitorSysGenServerConnectionCheckResult;
+import com.chua.starter.monitor.pojo.server.MonitorSysGenServerConnectionHealthReport;
+import com.chua.starter.monitor.pojo.server.MonitorSysGenServerConnectionStatistics;
 
 import java.util.List;
 import java.util.Map;

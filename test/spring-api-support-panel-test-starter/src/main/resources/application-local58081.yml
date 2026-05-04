@@ -1,21 +1,24 @@
-﻿spring:
+spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://172.16.0.40:3306/panel_test?useSSL=false&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true
+    url: jdbc:mysql://8.139.4.229:3306/panel_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true&connectTimeout=5000&socketTimeout=30000
+    jdbc-url: jdbc:mysql://8.139.4.229:3306/panel_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true&connectTimeout=5000&socketTimeout=30000
     username: root
     password: root@
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    initialization-fail-timeout: -1
   data:
     redis:
-      host: 172.16.0.40
-      port: 16379
+      host: 127.0.0.1
+      port: 16380
   sql:
     init:
-      mode: always
-      schema-locations: classpath:schema.sql
+      mode: never
 logging:
   level:
     com.chua.starter.panel: debug
     com.chua.starter.project: debug
+    com.zaxxer.hikari: debug
+    com.mysql.cj: debug
 server:
   port: 58081
 panel:
@@ -23,6 +26,13 @@ panel:
   jdbc-enabled: true
   ai-enabled: false
   datasource-store-path: ${user.dir}/.panel/panel-datasources.json
+
 plugin:
   oauth:
     enable: false
+  socket:
+    enable: true
+    room:
+      - client-id: panel
+        port: 58082
+        context-path: /socket.io

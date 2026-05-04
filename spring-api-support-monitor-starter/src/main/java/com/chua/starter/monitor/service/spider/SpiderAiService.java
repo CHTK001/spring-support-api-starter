@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.service.spider;
 
 import com.chua.common.support.core.utils.StringUtils;
-import com.chua.common.support.ai.bigmodel.BigModelResponse;
+import com.chua.deeplearning.support.ml.bigmodel.BigModelResponse;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.pojo.spider.SpiderAiAnalyzeRequest;
 import com.chua.starter.monitor.pojo.spider.SpiderAiAnalyzeResponse;

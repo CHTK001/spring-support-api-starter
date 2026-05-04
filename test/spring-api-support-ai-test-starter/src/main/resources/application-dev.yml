@@ -1,9 +1,14 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://172.16.0.40:3306/ai_test?useSSL=false&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true
+    url: jdbc:mysql://172.16.0.40:3306/ai_test?useSSL=false&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true&socketTimeout=5000&connectTimeout=3000
     username: root
     password: root@
+    hikari:
+      connection-timeout: 5000
+      maximum-pool-size: 20
+      validation-timeout: 3000
+      leak-detection-threshold: 30000
   sql:
     init:
       mode: always

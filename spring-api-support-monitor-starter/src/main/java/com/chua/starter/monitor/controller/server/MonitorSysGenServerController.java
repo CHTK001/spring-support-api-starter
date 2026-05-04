@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -671,18 +672,25 @@ public class MonitorSysGenServerController {
      * 当前实现为轻量占位接口：返回结构保持稳定，便于前端完成交互闭环；
      * 后续可在 service 中接入真实的端口扫描/进程映射能力。
      */
-    @Operation(summary = "端口搜索", description = "根据端口查询服务器端口占用与管理入口（占位实现）")
+    @Operation(summary = "端口搜索", description = "根据端口/关键词查询服务器端口占用与管理入口（占位实现）")
     @GetMapping("port/search")
     public ReturnResult<List<ServerPortSearchResult>> searchPort(
             @Parameter(name = "服务器ID") @RequestParam Integer serverId,
-            @Parameter(name = "端口") @RequestParam Integer port) {
+            @Parameter(name = "关键词") @RequestParam String keyword) {
         List<ServerPortSearchResult> results = new ArrayList<>();
-        if (serverId == null || serverId <= 0 || port == null || port <= 0) {
-            return ReturnResult.illegal(REQUEST_PARAM_ERROR, "serverId/port 参数不合法");
+        if (serverId == null || serverId <= 0) {
+            return ReturnResult.illegal(REQUEST_PARAM_ERROR, "serverId 参数不合法");
+        }
+        if (!StringUtils.hasText(keyword)) {
+            return ReturnResult.illegal(REQUEST_PARAM_ERROR, "keyword 不能为空");
         }
         ServerPortSearchResult item = new ServerPortSearchResult();
         item.setServerId(serverId);
-        item.setPort(port);
+        try {
+            item.setPort(Integer.parseInt(keyword));
+        } catch (NumberFormatException ignored) {
+            item.setPort(0);
+        }
         item.setProtocol("TCP");
         item.setState("UNKNOWN");
         item.setProcessName("-");
@@ -862,6 +870,7 @@ public class MonitorSysGenServerController {
         private Integer pid;
         private String processName;
         private String serviceName;
+        private String startupDir;
         private String message;
 
         public Integer getServerId() {
@@ -918,6 +927,14 @@ public class MonitorSysGenServerController {
 
         public void setServiceName(String serviceName) {
             this.serviceName = serviceName;
+        }
+
+        public String getStartupDir() {
+            return startupDir;
+        }
+
+        public void setStartupDir(String startupDir) {
+            this.startupDir = startupDir;
         }
 
         public String getMessage() {
