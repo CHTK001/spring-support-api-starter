@@ -18,7 +18,7 @@ import com.chua.starter.monitor.entity.SystemServerSetting;
 import com.chua.starter.monitor.entity.SystemServerSettingItem;
 import com.chua.starter.monitor.mapper.SystemServerSettingMapper;
 import com.chua.starter.monitor.pojo.PreviewExtensionConfigVo;
-import com.chua.starter.monitor.pojo.ServerSettingOrderRequest;
+import com.chua.starter.monitor.pojo.server.ServerSettingOrderRequest;
 import com.chua.starter.monitor.pojo.ViewerConfigVO;
 import com.chua.starter.monitor.pojo.ViewerInfoVO;
 import com.chua.starter.monitor.service.server.SystemServerService;

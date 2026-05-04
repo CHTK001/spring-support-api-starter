@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.core.spi.SpiOption;
 import com.chua.starter.monitor.entity.SystemServerSetting;
-import com.chua.starter.monitor.pojo.ServerSettingOrderRequest;
+import com.chua.starter.monitor.pojo.server.ServerSettingOrderRequest;
 import com.chua.starter.monitor.pojo.ViewerConfigVO;
 import com.chua.starter.monitor.pojo.ViewerInfoVO;
 

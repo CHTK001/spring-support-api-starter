@@ -47,7 +47,7 @@ import java.util.Map;
  * @author CH
  * @since 2025/01/15
  */
-@Service
+@Service("monitorDockerImageServiceImpl")
 @Slf4j
 @RequiredArgsConstructor
 public class DockerImageServiceImpl extends ServiceImpl<DockerImageMapper, DockerImage> implements DockerImageService {
