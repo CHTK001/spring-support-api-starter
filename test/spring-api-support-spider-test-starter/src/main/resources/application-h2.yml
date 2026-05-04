@@ -1,0 +1,50 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  autoconfigure:
+    exclude:
+      - com.chua.starter.redis.support.CacheConfiguration
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:spider;MODE=MYSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 4
+      minimum-idle: 1
+      connection-timeout: 5000
+      idle-timeout: 60000
+      max-lifetime: 300000
+  h2:
+    console:
+      enabled: true
+  data:
+    redis:
+      database: 6
+      host: 172.16.0.40
+      port: 16379
+
+plugin:
+  oauth:
+    enable: false
+  redis:
+    server:
+      enable: false
+  datasource:
+    script:
+      enable: true
+      scan-mode: ALWAYS
+  spider:
+    enable: true
+  monitor:
+    spider:
+      web-auth:
+        mode: none
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com.chua.starter.spider: debug

@@ -14,8 +14,14 @@
         <docker-java-version>3.4.0</docker-java-version>
         <jna-version>5.14.0</jna-version>
         <oshi.version>6.4.8</oshi.version>
+        <deeplearning.version>4.0.0.36</deeplearning.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-deeplearning-starter</artifactId>
+            <version>${deeplearning.version}</version>
+        </dependency>
         <dependency>
             <groupId>p6spy</groupId>
             <artifactId>p6spy</artifactId>
@@ -184,6 +190,11 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-service-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-project-starter</artifactId>
+            <version>4.0.0.41</version>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>

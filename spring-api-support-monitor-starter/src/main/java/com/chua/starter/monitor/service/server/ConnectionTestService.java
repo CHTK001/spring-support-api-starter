@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.service.server;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.monitor.pojo.ConnectionTestResultDTO;
+import com.chua.starter.monitor.pojo.server.ConnectionTestResultDTO;
 
 /**
  * 连接测试服务接口

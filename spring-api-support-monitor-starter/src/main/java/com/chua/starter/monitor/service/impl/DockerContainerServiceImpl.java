@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
  * @since 2025/01/15
  */
 @Slf4j
-@Service
+@Service("monitorDockerContainerServiceImpl")
 @RequiredArgsConstructor
 @SuppressWarnings("ALL")
 public class DockerContainerServiceImpl extends ServiceImpl<DockerContainerMapper, DockerContainer> implements DockerContainerService {

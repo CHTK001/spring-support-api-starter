@@ -2,9 +2,9 @@ package com.chua.starter.monitor.controller.server;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorSysGenServerConnectionStatus;
-import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionCheckResult;
-import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionHealthReport;
-import com.chua.starter.monitor.pojo.MonitorSysGenServerConnectionStatistics;
+import com.chua.starter.monitor.pojo.server.MonitorSysGenServerConnectionCheckResult;
+import com.chua.starter.monitor.pojo.server.MonitorSysGenServerConnectionHealthReport;
+import com.chua.starter.monitor.pojo.server.MonitorSysGenServerConnectionStatistics;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerConnectionStatusService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
