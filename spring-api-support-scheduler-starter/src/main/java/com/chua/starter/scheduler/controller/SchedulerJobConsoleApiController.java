@@ -68,6 +68,11 @@ public class SchedulerJobConsoleApiController {
         return ReturnResult.ok(schedulerJobPlatformService.deleteJobByNo(namespace, jobNo));
     }
 
+    @PostMapping("/{namespace}/job/no/{jobNo}/restore")
+    public ReturnResult<Object> restoreJobByNo(@PathVariable String namespace, @PathVariable String jobNo) {
+        return ReturnResult.ok(schedulerJobPlatformService.restoreJobByNo(namespace, jobNo));
+    }
+
     @PostMapping("/{namespace}/job/no/{jobNo}/start")
     public ReturnResult<Object> startJobByNo(@PathVariable String namespace, @PathVariable String jobNo) {
         return ReturnResult.ok(schedulerJobPlatformService.startJobByNo(namespace, jobNo));
