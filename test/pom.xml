@@ -23,5 +23,6 @@
     <module>spring-api-support-protocol-test-starter</module>
     <module>spring-api-support-ai-test-starter</module>
     <module>spring-api-support-spider-test-starter</module>
+    <module>spring-api-support-payment-test-starter</module>
   </modules>
 </project>

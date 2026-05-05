@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: payment-test
+  profiles:
+    active: dev
+    include: common,mybatis,swagger,api,actuator
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        exclude: mybatis-extension
+
+plugin:
+  payment:
+    server:
+      enable: true
+    scheduler:
+      enabled: true
+    ops:
+      enabled: true
+    callback:
+      base-url: http://127.0.0.1:8080/payment/api
+    security:
+      key: payment-test-key-20260324
+  oauth:
+    enable: false
+  server:
+    enable: false
+  redis:
+    server:
+      enable: true
+      open-embedded: true
+      host: 127.0.0.1
+      port: 6379
+  datasource:
+    script:
+      enable: true
+      script-path: classpath*:db/init/*.sql,classpath*:db/migration/*.sql,classpath*:db/sync/*.sql
+      scan-mode: ONCE
+      migration-scan-mode: ALWAYS
+      data-scan-mode: ONCE
+      continue-on-error: true

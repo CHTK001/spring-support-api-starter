@@ -119,6 +119,7 @@ public class OrderStateMachineServiceImpl implements OrderStateMachineService {
             case REFUND -> OrderState.REFUNDING.name().equals(status) || OrderState.REFUNDED.name().equals(status);
             case REFUND_SUCCESS -> OrderState.REFUNDED.name().equals(status);
             case REFUND_FAIL -> OrderState.PAID.name().equals(status) || OrderState.COMPLETED.name().equals(status);
+            case TIMEOUT -> OrderState.TIMEOUT.name().equals(status);
         };
     }
 }

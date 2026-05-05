@@ -74,4 +74,12 @@ public class OrderStateChangeListener {
     public void pendingToCancelled(Message<OrderEvent> message) {
         log.info("订单状态转换: PENDING → CANCELLED, 事件: {}", message.getPayload());
     }
+
+    /**
+     * 待支付 → 支付超时
+     */
+    @OnTransition(source = "PENDING", target = "TIMEOUT")
+    public void pendingToTimeout(Message<OrderEvent> message) {
+        log.info("订单状态转换: PENDING → TIMEOUT, 事件: {}", message.getPayload());
+    }
 }
