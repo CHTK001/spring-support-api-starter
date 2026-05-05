@@ -17,6 +17,7 @@ plugin:
   datasource:
     script:
       enable: true
+      scan-mode: ALWAYS
 
 mybatis-plus:
   configuration:

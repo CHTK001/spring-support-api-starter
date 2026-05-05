@@ -605,7 +605,20 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
                 .lt(PaymentOrder::getExpireTime, LocalDateTime.now())
                 .orderByAsc(PaymentOrder::getExpireTime)
                 .last("limit 200");
-        orderMapper.selectList(wrapper).forEach(order -> cancelOrder(order.getId(), "system", "超时自动取消"));
+        orderMapper.selectList(wrapper).forEach(order -> timeoutOrder(order.getId()));
+    }
+
+    /**
+     * 超时自动取消订单（不关闭第三方渠道）
+     */
+    private void timeoutOrder(Long id) {
+        PaymentOrder order = requireOrder(id);
+        if (!OrderState.PENDING.name().equals(order.getStatus())) {
+            return;
+        }
+        sendStateEvent(order.getId(), OrderEvent.TIMEOUT, "system");
+        PaymentOrder latest = requireOrder(id);
+        backfillRemark(latest, "支付超时自动取消");
     }
 
     private Merchant requireActiveMerchant(Long merchantId) {
