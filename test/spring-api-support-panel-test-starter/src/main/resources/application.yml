@@ -2,7 +2,7 @@ spring:
   application:
     name: panel-test
   profiles:
-    active: dev
+    active: local58081
 
 server:
   port: 58080

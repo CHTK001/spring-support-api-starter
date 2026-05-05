@@ -77,7 +77,7 @@ public class PaymentOrderTimeoutTask {
         int cancelled = 0;
         for (PaymentOrder order : timeoutOrders) {
             try {
-                paymentOrderService.cancelOrder(order.getId(), "system", "订单超时自动取消");
+                paymentOrderService.timeoutOrder(order.getId());
                 cancelled++;
             } catch (Exception e) {
                 log.error("取消超时订单失败, orderId={}, orderNo={}", order.getId(), order.getOrderNo(), e);

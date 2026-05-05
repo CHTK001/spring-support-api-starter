@@ -60,4 +60,9 @@ public interface PaymentOrderService {
     String generateOrderNo();
 
     void autoCancelTimeoutOrders();
+
+    /**
+     * 超时关单（发送 TIMEOUT 事件 via 状态机）
+     */
+    void timeoutOrder(Long id);
 }

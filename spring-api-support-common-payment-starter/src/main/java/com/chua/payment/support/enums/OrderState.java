@@ -34,6 +34,11 @@ public enum OrderState {
     CANCELLED("已取消"),
 
     /**
+     * 支付超时
+     */
+    TIMEOUT("支付超时"),
+
+    /**
      * 支付失败
      */
     FAILED("支付失败"),

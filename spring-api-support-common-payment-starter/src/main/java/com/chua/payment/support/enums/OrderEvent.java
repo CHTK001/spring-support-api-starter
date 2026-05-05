@@ -34,6 +34,11 @@ public enum OrderEvent {
     CANCEL("取消订单"),
 
     /**
+     * 支付超时
+     */
+    TIMEOUT("支付超时"),
+
+    /**
      * 申请退款
      */
     REFUND("申请退款"),

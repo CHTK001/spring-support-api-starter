@@ -82,6 +82,11 @@ public class OrderStateMachineConfig extends EnumStateMachineConfigurerAdapter<O
                 .source(OrderState.REFUNDING).target(OrderState.PAID)
                 .event(OrderEvent.REFUND_FAIL)
                 .and()
+                // 待支付 → 支付超时
+                .withExternal()
+                .source(OrderState.PENDING).target(OrderState.TIMEOUT)
+                .event(OrderEvent.TIMEOUT)
+                .and()
                 // 待支付 → 已取消
                 .withExternal()
                 .source(OrderState.PENDING).target(OrderState.CANCELLED)
