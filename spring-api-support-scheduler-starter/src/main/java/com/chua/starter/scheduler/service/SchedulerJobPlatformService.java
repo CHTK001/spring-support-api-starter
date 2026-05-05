@@ -31,6 +31,14 @@ public interface SchedulerJobPlatformService {
 
     boolean deleteJobByNo(String namespace, String jobNo);
 
+    boolean restoreJob(String namespace, Integer jobId);
+
+    boolean restoreJobByNo(String namespace, String jobNo);
+
+    boolean restoreJob(String namespace, Integer jobId);
+
+    boolean restoreJobByNo(String namespace, String jobNo);
+
     boolean startJob(String namespace, Integer jobId);
 
     boolean startJobByNo(String namespace, String jobNo);
