@@ -599,19 +599,7 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void autoCancelTimeoutOrders() {
-        LambdaQueryWrapper<PaymentOrder> wrapper = baseOrderWrapper()
-                .eq(PaymentOrder::getStatus, OrderState.PENDING.name())
-                .lt(PaymentOrder::getExpireTime, LocalDateTime.now())
-                .orderByAsc(PaymentOrder::getExpireTime)
-                .last("limit 200");
-        orderMapper.selectList(wrapper).forEach(order -> timeoutOrder(order.getId()));
-    }
-
-    /**
-     * 超时自动取消订单（不关闭第三方渠道）
-     */
-    private void timeoutOrder(Long id) {
+    public void timeoutOrder(Long id) {
         PaymentOrder order = requireOrder(id);
         if (!OrderState.PENDING.name().equals(order.getStatus())) {
             return;
