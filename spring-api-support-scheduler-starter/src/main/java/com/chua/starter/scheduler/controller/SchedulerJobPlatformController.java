@@ -91,6 +91,18 @@ public class SchedulerJobPlatformController {
         return ReturnResult.ok(schedulerJobPlatformService.deleteJobByNo(namespace, jobNo));
     }
 
+    @PostMapping("/{namespace}/job/{jobId}/restore")
+    @Operation(summary = "恢复已删除任务")
+    public ReturnResult<Object> restoreJob(@PathVariable String namespace, @PathVariable Integer jobId) {
+        return ReturnResult.ok(schedulerJobPlatformService.restoreJob(namespace, jobId));
+    }
+
+    @PostMapping("/{namespace}/job/no/{jobNo}/restore")
+    @Operation(summary = "按任务编号恢复已删除任务")
+    public ReturnResult<Object> restoreJobByNo(@PathVariable String namespace, @PathVariable String jobNo) {
+        return ReturnResult.ok(schedulerJobPlatformService.restoreJobByNo(namespace, jobNo));
+    }
+
     @PostMapping("/{namespace}/job/{jobId}/start")
     @Operation(summary = "启动任务")
     public ReturnResult<Object> startJob(@PathVariable String namespace, @PathVariable Integer jobId) {

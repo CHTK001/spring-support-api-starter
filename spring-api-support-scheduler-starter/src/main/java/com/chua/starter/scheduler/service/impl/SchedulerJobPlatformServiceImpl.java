@@ -14,6 +14,8 @@ import com.chua.starter.scheduler.support.SchedulerNamespaceTableResolver;
 import com.chua.starter.scheduler.support.SchedulerRemoteExecutorDispatcher;
 import com.chua.starter.scheduler.vo.SchedulerTaskVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
@@ -43,6 +45,7 @@ import java.util.Locale;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional(readOnly = true)
 public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformService {
 
@@ -72,7 +75,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         int safePageSize = normalizePageSize(pageSize);
         String normalizedJobName = trimToNull(jobName);
 
-        StringBuilder where = new StringBuilder(" FROM ").append(tables.jobTable()).append(" WHERE 1=1");
+        StringBuilder where = new StringBuilder(" FROM ").append(tables.jobTable()).append(" WHERE is_deleted = 0");
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         if (StringUtils.hasText(normalizedJobName)) {
             where.append(" AND job_name LIKE :jobName");
@@ -181,8 +184,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     public boolean deleteJob(String namespace, Integer jobId) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
         MapSqlParameterSource parameters = new MapSqlParameterSource("jobId", requireJobId(jobId));
+        // 逻辑删除：先停止任务，再设置 is_deleted = 1
+        stopJob(namespace, jobId);
         return namedParameterJdbcTemplate.update(
-                "DELETE FROM " + tables.jobTable() + " WHERE job_id = :jobId",
+                "UPDATE " + tables.jobTable() + " SET is_deleted = 1 WHERE job_id = :jobId",
                 parameters
         ) > 0;
     }
@@ -191,9 +196,59 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteJobByNo(String namespace, String jobNo) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+        // 逻辑删除：先停止任务，再设置 is_deleted = 1
+        stopJobByNo(namespace, jobNo);
         MapSqlParameterSource parameters = new MapSqlParameterSource("jobNo", requireText(jobNo, "任务编号不能为空"));
         return namedParameterJdbcTemplate.update(
-                "DELETE FROM " + tables.jobTable() + " WHERE job_no = :jobNo",
+                "UPDATE " + tables.jobTable() + " SET is_deleted = 1 WHERE job_no = :jobNo",
+                parameters
+        ) > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean restoreJob(String namespace, Integer jobId) {
+        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+        log.info("恢复任务: namespace={}, jobId={}", namespace, jobId);
+        MapSqlParameterSource parameters = new MapSqlParameterSource("jobId", requireJobId(jobId));
+        return namedParameterJdbcTemplate.update(
+                "UPDATE " + tables.jobTable() + " SET is_deleted = 0 WHERE job_id = :jobId",
+                parameters
+        ) > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean restoreJobByNo(String namespace, String jobNo) {
+        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+        log.info("恢复任务: namespace={}, jobNo={}", namespace, jobNo);
+        MapSqlParameterSource parameters = new MapSqlParameterSource("jobNo", requireText(jobNo, "任务编号不能为空"));
+        return namedParameterJdbcTemplate.update(
+                "UPDATE " + tables.jobTable() + " SET is_deleted = 0 WHERE job_no = :jobNo",
+                parameters
+        ) > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean restoreJob(String namespace, Integer jobId) {
+        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+        log.info("恢复任务: namespace={}, jobId={}", namespace, jobId);
+        MapSqlParameterSource parameters = new MapSqlParameterSource("jobId", requireJobId(jobId));
+        return namedParameterJdbcTemplate.update(
+                "UPDATE " + tables.jobTable() + " SET is_deleted = 0 WHERE job_id = :jobId",
+                parameters
+        ) > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean restoreJobByNo(String namespace, String jobNo) {
+        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+        log.info("恢复任务: namespace={}, jobNo={}", namespace, jobNo);
+        MapSqlParameterSource parameters = new MapSqlParameterSource("jobNo", requireText(jobNo, "任务编号不能为空"));
+        return namedParameterJdbcTemplate.update(
+                "UPDATE " + tables.jobTable() + " SET is_deleted = 0 WHERE job_no = :jobNo",
                 parameters
         ) > 0;
     }
@@ -323,7 +378,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     public List<SchedulerTaskVO> listTasks(String namespace) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
         List<SysJob> jobs = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable() + " ORDER BY job_id DESC",
+                "SELECT * FROM " + tables.jobTable() + " WHERE is_deleted = 0 ORDER BY job_id DESC",
                 new MapSqlParameterSource(),
                 jobRowMapper
         );
@@ -405,7 +460,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     private SysJob requireJob(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables, int jobId) {
         MapSqlParameterSource parameters = new MapSqlParameterSource("jobId", jobId);
         List<SysJob> records = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable() + " WHERE job_id = :jobId LIMIT 1",
+                "SELECT * FROM " + tables.jobTable() + " WHERE job_id = :jobId AND is_deleted = 0 LIMIT 1",
                 parameters,
                 jobRowMapper
         );
@@ -418,7 +473,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     private SysJob requireJobByNo(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables, String jobNo) {
         MapSqlParameterSource parameters = new MapSqlParameterSource("jobNo", requireText(jobNo, "任务编号不能为空"));
         List<SysJob> records = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable() + " WHERE job_no = :jobNo LIMIT 1",
+                "SELECT * FROM " + tables.jobTable() + " WHERE job_no = :jobNo AND is_deleted = 0 LIMIT 1",
                 parameters,
                 jobRowMapper
         );
@@ -433,7 +488,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         MapSqlParameterSource parameters = new MapSqlParameterSource("taskKey", normalizedTaskKey);
 
         List<SysJob> byNo = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable() + " WHERE job_no = :taskKey ORDER BY job_id DESC LIMIT 1",
+                "SELECT * FROM " + tables.jobTable() + " WHERE job_no = :taskKey AND is_deleted = 0 ORDER BY job_id DESC LIMIT 1",
                 parameters,
                 jobRowMapper
         );
@@ -442,7 +497,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         }
 
         List<SysJob> byBean = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable() + " WHERE job_execute_bean = :taskKey ORDER BY job_id DESC LIMIT 1",
+                "SELECT * FROM " + tables.jobTable() + " WHERE job_execute_bean = :taskKey AND is_deleted = 0 ORDER BY job_id DESC LIMIT 1",
                 parameters,
                 jobRowMapper
         );
@@ -451,7 +506,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         }
 
         List<SysJob> byName = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable() + " WHERE job_name = :taskKey ORDER BY job_id DESC LIMIT 1",
+                "SELECT * FROM " + tables.jobTable() + " WHERE job_name = :taskKey AND is_deleted = 0 ORDER BY job_id DESC LIMIT 1",
                 parameters,
                 jobRowMapper
         );
