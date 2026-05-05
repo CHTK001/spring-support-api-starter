@@ -1,0 +1,335 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5] [cursor=pointer]:
+        - img [ref=e8]
+        - generic [ref=e11]:
+          - generic [ref=e12]: "1"
+          - generic [ref=e13]: 总服务器数
+      - generic [ref=e15] [cursor=pointer]:
+        - img [ref=e18]
+        - generic [ref=e21]:
+          - generic [ref=e22]: "1"
+          - generic [ref=e23]: 运行中
+      - generic [ref=e25] [cursor=pointer]:
+        - img [ref=e28]
+        - generic [ref=e31]:
+          - generic [ref=e32]: "0"
+          - generic [ref=e33]: 已停止
+      - generic [ref=e35] [cursor=pointer]:
+        - img [ref=e38]
+        - generic [ref=e41]:
+          - generic [ref=e42]: "0"
+          - generic [ref=e43]: 异常
+    - generic [ref=e47]:
+      - generic [ref=e48]:
+        - generic [ref=e49]: 服务器名称
+        - textbox "服务器名称" [ref=e53]:
+          - /placeholder: 请输入服务器名称
+      - group "服务器类型" [ref=e54]:
+        - generic [ref=e55]: 服务器类型
+      - group "运行状态" [ref=e57]:
+        - generic [ref=e58]: 运行状态
+      - generic [ref=e61]:
+        - button [ref=e62] [cursor=pointer]:
+          - img [ref=e64]
+        - button [ref=e66] [cursor=pointer]:
+          - img [ref=e68]
+        - button [ref=e70] [cursor=pointer]:
+          - img [ref=e72]
+        - button "刷新数据" [ref=e74] [cursor=pointer]:
+          - generic [ref=e75]:
+            - img [ref=e76]
+            - text: 刷新数据
+    - generic [ref=e80]:
+      - generic [ref=e89]:
+        - generic [ref=e90]:
+          - img [ref=e92]
+          - generic [ref=e94]:
+            - heading "proto-ssh-test" [level=3] [ref=e95]
+            - generic [ref=e96]: SSH
+          - generic [ref=e170]:
+            - img [ref=e171]
+            - text: 运行中
+        - generic [ref=e97]:
+          - generic [ref=e98] [cursor=pointer]:
+            - img [ref=e100]
+            - generic [ref=e102]: 2222端口
+          - generic [ref=e103]:
+            - img [ref=e105]
+            - generic [ref=e107]: 0过滤器
+          - generic [ref=e108]:
+            - img [ref=e110]
+            - generic [ref=e112]: ∞连接数
+        - generic [ref=e114]:
+          - img [ref=e115]
+          - generic [ref=e117]: /
+        - generic [ref=e118]:
+          - button "停止" [ref=e119] [cursor=pointer]:
+            - generic [ref=e120]:
+              - img [ref=e121]
+              - text: 停止
+          - generic [ref=e123]:
+            - button [ref=e124] [cursor=pointer]:
+              - img [ref=e126]
+            - button [ref=e128] [cursor=pointer]:
+              - img [ref=e130]
+            - button [ref=e132] [cursor=pointer]:
+              - img [ref=e134]
+            - button [ref=e137] [cursor=pointer]:
+              - img [ref=e139]
+      - generic [ref=e142]:
+        - generic [ref=e143]:
+          - generic [ref=e144]: 共 1 条
+          - generic [ref=e147] [cursor=pointer]:
+            - generic:
+              - combobox [ref=e149]
+              - generic [ref=e150]: 15条/页
+            - img [ref=e153]
+          - button "上一页" [disabled] [ref=e155]:
+            - generic:
+              - img
+          - list [ref=e156]:
+            - listitem "第 1 页" [ref=e157]: "1"
+          - button "下一页" [disabled] [ref=e158]:
+            - generic:
+              - img
+        - generic [ref=e159]:
+          - button [ref=e160] [cursor=pointer]:
+            - img [ref=e162]
+          - button [ref=e165] [cursor=pointer]:
+            - img [ref=e167]
+  - dialog "服务配置" [ref=e183]:
+    - generic [active] [ref=e184]:
+      - banner [ref=e185]:
+        - text: 服务配置
+        - button "el.dialog.close" [ref=e186] [cursor=pointer]:
+          - img [ref=e188]
+      - generic [ref=e192]:
+        - generic [ref=e193]:
+          - generic [ref=e194]:
+            - generic [ref=e195]:
+              - img [ref=e198]
+              - generic [ref=e200]:
+                - heading "可用组件" [level=3] [ref=e201]
+                - text: 点击安装到右侧列表
+            - generic [ref=e202]:
+              - generic [ref=e204]: 22 个可用
+              - button [ref=e205] [cursor=pointer]:
+                - img [ref=e208]
+          - generic [ref=e213]:
+            - generic [ref=e214]:
+              - generic [ref=e215]: "1"
+              - generic [ref=e218]: PROXY-RESPONSE
+              - button "安装" [ref=e221] [cursor=pointer]:
+                - generic [ref=e222]:
+                  - img [ref=e224]
+                  - text: 安装
+            - generic [ref=e226]:
+              - generic [ref=e227]: "2"
+              - generic [ref=e229]:
+                - generic [ref=e230]: 通用QPS限流过滤器
+                - generic [ref=e231]: QPSRATELIMIT
+              - button "安装" [ref=e233] [cursor=pointer]:
+                - generic [ref=e234]:
+                  - img [ref=e236]
+                  - text: 安装
+            - generic [ref=e238]:
+              - generic [ref=e239]: "3"
+              - generic [ref=e241]:
+                - generic [ref=e242]: 请求响应日志记录过滤器
+                - generic [ref=e243]: LOGGING
+              - button "安装" [ref=e245] [cursor=pointer]:
+                - generic [ref=e246]:
+                  - img [ref=e248]
+                  - text: 安装
+            - generic [ref=e250]:
+              - generic [ref=e251]: "4"
+              - generic [ref=e253]:
+                - generic [ref=e254]: 签名校验过滤器
+                - generic [ref=e255]: SIGNATURE
+              - button "安装" [ref=e257] [cursor=pointer]:
+                - generic [ref=e258]:
+                  - img [ref=e260]
+                  - text: 安装
+            - generic [ref=e262]:
+              - generic [ref=e263]: "5"
+              - generic [ref=e266]: AUTHENTICATION
+              - button "安装" [ref=e269] [cursor=pointer]:
+                - generic [ref=e270]:
+                  - img [ref=e272]
+                  - text: 安装
+            - generic [ref=e274]:
+              - generic [ref=e275]: "6"
+              - generic [ref=e277]:
+                - generic [ref=e278]: 请求指纹过滤器
+                - generic [ref=e279]: REQUESTFINGERPRINT
+              - button "安装" [ref=e281] [cursor=pointer]:
+                - generic [ref=e282]:
+                  - img [ref=e284]
+                  - text: 安装
+            - generic [ref=e286]:
+              - generic [ref=e287]: "7"
+              - generic [ref=e289]:
+                - generic [ref=e290]: FTP访问控制过滤器
+                - generic [ref=e291]: FTPACCESSCONTROL
+              - button "安装" [ref=e293] [cursor=pointer]:
+                - generic [ref=e294]:
+                  - img [ref=e296]
+                  - text: 安装
+            - generic [ref=e298]:
+              - generic [ref=e299]: "8"
+              - generic [ref=e301]:
+                - generic [ref=e302]: 映射Servlet过滤器
+                - generic [ref=e303]: MAPPING
+              - button "安装" [ref=e305] [cursor=pointer]:
+                - generic [ref=e306]:
+                  - img [ref=e308]
+                  - text: 安装
+            - generic [ref=e310]:
+              - generic [ref=e311]: "9"
+              - generic [ref=e313]:
+                - generic [ref=e314]: 地址级别限流过滤器
+                - generic [ref=e315]: ADDRESSRATELIMIT
+              - button "安装" [ref=e317] [cursor=pointer]:
+                - generic [ref=e318]:
+                  - img [ref=e320]
+                  - text: 安装
+            - generic [ref=e322]:
+              - generic [ref=e323]: "10"
+              - generic [ref=e325]:
+                - generic [ref=e326]: 实时追踪过滤器
+                - generic [ref=e327]: TRACE
+              - button "安装" [ref=e329] [cursor=pointer]:
+                - generic [ref=e330]:
+                  - img [ref=e332]
+                  - text: 安装
+            - generic [ref=e334]:
+              - generic [ref=e335]: "11"
+              - generic [ref=e337]:
+                - generic [ref=e338]: 爬虫拦截过滤器
+                - generic [ref=e339]: CRAWLERDETECT
+              - button "安装" [ref=e341] [cursor=pointer]:
+                - generic [ref=e342]:
+                  - img [ref=e344]
+                  - text: 安装
+            - generic [ref=e346]:
+              - generic [ref=e347]: "12"
+              - generic [ref=e349]:
+                - generic [ref=e350]: 路径穿越拦截过滤器
+                - generic [ref=e351]: PATHTRAVERSAL
+              - button "安装" [ref=e353] [cursor=pointer]:
+                - generic [ref=e354]:
+                  - img [ref=e356]
+                  - text: 安装
+            - generic [ref=e358]:
+              - generic [ref=e359]: "13"
+              - generic [ref=e362]: MULTIPROTOCOL
+              - button "安装" [ref=e365] [cursor=pointer]:
+                - generic [ref=e366]:
+                  - img [ref=e368]
+                  - text: 安装
+            - generic [ref=e370]:
+              - generic [ref=e371]: "14"
+              - generic [ref=e373]:
+                - generic [ref=e374]: DoS拦截过滤器
+                - generic [ref=e375]: DOS
+              - button "安装" [ref=e377] [cursor=pointer]:
+                - generic [ref=e378]:
+                  - img [ref=e380]
+                  - text: 安装
+            - generic [ref=e382]:
+              - generic [ref=e383]: "15"
+              - generic [ref=e385]:
+                - generic [ref=e386]: IP级别限流过滤器
+                - generic [ref=e387]: IPRATELIMIT
+              - button "安装" [ref=e389] [cursor=pointer]:
+                - generic [ref=e390]:
+                  - img [ref=e392]
+                  - text: 安装
+            - generic [ref=e394]:
+              - generic [ref=e395]: "16"
+              - generic [ref=e397]:
+                - generic [ref=e398]: 服务发现过滤器
+                - generic [ref=e399]: SERVICEDISCOVERY
+              - button "安装" [ref=e401] [cursor=pointer]:
+                - generic [ref=e402]:
+                  - img [ref=e404]
+                  - text: 安装
+            - generic [ref=e406]:
+              - generic [ref=e407]: "17"
+              - generic [ref=e409]:
+                - generic [ref=e410]: SSRF拦截过滤器
+                - generic [ref=e411]: SSRF
+              - button "安装" [ref=e413] [cursor=pointer]:
+                - generic [ref=e414]:
+                  - img [ref=e416]
+                  - text: 安装
+            - generic [ref=e418]:
+              - generic [ref=e419]: "18"
+              - generic [ref=e421]:
+                - generic [ref=e422]: SOCKS5固定转发过滤器
+                - generic [ref=e423]: SOCKS5FORWARD
+              - button "安装" [ref=e425] [cursor=pointer]:
+                - generic [ref=e426]:
+                  - img [ref=e428]
+                  - text: 安装
+            - generic [ref=e430]:
+              - generic [ref=e431]: "19"
+              - generic [ref=e433]:
+                - generic [ref=e434]: 上传绕过拦截过滤器
+                - generic [ref=e435]: UPLOADBYPASS
+              - button "安装" [ref=e437] [cursor=pointer]:
+                - generic [ref=e438]:
+                  - img [ref=e440]
+                  - text: 安装
+            - generic [ref=e442]:
+              - generic [ref=e443]: "20"
+              - generic [ref=e446]: HTTPONLY
+              - button "安装" [ref=e449] [cursor=pointer]:
+                - generic [ref=e450]:
+                  - img [ref=e452]
+                  - text: 安装
+            - generic [ref=e454]:
+              - generic [ref=e455]: "21"
+              - generic [ref=e457]:
+                - generic [ref=e458]: 脚本注入拦截过滤器
+                - generic [ref=e459]: XSS
+              - button "安装" [ref=e461] [cursor=pointer]:
+                - generic [ref=e462]:
+                  - img [ref=e464]
+                  - text: 安装
+            - generic [ref=e466]:
+              - generic [ref=e467]: "22"
+              - generic [ref=e469]:
+                - generic [ref=e470]: 统计过滤器
+                - generic [ref=e471]: STATISTIC
+              - button "安装" [ref=e473] [cursor=pointer]:
+                - generic [ref=e474]:
+                  - img [ref=e476]
+                  - text: 安装
+        - generic [ref=e478]:
+          - generic [ref=e479]:
+            - generic [ref=e480]:
+              - img [ref=e483]
+              - generic [ref=e485]:
+                - heading "已安装" [level=3] [ref=e486]
+                - text: 拖拽调整执行顺序
+            - generic [ref=e487]:
+              - generic [ref=e489]: 0 个已装
+              - button [ref=e490] [cursor=pointer]:
+                - img [ref=e493]
+              - button [ref=e495] [cursor=pointer]:
+                - img [ref=e497]
+          - generic [ref=e502]:
+            - img [ref=e504]
+            - paragraph [ref=e521]: 暂无已安装的组件
+            - button "从左侧选择安装" [ref=e523] [cursor=pointer]:
+              - generic [ref=e524]:
+                - img [ref=e526]
+                - text: 从左侧选择安装
+      - contentinfo [ref=e528]:
+        - button "关闭" [ref=e530] [cursor=pointer]:
+          - generic [ref=e531]:
+            - img [ref=e533]
+            - text: 关闭

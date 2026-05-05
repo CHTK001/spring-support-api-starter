@@ -1,0 +1,32 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e7]: Panel Workspace Hub
+        - strong [ref=e8]: 数据源管理
+        - generic [ref=e9]: 工作台只能从已保存的数据源进入，连接配置已为 JDBC / Redis 预留。
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - img [ref=e13]
+          - textbox [ref=e17]:
+            - /placeholder: 搜索名称 / 主机 / 数据库
+        - button [ref=e18] [cursor=pointer]:
+          - img [ref=e20]
+        - button [ref=e22] [cursor=pointer]:
+          - img [ref=e25]
+    - generic [ref=e27]:
+      - article [ref=e28]:
+        - generic [ref=e29]: 已保存
+        - strong [ref=e30]: "0"
+      - article [ref=e31]:
+        - generic [ref=e32]: 缓存连接
+        - strong [ref=e33]: "0"
+      - article [ref=e34]:
+        - generic [ref=e35]: 收藏
+        - strong [ref=e36]: "0"
+    - generic [ref=e39]:
+      - img [ref=e41]
+      - paragraph [ref=e58]: 先保存一个数据源，再从这里进入工作台。
+  - generic [ref=e59] [cursor=pointer]:
+    - img [ref=e60]
+    - generic [ref=e62]: 服务面板

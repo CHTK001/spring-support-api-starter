@@ -1,0 +1,33 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - paragraph [ref=e6]: Payment Console
+      - heading "支付运营台" [level=1] [ref=e7]
+      - paragraph [ref=e8]: 统一管理商户、支付方式、订单、回调和交易流水。
+    - menubar [ref=e9]:
+      - menuitem "总览首页" [ref=e10] [cursor=pointer]:
+        - img [ref=e12]
+        - generic [ref=e14]: 总览首页
+      - menuitem "商户与支付方式" [ref=e15] [cursor=pointer]:
+        - img [ref=e17]
+        - generic [ref=e19]: 商户与支付方式
+      - menuitem "订单管理" [ref=e20] [cursor=pointer]:
+        - img [ref=e22]
+        - generic [ref=e24]: 订单管理
+      - menuitem "交易流水" [ref=e25] [cursor=pointer]:
+        - img [ref=e27]
+        - generic [ref=e30]: 交易流水
+      - menuitem "支付全局配置" [ref=e31] [cursor=pointer]:
+        - img [ref=e33]
+        - generic [ref=e35]: 支付全局配置
+      - menuitem "订单配置" [ref=e36] [cursor=pointer]:
+        - img [ref=e38]
+        - generic [ref=e40]: 订单配置
+    - generic [ref=e41]:
+      - paragraph [ref=e42]: 能力范围
+      - list [ref=e43]:
+        - listitem [ref=e44]: 微信支付 / 支付宝 / 易支付 / 钱包
+        - listitem [ref=e45]: 商户能力、支付方式、订单与退款
+        - listitem [ref=e46]: 支付全局配置与订单分表策略
+        - listitem [ref=e47]: 回调诊断、异常重试与调度任务
+  - main [ref=e49]
