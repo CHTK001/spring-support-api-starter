@@ -18,7 +18,6 @@ import com.chua.starter.tencent.support.payment.dto.TencentWechatRefundRequest;
 import com.chua.starter.tencent.support.payment.dto.TencentWechatRefundResponse;
 import com.chua.starter.tencent.support.properties.TencentWechatPayProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -30,7 +29,6 @@ import java.time.format.DateTimeFormatter;
  * 微信 JSAPI 支付
  */
 @Component
-@ConditionalOnClass(name = "com.chua.starter.tencent.support.payment.TencentWechatPayGateway")
 public class WechatJsapiPaymentChannel extends AbstractMerchantPaymentChannel implements PaymentChannel {
 
     private final PaymentProviderGatewayRegistry providerGatewayRegistry;

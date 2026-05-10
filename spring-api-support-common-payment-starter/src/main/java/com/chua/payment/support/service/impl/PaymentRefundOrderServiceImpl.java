@@ -41,7 +41,8 @@ public class PaymentRefundOrderServiceImpl implements PaymentRefundOrderService 
                                                 BigDecimal refundAmount,
                                                 String reason,
                                                 String operator,
-                                                String requestPayload) {
+                                                String requestPayload,
+                                                String refundType) {
         if (order == null || order.getId() == null) {
             throw new PaymentException("退款订单不存在");
         }
@@ -62,6 +63,7 @@ public class PaymentRefundOrderServiceImpl implements PaymentRefundOrderService 
         entity.setRequestPayload(requestPayload);
         entity.setOperator(operator);
         entity.setRemark(reason);
+        entity.setRefundType(StringUtils.hasText(refundType) ? refundType : "SYSTEM");
         paymentRefundOrderMapper.insert(entity);
         return entity;
     }

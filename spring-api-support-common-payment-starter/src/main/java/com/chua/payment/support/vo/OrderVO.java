@@ -66,6 +66,12 @@ public class OrderVO implements Serializable {
 
     private String thirdPartyOrderNo;
 
+    private String providerOrderNo;
+
+    private String productId;
+
+    private String productName;
+
     private String remark;
 
     private Integer deleted;

@@ -20,7 +20,7 @@
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>spring-support-project-starter</artifactId>
+      <artifactId>spring-support-soft-starter</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -39,6 +39,11 @@
     <dependency>
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-docker-starter</artifactId>
     </dependency>
 
     <dependency>

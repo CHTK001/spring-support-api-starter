@@ -14,7 +14,7 @@ spring:
     redis:
       database: 6
       host: 172.16.0.40
-      port: 16379
+      port: 6379
   sql:
     init:
       continue-on-error: true
@@ -26,8 +26,13 @@ logging:
 
 
 plugin:
+  datasource:
+    script:
+      scan-mode: ONCE
   oauth:
     address: http://172.16.0.40:19180/oauth
+    protocol: static
+    auth-address: http://172.16.0.40:19180/oauth
 
 soft:
   management:

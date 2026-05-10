@@ -10,6 +10,7 @@ import com.chua.payment.support.exception.PaymentException;
 import com.chua.payment.support.mapper.WalletOrderMapper;
 import com.chua.payment.support.service.WalletOrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -45,7 +46,15 @@ public class WalletOrderServiceImpl implements WalletOrderService {
         order.setStatus("PENDING");
         order.setOperator(request.getOperator());
         order.setRemark(request.getRemark());
-        walletOrderMapper.insert(order);
+        try {
+            walletOrderMapper.insert(order);
+        } catch (DuplicateKeyException e) {
+            WalletOrder existingOrder = getByOrderNo(orderNo);
+            if (existingOrder == null) {
+                throw new PaymentException("充值订单创建失败，请稍后重试");
+            }
+            return existingOrder;
+        }
         return order;
     }
 
@@ -69,7 +78,15 @@ public class WalletOrderServiceImpl implements WalletOrderService {
         order.setStatus("PENDING");
         order.setOperator(request.getOperator());
         order.setRemark(request.getRemark());
-        walletOrderMapper.insert(order);
+        try {
+            walletOrderMapper.insert(order);
+        } catch (DuplicateKeyException e) {
+            WalletOrder existingOrder = getByOrderNo(orderNo);
+            if (existingOrder == null) {
+                throw new PaymentException("转账订单创建失败，请稍后重试");
+            }
+            return existingOrder;
+        }
         return order;
     }
 
@@ -95,7 +112,15 @@ public class WalletOrderServiceImpl implements WalletOrderService {
         order.setStatus("PENDING");
         order.setOperator(request.getOperator());
         order.setRemark(request.getRemark());
-        walletOrderMapper.insert(order);
+        try {
+            walletOrderMapper.insert(order);
+        } catch (DuplicateKeyException e) {
+            WalletOrder existingOrder = getByOrderNo(orderNo);
+            if (existingOrder == null) {
+                throw new PaymentException("提现订单创建失败，请稍后重试");
+            }
+            return existingOrder;
+        }
         return order;
     }
 

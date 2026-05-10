@@ -1,18 +1,30 @@
 spring:
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:file:./data/payment-test;DB_CLOSE_ON_EXIT=FALSE;MODE=MYSQL
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-  sql:
-    init:
-      mode: never
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://172.16.0.40:3306/payment?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&autoReconnect=true&failOverReadOnly=false
+    username: root
+    password: root@
+  data:
+    redis:
+      host: 172.16.0.40
+      port: 6379
 
 logging:
+  file:
+    name: ./logs/payment-test.log
   level:
     com.chua.payment.support: DEBUG
     com.chua.starter.payment: DEBUG
+    org.springframework.web: DEBUG
+
+plugin:
+  strategy:
+    idempotent:
+      enabled: true
+      type: redis
+    sql-injection:
+      enabled: false
+  payment:
+    provider:
+      wechat-spi: default
+      alipay-spi: default

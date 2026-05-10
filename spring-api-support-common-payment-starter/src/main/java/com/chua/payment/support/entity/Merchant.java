@@ -12,44 +12,65 @@ import java.time.LocalDateTime;
  * @since 2026-03-18
  */
 @Data
-@TableName("merchant")
+@TableName("pay_merchant")
 public class Merchant {
-    @TableId(type = IdType.AUTO)
+    @TableId(value = "pay_merchant_id", type = IdType.AUTO)
     private Long id;
 
+    @TableField("pay_merchant_no")
     private String merchantNo;
 
+    @TableField("pay_merchant_name")
     private String merchantName;
 
+    @TableField("pay_merchant_contact_name")
     private String contactName;
 
+    @TableField("pay_merchant_contact_phone")
     private String contactPhone;
 
+    @TableField("pay_merchant_contact_email")
     private String contactEmail;
 
+    @TableField("pay_merchant_business_license")
     private String businessLicense;
 
+    @TableField("pay_merchant_legal_person")
     private String legalPerson;
 
+    @TableField("pay_merchant_default_notify_url")
     private String defaultNotifyUrl;
 
+    @TableField("pay_merchant_default_return_url")
     private String defaultReturnUrl;
 
+    @TableField("pay_merchant_payment_wallet_enabled")
     private Boolean walletEnabled;
 
-    private Boolean compositeEnabled;
-
+    @TableField("pay_merchant_payment_auto_close_enabled")
     private Boolean autoCloseEnabled;
 
+    @TableField("pay_merchant_payment_auto_close_minutes")
     private Integer autoCloseMinutes;
 
+    @TableField("pay_merchant_payment_split_table_enabled")
+    private Boolean splitTableEnabled;
+
+    @TableField("pay_merchant_payment_profit_sharing_enabled")
+    private Boolean profitSharingEnabled;
+
+    @TableField("pay_merchant_payment_coupon_enabled")
+    private Boolean couponEnabled;
+
+    @TableField("pay_merchant_remark")
     private String remark;
 
+    @TableField("pay_merchant_status")
     private Integer status;
 
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(value = "pay_merchant_created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "pay_merchant_updated_at", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 }

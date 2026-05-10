@@ -108,16 +108,22 @@ public class OrderStateMachineServiceImpl implements OrderStateMachineService {
                     || OrderState.PAID.name().equals(status)
                     || OrderState.COMPLETED.name().equals(status)
                     || OrderState.REFUNDING.name().equals(status)
-                    || OrderState.REFUNDED.name().equals(status);
+                    || OrderState.REFUNDED.name().equals(status)
+                    || OrderState.USER_REFUNDED.name().equals(status)
+                    || OrderState.SYS_REFUNDED.name().equals(status);
             case PAY_SUCCESS -> OrderState.PAID.name().equals(status)
                     || OrderState.COMPLETED.name().equals(status)
                     || OrderState.REFUNDING.name().equals(status)
-                    || OrderState.REFUNDED.name().equals(status);
+                    || OrderState.REFUNDED.name().equals(status)
+                    || OrderState.USER_REFUNDED.name().equals(status)
+                    || OrderState.SYS_REFUNDED.name().equals(status);
             case PAY_FAIL -> OrderState.FAILED.name().equals(status);
             case COMPLETE -> OrderState.COMPLETED.name().equals(status);
             case CANCEL -> OrderState.CANCELLED.name().equals(status);
-            case REFUND -> OrderState.REFUNDING.name().equals(status) || OrderState.REFUNDED.name().equals(status);
-            case REFUND_SUCCESS -> OrderState.REFUNDED.name().equals(status);
+            case REFUND -> OrderState.REFUNDING.name().equals(status) || OrderState.REFUNDED.name().equals(status)
+                    || OrderState.USER_REFUNDED.name().equals(status) || OrderState.SYS_REFUNDED.name().equals(status);
+            case REFUND_SUCCESS -> OrderState.REFUNDED.name().equals(status)
+                    || OrderState.USER_REFUNDED.name().equals(status) || OrderState.SYS_REFUNDED.name().equals(status);
             case REFUND_FAIL -> OrderState.PAID.name().equals(status) || OrderState.COMPLETED.name().equals(status);
             case TIMEOUT -> OrderState.TIMEOUT.name().equals(status);
         };

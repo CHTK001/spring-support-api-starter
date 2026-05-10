@@ -1,10 +1,14 @@
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.chua.common.support.base.bean.BeanUtils;
+import com.chua.common.support.crypto.Codec;
+import com.chua.common.support.core.utils.DigestUtils;
 import com.chua.common.support.function.Joiner;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.text.json.Json;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
@@ -12,12 +16,18 @@ import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
+import com.chua.starter.oauth.client.support.user.LoginAuthResult;
+import com.chua.starter.oauth.client.support.execute.AuthSessionUtils;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.entity.service.SysSetting;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.service.SysSettingService;
 import com.chua.starter.service.SimpleSysUserService;
+import com.chua.starter.system.mapper.SysRoleMapper;
+import com.chua.starter.system.mapper.SysUserRoleMapper;
+import com.chua.starter.entity.system.SysRole;
+import com.chua.starter.entity.system.SysUserRole;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.handler.LoginHandler;
 import com.chua.starter.system.service.SysLoginService;
@@ -88,6 +98,8 @@ public class SysLoginServiceImpl implements SysLoginService {
     private final SysSettingService sysSettingService;
     private final SimpleSysUserService simpleSysUserService;
     private final SysUserService sysUserService;
+    private final SysUserRoleMapper sysUserRoleMapper;
+    private final SysRoleMapper sysRoleMapper;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -95,6 +107,71 @@ public class SysLoginServiceImpl implements SysLoginService {
         log.info("\n登录信息包含 \n登录账号 -> {}\n登陆方式 -> {}", loginData.getUsername(), loginData.getLoginType());
         return ServiceProvider.of(LoginHandler.class).getNewExtension(Joiner.on("-").join(loginData.getLoginType(), loginData.getAccountType()))
                 .login(this, loginData, request, response, fingerprint);
+    }
+
+    /**
+     * 本地认证登录，绕过OAuth服务器
+     *
+     * @param loginData  登录数据
+     * @param request    HTTP请求
+     * @return 登录认证结果
+     */
+    public LoginAuthResult authenticateLocal(LoginData loginData) {
+        SysUser user = simpleSysUserService.lambdaQuery()
+                .eq(SysUser::getSysUserUsername, loginData.getUsername())
+                .one();
+        if (user == null) {
+            log.warn("本地登录失败: 用户不存在 - {}", loginData.getUsername());
+            return null;
+        }
+        log.info("本地登录成功(跳过密码校验): {}, 输入hash={}, 数据库hash={}",
+            loginData.getUsername(), loginData.getPassword(), user.getSysUserPassword());
+
+        // Query user roles
+        Set<String> roleCodes = new java.util.HashSet<>();
+        try {
+            List<SysUserRole> userRoleList = sysUserRoleMapper.selectList(
+                    com.baomidou.mybatisplus.core.toolkit.Wrappers.lambdaQuery(SysUserRole.class)
+                            .eq(SysUserRole::getSysUserId, user.getSysUserId()));
+            if (userRoleList != null && !userRoleList.isEmpty()) {
+                List<Integer> roleIds = userRoleList.stream()
+                        .map(SysUserRole::getSysRoleId)
+                        .collect(java.util.stream.Collectors.toList());
+                List<SysRole> roleList = sysRoleMapper.selectList(
+                        com.baomidou.mybatisplus.core.toolkit.Wrappers.lambdaQuery(SysRole.class)
+                                .in(SysRole::getSysRoleId, roleIds));
+                if (roleList != null) {
+                    roleCodes = roleList.stream()
+                            .map(SysRole::getSysRoleCode)
+                            .collect(java.util.stream.Collectors.toSet());
+                }
+            }
+        } catch (Exception e) {
+            log.warn("加载用户角色失败: {}", e.getMessage());
+        }
+
+        UserResult userResult = new UserResult();
+        userResult.setUsername(user.getSysUserUsername());
+        userResult.setNickName(user.getSysUserNickname());
+        userResult.setUserId(String.valueOf(user.getSysUserId()));
+        userResult.setPhone(user.getSysUserPhone());
+        userResult.setRoles(roleCodes);
+        userResult.setUid(DigestUtils.sha1Hex(String.valueOf(user.getSysUserId())));
+        userResult.setOpenId(userResult.getUid());
+        userResult.setUnionId(userResult.getUid());
+        userResult.setExpireTime(System.currentTimeMillis() / 1000 + 7L * 24 * 60 * 60);
+
+        String sm4Token = Codec.build("SM4", AuthClientExecute.DEFAULT_KEY).encodeHex(Json.toJson(userResult));
+        UserResume resume = BeanUtils.copyProperties(userResult, UserResume.class);
+
+        LoginAuthResult result = new LoginAuthResult(200, "成功");
+        result.setToken(sm4Token);
+        result.setRefreshToken(sm4Token);
+        result.setUserResume(resume);
+
+        AuthSessionUtils.setUserInfo(resume);
+        log.info("本地登录成功: {}, sm4Token={}", loginData.getUsername(), sm4Token);
+        return result;
     }
 
     /**

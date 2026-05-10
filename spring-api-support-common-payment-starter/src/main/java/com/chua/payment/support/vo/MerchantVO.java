@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 商户视图对象
@@ -29,17 +30,17 @@ public class MerchantVO implements Serializable {
 
     private String legalPerson;
 
-    private String defaultNotifyUrl;
-
-    private String defaultReturnUrl;
-
-    private Boolean walletEnabled;
-
-    private Boolean compositeEnabled;
+    private Boolean paymentWalletEnabled;
 
     private Boolean autoCloseEnabled;
 
     private Integer autoCloseMinutes;
+
+    private Boolean paymentSplitTableEnabled;
+
+    private Boolean paymentProfitSharingEnabled;
+
+    private Boolean paymentCouponEnabled;
 
     private String remark;
 
@@ -48,6 +49,10 @@ public class MerchantVO implements Serializable {
     private String statusDesc;
 
     private Integer channelCount;
+
+    private List<String> channelTypes;
+
+    private List<String> channelTypeDetails;
 
     private LocalDateTime createdAt;
 

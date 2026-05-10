@@ -86,8 +86,8 @@ plugin:
     protocol: http-lite
 
   socket:
-    # 关闭 Socket.IO（开发环境避免端口冲突）
-    enable: false
+    # 开启 Socket.IO，支持实时安装进度推送
+    enable: true
 
 monitor:
   acme:

@@ -1,0 +1,146 @@
+package com.chua.starter.panel.test;
+
+import com.chua.starter.panel.service.NginxPanelService;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+
+/**
+ * 为测试环境提供 SSH 脚本执行端点。
+ * <p>生产环境由 utils-support-nginx-starter 提供，测试环境临时补全。</p>
+ */
+@RestController
+@RequestMapping("/v1/panel/ssh")
+@RequiredArgsConstructor
+public class SshExecController {
+
+    private final NginxPanelService nginxPanelService;
+
+    /**
+     * 通过持久 SSH 连接执行脚本（委托 NginxPanelService）。
+     * 前端 executeSshScript 传入 connectionId + {script}，
+     * NginxPanelService 从 PanelSshSessionRegistry 找到对应会话并执行。
+     */
+    @PostMapping("/{connectionId}/execute-script")
+    public ResponseEntity<Map<String, Object>> executeScript(
+            @PathVariable String connectionId,
+            @RequestBody Map<String, String> body) {
+        String script = body.get("script");
+        if (script == null || script.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "code", "S400", "msg", "script is required", "data", ""
+            ));
+        }
+        try {
+            String output = nginxPanelService.executeScript(connectionId, script);
+            return ResponseEntity.ok(Map.of("code", "S200", "msg", "success", "data", output));
+        } catch (Exception e) {
+            return ResponseEntity.ok(Map.of(
+                    "code", "S500", "msg", "Script execution failed: " + e.getMessage(), "data", ""
+            ));
+        }
+    }
+
+    /**
+     * 打开 SSH 连接（委托 NginxPanelService，兼容 PanelSshController 缺失的场景）。
+     */
+    @PostMapping("/open")
+    public ResponseEntity<Map<String, Object>> openConnection(@RequestBody Map<String, String> body) {
+        String host = body.getOrDefault("host", "127.0.0.1");
+        int port = parsePort(body.get("port"));
+        String username = body.getOrDefault("username", "root");
+        String password = body.get("password");
+        String privateKey = body.get("privateKey");
+        try {
+            String connectionId = nginxPanelService.open(host, port, username, password, privateKey);
+            return ResponseEntity.ok(Map.of("code", "S200", "msg", "success", "data", connectionId));
+        } catch (Exception e) {
+            return ResponseEntity.ok(Map.of("code", "S500", "msg", "SSH 连接失败: " + e.getMessage(), "data", ""));
+        }
+    }
+
+    /**
+     * 关闭 SSH 连接（委托 NginxPanelService）。
+     */
+    @DeleteMapping("/{connectionId}")
+    public ResponseEntity<Map<String, Object>> closeConnection(@PathVariable String connectionId) {
+        try {
+            nginxPanelService.close(connectionId);
+            return ResponseEntity.ok(Map.of("code", "S200", "msg", "success"));
+        } catch (Exception e) {
+            return ResponseEntity.ok(Map.of("code", "S500", "msg", "关闭连接失败: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * 直接执行 SSH 脚本：前端 runSshCommand 降级时传入完整连接参数。
+     */
+    @PostMapping("/exec")
+    public ResponseEntity<Map<String, Object>> directExec(@RequestBody Map<String, String> body) {
+        String script = body.get("script");
+        String host = body.get("host");
+        String username = body.get("username");
+
+        if (script == null || script.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "code", "S400", "msg", "script is required", "data", ""
+            ));
+        }
+        if (host == null || username == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "code", "S400", "msg", "host and username are required", "data", ""
+            ));
+        }
+
+        try {
+            String output = executeSshCommand(host, parsePort(body.get("port")), username,
+                    body.getOrDefault("password", ""), script);
+            return ResponseEntity.ok(Map.of("code", "S200", "msg", "success", "data", output));
+        } catch (Exception e) {
+            return ResponseEntity.ok(Map.of("code", "S500", "msg", "SSH execution failed: " + e.getMessage(), "data", ""));
+        }
+    }
+
+    private static int parsePort(String portStr) {
+        if (portStr == null) return 22;
+        try {
+            return Integer.parseInt(portStr);
+        } catch (NumberFormatException e) {
+            return 22;
+        }
+    }
+
+    private String executeSshCommand(String host, int port, String username, String password, String script) throws Exception {
+        JSch jsch = new JSch();
+        Session session = jsch.getSession(username, host, port);
+        session.setPassword(password);
+        session.setConfig("StrictHostKeyChecking", "no");
+        session.setConfig("PreferredAuthentications", "password");
+        session.connect(15000);
+
+        try {
+            ChannelExec channel = (ChannelExec) session.openChannel("exec");
+            channel.setCommand(script);
+            channel.setErrStream(new ByteArrayOutputStream());
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            channel.setOutputStream(out);
+            channel.connect(60000);
+
+            while (!channel.isClosed()) {
+                Thread.sleep(100);
+            }
+
+            return out.toString(StandardCharsets.UTF_8);
+        } finally {
+            session.disconnect();
+        }
+    }
+}

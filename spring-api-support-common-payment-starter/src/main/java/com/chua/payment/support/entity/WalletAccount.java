@@ -14,25 +14,30 @@ import java.time.LocalDateTime;
  * 钱包账户
  */
 @Data
-@TableName("wallet_account")
+@TableName("pay_wallet_account")
 public class WalletAccount {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(value = "pay_wallet_account_id", type = IdType.AUTO)
     private Long id;
 
+    @TableField("pay_wallet_account_merchant_id")
     private Long merchantId;
 
+    @TableField("pay_wallet_account_user_id")
     private Long userId;
 
+    @TableField("pay_wallet_account_available_balance")
     private BigDecimal availableBalance;
 
+    @TableField("pay_wallet_account_frozen_balance")
     private BigDecimal frozenBalance;
 
+    @TableField("pay_wallet_account_status")
     private Integer status;
 
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(value = "pay_wallet_account_created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "pay_wallet_account_updated_at", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
 }

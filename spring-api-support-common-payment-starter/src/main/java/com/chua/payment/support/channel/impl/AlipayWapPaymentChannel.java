@@ -8,14 +8,13 @@ import com.chua.payment.support.provider.PaymentProviderGatewayRegistry;
 import com.chua.payment.support.service.MerchantChannelService;
 import com.chua.starter.aliyun.support.payment.dto.AliyunAlipayPayResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+
 import org.springframework.stereotype.Component;
 
 /**
  * 支付宝手机网站支付
  */
 @Component
-@ConditionalOnClass(name = "com.chua.starter.aliyun.support.payment.AliyunAlipayGateway")
 public class AlipayWapPaymentChannel extends AlipayWebPaymentChannel implements PaymentChannel {
 
     public AlipayWapPaymentChannel(MerchantChannelService merchantChannelService,
@@ -26,7 +25,7 @@ public class AlipayWapPaymentChannel extends AlipayWebPaymentChannel implements 
 
     @Override
     public boolean supports(String channelType, String channelSubType) {
-        return "ALIPAY".equalsIgnoreCase(channelType) && "WAP".equalsIgnoreCase(channelSubType);
+        return "ALIPAY".equalsIgnoreCase(channelType) && "PAY_WAP".equalsIgnoreCase(channelSubType);
     }
 
     @Override

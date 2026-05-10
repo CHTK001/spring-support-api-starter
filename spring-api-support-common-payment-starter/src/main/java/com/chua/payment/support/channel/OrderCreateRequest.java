@@ -16,4 +16,6 @@ public class OrderCreateRequest {
     private String body;
     private String currency;
     private String attach;
+    private String productId;
+    private String productName;
 }
