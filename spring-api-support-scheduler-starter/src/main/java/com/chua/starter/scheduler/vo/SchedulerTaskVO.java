@@ -43,4 +43,6 @@ public class SchedulerTaskVO {
     private String lastRunStatus;
 
     private String lastRunMessage;
+
+    private Boolean deleted;
 }

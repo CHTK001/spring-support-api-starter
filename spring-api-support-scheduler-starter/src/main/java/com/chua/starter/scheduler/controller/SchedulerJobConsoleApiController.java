@@ -101,8 +101,9 @@ public class SchedulerJobConsoleApiController {
     }
 
     @GetMapping("/{namespace}/task/list")
-    public ReturnResult<Object> listTasks(@PathVariable String namespace) {
-        return ReturnResult.ok(schedulerJobPlatformService.listTasks(namespace));
+    public ReturnResult<Object> listTasks(@PathVariable String namespace,
+                                          @RequestParam(defaultValue = "false") boolean includeDeleted) {
+        return ReturnResult.ok(schedulerJobPlatformService.listTasks(namespace, includeDeleted));
     }
 
     @PutMapping("/{namespace}/task/{taskKey}")

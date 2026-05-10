@@ -231,30 +231,6 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean restoreJob(String namespace, Integer jobId) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        log.info("恢复任务: namespace={}, jobId={}", namespace, jobId);
-        MapSqlParameterSource parameters = new MapSqlParameterSource("jobId", requireJobId(jobId));
-        return namedParameterJdbcTemplate.update(
-                "UPDATE " + tables.jobTable() + " SET is_deleted = 0 WHERE job_id = :jobId",
-                parameters
-        ) > 0;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean restoreJobByNo(String namespace, String jobNo) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        log.info("恢复任务: namespace={}, jobNo={}", namespace, jobNo);
-        MapSqlParameterSource parameters = new MapSqlParameterSource("jobNo", requireText(jobNo, "任务编号不能为空"));
-        return namedParameterJdbcTemplate.update(
-                "UPDATE " + tables.jobTable() + " SET is_deleted = 0 WHERE job_no = :jobNo",
-                parameters
-        ) > 0;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
     public boolean startJob(String namespace, Integer jobId) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
         SysJob job = requireJob(tables, requireJobId(jobId));
@@ -376,9 +352,17 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
 
     @Override
     public List<SchedulerTaskVO> listTasks(String namespace) {
+        return listTasks(namespace, false);
+    }
+
+    @Override
+    public List<SchedulerTaskVO> listTasks(String namespace, boolean includeDeleted) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+        String sql = includeDeleted
+                ? "SELECT * FROM " + tables.jobTable() + " ORDER BY job_id DESC"
+                : "SELECT * FROM " + tables.jobTable() + " WHERE is_deleted = 0 ORDER BY job_id DESC";
         List<SysJob> jobs = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable() + " WHERE is_deleted = 0 ORDER BY job_id DESC",
+                sql,
                 new MapSqlParameterSource(),
                 jobRowMapper
         );
@@ -442,6 +426,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         vo.setEnabled(STATUS_RUNNING == safeStatus(job.getJobTriggerStatus()));
         vo.setDescription(job.getJobDesc());
         vo.setScheduled(STATUS_RUNNING == safeStatus(job.getJobTriggerStatus()));
+        vo.setDeleted(Integer.valueOf(1).equals(job.getIsDeleted()));
         vo.setDispatchMode(job.getJobDispatchMode());
         vo.setRemoteExecutorAddress(job.getJobRemoteExecutorAddress());
         vo.setStorageMode(job.getJobStorageMode());
