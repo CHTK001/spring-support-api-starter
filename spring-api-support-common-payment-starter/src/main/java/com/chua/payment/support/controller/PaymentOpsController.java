@@ -1,28 +1,31 @@
 package com.chua.payment.support.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.payment.support.mapper.PaymentOpsMapper;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * 支付运营数据控制器（台账/仪表盘）
+ * <p>使用 MyBatis XML 查询，SQL 兼容多数据库（MySQL / H2 / PostgreSQL）。
  */
 @RestController
 @RequestMapping("/api/ops")
 @RequiredArgsConstructor
 public class PaymentOpsController {
 
-    private final JdbcTemplate jdbc;
+    private final PaymentOpsMapper paymentOpsMapper;
 
     @GetMapping("/dashboard/summary")
     @Permission(value = "payment:ops:view", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN, AuthConstant.OPS})
@@ -30,56 +33,45 @@ public class PaymentOpsController {
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {
 
-        boolean hasRange = startDate != null && endDate != null;
-        Object[] dateArgs = hasRange ? new Object[]{startDate, endDate} : new Object[0];
-
-        String dcCreated = hasRange
-                ? " AND created_at >= ? AND created_at < DATE_ADD(?, INTERVAL 1 DAY)"
-                : "";
-        String dcReceived = hasRange
-                ? " AND received_time >= ? AND received_time < DATE_ADD(?, INTERVAL 1 DAY)"
-                : "";
+        LocalDateTime start = null;
+        LocalDateTime end = null;
+        if (startDate != null && endDate != null) {
+            start = LocalDate.parse(startDate).atStartOfDay();
+            end = LocalDate.parse(endDate).plusDays(1).atStartOfDay();
+        }
 
         Map<String, Object> result = new LinkedHashMap<>();
 
         // 商户统计
-        result.put("merchantTotal", queryInt("SELECT COUNT(*) FROM pay_merchant"));
-        result.put("activeMerchantCount", queryInt("SELECT COUNT(*) FROM pay_merchant WHERE status = 1"));
-        result.put("configuredMerchantCount", queryInt(
-                "SELECT COUNT(DISTINCT m.id) FROM pay_merchant m INNER JOIN pay_merchant_channel c ON c.merchant_id = m.id WHERE c.status = 1"));
+        result.put("merchantTotal", defaultZero(paymentOpsMapper.countMerchant()));
+        result.put("activeMerchantCount", defaultZero(paymentOpsMapper.countActiveMerchant()));
+        result.put("configuredMerchantCount", defaultZero(paymentOpsMapper.countConfiguredMerchant()));
 
         // 订单统计
-        String orderBase = "FROM pay_order WHERE status IN ('PAID','COMPLETED')";
-        String refundBase = "FROM pay_order WHERE refund_amount > 0";
-
-        result.put("paymentOrderCount", queryInt("SELECT COUNT(*) " + orderBase + dcCreated, dateArgs));
-        result.put("totalConsumeAmount", queryDecimal("SELECT COALESCE(SUM(paid_amount),0) " + orderBase + dcCreated, dateArgs));
-        result.put("totalRefundAmount", queryDecimal("SELECT COALESCE(SUM(refund_amount),0) " + refundBase + dcCreated, dateArgs));
-        result.put("refundCount", queryInt("SELECT COUNT(*) " + refundBase + dcCreated, dateArgs));
+        result.put("paymentOrderCount", defaultZero(paymentOpsMapper.countPaidOrder(start, end)));
+        result.put("totalConsumeAmount", zeroIfNull(paymentOpsMapper.sumPaidAmount(start, end)));
+        result.put("totalRefundAmount", zeroIfNull(paymentOpsMapper.sumRefundAmount(start, end)));
+        result.put("refundCount", defaultZero(paymentOpsMapper.countRefundOrder(start, end)));
 
         // 交易流水
-        result.put("transactionCount", queryInt("SELECT COUNT(*) FROM pay_transaction_record" + dcCreated, dateArgs));
+        result.put("transactionCount", defaultZero(paymentOpsMapper.countTransaction(start, end)));
 
         // 回调统计
-        String notifyBase = "FROM pay_notify_log WHERE 1=1";
-        result.put("callbackRequestCount", queryInt("SELECT COUNT(*) " + notifyBase + dcReceived, dateArgs));
-        result.put("successNotifyCount", queryInt("SELECT COUNT(*) " + notifyBase + " AND process_status = 'SUCCESS'" + dcReceived, dateArgs));
-        result.put("failedNotifyCount", queryInt("SELECT COUNT(*) " + notifyBase + " AND process_status = 'FAILED'" + dcReceived, dateArgs));
+        result.put("callbackRequestCount", defaultZero(paymentOpsMapper.countNotifyLog(start, end)));
+        result.put("successNotifyCount", defaultZero(paymentOpsMapper.countSuccessNotify(start, end)));
+        result.put("failedNotifyCount", defaultZero(paymentOpsMapper.countFailedNotify(start, end)));
 
         // 平均回调处理耗时
-        result.put("averageProcessDurationMs",
-                queryDecimal("SELECT COALESCE(AVG(TIMESTAMPDIFF(MICROSECOND, received_time, processed_time)) / 1000, 0) " + notifyBase + " AND process_status IS NOT NULL" + dcReceived, dateArgs));
+        result.put("averageProcessDurationMs", zeroIfNull(paymentOpsMapper.avgNotifyProcessDuration(start, end)));
 
         return ReturnResult.success(result);
     }
 
-    private int queryInt(String sql, Object... args) {
-        Integer val = jdbc.queryForObject(sql, Integer.class, args);
+    private static int defaultZero(Integer val) {
         return val != null ? val : 0;
     }
 
-    private BigDecimal queryDecimal(String sql, Object... args) {
-        BigDecimal val = jdbc.queryForObject(sql, BigDecimal.class, args);
+    private static BigDecimal zeroIfNull(BigDecimal val) {
         return val != null ? val : BigDecimal.ZERO;
     }
 }
