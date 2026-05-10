@@ -24,13 +24,13 @@ public class MerchantDTO implements Serializable {
 
     private String legalPerson;
 
-    private String defaultNotifyUrl;
-
-    private String defaultReturnUrl;
-
     private Boolean walletEnabled;
 
-    private Boolean compositeEnabled;
+    private Boolean splitTableEnabled;
+
+    private Boolean profitSharingEnabled;
+
+    private Boolean couponEnabled;
 
     private Boolean autoCloseEnabled;
 

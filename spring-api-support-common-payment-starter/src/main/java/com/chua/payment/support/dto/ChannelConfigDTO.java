@@ -21,8 +21,6 @@ public class ChannelConfigDTO {
     private String publicKey;
     private String certPath;
     private Integer sandboxMode;
-    private String notifyUrl;
-    private String returnUrl;
     private String onboardingStatus;
     private String onboardingLink;
     private Integer status;

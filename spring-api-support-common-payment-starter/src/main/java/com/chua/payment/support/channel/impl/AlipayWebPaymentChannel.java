@@ -17,7 +17,6 @@ import com.chua.starter.aliyun.support.payment.dto.AliyunAlipayRefundResponse;
 import com.chua.starter.aliyun.support.payment.dto.AliyunAlipayTradeQueryResponse;
 import com.chua.starter.aliyun.support.properties.AliyunAlipayProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -25,7 +24,6 @@ import org.springframework.util.StringUtils;
  * 支付宝电脑网站支付
  */
 @Component
-@ConditionalOnClass(name = "com.chua.starter.aliyun.support.payment.AliyunAlipayGateway")
 public class AlipayWebPaymentChannel extends AbstractMerchantPaymentChannel implements PaymentChannel {
 
     private final PaymentProviderGatewayRegistry providerGatewayRegistry;
@@ -39,7 +37,7 @@ public class AlipayWebPaymentChannel extends AbstractMerchantPaymentChannel impl
 
     @Override
     public boolean supports(String channelType, String channelSubType) {
-        return "ALIPAY".equalsIgnoreCase(channelType) && "WEB".equalsIgnoreCase(channelSubType);
+        return "ALIPAY".equalsIgnoreCase(channelType) && "PAY_WEB".equalsIgnoreCase(channelSubType);
     }
 
     @Override
@@ -117,6 +115,9 @@ public class AlipayWebPaymentChannel extends AbstractMerchantPaymentChannel impl
         properties.setCharset(firstNonBlank(extText(channel, "charset"), "UTF-8"));
         properties.setFormat(firstNonBlank(extText(channel, "format"), "json"));
         properties.setSignType(firstNonBlank(extText(channel, "signType"), "RSA2"));
+        properties.setKeepAliveDuration(60000L);
+        properties.setConnectTimeout(10000);
+        properties.setReadTimeout(30000);
         return properties;
     }
 

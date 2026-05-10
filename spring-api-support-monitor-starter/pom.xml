@@ -281,6 +281,10 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>utils-support-smtp-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>utils-support-alibaba-starter</artifactId>
         </dependency>
         <dependency>

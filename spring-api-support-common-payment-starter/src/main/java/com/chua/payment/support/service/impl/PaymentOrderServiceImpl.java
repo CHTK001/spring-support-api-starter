@@ -34,11 +34,15 @@ import com.chua.payment.support.mapper.PaymentOrderMapper;
 import com.chua.payment.support.service.OrderStateLogService;
 import com.chua.payment.support.service.OrderStateMachineService;
 import com.chua.payment.support.service.MerchantPaymentConfigService;
+import com.chua.payment.support.service.PaymentGlobalConfigService;
 import com.chua.payment.support.service.PaymentOrderService;
 import com.chua.payment.support.service.PaymentRefundOrderService;
 import com.chua.payment.support.service.TransactionRecordService;
+import com.chua.payment.support.service.UserCouponService;
+import com.chua.payment.support.spi.UserOpenIdResolver;
 import com.chua.payment.support.vo.OrderStateLogVO;
 import com.chua.payment.support.vo.OrderVO;
+import com.chua.starter.strategy.template.IdempotentTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,9 +54,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 支付订单服务实现
@@ -73,6 +79,10 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
     private final MerchantPaymentConfigService merchantPaymentConfigService;
     private final ApplicationEventPublisher eventPublisher;
     private final ObjectMapper objectMapper;
+    private final UserOpenIdResolver userOpenIdResolver;
+    private final PaymentGlobalConfigService paymentGlobalConfigService;
+    private final IdempotentTemplate idempotentTemplate;
+    private final UserCouponService userCouponService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -80,8 +90,8 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         if (dto.getMerchantId() == null) {
             throw new PaymentException("商户ID不能为空");
         }
-        if (dto.getOrderAmount() == null || dto.getOrderAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new PaymentException("订单金额必须大于0");
+        if (dto.getOrderAmount() == null || dto.getOrderAmount().compareTo(BigDecimal.ZERO) < 0) {
+            throw new PaymentException("订单金额不能为负数");
         }
 
         merchantPaymentConfigService.checkCanCreateOrder(dto.getMerchantId(), dto.getUserId());
@@ -98,7 +108,25 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
 
         PaymentOrder order = new PaymentOrder();
         BeanUtils.copyProperties(dto, order);
+
+        // 优惠券处理：冻结并计算减免
+        String couponCode = dto.getCouponCode();
+        if (StringUtils.hasText(couponCode)) {
+            com.chua.payment.support.entity.UserCoupon coupon = userCouponService.freeze(couponCode, orderNo);
+            BigDecimal discount = userCouponService.calculateDiscount(coupon, dto.getOrderAmount());
+            order.setCouponCode(couponCode);
+            order.setCouponDiscount(discount);
+            BigDecimal adjustedAmount = nullToZero(dto.getOrderAmount()).subtract(nullToZero(discount));
+            if (adjustedAmount.compareTo(BigDecimal.ZERO) < 0) {
+                adjustedAmount = BigDecimal.ZERO;
+            }
+            order.setOrderAmount(adjustedAmount);
+        }
+
+        String thirdPartyOrderNo = StringUtils.hasText(dto.getThirdPartyOrderNo()) ? dto.getThirdPartyOrderNo() : orderNo;
+
         order.setOrderNo(orderNo);
+        order.setThirdPartyOrderNo(thirdPartyOrderNo);
         order.setBusinessOrderNo(businessOrderNo);
         order.setChannelId(channel.getId());
         order.setChannelType(channel.getChannelType());
@@ -108,26 +136,31 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         order.setDiscountAmount(nullToZero(dto.getDiscountAmount()));
         order.setCurrency(StringUtils.hasText(dto.getCurrency()) ? dto.getCurrency() : "CNY");
         order.setStatus(OrderState.PENDING.name());
-        order.setSubject(StringUtils.hasText(dto.getSubject()) ? dto.getSubject() : "支付订单");
+        order.setSubject(resolveSubject(dto));
         order.setBody(dto.getBody());
-        order.setNotifyUrl(firstNonBlank(dto.getNotifyUrl(), channel.getNotifyUrl(), merchant.getDefaultNotifyUrl()));
-        order.setReturnUrl(firstNonBlank(dto.getReturnUrl(), channel.getReturnUrl(), merchant.getDefaultReturnUrl()));
+        order.setNotifyUrl(firstNonBlank(dto.getNotifyUrl(), channel.getNotifyUrl(), merchant.getDefaultNotifyUrl(), paymentGlobalConfigService.getNotifyBaseUrl()));
+        order.setReturnUrl(firstNonBlank(dto.getReturnUrl(), channel.getReturnUrl(), merchant.getDefaultReturnUrl(), paymentGlobalConfigService.getReturnUrl()));
         order.setExpireTime(LocalDateTime.now().plusMinutes(resolveExpireMinutes(dto, merchant)));
         order.setDeleted(0);
 
         PaymentChannel paymentChannel = paymentChannelRegistry.getChannel(order.getChannelType(), order.getChannelSubType());
         com.chua.payment.support.channel.OrderCreateRequest createRequest = new com.chua.payment.support.channel.OrderCreateRequest();
-        createRequest.setOrderNo(orderNo);
+        createRequest.setOrderNo(thirdPartyOrderNo);
         createRequest.setUserId(dto.getUserId());
         createRequest.setAmount(dto.getOrderAmount());
         createRequest.setSubject(order.getSubject());
         createRequest.setBody(order.getBody());
         createRequest.setCurrency(order.getCurrency());
         createRequest.setAttach(businessOrderNo);
+        createRequest.setProductId(dto.getProductId());
+        createRequest.setProductName(dto.getProductName());
 
         com.chua.payment.support.channel.OrderCreateResult createResult = paymentChannel.createOrder(channel, createRequest);
         if (!createResult.isSuccess()) {
             throw new PaymentException("订单创建失败: " + createResult.getMessage());
+        }
+        if (StringUtils.hasText(createResult.getProviderOrderNo())) {
+            order.setProviderOrderNo(createResult.getProviderOrderNo());
         }
 
         try {
@@ -166,7 +199,9 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
     }
 
     @Override
-    public Page<OrderVO> listOrders(int page, int size, Long merchantId, String orderNo, String status) {
+    public Page<OrderVO> listOrders(int page, int size, Long merchantId, String orderNo, String status,
+                                    Long userId, String channelType, LocalDate payTimeStart, LocalDate payTimeEnd,
+                                    String productId, String productName) {
         LambdaQueryWrapper<PaymentOrder> wrapper = baseOrderWrapper()
                 .orderByDesc(PaymentOrder::getCreatedAt);
         if (merchantId != null) {
@@ -178,6 +213,24 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         if (StringUtils.hasText(status)) {
             wrapper.eq(PaymentOrder::getStatus, status);
         }
+        if (userId != null) {
+            wrapper.eq(PaymentOrder::getUserId, userId);
+        }
+        if (StringUtils.hasText(channelType)) {
+            wrapper.eq(PaymentOrder::getChannelType, channelType);
+        }
+        if (payTimeStart != null) {
+            wrapper.ge(PaymentOrder::getPayTime, payTimeStart.atStartOfDay());
+        }
+        if (payTimeEnd != null) {
+            wrapper.le(PaymentOrder::getPayTime, payTimeEnd.atTime(23, 59, 59));
+        }
+        if (StringUtils.hasText(productId)) {
+            wrapper.like(PaymentOrder::getProductId, productId);
+        }
+        if (StringUtils.hasText(productName)) {
+            wrapper.like(PaymentOrder::getProductName, productName);
+        }
         Page<PaymentOrder> orderPage = orderMapper.selectPage(new Page<>(page, size), wrapper);
         Page<OrderVO> voPage = new Page<>(page, size, orderPage.getTotal());
         voPage.setRecords(orderPage.getRecords().stream().map(this::convertToVO).toList());
@@ -186,7 +239,7 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
 
     @Override
     public Page<OrderVO> listMerchantOrders(Long merchantId, int page, int size, String status) {
-        return listOrders(page, size, merchantId, null, status);
+        return listOrders(page, size, merchantId, null, status, null, null, null, null, null, null);
     }
 
     @Override
@@ -206,52 +259,86 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         String operator = defaultOperator(dto != null ? dto.getOperator() : null);
         ensurePaying(order, operator);
 
-        PaymentRequest request = new PaymentRequest();
-        request.setOrderNo(order.getOrderNo());
-        request.setUserId(order.getUserId());
-        request.setAmount(order.getOrderAmount());
-        request.setSubject(order.getSubject());
-        request.setBody(order.getBody());
-        request.setNotifyUrl(order.getNotifyUrl());
-        request.setReturnUrl(order.getReturnUrl());
-        request.setCurrency(order.getCurrency());
-        request.setExpireTime(order.getExpireTime());
-        request.setPayerOpenId(dto != null ? dto.getPayerOpenId() : null);
-        request.setClientIp(dto != null ? dto.getClientIp() : null);
-        request.setDeviceId(dto != null ? dto.getDeviceId() : null);
-        request.setUserAgent(dto != null ? dto.getUserAgent() : null);
-        request.setAttach(order.getBusinessOrderNo());
+        // 订单级别幂等性校验
+        String idempotentKey = "payment:idempotent:order:pay:" + order.getOrderNo();
+        if (!idempotentTemplate.tryAcquire(idempotentKey, 30, TimeUnit.MINUTES)) {
+            order = requireOrder(id);
+            if (isPaidState(order.getStatus())) {
+                PaymentResult result = new PaymentResult();
+                result.setSuccess(true);
+                result.setTradeNo(order.getThirdPartyOrderNo());
+                result.setPaidAmount(order.getPaidAmount());
+                result.setStatus("PAID");
+                result.setMessage("订单已支付成功");
+                return result;
+            }
+            throw new PaymentException("订单正在支付中，请勿重复提交");
+        }
 
-        PaymentResult result = paymentChannel.pay(channel, request);
-        PaymentOrder latest = requireOrder(id);
-        if (StringUtils.hasText(result.getTradeNo())) {
-            latest.setThirdPartyOrderNo(result.getTradeNo());
-            orderMapper.updateById(latest);
-        }
-        if ("PAID".equals(result.getStatus())) {
-            paySuccess(id,
-                    result.getPaidAmount() != null ? result.getPaidAmount() : latest.getOrderAmount(),
+        try {
+            // 零金额订单：跳过渠道支付，直接标记成功
+            if (order.getOrderAmount().compareTo(BigDecimal.ZERO) == 0) {
+                paySuccess(id, BigDecimal.ZERO, "ZERO_AMOUNT_" + order.getOrderNo(), operator);
+                PaymentResult result = new PaymentResult();
+                result.setSuccess(true);
+                result.setStatus("PAID");
+                result.setMessage("零金额订单已自动支付成功");
+                return result;
+            }
+
+            PaymentRequest request = new PaymentRequest();
+            request.setOrderNo(order.getOrderNo());
+            request.setUserId(order.getUserId());
+            request.setAmount(order.getOrderAmount());
+            request.setSubject(order.getSubject());
+            request.setBody(order.getBody());
+            request.setNotifyUrl(order.getNotifyUrl());
+            request.setReturnUrl(order.getReturnUrl());
+            request.setCurrency(order.getCurrency());
+            request.setExpireTime(order.getExpireTime());
+            String payerOpenId = dto != null ? dto.getPayerOpenId() : null;
+            if (!StringUtils.hasText(payerOpenId)) {
+                payerOpenId = userOpenIdResolver.resolveOpenId(order.getMerchantId(), order.getUserId(), order.getChannelType());
+            }
+            request.setPayerOpenId(payerOpenId);
+            request.setClientIp(dto != null ? dto.getClientIp() : null);
+            request.setDeviceId(dto != null ? dto.getDeviceId() : null);
+            request.setUserAgent(dto != null ? dto.getUserAgent() : null);
+            request.setAttach(order.getBusinessOrderNo());
+
+            PaymentResult result = paymentChannel.pay(channel, request);
+            PaymentOrder latest = requireOrder(id);
+            if (StringUtils.hasText(result.getTradeNo())) {
+                latest.setThirdPartyOrderNo(result.getTradeNo());
+                orderMapper.updateById(latest);
+            }
+            if ("PAID".equals(result.getStatus())) {
+                paySuccess(id,
+                        result.getPaidAmount() != null ? result.getPaidAmount() : latest.getOrderAmount(),
+                        result.getTradeNo(),
+                        operator);
+                return result;
+            }
+            if ("FAILED".equals(result.getStatus())) {
+                payFail(id, firstNonBlank(result.getMessage(), "支付失败"), operator);
+                return result;
+            }
+            if ("CANCELLED".equals(result.getStatus())) {
+                cancelOrder(id, operator, firstNonBlank(result.getMessage(), "订单已关闭"));
+                return result;
+            }
+            recordTransaction(latest,
+                    "PAY",
+                    latest.getOrderAmount(),
+                    transactionStatusOfPaymentResult(result),
                     result.getTradeNo(),
-                    operator);
+                    safeJson(request),
+                    safeJson(result),
+                    "真实支付发起");
             return result;
+        } finally {
+            idempotentTemplate.release(idempotentKey);
         }
-        if ("FAILED".equals(result.getStatus())) {
-            payFail(id, firstNonBlank(result.getMessage(), "支付失败"), operator);
-            return result;
-        }
-        if ("CANCELLED".equals(result.getStatus())) {
-            cancelOrder(id, operator, firstNonBlank(result.getMessage(), "订单已关闭"));
-            return result;
-        }
-        recordTransaction(latest,
-                "PAY",
-                latest.getOrderAmount(),
-                transactionStatusOfPaymentResult(result),
-                result.getTradeNo(),
-                safeJson(request),
-                safeJson(result),
-                "真实支付发起");
-        return result;
     }
 
     @Override
@@ -393,7 +480,9 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
     @Transactional(rollbackFor = Exception.class)
     public boolean refundOrder(Long id, RefundApplyDTO dto) {
         PaymentOrder order = requireOrder(id);
-        if (OrderState.REFUNDED.name().equals(order.getStatus())) {
+        if (OrderState.REFUNDED.name().equals(order.getStatus())
+                || OrderState.USER_REFUNDED.name().equals(order.getStatus())
+                || OrderState.SYS_REFUNDED.name().equals(order.getStatus())) {
             return true;
         }
         if (!(OrderState.PAID.name().equals(order.getStatus())
@@ -421,7 +510,10 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         String operator = defaultOperator(dto != null ? dto.getOperator() : null);
         if (!OrderState.REFUNDING.name().equals(order.getStatus())) {
             OrderTransitionResult transitionResult = sendStateEvent(order.getId(), OrderEvent.REFUND, operator);
-            if (transitionResult == OrderTransitionResult.DUPLICATED && OrderState.REFUNDED.name().equals(requireOrder(id).getStatus())) {
+            if (transitionResult == OrderTransitionResult.DUPLICATED
+                    && (OrderState.REFUNDED.name().equals(requireOrder(id).getStatus())
+                        || OrderState.USER_REFUNDED.name().equals(requireOrder(id).getStatus())
+                        || OrderState.SYS_REFUNDED.name().equals(requireOrder(id).getStatus()))) {
                 return true;
             }
         }
@@ -445,7 +537,8 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
                 refundAmount,
                 dto != null ? dto.getRefundReason() : null,
                 operator,
-                requestPayload);
+                requestPayload,
+                dto != null ? dto.getRefundType() : "SYSTEM");
 
         RefundResult result = paymentChannel.refund(channel, request);
         String responsePayload = safeJson(result);
@@ -524,7 +617,8 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         BigDecimal totalRefunded = aggregateRefundedAmount(order);
         syncRefundAggregate(order, totalRefunded);
         PaymentOrder latestOrder = requireOrder(order.getId());
-        String targetStatus = resolveOrderStatusAfterRefundSuccess(latestOrder, totalRefunded);
+        String refundType = latestRefundOrder.getRefundType();
+        String targetStatus = resolveOrderStatusAfterRefundSuccess(latestOrder, totalRefunded, refundType);
         changeOrderStatusIfNecessary(latestOrder, targetStatus, OrderEvent.REFUND_SUCCESS, operator, firstNonBlank(remark, "退款成功"));
         latestOrder = requireOrder(order.getId());
         if (!alreadyRefunded) {
@@ -543,6 +637,16 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
                 firstNonBlank(latestRefundOrder.getThirdPartyRefundNo(), thirdPartyRefundNo),
                 latestOrder.getChannelType(), latestOrder.getChannelSubType()
             ));
+
+            // 优惠券退回：全额退款时退回优惠券
+            if (StringUtils.hasText(latestOrder.getCouponCode())) {
+                try {
+                    userCouponService.returnBack(latestOrder.getCouponCode());
+                    log.info("退款退回优惠券: couponCode={}, orderNo={}", latestOrder.getCouponCode(), latestOrder.getOrderNo());
+                } catch (Exception e) {
+                    log.warn("退款退回优惠券失败: couponCode={}, orderNo={}", latestOrder.getCouponCode(), latestOrder.getOrderNo(), e);
+                }
+            }
         }
         return true;
     }
@@ -585,11 +689,33 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         if (!(OrderState.PENDING.name().equals(order.getStatus())
                 || OrderState.CANCELLED.name().equals(order.getStatus())
                 || OrderState.FAILED.name().equals(order.getStatus())
-                || OrderState.REFUNDED.name().equals(order.getStatus()))) {
+                || OrderState.REFUNDED.name().equals(order.getStatus())
+                || OrderState.USER_REFUNDED.name().equals(order.getStatus())
+                || OrderState.SYS_REFUNDED.name().equals(order.getStatus()))) {
             throw new PaymentException("当前订单状态不允许删除");
         }
         order.setDeleted(1);
         return orderMapper.updateById(order) > 0;
+    }
+
+    @Override
+    public OrderVO updateOrder(Long id, OrderCreateDTO dto) {
+        PaymentOrder order = requireOrder(id);
+        if (dto.getUserId() != null) order.setUserId(dto.getUserId());
+        if (StringUtils.hasText(dto.getSubject())) order.setSubject(dto.getSubject());
+        if (StringUtils.hasText(dto.getBody())) order.setBody(dto.getBody());
+        if (dto.getOrderAmount() != null) order.setOrderAmount(dto.getOrderAmount());
+        if (dto.getDiscountAmount() != null) order.setDiscountAmount(dto.getDiscountAmount());
+        if (StringUtils.hasText(dto.getCurrency())) order.setCurrency(dto.getCurrency());
+        if (StringUtils.hasText(dto.getNotifyUrl())) order.setNotifyUrl(dto.getNotifyUrl());
+        if (StringUtils.hasText(dto.getReturnUrl())) order.setReturnUrl(dto.getReturnUrl());
+        if (StringUtils.hasText(dto.getBusinessOrderNo())) order.setBusinessOrderNo(dto.getBusinessOrderNo());
+        if (StringUtils.hasText(dto.getRemark())) order.setRemark(dto.getRemark());
+        if (StringUtils.hasText(dto.getThirdPartyOrderNo())) order.setThirdPartyOrderNo(dto.getThirdPartyOrderNo());
+        if (StringUtils.hasText(dto.getProductId())) order.setProductId(dto.getProductId());
+        if (StringUtils.hasText(dto.getProductName())) order.setProductName(dto.getProductName());
+        orderMapper.updateById(order);
+        return convertToVO(order);
     }
 
     @Override
@@ -802,6 +928,12 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         return 30;
     }
 
+    private String resolveSubject(OrderCreateDTO dto) {
+        if (StringUtils.hasText(dto.getSubject())) return dto.getSubject();
+        if (StringUtils.hasText(dto.getProductName())) return dto.getProductName();
+        return "支付订单";
+    }
+
     private PaymentRefundOrder resolveManualRefundOrder(PaymentOrder order,
                                                         BigDecimal refundAmount,
                                                         String operator,
@@ -814,7 +946,9 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         if (refundOrder != null) {
             return refundOrder;
         }
-        if (OrderState.REFUNDED.name().equals(order.getStatus())) {
+        if (OrderState.REFUNDED.name().equals(order.getStatus())
+                || OrderState.USER_REFUNDED.name().equals(order.getStatus())
+                || OrderState.SYS_REFUNDED.name().equals(order.getStatus())) {
             return null;
         }
         BigDecimal amount = refundAmount != null && refundAmount.compareTo(BigDecimal.ZERO) > 0
@@ -828,7 +962,8 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
                 amount,
                 reason,
                 operator,
-                null);
+                null,
+                "SYSTEM");
     }
 
     private BigDecimal aggregateRefundedAmount(PaymentOrder order) {
@@ -863,7 +998,9 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         return OrderState.PAID.name().equals(status)
                 || OrderState.COMPLETED.name().equals(status)
                 || OrderState.REFUNDING.name().equals(status)
-                || OrderState.REFUNDED.name().equals(status);
+                || OrderState.REFUNDED.name().equals(status)
+                || OrderState.USER_REFUNDED.name().equals(status)
+                || OrderState.SYS_REFUNDED.name().equals(status);
     }
 
     private void backfillPaymentSuccess(PaymentOrder order, BigDecimal paidAmount, String thirdPartyOrderNo) {
@@ -906,10 +1043,11 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         updateOrderIfChanged(order, changed);
     }
 
-    private String resolveOrderStatusAfterRefundSuccess(PaymentOrder order, BigDecimal refundedAmount) {
+    private String resolveOrderStatusAfterRefundSuccess(PaymentOrder order, BigDecimal refundedAmount, String refundType) {
         BigDecimal paidAmount = resolvedPaidAmount(order);
         if (paidAmount.compareTo(BigDecimal.ZERO) > 0 && nullToZero(refundedAmount).compareTo(paidAmount) >= 0) {
-            return OrderState.REFUNDED.name();
+            boolean isUserRefund = "USER".equals(refundType);
+            return isUserRefund ? OrderState.USER_REFUNDED.name() : OrderState.SYS_REFUNDED.name();
         }
         return OrderState.REFUNDING.name();
     }
@@ -919,7 +1057,8 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
                                                         PaymentRefundOrder refundOrder) {
         BigDecimal paidAmount = resolvedPaidAmount(order);
         if (paidAmount.compareTo(BigDecimal.ZERO) > 0 && nullToZero(refundedAmount).compareTo(paidAmount) >= 0) {
-            return OrderState.REFUNDED.name();
+            String refundType = refundOrder != null ? refundOrder.getRefundType() : "SYSTEM";
+            return "USER".equals(refundType) ? OrderState.USER_REFUNDED.name() : OrderState.SYS_REFUNDED.name();
         }
         if (nullToZero(refundedAmount).compareTo(BigDecimal.ZERO) > 0) {
             return OrderState.REFUNDING.name();

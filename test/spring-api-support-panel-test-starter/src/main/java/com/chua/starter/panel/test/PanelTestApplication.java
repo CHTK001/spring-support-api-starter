@@ -8,7 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication(scanBasePackages = {
         "com.chua.starter.panel.test",
-        "com.chua.starter.project"
+        "com.chua.starter.project",
+        "com.chua.starter.soft.support"
 })
 public class PanelTestApplication {
 

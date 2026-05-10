@@ -68,6 +68,22 @@ public class OrderStateChangeListener {
     }
 
     /**
+     * 退款中 → 用户退款
+     */
+    @OnTransition(source = "REFUNDING", target = "USER_REFUNDED")
+    public void refundingToUserRefunded(Message<OrderEvent> message) {
+        log.info("订单状态转换: REFUNDING → USER_REFUNDED, 事件: {}", message.getPayload());
+    }
+
+    /**
+     * 退款中 → 系统退款
+     */
+    @OnTransition(source = "REFUNDING", target = "SYS_REFUNDED")
+    public void refundingToSysRefunded(Message<OrderEvent> message) {
+        log.info("订单状态转换: REFUNDING → SYS_REFUNDED, 事件: {}", message.getPayload());
+    }
+
+    /**
      * 待支付 → 已取消
      */
     @OnTransition(source = "PENDING", target = "CANCELLED")

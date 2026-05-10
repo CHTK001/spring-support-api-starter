@@ -10,7 +10,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication(scanBasePackages = {
         "com.chua.starter.spider.test",
-        "com.chua.starter.spider"
+        "com.chua.starter.spider",
+        "com.chua.starter.ai"
 })
 public class SpiderTestApplication {
 

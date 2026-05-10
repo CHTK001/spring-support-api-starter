@@ -28,6 +28,7 @@
         <module>spring-api-support-common-tenant-starter</module>
         <module>spring-api-support-common-configuration-starter</module>
         <module>spring-api-support-common-entity-starter</module>
+        <module>spring-api-support-common-payment-starter</module>
     </modules>
 
     <properties>
@@ -110,6 +111,11 @@
             <dependency><groupId>io.netty</groupId><artifactId>netty-transport-native-unix-common</artifactId><version>${netty.version}</version></dependency>
 
             
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-api-support-common-payment-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-common-configuration-starter</artifactId>
@@ -388,6 +394,12 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
+                <artifactId>utils-support-smtp-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
                 <artifactId>utils-support-nacos-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
@@ -478,6 +490,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-strategy-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
+
+<dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-datasource-starter</artifactId>
                 <version>${utils.version}</version>
@@ -828,9 +846,9 @@
                         <encoding>UTF-8</encoding>
                         <proc>${maven.compiler.proc}</proc>
                         <useIncrementalCompilation>false</useIncrementalCompilation>
-                        <fork>true</fork>
-                        <meminitial>512m</meminitial>
-                        <maxmem>2048m</maxmem>
+                        <fork>false</fork>
+                        <meminitial>256m</meminitial>
+                        <maxmem>512m</maxmem>
                         <compilerArgs>
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>

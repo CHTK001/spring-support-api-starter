@@ -77,6 +77,16 @@ public class OrderStateMachineConfig extends EnumStateMachineConfigurerAdapter<O
                 .source(OrderState.REFUNDING).target(OrderState.REFUNDED)
                 .event(OrderEvent.REFUND_SUCCESS)
                 .and()
+                // 退款中 → 用户退款
+                .withExternal()
+                .source(OrderState.REFUNDING).target(OrderState.USER_REFUNDED)
+                .event(OrderEvent.REFUND_SUCCESS)
+                .and()
+                // 退款中 → 系统退款
+                .withExternal()
+                .source(OrderState.REFUNDING).target(OrderState.SYS_REFUNDED)
+                .event(OrderEvent.REFUND_SUCCESS)
+                .and()
                 // 退款中 → 支付成功（退款失败回退）
                 .withExternal()
                 .source(OrderState.REFUNDING).target(OrderState.PAID)

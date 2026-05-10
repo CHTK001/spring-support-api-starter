@@ -1,0 +1,10 @@
+com.chua.payment.support.channel.impl.WalletBalancePaymentChannel
+com.chua.payment.support.channel.impl.AlipayWebPaymentChannel
+com.chua.payment.support.channel.impl.AlipayAppPaymentChannel
+com.chua.payment.support.channel.impl.AlipayWapPaymentChannel
+com.chua.payment.support.channel.impl.WechatJsapiPaymentChannel
+com.chua.payment.support.channel.impl.WechatAppPaymentChannel
+com.chua.payment.support.channel.impl.WechatH5PaymentChannel
+com.chua.payment.support.channel.impl.WechatMiniProgramPaymentChannel
+com.chua.payment.support.channel.impl.WechatNativePaymentChannel
+com.chua.payment.support.channel.impl.CompositeAggregateRoutePaymentChannel

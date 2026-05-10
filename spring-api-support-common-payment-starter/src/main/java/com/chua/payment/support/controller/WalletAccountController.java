@@ -8,7 +8,9 @@ import com.chua.payment.support.dto.WalletRechargeDTO;
 import com.chua.payment.support.dto.WalletTransferDTO;
 import com.chua.payment.support.dto.WalletWithdrawDTO;
 import com.chua.payment.support.entity.MerchantChannel;
+import com.chua.payment.support.entity.WalletAccount;
 import com.chua.payment.support.entity.WalletAccountLog;
+import com.chua.payment.support.exception.PaymentException;
 import com.chua.payment.support.service.MerchantChannelService;
 import com.chua.payment.support.service.WalletAccountService;
 import com.chua.payment.support.vo.WalletAccountVO;
@@ -34,6 +36,15 @@ public class WalletAccountController {
     private final MerchantChannelService merchantChannelService;
     private final PaymentChannelRegistry paymentChannelRegistry;
 
+    @GetMapping("/account/page")
+    @Permission(value = "payment:wallet:view", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN, AuthConstant.OPS})
+    public ReturnResult<PageResult<WalletAccount>> pageAccounts(@RequestParam(defaultValue = "1") int pageNum,
+                                                                  @RequestParam(defaultValue = "10") int pageSize,
+                                                                  @RequestParam(required = false) Long merchantId) {
+        Page<WalletAccount> page = walletAccountService.pageAccounts(pageNum, pageSize, merchantId);
+        return ReturnResult.success(PageResult.of(page));
+    }
+
     @GetMapping("/account")
     @Permission(value = "payment:wallet:view", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN, AuthConstant.OPS})
     public ReturnResult<WalletAccountVO> getAccount(@RequestParam Long merchantId,
@@ -54,6 +65,7 @@ public class WalletAccountController {
         request.setAmount(dto.getAmount());
         request.setOperator(dto.getOperator());
         request.setRemark(dto.getRemark());
+        request.setCreateOrder(dto.getCreateOrder());
 
         RechargeResult result = paymentChannel.recharge(channel, request);
         return ReturnResult.success(result);
@@ -62,6 +74,15 @@ public class WalletAccountController {
     @PostMapping("/account/transfer")
     @Permission(value = "payment:wallet:transfer", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<TransferResult> transfer(@RequestBody WalletTransferDTO dto) {
+        // 校验转账方式
+        String method = dto.getTransferMethod();
+        if (method == null || method.isEmpty()) {
+            method = "WALLET";
+        }
+        if (!"WALLET".equals(method)) {
+            throw new PaymentException("暂不支持" + method + "转账方式，当前仅支持 WALLET（钱包转账）");
+        }
+
         MerchantChannel channel = merchantChannelService.getWalletChannel(dto.getMerchantId());
         PaymentChannel paymentChannel = paymentChannelRegistry.getChannel("WALLET", "BALANCE");
 
@@ -73,6 +94,7 @@ public class WalletAccountController {
         request.setAmount(dto.getAmount());
         request.setOperator(dto.getOperator());
         request.setRemark(dto.getRemark());
+        request.setTransferMethod(dto.getTransferMethod());
 
         TransferResult result = paymentChannel.transfer(channel, request);
         return ReturnResult.success(result);

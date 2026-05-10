@@ -5,7 +5,7 @@ spring:
   application:
     name: system                            # 应用名称（系统服务）
   profiles:
-    active: dev                             # 默认激活本地联调环境，OAuth 走测试服务器
+    active: dev
     group:
       dev-static:
         - dev

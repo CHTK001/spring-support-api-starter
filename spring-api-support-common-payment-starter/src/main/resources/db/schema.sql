@@ -1,8 +1,8 @@
 -- 支付系统数据库表结构
--- 更新时间: 2026-03-19
--- 说明: 商户、支付方式、订单、状态日志、交易流水
+-- 更新时间: 2026-05-08
+-- 说明: 商户、支付方式、订单、状态日志、交易流水、钱包、退款、回调
 
-CREATE TABLE IF NOT EXISTS `merchant` (
+CREATE TABLE IF NOT EXISTS `pay_merchant` (
   `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
   `merchant_no` VARCHAR(32) NOT NULL UNIQUE COMMENT '商户号',
   `merchant_name` VARCHAR(100) NOT NULL COMMENT '商户名称',
@@ -21,11 +21,11 @@ CREATE TABLE IF NOT EXISTS `merchant` (
   `status` TINYINT DEFAULT 0 COMMENT '状态:0待审核 1已激活 2已停用 3已注销',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  INDEX `idx_merchant_no` (`merchant_no`),
-  INDEX `idx_merchant_status` (`status`)
+  INDEX `idx_pay_merchant_no` (`merchant_no`),
+  INDEX `idx_pay_merchant_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='支付商户表';
 
-CREATE TABLE IF NOT EXISTS `merchant_channel` (
+CREATE TABLE IF NOT EXISTS `pay_merchant_channel` (
   `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
   `merchant_id` BIGINT NOT NULL COMMENT '商户ID',
   `channel_type` VARCHAR(32) NOT NULL COMMENT '渠道类型',
@@ -46,12 +46,12 @@ CREATE TABLE IF NOT EXISTS `merchant_channel` (
   `ext_config` TEXT DEFAULT NULL COMMENT '扩展配置JSON',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  INDEX `idx_channel_merchant_id` (`merchant_id`),
+  INDEX `idx_pay_channel_merchant_id` (`merchant_id`),
   INDEX `idx_channel_type` (`channel_type`),
   INDEX `idx_channel_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商户支付方式配置表';
 
-CREATE TABLE IF NOT EXISTS `payment_order` (
+CREATE TABLE IF NOT EXISTS `pay_order` (
   `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
   `order_no` VARCHAR(40) NOT NULL UNIQUE COMMENT '平台订单号',
   `business_order_no` VARCHAR(64) DEFAULT NULL COMMENT '业务订单号',
@@ -75,19 +75,22 @@ CREATE TABLE IF NOT EXISTS `payment_order` (
   `complete_time` DATETIME DEFAULT NULL COMMENT '完成时间',
   `refund_time` DATETIME DEFAULT NULL COMMENT '退款时间',
   `third_party_order_no` VARCHAR(100) DEFAULT NULL COMMENT '第三方订单号',
+  `provider_order_no` VARCHAR(128) NULL COMMENT '提供商订单号（微信 prepay_id / 服务单号）',
+  `product_id`       VARCHAR(64)  NULL COMMENT '商品编号',
+  `product_name`     VARCHAR(200) NULL COMMENT '商品名称',
   `remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
   `deleted` TINYINT DEFAULT 0 COMMENT '删除标记:0未删 1已删',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  INDEX `idx_payment_order_no` (`order_no`),
-  UNIQUE KEY `uk_payment_order_merchant_business_no` (`merchant_id`, `business_order_no`),
-  INDEX `idx_payment_merchant_id` (`merchant_id`),
-  INDEX `idx_payment_status` (`status`),
-  INDEX `idx_payment_deleted` (`deleted`),
-  INDEX `idx_payment_timeout_scan` (`status`, `deleted`, `expire_time`)
+  INDEX `idx_pay_order_no` (`order_no`),
+  UNIQUE KEY `uk_pay_order_merchant_business_no` (`merchant_id`, `business_order_no`),
+  INDEX `idx_pay_merchant_id` (`merchant_id`),
+  INDEX `idx_pay_status` (`status`),
+  INDEX `idx_pay_deleted` (`deleted`),
+  INDEX `idx_pay_timeout_scan` (`status`, `deleted`, `expire_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='支付订单表';
 
-CREATE TABLE IF NOT EXISTS `order_state_log` (
+CREATE TABLE IF NOT EXISTS `pay_order_state_log` (
   `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
   `order_id` BIGINT NOT NULL COMMENT '订单ID',
   `from_state` VARCHAR(32) DEFAULT NULL COMMENT '原状态',
@@ -96,10 +99,10 @@ CREATE TABLE IF NOT EXISTS `order_state_log` (
   `operator` VARCHAR(100) DEFAULT NULL COMMENT '操作人',
   `remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  INDEX `idx_state_log_order_id` (`order_id`)
+  INDEX `idx_pay_state_log_order_id` (`order_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单状态流转日志表';
 
-CREATE TABLE IF NOT EXISTS `transaction_record` (
+CREATE TABLE IF NOT EXISTS `pay_transaction_record` (
   `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
   `transaction_no` VARCHAR(40) NOT NULL UNIQUE COMMENT '流水号',
   `order_id` BIGINT NOT NULL COMMENT '订单ID',
@@ -115,12 +118,12 @@ CREATE TABLE IF NOT EXISTS `transaction_record` (
   `response_payload` TEXT DEFAULT NULL COMMENT '响应快照',
   `remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  INDEX `idx_transaction_no` (`transaction_no`),
-  INDEX `idx_transaction_order_no` (`order_no`),
-  INDEX `idx_transaction_merchant_id` (`merchant_id`)
+  INDEX `idx_pay_transaction_no` (`transaction_no`),
+  INDEX `idx_pay_transaction_order_no` (`order_no`),
+  INDEX `idx_pay_transaction_merchant_id` (`merchant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='交易流水表';
 
-CREATE TABLE IF NOT EXISTS `wallet_account` (
+CREATE TABLE IF NOT EXISTS `pay_wallet_account` (
   `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
   `merchant_id` BIGINT NOT NULL COMMENT '商户ID',
   `user_id` BIGINT NOT NULL COMMENT '用户ID',
@@ -129,12 +132,12 @@ CREATE TABLE IF NOT EXISTS `wallet_account` (
   `status` TINYINT NOT NULL DEFAULT 1 COMMENT '状态:1启用 0禁用',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  UNIQUE KEY `uk_wallet_account_merchant_user` (`merchant_id`, `user_id`),
-  INDEX `idx_wallet_account_merchant` (`merchant_id`),
-  INDEX `idx_wallet_account_user` (`user_id`)
+  UNIQUE KEY `uk_pay_wallet_account_merchant_user` (`merchant_id`, `user_id`),
+  INDEX `idx_pay_wallet_account_merchant` (`merchant_id`),
+  INDEX `idx_pay_wallet_account_user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='钱包账户表';
 
-CREATE TABLE IF NOT EXISTS `wallet_account_log` (
+CREATE TABLE IF NOT EXISTS `pay_wallet_account_log` (
   `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
   `merchant_id` BIGINT NOT NULL COMMENT '商户ID',
   `user_id` BIGINT NOT NULL COMMENT '用户ID',
@@ -147,7 +150,182 @@ CREATE TABLE IF NOT EXISTS `wallet_account_log` (
   `operator` VARCHAR(100) DEFAULT NULL COMMENT '操作人',
   `remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  UNIQUE KEY `uk_wallet_log_merchant_user_biz` (`merchant_id`, `user_id`, `biz_type`, `biz_no`),
-  INDEX `idx_wallet_log_merchant_user` (`merchant_id`, `user_id`),
-  INDEX `idx_wallet_log_biz` (`biz_type`, `biz_no`)
+  UNIQUE KEY `uk_pay_wallet_log_merchant_user_biz` (`merchant_id`, `user_id`, `biz_type`, `biz_no`),
+  INDEX `idx_pay_wallet_log_merchant_user` (`merchant_id`, `user_id`),
+  INDEX `idx_pay_wallet_log_biz` (`biz_type`, `biz_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='钱包账户流水表';
+
+CREATE TABLE IF NOT EXISTS `pay_refund_order` (
+  `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+  `refund_no` VARCHAR(40) NOT NULL COMMENT '退款单号',
+  `order_id` BIGINT NOT NULL COMMENT '支付订单ID',
+  `order_no` VARCHAR(40) NOT NULL COMMENT '支付订单号',
+  `merchant_id` BIGINT NOT NULL COMMENT '商户ID',
+  `channel_id` BIGINT DEFAULT NULL COMMENT '支付方式ID',
+  `source_order_status` VARCHAR(32) DEFAULT NULL COMMENT '发起退款前订单状态',
+  `third_party_refund_no` VARCHAR(100) DEFAULT NULL COMMENT '第三方退款单号',
+  `refund_amount` DECIMAL(18,2) NOT NULL COMMENT '退款金额',
+  `status` VARCHAR(32) NOT NULL DEFAULT 'PROCESSING' COMMENT '退款状态',
+  `reason` VARCHAR(500) DEFAULT NULL COMMENT '退款原因',
+  `notify_status` TINYINT NOT NULL DEFAULT 0 COMMENT '回调状态:0未收到 1已收到',
+  `request_payload` TEXT DEFAULT NULL COMMENT '退款请求快照',
+  `response_payload` TEXT DEFAULT NULL COMMENT '退款响应快照',
+  `operator` VARCHAR(100) DEFAULT NULL COMMENT '操作人',
+  `remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  UNIQUE KEY `uk_pay_refund_order_refund_no` (`refund_no`),
+  KEY `idx_pay_refund_order_order` (`order_id`, `created_at`),
+  KEY `idx_pay_refund_order_status` (`status`, `updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='支付退款单表';
+
+CREATE TABLE IF NOT EXISTS `pay_notify_log` (
+  `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+  `notify_type` VARCHAR(32) NOT NULL COMMENT '通知类型',
+  `tenant_id` BIGINT DEFAULT NULL COMMENT '租户ID',
+  `merchant_id` BIGINT DEFAULT NULL COMMENT '商户ID',
+  `channel_id` BIGINT DEFAULT NULL COMMENT '支付方式ID',
+  `channel_type` VARCHAR(32) DEFAULT NULL COMMENT '渠道类型',
+  `channel_sub_type` VARCHAR(32) DEFAULT NULL COMMENT '渠道子类型',
+  `order_id` BIGINT DEFAULT NULL COMMENT '订单ID',
+  `order_no` VARCHAR(64) DEFAULT NULL COMMENT '订单号',
+  `refund_id` BIGINT DEFAULT NULL COMMENT '退款单ID',
+  `refund_no` VARCHAR(64) DEFAULT NULL COMMENT '退款单号',
+  `third_party_trade_no` VARCHAR(128) DEFAULT NULL COMMENT '第三方交易号',
+  `request_headers` TEXT DEFAULT NULL COMMENT '请求头',
+  `request_body` LONGTEXT DEFAULT NULL COMMENT '请求体',
+  `request_params` TEXT DEFAULT NULL COMMENT '请求参数',
+  `sign_verified` TINYINT DEFAULT 0 COMMENT '验签结果:0失败 1成功',
+  `process_status` VARCHAR(32) DEFAULT 'PROCESSING' COMMENT '处理状态',
+  `process_result` TEXT DEFAULT NULL COMMENT '处理结果',
+  `error_message` VARCHAR(512) DEFAULT NULL COMMENT '错误信息',
+  `retry_count` INT DEFAULT 0 COMMENT '重试次数',
+  `received_at` DATETIME DEFAULT NULL COMMENT '接收时间',
+  `processed_at` DATETIME DEFAULT NULL COMMENT '处理时间',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `related_order_id` BIGINT DEFAULT NULL COMMENT '关联订单ID',
+  `related_refund_id` BIGINT DEFAULT NULL COMMENT '关联退款单ID',
+  `received_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '兼容旧字段-接收时间',
+  `processed_time` DATETIME DEFAULT NULL COMMENT '兼容旧字段-处理时间',
+  INDEX `idx_pay_notify_log_tenant_merchant` (`tenant_id`, `merchant_id`),
+  INDEX `idx_pay_notify_log_order` (`order_no`),
+  INDEX `idx_pay_notify_log_refund` (`refund_no`),
+  INDEX `idx_pay_notify_log_status` (`process_status`),
+  INDEX `idx_pay_notify_log_received` (`received_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='支付回调日志表';
+
+CREATE TABLE IF NOT EXISTS `pay_notify_error` (
+  `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+  `notify_log_id` BIGINT NOT NULL COMMENT '回调日志ID',
+  `notify_type` VARCHAR(32) NOT NULL COMMENT '通知类型',
+  `tenant_id` BIGINT DEFAULT NULL COMMENT '租户ID',
+  `merchant_id` BIGINT DEFAULT NULL COMMENT '商户ID',
+  `order_no` VARCHAR(64) DEFAULT NULL COMMENT '订单号',
+  `refund_no` VARCHAR(64) DEFAULT NULL COMMENT '退款单号',
+  `error_type` VARCHAR(64) NOT NULL COMMENT '错误类型',
+  `error_message` TEXT DEFAULT NULL COMMENT '错误信息',
+  `error_stack` LONGTEXT DEFAULT NULL COMMENT '错误堆栈',
+  `request_data` LONGTEXT DEFAULT NULL COMMENT '请求数据',
+  `retry_count` INT DEFAULT 0 COMMENT '重试次数',
+  `max_retry_count` INT DEFAULT 5 COMMENT '最大重试次数',
+  `next_retry_time` DATETIME DEFAULT NULL COMMENT '下次重试时间',
+  `status` VARCHAR(32) NOT NULL COMMENT '状态',
+  `resolved_at` DATETIME DEFAULT NULL COMMENT '解决时间',
+  `resolved_by` VARCHAR(64) DEFAULT NULL COMMENT '解决人',
+  `remark` VARCHAR(512) DEFAULT NULL COMMENT '备注',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  INDEX `idx_pay_notify_error_log` (`notify_log_id`),
+  INDEX `idx_pay_notify_error_status` (`status`),
+  INDEX `idx_pay_notify_error_retry` (`next_retry_time`),
+  INDEX `idx_pay_notify_error_tenant_merchant` (`tenant_id`, `merchant_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='支付回调异常表';
+
+CREATE TABLE IF NOT EXISTS `pay_merchant_payment_config` (
+  `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+  `tenant_id` BIGINT DEFAULT NULL COMMENT '租户ID',
+  `merchant_id` BIGINT NOT NULL COMMENT '商户ID',
+  `order_reusable` TINYINT DEFAULT 1 COMMENT '订单是否可重复支付',
+  `order_timeout_minutes` INT DEFAULT NULL COMMENT '订单超时时间(分钟)',
+  `pending_order_limit` INT DEFAULT NULL COMMENT '待支付订单数量限制',
+  `auto_cancel_timeout_order` TINYINT DEFAULT 1 COMMENT '是否自动取消超时订单',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_by` VARCHAR(64) DEFAULT NULL COMMENT '创建人',
+  `update_by` VARCHAR(64) DEFAULT NULL COMMENT '更新人',
+  `create_name` VARCHAR(64) DEFAULT NULL COMMENT '创建人姓名',
+  `update_name` VARCHAR(64) DEFAULT NULL COMMENT '更新人姓名',
+  UNIQUE KEY `uk_merchant_payment_config_merchant` (`merchant_id`),
+  INDEX `idx_merchant_payment_config_tenant_merchant` (`tenant_id`, `merchant_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商户支付配置表';
+
+CREATE TABLE IF NOT EXISTS `pay_wallet_order` (
+  `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+  `order_no` VARCHAR(64) NOT NULL COMMENT '订单号',
+  `order_type` VARCHAR(32) NOT NULL COMMENT '订单类型: RECHARGE-充值, TRANSFER-转账, WITHDRAW-提现',
+  `tenant_id` BIGINT DEFAULT NULL COMMENT '租户ID',
+  `merchant_id` BIGINT NOT NULL COMMENT '商户ID',
+  `user_id` BIGINT NOT NULL COMMENT '用户ID',
+  `related_user_id` BIGINT DEFAULT NULL COMMENT '关联用户ID(转账时使用)',
+  `amount` DECIMAL(15,2) NOT NULL COMMENT '金额',
+  `status` VARCHAR(32) NOT NULL COMMENT '状态: PENDING-待处理, PROCESSING-处理中, SUCCESS-成功, FAILED-失败',
+  `third_party_order_no` VARCHAR(128) DEFAULT NULL COMMENT '第三方订单号',
+  `bank_account` VARCHAR(64) DEFAULT NULL COMMENT '银行账号',
+  `bank_name` VARCHAR(128) DEFAULT NULL COMMENT '银行名称',
+  `account_name` VARCHAR(64) DEFAULT NULL COMMENT '账户名',
+  `request_payload` TEXT DEFAULT NULL COMMENT '请求报文',
+  `response_payload` TEXT DEFAULT NULL COMMENT '响应报文',
+  `operator` VARCHAR(64) DEFAULT NULL COMMENT '操作人',
+  `remark` VARCHAR(512) DEFAULT NULL COMMENT '备注',
+  `completed_at` DATETIME DEFAULT NULL COMMENT '完成时间',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_by` VARCHAR(64) DEFAULT NULL COMMENT '创建人',
+  `update_by` VARCHAR(64) DEFAULT NULL COMMENT '更新人',
+  `create_name` VARCHAR(64) DEFAULT NULL COMMENT '创建人姓名',
+  `update_name` VARCHAR(64) DEFAULT NULL COMMENT '更新人姓名',
+  UNIQUE KEY `uk_wallet_order_no` (`order_no`),
+  INDEX `idx_wallet_order_tenant_merchant` (`tenant_id`, `merchant_id`),
+  INDEX `idx_wallet_order_user` (`user_id`),
+  INDEX `idx_wallet_order_type` (`order_type`),
+  INDEX `idx_wallet_order_status` (`status`),
+  INDEX `idx_wallet_order_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='钱包订单表';
+
+CREATE TABLE IF NOT EXISTS `pay_merchant_wallet_limit` (
+  `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+  `tenant_id` BIGINT DEFAULT NULL COMMENT '租户ID',
+  `merchant_id` BIGINT NOT NULL COMMENT '商户ID',
+  `single_recharge_limit` DECIMAL(15,2) DEFAULT NULL COMMENT '单笔充值限额',
+  `daily_recharge_limit` DECIMAL(15,2) DEFAULT NULL COMMENT '日充值限额',
+  `single_withdraw_limit` DECIMAL(15,2) DEFAULT NULL COMMENT '单笔提现限额',
+  `daily_withdraw_limit` DECIMAL(15,2) DEFAULT NULL COMMENT '日提现限额',
+  `single_transfer_limit` DECIMAL(15,2) DEFAULT NULL COMMENT '单笔转账限额',
+  `daily_transfer_limit` DECIMAL(15,2) DEFAULT NULL COMMENT '日转账限额',
+  `balance_limit` DECIMAL(15,2) DEFAULT NULL COMMENT '余额上限',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `create_by` VARCHAR(64) DEFAULT NULL COMMENT '创建人',
+  `update_by` VARCHAR(64) DEFAULT NULL COMMENT '更新人',
+  `create_name` VARCHAR(64) DEFAULT NULL COMMENT '创建人姓名',
+  `update_name` VARCHAR(64) DEFAULT NULL COMMENT '更新人姓名',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_merchant_wallet_limit_merchant` (`merchant_id`),
+  INDEX `idx_merchant_wallet_limit_tenant_merchant` (`tenant_id`, `merchant_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商户钱包限额配置表';
+
+CREATE TABLE IF NOT EXISTS `pay_global_config` (
+  `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+  `config_key` VARCHAR(64) NOT NULL DEFAULT 'DEFAULT' COMMENT '配置键',
+  `notify_base_url` VARCHAR(255) DEFAULT NULL COMMENT '回调基础地址',
+  `return_url` VARCHAR(255) DEFAULT NULL COMMENT '默认回跳地址',
+  `callback_path_template` VARCHAR(255) DEFAULT '/{orderNo}/{merchantId}' COMMENT '回调路径模板',
+  `auto_refresh_seconds` INT DEFAULT 60 COMMENT '首页自动刷新秒数',
+  `remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
+  `sample_pay_notify_url` VARCHAR(500) DEFAULT NULL COMMENT '支付回调示例 URL',
+  `sample_refund_notify_url` VARCHAR(500) DEFAULT NULL COMMENT '退款回调示例 URL',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  UNIQUE KEY `uk_global_config_key` (`config_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='支付全局配置表';

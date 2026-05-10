@@ -16,4 +16,6 @@ public class TransferRequest {
     private BigDecimal amount;
     private String operator;
     private String remark;
+    /** 转账方式: WALLET-钱包转账, ALIPAY-支付宝, WECHAT-微信, BANK_CARD-银行卡 */
+    private String transferMethod;
 }

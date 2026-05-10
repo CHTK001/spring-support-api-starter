@@ -23,6 +23,7 @@ public class SpiderSchemaCompatInitializer implements ApplicationRunner {
             "spider_definition",
             "spider_flow",
             "spider_flow_node",
+            "spider_flow_edge",
             "spider_url_queue",
             "spider_parse_result",
             "spider_execution",
@@ -35,6 +36,7 @@ public class SpiderSchemaCompatInitializer implements ApplicationRunner {
 
     @Override
     public void run(org.springframework.boot.ApplicationArguments args) {
+        log.info("[SchemaCompat] 开始检查 spider_* 表兼容字段...");
         for (String table : TABLES) {
             try {
                 ensureColumn(table, "create_name", "VARCHAR(255) NULL");
@@ -53,6 +55,7 @@ public class SpiderSchemaCompatInitializer implements ApplicationRunner {
                 log.warn("兼容字段补齐失败（table={}）: {}", table, e.getMessage());
             }
         }
+        log.info("[SchemaCompat] spider_* 表兼容字段检查完成");
     }
 
     private void ensureColumn(String tableName, String columnName, String ddl) {
@@ -61,7 +64,8 @@ public class SpiderSchemaCompatInitializer implements ApplicationRunner {
                     """
                     SELECT COUNT(1)
                       FROM information_schema.COLUMNS
-                     WHERE TABLE_NAME = ?
+                     WHERE TABLE_SCHEMA = (SELECT DATABASE())
+                       AND TABLE_NAME = ?
                        AND COLUMN_NAME = ?
                     """,
                     Integer.class,
@@ -85,7 +89,8 @@ public class SpiderSchemaCompatInitializer implements ApplicationRunner {
                     """
                     SELECT COUNT(1)
                       FROM information_schema.COLUMNS
-                     WHERE TABLE_NAME = ?
+                     WHERE TABLE_SCHEMA = (SELECT DATABASE())
+                       AND TABLE_NAME = ?
                        AND COLUMN_NAME = ?
                     """,
                     Integer.class,

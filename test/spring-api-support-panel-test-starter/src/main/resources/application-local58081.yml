@@ -7,12 +7,13 @@ spring:
     initialization-fail-timeout: -1
   data:
     redis:
-      host: localhost
+      host: 172.16.0.40
       port: 6379
   sql:
     init:
       mode: always
-      schema-locations: classpath:schema.sql
+      schema-locations: classpath:db/init/V1.0__init_panel.sql
+      data-locations: classpath:db/init/V1.0__initdata_panel.sql
 logging:
   level:
     com.chua.starter.panel: debug
@@ -26,6 +27,11 @@ panel:
   jdbc-enabled: true
   ai-enabled: false
   datasource-store-path: ${user.dir}/.panel/panel-datasources.json
+
+docker:
+  api:
+    host: 172.16.0.40
+    port: 2375
 
 plugin:
   oauth:

@@ -10,14 +10,13 @@ import com.chua.starter.tencent.support.payment.dto.TencentWechatOrderResponse;
 import com.chua.starter.tencent.support.payment.dto.TencentWechatPayRequest;
 import com.chua.starter.tencent.support.payment.dto.TencentWechatPayResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+
 import org.springframework.stereotype.Component;
 
 /**
  * 微信小程序支付
  */
 @Component
-@ConditionalOnClass(name = "com.chua.starter.tencent.support.payment.TencentWechatPayGateway")
 public class WechatMiniProgramPaymentChannel extends WechatJsapiPaymentChannel implements PaymentChannel {
 
     public WechatMiniProgramPaymentChannel(MerchantChannelService merchantChannelService,

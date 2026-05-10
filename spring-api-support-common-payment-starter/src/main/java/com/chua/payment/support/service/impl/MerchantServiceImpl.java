@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -39,7 +40,9 @@ public class MerchantServiceImpl implements MerchantService {
         BeanUtils.copyProperties(dto, merchant);
         merchant.setMerchantNo(generateMerchantNo());
         merchant.setWalletEnabled(Boolean.TRUE.equals(dto.getWalletEnabled()));
-        merchant.setCompositeEnabled(Boolean.TRUE.equals(dto.getCompositeEnabled()));
+        merchant.setSplitTableEnabled(Boolean.TRUE.equals(dto.getSplitTableEnabled()));
+        merchant.setProfitSharingEnabled(Boolean.TRUE.equals(dto.getProfitSharingEnabled()));
+        merchant.setCouponEnabled(Boolean.TRUE.equals(dto.getCouponEnabled()));
         merchant.setAutoCloseEnabled(Boolean.TRUE.equals(dto.getAutoCloseEnabled()));
         merchant.setAutoCloseMinutes(dto.getAutoCloseMinutes() != null && dto.getAutoCloseMinutes() > 0 ? dto.getAutoCloseMinutes() : 30);
         merchant.setStatus(MerchantStatus.PENDING.getCode());
@@ -53,7 +56,9 @@ public class MerchantServiceImpl implements MerchantService {
         Merchant merchant = requireMerchant(id);
         BeanUtils.copyProperties(dto, merchant);
         merchant.setWalletEnabled(Boolean.TRUE.equals(dto.getWalletEnabled()));
-        merchant.setCompositeEnabled(Boolean.TRUE.equals(dto.getCompositeEnabled()));
+        merchant.setSplitTableEnabled(Boolean.TRUE.equals(dto.getSplitTableEnabled()));
+        merchant.setProfitSharingEnabled(Boolean.TRUE.equals(dto.getProfitSharingEnabled()));
+        merchant.setCouponEnabled(Boolean.TRUE.equals(dto.getCouponEnabled()));
         merchant.setAutoCloseEnabled(Boolean.TRUE.equals(dto.getAutoCloseEnabled()));
         merchant.setAutoCloseMinutes(dto.getAutoCloseMinutes() != null && dto.getAutoCloseMinutes() > 0 ? dto.getAutoCloseMinutes() : merchant.getAutoCloseMinutes());
         merchantMapper.updateById(merchant);
@@ -131,10 +136,25 @@ public class MerchantServiceImpl implements MerchantService {
     private MerchantVO convertToVO(Merchant merchant) {
         MerchantVO vo = new MerchantVO();
         BeanUtils.copyProperties(merchant, vo);
+        // 手动映射字段名（VO 与 Entity 命名约定不同）
+        vo.setPaymentWalletEnabled(merchant.getWalletEnabled());
+        vo.setPaymentSplitTableEnabled(merchant.getSplitTableEnabled());
+        vo.setPaymentProfitSharingEnabled(merchant.getProfitSharingEnabled());
+        vo.setPaymentCouponEnabled(merchant.getCouponEnabled());
         vo.setStatusDesc(MerchantStatus.descriptionOf(merchant.getStatus()));
-        vo.setChannelCount(Math.toIntExact(merchantChannelMapper.selectCount(
-                new LambdaQueryWrapper<MerchantChannel>().eq(MerchantChannel::getMerchantId, merchant.getId())
-        )));
+        List<MerchantChannel> channels = merchantChannelMapper.selectList(
+                new LambdaQueryWrapper<MerchantChannel>()
+                        .eq(MerchantChannel::getMerchantId, merchant.getId())
+        );
+        vo.setChannelCount(channels.size());
+        vo.setChannelTypes(channels.stream()
+                .map(MerchantChannel::getChannelType)
+                .distinct()
+                .toList());
+        vo.setChannelTypeDetails(channels.stream()
+                .map(ch -> ch.getChannelType() + ":" + ch.getChannelSubType())
+                .distinct()
+                .toList());
         return vo;
     }
 }

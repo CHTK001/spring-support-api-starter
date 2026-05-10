@@ -82,6 +82,14 @@
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-smtp-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-protocol-starter</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

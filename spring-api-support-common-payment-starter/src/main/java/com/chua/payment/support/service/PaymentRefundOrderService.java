@@ -18,7 +18,8 @@ public interface PaymentRefundOrderService {
                                          BigDecimal refundAmount,
                                          String reason,
                                          String operator,
-                                         String requestPayload);
+                                         String requestPayload,
+                                         String refundType);
 
     PaymentRefundOrder getById(Long id);
 

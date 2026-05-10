@@ -49,9 +49,19 @@ public enum OrderState {
     REFUNDING("退款中"),
 
     /**
-     * 已退款
+     * 已退款（保留，兼容旧数据）
      */
-    REFUNDED("已退款");
+    REFUNDED("已退款"),
+
+    /**
+     * 用户主动退款
+     */
+    USER_REFUNDED("用户退款"),
+
+    /**
+     * 系统退款
+     */
+    SYS_REFUNDED("系统退款");
 
     private final String description;
 

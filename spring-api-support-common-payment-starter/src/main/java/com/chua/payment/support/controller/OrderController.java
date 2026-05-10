@@ -16,8 +16,10 @@ import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -52,8 +54,14 @@ public class OrderController {
                                                   @RequestParam(defaultValue = "10") int size,
                                                   @RequestParam(required = false) Long merchantId,
                                                   @RequestParam(required = false) String orderNo,
-                                                  @RequestParam(required = false) String status) {
-        Page<OrderVO> pageResult = orderService.listOrders(page, size, merchantId, orderNo, status);
+                                                  @RequestParam(required = false) String status,
+                                                  @RequestParam(required = false) Long userId,
+                                                  @RequestParam(required = false) String channelType,
+                                                  @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate payTimeStart,
+                                                  @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate payTimeEnd,
+                                                  @RequestParam(required = false) String productId,
+                                                  @RequestParam(required = false) String productName) {
+        Page<OrderVO> pageResult = orderService.listOrders(page, size, merchantId, orderNo, status, userId, channelType, payTimeStart, payTimeEnd, productId, productName);
         return ReturnResult.success(PageResult.of(pageResult));
     }
 
@@ -155,6 +163,14 @@ public class OrderController {
     public ReturnResult<Boolean> refundFail(@PathVariable Long id,
                                       @RequestBody(required = false) OrderOperateDTO dto) {
         return ReturnResult.success(orderService.refundFail(id, dto != null ? dto.getRemark() : null, dto != null ? dto.getOperator() : null));
+    }
+
+    @Operation(summary = "更新订单")
+    @PutMapping("/{id}")
+    @Permission(value = "payment:order:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<OrderVO> updateOrder(@PathVariable Long id,
+                                              @RequestBody OrderCreateDTO dto) {
+        return ReturnResult.success(orderService.updateOrder(id, dto));
     }
 
     @Operation(summary = "删除订单")
