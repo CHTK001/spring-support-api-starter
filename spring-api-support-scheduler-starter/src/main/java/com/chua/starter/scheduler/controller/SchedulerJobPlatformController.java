@@ -156,8 +156,9 @@ public class SchedulerJobPlatformController {
 
     @GetMapping("/{namespace}/task/list")
     @Operation(summary = "查询平台任务视图")
-    public ReturnResult<Object> listTasks(@PathVariable String namespace) {
-        return ReturnResult.ok(schedulerJobPlatformService.listTasks(namespace));
+    public ReturnResult<Object> listTasks(@PathVariable String namespace,
+                                          @RequestParam(defaultValue = "false") boolean includeDeleted) {
+        return ReturnResult.ok(schedulerJobPlatformService.listTasks(namespace, includeDeleted));
     }
 
     @PutMapping("/{namespace}/task/{taskKey}")

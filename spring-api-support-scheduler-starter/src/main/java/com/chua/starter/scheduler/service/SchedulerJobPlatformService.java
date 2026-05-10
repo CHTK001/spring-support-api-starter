@@ -35,10 +35,6 @@ public interface SchedulerJobPlatformService {
 
     boolean restoreJobByNo(String namespace, String jobNo);
 
-    boolean restoreJob(String namespace, Integer jobId);
-
-    boolean restoreJobByNo(String namespace, String jobNo);
-
     boolean startJob(String namespace, Integer jobId);
 
     boolean startJobByNo(String namespace, String jobNo);
@@ -54,6 +50,8 @@ public interface SchedulerJobPlatformService {
     Page<SysJobLog> pageLogs(String namespace, int pageNum, int pageSize, String beanName, String executeCode);
 
     List<SchedulerTaskVO> listTasks(String namespace);
+
+    List<SchedulerTaskVO> listTasks(String namespace, boolean includeDeleted);
 
     SchedulerTaskVO updateTask(String namespace, String taskKey, SchedulerTaskUpdateRequest request);
 
