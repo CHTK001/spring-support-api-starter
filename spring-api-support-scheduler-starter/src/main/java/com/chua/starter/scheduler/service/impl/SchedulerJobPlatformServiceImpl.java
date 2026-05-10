@@ -12,6 +12,7 @@ import com.chua.starter.scheduler.dto.SchedulerTaskUpdateRequest;
 import com.chua.starter.scheduler.service.SchedulerJobPlatformService;
 import com.chua.starter.scheduler.support.SchedulerNamespaceTableResolver;
 import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
+import com.chua.starter.scheduler.support.SchedulerNamespaceRemoteDispatchScheduler;
 import com.chua.starter.scheduler.support.SchedulerRemoteExecutorDispatcher;
 import com.chua.starter.scheduler.vo.SchedulerTaskVO;
 import lombok.RequiredArgsConstructor;
@@ -62,6 +63,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
 
     private final SchedulerNamespaceTableResolver namespaceTableResolver;
     private final SchedulerRemoteExecutorDispatcher remoteExecutorDispatcher;
+    private final SchedulerNamespaceRemoteDispatchScheduler remoteDispatchScheduler;
     private final SchedulerJobPlatformProperties platformProperties;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
@@ -76,12 +78,18 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     @Override
     public Page<SysJob> pageJobs(String namespace, int pageNum, int pageSize, String jobName, Integer triggerStatus) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+        SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
+        String group = resolveGroup(nsProps);
         int safePageNum = normalizePageNum(pageNum);
         int safePageSize = normalizePageSize(pageSize);
         String normalizedJobName = trimToNull(jobName);
 
         StringBuilder where = new StringBuilder(" FROM ").append(tables.jobTable()).append(" WHERE is_deleted = 0");
         MapSqlParameterSource parameters = new MapSqlParameterSource();
+        if (StringUtils.hasText(group)) {
+            parameters.addValue("group", group);
+            where.append(" AND (job_group IS NULL OR job_group = :group)");
+        }
         if (StringUtils.hasText(normalizedJobName)) {
             where.append(" AND job_name LIKE :jobName");
             parameters.addValue("jobName", "%" + normalizedJobName + "%");
@@ -357,17 +365,39 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     @Override
     public List<SchedulerTaskVO> listTasks(String namespace, boolean includeDeleted) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        String sql = includeDeleted
-                ? "SELECT * FROM " + tables.jobTable() + " ORDER BY job_id DESC"
-                : "SELECT * FROM " + tables.jobTable() + " WHERE is_deleted = 0 ORDER BY job_id DESC";
-        List<SysJob> jobs = namedParameterJdbcTemplate.query(
-                sql,
-                new MapSqlParameterSource(),
-                jobRowMapper
-        );
-        return jobs.stream()
+        SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
+        boolean clusterMode = isClusterMode(nsProps);
+        String group = resolveGroup(nsProps);
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        StringBuilder sql = new StringBuilder("SELECT * FROM ").append(tables.jobTable()).append(" WHERE 1=1");
+
+        if (!includeDeleted) {
+            sql.append(" AND is_deleted = 0");
+        }
+        if (StringUtils.hasText(group)) {
+            params.addValue("group", group);
+            sql.append(" AND (job_group IS NULL OR job_group = :group)");
+        }
+        sql.append(" ORDER BY job_id DESC");
+
+        List<SysJob> jobs = namedParameterJdbcTemplate.query(sql.toString(), params, jobRowMapper);
+        List<SchedulerTaskVO> result = jobs.stream()
                 .map(job -> toTaskVO(tables, job))
                 .toList();
+
+        // 集群模式下合并发现服务任务
+        if (clusterMode) {
+            List<SysJob> discoveryJobs = remoteDispatchScheduler.listDiscoveryTasks(namespace);
+            List<SchedulerTaskVO> discoveryVOs = discoveryJobs.stream()
+                    .map(job -> toTaskVO(tables, job))
+                    .toList();
+            List<SchedulerTaskVO> merged = new ArrayList<>(result);
+            merged.addAll(discoveryVOs);
+            return merged;
+        }
+
+        return result;
     }
 
     @Override
@@ -886,6 +916,13 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         }
         config.put("dataSource", executorMode);
 
+        // 任务分组
+        String group = null;
+        if (nsProps != null && StringUtils.hasText(nsProps.getGroup())) {
+            group = nsProps.getGroup().trim();
+        }
+        config.put("group", group);
+
         if (hasRemote) {
             List<?> executors = remoteExecutorDispatcher.resolveExecutors(namespace, null);
             List<Map<String, Object>> executorList = new ArrayList<>();
@@ -912,5 +949,16 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
                 .findFirst()
                 .map(Map.Entry::getValue)
                 .orElse(null);
+    }
+
+    private boolean isClusterMode(SchedulerJobPlatformProperties.Namespace nsProps) {
+        return nsProps != null && "CLUSTER".equalsIgnoreCase(nsProps.getMode());
+    }
+
+    private String resolveGroup(SchedulerJobPlatformProperties.Namespace nsProps) {
+        if (nsProps == null || !StringUtils.hasText(nsProps.getGroup())) {
+            return null;
+        }
+        return nsProps.getGroup().trim();
     }
 }

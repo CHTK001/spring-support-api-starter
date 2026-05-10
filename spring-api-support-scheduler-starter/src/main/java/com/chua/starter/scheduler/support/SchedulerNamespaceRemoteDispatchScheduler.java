@@ -20,6 +20,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -98,6 +99,59 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         return "CLUSTER".equalsIgnoreCase(nsProps.getMode());
     }
 
+    /**
+     * 列出指定命名空间下发现服务中的任务（仅用于展示，不入库）。
+     */
+    public List<SysJob> listDiscoveryTasks(String namespace) {
+        Object discoveryService = resolveDiscoveryService();
+        if (discoveryService == null) {
+            return List.of();
+        }
+
+        SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
+        if (nsProps == null) {
+            return List.of();
+        }
+
+        SchedulerJobPlatformProperties.Discovery discoveryProps = nsProps.getDiscovery();
+        if (discoveryProps != null && !discoveryProps.isEnabled()) {
+            return List.of();
+        }
+
+        String discoveryNsPath = resolveDiscoveryNamespacePath(namespace, discoveryProps);
+        if (!StringUtils.hasText(discoveryNsPath)) {
+            return List.of();
+        }
+
+        Set<Discovery> discoveries = loadDiscoveryInstances(discoveryService, discoveryProps, discoveryNsPath);
+        if (discoveries == null || discoveries.isEmpty()) {
+            return List.of();
+        }
+
+        List<SysJob> result = new ArrayList<>();
+        for (Discovery discovery : discoveries) {
+            if (discovery == null) continue;
+
+            Map<String, String> metadata = discovery.getMetadata();
+            if (metadata == null || !metadata.containsKey("jobs")) continue;
+
+            String jobsValue = metadata.get("jobs");
+            if (!StringUtils.hasText(jobsValue)) continue;
+
+            String[] handlerNames = jobsValue.split(",");
+            Map<String, Map<String, String>> jobConfigs = parseJobConfigs(metadata.get("job_configs"));
+
+            for (String handlerName : handlerNames) {
+                handlerName = handlerName.trim();
+                if (!StringUtils.hasText(handlerName)) continue;
+
+                Map<String, String> config = (jobConfigs != null) ? jobConfigs.get(handlerName) : null;
+                result.add(createDiscoveryJob(handlerName, config));
+            }
+        }
+        return result;
+    }
+
     private void dispatchNamespace(String namespace) {
         ReentrantLock lock = namespaceLocks.computeIfAbsent(namespace.toLowerCase(), key -> new ReentrantLock());
         if (!lock.tryLock()) {
@@ -106,7 +160,8 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         boolean clusterMode = isClusterMode(namespace);
         try {
             SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-            List<SysJob> dueJobs = loadDueJobs(tables, clusterMode);
+            SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
+            List<SysJob> dueJobs = loadDueJobs(tables, clusterMode, nsProps);
             for (SysJob job : dueJobs) {
                 processJob(namespace, tables, job, clusterMode);
             }
@@ -119,11 +174,19 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     private List<SysJob> loadDueJobs(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables,
-                                     boolean clusterMode) {
+                                     boolean clusterMode,
+                                     SchedulerJobPlatformProperties.Namespace nsProps) {
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("status", STATUS_RUNNING);
         parameters.addValue("now", System.currentTimeMillis());
         parameters.addValue("limit", Math.max(1, platformProperties.getDispatchBatchSize()));
+
+        String group = resolveGroup(nsProps);
+        String groupFilter = "";
+        if (StringUtils.hasText(group)) {
+            parameters.addValue("group", group);
+            groupFilter = " AND (job_group IS NULL OR job_group = :group)";
+        }
 
         String sql;
         if (clusterMode) {
@@ -132,6 +195,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
                     + " WHERE job_trigger_status = :status"
                     + " AND job_trigger_next_time > 0"
                     + " AND job_trigger_next_time <= :now"
+                    + groupFilter
                     + " ORDER BY job_trigger_next_time ASC, job_id ASC LIMIT :limit";
         } else {
             // 单机模式：仅拾取 REMOTE 类型任务
@@ -141,9 +205,17 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
                     + " AND job_dispatch_mode = :dispatchMode"
                     + " AND job_trigger_next_time > 0"
                     + " AND job_trigger_next_time <= :now"
+                    + groupFilter
                     + " ORDER BY job_trigger_next_time ASC, job_id ASC LIMIT :limit";
         }
         return namedParameterJdbcTemplate.query(sql, parameters, jobRowMapper);
+    }
+
+    private String resolveGroup(SchedulerJobPlatformProperties.Namespace nsProps) {
+        if (nsProps == null) {
+            return null;
+        }
+        return StringUtils.hasText(nsProps.getGroup()) ? nsProps.getGroup().trim() : null;
     }
 
     private void processJob(String namespace,
@@ -174,7 +246,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         }
 
         try {
-            remoteExecutorDispatcher.dispatch(namespace, job, job.getJobExecuteParam());
+            remoteExecutorDispatcher.dispatch(namespace, job, job.getJobExecuteParam(), clusterMode);
         } catch (Exception e) {
             rollbackClaim(tables.jobTable(), job, plan);
             log.error("[Scheduler] 远程任务下发失败，已回滚触发时间: namespace={}, jobNo={}, jobId={}, error={}",
