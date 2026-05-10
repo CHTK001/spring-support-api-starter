@@ -1,0 +1,50 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://172.16.0.40:3306/panel_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true&connectTimeout=5000&socketTimeout=30000
+    username: root
+    password: root@
+    initialization-fail-timeout: -1
+  data:
+    redis:
+      host: 172.16.0.40
+      port: 6379
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/init/V1.0__init_panel.sql
+      data-locations: classpath:db/init/V1.0__initdata_panel.sql
+logging:
+  level:
+    com.chua.starter.panel: debug
+    com.chua.starter.project: debug
+server:
+  port: 58083
+panel:
+  enabled: true
+  jdbc-enabled: true
+  ai-enabled: false
+  datasource-store-path: ${user.dir}/.panel/panel-datasources.json
+
+docker:
+  api:
+    host: 172.16.0.40
+    port: 2375
+
+plugin:
+  job:
+    enable: true
+    config-table-enabled: false
+    remote-executor:
+      enabled: true
+      access-token: panel-test-token
+  oauth:
+    enable: false
+  socket:
+    enable: true
+    room:
+      - client-id: panel
+        port: 58084
+        context-path: /socket.io
