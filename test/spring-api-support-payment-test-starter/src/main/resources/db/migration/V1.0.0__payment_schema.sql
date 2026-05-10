@@ -1,9 +1,26 @@
 -- ==========================================================
--- 支付系统新增表：优惠券模板、用户优惠券、充值奖励规则
+-- 支付系统表结构（完整）
+-- 包含: 全局配置、优惠券模板、用户优惠券、充值奖励规则
 -- 遵循 pay_ 前缀 + 表名.字段 命名规范
 -- ==========================================================
 
--- 1. 优惠券模板
+-- 1. 支付全局配置
+CREATE TABLE IF NOT EXISTS `pay_global_config` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    `config_key` VARCHAR(64) NOT NULL DEFAULT 'DEFAULT' COMMENT '配置键',
+    `notify_base_url` VARCHAR(255) DEFAULT NULL COMMENT '回调基础地址',
+    `return_url` VARCHAR(255) DEFAULT NULL COMMENT '默认回跳地址',
+    `callback_path_template` VARCHAR(255) DEFAULT '/{orderNo}/{merchantId}' COMMENT '回调路径模板',
+    `auto_refresh_seconds` INT DEFAULT 60 COMMENT '首页自动刷新秒数',
+    `remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
+    `sample_pay_notify_url` VARCHAR(500) DEFAULT NULL COMMENT '支付回调示例 URL',
+    `sample_refund_notify_url` VARCHAR(500) DEFAULT NULL COMMENT '退款回调示例 URL',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY `uk_global_config_key` (`config_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='支付全局配置表';
+
+-- 2. 优惠券模板
 CREATE TABLE IF NOT EXISTS `pay_coupon_template` (
     `pay_coupon_template_id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
     `pay_coupon_template_name` VARCHAR(100) NOT NULL COMMENT '优惠券名称',
@@ -23,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `pay_coupon_template` (
     INDEX `idx_coupon_template_status` (`pay_coupon_template_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='优惠券模板表';
 
--- 2. 用户优惠券
+-- 3. 用户优惠券
 CREATE TABLE IF NOT EXISTS `pay_user_coupon` (
     `pay_user_coupon_id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
     `pay_user_coupon_template_id` BIGINT NOT NULL COMMENT '模板ID',
@@ -47,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `pay_user_coupon` (
     INDEX `idx_user_coupon_template` (`pay_user_coupon_template_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户优惠券表';
 
--- 3. 充值奖励规则
+-- 4. 充值奖励规则
 CREATE TABLE IF NOT EXISTS `pay_recharge_reward_rule` (
     `pay_recharge_reward_rule_id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
     `pay_recharge_reward_rule_merchant_id` BIGINT NOT NULL COMMENT '商户ID',
@@ -63,5 +80,3 @@ CREATE TABLE IF NOT EXISTS `pay_recharge_reward_rule` (
     INDEX `idx_reward_rule_merchant` (`pay_recharge_reward_rule_merchant_id`),
     INDEX `idx_reward_rule_status` (`pay_recharge_reward_rule_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='充值奖励规则表';
-
--- 4. 支付订单表新增字段：此项由 API 端点处理，SQL 迁移仅处理表创建
