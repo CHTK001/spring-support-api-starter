@@ -870,6 +870,22 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         Map<String, Object> config = new LinkedHashMap<>();
         config.put("remoteDispatchEnabled", platformProperties.isRemoteDispatchEnabled());
         config.put("hasRemoteExecutors", hasRemote);
+
+        // 调度模式
+        String mode = "STANDALONE";
+        SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
+        if (nsProps != null && StringUtils.hasText(nsProps.getMode())) {
+            mode = nsProps.getMode().toUpperCase();
+        }
+        config.put("schedulerMode", mode);
+
+        // 数据源信息
+        String executorMode = "DISCOVERY";
+        if (nsProps != null && StringUtils.hasText(nsProps.getExecutorMode())) {
+            executorMode = nsProps.getExecutorMode().toUpperCase();
+        }
+        config.put("dataSource", executorMode);
+
         if (hasRemote) {
             List<?> executors = remoteExecutorDispatcher.resolveExecutors(namespace, null);
             List<Map<String, Object>> executorList = new ArrayList<>();
@@ -885,5 +901,16 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
             config.put("executors", List.of());
         }
         return config;
+    }
+
+    private SchedulerJobPlatformProperties.Namespace resolveNamespaceProperties(String namespace) {
+        if (!StringUtils.hasText(namespace) || platformProperties.getNamespaces() == null) {
+            return null;
+        }
+        return platformProperties.getNamespaces().entrySet().stream()
+                .filter(entry -> namespace.equalsIgnoreCase(entry.getKey()))
+                .findFirst()
+                .map(Map.Entry::getValue)
+                .orElse(null);
     }
 }
