@@ -76,16 +76,39 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         }
     }
 
+    /**
+     * 判断指定命名空间是否处于集群模式。
+     * <p>
+     * 集群模式下，调度中心统一拾取所有到期任务（包括 LOCAL 和 REMOTE），
+     * 推送到远程执行器执行，本地 job-starter 不再自行触发。
+     * </p>
+     */
+    public boolean isClusterMode(String namespace) {
+        if (!StringUtils.hasText(namespace) || platformProperties.getNamespaces() == null) {
+            return false;
+        }
+        SchedulerJobPlatformProperties.Namespace nsProps = platformProperties.getNamespaces().entrySet().stream()
+                .filter(e -> namespace.equalsIgnoreCase(e.getKey()))
+                .findFirst()
+                .map(Map.Entry::getValue)
+                .orElse(null);
+        if (nsProps == null) {
+            return false;
+        }
+        return "CLUSTER".equalsIgnoreCase(nsProps.getMode());
+    }
+
     private void dispatchNamespace(String namespace) {
         ReentrantLock lock = namespaceLocks.computeIfAbsent(namespace.toLowerCase(), key -> new ReentrantLock());
         if (!lock.tryLock()) {
             return;
         }
+        boolean clusterMode = isClusterMode(namespace);
         try {
             SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-            List<SysJob> dueJobs = loadDueJobs(tables);
+            List<SysJob> dueJobs = loadDueJobs(tables, clusterMode);
             for (SysJob job : dueJobs) {
-                processJob(namespace, tables, job);
+                processJob(namespace, tables, job, clusterMode);
             }
         } finally {
             lock.unlock();
@@ -95,28 +118,39 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         dispatchDiscoveryTasks(namespace);
     }
 
-    private List<SysJob> loadDueJobs(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables) {
+    private List<SysJob> loadDueJobs(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables,
+                                     boolean clusterMode) {
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("status", STATUS_RUNNING);
-        parameters.addValue("dispatchMode", JobDispatchModeEnum.REMOTE.name());
         parameters.addValue("now", System.currentTimeMillis());
         parameters.addValue("limit", Math.max(1, platformProperties.getDispatchBatchSize()));
-        return namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable()
-                        + " WHERE job_trigger_status = :status"
-                        + " AND job_dispatch_mode = :dispatchMode"
-                        + " AND job_trigger_next_time > 0"
-                        + " AND job_trigger_next_time <= :now"
-                        + " ORDER BY job_trigger_next_time ASC, job_id ASC LIMIT :limit",
-                parameters,
-                jobRowMapper
-        );
+
+        String sql;
+        if (clusterMode) {
+            // 集群模式：拾取所有到期任务（包括 LOCAL 和 REMOTE）
+            sql = "SELECT * FROM " + tables.jobTable()
+                    + " WHERE job_trigger_status = :status"
+                    + " AND job_trigger_next_time > 0"
+                    + " AND job_trigger_next_time <= :now"
+                    + " ORDER BY job_trigger_next_time ASC, job_id ASC LIMIT :limit";
+        } else {
+            // 单机模式：仅拾取 REMOTE 类型任务
+            parameters.addValue("dispatchMode", JobDispatchModeEnum.REMOTE.name());
+            sql = "SELECT * FROM " + tables.jobTable()
+                    + " WHERE job_trigger_status = :status"
+                    + " AND job_dispatch_mode = :dispatchMode"
+                    + " AND job_trigger_next_time > 0"
+                    + " AND job_trigger_next_time <= :now"
+                    + " ORDER BY job_trigger_next_time ASC, job_id ASC LIMIT :limit";
+        }
+        return namedParameterJdbcTemplate.query(sql, parameters, jobRowMapper);
     }
 
     private void processJob(String namespace,
                             SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables,
-                            SysJob job) {
-        if (!canDispatch(job)) {
+                            SysJob job,
+                            boolean clusterMode) {
+        if (!canDispatch(job, clusterMode)) {
             log.warn("[Scheduler] 跳过远程分发，任务不满足远程执行条件: namespace={}, jobNo={}, jobId={}, dispatchMode={}, glueType={}, handler={}",
                     namespace, job.getJobNo(), job.getJobId(), job.getJobDispatchMode(), job.getJobGlueType(), job.getJobExecuteBean());
             return;
@@ -217,11 +251,19 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         );
     }
 
-    private boolean canDispatch(SysJob job) {
-        return job != null
-                && JobDispatchModeEnum.REMOTE == JobDispatchModeEnum.match(job.getJobDispatchMode())
-                && StringUtils.hasText(job.getJobExecuteBean())
-                && (!StringUtils.hasText(job.getJobGlueType()) || "BEAN".equalsIgnoreCase(job.getJobGlueType()));
+    private boolean canDispatch(SysJob job, boolean clusterMode) {
+        if (job == null || !StringUtils.hasText(job.getJobExecuteBean())) {
+            return false;
+        }
+        if (StringUtils.hasText(job.getJobGlueType()) && !"BEAN".equalsIgnoreCase(job.getJobGlueType())) {
+            return false;
+        }
+        if (clusterMode) {
+            // 集群模式：所有任务都可以远程下发
+            return true;
+        }
+        // 单机模式：仅 REMOTE 类型任务
+        return JobDispatchModeEnum.REMOTE == JobDispatchModeEnum.match(job.getJobDispatchMode());
     }
 
     private long safeLong(Long value) {
