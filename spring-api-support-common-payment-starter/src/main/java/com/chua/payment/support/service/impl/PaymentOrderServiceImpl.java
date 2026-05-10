@@ -403,6 +403,10 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
                 latest.getOrderNo(), latest.getUserId(), latest.getPaidAmount(),
                 thirdPartyOrderNo, latest.getChannelType(), latest.getChannelSubType()
             ));
+            // 支付成功，将优惠券标记为已使用
+            if (StringUtils.hasText(latest.getCouponCode())) {
+                userCouponService.use(latest.getCouponCode());
+            }
         }
         return true;
     }
