@@ -56,4 +56,9 @@ public interface SchedulerJobPlatformService {
     SchedulerTaskVO updateTask(String namespace, String taskKey, SchedulerTaskUpdateRequest request);
 
     SchedulerTaskVO triggerTask(String namespace, String taskKey);
+
+    /**
+     * 获取命名空间配置信息，包括远程执行器列表和分发模式等。
+     */
+    Object getNamespaceConfig(String namespace);
 }

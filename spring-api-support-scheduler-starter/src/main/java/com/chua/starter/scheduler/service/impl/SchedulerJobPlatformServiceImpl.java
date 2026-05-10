@@ -11,6 +11,7 @@ import com.chua.starter.job.support.scheduler.SchedulerTypeEnum;
 import com.chua.starter.scheduler.dto.SchedulerTaskUpdateRequest;
 import com.chua.starter.scheduler.service.SchedulerJobPlatformService;
 import com.chua.starter.scheduler.support.SchedulerNamespaceTableResolver;
+import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
 import com.chua.starter.scheduler.support.SchedulerRemoteExecutorDispatcher;
 import com.chua.starter.scheduler.vo.SchedulerTaskVO;
 import lombok.RequiredArgsConstructor;
@@ -31,9 +32,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * 调度平台任务服务实现。
@@ -58,6 +62,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
 
     private final SchedulerNamespaceTableResolver namespaceTableResolver;
     private final SchedulerRemoteExecutorDispatcher remoteExecutorDispatcher;
+    private final SchedulerJobPlatformProperties platformProperties;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private final BeanPropertyRowMapper<SysJob> jobRowMapper = BeanPropertyRowMapper.newInstance(SysJob.class);
@@ -274,9 +279,6 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     public boolean triggerJob(String namespace, Integer jobId, String param) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
         SysJob job = requireJob(tables, requireJobId(jobId));
-        if (STATUS_RUNNING != safeStatus(job.getJobTriggerStatus())) {
-            throw new IllegalStateException("只有启用中的任务才能通过平台立即触发");
-        }
 
         if (isRemoteDispatchJob(job)) {
             remoteExecutorDispatcher.dispatch(namespace, job, param);
@@ -298,9 +300,6 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     public boolean triggerJobByNo(String namespace, String jobNo, String param) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
         SysJob job = requireJobByNo(tables, jobNo);
-        if (STATUS_RUNNING != safeStatus(job.getJobTriggerStatus())) {
-            throw new IllegalStateException("只有启用中的任务才能通过平台立即触发");
-        }
 
         if (isRemoteDispatchJob(job)) {
             remoteExecutorDispatcher.dispatch(namespace, job, param);
@@ -400,9 +399,6 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     public SchedulerTaskVO triggerTask(String namespace, String taskKey) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
         SysJob job = requireTask(tables, taskKey);
-        if (STATUS_RUNNING != safeStatus(job.getJobTriggerStatus())) {
-            throw new IllegalStateException("只有启用中的任务才能通过平台立即触发");
-        }
         if (isRemoteDispatchJob(job)) {
             remoteExecutorDispatcher.dispatch(namespace, job, job.getJobExecuteParam());
             return toTaskVO(tables, requireTask(tables, taskKey));
@@ -866,5 +862,28 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
 
     private int safeStatus(Integer triggerStatus) {
         return triggerStatus == null ? STATUS_STOP : triggerStatus;
+    }
+
+    @Override
+    public Object getNamespaceConfig(String namespace) {
+        boolean hasRemote = remoteExecutorDispatcher.hasExecutors(namespace);
+        Map<String, Object> config = new LinkedHashMap<>();
+        config.put("remoteDispatchEnabled", platformProperties.isRemoteDispatchEnabled());
+        config.put("hasRemoteExecutors", hasRemote);
+        if (hasRemote) {
+            List<?> executors = remoteExecutorDispatcher.resolveExecutors(namespace, null);
+            List<Map<String, Object>> executorList = new ArrayList<>();
+            for (Object ex : executors) {
+                SchedulerJobPlatformProperties.Executor e = (SchedulerJobPlatformProperties.Executor) ex;
+                Map<String, Object> map = new LinkedHashMap<>();
+                map.put("name", e.getName());
+                map.put("baseUrl", e.getBaseUrl());
+                executorList.add(map);
+            }
+            config.put("executors", executorList);
+        } else {
+            config.put("executors", List.of());
+        }
+        return config;
     }
 }

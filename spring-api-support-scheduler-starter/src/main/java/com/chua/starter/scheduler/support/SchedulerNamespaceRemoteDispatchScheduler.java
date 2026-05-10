@@ -1,5 +1,7 @@
 package com.chua.starter.scheduler.support;
 
+import com.chua.common.support.network.discovery.Discovery;
+import com.chua.common.support.text.json.Json;
 import com.chua.starter.job.support.entity.SysJob;
 import com.chua.starter.job.support.scheduler.JobDispatchModeEnum;
 import com.chua.starter.job.support.scheduler.JobHelper;
@@ -7,17 +9,24 @@ import com.chua.starter.job.support.scheduler.MisfireStrategyEnum;
 import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -46,8 +55,12 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     private final SchedulerNamespaceTableResolver namespaceTableResolver;
     private final SchedulerRemoteExecutorDispatcher remoteExecutorDispatcher;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final ListableBeanFactory beanFactory;
     private final BeanPropertyRowMapper<SysJob> jobRowMapper = BeanPropertyRowMapper.newInstance(SysJob.class);
     private final Map<String, ReentrantLock> namespaceLocks = new ConcurrentHashMap<>();
+    private final Map<String, Long> discoveryNextTriggerTimes = new ConcurrentHashMap<>();
+
+    private static final String DISCOVERY_SERVICE_CLASS = "com.chua.starter.discovery.support.service.DiscoveryService";
 
     @Scheduled(fixedDelayString = "${plugin.scheduler.job-platform.dispatch-interval-ms:1000}")
     public void dispatchDueJobs() {
@@ -77,6 +90,9 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         } finally {
             lock.unlock();
         }
+
+        // 从发现服务中获取任务并调度
+        dispatchDiscoveryTasks(namespace);
     }
 
     private List<SysJob> loadDueJobs(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables) {
@@ -210,6 +226,265 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     private long safeLong(Long value) {
         return value == null ? 0L : value;
+    }
+
+    // ==================== 发现服务任务调度 ====================
+
+    /**
+     * 从发现服务中获取任务元数据并调度到期任务。
+     * <p>
+     * 通过反射访问 DiscoveryService（避免编译期强依赖），读取各注册客户端的
+     * {@code jobs} 和 {@code job_configs} 元数据，在内存中跟踪每个 handler
+     * 的下次触发时间，到期后通过远程执行器分发器下发。
+     * </p>
+     */
+    private void dispatchDiscoveryTasks(String namespace) {
+        if (!platformProperties.isRemoteDispatchEnabled()) {
+            return;
+        }
+
+        Object discoveryService = resolveDiscoveryService();
+        if (discoveryService == null) {
+            return;
+        }
+
+        SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
+        if (nsProps == null) {
+            return;
+        }
+
+        SchedulerJobPlatformProperties.Discovery discoveryProps = nsProps.getDiscovery();
+        if (discoveryProps != null && !discoveryProps.isEnabled()) {
+            return;
+        }
+
+        String discoveryNsPath = resolveDiscoveryNamespacePath(namespace, discoveryProps);
+        if (!StringUtils.hasText(discoveryNsPath)) {
+            return;
+        }
+
+        Set<Discovery> discoveries = loadDiscoveryInstances(discoveryService, discoveryProps, discoveryNsPath);
+        if (discoveries == null || discoveries.isEmpty()) {
+            return;
+        }
+
+        long now = System.currentTimeMillis();
+
+        for (Discovery discovery : discoveries) {
+            if (discovery == null) continue;
+
+            Map<String, String> metadata = discovery.getMetadata();
+            if (metadata == null || !metadata.containsKey("jobs")) continue;
+
+            String jobsValue = metadata.get("jobs");
+            if (!StringUtils.hasText(jobsValue)) continue;
+
+            String[] handlerNames = jobsValue.split(",");
+            Map<String, Map<String, String>> jobConfigs = parseJobConfigs(metadata.get("job_configs"));
+
+            for (String handlerName : handlerNames) {
+                handlerName = handlerName.trim();
+                if (!StringUtils.hasText(handlerName)) continue;
+
+                String cacheKey = discoveryCacheKey(namespace, handlerName);
+                Long scheduledTime = discoveryNextTriggerTimes.get(cacheKey);
+                if (scheduledTime != null && now < scheduledTime) continue;
+
+                // 到期，执行调度
+                Map<String, String> config = (jobConfigs != null) ? jobConfigs.get(handlerName) : null;
+
+                try {
+                    SysJob transientJob = createDiscoveryJob(handlerName, config);
+                    remoteExecutorDispatcher.dispatch(namespace, transientJob, transientJob.getJobExecuteParam());
+                } catch (Exception e) {
+                    log.warn("[Scheduler] 发现服务任务下发失败: namespace={}, handler={}", namespace, handlerName, e);
+                }
+
+                // 计算下次触发时间
+                long nextTime = computeDiscoveryNextTime(handlerName, config, now);
+                discoveryNextTriggerTimes.put(cacheKey, nextTime);
+            }
+        }
+    }
+
+    private static String discoveryCacheKey(String namespace, String handlerName) {
+        return namespace + ":" + handlerName;
+    }
+
+    /**
+     * 通过反射获取 DiscoveryService Bean。
+     */
+    private Object resolveDiscoveryService() {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (classLoader == null) {
+            classLoader = SchedulerNamespaceRemoteDispatchScheduler.class.getClassLoader();
+        }
+        if (!ClassUtils.isPresent(DISCOVERY_SERVICE_CLASS, classLoader)) {
+            return null;
+        }
+        try {
+            Class<?> discoveryServiceType = ClassUtils.forName(DISCOVERY_SERVICE_CLASS, classLoader);
+            Map<String, ?> beans = beanFactory.getBeansOfType(discoveryServiceType);
+            if (beans.isEmpty()) {
+                return null;
+            }
+            return beans.values().iterator().next();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 通过反射加载 Discovery 实例列表。
+     */
+    @SuppressWarnings("unchecked")
+    private Set<Discovery> loadDiscoveryInstances(Object discoveryService,
+                                                   SchedulerJobPlatformProperties.Discovery discoveryProps,
+                                                   String discoveryNamespace) {
+        try {
+            String discoveryProtocol = (discoveryProps == null) ? null : trimToNull(discoveryProps.getProtocol());
+            if (StringUtils.hasText(discoveryProtocol)) {
+                Method method = discoveryService.getClass().getMethod("getDiscoveryAll", String.class, String.class);
+                return (Set<Discovery>) method.invoke(discoveryService, discoveryProtocol, discoveryNamespace);
+            }
+            Method method = discoveryService.getClass().getMethod("getDiscoveryAll", String.class);
+            return (Set<Discovery>) method.invoke(discoveryService, discoveryNamespace);
+        } catch (Exception e) {
+            return Set.of();
+        }
+    }
+
+    /**
+     * 解析发现命名空间路径。
+     */
+    private String resolveDiscoveryNamespacePath(String namespace,
+                                                  SchedulerJobPlatformProperties.Discovery discoveryProps) {
+        if (discoveryProps != null && StringUtils.hasText(discoveryProps.getNamespace())) {
+            return discoveryProps.getNamespace().trim();
+        }
+        return StringUtils.hasText(namespace) ? "/job-executor/" + namespace.trim() : null;
+    }
+
+    /**
+     * 解析命名空间配置。
+     */
+    private SchedulerJobPlatformProperties.Namespace resolveNamespaceProperties(String namespace) {
+        if (!StringUtils.hasText(namespace) || platformProperties.getNamespaces() == null) {
+            return null;
+        }
+        return platformProperties.getNamespaces().entrySet().stream()
+                .filter(e -> namespace.equalsIgnoreCase(e.getKey()))
+                .findFirst()
+                .map(Map.Entry::getValue)
+                .orElse(null);
+    }
+
+    /**
+     * 解析 job_configs 元数据 JSON 为 Map。
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, Map<String, String>> parseJobConfigs(String jobConfigsJson) {
+        if (!StringUtils.hasText(jobConfigsJson)) {
+            return Map.of();
+        }
+        try {
+            Map<String, Object> parsed = Json.fromJson(jobConfigsJson);
+            if (parsed == null || parsed.isEmpty()) {
+                return Map.of();
+            }
+
+            Map<String, Map<String, String>> result = new HashMap<>();
+            for (Map.Entry<String, Object> entry : parsed.entrySet()) {
+                if (entry.getValue() instanceof Map) {
+                    Map<String, Object> configMap = (Map<String, Object>) entry.getValue();
+                    Map<String, String> stringConfig = new HashMap<>();
+                    for (Map.Entry<String, Object> configEntry : configMap.entrySet()) {
+                        if (configEntry.getValue() != null) {
+                            stringConfig.put(configEntry.getKey(), configEntry.getValue().toString());
+                        }
+                    }
+                    result.put(entry.getKey(), stringConfig);
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            log.warn("[Scheduler] 解析发现任务配置失败: {}", e.getMessage());
+            return Map.of();
+        }
+    }
+
+    /**
+     * 计算发现服务任务的下次触发时间。
+     */
+    private long computeDiscoveryNextTime(String handlerName, Map<String, String> config, long now) {
+        if (config == null) {
+            return now + 30000L;
+        }
+
+        String scheduleType = config.getOrDefault("scheduleType", "cron");
+        String scheduleTime = config.get("scheduleTime");
+
+        if (!StringUtils.hasText(scheduleTime)) {
+            return now + 30000L;
+        }
+
+        try {
+            SysJob template = new SysJob();
+            template.setJobScheduleType(scheduleType);
+            template.setJobScheduleTime(scheduleTime);
+            template.setJobTriggerLastTime(now);
+            template.setJobTriggerNextTime(now);
+
+            Date next = JobHelper.generateNextValidTime(template, new Date(now));
+            if (next != null) {
+                return next.getTime();
+            }
+        } catch (Exception e) {
+            log.debug("[Scheduler] 计算发现任务下次触发时间失败: handler={}, type={}, time={}",
+                    handlerName, scheduleType, scheduleTime);
+        }
+        return now + 30000L;
+    }
+
+    /**
+     * 为发现服务来源的任务创建临时 SysJob 对象。
+     * <p>
+     * 该对象仅用于传递 handler 名称和执行配置到远程执行器分发器，
+     * 不会持久化到数据库。
+     * </p>
+     */
+    private SysJob createDiscoveryJob(String handlerName, Map<String, String> config) {
+        SysJob job = new SysJob();
+        job.setJobId(Objects.hash("disc", handlerName) & 0x7FFFFFFF);
+        job.setJobNo("disc:" + handlerName);
+        job.setJobName(handlerName);
+        job.setJobExecuteBean(handlerName);
+        job.setJobGlueType("BEAN");
+        job.setJobDispatchMode(JobDispatchModeEnum.REMOTE.name());
+        job.setJobTriggerStatus(1);
+        job.setJobTriggerNextTime(System.currentTimeMillis());
+
+        if (config != null) {
+            job.setJobScheduleType(config.getOrDefault("scheduleType", "cron"));
+            job.setJobScheduleTime(config.get("scheduleTime"));
+
+            if (config.containsKey("executeTimeout")) {
+                try {
+                    job.setJobExecuteTimeout(Integer.parseInt(config.get("executeTimeout")));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+            if (config.containsKey("param")) {
+                job.setJobExecuteParam(config.get("param"));
+            }
+            job.setJobExecuteMisfireStrategy(config.getOrDefault("misfireStrategy", "DO_NOTHING"));
+        }
+
+        return job;
+    }
+
+    private String trimToNull(String value) {
+        return (value != null && !value.trim().isEmpty()) ? value.trim() : null;
     }
 
     /**
