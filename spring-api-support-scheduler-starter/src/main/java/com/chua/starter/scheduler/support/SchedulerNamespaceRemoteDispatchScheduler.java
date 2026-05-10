@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
@@ -128,6 +129,9 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             return List.of();
         }
 
+        // 加载已禁用的发现服务 handler
+        Set<String> disabledHandlers = loadDiscoveryDisabledHandlers(namespace);
+
         List<SysJob> result = new ArrayList<>();
         for (Discovery discovery : discoveries) {
             if (discovery == null) continue;
@@ -145,11 +149,164 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
                 handlerName = handlerName.trim();
                 if (!StringUtils.hasText(handlerName)) continue;
 
+                // 跳过已禁用的 handler
+                if (disabledHandlers.contains(handlerName)) {
+                    continue;
+                }
+
                 Map<String, String> config = (jobConfigs != null) ? jobConfigs.get(handlerName) : null;
                 result.add(createDiscoveryJob(handlerName, config));
             }
         }
         return result;
+    }
+
+    /**
+     * 禁用发现服务任务。
+     * 在命名空间的任务表中插入/更新一条控制记录，标记该 handler 为禁用状态。
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void disableDiscoveryTask(String namespace, String handlerName) {
+        upsertDiscoveryControlRecord(namespace, handlerName, STATUS_STOP, 0);
+        log.info("[Scheduler] 发现服务任务已禁用: namespace={}, handler={}", namespace, handlerName);
+    }
+
+    /**
+     * 启用发现服务任务。
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void enableDiscoveryTask(String namespace, String handlerName) {
+        upsertDiscoveryControlRecord(namespace, handlerName, STATUS_RUNNING, 0);
+        log.info("[Scheduler] 发现服务任务已启用: namespace={}, handler={}", namespace, handlerName);
+    }
+
+    /**
+     * 删除发现服务任务（逻辑删除）。
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteDiscoveryTask(String namespace, String handlerName) {
+        upsertDiscoveryControlRecord(namespace, handlerName, STATUS_STOP, 1);
+        log.info("[Scheduler] 发现服务任务已删除: namespace={}, handler={}", namespace, handlerName);
+    }
+
+    /**
+     * 恢复已删除的发现服务任务。
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void restoreDiscoveryTask(String namespace, String handlerName) {
+        upsertDiscoveryControlRecord(namespace, handlerName, STATUS_RUNNING, 0);
+        log.info("[Scheduler] 发现服务任务已恢复: namespace={}, handler={}", namespace, handlerName);
+    }
+
+    /**
+     * 查询发现服务任务在 DB 中的控制记录状态。
+     * 返回 null 表示没有控制记录（默认启用）。
+     */
+    public SysJob findDiscoveryControlRecord(String namespace, String handlerName) {
+        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+        String discJobNo = discoveryJobNo(handlerName);
+        MapSqlParameterSource params = new MapSqlParameterSource("jobNo", discJobNo);
+        List<SysJob> records = namedParameterJdbcTemplate.query(
+                "SELECT * FROM " + tables.jobTable() + " WHERE job_no = :jobNo LIMIT 1",
+                params,
+                jobRowMapper
+        );
+        return records.isEmpty() ? null : records.get(0);
+    }
+
+    private static String discoveryJobNo(String handlerName) {
+        return "disc:" + handlerName;
+    }
+
+    /**
+     * 加载命名空间中已被禁用的发现服务 handler 名称集合。
+     */
+    private Set<String> loadDiscoveryDisabledHandlers(String namespace) {
+        try {
+            SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            List<String> handlers = namedParameterJdbcTemplate.query(
+                    "SELECT job_execute_bean FROM " + tables.jobTable()
+                            + " WHERE job_no LIKE 'disc:%'"
+                            + " AND (job_trigger_status = 0 OR is_deleted = 1)",
+                    params,
+                    (rs, rowNum) -> rs.getString("job_execute_bean")
+            );
+            Set<String> result = new HashSet<>();
+            for (String h : handlers) {
+                if (StringUtils.hasText(h)) {
+                    result.add(h.trim());
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            log.warn("[Scheduler] 加载发现服务禁用列表失败: namespace={}", namespace, e);
+            return Set.of();
+        }
+    }
+
+    /**
+     * 插入或更新发现服务任务的控制记录。
+     * <p>
+     * 记录以 {@code job_no = "disc:" + handlerName} 为唯一标识存入命名空间的任务表，
+     * 调度中心通过该记录判断发现服务任务是否被禁用/删除。
+     * </p>
+     */
+    private void upsertDiscoveryControlRecord(String namespace, String handlerName, int status, int deleted) {
+        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+        String discJobNo = discoveryJobNo(handlerName);
+
+        // 先检查是否已有记录
+        MapSqlParameterSource checkParams = new MapSqlParameterSource("jobNo", discJobNo);
+        Integer exists = namedParameterJdbcTemplate.query(
+                "SELECT COUNT(1) FROM " + tables.jobTable() + " WHERE job_no = :jobNo",
+                checkParams,
+                (rs) -> rs.next() ? rs.getInt(1) : 0
+        );
+
+        if (exists != null && exists > 0) {
+            // 更新已有记录
+            MapSqlParameterSource updateParams = new MapSqlParameterSource();
+            updateParams.addValue("jobNo", discJobNo);
+            updateParams.addValue("status", status);
+            updateParams.addValue("deleted", deleted);
+            namedParameterJdbcTemplate.update(
+                    "UPDATE " + tables.jobTable()
+                            + " SET job_trigger_status = :status, is_deleted = :deleted"
+                            + " WHERE job_no = :jobNo",
+                    updateParams
+            );
+        } else {
+            // 插入新记录
+            int jobId = Objects.hash("disc", handlerName) & 0x7FFFFFFF;
+            long now = System.currentTimeMillis();
+            MapSqlParameterSource insertParams = new MapSqlParameterSource();
+            insertParams.addValue("jobId", jobId);
+            insertParams.addValue("jobNo", discJobNo);
+            insertParams.addValue("jobName", handlerName);
+            insertParams.addValue("jobScheduleType", "CRON");
+            insertParams.addValue("jobScheduleTime", "");
+            insertParams.addValue("jobGlueType", "BEAN");
+            insertParams.addValue("jobDispatchMode", JobDispatchModeEnum.REMOTE.name());
+            insertParams.addValue("jobExecuteBean", handlerName);
+            insertParams.addValue("jobTriggerStatus", status);
+            insertParams.addValue("isDeleted", deleted);
+            insertParams.addValue("jobTriggerNextTime", 0L);
+            insertParams.addValue("jobTriggerLastTime", 0L);
+
+            namedParameterJdbcTemplate.update(
+                    "INSERT INTO " + tables.jobTable() + " ("
+                            + "job_id, job_no, job_name, job_schedule_type, job_schedule_time,"
+                            + "job_glue_type, job_dispatch_mode, job_execute_bean,"
+                            + "job_trigger_status, is_deleted, job_trigger_next_time, job_trigger_last_time"
+                            + ") VALUES ("
+                            + ":jobId, :jobNo, :jobName, :jobScheduleType, :jobScheduleTime,"
+                            + ":jobGlueType, :jobDispatchMode, :jobExecuteBean,"
+                            + ":jobTriggerStatus, :isDeleted, :jobTriggerNextTime, :jobTriggerLastTime"
+                            + ")",
+                    insertParams
+            );
+        }
     }
 
     private void dispatchNamespace(String namespace) {
@@ -384,6 +541,9 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
         long now = System.currentTimeMillis();
 
+        // 加载已禁用的发现服务 handler
+        Set<String> disabledHandlers = loadDiscoveryDisabledHandlers(namespace);
+
         for (Discovery discovery : discoveries) {
             if (discovery == null) continue;
 
@@ -399,6 +559,12 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             for (String handlerName : handlerNames) {
                 handlerName = handlerName.trim();
                 if (!StringUtils.hasText(handlerName)) continue;
+
+                // 跳过已禁用的 handler
+                if (disabledHandlers.contains(handlerName)) {
+                    discoveryNextTriggerTimes.remove(discoveryCacheKey(namespace, handlerName));
+                    continue;
+                }
 
                 String cacheKey = discoveryCacheKey(namespace, handlerName);
                 Long scheduledTime = discoveryNextTriggerTimes.get(cacheKey);
