@@ -82,6 +82,15 @@ public class SchedulerJobPlatformProperties {
         private String mode = "STANDALONE";
 
         /**
+         * 任务分组名称。
+         * <p>
+         * 多个项目共享同一张任务表时，通过分组隔离各自需要扫描的任务。
+         * 默认使用 {@code spring.application.name}。
+         * </p>
+         */
+        private String group;
+
+        /**
          * 执行器来源 SPI 名称。
          * <p>
          * 该值对应 {@code SchedulerExecutorResolver} 的 SPI 名称，
