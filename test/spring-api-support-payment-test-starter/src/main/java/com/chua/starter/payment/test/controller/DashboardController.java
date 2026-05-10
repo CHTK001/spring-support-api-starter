@@ -1,105 +1,154 @@
 package com.chua.starter.payment.test.controller;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import com.chua.starter.payment.test.mapper.DashboardMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+/**
+ * 支付仪表盘 - 数据统计接口
+ * <p>使用 MyBatis XML 查询，SQL 兼容多数据库（MySQL / H2 / PostgreSQL / SQL Server）。
+ */
 @RestController
 @RequestMapping("/api/test/ops")
+@RequiredArgsConstructor
 public class DashboardController {
 
-    private final JdbcTemplate jdbc;
+    private final DashboardMapper dashboardMapper;
 
-    public DashboardController(JdbcTemplate jdbc) {
-        this.jdbc = jdbc;
-    }
+    private static final List<String> PAID_STATUSES = List.of("PAID", "COMPLETED");
+    private static final List<String> PAID_REFUNDED_STATUSES = List.of("PAID", "COMPLETED", "REFUNDED", "USER_REFUNDED", "SYS_REFUNDED");
 
     @GetMapping("/dashboard/summary")
     public Map<String, Object> summary(String startDate, String endDate) {
         boolean isTotal = startDate != null;
-        String dateCondition = isTotal ? "" : " AND DATE(created_at) = CURDATE()";
+        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+        LocalDateTime todayEnd = todayStart.plusDays(1);
+
+        // 总计/今日范围
+        LocalDateTime rangeStart = isTotal ? null : todayStart;
+        LocalDateTime rangeEnd = isTotal ? null : todayEnd;
+
         Map<String, Object> result = new LinkedHashMap<>();
 
-        result.put("totalConsumeAmount", querySingle(
-            "SELECT COALESCE(SUM(paid_amount),0) FROM pay_order WHERE status IN ('PAID','COMPLETED')" + dateCondition));
+        result.put("totalConsumeAmount", zeroIfNull(
+            dashboardMapper.selectPaidAmountSum(rangeStart, rangeEnd, PAID_STATUSES)));
 
-        result.put("settledAmount", querySingle(
-            "SELECT COALESCE(SUM(paid_amount),0) FROM pay_order WHERE status IN ('PAID','COMPLETED')" + dateCondition));
+        result.put("settledAmount", zeroIfNull(
+            dashboardMapper.selectPaidAmountSum(rangeStart, rangeEnd, PAID_STATUSES)));
 
-        result.put("refundAmount", querySingle(
-            "SELECT COALESCE(SUM(refund_amount),0) FROM pay_order WHERE 1=1" + dateCondition));
+        result.put("refundAmount", zeroIfNull(
+            dashboardMapper.selectRefundAmountSum(rangeStart, rangeEnd)));
 
-        result.put("frozenAmount", querySingle(
-            "SELECT COALESCE(SUM(frozen_balance),0) FROM pay_wallet_account"));
+        result.put("frozenAmount", zeroIfNull(
+            dashboardMapper.selectFrozenBalanceSum()));
 
-        result.put("orderCount", defaultZero(jdbc.queryForObject(
-            "SELECT COUNT(*) FROM pay_order" + (isTotal ? "" : " WHERE DATE(created_at) = CURDATE()"), Integer.class)));
+        result.put("orderCount", defaultZero(
+            dashboardMapper.selectOrderCount(rangeStart, rangeEnd)));
 
-        result.put("refundOrders", defaultZero(jdbc.queryForObject(
-            "SELECT COUNT(*) FROM pay_order WHERE refund_amount > 0" + dateCondition, Integer.class)));
+        result.put("refundOrders", defaultZero(
+            dashboardMapper.selectRefundOrderCount(rangeStart, rangeEnd)));
 
-        result.put("timeoutOrders", defaultZero(jdbc.queryForObject(
-            "SELECT COUNT(*) FROM pay_order WHERE status = 'PENDING' AND created_at < DATE_SUB(NOW(), INTERVAL 1 HOUR)" +
-            (isTotal ? "" : " AND DATE(created_at) = CURDATE()"), Integer.class)));
+        result.put("timeoutOrders", defaultZero(
+            dashboardMapper.selectTimeoutOrderCount(rangeStart, rangeEnd, LocalDateTime.now().minusHours(1))));
 
         return result;
     }
 
     @GetMapping("/dashboard/trend")
     public List<Map<String, Object>> trend() {
+        LocalDate today = LocalDate.now();
         List<Map<String, Object>> result = new ArrayList<>();
+
         for (int i = 6; i >= 0; i--) {
-            BigDecimal amount = querySingle(
-                "SELECT COALESCE(SUM(paid_amount),0) FROM pay_order WHERE status IN ('PAID','COMPLETED') AND DATE(created_at) = DATE_SUB(CURDATE(), INTERVAL " + i + " DAY)");
-            Map<String, Object> day = new LinkedHashMap<>();
-            day.put("date", (6 - i + 1) + "日");
-            day.put("amount", amount);
-            result.add(day);
+            LocalDate day = today.minusDays(i);
+            LocalDateTime dayStart = day.atStartOfDay();
+            LocalDateTime dayEnd = dayStart.plusDays(1);
+
+            BigDecimal amount = zeroIfNull(
+                dashboardMapper.selectDailyPaidAmount(dayStart, dayEnd, PAID_STATUSES));
+
+            Map<String, Object> dayData = new LinkedHashMap<>();
+            dayData.put("date", (6 - i + 1) + "日");
+            dayData.put("amount", amount);
+            result.add(dayData);
         }
         return result;
     }
 
     @GetMapping("/dashboard/channel-distribution")
     public List<Map<String, Object>> channelDistribution() {
-        String sql = "SELECT " +
-            "COALESCE(SUM(CASE WHEN channel_type = 'WECHAT' THEN paid_amount ELSE 0 END),0) AS wechat, " +
-            "COALESCE(SUM(CASE WHEN channel_type = 'ALIPAY' THEN paid_amount ELSE 0 END),0) AS alipay, " +
-            "COALESCE(SUM(CASE WHEN channel_type = 'WALLET' THEN paid_amount ELSE 0 END),0) AS wallet " +
-            "FROM pay_order WHERE status IN ('PAID','COMPLETED')";
-        Map<String, Object> row = jdbc.queryForMap(sql);
-        return List.of(
-            Map.of("name", "微信支付", "value", row.get("wechat")),
-            Map.of("name", "支付宝", "value", row.get("alipay")),
-            Map.of("name", "钱包余额", "value", row.get("wallet")));
+        List<Map<String, Object>> rows = dashboardMapper.selectChannelDistribution(PAID_STATUSES);
+
+        // 填充缺失渠道，确保返回结构完整
+        Map<String, String> channelNames = Map.of(
+            "WECHAT", "微信支付",
+            "ALIPAY", "支付宝",
+            "WALLET", "钱包余额",
+            "UNIONPAY", "银联"
+        );
+
+        Set<String> existing = rows.stream()
+            .map(r -> (String) r.get("name"))
+            .collect(Collectors.toSet());
+
+        for (var entry : channelNames.entrySet()) {
+            if (!existing.contains(entry.getKey())) {
+                rows.add(Map.of("name", entry.getValue(), "value", BigDecimal.ZERO));
+            }
+        }
+
+        // 将内部 code 转为中文名
+        return rows.stream().map(r -> {
+            String code = (String) r.get("name");
+            String displayName = channelNames.getOrDefault(code, code);
+            return Map.of("name", displayName, "value", r.get("value"));
+        }).collect(Collectors.toList());
     }
 
     @GetMapping("/dashboard/channel-comparison")
     public Map<String, Object> channelComparison() {
-        String sql = "SELECT " +
-            "COALESCE(SUM(CASE WHEN channel_type = 'WECHAT' THEN paid_amount ELSE 0 END),0) AS wechat, " +
-            "COALESCE(SUM(CASE WHEN channel_type = 'ALIPAY' THEN paid_amount ELSE 0 END),0) AS alipay, " +
-            "COALESCE(SUM(CASE WHEN channel_type = 'WALLET' THEN paid_amount ELSE 0 END),0) AS wallet, " +
-            "COALESCE(SUM(CASE WHEN channel_type = 'UNIONPAY' THEN paid_amount ELSE 0 END),0) AS unionpay " +
-            "FROM pay_order WHERE status IN ('PAID','COMPLETED')";
-        Map<String, Object> row = jdbc.queryForMap(sql);
+        List<Map<String, Object>> rows = dashboardMapper.selectChannelComparison(PAID_STATUSES);
+
+        Map<String, String> channelNames = Map.of(
+            "WECHAT", "微信支付",
+            "ALIPAY", "支付宝",
+            "WALLET", "钱包余额",
+            "UNIONPAY", "银联"
+        );
+
+        List<String> categories = new ArrayList<>();
+        List<BigDecimal> values = new ArrayList<>();
+        for (var entry : channelNames.entrySet()) {
+            categories.add(entry.getValue());
+            rows.stream()
+                .filter(r -> entry.getKey().equals(r.get("name")))
+                .findFirst()
+                .ifPresentOrElse(
+                    r -> values.add((BigDecimal) r.get("value")),
+                    () -> values.add(BigDecimal.ZERO));
+        }
+
         Map<String, Object> result = new LinkedHashMap<>();
-        result.put("categories", List.of("微信支付", "支付宝", "钱包余额", "银联", "其他"));
-        result.put("values", List.of(
-            row.get("wechat"), row.get("alipay"),
-            row.get("wallet"), row.get("unionpay"), BigDecimal.ZERO));
+        result.put("categories", categories);
+        result.put("values", values);
         return result;
     }
 
-    private BigDecimal querySingle(String sql) {
-        BigDecimal val = jdbc.queryForObject(sql, BigDecimal.class);
+    private static BigDecimal zeroIfNull(BigDecimal val) {
         return val != null ? val : BigDecimal.ZERO;
     }
 
-    private int defaultZero(Integer val) {
+    private static int defaultZero(Integer val) {
         return val != null ? val : 0;
     }
 }
