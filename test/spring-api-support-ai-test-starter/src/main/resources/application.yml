@@ -5,7 +5,7 @@ spring:
     active: dev
 
 server:
-  port: 58083
+  port: 58084
   servlet:
     context-path: /system/api
 
@@ -23,3 +23,4 @@ plugin:
       migration-scan-mode: ALWAYS
       data-scan-mode: ONCE
       continue-on-error: false
+      validate-checksum: false

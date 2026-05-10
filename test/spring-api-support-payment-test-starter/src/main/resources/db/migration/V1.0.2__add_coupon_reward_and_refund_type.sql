@@ -64,11 +64,4 @@ CREATE TABLE IF NOT EXISTS `pay_recharge_reward_rule` (
     INDEX `idx_reward_rule_status` (`pay_recharge_reward_rule_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='充值奖励规则表';
 
--- 4. 支付订单表新增字段：优惠券编码、优惠券减免金额、退款类型
-ALTER TABLE `pay_order`
-    ADD COLUMN IF NOT EXISTS `pay_order_coupon_code` VARCHAR(64) DEFAULT NULL COMMENT '使用的优惠券编码' AFTER `remark`,
-    ADD COLUMN IF NOT EXISTS `pay_order_coupon_discount` DECIMAL(18,2) DEFAULT 0 COMMENT '优惠券减免金额' AFTER `pay_order_coupon_code`;
-
--- 5. 退款单表新增字段：退款类型
-ALTER TABLE `pay_refund_order`
-    ADD COLUMN IF NOT EXISTS `pay_refund_order_refund_type` VARCHAR(16) DEFAULT 'SYSTEM' COMMENT '退款类型: USER-用户退款, SYSTEM-系统退款' AFTER `remark`;
+-- 4. 支付订单表新增字段：此项由 API 端点处理，SQL 迁移仅处理表创建
