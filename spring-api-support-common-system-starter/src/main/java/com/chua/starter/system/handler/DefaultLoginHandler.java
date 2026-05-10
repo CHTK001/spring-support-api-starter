@@ -39,16 +39,10 @@ public class DefaultLoginHandler implements LoginHandler {
         if (null != check) {
             return check;
         }
-        String address = getIpAddress(request);
-        AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         long startTime = System.currentTimeMillis();
-        LoginAuthResult accessToken = clientExecute.getAccessToken(loginData.getUsername(), loginData.getPassword(), AuthType.fromCode(loginData.getLoginType()),
-                ImmutableBuilder.<String, Object>builderOfMap()
-                        .put("address", address)
-                        .put("fingerprint", fingerprint)
-                        .put("ua", request.getHeader("User-Agent"))
-                        .build()
-        );
+
+        // 使用本地认证，绕过远程OAuth服务器
+        LoginAuthResult accessToken = sysLoginService.authenticateLocal(loginData);
 
         log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
         if (null == accessToken) {

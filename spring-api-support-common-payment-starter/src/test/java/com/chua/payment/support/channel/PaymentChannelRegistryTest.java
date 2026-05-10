@@ -59,7 +59,8 @@ class PaymentChannelRegistryTest {
                 merchantChannelMapper,
                 mock(PaymentChannelRegistry.class));
 
-        PaymentChannelRegistry registry = new PaymentChannelRegistry(List.of(
+        PaymentChannelRegistry registry = new PaymentChannelRegistry();
+        registry.setTestChannels(List.of(
                 jsapi,
                 h5,
                 app,
@@ -86,7 +87,8 @@ class PaymentChannelRegistryTest {
 
     @Test
     void shouldRejectUnsupportedChannelMatrix() {
-        PaymentChannelRegistry registry = new PaymentChannelRegistry(List.of(
+        PaymentChannelRegistry registry = new PaymentChannelRegistry();
+        registry.setTestChannels(List.of(
                 new WechatJsapiPaymentChannel(merchantChannelService, objectMapper, providerGatewayRegistry)));
 
         assertThrows(PaymentException.class, () -> registry.getChannel("ALIPAY", "APP"));

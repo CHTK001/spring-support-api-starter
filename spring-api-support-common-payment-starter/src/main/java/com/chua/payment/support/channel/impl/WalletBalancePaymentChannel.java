@@ -3,36 +3,56 @@ package com.chua.payment.support.channel.impl;
 import com.chua.payment.support.channel.*;
 import com.chua.payment.support.channel.support.AbstractMerchantPaymentChannel;
 import com.chua.payment.support.entity.MerchantChannel;
+import com.chua.payment.support.entity.RechargeRewardRule;
 import com.chua.payment.support.entity.WalletAccountLog;
 import com.chua.payment.support.entity.WalletOrder;
 import com.chua.payment.support.exception.PaymentException;
 import com.chua.payment.support.service.MerchantChannelService;
+import com.chua.payment.support.service.RechargeRewardRuleService;
+import com.chua.payment.support.service.UserCouponService;
 import com.chua.payment.support.service.WalletAccountService;
 import com.chua.payment.support.service.WalletLimitService;
 import com.chua.payment.support.service.WalletOrderService;
 import com.chua.payment.support.vo.WalletAccountVO;
+import com.chua.starter.strategy.template.IdempotentTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 钱包余额支付
  */
+@Slf4j
 @Component
 public class WalletBalancePaymentChannel extends AbstractMerchantPaymentChannel implements PaymentChannel {
 
     private final WalletAccountService walletAccountService;
     private final WalletOrderService walletOrderService;
     private final WalletLimitService walletLimitService;
+    private final IdempotentTemplate idempotentTemplate;
+    private final RechargeRewardRuleService rechargeRewardRuleService;
+    private final UserCouponService userCouponService;
 
     public WalletBalancePaymentChannel(MerchantChannelService merchantChannelService,
                                        ObjectMapper objectMapper,
                                        WalletAccountService walletAccountService,
                                        WalletOrderService walletOrderService,
-                                       WalletLimitService walletLimitService) {
+                                       WalletLimitService walletLimitService,
+                                       IdempotentTemplate idempotentTemplate,
+                                       RechargeRewardRuleService rechargeRewardRuleService,
+                                       UserCouponService userCouponService) {
         super(merchantChannelService, objectMapper);
         this.walletAccountService = walletAccountService;
         this.walletOrderService = walletOrderService;
         this.walletLimitService = walletLimitService;
+        this.idempotentTemplate = idempotentTemplate;
+        this.rechargeRewardRuleService = rechargeRewardRuleService;
+        this.userCouponService = userCouponService;
     }
 
     @Override
@@ -137,36 +157,62 @@ public class WalletBalancePaymentChannel extends AbstractMerchantPaymentChannel 
 
         walletLimitService.validateRechargeLimit(request.getMerchantId(), request.getUserId(), request.getAmount());
 
+        walletAccountService.ensureAccount(request.getMerchantId(), request.getUserId());
         WalletAccountVO account = walletAccountService.getAccount(request.getMerchantId(), request.getUserId());
         walletLimitService.validateBalanceLimit(request.getMerchantId(), request.getUserId(), account.getAvailableBalance(), request.getAmount());
 
-        WalletOrder order = walletOrderService.createRechargeOrder(request);
+        String idempotentKey = "payment:idempotent:order:RECHARGE:" + request.getMerchantId() + ":" + request.getUserId() + ":" + request.getRechargeNo();
+        if (!idempotentTemplate.tryAcquire(idempotentKey, 10, TimeUnit.MINUTES)) {
+            throw new PaymentException("请求正在处理中，请勿重复提交");
+        }
+        boolean createWalletOrder = request.getCreateOrder() == null || request.getCreateOrder();
+        WalletOrder order = null;
+        String orderNo;
         try {
+            if (createWalletOrder) {
+                order = walletOrderService.createRechargeOrder(request);
+                if (order == null) {
+                    throw new PaymentException("充值订单创建失败");
+                }
+                orderNo = order.getOrderNo();
+            } else {
+                orderNo = "RECHARGE_" + request.getRechargeNo();
+            }
+
             walletAccountService.recharge(
                     com.chua.payment.support.dto.WalletRechargeDTO.builder()
                             .merchantId(request.getMerchantId())
                             .userId(request.getUserId())
-                            .rechargeNo(order.getOrderNo())
+                            .rechargeNo(orderNo)
                             .amount(request.getAmount())
                             .operator(request.getOperator())
                             .remark(request.getRemark())
                             .build()
             );
 
-            walletOrderService.markSuccess(order.getOrderNo(), toJson(request));
+            if (createWalletOrder) {
+                walletOrderService.markSuccess(order.getOrderNo(), toJson(request));
+            }
+
+            // 充值奖励：匹配并发放奖励
+            applyRechargeRewards(request.getMerchantId(), request.getUserId(), request.getAmount(), request.getOperator(), orderNo);
 
             RechargeResult result = new RechargeResult();
             result.setSuccess(true);
-            result.setRechargeNo(order.getOrderNo());
-            result.setTradeNo("WALLET_RECHARGE_" + order.getOrderNo());
+            result.setRechargeNo(orderNo);
+            result.setTradeNo("WALLET_RECHARGE_" + orderNo);
             result.setAmount(request.getAmount());
             result.setStatus("SUCCESS");
             result.setMessage("钱包充值成功");
-            result.setRawResponse(toJson(order));
+            result.setRawResponse(createWalletOrder && order != null ? toJson(order) : null);
             return result;
         } catch (Exception e) {
-            walletOrderService.markFailed(order.getOrderNo(), null, e.getMessage());
+            if (order != null) {
+                walletOrderService.markFailed(order.getOrderNo(), null, e.getMessage());
+            }
             throw e;
+        } finally {
+            idempotentTemplate.release(idempotentKey);
         }
     }
 
@@ -184,8 +230,25 @@ public class WalletBalancePaymentChannel extends AbstractMerchantPaymentChannel 
 
         walletLimitService.validateTransferLimit(request.getMerchantId(), request.getFromUserId(), request.getAmount());
 
-        WalletOrder order = walletOrderService.createTransferOrder(request);
+        String method = request.getTransferMethod();
+        if (method == null || method.isEmpty()) {
+            method = "WALLET";
+        }
+
+        if (!"WALLET".equals(method)) {
+            throw new PaymentException("暂不支持" + method + "转账方式，当前仅支持 WALLET（钱包转账）");
+        }
+
+        String idempotentKey = "payment:idempotent:order:TRANSFER:" + request.getMerchantId() + ":" + request.getFromUserId() + ":" + request.getTransferNo();
+        if (!idempotentTemplate.tryAcquire(idempotentKey, 10, TimeUnit.MINUTES)) {
+            throw new PaymentException("请求正在处理中，请勿重复提交");
+        }
+        WalletOrder order = null;
         try {
+            order = walletOrderService.createTransferOrder(request);
+            if (order == null) {
+                throw new PaymentException("转账订单创建失败");
+            }
             walletAccountService.transfer(
                     com.chua.payment.support.dto.WalletTransferDTO.builder()
                             .merchantId(request.getMerchantId())
@@ -195,6 +258,7 @@ public class WalletBalancePaymentChannel extends AbstractMerchantPaymentChannel 
                             .amount(request.getAmount())
                             .operator(request.getOperator())
                             .remark(request.getRemark())
+                            .transferMethod(method)
                             .build()
             );
 
@@ -210,8 +274,12 @@ public class WalletBalancePaymentChannel extends AbstractMerchantPaymentChannel 
             result.setRawResponse(toJson(order));
             return result;
         } catch (Exception e) {
-            walletOrderService.markFailed(order.getOrderNo(), null, e.getMessage());
+            if (order != null) {
+                walletOrderService.markFailed(order.getOrderNo(), null, e.getMessage());
+            }
             throw e;
+        } finally {
+            idempotentTemplate.release(idempotentKey);
         }
     }
 
@@ -229,8 +297,16 @@ public class WalletBalancePaymentChannel extends AbstractMerchantPaymentChannel 
 
         walletLimitService.validateWithdrawLimit(request.getMerchantId(), request.getUserId(), request.getAmount());
 
-        WalletOrder order = walletOrderService.createWithdrawOrder(request);
+        String idempotentKey = "payment:idempotent:order:WITHDRAW:" + request.getMerchantId() + ":" + request.getUserId() + ":" + request.getWithdrawNo();
+        if (!idempotentTemplate.tryAcquire(idempotentKey, 10, TimeUnit.MINUTES)) {
+            throw new PaymentException("请求正在处理中，请勿重复提交");
+        }
+        WalletOrder order = null;
         try {
+            order = walletOrderService.createWithdrawOrder(request);
+            if (order == null) {
+                throw new PaymentException("提现订单创建失败");
+            }
             walletAccountService.withdraw(
                     com.chua.payment.support.dto.WalletWithdrawDTO.builder()
                             .merchantId(request.getMerchantId())
@@ -257,8 +333,50 @@ public class WalletBalancePaymentChannel extends AbstractMerchantPaymentChannel 
             result.setRawResponse(toJson(order));
             return result;
         } catch (Exception e) {
-            walletOrderService.markFailed(order.getOrderNo(), null, e.getMessage());
+            if (order != null) {
+                walletOrderService.markFailed(order.getOrderNo(), null, e.getMessage());
+            }
             throw e;
+        } finally {
+            idempotentTemplate.release(idempotentKey);
+        }
+    }
+
+    /**
+     * 充值奖励发放
+     */
+    private void applyRechargeRewards(Long merchantId, Long userId, BigDecimal amount, String operator, String rechargeOrderNo) {
+        try {
+            List<RechargeRewardRule> rules = rechargeRewardRuleService.matchRules(merchantId, amount);
+            for (RechargeRewardRule rule : rules) {
+                String rewardType = rule.getRewardType();
+                if ("COUPON".equals(rewardType) && rule.getRewardValue() != null) {
+                    Long templateId = Long.parseLong(rule.getRewardValue());
+                    userCouponService.receive(merchantId, userId, templateId);
+                    log.info("充值赠送优惠券: merchantId={}, userId={}, templateId={}, rechargeNo={}",
+                            merchantId, userId, templateId, rechargeOrderNo);
+                } else if ("BALANCE".equals(rewardType) && rule.getRewardValue() != null) {
+                    BigDecimal bonusRate = new BigDecimal(rule.getRewardValue());
+                    BigDecimal bonus = amount.multiply(bonusRate).setScale(2, RoundingMode.HALF_UP);
+                    if (bonus.compareTo(BigDecimal.ZERO) > 0) {
+                        walletAccountService.recharge(
+                                com.chua.payment.support.dto.WalletRechargeDTO.builder()
+                                        .merchantId(merchantId)
+                                        .userId(userId)
+                                        .rechargeNo("BONUS_" + rechargeOrderNo)
+                                        .amount(bonus)
+                                        .operator(operator)
+                                        .remark("充值奖励: 充值" + amount + "赠送" + bonus)
+                                        .build()
+                        );
+                        log.info("充值赠送余额: merchantId={}, userId={}, bonus={}, rechargeNo={}",
+                                merchantId, userId, bonus, rechargeOrderNo);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("充值奖励发放异常: merchantId={}, userId={}, rechargeNo={}",
+                    merchantId, userId, rechargeOrderNo, e);
         }
     }
 

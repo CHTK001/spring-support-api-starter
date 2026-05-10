@@ -16,6 +16,10 @@
   <dependencies>
     <dependency>
       <groupId>com.chua</groupId>
+      <artifactId>spring-api-support-common-payment-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
       <artifactId>spring-support-payment-starter</artifactId>
     </dependency>
     <dependency>

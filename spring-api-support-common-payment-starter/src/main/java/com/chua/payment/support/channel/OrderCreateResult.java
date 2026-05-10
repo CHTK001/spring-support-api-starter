@@ -10,5 +10,6 @@ public class OrderCreateResult {
     private boolean success;
     private String orderNo;
     private String message;
+    private String providerOrderNo;
     private String rawResponse;
 }

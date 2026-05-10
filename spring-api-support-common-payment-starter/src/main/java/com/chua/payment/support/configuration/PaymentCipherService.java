@@ -1,6 +1,8 @@
 package com.chua.payment.support.configuration;
 
 import com.chua.payment.support.exception.PaymentException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -21,6 +23,7 @@ import java.util.Set;
 @Component
 public class PaymentCipherService {
 
+    private static final Logger log = LoggerFactory.getLogger(PaymentCipherService.class);
     static final String LEGACY_DEFAULT_KEY = "PaymentSystem16";
 
     private final Environment environment;
@@ -41,10 +44,15 @@ public class PaymentCipherService {
             return encryptedText;
         }
         PaymentException lastException = null;
-        for (String key : candidateDecryptionKeys()) {
+        List<String> keys = candidateDecryptionKeys();
+        log.debug("[CipherService] decrypt: inputLen={}, candidateKeys={}", encryptedText.length(), keys.size());
+        for (String key : keys) {
             try {
-                return doCipher(encryptedText, key, Cipher.DECRYPT_MODE);
+                String result = doCipher(encryptedText, key, Cipher.DECRYPT_MODE);
+                log.debug("[CipherService] decrypt SUCCESS with key prefix: {}", key.substring(0, Math.min(key.length(), 4)));
+                return result;
             } catch (PaymentException e) {
+                log.debug("[CipherService] decrypt FAILED with key prefix: {}, error: {}", key.substring(0, Math.min(key.length(), 4)), e.getMessage());
                 lastException = e;
             }
         }

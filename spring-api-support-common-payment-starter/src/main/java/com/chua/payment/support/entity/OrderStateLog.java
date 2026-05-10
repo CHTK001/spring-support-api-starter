@@ -12,48 +12,54 @@ import java.time.LocalDateTime;
  * @since 2026-03-18
  */
 @Data
-@TableName("order_state_log")
+@TableName("pay_order_state_log")
 public class OrderStateLog {
 
     /**
      * 主键ID
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(value = "pay_order_state_log_id", type = IdType.AUTO)
     private Long id;
 
     /**
      * 订单ID
      */
+    @TableField("pay_order_state_log_order_id")
     private Long orderId;
 
     /**
      * 原状态
      */
+    @TableField("pay_order_state_log_from_state")
     private String fromState;
 
     /**
      * 目标状态
      */
+    @TableField("pay_order_state_log_to_state")
     private String toState;
 
     /**
      * 触发事件
      */
+    @TableField("pay_order_state_log_event")
     private String event;
 
     /**
      * 操作人
      */
+    @TableField("pay_order_state_log_operator")
     private String operator;
 
     /**
      * 备注
      */
+    @TableField("pay_order_state_log_remark")
     private String remark;
 
     /**
      * 创建时间
      */
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(value = "pay_order_state_log_created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 }

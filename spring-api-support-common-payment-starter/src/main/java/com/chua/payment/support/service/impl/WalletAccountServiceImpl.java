@@ -16,6 +16,7 @@ import com.chua.payment.support.mapper.WalletAccountLogMapper;
 import com.chua.payment.support.mapper.WalletAccountMapper;
 import com.chua.payment.support.service.WalletAccountService;
 import com.chua.payment.support.vo.WalletAccountVO;
+import com.chua.starter.strategy.template.IdempotentTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import org.springframework.util.StringUtils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 钱包账户服务实现
@@ -38,6 +40,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
     private final WalletAccountMapper walletAccountMapper;
     private final WalletAccountLogMapper walletAccountLogMapper;
     private final MerchantMapper merchantMapper;
+    private final IdempotentTemplate idempotentTemplate;
 
     @Override
     public WalletAccountVO getAccount(Long merchantId, Long userId) {
@@ -116,6 +119,16 @@ public class WalletAccountServiceImpl implements WalletAccountService {
     }
 
     @Override
+    public Page<WalletAccount> pageAccounts(int pageNum, int pageSize, Long merchantId) {
+        LambdaQueryWrapper<WalletAccount> wrapper = new LambdaQueryWrapper<WalletAccount>()
+                .orderByDesc(WalletAccount::getCreatedAt);
+        if (merchantId != null) {
+            wrapper.eq(WalletAccount::getMerchantId, merchantId);
+        }
+        return walletAccountMapper.selectPage(new Page<>(pageNum, pageSize), wrapper);
+    }
+
+    @Override
     public WalletAccountLog getLog(String bizType, Long merchantId, Long userId, String bizNo) {
         LambdaQueryWrapper<WalletAccountLog> wrapper = new LambdaQueryWrapper<WalletAccountLog>()
                 .eq(WalletAccountLog::getBizType, bizType)
@@ -158,48 +171,63 @@ public class WalletAccountServiceImpl implements WalletAccountService {
                                       String remark) {
         validateArgs(merchantId, userId, bizType, bizNo, amount);
         requireWalletEnabledMerchant(merchantId);
-        WalletAccountLog existing = getLog(bizType, merchantId, userId, bizNo);
-        if (existing != null) {
-            WalletAccount account = requireAccount(merchantId, userId, createIfAbsent);
-            return account;
+
+        String idempotentKey = "payment:idempotent:wallet:" + bizType + ":" + merchantId + ":" + userId + ":" + bizNo;
+        if (!idempotentTemplate.tryAcquire(idempotentKey, 10, TimeUnit.MINUTES)) {
+            WalletAccountLog existing = getLog(bizType, merchantId, userId, bizNo);
+            if (existing != null) {
+                WalletAccount account = requireAccount(merchantId, userId, createIfAbsent);
+                return account;
+            }
+            throw new PaymentException("请求正在处理中，请勿重复提交");
         }
 
-        for (int i = 0; i < 5; i++) {
-            WalletAccount account = requireAccount(merchantId, userId, createIfAbsent);
-            ensureAccountEnabled(account);
-            BigDecimal before = scale(account.getAvailableBalance());
-            BigDecimal delta = scale(amount);
-            BigDecimal after = increase ? before.add(delta) : before.subtract(delta);
-            if (!increase && before.compareTo(delta) < 0) {
-                throw new PaymentException("钱包余额不足");
+        try {
+            WalletAccountLog existing = getLog(bizType, merchantId, userId, bizNo);
+            if (existing != null) {
+                WalletAccount account = requireAccount(merchantId, userId, createIfAbsent);
+                return account;
             }
 
-            int updated = walletAccountMapper.update(null, new LambdaUpdateWrapper<WalletAccount>()
-                    .eq(WalletAccount::getId, account.getId())
-                    .eq(WalletAccount::getAvailableBalance, before)
-                    .set(WalletAccount::getAvailableBalance, after));
-            if (updated <= 0) {
-                continue;
+            for (int i = 0; i < 5; i++) {
+                WalletAccount account = requireAccount(merchantId, userId, createIfAbsent);
+                ensureAccountEnabled(account);
+                BigDecimal before = scale(account.getAvailableBalance());
+                BigDecimal delta = scale(amount);
+                BigDecimal after = increase ? before.add(delta) : before.subtract(delta);
+                if (!increase && before.compareTo(delta) < 0) {
+                    throw new PaymentException("钱包余额不足");
+                }
+
+                int updated = walletAccountMapper.update(null, new LambdaUpdateWrapper<WalletAccount>()
+                        .eq(WalletAccount::getId, account.getId())
+                        .eq(WalletAccount::getAvailableBalance, before)
+                        .set(WalletAccount::getAvailableBalance, after));
+                if (updated <= 0) {
+                    continue;
+                }
+
+                WalletAccountLog log = new WalletAccountLog();
+                log.setMerchantId(merchantId);
+                log.setUserId(userId);
+                log.setBizType(bizType);
+                log.setBizNo(bizNo);
+                log.setChangeType(increase ? "IN" : "OUT");
+                log.setChangeAmount(delta);
+                log.setBalanceBefore(before);
+                log.setBalanceAfter(after);
+                log.setOperator(StringUtils.hasText(operator) ? operator : "system");
+                log.setRemark(remark);
+                walletAccountLogMapper.insert(log);
+
+                WalletAccount refreshed = walletAccountMapper.selectById(account.getId());
+                return refreshed;
             }
 
-            WalletAccountLog log = new WalletAccountLog();
-            log.setMerchantId(merchantId);
-            log.setUserId(userId);
-            log.setBizType(bizType);
-            log.setBizNo(bizNo);
-            log.setChangeType(increase ? "IN" : "OUT");
-            log.setChangeAmount(delta);
-            log.setBalanceBefore(before);
-            log.setBalanceAfter(after);
-            log.setOperator(StringUtils.hasText(operator) ? operator : "system");
-            log.setRemark(remark);
-            walletAccountLogMapper.insert(log);
-
-            WalletAccount refreshed = walletAccountMapper.selectById(account.getId());
-            return refreshed;
+            throw new PaymentException("钱包余额更新失败，请稍后重试");
+        } finally {
+            idempotentTemplate.release(idempotentKey);
         }
-
-        throw new PaymentException("钱包余额更新失败，请稍后重试");
     }
 
     private WalletAccount requireAccount(Long merchantId, Long userId, boolean createIfAbsent) {

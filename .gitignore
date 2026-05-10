@@ -10,7 +10,6 @@ target/
 *.log
 *.txt
 *.ps1
-*.md
 *.cmd
 .panel/
 .continue/
@@ -30,7 +29,12 @@ tmp/
 .tmp-edge-*/
 spring-api-support-common-music-demo
 spring-api-support-soft-test-starter
+
 .playwright-mcp/
+.claude/
+.claude/scheduled_tasks.json
+.claude/scheduled_tasks.lock
+.spring-ai/
 
 #非项目根目录文件
 /*.js

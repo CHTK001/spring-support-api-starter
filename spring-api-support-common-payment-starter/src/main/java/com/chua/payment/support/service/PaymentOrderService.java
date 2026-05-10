@@ -9,6 +9,7 @@ import com.chua.payment.support.vo.OrderStateLogVO;
 import com.chua.payment.support.vo.OrderVO;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -20,7 +21,9 @@ public interface PaymentOrderService {
 
     OrderVO getOrder(Long id);
 
-    Page<OrderVO> listOrders(int page, int size, Long merchantId, String orderNo, String status);
+    Page<OrderVO> listOrders(int page, int size, Long merchantId, String orderNo, String status,
+                             Long userId, String channelType, LocalDate payTimeStart, LocalDate payTimeEnd,
+                             String productId, String productName);
 
     Page<OrderVO> listMerchantOrders(Long merchantId, int page, int size, String status);
 
@@ -56,6 +59,8 @@ public interface PaymentOrderService {
     boolean refundFail(String refundNo, String responsePayload, String operator, String reason);
 
     boolean deleteOrder(Long id);
+
+    OrderVO updateOrder(Long id, OrderCreateDTO dto);
 
     String generateOrderNo();
 

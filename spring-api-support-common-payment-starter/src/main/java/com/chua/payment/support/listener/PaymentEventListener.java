@@ -1,14 +1,17 @@
 package com.chua.payment.support.listener;
 
 import com.chua.payment.support.event.*;
+import com.chua.payment.support.spi.PaymentEventHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * 支付事件监听器
- * 监听支付相关事件并记录日志
+ * 监听支付相关事件并记录日志，同时将事件派发给所有 {@link PaymentEventHandler} 实现类。
  *
  * 注意：事件已通过@EventToQueue自动发送到队列
  * 如需从队列接收事件，请使用@QueueEventListener注解
@@ -19,6 +22,18 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = "plugin.payment.event", name = "log-enabled", havingValue = "true", matchIfMissing = true)
 public class PaymentEventListener {
 
+    private final List<PaymentEventHandler> eventHandlers;
+
+    private void fanout(PaymentEvent event) {
+        for (PaymentEventHandler handler : eventHandlers) {
+            try {
+                handler.onPaymentEvent(event);
+            } catch (Exception e) {
+                log.warn("[支付事件派发] handler={} 处理异常: {}", handler.getClass().getSimpleName(), e.getMessage());
+            }
+        }
+    }
+
     /**
      * 监听订单创建事件
      */
@@ -26,6 +41,7 @@ public class PaymentEventListener {
     public void handleOrderCreated(OrderCreatedEvent event) {
         log.info("订单创建事件: orderNo={}, userId={}, amount={}",
             event.getOrderNo(), event.getUserId(), event.getOrderAmount());
+        fanout(event);
     }
 
     /**
@@ -35,6 +51,7 @@ public class PaymentEventListener {
     public void handlePaymentSuccess(PaymentSuccessEvent event) {
         log.info("支付成功事件: orderNo={}, userId={}, paidAmount={}",
             event.getOrderNo(), event.getUserId(), event.getPaidAmount());
+        fanout(event);
     }
 
     /**
@@ -44,6 +61,7 @@ public class PaymentEventListener {
     public void handleRefundSuccess(RefundSuccessEvent event) {
         log.info("退款成功事件: orderNo={}, refundNo={}, refundAmount={}",
             event.getOrderNo(), event.getRefundNo(), event.getRefundAmount());
+        fanout(event);
     }
 
     /**
@@ -53,6 +71,7 @@ public class PaymentEventListener {
     public void handlePaymentNotifyReceived(PaymentNotifyReceivedEvent event) {
         log.info("支付回调接收事件: notifyType={}, orderNo={}, refundNo={}, signVerified={}",
             event.getNotifyType(), event.getOrderNo(), event.getRefundNo(), event.getSignVerified());
+        fanout(event);
     }
 
     /**
@@ -63,5 +82,6 @@ public class PaymentEventListener {
         log.error("支付回调失败事件: notifyType={}, orderNo={}, refundNo={}, errorType={}, errorMessage={}",
             event.getNotifyType(), event.getOrderNo(), event.getRefundNo(),
             event.getErrorType(), event.getErrorMessage());
+        fanout(event);
     }
 }
