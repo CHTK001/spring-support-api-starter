@@ -44,3 +44,8 @@ spring-api-support-soft-test-starter
 node_modules/
 /package.json
 /package-lock.json
+
+#构建产物及测试数据库
+BOOT-INF/
+*.mv.db
+*.trace.db

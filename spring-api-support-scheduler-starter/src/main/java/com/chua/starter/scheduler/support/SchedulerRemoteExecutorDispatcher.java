@@ -280,7 +280,7 @@ public class SchedulerRemoteExecutorDispatcher {
         }
     }
 
-    List<SchedulerJobPlatformProperties.Executor> resolveExecutors(String namespace, SysJob job) {
+    public List<SchedulerJobPlatformProperties.Executor> resolveExecutors(String namespace, SysJob job) {
         SchedulerJobPlatformProperties.Namespace namespaceProperties = namespaceProperties(trimToNull(namespace));
         List<SchedulerJobPlatformProperties.Executor> jobOverrides = buildOverrideExecutors(job, namespaceProperties);
         if (!jobOverrides.isEmpty()) {
