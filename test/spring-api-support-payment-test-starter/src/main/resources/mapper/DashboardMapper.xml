@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.payment.test.mapper.DashboardMapper">
+
+    <!-- ========== 已支付金额合计 ========== -->
+    <select id="selectPaidAmountSum" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(pay_order_paid_amount), 0)
+        FROM pay_order
+        <where>
+            <if test="statuses != null and !statuses.isEmpty()">
+                AND pay_order_status IN
+                <foreach collection="statuses" item="s" open="(" separator="," close=")">#{s}</foreach>
+            </if>
+            <if test="start != null">AND pay_order_pay_time &gt;= #{start}</if>
+            <if test="end != null">AND pay_order_pay_time &lt; #{end}</if>
+        </where>
+    </select>
+
+    <!-- ========== 退款金额合计 ========== -->
+    <select id="selectRefundAmountSum" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(pay_order_refund_amount), 0)
+        FROM pay_order
+        <where>
+            <if test="start != null">AND pay_order_updated_at &gt;= #{start}</if>
+            <if test="end != null">AND pay_order_updated_at &lt; #{end}</if>
+        </where>
+    </select>
+
+    <!-- ========== 钱包冻结金额 ========== -->
+    <select id="selectFrozenBalanceSum" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(pay_wallet_account_frozen_balance), 0)
+        FROM pay_wallet_account
+    </select>
+
+    <!-- ========== 订单总数 ========== -->
+    <select id="selectOrderCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM pay_order
+        <where>
+            <if test="start != null">AND pay_order_created_at &gt;= #{start}</if>
+            <if test="end != null">AND pay_order_created_at &lt; #{end}</if>
+        </where>
+    </select>
+
+    <!-- ========== 有退款的订单数 ========== -->
+    <select id="selectRefundOrderCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM pay_order
+        WHERE pay_order_refund_amount &gt; 0
+        <if test="start != null">AND pay_order_updated_at &gt;= #{start}</if>
+        <if test="end != null">AND pay_order_updated_at &lt; #{end}</if>
+    </select>
+
+    <!-- ========== 超时待支付订单数 ========== -->
+    <select id="selectTimeoutOrderCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM pay_order
+        WHERE pay_order_status = 'PENDING'
+        <if test="start != null">AND pay_order_created_at &gt;= #{start}</if>
+        <if test="end != null">AND pay_order_created_at &lt; #{end}</if>
+        <if test="deadline != null">AND pay_order_created_at &lt; #{deadline}</if>
+    </select>
+
+    <!-- ========== 每日已支付金额 ========== -->
+    <select id="selectDailyPaidAmount" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(pay_order_paid_amount), 0)
+        FROM pay_order
+        <where>
+            <if test="statuses != null and !statuses.isEmpty()">
+                AND pay_order_status IN
+                <foreach collection="statuses" item="s" open="(" separator="," close=")">#{s}</foreach>
+            </if>
+            AND pay_order_pay_time &gt;= #{dayStart}
+            AND pay_order_pay_time &lt; #{dayEnd}
+        </where>
+    </select>
+
+    <!-- ========== 渠道分布 ========== -->
+    <select id="selectChannelDistribution" resultType="java.util.Map">
+        SELECT
+            pay_order_channel_type AS `name`,
+            COALESCE(SUM(pay_order_paid_amount), 0) AS `value`
+        FROM pay_order
+        WHERE pay_order_status IN
+            <foreach collection="statuses" item="s" open="(" separator="," close=")">#{s}</foreach>
+        GROUP BY pay_order_channel_type
+        ORDER BY `value` DESC
+    </select>
+
+    <!-- ========== 渠道对比 ========== -->
+    <select id="selectChannelComparison" resultType="java.util.Map">
+        SELECT
+            pay_order_channel_type AS `name`,
+            COALESCE(SUM(pay_order_paid_amount), 0) AS `value`
+        FROM pay_order
+        WHERE pay_order_status IN
+            <foreach collection="statuses" item="s" open="(" separator="," close=")">#{s}</foreach>
+        GROUP BY pay_order_channel_type
+        ORDER BY `value` DESC
+    </select>
+
+</mapper>
