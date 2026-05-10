@@ -30,3 +30,13 @@ tmp/
 .tmp-edge-*/
 spring-api-support-common-music-demo
 spring-api-support-soft-test-starter
+.playwright-mcp/
+
+#非项目根目录文件
+/*.js
+/*.png
+/*.ser
+/create_log_table.sql
+node_modules/
+/package.json
+/package-lock.json
