@@ -1,14 +1,11 @@
 package com.chua.starter.payment.test.controller;
 
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.nio.file.Files;
 import java.util.*;
 
 @RestController
@@ -105,35 +102,4 @@ public class DashboardController {
     private int defaultZero(Integer val) {
         return val != null ? val : 0;
     }
-
-    @PostMapping("/migrate")
-    public Map<String, Object> runMigration() {
-        Map<String, Object> result = new LinkedHashMap<>();
-        List<String> executed = new ArrayList<>();
-        List<String> errors = new ArrayList<>();
-        try {
-            ClassPathResource resource = new ClassPathResource("db/migration/V1.0.2__add_coupon_reward_and_refund_type.sql");
-            // Use InputStream to avoid Windows filesystem issues
-            String sql;
-            try (var is = resource.getInputStream()) {
-                sql = new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
-            }
-            // Remove comment lines (-- ...), split by semicolons
-            sql = sql.replaceAll("(?m)^--.*$", "");
-            String[] statements = sql.split(";");
-            for (String stmt : statements) {
-                String trimmed = stmt.trim();
-                if (trimmed.isEmpty() || trimmed.startsWith("--")) continue;
-                try {
-                    jdbc.execute(trimmed);
-                    executed.add(trimmed.substring(0, Math.min(80, trimmed.length())));
-                } catch (Exception e) {
-                    errors.add(trimmed.substring(0, Math.min(80, trimmed.length())) + " => " + e.getMessage());
-                }
-            }
-        } catch (Exception e) {
-            errors.add("Failed to read migration file: " + e.getMessage());
-        }
-        result.put("executed", executed);
-        result.put("errors", errors);
-        res
+}

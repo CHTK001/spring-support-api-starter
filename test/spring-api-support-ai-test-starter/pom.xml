@@ -31,6 +31,16 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-support-spider-starter</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.squareup.okhttp3</groupId>
+          <artifactId>okhttp</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.squareup.okhttp3</groupId>
+          <artifactId>okhttp-sse</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
@@ -57,6 +67,16 @@
       <groupId>com.chua</groupId>
       <artifactId>utils-support-tencent-hunyuan-starter</artifactId>
       <version>4.0.0.40</version>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>4.12.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp-sse</artifactId>
+      <version>4.12.0</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
