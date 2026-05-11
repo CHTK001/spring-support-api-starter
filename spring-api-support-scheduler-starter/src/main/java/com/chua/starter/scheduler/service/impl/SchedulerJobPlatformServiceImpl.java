@@ -11,6 +11,8 @@ import com.chua.starter.job.support.scheduler.SchedulerTypeEnum;
 import com.chua.starter.scheduler.dto.SchedulerTaskUpdateRequest;
 import com.chua.starter.scheduler.service.SchedulerJobPlatformService;
 import com.chua.starter.scheduler.support.SchedulerNamespaceTableResolver;
+import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
+import com.chua.starter.scheduler.support.SchedulerNamespaceRemoteDispatchScheduler;
 import com.chua.starter.scheduler.support.SchedulerRemoteExecutorDispatcher;
 import com.chua.starter.scheduler.vo.SchedulerTaskVO;
 import lombok.RequiredArgsConstructor;
@@ -31,9 +33,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * 调度平台任务服务实现。
@@ -58,6 +63,8 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
 
     private final SchedulerNamespaceTableResolver namespaceTableResolver;
     private final SchedulerRemoteExecutorDispatcher remoteExecutorDispatcher;
+    private final SchedulerNamespaceRemoteDispatchScheduler remoteDispatchScheduler;
+    private final SchedulerJobPlatformProperties platformProperties;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private final BeanPropertyRowMapper<SysJob> jobRowMapper = BeanPropertyRowMapper.newInstance(SysJob.class);
@@ -71,12 +78,18 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     @Override
     public Page<SysJob> pageJobs(String namespace, int pageNum, int pageSize, String jobName, Integer triggerStatus) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+        SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
+        String group = resolveGroup(nsProps);
         int safePageNum = normalizePageNum(pageNum);
         int safePageSize = normalizePageSize(pageSize);
         String normalizedJobName = trimToNull(jobName);
 
         StringBuilder where = new StringBuilder(" FROM ").append(tables.jobTable()).append(" WHERE is_deleted = 0");
         MapSqlParameterSource parameters = new MapSqlParameterSource();
+        if (StringUtils.hasText(group)) {
+            parameters.addValue("group", group);
+            where.append(" AND (job_group IS NULL OR job_group = :group)");
+        }
         if (StringUtils.hasText(normalizedJobName)) {
             where.append(" AND job_name LIKE :jobName");
             parameters.addValue("jobName", "%" + normalizedJobName + "%");
@@ -274,9 +287,6 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     public boolean triggerJob(String namespace, Integer jobId, String param) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
         SysJob job = requireJob(tables, requireJobId(jobId));
-        if (STATUS_RUNNING != safeStatus(job.getJobTriggerStatus())) {
-            throw new IllegalStateException("只有启用中的任务才能通过平台立即触发");
-        }
 
         if (isRemoteDispatchJob(job)) {
             remoteExecutorDispatcher.dispatch(namespace, job, param);
@@ -298,9 +308,6 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     public boolean triggerJobByNo(String namespace, String jobNo, String param) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
         SysJob job = requireJobByNo(tables, jobNo);
-        if (STATUS_RUNNING != safeStatus(job.getJobTriggerStatus())) {
-            throw new IllegalStateException("只有启用中的任务才能通过平台立即触发");
-        }
 
         if (isRemoteDispatchJob(job)) {
             remoteExecutorDispatcher.dispatch(namespace, job, param);
@@ -358,17 +365,39 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     @Override
     public List<SchedulerTaskVO> listTasks(String namespace, boolean includeDeleted) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        String sql = includeDeleted
-                ? "SELECT * FROM " + tables.jobTable() + " ORDER BY job_id DESC"
-                : "SELECT * FROM " + tables.jobTable() + " WHERE is_deleted = 0 ORDER BY job_id DESC";
-        List<SysJob> jobs = namedParameterJdbcTemplate.query(
-                sql,
-                new MapSqlParameterSource(),
-                jobRowMapper
-        );
-        return jobs.stream()
+        SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
+        boolean clusterMode = isClusterMode(nsProps);
+        String group = resolveGroup(nsProps);
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        StringBuilder sql = new StringBuilder("SELECT * FROM ").append(tables.jobTable()).append(" WHERE 1=1");
+
+        if (!includeDeleted) {
+            sql.append(" AND is_deleted = 0");
+        }
+        if (StringUtils.hasText(group)) {
+            params.addValue("group", group);
+            sql.append(" AND (job_group IS NULL OR job_group = :group)");
+        }
+        sql.append(" ORDER BY job_id DESC");
+
+        List<SysJob> jobs = namedParameterJdbcTemplate.query(sql.toString(), params, jobRowMapper);
+        List<SchedulerTaskVO> result = jobs.stream()
                 .map(job -> toTaskVO(tables, job))
                 .toList();
+
+        // 集群模式下合并发现服务任务
+        if (clusterMode) {
+            List<SysJob> discoveryJobs = remoteDispatchScheduler.listDiscoveryTasks(namespace);
+            List<SchedulerTaskVO> discoveryVOs = discoveryJobs.stream()
+                    .map(job -> toTaskVO(tables, job))
+                    .toList();
+            List<SchedulerTaskVO> merged = new ArrayList<>(result);
+            merged.addAll(discoveryVOs);
+            return merged;
+        }
+
+        return result;
     }
 
     @Override
@@ -400,9 +429,6 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     public SchedulerTaskVO triggerTask(String namespace, String taskKey) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
         SysJob job = requireTask(tables, taskKey);
-        if (STATUS_RUNNING != safeStatus(job.getJobTriggerStatus())) {
-            throw new IllegalStateException("只有启用中的任务才能通过平台立即触发");
-        }
         if (isRemoteDispatchJob(job)) {
             remoteExecutorDispatcher.dispatch(namespace, job, job.getJobExecuteParam());
             return toTaskVO(tables, requireTask(tables, taskKey));
@@ -866,5 +892,73 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
 
     private int safeStatus(Integer triggerStatus) {
         return triggerStatus == null ? STATUS_STOP : triggerStatus;
+    }
+
+    @Override
+    public Object getNamespaceConfig(String namespace) {
+        boolean hasRemote = remoteExecutorDispatcher.hasExecutors(namespace);
+        Map<String, Object> config = new LinkedHashMap<>();
+        config.put("remoteDispatchEnabled", platformProperties.isRemoteDispatchEnabled());
+        config.put("hasRemoteExecutors", hasRemote);
+
+        // 调度模式
+        String mode = "STANDALONE";
+        SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
+        if (nsProps != null && StringUtils.hasText(nsProps.getMode())) {
+            mode = nsProps.getMode().toUpperCase();
+        }
+        config.put("schedulerMode", mode);
+
+        // 数据源信息
+        String executorMode = "DISCOVERY";
+        if (nsProps != null && StringUtils.hasText(nsProps.getExecutorMode())) {
+            executorMode = nsProps.getExecutorMode().toUpperCase();
+        }
+        config.put("dataSource", executorMode);
+
+        // 任务分组
+        String group = null;
+        if (nsProps != null && StringUtils.hasText(nsProps.getGroup())) {
+            group = nsProps.getGroup().trim();
+        }
+        config.put("group", group);
+
+        if (hasRemote) {
+            List<?> executors = remoteExecutorDispatcher.resolveExecutors(namespace, null);
+            List<Map<String, Object>> executorList = new ArrayList<>();
+            for (Object ex : executors) {
+                SchedulerJobPlatformProperties.Executor e = (SchedulerJobPlatformProperties.Executor) ex;
+                Map<String, Object> map = new LinkedHashMap<>();
+                map.put("name", e.getName());
+                map.put("baseUrl", e.getBaseUrl());
+                executorList.add(map);
+            }
+            config.put("executors", executorList);
+        } else {
+            config.put("executors", List.of());
+        }
+        return config;
+    }
+
+    private SchedulerJobPlatformProperties.Namespace resolveNamespaceProperties(String namespace) {
+        if (!StringUtils.hasText(namespace) || platformProperties.getNamespaces() == null) {
+            return null;
+        }
+        return platformProperties.getNamespaces().entrySet().stream()
+                .filter(entry -> namespace.equalsIgnoreCase(entry.getKey()))
+                .findFirst()
+                .map(Map.Entry::getValue)
+                .orElse(null);
+    }
+
+    private boolean isClusterMode(SchedulerJobPlatformProperties.Namespace nsProps) {
+        return nsProps != null && "CLUSTER".equalsIgnoreCase(nsProps.getMode());
+    }
+
+    private String resolveGroup(SchedulerJobPlatformProperties.Namespace nsProps) {
+        if (nsProps == null || !StringUtils.hasText(nsProps.getGroup())) {
+            return null;
+        }
+        return nsProps.getGroup().trim();
     }
 }

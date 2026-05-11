@@ -85,6 +85,15 @@ public class SchedulerRemoteExecutorDispatcher {
      * 将任务推送到命名空间下的某个远程执行器。
      */
     public void dispatch(String namespace, SysJob job, String overrideParam) {
+        dispatch(namespace, job, overrideParam, false);
+    }
+
+    /**
+     * 将任务推送到命名空间下的某个远程执行器。
+     *
+     * @param clusterMode 集群模式下跳过日志入库
+     */
+    public void dispatch(String namespace, SysJob job, String overrideParam, boolean clusterMode) {
         List<SchedulerJobPlatformProperties.Executor> executors = resolveExecutors(namespace, job);
         if (executors.isEmpty()) {
             throw new IllegalStateException("未找到可用远程执行器: namespace=" + namespace + ", jobNo=" + trimToNull(job.getJobNo()));
@@ -96,7 +105,9 @@ public class SchedulerRemoteExecutorDispatcher {
         for (SchedulerJobPlatformProperties.Executor executor : orderedExecutors(namespace, executors)) {
             try {
                 RemoteJobTriggerResponse response = invoke(executor, request);
-                persistRemoteExecutionLog(namespace, job, request, response, executor);
+                if (!clusterMode) {
+                    persistRemoteExecutionLog(namespace, job, request, response, executor);
+                }
                 if (EXECUTE_CODE_SUCCESS.equalsIgnoreCase(response.getExecuteCode())) {
                     log.info("[Scheduler] 远程任务下发并执行成功: namespace={}, jobNo={}, jobId={}, handler={}, executor={}",
                             namespace, job.getJobNo(), job.getJobId(), job.getJobExecuteBean(), executorLabel(executor));
@@ -116,7 +127,9 @@ public class SchedulerRemoteExecutorDispatcher {
             }
         }
 
-        persistDispatchFailureLog(namespace, job, request, failures);
+        if (!clusterMode) {
+            persistDispatchFailureLog(namespace, job, request, failures);
+        }
         throw new IllegalStateException("远程任务下发失败: namespace=" + namespace
                 + ", jobNo=" + job.getJobNo()
                 + ", jobId=" + job.getJobId()
@@ -280,7 +293,7 @@ public class SchedulerRemoteExecutorDispatcher {
         }
     }
 
-    List<SchedulerJobPlatformProperties.Executor> resolveExecutors(String namespace, SysJob job) {
+    public List<SchedulerJobPlatformProperties.Executor> resolveExecutors(String namespace, SysJob job) {
         SchedulerJobPlatformProperties.Namespace namespaceProperties = namespaceProperties(trimToNull(namespace));
         List<SchedulerJobPlatformProperties.Executor> jobOverrides = buildOverrideExecutors(job, namespaceProperties);
         if (!jobOverrides.isEmpty()) {

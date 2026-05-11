@@ -292,3 +292,40 @@ SET @s = IF(@p = 0, 'ALTER TABLE sys_project_container_software_binding ADD COLU
 PREPARE stmt FROM @s;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+-- sys_menu table (required by system module)
+CREATE TABLE IF NOT EXISTS `sys_menu` (
+  `sys_menu_id` int(11) NOT NULL AUTO_INCREMENT,
+  `sys_menu_name` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_path` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_i18n` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_title` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_perm` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_pid` int(11) NULL DEFAULT NULL,
+  `sys_menu_tree_id` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_component` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_icon` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_extra_icon` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_type` int(11) NULL DEFAULT NULL,
+  `sys_menu_sort` int(11) NULL DEFAULT NULL,
+  `sys_menu_hidden` int(11) NULL DEFAULT NULL,
+  `sys_menu_show_parent` int(11) NULL DEFAULT NULL,
+  `sys_menu_hidden_tag` int(11) NULL DEFAULT NULL,
+  `sys_menu_fixed_tag` int(11) NULL DEFAULT NULL,
+  `sys_menu_redirect` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_enter_transition` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_leave_transition` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_active_path` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_frame_src` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_keep_alive` int(11) NULL DEFAULT NULL,
+  `create_name` varchar(255) NULL DEFAULT NULL,
+  `create_by` int(11) NULL DEFAULT NULL,
+  `create_time` datetime NULL DEFAULT NULL,
+  `update_time` datetime NULL DEFAULT NULL,
+  `update_name` varchar(255) NULL DEFAULT NULL,
+  `update_by` int(11) NULL DEFAULT NULL,
+  `sys_menu_role` varchar(255) NULL DEFAULT NULL,
+  `sys_menu_home` int(11) NULL DEFAULT NULL,
+  `sys_menu_engine` int(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`sys_menu_id` DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

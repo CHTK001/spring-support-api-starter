@@ -1,9 +1,11 @@
 package com.chua.starter.scheduler.support;
 
+import com.chua.common.support.core.annotation.Ignore;
 import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
@@ -28,6 +30,13 @@ public class SchedulerJobConsoleAuthInterceptor implements HandlerInterceptor {
         }
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
+        }
+        if (handler instanceof HandlerMethod) {
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            if (handlerMethod.getMethod().isAnnotationPresent(Ignore.class) ||
+                    handlerMethod.getBeanType().isAnnotationPresent(Ignore.class)) {
+                return true;
+            }
         }
         if (SchedulerJobConsoleSessionSupport.isAuthenticated(request)) {
             return true;

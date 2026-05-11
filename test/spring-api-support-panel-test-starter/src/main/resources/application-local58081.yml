@@ -1,4 +1,6 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://172.16.0.40:3306/panel_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true&connectTimeout=5000&socketTimeout=30000
@@ -34,10 +36,18 @@ docker:
     port: 2375
 
 plugin:
-  datasource:
-    script:
-      scan-mode: ALWAYS
-      data-scan-mode: ALWAYS
+  job:
+    enable: true
+  scheduler:
+    job-platform:
+      remote-dispatch-enabled: true
+      namespaces:
+        default:
+          executor-mode: STATIC
+          executors:
+            - name: client-1
+              base-url: http://localhost:58083
+              access-token: panel-test-token
   oauth:
     enable: false
   socket:
