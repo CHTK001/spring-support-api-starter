@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: system-test
+  profiles:
+    active: local
+
+server:
+  port: 18170
+  servlet:
+    context-path: /system/api

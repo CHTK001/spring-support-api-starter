@@ -82,14 +82,20 @@
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
     </dependency>
+    <!-- utils-support-smtp-starter does not exist yet, commented out -->
+    <!--
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>utils-support-smtp-starter</artifactId>
     </dependency>
+    -->
+    <!-- spring-support-protocol-starter depends on ai-starter with missing classes, commented out for now -->
+    <!--
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-support-protocol-starter</artifactId>
     </dependency>
+    -->
   </dependencies>
   <build>
     <plugins>

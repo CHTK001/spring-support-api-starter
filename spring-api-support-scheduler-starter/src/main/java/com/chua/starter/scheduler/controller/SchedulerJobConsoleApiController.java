@@ -5,8 +5,11 @@ import com.chua.common.support.core.annotation.Ignore;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.job.support.entity.SysJob;
 import com.chua.starter.job.support.entity.SysJobLog;
+import com.chua.starter.job.support.entity.SysJobLogDetail;
+import com.chua.starter.job.support.log.JobLogDetailService;
 import com.chua.starter.scheduler.dto.SchedulerTaskUpdateRequest;
 import com.chua.starter.scheduler.service.SchedulerJobPlatformService;
+import com.chua.starter.scheduler.support.SchedulerNamespaceRemoteDispatchScheduler;
 import com.chua.starter.scheduler.vo.SchedulerTaskVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -30,10 +33,17 @@ import java.util.Map;
 public class SchedulerJobConsoleApiController {
 
     private final SchedulerJobPlatformService schedulerJobPlatformService;
+    private final JobLogDetailService jobLogDetailService;
+    private final SchedulerNamespaceRemoteDispatchScheduler remoteDispatchScheduler;
 
     @GetMapping("/namespaces")
     public ReturnResult<Object> namespaces() {
         return ReturnResult.ok(schedulerJobPlatformService.namespaces());
+    }
+
+    @GetMapping("/{namespace}/config")
+    public ReturnResult<Object> namespaceConfig(@PathVariable String namespace) {
+        return ReturnResult.ok(schedulerJobPlatformService.getNamespaceConfig(namespace));
     }
 
     @GetMapping("/{namespace}/job/page")
@@ -100,6 +110,12 @@ public class SchedulerJobConsoleApiController {
         return ReturnResult.ok(pagePayload(page));
     }
 
+    @GetMapping("/{namespace}/job-log/{jobLogId}/detail")
+    public ReturnResult<Object> logDetails(@PathVariable String namespace,
+                                           @PathVariable Integer jobLogId) {
+        return ReturnResult.ok(jobLogDetailService.getByJobLogId(jobLogId));
+    }
+
     @GetMapping("/{namespace}/task/list")
     public ReturnResult<Object> listTasks(@PathVariable String namespace,
                                           @RequestParam(defaultValue = "false") boolean includeDeleted) {
@@ -117,6 +133,43 @@ public class SchedulerJobConsoleApiController {
     public ReturnResult<SchedulerTaskVO> triggerTask(@PathVariable String namespace,
                                                      @PathVariable String taskKey) {
         return ReturnResult.ok(schedulerJobPlatformService.triggerTask(namespace, taskKey));
+    }
+
+    // ==================== 发现服务任务管理 ====================
+
+    @PostMapping("/{namespace}/discovery-task/{handlerName}/disable")
+    public ReturnResult<Void> disableDiscoveryTask(@PathVariable String namespace,
+                                                   @PathVariable String handlerName) {
+        remoteDispatchScheduler.disableDiscoveryTask(namespace, handlerName);
+        return ReturnResult.ok();
+    }
+
+    @PostMapping("/{namespace}/discovery-task/{handlerName}/enable")
+    public ReturnResult<Void> enableDiscoveryTask(@PathVariable String namespace,
+                                                  @PathVariable String handlerName) {
+        remoteDispatchScheduler.enableDiscoveryTask(namespace, handlerName);
+        return ReturnResult.ok();
+    }
+
+    @DeleteMapping("/{namespace}/discovery-task/{handlerName}")
+    public ReturnResult<Void> deleteDiscoveryTask(@PathVariable String namespace,
+                                                  @PathVariable String handlerName) {
+        remoteDispatchScheduler.deleteDiscoveryTask(namespace, handlerName);
+        return ReturnResult.ok();
+    }
+
+    @PostMapping("/{namespace}/discovery-task/{handlerName}/restore")
+    public ReturnResult<Void> restoreDiscoveryTask(@PathVariable String namespace,
+                                                   @PathVariable String handlerName) {
+        remoteDispatchScheduler.restoreDiscoveryTask(namespace, handlerName);
+        return ReturnResult.ok();
+    }
+
+    @GetMapping("/{namespace}/discovery-task/{handlerName}")
+    public ReturnResult<Object> getDiscoveryTaskStatus(@PathVariable String namespace,
+                                                        @PathVariable String handlerName) {
+        SysJob record = remoteDispatchScheduler.findDiscoveryControlRecord(namespace, handlerName);
+        return ReturnResult.ok(record);
     }
 
     private Map<String, Object> pagePayload(Page<?> page) {
