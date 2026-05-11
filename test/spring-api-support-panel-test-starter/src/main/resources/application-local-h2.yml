@@ -1,19 +1,17 @@
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:file:./data/panel_test;MODE=MySQL;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:file:./data/panel_test;MODE=MySQL;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
     username: sa
     password:
     initialization-fail-timeout: -1
   data:
     redis:
-      host: 172.16.0.40
-      port: 6379
+      host: 127.0.0.1
+      port: 16379
   sql:
     init:
-      mode: always
-      schema-locations: classpath:db/init/V1.0__init_panel.sql
-      data-locations: classpath:db/init/V1.0__initdata_panel.sql
+      mode: never
   h2:
     console:
       enabled: true
@@ -30,12 +28,11 @@ panel:
   ai-enabled: false
   datasource-store-path: ${user.dir}/.panel/panel-datasources.json
 
-docker:
-  api:
-    host: 172.16.0.40
-    port: 2375
-
 plugin:
+  datasource:
+    script:
+      scan-mode: ALWAYS
+      data-scan-mode: ALWAYS
   oauth:
     enable: false
   socket:

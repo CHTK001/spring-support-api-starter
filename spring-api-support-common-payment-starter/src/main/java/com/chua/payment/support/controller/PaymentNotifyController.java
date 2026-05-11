@@ -75,6 +75,37 @@ public class PaymentNotifyController {
         }
     }
 
+    @PostMapping(value = "/wallet/alipay/{orderType}/{orderNo}", produces = MediaType.TEXT_PLAIN_VALUE)
+    public String handleAlipayWalletNotify(@PathVariable String orderType,
+                                           @PathVariable String orderNo,
+                                           @RequestParam Map<String, String> params) {
+        try {
+            paymentNotifyService.handleAlipayWalletNotify(orderType, orderNo, params);
+            return "success";
+        } catch (Exception e) {
+            log.error("支付宝钱包通知处理失败: orderType={}, orderNo={}", orderType, orderNo, e);
+            return "failure";
+        }
+    }
+
+    @PostMapping("/wallet/wechat/{orderType}/{orderNo}")
+    public ResponseEntity<String> handleWechatWalletNotify(@PathVariable String orderType,
+                                                           @PathVariable String orderNo,
+                                                           @RequestHeader(value = "Wechatpay-Serial", required = false) String serialNumber,
+                                                           @RequestHeader(value = "Wechatpay-Timestamp", required = false) String timestamp,
+                                                           @RequestHeader(value = "Wechatpay-Nonce", required = false) String nonce,
+                                                           @RequestHeader(value = "Wechatpay-Signature", required = false) String signature,
+                                                           @RequestHeader(value = "Wechatpay-Signature-Type", required = false) String signType,
+                                                           @RequestBody(required = false) String body) {
+        try {
+            paymentNotifyService.handleWechatWalletNotify(orderType, orderNo, serialNumber, timestamp, nonce, signature, signType, body);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("微信钱包通知处理失败: orderType={}, orderNo={}", orderType, orderNo, e);
+            return wechatFailure(e.getMessage());
+        }
+    }
+
     private ResponseEntity<String> wechatFailure(String message) {
         try {
             String body = objectMapper.writeValueAsString(Map.of(

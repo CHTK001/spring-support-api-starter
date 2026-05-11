@@ -260,6 +260,35 @@ public class PaymentNotifyServiceImpl extends AbstractMerchantPaymentChannel imp
         }
     }
 
+    /**
+     * 支付宝钱包异步通知（充值/转账/提现）
+     * <p>
+     * 当前钱包操作（recharge/withdraw/transfer）为同步完成，无需等待外部回调。
+     * 此方法主要用于记录通知日志以备审计追溯，不重复执行业务操作。
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void handleAlipayWalletNotify(String orderType, String orderNo, Map<String, String> params) {
+        log.info("收到支付宝钱包异步通知: orderType={}, orderNo={}, params={}", orderType, orderNo, params);
+        paymentNotifyLogService.start("ALIPAY_WALLET_" + orderType, 0L, null, toJson(params));
+    }
+
+    /**
+     * 微信钱包异步通知（充值/转账/提现）
+     * <p>
+     * 当前钱包操作（recharge/withdraw/transfer）为同步完成，无需等待外部回调。
+     * 此方法主要用于记录通知日志以备审计追溯，不重复执行业务操作。
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void handleWechatWalletNotify(String orderType, String orderNo,
+                                         String serialNumber, String timestamp, String nonce,
+                                         String signature, String signType, String body) {
+        String requestHeaders = toJson(buildWechatHeaders(serialNumber, timestamp, nonce, signature, signType));
+        log.info("收到微信钱包异步通知: orderType={}, orderNo={}", orderType, orderNo);
+        paymentNotifyLogService.start("WECHAT_WALLET_" + orderType, 0L, requestHeaders, body);
+    }
+
     private TencentWechatPayGateway wechatGateway(String extension) {
         return providerGatewayRegistry.tencentWechatPayGateway(extension);
     }

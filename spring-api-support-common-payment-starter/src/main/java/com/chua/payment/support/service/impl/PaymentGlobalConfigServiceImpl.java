@@ -7,6 +7,7 @@ import com.chua.payment.support.service.PaymentGlobalConfigService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /**
  * 支付全局配置服务实现
@@ -23,7 +24,11 @@ public class PaymentGlobalConfigServiceImpl implements PaymentGlobalConfigServic
                 new LambdaQueryWrapper<PaymentGlobalConfig>()
                         .eq(PaymentGlobalConfig::getConfigKey, "DEFAULT")
                         .last("limit 1"));
-        return config != null ? config : getDefaultConfig();
+        if (config != null) {
+            fillSampleUrls(config);
+            return config;
+        }
+        return getDefaultConfig();
     }
 
     @Override
@@ -32,6 +37,7 @@ public class PaymentGlobalConfigServiceImpl implements PaymentGlobalConfigServic
         if (config.getConfigKey() == null) {
             config.setConfigKey("DEFAULT");
         }
+        fillSampleUrls(config);
         PaymentGlobalConfig existing = globalConfigMapper.selectOne(
                 new LambdaQueryWrapper<PaymentGlobalConfig>()
                         .eq(PaymentGlobalConfig::getConfigKey, config.getConfigKey())
@@ -72,6 +78,28 @@ public class PaymentGlobalConfigServiceImpl implements PaymentGlobalConfigServic
                 .replace("{orderNo}", orderNo)
                 .replace("{merchantId}", String.valueOf(merchantId));
         return baseUrl + path;
+    }
+
+    /**
+     * 根据基础地址补充示例回调 URL
+     */
+    private void fillSampleUrls(PaymentGlobalConfig config) {
+        String baseUrl = config.getPaymentNotifyBaseUrl();
+        if (!StringUtils.hasText(baseUrl)) {
+            return;
+        }
+        baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
+
+        config.setPaymentSamplePayNotifyUrl(
+                baseUrl + "/api/notify/wechat/pay/20250101120000/1001");
+        config.setPaymentSampleRefundNotifyUrl(
+                baseUrl + "/api/notify/wechat/refund/RF20250101120000/1001");
+        config.setPaymentSampleWalletRechargeNotifyUrl(
+                baseUrl + "/api/notify/wallet/alipay/RECHARGE/20250101120000");
+        config.setPaymentSampleWalletTransferNotifyUrl(
+                baseUrl + "/api/notify/wallet/alipay/TRANSFER/TS20250101120000");
+        config.setPaymentSampleWalletWithdrawNotifyUrl(
+                baseUrl + "/api/notify/wallet/alipay/WITHDRAW/WD20250101120000");
     }
 
     private PaymentGlobalConfig getDefaultConfig() {
