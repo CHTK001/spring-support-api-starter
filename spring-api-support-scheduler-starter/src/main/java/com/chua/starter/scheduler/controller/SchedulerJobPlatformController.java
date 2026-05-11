@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.job.support.entity.SysJob;
 import com.chua.starter.job.support.entity.SysJobLog;
+import com.chua.starter.job.support.entity.SysJobLogDetail;
+import com.chua.starter.job.support.log.JobLogDetailService;
 import com.chua.starter.scheduler.dto.SchedulerTaskUpdateRequest;
 import com.chua.starter.scheduler.service.SchedulerJobPlatformService;
 import com.chua.starter.scheduler.vo.SchedulerTaskVO;
@@ -27,6 +29,7 @@ import java.util.Map;
 public class SchedulerJobPlatformController {
 
     private final SchedulerJobPlatformService schedulerJobPlatformService;
+    private final JobLogDetailService jobLogDetailService;
 
     @GetMapping("/namespaces")
     @Operation(summary = "查询任务命名空间")
@@ -152,6 +155,13 @@ public class SchedulerJobPlatformController {
                                          @RequestParam(required = false) String executeCode) {
         Page<SysJobLog> page = schedulerJobPlatformService.pageLogs(namespace, pageNum, pageSize, beanName, executeCode);
         return ReturnResult.ok(pagePayload(page));
+    }
+
+    @GetMapping("/{namespace}/job-log/{jobLogId}/detail")
+    @Operation(summary = "查询任务日志详情")
+    public ReturnResult<Object> logDetails(@PathVariable String namespace,
+                                           @PathVariable Integer jobLogId) {
+        return ReturnResult.ok(jobLogDetailService.getByJobLogId(jobLogId));
     }
 
     @GetMapping("/{namespace}/task/list")

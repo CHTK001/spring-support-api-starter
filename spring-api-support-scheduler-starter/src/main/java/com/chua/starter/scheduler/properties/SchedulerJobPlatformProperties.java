@@ -72,6 +72,25 @@ public class SchedulerJobPlatformProperties {
     public static class Namespace extends JobProperties.Table {
 
         /**
+         * 调度模式。
+         * <p>
+         * STANDALONE（单机模式）：任务由本地 job-starter 轮询执行，仅 REMOTE 类型任务由调度中心下发。
+         * CLUSTER（集群模式）：调度中心统一拾取所有到期任务（包括 LOCAL 和 REMOTE），
+         * 推送到远程执行器执行，本地 job-starter 不再自行触发。
+         * </p>
+         */
+        private String mode = "STANDALONE";
+
+        /**
+         * 任务分组名称。
+         * <p>
+         * 多个项目共享同一张任务表时，通过分组隔离各自需要扫描的任务。
+         * 默认使用 {@code spring.application.name}。
+         * </p>
+         */
+        private String group;
+
+        /**
          * 执行器来源 SPI 名称。
          * <p>
          * 该值对应 {@code SchedulerExecutorResolver} 的 SPI 名称，
