@@ -36,6 +36,9 @@ public class DatabaseSchemaFixer {
         EXPECTED_COLUMNS.put("pay_global_config_remark", "VARCHAR(500) DEFAULT NULL COMMENT '备注'");
         EXPECTED_COLUMNS.put("pay_global_config_sample_pay_notify_url", "VARCHAR(500) DEFAULT NULL COMMENT '支付回调示例 URL'");
         EXPECTED_COLUMNS.put("pay_global_config_sample_refund_notify_url", "VARCHAR(500) DEFAULT NULL COMMENT '退款回调示例 URL'");
+        EXPECTED_COLUMNS.put("pay_global_config_sample_wallet_recharge_notify_url", "VARCHAR(500) DEFAULT NULL COMMENT '钱包充值回调示例 URL'");
+        EXPECTED_COLUMNS.put("pay_global_config_sample_wallet_transfer_notify_url", "VARCHAR(500) DEFAULT NULL COMMENT '钱包转账回调示例 URL'");
+        EXPECTED_COLUMNS.put("pay_global_config_sample_wallet_withdraw_notify_url", "VARCHAR(500) DEFAULT NULL COMMENT '钱包提现回调示例 URL'");
         EXPECTED_COLUMNS.put("pay_global_config_create_time", "DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'");
         EXPECTED_COLUMNS.put("pay_global_config_update_time", "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'");
     }

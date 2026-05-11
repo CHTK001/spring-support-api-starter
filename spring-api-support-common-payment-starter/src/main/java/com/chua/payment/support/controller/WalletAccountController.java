@@ -17,12 +17,17 @@ import com.chua.payment.support.vo.WalletAccountVO;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDateTime;
 
 /**
  * 钱包账户控制器
@@ -128,8 +133,24 @@ public class WalletAccountController {
                                                          @RequestParam(required = false) Long merchantId,
                                                          @RequestParam(required = false) Long userId,
                                                          @RequestParam(required = false) String bizType,
-                                                         @RequestParam(required = false) String bizNo) {
-        Page<WalletAccountLog> page = walletAccountService.pageLogs(pageNum, pageSize, merchantId, userId, bizType, bizNo);
+                                                         @RequestParam(required = false) String bizNo,
+                                                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
+                                                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
+        Page<WalletAccountLog> page = walletAccountService.pageLogs(pageNum, pageSize, merchantId, userId, bizType, bizNo, startTime, endTime);
         return ReturnResult.success(PageResult.of(page));
+    }
+
+    @PutMapping("/account/{id}/freeze")
+    @Permission(value = "payment:wallet:freeze", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Void> freeze(@PathVariable Long id) {
+        walletAccountService.freeze(id);
+        return ReturnResult.success();
+    }
+
+    @PutMapping("/account/{id}/unfreeze")
+    @Permission(value = "payment:wallet:freeze", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Void> unfreeze(@PathVariable Long id) {
+        walletAccountService.unfreeze(id);
+        return ReturnResult.success();
     }
 }

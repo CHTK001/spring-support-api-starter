@@ -8,6 +8,7 @@ import com.chua.payment.support.channel.RefundResult;
 import com.chua.payment.support.channel.support.AbstractMerchantPaymentChannel;
 import com.chua.payment.support.entity.MerchantChannel;
 import com.chua.payment.support.provider.PaymentProviderGatewayRegistry;
+import lombok.extern.slf4j.Slf4j;
 import com.chua.payment.support.service.MerchantChannelService;
 import com.chua.starter.aliyun.support.payment.AliyunAlipayGateway;
 import com.chua.starter.aliyun.support.payment.dto.AliyunAlipayPayRequest;
@@ -23,6 +24,7 @@ import org.springframework.util.StringUtils;
 /**
  * 支付宝电脑网站支付
  */
+@Slf4j
 @Component
 public class AlipayWebPaymentChannel extends AbstractMerchantPaymentChannel implements PaymentChannel {
 
@@ -138,6 +140,7 @@ public class AlipayWebPaymentChannel extends AbstractMerchantPaymentChannel impl
         payRequest.setNotifyUrl(request.getNotifyUrl());
         payRequest.setReturnUrl(request.getReturnUrl());
         payRequest.setProductCode(productCode);
+        payRequest.setPayerOpenId(request.getPayerOpenId());
         return payRequest;
     }
 
