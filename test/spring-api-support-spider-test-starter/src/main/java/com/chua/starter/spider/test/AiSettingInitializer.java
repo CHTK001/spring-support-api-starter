@@ -1,6 +1,7 @@
 package com.chua.starter.spider.test;
 
 import com.chua.starter.ai.support.chat.ChatClientFactoryBean;
+import com.chua.starter.ai.support.chat.KnowledgeGraphClientFactoryBean;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,18 +23,19 @@ public class AiSettingInitializer implements ApplicationRunner {
 
     private static final String GROUP = "runtime";
     private final ChatClientFactoryBean chatClientFactoryBean;
+    private final KnowledgeGraphClientFactoryBean knowledgeGraphClientFactoryBean;
 
     private static final Object[][] SETTINGS = {
         {"enabled",           "true",                                   "BOOLEAN", "是否启用 AI ChatClient",                                    5},
         {"factory",           "default",                                "STRING",  "ChatClient SPI 工厂名称",                                     8},
         {"provider",          "openai",                                 "STRING",  "默认 LLM 提供商",                                             9},
-        {"default_model",     "DeepSeek-R1-0528-Qwen3-8B",              "STRING",  "默认聊天模型编码",                                            10},
-        {"provider_base_url", "https://api.edgefn.net/v1",                       "STRING", "LLM 提供商基础地址",                                         70},
-        {"provider_api_key",  "sk-BI8zPmMU5QLAa1hV529eF085AcE94133B6F78412Eb510bAb", "STRING", "LLM 提供商 API Key",                                     75},
+        {"default_model",     "deepseek-v4-pro",                     "STRING",  "默认聊天模型编码",                                            10},
+        {"provider_base_url", "https://newapis.xyz/v1",                           "STRING", "LLM 提供商基础地址",                                         70},
+        {"provider_api_key",  "sk-17958f039b5dd013b46a3ff38511c05957ec7ccfef59cc538fb61adecab8bdb3", "STRING", "LLM 提供商 API Key",                                     75},
         {"system_prompt",     "",                                       "STRING",  "默认系统提示词",                                              15},
         {"temperature",       "0.7",                                    "NUMBER",  "默认采样温度",                                                20},
         {"max_tokens",        "4096",                                   "NUMBER",  "默认最大输出 token",                                          30},
-        {"timeout_millis",    "60000",                                  "NUMBER",  "默认超时时间(毫秒)",                                          35},
+        {"timeout_millis",    "15000",                                  "NUMBER",  "默认超时时间(毫秒)",                                          35},
     };
 
     private final JdbcTemplate jdbcTemplate;
@@ -46,7 +48,7 @@ public class AiSettingInitializer implements ApplicationRunner {
         } catch (Exception e) {
             log.warn("sys_ai_global_setting 表不存在（{}），尝试自动创建...", e.getMessage());
             tryCreateTable();
-            return;
+            // 创建表后继续向下插入数据，不 return
         }
 
         for (Object[] row : SETTINGS) {
@@ -75,9 +77,13 @@ public class AiSettingInitializer implements ApplicationRunner {
                 );
             }
         }
-        log.info("AI 全局设置已初始化（白山智算 OpenAI 兼容），正在重建 ChatClient...");
+        log.info("AI 全局设置已初始化（infer ai），正在重建 ChatClient...");
         chatClientFactoryBean.rebuild();
         log.info("ChatClient 重建完成");
+
+        log.info("正在重建 KnowledgeGraph Client...");
+        knowledgeGraphClientFactoryBean.rebuild();
+        log.info("KnowledgeGraph Client 重建完成");
     }
 
     /**

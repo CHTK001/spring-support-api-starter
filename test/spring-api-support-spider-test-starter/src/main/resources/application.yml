@@ -8,3 +8,13 @@ spring:
 
 server:
   port: 19091
+
+logging:
+  file:
+    name: backend-app.log
+  level:
+    com.chua.common.support.spi: debug
+    com.chua.starter.ai: debug
+    com.chua.common.support.ai: debug
+    okhttp3: trace
+    com.openai: debug

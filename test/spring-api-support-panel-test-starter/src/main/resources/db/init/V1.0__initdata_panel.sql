@@ -98,7 +98,7 @@ SELECT
     'linux', '3306', 1,
     '',
     1, 0, 1, 2,
-    '{"description":"MySQL 关系型数据库","serviceName":"mysql","supportedModes":["DOCKER"],"dockerDefaults":{"image":"mysql","tags":["5.7","8.0","8.4","9.0","latest"],"scriptMode":"script","env":{"MYSQL_ROOT_PASSWORD":"root123456","MYSQL_DATABASE":"myapp","MYSQL_USER":"appuser","MYSQL_PASSWORD":"apppass","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/mysql/data","containerPath":"/var/lib/mysql"},{"hostPath":"/data/mysql/conf","containerPath":"/etc/mysql/conf.d"}]}}',
+    '{"description":"MySQL 关系型数据库","serviceName":"mysql","supportedModes":["DOCKER"],"dockerDefaults":{"image":"mysql:8.0","tags":["5.7","8.0","8.4","9.0","latest"],"scriptMode":"script","env":{"MYSQL_ROOT_PASSWORD":"root123456","MYSQL_DATABASE":"myapp","MYSQL_USER":"appuser","MYSQL_PASSWORD":"apppass","TZ":"Asia/Shanghai","character_set_server":"utf8mb4","collation_server":"utf8mb4_unicode_ci","lower_case_table_names":"1","max_connections":"200"},"volumeMappings":[{"hostPath":"/data/mysql/data","containerPath":"/var/lib/mysql"},{"hostPath":"/data/mysql/conf","containerPath":"/etc/mysql/conf.d"},{"hostPath":"/data/mysql/init","containerPath":"/docker-entrypoint-initdb.d"}]}}',
     '{"TZ":"Asia/Shanghai","MYSQL_ROOT_PASSWORD":"root123456"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'mysql'
@@ -161,7 +161,7 @@ SELECT
     'linux', '27017', 1,
     '',
     1, 0, 1, 5,
-    '{"description":"MongoDB 文档数据库","serviceName":"mongodb","supportedModes":["DOCKER"],"dockerDefaults":{"image":"mongo","tags":["7","7.0","6","latest"],"scriptMode":"script","env":{"MONGO_INITDB_ROOT_USERNAME":"admin","MONGO_INITDB_ROOT_PASSWORD":"admin123","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/mongodb/data","containerPath":"/data/db"}]}}',
+    '{"description":"MongoDB 文档数据库","serviceName":"mongodb","supportedModes":["DOCKER"],"dockerDefaults":{"image":"mongo:7","tags":["7","7.0","6","latest"],"scriptMode":"script","env":{"MONGO_INITDB_ROOT_USERNAME":"admin","MONGO_INITDB_ROOT_PASSWORD":"admin123","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/mongodb/data","containerPath":"/data/db"}]}}',
     '{"TZ":"Asia/Shanghai","MONGO_INITDB_ROOT_USERNAME":"admin","MONGO_INITDB_ROOT_PASSWORD":"admin123"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'mongodb'
@@ -182,7 +182,7 @@ SELECT
     'linux', '5432', 1,
     '',
     1, 0, 1, 6,
-    '{"description":"PostgreSQL 关系型数据库","serviceName":"postgresql","supportedModes":["DOCKER"],"dockerDefaults":{"image":"postgres","tags":["16","15","14","13","latest"],"scriptMode":"script","env":{"POSTGRES_PASSWORD":"postgres123","POSTGRES_DB":"myapp","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/postgresql/data","containerPath":"/var/lib/postgresql/data"}]}}',
+    '{"description":"PostgreSQL 关系型数据库","serviceName":"postgresql","supportedModes":["DOCKER"],"dockerDefaults":{"image":"postgres:16","tags":["16","15","14","13","latest"],"scriptMode":"script","env":{"POSTGRES_PASSWORD":"postgres123","POSTGRES_DB":"myapp","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/postgresql/data","containerPath":"/var/lib/postgresql/data"},{"hostPath":"/data/postgresql/init","containerPath":"/docker-entrypoint-initdb.d"}]}}',
     '{"TZ":"Asia/Shanghai","POSTGRES_PASSWORD":"postgres123"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'postgresql'
@@ -203,7 +203,7 @@ SELECT
     'linux', '3306', 1,
     '',
     1, 0, 1, 7,
-    '{"description":"MariaDB 关系型数据库（MySQL 兼容）","serviceName":"mariadb","supportedModes":["DOCKER"],"dockerDefaults":{"image":"mariadb","tags":["11","10.11","10.6","latest"],"scriptMode":"script","env":{"MYSQL_ROOT_PASSWORD":"root123456","MYSQL_DATABASE":"myapp","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/mariadb/data","containerPath":"/var/lib/mysql"}]}}',
+    '{"description":"MariaDB 关系型数据库（MySQL 兼容）","serviceName":"mariadb","supportedModes":["DOCKER"],"dockerDefaults":{"image":"mariadb:11","tags":["11","10.11","10.6","latest"],"scriptMode":"script","env":{"MYSQL_ROOT_PASSWORD":"root123456","MYSQL_DATABASE":"myapp","TZ":"Asia/Shanghai","character_set_server":"utf8mb4","collation_server":"utf8mb4_unicode_ci","lower_case_table_names":"1"},"volumeMappings":[{"hostPath":"/data/mariadb/data","containerPath":"/var/lib/mysql"},{"hostPath":"/data/mariadb/conf","containerPath":"/etc/mysql/conf.d"}]}}',
     '{"TZ":"Asia/Shanghai","MYSQL_ROOT_PASSWORD":"root123456"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'mariadb'

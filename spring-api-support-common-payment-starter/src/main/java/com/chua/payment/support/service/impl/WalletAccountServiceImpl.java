@@ -25,6 +25,7 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -142,7 +143,7 @@ public class WalletAccountServiceImpl implements WalletAccountService {
     }
 
     @Override
-    public Page<WalletAccountLog> pageLogs(int pageNum, int pageSize, Long merchantId, Long userId, String bizType, String bizNo) {
+    public Page<WalletAccountLog> pageLogs(int pageNum, int pageSize, Long merchantId, Long userId, String bizType, String bizNo, LocalDateTime startTime, LocalDateTime endTime) {
         LambdaQueryWrapper<WalletAccountLog> wrapper = new LambdaQueryWrapper<WalletAccountLog>()
                 .orderByDesc(WalletAccountLog::getCreatedAt);
         if (merchantId != null) {
@@ -157,7 +158,41 @@ public class WalletAccountServiceImpl implements WalletAccountService {
         if (StringUtils.hasText(bizNo)) {
             wrapper.eq(WalletAccountLog::getBizNo, bizNo);
         }
+        if (startTime != null) {
+            wrapper.ge(WalletAccountLog::getCreatedAt, startTime);
+        }
+        if (endTime != null) {
+            wrapper.le(WalletAccountLog::getCreatedAt, endTime);
+        }
         return walletAccountLogMapper.selectPage(new Page<>(pageNum, pageSize), wrapper);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void freeze(Long id) {
+        WalletAccount account = walletAccountMapper.selectById(id);
+        if (account == null) {
+            throw new PaymentException("钱包账户不存在");
+        }
+        if (!Integer.valueOf(STATUS_ENABLED).equals(account.getStatus())) {
+            throw new PaymentException("钱包账户已冻结");
+        }
+        account.setStatus(0);
+        walletAccountMapper.updateById(account);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void unfreeze(Long id) {
+        WalletAccount account = walletAccountMapper.selectById(id);
+        if (account == null) {
+            throw new PaymentException("钱包账户不存在");
+        }
+        if (Integer.valueOf(STATUS_ENABLED).equals(account.getStatus())) {
+            throw new PaymentException("钱包账户已启用");
+        }
+        account.setStatus(STATUS_ENABLED);
+        walletAccountMapper.updateById(account);
     }
 
     private WalletAccount applyChange(String bizType,

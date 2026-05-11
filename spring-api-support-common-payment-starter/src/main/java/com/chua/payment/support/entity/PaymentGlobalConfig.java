@@ -39,6 +39,15 @@ public class PaymentGlobalConfig {
     @TableField("pay_global_config_sample_refund_notify_url")
     private String paymentSampleRefundNotifyUrl;
 
+    @TableField("pay_global_config_sample_wallet_recharge_notify_url")
+    private String paymentSampleWalletRechargeNotifyUrl;
+
+    @TableField("pay_global_config_sample_wallet_transfer_notify_url")
+    private String paymentSampleWalletTransferNotifyUrl;
+
+    @TableField("pay_global_config_sample_wallet_withdraw_notify_url")
+    private String paymentSampleWalletWithdrawNotifyUrl;
+
     @TableField("pay_global_config_create_time")
     private LocalDateTime createTime;
 

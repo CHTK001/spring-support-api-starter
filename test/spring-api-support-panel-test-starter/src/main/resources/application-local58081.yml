@@ -34,6 +34,10 @@ docker:
     port: 2375
 
 plugin:
+  datasource:
+    script:
+      scan-mode: ALWAYS
+      data-scan-mode: ALWAYS
   oauth:
     enable: false
   socket:

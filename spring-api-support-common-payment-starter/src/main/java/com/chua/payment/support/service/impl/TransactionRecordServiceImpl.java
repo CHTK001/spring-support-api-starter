@@ -55,7 +55,7 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
         if (status != null) {
             wrapper.eq(TransactionRecord::getStatus, status);
         }
-        wrapper.orderByDesc(TransactionRecord::getCreateTime);
+        wrapper.orderByDesc(TransactionRecord::getCreatedAt);
         return transactionRecordMapper.selectPage(page, wrapper);
     }
 }

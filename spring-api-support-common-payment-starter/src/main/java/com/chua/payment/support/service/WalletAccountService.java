@@ -9,6 +9,7 @@ import com.chua.payment.support.entity.WalletAccount;
 import com.chua.payment.support.vo.WalletAccountVO;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * 钱包账户服务
@@ -31,7 +32,17 @@ public interface WalletAccountService {
 
     Page<WalletAccount> pageAccounts(int pageNum, int pageSize, Long merchantId);
 
+    /**
+     * 冻结钱包账户
+     */
+    void freeze(Long id);
+
+    /**
+     * 解冻钱包账户
+     */
+    void unfreeze(Long id);
+
     WalletAccountLog getLog(String bizType, Long merchantId, Long userId, String bizNo);
 
-    Page<WalletAccountLog> pageLogs(int pageNum, int pageSize, Long merchantId, Long userId, String bizType, String bizNo);
+    Page<WalletAccountLog> pageLogs(int pageNum, int pageSize, Long merchantId, Long userId, String bizType, String bizNo, LocalDateTime startTime, LocalDateTime endTime);
 }
