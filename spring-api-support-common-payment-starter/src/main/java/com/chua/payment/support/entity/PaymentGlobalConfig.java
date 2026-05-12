@@ -48,6 +48,10 @@ public class PaymentGlobalConfig {
     @TableField("pay_global_config_sample_wallet_withdraw_notify_url")
     private String paymentSampleWalletWithdrawNotifyUrl;
 
+    /** 优惠券抵扣部分是否可提现: true-可提现, false-不可提现(冻结) */
+    @TableField("pay_global_config_coupon_deduct_withdrawable")
+    private Boolean couponDeductWithdrawable;
+
     @TableField("pay_global_config_create_time")
     private LocalDateTime createTime;
 

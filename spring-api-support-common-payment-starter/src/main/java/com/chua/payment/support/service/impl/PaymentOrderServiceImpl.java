@@ -439,6 +439,26 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public boolean cancelOrder(Long id, String operator, String reason, boolean refund) {
+        if (!refund) {
+            return cancelOrder(id, operator, reason);
+        }
+        PaymentOrder order = requireOrder(id);
+        if (OrderState.CANCELLED.name().equals(order.getStatus())) {
+            return true;
+        }
+        if (OrderState.PAID.name().equals(order.getStatus())) {
+            RefundApplyDTO refundDTO = new RefundApplyDTO();
+            refundDTO.setRefundAmount(order.getPaidAmount());
+            refundDTO.setRefundReason(reason);
+            refundDTO.setOperator(operator);
+            return refundOrder(id, refundDTO);
+        }
+        return cancelOrder(id, operator, reason);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean cancelOrder(Long id, String operator, String reason) {
         PaymentOrder order = requireOrder(id);
         if (OrderState.CANCELLED.name().equals(order.getStatus())) {

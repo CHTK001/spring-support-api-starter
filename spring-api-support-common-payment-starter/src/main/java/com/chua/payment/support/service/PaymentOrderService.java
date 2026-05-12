@@ -41,6 +41,12 @@ public interface PaymentOrderService {
 
     boolean cancelOrder(Long id, String operator, String reason);
 
+    /**
+     * 取消订单（支持已支付退款取消）
+     * @param refund 是否允许已支付后退款取消
+     */
+    boolean cancelOrder(Long id, String operator, String reason, boolean refund);
+
     boolean completeOrder(Long id, String operator);
 
     boolean refundOrder(Long id, RefundApplyDTO dto);

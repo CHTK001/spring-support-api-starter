@@ -136,12 +136,19 @@ public class WalletOrderServiceImpl implements WalletOrderService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void markSuccess(String orderNo, String responsePayload) {
+    public void markSuccess(String orderNo, String thirdPartyOrderNo, String responsePayload) {
         WalletOrder order = requireOrder(orderNo);
         order.setStatus("SUCCESS");
+        order.setThirdPartyOrderNo(thirdPartyOrderNo);
         order.setResponsePayload(responsePayload);
         order.setCompletedAt(LocalDateTime.now());
         walletOrderMapper.updateById(order);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void markSuccess(String orderNo, String responsePayload) {
+        markSuccess(orderNo, null, responsePayload);
     }
 
     @Override
@@ -150,6 +157,15 @@ public class WalletOrderServiceImpl implements WalletOrderService {
         WalletOrder order = requireOrder(orderNo);
         order.setStatus("FAILED");
         order.setResponsePayload(responsePayload);
+        order.setRemark(reason);
+        walletOrderMapper.updateById(order);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void markCancelled(String orderNo, String reason) {
+        WalletOrder order = requireOrder(orderNo);
+        order.setStatus("CANCELLED");
         order.setRemark(reason);
         walletOrderMapper.updateById(order);
     }

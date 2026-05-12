@@ -7,7 +7,7 @@ spring:
     initialization-fail-timeout: -1
   data:
     redis:
-      host: 127.0.0.1
+      host: 172.16.0.40
       port: 16379
   sql:
     init:

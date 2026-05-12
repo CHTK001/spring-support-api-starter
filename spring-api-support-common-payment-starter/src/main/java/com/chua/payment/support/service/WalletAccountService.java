@@ -24,7 +24,34 @@ public interface WalletAccountService {
 
     WalletAccountVO transfer(WalletTransferDTO dto);
 
+    /**
+     * 转账（参数版）
+     */
+    void transfer(Long merchantId,
+                  Long fromUserId,
+                  Long toUserId,
+                  BigDecimal amount,
+                  String transferNo,
+                  String operator,
+                  String remark);
+
     WalletAccountVO withdraw(WalletWithdrawDTO dto);
+
+    /**
+     * 冻结余额（提现专用）
+     * available_balance → frozen_balance，不立即扣减
+     */
+    WalletAccountVO freezeForWithdraw(WalletWithdrawDTO dto);
+
+    /**
+     * 确认提现到账（扣除冻结余额）
+     */
+    void confirmWithdraw(Long merchantId, Long userId, String bizNo, BigDecimal amount);
+
+    /**
+     * 取消提现（释放冻结余额回可用余额）
+     */
+    void cancelWithdraw(Long merchantId, Long userId, String bizNo, BigDecimal amount, String remark);
 
     WalletAccountVO pay(Long merchantId, Long userId, BigDecimal amount, String orderNo, String operator, String remark);
 
