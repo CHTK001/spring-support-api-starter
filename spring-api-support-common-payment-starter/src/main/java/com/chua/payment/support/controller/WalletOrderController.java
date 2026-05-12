@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 钱包订单控制器
  */
 @RestController
-@RequestMapping("/api/wallet/order")
+@RequestMapping("/wallet/order")
 @RequiredArgsConstructor
 public class WalletOrderController {
 
