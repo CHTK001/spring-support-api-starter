@@ -107,6 +107,7 @@ public class PaymentGlobalConfigServiceImpl implements PaymentGlobalConfigServic
         config.setConfigKey("DEFAULT");
         config.setPaymentCallbackPathTemplate("/{orderNo}/{merchantId}");
         config.setPaymentAutoRefreshSeconds(60);
+        config.setCouponDeductWithdrawable(true);
         return config;
     }
 }

@@ -35,7 +35,7 @@ public class WalletAccount {
     @TableField("pay_wallet_account_status")
     private Integer status;
 
-    @TableField(value = "pay_wallet_account_created_at", fill = FieldFill.INSERT)
+    @TableField("pay_wallet_account_created_at")
     private LocalDateTime createdAt;
 
     @TableField(value = "pay_wallet_account_updated_at", fill = FieldFill.INSERT_UPDATE)

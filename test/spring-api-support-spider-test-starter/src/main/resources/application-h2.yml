@@ -30,6 +30,8 @@ plugin:
   redis:
     server:
       enable: false
+  job:
+    enable: false
   datasource:
     script:
       enable: true

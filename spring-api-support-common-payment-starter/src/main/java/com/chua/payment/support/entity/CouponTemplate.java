@@ -23,6 +23,10 @@ public class CouponTemplate {
     @Schema(description = "优惠券名称", example = "新人满减券")
     private String name;
 
+    @TableField("pay_coupon_template_code")
+    @Schema(description = "优惠券编码", example = "NEWUSER50")
+    private String couponCode;
+
     @TableField("pay_coupon_template_type")
     @Schema(description = "类型: DISCOUNT-折扣, REDUCE-满减, CASH-代金券", example = "REDUCE")
     private String type;
@@ -50,6 +54,14 @@ public class CouponTemplate {
     @TableField("pay_coupon_template_valid_days")
     @Schema(description = "有效期天数（从领取日起）", example = "30")
     private Integer validDays;
+
+    @TableField("pay_coupon_template_start_time")
+    @Schema(description = "有效期开始时间")
+    private LocalDateTime startTime;
+
+    @TableField("pay_coupon_template_end_time")
+    @Schema(description = "有效期结束时间")
+    private LocalDateTime endTime;
 
     @TableField("pay_coupon_template_status")
     @Schema(description = "状态: ENABLED-启用, DISABLED-禁用", example = "ENABLED")
