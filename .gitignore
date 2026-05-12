@@ -8,6 +8,9 @@ target/
 *.iml
 *.html
 *.log
+*.gz
+*.network-response
+/*.json
 *.txt
 *.ps1
 *.cmd
@@ -35,6 +38,15 @@ spring-api-support-soft-test-starter
 .claude/scheduled_tasks.json
 .claude/scheduled_tasks.lock
 .spring-ai/
+
+#调试/测试产物
+docs/
+kg-console-all.md
+kg-console.md
+kg-initial.yml
+kg-network-requests.md
+test/**/data/
+test/**/sys
 
 #非项目根目录文件
 /*.js
