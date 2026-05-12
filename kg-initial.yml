@@ -1,0 +1,64 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - button [ref=e6] [cursor=pointer]:
+      - img [ref=e7]
+    - generic [ref=e9]:
+      - heading "知识图谱" [level=2] [ref=e10]
+      - paragraph [ref=e11]: 构建实体关系网络，智能抽取与分析
+    - generic [ref=e12]:
+      - generic [ref=e14] [cursor=pointer]:
+        - generic:
+          - combobox [ref=e16]
+          - generic [ref=e17]: "1"
+        - img [ref=e20]
+      - button [ref=e22] [cursor=pointer]:
+        - img [ref=e24]
+      - button [ref=e26] [cursor=pointer]:
+        - img [ref=e28]
+    - navigation [ref=e30]:
+      - button "图谱视图" [ref=e31] [cursor=pointer]:
+        - img [ref=e32]
+        - generic [ref=e34]: 图谱视图
+      - button "实体管理" [ref=e35] [cursor=pointer]:
+        - img [ref=e36]
+        - generic [ref=e38]: 实体管理
+      - button "关系管理" [ref=e39] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e41]: 关系管理
+      - button "LLM 抽取" [ref=e42] [cursor=pointer]:
+        - img [ref=e43]
+        - generic [ref=e45]: LLM 抽取
+      - button "查询" [ref=e46] [cursor=pointer]:
+        - img [ref=e47]
+        - generic [ref=e49]: 查询
+      - button "设置" [ref=e50] [cursor=pointer]:
+        - img [ref=e51]
+        - generic [ref=e53]: 设置
+  - generic [ref=e54]:
+    - generic [ref=e56]:
+      - textbox "按类型筛选" [ref=e59]
+      - generic [ref=e60]:
+        - button "decrease number" [ref=e61] [cursor=pointer]:
+          - img [ref=e63]
+        - button "increase number" [ref=e65] [cursor=pointer]:
+          - img [ref=e67]
+        - spinbutton [ref=e71]: "200"
+      - button "刷新" [ref=e72] [cursor=pointer]:
+        - generic [ref=e73]: 刷新
+    - generic [ref=e74]:
+      - generic:
+        - paragraph: 暂无图谱数据
+      - generic [ref=e77]:
+        - generic [ref=e80] [cursor=pointer]:
+          - generic:
+            - combobox [ref=e82]
+            - generic [ref=e83]: 力导向
+          - img [ref=e86]
+        - button [ref=e89] [cursor=pointer]:
+          - img [ref=e91]
+        - button [ref=e96] [cursor=pointer]:
+          - img [ref=e98]
+        - button [ref=e102] [cursor=pointer]:
+          - img [ref=e104]
+        - button [ref=e107] [cursor=pointer]:
+          - img [ref=e109]

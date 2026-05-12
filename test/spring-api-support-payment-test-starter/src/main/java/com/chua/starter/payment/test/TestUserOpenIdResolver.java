@@ -1,7 +1,7 @@
 package com.chua.starter.payment.test;
 
 import com.chua.common.support.core.annotation.SpiProfile;
-import com.chua.payment.support.condition.SpiProfileCondition;
+import com.chua.spring.support.configuration.spi.SpiProfileCondition;
 import com.chua.payment.support.spi.UserOpenIdResolver;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
