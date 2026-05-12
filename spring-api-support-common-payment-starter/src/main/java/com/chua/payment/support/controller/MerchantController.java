@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Tag(name = "商户管理", description = "商户管理相关接口")
 @RestController
-@RequestMapping("/api/merchant")
+@RequestMapping("/merchant")
 @RequiredArgsConstructor
 public class MerchantController {
 

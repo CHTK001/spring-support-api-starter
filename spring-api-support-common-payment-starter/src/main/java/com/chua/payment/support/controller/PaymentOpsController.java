@@ -21,7 +21,7 @@ import java.util.Map;
  * <p>使用 MyBatis XML 查询，SQL 兼容多数据库（MySQL / H2 / PostgreSQL）。
  */
 @RestController
-@RequestMapping("/api/ops")
+@RequestMapping("/ops")
 @RequiredArgsConstructor
 public class PaymentOpsController {
 
