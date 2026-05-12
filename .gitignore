@@ -17,7 +17,7 @@ target/
 .panel/
 .continue/
 .vscode/
-.tmp
+*.tmp
 org/
 *bak
 logs/!/patch/
@@ -47,6 +47,7 @@ kg-initial.yml
 kg-network-requests.md
 test/**/data/
 test/**/sys
+test/**/*.log.*
 
 #非项目根目录文件
 /*.js
