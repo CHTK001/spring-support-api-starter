@@ -1,0 +1,132 @@
+{
+  "code" : "00000",
+  "data" : {
+    "records" : [ {
+      "id" : 25,
+      "merchantId" : 1,
+      "userId" : 1,
+      "bizType" : "PAY",
+      "bizNo" : "ORD177838703091871FC10",
+      "changeType" : "OUT",
+      "changeAmount" : 99.99,
+      "balanceBefore" : 1300.00,
+      "balanceAfter" : 1200.01,
+      "operator" : "wallet-pay",
+      "remark" : "测试商品"
+    }, {
+      "id" : 48,
+      "merchantId" : 1,
+      "userId" : 1,
+      "bizType" : "PAY",
+      "bizNo" : "ORD1778389466141A5D047",
+      "changeType" : "OUT",
+      "changeAmount" : 1.00,
+      "balanceBefore" : 1120.00,
+      "balanceAfter" : 1119.00,
+      "operator" : "wallet-pay",
+      "remark" : "test"
+    }, {
+      "id" : 54,
+      "merchantId" : 1,
+      "userId" : 1,
+      "bizType" : "PAY",
+      "bizNo" : "ORD17783964787966F3E58",
+      "changeType" : "OUT",
+      "changeAmount" : 80.00,
+      "balanceBefore" : 1380.00,
+      "balanceAfter" : 1300.00,
+      "operator" : "wallet-pay",
+      "remark" : "优惠券测试商品"
+    }, {
+      "id" : 56,
+      "merchantId" : 1,
+      "userId" : 1,
+      "bizType" : "PAY",
+      "bizNo" : "ORD177839678692122B40D",
+      "changeType" : "OUT",
+      "changeAmount" : 190.00,
+      "balanceBefore" : 1380.00,
+      "balanceAfter" : 1190.00,
+      "operator" : "wallet-pay",
+      "remark" : "满减券测试"
+    }, {
+      "id" : 61,
+      "merchantId" : 1,
+      "userId" : 1,
+      "bizType" : "PAY",
+      "bizNo" : "ORD177839929724173D656",
+      "changeType" : "OUT",
+      "changeAmount" : 80.00,
+      "balanceBefore" : 1380.00,
+      "balanceAfter" : 1300.00,
+      "operator" : "wallet-pay",
+      "remark" : "优惠券生命周期测试"
+    }, {
+      "id" : 63,
+      "merchantId" : 1,
+      "userId" : 1,
+      "bizType" : "PAY",
+      "bizNo" : "ORD1778404917124BECA71",
+      "changeType" : "OUT",
+      "changeAmount" : 0.01,
+      "balanceBefore" : 1380.00,
+      "balanceAfter" : 1379.99,
+      "operator" : "wallet-pay",
+      "remark" : "钱包测试订单"
+    }, {
+      "id" : 69,
+      "merchantId" : 1,
+      "userId" : 1,
+      "bizType" : "PAY",
+      "bizNo" : "ORD177846963101111DF20",
+      "changeType" : "OUT",
+      "changeAmount" : 10.00,
+      "balanceBefore" : 1438.99,
+      "balanceAfter" : 1428.99,
+      "operator" : "wallet-pay",
+      "remark" : "退款测试商品"
+    }, {
+      "id" : 66,
+      "merchantId" : 1,
+      "userId" : 1,
+      "bizType" : "RECHARGE",
+      "bizNo" : "BONUS_TEST_RECHARGE_001",
+      "changeType" : "IN",
+      "changeAmount" : 10.00,
+      "balanceBefore" : 1478.99,
+      "balanceAfter" : 1488.99,
+      "operator" : "payment-console",
+      "remark" : "充值奖励: 充值100.00赠送10.00"
+    }, {
+      "id" : 52,
+      "merchantId" : 1,
+      "userId" : 1,
+      "bizType" : "RECHARGE",
+      "bizNo" : "BONUS_TEST-RCH-001",
+      "changeType" : "IN",
+      "changeAmount" : 10.00,
+      "balanceBefore" : 1320.00,
+      "balanceAfter" : 1330.00,
+      "operator" : "system",
+      "remark" : "充值奖励: 充值100.00赠送10.00"
+    }, {
+      "id" : 22,
+      "merchantId" : 1,
+      "userId" : 1,
+      "bizType" : "RECHARGE",
+      "bizNo" : "RC17783869649737",
+      "changeType" : "IN",
+      "changeAmount" : 500.00,
+      "balanceBefore" : 1000.00,
+      "balanceAfter" : 1500.00,
+      "operator" : "admin",
+      "remark" : "测试充值"
+    } ],
+    "total" : 34,
+    "current" : 1,
+    "size" : 10,
+    "pages" : 4
+  },
+  "msg" : "",
+  "timestamp" : 1778487938057
+}
