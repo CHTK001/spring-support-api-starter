@@ -33,7 +33,7 @@ import java.time.LocalDateTime;
  * 钱包账户控制器
  */
 @RestController
-@RequestMapping("/api/wallet")
+@RequestMapping("/wallet")
 @RequiredArgsConstructor
 public class WalletAccountController {
 

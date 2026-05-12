@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Tag(name = "退款管理", description = "支付退款单相关接口")
 @RestController
-@RequestMapping("/api/refund")
+@RequestMapping("/refund")
 @RequiredArgsConstructor
 public class RefundOrderController {
 

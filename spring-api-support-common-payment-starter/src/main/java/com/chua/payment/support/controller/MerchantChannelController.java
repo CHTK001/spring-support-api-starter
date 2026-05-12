@@ -20,7 +20,7 @@ import java.util.List;
  */
 @Tag(name = "渠道管理", description = "支付渠道配置相关接口")
 @RestController
-@RequestMapping("/api/channel")
+@RequestMapping("/channel")
 @RequiredArgsConstructor
 public class MerchantChannelController {
 

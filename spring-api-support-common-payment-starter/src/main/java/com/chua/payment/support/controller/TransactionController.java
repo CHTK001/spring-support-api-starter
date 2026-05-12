@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
  * 交易流水控制器
  */
 @RestController
-@RequestMapping("/api/transaction")
+@RequestMapping("/transaction")
 @RequiredArgsConstructor
 public class TransactionController {
 

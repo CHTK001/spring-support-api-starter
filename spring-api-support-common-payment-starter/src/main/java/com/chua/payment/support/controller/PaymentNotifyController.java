@@ -21,7 +21,7 @@ import java.util.Map;
 @Hidden
 @RestController
 @ApiReturnFormatIgnore
-@RequestMapping("/api/notify")
+@RequestMapping("/notify")
 @RequiredArgsConstructor
 @ConditionalOnBean(PaymentNotifyService.class)
 public class PaymentNotifyController {

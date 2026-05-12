@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Tag(name = "支付全局配置")
 @RestController
-@RequestMapping("/api/payment-global-config")
+@RequestMapping("/payment-global-config")
 @RequiredArgsConstructor
 public class PaymentGlobalConfigController {
 

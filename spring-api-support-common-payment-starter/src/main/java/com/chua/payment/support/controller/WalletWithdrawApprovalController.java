@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 钱包提现审批控制器
  */
 @RestController
-@RequestMapping("/api/wallet/withdraw-approval")
+@RequestMapping("/wallet/withdraw-approval")
 @RequiredArgsConstructor
 public class WalletWithdrawApprovalController {
 
@@ -92,8 +92,9 @@ public class WalletWithdrawApprovalController {
         return ReturnResult.success();
     }
 
-    @PostMapping("/{id}/cancel")
-    public ReturnResult<Void> cancel(@PathVariable Long id,
+    @PostMapping("/cancel")
+    @Permission(value = "payment:wallet:cancel", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Void> cancel(@RequestParam Long id,
                                      @RequestParam(required = false) String reason) {
         WalletWithdrawApproval approval = walletWithdrawApprovalService.getById(id);
         if (!"PENDING".equals(approval.getStatus())) {

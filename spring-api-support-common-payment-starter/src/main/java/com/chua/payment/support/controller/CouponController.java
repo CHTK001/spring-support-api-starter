@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 @Tag(name = "优惠券管理", description = "优惠券模板管理相关接口")
 @RestController
-@RequestMapping("/api/coupon")
+@RequestMapping("/coupon")
 @RequiredArgsConstructor
 public class CouponController {
 
