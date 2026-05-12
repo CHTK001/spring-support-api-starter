@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @SpringBootConfiguration
-public class JobConfiguration {
+public class DemoJobConfiguration {
 
 
     @Job("test")

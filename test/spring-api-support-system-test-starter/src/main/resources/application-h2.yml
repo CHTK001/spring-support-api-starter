@@ -1,0 +1,54 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:system;MODE=MYSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 4
+      minimum-idle: 1
+      connection-timeout: 5000
+      idle-timeout: 60000
+      max-lifetime: 300000
+    initialization-fail-timeout: -1
+  h2:
+    console:
+      enabled: true
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/init/h2/V1.0__init_system.sql,classpath:db/init/h2/V1.0__init_server.sql,classpath:db/init/h2/V1.0__init_job.sql,classpath:db/init/h2/V1.0__init_soft.sql
+      continue-on-error: true
+  data:
+    redis:
+      host: 172.16.0.40
+      port: 6379
+      connect-timeout: 5000
+      timeout: 5000
+
+plugin:
+  datasource:
+    script:
+      enable: false
+  redis:
+    server:
+      enable: false
+  oauth:
+    enable: true
+    protocol: static
+  system:
+    server:
+      enable: true
+    feedback:
+      menu:
+        enabled: false
+
+soft:
+  management:
+    enable: true
+
+logging:
+  level:
+    com.chua.starter.system.mapper: debug
