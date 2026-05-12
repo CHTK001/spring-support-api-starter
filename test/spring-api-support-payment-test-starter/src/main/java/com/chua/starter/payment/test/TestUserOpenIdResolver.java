@@ -1,9 +1,7 @@
 package com.chua.starter.payment.test;
 
-import com.chua.common.support.core.annotation.SpiProfile;
-import com.chua.spring.support.configuration.spi.SpiProfileCondition;
 import com.chua.payment.support.spi.UserOpenIdResolver;
-import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -17,8 +15,7 @@ import java.util.Map;
  * </p>
  */
 @Component
-@Conditional(SpiProfileCondition.class)
-@SpiProfile({"dev", "test"})
+@Profile({"dev", "test"})
 public class TestUserOpenIdResolver implements UserOpenIdResolver {
 
     private static final Map<String, Map<Long, String>> MAPPING = Map.of(
