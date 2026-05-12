@@ -1,0 +1,12 @@
+{
+  "code" : "00000",
+  "data" : {
+    "success" : true,
+    "launchType" : "HTML_FORM",
+    "formHtml" : "<form name=\"punchout_form\" method=\"post\" action=\"https://openapi-sandbox.dl.alipaydev.com/gateway.do?charset=UTF-8&method=alipay.trade.page.pay&sign=rgs3LcSSiJImlrq5IJ5K4tTyaLij4KUbUbY5uKCD2SD2qT%2FMuxtWEuUIQF3pYnb0RaY2seRlFdwUgX%2B%2Fl7rw7DvciSSxk4QjqzImttl8Hq2aYXwXfanprBgurW8OPiac31WVP9YZ0kaqweQL%2B2EdyVghxq4o5al%2BVFvExRAjH33LHDcOhTw5JmkEwvXmxNlt16KkfnEITyPPiYHvKkV4mVJqW0fGY6NK%2FjDWz0Pv%2BzxBhwFj2BPKja35r6IV8mJKnNaw5bLNxYuoLYAyhul%2FdvEv2dxVvWefDceWjGIPr6dvwQbPs6ILsWq4PuzqGevZItnF5jYjUgjsv7TgjMUm6Q%3D%3D&return_url=http%3A%2F%2F127.0.0.1%3A8085&notify_url=http%3A%2F%2F127.0.0.1%3A8085%2Fpayment%2Fapi&version=1.0&app_id=9021000162612793&sign_type=RSA2&timestamp=2026-05-10+20%3A10%3A41&alipay_sdk=alipay-sdk-java-4.40.483.ALL&format=json\">\n<input type=\"hidden\" name=\"biz_content\" value=\"{&quot;out_trade_no&quot;:&quot;ORD17784150313216BAD7C&quot;,&quot;total_amount&quot;:&quot;0.01&quot;,&quot;subject&quot;:&quot;openId测试&quot;,&quot;body&quot;:null,&quot;product_code&quot;:&quot;FAST_INSTANT_TRADE_PAY&quot;}\">\n<input type=\"submit\" value=\"立即支付\" style=\"display:none\" >\n</form>\n<script>document.forms[0].submit();</script>",
+    "status" : "PAYING",
+    "rawResponse" : "<form name=\"punchout_form\" method=\"post\" action=\"https://openapi-sandbox.dl.alipaydev.com/gateway.do?charset=UTF-8&method=alipay.trade.page.pay&sign=rgs3LcSSiJImlrq5IJ5K4tTyaLij4KUbUbY5uKCD2SD2qT%2FMuxtWEuUIQF3pYnb0RaY2seRlFdwUgX%2B%2Fl7rw7DvciSSxk4QjqzImttl8Hq2aYXwXfanprBgurW8OPiac31WVP9YZ0kaqweQL%2B2EdyVghxq4o5al%2BVFvExRAjH33LHDcOhTw5JmkEwvXmxNlt16KkfnEITyPPiYHvKkV4mVJqW0fGY6NK%2FjDWz0Pv%2BzxBhwFj2BPKja35r6IV8mJKnNaw5bLNxYuoLYAyhul%2FdvEv2dxVvWefDceWjGIPr6dvwQbPs6ILsWq4PuzqGevZItnF5jYjUgjsv7TgjMUm6Q%3D%3D&return_url=http%3A%2F%2F127.0.0.1%3A8085&notify_url=http%3A%2F%2F127.0.0.1%3A8085%2Fpayment%2Fapi&version=1.0&app_id=9021000162612793&sign_type=RSA2&timestamp=2026-05-10+20%3A10%3A41&alipay_sdk=alipay-sdk-java-4.40.483.ALL&format=json\">\n<input type=\"hidden\" name=\"biz_content\" value=\"{&quot;out_trade_no&quot;:&quot;ORD17784150313216BAD7C&quot;,&quot;total_amount&quot;:&quot;0.01&quot;,&quot;subject&quot;:&quot;openId测试&quot;,&quot;body&quot;:null,&quot;product_code&quot;:&quot;FAST_INSTANT_TRADE_PAY&quot;}\">\n<input type=\"submit\" value=\"立即支付\" style=\"display:none\" >\n</form>\n<script>document.forms[0].submit();</script>"
+  },
+  "msg" : "",
+  "timestamp" : 1778415041246
+}

@@ -1,0 +1,30 @@
+{
+  "code" : "00000",
+  "data" : {
+    "records" : [ {
+      "id" : 1,
+      "merchantNo" : "M202605090000000001",
+      "merchantName" : "示例商户",
+      "contactName" : "张三",
+      "contactPhone" : "13800138001",
+      "paymentWalletEnabled" : true,
+      "autoCloseEnabled" : false,
+      "autoCloseMinutes" : 30,
+      "paymentSplitTableEnabled" : false,
+      "paymentProfitSharingEnabled" : false,
+      "paymentCouponEnabled" : false,
+      "status" : 1,
+      "statusDesc" : "已激活",
+      "channelCount" : 2,
+      "channelTypes" : [ "WALLET", "ALIPAY" ],
+      "channelTypeDetails" : [ "WALLET:BALANCE", "ALIPAY:PAY_WEB" ],
+      "updatedAt" : "2026-05-09 13:43:06"
+    } ],
+    "total" : 1,
+    "current" : 1,
+    "size" : 200,
+    "pages" : 1
+  },
+  "msg" : "",
+  "timestamp" : 1778499465780
+}
