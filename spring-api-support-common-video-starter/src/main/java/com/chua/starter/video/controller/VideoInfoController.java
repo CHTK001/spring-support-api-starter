@@ -8,7 +8,9 @@ import com.chua.starter.video.entity.VideoKeyword;
 import com.chua.starter.video.entity.VideoPlayAddress;
 import com.chua.starter.video.pojo.VideoInfoResponse;
 import com.chua.starter.video.pojo.VideoInfoResult;
+import com.chua.starter.video.pojo.VideoSearch;
 import com.chua.starter.video.pojo.request.VideoSearchRequest;
+import com.chua.starter.video.service.ResourceSearchManager;
 import com.chua.starter.video.service.VideoDownloadService;
 import com.chua.starter.video.service.VideoInfoService;
 import com.chua.starter.video.service.VideoKeywordService;
@@ -43,6 +45,7 @@ public class VideoInfoController {
     private final VideoInfoService videoInfoService;
     private final VideoDownloadService videoDownloadService;
     private final VideoKeywordService videoKeywordService;
+    private final ResourceSearchManager resourceSearchManager;
 
 
     /**
@@ -66,6 +69,36 @@ public class VideoInfoController {
     @Operation(summary = "视频搜索与分页查询")
     public ReturnPageResult<VideoInfoResponse> searchVideos(@RequestBody VideoSearchRequest request) {
         return ReturnPageResultUtils.ok(videoInfoService.searchVideos(request));
+    }
+
+    /**
+     * 全网搜索（同时搜索数据库 + 所有外部资源提供者）
+     *
+     * @param keyword  关键词
+     * @param type     视频类型
+     * @param category 分类
+     * @param year     年份
+     * @param page     页码
+     * @return 搜索结果
+     */
+    @GetMapping("/search-all")
+    @Operation(summary = "全网搜索（数据库 + 所有外部Provider）")
+    public ReturnPageResult<VideoInfoResult> searchAll(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "20") Integer pageSize) {
+
+        VideoSearch videoSearch = new VideoSearch();
+        videoSearch.setKeyword(keyword);
+        videoSearch.setVideoType(type);
+        videoSearch.setCategory(category);
+        videoSearch.setYear(year);
+        videoSearch.setPage(page);
+        videoSearch.setPageSize(pageSize);
+        return resourceSearchManager.searchFromAllResources(videoSearch);
     }
     /**
      * 获取视频详情

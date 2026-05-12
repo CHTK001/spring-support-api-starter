@@ -169,4 +169,71 @@
             </if>
         </trim>
     </select>
+
+    <!-- 按分类统计 -->
+    <select id="countByCategory" resultType="java.util.Map">
+        SELECT COALESCE(video_category, '未知') AS `name`, COUNT(1) AS `count`
+        FROM video_info
+        WHERE video_status = 0
+        GROUP BY video_category
+        ORDER BY `count` DESC
+    </select>
+
+    <!-- 按年份统计 -->
+    <select id="countByYear" resultType="java.util.Map">
+        SELECT COALESCE(CAST(video_year AS CHAR), '未知') AS `name`, COUNT(1) AS `count`
+        FROM video_info
+        WHERE video_status = 0
+        GROUP BY video_year
+        ORDER BY video_year DESC
+    </select>
+
+    <!-- 按地区统计 -->
+    <select id="countByDistrict" resultType="java.util.Map">
+        SELECT COALESCE(video_district, '未知') AS `name`, COUNT(1) AS `count`
+        FROM video_info
+        WHERE video_status = 0 AND video_district IS NOT NULL AND video_district != ''
+        GROUP BY video_district
+        ORDER BY `count` DESC
+        LIMIT 10
+    </select>
+
+    <!-- 按类型统计 -->
+    <select id="countByType" resultType="java.util.Map">
+        SELECT TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(video_type, ',', n.n), ',', -1)) AS `name`, COUNT(1) AS `count`
+        FROM video_info
+                 JOIN (SELECT 1 AS n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) n
+                      ON CHAR_LENGTH(video_type) - CHAR_LENGTH(REPLACE(video_type, ',', '')) >= n.n - 1
+        WHERE video_status = 0 AND video_type IS NOT NULL AND video_type != ''
+        GROUP BY `name`
+        ORDER BY `count` DESC
+        LIMIT 15
+    </select>
+
+    <!-- 最近7天新增 -->
+    <select id="countRecentDaily" resultType="java.util.Map">
+        SELECT DATE(create_time) AS `name`, COUNT(1) AS `count`
+        FROM video_info
+        WHERE create_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+        GROUP BY DATE(create_time)
+        ORDER BY `name` ASC
+    </select>
+
+    <!-- 播放量前十 -->
+    <select id="selectTopViewed" resultType="java.util.Map">
+        SELECT video_id, video_name, video_cover, video_views AS `count`
+        FROM video_info
+        WHERE video_status = 0 AND video_views > 0
+        ORDER BY video_views DESC
+        LIMIT 10
+    </select>
+
+    <!-- 评分前十 -->
+    <select id="selectTopRated" resultType="java.util.Map">
+        SELECT video_id, video_name, video_cover, video_score AS `count`
+        FROM video_info
+        WHERE video_status = 0 AND video_score > 0
+        ORDER BY video_score DESC
+        LIMIT 10
+    </select>
 </mapper>

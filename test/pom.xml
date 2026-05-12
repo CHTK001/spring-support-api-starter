@@ -25,5 +25,6 @@
     <module>spring-api-support-spider-test-starter</module>
     <module>spring-api-support-payment-test-starter</module>
     <module>spring-api-support-system-test-starter</module>
+    <module>spring-api-support-video-test-starter</module>
   </modules>
 </project>
