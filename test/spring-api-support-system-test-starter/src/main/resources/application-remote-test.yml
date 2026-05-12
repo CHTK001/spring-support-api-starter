@@ -1,0 +1,27 @@
+plugin:
+  scheduler:
+    job-platform:
+      remote-dispatch-enabled: true
+      dispatch-interval-ms: 3000
+      namespaces:
+        default:
+          executor-mode: STATIC
+          executors:
+            - name: system-test-executor
+              baseUrl: http://localhost:18171/system/api
+              dispatchPath: /v1/job-executor/dispatch
+  job:
+    remote-executor:
+      enabled: true
+      dispatch-path: /v1/job-executor/dispatch
+    job-annotation-sync-mode: CREATE
+  oauth:
+    enable: false
+    whitelist:
+      - /v1/job-executor/dispatch
+      - /**/v1/job-executor/dispatch
+
+logging:
+  level:
+    com.chua.starter.scheduler: DEBUG
+    com.chua.starter.job.support.remote: DEBUG

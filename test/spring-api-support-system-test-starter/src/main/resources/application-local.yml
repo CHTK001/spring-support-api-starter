@@ -13,22 +13,28 @@ spring:
       port: 6379
   sql:
     init:
-      mode: always
-      schema-locations: classpath:db/init/V1.0__init_system.sql
-      continue-on-error: true
+      mode: never
 logging:
   level:
     com.chua.starter.system.mapper: debug
 
 plugin:
+  datasource:
+    script:
+      enable: true
+  redis:
+    server:
+      enable: false
   system:
     server:
       enable: true
+    feedback:
+      menu:
+        enabled: false
   oauth:
-    enable: true
-    protocol: static
+    enable: false
   job:
     enable: true
 soft:
   management:
-    enable: false
+    enable: true

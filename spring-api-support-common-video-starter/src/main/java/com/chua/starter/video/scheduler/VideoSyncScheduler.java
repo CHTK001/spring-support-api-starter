@@ -3,11 +3,13 @@ package com.chua.starter.video.scheduler;
 import com.chua.starter.video.service.VideoSyncTaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.scheduling.annotation.Scheduled;
 
 /**
- * 视频同步定时任务
+ * 视频同步定时任务（@Scheduled 回退方案）
+ * <p>当 plugin.job.enable 未设置或为 false 时生效</p>
  *
  * @author CH
  * @since 2024/6/21
@@ -15,13 +17,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 @SpringBootConfiguration
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnMissingBean(VideoSyncJob.class)
 public class VideoSyncScheduler {
 
     private final VideoSyncTaskService videoSyncTaskService;
 
     /**
      * 定时同步视频信息
-     * 每天凌晨2点执行
      */
     @Scheduled(cron = "0 0/1 * * * ?")
     public void syncVideoInfo() {

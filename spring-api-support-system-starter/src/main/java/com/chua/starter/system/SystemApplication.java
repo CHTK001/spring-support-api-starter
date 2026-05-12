@@ -42,6 +42,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 )
 public class SystemApplication {
     public static void main(String[] args) {
+        if (System.getProperty("mybatis-plus.encryptor.mode") == null) {
+            System.setProperty("mybatis-plus.encryptor.mode", "PLAIN");
+        }
+        if (System.getProperty("mybatis-plus.encryptor.password") == null) {
+            System.setProperty("mybatis-plus.encryptor.password", "system-test");
+        }
         SpringApplication.run(SystemApplication.class, args);
     }
 }

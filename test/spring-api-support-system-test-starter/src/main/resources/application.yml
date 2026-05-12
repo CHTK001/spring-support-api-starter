@@ -1,10 +1,29 @@
 spring:
   application:
-    name: system-test
+    name: soft-test
   profiles:
-    active: local
+    active: h2,remote-test
 
 server:
-  port: 18170
+  port: 18171
   servlet:
     context-path: /system/api
+
+plugin:
+  scheduler:
+    job-platform:
+      enabled: true
+      remote-dispatch-enabled: false
+      dispatch-interval-ms: 5000
+      namespaces:
+        default:
+          mode: STANDALONE
+          group: soft-test
+          discovery:
+            enabled: false
+        payment:
+          mode: STANDALONE
+          discovery:
+            enabled: false
+  job:
+    enable: true
