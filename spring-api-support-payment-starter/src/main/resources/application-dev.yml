@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${PAYMENT_DATASOURCE_URL:jdbc:mysql://127.0.0.1:3306/payment_service?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false}
+    url: ${PAYMENT_DATASOURCE_URL:jdbc:mysql://172.16.0.40:3306/payment_service?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false}
     username: ${PAYMENT_DATASOURCE_USERNAME:root}
     password: ${PAYMENT_DATASOURCE_PASSWORD:root}
   sql:

@@ -34,12 +34,24 @@ public interface WalletOrderService {
     /**
      * 标记订单成功
      */
-    void markSuccess(String orderNo, String responsePayload);
+    void markSuccess(String orderNo, String thirdPartyOrderNo, String responsePayload);
+
+    /**
+     * 标记订单成功（无第三方订单号）
+     */
+    default void markSuccess(String orderNo, String responsePayload) {
+        markSuccess(orderNo, null, responsePayload);
+    }
 
     /**
      * 标记订单失败
      */
     void markFailed(String orderNo, String responsePayload, String reason);
+
+    /**
+     * 标记订单已取消
+     */
+    void markCancelled(String orderNo, String reason);
 
     /**
      * 根据订单号查询

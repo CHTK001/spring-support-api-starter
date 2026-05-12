@@ -5,9 +5,7 @@ spring:
     active: dev
 
 server:
-  port: 58084
-  servlet:
-    context-path: /system/api
+  port: 8085
 
 plugin:
   redis:

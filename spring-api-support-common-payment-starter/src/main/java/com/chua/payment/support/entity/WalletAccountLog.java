@@ -50,6 +50,6 @@ public class WalletAccountLog {
     @TableField("pay_wallet_account_log_remark")
     private String remark;
 
-    @TableField(value = "pay_wallet_account_log_created_at", fill = FieldFill.INSERT)
+    @TableField("pay_wallet_account_log_created_at")
     private LocalDateTime createdAt;
 }

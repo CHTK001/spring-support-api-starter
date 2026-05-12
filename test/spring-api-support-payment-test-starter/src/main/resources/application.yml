@@ -14,6 +14,8 @@ spring:
 
 server:
   port: 8085
+  servlet:
+    context-path: /api
 
 management:
   endpoints:
@@ -22,6 +24,9 @@ management:
         exclude: mybatis-extension
 
 plugin:
+  strategy:
+    circuit-breaker:
+      enabled: false
   payment:
     server:
       enable: true
@@ -30,7 +35,7 @@ plugin:
     ops:
       enabled: true
     callback:
-      base-url: http://127.0.0.1:8085/payment/api
+      base-url: http://127.0.0.1:8085/api
     security:
       key: payment-test-key-20260324
   oauth:

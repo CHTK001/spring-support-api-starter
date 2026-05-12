@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS `pay_global_config` (
     `remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
     `sample_pay_notify_url` VARCHAR(500) DEFAULT NULL COMMENT '支付回调示例 URL',
     `sample_refund_notify_url` VARCHAR(500) DEFAULT NULL COMMENT '退款回调示例 URL',
+    `coupon_deduct_withdrawable` TINYINT DEFAULT 1 COMMENT '优惠券抵扣部分是否可提现: 0-不可提现(冻结), 1-可提现',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     UNIQUE KEY `uk_global_config_key` (`config_key`)
@@ -24,6 +25,7 @@ CREATE TABLE IF NOT EXISTS `pay_global_config` (
 CREATE TABLE IF NOT EXISTS `pay_coupon_template` (
     `pay_coupon_template_id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
     `pay_coupon_template_name` VARCHAR(100) NOT NULL COMMENT '优惠券名称',
+    `pay_coupon_template_code` VARCHAR(64) DEFAULT NULL COMMENT '优惠券编码',
     `pay_coupon_template_type` VARCHAR(32) NOT NULL COMMENT '类型: DISCOUNT-折扣, REDUCE-满减, CASH-代金券',
     `pay_coupon_template_discount_rate` DECIMAL(5,4) DEFAULT NULL COMMENT '折扣率（折扣券用，如 0.8000 表示八折）',
     `pay_coupon_template_reduce_amount` DECIMAL(18,2) DEFAULT NULL COMMENT '减免金额（满减券/代金券用）',
@@ -31,6 +33,8 @@ CREATE TABLE IF NOT EXISTS `pay_coupon_template` (
     `pay_coupon_template_total_count` INT DEFAULT 0 COMMENT '发行总量（0 表示不限量）',
     `pay_coupon_template_used_count` INT DEFAULT 0 COMMENT '已使用数量',
     `pay_coupon_template_valid_days` INT DEFAULT NULL COMMENT '有效期天数（从领取日起）',
+    `pay_coupon_template_start_time` DATETIME DEFAULT NULL COMMENT '有效期开始时间',
+    `pay_coupon_template_end_time` DATETIME DEFAULT NULL COMMENT '有效期结束时间',
     `pay_coupon_template_status` VARCHAR(16) DEFAULT 'ENABLED' COMMENT '状态: ENABLED-启用, DISABLED-禁用',
     `pay_coupon_template_merchant_id` BIGINT NOT NULL COMMENT '商户ID',
     `pay_coupon_template_description` VARCHAR(500) DEFAULT NULL COMMENT '描述',
@@ -80,3 +84,24 @@ CREATE TABLE IF NOT EXISTS `pay_recharge_reward_rule` (
     INDEX `idx_reward_rule_merchant` (`pay_recharge_reward_rule_merchant_id`),
     INDEX `idx_reward_rule_status` (`pay_recharge_reward_rule_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='充值奖励规则表';
+
+-- 5. 钱包提现审批表
+CREATE TABLE IF NOT EXISTS `pay_wallet_withdraw_approval` (
+    `pay_wallet_withdraw_approval_id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    `pay_wallet_withdraw_approval_merchant_id` BIGINT NOT NULL COMMENT '商户ID',
+    `pay_wallet_withdraw_approval_user_id` BIGINT NOT NULL COMMENT '用户ID',
+    `pay_wallet_withdraw_approval_amount` DECIMAL(18,2) NOT NULL COMMENT '提现金额',
+    `pay_wallet_withdraw_approval_bank_account` VARCHAR(64) NOT NULL COMMENT '银行账号',
+    `pay_wallet_withdraw_approval_bank_name` VARCHAR(100) DEFAULT NULL COMMENT '银行名称',
+    `pay_wallet_withdraw_approval_account_name` VARCHAR(100) DEFAULT NULL COMMENT '账户名',
+    `pay_wallet_withdraw_approval_withdraw_no` VARCHAR(64) NOT NULL COMMENT '提现流水号',
+    `pay_wallet_withdraw_approval_status` VARCHAR(16) NOT NULL DEFAULT 'PENDING' COMMENT '状态: PENDING-待审批, APPROVED-已通过, REJECTED-已拒绝',
+    `pay_wallet_withdraw_approval_operator` VARCHAR(64) DEFAULT NULL COMMENT '审批操作人',
+    `pay_wallet_withdraw_approval_remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
+    `pay_wallet_withdraw_approval_approve_time` DATETIME DEFAULT NULL COMMENT '审批时间',
+    `pay_wallet_withdraw_approval_created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `pay_wallet_withdraw_approval_updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX `idx_approval_merchant_user` (`pay_wallet_withdraw_approval_merchant_id`, `pay_wallet_withdraw_approval_user_id`),
+    INDEX `idx_approval_status` (`pay_wallet_withdraw_approval_status`),
+    INDEX `idx_approval_withdraw_no` (`pay_wallet_withdraw_approval_withdraw_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='钱包提现审批表';

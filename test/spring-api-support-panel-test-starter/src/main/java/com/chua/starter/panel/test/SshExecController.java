@@ -5,21 +5,31 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 /**
  * 为测试环境提供 SSH 脚本执行端点。
  * <p>生产环境由 utils-support-nginx-starter 提供，测试环境临时补全。</p>
  */
+@Slf4j
 @RestController
 @RequestMapping("/v1/panel/ssh")
 @RequiredArgsConstructor
 public class SshExecController {
+
+    private static final Path DEFAULT_PRIVATE_KEY = Paths.get(
+            System.getProperty("user.home"), ".ssh", "id_rsa"
+    );
 
     private final NginxPanelService nginxPanelService;
 
@@ -58,10 +68,15 @@ public class SshExecController {
         String username = body.getOrDefault("username", "root");
         String password = body.get("password");
         String privateKey = body.get("privateKey");
+        // 当密码为空且未传 privateKey 时，自动检测默认 SSH 密钥
+        if (isBlank(password) && isBlank(privateKey)) {
+            privateKey = detectDefaultPrivateKey();
+        }
         try {
             String connectionId = nginxPanelService.open(host, port, username, password, privateKey);
             return ResponseEntity.ok(Map.of("code", "S200", "msg", "success", "data", connectionId));
         } catch (Exception e) {
+            log.warn("SSH 连接失败 {}@{}:{}: {}", username, host, port, e.getMessage());
             return ResponseEntity.ok(Map.of("code", "S500", "msg", "SSH 连接失败: " + e.getMessage(), "data", ""));
         }
     }
@@ -115,6 +130,24 @@ public class SshExecController {
         } catch (NumberFormatException e) {
             return 22;
         }
+    }
+
+    /**
+     * 当密码为空时从默认路径 ~/.ssh/id_rsa 读取私钥。
+     */
+    private static String detectDefaultPrivateKey() {
+        if (Files.exists(DEFAULT_PRIVATE_KEY)) {
+            try {
+                return Files.readString(DEFAULT_PRIVATE_KEY, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                log.debug("读取默认 SSH 密钥失败: {}", e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
     }
 
     private String executeSshCommand(String host, int port, String username, String password, String script) throws Exception {

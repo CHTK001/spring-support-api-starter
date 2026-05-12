@@ -307,7 +307,8 @@ public class WalletBalancePaymentChannel extends AbstractMerchantPaymentChannel 
             if (order == null) {
                 throw new PaymentException("提现订单创建失败");
             }
-            walletAccountService.withdraw(
+            // 冻结余额，不直接扣减（待管理员确认到账）
+            walletAccountService.freezeForWithdraw(
                     com.chua.payment.support.dto.WalletWithdrawDTO.builder()
                             .merchantId(request.getMerchantId())
                             .userId(request.getUserId())
@@ -321,15 +322,15 @@ public class WalletBalancePaymentChannel extends AbstractMerchantPaymentChannel 
                             .build()
             );
 
-            walletOrderService.markSuccess(order.getOrderNo(), toJson(request));
+            walletOrderService.markProcessing(order.getOrderNo(), null, toJson(request));
 
             WithdrawResult result = new WithdrawResult();
             result.setSuccess(true);
             result.setWithdrawNo(order.getOrderNo());
             result.setTradeNo("WALLET_WITHDRAW_" + order.getOrderNo());
             result.setAmount(request.getAmount());
-            result.setStatus("SUCCESS");
-            result.setMessage("钱包提现成功");
+            result.setStatus("PROCESSING");
+            result.setMessage("钱包提现申请已提交，等待确认到账");
             result.setRawResponse(toJson(order));
             return result;
         } catch (Exception e) {

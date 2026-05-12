@@ -71,6 +71,20 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public void transfer(Long merchantId, Long fromUserId, Long toUserId, BigDecimal amount, String transferNo, String operator, String remark) {
+        WalletTransferDTO dto = new WalletTransferDTO();
+        dto.setMerchantId(merchantId);
+        dto.setFromUserId(fromUserId);
+        dto.setToUserId(toUserId);
+        dto.setAmount(amount);
+        dto.setTransferNo(transferNo);
+        dto.setOperator(operator);
+        dto.setRemark(remark);
+        transfer(dto);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public WalletAccountVO transfer(WalletTransferDTO dto) {
         if (dto == null) {
             throw new PaymentException("转账参数不能为空");
@@ -103,6 +117,174 @@ public class WalletAccountServiceImpl implements WalletAccountService {
 
         WalletAccount account = applyChange("WITHDRAW", bizNo, dto.getMerchantId(), dto.getUserId(), dto.getAmount(), false, false, dto.getOperator(), remark);
         return toVO(account);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public WalletAccountVO freezeForWithdraw(WalletWithdrawDTO dto) {
+        if (dto == null) {
+            throw new PaymentException("提现参数不能为空");
+        }
+        if (!StringUtils.hasText(dto.getBankAccount())) {
+            throw new PaymentException("银行账号不能为空");
+        }
+
+        String bizNo = StringUtils.hasText(dto.getWithdrawNo()) ? dto.getWithdrawNo() : generateBizNo("WDW");
+        String remark = String.format("提现冻结到%s(%s)%s",
+                StringUtils.hasText(dto.getBankName()) ? dto.getBankName() : "银行",
+                dto.getBankAccount(),
+                StringUtils.hasText(dto.getRemark()) ? ": " + dto.getRemark() : "");
+
+        requireWalletEnabledMerchant(dto.getMerchantId());
+
+        String idempotentKey = "payment:idempotent:wallet:WITHDRAW_FREEZE:" + dto.getMerchantId() + ":" + dto.getUserId() + ":" + bizNo;
+        if (!idempotentTemplate.tryAcquire(idempotentKey, 10, TimeUnit.MINUTES)) {
+            throw new PaymentException("请求正在处理中，请勿重复提交");
+        }
+
+        try {
+            // CAS 乐观锁重试：同时更新 available_balance 和 frozen_balance
+            for (int i = 0; i < 5; i++) {
+                WalletAccount account = requireAccount(dto.getMerchantId(), dto.getUserId(), false);
+                ensureAccountEnabled(account);
+
+                BigDecimal availBefore = scale(account.getAvailableBalance());
+                BigDecimal frozenBefore = scale(account.getFrozenBalance());
+                BigDecimal delta = scale(dto.getAmount());
+
+                if (availBefore.compareTo(delta) < 0) {
+                    throw new PaymentException("钱包余额不足");
+                }
+
+                BigDecimal availAfter = availBefore.subtract(delta);
+                BigDecimal frozenAfter = frozenBefore.add(delta);
+
+                int updated = walletAccountMapper.update(null, new LambdaUpdateWrapper<WalletAccount>()
+                        .eq(WalletAccount::getId, account.getId())
+                        .eq(WalletAccount::getAvailableBalance, availBefore)
+                        .eq(WalletAccount::getFrozenBalance, frozenBefore)
+                        .set(WalletAccount::getAvailableBalance, availAfter)
+                        .set(WalletAccount::getFrozenBalance, frozenAfter));
+                if (updated <= 0) {
+                    continue;
+                }
+
+                // 写入流水
+                WalletAccountLog log = new WalletAccountLog();
+                log.setMerchantId(dto.getMerchantId());
+                log.setUserId(dto.getUserId());
+                log.setBizType("WITHDRAW");
+                log.setBizNo(bizNo);
+                log.setChangeType("OUT");
+                log.setChangeAmount(delta);
+                log.setBalanceBefore(availBefore);
+                log.setBalanceAfter(availAfter);
+                log.setOperator(StringUtils.hasText(dto.getOperator()) ? dto.getOperator() : "system");
+                log.setRemark(remark);
+                walletAccountLogMapper.insert(log);
+
+                WalletAccount refreshed = walletAccountMapper.selectById(account.getId());
+                return toVO(refreshed);
+            }
+
+            throw new PaymentException("钱包余额更新失败，请稍后重试");
+        } finally {
+            idempotentTemplate.release(idempotentKey);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void confirmWithdraw(Long merchantId, Long userId, String bizNo, BigDecimal amount) {
+        if (merchantId == null || userId == null || !StringUtils.hasText(bizNo) || amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new PaymentException("参数不完整");
+        }
+
+        for (int i = 0; i < 5; i++) {
+            WalletAccount account = requireAccount(merchantId, userId, false);
+            BigDecimal frozenBefore = scale(account.getFrozenBalance());
+            BigDecimal delta = scale(amount);
+
+            if (frozenBefore.compareTo(delta) < 0) {
+                throw new PaymentException("冻结余额不足");
+            }
+
+            BigDecimal frozenAfter = frozenBefore.subtract(delta);
+
+            int updated = walletAccountMapper.update(null, new LambdaUpdateWrapper<WalletAccount>()
+                    .eq(WalletAccount::getId, account.getId())
+                    .eq(WalletAccount::getFrozenBalance, frozenBefore)
+                    .set(WalletAccount::getFrozenBalance, frozenAfter));
+            if (updated <= 0) {
+                continue;
+            }
+
+            // 写入到账确认流水（使用 WITHDRAW_CONFIRM 避免与冻结流水冲突）
+            WalletAccountLog log = new WalletAccountLog();
+            log.setMerchantId(merchantId);
+            log.setUserId(userId);
+            log.setBizType("WITHDRAW_CONFIRM");
+            log.setBizNo(bizNo);
+            log.setChangeType("OUT");
+            log.setChangeAmount(delta);
+            log.setBalanceBefore(frozenBefore);
+            log.setBalanceAfter(frozenAfter);
+            log.setOperator("system");
+            log.setRemark("提现到账确认");
+            walletAccountLogMapper.insert(log);
+            return;
+        }
+
+        throw new PaymentException("钱包余额更新失败，请稍后重试");
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void cancelWithdraw(Long merchantId, Long userId, String bizNo, BigDecimal amount, String remark) {
+        if (merchantId == null || userId == null || !StringUtils.hasText(bizNo) || amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new PaymentException("参数不完整");
+        }
+
+        for (int i = 0; i < 5; i++) {
+            WalletAccount account = requireAccount(merchantId, userId, false);
+            BigDecimal availBefore = scale(account.getAvailableBalance());
+            BigDecimal frozenBefore = scale(account.getFrozenBalance());
+            BigDecimal delta = scale(amount);
+
+            if (frozenBefore.compareTo(delta) < 0) {
+                throw new PaymentException("冻结余额不足");
+            }
+
+            BigDecimal availAfter = availBefore.add(delta);
+            BigDecimal frozenAfter = frozenBefore.subtract(delta);
+
+            int updated = walletAccountMapper.update(null, new LambdaUpdateWrapper<WalletAccount>()
+                    .eq(WalletAccount::getId, account.getId())
+                    .eq(WalletAccount::getAvailableBalance, availBefore)
+                    .eq(WalletAccount::getFrozenBalance, frozenBefore)
+                    .set(WalletAccount::getAvailableBalance, availAfter)
+                    .set(WalletAccount::getFrozenBalance, frozenAfter));
+            if (updated <= 0) {
+                continue;
+            }
+
+            // 写入解冻流水
+            WalletAccountLog log = new WalletAccountLog();
+            log.setMerchantId(merchantId);
+            log.setUserId(userId);
+            log.setBizType("WITHDRAW_CANCEL");
+            log.setBizNo(bizNo);
+            log.setChangeType("IN");
+            log.setChangeAmount(delta);
+            log.setBalanceBefore(availBefore);
+            log.setBalanceAfter(availAfter);
+            log.setOperator("system");
+            log.setRemark(StringUtils.hasText(remark) ? remark : "取消提现解冻");
+            walletAccountLogMapper.insert(log);
+            return;
+        }
+
+        throw new PaymentException("钱包余额更新失败，请稍后重试");
     }
 
     @Override

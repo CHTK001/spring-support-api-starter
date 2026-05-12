@@ -23,5 +23,6 @@ public class WalletWithdrawDTO {
     private String bankName;
     private String accountName;
     private String operator;
+    private String notifyUrl;
     private String remark;
 }
