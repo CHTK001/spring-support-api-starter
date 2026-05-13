@@ -3,7 +3,9 @@ spring:
     allow-bean-definition-overriding: true
   autoconfigure:
     exclude:
+      - com.chua.starter.redis.support.RedisConfiguration
       - com.chua.starter.redis.support.CacheConfiguration
+      - com.chua.starter.redis.support.LockTemplateConfiguration
   datasource:
     driverClassName: org.h2.Driver
     url: jdbc:h2:mem:spider;MODE=MYSQL;DB_CLOSE_DELAY=-1

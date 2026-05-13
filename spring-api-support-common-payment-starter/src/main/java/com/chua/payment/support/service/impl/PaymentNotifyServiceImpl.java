@@ -3,9 +3,11 @@ package com.chua.payment.support.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.payment.support.channel.support.AbstractMerchantPaymentChannel;
 import com.chua.payment.support.entity.MerchantChannel;
+import com.chua.payment.support.dto.WalletRechargeDTO;
 import com.chua.payment.support.entity.PaymentNotifyLog;
 import com.chua.payment.support.entity.PaymentOrder;
 import com.chua.payment.support.entity.PaymentRefundOrder;
+import com.chua.payment.support.entity.WalletOrder;
 import com.chua.payment.support.enums.ChannelStatus;
 import com.chua.payment.support.enums.OrderState;
 import com.chua.payment.support.exception.PaymentException;
@@ -17,6 +19,8 @@ import com.chua.payment.support.service.PaymentNotifyLogService;
 import com.chua.payment.support.service.PaymentNotifyService;
 import com.chua.payment.support.service.PaymentOrderService;
 import com.chua.payment.support.service.PaymentRefundOrderService;
+import com.chua.payment.support.service.WalletAccountService;
+import com.chua.payment.support.service.WalletOrderService;
 import com.chua.starter.aliyun.support.payment.AliyunAlipayGateway;
 import com.chua.starter.aliyun.support.payment.dto.AliyunAlipayNotifyRequest;
 import com.chua.starter.aliyun.support.payment.dto.AliyunAlipayPayNotifyPayload;
@@ -54,6 +58,8 @@ public class PaymentNotifyServiceImpl extends AbstractMerchantPaymentChannel imp
     private final PaymentRefundOrderService paymentRefundOrderService;
     private final PaymentNotifyLogService paymentNotifyLogService;
     private final PaymentProviderGatewayRegistry providerGatewayRegistry;
+    private final WalletAccountService walletAccountService;
+    private final WalletOrderService walletOrderService;
 
     public PaymentNotifyServiceImpl(MerchantChannelService merchantChannelService,
                                     ObjectMapper objectMapper,
@@ -62,7 +68,9 @@ public class PaymentNotifyServiceImpl extends AbstractMerchantPaymentChannel imp
                                     PaymentOrderService paymentOrderService,
                                     PaymentRefundOrderService paymentRefundOrderService,
                                     PaymentNotifyLogService paymentNotifyLogService,
-                                    PaymentProviderGatewayRegistry providerGatewayRegistry) {
+                                    PaymentProviderGatewayRegistry providerGatewayRegistry,
+                                    WalletAccountService walletAccountService,
+                                    WalletOrderService walletOrderService) {
         super(merchantChannelService, objectMapper);
         this.merchantChannelMapper = merchantChannelMapper;
         this.paymentOrderMapper = paymentOrderMapper;
@@ -70,6 +78,8 @@ public class PaymentNotifyServiceImpl extends AbstractMerchantPaymentChannel imp
         this.paymentRefundOrderService = paymentRefundOrderService;
         this.paymentNotifyLogService = paymentNotifyLogService;
         this.providerGatewayRegistry = providerGatewayRegistry;
+        this.walletAccountService = walletAccountService;
+        this.walletOrderService = walletOrderService;
     }
 
     @Override
@@ -228,7 +238,10 @@ public class PaymentNotifyServiceImpl extends AbstractMerchantPaymentChannel imp
             }
 
             switch (tradeStatus) {
-                case "TRADE_SUCCESS", "TRADE_FINISHED" -> paymentOrderService.paySuccess(relatedOrder.getId(), payload.getTotalAmount(), payload.getTradeNo(), "alipay-notify");
+                case "TRADE_SUCCESS", "TRADE_FINISHED" -> {
+                    paymentOrderService.paySuccess(relatedOrder.getId(), payload.getTotalAmount(), payload.getTradeNo(), "alipay-notify");
+                    handleWalletRechargeIfNeeded(relatedOrder, payload);
+                }
                 case "TRADE_CLOSED" -> {
                     if (canCancel(relatedOrder.getStatus())) {
                         paymentOrderService.cancelOrder(relatedOrder.getId(), "alipay-notify", "支付宝交易已关闭");
@@ -287,6 +300,41 @@ public class PaymentNotifyServiceImpl extends AbstractMerchantPaymentChannel imp
         String requestHeaders = toJson(buildWechatHeaders(serialNumber, timestamp, nonce, signature, signType));
         log.info("收到微信钱包异步通知: orderType={}, orderNo={}", orderType, orderNo);
         paymentNotifyLogService.start("WECHAT_WALLET_" + orderType, 0L, requestHeaders, body);
+    }
+
+    /**
+     * 检测支付宝支付回调是否为钱包充值，若是则增加钱包余额
+     */
+    private void handleWalletRechargeIfNeeded(PaymentOrder order, AliyunAlipayPayNotifyPayload payload) {
+        if (order.getBusinessOrderNo() == null || !order.getBusinessOrderNo().startsWith("WALLET_RECHARGE_")) {
+            return;
+        }
+        String walletOrderNo = order.getBusinessOrderNo().substring("WALLET_RECHARGE_".length());
+        WalletOrder walletOrder = walletOrderService.getByOrderNo(walletOrderNo);
+        if (walletOrder == null) {
+            log.error("钱包充值订单不存在: {}", walletOrderNo);
+            return;
+        }
+        if (!"PENDING".equals(walletOrder.getStatus())) {
+            log.info("钱包充值订单已处理，跳过: {}", walletOrderNo);
+            return;
+        }
+
+        // 增加余额
+        WalletRechargeDTO rechargeDTO = WalletRechargeDTO.builder()
+                .merchantId(order.getMerchantId())
+                .userId(order.getUserId())
+                .rechargeNo(walletOrderNo)
+                .amount(payload.getTotalAmount() != null ? payload.getTotalAmount() : walletOrder.getAmount())
+                .operator("alipay-notify")
+                .remark("支付宝充值到账:" + payload.getTradeNo())
+                .build();
+        walletAccountService.recharge(rechargeDTO);
+
+        // 标记钱包订单成功
+        walletOrderService.markSuccess(walletOrderNo, payload.getTradeNo(), "支付宝充值到账");
+
+        log.info("钱包充值回调处理成功: walletOrderNo={}, tradeNo={}", walletOrderNo, payload.getTradeNo());
     }
 
     private TencentWechatPayGateway wechatGateway(String extension) {

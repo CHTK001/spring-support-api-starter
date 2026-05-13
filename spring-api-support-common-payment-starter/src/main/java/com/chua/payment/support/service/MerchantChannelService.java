@@ -29,6 +29,11 @@ public interface MerchantChannelService {
 
     List<ProviderSpiOptionVO> listProviderOptions(String channelType);
 
+    /**
+     * 删除渠道配置
+     */
+    boolean deleteChannel(Long id);
+
     String encryptApiKey(String apiKey);
 
     String decryptApiKey(String encryptedKey);

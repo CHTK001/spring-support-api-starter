@@ -19,3 +19,11 @@ logging:
   level:
     com.chua.starter.project: debug
     com.chua.starter.ai: debug
+    com.chua.starter.panel: debug
+    com.chua.starter.mybatis: debug
+    com.baomidou.mybatisplus: debug
+
+docker:
+  api:
+    host: 172.16.0.40
+    port: 2375

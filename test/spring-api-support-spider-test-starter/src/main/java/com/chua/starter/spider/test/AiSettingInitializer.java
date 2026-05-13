@@ -30,12 +30,12 @@ public class AiSettingInitializer implements ApplicationRunner {
         {"factory",           "default",                                "STRING",  "ChatClient SPI 工厂名称",                                     8},
         {"provider",          "openai",                                 "STRING",  "默认 LLM 提供商",                                             9},
         {"default_model",     "deepseek-v4-pro",                     "STRING",  "默认聊天模型编码",                                            10},
-        {"provider_base_url", "https://newapis.xyz/v1",                           "STRING", "LLM 提供商基础地址",                                         70},
-        {"provider_api_key",  "sk-17958f039b5dd013b46a3ff38511c05957ec7ccfef59cc538fb61adecab8bdb3", "STRING", "LLM 提供商 API Key",                                     75},
+        {"provider_base_url", "https://api.edgefn.net/v1",                         "STRING", "LLM 提供商基础地址",                                         70},
+        {"provider_api_key",  "sk-XwXQgMSOQmkxnwGe90A88eB5Df0444C2A926C3F22d096013", "STRING", "LLM 提供商 API Key(白山智算)",                               75},
         {"system_prompt",     "",                                       "STRING",  "默认系统提示词",                                              15},
-        {"temperature",       "0.7",                                    "NUMBER",  "默认采样温度",                                                20},
-        {"max_tokens",        "4096",                                   "NUMBER",  "默认最大输出 token",                                          30},
-        {"timeout_millis",    "15000",                                  "NUMBER",  "默认超时时间(毫秒)",                                          35},
+        {"temperature",       "0.0",                                    "NUMBER",  "默认采样温度",                                                20},
+        {"max_tokens",        "8192",                                   "NUMBER",  "默认最大输出 token",                                          30},
+        {"timeout_millis",    "60000",                                  "NUMBER",  "默认超时时间(毫秒)",                                          35},
     };
 
     private final JdbcTemplate jdbcTemplate;

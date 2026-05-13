@@ -23,3 +23,8 @@ plugin:
   control:
     platform:
       name: scheduler
+  discovery:
+    enable: true
+    properties:
+      - protocol: nacos
+        address: 172.16.0.40:8848

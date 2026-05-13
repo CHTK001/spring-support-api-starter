@@ -9,10 +9,12 @@ import com.chua.payment.support.entity.WalletWithdrawApproval;
 import com.chua.payment.support.exception.PaymentException;
 import com.chua.payment.support.service.WalletAccountService;
 import com.chua.payment.support.service.WalletOrderService;
+import com.chua.payment.support.service.WalletPayoutService;
 import com.chua.payment.support.service.WalletWithdrawApprovalService;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * 钱包提现审批控制器
  */
+@Slf4j
 @RestController
 @RequestMapping("/wallet/withdraw-approval")
 @RequiredArgsConstructor
@@ -32,6 +35,7 @@ public class WalletWithdrawApprovalController {
     private final WalletWithdrawApprovalService walletWithdrawApprovalService;
     private final WalletAccountService walletAccountService;
     private final WalletOrderService walletOrderService;
+    private final WalletPayoutService walletPayoutService;
 
     @GetMapping("/page")
     @Permission(value = "payment:wallet:view", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN, AuthConstant.OPS})
@@ -55,20 +59,23 @@ public class WalletWithdrawApprovalController {
                 approval.getWithdrawNo(), approval.getAmount());
 
         // 创建提现订单并标记处理中
-        WithdrawRequest request = new WithdrawRequest();
-        request.setWithdrawNo(approval.getWithdrawNo());
-        request.setMerchantId(approval.getMerchantId());
-        request.setUserId(approval.getUserId());
-        request.setAmount(approval.getAmount());
-        request.setBankAccount(approval.getBankAccount());
-        request.setBankName(approval.getBankName());
-        request.setAccountName(approval.getAccountName());
-        request.setOperator(operator);
+        WithdrawRequest request = buildWithdrawRequest(approval, operator);
         WalletOrder order = walletOrderService.createWithdrawOrder(request);
         walletOrderService.markProcessing(order.getOrderNo(), null, null);
 
         // 更新审批状态
         walletWithdrawApprovalService.approve(id, operator);
+
+        // 尝试支付宝自动打款（不阻塞主流程）
+        try {
+            boolean ok = walletPayoutService.payoutToAlipay(request, order.getOrderNo());
+            if (!ok) {
+                log.warn("提现支付宝自动打款未执行（可能未配支付宝渠道），需人工处理: id={}", id);
+            }
+        } catch (Exception e) {
+            log.error("提现支付宝自动打款异常（已回滚余额），需人工核查: id={}", id, e);
+        }
+
         return ReturnResult.success();
     }
 
@@ -136,5 +143,18 @@ public class WalletWithdrawApprovalController {
         }
         walletOrderService.markFailed(orderNo, responsePayload, reason);
         return ReturnResult.success();
+    }
+
+    private WithdrawRequest buildWithdrawRequest(WalletWithdrawApproval approval, String operator) {
+        WithdrawRequest request = new WithdrawRequest();
+        request.setWithdrawNo(approval.getWithdrawNo());
+        request.setMerchantId(approval.getMerchantId());
+        request.setUserId(approval.getUserId());
+        request.setAmount(approval.getAmount());
+        request.setBankAccount(approval.getBankAccount());
+        request.setBankName(approval.getBankName());
+        request.setAccountName(approval.getAccountName());
+        request.setOperator(operator);
+        return request;
     }
 }
