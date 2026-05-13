@@ -13,6 +13,12 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-system-starter</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>utils-support-armeria-starter</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -66,6 +72,10 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
     </dependency>
   </dependencies>
   <build>
