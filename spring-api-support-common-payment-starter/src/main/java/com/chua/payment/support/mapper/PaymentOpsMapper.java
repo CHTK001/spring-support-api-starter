@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 支付运营数据 Mapper（台账/仪表盘）
@@ -47,4 +49,15 @@ public interface PaymentOpsMapper {
 
     /** 平均回调处理耗时（毫秒） */
     BigDecimal avgNotifyProcessDuration(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    // ========== 图表数据 ==========
+
+    /** 每日交易趋势（近 30 天） */
+    List<Map<String, Object>> selectDailyTrend(@Param("start") LocalDateTime start);
+
+    /** 支付方式分布（渠道类型聚合） */
+    List<Map<String, Object>> selectChannelDistribution(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    /** 最近 N 天的每日交易汇总（用作通道对比柱状图） */
+    List<Map<String, Object>> selectRecentDailySummary(@Param("start") LocalDateTime start);
 }

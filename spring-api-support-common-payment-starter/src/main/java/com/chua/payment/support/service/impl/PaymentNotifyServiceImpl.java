@@ -481,6 +481,7 @@ public class PaymentNotifyServiceImpl extends AbstractMerchantPaymentChannel imp
         properties.setApiV3Key(requiredText(decryptValue(channel.getApiKey()), "微信 APIv3 Key 不能为空"));
         properties.setMerchantSerialNumber(requiredText(extText(channel, "merchantSerialNumber"), "微信商户证书序列号不能为空"));
         properties.setNotifyUrl(channel.getNotifyUrl());
+        properties.setSandbox(channel.getSandboxMode() != null && channel.getSandboxMode() == 1);
         return properties;
     }
 

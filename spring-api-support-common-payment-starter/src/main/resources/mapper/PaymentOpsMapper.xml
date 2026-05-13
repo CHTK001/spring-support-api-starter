@@ -94,4 +94,42 @@
         <if test="end != null">AND pay_notify_log_received_at &lt; #{end}</if>
     </select>
 
+<!-- ========== 图表数据 ========== -->
+
+    <select id="selectDailyTrend" resultType="java.util.LinkedHashMap">
+        SELECT
+            DATE(pay_order_pay_time) AS dateKey,
+            COALESCE(SUM(pay_order_paid_amount), 0) AS amount,
+            COUNT(*) AS orderCount
+        FROM pay_order
+        WHERE pay_order_status IN ('PAID','COMPLETED')
+          AND pay_order_pay_time &gt;= #{start}
+        GROUP BY DATE(pay_order_pay_time)
+        ORDER BY dateKey ASC
+    </select>
+
+    <select id="selectChannelDistribution" resultType="java.util.LinkedHashMap">
+        SELECT
+            c.pay_merchant_channel_channel_type AS channelType,
+            COALESCE(SUM(o.pay_order_paid_amount), 0) AS amount,
+            COUNT(*) AS orderCount
+        FROM pay_order o
+        LEFT JOIN pay_merchant_channel c ON o.pay_order_channel_id = c.pay_merchant_channel_id
+        WHERE o.pay_order_status IN ('PAID','COMPLETED')
+        GROUP BY c.pay_merchant_channel_channel_type
+        ORDER BY amount DESC
+    </select>
+
+    <select id="selectRecentDailySummary" resultType="java.util.LinkedHashMap">
+        SELECT
+            DATE(pay_order_pay_time) AS dateKey,
+            COALESCE(SUM(pay_order_paid_amount), 0) AS amount,
+            COUNT(*) AS orderCount,
+            COALESCE(SUM(pay_order_refund_amount), 0) AS refundAmount
+        FROM pay_order
+        WHERE pay_order_pay_time &gt;= #{start}
+        GROUP BY DATE(pay_order_pay_time)
+        ORDER BY dateKey ASC
+    </select>
+
 </mapper>
