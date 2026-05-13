@@ -92,4 +92,11 @@ public class MerchantChannelController {
     public ReturnResult<Boolean> disableChannel(@PathVariable Long id) {
         return ReturnResult.success(channelService.disableChannel(id));
     }
+
+    @Operation(summary = "删除渠道配置")
+    @DeleteMapping("/{id}")
+    @Permission(value = "payment:channel:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Boolean> deleteChannel(@PathVariable Long id) {
+        return ReturnResult.success(channelService.deleteChannel(id));
+    }
 }

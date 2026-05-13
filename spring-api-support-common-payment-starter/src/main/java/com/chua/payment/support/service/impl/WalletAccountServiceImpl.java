@@ -200,6 +200,16 @@ public class WalletAccountServiceImpl implements WalletAccountService {
             throw new PaymentException("参数不完整");
         }
 
+        // 幂等性检查：已确认的提现不再重复处理
+        Long existingLog = walletAccountLogMapper.selectCount(new LambdaQueryWrapper<WalletAccountLog>()
+                .eq(WalletAccountLog::getMerchantId, merchantId)
+                .eq(WalletAccountLog::getUserId, userId)
+                .eq(WalletAccountLog::getBizType, "WITHDRAW_CONFIRM")
+                .eq(WalletAccountLog::getBizNo, bizNo));
+        if (existingLog != null && existingLog > 0) {
+            throw new PaymentException("提现已确认到账，请勿重复操作");
+        }
+
         for (int i = 0; i < 5; i++) {
             WalletAccount account = requireAccount(merchantId, userId, false);
             BigDecimal frozenBefore = scale(account.getFrozenBalance());
@@ -243,6 +253,16 @@ public class WalletAccountServiceImpl implements WalletAccountService {
     public void cancelWithdraw(Long merchantId, Long userId, String bizNo, BigDecimal amount, String remark) {
         if (merchantId == null || userId == null || !StringUtils.hasText(bizNo) || amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new PaymentException("参数不完整");
+        }
+
+        // 幂等性检查：已取消的提现不再重复处理
+        Long existingLog = walletAccountLogMapper.selectCount(new LambdaQueryWrapper<WalletAccountLog>()
+                .eq(WalletAccountLog::getMerchantId, merchantId)
+                .eq(WalletAccountLog::getUserId, userId)
+                .eq(WalletAccountLog::getBizType, "WITHDRAW_CANCEL")
+                .eq(WalletAccountLog::getBizNo, bizNo));
+        if (existingLog != null && existingLog > 0) {
+            throw new PaymentException("提现已取消，请勿重复操作");
         }
 
         for (int i = 0; i < 5; i++) {

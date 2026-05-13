@@ -147,6 +147,13 @@ public class MerchantChannelServiceImpl implements MerchantChannelService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean deleteChannel(Long id) {
+        MerchantChannel channel = requireChannel(id);
+        return channelMapper.deleteById(channel.getId()) > 0;
+    }
+
+    @Override
     public List<PaymentMethodGuideVO> listCatalog() {
         List<PaymentMethodGuideVO> list = new ArrayList<>();
         list.add(guide("WECHAT", "MINI_PROGRAM", "微信小程序支付开通", "微信支付", "https://pay.wechatpay.cn/", "https://pay.wechatpay.cn/static/applyment_guide/applyment_detail_miniapp.shtml", null,

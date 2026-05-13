@@ -79,6 +79,14 @@
       <version>4.12.0</version>
     </dependency>
     <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-project-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-panel-starter</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jdbc</artifactId>
     </dependency>
@@ -93,6 +101,9 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <classifier>exec</classifier>
+        </configuration>
       </plugin>
     </plugins>
   </build>

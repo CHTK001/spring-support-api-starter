@@ -13,7 +13,7 @@ spring:
       - com.chua.starter.ai.support.configuration.AiCacheManagerFallbackConfiguration
 
 server:
-  port: 8089
+  port: 8090
   servlet:
     context-path: /api
 
@@ -35,7 +35,7 @@ plugin:
     ops:
       enabled: true
     callback:
-      base-url: http://127.0.0.1:8089/api
+      base-url: http://127.0.0.1:8090/api
     security:
       key: payment-test-key-20260324
   oauth:
