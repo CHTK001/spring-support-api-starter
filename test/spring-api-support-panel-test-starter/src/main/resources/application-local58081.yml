@@ -15,7 +15,7 @@ spring:
     init:
       mode: always
       schema-locations: classpath:db/init/V1.0__init_panel.sql
-      data-locations: classpath:db/init/V1.0__initdata_panel.sql,classpath:db/init/V1.1__add_mysql_env_descriptions.sql
+      data-locations: classpath:db/init/V1.0__initdata_panel.sql
 logging:
   level:
     com.chua.starter.panel: debug

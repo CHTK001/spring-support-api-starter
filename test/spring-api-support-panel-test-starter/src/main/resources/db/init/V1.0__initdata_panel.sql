@@ -335,6 +335,33 @@ WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'elasticsearch'
 );
 
+-- SkyWalking APM（DOCKERFILE 构建，需 MySQL 存储，内置 MySQL JDBC 驱动）
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'skywalking', 'skywalking', 'SkyWalking', 'monitoring', 'DOCKERFILE', '9.7.0',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/apacheskywalking.svg',
+    'linux', '11800,12800', 1,
+    'FROM apache/skywalking-oap-server:9.7.0\nRUN wget -q -O /skywalking/ext-libs/mysql-connector-j-8.0.33.jar https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar\nEXPOSE 11800 12800\nCMD ["bash", "/skywalking/bin/oapService.sh"]',
+    1, 0, 1, 14,
+    '{"description":"Apache SkyWalking — 分布式 APM 系统（Dockerfile 构建，需连接 MySQL 作为存储后端）","serviceName":"skywalking","dockerSecurityOpts":["seccomp=unconfined"],"supportedModes":["DOCKER"],"dockerDefaults":{"image":"apache/skywalking-oap-server","tags":["9.7.0","latest"],"scriptMode":"dockerfile","dockerfileContent":"FROM apache/skywalking-oap-server:9.7.0\\nRUN wget -q -O /skywalking/ext-libs/mysql-connector-j-8.0.33.jar https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar\\nEXPOSE 11800 12800\\nCMD [\\"bash\\", \\"/skywalking/bin/oapService.sh\\"]","env":{"SW_STORAGE":"mysql","SW_JDBC_URL":"jdbc:mysql://172.16.0.40:3307/skywalking?useSSL=false&rewriteBatchedStatements=true&serverTimezone=Asia/Shanghai","SW_DATA_SOURCE_USER":"root","SW_DATA_SOURCE_PASSWORD":"root123456","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/skywalking/logs","containerPath":"/skywalking/logs"}],"envDescriptions":{"SW_STORAGE":"存储类型（mysql/elasticsearch）","SW_JDBC_URL":"MySQL JDBC 连接地址","SW_DATA_SOURCE_USER":"MySQL 用户名","SW_DATA_SOURCE_PASSWORD":"MySQL 密码","TZ":"时区"}}}',
+    '{"TZ":"Asia/Shanghai","SW_STORAGE":"mysql"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'skywalking'
+);
+
+-- 更新已有 SkyWalking 预设（兼容已初始化的数据库）
+UPDATE sys_project_container_software_preset
+SET install_script = 'FROM apache/skywalking-oap-server:9.7.0\nRUN wget -q -O /skywalking/ext-libs/mysql-connector-j-8.0.33.jar https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar\nEXPOSE 11800 12800\nCMD ["bash", "/skywalking/bin/oapService.sh"]',
+    preset_remark = '{"description":"Apache SkyWalking — 分布式 APM 系统（Dockerfile 构建，需连接 MySQL 作为存储后端）","serviceName":"skywalking","dockerSecurityOpts":["seccomp=unconfined"],"supportedModes":["DOCKER"],"dockerDefaults":{"image":"apache/skywalking-oap-server","tags":["9.7.0","latest"],"scriptMode":"dockerfile","dockerfileContent":"FROM apache/skywalking-oap-server:9.7.0\\nRUN wget -q -O /skywalking/ext-libs/mysql-connector-j-8.0.33.jar https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar\\nEXPOSE 11800 12800\\nCMD [\\"bash\\", \\"/skywalking/bin/oapService.sh\\"]","env":{"SW_STORAGE":"mysql","SW_JDBC_URL":"jdbc:mysql://172.16.0.40:3307/skywalking?useSSL=false&rewriteBatchedStatements=true&serverTimezone=Asia/Shanghai","SW_DATA_SOURCE_USER":"root","SW_DATA_SOURCE_PASSWORD":"root123456","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/skywalking/logs","containerPath":"/skywalking/logs"}],"envDescriptions":{"SW_STORAGE":"存储类型（mysql/elasticsearch）","SW_JDBC_URL":"MySQL JDBC 连接地址","SW_DATA_SOURCE_USER":"MySQL 用户名","SW_DATA_SOURCE_PASSWORD":"MySQL 密码","TZ":"时区"}}}'
+WHERE software_code = 'skywalking';
+
 -- ============================================================
 -- 绑定数据
 -- ============================================================
@@ -358,3 +385,42 @@ WHERE p.software_code = 'nginx'
     SELECT 1 FROM sys_project_container_software_binding b
     WHERE b.sys_project_id = 1 AND b.software_code = 'nginx'
 );
+
+-- ============================================================
+-- 为已有的 MySQL 预设补充 envDescriptions
+-- ============================================================
+UPDATE sys_project_container_software_preset
+SET preset_remark = JSON_SET(
+    preset_remark,
+    '$.dockerDefaults.envDescriptions',
+    JSON_OBJECT(
+        'MYSQL_ROOT_PASSWORD', 'MySQL root 用户密码',
+        'MYSQL_DATABASE', '初始化时自动创建的数据库',
+        'MYSQL_USER', '初始化时创建的普通用户',
+        'MYSQL_PASSWORD', '普通用户的密码',
+        'TZ', '容器时区设置',
+        'character_set_server', '服务器字符集编码',
+        'collation_server', '服务器排序规则',
+        'lower_case_table_names', '表名大小写敏感（0=敏感，1=不敏感）',
+        'max_connections', '最大并发连接数'
+    )
+)
+WHERE software_code = 'mysql'
+  AND preset_remark IS NOT NULL
+  AND NOT JSON_CONTAINS_PATH(preset_remark, 'one', '$.dockerDefaults.envDescriptions');
+
+-- ============================================================
+-- 清除其他模块遗留的失败迁移记录，避免启动时重试导致崩溃
+-- ============================================================
+UPDATE sys_database_version SET sys_database_version_success = 'true' WHERE sys_database_version_version = '1.7';
+
+-- ============================================================
+-- 修复调度器 job_group 列缺失（如果已存在则跳过）
+-- ============================================================
+SET @job_group_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_job' AND COLUMN_NAME = 'job_group');
+SET @alter_sql = IF(@job_group_exists = 0,
+    'ALTER TABLE sys_job ADD COLUMN job_group VARCHAR(255) NULL DEFAULT NULL COMMENT ''任务分组'' AFTER job_name',
+    'SELECT 1');
+PREPARE stmt FROM @alter_sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
