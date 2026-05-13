@@ -1,10 +1,12 @@
 package com.chua.payment.support.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.payment.support.channel.WithdrawRequest;
 import com.chua.payment.support.channel.support.AbstractMerchantPaymentChannel;
 import com.chua.payment.support.entity.MerchantChannel;
 import com.chua.payment.support.entity.WalletOrder;
 import com.chua.payment.support.exception.PaymentException;
+import com.chua.payment.support.mapper.MerchantChannelMapper;
 import com.chua.payment.support.provider.PaymentProviderGatewayRegistry;
 import com.chua.payment.support.service.MerchantChannelService;
 import com.chua.payment.support.service.WalletAccountService;
@@ -27,21 +29,24 @@ import java.util.List;
  */
 @Slf4j
 @Service
-public class WalletPayoutService extends AbstractMerchantPaymentChannel implements WalletPayoutService {
+public class WalletPayoutServiceImpl extends AbstractMerchantPaymentChannel implements WalletPayoutService {
 
     private final PaymentProviderGatewayRegistry providerGatewayRegistry;
     private final WalletOrderService walletOrderService;
     private final WalletAccountService walletAccountService;
+    private final MerchantChannelMapper merchantChannelMapper;
 
-    public WalletPayoutService(MerchantChannelService merchantChannelService,
+    public WalletPayoutServiceImpl(MerchantChannelService merchantChannelService,
                                 ObjectMapper objectMapper,
                                 PaymentProviderGatewayRegistry providerGatewayRegistry,
                                 WalletOrderService walletOrderService,
-                                WalletAccountService walletAccountService) {
+                                WalletAccountService walletAccountService,
+                                MerchantChannelMapper merchantChannelMapper) {
         super(merchantChannelService, objectMapper);
         this.providerGatewayRegistry = providerGatewayRegistry;
         this.walletOrderService = walletOrderService;
         this.walletAccountService = walletAccountService;
+        this.merchantChannelMapper = merchantChannelMapper;
     }
 
     /**
@@ -59,8 +64,11 @@ public class WalletPayoutService extends AbstractMerchantPaymentChannel implemen
         }
 
         // 查找商户已启用的支付宝渠道
-        List<MerchantChannel> alipayChannels = merchantChannelService.listChannels(
-                request.getMerchantId(), "ALIPAY", 1);
+        List<MerchantChannel> alipayChannels = merchantChannelMapper.selectList(
+                new LambdaQueryWrapper<MerchantChannel>()
+                        .eq(MerchantChannel::getMerchantId, request.getMerchantId())
+                        .eq(MerchantChannel::getChannelType, "ALIPAY")
+                        .eq(MerchantChannel::getStatus, 1));
         if (alipayChannels.isEmpty()) {
             log.warn("商户未配置支付宝渠道，跳过支付宝打款: merchantId={}", request.getMerchantId());
             return false;

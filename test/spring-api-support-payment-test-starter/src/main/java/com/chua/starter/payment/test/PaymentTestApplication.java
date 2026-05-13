@@ -3,6 +3,7 @@ package com.chua.starter.payment.test;
 import com.chua.payment.support.dto.PaymentSchedulerTaskUpdateDTO;
 import com.chua.payment.support.service.PaymentSchedulerTaskOpsService;
 import com.chua.payment.support.vo.PaymentSchedulerTaskVO;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -18,7 +19,8 @@ import java.util.List;
 @EnableCaching
 @EnableScheduling
 @ConditionalOnProperty(prefix = "plugin.payment.server", name = "enable", havingValue = "true", matchIfMissing = true)
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.chua.starter.payment.test", "com.chua.payment.support"})
+@MapperScan("com.chua.starter.payment.test.mapper")
 public class PaymentTestApplication {
 
     public static void main(String[] args) {

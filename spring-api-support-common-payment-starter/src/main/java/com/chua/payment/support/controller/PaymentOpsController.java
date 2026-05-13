@@ -2,8 +2,6 @@ package com.chua.payment.support.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.payment.support.mapper.PaymentOpsMapper;
-import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,7 +27,6 @@ public class PaymentOpsController {
     private final PaymentOpsMapper paymentOpsMapper;
 
     @GetMapping("/dashboard/summary")
-    @Permission(value = "payment:ops:view", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN, AuthConstant.OPS})
     public ReturnResult<Map<String, Object>> dashboardSummary(
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {
@@ -73,5 +71,29 @@ public class PaymentOpsController {
 
     private static BigDecimal zeroIfNull(BigDecimal val) {
         return val != null ? val : BigDecimal.ZERO;
+    }
+
+    // ========== 图表数据接口 ==========
+
+    @GetMapping("/dashboard/trend")
+    public ReturnResult<List<Map<String, Object>>> dashboardTrend(
+            @RequestParam(required = false, defaultValue = "30") int days) {
+        LocalDateTime start = LocalDate.now().minusDays(days).atStartOfDay();
+        List<Map<String, Object>> trend = paymentOpsMapper.selectDailyTrend(start);
+        return ReturnResult.success(trend);
+    }
+
+    @GetMapping("/dashboard/channel-distribution")
+    public ReturnResult<List<Map<String, Object>>> dashboardChannelDistribution(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        LocalDateTime start = null;
+        LocalDateTime end = null;
+        if (startDate != null && endDate != null) {
+            start = LocalDate.parse(startDate).atStartOfDay();
+            end = LocalDate.parse(endDate).plusDays(1).atStartOfDay();
+        }
+        List<Map<String, Object>> distribution = paymentOpsMapper.selectChannelDistribution(start, end);
+        return ReturnResult.success(distribution);
     }
 }
