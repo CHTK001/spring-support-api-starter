@@ -4,6 +4,9 @@ import com.chua.common.support.core.annotation.Spi;
 import com.chua.common.support.core.annotation.SpiCondition;
 import com.chua.common.support.network.discovery.Discovery;
 import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.util.StringUtils;
 
@@ -11,6 +14,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Discovery 执行器解析器。
@@ -18,6 +22,7 @@ import java.util.Set;
  * 这里不直接依赖 discovery-starter 类型签名，避免缺少该模块时影响调度中心启动。
  * </p>
  */
+@Slf4j
 @Spi({"DISCOVERY", "discovery"})
 @SpiCondition("com.chua.starter.discovery.support.service.DiscoveryService")
 public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorResolver {
@@ -25,6 +30,12 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
     private static final String DISCOVERY_SERVICE_CLASS = "com.chua.starter.discovery.support.service.DiscoveryService";
     private static final long DEFAULT_CONNECT_TIMEOUT_MS = 3000L;
     private static final long DEFAULT_READ_TIMEOUT_MS = 10000L;
+    private static final long DISCOVERY_CACHE_TTL_SECONDS = 30L;
+
+    private final Cache<String, List<SchedulerJobPlatformProperties.Executor>> discoveryCache =
+            CacheBuilder.newBuilder()
+                    .expireAfterWrite(DISCOVERY_CACHE_TTL_SECONDS, TimeUnit.SECONDS)
+                    .build();
 
     @Override
     public List<SchedulerJobPlatformProperties.Executor> resolve(SchedulerExecutorResolveContext context) {
@@ -47,15 +58,30 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
             return List.of();
         }
 
-        Set<Discovery> discoveries = loadDiscoveries(discoveryService, discoveryProperties, discoveryNamespace);
-        if (discoveries == null || discoveries.isEmpty()) {
-            return List.of();
+        String cacheKey = context.namespace() + "|" + discoveryNamespace;
+        try {
+            return discoveryCache.get(cacheKey, () -> {
+                Set<Discovery> discoveries = loadDiscoveries(discoveryService, discoveryProperties, discoveryNamespace);
+                if (discoveries == null || discoveries.isEmpty()) {
+                    return List.of();
+                }
+                return discoveries.stream()
+                        .map(discovery -> toExecutor(discovery, discoveryProperties))
+                        .filter(this::hasUsableBaseUrl)
+                        .toList();
+            });
+        } catch (Exception e) {
+            log.warn("[DiscoveryResolver] 从缓存获取发现服务实例失败，降级为实时查询: namespace={}, error={}",
+                    context.namespace(), e.getMessage());
+            Set<Discovery> discoveries = loadDiscoveries(discoveryService, discoveryProperties, discoveryNamespace);
+            if (discoveries == null || discoveries.isEmpty()) {
+                return List.of();
+            }
+            return discoveries.stream()
+                    .map(discovery -> toExecutor(discovery, discoveryProperties))
+                    .filter(this::hasUsableBaseUrl)
+                    .toList();
         }
-
-        return discoveries.stream()
-                .map(discovery -> toExecutor(discovery, discoveryProperties))
-                .filter(this::hasUsableBaseUrl)
-                .toList();
     }
 
     private Object discoveryService(ListableBeanFactory beanFactory) {
