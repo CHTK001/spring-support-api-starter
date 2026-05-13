@@ -14,8 +14,6 @@ import com.chua.starter.scheduler.support.executor.SchedulerExecutorResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +27,6 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URI;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -37,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -68,11 +66,14 @@ public class SchedulerRemoteExecutorDispatcher {
             };
 
     private final SchedulerJobPlatformProperties platformProperties;
-    private final ObjectProvider<RestTemplateBuilder> restTemplateBuilderProvider;
     private final ListableBeanFactory beanFactory;
     private final SchedulerNamespaceTableResolver namespaceTableResolver;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final Map<String, AtomicInteger> namespaceCursor = new ConcurrentHashMap<>();
+    private final Map<String, RestTemplate> restTemplateCache = new ConcurrentHashMap<>();
+
+    private static final int DEFAULT_RETRY_COUNT = 0;
+    private static final long DEFAULT_RETRY_INTERVAL_MS = 1000L;
 
     /**
      * 当前命名空间是否配置了远程执行器。
@@ -101,30 +102,49 @@ public class SchedulerRemoteExecutorDispatcher {
         validateJob(job);
 
         RemoteJobTriggerRequest request = createRequest(job, overrideParam);
+        int maxRetries = job.getJobFailRetry() != null ? Math.max(0, job.getJobFailRetry()) : DEFAULT_RETRY_COUNT;
+        long retryIntervalMs = job.getJobRetryInterval() != null ? Math.max(0L, job.getJobRetryInterval() * 1000L) : DEFAULT_RETRY_INTERVAL_MS;
         List<String> failures = new ArrayList<>();
+
         for (SchedulerJobPlatformProperties.Executor executor : orderedExecutors(namespace, executors)) {
-            try {
-                RemoteJobTriggerResponse response = invoke(executor, request);
-                if (!clusterMode) {
-                    persistRemoteExecutionLog(namespace, job, request, response, executor);
+            Exception lastException = null;
+            for (int attempt = 1; attempt <= Math.max(1, maxRetries + 1); attempt++) {
+                try {
+                    RemoteJobTriggerResponse response = invoke(executor, request);
+                    if (!clusterMode) {
+                        persistRemoteExecutionLog(namespace, job, request, response, executor);
+                    }
+                    if (EXECUTE_CODE_SUCCESS.equalsIgnoreCase(response.getExecuteCode())) {
+                        log.info("[Scheduler] 远程任务下发并执行成功: namespace={}, jobNo={}, jobId={}, handler={}, executor={}",
+                                namespace, job.getJobNo(), job.getJobId(), job.getJobExecuteBean(), executorLabel(executor));
+                    } else if (EXECUTE_CODE_FAILURE.equalsIgnoreCase(response.getExecuteCode())) {
+                        log.warn("[Scheduler] 远程任务执行失败: namespace={}, jobNo={}, jobId={}, handler={}, executor={}, message={}",
+                                namespace, job.getJobNo(), job.getJobId(), job.getJobExecuteBean(), executorLabel(executor), response.getExecuteMessage());
+                    } else {
+                        log.info("[Scheduler] 远程任务下发成功: namespace={}, jobNo={}, jobId={}, handler={}, executor={}, executeCode={}",
+                                namespace, job.getJobNo(), job.getJobId(), job.getJobExecuteBean(), executorLabel(executor), response.getExecuteCode());
+                    }
+                    return;
+                } catch (Exception e) {
+                    lastException = e;
+                    if (attempt <= maxRetries) {
+                        log.warn("[Scheduler] 远程任务下发失败，准备重试: namespace={}, jobNo={}, handler={}, executor={}, attempt={}/{}, error={}",
+                                namespace, job.getJobNo(), job.getJobExecuteBean(), executorLabel(executor), attempt, maxRetries + 1, e.getMessage());
+                        if (retryIntervalMs > 0) {
+                            try {
+                                TimeUnit.MILLISECONDS.sleep(retryIntervalMs);
+                            } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt();
+                                throw new RuntimeException(ie);
+                            }
+                        }
+                    }
                 }
-                if (EXECUTE_CODE_SUCCESS.equalsIgnoreCase(response.getExecuteCode())) {
-                    log.info("[Scheduler] 远程任务下发并执行成功: namespace={}, jobNo={}, jobId={}, handler={}, executor={}",
-                            namespace, job.getJobNo(), job.getJobId(), job.getJobExecuteBean(), executorLabel(executor));
-                } else if (EXECUTE_CODE_FAILURE.equalsIgnoreCase(response.getExecuteCode())) {
-                    log.warn("[Scheduler] 远程任务执行失败: namespace={}, jobNo={}, jobId={}, handler={}, executor={}, message={}",
-                            namespace, job.getJobNo(), job.getJobId(), job.getJobExecuteBean(), executorLabel(executor), response.getExecuteMessage());
-                } else {
-                    log.info("[Scheduler] 远程任务下发成功: namespace={}, jobNo={}, jobId={}, handler={}, executor={}, executeCode={}",
-                            namespace, job.getJobNo(), job.getJobId(), job.getJobExecuteBean(), executorLabel(executor), response.getExecuteCode());
-                }
-                return;
-            } catch (Exception e) {
-                String reason = executorLabel(executor) + ": " + e.getMessage();
-                failures.add(reason);
-                log.warn("[Scheduler] 远程任务下发失败: namespace={}, jobNo={}, jobId={}, handler={}, executor={}, error={}",
-                        namespace, job.getJobNo(), job.getJobId(), job.getJobExecuteBean(), executorLabel(executor), e.getMessage());
             }
+            String reason = executorLabel(executor) + ": " + lastException.getMessage();
+            failures.add(reason);
+            log.warn("[Scheduler] 远程任务下发失败，已用尽重试次数: namespace={}, jobNo={}, jobId={}, handler={}, executor={}, error={}",
+                    namespace, job.getJobNo(), job.getJobId(), job.getJobExecuteBean(), executorLabel(executor), lastException.getMessage());
         }
 
         if (!clusterMode) {
@@ -252,11 +272,23 @@ public class SchedulerRemoteExecutorDispatcher {
     }
 
     private RestTemplate buildRestTemplate(SchedulerJobPlatformProperties.Executor executor) {
-        RestTemplateBuilder builder = restTemplateBuilderProvider.getIfAvailable(RestTemplateBuilder::new);
-        return builder
-                .setConnectTimeout(Duration.ofMillis(Math.max(1L, executor.getConnectTimeoutMs())))
-                .setReadTimeout(Duration.ofMillis(Math.max(1L, executor.getReadTimeoutMs())))
-                .build();
+        String cacheKey = executor.getName() + "|" + executor.getBaseUrl();
+        return restTemplateCache.computeIfAbsent(cacheKey, key -> {
+            var cm = new org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager();
+            cm.setMaxTotal(200);
+            cm.setDefaultMaxPerRoute(20);
+
+            var httpClient = org.apache.hc.client5.http.impl.classic.HttpClients.custom()
+                            .setConnectionManager(cm)
+                            .evictIdleConnections(org.apache.hc.core5.util.TimeValue.ofSeconds(30))
+                            .build();
+
+            var factory = new org.springframework.http.client.HttpComponentsClientHttpRequestFactory(httpClient);
+            factory.setConnectTimeout(Math.toIntExact(Math.max(1L, executor.getConnectTimeoutMs())));
+            factory.setConnectionRequestTimeout(Math.toIntExact(Math.max(1L, executor.getReadTimeoutMs())));
+
+            return new RestTemplate(factory);
+        });
     }
 
     private RemoteJobTriggerRequest createRequest(SysJob job, String overrideParam) {

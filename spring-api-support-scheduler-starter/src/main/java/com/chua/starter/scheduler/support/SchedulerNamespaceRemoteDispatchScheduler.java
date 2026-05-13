@@ -61,6 +61,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     private final BeanPropertyRowMapper<SysJob> jobRowMapper = BeanPropertyRowMapper.newInstance(SysJob.class);
     private final Map<String, ReentrantLock> namespaceLocks = new ConcurrentHashMap<>();
     private final Map<String, Long> discoveryNextTriggerTimes = new ConcurrentHashMap<>();
+    private final Map<String, IdleState> namespaceIdleStates = new ConcurrentHashMap<>();
 
     private static final String DISCOVERY_SERVICE_CLASS = "com.chua.starter.discovery.support.service.DiscoveryService";
 
@@ -74,8 +75,32 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             if (!remoteExecutorDispatcher.hasExecutors(namespace)) {
                 continue;
             }
+            if (shouldSkipDueToIdle(namespace)) {
+                continue;
+            }
             dispatchNamespace(namespace);
         }
+    }
+
+    /**
+     * 空闲回退：连续多次空轮询后跳过部分调度周期，降低无任务时的 DB 压力。
+     */
+    private boolean shouldSkipDueToIdle(String namespace) {
+        IdleState state = namespaceIdleStates.get(namespace.toLowerCase());
+        if (state == null || state.consecutiveEmptyCycles < 3) {
+            return false;
+        }
+        int cycles = state.consecutiveEmptyCycles;
+        if (cycles >= 30) {
+            // 连续30次空 → 每10次只执行1次
+            return (state.totalCycles % 10) != 0;
+        }
+        if (cycles >= 10) {
+            // 连续10次空 → 每5次只执行1次
+            return (state.totalCycles % 5) != 0;
+        }
+        // 连续3次空 → 每2次只执行1次
+        return (state.totalCycles % 2) != 0;
     }
 
     /**
@@ -315,10 +340,19 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             return;
         }
         boolean clusterMode = isClusterMode(namespace);
+        String nsKey = namespace.toLowerCase();
         try {
             SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
             SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
             List<SysJob> dueJobs = loadDueJobs(tables, clusterMode, nsProps);
+            IdleState state = namespaceIdleStates.computeIfAbsent(nsKey, k -> new IdleState());
+            if (dueJobs.isEmpty()) {
+                state.consecutiveEmptyCycles++;
+                state.totalCycles++;
+            } else {
+                state.consecutiveEmptyCycles = 0;
+                state.totalCycles = 0;
+            }
             for (SysJob job : dueJobs) {
                 processJob(namespace, tables, job, clusterMode);
             }
@@ -777,5 +811,13 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
                                 long nextNextTime,
                                 int nextStatus,
                                 boolean shouldDispatch) {
+    }
+
+    /**
+     * 命名空间空闲状态，用于控制空轮询时的调度频率。
+     */
+    private static class IdleState {
+        int consecutiveEmptyCycles;
+        int totalCycles;
     }
 }
