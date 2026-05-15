@@ -57,16 +57,16 @@ public class HttpRequestData {
             queryString = rawPath.substring(qIdx + 1);
         }
 
-        // 解析请求头 (TLV 格式)
-        Map<String, String> headers = new LinkedHashMap<>();
+        // 解析请求头 (TLV 格式, big-endian, 大小写不敏感)
+        Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         int offset = 0;
         while (offset + 4 <= headersLen) {
-            int keyLen = Short.toUnsignedInt(headersSeg.get(JAVA_SHORT_UNALIGNED, offset));
+            int keyLen = Short.toUnsignedInt(Short.reverseBytes(headersSeg.get(JAVA_SHORT_UNALIGNED, offset)));
             offset += 2;
             if (offset + keyLen + 2 > headersLen) break;
             String key = readString(headersSeg.asSlice(offset, keyLen));
             offset += keyLen;
-            int valLen = Short.toUnsignedInt(headersSeg.get(JAVA_SHORT_UNALIGNED, offset));
+            int valLen = Short.toUnsignedInt(Short.reverseBytes(headersSeg.get(JAVA_SHORT_UNALIGNED, offset)));
             offset += 2;
             if (offset + valLen > headersLen) break;
             String value = readString(headersSeg.asSlice(offset, valLen));

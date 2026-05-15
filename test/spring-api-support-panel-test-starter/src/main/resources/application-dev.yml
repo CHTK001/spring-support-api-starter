@@ -34,3 +34,8 @@ plugin:
       - client-id: panel
         port: 58082
         context-path: /socket.io
+
+docker:
+  api:
+    host: 172.16.0.40
+    port: 2375
