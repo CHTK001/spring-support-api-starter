@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 /**
  * 独立 Payment 测试后端。
  */
+@EnableCaching
 @EnableScheduling
 @ConditionalOnProperty(prefix = "plugin.payment.server", name = "enable", havingValue = "true", matchIfMissing = true)
 @SpringBootApplication(scanBasePackages = {"com.chua.starter.payment.test", "com.chua.payment.support"})
