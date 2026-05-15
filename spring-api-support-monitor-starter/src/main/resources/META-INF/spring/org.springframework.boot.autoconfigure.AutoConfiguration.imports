@@ -2,3 +2,4 @@ com.chua.starter.monitor.configuration.SpiderAutoConfiguration
 com.chua.starter.monitor.configuration.SpiderOauthWhitelistConfiguration
 com.chua.starter.monitor.configuration.SyncConfiguration
 com.chua.starter.monitor.configuration.PerformanceMonitorAutoConfiguration
+com.chua.starter.monitor.configuration.RagAutoConfiguration

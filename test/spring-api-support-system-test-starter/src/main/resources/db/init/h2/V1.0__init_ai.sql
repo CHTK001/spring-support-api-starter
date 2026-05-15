@@ -309,3 +309,18 @@ CREATE TABLE IF NOT EXISTS `sys_ai_reid_library` (
   `update_by` INT DEFAULT NULL,
   PRIMARY KEY (`sys_ai_reid_library_id`)
 );
+
+-- ── 默认厂商（ONNX 本地推理） ───────────────────────
+INSERT INTO `sys_ai_manufacturer` (`sys_ai_manufacturer_id`, `sys_ai_manufacturer_name`, `sys_ai_manufacturer_code`, `sys_ai_manufacturer_type`, `sys_ai_manufacturer_status`)
+SELECT 1, '本地 ONNX 推理', 'local-onnx', 'ONNX', 1
+WHERE NOT EXISTS (SELECT 1 FROM `sys_ai_manufacturer` WHERE `sys_ai_manufacturer_code` = 'local-onnx');
+
+-- ── 模块：文本超分辨率 ──────────────────────────────
+INSERT INTO `sys_ai_module` (`sys_ai_module_code`, `sys_ai_module_name`, `sys_ai_module_type`, `sys_ai_module_status`)
+SELECT 'local-onnx-text-sr', '本地 ONNX 文本超分辨率 (TextBSR)', 'TEXT_SR', 1
+WHERE NOT EXISTS (SELECT 1 FROM `sys_ai_module` WHERE `sys_ai_module_code` = 'local-onnx-text-sr');
+
+-- ── 模块：文档对齐校正 ──────────────────────────────
+INSERT INTO `sys_ai_module` (`sys_ai_module_code`, `sys_ai_module_name`, `sys_ai_module_type`, `sys_ai_module_status`)
+SELECT 'local-onnx-doc-align', '本地 ONNX 文档对齐校正 (MLSD)', 'ALIGNMENT', 1
+WHERE NOT EXISTS (SELECT 1 FROM `sys_ai_module` WHERE `sys_ai_module_code` = 'local-onnx-doc-align');

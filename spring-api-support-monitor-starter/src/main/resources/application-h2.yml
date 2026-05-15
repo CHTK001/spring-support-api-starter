@@ -1,0 +1,48 @@
+spring:
+  autoconfigure:
+    exclude:
+      - com.chua.starter.oauth.client.support.configuration.AuthClientConfiguration
+      - com.chua.starter.system.configuration.SystemAutoConfiguration
+      - com.chua.starter.project.configuration.ProjectConfiguration
+      - com.chua.starter.device.configuration.DeviceConfiguration
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:report;MODE=MYSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 4
+      minimum-idle: 1
+      connection-timeout: 5000
+      idle-timeout: 60000
+      max-lifetime: 300000
+    initialization-fail-timeout: -1
+  h2:
+    console:
+      enabled: true
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/init/h2/V1.0__init_ai.sql
+      continue-on-error: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      connect-timeout: 3000
+      timeout: 3000
+
+plugin:
+  datasource:
+    script:
+      enable: false
+  redis:
+    server:
+      enable: false
+  oauth:
+    enable: false
+
+logging:
+  level:
+    com.chua.starter.monitor: debug

@@ -839,3 +839,154 @@ SET @alter_sql = IF(@job_group_exists = 0,
 PREPARE stmt FROM @alter_sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+-- ============================================================
+-- 新增常用软件预设（2026-05-15 补充）
+-- ============================================================
+
+-- Seata 分布式事务
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'seata', 'seata', 'Seata', 'middleware', 'SOFTWARE', '2.2',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/seata.svg',
+    'linux', '8091,7091', 1,
+    '',
+    1, 0, 1, 160,
+    '{"description":"Seata — 阿里巴巴开源分布式事务解决方案，支持 AT/TCC/SAGA/XA 四种模式","serviceName":"seata","supportedModes":["DOCKER"],"dockerDefaults":{"image":"seataio/seata-server","tags":["2.2","2.1","2.0","latest"],"scriptMode":"script","env":{"SEATA_IP":"","SEATA_PORT":"8091","STORE_MODE":"file","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/seata/config","containerPath":"/root/seata-config"},{"hostPath":"/data/seata/logs","containerPath":"/home/seata/logs"}],"command":"sh -c \"seata-server.sh -h $SEATA_IP -p $SEATA_PORT -m $STORE_MODE\""}}',
+    '{"TZ":"Asia/Shanghai","STORE_MODE":"file"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'seata'
+);
+
+-- Sentinel 流量控制
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'sentinel', 'sentinel', 'Sentinel', 'middleware', 'SOFTWARE', '1.8',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/sentinel.svg',
+    'linux', '8858,8719', 1,
+    '',
+    1, 0, 1, 170,
+    '{"description":"Sentinel — 阿里巴巴开源流量控制、熔断降级、系统负载保护中间件","serviceName":"sentinel","supportedModes":["DOCKER"],"dockerDefaults":{"image":"bladex/sentinel-dashboard","tags":["1.8.8","1.8.7","latest"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai","JAVA_OPTS":"-Dserver.port=8858 -Dcsp.sentinel.api.port=8719 -Dproject.name=sentinel-dashboard"},"volumeMappings":[{"hostPath":"/data/sentinel/logs","containerPath":"/root/logs/csp"}],"command":"sh -c \\"java \\$JAVA_OPTS -jar /app/sentinel-dashboard.jar\\""}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'sentinel'
+);
+
+-- SQL Server（MSSQL）
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'mssql', 'mssql', 'SQL Server', 'database', 'SOFTWARE', '2022',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/microsoftsqlserver.svg',
+    'linux', '1433', 1,
+    '',
+    1, 0, 1, 180,
+    '{"description":"Microsoft SQL Server 2022 — 企业级关系型数据库（Linux 容器版）","serviceName":"mssql","supportedModes":["DOCKER"],"dockerDefaults":{"image":"mcr.microsoft.com/mssql/server","tags":["2022-latest","2022-CU14-ubuntu","2019-latest","latest"],"scriptMode":"script","env":{"ACCEPT_EULA":"Y","MSSQL_SA_PASSWORD":"SaPassword123!","MSSQL_PID":"developer","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/mssql/data","containerPath":"/var/opt/mssql"},{"hostPath":"/data/mssql/logs","containerPath":"/var/opt/mssql/log"},{"hostPath":"/data/mssql/secrets","containerPath":"/var/opt/mssql/secrets"}]}}',
+    '{"ACCEPT_EULA":"Y","MSSQL_SA_PASSWORD":"SaPassword123!","MSSQL_PID":"developer","TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'mssql'
+);
+
+-- Oracle XE（免费版）
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'oracle', 'oracle', 'Oracle XE', 'database', 'SOFTWARE', '21c',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/oracle.svg',
+    'linux', '1521,5500', 1,
+    '',
+    1, 0, 1, 190,
+    '{"description":"Oracle Database Express Edition (XE) — 免费开发版关系型数据库，内置 JSON/Graph/SQL 多模型支持","serviceName":"oracle","supportedModes":["DOCKER"],"dockerDefaults":{"image":"gvenzl/oracle-xe","tags":["21-slim","21-full","18-slim","latest"],"scriptMode":"script","env":{"ORACLE_PASSWORD":"oracle","ORACLE_DATABASE":"XE","APP_USER":"app_user","APP_USER_PASSWORD":"app_pass","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/oracle/oradata","containerPath":"/opt/oracle/oradata"},{"hostPath":"/data/oracle/scripts","containerPath":"/opt/oracle/scripts/startup"}]}}',
+    '{"ORACLE_PASSWORD":"oracle","ORACLE_DATABASE":"XE","TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'oracle'
+);
+
+-- Neo4j 图数据库
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'neo4j', 'neo4j', 'Neo4j', 'database', 'SOFTWARE', '5-community',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/neo4j.svg',
+    'linux', '7474,7687', 1,
+    '',
+    1, 0, 1, 200,
+    '{"description":"Neo4j — 业界领先的图数据库管理系统，原生图存储和处理，支持 Cypher 查询语言","serviceName":"neo4j","supportedModes":["DOCKER"],"dockerDefaults":{"image":"neo4j","tags":["5-community","5-enterprise","4-community","latest"],"scriptMode":"script","env":{"NEO4J_AUTH":"neo4j/neo4j123","NEO4J_PLUGINS":"[\"apoc\"]","NEO4J_dbms_memory_pagecache_size":"512m","NEO4J_dbms_memory_heap_max__size":"1G","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/neo4j/data","containerPath":"/data"},{"hostPath":"/data/neo4j/logs","containerPath":"/logs"},{"hostPath":"/data/neo4j/import","containerPath":"/var/lib/neo4j/import"},{"hostPath":"/data/neo4j/plugins","containerPath":"/plugins"}]}}',
+    '{"NEO4J_AUTH":"neo4j/neo4j123","TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'neo4j'
+);
+
+-- InfluxDB 时序数据库
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'influxdb', 'influxdb', 'InfluxDB', 'database', 'SOFTWARE', '2',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/influxdb.svg',
+    'linux', '8086', 1,
+    '',
+    1, 0, 1, 210,
+    '{"description":"InfluxDB — 高性能时序数据库，专为指标、事件和实时分析设计，支持 SQL 和 Flux 查询","serviceName":"influxdb","supportedModes":["DOCKER"],"dockerDefaults":{"image":"influxdb","tags":["2","2.7","1.11","latest"],"scriptMode":"script","env":{"DOCKER_INFLUXDB_INIT_MODE":"setup","DOCKER_INFLUXDB_INIT_USERNAME":"admin","DOCKER_INFLUXDB_INIT_PASSWORD":"admin123456","DOCKER_INFLUXDB_INIT_ORG":"myorg","DOCKER_INFLUXDB_INIT_BUCKET":"default","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/influxdb/data","containerPath":"/var/lib/influxdb2"},{"hostPath":"/data/influxdb/config","containerPath":"/etc/influxdb2"}]}}',
+    '{"DOCKER_INFLUXDB_INIT_MODE":"setup","DOCKER_INFLUXDB_INIT_USERNAME":"admin","DOCKER_INFLUXDB_INIT_PASSWORD":"admin123456","DOCKER_INFLUXDB_INIT_ORG":"myorg","DOCKER_INFLUXDB_INIT_BUCKET":"default","TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'influxdb'
+);
+
+-- TDengine 时序数据库
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'tdengine', 'tdengine', 'TDengine', 'database', 'SOFTWARE', '3.3',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/tdengine.svg',
+    'linux', '6030,6041,6043,6044', 1,
+    '',
+    1, 0, 1, 220,
+    '{"description":"TDengine — 高性能国产时序数据库，专为物联网/车联网/工业互联网设计，支持 SQL 查询","serviceName":"tdengine","supportedModes":["DOCKER"],"dockerDefaults":{"image":"tdengine/tdengine","tags":["3.3","3.2","3.1","latest"],"scriptMode":"script","env":{"TAOS_MULTIPLE_CPU":"0","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/tdengine/data","containerPath":"/var/lib/taos"},{"hostPath":"/data/tdengine/logs","containerPath":"/var/log/taos"}]}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'tdengine'
+);
