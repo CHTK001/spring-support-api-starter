@@ -3,7 +3,8 @@ package com.chua.starter.rustserver;
 import jakarta.servlet.*;
 import jakarta.servlet.descriptor.JspConfigDescriptor;
 import jakarta.servlet.http.*;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.server.WebServer;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
@@ -29,9 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
  *     response-buffer: 524288   # 默认 512KB
  * </pre>
  */
-@Slf4j
 public class RustServletWebServerFactory implements ServletWebServerFactory {
 
+    private static final Logger log = LoggerFactory.getLogger(RustServletWebServerFactory.class);
     private int port = 8080;
     private int responseCapacity = 512 * 1024;
 

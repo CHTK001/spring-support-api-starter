@@ -168,7 +168,6 @@ public class RustHttpServletResponse implements HttpServletResponse {
         sendRedirect(location, 302, true);
     }
 
-    @Override
     public void sendRedirect(String location, int sc, boolean clearBuffer) throws IOException {
         this.status = sc;
         setHeader("Location", location);
