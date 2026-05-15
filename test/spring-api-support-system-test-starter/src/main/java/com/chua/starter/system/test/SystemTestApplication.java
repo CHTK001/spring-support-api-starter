@@ -28,7 +28,8 @@ import org.springframework.context.annotation.FilterType;
         "com.chua.starter.soft",
         "com.chua.starter.service",
         "com.chua.starter.scheduler",
-        "com.chua.starter.job"
+        "com.chua.starter.job",
+        "com.chua.starter.monitor.controller.file"
 }, excludeFilters = {
         @ComponentScan.Filter(
                 type = FilterType.REGEX,

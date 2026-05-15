@@ -22,6 +22,7 @@ import java.math.RoundingMode;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/wallet/order")
 @RequiredArgsConstructor
+@Slf4j
 public class WalletOrderController {
 
     private final WalletOrderService walletOrderService;
@@ -109,7 +111,13 @@ public class WalletOrderController {
         // 3. 发起支付宝支付
         OrderPayDTO payDTO = new OrderPayDTO();
         payDTO.setOperator(dto.getOperator());
-        PaymentResult result = paymentOrderService.payOrder(order.getId(), payDTO);
+        PaymentResult result;
+        try {
+            result = paymentOrderService.payOrder(order.getId(), payDTO);
+        } catch (Exception e) {
+            log.warn("充值支付调用异常: rechargeNo={}, error={}", dto.getRechargeNo(), e.getMessage(), e);
+            return ReturnResult.error("充值支付调用异常: " + e.getMessage());
+        }
 
         return ReturnResult.success(result);
     }

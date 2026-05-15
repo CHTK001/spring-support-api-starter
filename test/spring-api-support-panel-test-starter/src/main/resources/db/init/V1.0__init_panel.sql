@@ -329,3 +329,27 @@ CREATE TABLE IF NOT EXISTS `sys_menu` (
   `sys_menu_engine` int(11) NULL DEFAULT NULL,
   PRIMARY KEY (`sys_menu_id` DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 系统软件镜像仓库表（面板仓库管理功能）
+CREATE TABLE IF NOT EXISTS `system_soft_registry` (
+  `system_soft_registry_id` int NOT NULL AUTO_INCREMENT COMMENT '系统软件镜像仓库ID',
+  `system_soft_registry_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库名称',
+  `system_soft_registry_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库类型',
+  `system_soft_registry_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库地址',
+  `system_soft_registry_username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库用户名',
+  `system_soft_registry_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库密码',
+  `system_soft_registry_email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库邮箱',
+  `system_soft_registry_server_id` int NULL DEFAULT NULL COMMENT '绑定服务器ID',
+  `system_soft_registry_ssl_enabled` int NULL DEFAULT NULL COMMENT '是否启用SSL',
+  `system_soft_registry_support_sync` int NULL DEFAULT NULL COMMENT '是否支持同步',
+  `system_soft_registry_timeout` int NULL DEFAULT NULL COMMENT '连接超时时间(秒)',
+  `system_soft_registry_description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库描述',
+  `system_soft_registry_config` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库配置信息',
+  `system_soft_registry_last_connect_time` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '最后连接时间',
+  `system_soft_registry_connect_status` int NULL DEFAULT NULL COMMENT '连接状态',
+  `system_soft_registry_error_message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '连接错误信息',
+  `system_soft_registry_sort` int NULL DEFAULT NULL COMMENT '排序号',
+  `system_soft_registry_status` int NULL DEFAULT NULL COMMENT '状态(0:禁用, 1:启用)',
+  `system_soft_registry_active` int NULL DEFAULT NULL COMMENT '是否激活，激活的仓库用于软件搜索',
+  PRIMARY KEY (`system_soft_registry_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'docker软件库' ROW_FORMAT = Dynamic;

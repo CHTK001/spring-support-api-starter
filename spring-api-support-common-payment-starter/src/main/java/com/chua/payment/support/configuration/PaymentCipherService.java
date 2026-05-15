@@ -49,6 +49,14 @@ public class PaymentCipherService {
         for (String key : keys) {
             try {
                 String result = doCipher(encryptedText, key, Cipher.DECRYPT_MODE);
+                // AES-ECB 误检测校验：解密结果含有大量控制字符或替换字符说明密钥错误
+                if (isLikelyGarbage(result)) {
+                    log.debug("[CipherService] decrypt produced garbage with key prefix: {}, contentPreview={}",
+                            key.substring(0, Math.min(key.length(), 4)),
+                            result.substring(0, Math.min(result.length(), 60)));
+                    lastException = new PaymentException("解密结果校验失败（内容异常）");
+                    continue;
+                }
                 log.debug("[CipherService] decrypt SUCCESS with key prefix: {}", key.substring(0, Math.min(key.length(), 4)));
                 return result;
             } catch (PaymentException e) {
@@ -57,6 +65,28 @@ public class PaymentCipherService {
             }
         }
         throw new PaymentException("解密失败，请检查 payment/encryption 或 plugin.payment.security 密钥配置", lastException);
+    }
+
+    /**
+     * 检查解密结果是否为 AES-ECB 误检测（假阳性）产生的乱码。
+     * 条件：替换字符 � 出现，或控制字符占比超过 30%。
+     */
+    private boolean isLikelyGarbage(String text) {
+        if (!StringUtils.hasText(text)) {
+            return true;
+        }
+        int controlCount = 0;
+        int total = text.length();
+        for (int i = 0; i < total; i++) {
+            char c = text.charAt(i);
+            if (c == '�') {
+                return true;
+            }
+            if (c < 0x20 && c != '\t' && c != '\n' && c != '\r') {
+                controlCount++;
+            }
+        }
+        return (double) controlCount / total > 0.3;
     }
 
     List<String> candidateDecryptionKeys() {

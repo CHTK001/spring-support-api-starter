@@ -54,15 +54,74 @@ public abstract class AbstractMerchantPaymentChannel {
                 fallback);
     }
 
+    /**
+     * 从 PEM 中提取纯 Base64 内容（去掉 BEGIN/END 标记和所有空白）。
+     * 支付宝 SDK 内部将整个 PEM 字符串做 Base64 解码（含标记文本），
+     * JDK 21+ DER 解析器对冗余字节很严格，会抛 "extra data at the end"。
+     * 给支付宝使用的密钥必须先剥离 PEM 标记。
+     */
+    protected String extractBase64Key(String pem) {
+        if (!StringUtils.hasText(pem)) {
+            return pem;
+        }
+        String beginMarker = pem.contains("-----BEGIN RSA PRIVATE KEY-----")
+                ? "-----BEGIN RSA PRIVATE KEY-----" : "-----BEGIN PRIVATE KEY-----";
+        String endMarker = beginMarker.replace("BEGIN", "END");
+        int beginIdx = pem.indexOf(beginMarker);
+        int endIdx = pem.indexOf(endMarker);
+        if (beginIdx < 0 || endIdx < 0) {
+            return pem.trim();
+        }
+        return pem.substring(beginIdx + beginMarker.length(), endIdx)
+                .replaceAll("[\\r\\n\\s]", "");
+    }
+
     protected String decryptValue(String encryptedValue) {
         if (!StringUtils.hasText(encryptedValue)) {
             return null;
         }
+        String raw;
         try {
-            return merchantChannelService.decryptApiKey(encryptedValue);
+            raw = merchantChannelService.decryptApiKey(encryptedValue);
         } catch (Exception e) {
-            return encryptedValue;
+            raw = encryptedValue;
         }
+        return normalizePemKey(raw);
+    }
+
+    /**
+     * 清理 PEM 私钥：
+     * 1. 提取 BEGIN / END 标记之间的 Base64 内容，剔除所有空白字符
+     * 2. 按 PKCS8 标准格式重新组装（每 64 字符换行）
+     * 3. JDK 21+ PKCS8 解析器对末尾冗余字节很严格，否则抛 "extra data at the end"
+     */
+    protected String normalizePemKey(String pem) {
+        if (!StringUtils.hasText(pem)) {
+            return pem;
+        }
+        String beginMarker = pem.contains("-----BEGIN RSA PRIVATE KEY-----")
+                ? "-----BEGIN RSA PRIVATE KEY-----" : "-----BEGIN PRIVATE KEY-----";
+        String endMarker = beginMarker.replace("BEGIN", "END");
+
+        int beginIdx = pem.indexOf(beginMarker);
+        int endIdx = pem.indexOf(endMarker);
+        if (beginIdx < 0 || endIdx < 0) {
+            return pem.trim();
+        }
+        // 提取 Base64 内容，去掉所有空白
+        String b64 = pem.substring(beginIdx + beginMarker.length(), endIdx)
+                .replaceAll("[\\r\\n\\s]", "");
+        if (b64.isEmpty()) {
+            return pem.trim();
+        }
+        // 按 64 字符换行重新组装
+        StringBuilder sb = new StringBuilder(b64);
+        int idx = 64;
+        while (idx < sb.length()) {
+            sb.insert(idx, "\n");
+            idx += 65; // 64 chars + 1 newline
+        }
+        return beginMarker + "\n" + sb + "\n" + endMarker;
     }
 
     protected long yuanToFen(BigDecimal amount) {

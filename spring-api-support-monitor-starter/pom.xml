@@ -352,6 +352,21 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/controller/remote/**</exclude>
+                        <exclude>**/controller/webrtc/**</exclude>
+                        <exclude>**/service/impl/RemoteDesktop*.java</exclude>
+                        <exclude>**/service/impl/WebRTCServiceMonitor.java</exclude>
+                        <exclude>**/service/impl/NodeRemoteServiceImpl.java</exclude>
+                        <exclude>**/socket/listener/connection/RemoteDesktop*.java</exclude>
+                        <exclude>**/socket/listener/connection/WebRTCSocketListener.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <excludes>

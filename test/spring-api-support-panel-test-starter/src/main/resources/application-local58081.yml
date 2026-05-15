@@ -11,11 +11,6 @@ spring:
     redis:
       host: 172.16.0.40
       port: 6379
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:db/init/V1.0__init_panel.sql
-      data-locations: classpath:db/init/V1.0__initdata_panel.sql
 logging:
   level:
     com.chua.starter.panel: debug
