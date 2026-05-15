@@ -1,9 +1,8 @@
 spring:
   application:
     name: ai-test
-  autoconfigure:
-    exclude:
-      - com.chua.starter.project.configuration.ProjectConfiguration
+  main:
+    allow-bean-definition-overriding: true
   profiles:
     active: dev
 

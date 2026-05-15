@@ -47,6 +47,10 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
             registerField(metaObject, "createTime", CREATE);
         }
 
+        if (metaObject.hasGetter("createdAt")) {
+            registerField(metaObject, "createdAt", CREATE);
+        }
+
         UserResult userLoginInfo = getCurrentUser();
         if(null != userLoginInfo) {
             if (metaObject.hasGetter("createBy")) {
@@ -81,6 +85,10 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
     public void updateFill(MetaObject metaObject) {
         if (metaObject.hasGetter("updateTime")) {
             registerField(metaObject, "updateTime", UPDATE);
+        }
+
+        if (metaObject.hasGetter("updatedAt")) {
+            registerField(metaObject, "updatedAt", UPDATE);
         }
 
         UserResult userLoginInfo = getCurrentUser();

@@ -1,8 +1,12 @@
 package com.chua.starter.monitor.configuration;
 
+import com.chua.common.support.ai.ChatClient;
 import com.chua.common.support.ai.DetectionConfiguration;
+import com.chua.common.support.ai.bigmodel.BigModelClient;
+import com.chua.common.support.ai.bigmodel.BigModelSetting;
 import com.chua.common.support.ai.rag.RagDocumentManager;
 import com.chua.common.support.ai.rag.RagEngine;
+import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.common.support.text.splitter.RecursiveCharacterTextSplitter;
 import com.chua.common.support.text.splitter.TextSplitter;
 import com.chua.starter.ai.support.service.SysAiGlobalSettingService;
@@ -30,33 +34,70 @@ public class RagAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public RagEngine ragEngine(RagProperties properties) {
+    public RagEngine ragEngine(RagProperties properties, SysAiGlobalSettingService globalSettingService) {
         DetectionConfiguration.DetectionConfigurationBuilder builder = DetectionConfiguration.builder()
                 .engine(properties.getEmbeddingEngine());
 
-        if (!properties.getLlmApiKey().isBlank()) {
-            builder.apiKey(properties.getLlmApiKey());
-        }
-        if (!properties.getLlmBaseUrl().isBlank()) {
-            builder.endpoint(properties.getLlmBaseUrl());
-        }
-        if (!properties.getLlmModel().isBlank()) {
-            builder.modelName(properties.getLlmModel());
-        }
-
         DetectionConfiguration config = builder.build();
 
-        // 选项通过配置对象的 option map 设置
         if (!properties.getVectorStorage().isBlank()) {
             config.option().put("vectorStorage", properties.getVectorStorage());
         }
-        if (!properties.getLlmProvider().isBlank()) {
-            config.option().put("provider", properties.getLlmProvider());
+
+        RagEngine engine = new RagEngine(config);
+
+        // 注入全局 ChatClient（从 sys_ai_global_setting runtime 组读取 LLM 配置）
+        try {
+            com.chua.common.support.ai.ChatClient globalChatClient = createGlobalChatClient(globalSettingService);
+            if (globalChatClient != null) {
+                engine.setChatClient(globalChatClient);
+                log.info("[RagAutoConfiguration] 全局 ChatClient 已注入到 RAG 引擎");
+            }
+        } catch (Exception e) {
+            log.warn("[RagAutoConfiguration] 无法创建全局 ChatClient，RAG 问答将降级为仅返回检索内容: {}", e.getMessage());
         }
 
-        log.info("[RagAutoConfiguration] 初始化 RagEngine: engine={}, llmProvider={}",
-                properties.getEmbeddingEngine(), properties.getLlmProvider());
-        return new RagEngine(config);
+        log.info("[RagAutoConfiguration] 初始化 RagEngine: engine={}", properties.getEmbeddingEngine());
+        return engine;
+    }
+
+    /**
+     * 从 sys_ai_global_setting runtime 组读取 LLM 配置，创建 common ChatClient。
+     */
+    private com.chua.common.support.ai.ChatClient createGlobalChatClient(SysAiGlobalSettingService settingService) {
+        String provider = settingService.getValue("runtime", "provider").orElse("");
+        String factory = settingService.getValue("runtime", "factory").orElse("default");
+        String baseUrl = settingService.getValue("runtime", "provider_base_url").orElse("");
+        String apiKey = settingService.getValue("runtime", "provider_api_key").orElse("");
+        String defaultModel = settingService.getValue("runtime", "default_model").orElse("");
+
+        if (provider.isBlank()) {
+            log.warn("[RagAutoConfiguration] 全局设置中未配置 LLM provider，跳过 ChatClient 注入");
+            return null;
+        }
+
+        BigModelSetting setting = BigModelSetting.builder()
+                .provider(provider)
+                .baseUrl(baseUrl)
+                .appKey(apiKey)
+                .build();
+        BigModelClient.normalize(setting);
+
+        ServiceProvider<ChatClient.Factory> sp = ServiceProvider.of(ChatClient.Factory.class);
+        ChatClient.Factory factoryInstance = "default".equals(factory) ? sp.getDefault() : sp.getNewExtension(factory);
+        if (factoryInstance == null) {
+            factoryInstance = sp.getDefault();
+        }
+        if (factoryInstance == null) {
+            log.warn("[RagAutoConfiguration] 找不到 ChatClient.Factory SPI 实现");
+            return null;
+        }
+
+        ChatClient chatClient = factoryInstance.create(setting);
+        if (!defaultModel.isBlank()) {
+            chatClient.model(defaultModel);
+        }
+        return chatClient;
     }
 
     @Bean
@@ -65,12 +106,6 @@ public class RagAutoConfiguration {
         TextSplitter textSplitter = new RecursiveCharacterTextSplitter(
                 properties.getChunkSize(), properties.getChunkOverlap());
         return new RagDocumentManager(properties.getUploadDir(), ragEngine.getKnowledgeClient(), textSplitter);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public RagController ragController(RagEngine ragEngine, RagDocumentManager ragDocumentManager, RagProperties properties) {
-        return new RagController(ragEngine, ragDocumentManager, properties);
     }
 
     @Bean

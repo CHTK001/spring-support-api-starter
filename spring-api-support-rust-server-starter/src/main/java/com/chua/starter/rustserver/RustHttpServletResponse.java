@@ -103,7 +103,9 @@ public class RustHttpServletResponse implements HttpServletResponse {
     private byte[] serializeHeaders() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         headers.forEach((name, values) -> {
+            if (name == null) return;
             for (String value : values) {
+                if (value == null) continue;
                 try {
                     byte[] nameBytes = name.getBytes(StandardCharsets.US_ASCII);
                     byte[] valBytes = value.getBytes(StandardCharsets.UTF_8);
@@ -155,11 +157,11 @@ public class RustHttpServletResponse implements HttpServletResponse {
     @Override
     public void sendError(int sc, String msg) throws IOException {
         this.status = sc;
-        this.statusMessage = msg;
+        this.statusMessage = msg != null ? msg : getStatusMessage(sc);
         committed = true;
         try {
             setContentType("text/plain; charset=UTF-8");
-            getWriter().write(msg);
+            getWriter().write(this.statusMessage);
         } catch (Exception ignored) {}
     }
 
@@ -181,6 +183,8 @@ public class RustHttpServletResponse implements HttpServletResponse {
 
     @Override
     public void setHeader(String name, String value) {
+        if (name == null) return;
+        if (value == null) { headers.remove(name); return; }
         List<String> list = new ArrayList<>();
         list.add(value);
         headers.put(name, list);
@@ -188,6 +192,7 @@ public class RustHttpServletResponse implements HttpServletResponse {
 
     @Override
     public void addHeader(String name, String value) {
+        if (name == null || value == null) return;
         headers.computeIfAbsent(name, k -> new ArrayList<>()).add(value);
     }
 
@@ -239,9 +244,8 @@ public class RustHttpServletResponse implements HttpServletResponse {
     @Override
     public void setContentType(String type) {
         this.contentType = type;
-        setHeader("Content-Type", type);
-        // 从 Content-Type 提取 charset
         if (type != null) {
+            setHeader("Content-Type", type);
             int ci = type.toLowerCase().indexOf("charset=");
             if (ci >= 0) {
                 String enc = type.substring(ci + 8).trim();
@@ -249,6 +253,8 @@ public class RustHttpServletResponse implements HttpServletResponse {
                 if (sc >= 0) enc = enc.substring(0, sc);
                 this.characterEncoding = enc.trim();
             }
+        } else {
+            headers.remove("Content-Type");
         }
     }
 
