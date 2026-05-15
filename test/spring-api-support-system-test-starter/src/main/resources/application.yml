@@ -3,6 +3,10 @@ spring:
     name: system-test
   profiles:
     active: h2,remote-test
+  autoconfigure:
+    exclude:
+      - com.chua.starter.panel.config.PanelAutoConfiguration
+      - com.chua.starter.project.configuration.ProjectConfiguration
 
 server:
   port: 19181
@@ -25,3 +29,7 @@ plugin:
             enabled: false
   job:
     enable: true
+  server:
+    rust:
+      enabled: true
+      response-buffer: 524288
