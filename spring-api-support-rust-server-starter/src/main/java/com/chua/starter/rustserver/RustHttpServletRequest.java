@@ -7,6 +7,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 /**
  * 轻量级 {@link HttpServletRequest} 实现。
@@ -44,14 +46,15 @@ public class RustHttpServletRequest implements HttpServletRequest {
             });
         }
 
-        // 请求体流
+        // 请求体流 (支持 Content-Encoding: gzip 自动解压)
         this.inputStream = new ServletInputStream() {
-            private final ByteArrayInputStream bin = new ByteArrayInputStream(data.getBody());
-            @Override public boolean isFinished() { return bin.available() == 0; }
+            private final InputStream in = createDecompressedStream(data);
+            @Override public boolean isFinished() { try { return in.available() == 0; } catch (IOException e) { return true; } }
             @Override public boolean isReady() { return true; }
             @Override public void setReadListener(ReadListener listener) {}
-            @Override public int read() { return bin.read(); }
-            @Override public int read(byte[] b, int off, int len) { return bin.read(b, off, len); }
+            @Override public int read() throws IOException { return in.read(); }
+            @Override public int read(byte[] b, int off, int len) throws IOException { return in.read(b, off, len); }
+            @Override public void close() throws IOException { in.close(); }
         };
         this.reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
@@ -340,6 +343,40 @@ public class RustHttpServletRequest implements HttpServletRequest {
     // ═══════════════════════════════════════════
     //  工具
     // ═══════════════════════════════════════════
+
+    /**
+     * 根据 Content-Encoding 创建解压流（支持 gzip/deflate）。
+     */
+    private static InputStream createDecompressedStream(HttpRequestData data) {
+        byte[] body = data.getBody();
+        if (body.length == 0) return new ByteArrayInputStream(body);
+        String contentEncoding = data.getHeader("Content-Encoding");
+        if (contentEncoding == null || contentEncoding.isEmpty()) return new ByteArrayInputStream(body);
+        String enc = contentEncoding.toLowerCase(Locale.ROOT).trim();
+        try {
+            if (enc.contains("gzip") || enc.equals("x-gzip")) {
+                GZIPInputStream gzipIn = new GZIPInputStream(new ByteArrayInputStream(body));
+                ByteArrayOutputStream out = new ByteArrayOutputStream(body.length * 2);
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = gzipIn.read(buf)) != -1) out.write(buf, 0, n);
+                gzipIn.close();
+                return new ByteArrayInputStream(out.toByteArray());
+            }
+            if (enc.contains("deflate")) {
+                InflaterInputStream inflaterIn = new InflaterInputStream(new ByteArrayInputStream(body));
+                ByteArrayOutputStream out = new ByteArrayOutputStream(body.length * 2);
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = inflaterIn.read(buf)) != -1) out.write(buf, 0, n);
+                inflaterIn.close();
+                return new ByteArrayInputStream(out.toByteArray());
+            }
+        } catch (Exception e) {
+            // 解压失败时返回原始数据
+        }
+        return new ByteArrayInputStream(body);
+    }
 
     static Map<String, String[]> parseQueryString(String qs) {
         Map<String, String[]> result = new LinkedHashMap<>();
