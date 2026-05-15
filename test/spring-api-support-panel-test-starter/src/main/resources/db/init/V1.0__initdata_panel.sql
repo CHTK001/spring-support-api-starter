@@ -52,11 +52,513 @@ SELECT
     'linux', '/usr/local/nginx', '80,443', 1,
     '', '', '', '', '', '',
     1, 0, 1, 0,
-    '{"description":"高性能 Web 服务器及反向代理","serviceName":"nginx","supportedModes":["DOCKER"],"dockerDefaults":{"image":"nginx","tags":["1.24","1.25","alpine","latest","alpine-perl"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/nginx/html","containerPath":"/usr/share/nginx/html"},{"hostPath":"/data/nginx/conf","containerPath":"/etc/nginx/conf.d"},{"hostPath":"/data/nginx/logs","containerPath":"/var/log/nginx"}]},"configFields":[{"fieldKey":"nginx_root","fieldLabel":"站点根目录","fieldType":"text","defaultValue":"/usr/share/nginx/html","placeholder":"容器内站点文件路径"},{"fieldKey":"nginx_server_name","fieldLabel":"服务器名称","fieldType":"text","defaultValue":"localhost","placeholder":"server_name 指令值"}]}',
+    '{"description":"高性能 Web 服务器及反向代理","serviceName":"nginx","supportedModes":["DOCKER","SYSTEM"],"dockerDefaults":{"image":"nginx","tags":["1.24","1.25","alpine","latest","alpine-perl"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/nginx/html","containerPath":"/usr/share/nginx/html"},{"hostPath":"/data/nginx/conf","containerPath":"/etc/nginx/conf.d"},{"hostPath":"/data/nginx/logs","containerPath":"/var/log/nginx"}]},"configFields":[{"fieldKey":"nginx_root","fieldLabel":"站点根目录","fieldType":"text","defaultValue":"/usr/share/nginx/html","placeholder":"容器内站点文件路径"},{"fieldKey":"nginx_server_name","fieldLabel":"服务器名称","fieldType":"text","defaultValue":"localhost","placeholder":"server_name 指令值"}]}',
     '{"TZ":"Asia/Shanghai"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'nginx'
 );
+
+-- Java 版本管理器（SYSTEM 模式专用，支持多版本安装和切换）
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script, start_script, stop_script, restart_script, status_script, uninstall_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'java', 'java', 'Java JDK', 'runtime', 'SOFTWARE', '17',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/openjdk.svg',
+    'linux', '', 0,
+    -- 安装脚本：支持 Java 8/11/17/21/25，通过环境变量 JAVA_VERSION 指定版本
+    '#!/bin/bash
+VERSION=${JAVA_VERSION:-17}
+echo "[INFO] 安装 Java JDK $VERSION ..."
+
+# 检测系统架构
+ARCH=$(uname -m)
+if [ "$ARCH" = "x86_64" ]; then
+    ARCH_NAME="x64"
+elif [ "$ARCH" = "aarch64" ]; then
+    ARCH_NAME="aarch64"
+else
+    echo "[ERROR] 不支持的架构: $ARCH"
+    exit 1
+fi
+
+# 安装对应版本
+case "$VERSION" in
+    8|1.8)
+        if command -v yum &> /dev/null; then
+            yum install -y -q java-1.8-openjdk java-1.8-openjdk-devel 2>/dev/null || true
+        else
+            apt-get update -qq && apt-get install -y -qq openjdk-8-jdk 2>/dev/null || true
+        fi
+        JAVA_HOME_PATH=$(dirname $(dirname $(readlink -f $(which javac 2>/dev/null || echo "/usr/lib/jvm/java-1.8-openjdk/bin/javac"))))
+        [ ! -d "$JAVA_HOME_PATH" ] && JAVA_HOME_PATH="/usr/lib/jvm/java-1.8-openjdk"
+        # 注册到 alternatives
+        [ -f "$JAVA_HOME_PATH/jre/bin/java" ] && alternatives --install /usr/bin/java java "$JAVA_HOME_PATH/jre/bin/java" 1800 2>/dev/null || true
+        [ -f "$JAVA_HOME_PATH/bin/java" ] && alternatives --install /usr/bin/java java "$JAVA_HOME_PATH/bin/java" 1800 2>/dev/null || true
+        ;;
+    11)
+        if command -v yum &> /dev/null; then
+            yum install -y -q java-11-openjdk java-11-openjdk-devel 2>/dev/null || true
+        else
+            apt-get update -qq && apt-get install -y -qq openjdk-11-jdk 2>/dev/null || true
+        fi
+        JAVA_HOME_PATH="/usr/lib/jvm/java-11-openjdk"
+        [ ! -d "$JAVA_HOME_PATH" ] && JAVA_HOME_PATH=$(ls -d /usr/lib/jvm/java-11-openjdk-* 2>/dev/null | head -1)
+        # 注册到 alternatives
+        [ -f "$JAVA_HOME_PATH/bin/java" ] && alternatives --install /usr/bin/java java "$JAVA_HOME_PATH/bin/java" 1100 2>/dev/null || true
+        ;;
+    17|21|25)
+        # Java 17/21/25 使用 Adoptium Temurin 二进制包（避免 RPM GPG 问题）
+        TEMURIN_DIR="/usr/lib/jvm/temurin-${VERSION}"
+        if [ ! -d "$TEMURIN_DIR" ]; then
+            cd /tmp
+            echo "[INFO] 下载 Adoptium Temurin $VERSION ..."
+            wget -q --timeout=120 "https://api.adoptium.net/v3/binary/latest/${VERSION}/ga/linux/${ARCH_NAME}/jdk/hotspot/normal/eclipse" -O "temurin-${VERSION}.tar.gz" 2>/dev/null
+            if [ -f "temurin-${VERSION}.tar.gz" ]; then
+                mkdir -p /usr/lib/jvm
+                tar xzf "temurin-${VERSION}.tar.gz" -C /usr/lib/jvm/
+                JAVA_DIR=$(ls -d /usr/lib/jvm/jdk-${VERSION}* 2>/dev/null | head -1)
+                [ -z "$JAVA_DIR" ] && JAVA_DIR=$(ls -d /usr/lib/jvm/temurin-${VERSION}* 2>/dev/null | head -1)
+                [ -n "$JAVA_DIR" ] && ln -sf "$JAVA_DIR" "$TEMURIN_DIR"
+                rm -f "temurin-${VERSION}.tar.gz"
+            else
+                echo "[ERROR] 下载 Adoptium Temurin $VERSION 失败"
+                exit 1
+            fi
+        fi
+        JAVA_HOME_PATH="$TEMURIN_DIR"
+        # 注册到 alternatives（优先级随版本递增）
+        PRIORITY=$((VERSION * 100))
+        [ -f "$JAVA_HOME_PATH/bin/java" ] && alternatives --install /usr/bin/java java "$JAVA_HOME_PATH/bin/java" $PRIORITY 2>/dev/null || true
+        ;;
+    *)
+        echo "[ERROR] 不支持的 Java 版本: $VERSION (支持: 8/11/17/21/25)"
+        exit 1
+        ;;
+esac
+
+# 切换到新安装的版本
+if [ -d "$JAVA_HOME_PATH" ] && [ -f "$JAVA_HOME_PATH/bin/java" ]; then
+    alternatives --set java "$JAVA_HOME_PATH/bin/java" 2>/dev/null || true
+    # 设置 JAVA_HOME 和 PATH（移除旧的 java 路径，避免优先级冲突）
+    cat > /etc/profile.d/java.sh << EOF
+export JAVA_HOME=$JAVA_HOME_PATH
+export PATH=\$(echo "\$PATH" | sed "s|/opt/java/current/bin||g; s|::|:|g; s|^:||; s|:\$||")
+export PATH=\$JAVA_HOME/bin:/usr/bin:\$PATH
+EOF
+    source /etc/profile.d/java.sh
+    echo "[INFO] Java $VERSION 安装完成，已切换为默认版本"
+    echo "[INFO] JAVA_HOME=$JAVA_HOME_PATH"
+    java -version 2>&1 | head -1
+else
+    echo "[WARN] Java 目录不存在: $JAVA_HOME_PATH"
+    echo "[INFO] 请检查安装日志"
+fi',
+    -- start/stop/restart：版本切换命令
+    '#!/bin/bash
+VERSION=${JAVA_VERSION:-17}
+# 查找已安装版本的路径
+for d in /usr/lib/jvm/java-${VERSION}* /usr/lib/jvm/temurin-${VERSION}*; do
+    [ -f "$d/bin/java" ] && JAVA_HOME_PATH="$d" && break
+done
+if [ -n "$JAVA_HOME_PATH" ]; then
+    alternatives --set java "$JAVA_HOME_PATH/bin/java" 2>/dev/null || true
+    cat > /etc/profile.d/java.sh << EOF
+export JAVA_HOME=$JAVA_HOME_PATH
+export PATH=\$(echo "\$PATH" | sed "s|/opt/java/current/bin||g; s|::|:|g; s|^:||; s|:\$||")
+export PATH=\$JAVA_HOME/bin:/usr/bin:\$PATH
+EOF
+    source /etc/profile.d/java.sh
+    echo "[INFO] 已切换到 Java $VERSION"
+    java -version 2>&1 | head -1
+else
+    echo "[ERROR] Java $VERSION 未安装"
+    exit 1
+fi',
+    'echo "切换版本请使用启动命令并指定 JAVA_VERSION 环境变量"',
+    'echo "Java 版本无需重启"',
+    -- status：检查当前 Java 版本
+    '#!/bin/bash
+source /etc/profile.d/java.sh 2>/dev/null
+if command -v java &> /dev/null; then
+    VER=$(java -version 2>&1 | head -1)
+    echo "active - $VER"
+    [ -n "$JAVA_HOME" ] && echo "JAVA_HOME=$JAVA_HOME"
+    # 列出已安装的版本
+    echo "--- 已安装版本 ---"
+    for d in /usr/lib/jvm/java-* /usr/lib/jvm/temurin-* /opt/java/current; do
+        [ -d "$d" ] || continue
+        BIN="$d/bin/java"
+        [ -f "$d/jre/bin/java" ] && BIN="$d/jre/bin/java"
+        if [ -x "$BIN" ]; then
+            V=$("$BIN" -version 2>&1 | head -1)
+            echo "  $d: $V"
+        fi
+    done
+else
+    echo "inactive - Java 未安装"
+fi',
+    -- uninstall：卸载所有 Java 版本
+    '#!/bin/bash
+echo "[INFO] 卸载 Java ..."
+# 卸载 OpenJDK
+yum remove -y -q "java-*-openjdk*" 2>/dev/null || true
+apt-get remove -y -qq "openjdk-*-jdk" 2>/dev/null || true
+# 删除 Adoptium 二进制
+rm -rf /usr/lib/jvm/temurin-* /usr/lib/jvm/jdk-*
+# 清理 alternatives
+alternatives --remove java /usr/lib/jvm/java-1.8.0-openjdk-*/jre/bin/java 2>/dev/null || true
+alternatives --remove java /usr/lib/jvm/java-11-openjdk-*/bin/java 2>/dev/null || true
+alternatives --remove java /usr/lib/jvm/temurin-*/bin/java 2>/dev/null || true
+# 清理环境变量
+rm -f /etc/profile.d/java.sh
+echo "[INFO] Java 已卸载"',
+    1, 0, 1, 1,
+    '{"description":"Java JDK 运行时环境 — 支持多版本安装和切换（8/11/17/21/25），使用 Adoptium Temurin 发行版，通过 alternatives 管理版本切换","serviceName":"java","supportedModes":["SYSTEM"],"configFields":[{"fieldKey":"java_version","fieldLabel":"Java 版本","fieldType":"select","defaultValue":"17","options":[{"label":"Java 8 (LTS)","value":"8"},{"label":"Java 11 (LTS)","value":"11"},{"label":"Java 17 (LTS)","value":"17"},{"label":"Java 21 (LTS)","value":"21"},{"label":"Java 25 (LTS)","value":"25"}],"placeholder":"选择要安装的 Java 版本"}]}',
+    '{}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'java'
+);
+
+-- Git SYSTEM 模式：包管理器安装（版本管理工具，无服务进程）
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script, start_script, stop_script, restart_script, status_script, uninstall_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'git', 'git', 'Git', 'devops', 'SOFTWARE', 'latest',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/git.svg',
+    'linux', '', 0,
+    '#!/bin/bash
+echo "[INFO] 安装 Git ..."
+if command -v yum &> /dev/null; then
+    yum install -y -q git 2>/dev/null || true
+else
+    apt-get update -qq && apt-get install -y -qq git 2>/dev/null || true
+fi
+if command -v git &> /dev/null; then
+    echo "[INFO] Git 安装完成: $(git --version 2>&1)"
+else
+    echo "[ERROR] Git 安装失败"
+    exit 1
+fi',
+    'echo "Git 是命令行版本管理工具，无需启动"',
+    'echo "Git 是命令行版本管理工具，无需停止"',
+    'echo "Git 是命令行版本管理工具，无需重启"',
+    'if command -v git &> /dev/null; then echo "active - $(git --version 2>&1)"; else echo "inactive - Git 未安装"; fi',
+    'apt-get remove -y -qq git 2>/dev/null || yum remove -y -q git 2>/dev/null || true',
+    1, 0, 1, 1,
+    '{"description":"Git 分布式版本控制系统 — 通过包管理器安装默认版本","serviceName":"git","supportedModes":["SYSTEM"]}',
+    '{}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'git'
+);
+
+-- Maven SYSTEM 模式：包管理器安装（Java 构建工具，需 Java 环境）
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script, start_script, stop_script, restart_script, status_script, uninstall_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'maven', 'maven', 'Maven', 'devops', 'SOFTWARE', 'latest',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/apachemaven.svg',
+    'linux', '', 0,
+    '#!/bin/bash
+echo "[INFO] 安装 Maven ..."
+if command -v yum &> /dev/null; then
+    yum install -y -q maven 2>/dev/null || true
+else
+    apt-get update -qq && apt-get install -y -qq maven 2>/dev/null || true
+fi
+if command -v mvn &> /dev/null; then
+    echo "[INFO] Maven 安装完成: $(mvn --version 2>&1 | head -1)"
+else
+    echo "[ERROR] Maven 安装失败"
+    exit 1
+fi',
+    'echo "Maven 是命令行构建工具，无需启动"',
+    'echo "Maven 是命令行构建工具，无需停止"',
+    'echo "Maven 是命令行构建工具，无需重启"',
+    'if command -v mvn &> /dev/null; then echo "active - $(mvn --version 2>&1 | head -1)"; else echo "inactive - Maven 未安装"; fi',
+    'apt-get remove -y -qq maven 2>/dev/null || yum remove -y -q maven 2>/dev/null || true',
+    1, 0, 1, 1,
+    '{"description":"Apache Maven Java 项目构建工具 — 通过包管理器安装默认版本，依赖 Java 环境","serviceName":"maven","supportedModes":["SYSTEM"]}',
+    '{}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'maven'
+);
+
+-- Docker Engine SYSTEM 模式：官方源安装（容器运行时，systemd 管理）
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script, start_script, stop_script, restart_script, status_script, uninstall_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'docker-engine', 'docker', 'Docker Engine', 'devops', 'SOFTWARE', 'latest',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/docker.svg',
+    'linux', '', 0,
+    '#!/bin/bash
+echo "[INFO] 安装 Docker Engine ..."
+if command -v yum &> /dev/null; then
+    # CentOS/RHEL 官方源安装
+    yum install -y -q yum-utils 2>/dev/null
+    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo 2>/dev/null || true
+    yum install -y -q docker-ce docker-ce-cli containerd.io docker-compose-plugin 2>/dev/null || true
+else
+    # Ubuntu/Debian 安装
+    apt-get update -qq
+    apt-get install -y -qq docker.io docker-compose-v2 2>/dev/null || apt-get install -y -qq docker.io 2>/dev/null || true
+fi
+if command -v docker &> /dev/null; then
+    systemctl enable docker 2>/dev/null && systemctl start docker 2>/dev/null || true
+    echo "[INFO] Docker Engine 安装完成: $(docker --version 2>&1)"
+else
+    echo "[ERROR] Docker Engine 安装失败"
+    exit 1
+fi',
+    'systemctl start docker 2>/dev/null || service docker start 2>/dev/null || true',
+    'systemctl stop docker 2>/dev/null || service docker stop 2>/dev/null || true',
+    'systemctl restart docker 2>/dev/null || service docker restart 2>/dev/null || true',
+    '#!/bin/bash
+if command -v docker &> /dev/null; then
+    STATUS=$(systemctl is-active docker 2>/dev/null || echo "unknown")
+    echo "$STATUS - Docker $(docker --version 2>&1 | head -1)"
+    docker info 2>/dev/null | grep -E "^(Server Version|Containers|Images|Storage Driver)" || true
+else
+    echo "inactive - Docker 未安装"
+fi',
+    '#!/bin/bash
+echo "[INFO] 卸载 Docker Engine ..."
+systemctl stop docker 2>/dev/null || true
+if command -v yum &> /dev/null; then
+    yum remove -y -q docker-ce docker-ce-cli containerd.io docker-compose-plugin 2>/dev/null || true
+else
+    apt-get remove -y -qq docker.io docker-compose-v2 2>/dev/null || apt-get remove -y -qq docker.io 2>/dev/null || true
+fi
+rm -rf /var/lib/docker /etc/docker 2>/dev/null || true
+echo "[INFO] Docker Engine 已卸载"',
+    1, 0, 1, 1,
+    '{"description":"Docker Engine 容器运行时 — 通过官方源安装，systemd 服务管理","serviceName":"docker","supportedModes":["SYSTEM"]}',
+    '{}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'docker-engine'
+);
+
+-- Nginx SYSTEM 模式：包管理器安装脚本（apt/yum 兼容，幂等执行）
+UPDATE sys_project_container_software_preset
+SET install_script = 'apt-get update -qq && apt-get install -y -qq nginx 2>/dev/null || yum install -y -q nginx 2>/dev/null || true; systemctl enable nginx 2>/dev/null || service nginx enable 2>/dev/null || true',
+    start_script = 'systemctl start nginx 2>/dev/null || service nginx start 2>/dev/null || true',
+    stop_script = 'systemctl stop nginx 2>/dev/null || service nginx stop 2>/dev/null || true',
+    restart_script = 'systemctl restart nginx 2>/dev/null || service nginx restart 2>/dev/null || true',
+    status_script = 'systemctl is-active nginx 2>/dev/null || service nginx status 2>/dev/null || echo inactive',
+    uninstall_script = 'apt-get remove -y -qq nginx 2>/dev/null || yum remove -y -q nginx 2>/dev/null || true'
+WHERE software_code = 'nginx' AND (install_script IS NULL OR install_script = '');
+
+-- Redis SYSTEM 模式：包管理器安装脚本
+UPDATE sys_project_container_software_preset
+SET install_script = 'apt-get update -qq && apt-get install -y -qq redis-server 2>/dev/null || yum install -y -q redis 2>/dev/null || true; systemctl enable redis 2>/dev/null || systemctl enable redis-server 2>/dev/null || service redis enable 2>/dev/null || true',
+    start_script = 'systemctl start redis 2>/dev/null || systemctl start redis-server 2>/dev/null || service redis start 2>/dev/null || true',
+    stop_script = 'systemctl stop redis 2>/dev/null || systemctl stop redis-server 2>/dev/null || service redis stop 2>/dev/null || true',
+    restart_script = 'systemctl restart redis 2>/dev/null || systemctl restart redis-server 2>/dev/null || service redis restart 2>/dev/null || true',
+    status_script = 'systemctl is-active redis 2>/dev/null || systemctl is-active redis-server 2>/dev/null || service redis status 2>/dev/null || echo inactive',
+    uninstall_script = 'apt-get remove -y -qq redis-server 2>/dev/null || yum remove -y -q redis 2>/dev/null || true'
+WHERE software_code = 'redis' AND (install_script IS NULL OR install_script = '');
+
+-- MongoDB SYSTEM 模式：包管理器安装脚本（需添加官方源）
+UPDATE sys_project_container_software_preset
+SET install_script = 'cat > /etc/yum.repos.d/mongodb-org-7.0.repo << ''REPO''
+[mongodb-org-7.0]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/7.0/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://pgp.mongodb.com/server-7.0.asc
+REPO
+yum install -y -q mongodb-org 2>/dev/null || apt-get install -y -qq mongodb-org 2>/dev/null || true; systemctl enable mongod 2>/dev/null || service mongod enable 2>/dev/null || true',
+    start_script = 'systemctl start mongod 2>/dev/null || service mongod start 2>/dev/null || true',
+    stop_script = 'systemctl stop mongod 2>/dev/null || service mongod stop 2>/dev/null || true',
+    restart_script = 'systemctl restart mongod 2>/dev/null || service mongod restart 2>/dev/null || true',
+    status_script = 'systemctl is-active mongod 2>/dev/null || service mongod status 2>/dev/null || echo inactive',
+    uninstall_script = 'systemctl stop mongod 2>/dev/null; yum remove -y -q mongodb-org 2>/dev/null || apt-get remove -y -qq mongodb-org 2>/dev/null || true'
+WHERE software_code = 'mongodb' AND (install_script IS NULL OR install_script = '');
+
+-- PostgreSQL SYSTEM 模式：包管理器安装脚本
+UPDATE sys_project_container_software_preset
+SET install_script = 'apt-get update -qq && apt-get install -y -qq postgresql postgresql-contrib 2>/dev/null || yum install -y -q postgresql-server postgresql-contrib 2>/dev/null || true; systemctl enable postgresql 2>/dev/null || service postgresql enable 2>/dev/null || true',
+    start_script = 'systemctl start postgresql 2>/dev/null || service postgresql start 2>/dev/null || true',
+    stop_script = 'systemctl stop postgresql 2>/dev/null || service postgresql stop 2>/dev/null || true',
+    restart_script = 'systemctl restart postgresql 2>/dev/null || service postgresql restart 2>/dev/null || true',
+    status_script = 'systemctl is-active postgresql 2>/dev/null || service postgresql status 2>/dev/null || echo inactive',
+    uninstall_script = 'apt-get remove -y -qq postgresql 2>/dev/null || yum remove -y -q postgresql-server 2>/dev/null || true'
+WHERE software_code = 'postgresql' AND (install_script IS NULL OR install_script = '');
+
+-- MySQL SYSTEM 模式：包管理器安装脚本
+UPDATE sys_project_container_software_preset
+SET install_script = 'apt-get update -qq && apt-get install -y -qq mysql-server 2>/dev/null || yum install -y -q mysql-server 2>/dev/null || true; systemctl enable mysqld 2>/dev/null || systemctl enable mysql 2>/dev/null || service mysqld enable 2>/dev/null || true',
+    start_script = 'systemctl start mysqld 2>/dev/null || systemctl start mysql 2>/dev/null || service mysqld start 2>/dev/null || true',
+    stop_script = 'systemctl stop mysqld 2>/dev/null || systemctl stop mysql 2>/dev/null || service mysqld stop 2>/dev/null || true',
+    restart_script = 'systemctl restart mysqld 2>/dev/null || systemctl restart mysql 2>/dev/null || service mysqld restart 2>/dev/null || true',
+    status_script = 'systemctl is-active mysqld 2>/dev/null || systemctl is-active mysql 2>/dev/null || service mysqld status 2>/dev/null || echo inactive',
+    uninstall_script = 'apt-get remove -y -qq mysql-server 2>/dev/null || yum remove -y -q mysql-server 2>/dev/null || true'
+WHERE software_code = 'mysql' AND (install_script IS NULL OR install_script = '');
+
+-- Tomcat SYSTEM 模式：包管理器安装脚本
+UPDATE sys_project_container_software_preset
+SET install_script = 'apt-get update -qq && apt-get install -y -qq tomcat 2>/dev/null || yum install -y -q tomcat 2>/dev/null || true; systemctl enable tomcat 2>/dev/null || service tomcat enable 2>/dev/null || true',
+    start_script = 'systemctl start tomcat 2>/dev/null || service tomcat start 2>/dev/null || true',
+    stop_script = 'systemctl stop tomcat 2>/dev/null || service tomcat stop 2>/dev/null || true',
+    restart_script = 'systemctl restart tomcat 2>/dev/null || service tomcat restart 2>/dev/null || true',
+    status_script = 'systemctl is-active tomcat 2>/dev/null || service tomcat status 2>/dev/null || echo inactive',
+    uninstall_script = 'apt-get remove -y -qq tomcat 2>/dev/null || yum remove -y -q tomcat 2>/dev/null || true'
+WHERE software_code = 'tomcat' AND (install_script IS NULL OR install_script = '');
+
+-- 更新预设配置，添加 SYSTEM 模式支持
+UPDATE sys_project_container_software_preset
+SET preset_remark = JSON_SET(preset_remark, '$.supportedModes', JSON_ARRAY('DOCKER', 'SYSTEM'))
+WHERE software_code IN ('nginx', 'redis', 'mongodb', 'postgresql', 'mysql', 'tomcat',
+                         'mariadb', 'zookeeper', 'kafka', 'nacos', 'minio', 'rabbitmq',
+                         'elasticsearch', 'grafana', 'prometheus', 'jenkins', 'wordpress',
+                         'phpmyadmin', 'consul')
+  AND JSON_CONTAINS(preset_remark, '["DOCKER"]', '$.supportedModes')
+  AND NOT JSON_CONTAINS(preset_remark, '["SYSTEM"]', '$.supportedModes');
+
+-- MariaDB SYSTEM 模式
+UPDATE sys_project_container_software_preset
+SET install_script = 'apt-get update -qq && apt-get install -y -qq mariadb-server 2>/dev/null || yum install -y -q mariadb-server 2>/dev/null || true; systemctl enable mariadb 2>/dev/null || service mariadb enable 2>/dev/null || true',
+    start_script = 'systemctl start mariadb 2>/dev/null || service mariadb start 2>/dev/null || true',
+    stop_script = 'systemctl stop mariadb 2>/dev/null || service mariadb stop 2>/dev/null || true',
+    restart_script = 'systemctl restart mariadb 2>/dev/null || service mariadb restart 2>/dev/null || true',
+    status_script = 'systemctl is-active mariadb 2>/dev/null || service mariadb status 2>/dev/null || echo inactive',
+    uninstall_script = 'apt-get remove -y -qq mariadb-server 2>/dev/null || yum remove -y -q mariadb-server 2>/dev/null || true'
+WHERE software_code = 'mariadb' AND (install_script IS NULL OR install_script = '');
+
+-- ZooKeeper SYSTEM 模式
+UPDATE sys_project_container_software_preset
+SET install_script = 'cd /opt && wget -q https://archive.apache.org/dist/zookeeper/zookeeper-3.9.2/apache-zookeeper-3.9.2-bin.tar.gz && tar xzf apache-zookeeper-3.9.2-bin.tar.gz && ln -sf apache-zookeeper-3.9.2-bin zookeeper || true',
+    start_script = '/opt/zookeeper/bin/zkServer.sh start 2>/dev/null || true',
+    stop_script = '/opt/zookeeper/bin/zkServer.sh stop 2>/dev/null || true',
+    restart_script = '/opt/zookeeper/bin/zkServer.sh restart 2>/dev/null || true',
+    status_script = '/opt/zookeeper/bin/zkServer.sh status 2>/dev/null || echo inactive',
+    uninstall_script = 'rm -rf /opt/zookeeper /opt/apache-zookeeper-* || true'
+WHERE software_code = 'zookeeper' AND (install_script IS NULL OR install_script = '');
+
+-- Kafka SYSTEM 模式
+UPDATE sys_project_container_software_preset
+SET install_script = 'cd /opt && wget -q https://archive.apache.org/dist/kafka/3.7.0/kafka_2.13-3.7.0.tgz && tar xzf kafka_2.13-3.7.0.tgz && ln -sf kafka_2.13-3.7.0 kafka || true',
+    start_script = '/opt/kafka/bin/kafka-server-start.sh -daemon /opt/kafka/config/kraft/server.properties 2>/dev/null || true',
+    stop_script = '/opt/kafka/bin/kafka-server-stop.sh 2>/dev/null || true',
+    restart_script = '/opt/kafka/bin/kafka-server-stop.sh 2>/dev/null; sleep 2; /opt/kafka/bin/kafka-server-start.sh -daemon /opt/kafka/config/kraft/server.properties 2>/dev/null || true',
+    status_script = 'jps | grep -q Kafka && echo active || echo inactive',
+    uninstall_script = 'rm -rf /opt/kafka /opt/kafka_* || true'
+WHERE software_code = 'kafka' AND (install_script IS NULL OR install_script = '');
+
+-- MinIO SYSTEM 模式
+UPDATE sys_project_container_software_preset
+SET install_script = 'wget -q https://dl.min.io/server/minio/release/linux-amd64/minio -O /usr/local/bin/minio && chmod +x /usr/local/bin/minio || true',
+    start_script = 'nohup minio server /data --console-address=:9001 > /var/log/minio.log 2>&1 &',
+    stop_script = 'pkill -f minio || true',
+    restart_script = 'pkill -f minio || true; sleep 1; nohup minio server /data --console-address=:9001 > /var/log/minio.log 2>&1 &',
+    status_script = 'pgrep -f minio > /dev/null && echo active || echo inactive',
+    uninstall_script = 'pkill -f minio || true; rm -f /usr/local/bin/minio || true'
+WHERE software_code = 'minio' AND (install_script IS NULL OR install_script = '');
+
+-- RabbitMQ SYSTEM 模式
+UPDATE sys_project_container_software_preset
+SET install_script = 'apt-get update -qq && apt-get install -y -qq rabbitmq-server 2>/dev/null || yum install -y -q rabbitmq-server 2>/dev/null || true; systemctl enable rabbitmq-server 2>/dev/null || service rabbitmq-server enable 2>/dev/null || true',
+    start_script = 'systemctl start rabbitmq-server 2>/dev/null || service rabbitmq-server start 2>/dev/null || true',
+    stop_script = 'systemctl stop rabbitmq-server 2>/dev/null || service rabbitmq-server stop 2>/dev/null || true',
+    restart_script = 'systemctl restart rabbitmq-server 2>/dev/null || service rabbitmq-server restart 2>/dev/null || true',
+    status_script = 'systemctl is-active rabbitmq-server 2>/dev/null || service rabbitmq-server status 2>/dev/null || echo inactive',
+    uninstall_script = 'apt-get remove -y -qq rabbitmq-server 2>/dev/null || yum remove -y -q rabbitmq-server 2>/dev/null || true'
+WHERE software_code = 'rabbitmq' AND (install_script IS NULL OR install_script = '');
+
+-- Elasticsearch SYSTEM 模式
+UPDATE sys_project_container_software_preset
+SET install_script = 'rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch 2>/dev/null; cat > /etc/yum.repos.d/elasticsearch.repo << ''REPO''
+[elasticsearch]
+name=Elasticsearch repository
+baseurl=https://artifacts.elastic.co/packages/8.x/yum
+gpgcheck=1
+gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md
+REPO
+yum install -y -q elasticsearch 2>/dev/null || true; systemctl enable elasticsearch 2>/dev/null || true',
+    start_script = 'systemctl start elasticsearch 2>/dev/null || service elasticsearch start 2>/dev/null || true',
+    stop_script = 'systemctl stop elasticsearch 2>/dev/null || service elasticsearch stop 2>/dev/null || true',
+    restart_script = 'systemctl restart elasticsearch 2>/dev/null || service elasticsearch restart 2>/dev/null || true',
+    status_script = 'systemctl is-active elasticsearch 2>/dev/null || service elasticsearch status 2>/dev/null || echo inactive',
+    uninstall_script = 'systemctl stop elasticsearch 2>/dev/null; yum remove -y -q elasticsearch 2>/dev/null || true'
+WHERE software_code = 'elasticsearch' AND (install_script IS NULL OR install_script = '');
+
+-- Grafana SYSTEM 模式
+UPDATE sys_project_container_software_preset
+SET install_script = 'cat > /etc/yum.repos.d/grafana.repo << ''REPO''
+[grafana]
+name=grafana
+baseurl=https://rpm.grafana.com
+repo_gpgcheck=1
+enabled=1
+gpgcheck=1
+gpgkey=https://rpm.grafana.com/gpg.key
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+REPO
+yum install -y -q grafana 2>/dev/null || true; systemctl enable grafana-server 2>/dev/null || true',
+    start_script = 'systemctl start grafana-server 2>/dev/null || service grafana-server start 2>/dev/null || true',
+    stop_script = 'systemctl stop grafana-server 2>/dev/null || service grafana-server stop 2>/dev/null || true',
+    restart_script = 'systemctl restart grafana-server 2>/dev/null || service grafana-server restart 2>/dev/null || true',
+    status_script = 'systemctl is-active grafana-server 2>/dev/null || service grafana-server status 2>/dev/null || echo inactive',
+    uninstall_script = 'systemctl stop grafana-server 2>/dev/null; yum remove -y -q grafana 2>/dev/null || true'
+WHERE software_code = 'grafana' AND (install_script IS NULL OR install_script = '');
+
+-- Prometheus SYSTEM 模式
+UPDATE sys_project_container_software_preset
+SET install_script = 'useradd -M -s /bin/false prometheus 2>/dev/null; mkdir -p /etc/prometheus /var/lib/prometheus; cd /tmp && wget -q https://github.com/prometheus/prometheus/releases/download/v2.53.0/prometheus-2.53.0.linux-amd64.tar.gz && tar xzf prometheus-2.53.0.linux-amd64.tar.gz && cp prometheus-2.53.0.linux-amd64/{prometheus,promtool} /usr/local/bin/ && cp -r prometheus-2.53.0.linux-amd64/{consoles,console_libraries} /etc/prometheus/ && chown -R prometheus:prometheus /etc/prometheus /var/lib/prometheus || true',
+    start_script = 'nohup prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/var/lib/prometheus > /var/log/prometheus.log 2>&1 &',
+    stop_script = 'pkill -f prometheus || true',
+    restart_script = 'pkill -f prometheus || true; sleep 1; nohup prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/var/lib/prometheus > /var/log/prometheus.log 2>&1 &',
+    status_script = 'pgrep -f prometheus > /dev/null && echo active || echo inactive',
+    uninstall_script = 'pkill -f prometheus || true; rm -f /usr/local/bin/prometheus /usr/local/bin/promtool || true'
+WHERE software_code = 'prometheus' AND (install_script IS NULL OR install_script = '');
+
+-- Jenkins SYSTEM 模式
+UPDATE sys_project_container_software_preset
+SET install_script = 'wget -q -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo 2>/dev/null; rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key 2>/dev/null; yum install -y -q jenkins java-17-openjdk 2>/dev/null || true; systemctl enable jenkins 2>/dev/null || true',
+    start_script = 'systemctl start jenkins 2>/dev/null || service jenkins start 2>/dev/null || true',
+    stop_script = 'systemctl stop jenkins 2>/dev/null || service jenkins stop 2>/dev/null || true',
+    restart_script = 'systemctl restart jenkins 2>/dev/null || service jenkins restart 2>/dev/null || true',
+    status_script = 'systemctl is-active jenkins 2>/dev/null || service jenkins status 2>/dev/null || echo inactive',
+    uninstall_script = 'systemctl stop jenkins 2>/dev/null; yum remove -y -q jenkins 2>/dev/null || true'
+WHERE software_code = 'jenkins' AND (install_script IS NULL OR install_script = '');
+
+-- Consul SYSTEM 模式
+UPDATE sys_project_container_software_preset
+SET install_script = 'cd /tmp && wget -q https://releases.hashicorp.com/consul/1.18.0/consul_1.18.0_linux_amd64.zip && unzip -o consul_1.18.0_linux_amd64.zip && mv consul /usr/local/bin/ || true',
+    start_script = 'nohup consul agent -dev -client=0.0.0.0 > /var/log/consul.log 2>&1 &',
+    stop_script = 'pkill -f consul || true',
+    restart_script = 'pkill -f consul || true; sleep 1; nohup consul agent -dev -client=0.0.0.0 > /var/log/consul.log 2>&1 &',
+    status_script = 'pgrep -f consul > /dev/null && echo active || echo inactive',
+    uninstall_script = 'pkill -f consul || true; rm -f /usr/local/bin/consul || true'
+WHERE software_code = 'consul' AND (install_script IS NULL OR install_script = '');
 
 -- Apache Guacamole 预设（DOCKERFILE 类型，仅 docker 模式）
 INSERT INTO sys_project_container_software_preset (
@@ -98,7 +600,7 @@ SELECT
     'linux', '3306', 1,
     '',
     1, 0, 1, 2,
-    '{"description":"MySQL 关系型数据库","serviceName":"mysql","supportedModes":["DOCKER"],"dockerDefaults":{"image":"mysql:8.0","tags":["5.7","8.0","8.4","9.0","latest"],"scriptMode":"script","env":{"MYSQL_ROOT_PASSWORD":"root123456","MYSQL_DATABASE":"myapp","MYSQL_USER":"appuser","MYSQL_PASSWORD":"apppass","TZ":"Asia/Shanghai","character_set_server":"utf8mb4","collation_server":"utf8mb4_unicode_ci","lower_case_table_names":"1","max_connections":"200"},"envDescriptions":{"MYSQL_ROOT_PASSWORD":"MySQL root 用户密码","MYSQL_DATABASE":"初始化时自动创建的数据库","MYSQL_USER":"初始化时创建的普通用户","MYSQL_PASSWORD":"普通用户的密码","TZ":"容器时区设置","character_set_server":"服务器字符集编码","collation_server":"服务器排序规则","lower_case_table_names":"表名大小写敏感（0=敏感，1=不敏感）","max_connections":"最大并发连接数"},"volumeMappings":[{"hostPath":"/data/mysql/data","containerPath":"/var/lib/mysql"},{"hostPath":"/data/mysql/conf","containerPath":"/etc/mysql/conf.d"},{"hostPath":"/data/mysql/init","containerPath":"/docker-entrypoint-initdb.d"}]}}',
+    '{"description":"MySQL 关系型数据库","serviceName":"mysql","supportedModes":["DOCKER","SYSTEM"],"dockerDefaults":{"image":"mysql:8.0","tags":["5.7","8.0","8.4","9.0","latest"],"scriptMode":"script","env":{"MYSQL_ROOT_PASSWORD":"root123456","MYSQL_DATABASE":"myapp","MYSQL_USER":"appuser","MYSQL_PASSWORD":"apppass","TZ":"Asia/Shanghai","character_set_server":"utf8mb4","collation_server":"utf8mb4_unicode_ci","lower_case_table_names":"1","max_connections":"200"},"envDescriptions":{"MYSQL_ROOT_PASSWORD":"MySQL root 用户密码","MYSQL_DATABASE":"初始化时自动创建的数据库","MYSQL_USER":"初始化时创建的普通用户","MYSQL_PASSWORD":"普通用户的密码","TZ":"容器时区设置","character_set_server":"服务器字符集编码","collation_server":"服务器排序规则","lower_case_table_names":"表名大小写敏感（0=敏感，1=不敏感）","max_connections":"最大并发连接数"},"volumeMappings":[{"hostPath":"/data/mysql/data","containerPath":"/var/lib/mysql"},{"hostPath":"/data/mysql/conf","containerPath":"/etc/mysql/conf.d"},{"hostPath":"/data/mysql/init","containerPath":"/docker-entrypoint-initdb.d"}]}}',
     '{"TZ":"Asia/Shanghai","MYSQL_ROOT_PASSWORD":"root123456"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'mysql'
@@ -161,7 +663,7 @@ SELECT
     'linux', '6379', 1,
     '',
     1, 0, 1, 3,
-    '{"description":"Redis 内存缓存数据库","serviceName":"redis","supportedModes":["DOCKER"],"dockerDefaults":{"image":"redis","tags":["7-alpine","7","8-alpine","8","alpine","latest"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/redis/data","containerPath":"/data"},{"hostPath":"/data/redis/conf","containerPath":"/etc/redis"}]}}',
+    '{"description":"Redis 内存缓存数据库","serviceName":"redis","supportedModes":["DOCKER","SYSTEM"],"dockerDefaults":{"image":"redis","tags":["7-alpine","7","8-alpine","8","alpine","latest"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/redis/data","containerPath":"/data"},{"hostPath":"/data/redis/conf","containerPath":"/etc/redis"}]}}',
     '{"TZ":"Asia/Shanghai"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'redis'
@@ -203,7 +705,7 @@ SELECT
     'linux', '27017', 1,
     '',
     1, 0, 1, 5,
-    '{"description":"MongoDB 文档数据库","serviceName":"mongodb","supportedModes":["DOCKER"],"dockerDefaults":{"image":"mongo:7","tags":["7","7.0","6","latest"],"scriptMode":"script","env":{"MONGO_INITDB_ROOT_USERNAME":"admin","MONGO_INITDB_ROOT_PASSWORD":"admin123","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/mongodb/data","containerPath":"/data/db"}]}}',
+    '{"description":"MongoDB 文档数据库","serviceName":"mongodb","supportedModes":["DOCKER","SYSTEM"],"dockerDefaults":{"image":"mongo:7","tags":["7","7.0","6","latest"],"scriptMode":"script","env":{"MONGO_INITDB_ROOT_USERNAME":"admin","MONGO_INITDB_ROOT_PASSWORD":"admin123","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/mongodb/data","containerPath":"/data/db"}]}}',
     '{"TZ":"Asia/Shanghai","MONGO_INITDB_ROOT_USERNAME":"admin","MONGO_INITDB_ROOT_PASSWORD":"admin123"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'mongodb'
@@ -224,7 +726,7 @@ SELECT
     'linux', '5432', 1,
     '',
     1, 0, 1, 6,
-    '{"description":"PostgreSQL 关系型数据库","serviceName":"postgresql","supportedModes":["DOCKER"],"dockerDefaults":{"image":"postgres:16","tags":["16","15","14","13","latest"],"scriptMode":"script","env":{"POSTGRES_PASSWORD":"postgres123","POSTGRES_DB":"myapp","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/postgresql/data","containerPath":"/var/lib/postgresql/data"},{"hostPath":"/data/postgresql/init","containerPath":"/docker-entrypoint-initdb.d"}]}}',
+    '{"description":"PostgreSQL 关系型数据库","serviceName":"postgresql","supportedModes":["DOCKER","SYSTEM"],"dockerDefaults":{"image":"postgres:16","tags":["16","15","14","13","latest"],"scriptMode":"script","env":{"POSTGRES_PASSWORD":"postgres123","POSTGRES_DB":"myapp","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/postgresql/data","containerPath":"/var/lib/postgresql/data"},{"hostPath":"/data/postgresql/init","containerPath":"/docker-entrypoint-initdb.d"}]}}',
     '{"TZ":"Asia/Shanghai","POSTGRES_PASSWORD":"postgres123"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'postgresql'
@@ -465,7 +967,7 @@ SELECT
     'linux', '8080', 1,
     '',
     1, 0, 1, 17,
-    '{"description":"Apache Tomcat — Java Servlet/JSP 容器","serviceName":"tomcat","supportedModes":["DOCKER"],"dockerDefaults":{"image":"tomcat","tags":["11","10","9","latest"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/tomcat/webapps","containerPath":"/usr/local/tomcat/webapps"},{"hostPath":"/data/tomcat/logs","containerPath":"/usr/local/tomcat/logs"}]}}',
+    '{"description":"Apache Tomcat — Java Servlet/JSP 容器","serviceName":"tomcat","supportedModes":["DOCKER","SYSTEM"],"dockerDefaults":{"image":"tomcat","tags":["11","10","9","latest"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/tomcat/webapps","containerPath":"/usr/local/tomcat/webapps"},{"hostPath":"/data/tomcat/logs","containerPath":"/usr/local/tomcat/logs"}]}}',
     '{"TZ":"Asia/Shanghai"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'tomcat'
