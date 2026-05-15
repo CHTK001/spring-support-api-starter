@@ -48,6 +48,9 @@ kg-network-requests.md
 test/**/data/
 test/**/sys
 test/**/*.log.*
+test/**/ssh_payload.json
+test_ssh.py
+Cargo.lock
 
 #非项目根目录文件
 /*.js

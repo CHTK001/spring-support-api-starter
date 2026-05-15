@@ -1,6 +1,7 @@
 package com.chua.starter.rustserver;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.server.WebServer;
 import org.springframework.boot.web.server.WebServerException;
 
@@ -17,8 +18,9 @@ import static java.lang.foreign.ValueLayout.*;
  * <p>通过 Panama FFI 启动 Rust (tokio+hyper) HTTP 服务器。
  * 请求到达时 Rust 同步回调 Java，解析 {@link HttpRequestData} 后分发给 {@link RequestHandler} 处理。</p>
  */
-@Slf4j
 public class RustWebServer implements WebServer {
+
+    private static final Logger log = LoggerFactory.getLogger(RustWebServer.class);
 
     /** 业务请求处理器 */
     @FunctionalInterface

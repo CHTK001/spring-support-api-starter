@@ -28,7 +28,7 @@ public class PaymentTestApplication {
     }
 
     /**
-     * scheduler.enabled=false 时提供空实现，确保 PaymentOpsController 启动。
+     * scheduler.enabled=false 时提供空实现，确保 dashboard 相关服务正常启动。
      */
     @Bean
     public PaymentSchedulerTaskOpsService paymentSchedulerTaskOpsService() {

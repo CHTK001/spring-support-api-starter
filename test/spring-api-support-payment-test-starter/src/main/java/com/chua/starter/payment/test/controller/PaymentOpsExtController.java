@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * 支付运营扩展控制器（测试环境）。
- * 补充 common 模块 PaymentOpsController 未提供的运营端点（overview / scheduler / notify）。
+ * 补充 common 模块 PaymentDashboardController 未提供的运营端点（overview / scheduler / notify）。
  */
 @RestController
 @RequestMapping("/ops")

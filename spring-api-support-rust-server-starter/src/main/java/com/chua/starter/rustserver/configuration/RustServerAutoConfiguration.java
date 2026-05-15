@@ -1,7 +1,8 @@
 package com.chua.starter.rustserver.configuration;
 
 import com.chua.starter.rustserver.RustServletWebServerFactory;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -24,11 +25,12 @@ import org.springframework.core.env.Environment;
  *     response-buffer: 524288   # 可选，单位字节，默认 512KB
  * }</pre>
  */
-@Slf4j
 @AutoConfiguration(before = ServletWebServerFactoryAutoConfiguration.class)
 @ConditionalOnClass(name = "jakarta.servlet.http.HttpServlet")
 @ConditionalOnProperty(prefix = "server.rust", name = "enabled", havingValue = "true")
 public class RustServerAutoConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(RustServerAutoConfiguration.class);
 
     @Bean
     @ConditionalOnMissingBean(ServletWebServerFactory.class)

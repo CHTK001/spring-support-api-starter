@@ -1,6 +1,7 @@
 package com.chua.starter.rustserver;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.foreign.*;
 import java.lang.invoke.MethodHandle;
@@ -19,9 +20,9 @@ import static java.lang.foreign.ValueLayout.*;
  * <p>通过反射调用 {@link SymbolLookup#libraryLookup}，隔离 JDK 21 与 22+ 的 API 签名差异。
  * JDK 21 需添加 JVM 参数 {@code --enable-preview}。</p>
  */
-@Slf4j
 public class NativeBridge implements AutoCloseable {
 
+    private static final Logger log = LoggerFactory.getLogger(NativeBridge.class);
     private static final Linker LINKER = Linker.nativeLinker();
     private static final int JDK_VERSION = Runtime.version().feature();
 
