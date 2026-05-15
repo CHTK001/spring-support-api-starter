@@ -27,6 +27,9 @@ plugin:
   strategy:
     circuit-breaker:
       enabled: false
+    idempotent:
+      enabled: true
+      type: redis
   payment:
     server:
       enable: true

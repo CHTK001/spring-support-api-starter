@@ -52,7 +52,7 @@ INSERT IGNORE INTO `pay_global_config` (
     '/{orderNo}/{merchantId}', 30
 );
 
--- 5. 支付渠道：微信沙箱 — NATIVE（扫码支付，无需 openId）
+-- 5. 支付渠道：微信真实网关 — NATIVE（扫码支付，无需 openId）
 INSERT IGNORE INTO `pay_merchant_channel` (
     `pay_merchant_channel_id`, `pay_merchant_id`,
     `pay_merchant_channel_channel_type`, `pay_merchant_channel_channel_sub_type`,
@@ -65,8 +65,8 @@ INSERT IGNORE INTO `pay_merchant_channel` (
 ) VALUES (
     8, 1,
     'WECHAT', 'NATIVE',
-    '微信沙箱（扫码）',
-    1, 1,
+    '微信扫码（真实网关）',
+    0, 1,
     'wx631110cae53f7736', '1725633524',
     '24c09f7647dcafbfe4b21d8e6ca124b9',
     '-----BEGIN PRIVATE KEY-----
@@ -98,7 +98,7 @@ SMx34jMjJyjZl+8pe/wl93WTXWLvGuy5ok1Ig6NIUdFex/Zn7PB/yxTLqY8h1TSL
 QjvGV+sU34zYiBIyNJEZ6mib
 -----END PRIVATE KEY-----',
     '/api/payment/notify/wechat/8',
-    '{"merchantSerialNumber":"32E23D6076C66410662CEC0C928A8B59E5F89272","sandboxSignKey":"24c09f7647dcafbfe4b21d8e6ca124b9"}'
+    '{"merchantSerialNumber":"32E23D6076C66410662CEC0C928A8B59E5F89272"}'
 );
 
 -- 6. 支付渠道：支付宝沙箱 — 电脑网站支付
