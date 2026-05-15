@@ -8,6 +8,7 @@ spring:
       - com.chua.starter.system.configuration.SystemAutoConfiguration
       - com.chua.starter.project.configuration.ProjectConfiguration
       - com.chua.starter.device.configuration.DeviceConfiguration
+      - com.chua.starter.server.support.config.ServerManagementConfiguration
   # -------------------------------------------
   # 数据源配置
   # -------------------------------------------
@@ -15,7 +16,7 @@ spring:
     # 数据库驱动类名（使用P6Spy进行SQL监控）
     driver-class-name: com.p6spy.engine.spy.P6SpyDriver
     # 数据库连接URL
-    url: jdbc:p6spy:mysql://localhost:3306/report?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:p6spy:mysql://172.16.0.40:3306/report?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     # 数据库用户名
     username: root
     # 数据库密码
@@ -86,10 +87,17 @@ plugin:
     protocol: http-lite
 
   socket:
-    # 开启 Socket.IO，支持实时安装进度推送
-    enable: true
+    # 关闭 Socket.IO（测试 RAG 时不需要）
+    enable: false
 
 monitor:
   acme:
     # 关闭 ACME 证书自动续签（需要 Socket.IO）
     enabled: false
+
+app:
+  rag:
+    llm-provider: openai
+    llm-model: gpt-4o-mini
+    llm-api-key: ${OPENAI_API_KEY}
+    llm-base-url: https://api.openai.com/v1
