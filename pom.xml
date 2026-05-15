@@ -29,7 +29,6 @@
         <module>spring-api-support-common-configuration-starter</module>
         <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-common-payment-starter</module>
-        <module>spring-api-support-rust-server-starter</module>
     </modules>
 
     <properties>

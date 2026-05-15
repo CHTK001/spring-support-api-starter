@@ -11,6 +11,7 @@ spring:
       - com.chua.starter.ai.support.configuration.AiConfiguration
       - com.chua.starter.ai.support.configuration.AiCacheKeyGeneratorAliasConfiguration
       - com.chua.starter.ai.support.configuration.AiCacheManagerFallbackConfiguration
+      - com.chua.starter.ai.support.configuration.RagAutoConfiguration
 
 server:
   port: 8090
