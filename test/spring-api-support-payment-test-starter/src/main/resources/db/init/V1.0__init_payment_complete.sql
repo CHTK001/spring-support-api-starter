@@ -1,24 +1,27 @@
 -- ==========================================================
 -- 支付系统表结构（完整）
 -- 包含: 全局配置、优惠券模板、用户优惠券、充值奖励规则
--- 遵循 pay_ 前缀 + 表名.字段 命名规范
+-- 所有表均使用 {table_name}_ 前缀列名以匹配 MyBatis-Plus 实体映射
 -- ==========================================================
 
 -- 1. 支付全局配置
 CREATE TABLE IF NOT EXISTS `pay_global_config` (
-    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
-    `config_key` VARCHAR(64) NOT NULL DEFAULT 'DEFAULT' COMMENT '配置键',
-    `notify_base_url` VARCHAR(255) DEFAULT NULL COMMENT '回调基础地址',
-    `return_url` VARCHAR(255) DEFAULT NULL COMMENT '默认回跳地址',
-    `callback_path_template` VARCHAR(255) DEFAULT '/{orderNo}/{merchantId}' COMMENT '回调路径模板',
-    `auto_refresh_seconds` INT DEFAULT 60 COMMENT '首页自动刷新秒数',
-    `remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
-    `sample_pay_notify_url` VARCHAR(500) DEFAULT NULL COMMENT '支付回调示例 URL',
-    `sample_refund_notify_url` VARCHAR(500) DEFAULT NULL COMMENT '退款回调示例 URL',
-    `coupon_deduct_withdrawable` TINYINT DEFAULT 1 COMMENT '优惠券抵扣部分是否可提现: 0-不可提现(冻结), 1-可提现',
-    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    UNIQUE KEY `uk_global_config_key` (`config_key`)
+    `pay_global_config_id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    `pay_global_config_config_key` VARCHAR(64) NOT NULL DEFAULT 'DEFAULT' COMMENT '配置键',
+    `pay_global_config_notify_base_url` VARCHAR(255) DEFAULT NULL COMMENT '回调基础地址',
+    `pay_global_config_return_url` VARCHAR(255) DEFAULT NULL COMMENT '默认回跳地址',
+    `pay_global_config_callback_path_template` VARCHAR(255) DEFAULT '/{orderNo}/{merchantId}' COMMENT '回调路径模板',
+    `pay_global_config_auto_refresh_seconds` INT DEFAULT 60 COMMENT '首页自动刷新秒数',
+    `pay_global_config_remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
+    `pay_global_config_sample_pay_notify_url` VARCHAR(500) DEFAULT NULL COMMENT '支付回调示例 URL',
+    `pay_global_config_sample_refund_notify_url` VARCHAR(500) DEFAULT NULL COMMENT '退款回调示例 URL',
+    `pay_global_config_sample_wallet_recharge_notify_url` VARCHAR(500) DEFAULT NULL COMMENT '钱包充值回调示例 URL',
+    `pay_global_config_sample_wallet_transfer_notify_url` VARCHAR(500) DEFAULT NULL COMMENT '钱包转账回调示例 URL',
+    `pay_global_config_sample_wallet_withdraw_notify_url` VARCHAR(500) DEFAULT NULL COMMENT '钱包提现回调示例 URL',
+    `pay_global_config_coupon_deduct_withdrawable` TINYINT DEFAULT 1 COMMENT '优惠券抵扣部分是否可提现: 0-不可提现(冻结), 1-可提现',
+    `pay_global_config_create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `pay_global_config_update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY `uk_global_config_key` (`pay_global_config_config_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='支付全局配置表';
 
 -- 2. 优惠券模板

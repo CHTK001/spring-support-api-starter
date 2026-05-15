@@ -161,6 +161,7 @@ public class WechatJsapiPaymentChannel extends AbstractMerchantPaymentChannel im
                 "微信商户证书序列号不能为空，请在 extConfig 中提供 merchantSerialNumber"));
         properties.setNotifyUrl(channel.getNotifyUrl());
         properties.setSandbox(channel.getSandboxMode() != null && channel.getSandboxMode() == 1);
+        properties.setSandboxSignKey(extText(channel, "sandboxSignKey"));
         return properties;
     }
 

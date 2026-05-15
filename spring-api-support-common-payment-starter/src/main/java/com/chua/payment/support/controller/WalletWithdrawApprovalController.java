@@ -11,6 +11,7 @@ import com.chua.payment.support.service.WalletAccountService;
 import com.chua.payment.support.service.WalletOrderService;
 import com.chua.payment.support.service.WalletPayoutService;
 import com.chua.payment.support.service.WalletWithdrawApprovalService;
+import com.chua.payment.support.dto.WalletWithdrawDTO;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +38,16 @@ public class WalletWithdrawApprovalController {
     private final WalletAccountService walletAccountService;
     private final WalletOrderService walletOrderService;
     private final WalletPayoutService walletPayoutService;
+
+    @PostMapping
+    @Permission(value = "payment:wallet:withdraw", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<WalletWithdrawApproval> createApproval(@RequestBody WalletWithdrawDTO dto) {
+        WalletWithdrawApproval approval = walletWithdrawApprovalService.createApproval(
+                dto.getMerchantId(), dto.getUserId(), dto.getAmount(),
+                dto.getBankAccount(), dto.getBankName(), dto.getAccountName(),
+                dto.getWithdrawNo(), dto.getRemark());
+        return ReturnResult.success(approval);
+    }
 
     @GetMapping("/page")
     @Permission(value = "payment:wallet:view", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN, AuthConstant.OPS})

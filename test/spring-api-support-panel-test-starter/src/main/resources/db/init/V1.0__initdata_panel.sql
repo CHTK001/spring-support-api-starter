@@ -72,7 +72,7 @@ SELECT
     'linux', '8080', 1,
     '',
     1, 0, 1, 1,
-    '{"description":"Apache Guacamole — 无客户端远程桌面网关，支持 RDP/VNC/SSH","serviceName":"guacamole","supportedModes":["DOCKER"],"dockerDefaults":{"image":"guacamole/guacamole","tags":["1.5.5","latest"],"scriptMode":"dockerfile","dockerfileContent":"FROM guacamole/guacamole:1.5.5\\nEXPOSE 8080\\nCMD [\\"/opt/guacamole/bin/start.sh\\"]","env":{"TZ":"Asia/Shanghai","GUACD_HOSTNAME":"guacd","MYSQL_HOSTNAME":"mysql","MYSQL_PORT":"3306","MYSQL_DATABASE":"guacamole_db","MYSQL_USER":"guacamole_user","MYSQL_PASSWORD":"guacamole_pass"},"volumeMappings":[{"hostPath":"/data/guacamole/config","containerPath":"/config"},{"hostPath":"/data/guacamole/recordings","containerPath":"/recordings"}]}}',
+    '{"description":"Apache Guacamole — 无客户端远程桌面网关，支持 RDP/VNC/SSH","serviceName":"guacamole","supportedModes":["DOCKER"],"dockerDefaults":{"image":"guacamole/guacamole","tags":["1.5.5","latest"],"scriptMode":"dockerfile","dockerfileContent":"FROM guacamole/guacamole:1.5.5\\nUSER root\\nRUN sed -i ''/if \\\\[ -r .*setclasspath.sh \\\\]; then/,/^  fi$/c\\\\  . \\"$CATALINA_HOME\\"/bin/setclasspath.sh'' /usr/local/tomcat/bin/catalina.sh && sed -i ''s/\\\\[ -x/\\\\[ -f/g; s/\\\\[ ! -x/\\\\[ ! -f/g'' /usr/local/tomcat/bin/setclasspath.sh\\nUSER guacamole\\nEXPOSE 8080\\nCMD [\\"/opt/guacamole/bin/start.sh\\"]","dockerSecurityOpts":["seccomp=unconfined"],"env":{"TZ":"Asia/Shanghai","GUACD_HOSTNAME":"guacd","MYSQL_HOSTNAME":"mysql","MYSQL_PORT":"3306","MYSQL_DATABASE":"guacamole_db","MYSQL_USER":"guacamole_user","MYSQL_PASSWORD":"guacamole_pass"},"volumeMappings":[{"hostPath":"/data/guacamole/config","containerPath":"/config"},{"hostPath":"/data/guacamole/recordings","containerPath":"/recordings"}]}}',
     '{"TZ":"Asia/Shanghai"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'guacamole'
@@ -102,6 +102,48 @@ SELECT
     '{"TZ":"Asia/Shanghai","MYSQL_ROOT_PASSWORD":"root123456"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'mysql'
+);
+
+-- MySQL 5（兼容旧系统）
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'mysql5', 'mysql5', 'MySQL 5', 'database', 'SOFTWARE', '5.7',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/mysql.svg',
+    'linux', '3308:3306', 1,
+    '',
+    1, 0, 1, 2,
+    '{"description":"MySQL 5.7 关系型数据库（兼容旧系统）","serviceName":"mysql5","supportedModes":["DOCKER"],"dockerSecurityOpts":["seccomp=unconfined"],"port":"3308:3306","dockerDefaults":{"image":"mysql:5.7","tags":["5.7"],"scriptMode":"script","env":{"MYSQL_ROOT_PASSWORD":"root123456","MYSQL_DATABASE":"myapp","TZ":"Asia/Shanghai","character_set_server":"utf8mb4","collation_server":"utf8mb4_unicode_ci","lower_case_table_names":"1"},"envDescriptions":{"MYSQL_ROOT_PASSWORD":"MySQL root 用户密码","MYSQL_DATABASE":"初始化时自动创建的数据库","TZ":"容器时区设置","character_set_server":"服务器字符集编码","collation_server":"服务器排序规则","lower_case_table_names":"表名大小写敏感（0=敏感，1=不敏感）"},"volumeMappings":[{"hostPath":"/data/mysql5/data","containerPath":"/var/lib/mysql"},{"hostPath":"/data/mysql5/conf","containerPath":"/etc/mysql/conf.d"},{"hostPath":"/data/mysql5/init","containerPath":"/docker-entrypoint-initdb.d"}]}}',
+    '{"TZ":"Asia/Shanghai","MYSQL_ROOT_PASSWORD":"root123456"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'mysql5'
+);
+
+-- MySQL 9（最新版）
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'mysql9', 'mysql9', 'MySQL 9', 'database', 'SOFTWARE', '9.0',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/mysql.svg',
+    'linux', '3309:3306', 1,
+    '',
+    1, 0, 1, 2,
+    '{"description":"MySQL 9.0 关系型数据库（最新版）","serviceName":"mysql9","supportedModes":["DOCKER"],"dockerSecurityOpts":["seccomp=unconfined"],"port":"3309:3306","dockerDefaults":{"image":"mysql:9.0","tags":["9.0","9","latest"],"scriptMode":"script","env":{"MYSQL_ROOT_PASSWORD":"root123456","MYSQL_DATABASE":"myapp","MYSQL_USER":"appuser","MYSQL_PASSWORD":"apppass","TZ":"Asia/Shanghai","character_set_server":"utf8mb4","collation_server":"utf8mb4_unicode_ci","lower_case_table_names":"1","max_connections":"500"},"envDescriptions":{"MYSQL_ROOT_PASSWORD":"MySQL root 用户密码","MYSQL_DATABASE":"初始化时自动创建的数据库","MYSQL_USER":"初始化时创建的普通用户","MYSQL_PASSWORD":"普通用户的密码","TZ":"容器时区设置","character_set_server":"服务器字符集编码","collation_server":"服务器排序规则","lower_case_table_names":"表名大小写敏感（0=敏感，1=不敏感）","max_connections":"最大并发连接数"},"volumeMappings":[{"hostPath":"/data/mysql9/data","containerPath":"/var/lib/mysql"},{"hostPath":"/data/mysql9/conf","containerPath":"/etc/mysql/conf.d"},{"hostPath":"/data/mysql9/init","containerPath":"/docker-entrypoint-initdb.d"}]}}',
+    '{"TZ":"Asia/Shanghai","MYSQL_ROOT_PASSWORD":"root123456"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'mysql9'
 );
 
 -- Redis 缓存
@@ -224,8 +266,8 @@ SELECT
     'linux', '2181', 1,
     '',
     1, 0, 1, 8,
-    '{"description":"Apache ZooKeeper — 分布式协调服务","serviceName":"zookeeper","supportedModes":["DOCKER"],"dockerDefaults":{"image":"bitnami/zookeeper","tags":["3.9","3.8","latest"],"scriptMode":"script","env":{"ALLOW_ANONYMOUS_LOGIN":"yes","ZOO_MY_ID":"1","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/zookeeper/data","containerPath":"/bitnami/zookeeper"}]}}',
-    '{"TZ":"Asia/Shanghai","ALLOW_ANONYMOUS_LOGIN":"yes"}'
+    '{"description":"Apache ZooKeeper — 分布式协调服务","serviceName":"zookeeper","supportedModes":["DOCKER"],"dockerDefaults":{"image":"zookeeper","tags":["3.9","3.8","latest"],"scriptMode":"script","env":{"ZOO_MY_ID":"1","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/zookeeper/data","containerPath":"/data"},{"hostPath":"/data/zookeeper/logs","containerPath":"/datalog"}]}}',
+    '{"TZ":"Asia/Shanghai","ZOO_MY_ID":"1"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'zookeeper'
 );
@@ -243,9 +285,9 @@ SELECT
     'kafka', 'kafka', 'Apache Kafka', 'middleware', 'DOCKERFILE', '7',
     'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/apachekafka.svg',
     'linux', '9092', 1,
-    '',
+    'FROM confluentinc/cp-kafka:latest\nEXPOSE 9092\nCMD ["/etc/confluent/docker/run"]',
     1, 0, 1, 9,
-    '{"description":"Apache Kafka — 分布式消息队列系统（Dockerfile 构建，运行时需连接 ZooKeeper）","serviceName":"kafka","supportedModes":["DOCKER"],"dockerDefaults":{"image":"confluentinc/cp-kafka","tags":["7","7.6","latest"],"scriptMode":"dockerfile","dockerfileContent":"FROM confluentinc/cp-kafka:7\\nEXPOSE 9092\\nCMD [\\"/etc/confluent/docker/run\\"]","env":{"KAFKA_BROKER_ID":"1","KAFKA_ZOOKEEPER_CONNECT":"zookeeper:2181","KAFKA_ADVERTISED_LISTENERS":"PLAINTEXT://localhost:9092","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/kafka/data","containerPath":"/var/lib/kafka/data"}]}}',
+    '{"description":"Apache Kafka — 分布式消息队列系统（Dockerfile 构建，运行时需连接 ZooKeeper）","serviceName":"kafka","supportedModes":["DOCKER"],"dockerDefaults":{"image":"confluentinc/cp-kafka","tags":["latest","7.7","7.6"],"scriptMode":"dockerfile","dockerfileContent":"FROM confluentinc/cp-kafka:latest\\nEXPOSE 9092\\nCMD [\\"/etc/confluent/docker/run\\"]","env":{"KAFKA_BROKER_ID":"1","KAFKA_ZOOKEEPER_CONNECT":"zookeeper:2181","KAFKA_ADVERTISED_LISTENERS":"PLAINTEXT://localhost:9092","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/kafka/data","containerPath":"/var/lib/kafka/data"}]}}',
     '{"TZ":"Asia/Shanghai","KAFKA_BROKER_ID":"1"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'kafka'
@@ -261,12 +303,12 @@ INSERT INTO sys_project_container_software_preset (
     docker_env_vars
 )
 SELECT
-    'nacos', 'nacos', 'Nacos', 'middleware', 'SOFTWARE', '2.3',
+    'nacos', 'nacos', 'Nacos', 'middleware', 'DOCKERFILE', '3.2.1',
     'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/nacos.svg',
     'linux', '8848,9848', 1,
-    '',
+    'FROM nacos/nacos-server:latest\nUSER root\nRUN sed -i -E ''/UseConcMarkSweepGC|UseCMSCompactAtFullCollection|CMSInitiatingOccupancyFraction|CMSParallelRemarkEnabled|CMSClassUnloadingEnabled|SoftRefLRUPolicyMSPerMB|PrintGCDetails|PrintGCDateStamps|PrintGCTimeStamps|UseGCLogFileRotation|NumberOfGCLogFiles|GCLogFileSize|SurvivorRatio/d'' /home/nacos/bin/docker-startup.sh\nEXPOSE 8848 9848\nCMD ["bash", "/home/nacos/bin/docker-startup.sh", "-m", "standalone"]',
     1, 0, 1, 10,
-    '{"description":"Nacos — 动态服务发现、配置管理和服务管理平台","serviceName":"nacos","supportedModes":["DOCKER"],"dockerDefaults":{"image":"nacos/nacos-server","tags":["v2.3","v2.2","latest"],"scriptMode":"script","env":{"MODE":"standalone","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/nacos/logs","containerPath":"/home/nacos/logs"}]}}',
+    '{"description":"Nacos — 动态服务发现、配置管理和服务管理平台","serviceName":"nacos","dockerSecurityOpts":["seccomp=unconfined"],"supportedModes":["DOCKER"],"dockerDefaults":{"image":"nacos/nacos-server","tags":["v2.3","v2.2","latest"],"scriptMode":"dockerfile","dockerfileContent":"FROM nacos/nacos-server:latest\\nUSER root\\nRUN sed -i -E ''/UseConcMarkSweepGC|UseCMSCompactAtFullCollection|CMSInitiatingOccupancyFraction|CMSParallelRemarkEnabled|CMSClassUnloadingEnabled|SoftRefLRUPolicyMSPerMB|PrintGCDetails|PrintGCDateStamps|PrintGCTimeStamps|UseGCLogFileRotation|NumberOfGCLogFiles|GCLogFileSize|SurvivorRatio/d'' /home/nacos/bin/docker-startup.sh\\nEXPOSE 8848 9848\\nCMD [\\"bash\\", \\"/home/nacos/bin/docker-startup.sh\\", \\"-m\\", \\"standalone\\"]","env":{"MODE":"standalone","TZ":"Asia/Shanghai","JAVA_OPT":"-Xms256m -Xmx512m","NACOS_AUTH_TOKEN":"SecretKey012345678901234567890123456789012345678901234567890123456789","NACOS_AUTH_IDENTITY_KEY":"serverIdentity","NACOS_AUTH_IDENTITY_VALUE":"security"},"volumeMappings":[{"hostPath":"/data/nacos/logs","containerPath":"/home/nacos/logs"}]}}',
     '{"TZ":"Asia/Shanghai","MODE":"standalone"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'nacos'
@@ -284,10 +326,10 @@ INSERT INTO sys_project_container_software_preset (
 SELECT
     'minio', 'minio', 'MinIO', 'middleware', 'SOFTWARE', 'latest',
     'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/minio.svg',
-    'linux', '9000,9001', 1,
+    'linux', '9000:9000,9001:9001', 1,
     '',
     1, 0, 1, 11,
-    '{"description":"MinIO — 高性能 S3 兼容对象存储","serviceName":"minio","supportedModes":["DOCKER"],"dockerDefaults":{"image":"minio/minio","tags":["latest"],"scriptMode":"script","env":{"MINIO_ROOT_USER":"minioadmin","MINIO_ROOT_PASSWORD":"minioadmin","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/minio/data","containerPath":"/data"}]}}',
+    '{"description":"MinIO — 高性能 S3 兼容对象存储","serviceName":"minio","supportedModes":["DOCKER"],"dockerDefaults":{"image":"minio/minio","tags":["latest"],"scriptMode":"script","command":"server /data --console-address=:9001","env":{"MINIO_ROOT_USER":"minioadmin","MINIO_ROOT_PASSWORD":"minioadmin","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/minio/data","containerPath":"/data"}]}}',
     '{"TZ":"Asia/Shanghai","MINIO_ROOT_USER":"minioadmin","MINIO_ROOT_PASSWORD":"minioadmin"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'minio'
@@ -329,7 +371,7 @@ SELECT
     'linux', '9200,9300', 1,
     '',
     1, 0, 1, 13,
-    '{"description":"Elasticsearch — 分布式搜索和分析引擎","serviceName":"elasticsearch","supportedModes":["DOCKER"],"dockerDefaults":{"image":"elasticsearch","tags":["8","8.14","8.13","7","latest"],"scriptMode":"script","env":{"discovery.type":"single-node","ES_JAVA_OPTS":"-Xms512m -Xmx512m","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/elasticsearch/data","containerPath":"/usr/share/elasticsearch/data"}]}}',
+    '{"description":"Elasticsearch — 分布式搜索和分析引擎","serviceName":"elasticsearch","supportedModes":["DOCKER"],"dockerDefaults":{"image":"elasticsearch:8.14.0","tags":["8","8.14","8.13","7","latest"],"scriptMode":"script","env":{"discovery.type":"single-node","ES_JAVA_OPTS":"-Xms512m -Xmx512m","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/elasticsearch/data","containerPath":"/usr/share/elasticsearch/data"}]}}',
     '{"TZ":"Asia/Shanghai","discovery.type":"single-node","ES_JAVA_OPTS":"-Xms512m -Xmx512m"}'
 WHERE NOT EXISTS (
     SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'elasticsearch'
@@ -361,6 +403,304 @@ UPDATE sys_project_container_software_preset
 SET install_script = 'FROM apache/skywalking-oap-server:9.7.0\nRUN wget -q -O /skywalking/ext-libs/mysql-connector-j-8.0.33.jar https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar\nEXPOSE 11800 12800\nCMD ["bash", "/skywalking/bin/oapService.sh"]',
     preset_remark = '{"description":"Apache SkyWalking — 分布式 APM 系统（Dockerfile 构建，需连接 MySQL 作为存储后端）","serviceName":"skywalking","dockerSecurityOpts":["seccomp=unconfined"],"supportedModes":["DOCKER"],"dockerDefaults":{"image":"apache/skywalking-oap-server","tags":["9.7.0","latest"],"scriptMode":"dockerfile","dockerfileContent":"FROM apache/skywalking-oap-server:9.7.0\\nRUN wget -q -O /skywalking/ext-libs/mysql-connector-j-8.0.33.jar https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar\\nEXPOSE 11800 12800\\nCMD [\\"bash\\", \\"/skywalking/bin/oapService.sh\\"]","env":{"SW_STORAGE":"mysql","SW_JDBC_URL":"jdbc:mysql://172.16.0.40:3307/skywalking?useSSL=false&rewriteBatchedStatements=true&serverTimezone=Asia/Shanghai","SW_DATA_SOURCE_USER":"root","SW_DATA_SOURCE_PASSWORD":"root123456","TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/skywalking/logs","containerPath":"/skywalking/logs"}],"envDescriptions":{"SW_STORAGE":"存储类型（mysql/elasticsearch）","SW_JDBC_URL":"MySQL JDBC 连接地址","SW_DATA_SOURCE_USER":"MySQL 用户名","SW_DATA_SOURCE_PASSWORD":"MySQL 密码","TZ":"时区"}}}'
 WHERE software_code = 'skywalking';
+
+-- ============================================================
+-- 新增常用软件预设（Docker 模式）
+-- ============================================================
+
+-- Grafana 监控可视化
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'grafana', 'grafana', 'Grafana', 'monitoring', 'SOFTWARE', '11',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/grafana.svg',
+    'linux', '3000', 1,
+    '',
+    1, 0, 1, 15,
+    '{"description":"Grafana — 监控分析及可视化平台","serviceName":"grafana","supportedModes":["DOCKER"],"dockerDefaults":{"image":"grafana/grafana","tags":["latest","11.0","10.4","10.3"],"scriptMode":"script","env":{"GF_SECURITY_ADMIN_USER":"admin","GF_SECURITY_ADMIN_PASSWORD":"admin123","TZ":"Asia/Shanghai"},"envDescriptions":{"GF_SECURITY_ADMIN_USER":"管理员用户名","GF_SECURITY_ADMIN_PASSWORD":"管理员密码","TZ":"容器时区设置"},"volumeMappings":[{"hostPath":"/data/grafana/data","containerPath":"/var/lib/grafana"},{"hostPath":"/data/grafana/plugins","containerPath":"/var/lib/grafana/plugins"},{"hostPath":"/data/grafana/config","containerPath":"/etc/grafana"}]}}',
+    '{"TZ":"Asia/Shanghai","GF_SECURITY_ADMIN_USER":"admin","GF_SECURITY_ADMIN_PASSWORD":"admin123"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'grafana'
+);
+
+-- Prometheus 监控系统
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'prometheus', 'prometheus', 'Prometheus', 'monitoring', 'SOFTWARE', 'v2',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/prometheus.svg',
+    'linux', '9090', 1,
+    '',
+    1, 0, 1, 16,
+    '{"description":"Prometheus — 开源系统监控和警报工具","serviceName":"prometheus","supportedModes":["DOCKER"],"dockerDefaults":{"image":"prom/prometheus","tags":["latest","v2.53","v2.52","v2.51"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/prometheus/data","containerPath":"/prometheus"},{"hostPath":"/data/prometheus/conf","containerPath":"/etc/prometheus"}]}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'prometheus'
+);
+
+-- Apache Tomcat
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'tomcat', 'tomcat', 'Tomcat', 'webserver', 'SOFTWARE', '11',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/apachetomcat.svg',
+    'linux', '8080', 1,
+    '',
+    1, 0, 1, 17,
+    '{"description":"Apache Tomcat — Java Servlet/JSP 容器","serviceName":"tomcat","supportedModes":["DOCKER"],"dockerDefaults":{"image":"tomcat","tags":["11","10","9","latest"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/tomcat/webapps","containerPath":"/usr/local/tomcat/webapps"},{"hostPath":"/data/tomcat/logs","containerPath":"/usr/local/tomcat/logs"}]}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'tomcat'
+);
+
+-- Jenkins CI/CD
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'jenkins', 'jenkins', 'Jenkins', 'devops', 'SOFTWARE', 'lts',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/jenkins.svg',
+    'linux', '8080,50000', 1,
+    '',
+    1, 0, 1, 18,
+    '{"description":"Jenkins — 开源 CI/CD 自动化服务器","serviceName":"jenkins","supportedModes":["DOCKER"],"dockerSecurityOpts":["seccomp=unconfined"],"dockerDefaults":{"image":"jenkins/jenkins","tags":["lts","latest","2.462","2.452"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/jenkins/home","containerPath":"/var/jenkins_home"}]}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'jenkins'
+);
+
+-- WordPress CMS
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'wordpress', 'wordpress', 'WordPress', 'cms', 'SOFTWARE', '6',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/wordpress.svg',
+    'linux', '8080', 1,
+    '',
+    1, 0, 1, 19,
+    '{"description":"WordPress — 开源内容管理系统（CMS）","serviceName":"wordpress","supportedModes":["DOCKER"],"dockerDefaults":{"image":"wordpress","tags":["latest","6.5","6.4","6.3"],"scriptMode":"script","env":{"WORDPRESS_DB_HOST":"mysql:3306","WORDPRESS_DB_USER":"wordpress","WORDPRESS_DB_PASSWORD":"wordpress","WORDPRESS_DB_NAME":"wordpress","TZ":"Asia/Shanghai"},"envDescriptions":{"WORDPRESS_DB_HOST":"MySQL 数据库地址","WORDPRESS_DB_USER":"数据库用户名","WORDPRESS_DB_PASSWORD":"数据库密码","WORDPRESS_DB_NAME":"数据库名称","TZ":"时区"},"volumeMappings":[{"hostPath":"/data/wordpress/html","containerPath":"/var/www/html"}]}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'wordpress'
+);
+
+-- phpMyAdmin
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'phpmyadmin', 'phpmyadmin', 'phpMyAdmin', 'database', 'SOFTWARE', 'latest',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/phpmyadmin.svg',
+    'linux', '8080', 1,
+    '',
+    1, 0, 1, 20,
+    '{"description":"phpMyAdmin — 基于 Web 的 MySQL 数据库管理工具","serviceName":"phpmyadmin","supportedModes":["DOCKER"],"dockerDefaults":{"image":"phpmyadmin","tags":["latest","5.2"],"scriptMode":"script","env":{"PMA_HOST":"mysql","PMA_PORT":"3306","UPLOAD_LIMIT":"64M","TZ":"Asia/Shanghai"},"envDescriptions":{"PMA_HOST":"MySQL 数据库主机地址","PMA_PORT":"MySQL 数据库端口","UPLOAD_LIMIT":"上传文件大小限制","TZ":"时区"}}}',
+    '{"TZ":"Asia/Shanghai","PMA_HOST":"mysql"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'phpmyadmin'
+);
+
+-- Consul 服务发现
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'consul', 'consul', 'Consul', 'middleware', 'SOFTWARE', '1.18',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/consul.svg',
+    'linux', '8500', 1,
+    '',
+    1, 0, 1, 21,
+    '{"description":"HashiCorp Consul — 服务发现和配置管理","serviceName":"consul","supportedModes":["DOCKER"],"dockerDefaults":{"image":"hashicorp/consul","tags":["latest","1.18","1.17","1.16"],"scriptMode":"script","command":"agent -dev -client=0.0.0.0","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/consul/data","containerPath":"/consul/data"}]}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'consul'
+);
+
+-- EMQX MQTT 消息服务器
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'emqx', 'emqx', 'EMQX', 'middleware', 'SOFTWARE', '5',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/emqx.svg',
+    'linux', '1883,8083,8084,18083', 1,
+    '',
+    1, 0, 1, 22,
+    '{"description":"EMQX — 大规模分布式 MQTT 消息服务器","serviceName":"emqx","supportedModes":["DOCKER"],"dockerDefaults":{"image":"emqx/emqx","tags":["latest","5.6","5.5","5.4"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/emqx/data","containerPath":"/opt/emqx/data"},{"hostPath":"/data/emqx/log","containerPath":"/opt/emqx/log"}]}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'emqx'
+);
+
+-- Portainer Docker 管理面板
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'portainer', 'portainer', 'Portainer', 'devops', 'SOFTWARE', '2',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/docker.svg',
+    'linux', '9000,9443', 1,
+    '',
+    1, 0, 1, 23,
+    '{"description":"Portainer — 轻量级 Docker 容器管理面板","serviceName":"portainer","supportedModes":["DOCKER"],"dockerDefaults":{"image":"portainer/portainer-ce","tags":["latest","2.21","2.20","2.19"],"scriptMode":"script","command":"-H unix:///var/run/docker.sock","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/var/run/docker.sock","containerPath":"/var/run/docker.sock"},{"hostPath":"/data/portainer/data","containerPath":"/data"}]}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'portainer'
+);
+
+-- Nginx Proxy Manager
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'nginx-proxy-manager', 'nginx-proxy-manager', 'Nginx Proxy Manager', 'webserver', 'SOFTWARE', '2',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/nginx.svg',
+    'linux', '80,81,443', 1,
+    '',
+    1, 0, 1, 24,
+    '{"description":"Nginx Proxy Manager — Web 界面反向代理管理，支持 SSL 证书自动续签","serviceName":"nginx-proxy-manager","supportedModes":["DOCKER"],"dockerDefaults":{"image":"jc21/nginx-proxy-manager","tags":["latest","2.11","2.10","2.9"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/nginx-proxy-manager/data","containerPath":"/data"},{"hostPath":"/data/nginx-proxy-manager/letsencrypt","containerPath":"/etc/letsencrypt"}]}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'nginx-proxy-manager'
+);
+
+-- Netdata 实时监控
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'netdata', 'netdata', 'Netdata', 'monitoring', 'SOFTWARE', 'v2',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/netdata.svg',
+    'linux', '19999', 1,
+    '',
+    1, 0, 1, 25,
+    '{"description":"Netdata — 实时系统性能监控平台，300+ 指标开箱即用","serviceName":"netdata","supportedModes":["DOCKER"],"dockerDefaults":{"image":"netdata/netdata","tags":["latest","v2.0","v1.46"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/netdata/config","containerPath":"/etc/netdata"}]}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'netdata'
+);
+
+-- Uptime Kuma 服务监控
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'uptime-kuma', 'uptime-kuma', 'Uptime Kuma', 'monitoring', 'SOFTWARE', '1',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/uptimekuma.svg',
+    'linux', '3001', 1,
+    '',
+    1, 0, 1, 26,
+    '{"description":"Uptime Kuma — 服务可用性监控面板，支持 HTTP/TCP/Ping 等多种协议和告警通知","serviceName":"uptime-kuma","supportedModes":["DOCKER"],"dockerDefaults":{"image":"louislam/uptime-kuma","tags":["latest","1"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/uptime-kuma/data","containerPath":"/app/data"}]}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'uptime-kuma'
+);
+
+-- RocketMQ 消息队列
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'rocketmq', 'rocketmq', 'RocketMQ', 'middleware', 'SOFTWARE', '5.3',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/apacherocketmq.svg',
+    'linux', '9876,10911,10909', 1,
+    '',
+    1, 0, 1, 27,
+    '{"description":"Apache RocketMQ — 分布式消息队列（阿里系），单容器同时启动 NameServer + Broker","serviceName":"rocketmq","supportedModes":["DOCKER"],"dockerDefaults":{"image":"apache/rocketmq","tags":["5.3.0","5.2.0","5.1.0","latest"],"scriptMode":"script","command":"sh -c \"mqnamesrv & sleep 3 && mqbroker -n localhost:9876 & wait\"","env":{"TZ":"Asia/Shanghai","JAVA_OPT_EXT":"-Xms512m -Xmx512m -Xmn256m"},"volumeMappings":[{"hostPath":"/data/rocketmq/logs","containerPath":"/home/rocketmq/logs"},{"hostPath":"/data/rocketmq/store","containerPath":"/home/rocketmq/store"}]}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'rocketmq'
+);
+
+-- OnlyOffice 文档服务器
+INSERT INTO sys_project_container_software_preset (
+    software_code, service_name, software_name, software_category, preset_type, software_version,
+    software_icon, os_type, expose_ports, has_port_mapping,
+    install_script,
+    preset_builtin, preset_delete, preset_status, preset_sort,
+    preset_remark,
+    docker_env_vars
+)
+SELECT
+    'onlyoffice', 'onlyoffice', 'OnlyOffice', 'office', 'SOFTWARE', '8.1',
+    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/onlyoffice.svg',
+    'linux', '8080:80', 1,
+    '',
+    1, 0, 1, 28,
+    '{"description":"OnlyOffice Document Server — 在线文档编辑服务，支持 Word/Excel/PPT 协作编辑和预览","serviceName":"onlyoffice","supportedModes":["DOCKER"],"dockerDefaults":{"image":"onlyoffice/documentserver","tags":["latest","8.1","8.0","7.5"],"scriptMode":"script","env":{"TZ":"Asia/Shanghai"},"volumeMappings":[{"hostPath":"/data/onlyoffice/data","containerPath":"/var/www/onlyoffice/Data"},{"hostPath":"/data/onlyoffice/logs","containerPath":"/var/log/onlyoffice"},{"hostPath":"/data/onlyoffice/lib","containerPath":"/var/lib/onlyoffice"}]}}',
+    '{"TZ":"Asia/Shanghai"}'
+WHERE NOT EXISTS (
+    SELECT 1 FROM sys_project_container_software_preset WHERE software_code = 'onlyoffice'
+);
 
 -- ============================================================
 -- 绑定数据
@@ -413,6 +753,81 @@ WHERE software_code = 'mysql'
 -- 清除其他模块遗留的失败迁移记录，避免启动时重试导致崩溃
 -- ============================================================
 UPDATE sys_database_version SET sys_database_version_success = 'true' WHERE sys_database_version_version = '1.7';
+
+-- ============================================================
+-- 镜像仓库种子数据（面板仓库管理）
+-- ============================================================
+INSERT INTO system_soft_registry (
+    system_soft_registry_name, system_soft_registry_type, system_soft_registry_url,
+    system_soft_registry_ssl_enabled, system_soft_registry_support_sync,
+    system_soft_registry_timeout, system_soft_registry_sort,
+    system_soft_registry_status, system_soft_registry_active,
+    system_soft_registry_description,
+    create_name, create_time
+)
+SELECT
+    '阿里云容器镜像服务', 'aliyun', 'https://registry.cn-hangzhou.aliyuncs.com',
+    1, 1, 30, 1,
+    1, 1,
+    '阿里云容器镜像服务（中国区），加速国内 Docker 镜像拉取',
+    'panel-test', CURRENT_TIMESTAMP
+WHERE NOT EXISTS (
+    SELECT 1 FROM system_soft_registry WHERE system_soft_registry_type = 'aliyun'
+);
+
+INSERT INTO system_soft_registry (
+    system_soft_registry_name, system_soft_registry_type, system_soft_registry_url,
+    system_soft_registry_ssl_enabled, system_soft_registry_support_sync,
+    system_soft_registry_timeout, system_soft_registry_sort,
+    system_soft_registry_status, system_soft_registry_active,
+    system_soft_registry_description,
+    create_name, create_time
+)
+SELECT
+    'DaoCloud 镜像加速', 'docker_hub', 'https://docker.m.daocloud.io/',
+    1, 0, 30, 2,
+    1, 0,
+    'DaoCloud Docker Hub 镜像代理（国内加速）',
+    'panel-test', CURRENT_TIMESTAMP
+WHERE NOT EXISTS (
+    SELECT 1 FROM system_soft_registry WHERE system_soft_registry_url LIKE '%daocloud%'
+);
+
+INSERT INTO system_soft_registry (
+    system_soft_registry_name, system_soft_registry_type, system_soft_registry_url,
+    system_soft_registry_ssl_enabled, system_soft_registry_support_sync,
+    system_soft_registry_timeout, system_soft_registry_sort,
+    system_soft_registry_status, system_soft_registry_active,
+    system_soft_registry_description,
+    create_name, create_time
+)
+SELECT
+    '网易 163 镜像加速', 'docker_hub', 'https://hub-mirror.c.163.com/',
+    1, 0, 30, 3,
+    1, 0,
+    '网易 Docker Hub 镜像代理（国内加速）',
+    'panel-test', CURRENT_TIMESTAMP
+WHERE NOT EXISTS (
+    SELECT 1 FROM system_soft_registry WHERE system_soft_registry_url LIKE '%163.com%'
+);
+
+INSERT INTO system_soft_registry (
+    system_soft_registry_name, system_soft_registry_type, system_soft_registry_url,
+    system_soft_registry_ssl_enabled, system_soft_registry_support_sync,
+    system_soft_registry_timeout, system_soft_registry_sort,
+    system_soft_registry_status, system_soft_registry_active,
+    system_soft_registry_description,
+    create_name, create_time
+)
+SELECT
+    '百度镜像加速', 'docker_hub', 'https://mirror.baidubce.com/',
+    1, 0, 30, 4,
+    1, 0,
+    '百度 Docker Hub 镜像代理（国内加速）',
+    'panel-test', CURRENT_TIMESTAMP
+WHERE NOT EXISTS (
+    SELECT 1 FROM system_soft_registry WHERE system_soft_registry_url LIKE '%baidubce%'
+);
 
 -- ============================================================
 -- 修复调度器 job_group 列缺失（如果已存在则跳过）

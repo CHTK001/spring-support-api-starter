@@ -1,13 +1,11 @@
 spring:
   application:
-    name: soft-test
+    name: system-test
   profiles:
     active: h2,remote-test
 
 server:
-  port: 18171
-  servlet:
-    context-path: /system/api
+  port: 19181
 
 plugin:
   scheduler:

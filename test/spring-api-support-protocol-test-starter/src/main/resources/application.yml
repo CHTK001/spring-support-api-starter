@@ -6,8 +6,6 @@ spring:
 
 server:
   port: 19181
-  servlet:
-    context-path: /system/api
 
 plugin:
   protocol:

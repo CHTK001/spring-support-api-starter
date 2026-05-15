@@ -2,6 +2,7 @@ package com.chua.starter.protocol.test;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  * 协议管理联调应用入口：仅负责启动 Spring Boot；REST、Service、Mapper 均由
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author CH
  */
 @SpringBootApplication
+@ComponentScan("com.chua.starter.monitor.controller.file")
 public class ProtocolTestApplication {
 
     /**

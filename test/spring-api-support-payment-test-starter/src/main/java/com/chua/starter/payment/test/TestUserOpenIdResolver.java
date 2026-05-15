@@ -21,11 +21,17 @@ public class TestUserOpenIdResolver implements UserOpenIdResolver {
     private static final Map<String, Map<Long, String>> MAPPING = Map.of(
             "ALIPAY", Map.of(
                     1L, "076w-gnWNqQdv651sF73RtN0yPqEQ7lgf47H7tk-wcBXCo8"
+            ),
+            "WECHAT", Map.of(
+                    1L, "osaN510BTo3M1MSU0vN0LpAv41sc"
             )
     );
 
     @Override
     public String resolveOpenId(Long merchantId, Long userId, String channelType) {
+        if (userId == null) {
+            return null;
+        }
         Map<Long, String> channelMapping = MAPPING.get(channelType);
         if (channelMapping == null) {
             return null;

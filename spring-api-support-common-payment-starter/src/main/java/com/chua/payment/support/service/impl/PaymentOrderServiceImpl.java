@@ -39,6 +39,7 @@ import com.chua.payment.support.service.PaymentOrderService;
 import com.chua.payment.support.service.PaymentRefundOrderService;
 import com.chua.payment.support.service.TransactionRecordService;
 import com.chua.payment.support.service.UserCouponService;
+import com.chua.payment.support.service.WalletAccountService;
 import com.chua.payment.support.spi.UserOpenIdResolver;
 import com.chua.payment.support.vo.OrderStateLogVO;
 import com.chua.payment.support.vo.OrderVO;
@@ -83,6 +84,7 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
     private final PaymentGlobalConfigService paymentGlobalConfigService;
     private final IdempotentTemplate idempotentTemplate;
     private final UserCouponService userCouponService;
+    private final WalletAccountService walletAccountService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -347,7 +349,14 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
         PaymentOrder order = requireOrder(id);
         MerchantChannel channel = requireEnabledChannel(order.getChannelId());
         PaymentChannel paymentChannel = paymentChannelRegistry.getChannel(order.getChannelType(), order.getChannelSubType());
-        PaymentResult result = paymentChannel.query(channel, order.getOrderNo());
+        PaymentResult result;
+        try {
+            result = paymentChannel.query(channel, order.getOrderNo());
+        } catch (Exception e) {
+            log.warn("渠道查询异常，跳过同步: orderNo={}, channelType={}, error={}",
+                    order.getOrderNo(), order.getChannelType(), e.getMessage(), e);
+            return convertToVO(requireOrder(id));
+        }
         if ("PAID".equals(result.getStatus())) {
             paySuccess(id, result.getPaidAmount(), result.getTradeNo(), "channel-sync");
         } else if ("FAILED".equals(result.getStatus())) {
@@ -564,7 +573,17 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
                 requestPayload,
                 dto != null ? dto.getRefundType() : "SYSTEM");
 
-        RefundResult result = paymentChannel.refund(channel, request);
+        RefundResult result;
+        try {
+            result = paymentChannel.refund(channel, request);
+        } catch (Exception e) {
+            log.warn("渠道退款调用异常，标记为失败: orderNo={}, channelType={}, error={}",
+                    latest.getOrderNo(), order.getChannelType(), e.getMessage(), e);
+            result = new RefundResult();
+            result.setSuccess(false);
+            result.setStatus("FAILED");
+            result.setMessage("渠道退款调用异常: " + e.getMessage());
+        }
         String responsePayload = safeJson(result);
         String thirdPartyRefundNo = firstNonBlank(result.getTradeNo(), result.getRefundNo());
         if ("REFUNDED".equals(result.getStatus())) {
@@ -669,6 +688,22 @@ public class PaymentOrderServiceImpl implements PaymentOrderService {
                     log.info("退款退回优惠券: couponCode={}, orderNo={}", latestOrder.getCouponCode(), latestOrder.getOrderNo());
                 } catch (Exception e) {
                     log.warn("退款退回优惠券失败: couponCode={}, orderNo={}", latestOrder.getCouponCode(), latestOrder.getOrderNo(), e);
+                }
+            }
+
+            // 钱包支付退款：恢复余额
+            if ("WALLET".equals(latestOrder.getChannelType())) {
+                try {
+                    walletAccountService.refund(
+                            latestOrder.getMerchantId(),
+                            latestOrder.getUserId(),
+                            latestRefundOrder.getRefundAmount(),
+                            latestRefundOrder.getRefundNo(),
+                            defaultOperator(operator),
+                            "订单退款，钱包余额退回");
+                    log.info("退款恢复钱包余额: orderNo={}, amount={}", latestOrder.getOrderNo(), latestRefundOrder.getRefundAmount());
+                } catch (Exception e) {
+                    log.warn("退款恢复钱包余额失败: orderNo={}, amount={}", latestOrder.getOrderNo(), latestRefundOrder.getRefundAmount(), e);
                 }
             }
         }

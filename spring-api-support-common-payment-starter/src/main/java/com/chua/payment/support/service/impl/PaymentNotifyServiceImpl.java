@@ -482,13 +482,14 @@ public class PaymentNotifyServiceImpl extends AbstractMerchantPaymentChannel imp
         properties.setMerchantSerialNumber(requiredText(extText(channel, "merchantSerialNumber"), "微信商户证书序列号不能为空"));
         properties.setNotifyUrl(channel.getNotifyUrl());
         properties.setSandbox(channel.getSandboxMode() != null && channel.getSandboxMode() == 1);
+        properties.setSandboxSignKey(extText(channel, "sandboxSignKey"));
         return properties;
     }
 
     private AliyunAlipayProperties buildAlipayProperties(MerchantChannel channel) {
         AliyunAlipayProperties properties = new AliyunAlipayProperties();
         properties.setAppId(requiredText(channel.getAppId(), "支付宝应用ID不能为空"));
-        properties.setPrivateKey(requiredText(decryptValue(channel.getPrivateKey()), "支付宝私钥不能为空"));
+        properties.setPrivateKey(requiredText(extractBase64Key(decryptValue(channel.getPrivateKey())), "支付宝私钥不能为空"));
         properties.setAlipayPublicKey(requiredText(channel.getPublicKey(), "支付宝公钥不能为空"));
         properties.setSandbox(channel.getSandboxMode() != null && channel.getSandboxMode() == 1);
         properties.setServerUrl(extText(channel, "serverUrl"));

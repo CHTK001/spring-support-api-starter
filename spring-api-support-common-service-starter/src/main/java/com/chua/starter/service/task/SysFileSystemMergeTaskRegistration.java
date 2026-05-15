@@ -113,7 +113,12 @@ public class SysFileSystemMergeTaskRegistration {
             // 更新状态为完成
             sysFileSystem.setSysFileSystemStatus(SysFileSystem.Status.COMPLETED);
             sysFileSystem.setSysFileSystemPath(result.getUrl());
-            sysFileSystem.setSysFileSystemHttpUrl(result.getUrl());
+            // 构建HTTP访问URL，通过 /file-storage/file 端点提供浏览器预览
+            String bucketName = sysFileSystem.getSysFileSystemBucket();
+            if (com.chua.common.support.core.utils.StringUtils.isEmpty(bucketName)) {
+                bucketName = "default";
+            }
+            sysFileSystem.setSysFileSystemHttpUrl("/file-storage/file?bucket=" + bucketName + "&key=" + result.getKey());
             wrapper.getSysFileSystemService().updateById(sysFileSystem);
 
             // 清理临时文件

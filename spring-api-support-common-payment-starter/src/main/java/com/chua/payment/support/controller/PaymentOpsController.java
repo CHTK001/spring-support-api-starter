@@ -2,6 +2,8 @@ package com.chua.payment.support.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.payment.support.mapper.PaymentOpsMapper;
+import com.chua.starter.common.support.annotations.Permission;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +29,7 @@ public class PaymentOpsController {
     private final PaymentOpsMapper paymentOpsMapper;
 
     @GetMapping("/dashboard/summary")
+    @Permission(value = "payment:ops:view", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN, AuthConstant.OPS})
     public ReturnResult<Map<String, Object>> dashboardSummary(
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {
@@ -76,6 +79,7 @@ public class PaymentOpsController {
     // ========== 图表数据接口 ==========
 
     @GetMapping("/dashboard/trend")
+    @Permission(value = "payment:ops:view", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN, AuthConstant.OPS})
     public ReturnResult<List<Map<String, Object>>> dashboardTrend(
             @RequestParam(required = false, defaultValue = "30") int days) {
         LocalDateTime start = LocalDate.now().minusDays(days).atStartOfDay();
@@ -84,6 +88,7 @@ public class PaymentOpsController {
     }
 
     @GetMapping("/dashboard/channel-distribution")
+    @Permission(value = "payment:ops:view", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN, AuthConstant.OPS})
     public ReturnResult<List<Map<String, Object>>> dashboardChannelDistribution(
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {

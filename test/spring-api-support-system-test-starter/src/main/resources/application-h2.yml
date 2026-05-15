@@ -19,7 +19,7 @@ spring:
   sql:
     init:
       mode: always
-      schema-locations: classpath:db/init/h2/V1.0__init_system.sql,classpath:db/init/h2/V1.0__init_server.sql,classpath:db/init/h2/V1.0__init_job.sql,classpath:db/init/h2/V1.0__init_soft.sql
+      schema-locations: classpath:db/init/h2/V1.0__init_system.sql,classpath:db/init/h2/V1.0__init_server.sql,classpath:db/init/h2/V1.0__init_job.sql,classpath:db/init/h2/V1.0__init_soft.sql,classpath:db/init/h2/V1.0__init_ai.sql,classpath:db/init/V1.0__init_service_complete.sql
       continue-on-error: true
   data:
     redis:
