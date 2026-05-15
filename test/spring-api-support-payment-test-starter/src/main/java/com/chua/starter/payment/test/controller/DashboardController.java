@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * <p>使用 MyBatis XML 查询，SQL 兼容多数据库（MySQL / H2 / PostgreSQL / SQL Server）。
  */
 @RestController
-@RequestMapping("/api/test/ops")
+@RequestMapping("/test/ops")
 @RequiredArgsConstructor
 public class DashboardController {
 

@@ -1,14 +1,12 @@
 spring:
+  autoconfigure:
+    exclude: com.chua.starter.job.support.ScheduledAutoConfiguration
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:file:./data/panel_test;MODE=MySQL;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
     username: sa
     password:
     initialization-fail-timeout: -1
-  data:
-    redis:
-      host: 172.16.0.40
-      port: 16379
   sql:
     init:
       mode: never
@@ -21,7 +19,7 @@ logging:
     com.chua.starter.panel: debug
     com.chua.starter.project: debug
 server:
-  port: 58081
+  port: 58080
 panel:
   enabled: true
   jdbc-enabled: true
@@ -33,6 +31,9 @@ plugin:
     script:
       scan-mode: ALWAYS
       data-scan-mode: ALWAYS
+  redis:
+    server:
+      enable: false
   oauth:
     enable: false
   socket:

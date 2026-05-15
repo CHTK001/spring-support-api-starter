@@ -13,6 +13,7 @@ import com.chua.starter.monitor.service.node.NodeRemoteService;
 import com.chua.starter.monitor.service.impl.FileManagementFacadeServiceImpl;
 import com.chua.starter.monitor.service.script.MonitorSysGenScriptUploadRecordService;
 import com.chua.starter.monitor.service.server.MonitorSysGenServerService;
+import com.chua.starter.monitor.service.node.NodeRemoteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -43,6 +45,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("v1/file-management")
+@ConditionalOnBean(NodeRemoteService.class)
 @RequiredArgsConstructor
 @Tag(name = "文件管理", description = "文件管理相关接口")
 public class FileManagementController {

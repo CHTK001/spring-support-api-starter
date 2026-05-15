@@ -1,24 +1,36 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://172.16.0.40:3306/panel_test?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://172.16.0.40:3306/panel_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true&connectTimeout=5000&socketTimeout=30000
     username: root
     password: root@
-  data:
-    redis:
-      host: 172.16.0.40
-      port: 6379
+    initialization-fail-timeout: -1
   sql:
     init:
-      mode: always
-      schema-locations: classpath:db/init/V1.0__init_panel.sql
-      data-locations: classpath:db/init/V1.0__initdata_panel.sql
-
+      mode: never
 server:
-  servlet:
-    context-path: /system/api
+  port: 58080
+panel:
+  enabled: true
+  jdbc-enabled: true
+  ai-enabled: false
+  datasource-store-path: ${user.dir}/.panel/panel-datasources.json
 
-logging:
-  level:
-    com.chua.starter.panel: debug
-    com.chua.starter.project: debug
+plugin:
+  datasource:
+    script:
+      scan-mode: ALWAYS
+      data-scan-mode: ALWAYS
+  redis:
+    server:
+      enable: false
+  oauth:
+    enable: false
+  job:
+    enable: true
+  socket:
+    enable: true
+    room:
+      - client-id: panel
+        port: 58082
+        context-path: /socket.io
