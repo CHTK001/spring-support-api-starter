@@ -32,11 +32,31 @@ public class SpiderSchemaCompatInitializer implements ApplicationRunner {
             "spider_ai_template"
     );
 
+    /**
+     * 每次启动时清除陈旧流程数据，强制后续读取回退到
+     * {@link com.chua.starter.spider.support.example.SpiderExampleScenarioRegistry}。
+     * <p>避免 V1.1__init_spider_data.sql 中的流程数据与 registry 不同步，
+     * 也避免前次运行时 UI 保存的陈旧数据影响新启动的执行。</p>
+     */
+    private static final List<String> FLOW_TABLES = List.of(
+            "spider_flow_edge",
+            "spider_flow_node",
+            "spider_flow"
+    );
+
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void run(org.springframework.boot.ApplicationArguments args) {
-        log.info("[SchemaCompat] 开始检查 spider_* 表兼容字段...");
+        log.info("[SchemaCompat] 开始清除陈旧流程数据，确保 registry 为唯一权威来源...");
+        for (String table : FLOW_TABLES) {
+            try {
+                jdbcTemplate.execute("DELETE FROM " + table);
+                log.debug("[SchemaCompat] 已清除: {}", table);
+            } catch (Exception e) {
+                log.warn("[SchemaCompat] 清除 {} 失败: {}", table, e.getMessage());
+            }
+        }
         for (String table : TABLES) {
             try {
                 ensureColumn(table, "create_name", "VARCHAR(255) NULL");
@@ -55,6 +75,10 @@ public class SpiderSchemaCompatInitializer implements ApplicationRunner {
                 log.warn("兼容字段补齐失败（table={}）: {}", table, e.getMessage());
             }
         }
+        // 编排类型分离：AI 编排 / MANUAL 编排
+        ensureColumn("spider_flow", "spider_flow_orchestration_type",
+                "VARCHAR(16) NOT NULL DEFAULT 'AI' COMMENT '编排类型: AI/MANUAL'");
+
         log.info("[SchemaCompat] spider_* 表兼容字段检查完成");
     }
 

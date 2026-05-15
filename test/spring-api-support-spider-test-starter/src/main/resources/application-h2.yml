@@ -52,3 +52,4 @@ mybatis-plus:
 logging:
   level:
     com.chua.starter.spider: debug
+    org.springframework.jdbc.core: debug

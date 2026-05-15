@@ -2,26 +2,38 @@ package com.chua.starter.monitor.controller.file;
 
 import com.chua.common.support.io.binary.ByteSourceArray;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.media.MediaType;
 import com.chua.common.support.storage.oss.FileStorage;
 import com.chua.common.support.storage.oss.metadata.MapMetadata;
+import com.chua.common.support.storage.oss.request.GetObjectRequest;
 import com.chua.common.support.storage.oss.request.ListObjectRequest;
 import com.chua.common.support.storage.oss.request.PutObjectRequest;
+import com.chua.common.support.storage.oss.result.GetObjectResult;
 import com.chua.common.support.storage.oss.result.ListObjectResult;
 import com.chua.common.support.storage.oss.result.PutObjectResult;
 import com.chua.common.support.storage.oss.setting.BucketSetting;
+import com.chua.common.support.core.utils.FileUtils;
+import com.chua.common.support.core.utils.IoUtils;
 import com.chua.common.support.network.protocol.filter.FileStorageServletFilter;
 import com.chua.common.support.network.protocol.server.ProtocolServer;
+import com.chua.starter.service.utils.FileStorageSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -41,6 +53,9 @@ import static com.chua.starter.monitor.service.impl.SystemServerServiceImpl.runn
 @Api(tags = "文件存储预览")
 @Tag(name = "文件存储预览")
 public class FileStoragePreviewController {
+
+    @Autowired
+    private FileStorageSupport fileStorageSupport;
 
     /**
      * 列出对象（表单提交，便于直接由前端调用）
@@ -160,5 +175,90 @@ public class FileStoragePreviewController {
             return ReturnResult.error("上传文件失败: " + e.getMessage());
         }
     }
-}
 
+    /**
+     * 获取文件内容（预览/下载）
+     * 通过文件存储系统获取文件内容并返回HTTP流，支持浏览器直接打开预览
+     */
+    @GetMapping("/file")
+    @ApiOperation("获取文件内容")
+    public void getFile(
+            @ApiParam("存储类型(默认FILESYSTEM)") @RequestParam(required = false, defaultValue = "FILESYSTEM") String type,
+            @ApiParam("服务器ID(可选，为空则直接创建存储)") @RequestParam(required = false) Integer serverId,
+            @ApiParam("存储Bucket") @RequestParam String bucket,
+            @ApiParam("文件路径(key)") @RequestParam String key,
+            HttpServletResponse response) {
+        try {
+            FileStorage fileStorage = resolveFileStorage(serverId, type, bucket);
+            if (fileStorage == null) {
+                log.warn("文件存储不存在: bucket={}", bucket);
+                response.sendError(404, "文件存储不存在: " + bucket);
+                return;
+            }
+
+            // 获取文件对象
+            GetObjectResult getResult = fileStorage.getObject(GetObjectRequest.builder()
+                    .fileName(FileUtils.getName(key))
+                    .filePath(FileUtils.getPath(key))
+                    .build());
+
+            if (!getResult.getResultCode().isSuccessful()) {
+                log.warn("获取文件失败: bucket={}, key={}, msg={}", bucket, key, getResult.getMessage());
+                response.sendError(400, getResult.getMessage());
+                return;
+            }
+
+            // 设置Content-Type
+            MediaType mediaType = getResult.getMediaType();
+            if (mediaType != null) {
+                response.setContentType(mediaType.toString());
+            }
+
+            // 流式输出文件内容
+            try (InputStream is = getResult.getInputStream();
+                 OutputStream os = response.getOutputStream()) {
+                IoUtils.copy(is, os);
+                os.flush();
+            }
+        } catch (Exception e) {
+            log.error("获取文件失败: bucket={}, key={}", bucket, key, e);
+            try {
+                response.sendError(500, "获取文件失败");
+            } catch (IOException ignored) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * 解析文件存储实例
+     * 优先从协议服务器获取，若 serverId 为空则通过 FileStorageSupport 直接创建
+     */
+    private FileStorage resolveFileStorage(Integer serverId, String type, String bucket) {
+        if (serverId != null) {
+            ProtocolServer protocolServer = runningServerInstances.get(serverId);
+            if (protocolServer != null) {
+                FileStorageServletFilter filter = protocolServer.getFilter(FileStorageServletFilter.class);
+                FileStorage fileStorage = filter.getFileStorage(bucket);
+                if (fileStorage != null) {
+                    return fileStorage;
+                }
+            }
+        }
+        // 回退：通过 FileStorageSupport 直接创建
+        if (fileStorageSupport != null) {
+            log.debug("通过FileStorageSupport直接创建文件存储: type={}, bucket={}", type, bucket);
+            BucketSetting bucketSetting = fileStorageSupport.createUploadBucketSetting(type, bucket, null, null);
+            return fileStorageSupport.createStorage(type, bucketSetting);
+        }
+        // 最后的回退：直接使用 FileStorage API 创建本地存储
+        log.debug("直接创建本地文件存储: bucket={}", bucket);
+        return FileStorage.createStorage("FILESYSTEM", BucketSetting.builder()
+                .bucket(bucket)
+                .endpoint("oss/system")
+                .accessKeyId("__local__")
+                .accessKeySecret("__local__")
+                .build());
+    }
+
+}

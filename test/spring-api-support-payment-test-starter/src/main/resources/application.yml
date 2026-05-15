@@ -35,7 +35,7 @@ plugin:
     ops:
       enabled: true
     callback:
-      base-url: http://127.0.0.1:8090/api
+      base-url: https://www.qirenit.com/hongning-pay/api
     security:
       key: payment-test-key-20260324
   oauth:

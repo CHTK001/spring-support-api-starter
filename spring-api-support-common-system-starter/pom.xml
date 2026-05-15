@@ -59,10 +59,6 @@
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>spring-support-soft-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.chua</groupId>
       <artifactId>spring-support-tencent-starter</artifactId>
       <optional>true</optional>
     </dependency>

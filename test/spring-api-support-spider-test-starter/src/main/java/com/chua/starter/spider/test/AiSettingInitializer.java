@@ -29,9 +29,9 @@ public class AiSettingInitializer implements ApplicationRunner {
         {"enabled",           "true",                                   "BOOLEAN", "是否启用 AI ChatClient",                                    5},
         {"factory",           "default",                                "STRING",  "ChatClient SPI 工厂名称",                                     8},
         {"provider",          "openai",                                 "STRING",  "默认 LLM 提供商",                                             9},
-        {"default_model",     "Qwen/Qwen3-235B-A22B",               "STRING",  "默认聊天模型编码",                                            10},
-        {"provider_base_url", "https://api-inference.modelscope.cn/v1",               "STRING", "LLM 提供商基础地址",                                         70},
-        {"provider_api_key",  "ms-2cd4a2af-8112-4da3-bea6-f2c5f0539eab", "STRING", "LLM 提供商 API Key(ModelScope)",                         75},
+        {"default_model",     "Qwen3-235B-A22B",                 "STRING",  "默认聊天模型编码",                                            10},
+        {"provider_base_url", "https://api.edgefn.net/v1/chat/completions", "STRING", "LLM 提供商基础地址(白山智算)",                              70},
+        {"provider_api_key",  "sk-mXYsbXlXa3f3vc95A56d7d79Ea15485e96Ad6aF80f9901F4", "STRING", "LLM 提供商 API Key(白山智算)",                        75},
         {"system_prompt",     "",                                       "STRING",  "默认系统提示词",                                              15},
         {"temperature",       "0.0",                                    "NUMBER",  "默认采样温度",                                                20},
         {"max_tokens",        "8192",                                   "NUMBER",  "默认最大输出 token",                                          30},
@@ -64,11 +64,8 @@ public class AiSettingInitializer implements ApplicationRunner {
                 GROUP, field
             );
             if (count != null && count > 0) {
-                // 更新现有记录的值
-                jdbcTemplate.update(
-                    "UPDATE sys_ai_global_setting SET sys_ai_global_setting_value = ?, update_time = ? WHERE sys_ai_global_setting_group = ? AND sys_ai_global_setting_field = ?",
-                    value, LocalDateTime.now(), GROUP, field
-                );
+                // 已有值（用户可能在数据库中配置了白山等），不覆盖
+                continue;
             } else {
                 // 插入新记录
                 jdbcTemplate.update(
@@ -77,7 +74,7 @@ public class AiSettingInitializer implements ApplicationRunner {
                 );
             }
         }
-        log.info("AI 全局设置已初始化（infer ai），正在重建 ChatClient...");
+        log.info("AI 全局设置已初始化（已存在的配置保留不覆盖），正在重建 ChatClient...");
         chatClientFactoryBean.rebuild();
         log.info("ChatClient 重建完成");
 
