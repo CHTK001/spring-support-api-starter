@@ -79,6 +79,28 @@ public class SpiderSchemaCompatInitializer implements ApplicationRunner {
         ensureColumn("spider_flow", "spider_flow_orchestration_type",
                 "VARCHAR(16) NOT NULL DEFAULT 'AI' COMMENT '编排类型: AI/MANUAL'");
 
+        // 执行记录边表（执行引擎需要）
+        ensureDropAndRecreate("spider_execution_edge", """
+                CREATE TABLE IF NOT EXISTS spider_execution_edge (
+                  spider_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                  spider_edge_id VARCHAR(64) NOT NULL COMMENT '边ID',
+                  spider_execution_no VARCHAR(64) NOT NULL COMMENT '执行编号',
+                  spider_source_node_code VARCHAR(128) DEFAULT NULL,
+                  spider_target_node_code VARCHAR(128) DEFAULT NULL,
+                  spider_edge_label VARCHAR(128) DEFAULT NULL,
+                  spider_source_output VARCHAR(64) DEFAULT NULL,
+                  spider_target_input VARCHAR(64) DEFAULT NULL,
+                  spider_runtime_status VARCHAR(32) DEFAULT NULL,
+                  spider_visited TINYINT(1) DEFAULT 0,
+                  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+                  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                """);
+        ensureColumn("spider_execution_edge", "create_name", "VARCHAR(255) NULL");
+        ensureColumn("spider_execution_edge", "create_by", "INT NULL");
+        ensureColumn("spider_execution_edge", "update_name", "VARCHAR(255) NULL");
+        ensureColumn("spider_execution_edge", "update_by", "INT NULL");
+
         log.info("[SchemaCompat] spider_* 表兼容字段检查完成");
     }
 
@@ -104,6 +126,39 @@ public class SpiderSchemaCompatInitializer implements ApplicationRunner {
             return;
         }
         jdbcTemplate.execute("ALTER TABLE `" + tableName + "` ADD COLUMN `" + columnName + "` " + ddl);
+    }
+
+    private void ensureTable(String tableName, String createDDL) {
+        try {
+            Integer count = jdbcTemplate.queryForObject(
+                    """
+                    SELECT COUNT(1)
+                      FROM information_schema.TABLES
+                     WHERE TABLE_SCHEMA = (SELECT DATABASE())
+                       AND TABLE_NAME = ?
+                    """,
+                    Integer.class,
+                    tableName
+            );
+            if (count != null && count > 0) {
+                return;
+            }
+        } catch (Exception e) {
+            log.warn("查询表信息失败（table={}）: {}", tableName, e.getMessage());
+            return;
+        }
+        jdbcTemplate.execute(createDDL);
+        log.info("[SchemaCompat] 已创建表: {}", tableName);
+    }
+
+    private void ensureDropAndRecreate(String tableName, String createDDL) {
+        try {
+            jdbcTemplate.execute("DROP TABLE IF EXISTS `" + tableName + "`");
+        } catch (Exception e) {
+            log.warn("删除表 {} 失败: {}", tableName, e.getMessage());
+        }
+        jdbcTemplate.execute(createDDL);
+        log.info("[SchemaCompat] 已重建表: {}", tableName);
     }
 
     private void backfill(String tableName, String targetColumn, String sourceColumn) {

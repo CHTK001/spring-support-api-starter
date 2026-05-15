@@ -38,6 +38,11 @@ plugin:
       web-auth:
         mode: none
 
+spider:
+  browser:
+    channel: chrome
+    mcp-port: 9222
+
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true

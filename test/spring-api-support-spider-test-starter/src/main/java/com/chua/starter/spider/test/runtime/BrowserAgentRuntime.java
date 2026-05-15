@@ -3,28 +3,24 @@ package com.chua.starter.spider.test.runtime;
 import com.chua.starter.ai.support.chat.ChatClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
-import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-import com.microsoft.playwright.options.LoadState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * BROWSER_AGENT 运行时 — AI Agent 循环
- * <p>AI 自主操作浏览器：看页面 → 决策 → 操作（click/type/navigate/extract）→ 循环，
- * 遇到处理不了的登录/CAPTCHA 等情况交人工处理。</p>
+ * BROWSER_AGENT 运行时 — AI Agent 循环（基于 Chrome 内置 MCP Server）
+ * <p>AI 通过 MCP 协议 + CDP 命令操控浏览器，使用 document.querySelector 等
+ * 原生 DOM API 实现稳定的元素交互。</p>
  *
  * @author CH
  */
@@ -33,21 +29,19 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class BrowserAgentRuntime {
 
-    private static final Pattern JSON_BLOCK = Pattern.compile(
-            "(?s)\\{[^{}]*+(?:\\{[^{}]*+\\}[^{}]*+)*+\\}");
-
     private final ObjectProvider<ChatClient> chatClientProvider;
     private final ObjectMapper objectMapper;
 
-    /**
-     * 执行 AI Agent 循环
-     *
-     * @param goal            目标描述
-     * @param maxSteps        最大步数
-     * @param fallbackStrategy 回落策略: AUTO_THEN_HUMAN / HUMAN_ONLY
-     * @param extractConfig   提取配置（含 entryUrl 等）
-     * @return 执行结果
-     */
+    @Value("${spider.browser.channel:}")
+    private String browserChannel;
+
+    @Value("${spider.browser.mcp-port:9222}")
+    private int mcpCdpPort;
+
+    /** 启用 WebMCP 实验特性（chrome://flags/#enable-webmcp-testing），默认关闭 */
+    @Value("${spider.browser.webmcp:false}")
+    private boolean webMcpEnabled;
+
     public BrowserAgentResult execute(String goal, int maxSteps,
                                        String fallbackStrategy,
                                        Map<String, Object> extractConfig) {
@@ -60,45 +54,113 @@ public class BrowserAgentRuntime {
         String initialUrl = extractConfig != null
                 ? (String) extractConfig.get("entryUrl") : null;
 
-        Playwright playwright = Playwright.create();
+        Playwright playwright = null;
+        McpClient mcpClient = null;
         try {
-            Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
-                    .setHeadless(false)
-                    .setArgs(List.of("--no-sandbox",
-                            "--disable-blink-features=AutomationControlled")));
-            BrowserContext browserContext = browser.newContext(new Browser.NewContextOptions()
-                    .setViewportSize(1280, 720));
-            Page page = browserContext.newPage();
-            page.setDefaultTimeout(15_000);
-            page.setDefaultNavigationTimeout(30_000);
+            // ==================== 1. 启动 Chrome（启用 CDP 调试端口） ====================
+            playwright = Playwright.create();
+            BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions()
+                    .setHeadless(false);
+            if (browserChannel != null && !browserChannel.isBlank()) {
+                launchOptions.setChannel(browserChannel);
+                log.info("使用系统浏览器: channel={}", browserChannel);
+            }
 
-            // 导航到初始 URL
+            // Chrome 启动参数 — 增强反检测
+            List<String> chromeArgs = new ArrayList<>(List.of(
+                    "--no-sandbox",
+                    "--disable-blink-features=AutomationControlled",
+                    "--disable-search-engine-choice-screen",
+                    "--disable-automation",
+                    "--disable-features=ChromeWhatsNewUI,ChromeLabs,PrivacySandboxSettings4,OptimizationGuideModelDownloading",
+                    "--disable-sync",
+                    "--disable-default-apps",
+                    "--disable-background-networking",
+                    "--disable-background-timer-throttling",
+                    "--disable-backgrounding-occluded-windows",
+                    "--disable-breakpad",
+                    "--disable-component-extensions-with-background-pages",
+                    "--disable-field-trial-config",
+                    "--disable-ipc-flooding-protection",
+                    "--disable-prompt-on-repost",
+                    "--disable-renderer-backgrounding",
+                    "--no-first-run",
+                    "--no-default-browser-check",
+                    "--password-store=basic",
+                    "--use-mock-keychain",
+                    "--hide-scrollbars",
+                    "--mute-audio",
+                    "--lang=zh-CN",
+                    "--remote-debugging-port=" + mcpCdpPort,
+                    "--remote-allow-origins=*",
+                    // DNS 修复 — 使用系统 DNS 而非 Chrome 内置 DNS
+                    "--disable-features=AsyncDns",
+                    "--enable-features=UseDnsHttpsSvcb",
+                    "--dns-prefetch-disable"
+            ));
+            // WebMCP 实验特性（需 Chrome 146+ Canary + chrome://flags/#enable-webmcp-testing）
+            // 目前仅有极少实验站点支持，不影响 BROWSER_AGENT 的 DOM 操作流程
+            if (webMcpEnabled) {
+                chromeArgs.add("--enable-features=WebMCPTesting");
+                log.info("WebMCP 实验特性已启用（仅对实现 WebMCP API 的站点有效）");
+            }
+
+            launchOptions.setArgs(chromeArgs);
+
+            Browser browser = playwright.chromium().launch(launchOptions);
+            log.info("Chrome 已启动, CDP 端口={}", mcpCdpPort);
+
+            // ==================== 2. 连接 CDP ====================
+            mcpClient = new McpClient(mcpCdpPort, objectMapper);
+            boolean cdpConnected = false;
+            Exception lastCdpError = null;
+            for (int retry = 0; retry < 5; retry++) {
+                if (retry > 0) {
+                    log.info("CDP 连接重试 {}/5...", retry + 1);
+                    try { Thread.sleep(2000); } catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
+                }
+                try {
+                    mcpClient.connect();
+                    cdpConnected = true;
+                    break;
+                } catch (Exception e) {
+                    lastCdpError = e;
+                    log.warn("CDP 连接尝试 {}/5 失败: {}", retry + 1, e.getMessage());
+                }
+            }
+            if (!cdpConnected) {
+                String errorMsg = lastCdpError != null ? lastCdpError.getMessage() : "未知错误";
+                log.error("CDP 连接失败（已重试 5 次）: {}", errorMsg, lastCdpError);
+                return BrowserAgentResult.failed("Chrome CDP 连接失败: " + errorMsg);
+            }
+
+            try { Thread.sleep(1500); } catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
+
+            // ==================== 3. 导航到初始 URL ====================
             if (initialUrl != null && !initialUrl.isEmpty()) {
                 try {
-                    page.navigate(initialUrl);
-                    page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+                    mcpClient.pageNavigate(initialUrl);
                     log.info("已导航到初始 URL: {}", initialUrl);
+                    try { Thread.sleep(2000); } catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
+                    // 注入 stealth JS
+                    injectStealthScripts(mcpClient);
+                    try { Thread.sleep(500); } catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
                 } catch (Exception e) {
                     log.warn("导航到 {} 失败: {}", initialUrl, e.getMessage());
                 }
             }
 
-            // Agent 循环
+            // ==================== 4. Agent 循环 ====================
             List<Map<String, Object>> actionHistory = new ArrayList<>();
             Map<String, Object> extractedData = new HashMap<>();
 
             for (int step = 0; step < maxSteps; step++) {
                 log.info("BROWSER_AGENT step {}/{}", step + 1, maxSteps);
 
-                // 1. 捕获当前页面状态
-                String pageState = capturePageState(page);
-                String interactableHtml = captureInteractableElements(page);
-
-                // 2. 构建 AI prompt
-                String prompt = buildAgentPrompt(goal, pageState, interactableHtml,
+                String pageState = capturePageStateViaMcp(mcpClient);
+                String prompt = buildAgentPrompt(goal, pageState,
                         actionHistory, step, maxSteps, extractedData, fallbackStrategy);
 
-                // 3. 调用 AI 决策
                 String aiResponse;
                 try {
                     aiResponse = chatClient.chatSync(prompt);
@@ -113,7 +175,6 @@ public class BrowserAgentRuntime {
                     return BrowserAgentResult.failed("AI 返回空响应", extractedData, actionHistory);
                 }
 
-                // 4. 解析决策
                 Map<String, Object> decision = parseJsonResponse(aiResponse);
                 if (decision == null || decision.isEmpty()) {
                     log.warn("无法解析 AI 决策，重试: {}", aiResponse);
@@ -123,11 +184,9 @@ public class BrowserAgentRuntime {
                 String actionType = (String) decision.getOrDefault("actionType", "");
                 String actionDesc = (String) decision.getOrDefault("description", "");
 
-                // 5. 执行决策
-                String execResult = executeDecision(page, decision, extractedData);
+                String execResult = executeDecisionViaMcp(mcpClient, decision, extractedData);
                 log.info("  → 动作: {} | 结果: {}", actionType, execResult);
 
-                // 记录历史
                 Map<String, Object> entry = new HashMap<>();
                 entry.put("step", step + 1);
                 entry.put("action", actionType);
@@ -135,16 +194,11 @@ public class BrowserAgentRuntime {
                 entry.put("result", execResult);
                 actionHistory.add(entry);
 
-                // 6. 检查终止状态
                 if ("goal_achieved".equals(actionType)) {
                     String summary = (String) decision.getOrDefault("summary", "目标已完成");
-                    // 尝试合并 AI 返回的提取数据
                     @SuppressWarnings("unchecked")
-                    Map<String, Object> aiData = (Map<String, Object>)
-                            decision.get("extractedData");
-                    if (aiData != null) {
-                        extractedData.putAll(aiData);
-                    }
+                    Map<String, Object> aiData = (Map<String, Object>) decision.get("extractedData");
+                    if (aiData != null) extractedData.putAll(aiData);
                     return BrowserAgentResult.success(summary, extractedData, actionHistory);
                 }
 
@@ -160,110 +214,105 @@ public class BrowserAgentRuntime {
             log.error("BROWSER_AGENT 执行异常", e);
             return BrowserAgentResult.failed("BROWSER_AGENT 异常: " + e.getMessage());
         } finally {
-            try {
-                playwright.close();
-            } catch (Exception ignored) {
+            if (mcpClient != null) {
+                try { mcpClient.close(); } catch (Exception ignored) {}
             }
+            if (playwright != null) {
+                try { playwright.close(); } catch (Exception ignored) {}
+            }
+        }
+    }
+
+    // ==================== Stealth 反检测 ====================
+
+    /** 注入 stealth JS，隐藏自动化痕迹 */
+    private void injectStealthScripts(McpClient mcpClient) {
+        String stealthJs = """
+                (() => {
+                  // 覆盖 webdriver 属性
+                  Object.defineProperty(navigator, 'webdriver', { get: () => false });
+                  // 覆盖 chrome.runtime
+                  if (window.chrome) {
+                    Object.defineProperty(window.chrome, 'runtime', {
+                      get: () => ({ connect: () => {}, sendMessage: () => {} })
+                    });
+                  }
+                  // 覆盖 permissions
+                  if (navigator.permissions) {
+                    const origQuery = navigator.permissions.query;
+                    navigator.permissions.query = (desc) => (
+                      desc.name === 'notifications'
+                        ? Promise.resolve({ state: 'granted', onchange: null })
+                        : origQuery.call(navigator.permissions, desc)
+                    );
+                  }
+                  // 覆盖 plugins 长度
+                  Object.defineProperty(navigator, 'plugins', {
+                    get: () => [1, 2, 3, 4, 5]
+                  });
+                  // 覆盖 languages
+                  Object.defineProperty(navigator, 'languages', {
+                    get: () => ['zh-CN', 'zh', 'en']
+                  });
+                })();
+                """;
+        try {
+            mcpClient.evaluate(stealthJs);
+            log.info("Stealth JS 已注入");
+        } catch (Exception e) {
+            log.warn("Stealth JS 注入失败: {}", e.getMessage());
         }
     }
 
     // ==================== 页面状态捕获 ====================
 
-    private String capturePageState(Page page) {
+    /** 通过 MCP / CDP 获取完整的页面状态描述 */
+    private String capturePageStateViaMcp(McpClient mcpClient) {
         try {
-            Map<String, Object> state = new HashMap<>();
-            state.put("url", page.url());
-            state.put("title", page.title());
-
-            String bodyText = page.locator("body").textContent();
-            if (bodyText != null) {
-                bodyText = bodyText.replaceAll("\\s+", " ").trim();
-                if (bodyText.length() > 3000) {
-                    bodyText = bodyText.substring(0, 3000) + "...";
-                }
+            String url = mcpClient.getCurrentUrl();
+            String title = mcpClient.getPageTitle();
+            String interactable = mcpClient.getInteractableElements();
+            String bodyText = mcpClient.getPageText();
+            if (bodyText != null && bodyText.length() > 2000) {
+                bodyText = bodyText.substring(0, 2000) + "...";
             }
-            state.put("visibleText", bodyText != null ? bodyText : "");
 
-            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(state);
+            // 获取截图（仅描述大小，不含实际 base64 数据以节省 token）
+            String screenshotInfo = "";
+            try {
+                String ss = mcpClient.takeScreenshot();
+                if (ss != null && !ss.isEmpty()) {
+                    int kb = ss.length() * 3 / 4 / 1024;
+                    screenshotInfo = "\n截图: 可用 (" + kb + "KB PNG base64)";
+                }
+            } catch (Exception ignored) {}
+
+            return String.format("""
+                    === 页面信息 ===
+                    URL: %s
+                    标题: %s
+                    %s
+
+                    === 可交互元素（共N个） ===
+                    %s
+
+                    === 页面可见文本 ===
+                    %s
+                    """,
+                    url != null ? url : "（未知）",
+                    title != null ? title : "（未知）",
+                    screenshotInfo,
+                    interactable != null ? interactable : "（无）",
+                    bodyText != null ? bodyText : "（无）");
         } catch (Exception e) {
-            log.warn("捕获页面状态失败: {}", e.getMessage());
-            return "{\"error\": \"" + e.getMessage() + "\"}";
+            log.warn("MCP 页面状态捕获失败: {}", e.getMessage());
+            return "页面状态获取失败: " + e.getMessage();
         }
     }
 
-    private String captureInteractableElements(Page page) {
-        try {
-            List<Map<String, String>> elements = new ArrayList<>();
+    // ==================== Prompt ====================
 
-            // 链接
-            for (Locator el : page.locator("a[href]").all()) {
-                String text = el.textContent();
-                String href = el.getAttribute("href");
-                if (text != null) text = text.replaceAll("\\s+", " ").trim();
-                if (text != null && !text.isEmpty() && text.length() < 100) {
-                    Map<String, String> e = new HashMap<>();
-                    e.put("type", "link");
-                    e.put("text", text);
-                    e.put("href", href != null ? href : "");
-                    elements.add(e);
-                }
-            }
-
-            // 按钮
-            for (Locator el : page.locator("button, input[type=submit], input[type=button]").all()) {
-                String text = el.textContent();
-                String val = el.getAttribute("value");
-                String label = (text != null && !text.isBlank()) ? text : (val != null ? val : "");
-                label = label.replaceAll("\\s+", " ").trim();
-                if (!label.isEmpty() && label.length() < 80) {
-                    Map<String, String> e = new HashMap<>();
-                    e.put("type", "button");
-                    e.put("text", label);
-                    elements.add(e);
-                }
-            }
-
-            // 输入框
-            for (Locator el : page.locator("input:not([type=hidden]):not([type=submit]):not([type=button])").all()) {
-                String name = el.getAttribute("name");
-                String placeholder = el.getAttribute("placeholder");
-                String type = el.getAttribute("type");
-                if (name != null || placeholder != null) {
-                    Map<String, String> e = new HashMap<>();
-                    e.put("type", "input");
-                    e.put("inputType", type != null ? type : "text");
-                    e.put("name", name != null ? name : "");
-                    e.put("placeholder", placeholder != null ? placeholder : "");
-                    elements.add(e);
-                }
-            }
-
-            // 下拉框
-            for (Locator el : page.locator("select").all()) {
-                String name = el.getAttribute("name");
-                if (name != null) {
-                    Map<String, String> e = new HashMap<>();
-                    e.put("type", "select");
-                    e.put("name", name);
-                    elements.add(e);
-                }
-            }
-
-            if (elements.isEmpty()) {
-                return "无可交互元素";
-            }
-
-            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(
-                    elements.subList(0, Math.min(elements.size(), 50)));
-        } catch (Exception e) {
-            log.warn("提取可交互元素失败: {}", e.getMessage());
-            return "提取失败: " + e.getMessage();
-        }
-    }
-
-    // ==================== Prompt 构建 ====================
-
-    private String buildAgentPrompt(String goal, String pageState, String interactableElements,
+    private String buildAgentPrompt(String goal, String pageState,
                                      List<Map<String, Object>> actionHistory,
                                      int step, int maxSteps,
                                      Map<String, Object> extractedData,
@@ -272,7 +321,7 @@ public class BrowserAgentRuntime {
         sb.append("你是一个网页自动化浏览器代理 (Web Browser Agent)。\n\n");
         sb.append("## 目标\n").append(goal).append("\n\n");
         sb.append("## 当前页面状态\n").append(pageState).append("\n\n");
-        sb.append("## 页面可交互元素\n").append(interactableElements).append("\n\n");
+
         sb.append("## 已提取数据\n");
         if (extractedData.isEmpty()) {
             sb.append("（暂无）\n");
@@ -300,36 +349,62 @@ public class BrowserAgentRuntime {
         sb.append("## 当前进度\n");
         sb.append("  第 ").append(step + 1).append(" / 共 ").append(maxSteps).append(" 步\n\n");
 
-        sb.append("## 可用工具\n\n");
-        sb.append("1. **navigate** — 导航到新 URL\n");
-        sb.append("   {\"actionType\": \"navigate\", \"url\": \"https://...\", \"description\": \"描述\"}\n\n");
-        sb.append("2. **click** — 点击元素（使用 CSS 选择器）\n");
-        sb.append("   {\"actionType\": \"click\", \"selector\": \"CSS选择器\", \"description\": \"描述\"}\n\n");
-        sb.append("3. **fill** — 在输入框中输入文本\n");
-        sb.append("   {\"actionType\": \"fill\", \"selector\": \"CSS选择器\", \"value\": \"文本\", \"description\": \"描述\"}\n\n");
-        sb.append("4. **select** — 选择下拉选项\n");
-        sb.append("   {\"actionType\": \"select\", \"selector\": \"CSS选择器\", \"value\": \"选项值\", \"description\": \"描述\"}\n\n");
-        sb.append("5. **extract** — 从当前页面提取数据\n");
-        sb.append("   {\"actionType\": \"extract\", \"fields\": [{\"key\": \"fieldName\", \"description\": \"字段描述\"}], \"description\": \"描述\"}\n\n");
-        sb.append("6. **wait** — 等待（默认 2 秒）\n");
-        sb.append("   {\"actionType\": \"wait\", \"ms\": 2000, \"description\": \"描述\"}\n\n");
-        sb.append("7. **scroll** — 滚动页面\n");
-        sb.append("   {\"actionType\": \"scroll\", \"direction\": \"down\", \"description\": \"描述\"}\n\n");
-        sb.append("8. **goal_achieved** — 目标已完成，结束执行\n");
-        sb.append("   {\"actionType\": \"goal_achieved\", \"summary\": \"完成摘要\", \"extractedData\": {\"field\": \"value\"}, \"description\": \"描述\"}\n\n");
-        sb.append("9. **manual_required** — 需要人工介入（如遇到验证码/登录等无法自动处理的情况）\n");
-        sb.append("   {\"actionType\": \"manual_required\", \"reason\": \"原因\", \"taskGuide\": \"人工操作指引\", \"formFields\": [{\"fieldKey\": \"code\", \"label\": \"验证码\", \"component\": \"input\"}], \"description\": \"描述\"}\n\n");
+        sb.append("""
+                ## 可用工具
+
+                1. **navigate** — 导航到新 URL
+                   {"actionType": "navigate", "url": "https://gitee.com/explore", "description": "跳转到 Gitee 探索页"}
+
+                2. **click** — 点击元素（使用可交互元素中的 selector）
+                   {"actionType": "click", "selector": "a.project-link", "description": "点击项目链接"}
+
+                3. **fill** — 在输入框中输入文本
+                   {"actionType": "fill", "selector": "#search-input", "value": "java", "description": "搜索框输入 java"}
+
+                4. **select** — 选择下拉选项
+                   {"actionType": "select", "selector": "select.sort-by", "value": "stars", "description": "选择按星标排序"}
+
+                5. **extract** — 从当前页面提取数据。使用 fields 数组指定要提取的字段，每个 field 用 key 作为字段名，description 作为提取指引（不需要提供 CSS 选择器，AI 会自动从页面文本分析）。如果不传 fields 则提取全部页面文本。
+                   {"actionType": "extract", "fields": [
+                     {"key": "项目名称", "description": "项目标题文本"},
+                     {"key": "所属组织", "description": "项目所属组织/用户"},
+                     {"key": "星标数", "description": "star 数量"},
+                     {"key": "编程语言", "description": "主要编程语言"},
+                     {"key": "项目描述", "description": "项目描述文本"}
+                   ], "description": "提取项目列表信息"}
+
+                6. **wait** — 等待（默认 2 秒）
+                   {"actionType": "wait", "ms": 2000, "description": "等待页面加载"}
+
+                7. **scroll** — 滚动页面
+                   {"actionType": "scroll", "direction": "down", "description": "向下滚动加载更多"}
+
+                8. **screenshot** — 获取页面截图（base64 PNG，可查看页面视觉状态）
+                   {"actionType": "screenshot", "description": "截取当前页面状态"}
+
+                9. **goal_achieved** — 目标已完成，结束执行
+                   {"actionType": "goal_achieved", "summary": "成功采集了 xx 个项目的信息", "extractedData": {"项目名称": "spring-boot", "星标数": "50k"}, "description": "目标完成"}
+
+                10. **manual_required** — 需要人工介入
+                    {"actionType": "manual_required", "reason": "遇到验证码拦截", "taskGuide": "请手动完成滑块验证", "formFields": [], "description": "需要人工处理验证码"}
+                """);
 
         sb.append("## 回落策略\n");
         sb.append("  当前策略: ").append(fallbackStrategy).append("\n");
         sb.append("  - AUTO_THEN_HUMAN: 尽量自动处理，处理不了再交人工\n");
-        sb.append("  - HUMAN_ONLY: 遇到如验证码、登录等情况直接交人工\n\n");
+        sb.append("  - HUMAN_ONLY: 直接交人工\n\n");
 
-        sb.append("## 要求\n");
-        sb.append("- 每次只执行一个操作\n");
-        sb.append("- 操作失败时尝试其他方法，不要重复同一个失败操作\n");
-        sb.append("- 提取数据时，尽量提取准确的结构化数据\n");
-        sb.append("- 始终以 JSON 格式返回决策，不要包含其他文本\n");
+        sb.append("""
+                ## 要求（必须遵守）
+                - 每次只执行一个操作
+                - 优先使用可交互元素中的 selector（id / name / data-testid 更稳定）
+                - 操作失败时尝试其他方法，不要重复同一个失败操作
+                - 提取数据时尽量提取准确的结构化数据
+                ***重要: 你必须只输出一个 JSON 对象，不要包含任何其他文字、思考过程或解释！***
+                ***JSON 格式必须严格匹配上面可用工具的格式！***
+                ***如果你无法操作，就使用 goal_achieved 或 manual_required 结束。***
+                ***不要解释你的决定，不要输出除了 JSON 之外的任何内容！***
+                """);
 
         return sb.toString();
     }
@@ -337,58 +412,76 @@ public class BrowserAgentRuntime {
     // ==================== 决策执行 ====================
 
     @SuppressWarnings("unchecked")
-    private String executeDecision(Page page, Map<String, Object> decision,
-                                    Map<String, Object> extractedData) {
+    private String executeDecisionViaMcp(McpClient mcpClient,
+                                          Map<String, Object> decision,
+                                          Map<String, Object> extractedData) {
         String actionType = (String) decision.getOrDefault("actionType", "");
         try {
             switch (actionType) {
                 case "navigate": {
                     String url = (String) decision.get("url");
                     if (url == null || url.isBlank()) return "缺少 url 参数";
-                    page.navigate(url);
-                    page.waitForLoadState(LoadState.DOMCONTENTLOADED);
+                    mcpClient.pageNavigate(url);
+                    randomDelay(1500, 500);
+                    injectStealthScripts(mcpClient);
                     return "已导航到: " + url;
                 }
                 case "click": {
                     String selector = (String) decision.get("selector");
                     if (selector == null || selector.isBlank()) return "缺少 selector 参数";
-                    page.locator(selector).first().click();
-                    page.waitForTimeout(500);
+                    mcpClient.clickSelector(selector);
+                    randomDelay(500, 300);
                     return "已点击: " + selector;
                 }
                 case "fill": {
                     String selector = (String) decision.get("selector");
                     String value = (String) decision.get("value");
                     if (selector == null || selector.isBlank()) return "缺少 selector 参数";
-                    page.locator(selector).first().fill(value != null ? value : "");
+                    mcpClient.fillInput(selector, value != null ? value : "");
+                    randomDelay(300, 200);
                     return "已填写: " + selector + " = " + (value != null ? value : "");
                 }
                 case "select": {
                     String selector = (String) decision.get("selector");
                     String value = (String) decision.get("value");
                     if (selector == null || selector.isBlank()) return "缺少 selector 参数";
-                    page.locator(selector).first().selectOption(value != null ? value : "");
+                    mcpClient.selectOption(selector, value != null ? value : "");
                     return "已选择: " + selector + " = " + value;
                 }
                 case "extract": {
-                    return doExtract(page, decision, extractedData);
+                    return doExtract(mcpClient, decision, extractedData);
+                }
+                case "screenshot": {
+                    String ss = mcpClient.takeScreenshot();
+                    if (ss != null && !ss.isEmpty()) {
+                        int kb = ss.length() * 3 / 4 / 1024;
+                        extractedData.put("_lastScreenshot", "data:image/png;base64," + ss);
+                        return "截图已获取 (" + kb + "KB PNG)";
+                    }
+                    return "截图为空";
                 }
                 case "wait": {
                     Object msObj = decision.get("ms");
                     long ms = msObj instanceof Number ? ((Number) msObj).longValue() : 2000;
-                    page.waitForTimeout(ms);
+                    try { Thread.sleep(ms); } catch (InterruptedException ignored) { Thread.currentThread().interrupt(); }
                     return "已等待 " + ms + "ms";
                 }
                 case "scroll": {
                     String dir = (String) decision.getOrDefault("direction", "down");
-                    if ("down".equals(dir)) {
-                        page.evaluate("window.scrollBy(0, window.innerHeight)");
-                    } else {
-                        page.evaluate("window.scrollBy(0, -window.innerHeight)");
+                    String amount = "window.innerHeight";
+                    // 随机滚动量，避免被检测
+                    if (ThreadLocalRandom.current().nextBoolean()) {
+                        amount = "Math.floor(window.innerHeight * 0." + (ThreadLocalRandom.current().nextInt(5, 9)) + ")";
                     }
-                    page.waitForTimeout(300);
+                    String script = "window.scrollBy(0, " +
+                            ("down".equals(dir) ? amount : "-" + amount) + ")";
+                    mcpClient.evaluate(script);
+                    randomDelay(400, 300);
                     return "已滚动: " + dir;
                 }
+                case "goal_achieved":
+                case "manual_required":
+                    return "无需浏览器操作";
                 default:
                     return "未知操作: " + actionType;
             }
@@ -398,45 +491,57 @@ public class BrowserAgentRuntime {
         }
     }
 
+    /** 随机延迟（基础 + 随机增量），模拟人类操作 */
+    private void randomDelay(int baseMs, int randomMs) {
+        try {
+            Thread.sleep(baseMs + ThreadLocalRandom.current().nextInt(randomMs));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     @SuppressWarnings("unchecked")
-    private String doExtract(Page page, Map<String, Object> decision,
+    private String doExtract(McpClient mcpClient, Map<String, Object> decision,
                               Map<String, Object> extractedData) {
         Object fieldsObj = decision.get("fields");
         List<Map<String, Object>> fields;
         if (fieldsObj instanceof List) {
             fields = (List<Map<String, Object>>) fieldsObj;
         } else {
-            // 提取全文
-            String bodyText = page.locator("body").textContent();
-            extractedData.put("_pageText", bodyText != null ? bodyText.trim() : "");
-            return "已提取页面全文";
+            try {
+                String bodyText = mcpClient.getPageText();
+                extractedData.put("_pageText", bodyText != null ? bodyText.trim() : "");
+                return "已提取页面全文";
+            } catch (Exception e) {
+                return "提取失败: " + e.getMessage();
+            }
         }
 
         int count = 0;
         for (Map<String, Object> field : fields) {
             String key = (String) field.getOrDefault("key", "");
             if (key.isEmpty()) continue;
-
             String desc = (String) field.getOrDefault("description", "");
             String selector = (String) field.getOrDefault("selector", "");
 
             if (!selector.isEmpty()) {
                 try {
-                    String val = page.locator(selector).first().textContent();
-                    if (val != null) extractedData.put(key, val.trim());
+                    String script = "(() => { const el = document.querySelector('" +
+                            selector.replace("'", "\\'") +
+                            "'); return el ? el.textContent.trim() : ''; })()";
+                    String val = mcpClient.evaluate(script);
+                    extractedData.put(key, val != null ? val.trim() : "");
                     count++;
-                } catch (Exception ignored) {
-                }
+                } catch (Exception ignored) {}
             } else {
-                extractedData.put(key, "【通过 AI 分析提取】" + desc);
+                extractedData.put(key, "【AI 分析】" + desc);
                 count++;
             }
         }
-
         return "已提取 " + count + " 个字段";
     }
 
-    // ==================== 人工任务构建 ====================
+    // ==================== 人工任务 ====================
 
     @SuppressWarnings("unchecked")
     private BrowserAgentResult buildManualResult(Map<String, Object> decision,
@@ -445,37 +550,52 @@ public class BrowserAgentRuntime {
         String reason = (String) decision.getOrDefault("reason", "需要人工处理");
         String taskGuide = (String) decision.getOrDefault("taskGuide", "请按页面提示操作");
         String taskType = (String) decision.getOrDefault("taskType", "BROWSER_AGENT_MANUAL");
-
         Object fieldsObj = decision.get("formFields");
         List<Map<String, Object>> formFields = new ArrayList<>();
-        if (fieldsObj instanceof List) {
-            formFields = (List<Map<String, Object>>) fieldsObj;
-        }
+        if (fieldsObj instanceof List) formFields = (List<Map<String, Object>>) fieldsObj;
 
         return BrowserAgentResult.manualRequired(
-                reason, extractedData, actionHistory,
-                taskType, taskGuide, formFields);
+                reason, extractedData, actionHistory, taskType, taskGuide, formFields);
     }
 
-    // ==================== JSON 工具 ====================
+    // ==================== JSON 解析 ====================
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> parseJsonResponse(String response) {
-        // 尝试从文本中提取 JSON 块
-        Matcher matcher = JSON_BLOCK.matcher(response);
-        while (matcher.find()) {
-            String json = matcher.group();
-            try {
-                return objectMapper.readValue(json, Map.class);
-            } catch (Exception ignored) {
+        if (response == null || response.isBlank()) return null;
+
+        // 移除 Qwen 模型的 <think>...</think> 思考标签
+        String cleaned = response.replaceAll("(?s)<think>.*?</think>", "").trim();
+        // 移除 markdown 代码块标记
+        cleaned = cleaned.replaceAll("```(?:json)?\\s*", "").trim();
+        // 移除多余的尾部 ```
+        if (cleaned.endsWith("```")) cleaned = cleaned.substring(0, cleaned.length() - 3).trim();
+
+        // 直接解析完整响应
+        try { return objectMapper.readValue(cleaned, Map.class); } catch (Exception ignored) {}
+
+        // 查找 JSON 对象的起止位置
+        int start = cleaned.indexOf('{');
+        if (start < 0) return null;
+        int depth = 0;
+        boolean inString = false;
+        for (int i = start; i < cleaned.length(); i++) {
+            char c = cleaned.charAt(i);
+            if (inString) {
+                if (c == '\\') { i++; continue; }
+                if (c == '"') inString = false;
+                continue;
+            }
+            if (c == '"') { inString = true; continue; }
+            if (c == '{') depth++;
+            else if (c == '}') {
+                depth--;
+                if (depth == 0) {
+                    try { return objectMapper.readValue(cleaned.substring(start, i + 1), Map.class); }
+                    catch (Exception e) { return null; }
+                }
             }
         }
-        // 尝试直接解析整个响应
-        try {
-            return objectMapper.readValue(response, Map.class);
-        } catch (Exception e) {
-            log.warn("JSON 解析失败: {}", e.getMessage());
-            return null;
-        }
+        return null;
     }
 }
