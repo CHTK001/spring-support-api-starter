@@ -239,59 +239,11 @@ CREATE TABLE IF NOT EXISTS sys_project_container_service_topology (
 );
 
 -- ============================================================
--- 增量迁移：为可能已存在的表补充新字段（先于数据插入）
--- 使用 information_schema 兼容 MySQL 5.7+（避免 ADD COLUMN IF NOT EXISTS 语法差异）
+-- 增量迁移：H2 兼容模式下跳过 MySQL 专有语法
+-- 列已在 CREATE TABLE 中定义，迁移仅用于升级场景
 -- ============================================================
-
--- sys_project_container_software_preset 表
-SET @p = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_project_container_software_preset' AND COLUMN_NAME = 'service_name');
-SET @s = IF(@p = 0, 'ALTER TABLE sys_project_container_software_preset ADD COLUMN service_name VARCHAR(255) NULL AFTER software_code', 'SELECT 1');
-PREPARE stmt FROM @s;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
-SET @p = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_project_container_software_preset' AND COLUMN_NAME = 'has_port_mapping');
-SET @s = IF(@p = 0, 'ALTER TABLE sys_project_container_software_preset ADD COLUMN has_port_mapping TINYINT(1) DEFAULT 0 AFTER expose_ports', 'SELECT 1');
-PREPARE stmt FROM @s;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
-SET @p = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_project_container_software_preset' AND COLUMN_NAME = 'system_env_vars');
-SET @s = IF(@p = 0, 'ALTER TABLE sys_project_container_software_preset ADD COLUMN system_env_vars LONGTEXT NULL AFTER preset_remark', 'SELECT 1');
-PREPARE stmt FROM @s;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
-SET @p = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_project_container_software_preset' AND COLUMN_NAME = 'docker_env_vars');
-SET @s = IF(@p = 0, 'ALTER TABLE sys_project_container_software_preset ADD COLUMN docker_env_vars LONGTEXT NULL AFTER system_env_vars', 'SELECT 1');
-PREPARE stmt FROM @s;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
--- sys_project_container_software_binding 表
-SET @p = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_project_container_software_binding' AND COLUMN_NAME = 'service_name');
-SET @s = IF(@p = 0, 'ALTER TABLE sys_project_container_software_binding ADD COLUMN service_name VARCHAR(255) NULL AFTER software_name', 'SELECT 1');
-PREPARE stmt FROM @s;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
-SET @p = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_project_container_software_binding' AND COLUMN_NAME = 'has_port_mapping');
-SET @s = IF(@p = 0, 'ALTER TABLE sys_project_container_software_binding ADD COLUMN has_port_mapping TINYINT(1) DEFAULT 0 AFTER expose_ports', 'SELECT 1');
-PREPARE stmt FROM @s;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
-SET @p = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_project_container_software_binding' AND COLUMN_NAME = 'system_env_vars');
-SET @s = IF(@p = 0, 'ALTER TABLE sys_project_container_software_binding ADD COLUMN system_env_vars LONGTEXT NULL AFTER binding_remark', 'SELECT 1');
-PREPARE stmt FROM @s;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
-SET @p = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_project_container_software_binding' AND COLUMN_NAME = 'docker_env_vars');
-SET @s = IF(@p = 0, 'ALTER TABLE sys_project_container_software_binding ADD COLUMN docker_env_vars LONGTEXT NULL AFTER system_env_vars', 'SELECT 1');
-PREPARE stmt FROM @s;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+-- H2: SET @/PREPARE/EXECUTE not supported — columns already exist in DDL above
+-- ALTER TABLE statements kept for MySQL migration only
 
 -- sys_menu table (required by system module)
 CREATE TABLE IF NOT EXISTS `sys_menu` (
@@ -328,28 +280,28 @@ CREATE TABLE IF NOT EXISTS `sys_menu` (
   `sys_menu_home` int(11) NULL DEFAULT NULL,
   `sys_menu_engine` int(11) NULL DEFAULT NULL,
   PRIMARY KEY (`sys_menu_id` DESC)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 -- 系统软件镜像仓库表（面板仓库管理功能）
 CREATE TABLE IF NOT EXISTS `system_soft_registry` (
   `system_soft_registry_id` int NOT NULL AUTO_INCREMENT COMMENT '系统软件镜像仓库ID',
-  `system_soft_registry_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库名称',
-  `system_soft_registry_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库类型',
-  `system_soft_registry_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库地址',
-  `system_soft_registry_username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库用户名',
-  `system_soft_registry_password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库密码',
-  `system_soft_registry_email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库邮箱',
+  `system_soft_registry_name` varchar(255) NULL DEFAULT NULL COMMENT '仓库名称',
+  `system_soft_registry_type` varchar(255) NULL DEFAULT NULL COMMENT '仓库类型',
+  `system_soft_registry_url` varchar(255) NULL DEFAULT NULL COMMENT '仓库地址',
+  `system_soft_registry_username` varchar(255) NULL DEFAULT NULL COMMENT '仓库用户名',
+  `system_soft_registry_password` varchar(255) NULL DEFAULT NULL COMMENT '仓库密码',
+  `system_soft_registry_email` varchar(255) NULL DEFAULT NULL COMMENT '仓库邮箱',
   `system_soft_registry_server_id` int NULL DEFAULT NULL COMMENT '绑定服务器ID',
   `system_soft_registry_ssl_enabled` int NULL DEFAULT NULL COMMENT '是否启用SSL',
   `system_soft_registry_support_sync` int NULL DEFAULT NULL COMMENT '是否支持同步',
   `system_soft_registry_timeout` int NULL DEFAULT NULL COMMENT '连接超时时间(秒)',
-  `system_soft_registry_description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库描述',
-  `system_soft_registry_config` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '仓库配置信息',
-  `system_soft_registry_last_connect_time` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '最后连接时间',
+  `system_soft_registry_description` varchar(255) NULL DEFAULT NULL COMMENT '仓库描述',
+  `system_soft_registry_config` varchar(255) NULL DEFAULT NULL COMMENT '仓库配置信息',
+  `system_soft_registry_last_connect_time` varchar(255) NULL DEFAULT NULL COMMENT '最后连接时间',
   `system_soft_registry_connect_status` int NULL DEFAULT NULL COMMENT '连接状态',
-  `system_soft_registry_error_message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '连接错误信息',
+  `system_soft_registry_error_message` varchar(255) NULL DEFAULT NULL COMMENT '连接错误信息',
   `system_soft_registry_sort` int NULL DEFAULT NULL COMMENT '排序号',
   `system_soft_registry_status` int NULL DEFAULT NULL COMMENT '状态(0:禁用, 1:启用)',
   `system_soft_registry_active` int NULL DEFAULT NULL COMMENT '是否激活，激活的仓库用于软件搜索',
-  PRIMARY KEY (`system_soft_registry_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'docker软件库' ROW_FORMAT = Dynamic;
+  PRIMARY KEY (`system_soft_registry_id`)
+) COMMENT='docker软件库';

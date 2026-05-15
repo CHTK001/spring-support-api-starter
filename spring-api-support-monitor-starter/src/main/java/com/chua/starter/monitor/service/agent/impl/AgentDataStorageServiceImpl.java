@@ -17,7 +17,7 @@ import com.chua.starter.monitor.service.agent.AgentDataStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
+@ConditionalOnProperty(prefix = "plugin.redis.server", name = "enable", havingValue = "true", matchIfMissing = true)
 @RequiredArgsConstructor
 public class AgentDataStorageServiceImpl implements AgentDataStorageService {
 

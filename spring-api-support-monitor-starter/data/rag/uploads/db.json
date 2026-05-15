@@ -1,0 +1,11 @@
+[ {
+  "id" : "c0031de7401141f4b19d5cc8ed0a8b51",
+  "fileName" : "test-rag.txt",
+  "fileType" : "txt",
+  "fileSize" : 467,
+  "chunkCount" : 1,
+  "status" : "READY",
+  "errorMessage" : null,
+  "createTime" : 1778846258511,
+  "metadata" : { }
+} ]

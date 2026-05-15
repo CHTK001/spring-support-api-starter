@@ -30,6 +30,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/v1/agent/data")
+@ConditionalOnBean(AgentDataStorageService.class)
 @RequiredArgsConstructor
 @Tag(name = "Agent 数据查询", description = "Agent 上报数据的查询接口")
 public class AgentDataController {
