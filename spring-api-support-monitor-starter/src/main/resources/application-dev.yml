@@ -94,10 +94,3 @@ monitor:
   acme:
     # 关闭 ACME 证书自动续签（需要 Socket.IO）
     enabled: false
-
-app:
-  rag:
-    llm-provider: openai
-    llm-model: gpt-4o-mini
-    llm-api-key: ${OPENAI_API_KEY}
-    llm-base-url: https://api.openai.com/v1

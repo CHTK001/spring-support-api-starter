@@ -244,7 +244,6 @@ public class RustHttpServletRequest implements HttpServletRequest {
     @Override public boolean isRequestedSessionIdValid() { return false; }
     @Override public boolean isRequestedSessionIdFromCookie() { return false; }
     @Override public boolean isRequestedSessionIdFromURL() { return false; }
-    @Override public boolean isRequestedSessionIdFromURL() { return false; }
 
     // ═══════════════════════════════════════════
     //  Cookie

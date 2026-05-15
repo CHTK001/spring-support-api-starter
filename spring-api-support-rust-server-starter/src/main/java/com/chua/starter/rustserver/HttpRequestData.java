@@ -1,8 +1,5 @@
 package com.chua.starter.rustserver;
 
-import lombok.Builder;
-import lombok.Data;
-
 import java.lang.foreign.MemorySegment;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -12,8 +9,6 @@ import static java.lang.foreign.ValueLayout.*;
 /**
  * 从 Rust 共享内存解析的 HTTP 请求数据，零拷贝读取后转为 Java 对象。
  */
-@Data
-@Builder
 public class HttpRequestData {
     private final long requestId;
     private final String method;
@@ -24,6 +19,20 @@ public class HttpRequestData {
     private final byte[] body;
     private final MemorySegment responseData;
     private final int responseCapacity;
+
+    private HttpRequestData(long requestId, String method, String path, String queryString,
+                           String requestUri, Map<String, String> headers, byte[] body,
+                           MemorySegment responseData, int responseCapacity) {
+        this.requestId = requestId;
+        this.method = method;
+        this.path = path;
+        this.queryString = queryString;
+        this.requestUri = requestUri;
+        this.headers = headers;
+        this.body = body;
+        this.responseData = responseData;
+        this.responseCapacity = responseCapacity;
+    }
 
     public static HttpRequestData parse(
             long requestId,
@@ -72,17 +81,8 @@ public class HttpRequestData {
 
         String requestUri = path + (queryString != null ? "?" + queryString : "");
 
-        return HttpRequestData.builder()
-                .requestId(requestId)
-                .method(method)
-                .path(path)
-                .queryString(queryString)
-                .requestUri(requestUri)
-                .headers(headers)
-                .body(body)
-                .responseData(responseData)
-                .responseCapacity(responseCapacity)
-                .build();
+        return new HttpRequestData(requestId, method, path, queryString, requestUri,
+                headers, body, responseData, responseCapacity);
     }
 
     private static String readString(MemorySegment seg, int len) {
@@ -93,6 +93,18 @@ public class HttpRequestData {
     private static String readString(MemorySegment seg) {
         return new String(seg.toArray(JAVA_BYTE), StandardCharsets.UTF_8);
     }
+
+    // ── Getters ──
+
+    public long getRequestId() { return requestId; }
+    public String getMethod() { return method; }
+    public String getPath() { return path; }
+    public String getQueryString() { return queryString; }
+    public String getRequestUri() { return requestUri; }
+    public Map<String, String> getHeaders() { return headers; }
+    public byte[] getBody() { return body; }
+    public MemorySegment getResponseData() { return responseData; }
+    public int getResponseCapacity() { return responseCapacity; }
 
     // ── 便捷方法 ──
 

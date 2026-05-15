@@ -18,13 +18,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 支付运营数据控制器（台账/仪表盘）
+ * 支付仪表盘数据控制器（台账/图表）
  * <p>使用 MyBatis XML 查询，SQL 兼容多数据库（MySQL / H2 / PostgreSQL）。
+ * 注意：此控制器仅提供 dashboard 端点。运营中心完整端点（overview/scheduler/notify）
+ * 由 PaymentOpsExtController（test starter）或 spring-support-payment-starter 提供。
  */
 @RestController
 @RequestMapping("/ops")
 @RequiredArgsConstructor
-public class PaymentOpsController {
+public class PaymentDashboardController {
 
     private final PaymentOpsMapper paymentOpsMapper;
 
