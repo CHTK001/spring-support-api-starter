@@ -44,6 +44,16 @@
 | OnlyOffice | 41 | ✅ | |
 | Nacos | 23/43 | ✅ | |
 
+## STOP 超时修复验证（2026-05-16）
+
+**问题**: 11 个容器（MySQL、Tomcat、RabbitMQ、MongoDB、PostgreSQL、MariaDB、ZooKeeper、WordPress、EMQX、Jenkins、RocketMQ、MinIO）在 STOP 操作时因默认 10 秒超时不足以优雅关闭而失败。
+
+**修复**: `DockerProtocolClient.java` 中所有 5 处 `stopContainerCmd` 调用增加 `.withTimeout(60)`，将停止等待时间延长至 60 秒。
+
+**验证结果**:
+- 代码确认: 5 处 stopContainerCmd 均包含 `.withTimeout(60)` ✅
+- Docker API 实测: `POST /containers/{id}/stop?t=60` → HTTP 204, 容器状态 `running→exited` ✅ (耗时 216ms，nginx 快速响应 SIGTERM)
+
 ## 注意事项
 
 1. **INSTALL 命令参数问题**: phpMyAdmin、Prometheus 等部分容器通过 API 的 INSTALL 操作安装失败（命令参数缺失），但手动 `docker run` 正常

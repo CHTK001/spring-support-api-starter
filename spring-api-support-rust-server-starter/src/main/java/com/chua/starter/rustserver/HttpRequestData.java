@@ -15,14 +15,15 @@ public class HttpRequestData {
     private final String path;
     private final String queryString;
     private final String requestUri;
-    private final Map<String, String> headers;
+    private final Map<String, List<String>> headers;
     private final byte[] body;
     private final MemorySegment responseData;
     private final int responseCapacity;
+    private final boolean secure;
 
     private HttpRequestData(long requestId, String method, String path, String queryString,
-                           String requestUri, Map<String, String> headers, byte[] body,
-                           MemorySegment responseData, int responseCapacity) {
+                           String requestUri, Map<String, List<String>> headers, byte[] body,
+                           MemorySegment responseData, int responseCapacity, boolean secure) {
         this.requestId = requestId;
         this.method = method;
         this.path = path;
@@ -32,6 +33,7 @@ public class HttpRequestData {
         this.body = body;
         this.responseData = responseData;
         this.responseCapacity = responseCapacity;
+        this.secure = secure;
     }
 
     public static HttpRequestData parse(
@@ -41,6 +43,19 @@ public class HttpRequestData {
             MemorySegment headersSeg, int headersLen,
             MemorySegment bodySeg, int bodyLen,
             MemorySegment responseData, int responseCapacity) {
+        return parse(requestId, methodSeg, methodLen, pathSeg, pathLen,
+                headersSeg, headersLen, bodySeg, bodyLen,
+                responseData, responseCapacity, false);
+    }
+
+    public static HttpRequestData parse(
+            long requestId,
+            MemorySegment methodSeg, int methodLen,
+            MemorySegment pathSeg, int pathLen,
+            MemorySegment headersSeg, int headersLen,
+            MemorySegment bodySeg, int bodyLen,
+            MemorySegment responseData, int responseCapacity,
+            boolean secure) {
 
         // 读取方法
         String method = readString(methodSeg, methodLen);
@@ -58,7 +73,7 @@ public class HttpRequestData {
         }
 
         // 解析请求头 (TLV 格式, big-endian, 大小写不敏感)
-        Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         int offset = 0;
         while (offset + 4 <= headersLen) {
             int keyLen = Short.toUnsignedInt(Short.reverseBytes(headersSeg.get(JAVA_SHORT_UNALIGNED, offset)));
@@ -71,7 +86,7 @@ public class HttpRequestData {
             if (offset + valLen > headersLen) break;
             String value = readString(headersSeg.asSlice(offset, valLen));
             offset += valLen;
-            headers.put(key, value);
+            headers.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
         }
 
         // 读取请求体
@@ -82,7 +97,7 @@ public class HttpRequestData {
         String requestUri = path + (queryString != null ? "?" + queryString : "");
 
         return new HttpRequestData(requestId, method, path, queryString, requestUri,
-                headers, body, responseData, responseCapacity);
+                headers, body, responseData, responseCapacity, secure);
     }
 
     private static String readString(MemorySegment seg, int len) {
@@ -101,15 +116,17 @@ public class HttpRequestData {
     public String getPath() { return path; }
     public String getQueryString() { return queryString; }
     public String getRequestUri() { return requestUri; }
-    public Map<String, String> getHeaders() { return headers; }
+    public Map<String, List<String>> getHeaders() { return headers; }
     public byte[] getBody() { return body; }
     public MemorySegment getResponseData() { return responseData; }
     public int getResponseCapacity() { return responseCapacity; }
+    public boolean isSecure() { return secure; }
 
     // ── 便捷方法 ──
 
     public String getHeader(String name) {
-        return headers.get(name);
+        List<String> values = headers.get(name);
+        return (values != null && !values.isEmpty()) ? values.get(0) : null;
     }
 
     public String getContentType() {

@@ -27,3 +27,15 @@ docker:
   api:
     host: 172.16.0.40
     port: 2375
+
+app:
+  rag:
+    enabled: true
+    embedding-engine: memory
+    vector-storage: jvector
+    default-similarity-threshold: 0.1
+    upload-dir: ./data/rag-test/uploads
+    use-graph: true
+    graph-max-hops: 2
+    graph-max-tokens: 1000
+    # LLM 配置已移除，直接使用全局 LLM 配置 (sys_ai_global_setting runtime 组)

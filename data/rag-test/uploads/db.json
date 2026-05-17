@@ -1,0 +1,21 @@
+[ {
+  "id" : "c44ac031572e40848a7db52c1214c743",
+  "fileName" : "test-rag-doc.txt",
+  "fileType" : "txt",
+  "fileSize" : 693,
+  "chunkCount" : 1,
+  "status" : "READY",
+  "errorMessage" : null,
+  "createTime" : 1779032391847,
+  "metadata" : { }
+}, {
+  "id" : "a69506f53d10448b9f78831584c92aae",
+  "fileName" : "test-rag-doc2.txt",
+  "fileType" : "txt",
+  "fileSize" : 801,
+  "chunkCount" : 1,
+  "status" : "READY",
+  "errorMessage" : null,
+  "createTime" : 1779032391942,
+  "metadata" : { }
+} ]

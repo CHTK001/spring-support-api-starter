@@ -1,0 +1,1399 @@
+2026-05-15T21:37:08.734+08:00  INFO 31528 --- [spider-test] [main] c.c.s.spider.test.SpiderTestApplication  : Starting SpiderTestApplication using Java 25.0.1 with PID 31528 (H:\workspace\2\spring-support-api-parent\test\spring-api-support-spider-test-starter\target\classes started by yemen in H:\workspace\2\spring-support-api-parent\test\spring-api-support-spider-test-starter)
+2026-05-15T21:37:08.735+08:00  INFO 31528 --- [spider-test] [main] c.c.s.spider.test.SpiderTestApplication  : The following 1 profile is active: "test"
+2026-05-15T21:37:09.771+08:00  INFO 31528 --- [spider-test] [main] o.s.b.f.s.DefaultListableBeanFactory     : Overriding bean definition for bean 'redis-cache-600' with a different definition: replacing [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=localCacheFallbackConfiguration; factoryMethodName=localCacheMin; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/spider/test/LocalCacheFallbackConfiguration.class]] with [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=com.chua.starter.redis.support.CacheConfiguration; factoryMethodName=systemCacheManager600; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/redis/support/CacheConfiguration.class]]
+2026-05-15T21:37:09.772+08:00  INFO 31528 --- [spider-test] [main] o.s.b.f.s.DefaultListableBeanFactory     : Overriding bean definition for bean 'redis-cache-30' with a different definition: replacing [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=localCacheFallbackConfiguration; factoryMethodName=localCacheHalfMinutes; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/spider/test/LocalCacheFallbackConfiguration.class]] with [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=com.chua.starter.redis.support.CacheConfiguration; factoryMethodName=systemCacheManager30; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/redis/support/CacheConfiguration.class]]
+2026-05-15T21:37:09.772+08:00  INFO 31528 --- [spider-test] [main] o.s.b.f.s.DefaultListableBeanFactory     : Overriding bean definition for bean 'redis-cache-10' with a different definition: replacing [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=localCacheFallbackConfiguration; factoryMethodName=localCacheTenSecond; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/spider/test/LocalCacheFallbackConfiguration.class]] with [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=com.chua.starter.redis.support.CacheConfiguration; factoryMethodName=systemCacheManager10; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/redis/support/CacheConfiguration.class]]
+2026-05-15T21:37:09.772+08:00  INFO 31528 --- [spider-test] [main] o.s.b.f.s.DefaultListableBeanFactory     : Overriding bean definition for bean 'redis-cache-60' with a different definition: replacing [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=localCacheFallbackConfiguration; factoryMethodName=localCacheMinutes; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/spider/test/LocalCacheFallbackConfiguration.class]] with [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=com.chua.starter.redis.support.CacheConfiguration; factoryMethodName=systemCacheManager60; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/redis/support/CacheConfiguration.class]]
+2026-05-15T21:37:09.772+08:00  INFO 31528 --- [spider-test] [main] o.s.b.f.s.DefaultListableBeanFactory     : Overriding bean definition for bean 'redis-cache-3600' with a different definition: replacing [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=localCacheFallbackConfiguration; factoryMethodName=localCacheHour; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/spider/test/LocalCacheFallbackConfiguration.class]] with [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=com.chua.starter.redis.support.CacheConfiguration; factoryMethodName=systemCacheManager; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/redis/support/CacheConfiguration.class]]
+2026-05-15T21:37:09.772+08:00  INFO 31528 --- [spider-test] [main] o.s.b.f.s.DefaultListableBeanFactory     : Overriding bean definition for bean 'redis-cache--1' with a different definition: replacing [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=localCacheFallbackConfiguration; factoryMethodName=localCacheAlways; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/spider/test/LocalCacheFallbackConfiguration.class]] with [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=com.chua.starter.redis.support.CacheConfiguration; factoryMethodName=systemCacheManagerAlways; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/redis/support/CacheConfiguration.class]]
+2026-05-15T21:37:09.772+08:00  INFO 31528 --- [spider-test] [main] o.s.b.f.s.DefaultListableBeanFactory     : Overriding bean definition for bean 'redis-cache-86400' with a different definition: replacing [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=localCacheFallbackConfiguration; factoryMethodName=localCacheDay; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/spider/test/LocalCacheFallbackConfiguration.class]] with [Root bean: class=null; scope=; abstract=false; lazyInit=null; autowireMode=3; dependencyCheck=0; autowireCandidate=true; primary=false; fallback=false; factoryBeanName=com.chua.starter.redis.support.CacheConfiguration; factoryMethodName=redis86400CacheManager; initMethodNames=null; destroyMethodNames=[(inferred)]; defined in class path resource [com/chua/starter/redis/support/CacheConfiguration.class]]
+2026-05-15T21:37:10.041+08:00  INFO 31528 --- [spider-test] [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-05-15T21:37:10.048+08:00  INFO 31528 --- [spider-test] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-05-15T21:37:10.066+08:00  INFO 31528 --- [spider-test] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 3 ms. Found 0 Redis repository interfaces.
+2026-05-15T21:37:10.190+08:00  INFO 31528 --- [spider-test] [main] .s.d.p.DataSourcePropertyProviderFactory : 已加载2个数据源Provider
+2026-05-15T21:37:10.208+08:00  WARN 31528 --- [spider-test] [main] o.m.s.mapper.ClassPathMapperScanner      : No MyBatis mapper was found in '[com.chua.starter.spider.test]' package. Please check your configuration.
+2026-05-15T21:37:10.304+08:00  INFO 31528 --- [spider-test] [main] c.c.s.d.support.DataSourceInspect        : [Datasource] 注册动态数据源
+2026-05-15T21:37:10.433+08:00  INFO 31528 --- [spider-test] [main] c.g.y.a.MybatisPlusJoinAutoConfiguration : MPJ SqlSessionFactory bean definition: sqlSessionFactory factoryBeanName: com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration factoryMethodName: sqlSessionFactory source: com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration.sqlSessionFactory(javax.sql.DataSource)
+2026-05-15T21:37:10.488+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'com.chua.starter.datasource.support.MethodPointcutAdvisor' of type [com.chua.starter.datasource.support.MethodPointcutAdvisor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.490+08:00  INFO 31528 --- [spider-test] [main] c.c.s.o.c.s.i.PermissionInterceptor      : [权限拦截器]初始化权限拦截器
+2026-05-15T21:37:10.491+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'permissionProxyFactoryBean' of type [com.chua.starter.oauth.client.support.interceptor.PermissionInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.492+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'tokenForTypeInterceptor' of type [com.chua.starter.oauth.client.support.interceptor.TokenForTypeInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.745+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'com.chua.starter.common.support.configuration.CommonConfiguration' of type [com.chua.starter.common.support.configuration.CommonConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.747+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'watchPointcutAdvisor' of type [com.chua.starter.common.support.watch.WatchPointcutAdvisor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.766+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'com.chua.starter.common.support.cache.CacheConfiguration' of type [com.chua.starter.common.support.cache.CacheConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.771+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'com.chua.starter.common.support.cache.CacheProxyCachingConfiguration' of type [com.chua.starter.common.support.cache.CacheProxyCachingConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.776+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'customCacheOperationSource' of type [org.springframework.cache.annotation.AnnotationCacheOperationSource] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.797+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'lock4j-com.baomidou.lock.spring.boot.autoconfigure.Lock4jProperties' of type [com.baomidou.lock.spring.boot.autoconfigure.Lock4jProperties] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.798+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'com.baomidou.lock.spring.boot.autoconfigure.LockAutoConfiguration' of type [com.baomidou.lock.spring.boot.autoconfigure.LockAutoConfiguration$$SpringCGLIB$$0] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.819+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'lockKeyBuilder' of type [com.baomidou.lock.DefaultLockKeyBuilder] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.820+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'lockFailureStrategy' of type [com.baomidou.lock.DefaultLockFailureStrategy] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.822+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'lockInterceptor' of type [com.baomidou.lock.aop.LockInterceptor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.823+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'lockAnnotationAdvisor' of type [com.baomidou.lock.aop.LockAnnotationAdvisor] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:10.825+08:00  WARN 31528 --- [spider-test] [main] trationDelegate$BeanPostProcessorChecker : Bean 'plugin.datasource.script-com.chua.starter.datasource.properties.DataSourceScriptProperties' of type [com.chua.starter.datasource.properties.DataSourceScriptProperties] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [com.chua.starter.datasource.configuration.DataSourceScriptConfiguration]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-05-15T21:37:11.103+08:00  INFO 31528 --- [spider-test] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 19091 (http)
+2026-05-15T21:37:11.119+08:00  INFO 31528 --- [spider-test] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-15T21:37:11.119+08:00  INFO 31528 --- [spider-test] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.50]
+2026-05-15T21:37:11.199+08:00  INFO 31528 --- [spider-test] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-05-15T21:37:11.200+08:00  INFO 31528 --- [spider-test] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2315 ms
+2026-05-15T21:37:11.211+08:00  INFO 31528 --- [spider-test] [main] s.c.s.c.MessageConverterWebMvcConfigurer : [消息转换器]初始化消息转换器配置
+2026-05-15T21:37:11.234+08:00  INFO 31528 --- [spider-test] [main] s.c.s.c.MessageConverterWebMvcConfigurer : [消息转换器]获取 ObjectMapper Bean, 类型: com.fasterxml.jackson.databind.json.JsonMapper
+2026-05-15T21:37:11.234+08:00  INFO 31528 --- [spider-test] [main] s.c.s.c.MessageConverterWebMvcConfigurer : [消息转换器]注册 JSON 转换器: org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
+2026-05-15T21:37:11.234+08:00  INFO 31528 --- [spider-test] [main] s.c.s.c.MessageConverterWebMvcConfigurer : [消息转换器]注册字符串转换器: org.springframework.http.converter.StringHttpMessageConverter
+2026-05-15T21:37:11.236+08:00  INFO 31528 --- [spider-test] [main] s.c.s.c.MessageConverterWebMvcConfigurer : [消息转换器]注册 XML 转换器: org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter
+2026-05-15T21:37:11.236+08:00  INFO 31528 --- [spider-test] [main] s.c.s.c.MessageConverterWebMvcConfigurer : [消息转换器]注册 YAML 转换器: org.springframework.http.converter.yaml.MappingJackson2YamlHttpMessageConverter
+2026-05-15T21:37:11.238+08:00  INFO 31528 --- [spider-test] [main] s.c.s.c.MessageConverterWebMvcConfigurer : [消息转换器]消息转换器初始化完成, 共注册 4 个转换器
+2026-05-15T21:37:11.277+08:00  INFO 31528 --- [spider-test] [main] .c.s.c.s.a.ModuleEnvironmentRegistration : [环境配置]已注册模块配置, 组: plugin.api, 启用: true, 类型: com.chua.starter.common.support.api.properties.ApiProperties
+2026-05-15T21:37:11.336+08:00  INFO 31528 --- [spider-test] [main] c.g.y.a.MybatisPlusJoinAutoConfiguration : mybatis plus join properties config complete
+2026-05-15T21:37:11.360+08:00  INFO 31528 --- [spider-test] [main] c.c.s.d.c.DataSourceScriptConfiguration  : 检测到 DataSource [dynamicDataSource] 初始化完成，开始执行数据库脚本...
+2026-05-15T21:37:11.369+08:00  INFO 31528 --- [spider-test] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-05-15T21:37:11.378+08:00  INFO 31528 --- [spider-test] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.sqlite.jdbc4.JDBC4Connection@67216c33
+2026-05-15T21:37:11.379+08:00  INFO 31528 --- [spider-test] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-05-15T21:37:11.403+08:00  WARN 31528 --- [spider-test] [main] eScriptConfiguration$FlywayLikePopulator : 创建版本记录表时发生异常（表可能已存在）: StatementCallback; uncategorized SQLException for SQL [    CREATE TABLE IF NOT EXISTS sys_database_version (
+        sys_database_version_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+        sys_database_version_version VARCHAR(32) COMMENT '脚本版本号',
+        sys_database_version_script_name VARCHAR(200) NOT NULL COMMENT '脚本文件名',
+        sys_database_version_script_type VARCHAR(16) COMMENT '脚本类型：INIT-初始化，ADD-增量',
+        sys_database_version_description VARCHAR(100) COMMENT '脚本描述信息',
+        sys_database_version_checksum VARCHAR(64) COMMENT '脚本文件MD5校验和',
+        sys_database_version_executed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '脚本执行时间',
+        sys_database_version_success VARCHAR(8) COMMENT '执行状态：true-成功，false-失败',
+        UNIQUE KEY uk_script_name_version (sys_database_version_script_name, sys_database_version_version)
+    )
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (near "COMMENT": syntax error)
+2026-05-15T21:37:11.405+08:00  WARN 31528 --- [spider-test] [main] eScriptConfiguration$FlywayLikePopulator : 插入基线版本记录失败: StatementCallback; uncategorized SQLException for SQL [SELECT COUNT(*) FROM sys_database_version]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: sys_database_version)
+2026-05-15T21:37:11.409+08:00  INFO 31528 --- [spider-test] [main] eScriptConfiguration$FlywayLikePopulator : 找到 9 个迁移脚本
+2026-05-15T21:37:11.411+08:00  INFO 31528 --- [spider-test] [main] eScriptConfiguration$FlywayLikePopulator : 表结构脚本: 3 个, 补丁脚本: 6 个, 异步数据脚本: 0 个
+2026-05-15T21:37:11.412+08:00  WARN 31528 --- [spider-test] [main] c.c.s.d.c.DataSourceScriptConfiguration  : 执行数据库脚本失败: dynamicDataSource
+
+org.springframework.jdbc.UncategorizedSQLException: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT sys_database_version_checksum AS checksum, sys_database_version_success AS success FROM sys_database_version WHERE sys_database_version_script_name = ? AND sys_database_version_version = ?]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: sys_database_version)
+	at org.springframework.jdbc.core.JdbcTemplate.translateException(JdbcTemplate.java:1557) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:677) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:723) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:754) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:767) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:820) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.queryForList(JdbcTemplate.java:954) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at com.chua.starter.datasource.configuration.DataSourceScriptConfiguration$FlywayLikePopulator.findScriptExecutionRecord(DataSourceScriptConfiguration.java:681) ~[spring-support-datasource-starter-4.0.0.41.jar:4.0.0.41]
+	at com.chua.starter.datasource.configuration.DataSourceScriptConfiguration$FlywayLikePopulator.populate(DataSourceScriptConfiguration.java:326) ~[spring-support-datasource-starter-4.0.0.41.jar:4.0.0.41]
+	at com.chua.starter.datasource.configuration.DataSourceScriptConfiguration.postProcessAfterInitialization(DataSourceScriptConfiguration.java:78) ~[spring-support-datasource-starter-4.0.0.41.jar:4.0.0.41]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsAfterInitialization(AbstractAutowireCapableBeanFactory.java:445) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1829) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:607) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1770) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1653) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:546) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1375) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1205) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1770) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1653) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireByType(AbstractAutowireCapableBeanFactory.java:1541) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1450) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:606) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1770) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1653) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1395) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1232) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1770) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1653) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1395) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1232) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1708) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1653) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1395) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1232) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.addCandidateEntry(DefaultListableBeanFactory.java:2022) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.findAutowireCandidates(DefaultListableBeanFactory.java:1985) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveMultipleBeanCollection(DefaultListableBeanFactory.java:1875) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveMultipleBeans(DefaultListableBeanFactory.java:1843) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1719) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1653) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredMethodElement.resolveMethodArguments(AutowiredAnnotationBeanPostProcessor.java:887) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredMethodElement.inject(AutowiredAnnotationBeanPostProcessor.java:848) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:146) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:509) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1459) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:606) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:413) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1375) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1205) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1708) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1653) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:546) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1375) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1205) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.boot.web.servlet.ServletContextInitializerBeans.getOrderedBeansOfType(ServletContextInitializerBeans.java:230) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.web.servlet.ServletContextInitializerBeans.getOrderedBeansOfType(ServletContextInitializerBeans.java:221) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.web.servlet.ServletContextInitializerBeans.addServletContextInitializerBeans(ServletContextInitializerBeans.java:106) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.web.servlet.ServletContextInitializerBeans.<init>(ServletContextInitializerBeans.java:95) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.getServletContextInitializerBeans(ServletWebServerApplicationContext.java:271) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.selfInitialize(ServletWebServerApplicationContext.java:245) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.web.embedded.tomcat.TomcatStarter.onStartup(TomcatStarter.java:52) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.apache.catalina.core.StandardContext.startInternal(StandardContext.java:4452) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:164) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1201) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1191) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:328) ~[na:na]
+	at org.apache.tomcat.util.threads.InlineExecutorService.execute(InlineExecutorService.java:81) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at java.base/java.util.concurrent.AbstractExecutorService.submit(AbstractExecutorService.java:149) ~[na:na]
+	at org.apache.catalina.core.ContainerBase.startInternal(ContainerBase.java:747) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.core.StandardHost.startInternal(StandardHost.java:783) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:164) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1201) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1191) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:328) ~[na:na]
+	at org.apache.tomcat.util.threads.InlineExecutorService.execute(InlineExecutorService.java:81) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at java.base/java.util.concurrent.AbstractExecutorService.submit(AbstractExecutorService.java:149) ~[na:na]
+	at org.apache.catalina.core.ContainerBase.startInternal(ContainerBase.java:747) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.core.StandardEngine.startInternal(StandardEngine.java:201) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:164) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.core.StandardService.startInternal(StandardService.java:410) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:164) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.core.StandardServer.startInternal(StandardServer.java:868) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:164) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.apache.catalina.startup.Tomcat.start(Tomcat.java:436) ~[tomcat-embed-core-10.1.50.jar:10.1.50]
+	at org.springframework.boot.web.embedded.tomcat.TomcatWebServer.initialize(TomcatWebServer.java:128) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.web.embedded.tomcat.TomcatWebServer.<init>(TomcatWebServer.java:107) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory.getTomcatWebServer(TomcatServletWebServerFactory.java:517) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory.getWebServer(TomcatServletWebServerFactory.java:219) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.createWebServer(ServletWebServerApplicationContext.java:193) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.onRefresh(ServletWebServerApplicationContext.java:167) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-6.2.15.jar:6.2.15]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.5.9.jar:3.5.9]
+	at com.chua.starter.spider.test.SpiderTestApplication.main(SpiderTestApplication.java:19) ~[classes/:na]
+Caused by: org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such table: sys_database_version)
+	at org.sqlite.core.DB.newSQLException(DB.java:1179) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.DB.newSQLException(DB.java:1190) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.DB.throwex(DB.java:1150) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.NativeDB.prepare_utf8(Native Method) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.NativeDB.prepare(NativeDB.java:135) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.DB.prepare(DB.java:264) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.CorePreparedStatement.<init>(CorePreparedStatement.java:46) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc3.JDBC3PreparedStatement.<init>(JDBC3PreparedStatement.java:32) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc4.JDBC4PreparedStatement.<init>(JDBC4PreparedStatement.java:25) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc4.JDBC4Connection.prepareStatement(JDBC4Connection.java:34) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc3.JDBC3Connection.prepareStatement(JDBC3Connection.java:225) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc3.JDBC3Connection.prepareStatement(JDBC3Connection.java:205) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at com.zaxxer.hikari.pool.ProxyConnection.prepareStatement(ProxyConnection.java:328) ~[HikariCP-6.3.3.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyConnection.prepareStatement(HikariProxyConnection.java) ~[HikariCP-6.3.3.jar:na]
+	at org.springframework.jdbc.core.JdbcTemplate$SimplePreparedStatementCreator.createPreparedStatement(JdbcTemplate.java:1719) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:656) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	... 166 common frames omitted
+
+2026-05-15T21:37:11.459+08:00  INFO 31528 --- [spider-test] [main] c.g.y.a.MybatisPlusJoinAutoConfiguration : mybatis plus join SqlInjector init
+2026-05-15T21:37:11.885+08:00  INFO 31528 --- [spider-test] [main] c.c.common.support.crypto.CodecBuilder   : 密钥: 3b9aca00
+2026-05-15T21:37:12.225+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.a.c.ApiConfiguration           : [API控制] [注册开始]
+2026-05-15T21:37:12.225+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.a.c.ApiConfiguration           : [API控制] [@ApiVersion] [版本控制] [[32m开启[0m]
+2026-05-15T21:37:12.225+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.a.c.ApiConfiguration           : [API控制] [@ApiPlatform] [平台控制] [[32m开启[0m] [平台: system]
+2026-05-15T21:37:12.225+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.a.c.ApiConfiguration           : [API控制] [@ApiProfile] [环境控制] [[32m开启[0m]
+2026-05-15T21:37:12.225+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.a.c.ApiConfiguration           : [API控制] [@ApiDeprecated] [废弃提示] [[32m开启[0m]
+2026-05-15T21:37:12.225+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.a.c.ApiConfiguration           : [API控制] [@ApiFeature] [功能开关] [[31m关闭[0m]
+2026-05-15T21:37:12.226+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.a.c.ApiConfiguration           : [API控制] [@ApiInternal] [内部接口] [[32m开启[0m]
+2026-05-15T21:37:12.226+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.a.c.ApiConfiguration           : [API控制] [@ApiMock] [Mock模式] [[31m关闭[0m]
+2026-05-15T21:37:12.226+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.a.c.ApiConfiguration           : [API控制] [@ApiGray] [灰度发布] [[31m关闭[0m]
+2026-05-15T21:37:12.226+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.a.c.ApiConfiguration           : [API控制] [注册完成]
+2026-05-15T21:37:12.450+08:00  WARN 31528 --- [spider-test] [main] o.s.boot.actuate.endpoint.EndpointId     : Endpoint ID 'mybatis-extension' contains invalid characters, please migrate to a valid format.
+2026-05-15T21:37:12.526+08:00  INFO 31528 --- [spider-test] [main] .c.s.c.s.a.ModuleEnvironmentRegistration : [环境配置]已注册模块配置, 组: plugin.thread, 启用: false, 类型: com.chua.starter.common.support.properties.AsyncThreadPoolProperties
+2026-05-15T21:37:12.677+08:00 DEBUG 31528 --- [spider-test] [main] c.c.s.a.s.m.S.selectList                 : ==>  Preparing: SELECT sys_ai_global_setting_id, sys_ai_global_setting_group, sys_ai_global_setting_field, sys_ai_global_setting_value, sys_ai_global_setting_value_type, sys_ai_global_setting_description, sys_ai_global_setting_sort, sys_ai_global_setting_status, create_name, create_by, create_time, update_time, update_name, update_by FROM sys_ai_global_setting WHERE (sys_ai_global_setting_group = ? AND sys_ai_global_setting_status = ?) ORDER BY sys_ai_global_setting_sort ASC, sys_ai_global_setting_id ASC
+2026-05-15T21:37:12.767+08:00 DEBUG 31528 --- [spider-test] [main] c.c.s.a.s.m.S.selectList                 : ==>  Preparing: SELECT sys_ai_global_setting_id, sys_ai_global_setting_group, sys_ai_global_setting_field, sys_ai_global_setting_value, sys_ai_global_setting_value_type, sys_ai_global_setting_description, sys_ai_global_setting_sort, sys_ai_global_setting_status, create_name, create_by, create_time, update_time, update_name, update_by FROM sys_ai_global_setting WHERE (sys_ai_global_setting_group = ? AND sys_ai_global_setting_status = ?) ORDER BY sys_ai_global_setting_sort ASC, sys_ai_global_setting_id ASC
+2026-05-15T21:37:13.686+08:00  WARN 31528 --- [spider-test] [main] c.b.m.core.metadata.TableInfoHelper      : Can not find table primary key in Class: "com.chua.starter.ai.support.entity.SysAiFaceRecognizeRecord".
+2026-05-15T21:37:13.686+08:00  WARN 31528 --- [spider-test] [main] c.c.s.mybatis.method.SupportInjector     : class com.chua.starter.ai.support.entity.SysAiFaceRecognizeRecord ,Not found @TableId annotation, Cannot use Mybatis-Plus 'xxById' Method.
+2026-05-15T21:37:13.703+08:00  INFO 31528 --- [spider-test] [main] c.c.s.a.s.s.impl.FaceLibraryService      : FaceLibraryService initialized
+2026-05-15T21:37:13.725+08:00  INFO 31528 --- [spider-test] [main] c.c.s.a.s.s.impl.ImageLibraryService     : ImageLibraryService initialized
+2026-05-15T21:37:13.915+08:00  WARN 31528 --- [spider-test] [main] c.c.c.s.ai.impl.MemoryEmbeddingService   : [向量服务][内存] 使用简单的内存特征生成服务，建议在生产场景接入真实 embedding 模型
+2026-05-15T21:37:13.916+08:00  WARN 31528 --- [spider-test] [main] c.c.c.s.ai.impl.MemoryEmbeddingService   : [向量服务][内存] 使用简单的内存特征生成服务，建议在生产场景接入真实 embedding 模型
+2026-05-15T21:37:14.033+08:00  INFO 31528 --- [spider-test] [main] c.c.d.s.m.k.MemoryKnowledgeClient        : [知识库][内存] 初始化内存知识库客户端
+2026-05-15T21:37:14.033+08:00  INFO 31528 --- [spider-test] [main] c.c.d.s.m.k.AbstractRagService           : [RAG][初始化] 知识库客户端初始化成功
+2026-05-15T21:37:14.069+08:00  INFO 31528 --- [spider-test] [main] c.c.d.s.m.k.AbstractRagService           : [RAG][初始化] 聊天客户端初始化成功
+2026-05-15T21:37:14.070+08:00  INFO 31528 --- [spider-test] [main] c.c.d.s.m.k.MemoryRagService             : [RAG][内存] 初始化内存RAG服务
+2026-05-15T21:37:14.070+08:00  WARN 31528 --- [spider-test] [main] c.c.c.s.ai.impl.MemoryEmbeddingService   : [向量服务][内存] 使用简单的内存特征生成服务，建议在生产场景接入真实 embedding 模型
+2026-05-15T21:37:14.070+08:00  WARN 31528 --- [spider-test] [main] c.c.c.s.ai.impl.MemoryEmbeddingService   : [向量服务][内存] 使用简单的内存特征生成服务，建议在生产场景接入真实 embedding 模型
+2026-05-15T21:37:14.072+08:00  INFO 31528 --- [spider-test] [main] c.c.d.s.m.k.MemoryKnowledgeClient        : [知识库][内存] 初始化内存知识库客户端
+2026-05-15T21:37:14.072+08:00  INFO 31528 --- [spider-test] [main] c.c.d.s.m.k.AbstractRagService           : [RAG][初始化] 知识库客户端初始化成功
+2026-05-15T21:37:14.078+08:00  INFO 31528 --- [spider-test] [main] c.c.d.s.m.k.AbstractRagService           : [RAG][初始化] 聊天客户端初始化成功
+2026-05-15T21:37:14.078+08:00  INFO 31528 --- [spider-test] [main] c.c.d.s.m.k.MemoryRagService             : [RAG][内存] 初始化内存RAG服务
+2026-05-15T21:37:14.078+08:00  INFO 31528 --- [spider-test] [main] c.chua.common.support.ai.rag.RagEngine   : [RagEngine] 初始化完成, engine=memory
+2026-05-15T21:37:14.082+08:00 DEBUG 31528 --- [spider-test] [main] c.c.s.a.s.m.S.selectList                 : ==>  Preparing: SELECT sys_ai_global_setting_id, sys_ai_global_setting_group, sys_ai_global_setting_field, sys_ai_global_setting_value, sys_ai_global_setting_value_type, sys_ai_global_setting_description, sys_ai_global_setting_sort, sys_ai_global_setting_status, create_name, create_by, create_time, update_time, update_name, update_by FROM sys_ai_global_setting WHERE (sys_ai_global_setting_group = ? AND sys_ai_global_setting_status = ?) ORDER BY sys_ai_global_setting_sort ASC, sys_ai_global_setting_id ASC
+2026-05-15T21:37:14.082+08:00  WARN 31528 --- [spider-test] [main] c.c.s.a.s.c.RagAutoConfiguration         : [RagAutoConfiguration] 无法创建全局 ChatClient，RAG 问答将降级为仅返回检索内容: 
+### Error querying database.  Cause: org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such column: create_name)
+### The error may exist in com/chua/starter/ai/support/mapper/SysAiGlobalSettingMapper.java (best guess)
+### The error may involve com.chua.starter.ai.support.mapper.SysAiGlobalSettingMapper.selectList
+### The error occurred while executing a query
+### SQL: SELECT sys_ai_global_setting_id, sys_ai_global_setting_group, sys_ai_global_setting_field, sys_ai_global_setting_value, sys_ai_global_setting_value_type, sys_ai_global_setting_description, sys_ai_global_setting_sort, sys_ai_global_setting_status, create_name, create_by, create_time, update_time, update_name, update_by FROM sys_ai_global_setting WHERE (sys_ai_global_setting_group = ? AND sys_ai_global_setting_status = ?) ORDER BY sys_ai_global_setting_sort ASC, sys_ai_global_setting_id ASC
+### Cause: org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such column: create_name)
+; uncategorized SQLException; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such column: create_name)
+2026-05-15T21:37:14.085+08:00  INFO 31528 --- [spider-test] [main] c.c.c.support.ai.rag.RagDocumentManager  : [RagDocumentManager] 初始化完成, uploadDir=rag-upload, 文档数=0
+2026-05-15T21:37:14.105+08:00  INFO 31528 --- [spider-test] [main] c.c.s.a.s.s.impl.ReidLibraryService      : ReidLibraryService initialized
+2026-05-15T21:37:14.566+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.c.BinaryHttpMessageConverter   : [消息转换器]创建 BinaryHttpMessageConverter, 支持的媒体类型: application/encrypted-data, 委托转换器数量: 4
+2026-05-15T21:37:14.566+08:00  INFO 31528 --- [spider-test] [main] s.c.s.c.MessageConverterWebMvcConfigurer : [消息转换器]注册二进制转换器到首位: com.chua.starter.common.support.converter.BinaryHttpMessageConverter
+2026-05-15T21:37:14.567+08:00  INFO 31528 --- [spider-test] [main] s.c.s.c.MessageConverterWebMvcConfigurer : [消息转换器]开始扩展消息转换器列表, 当前转换器数量: 13
+2026-05-15T21:37:14.568+08:00  INFO 31528 --- [spider-test] [main] s.c.s.c.MessageConverterWebMvcConfigurer : [消息转换器]创建 MappingJackson2HttpMessageConverter, includeNull=false
+2026-05-15T21:37:14.568+08:00  INFO 31528 --- [spider-test] [main] s.c.s.c.MessageConverterWebMvcConfigurer : [消息转换器]使用的 ObjectMapper 类型: com.fasterxml.jackson.databind.json.JsonMapper
+2026-05-15T21:37:14.568+08:00  INFO 31528 --- [spider-test] [main] s.c.s.c.MessageConverterWebMvcConfigurer : [消息转换器]已注册 MappingJackson2HttpMessageConverter 到位置: 5, 转换器类型: org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
+2026-05-15T21:37:14.585+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.c.ResourceWebMvcConfigurer     : 当前运行目录: H:\workspace\2\spring-support-api-parent\test\spring-api-support-spider-test-starter\.
+2026-05-15T21:37:14.707+08:00  INFO 31528 --- [spider-test] [main] .c.s.c.s.a.ModuleEnvironmentRegistration : [环境配置]已注册模块配置, 组: plugin.redis.server, 启用: false, 类型: com.chua.starter.redis.support.properties.RedisServerProperties
+2026-05-15T21:37:14.830+08:00  INFO 31528 --- [spider-test] [main] c.c.s.d.c.DataSourceScriptConfiguration  : 检测到 DataSource [dataSource] 初始化完成，开始执行数据库脚本...
+2026-05-15T21:37:14.830+08:00  INFO 31528 --- [spider-test] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-05-15T21:37:14.831+08:00  INFO 31528 --- [spider-test] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection org.sqlite.jdbc4.JDBC4Connection@5344b208
+2026-05-15T21:37:14.831+08:00  INFO 31528 --- [spider-test] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-05-15T21:37:14.832+08:00  WARN 31528 --- [spider-test] [main] eScriptConfiguration$FlywayLikePopulator : 创建版本记录表时发生异常（表可能已存在）: StatementCallback; uncategorized SQLException for SQL [    CREATE TABLE IF NOT EXISTS sys_database_version (
+        sys_database_version_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+        sys_database_version_version VARCHAR(32) COMMENT '脚本版本号',
+        sys_database_version_script_name VARCHAR(200) NOT NULL COMMENT '脚本文件名',
+        sys_database_version_script_type VARCHAR(16) COMMENT '脚本类型：INIT-初始化，ADD-增量',
+        sys_database_version_description VARCHAR(100) COMMENT '脚本描述信息',
+        sys_database_version_checksum VARCHAR(64) COMMENT '脚本文件MD5校验和',
+        sys_database_version_executed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '脚本执行时间',
+        sys_database_version_success VARCHAR(8) COMMENT '执行状态：true-成功，false-失败',
+        UNIQUE KEY uk_script_name_version (sys_database_version_script_name, sys_database_version_version)
+    )
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (near "COMMENT": syntax error)
+2026-05-15T21:37:14.833+08:00  WARN 31528 --- [spider-test] [main] eScriptConfiguration$FlywayLikePopulator : 插入基线版本记录失败: StatementCallback; uncategorized SQLException for SQL [SELECT COUNT(*) FROM sys_database_version]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: sys_database_version)
+2026-05-15T21:37:14.834+08:00  INFO 31528 --- [spider-test] [main] eScriptConfiguration$FlywayLikePopulator : 找到 9 个迁移脚本
+2026-05-15T21:37:14.835+08:00  INFO 31528 --- [spider-test] [main] eScriptConfiguration$FlywayLikePopulator : 表结构脚本: 3 个, 补丁脚本: 6 个, 异步数据脚本: 0 个
+2026-05-15T21:37:14.835+08:00  WARN 31528 --- [spider-test] [main] c.c.s.d.c.DataSourceScriptConfiguration  : 执行数据库脚本失败: dataSource
+
+org.springframework.jdbc.UncategorizedSQLException: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT sys_database_version_checksum AS checksum, sys_database_version_success AS success FROM sys_database_version WHERE sys_database_version_script_name = ? AND sys_database_version_version = ?]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: sys_database_version)
+	at org.springframework.jdbc.core.JdbcTemplate.translateException(JdbcTemplate.java:1557) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:677) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:723) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:754) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:767) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:820) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.queryForList(JdbcTemplate.java:954) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at com.chua.starter.datasource.configuration.DataSourceScriptConfiguration$FlywayLikePopulator.findScriptExecutionRecord(DataSourceScriptConfiguration.java:681) ~[spring-support-datasource-starter-4.0.0.41.jar:4.0.0.41]
+	at com.chua.starter.datasource.configuration.DataSourceScriptConfiguration$FlywayLikePopulator.populate(DataSourceScriptConfiguration.java:326) ~[spring-support-datasource-starter-4.0.0.41.jar:4.0.0.41]
+	at com.chua.starter.datasource.configuration.DataSourceScriptConfiguration.postProcessAfterInitialization(DataSourceScriptConfiguration.java:78) ~[spring-support-datasource-starter-4.0.0.41.jar:4.0.0.41]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsAfterInitialization(AbstractAutowireCapableBeanFactory.java:445) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1829) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:607) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1228) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1194) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1130) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:990) ~[spring-context-6.2.15.jar:6.2.15]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627) ~[spring-context-6.2.15.jar:6.2.15]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.5.9.jar:3.5.9]
+	at com.chua.starter.spider.test.SpiderTestApplication.main(SpiderTestApplication.java:19) ~[classes/:na]
+Caused by: org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such table: sys_database_version)
+	at org.sqlite.core.DB.newSQLException(DB.java:1179) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.DB.newSQLException(DB.java:1190) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.DB.throwex(DB.java:1150) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.NativeDB.prepare_utf8(Native Method) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.NativeDB.prepare(NativeDB.java:135) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.DB.prepare(DB.java:264) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.CorePreparedStatement.<init>(CorePreparedStatement.java:46) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc3.JDBC3PreparedStatement.<init>(JDBC3PreparedStatement.java:32) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc4.JDBC4PreparedStatement.<init>(JDBC4PreparedStatement.java:25) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc4.JDBC4Connection.prepareStatement(JDBC4Connection.java:34) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc3.JDBC3Connection.prepareStatement(JDBC3Connection.java:225) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc3.JDBC3Connection.prepareStatement(JDBC3Connection.java:205) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at com.zaxxer.hikari.pool.ProxyConnection.prepareStatement(ProxyConnection.java:328) ~[HikariCP-6.3.3.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyConnection.prepareStatement(HikariProxyConnection.java) ~[HikariCP-6.3.3.jar:na]
+	at org.springframework.jdbc.core.JdbcTemplate$SimplePreparedStatementCreator.createPreparedStatement(JdbcTemplate.java:1719) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:656) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	... 28 common frames omitted
+
+2026-05-15T21:37:14.839+08:00  INFO 31528 --- [spider-test] [main] m.e.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@533377b
+2026-05-15T21:37:14.844+08:00 DEBUG 31528 --- [spider-test] [main] c.c.s.a.s.m.S.selectList                 : ==>  Preparing: SELECT sys_ai_global_setting_id, sys_ai_global_setting_group, sys_ai_global_setting_field, sys_ai_global_setting_value, sys_ai_global_setting_value_type, sys_ai_global_setting_description, sys_ai_global_setting_sort, sys_ai_global_setting_status, create_name, create_by, create_time, update_time, update_name, update_by FROM sys_ai_global_setting WHERE (sys_ai_global_setting_group = ? AND sys_ai_global_setting_status = ?) ORDER BY sys_ai_global_setting_sort ASC, sys_ai_global_setting_id ASC
+2026-05-15T21:37:14.845+08:00  WARN 31528 --- [spider-test] [main] c.c.s.a.s.configuration.AiConfiguration  : 加载 AI 运行时配置失败，已降级为空配置继续启动: 
+### Error querying database.  Cause: org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such column: create_name)
+### The error may exist in com/chua/starter/ai/support/mapper/SysAiGlobalSettingMapper.java (best guess)
+### The error may involve com.chua.starter.ai.support.mapper.SysAiGlobalSettingMapper.selectList
+### The error occurred while executing a query
+### SQL: SELECT sys_ai_global_setting_id, sys_ai_global_setting_group, sys_ai_global_setting_field, sys_ai_global_setting_value, sys_ai_global_setting_value_type, sys_ai_global_setting_description, sys_ai_global_setting_sort, sys_ai_global_setting_status, create_name, create_by, create_time, update_time, update_name, update_by FROM sys_ai_global_setting WHERE (sys_ai_global_setting_group = ? AND sys_ai_global_setting_status = ?) ORDER BY sys_ai_global_setting_sort ASC, sys_ai_global_setting_id ASC
+### Cause: org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such column: create_name)
+; uncategorized SQLException; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such column: create_name)
+2026-05-15T21:37:14.845+08:00  INFO 31528 --- [spider-test] [main] .c.s.c.s.a.ModuleEnvironmentRegistration : [环境配置]已注册模块配置, 组: spring.ai, 启用: true, 类型: java.util.LinkedHashMap
+2026-05-15T21:37:14.849+08:00  INFO 31528 --- [spider-test] [main] .c.s.c.s.a.ModuleEnvironmentRegistration : [环境配置]已注册模块配置, 组: plugin.actuator, 启用: false, 类型: com.chua.starter.common.support.actuator.ActuatorProperties
+2026-05-15T21:37:14.926+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.cache.MultiLevelCacheManager   : 多级缓存管理器初始化完成: levels=0
+2026-05-15T21:37:14.953+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.c.CaptchaConfiguration         : >>>>>>> 开启检验码接口
+2026-05-15T21:37:14.962+08:00  INFO 31528 --- [spider-test] [main] c.c.s.c.s.c.CaptchaConfiguration         : >>>>>>> 开启SPI选项接口
+2026-05-15T21:37:15.012+08:00  INFO 31528 --- [spider-test] [main] .c.s.o.r.i.MappingBeanDefinitionRegister : [MappingBeanDefinitionRegister][初始化]映射注册器初始化完成
+2026-05-15T21:37:15.013+08:00  INFO 31528 --- [spider-test] [main] c.c.s.o.r.i.PluginBeanDefinitionRegister : [PluginBeanDefinitionRegister][初始化]未配置插件目录，跳过插件加载
+2026-05-15T21:37:15.013+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.r.i.SpiBeanDefinitionRegister  : [SpiBeanDefinitionRegister][初始化]SPI未启用，跳过初始化
+2026-05-15T21:37:15.013+08:00  INFO 31528 --- [spider-test] [main] c.c.s.s.o.r.SpringBeanDefinitionRegister : [SpringBeanDefinitionRegister][初始化]Spring注册器初始化完成，Bean数量: 850
+2026-05-15T21:37:15.013+08:00  INFO 31528 --- [spider-test] [main] c.c.s.o.r.i.ScriptBeanDefinitionRegister : [ScriptBeanDefinitionRegister][初始化]脚本注册器初始化完成
+2026-05-15T21:37:15.014+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.p.AnnotationProcessorManager   : [AnnotationProcessorManager][初始化]开始初始化注解处理器管理器
+2026-05-15T21:37:15.027+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.p.AnnotationProcessorManager   : [AnnotationProcessorManager][初始化]注解处理器管理器初始化完成，共加载1个处理器
+2026-05-15T21:37:15.027+08:00  INFO 31528 --- [spider-test] [main] s.o.r.i.AnnotationBeanDefinitionRegister : [AnnotationBeanDefinitionRegister][初始化]未配置包扫描路径，跳过扫描
+2026-05-15T21:37:15.027+08:00  INFO 31528 --- [spider-test] [main] .c.s.o.r.i.DefaultBeanDefinitionRegister : [DefaultBeanDefinitionRegister][初始化]默认注册器初始化完成
+2026-05-15T21:37:15.040+08:00  WARN 31528 --- [spider-test] [main] c.c.c.s.o.r.BeanDefinitionRegistry       : [BeanDefinitionRegistry][初始化]未找到方法定义注册器SPI实现
+2026-05-15T21:37:15.050+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.p.BeanPostProcessorManager     : [BeanPostProcessorManager][初始化]开始初始化Bean后置处理器管理器
+2026-05-15T21:37:15.053+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.p.BeanPostProcessorManager     : [BeanPostProcessorManager][初始化]Bean后置处理器管理器初始化完成，共加载0个处理器
+2026-05-15T21:37:15.054+08:00  INFO 31528 --- [spider-test] [main] .c.c.s.o.i.DefaultConfigureObjectContext : [DefaultConfigureObjectContext][初始化]Bean后置处理器管理器初始化完成
+2026-05-15T21:37:15.070+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.t.d.GuavaDispatcherProvider      : Guava分发器提供者启动，处理器数量: 0
+2026-05-15T21:37:15.070+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.t.d.DispatcherFlowLocalRule      : 启动本地分发器规则
+2026-05-15T21:37:15.074+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.task.dispatcher.DispatcherFlow   : 分发器流启动，规则类型: local
+2026-05-15T21:37:15.074+08:00  INFO 31528 --- [spider-test] [main] .c.c.s.o.i.DefaultConfigureObjectContext : [DefaultConfigureObjectContext][初始化]DispatcherFlow初始化完成
+2026-05-15T21:37:15.074+08:00  INFO 31528 --- [spider-test] [main] .c.c.s.o.i.DefaultConfigureObjectContext : [DefaultConfigureObjectContext][初始化]上下文初始化完成
+2026-05-15T21:37:15.123+08:00  INFO 31528 --- [spider-test] [main] .c.s.c.s.a.ModuleEnvironmentRegistration : [环境配置]已注册模块配置, 组: plugin.log, 启用: true, 类型: com.chua.starter.common.support.log.LogProperties
+2026-05-15T21:37:15.136+08:00  INFO 31528 --- [spider-test] [main] c.c.s.r.s.server.RedisEmbeddedServer     : [Redis] 嵌入式服务 [[31m关闭[0m]
+2026-05-15T21:37:15.137+08:00  INFO 31528 --- [spider-test] [main] c.c.s.redis.support.RedisConfiguration   : >>>>> 开始创建Redisson客户端: => localhost:6379
+2026-05-15T21:37:15.416+08:00  INFO 31528 --- [spider-test] [main] org.redisson.Version                     : Redisson 3.32.0
+2026-05-15T21:37:15.646+08:00  INFO 31528 --- [spider-test] [redisson-netty-4-5] o.redisson.connection.ConnectionsHolder  : 1 connections initialized for localhost/127.0.0.1:6379
+2026-05-15T21:37:15.690+08:00  INFO 31528 --- [spider-test] [redisson-netty-4-20] o.redisson.connection.ConnectionsHolder  : 24 connections initialized for localhost/127.0.0.1:6379
+2026-05-15T21:37:15.723+08:00  INFO 31528 --- [spider-test] [main] c.c.s.r.s.LockTemplateConfiguration      : >>>>> 创建基于Redisson的分布式锁模板
+2026-05-15T21:37:15.724+08:00  INFO 31528 --- [spider-test] [main] c.c.s.redis.support.RedisConfiguration   : >>>>> 开始创建RedisClient客户端: => localhost:6379
+2026-05-15T21:37:17.104+08:00  INFO 31528 --- [spider-test] [main] c.c.r.s.client.RedisProtocolClient       : 正在连接Redis服务器: localhost:6379
+2026-05-15T21:37:17.230+08:00  INFO 31528 --- [spider-test] [main] c.c.r.s.client.RedisProtocolClient       : Redis协议客户端连接成功: localhost:6379
+2026-05-15T21:37:17.230+08:00  INFO 31528 --- [spider-test] [main] c.s.n.p.c.AbstractNoSenderProtocolClient : [Redis] 连接成功: redis://localhost:6379/0
+2026-05-15T21:37:17.360+08:00  INFO 31528 --- [spider-test] [main] c.c.s.d.c.DataSourceScriptConfiguration  : 检测到 DataSource [master] 初始化完成，开始执行数据库脚本...
+2026-05-15T21:37:17.360+08:00  INFO 31528 --- [spider-test] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-05-15T21:37:17.361+08:00  INFO 31528 --- [spider-test] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection org.sqlite.jdbc4.JDBC4Connection@69628b3f
+2026-05-15T21:37:17.361+08:00  INFO 31528 --- [spider-test] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-05-15T21:37:17.362+08:00  WARN 31528 --- [spider-test] [main] eScriptConfiguration$FlywayLikePopulator : 创建版本记录表时发生异常（表可能已存在）: StatementCallback; uncategorized SQLException for SQL [    CREATE TABLE IF NOT EXISTS sys_database_version (
+        sys_database_version_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+        sys_database_version_version VARCHAR(32) COMMENT '脚本版本号',
+        sys_database_version_script_name VARCHAR(200) NOT NULL COMMENT '脚本文件名',
+        sys_database_version_script_type VARCHAR(16) COMMENT '脚本类型：INIT-初始化，ADD-增量',
+        sys_database_version_description VARCHAR(100) COMMENT '脚本描述信息',
+        sys_database_version_checksum VARCHAR(64) COMMENT '脚本文件MD5校验和',
+        sys_database_version_executed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '脚本执行时间',
+        sys_database_version_success VARCHAR(8) COMMENT '执行状态：true-成功，false-失败',
+        UNIQUE KEY uk_script_name_version (sys_database_version_script_name, sys_database_version_version)
+    )
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (near "COMMENT": syntax error)
+2026-05-15T21:37:17.362+08:00  WARN 31528 --- [spider-test] [main] eScriptConfiguration$FlywayLikePopulator : 插入基线版本记录失败: StatementCallback; uncategorized SQLException for SQL [SELECT COUNT(*) FROM sys_database_version]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: sys_database_version)
+2026-05-15T21:37:17.364+08:00  INFO 31528 --- [spider-test] [main] eScriptConfiguration$FlywayLikePopulator : 找到 9 个迁移脚本
+2026-05-15T21:37:17.364+08:00  INFO 31528 --- [spider-test] [main] eScriptConfiguration$FlywayLikePopulator : 表结构脚本: 3 个, 补丁脚本: 6 个, 异步数据脚本: 0 个
+2026-05-15T21:37:17.364+08:00  WARN 31528 --- [spider-test] [main] c.c.s.d.c.DataSourceScriptConfiguration  : 执行数据库脚本失败: master
+
+org.springframework.jdbc.UncategorizedSQLException: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT sys_database_version_checksum AS checksum, sys_database_version_success AS success FROM sys_database_version WHERE sys_database_version_script_name = ? AND sys_database_version_version = ?]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: sys_database_version)
+	at org.springframework.jdbc.core.JdbcTemplate.translateException(JdbcTemplate.java:1557) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:677) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:723) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:754) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:767) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:820) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.queryForList(JdbcTemplate.java:954) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at com.chua.starter.datasource.configuration.DataSourceScriptConfiguration$FlywayLikePopulator.findScriptExecutionRecord(DataSourceScriptConfiguration.java:681) ~[spring-support-datasource-starter-4.0.0.41.jar:4.0.0.41]
+	at com.chua.starter.datasource.configuration.DataSourceScriptConfiguration$FlywayLikePopulator.populate(DataSourceScriptConfiguration.java:326) ~[spring-support-datasource-starter-4.0.0.41.jar:4.0.0.41]
+	at com.chua.starter.datasource.configuration.DataSourceScriptConfiguration.postProcessAfterInitialization(DataSourceScriptConfiguration.java:78) ~[spring-support-datasource-starter-4.0.0.41.jar:4.0.0.41]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsAfterInitialization(AbstractAutowireCapableBeanFactory.java:445) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1829) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:607) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.SimpleAutowireCandidateResolver.resolveAutowireCandidates(SimpleAutowireCandidateResolver.java:104) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.boot.actuate.autoconfigure.jdbc.DataSourceHealthContributorAutoConfiguration.dbHealthContributor(DataSourceHealthContributorAutoConfiguration.java:91) ~[spring-boot-actuator-autoconfigure-3.5.9.jar:3.5.9]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.lambda$instantiate$0(SimpleInstantiationStrategy.java:172) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiateWithFactoryMethod(SimpleInstantiationStrategy.java:89) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:169) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:653) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:645) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1375) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1205) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.addCandidateEntry(DefaultListableBeanFactory.java:2022) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.findAutowireCandidates(DefaultListableBeanFactory.java:1985) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveMultipleBeanMap(DefaultListableBeanFactory.java:1907) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveMultipleBeans(DefaultListableBeanFactory.java:1846) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1719) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1653) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:546) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1375) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1205) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1770) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1653) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:546) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1375) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1205) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1275) ~[spring-context-6.2.15.jar:6.2.15]
+	at org.springframework.boot.actuate.endpoint.annotation.EndpointDiscoverer.lambda$createEndpointBean$1(EndpointDiscoverer.java:174) ~[spring-boot-actuator-3.5.9.jar:3.5.9]
+	at org.springframework.boot.actuate.endpoint.annotation.EndpointDiscoverer$EndpointBean.getBean(EndpointDiscoverer.java:530) ~[spring-boot-actuator-3.5.9.jar:3.5.9]
+	at org.springframework.boot.actuate.endpoint.annotation.EndpointDiscoverer.lambda$getFilterEndpoint$8(EndpointDiscoverer.java:375) ~[spring-boot-actuator-3.5.9.jar:3.5.9]
+	at java.base/java.util.concurrent.ConcurrentHashMap.computeIfAbsent(ConcurrentHashMap.java:1724) ~[na:na]
+	at org.springframework.boot.actuate.endpoint.annotation.EndpointDiscoverer.getFilterEndpoint(EndpointDiscoverer.java:375) ~[spring-boot-actuator-3.5.9.jar:3.5.9]
+	at org.springframework.boot.actuate.endpoint.annotation.EndpointDiscoverer.isFilterMatch(EndpointDiscoverer.java:335) ~[spring-boot-actuator-3.5.9.jar:3.5.9]
+	at org.springframework.boot.actuate.endpoint.annotation.EndpointDiscoverer.isExtensionExposed(EndpointDiscoverer.java:289) ~[spring-boot-actuator-3.5.9.jar:3.5.9]
+	at org.springframework.boot.actuate.endpoint.annotation.EndpointDiscoverer.addExtensionBean(EndpointDiscoverer.java:199) ~[spring-boot-actuator-3.5.9.jar:3.5.9]
+	at org.springframework.boot.actuate.endpoint.annotation.EndpointDiscoverer.addExtensionBeans(EndpointDiscoverer.java:188) ~[spring-boot-actuator-3.5.9.jar:3.5.9]
+	at org.springframework.boot.actuate.endpoint.annotation.EndpointDiscoverer.discoverEndpoints(EndpointDiscoverer.java:153) ~[spring-boot-actuator-3.5.9.jar:3.5.9]
+	at org.springframework.boot.actuate.endpoint.annotation.EndpointDiscoverer.getEndpoints(EndpointDiscoverer.java:146) ~[spring-boot-actuator-3.5.9.jar:3.5.9]
+	at com.chua.starter.swagger.support.Knife4jConfiguration.webEndpointServletHandlerMapping(Knife4jConfiguration.java:108) ~[spring-support-swagger-starter-4.0.0.41.jar:4.0.0.41]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565) ~[na:na]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.lambda$instantiate$0(SimpleInstantiationStrategy.java:172) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiateWithFactoryMethod(SimpleInstantiationStrategy.java:89) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:169) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:653) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:645) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1375) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1205) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1228) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1194) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1130) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:990) ~[spring-context-6.2.15.jar:6.2.15]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627) ~[spring-context-6.2.15.jar:6.2.15]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.5.9.jar:3.5.9]
+	at com.chua.starter.spider.test.SpiderTestApplication.main(SpiderTestApplication.java:19) ~[classes/:na]
+Caused by: org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (no such table: sys_database_version)
+	at org.sqlite.core.DB.newSQLException(DB.java:1179) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.DB.newSQLException(DB.java:1190) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.DB.throwex(DB.java:1150) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.NativeDB.prepare_utf8(Native Method) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.NativeDB.prepare(NativeDB.java:135) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.DB.prepare(DB.java:264) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.CorePreparedStatement.<init>(CorePreparedStatement.java:46) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc3.JDBC3PreparedStatement.<init>(JDBC3PreparedStatement.java:32) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc4.JDBC4PreparedStatement.<init>(JDBC4PreparedStatement.java:25) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc4.JDBC4Connection.prepareStatement(JDBC4Connection.java:34) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc3.JDBC3Connection.prepareStatement(JDBC3Connection.java:225) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc3.JDBC3Connection.prepareStatement(JDBC3Connection.java:205) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at com.zaxxer.hikari.pool.ProxyConnection.prepareStatement(ProxyConnection.java:328) ~[HikariCP-6.3.3.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyConnection.prepareStatement(HikariProxyConnection.java) ~[HikariCP-6.3.3.jar:na]
+	at org.springframework.jdbc.core.JdbcTemplate$SimplePreparedStatementCreator.createPreparedStatement(JdbcTemplate.java:1719) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:656) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	... 105 common frames omitted
+
+2026-05-15T21:37:17.429+08:00  INFO 31528 --- [spider-test] [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 15 endpoints beneath base path '/actuator'
+2026-05-15T21:37:17.813+08:00  INFO 31528 --- [spider-test] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 19091 (http) with context path '/'
+2026-05-15T21:37:17.822+08:00  INFO 31528 --- [spider-test] [main] c.c.s.spider.test.SpiderTestApplication  : Started SpiderTestApplication in 9.668 seconds (process running for 10.09)
+2026-05-15T21:37:17.830+08:00 DEBUG 31528 --- [spider-test] [main] c.c.s.a.s.c.GlobalSettingInitializer     : [GlobalSettingInitializer] 未发现 GlobalSettingProvider SPI 实现
+2026-05-15T21:37:17.830+08:00  INFO 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : [SchemaCompat] 开始清除陈旧流程数据，确保 registry 为唯一权威来源...
+2026-05-15T21:37:17.830+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : [SchemaCompat] 清除 spider_flow_edge 失败: StatementCallback; uncategorized SQLException for SQL [DELETE FROM spider_flow_edge]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: spider_flow_edge)
+2026-05-15T21:37:17.830+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : [SchemaCompat] 清除 spider_flow_node 失败: StatementCallback; uncategorized SQLException for SQL [DELETE FROM spider_flow_node]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: spider_flow_node)
+2026-05-15T21:37:17.830+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : [SchemaCompat] 清除 spider_flow 失败: StatementCallback; uncategorized SQLException for SQL [DELETE FROM spider_flow]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: spider_flow)
+2026-05-15T21:37:17.831+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_definition, column=create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.831+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_definition, column=create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.831+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_definition, column=create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.831+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_definition, column=update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.831+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_definition, column=update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.831+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_definition, column=update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.831+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_definition, column=spider_create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.831+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_definition, column=spider_create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.832+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_definition, column=spider_create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.832+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_definition, column=spider_update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.832+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_definition, column=spider_update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.832+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_definition, column=spider_update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.832+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow, column=create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.832+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow, column=create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.832+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow, column=create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.832+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow, column=update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.832+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow, column=update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.832+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow, column=update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.833+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow, column=spider_create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.833+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow, column=spider_create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.833+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow, column=spider_create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.833+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow, column=spider_update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.833+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow, column=spider_update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.834+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow, column=spider_update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.834+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow_node, column=create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.834+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow_node, column=create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.834+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow_node, column=create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.834+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow_node, column=update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.834+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow_node, column=update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.834+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow_node, column=update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.834+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow_node, column=spider_create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.834+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow_node, column=spider_create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.835+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow_node, column=spider_create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.835+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow_node, column=spider_update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.835+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow_node, column=spider_update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.835+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow_node, column=spider_update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.835+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow_edge, column=create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.835+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow_edge, column=create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.835+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow_edge, column=create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.835+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow_edge, column=update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.836+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow_edge, column=update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.836+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow_edge, column=update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.836+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow_edge, column=spider_create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.836+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow_edge, column=spider_create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.836+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow_edge, column=spider_create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.837+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow_edge, column=spider_update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.837+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow_edge, column=spider_update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.837+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_flow_edge, column=spider_update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.837+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_url_queue, column=create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.837+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_url_queue, column=create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.838+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_url_queue, column=create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.838+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_url_queue, column=update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.838+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_url_queue, column=update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.838+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_url_queue, column=update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.838+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_url_queue, column=spider_create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.838+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_url_queue, column=spider_create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.839+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_url_queue, column=spider_create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.839+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_url_queue, column=spider_update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.839+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_url_queue, column=spider_update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.839+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_url_queue, column=spider_update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.839+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_parse_result, column=create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.840+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_parse_result, column=create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.840+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_parse_result, column=create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.840+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_parse_result, column=update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.840+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_parse_result, column=update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.840+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_parse_result, column=update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.841+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_parse_result, column=spider_create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.841+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_parse_result, column=spider_create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.841+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_parse_result, column=spider_create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.841+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_parse_result, column=spider_update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.841+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_parse_result, column=spider_update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.841+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_parse_result, column=spider_update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.841+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_execution, column=create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.842+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_execution, column=create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.842+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_execution, column=create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.842+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_execution, column=update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.842+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_execution, column=update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.842+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_execution, column=update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.842+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_execution, column=spider_create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.842+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_execution, column=spider_create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.843+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_execution, column=spider_create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.843+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_execution, column=spider_update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.843+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_execution, column=spider_update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.843+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_execution, column=spider_update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.843+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_execution_step, column=create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.843+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_execution_step, column=create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.843+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_execution_step, column=create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.843+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_execution_step, column=update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.844+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_execution_step, column=update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.844+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_execution_step, column=update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.844+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_execution_step, column=spider_create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.844+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_execution_step, column=spider_create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.844+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_execution_step, column=spider_create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.845+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_execution_step, column=spider_update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.845+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_execution_step, column=spider_update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.845+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_execution_step, column=spider_update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.845+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_manual_task, column=create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.845+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_manual_task, column=create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.846+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_manual_task, column=create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.846+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_manual_task, column=update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.846+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_manual_task, column=update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.846+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_manual_task, column=update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.846+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_manual_task, column=spider_create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.846+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_manual_task, column=spider_create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.846+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_manual_task, column=spider_create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.846+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_manual_task, column=spider_update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.846+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_manual_task, column=spider_update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.846+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_manual_task, column=spider_update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.846+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_ai_template, column=create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.847+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_ai_template, column=create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.847+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_ai_template, column=create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.847+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_ai_template, column=update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.847+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_ai_template, column=update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.847+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_ai_template, column=update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.847+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_ai_template, column=spider_create_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.847+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_ai_template, column=spider_create_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.847+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_ai_template, column=spider_create_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.848+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_ai_template, column=spider_update_name）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.848+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_ai_template, column=spider_update_by）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.848+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询源列信息失败（table=spider_ai_template, column=spider_update_time）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.848+08:00  WARN 31528 --- [spider-test] [main] c.c.s.s.t.SpiderSchemaCompatInitializer  : 查询列信息失败（table=spider_flow, column=spider_flow_orchestration_type）: PreparedStatementCallback; uncategorized SQLException for SQL [SELECT COUNT(1)
+  FROM information_schema.COLUMNS
+ WHERE TABLE_SCHEMA = (SELECT DATABASE())
+   AND TABLE_NAME = ?
+   AND COLUMN_NAME = ?
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (no such table: information_schema.COLUMNS)
+2026-05-15T21:37:17.850+08:00  INFO 31528 --- [spider-test] [main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-05-15T21:37:17.866+08:00 ERROR 31528 --- [spider-test] [main] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.jdbc.UncategorizedSQLException: StatementCallback; uncategorized SQLException for SQL [CREATE TABLE IF NOT EXISTS spider_execution_edge (
+  spider_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  spider_edge_id VARCHAR(64) NOT NULL COMMENT '边ID',
+  spider_execution_no VARCHAR(64) NOT NULL COMMENT '执行编号',
+  spider_source_node_code VARCHAR(128) DEFAULT NULL,
+  spider_target_node_code VARCHAR(128) DEFAULT NULL,
+  spider_edge_label VARCHAR(128) DEFAULT NULL,
+  spider_source_output VARCHAR(64) DEFAULT NULL,
+  spider_target_input VARCHAR(64) DEFAULT NULL,
+  spider_runtime_status VARCHAR(32) DEFAULT NULL,
+  spider_visited TINYINT(1) DEFAULT 0,
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+]; SQL state [null]; error code [1]; [SQLITE_ERROR] SQL error or missing database (near "COMMENT": syntax error)
+	at org.springframework.jdbc.core.JdbcTemplate.translateException(JdbcTemplate.java:1557) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:408) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:444) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at com.chua.starter.spider.test.SpiderSchemaCompatInitializer.ensureDropAndRecreate(SpiderSchemaCompatInitializer.java:160) ~[classes/:na]
+	at com.chua.starter.spider.test.SpiderSchemaCompatInitializer.run(SpiderSchemaCompatInitializer.java:83) ~[classes/:na]
+	at org.springframework.boot.SpringApplication.lambda$callRunner$4(SpringApplication.java:784) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.util.function.ThrowingConsumer$1.acceptWithException(ThrowingConsumer.java:82) ~[spring-core-6.2.15.jar:6.2.15]
+	at org.springframework.util.function.ThrowingConsumer.accept(ThrowingConsumer.java:60) ~[spring-core-6.2.15.jar:6.2.15]
+	at org.springframework.util.function.ThrowingConsumer$1.accept(ThrowingConsumer.java:86) ~[spring-core-6.2.15.jar:6.2.15]
+	at org.springframework.boot.SpringApplication.callRunner(SpringApplication.java:796) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.callRunner(SpringApplication.java:784) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.lambda$callRunners$3(SpringApplication.java:772) ~[spring-boot-3.5.9.jar:3.5.9]
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:186) ~[na:na]
+	at java.base/java.util.stream.SortedOps$SizedRefSortingSink.end(SortedOps.java:357) ~[na:na]
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:571) ~[na:na]
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:560) ~[na:na]
+	at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:153) ~[na:na]
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:176) ~[na:na]
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:265) ~[na:na]
+	at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:632) ~[na:na]
+	at org.springframework.boot.SpringApplication.callRunners(SpringApplication.java:772) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:325) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.5.9.jar:3.5.9]
+	at com.chua.starter.spider.test.SpiderTestApplication.main(SpiderTestApplication.java:19) ~[classes/:na]
+Caused by: org.sqlite.SQLiteException: [SQLITE_ERROR] SQL error or missing database (near "COMMENT": syntax error)
+	at org.sqlite.core.DB.newSQLException(DB.java:1179) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.DB.newSQLException(DB.java:1190) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.DB.throwex(DB.java:1150) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.NativeDB.prepare_utf8(Native Method) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.NativeDB.prepare(NativeDB.java:135) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.core.DB.prepare(DB.java:264) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc3.JDBC3Statement.lambda$execute$0(JDBC3Statement.java:55) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc3.JDBC3Statement.withConnectionTimeout(JDBC3Statement.java:458) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at org.sqlite.jdbc3.JDBC3Statement.execute(JDBC3Statement.java:44) ~[sqlite-jdbc-3.49.1.0.jar:na]
+	at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:95) ~[HikariCP-6.3.3.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java) ~[HikariCP-6.3.3.jar:na]
+	at org.springframework.jdbc.core.JdbcTemplate$1ExecuteStatementCallback.doInStatement(JdbcTemplate.java:435) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:393) ~[spring-jdbc-6.2.15.jar:6.2.15]
+	... 23 common frames omitted
+
+2026-05-15T21:37:17.869+08:00  INFO 31528 --- [spider-test] [main] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-15T21:37:17.880+08:00  INFO 31528 --- [spider-test] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-05-15T21:37:17.901+08:00  INFO 31528 --- [spider-test] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2026-05-15T21:37:17.901+08:00  INFO 31528 --- [spider-test] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+2026-05-15T21:37:17.902+08:00  INFO 31528 --- [spider-test] [main] c.c.r.s.client.RedisProtocolClient       : 正在关闭Redis协议客户端: localhost:6379
+2026-05-15T21:37:17.903+08:00  INFO 31528 --- [spider-test] [main] c.c.r.s.client.RedisProtocolClient       : Redis协议客户端关闭: localhost:6379
+2026-05-15T21:37:17.903+08:00  INFO 31528 --- [spider-test] [main] c.s.n.p.c.AbstractNoSenderProtocolClient : [Redis] 断开成功: redis://localhost:6379/0
+2026-05-15T21:37:19.926+08:00  INFO 31528 --- [spider-test] [main] .c.c.s.o.i.DefaultConfigureObjectContext : [DefaultConfigureObjectContext][关闭]开始关闭上下文
+2026-05-15T21:37:19.930+08:00  INFO 31528 --- [spider-test] [main] .c.s.o.r.i.MappingBeanDefinitionRegister : [MappingBeanDefinitionRegister][关闭]映射注册器关闭
+2026-05-15T21:37:19.931+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.r.BeanDefinitionRegistry       : [BeanDefinitionRegistry][关闭]注册器mapping关闭完成
+2026-05-15T21:37:19.931+08:00  INFO 31528 --- [spider-test] [main] c.c.s.o.r.i.PluginBeanDefinitionRegister : [PluginBeanDefinitionRegister][关闭]插件注册器关闭
+2026-05-15T21:37:19.931+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.r.BeanDefinitionRegistry       : [BeanDefinitionRegistry][关闭]注册器plugin关闭完成
+2026-05-15T21:37:19.931+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.r.i.SpiBeanDefinitionRegister  : [SpiBeanDefinitionRegister][关闭]SPI注册器关闭
+2026-05-15T21:37:19.931+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.r.BeanDefinitionRegistry       : [BeanDefinitionRegistry][关闭]注册器spi关闭完成
+2026-05-15T21:37:19.931+08:00  INFO 31528 --- [spider-test] [main] c.c.s.s.o.r.SpringBeanDefinitionRegister : [SpringBeanDefinitionRegister][关闭]Spring注册器关闭
+2026-05-15T21:37:19.931+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.r.BeanDefinitionRegistry       : [BeanDefinitionRegistry][关闭]注册器spring关闭完成
+2026-05-15T21:37:19.931+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.script.ScriptBeanManager       : [ScriptBeanManager][关闭]脚本Bean管理器关闭
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] c.c.s.o.r.i.ScriptBeanDefinitionRegister : [ScriptBeanDefinitionRegister][关闭]脚本注册器关闭
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.r.BeanDefinitionRegistry       : [BeanDefinitionRegistry][关闭]注册器script关闭完成
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.p.AnnotationProcessorManager   : [AnnotationProcessorManager][销毁]开始销毁注解处理器管理器
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.p.AnnotationProcessorManager   : [AnnotationProcessorManager][销毁]注解处理器管理器销毁完成
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] s.o.r.i.AnnotationBeanDefinitionRegister : [AnnotationBeanDefinitionRegister][关闭]注解注册器关闭
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.r.BeanDefinitionRegistry       : [BeanDefinitionRegistry][关闭]注册器annotation关闭完成
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] .c.s.o.r.i.DefaultBeanDefinitionRegister : [DefaultBeanDefinitionRegister][关闭]默认注册器关闭
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.r.BeanDefinitionRegistry       : [BeanDefinitionRegistry][关闭]注册器default关闭完成
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.p.BeanPostProcessorManager     : [BeanPostProcessorManager][销毁]开始销毁Bean后置处理器管理器
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.o.p.BeanPostProcessorManager     : [BeanPostProcessorManager][销毁]Bean后置处理器管理器销毁完成
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.t.d.DispatcherFlowLocalRule      : 关闭本地分发器规则
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] c.c.c.s.task.dispatcher.DispatcherFlow   : 分发器流关闭，规则类型: local
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] .c.c.s.o.i.DefaultConfigureObjectContext : [DefaultConfigureObjectContext][关闭]上下文关闭完成
+2026-05-15T21:37:19.932+08:00  INFO 31528 --- [spider-test] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-05-15T21:37:19.933+08:00  INFO 31528 --- [spider-test] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2026-05-15T21:37:19.947+08:00  INFO 31528 --- [spider-test] [main] c.c.c.support.ai.rag.RagDocumentManager  : [RagDocumentManager] 已关闭
+2026-05-15T21:37:19.967+08:00  INFO 31528 --- [spider-test] [main] c.chua.common.support.ai.rag.RagEngine   : [RagEngine] 已关闭

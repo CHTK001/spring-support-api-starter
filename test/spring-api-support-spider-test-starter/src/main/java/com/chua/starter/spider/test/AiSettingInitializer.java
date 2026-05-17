@@ -29,12 +29,12 @@ public class AiSettingInitializer implements ApplicationRunner {
         {"enabled",           "true",                                   "BOOLEAN", "是否启用 AI ChatClient",                                    5},
         {"factory",           "default",                                "STRING",  "ChatClient SPI 工厂名称",                                     8},
         {"provider",          "openai",                                 "STRING",  "默认 LLM 提供商",                                             9},
-        {"default_model",     "Qwen3-235B-A22B",                 "STRING",  "默认聊天模型编码",                                            10},
+        {"default_model",     "DeepSeek-V3.2",                          "STRING",  "默认聊天模型编码",                                            10},
         {"provider_base_url", "https://api.edgefn.net/v1/chat/completions", "STRING", "LLM 提供商基础地址(白山智算)",                              70},
         {"provider_api_key",  "sk-mXYsbXlXa3f3vc95A56d7d79Ea15485e96Ad6aF80f9901F4", "STRING", "LLM 提供商 API Key(白山智算)",                        75},
         {"system_prompt",     "",                                       "STRING",  "默认系统提示词",                                              15},
-        {"temperature",       "0.0",                                    "NUMBER",  "默认采样温度",                                                20},
-        {"max_tokens",        "8192",                                   "NUMBER",  "默认最大输出 token",                                          30},
+        {"temperature",       "0.1",                                    "NUMBER",  "默认采样温度",                                                20},
+        {"max_tokens",        "16384",                                  "NUMBER",  "默认最大输出 token",                                          30},
         {"timeout_millis",    "60000",                                  "NUMBER",  "默认超时时间(毫秒)",                                          35},
     };
 

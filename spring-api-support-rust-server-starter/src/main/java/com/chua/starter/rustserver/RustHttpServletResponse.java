@@ -13,6 +13,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.zip.GZIPOutputStream;
 
 import static java.lang.foreign.ValueLayout.*;
 
@@ -25,7 +26,14 @@ public class RustHttpServletResponse implements HttpServletResponse {
     private int status = 200;
     private String statusMessage;
     private final Map<String, List<String>> headers = new LinkedHashMap<>();
-    private final ByteArrayOutputStream bodyBuffer = new ByteArrayOutputStream(4096);
+    private final ByteArrayOutputStream bodyBuffer;
+
+    /** 线程本地响应体缓冲区池，避免每请求分配 */
+    private static final ThreadLocal<ByteArrayOutputStream> BODY_BUF_POOL = ThreadLocal.withInitial(
+            () -> new ByteArrayOutputStream(4096));
+    /** 线程本地请求头序列化缓冲区池 */
+    private static final ThreadLocal<ByteArrayOutputStream> HEADER_BUF_POOL = ThreadLocal.withInitial(
+            () -> new ByteArrayOutputStream(256));
     private final ServletOutputStream outputStream;
     private PrintWriter writer;
     private String characterEncoding = StandardCharsets.UTF_8.name();
@@ -33,8 +41,13 @@ public class RustHttpServletResponse implements HttpServletResponse {
     private int bufferSize = 8192;
     private boolean committed = false;
     private Locale locale = Locale.getDefault();
+    private final SessionManager sessionManager;
+    private RustHttpServletRequest request;
 
-    public RustHttpServletResponse() {
+    public RustHttpServletResponse(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+        this.bodyBuffer = BODY_BUF_POOL.get();
+        this.bodyBuffer.reset();
         this.outputStream = new ServletOutputStream() {
             @Override
             public boolean isReady() { return true; }
@@ -54,6 +67,32 @@ public class RustHttpServletResponse implements HttpServletResponse {
         };
     }
 
+    /**
+     * 设置关联的请求（用于 session cookie 写入）。
+     */
+    public void setRequest(RustHttpServletRequest request) {
+        this.request = request;
+    }
+
+    /**
+     * 如果 session 是新建的，写入 Set-Cookie 响应头。
+     */
+    public void flushSessionCookieIfNeeded() {
+        if (request == null || sessionManager == null) return;
+        SimpleHttpSession session = request.getCreatedSession();
+        if (session != null && session.isNew()) {
+            String cookieName = sessionManager.getCookieConfig().getName();
+            StringBuilder sb = new StringBuilder();
+            sb.append(cookieName).append('=').append(session.getId());
+            sb.append("; Path=/");
+            if (sessionManager.getCookieConfig().isHttpOnly()) sb.append("; HttpOnly");
+            if (sessionManager.getCookieConfig().isSecure()) sb.append("; Secure");
+            int maxAge = sessionManager.getCookieConfig().getMaxAge();
+            if (maxAge >= 0) sb.append("; Max-Age=").append(maxAge);
+            addHeader("Set-Cookie", sb.toString());
+        }
+    }
+
     // ═══════════════════════════════════════════
     //  序列化到 Rust 缓冲区
     // ═══════════════════════════════════════════
@@ -71,24 +110,21 @@ public class RustHttpServletResponse implements HttpServletResponse {
     public void writeTo(MemorySegment buf, int capacity) {
         flushBuffer();
 
-        // 序列化响应头
         byte[] headerBytes = serializeHeaders();
-
-        // 获取响应体
         byte[] bodyBytes = bodyBuffer.toByteArray();
 
         int totalLen = 10 + headerBytes.length + bodyBytes.length;
         if (totalLen > capacity) {
-            // 截断
             int maxBody = capacity - 10 - headerBytes.length;
-            if (maxBody < 0) {
-                maxBody = 0;
-            }
+            if (maxBody < 0) maxBody = 0;
             bodyBytes = Arrays.copyOf(bodyBytes, maxBody);
+            if (containsHeader("Content-Length")) {
+                setIntHeader("Content-Length", bodyBytes.length);
+                headerBytes = serializeHeaders();
+            }
         }
 
-        // 写入缓冲区
-        buf.set(JAVA_SHORT_UNALIGNED, 0, (short) ((status >> 8) & 0xFF | (status & 0xFF) << 8)); // BE u16
+        buf.set(JAVA_SHORT_UNALIGNED, 0, (short) ((status >> 8) & 0xFF | (status & 0xFF) << 8));
         buf.set(JAVA_INT_UNALIGNED, 2, headerBytes.length);
         buf.set(JAVA_INT_UNALIGNED, 6, bodyBytes.length);
 
@@ -101,7 +137,8 @@ public class RustHttpServletResponse implements HttpServletResponse {
     }
 
     private byte[] serializeHeaders() {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ByteArrayOutputStream out = HEADER_BUF_POOL.get();
+        out.reset();
         headers.forEach((name, values) -> {
             if (name == null) return;
             for (String value : values) {
@@ -152,6 +189,7 @@ public class RustHttpServletResponse implements HttpServletResponse {
         this.status = sc;
         this.statusMessage = getStatusMessage(sc);
         committed = true;
+        renderErrorPage(sc, statusMessage);
     }
 
     @Override
@@ -159,10 +197,19 @@ public class RustHttpServletResponse implements HttpServletResponse {
         this.status = sc;
         this.statusMessage = msg != null ? msg : getStatusMessage(sc);
         committed = true;
+        renderErrorPage(sc, this.statusMessage);
+    }
+
+    private void renderErrorPage(int sc, String msg) {
+        if (getHeader("Content-Type") == null) {
+            setContentType("text/html; charset=UTF-8");
+        }
+        String html = DefaultErrorPages.renderHtml(sc, msg);
+        bodyBuffer.reset();
         try {
-            setContentType("text/plain; charset=UTF-8");
-            getWriter().write(this.statusMessage);
-        } catch (Exception ignored) {}
+            bodyBuffer.write(html.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException ignored) {
+        }
     }
 
     @Override
@@ -336,10 +383,23 @@ public class RustHttpServletResponse implements HttpServletResponse {
     // ═══════════════════════════════════════════
 
     @Override
-    public String encodeURL(String url) { return url; }
+    public String encodeURL(String url) {
+        if (request == null || sessionManager == null) return url;
+        if (request.isRequestedSessionIdFromCookie()) return url;
+        String sid = request.getRequestedSessionId();
+        if (sid == null) {
+            SimpleHttpSession s = request.getCreatedSession();
+            if (s != null) sid = s.getId();
+        }
+        if (sid == null) return url;
+        String separator = url.contains("?") ? ";" : ";";
+        return url + separator + "jsessionid=" + sid;
+    }
 
     @Override
-    public String encodeRedirectURL(String url) { return url; }
+    public String encodeRedirectURL(String url) {
+        return encodeURL(url);
+    }
 
     // ═══════════════════════════════════════════
     //  Locale
@@ -351,6 +411,53 @@ public class RustHttpServletResponse implements HttpServletResponse {
     @Override
     public Locale getLocale() { return locale; }
 
+    /**
+     * 清空响应体（用于 HEAD 请求处理）。
+     */
+    public void clearBody() {
+        bodyBuffer.reset();
+    }
+
+    /**
+     * 获取响应体字节数组（用于压缩等操作）。
+     */
+    public byte[] getBodyBytes() {
+        return bodyBuffer.toByteArray();
+    }
+
+    /**
+     * 获取响应体大小（字节），不触发拷贝。
+     */
+    public int getBodySize() {
+        return bodyBuffer.size();
+    }
+
+    /**
+     * 用 GZIP 压缩当前响应体，更新 Content-Encoding 和 Content-Length。
+     */
+    public boolean compressBody() {
+        if (bodyBuffer.size() == 0) return false;
+        if (containsHeader("Content-Encoding")) return false;
+
+        byte[] original = bodyBuffer.toByteArray();
+        try {
+            ByteArrayOutputStream compressedOut = new ByteArrayOutputStream(original.length / 2);
+            try (GZIPOutputStream gzipOut = new GZIPOutputStream(compressedOut)) {
+                gzipOut.write(original);
+            }
+            byte[] compressed = compressedOut.toByteArray();
+            if (compressed.length < original.length) {
+                bodyBuffer.reset();
+                bodyBuffer.write(compressed, 0, compressed.length);
+                setHeader("Content-Encoding", "gzip");
+                setIntHeader("Content-Length", compressed.length);
+                return true;
+            }
+        } catch (IOException ignored) {
+        }
+        return false;
+    }
+
     // ═══════════════════════════════════════════
     //  杂项
     // ═══════════════════════════════════════════
@@ -361,7 +468,6 @@ public class RustHttpServletResponse implements HttpServletResponse {
     }
 
     private static String getStatusMessage(int sc) {
-        // 常用状态码消息
         switch (sc) {
             case 200: return "OK";
             case 201: return "Created";
