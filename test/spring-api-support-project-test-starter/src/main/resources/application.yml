@@ -1,0 +1,14 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: project-test
+  profiles:
+    active: dev
+
+server:
+  port: 58080
+
+plugin:
+  oauth:
+    enable: false

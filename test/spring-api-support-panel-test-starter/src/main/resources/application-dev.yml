@@ -9,7 +9,7 @@ spring:
     init:
       mode: never
 server:
-  port: 58080
+  port: 18866
 panel:
   enabled: true
   jdbc-enabled: true
@@ -32,7 +32,7 @@ plugin:
     enable: true
     room:
       - client-id: panel
-        port: 58082
+        port: 58083
         context-path: /socket.io
 
 docker:

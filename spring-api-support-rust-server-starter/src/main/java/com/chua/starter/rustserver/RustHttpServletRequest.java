@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
@@ -18,6 +19,7 @@ public class RustHttpServletRequest implements HttpServletRequest {
 
     private final HttpRequestData data;
     private final ServletContext servletContext;
+    private final SessionManager sessionManager;
     private final ServletConnection servletConnection;
     private final Map<String, Object> attributes = new HashMap<>();
     private final Map<String, String[]> parameters;
@@ -28,9 +30,16 @@ public class RustHttpServletRequest implements HttpServletRequest {
     private final int serverPort;
     private String characterEncoding = StandardCharsets.UTF_8.name();
 
-    public RustHttpServletRequest(HttpRequestData data, ServletContext servletContext) {
+    // Session 跟踪
+    private SimpleHttpSession session;
+    private String requestedSessionId;
+    private boolean requestedSessionIdParsed;
+    private boolean requestedSessionIdFromCookie;
+
+    public RustHttpServletRequest(HttpRequestData data, ServletContext servletContext, SessionManager sessionManager) {
         this.data = data;
         this.servletContext = servletContext;
+        this.sessionManager = sessionManager;
 
         // 查询参数
         this.parameters = parseQueryString(data.getQueryString());
@@ -82,7 +91,7 @@ public class RustHttpServletRequest implements HttpServletRequest {
             this.serverName = "localhost";
             this.serverPort = 8080;
         }
-        this.scheme = (serverPort == 443) ? "https" : "http";
+        this.scheme = data.isSecure() ? "https" : "http";
 
         // 连接信息
         this.servletConnection = new ServletConnection() {
@@ -112,22 +121,26 @@ public class RustHttpServletRequest implements HttpServletRequest {
     }
 
     @Override public String getQueryString() { return data.getQueryString(); }
-    @Override public String getServletPath() { return ""; }
+    @Override public String getServletPath() { return data.getPath(); }
     @Override public String getContextPath() { return ""; }
     @Override public String getPathInfo() { return null; }
     @Override public String getPathTranslated() { return null; }
-    @Override public String getRequestedSessionId() { return null; }
+    @Override public String getRequestedSessionId() {
+        parseRequestedSessionId();
+        return requestedSessionId;
+    }
 
     // ═══════════════════════════════════════════
     //  请求头
     // ═══════════════════════════════════════════
 
-    @Override public String getHeader(String name) { return data.getHeader(name); }
+    @Override
+    public String getHeader(String name) { return data.getHeader(name); }
 
     @Override
     public Enumeration<String> getHeaders(String name) {
-        String val = data.getHeader(name);
-        return Collections.enumeration(val != null ? Collections.singletonList(val) : Collections.emptyList());
+        List<String> values = data.getHeaders().get(name);
+        return values != null ? Collections.enumeration(values) : Collections.emptyEnumeration();
     }
 
     @Override
@@ -145,11 +158,11 @@ public class RustHttpServletRequest implements HttpServletRequest {
     public long getDateHeader(String name) {
         String val = getHeader(name);
         if (val == null) return -1;
-        // 简化的日期解析——实际应使用完整 HTTP 日期格式
         try {
-            return new java.text.SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US).parse(val).getTime();
+            return new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US)
+                    .parse(val).getTime();
         } catch (Exception e) {
-            return -1;
+            throw new IllegalArgumentException("Cannot parse date header: " + name + " = " + val);
         }
     }
 
@@ -157,30 +170,37 @@ public class RustHttpServletRequest implements HttpServletRequest {
     //  参数
     // ═══════════════════════════════════════════
 
-    @Override public String getParameter(String name) {
+    @Override
+    public String getParameter(String name) {
         String[] vals = parameters.get(name);
         return (vals != null && vals.length > 0) ? vals[0] : null;
     }
 
-    @Override public Enumeration<String> getParameterNames() {
+    @Override
+    public Enumeration<String> getParameterNames() {
         return Collections.enumeration(parameters.keySet());
     }
 
-    @Override public String[] getParameterValues(String name) { return parameters.get(name); }
+    @Override
+    public String[] getParameterValues(String name) {
+        return parameters.get(name);
+    }
 
-    @Override public Map<String, String[]> getParameterMap() {
+    @Override
+    public Map<String, String[]> getParameterMap() {
         return Collections.unmodifiableMap(parameters);
     }
 
-    // ═══════════════════════════════════════════
-    //  属性
-    // ═══════════════════════════════════════════
-
-    @Override public Object getAttribute(String name) { return attributes.get(name); }
+    @Override
+    public String getContentType() { return data.getContentType(); }
+    @Override public int getContentLength() { return data.getContentLength(); }
+    @Override public long getContentLengthLong() { return data.getContentLength(); }
+    @Override public String getCharacterEncoding() { return characterEncoding; }
+    @Override public void setCharacterEncoding(String encoding) { this.characterEncoding = encoding; }
 
     @Override
-    public Enumeration<String> getAttributeNames() {
-        return Collections.enumeration(attributes.keySet());
+    public Object getAttribute(String name) {
+        return attributes.get(name);
     }
 
     @Override
@@ -189,40 +209,25 @@ public class RustHttpServletRequest implements HttpServletRequest {
         else attributes.remove(name);
     }
 
-    @Override public void removeAttribute(String name) { attributes.remove(name); }
-
-    // ═══════════════════════════════════════════
-    //  内容信息
-    // ═══════════════════════════════════════════
-
     @Override
-    public String getContentType() {
-        String ct = data.getContentType();
-        return ct != null ? ct : getHeader("Content-Type");
+    public Enumeration<String> getAttributeNames() {
+        return Collections.enumeration(attributes.keySet());
     }
 
     @Override
-    public int getContentLength() {
-        String cl = getHeader("Content-Length");
-        return cl != null ? Integer.parseInt(cl) : (data.getBody().length > 0 ? data.getBody().length : -1);
+    public void removeAttribute(String name) {
+        attributes.remove(name);
     }
-
-    @Override public long getContentLengthLong() { return getContentLength(); }
-    @Override public String getCharacterEncoding() { return characterEncoding; }
 
     @Override
-    public void setCharacterEncoding(String enc) throws UnsupportedEncodingException {
-        this.characterEncoding = enc;
-    }
+    public ServletInputStream getInputStream() { return inputStream; }
 
-    @Override public ServletInputStream getInputStream() { return inputStream; }
-    @Override public BufferedReader getReader() { return reader; }
+    @Override
+    public BufferedReader getReader() { return reader; }
 
-    // ═══════════════════════════════════════════
-    //  协议 / 地址
-    // ═══════════════════════════════════════════
+    @Override
+    public String getScheme() { return scheme; }
 
-    @Override public String getScheme() { return scheme; }
     @Override public String getServerName() { return serverName; }
     @Override public int getServerPort() { return serverPort; }
     @Override public String getProtocol() { return "HTTP/1.1"; }
@@ -241,12 +246,90 @@ public class RustHttpServletRequest implements HttpServletRequest {
     //  Session
     // ═══════════════════════════════════════════
 
-    @Override public HttpSession getSession(boolean create) { return null; }
-    @Override public HttpSession getSession() { return null; }
-    @Override public String changeSessionId() { return null; }
-    @Override public boolean isRequestedSessionIdValid() { return false; }
-    @Override public boolean isRequestedSessionIdFromCookie() { return false; }
-    @Override public boolean isRequestedSessionIdFromURL() { return false; }
+    private void parseRequestedSessionId() {
+        if (requestedSessionIdParsed) return;
+        requestedSessionIdParsed = true;
+
+        Cookie[] cookies = getCookies();
+        if (cookies != null && sessionManager != null) {
+            String cookieName = sessionManager.getCookieConfig().getName();
+            for (Cookie c : cookies) {
+                if (cookieName.equals(c.getName())) {
+                    requestedSessionId = c.getValue();
+                    requestedSessionIdFromCookie = true;
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    public HttpSession getSession(boolean create) {
+        if (sessionManager == null) return null;
+
+        if (session != null && session.isValid()) {
+            session.setLastAccessedTime(System.currentTimeMillis());
+            return session;
+        }
+        session = null;
+
+        parseRequestedSessionId();
+        if (requestedSessionId != null) {
+            SimpleHttpSession existing = sessionManager.getSession(requestedSessionId);
+            if (existing != null && existing.isValid()) {
+                session = existing;
+                session.setNew(false);
+                session.setLastAccessedTime(System.currentTimeMillis());
+                return session;
+            }
+        }
+
+        if (!create) return null;
+
+        session = sessionManager.createSession();
+        session.setNew(true);
+        return session;
+    }
+
+    @Override
+    public HttpSession getSession() {
+        return getSession(true);
+    }
+
+    @Override
+    public String changeSessionId() {
+        if (session == null) return null;
+        String oldId = session.getId();
+        sessionManager.removeSession(oldId);
+        SimpleHttpSession newSession = sessionManager.createSession();
+        Enumeration<String> names = session.getAttributeNames();
+        while (names.hasMoreElements()) {
+            String name = names.nextElement();
+            newSession.setAttribute(name, session.getAttribute(name));
+        }
+        session = newSession;
+        return session.getId();
+    }
+
+    @Override
+    public boolean isRequestedSessionIdValid() {
+        parseRequestedSessionId();
+        if (requestedSessionId == null) return false;
+        SimpleHttpSession s = sessionManager != null ? sessionManager.getSession(requestedSessionId) : null;
+        return s != null && s.isValid();
+    }
+
+    @Override
+    public boolean isRequestedSessionIdFromCookie() {
+        parseRequestedSessionId();
+        return requestedSessionIdFromCookie;
+    }
+
+    @Override
+    public boolean isRequestedSessionIdFromURL() {
+        parseRequestedSessionId();
+        return requestedSessionId != null && !requestedSessionIdFromCookie;
+    }
 
     // ═══════════════════════════════════════════
     //  Cookie
@@ -265,6 +348,13 @@ public class RustHttpServletRequest implements HttpServletRequest {
             }
         }
         return cookies.toArray(new Cookie[0]);
+    }
+
+    /**
+     * 获取创建的 session（用于 response 写入 cookie）。
+     */
+    public SimpleHttpSession getCreatedSession() {
+        return session;
     }
 
     // ═══════════════════════════════════════════
@@ -322,11 +412,208 @@ public class RustHttpServletRequest implements HttpServletRequest {
     }
 
     // ═══════════════════════════════════════════
-    //  Multipart (未实现)
+    //  Multipart
     // ═══════════════════════════════════════════
 
-    @Override public Part getPart(String name) { return null; }
-    @Override public Collection<Part> getParts() { return Collections.emptyList(); }
+    private Collection<Part> parts;
+
+    @Override
+    public Part getPart(String name) {
+        if (parts == null) parts = parseMultipart();
+        for (Part p : parts) {
+            if (name.equals(p.getName())) return p;
+        }
+        return null;
+    }
+
+    @Override
+    public Collection<Part> getParts() {
+        if (parts == null) parts = parseMultipart();
+        return parts;
+    }
+
+    private Collection<Part> parseMultipart() {
+        String contentType = getContentType();
+        if (contentType == null || !contentType.toLowerCase(Locale.ROOT).startsWith("multipart/")) {
+            return Collections.emptyList();
+        }
+
+        String boundary = extractBoundary(contentType);
+        if (boundary == null) return Collections.emptyList();
+
+        byte[] body = data.getBody();
+        if (body.length == 0) return Collections.emptyList();
+
+        List<Part> result = new ArrayList<>();
+        byte[] boundaryBytes = ("--" + boundary).getBytes(StandardCharsets.US_ASCII);
+
+        int pos = 0;
+        int start = indexOf(body, boundaryBytes, 0);
+        if (start < 0) return Collections.emptyList();
+        pos = start + boundaryBytes.length;
+
+        if (pos + 2 <= body.length && body[pos] == '\r' && body[pos + 1] == '\n') pos += 2;
+
+        while (pos < body.length) {
+            int next = indexOf(body, boundaryBytes, pos);
+            if (next < 0) break;
+
+            int partEnd = next;
+            if (partEnd - 2 >= pos && body[partEnd - 2] == '\r' && body[partEnd - 1] == '\n') partEnd -= 2;
+
+            if (partEnd > pos) {
+                byte[] partData = Arrays.copyOfRange(body, pos, partEnd);
+                SimplePart part = parsePart(partData);
+                if (part != null) result.add(part);
+            }
+
+            int afterBoundary = next + boundaryBytes.length;
+            if (afterBoundary + 1 < body.length && body[afterBoundary] == '-' && body[afterBoundary + 1] == '-') {
+                break;
+            }
+
+            pos = afterBoundary;
+            if (pos + 2 <= body.length && body[pos] == '\r' && body[pos + 1] == '\n') pos += 2;
+            else if (pos + 1 < body.length && (body[pos] == '\n' || body[pos] == '\r')) pos += 1;
+        }
+
+        return result;
+    }
+
+    private SimplePart parsePart(byte[] partData) {
+        int headerEnd = -1;
+        for (int i = 0; i < partData.length - 3; i++) {
+            if (partData[i] == '\r' && partData[i + 1] == '\n' &&
+                partData[i + 2] == '\r' && partData[i + 3] == '\n') {
+                headerEnd = i;
+                break;
+            }
+        }
+        if (headerEnd < 0) return null;
+
+        Map<String, List<String>> partHeaders = new LinkedHashMap<>();
+        String headerSection = new String(partData, 0, headerEnd, StandardCharsets.US_ASCII);
+        for (String line : headerSection.split("\r\n")) {
+            int ci = line.indexOf(':');
+            if (ci > 0) {
+                String hname = line.substring(0, ci).trim().toLowerCase(Locale.ROOT);
+                String hval = line.substring(ci + 1).trim();
+                partHeaders.computeIfAbsent(hname, k -> new ArrayList<>()).add(hval);
+            }
+        }
+
+        int bodyStart = headerEnd + 4;
+        byte[] partBody = Arrays.copyOfRange(partData, bodyStart, partData.length);
+
+        String name = "";
+        String fileName = null;
+        List<String> cd = partHeaders.get("content-disposition");
+        if (cd != null && !cd.isEmpty()) {
+            String disposition = cd.get(0);
+            name = extractDispositionParam(disposition, "name");
+            fileName = extractDispositionParam(disposition, "filename");
+        }
+
+        String contentType = null;
+        List<String> ct = partHeaders.get("content-type");
+        if (ct != null && !ct.isEmpty()) contentType = ct.get(0);
+
+        return new SimplePart(name, fileName, contentType, partBody, partHeaders);
+    }
+
+    private static String extractDispositionParam(String disposition, String paramName) {
+        String marker = paramName + "=";
+        int ci = disposition.toLowerCase(Locale.ROOT).indexOf(marker);
+        if (ci < 0) return "";
+        int start = ci + marker.length();
+        if (start >= disposition.length()) return "";
+        String value;
+        if (disposition.charAt(start) == '"') {
+            int end = disposition.indexOf('"', start + 1);
+            if (end < 0) return disposition.substring(start + 1);
+            value = disposition.substring(start + 1, end);
+        } else {
+            int end = disposition.indexOf(';', start);
+            value = end > start ? disposition.substring(start, end).trim() : disposition.substring(start).trim();
+        }
+        return value;
+    }
+
+    private static int indexOf(byte[] haystack, byte[] needle, int fromIndex) {
+        for (int i = fromIndex; i <= haystack.length - needle.length; i++) {
+            boolean found = true;
+            for (int j = 0; j < needle.length; j++) {
+                if (haystack[i + j] != needle[j]) { found = false; break; }
+            }
+            if (found) return i;
+        }
+        return -1;
+    }
+
+    private static String extractBoundary(String contentType) {
+        String lower = contentType.toLowerCase(Locale.ROOT);
+        int bi = lower.indexOf("boundary=");
+        if (bi < 0) return null;
+        int start = bi + 9;
+        if (start >= contentType.length()) return null;
+        StringBuilder boundary = new StringBuilder();
+        boolean quoted = contentType.charAt(start) == '"';
+        if (quoted) start++;
+        for (int i = start; i < contentType.length(); i++) {
+            char c = contentType.charAt(i);
+            if (quoted && c == '"') break;
+            if (!quoted && (c == ';' || c == ' ' || c == '\t')) break;
+            boundary.append(c);
+        }
+        return boundary.toString();
+    }
+
+    static class SimplePart implements Part {
+        private final String name;
+        private final String submittedFileName;
+        private final String contentType;
+        private final byte[] body;
+        private final Map<String, List<String>> headers;
+
+        SimplePart(String name, String submittedFileName, String contentType,
+                   byte[] body, Map<String, List<String>> headers) {
+            this.name = name != null ? name : "";
+            this.submittedFileName = submittedFileName;
+            this.contentType = contentType;
+            this.body = body;
+            this.headers = headers;
+        }
+
+        @Override public InputStream getInputStream() { return new ByteArrayInputStream(body); }
+        @Override public String getContentType() { return contentType; }
+        @Override public String getName() { return name; }
+        @Override public String getSubmittedFileName() { return submittedFileName; }
+        @Override public long getSize() { return body.length; }
+
+        @Override
+        public void write(String fileName) throws IOException {
+            java.nio.file.Files.write(java.nio.file.Paths.get(fileName), body);
+        }
+
+        @Override
+        public void delete() throws IOException {}
+
+        @Override
+        public String getHeader(String name) {
+            List<String> vals = headers.get(name.toLowerCase(Locale.ROOT));
+            return (vals != null && !vals.isEmpty()) ? vals.get(0) : null;
+        }
+
+        @Override
+        public Collection<String> getHeaders(String name) {
+            return headers.getOrDefault(name.toLowerCase(Locale.ROOT), Collections.emptyList());
+        }
+
+        @Override
+        public Collection<String> getHeaderNames() {
+            return headers.keySet();
+        }
+    }
 
     // ═══════════════════════════════════════════
     //  Upgrade / Trailer
@@ -344,9 +631,6 @@ public class RustHttpServletRequest implements HttpServletRequest {
     //  工具
     // ═══════════════════════════════════════════
 
-    /**
-     * 根据 Content-Encoding 创建解压流（支持 gzip/deflate）。
-     */
     private static InputStream createDecompressedStream(HttpRequestData data) {
         byte[] body = data.getBody();
         if (body.length == 0) return new ByteArrayInputStream(body);
@@ -373,7 +657,6 @@ public class RustHttpServletRequest implements HttpServletRequest {
                 return new ByteArrayInputStream(out.toByteArray());
             }
         } catch (Exception e) {
-            // 解压失败时返回原始数据
         }
         return new ByteArrayInputStream(body);
     }

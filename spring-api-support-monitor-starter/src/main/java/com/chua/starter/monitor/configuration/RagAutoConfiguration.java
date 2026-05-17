@@ -4,6 +4,7 @@ import com.chua.common.support.ai.ChatClient;
 import com.chua.common.support.ai.DetectionConfiguration;
 import com.chua.common.support.ai.bigmodel.BigModelClient;
 import com.chua.common.support.ai.bigmodel.BigModelSetting;
+import com.chua.common.support.ai.RagService;
 import com.chua.common.support.ai.rag.RagDocumentManager;
 import com.chua.common.support.ai.rag.RagEngine;
 import com.chua.common.support.core.spi.ServiceProvider;
@@ -12,7 +13,9 @@ import com.chua.common.support.text.splitter.TextSplitter;
 import com.chua.starter.ai.support.service.SysAiGlobalSettingService;
 import com.chua.starter.monitor.controller.rag.RagController;
 import com.chua.starter.monitor.properties.RagProperties;
+import com.chua.starter.monitor.service.GraphRagEnhancer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -34,7 +37,7 @@ public class RagAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public RagEngine ragEngine(RagProperties properties, SysAiGlobalSettingService globalSettingService) {
+    public RagService ragService(RagProperties properties) {
         DetectionConfiguration.DetectionConfigurationBuilder builder = DetectionConfiguration.builder()
                 .engine(properties.getEmbeddingEngine());
 
@@ -44,7 +47,14 @@ public class RagAutoConfiguration {
             config.option().put("vectorStorage", properties.getVectorStorage());
         }
 
-        RagEngine engine = new RagEngine(config);
+        return RagService.auto(config);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public RagEngine ragEngine(RagService ragService, SysAiGlobalSettingService globalSettingService,
+                               RagProperties properties, ObjectProvider<GraphRagEnhancer> enhancerProvider) {
+        RagEngine engine = new RagEngine(ragService);
 
         // 注入全局 ChatClient（从 sys_ai_global_setting runtime 组读取 LLM 配置）
         try {
@@ -57,7 +67,19 @@ public class RagAutoConfiguration {
             log.warn("[RagAutoConfiguration] 无法创建全局 ChatClient，RAG 问答将降级为仅返回检索内容: {}", e.getMessage());
         }
 
-        log.info("[RagAutoConfiguration] 初始化 RagEngine: engine={}", properties.getEmbeddingEngine());
+        // GraphRAG 增强：注入知识图谱上下文提供者
+        if (properties.isUseGraph()) {
+            GraphRagEnhancer enhancer = enhancerProvider.getIfAvailable();
+            if (enhancer != null) {
+                ragService.setGraphContextProvider(enhancer);
+                log.info("[RagAutoConfiguration] GraphRAG 增强已启用");
+            } else {
+                log.warn("[RagAutoConfiguration] GraphRAG 增强已启用但找不到 GraphRagEnhancer Bean");
+            }
+        }
+
+        log.info("[RagAutoConfiguration] 初始化 RagEngine: engine={}, useGraph={}",
+                properties.getEmbeddingEngine(), properties.isUseGraph());
         return engine;
     }
 

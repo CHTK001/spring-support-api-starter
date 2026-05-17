@@ -23,18 +23,6 @@ public class RagProperties {
     /** 向量存储（jvector / milvus / mysql / memory） */
     private String vectorStorage = "jvector";
 
-    /** LLM 提供商（openai / siliconflow / ollama 等） */
-    private String llmProvider = "";
-
-    /** LLM 模型名称 */
-    private String llmModel = "";
-
-    /** LLM API Key */
-    private String llmApiKey = "";
-
-    /** LLM API Base URL */
-    private String llmBaseUrl = "";
-
     /** 分块大小 */
     private int chunkSize = 1000;
 
@@ -49,4 +37,15 @@ public class RagProperties {
 
     /** 上传目录 */
     private String uploadDir = "./data/rag/uploads";
+
+    // ── GraphRAG 配置 ─────────────────────────────────────
+
+    /** 是否启用 GraphRAG 增强（上传文档后自动抽取实体/关系，问答时注入图谱上下文） */
+    private boolean useGraph = false;
+
+    /** 实体扩展最大跳数，默认 2（一跳为直接邻居） */
+    private int graphMaxHops = 2;
+
+    /** 图谱上下文最大 token 数 */
+    private int graphMaxTokens = 1000;
 }

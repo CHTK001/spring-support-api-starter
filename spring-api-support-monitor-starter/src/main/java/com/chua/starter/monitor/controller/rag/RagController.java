@@ -4,6 +4,7 @@ import com.chua.common.support.ai.rag.RagDocument;
 import com.chua.common.support.ai.rag.RagDocumentManager;
 import com.chua.common.support.ai.rag.RagEngine;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.ai.support.service.impl.KnowledgeGraphService;
 import com.chua.starter.monitor.properties.RagProperties;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,6 +32,7 @@ public class RagController {
     private final RagEngine ragEngine;
     private final RagDocumentManager documentManager;
     private final RagProperties ragProperties;
+    private final KnowledgeGraphService knowledgeGraphService;
 
     // ── 文档管理 ─────────────────────────────────────────
 
@@ -49,6 +51,20 @@ public class RagController {
             if ("FAILED".equals(doc.status())) {
                 return ReturnResult.error(doc.errorMessage());
             }
+
+            // GraphRAG: 上传文档后自动抽取实体和关系
+            if (ragProperties.isUseGraph()) {
+                try {
+                    String text = knowledgeGraphService.extractTextFromFile(file);
+                    if (!text.isBlank()) {
+                        knowledgeGraphService.extractAndSaveEntities(text, null);
+                        log.info("[RagController] GraphRAG 自动抽取实体完成: {}", fileName);
+                    }
+                } catch (Exception e) {
+                    log.warn("[RagController] GraphRAG 实体抽取失败(不影响上传): {}", e.getMessage());
+                }
+            }
+
             return ReturnResult.ok(doc);
         } catch (IOException e) {
             log.error("[RagController] 上传文件失败: {}", e.getMessage());
@@ -115,7 +131,7 @@ public class RagController {
     public ReturnResult<Map<String, Object>> status() {
         Map<String, Object> status = new LinkedHashMap<>();
         status.put("engine", ragProperties.getEmbeddingEngine());
-        status.put("llmProvider", ragProperties.getLlmProvider());
+        status.put("llmProvider", "global (使用全局 LLM 配置)");
         status.put("uploadDir", ragProperties.getUploadDir());
         status.put("defaultTopK", ragProperties.getDefaultTopK());
         status.put("defaultSimilarityThreshold", ragProperties.getDefaultSimilarityThreshold());

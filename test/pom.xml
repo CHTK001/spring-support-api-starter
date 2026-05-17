@@ -26,5 +26,9 @@
     <module>spring-api-support-payment-test-starter</module>
     <module>spring-api-support-system-test-starter</module>
     <module>spring-api-support-video-test-starter</module>
+    <module>spring-api-support-rust-demo-starter</module>
+    <module>spring-api-support-tomcat-benchmark</module>
+    <module>spring-api-support-benchmark</module>
+    <module>spring-api-support-project-test-starter</module>
   </modules>
 </project>
