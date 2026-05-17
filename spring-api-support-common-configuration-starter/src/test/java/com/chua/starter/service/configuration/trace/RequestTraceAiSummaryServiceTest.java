@@ -188,7 +188,7 @@ class RequestTraceAiSummaryServiceTest {
         }
 
         @Override
-        public void callAsync(BigModelRequest request, BigModelCallback callback) {
+        public void callAsync(BigModelRequest request, BigModelCallback callback) throws InterruptedException {
             throw new UnsupportedOperationException();
         }
 
