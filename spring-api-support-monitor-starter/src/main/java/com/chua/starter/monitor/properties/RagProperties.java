@@ -17,7 +17,7 @@ public class RagProperties {
     /** 是否启用 RAG */
     private boolean enabled = true;
 
-    /** 向量引擎（memory / openai / siliconflow） */
+    /** 向量引擎（memory / openai / siliconflow / onnx） */
     private String embeddingEngine = "memory";
 
     /** 向量存储（jvector / milvus / mysql / memory） */
