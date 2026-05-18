@@ -14,6 +14,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/v2/test/rag")
 @RequiredArgsConstructor
 @Tag(name = "RAG 测试", description = "整合 RAG + GraphRAG 的完整测试端点")
+@ConditionalOnProperty(prefix = "app.rag", name = "test-enabled", havingValue = "true", matchIfMissing = true)
 public class TestRagController {
 
     private final RagEngine ragEngine;
