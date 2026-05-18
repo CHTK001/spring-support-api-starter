@@ -31,7 +31,7 @@ docker:
 app:
   rag:
     enabled: true
-    embedding-engine: memory
+    embedding-engine: onnx
     vector-storage: jvector
     default-similarity-threshold: 0.1
     upload-dir: ./data/rag-test/uploads
