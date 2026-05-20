@@ -4,9 +4,9 @@ import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 
 import com.chua.common.support.lang.code.PageResult;
 import com.chua.common.support.lang.code.ReturnPageResult;
-import com.chua.starter.video.pojo.VideoInfoResult;
-import com.chua.starter.video.pojo.VideoSearch;
-import com.chua.starter.video.provider.ResourceProvider;
+import com.chua.common.support.video.model.VideoInfoResult;
+import com.chua.common.support.video.model.VideoSearch;
+import com.chua.common.support.video.spi.ResourceProvider;
 import com.chua.starter.video.service.ResourceSearchManager;
 import com.chua.starter.video.service.VideoSourceService;
 import com.chua.starter.video.service.VideoSyncTaskService;

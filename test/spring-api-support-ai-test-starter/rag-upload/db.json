@@ -7,7 +7,8 @@
   "status" : "READY",
   "errorMessage" : null,
   "createTime" : 1778850263961,
-  "metadata" : { }
+  "metadata" : { },
+  "libraryId" : "1"
 }, {
   "id" : "600c23f8f9fa456d9c29c635babc6e89",
   "fileName" : "test-rag-upload.md",
@@ -17,5 +18,6 @@
   "status" : "READY",
   "errorMessage" : null,
   "createTime" : 1778852512509,
-  "metadata" : { }
+  "metadata" : { },
+  "libraryId" : "1"
 } ]

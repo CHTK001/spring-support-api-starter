@@ -10,11 +10,11 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
-import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.entity.VideoSource;
+import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.mapper.VideoInfoMapper;
-import com.chua.starter.video.pojo.VideoInfoResult;
-import com.chua.starter.video.pojo.VideoSearch;
+import com.chua.common.support.video.model.VideoInfoResult;
+import com.chua.common.support.video.model.VideoSearch;
 
 /**
  * @author CH

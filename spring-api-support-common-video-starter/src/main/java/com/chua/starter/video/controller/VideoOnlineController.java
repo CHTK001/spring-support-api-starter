@@ -1,8 +1,8 @@
 package com.chua.starter.video.controller;
 
 import com.chua.common.support.lang.code.ReturnPageResult;
-import com.chua.starter.video.pojo.VideoInfoResult;
-import com.chua.starter.video.pojo.VideoSearch;
+import com.chua.common.support.video.model.VideoInfoResult;
+import com.chua.common.support.video.model.VideoSearch;
 import com.chua.starter.video.service.VideoOnlineService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;

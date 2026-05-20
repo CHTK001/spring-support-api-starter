@@ -1,6 +1,7 @@
 package com.chua.starter.video.provider.impl;
 
 import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.base.bean.BeanUtils;
 import com.chua.common.support.base.converter.Converter;
 import com.chua.common.support.network.http.HttpClient;
 import com.chua.common.support.network.http.HttpResponse;
@@ -15,13 +16,14 @@ import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
 import com.chua.starter.video.entity.VideoPlayAddress;
 import com.chua.starter.video.entity.VideoPlayAddressChannel;
 import com.chua.starter.video.entity.VideoSource;
-import com.chua.starter.video.entity.VideoSyncConfig;
+import com.chua.common.support.base.bean.BeanUtils;
+import com.chua.common.support.video.model.VideoSyncConfig;
 import com.chua.starter.video.mapper.VideoSourceMapper;
 import com.chua.starter.video.mapper.VideoSyncConfigMapper;
-import com.chua.starter.video.pojo.VideoInfoResult;
-import com.chua.starter.video.pojo.VideoSearch;
-import com.chua.starter.video.pojo.VideoSyncProcessConfig;
-import com.chua.starter.video.provider.SyncProvider;
+import com.chua.common.support.video.model.VideoInfoResult;
+import com.chua.common.support.video.model.VideoSearch;
+import com.chua.common.support.video.model.VideoSyncProcessConfig;
+import com.chua.common.support.video.spi.SyncProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -288,7 +290,8 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
             jsonObject1.fluentPut("videoType", videoType);
             config.setVideoSyncConfigLastOffset(jsonObject1.toJSONString());
             config.setVideoSyncConfigLastLog(logMessage);
-            videoSyncConfigMapper.updateById(config);
+            videoSyncConfigMapper.updateById(
+                    BeanUtils.copyProperties(config, com.chua.starter.video.entity.VideoSyncConfig.class));
         }
     }
 

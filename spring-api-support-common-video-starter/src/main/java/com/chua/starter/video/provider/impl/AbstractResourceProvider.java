@@ -1,7 +1,7 @@
 package com.chua.starter.video.provider.impl;
 
 import com.chua.starter.video.entity.VideoSource;
-import com.chua.starter.video.provider.ResourceProvider;
+import com.chua.common.support.video.spi.ResourceProvider;
 
 /**
  * @author CH

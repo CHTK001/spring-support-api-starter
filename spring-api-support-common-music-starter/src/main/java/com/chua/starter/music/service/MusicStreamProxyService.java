@@ -2,7 +2,7 @@ package com.chua.starter.music.service;
 
 import com.chua.common.support.network.http.HttpClient;
 import com.chua.common.support.network.http.HttpResponse;
-import com.chua.starter.music.model.MusicTrackDetail;
+import com.chua.common.support.music.model.MusicTrackDetail;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
