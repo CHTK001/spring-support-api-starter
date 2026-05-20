@@ -1,6 +1,6 @@
 package com.chua.starter.video.pojo.response;
 
-import com.chua.starter.video.entity.VideoDownload;
+import com.chua.common.support.video.model.VideoDownload;
 import com.chua.starter.video.entity.VideoInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

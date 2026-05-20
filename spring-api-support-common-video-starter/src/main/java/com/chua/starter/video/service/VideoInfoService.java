@@ -6,7 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.video.entity.VideoInfo;
 import com.chua.starter.video.entity.VideoPlayAddress;
 import com.chua.starter.video.pojo.VideoInfoResponse;
-import com.chua.starter.video.pojo.VideoInfoResult;
+import com.chua.common.support.video.model.VideoInfoResult;
 import com.chua.starter.video.pojo.request.VideoSearchRequest;
 
 import java.util.List;

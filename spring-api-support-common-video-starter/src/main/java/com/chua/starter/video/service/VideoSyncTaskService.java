@@ -1,7 +1,7 @@
 package com.chua.starter.video.service;
 
 import com.chua.starter.video.entity.VideoSyncConfig;
-import com.chua.starter.video.pojo.VideoInfoResult;
+import com.chua.common.support.video.model.VideoInfoResult;
 
 /**
  * 视频同步任务服务

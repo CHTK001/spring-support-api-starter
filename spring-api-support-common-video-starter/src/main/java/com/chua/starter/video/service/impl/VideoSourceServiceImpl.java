@@ -6,7 +6,7 @@ import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.starter.video.entity.VideoSource;
 import com.chua.starter.video.mapper.VideoSourceMapper;
 import com.chua.starter.video.pojo.FunctionType;
-import com.chua.starter.video.provider.ResourceProvider;
+import com.chua.common.support.video.spi.ResourceProvider;
 import com.chua.starter.video.service.VideoSourceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

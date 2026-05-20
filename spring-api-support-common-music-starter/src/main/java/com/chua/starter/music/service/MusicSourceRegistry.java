@@ -1,8 +1,8 @@
 package com.chua.starter.music.service;
 
 import com.chua.common.support.core.spi.ServiceProvider;
-import com.chua.starter.music.model.MusicSourceOption;
-import com.chua.starter.music.spi.MusicSourceProvider;
+import com.chua.common.support.music.model.MusicSourceOption;
+import com.chua.common.support.music.spi.MusicSourceProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;

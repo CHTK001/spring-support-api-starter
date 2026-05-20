@@ -2,22 +2,20 @@ package com.chua.starter.spider.test;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
  * Spider 测试库兼容字段补齐。
- *
- * <p>当前 spider_* 实体继承 SysBase，运行时会按 create_name / update_name 等字段读写；
- * 测试 SQL 采用 spider_create_name / spider_update_name 前缀。
- * 这里在测试环境启动时补齐一组兼容列，避免真实联调被字段缺失阻塞。</p>
  */
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SpiderSchemaCompatInitializer implements ApplicationRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(SpiderSchemaCompatInitializer.class);
 
     private static final List<String> TABLES = List.of(
             "spider_definition",

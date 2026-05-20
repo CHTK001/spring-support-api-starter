@@ -6,6 +6,10 @@ spring:
       - com.chua.starter.redis.support.RedisConfiguration
       - com.chua.starter.redis.support.CacheConfiguration
       - com.chua.starter.redis.support.LockTemplateConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - com.baomidou.lock.spring.boot.autoconfigure.RedisTemplateLockAutoConfiguration
+      - com.baomidou.lock.spring.boot.autoconfigure.LockAutoConfiguration
   datasource:
     driverClassName: com.p6spy.engine.spy.P6SpyDriver
     url: jdbc:p6spy:mysql://172.16.0.40:3306/system?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true

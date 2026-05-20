@@ -29,7 +29,3 @@ plugin:
             enabled: false
   job:
     enable: true
-  server:
-    rust:
-      enabled: true
-      response-buffer: 524288

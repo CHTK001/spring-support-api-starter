@@ -6,6 +6,10 @@ spring:
       - com.chua.starter.redis.support.RedisConfiguration
       - com.chua.starter.redis.support.CacheConfiguration
       - com.chua.starter.redis.support.LockTemplateConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - com.baomidou.lock.spring.boot.autoconfigure.RedisTemplateLockAutoConfiguration
+      - com.baomidou.lock.spring.boot.autoconfigure.LockAutoConfiguration
   datasource:
     driverClassName: org.h2.Driver
     url: jdbc:h2:mem:spider;MODE=MYSQL;DB_CLOSE_DELAY=-1

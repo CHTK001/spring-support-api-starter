@@ -1,10 +1,10 @@
 package com.chua.starter.video.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.chua.starter.video.entity.VideoDownload;
+import com.chua.common.support.video.model.VideoDownload;
 import com.chua.starter.video.entity.VideoInfo;
-import com.chua.starter.video.entity.VideoMark;
-import com.chua.starter.video.entity.VideoPlayAddress;
+import com.chua.common.support.video.model.VideoMark;
+import com.chua.common.support.video.model.VideoPlayAddress;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

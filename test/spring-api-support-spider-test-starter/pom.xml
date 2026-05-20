@@ -49,6 +49,10 @@
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-starter-log4j2</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>spring-support-job-starter</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -70,6 +74,17 @@
       <groupId>com.chua</groupId>
       <artifactId>utils-support-playwright-starter</artifactId>
       <version>${utils.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-zai-starter</artifactId>
+      <version>${utils.version}</version>
+    </dependency>
+    <!-- Playwright 浏览器自动化 -->
+    <dependency>
+      <groupId>com.microsoft.playwright</groupId>
+      <artifactId>playwright</artifactId>
+      <version>1.52.0</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
