@@ -3,7 +3,7 @@ package com.chua.starter.video.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.starter.video.entity.VideoSource;
 import com.chua.starter.video.pojo.FunctionType;
-import com.chua.starter.video.provider.ResourceProvider;
+import com.chua.common.support.video.spi.ResourceProvider;
 
 import java.util.List;
 

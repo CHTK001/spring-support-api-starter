@@ -1,20 +1,20 @@
 package com.chua.starter.music.service;
 
-import com.chua.starter.music.model.MusicOverview;
-import com.chua.starter.music.model.MusicPlaylistCategoryCatalog;
-import com.chua.starter.music.model.MusicPlaylistCategoryResult;
-import com.chua.starter.music.model.MusicPlaylistDetail;
-import com.chua.starter.music.model.MusicPlaylistSearchResult;
-import com.chua.starter.music.model.MusicPlaylistSummary;
-import com.chua.starter.music.model.MusicSearchResult;
-import com.chua.starter.music.model.MusicSourceOption;
-import com.chua.starter.music.model.MusicTrackDetail;
-import com.chua.starter.music.model.MusicTrackSummary;
-import com.chua.starter.music.spi.MusicSourceProvider;
+import com.chua.common.support.music.model.MusicOverview;
+import com.chua.common.support.music.model.MusicPlaylistCategoryCatalog;
+import com.chua.common.support.music.model.MusicPlaylistCategoryResult;
+import com.chua.common.support.music.model.MusicPlaylistDetail;
+import com.chua.common.support.music.model.MusicPlaylistSearchResult;
+import com.chua.common.support.music.model.MusicPlaylistSummary;
+import com.chua.common.support.music.model.MusicSearchResult;
+import com.chua.common.support.music.model.MusicSourceOption;
+import com.chua.common.support.music.model.MusicTrackDetail;
+import com.chua.common.support.music.model.MusicTrackSummary;
+import com.chua.common.support.music.spi.MusicSourceProvider;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import com.chua.common.support.core.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

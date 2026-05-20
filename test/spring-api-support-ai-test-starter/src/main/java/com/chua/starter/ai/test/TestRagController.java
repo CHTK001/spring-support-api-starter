@@ -110,13 +110,20 @@ public class TestRagController {
 
     @Operation(summary = "上传文档", description = "上传文件并自动索引，启用 GraphRAG 时自动抽取实体")
     @PostMapping(value = "/document/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ReturnResult<Map<String, Object>> uploadDocument(@RequestParam("file") MultipartFile file) {
+    public ReturnResult<Map<String, Object>> uploadDocument(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(required = false) String libraryId) {
         if (file.isEmpty()) return ReturnResult.error("上传文件不能为空");
         String fileName = file.getOriginalFilename();
         if (fileName == null || fileName.isBlank()) return ReturnResult.error("文件名不能为空");
 
         try {
-            RagDocument doc = documentManager.uploadDocument(fileName, file.getBytes());
+            RagDocument doc;
+            if (libraryId != null && !libraryId.isBlank()) {
+                doc = documentManager.uploadDocument(fileName, file.getBytes(), libraryId);
+            } else {
+                doc = documentManager.uploadDocument(fileName, file.getBytes());
+            }
             if ("FAILED".equals(doc.status())) {
                 return ReturnResult.error(doc.errorMessage());
             }
@@ -150,11 +157,12 @@ public class TestRagController {
     @GetMapping("/document/list")
     public ReturnResult<RagDocumentManager.PaginatedResult> listDocuments(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int pageSize) {
+            @RequestParam(defaultValue = "20") int pageSize,
+            @RequestParam(required = false) String libraryId) {
         if (page < 1) page = 1;
         if (pageSize < 1) pageSize = 20;
         if (pageSize > 100) pageSize = 100;
-        return ReturnResult.ok(documentManager.listDocuments(page, pageSize));
+        return ReturnResult.ok(documentManager.listDocuments(page, pageSize, libraryId));
     }
 
     @Operation(summary = "删除文档")

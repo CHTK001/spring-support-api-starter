@@ -2,10 +2,10 @@ package com.chua.starter.video.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.video.entity.VideoDownload;
+import com.chua.common.support.video.model.VideoDownload;
 import com.chua.starter.video.entity.VideoKeyword;
-import com.chua.starter.video.entity.VideoSource;
-import com.chua.starter.video.entity.VideoSyncConfig;
+import com.chua.common.support.video.model.VideoSource;
+import com.chua.common.support.video.model.VideoSyncConfig;
 import com.chua.starter.video.mapper.VideoDownloadMapper;
 import com.chua.starter.video.mapper.VideoInfoMapper;
 import com.chua.starter.video.mapper.VideoKeywordMapper;

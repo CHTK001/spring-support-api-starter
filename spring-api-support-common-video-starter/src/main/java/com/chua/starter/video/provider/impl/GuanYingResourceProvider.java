@@ -1,6 +1,7 @@
 package com.chua.starter.video.provider.impl;
 
 import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.base.bean.BeanUtils;
 import com.chua.common.support.base.converter.Converter;
 import com.chua.common.support.network.http.HttpClient;
 import com.chua.common.support.network.http.HttpResponse;
@@ -10,13 +11,18 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.common.support.core.utils.*;
 import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
-import com.chua.starter.video.entity.*;
+import com.chua.starter.video.entity.VideoPlayAddress;
+import com.chua.starter.video.entity.VideoPlayAddressChannel;
+import com.chua.starter.video.entity.VideoSource;
+import com.chua.starter.video.entity.VideoDownload;
+import com.chua.starter.video.entity.VideoMark;
+import com.chua.common.support.video.model.VideoSyncConfig;
 import com.chua.starter.video.mapper.VideoSourceMapper;
 import com.chua.starter.video.mapper.VideoSyncConfigMapper;
-import com.chua.starter.video.pojo.VideoInfoResult;
-import com.chua.starter.video.pojo.VideoSearch;
-import com.chua.starter.video.pojo.VideoSyncProcessConfig;
-import com.chua.starter.video.provider.SyncProvider;
+import com.chua.common.support.video.model.VideoInfoResult;
+import com.chua.common.support.video.model.VideoSearch;
+import com.chua.common.support.video.model.VideoSyncProcessConfig;
+import com.chua.common.support.video.spi.SyncProvider;
 import com.google.common.base.Joiner;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
@@ -745,7 +751,8 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
                 jsonObject1.fluentPut("videoType", videoType);
                 config.setVideoSyncConfigLastOffset(jsonObject1.toJSONString());
                 config.setVideoSyncConfigLastLog(logMessage);
-                videoSyncConfigMapper.updateById(config);
+                videoSyncConfigMapper.updateById(
+                        BeanUtils.copyProperties(config, com.chua.starter.video.entity.VideoSyncConfig.class));
                 if (searchPage.get() > pages) {
                     countdownYear(year, searchPage);
                 }

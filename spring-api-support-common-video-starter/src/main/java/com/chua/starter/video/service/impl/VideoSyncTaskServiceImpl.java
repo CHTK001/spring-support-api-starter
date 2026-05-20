@@ -3,15 +3,23 @@ package com.chua.starter.video.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.video.entity.*;
+import com.chua.common.support.base.bean.BeanUtils;
+import com.chua.common.support.video.model.VideoInfoResult;
+import com.chua.common.support.video.model.VideoSyncProcessConfig;
+import com.chua.common.support.video.spi.ResourceProvider;
+import com.chua.common.support.video.spi.SyncProvider;
+import com.chua.starter.video.entity.VideoDownload;
+import com.chua.starter.video.entity.VideoInfo;
+import com.chua.starter.video.entity.VideoMark;
+import com.chua.starter.video.entity.VideoPlayAddress;
+import com.chua.starter.video.entity.VideoPlayAddressChannel;
+import com.chua.starter.video.entity.VideoSource;
+import com.chua.starter.video.entity.VideoSyncConfig;
+import com.chua.starter.video.entity.VideoSyncConfigRecord;
 import com.chua.starter.video.mapper.VideoInfoMapper;
 import com.chua.starter.video.mapper.VideoSourceMapper;
 import com.chua.starter.video.mapper.VideoSyncConfigRecordMapper;
 import com.chua.starter.video.pojo.FunctionType;
-import com.chua.starter.video.pojo.VideoInfoResult;
-import com.chua.starter.video.pojo.VideoSyncProcessConfig;
-import com.chua.starter.video.provider.ResourceProvider;
-import com.chua.starter.video.provider.SyncProvider;
 import com.chua.starter.video.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -193,7 +201,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
     @Override
     public boolean saveOrUpdateForVideo(VideoInfoResult videoInfoResult) {
         // 保存或更新视频信息
-        boolean saved = saveOrUpdateVideo(videoInfoResult);
+        boolean saved = saveOrUpdateVideo(BeanUtils.copyProperties(videoInfoResult, VideoInfo.class));
 
         if (saved) {
             // 处理下载地址
@@ -206,7 +214,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
     @Override
     public void saveOrUpdateInsertForVideo(VideoInfoResult videoInfoResult) {
         // 保存或更新视频信息
-        boolean saved = saveOrUpdateVideo(videoInfoResult);
+        boolean saved = saveOrUpdateVideo(BeanUtils.copyProperties(videoInfoResult, VideoInfo.class));
 
         if (saved) {
             // 处理下载地址
@@ -277,7 +285,9 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
 
         // 调用提供者获取视频列表
         for (SyncProvider provider : providers) {
-            provider.fetchVideos(config, consumer);
+            provider.fetchVideos(
+                    BeanUtils.copyProperties(config, com.chua.common.support.video.model.VideoSyncConfig.class),
+                    consumer);
         }
     }
 
@@ -326,8 +336,8 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
      */
     private void processDownloadUrls(VideoInfoResult video) {
         try {
-            processFileDownload(video, video.getDownloadList());
-            processPlayAddress(video, video.getPlayAddressesList());
+            processFileDownload(video, uncheckedCast(video.getDownloadList()));
+            processPlayAddress(video, uncheckedCast(video.getPlayAddressesList()));
         } catch (Exception e) {
             log.error("处理视频[{}]下载地址失败: {}", video.getVideoTitle(), e.getMessage(), e);
         }
@@ -340,8 +350,8 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
      */
     private void processRefreshDownloadUrls(VideoInfoResult video) {
         try {
-            processRefreshFileDownload(video, video.getDownloadList());
-            processRefreshPlayAddress(video, video.getPlayAddressesList());
+            processRefreshFileDownload(video, uncheckedCast(video.getDownloadList()));
+            processRefreshPlayAddress(video, uncheckedCast(video.getPlayAddressesList()));
         } catch (Exception e) {
             log.error("处理视频[{}]下载地址失败: {}", video.getVideoTitle(), e.getMessage(), e);
         }
@@ -476,7 +486,7 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
     private void processMarker(VideoInfoResult video) {
         try {
             // 获取下载地址
-            List<VideoMark> videoMarkList = video.getVideoMarkList();
+            List<VideoMark> videoMarkList = uncheckedCast(video.getVideoMarkList());
 
             if (null == videoMarkList || videoMarkList.isEmpty()) {
                 log.info("视频[{}]没有可用的标签", video.getVideoTitle());
@@ -493,5 +503,10 @@ public class VideoSyncTaskServiceImpl implements VideoSyncTaskService {
         } catch (Exception e) {
             log.error("处理视频[{}]标签失败: {}", video.getVideoTitle(), e.getMessage(), e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> List<T> uncheckedCast(List<?> list) {
+        return (List<T>) list;
     }
 }

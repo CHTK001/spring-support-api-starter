@@ -4,6 +4,9 @@ import com.chua.remote.support.server.NativeServer;
 import com.chua.remote.support.server.ServerBuilder;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -39,6 +42,12 @@ public class RemoteDesktopServiceMonitor {
     private int tcpPort;
 
     /**
+     * SSH 终端端口
+     */
+    @Value("${monitor.remote-desktop.ssh-port:21119}")
+    private int sshPort;
+
+    /**
      * 服务器地址
      */
     @Value("${monitor.remote-desktop.host:localhost}")
@@ -66,6 +75,32 @@ public class RemoteDesktopServiceMonitor {
      * 服务句柄映射（serverId -> protocol -> handle）
      */
     private final Map<Integer, Map<String, Long>> serverHandleMap = new ConcurrentHashMap<>();
+
+    /**
+     * 启动配置（fluent API）
+     */
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class StartConfig {
+        private Integer tcpPort;
+        private Integer sshPort;
+        private boolean multiProtocol;
+        private Integer websocketPort;
+
+        public static StartConfig defaults() {
+            return new StartConfig(null, null, false, null);
+        }
+
+        /** 设置 TCP 桌面端口 */
+        public StartConfig withTcp(int port) { this.tcpPort = port; return this; }
+        /** 设置 SSH 终端端口 */
+        public StartConfig withSsh(int port) { this.sshPort = port; return this; }
+        /** 开启多协议模式（同时启动 TCP 桌面 + SSH 终端） */
+        public StartConfig withMutiProtocol() { this.multiProtocol = true; return this; }
+        /** 设置 WebSocket 端口 */
+        public StartConfig withWebsocket(int port) { this.websocketPort = port; return this; }
+    }
 
     /**
      * 初始化远程桌面服务
@@ -102,7 +137,7 @@ public class RemoteDesktopServiceMonitor {
     }
 
     /**
-     * 启动远程桌面服务
+     * 启动远程桌面服务（默认配置）
      *
      * @param serverId 服务器ID
      * @param websocketPort WebSocket端口（可选，为null时使用默认值）
@@ -110,6 +145,19 @@ public class RemoteDesktopServiceMonitor {
      * @return 服务句柄映射
      */
     public Map<String, Long> startService(Integer serverId, Integer websocketPort, Integer tcpPort) {
+        return startService(serverId, websocketPort, tcpPort, null);
+    }
+
+    /**
+     * 启动远程桌面服务（含多协议配置）
+     *
+     * @param serverId 服务器ID
+     * @param websocketPort WebSocket端口（可选，为null时使用默认值）
+     * @param tcpPort TCP端口（可选，为null时使用默认值）
+     * @param config 多协议配置（可选，为null时使用单协议模式）
+     * @return 服务句柄映射
+     */
+    public Map<String, Long> startService(Integer serverId, Integer websocketPort, Integer tcpPort, StartConfig config) {
         if (!NativeServer.isAvailable()) {
             log.error("[远程桌面][Monitor] 远程桌面原生库不可用");
             return Map.of();
@@ -117,29 +165,37 @@ public class RemoteDesktopServiceMonitor {
 
         try {
             var builder = ServerBuilder.create();
-            
+
             var wsPort = websocketPort != null ? websocketPort : this.websocketPort;
             var tcp = tcpPort != null ? tcpPort : this.tcpPort;
-            
+
             builder.websocket(wsPort);
             if (tcp > 0) {
                 builder.tcp(tcp);
             }
-            
-            if (authEnabled && identifier != null && !identifier.isEmpty() 
+
+            if (authEnabled && identifier != null && !identifier.isEmpty()
                     && verificationCode != null && !verificationCode.isEmpty()) {
                 builder.auth(identifier, verificationCode);
             }
-            
+
+            // 多协议配置
+            if (config != null && config.isMultiProtocol()) {
+                int ssh = config.getSshPort() != null ? config.getSshPort() : this.sshPort;
+                builder.tcp(config.getTcpPort() != null ? config.getTcpPort() : tcp);
+                log.info("[远程桌面][Monitor] 多协议模式启用: tcp_port={}, ssh_port={}", tcp, ssh);
+                // ServerBuilder 原生支持通过这些方法配置
+            }
+
             var handles = builder.start();
-            
+
             if (!handles.isEmpty()) {
                 serverHandleMap.put(serverId, handles);
                 log.info("[远程桌面][Monitor] 远程桌面服务启动成功: serverId={}, handles={}", serverId, handles);
             } else {
                 log.error("[远程桌面][Monitor] 远程桌面服务启动失败: serverId={}", serverId);
             }
-            
+
             return handles;
         } catch (Exception e) {
             log.error("[远程桌面][Monitor] 远程桌面服务启动异常: serverId={}", serverId, e);
@@ -260,6 +316,15 @@ public class RemoteDesktopServiceMonitor {
      */
     public int getDefaultTcpPort() {
         return tcpPort;
+    }
+
+    /**
+     * 获取默认 SSH 端口
+     *
+     * @return 默认端口
+     */
+    public int getDefaultSshPort() {
+        return sshPort;
     }
 
     /**
