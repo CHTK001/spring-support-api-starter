@@ -23,7 +23,7 @@ import java.util.*;
  * @author CH
  */
 @Slf4j
-@RestController
+@RestController("monitorRagController")
 @RequestMapping("/v2/ai/rag")
 @RequiredArgsConstructor
 @Tag(name = "RAG 知识库", description = "RAG 文档管理、问答和配置接口")
@@ -49,12 +49,7 @@ public class RagController {
             return ReturnResult.error("文件名不能为空");
         }
         try {
-            RagDocument doc;
-            if (libraryId != null && !libraryId.isBlank()) {
-                doc = documentManager.uploadDocument(fileName, file.getBytes(), libraryId);
-            } else {
-                doc = documentManager.uploadDocument(fileName, file.getBytes());
-            }
+            RagDocument doc = documentManager.uploadDocument(fileName, file.getBytes());
             if ("FAILED".equals(doc.status())) {
                 return ReturnResult.error(doc.errorMessage());
             }
@@ -88,7 +83,7 @@ public class RagController {
         if (page < 1) page = 1;
         if (pageSize < 1) pageSize = 20;
         if (pageSize > 100) pageSize = 100;
-        return ReturnResult.ok(documentManager.listDocuments(page, pageSize, libraryId));
+        return ReturnResult.ok(documentManager.listDocuments(page, pageSize));
     }
 
     @Operation(summary = "删除文档", description = "删除文档及其向量索引")

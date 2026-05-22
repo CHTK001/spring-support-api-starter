@@ -6,8 +6,6 @@ spring:
     exclude:
       - com.chua.starter.oauth.client.support.configuration.AuthClientConfiguration
       - com.chua.starter.system.configuration.SystemAutoConfiguration
-      - com.chua.starter.project.configuration.ProjectConfiguration
-      - com.chua.starter.device.configuration.DeviceConfiguration
       - com.chua.starter.server.support.config.ServerManagementConfiguration
   # -------------------------------------------
   # 数据源配置

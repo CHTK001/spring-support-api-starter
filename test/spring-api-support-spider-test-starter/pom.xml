@@ -80,6 +80,12 @@
       <artifactId>utils-support-zai-starter</artifactId>
       <version>${utils.version}</version>
     </dependency>
+    <!-- AI Chat Client (DefaultChatClient) -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-deeplearning-starter</artifactId>
+      <version>${utils.version}</version>
+    </dependency>
     <!-- Playwright 浏览器自动化 -->
     <dependency>
       <groupId>com.microsoft.playwright</groupId>

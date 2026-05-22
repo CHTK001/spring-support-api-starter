@@ -31,6 +31,7 @@ docker:
 app:
   rag:
     enabled: true
+    test-enabled: false
     embedding-engine: onnx
     vector-storage: jvector
     default-similarity-threshold: 0.1

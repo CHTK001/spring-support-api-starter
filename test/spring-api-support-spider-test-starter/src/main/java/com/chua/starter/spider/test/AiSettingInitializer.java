@@ -5,30 +5,33 @@ import com.chua.starter.ai.support.chat.KnowledgeGraphClientFactoryBean;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
  * 测试环境 AI 配置初始化。
  *
- * <p>在 H2 测试数据库中写入 AI 全局设置，使 AI 流程生成功能可在测试环境中正常使用。</p>
+ * <p>写入 AI 全局设置（覆盖 SQL 种子数据），清除 Redis 缓存后重建 ChatClient。</p>
  */
 @Component
-@RequiredArgsConstructor
-@ConditionalOnProperty(name = "spring.datasource.driverClassName", havingValue = "org.h2.Driver")
 public class AiSettingInitializer implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(AiSettingInitializer.class);
     private static final String GROUP = "runtime";
     private final ChatClientFactoryBean chatClientFactoryBean;
     private final KnowledgeGraphClientFactoryBean knowledgeGraphClientFactoryBean;
+    private final JdbcTemplate jdbcTemplate;
+
+    /** 可选：注入 StringRedisTemplate 用于直接清除 Redis key */
+    @Autowired(required = false)
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * Z.AI（智谱生态）— 提供 GLM-4V-Flash 免费视觉模型，OpenAI 兼容接口。
@@ -43,14 +46,37 @@ public class AiSettingInitializer implements ApplicationRunner {
         {"provider_api_key",  "acb7372b94c3428bb75c03f695fcb2ee.p82pPKkxRovK8dqz", "STRING", "Z.AI API Key(来自 SQL 种子数据)",                    75},
         {"system_prompt",     "",                                         "STRING",  "默认系统提示词",                                              15},
         {"temperature",       "0.1",                                      "NUMBER",  "默认采样温度",                                                20},
-        {"max_tokens",        "16384",                                    "NUMBER",  "默认最大输出 token",                                          30},
+        {"max_tokens",        "1024",                                     "NUMBER",  "默认最大输出 token(GLM-4V-Flash 限 1024)",                      30},
         {"timeout_millis",    "60000",                                    "NUMBER",  "默认超时时间(毫秒)",                                          35},
     };
 
-    private final JdbcTemplate jdbcTemplate;
+    public AiSettingInitializer(ChatClientFactoryBean chatClientFactoryBean,
+                                KnowledgeGraphClientFactoryBean knowledgeGraphClientFactoryBean,
+                                JdbcTemplate jdbcTemplate) {
+        this.chatClientFactoryBean = chatClientFactoryBean;
+        this.knowledgeGraphClientFactoryBean = knowledgeGraphClientFactoryBean;
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public void run(ApplicationArguments args) {
+        // 启动时清理所有卡住的 RUNNING/WAITING 状态执行，防止并发锁
+        try {
+            int updated = jdbcTemplate.update(
+                "UPDATE spider_execution SET spider_execution_status = 'FAILED' WHERE spider_execution_status IN ('RUNNING', 'WAITING')");
+            if (updated > 0) {
+                log.info("已清理 {} 条卡住的执行记录（RUNNING/WAITING → FAILED）", updated);
+            }
+            // 清空 spider_trace_snapshot 防止慢查询（包含 base64 截图数据）
+            int snapshotCleaned = jdbcTemplate.update(
+                "UPDATE spider_execution SET spider_trace_snapshot = NULL WHERE spider_trace_snapshot IS NOT NULL AND LENGTH(spider_trace_snapshot) > 10000");
+            if (snapshotCleaned > 0) {
+                log.info("已清空 {} 条执行记录的快照数据（防止慢查询）", snapshotCleaned);
+            }
+        } catch (Exception e) {
+            log.debug("清理旧执行状态跳过（表可能不存在）: {}", e.getMessage());
+        }
+
         // 检查表是否存在（先通过查询试探，兼容 MySQL 和 H2）
         try {
             jdbcTemplate.queryForObject("SELECT COUNT(1) FROM sys_ai_global_setting WHERE 1=0", Integer.class);
@@ -73,7 +99,11 @@ public class AiSettingInitializer implements ApplicationRunner {
                 GROUP, field, value, valueType, desc, sort, LocalDateTime.now(), LocalDateTime.now()
             );
         }
-        log.info("AI 全局设置已初始化（覆盖 SQL 种子数据），正在重建 ChatClient...");
+        log.info("AI 全局设置已初始化（覆盖 SQL 种子数据），正在清除 Redis 缓存并重建 ChatClient...");
+
+        // 清除 Redis 缓存（SysAiGlobalSettingServiceImpl 使用 @Cacheable(cacheManager = "redis-cache--1")）
+        // AiSettingInitializer 直接写 JDBC 绕过 Service 层，Redis 缓存不会自动清除
+        clearRedisAiSettingCache();
 
         // 验证 DB 写入是否成功
         List<Map<String, Object>> written = jdbcTemplate.queryForList(
@@ -84,12 +114,12 @@ public class AiSettingInitializer implements ApplicationRunner {
             log.info("  >> field={}, value={}", row.get("sys_ai_global_setting_field"), row.get("sys_ai_global_setting_value"));
         }
 
-        // rebuild 前先注册回调拦截，打印实际构建参数
+        // rebuild — 由于已清除缓存，resolve() 将读取真实 DB 值
         try {
             chatClientFactoryBean.rebuild();
             log.info("ChatClient 重建完成");
 
-            // 尝试调一次 chat 验证配置，提前暴露 apiKey 等问题
+            // 验证配置
             com.chua.starter.ai.support.chat.ChatClient client = chatClientFactoryBean.getObject();
             if (client != null) {
                 log.info("ChatClient 类型: {}, provider={}, model={}, endpoint={}",
@@ -108,6 +138,26 @@ public class AiSettingInitializer implements ApplicationRunner {
             log.info("KnowledgeGraph Client 重建完成");
         } catch (Exception e) {
             log.error("KnowledgeGraph Client 重建失败: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 清除 sys_ai_global_setting 相关缓存。
+     * <p>
+     * 尝试通过 CacheManager evict 及 StringRedisTemplate 直接删除 Redis key。
+     * CacheName = redis-cache--1，customTenantedKeyGenerator 生成 "cache:..." 前缀 key。
+     */
+    private void clearRedisAiSettingCache() {
+        if (stringRedisTemplate != null) {
+            try {
+                Set<String> keys = stringRedisTemplate.keys("cache:*sys:ai:global-setting*");
+                if (keys != null && !keys.isEmpty()) {
+                    stringRedisTemplate.delete(keys);
+                    log.info("已清除 {} 个 AI 配置 Redis 缓存 key", keys.size());
+                }
+            } catch (Exception e) {
+                log.warn("StringRedisTemplate 清除缓存失败(非致命): {}", e.getMessage());
+            }
         }
     }
 
