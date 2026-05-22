@@ -2,9 +2,8 @@ spring:
   autoconfigure:
     exclude:
       - com.chua.starter.oauth.client.support.configuration.AuthClientConfiguration
-      - com.chua.starter.project.configuration.ProjectConfiguration
-      - com.chua.starter.device.configuration.DeviceConfiguration
       - com.chua.starter.server.support.config.ServerManagementConfiguration
+      - com.chua.starter.ai.support.configuration.RagAutoConfiguration
       - com.chua.socket.support.configuration.SocketConfiguration
       - com.chua.socketio.support.configuration.SocketConfiguration
       - com.chua.starter.service.configuration.ServiceConfiguration

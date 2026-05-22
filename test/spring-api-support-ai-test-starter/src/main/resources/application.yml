@@ -7,7 +7,7 @@ spring:
     active: dev
 
 server:
-  port: 58081
+  port: 58084
 
 plugin:
   redis:

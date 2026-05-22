@@ -65,3 +65,5 @@ node_modules/
 BOOT-INF/
 *.mv.db
 *.trace.db
+
+NUL
