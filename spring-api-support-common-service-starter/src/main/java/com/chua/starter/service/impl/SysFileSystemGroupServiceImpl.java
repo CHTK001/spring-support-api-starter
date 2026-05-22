@@ -8,6 +8,8 @@ import com.chua.starter.service.SysFileSystemGroupService;
 import com.chua.starter.service.mapper.SysFileSystemGroupMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,22 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGroupMapper, SysFileSystemGroup> implements SysFileSystemGroupService {
+
+    /**
+     * 应用启动完成后自动初始化默认分组
+     */
+    @EventListener(ApplicationReadyEvent.class)
+    public void onApplicationReady() {
+        try {
+            long count = count();
+            if (count == 0) {
+                log.info("文件系统分组表为空，自动初始化默认分组");
+                initDefaultGroupsForFileSystem();
+            }
+        } catch (Exception e) {
+            log.warn("自动初始化文件系统分组失败: {}", e.getMessage());
+        }
+    }
 
     @Override
     public List<SysFileSystemGroup> getTreeForFileSystem() {

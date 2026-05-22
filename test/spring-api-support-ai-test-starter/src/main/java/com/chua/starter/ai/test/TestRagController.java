@@ -118,12 +118,7 @@ public class TestRagController {
         if (fileName == null || fileName.isBlank()) return ReturnResult.error("文件名不能为空");
 
         try {
-            RagDocument doc;
-            if (libraryId != null && !libraryId.isBlank()) {
-                doc = documentManager.uploadDocument(fileName, file.getBytes(), libraryId);
-            } else {
-                doc = documentManager.uploadDocument(fileName, file.getBytes());
-            }
+            RagDocument doc = documentManager.uploadDocument(fileName, file.getBytes());
             if ("FAILED".equals(doc.status())) {
                 return ReturnResult.error(doc.errorMessage());
             }
@@ -162,7 +157,7 @@ public class TestRagController {
         if (page < 1) page = 1;
         if (pageSize < 1) pageSize = 20;
         if (pageSize > 100) pageSize = 100;
-        return ReturnResult.ok(documentManager.listDocuments(page, pageSize, libraryId));
+        return ReturnResult.ok(documentManager.listDocuments(page, pageSize));
     }
 
     @Operation(summary = "删除文档")

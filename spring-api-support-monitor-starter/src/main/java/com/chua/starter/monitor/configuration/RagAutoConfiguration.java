@@ -54,7 +54,13 @@ public class RagAutoConfiguration {
     @ConditionalOnMissingBean
     public RagEngine ragEngine(RagService ragService, SysAiGlobalSettingService globalSettingService,
                                RagProperties properties, ObjectProvider<GraphRagEnhancer> enhancerProvider) {
-        RagEngine engine = new RagEngine(ragService);
+        DetectionConfiguration.DetectionConfigurationBuilder builder = DetectionConfiguration.builder()
+                .engine(properties.getEmbeddingEngine());
+        DetectionConfiguration config = builder.build();
+        if (!properties.getVectorStorage().isBlank()) {
+            config.option().put("vectorStorage", properties.getVectorStorage());
+        }
+        RagEngine engine = new RagEngine(config);
 
         // 注入全局 ChatClient（从 sys_ai_global_setting runtime 组读取 LLM 配置）
         try {
