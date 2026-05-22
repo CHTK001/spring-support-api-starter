@@ -761,7 +761,7 @@
                 <artifactId>jakarta.servlet-api</artifactId>
                 <version>${jakarta.servlet.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-scheduler-starter</artifactId>

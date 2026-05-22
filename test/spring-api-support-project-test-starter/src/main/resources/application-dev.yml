@@ -16,6 +16,7 @@ plugin:
     script:
       scan-mode: ALWAYS
       data-scan-mode: ALWAYS
+      validate-checksum: false
   redis:
     server:
       enable: false
