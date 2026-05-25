@@ -29,6 +29,7 @@
         <module>spring-api-support-common-configuration-starter</module>
         <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-common-payment-starter</module>
+        <module>spring-api-support-datalake-starter</module>
     </modules>
 
     <properties>
@@ -632,7 +633,12 @@
                 <artifactId>utils-support-docker-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
-            
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-mysql-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-acme-starter</artifactId>
@@ -765,6 +771,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-scheduler-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-api-support-datalake-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
