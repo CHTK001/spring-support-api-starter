@@ -2,13 +2,18 @@ package com.chua.starter.spider.test;
 
 import com.chua.starter.ai.support.chat.ChatClientFactoryBean;
 import com.chua.starter.ai.support.chat.KnowledgeGraphClientFactoryBean;
+import com.chua.starter.ai.support.entity.SysAiGlobalSetting;
+import com.chua.starter.ai.support.model.SysAiGlobalSettingSaveRequest;
+import com.chua.starter.ai.support.service.SysAiGlobalSettingService;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -27,6 +32,7 @@ public class AiSettingInitializer implements ApplicationRunner {
     private static final String GROUP = "runtime";
     private final ChatClientFactoryBean chatClientFactoryBean;
     private final KnowledgeGraphClientFactoryBean knowledgeGraphClientFactoryBean;
+    private final SysAiGlobalSettingService settingService;
     private final JdbcTemplate jdbcTemplate;
 
     /** 可选：注入 StringRedisTemplate 用于直接清除 Redis key */
@@ -50,11 +56,13 @@ public class AiSettingInitializer implements ApplicationRunner {
         {"timeout_millis",    "60000",                                    "NUMBER",  "默认超时时间(毫秒)",                                          35},
     };
 
-    public AiSettingInitializer(ChatClientFactoryBean chatClientFactoryBean,
-                                KnowledgeGraphClientFactoryBean knowledgeGraphClientFactoryBean,
+    public AiSettingInitializer(@Qualifier("&chatClient") ChatClientFactoryBean chatClientFactoryBean,
+                                @Qualifier("&knowledgeGraphClient") KnowledgeGraphClientFactoryBean knowledgeGraphClientFactoryBean,
+                                SysAiGlobalSettingService settingService,
                                 JdbcTemplate jdbcTemplate) {
         this.chatClientFactoryBean = chatClientFactoryBean;
         this.knowledgeGraphClientFactoryBean = knowledgeGraphClientFactoryBean;
+        this.settingService = settingService;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -85,25 +93,40 @@ public class AiSettingInitializer implements ApplicationRunner {
             tryCreateTable();
         }
 
-        // 先清理 runtime 组旧配置，确保我们的设置生效（覆盖 SQL 种子数据）
-        jdbcTemplate.update("DELETE FROM sys_ai_global_setting WHERE sys_ai_global_setting_group = ?", GROUP);
-
+        // 使用 replace() 通过 @CacheEvict 正确清除 Redis 缓存
+        List<SysAiGlobalSetting> settingEntities = new ArrayList<>();
         for (Object[] row : SETTINGS) {
-            String field = (String) row[0];
-            String value = (String) row[1];
-            String valueType = (String) row[2];
-            String desc = (String) row[3];
-            int sort = (int) row[4];
-            jdbcTemplate.update(
-                "INSERT INTO sys_ai_global_setting (sys_ai_global_setting_group, sys_ai_global_setting_field, sys_ai_global_setting_value, sys_ai_global_setting_value_type, sys_ai_global_setting_description, sys_ai_global_setting_sort, sys_ai_global_setting_status, create_time, update_time) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)",
-                GROUP, field, value, valueType, desc, sort, LocalDateTime.now(), LocalDateTime.now()
-            );
+            SysAiGlobalSetting entity = new SysAiGlobalSetting();
+            entity.setSysAiGlobalSettingGroup(GROUP);
+            entity.setSysAiGlobalSettingField((String) row[0]);
+            entity.setSysAiGlobalSettingValue((String) row[1]);
+            entity.setSysAiGlobalSettingValueType((String) row[2]);
+            entity.setSysAiGlobalSettingDescription((String) row[3]);
+            entity.setSysAiGlobalSettingSort((int) row[4]);
+            entity.setSysAiGlobalSettingStatus(1);
+            settingEntities.add(entity);
         }
-        log.info("AI 全局设置已初始化（覆盖 SQL 种子数据），正在清除 Redis 缓存并重建 ChatClient...");
 
-        // 清除 Redis 缓存（SysAiGlobalSettingServiceImpl 使用 @Cacheable(cacheManager = "redis-cache--1")）
-        // AiSettingInitializer 直接写 JDBC 绕过 Service 层，Redis 缓存不会自动清除
-        clearRedisAiSettingCache();
+        SysAiGlobalSettingSaveRequest request = new SysAiGlobalSettingSaveRequest();
+        request.setSysAiGlobalSettingGroup(GROUP);
+        request.setSettings(settingEntities);
+
+        try {
+            boolean saved = settingService.replace(request);
+            log.info("通过 service.replace() 写入 AI 设置并清除缓存: success={}", saved);
+        } catch (Exception e) {
+            log.warn("service.replace() 失败，回退到 JDBC 写入: {}", e.getMessage());
+            jdbcTemplate.update("DELETE FROM sys_ai_global_setting WHERE sys_ai_global_setting_group = ?", GROUP);
+            for (Object[] row : SETTINGS) {
+                jdbcTemplate.update(
+                    "INSERT INTO sys_ai_global_setting (sys_ai_global_setting_group, sys_ai_global_setting_field, sys_ai_global_setting_value, sys_ai_global_setting_value_type, sys_ai_global_setting_description, sys_ai_global_setting_sort, sys_ai_global_setting_status, create_time, update_time) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)",
+                    GROUP, row[0], row[1], row[2], row[3], row[4], LocalDateTime.now(), LocalDateTime.now()
+                );
+            }
+            clearRedisAiSettingCache();
+        }
+
+        log.info("AI 全局设置已初始化（覆盖 SQL 种子数据），正在重建 ChatClient...");
 
         // 验证 DB 写入是否成功
         List<Map<String, Object>> written = jdbcTemplate.queryForList(

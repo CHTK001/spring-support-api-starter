@@ -13,7 +13,7 @@ server:
 panel:
   enabled: true
   jdbc-enabled: true
-  ai-enabled: false
+  ai-enabled: true
   datasource-store-path: ${user.dir}/.panel/panel-datasources.json
 
 plugin:
@@ -39,3 +39,7 @@ docker:
   api:
     host: 172.16.0.40
     port: 2375
+
+datalake:
+  enabled: false
+

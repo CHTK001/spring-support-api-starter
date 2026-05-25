@@ -1,6 +1,4 @@
 spring:
-  autoconfigure:
-    exclude: com.chua.starter.job.support.ScheduledAutoConfiguration
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:file:./data/panel_test;MODE=MySQL;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
@@ -40,5 +38,5 @@ plugin:
     enable: true
     room:
       - client-id: panel
-        port: 58082
+        port: 58084
         context-path: /socket.io

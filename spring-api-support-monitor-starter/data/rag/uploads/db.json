@@ -1,11 +1,11 @@
 [ {
-  "id" : "c0031de7401141f4b19d5cc8ed0a8b51",
-  "fileName" : "test-rag.txt",
+  "id" : "dc9823c6b42541788df83852be42913a",
+  "fileName" : "test-三国演义.txt",
   "fileType" : "txt",
-  "fileSize" : 467,
+  "fileSize" : 2537,
   "chunkCount" : 1,
   "status" : "READY",
   "errorMessage" : null,
-  "createTime" : 1778846258511,
+  "createTime" : 1779613516680,
   "metadata" : { }
 } ]
