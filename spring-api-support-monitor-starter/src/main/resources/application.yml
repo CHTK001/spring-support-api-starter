@@ -7,7 +7,7 @@ spring:
     name: monitor
   profiles:
     # 当前激活的配置文件
-    active: dev
+    active: h2
     # 包含的配置文件列表(dev放在最后确保数据源配置生效)
     include: plugin,mybatis,swagger,socket,api,report,actuator
   main:

@@ -64,14 +64,29 @@
     </dependency>
 
     <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-mysql-starter</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongodb-driver-sync</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
     </dependency>
 
     <dependency>
       <groupId>com.influxdb</groupId>
       <artifactId>influxdb-client-java</artifactId>
       <version>3.4.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-api-support-datalake-starter</artifactId>
     </dependency>
   </dependencies>
 

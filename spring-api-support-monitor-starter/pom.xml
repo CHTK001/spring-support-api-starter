@@ -170,7 +170,7 @@
             <artifactId>spring-support-common-starter</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>utils-support-log-starter</artifactId>
+                    <artifactId>utils-support-loki-starter</artifactId>
                     <groupId>com.chua</groupId>
                 </exclusion>
             </exclusions>

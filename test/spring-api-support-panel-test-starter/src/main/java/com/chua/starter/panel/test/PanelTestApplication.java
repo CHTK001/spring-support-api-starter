@@ -15,7 +15,11 @@ import org.springframework.context.annotation.ComponentScan;
         "com.chua.starter.panel.test",
         "com.chua.starter.project",
         "com.chua.starter.docker",
-})
+        // "com.chua.starter.datalake",
+}, excludeFilters = @ComponentScan.Filter(
+        type = org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE,
+        classes = {com.chua.starter.datalake.configuration.DatalakeApiAutoConfiguration.class}
+))
 public class PanelTestApplication {
 
     public static void main(String[] args) {
