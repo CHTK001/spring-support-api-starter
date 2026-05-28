@@ -52,6 +52,19 @@ test/**/ssh_payload.json
 test_ssh.py
 Cargo.lock
 
+#管线运行时产物
+pipeline-management
+*-pipeline*
+sensor-data-pipeline
+test-flow-*
+test-pipeline-*
+data/
+examples/
+
+#Playwright浏览器测试产物
+test/**/playwright-fetch-*.js
+test/**/playwright-out-*.json
+
 #非项目根目录文件
 /*.js
 /*.png
