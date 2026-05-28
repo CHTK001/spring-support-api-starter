@@ -1,0 +1,3 @@
+com.chua.starter.datalake.subscription.HttpSubscriber
+com.chua.starter.datalake.subscription.MqSubscriber
+com.chua.starter.datalake.subscription.TcpSubscriber

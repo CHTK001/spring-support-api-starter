@@ -1,34 +1,38 @@
 package com.chua.starter.datalake.service;
 
+import com.chua.datalake.support.envelope.DataEnvelope;
 import com.chua.datalake.support.engine.PipelineLifecycle;
 import com.chua.datalake.support.engine.ScGraph;
 import com.chua.datalake.support.engine.ScGraphNode;
+import com.chua.datalake.support.spi.pipeline.PipelineManager;
 import com.chua.starter.datalake.model.PipelineCreateRequest;
 import com.chua.starter.datalake.model.PipelineUpdateRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Pipeline 业务逻辑 — 内存存储，后续可接入数据库
+ * Pipeline 业务逻辑 — 委托给 {@link PipelineManager} SPI 实现
  */
 @Slf4j
 public class PipelineService {
 
-    private final Map<String, ScGraph> graphs = new ConcurrentHashMap<>();
-    private final Map<String, PipelineLifecycle> lifecycles = new ConcurrentHashMap<>();
+    private final PipelineManager pipelineManager;
+
+    public PipelineService(PipelineManager pipelineManager) {
+        this.pipelineManager = pipelineManager;
+    }
 
     public List<ScGraph> list() {
-        return new ArrayList<>(graphs.values());
+        return pipelineManager.list();
     }
 
     public ScGraph getById(String id) {
-        return graphs.get(id);
+        return pipelineManager.getById(id);
     }
 
     public PipelineLifecycle getLifecycle(String id) {
-        return lifecycles.getOrDefault(id, PipelineLifecycle.STOPPED);
+        return pipelineManager.getLifecycle(id);
     }
 
     public ScGraph create(PipelineCreateRequest request) {
@@ -39,66 +43,49 @@ public class PipelineService {
         graph.setDescription(request.getDescription());
         graph.setNodes(parseNodes(request.getNodes()));
         graph.setSinks(request.getSinks() != null ? request.getSinks() : new HashMap<>());
-        graphs.put(graph.getId(), graph);
-        lifecycles.put(graph.getId(), PipelineLifecycle.STOPPED);
-        log.info("Pipeline created: {}", graph.getId());
-        return graph;
+        return pipelineManager.create(graph);
     }
 
     public ScGraph update(PipelineUpdateRequest request) {
-        ScGraph existing = graphs.get(request.getId());
-        if (existing == null) {
-            return null;
-        }
-        if (request.getName() != null) existing.setName(request.getName());
-        if (request.getVersion() != null) existing.setVersion(request.getVersion());
-        if (request.getDescription() != null) existing.setDescription(request.getDescription());
-        if (request.getNodes() != null) existing.setNodes(parseNodes(request.getNodes()));
-        if (request.getSinks() != null) existing.setSinks(request.getSinks());
-        log.info("Pipeline updated: {}", existing.getId());
-        return existing;
+        ScGraph graph = pipelineManager.getById(request.getId());
+        if (graph == null) return null;
+
+        ScGraph updated = new ScGraph();
+        updated.setId(request.getId());
+        updated.setName(request.getName() != null ? request.getName() : graph.getName());
+        updated.setVersion(request.getVersion() != null ? request.getVersion() : graph.getVersion());
+        updated.setDescription(request.getDescription() != null ? request.getDescription() : graph.getDescription());
+        updated.setNodes(request.getNodes() != null ? parseNodes(request.getNodes()) : graph.getNodes());
+        updated.setSinks(request.getSinks() != null ? request.getSinks() : graph.getSinks());
+        return pipelineManager.update(updated);
     }
 
     public boolean delete(String id) {
-        ScGraph removed = graphs.remove(id);
-        lifecycles.remove(id);
-        if (removed != null) {
-            log.info("Pipeline deleted: {}", id);
-            return true;
-        }
-        return false;
+        return pipelineManager.delete(id);
     }
 
     public boolean start(String id) {
-        if (!graphs.containsKey(id)) return false;
-        lifecycles.put(id, PipelineLifecycle.RUNNING);
-        log.info("Pipeline started: {}", id);
-        return true;
+        return pipelineManager.start(id);
     }
 
     public boolean stop(String id) {
-        if (!graphs.containsKey(id)) return false;
-        lifecycles.put(id, PipelineLifecycle.STOPPED);
-        log.info("Pipeline stopped: {}", id);
-        return true;
+        return pipelineManager.stop(id);
     }
 
     public boolean pause(String id) {
-        if (!graphs.containsKey(id)) return false;
-        PipelineLifecycle current = lifecycles.get(id);
-        if (current != PipelineLifecycle.RUNNING) return false;
-        lifecycles.put(id, PipelineLifecycle.PAUSED);
-        log.info("Pipeline paused: {}", id);
-        return true;
+        return pipelineManager.pause(id);
     }
 
     public boolean resume(String id) {
-        if (!graphs.containsKey(id)) return false;
-        PipelineLifecycle current = lifecycles.get(id);
-        if (current != PipelineLifecycle.PAUSED) return false;
-        lifecycles.put(id, PipelineLifecycle.RUNNING);
-        log.info("Pipeline resumed: {}", id);
-        return true;
+        return pipelineManager.resume(id);
+    }
+
+    public void submit(String pipelineId, DataEnvelope envelope) {
+        pipelineManager.submit(pipelineId, envelope);
+    }
+
+    public DataEnvelope execute(String pipelineId, DataEnvelope envelope) {
+        return pipelineManager.execute(pipelineId, envelope);
     }
 
     private List<ScGraphNode> parseNodes(List<Map<String, Object>> rawNodes) {
