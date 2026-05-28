@@ -30,6 +30,7 @@
         <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-common-payment-starter</module>
         <module>spring-api-support-datalake-starter</module>
+        <module>spring-api-support-workflow-starter</module>
     </modules>
 
     <properties>
@@ -777,6 +778,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-datalake-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-api-support-workflow-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

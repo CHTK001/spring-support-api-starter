@@ -34,16 +34,26 @@ public class DatalakeHttpBridge {
     /** 订阅存储 */
     private final Map<String, Subscription> subscriptions = new ConcurrentHashMap<>();
 
+    /** SPI 实现清单（按节点类型分组） */
+    private final Map<String, List<Map<String, String>>> spiCatalog;
+
+    /** 上下文路径 */
+    private final String contextPath;
+
     /** 死信队列存储 */
     private final Map<Long, Map<String, Object>> dlqEntries = new ConcurrentHashMap<>();
     private final AtomicLong dlqIdSeq = new AtomicLong(1);
 
     public DatalakeHttpBridge(PipelineService pipelineService,
                               DatalakeDataService dataService,
-                              DatalakeMonitorService monitorService) {
+                              DatalakeMonitorService monitorService,
+                              String contextPath,
+                              Map<String, List<Map<String, String>>> spiCatalog) {
         this.pipelineService = pipelineService;
         this.dataService = dataService;
         this.monitorService = monitorService;
+        this.contextPath = contextPath != null ? contextPath : "";
+        this.spiCatalog = spiCatalog != null ? spiCatalog : new HashMap<>();
     }
 
     /**
@@ -63,6 +73,12 @@ public class DatalakeHttpBridge {
         server.post("/pipeline/{id}/pause", this::handlePipelinePause);
         server.post("/pipeline/{id}/resume", this::handlePipelineResume);
         server.get("/pipeline/{id}/status", this::handlePipelineStatus);
+
+        // SPI 清单
+        server.get("/pipeline/spis", this::handlePipelineSpis);
+
+        // Pipeline 数据提交
+        server.post("/pipeline/{id}/submit", this::handlePipelineSubmit);
 
         // 数据查询
         server.post("/data/query", this::handleDataQuery);
@@ -116,8 +132,14 @@ public class DatalakeHttpBridge {
         req.setNodes(toList(body.get("nodes")));
         req.setSinks(toSinksMap(body.get("sinks")));
 
+        // ID 为空时自动生成
         if (req.getId() == null || req.getId().isEmpty()) {
-            writeJson(response, ReturnResult.error("id is required"));
+            req.setId("pipeline-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12));
+        }
+
+        // 禁止中文
+        if (containsChinese(req.getId())) {
+            writeJson(response, ReturnResult.error("Pipeline ID 不支持中文"));
             return;
         }
         if (pipelineService.getById(req.getId()) != null) {
@@ -192,6 +214,75 @@ public class DatalakeHttpBridge {
         writeJson(response, ReturnResult.ok(status));
     }
 
+    // ==================== SPI 清单 ====================
+
+    private void handlePipelineSpis(ServletRequest request, ServletResponse response) {
+        writeJson(response, ReturnResult.ok(spiCatalog));
+    }
+
+    // ==================== 数据提交 ====================
+
+    private void handlePipelineSubmit(ServletRequest request, ServletResponse response) {
+        String id = extractPathVariable(request, "/pipeline/{id}/submit", "id");
+        JsonObject body = parseBody(request);
+        if (body == null) {
+            writeJson(response, ReturnResult.error("Invalid request body"));
+            return;
+        }
+        ScGraph graph = pipelineService.getById(id);
+        if (graph == null) {
+            writeJson(response, ReturnResult.error("Pipeline not found: " + id));
+            return;
+        }
+
+        DataEnvelope envelope = new DataEnvelope();
+        envelope.setPipelineId(id);
+
+        // 解析 topic 标识
+        String topic = body.getString("topic");
+        if (topic != null && !topic.isEmpty()) {
+            envelope.addTopic(topic);
+        }
+        Object topics = body.get("topics");
+        if (topics instanceof List) {
+            for (Object t : (List<?>) topics) {
+                if (t instanceof String s) envelope.addTopic(s);
+            }
+        }
+
+        // 从 body 中提取字段
+        Object payload = body.get("payload");
+        if (payload != null) {
+            if (payload instanceof String s) {
+                envelope.setRawPayload(s.getBytes(StandardCharsets.UTF_8));
+            } else {
+                envelope.setRawPayload(Json.toJson(payload).getBytes(StandardCharsets.UTF_8));
+            }
+        }
+        Object parsed = body.get("parsed");
+        if (parsed instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> parsedMap = (Map<String, Object>) parsed;
+            envelope.getParsed().putAll(parsedMap);
+        }
+        envelope.setFormatType(body.getString("formatType", "json"));
+
+        // 同步执行管线（直接调用 engine.execute），用于测试和调试
+        try {
+            DataEnvelope result = pipelineService.execute(id, envelope);
+            if (result == null) {
+                writeJson(response, ReturnResult.ok(Map.of(
+                        "status", "filtered",
+                        "message", "Data was filtered out by a filter node",
+                        "traceLog", envelope.getTraceLog())));
+            } else {
+                writeJson(response, ReturnResult.ok(result));
+            }
+        } catch (Exception e) {
+            writeJson(response, ReturnResult.error("Execute failed: " + e.getMessage()));
+        }
+    }
+
     // ==================== 数据查询 ====================
 
     private void handleDataQuery(ServletRequest request, ServletResponse response) {
@@ -246,6 +337,15 @@ public class DatalakeHttpBridge {
         sub.setClientId("client-" + System.currentTimeMillis());
         sub.setPipelineId(body.getString("pipelineId"));
         sub.setFilter(toMap(body.get("filter")));
+        // 解析订阅主题
+        Object topics = body.get("topics");
+        if (topics instanceof List) {
+            java.util.Set<String> topicSet = new java.util.HashSet<>();
+            for (Object t : (List<?>) topics) {
+                if (t instanceof String s) topicSet.add(s);
+            }
+            sub.setTopics(topicSet);
+        }
         sub.setCreatedAt(System.currentTimeMillis());
         subscriptions.put(sub.getSubscriptionId(), sub);
         writeJson(response, ReturnResult.ok(sub));
@@ -333,7 +433,9 @@ public class DatalakeHttpBridge {
         response.setContentType("application/json;charset=UTF-8");
         response.setCharset(StandardCharsets.UTF_8.name());
         response.setStatus(200);
-        response.setBodyString(Json.toJson(data));
+        String json = Json.toJson(data);
+        response.setBodyString(json);
+        response.setBody(json.getBytes(StandardCharsets.UTF_8));
     }
 
     private JsonObject parseBody(ServletRequest request) {
@@ -348,10 +450,18 @@ public class DatalakeHttpBridge {
 
     /**
      * 从请求路径中提取路径变量
-     * 使用 PathVariableUtils 从实际请求路径匹配模式路径并提取变量
+     * 先剥离上下文路径，再使用 PathVariableUtils 匹配
      */
     private String extractPathVariable(ServletRequest request, String pattern, String name) {
         String requestPath = request.getPath();
+        // 剥离 contextPath 前缀
+        if (contextPath != null && !contextPath.isEmpty() && requestPath.startsWith(contextPath)) {
+            requestPath = requestPath.substring(contextPath.length());
+        }
+        // 确保以 / 开头
+        if (!requestPath.startsWith("/")) {
+            requestPath = "/" + requestPath;
+        }
         Map<String, String> vars = PathVariableUtils.extractPathVariables(pattern, requestPath);
         return vars.getOrDefault(name, "");
     }
@@ -398,5 +508,14 @@ public class DatalakeHttpBridge {
 
     private long parseLong(String s, long defaultValue) {
         try { return Long.parseLong(s); } catch (Exception e) { return defaultValue; }
+    }
+
+    /** 检查字符串是否包含中文字符 */
+    private boolean containsChinese(String s) {
+        if (s == null) return false;
+        for (char c : s.toCharArray()) {
+            if (c >= '一' && c <= '鿿') return true;
+        }
+        return false;
     }
 }

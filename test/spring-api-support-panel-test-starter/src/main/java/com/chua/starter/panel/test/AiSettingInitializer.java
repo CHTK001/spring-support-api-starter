@@ -18,6 +18,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Component;
  * <p>写入 AI 全局设置（覆盖 SQL 种子数据），清除 Redis 缓存后重建 ChatClient。</p>
  */
 @Component
+@ConditionalOnProperty(prefix = "panel", name = "ai-enabled", havingValue = "true", matchIfMissing = false)
 public class AiSettingInitializer implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(AiSettingInitializer.class);

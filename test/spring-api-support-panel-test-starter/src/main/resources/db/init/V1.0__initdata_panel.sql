@@ -436,6 +436,8 @@ WHERE software_code IN ('nginx', 'redis', 'mongodb', 'postgresql', 'mysql', 'tom
                          'mariadb', 'zookeeper', 'kafka', 'nacos', 'minio', 'rabbitmq',
                          'elasticsearch', 'grafana', 'prometheus', 'jenkins', 'wordpress',
                          'phpmyadmin', 'consul')
+  AND preset_remark IS NOT NULL
+  AND JSON_VALID(preset_remark)
   AND JSON_CONTAINS(preset_remark, '["DOCKER"]', '$.supportedModes')
   AND NOT JSON_CONTAINS(preset_remark, '["SYSTEM"]', '$.supportedModes');
 
@@ -1249,6 +1251,7 @@ SET preset_remark = JSON_SET(
 )
 WHERE software_code = 'mysql'
   AND preset_remark IS NOT NULL
+  AND JSON_VALID(preset_remark)
   AND NOT JSON_CONTAINS_PATH(preset_remark, 'one', '$.dockerDefaults.envDescriptions');
 
 -- ============================================================

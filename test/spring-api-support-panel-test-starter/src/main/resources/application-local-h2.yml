@@ -27,8 +27,8 @@ panel:
 plugin:
   datasource:
     script:
-      scan-mode: ALWAYS
-      data-scan-mode: ALWAYS
+      scan-mode: NONE
+      data-scan-mode: NONE
   redis:
     server:
       enable: false

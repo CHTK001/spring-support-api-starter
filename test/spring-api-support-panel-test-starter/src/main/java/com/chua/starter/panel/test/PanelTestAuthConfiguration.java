@@ -67,6 +67,11 @@ public class PanelTestAuthConfiguration {
                             resume.setRoles(Set.of("ADMIN"));
                             return resume;
                         }
+                        // 按参数名返回测试默认值
+                        String paramName = parameter.getParameterName();
+                        if ("userId".equals(paramName)) return 1;
+                        if ("userName".equals(paramName)) return "admin";
+                        if ("deptId".equals(paramName)) return 1;
                         return null;
                     }
                 });
