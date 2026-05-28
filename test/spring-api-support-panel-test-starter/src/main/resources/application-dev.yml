@@ -41,5 +41,5 @@ docker:
     port: 2375
 
 datalake:
-  enabled: false
+  enabled: true
 

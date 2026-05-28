@@ -16,6 +16,11 @@
   <dependencies>
     <dependency>
       <groupId>com.chua</groupId>
+      <artifactId>spring-api-support-workflow-starter</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.chua</groupId>
       <artifactId>spring-api-support-scheduler-starter</artifactId>
     </dependency>
 
@@ -87,6 +92,12 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-datalake-starter</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.paho</groupId>
+      <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+      <version>1.2.5</version>
     </dependency>
   </dependencies>
 
