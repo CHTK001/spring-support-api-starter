@@ -154,6 +154,24 @@ public class HttpSubscriber implements Subscriber {
     }
 
     /**
+     * 获取所有客户端及其订阅信息（供管理 API 调用）
+     *
+     * @return 客户端订阅信息映射，key=clientId
+     */
+    public Map<String, Map<String, Object>> getClientSubscriptions() {
+        Map<String, Map<String, Object>> result = new LinkedHashMap<>();
+        for (Map.Entry<String, SubscriptionInfo> entry : clientSubscriptions.entrySet()) {
+            Map<String, Object> info = new LinkedHashMap<>();
+            info.put("pipelineId", entry.getValue().pipelineId);
+            info.put("topics", entry.getValue().topics);
+            int pending = pendingMessages.getOrDefault(entry.getKey(), new CopyOnWriteArrayList<>()).size();
+            info.put("pending", pending);
+            result.put(entry.getKey(), info);
+        }
+        return result;
+    }
+
+    /**
      * 轮询拉取待消费消息（覆盖 SPI 接口默认方法）
      */
     @Override
