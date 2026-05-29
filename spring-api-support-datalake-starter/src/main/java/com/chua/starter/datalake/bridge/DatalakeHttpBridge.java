@@ -100,6 +100,10 @@ public class DatalakeHttpBridge {
         server.post("/dlq/{id}/retry", this::handleDlqRetry);
         server.delete("/dlq/{id}", this::handleDlqDelete);
         server.delete("/dlq/clear", this::handleDlqClear);
+
+        // 系统配置
+        server.get("/settings", this::handleSettingsGet);
+        server.put("/settings", this::handleSettingsUpdate);
     }
 
     // ==================== Pipeline ====================
@@ -425,6 +429,39 @@ public class DatalakeHttpBridge {
         entry.put("failCount", 1);
         entry.put("createdAt", System.currentTimeMillis());
         dlqEntries.put(id, entry);
+    }
+
+    // ==================== 系统配置 ====================
+
+    /** 系统配置存储 */
+    private final Map<String, Object> systemSettings = new ConcurrentHashMap<>();
+
+    private void handleSettingsGet(ServletRequest request, ServletResponse response) {
+        Map<String, Object> settings = new LinkedHashMap<>();
+        settings.put("httpPort", systemSettings.getOrDefault("httpPort", 58081));
+        settings.put("wsPort", systemSettings.getOrDefault("wsPort", 58082));
+        settings.put("tcpCollectPort", systemSettings.getOrDefault("tcpCollectPort", 58083));
+        settings.put("mqSubPort", systemSettings.getOrDefault("mqSubPort", 58085));
+        settings.put("tcpSubPort", systemSettings.getOrDefault("tcpSubPort", 58086));
+        settings.put("authEnabled", systemSettings.getOrDefault("authEnabled", true));
+        settings.put("rateLimit", systemSettings.getOrDefault("rateLimit", 100));
+        settings.put("weatherInterval", systemSettings.getOrDefault("weatherInterval", 600));
+        writeJson(response, ReturnResult.ok(settings));
+    }
+
+    private void handleSettingsUpdate(ServletRequest request, ServletResponse response) {
+        JsonObject body = parseBody(request);
+        if (body == null) {
+            writeJson(response, ReturnResult.error("请求体不能为空"));
+            return;
+        }
+        for (String key : body.keySet()) {
+            systemSettings.put(key, body.get(key));
+        }
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("updated", new ArrayList<>(body.keySet()));
+        result.put("restartRequired", true);
+        writeJson(response, ReturnResult.ok(result));
     }
 
     // ==================== 工具方法 ====================

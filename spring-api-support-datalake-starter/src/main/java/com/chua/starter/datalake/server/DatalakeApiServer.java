@@ -80,6 +80,8 @@ public class DatalakeApiServer {
     private ScheduledExecutorService wsPushScheduler;
     /** 指标上报器，定期采集并上报管线/系统 Metrics */
     private DatalakeReporter reporter;
+    /** 数据查询服务，存储已处理的采集结果以供查询 */
+    private DatalakeDataService dataService;
 
     /**
      * 完整构造函数
@@ -153,8 +155,8 @@ public class DatalakeApiServer {
         }
 
         PipelineService pipelineService = new PipelineService(pipelineManager);
-        DatalakeDataService dataService = new DatalakeDataService();
-        DatalakeMonitorService monitorService = new DatalakeMonitorService(pipelineService, dataService);
+        this.dataService = new DatalakeDataService();
+        DatalakeMonitorService monitorService = new DatalakeMonitorService(pipelineService, this.dataService);
 
         // ── 启动定时上报（MetricsReporter） ──
         MetricsReporter metricsReporter = MetricsReporter.getDefault();
@@ -167,7 +169,7 @@ public class DatalakeApiServer {
         Map<String, List<Map<String, String>>> spiCatalog = buildSpiCatalog();
 
         // ── 注册 HTTP 路由 ──
-        DatalakeHttpBridge bridge = new DatalakeHttpBridge(pipelineService, dataService, monitorService, contextPath, spiCatalog);
+        DatalakeHttpBridge bridge = new DatalakeHttpBridge(pipelineService, this.dataService, monitorService, contextPath, spiCatalog);
         bridge.register(server);
 
         initDefaultPipeline(pipelineManager);
@@ -180,7 +182,7 @@ public class DatalakeApiServer {
 
             // 设置采集回调: CollectData → DataEnvelope → Pipeline
             String finalProtocol = collector.protocol();
-            collector.setHandler(data -> handleCollectData(data, pipelineManager));
+            collector.setHandler(data -> handleCollectData(data, pipelineManager, this.dataService));
 
             if ("HTTP".equals(collector.protocol()) && collector instanceof HttpCollector httpCol) {
                 // HTTP 采集共享 58081 端口，使用统一 collect(String) API 解析请求体
@@ -732,7 +734,7 @@ public class DatalakeApiServer {
      * @param data            采集到的原始数据
      * @param pipelineManager 管线管理器
      */
-    private void handleCollectData(CollectData data, DataSourcePipelineManager pipelineManager) {
+    private void handleCollectData(CollectData data, DataSourcePipelineManager pipelineManager, DatalakeDataService dataService) {
         // 转换为 DataEnvelope
         DataEnvelope envelope = new DataEnvelope();
         if (data.getTopic() != null) envelope.addTopic(data.getTopic());
@@ -749,7 +751,13 @@ public class DatalakeApiServer {
         String pipelineId = data.getPipelineId();
         if (pipelineId != null && pipelineManager.getById(pipelineId) != null) {
             try {
-                pipelineManager.execute(pipelineId, envelope);
+                DataEnvelope result = pipelineManager.execute(pipelineId, envelope);
+                // 将处理结果持久化，供数据查询 API 使用
+                if (result != null) {
+                    dataService.ingest(result);
+                } else {
+                    dataService.ingest(envelope);
+                }
             } catch (Exception e) {
                 System.err.println("[DatalakeApiServer] 采集数据处理失败: pipeline=" + pipelineId + " — " + e.getMessage());
                 return;
