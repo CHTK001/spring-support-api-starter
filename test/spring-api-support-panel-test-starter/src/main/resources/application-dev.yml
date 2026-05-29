@@ -32,7 +32,7 @@ plugin:
     enable: true
     room:
       - client-id: panel
-        port: 58083
+        port: 58087
         context-path: /socket.io
 
 docker:
