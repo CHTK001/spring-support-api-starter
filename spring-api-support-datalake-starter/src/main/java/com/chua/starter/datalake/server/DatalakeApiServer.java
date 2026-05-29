@@ -16,6 +16,8 @@ import com.chua.datalake.support.engine.ScGraphEngine;
 import com.chua.datalake.support.engine.ScGraphNode;
 import com.chua.datalake.support.envelope.DataEnvelope;
 import com.chua.datalake.support.model.CollectData;
+import com.chua.datalake.support.engine.ScriptEvaluator;
+import com.chua.datalake.support.spi.auth.PipelineValidator;
 import com.chua.datalake.support.spi.auth.RateLimiter;
 import com.chua.datalake.support.spi.auth.TokenService;
 import com.chua.datalake.support.spi.collection.Collector;
@@ -36,6 +38,8 @@ import com.chua.starter.datalake.service.DatalakeMonitorService;
 import com.chua.starter.datalake.service.DatalakeReporter;
 import com.chua.starter.datalake.service.PipelineService;
 import com.chua.starter.datalake.subscription.HttpSubscriber;
+import com.chua.starter.datalake.subscription.MqSubscriber;
+import com.chua.starter.datalake.subscription.TcpSubscriber;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -157,6 +161,9 @@ public class DatalakeApiServer {
         reporter = new DatalakeReporter(metricsReporter, pipelineService, monitorService, buffer);
         reporter.start();
 
+        // ── 初始化管线校验器 ──
+        final PipelineValidator pipelineValidator = initPipelineValidator();
+
         Map<String, List<Map<String, String>>> spiCatalog = buildSpiCatalog();
 
         // ── 注册 HTTP 路由 ──
@@ -182,10 +189,21 @@ public class DatalakeApiServer {
                 server.post("/collect", (req, resp) -> {
                     byte[] body = req.getBody();
                     if (body == null || body.length == 0) {
-                        writeJsonResponse(resp, 400, "Invalid request body");
+                        writeJsonResponse(resp, 400, Map.of("error", "请求体不能为空"));
                         return;
                     }
                     String json = new String(body, java.nio.charset.StandardCharsets.UTF_8);
+                    // ── 管线校验器: 检查 pipelineId 是否合法 ──
+                    JsonObject collectBody = JsonObject.parse(json);
+                    String pipelineId = collectBody != null ? collectBody.getString("pipelineId") : null;
+                    String clientIp = req.getHeader("X-Forwarded-For");
+                    if (!pipelineValidator.validate(pipelineId, clientIp, json)) {
+                        writeJsonResponse(resp, 403, Map.of("error",
+                            pipelineId == null || pipelineId.isBlank()
+                                ? "pipelineId 是必填参数，请指定目标管线"
+                                : "pipelineId '" + pipelineId + "' 不在白名单中或管线不存在"));
+                        return;
+                    }
                     httpCol.collect(json);
                     writeJsonResponse(resp, 200, Map.of("status", "ok", "protocol", "HTTP"));
                 });
@@ -255,11 +273,168 @@ public class DatalakeApiServer {
             }
         }
 
+        // ── 注册采集器管理路由 ──
+        final String collectorBase = "/collector";
+        server.get(collectorBase + "/list", (req, resp) -> {
+            java.util.List<Map<String, Object>> list = new java.util.ArrayList<>();
+            for (Collector c : startedCollectors) {
+                Map<String, Object> info = new LinkedHashMap<>();
+                info.put("protocol", c.protocol());
+                info.put("port", c.defaultPort());
+                info.put("running", c.isRunning());
+                list.add(info);
+            }
+            writeJsonResponse(resp, 200, Map.of("code", 0, "data", list));
+        });
+        server.post(collectorBase + "/{name}/restart", (req, resp) -> {
+            String name = extractParam(req, "/collector/{name}/restart", "name");
+            for (Collector c : startedCollectors) {
+                if (c.protocol().equalsIgnoreCase(name)) {
+                    try { c.stop(); c.start(c.defaultPort()); writeJsonResponse(resp, 200, Map.of("status", "ok")); }
+                    catch (Exception e) { writeJsonResponse(resp, 500, Map.of("error", e.getMessage())); }
+                    return;
+                }
+            }
+            writeJsonResponse(resp, 404, Map.of("error", "collector not found"));
+        });
+        System.out.println("[DatalakeApiServer] 采集器管理路由已注册: GET " + collectorBase + "/list"
+                + ", POST " + collectorBase + "/{name}/restart");
+
+        // ── 注册订阅器管理路由 ──
+        final String subscriberMgmtBase = "/subscriber";
+        server.get(subscriberMgmtBase + "/list", (req, resp) -> {
+            java.util.List<Map<String, Object>> list = new java.util.ArrayList<>();
+            for (Subscriber s : startedSubscribers) {
+                Map<String, Object> info = new LinkedHashMap<>();
+                info.put("protocol", s.protocol());
+                info.put("port", s.defaultPort());
+                info.put("running", s.isRunning());
+                list.add(info);
+            }
+            writeJsonResponse(resp, 200, Map.of("code", 0, "data", list));
+        });
+        server.get(subscriberMgmtBase + "/clients", (req, resp) -> {
+            Map<String, Object> result = new LinkedHashMap<>();
+            for (Subscriber s : startedSubscribers) {
+                String key = s.protocol();
+                if (s instanceof HttpSubscriber hs && hs.getClientSubscriptions() != null) {
+                    result.put(key, hs.getClientSubscriptions());
+                } else if (s instanceof TcpSubscriber ts && ts.getClientIds() != null) {
+                    result.put(key, ts.getClientIds());
+                } else {
+                    result.put(key, List.of());
+                }
+            }
+            writeJsonResponse(resp, 200, Map.of("code", 0, "data", result));
+        });
+        System.out.println("[DatalakeApiServer] 订阅器管理路由已注册: GET " + subscriberMgmtBase + "/list"
+                + ", GET " + subscriberMgmtBase + "/clients");
+
+        // ── 注册节点/SPI 管理路由 ──
+        final String nodeBase = "/node";
+        server.get(nodeBase + "/list", (req, resp) -> {
+            java.util.List<Map<String, Object>> nodes = new java.util.ArrayList<>();
+            for (Map.Entry<String, List<Map<String, String>>> entry : spiCatalog.entrySet()) {
+                Map<String, Object> node = new LinkedHashMap<>();
+                node.put("type", entry.getKey());
+                node.put("spis", entry.getValue());
+                nodes.add(node);
+            }
+            writeJsonResponse(resp, 200, Map.of("code", 0, "data", nodes));
+        });
+        server.get(nodeBase + "/{type}/spis", (req, resp) -> {
+            String type = extractParam(req, "/node/{type}/spis", "type");
+            List<Map<String, String>> spis = spiCatalog.getOrDefault(type, List.of());
+            writeJsonResponse(resp, 200, Map.of("code", 0, "data", spis));
+        });
+        System.out.println("[DatalakeApiServer] 节点管理路由已注册: GET " + nodeBase + "/list"
+                + ", GET " + nodeBase + "/{type}/spis");
+
+        // ── 注册脚本测试路由 ──
+        ScriptEvaluator scriptEvaluator = new ScriptEvaluator();
+        server.post("/script/test", (req, resp) -> {
+            JsonObject body = parseBody(req);
+            if (body == null) {
+                writeJsonResponse(resp, 400, Map.of("error", "请求体不能为空"));
+                return;
+            }
+            String script = body.containsKey("script") ? String.valueOf(body.get("script")) : null;
+            String scriptType = body.containsKey("scriptType") ? String.valueOf(body.get("scriptType")) : "js";
+            String testPayload = body.containsKey("payload") ? String.valueOf(body.get("payload")) : "{}";
+            if (script == null || script.isBlank()) {
+                writeJsonResponse(resp, 400, Map.of("error", "script 参数不能为空"));
+                return;
+            }
+            try {
+                com.chua.datalake.support.envelope.DataEnvelope testEnvelope = new com.chua.datalake.support.envelope.DataEnvelope();
+                testEnvelope.setRawPayload(testPayload.getBytes(StandardCharsets.UTF_8));
+                Map<String, Object> config = new LinkedHashMap<>();
+                config.put("script", script);
+                config.put("scriptType", scriptType);
+                Object result = scriptEvaluator.evalTransform(testEnvelope, config);
+                Map<String, Object> out = new LinkedHashMap<>();
+                out.put("parsed", testEnvelope.getParsed());
+                out.put("traceLog", testEnvelope.getTraceLog());
+                out.put("state", testEnvelope.getState());
+                writeJsonResponse(resp, 200, Map.of("code", 0, "data", out));
+            } catch (Exception e) {
+                writeJsonResponse(resp, 500, Map.of("error", e.getMessage()));
+            }
+        });
+        System.out.println("[DatalakeApiServer] 脚本测试路由已注册: POST " + contextPath + "/script/test");
+
+        // ── 注册管线校验器管理路由 ──
+        final String validatorBase = "/validator";
+        server.get(validatorBase + "/status", (req, resp) -> {
+            Map<String, Object> status = new LinkedHashMap<>();
+            status.put("enabled", pipelineValidator.isEnabled());
+            status.put("requirePipelineId", pipelineValidator.isRequirePipelineId());
+            status.put("whitelist", pipelineValidator.getWhitelist());
+            writeJsonResponse(resp, 200, Map.of("code", 0, "data", status));
+        });
+        server.post(validatorBase + "/toggle", (req, resp) -> {
+            JsonObject body = parseBody(req);
+            if (body != null && body.containsKey("enabled")) {
+                pipelineValidator.setEnabled(Boolean.TRUE.equals(body.get("enabled")));
+            }
+            if (body != null && body.containsKey("requirePipelineId")) {
+                pipelineValidator.setRequirePipelineId(Boolean.TRUE.equals(body.get("requirePipelineId")));
+            }
+            writeJsonResponse(resp, 200, Map.of("code", 0, "data", Map.of(
+                "enabled", pipelineValidator.isEnabled(),
+                "requirePipelineId", pipelineValidator.isRequirePipelineId()
+            )));
+        });
+        server.post(validatorBase + "/whitelist/add", (req, resp) -> {
+            JsonObject body = parseBody(req);
+            String item = body != null ? body.getString("item") : null;
+            if (item == null || item.isBlank()) {
+                writeJsonResponse(resp, 400, Map.of("error", "item 参数不能为空"));
+                return;
+            }
+            pipelineValidator.addToWhitelist(item);
+            writeJsonResponse(resp, 200, Map.of("code", 0, "data", pipelineValidator.getWhitelist()));
+        });
+        server.post(validatorBase + "/whitelist/remove", (req, resp) -> {
+            JsonObject body = parseBody(req);
+            String item = body != null ? body.getString("item") : null;
+            if (item != null && !item.isBlank()) {
+                pipelineValidator.removeFromWhitelist(item);
+            }
+            writeJsonResponse(resp, 200, Map.of("code", 0, "data", pipelineValidator.getWhitelist()));
+        });
+        System.out.println("[DatalakeApiServer] 管线校验器管理路由已注册: GET " + validatorBase + "/status"
+                + ", POST " + validatorBase + "/toggle"
+                + ", POST " + validatorBase + "/whitelist/add"
+                + ", POST " + validatorBase + "/whitelist/remove");
+
         // ── 初始化令牌服务和限流器 ──
         final TokenService tokenService = initTokenService();
         final RateLimiter rateLimiter = initRateLimiter();
         System.out.println("[DatalakeApiServer] 令牌服务: " + tokenService.getClass().getSimpleName()
-                + " | 限流器: " + rateLimiter.getClass().getSimpleName() + " (默认 100 req/s)");
+                + " | 限流器: " + rateLimiter.getClass().getSimpleName() + " (默认 100 req/s)"
+                + " | 管线校验器: " + pipelineValidator.getClass().getSimpleName()
+                + " (requirePipelineId=" + pipelineValidator.isRequirePipelineId() + ")");
 
         // ── 注册鉴权过滤器（优先级 90，在 MappingServletFilter 之前运行） ──
         boolean authEnabled = isAuthEnabled();
@@ -272,7 +447,7 @@ public class DatalakeApiServer {
         }
 
         // ── 注册令牌管理路由（免鉴权，AuthServletFilter 已跳过 /auth/token） ──
-        final String authBase = contextPath + "/auth";
+        final String authBase = "/auth";
         server.post(authBase + "/token", (req, resp) -> {
             JsonObject body = parseBody(req);
             String description = body != null ? body.getString("description") : null;
@@ -470,6 +645,11 @@ public class DatalakeApiServer {
         collect.accept("transform", com.chua.datalake.support.spi.pipeline.DataParser.class);
         collect.accept("enrich", com.chua.datalake.support.spi.pipeline.DataParser.class);
         collect.accept("aggregate", com.chua.datalake.support.spi.pipeline.DataParser.class);
+        catalog.put("script", List.of(
+            Map.of("name", "javascript", "type", "js"),
+            Map.of("name", "groovy", "type", "groovy"),
+            Map.of("name", "java", "type", "java")
+        ));
         return catalog;
     }
 
@@ -500,6 +680,28 @@ public class DatalakeApiServer {
         } catch (Exception e) {
             return new LocalRateLimiter();
         }
+    }
+
+    /**
+     * 初始化管线校验器 — 优先 SPI 加载，回退直接实例化
+     */
+    private static PipelineValidator initPipelineValidator() {
+        try {
+            var provider = ServiceProvider.of(PipelineValidator.class);
+            if (provider != null) {
+                // 遍历可用扩展名，返回第一个匹配的实现
+                var list = provider.list();
+                if (list != null && !list.isEmpty()) {
+                    for (String name : list.keySet()) {
+                        PipelineValidator v = provider.getExtension(name);
+                        if (v != null) return v;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[DatalakeApiServer] PipelineValidator SPI 加载失败: " + e.getMessage());
+        }
+        return new com.chua.starter.datalake.server.auth.DefaultPipelineValidator();
     }
 
     /**
@@ -583,6 +785,43 @@ public class DatalakeApiServer {
     }
 
     /**
+     * 从请求 URI 中提取路径参数
+     * <p>例如模式 "/collector/{name}/restart"，URI "/v2/datalake/collector/HTTP/restart" → 提取 name="HTTP"</p>
+     *
+     * @param request HTTP Servlet 请求
+     * @param pattern 路由模式（含 {paramName} 占位符）
+     * @param paramName 参数名称
+     * @return 提取的参数值，提取失败时返回空字符串
+     */
+    private String extractParam(com.chua.common.support.network.protocol.request.ServletRequest request,
+                                String pattern, String paramName) {
+        String uri = request.getRequestURI();
+        if (uri == null) return "";
+        // 将模式中的 {name} 替换为正则捕获组
+        String regex = pattern.replaceAll("\\{[^}]+}", "([^/]+)");
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(regex).matcher(uri);
+        if (matcher.find()) {
+            // 找到 {paramName} 在 pattern 中的位置
+            String[] parts = pattern.split("\\{[^}]+}");
+            int groupIndex = 0;
+            String prefix = "";
+            for (int i = 0; i < parts.length; i++) {
+                prefix += parts[i];
+                if (i < parts.length - 1) {
+                    groupIndex++;
+                    String partPattern = pattern.substring(prefix.length());
+                    int endBrace = partPattern.indexOf('}');
+                    if (endBrace > 0 && partPattern.substring(1, endBrace).equals(paramName)) {
+                        return matcher.group(groupIndex);
+                    }
+                    prefix += "{" + partPattern.substring(1, endBrace) + "}";
+                }
+            }
+        }
+        return "";
+    }
+
+    /**
      * 写入 JSON 格式的 HTTP 响应
      *
      * @param response HTTP Servlet 响应
@@ -593,7 +832,9 @@ public class DatalakeApiServer {
                                    int status, Object data) {
         response.setStatusCode(status);
         response.setContentType("application/json;charset=UTF-8");
-        response.setBodyString(com.chua.common.support.text.json.Json.toJson(data));
+        String json = com.chua.common.support.text.json.Json.toJson(data);
+        response.setBodyString(json);
+        response.setBody(json.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
     /**

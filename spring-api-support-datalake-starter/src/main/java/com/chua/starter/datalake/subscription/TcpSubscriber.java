@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
@@ -189,6 +190,15 @@ public class TcpSubscriber implements Subscriber {
     @Override
     public boolean matches(DataEnvelope envelope) {
         return !clients.isEmpty();
+    }
+
+    /**
+     * 获取所有已连接客户端 ID 列表（供管理 API 调用）
+     *
+     * @return 已连接客户端 ID 集合
+     */
+    public Set<String> getClientIds() {
+        return new java.util.HashSet<>(clients.keySet());
     }
 
     /**

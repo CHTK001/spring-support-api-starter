@@ -211,6 +211,15 @@ public class MqSubscriber implements Subscriber {
     }
 
     /**
+     * 获取所有已注册主题名称（供管理 API 调用）
+     *
+     * @return 已注册主题集合
+     */
+    public Set<String> getClientIds() {
+        return new HashSet<>(topicMessages.keySet());
+    }
+
+    /**
      * 将 {@link DataEnvelope} 转换为 MQ 协议输出格式
      * <p>格式: {@code DATA <json>\n}</p>
      *
