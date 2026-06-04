@@ -164,9 +164,12 @@ public class OauthAuthInformation extends BaseAuthInformation {
     public OauthAuthorization authorization() {
         // 从Header读取认证类型（x-oauth-type）
         String authType = getRequestHeader(request, "x-oauth-type");
-        
+
+        // 从 bodyData 提取 token（客户端加密协议携带的 x-oauth-token）
+        String token = MapUtils.getString(this.getBodyData(), "x-oauth-token");
+
         return new OauthAuthorization(this,
-                MapUtils.getString(this.getBodyData(), "x-oauth-token"),
+                token,
                 MapUtils.getString(this.getBodyData(), "x-oauth-cookie"),
                 authType,
                 MapUtils.getString(this.getBodyData(), "x-oauth-user-code"),

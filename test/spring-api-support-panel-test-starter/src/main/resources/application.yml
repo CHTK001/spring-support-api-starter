@@ -18,3 +18,8 @@ panel:
 plugin:
   oauth:
     enable: false
+  ai:
+    protocol-server:
+      enabled: false
+  socket:
+    enable: false

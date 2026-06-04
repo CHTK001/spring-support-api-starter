@@ -29,7 +29,6 @@
         <module>spring-api-support-common-configuration-starter</module>
         <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-common-payment-starter</module>
-        <module>spring-api-support-datalake-starter</module>
         <module>spring-api-support-workflow-starter</module>
     </modules>
 
@@ -330,6 +329,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-common-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-datalake-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
 

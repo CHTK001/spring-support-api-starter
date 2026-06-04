@@ -1,1 +1,2 @@
 com.chua.starter.service.configuration.ConfigurationServiceConfiguration
+com.chua.starter.service.configuration.DatalakeAutoConfiguration
