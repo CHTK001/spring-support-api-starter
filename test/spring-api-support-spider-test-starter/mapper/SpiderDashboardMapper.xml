@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.spider.support.mapper.SpiderDashboardMapper">
+
+    <select id="selectSummary" resultType="com.chua.starter.spider.support.model.SpiderDashboardSummaryView">
+        select
+            (select count(1) from spider_definition) as spiderTotalCount,
+            (select count(1) from spider_execution where spider_execution_status = 'RUNNING') as spiderRunningCount,
+            (select count(1) from spider_url_queue) as spiderUrlCount,
+            (select count(1) from spider_url_queue where spider_parse_status = 'SUCCESS') as spiderParsedUrlCount,
+            (select count(1) from spider_parse_result) as spiderResultCount,
+            (select count(1) from spider_url_queue where spider_parse_status in ('WAITING', 'RUNNING')) as spiderRemainingUrlCount
+    </select>
+
+    <select id="selectSitePortraits" resultType="com.chua.starter.spider.support.model.SpiderSitePortraitView">
+        select
+            d.spider_site_host as siteHost,
+            count(distinct q.spider_id) as spiderUrlCount,
+            count(distinct r.spider_id) as spiderResultCount,
+            sum(case when d.spider_status = 1 then 1 else 0 end) as spiderRunningCount,
+            sum(case when d.spider_status = 1 then 0 else 1 end) as spiderWarningCount
+        from spider_definition d
+        left join spider_url_queue q on q.spider_definition_code = d.spider_code
+        left join spider_parse_result r on r.spider_definition_code = d.spider_code
+        group by d.spider_site_host
+        order by spiderResultCount desc, spiderUrlCount desc
+    </select>
+
+    <select id="selectPerMinuteRates" resultType="com.chua.starter.spider.support.model.SpiderMonitorSnapshotView$SpiderPerMinuteRate">
+        select
+            date_format(spider_create_time, '%Y-%m-%d %H:%i') as timeLabel,
+            count(1) as count
+        from spider_parse_result
+        where spider_execution_no = #{executionNo}
+          and spider_create_time >= date_sub(now(), interval 1 hour)
+        group by date_format(spider_create_time, '%Y-%m-%d %H:%i')
+        order by date_format(spider_create_time, '%Y-%m-%d %H:%i') asc
+    </select>
+
+    <select id="selectTimeTrends" resultType="com.chua.starter.spider.support.model.SpiderTimeTrendView">
+        select
+            date_format(source.spider_date, '%m-%d') as spiderDateLabel,
+            sum(source.spider_parse_count) as spiderParseCount,
+            sum(source.spider_result_count) as spiderResultCount
+        from (
+            select
+                date(spider_create_time) as spider_date,
+                count(1) as spider_parse_count,
+                0 as spider_result_count
+            from spider_url_queue
+            where spider_create_time >= date_sub(curdate(), interval 6 day)
+            group by date(spider_create_time)
+
+            union all
+
+            select
+                date(spider_create_time) as spider_date,
+                0 as spider_parse_count,
+                count(1) as spider_result_count
+            from spider_parse_result
+            where spider_create_time >= date_sub(curdate(), interval 6 day)
+            group by date(spider_create_time)
+        ) source
+        group by source.spider_date
+        order by source.spider_date asc
+    </select>
+</mapper>

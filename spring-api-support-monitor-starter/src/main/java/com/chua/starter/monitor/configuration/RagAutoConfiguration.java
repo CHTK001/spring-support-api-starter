@@ -136,7 +136,7 @@ public class RagAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = "globalSettingInitializer")
     public GlobalSettingInitializer globalSettingInitializer(SysAiGlobalSettingService globalSettingService) {
         return new GlobalSettingInitializer(globalSettingService);
     }

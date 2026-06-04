@@ -25,12 +25,22 @@ panel:
   ai-enabled: false
   datasource-store-path: ${user.dir}/.panel/panel-datasources.json
 
+datalake:
+  api:
+    port: 58084
+
 docker:
   api:
     host: 172.16.0.40
     port: 2375
 
 plugin:
+  ai:
+    protocol-server:
+      enabled: false
+  redis:
+    server:
+      enable: false
   job:
     enable: true
   scheduler:

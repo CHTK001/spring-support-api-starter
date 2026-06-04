@@ -1,3 +1,0 @@
-com.chua.starter.datalake.collection.HttpCollector
-com.chua.starter.datalake.collection.TcpCollector
-com.chua.starter.datalake.collection.WeatherCollector
