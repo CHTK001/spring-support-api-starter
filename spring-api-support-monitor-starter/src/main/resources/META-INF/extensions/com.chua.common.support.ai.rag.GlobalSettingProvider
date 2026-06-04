@@ -1,1 +1,2 @@
 com.chua.starter.monitor.configuration.RagGlobalSettingProvider
+com.chua.starter.monitor.configuration.RuntimeGlobalSettingProvider

@@ -60,6 +60,11 @@
 
     <dependency>
       <groupId>com.chua</groupId>
+      <artifactId>utils-support-datalake-starter</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.chua</groupId>
       <artifactId>spring-support-socket-io-starter</artifactId>
     </dependency>
 
@@ -87,11 +92,6 @@
       <groupId>com.influxdb</groupId>
       <artifactId>influxdb-client-java</artifactId>
       <version>3.4.0</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.chua</groupId>
-      <artifactId>spring-api-support-datalake-starter</artifactId>
     </dependency>
 
     <dependency>

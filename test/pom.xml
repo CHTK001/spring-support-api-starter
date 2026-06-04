@@ -24,7 +24,6 @@
     <module>spring-api-support-ai-test-starter</module>
     <module>spring-api-support-spider-test-starter</module>
     <module>spring-api-support-payment-test-starter</module>
-    <module>spring-api-support-system-test-starter</module>
     <module>spring-api-support-video-test-starter</module>
     <module>spring-api-support-tomcat-benchmark</module>
     <module>spring-api-support-benchmark</module>

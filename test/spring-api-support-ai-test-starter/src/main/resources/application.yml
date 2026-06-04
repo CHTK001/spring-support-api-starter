@@ -14,7 +14,18 @@ plugin:
     server:
       enable: false
   oauth:
-    enable: false
+    enable: true
+    protocol: static
+    temp:
+      open: true
+    whitelist:
+      - /v2/**
+  captcha:
+    enable: true
+  ai:
+    protocol-server:
+      enabled: true
+      port: 58085
   datasource:
     script:
       enable: true
