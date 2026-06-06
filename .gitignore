@@ -18,6 +18,10 @@ target/
 .continue/
 .vscode/
 *.tmp
+.python-scripts/
+**/environment
+panel/
+rag-upload/
 org/
 *bak
 logs/!/patch/
