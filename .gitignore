@@ -21,7 +21,7 @@ target/
 .python-scripts/
 **/environment
 panel/
-rag-upload/
+/rag-upload
 org/
 *bak
 logs/!/patch/
