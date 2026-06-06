@@ -10,6 +10,7 @@ spring:
       - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
       - com.baomidou.lock.spring.boot.autoconfigure.RedisTemplateLockAutoConfiguration
       - com.baomidou.lock.spring.boot.autoconfigure.LockAutoConfiguration
+      - com.chua.starter.licence.support.H2LicenceAutoConfiguration
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://172.16.0.40:3306/system?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true

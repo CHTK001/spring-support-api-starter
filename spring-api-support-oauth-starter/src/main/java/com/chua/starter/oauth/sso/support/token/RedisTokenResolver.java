@@ -18,6 +18,8 @@ import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.generation.TokenGeneration;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.entity.system.SysUserLog;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import jakarta.servlet.http.Cookie;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.data.redis.core.Cursor;
@@ -59,6 +61,19 @@ public class RedisTokenResolver implements TokenResolver {
      * 默认Token过期时间（秒），1天
      */
     private static final long DEFAULT_EXPIRE_SECONDS = 86400L;
+
+    /**
+     * Token 解析结果本地缓存（Guava Cache）
+     * <p>
+     * 用于减少高并发场景下对 Redis 的重复查询，缓存热点 Token 的解析结果。
+     * TTL 固定为 15 秒，并发场景下同一 Token 在 15 秒内只会查一次 Redis。
+     * </p>
+     */
+    private static final Cache<String, ReturnResult<UserResume>> TOKEN_RESOLVE_CACHE =
+            CacheBuilder.newBuilder()
+                    .maximumSize(10_000)
+                    .expireAfterWrite(java.time.Duration.ofSeconds(15))
+                    .build();
 
     /**
      * Redis SCAN 每次扫描返回的数量
@@ -520,6 +535,10 @@ public class RedisTokenResolver implements TokenResolver {
     @SuppressWarnings("ALL")
     public void logout(String token) {
         long startTime = System.currentTimeMillis();
+        // 清除本地缓存
+        if (token != null) {
+            TOKEN_RESOLVE_CACHE.invalidate(token);
+        }
         String tokenRedisKey = TOKEN_PRE + token;
         Object s = stringRedisTemplate.opsForValue().get(tokenRedisKey);
         UserResult userResult = null;
@@ -613,6 +632,10 @@ public class RedisTokenResolver implements TokenResolver {
      */
     @SuppressWarnings("ALL")
     private void kickByToken(String token) {
+        // 清除本地缓存
+        if (token != null) {
+            TOKEN_RESOLVE_CACHE.invalidate(token);
+        }
         String tokenRedisKey = TOKEN_PRE + token;
         Object s = stringRedisTemplate.opsForValue().get(tokenRedisKey);
         UserResult userResult = null;
@@ -685,6 +708,12 @@ public class RedisTokenResolver implements TokenResolver {
             return ReturnResult.noAuth();
         }
 
+        // 检查本地缓存（避免高并发下重复查 Redis）
+        ReturnResult<UserResume> cached = TOKEN_RESOLVE_CACHE.getIfPresent(cv);
+        if (cached != null) {
+            return cached;
+        }
+
         if (tokenBlacklistService == null) {
             return ReturnResult.noAuth("黑名单服务不可用");
         }
@@ -714,11 +743,19 @@ public class RedisTokenResolver implements TokenResolver {
         if (authServerProperties.isRenew()) {
             resetExpire(userResult, token);
         }
-        return ReturnResult.ok(userResult);
+
+        ReturnResult<UserResume> result = ReturnResult.ok(userResult);
+        // 写入本地缓存
+        TOKEN_RESOLVE_CACHE.put(cv, result);
+        return result;
     }
 
     @Override
     public ReturnResult<UserResume> upgradeForTimestamp(String token, String refreshToken) {
+        // 清除本地缓存，强制下次 resolve 从 Redis 重新读取
+        if (token != null) {
+            TOKEN_RESOLVE_CACHE.invalidate(token);
+        }
         String redisKey = TOKEN_PRE + token;
         Object s = stringRedisTemplate.opsForValue().get(redisKey);
         if (null == s) {
@@ -740,6 +777,10 @@ public class RedisTokenResolver implements TokenResolver {
 
     @Override
     public ReturnResult<UserResume> upgradeForVersion(String token, String refreshToken) {
+        // 清除本地缓存，强制下次 resolve 从 Redis 重新读取
+        if (token != null) {
+            TOKEN_RESOLVE_CACHE.invalidate(token);
+        }
         String redisKey = TOKEN_PRE + token;
         Object s = stringRedisTemplate.opsForValue().get(redisKey);
         if (null == s) {
@@ -817,6 +858,10 @@ public class RedisTokenResolver implements TokenResolver {
 
     @Override
     public ReturnResult<UserResume> upgradeForRefresh(String token, String refreshToken) {
+        // 清除本地缓存（新旧两个都应失效）
+        if (token != null) {
+            TOKEN_RESOLVE_CACHE.invalidate(token);
+        }
         // 验证 RefreshToken
         String redisRefreshKey = TOKEN_REFRESH_PRE + refreshToken;
         Object s = stringRedisTemplate.opsForValue().get(redisRefreshKey);

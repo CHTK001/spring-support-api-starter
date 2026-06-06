@@ -2,7 +2,7 @@ package com.chua.starter.service.setting;
 
 import com.chua.common.support.function.Upgrade;
 import com.chua.common.support.ai.bigmodel.BigModelClient;
-import com.chua.common.support.core.utils.ServiceProvider;
+import com.chua.common.support.core.spi.ServiceProvider;
 import com.chua.common.support.core.utils.IoUtils;
 import com.chua.common.support.core.utils.StringUtils;
 import lombok.Data;
@@ -58,13 +58,15 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
              if(null != this.bigModelClient) {
                  IoUtils.closeQuietly(bigModelClient);
              }
-             this.bigModelClient = ServiceProvider.of(BigModelClient.class).getNewExtension(bigModelSetting.appType, com.chua.common.support.ai.bigmodel.BigModelSetting.builder()
+             com.chua.common.support.ai.bigmodel.BigModelSetting bms = com.chua.common.support.ai.bigmodel.BigModelSetting.builder()
                      .appId(appId)
                      .appKey(appKey)
                      .appSecret(appSecret)
-                     .build());
+                     .build();
+             // 优先使用 openai（嵌入式兼容），其次用配置的 appType，最后回退默认
+             ServiceProvider<BigModelClient> provider = ServiceProvider.of(BigModelClient.class);
+             this.bigModelClient = provider.getFirstAvailable(new Object[]{bms}, "openai", bigModelSetting.appType);
              if(null == bigModelClient) {
-                 // 使用 System.out.println 代替 log，避免 Lombok 处理问题
                  System.out.println(StringUtils.format("暂不支持{}, 请重新设置!", appType));
              }
          }
