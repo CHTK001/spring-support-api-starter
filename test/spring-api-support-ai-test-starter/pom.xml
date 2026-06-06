@@ -29,6 +29,15 @@
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
+      <artifactId>spring-api-support-common-system-starter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-oauth-client-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
       <artifactId>spring-support-spider-starter</artifactId>
       <version>${project.version}</version>
       <exclusions>

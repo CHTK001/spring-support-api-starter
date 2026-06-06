@@ -647,7 +647,12 @@ public class MonitorSpiderController {
                 createSpiInfo("empty", "空值过滤器", "过滤空值数据", "DATA_FILTER"),
                 createSpiInfo("keyword", "关键词过滤器", "按关键词过滤", "DATA_FILTER")
         ));
-        
+
+        // 数据结构
+        types.setDataStructure(Arrays.asList(
+                createSpiInfo("default", "表结构定义", "定义输出表的字段名称、类型、精度", "DATA_STRUCTURE")
+        ));
+
         // Pipeline
         types.setPipeline(Arrays.asList(
                 createSpiInfo("console", "控制台输出", "输出到控制台", "PIPELINE"),
@@ -730,6 +735,10 @@ public class MonitorSpiderController {
             case "PIPELINE:database":
                 params.add(createParam("tableName", "表名", "string", true, "存储表名"));
                 break;
+            case "DATA_STRUCTURE:default":
+                params.add(createParam("tableName", "表名", "string", true, "要创建/更新的数据库表名"));
+                params.add(createParam("columns", "字段定义", "column-editor", true, "输出表的字段结构（名称、类型、长度、主键等）"));
+                break;
             default:
                 // 默认参数
                 break;
@@ -797,7 +806,56 @@ public class MonitorSpiderController {
                 connectionService.save(conn);
             }
         }
-        
+
+        // 自动建表：检测 DATA_STRUCTURE 节点
+        autoCreateTablesFromDesign(design.getNodes());
+
+        return ReturnResult.ok(true);
+    }
+
+    private void autoCreateTablesFromDesign(List<MonitorSpiderNode> nodes) {
+        if (nodes == null || nodes.isEmpty()) return;
+
+        com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
+
+        for (MonitorSpiderNode node : nodes) {
+            if (!"DATA_STRUCTURE".equals(node.getNodeType())) continue;
+            if (StringUtils.isBlank(node.getNodeConfig())) continue;
+
+            try {
+                com.fasterxml.jackson.databind.JsonNode config = om.readTree(node.getNodeConfig());
+                String tableName = config.has("tableName") ? config.get("tableName").asText() : null;
+                if (StringUtils.isBlank(tableName)) continue;
+
+                com.fasterxml.jackson.databind.JsonNode columns = config.get("columns");
+                if (columns == null || !columns.isArray() || columns.size() == 0) continue;
+
+                SpiderOutputTableRequest req = new SpiderOutputTableRequest();
+                req.setTableComment(node.getNodeName());
+                List<SpiderOutputColumnDefinition> colDefs = new ArrayList<>();
+
+                for (com.fasterxml.jackson.databind.JsonNode col : columns) {
+                    SpiderOutputColumnDefinition def = new SpiderOutputColumnDefinition();
+                    def.setName(col.has("name") ? col.get("name").asText() : null);
+                    def.setType(col.has("type") ? col.get("type").asText() : "VARCHAR");
+                    if (col.has("length") && !col.get("length").isNull()) def.setLength(col.get("length").asInt());
+                    if (col.has("scale") && !col.get("scale").isNull()) def.setScale(col.get("scale").asInt());
+                    def.setNullable(!col.has("nullable") || col.get("nullable").asBoolean());
+                    if (col.has("defaultValue") && !col.get("defaultValue").isNull()) def.setDefaultValue(col.get("defaultValue").asText());
+                    def.setPrimaryKey(col.has("primaryKey") && col.get("primaryKey").asBoolean());
+                    def.setAutoIncrement(col.has("autoIncrement") && col.get("autoIncrement").asBoolean());
+                    if (col.has("comment")) def.setComment(col.get("comment").asText());
+                    colDefs.add(def);
+                }
+
+                req.setColumns(colDefs);
+                spiderOutputTableService.syncStructure(tableName, req, "mysql");
+                log.info("[Spider] 数据结构节点已同步表结构: table={}, node={}", tableName, node.getNodeName());
+            } catch (Exception e) {
+                log.warn("[Spider] 自动建表失败: node={}, error={}", node.getNodeName(), e.getMessage());
+            }
+        }
+    }
         return ReturnResult.ok(true);
     }
 

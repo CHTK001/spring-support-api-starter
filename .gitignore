@@ -32,55 +32,48 @@ logs/!/patch/
 .runtime/
 logs/
 tmp/
-.tmp-edge-gitee-*/
-.tmp-edge-*/
-spring-api-support-common-music-demo
-spring-api-support-soft-test-starter
-
-.playwright-mcp/
-.claude/
-.claude/scheduled_tasks.json
-.claude/scheduled_tasks.lock
-.spring-ai/
-
-#调试/测试产物
-docs/
-kg-console-all.md
-kg-console.md
-kg-initial.yml
-kg-network-requests.md
-test/**/data/
-test/**/sys
-test/**/*.log.*
-test/**/ssh_payload.json
-test_ssh.py
-Cargo.lock
-
-#管线运行时产物
+# ignore e2e test temporal files
+e2e-crud-*
+e2e-flow-*
+e2e-test-*
+submit-*
+e2e-full-test.mjs
+# ignore test screenshots and temp files
+*.png
+*.jpeg
+*.jpg
+*.gif
+run_backend.sh
+run_system.sh
 pipeline-management
-*-pipeline*
-sensor-data-pipeline
-test-flow-*
-test-pipeline-*
-data/
-examples/
-
-#Playwright浏览器测试产物
-test/**/playwright-fetch-*.js
-test/**/playwright-out-*.json
-
-#非项目根目录文件
-/*.js
-/*.png
-/*.ser
-/create_log_table.sql
-node_modules/
-/package.json
-/package-lock.json
-
-#构建产物及测试数据库
+.cache/
+**/data/monitor.*
+# build artifacts
 BOOT-INF/
+META-INF/
+com/
+
+# data directories
+data/
+docs/
+
+# H2 database
 *.mv.db
 *.trace.db
 
-NUL
+# datalake test pipelines
+**/crud-test-pipe
+**/test-pipeline-*
+**/weather-test-pipeline
+
+# test backend artifacts
+test/**/node_modules/
+test/**/sys
+test/**/*.log.*
+test/**/ssh_payload.json
+test/**/submit-*
+test/**/e2e-*
+
+# test demo starters
+test/**/spring-api-support-common-music-demo/
+test/**/spring-api-support-soft-test-starter/

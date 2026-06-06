@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Bean;
  */
 @SpringBootApplication(scanBasePackages = {
         "com.chua.starter.ai.test",
+        "com.chua.starter.system",
         "com.chua.starter.spider",
         "com.chua.starter.docker",
         "com.chua.starter.server.support"
