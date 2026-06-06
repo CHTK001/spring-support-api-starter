@@ -9,9 +9,9 @@ services:
     image: livekit/livekit-server:latest
     restart: unless-stopped
     ports:
-      - "7880:7880"   # WebSocket 信令
-      - "7881:7881/udp" # WebRTC UDP 媒体
-      - "7882:7882"   # TURN TCP 回退
+      - "7880:7880"       # WebSocket 信令
+      - "7881:7881"       # WebRTC TCP 回退
+      - "50000-50010:50000-50010/udp" # WebRTC UDP 媒体
     volumes:
       - ./livekit.yaml:/etc/livekit.yaml
     command: --config /etc/livekit.yaml
@@ -34,7 +34,7 @@ services:
       "--gateway-host", "gateway",
       "--gateway-port", "9001",
       "--agent-id", "agent-conference",
-      "--agent-secret", "test-secret-123",
+      "--agent-secret", "gateway-agent-secret",
       "--livekit-url", "ws://livekit-sfu:7880",
     ]
     environment:

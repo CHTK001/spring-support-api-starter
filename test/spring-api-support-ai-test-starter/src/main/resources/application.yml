@@ -5,6 +5,9 @@ spring:
     allow-bean-definition-overriding: true
   profiles:
     active: dev
+  autoconfigure:
+    exclude:
+      - com.chua.starter.oauth.client.support.configuration.AuthClientConfiguration
 
 server:
   port: 58084
@@ -14,17 +17,17 @@ plugin:
     server:
       enable: false
   oauth:
-    enable: true
+    enable: false
     protocol: static
     temp:
-      open: true
+      open: false
     whitelist:
       - /v2/**
   captcha:
     enable: true
   ai:
     protocol-server:
-      enabled: true
+      enabled: false
       port: 58085
   datasource:
     script:
