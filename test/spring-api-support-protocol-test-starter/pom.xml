@@ -18,11 +18,6 @@
   <dependencies>
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>spring-api-support-monitor-starter</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.chua</groupId>
       <artifactId>spring-support-protocol-starter</artifactId>
       <version>${module.version}</version>
     </dependency>
@@ -78,13 +73,17 @@
       <version>3.0.0-M2</version>
     </dependency>
     <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-remote-starter</artifactId>
+      <version>${utils.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
     <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <scope>runtime</scope>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
     </dependency>
   </dependencies>
 
