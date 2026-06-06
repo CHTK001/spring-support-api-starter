@@ -17,6 +17,7 @@ public class SpiderSpiTypeList {
     private List<SpiderSpiInfo> processor;
     private List<SpiderSpiInfo> middleware;
     private List<SpiderSpiInfo> dataFilter;
+    private List<SpiderSpiInfo> dataStructure;
     private List<SpiderSpiInfo> pipeline;
     private List<SpiderSpiInfo> scheduler;
     private List<SpiderSpiInfo> siteConfig;
