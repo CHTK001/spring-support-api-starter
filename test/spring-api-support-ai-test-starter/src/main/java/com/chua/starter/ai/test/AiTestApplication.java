@@ -1,5 +1,6 @@
 package com.chua.starter.ai.test;
 
+import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.panel.cache.PanelSshSessionRegistry;
 import com.chua.starter.panel.controller.PanelDockerController;
 import com.chua.starter.panel.controller.PanelSshController;
@@ -32,6 +33,18 @@ public class AiTestApplication {
             System.setProperty("mybatis-plus.encryptor.password", "ai-test");
         }
         SpringApplication.run(AiTestApplication.class, args);
+    }
+
+    @Bean
+    public AuthClientProperties authClientProperties() {
+        AuthClientProperties properties = new AuthClientProperties();
+        properties.setEnable(false);
+        properties.setAddress("http://localhost:58084");
+        properties.setLoginAddress("");
+        properties.setProtocol("static");
+        properties.setWhitelist(java.util.List.of("/v2/**"));
+        properties.setTemp(new AuthClientProperties.TempUser());
+        return properties;
     }
 
     @Bean

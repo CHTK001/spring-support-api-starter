@@ -3,10 +3,11 @@
 
 port: 7880
 rtc:
-  port_range_start: 7881
-  port_range_end: 7881
+  node_ip: 192.168.110.100
+  port_range_start: 50000
+  port_range_end: 50010
   use_external_ip: false
-  tcp_port: 7882
+  tcp_port: 7881
 
 keys:
   test-key: test-secret
@@ -16,5 +17,4 @@ logging:
   json: false
 
 turn:
-  enabled: true
-  port: 7882
+  enabled: false

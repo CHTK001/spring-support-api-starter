@@ -11,7 +11,6 @@ import org.springframework.context.annotation.ComponentScan;
  * @author CH
  */
 @SpringBootApplication
-@ComponentScan("com.chua.starter.monitor.controller.file")
 public class ProtocolTestApplication {
 
     /**
