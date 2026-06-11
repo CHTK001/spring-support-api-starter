@@ -1,1 +1,0 @@
-import{E as r}from"./ErrorPage-DlahcJEE.js";import{e as o}from"./runtime-DlJat62E.js";import{g as t,o as a,e as s,l}from"./vendor-ui-DXFgmDTA.js";import"./vendor-echarts-LKCFM3OA.js";const u=t({name:"500",__name:"500",setup(n){const e=l(()=>o.ErrorPageStyle||"servererror");return(p,m)=>(a(),s(r,{code:"500","page-style":e.value},null,8,["page-style"]))}});export{u as default};

@@ -1,16 +1,4 @@
 spring:
-  autoconfigure:
-    exclude:
-      - com.chua.starter.ai.support.configuration.RagAutoConfiguration
-      - com.chua.starter.oauth.client.support.configuration.AuthClientConfiguration
-      - com.chua.starter.system.configuration.SystemAutoConfiguration
-      - com.chua.remote.support.gateway.autoconfigure.GatewayAutoConfiguration
-      - com.chua.starter.server.support.config.ServerManagementConfiguration
-      - com.chua.socket.support.configuration.SocketConfiguration
-      - com.chua.socketio.support.configuration.SocketConfiguration
-      - com.chua.starter.service.configuration.ServiceConfiguration
-      - com.chua.starter.datasource.configuration.ShardingSphereAutoConfiguration
-      - com.chua.starter.datasource.configuration.MaterializedRouteAutoConfiguration
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:file:./data/monitor;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
@@ -20,17 +8,16 @@ spring:
       maximum-pool-size: 4
       minimum-idle: 1
       connection-timeout: 10000
-    initialization-fail-timeout: -1
   sql:
     init:
       enabled: true
       continue-on-error: true
       mode: always
-      schema-locations: classpath:db/init/h2/V1.0__init_rag.sql
+      schema-locations: classpath:db/init/V1.0__init_monitor_complete.sql
 
   data:
     redis:
-      host: localhost
+      host: 127.0.0.1
       port: 6379
       connect-timeout: 3000
       timeout: 3000
@@ -41,33 +28,12 @@ plugin:
       enable: false
   redis:
     server:
-      enable: true
-      open-embedded: true
+      enable: false
   oauth:
     enable: false
   socket:
-    enable: false
-  gateway:
-    enable: false
-
-gateway:
-  enabled: false
-
-docker:
-  api:
-    enable: false
+    enable: true
 
 logging:
   level:
     com.chua.starter.monitor: debug
-
-app:
-  rag:
-    enabled: true
-    embedding-engine: onnx
-    vector-storage: jvector
-    default-similarity-threshold: 0.1
-    upload-dir: ./data/rag/uploads
-    use-graph: true
-    graph-max-hops: 2
-    graph-max-tokens: 1000
