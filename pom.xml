@@ -10,7 +10,7 @@
 
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>4.0.0.41</version>
+    <version>4.0.0.40</version>
     <packaging>pom</packaging>
     <modules>
         <module>spring-api-support-oauth-starter</module>

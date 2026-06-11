@@ -8,6 +8,8 @@ spring:
   autoconfigure:
     exclude:
       - com.chua.starter.oauth.client.support.configuration.AuthClientConfiguration
+      - com.chua.starter.system.configuration.SystemAutoConfiguration
+      - com.chua.starter.project.configuration.ProjectConfiguration
 
 server:
   port: 58084
