@@ -14,9 +14,12 @@ import com.chua.payment.support.exception.PaymentException;
 import com.chua.payment.support.mapper.MerchantChannelMapper;
 import com.chua.payment.support.provider.PaymentProviderGatewayRegistry;
 import com.chua.payment.support.service.MerchantChannelService;
+import com.chua.payment.support.service.RechargeRewardRuleService;
 import com.chua.payment.support.service.WalletAccountService;
 import com.chua.payment.support.service.WalletLimitService;
 import com.chua.payment.support.service.WalletOrderService;
+import com.chua.payment.support.service.UserCouponService;
+import com.chua.starter.strategy.template.IdempotentTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +38,9 @@ class PaymentChannelRegistryTest {
     private final WalletAccountService walletAccountService = mock(WalletAccountService.class);
     private final WalletOrderService walletOrderService = mock(WalletOrderService.class);
     private final WalletLimitService walletLimitService = mock(WalletLimitService.class);
+    private final IdempotentTemplate idempotentTemplate = mock(IdempotentTemplate.class);
+    private final RechargeRewardRuleService rechargeRewardRuleService = mock(RechargeRewardRuleService.class);
+    private final UserCouponService userCouponService = mock(UserCouponService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
@@ -52,7 +58,10 @@ class PaymentChannelRegistryTest {
                 objectMapper,
                 walletAccountService,
                 walletOrderService,
-                walletLimitService);
+                walletLimitService,
+                idempotentTemplate,
+                rechargeRewardRuleService,
+                userCouponService);
         PaymentChannel composite = new CompositeAggregateRoutePaymentChannel(
                 merchantChannelService,
                 objectMapper,

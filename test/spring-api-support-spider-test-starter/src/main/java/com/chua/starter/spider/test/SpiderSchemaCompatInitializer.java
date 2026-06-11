@@ -1,5 +1,8 @@
 package com.chua.starter.spider.test;
 
+import com.chua.starter.spider.service.SpiderOrchestrationService;
+import com.chua.starter.spider.support.example.SpiderExampleScenarioRegistry;
+import com.chua.starter.spider.support.model.SpiderFlowSchemaView;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -16,6 +19,10 @@ import org.springframework.stereotype.Component;
 public class SpiderSchemaCompatInitializer implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(SpiderSchemaCompatInitializer.class);
+    private static final List<String> EXAMPLE_CODES = List.of(
+            "gitee-explore-agent",
+            "github-trending-agent"
+    );
 
     private static final List<String> TABLES = List.of(
             "spider_definition",
@@ -30,31 +37,12 @@ public class SpiderSchemaCompatInitializer implements ApplicationRunner {
             "spider_ai_template"
     );
 
-    /**
-     * 每次启动时清除陈旧流程数据，强制后续读取回退到
-     * {@link com.chua.starter.spider.support.example.SpiderExampleScenarioRegistry}。
-     * <p>避免 V1.1__init_spider_data.sql 中的流程数据与 registry 不同步，
-     * 也避免前次运行时 UI 保存的陈旧数据影响新启动的执行。</p>
-     */
-    private static final List<String> FLOW_TABLES = List.of(
-            "spider_flow_edge",
-            "spider_flow_node",
-            "spider_flow"
-    );
-
     private final JdbcTemplate jdbcTemplate;
+    private final SpiderExampleScenarioRegistry spiderExampleScenarioRegistry;
+    private final SpiderOrchestrationService spiderOrchestrationService;
 
     @Override
     public void run(org.springframework.boot.ApplicationArguments args) {
-        log.info("[SchemaCompat] 开始清除陈旧流程数据，确保 registry 为唯一权威来源...");
-        for (String table : FLOW_TABLES) {
-            try {
-                jdbcTemplate.execute("DELETE FROM " + table);
-                log.debug("[SchemaCompat] 已清除: {}", table);
-            } catch (Exception e) {
-                log.warn("[SchemaCompat] 清除 {} 失败: {}", table, e.getMessage());
-            }
-        }
         for (String table : TABLES) {
             try {
                 ensureColumn(table, "create_name", "VARCHAR(255) NULL");
@@ -100,6 +88,31 @@ public class SpiderSchemaCompatInitializer implements ApplicationRunner {
         ensureColumn("spider_execution_edge", "update_by", "INT NULL");
 
         log.info("[SchemaCompat] spider_* 表兼容字段检查完成");
+        syncExampleFlows();
+    }
+
+    private void syncExampleFlows() {
+        for (String code : EXAMPLE_CODES) {
+            try {
+                SpiderFlowSchemaView schema = spiderExampleScenarioRegistry.getSchema(code, 1);
+                if (schema == null || schema.getNodes() == null || schema.getNodes().isEmpty()) {
+                    log.warn("[SchemaCompat] 示例流程为空，跳过落库: {}", code);
+                    continue;
+                }
+                spiderOrchestrationService.saveSchema(schema);
+                jdbcTemplate.update(
+                        "UPDATE spider_flow SET spider_flow_orchestration_type = ? WHERE spider_definition_code = ? AND spider_flow_version = ?",
+                        schema.getOrchestrationType() == null ? "MANUAL" : schema.getOrchestrationType(),
+                        code,
+                        schema.getSpiderFlowVersion() == null ? 1 : schema.getSpiderFlowVersion()
+                );
+                int nodeCount = schema.getNodes() == null ? 0 : schema.getNodes().size();
+                int edgeCount = schema.getEdges() == null ? 0 : schema.getEdges().size();
+                log.info("[SchemaCompat] 已同步示例流程到数据库: code={}, nodes={}, edges={}", code, nodeCount, edgeCount);
+            } catch (Exception e) {
+                log.warn("[SchemaCompat] 同步示例流程失败: code={}, error={}", code, e.getMessage());
+            }
+        }
     }
 
     private void ensureColumn(String tableName, String columnName, String ddl) {

@@ -12,36 +12,47 @@ spring:
       - com.baomidou.lock.spring.boot.autoconfigure.LockAutoConfiguration
       - com.chua.starter.licence.support.H2LicenceAutoConfiguration
   datasource:
-    driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://172.16.0.40:3306/system?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
-    username: root
-    password: root@
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:./data/spider_test;MODE=MySQL;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    initialization-fail-timeout: -1
     hikari:
-      maximum-pool-size: 50
-      minimum-idle: 10
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      validation-timeout: 5000
-      connection-test-query: SELECT 1
-  data:
-    redis:
-      database: 6
-      host: 172.16.0.40
-      port: 6379
+      maximum-pool-size: 4
+      minimum-idle: 1
+      connection-timeout: 5000
+      idle-timeout: 60000
+      max-lifetime: 300000
+  sql:
+    init:
+      mode: never
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
 
 plugin:
   oauth:
     enable: false
+  ai:
+    protocol-server:
+      enabled: false
+  redis:
+    server:
+      enable: false
+  job:
+    enable: false
   datasource:
     script:
       enable: true
+      script-path: file:./db/init/*.sql,classpath*:db/init/*.sql
       scan-mode: ALWAYS
+      migration-scan-mode: NONE
+      data-scan-mode: NONE
+      continue-on-error: false
       validate-checksum: false
   spider:
     enable: true
-    browser:
-      webmcp: true
   monitor:
     spider:
       web-auth:
@@ -51,10 +62,7 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
 
-spider:
-  browser:
-    webmcp: true
-
 logging:
   level:
     com.chua.starter.spider: debug
+    org.springframework.jdbc.core: debug

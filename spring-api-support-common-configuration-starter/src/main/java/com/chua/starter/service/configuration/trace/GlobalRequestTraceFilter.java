@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.Order;
@@ -72,6 +73,7 @@ public class GlobalRequestTraceFilter extends OncePerRequestFilter {
     );
 
     private final RequestTraceAnalyticsService requestTraceAnalyticsService;
+    private final ApplicationContext applicationContext;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -126,11 +128,14 @@ public class GlobalRequestTraceFilter extends OncePerRequestFilter {
             try {
                 TraceTarget traceTarget = resolveTraceTarget(request);
                 request.setAttribute(RequestTraceConstants.ATTRIBUTE_TRACE_ENABLED, traceTarget.enabled());
+                String tokenHash = null;
                 if (traceTarget.enabled()) {
                     request.setAttribute(RequestTraceConstants.ATTRIBUTE_ROUTE_PATTERN, traceTarget.routePattern());
                     request.setAttribute(RequestTraceConstants.ATTRIBUTE_STRATEGY_CODE, traceTarget.strategyCode());
-                    recordRequestTrace(request, traceTarget, traceId, status, durationMs, currentUser, clientIp);
+                    tokenHash = hashToken(resolveToken(request));
+                    recordRequestTrace(request, traceTarget, traceId, status, durationMs, currentUser, clientIp, tokenHash);
                 }
+                enqueueRequestStatistics(buildStatisticsRecord(request, traceTarget, traceId, status, durationMs, currentUser, clientIp, tokenHash));
             } catch (Exception ex) {
                 log.debug("记录请求追踪失败: traceId={}", traceId, ex);
             } finally {
@@ -149,11 +154,12 @@ public class GlobalRequestTraceFilter extends OncePerRequestFilter {
             int status,
             long durationMs,
             CurrentUser currentUser,
-            String clientIp
+            String clientIp,
+            String tokenHash
     ) {
         String fingerprint = firstNonBlank(resolveFingerprint(request), currentUser.fingerprint());
         String userAgent = truncate(request.getHeader("User-Agent"), 256);
-        RequestTraceEvent recorded = requestTraceAnalyticsService.record(new RequestTraceEvent(
+        requestTraceAnalyticsService.record(new RequestTraceEvent(
                 System.currentTimeMillis(),
                 traceId,
                 request.getMethod(),
@@ -169,11 +175,127 @@ public class GlobalRequestTraceFilter extends OncePerRequestFilter {
                 truncate(currentUser.userId(), 64),
                 truncate(currentUser.username(), 64),
                 truncate(fingerprint, 128),
-                hashToken(resolveToken(request)),
+                tokenHash,
                 traceTarget.strategyCode(),
                 Set.of()
         ));
 
+    }
+
+    private Object buildStatisticsRecord(
+            HttpServletRequest request,
+            TraceTarget traceTarget,
+            String traceId,
+            int status,
+            long durationMs,
+            CurrentUser currentUser,
+            String clientIp,
+            String tokenHash
+    ) {
+        String userAgent = truncate(request.getHeader("User-Agent"), 256);
+        String fingerprint = firstNonBlank(resolveFingerprint(request), currentUser.fingerprint());
+        String requestUrl = request.getRequestURI();
+        String query = sanitizeQuery(request.getQueryString());
+        String fullUrl = query == null ? requestUrl : requestUrl + "?" + query;
+        try {
+            Class<?> recordClass = Class.forName("com.chua.starter.service.statistics.RequestStatisticsRecord");
+            return recordClass.getConstructor(
+                    long.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    int.class,
+                    long.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    long.class,
+                    long.class,
+                    long.class,
+                    long.class,
+                    long.class,
+                    long.class,
+                    long.class,
+                    long.class,
+                    long.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    String.class,
+                    java.util.Map.class,
+                    java.time.Instant.class
+            ).newInstance(
+                    System.currentTimeMillis(),
+                    traceId,
+                    traceTarget.routePattern(),
+                    request.getMethod(),
+                    request.getRequestURI(),
+                    status,
+                    durationMs,
+                    clientIp,
+                    currentUser.userId(),
+                    currentUser.username(),
+                    truncate(fingerprint, 128),
+                    tokenHash,
+                    userAgent,
+                    truncate(request.getHeader("x-trace-app-name"), 64),
+                    traceId,
+                    fullUrl,
+                    query,
+                    null,
+                    null,
+                    0L,
+                    0L,
+                    0L,
+                    0L,
+                    0L,
+                    0L,
+                    0L,
+                    0L,
+                    0L,
+                    null,
+                    null,
+                    null,
+                    traceTarget.strategyCode(),
+                    String.valueOf(status),
+                    java.util.Map.of("routeEnabled", traceTarget.enabled()),
+                    java.time.Instant.now()
+            );
+        } catch (ClassNotFoundException ex) {
+            return null;
+        } catch (Exception ex) {
+            log.debug("build request statistics record failed", ex);
+            return null;
+        }
+    }
+
+    private void enqueueRequestStatistics(Object record) {
+        if (record == null) {
+            return;
+        }
+        try {
+            if (!applicationContext.containsBean("requestStatisticsIngestionService")) {
+                return;
+            }
+            Object service = applicationContext.getBean("requestStatisticsIngestionService");
+            service.getClass().getMethod("enqueue", Class.forName("com.chua.starter.service.statistics.RequestStatisticsRecord"))
+                    .invoke(service, record);
+        } catch (ClassNotFoundException ex) {
+            // statistics module is optional
+        } catch (Exception ex) {
+            log.debug("enqueue request statistics failed", ex);
+        }
     }
 
     private TraceTarget resolveTraceTarget(HttpServletRequest request) {

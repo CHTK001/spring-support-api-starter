@@ -6,15 +6,19 @@ spring:
       - com.chua.starter.redis.support.RedisConfiguration
       - com.chua.starter.redis.support.CacheConfiguration
       - com.chua.starter.redis.support.LockTemplateConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - com.baomidou.lock.spring.boot.autoconfigure.RedisTemplateLockAutoConfiguration
+      - com.baomidou.lock.spring.boot.autoconfigure.LockAutoConfiguration
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://172.16.0.40:3306/system?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&serverTimezone=Asia/Shanghai
+    url: ${SPIDER_TEST_DATASOURCE_URL:jdbc:mysql://127.0.0.1:13306/system?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&serverTimezone=Asia/Shanghai&connectTimeout=5000&socketTimeout=30000}
     username: root
     password: root@
     hikari:
       maximum-pool-size: 20
       minimum-idle: 2
-      connection-timeout: 30000
+      connection-timeout: 5000
       idle-timeout: 60000
       max-lifetime: 300000
   data:
@@ -26,10 +30,22 @@ spring:
 plugin:
   oauth:
     enable: false
+  ai:
+    protocol-server:
+      enabled: false
+  redis:
+    server:
+      enable: false
+  job:
+    enable: false
   datasource:
     script:
       enable: true
+      script-path: file:./db/init/*.sql,classpath*:db/init/*.sql
       scan-mode: ALWAYS
+      migration-scan-mode: ALWAYS
+      data-scan-mode: NONE
+      continue-on-error: false
       validate-checksum: false
   spider:
     enable: true

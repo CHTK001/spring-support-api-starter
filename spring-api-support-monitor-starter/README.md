@@ -1,5 +1,89 @@
 # spring-api-support-monitor-starter
 
+## 新增：服务器布局与组件布局管理（2026-06-08）
+
+- 服务器布局配置已完成完整闭环：列表、默认布局、创建、更新、删除、按类型查询、从组件生成、应用到组件、复制到其他服务器
+- 组件布局配置已完成完整闭环：按服务器/组件查询、启用禁用、位置更新、批量保存、统计、复制、重置
+- 服务器布局默认配置已支持自动生成，默认包含 CPU、内存、磁盘、网络、系统信息等基础节点
+- 布局配置采用 JSON 存储，前端可直接回显 nodes / edges / version / generatedAt 等结构
+
+### 布局接口
+
+**服务器布局**
+
+- `GET /v1/gen/server/layout/list/{serverId}`：获取服务器布局列表
+- `GET /v1/gen/server/layout/default/{serverId}`：获取服务器默认布局
+- `POST /v1/gen/server/layout/save`：保存服务器布局配置
+- `PUT /v1/gen/server/layout/update`：更新服务器布局配置
+- `DELETE /v1/gen/server/layout/delete/{layoutId}`：删除服务器布局配置
+- `PUT /v1/gen/server/layout/default/{serverId}/{layoutId}`：设置默认布局
+- `POST /v1/gen/server/layout/generate/{serverId}?layoutName=xxx`：从组件配置生成布局
+- `POST /v1/gen/server/layout/apply/{serverId}/{layoutId}`：应用布局到服务器组件
+- `POST /v1/gen/server/layout/copy/{sourceLayoutId}/{targetServerId}?layoutName=xxx`：复制布局到其他服务器
+- `GET /v1/gen/server/layout/detail/{layoutId}`：获取布局详情
+- `GET /v1/gen/server/layout/type/{layoutType}`：根据类型获取布局列表
+- `POST /v1/gen/server/layout/create-default/{serverId}`：创建默认布局
+- `POST /v1/gen/server/layout/component/config/{serverId}`：保存组件图表配置
+- `GET /v1/gen/server/layout/component/config/{serverId}/{componentId}`：获取组件图表配置
+- `POST /v1/gen/server/layout/component/config/batch/{serverId}`：批量保存组件图表配置
+
+**组件布局**
+
+- `GET /monitor/server/component/layout/server/{serverId}`：获取服务器组件布局列表
+- `GET /monitor/server/component/layout/server/{serverId}/enabled`：获取启用的组件布局列表
+- `GET /monitor/server/component/layout/server/{serverId}/component/{componentId}`：获取指定组件布局
+- `POST /monitor/server/component/layout`：保存组件布局配置
+- `PUT /monitor/server/component/layout`：更新组件布局配置
+- `DELETE /monitor/server/component/layout/{layoutId}`：删除组件布局配置
+- `DELETE /monitor/server/component/layout/component/{componentId}`：按组件删除布局
+- `DELETE /monitor/server/component/layout/server/{serverId}`：按服务器删除全部布局
+- `POST /monitor/server/component/layout/batch/position`：批量更新位置
+- `POST /monitor/server/component/layout/create`：创建组件布局
+- `PUT /monitor/server/component/layout/{layoutId}/position`：更新组件位置
+- `PUT /monitor/server/component/layout/{layoutId}/status`：启用/禁用布局
+- `GET /monitor/server/component/layout/server/{serverId}/statistics`：获取布局统计
+- `POST /monitor/server/component/layout/copy`：复制布局到其他服务器
+- `POST /monitor/server/component/layout/server/{serverId}/reset`：重置服务器布局
+
+### 布局字段
+
+**MonitorSysGenServerLayout**
+
+- `monitorSysGenServerLayoutId`：布局ID
+- `monitorSysGenServerId`：关联服务器ID
+- `monitorSysGenServerLayoutName`：布局名称
+- `monitorSysGenServerLayoutConfig`：布局配置 JSON
+- `monitorSysGenServerLayoutType`：布局类型（default/generated/copied/custom）
+- `monitorSysGenServerLayoutDefault`：是否默认布局
+- `monitorSysGenServerLayoutStatus`：布局状态
+- `monitorSysGenServerLayoutDescription`：布局描述
+- `monitorSysGenServerLayoutVersion`：布局版本
+- `monitorSysGenServerLayoutSort`：布局排序
+
+**MonitorSysGenServerComponentLayout**
+
+- `monitorSysGenServerComponentLayoutId`：组件布局ID
+- `monitorSysGenServerId`：关联服务器ID
+- `monitorSysGenServerComponentId`：关联组件ID
+- `monitorSysGenServerComponentLayoutX`：X 坐标
+- `monitorSysGenServerComponentLayoutY`：Y 坐标
+- `monitorSysGenServerComponentLayoutW`：宽度
+- `monitorSysGenServerComponentLayoutH`：高度
+- `monitorSysGenServerComponentLayoutZIndex`：层级
+- `monitorSysGenServerComponentLayoutMovable`：是否可移动
+- `monitorSysGenServerComponentLayoutResizable`：是否可调整大小
+- `monitorSysGenServerComponentLayoutStatus`：布局状态
+- `monitorSysGenServerComponentLayoutSortOrder`：排序顺序
+
+### 任务状态
+
+- 服务器布局管理：✅ 已完成
+- 组件布局管理：✅ 已完成
+- 默认布局生成：✅ 已完成
+- 布局复制与重置：✅ 已完成
+- 前后端字段对齐：✅ 已完成
+- 可继续完善项：布局生成结果的前端可视化模板、默认布局样式预设、字段级校验提示统一化
+
 ## 新增：Spider 爬虫模块增强（2026-03-27）
 
 - 新增 `plugin.monitor.spider` 配置前缀，支持爬虫模块开关、自动建表、页面解析深度和预览超时配置

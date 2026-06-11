@@ -28,12 +28,6 @@ public class MonitorSysGenServerLayoutController {
 
     private final MonitorSysGenServerLayoutService layoutService;
 
-    /**
-     * 根据服务器ID获取布局列表
-     *
-     * @param serverId 服务器ID
-     * @return 布局列表
-     */
     @GetMapping("/list/{serverId}")
     @Operation(summary = "获取服务器布局列表")
     public ReturnResult<List<MonitorSysGenServerLayout>> getLayoutsByServerId(
@@ -41,12 +35,6 @@ public class MonitorSysGenServerLayoutController {
         return layoutService.getLayoutsByServerId(serverId);
     }
 
-    /**
-     * 获取服务器的默认布局
-     *
-     * @param serverId 服务器ID
-     * @return 默认布局
-     */
     @GetMapping("/default/{serverId}")
     @Operation(summary = "获取服务器默认布局")
     public ReturnResult<MonitorSysGenServerLayout> getDefaultLayout(
@@ -54,12 +42,6 @@ public class MonitorSysGenServerLayoutController {
         return layoutService.getDefaultLayout(serverId);
     }
 
-    /**
-     * 保存服务器布局配置
-     *
-     * @param layout 布局配置
-     * @return 操作结果
-     */
     @PostMapping("/save")
     @Operation(summary = "保存服务器布局配置")
     public ReturnResult<MonitorSysGenServerLayout> saveLayout(
@@ -67,12 +49,6 @@ public class MonitorSysGenServerLayoutController {
         return layoutService.saveLayout(layout);
     }
 
-    /**
-     * 更新服务器布局配置
-     *
-     * @param layout 布局配置
-     * @return 操作结果
-     */
     @PutMapping("/update")
     @Operation(summary = "更新服务器布局配置")
     public ReturnResult<Boolean> updateLayout(
@@ -80,12 +56,6 @@ public class MonitorSysGenServerLayoutController {
         return layoutService.updateLayout(layout);
     }
 
-    /**
-     * 删除服务器布局配置
-     *
-     * @param layoutId 布局ID
-     * @return 操作结果
-     */
     @DeleteMapping("/delete/{layoutId}")
     @Operation(summary = "删除服务器布局配置")
     public ReturnResult<Boolean> deleteLayout(
@@ -93,13 +63,6 @@ public class MonitorSysGenServerLayoutController {
         return layoutService.deleteLayout(layoutId);
     }
 
-    /**
-     * 设置默认布局
-     *
-     * @param serverId 服务器ID
-     * @param layoutId 布局ID
-     * @return 操作结果
-     */
     @PutMapping("/default/{serverId}/{layoutId}")
     @Operation(summary = "设置默认布局")
     public ReturnResult<Boolean> setDefaultLayout(
@@ -108,13 +71,6 @@ public class MonitorSysGenServerLayoutController {
         return layoutService.setDefaultLayout(serverId, layoutId);
     }
 
-    /**
-     * 从组件配置生成布局
-     *
-     * @param serverId 服务器ID
-     * @param layoutName 布局名称
-     * @return 操作结果
-     */
     @PostMapping("/generate/{serverId}")
     @Operation(summary = "从组件配置生成布局")
     public ReturnResult<MonitorSysGenServerLayout> generateLayoutFromComponents(
@@ -123,13 +79,6 @@ public class MonitorSysGenServerLayoutController {
         return layoutService.generateLayoutFromComponents(serverId, layoutName);
     }
 
-    /**
-     * 应用布局到服务器组件
-     *
-     * @param serverId 服务器ID
-     * @param layoutId 布局ID
-     * @return 操作结果
-     */
     @PostMapping("/apply/{serverId}/{layoutId}")
     @Operation(summary = "应用布局到服务器组件")
     public ReturnResult<Boolean> applyLayoutToComponents(
@@ -138,29 +87,15 @@ public class MonitorSysGenServerLayoutController {
         return layoutService.applyLayoutToComponents(serverId, layoutId);
     }
 
-    /**
-     * 复制布局到其他服务器
-     *
-     * @param sourceLayoutId 源布局ID
-     * @param targetServerId 目标服务器ID
-     * @param layoutName 新布局名称
-     * @return 操作结果
-     */
     @PostMapping("/copy/{sourceLayoutId}/{targetServerId}")
     @Operation(summary = "复制布局到其他服务器")
     public ReturnResult<MonitorSysGenServerLayout> copyLayoutToServer(
             @Parameter(description = "源布局ID") @PathVariable Integer sourceLayoutId,
             @Parameter(description = "目标服务器ID") @PathVariable Integer targetServerId,
-            @Parameter(description = "新布局名称") @RequestParam String layoutName) {
+            @RequestParam String layoutName) {
         return layoutService.copyLayoutToServer(sourceLayoutId, targetServerId, layoutName);
     }
 
-    /**
-     * 获取布局详情
-     *
-     * @param layoutId 布局ID
-     * @return 布局详情
-     */
     @GetMapping("/detail/{layoutId}")
     @Operation(summary = "获取布局详情")
     public ReturnResult<MonitorSysGenServerLayout> getLayoutById(
@@ -168,12 +103,6 @@ public class MonitorSysGenServerLayoutController {
         return layoutService.getLayoutById(layoutId);
     }
 
-    /**
-     * 根据布局类型获取布局列表
-     *
-     * @param layoutType 布局类型
-     * @return 布局列表
-     */
     @GetMapping("/type/{layoutType}")
     @Operation(summary = "根据类型获取布局列表")
     public ReturnResult<List<MonitorSysGenServerLayout>> getLayoutsByType(
@@ -181,12 +110,6 @@ public class MonitorSysGenServerLayoutController {
         return layoutService.getLayoutsByType(layoutType);
     }
 
-    /**
-     * 创建默认布局
-     *
-     * @param serverId 服务器ID
-     * @return 操作结果
-     */
     @PostMapping("/create-default/{serverId}")
     @Operation(summary = "创建默认布局")
     public ReturnResult<MonitorSysGenServerLayout> createDefaultLayout(
@@ -194,13 +117,6 @@ public class MonitorSysGenServerLayoutController {
         return layoutService.createDefaultLayout(serverId);
     }
 
-    /**
-     * 保存单个组件的图表配置
-     *
-     * @param serverId 服务器ID
-     * @param componentConfig 组件配置
-     * @return 操作结果
-     */
     @PostMapping("/component/config/{serverId}")
     @Operation(summary = "保存组件图表配置")
     public ReturnResult<Boolean> saveComponentChartConfig(
@@ -209,13 +125,6 @@ public class MonitorSysGenServerLayoutController {
         return layoutService.saveComponentChartConfig(serverId, componentConfig);
     }
 
-    /**
-     * 获取组件的图表配置
-     *
-     * @param serverId 服务器ID
-     * @param componentId 组件ID
-     * @return 图表配置
-     */
     @GetMapping("/component/config/{serverId}/{componentId}")
     @Operation(summary = "获取组件图表配置")
     public ReturnResult<Map<String, Object>> getComponentChartConfig(
@@ -224,13 +133,6 @@ public class MonitorSysGenServerLayoutController {
         return layoutService.getComponentChartConfig(serverId, componentId);
     }
 
-    /**
-     * 批量保存组件图表配置
-     *
-     * @param serverId 服务器ID
-     * @param configs 组件配置列表
-     * @return 操作结果
-     */
     @PostMapping("/component/config/batch/{serverId}")
     @Operation(summary = "批量保存组件图表配置")
     public ReturnResult<Boolean> batchSaveComponentChartConfig(
