@@ -1,1 +1,0 @@
-import{E as o}from"./ErrorPage-DlahcJEE.js";import{e as r}from"./runtime-DlJat62E.js";import{g as t,o as a,e as n,l as s}from"./vendor-ui-DXFgmDTA.js";import"./vendor-echarts-LKCFM3OA.js";const f=t({name:"403",__name:"403",setup(l){const e=s(()=>r.ErrorPageStyle||"forbidden");return(p,m)=>(a(),n(o,{code:"403","page-style":e.value},null,8,["page-style"]))}});export{f as default};
