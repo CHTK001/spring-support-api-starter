@@ -26,7 +26,6 @@
     <module>spring-api-support-video-test-starter</module>
     <module>spring-api-support-tomcat-benchmark</module>
     <module>spring-api-support-benchmark</module>
-    <module>spring-api-support-project-test-starter</module>
     <module>spring-api-support-workflow-test-starter</module>
   </modules>
 </project>
