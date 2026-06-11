@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -28,9 +29,11 @@ class GlobalRequestTraceFilterTest {
     @Test
     void recordsEventForAnnotatedHandlerOnly() throws Exception {
         RequestTraceAnalyticsService analyticsService = mock(RequestTraceAnalyticsService.class);
+        ApplicationContext applicationContext = mock(ApplicationContext.class);
+        when(applicationContext.containsBean("requestStatisticsIngestionService")).thenReturn(false);
         when(analyticsService.record(any(RequestTraceEvent.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
-        GlobalRequestTraceFilter filter = new GlobalRequestTraceFilter(analyticsService);
+        GlobalRequestTraceFilter filter = new GlobalRequestTraceFilter(analyticsService, applicationContext);
 
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/demo/42");
         request.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36");
@@ -70,7 +73,9 @@ class GlobalRequestTraceFilterTest {
     @Test
     void skipsEventWhenHandlerHasNoAnnotation() throws Exception {
         RequestTraceAnalyticsService analyticsService = mock(RequestTraceAnalyticsService.class);
-        GlobalRequestTraceFilter filter = new GlobalRequestTraceFilter(analyticsService);
+        ApplicationContext applicationContext = mock(ApplicationContext.class);
+        when(applicationContext.containsBean("requestStatisticsIngestionService")).thenReturn(false);
+        GlobalRequestTraceFilter filter = new GlobalRequestTraceFilter(analyticsService, applicationContext);
 
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/demo/plain");
         request.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0.0.0 Safari/537.36");

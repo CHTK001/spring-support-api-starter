@@ -187,12 +187,10 @@ class RequestTraceAiSummaryServiceTest {
                     .build();
         }
 
-        @Override
         public void callAsync(BigModelRequest request, BigModelCallback callback) throws InterruptedException {
             throw new UnsupportedOperationException();
         }
 
-        @Override
         public void callStream(BigModelRequest request, BigModelCallback callback) {
             throw new UnsupportedOperationException();
         }

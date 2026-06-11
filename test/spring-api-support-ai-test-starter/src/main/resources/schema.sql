@@ -48,15 +48,15 @@ INSERT INTO sys_project (
 )
 SELECT
     6,
-    'AI测试项目',
-    'ai-test-project',
+    'AI项目',
+    'ai-project',
     1,
     0,
     'https://api.openai.com/v1/chat/completions',
     'openai',
-    'ai-test',
+    'system',
     CURRENT_TIMESTAMP,
-    'ai-test',
+    'system',
     CURRENT_TIMESTAMP
 WHERE NOT EXISTS (
     SELECT 1

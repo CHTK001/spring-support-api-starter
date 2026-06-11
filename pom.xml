@@ -30,6 +30,7 @@
         <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-common-payment-starter</module>
         <module>spring-api-support-workflow-starter</module>
+        <module>spring-api-support-common-statistics-starter</module>
     </modules>
 
     <properties>

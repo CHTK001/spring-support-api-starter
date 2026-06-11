@@ -1,0 +1,44 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:./data/ai_test;MODE=MySQL;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
+    username: sa
+    password:
+    initialization-fail-timeout: -1
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql,classpath*:db/init/V1.0__init_spider.sql,classpath:spider-fix.sql,classpath:db/fix/V1.0__fix_missing_tables.sql,classpath:db/fix/V1.1__add_ai_module_mapping_name.sql
+      continue-on-error: false
+
+logging:
+  file:
+    name: ./logs/ai-test-error.log
+  level:
+    com.chua.starter.project: debug
+    com.chua.starter.ai: debug
+    com.chua.starter.panel: debug
+    com.chua.starter.mybatis: debug
+    com.baomidou.mybatisplus: debug
+    com.chua.starter.oauth: debug
+    com.chua.starter.ai.support.mapper: debug
+    com.chua.starter.common.support.api.response: debug
+    org.springframework.web: debug
+
+docker:
+  api:
+    host: 172.16.0.40
+    port: 2375
+
+app:
+  rag:
+    enabled: true
+    test-enabled: false
+    embedding-engine: onnx
+    vector-storage: jvector
+    default-similarity-threshold: 0.1
+    upload-dir: ./data/rag-test/uploads
+    use-graph: true
+    graph-max-hops: 2
+    graph-max-tokens: 1000
+    # LLM 配置仍使用全局 LLM 配置 (sys_ai_global_setting runtime 组)

@@ -38,6 +38,16 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
      */
     private String appKey;
 
+    /**
+     * API Host 地址（如 https://api.agnes-ai.com）
+     */
+    private String host;
+
+    /**
+     * API Base URL（如 https://api.agnes-ai.com/v1/chat/completions）
+     */
+    private String baseUrl;
+
 
     private BigModelClient bigModelClient;
 
@@ -55,6 +65,8 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
              this.appId = bigModelSetting.appId;
              this.appSecret = bigModelSetting.appSecret;
              this.appKey = bigModelSetting.appKey;
+             this.host = bigModelSetting.host;
+             this.baseUrl = bigModelSetting.baseUrl;
              if(null != this.bigModelClient) {
                  IoUtils.closeQuietly(bigModelClient);
              }
@@ -62,6 +74,9 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
                      .appId(appId)
                      .appKey(appKey)
                      .appSecret(appSecret)
+                     .host(host)
+                     .baseUrl(baseUrl)
+                     .provider(appType)
                      .build();
              // 优先使用 openai（嵌入式兼容），其次用配置的 appType，最后回退默认
              ServiceProvider<BigModelClient> provider = ServiceProvider.of(BigModelClient.class);
@@ -72,4 +87,3 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
          }
     }
 }
-

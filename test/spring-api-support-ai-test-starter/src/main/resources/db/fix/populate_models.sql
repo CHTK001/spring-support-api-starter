@@ -2,7 +2,6 @@ INSERT INTO sys_ai_module (sys_ai_module_name, sys_ai_module_code, sys_ai_module
 SELECT * FROM (
   SELECT 'KAT-Coder-Exp-72B-1010' AS col1, 'KAT-Coder-Exp-72B-1010' AS col2, 'CHAT' AS col3, 'baishan' AS col4, 1 AS col5, 10 AS col6, 0 AS col7, 0 AS col8, 1 AS col9, 0.0000 AS col10, 0.0000 AS col11, '白山智算' AS col12 UNION ALL
   SELECT 'DeepSeek-R1-0528-Qwen3-8B', 'DeepSeek-R1-0528-Qwen3-8B', 'CHAT', 'baishan', 1, 20, 0, 1, 1, 0.0000, 0.0000, '白山智算' UNION ALL
-  SELECT 'DeepSeek-V4-Pro', 'deepseek-v4-pro', 'CHAT', 'baishan', 1, 30, 0, 0, 1, 0.0000, 0.0000, 'Infer AI' UNION ALL
   SELECT 'DeepSeek-V4-Flash-L', 'deepseek-v4-flash-l', 'CHAT', 'sixthsense', 1, 201, 0, 0, 5, 0.0000, 0.0000, 'Sixthsense LLM' UNION ALL
   SELECT 'GLM-4.7', 'GLM-4.7', 'CHAT', 'zai', 1, 186, 0, 0, 1, 0.6000, 2.2000, 'Z.AI' UNION ALL
   SELECT 'GLM-4.7-Flash', 'GLM-4.7-Flash', 'CHAT', 'zai', 1, 187, 0, 0, 1, 0.0000, 0.0000, 'Z.AI' UNION ALL

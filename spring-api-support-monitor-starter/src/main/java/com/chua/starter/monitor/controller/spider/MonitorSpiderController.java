@@ -856,8 +856,6 @@ public class MonitorSpiderController {
             }
         }
     }
-        return ReturnResult.ok(true);
-    }
 
     /**
      * 验证任务设计

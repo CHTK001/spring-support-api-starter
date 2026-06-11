@@ -47,6 +47,14 @@ public class MonitorSysGenServerLayout extends SysBase implements Serializable {
     private Integer monitorSysGenServerId;
 
     /**
+     * 项目ID
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "项目ID")
+    @Schema(description = "项目ID")
+    private Integer monitorSysGenProjectId;
+
+    /**
      * 布局名称
      */
     @TableField(value = "monitor_sys_gen_server_layout_name")
