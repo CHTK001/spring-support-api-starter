@@ -8,6 +8,7 @@ import com.chua.starter.panel.service.DockerPanelService;
 import com.chua.starter.panel.service.NginxPanelService;
 import com.chua.starter.panel.service.impl.DefaultDockerPanelService;
 import com.chua.starter.panel.service.impl.DefaultNginxPanelService;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -17,11 +18,12 @@ import org.springframework.context.annotation.Bean;
  */
 @SpringBootApplication(scanBasePackages = {
         "com.chua.starter.ai.test",
-        "com.chua.starter.system",
+        "com.chua.starter.ai.support",
         "com.chua.starter.spider",
         "com.chua.starter.docker",
         "com.chua.starter.server.support"
 })
+@MapperScan("com.chua.starter.system.mapper")
 public class AiTestApplication {
 
     public static void main(String[] args) {

@@ -185,6 +185,7 @@ public class AuthServerProperties {
      * <li><strong>http</strong> - HTTP协议，基于RESTful API，兼容性好</li>
      * <li><strong>oauth2</strong> - OAuth 2.0标准协议，符合RFC 6749规范</li>
      * <li><strong>rsocket</strong> - RSocket协议，响应式流协议，支持双向通信</li>
+     * <li><strong>ipc</strong> - IPC协议，基于Unix Domain Socket本地进程间通信，单机场景性能极高</li>
      * <li><strong>tcp</strong> - TCP协议，二进制传输，高性能</li>
      * <li><strong>udp</strong> - UDP协议，无连接，极致性能</li>
      * <li><strong>custom</strong> - 自定义协议</li>
@@ -396,6 +397,22 @@ public class AuthServerProperties {
      * </p>
      */
     private Integer rsocketPort = 7000;
+
+    /**
+     * IPC 协议 socket 文件路径
+     * <p>
+     * 仅当 protocols 包含 "ipc" 时生效。IPC 协议使用 Unix Domain Socket 进行本地进程间通信，
+     * 避免 TCP/IP 协议栈开销，适用于客户端与服务端在同一台机器上的场景。
+     * </p>
+     * <p>
+     * 默认值：${java.io.tmpdir}/oauth-ipc.sock
+     * </p>
+     * <p>
+     * Linux 示例：/var/run/oauth-ipc.sock
+     * Windows 示例：C:/Users/AppData/Local/Temp/oauth-ipc.sock
+     * </p>
+     */
+    private String ipcSocketPath;
 
     /**
      * JWT 配置
