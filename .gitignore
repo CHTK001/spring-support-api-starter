@@ -48,18 +48,11 @@ run_system.sh
 pipeline-management
 .cache/
 **/data/monitor.*
-# build artifacts
-BOOT-INF/
-META-INF/
-com/
-!test/spring-api-support-project-test-starter/src/main/java/com/
-!test/spring-api-support-project-test-starter/src/main/java/com/chua/
-!test/spring-api-support-project-test-starter/src/main/java/com/chua/starter/
-!test/spring-api-support-project-test-starter/src/main/java/com/chua/starter/project/
-!test/spring-api-support-project-test-starter/src/main/java/com/chua/starter/project/test/
-!test/spring-api-support-project-test-starter/src/main/java/com/chua/starter/project/test/ProjectBridgeState.java
-!test/spring-api-support-project-test-starter/src/main/java/com/chua/starter/project/test/ProjectCompatibilityController.java
-!test/spring-api-support-project-test-starter/src/main/java/com/chua/starter/project/test/ProjectContainerSoftwareController.java
+# build artifacts (only under target/, not source code)
+target/**/BOOT-INF/
+target/**/META-INF/
+target/**/com/
+
 
 # data directories
 data/
