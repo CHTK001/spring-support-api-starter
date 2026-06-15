@@ -78,3 +78,34 @@ test/**/e2e-*
 # test demo starters
 test/**/spring-api-support-common-music-demo/
 test/**/spring-api-support-soft-test-starter/
+
+# tooling
+.opencode/
+.playwright-mcp/
+
+# temporary files
+\!TEMP_FILE!
+null
+
+# backup files
+*.bak*
+
+# build artifacts (outside target/)
+BOOT-INF/
+/META-INF/
+test/*/META-INF/
+test/*/com/
+
+# dependencies
+node_modules/
+
+# temporary python scripts
+check_javadoc.py
+jdcheck.py
+scan.py
+scan_method_javadoc.py
+scan_script.py
+scan_script2.py
+scan_script4.py
+scan_script5.py
+test_script.py

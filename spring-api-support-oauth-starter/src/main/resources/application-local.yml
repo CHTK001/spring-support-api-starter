@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:p6spy:mysql://127.0.0.1:3306/system?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root@
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 16379
+      database: 15
+  autoconfigure:
+    exclude:
+      - com.chua.starter.ai.support.configuration.RagAutoConfiguration
+      - com.chua.starter.ai.support.configuration.AiConfiguration
+      - com.chua.starter.ai.support.configuration.AiProtocolServerConfiguration
+      - com.chua.starter.ai.support.configuration.AiCacheKeyGeneratorAliasConfiguration
+      - com.chua.starter.ai.support.configuration.AiCacheManagerFallbackConfiguration

@@ -7,7 +7,7 @@ spring:
     name: monitor
   profiles:
     # 当前激活的配置文件
-    active: h2
+    active: mysql
     # 包含的配置文件列表
     include: mybatis,acme
   main:
