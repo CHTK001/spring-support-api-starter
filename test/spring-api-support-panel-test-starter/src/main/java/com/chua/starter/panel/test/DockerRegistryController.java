@@ -41,6 +41,27 @@ public class DockerRegistryController {
      */
     @PostConstruct
     public void initSeedData() {
+        // 确保表存在（H2 等空库场景）
+        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS " + TABLE + " (" +
+                "system_soft_registry_id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "system_soft_registry_name VARCHAR(255), " +
+                "system_soft_registry_type VARCHAR(100), " +
+                "system_soft_registry_url VARCHAR(500), " +
+                "system_soft_registry_username VARCHAR(255), " +
+                "system_soft_registry_password VARCHAR(255), " +
+                "system_soft_registry_email VARCHAR(255), " +
+                "system_soft_registry_active INT DEFAULT 1, " +
+                "system_soft_registry_ssl_enabled INT DEFAULT 1, " +
+                "system_soft_registry_support_sync INT DEFAULT 0, " +
+                "system_soft_registry_timeout INT DEFAULT 30, " +
+                "system_soft_registry_description VARCHAR(500), " +
+                "system_soft_registry_config TEXT, " +
+                "system_soft_registry_last_connect_time VARCHAR(50), " +
+                "system_soft_registry_connect_status INT DEFAULT 0, " +
+                "system_soft_registry_error_message VARCHAR(500), " +
+                "system_soft_registry_sort INT DEFAULT 0, " +
+                "system_soft_registry_status INT DEFAULT 1" +
+                ")");
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM " + TABLE, Integer.class);
         if (count == null || count == 0) {
             jdbcTemplate.update("INSERT INTO " + TABLE + " (system_soft_registry_name, system_soft_registry_type, " +
