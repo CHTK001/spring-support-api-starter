@@ -4,6 +4,13 @@
 spring:
   application:
     name: system                            # 应用名称（系统服务）
+  autoconfigure:
+    exclude:
+      - com.chua.starter.ai.support.configuration.AiConfiguration
+      - com.chua.starter.ai.support.configuration.AiCacheKeyGeneratorAliasConfiguration
+      - com.chua.starter.ai.support.configuration.AiCacheManagerFallbackConfiguration
+      - com.chua.starter.ai.support.configuration.AiNewApiServerConfiguration
+      - com.chua.starter.ai.support.configuration.RagAutoConfiguration
   profiles:
     active: dev
     group:

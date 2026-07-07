@@ -4,7 +4,7 @@ import com.chua.common.support.lang.code.ReturnPageResult;
 import com.chua.starter.video.entity.VideoSource;
 import com.chua.starter.video.pojo.VideoInfoResult;
 import com.chua.starter.video.pojo.VideoSearch;
-import com.chua.starter.video.provider.impl.Pkmp4ResourceProvider;
+import com.chua.starter.video.provider.impl.GuanYingResourceProvider;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -37,7 +37,7 @@ public class VideoTestController {
             videoSource.setVideoSourcePlatform("pkmp4");
 
             // 直接实例化 provider
-            Pkmp4ResourceProvider provider = new Pkmp4ResourceProvider(videoSource);
+            GuanYingResourceProvider provider = new GuanYingResourceProvider(videoSource);
 
             VideoSearch search = new VideoSearch();
             search.setKeyword(keyword);
@@ -73,7 +73,7 @@ public class VideoTestController {
             videoSource.setVideoSourceName("pkmp4测试");
             videoSource.setVideoSourcePlatform("pkmp4");
 
-            Pkmp4ResourceProvider provider = new Pkmp4ResourceProvider(videoSource);
+            GuanYingResourceProvider provider = new GuanYingResourceProvider(videoSource);
             VideoInfoResult detail = provider.getVideoDetail(url);
 
             result.put("success", true);

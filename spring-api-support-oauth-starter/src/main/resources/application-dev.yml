@@ -17,6 +17,9 @@ plugin:
   api:
     encode:
       enable: false
+  mybatis-plus:
+    encryptor:
+      password: oauth-encrypt-key
   oauth:
     server:
       # 签名校验开关（默认 true，生产环境必须开启）
@@ -40,6 +43,10 @@ plugin:
       online: SINGLE
       # 是否开启 AK/SK 校验
       open-check-ak-sk: false
+
+soft:
+  management:
+    enable: false
 
 logging:
   level:
