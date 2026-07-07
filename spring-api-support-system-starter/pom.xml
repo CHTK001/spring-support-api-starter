@@ -47,6 +47,20 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-api-support-common-tenant-starter</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>spring-support-job-starter</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>spring-support-socket-io-starter</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
       <exclusions>

@@ -1,4 +1,4 @@
-package com.chua.starter.oauth.sso.support.config;
+package com.chua.starter.system.configuration;
 
 import com.chua.starter.ai.support.model.ServerAlertHistoryAnalyzeRequest;
 import com.chua.starter.ai.support.model.ServerAiStructuredAdvice;
@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * OAuth 专用的 Server AI 分析 stub，用于解决 spring-support-server-starter 的硬依赖。
+ * System 专用的 Server AI 分析 stub，用于解决 spring-support-server-starter 的硬依赖。
  */
 @Configuration
 public class ServerAiAnalyzeStubConfiguration {
