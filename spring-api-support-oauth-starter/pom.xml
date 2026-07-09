@@ -43,12 +43,6 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-support-mybatis-starter</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>com.chua</groupId>
-          <artifactId>utils-support-deeplearning-starter</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
