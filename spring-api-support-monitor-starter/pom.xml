@@ -8,23 +8,19 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>spring-api-support-monitor-starter</artifactId>
-    <description>运维端</description>
-    <properties>
-        <hutool.version>5.8.34</hutool.version>
-        <docker-java-version>3.4.0</docker-java-version>
-        <jna-version>5.14.0</jna-version>
-        <oshi.version>6.4.8</oshi.version>
-        <deeplearning.version>4.0.0.40</deeplearning.version>
-    </properties>
+    <description>SSL证书自动化管理 (ACME)</description>
     <dependencies>
         <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-            <version>${hutool.version}</version>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-acme-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-common-starter</artifactId>
+            <artifactId>spring-support-common-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-mybatis-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
@@ -32,19 +28,20 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-protocol-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-core</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>spring-support-datasource-starter</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-common-service-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-extension-starter</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -60,179 +57,24 @@
             <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-socket-io-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-datasource-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-mybatis-starter</artifactId>
-        </dependency>
-
-
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-common-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>utils-support-loki-starter</artifactId>
-                    <groupId>com.chua</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-ssh-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-api-support-common-service-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-datasource-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-acme-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-extension-starter</artifactId>
-            <version>${utils.version}</version>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.gmavenplus</groupId>
-                <artifactId>gmavenplus-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>**/controller/remote/**</exclude>
-                        <exclude>**/controller/webrtc/**</exclude>
-                        <exclude>**/service/impl/RemoteDesktop*.java</exclude>
-                        <exclude>**/service/impl/WebRTCServiceMonitor.java</exclude>
-                        <exclude>**/service/impl/NodeRemoteServiceImpl.java</exclude>
-                        <exclude>**/socket/listener/connection/RemoteDesktop*.java</exclude>
-                        <exclude>**/socket/listener/connection/WebRTCSocketListener.java</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>*.yml</exclude>
-                        <exclude>*.yaml</exclude>
-                        <exclude>*.properties</exclude>
-                        <exclude>logback*.xml</exclude>
-                        <exclude>log4j2*.xml</exclude>
-                        <exclude>config/**</exclude>
-                    </excludes>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.chua.starter.monitor.MonitorServerApplication</mainClass>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
-                        </manifest>
-                        <manifestEntries>
-                            <Class-Path>config/</Class-Path>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <excludeTransitive>false</excludeTransitive>
-                            <stripVersion>false</stripVersion>
-                            <includeScope>runtime</includeScope>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/config</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/resources</directory>
-                                    <includes>
-                                        <include>*.yml</include>
-                                        <include>*.yaml</include>
-                                        <include>*.properties</include>
-                                        <include>logback*.xml</include>
-                                        <include>log4j2*.xml</include>
-                                        <include>config/**</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
