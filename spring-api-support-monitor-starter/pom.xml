@@ -32,6 +32,14 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
+            <artifactId>spring-support-panel-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-server-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-service-starter</artifactId>
         </dependency>
         <dependency>
