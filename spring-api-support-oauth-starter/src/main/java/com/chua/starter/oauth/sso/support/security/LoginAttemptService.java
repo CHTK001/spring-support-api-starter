@@ -1,8 +1,9 @@
 package com.chua.starter.oauth.sso.support.security;
 
 import com.chua.common.support.core.utils.StringUtils;
-import lombok.RequiredArgsConstructor;
+import com.chua.starter.oauth.sso.support.properties.OauthSecurityProperties;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,10 @@ import java.util.concurrent.TimeUnit;
  * 用于跟踪用户登录尝试，防止暴力破解攻击。
  * 当用户连续登录失败超过阈值时，账户将被临时锁定。
  * </p>
+ * <p>
+ * 锁定阈值与时长优先读取 {@link OauthSecurityProperties#getLoginLock()}，
+ * 未配置时回退到默认值（5 次 / 15 分钟）。
+ * </p>
  *
  * @author CH
  * @version 1.0.0
@@ -22,7 +27,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class LoginAttemptService {
 
     /**
@@ -53,13 +57,32 @@ public class LoginAttemptService {
     private final StringRedisTemplate stringRedisTemplate;
 
     /**
+     * 安全配置（可选，用于覆盖默认锁定参数）
+     */
+    private OauthSecurityProperties securityProperties;
+
+    public LoginAttemptService(StringRedisTemplate stringRedisTemplate) {
+        this.stringRedisTemplate = stringRedisTemplate;
+    }
+
+    /**
+     * 注入安全配置（可选）
+     *
+     * @param securityProperties 安全配置
+     */
+    @Autowired(required = false)
+    public void setSecurityProperties(OauthSecurityProperties securityProperties) {
+        this.securityProperties = securityProperties;
+    }
+
+    /**
      * 记录登录失败
      *
      * @param username 用户名
      * @return 剩余尝试次数，0表示已锁定
      */
     public int recordFailedAttempt(String username) {
-        return recordFailedAttempt(username, DEFAULT_MAX_ATTEMPTS, DEFAULT_LOCK_DURATION_MINUTES);
+        return recordFailedAttempt(username, resolveMaxAttempts(), resolveLockDurationMinutes());
     }
 
     /**
@@ -86,7 +109,7 @@ public class LoginAttemptService {
             }
 
             // 设置过期时间
-            stringRedisTemplate.expire(attemptKey, Duration.ofMinutes(ATTEMPT_EXPIRE_MINUTES));
+            stringRedisTemplate.expire(attemptKey, Duration.ofMinutes(resolveAttemptExpireMinutes()));
 
             int remaining = maxAttempts - attempts.intValue();
             log.debug("登录失败记录: username={}, attempts={}, remaining={}", username, attempts, remaining);
@@ -223,7 +246,28 @@ public class LoginAttemptService {
         boolean locked = isAccountLocked(username);
         long remainingSeconds = locked ? getLockRemainingSeconds(username) : -1;
         int failedAttempts = getFailedAttempts(username);
-        return new LockInfo(locked, remainingSeconds, failedAttempts, DEFAULT_MAX_ATTEMPTS);
+        return new LockInfo(locked, remainingSeconds, failedAttempts, resolveMaxAttempts());
+    }
+
+    private int resolveMaxAttempts() {
+        if (securityProperties != null && securityProperties.getLoginLock() != null) {
+            return securityProperties.getLoginLock().getMaxAttempts();
+        }
+        return DEFAULT_MAX_ATTEMPTS;
+    }
+
+    private int resolveLockDurationMinutes() {
+        if (securityProperties != null && securityProperties.getLoginLock() != null) {
+            return securityProperties.getLoginLock().getLockDurationMinutes();
+        }
+        return DEFAULT_LOCK_DURATION_MINUTES;
+    }
+
+    private int resolveAttemptExpireMinutes() {
+        if (securityProperties != null && securityProperties.getLoginLock() != null) {
+            return securityProperties.getLoginLock().getAttemptExpireMinutes();
+        }
+        return ATTEMPT_EXPIRE_MINUTES;
     }
 
     /**
