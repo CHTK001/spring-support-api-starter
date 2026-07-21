@@ -8,6 +8,7 @@ import com.chua.starter.oauth.sso.support.gitee.GiteeLoginProvider;
 import com.chua.starter.oauth.sso.support.processor.ResponseAdviceMethodProcessor;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.properties.CasProperties;
+import com.chua.starter.oauth.sso.support.properties.OauthSecurityProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyBinderProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyLoginProperties;
 import com.chua.starter.oauth.sso.support.protocol.OauthProtocol;
@@ -77,7 +78,13 @@ import java.util.*;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-@EnableConfigurationProperties({AuthServerProperties.class, ThirdPartyBinderProperties.class, CasProperties.class, ThirdPartyLoginProperties.class})
+@EnableConfigurationProperties({
+        AuthServerProperties.class,
+        ThirdPartyBinderProperties.class,
+        CasProperties.class,
+        ThirdPartyLoginProperties.class,
+        OauthSecurityProperties.class
+})
 public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPostProcessor,
         EnvironmentPostProcessor,
         CommandLineRunner,
