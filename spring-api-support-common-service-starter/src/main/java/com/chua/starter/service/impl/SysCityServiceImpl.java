@@ -2,7 +2,7 @@ package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.lang.treenode.TreeNode;
+import com.chua.common.support.lang.ast.BTreeNode;
 import com.chua.starter.entity.service.SysCity;
 import com.chua.starter.service.SysCityService;
 import com.chua.starter.service.mapper.SysCityMapper;
@@ -39,8 +39,8 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
             return ReturnResult.success(sysCities);
         }
 
-        TreeNode<SysCity> treeNode = TreeNode.transfer(sysCities, sysCity -> {
-            TreeNode<SysCity> node = new TreeNode<>();
+        BTreeNode<SysCity> BTreeNode = BTreeNode.transfer(sysCities, sysCity -> {
+            BTreeNode<SysCity> node = new BTreeNode<>();
             node.setId(sysCity.getSysCityCode());
             node.setLabel(sysCity.getSysCityName());
             node.setPid(sysCity.getSysCityParentCode());
@@ -48,7 +48,7 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
             return node;
         });
 
-        return ReturnResult.success(treeNode.toList());
+        return ReturnResult.success(BTreeNode.toList());
     }
 
     /**
@@ -68,8 +68,8 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
             return ReturnResult.success(sysCities);
         }
 
-        TreeNode<SysCity> treeNode = TreeNode.transfer(sysCities, sysCity -> {
-            TreeNode<SysCity> node = new TreeNode<>();
+        BTreeNode<SysCity> BTreeNode = BTreeNode.transfer(sysCities, sysCity -> {
+            BTreeNode<SysCity> node = new BTreeNode<>();
             node.setId(sysCity.getSysCityCode());
             node.setLabel(sysCity.getSysCityName());
             node.setPid(sysCity.getSysCityParentCode());
@@ -77,6 +77,6 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
             return node;
         });
 
-        return ReturnResult.success(treeNode.toList());
+        return ReturnResult.success(BTreeNode.toList());
     }
 }

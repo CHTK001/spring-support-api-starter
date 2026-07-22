@@ -1,8 +1,7 @@
 package com.chua.starter.entity.service;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.chua.common.support.core.utils.FileUtils;
-import com.chua.common.support.core.utils.IoUtils;
+import com.chua.common.support.utils.IoUtils;
 import com.chua.starter.mybatis.pojo.SysBase;
 import com.google.common.io.Files;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -135,7 +134,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
      */
     public void transferFrom(MultipartFile multipartFile) throws Exception {
         File file = new File(sysFileSystemPartLocalPath);
-        FileUtils.forceMkdirParent(file);
+        file.getParentFile().mkdirs();
         try (InputStream inputStream = multipartFile.getInputStream();
              FileOutputStream fileOutputStream = new FileOutputStream(file)) {
             IoUtils.copy(inputStream, fileOutputStream);

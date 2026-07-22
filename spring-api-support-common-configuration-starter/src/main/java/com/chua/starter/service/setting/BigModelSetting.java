@@ -2,9 +2,9 @@ package com.chua.starter.service.setting;
 
 import com.chua.common.support.function.Upgrade;
 import com.chua.common.support.ai.bigmodel.BigModelClient;
-import com.chua.common.support.core.spi.ServiceProvider;
-import com.chua.common.support.core.utils.IoUtils;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.IoUtils;
+import com.chua.common.support.utils.StringUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 

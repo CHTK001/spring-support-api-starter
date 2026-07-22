@@ -1,8 +1,8 @@
 package com.chua.starter.service.configuration;
 
-import com.chua.common.support.base.bean.BeanUtils;
-import com.chua.common.support.core.utils.MapUtils;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.BeanUtils;
+import com.chua.common.support.utils.MapUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.socket.support.auth.SocketAuthFactory;
 import com.chua.socket.support.session.SocketUser;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;

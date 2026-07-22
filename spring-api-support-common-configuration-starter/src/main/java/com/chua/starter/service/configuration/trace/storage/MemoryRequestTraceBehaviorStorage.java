@@ -1,6 +1,6 @@
 package com.chua.starter.service.configuration.trace.storage;
 
-import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.spi.annotations.Spi;
 import com.chua.starter.service.configuration.trace.RequestTraceBehaviorRecord;
 import com.chua.starter.service.configuration.trace.RequestTraceBehaviorStorage;
 import com.chua.starter.service.configuration.trace.RequestTraceStrategyConfig;

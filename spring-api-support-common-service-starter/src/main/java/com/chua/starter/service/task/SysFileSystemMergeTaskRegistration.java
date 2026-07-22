@@ -1,13 +1,11 @@
 package com.chua.starter.service.task;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.io.binary.ByteSourceArray;
-import com.chua.common.support.storage.oss.FileStorage;
-import com.chua.common.support.storage.oss.metadata.MapMetadata;
-import com.chua.common.support.storage.oss.request.PutObjectRequest;
-import com.chua.common.support.storage.oss.result.PutObjectResult;
-import com.chua.common.support.storage.oss.setting.BucketSetting;
-import com.chua.common.support.core.utils.FileUtils;
+import com.chua.common.support.storage.FileStorage;
+import com.chua.common.support.storage.request.PutObjectRequest;
+import com.chua.common.support.storage.result.PutObjectResult;
+import com.chua.common.support.storage.setting.BucketSetting;
+import com.chua.common.support.utils.FileUtils;
 import com.chua.starter.entity.service.SysFileSystem;
 import com.chua.starter.entity.service.SysFileSystemPart;
 import com.chua.starter.service.SysFileSystemPartService;
@@ -115,7 +113,7 @@ public class SysFileSystemMergeTaskRegistration {
             sysFileSystem.setSysFileSystemPath(result.getUrl());
             // 构建HTTP访问URL，通过 /file-storage/file 端点提供浏览器预览
             String bucketName = sysFileSystem.getSysFileSystemBucket();
-            if (com.chua.common.support.core.utils.StringUtils.isEmpty(bucketName)) {
+            if (com.chua.common.support.utils.StringUtils.isEmpty(bucketName)) {
                 bucketName = "default";
             }
             sysFileSystem.setSysFileSystemHttpUrl("/file-storage/file?bucket=" + bucketName + "&key=" + result.getKey());
@@ -168,9 +166,8 @@ public class SysFileSystemMergeTaskRegistration {
 
         try (FileStorage fileStorage = fileStorageSupport.createStorage(sysFileSystem.getSysFileSystemType(), bucketSetting)) {
             return fileStorage.putObject(PutObjectRequest.builder()
-                    .byteSource(new ByteSourceArray(data))
-                    .fileName(sysFileSystem.getSysFileSystemName())
-                    .metadata(new MapMetadata(Collections.emptyMap()))
+                    .content(data)
+                      .fileName(sysFileSystem.getSysFileSystemName())
                     .build());
         } catch (Exception e) {
             log.error("上传存储失败", e);
