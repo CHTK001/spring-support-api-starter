@@ -1,8 +1,8 @@
 package com.chua.starter.service.controller;
 
-import com.chua.common.support.core.annotation.Ignore;
-import com.chua.common.support.base.bean.BeanUtils;
-import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.common.support.spi.annotations.SpiIgnore;
+import com.chua.common.support.utils.BeanUtils;
+import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.base.validator.group.AddGroup;
 import com.chua.common.support.base.validator.group.UpdateGroup;
@@ -85,7 +85,7 @@ public class SysSettingController {
      */
     @Operation(summary = "默认设置列表")
     @GetMapping("/default")
-    @Ignore
+    @SpiIgnore
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:default'", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysSettingVO>> listForDefault() {
         List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default,sso,default-1"), Collections.emptySet());

@@ -3,9 +3,9 @@ package com.chua.starter.service.setting;
 import com.chua.common.support.function.Upgrade;
 import com.chua.common.support.lang.message.MessagePush;
 import com.chua.common.support.lang.message.config.PushSetting;
-import com.chua.common.support.core.utils.ServiceProvider;
-import com.chua.common.support.core.utils.IoUtils;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.ServiceProvider;
+import com.chua.common.support.utils.IoUtils;
+import com.chua.common.support.utils.StringUtils;
 import lombok.Data;
 
 /**

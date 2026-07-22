@@ -1,6 +1,6 @@
 package com.chua.starter.service.controller;
 
-import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;

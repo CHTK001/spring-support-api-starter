@@ -3,7 +3,7 @@ package com.chua.starter.service.controller;
 import com.chua.extension.support.external.Weather;
 import com.chua.extension.support.external.WeatherResolver;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.network.net.NetUtils;
+import com.chua.starter.common.support.utils.NetUtils;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.common.support.utils.RequestUtils;
 import io.swagger.annotations.Api;

@@ -1,20 +1,13 @@
 package com.chua.starter.service.utils;
 
-import com.chua.common.support.core.utils.FileUtils;
-import com.chua.common.support.core.utils.IdUtils;
-import com.chua.common.support.core.utils.StringUtils;
-import com.chua.common.support.storage.oss.FileStorage;
-import com.chua.common.support.storage.oss.extension.NamingResolver;
-import com.chua.common.support.storage.oss.metadata.Metadata;
-import com.chua.common.support.storage.oss.setting.BucketSetting;
-import com.chua.common.support.io.binary.ByteSource;
+import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.storage.FileStorage;
+import com.chua.common.support.storage.setting.BucketSetting;
 import com.chua.starter.entity.service.SysFileSystemSetting;
 import com.chua.starter.service.SysFileSystemSettingService;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-import java.nio.charset.StandardCharsets;
 
 /**
  * FileStorage 统一增强入口。
@@ -52,17 +45,7 @@ public class FileStorageSupport {
         String finalBucket = normalizeBucket(bucket);
         BucketSetting.BucketSettingBuilder<?, ?> builder = BucketSetting.builder()
                 .bucket(finalBucket)
-                .endpoint(resolveEndpoint(resolvedType))
-                .charset(StandardCharsets.UTF_8)
-                .nameResolver(new NamingResolver() {
-                    @Override
-                    public String transform(Metadata metadata, ByteSource byteSource) {
-                        return StringUtils.defaultString(
-                                preferredFileName,
-                                IdUtils.createSimpleUuid() + "." + FileUtils.getExtension(originalFilename)
-                        );
-                    }
-                });
+                .endpoint(resolveEndpoint(resolvedType));
 
         if (isLocalStorageType(resolvedType)) {
             builder.accessKeyId(DEFAULT_LOCAL_ACCESS_KEY);
@@ -82,7 +65,6 @@ public class FileStorageSupport {
                 .endpoint(StringUtils.defaultString(rootPath, resolveLocalRootPath()))
                 .accessKeyId(DEFAULT_LOCAL_ACCESS_KEY)
                 .accessKeySecret(DEFAULT_LOCAL_ACCESS_SECRET)
-                .charset(StandardCharsets.UTF_8)
                 .build();
     }
 
@@ -119,10 +101,6 @@ public class FileStorageSupport {
                 .accessKeySecret(StringUtils.isBlank(setting.getAccessKeySecret()) ? DEFAULT_LOCAL_ACCESS_SECRET : setting.getAccessKeySecret())
                 .connectionTimeoutMills(setting.getConnectionTimeoutMills())
                 .sessionTimeoutMills(setting.getSessionTimeoutMills())
-                .nameResolver(setting.getNameResolver())
-                .fileConversionResolver(setting.getFileConversionResolver())
-                .progressListener(setting.getProgressListener())
-                .charset(setting.getCharset())
                 .build();
     }
 

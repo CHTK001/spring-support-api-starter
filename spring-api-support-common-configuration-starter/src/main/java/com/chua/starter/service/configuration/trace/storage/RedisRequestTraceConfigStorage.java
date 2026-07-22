@@ -1,7 +1,7 @@
 package com.chua.starter.service.configuration.trace.storage;
 
-import com.chua.common.support.core.annotation.Spi;
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.json.Json;
 import com.chua.starter.common.support.configuration.SpringBeanUtils;
 import com.chua.starter.service.configuration.trace.RequestTraceConfigStorage;
 import com.chua.starter.service.configuration.trace.RequestTraceStrategyConfig;
