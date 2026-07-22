@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ErrorItem;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.utils.SimpleCase;
 import com.chua.common.support.base.validator.group.AddGroup;
 import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.starter.common.support.utils.JakartaValidationUtils;
@@ -31,27 +30,25 @@ public class SysSettingGroupServiceImpl extends ServiceImpl<SysSettingGroupMappe
         if (errors.hasErrors()) {
             return JakartaValidationUtils.toReturnResult(errors);
         }
-        return ReturnResult.of(SimpleCase.<SysSettingGroup, ErrorItem>create()
-                .when(it -> sysSettingGroup.getSysSettingGroupId() != null).then(it -> {
-                    if (null != sysSettingGroup.getSysSettingGroupCode()) {
-                        if (exists(Wrappers.lambdaQuery(SysSettingGroup.class)
-                                .eq(SysSettingGroup::getSysSettingGroupCode, sysSettingGroup.getSysSettingGroupCode())
-                                .ne(SysSettingGroup::getSysSettingGroupId, sysSettingGroup.getSysSettingGroupId())
-                        )) {
-                            return ErrorItem.of("分组编码已存在");
-                        }
-                    }
-                    return ErrorItem.of(updateById(sysSettingGroup));
-                })
-                .otherwise(() -> {
-                    if (exists(Wrappers.lambdaQuery(SysSettingGroup.class)
-                            .eq(SysSettingGroup::getSysSettingGroupCode, sysSettingGroup.getSysSettingGroupCode()))) {
-                        return ErrorItem.of("分组编码已存在");
-                    }
-                    return ErrorItem.of(save(sysSettingGroup));
-                })
-                .invoke(sysSettingGroup));
-
+        if (sysSettingGroup.getSysSettingGroupId() != null) {
+            // 更新
+            if (null != sysSettingGroup.getSysSettingGroupCode()) {
+                if (exists(Wrappers.lambdaQuery(SysSettingGroup.class)
+                        .eq(SysSettingGroup::getSysSettingGroupCode, sysSettingGroup.getSysSettingGroupCode())
+                        .ne(SysSettingGroup::getSysSettingGroupId, sysSettingGroup.getSysSettingGroupId())
+                )) {
+                    return ReturnResult.error("分组编码已存在");
+                }
+            }
+            return ReturnResult.of(updateById(sysSettingGroup));
+        } else {
+            // 新增
+            if (exists(Wrappers.lambdaQuery(SysSettingGroup.class)
+                    .eq(SysSettingGroup::getSysSettingGroupCode, sysSettingGroup.getSysSettingGroupCode()))) {
+                return ReturnResult.error("分组编码已存在");
+            }
+            return ReturnResult.of(save(sysSettingGroup));
+        }
     }
 
     @Override

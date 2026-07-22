@@ -10,11 +10,12 @@
 
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>4.0.0.40</version>
+    <version>4.0.0.41</version>
     <packaging>pom</packaging>
     <modules>
+        <module>spring-api-support-common-entity-starter</module>
+        <module>spring-api-support-common-service-starter</module>
         <module>spring-api-support-monitor-starter</module>
-        <module>test</module>
     </modules>
 
     <properties>
@@ -23,7 +24,7 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <module.version>${project.version}</module.version>
-        <utils.version>4.0.0.41</utils.version>
+        <utils.version>4.0.0.42</utils.version>
         <lombok.version>1.18.44</lombok.version>
         <maven.compiler.proc>full</maven.compiler.proc>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
@@ -141,12 +142,6 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-common-music-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>spring-api-support-oshi-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -786,12 +781,6 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-datalake-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>spring-api-support-workflow-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

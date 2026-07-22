@@ -1,6 +1,6 @@
 package com.chua.starter.service.configuration.trace;
 
-import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.spi.ServiceProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -133,7 +133,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
             return ReturnResult.fail("内置字典不允许删除");
         }
 
-        return ReturnResult.guess(transactionTemplate.execute(stats -> {
+        return ReturnResult.of(transactionTemplate.execute(stats -> {
             int deleted = baseMapper.deleteById(dictId);
             sysDictItemMapper.delete(Wrappers.<SysDictItem>lambdaQuery().eq(SysDictItem::getSysDictId, dictId));
             return deleted > 0;

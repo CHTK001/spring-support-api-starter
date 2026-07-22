@@ -2,16 +2,14 @@ package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.network.net.NetUtils;
+import com.chua.starter.common.support.utils.NetUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.core.constant.CommonConstant;
-import com.chua.common.support.function.Splitter;
-import com.chua.common.support.text.json.Json;
-import com.chua.common.support.text.json.JsonObject;
+import com.chua.common.support.constant.CommonConstant;
+import com.google.common.base.Splitter;
+import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.utils.*;
-import com.chua.common.support.task.retry.RetryProvider;
-import com.chua.common.support.task.retry.RetryerFlow;
+import com.chua.common.support.utils.*;
 import com.chua.starter.common.support.api.decode.ApiRequestDecodeSetting;
 import com.chua.starter.common.support.api.encode.ApiResponseEncodeConfiguration;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
@@ -450,26 +448,16 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     private void upgrade() {
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
-        // 使用 RetryerFlow 的虚拟线程支持，直接使用虚拟线程执行
-        RetryerFlow.with(() -> {
+        try {
             List<SysSetting> list = list(Wrappers.<SysSetting>lambdaQuery()
                     .eq(SysSetting::getSysSettingStatus, 1)
             );
             register(globalSettingFactory, list);
-            // 同步Socket配置
             syncSocketConfig();
             log.info("[系统配置][初始化] 系统配置加载完成，共 {} 条配置", list.size());
-            return null;
-        })
-        .maxAttempts(10)
-        .waitDurationMs(3000)
-        .fixed()
-        .onException(e -> log.debug("配置加载失败，3000ms 后重试:{}", e.getMessage()))
-        .executeAsync()
-        .exceptionally(throwable -> {
-            log.warn("配置加载失败（已重试10次）:{}", throwable.getMessage());
-            return null;
-        });
+        } catch (Exception e) {
+            log.warn("配置加载失败: {}", e.getMessage());
+        }
     }
 
     /**

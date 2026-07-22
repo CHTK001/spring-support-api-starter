@@ -1,6 +1,6 @@
 package com.chua.starter.service.configuration.trace;
 
-import com.chua.common.support.core.annotation.SpiDescribe;
+import com.chua.common.support.spi.annotations.SpiDescribe;
 
 /**
  * 请求原始记录存储 SPI。

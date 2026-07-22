@@ -1,6 +1,6 @@
 package com.chua.starter.service.configuration.trace;
 
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.json.Json;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Service;
