@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.base.bean.BeanUtils;
-import com.chua.common.support.geo.GeoCity;
+import com.chua.geo.support.geo.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.core.utils.CollectionUtils;
 import com.chua.common.support.core.utils.DigestUtils;

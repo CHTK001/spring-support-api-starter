@@ -1,7 +1,7 @@
 package com.chua.starter.system.controller;
 
 import com.chua.common.support.core.constant.Action;
-import com.chua.common.support.task.debounce.Debounce;
+import com.chua.task.support.task.debounce.Debounce;
 import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.UserLog;
