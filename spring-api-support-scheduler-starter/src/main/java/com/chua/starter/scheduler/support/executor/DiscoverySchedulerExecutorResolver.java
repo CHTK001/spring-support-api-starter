@@ -2,7 +2,7 @@ package com.chua.starter.scheduler.support.executor;
 
 import com.chua.common.support.core.annotation.Spi;
 import com.chua.common.support.core.annotation.SpiCondition;
-import com.chua.common.support.network.discovery.Discovery;
+import com.chua.protocol.support.network.discovery.Discovery;
 import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

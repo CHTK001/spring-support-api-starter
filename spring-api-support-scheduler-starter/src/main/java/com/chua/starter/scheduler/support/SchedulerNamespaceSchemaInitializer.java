@@ -1,9 +1,9 @@
 package com.chua.starter.scheduler.support;
 
-import com.chua.common.support.data.datasource.meta.TableMetadata;
-import com.chua.common.support.data.query.JdbcEngine;
-import com.chua.common.support.data.query.ddl.ActionType;
-import com.chua.common.support.data.query.ddl.JdbcTableExecutor;
+import com.chua.datasource.support.data.datasource.meta.TableMetadata;
+import com.chua.datasource.support.data.query.JdbcEngine;
+import com.chua.datasource.support.data.query.ddl.ActionType;
+import com.chua.datasource.support.data.query.ddl.JdbcTableExecutor;
 import com.chua.common.support.lang.code.ErrorResult;
 import com.chua.starter.job.support.JobProperties;
 import com.chua.starter.job.support.entity.SysJob;

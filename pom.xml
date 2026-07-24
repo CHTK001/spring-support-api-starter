@@ -784,11 +784,6 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>utils-support-extension-starter</artifactId>
-                <version>${utils.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
