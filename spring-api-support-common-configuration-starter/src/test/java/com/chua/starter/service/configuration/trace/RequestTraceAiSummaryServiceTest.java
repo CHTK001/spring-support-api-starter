@@ -1,9 +1,9 @@
 package com.chua.starter.service.configuration.trace;
 
-import com.chua.common.support.ai.bigmodel.BigModelCallback;
-import com.chua.common.support.ai.bigmodel.BigModelClient;
-import com.chua.common.support.ai.bigmodel.BigModelRequest;
-import com.chua.common.support.ai.bigmodel.BigModelResponse;
+import com.chua.deeplearning.support.ai.bigmodel.BigModelCallback;
+import com.chua.deeplearning.support.ai.bigmodel.BigModelClient;
+import com.chua.deeplearning.support.ai.bigmodel.BigModelRequest;
+import com.chua.deeplearning.support.ai.bigmodel.BigModelResponse;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.service.setting.BigModelSetting;
 import org.junit.jupiter.api.Test;

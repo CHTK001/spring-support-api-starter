@@ -19,7 +19,7 @@ import com.chua.starter.monitor.mapper.MonitorAcmeCertificateMapper;
 import com.chua.starter.monitor.mapper.MonitorAcmeOrderMapper;
 import com.chua.starter.monitor.pojo.acme.AcmeApplyCertRequest;
 import com.chua.starter.monitor.properties.AcmeProperties;
-import com.chua.common.support.network.protocol.ClientSetting;
+import com.chua.protocol.support.network.protocol.ClientSetting;
 import com.chua.ssh.support.client.SshClient;
 import com.chua.starter.service.utils.ProtocolClientSupport;
 import lombok.RequiredArgsConstructor;

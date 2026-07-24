@@ -66,6 +66,16 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
+            <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-protocol-starter</artifactId>
+            <version>${utils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-deeplearning-starter</artifactId>
+            <version>${utils.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.geo.GeoCity;
+import com.chua.geo.support.geo.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.time.date.DateUtils;
 import com.chua.common.support.core.utils.ObjectUtils;

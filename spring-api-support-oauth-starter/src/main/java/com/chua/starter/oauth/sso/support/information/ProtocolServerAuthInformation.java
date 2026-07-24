@@ -1,7 +1,7 @@
 package com.chua.starter.oauth.sso.support.information;
 
-import com.chua.common.support.network.protocol.request.ServletRequest;
-import com.chua.common.support.network.protocol.request.ServletResponse;
+import com.chua.protocol.support.network.protocol.request.ServletRequest;
+import com.chua.protocol.support.network.protocol.request.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

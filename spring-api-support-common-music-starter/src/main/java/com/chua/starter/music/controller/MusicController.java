@@ -1,14 +1,14 @@
 package com.chua.starter.music.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.music.model.MusicOverview;
-import com.chua.common.support.music.model.MusicPlaylistCategoryCatalog;
-import com.chua.common.support.music.model.MusicPlaylistCategoryResult;
-import com.chua.common.support.music.model.MusicPlaylistDetail;
-import com.chua.common.support.music.model.MusicPlaylistSearchResult;
-import com.chua.common.support.music.model.MusicSearchResult;
-import com.chua.common.support.music.model.MusicSourceOption;
-import com.chua.common.support.music.model.MusicTrackDetail;
+import com.chua.data.support.music.model.MusicOverview;
+import com.chua.data.support.music.model.MusicPlaylistCategoryCatalog;
+import com.chua.data.support.music.model.MusicPlaylistCategoryResult;
+import com.chua.data.support.music.model.MusicPlaylistDetail;
+import com.chua.data.support.music.model.MusicPlaylistSearchResult;
+import com.chua.data.support.music.model.MusicSearchResult;
+import com.chua.data.support.music.model.MusicSourceOption;
+import com.chua.data.support.music.model.MusicTrackDetail;
 import com.chua.starter.music.service.MusicFacadeService;
 import com.chua.starter.music.service.MusicStreamProxyService;
 import io.swagger.annotations.Api;
