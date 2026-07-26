@@ -122,7 +122,7 @@ public class SysDictItemController {
     @Operation(summary = "删除字典子项")
     @DeleteMapping("/delete")
     @Transactional(rollbackFor = Exception.class)
-    @Permission(value = "sys:dict:item:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    @Permission(value = "sys:dict:item:delete", role = {"ADMIN", AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysDictItemId) {
         if (null == sysDictItemId) {
             return ReturnResult.illegal("字典子项信息不存在");
@@ -139,7 +139,7 @@ public class SysDictItemController {
      */
     @Operation(summary = "更新字典子项")
     @PutMapping("/update")
-    @Permission(value = "sys:dict:item:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    @Permission(value = "sys:dict:item:update", role = {"ADMIN", AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysDictItem sysDictItem,
@@ -158,7 +158,7 @@ public class SysDictItemController {
      */
     @Operation(summary = "新增字典子项")
     @PostMapping("/save")
-    @Permission(value = "sys:dict:item:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    @Permission(value = "sys:dict:item:add", role = {"ADMIN", AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysDictItem> save(
                 @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
                 @Validated(AddGroup.class) @RequestBody SysDictItem sysDictItem,

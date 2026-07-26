@@ -56,7 +56,10 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
      */
     @Override
     public ReturnResult<Boolean> delete(Long logId) {
-        return baseMapper.deleteById(logId) > 0 ? ReturnResult.ok() : ReturnResult.error();
+        if (baseMapper.deleteById(logId) > 0) {
+            return ReturnResult.<Boolean>ok(Boolean.TRUE);
+        }
+        return ReturnResult.<Boolean>ok(Boolean.FALSE);
     }
 
     /**

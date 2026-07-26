@@ -119,18 +119,18 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
     @Override
     public ReturnResult<Boolean> delete(Long dictId) {
         if (null == dictId) {
-            return ReturnResult.fail("字典ID不能为空");
+            return ReturnResult.error("字典ID不能为空");
         }
 
         SysDict sysDict = baseMapper.selectById(dictId);
         if (null == sysDict) {
-            return ReturnResult.fail("字典不存在, 请刷新后重试!");
+            return ReturnResult.error("字典不存在, 请刷新后重试!");
         }
 
         Integer sysRoleInSystem = sysDict.getSysDictInSystem();
 
         if (null != sysRoleInSystem && sysRoleInSystem == 1) {
-            return ReturnResult.fail("内置字典不允许删除");
+            return ReturnResult.error("内置字典不允许删除");
         }
 
         return ReturnResult.of(transactionTemplate.execute(stats -> {
@@ -164,11 +164,11 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
     public ReturnResult<Boolean> update(Set<String> roles, SysDict sysDict) {
         SysDict sysDict1 = baseMapper.selectById(sysDict.getSysDictId());
         Integer sysRoleInSystem = sysDict1.getSysDictInSystem();
-        if (null != sysRoleInSystem && sysRoleInSystem == 1 && !AuthConstant.hasAdmin(roles)) {
-            return ReturnResult.fail("内置字典不允许修改");
+        if (null != sysRoleInSystem && sysRoleInSystem == 1 && !AuthConstant.isAdmin(roles)) {
+            return ReturnResult.error("内置字典不允许修改");
         }
 
-        if (!AuthConstant.hasAdmin(roles)) {
+        if (!AuthConstant.isAdmin(roles)) {
             sysDict.setSysDictInSystem(null);
         }
 
@@ -176,11 +176,11 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
         if (null != sysDictPid && sysDictPid != 0) {
             SysDict sysDict11 = baseMapper.selectById(sysDictPid);
             if (null == sysDict11) {
-                return ReturnResult.fail("父级字典不存在");
+                return ReturnResult.error("父级字典不存在");
             }
 
             if (null != sysDict11.getSysDictPid() && sysDict11.getSysDictPid() != 0) {
-                return ReturnResult.fail("只允许挂载在一级节点上");
+                return ReturnResult.error("只允许挂载在一级节点上");
             }
         }
 
@@ -190,7 +190,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
                     .eq(SysDict::getSysDictCode, sysRoleCode)
                     .ne(SysDict::getSysDictId, sysDict.getSysDictId()));
             if (null != sysRole11) {
-                return ReturnResult.fail("字典编码已存在");
+                return ReturnResult.error("字典编码已存在");
             }
         }
 
@@ -237,16 +237,16 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
         } else {
             SysDict sysDict1 = baseMapper.selectById(sysDictPid);
             if (null == sysDict1) {
-                return ReturnResult.fail("父级字典不存在");
+                return ReturnResult.error("父级字典不存在");
             }
 
             if (null != sysDict1.getSysDictPid() && sysDict1.getSysDictPid() != 0) {
-                return ReturnResult.fail("只允许挂载在一级节点上");
+                return ReturnResult.error("只允许挂载在一级节点上");
             }
         }
 
         if (null != sysRole1) {
-            return ReturnResult.fail("字典编码已存在");
+            return ReturnResult.error("字典编码已存在");
         }
         if (baseMapper.insert(sysDict) > 0) {
             return ReturnResult.of(sysDict);

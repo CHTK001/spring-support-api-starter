@@ -1,11 +1,11 @@
 package com.chua.starter.service.controller;
 
+import com.chua.common.support.base.validator.group.AddGroup;
+import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.common.support.spi.annotations.SpiIgnore;
 import com.chua.common.support.utils.BeanUtils;
 import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.base.validator.group.AddGroup;
-import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.api.annotations.ApiPlatform;
 import com.chua.starter.mybatis.entity.Query;
@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Set;
 
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
@@ -49,6 +48,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 public class SysSettingController {
     public static final String SETTING_LIST_CACHE_KEY_PREFIX = "sys:setting:v2:";
     private static final String RUNTIME_PUBLIC_CODEC_REQUEST_KEY = "CodecRequestKey";
+    private static final String ADMIN = "ADMIN";
 
     private final SysSettingService sysSettingService;
     private final SysSettingHistoryService sysSettingHistoryService;
@@ -85,7 +85,6 @@ public class SysSettingController {
      */
     @Operation(summary = "默认设置列表")
     @GetMapping("/default")
-    @SpiIgnore
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:default'", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<List<SysSettingVO>> listForDefault() {
         List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default,sso,default-1"), Collections.emptySet());
@@ -105,7 +104,7 @@ public class SysSettingController {
     public ReturnResult<List<SysSettingVO>> list(@ParameterObject SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") HashSet<String> roles) {
         Set<String> safeRoles = null == roles ? Collections.emptySet() : roles;
         List<SysSetting> list = sysSettingService.list(sysSettingUpdate, roles);
-        if(!AuthConstant.hasAdmin(safeRoles)) {
+        if(!AuthConstant.isAdmin(safeRoles)) {
             list = list.stream()
                     .filter(it -> {
                         if (RUNTIME_PUBLIC_CODEC_REQUEST_KEY.equals(it.getSysSettingName())) {

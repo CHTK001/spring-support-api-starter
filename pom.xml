@@ -8,9 +8,9 @@
         <relativePath />
     </parent>
 
-    <groupId>com.chua</groupId>
-    <artifactId>spring-support-api-parent</artifactId>
-    <version>4.0.0.41</version>
+<groupId>com.chua</groupId>
+<artifactId>spring-support-api-parent</artifactId>
+<version>4.0.0.42</version>
     <packaging>pom</packaging>
     <modules>
         <module>spring-api-support-common-entity-starter</module>
@@ -34,7 +34,7 @@
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <surefire.jvm.args></surefire.jvm.args>
         <spring.boot.version>3.5.9</spring.boot.version>
-        <spring-support-webrtc.version>4.0.0.41</spring-support-webrtc.version>
+        <spring-support-webrtc.version>4.0.0.42</spring-support-webrtc.version>
         <netty.version>4.2.9.Final</netty.version>
         <mysql.connector.version>8.0.33</mysql.connector.version>
         <jedis.version>5.1.0</jedis.version>
@@ -935,4 +935,24 @@
     </profiles>
 
 </project>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

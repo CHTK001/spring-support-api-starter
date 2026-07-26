@@ -5,11 +5,12 @@ import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.starter.entity.service.SysMessage;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Service;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,20 +22,16 @@ import java.util.Map;
  * @author CH
  * @since 2024/12/04
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @ConditionalOnClass(name = "com.chua.socket.support.session.SocketSessionTemplate")
 @ConditionalOnBean(SocketSessionTemplate.class)
 public class SysMessagePushService {
 
+    private static final Logger log = LoggerFactory.getLogger(SysMessagePushService.class);
+
     private final SocketSessionTemplate socketSessionTemplate;
 
-    /**
-     * 推送消息
-     *
-     * @param message 消息对象
-     */
     public void pushMessage(SysMessage message) {
         try {
             Map<String, Object> data = new HashMap<>(15);
@@ -53,9 +50,7 @@ public class SysMessagePushService {
             data.put("dataId", message.getSysMessageReceiverId() != null ?
                     String.valueOf(message.getSysMessageReceiverId()) : "0");
 
-            // 推送主题格式: service:message:push@{receiverId}
-            // 广播消息(receiverId=0)使用 service:message:push@0
-            String topic = SocketTopics.Service.Message.PUSH + "@" + 
+            String topic = SocketTopics.Service.Message.PUSH + "@" +
                     (message.getSysMessageReceiverId() != null ? message.getSysMessageReceiverId() : 0);
             socketSessionTemplate.send(topic, Json.toJson(data));
             log.debug("消息推送成功: messageId={}", message.getSysMessageId());
@@ -64,11 +59,6 @@ public class SysMessagePushService {
         }
     }
 
-    /**
-     * 推送撤回通知
-     *
-     * @param message 消息对象
-     */
     public void pushRecallNotice(SysMessage message) {
         try {
             Map<String, Object> data = new HashMap<>(4);

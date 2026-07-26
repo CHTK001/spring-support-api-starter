@@ -1,7 +1,6 @@
 package com.chua.starter.service.task;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.utils.FileUtils;
 import com.chua.starter.entity.service.SysFileSystem;
 import com.chua.starter.entity.service.SysFileSystemPart;
 import com.chua.starter.entity.service.SysFileSystemSetting;
@@ -9,9 +8,11 @@ import com.chua.starter.service.SysFileSystemPartService;
 import com.chua.starter.service.SysFileSystemService;
 import com.chua.starter.service.SysFileSystemSettingService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -26,17 +27,14 @@ import java.util.List;
  */
 @SpringBootConfiguration
 @RequiredArgsConstructor
-@Slf4j
 public class SysFileSystemCleanTask {
+
+    private static final Logger log = LoggerFactory.getLogger(SysFileSystemCleanTask.class);
 
     private final SysFileSystemService sysFileSystemService;
     private final SysFileSystemPartService sysFileSystemPartService;
     private final SysFileSystemSettingService sysFileSystemSettingService;
 
-    /**
-     * 定时清理过期文件
-     * 每天凌晨4点执行
-     */
     @Scheduled(cron = "0 0 4 * * ?")
     public void cleanExpiredFiles() {
         log.info("开始执行过期文件清理定时任务");
@@ -49,14 +47,12 @@ public class SysFileSystemCleanTask {
 
             Integer retentionDays = setting.getSysFileSystemSettingRetentionDays();
             if (retentionDays == null || retentionDays <= 0) {
-                log.info("文件保留天数配置为永久保留({}天)，跳过清理任务", retentionDays);
+                log.info("文件保留天数配置为永久保留({}天)，保留天数", retentionDays);
                 return;
             }
 
-            // 计算过期时间
             LocalDateTime expireTime = LocalDateTime.now().minusDays(retentionDays);
 
-            // 查询过期的已完成文件
             List<SysFileSystem> expiredFiles = sysFileSystemService.list(Wrappers.<SysFileSystem>lambdaQuery()
                     .eq(SysFileSystem::getSysFileSystemStatus, SysFileSystem.Status.COMPLETED)
                     .lt(SysFileSystem::getCreateTime, expireTime));
@@ -69,13 +65,11 @@ public class SysFileSystemCleanTask {
             int cleanedCount = 0;
             for (SysFileSystem file : expiredFiles) {
                 try {
-                    // 删除物理文件
                     deletePhysicalFile(file);
-                    // 删除数据库记录
                     sysFileSystemService.removeById(file.getSysFileSystemId());
                     cleanedCount++;
                 } catch (Exception e) {
-                    log.error("清理文件失败: fileId={}, fileName={}", 
+                    log.error("清理文件失败: fileId={}, fileName={}",
                             file.getSysFileSystemId(), file.getSysFileSystemName(), e);
                 }
             }
@@ -86,20 +80,14 @@ public class SysFileSystemCleanTask {
         }
     }
 
-    /**
-     * 定时清理失败的上传任务和临时文件
-     * 每天凌晨4点30分执行
-     */
     @Scheduled(cron = "0 30 4 * * ?")
     public void cleanFailedTasks() {
         log.info("开始执行失败任务清理定时任务");
         try {
-            // 清理7天前的失败任务
             LocalDateTime expireTime = LocalDateTime.now().minusDays(7);
 
-            // 查询失败或超时的上传任务
             List<SysFileSystem> failedTasks = sysFileSystemService.list(Wrappers.<SysFileSystem>lambdaQuery()
-                    .in(SysFileSystem::getSysFileSystemStatus, 
+                    .in(SysFileSystem::getSysFileSystemStatus,
                             SysFileSystem.Status.ERROR,
                             SysFileSystem.Status.PENDING,
                             SysFileSystem.Status.UPLOADING)
@@ -113,23 +101,19 @@ public class SysFileSystemCleanTask {
             int cleanedCount = 0;
             for (SysFileSystem task : failedTasks) {
                 try {
-                    // 删除分片记录
                     List<SysFileSystemPart> parts = sysFileSystemPartService.list(
                             Wrappers.<SysFileSystemPart>lambdaQuery()
                                     .eq(SysFileSystemPart::getSysFileSystemPartFileId, task.getSysFileSystemId()));
                     
                     for (SysFileSystemPart part : parts) {
-                        // 删除临时文件
                         if (part.getSysFileSystemPartLocalPath() != null) {
-                            FileUtils.forceDeleteDirectory(new File(part.getSysFileSystemPartLocalPath()));
+                            deleteDirectoryQuietly(new File(part.getSysFileSystemPartLocalPath()));
                         }
                     }
                     
-                    // 删除分片数据库记录
                     sysFileSystemPartService.remove(Wrappers.<SysFileSystemPart>lambdaQuery()
                             .eq(SysFileSystemPart::getSysFileSystemPartFileId, task.getSysFileSystemId()));
                     
-                    // 删除任务记录
                     sysFileSystemService.removeById(task.getSysFileSystemId());
                     cleanedCount++;
                 } catch (Exception e) {
@@ -143,15 +127,10 @@ public class SysFileSystemCleanTask {
         }
     }
 
-    /**
-     * 定时清理待合并超时的任务
-     * 每天凌晨5点执行
-     */
     @Scheduled(cron = "0 0 5 * * ?")
     public void cleanPendingMergeTasks() {
         log.info("开始执行待合并超时任务清理");
         try {
-            // 清理超过3天仍在待合并状态的任务
             LocalDateTime expireTime = LocalDateTime.now().minusDays(3);
 
             List<SysFileSystem> pendingTasks = sysFileSystemService.list(Wrappers.<SysFileSystem>lambdaQuery()
@@ -163,7 +142,6 @@ public class SysFileSystemCleanTask {
                 return;
             }
 
-            // 将超时的待合并任务标记为错误状态
             int count = 0;
             for (SysFileSystem task : pendingTasks) {
                 task.setSysFileSystemStatus(SysFileSystem.Status.ERROR);
@@ -178,33 +156,39 @@ public class SysFileSystemCleanTask {
         }
     }
 
-    /**
-     * 删除物理文件
-     *
-     * @param file 文件记录
-     */
     private void deletePhysicalFile(SysFileSystem file) {
         try {
             String path = file.getSysFileSystemPath();
             if (path != null && !path.isEmpty()) {
                 File physicalFile = new File(path);
                 if (physicalFile.exists()) {
-                    FileUtils.forceDelete(physicalFile);
+                    deleteDirectoryQuietly(physicalFile);
                     log.debug("删除物理文件成功: {}", path);
                 }
             }
         } catch (Exception e) {
-            log.warn("删除物理文件失败: fileId={}, path={}", 
+            log.warn("删除物理文件失败: fileId={}, path={}",
                     file.getSysFileSystemId(), file.getSysFileSystemPath(), e);
         }
     }
 
-    /**
-     * 手动触发过期文件清理
-     *
-     * @param days 清理超过指定天数的文件，如果为null则使用配置值
-     * @return 清理的文件数量
-     */
+    private void deleteDirectoryQuietly(File file) {
+        if (null == file || !file.exists()) {
+            return;
+        }
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    deleteDirectoryQuietly(child);
+                }
+            }
+        }
+        if (!file.delete()) {
+            file.deleteOnExit();
+        }
+    }
+
     public int manualCleanExpiredFiles(Integer days) {
         log.info("手动触发过期文件清理任务");
         try {
@@ -227,6 +211,11 @@ public class SysFileSystemCleanTask {
                     .eq(SysFileSystem::getSysFileSystemStatus, SysFileSystem.Status.COMPLETED)
                     .lt(SysFileSystem::getCreateTime, expireTime));
 
+            if (expiredFiles.isEmpty()) {
+                log.info("没有过期文件需要清理");
+                return 0;
+            }
+
             int cleanedCount = 0;
             for (SysFileSystem file : expiredFiles) {
                 try {
@@ -238,7 +227,7 @@ public class SysFileSystemCleanTask {
                 }
             }
 
-            log.info("手动过期文件清理完成，清理了{}个超过{}天的文件", cleanedCount, retentionDays);
+            log.info("手动过期文件清理完成，清理了{}个文件", cleanedCount);
             return cleanedCount;
         } catch (Exception e) {
             log.error("手动过期文件清理失败: {}", e.getMessage(), e);
