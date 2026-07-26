@@ -56,7 +56,7 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>utils-support-nacos-starter</artifactId>
-      <version>4.0.0.40</version>
+<version>4.0.0.42</version>
     </dependency>
     <dependency>
       <groupId>com.mysql</groupId>

@@ -23,6 +23,7 @@ import java.net.ServerSocket;
 @Slf4j
 @Service
 public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSettingMapper, SysFileSystemSetting> implements SysFileSystemSettingService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SysFileSystemSettingServiceImpl.class);
 
     @Override
     public SysFileSystemSetting getEnabledSettingForFileSystem() {

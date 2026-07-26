@@ -3,6 +3,7 @@ package com.chua.starter.service.utils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.storage.FileStorage;
 import com.chua.common.support.storage.setting.BucketSetting;
+import com.chua.common.support.storage.setting.BucketSetting.BucketSettingBuilder;
 import com.chua.starter.entity.service.SysFileSystemSetting;
 import com.chua.starter.service.SysFileSystemSettingService;
 import org.springframework.beans.factory.ObjectProvider;
@@ -43,7 +44,7 @@ public class FileStorageSupport {
     public BucketSetting createUploadBucketSetting(String storageType, String bucket, String originalFilename, String preferredFileName) {
         String resolvedType = resolveStorageType(storageType);
         String finalBucket = normalizeBucket(bucket);
-        BucketSetting.BucketSettingBuilder<?, ?> builder = BucketSetting.builder()
+        BucketSettingBuilder builder = BucketSetting.builder()
                 .bucket(finalBucket)
                 .endpoint(resolveEndpoint(resolvedType));
 

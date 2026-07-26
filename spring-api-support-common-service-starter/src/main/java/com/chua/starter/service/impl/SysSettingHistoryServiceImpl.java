@@ -14,9 +14,11 @@ import com.chua.starter.service.mapper.SysSettingHistoryMapper;
 import com.chua.starter.service.mapper.SysSettingMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,10 +29,11 @@ import java.util.UUID;
  * @author CH
  * @since 2024/12/20
  */
-@Slf4j
 @Service
-public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryMapper, SysSettingHistory> 
+public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryMapper, SysSettingHistory>
         implements SysSettingHistoryService {
+
+    private static final Logger log = LoggerFactory.getLogger(SysSettingHistoryServiceImpl.class);
 
     @Autowired
     private SysSettingMapper sysSettingMapper;
@@ -166,7 +169,7 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     public ReturnResult<Boolean> rollbackToBatch(String batchNo, String operatorId, String operatorName) {
         List<SysSettingHistory> histories = listByBatchNo(batchNo);
         if (histories.isEmpty()) {
-            return ReturnResult.fail("未找到该批次的变更记录");
+            return ReturnResult.error("未找到该批次的变更记录");
         }
 
         String rollbackBatchNo = UUID.randomUUID().toString().replace("-", "");
@@ -184,7 +187,7 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     public ReturnResult<Boolean> rollbackToHistory(Long historyId, String operatorId, String operatorName) {
         SysSettingHistory history = baseMapper.selectById(historyId);
         if (history == null) {
-            return ReturnResult.fail("历史记录不存在");
+            return ReturnResult.error("历史记录不存在");
         }
 
         String rollbackBatchNo = UUID.randomUUID().toString().replace("-", "");

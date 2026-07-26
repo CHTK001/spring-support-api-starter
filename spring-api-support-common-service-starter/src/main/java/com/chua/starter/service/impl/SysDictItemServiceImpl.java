@@ -61,24 +61,23 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     @Override
     public IPage<SysDictItem> pageForItem(Query<SysDictItem> query, Integer sysDictId, Set<String> roles) {
         IPage<SysDictItem> sysDictItemIPage = baseMapper.selectPageForQuery(query.createPage(), sysDictId);
-        return ReturnPageResultUtils.preconditioning(sysDictItemIPage)
-                .mapping(SysDictItem::getSysDictItemId, (ids, it) -> {
-                    if (CollectionUtils.isEmpty(ids)) {
-                        return;
-                    }
-                    Map<Integer, List<SysDictItemProperty>> collect = sysDictItemPropertyMapper.selectList(
-                                    Wrappers.<SysDictItemProperty>lambdaQuery()
-                                            .in(SysDictItemProperty::getSysDictItemId, ids)
-                            ).stream()
-                            .collect(Collectors.groupingBy(SysDictItemProperty::getSysDictItemId));
-                    for (Map.Entry<Integer, List<SysDictItemProperty>> entry : collect.entrySet()) {
-                        SysDictItem sysDictItem = it.get(entry.getKey());
-                        if (null == sysDictItem) {
-                            continue;
-                        }
-                        sysDictItem.setProperty(entry.getValue());
-                    }
-                }).returnPage();
+        List<SysDictItem> records = sysDictItemIPage.getRecords();
+        if (!CollectionUtils.isEmpty(records)) {
+            Map<Integer, SysDictItem> itemMap = records.stream().collect(Collectors.toMap(SysDictItem::getSysDictItemId, Function.identity(), (a, b) -> a));
+            Map<Integer, List<SysDictItemProperty>> collect = sysDictItemPropertyMapper.selectList(
+                            Wrappers.<SysDictItemProperty>lambdaQuery()
+                                    .in(SysDictItemProperty::getSysDictItemId, itemMap.keySet())
+                    ).stream()
+                    .collect(Collectors.groupingBy(SysDictItemProperty::getSysDictItemId));
+            for (Map.Entry<Integer, List<SysDictItemProperty>> entry : collect.entrySet()) {
+                SysDictItem sysDictItem = itemMap.get(entry.getKey());
+                if (null == sysDictItem) {
+                    continue;
+                }
+                sysDictItem.setProperty(entry.getValue());
+            }
+        }
+        return sysDictItemIPage;
     }
 
     /**
@@ -125,7 +124,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
                     .eq(SysDictItem::getSysDictItemCode, sysDictItemCode)
                     .ne(SysDictItem::getSysDictId, sysDictItem.getSysDictId()));
             if (null != sysDictItem1) {
-                return ReturnResult.fail("字典编码已存在");
+                return ReturnResult.error("字典编码已存在");
             }
         }
 
@@ -154,7 +153,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         SysDictItem sysDictItem1 = baseMapper.selectOne(Wrappers.<SysDictItem>lambdaQuery()
                 .eq(SysDictItem::getSysDictItemCode, sysDictItem.getSysDictItemCode()));
         if (null != sysDictItem1) {
-            return ReturnResult.fail("字典编码已存在");
+            return ReturnResult.error("字典编码已存在");
         }
 
         if (null == sysDictItem.getSysDictItemStatus()) {
