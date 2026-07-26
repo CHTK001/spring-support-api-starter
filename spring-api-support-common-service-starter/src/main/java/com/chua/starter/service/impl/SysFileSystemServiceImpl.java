@@ -30,11 +30,13 @@ import com.chua.starter.service.properties.FileSystemProperties;
 import com.chua.starter.service.task.SysFileSystemMergeTaskRegistration;
 import com.chua.starter.service.task.SysFileSystemWrapper;
 import com.chua.starter.service.utils.FileStorageSupport;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -49,13 +51,11 @@ import java.util.List;
  * @since 2024/12/10
  * @version 1.0.0
  */
-@Slf4j
 @Service
 public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, SysFileSystem> implements SysFileSystemService {
 
-    /**
-     * 默认分片大小：100MB
-     */
+    private static final Logger log = LoggerFactory.getLogger(SysFileSystemServiceImpl.class);
+
     private static final long DEFAULT_CHUNK_SIZE = 1024 * 1024 * 100L;
     private final TransactionTemplate transactionTemplate;
     private final SysFileSystemPartService sysFileSystemPartService;
@@ -64,9 +64,6 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     private final SysFileSystemMergeTaskRegistration mergeTaskRegistration;
     private final FileStorageSupport fileStorageSupport;
 
-    /**
-     * 上传进度推送服务（可选依赖）
-     */
     private FileUploadProgressPushService progressPushService;
 
     @Autowired
@@ -93,14 +90,13 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     public ReturnResult<PutObjectResult> uploadForFileSystem(SysFileUploadRequest request, MultipartFile multipartFile) {
         log.info("开始上传文件: fileName={}, bucket={}", multipartFile.getOriginalFilename(), request.getFileBucket());
         BucketSetting bucketSetting = createSetting(request, multipartFile.getOriginalFilename());
-
         try (FileStorage fileStorage = fileStorageSupport.createStorage(request.getOssType(), bucketSetting)) {
             return ReturnResult.of(fileStorage.putObject(PutObjectRequest.builder()
                     .inputStream(multipartFile.getInputStream())
                     .fileName(StringUtils.defaultString(request.getFileName(), IdUtils.createSimpleUuid() + "." + FileUtils.getExtension(multipartFile.getOriginalFilename())))
                     .build()));
         } catch (Exception e) {
-            log.error("上传文件失败", e);
+            log.error("上传文件失败: {}", e.getMessage(), e);
             return ReturnResult.error("上传文件失败: " + e.getMessage());
         }
     }
@@ -109,14 +105,13 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     public ReturnResult<PutObjectResult> uploadForFileSystem(SysFileUploadRequest request, File file) {
         log.info("开始上传文件: fileName={}, bucket={}", file.getName(), request.getFileBucket());
         BucketSetting bucketSetting = createSetting(request, file.getName());
-
         try (FileStorage fileStorage = fileStorageSupport.createStorage(request.getOssType(), bucketSetting)) {
             return ReturnResult.of(fileStorage.putObject(PutObjectRequest.builder()
                     .file(file)
                     .fileName(StringUtils.defaultString(request.getFileName(), IdUtils.createSimpleUuid() + "." + FileUtils.getExtension(file.getName())))
                     .build()));
         } catch (Exception e) {
-            log.error("上传文件失败", e);
+            log.error("上传文件失败: {}", e.getMessage(), e);
             return ReturnResult.error("上传文件失败: " + e.getMessage());
         }
     }
@@ -131,18 +126,11 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
                     .fileName(StringUtils.defaultString(request.getFileName(), fileName))
                     .build()));
         } catch (Exception e) {
-            log.error("上传文件失败", e);
+            log.error("上传文件失败: {}", e.getMessage(), e);
             return ReturnResult.error("上传文件失败: " + e.getMessage());
         }
     }
 
-    /**
-     * 创建存储设置
-     *
-     * @param request          请求参数
-     * @param originalFilename 原始文件名
-     * @return 存储设置
-     */
     private BucketSetting createSetting(SysFileUploadRequest request, String originalFilename) {
         return fileStorageSupport.createUploadBucketSetting(
                 request.getOssType(),
@@ -155,10 +143,8 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     @Override
     public ReturnResult<SysFileUploadTaskResponse> createTaskForFileSystem(SysFileUploadTaskRequest request) {
         log.info("创建分片上传任务: fileName={}, fileSize={}", request.getFileName(), request.getFileSize());
-        
-        // 从配置获取分片大小
+
         long chunkSize = getChunkSizeFromSetting();
-        
         long fileSize = request.getFileSize();
         int chunkCount = (int) Math.ceil((double) fileSize / chunkSize);
         String taskUid = IdUtils.createSimpleUuid();
@@ -180,7 +166,6 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         return transactionTemplate.execute(status -> {
             save(sysFileSystem);
 
-            // 创建分片记录
             List<SysFileSystemPart> partList = new ArrayList<>(chunkCount);
             for (int i = 0; i < chunkCount; i++) {
                 SysFileSystemPart part = new SysFileSystemPart();
@@ -192,25 +177,20 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
             }
             sysFileSystemPartService.saveBatch(partList);
 
-            // 构建响应
             SysFileUploadTaskResponse response = new SysFileUploadTaskResponse();
             response.setTaskId(taskUid);
             response.setSetSysTaskSsoNumber(chunkCount);
             response.setSysTaskSsoChuck(chunkSize);
             response.setUrl(UrlUtils.normalize(request.getFileBucket(), sysFileSystem.getSysFileSystemName()));
-            log.info("分片上传任务创建成功: taskId={}, chunkCount={}, chunkSize={}MB", taskUid, chunkCount, chunkSize / 1024 / 1024);
+            log.info("分片上传任务创建成功: taskId={}, chunkCount={}, chunkSize={}MB",
+                    taskUid, chunkCount, chunkSize / 1024 / 1024);
             return ReturnResult.ok(response);
         });
     }
 
-    /**
-     * 从配置获取分片大小
-     *
-     * @return 分片大小（字节）
-     */
     private long getChunkSizeFromSetting() {
         SysFileSystemSetting setting = sysFileSystemSettingService.getEnabledSettingForFileSystem();
-        if (setting != null && setting.getSysFileSystemSettingChunkSizeMb() != null 
+        if (setting != null && setting.getSysFileSystemSettingChunkSizeMb() != null
                 && setting.getSysFileSystemSettingChunkSizeMb() > 0) {
             return setting.getSysFileSystemSettingChunkSizeMb() * 1024L * 1024L;
         }
@@ -251,11 +231,10 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         }
 
         if (part.getSysFileSystemPartStatus() == SysFileSystemPart.Status.UPLOADING) {
-            log.warn("分片正在上传: taskId={}, seq={}", request.getTaskId(), request.getTaskSeq());
+            log.warn("分片正在上传中: taskId={}, seq={}", request.getTaskId(), request.getTaskSeq());
             return ReturnResult.error("分片正在上传中");
         }
 
-        // 更新分片状态
         part.setSysFileSystemPartStatus(SysFileSystemPart.Status.COMPLETED);
         part.setSysFileSystemPartMd5(request.getFileMd5());
         part.setSysFileSystemPartLocalPath(FileUtils.normalize(fileSystemProperties.getTempPath(), request.getTaskId(), request.getTaskSeq() + ""));
@@ -269,12 +248,10 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
 
         sysFileSystemPartService.updateById(part);
 
-        // 查询已上传分片数量并推送进度
         int uploadedChunks = (int) sysFileSystemPartService.count(Wrappers.<SysFileSystemPart>lambdaQuery()
                 .eq(SysFileSystemPart::getSysFileSystemPartFileId, sysFileSystem.getSysFileSystemId())
                 .eq(SysFileSystemPart::getSysFileSystemPartStatus, SysFileSystemPart.Status.COMPLETED));
 
-        // 推送上传进度
         if (progressPushService != null) {
             progressPushService.pushProgress(
                     sysFileSystem.getSysFileSystemTid(),
@@ -287,16 +264,11 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         }
 
         checkAndMerge(sysFileSystem);
-        log.info("分片上传成功: taskId={}, seq={}, uploadedChunks={}/{}", 
+        log.info("分片上传成功: taskId={}, seq={}, uploaded={}/{}",
                 request.getTaskId(), request.getTaskSeq(), uploadedChunks, sysFileSystem.getSysFileSystemChunkTotal());
         return ReturnResult.ok(new SysFileUploadTaskPartResponse());
     }
 
-    /**
-     * 检查是否所有分片都已上传完成，如果是则触发合并
-     *
-     * @param sysFileSystem 文件系统记录
-     */
     private void checkAndMerge(SysFileSystem sysFileSystem) {
         List<SysFileSystemPart> completedParts = sysFileSystemPartService.list(Wrappers.<SysFileSystemPart>lambdaQuery()
                 .eq(SysFileSystemPart::getSysFileSystemPartFileId, sysFileSystem.getSysFileSystemId())
@@ -308,7 +280,6 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
 
         log.info("所有分片已上传完成: taskId={}", sysFileSystem.getSysFileSystemTid());
 
-        // 检查是否启用自动合并
         SysFileSystemSetting setting = sysFileSystemSettingService.getEnabledSettingForFileSystem();
         boolean autoMergeEnabled = setting != null && Boolean.TRUE.equals(setting.getSysFileSystemSettingAutoMergeEnabled());
 
@@ -332,7 +303,6 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
             return ReturnResult.error("文件MD5不能为空");
         }
 
-        // 查找已完成上传且MD5匹配的文件
         SysFileSystem existingFile = getOne(Wrappers.<SysFileSystem>lambdaQuery()
                 .eq(SysFileSystem::getSysFileSystemMd5, request.getFileMd5())
                 .eq(SysFileSystem::getSysFileSystemStatus, SysFileSystem.Status.COMPLETED)
@@ -343,18 +313,14 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
             return ReturnResult.ok(SysFileInstantUploadResponse.notSupport());
         }
 
-        // 如果提供了文件大小，进一步验证
         if (request.getFileSize() != null && request.getFileSize() > 0) {
             if (!request.getFileSize().equals(existingFile.getSysFileSystemSize())) {
-                log.info("文件大小不匹配，不支持秒传: expected={}, actual={}", 
-                        request.getFileSize(), existingFile.getSysFileSystemSize());
+                log.info("文件大小不匹配，不支持秒传: expected={}, actual={}", request.getFileSize(), existingFile.getSysFileSystemSize());
                 return ReturnResult.ok(SysFileInstantUploadResponse.notSupport());
             }
         }
 
-        log.info("找到匹配的文件，支持秒传: fileId={}, fileName={}", 
-                existingFile.getSysFileSystemId(), existingFile.getSysFileSystemName());
-
+        log.info("找到匹配的文件，支持秒传: fileId={}, fileName={}", existingFile.getSysFileSystemId(), existingFile.getSysFileSystemName());
         return ReturnResult.ok(SysFileInstantUploadResponse.support(
                 existingFile.getSysFileSystemId(),
                 existingFile.getSysFileSystemPath(),
@@ -391,11 +357,10 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
             return ReturnResult.error("文件MD5不能为空");
         }
 
-        // 查找未完成的上传任务（状态不是已完成和失败的）
         SysFileSystem sysFileSystem = getOne(Wrappers.<SysFileSystem>lambdaQuery()
                 .eq(SysFileSystem::getSysFileSystemMd5, fileMd5)
                 .eq(fileSize != null && fileSize > 0, SysFileSystem::getSysFileSystemSize, fileSize)
-                .notIn(SysFileSystem::getSysFileSystemStatus, 
+                .notIn(SysFileSystem::getSysFileSystemStatus,
                         SysFileSystem.Status.COMPLETED, SysFileSystem.Status.ERROR)
                 .orderByDesc(SysFileSystem::getCreateTime)
                 .last("LIMIT 1"));
@@ -409,12 +374,6 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         return ReturnResult.ok(buildTaskInfoResponse(sysFileSystem));
     }
 
-    /**
-     * 构建任务信息响应
-     *
-     * @param sysFileSystem 文件系统记录
-     * @return 任务信息响应
-     */
     private SysFileTaskInfoResponse buildTaskInfoResponse(SysFileSystem sysFileSystem) {
         SysFileTaskInfoResponse response = new SysFileTaskInfoResponse();
         response.setExists(true);
@@ -426,12 +385,10 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         response.setTotalChunks(sysFileSystem.getSysFileSystemChunkTotal());
         response.setStatus(sysFileSystem.getSysFileSystemStatus());
 
-        // 如果已完成，返回URL
         if (sysFileSystem.getSysFileSystemStatus() == SysFileSystem.Status.COMPLETED) {
             response.setUrl(sysFileSystem.getSysFileSystemHttpUrl());
         }
 
-        // 查询已上传的分片
         List<SysFileSystemPart> completedParts = sysFileSystemPartService.list(
                 Wrappers.<SysFileSystemPart>lambdaQuery()
                         .eq(SysFileSystemPart::getSysFileSystemPartFileId, sysFileSystem.getSysFileSystemId())

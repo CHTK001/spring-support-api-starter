@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>4.0.0.41</version>
+    <version>4.0.0.42</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>spring-api-support-common-service-starter</artifactId>
@@ -62,20 +62,5 @@
       <artifactId>utils-support-filesystem-starter</artifactId>
       <version>${utils.version}</version>
     </dependency>
-          <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-protocol-starter</artifactId>
-            <version>${utils.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-task-starter</artifactId>
-            <version>${utils.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-storage-starter</artifactId>
-            <version>${utils.version}</version>
-        </dependency>
     </dependencies>
 </project>

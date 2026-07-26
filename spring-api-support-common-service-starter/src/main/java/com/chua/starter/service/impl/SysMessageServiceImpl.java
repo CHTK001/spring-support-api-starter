@@ -11,7 +11,6 @@ import com.chua.starter.service.SysMessageService;
 import com.chua.starter.service.mapper.SysMessageMapper;
 import com.chua.starter.entity.service.SysMessage;
 import com.chua.starter.entity.service.SysMessageHistory;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,9 +25,9 @@ import java.util.List;
  * @author CH
  * @since 2024/12/04
  */
-@Slf4j
 @Service
 public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMessage> implements SysMessageService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SysMessageServiceImpl.class);
 
     @Autowired(required = false)
     private SysMessageHistoryService messageHistoryService;

@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.acme.support.AcmeCertificateResult;
 import com.chua.acme.support.AcmeConnectionResult;
 import com.chua.acme.support.AcmeProvider;
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.spi.ServiceProvider;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.oauth.AuthService;
 import com.chua.starter.common.support.oauth.CurrentUser;
 import com.chua.starter.monitor.entity.MonitorAcmeAccount;
@@ -168,7 +168,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         );
         if (!connResult.isSuccess()) {
             provider.close();
-            return ReturnResult.illegal("连接 ACME 服务器失败: " + connResult.getErrorMessage());
+            return ReturnResult.illegal("连接 ACME 服务器失败: " + connResult.getError());
         }
 
         // 续签证书
@@ -182,9 +182,9 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
                 log.info("[ACME] 续签成功: id={}, domain={}", certId, cert.getAcmeCertPrimaryDomain());
                 return ReturnResult.ok(true, "续签成功");
             } else {
-                cert.setAcmeCertLastError(certResult.getErrorMessage());
+                cert.setAcmeCertLastError(certResult.getError());
                 certificateMapper.updateById(cert);
-                return ReturnResult.illegal("续签失败: " + certResult.getErrorMessage());
+                return ReturnResult.illegal("续签失败: " + certResult.getError());
             }
         } catch (Exception e) {
             log.error("[ACME] 续签失败: id={}", certId, e);
@@ -229,7 +229,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         );
         if (!connResult.isSuccess()) {
             provider.close();
-            return ReturnResult.illegal("连接 ACME 服务器失败: " + connResult.getErrorMessage());
+            return ReturnResult.illegal("连接 ACME 服务器失败: " + connResult.getError());
         }
 
         try {

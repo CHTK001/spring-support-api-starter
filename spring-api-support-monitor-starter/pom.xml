@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>spring-support-api-parent</artifactId>
-        <version>4.0.0.40</version>
+        <version>4.0.0.42</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>spring-api-support-monitor-starter</artifactId>
@@ -33,7 +33,12 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-server-starter</artifactId>
+            <artifactId>spring-support-socket-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-socket-io-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
@@ -43,6 +48,32 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
+        <!-- remote provides com.chua.protocol.support.network.protocol -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-remote-starter</artifactId>
+            <version>${utils.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <!-- ssh provides com.chua.ssh.support.client - 移除防止 sshd-core 不可用 -->
+        <!-- <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-ssh-starter</artifactId>
+            <version>${utils.version}</version>
+            <optional>true</optional>
+        </dependency> -->
+        <!-- acme for ACME protocol support -->
+        <!-- already declared above -->
+        <!-- utils-support-common-starter already included -->
+        <!-- utils-support-tshark-starter provides core.spi/core.utils but not needed -->
+        <!-- utils-support-deeplearning-starter provides rag - optional -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-deeplearning-starter</artifactId>
+            <version>${utils.version}</version>
+            <optional>true</optional>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -65,16 +96,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
-        </dependency>
-            <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-protocol-starter</artifactId>
-            <version>${utils.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-deeplearning-starter</artifactId>
-            <version>${utils.version}</version>
         </dependency>
     </dependencies>
     <build>

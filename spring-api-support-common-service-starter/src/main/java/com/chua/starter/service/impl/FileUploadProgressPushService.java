@@ -3,11 +3,13 @@ package com.chua.starter.service.impl;
 import com.chua.common.support.lang.json.Json;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Service;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,31 +21,19 @@ import java.util.Map;
  * @author CH
  * @since 2024/12/20
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @ConditionalOnClass(name = "com.chua.socket.support.session.SocketSessionTemplate")
 @ConditionalOnBean(SocketSessionTemplate.class)
 public class FileUploadProgressPushService {
 
+    private static final Logger log = LoggerFactory.getLogger(FileUploadProgressPushService.class);
+
     private final SocketSessionTemplate socketSessionTemplate;
 
-    /**
-     * 上传进度推送主题
-     */
     private static final String TOPIC_UPLOAD_PROGRESS = "service:file:upload:progress";
 
-    /**
-     * 推送上传进度
-     *
-     * @param taskId         任务ID
-     * @param userId         用户ID（用于定向推送）
-     * @param totalChunks    总分片数
-     * @param uploadedChunks 已上传分片数
-     * @param currentChunk   当前上传的分片序号
-     * @param status         状态：uploading, merging, completed, error
-     */
-    public void pushProgress(String taskId, Long userId, int totalChunks, int uploadedChunks, 
+    public void pushProgress(String taskId, Long userId, int totalChunks, int uploadedChunks,
                             int currentChunk, String status) {
         try {
             Map<String, Object> data = new HashMap<>(10);
@@ -56,7 +46,6 @@ public class FileUploadProgressPushService {
             data.put("dataId", userId != null ? String.valueOf(userId) : "0");
             data.put("timestamp", System.currentTimeMillis());
 
-            // 推送主题: service:file:upload:progress@{userId}
             String topic = TOPIC_UPLOAD_PROGRESS + "@" + (userId != null ? userId : 0);
             socketSessionTemplate.send(topic, Json.toJson(data));
             log.debug("上传进度推送成功: taskId={}, progress={}%", taskId, data.get("progress"));
@@ -65,14 +54,6 @@ public class FileUploadProgressPushService {
         }
     }
 
-    /**
-     * 推送上传完成
-     *
-     * @param taskId   任务ID
-     * @param userId   用户ID
-     * @param fileUrl  文件URL
-     * @param fileName 文件名
-     */
     public void pushCompleted(String taskId, Long userId, String fileUrl, String fileName) {
         try {
             Map<String, Object> data = new HashMap<>(8);
@@ -92,13 +73,6 @@ public class FileUploadProgressPushService {
         }
     }
 
-    /**
-     * 推送上传失败
-     *
-     * @param taskId  任务ID
-     * @param userId  用户ID
-     * @param message 错误消息
-     */
     public void pushError(String taskId, Long userId, String message) {
         try {
             Map<String, Object> data = new HashMap<>(6);
@@ -116,13 +90,6 @@ public class FileUploadProgressPushService {
         }
     }
 
-    /**
-     * 推送合并进度
-     *
-     * @param taskId 任务ID
-     * @param userId 用户ID
-     * @param status 状态：merging, completed
-     */
     public void pushMergeStatus(String taskId, Long userId, String status) {
         try {
             Map<String, Object> data = new HashMap<>(5);
