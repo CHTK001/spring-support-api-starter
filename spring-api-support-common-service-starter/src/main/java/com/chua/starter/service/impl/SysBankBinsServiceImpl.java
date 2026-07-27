@@ -3,6 +3,7 @@ package com.chua.starter.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.service.SysBankBinsService;
 import com.chua.starter.service.mapper.SysBankBinsMapper;
@@ -37,7 +38,7 @@ public class SysBankBinsServiceImpl extends ServiceImpl<SysBankBinsMapper, SysBa
      */
     @Override
     public ReturnResult<List<SysBankBins>> bin(String bankBin) {
-        if (!ReturnResult.isSuccess(bankBin)) {
+        if (!StringUtils.isNotEmpty(bankBin)) {
             return ReturnResult.error("银行卡号不能为空");
         }
         return ReturnResult.ok(sysBankBinsService.all().stream()
