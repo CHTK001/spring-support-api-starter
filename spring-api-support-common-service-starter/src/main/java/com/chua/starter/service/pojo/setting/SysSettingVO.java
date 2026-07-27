@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.annotation.Version;
 import com.chua.common.support.base.validator.group.AddGroup;
 import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.starter.common.support.api.annotations.ApiFieldIgnore;
-import com.chua.starter.common.support.group.IgnoreGroup;
+import com.chua.common.support.base.validator.group.IgnoreGroup;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

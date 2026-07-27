@@ -60,12 +60,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-redis-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jredisearch</artifactId>
-                    <groupId>com.redislabs</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
