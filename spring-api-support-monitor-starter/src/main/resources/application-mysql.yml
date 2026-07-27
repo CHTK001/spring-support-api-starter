@@ -1,4 +1,9 @@
 spring:
+  autoconfigure:
+    exclude:
+      - com.chua.starter.oauth.client.support.configuration.AuthClientConfiguration
+      - com.chua.starter.system.configuration.SystemAutoConfiguration
+      - com.chua.starter.server.support.config.ServerManagementConfiguration
   datasource:
     driver-class-name: com.p6spy.engine.spy.P6SpyDriver
     url: jdbc:p6spy:mysql://172.16.0.40:3306/report?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true

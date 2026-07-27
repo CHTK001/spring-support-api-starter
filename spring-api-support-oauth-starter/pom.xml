@@ -52,16 +52,6 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-service-starter</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>com.chua</groupId>
-          <artifactId>spring-support-server-starter</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.chua</groupId>
-          <artifactId>spring-support-ai-starter</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
@@ -70,12 +60,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-tomcat</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -114,12 +98,6 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>utils-support-netty-starter</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>io.netty</groupId>
-          <artifactId>netty-all</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
