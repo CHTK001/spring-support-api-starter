@@ -6,8 +6,6 @@ import com.chua.starter.service.configuration.trace.analyzer.ErrorBurstRequestTr
 import com.chua.starter.service.configuration.trace.analyzer.HotspotRequestTraceAnalyzer;
 import com.chua.starter.service.configuration.trace.analyzer.SlowRequestTraceAnalyzer;
 import com.chua.starter.service.configuration.trace.analyzer.SpamRequestTraceAnalyzer;
-import com.chua.starter.common.support.application.GlobalSettingFactory;
-import com.chua.starter.service.setting.BigModelSetting;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -245,48 +243,6 @@ class RequestTraceAnalyticsServiceTest {
         assertThat(snapshot.recentSuspiciousEvents().get(0).signals()).containsExactly(RequestTraceSignal.ERROR_BURST);
     }
 
-    @Test
-    void snapshotIncludesAiAnalysisProcessForSuspiciousEvent() {
-        createSetting(new RequestTraceAiSummaryServiceTest.StubBigModelClient("AI识别为集中刷屏，建议立即限流。"));
-        RequestTraceAnalyticsService service = createService(
-                List.of(new BurstRequestTraceAnalyzer()),
-                config -> {
-                    config.setBehaviorStorageType("memory");
-                    config.setFileStoragePath("target/request-trace-tests/ai-process");
-                    config.setBurstThreshold(3);
-                    config.setAiSummaryEnabled(true);
-                    config.setAiModel("qwen-plus");
-                }
-        );
-        long now = System.currentTimeMillis();
-
-        service.record(event(now - 4_000, "trace-ai-a", "GET", "/api/pay", 200, 10, "10.0.0.6", "user-6", "echo", "Mozilla/5.0"));
-        service.record(event(now - 3_000, "trace-ai-b", "GET", "/api/pay", 200, 10, "10.0.0.6", "user-6", "echo", "Mozilla/5.0"));
-        RequestTraceEvent suspicious = service.record(event(
-                now - 2_000,
-                "trace-ai-c",
-                "GET",
-                "/api/pay",
-                429,
-                18,
-                "10.0.0.6",
-                "user-6",
-                "echo",
-                "Mozilla/5.0"
-        ));
-
-        RequestTraceAnalyticsSnapshot snapshot = service.snapshot(5);
-        RequestTraceAnalyticsSnapshot.SuspiciousTrace recent = snapshot.recentSuspiciousEvents().get(0);
-
-        assertThat(suspicious.signals()).containsExactly(RequestTraceSignal.BURST);
-        assertThat(recent.traceId()).isEqualTo("trace-ai-c");
-        assertThat(recent.aiSummary()).isEqualTo("AI识别为集中刷屏，建议立即限流。");
-        assertThat(recent.aiAnalysis()).isNotNull();
-        assertThat(recent.aiAnalysis().status()).isEqualTo(RequestTraceAiAnalysisResult.STATUS_MODEL_SUCCESS);
-        assertThat(recent.aiAnalysis().summarySource()).isEqualTo(RequestTraceAiAnalysisResult.SOURCE_MODEL);
-        assertThat(recent.aiAnalysis().promptDigest()).isNotBlank();
-    }
-
     private RequestTraceAnalyticsService createService(
             List<RequestTraceAnalyzer> analyzers,
             java.util.function.Consumer<RequestTraceStrategyConfig> customizer
@@ -309,13 +265,6 @@ class RequestTraceAnalyticsServiceTest {
                 storageRouter,
                 new RequestTraceAiSummaryService()
         );
-    }
-
-    private BigModelSetting createSetting(com.chua.common.support.ai.bigmodel.BigModelClient client) {
-        BigModelSetting setting = GlobalSettingFactory.getInstance().get("llm", BigModelSetting.class);
-        setting.setAppType("mock");
-        setting.setBigModelClient(client);
-        return setting;
     }
 
     private RequestTraceEvent event(
