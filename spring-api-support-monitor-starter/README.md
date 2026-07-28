@@ -1,6 +1,8 @@
 # spring-api-support-monitor-starter
 
-服务器监控中心后端模块，提供服务器管理、软件库、ACME 证书自动化等能力。
+服务器监控中心后端模块，提供服务器主机管理、服务器布局、ACME 证书自动化等能力。
+
+> 注：Docker 软件库（在线搜索/私有仓库同步）功能于 2026-07-28 暂时移除，相关接口（`/v1/system/soft/*`）暂不可用，后续按需要恢复。
 
 ---
 
@@ -90,27 +92,6 @@
 - 默认布局生成：✅ 已完成
 - 布局复制与重置：✅ 已完成
 - 前后端字段对齐：✅ 已完成
-
----
-
-## Docker 软件库在线搜索与多默认仓库（2025-10-20）
-
-- 在线搜索优化：关键词为空直接返回空列表，避免不必要请求
-- 在线搜索返回扩展字段（非持久化）：`systemSoftStarCount`、`systemSoftPullCount`
-- 支持为多个仓库设置"默认"
-
-### 软件库接口
-
-- `GET /v1/system/soft/page`：系统软件分页查询
-- `GET /v1/system/soft/online/search?keyword=xxx&page=1&size=10`：在线搜索
-- `POST /v1/system/soft/online/import`：导入在线软件
-- `POST /v1/system/soft/registry/{id}/test`：仓库连接测试
-- `POST /v1/system/soft/registry/{id}/sync`：同步软件到软件库
-- `POST /v1/system/soft/registry/{id}/default`：设置默认仓库
-- `POST /v1/system/soft/registry/{id}/default/cancel`：取消默认仓库
-- `GET /v1/system/soft/registry/default?serverId={serverId}`：获取默认仓库
-
-> 注意：本模块默认 `server.servlet.context-path=/monitor/api`，最终访问路径示例：`/monitor/api/v1/system/soft/page`
 
 ---
 

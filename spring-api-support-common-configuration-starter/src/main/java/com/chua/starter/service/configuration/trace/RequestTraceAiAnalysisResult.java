@@ -21,12 +21,10 @@ public record RequestTraceAiAnalysisResult(
         long latencyMs
 ) {
 
-    public static final String STATUS_MODEL_SUCCESS = "model_success";
     public static final String STATUS_HEURISTIC_FALLBACK = "heuristic_fallback";
     public static final String STATUS_RATE_LIMITED = "rate_limited";
     public static final String STATUS_DISABLED = "disabled";
 
-    public static final String SOURCE_MODEL = "model";
     public static final String SOURCE_HEURISTIC = "heuristic";
 
     public RequestTraceAiAnalysisResult {

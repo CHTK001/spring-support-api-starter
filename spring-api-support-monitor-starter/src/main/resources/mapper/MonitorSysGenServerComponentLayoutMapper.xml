@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenServerComponentLayoutMapper">
+
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.MonitorSysGenServerComponentLayout">
+        <id column="monitor_sys_gen_server_component_layout_id" property="monitorSysGenServerComponentLayoutId" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_id" property="monitorSysGenServerId" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_component_id" property="monitorSysGenServerComponentId" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_component_layout_x" property="monitorSysGenServerComponentLayoutX" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_component_layout_y" property="monitorSysGenServerComponentLayoutY" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_component_layout_w" property="monitorSysGenServerComponentLayoutW" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_component_layout_h" property="monitorSysGenServerComponentLayoutH" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_component_layout_z_index" property="monitorSysGenServerComponentLayoutZIndex" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_component_layout_movable" property="monitorSysGenServerComponentLayoutMovable" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_component_layout_resizable" property="monitorSysGenServerComponentLayoutResizable" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_component_layout_status" property="monitorSysGenServerComponentLayoutStatus" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_component_layout_sort_order" property="monitorSysGenServerComponentLayoutSortOrder" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_component_layout_chart_config" property="monitorSysGenServerComponentLayoutChartConfig" jdbcType="LONGVARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        monitor_sys_gen_server_component_layout_id, monitor_sys_gen_server_id, monitor_sys_gen_server_component_id,
+        monitor_sys_gen_server_component_layout_x, monitor_sys_gen_server_component_layout_y,
+        monitor_sys_gen_server_component_layout_w, monitor_sys_gen_server_component_layout_h,
+        monitor_sys_gen_server_component_layout_z_index, monitor_sys_gen_server_component_layout_movable,
+        monitor_sys_gen_server_component_layout_resizable, monitor_sys_gen_server_component_layout_status,
+        monitor_sys_gen_server_component_layout_sort_order, monitor_sys_gen_server_component_layout_chart_config,
+        create_time, update_time, create_by, update_by
+    </sql>
+
+</mapper>
