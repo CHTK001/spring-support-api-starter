@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorServerMapper">
+
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.MonitorServer">
+        <id column="server_id" property="serverId" jdbcType="INTEGER"/>
+        <result column="server_name" property="serverName" jdbcType="VARCHAR"/>
+        <result column="server_ip" property="serverIp" jdbcType="VARCHAR"/>
+        <result column="server_host" property="serverHost" jdbcType="VARCHAR"/>
+        <result column="server_port" property="serverPort" jdbcType="INTEGER"/>
+        <result column="server_os" property="serverOs" jdbcType="VARCHAR"/>
+        <result column="server_group" property="serverGroup" jdbcType="VARCHAR"/>
+        <result column="server_account" property="serverAccount" jdbcType="VARCHAR"/>
+        <result column="server_status" property="serverStatus" jdbcType="INTEGER"/>
+        <result column="server_remark" property="serverRemark" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        server_id, server_name, server_ip, server_host, server_port, server_os,
+        server_group, server_account, server_status, server_remark,
+        create_time, update_time, create_by, update_by
+    </sql>
+
+</mapper>

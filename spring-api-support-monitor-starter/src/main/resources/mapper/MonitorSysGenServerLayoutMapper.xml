@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.monitor.mapper.MonitorSysGenServerLayoutMapper">
+
+    <resultMap id="BaseResultMap" type="com.chua.starter.monitor.entity.MonitorSysGenServerLayout">
+        <id column="monitor_sys_gen_server_layout_id" property="monitorSysGenServerLayoutId" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_id" property="monitorSysGenServerId" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_layout_name" property="monitorSysGenServerLayoutName" jdbcType="VARCHAR"/>
+        <result column="monitor_sys_gen_server_layout_config" property="monitorSysGenServerLayoutConfig" jdbcType="LONGVARCHAR"/>
+        <result column="monitor_sys_gen_server_layout_type" property="monitorSysGenServerLayoutType" jdbcType="VARCHAR"/>
+        <result column="monitor_sys_gen_server_layout_default" property="monitorSysGenServerLayoutDefault" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_layout_status" property="monitorSysGenServerLayoutStatus" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_layout_description" property="monitorSysGenServerLayoutDescription" jdbcType="VARCHAR"/>
+        <result column="monitor_sys_gen_server_layout_version" property="monitorSysGenServerLayoutVersion" jdbcType="INTEGER"/>
+        <result column="monitor_sys_gen_server_layout_sort" property="monitorSysGenServerLayoutSort" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        monitor_sys_gen_server_layout_id, monitor_sys_gen_server_id, monitor_sys_gen_server_layout_name,
+        monitor_sys_gen_server_layout_config, monitor_sys_gen_server_layout_type, monitor_sys_gen_server_layout_default,
+        monitor_sys_gen_server_layout_status, monitor_sys_gen_server_layout_description,
+        monitor_sys_gen_server_layout_version, monitor_sys_gen_server_layout_sort,
+        create_time, update_time, create_by, update_by
+    </sql>
+
+</mapper>

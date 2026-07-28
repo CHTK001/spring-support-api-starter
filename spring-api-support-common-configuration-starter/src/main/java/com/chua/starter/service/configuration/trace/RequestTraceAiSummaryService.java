@@ -1,10 +1,5 @@
 package com.chua.starter.service.configuration.trace;
 
-import com.chua.deeplearning.support.ai.bigmodel.BigModelClient;
-import com.chua.deeplearning.support.ai.bigmodel.BigModelRequest;
-import com.chua.deeplearning.support.ai.bigmodel.BigModelResponse;
-import com.chua.starter.common.support.application.GlobalSettingFactory;
-import com.chua.starter.service.setting.BigModelSetting;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +15,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.LongSupplier;
 
 /**
- * 请求追踪 AI 摘要服务。
+ * 请求追踪风险摘要服务。
  *
- * <p>默认使用启发式摘要，后续可继续替换为真实大模型实现。</p>
+ * <p>当前为纯启发式摘要实现（基于信号、路由、风险等级等规则拼接），
+ * 不依赖任何大模型客户端。</p>
  *
  * @author CH
  * @since 2026/03/25
@@ -31,10 +27,6 @@ import java.util.function.LongSupplier;
 @Service
 public class RequestTraceAiSummaryService {
 
-    private static final String DEFAULT_SYSTEM_PROMPT =
-            "你是请求追踪风控助手。请基于输入的访问行为，输出一句中文风险摘要，"
-                    + "需要点明风险等级、行为类型和处置建议。"
-                    + "不要输出 Markdown，不要分点，控制在 80 个字以内。";
     private static final int MAX_SUMMARY_LENGTH = 200;
 
     private final Deque<Long> invocationTimestamps = new ArrayDeque<>();
@@ -112,82 +104,19 @@ public class RequestTraceAiSummaryService {
             );
         }
 
-        long start = clock.getAsLong();
-        ModelAttempt attempt = summarizeWithModel(
-                event,
-                normalizedConfig,
-                prompt
-        );
-        long latencyMs = Math.max(clock.getAsLong() - start, 0L);
-        if (attempt.summary() != null) {
-            return new RequestTraceAiAnalysisResult(
-                    clock.getAsLong(),
-                    RequestTraceAiAnalysisResult.STATUS_MODEL_SUCCESS,
-                    RequestTraceAiAnalysisResult.SOURCE_MODEL,
-                    attempt.summary(),
-                    heuristicSummary,
-                    attempt.reason(),
-                    RequestTraceSupport.firstNonBlank(attempt.model(), model),
-                    riskLevel,
-                    promptDigest,
-                    latencyMs
-            );
-        }
+        // 当前实现为纯启发式摘要，大模型客户端未接入，直接回退规则摘要
         return new RequestTraceAiAnalysisResult(
                 clock.getAsLong(),
                 RequestTraceAiAnalysisResult.STATUS_HEURISTIC_FALLBACK,
                 RequestTraceAiAnalysisResult.SOURCE_HEURISTIC,
                 heuristicSummary,
                 heuristicSummary,
-                attempt.reason(),
-                RequestTraceSupport.firstNonBlank(attempt.model(), model),
+                "未配置大模型客户端，使用规则摘要",
+                model,
                 riskLevel,
                 promptDigest,
-                latencyMs
+                0L
         );
-    }
-
-    private ModelAttempt summarizeWithModel(
-            RequestTraceEvent event,
-            RequestTraceStrategyConfig config,
-            String prompt
-    ) {
-        try {
-            BigModelSetting setting = GlobalSettingFactory.getInstance().get("llm", BigModelSetting.class);
-            if (setting == null) {
-                return new ModelAttempt(null, "未找到 llm 全局配置", null);
-            }
-            BigModelClient bigModelClient = setting.getBigModelClient();
-            if (bigModelClient == null) {
-                return new ModelAttempt(null, "llm 客户端未初始化", null);
-            }
-
-            String model = RequestTraceSupport.normalize(config == null ? null : config.getAiModel());
-            BigModelRequest.BigModelRequestBuilder builder = BigModelRequest.builder()
-                    .system(DEFAULT_SYSTEM_PROMPT)
-                    .prompt(prompt)
-                    .tokens(256)
-                    .temperature(0.1D)
-                    .timeout(config == null ? 1500L : config.getAiTimeoutMs());
-            if (model != null) {
-                builder.model(model);
-            }
-
-            BigModelResponse response = bigModelClient.call(builder.build());
-            String summary = normalizeSummary(response == null ? null : response.getOutput());
-            if (summary != null) {
-                return new ModelAttempt(summary, "模型输出成功", model);
-            }
-            return new ModelAttempt(null, "模型输出为空，已回退到规则摘要", model);
-        } catch (Exception ex) {
-            log.debug(
-                    "调用大模型生成请求追踪摘要失败: traceId={}, model={}",
-                    event.traceId(),
-                    config == null ? null : config.getAiModel(),
-                    ex
-            );
-            return new ModelAttempt(null, "模型调用异常，已回退到规则摘要", config == null ? null : config.getAiModel());
-        }
     }
 
     private String buildHeuristicSummary(
@@ -296,8 +225,5 @@ public class RequestTraceAiSummaryService {
         } catch (NoSuchAlgorithmException ex) {
             return Integer.toHexString(normalized.hashCode());
         }
-    }
-
-    private record ModelAttempt(String summary, String reason, String model) {
     }
 }
