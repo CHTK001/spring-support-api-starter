@@ -17,6 +17,7 @@
         <module>spring-api-support-common-service-starter</module>
         <module>spring-support-common-project-device-starter</module>
         <module>spring-api-support-monitor-starter</module>
+        <module>spring-api-support-common-spider-starter</module>
     </modules>
 
     <properties>
@@ -365,6 +366,23 @@
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-minio-starter</artifactId>
                 <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-spider-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-mysql-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-api-support-common-spider-starter</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
