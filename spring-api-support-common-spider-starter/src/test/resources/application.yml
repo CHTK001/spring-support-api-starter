@@ -1,0 +1,35 @@
+# =====================================================================
+# 测试用 application.yml：使用 H2 内存库（不需要外部 MySQL）。
+# =====================================================================
+server:
+  port: 19091
+
+spring:
+  application:
+    name: vue-xx-spider-xx
+  datasource:
+    url: jdbc:h2:mem:spider;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/spider-schema.sql
+      continue-on-error: true
+  h2:
+    console:
+      enabled: false
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+
+logging:
+  level:
+    com.chua.spider.support: info
+    org.springframework: warn
+    org.mybatis: warn
