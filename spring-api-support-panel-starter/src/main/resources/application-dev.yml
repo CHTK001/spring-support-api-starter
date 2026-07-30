@@ -1,8 +1,0 @@
-spring:
-  datasource:
-    url: jdbc:mysql://172.16.0.40:3306/panel_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true&connectTimeout=5000&socketTimeout=30000
-    username: root
-    password: root@
-
-server:
-  port: 18866

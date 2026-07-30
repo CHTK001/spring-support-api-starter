@@ -1,8 +1,0 @@
-com.chua.starter.music.spi.impl.DemoMusicSourceProvider
-com.chua.starter.music.spi.impl.TencentMusicSourceProvider
-com.chua.starter.music.spi.impl.KuwoMusicSourceProvider
-com.chua.starter.music.spi.impl.MiguMusicSourceProvider
-com.chua.starter.music.spi.impl.KugouMusicSourceProvider
-com.chua.starter.music.spi.impl.NeteaseMusicSourceProvider
-com.chua.starter.music.spi.impl.BodianMusicSourceProvider
-com.chua.starter.music.spi.impl.GitMusicSourceProvider
