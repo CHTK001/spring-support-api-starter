@@ -15,7 +15,6 @@
     <modules>
         <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-common-service-starter</module>
-        <module>spring-api-support-device-starter</module>
         <module>spring-api-support-monitor-starter</module>
     </modules>
 
@@ -242,18 +241,6 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-ucanaccess-starter</artifactId>
-                <version>${utils.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>utils-support-hikvision-starter</artifactId>
-                <version>${utils.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>utils-support-dahua-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
 
