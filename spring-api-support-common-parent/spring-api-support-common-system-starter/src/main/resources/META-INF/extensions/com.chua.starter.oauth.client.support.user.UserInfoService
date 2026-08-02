@@ -1,0 +1,9 @@
+com.chua.starter.system.login.UserLoginService
+com.chua.starter.system.login.TenantUserLoginService
+com.chua.starter.system.login.DingtalkLoginService
+com.chua.starter.system.login.GiteeLoginService
+com.chua.starter.system.login.GithubLoginService
+com.chua.starter.system.login.GoogleLoginService
+com.chua.starter.system.login.TemporaryTokenLoginService
+com.chua.starter.system.login.WechatEnterpriseLoginService
+com.chua.starter.system.login.WeixinMiniLoginService
