@@ -1,6 +1,6 @@
 package com.chua.starter.scheduler.support.executor;
 
-import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.spi.annotations.Spi;
 import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
 
 import java.util.List;

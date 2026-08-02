@@ -70,7 +70,7 @@ public final class TemporaryTokenAuthorization implements Authorization {
 
         // 验证源令牌
         ReturnResult<UserResume> resolveResult = tokenResolver.resolve(null, sourceToken);
-        if (resolveResult.isFailure()) {
+        if (!resolveResult.isOk()) {
             log.warn("临时令牌创建失败: 源令牌无效, 客户端IP: {}, 错误: {}", clientIp, resolveResult.getMsg());
             return ReturnResult.error("源令牌无效");
         }
@@ -87,7 +87,7 @@ public final class TemporaryTokenAuthorization implements Authorization {
 
         // 创建临时令牌
         ReturnResult<LoginResult> createResult = tokenResolver.createToken(clientIp, temporaryUser, "TEMPORARY");
-        if (createResult.isFailure()) {
+        if (!createResult.isOk()) {
             log.warn("临时令牌创建失败: {}, 客户端IP: {}", createResult.getMsg(), clientIp);
             return ReturnResult.error(createResult.getMsg());
         }

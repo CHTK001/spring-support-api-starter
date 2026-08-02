@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.parser;
 
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.oauth.client.support.user.UserResume;

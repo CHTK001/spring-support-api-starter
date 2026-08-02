@@ -1,8 +1,8 @@
 package com.chua.starter.oauth.sso.support.token;
 
-import com.chua.common.support.core.annotation.Extension;
-import com.chua.common.support.base.bean.BeanUtils;
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.spi.annotations.Extension;
+import com.chua.common.support.utils.BeanUtils;
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.common.support.spi.ServiceProvider;
@@ -52,7 +52,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.TOKEN_
  * @author CH
  */
 @Slf4j
-@com.chua.common.support.core.annotation.Spi("redis")
+@com.chua.common.support.spi.annotations.Spi("redis")
 @SuppressWarnings("ALL")
 public class RedisTokenResolver implements TokenResolver {
     private static final String AUTH_VERSION = "authVersion";
@@ -229,7 +229,7 @@ public class RedisTokenResolver implements TokenResolver {
      * 获取在线模式（用户配置 > 全局配置）
      */
     private AuthServerProperties.Online getOnlineMode(UserResult userResult) {
-        String userOnlineMode = userResult.getOption("onlineMode");
+        String userOnlineMode = String.valueOf(userResult.getOption("onlineMode"));
         if (StringUtils.isNotBlank(userOnlineMode)) {
             try {
                 return AuthServerProperties.Online.valueOf(userOnlineMode.toUpperCase());
@@ -247,7 +247,7 @@ public class RedisTokenResolver implements TokenResolver {
      * 获取最大在线数（用户配置 > 全局配置）
      */
     private int getMaxOnlineCount(UserResult userResult) {
-        String maxOnlineCount = userResult.getOption("maxOnlineCount");
+        String maxOnlineCount = String.valueOf(userResult.getOption("maxOnlineCount"));
         if (StringUtils.isNotBlank(maxOnlineCount)) {
             try {
                 int count = Integer.parseInt(maxOnlineCount);
@@ -335,7 +335,7 @@ public class RedisTokenResolver implements TokenResolver {
      */
     private long calculateExpireTime(UserResult userResult) {
         // 用户级配置优先
-        String tokenExpire = userResult.getOption("tokenExpire");
+        String tokenExpire = String.valueOf(userResult.getOption("tokenExpire"));
         if (StringUtils.isNotBlank(tokenExpire)) {
             try {
                 long expire = Long.parseLong(tokenExpire);
@@ -362,7 +362,7 @@ public class RedisTokenResolver implements TokenResolver {
      */
     private long calculateRefreshExpireTime(UserResult userResult) {
         // 用户级配置优先
-        String refreshTokenExpire = userResult.getOption("refreshTokenExpire");
+        String refreshTokenExpire = String.valueOf(userResult.getOption("refreshTokenExpire"));
         if (StringUtils.isNotBlank(refreshTokenExpire)) {
             try {
                 long expire = Long.parseLong(refreshTokenExpire);
@@ -543,7 +543,7 @@ public class RedisTokenResolver implements TokenResolver {
         Object s = stringRedisTemplate.opsForValue().get(tokenRedisKey);
         UserResult userResult = null;
         if (s instanceof Map map) {
-            userResult = BeanUtils.copyProperties(map, UserResult.class);
+            userResult = BeanUtils.copyProperties((Object) map, UserResult.class);
         } else if (s instanceof UserResult ur) {
             userResult = ur;
         } else if (s != null) {
@@ -592,7 +592,7 @@ public class RedisTokenResolver implements TokenResolver {
             if (s != null) {
                 UserResult ur = null;
                 if (s instanceof Map map) {
-                    ur = BeanUtils.copyProperties(map, UserResult.class);
+                    ur = BeanUtils.copyProperties((Object) map, UserResult.class);
                 } else if (s instanceof UserResult u) {
                     ur = u;
                 } else {
@@ -640,7 +640,7 @@ public class RedisTokenResolver implements TokenResolver {
         Object s = stringRedisTemplate.opsForValue().get(tokenRedisKey);
         UserResult userResult = null;
         if (s instanceof Map map) {
-            userResult = BeanUtils.copyProperties(map, UserResult.class);
+            userResult = BeanUtils.copyProperties((Object) map, UserResult.class);
         } else if (s instanceof UserResult ur) {
             userResult = ur;
         } else if (s != null) {
@@ -705,7 +705,7 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         if (null == cv) {
-            return ReturnResult.noAuth();
+            return ReturnResult.error("未认证");
         }
 
         // 检查本地缓存（避免高并发下重复查 Redis）
@@ -715,29 +715,29 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         if (tokenBlacklistService == null) {
-            return ReturnResult.noAuth("黑名单服务不可用");
+            return ReturnResult.error("黑名单服务不可用");
         }
 
         // 检查 Token 是否在黑名单中
         if (tokenBlacklistService.isBlacklisted(cv)) {
-            return ReturnResult.noAuth("Token已失效");
+            return ReturnResult.error("Token已失效");
         }
 
         String redisKey = TOKEN_PRE + cv;
         Object s = stringRedisTemplate.opsForValue().get(redisKey);
         if (null == s) {
-            return ReturnResult.noAuth();
+            return ReturnResult.error("未认证");
         }
         UserResult userResult = null;
         if(s instanceof Map map) {
-            userResult = BeanUtils.copyProperties(map, UserResult.class);
+            userResult = BeanUtils.copyProperties((Object) map, UserResult.class);
         } else {
             userResult = (UserResult) s;
         }
 
         // 检查用户是否被全局拉黑
         if (userResult != null && tokenBlacklistService.isUserBlacklisted(userResult.getUserId())) {
-            return ReturnResult.noAuth("用户已被禁用");
+            return ReturnResult.error("用户已被禁用");
         }
 
         if (authServerProperties.isRenew()) {
@@ -759,7 +759,7 @@ public class RedisTokenResolver implements TokenResolver {
         String redisKey = TOKEN_PRE + token;
         Object s = stringRedisTemplate.opsForValue().get(redisKey);
         if (null == s) {
-            return ReturnResult.noAuth();
+            return ReturnResult.error("未认证");
         }
 
         UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
@@ -784,7 +784,7 @@ public class RedisTokenResolver implements TokenResolver {
         String redisKey = TOKEN_PRE + token;
         Object s = stringRedisTemplate.opsForValue().get(redisKey);
         if (null == s) {
-            return ReturnResult.noAuth();
+            return ReturnResult.error("未认证");
         }
 
         UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
@@ -866,19 +866,19 @@ public class RedisTokenResolver implements TokenResolver {
         String redisRefreshKey = TOKEN_REFRESH_PRE + refreshToken;
         Object s = stringRedisTemplate.opsForValue().get(redisRefreshKey);
         if (null == s) {
-            return ReturnResult.noAuth();
+            return ReturnResult.error("未认证");
         }
         
         UserResult oldUserResult = BeanUtils.copyProperties(s, UserResult.class);
         if (oldUserResult == null || StringUtils.isBlank(oldUserResult.getUserId())) {
-            return ReturnResult.noAuth();
+            return ReturnResult.error("未认证");
         }
 
         // 使用 TokenBuilder 生成新的 AccessToken（保持相同的 uidHash）
         String userIdHash = TokenBuilder.extractUserIdHash(refreshToken);
         String uidHash = TokenBuilder.extractUidHash(refreshToken);
         if (userIdHash == null || uidHash == null) {
-            return ReturnResult.noAuth();
+            return ReturnResult.error("未认证");
         }
         
         String newToken = TokenBuilder.generateAccessToken(oldUserResult.getUserId(), uidHash);
@@ -975,7 +975,8 @@ public class RedisTokenResolver implements TokenResolver {
         userResult.setUid(split[0]);
         
         try {
-            String decryptedUserId = com.chua.common.support.utils.DigestUtils.aesDecrypt(split[1], authServerProperties.getServiceKey());
+            String decryptedUserId = new com.chua.starter.common.support.crypto.AesCodec(authServerProperties.getServiceKey().getBytes())
+                    .decodeHex(split[1]);
             userResult.setUserId(decryptedUserId);
         } catch (Exception e) {
             return ReturnResult.error("用户代码解析失败");
@@ -1058,8 +1059,8 @@ public class RedisTokenResolver implements TokenResolver {
                 if (ua != null) {
                     userLog.setSysLogUa(ua.toString());
                     try {
-                        com.chua.common.support.network.net.UserAgent userAgent =
-                                com.chua.common.support.network.net.UserAgent.parseUserAgentString(ua.toString());
+                        com.chua.starter.common.support.network.UserAgent.UserAgentInfo userAgent =
+                                com.chua.starter.common.support.network.UserAgent.parseUserAgentString(ua.toString());
                         userLog.setSysLogBrowser(userAgent.getBrowser().toString());
                         userLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
                     } catch (Exception ignored) {}
@@ -1147,8 +1148,8 @@ public class RedisTokenResolver implements TokenResolver {
                 if (ua != null) {
                     userLog.setSysLogUa(ua.toString());
                     try {
-                        com.chua.common.support.network.net.UserAgent userAgent =
-                                com.chua.common.support.network.net.UserAgent.parseUserAgentString(ua.toString());
+                        com.chua.starter.common.support.network.UserAgent.UserAgentInfo userAgent =
+                                com.chua.starter.common.support.network.UserAgent.parseUserAgentString(ua.toString());
                         userLog.setSysLogBrowser(userAgent.getBrowser().toString());
                         userLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
                     } catch (Exception ignored) {}

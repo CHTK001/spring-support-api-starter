@@ -1,6 +1,6 @@
 package com.chua.starter.scheduler.support;
 
-import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.job.support.JobNumberGenerator;
 import com.chua.starter.job.support.entity.SysJob;
@@ -177,7 +177,7 @@ public class SchedulerRemoteExecutorDispatcher {
         if (body == null) {
             throw new IllegalStateException("执行器返回空响应");
         }
-        if (body.isFailure()) {
+        if (!body.isOk()) {
             throw new IllegalStateException(messageOrDefault(body.getMsg(), "执行器返回失败"));
         }
         RemoteJobTriggerResponse data = body.getData();

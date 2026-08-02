@@ -13,6 +13,6 @@ public final class InvalidAuthorization implements Authorization {
 
     @Override
     public ReturnResult<String> authentication() {
-        return ReturnResult.noAuth();
+        return ReturnResult.error("未认证");
     }
 }

@@ -2,7 +2,7 @@ package com.chua.starter.oauth.sso.support.gitee;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.system.service.GiteeService;
-import com.chua.protocol.support.network.net.NetAddress;
+import com.chua.common.support.network.net.NetAddress;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.utils.LocaleUtils;
 import com.chua.starter.common.support.utils.RequestUtils;

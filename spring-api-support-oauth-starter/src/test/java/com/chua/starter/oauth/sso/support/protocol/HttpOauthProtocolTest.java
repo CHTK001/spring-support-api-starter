@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.code.ReturnCode;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.entity.AuthRequest;

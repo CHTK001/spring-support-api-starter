@@ -520,25 +520,7 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-deepseek-starter</artifactId>
-                <version>${utils.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>utils-support-ollama-starter</artifactId>
-                <version>${utils.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
                 <artifactId>utils-support-email-starter</artifactId>
-                <version>${utils.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>utils-support-kimi-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
 
@@ -552,18 +534,6 @@
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-sse-starter</artifactId>
                 <version>${module.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>utils-support-doubao-starter</artifactId>
-                <version>${utils.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>utils-support-xunfei-starter</artifactId>
-                <version>${utils.version}</version>
             </dependency>
 
             <dependency>
