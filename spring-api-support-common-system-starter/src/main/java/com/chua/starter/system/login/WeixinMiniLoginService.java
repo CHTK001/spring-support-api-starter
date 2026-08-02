@@ -1,7 +1,7 @@
 package com.chua.starter.system.login;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.core.utils.DigestUtils;
+import com.chua.common.support.utils.DigestUtils;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.entity.system.SysUserThirdParty;
 import com.chua.starter.entity.system.SysWechatUser;

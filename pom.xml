@@ -644,12 +644,6 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-support-panel-starter</artifactId>
-                <version>${module.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
                 <artifactId>spring-support-appimage-starter</artifactId>
                 <version>${module.version}</version>
             </dependency>
@@ -660,13 +654,6 @@
                 <version>${module.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>spring-support-project-starter</artifactId>
-                <version>${module.version}</version>
-            </dependency>
-
-            
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>

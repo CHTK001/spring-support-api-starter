@@ -3,13 +3,13 @@ package com.chua.starter.tenant.server.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.base.validator.group.AddGroup;
 import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.tenant.entity.SysServiceModule;
 import com.chua.starter.tenant.entity.SysServiceModuleItem;
 import com.chua.starter.tenant.entity.SysServiceModuleStats;
@@ -60,7 +60,7 @@ public class SysServiceModuleController {
                                                                       @ParameterObject SysServiceModule sysServiceModule) {
         LambdaQueryWrapper<SysServiceModule> wrapper = createWrapper(sysServiceModule);
         Page<SysServiceModule> page = sysServiceModuleMapper.selectPage(query.createPage(), wrapper);
-        return ReturnPageResultUtils.ok(page);
+        return PageResultUtils.ok(page);
     }
 
     /**

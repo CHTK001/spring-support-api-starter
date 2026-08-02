@@ -1,20 +1,19 @@
 package com.chua.starter.system.login;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.core.utils.DigestUtils;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.DigestUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.OpenIdGenerator;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.system.constant.SystemConstant;
 import com.chua.starter.entity.system.SysUser;
-import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.spi.annotations.Spi;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import static com.chua.starter.oauth.client.support.contants.AuthConstant.LOGIN_ERROR;
 
 /**
  * 用户信息鉴权服务
@@ -48,7 +47,7 @@ public class UserLoginService extends AbstractUserLoginService {
 
     @Override
     public UserResume checkLogin(String principal, String credential, String address, Object ext) {
-        String redisKey = LOGIN_TYPE_PREFIX + ":" + LOGIN_ERROR + principal;
+        String redisKey = LOGIN_TYPE_PREFIX + ":login_error:" + principal;
         long startTime = System.currentTimeMillis();
 
         // 检查账户是否已被锁定

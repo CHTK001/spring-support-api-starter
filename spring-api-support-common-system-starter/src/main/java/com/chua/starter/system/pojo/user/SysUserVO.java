@@ -3,7 +3,7 @@ package com.chua.starter.system.pojo.user;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.chua.common.support.base.validator.group.AddGroup;
+import com.chua.starter.system.validator.group.AddGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

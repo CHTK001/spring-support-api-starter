@@ -1,8 +1,7 @@
 package com.chua.starter.system.handler;
 
-import com.chua.common.support.core.annotation.Spi;
-import com.chua.common.support.core.annotation.SpiDefault;
-import com.chua.common.support.base.collection.ImmutableBuilder;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDefault;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.AuthType;
@@ -17,6 +16,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
+import java.util.HashMap;
+import java.util.Map;
 import static com.chua.common.support.lang.code.ReturnCode.USERNAME_OR_PASSWORD_ERROR;
 import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 
@@ -41,24 +42,24 @@ public class TenantLoginHandler extends DefaultLoginHandler {
         String address = getIpAddress(request);
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         long startTime = System.currentTimeMillis();
+        Map<String, Object> tenantExt = new HashMap<>();
+        tenantExt.put("address", address);
+        tenantExt.put("fingerprint", fingerprint);
+        tenantExt.put("tenantCode", loginData.getTenantCode());
+        tenantExt.put("tenantId", loginData.getTenantId());
         LoginAuthResult accessToken = clientExecute.getAccessToken(loginData.getUsername(),
                 loginData.getPassword(),
                 AuthType.TENANT,
-                ImmutableBuilder.<String, Object>builderOfMap()
-                        .put("address", address)
-                        .put("fingerprint", fingerprint)
-                        .put("tenantCode", loginData.getTenantCode())
-                        .put("tenantId", loginData.getTenantId())
-                        .build()
+                tenantExt
         );
 
         log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
         if (null == accessToken) {
-            return ReturnResult.failure(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
+            return ReturnResult.error(USERNAME_OR_PASSWORD_ERROR.getCode(), "账号或者密码不正确");
         }
 
         if (accessToken.getCode() != SystemConstant.HTTP_STATUS_OK) {
-            return ReturnResult.failure(REQUEST_PARAM_ERROR, accessToken.getMessage());
+            return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), accessToken.getMessage());
         }
 
         LoginResult loginResult = LoginResult.builder()
@@ -70,6 +71,6 @@ public class TenantLoginHandler extends DefaultLoginHandler {
                 .refreshToken(accessToken.getRefreshToken())
                 .build();
         CookieUtil.set(response, "x-oauth-cookie", accessToken.getToken(), true);
-        return ReturnResult.success(loginResult);
+        return ReturnResult.ok(loginResult);
     }
 }

@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.utils.CollectionUtils;
-import com.chua.common.support.core.utils.IdUtils;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.IdUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.entity.SysTenantService;
@@ -127,7 +127,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
             syncPublisher.publishTenantUpdate(sysTenant);
         }
 
-        return ReturnResult.success(sysTenant);
+        return ReturnResult.ok(sysTenant);
     }
 
     @Override
@@ -157,7 +157,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
             syncPublisher.publishTenantUpdate(updated);
         }
 
-        return ReturnResult.preconditioning(result).toResult();
+        return (result) ? ReturnResult.ok(true) : ReturnResult.error("操作失败");
     }
 
     @Override
@@ -176,7 +176,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
                 syncPublisher.publishTenantDelete(sysTenantId);
             }
 
-            return ReturnResult.preconditioning(result).toResult();
+            return (result) ? ReturnResult.ok(true) : ReturnResult.error("操作失败");
         });
     }
 
@@ -244,7 +244,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
             syncPublisher.publishTenantUpdate(tenant);
         }
 
-        return ReturnResult.preconditioning(result).toResult();
+        return (result) ? ReturnResult.ok(true) : ReturnResult.error("操作失败");
     }
 
     @Override

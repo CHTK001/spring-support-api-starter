@@ -5,9 +5,9 @@ import com.chua.common.support.base.bean.BeanUtils;
 import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.objects.annotation.AutoInject;
-import com.chua.common.support.core.spi.ServiceProvider;
-import com.chua.common.support.core.utils.IdUtils;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.IdUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.user.LoginResult;
@@ -975,7 +975,7 @@ public class RedisTokenResolver implements TokenResolver {
         userResult.setUid(split[0]);
         
         try {
-            String decryptedUserId = com.chua.common.support.core.utils.DigestUtils.aesDecrypt(split[1], authServerProperties.getServiceKey());
+            String decryptedUserId = com.chua.common.support.utils.DigestUtils.aesDecrypt(split[1], authServerProperties.getServiceKey());
             userResult.setUserId(decryptedUserId);
         } catch (Exception e) {
             return ReturnResult.error("用户代码解析失败");

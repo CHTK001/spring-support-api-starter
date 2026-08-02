@@ -2,13 +2,13 @@ package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.base.bean.BeanUtils;
-import com.chua.common.support.function.Joiner;
+import com.google.common.base.Joiner;
 import com.chua.common.support.function.SafeConsumer;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.lang.treenode.TreeNode;
-import com.chua.common.support.core.utils.StringUtils;
-import com.chua.common.support.core.utils.TreeUtils;
+import com.chua.common.support.utils.BeanUtils;
+import com.chua.common.support.utils.StringUtils;
+import com.chua.starter.system.util.TreeNode;
+import com.chua.starter.system.util.TreeUtils;
 import com.chua.starter.entity.system.SysDept;
 import com.chua.starter.system.mapper.SysDeptMapper;
 import com.chua.starter.system.constant.SystemConstant;
@@ -76,7 +76,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
 
     @Override
     public ReturnResult<Boolean> delete(Long deptId) {
-        return ReturnResult.guess(baseMapper.deleteById(deptId) > 0);
+        return ReturnResult.of(baseMapper.deleteById(deptId) > 0);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         if (updated) {
             sysDeptPrincipalRelService.syncDeptPrincipals(sysDept.getSysDeptId(), sysDept.getPrincipalUserIds());
         }
-        return ReturnResult.guess(updated);
+        return ReturnResult.of(updated);
     }
 
     @Override
@@ -123,7 +123,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         sysDept.setSysDeptTreeId(Joiner.on(",").join(parentTreeId, sysDept.getSysDeptId()));
         baseMapper.updateById(sysDept);
         sysDeptPrincipalRelService.syncDeptPrincipals(sysDept.getSysDeptId(), sysDept.getPrincipalUserIds());
-        return ReturnResult.guess(sysDept);
+        return ReturnResult.of(sysDept);
     }
 
     private List<SysDeptVO> filterTreeByName(List<SysDeptVO> source, String keyword) {

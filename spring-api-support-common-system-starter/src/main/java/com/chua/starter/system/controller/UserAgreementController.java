@@ -1,6 +1,6 @@
 package com.chua.starter.system.controller;
 
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.entity.service.SysSetting;
 import com.chua.starter.service.SysSettingService;

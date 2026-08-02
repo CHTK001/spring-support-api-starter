@@ -1,8 +1,8 @@
 package com.chua.starter.tenant.sync;
 
-import com.chua.common.support.crypto.digest.HMacUtils;
-import com.chua.common.support.core.utils.MapUtils;
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.lang.algorithm.hmac.HMacUtils;
+import com.chua.common.support.utils.MapUtils;
+import com.chua.common.support.lang.json.Json;
 import com.chua.starter.sync.support.pojo.ClientInfo;
 
 import java.lang.reflect.Array;
@@ -196,7 +196,7 @@ public final class TenantSyncMessageSupport {
         if (data == null || data.isEmpty()) {
             return null;
         }
-        return com.chua.common.support.core.utils.DigestUtils.sha256Hex(canonicalPayload(data));
+        return com.chua.common.support.utils.DigestUtils.sha256(canonicalPayload(data));
     }
 
     @SuppressWarnings("unchecked")

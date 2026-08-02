@@ -1,8 +1,8 @@
 package com.chua.starter.service.configuration;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.chua.common.support.constant.Action;
 import com.chua.common.support.converter.Converter;
+import com.chua.common.support.enums.Action;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
@@ -19,8 +19,8 @@ import java.time.LocalTime;
 import java.util.Date;
 import java.util.function.Supplier;
 
-import static com.chua.common.support.constant.Action.CREATE;
-import static com.chua.common.support.constant.Action.UPDATE;
+import static com.chua.common.support.enums.Action.CREATE;
+import static com.chua.common.support.enums.Action.UPDATE;
 
 /**
  * mybatis-plus 字段自动填充
@@ -54,23 +54,23 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
         UserResult userLoginInfo = getCurrentUser();
         if(null != userLoginInfo) {
             if (metaObject.hasGetter("createBy")) {
-                registerField(metaObject, "createBy", userLoginInfo.getOption("sysUserId", userLoginInfo.getUserId()), CREATE);
+                registerField(metaObject, "createBy", option(userLoginInfo, "sysUserId", userLoginInfo.getUserId()), CREATE);
             }
 
             if (metaObject.hasGetter("createName")) {
-                registerField(metaObject, "createName",  StringUtils.defaultString(userLoginInfo.getOption("userRealName"), userLoginInfo.getUsername()), CREATE);
+                registerField(metaObject, "createName",  StringUtils.defaultString(option(userLoginInfo, "userRealName"), userLoginInfo.getUsername()), CREATE);
             }
 
             if (metaObject.hasGetter("operationUser")) {
-                registerField(metaObject, "operationUser", StringUtils.defaultString(userLoginInfo.getOption("userRealName"), userLoginInfo.getUsername()), CREATE);
+                registerField(metaObject, "operationUser", StringUtils.defaultString(option(userLoginInfo, "userRealName"), userLoginInfo.getUsername()), CREATE);
             }
 
             if (metaObject.hasGetter("sysDeptId")) {
-                registerField(metaObject, "sysDeptId", userLoginInfo.getOption("sysDeptId"), CREATE);
+                registerField(metaObject, "sysDeptId", option(userLoginInfo, "sysDeptId"), CREATE);
             }
 
             if (metaObject.hasGetter("tenantId")) {
-                registerField(metaObject, "tenantId", userLoginInfo.getOption("tenantId"), CREATE);
+                registerField(metaObject, "tenantId", option(userLoginInfo, "tenantId"), CREATE);
             }
         }
 
@@ -94,13 +94,13 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
         UserResult userLoginInfo = getCurrentUser();
         if(null != userLoginInfo) {
             if (metaObject.hasGetter("updateBy")) {
-                registerField(metaObject, "updateBy", userLoginInfo.getOption("sysUserId", userLoginInfo.getUserId()), UPDATE);
+                registerField(metaObject, "updateBy", option(userLoginInfo, "sysUserId", userLoginInfo.getUserId()), UPDATE);
             }
             if (metaObject.hasGetter("updateName")) {
-                registerField(metaObject, "updateName",  StringUtils.defaultString(userLoginInfo.getOption("userRealName"), userLoginInfo.getUsername()), UPDATE);
+                registerField(metaObject, "updateName",  StringUtils.defaultString(option(userLoginInfo, "userRealName"), userLoginInfo.getUsername()), UPDATE);
             }
             if (metaObject.hasGetter("operationUser")) {
-                registerField(metaObject, "operationUser", StringUtils.defaultString(userLoginInfo.getOption("userRealName"), userLoginInfo.getUsername()), UPDATE);
+                registerField(metaObject, "operationUser", StringUtils.defaultString(option(userLoginInfo, "userRealName"), userLoginInfo.getUsername()), UPDATE);
             }
         }
     }
@@ -114,6 +114,32 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
             return null;
         }
         return clientExecute.getSafeUserResult();
+    }
+
+    /**
+     * 从用户扩展属性中取值（兼容旧版双参 getOption 的语义）。
+     *
+     * @param userResult   用户信息
+     * @param optionKey    扩展属性键
+     * @param defaultValue 缺省值
+     * @return 属性值（null 时回退缺省值）
+     */
+    private String option(UserResult userResult, String optionKey, String defaultValue) {
+        Object value = userResult.getOption(optionKey);
+        String text = StringUtils.toString(value);
+        return StringUtils.defaultString(text, defaultValue);
+    }
+
+    /**
+     * 从用户扩展属性中取值。
+     *
+     * @param userResult 用户信息
+     * @param optionKey  扩展属性键
+     * @return 属性值
+     */
+    private String option(UserResult userResult, String optionKey) {
+        Object value = userResult.getOption(optionKey);
+        return StringUtils.toString(value);
     }
 
     private void registerField(MetaObject metaObject, String name, Action action) {

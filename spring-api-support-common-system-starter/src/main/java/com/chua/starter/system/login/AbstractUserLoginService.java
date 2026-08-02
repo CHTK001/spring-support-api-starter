@@ -1,11 +1,10 @@
 package com.chua.starter.system.login;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.base.bean.BeanUtils;
-import com.chua.common.support.base.collection.ImmutableBuilder;
-import com.chua.common.support.base.converter.Converter;
-import com.chua.common.support.core.utils.ObjectUtils;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.BeanUtils;
+import com.chua.common.support.converter.Converter;
+import com.chua.common.support.utils.ObjectUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import com.chua.starter.oauth.client.support.user.RoleInfo;
@@ -125,25 +124,28 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
                 .setOpenId(userIds[0])
                 .setUnionId(userIds[1])
                 .setRoles(roleCodes)
-                .setRolesByRole(roleInfos)
                 .setDeptId(Converter.convertIfNecessary(user.getSysDeptId(), String.class))
-                .setDataPermission(dataPermission)
-                .setDataPermissionRule(dataPermissionRule)
                 .setPermission(permissions)
                 .setPhone(user.getSysUserPhone())
                 .setUsername(accessKey)
-                .setNickName(user.getSysUserNickname())
-                .setExt(ImmutableBuilder.builderOfMap(String.class, Object.class)
-                        .put(user)
-                        .put(AUTH_VERSION, authVersion(user))
-                        .put("sysDeptId", user.getSysDeptId())
-                        .put("managedDeptIds", managedDeptIds)
-                        .put("managedDeptTreeIds", managedDeptTreeIds)
-                        .put("userDashboardGrid", userDashboardGrid)
-                        .put("userDashboard", userDashboard)
-                        .remove("password", "salt", "userEnable", "address", "lastArea",
-                                "lastLatitude", "lastIp", "lastLongitude")
-                        .build());
+                .setNickName(user.getSysUserNickname());
+
+        Map<String, Object> ext = BeanUtils.objectToMap(user);
+        ext.put(AUTH_VERSION, authVersion(user));
+        ext.put("sysDeptId", user.getSysDeptId());
+        ext.put("managedDeptIds", managedDeptIds);
+        ext.put("managedDeptTreeIds", managedDeptTreeIds);
+        ext.put("userDashboardGrid", userDashboardGrid);
+        ext.put("userDashboard", userDashboard);
+        ext.remove("password");
+        ext.remove("salt");
+        ext.remove("userEnable");
+        ext.remove("address");
+        ext.remove("lastArea");
+        ext.remove("lastLatitude");
+        ext.remove("lastIp");
+        ext.remove("lastLongitude");
+        result.setExt(ext);
 
         // 子类扩展点
         customizeUserResult(result, user);
