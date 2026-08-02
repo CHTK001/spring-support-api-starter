@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.core;
 
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.entity.system.SysAppKey;
 import com.chua.starter.entity.system.SysAppId;
 import com.chua.starter.system.service.SysAppKeyService;

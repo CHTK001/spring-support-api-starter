@@ -2,11 +2,11 @@ package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.base.bean.BeanUtils;
-import com.chua.common.support.core.utils.ArrayUtils;
-import com.chua.common.support.core.utils.CollectionUtils;
-import com.chua.common.support.core.utils.ObjectUtils;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.BeanUtils;
+import com.chua.common.support.utils.ArrayUtils;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.ObjectUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.entity.system.SysMiniMenu;
@@ -14,7 +14,6 @@ import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.mapper.SysMiniMenuMapper;
 import com.chua.starter.system.pojo.menu.SysMiniMenuVO;
 import com.chua.starter.system.service.SysMiniMenuService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -28,17 +27,14 @@ import java.util.Set;
 @Service
 public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMiniMenu> implements SysMiniMenuService {
 
-    @Autowired
-    private SysMiniMenuServiceImpl sysMiniMenuService;
-
     @Override
     public ReturnResult<List<SysMiniMenu>> listManageMenus() {
-        return ReturnResult.ok(sysMiniMenuService.listAllCached());
+        return ReturnResult.ok(listAllCached());
     }
 
     @Override
     public ReturnResult<List<SysMiniMenuVO>> listUserMenus(Set<String> roles) {
-        List<SysMiniMenu> visibleMenus = sysMiniMenuService.listAllCached().stream()
+        List<SysMiniMenu> visibleMenus = listAllCached().stream()
                 .filter(menu -> !Objects.equals(ObjectUtils.defaultIfNull(menu.getSysMiniMenuHidden(), 0), 1))
                 .filter(menu -> matchesRoles(menu, roles))
                 .toList();

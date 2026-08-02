@@ -1,7 +1,7 @@
 package com.chua.starter.oauth.sso.support.validator;
 
 import com.chua.common.support.core.annotation.Spi;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.entity.system.SysAppKey;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 import jakarta.servlet.http.HttpServletRequest;

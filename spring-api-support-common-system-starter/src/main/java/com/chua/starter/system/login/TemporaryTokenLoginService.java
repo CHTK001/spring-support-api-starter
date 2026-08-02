@@ -1,9 +1,9 @@
 package com.chua.starter.system.login;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.spi.ServiceProvider;
-import com.chua.common.support.core.utils.MapUtils;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.MapUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserInfoService;
@@ -243,7 +243,7 @@ public class TemporaryTokenLoginService implements UserInfoService, Constant {
             return false;
         }
 
-        String allowedUrlsStr = userResume.getOption(KEY_ALLOWED_URLS);
+        String allowedUrlsStr = (String) userResume.getOption(KEY_ALLOWED_URLS);
         
         // 如果没有配置或配置为 "*"，表示允许所有URL
         if (StringUtils.isEmpty(allowedUrlsStr) || ALL_URLS.equals(allowedUrlsStr)) {

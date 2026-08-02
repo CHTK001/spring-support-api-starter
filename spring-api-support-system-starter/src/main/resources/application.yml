@@ -2,6 +2,8 @@
 # 应用程序基础配置
 # ===========================================
 spring:
+  main:
+    allow-circular-references: true          # 允许循环引用（历史遗留的 ServiceImpl 自注入模式）
   application:
     name: system                            # 应用名称（系统服务）
   autoconfigure:

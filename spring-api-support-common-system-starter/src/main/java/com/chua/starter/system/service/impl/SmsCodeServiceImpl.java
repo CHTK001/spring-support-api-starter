@@ -1,15 +1,13 @@
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.base.collection.ImmutableBuilder;
-import com.chua.common.support.text.json.Json;
-import com.chua.common.support.text.json.JsonObject;
+import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.lang.message.MessagePush;
-import com.chua.common.support.lang.message.option.TemplateSetting;
-import com.chua.common.support.lang.message.result.PushResult;
-import com.chua.common.support.core.utils.CollectionUtils;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.task.message.MessagePush;
+import com.chua.common.support.task.message.MessageRequest;
+import com.chua.common.support.task.message.MessageResponse;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
@@ -34,8 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -89,14 +86,14 @@ public class SmsCodeServiceImpl implements SmsCodeService {
         String intervalKey = SMS_CODE_KEY_PREFIX + "interval:" + phone;
         if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(intervalKey))) {
             log.warn("短信验证码发送过于频繁: phone={}", phone);
-            return ReturnResult.fail("验证码发送过于频繁，请稍后再试");
+            return ReturnResult.error("验证码发送过于频繁，请稍后再试");
         }
 
         // 获取短信配置
         SmsSetting smsSetting = GlobalSettingFactory.getInstance().get("sms", SmsSetting.class);
         if (smsSetting == null || !smsSetting.isValid()) {
             log.error("短信配置未设置或无效");
-            return ReturnResult.fail("短信服务未配置，请联系管理员");
+            return ReturnResult.error("短信服务未配置，请联系管理员");
         }
 
         // 登录业务需要验证手机号是否已注册
@@ -108,7 +105,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
             );
             if (user == null) {
                 log.warn("手机号未注册: phone={}", phone);
-                return ReturnResult.fail("该手机号未注册");
+                return ReturnResult.error("该手机号未注册");
             }
         }
 
@@ -116,33 +113,24 @@ public class SmsCodeServiceImpl implements SmsCodeService {
         String code = String.format("%0" + CODE_LENGTH + "d", (int) (Math.random() * Math.pow(10, CODE_LENGTH)));
         log.info("生成短信验证码: phone={}, code={}", phone, code);
 
-        TemplateSetting setting = TemplateSetting.builder()
-                .templateParam(JsonObject.create().fluentPut("code", code))
-                .signCode(smsSetting.getAppSign())
-                .build();
-
         // 发送短信
         try {
-            MessagePush messagePush = smsSetting.getMessagePush();
-            List<PushResult> results = messagePush.publish(new String[]{phone}, setting);
-            if (CollectionUtils.isEmpty(results)) {
-                log.error("短信发送失败: phone={}, 无返回结果", phone);
-                saveSmsLog(phone, code, bizType, smsSetting, setting, null, "短信发送失败");
-                return ReturnResult.fail("短信发送失败");
-            }
-
-            PushResult result = results.getFirst();
-            saveSmsLog(phone, code, bizType, smsSetting, setting, result, null);
+            MessagePush messagePush = MessagePush.create(smsSetting.getAppType());
+            MessageResponse result = messagePush.send(MessageRequest.builder()
+                    .to(phone)
+                    .content("您的验证码是：" + code + "，5分钟内有效。")
+                    .build());
+            saveSmsLog(phone, code, bizType, smsSetting, result);
             if (!result.isSuccess()) {
-                log.error("短信发送失败: phone={}, msg={}", phone, result.getMessage());
-                return ReturnResult.fail("短信发送失败: " + result.getMessage());
+                log.error("短信发送失败: phone={}, msg={}", phone, result.getErrorMessage());
+                return ReturnResult.error("短信发送失败: " + result.getErrorMessage());
             }
 
             log.info("短信发送成功: phone={}", phone);
         } catch (Exception e) {
             log.error("短信发送异常: phone={}", phone, e);
-            saveSmsLog(phone, code, bizType, smsSetting, setting, null, e.getMessage());
-            return ReturnResult.fail("短信发送失败: " + e.getMessage());
+            saveSmsLog(phone, code, bizType, smsSetting, null);
+            return ReturnResult.error("短信发送失败: " + e.getMessage());
         }
 
         // 存储验证码到 Redis
@@ -189,7 +177,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
 
         // 验证验证码
         if (!verifyCode(phone, code, "login")) {
-            return ReturnResult.fail("验证码错误或已过期");
+            return ReturnResult.error("验证码错误或已过期");
         }
 
         // 根据手机号查询用户
@@ -201,22 +189,21 @@ public class SmsCodeServiceImpl implements SmsCodeService {
 
         if (user == null) {
             log.warn("手机号未注册: phone={}", phone);
-            return ReturnResult.fail("该手机号未注册");
+            return ReturnResult.error("该手机号未注册");
         }
 
         // 获取 AccessToken
-        Map<String, Object> ext = ImmutableBuilder.<String, Object>builderOfMap()
-                .put("loginType", "sms")
-                .put("phone", phone)
-                .put("address", RequestUtils.getIpAddress(httpRequest))
-                .build();
+        Map<String, Object> ext = new HashMap<>();
+        ext.put("loginType", "sms");
+        ext.put("phone", phone);
+        ext.put("address", RequestUtils.getIpAddress(httpRequest));
 
         LoginAuthResult accessToken = AuthClientExecute.getInstance()
                 .getAccessToken(String.valueOf(user.getSysUserId()), null, AuthType.SMS, ext);
 
         if (accessToken == null || StringUtils.isEmpty(accessToken.getToken())) {
             log.error("获取 Token 失败: phone={}", phone);
-            return ReturnResult.fail("登录失败，请重试");
+            return ReturnResult.error("登录失败，请重试");
         }
 
         // 构建登录结果
@@ -240,28 +227,23 @@ public class SmsCodeServiceImpl implements SmsCodeService {
                             String code,
                             String bizType,
                             SmsSetting smsSetting,
-                            TemplateSetting setting,
-                            PushResult result,
-                            String fallbackMessage) {
+                            MessageResponse result) {
         try {
             SysSmsLog sysSmsLog = new SysSmsLog();
             sysSmsLog.setSysSmsLogTarget(phone);
-            sysSmsLog.setSysSmsLogTemplateId(setting.getTemplateId());
             sysSmsLog.setSysSmsLogContent("bizType=" + bizType);
             sysSmsLog.setSysSmsLogParam(truncate(Json.toJson(JsonObject.create()
                     .fluentPut("bizType", bizType)
-                    .fluentPut("code", code)
-                    .fluentPut("templateParam", setting.getTemplateParam())), LOG_PARAM_MAX_LENGTH));
+                    .fluentPut("code", code)), LOG_PARAM_MAX_LENGTH));
             sysSmsLog.setSysSmsAppType(smsSetting.getAppType());
             sysSmsLog.setSysSmsAppId(smsSetting.getAppId());
             sysSmsLog.setSysSmsAppSign(smsSetting.getAppSign());
             if (result != null) {
-                sysSmsLog.setSysSmsCode(result.getCode() == null ? null : result.getCode().name());
-                sysSmsLog.setSysSmsMessage(truncate(result.getMessage(), LOG_MESSAGE_MAX_LENGTH));
-                sysSmsLog.setSysSmsCost(result.getCost() == null ? null : BigDecimal.valueOf(result.getCost()));
+                sysSmsLog.setSysSmsCode(result.isSuccess() ? "SUCCESS" : "FAILURE");
+                sysSmsLog.setSysSmsMessage(truncate(result.getErrorMessage(), LOG_MESSAGE_MAX_LENGTH));
             } else {
                 sysSmsLog.setSysSmsCode("FAILURE");
-                sysSmsLog.setSysSmsMessage(truncate(fallbackMessage, LOG_MESSAGE_MAX_LENGTH));
+                sysSmsLog.setSysSmsMessage("短信发送失败");
             }
             sysSmsLogMapper.insert(sysSmsLog);
         } catch (Exception e) {

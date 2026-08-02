@@ -1,6 +1,6 @@
 package com.chua.starter.system.controller;
 
-import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;

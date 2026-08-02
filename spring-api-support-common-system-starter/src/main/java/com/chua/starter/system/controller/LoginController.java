@@ -1,8 +1,7 @@
 package com.chua.starter.system.controller;
 
-import com.chua.common.support.core.constant.Action;
-import com.chua.task.support.task.debounce.Debounce;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.enums.Action;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.UserLog;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -77,14 +76,13 @@ public class LoginController {
             action = Action.LOGIN,
             loginType = "WEB",
             content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
-    @Debounce(key = "#loginData.username #loginData.loginType")
     public ReturnResult<LoginResult> login(@Valid @RequestBody LoginData loginData,
                                            HttpServletRequest request,
                                            HttpServletResponse response,
                                            @RequestHeader(name = X_REQ_FINGERPRINT, required = false) String fingerprint,
                                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.error(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysLoginService.login(loginData, request, response, fingerprint);
@@ -99,7 +97,7 @@ public class LoginController {
                                                   HttpServletResponse response,
                                                   BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.error(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysLoginService.refresh(refreshToken, request, response);

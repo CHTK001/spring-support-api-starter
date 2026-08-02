@@ -2,7 +2,7 @@ package com.chua.starter.service.configuration.trace.storage;
 
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.spi.annotations.SpiDefault;
-import com.chua.common.support.json.Json;
+import com.chua.common.support.lang.json.Json;
 import com.chua.starter.service.configuration.trace.RequestTraceEvent;
 import com.chua.starter.service.configuration.trace.RequestTraceRawRecordStorage;
 import com.chua.starter.service.configuration.trace.RequestTraceStrategyConfig;

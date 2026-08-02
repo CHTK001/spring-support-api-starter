@@ -3,7 +3,7 @@ package com.chua.starter.oauth.sso.support.protocol;
 import com.chua.common.support.core.annotation.Extension;
 import com.chua.common.support.core.annotation.Spi;
 import com.chua.common.support.base.collection.Options;
-import com.chua.common.support.core.spi.ServiceProvider;
+import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.protocol.support.network.protocol.Protocol;
 import com.chua.protocol.support.network.protocol.ProtocolSetting;

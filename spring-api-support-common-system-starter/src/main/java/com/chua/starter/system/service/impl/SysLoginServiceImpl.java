@@ -1,14 +1,15 @@
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.base.bean.BeanUtils;
-import com.chua.common.support.crypto.Codec;
-import com.chua.common.support.core.utils.DigestUtils;
-import com.chua.common.support.function.Joiner;
+import com.chua.common.support.utils.BeanUtils;
+import com.chua.common.support.lang.algorithm.cipher.Sm4Cipher;
+import com.chua.common.support.lang.algorithm.crypto.Hex;
+import com.chua.common.support.utils.DigestUtils;
+import com.google.common.base.Joiner;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.spi.ServiceProvider;
-import com.chua.common.support.core.utils.StringUtils;
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.lang.json.Json;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
@@ -63,8 +64,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.nio.charset.StandardCharsets;
 
-import static com.chua.common.support.core.constant.Constants.CAPTCHA_SESSION_KEY;
+import static com.chua.starter.oauth.client.support.contants.AuthConstant.CAPTCHA_SESSION_KEY;
 import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERROR;
 
 /**
@@ -105,7 +107,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     @Override
     public ReturnResult<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
         log.info("\n登录信息包含 \n登录账号 -> {}\n登陆方式 -> {}", loginData.getUsername(), loginData.getLoginType());
-        return ServiceProvider.of(LoginHandler.class).getNewExtension(Joiner.on("-").join(loginData.getLoginType(), loginData.getAccountType()))
+        return ServiceProvider.of(LoginHandler.class).getNewExtension(Joiner.on("-").skipNulls().join(loginData.getLoginType(), loginData.getAccountType()))
                 .login(this, loginData, request, response, fingerprint);
     }
 
@@ -156,13 +158,18 @@ public class SysLoginServiceImpl implements SysLoginService {
         userResult.setUserId(String.valueOf(user.getSysUserId()));
         userResult.setPhone(user.getSysUserPhone());
         userResult.setRoles(roleCodes);
-        userResult.setUid(DigestUtils.sha1Hex(String.valueOf(user.getSysUserId())));
+        userResult.setUid(DigestUtils.sha1(String.valueOf(user.getSysUserId())));
         userResult.setOpenId(userResult.getUid());
         userResult.setUnionId(userResult.getUid());
         userResult.setExpireTime(System.currentTimeMillis() / 1000 + 7L * 24 * 60 * 60);
 
-        String sm4Token = Codec.build("SM4", AuthClientExecute.DEFAULT_KEY).encodeHex(Json.toJson(userResult));
-        UserResume resume = BeanUtils.copyProperties(userResult, UserResume.class);
+        Sm4Cipher sm4 = Sm4Cipher.create("bc");
+        byte[] encrypted = sm4.encrypt(
+                AuthClientExecute.DEFAULT_KEY.getBytes(StandardCharsets.UTF_8),
+                Json.toJson(userResult).getBytes(StandardCharsets.UTF_8)
+        );
+        String sm4Token = Hex.encodeHexString(encrypted);
+        UserResume resume = userResult;
 
         LoginAuthResult result = new LoginAuthResult(200, "成功");
         result.setToken(sm4Token);
@@ -187,7 +194,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse("").toString();
         if (StringUtils.isNotBlank(sessionKey)) {
             if (!code.equalsIgnoreCase(sessionKey)) {
-                return ReturnResult.failure(RESOURCE_CAPTCHA_ERROR, "校验码不正确");
+                return ReturnResult.error(RESOURCE_CAPTCHA_ERROR.getCode(), "校验码不正确");
             }
             return null;
         }
@@ -197,13 +204,13 @@ public class SysLoginServiceImpl implements SysLoginService {
             ValueOperations valueOperations = redisTemplate.opsForValue();
             Object object = valueOperations.get(verifyCodeUlid);
             if (null == object || !code.equalsIgnoreCase(object.toString())) {
-                return ReturnResult.failure(RESOURCE_CAPTCHA_ERROR, "校验码不正确");
+                return ReturnResult.error(RESOURCE_CAPTCHA_ERROR.getCode(), "校验码不正确");
             }
 
             redisTemplate.delete(verifyCodeUlid);
             return null;
         }
-        return ReturnResult.failure(RESOURCE_CAPTCHA_ERROR, "请重新刷新校验码");
+        return ReturnResult.error(RESOURCE_CAPTCHA_ERROR.getCode(), "请重新刷新校验码");
     }
 
     public ReturnResult<LoginResult> checkEnvironment(LoginData loginData, HttpServletRequest request) {
@@ -213,7 +220,7 @@ public class SysLoginServiceImpl implements SysLoginService {
 
         if (totpRequired) {
             if (StringUtils.isBlank(code)) {
-                return ReturnResult.failure(RESOURCE_CAPTCHA_ERROR, "请输入动态验证码");
+                return ReturnResult.error(RESOURCE_CAPTCHA_ERROR.getCode(), "请输入动态验证码");
             }
 
             if (hasCaptchaContext) {
@@ -222,8 +229,8 @@ public class SysLoginServiceImpl implements SysLoginService {
 
             ReturnResult<Boolean> verifyResult = simpleSysUserService.verify(code, loginData.getUsername());
             if (verifyResult == null || !Boolean.TRUE.equals(verifyResult.getData())) {
-                return ReturnResult.failure(
-                        RESOURCE_CAPTCHA_ERROR,
+                return ReturnResult.error(
+                        RESOURCE_CAPTCHA_ERROR.getCode(),
                         StringUtils.defaultString(verifyResult != null ? verifyResult.getMsg() : null, "动态验证码错误或已过期")
                 );
             }
@@ -300,7 +307,7 @@ public class SysLoginServiceImpl implements SysLoginService {
             return userInfoVO;
         }
         if (userLoginInfo.getExt() != null && !userLoginInfo.getExt().isEmpty()) {
-            com.chua.common.support.base.bean.BeanUtils.copyProperties(userLoginInfo.getExt(), userInfoVO);
+            com.chua.common.support.utils.BeanUtils.copyProperties(userLoginInfo.getExt(), userInfoVO);
         }
         if (userInfoVO.getSysUserUsername() == null) {
             userInfoVO.setSysUserUsername(userLoginInfo.getUsername());
@@ -318,7 +325,7 @@ public class SysLoginServiceImpl implements SysLoginService {
             }
         }
         if (StringUtils.isBlank(userInfoVO.getAvatar())) {
-            userInfoVO.setAvatar(userLoginInfo.getOption("sysUserAvatar"));
+            userInfoVO.setAvatar(StringUtils.toString(userLoginInfo.getOption("sysUserAvatar")));
         }
         userInfoVO.setTenantId(userLoginInfo.getTenantId());
         userInfoVO.setRoles(userLoginInfo.getRoles());
@@ -386,7 +393,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(refreshToken.getRefreshToken(), UpgradeType.REFRESH);
         if (null == upgrade) {
-            return ReturnResult.failure("登录已过期");
+            return ReturnResult.error("登录已过期");
         }
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(buildUserInfo(upgrade.getUserResume()))
@@ -396,7 +403,7 @@ public class SysLoginServiceImpl implements SysLoginService {
                 .expires(null != upgrade.getUserResume() ? upgrade.getUserResume().getExpireTime() : null)
                 .build();
         CookieUtil.set(response, "x-oauth-cookie", upgrade.getToken(), true);
-        return ReturnResult.success(loginResult);
+        return ReturnResult.ok(loginResult);
     }
 
     @Override
@@ -407,7 +414,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> authRequest = sysSettingService.getAuthRequest(loginData);
         if (authRequest == null) {
             log.warn("第三方登录配置未找到或未启用: loginType={}", loginData.getLoginType());
-            return ReturnResult.fail("第三方登录未配置或未启用，请联系管理员");
+            return ReturnResult.error("第三方登录未配置或未启用，请联系管理员");
         }
         
         // 获取授权 URL
@@ -449,7 +456,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     @Override
     public ReturnResult<Boolean> thirdUnbind(String userId, ThirdPartyUnbindRequest thirdPartyUnbindRequest) {
         if (StringUtils.isBlank(thirdPartyUnbindRequest.getLoginType())) {
-            return ReturnResult.fail("登录类型不能为空");
+            return ReturnResult.error("登录类型不能为空");
         }
 
         int deleteCount = sysUserThirdPartyMapper.delete(
@@ -466,6 +473,6 @@ public class SysLoginServiceImpl implements SysLoginService {
         if (deleteCount > 0) {
             return ReturnResult.ok();
         }
-        return ReturnResult.fail("解绑失败");
+        return ReturnResult.error("解绑失败");
     }
 }

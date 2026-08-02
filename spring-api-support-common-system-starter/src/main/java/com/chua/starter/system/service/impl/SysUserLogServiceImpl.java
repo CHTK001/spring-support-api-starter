@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.geo.support.geo.GeoCity;
+import com.chua.common.support.network.ip.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.time.date.DateUtils;
-import com.chua.common.support.core.utils.ObjectUtils;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.DateUtils;
+import com.chua.common.support.utils.ObjectUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.common.support.logger.UserLoggerInfo;
 import com.chua.starter.common.support.service.IptablesService;
@@ -151,7 +151,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
 
     @Override
     public ReturnResult<Boolean> delete(Long userLogId) {
-        return baseMapper.deleteById(userLogId) > 0 ? ReturnResult.ok() : ReturnResult.error();
+        return baseMapper.deleteById(userLogId) > 0 ? ReturnResult.ok() : ReturnResult.error("删除失败");
     }
 
     @Override

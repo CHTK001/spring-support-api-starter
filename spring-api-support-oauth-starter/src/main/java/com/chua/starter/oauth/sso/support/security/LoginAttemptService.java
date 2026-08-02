@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.security;
 
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.sso.support.properties.OauthSecurityProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

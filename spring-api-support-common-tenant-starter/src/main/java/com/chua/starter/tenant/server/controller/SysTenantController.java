@@ -1,12 +1,12 @@
 package com.chua.starter.tenant.server.controller;
 
-import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.base.validator.group.AddGroup;
 import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.mybatis.entity.Query;
-import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.entity.SysTenantStats;
 import com.chua.starter.tenant.server.pojo.SysTenantBindServiceV1Request;
@@ -66,7 +66,7 @@ public class SysTenantController {
     @Permission("sys:tenant:page")
     public ReturnPageResult<SysTenant> pageForSysTenant(@ParameterObject Query<SysTenant> query,
                                                         @ParameterObject SysTenant sysTenant) {
-        return ReturnPageResultUtils.ok(sysTenantService.pageForSysTenant(query, sysTenant));
+        return PageResultUtils.ok(sysTenantService.pageForSysTenant(query, sysTenant));
     }
 
     /**
