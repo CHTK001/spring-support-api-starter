@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Spring API Support Common Parent - API 通用模块聚合
+
+    聚合 API 项目中复用的通用基础模块（common-* 系列），与业务模块分离管理。
+    继承根 POM（spring-support-api-parent）的全部依赖管理、属性与插件配置。
+
+    @author CH
+    @version 4.0.0.42
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>spring-support-api-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>spring-api-support-common-parent</artifactId>
+    <packaging>pom</packaging>
+    <description>API 通用模块聚合，统一管理 common-* 系列模块</description>
+
+    <modules>
+        <module>spring-api-support-common-configuration-starter</module>
+        <module>spring-api-support-common-entity-starter</module>
+        <module>spring-api-support-common-service-starter</module>
+        <module>spring-api-support-common-tenant-starter</module>
+        <module>spring-api-support-common-system-starter</module>
+    </modules>
+</project>

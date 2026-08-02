@@ -3,8 +3,9 @@
 # ===========================================
 spring:
   main:
-    web-application-type: none  # 应用类型：非 Web（仅作为后端服务）
+    web-application-type: servlet  # 应用类型：Web（提供认证协议 HTTP 入口）
     allow-bean-definition-overriding: true
+    allow-circular-references: true   # 允许循环引用（历史遗留的 ServiceImpl 自注入模式）
   profiles:
     active: dev                  # 当前激活的环境
     include: plugin,mybatis,socket,report,api,ip,actuator  # 引入的公共配置模块
@@ -15,6 +16,7 @@ spring:
  # 服务器配置
  # ===========================================
 server:
+  port: 19181                    # 认证协议 HTTP 服务端口
   servlet:
     context-path: /oauth         # 上下文路径
 
