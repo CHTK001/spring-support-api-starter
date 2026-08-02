@@ -105,6 +105,16 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
         return new LoginCheck(authServerProperties);
     }
 
+    /**
+     * 注册 OAuth 认证服务器模块服务信息。
+     *
+     * @return 服务信息贡献器
+     */
+    @Bean
+    public com.chua.starter.common.support.serviceinfo.ServiceInfoContributor authServerServiceInfoContributor() {
+        return registry -> registry.registerFlag("oauth-server", "认证授权", true, "OAuth 认证服务器模块");
+    }
+
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {

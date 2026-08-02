@@ -1,9 +1,11 @@
 package com.chua.starter.monitor.configuration;
 
+import com.chua.starter.common.support.serviceinfo.ServiceInfoContributor;
 import com.chua.starter.monitor.properties.AcmeProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -29,5 +31,15 @@ public class AcmeConfiguration {
     @Scheduled(cron = "0 0 3 * * ?")
     public void scheduleAutoRenew() {
         acmeCertificateService.checkAndRenewSoonExpired();
+    }
+
+    /**
+     * 注册监控模块服务信息。
+     *
+     * @return 服务信息贡献器
+     */
+    @Bean
+    public ServiceInfoContributor monitorServiceInfoContributor() {
+        return registry -> registry.registerFlag("monitor", "监控", true, "ACME 证书监控模块");
     }
 }

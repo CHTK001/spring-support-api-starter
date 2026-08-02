@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.system.mapper.SysUserRoleMapper">
+
+  <insert id="saveUserRole">
+    INSERT INTO sys_user_role(sys_user_id, sys_role_id) VALUES(#{sysUserId}, (SELECT sys_role_id FROM sys_role WHERE sys_role_code = #{roleCode}))
+  </insert>
+
+  <select id="selectOneByTenant" resultType="com.chua.starter.entity.system.SysUserRole">
+    SELECT * FROM sys_user_role
+    WHERE sys_user_id = #{sysUserId}
+        AND sys_role_id = #{sysRoleId}
+        AND sys_tenant_id = #{sysTenantId}
+    </select>
+
+  <insert id="insertWithTenant">
+    INSERT INTO sys_user_role(sys_user_id, sys_role_id, sys_tenant_id)
+    VALUES(#{sysUserRole.sysUserId}, #{sysUserRole.sysRoleId}, #{sysTenantId})
+  </insert>
+
+  <select id="selectRoleCodesByUserId" resultType="java.lang.String">
+    SELECT r.sys_role_code
+    FROM sys_user_role ur
+    INNER JOIN sys_role r ON ur.sys_role_id = r.sys_role_id
+    WHERE ur.sys_user_id = #{sysUserId}
+  </select>
+</mapper>

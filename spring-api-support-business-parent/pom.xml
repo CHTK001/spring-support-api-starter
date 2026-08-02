@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Spring API Support Business Parent - API 业务模块聚合
+
+    聚合 API 项目中的业务能力模块（oauth/scheduler/system/tenanted/monitor），
+    与通用模块（common-* 系列）分离管理。
+    继承根 POM（spring-support-api-parent）的全部依赖管理、属性与插件配置。
+
+    @author CH
+    @version 4.0.0.42
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>spring-support-api-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>spring-api-support-business-parent</artifactId>
+    <packaging>pom</packaging>
+    <description>API 业务模块聚合，统一管理业务能力模块</description>
+
+    <modules>
+        <module>../spring-api-support-oauth-starter</module>
+        <module>../spring-api-support-scheduler-starter</module>
+        <module>../spring-api-support-system-starter</module>
+        <module>../spring-api-support-tenanted-starter</module>
+        <module>../spring-api-support-monitor-starter</module>
+    </modules>
+</project>
