@@ -3,16 +3,17 @@ package com.chua.starter.system.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.base.bean.BeanUtils;
-import com.chua.common.support.function.Joiner;
-import com.chua.common.support.function.Splitter;
+import com.chua.common.support.utils.BeanUtils;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.lang.treenode.TreeNode;
-import com.chua.common.support.core.utils.*;
+import com.chua.common.support.utils.*;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.constant.SystemConstant;
+import com.chua.starter.system.util.TreeNode;
+import com.chua.starter.system.util.TreeUtils;
 import com.chua.starter.entity.system.SysMenu;
 import com.chua.starter.entity.system.SysRole;
 import com.chua.starter.entity.system.SysRoleMenu;
@@ -23,7 +24,6 @@ import com.chua.starter.system.service.SysMenuService;
 import com.chua.starter.system.service.SysRoleMenuService;
 import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -50,8 +50,6 @@ import java.util.Set;
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService{
 
     final SysRoleMenuService sysRoleMenuService;
-    @Autowired
-    private SysMenuServiceImpl sysMenuService;
     @Override
     public ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles) {
         List<SysRoleMenu> list;
@@ -66,7 +64,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             list = Collections.emptyList();
         }
         List<SysMenu> sysMenus = filterMenusByEngine(
-                sysMenuService.listAll(),
+                listAll(),
                 null == sysMenu ? null : sysMenu.getSysMenuEngine()
         );
 
@@ -149,7 +147,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                         .in(SysRole::getSysRoleCode, roles)
         );
         List<SysMenu> sysMenus = filterMenusByEngine(
-                sysMenuService.listAll(),
+                listAll(),
                 null == sysMenu ? null : sysMenu.getSysMenuEngine()
         );
         if(ignoreType > -1) {
@@ -256,7 +254,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'", keyGenerator = "customTenantedKeyGenerator")
     public ReturnResult<Boolean> delete(Long menuId) {
-        return ReturnResult.guess(baseMapper.deleteById(menuId) > 0);
+        return ReturnResult.of(baseMapper.deleteById(menuId) > 0);
     }
 
     @Override
@@ -307,7 +305,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         if (baseMapper.updateById(sysMenu) <= 0) {
             return ReturnResult.error("保存菜单失败");
         }
-        return ReturnResult.guess(baseMapper.selectById(sysMenu.getSysMenuId()));
+        return ReturnResult.of(baseMapper.selectById(sysMenu.getSysMenuId()));
     }
 
     private String resolveMenuTreeId(Integer menuId, Integer parentMenuId, boolean validateSelfReference) {

@@ -2,8 +2,8 @@ package com.chua.starter.oauth.sso.support.protocol;
 
 import com.chua.common.support.core.annotation.Extension;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.spi.ServiceProvider;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.text.json.Json;
 import com.chua.protocol.support.network.protocol.Protocol;
 import com.chua.protocol.support.network.protocol.ProtocolSetting;

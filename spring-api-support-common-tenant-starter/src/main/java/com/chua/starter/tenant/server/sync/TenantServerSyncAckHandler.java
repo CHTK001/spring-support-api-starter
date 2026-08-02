@@ -1,6 +1,6 @@
 package com.chua.starter.tenant.server.sync;
 
-import com.chua.common.support.core.utils.MapUtils;
+import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.sync.support.pojo.ClientInfo;
 import com.chua.starter.sync.support.server.SyncServer;
 import com.chua.starter.sync.support.spi.SyncMessageHandler;

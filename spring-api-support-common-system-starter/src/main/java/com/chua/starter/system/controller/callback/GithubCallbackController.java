@@ -1,12 +1,10 @@
 package com.chua.starter.system.controller.callback;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.base.collection.ImmutableBuilder;
-import com.chua.common.support.core.annotation.Ignore;
-import com.chua.common.support.core.constant.CommonConstant;
-import com.chua.common.support.core.utils.DigestUtils;
-import com.chua.common.support.core.utils.StringUtils;
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.annotation.Ignore;
+import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.lang.algorithm.cipher.AesCipher;
+import com.chua.common.support.lang.json.Json;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.entity.service.SysSetting;
@@ -41,6 +39,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -156,11 +156,10 @@ public class GithubCallbackController {
             return errorView;
         }
 
-        Map<String, Object> ext = ImmutableBuilder.<String, Object>builderOfMap()
-                .put("loginType", THIRD_PARTY_TYPE)
-                .put("thirdPartyType", THIRD_PARTY_TYPE)
-                .put("address", RequestUtils.getIpAddress(request))
-                .build();
+        Map<String, Object> ext = new HashMap<>();
+        ext.put("loginType", THIRD_PARTY_TYPE);
+        ext.put("thirdPartyType", THIRD_PARTY_TYPE);
+        ext.put("address", RequestUtils.getIpAddress(request));
         LoginAuthResult accessToken = AuthClientExecute.getInstance()
                 .getAccessToken(String.valueOf(userThirdParty.getSysUserId()), null, AuthType.THIRD_PARTY, ext);
         LoginResult loginResult = LoginResult.builder()
@@ -173,8 +172,8 @@ public class GithubCallbackController {
         CookieUtil.set(response, "x-oauth-cookie", accessToken.getToken(), true);
 
         RedirectView view = new RedirectView();
-        String nanoTime = StringUtils.padAfter(System.nanoTime() + "", 16, "0");
-        String encrypt = DigestUtils.aesEncrypt(Json.toJson(loginResult), securityProperties.getThirdPartyCallbackKey());
+        String nanoTime = StringUtils.padAfter(System.nanoTime() + "", 16, '0');
+        String encrypt = new AesCipher().encryptToString(securityProperties.getThirdPartyCallbackKey().getBytes(StandardCharsets.UTF_8), Json.toJson(loginResult));
         response.setHeader("x-response-time", nanoTime);
         view.addStaticAttribute("redirectParam", encrypt);
         view.setUrl(StringUtils.defaultString(systemCallback, "/"));
@@ -207,7 +206,7 @@ public class GithubCallbackController {
                             .eq(SysSetting::getSysSettingName, SSO_NAME)
                             .eq(SysSetting::getSysSettingStatus, 1)
             );
-            return setting != null && CommonConstant.TRUE.equalsIgnoreCase(setting.getSysSettingValue());
+            return setting != null && "true".equalsIgnoreCase(setting.getSysSettingValue());
         } catch (Exception e) {
             log.error("Github登录开关检查失败: {}", e.getMessage());
             return false;

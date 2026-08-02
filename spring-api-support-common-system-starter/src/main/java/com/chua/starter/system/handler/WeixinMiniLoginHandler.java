@@ -1,10 +1,9 @@
 package com.chua.starter.system.handler;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.core.annotation.Spi;
-import com.chua.common.support.base.collection.ImmutableBuilder;
+import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.spring.support.configuration.SpringBeanUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.entity.system.SysUserThirdParty;
@@ -20,6 +19,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 import static com.chua.common.support.lang.code.ReturnCode.USERNAME_OR_PASSWORD_ERROR;
@@ -60,7 +61,7 @@ public class WeixinMiniLoginHandler implements LoginHandler {
         Object tencentMaHandler = getTencentMaHandler();
         if (tencentMaHandler == null) {
             log.error("微信小程序服务未配置，请检查 plugin.tencent.mini-app 配置");
-            return ReturnResult.failure(REQUEST_PARAM_ERROR, "微信小程序服务未配置");
+            return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), "微信小程序服务未配置");
         }
 
         try {
@@ -72,13 +73,13 @@ public class WeixinMiniLoginHandler implements LoginHandler {
 
             if (StringUtils.isBlank(wxCode)) {
                 log.warn("微信登录缺少 code 参数");
-                return ReturnResult.failure(REQUEST_PARAM_ERROR, "缺少微信授权码");
+                return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), "缺少微信授权码");
             }
 
             // 2. 通过 code 换取 session_key 和 openid（使用反射调用）
             Object sessionInfo = invokeMethod(tencentMaHandler, "getSessionInfo", wxCode);
             if (sessionInfo == null) {
-                return ReturnResult.failure(REQUEST_PARAM_ERROR, "微信授权码无效");
+                return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), "微信授权码无效");
             }
             String openid = getPropertyValue(sessionInfo, "openid");
             String sessionKey = getPropertyValue(sessionInfo, "sessionKey");
@@ -88,7 +89,7 @@ public class WeixinMiniLoginHandler implements LoginHandler {
             String phoneNumber = getPhoneNumber(tencentMaHandler, phoneCode, loginData);
             if (StringUtils.isBlank(phoneNumber)) {
                 log.warn("微信登录无法获取手机号");
-                return ReturnResult.failure(REQUEST_PARAM_ERROR, "无法获取手机号，请授权后重试");
+                return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), "无法获取手机号，请授权后重试");
             }
             log.info("微信登录获取到手机号: {}", phoneNumber);
 
@@ -100,29 +101,30 @@ public class WeixinMiniLoginHandler implements LoginHandler {
             // 获取租户ID
             String tenantId = loginData.getTenantId();
 
+            Map<String, Object> wechatExt = new HashMap<>();
+            wechatExt.put("address", address);
+            wechatExt.put("fingerprint", fingerprint);
+            wechatExt.put("ua", request.getHeader("User-Agent"));
+            wechatExt.put("openid", openid);
+            wechatExt.put("sessionKey", sessionKey);
+            wechatExt.put("thirdPartyType", THIRD_PARTY_TYPE);
+            wechatExt.put("tenantId", tenantId);
+
             LoginAuthResult accessToken = clientExecute.getAccessToken(
                     phoneNumber,
                     openid,
                     AuthType.WECHAT,
-                    ImmutableBuilder.<String, Object>builderOfMap()
-                            .put("address", address)
-                            .put("fingerprint", fingerprint)
-                            .put("ua", request.getHeader("User-Agent"))
-                            .put("openid", openid)
-                            .put("sessionKey", sessionKey)
-                            .put("thirdPartyType", THIRD_PARTY_TYPE)
-                            .put("tenantId", tenantId)
-                            .build()
+                    wechatExt
             );
 
             log.info("微信登录认证耗时: {}ms", System.currentTimeMillis() - startTime);
 
             if (accessToken == null) {
-                return ReturnResult.failure(USERNAME_OR_PASSWORD_ERROR, "微信登录失败，用户不存在");
+                return ReturnResult.error(USERNAME_OR_PASSWORD_ERROR.getCode(), "微信登录失败，用户不存在");
             }
 
             if (accessToken.getCode() != 200) {
-                return ReturnResult.failure(REQUEST_PARAM_ERROR, accessToken.getMessage());
+                return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), accessToken.getMessage());
             }
 
             // 5. 更新或创建第三方绑定信息
@@ -140,11 +142,11 @@ public class WeixinMiniLoginHandler implements LoginHandler {
 
             CookieUtil.set(response, "x-oauth-cookie", accessToken.getToken(), true);
             log.info("微信小程序登录成功，手机号: {}", phoneNumber);
-            return ReturnResult.success(loginResult);
+            return ReturnResult.ok(loginResult);
 
         } catch (Exception e) {
             log.error("微信小程序登录异常: {}", e.getMessage(), e);
-            return ReturnResult.failure(REQUEST_PARAM_ERROR, "微信登录异常，请稍后重试");
+            return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), "微信登录异常，请稍后重试");
         }
     }
 

@@ -1,11 +1,11 @@
 package com.chua.starter.system.controller;
 
-import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.utils.StringUtils;
-import com.chua.common.support.base.validator.group.AddGroup;
-import com.chua.common.support.base.validator.group.UpdateGroup;
-import com.chua.common.support.base.validator.group.UploadGroup;
+import com.chua.common.support.utils.StringUtils;
+import com.chua.starter.system.validator.group.AddGroup;
+import com.chua.starter.system.validator.group.UpdateGroup;
+import com.chua.starter.system.validator.group.UploadGroup;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
@@ -79,7 +79,7 @@ public class SysSfcController {
 
     public ReturnResult<List<SysSfc>> mine(String sysSfcCategory, @Parameter(hidden = true) @UserValue("userId") String userId) {
         if(StringUtils.isBlank(sysSfcCategory)) {
-            return ReturnResult.fail("分类不能为空");
+            return ReturnResult.error("分类不能为空");
         }
         return sysSfcService.mine(sysSfcCategory, userId);
     }

@@ -22,7 +22,7 @@ public class SystemVersionArgumentResolver implements VersionArgumentResolver {
         var setting = GlobalSettingFactory.getInstance().get("config", VersionSetting.class);
         if (setting != null) {
             // 使用 BeanUtils 获取字段值
-            var map = BeanUtils.toMapAsm(setting);
+            var map = BeanUtils.objectToMap(setting);
             return map != null ? (String) map.get("version") : null;
         }
         return null;

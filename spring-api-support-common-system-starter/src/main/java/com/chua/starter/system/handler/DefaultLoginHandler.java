@@ -1,10 +1,10 @@
 package com.chua.starter.system.handler;
 
-import com.chua.common.support.core.annotation.Spi;
-import com.chua.common.support.core.annotation.SpiDefault;
-import com.chua.common.support.base.collection.ImmutableBuilder;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiDefault;
+import com.chua.starter.common.support.collection.ImmutableBuilder;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
@@ -46,11 +46,11 @@ public class DefaultLoginHandler implements LoginHandler {
 
         log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
         if (null == accessToken) {
-            return ReturnResult.failure(USERNAME_OR_PASSWORD_ERROR, "账号或者密码不正确");
+            return ReturnResult.error(USERNAME_OR_PASSWORD_ERROR.getCode(), "账号或者密码不正确");
         }
 
         if (accessToken.getCode() != SystemConstant.HTTP_STATUS_OK) {
-            return ReturnResult.failure(REQUEST_PARAM_ERROR, accessToken.getMessage());
+            return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), accessToken.getMessage());
         }
 
         LoginResult loginResult = LoginResult.builder()
@@ -63,7 +63,7 @@ public class DefaultLoginHandler implements LoginHandler {
                 .expires(null != accessToken.getUserResume() ? accessToken.getUserResume().getExpireTime() : null)
                 .build();
         CookieUtil.set(response, "x-oauth-cookie", accessToken.getToken(), true);
-        return ReturnResult.success(loginResult);
+        return ReturnResult.ok(loginResult);
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.chua.starter.system.interceptor;
 
 import com.baomidou.mybatisplus.extension.plugins.handler.MultiDataPermissionHandler;
-import com.chua.common.support.core.utils.ClassUtils;
+import com.chua.common.support.utils.ClassUtils;
 import com.chua.starter.common.support.oauth.AuthService;
 import com.chua.starter.common.support.oauth.CurrentUser;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;

@@ -3,12 +3,13 @@ package com.chua.starter.system.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.protocol.support.network.http.HttpClient;
+import com.chua.common.support.network.client.ClientResponse;
+import com.chua.common.support.network.client.HttpClientFactory;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.utils.FileUtils;
-import com.chua.common.support.core.utils.IoUtils;
-import com.chua.common.support.core.utils.StringUtils;
-import com.chua.common.support.core.utils.UrlUtils;
+import com.chua.common.support.utils.FileUtils;
+import com.chua.common.support.utils.IoUtils;
+import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.UrlUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.entity.system.SysSfc;
@@ -19,6 +20,7 @@ import com.chua.starter.system.service.SysSfcService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -26,6 +28,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Set;
 
@@ -58,10 +62,10 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
         return transactionTemplate.execute(stats -> {
             sysSfc.setSysSfcPath(filePath.getPath());
             baseMapper.updateById(sysSfc);
-            FileUtils.forceDeleteDirectory(file);
+            FileSystemUtils.deleteRecursively(file);
             FileUtils.mkParentDirs(file);
             try (InputStream is = multipartFile.getInputStream()){
-                FileUtils.writeTo(is, filePath);
+                Files.copy(is, filePath.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 return ReturnResult.error("请重新上传");
             }
@@ -72,7 +76,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
 
     @Override
     public ReturnResult<SysSfc> save(SysSfc sysSfc, Set<String> roles) {
-        if(!AuthConstant.hasAdmin(roles)) {
+        if(!AuthConstant.isAdmin(roles)) {
             return ReturnResult.error("无权限新增组件");
         }
         sysSfc.setSysSfcStatus(1);
@@ -82,7 +86,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
 
     @Override
     public ReturnResult<Boolean> updateById(SysSfc sysSfc, Set<String> roles) {
-        if(!AuthConstant.hasAdmin(roles)) {
+        if(!AuthConstant.isAdmin(roles)) {
             return ReturnResult.error("无权限修改组件");
         }
         return ReturnResult.of(baseMapper.updateById(sysSfc) > 0);
@@ -90,14 +94,14 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
 
     @Override
     public ReturnResult<Boolean> delete(Long sysSfcId, Set<String> roles) {
-        if(!AuthConstant.hasAdmin(roles)) {
+        if(!AuthConstant.isAdmin(roles)) {
             return ReturnResult.error("无权限删除组件");
         }
 
         if(baseMapper.deleteById(sysSfcId) > 0) {
             File file = new File("./sfc/" + sysSfcId);
             try {
-                FileUtils.forceDeleteDirectory(file);
+                FileSystemUtils.deleteRecursively(file);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -167,12 +171,9 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
 
         String sysSfcProxy = sysSfc.getSysSfcProxy();
         if(StringUtils.isNotBlank(sysSfcProxy)) {
-            return ReturnResult.of(HttpClient
+            return ReturnResult.of(HttpClientFactory.of(UrlUtils.normalize(sysSfcProxy, sysSfc.getSysSfcPath()))
                     .get()
-                    .url(UrlUtils.normalize(sysSfcProxy, sysSfc.getSysSfcPath()))
-                    .newInvoker()
-                    .execute()
-                    .content(String.class)
+                    .getBodyString()
             );
         }
 
@@ -182,7 +183,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
         }
 
         try (FileInputStream fis = new FileInputStream(newFile)) {
-            return ReturnResult.of(IoUtils.toString(fis, StandardCharsets.UTF_8));
+            return ReturnResult.of(new String(IoUtils.toByteArray(fis), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

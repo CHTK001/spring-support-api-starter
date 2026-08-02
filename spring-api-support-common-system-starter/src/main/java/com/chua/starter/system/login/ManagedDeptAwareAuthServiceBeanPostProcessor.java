@@ -45,7 +45,9 @@ public class ManagedDeptAwareAuthServiceBeanPostProcessor implements BeanPostPro
     }
 
     private CurrentUser enrichManagedDeptScope(CurrentUser currentUser) {
-        if (currentUser == null || !currentUser.hasRole(DEPT_LEADER)) {
+        if (currentUser == null
+                || currentUser.getRoles() == null
+                || !currentUser.getRoles().contains(DEPT_LEADER)) {
             return currentUser;
         }
 

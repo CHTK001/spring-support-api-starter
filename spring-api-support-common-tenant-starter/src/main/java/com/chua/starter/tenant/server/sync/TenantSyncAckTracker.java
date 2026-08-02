@@ -1,6 +1,6 @@
 package com.chua.starter.tenant.server.sync;
 
-import com.chua.common.support.core.utils.MapUtils;
+import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.tenant.properties.TenantProperties;
 import com.chua.starter.tenant.sync.TenantSyncMessageSupport;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

@@ -4,13 +4,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.base.bean.BeanUtils;
-import com.chua.geo.support.geo.GeoCity;
+import com.chua.common.support.utils.BeanUtils;
+import com.chua.common.support.network.ip.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.utils.CollectionUtils;
-import com.chua.common.support.core.utils.DigestUtils;
-import com.chua.common.support.core.utils.RandomUtils;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.DigestUtils;
+import com.chua.common.support.utils.IdUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.service.IptablesService;
 import com.chua.starter.common.support.utils.RequestUtils;
@@ -119,8 +119,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ReturnResult.illegal("用户信息不存在");
         }
 
-        String newPassword = RandomUtils.randomString(8);
-        sysUser1.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+        String newPassword = IdUtils.createSimpleUuid().substring(0, 8);
+        sysUser1.setSysUserSalt(IdUtils.createSimpleUuid().substring(0, securityProperties.getSaltLength()));
         sysUser1.setSysUserPassword(DigestUtils.md5Hex(newPassword + sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
@@ -134,8 +134,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ReturnResult.illegal("用户信息不存在");
         }
 
-        String password = RandomUtils.randomString(8);
-        sysUser1.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+        String password = IdUtils.createSimpleUuid().substring(0, 8);
+        sysUser1.setSysUserSalt(IdUtils.createSimpleUuid().substring(0, securityProperties.getSaltLength()));
         sysUser1.setSysUserPassword(DigestUtils.md5Hex(password + sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
@@ -151,7 +151,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             sysUser1 = getById(userId);
         } else {
             //更新其他账号
-            if (!AuthConstant.hasAdmin(roles)) {
+            if (!AuthConstant.isAdmin(roles)) {
                 return ReturnResult.illegal("没有权限操作");
             }
             sysUser1 = getById(sysUserId);
@@ -160,7 +160,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         BeanUtils.copyProperties(sysUser, sysUser1);
 
         if (StringUtils.isNotBlank(sysUser.getSysUserPassword())) {
-            sysUser1.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+            sysUser1.setSysUserSalt(IdUtils.createSimpleUuid().substring(0, securityProperties.getSaltLength()));
             sysUser1.setSysUserPassword(DigestUtils.md5Hex(sysUser.getSysUserPassword() + sysUser1.getSysUserSalt()));
         }
         sysUser1.setSysUserUsername(null);
@@ -197,7 +197,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         ) > 0L) {
             return ReturnResult.illegal("账号已存在");
         }
-        sysUserUpdate.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+        sysUserUpdate.setSysUserSalt(IdUtils.createSimpleUuid().substring(0, securityProperties.getSaltLength()));
         sysUserUpdate.setSysUserPassword(DigestUtils.md5Hex(sysUserUpdate.getSysUserPassword() + sysUserUpdate.getSysUserSalt()));
         sysUserUpdate.setSysUserInSystem(SystemConstant.IN_SYSTEM_NO);
         sysUserUpdate.setSysUserDelete(SystemConstant.NOT_DELETED);
@@ -340,7 +340,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         if (StringUtils.isNotBlank(sysUserPasswordUpdate.getNewPassword())) {
-            sysUser.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+            sysUser.setSysUserSalt(IdUtils.createSimpleUuid().substring(0, securityProperties.getSaltLength()));
             sysUser.setSysUserPassword(DigestUtils.md5Hex(sysUserPasswordUpdate.getNewPassword() + sysUser.getSysUserSalt()));
         } else {
             return ReturnResult.illegal("新密码不能为空！");
@@ -522,7 +522,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     sysUser.setSysUserRemark(fields.length > 8 ? fields[8].trim() : null);
                     
                     // 设置默认密码
-                    sysUser.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+                    sysUser.setSysUserSalt(IdUtils.createSimpleUuid().substring(0, securityProperties.getSaltLength()));
                     sysUser.setSysUserPassword(DigestUtils.md5Hex(securityProperties.getDefaultImportPassword() + sysUser.getSysUserSalt()));
                     sysUser.setSysUserInSystem(SystemConstant.IN_SYSTEM_NO);
                     sysUser.setSysUserDelete(SystemConstant.NOT_DELETED);

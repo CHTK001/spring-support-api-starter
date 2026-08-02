@@ -1,7 +1,7 @@
 package com.chua.starter.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.entity.system.SysFeedback;

@@ -25,8 +25,7 @@ public class DatalakeAutoConfiguration {
 
     @Bean
     public DatalakeServer datalakeServer() {
-        this.datalakeServer = new DatalakeServerBuilder()
-                .enableAutoDiscover(true)
+        this.datalakeServer = DatalakeServerBuilder.builder()
                 .build();
         new Thread(() -> {
             try {

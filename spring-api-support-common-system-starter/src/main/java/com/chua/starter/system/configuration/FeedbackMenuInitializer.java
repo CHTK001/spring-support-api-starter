@@ -1,7 +1,7 @@
 package com.chua.starter.system.configuration;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.entity.system.SysMenu;
 import com.chua.starter.entity.system.SysRole;
 import com.chua.starter.entity.system.SysRoleMenu;
