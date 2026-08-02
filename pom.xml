@@ -13,8 +13,15 @@
     <version>4.0.0.42</version>
     <packaging>pom</packaging>
     <modules>
+        <module>spring-api-support-common-configuration-starter</module>
         <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-common-service-starter</module>
+        <module>spring-api-support-common-tenant-starter</module>
+        <module>spring-api-support-common-system-starter</module>
+        <module>spring-api-support-oauth-starter</module>
+        <module>spring-api-support-scheduler-starter</module>
+        <module>spring-api-support-system-starter</module>
+        <module>spring-api-support-tenanted-starter</module>
         <module>spring-api-support-monitor-starter</module>
     </modules>
 
