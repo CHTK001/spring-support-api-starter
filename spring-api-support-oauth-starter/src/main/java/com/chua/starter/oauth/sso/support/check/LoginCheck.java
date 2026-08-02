@@ -2,6 +2,7 @@ package com.chua.starter.oauth.sso.support.check;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.crypto.AesCodec;
 import com.chua.starter.oauth.client.support.user.LoginResult;
@@ -15,6 +16,7 @@ import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 import static com.chua.common.support.lang.code.ReturnCode.OK;
 import static com.chua.starter.oauth.client.support.execute.AuthClientExecute.createUid;
@@ -33,13 +35,23 @@ public class LoginCheck {
     private final AuthServerProperties authServerProperties;
 
     /**
+     * 应用上下文，用于从 Spring 容器加载 UserInfoService（实现为 @Service，依赖 Spring 注入）
+     */
+    private final ApplicationContext applicationContext;
+
+    /**
      * 登录尝试服务（可选注入）
      */
     @Autowired(required = false)
     private LoginAttemptService loginAttemptService;
 
     public LoginCheck(AuthServerProperties authServerProperties) {
+        this(authServerProperties, null);
+    }
+
+    public LoginCheck(AuthServerProperties authServerProperties, ApplicationContext applicationContext) {
         this.authServerProperties = authServerProperties;
+        this.applicationContext = applicationContext;
     }
 
     /**
@@ -74,7 +86,7 @@ public class LoginCheck {
                 ? "WEB" : authType;
 
         // 使用 SPI 机制获取 UserInfoService 实现
-        UserInfoService userInfoService = ServiceProvider.of(UserInfoService.class).getExtension(resolvedAuthType);
+        UserInfoService userInfoService = resolveUserInfoService(resolvedAuthType);
         if (userInfoService == null) {
             log.warn("未找到匹配的认证服务: authType={}", resolvedAuthType);
             return ReturnResult.error("不支持该登录/鉴权方式: " + resolvedAuthType);
@@ -145,6 +157,31 @@ public class LoginCheck {
         
         log.debug("========== 登录检测结束 ==========");
         return token;
+    }
+
+    /**
+     * 解析 UserInfoService 实现
+     * <p>优先从 Spring 容器获取（实现类为 @Service，依赖 Spring 依赖注入），
+     * 按 @Spi/@LoginType 注解值匹配认证类型；未找到时回退 SPI 加载。</p>
+     *
+     * @param authType 认证类型
+     * @return 用户信息服务实现
+     */
+    private UserInfoService resolveUserInfoService(String authType) {
+        if (applicationContext != null) {
+            for (UserInfoService service : applicationContext.getBeansOfType(UserInfoService.class).values()) {
+                Spi spi = service.getClass().getAnnotation(Spi.class);
+                if (spi != null) {
+                    for (String value : spi.value()) {
+                        if (authType.equalsIgnoreCase(value)) {
+                            log.debug("从Spring容器获取UserInfoService: {}, authType={}", service.getClass().getSimpleName(), authType);
+                            return service;
+                        }
+                    }
+                }
+            }
+        }
+        return ServiceProvider.of(UserInfoService.class).getExtension(authType);
     }
 
     /**
