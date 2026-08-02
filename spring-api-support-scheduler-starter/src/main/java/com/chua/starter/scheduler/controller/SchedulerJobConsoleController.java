@@ -1,6 +1,6 @@
 package com.chua.starter.scheduler.controller;
 
-import com.chua.common.support.core.annotation.Ignore;
+import com.chua.common.support.annotation.Ignore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

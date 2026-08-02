@@ -1,7 +1,7 @@
 package com.chua.starter.scheduler.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.annotation.Ignore;
+import com.chua.common.support.annotation.Ignore;
 import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
 import com.chua.starter.scheduler.support.SchedulerJobConsoleSessionSupport;
 import jakarta.servlet.http.HttpServletRequest;

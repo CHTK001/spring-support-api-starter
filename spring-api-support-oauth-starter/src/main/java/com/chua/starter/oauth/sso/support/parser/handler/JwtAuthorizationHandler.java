@@ -1,7 +1,7 @@
 package com.chua.starter.oauth.sso.support.parser.handler;
 
-import com.chua.common.support.core.annotation.Spi;
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;

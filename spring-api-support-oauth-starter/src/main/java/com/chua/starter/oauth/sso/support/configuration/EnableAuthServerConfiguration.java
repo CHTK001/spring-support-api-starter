@@ -11,13 +11,11 @@ import com.chua.starter.oauth.sso.support.properties.CasProperties;
 import com.chua.starter.oauth.sso.support.properties.OauthSecurityProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyBinderProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyLoginProperties;
-import com.chua.starter.oauth.sso.support.protocol.OauthProtocol;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.CommandLineRunner;
@@ -38,7 +36,9 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * OAuth认证服务器自动配置类
@@ -108,23 +108,8 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
-        List<String> protocols = authServerProperties.getProtocols();
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeLoginProvider.class);
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeBinderProvider.class);
-        if (protocols.isEmpty()) {
-            log.info("未设置认证协议");
-            return;
-        }
-        List<Class<?>> tpl = new ArrayList<>();
-        Map<String, Class<OauthProtocol>> listType = ServiceProvider.of(OauthProtocol.class).listType();
-        for (Map.Entry<String, Class<OauthProtocol>> entry : listType.entrySet()) {
-            Class<OauthProtocol> protocol = entry.getValue();
-            if (!protocols.contains(entry.getKey().toLowerCase())) {
-                continue;
-            }
-            tpl.add(protocol);
-            registry.registerBeanDefinition(protocol.getTypeName(), BeanDefinitionBuilder.genericBeanDefinition(protocol).getBeanDefinition());
-        }
     }
 
     @Override

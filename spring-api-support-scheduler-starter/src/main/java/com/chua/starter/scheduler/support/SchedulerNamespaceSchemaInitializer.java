@@ -1,15 +1,16 @@
 package com.chua.starter.scheduler.support;
 
-import com.chua.datasource.support.data.datasource.meta.TableMetadata;
-import com.chua.datasource.support.data.query.JdbcEngine;
-import com.chua.datasource.support.data.query.ddl.ActionType;
-import com.chua.datasource.support.data.query.ddl.JdbcTableExecutor;
-import com.chua.common.support.lang.code.ErrorResult;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.job.support.JobProperties;
 import com.chua.starter.job.support.entity.SysJob;
 import com.chua.starter.job.support.entity.SysJobLog;
 import com.chua.starter.job.support.entity.SysJobLogBackup;
 import com.chua.starter.job.support.entity.SysJobLogDetail;
+import com.chua.starter.scheduler.support.ddl.ActionType;
+import com.chua.starter.scheduler.support.ddl.DdlResult;
+import com.chua.starter.scheduler.support.ddl.JdbcEngine;
+import com.chua.starter.scheduler.support.ddl.JdbcTableExecutor;
+import com.chua.starter.scheduler.support.ddl.TableMetadata;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -116,7 +117,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
                          TableMetadata metadata,
                          ActionType actionType,
                          String namespace) {
-        ErrorResult<String> result = executor.doIt(metadata, actionType);
+        DdlResult result = executor.doIt(metadata, actionType);
         if (result != null && result.hasError()) {
             throw new IllegalStateException("Scheduler 命名空间表初始化失败: namespace="
                     + namespace + ", table=" + metadata.getName() + ", error=" + result.getFirstError());
@@ -130,7 +131,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
                               String namespace,
                               String tableName,
                               ActionType actionType) {
-        ErrorResult<String> result = executor.doIt(metadata, ActionType.CREATE);
+        DdlResult result = executor.doIt(metadata, ActionType.CREATE);
         if (result == null || !result.hasError()) {
             upgradeLegacySchema(dataSource, entityType, tableName, namespace);
             log.info("[Scheduler] 命名空间表初始化完成: namespace={}, table={}, mode={}", namespace, tableName, actionType);
@@ -306,7 +307,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
                                 String namespace,
                                 String tableName,
                                 ActionType actionType) {
-        ErrorResult<String> result = executor.doIt(metadata, ActionType.UPDATE);
+        DdlResult result = executor.doIt(metadata, ActionType.UPDATE);
         if (result == null || !result.hasError()) {
             upgradeLegacySchema(dataSource, entityType, tableName, namespace);
             log.info("[Scheduler] 命名空间表初始化完成: namespace={}, table={}, mode={}", namespace, tableName, actionType);
@@ -328,7 +329,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
                 + namespace + ", table=" + tableName + ", error=" + result.getFirstError());
     }
 
-    private boolean isAlreadyExists(ErrorResult<String> result) {
+    private boolean isAlreadyExists(DdlResult result) {
         String message = result == null ? null : result.getFirstError();
         if (message == null) {
             return false;
@@ -339,7 +340,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
                 || normalized.contains("duplicate");
     }
 
-    private boolean isTableMissing(ErrorResult<String> result) {
+    private boolean isTableMissing(DdlResult result) {
         String message = result == null ? null : result.getFirstError();
         if (message == null) {
             return false;

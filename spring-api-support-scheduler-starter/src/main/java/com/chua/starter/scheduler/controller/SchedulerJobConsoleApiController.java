@@ -1,7 +1,7 @@
 package com.chua.starter.scheduler.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chua.common.support.core.annotation.Ignore;
+import com.chua.common.support.annotation.Ignore;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.job.support.entity.SysJob;
 import com.chua.starter.job.support.entity.SysJobLog;

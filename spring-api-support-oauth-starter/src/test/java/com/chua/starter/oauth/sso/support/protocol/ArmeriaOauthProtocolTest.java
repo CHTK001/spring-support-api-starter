@@ -1,7 +1,7 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.lang.json.Json;
 import com.chua.starter.oauth.sso.support.admin.RateLimitConfig;
 import com.chua.starter.oauth.sso.support.admin.RateLimitManager;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
