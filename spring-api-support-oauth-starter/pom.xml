@@ -54,10 +54,6 @@
       <artifactId>spring-api-support-common-service-starter</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.chua</groupId>
-      <artifactId>spring-api-support-common-system-starter</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
@@ -102,22 +98,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-rsocket</artifactId>
-    </dependency>
-    <!-- 排除旧版 netty epoll，Armeria 使用 4.2.x，与 4.1.x 的 native library 不兼容 -->
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-transport-native-epoll</artifactId>
-      <version>4.2.7.Final</version>
-    </dependency>
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-transport-native-kqueue</artifactId>
-      <version>4.2.7.Final</version>
-    </dependency>
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-transport-native-unix-common</artifactId>
-      <version>4.2.7.Final</version>
     </dependency>
   </dependencies>
   <build>
