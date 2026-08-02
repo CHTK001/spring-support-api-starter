@@ -106,7 +106,7 @@ public final class TokenBuilder {
      */
     private static String generateToken(String prefix, String userId, String uidHash) {
         String userIdHash = DigestUtils.md5Hex(userId);
-        String randomPart = DigestUtils.md5Hex(IdUtils.createTid()).substring(0, RANDOM_LENGTH);
+        String randomPart = DigestUtils.md5Hex(IdUtils.uuid()).substring(0, RANDOM_LENGTH);
         return prefix + userIdHash + uidHash + randomPart;
     }
 

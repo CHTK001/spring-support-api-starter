@@ -1,11 +1,11 @@
 package com.chua.starter.oauth.sso.support.information;
 
-import com.chua.common.support.base.converter.Converter;
-import com.chua.common.support.crypto.Codec;
-import com.chua.common.support.text.json.Json;
-import com.chua.common.support.text.json.JsonObject;
+import com.chua.common.support.converter.Converter;
+import com.chua.starter.common.support.algorithm.crypto.Codec;
+import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.lang.json.JsonObject;
 import com.chua.common.support.utils.IdUtils;
-import com.chua.common.support.utils.SignUtils;
+import com.chua.starter.common.support.utils.SignUtils;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import jakarta.servlet.http.HttpServletRequest;
@@ -89,7 +89,7 @@ public abstract class AbstractAuthInformation implements AuthInformation{
     public boolean isSuccessful() {
         return success.get() && (
                 authServerProperties.isSignVerify() &&
-                SignUtils.verifySignFromMap(this.sign, this.bodyData));
+                SignUtils.verifyMd5Sign(this.bodyData, this.sign));
     }
 
     @Override

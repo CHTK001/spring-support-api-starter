@@ -2,8 +2,6 @@ package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.utils.BeanUtils;
-import com.chua.common.support.lang.algorithm.cipher.Sm4Cipher;
-import com.chua.common.support.lang.algorithm.crypto.Hex;
 import com.chua.common.support.utils.DigestUtils;
 import com.google.common.base.Joiner;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -12,6 +10,7 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.lang.json.Json;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.utils.CookieUtil;
+import com.chua.starter.oauth.client.support.algorithm.TokenCipher;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
@@ -64,7 +63,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.nio.charset.StandardCharsets;
 
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.CAPTCHA_SESSION_KEY;
 import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERROR;
@@ -163,12 +161,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         userResult.setUnionId(userResult.getUid());
         userResult.setExpireTime(System.currentTimeMillis() / 1000 + 7L * 24 * 60 * 60);
 
-        Sm4Cipher sm4 = Sm4Cipher.create("bc");
-        byte[] encrypted = sm4.encrypt(
-                AuthClientExecute.DEFAULT_KEY.getBytes(StandardCharsets.UTF_8),
-                Json.toJson(userResult).getBytes(StandardCharsets.UTF_8)
-        );
-        String sm4Token = Hex.encodeHexString(encrypted);
+        String sm4Token = TokenCipher.encrypt(userResult);
         UserResume resume = userResult;
 
         LoginAuthResult result = new LoginAuthResult(200, "成功");

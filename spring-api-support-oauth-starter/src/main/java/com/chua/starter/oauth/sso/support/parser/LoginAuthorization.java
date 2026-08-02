@@ -1,8 +1,9 @@
 package com.chua.starter.oauth.sso.support.parser;
 
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.protocol.support.network.net.UserAgent;
+import com.chua.common.support.network.ip.GeoCity;
+import com.chua.starter.common.support.network.UserAgent;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.IpUtils;
@@ -133,7 +134,7 @@ public final class LoginAuthorization implements Authorization {
         }
         sysUserLog.setSysLogFingerprint(fingerprint);
 
-        UserAgent userAgent = UserAgent.parseUserAgentString(ua);
+        UserAgent.UserAgentInfo userAgent = UserAgent.parseUserAgentString(ua);
         sysUserLog.setSysLogBrowser(userAgent.getBrowser().toString());
         sysUserLog.setSysLogUsername(loginAuthorization.username);
         sysUserLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
@@ -175,10 +176,10 @@ public final class LoginAuthorization implements Authorization {
         // IP 归属地解析
         if (iptablesService != null && ip != null && !ip.isBlank()) {
             try {
-                com.chua.common.support.lang.code.ReturnResult<com.chua.common.support.geo.GeoCity> geoResult =
+                ReturnResult<GeoCity> geoResult =
                         iptablesService.transferAddress(ip);
                 if (geoResult != null && geoResult.isOk() && geoResult.getData() != null) {
-                    com.chua.common.support.geo.GeoCity city = geoResult.getData();
+                    GeoCity city = geoResult.getData();
                     sysUserLog.setSysLogAddress(city.toString());
                     sysUserLog.setSysLogIsp(city.getIsp());
                 }

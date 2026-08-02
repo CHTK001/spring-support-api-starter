@@ -70,11 +70,6 @@
     </dependency>
           <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-protocol-starter</artifactId>
-            <version>${utils.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>utils-support-geoip2-starter</artifactId>
             <version>${utils.version}</version>
         </dependency>

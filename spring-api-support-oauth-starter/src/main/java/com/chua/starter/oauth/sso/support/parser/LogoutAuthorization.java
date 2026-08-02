@@ -140,7 +140,7 @@ public final class LogoutAuthorization implements Authorization {
 
             // 解析 JSON 获取 sub 字段
             @SuppressWarnings("unchecked")
-            java.util.Map<String, Object> jsonMap = com.chua.common.support.text.json.Json.fromJson(payloadJson, java.util.Map.class);
+            java.util.Map<String, Object> jsonMap = com.chua.common.support.lang.json.Json.fromJson(payloadJson, java.util.Map.class);
             Object subObj = jsonMap.get("sub");
             if (subObj == null) {
                 throw new IllegalArgumentException("JWT payload missing 'sub' field");

@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
-import com.chua.common.support.text.json.Json;
+import com.chua.common.support.lang.json.Json;
 import com.chua.starter.oauth.sso.support.entity.AuthRequest;
 import com.chua.starter.oauth.sso.support.information.RsocketAuthInformation;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;

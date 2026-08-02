@@ -2,8 +2,8 @@ package com.chua.starter.oauth.sso.support.check;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.starter.common.support.crypto.AesCodec;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
@@ -66,7 +66,7 @@ public class LoginCheck {
             long remainingSeconds = loginAttemptService.getLockRemainingSeconds(principal);
             String message = "账户已被锁定，请" + formatRemainingTime(remainingSeconds) + "后重试";
             log.warn("登录被拒绝: 账户已锁定, username={}, remainingSeconds={}", principal, remainingSeconds);
-            return ReturnResult.noAuth(message);
+            return ReturnResult.error(message);
         }
 
         // authType 为空或 NONE 时，fallback 到默认的 WEB 登录
@@ -77,7 +77,7 @@ public class LoginCheck {
         UserInfoService userInfoService = ServiceProvider.of(UserInfoService.class).getExtension(resolvedAuthType);
         if (userInfoService == null) {
             log.warn("未找到匹配的认证服务: authType={}", resolvedAuthType);
-            return ReturnResult.noAuth("不支持该登录/鉴权方式: " + resolvedAuthType);
+            return ReturnResult.error("不支持该登录/鉴权方式: " + resolvedAuthType);
         }
         // 用解析后的类型替换原始值，保证后续 loginType 记录正确
         authType = resolvedAuthType;
@@ -94,7 +94,7 @@ public class LoginCheck {
                     userResume != null ? (Strings.isNullOrEmpty(userResume.getMessage()) ? "成功" : "失败:" + userResume.getMessage()) : "null");
         } catch (Exception e) {
             log.error("用户认证异常: {}, 类型: {}, 异常信息: {}", principal, authType, e.getMessage(), e);
-            return ReturnResult.noAuth("认证异常: " + e.getMessage());
+            return ReturnResult.error("认证异常: " + e.getMessage());
         }
         
         if (null != userResume && Strings.isNullOrEmpty(userResume.getMessage())) {
@@ -179,14 +179,14 @@ public class LoginCheck {
         if (loginAttemptService != null && StringUtils.isNotBlank(username)) {
             LoginAttemptService.LockInfo lockInfo = loginAttemptService.getLockInfo(username);
             if (lockInfo.locked()) {
-                return ReturnResult.noAuth("账户已被锁定，请" + lockInfo.formattedRemainingTime() + "后重试");
+                return ReturnResult.error("账户已被锁定，请" + lockInfo.formattedRemainingTime() + "后重试");
             }
             int remaining = lockInfo.remainingAttempts();
             if (remaining > 0 && remaining < lockInfo.maxAttempts()) {
-                return ReturnResult.noAuth(message + "，还剩" + remaining + "次尝试机会");
+                return ReturnResult.error(message + "，还剩" + remaining + "次尝试机会");
             }
         }
-        return ReturnResult.noAuth(message);
+        return ReturnResult.error(message);
     }
 
     /**
@@ -222,7 +222,8 @@ public class LoginCheck {
             return null;
         }
         
-        String encryptedUserId = DigestUtils.aesEncrypt(userResume.getUserId(), authServerProperties.getServiceKey());
+        String encryptedUserId = new AesCodec(authServerProperties.getServiceKey().getBytes())
+                .encodeHex(userResume.getUserId());
         return userResume.getUid() + ":" + encryptedUserId;
     }
 

@@ -119,12 +119,7 @@
       <artifactId>netty-transport-native-unix-common</artifactId>
       <version>4.2.7.Final</version>
     </dependency>
-          <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-protocol-starter</artifactId>
-            <version>${utils.version}</version>
-        </dependency>
-    </dependencies>
+  </dependencies>
   <build>
     <plugins>
       <plugin>
