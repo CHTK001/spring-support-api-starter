@@ -17,10 +17,14 @@ plugin:
   api:
     encode:
       enable: false
-  mybatis-plus:
-    encryptor:
-      password: oauth-encrypt-key
   oauth:
+    whitelist:
+      - /**/login
+      - /**/logout
+      - /**/upgrade
+      - /**/temporary-token
+      - /**/verify
+      - /**/oauth
     server:
       # 签名校验开关（默认 true，生产环境必须开启）
       # 关闭后跳过 x-oauth-sign 验证，仅用于调试
@@ -43,6 +47,9 @@ plugin:
       online: SINGLE
       # 是否开启 AK/SK 校验
       open-check-ak-sk: false
+  mybatis-plus:
+    encryptor:
+      password: oauth-encrypt-key
 
 soft:
   management:
