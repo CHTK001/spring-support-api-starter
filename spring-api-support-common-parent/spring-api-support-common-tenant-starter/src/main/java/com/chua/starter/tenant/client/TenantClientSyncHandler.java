@@ -1,9 +1,9 @@
 package com.chua.starter.tenant.client;
 
-import com.chua.common.support.network.sync.SyncClient;
-import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.utils.MapUtils;
+import com.chua.starter.sync.support.client.SyncClient;
+import com.chua.starter.sync.support.spi.SyncMessageHandler;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.properties.TenantProperties;
 import com.chua.starter.tenant.spi.TenantDataSyncProvider;
@@ -76,36 +76,38 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
     private final AtomicLong lastReceivedSyncMessageTime = new AtomicLong(0L);
 
     @Override
+    public String getName() {
+        return "tenant-client";
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
-    public void handle(String topic, Object message) {
-        Map<String, Object> data = new HashMap<>();
-        if (message instanceof Map<?, ?> rawMap) {
-            rawMap.forEach((key, value) -> data.put(String.valueOf(key), value));
-        } else {
-            data.put("data", message);
+    public Object handle(String topic, String sourceClientId, Map<String, Object> data) {
+        if (data == null) {
+            data = new HashMap<>();
         }
 
         // 客户端模式才处理
         if (!tenantProperties.isClientMode()) {
-            return;
+            return null;
         }
 
         // 检查是否启用同步
         if (!tenantProperties.getClient().isSyncEnable()) {
-            return;
+            return null;
         }
 
         log.debug("[租户客户端] 收到消息: topic={}", topic);
 
         if (shouldIgnoreMessage(data)) {
-            return;
+            return null;
         }
 
         TenantSyncMessageSupport.VerificationResult verificationResult = verifySignature(data);
         if (!verificationResult.isValid()) {
             log.warn("[租户客户端] 忽略签名校验失败的同步消息: topic={}, reason={}",
                     topic, verificationResult.getMessage());
-            return;
+            return null;
         }
 
         markSyncMessageReceived();
@@ -126,6 +128,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         }
         markAppliedMessage(topic, data, result);
         sendAck(topic, data, result);
+        return result;
     }
 
     /**
@@ -443,7 +446,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
             TenantSyncMessageSupport.sign(ack, tenantProperties.getClient().getSyncSignSecret());
         }
 
-        syncClient.send(TenantSyncMessageSupport.TOPIC_TENANT_SYNC_ACK, ack);
+        syncClient.publish(TenantSyncMessageSupport.TOPIC_TENANT_SYNC_ACK, ack);
         log.debug("[租户客户端] 已发送同步 ACK: tenantId={}, topic={}, sourceMessageId={}, success={}, status={}",
                 tenantId, topic, sourceMessageId, success, status);
     }

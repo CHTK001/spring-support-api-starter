@@ -587,18 +587,12 @@
                 <artifactId>utils-support-docker-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.chua</groupId>
-                <artifactId>utils-support-mysql-starter</artifactId>
-                <version>${utils.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-acme-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-oauth-client-starter</artifactId>

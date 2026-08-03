@@ -199,7 +199,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
         ext.put("address", RequestUtils.getIpAddress(httpRequest));
 
         LoginAuthResult accessToken = AuthClientExecute.getInstance()
-                .smsLogin(String.valueOf(user.getSysUserId()), ext);
+                .getAccessToken(String.valueOf(user.getSysUserId()), "", AuthType.SMS, ext);
 
         if (accessToken == null || StringUtils.isEmpty(accessToken.getToken())) {
             log.error("获取 Token 失败: phone={}", phone);

@@ -110,7 +110,7 @@ public class WeixinMiniLoginHandler implements LoginHandler {
             wechatExt.put("thirdPartyType", THIRD_PARTY_TYPE);
             wechatExt.put("tenantId", tenantId);
 
-            LoginAuthResult accessToken = clientExecute.thirdPartyLogin(
+            LoginAuthResult accessToken = clientExecute.getAccessToken(
                     phoneNumber,
                     openid,
                     AuthType.WECHAT,

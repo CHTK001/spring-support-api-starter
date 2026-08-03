@@ -1,10 +1,9 @@
 package com.chua.starter.tenant.server.sync;
 
-import com.chua.common.support.network.sync.SyncMessageHandler;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.sync.support.pojo.ClientInfo;
 import com.chua.starter.sync.support.server.SyncServer;
-import com.chua.starter.sync.support.server.SyncServerInstance;
+import com.chua.starter.sync.support.spi.SyncMessageHandler;
 import com.chua.starter.tenant.properties.TenantProperties;
 import com.chua.starter.tenant.sync.TenantSyncMessageSupport;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -34,19 +32,19 @@ public class TenantServerSyncRequestHandler implements SyncMessageHandler {
     private final TenantServerSyncPublisher syncPublisher;
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void handle(String topic, Object message) {
-        Map<String, Object> data = new HashMap<>();
-        if (message instanceof Map<?, ?> rawMap) {
-            rawMap.forEach((key, value) -> data.put(String.valueOf(key), value));
-        } else {
-            data.put("data", message);
-        }
+    public String getName() {
+        return "tenant-server-sync-request";
+    }
 
-        String sessionId = MapUtils.getString(data, SyncServerInstance.SYNC_MESSAGE_SOURCE_CLIENT_ID);
+    @Override
+    @SuppressWarnings("unchecked")
+    public Object handle(String topic, String sessionId, Map<String, Object> data) {
+        if (data == null) {
+            data = new java.util.HashMap<>();
+        }
         if (sessionId == null || sessionId.isBlank()) {
             log.warn("[租户服务端] 全量同步请求缺少源会话: topic={}", topic);
-            return;
+            return null;
         }
 
         ClientInfo clientInfo = syncServer.getAllClientsRaw().get(sessionId);
@@ -56,12 +54,12 @@ public class TenantServerSyncRequestHandler implements SyncMessageHandler {
         if (!verificationResult.isValid()) {
             log.warn("[租户服务端] 拒绝签名无效的全量同步请求: sessionId={}, reason={}",
                     sessionId, verificationResult.getMessage());
-            return;
+            return null;
         }
 
         if (!TenantSyncMessageSupport.hasText(boundTenantId)) {
             log.warn("[租户服务端] 拒绝未绑定租户的全量同步请求: sessionId={}", sessionId);
-            return;
+            return null;
         }
 
         String tenantId = TenantSyncMessageSupport.resolveTargetTenantId(data);
@@ -71,17 +69,18 @@ public class TenantServerSyncRequestHandler implements SyncMessageHandler {
 
         if (!TenantSyncMessageSupport.hasText(tenantId)) {
             log.warn("[租户服务端] 收到全量同步请求但缺少 tenantId: sessionId={}", sessionId);
-            return;
+            return null;
         }
 
         if (TenantSyncMessageSupport.hasText(boundTenantId) && !boundTenantId.equals(tenantId)) {
             log.warn("[租户服务端] 拒绝跨租户全量同步请求: sessionId={}, boundTenantId={}, requestedTenantId={}",
                     sessionId, boundTenantId, tenantId);
-            return;
+            return null;
         }
 
         String reason = MapUtils.getString(data, TenantSyncMessageSupport.SYNC_REASON, "client-request");
         syncPublisher.publishFullSyncToSession(sessionId, tenantId, reason);
+        return null;
     }
 
     private TenantSyncMessageSupport.VerificationResult verifySignature(Map<String, Object> data) {

@@ -1,7 +1,6 @@
 package com.chua.starter.tenant.client;
 
-import com.chua.common.support.network.sync.SyncClient;
-import com.chua.common.support.network.sync.SyncFlowListener;
+import com.chua.starter.sync.support.client.SyncClient;
 import com.chua.starter.sync.support.spi.SyncClientCustomizer;
 import com.chua.starter.tenant.properties.TenantProperties;
 import com.chua.starter.tenant.sync.TenantSyncMessageSupport;
@@ -61,9 +60,8 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
             log.info("[租户客户端] 连接前自动注册同步主题完成");
         }
 
-        syncClient.addListener(new SyncFlowListener() {
-            @Override
-            public void onClientConnected(String clientId) {
+        syncClient.addConnectionListener(connected -> {
+            if (connected) {
                 scheduleFullSyncRequest(syncClient);
             }
         });
@@ -76,7 +74,7 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
      * @param topic      主题
      */
     private void subscribe(SyncClient syncClient, String topic) {
-        syncClient.subscribe(topic, tenantClientSyncHandler);
+        syncClient.registerHandler(topic, tenantClientSyncHandler);
     }
 
     private void scheduleFullSyncRequest(SyncClient syncClient) {
@@ -121,7 +119,7 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
         if (tenantProperties.isClientSyncSignEnabled()) {
             TenantSyncMessageSupport.sign(message, tenantProperties.getClient().getSyncSignSecret());
         }
-        syncClient.send(TenantSyncMessageSupport.TOPIC_TENANT_SYNC_REQUEST, message);
+        syncClient.publish(TenantSyncMessageSupport.TOPIC_TENANT_SYNC_REQUEST, message);
         log.info("[租户客户端] 已发送全量同步请求: tenantId={}, reason={}", tenantId, reason);
     }
 
