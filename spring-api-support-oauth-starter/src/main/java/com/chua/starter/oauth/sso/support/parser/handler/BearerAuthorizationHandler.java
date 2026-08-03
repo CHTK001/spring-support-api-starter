@@ -7,6 +7,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.client.support.user.UserResume;
+import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,14 @@ public class BearerAuthorizationHandler implements AuthorizationHandler {
         }
 
         String tokenManagement = authInformation.getAuthServerProperties().getTokenManagement();
-        TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
+        TokenResolver tokenResolver = null;
+        LoginCheck loginCheck = authInformation.getLoginCheck();
+        if (loginCheck != null) {
+            tokenResolver = loginCheck.resolveTokenResolver(tokenManagement);
+        }
+        if (null == tokenResolver) {
+            tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
+        }
         if (null == tokenResolver) {
             return ReturnResult.error("认证服务器无法认证");
         }

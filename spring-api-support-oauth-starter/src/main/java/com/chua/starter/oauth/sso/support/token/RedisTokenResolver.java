@@ -28,6 +28,8 @@ import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.ValueOperations;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -54,6 +56,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.TOKEN_
 @Slf4j
 @com.chua.common.support.spi.annotations.Spi("redis")
 @SuppressWarnings("ALL")
+@Service
 public class RedisTokenResolver implements TokenResolver {
     private static final String AUTH_VERSION = "authVersion";
 
@@ -85,16 +88,16 @@ public class RedisTokenResolver implements TokenResolver {
      */
     private static final String DEFAULT_LOGIN_TYPE = "WEB";
 
-    @AutoInject
+    @Autowired
     private RedisTemplate<String, Object> stringRedisTemplate;
 
-    @AutoInject
+    @Autowired
     private AuthServerProperties authServerProperties;
-    @AutoInject
+    @Autowired
     private LoginCheck loginCheck;
-    @AutoInject
+    @Autowired
     private SysUserLogService sysUserLogService;
-    @AutoInject
+    @Autowired
     private TokenBlacklistService tokenBlacklistService;
 
     @Override
@@ -112,12 +115,16 @@ public class RedisTokenResolver implements TokenResolver {
         if ("jwt".equalsIgnoreCase(authType) || "JWT".equalsIgnoreCase(authType)) {
             tokenGeneration = ServiceProvider.of(TokenGeneration.class).getExtension("jwt");
         } else {
-            // 配置为空时回退到默认实现，避免空指针导致登录直接失败
-            String generationName = "default";
+            // 配置为空时回退到默认实现（simple），避免空指针导致登录直接失败
+            String generationName = "simple";
             if (null != authServerProperties && StringUtils.isNotBlank(authServerProperties.getTokenGeneration())) {
                 generationName = authServerProperties.getTokenGeneration();
             }
             tokenGeneration = ServiceProvider.of(TokenGeneration.class).getExtension(generationName);
+            if (tokenGeneration == null) {
+                // 回退失败时兜底取第一个可用实现
+                tokenGeneration = ServiceProvider.of(TokenGeneration.class).getExtension("simple");
+            }
         }
         if (tokenGeneration == null) {
             return ReturnResult.error("Token生成器不可用");
@@ -869,7 +876,14 @@ public class RedisTokenResolver implements TokenResolver {
             return ReturnResult.error("未认证");
         }
         
-        UserResult oldUserResult = BeanUtils.copyProperties(s, UserResult.class);
+        UserResult oldUserResult;
+        if (s instanceof UserResult ur) {
+            oldUserResult = ur;
+        } else if (s instanceof java.util.Map map) {
+            oldUserResult = BeanUtils.copyProperties((Object) map, UserResult.class);
+        } else {
+            oldUserResult = BeanUtils.copyProperties(s, UserResult.class);
+        }
         if (oldUserResult == null || StringUtils.isBlank(oldUserResult.getUserId())) {
             return ReturnResult.error("未认证");
         }

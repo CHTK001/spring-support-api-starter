@@ -57,7 +57,7 @@ public final class LogoutAuthorization implements Authorization {
                 uid != null && uid.length() > 8 ? uid.substring(0, 8) + "..." : uid, logoutType);
 
         String tokenManagement = authInformation.getAuthServerProperties().getTokenManagement();
-        TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
+        TokenResolver tokenResolver = loginCheck.resolveTokenResolver(tokenManagement);
         if (null == tokenResolver) {
             log.error("[LOGOUT][traceId={}] 失败: 认证服务器无法认证, tokenManagement={}", traceId, tokenManagement);
             return ReturnResult.error("认证服务器无法认证");

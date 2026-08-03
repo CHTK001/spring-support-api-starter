@@ -318,6 +318,20 @@ public abstract class BaseAuthInformation implements AuthInformation {
         return request;
     }
 
+    /**
+     * 获取登录检测服务（供认证处理器解析 TokenResolver 使用）
+     */
+    public LoginCheck getLoginCheck() {
+        return loginCheck;
+    }
+
+    /**
+     * 获取 Spring 应用上下文（供认证处理器解析 TokenResolver 使用）
+     */
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
     // Getter方法
     public String getUuid() {
         return uuid;

@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.generation;
 
-import com.chua.common.support.spi.annotations.Extension;
+import com.chua.common.support.spi.annotations.Spi;
 import org.apache.commons.codec.digest.DigestUtils;
 
 /**
@@ -8,7 +8,7 @@ import org.apache.commons.codec.digest.DigestUtils;
  *
  * @author CH
  */
-@Extension("simple")
+@Spi("simple")
 public class SimpleTokenGeneration implements TokenGeneration {
     @Override
     public String generation(String key) {

@@ -176,6 +176,10 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         }
 
         for (Map<String, Object> authRow : authRows) {
+            // MyBatis 对 resultType=HashMap 的查询在整行均为 NULL 时（如 LEFT JOIN 无匹配且过滤条件排除）会返回 null 行，需跳过防御
+            if (authRow == null) {
+                continue;
+            }
             if (profile.dataPermission == ALL) {
                 Integer permissionCode = Converter.convertIfNecessary(authRow.get("sys_dept_data_permission"), Integer.class);
                 DataFilterTypeEnum resolvedPermission = DataFilterTypeEnum.getByCode(permissionCode);
