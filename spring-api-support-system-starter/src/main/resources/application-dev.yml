@@ -33,6 +33,12 @@ plugin:
     address: http://172.16.0.40:19180/oauth
     protocol: static
     auth-address: http://172.16.0.40:19180/oauth
+    whitelist:
+      - /v2/setting/default
+      - /v2/setting/**
+      - /captcha
+      - /**/captcha
+      - /**/users/loginCode
     rate-limit:
       enable: true
       api:
