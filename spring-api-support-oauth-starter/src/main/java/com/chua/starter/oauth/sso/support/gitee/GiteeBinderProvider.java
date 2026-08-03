@@ -100,7 +100,7 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
         }
 
         String tokenManagement = authServerProperties.getTokenManagement();
-        TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
+        TokenResolver tokenResolver = loginCheck.resolveTokenResolver(tokenManagement);
         ReturnResult<UserResume> result = tokenResolver.resolve(null, token);
         if (null != giteeService) {
             giteeService.binder(data, result.getData());

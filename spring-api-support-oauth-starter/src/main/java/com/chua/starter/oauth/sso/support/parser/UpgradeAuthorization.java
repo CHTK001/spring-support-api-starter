@@ -45,7 +45,7 @@ public final class UpgradeAuthorization implements Authorization {
     public ReturnResult<String> authentication() {
         long startTime = System.currentTimeMillis();
         String tokenManagement = authInformation.getAuthServerProperties().getTokenManagement();
-        TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
+        TokenResolver tokenResolver = loginCheck.resolveTokenResolver(tokenManagement);
         if (null == tokenResolver) {
             return ReturnResult.error("认证服务器无法认证");
         }

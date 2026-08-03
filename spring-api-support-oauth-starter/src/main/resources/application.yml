@@ -6,6 +6,9 @@ spring:
     web-application-type: servlet  # 应用类型：Web（提供认证协议 HTTP 入口）
     allow-bean-definition-overriding: true
     allow-circular-references: true   # 允许循环引用（历史遗留的 ServiceImpl 自注入模式）
+  autoconfigure:
+    exclude:
+      - com.chua.starter.common.support.configuration.AsyncThreadPoolConfiguration  # 排除冲突的 AsyncConfigurer（与 Spring Boot 默认异步配置重复注册）
   profiles:
     active: dev                  # 当前激活的环境
     include: plugin,mybatis,socket,report,api,ip,actuator  # 引入的公共配置模块

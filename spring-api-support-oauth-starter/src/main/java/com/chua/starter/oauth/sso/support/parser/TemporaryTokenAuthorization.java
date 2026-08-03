@@ -60,9 +60,28 @@ public final class TemporaryTokenAuthorization implements Authorization {
             return ReturnResult.illegal("源令牌不能为空");
         }
 
-        // 获取 TokenResolver
+        // 获取 TokenResolver（优先 Spring 容器，回退 SPI）
         String tokenManagement = authInformation.getAuthServerProperties().getTokenManagement();
-        TokenResolver tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
+        TokenResolver tokenResolver = null;
+        if (applicationContext != null) {
+            for (TokenResolver resolver : applicationContext.getBeansOfType(TokenResolver.class).values()) {
+                com.chua.common.support.spi.annotations.Spi spi = resolver.getClass().getAnnotation(com.chua.common.support.spi.annotations.Spi.class);
+                if (spi != null) {
+                    for (String value : spi.value()) {
+                        if (tokenManagement.equalsIgnoreCase(value)) {
+                            tokenResolver = resolver;
+                            break;
+                        }
+                    }
+                }
+                if (tokenResolver != null) {
+                    break;
+                }
+            }
+        }
+        if (tokenResolver == null) {
+            tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
+        }
         if (tokenResolver == null) {
             log.error("临时令牌创建失败: TokenResolver 不可用, tokenManagement: {}", tokenManagement);
             return ReturnResult.error("令牌服务不可用");

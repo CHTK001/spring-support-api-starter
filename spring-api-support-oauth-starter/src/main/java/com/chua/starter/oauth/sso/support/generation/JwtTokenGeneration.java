@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.generation;
 
-import com.chua.common.support.spi.annotations.Extension;
+import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.objects.annotation.AutoInject;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
@@ -34,7 +34,7 @@ import java.util.UUID;
  * @since 2025-12-18
  */
 @Slf4j
-@Extension("jwt")
+@Spi("jwt")
 public class JwtTokenGeneration implements TokenGeneration {
 
     @AutoInject

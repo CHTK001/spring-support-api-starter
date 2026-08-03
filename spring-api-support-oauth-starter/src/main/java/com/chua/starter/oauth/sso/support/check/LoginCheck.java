@@ -12,6 +12,7 @@ import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.security.LoginAttemptService;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.chua.starter.oauth.client.support.user.UserInfoService;
+import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -137,7 +138,7 @@ public class LoginCheck {
         }
 
         log.debug("开始创建Token, tokenManagement: {}", authServerProperties.getTokenManagement());
-        TokenResolver tokenManagement = ServiceProvider.of(TokenResolver.class).getExtension(authServerProperties.getTokenManagement());
+        TokenResolver tokenManagement = resolveTokenResolver(authServerProperties.getTokenManagement());
         UserResult userResult = new UserResult();
         BeanUtils.copyProperties(userResume, userResult);
         
@@ -182,6 +183,31 @@ public class LoginCheck {
             }
         }
         return ServiceProvider.of(UserInfoService.class).getExtension(authType);
+    }
+
+    /**
+     * 解析 TokenResolver 实现
+     * <p>优先从 Spring 容器获取（实现类为 @Service，依赖 Spring 依赖注入 RedisTemplate 等），
+     * 按 @Spi 注解值匹配令牌管理类型；未找到时回退 SPI 加载。</p>
+     *
+     * @param tokenManagement 令牌管理类型
+     * @return 令牌解析器实现
+     */
+    public TokenResolver resolveTokenResolver(String tokenManagement) {
+        if (applicationContext != null) {
+            for (TokenResolver resolver : applicationContext.getBeansOfType(TokenResolver.class).values()) {
+                Spi spi = resolver.getClass().getAnnotation(Spi.class);
+                if (spi != null) {
+                    for (String value : spi.value()) {
+                        if (tokenManagement.equalsIgnoreCase(value)) {
+                            log.debug("从Spring容器获取TokenResolver: {}, tokenManagement={}", resolver.getClass().getSimpleName(), tokenManagement);
+                            return resolver;
+                        }
+                    }
+                }
+            }
+        }
+        return ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
     }
 
     /**
