@@ -66,6 +66,11 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>com.chua</groupId>
       <artifactId>utils-support-datalake-starter</artifactId>
       <version>${utils.version}</version>
