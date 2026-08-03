@@ -39,6 +39,10 @@
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
+      <artifactId>spring-support-cache-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
       <artifactId>spring-support-job-starter</artifactId>
       <optional>true</optional>
     </dependency>
