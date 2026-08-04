@@ -49,7 +49,7 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
     }
 
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all'", keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all'")
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<SysMiniMenu> saveMenu(SysMiniMenu sysMiniMenu, Set<String> roles) {
         if (null == sysMiniMenu) {
@@ -64,7 +64,7 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
     }
 
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all'", keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all'")
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> updateMenu(Set<String> roles, SysMiniMenu sysMiniMenu) {
         if (null == sysMiniMenu || null == sysMiniMenu.getSysMiniMenuId()) {
@@ -75,7 +75,7 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
     }
 
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all'", keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all'")
     public ReturnResult<Boolean> deleteMenu(Long sysMiniMenuId) {
         if (null == sysMiniMenuId) {
             return ReturnResult.illegal("小程序菜单不存在");
@@ -83,7 +83,7 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
         return ReturnResult.of(removeById(sysMiniMenuId));
     }
 
-    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all'", keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all'")
     public List<SysMiniMenu> listAllCached() {
         return baseMapper.selectList(
                 Wrappers.<SysMiniMenu>lambdaQuery()
