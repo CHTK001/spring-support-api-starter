@@ -48,7 +48,7 @@ public class SysBankBinsController {
      */
     @Operation(summary = "所有银行卡bin")
     @GetMapping("/all")
-    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:bank:bin:all'", keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:bank:bin:all'")
     public ReturnResult<List<SysBankBins>> all() {
         return ReturnResult.ok(sysBankBinsService.all());
     }

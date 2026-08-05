@@ -85,7 +85,7 @@ public class SysSettingController {
      */
     @Operation(summary = "默认设置列表")
     @GetMapping("/default")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:default'", keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:default'")
     public ReturnResult<List<SysSettingVO>> listForDefault() {
         List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default,sso,default-1"), Collections.emptySet());
         return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));
@@ -100,7 +100,7 @@ public class SysSettingController {
     @Operation(summary = "设置列表")
     @GetMapping("/list")
     @Permission(role = {ADMIN, SUPER_ADMIN})
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingController).SETTING_LIST_CACHE_KEY_PREFIX + #sysSettingUpdate.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingController).SETTING_LIST_CACHE_KEY_PREFIX + #sysSettingUpdate.sysSettingGroup")
     public ReturnResult<List<SysSettingVO>> list(@ParameterObject SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") HashSet<String> roles) {
         Set<String> safeRoles = null == roles ? Collections.emptySet() : roles;
         List<SysSetting> list = sysSettingService.list(sysSettingUpdate, roles);
