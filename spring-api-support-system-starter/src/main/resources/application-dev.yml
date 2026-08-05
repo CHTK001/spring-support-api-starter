@@ -30,9 +30,9 @@ plugin:
     script:
       scan-mode: ONCE
   oauth:
-    address: http://172.16.0.40:19180/oauth
+    address: http://localhost:19181/oauth
     protocol: static
-    auth-address: http://172.16.0.40:19180/oauth
+    auth-address: http://localhost:19181/oauth
     whitelist:
       - /v2/setting/default
       - /v2/setting/**
