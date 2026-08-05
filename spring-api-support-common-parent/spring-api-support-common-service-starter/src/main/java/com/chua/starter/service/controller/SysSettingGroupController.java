@@ -48,7 +48,7 @@ public class SysSettingGroupController {
     @GetMapping("/list")
     @ApiPlatform("system")
     @Permission(role = {ADMIN, SUPER_ADMIN})
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'", keyGenerator = "customTenantedKeyGenerator")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'")
     public ReturnResult<List<SysSettingGroup>> listForSettingGroup(@ParameterObject SysSettingGroup sysSettingGroup, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return ReturnResult.ok(sysSettingGroupService.listForSettingGroup(sysSettingGroup, roles));
     }
@@ -62,7 +62,7 @@ public class SysSettingGroupController {
     @RequestMapping(value = "/delete", method = {RequestMethod.DELETE, RequestMethod.POST})
     @ApiPlatform("system")
     @Permission(value = "sys:setting:group:delete", role = {ADMIN, SUPER_ADMIN})
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'", keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'")
     public ReturnResult<Boolean> delete(@Parameter(hidden = true) @UserValue("roles") Set<String> roles,
                                         @RequestParam(value = "sysSettingGroupId", required = false) Long sysSettingGroupId,
                                         @RequestParam(value = "sysSettingGroupMapperId", required = false) Long legacySysSettingGroupId) {
@@ -84,7 +84,7 @@ public class SysSettingGroupController {
     @PostMapping("/saveOrUpdate")
     @ApiPlatform("system")
     @Permission(value = "sys:setting:group:add", role = {ADMIN, SUPER_ADMIN})
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'", keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'")
     public ReturnResult<Boolean> saveOrUpdate(@Parameter(hidden = true) @UserValue("roles") Set<String> roles, @RequestBody SysSettingGroup sysSettingGroup, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
@@ -102,7 +102,7 @@ public class SysSettingGroupController {
     @PostMapping("/batchUpdate")
     @ApiPlatform("system")
     @Permission(value = "sys:setting:group:batchUpdate", role = {ADMIN, SUPER_ADMIN})
-    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'", keyGenerator = "customTenantedKeyGenerator")
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'")
     public ReturnResult<Boolean> batchUpdate(@Parameter(hidden = true) @UserValue("roles") Set<String> roles, @RequestBody List<SysSettingGroup> sysSettingGroups, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
