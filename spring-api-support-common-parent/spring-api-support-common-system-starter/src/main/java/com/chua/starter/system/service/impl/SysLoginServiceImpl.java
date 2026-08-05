@@ -61,6 +61,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -177,6 +178,17 @@ public class SysLoginServiceImpl implements SysLoginService {
         userResult.setOpenId(userResult.getUid());
         userResult.setUnionId(userResult.getUid());
         userResult.setExpireTime(System.currentTimeMillis() / 1000 + 7L * 24 * 60 * 60);
+        // 填充业务扩展信息，供 @UserValue("sysUserId") 等接口与 /me 完整返回用户信息使用
+        Map<String, Object> ext = new HashMap<>(16);
+        ext.put("sysUserId", user.getSysUserId());
+        ext.put("sysUserUsername", user.getSysUserUsername());
+        ext.put("sysUserNickname", user.getSysUserNickname());
+        ext.put("sysUserPhone", user.getSysUserPhone());
+        ext.put("sysUserEmail", user.getSysUserEmail());
+        ext.put("sysUserAvatar", user.getSysUserAvatar());
+        ext.put("sysDeptId", user.getSysDeptId());
+        ext.put("sysUserSex", user.getSysUserSex());
+        userResult.setExt(ext);
 
         String sm4Token = TokenCipher.encrypt(userResult);
         UserResume resume = userResult;
