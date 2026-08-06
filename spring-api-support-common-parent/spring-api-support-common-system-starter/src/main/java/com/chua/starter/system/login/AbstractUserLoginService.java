@@ -128,7 +128,9 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
                 .setPermission(permissions)
                 .setPhone(user.getSysUserPhone())
                 .setUsername(accessKey)
-                .setNickName(user.getSysUserNickname());
+                .setNickName(user.getSysUserNickname())
+                .setDataPermission(dataPermission)
+                .setDataPermissionRule(dataPermissionRule);
 
         Map<String, Object> ext = BeanUtils.objectToMap(user);
         ext.put(AUTH_VERSION, authVersion(user));

@@ -21,15 +21,19 @@ import com.chua.starter.oauth.client.support.execute.AuthSessionUtils;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.entity.service.SysSetting;
+import com.chua.starter.common.support.constant.DataFilterTypeEnum;
+import com.chua.starter.entity.system.SysDept;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.service.SysSettingService;
 import com.chua.starter.service.SimpleSysUserService;
+import com.chua.starter.system.mapper.SysDeptMapper;
 import com.chua.starter.system.mapper.SysRoleMapper;
 import com.chua.starter.system.mapper.SysUserRoleMapper;
 import com.chua.starter.entity.system.SysRole;
 import com.chua.starter.entity.system.SysUserRole;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.handler.LoginHandler;
+import com.chua.starter.system.constant.SystemConstant;
 import com.chua.starter.system.service.SysLoginService;
 import com.chua.starter.system.service.SysUserService;
 import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
@@ -138,6 +142,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     private final SysUserService sysUserService;
     private final SysUserRoleMapper sysUserRoleMapper;
     private final SysRoleMapper sysRoleMapper;
+    private final SysDeptMapper sysDeptMapper;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -162,6 +167,10 @@ public class SysLoginServiceImpl implements SysLoginService {
             log.warn("本地登录失败: 用户不存在 - {}", loginData.getUsername());
             return null;
         }
+        if (SystemConstant.USER_STATUS_ENABLED != user.getSysUserStatus()) {
+            log.warn("本地登录失败: 账户已禁用 - {}", loginData.getUsername());
+            return new LoginAuthResult(403, "账号已被禁用");
+        }
         log.info("本地登录成功(跳过密码校验): {}, 输入hash={}, 数据库hash={}",
             loginData.getUsername(), loginData.getPassword(), user.getSysUserPassword());
 
@@ -178,6 +187,10 @@ public class SysLoginServiceImpl implements SysLoginService {
         userResult.setOpenId(userResult.getUid());
         userResult.setUnionId(userResult.getUid());
         userResult.setExpireTime(System.currentTimeMillis() / 1000 + 7L * 24 * 60 * 60);
+        // 填充部门ID，供数据权限(DEPT/DEPT_AND_SUB)与接口使用
+        if (null != user.getSysDeptId() && user.getSysDeptId() > 0) {
+            userResult.setDeptId(String.valueOf(user.getSysDeptId()));
+        }
         // 填充业务扩展信息，供 @UserValue("sysUserId") 等接口与 /me 完整返回用户信息使用
         Map<String, Object> ext = new HashMap<>(16);
         ext.put("sysUserId", user.getSysUserId());
@@ -189,6 +202,23 @@ public class SysLoginServiceImpl implements SysLoginService {
         ext.put("sysDeptId", user.getSysDeptId());
         ext.put("sysUserSex", user.getSysUserSex());
         userResult.setExt(ext);
+
+        // 数据权限：从用户所属部门读取数据权限配置（DEPT/SELF/DEPT_AND_SUB 等）
+        DataFilterTypeEnum dataPermission = DataFilterTypeEnum.ALL;
+        String dataPermissionRule = "";
+        Integer deptId = user.getSysDeptId();
+        if (null != deptId && deptId > 0) {
+            SysDept dept = sysDeptMapper.selectById(deptId);
+            if (null != dept) {
+                DataFilterTypeEnum resolved = DataFilterTypeEnum.getByCode(dept.getSysDeptDataPermission());
+                if (null != resolved) {
+                    dataPermission = resolved;
+                }
+                dataPermissionRule = dept.getSysDeptDataPermissionDeptId() == null ? "" : dept.getSysDeptDataPermissionDeptId();
+            }
+        }
+        userResult.setDataPermission(dataPermission);
+        userResult.setDataPermissionRule(dataPermissionRule);
 
         String sm4Token = TokenCipher.encrypt(userResult);
         UserResume resume = userResult;

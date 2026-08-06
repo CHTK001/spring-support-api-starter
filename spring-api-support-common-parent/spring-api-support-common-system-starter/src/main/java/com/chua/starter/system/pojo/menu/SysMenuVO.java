@@ -64,6 +64,48 @@ public class SysMenuVO {
     private Meta meta;
 
     /**
+     * 父菜单ID（koi 前端契约字段）
+     */
+    @Schema(description = "父菜单ID")
+    private Integer parentId;
+
+    /**
+     * 菜单ID（koi 前端契约字段）
+     */
+    @Schema(description = "菜单ID")
+    private Integer menuId;
+
+    /**
+     * 菜单标题（koi 前端契约字段，用于侧边栏/面包屑展示）
+     */
+    @Schema(description = "菜单标题")
+    private String menuName;
+
+    /**
+     * 菜单类型（koi 前端契约字段）; 1:目录 0:页面
+     */
+    @Schema(description = "菜单类型; 1:目录 0:页面")
+    private String menuType;
+
+    /**
+     * 是否显示（koi 前端契约字段）; 1:显示 0:隐藏
+     */
+    @Schema(description = "是否显示; 1:显示 0:隐藏")
+    private String isVisible;
+
+    /**
+     * 是否缓存（koi 前端契约字段）; 1:缓存 0:不缓存
+     */
+    @Schema(description = "是否缓存; 1:缓存 0:不缓存")
+    private String isKeepAlive;
+
+    /**
+     * 菜单图标（koi 前端契约字段）
+     */
+    @Schema(description = "菜单图标")
+    private String icon;
+
+    /**
      * 菜单名称（旧字段）
      */
     @Schema(description = "菜单名称")

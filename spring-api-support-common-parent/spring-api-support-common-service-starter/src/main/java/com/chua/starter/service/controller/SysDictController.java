@@ -5,6 +5,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.base.validator.group.AddGroup;
 import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
+import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.entity.service.SysDict;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -16,6 +17,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +48,10 @@ public class SysDictController {
      */
     @Operation(summary = "字典分页列表")
     @GetMapping("/page")
-    public ReturnPageResult<SysDict> pageForRole(@ParameterObject Query<SysDict> query, @ParameterObject SysDict sysDict, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
+            key = "'sys:dict:page:' + #userId + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDict.sysDictCode,'') + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDict.sysDictName,'') + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#query.page,1) + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#query.pageSize,10)",
+            unless = "#result == null || #result.data == null || #result.data.data == null || #result.data.data.isEmpty()")
+    public ReturnPageResult<SysDict> pageForRole(@ParameterObject Query<SysDict> query, @ParameterObject SysDict sysDict, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         return PageResultUtils.ok(sysDictService.pageForDict(query, sysDict, roles));
     }
 
@@ -58,6 +64,7 @@ public class SysDictController {
     @DeleteMapping("/delete")
     @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:dict:delete", role = {"ADMIN", "SUPER_ADMIN"})
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true, beforeInvocation = false)
     public ReturnResult<Boolean> delete(Long sysDictId) {
         if (null == sysDictId) {
             return ReturnResult.illegal("字典信息不存在");
@@ -75,6 +82,7 @@ public class SysDictController {
     @Operation(summary = "更新字典")
     @PutMapping("/update")
     @Permission(value = "sys:dict:update", role = {"ADMIN", "SUPER_ADMIN"})
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysDict sysDict,
@@ -94,6 +102,7 @@ public class SysDictController {
     @Operation(summary = "新增字典")
     @PostMapping("/save")
     @Permission(value = "sys:dict:add", role = {"ADMIN", "SUPER_ADMIN"})
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<SysDict> save(
                 @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
                 @Validated(AddGroup.class) @RequestBody SysDict sysDict,
