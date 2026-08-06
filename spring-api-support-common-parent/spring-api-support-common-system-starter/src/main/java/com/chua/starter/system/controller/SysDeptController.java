@@ -4,6 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.system.validator.group.AddGroup;
 import com.chua.starter.system.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
+import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.entity.system.SysDept;
@@ -14,6 +15,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -45,7 +48,10 @@ public class SysDeptController {
      */
     @Operation(summary = "组织机构列表")
     @GetMapping("/list")
-    public ReturnResult<List<SysDeptVO>> list(@ParameterObject SysDept sysDept, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
+            key = "'sys:dept:list:' + #userId + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDept.sysDeptName,'')",
+            unless = "#result == null || #result.data == null || #result.data.isEmpty()")
+    public ReturnResult<List<SysDeptVO>> list(@ParameterObject SysDept sysDept, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         return ReturnResult.ok(sysDeptService.list(sysDept, roles));
     }
 
@@ -58,6 +64,7 @@ public class SysDeptController {
     @DeleteMapping("/delete")
     @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:dept:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<Boolean> delete(Long deptId) {
         if (null == deptId) {
             return ReturnResult.illegal("组织机构信息不存在");
@@ -75,6 +82,7 @@ public class SysDeptController {
     @Operation(summary = "更新组织机构")
     @PutMapping("/update")
     @Permission(value = "sys:dept:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysDept sysDept,
@@ -94,6 +102,7 @@ public class SysDeptController {
     @Operation(summary = "新增组织机构")
     @PostMapping("/save")
     @Permission(value = "sys:dept:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<SysDept> save(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(AddGroup.class) @RequestBody SysDept sysDept,

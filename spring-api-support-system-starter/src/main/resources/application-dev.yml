@@ -29,6 +29,15 @@ plugin:
   datasource:
     script:
       scan-mode: ONCE
+  mybatis:
+    data:
+      scope:
+        # 数据权限：按部门/本人过滤（sys_dept 表 + sys_dept_data_permission）
+        enable: true
+        table-name: sys_dept
+        dept-id-column: sys_dept_id
+        dept-tree-id-column: sys_dept_tree_id
+        current-user-id-column: create_by
   oauth:
     address: http://localhost:19181/oauth
     protocol: static

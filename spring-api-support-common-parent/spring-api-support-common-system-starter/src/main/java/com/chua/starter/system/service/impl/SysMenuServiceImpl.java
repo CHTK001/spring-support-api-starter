@@ -5,15 +5,12 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.utils.BeanUtils;
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.*;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.constant.SystemConstant;
-import com.chua.starter.system.util.TreeNode;
-import com.chua.starter.system.util.TreeUtils;
 import com.chua.starter.entity.system.SysMenu;
 import com.chua.starter.entity.system.SysRole;
 import com.chua.starter.entity.system.SysRoleMenu;
@@ -177,52 +174,47 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         }
 
 
-        return ReturnResult.ok(TreeUtils.toTree(filterMenus, sysMenu1 -> {
-            SysMenuVO sysMenuVO = new SysMenuVO();
-            sysMenuVO.setName(sysMenu1.getSysMenuName());
-            sysMenuVO.setPath(sysMenu1.getSysMenuPath());
-            sysMenuVO.setSysMenuId(sysMenu1.getSysMenuId());
-            sysMenuVO.setSysMenuPid(sysMenu1.getSysMenuPid());
-            sysMenuVO.setSysMenuType(sysMenu1.getSysMenuType());
-            sysMenuVO.setSysMenuEngine(sysMenu1.getSysMenuEngine());
-            sysMenuVO.setComponent(sysMenu1.getSysMenuComponent());
-            sysMenuVO.setRedirect(sysMenu1.getSysMenuRedirect());
-            sysMenuVO.setLeaveTransition(sysMenu1.getSysMenuLeaveTransition());
-            sysMenuVO.setEnterTransition(sysMenu1.getSysMenuEnterTransition());
-            SysMenuVO.Meta meta = new SysMenuVO.Meta();
-            SysMenuVO.Meta.Transition transition = new SysMenuVO.Meta.Transition();
-            transition.setLeaveTransition(sysMenu1.getSysMenuLeaveTransition());
-            transition.setEnterTransition(sysMenu1.getSysMenuEnterTransition());
+        // 确定哪些节点是目录（被其他节点引用为父节点）
+        Set<Integer> directoryIds = filterMenus.stream()
+                .map(SysMenu::getSysMenuPid)
+                .filter(Objects::nonNull)
+                .collect(java.util.stream.Collectors.toSet());
 
-            meta.setHome(null == sysMenu1.getSysMenuHome() || sysMenu1.getSysMenuHome() == SystemConstant.PERMISSION_ENABLED);
-            meta.setIcon(sysMenu1.getSysMenuIcon());
-            meta.setExtraIcon(sysMenu1.getSysMenuExtraIcon());
-            meta.setTitle(sysMenu1.getSysMenuTitle());
-            meta.setI18nKey(sysMenu1.getSysMenuI18n());
-            meta.setFrameSrc(ObjectUtils.equal(sysMenu1.getSysMenuType(), 1) ? sysMenu1.getSysMenuFrameSrc() : null);
-            meta.setActivePath(sysMenu1.getSysMenuActivePath());
-            meta.setAuths(org.apache.commons.lang3.StringUtils.isBlank(sysMenu1.getSysMenuPerm())
-                    ? java.util.Collections.emptyList()
-                    : Splitter.on(",").trimResults().omitEmptyStrings().splitToList(sysMenu1.getSysMenuPerm()));
-            meta.setShowLink(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuHidden(), 0), 0));
-            meta.setShowParent(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuShowParent(), 0), 0));
-            meta.setKeepAlive(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuKeepAlive(), 0), 1));
-            meta.setHiddenTag(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuHiddenTag(), 0), 1));
-            meta.setFixedTag(ObjectUtils.equal(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuFixedTag(), 0), 1));
-            meta.setRank(sysMenu1.getSysMenuSort());
-            meta.setTransition(transition);
-            sysMenuVO.setMeta(meta);
+        // 排序后输出扁平结构，字段对齐 koi 前端菜单契约
+        List<SysMenuVO> result = filterMenus.stream()
+                .sorted(Comparator
+                        .comparing((SysMenu item) -> ObjectUtils.defaultIfNull(item.getSysMenuSort(), Integer.MAX_VALUE))
+                        .thenComparing(item -> ObjectUtils.defaultIfNull(item.getSysMenuId(), Integer.MAX_VALUE)))
+                .map(sysMenu1 -> {
+                    SysMenuVO sysMenuVO = new SysMenuVO();
+                    sysMenuVO.setName(sysMenu1.getSysMenuName());
+                    sysMenuVO.setPath(sysMenu1.getSysMenuPath());
+                    sysMenuVO.setSysMenuId(sysMenu1.getSysMenuId());
+                    sysMenuVO.setSysMenuPid(sysMenu1.getSysMenuPid());
+                    sysMenuVO.setSysMenuType(sysMenu1.getSysMenuType());
+                    sysMenuVO.setSysMenuEngine(sysMenu1.getSysMenuEngine());
+                    sysMenuVO.setComponent(sysMenu1.getSysMenuComponent());
+                    sysMenuVO.setRedirect(sysMenu1.getSysMenuRedirect());
+                    sysMenuVO.setLeaveTransition(sysMenu1.getSysMenuLeaveTransition());
+                    sysMenuVO.setEnterTransition(sysMenu1.getSysMenuEnterTransition());
+                    sysMenuVO.setSysMenuTitle(sysMenu1.getSysMenuTitle());
+                    sysMenuVO.setSysMenuIcon(sysMenu1.getSysMenuIcon());
+                    sysMenuVO.setSysMenuName(sysMenu1.getSysMenuName());
 
-            TreeNode<SysMenuVO> treeNode = new TreeNode<>();
-            treeNode.setId(sysMenuVO.getSysMenuId().toString());
-            treeNode.setLabel(sysMenuVO.getName());
-            treeNode.setValue(sysMenuVO.getName());
-            treeNode.setPid(sysMenuVO.getSysMenuPid().toString());
-            treeNode.setExt(sysMenuVO);
-            treeNode.setChildrenConsumer(sysMenuVO::setChildren);
+                    // koi 前端契约字段：扁平 + parentId 关联
+                    sysMenuVO.setParentId(sysMenu1.getSysMenuPid());
+                    sysMenuVO.setMenuId(sysMenu1.getSysMenuId());
+                    sysMenuVO.setMenuName(sysMenu1.getSysMenuTitle());
+                    boolean directory = directoryIds.contains(sysMenu1.getSysMenuId());
+                    sysMenuVO.setMenuType(directory ? "1" : "0");
+                    sysMenuVO.setIsVisible(Objects.equals(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuHidden(), 0), 0) ? "1" : "0");
+                    sysMenuVO.setIsKeepAlive(Objects.equals(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuKeepAlive(), 0), 1) ? "1" : "0");
+                    sysMenuVO.setIcon(sysMenu1.getSysMenuIcon());
+                    return sysMenuVO;
+                })
+                .toList();
 
-            return treeNode;
-        }));
+        return ReturnResult.ok(result);
     }
 
     @Override

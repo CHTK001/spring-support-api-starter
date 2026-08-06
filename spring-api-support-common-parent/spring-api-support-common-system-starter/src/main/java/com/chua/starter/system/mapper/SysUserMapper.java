@@ -73,7 +73,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @param query   查询条件
      * @return 用户分页列表
      */
-    @DataScope(value = DataFilterTypeEnum.SELF, useUserPermission = false, deptAlias = "su", userAlias = "su")
+    @DataScope(value = DataFilterTypeEnum.SELF, useUserPermission = true, deptAlias = "su", userAlias = "su")
     @PrivilegedVisibility(userAlias = "su")
     IPage<SysUser> selectPageUser(Page<SysUser> page, @Param("query") SysUserQuery query);
 

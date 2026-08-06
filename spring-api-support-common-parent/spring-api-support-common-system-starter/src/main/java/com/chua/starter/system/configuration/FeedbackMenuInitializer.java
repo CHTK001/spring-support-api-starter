@@ -34,7 +34,7 @@ public class FeedbackMenuInitializer implements ApplicationRunner {
 
     private static final String PARENT_MENU_PATH = "/manage";
     private static final String MENU_PATH = "/manage/feedback";
-    private static final String MENU_COMPONENT = "/manage/feedback/index";
+    private static final String MENU_COMPONENT = "system/feedback/index";
     private static final String MENU_TITLE = "反馈管理";
     private static final String MENU_NAME = "feedback";
 
