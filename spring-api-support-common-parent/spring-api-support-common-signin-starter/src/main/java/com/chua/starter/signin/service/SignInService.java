@@ -217,10 +217,7 @@ public class SignInService {
 
         } catch (Exception e) {
             log.error("签到失败: userId={}, error={}", userId, e.getMessage(), e);
-            SignInResultDTO result = new SignInResultDTO();
-            result.setSuccess(false);
-            result.setMsg("签到失败: " + e.getMessage());
-            return result;
+            throw new RuntimeException("签到失败: " + e.getMessage(), e);
         } finally {
             lockTemplate.release(lockKey);
         }

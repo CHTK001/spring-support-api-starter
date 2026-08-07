@@ -2,6 +2,7 @@ package com.chua.starter.achievement.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.achievement.model.UserAchievement;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public interface UserAchievementMapper extends BaseMapper<UserAchievement> {
      * @param userId 用户ID
      * @return 以 type 为键、maxLevel 为值的映射
      */
+    @MapKey("type")
     Map<String, Integer> selectMaxLevelByUserId(Long userId);
 
     /**

@@ -314,6 +314,15 @@ public class AchievementService {
     }
 
     /**
+     * 统计所有有效段位的总数（全部分组）。
+     *
+     * @return 段位总数
+     */
+    public long countAllTiers() {
+        return tierMapper.selectCount(null);
+    }
+
+    /**
      * 段位定义转解锁成就 DTO。
      *
      * @param tier   段位定义
