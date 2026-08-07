@@ -279,10 +279,8 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
             return;
         }
 
-        String checkSql = String.format(
-                "SELECT COUNT(*) FROM sys_menu WHERE sys_menu_id = ? AND %s = ?",
-                tenantIdColumn);
-        Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, sysMenu.getSysMenuId(), tenantId);
+        String checkSql = "SELECT COUNT(*) FROM sys_menu WHERE sys_menu_id = ?";
+        Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, sysMenu.getSysMenuId());
 
         if (count != null && count > 0) {
             updateMenu(tenantId, sysMenu, tenantIdColumn);
@@ -294,6 +292,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
     private void updateMenu(String tenantId, SysMenu menu, String tenantIdColumn) {
         String updateSql = String.format("""
                 UPDATE sys_menu SET
+                    %s = ?,
                     sys_menu_name = ?, sys_menu_path = ?, sys_menu_i18n = ?, sys_menu_title = ?,
                     sys_menu_perm = ?, sys_menu_pid = ?, sys_menu_tree_id = ?, sys_menu_component = ?,
                     sys_menu_icon = ?, sys_menu_extra_icon = ?, sys_menu_type = ?, sys_menu_sort = ?,
@@ -301,10 +300,11 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
                     sys_menu_redirect = ?, sys_menu_enter_transition = ?, sys_menu_leave_transition = ?,
                     sys_menu_active_path = ?, sys_menu_frame_src = ?, sys_menu_keep_alive = ?,
                     sys_menu_role = ?, sys_menu_home = ?, sys_menu_engine = ?, update_time = NOW()
-                WHERE sys_menu_id = ? AND %s = ?
+                WHERE sys_menu_id = ?
                 """, tenantIdColumn);
 
         jdbcTemplate.update(updateSql,
+                tenantId,
                 menu.getSysMenuName(), menu.getSysMenuPath(), menu.getSysMenuI18n(), menu.getSysMenuTitle(),
                 menu.getSysMenuPerm(), menu.getSysMenuPid(), menu.getSysMenuTreeId(), menu.getSysMenuComponent(),
                 menu.getSysMenuIcon(), menu.getSysMenuExtraIcon(), menu.getSysMenuType(), menu.getSysMenuSort(),
@@ -312,7 +312,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
                 menu.getSysMenuRedirect(), menu.getSysMenuEnterTransition(), menu.getSysMenuLeaveTransition(),
                 menu.getSysMenuActivePath(), menu.getSysMenuFrameSrc(), menu.getSysMenuKeepAlive(),
                 menu.getSysMenuRole(), menu.getSysMenuHome(), menu.getSysMenuEngine(),
-                menu.getSysMenuId(), tenantId);
+                menu.getSysMenuId());
     }
 
     private void insertMenu(String tenantId, SysMenu menu, String tenantIdColumn) {
