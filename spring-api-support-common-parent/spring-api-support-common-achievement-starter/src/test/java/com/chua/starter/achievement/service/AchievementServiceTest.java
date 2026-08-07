@@ -376,6 +376,74 @@ class AchievementServiceTest {
         verify(userAchievementMapper).insert(isA(UserAchievement.class));
     }
 
+    // ==================== reportStats（刷新接口） ====================
+
+    @Test
+    void testReportStats_unlock() {
+        Long userId = 1L;
+
+        AchievementTier tier = createTier("menu", 1, "菜单达人");
+        tier.setRule("menuVisitedCount >= 50");
+
+        doNothing().when(kvEngine).put(eq("achievement:1:menuVisitedCount"), eq("50"));
+        when(kvEngine.findAllByPrefix("achievement:1:"))
+                .thenReturn(Map.of("achievement:1:menuVisitedCount", "50"));
+        when(userAchievementMapper.selectMaxLevelByUserId(userId)).thenReturn(Map.of());
+        when(tierMapper.selectList(null)).thenReturn(List.of(tier));
+        when(userAchievementMapper.selectByUserIdAndType(eq(userId), eq("menu")))
+                .thenReturn(null);
+        when(userAchievementMapper.insert(any(UserAchievement.class))).thenReturn(1);
+        doNothing().when(pushService).pushAchievements(eq(userId), anyList());
+
+        List<UnlockedAchievementDTO> result = service.reportStats(userId, Map.of("menuVisitedCount", 50));
+
+        assertEquals(1, result.size());
+        assertEquals("菜单达人", result.get(0).getName());
+        verify(kvEngine).put("achievement:1:menuVisitedCount", "50");
+    }
+
+    @Test
+    void testReportStats_no_stat_returns_empty() {
+        Long userId = 1L;
+
+        List<UnlockedAchievementDTO> result = service.reportStats(userId, Map.of());
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(kvEngine, never()).put(anyString(), anyString());
+    }
+
+    @Test
+    void testReportStats_multiple_stats_judged() {
+        Long userId = 1L;
+
+        AchievementTier tier = createTier("menu", 1, "菜单达人");
+        tier.setRule("menuVisitedCount >= 50 AND messageSentCount >= 10");
+
+        doNothing().when(kvEngine).put(eq("achievement:1:menuVisitedCount"), eq("50"));
+        doNothing().when(kvEngine).put(eq("achievement:1:messageSentCount"), eq("10"));
+        when(kvEngine.findAllByPrefix("achievement:1:"))
+                .thenReturn(Map.of(
+                        "achievement:1:menuVisitedCount", "50",
+                        "achievement:1:messageSentCount", "10"
+                ));
+        when(userAchievementMapper.selectMaxLevelByUserId(userId)).thenReturn(Map.of());
+        when(tierMapper.selectList(null)).thenReturn(List.of(tier));
+        when(userAchievementMapper.selectByUserIdAndType(eq(userId), eq("menu")))
+                .thenReturn(null);
+        when(userAchievementMapper.insert(any(UserAchievement.class))).thenReturn(1);
+        doNothing().when(pushService).pushAchievements(eq(userId), anyList());
+
+        List<UnlockedAchievementDTO> result = service.reportStats(userId, Map.of(
+                "menuVisitedCount", 50,
+                "messageSentCount", 10
+        ));
+
+        assertEquals(1, result.size());
+        verify(kvEngine).put("achievement:1:menuVisitedCount", "50");
+        verify(kvEngine).put("achievement:1:messageSentCount", "10");
+    }
+
     // ==================== CircuitBreaker expression compatibility ====================
 
     @Test

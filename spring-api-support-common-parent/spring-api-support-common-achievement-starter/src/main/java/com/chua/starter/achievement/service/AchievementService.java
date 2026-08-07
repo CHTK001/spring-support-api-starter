@@ -104,6 +104,31 @@ public class AchievementService {
     }
 
     /**
+     * 批量上报统计值并判定成就（刷新接口）。
+     *
+     * <p>前端将自身掌握但后端无法感知的行为数据（如菜单点击次数、消息发送次数等）
+     * 通过此接口批量上报，写入 KvEngine 后统一判定成就解锁。</p>
+     *
+     * @param userId 用户ID
+     * @param stats  统计值映射，key 为统计字段名（如 menuVisitedCount），value 为数值
+     * @return 新解锁的成就列表
+     */
+    public List<UnlockedAchievementDTO> reportStats(Long userId, Map<String, Object> stats) {
+        if (stats == null || stats.isEmpty()) {
+            return new ArrayList<>();
+        }
+        String prefix = KEY_PREFIX + userId + ":";
+        for (Map.Entry<String, Object> entry : stats.entrySet()) {
+            if (entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            kvEngine.put(prefix + entry.getKey(), String.valueOf(entry.getValue()));
+        }
+        Map<String, String> context = kvEngine.findAllByPrefix(prefix);
+        return judgeAll(userId, context);
+    }
+
+    /**
      * 拉取用户上下文并判定所有未解锁段位。
      *
      * <p>使用 {@link CircuitBreaker} 对每个段位的规则表达式进行判定，
