@@ -42,6 +42,9 @@ public final class TenantSyncMessageSupport {
     public static final String TENANT = "tenant";
     public static final String MENUS = "menus";
     public static final String MENU_IDS = "menuIds";
+    public static final String SERVICES = "services";
+    public static final String MODULES = "modules";
+    public static final String ITEMS = "items";
     public static final String OPERATION = "operation";
     public static final String TOPIC_TENANT_UPDATE = "tenant/update";
     public static final String TOPIC_TENANT_DELETE = "tenant/delete";

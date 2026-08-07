@@ -73,6 +73,27 @@ public interface TenantDataSyncProvider {
     boolean syncMenuData(String tenantId, List<Map<String, Object>> menus, String operation);
 
     /**
+     * 同步租户服务数据
+     * <p>
+     * 将平台下发的服务、模块、模块项写入租户库, 并记录租户自身与租户-服务绑定关系
+     * </p>
+     *
+     * @param tenant   租户信息
+     * @param services 服务列表
+     * @param modules  服务模块列表
+     * @param items    服务模块项列表
+     * @param operation 操作类型: create, update, delete, replace
+     * @return 同步结果
+     */
+    default boolean syncServiceData(SysTenant tenant,
+                                    List<Map<String, Object>> services,
+                                    List<Map<String, Object>> modules,
+                                    List<Map<String, Object>> items,
+                                    String operation) {
+        return false;
+    }
+
+    /**
      * 处理原始同步数据
      * <p>
      * 用于处理自定义格式的同步数据
