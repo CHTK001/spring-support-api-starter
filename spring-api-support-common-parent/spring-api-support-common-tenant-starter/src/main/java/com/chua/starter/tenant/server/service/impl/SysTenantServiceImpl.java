@@ -122,10 +122,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         
         log.info("租户保存成功, ID: {}", sysTenant.getSysTenantId());
 
-        // 发布同步消息
+        // 发布同步消息：推送给租户端租户信息，并按当前订阅重置租户端菜单
         if (syncPublisher != null) {
             syncPublisher.publishTenantUpdate(sysTenant);
         }
+        resetMenuForSysTenant(sysTenant.getSysTenantId());
 
         return ReturnResult.ok(sysTenant);
     }
@@ -151,10 +152,13 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         boolean result = updateById(sysTenant);
         log.info("租户更新结果: {}", result);
 
-        // 发布同步消息
+        // 发布同步消息：推送给租户端租户信息，并按当前订阅重置租户端菜单
         if (result && syncPublisher != null) {
             SysTenant updated = getById(sysTenant.getSysTenantId());
             syncPublisher.publishTenantUpdate(updated);
+        }
+        if (result) {
+            resetMenuForSysTenant(sysTenant.getSysTenantId());
         }
 
         return (result) ? ReturnResult.ok(true) : ReturnResult.error("操作失败");
@@ -269,6 +273,47 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         stats.setSubscribed(subscribedCount);
 
         return ReturnResult.ok(stats);
+    }
+
+    @Override
+    public ReturnResult<Boolean> resetPasswordForSysTenant(String sysTenantId, String sysTenantPassword) {
+        if (StringUtils.isBlank(sysTenantId)) {
+            return ReturnResult.illegal("租户ID不能为空");
+        }
+        if (StringUtils.isBlank(sysTenantPassword)) {
+            return ReturnResult.illegal("新密码不能为空");
+        }
+
+        SysTenant tenant = getById(sysTenantId);
+        if (tenant == null) {
+            return ReturnResult.error("租户不存在");
+        }
+
+        boolean result = update(Wrappers.<SysTenant>lambdaUpdate()
+                .set(SysTenant::getSysTenantPassword, sysTenantPassword)
+                .eq(SysTenant::getSysTenantId, sysTenantId));
+        log.info("租户密码重置结果: tenantId={}, result={}", sysTenantId, result);
+
+        // 将重置后的密码推送给租户端，租户端同步更新登录账号密码
+        if (result && syncPublisher != null) {
+            SysTenant updated = getById(sysTenantId);
+            syncPublisher.publishTenantUpdate(updated);
+        }
+
+        return (result) ? ReturnResult.ok(true) : ReturnResult.error("操作失败");
+    }
+
+    @Override
+    public void resetMenuForSysTenant(String sysTenantId) {
+        if (syncPublisher == null || StringUtils.isBlank(sysTenantId)) {
+            return;
+        }
+
+        // 按租户当前订阅的服务重新计算菜单并全量推送给租户端
+        List<Integer> menuIds = sysTenantServiceMapper.getMenuByTenantId(sysTenantId);
+        syncPublisher.publishServiceUpdate(sysTenantId, menuIds);
+        log.info("租户菜单重置完成并推送, tenantId={}, menuCount={}", sysTenantId,
+                menuIds == null ? 0 : menuIds.size());
     }
 
     /**
