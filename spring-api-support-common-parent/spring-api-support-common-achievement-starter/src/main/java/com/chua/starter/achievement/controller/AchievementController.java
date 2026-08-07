@@ -110,6 +110,9 @@ public class AchievementController {
     @Operation(summary = "Report user stats and refresh achievements")
     @PostMapping("/report")
     public ReturnResult<List<UnlockedAchievementDTO>> reportStats(@RequestBody ReportStatsDTO dto) {
+        if (dto == null || dto.getUserId() == null) {
+            return ReturnResult.error("userId is required");
+        }
         return ReturnResult.ok(achievementService.reportStats(dto.getUserId(), dto.getStats()));
     }
 
@@ -136,6 +139,7 @@ public class AchievementController {
                         Map.Entry::getKey,
                         e -> e.getValue().map(UnlockedAchievementDTO::getLevel).orElse(0)
                 )));
+        stats.setTotalAchievements((int) achievementService.countAllTiers());
         return ReturnResult.ok(stats);
     }
 
