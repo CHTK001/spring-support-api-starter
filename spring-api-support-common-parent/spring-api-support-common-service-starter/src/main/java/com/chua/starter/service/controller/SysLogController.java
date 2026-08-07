@@ -44,7 +44,7 @@ public class SysLogController {
      */
     @Operation(summary = "系统日志分页列表")
     @GetMapping("/page")
-    @Permission(role = {AuthConstant.SUPER_ADMIN})
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnPageResult<SysLog> pageForRole(@ParameterObject Query<SysLog> query, @ParameterObject SysLog sysLog, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysLogService.pageForLog(query, sysLog, roles));
     }
@@ -57,7 +57,7 @@ public class SysLogController {
     @Operation(summary = "删除系统日志")
     @DeleteMapping("/delete")
     @Transactional(rollbackFor = Exception.class)
-    @Permission(value = "sys:log:delete", role = {AuthConstant.SUPER_ADMIN})
+    @Permission(value = "sys:log:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long logId) {
         if (null == logId) {
             return ReturnResult.illegal("系统日志信息不存在");

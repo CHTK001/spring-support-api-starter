@@ -97,4 +97,13 @@ public class SysServiceModule extends SysBase {
     @ApiModelProperty(value = "服务模块类型")
     @Schema(description = "服务模块类型: API-API接口, SERVICE-服务, FUNCTION-功能")
     private String sysServiceModuleType;
+
+    /**
+     * 关联菜单ID
+     * <p>功能模块(FUNCTION)映射到平台菜单，租户菜单推送时据此计算</p>
+     */
+    @TableField(value = "sys_menu_id")
+    @ApiModelProperty(value = "关联菜单ID")
+    @Schema(description = "关联菜单ID")
+    private Integer sysMenuId;
 }
