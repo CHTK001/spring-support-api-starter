@@ -1,5 +1,6 @@
 package com.chua.starter.tenant.client;
 
+import com.chua.common.support.network.sync.SyncFlowListener;
 import com.chua.starter.sync.support.client.SyncClient;
 import com.chua.starter.sync.support.spi.SyncClientCustomizer;
 import com.chua.starter.tenant.properties.TenantProperties;
@@ -60,11 +61,15 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
             log.info("[租户客户端] 连接前自动注册同步主题完成");
         }
 
-        syncClient.addConnectionListener(connected -> {
-            if (connected) {
+        syncClient.addListener(new SyncFlowListener() {
+            @Override
+            public void onClientConnected(String clientId) {
                 scheduleFullSyncRequest(syncClient);
             }
         });
+
+        // 发起底层连接（幂等），等待平台端 sync-server 接受后触发全量同步
+        syncClient.connect();
     }
 
     /**

@@ -1,183 +1,109 @@
-/*
- * 租户管理模块 - 数据库初始化脚本
- * 
- * 包含�?
- *   - sys_tenant: 租户信息�?
- *   - sys_service: 服务�?
- *   - sys_service_module: 服务模块�?
- *   - sys_service_module_item: 服务模块功能项表
- *   - sys_tenant_service: 租户服务关联�?
- *
- * 用于多租户SaaS架构，管理租户及其订阅的服务模块
- *
- * @author System
- * @since 2025-01-01
- * @version 1.0
- */
+-- =============================================
+-- 租户管理表结构（与当前实体对齐，覆盖旧 V1.0 结构）
+--
+-- 表清单:
+--   sys_tenant              租户信息表
+--   sys_service             服务产品表
+--   sys_service_module      服务模块表（模块关联菜单 sys_menu_id）
+--   sys_service_module_item 服务模块菜单关联表（sys_menu_id 供租户菜单推送）
+--   sys_tenant_service      租户-服务订阅表
+--
+-- @author CH
+-- @version 2.0.0
+-- @since 2026-08-07
+-- =============================================
 
-SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
-
--- =====================================================
--- 1. 租户信息�?(sys_tenant)
--- 用�? 存储租户基本信息，支持多租户隔离
--- =====================================================
 DROP TABLE IF EXISTS `sys_tenant`;
 CREATE TABLE `sys_tenant` (
-    `sys_tenant_id` int NOT NULL AUTO_INCREMENT COMMENT '租户ID - 主键自增',
-    `sys_tenant_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '租户名称 - 企业/组织名称',
-    `sys_tenant_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '租户编码 - 唯一标识码，用于API调用和数据隔�?,
-    `sys_tenant_logo` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '租户Logo - Logo图片URL地址',
-    `sys_tenant_description` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '租户描述 - 企业/组织简�?,
-    `sys_tenant_contact_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '联系人姓�?- 主要联系�?,
-    `sys_tenant_contact_phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '联系电话 - 联系人手机号�?,
-    `sys_tenant_contact_email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '联系邮箱 - 联系人电子邮�?,
-    `sys_tenant_address` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '联系地址 - 企业办公地址',
-    `sys_tenant_domain` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '自定义域�?- 租户专属访问域名',
-    `sys_tenant_expire_time` datetime NULL DEFAULT NULL COMMENT '服务到期时间 - NULL表示永久有效',
-    `sys_tenant_max_users` int NULL DEFAULT 100 COMMENT '最大用户数 - 该租户允许的最大用户数量限�?,
-    `sys_tenant_current_users` int NULL DEFAULT 0 COMMENT '当前用户�?- 该租户当前已注册的用户数�?,
-    `sys_tenant_storage_quota` bigint NULL DEFAULT 10737418240 COMMENT '存储配额 - 允许使用的存储空�?字节)，默�?0GB',
-    `sys_tenant_storage_used` bigint NULL DEFAULT 0 COMMENT '已用存储 - 当前已使用的存储空间(字节)',
-    `sys_tenant_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'STANDARD' COMMENT '租户类型 - TRIAL:试用, STANDARD:标准, PROFESSIONAL:专业, ENTERPRISE:企业',
-    `sys_tenant_status` int NULL DEFAULT 1 COMMENT '租户状�?- 0:禁用, 1:正常, 2:试用�? 3:已过�? 4:欠费冻结',
-    `sys_tenant_data_isolation` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'SCHEMA' COMMENT '数据隔离模式 - SHARED:共享�? SCHEMA:独立Schema, DATABASE:独立数据�?,
-    `sys_tenant_theme` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '主题配置 - 租户自定义主题JSON配置',
-    `sys_tenant_config` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '扩展配置 - 租户其他配置信息(JSON格式)',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓�?,
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓�?,
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_tenant_id`) USING BTREE,
-    UNIQUE INDEX `uk_tenant_code` (`sys_tenant_code`) USING BTREE COMMENT '租户编码唯一索引',
-    UNIQUE INDEX `uk_tenant_domain` (`sys_tenant_domain`) USING BTREE COMMENT '租户域名唯一索引',
-    INDEX `idx_tenant_status` (`sys_tenant_status`) USING BTREE COMMENT '状态索�?,
-    INDEX `idx_expire_time` (`sys_tenant_expire_time`) USING BTREE COMMENT '过期时间索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
-COMMENT = '租户信息�?- 存储多租户SaaS系统的租户基本信�? ROW_FORMAT = DYNAMIC;
+    `sys_tenant_id` varchar(64) NOT NULL COMMENT '租户ID - 雪花ID即租户唯一编码',
+    `sys_tenant_name` varchar(255) NULL DEFAULT NULL COMMENT '租户名称',
+    `sys_tenant_username` varchar(255) NULL DEFAULT NULL COMMENT '租户登录账号',
+    `sys_tenant_password` varchar(255) NULL DEFAULT NULL COMMENT '租户密码',
+    `sys_tenant_sign` varchar(255) NULL DEFAULT NULL COMMENT '签名',
+    `sys_tenant_corporation` varchar(255) NULL DEFAULT NULL COMMENT '公司名称',
+    `sys_tenant_delete` int NULL DEFAULT 0 COMMENT '删除标记 - 0:未删除, 1:已删除',
+    `sys_tenant_status` int NULL DEFAULT 0 COMMENT '状态 - 0:正常, 1:禁用',
+    `sys_tenant_contact` varchar(255) NULL DEFAULT NULL COMMENT '联系人',
+    `sys_tenant_phone` varchar(50) NULL DEFAULT NULL COMMENT '联系电话',
+    `sys_tenant_address` varchar(500) NULL DEFAULT NULL COMMENT '联系地址',
+    `sys_tenant_email` varchar(255) NULL DEFAULT NULL COMMENT '联系邮箱',
+    `sys_tenant_code` varchar(100) NULL DEFAULT NULL COMMENT '租户编码(兼容)',
+    `sys_tenant_gid` varchar(64) NULL DEFAULT NULL COMMENT '全局ID',
+    `sys_tenant_home_url` varchar(500) NULL DEFAULT NULL COMMENT '租户首页地址',
+    `sys_tenant_remark` varchar(1000) NULL DEFAULT NULL COMMENT '备注',
+    `create_name` varchar(255) NULL DEFAULT NULL,
+    `create_by` int NULL DEFAULT NULL,
+    `create_time` datetime NULL DEFAULT NULL,
+    `update_name` varchar(255) NULL DEFAULT NULL,
+    `update_by` int NULL DEFAULT NULL,
+    `update_time` datetime NULL DEFAULT NULL,
+    PRIMARY KEY (`sys_tenant_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
--- =====================================================
--- 2. 服务�?(sys_service)
--- 用�? 定义系统提供的服务产�?
--- =====================================================
 DROP TABLE IF EXISTS `sys_service`;
 CREATE TABLE `sys_service` (
-    `sys_service_id` int NOT NULL AUTO_INCREMENT COMMENT '服务ID - 主键自增',
-    `sys_service_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '服务名称 - 服务的显示名�?,
-    `sys_service_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '服务编码 - 服务唯一标识�?,
-    `sys_service_icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务图标 - 图标URL或图标类�?,
-    `sys_service_description` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '服务描述 - 服务功能的详细说�?,
-    `sys_service_price_monthly` decimal(10, 2) NULL DEFAULT 0.00 COMMENT '月度价格 - 按月订阅的价�?�?',
-    `sys_service_price_yearly` decimal(10, 2) NULL DEFAULT 0.00 COMMENT '年度价格 - 按年订阅的价�?�?',
-    `sys_service_trial_days` int NULL DEFAULT 0 COMMENT '试用天数 - 免费试用期天数，0表示不提供试�?,
-    `sys_service_sort` int NULL DEFAULT 0 COMMENT '排序�?- 服务在列表中的显示顺�?,
-    `sys_service_status` int NULL DEFAULT 1 COMMENT '服务状�?- 0:下架, 1:上架, 2:即将上线',
-    `sys_service_features` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '功能特�?- 服务包含的功能列�?JSON数组)',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓�?,
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓�?,
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_service_id`) USING BTREE,
-    UNIQUE INDEX `uk_service_code` (`sys_service_code`) USING BTREE COMMENT '服务编码唯一索引',
-    INDEX `idx_service_status` (`sys_service_status`) USING BTREE COMMENT '状态索�?,
-    INDEX `idx_service_sort` (`sys_service_sort`) USING BTREE COMMENT '排序索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
-COMMENT = '服务�?- 定义系统提供的可订阅服务产品' ROW_FORMAT = DYNAMIC;
+    `sys_service_id` int NOT NULL AUTO_INCREMENT,
+    `sys_service_name` varchar(255) NULL DEFAULT NULL COMMENT '服务名称',
+    `sys_service_code` varchar(100) NULL DEFAULT NULL COMMENT '服务编码',
+    `sys_service_desc` varchar(500) NULL DEFAULT NULL COMMENT '服务描述',
+    `sys_service_sort` int NULL DEFAULT 0 COMMENT '排序',
+    `sys_service_delete` int NULL DEFAULT 0 COMMENT '删除标记 - 0:未删除, 1:已删除',
+    `sys_service_status` int NULL DEFAULT 0 COMMENT '状态 - 0:正常, 1:禁用',
+    `create_name` varchar(255) NULL DEFAULT NULL,
+    `create_by` int NULL DEFAULT NULL,
+    `create_time` datetime NULL DEFAULT NULL,
+    `update_name` varchar(255) NULL DEFAULT NULL,
+    `update_by` int NULL DEFAULT NULL,
+    `update_time` datetime NULL DEFAULT NULL,
+    PRIMARY KEY (`sys_service_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
--- =====================================================
--- 3. 服务模块�?(sys_service_module)
--- 用�? 定义服务下的功能模块
--- =====================================================
 DROP TABLE IF EXISTS `sys_service_module`;
 CREATE TABLE `sys_service_module` (
-    `sys_service_module_id` int NOT NULL AUTO_INCREMENT COMMENT '模块ID - 主键自增',
-    `sys_service_module_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '模块名称 - 模块的显示名�?,
-    `sys_service_module_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '模块编码 - 模块唯一标识�?,
-    `sys_service_module_desc` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '模块描述 - 模块功能说明',
-    `sys_service_module_sort` int NULL DEFAULT 0 COMMENT '排序�?- 模块在列表中的显示顺�?,
-    `sys_service_module_delete` int NULL DEFAULT 0 COMMENT '删除标记 - 0:未删�? 1:已删�?,
-    `sys_service_module_status` int NULL DEFAULT 0 COMMENT '模块状�?- 0:启用, 1:禁用',
-    `sys_service_module_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'SERVICE' COMMENT '模块类型 - API:API接口, SERVICE:服务, FUNCTION:功能',
-    `sys_menu_id` int NULL DEFAULT NULL COMMENT '�����˵�ID - ����ģ��(FUNCTION)ӳ�䵽ƽ̨�˵����⻧�˵���������',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓�?,
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓�?,
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_service_module_id`) USING BTREE,
-    UNIQUE INDEX `uk_module_code` (`sys_service_module_code`) USING BTREE COMMENT '模块编码唯一索引',
-    INDEX `idx_module_status` (`sys_service_module_status`) USING BTREE COMMENT '状态索�?,
-    INDEX `idx_module_type` (`sys_service_module_type`) USING BTREE COMMENT '类型索引',
-    INDEX `idx_module_sort` (`sys_service_module_sort`) USING BTREE COMMENT '排序索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
-COMMENT = '服务模块�?- 定义服务下的功能模块' ROW_FORMAT = DYNAMIC;
+    `sys_service_module_id` int NOT NULL AUTO_INCREMENT,
+    `sys_service_module_name` varchar(255) NULL DEFAULT NULL COMMENT '模块名称',
+    `sys_service_module_code` varchar(100) NULL DEFAULT NULL COMMENT '模块编码',
+    `sys_service_module_desc` varchar(500) NULL DEFAULT NULL COMMENT '模块描述',
+    `sys_service_module_sort` int NULL DEFAULT 0 COMMENT '排序',
+    `sys_service_module_delete` int NULL DEFAULT 0 COMMENT '删除标记 - 0:未删除, 1:已删除',
+    `sys_service_module_status` int NULL DEFAULT 0 COMMENT '状态 - 0:正常, 1:禁用',
+    `sys_service_module_type` varchar(50) NULL DEFAULT 'SERVICE' COMMENT '类型 - API/SERVICE/FUNCTION',
+    `sys_menu_id` int NULL DEFAULT NULL COMMENT '关联菜单ID - 功能模块(FUNCTION)映射到平台菜单',
+    `create_name` varchar(255) NULL DEFAULT NULL,
+    `create_by` int NULL DEFAULT NULL,
+    `create_time` datetime NULL DEFAULT NULL,
+    `update_name` varchar(255) NULL DEFAULT NULL,
+    `update_by` int NULL DEFAULT NULL,
+    `update_time` datetime NULL DEFAULT NULL,
+    PRIMARY KEY (`sys_service_module_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
--- =====================================================
--- 4. 服务模块关联�?(sys_service_module_item)
--- 用�? 服务与模块的多对多关联表
--- =====================================================
 DROP TABLE IF EXISTS `sys_service_module_item`;
 CREATE TABLE `sys_service_module_item` (
-    `sys_service_module_item_id` int NOT NULL AUTO_INCREMENT COMMENT '关联ID - 主键自增',
-    `sys_service_id` int NOT NULL COMMENT '服务ID - 关联sys_service�?,
-    `sys_service_module_id` int NOT NULL COMMENT '模块ID - 关联sys_service_module�?,
-    `sys_menu_id` int NULL DEFAULT NULL COMMENT '�˵�ID - ����sys_menu�����⻧�˵���������',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓�?,
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓�?,
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_service_module_item_id`) USING BTREE,
-    UNIQUE INDEX `uk_service_module` (`sys_service_id`, `sys_service_module_id`) USING BTREE COMMENT '服务模块唯一索引',
-    INDEX `idx_service_id` (`sys_service_id`) USING BTREE COMMENT '服务ID索引',
-    INDEX `idx_module_id` (`sys_service_module_id`) USING BTREE COMMENT '模块ID索引'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
-COMMENT = '服务模块关联�?- 服务与模块的多对多关�? ROW_FORMAT = DYNAMIC;
+    `sys_service_module_item_id` int NOT NULL AUTO_INCREMENT,
+    `sys_service_id` int NOT NULL COMMENT '服务ID',
+    `sys_service_module_id` int NOT NULL COMMENT '模块ID',
+    `sys_menu_id` int NULL DEFAULT NULL COMMENT '菜单ID - 关联sys_menu表，租户菜单推送依据',
+    `create_name` varchar(255) NULL DEFAULT NULL,
+    `create_by` int NULL DEFAULT NULL,
+    `create_time` datetime NULL DEFAULT NULL,
+    `update_name` varchar(255) NULL DEFAULT NULL,
+    `update_by` int NULL DEFAULT NULL,
+    `update_time` datetime NULL DEFAULT NULL,
+    PRIMARY KEY (`sys_service_module_item_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
--- =====================================================
--- 5. 租户服务关联�?(sys_tenant_service)
--- 用�? 记录租户订阅的服务及其状�?
--- =====================================================
 DROP TABLE IF EXISTS `sys_tenant_service`;
 CREATE TABLE `sys_tenant_service` (
-    `sys_tenant_service_id` int NOT NULL AUTO_INCREMENT COMMENT '关联ID - 主键自增',
-    `sys_tenant_id` int NOT NULL COMMENT '租户ID - 关联sys_tenant�?,
-    `sys_service_id` int NOT NULL COMMENT '服务ID - 关联sys_service�?,
-    `sys_subscription_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'MONTHLY' COMMENT '订阅类型 - TRIAL:试用, MONTHLY:月付, YEARLY:年付, PERMANENT:永久',
-    `sys_subscription_start` datetime NOT NULL COMMENT '订阅开始时�?- 服务生效开始日�?,
-    `sys_subscription_end` datetime NULL DEFAULT NULL COMMENT '订阅结束时间 - 服务到期日期，NULL表示永久',
-    `sys_subscription_status` int NULL DEFAULT 1 COMMENT '订阅状�?- 0:已取�? 1:生效�? 2:试用�? 3:已过�? 4:续费�?,
-    `sys_auto_renew` int NULL DEFAULT 0 COMMENT '自动续费 - 0:�? 1:�?,
-    `sys_modules_enabled` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '启用的模�?- 已启用的模块ID列表(JSON数组)',
-    `sys_modules_addon` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '附加模块 - 额外购买的附加模块ID列表(JSON数组)',
-    `sys_price_paid` decimal(10, 2) NULL DEFAULT 0.00 COMMENT '实付金额 - 本次订阅实际支付的金�?�?',
-    `sys_order_no` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '订单�?- 关联的支付订单号',
-    `sys_remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注 - 订阅相关备注信息',
-    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓�?,
-    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
-    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓�?,
-    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
-    PRIMARY KEY (`sys_tenant_service_id`) USING BTREE,
-    UNIQUE INDEX `uk_tenant_service` (`sys_tenant_id`, `sys_service_id`) USING BTREE COMMENT '租户服务唯一索引 - 确保每个租户只有一条服务订阅记�?,
-    INDEX `idx_tenant_id` (`sys_tenant_id`) USING BTREE COMMENT '租户ID索引',
-    INDEX `idx_service_id` (`sys_service_id`) USING BTREE COMMENT '服务ID索引',
-    INDEX `idx_subscription_status` (`sys_subscription_status`) USING BTREE COMMENT '订阅状态索�?,
-    INDEX `idx_subscription_end` (`sys_subscription_end`) USING BTREE COMMENT '订阅结束时间索引 - 用于检查即将过期的订阅'
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
-COMMENT = '租户服务关联�?- 记录租户订阅的服务及订阅状�? ROW_FORMAT = DYNAMIC;
-
--- =====================================================
--- 初始数据 - 默认租户(系统管理�?
--- =====================================================
-INSERT INTO `sys_tenant` (`sys_tenant_id`, `sys_tenant_name`, `sys_tenant_code`, `sys_tenant_description`, `sys_tenant_type`, `sys_tenant_status`, `sys_tenant_max_users`, `create_name`, `create_by`, `create_time`, `update_time`)
-VALUES (1, '系统管理平台', 'SYSTEM', '系统默认租户，用于平台管�?, 'ENTERPRISE', 1, -1, '系统初始�?, 0, NOW(), NOW());
-
-SET FOREIGN_KEY_CHECKS = 1;
+    `sys_tenant_service_id` int NOT NULL AUTO_INCREMENT,
+    `sys_tenant_id` varchar(64) NOT NULL COMMENT '租户ID',
+    `sys_service_id` int NOT NULL COMMENT '服务ID',
+    `sys_tenant_service_valid_time` date NULL DEFAULT NULL COMMENT '服务到期时间 - NULL表示永久有效',
+    `create_name` varchar(255) NULL DEFAULT NULL,
+    `create_by` int NULL DEFAULT NULL,
+    `create_time` datetime NULL DEFAULT NULL,
+    `update_name` varchar(255) NULL DEFAULT NULL,
+    `update_by` int NULL DEFAULT NULL,
+    `update_time` datetime NULL DEFAULT NULL,
+    PRIMARY KEY (`sys_tenant_service_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;

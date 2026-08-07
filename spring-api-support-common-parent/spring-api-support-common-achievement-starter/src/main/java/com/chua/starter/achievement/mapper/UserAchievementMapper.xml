@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.achievement.mapper.UserAchievementMapper">
+
+    <select id="selectByUserIdAndType" resultType="com.chua.starter.achievement.model.UserAchievement">
+        SELECT id, user_id, type, max_level, unlocked_at, create_time, update_time
+        FROM user_achievement
+        WHERE user_id = #{userId} AND type = #{type}
+        LIMIT 1
+    </select>
+
+    <select id="selectMaxLevelByUserId" resultType="java.util.Map">
+        SELECT type, max_level
+        FROM user_achievement
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="batchUpsert" parameterType="java.util.List">
+        INSERT INTO user_achievement (user_id, type, max_level, unlocked_at)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.userId}, #{item.type}, #{item.maxLevel}, #{item.unlockedAt})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        max_level = VALUES(max_level),
+        unlocked_at = VALUES(unlocked_at)
+    </insert>
+
+</mapper>

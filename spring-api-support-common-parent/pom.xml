@@ -30,5 +30,7 @@
         <module>spring-api-support-common-service-starter</module>
         <module>spring-api-support-common-tenant-starter</module>
         <module>spring-api-support-common-system-starter</module>
+        <module>spring-api-support-common-achievement-starter</module>
+        <module>spring-api-support-common-signin-starter</module>
     </modules>
 </project>
