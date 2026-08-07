@@ -134,9 +134,24 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
     /**
      * 获取优先级最高的提供者
      */
+    /**
+     * 校验同步消息目标租户是否为当前租户实例自身
+     * <p>防止平台广播兜底或消息错投时，将其他租户的数据写入本租户库</p>
+     *
+     * @param tenantId 消息目标租户ID
+     * @return true=匹配或未配置自身租户ID(向后兼容)；false=不匹配
+     */
+    private boolean isSelfTenant(String tenantId) {
+        if (!TenantSyncMessageSupport.hasText(tenantId)) {
+            return false;
+        }
+        String selfTenantId = tenantProperties.getClient().getTenantId();
+        return !TenantSyncMessageSupport.hasText(selfTenantId) || selfTenantId.equals(tenantId);
+    }
+
     private TenantDataSyncProvider getProvider() {
         if (syncProviders == null || syncProviders.isEmpty()) {
-            log.warn("[租户客户端] 未找到 TenantDataSyncProvider 实现");
+            log.warn("[�⻧�ͻ���] δ�ҵ� TenantDataSyncProvider ʵ��");
             return null;
         }
         return syncProviders.stream()
@@ -156,8 +171,12 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         try {
             SysTenant tenant = convertToTenant(TenantSyncMessageSupport.resolveTenantPayload(data));
             if (tenant == null || tenant.getSysTenantId() == null) {
-                log.warn("[租户客户端] 租户数据不完整");
-                return Map.of("success", false, "message", "租户数据不完整");
+                log.warn("[�⻧�ͻ���] �⻧���ݲ�����");
+                return Map.of("success", false, "message", "�⻧���ݲ�����");
+            }
+            if (!isSelfTenant(tenant.getSysTenantId())) {
+                log.warn("[�⻧�ͻ���] �⻧ID��ƥ�䣬������: tenantId={}", tenant.getSysTenantId());
+                return Map.of("success", false, "message", "�⻧ID��ƥ�䣬������");
             }
 
             provider.syncTenantUser(tenant, "update");
@@ -181,7 +200,11 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         try {
             String tenantId = TenantSyncMessageSupport.resolveTargetTenantId(data);
             if (!TenantSyncMessageSupport.hasText(tenantId)) {
-                return Map.of("success", false, "message", "租户ID为空");
+                return Map.of("success", false, "message", "�⻧IDΪ��");
+            }
+            if (!isSelfTenant(tenantId)) {
+                log.warn("[�⻧�ͻ���] �⻧ID��ƥ�䣬������: tenantId={}", tenantId);
+                return Map.of("success", false, "message", "�⻧ID��ƥ�䣬������");
             }
 
             SysTenant tenant = new SysTenant();
@@ -213,7 +236,11 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
             List<Map<String, Object>> menus = (List<Map<String, Object>>) data.get(TenantSyncMessageSupport.MENUS);
 
             if (!TenantSyncMessageSupport.hasText(tenantId)) {
-                return Map.of("success", false, "message", "租户ID为空");
+                return Map.of("success", false, "message", "�⻧IDΪ��");
+            }
+            if (!isSelfTenant(tenantId)) {
+                log.warn("[�⻧�ͻ���] �⻧ID��ƥ�䣬������: tenantId={}", tenantId);
+                return Map.of("success", false, "message", "�⻧ID��ƥ�䣬������");
             }
 
             boolean result;
@@ -247,7 +274,11 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
             List<Map<String, Object>> menus = (List<Map<String, Object>>) data.get("menus");
 
             if (!TenantSyncMessageSupport.hasText(tenantId)) {
-                return Map.of("success", false, "message", "租户ID为空");
+                return Map.of("success", false, "message", "�⻧IDΪ��");
+            }
+            if (!isSelfTenant(tenantId)) {
+                log.warn("[�⻧�ͻ���] �⻧ID��ƥ�䣬������: tenantId={}", tenantId);
+                return Map.of("success", false, "message", "�⻧ID��ƥ�䣬������");
             }
 
             boolean result = provider.syncMenuData(tenantId, menus, operation);

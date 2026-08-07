@@ -1,0 +1,58 @@
+package com.chua.starter.signin.model;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+/**
+ * 签到积分规则实体
+ *
+ * <p>定义签到积分的发放规则，包括每日签到基础积分和连续签到里程碑奖励。
+ * 内置规则类型：DAILY_SIGN（每日基础）、STREAK_BONUS_3/7/30（连续天数里程碑）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+@Data
+@TableName("sign_in_points_rule")
+public class SignInPointsRule {
+
+    /**
+     * 主键ID
+     */
+    @TableId(type = IdType.AUTO)
+    private Long id;
+
+    /**
+     * 规则类型标识：DAILY_SIGN / STREAK_BONUS_3 / STREAK_BONUS_7 / STREAK_BONUS_30
+     */
+    private String type;
+
+    /**
+     * 奖励积分数
+     */
+    private Integer points;
+
+    /**
+     * 规则描述
+     */
+    private String description;
+
+    /**
+     * 状态：1 启用，0 禁用
+     */
+    private Integer status;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
+}

@@ -28,11 +28,16 @@ public class TenantMybatisConfiguration {
 
     /**
      * 配置 MyBatis-Plus 租户拦截器（客户端模式）
+     * <p>
+     * 租户端采用单租户独立数据库，数据已按租户物理隔离，默认【不启用】行级拦截器，
+     * 避免给无 sys_tenant_id 列的表追加租户条件。
+     * 仅当配置 plugin.mybatis-plus.tenant.client.tenant-line-enable=true 时启用。
+     * </p>
      *
      * @return MybatisPlusInterceptor
      */
     @Bean
-    @ConditionalOnProperty(prefix = TenantProperties.PRE + ".client", name = "enable", havingValue = "true")
+    @ConditionalOnProperty(prefix = TenantProperties.PRE + ".client", name = "tenant-line-enable", havingValue = "true")
     public MybatisPlusInterceptor tenantClientMybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
 
@@ -46,11 +51,16 @@ public class TenantMybatisConfiguration {
 
     /**
      * 配置 MyBatis-Plus 租户拦截器（服务端模式）
+     * <p>
+     * 平台端（服务端）是全局管理视角，管理所有租户数据，默认【不启用】租户行级隔离，
+     * 避免给现有无 sys_tenant_id 列的表追加租户条件而破坏功能。
+     * 仅当配置 plugin.mybatis-plus.tenant.server.tenant-line-enable=true 时启用。
+     * </p>
      *
      * @return MybatisPlusInterceptor
      */
     @Bean
-    @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")
+    @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "tenant-line-enable", havingValue = "true")
     public MybatisPlusInterceptor tenantServerMybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
 

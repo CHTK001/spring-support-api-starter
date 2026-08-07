@@ -197,7 +197,49 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
     }
 
     /**
-     * 发布菜单数据更新
+     * 菜单变更联动推送
+     * <p>
+     * 平台端菜单新增/修改/删除后，向订阅了包含该菜单的服务的所有有效租户推送增量变更，
+     * 不执行全量清空重录
+     * </p>
+     *
+     * @param menuId    菜单ID
+     * @param operation 操作类型: create, update, delete
+     */
+    public void publishMenuChange(Integer menuId, String operation) {
+        if (!canPublish() || menuId == null) {
+            return;
+        }
+
+        try {
+            List<String> tenantIds = sysTenantServiceMapper.findTenantIdsByMenuId(menuId);
+            if (tenantIds == null || tenantIds.isEmpty()) {
+                log.debug("[租户同步] 菜单变更无关联租户: menuId={}, operation={}", menuId, operation);
+                return;
+            }
+
+            List<Map<String, Object>> menus;
+            if (TenantSyncMessageSupport.OP_DELETE.equals(operation)) {
+                menus = List.of(Map.of("sysMenuId", menuId));
+            } else {
+                SysMenu menu = sysMenuMapper.selectById(menuId);
+                if (menu == null) {
+                    return;
+                }
+                menus = List.of(convertMenuToMap(menu));
+            }
+
+            for (String tenantId : tenantIds) {
+                publishMenuUpdate(tenantId, menus, operation);
+            }
+            log.info("[租户同步] 菜单变更推送: menuId={}, operation={}, tenants={}", menuId, operation, tenantIds.size());
+        } catch (Exception e) {
+            log.error("[租户同步] 菜单变更联动推送失败: menuId={}, operation={}", menuId, operation, e);
+        }
+    }
+
+    /**
+     * 推送菜单数据更新
      *
      * @param tenantId  租户ID
      * @param menus     菜单数据列表

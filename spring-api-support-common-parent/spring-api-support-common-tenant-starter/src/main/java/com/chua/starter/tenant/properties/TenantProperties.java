@@ -185,7 +185,7 @@ public class TenantProperties {
         /**
          * 租户同步消息签名密钥。
          * <p>
-         * 配置后，平台端会为租户同步消息签名，并校验租户端主动请求的签名。
+         * 配置后平台端会为租户同步消息签名（并在校验），租户端需要同步配置并校验签名。
          * </p>
          */
         private String syncSignSecret;
@@ -355,7 +355,7 @@ public class TenantProperties {
         /**
          * 租户同步消息签名密钥。
          * <p>
-         * 配置后，租户端会校验平台端下发消息的签名，并为主动补偿请求签名。
+         * 配置后租户端会校验平台端下发的消息签名，为可选能力。
          * </p>
          */
         private String syncSignSecret;

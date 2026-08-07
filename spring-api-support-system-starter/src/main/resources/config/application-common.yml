@@ -26,3 +26,14 @@ plugin:
     sign:
       secret-key: aP9xL3sV7mQ2zT5kB8nR1cY4wH6eD0fJ       # 默认签名密钥，建议生产环境通过配置中心覆盖
 
+  # ===========================================
+  # 租户管理（平台端）
+  # 说明: server 模式默认不启用租户行级拦截器(tenant-line-enable)，平台端为全局管理视角，
+  #       不会给现有无 sys_tenant_id 列的表追加租户条件。sync-enable 需配合 sync-server 使用。
+  # ===========================================
+  mybatis-plus:
+    tenant:
+      server:
+        enable: true
+        sync-enable: true
+

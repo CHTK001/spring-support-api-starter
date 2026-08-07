@@ -34,6 +34,16 @@
 - ✅ 部门层级管理
 - ✅ 部门用户关联
 
+### 🎖️ 成就系统
+
+- ✅ 多分组段位成就体系（登录/签到/菜单/消息/头像框）
+- ✅ JSON 结构化规则引擎（and/or 逻辑组合 + 数值比较算子）
+- ✅ KV 存储抽象层（FileKvEngine / RedisKvEngine 可切换）
+- ✅ Spring Event 事件驱动（业务模块上报行为，成就模块消费判定）
+- ✅ 异步事件监听（@Async 不阻塞调用方）
+- ✅ REST API（已解锁列表/统计概览/段位定义/未解锁段位）
+- ✅ 成就推送（日志默认 / WebSocket 可扩展）
+
 ## 🚀 快速开始
 
 ### 1. 环境要求
@@ -49,8 +59,11 @@
 -- 创建数据库
 CREATE DATABASE system DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- 执行初始化脚本
--- 位于 src/main/resources/db/init/ 目录下
+-- 执行系统初始化脚本
+-- 位于 src/main/resources/db/init/V1.0__init_system.sql
+
+-- 执行成就模块表脚本
+-- 位于 src/main/resources/sql/achievement.sql
 ```
 
 ### 3. 配置文件
@@ -84,9 +97,13 @@ plugin:
         enable: true
         expire: 3600
       # 日志配置
-      log:
-        enable: true
-        async: true
+       log:
+         enable: true
+         async: true
+
+  kvstore:
+    type: file          # 开发环境使用文件存储
+    file-dir: data/kvstore
 ```
 
 ### 4. 启动服务
@@ -125,7 +142,16 @@ spring-api-support-system-starter/
 ├── src/main/java/com/chua/starter/system/
 │   ├── SystemApplication.java           # 启动类
 │   ├── controller/                      # 控制器层
-│   ├── service/                         # 服务层
+│       ├── service/                         # 服务层
+    │   └── achievement/                 # 成就系统子模块
+    │       ├── controller/              # 成就 REST 控制器
+    │       ├── service/                 # 成就核心业务（RuleEngine + AchievementService）
+    │       ├── listener/                # 事件监听（AchievementEventListener）
+    │       ├── kvstore/                 # KV 存储抽象层（FileKvEngine）
+    │       ├── mapper/                  # 成就数据访问
+    │       ├── model/                   # 成就实体（AchievementTier / UserAchievement）
+    │       ├── dto/                     # 成就响应 DTO
+    │       └── event/                   # Spring 事件（UserActionEvent）
 │   ├── mapper/                          # 数据访问层
 │   └── properties/                      # 配置属性
 │       └── SystemProperties.java        # 系统配置
@@ -212,6 +238,15 @@ PUT    /v1/dept/{id}              # 更新部门
 DELETE /v1/dept/{id}              # 删除部门
 ```
 
+### 成就系统接口
+
+```
+GET    /achievement/my/{userId}                   # 查询用户已解锁成就列表
+GET    /achievement/stats/{userId}                 # 查询用户成就统计概览
+GET    /achievement/tiers/{type}                   # 查询指定分组下的段位定义
+GET    /achievement/uncompleted/{userId}/{type}    # 查询用户尚未解锁的段位
+```
+
 ## 🔧 使用示例
 
 ### 创建用户
@@ -246,7 +281,7 @@ curl -X POST http://localhost:18170/system/api/v1/role/1/perms \
 
 ### 完整系统架构图
 
-![系统完整架构图](docs/system-architecture.svg)
+[成就系统架构图](docs/架构图.md)
 
 ### 模块依赖关系
 
@@ -360,6 +395,7 @@ CREATE TABLE `sys_menu` (
 
 ## 🔗 相关文档
 
+- [成就系统架构文档](docs/架构图.md)
 - [OAuth 认证模块](../spring-api-support-common-oauth-starter/README.md)
 - [系统服务模块](../spring-api-support-common-system-starter/README.md)
 - [项目整体文档](../README.md)
@@ -419,5 +455,5 @@ spring:
 ---
 
 **作者**: CH  
-**版本**: 4.0.0  
-**更新时间**: 2024/12/11
+**版本**: 4.0.0.42  
+**更新时间**: 2026/08/07

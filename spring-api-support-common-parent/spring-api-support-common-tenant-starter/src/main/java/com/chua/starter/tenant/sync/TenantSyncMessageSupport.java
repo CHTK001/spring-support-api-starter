@@ -52,6 +52,9 @@ public final class TenantSyncMessageSupport {
     public static final String MODE_FULL = "full";
     public static final String MODE_INCREMENTAL = "incremental";
     public static final String OP_REPLACE = "replace";
+    public static final String OP_CREATE = "create";
+    public static final String OP_UPDATE = "update";
+    public static final String OP_DELETE = "delete";
     public static final String HMAC_SHA256 = "HmacSHA256";
     public static final String SIGN_VERSION_V1 = "v1";
     public static final String ACK_STATUS_APPLIED = "applied";
