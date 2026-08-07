@@ -170,4 +170,38 @@ public class SysTenantController {
     public ReturnResult<SysTenantStats> statsForSysTenant() {
         return sysTenantService.statsForSysTenant();
     }
+
+    /**
+     * 重置租户密码（推送给租户端）
+     *
+     * @param sysTenantId       租户ID
+     * @param sysTenantPassword 新密码
+     * @return 重置结果
+     */
+    @PutMapping("reset-password")
+    @Operation(summary = "重置租户密码")
+    @Permission("sys:tenant:update")
+    public ReturnResult<Boolean> resetPasswordForSysTenant(
+            @Parameter(description = "租户ID") String sysTenantId,
+            @Parameter(description = "新密码") String sysTenantPassword) {
+        return sysTenantService.resetPasswordForSysTenant(sysTenantId, sysTenantPassword);
+    }
+
+    /**
+     * 重置租户菜单（按订阅重新计算并推送给租户端）
+     *
+     * @param sysTenantId 租户ID
+     * @return 重置结果
+     */
+    @PutMapping("reset-menu")
+    @Operation(summary = "重置租户菜单")
+    @Permission("sys:tenant:bind")
+    public ReturnResult<Boolean> resetMenuForSysTenant(
+            @Parameter(description = "租户ID") String sysTenantId) {
+        if (sysTenantId == null || sysTenantId.isBlank()) {
+            return ReturnResult.illegal("租户ID不能为空");
+        }
+        sysTenantService.resetMenuForSysTenant(sysTenantId);
+        return ReturnResult.ok(true);
+    }
 }
