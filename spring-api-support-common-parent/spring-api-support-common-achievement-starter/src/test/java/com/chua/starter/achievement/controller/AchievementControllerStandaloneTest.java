@@ -161,6 +161,22 @@ class AchievementControllerStandaloneTest {
     }
 
     @Test
+    void shouldReportStats() throws Exception {
+        UnlockedAchievementDTO dto = new UnlockedAchievementDTO();
+        dto.setName("菜单达人");
+        dto.setType("menu");
+        dto.setLevel(1);
+        when(achievementService.reportStats(anyLong(), any())).thenReturn(List.of(dto));
+
+        mockMvc.perform(post("/achievement/report")
+                        .contentType("application/json")
+                        .content("{\"userId\":1,\"stats\":{\"menuVisitedCount\":50}}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].name").value("菜单达人"))
+                .andExpect(jsonPath("$.data[0].type").value("menu"));
+    }
+
+    @Test
     void shouldGetStats() throws Exception {
         UnlockedAchievementDTO dto = new UnlockedAchievementDTO();
         dto.setName("首次登录");

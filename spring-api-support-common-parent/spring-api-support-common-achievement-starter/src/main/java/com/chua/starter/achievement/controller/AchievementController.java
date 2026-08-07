@@ -3,6 +3,7 @@ package com.chua.starter.achievement.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.achievement.dto.ReportStatsDTO;
 import com.chua.starter.achievement.dto.UnlockedAchievementDTO;
 import com.chua.starter.achievement.dto.UserAchievementStatsDTO;
 import com.chua.starter.achievement.mapper.AchievementTierMapper;
@@ -105,6 +106,12 @@ public class AchievementController {
     }
 
     // ================== User side ==================
+
+    @Operation(summary = "Report user stats and refresh achievements")
+    @PostMapping("/report")
+    public ReturnResult<List<UnlockedAchievementDTO>> reportStats(@RequestBody ReportStatsDTO dto) {
+        return ReturnResult.ok(achievementService.reportStats(dto.getUserId(), dto.getStats()));
+    }
 
     @Operation(summary = "Get user unlocked achievements")
     @GetMapping("/my/{userId}")
