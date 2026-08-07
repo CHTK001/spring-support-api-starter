@@ -91,4 +91,24 @@ public interface SysTenantService extends IService<SysTenant> {
      * @return 统计数据（总数、启用数、禁用数、订阅服务数）
      */
     ReturnResult<SysTenantStats> statsForSysTenant();
+
+    /**
+     * 重置租户密码并推送租户端
+     *
+     * @param sysTenantId     租户ID
+     * @param sysTenantPassword 新密码（明文，同步到租户端登录账号）
+     * @return 重置结果
+     */
+    ReturnResult<Boolean> resetPasswordForSysTenant(String sysTenantId, String sysTenantPassword);
+
+    /**
+     * 重置租户菜单并推送到租户端
+     * <p>
+     * 按租户当前订阅的服务重新计算菜单并全量推送给租户端，
+     * 保证租户端菜单始终与平台分配保持一致（租户端不可自行维护菜单数据，只能被分配）。
+     * </p>
+     *
+     * @param sysTenantId 租户ID
+     */
+    void resetMenuForSysTenant(String sysTenantId);
 }
