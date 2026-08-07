@@ -47,7 +47,7 @@ class AchievementPushServiceTest {
 
         pushService.pushAchievements(userId, achievements);
 
-        verify(socketSessionTemplate).sendToUser(eq("1"), eq("achievement_unlocked"), anyString());
+        verify(socketSessionTemplate).sendToUser(eq("1"), eq("message"), anyString());
     }
 
     @Test
@@ -56,11 +56,11 @@ class AchievementPushServiceTest {
 
         pushService.pushAchievements(userId, List.of());
 
-        verify(socketSessionTemplate).sendToUser(eq("1"), eq("achievement_unlocked"), anyString());
+        verify(socketSessionTemplate).sendToUser(eq("1"), eq("message"), anyString());
     }
 
     @Test
-    void testPushAchievements_json_contains_required_fields() {
+    void testPushAchievements_json_contains_module_event() {
         Long userId = 1L;
         UnlockedAchievementDTO dto = new UnlockedAchievementDTO();
         dto.setName("登录达人");
@@ -70,8 +70,10 @@ class AchievementPushServiceTest {
 
         pushService.pushAchievements(userId, List.of(dto));
 
-        verify(socketSessionTemplate).sendToUser(eq("1"), eq("achievement_unlocked"),
-                argThat(msg -> msg.contains("登录达人")));
+        verify(socketSessionTemplate).sendToUser(eq("1"), eq("message"),
+                argThat(msg -> msg.contains("\"module\":\"achievement\"")
+                        && msg.contains("\"event\":\"unlock\"")
+                        && msg.contains("登录达人")));
     }
 
     @Test
@@ -87,7 +89,7 @@ class AchievementPushServiceTest {
 
         pushService.pushAchievements(userId, achievements);
 
-        verify(socketSessionTemplate).sendToUser(eq("1"), eq("achievement_unlocked"), anyString());
+        verify(socketSessionTemplate).sendToUser(eq("1"), eq("message"), anyString());
     }
 
     @Test
@@ -100,7 +102,7 @@ class AchievementPushServiceTest {
 
         pushService.pushAchievements(userId, List.of(dto));
 
-        verify(socketSessionTemplate).sendToUser(eq("2"), eq("achievement_unlocked"),
+        verify(socketSessionTemplate).sendToUser(eq("2"), eq("message"),
                 argThat(msg -> msg.contains("achievement_unlocked")));
     }
 }

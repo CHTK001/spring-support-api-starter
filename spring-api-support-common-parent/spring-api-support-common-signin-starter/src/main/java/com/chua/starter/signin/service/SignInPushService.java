@@ -16,6 +16,16 @@ import java.util.Map;
  * 该模板支持 WebSocket / Socket.IO / RSocket / SSE 等多种协议，
  * 由 spring-support-socket-starter 提供自动装配。</p>
  *
+ * <p>推送消息格式：</p>
+ * <pre>{@code
+ * {
+ *   "module": "signin",
+ *   "event": "done",
+ *   "data": { "event": "signin_done", "result": { ... } }
+ * }
+ * }</pre>
+ * <p>前端通过 {@code subscribe("signin", "done", handler)} 监听。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
@@ -25,9 +35,19 @@ import java.util.Map;
 public class SignInPushService {
 
     /**
-     * 签到成功事件名称
+     * 推送消息使用的协议事件名称（前端 subscribe 监听 "message" 事件）
      */
-    private static final String EVENT_SIGN_IN_DONE = "signin_done";
+    private static final String PROTOCOL_EVENT = "message";
+
+    /**
+     * 前端订阅模块名
+     */
+    private static final String MODULE = "signin";
+
+    /**
+     * 前端订阅事件名
+     */
+    private static final String EVENT = "done";
 
     /**
      * 统一 Socket 会话操作模板，支持 WebSocket / Socket.IO / RSocket / SSE
@@ -37,17 +57,19 @@ public class SignInPushService {
     /**
      * 推送签到成功消息到前端。
      *
-     * <p>前端通过 {@code subscribe("signin", "done", handler)} 监听此事件。</p>
+     * <p>发送格式：协议事件名固定为 {@code "message"}，消息体包含 {@code module}、{@code event} 和 {@code data}，
+     * 前端 {@code subscribe("signin", "done", handler)} 匹配后分发。</p>
      *
      * @param userId 用户ID
      * @param result 签到结果
      */
     public void pushSignInDone(Long userId, SignInResultDTO result) {
-        String message = Json.toJson(Map.of(
-                "event", EVENT_SIGN_IN_DONE,
-                "data", result
+        String body = Json.toJson(Map.of(
+                "module", MODULE,
+                "event", EVENT,
+                "data", Map.of("event", "signin_done", "result", result)
         ));
-        socketSessionTemplate.sendToUser(String.valueOf(userId), EVENT_SIGN_IN_DONE, message);
+        socketSessionTemplate.sendToUser(String.valueOf(userId), PROTOCOL_EVENT, body);
         log.info("用户 {} 签到成功，获得 {} 积分，连续 {} 天", userId, result.getTodayPoints(), result.getStreak());
     }
 }
