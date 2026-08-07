@@ -14,6 +14,7 @@ import com.chua.starter.system.constant.SystemConstant;
 import com.chua.starter.entity.system.SysMenu;
 import com.chua.starter.entity.system.SysRole;
 import com.chua.starter.entity.system.SysRoleMenu;
+import com.chua.starter.system.event.SysMenuChangeEvent;
 import com.chua.starter.system.mapper.SysMenuMapper;
 import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
@@ -23,6 +24,7 @@ import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +49,7 @@ import java.util.Set;
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService{
 
     final SysRoleMenuService sysRoleMenuService;
+    final ApplicationEventPublisher eventPublisher;
     @Override
     public ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles) {
         List<SysRoleMenu> list;
@@ -248,7 +251,11 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
     public ReturnResult<Boolean> delete(Long menuId) {
-        return ReturnResult.of(baseMapper.deleteById(menuId) > 0);
+        boolean deleted = baseMapper.deleteById(menuId) > 0;
+        if (deleted) {
+            eventPublisher.publishEvent(new SysMenuChangeEvent(this, menuId.intValue(), "delete"));
+        }
+        return ReturnResult.of(deleted);
     }
 
     @Override
@@ -271,7 +278,11 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             return ReturnResult.error("父级菜单不存在");
         }
         sysMenu.setSysMenuTreeId(menuTreeId);
-        return ReturnResult.of(baseMapper.updateById(sysMenu) > 0);
+        boolean updated = baseMapper.updateById(sysMenu) > 0;
+        if (updated) {
+            eventPublisher.publishEvent(new SysMenuChangeEvent(this, sysMenu.getSysMenuId(), "update"));
+        }
+        return ReturnResult.of(updated);
     }
 
     @Override
@@ -299,7 +310,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         if (baseMapper.updateById(sysMenu) <= 0) {
             return ReturnResult.error("保存菜单失败");
         }
-        return ReturnResult.of(baseMapper.selectById(sysMenu.getSysMenuId()));
+        SysMenu saved = baseMapper.selectById(sysMenu.getSysMenuId());
+        eventPublisher.publishEvent(new SysMenuChangeEvent(this, saved.getSysMenuId(), "create"));
+        return ReturnResult.of(saved);
     }
 
     private String resolveMenuTreeId(Integer menuId, Integer parentMenuId, boolean validateSelfReference) {

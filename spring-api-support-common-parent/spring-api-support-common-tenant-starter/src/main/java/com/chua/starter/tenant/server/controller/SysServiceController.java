@@ -11,9 +11,11 @@ import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.tenant.entity.SysService;
+import com.chua.starter.tenant.entity.SysServiceModule;
 import com.chua.starter.tenant.entity.SysServiceModuleItem;
 import com.chua.starter.tenant.server.mapper.SysServiceMapper;
 import com.chua.starter.tenant.server.mapper.SysServiceModuleItemMapper;
+import com.chua.starter.tenant.server.mapper.SysServiceModuleMapper;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -46,6 +48,7 @@ public class SysServiceController {
 
     private final SysServiceMapper sysServiceMapper;
     private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
+    private final SysServiceModuleMapper sysServiceModuleMapper;
 
     /**
      * 分页查询服务
@@ -312,6 +315,10 @@ public class SysServiceController {
                 SysServiceModuleItem item = new SysServiceModuleItem();
                 item.setSysServiceId(sysService.getSysServiceId());
                 item.setSysServiceModuleId(moduleId);
+                SysServiceModule module = sysServiceModuleMapper.selectById(moduleId);
+                if (module != null) {
+                    item.setSysMenuId(module.getSysMenuId());
+                }
                 sysServiceModuleItemMapper.insert(item);
             }
         }
