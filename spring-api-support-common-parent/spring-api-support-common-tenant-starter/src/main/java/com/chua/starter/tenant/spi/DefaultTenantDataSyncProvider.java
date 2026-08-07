@@ -242,6 +242,196 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         }
     }
 
+    /**
+     * 同步租户服务数据
+     * <p>
+     * 将平台下发的服务、模块、模块项写入租户库, 同时记录租户自身与租户-服务绑定关系
+     * </p>
+     *
+     * @param tenant    租户信息
+     * @param services  服务列表
+     * @param modules   服务模块列表
+     * @param items     服务模块项列表
+     * @param operation 操作类型
+     * @return 同步结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean syncServiceData(SysTenant tenant,
+                                   List<Map<String, Object>> services,
+                                   List<Map<String, Object>> modules,
+                                   List<Map<String, Object>> items,
+                                   String operation) {
+        if (tenant == null || tenant.getSysTenantId() == null) {
+            log.warn("[租户同步] 租户信息不完整，无法同步服务");
+            return false;
+        }
+        String tenantId = tenant.getSysTenantId();
+        String tenantIdColumn = tenantProperties.getEffectiveTenantIdColumn();
+        String op = normalizeOperation(operation);
+        try {
+            if (OP_DELETE.equals(op)) {
+                jdbcTemplate.update("DELETE FROM sys_service WHERE " + tenantIdColumn + " = ?", tenantId);
+                jdbcTemplate.update("DELETE FROM sys_service_module WHERE " + tenantIdColumn + " = ?", tenantId);
+                jdbcTemplate.update("DELETE FROM sys_service_module_item WHERE " + tenantIdColumn + " = ?", tenantId);
+                jdbcTemplate.update("DELETE FROM sys_tenant_service WHERE sys_tenant_id = ?", tenantId);
+                return true;
+            }
+
+            upsertTenantRow(tenant);
+            jdbcTemplate.update("DELETE FROM sys_tenant_service WHERE sys_tenant_id = ?", tenantId);
+            if (services != null) {
+                for (Map<String, Object> service : services) {
+                    Integer serviceId = MapUtils.getInteger(service, "sysServiceId", null);
+                    if (serviceId != null) {
+                        upsertTenantServiceRow(tenantId, serviceId);
+                    }
+                    upsertServiceRow(tenantId, service, tenantIdColumn);
+                }
+            }
+            if (modules != null) {
+                for (Map<String, Object> module : modules) {
+                    upsertModuleRow(tenantId, module, tenantIdColumn);
+                }
+            }
+            if (items != null) {
+                for (Map<String, Object> item : items) {
+                    upsertItemRow(tenantId, item, tenantIdColumn);
+                }
+            }
+            log.info("[租户同步] 同步租户服务完成: tenantId={}, serviceCount={}, moduleCount={}, itemCount={}",
+                    tenantId,
+                    services != null ? services.size() : 0,
+                    modules != null ? modules.size() : 0,
+                    items != null ? items.size() : 0);
+            return true;
+        } catch (Exception e) {
+            log.error("[租户同步] 同步租户服务失败: tenantId={}", tenantId, e);
+            return false;
+        }
+    }
+
+    /**
+     * 写入租户自身记录(不存在时插入)
+     */
+    private void upsertTenantRow(SysTenant tenant) {
+        String insertSql = """
+                INSERT INTO sys_tenant (
+                    sys_tenant_id, sys_tenant_name, sys_tenant_username,
+                    sys_tenant_delete, sys_tenant_status, create_time, update_time
+                ) VALUES (?, ?, ?, 0, 0, NOW(), NOW())
+                ON DUPLICATE KEY UPDATE
+                    sys_tenant_name = VALUES(sys_tenant_name),
+                    sys_tenant_username = VALUES(sys_tenant_username),
+                    update_time = NOW()
+                """;
+        jdbcTemplate.update(insertSql,
+                tenant.getSysTenantId(), tenant.getSysTenantName(), tenant.getSysTenantUsername());
+    }
+
+    /**
+     * 写入租户-服务绑定关系
+     */
+    private void upsertTenantServiceRow(String tenantId, Integer serviceId) {
+        String insertSql = """
+                INSERT INTO sys_tenant_service (sys_tenant_id, sys_service_id, create_time, update_time)
+                VALUES (?, ?, NOW(), NOW())
+                ON DUPLICATE KEY UPDATE sys_service_id = VALUES(sys_service_id), update_time = NOW()
+                """;
+        jdbcTemplate.update(insertSql, tenantId, serviceId);
+    }
+
+    /**
+     * 写入服务记录
+     */
+    private void upsertServiceRow(String tenantId, Map<String, Object> service, String tenantIdColumn) {
+        String insertSql = String.format("""
+                INSERT INTO sys_service (
+                    sys_service_id, sys_service_name, sys_service_code, sys_service_desc,
+                    sys_service_sort, sys_service_delete, sys_service_status,
+                    %s, create_time, update_time
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+                ON DUPLICATE KEY UPDATE
+                    sys_service_name = VALUES(sys_service_name),
+                    sys_service_code = VALUES(sys_service_code),
+                    sys_service_desc = VALUES(sys_service_desc),
+                    sys_service_sort = VALUES(sys_service_sort),
+                    sys_service_delete = VALUES(sys_service_delete),
+                    sys_service_status = VALUES(sys_service_status),
+                    %s = VALUES(%s),
+                    update_time = NOW()
+                """, tenantIdColumn, tenantIdColumn, tenantIdColumn);
+        jdbcTemplate.update(insertSql,
+                MapUtils.getInteger(service, "sysServiceId", null),
+                MapUtils.getString(service, "sysServiceName"),
+                MapUtils.getString(service, "sysServiceCode"),
+                MapUtils.getString(service, "sysServiceDesc"),
+                MapUtils.getInteger(service, "sysServiceSort", 0),
+                MapUtils.getInteger(service, "sysServiceDelete", 0),
+                MapUtils.getInteger(service, "sysServiceStatus", 0),
+                tenantId);
+    }
+
+    /**
+     * 写入服务模块记录
+     */
+    private void upsertModuleRow(String tenantId, Map<String, Object> module, String tenantIdColumn) {
+        String insertSql = String.format("""
+                INSERT INTO sys_service_module (
+                    sys_service_module_id, sys_service_module_name, sys_service_module_code,
+                    sys_service_module_desc, sys_service_module_sort, sys_service_module_delete,
+                    sys_service_module_status, sys_service_module_type, sys_menu_id,
+                    %s, create_time, update_time
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+                ON DUPLICATE KEY UPDATE
+                    sys_service_module_name = VALUES(sys_service_module_name),
+                    sys_service_module_code = VALUES(sys_service_module_code),
+                    sys_service_module_desc = VALUES(sys_service_module_desc),
+                    sys_service_module_sort = VALUES(sys_service_module_sort),
+                    sys_service_module_delete = VALUES(sys_service_module_delete),
+                    sys_service_module_status = VALUES(sys_service_module_status),
+                    sys_service_module_type = VALUES(sys_service_module_type),
+                    sys_menu_id = VALUES(sys_menu_id),
+                    %s = VALUES(%s),
+                    update_time = NOW()
+                """, tenantIdColumn, tenantIdColumn, tenantIdColumn);
+        jdbcTemplate.update(insertSql,
+                MapUtils.getInteger(module, "sysServiceModuleId", null),
+                MapUtils.getString(module, "sysServiceModuleName"),
+                MapUtils.getString(module, "sysServiceModuleCode"),
+                MapUtils.getString(module, "sysServiceModuleDesc"),
+                MapUtils.getInteger(module, "sysServiceModuleSort", 0),
+                MapUtils.getInteger(module, "sysServiceModuleDelete", 0),
+                MapUtils.getInteger(module, "sysServiceModuleStatus", 0),
+                MapUtils.getString(module, "sysServiceModuleType"),
+                MapUtils.getInteger(module, "sysMenuId", null),
+                tenantId);
+    }
+
+    /**
+     * 写入服务模块项记录
+     */
+    private void upsertItemRow(String tenantId, Map<String, Object> item, String tenantIdColumn) {
+        String insertSql = String.format("""
+                INSERT INTO sys_service_module_item (
+                    sys_service_module_item_id, sys_service_id, sys_service_module_id, sys_menu_id,
+                    %s, create_time, update_time
+                ) VALUES (?, ?, ?, ?, ?, NOW(), NOW())
+                ON DUPLICATE KEY UPDATE
+                    sys_service_id = VALUES(sys_service_id),
+                    sys_service_module_id = VALUES(sys_service_module_id),
+                    sys_menu_id = VALUES(sys_menu_id),
+                    %s = VALUES(%s),
+                    update_time = NOW()
+                """, tenantIdColumn, tenantIdColumn, tenantIdColumn);
+        jdbcTemplate.update(insertSql,
+                MapUtils.getInteger(item, "sysServiceModuleItemId", null),
+                MapUtils.getInteger(item, "sysServiceId", null),
+                MapUtils.getInteger(item, "sysServiceModuleId", null),
+                MapUtils.getInteger(item, "sysMenuId", null),
+                tenantId);
+    }
+
     private void replaceMenus(String tenantId, List<Map<String, Object>> menus, String tenantIdColumn) {
         List<Integer> keepIds = new ArrayList<>();
         for (Map<String, Object> menu : menus) {

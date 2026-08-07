@@ -1,6 +1,7 @@
 package com.chua.starter.achievement.service;
 
 import com.chua.socket.support.session.SocketSessionTemplate;
+import com.chua.socket.support.util.Json;
 import com.chua.starter.achievement.dto.UnlockedAchievementDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,15 +17,19 @@ import java.util.Map;
  * 该模板支持 WebSocket / Socket.IO / RSocket / SSE 等多种协议，
  * 由 spring-support-socket-starter 提供自动装配，无需关心底层协议细节。</p>
  *
- * <p>推送消息格式为 JSON 字符串，包含事件类型和成就数据：</p>
+ * <p>推送消息格式：</p>
  * <pre>{@code
- * {"event":"achievement_unlocked","data":{...}}
+ * {
+ *   "module": "achievement",
+ *   "event": "unlock",
+ *   "data": { "event": "achievement_unlocked", "list": [...] }
+ * }
  * }</pre>
+ * <p>前端通过 {@code subscribe("achievement", "unlock", handler)} 监听。</p>
  *
  * @author CH
  * @since 2026-08-07
  * @see SocketSessionTemplate#sendToUser(String, String, String)
- * @see SocketSessionTemplate#sendToUserObject(String, String, Object)
  */
 @Slf4j
 @Service
@@ -37,26 +42,36 @@ public class AchievementPushService {
     private final SocketSessionTemplate socketSessionTemplate;
 
     /**
-     * 推送消息的事件类型
+     * 推送消息使用的协议事件名称（前端 subscribe 监听 "message" 事件）
      */
-    private static final String EVENT_ACHIEVEMENT_UNLOCKED = "achievement_unlocked";
+    private static final String PROTOCOL_EVENT = "message";
 
     /**
-     * 将新解锁的成就推送到前端 WebSocket 连接。
+     * 前端订阅模块名
+     */
+    private static final String MODULE = "achievement";
+
+    /**
+     * 前端订阅事件名
+     */
+    private static final String EVENT = "unlock";
+
+    /**
+     * 将新解锁的成就推送到前端。
      *
-     * <p>使用 {@link SocketSessionTemplate#sendToUser(String, String, String)}
-     * 向指定用户发送事件消息。底层协议（WebSocket/SSE/Socket.IO）
-     * 由 socket-starter 的 SPI 机制自动选择。</p>
+     * <p>发送格式：协议事件名固定为 {@code "message"}，消息体包含 {@code module}、{@code event} 和 {@code data}，
+     * 前端 {@code subscribe("achievement", "unlock", handler)} 匹配后分发。</p>
      *
      * @param userId       用户ID
      * @param achievements 新解锁的成就列表
      */
     public void pushAchievements(Long userId, List<UnlockedAchievementDTO> achievements) {
-        String message = com.chua.socket.support.util.Json.toJson(Map.of(
-                "event", EVENT_ACHIEVEMENT_UNLOCKED,
-                "data", achievements
+        String body = Json.toJson(Map.of(
+                "module", MODULE,
+                "event", EVENT,
+                "data", Map.of("event", "achievement_unlocked", "list", achievements)
         ));
-        socketSessionTemplate.sendToUser(String.valueOf(userId), EVENT_ACHIEVEMENT_UNLOCKED, message);
+        socketSessionTemplate.sendToUser(String.valueOf(userId), PROTOCOL_EVENT, body);
         log.info("[成就推送] 用户 {} 解锁 {} 个成就", userId, achievements.size());
     }
 }

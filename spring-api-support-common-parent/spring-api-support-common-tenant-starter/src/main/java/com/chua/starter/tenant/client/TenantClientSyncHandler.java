@@ -234,6 +234,9 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
             String tenantId = TenantSyncMessageSupport.resolveTargetTenantId(data);
             List<Integer> menuIds = toIntegerList(data.get(TenantSyncMessageSupport.MENU_IDS));
             List<Map<String, Object>> menus = (List<Map<String, Object>>) data.get(TenantSyncMessageSupport.MENUS);
+            List<Map<String, Object>> services = (List<Map<String, Object>>) data.get(TenantSyncMessageSupport.SERVICES);
+            List<Map<String, Object>> modules = (List<Map<String, Object>>) data.get(TenantSyncMessageSupport.MODULES);
+            List<Map<String, Object>> items = (List<Map<String, Object>>) data.get(TenantSyncMessageSupport.ITEMS);
 
             if (!TenantSyncMessageSupport.hasText(tenantId)) {
                 return Map.of("success", false, "message", "�⻧IDΪ��");
@@ -243,9 +246,13 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
                 return Map.of("success", false, "message", "�⻧ID��ƥ�䣬������");
             }
 
-            boolean result;
+            boolean result = true;
+            if (services != null || modules != null || items != null) {
+                result = provider.syncServiceData(buildTenant(tenantId), services, modules, items,
+                        TenantSyncMessageSupport.OP_REPLACE) && result;
+            }
             if (menus != null && !menus.isEmpty()) {
-                result = provider.syncMenuData(tenantId, menus, TenantSyncMessageSupport.OP_REPLACE);
+                result = provider.syncMenuData(tenantId, menus, TenantSyncMessageSupport.OP_REPLACE) && result;
             } else {
                 result = provider.syncTenantMenu(tenantId, menuIds);
             }
@@ -256,6 +263,15 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
             log.error("[租户客户端] 处理服务更新失败", e);
             return Map.of("success", false, "message", e.getMessage());
         }
+    }
+
+    /**
+     * 构建租户对象(仅租户ID)
+     */
+    private SysTenant buildTenant(String tenantId) {
+        SysTenant tenant = new SysTenant();
+        tenant.setSysTenantId(tenantId);
+        return tenant;
     }
 
     /**

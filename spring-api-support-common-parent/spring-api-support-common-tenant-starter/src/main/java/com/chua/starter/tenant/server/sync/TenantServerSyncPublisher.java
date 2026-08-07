@@ -4,11 +4,19 @@ import com.chua.starter.entity.system.SysMenu;
 import com.chua.starter.sync.support.pojo.ClientInfo;
 import com.chua.starter.sync.support.server.SyncServer;
 import com.chua.starter.system.mapper.SysMenuMapper;
+import com.chua.starter.tenant.entity.SysService;
+import com.chua.starter.tenant.entity.SysServiceModule;
+import com.chua.starter.tenant.entity.SysServiceModuleItem;
 import com.chua.starter.tenant.entity.SysTenant;
+import com.chua.starter.tenant.entity.SysTenantService;
 import com.chua.starter.tenant.properties.TenantProperties;
+import com.chua.starter.tenant.server.mapper.SysServiceMapper;
+import com.chua.starter.tenant.server.mapper.SysServiceModuleItemMapper;
+import com.chua.starter.tenant.server.mapper.SysServiceModuleMapper;
 import com.chua.starter.tenant.server.mapper.SysTenantMapper;
 import com.chua.starter.tenant.server.mapper.SysTenantServiceMapper;
 import com.chua.starter.tenant.sync.TenantSyncMessageSupport;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +80,9 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
     private final SysTenantMapper sysTenantMapper;
     private final SysTenantServiceMapper sysTenantServiceMapper;
     private final SysMenuMapper sysMenuMapper;
+    private final SysServiceMapper sysServiceMapper;
+    private final SysServiceModuleMapper sysServiceModuleMapper;
+    private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
     private final TenantSyncAckTracker syncAckTracker;
 
     private volatile SyncServer syncServer;
@@ -424,15 +435,118 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         List<Integer> safeMenuIds = menuIds == null ? List.of() : menuIds.stream().filter(Objects::nonNull).distinct().toList();
         List<Map<String, Object>> menus = preloadedMenus == null ? loadTenantMenus(safeMenuIds) : preloadedMenus;
 
+        List<Integer> serviceIds = loadTenantServiceIds(tenantId);
+        List<Map<String, Object>> services = loadTenantServices(serviceIds);
+        List<Map<String, Object>> modules = loadTenantModules(serviceIds);
+        List<Map<String, Object>> items = loadTenantServiceItems(serviceIds);
+
         Map<String, Object> data = TenantSyncMessageSupport.createEnvelope(tenantId, syncMode, reason);
         data.put(TenantSyncMessageSupport.MENU_IDS, safeMenuIds);
         data.put(TenantSyncMessageSupport.MENUS, menus);
+        data.put(TenantSyncMessageSupport.SERVICES, services);
+        data.put(TenantSyncMessageSupport.MODULES, modules);
+        data.put(TenantSyncMessageSupport.ITEMS, items);
         data.put(TenantSyncMessageSupport.OPERATION, TenantSyncMessageSupport.OP_REPLACE);
 
         int sent = publishToTarget(sessionId, tenantId, TOPIC_TENANT_SERVICE, data);
-        log.info("[租户服务端] 发布服务更新: tenantId={}, menuCount={}, receivers={}, mode={}",
-                tenantId, menus.size(), sent, syncMode);
+        log.info("[�⻧�����] �����������: tenantId={}, menuCount={}, serviceCount={}, receivers={}, mode={}",
+                tenantId, menus.size(), services.size(), sent, syncMode);
         return sent;
+    }
+
+    private List<Integer> loadTenantServiceIds(String tenantId) {
+        List<SysTenantService> binds = sysTenantServiceMapper.selectList(Wrappers.lambdaQuery(SysTenantService.class)
+                .eq(SysTenantService::getSysTenantId, tenantId));
+        if (binds == null || binds.isEmpty()) {
+            return List.of();
+        }
+        return binds.stream()
+                .map(SysTenantService::getSysServiceId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+    }
+
+    private List<Map<String, Object>> loadTenantServices(List<Integer> serviceIds) {
+        if (serviceIds == null || serviceIds.isEmpty()) {
+            return List.of();
+        }
+        List<SysService> services = sysServiceMapper.selectBatchIds(serviceIds);
+        if (services == null || services.isEmpty()) {
+            return List.of();
+        }
+        return services.stream().map(this::convertServiceToMap).toList();
+    }
+
+    private List<Map<String, Object>> loadTenantModules(List<Integer> serviceIds) {
+        if (serviceIds == null || serviceIds.isEmpty()) {
+            return List.of();
+        }
+        List<SysServiceModuleItem> items = sysServiceModuleItemMapper.selectList(Wrappers.lambdaQuery(SysServiceModuleItem.class)
+                .in(SysServiceModuleItem::getSysServiceId, serviceIds));
+        if (items == null || items.isEmpty()) {
+            return List.of();
+        }
+        List<Integer> moduleIds = items.stream()
+                .map(SysServiceModuleItem::getSysServiceModuleId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        if (moduleIds.isEmpty()) {
+            return List.of();
+        }
+        List<SysServiceModule> modules = sysServiceModuleMapper.selectBatchIds(moduleIds);
+        if (modules == null || modules.isEmpty()) {
+            return List.of();
+        }
+        return modules.stream().map(this::convertModuleToMap).toList();
+    }
+
+    private List<Map<String, Object>> loadTenantServiceItems(List<Integer> serviceIds) {
+        if (serviceIds == null || serviceIds.isEmpty()) {
+            return List.of();
+        }
+        List<SysServiceModuleItem> items = sysServiceModuleItemMapper.selectList(Wrappers.lambdaQuery(SysServiceModuleItem.class)
+                .in(SysServiceModuleItem::getSysServiceId, serviceIds));
+        if (items == null || items.isEmpty()) {
+            return List.of();
+        }
+        return items.stream().map(this::convertItemToMap).toList();
+    }
+
+    private Map<String, Object> convertServiceToMap(SysService service) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("sysServiceId", service.getSysServiceId());
+        result.put("sysServiceName", service.getSysServiceName());
+        result.put("sysServiceCode", service.getSysServiceCode());
+        result.put("sysServiceDesc", service.getSysServiceDesc());
+        result.put("sysServiceSort", service.getSysServiceSort());
+        result.put("sysServiceDelete", service.getSysServiceDelete());
+        result.put("sysServiceStatus", service.getSysServiceStatus());
+        return result;
+    }
+
+    private Map<String, Object> convertModuleToMap(SysServiceModule module) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("sysServiceModuleId", module.getSysServiceModuleId());
+        result.put("sysServiceModuleName", module.getSysServiceModuleName());
+        result.put("sysServiceModuleCode", module.getSysServiceModuleCode());
+        result.put("sysServiceModuleDesc", module.getSysServiceModuleDesc());
+        result.put("sysServiceModuleSort", module.getSysServiceModuleSort());
+        result.put("sysServiceModuleDelete", module.getSysServiceModuleDelete());
+        result.put("sysServiceModuleStatus", module.getSysServiceModuleStatus());
+        result.put("sysServiceModuleType", module.getSysServiceModuleType());
+        result.put("sysMenuId", module.getSysMenuId());
+        return result;
+    }
+
+    private Map<String, Object> convertItemToMap(SysServiceModuleItem item) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("sysServiceModuleItemId", item.getSysServiceModuleItemId());
+        result.put("sysServiceId", item.getSysServiceId());
+        result.put("sysServiceModuleId", item.getSysServiceModuleId());
+        result.put("sysMenuId", item.getSysMenuId());
+        return result;
     }
 
     private List<Integer> loadTenantMenuIds(String tenantId) {

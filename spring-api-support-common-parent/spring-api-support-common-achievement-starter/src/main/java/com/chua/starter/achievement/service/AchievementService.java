@@ -323,6 +323,7 @@ public class AchievementService {
     private UnlockedAchievementDTO toDTO(AchievementTier tier, Long userId) {
         UserAchievement record = userAchievementMapper.selectByUserIdAndType(userId, tier.getType());
         UnlockedAchievementDTO dto = new UnlockedAchievementDTO();
+        dto.setId(tier.getId());
         dto.setName(tier.getName());
         dto.setBadge(tier.getBadge());
         dto.setDescription(tier.getDescription());
