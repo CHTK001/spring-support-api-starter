@@ -11,4 +11,15 @@
         AND (ts.sys_tenant_service_valid_time IS NULL OR ts.sys_tenant_service_valid_time > CURDATE())
     </select>
 
+    <!-- 根据菜单ID查询关联该菜单(含该菜单对应服务)的所有有效租户ID -->
+    <select id="findTenantIdsByMenuId" resultType="java.lang.String">
+        SELECT DISTINCT ts.sys_tenant_id
+        FROM sys_tenant_service ts
+        INNER JOIN sys_service_module_item smi ON ts.sys_service_id = smi.sys_service_id
+        INNER JOIN sys_tenant t ON t.sys_tenant_id = ts.sys_tenant_id
+        WHERE smi.sys_menu_id = #{menuId}
+        AND t.sys_tenant_delete = 0
+        AND (ts.sys_tenant_service_valid_time IS NULL OR ts.sys_tenant_service_valid_time > CURDATE())
+    </select>
+
 </mapper>

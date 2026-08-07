@@ -1,10 +1,7 @@
 package com.chua.starter.tenant.server.sync;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.system.event.SysMenuChangeEvent;
-import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.properties.TenantProperties;
-import com.chua.starter.tenant.server.mapper.SysTenantMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
@@ -12,13 +9,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
  * 菜单变更联动租户端同步监听器
  * <p>
- * 平台端菜单新增/修改/删除后，触发所有未删除租户的菜单重新计算与推送，
- * 使租户端菜单实时同步，无需等待定时全量推送
+ * 平台端菜单新增/修改/删除后，向订阅了包含该菜单的服务的租户推送增量变更
+ * （create/update 携带菜单数据 upsert，delete 仅携带菜单ID 触发租户端删除），
+ * 而非全量清空重录，从而保留租户端菜单记录与关联数据
  * </p>
  *
  * @author CH
@@ -32,10 +28,9 @@ import java.util.List;
 public class TenantMenuChangeListener {
 
     private final ObjectProvider<TenantServerSyncPublisher> syncPublisherProvider;
-    private final SysTenantMapper sysTenantMapper;
 
     /**
-     * 监听菜单变更事件，触发所有租户菜单重新推送
+     * 监听菜单变更事件，触发关联租户菜单增量推送
      *
      * @param event 菜单变更事件
      */
@@ -47,18 +42,7 @@ public class TenantMenuChangeListener {
         }
 
         try {
-            List<SysTenant> tenants = sysTenantMapper.selectList(
-                    Wrappers.<SysTenant>lambdaQuery().eq(SysTenant::getSysTenantDelete, 0)
-            );
-            if (tenants == null || tenants.isEmpty()) {
-                return;
-            }
-
-            for (SysTenant tenant : tenants) {
-                publisher.publishServiceUpdate(tenant.getSysTenantId(), null);
-            }
-            log.info("[租户菜单同步] 菜单变更[{}]触发 {} 个租户菜单重新推送, menuId={}",
-                    event.getOperation(), tenants.size(), event.getSysMenuId());
+            publisher.publishMenuChange(event.getSysMenuId(), event.getOperation());
         } catch (Exception e) {
             log.error("[租户菜单同步] 菜单变更联动推送失败", e);
         }

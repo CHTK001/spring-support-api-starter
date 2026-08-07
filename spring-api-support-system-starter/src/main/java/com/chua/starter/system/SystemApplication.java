@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
@@ -23,10 +24,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @EnableCaching
 @EnableScheduling
+@EnableAsync
 @EnableConfigurationProperties({SystemProperties.class})
 @MapperScan({
         "com.chua.starter.system.mapper",
-        "com.chua.starter.service.mapper"
+        "com.chua.starter.service.mapper",
+        "com.chua.starter.system.achievement.mapper"
 })
 @ConditionalOnProperty(prefix = "plugin.system.server", name = "enable", havingValue = "true", matchIfMissing = true)
 @SpringBootApplication(scanBasePackages = {
@@ -37,7 +40,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         info = @Info(
                 title = "系统管理服务API",
                 version = "4.0.0",
-                description = "提供用户管理、角色管理、菜单管理、部门管理等系统管理功能"
+                description = "提供用户管理、角色管理、菜单管理、部门管理、成就系统等系统管理功能"
         )
 )
 public class SystemApplication {

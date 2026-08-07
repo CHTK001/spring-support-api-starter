@@ -29,6 +29,15 @@ plugin:
   datasource:
     script:
       scan-mode: ONCE
+  sync:
+    # 同步模式: server-服务端（平台端下发租户数据）
+    type: server
+    server:
+      enable: true
+      protocol: websocket
+      port: 19380
+    # 租户同步消息传输加密密钥（租户端需保持一致）
+    crypto-secret: demo-sync-secret-2026
   mybatis:
     data:
       scope:
@@ -38,6 +47,9 @@ plugin:
         dept-id-column: sys_dept_id
         dept-tree-id-column: sys_dept_tree_id
         current-user-id-column: create_by
+  system:
+    server:
+      enable: true
   oauth:
     address: http://localhost:19181/oauth
     protocol: static

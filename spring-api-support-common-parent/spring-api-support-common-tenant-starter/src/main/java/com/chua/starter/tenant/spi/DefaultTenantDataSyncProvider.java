@@ -37,9 +37,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
-    private static final String OP_CREATE = "create";
-    private static final String OP_UPDATE = "update";
-    private static final String OP_DELETE = "delete";
+    private static final String OP_CREATE = TenantSyncMessageSupport.OP_CREATE;
+    private static final String OP_UPDATE = TenantSyncMessageSupport.OP_UPDATE;
+    private static final String OP_DELETE = TenantSyncMessageSupport.OP_DELETE;
 
     private final JdbcTemplate jdbcTemplate;
     private final TenantProperties tenantProperties;
@@ -95,7 +95,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
         String insertSql = String.format("""
                 INSERT INTO sys_user (
-                    sys_user_name, sys_user_login_name, sys_user_password,
+                    sys_user_nickname, sys_user_username, sys_user_password,
                     sys_user_phone, sys_user_email, sys_user_status,
                     %s, create_time, update_time
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
@@ -119,8 +119,8 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
     private SysUser updateTenantUser(SysTenant tenant, String tenantIdColumn) {
         StringBuilder updateSql = new StringBuilder("""
                 UPDATE sys_user SET
-                    sys_user_name = ?,
-                    sys_user_login_name = ?,
+                    sys_user_nickname = ?,
+                    sys_user_username = ?,
                     sys_user_phone = ?,
                     sys_user_email = ?,
                     sys_user_status = ?
@@ -243,12 +243,33 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
     }
 
     private void replaceMenus(String tenantId, List<Map<String, Object>> menus, String tenantIdColumn) {
-        String deleteSql = String.format("DELETE FROM sys_menu WHERE %s = ?", tenantIdColumn);
-        jdbcTemplate.update(deleteSql, tenantId);
-
+        List<Integer> keepIds = new ArrayList<>();
         for (Map<String, Object> menu : menus) {
-            insertMenu(tenantId, toSysMenu(menu), tenantIdColumn);
+            SysMenu sysMenu = toSysMenu(menu);
+            if (sysMenu.getSysMenuId() == null) {
+                continue;
+            }
+            keepIds.add(sysMenu.getSysMenuId());
+            // upsert: 新增的插入，存在的更新（含 hidden/状态等字段），避免清空重录
+            upsertMenu(tenantId, menu, tenantIdColumn);
         }
+
+        // 清理平台已删除的菜单：删除当前租户下不在推送列表中的菜单记录
+        if (keepIds.isEmpty()) {
+            String deleteSql = String.format("DELETE FROM sys_menu WHERE %s = ?", tenantIdColumn);
+            jdbcTemplate.update(deleteSql, tenantId);
+            return;
+        }
+        String placeholders = keepIds.stream().map(menuId -> "?").collect(Collectors.joining(","));
+        String deleteSql = String.format(
+                "DELETE FROM sys_menu WHERE %s = ? AND sys_menu_id NOT IN (%s)",
+                tenantIdColumn, placeholders);
+        Object[] params = new Object[keepIds.size() + 1];
+        params[0] = tenantId;
+        for (int i = 0; i < keepIds.size(); i++) {
+            params[i + 1] = keepIds.get(i);
+        }
+        jdbcTemplate.update(deleteSql, params);
     }
 
     private void upsertMenu(String tenantId, Map<String, Object> menu, String tenantIdColumn) {
