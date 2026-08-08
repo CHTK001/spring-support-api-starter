@@ -1,0 +1,29 @@
+# ===========================================
+# OAuth 认证服务 compose 编排（部署到 172.16.0.40）
+#
+# 部署步骤：
+#   1. 本工程目录执行：docker compose build
+#   2. 启动：docker compose up -d
+#
+# 使用 bridge 网络 + 端口映射 19180 -> 19180。
+# 数据库/Redis 指向 172.16.0.40(见 application-dev.yml)，容器内可直连。
+#
+# security_opt(seccomp=unconfined)：
+#   此宿主为 CentOS 7 / kernel 3.10 + Docker 20.10，默认 seccomp profile
+#   对 Ubuntu 系 JVM 的 clone3 调用返回 EPERM(线程创建失败)，
+#   必须解除 seccomp 限制才能运行 JVM。
+# ===========================================
+services:
+  oauth:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: chua/oauth:4.0.0.42
+    container_name: oauth
+    restart: always
+    security_opt:
+      - seccomp=unconfined
+    ports:
+      - "19180:19180"
+    environment:
+      - SERVER_PORT=19180
