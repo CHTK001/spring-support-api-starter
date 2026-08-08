@@ -1,3 +1,14 @@
+/*
+ * 前端异常上报日志表 - 数据库初始化脚本
+ *
+ * 包含表:
+ *   - sys_error_log: 前端异常上报日志表, 承接 monitor worker 批量上报的运行时错误
+ *
+ * 使用 CREATE TABLE IF NOT EXISTS 保证脚本幂等, 已存在的库不会重复建表。
+ *
+ * @author CH
+ * @since 2026-08-08
+ */
 CREATE TABLE IF NOT EXISTS `sys_error_log` (
   `sys_error_log_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '异常日志ID',
   `sys_error_key` varchar(512) DEFAULT NULL COMMENT '去重指纹(message+source+行列号归一化)',
