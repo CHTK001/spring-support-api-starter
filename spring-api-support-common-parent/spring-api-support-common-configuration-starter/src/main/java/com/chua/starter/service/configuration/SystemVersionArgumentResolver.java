@@ -1,7 +1,7 @@
 package com.chua.starter.service.configuration;
 
 import com.chua.common.support.utils.BeanUtils;
-import com.chua.starter.common.support.application.GlobalSettingFactory;
+import com.chua.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.configuration.resolver.VersionArgumentResolver;
 import com.chua.starter.service.setting.VersionSetting;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

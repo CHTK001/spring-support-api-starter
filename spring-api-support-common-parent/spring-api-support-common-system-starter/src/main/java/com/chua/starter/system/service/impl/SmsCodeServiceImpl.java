@@ -8,7 +8,7 @@ import com.chua.common.support.task.message.MessagePush;
 import com.chua.common.support.task.message.MessageRequest;
 import com.chua.common.support.task.message.MessageResponse;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.application.GlobalSettingFactory;
+import com.chua.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.entity.project.SysSmsLog;
