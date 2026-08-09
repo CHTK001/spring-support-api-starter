@@ -8,7 +8,9 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.common.support.lang.json.Json;
-import com.chua.starter.common.support.application.GlobalSettingFactory;
+import com.chua.common.support.application.GlobalSettingFactory;
+import com.chua.starter.service.setting.GuestDefaultSetting;
+import com.chua.starter.service.setting.UserAgreementSetting;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.algorithm.TokenCipher;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
@@ -92,11 +94,6 @@ public class SysLoginServiceImpl implements SysLoginService {
     private static final String DEFAULT_AGREEMENT_UPDATED_AT = "2026-04-09";
     private static final String AGREEMENT_ACCEPTED_VERSION_KEY = "agreementAcceptedVersion";
     private static final String AGREEMENT_ACCEPTED_AT_KEY = "agreementAcceptedAt";
-
-    /**
-     * 全局设置查询缓存（用户协议版本等），避免每次登录重复查询数据库
-     */
-    private static final Map<String, CachedValue> SETTING_CACHE = new ConcurrentHashMap<>();
 
     /**
      * 用户布局查询缓存，避免每次登录重复查询数据库
@@ -318,11 +315,8 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     private boolean isTotpLoginEnabled() {
-        SysSetting setting = sysSettingService.lambdaQuery()
-                .eq(SysSetting::getSysSettingGroup, "default")
-                .eq(SysSetting::getSysSettingName, "CheckTotpCodeOpen")
-                .one();
-        return null != setting && Boolean.parseBoolean(setting.getSysSettingValue());
+        GuestDefaultSetting gs = GLOBAL_SETTING_FACTORY.get("default", GuestDefaultSetting.class);
+        return null != gs && gs.isCheckTotpCodeOpen();
     }
 
     @Override
@@ -387,8 +381,9 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     private void enrichAgreementStatus(UserInfoVO userInfoVO) {
-        String agreementVersion = resolveAgreementSetting("version", DEFAULT_AGREEMENT_VERSION);
-        String agreementUpdatedAt = resolveAgreementSetting("updatedAt", DEFAULT_AGREEMENT_UPDATED_AT);
+        UserAgreementSetting agreement = GLOBAL_SETTING_FACTORY.get(USER_AGREEMENT_GROUP, UserAgreementSetting.class);
+        String agreementVersion = StringUtils.isNotBlank(agreement.getVersion()) ? agreement.getVersion() : DEFAULT_AGREEMENT_VERSION;
+        String agreementUpdatedAt = StringUtils.isNotBlank(agreement.getUpdatedAt()) ? agreement.getUpdatedAt() : DEFAULT_AGREEMENT_UPDATED_AT;
         userInfoVO.setAgreementVersion(agreementVersion);
         userInfoVO.setAgreementUpdatedAt(agreementUpdatedAt);
         userInfoVO.setAgreementAcceptedVersion("");
@@ -413,25 +408,6 @@ public class SysLoginServiceImpl implements SysLoginService {
         } catch (Exception ex) {
             log.debug("[用户协议] 读取用户协议确认状态失败: userId={}", sysUserId, ex);
         }
-    }
-
-    private String resolveAgreementSetting(String settingName, String fallbackValue) {
-        String cacheKey = USER_AGREEMENT_GROUP + ":" + settingName;
-        CachedValue cached = SETTING_CACHE.get(cacheKey);
-        if (cached != null && cached.expireAt > System.currentTimeMillis()) {
-            return (String) cached.value;
-        }
-        SysSetting setting = sysSettingService.lambdaQuery()
-                .eq(SysSetting::getSysSettingGroup, USER_AGREEMENT_GROUP)
-                .eq(SysSetting::getSysSettingName, settingName)
-                .last("limit 1")
-                .one();
-        if (setting == null || StringUtils.isBlank(setting.getSysSettingValue())) {
-            return fallbackValue;
-        }
-        String value = setting.getSysSettingValue();
-        SETTING_CACHE.put(cacheKey, new CachedValue(value, System.currentTimeMillis() + CACHE_TTL_MILLIS));
-        return value;
     }
 
     /**
