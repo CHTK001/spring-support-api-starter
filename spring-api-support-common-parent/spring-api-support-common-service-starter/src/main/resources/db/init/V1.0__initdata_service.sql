@@ -44,7 +44,7 @@ INSERT INTO `sys_setting_group` VALUES (6, 'Google登录', 'google', 'simple-ico
 
 INSERT INTO `sys_setting` VALUES (1, 'CheckCodeOpen', '', 'false', 'Boolean', 'default', 1, 4, 0, 1, 0, NULL, 15, NULL, '验证码开关', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (2, 'SystemName', '', '后台管理系统', 'String', 'default', 1, 0, 0, 1, 0, NULL, 15, NULL, '系统标题', NULL, NULL, NULL, NOW(), 'sa', 1);
-INSERT INTO `sys_setting` VALUES (3, 'SlidingBlockOpen', '', 'false', 'Boolean', 'default', 1, 5, 0, 1, 0, NULL, 15, NULL, '滑动验证码', NULL, NULL, NULL, NOW(), 'sa', 1);
+INSERT INTO `sys_setting` VALUES (3, 'SlidingBlockOpen', '', 'true', 'Boolean', 'default', 1, 5, 0, 1, 0, NULL, 15, NULL, '滑动验证码', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (17, 'OpenSmsLogin', '', 'true', 'Boolean', 'default', 1, 6, 0, 1, 0, NULL, 15, NULL, '短信登录开关', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (30, 'CheckTotpOpen', 'login.otp', 'false', 'Boolean', 'default', 1, 7, 0, 1, 0, NULL, 15, NULL, 'OTP动态口令', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO `sys_setting` VALUES (31, 'BrandName', 'login.brandName', '后台管理系统', 'String', 'default', 1, 1, 0, 1, 0, NULL, 15, NULL, '品牌名称', NULL, NULL, NULL, NOW(), 'sa', 1);
