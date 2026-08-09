@@ -12,7 +12,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.*;
 import com.chua.starter.common.support.api.decode.ApiRequestDecodeSetting;
 import com.chua.starter.common.support.api.encode.ApiResponseEncodeConfiguration;
-import com.chua.starter.common.support.application.GlobalSettingFactory;
+import com.chua.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
@@ -21,6 +21,7 @@ import com.chua.starter.service.SysSettingHistoryService;
 import com.chua.starter.service.SysSettingService;
 import com.chua.starter.service.mapper.SysSettingMapper;
 import com.chua.starter.service.setting.GuestDefaultSetting;
+import com.chua.starter.service.setting.UserAgreementSetting;
 import com.chua.starter.service.setting.SmsSetting;
 import com.chua.starter.service.setting.SmtpSetting;
 import com.chua.starter.service.setting.VersionSetting;
@@ -278,6 +279,13 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         if(null != setting) {
             return ReturnResult.error("配置编码已存在");
         }
+        if(StringUtils.isNotBlank(sysSetting.getSysSettingCode())) {
+            SysSetting codeSetting = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery()
+                    .eq(SysSetting::getSysSettingCode, sysSetting.getSysSettingCode()));
+            if(null != codeSetting) {
+                return ReturnResult.error("配置编码已存在");
+            }
+        }
 
         if(baseMapper.insert(sysSetting) > 0) {
             if(sysSetting.getSysSettingStatus() == 1) {
@@ -302,13 +310,15 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 .like(StringUtils.isNotBlank(sysSetting.getSysSettingGroup()), SysSetting::getSysSettingGroup, sysSetting.getSysSettingGroup())
                 .like(StringUtils.isNotBlank(sysSetting.getSysSettingName()), SysSetting::getSysSettingName, sysSetting.getSysSettingName())
                 .like(StringUtils.isNotBlank(sysSetting.getSysSettingRemark()), SysSetting::getSysSettingRemark, sysSetting.getSysSettingRemark())
+                .like(StringUtils.isNotBlank(sysSetting.getSysSettingCode()), SysSetting::getSysSettingCode, sysSetting.getSysSettingCode())
                 .eq(StringUtils.isNotBlank(sysSetting.getSysSettingValueType()), SysSetting::getSysSettingValueType, sysSetting.getSysSettingValueType())
                 .eq(null != sysSetting.getSysSettingInSystem(), SysSetting::getSysSettingInSystem, sysSetting.getSysSettingInSystem())
                 .orderByDesc(SysSetting::getCreateTime);
-        log.debug("设置分页筛选参数: group={}, name={}, remark={}, valueType={}, inSystem={}, sqlSegment={}",
+        log.debug("设置分页筛选参数: group={}, name={}, remark={}, code={}, valueType={}, inSystem={}, sqlSegment={}",
                 sysSetting.getSysSettingGroup(),
                 sysSetting.getSysSettingName(),
                 sysSetting.getSysSettingRemark(),
+                sysSetting.getSysSettingCode(),
                 sysSetting.getSysSettingValueType(),
                 sysSetting.getSysSettingInSystem(),
                 queryWrapper.getSqlSegment());
@@ -431,6 +441,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         globalSettingFactory.register("config", new ApiRequestDecodeSetting());
         globalSettingFactory.register("config", new VersionSetting());
         globalSettingFactory.register("default", new GuestDefaultSetting());
+        globalSettingFactory.register("userAgreement", new UserAgreementSetting());
         globalSettingFactory.register("smtp", new SmtpSetting());
         globalSettingFactory.register("sms", new SmsSetting());
         if (ClassUtils.isPresent("com.chua.report.client.starter.setting.ReportExpireSetting")) {

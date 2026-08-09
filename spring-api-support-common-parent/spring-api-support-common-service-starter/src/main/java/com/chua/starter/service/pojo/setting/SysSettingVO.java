@@ -72,6 +72,15 @@ public class SysSettingVO {
     private String sysSettingName;
 
     /**
+     * 配置编码（唯一标识码，如 login.title）
+     */
+    @TableField(value = "sys_setting_code")
+    @ApiModelProperty(value = "配置编码")
+    @Schema(description = "配置编码")
+    @Size(max = 255, message = "配置编码最大长度要小于 255")
+    private String sysSettingCode;
+
+    /**
      * 配置值
      */
     @TableField(value = "sys_setting_value")
@@ -90,4 +99,26 @@ public class SysSettingVO {
     @NotNull(message = "配置名称不能为null", groups = {AddGroup.class})
     @ApiFieldIgnore(IgnoreGroup.class)
     private String sysSettingGroup;
+
+    /**
+     * 是否系统配置
+     */
+    @TableField(value = "sys_setting_in_system")
+    @ApiModelProperty(value = "是否系统配置")
+    @Schema(description = "是否系统配置")
+    private Integer sysSettingInSystem;
+
+    /**
+     * 排序优先级
+     */
+    @TableField(value = "sys_setting_sort")
+    @ApiModelProperty(value = "排序优先级")
+    @Schema(description = "排序优先级")
+    private Integer sysSettingSort;
+
+    /**
+     * 选项配置（Dict/Select 类型用，JSON 字符串）
+     */
+    @Schema(description = "选项配置")
+    private String sysSettingOptions;
 }

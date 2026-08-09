@@ -43,6 +43,14 @@ public class SysSetting extends SysBase implements Serializable {
     private String sysSettingName;
 
     /**
+     * 配置编码（唯一标识码，如 login.title）
+     */
+    @TableField(value = "sys_setting_code")
+    @Schema(description = "配置编码")
+    @Size(max = 255, message = "配置编码最大长度需小于255")
+    private String sysSettingCode;
+
+    /**
      * 配置值
      */
     @TableField(value = "sys_setting_value")

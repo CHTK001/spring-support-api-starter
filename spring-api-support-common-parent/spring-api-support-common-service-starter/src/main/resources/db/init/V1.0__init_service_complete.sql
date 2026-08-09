@@ -199,6 +199,7 @@ DROP TABLE IF EXISTS `sys_setting`;
 CREATE TABLE `sys_setting` (
     `sys_setting_id` int NOT NULL AUTO_INCREMENT COMMENT '配置ID - 主键自增',
     `sys_setting_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置名称 - 配置项的键名',
+    `sys_setting_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置编码 - 唯一标识码（如 login.title）',
     `sys_setting_value` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置值 - 配置项的值',
     `sys_setting_value_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '配置类型 - Boolean/String/Number/Color/Dict等，用于前端组件判断',
     `sys_setting_group` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '所属分组 - 配置项所属的分组编码',
@@ -219,6 +220,7 @@ CREATE TABLE `sys_setting` (
     `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
     PRIMARY KEY (`sys_setting_id`) USING BTREE,
     UNIQUE INDEX `uk_setting_name_group` (`sys_setting_name`, `sys_setting_group`) USING BTREE COMMENT '配置名和分组联合唯一索引',
+    UNIQUE INDEX `uk_setting_code` (`sys_setting_code`) USING BTREE COMMENT '配置编码唯一索引',
     INDEX `idx_setting_group` (`sys_setting_group`) USING BTREE COMMENT '分组索引',
     INDEX `idx_setting_status` (`sys_setting_status`) USING BTREE COMMENT '状态索引'
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci 
