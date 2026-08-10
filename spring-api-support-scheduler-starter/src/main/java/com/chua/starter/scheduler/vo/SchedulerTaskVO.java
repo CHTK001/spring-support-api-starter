@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 public class SchedulerTaskVO {
 
-    private Integer jobId;
+    private Long jobId;
 
     private String jobNo;
 

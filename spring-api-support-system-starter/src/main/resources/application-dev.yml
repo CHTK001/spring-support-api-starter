@@ -52,7 +52,7 @@ plugin:
       enable: true
   oauth:
     address: http://172.16.0.40:19180/oauth
-    protocol: static
+    protocol: http-lite
     auth-address: http://172.16.0.40:19180/oauth
     whitelist:
       - /v2/setting/default
