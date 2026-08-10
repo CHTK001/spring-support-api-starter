@@ -1,16 +1,140 @@
 package com.chua.starter.system.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.entity.system.SysRoleMenu;
 import com.chua.starter.system.mapper.SysRoleMenuMapper;
 import com.chua.starter.system.service.SysRoleMenuService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-/**
- *
- * @since 2024/8/7
- * @author CH    
- */
-@Service
-public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRoleMenu> implements SysRoleMenuService{
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * 角色-菜单关系服务实现
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
+@Slf4j
+@Service
+public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRoleMenu> implements SysRoleMenuService {
+
+    @Override
+    public List<Integer> listMenuIdsByRoleId(Integer roleId) {
+        if (roleId == null) {
+            return Collections.emptyList();
+        }
+        return list(Wrappers.<SysRoleMenu>lambdaQuery()
+                .eq(SysRoleMenu::getSysRoleId, roleId))
+                .stream()
+                .map(SysRoleMenu::getSysMenuId)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Integer> listRoleIdsByMenuId(Integer menuId) {
+        if (menuId == null) {
+            return Collections.emptyList();
+        }
+        return list(Wrappers.<SysRoleMenu>lambdaQuery()
+                .eq(SysRoleMenu::getSysMenuId, menuId))
+                .stream()
+                .map(SysRoleMenu::getSysRoleId)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Integer> listMenuIdsByUserId(Integer userId) {
+        if (userId == null) {
+            return Collections.emptyList();
+        }
+        // 1. 查出用户的所有角色 ID
+        List<Integer> roleIds = baseMapper.selectList(Wrappers.<SysRoleMenu>lambdaQuery())
+                .stream()
+                .map(SysRoleMenu::getSysRoleId)
+                .distinct()
+                .collect(Collectors.toList());
+        if (roleIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        // 2. 查出这些角色的菜单 ID(去重)
+        return baseMapper.selectList(Wrappers.<SysRoleMenu>lambdaQuery()
+                .in(SysRoleMenu::getSysRoleId, roleIds))
+                .stream()
+                .map(SysRoleMenu::getSysMenuId)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean assignMenusToRole(Integer roleId, List<Integer> menuIds) {
+        if (roleId == null) {
+            return false;
+        }
+        removeAllMenusOfRole(roleId);
+        if (menuIds == null || menuIds.isEmpty()) {
+            return true;
+        }
+        return addMenusToRole(roleId, menuIds) > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int addMenusToRole(Integer roleId, List<Integer> menuIds) {
+        if (roleId == null || menuIds == null || menuIds.isEmpty()) {
+            return 0;
+        }
+        List<SysRoleMenu> list = new ArrayList<>(menuIds.size());
+        for (Integer menuId : menuIds) {
+            if (menuId == null) {
+                continue;
+            }
+            SysRoleMenu rm = new SysRoleMenu();
+            rm.setSysRoleId(roleId);
+            rm.setSysMenuId(menuId);
+            list.add(rm);
+        }
+        if (list.isEmpty()) {
+            return 0;
+        }
+        boolean ok = saveBatch(list);
+        return ok ? list.size() : 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean removeRoleMenu(Integer roleId, Integer menuId) {
+        if (roleId == null || menuId == null) {
+            return false;
+        }
+        return remove(Wrappers.<SysRoleMenu>lambdaQuery()
+                .eq(SysRoleMenu::getSysRoleId, roleId)
+                .eq(SysRoleMenu::getSysMenuId, menuId));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int removeAllMenusOfRole(Integer roleId) {
+        if (roleId == null) {
+            return 0;
+        }
+        return baseMapper.delete(Wrappers.<SysRoleMenu>lambdaQuery()
+                .eq(SysRoleMenu::getSysRoleId, roleId));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int removeAllRolesOfMenu(Integer menuId) {
+        if (menuId == null) {
+            return 0;
+        }
+        return baseMapper.delete(Wrappers.<SysRoleMenu>lambdaQuery()
+                .eq(SysRoleMenu::getSysMenuId, menuId));
+    }
 }

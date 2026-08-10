@@ -3,10 +3,15 @@ package com.chua.starter.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.network.server.ServerSetting;
 import com.chua.starter.entity.service.SysFileSystemSetting;
+import com.chua.starter.service.SysFileSystemService;
 import com.chua.starter.service.SysFileSystemSettingService;
 import com.chua.starter.service.mapper.SysFileSystemSettingMapper;
+import com.chua.starter.service.server.FileHttpServer;
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,13 +22,16 @@ import java.net.ServerSocket;
  * 文件系统配置服务实现类
  *
  * @author CH
- * @since 2024/12/10
- * @version 1.0.0
+ * @since 4.0.0.42
  */
 @Slf4j
 @Service
 public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSettingMapper, SysFileSystemSetting> implements SysFileSystemSettingService {
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SysFileSystemSettingServiceImpl.class);
+
+    private volatile FileHttpServer fileHttpServer;
+
+    @Autowired
+    private SysFileSystemService sysFileSystemService;
 
     @Override
     public SysFileSystemSetting getEnabledSettingForFileSystem() {
@@ -58,19 +66,62 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
-    public ReturnResult<Boolean> startFileServerForFileSystem() {
-        // TODO 文件服务器将在 filesystem-starter 中实现，使用 common-starter 的 Server
-        return ReturnResult.error("文件服务器功能将在 filesystem-starter 中实现");
+    public synchronized ReturnResult<Boolean> startFileServerForFileSystem() {
+        if (fileHttpServer != null && fileHttpServer.isRunning()) {
+            return ReturnResult.ok(true);
+        }
+        SysFileSystemSetting setting = getEnabledSettingForFileSystem();
+        if (setting == null) {
+            return ReturnResult.error("未找到启用的配置");
+        }
+        String host = setting.getSysFileSystemSettingHttpServerHost();
+        Integer port = setting.getSysFileSystemSettingHttpServerPort();
+        String context = setting.getSysFileSystemSettingHttpServerContext();
+        if (host == null || host.isEmpty()) {
+            host = "0.0.0.0";
+        }
+        if (port == null || port <= 0) {
+            return ReturnResult.error("HTTP 服务端口未配置");
+        }
+        if (context == null || context.isEmpty()) {
+            context = "/";
+        }
+        try {
+            ServerSetting serverSetting = FileHttpServer.defaultSetting(host, port, context);
+            fileHttpServer = new FileHttpServer(
+                    sysFileSystemService,
+                    this,
+                    serverSetting,
+                    "./temp/filesystem");
+            fileHttpServer.start();
+            log.info("文件服务器启动: host={} port={} context={}", host, port, context);
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("文件服务器启动失败", e);
+            return ReturnResult.error("文件服务器启动失败: " + e.getMessage());
+        }
     }
 
     @Override
-    public ReturnResult<Boolean> stopFileServerForFileSystem() {
-        // TODO 文件服务器将在 filesystem-starter 中实现，使用 common-starter 的 Server
-        return ReturnResult.error("文件服务器功能将在 filesystem-starter 中实现");
+    public synchronized ReturnResult<Boolean> stopFileServerForFileSystem() {
+        if (fileHttpServer == null) {
+            return ReturnResult.ok(true);
+        }
+        try {
+            fileHttpServer.stop();
+            fileHttpServer = null;
+            return ReturnResult.ok(true);
+        } catch (Exception e) {
+            log.error("文件服务器停止失败", e);
+            return ReturnResult.error("文件服务器停止失败: " + e.getMessage());
+        }
     }
 
     @Override
     public ReturnResult<String> getFileServerStatusForFileSystem() {
+        if (fileHttpServer != null && fileHttpServer.isRunning()) {
+            return ReturnResult.ok("running");
+        }
         return ReturnResult.ok("stopped");
     }
 
@@ -83,6 +134,19 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
             return ReturnResult.ok(true);
         } catch (IOException e) {
             return ReturnResult.ok(false);
+        }
+    }
+
+    /**
+     * Spring 关闭时停止内嵌 HTTP 文件服务器。
+     */
+    @PreDestroy
+    public void onShutdown() {
+        if (fileHttpServer != null) {
+            try {
+                fileHttpServer.stop();
+            } catch (Exception ignored) {
+            }
         }
     }
 }
