@@ -1,5 +1,6 @@
 package com.chua.starter.scheduler;
 
+import com.chua.starter.job.support.JobAutoConfiguration;
 import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -9,14 +10,19 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * 定时任务启动器
+ * 定时任务启动器。
+ *
+ * <p>平台基于 job-starter 新架构以 SCHEDULER 角色运行, 通过
+ * {@link JobAutoConfiguration} 自动装配 Leader 扫描 + 长链 Sync,
+ * 业务执行器侧配置 job-starter 的 EXECUTOR 角色接入。</p>
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @EnableCaching
 @EnableScheduling
 @EnableConfigurationProperties(SchedulerJobPlatformProperties.class)
-@MapperScan({"com.chua.starter.**.mapper"})
+@MapperScan({"com.chua.starter.**.mapper", JobAutoConfiguration.MAPPER_PACKAGE})
 @SpringBootApplication(scanBasePackages = {
         "com.chua.starter.system",
         "com.chua.starter.tenant",

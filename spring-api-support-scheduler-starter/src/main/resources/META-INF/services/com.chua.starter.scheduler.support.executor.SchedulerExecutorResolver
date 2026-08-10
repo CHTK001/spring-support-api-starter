@@ -1,2 +1,0 @@
-com.chua.starter.scheduler.support.executor.StaticSchedulerExecutorResolver
-com.chua.starter.scheduler.support.executor.DiscoverySchedulerExecutorResolver

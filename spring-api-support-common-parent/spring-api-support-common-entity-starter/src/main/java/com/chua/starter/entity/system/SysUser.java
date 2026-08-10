@@ -205,6 +205,20 @@ public class SysUser extends SysBase implements Serializable {
     private String sysClientId;
 
     /**
+     * 生日
+     */
+    @TableField(value = "sys_user_birthday")
+    @Schema(description = "生日")
+    private String sysUserBirthday;
+
+    /**
+     * 头像框ID
+     */
+    @TableField(value = "sys_user_avatar_frame")
+    @Schema(description = "头像框ID")
+    private Integer sysUserAvatarFrame;
+
+    /**
      * 角色列表(系统生成)
      */
     @Schema(description = "角色列表(系统生成)")

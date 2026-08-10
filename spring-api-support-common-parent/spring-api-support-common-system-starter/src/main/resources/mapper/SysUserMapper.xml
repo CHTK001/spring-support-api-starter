@@ -30,7 +30,7 @@
       LEFT JOIN sys_dept sd ON sd.sys_dept_id = su.sys_dept_id
       LEFT JOIN sys_user_role sur ON sur.sys_user_id = su.sys_user_id
       LEFT JOIN sys_role sr ON sr.sys_role_id = sur.sys_role_id
-        AND sr.sys_role_status = 0
+        AND sr.sys_role_status = 1
       LEFT JOIN sys_role_menu srm ON srm.sys_role_id = sr.sys_role_id
       LEFT JOIN sys_menu sm ON sm.sys_menu_id = srm.sys_menu_id
         AND sm.sys_menu_type = 3

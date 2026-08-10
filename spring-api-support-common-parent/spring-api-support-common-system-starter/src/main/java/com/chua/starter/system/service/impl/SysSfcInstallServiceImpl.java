@@ -1,7 +1,7 @@
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.chua.starter.entity.system.SysSfcInstall;
 import com.chua.starter.system.mapper.SysSfcInstallMapper;
 import com.chua.starter.system.service.SysSfcInstallService;

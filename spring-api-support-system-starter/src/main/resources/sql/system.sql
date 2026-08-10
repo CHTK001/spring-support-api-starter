@@ -500,6 +500,8 @@ CREATE TABLE `sys_user`  (
   `sys_user_login_count` int(11) NULL DEFAULT NULL COMMENT '登录次数',
   `sys_client_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户端ID',
   `sys_user_totp_code` varchar(600) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'topt',
+  `sys_user_birthday` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '生日',
+  `sys_user_avatar_frame` int(11) NULL DEFAULT NULL COMMENT '头像框ID',
   `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',

@@ -78,6 +78,18 @@ public class UserInfoVO {
     private String avatar;
 
     /**
+     * 头像框ID
+     */
+    @Schema(description = "头像框ID")
+    private Integer sysUserAvatarFrame;
+
+    /**
+     * 生日
+     */
+    @Schema(description = "生日")
+    private String sysUserBirthday;
+
+    /**
      * 租户ID
      */
     @Schema(description = "租户ID")

@@ -111,7 +111,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
 
         // 生成验证码(6位数字)
         String code = String.format("%0" + CODE_LENGTH + "d", (int) (Math.random() * Math.pow(10, CODE_LENGTH)));
-        log.info("生成短信验证码: phone={}, code={}", phone, code);
+        log.info("生成短信验证码: phone={}, bizType={}", phone, bizType);
 
         // 发送短信
         try {
@@ -161,9 +161,10 @@ public class SmsCodeServiceImpl implements SmsCodeService {
         if (valid) {
             // 验证成功后删除验证码
             stringRedisTemplate.delete(codeKey);
-            log.info("验证码验证成功: phone={}", phone);
+            log.info("短信验证码验证成功: phone={}", phone);
         } else {
-            log.warn("验证码验证失败: phone={}, inputCode={}", phone, code);
+            // 不打印用户输入的 code,只记录失败次数
+            log.warn("短信验证码验证失败: phone={}", phone);
         }
 
         return valid;

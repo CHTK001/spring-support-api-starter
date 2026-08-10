@@ -14,6 +14,7 @@ import com.chua.starter.service.setting.UserAgreementSetting;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.oauth.client.support.algorithm.TokenCipher;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
+import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
@@ -157,6 +158,15 @@ public class SysLoginServiceImpl implements SysLoginService {
      * @return 登录认证结果
      */
     public LoginAuthResult authenticateLocal(LoginData loginData) {
+        // 远程 OAuth 认证(http / http-lite)：登录由 oauth 服务端(172.16.0.40)验证并签发 token，
+        // 与 http-lite 验签(RedisTokenResolver)配套；static 保持本地校验
+        if (authProperties != null && !"static".equalsIgnoreCase(authProperties.getProtocol())) {
+            return AuthClientExecute.getInstance().getAccessToken(
+                    loginData.getUsername(),
+                    loginData.getPassword(),
+                    AuthType.WEB,
+                    null);
+        }
         SysUser user = simpleSysUserService.lambdaQuery()
                 .eq(SysUser::getSysUserUsername, loginData.getUsername())
                 .one();
@@ -168,8 +178,7 @@ public class SysLoginServiceImpl implements SysLoginService {
             log.warn("本地登录失败: 账户已禁用 - {}", loginData.getUsername());
             return new LoginAuthResult(403, "账号已被禁用");
         }
-        log.info("本地登录成功(跳过密码校验): {}, 输入hash={}, 数据库hash={}",
-            loginData.getUsername(), loginData.getPassword(), user.getSysUserPassword());
+        log.info("本地登录成功(跳过密码校验): user={}", loginData.getUsername());
 
         // 一次 JOIN 查询用户全部角色编码（带缓存），替代原两次 selectList
         Set<String> roleCodes = getCachedRoleCodes(user.getSysUserId());
@@ -226,7 +235,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         result.setUserResume(resume);
 
         AuthSessionUtils.setUserInfo(resume);
-        log.info("本地登录成功: {}, sm4Token={}", loginData.getUsername(), sm4Token);
+        log.info("本地登录成功: user={}", loginData.getUsername());
         return result;
     }
 
@@ -372,6 +381,15 @@ public class SysLoginServiceImpl implements SysLoginService {
         }
         if (StringUtils.isBlank(userInfoVO.getAvatar())) {
             userInfoVO.setAvatar(StringUtils.toString(userLoginInfo.getOption("sysUserAvatar")));
+        }
+        if (userInfoVO.getSysUserAvatarFrame() == null) {
+            Object val = userLoginInfo.getOption("sysUserAvatarFrame");
+            if (val instanceof Number) {
+                userInfoVO.setSysUserAvatarFrame(((Number) val).intValue());
+            }
+        }
+        if (StringUtils.isBlank(userInfoVO.getSysUserBirthday())) {
+            userInfoVO.setSysUserBirthday(StringUtils.toString(userLoginInfo.getOption("sysUserBirthday")));
         }
         userInfoVO.setTenantId(userLoginInfo.getTenantId());
         userInfoVO.setRoles(userLoginInfo.getRoles());
