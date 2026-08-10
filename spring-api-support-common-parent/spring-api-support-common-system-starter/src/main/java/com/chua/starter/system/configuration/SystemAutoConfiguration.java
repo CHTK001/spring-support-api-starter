@@ -120,7 +120,7 @@ public class SystemAutoConfiguration {
     public ServiceInfoContributor systemServiceInfoContributor() {
         return registry -> {
             registry.registerEndpoint("认证授权", "登录认证", "/v2/user/**", "登录、刷新、注销、用户信息");
-            registry.registerFlag("system", "系统认证", true, "系统统一认证模块");
+            registry.registerFlag("system", "系统认证", Boolean.TRUE, "系统统一认证模块", null);
         };
     }
 }

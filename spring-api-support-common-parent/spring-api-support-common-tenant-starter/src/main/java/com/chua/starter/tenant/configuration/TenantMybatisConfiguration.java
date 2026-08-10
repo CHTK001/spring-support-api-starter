@@ -2,6 +2,7 @@ package com.chua.starter.tenant.configuration;
 
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
+import com.chua.starter.common.support.serviceinfo.ServiceInfoRegistry;
 import com.chua.starter.tenant.properties.TenantProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,9 @@ public class TenantMybatisConfiguration {
         tenantInterceptor.setTenantLineHandler(new TenantLineHandlerImpl(tenantProperties, true));
         interceptor.addInnerInterceptor(tenantInterceptor);
 
+        ServiceInfoRegistry.getInstance().registerFlag(
+                "tenant-client", "租户拦截",
+                true, "客户端租户拦截器", "[字段: " + tenantProperties.getEffectiveTenantIdColumn() + "]");
         log.info("[租户配置] 客户端租户拦截器已启用，租户字段: {}", tenantProperties.getEffectiveTenantIdColumn());
         return interceptor;
     }
@@ -68,6 +72,9 @@ public class TenantMybatisConfiguration {
         tenantInterceptor.setTenantLineHandler(new TenantLineHandlerImpl(tenantProperties, false));
         interceptor.addInnerInterceptor(tenantInterceptor);
 
+        ServiceInfoRegistry.getInstance().registerFlag(
+                "tenant-server", "租户拦截",
+                true, "服务端租户拦截器", "[字段: " + tenantProperties.getEffectiveTenantIdColumn() + "]");
         log.info("[租户配置] 服务端租户拦截器已启用，租户字段: {}", tenantProperties.getEffectiveTenantIdColumn());
         return interceptor;
     }
