@@ -1,6 +1,7 @@
 package com.chua.starter.oauth.sso.support.configuration;
 
 import com.chua.common.support.spi.ServiceProvider;
+import com.chua.starter.common.support.serviceinfo.ServiceInfoRegistry;
 import com.chua.starter.common.support.utils.BeanDefinitionRegistryUtils;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.gitee.GiteeBinderProvider;
@@ -27,6 +28,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -78,6 +81,7 @@ import java.util.Properties;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @EnableConfigurationProperties({
         AuthServerProperties.class,
         ThirdPartyBinderProperties.class,
@@ -168,13 +172,12 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
 
     @Override
     public void run(String... args) throws Exception {
-        log.info("开启鉴权服务器");
-        log.info("加密方式: {}", authServerProperties.getEncryption());
-        log.info("是否开启密钥校验: {}", authServerProperties.isOpenCheckAkSk());
-        log.info("在线模式: {}", authServerProperties.getOnline());
-        log.info("密钥管理器: {}", authServerProperties.getTokenManagement());
-        log.info("密钥生成器: {}", authServerProperties.getTokenGeneration());
-        log.info("日志实现器: {}", authServerProperties.getLog());
-
+        ServiceInfoRegistry registry = ServiceInfoRegistry.getInstance();
+        registry.registerFlag("auth-server", "鉴权服务",
+                authServerProperties.isEnable(),
+                "鉴权服务器 [加密: " + authServerProperties.getEncryption() + "]",
+                null);
+        registry.registerFlag("auth-server-aksk-check", "鉴权服务",
+                authServerProperties.isOpenCheckAkSk(), "AK/SK 密钥校验", null);
     }
 }
