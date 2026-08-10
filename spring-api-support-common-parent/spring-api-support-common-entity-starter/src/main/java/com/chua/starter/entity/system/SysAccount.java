@@ -104,4 +104,11 @@ public class SysAccount extends SysBase {
     @TableField(value = "sys_account_last_ip_address")
     @Schema(description = "最后登录地址")
     private String sysAccountLastIpAddress;
+
+    /**
+     * 绑定的本地用户 ID(0 或 null 表示未绑定)
+     */
+    @TableField(value = "sys_account_user_id")
+    @Schema(description = "绑定的本地用户 ID")
+    private Integer sysAccountUserId;
 }

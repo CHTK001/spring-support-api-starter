@@ -87,7 +87,7 @@ public class SysSettingController {
     @GetMapping("/default")
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:default'")
     public ReturnResult<List<SysSettingVO>> listForDefault() {
-        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default,sso,default-1"), Collections.emptySet());
+        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default,sso,default-1", null), Collections.emptySet());
         return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));
     }
 
