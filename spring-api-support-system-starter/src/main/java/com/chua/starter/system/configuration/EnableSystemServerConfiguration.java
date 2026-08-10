@@ -1,11 +1,14 @@
 package com.chua.starter.system.configuration;
 
+import com.chua.starter.common.support.serviceinfo.ServiceInfoRegistry;
 import com.chua.starter.system.properties.SystemProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -36,14 +39,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @RequiredArgsConstructor
 @EnableConfigurationProperties({SystemProperties.class})
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class EnableSystemServerConfiguration implements WebMvcConfigurer, CommandLineRunner {
 
     private final SystemProperties systemProperties;
 
     @Override
     public void run(String... args) throws Exception {
-        log.info("开启系统服务");
-        log.info("系统服务启用状态: {}", systemProperties.isEnable());
+        ServiceInfoRegistry.getInstance().registerFlag(
+                "system-server", "系统服务",
+                systemProperties.isEnable(), "系统服务", null);
     }
 }
 
