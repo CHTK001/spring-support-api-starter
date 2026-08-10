@@ -202,4 +202,20 @@ public class SysUserVO extends SysBase implements Serializable {
     @Schema(description = "角色列表(系统生成)")
     @TableField(exist = false)
     private List<SysRole> userRoles;
+
+    /**
+     * 生日
+     */
+    @TableField(value = "sys_user_birthday")
+    @ApiModelProperty(value = "生日")
+    @Schema(description = "生日")
+    private String sysUserBirthday;
+
+    /**
+     * 头像框ID
+     */
+    @TableField(value = "sys_user_avatar_frame")
+    @ApiModelProperty(value = "头像框ID")
+    @Schema(description = "头像框ID")
+    private Integer sysUserAvatarFrame;
 }

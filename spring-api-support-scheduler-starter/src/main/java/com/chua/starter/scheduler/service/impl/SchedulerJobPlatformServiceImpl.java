@@ -1,52 +1,39 @@
 package com.chua.starter.scheduler.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.chua.starter.job.support.JobNumberGenerator;
-import com.chua.starter.job.support.entity.SysJob;
-import com.chua.starter.job.support.entity.SysJobLog;
-import com.chua.starter.job.support.scheduler.JobDispatchModeEnum;
-import com.chua.starter.job.support.scheduler.JobHelper;
-import com.chua.starter.job.support.scheduler.JobStorageModeEnum;
-import com.chua.starter.job.support.scheduler.SchedulerTypeEnum;
+import com.chua.common.support.task.scheduler.CronExpression;
+import com.chua.starter.job.support.store.JobEntity;
+import com.chua.starter.job.support.store.JobLogEntity;
+import com.chua.starter.job.support.store.JobLogMapper;
+import com.chua.starter.job.support.store.JobMapper;
 import com.chua.starter.scheduler.dto.SchedulerTaskUpdateRequest;
 import com.chua.starter.scheduler.service.SchedulerJobPlatformService;
-import com.chua.starter.scheduler.support.SchedulerNamespaceTableResolver;
-import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
-import com.chua.starter.scheduler.support.SchedulerNamespaceRemoteDispatchScheduler;
-import com.chua.starter.scheduler.support.SchedulerRemoteExecutorDispatcher;
 import com.chua.starter.scheduler.vo.SchedulerTaskVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.UUID;
 
 /**
  * 调度平台任务服务实现。
- * <p>
- * 平台管理侧直接面向命名空间对应的物理表执行 SQL，不再通过 ThreadLocal
- * 动态切换 Mapper 表名。这样每次请求的读写边界都落到显式表名上，更适合多命名空间
- * 的统一管理场景。
- * </p>
+ *
+ * <p>平台基于 job-starter 新架构 (SCHEDULER 角色) 提供统一任务管理能力,
+ * 通过 MyBatis-Plus 的 {@link JobMapper} / {@link JobLogMapper} 直接读写
+ * {@code sys_job / sys_job_log} 表。任务扫描与远程派发由 job-starter 的
+ * Leader 循环 + 长链 Sync 完成, 平台不再维护自研轮询/HTTP 派发。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @Service
 @RequiredArgsConstructor
@@ -54,766 +41,609 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformService {
 
+    /**
+     * 最大分页大小
+     */
     private static final int MAX_PAGE_SIZE = 200;
+
+    /**
+     * 停止状态
+     */
     private static final int STATUS_STOP = 0;
+
+    /**
+     * 运行状态
+     */
     private static final int STATUS_RUNNING = 1;
+
+    /**
+     * 默认调度类型
+     */
     private static final String DEFAULT_SCHEDULE_TYPE = "CRON";
+
+    /**
+     * 默认 Glue 类型
+     */
     private static final String DEFAULT_GLUE_TYPE = "BEAN";
+
+    /**
+     * 默认错失触发策略
+     */
     private static final String DEFAULT_MISFIRE_STRATEGY = "DO_NOTHING";
 
-    private final SchedulerNamespaceTableResolver namespaceTableResolver;
-    private final SchedulerRemoteExecutorDispatcher remoteExecutorDispatcher;
-    private final SchedulerNamespaceRemoteDispatchScheduler remoteDispatchScheduler;
-    private final SchedulerJobPlatformProperties platformProperties;
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    /**
+     * 任务 Mapper
+     */
+    private final JobMapper jobMapper;
 
-    private final BeanPropertyRowMapper<SysJob> jobRowMapper = BeanPropertyRowMapper.newInstance(SysJob.class);
-    private final BeanPropertyRowMapper<SysJobLog> logRowMapper = BeanPropertyRowMapper.newInstance(SysJobLog.class);
-
-    @Override
-    public List<String> namespaces() {
-        return namespaceTableResolver.namespaces();
-    }
+    /**
+     * 日志 Mapper
+     */
+    private final JobLogMapper jobLogMapper;
 
     @Override
-    public Page<SysJob> pageJobs(String namespace, int pageNum, int pageSize, String jobName, Integer triggerStatus) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
-        String group = resolveGroup(nsProps);
+    public Page<JobEntity> pageJobs(int pageNum, int pageSize, String jobName, Integer triggerStatus, String group) {
         int safePageNum = normalizePageNum(pageNum);
         int safePageSize = normalizePageSize(pageSize);
-        String normalizedJobName = trimToNull(jobName);
+        String normalizedGroup = trimToNull(group);
 
-        StringBuilder where = new StringBuilder(" FROM ").append(tables.jobTable()).append(" WHERE is_deleted = 0");
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-        if (StringUtils.hasText(group)) {
-            parameters.addValue("group", group);
-            where.append(" AND (job_group IS NULL OR job_group = :group)");
-        }
-        if (StringUtils.hasText(normalizedJobName)) {
-            where.append(" AND job_name LIKE :jobName");
-            parameters.addValue("jobName", "%" + normalizedJobName + "%");
-        }
-        if (triggerStatus != null) {
-            where.append(" AND job_trigger_status = :triggerStatus");
-            parameters.addValue("triggerStatus", triggerStatus);
-        }
-
-        long total = count("SELECT COUNT(1)" + where, parameters);
-        parameters.addValue("limit", safePageSize);
-        parameters.addValue("offset", (safePageNum - 1L) * safePageSize);
-        List<SysJob> records = namedParameterJdbcTemplate.query(
-                "SELECT *" + where + " ORDER BY job_id DESC LIMIT :limit OFFSET :offset",
-                parameters,
-                jobRowMapper
-        );
-        return toPage(safePageNum, safePageSize, total, records);
+        var wrapper = Wrappers.<JobEntity>lambdaQuery()
+                .eq(JobEntity::getSysJobIsDeleted, 0)
+                .and(StringUtils.hasText(normalizedGroup), w -> w
+                        .isNull(JobEntity::getSysJobGroup)
+                        .or()
+                        .eq(JobEntity::getSysJobGroup, normalizedGroup))
+                .like(StringUtils.hasText(trimToNull(jobName)), JobEntity::getSysJobName, trimToNull(jobName))
+                .eq(triggerStatus != null, JobEntity::getSysJobTriggerStatus, triggerStatus)
+                .orderByDesc(JobEntity::getSysJobId);
+        return jobMapper.selectPage(new Page<>(safePageNum, safePageSize), wrapper);
     }
 
     @Override
-    public SysJob getJob(String namespace, Integer jobId) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        return requireJob(tables, requireJobId(jobId));
+    public JobEntity getJob(Long jobId) {
+        JobEntity job = jobMapper.selectById(requireJobId(jobId));
+        if (job == null || Integer.valueOf(1).equals(job.getSysJobIsDeleted())) {
+            throw new IllegalArgumentException("任务不存在: " + jobId);
+        }
+        return job;
     }
 
     @Override
-    public SysJob getJobByNo(String namespace, String jobNo) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        return requireJobByNo(tables, jobNo);
+    public JobEntity getJobByNo(String jobNo) {
+        JobEntity job = findByNo(requireText(jobNo, "任务编号不能为空"));
+        if (job == null) {
+            throw new IllegalArgumentException("任务不存在: " + jobNo);
+        }
+        return job;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public SysJob createJob(String namespace, SysJob job) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+    public JobEntity createJob(JobEntity job) {
         if (job == null) {
             throw new IllegalArgumentException("任务内容不能为空");
         }
 
-        SysJob target = new SysJob();
+        JobEntity target = new JobEntity();
         BeanUtils.copyProperties(job, target);
         applyDefaults(target);
         normalizeJob(target);
         validateJob(target);
-        applyTriggerState(target, STATUS_RUNNING == safeStatus(target.getJobTriggerStatus()));
+        applyTriggerState(target, STATUS_RUNNING == safeStatus(target.getSysJobTriggerStatus()));
 
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        namedParameterJdbcTemplate.update(insertSql(tables.jobTable()),
-                new BeanPropertySqlParameterSource(target),
-                keyHolder,
-                new String[]{"job_id"});
-        Number key = keyHolder.getKey();
-        if (key == null) {
-            throw new IllegalStateException("创建任务失败: 未返回任务ID");
+        jobMapper.insert(target);
+        JobEntity saved = jobMapper.selectById(target.getSysJobId());
+        if (saved == null) {
+            throw new IllegalStateException("创建任务失败");
         }
-        return requireJob(tables, key.intValue());
+        return saved;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateJob(String namespace, Integer jobId, SysJob job) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        int safeJobId = requireJobId(jobId);
+    public boolean updateJob(Long jobId, JobEntity job) {
+        Long safeJobId = requireJobId(jobId);
         if (job == null) {
             throw new IllegalArgumentException("任务内容不能为空");
         }
 
-        SysJob existing = requireJob(tables, safeJobId);
+        JobEntity existing = getJob(safeJobId);
         mergeJobPatch(existing, job);
         normalizeJob(existing);
         validateJob(existing);
-
-        if (STATUS_RUNNING == safeStatus(existing.getJobTriggerStatus())) {
-            applyTriggerState(existing, true);
-        } else {
-            applyTriggerState(existing, false);
-        }
-        return updateJobRecord(tables.jobTable(), existing) > 0;
+        applyTriggerState(existing, STATUS_RUNNING == safeStatus(existing.getSysJobTriggerStatus()));
+        return jobMapper.updateById(existing) > 0;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateJobByNo(String namespace, String jobNo, SysJob job) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+    public boolean updateJobByNo(String jobNo, JobEntity job) {
         if (job == null) {
             throw new IllegalArgumentException("任务内容不能为空");
         }
 
-        SysJob existing = requireJobByNo(tables, jobNo);
+        JobEntity existing = getJobByNo(jobNo);
         mergeJobPatch(existing, job);
         normalizeJob(existing);
         validateJob(existing);
-
-        if (STATUS_RUNNING == safeStatus(existing.getJobTriggerStatus())) {
-            applyTriggerState(existing, true);
-        } else {
-            applyTriggerState(existing, false);
-        }
-        return updateJobRecord(tables.jobTable(), existing) > 0;
+        applyTriggerState(existing, STATUS_RUNNING == safeStatus(existing.getSysJobTriggerStatus()));
+        return jobMapper.updateById(existing) > 0;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean deleteJob(String namespace, Integer jobId) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        MapSqlParameterSource parameters = new MapSqlParameterSource("jobId", requireJobId(jobId));
-        // 逻辑删除：先停止任务，再设置 is_deleted = 1
-        stopJob(namespace, jobId);
-        return namedParameterJdbcTemplate.update(
-                "UPDATE " + tables.jobTable() + " SET is_deleted = 1 WHERE job_id = :jobId",
-                parameters
-        ) > 0;
+    public boolean deleteJob(Long jobId) {
+        Long safeJobId = requireJobId(jobId);
+        stopJob(safeJobId);
+        return jobMapper.update(null, Wrappers.<JobEntity>lambdaUpdate()
+                .eq(JobEntity::getSysJobId, safeJobId)
+                .set(JobEntity::getSysJobIsDeleted, 1)) > 0;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean deleteJobByNo(String namespace, String jobNo) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        // 逻辑删除：先停止任务，再设置 is_deleted = 1
-        stopJobByNo(namespace, jobNo);
-        MapSqlParameterSource parameters = new MapSqlParameterSource("jobNo", requireText(jobNo, "任务编号不能为空"));
-        return namedParameterJdbcTemplate.update(
-                "UPDATE " + tables.jobTable() + " SET is_deleted = 1 WHERE job_no = :jobNo",
-                parameters
-        ) > 0;
+    public boolean deleteJobByNo(String jobNo) {
+        String safeJobNo = requireText(jobNo, "任务编号不能为空");
+        stopJobByNo(safeJobNo);
+        return jobMapper.update(null, Wrappers.<JobEntity>lambdaUpdate()
+                .eq(JobEntity::getSysJobNo, safeJobNo)
+                .set(JobEntity::getSysJobIsDeleted, 1)) > 0;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean restoreJob(String namespace, Integer jobId) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        log.info("恢复任务: namespace={}, jobId={}", namespace, jobId);
-        MapSqlParameterSource parameters = new MapSqlParameterSource("jobId", requireJobId(jobId));
-        return namedParameterJdbcTemplate.update(
-                "UPDATE " + tables.jobTable() + " SET is_deleted = 0 WHERE job_id = :jobId",
-                parameters
-        ) > 0;
+    public boolean restoreJob(Long jobId) {
+        log.info("恢复任务: jobId={}", jobId);
+        return jobMapper.update(null, Wrappers.<JobEntity>lambdaUpdate()
+                .eq(JobEntity::getSysJobId, requireJobId(jobId))
+                .set(JobEntity::getSysJobIsDeleted, 0)) > 0;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean restoreJobByNo(String namespace, String jobNo) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        log.info("恢复任务: namespace={}, jobNo={}", namespace, jobNo);
-        MapSqlParameterSource parameters = new MapSqlParameterSource("jobNo", requireText(jobNo, "任务编号不能为空"));
-        return namedParameterJdbcTemplate.update(
-                "UPDATE " + tables.jobTable() + " SET is_deleted = 0 WHERE job_no = :jobNo",
-                parameters
-        ) > 0;
+    public boolean restoreJobByNo(String jobNo) {
+        log.info("恢复任务: jobNo={}", jobNo);
+        return jobMapper.update(null, Wrappers.<JobEntity>lambdaUpdate()
+                .eq(JobEntity::getSysJobNo, requireText(jobNo, "任务编号不能为空"))
+                .set(JobEntity::getSysJobIsDeleted, 0)) > 0;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean startJob(String namespace, Integer jobId) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        SysJob job = requireJob(tables, requireJobId(jobId));
+    public boolean startJob(Long jobId) {
+        JobEntity job = getJob(requireJobId(jobId));
         normalizeJob(job);
         validateJob(job);
         applyTriggerState(job, true);
-        return updateJobRecord(tables.jobTable(), job) > 0;
+        return jobMapper.updateById(job) > 0;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean startJobByNo(String namespace, String jobNo) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        SysJob job = requireJobByNo(tables, jobNo);
+    public boolean startJobByNo(String jobNo) {
+        JobEntity job = getJobByNo(jobNo);
         normalizeJob(job);
         validateJob(job);
         applyTriggerState(job, true);
-        return updateJobRecord(tables.jobTable(), job) > 0;
+        return jobMapper.updateById(job) > 0;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean stopJob(String namespace, Integer jobId) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        SysJob job = requireJob(tables, requireJobId(jobId));
+    public boolean stopJob(Long jobId) {
+        JobEntity job = getJob(requireJobId(jobId));
         applyTriggerState(job, false);
-        return updateJobRecord(tables.jobTable(), job) > 0;
+        return jobMapper.updateById(job) > 0;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean stopJobByNo(String namespace, String jobNo) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        SysJob job = requireJobByNo(tables, jobNo);
+    public boolean stopJobByNo(String jobNo) {
+        JobEntity job = getJobByNo(jobNo);
         applyTriggerState(job, false);
-        return updateJobRecord(tables.jobTable(), job) > 0;
+        return jobMapper.updateById(job) > 0;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean triggerJob(String namespace, Integer jobId, String param) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        SysJob job = requireJob(tables, requireJobId(jobId));
-
-        if (isRemoteDispatchJob(job)) {
-            remoteExecutorDispatcher.dispatch(namespace, job, param);
-            return true;
-        }
-
-        if (param != null) {
-            job.setJobExecuteParam(param);
-        }
-        job.setJobTriggerNextTime(System.currentTimeMillis());
-        if (job.getJobTriggerLastTime() == null) {
-            job.setJobTriggerLastTime(0L);
-        }
-        return updateJobRecord(tables.jobTable(), job) > 0;
+    public boolean triggerJob(Long jobId, String param) {
+        JobEntity job = getJob(requireJobId(jobId));
+        return trigger(job, param);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean triggerJobByNo(String namespace, String jobNo, String param) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        SysJob job = requireJobByNo(tables, jobNo);
-
-        if (isRemoteDispatchJob(job)) {
-            remoteExecutorDispatcher.dispatch(namespace, job, param);
-            return true;
-        }
-
-        if (param != null) {
-            job.setJobExecuteParam(param);
-        }
-        job.setJobTriggerNextTime(System.currentTimeMillis());
-        if (job.getJobTriggerLastTime() == null) {
-            job.setJobTriggerLastTime(0L);
-        }
-        return updateJobRecord(tables.jobTable(), job) > 0;
+    public boolean triggerJobByNo(String jobNo, String param) {
+        JobEntity job = getJobByNo(jobNo);
+        return trigger(job, param);
     }
 
     @Override
-    public Page<SysJobLog> pageLogs(String namespace, int pageNum, int pageSize, String beanName, String executeCode) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+    public Page<JobLogEntity> pageLogs(int pageNum, int pageSize, String beanName, String executeCode, String group) {
         int safePageNum = normalizePageNum(pageNum);
         int safePageSize = normalizePageSize(pageSize);
         String normalizedBeanName = trimToNull(beanName);
         String normalizedExecuteCode = trimToNull(executeCode);
-        if (StringUtils.hasText(normalizedExecuteCode)) {
-            normalizedExecuteCode = normalizedExecuteCode.toUpperCase(Locale.ROOT);
-        }
+        String normalizedGroup = trimToNull(group);
 
-        StringBuilder where = new StringBuilder(" FROM ").append(tables.logTable()).append(" WHERE 1=1");
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-        if (StringUtils.hasText(normalizedBeanName)) {
-            where.append(" AND job_log_trigger_bean LIKE :beanName");
-            parameters.addValue("beanName", "%" + normalizedBeanName + "%");
-        }
-        if (StringUtils.hasText(normalizedExecuteCode)) {
-            where.append(" AND job_log_execute_code = :executeCode");
-            parameters.addValue("executeCode", normalizedExecuteCode);
-        }
-
-        long total = count("SELECT COUNT(1)" + where, parameters);
-        parameters.addValue("limit", safePageSize);
-        parameters.addValue("offset", (safePageNum - 1L) * safePageSize);
-        List<SysJobLog> records = namedParameterJdbcTemplate.query(
-                "SELECT *" + where + " ORDER BY job_log_id DESC LIMIT :limit OFFSET :offset",
-                parameters,
-                logRowMapper
-        );
-        return toPage(safePageNum, safePageSize, total, records);
+        var wrapper = Wrappers.<JobLogEntity>lambdaQuery()
+                .eq(JobLogEntity::getSysJobLogIsDeleted, 0)
+                .like(StringUtils.hasText(normalizedBeanName), JobLogEntity::getSysJobLogTriggerBean, normalizedBeanName)
+                .eq(StringUtils.hasText(normalizedExecuteCode), JobLogEntity::getSysJobLogExecuteCode,
+                        normalizedExecuteCode == null ? null : normalizedExecuteCode.toUpperCase(java.util.Locale.ROOT))
+                .and(StringUtils.hasText(normalizedGroup), w -> w
+                        .isNull(JobLogEntity::getSysJobNo)
+                        .or()
+                        .inSql(JobLogEntity::getSysJobNo,
+                                "SELECT sys_job_no FROM sys_job WHERE sys_job_group = '" + escape(normalizedGroup) + "' AND sys_job_is_deleted = 0"))
+                .orderByDesc(JobLogEntity::getSysJobLogId);
+        return jobLogMapper.selectPage(new Page<>(safePageNum, safePageSize), wrapper);
     }
 
     @Override
-    public List<SchedulerTaskVO> listTasks(String namespace) {
-        return listTasks(namespace, false);
-    }
-
-    @Override
-    public List<SchedulerTaskVO> listTasks(String namespace, boolean includeDeleted) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
-        boolean clusterMode = isClusterMode(nsProps);
-        String group = resolveGroup(nsProps);
-
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        StringBuilder sql = new StringBuilder("SELECT * FROM ").append(tables.jobTable()).append(" WHERE 1=1");
-
-        if (!includeDeleted) {
-            sql.append(" AND is_deleted = 0");
-        }
-        if (StringUtils.hasText(group)) {
-            params.addValue("group", group);
-            sql.append(" AND (job_group IS NULL OR job_group = :group)");
-        }
-        sql.append(" ORDER BY job_id DESC");
-
-        List<SysJob> jobs = namedParameterJdbcTemplate.query(sql.toString(), params, jobRowMapper);
-        List<SchedulerTaskVO> result = jobs.stream()
-                .map(job -> toTaskVO(tables, job))
-                .toList();
-
-        // 集群模式下合并发现服务任务
-        if (clusterMode) {
-            List<SysJob> discoveryJobs = remoteDispatchScheduler.listDiscoveryTasks(namespace);
-            List<SchedulerTaskVO> discoveryVOs = discoveryJobs.stream()
-                    .map(job -> toTaskVO(tables, job))
-                    .toList();
-            List<SchedulerTaskVO> merged = new ArrayList<>(result);
-            merged.addAll(discoveryVOs);
-            return merged;
-        }
-
-        return result;
+    public List<SchedulerTaskVO> listTasks(String group, boolean includeDeleted) {
+        String normalizedGroup = trimToNull(group);
+        List<JobEntity> jobs = jobMapper.selectList(Wrappers.<JobEntity>lambdaQuery()
+                .eq(!includeDeleted, JobEntity::getSysJobIsDeleted, 0)
+                .and(StringUtils.hasText(normalizedGroup), w -> w
+                        .isNull(JobEntity::getSysJobGroup)
+                        .or()
+                        .eq(JobEntity::getSysJobGroup, normalizedGroup))
+                .orderByDesc(JobEntity::getSysJobId));
+        return jobs.stream().map(this::toTaskVO).toList();
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public SchedulerTaskVO updateTask(String namespace, String taskKey, SchedulerTaskUpdateRequest request) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+    public SchedulerTaskVO updateTask(String taskKey, SchedulerTaskUpdateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("任务更新内容不能为空");
         }
 
-        SysJob job = requireTask(tables, taskKey);
+        JobEntity job = requireTask(taskKey);
         if (StringUtils.hasText(request.getCronExpression())) {
-            job.setJobScheduleType(DEFAULT_SCHEDULE_TYPE);
-            job.setJobScheduleTime(request.getCronExpression().trim());
+            job.setSysJobScheduleType(DEFAULT_SCHEDULE_TYPE);
+            job.setSysJobScheduleTime(request.getCronExpression().trim());
         }
         if (request.getEnabled() != null) {
-            job.setJobTriggerStatus(Boolean.TRUE.equals(request.getEnabled()) ? STATUS_RUNNING : STATUS_STOP);
+            job.setSysJobTriggerStatus(Boolean.TRUE.equals(request.getEnabled()) ? STATUS_RUNNING : STATUS_STOP);
         }
 
         normalizeJob(job);
         validateJob(job);
-        applyTriggerState(job, STATUS_RUNNING == safeStatus(job.getJobTriggerStatus()));
-        updateJobRecord(tables.jobTable(), job);
-        return toTaskVO(tables, requireTask(tables, taskKey));
+        applyTriggerState(job, STATUS_RUNNING == safeStatus(job.getSysJobTriggerStatus()));
+        jobMapper.updateById(job);
+        return toTaskVO(requireTask(taskKey));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public SchedulerTaskVO triggerTask(String namespace, String taskKey) {
-        SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-        SysJob job = requireTask(tables, taskKey);
-        if (isRemoteDispatchJob(job)) {
-            remoteExecutorDispatcher.dispatch(namespace, job, job.getJobExecuteParam());
-            return toTaskVO(tables, requireTask(tables, taskKey));
-        }
-        job.setJobTriggerNextTime(System.currentTimeMillis());
-        if (job.getJobTriggerLastTime() == null) {
-            job.setJobTriggerLastTime(0L);
-        }
-        updateJobRecord(tables.jobTable(), job);
-        return toTaskVO(tables, requireTask(tables, taskKey));
+    public SchedulerTaskVO triggerTask(String taskKey) {
+        JobEntity job = requireTask(taskKey);
+        trigger(job, job.getSysJobExecuteParam());
+        return toTaskVO(requireTask(taskKey));
     }
 
-    private SchedulerTaskVO toTaskVO(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables, SysJob job) {
-        SchedulerTaskVO vo = new SchedulerTaskVO();
-        vo.setJobId(job.getJobId());
-        vo.setJobNo(job.getJobNo());
-        vo.setTaskKey(StringUtils.hasText(job.getJobExecuteBean()) ? job.getJobExecuteBean() : job.getJobName());
-        vo.setTaskName(job.getJobName());
-        vo.setScheduleType(job.getJobScheduleType());
-        vo.setCronExpression(job.getJobScheduleTime());
-        vo.setEnabled(STATUS_RUNNING == safeStatus(job.getJobTriggerStatus()));
-        vo.setDescription(job.getJobDesc());
-        vo.setScheduled(STATUS_RUNNING == safeStatus(job.getJobTriggerStatus()));
-        vo.setDeleted(Integer.valueOf(1).equals(job.getIsDeleted()));
-        vo.setDispatchMode(job.getJobDispatchMode());
-        vo.setRemoteExecutorAddress(job.getJobRemoteExecutorAddress());
-        vo.setStorageMode(job.getJobStorageMode());
-        vo.setNextExecutionTime(toLocalDateTime(job.getJobTriggerNextTime()));
+    private boolean trigger(JobEntity job, String param) {
+        if (param != null) {
+            job.setSysJobExecuteParam(param);
+        }
+        job.setSysJobTriggerNextTime(System.currentTimeMillis());
+        if (job.getSysJobTriggerLastTime() == null) {
+            job.setSysJobTriggerLastTime(0L);
+        }
+        return jobMapper.updateById(job) > 0;
+    }
 
-        SysJobLog latest = findLatestLog(tables, job);
+    private SchedulerTaskVO toTaskVO(JobEntity job) {
+        SchedulerTaskVO vo = new SchedulerTaskVO();
+        vo.setJobId(job.getSysJobId());
+        vo.setJobNo(job.getSysJobNo());
+        vo.setTaskKey(StringUtils.hasText(job.getSysJobExecuteBean())
+                ? job.getSysJobExecuteBean()
+                : job.getSysJobName());
+        vo.setTaskName(job.getSysJobName());
+        vo.setScheduleType(job.getSysJobScheduleType());
+        vo.setCronExpression(job.getSysJobScheduleTime());
+        vo.setEnabled(STATUS_RUNNING == safeStatus(job.getSysJobTriggerStatus()));
+        vo.setDescription(job.getSysJobDesc());
+        vo.setScheduled(STATUS_RUNNING == safeStatus(job.getSysJobTriggerStatus()));
+        vo.setDeleted(Integer.valueOf(1).equals(job.getSysJobIsDeleted()));
+        vo.setDispatchMode(job.getSysJobDispatchMode());
+        vo.setRemoteExecutorAddress(job.getSysJobRemoteExecutorAddress());
+        vo.setStorageMode(job.getSysJobStorageMode());
+        vo.setNextExecutionTime(toLocalDateTime(job.getSysJobTriggerNextTime()));
+
+        JobLogEntity latest = findLatestLog(job);
         if (latest != null) {
-            vo.setLastStartedAt(toLocalDateTime(latest.getJobLogTriggerTime()));
-            vo.setLastFinishedAt(toLocalDateTime(latest.getJobLogTriggerTime(), latest.getJobLogCost()));
-            vo.setLastRunStatus(latest.getJobLogExecuteCode());
-            vo.setLastRunMessage(latest.getJobLogTriggerMsg());
+            vo.setLastStartedAt(toLocalDateTime(latest.getSysJobLogTriggerTime()));
+            vo.setLastFinishedAt(toLocalDateTime(latest.getSysJobLogTriggerTime(), latest.getSysJobLogCost()));
+            vo.setLastRunStatus(latest.getSysJobLogExecuteCode());
+            vo.setLastRunMessage(latest.getSysJobLogTriggerMsg());
         }
         return vo;
     }
 
-    private SysJob requireJob(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables, int jobId) {
-        MapSqlParameterSource parameters = new MapSqlParameterSource("jobId", jobId);
-        List<SysJob> records = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable() + " WHERE job_id = :jobId AND is_deleted = 0 LIMIT 1",
-                parameters,
-                jobRowMapper
-        );
-        if (records.isEmpty()) {
-            throw new IllegalArgumentException("任务不存在: " + jobId);
+    private JobLogEntity findLatestLog(JobEntity job) {
+        if (StringUtils.hasText(trimToNull(job.getSysJobNo()))) {
+            JobLogEntity byNo = findLatestLogByNo(job.getSysJobNo());
+            if (byNo != null) {
+                return byNo;
+            }
         }
-        return records.get(0);
-    }
-
-    private SysJob requireJobByNo(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables, String jobNo) {
-        MapSqlParameterSource parameters = new MapSqlParameterSource("jobNo", requireText(jobNo, "任务编号不能为空"));
-        List<SysJob> records = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable() + " WHERE job_no = :jobNo AND is_deleted = 0 LIMIT 1",
-                parameters,
-                jobRowMapper
-        );
-        if (records.isEmpty()) {
-            throw new IllegalArgumentException("任务不存在: " + jobNo);
-        }
-        return records.get(0);
-    }
-
-    private SysJob requireTask(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables, String taskKey) {
-        String normalizedTaskKey = requireText(taskKey, "任务标识不能为空");
-        MapSqlParameterSource parameters = new MapSqlParameterSource("taskKey", normalizedTaskKey);
-
-        List<SysJob> byNo = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable() + " WHERE job_no = :taskKey AND is_deleted = 0 ORDER BY job_id DESC LIMIT 1",
-                parameters,
-                jobRowMapper
-        );
-        if (!byNo.isEmpty()) {
-            return byNo.get(0);
-        }
-
-        List<SysJob> byBean = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable() + " WHERE job_execute_bean = :taskKey AND is_deleted = 0 ORDER BY job_id DESC LIMIT 1",
-                parameters,
-                jobRowMapper
-        );
-        if (!byBean.isEmpty()) {
-            return byBean.get(0);
-        }
-
-        List<SysJob> byName = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable() + " WHERE job_name = :taskKey AND is_deleted = 0 ORDER BY job_id DESC LIMIT 1",
-                parameters,
-                jobRowMapper
-        );
-        if (!byName.isEmpty()) {
-            return byName.get(0);
-        }
-        throw new IllegalArgumentException("任务不存在: " + normalizedTaskKey);
-    }
-
-    private SysJobLog findLatestLog(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables, SysJob job) {
-        SysJobLog latest = findLatestLogByJobNo(tables, trimToNull(job.getJobNo()));
-        if (latest != null) {
-            return latest;
-        }
-        latest = findLatestLogByTriggerBean(tables, trimToNull(job.getJobExecuteBean()));
-        if (latest != null) {
-            return latest;
-        }
-        String fallbackTriggerBean = trimToNull(job.getJobName());
-        if (StringUtils.hasText(fallbackTriggerBean)
-                && !fallbackTriggerBean.equals(trimToNull(job.getJobExecuteBean()))) {
-            return findLatestLogByTriggerBean(tables, fallbackTriggerBean);
+        String triggerBean = trimToNull(job.getSysJobExecuteBean());
+        if (StringUtils.hasText(triggerBean)) {
+            JobLogEntity byBean = findLatestLogByBean(triggerBean);
+            if (byBean != null) {
+                return byBean;
+            }
         }
         return null;
     }
 
-    private SysJobLog findLatestLogByJobNo(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables, String jobNo) {
-        if (!StringUtils.hasText(jobNo)) {
-            return null;
-        }
-        MapSqlParameterSource parameters = new MapSqlParameterSource("jobNo", jobNo);
-        List<SysJobLog> logs = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.logTable()
-                        + " WHERE job_no = :jobNo"
-                        + " ORDER BY job_log_trigger_time DESC, job_log_id DESC LIMIT 1",
-                parameters,
-                logRowMapper
-        );
-        return logs.isEmpty() ? null : logs.get(0);
+    private JobLogEntity findLatestLogByNo(String jobNo) {
+        return jobLogMapper.selectOne(Wrappers.<JobLogEntity>lambdaQuery()
+                .eq(JobLogEntity::getSysJobNo, jobNo)
+                .orderByDesc(JobLogEntity::getSysJobLogTriggerTime)
+                .orderByDesc(JobLogEntity::getSysJobLogId)
+                .last("LIMIT 1"));
     }
 
-    private SysJobLog findLatestLogByTriggerBean(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables, String triggerBean) {
-        if (!StringUtils.hasText(triggerBean)) {
-            return null;
-        }
-        MapSqlParameterSource parameters = new MapSqlParameterSource("triggerBean", triggerBean);
-        List<SysJobLog> logs = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.logTable()
-                        + " WHERE job_log_trigger_bean = :triggerBean"
-                        + " ORDER BY job_log_trigger_time DESC, job_log_id DESC LIMIT 1",
-                parameters,
-                logRowMapper
-        );
-        return logs.isEmpty() ? null : logs.get(0);
+    private JobLogEntity findLatestLogByBean(String triggerBean) {
+        return jobLogMapper.selectOne(Wrappers.<JobLogEntity>lambdaQuery()
+                .eq(JobLogEntity::getSysJobLogTriggerBean, triggerBean)
+                .orderByDesc(JobLogEntity::getSysJobLogTriggerTime)
+                .orderByDesc(JobLogEntity::getSysJobLogId)
+                .last("LIMIT 1"));
     }
 
-    private int updateJobRecord(String tableName, SysJob job) {
-        return namedParameterJdbcTemplate.update(
-                updateSql(tableName),
-                new BeanPropertySqlParameterSource(job)
-        );
+    private JobEntity findByNo(String jobNo) {
+        return jobMapper.selectOne(Wrappers.<JobEntity>lambdaQuery()
+                .eq(JobEntity::getSysJobNo, jobNo)
+                .eq(JobEntity::getSysJobIsDeleted, 0)
+                .last("LIMIT 1"));
     }
 
-    private String insertSql(String tableName) {
-        return "INSERT INTO " + tableName + " ("
-                + "job_no, job_name, job_schedule_type, job_schedule_time, job_author, job_alarm_email, "
-                + "job_trigger_status, job_desc, job_glue_updatetime, job_glue_source, job_glue_type, "
-                + "job_dispatch_mode, job_remote_executor_address, job_storage_mode, "
-                + "job_fail_retry, job_retry_interval, job_execute_timeout, job_execute_bean, job_execute_param, "
-                + "job_exception_callback_bean, job_retry_callback_bean, "
-                + "job_execute_misfire_strategy, job_trigger_last_time, job_trigger_next_time"
-                + ") VALUES ("
-                + ":jobNo, :jobName, :jobScheduleType, :jobScheduleTime, :jobAuthor, :jobAlarmEmail, "
-                + ":jobTriggerStatus, :jobDesc, :jobGlueUpdatetime, :jobGlueSource, :jobGlueType, "
-                + ":jobDispatchMode, :jobRemoteExecutorAddress, :jobStorageMode, "
-                + ":jobFailRetry, :jobRetryInterval, :jobExecuteTimeout, :jobExecuteBean, :jobExecuteParam, "
-                + ":jobExceptionCallbackBean, :jobRetryCallbackBean, "
-                + ":jobExecuteMisfireStrategy, :jobTriggerLastTime, :jobTriggerNextTime"
-                + ")";
+    private JobEntity requireTask(String taskKey) {
+        String normalizedTaskKey = requireText(taskKey, "任务标识不能为空");
+
+        JobEntity byNo = jobMapper.selectOne(Wrappers.<JobEntity>lambdaQuery()
+                .eq(JobEntity::getSysJobNo, normalizedTaskKey)
+                .eq(JobEntity::getSysJobIsDeleted, 0)
+                .orderByDesc(JobEntity::getSysJobId)
+                .last("LIMIT 1"));
+        if (byNo != null) {
+            return byNo;
+        }
+
+        JobEntity byBean = jobMapper.selectOne(Wrappers.<JobEntity>lambdaQuery()
+                .eq(JobEntity::getSysJobExecuteBean, normalizedTaskKey)
+                .eq(JobEntity::getSysJobIsDeleted, 0)
+                .orderByDesc(JobEntity::getSysJobId)
+                .last("LIMIT 1"));
+        if (byBean != null) {
+            return byBean;
+        }
+
+        JobEntity byName = jobMapper.selectOne(Wrappers.<JobEntity>lambdaQuery()
+                .eq(JobEntity::getSysJobName, normalizedTaskKey)
+                .eq(JobEntity::getSysJobIsDeleted, 0)
+                .orderByDesc(JobEntity::getSysJobId)
+                .last("LIMIT 1"));
+        if (byName != null) {
+            return byName;
+        }
+        throw new IllegalArgumentException("任务不存在: " + normalizedTaskKey);
     }
 
-    private String updateSql(String tableName) {
-        return "UPDATE " + tableName + " SET "
-                + "job_no = :jobNo, "
-                + "job_name = :jobName, "
-                + "job_schedule_type = :jobScheduleType, "
-                + "job_schedule_time = :jobScheduleTime, "
-                + "job_author = :jobAuthor, "
-                + "job_alarm_email = :jobAlarmEmail, "
-                + "job_trigger_status = :jobTriggerStatus, "
-                + "job_desc = :jobDesc, "
-                + "job_glue_updatetime = :jobGlueUpdatetime, "
-                + "job_glue_source = :jobGlueSource, "
-                + "job_glue_type = :jobGlueType, "
-                + "job_dispatch_mode = :jobDispatchMode, "
-                + "job_remote_executor_address = :jobRemoteExecutorAddress, "
-                + "job_storage_mode = :jobStorageMode, "
-                + "job_fail_retry = :jobFailRetry, "
-                + "job_retry_interval = :jobRetryInterval, "
-                + "job_execute_timeout = :jobExecuteTimeout, "
-                + "job_execute_bean = :jobExecuteBean, "
-                + "job_execute_param = :jobExecuteParam, "
-                + "job_exception_callback_bean = :jobExceptionCallbackBean, "
-                + "job_retry_callback_bean = :jobRetryCallbackBean, "
-                + "job_execute_misfire_strategy = :jobExecuteMisfireStrategy, "
-                + "job_trigger_last_time = :jobTriggerLastTime, "
-                + "job_trigger_next_time = :jobTriggerNextTime "
-                + "WHERE job_id = :jobId";
-    }
-
-    private void mergeJobPatch(SysJob target, SysJob patch) {
-        if (patch.getJobName() != null) {
-            target.setJobName(patch.getJobName());
+    private void mergeJobPatch(JobEntity target, JobEntity patch) {
+        if (patch.getSysJobName() != null) {
+            target.setSysJobName(patch.getSysJobName());
         }
-        if (patch.getJobScheduleType() != null) {
-            target.setJobScheduleType(patch.getJobScheduleType());
+        if (patch.getSysJobScheduleType() != null) {
+            target.setSysJobScheduleType(patch.getSysJobScheduleType());
         }
-        if (patch.getJobScheduleTime() != null) {
-            target.setJobScheduleTime(patch.getJobScheduleTime());
+        if (patch.getSysJobScheduleTime() != null) {
+            target.setSysJobScheduleTime(patch.getSysJobScheduleTime());
         }
-        if (patch.getJobAuthor() != null) {
-            target.setJobAuthor(patch.getJobAuthor());
+        if (patch.getSysJobAuthor() != null) {
+            target.setSysJobAuthor(patch.getSysJobAuthor());
         }
-        if (patch.getJobAlarmEmail() != null) {
-            target.setJobAlarmEmail(patch.getJobAlarmEmail());
+        if (patch.getSysJobAlarmEmail() != null) {
+            target.setSysJobAlarmEmail(patch.getSysJobAlarmEmail());
         }
-        if (patch.getJobTriggerStatus() != null) {
-            target.setJobTriggerStatus(patch.getJobTriggerStatus());
+        if (patch.getSysJobTriggerStatus() != null) {
+            target.setSysJobTriggerStatus(patch.getSysJobTriggerStatus());
         }
-        if (patch.getJobDesc() != null) {
-            target.setJobDesc(patch.getJobDesc());
+        if (patch.getSysJobDesc() != null) {
+            target.setSysJobDesc(patch.getSysJobDesc());
         }
-        if (patch.getJobGlueUpdatetime() != null) {
-            target.setJobGlueUpdatetime(patch.getJobGlueUpdatetime());
+        if (patch.getSysJobGlueUpdatetime() != null) {
+            target.setSysJobGlueUpdatetime(patch.getSysJobGlueUpdatetime());
         }
-        if (patch.getJobGlueSource() != null) {
-            target.setJobGlueSource(patch.getJobGlueSource());
+        if (patch.getSysJobGlueSource() != null) {
+            target.setSysJobGlueSource(patch.getSysJobGlueSource());
         }
-        if (patch.getJobGlueType() != null) {
-            target.setJobGlueType(patch.getJobGlueType());
+        if (patch.getSysJobGlueType() != null) {
+            target.setSysJobGlueType(patch.getSysJobGlueType());
         }
-        if (patch.getJobDispatchMode() != null) {
-            target.setJobDispatchMode(patch.getJobDispatchMode());
+        if (patch.getSysJobDispatchMode() != null) {
+            target.setSysJobDispatchMode(patch.getSysJobDispatchMode());
         }
-        if (patch.getJobRemoteExecutorAddress() != null) {
-            target.setJobRemoteExecutorAddress(patch.getJobRemoteExecutorAddress());
+        if (patch.getSysJobRemoteExecutorAddress() != null) {
+            target.setSysJobRemoteExecutorAddress(patch.getSysJobRemoteExecutorAddress());
         }
-        if (patch.getJobStorageMode() != null) {
-            target.setJobStorageMode(patch.getJobStorageMode());
+        if (patch.getSysJobStorageMode() != null) {
+            target.setSysJobStorageMode(patch.getSysJobStorageMode());
         }
-        if (patch.getJobFailRetry() != null) {
-            target.setJobFailRetry(patch.getJobFailRetry());
+        if (patch.getSysJobFailRetry() != null) {
+            target.setSysJobFailRetry(patch.getSysJobFailRetry());
         }
-        if (patch.getJobRetryInterval() != null) {
-            target.setJobRetryInterval(patch.getJobRetryInterval());
+        if (patch.getSysJobRetryInterval() != null) {
+            target.setSysJobRetryInterval(patch.getSysJobRetryInterval());
         }
-        if (patch.getJobExecuteTimeout() != null) {
-            target.setJobExecuteTimeout(patch.getJobExecuteTimeout());
+        if (patch.getSysJobExecuteTimeout() != null) {
+            target.setSysJobExecuteTimeout(patch.getSysJobExecuteTimeout());
         }
-        if (patch.getJobExecuteBean() != null) {
-            target.setJobExecuteBean(patch.getJobExecuteBean());
+        if (patch.getSysJobExecuteBean() != null) {
+            target.setSysJobExecuteBean(patch.getSysJobExecuteBean());
         }
-        if (patch.getJobExecuteParam() != null) {
-            target.setJobExecuteParam(patch.getJobExecuteParam());
+        if (patch.getSysJobExecuteParam() != null) {
+            target.setSysJobExecuteParam(patch.getSysJobExecuteParam());
         }
-        if (patch.getJobExceptionCallbackBean() != null) {
-            target.setJobExceptionCallbackBean(patch.getJobExceptionCallbackBean());
+        if (patch.getSysJobExceptionCallbackBean() != null) {
+            target.setSysJobExceptionCallbackBean(patch.getSysJobExceptionCallbackBean());
         }
-        if (patch.getJobRetryCallbackBean() != null) {
-            target.setJobRetryCallbackBean(patch.getJobRetryCallbackBean());
+        if (patch.getSysJobRetryCallbackBean() != null) {
+            target.setSysJobRetryCallbackBean(patch.getSysJobRetryCallbackBean());
         }
-        if (patch.getJobExecuteMisfireStrategy() != null) {
-            target.setJobExecuteMisfireStrategy(patch.getJobExecuteMisfireStrategy());
+        if (patch.getSysJobExecuteMisfireStrategy() != null) {
+            target.setSysJobExecuteMisfireStrategy(patch.getSysJobExecuteMisfireStrategy());
+        }
+        if (patch.getSysJobGroup() != null) {
+            target.setSysJobGroup(patch.getSysJobGroup());
         }
     }
 
-    private void applyDefaults(SysJob job) {
-        if (!StringUtils.hasText(job.getJobNo())) {
-            job.setJobNo(JobNumberGenerator.nextJobNo());
+    private void applyDefaults(JobEntity job) {
+        if (!StringUtils.hasText(job.getSysJobNo())) {
+            job.setSysJobNo(nextJobNo());
         }
-        if (job.getJobScheduleType() == null) {
-            job.setJobScheduleType(DEFAULT_SCHEDULE_TYPE);
+        if (job.getSysJobScheduleType() == null) {
+            job.setSysJobScheduleType(DEFAULT_SCHEDULE_TYPE);
         }
-        if (job.getJobGlueType() == null) {
-            job.setJobGlueType(DEFAULT_GLUE_TYPE);
+        if (job.getSysJobGlueType() == null) {
+            job.setSysJobGlueType(DEFAULT_GLUE_TYPE);
         }
-        if (job.getJobGlueUpdatetime() == null) {
-            job.setJobGlueUpdatetime(new Date());
+        if (job.getSysJobGlueUpdatetime() == null) {
+            job.setSysJobGlueUpdatetime(new Date());
         }
-        if (job.getJobTriggerStatus() == null) {
-            job.setJobTriggerStatus(STATUS_STOP);
+        if (job.getSysJobTriggerStatus() == null) {
+            job.setSysJobTriggerStatus(STATUS_STOP);
         }
-        if (job.getJobFailRetry() == null) {
-            job.setJobFailRetry(0);
+        if (job.getSysJobFailRetry() == null) {
+            job.setSysJobFailRetry(0);
         }
-        if (job.getJobRetryInterval() == null) {
-            job.setJobRetryInterval(0);
+        if (job.getSysJobRetryInterval() == null) {
+            job.setSysJobRetryInterval(0);
         }
-        if (job.getJobExecuteTimeout() == null) {
-            job.setJobExecuteTimeout(0);
+        if (job.getSysJobExecuteTimeout() == null) {
+            job.setSysJobExecuteTimeout(0);
         }
-        if (job.getJobDispatchMode() == null) {
-            job.setJobDispatchMode(JobDispatchModeEnum.LOCAL.name());
+        if (job.getSysJobDispatchMode() == null) {
+            job.setSysJobDispatchMode("LOCAL");
         }
-        if (job.getJobStorageMode() == null) {
-            job.setJobStorageMode(JobStorageModeEnum.DATABASE.name());
+        if (job.getSysJobStorageMode() == null) {
+            job.setSysJobStorageMode("DATABASE");
         }
-        if (job.getJobExecuteMisfireStrategy() == null) {
-            job.setJobExecuteMisfireStrategy(DEFAULT_MISFIRE_STRATEGY);
+        if (job.getSysJobExecuteMisfireStrategy() == null) {
+            job.setSysJobExecuteMisfireStrategy(DEFAULT_MISFIRE_STRATEGY);
         }
-        if (job.getJobTriggerLastTime() == null) {
-            job.setJobTriggerLastTime(0L);
+        if (job.getSysJobTriggerLastTime() == null) {
+            job.setSysJobTriggerLastTime(0L);
         }
-        if (job.getJobTriggerNextTime() == null) {
-            job.setJobTriggerNextTime(0L);
-        }
-    }
-
-    private void validateJob(SysJob job) {
-        requireText(job.getJobNo(), "任务编号不能为空");
-        requireText(job.getJobName(), "任务名称不能为空");
-        if ("BEAN".equalsIgnoreCase(job.getJobGlueType())) {
-            requireText(job.getJobExecuteBean(), "执行 Bean 名称不能为空");
-        }
-        if (SchedulerTypeEnum.NONE != SchedulerTypeEnum.match(job.getJobScheduleType(), SchedulerTypeEnum.CRON)) {
-            requireText(job.getJobScheduleTime(), "调度配置不能为空");
+        if (job.getSysJobTriggerNextTime() == null) {
+            job.setSysJobTriggerNextTime(0L);
         }
     }
 
-    private void normalizeJob(SysJob job) {
+    private void validateJob(JobEntity job) {
+        requireText(job.getSysJobNo(), "任务编号不能为空");
+        requireText(job.getSysJobName(), "任务名称不能为空");
+        if ("BEAN".equalsIgnoreCase(job.getSysJobGlueType())) {
+            requireText(job.getSysJobExecuteBean(), "执行 Bean 名称不能为空");
+        }
+        if (!"NONE".equalsIgnoreCase(job.getSysJobScheduleType())) {
+            requireText(job.getSysJobScheduleTime(), "调度配置不能为空");
+        }
+    }
+
+    private void normalizeJob(JobEntity job) {
         applyDefaults(job);
-        job.setJobNo(trimToNull(job.getJobNo()));
-        job.setJobName(trimToNull(job.getJobName()));
-        job.setJobExecuteBean(trimToNull(job.getJobExecuteBean()));
-        job.setJobScheduleTime(trimToNull(job.getJobScheduleTime()));
-        job.setJobAuthor(trimToNull(job.getJobAuthor()));
-        job.setJobAlarmEmail(trimToNull(job.getJobAlarmEmail()));
-        job.setJobDesc(trimToNull(job.getJobDesc()));
-        job.setJobGlueSource(trimToNull(job.getJobGlueSource()));
-        job.setJobGlueType(trimToNull(job.getJobGlueType()));
-        job.setJobDispatchMode(normalizeDispatchMode(job.getJobDispatchMode()));
-        job.setJobRemoteExecutorAddress(trimToNull(job.getJobRemoteExecutorAddress()));
-        job.setJobStorageMode(normalizeStorageMode(job.getJobStorageMode()));
-        job.setJobExceptionCallbackBean(trimToNull(job.getJobExceptionCallbackBean()));
-        job.setJobRetryCallbackBean(trimToNull(job.getJobRetryCallbackBean()));
-        job.setJobExecuteMisfireStrategy(trimToNull(job.getJobExecuteMisfireStrategy()));
-        job.setJobScheduleType(normalizeScheduleType(job.getJobScheduleType()));
+        job.setSysJobNo(trimToNull(job.getSysJobNo()));
+        job.setSysJobName(trimToNull(job.getSysJobName()));
+        job.setSysJobExecuteBean(trimToNull(job.getSysJobExecuteBean()));
+        job.setSysJobScheduleTime(trimToNull(job.getSysJobScheduleTime()));
+        job.setSysJobAuthor(trimToNull(job.getSysJobAuthor()));
+        job.setSysJobAlarmEmail(trimToNull(job.getSysJobAlarmEmail()));
+        job.setSysJobDesc(trimToNull(job.getSysJobDesc()));
+        job.setSysJobGlueSource(trimToNull(job.getSysJobGlueSource()));
+        job.setSysJobGlueType(trimToNull(job.getSysJobGlueType()));
+        job.setSysJobDispatchMode(normalizeDispatchMode(job.getSysJobDispatchMode()));
+        job.setSysJobRemoteExecutorAddress(trimToNull(job.getSysJobRemoteExecutorAddress()));
+        job.setSysJobStorageMode(normalizeStorageMode(job.getSysJobStorageMode()));
+        job.setSysJobExceptionCallbackBean(trimToNull(job.getSysJobExceptionCallbackBean()));
+        job.setSysJobRetryCallbackBean(trimToNull(job.getSysJobRetryCallbackBean()));
+        job.setSysJobExecuteMisfireStrategy(trimToNull(job.getSysJobExecuteMisfireStrategy()));
+        job.setSysJobScheduleType(normalizeScheduleType(job.getSysJobScheduleType()));
     }
 
     private String normalizeScheduleType(String scheduleType) {
         if (!StringUtils.hasText(scheduleType)) {
             return DEFAULT_SCHEDULE_TYPE;
         }
-        SchedulerTypeEnum matched = SchedulerTypeEnum.match(scheduleType, null);
-        if (matched == null) {
+        String upper = scheduleType.trim().toUpperCase(java.util.Locale.ROOT);
+        if (!List.of("CRON", "FIXED", "FIXED_MS", "DELAY", "AT", "NONE").contains(upper)) {
             throw new IllegalArgumentException("不支持的调度类型: " + scheduleType);
         }
-        return matched.name();
+        return upper;
     }
 
     private String normalizeDispatchMode(String dispatchMode) {
-        return JobDispatchModeEnum.match(dispatchMode).name();
+        String upper = trimToNull(dispatchMode);
+        if (upper == null) {
+            return "LOCAL";
+        }
+        upper = upper.toUpperCase(java.util.Locale.ROOT);
+        if (!List.of("LOCAL", "REMOTE").contains(upper)) {
+            throw new IllegalArgumentException("不支持的分发模式: " + dispatchMode);
+        }
+        return upper;
     }
 
     private String normalizeStorageMode(String storageMode) {
-        return JobStorageModeEnum.match(storageMode).name();
+        String upper = trimToNull(storageMode);
+        if (upper == null) {
+            return "DATABASE";
+        }
+        upper = upper.toUpperCase(java.util.Locale.ROOT);
+        if (!List.of("DATABASE", "FILE").contains(upper)) {
+            throw new IllegalArgumentException("不支持的日志存储模式: " + storageMode);
+        }
+        return upper;
     }
 
-    private void applyTriggerState(SysJob job, boolean running) {
-        String scheduleType = normalizeScheduleType(job.getJobScheduleType());
+    private void applyTriggerState(JobEntity job, boolean running) {
+        String scheduleType = normalizeScheduleType(job.getSysJobScheduleType());
         if (running) {
-            job.setJobTriggerStatus(STATUS_RUNNING);
-            if (SchedulerTypeEnum.NONE == SchedulerTypeEnum.match(scheduleType, SchedulerTypeEnum.CRON)) {
-                job.setJobTriggerNextTime(0L);
+            job.setSysJobTriggerStatus(STATUS_RUNNING);
+            if ("NONE".equals(scheduleType)) {
+                job.setSysJobTriggerNextTime(0L);
             } else {
-                requireText(job.getJobScheduleTime(), "运行中的任务必须配置调度时间");
-                job.setJobTriggerNextTime(calculateNextTriggerTime(scheduleType, job.getJobScheduleTime()));
+                requireText(job.getSysJobScheduleTime(), "运行中的任务必须配置调度时间");
+                job.setSysJobTriggerNextTime(calculateNextTriggerTime(scheduleType, job.getSysJobScheduleTime()));
             }
-            if (job.getJobTriggerLastTime() == null) {
-                job.setJobTriggerLastTime(0L);
+            if (job.getSysJobTriggerLastTime() == null) {
+                job.setSysJobTriggerLastTime(0L);
             }
             return;
         }
-        job.setJobTriggerStatus(STATUS_STOP);
-        job.setJobTriggerLastTime(0L);
-        job.setJobTriggerNextTime(0L);
+        job.setSysJobTriggerStatus(STATUS_STOP);
+        job.setSysJobTriggerLastTime(0L);
+        job.setSysJobTriggerNextTime(0L);
     }
 
     private long calculateNextTriggerTime(String scheduleType, String scheduleTime) {
         try {
-            SysJob job = new SysJob();
-            job.setJobScheduleType(normalizeScheduleType(scheduleType));
-            job.setJobScheduleTime(scheduleTime == null ? null : scheduleTime.trim());
-            Date nextValidTime = JobHelper.generateNextValidTime(job, new Date());
-            if (nextValidTime != null) {
-                return nextValidTime.getTime();
+            if ("CRON".equals(scheduleType)) {
+                CronExpression expression = new CronExpression(scheduleTime == null ? null : scheduleTime.trim());
+                Date nextValidTime = expression.getNextValidTimeAfter(new Date());
+                if (nextValidTime != null) {
+                    return nextValidTime.getTime();
+                }
+            } else {
+                long interval = parseInterval(scheduleTime);
+                return System.currentTimeMillis() + interval;
             }
         } catch (Exception e) {
             throw new IllegalArgumentException("无效的调度配置: type=" + scheduleType + ", time=" + scheduleTime, e);
@@ -821,20 +651,21 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         throw new IllegalArgumentException("无效的调度配置: type=" + scheduleType + ", time=" + scheduleTime);
     }
 
-    private boolean isRemoteDispatchJob(SysJob job) {
-        return job != null && JobDispatchModeEnum.REMOTE == JobDispatchModeEnum.match(job.getJobDispatchMode());
+    private long parseInterval(String scheduleTime) {
+        if (!StringUtils.hasText(scheduleTime)) {
+            throw new IllegalArgumentException("调度间隔不能为空");
+        }
+        try {
+            return Long.parseLong(scheduleTime.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("无效的调度间隔: " + scheduleTime, e);
+        }
     }
 
-    private <T> Page<T> toPage(int pageNum, int pageSize, long total, List<T> records) {
-        Page<T> page = new Page<>(pageNum, pageSize);
-        page.setTotal(total);
-        page.setRecords(records);
-        return page;
-    }
-
-    private long count(String sql, MapSqlParameterSource parameters) {
-        Long total = namedParameterJdbcTemplate.queryForObject(sql, parameters, Long.class);
-        return total == null ? 0L : total;
+    private String nextJobNo() {
+        String ts = Long.toString(System.currentTimeMillis());
+        String rand = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase(java.util.Locale.ROOT);
+        return "JOB-" + ts + "-" + rand;
     }
 
     private LocalDateTime toLocalDateTime(Long time) {
@@ -844,14 +675,14 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
     }
 
-    private LocalDateTime toLocalDateTime(java.util.Date date) {
+    private LocalDateTime toLocalDateTime(Date date) {
         if (date == null) {
             return null;
         }
         return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
     }
 
-    private LocalDateTime toLocalDateTime(java.util.Date date, BigDecimal cost) {
+    private LocalDateTime toLocalDateTime(Date date, java.math.BigDecimal cost) {
         if (date == null) {
             return null;
         }
@@ -868,7 +699,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return Math.min(normalized, MAX_PAGE_SIZE);
     }
 
-    private int requireJobId(Integer jobId) {
+    private Long requireJobId(Long jobId) {
         if (jobId == null || jobId <= 0) {
             throw new IllegalArgumentException("任务ID不能为空");
         }
@@ -894,71 +725,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return triggerStatus == null ? STATUS_STOP : triggerStatus;
     }
 
-    @Override
-    public Object getNamespaceConfig(String namespace) {
-        boolean hasRemote = remoteExecutorDispatcher.hasExecutors(namespace);
-        Map<String, Object> config = new LinkedHashMap<>();
-        config.put("remoteDispatchEnabled", platformProperties.isRemoteDispatchEnabled());
-        config.put("hasRemoteExecutors", hasRemote);
-
-        // 调度模式
-        String mode = "STANDALONE";
-        SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
-        if (nsProps != null && StringUtils.hasText(nsProps.getMode())) {
-            mode = nsProps.getMode().toUpperCase();
+    private String escape(String value) {
+        if (value == null) {
+            return "";
         }
-        config.put("schedulerMode", mode);
-
-        // 数据源信息
-        String executorMode = "DISCOVERY";
-        if (nsProps != null && StringUtils.hasText(nsProps.getExecutorMode())) {
-            executorMode = nsProps.getExecutorMode().toUpperCase();
-        }
-        config.put("dataSource", executorMode);
-
-        // 任务分组
-        String group = null;
-        if (nsProps != null && StringUtils.hasText(nsProps.getGroup())) {
-            group = nsProps.getGroup().trim();
-        }
-        config.put("group", group);
-
-        if (hasRemote) {
-            List<?> executors = remoteExecutorDispatcher.resolveExecutors(namespace, null);
-            List<Map<String, Object>> executorList = new ArrayList<>();
-            for (Object ex : executors) {
-                SchedulerJobPlatformProperties.Executor e = (SchedulerJobPlatformProperties.Executor) ex;
-                Map<String, Object> map = new LinkedHashMap<>();
-                map.put("name", e.getName());
-                map.put("baseUrl", e.getBaseUrl());
-                executorList.add(map);
-            }
-            config.put("executors", executorList);
-        } else {
-            config.put("executors", List.of());
-        }
-        return config;
-    }
-
-    private SchedulerJobPlatformProperties.Namespace resolveNamespaceProperties(String namespace) {
-        if (!StringUtils.hasText(namespace) || platformProperties.getNamespaces() == null) {
-            return null;
-        }
-        return platformProperties.getNamespaces().entrySet().stream()
-                .filter(entry -> namespace.equalsIgnoreCase(entry.getKey()))
-                .findFirst()
-                .map(Map.Entry::getValue)
-                .orElse(null);
-    }
-
-    private boolean isClusterMode(SchedulerJobPlatformProperties.Namespace nsProps) {
-        return nsProps != null && "CLUSTER".equalsIgnoreCase(nsProps.getMode());
-    }
-
-    private String resolveGroup(SchedulerJobPlatformProperties.Namespace nsProps) {
-        if (nsProps == null || !StringUtils.hasText(nsProps.getGroup())) {
-            return null;
-        }
-        return nsProps.getGroup().trim();
+        return value.replace("'", "''");
     }
 }

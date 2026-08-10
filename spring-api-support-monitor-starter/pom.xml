@@ -48,13 +48,6 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
-        <!-- remote provides com.chua.protocol.support.network.protocol -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-remote-starter</artifactId>
-            <version>${utils.version}</version>
-            <optional>true</optional>
-        </dependency>
         <!-- ssh provides com.chua.ssh.support.client - 移除防止 sshd-core 不可用 -->
         <!-- <dependency>
             <groupId>com.chua</groupId>
@@ -77,10 +70,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>

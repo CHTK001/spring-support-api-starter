@@ -1,7 +1,7 @@
 package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.storage.FileStorage;
 import com.chua.common.support.storage.request.PutObjectRequest;
@@ -31,6 +31,7 @@ import com.chua.starter.service.task.SysFileSystemMergeTaskRegistration;
 import com.chua.starter.service.task.SysFileSystemWrapper;
 import com.chua.starter.service.utils.FileStorageSupport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,7 +70,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     @Autowired
     public SysFileSystemServiceImpl(TransactionTemplate transactionTemplate,
                                     SysFileSystemPartService sysFileSystemPartService,
-                                    SysFileSystemSettingService sysFileSystemSettingService,
+                                    @Lazy SysFileSystemSettingService sysFileSystemSettingService,
                                     FileSystemProperties fileSystemProperties,
                                     SysFileSystemMergeTaskRegistration mergeTaskRegistration,
                                     FileStorageSupport fileStorageSupport) {

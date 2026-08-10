@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.service.acme;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.chua.starter.monitor.entity.MonitorAcmeAccount;
 import com.chua.starter.monitor.mapper.MonitorAcmeAccountMapper;
 import org.springframework.stereotype.Service;
