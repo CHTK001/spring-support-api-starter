@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.service.acme;
 
-import com.baomidou.mybatisplus.spring.service.IService;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.starter.monitor.entity.MonitorAcmeOrder;
 
 import java.util.List;

@@ -219,6 +219,13 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysUserAvatarFrame;
 
     /**
+     * 是否显示头像框; 0:不显示 1:显示
+     */
+    @TableField(value = "sys_user_avatar_frame_show")
+    @Schema(description = "是否显示头像框; 0:不显示 1:显示")
+    private Integer sysUserAvatarFrameShow;
+
+    /**
      * 角色列表(系统生成)
      */
     @Schema(description = "角色列表(系统生成)")

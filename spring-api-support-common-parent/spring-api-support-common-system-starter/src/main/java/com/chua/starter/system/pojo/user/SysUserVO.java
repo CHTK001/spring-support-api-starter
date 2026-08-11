@@ -218,4 +218,12 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "头像框ID")
     @Schema(description = "头像框ID")
     private Integer sysUserAvatarFrame;
+
+    /**
+     * 是否显示头像框
+     */
+    @TableField(value = "sys_user_avatar_frame_show")
+    @ApiModelProperty(value = "是否显示头像框")
+    @Schema(description = "是否显示头像框")
+    private Integer sysUserAvatarFrameShow;
 }

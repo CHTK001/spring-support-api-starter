@@ -9,6 +9,11 @@ spring:
   profiles:
     active: dev                             # 当前激活的环境
     include: mybatis,swagger,socket,control,codec,api,ip,discovery,tenant  # 引入的公共配置模块
+  # 排除 spring-boot-webmvc-4.1.0 引入的 ErrorMvcAutoConfiguration,
+  # 避免与 spring-boot-autoconfigure-3.5.9 的同名 bean 冲突 (BeanDefinitionOverrideException)
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.webmvc.autoconfigure.error.ErrorMvcAutoConfiguration
 
 # ===========================================
 # 服务器配置

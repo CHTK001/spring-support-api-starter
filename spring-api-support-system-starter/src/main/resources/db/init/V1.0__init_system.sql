@@ -244,6 +244,9 @@ CREATE TABLE `sys_user` (
     `sys_user_login_count` int(11) NULL DEFAULT NULL COMMENT '登录次数 - 累计登录次数',
     `sys_client_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户端ID - 绑定的客户端标识',
     `sys_user_totp_code` varchar(600) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'TOTP密钥 - 两步验证的加密密钥(Base32编码)',
+    `sys_user_birthday` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '生日 - 用户出生日期，用于生日头像框等个性化功能',
+    `sys_user_avatar_frame` int(11) NULL DEFAULT NULL COMMENT '头像框ID - 用户选择的头像框样式ID，0为默认',
+    `sys_user_avatar_frame_show` int(11) NULL DEFAULT 0 COMMENT '是否显示头像框 - 0:不显示 1:显示',
     `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
     `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人ID',
     `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -602,5 +605,67 @@ INSERT INTO `sys_user_role` (`sys_user_id`, `sys_role_id`) VALUES
 -- =====================================================
 INSERT INTO `sys_dept` (`sys_dept_id`, `sys_dept_name`, `sys_dept_pid`, `sys_dept_tree_id`, `sys_dept_code`, `sys_dept_sort`, `sys_dept_status`) VALUES 
 (1, '总部', 0, '0,1', 'ROOT', 1, 0);
+
+-- =====================================================
+-- 头像框定义表 (sys_avatar_frame)
+-- 用途: 存储系统中可用的头像框定义
+-- =====================================================
+DROP TABLE IF EXISTS `sys_avatar_frame`;
+CREATE TABLE `sys_avatar_frame` (
+  `sys_avatar_frame_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '头像框ID',
+  `sys_avatar_frame_name` varchar(100) NOT NULL COMMENT '头像框名称',
+  `sys_avatar_frame_type` varchar(50) DEFAULT 'base' COMMENT '类型: base-基础 birthday-生日 event-活动',
+  `sys_avatar_frame_image` varchar(500) DEFAULT NULL COMMENT '头像框图片URL',
+  `sys_avatar_frame_color` varchar(200) DEFAULT NULL COMMENT '渐变背景色(css)',
+  `sys_avatar_frame_desc` varchar(500) DEFAULT NULL COMMENT '描述',
+  `sys_avatar_frame_acquire` varchar(50) DEFAULT 'default' COMMENT '获取途径: default-默认 birthday-生日 achievement-成就',
+  `sys_avatar_frame_sort` int(11) DEFAULT 0 COMMENT '排序',
+  `sys_avatar_frame_status` int(11) DEFAULT 1 COMMENT '状态: 0-禁用 1-启用',
+  `create_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int(11) DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int(11) DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`sys_avatar_frame_id`) USING BTREE,
+  KEY `idx_type` (`sys_avatar_frame_type`) USING BTREE,
+  KEY `idx_status` (`sys_avatar_frame_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='头像框定义表' ROW_FORMAT=DYNAMIC;
+
+-- =====================================================
+-- 用户头像框关联表 (sys_user_avatar_frame)
+-- 用途: 存储用户已获取的头像框及过期时间
+-- =====================================================
+DROP TABLE IF EXISTS `sys_user_avatar_frame`;
+CREATE TABLE `sys_user_avatar_frame` (
+  `sys_user_avatar_frame_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '用户头像框ID',
+  `sys_user_id` int(11) NOT NULL COMMENT '用户ID',
+  `sys_avatar_frame_id` int(11) NOT NULL COMMENT '头像框ID',
+  `acquire_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '获取时间',
+  `expire_time` datetime DEFAULT NULL COMMENT '过期时间(NULL=永久)',
+  `create_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
+  `create_by` int(11) DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `update_name` varchar(255) DEFAULT NULL COMMENT '更新人姓名',
+  `update_by` int(11) DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`sys_user_avatar_frame_id`) USING BTREE,
+  UNIQUE KEY `uk_user_frame` (`sys_user_id`, `sys_avatar_frame_id`) USING BTREE,
+  KEY `idx_user_id` (`sys_user_id`) USING BTREE,
+  KEY `idx_frame_id` (`sys_avatar_frame_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户头像框关联表' ROW_FORMAT=DYNAMIC;
+
+-- =====================================================
+-- 初始数据 - 默认头像框
+-- =====================================================
+INSERT INTO `sys_avatar_frame` (`sys_avatar_frame_name`, `sys_avatar_frame_type`, `sys_avatar_frame_color`, `sys_avatar_frame_desc`, `sys_avatar_frame_acquire`, `sys_avatar_frame_sort`) VALUES
+('经典', 'base', 'transparent', '默认无边框', 'default', 0),
+('金色', 'base', 'linear-gradient(135deg, #f6d365, #fda085)', '温暖金色渐变', 'default', 1),
+('蓝色', 'base', 'linear-gradient(135deg, #667eea, #764ba2)', '深邃蓝紫渐变', 'default', 2),
+('红色', 'base', 'linear-gradient(135deg, #f093fb, #f5576c)', '热情红粉渐变', 'default', 3),
+('绿色', 'base', 'linear-gradient(135deg, #4facfe, #00f2fe)', '清新蓝绿渐变', 'default', 4),
+('紫色', 'base', 'linear-gradient(135deg, #a18cd1, #fbc2eb)', '梦幻紫粉渐变', 'default', 5),
+('橙色', 'base', 'linear-gradient(135deg, #fa709a, #fee140)', '活力橙黄渐变', 'default', 6),
+('暗夜', 'base', 'linear-gradient(135deg, #2c3e50, #3498db)', '沉稳暗夜渐变', 'default', 7);
 
 SET FOREIGN_KEY_CHECKS = 1;
