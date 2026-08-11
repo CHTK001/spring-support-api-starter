@@ -20,11 +20,6 @@ import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.service.SysSettingHistoryService;
 import com.chua.starter.service.SysSettingService;
 import com.chua.starter.service.mapper.SysSettingMapper;
-import com.chua.starter.service.setting.GuestDefaultSetting;
-import com.chua.starter.service.setting.UserAgreementSetting;
-import com.chua.starter.service.setting.SmsSetting;
-import com.chua.starter.service.setting.SmtpSetting;
-import com.chua.starter.service.setting.VersionSetting;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.entity.service.SysSetting;
 import com.chua.starter.service.pojo.setting.SysSettingUpdate;
@@ -222,6 +217,11 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             }
             sysSetting.setSysSettingAppInner(null);
         }
+        // 超管也不能 disable 内置配置（防止系统核心配置被误关停）
+        if (null != sysRoleInSystem && sysRoleInSystem == 1
+                && null != sysSetting.getSysSettingStatus() && sysSetting.getSysSettingStatus() == 0) {
+            return ReturnResult.error("内置配置不允许禁用");
+        }
 
         String sysSettingName = sysSetting.getSysSettingName();
         sysSetting.setSysSettingInSystem(null);
@@ -259,6 +259,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             if (null != version) {
                 upgradeVersion(version);
             }
+        } else if (null != runtimeStatus && runtimeStatus == 0) {
+            // 用户禁用配置：从 Factory 内存中移除（清空 Bean 字段值）
+            GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), null);
         }
         sysSettingService.clearCache(sysSetting);
         return ReturnResult.of(sysSetting);
@@ -437,14 +440,12 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        // @GlobalSettingGroup 注解的 Setting Bean 由 GlobalSettingAutoConfiguration 自动扫描注册
+        // 这里仅注册那些没有标注注解、或需要兼容旧逻辑的 Bean
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
+        // 兼容老配置：ApiResponseEncodeConfiguration / ApiRequestDecodeSetting 等其他配置
         globalSettingFactory.register("config", new ApiResponseEncodeConfiguration());
         globalSettingFactory.register("config", new ApiRequestDecodeSetting());
-        globalSettingFactory.register("config", new VersionSetting());
-        globalSettingFactory.register("default", new GuestDefaultSetting());
-        globalSettingFactory.register("userAgreement", new UserAgreementSetting());
-        globalSettingFactory.register("smtp", new SmtpSetting());
-        globalSettingFactory.register("sms", new SmsSetting());
         if (ClassUtils.isPresent("com.chua.report.client.starter.setting.ReportExpireSetting")) {
             globalSettingFactory.register("expire", ClassUtils.forObject("com.chua.report.client.starter.setting.ReportExpireSetting"));
         }

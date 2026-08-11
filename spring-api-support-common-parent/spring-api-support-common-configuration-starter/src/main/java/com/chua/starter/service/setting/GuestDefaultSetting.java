@@ -1,6 +1,7 @@
 package com.chua.starter.service.setting;
 
 import com.chua.common.support.function.Upgrade;
+import com.chua.common.support.setting.GlobalSettingGroup;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.List;
  * @since 2024/8/13
  */
 @Data
+@GlobalSettingGroup("default")
 public class GuestDefaultSetting implements Upgrade<GuestDefaultSetting> {
 
     /**

@@ -1,6 +1,7 @@
 package com.chua.starter.service.setting;
 
 import com.chua.common.support.function.Upgrade;
+import com.chua.common.support.setting.GlobalSettingGroup;
 import lombok.Data;
 
 /**
@@ -13,6 +14,7 @@ import lombok.Data;
  * @since 2026/4
  */
 @Data
+@GlobalSettingGroup("userAgreement")
 public class UserAgreementSetting implements Upgrade<UserAgreementSetting> {
 
     /**

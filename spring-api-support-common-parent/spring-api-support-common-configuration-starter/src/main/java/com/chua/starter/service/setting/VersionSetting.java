@@ -1,5 +1,6 @@
 package com.chua.starter.service.setting;
 
+import com.chua.common.support.setting.GlobalSettingGroup;
 import lombok.Data;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Data;
  * @since 2024/8/26
  */
 @Data
+@GlobalSettingGroup("config")
 public class VersionSetting {
 
     /**
