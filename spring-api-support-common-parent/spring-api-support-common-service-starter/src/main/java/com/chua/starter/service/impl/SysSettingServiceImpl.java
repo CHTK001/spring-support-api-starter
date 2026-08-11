@@ -14,7 +14,7 @@ import com.chua.starter.common.support.api.decode.ApiRequestDecodeSetting;
 import com.chua.starter.common.support.api.encode.ApiResponseEncodeConfiguration;
 import com.chua.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.utils.RequestUtils;
-import com.chua.starter.common.support.utils.SpringBeanUtils;
+import com.chua.spring.support.configuration.SpringBeanUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
@@ -425,11 +425,6 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     /**
-     * 清理缓存
-     * @param sysSetting 配置
-     * @return 是否成功
-     */
-    /**
      * 清理缓存。
      * <p>
      * 使用 {@code @CacheEvict} 注解是声明式缓存清理，但如果 Redis cacheManager Bean 缺失或抛异常，
@@ -441,8 +436,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
      * </ol>
      * </p>
      *
-     * @param sysSetting 配置
-     * @return 是否成功
+     * @param sysSetting 配置（group 用于构造缓存 key）
+     * @return 原样返回 sysSetting，便于链式调用
      */
     @Override
     public SysSetting clearCache(SysSetting sysSetting) {
@@ -460,17 +455,15 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                     REDIS_CACHE_ALWAYS, "cacheManager");
             for (String beanName : cacheManagerNames) {
                 try {
-                    CacheManager cm = SpringBeanUtils.getBean(CacheManager.class, beanName);
+                    CacheManager cm = SpringBeanUtils.getBean(beanName, CacheManager.class);
                     if (null == cm) {
                         continue;
                     }
+                    // 1) 精确清理指定 group 的两个历史 key
                     evictCache(cm, SETTING_LIST_CACHE_KEY_LEGACY_PREFIX + group);
                     evictCache(cm, SETTING_LIST_CACHE_KEY_PREFIX + group);
-                    // 同时清理该 cacheName 下所有 key（防御性，避免遗漏子键）
-                    Cache cache = cm.getCache(REDIS_CACHE_ALWAYS);
-                    if (null != cache) {
-                        cache.clear();
-                    }
+                    // 2) 防御性清理整个 cacheName（覆盖遗漏子键）
+                    clearAll(cm);
                 } catch (Exception ex) {
                     log.debug("[SysSetting.clearCache] CacheManager[{}] 清理失败，跳过: {}", beanName, ex.getMessage());
                 }
@@ -490,6 +483,17 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         Cache cache = cm.getCache(REDIS_CACHE_ALWAYS);
         if (null != cache) {
             cache.evict(key);
+        }
+    }
+
+    /**
+     * 清空指定 CacheManager 中 REDIS_CACHE_ALWAYS cacheName 的所有 key。
+     * @param cm 缓存管理器
+     */
+    private void clearAll(CacheManager cm) {
+        Cache cache = cm.getCache(REDIS_CACHE_ALWAYS);
+        if (null != cache) {
+            cache.clear();
         }
     }
 
