@@ -215,6 +215,7 @@ public class IpcAuthInformation {
         @Override public void sendError(int sc, String msg) {}
         @Override public void sendError(int sc) {}
         @Override public void sendRedirect(String location) {}
+        @Override public void sendRedirect(String location, int sc, boolean clearBuffer) {}
         @Override public void setDateHeader(String name, long date) {}
         @Override public void addDateHeader(String name, long date) {}
         @Override public void setIntHeader(String name, int value) { headers.put(name, String.valueOf(value)); }
