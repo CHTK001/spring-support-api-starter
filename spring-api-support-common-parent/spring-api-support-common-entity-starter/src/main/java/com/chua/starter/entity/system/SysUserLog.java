@@ -55,7 +55,6 @@ public class SysUserLog extends SysBase implements Serializable {
      */
     @TableField(value = "sys_log_ua")
     @Schema(description = "浏览器UA")
-    @Size(max = 255, message = "浏览器UA最大长度需小于255")
     private String sysLogUa;
 
     /**
@@ -94,7 +93,6 @@ public class SysUserLog extends SysBase implements Serializable {
      */
     @TableField(value = "sys_log_address")
     @Schema(description = "请求地理位置")
-    @Size(max = 255, message = "请求地理位置最大长度需小于255")
     private String sysLogAddress;
 
     /**
@@ -110,7 +108,6 @@ public class SysUserLog extends SysBase implements Serializable {
      */
     @TableField(value = "sys_log_url")
     @Schema(description = "请求URL")
-    @Size(max = 255, message = "请求URL最大长度需小于255")
     private String sysLogUrl;
 
     /**
@@ -125,7 +122,6 @@ public class SysUserLog extends SysBase implements Serializable {
      */
     @TableField(value = "sys_log_param")
     @Schema(description = "请求参数")
-    @Size(max = 255, message = "请求参数最大长度需小于255")
     private String sysLogParam;
 
     /**
