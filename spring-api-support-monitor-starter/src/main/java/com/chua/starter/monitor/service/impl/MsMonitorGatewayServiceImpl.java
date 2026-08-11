@@ -1,0 +1,29 @@
+package com.chua.starter.monitor.service.impl;
+
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.chua.starter.monitor.entity.MsMonitorGateway;
+import com.chua.starter.monitor.mapper.MsMonitorGatewayMapper;
+import com.chua.starter.monitor.service.MsMonitorGatewayService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * 监控网关服务实现，提供网关基础 CRUD 与按监控资产ID查询能力。
+ *
+ * @author CH
+ * @since 2026-08-11
+ */
+@Slf4j
+@Service
+public class MsMonitorGatewayServiceImpl extends ServiceImpl<MsMonitorGatewayMapper, MsMonitorGateway>
+        implements MsMonitorGatewayService {
+
+    @Override
+    public List<MsMonitorGateway> listByMonitorId(Long monitorId) {
+        return list(Wrappers.<MsMonitorGateway>lambdaQuery()
+                .eq(MsMonitorGateway::getMonitorId, monitorId));
+    }
+}
