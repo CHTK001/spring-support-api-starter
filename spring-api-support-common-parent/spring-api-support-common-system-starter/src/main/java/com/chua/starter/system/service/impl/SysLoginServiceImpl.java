@@ -388,6 +388,14 @@ public class SysLoginServiceImpl implements SysLoginService {
                 userInfoVO.setSysUserAvatarFrame(((Number) val).intValue());
             }
         }
+        if (userInfoVO.getSysUserAvatarFrameShow() == null) {
+            Object val = userLoginInfo.getOption("sysUserAvatarFrameShow");
+            if (val instanceof Number) {
+                userInfoVO.setSysUserAvatarFrameShow(((Number) val).intValue());
+            } else if (val != null) {
+                userInfoVO.setSysUserAvatarFrameShow(Integer.valueOf(String.valueOf(val)));
+            }
+        }
         if (StringUtils.isBlank(userInfoVO.getSysUserBirthday())) {
             userInfoVO.setSysUserBirthday(StringUtils.toString(userLoginInfo.getOption("sysUserBirthday")));
         }
