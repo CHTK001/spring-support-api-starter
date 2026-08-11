@@ -78,6 +78,12 @@ public class UserInfoVO {
     private String avatar;
 
     /**
+     * 性别（0:未知/男, 1:女, 2:保密）
+     */
+    @Schema(description = "性别")
+    private Integer sysUserSex;
+
+    /**
      * 头像框ID
      */
     @Schema(description = "头像框ID")
