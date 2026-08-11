@@ -238,7 +238,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         SysSetting version = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSysSettingName, "version"));
         List<SysSetting> sysSettings = new LinkedList<>();
         sysSettings.add(sysSetting);
-        if (null != version) {
+        // 仅当被更新的不是 version 自身时，才触发 version 配置刷新（避免双重 UUID 写入）
+        if (null != version && !StringUtils.equalsIgnoreCase("version", sysSetting.getSysSettingName())) {
             version.setSysSettingConfig(UUID.randomUUID().toString());
             sysSettings.add(version);
         }
@@ -834,6 +835,24 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         List<SysSetting> newSettings = new ArrayList<>();
         List<SysSetting> allImportedSettings = new ArrayList<>();
 
+        // 一次性查出所有 (group, name) 组合已存在的记录，避免循环内 N+1 查询
+        Set<String> targetGroupNames = new HashSet<>();
+        for (Map<String, Object> item : importList) {
+            String name = MapUtils.getString(item, "name");
+            String group = MapUtils.getString(item, "group");
+            if (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(group)) {
+                targetGroupNames.add(group);
+            }
+        }
+        Map<String, SysSetting> existingMap = new HashMap<>();
+        if (!targetGroupNames.isEmpty()) {
+            List<SysSetting> existingList = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
+                    .in(SysSetting::getSysSettingGroup, targetGroupNames));
+            for (SysSetting s : existingList) {
+                existingMap.put(s.getSysSettingGroup() + "|" + s.getSysSettingName(), s);
+            }
+        }
+
         for (Map<String, Object> item : importList) {
             String name = MapUtils.getString(item, "name");
             String group = MapUtils.getString(item, "group");
@@ -842,11 +861,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 continue;
             }
 
-            // 检查是否已存在
-            SysSetting existing = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery()
-                    .eq(SysSetting::getSysSettingName, name)
-                    .eq(SysSetting::getSysSettingGroup, group)
-            );
+            // 检查是否已存在（从批量预加载的 Map 中查找，O(1)）
+            SysSetting existing = existingMap.get(group + "|" + name);
 
             if (existing != null) {
                 if (!overwrite) {
@@ -859,7 +875,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 oldSetting.setSysSettingName(existing.getSysSettingName());
                 oldSetting.setSysSettingGroup(existing.getSysSettingGroup());
                 oldSetting.setSysSettingValue(oldValue);
-                
+
                 existing.setSysSettingValue(MapUtils.getString(item, "value"));
                 existing.setSysSettingValueType(MapUtils.getString(item, "valueType"));
                 existing.setSysSettingRemark(MapUtils.getString(item, "remark"));
