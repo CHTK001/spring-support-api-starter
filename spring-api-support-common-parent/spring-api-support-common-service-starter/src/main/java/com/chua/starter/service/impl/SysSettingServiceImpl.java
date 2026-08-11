@@ -14,6 +14,7 @@ import com.chua.starter.common.support.api.decode.ApiRequestDecodeSetting;
 import com.chua.starter.common.support.api.encode.ApiResponseEncodeConfiguration;
 import com.chua.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.utils.RequestUtils;
+import com.chua.starter.common.support.utils.SpringBeanUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
@@ -35,8 +36,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.cache.annotation.Caching;
-import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -428,13 +429,68 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
      * @param sysSetting 配置
      * @return 是否成功
      */
+    /**
+     * 清理缓存。
+     * <p>
+     * 使用 {@code @CacheEvict} 注解是声明式缓存清理，但如果 Redis cacheManager Bean 缺失或抛异常，
+     * 注解会静默失败导致缓存永远不清理（问题 #23）。这里改用编程式清理：
+     * <ol>
+     *   <li>遍历所有可用的 CacheManager（REDIS_CACHE_ALWAYS + 默认 cacheManager）</li>
+     *   <li>对每个 CacheManager 驱逐指定 key + 清空整个 cacheName（防御性）</li>
+     *   <li>捕获所有异常，Redis 不可用时不阻塞主流程</li>
+     * </ol>
+     * </p>
+     *
+     * @param sysSetting 配置
+     * @return 是否成功
+     */
     @Override
-    @Caching(evict = {
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_LEGACY_PREFIX + "' + #sysSetting.sysSettingGroup"),
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_PREFIX + "' + #sysSetting.sysSettingGroup")
-    })
     public SysSetting clearCache(SysSetting sysSetting) {
+        if (null == sysSetting) {
+            return null;
+        }
+        String group = sysSetting.getSysSettingGroup();
+        if (StringUtils.isBlank(group)) {
+            return sysSetting;
+        }
+
+        // 编程式清理所有可用的 CacheManager，避免依赖特定 cacheManager Bean 存在
+        try {
+            List<String> cacheManagerNames = Arrays.asList(
+                    REDIS_CACHE_ALWAYS, "cacheManager");
+            for (String beanName : cacheManagerNames) {
+                try {
+                    CacheManager cm = SpringBeanUtils.getBean(CacheManager.class, beanName);
+                    if (null == cm) {
+                        continue;
+                    }
+                    evictCache(cm, SETTING_LIST_CACHE_KEY_LEGACY_PREFIX + group);
+                    evictCache(cm, SETTING_LIST_CACHE_KEY_PREFIX + group);
+                    // 同时清理该 cacheName 下所有 key（防御性，避免遗漏子键）
+                    Cache cache = cm.getCache(REDIS_CACHE_ALWAYS);
+                    if (null != cache) {
+                        cache.clear();
+                    }
+                } catch (Exception ex) {
+                    log.debug("[SysSetting.clearCache] CacheManager[{}] 清理失败，跳过: {}", beanName, ex.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            log.warn("[SysSetting.clearCache] 编程式清理异常（不影响主流程）: {}", e.getMessage());
+        }
         return sysSetting;
+    }
+
+    /**
+     * 从指定 CacheManager 中驱逐指定 key。
+     * @param cm 缓存管理器
+     * @param key 缓存键
+     */
+    private void evictCache(CacheManager cm, String key) {
+        Cache cache = cm.getCache(REDIS_CACHE_ALWAYS);
+        if (null != cache) {
+            cache.evict(key);
+        }
     }
 
 
