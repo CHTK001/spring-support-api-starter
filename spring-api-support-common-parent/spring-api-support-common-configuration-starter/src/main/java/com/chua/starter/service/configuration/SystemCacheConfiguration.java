@@ -2,7 +2,7 @@ package com.chua.starter.service.configuration;
 
 import com.chua.starter.redis.support.CacheConfiguration;
 import com.chua.starter.service.constant.SystemConstant;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
+import org.springframework.boot.cache.autoconfigure.CacheProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
