@@ -1,7 +1,7 @@
 package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.starter.service.SysHolidayService;
 import com.chua.starter.service.mapper.SysHolidayMapper;
 import com.chua.starter.entity.service.SysHoliday;

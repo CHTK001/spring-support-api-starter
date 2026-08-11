@@ -84,6 +84,12 @@ public class UserInfoVO {
     private Integer sysUserAvatarFrame;
 
     /**
+     * 是否显示头像框
+     */
+    @Schema(description = "是否显示头像框")
+    private Integer sysUserAvatarFrameShow;
+
+    /**
      * 生日
      */
     @Schema(description = "生日")
