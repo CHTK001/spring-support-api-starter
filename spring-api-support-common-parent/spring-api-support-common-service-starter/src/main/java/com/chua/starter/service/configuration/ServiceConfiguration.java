@@ -1,5 +1,6 @@
 package com.chua.starter.service.configuration;
 
+import com.chua.starter.common.support.api.properties.ApiProperties;
 import com.chua.starter.service.properties.FileSystemProperties;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -13,6 +14,6 @@ import org.springframework.context.annotation.ComponentScan;
 @AutoConfiguration
 @MapperScan("com.chua.starter.service.mapper")
 @ComponentScan("com.chua.starter.service")
-@EnableConfigurationProperties(FileSystemProperties.class)
+@EnableConfigurationProperties({FileSystemProperties.class, ApiProperties.class})
 public class ServiceConfiguration {
 }

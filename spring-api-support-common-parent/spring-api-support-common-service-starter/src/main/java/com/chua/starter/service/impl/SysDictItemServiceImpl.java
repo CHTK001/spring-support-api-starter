@@ -13,6 +13,7 @@ import com.chua.starter.service.SysDictItemService;
 import com.chua.starter.service.mapper.SysDictItemMapper;
 import com.chua.starter.service.mapper.SysDictItemPropertyMapper;
 import com.chua.starter.service.mapper.SysDictMapper;
+import org.springframework.context.annotation.Lazy;
 import com.chua.starter.entity.service.SysDict;
 import com.chua.starter.entity.service.SysDictItem;
 import com.chua.starter.entity.service.SysDictItemProperty;
@@ -40,6 +41,7 @@ import java.util.stream.Collectors;
 public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDictItem> implements SysDictItemService {
 
     @Autowired
+    @Lazy
     private SysDictItemService sysDictItemService;
 
     final SysDictItemPropertyMapper sysDictItemPropertyMapper;
