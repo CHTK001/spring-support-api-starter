@@ -1,8 +1,10 @@
 package com.chua.starter.system.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.entity.system.SysErrorLog;
+import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.pojo.error.ErrorReportV1Request;
 
 import java.util.List;
@@ -31,4 +33,13 @@ public interface SysErrorLogService extends IService<SysErrorLog> {
      * @return 异常日志列表
      */
     List<SysErrorLog> listRecent(String source, int limit);
+
+    /**
+     * 分页查询异常日志
+     *
+     * @param query       分页参数
+     * @param sysErrorLog 查询条件
+     * @return 异常日志分页结果
+     */
+    IPage<SysErrorLog> pageForLog(Query<SysErrorLog> query, SysErrorLog sysErrorLog);
 }

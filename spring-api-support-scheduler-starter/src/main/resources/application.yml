@@ -48,6 +48,7 @@ plugin:
     temp:
       open: true
   api:
+    enable: true
     platform:
       name: SCHEDULER
     uniform: true

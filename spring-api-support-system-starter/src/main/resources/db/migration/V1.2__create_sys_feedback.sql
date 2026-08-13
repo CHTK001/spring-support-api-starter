@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS `sys_feedback` (
   `sys_feedback_recover_content` text DEFAULT NULL COMMENT '回复内容',
   `sys_feedback_recover_time` datetime DEFAULT NULL COMMENT '回复时间',
   `sys_feedback_recover_images` text DEFAULT NULL COMMENT '回复图片(多个逗号分隔)',
+  `sys_feedback_user_agent` varchar(500) DEFAULT NULL COMMENT '客户端类型(UserAgent)',
+  `sys_feedback_platform` varchar(50) DEFAULT NULL COMMENT '平台类型(预留)',
   `create_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int(11) DEFAULT NULL COMMENT '创建人',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',

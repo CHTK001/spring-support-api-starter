@@ -92,4 +92,18 @@ public class SysFeedback extends SysBase {
     @TableField(value = "sys_feedback_recover_images")
     @Schema(description = "回复图片(多个逗号分隔)")
     private String sysFeedbackRecoverImages;
+
+    /**
+     * 客户端类型(UserAgent)
+     */
+    @TableField(value = "sys_feedback_user_agent")
+    @Schema(description = "客户端类型(UserAgent)")
+    private String sysFeedbackUserAgent;
+
+    /**
+     * 平台类型(预留，多平台支持)
+     */
+    @TableField(value = "sys_feedback_platform")
+    @Schema(description = "平台类型(预留，多平台支持)")
+    private String sysFeedbackPlatform;
 }

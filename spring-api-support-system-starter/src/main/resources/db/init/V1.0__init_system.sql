@@ -690,3 +690,31 @@ INSERT INTO `sys_avatar_frame` (`sys_avatar_frame_name`, `sys_avatar_frame_type`
 ('晶蓝', 'base', '/assets/avatar-frames/frame-azure.apng', '晶蓝呼吸动画(APNG)', 'default', 26);
 
 SET FOREIGN_KEY_CHECKS = 1;
+-- ============================================
+-- 11. 系统公告表 (sys_announcement)
+-- ============================================
+DROP TABLE IF EXISTS `sys_announcement`;
+CREATE TABLE `sys_announcement` (
+    `sys_announcement_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '公告ID - 主键自增',
+    `sys_announcement_title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '公告标题',
+    `sys_announcement_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '公告内容(HTML) - 支持富文本',
+    `sys_announcement_level` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'info' COMMENT '级别 - info:信息 warning:警告 important:重要 emergency:紧急',
+    `sys_announcement_position` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'default' COMMENT '展示位置 - default:Tabs下方 fixed-top:固定顶部',
+    `sys_announcement_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'global' COMMENT '类型 - global:全局 role:指定角色',
+    `sys_announcement_target_roles` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '目标角色ID列表(JSON数组) - type=role时生效',
+    `sys_announcement_status` int(11) NULL DEFAULT 0 COMMENT '状态 - 0:草稿 1:已发布 2:已下架',
+    `sys_announcement_sort` int(11) NULL DEFAULT 0 COMMENT '排序权重 - 越大越靠前',
+    `sys_announcement_publish_time` datetime NULL DEFAULT NULL COMMENT '发布时间',
+    `sys_announcement_expire_time` datetime NULL DEFAULT NULL COMMENT '过期时间 - 空=永不过期',
+    `sys_announcement_target_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '跳转链接 - 点击公告跳转',
+    `sys_announcement_publisher_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '发布人',
+    `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人ID',
+    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int(11) NULL DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`sys_announcement_id`) USING BTREE,
+    INDEX `idx_announcement_status` (`sys_announcement_status`) USING BTREE COMMENT '公告状态索引',
+    INDEX `idx_announcement_publish_time` (`sys_announcement_publish_time`) USING BTREE COMMENT '发布时间索引'
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统公告表 - 存储系统公告和通知' ROW_FORMAT = DYNAMIC;

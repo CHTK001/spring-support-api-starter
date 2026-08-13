@@ -1,5 +1,6 @@
 package com.chua.starter.scheduler;
 
+import com.chua.starter.common.support.api.properties.ApiProperties;
 import com.chua.starter.job.support.JobAutoConfiguration;
 import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
 import org.mybatis.spring.annotation.MapperScan;
@@ -21,7 +22,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @EnableCaching
 @EnableScheduling
-@EnableConfigurationProperties(SchedulerJobPlatformProperties.class)
+@EnableConfigurationProperties({SchedulerJobPlatformProperties.class, ApiProperties.class})
 @MapperScan({"com.chua.starter.**.mapper", JobAutoConfiguration.MAPPER_PACKAGE})
 @SpringBootApplication(scanBasePackages = {
         "com.chua.starter.system",
