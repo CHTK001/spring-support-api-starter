@@ -1,9 +1,12 @@
 package com.chua.starter.system.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.entity.system.SysErrorLog;
+import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.mapper.SysErrorLogMapper;
 import com.chua.starter.system.pojo.error.ErrorReportV1Item;
 import com.chua.starter.system.pojo.error.ErrorReportV1Request;
@@ -81,6 +84,21 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
                         .orderByDesc(SysErrorLog::getSysErrorLogId)
                         .last("LIMIT " + Math.max(limit, 0))
         );
+    }
+
+    @Override
+    public IPage<SysErrorLog> pageForLog(Query<SysErrorLog> query, SysErrorLog sysErrorLog) {
+        LambdaQueryWrapper<SysErrorLog> wrapper = new LambdaQueryWrapper<>();
+        if (sysErrorLog != null) {
+            if (sysErrorLog.getSysErrorSource() != null) {
+                wrapper.eq(SysErrorLog::getSysErrorSource, sysErrorLog.getSysErrorSource());
+            }
+            if (sysErrorLog.getSysErrorMessage() != null) {
+                wrapper.like(SysErrorLog::getSysErrorMessage, sysErrorLog.getSysErrorMessage());
+            }
+        }
+        wrapper.orderByDesc(SysErrorLog::getSysErrorLogId);
+        return baseMapper.selectPage(query.createPage(), wrapper);
     }
 
     /**

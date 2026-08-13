@@ -2,13 +2,9 @@ package com.chua.starter.system.controller;
 
 import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.starter.common.support.annotations.SysLog;
-import com.chua.starter.common.support.annotations.Permission;
-import com.chua.starter.common.support.annotations.UserLog;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
-import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.entity.system.SysUserLog;
 import com.chua.starter.system.pojo.user.log.SysUserLogQuery;
 import com.chua.starter.system.service.SysUserLogService;
@@ -17,12 +13,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -80,49 +73,21 @@ public class SysUserLogController {
         ));
     }
 
-    /**
-     * 删除操作日志
-     *
-     * @return 更新操作日志
-     */
-    @Operation(summary = "删除操作日志")
-    @DeleteMapping("/delete")
-    @SysLog
-    @UserLog
-    @Transactional(rollbackFor = Exception.class)
-    @Permission(value = "sys:log:login:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
-    public ReturnResult<Boolean> delete(Long userLogId) {
-        if (null == userLogId) {
-            return ReturnResult.illegal("操作日志信息不存在");
+    private String normalizeDeptTreeIdToken(Object value) {
+        if (value == null) {
+            return null;
         }
-
-        return sysUserLogService.delete(userLogId);
-    }
-
-    /**
-     * 按时间范围清理登录日志
-     */
-    @Operation(summary = "按条件清理登录日志")
-    @DeleteMapping("/cleanup")
-    @SysLog
-    @UserLog
-    @Transactional(rollbackFor = Exception.class)
-    @Permission(value = "sys:log:login:cleanup", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
-    public ReturnResult<Integer> cleanup(@ParameterObject SysUserLogQuery sysUserLogQuery,
-                                         @Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId,
-                                         @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
-                                         @Parameter(hidden = true) @UserValue("managedDeptTreeIds") Object managedDeptTreeIds) {
-        String startDate = null == sysUserLogQuery ? null : sysUserLogQuery.getStartDate();
-        String endDate = null == sysUserLogQuery ? null : sysUserLogQuery.getEndDate();
-        if ((null == startDate || startDate.isBlank()) && (null == endDate || endDate.isBlank())) {
-            return ReturnResult.illegal("请至少选择一个时间条件");
+        String normalized = String.valueOf(value).trim();
+        if (normalized.isBlank()) {
+            return null;
         }
-        return sysUserLogService.cleanup(
-                sysUserLogQuery,
-                sysUserId,
-                roles,
-                normalizeManagedDeptTreeIds(managedDeptTreeIds)
-        );
+        while (normalized.startsWith("[") || normalized.startsWith("\"") || normalized.startsWith("'")) {
+            normalized = normalized.substring(1).trim();
+        }
+        while (normalized.endsWith("]") || normalized.endsWith("\"") || normalized.endsWith("'")) {
+            normalized = normalized.substring(0, normalized.length() - 1).trim();
+        }
+        return normalized.isBlank() ? null : normalized;
     }
 
     private List<String> normalizeManagedDeptTreeIds(Object managedDeptTreeIds) {
@@ -173,23 +138,6 @@ public class SysUserLogController {
         }
         String normalized = normalizeDeptTreeIdToken(managedDeptTreeIds);
         return normalized == null ? Collections.emptyList() : Collections.singletonList(normalized);
-    }
-
-    private String normalizeDeptTreeIdToken(Object value) {
-        if (value == null) {
-            return null;
-        }
-        String normalized = String.valueOf(value).trim();
-        if (normalized.isBlank()) {
-            return null;
-        }
-        while (normalized.startsWith("[") || normalized.startsWith("\"") || normalized.startsWith("'")) {
-            normalized = normalized.substring(1).trim();
-        }
-        while (normalized.endsWith("]") || normalized.endsWith("\"") || normalized.endsWith("'")) {
-            normalized = normalized.substring(0, normalized.length() - 1).trim();
-        }
-        return normalized.isBlank() ? null : normalized;
     }
 
 }
