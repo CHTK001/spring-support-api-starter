@@ -31,7 +31,7 @@ public class MsMonitorConfigServiceImpl extends ServiceImpl<MsMonitorConfigMappe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void saveBatch(java.util.List<MsMonitorConfig> configs) {
-        super.saveBatch(configs);
+    public boolean saveBatch(java.util.Collection<MsMonitorConfig> configs) {
+        return super.saveBatch(configs);
     }
 }
