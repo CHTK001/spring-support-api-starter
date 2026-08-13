@@ -455,7 +455,7 @@ public class MsMonitorController {
             @ApiParam("任务ID") @PathVariable Long taskId,
             @ApiParam("匹配模式") @RequestParam(defaultValue = "*") String pattern) {
         try {
-            Set<Object> keys = redisTemplate.keys(pattern);
+            Set<String> keys = redisTemplate.keys(pattern);
             var keyList = new ArrayList<String>();
             if (keys != null) {
                 for (Object key : keys) {
