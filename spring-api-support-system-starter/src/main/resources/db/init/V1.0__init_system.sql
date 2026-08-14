@@ -3,9 +3,12 @@
  * 
  * 包含表:
  *   - sys_dept: 组织机构表
+ *   - sys_dept_principal_rel: 部门负责人关系表
  *   - sys_role: 角色表
  *   - sys_role_menu: 角色-菜单关系表
  *   - sys_menu: 菜单表
+ *   - sys_mini_menu: 小程序菜单卡片表
+ *   - sys_feedback: 系统反馈表
  *   - sys_user: 用户表
  *   - sys_user_role: 用户-角色关系表
  *   - sys_user_config: 用户配置表(第三方绑定)
@@ -17,6 +20,11 @@
  *   - sys_sfc_install: 用户安装组件表
  *   - sys_user_third_party: 用户第三方绑定表
  *   - sys_wechat_user: 微信用户表
+ *   - sys_announcement: 系统公告表
+ *   - sys_avatar_frame: 头像框定义表
+ *   - sys_user_avatar_frame: 用户头像框关联表
+ *
+ * 说明: 本脚本已合并原 V1.1(sys_mini_menu)/V1.2(sys_feedback)/V1.3(avatar)/V1.4(sys_menu 徽标列) 增量内容。
  *
  * @author System
  * @since 2025-01-01
@@ -119,7 +127,10 @@ CREATE TABLE `sys_menu` (
     `sys_menu_hidden` int(11) NULL DEFAULT NULL COMMENT '是否隐藏 - 0:显示, 1:隐藏',
     `sys_menu_show_parent` int(11) NULL DEFAULT NULL COMMENT '是否显示父级菜单 - 0:显示, 1:隐藏父级',
     `sys_menu_hidden_tag` int(11) NULL DEFAULT NULL COMMENT '是否在标签栏隐藏 - 0:显示, 1:隐藏',
-    `sys_menu_fixed_tag` int(11) NULL DEFAULT NULL COMMENT '是否固定标签 - 0:不固定, 1:固定在标签栏',
+`sys_menu_fixed_tag` int(11) NULL DEFAULT NULL COMMENT '是否固定标签 - 0:不固定, 1:固定在标签栏',
+    `sys_menu_is_tag` tinyint NULL DEFAULT 0 COMMENT '是否开启菜单徽标 - 0:否 1:是',
+    `sys_menu_tag_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '徽标类型 - danger/success/info/warning/primary',
+    `sys_menu_tag_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '徽标名称 - 留空则显示圆点徽标',
     `sys_menu_redirect` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '路由重定向地址 - 访问该菜单时跳转的地址',
     `sys_menu_enter_transition` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '进场动画 - 页面进入时的动画效果',
     `sys_menu_leave_transition` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '离场动画 - 页面离开时的动画效果',
@@ -202,7 +213,9 @@ CREATE TABLE `sys_feedback` (
     `sys_feedback_deal_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '处理人名称',
     `sys_feedback_recover_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '回复内容 - 管理员处理回复',
     `sys_feedback_recover_time` datetime NULL DEFAULT NULL COMMENT '回复时间 - 处理反馈的时间',
-    `sys_feedback_recover_images` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '回复图片 - 管理员回复附图',
+`sys_feedback_recover_images` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '回复图片 - 管理员回复附图',
+    `sys_feedback_user_agent` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '客户端类型(UserAgent)',
+    `sys_feedback_platform` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '平台类型(预留)',
     `create_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建人姓名',
     `create_by` int(11) NULL DEFAULT NULL COMMENT '创建人ID',
     `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
@@ -606,89 +619,6 @@ INSERT INTO `sys_user_role` (`sys_user_id`, `sys_role_id`) VALUES
 INSERT INTO `sys_dept` (`sys_dept_id`, `sys_dept_name`, `sys_dept_pid`, `sys_dept_tree_id`, `sys_dept_code`, `sys_dept_sort`, `sys_dept_status`) VALUES 
 (1, '总部', 0, '0,1', 'ROOT', 1, 0);
 
--- =====================================================
--- 头像框定义表 (sys_avatar_frame)
--- 用途: 存储系统中可用的头像框定义
--- =====================================================
-DROP TABLE IF EXISTS `sys_avatar_frame`;
-CREATE TABLE `sys_avatar_frame` (
-  `sys_avatar_frame_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '头像框ID',
-  `sys_avatar_frame_name` varchar(100) NOT NULL COMMENT '头像框名称',
-  `sys_avatar_frame_type` varchar(50) DEFAULT 'base' COMMENT '类型: base-基础 birthday-生日 event-活动',
-  `sys_avatar_frame_image` varchar(500) DEFAULT NULL COMMENT '头像框图片URL',
-  `sys_avatar_frame_color` varchar(200) DEFAULT NULL COMMENT '渐变背景色(css)',
-  `sys_avatar_frame_desc` varchar(500) DEFAULT NULL COMMENT '描述',
-  `sys_avatar_frame_acquire` varchar(50) DEFAULT 'default' COMMENT '获取途径: default-默认 birthday-生日 achievement-成就',
-  `sys_avatar_frame_sort` int(11) DEFAULT 0 COMMENT '排序',
-  `sys_avatar_frame_status` int(11) DEFAULT 1 COMMENT '状态: 0-禁用 1-启用',
-  `create_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int(11) DEFAULT NULL COMMENT '创建人',
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
-  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `update_name` varchar(255) DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int(11) DEFAULT NULL COMMENT '更新人',
-  PRIMARY KEY (`sys_avatar_frame_id`) USING BTREE,
-  KEY `idx_type` (`sys_avatar_frame_type`) USING BTREE,
-  KEY `idx_status` (`sys_avatar_frame_status`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='头像框定义表' ROW_FORMAT=DYNAMIC;
-
--- =====================================================
--- 用户头像框关联表 (sys_user_avatar_frame)
--- 用途: 存储用户已获取的头像框及过期时间
--- =====================================================
-DROP TABLE IF EXISTS `sys_user_avatar_frame`;
-CREATE TABLE `sys_user_avatar_frame` (
-  `sys_user_avatar_frame_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '用户头像框ID',
-  `sys_user_id` int(11) NOT NULL COMMENT '用户ID',
-  `sys_avatar_frame_id` int(11) NOT NULL COMMENT '头像框ID',
-  `acquire_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '获取时间',
-  `expire_time` datetime DEFAULT NULL COMMENT '过期时间(NULL=永久)',
-  `create_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
-  `create_by` int(11) DEFAULT NULL COMMENT '创建人',
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
-  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `update_name` varchar(255) DEFAULT NULL COMMENT '更新人姓名',
-  `update_by` int(11) DEFAULT NULL COMMENT '更新人',
-  PRIMARY KEY (`sys_user_avatar_frame_id`) USING BTREE,
-  UNIQUE KEY `uk_user_frame` (`sys_user_id`, `sys_avatar_frame_id`) USING BTREE,
-  KEY `idx_user_id` (`sys_user_id`) USING BTREE,
-  KEY `idx_frame_id` (`sys_avatar_frame_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户头像框关联表' ROW_FORMAT=DYNAMIC;
-
--- =====================================================
--- 初始数据 - 默认头像框
--- =====================================================
-INSERT INTO `sys_avatar_frame` (`sys_avatar_frame_name`, `sys_avatar_frame_type`, `sys_avatar_frame_color`, `sys_avatar_frame_desc`, `sys_avatar_frame_acquire`, `sys_avatar_frame_sort`) VALUES
-('经典', 'base', 'transparent', '默认无边框', 'default', 0),
-('金色', 'base', 'linear-gradient(135deg, #f6d365, #fda085)', '温暖金色渐变', 'default', 1),
-('蓝色', 'base', 'linear-gradient(135deg, #667eea, #764ba2)', '深邃蓝紫渐变', 'default', 2),
-('红色', 'base', 'linear-gradient(135deg, #f093fb, #f5576c)', '热情红粉渐变', 'default', 3),
-('绿色', 'base', 'linear-gradient(135deg, #4facfe, #00f2fe)', '清新蓝绿渐变', 'default', 4),
-('紫色', 'base', 'linear-gradient(135deg, #a18cd1, #fbc2eb)', '梦幻紫粉渐变', 'default', 5),
-('橙色', 'base', 'linear-gradient(135deg, #fa709a, #fee140)', '活力橙黄渐变', 'default', 6),
-('暗夜', 'base', 'linear-gradient(135deg, #2c3e50, #3498db)', '沉稳暗夜渐变', 'default', 7),
-('糖果', 'base', 'linear-gradient(135deg, #f6d365, #fda085)', '甜美糖果渐变', 'default', 8),
-('樱粉', 'base', 'linear-gradient(135deg, #ff9a9e, #fecfef)', '浪漫樱粉渐变', 'default', 9),
-('薄荷', 'base', 'linear-gradient(135deg, #a1c4fd, #c2e9fb)', '清爽薄荷渐变', 'default', 10),
-('暮霭', 'base', 'linear-gradient(135deg, #d4a4fc, #ff9a9e)', '温柔暮霭渐变', 'default', 11),
-('柠檬', 'base', 'linear-gradient(135deg, #ffdfba, #feedb0)', '明快柠檬渐变', 'default', 12),
-('星空', 'base', 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)', '深邃星空渐变', 'default', 13),
-('森林', 'base', 'linear-gradient(135deg, #134e5e, #71b280)', '自然森林渐变', 'default', 14),
-('熔岩', 'base', 'linear-gradient(135deg, #ff512f, #dd2476)', '炽热熔岩渐变', 'default', 15),
-('极光', 'base', 'linear-gradient(135deg, #00c9ff, #92fe9d)', '缥缈极光渐变', 'default', 16),
-('红枫', 'base', 'linear-gradient(135deg, #b31217, #e52d27)', '热烈红枫渐变', 'default', 17),
-('海洋', 'base', 'linear-gradient(135deg, #2193b0, #6dd5ed)', '蔚蓝海洋渐变', 'default', 18),
-('祖母绿', 'base', 'linear-gradient(135deg, #11998e, #38ef7d)', '剔透祖母绿渐变', 'default', 19),
-('晚霞', 'base', 'linear-gradient(135deg, #ff9966, #ff5e62)', '绚烂晚霞渐变', 'default', 20),
-('阿凡达', 'base', 'linear-gradient(135deg, #1488cc, #2b32b2)', '科幻阿凡达渐变', 'default', 21);
-
-INSERT INTO `sys_avatar_frame` (`sys_avatar_frame_name`, `sys_avatar_frame_type`, `sys_avatar_frame_image`, `sys_avatar_frame_desc`, `sys_avatar_frame_acquire`, `sys_avatar_frame_sort`) VALUES
-('鎏金', 'base', '/assets/avatar-frames/frame-gold.png', '金色图腾环', 'default', 22),
-('皇室蓝', 'base', '/assets/avatar-frames/frame-royal.png', '经典皇室蓝环', 'default', 23),
-('玫瑰金', 'base', '/assets/avatar-frames/frame-rose.png', '优雅玫瑰金环', 'default', 24),
-('焰光', 'base', '/assets/avatar-frames/frame-flame.apng', '火焰呼吸动画(APNG)', 'default', 25),
-('晶蓝', 'base', '/assets/avatar-frames/frame-azure.apng', '晶蓝呼吸动画(APNG)', 'default', 26);
-
 SET FOREIGN_KEY_CHECKS = 1;
 -- ============================================
 -- 11. 系统公告表 (sys_announcement)
@@ -718,3 +648,91 @@ CREATE TABLE `sys_announcement` (
     INDEX `idx_announcement_status` (`sys_announcement_status`) USING BTREE COMMENT '公告状态索引',
     INDEX `idx_announcement_publish_time` (`sys_announcement_publish_time`) USING BTREE COMMENT '发布时间索引'
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统公告表 - 存储系统公告和通知' ROW_FORMAT = DYNAMIC;
+
+-- =====================================================
+-- 12. 头像框定义表 (sys_avatar_frame)
+-- 用途: 存储头像框定义（渐变框 id=1-22、图片框 id=23-28、生日框 id=100）
+-- =====================================================
+DROP TABLE IF EXISTS `sys_avatar_frame`;
+CREATE TABLE `sys_avatar_frame` (
+    `sys_avatar_frame_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '头像框ID',
+    `sys_avatar_frame_name` varchar(100) NOT NULL COMMENT '头像框名称',
+    `sys_avatar_frame_type` varchar(50) DEFAULT 'base' COMMENT '类型: base-基础 birthday-生日 event-活动',
+    `sys_avatar_frame_image` varchar(500) DEFAULT NULL COMMENT '头像框图片URL',
+    `sys_avatar_frame_color` varchar(200) DEFAULT NULL COMMENT '渐变背景色(css)',
+    `sys_avatar_frame_desc` varchar(500) DEFAULT NULL COMMENT '描述',
+    `sys_avatar_frame_acquire` varchar(50) DEFAULT 'default' COMMENT '获取途径: default-默认 birthday-生日 achievement-成就',
+    `sys_avatar_frame_sort` int(11) DEFAULT 0 COMMENT '排序',
+    `sys_avatar_frame_status` int(11) DEFAULT 1 COMMENT '状态: 0-禁用 1-启用',
+    `create_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int(11) DEFAULT NULL COMMENT '创建人',
+    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int(11) DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_avatar_frame_id`) USING BTREE,
+    KEY `idx_type` (`sys_avatar_frame_type`) USING BTREE,
+    KEY `idx_status` (`sys_avatar_frame_status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='头像框定义表' ROW_FORMAT=DYNAMIC;
+
+-- =====================================================
+-- 13. 用户头像框关联表 (sys_user_avatar_frame)
+-- 用途: 记录用户已获取的头像框
+-- =====================================================
+DROP TABLE IF EXISTS `sys_user_avatar_frame`;
+CREATE TABLE `sys_user_avatar_frame` (
+    `sys_user_avatar_frame_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '用户头像框ID',
+    `sys_user_id` int(11) NOT NULL COMMENT '用户ID',
+    `sys_avatar_frame_id` int(11) NOT NULL COMMENT '头像框ID',
+    `acquire_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '获取时间',
+    `expire_time` datetime DEFAULT NULL COMMENT '过期时间(NULL=永久)',
+    `create_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int(11) DEFAULT NULL COMMENT '创建人',
+    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int(11) DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_user_avatar_frame_id`) USING BTREE,
+    UNIQUE KEY `uk_user_frame` (`sys_user_id`, `sys_avatar_frame_id`) USING BTREE,
+    KEY `idx_user_id` (`sys_user_id`) USING BTREE,
+    KEY `idx_frame_id` (`sys_avatar_frame_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户头像框关联表' ROW_FORMAT=DYNAMIC;
+
+-- =====================================================
+-- 初始数据 - 头像框种子（渐变 1-22、图片 23-28、生日 100）
+-- =====================================================
+INSERT INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_name`, `sys_avatar_frame_type`, `sys_avatar_frame_color`, `sys_avatar_frame_desc`, `sys_avatar_frame_acquire`, `sys_avatar_frame_sort`) VALUES
+(1, '经典', 'base', 'transparent', '默认无边框', 'default', 0),
+(2, '金色', 'base', 'linear-gradient(135deg, #f6d365, #fda085)', '温暖金色渐变', 'default', 1),
+(3, '蓝色', 'base', 'linear-gradient(135deg, #667eea, #764ba2)', '深邃蓝紫渐变', 'default', 2),
+(4, '红色', 'base', 'linear-gradient(135deg, #f093fb, #f5576c)', '热情红粉渐变', 'default', 3),
+(5, '绿色', 'base', 'linear-gradient(135deg, #4facfe, #00f2fe)', '清新蓝绿渐变', 'default', 4),
+(6, '紫色', 'base', 'linear-gradient(135deg, #a18cd1, #fbc2eb)', '梦幻紫粉渐变', 'default', 5),
+(7, '橙色', 'base', 'linear-gradient(135deg, #fa709a, #fee140)', '活力橙黄渐变', 'default', 6),
+(8, '暗夜', 'base', 'linear-gradient(135deg, #2c3e50, #3498db)', '沉稳暗夜渐变', 'default', 7),
+(9, '糖果', 'base', 'linear-gradient(135deg, #f6d365, #fda085)', '甜美糖果渐变', 'default', 8),
+(10, '樱粉', 'base', 'linear-gradient(135deg, #ff9a9e, #fecfef)', '浪漫樱粉渐变', 'default', 9),
+(11, '薄荷', 'base', 'linear-gradient(135deg, #a1c4fd, #c2e9fb)', '清爽薄荷渐变', 'default', 10),
+(12, '暮霭', 'base', 'linear-gradient(135deg, #d4a4fc, #ff9a9e)', '温柔暮霭渐变', 'default', 11),
+(13, '柠檬', 'base', 'linear-gradient(135deg, #ffdfba, #feedb0)', '明快柠檬渐变', 'default', 12),
+(14, '星空', 'base', 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)', '深邃星空渐变', 'default', 13),
+(15, '森林', 'base', 'linear-gradient(135deg, #134e5e, #71b280)', '自然森林渐变', 'default', 14),
+(16, '熔岩', 'base', 'linear-gradient(135deg, #ff512f, #dd2476)', '炽热熔岩渐变', 'default', 15),
+(17, '极光', 'base', 'linear-gradient(135deg, #00c9ff, #92fe9d)', '缥缈极光渐变', 'default', 16),
+(18, '红枫', 'base', 'linear-gradient(135deg, #b31217, #e52d27)', '热烈红枫渐变', 'default', 17),
+(19, '海洋', 'base', 'linear-gradient(135deg, #2193b0, #6dd5ed)', '蔚蓝海洋渐变', 'default', 18),
+(20, '祖母绿', 'base', 'linear-gradient(135deg, #11998e, #38ef7d)', '剔透祖母绿渐变', 'default', 19),
+(21, '晚霞', 'base', 'linear-gradient(135deg, #ff9966, #ff5e62)', '绚烂晚霞渐变', 'default', 20),
+(22, '阿凡达', 'base', 'linear-gradient(135deg, #1488cc, #2b32b2)', '科幻阿凡达渐变', 'default', 21);
+
+INSERT INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_name`, `sys_avatar_frame_type`, `sys_avatar_frame_image`, `sys_avatar_frame_desc`, `sys_avatar_frame_acquire`, `sys_avatar_frame_sort`) VALUES
+(23, '鎏金', 'base', '/assets/avatar-frames/frame-gold.png', '金色图腾环', 'default', 22),
+(24, '皇室蓝', 'base', '/assets/avatar-frames/frame-royal.png', '经典皇室蓝环', 'default', 23),
+(25, '玫瑰金', 'base', '/assets/avatar-frames/frame-rose.png', '优雅玫瑰金环', 'default', 24),
+(26, '焰光', 'base', '/assets/avatar-frames/frame-flame.apng', '火焰呼吸动画(APNG)', 'default', 25),
+(27, '晶蓝', 'base', '/assets/avatar-frames/frame-azure.apng', '晶蓝呼吸动画(APNG)', 'default', 26),
+(28, '玄黑', 'base', '/assets/avatar-frames/frame-onyx.png', '幽黑玄金环', 'default', 27),
+(29, '像素风', 'base', '/assets/avatar-frames/frame-pixel.png', '复古像素风边框', 'default', 28);
+
+INSERT INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_name`, `sys_avatar_frame_type`, `sys_avatar_frame_image`, `sys_avatar_frame_desc`, `sys_avatar_frame_acquire`, `sys_avatar_frame_sort`, `sys_avatar_frame_status`) VALUES
+(100, '生日快乐', 'birthday', '/assets/avatar-frames/birthday.png', '生日专属限定头像框', 'birthday', 99, 1);

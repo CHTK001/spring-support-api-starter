@@ -68,6 +68,15 @@ public class SysMenuSettingVO {
     @Schema(description = "是否固定标签页")
     private Integer sysMenuFixedTag;
 
+    @Schema(description = "是否开启菜单徽标; 0:否 1:是")
+    private Integer sysMenuIsTag;
+
+    @Schema(description = "徽标类型; danger/success/info/warning/primary")
+    private String sysMenuTagType;
+
+    @Schema(description = "徽标名称(留空则显示圆点徽标)")
+    private String sysMenuTagName;
+
     @Schema(description = "路由重定向")
     private String sysMenuRedirect;
 
