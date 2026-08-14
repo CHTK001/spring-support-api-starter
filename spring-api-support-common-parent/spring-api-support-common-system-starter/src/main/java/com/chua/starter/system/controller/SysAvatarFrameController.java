@@ -3,18 +3,26 @@ package com.chua.starter.system.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.common.support.annotation.Ignore;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.entity.system.SysAvatarFrame;
+import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.entity.system.SysUserAvatarFrame;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.system.mapper.SysAvatarFrameMapper;
 import com.chua.starter.system.mapper.SysUserAvatarFrameMapper;
+import com.chua.starter.system.mapper.SysUserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 头像框接口
@@ -31,15 +39,60 @@ public class SysAvatarFrameController {
 
     final SysAvatarFrameMapper sysAvatarFrameMapper;
     final SysUserAvatarFrameMapper sysUserAvatarFrameMapper;
+    final SysUserMapper sysUserMapper;
+
+    /** 生日窗口：前后 3 天共 7 天 */
+    private static final int BIRTHDAY_WINDOW_DAYS = 3;
+
+    /** 生日日期解析：yyyy-MM-dd / yyyy/MM/dd / yyyy.MM.dd */
+    private static final Pattern BIRTHDAY_PATTERN = Pattern.compile("(\\d{4})[-/.](\\d{1,2})[-/.](\\d{1,2})");
 
     @GetMapping("/list")
     @Operation(summary = "头像框列表")
-    public ReturnResult<List<SysAvatarFrame>> list() {
-        return ReturnResult.ok(sysAvatarFrameMapper.selectList(
+    public ReturnResult<List<SysAvatarFrame>> list(@UserValue("sysUserId") Long userId) {
+        // 查询全部启用的头像框（含生日框记录）
+        List<SysAvatarFrame> frames = sysAvatarFrameMapper.selectList(
                 new LambdaQueryWrapper<SysAvatarFrame>()
                         .eq(SysAvatarFrame::getSysAvatarFrameStatus, 1)
                         .orderByAsc(SysAvatarFrame::getSysAvatarFrameSort)
-        ));
+        );
+        // 非生日窗口（含未登录/未设置生日）过滤掉生日框，其余用户可见
+        if (!isBirthdayWindow(userId)) {
+            List<SysAvatarFrame> filtered = new ArrayList<>(frames.size());
+            for (SysAvatarFrame frame : frames) {
+                if (!"birthday".equals(frame.getSysAvatarFrameType())) {
+                    filtered.add(frame);
+                }
+            }
+            frames = filtered;
+        }
+        return ReturnResult.ok(frames);
+    }
+
+    /**
+     * 判断当前用户是否处于生日窗口内
+     * <p>按用户生日的月/日（忽略年份）与今天差值不超过 {@link #BIRTHDAY_WINDOW_DAYS} 天</p>
+     *
+     * @param userId 当前用户ID（未登录时为 null）
+     * @return 是否处于生日窗口
+     */
+    private boolean isBirthdayWindow(Long userId) {
+        if (null == userId) {
+            return false;
+        }
+        SysUser user = sysUserMapper.selectById(userId);
+        if (null == user || StringUtils.isBlank(user.getSysUserBirthday())) {
+            return false;
+        }
+        Matcher matcher = BIRTHDAY_PATTERN.matcher(user.getSysUserBirthday());
+        if (!matcher.matches()) {
+            return false;
+        }
+        LocalDate birth = LocalDate.of(2000, Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(3)));
+        LocalDate now = LocalDate.now();
+        LocalDate today = LocalDate.of(2000, now.getMonthValue(), now.getDayOfMonth());
+        long diff = Math.abs(ChronoUnit.DAYS.between(birth, today));
+        return diff <= BIRTHDAY_WINDOW_DAYS;
     }
 
     @GetMapping("/user")

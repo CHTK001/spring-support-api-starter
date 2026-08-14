@@ -203,6 +203,27 @@ public class SysMenu extends SysBase implements Serializable {
     private Integer sysMenuFixedTag;
 
     /**
+     * 是否开启菜单徽标; 0:否 1:是
+     */
+    @TableField(value = "sys_menu_is_tag")
+    @Schema(description = "是否开启菜单徽标; 0:否 1:是")
+    private Integer sysMenuIsTag;
+
+    /**
+     * 徽标类型; danger/success/info/warning/primary
+     */
+    @TableField(value = "sys_menu_tag_type")
+    @Schema(description = "徽标类型; danger/success/info/warning/primary")
+    private String sysMenuTagType;
+
+    /**
+     * 徽标名称(留空则显示圆点徽标)
+     */
+    @TableField(value = "sys_menu_tag_name")
+    @Schema(description = "徽标名称(留空则显示圆点徽标)")
+    private String sysMenuTagName;
+
+    /**
      * 是否隐藏菜单; 0:显示
      */
     @TableField(value = "sys_menu_hidden")
