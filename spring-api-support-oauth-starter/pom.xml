@@ -36,6 +36,14 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-support-socket-starter</artifactId>
       <version>${module.version}</version>
+      <exclusions>
+        <!-- 排除 netty-all 聚合包：其内置旧版 resolver-dns 类与 Lettuce 7.5.2 的
+             DnsNameResolverBuilder.datagramChannelType 冲突，导致 oauth 启动失败 -->
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-all</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
