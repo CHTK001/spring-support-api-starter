@@ -3,6 +3,7 @@ package com.chua.starter.scheduler.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.task.scheduler.CronExpression;
+import com.chua.starter.job.support.JobProperties;
 import com.chua.starter.job.support.store.JobEntity;
 import com.chua.starter.job.support.store.JobLogEntity;
 import com.chua.starter.job.support.store.JobLogMapper;
@@ -13,10 +14,15 @@ import com.chua.starter.scheduler.vo.SchedulerTaskVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -80,6 +86,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
      * 日志 Mapper
      */
     private final JobLogMapper jobLogMapper;
+
+    /**
+     * 任务配置
+     */
+    private final JobProperties jobProperties;
 
     @Override
     public Page<JobEntity> pageJobs(int pageNum, int pageSize, String jobName, Integer triggerStatus, String group) {
@@ -256,6 +267,58 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     public boolean triggerJobByNo(String jobNo, String param) {
         JobEntity job = getJobByNo(jobNo);
         return trigger(job, param);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int cleanupLogs(int retentionDays) {
+        if (retentionDays <= 0) {
+            throw new IllegalArgumentException("保留天数必须大于0");
+        }
+        long cutoff = System.currentTimeMillis() - retentionDays * 86400000L;
+
+        // 1. 查出待删除的日志文件路径
+        var files = jobLogMapper.selectList(Wrappers.<JobLogEntity>lambdaQuery()
+                .select(JobLogEntity::getSysJobLogFilePath)
+                .isNotNull(JobLogEntity::getSysJobLogFilePath)
+                .le(JobLogEntity::getSysJobLogTriggerTime, new Date(cutoff))
+                .last("AND sys_job_log_file_path != ''"));
+        if (files != null && !files.isEmpty()) {
+            Path base = Paths.get(jobProperties.getLog().getBasePath()).toAbsolutePath().normalize();
+            for (JobLogEntity f : files) {
+                if (f.getSysJobLogFilePath() == null || f.getSysJobLogFilePath().isBlank()) continue;
+                try {
+                    Path file = base.resolve(f.getSysJobLogFilePath()).normalize();
+                    if (file.startsWith(base) && Files.exists(file)) {
+                        Files.delete(file);
+                    }
+                } catch (IOException e) {
+                    log.warn("[job] 删除日志文件失败 path={} cause={}", f.getSysJobLogFilePath(), e.getMessage());
+                }
+            }
+            // 清理空目录
+            try {
+                try (var dirs = Files.walk(base)
+                        .filter(Files::isDirectory)
+                        .sorted((a, b) -> -a.compareTo(b))
+                        .toList()) {
+                    for (Path dir : dirs) {
+                        try (var list = Files.list(dir)) {
+                            if (list.findAny().isEmpty()) {
+                                Files.delete(dir);
+                            }
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                log.warn("[job] 清理空目录失败 cause={}", e.getMessage());
+            }
+        }
+
+        // 2. 删除 DB 记录
+        int deleted = jobLogMapper.deleteByTriggerTimeBefore(cutoff);
+        log.info("[job] 日志清理完成 retentionDays={} deleted={}", retentionDays, deleted);
+        return deleted;
     }
 
     @Override
@@ -723,6 +786,24 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
 
     private int safeStatus(Integer triggerStatus) {
         return triggerStatus == null ? STATUS_STOP : triggerStatus;
+    }
+
+    /**
+     * 定时清理过期日志。
+     */
+    @Scheduled(cron = "${plugin.job.log.cleanup-cron:0 0 0 * * ?}")
+    public void scheduledCleanup() {
+        if (!jobProperties.getLog().isCleanupEnabled()) {
+            return;
+        }
+        int retentionDays = jobProperties.getLog().getCleanupRetentionDays();
+        log.info("[job] 定时清理日志开始 retentionDays={}", retentionDays);
+        try {
+            int deleted = cleanupLogs(retentionDays);
+            log.info("[job] 定时清理日志完成 deleted={}", deleted);
+        } catch (Exception e) {
+            log.error("[job] 定时清理日志异常", e);
+        }
     }
 
     private String escape(String value) {

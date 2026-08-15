@@ -99,6 +99,13 @@ public class SchedulerJobConsoleApiController {
         return ReturnResult.ok(schedulerJobPlatformService.triggerJobByNo(jobNo, param));
     }
 
+    @PostMapping("/{namespace}/job-log/cleanup")
+    public ReturnResult<Object> cleanupLogs(@PathVariable String namespace,
+                                            @RequestParam(defaultValue = "30") int retentionDays) {
+        int deleted = schedulerJobPlatformService.cleanupLogs(retentionDays);
+        return ReturnResult.ok("清理完成, 共删除 " + deleted + " 条日志");
+    }
+
     @GetMapping("/{namespace}/job-log/page")
     public ReturnResult<Object> pageLogs(@PathVariable String namespace,
                                          @RequestParam(defaultValue = "1") int pageNum,
