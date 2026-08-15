@@ -7,7 +7,8 @@ import com.chua.common.support.network.server.Server;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServerListener;
 import com.chua.common.support.network.server.filter.UrlMappingServerFilter;
-import com.chua.common.support.network.server.request.ServerRequest;
+import com.chua.common.support.network.server.request.AbstractServerRequest;
+import com.chua.common.support.network.server.response.AbstractServerResponse;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.kcp.support.server.KcpServer;
@@ -16,9 +17,7 @@ import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.properties.OauthProtocolServersProperties;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -27,7 +26,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.AUTH_ROUTES;
-import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.CONTENT_TYPE_JSON;
 import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.DEFAULT_CONTEXT_PATH;
 import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.DEFAULT_HOST;
 import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.DEFAULT_PORT;
@@ -279,126 +277,17 @@ public class OauthProtocolServerManager implements AutoCloseable {
     /**
      * 消息型协议(KCP)的轻量响应适配
      *
-     * <p>捕获 {@link OauthProtocolHandler} 写入的响应体,由 KCP 适配层回传客户端。</p>
+     * <p>继承 {@link AbstractServerResponse},仅实现协议特定的输出方法;
+     * 捕获 {@link OauthProtocolHandler} 写入的响应体,由 KCP 适配层回传客户端。</p>
      *
      * @author CH
      * @since 4.0.0.42
      */
-    private static class MessageServerResponse implements ServerResponse {
-
-        private int status = 200;
-        private byte[] body;
-        private boolean ended;
-
-        @Override
-        public ServerResponse setStatus(int statusCode) {
-            this.status = statusCode;
-            return this;
-        }
-
-        @Override
-        public int getStatus() {
-            return status;
-        }
-
-        @Override
-        public ServerResponse setHeader(String name, String value) {
-            return this;
-        }
-
-        @Override
-        public String getHeader(String name) {
-            return null;
-        }
-
-        @Override
-        public HttpHeader getHeaders() {
-            return HttpHeader.create();
-        }
-
-        @Override
-        public ServerResponse setContentType(String contentType) {
-            return this;
-        }
-
-        @Override
-        public String getContentType() {
-            return CONTENT_TYPE_JSON;
-        }
-
-        @Override
-        public ServerResponse setBody(byte[] body) {
-            this.body = body;
-            return this;
-        }
-
-        @Override
-        public ServerResponse setBody(String body) {
-            this.body = body != null ? body.getBytes(StandardCharsets.UTF_8) : null;
-            return this;
-        }
-
-        @Override
-        public byte[] getBody() {
-            return body;
-        }
+    private static class MessageServerResponse extends AbstractServerResponse {
 
         @Override
         public OutputStream getOutputStream() {
             return new ByteArrayOutputStream();
-        }
-
-        @Override
-        public ServerResponse sendRedirect(String location) {
-            return this;
-        }
-
-        @Override
-        public ServerResponse sendError(int statusCode, String message) {
-            this.status = statusCode;
-            this.body = message != null ? message.getBytes(StandardCharsets.UTF_8) : null;
-            this.ended = true;
-            return this;
-        }
-
-        @Override
-        public void flush() {
-        }
-
-        @Override
-        public boolean isCommitted() {
-            return ended;
-        }
-
-        @Override
-        public boolean isEnded() {
-            return ended;
-        }
-
-        @Override
-        public ServerResponse reset() {
-            this.status = 200;
-            this.body = null;
-            this.ended = false;
-            return this;
-        }
-
-        @Override
-        public void end() {
-            this.ended = true;
-        }
-
-        @Override
-        public ServerResponse setResult(Object result) {
-            if (result != null) {
-                this.body = String.valueOf(result).getBytes(StandardCharsets.UTF_8);
-            }
-            return this;
-        }
-
-        @Override
-        public Object getResult() {
-            return body;
         }
 
         @Override
