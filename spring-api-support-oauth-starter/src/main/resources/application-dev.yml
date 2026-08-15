@@ -38,9 +38,9 @@ plugin:
         expire-seconds: 3600
         jwks-enabled: true
       # 令牌过期时间（秒），默认 3 天
-      expire: 259200
+      expire: 2592000
       # 刷新令牌过期时间（秒），默认 4 天
-      refresh-expire: 345600
+      refresh-expire: 3456000
       # 令牌自动续期（每次鉴权成功后重置过期时间）
       renew: false
       # 用户在线模式：SINGLE / MULTIPLE / LIMIT

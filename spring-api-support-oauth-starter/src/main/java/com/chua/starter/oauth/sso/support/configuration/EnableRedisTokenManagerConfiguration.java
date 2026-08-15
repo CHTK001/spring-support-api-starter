@@ -54,6 +54,9 @@ public class EnableRedisTokenManagerConfiguration {
         return listenerContainer;
     }
 
+    /**
+     * 注册Redis键过期监听器
+     */
     @Bean
     @ConditionalOnMissingBean(StringRedisTemplate.class)
     KeyExpirationEventMessageListener redisKeyExpirationListener(RedisMessageListenerContainer listenerContainer) {
