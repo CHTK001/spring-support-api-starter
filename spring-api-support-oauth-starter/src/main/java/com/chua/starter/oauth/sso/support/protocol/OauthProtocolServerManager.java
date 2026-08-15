@@ -218,21 +218,36 @@ public class OauthProtocolServerManager implements AutoCloseable {
     /**
      * 消息型协议(KCP)的轻量请求适配
      *
-     * <p>将 {@code topic:payload} 报文的 topic 映射为请求路径,payload 作为请求体,
+     * <p>继承 {@link AbstractServerRequest},仅需实现协议特定的数据获取方法;
+     * 将 {@code topic:payload} 报文的 topic 映射为请求路径,payload 作为请求体,
      * 使 {@link OauthProtocolHandler} 无需感知底层传输协议。</p>
      *
      * @author CH
      * @since 4.0.0.42
      */
-    private static class MessageServerRequest implements ServerRequest {
+    private static class MessageServerRequest extends AbstractServerRequest {
 
         private final String topic;
-        private final String body;
-        private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+        private final byte[] body;
 
         MessageServerRequest(String topic, String body) {
             this.topic = topic;
-            this.body = body;
+            this.body = body != null ? body.getBytes(StandardCharsets.UTF_8) : new byte[0];
+        }
+
+        @Override
+        protected byte[] readBody() {
+            return body;
+        }
+
+        @Override
+        public HttpHeader getHeaders() {
+            return HttpHeader.create();
+        }
+
+        @Override
+        public String getHeader(String name) {
+            return null;
         }
 
         @Override
@@ -251,51 +266,6 @@ public class OauthProtocolServerManager implements AutoCloseable {
         }
 
         @Override
-        public String getHeader(String name) {
-            return null;
-        }
-
-        @Override
-        public HttpHeader getHeaders() {
-            return HttpHeader.create();
-        }
-
-        @Override
-        public Map<String, String> getParams() {
-            return Map.of();
-        }
-
-        @Override
-        public String getParam(String name) {
-            return null;
-        }
-
-        @Override
-        public String getContentType() {
-            return CONTENT_TYPE_JSON;
-        }
-
-        @Override
-        public long getContentLength() {
-            return body != null ? body.getBytes(StandardCharsets.UTF_8).length : -1;
-        }
-
-        @Override
-        public byte[] getBody() {
-            return body != null ? body.getBytes(StandardCharsets.UTF_8) : new byte[0];
-        }
-
-        @Override
-        public String getBodyString() {
-            return body;
-        }
-
-        @Override
-        public InputStream getInputStream() {
-            return new ByteArrayInputStream(getBody());
-        }
-
-        @Override
         public String getRemoteAddress() {
             return LOCALHOST;
         }
@@ -303,21 +273,6 @@ public class OauthProtocolServerManager implements AutoCloseable {
         @Override
         public int getRemotePort() {
             return 0;
-        }
-
-        @Override
-        public Map<String, Object> getAttributes() {
-            return attributes;
-        }
-
-        @Override
-        public Object getAttribute(String name) {
-            return attributes.get(name);
-        }
-
-        @Override
-        public void setAttribute(String name, Object value) {
-            attributes.put(name, value);
         }
     }
 

@@ -297,16 +297,14 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
                 }
             }
             // 清理空目录
-            try {
-                try (var dirs = Files.walk(base)
-                        .filter(Files::isDirectory)
+            try (var stream = Files.walk(base)) {
+                var dirs = stream.filter(Files::isDirectory)
                         .sorted((a, b) -> -a.compareTo(b))
-                        .toList()) {
-                    for (Path dir : dirs) {
-                        try (var list = Files.list(dir)) {
-                            if (list.findAny().isEmpty()) {
-                                Files.delete(dir);
-                            }
+                        .toList();
+                for (Path dir : dirs) {
+                    try (var list = Files.list(dir)) {
+                        if (list.findAny().isEmpty()) {
+                            Files.delete(dir);
                         }
                     }
                 }
