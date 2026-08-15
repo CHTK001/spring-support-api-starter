@@ -31,15 +31,3 @@ plugin:
   api:
     platform:
       name: OAUTH
-  oauth:
-    # 多协议认证 Server(基于 common-starter network.Server)
-    # 独立端口 19182,与 Tomcat(19181, Spring MVC 认证入口)并存
-    protocol-server:
-      protocols:
-        - name: http
-          type: jdk
-          protocol: http
-          host: 0.0.0.0
-          port: 19180
-          enable: true
-          context-path: /

@@ -21,6 +21,36 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.AUTH_SCHEME_BEARER;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.CONTENT_TYPE_JSON;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.FIELD_AUTH_TYPE;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.FIELD_COOKIE;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.FIELD_DATA;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.FIELD_EXT;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.FIELD_LOGOUT_TYPE;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.FIELD_PASSWORD;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.FIELD_REFRESH_TOKEN;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.FIELD_SOURCE_TOKEN;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.FIELD_TOKEN;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.FIELD_UID;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.FIELD_UPGRADE_TYPE;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.FIELD_USERNAME;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.HEADER_ACCESS_KEY;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.HEADER_ADDRESS;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.HEADER_AUTHORIZATION;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.HEADER_ENCODE;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.HEADER_RESPONSE_SERIAL;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.HEADER_SERIAL;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.HEADER_SIGN;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.HEADER_UUID;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.OAUTH_PREFIX;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.PATH_LOGIN;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.PATH_LOGOUT;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.PATH_OAUTH;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.PATH_TEMPORARY_TOKEN;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.PATH_UPGRADE;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.PATH_VERIFY;
+
 /**
  * OAuth 认证协议处理器
  *
@@ -52,11 +82,11 @@ public class OauthProtocolHandler implements ServerHandler {
     public void handle(ServerRequest request, ServerResponse response) throws Exception {
         var path = normalize(request.getPath());
         try {
-            if (path.endsWith("/login")) handleLogin(request, response);
-            else if (path.endsWith("/verify") || path.endsWith("/oauth")) handleVerify(request, response);
-            else if (path.endsWith("/upgrade")) handleUpgrade(request, response);
-            else if (path.endsWith("/logout")) handleLogout(request, response);
-            else if (path.endsWith("/temporary-token")) handleTemporaryToken(request, response);
+            if (path.endsWith(PATH_LOGIN)) handleLogin(request, response);
+            else if (path.endsWith(PATH_VERIFY) || path.endsWith(PATH_OAUTH)) handleVerify(request, response);
+            else if (path.endsWith(PATH_UPGRADE)) handleUpgrade(request, response);
+            else if (path.endsWith(PATH_LOGOUT)) handleLogout(request, response);
+            else if (path.endsWith(PATH_TEMPORARY_TOKEN)) handleTemporaryToken(request, response);
             else writeError(response, "不支持的认证路径: " + path);
         } catch (Exception e) {
             log.error("[OauthProtocolHandler] 处理失败: path={}, error={}", path, e.getMessage(), e);
@@ -70,8 +100,8 @@ public class OauthProtocolHandler implements ServerHandler {
      * 归一化认证路径(兼容 client address 含 /oauth 前缀的调用)
      */
     private String normalize(String path) {
-        if (path != null && path.startsWith("/oauth/")) {
-            return path.substring("/oauth".length());
+        if (path != null && path.startsWith(OAUTH_PREFIX + "/")) {
+            return path.substring(OAUTH_PREFIX.length());
         }
         return path;
     }
@@ -86,10 +116,10 @@ public class OauthProtocolHandler implements ServerHandler {
         }
         var result = loginCheck.doLogin(
                 resolveAddress(request, decoder),
-                decoder.getString("x-oauth-username"),
-                decoder.getString("x-oauth-password"),
-                decoder.getString("x-oauth-auth-type"),
-                decoder.getBodyData().get("x-oauth-ext"));
+                decoder.getString(FIELD_USERNAME),
+                decoder.getString(FIELD_PASSWORD),
+                decoder.getString(FIELD_AUTH_TYPE),
+                decoder.getBodyData().get(FIELD_EXT));
         if (!ReturnCode.OK.getCode().equals(result.getCode())) {
             writeError(response, result.getMsg());
             return;
@@ -112,7 +142,7 @@ public class OauthProtocolHandler implements ServerHandler {
             return;
         }
         writeResult(response, decoder, resolveTokenResolver().resolve(
-                decoder.getString("x-oauth-cookie"), resolveToken(request, decoder)));
+                decoder.getString(FIELD_COOKIE), resolveToken(request, decoder)));
     }
 
     // ==================== 升级 ====================
@@ -125,12 +155,12 @@ public class OauthProtocolHandler implements ServerHandler {
         }
         var resolver = resolveTokenResolver();
         var token = resolveToken(request, decoder);
-        var refreshToken = decoder.getString("x-oauth-refresh-token");
-        var upgradeType = decoder.getString("x-oauth-upgrade-type");
-        writeResult(response, decoder, switch (upgradeType == null ? "" : upgradeType.toUpperCase()) {
-            case "TIMESTAMP" -> resolver.upgradeForTimestamp(token, refreshToken);
-            case "VERSION" -> resolver.upgradeForVersion(token, refreshToken);
-            default -> resolver.upgradeForRefresh(token, refreshToken);
+        var refreshToken = decoder.getString(FIELD_REFRESH_TOKEN);
+        var upgradeType = UpgradeType.getUpgradeType(decoder.getString(FIELD_UPGRADE_TYPE));
+        writeResult(response, decoder, switch (upgradeType) {
+            case TIMESTAMP -> resolver.upgradeForTimestamp(token, refreshToken);
+            case VERSION -> resolver.upgradeForVersion(token, refreshToken);
+            case REFRESH -> resolver.upgradeForRefresh(token, refreshToken);
         });
     }
 
@@ -143,11 +173,11 @@ public class OauthProtocolHandler implements ServerHandler {
             return;
         }
         var resolver = resolveTokenResolver();
-        var uid = decoder.getString("x-oauth-uid");
+        var uid = decoder.getString(FIELD_UID);
         var token = resolveToken(request, decoder);
         if (StringUtils.isNotBlank(uid)) {
-            var type = StringUtils.isNotBlank(decoder.getString("x-oauth-logout-type"))
-                    ? LogoutType.valueOf(decoder.getString("x-oauth-logout-type")) : LogoutType.LOGOUT;
+            var type = StringUtils.isNotBlank(decoder.getString(FIELD_LOGOUT_TYPE))
+                    ? LogoutType.valueOf(decoder.getString(FIELD_LOGOUT_TYPE)) : LogoutType.LOGOUT;
             resolver.logout(uid, type);
         } else if (StringUtils.isNotBlank(token)) {
             resolver.logout(token);
@@ -164,7 +194,7 @@ public class OauthProtocolHandler implements ServerHandler {
             return;
         }
         var resolver = resolveTokenResolver();
-        var source = resolver.resolve(null, decoder.getString("x-oauth-source-token"));
+        var source = resolver.resolve(null, decoder.getString(FIELD_SOURCE_TOKEN));
         if (!ReturnCode.OK.getCode().equals(source.getCode())) {
             writeResult(response, decoder, source);
             return;
@@ -183,20 +213,20 @@ public class OauthProtocolHandler implements ServerHandler {
      */
     private OauthProtocolDecoder decode(ServerRequest request) {
         var headers = request.getHeaders();
-        var bodyString = request.getBodyString();
+        var requestBody = request.getBodyString();
         // 协议请求体格式: {"data":"<认证参数JSON/密文>"}
-        var wrapper = bodyString != null && !bodyString.isBlank()
-                ? com.chua.common.support.lang.json.Json.getJsonObject(bodyString) : null;
-        var data = wrapper != null && wrapper.get("data") != null
-                ? String.valueOf(wrapper.get("data")) : bodyString;
+        var wrapper = requestBody != null && !requestBody.isBlank()
+                ? com.chua.common.support.lang.json.Json.getJsonObject(requestBody) : null;
+        var data = wrapper != null && wrapper.get(FIELD_DATA) != null
+                ? String.valueOf(wrapper.get(FIELD_DATA)) : requestBody;
         return new OauthProtocolDecoder(
                 authServerProperties,
                 data,
-                header(headers, "x-oauth-uuid"),
-                header(headers, "x-oauth-serial"),
-                header(headers, "x-oauth-sign"),
-                header(headers, "x-oauth-ak"),
-                header(headers, "x-oauth-encode"));
+                header(headers, HEADER_UUID),
+                header(headers, HEADER_SERIAL),
+                header(headers, HEADER_SIGN),
+                header(headers, HEADER_ACCESS_KEY),
+                header(headers, HEADER_ENCODE));
     }
 
     /**
@@ -216,18 +246,18 @@ public class OauthProtocolHandler implements ServerHandler {
      * 从请求体/请求头解析 token
      */
     private String resolveToken(ServerRequest request, OauthProtocolDecoder decoder) {
-        var token = decoder.getString("x-oauth-token");
+        var token = decoder.getString(FIELD_TOKEN);
         if (StringUtils.isNotBlank(token)) return token;
-        var authorization = header(request.getHeaders(), "Authorization");
-        return authorization != null && authorization.startsWith("Bearer ")
-                ? authorization.substring("Bearer ".length()) : null;
+        var authorization = header(request.getHeaders(), HEADER_AUTHORIZATION);
+        return authorization != null && authorization.startsWith(AUTH_SCHEME_BEARER)
+                ? authorization.substring(AUTH_SCHEME_BEARER.length()) : null;
     }
 
     /**
      * 解析客户端地址(优先请求头 x-oauth-param-address)
      */
     private String resolveAddress(ServerRequest request, OauthProtocolDecoder decoder) {
-        var address = header(request.getHeaders(), "x-oauth-param-address");
+        var address = header(request.getHeaders(), HEADER_ADDRESS);
         return decoder.resolveClientAddress(address != null ? address : request.getRemoteAddress());
     }
 
@@ -243,12 +273,12 @@ public class OauthProtocolHandler implements ServerHandler {
      * <p>与原 LoginAuthorization 一致:外层 ReturnResult JSON 明文,data 字段加密。</p>
      */
     private void writeResult(ServerResponse response, OauthProtocolDecoder decoder, ReturnResult<?> result) {
-        response.setContentType("application/json");
+        response.setContentType(CONTENT_TYPE_JSON);
         String body;
         if (decoder != null && decoder.isEncode() && result.getData() != null) {
             // 加密 data 字段,外层 ReturnResult 保持明文
             var newKey = com.chua.common.support.utils.IdUtils.createSimpleUuid();
-            response.setHeader("x-oauth-response-serial", newKey);
+            response.setHeader(HEADER_RESPONSE_SERIAL, newKey);
             var encrypted = com.chua.starter.common.support.algorithm.crypto.Codec
                     .build(decoder.encryption(), newKey)
                     .encodeHex(Json.toJson(result.getData()));
