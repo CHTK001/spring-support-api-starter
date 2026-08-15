@@ -205,7 +205,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         userResult.setUid(DigestUtils.sha1(String.valueOf(user.getSysUserId())));
         userResult.setOpenId(userResult.getUid());
         userResult.setUnionId(userResult.getUid());
-        userResult.setExpireTime(System.currentTimeMillis() / 1000 + 7L * 24 * 60 * 60);
+        userResult.setExpireTime(System.currentTimeMillis() / 1000 + 30L * 24 * 60 * 60);
         // 填充部门ID，供数据权限(DEPT/DEPT_AND_SUB)与接口使用
         if (null != user.getSysDeptId() && user.getSysDeptId() > 0) {
             userResult.setDeptId(String.valueOf(user.getSysDeptId()));

@@ -5,7 +5,9 @@
 #   1. 本工程目录执行：docker compose build
 #   2. 启动：docker compose up -d
 #
-# 使用 bridge 网络 + 端口映射 19180 -> 19180。
+# 端口规划（协议收敛到 common-starter network.Server 后）：
+#   - 19180：common Server 多协议认证入口（client 调 http://172.16.0.40:19180/oauth/login）
+#   - 19181：Tomcat（Spring MVC 内部/管理入口）
 # 数据库/Redis 指向 172.16.0.40(见 application-dev.yml)，容器内可直连。
 #
 # security_opt(seccomp=unconfined)：
@@ -25,5 +27,6 @@ services:
       - seccomp=unconfined
     ports:
       - "19180:19180"
+      - "19181:19181"
     environment:
-      - SERVER_PORT=19180
+      - SERVER_PORT=19181

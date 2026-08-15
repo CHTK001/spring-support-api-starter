@@ -151,6 +151,11 @@ public class LoginCheck {
         if (OK.getCode().equals(code)) {
             LoginResult loginResult = token.getData();
             loginResult.setUserResume(userResume);
+            // 同步过期时间到返回的用户信息(createToken 在 userResult 上设置了 expireTime,
+            // 前端/调用方通过 userResume.getExpireTime() 感知 token 有效期)
+            if (userResume != null && userResume.getExpireTime() == null && userResult.getExpireTime() != null) {
+                userResume.setExpireTime(userResult.getExpireTime());
+            }
             // 登录成功，清除失败记录
             clearLoginFailure(principal);
             log.info("登录成功: 用户={}, 类型={}, 总耗时={}ms", principal, authType, System.currentTimeMillis() - startTime);

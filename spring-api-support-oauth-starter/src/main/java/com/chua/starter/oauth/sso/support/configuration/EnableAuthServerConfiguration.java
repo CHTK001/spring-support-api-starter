@@ -10,8 +10,10 @@ import com.chua.starter.oauth.sso.support.processor.ResponseAdviceMethodProcesso
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.properties.CasProperties;
 import com.chua.starter.oauth.sso.support.properties.OauthSecurityProperties;
+import com.chua.starter.oauth.sso.support.properties.OauthProtocolServersProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyBinderProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyLoginProperties;
+import com.chua.starter.oauth.sso.support.protocol.OauthProtocolServerManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -87,7 +89,8 @@ import java.util.Properties;
         ThirdPartyBinderProperties.class,
         CasProperties.class,
         ThirdPartyLoginProperties.class,
-        OauthSecurityProperties.class
+        OauthSecurityProperties.class,
+        OauthProtocolServersProperties.class
 })
 public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPostProcessor,
         EnvironmentPostProcessor,
@@ -99,6 +102,17 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     private List<HttpMessageConverter<?>> messageConverters;
 
     /**
+     * 多协议 Server 管理器(由 oauthProtocolServerManager bean 注入)
+     */
+    @org.springframework.beans.factory.annotation.Autowired
+    private OauthProtocolServerManager oauthProtocolServerManager;
+
+    /**
+     * Spring 应用上下文
+     */
+    private ApplicationContext applicationContext;
+
+    /**
      * 登录检查服务Bean
      * <p>核心认证服务，负责处理登录验证逻辑，通过 Spring 容器获取 UserInfoService 实现</p>
      *
@@ -108,6 +122,23 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     @Bean
     public LoginCheck loginCheck(ApplicationContext applicationContext) {
         return new LoginCheck(authServerProperties, applicationContext);
+    }
+
+    /**
+     * 多协议 Server 管理器 Bean
+     *
+     * <p>基于 common-starter {@code network.Server} 启动多协议认证 Server,
+     * 把 OAuth 认证协议入口以 HTTP/KCP/WS/UDP 等多协议暴露。</p>
+     *
+     * @param oauthProtocolServersProperties 多协议 Server 配置
+     * @param loginCheck                     登录检查服务
+     * @return 多协议 Server 管理器
+     */
+    @Bean
+    public OauthProtocolServerManager oauthProtocolServerManager(
+            OauthProtocolServersProperties oauthProtocolServersProperties,
+            LoginCheck loginCheck) {
+        return new OauthProtocolServerManager(oauthProtocolServersProperties, authServerProperties, loginCheck);
     }
 
     /**
@@ -150,11 +181,16 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
 
     @Override
     public void destroy() throws Exception {
+        // 停止多协议 Server
+        if (oauthProtocolServerManager != null) {
+            oauthProtocolServerManager.close();
+        }
     }
 
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
         if (null != authServerProperties) {
             return;
         }
@@ -164,7 +200,6 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
 
         authServerProperties = Binder.get(applicationContext.getEnvironment()).bindOrCreate(AuthServerProperties.PRE, AuthServerProperties.class);
     }
-
     @Override
     public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> handlers) {
         handlers.add(0, new ResponseAdviceMethodProcessor(messageConverters));
@@ -179,5 +214,15 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
                 null);
         registry.registerFlag("auth-server-aksk-check", "鉴权服务",
                 authServerProperties.isOpenCheckAkSk(), "AK/SK 密钥校验", null);
+        // 启动多协议认证 Server
+        OauthProtocolServerManager manager = oauthProtocolServerManager;
+        if (manager == null && applicationContext != null) {
+            manager = applicationContext.getBean(OauthProtocolServerManager.class);
+        }
+        if (manager != null) {
+            manager.startAll();
+        } else {
+            log.warn("[OauthProtocolServer] 多协议 Server 管理器不可用, 跳过启动");
+        }
     }
 }

@@ -111,10 +111,10 @@ public class AuthServerProperties {
      * 设置为0或负数表示永不过期（不推荐）
      * </p>
      * <p>
-     * 默认值：259200秒（3天）
+     * 默认值：2592000秒（30天/一个月）
      * </p>
      */
-    private long expire = 86_400L * 3;
+    private long expire = 86_400L * 30;
 
     /**
      * 刷新令牌过期时间（秒）
@@ -125,10 +125,10 @@ public class AuthServerProperties {
      * 通常比访问令牌的有效期更长
      * </p>
      * <p>
-     * 默认值：345600秒（4天）
+     * 默认值：3456000秒（40天）
      * </p>
      */
-    private long refreshExpire = 86_400L * 4;
+    private long refreshExpire = 86_400L * 40;
 
     /**
      * 令牌自动续期
