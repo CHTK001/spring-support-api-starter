@@ -27,6 +27,9 @@ import java.util.List;
  *           port: 19182
  *           enable: true
  *           context-path: /
+ *           auth-routes:
+ *             - /login
+ *             - /verify
  *         - name: kcp
  *           type: kcp
  *           protocol: kcp
@@ -92,5 +95,10 @@ public class OauthProtocolServersProperties {
          * 上下文路径(HTTP 协议有效,默认 /)
          */
         private String contextPath = "/";
+
+        /**
+         * 认证路由路径列表(为空时使用默认路径 /login /verify 等)
+         */
+        private List<String> authRoutes = new ArrayList<>();
     }
 }

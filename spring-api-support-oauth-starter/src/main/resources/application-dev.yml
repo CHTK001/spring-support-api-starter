@@ -37,9 +37,9 @@ plugin:
         issuer: oauth-server
         expire-seconds: 3600
         jwks-enabled: true
-      # 令牌过期时间（秒），默认 3 天
+      # 令牌过期时间（秒），默认 30 天（一个月）
       expire: 2592000
-      # 刷新令牌过期时间（秒），默认 4 天
+      # 刷新令牌过期时间（秒），默认 40 天
       refresh-expire: 3456000
       # 令牌自动续期（每次鉴权成功后重置过期时间）
       renew: false
@@ -47,6 +47,41 @@ plugin:
       online: SINGLE
       # 是否开启 AK/SK 校验
       open-check-ak-sk: false
+      # 多协议认证 Server(基于 common-starter network.Server,与 client 端协议一一对应)
+      # - http     : jdk 实现(19180 认证入口,client 调 http://172.16.0.40:19180/oauth/login)
+      # - armeria  : armeria-http 实现(对应 client ArmeriaProtocol)
+      # - rsocket  : rsocket 实现(对应 client RSocketProtocol)
+      # - tcp/udp/ws/kcp : 可扩展(ProtocolType 已支持)
+    protocol-server:
+      protocols:
+        - name: http
+          type: jdk
+          protocol: http
+          host: 0.0.0.0
+          port: 19180
+          enable: true
+          context-path: /
+        - name: armeria
+          type: armeria-http
+          protocol: http
+          host: 0.0.0.0
+          port: 19184
+          enable: true
+          context-path: /
+        - name: rsocket
+          type: rsocket
+          protocol: rsocket
+          host: 0.0.0.0
+          port: 19185
+          enable: true
+          context-path: /
+        - name: kcp
+          type: kcp
+          protocol: kcp
+          host: 0.0.0.0
+          port: 19186
+          enable: true
+          context-path: /
   mybatis-plus:
     encryptor:
       password: oauth-encrypt-key
