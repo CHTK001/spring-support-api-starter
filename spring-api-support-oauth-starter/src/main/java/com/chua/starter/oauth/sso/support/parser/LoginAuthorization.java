@@ -135,9 +135,11 @@ public final class LoginAuthorization implements Authorization {
         sysUserLog.setSysLogFingerprint(fingerprint);
 
         UserAgent.UserAgentInfo userAgent = UserAgent.parseUserAgentString(ua);
-        sysUserLog.setSysLogBrowser(userAgent.getBrowser().toString());
+        sysUserLog.setSysLogBrowser(userAgent != null && userAgent.getBrowser() != null
+                ? userAgent.getBrowser().toString() : null);
         sysUserLog.setSysLogUsername(loginAuthorization.username);
-        sysUserLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
+        sysUserLog.setSysLogSystem(userAgent != null && userAgent.getOperatingSystem() != null
+                ? userAgent.getOperatingSystem().getName() : null);
         sysUserLog.setSysLogUrl("/login");
         sysUserLog.setSysLogFrom(returnResult.isOk() ? "LOGIN" : "LOGIN_FAIL");
         sysUserLog.setSysLogAppName(appName);
