@@ -506,9 +506,6 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         // 兼容老配置：ApiResponseEncodeConfiguration / ApiRequestDecodeSetting 等其他配置
         globalSettingFactory.register("config", new ApiResponseEncodeConfiguration());
         globalSettingFactory.register("config", new ApiRequestDecodeSetting());
-        if (ClassUtils.isPresent("com.chua.report.client.starter.setting.ReportExpireSetting")) {
-            globalSettingFactory.register("expire", ClassUtils.forObject("com.chua.report.client.starter.setting.ReportExpireSetting"));
-        }
     }
 
     /**
