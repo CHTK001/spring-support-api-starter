@@ -13,7 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -57,6 +58,9 @@ class SignInPointsServiceTest {
 
     // ==================== 每日基础积分 ====================
 
+    /**
+     * 测试：仅发放每日基础积分。
+     */
     @Test
     void testCalculatePoints_dailyOnly() {
         when(ruleMapper.selectByStatus(1)).thenReturn(List.of(createRule("DAILY_SIGN", 10)));
@@ -71,6 +75,9 @@ class SignInPointsServiceTest {
 
     // ==================== 连续天数里程碑奖励 ====================
 
+    /**
+     * 测试：连续签到 3 天时发放里程碑奖励。
+     */
     @Test
     void testCalculatePoints_streak3_bonus() {
         when(ruleMapper.selectByStatus(1)).thenReturn(List.of(
@@ -85,6 +92,9 @@ class SignInPointsServiceTest {
         verify(pointsRecordMapper, times(2)).insert(any(SignInPointsRecord.class));
     }
 
+    /**
+     * 测试：连续签到未达阈值时不发放里程碑奖励。
+     */
     @Test
     void testCalculatePoints_streak3_notMatch() {
         when(ruleMapper.selectByStatus(1)).thenReturn(List.of(
@@ -100,6 +110,9 @@ class SignInPointsServiceTest {
         verify(pointsRecordMapper, times(1)).insert(any(SignInPointsRecord.class));
     }
 
+    /**
+     * 测试：连续签到 7 天时发放里程碑奖励。
+     */
     @Test
     void testCalculatePoints_streak7_bonus() {
         when(ruleMapper.selectByStatus(1)).thenReturn(List.of(
@@ -116,6 +129,9 @@ class SignInPointsServiceTest {
 
     // ==================== sumPoints ====================
 
+    /**
+     * 测试：积分明细列表求和。
+     */
     @Test
     void testSumPoints() {
         List<SignInPointDTO> points = List.of(

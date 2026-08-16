@@ -12,11 +12,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * ACME 订单信息
+ * ACME 订单信息，记录 ACME 订单地址、授权地址、状态及最终证书地址。
  *
- * 作者: CH
- * 创建时间: 2025-10-17
- * 版本: 1.0.0
+ * @author CH
+ * @since 2025-10-17
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

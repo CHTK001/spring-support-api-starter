@@ -1,6 +1,7 @@
 package com.chua.starter.signin.service;
 
 import com.chua.common.support.lang.datasource.kv.KvEngine;
+import com.chua.starter.achievement.constant.AchievementContextConstants;
 import com.chua.starter.achievement.event.UserActionEvent;
 import com.chua.starter.redis.support.template.LockTemplate;
 import com.chua.starter.signin.dto.SignInDayDTO;
@@ -54,31 +55,6 @@ public class SignInService {
      * 防抖锁持有时间（秒），防止锁未释放导致死锁
      */
     private static final long LOCK_LEASE_SECONDS = 10L;
-
-    /**
-     * 成就上下文数据键前缀（与成就模块一致）
-     */
-    private static final String ACHIEVEMENT_KEY_PREFIX = "achievement:";
-
-    /**
-     * 成就上下文：累计签到次数
-     */
-    private static final String STAT_SIGN_IN_COUNT = "signInCount";
-
-    /**
-     * 成就上下文：当前连续签到天数
-     */
-    private static final String STAT_SIGN_IN_STREAK = "signInStreak";
-
-    /**
-     * 成就上下文：累计签到积分
-     */
-    private static final String STAT_SIGN_IN_TOTAL_POINTS = "signInTotalPoints";
-
-    /**
-     * 成就上下文：历史最高连续签到天数
-     */
-    private static final String STAT_SIGN_IN_MAX_STREAK = "signInMaxStreak";
 
     /**
      * 签到记录 Mapper
@@ -315,15 +291,15 @@ public class SignInService {
      * @param totalPoints 累计签到积分
      */
     private void writeAchievementContext(Long userId, int streak, int totalPoints) {
-        String prefix = ACHIEVEMENT_KEY_PREFIX + userId + ":";
+        String prefix = AchievementContextConstants.KEY_PREFIX + userId + ":";
         try {
             // 当前连续天数
-            kvEngine.put(prefix + STAT_SIGN_IN_STREAK, String.valueOf(streak));
+            kvEngine.put(prefix + AchievementContextConstants.STAT_SIGN_IN_STREAK, String.valueOf(streak));
             // 累计积分
-            kvEngine.put(prefix + STAT_SIGN_IN_TOTAL_POINTS, String.valueOf(totalPoints));
+            kvEngine.put(prefix + AchievementContextConstants.STAT_SIGN_IN_TOTAL_POINTS, String.valueOf(totalPoints));
 
             // 历史最高连续天数：仅当当前连续大于历史值时更新
-            String maxStreakVal = kvEngine.get(prefix + STAT_SIGN_IN_MAX_STREAK);
+            String maxStreakVal = kvEngine.get(prefix + AchievementContextConstants.STAT_SIGN_IN_MAX_STREAK);
             int maxStreak = 0;
             if (maxStreakVal != null) {
                 try {
@@ -333,7 +309,7 @@ public class SignInService {
                 }
             }
             if (streak > maxStreak) {
-                kvEngine.put(prefix + STAT_SIGN_IN_MAX_STREAK, String.valueOf(streak));
+                kvEngine.put(prefix + AchievementContextConstants.STAT_SIGN_IN_MAX_STREAK, String.valueOf(streak));
             }
         } catch (Exception e) {
             log.warn("写入签到成就上下文数据失败，不影响签到流程: {}", e.getMessage());

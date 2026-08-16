@@ -21,6 +21,7 @@ import com.chua.starter.monitor.pojo.acme.AcmeCertificateDetailVo;
 import com.chua.starter.monitor.pojo.acme.CertStats;
 import com.chua.starter.monitor.properties.AcmeProperties;
 import com.chua.starter.monitor.service.acme.AcmeCertificateAsyncService;
+import com.chua.starter.monitor.service.acme.support.AcmeCertificateSupport;
 import com.chua.starter.monitor.service.acme.AcmeCertificateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,30 +31,113 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * ACME 证书服务实现
+ * ACME 证书服务实现，提供账户保存、证书申请（异步）、续签、吊销、详情、统计、
+ * 到期自动续签与重新验证等完整的证书生命周期管理能力。
  *
- * 作者: CH
- * 创建时间: 2025-10-17
- * 版本: 1.0.0
+ * @author CH
+ * @version 1.0.0
+ * @since 2025-10-17
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AcmeCertificateServiceImpl implements AcmeCertificateService {
 
-    private final MonitorAcmeAccountMapper accountMapper;
-    private final MonitorAcmeCertificateMapper certificateMapper;
-    private final MonitorAcmeOrderMapper orderMapper;
-    private final AcmeProperties acmeProperties;
-    private final AuthService authService;
-    private final AcmeCertificateAsyncService asyncService;
+    /**
+     * ACME 服务提供者 SPI 扩展名
+     */
+    private static final String ACME_PROVIDER = "acme4j";
 
+    /**
+     * 挑战类型：HTTP-01
+     */
+    private static final String CHALLENGE_HTTP_01 = "HTTP-01";
+
+    /**
+     * 部署模式：手动
+     */
+    private static final String DEPLOY_MODE_MANUAL = "manual";
+
+    /**
+     * 证书状态：已提交待签发
+     */
+    private static final String STATUS_PENDING = "pending";
+
+    /**
+     * 证书状态：待验证
+     */
+    private static final String STATUS_VALIDATING = "validating";
+
+    /**
+     * 证书状态：已签发
+     */
+    private static final String STATUS_VALID = "valid";
+
+    /**
+     * 证书状态：已吊销
+     */
+    private static final String STATUS_REVOKED = "revoked";
+
+    /**
+     * 证书状态：签发失败
+     */
+    private static final String STATUS_FAILED = "failed";
+
+    /**
+     * 证书状态：已过期
+     */
+    private static final String STATUS_EXPIRED = "expired";
+
+    /**
+     * 自动续签窗口下限天数，防止配置值过小导致高频无效续签
+     */
+    private static final int MIN_RENEW_DAYS = 7;
+
+    /**
+     * 即将到期判定窗口天数
+     */
+    private static final int SOON_EXPIRING_DAYS = 30;
+
+    /**
+     * 时间格式化器，与证书表时间字段格式保持一致
+     */
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    /**
+     * ACME 账户 Mapper，用于账户查询与持久化
+     */
+    private final MonitorAcmeAccountMapper accountMapper;
+
+    /**
+     * ACME 证书 Mapper，用于证书查询与持久化
+     */
+    private final MonitorAcmeCertificateMapper certificateMapper;
+
+    /**
+     * ACME 订单 Mapper，用于订单查询与持久化
+     */
+    private final MonitorAcmeOrderMapper orderMapper;
+
+    /**
+     * ACME 配置，读取续签提前天数等参数
+     */
+    private final AcmeProperties acmeProperties;
+
+    /**
+     * 认证服务，用于获取当前登录用户信息以便消息推送
+     */
+    private final AuthService authService;
+
+    /**
+     * 异步证书服务，负责后台执行证书申请与重新验证
+     */
+    private final AcmeCertificateAsyncService asyncService;
 
     /**
      * 保存/更新 ACME 账户 ForCert
@@ -99,16 +183,16 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
 
         List<String> sans = request.getSanDomains() == null ? List.of() : request.getSanDomains();
         String sanStr = String.join(",", sans.stream().filter(StringUtils::isNotEmpty).toList());
-        String challenge = StringUtils.defaultString(request.getChallengeType(), "HTTP-01");
+        String challenge = StringUtils.defaultString(request.getChallengeType(), CHALLENGE_HTTP_01);
 
         // 新建证书记录（pending）
-        String deployMode = StringUtils.defaultString(request.getDeployMode(), "manual");
+        String deployMode = StringUtils.defaultString(request.getDeployMode(), DEPLOY_MODE_MANUAL);
         MonitorAcmeCertificate cert = new MonitorAcmeCertificate();
         cert.setAcmeAccountId(request.getAcmeAccountId());
         cert.setAcmeCertPrimaryDomain(request.getPrimaryDomain());
         cert.setAcmeCertSan(sanStr);
         cert.setAcmeCertChallengeType(challenge);
-        cert.setAcmeCertStatus("pending");
+        cert.setAcmeCertStatus(STATUS_PENDING);
         cert.setAcmeCertDeployMode(deployMode);
         cert.setAcmeCertWebrootPath(request.getWebrootPath());
         certificateMapper.insert(cert);
@@ -153,7 +237,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         log.info("[ACME] 续签证书: id={}, domain={}", certId, cert.getAcmeCertPrimaryDomain());
 
         // 通过 SPI 获取 ACME 提供者
-        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class).getNewExtension("acme4j");
+        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class).getNewExtension(ACME_PROVIDER);
         if (provider == null) {
             return ReturnResult.illegal("ACME 服务提供者不可用");
         }
@@ -172,7 +256,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         }
 
         // 续签证书
-        List<String> domains = buildDomains(cert);
+        List<String> domains = AcmeCertificateSupport.buildDomains(cert);
         String challenge = cert.getAcmeCertChallengeType();
         try {
             AcmeCertificateResult certResult = provider.renewCertificate(domains, challenge);
@@ -188,7 +272,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
             }
         } catch (Exception e) {
             log.error("[ACME] 续签失败: id={}", certId, e);
-            cert.setAcmeCertLastError(shortMsg(e));
+            cert.setAcmeCertLastError(AcmeCertificateSupport.shortMsg(e));
             certificateMapper.updateById(cert);
             return ReturnResult.illegal("续签失败: " + e.getMessage());
         } finally {
@@ -216,7 +300,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         log.warn("[ACME] 吊销证书: id={}, domain={}", certId, cert.getAcmeCertPrimaryDomain());
 
         // 通过 SPI 获取 ACME 提供者
-        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class).getNewExtension("acme4j");
+        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class).getNewExtension(ACME_PROVIDER);
         if (provider == null) {
             return ReturnResult.illegal("ACME 服务提供者不可用");
         }
@@ -235,7 +319,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         try {
             boolean revoked = provider.revokeCertificate(cert.getAcmeCertChainPem());
             if (revoked) {
-                cert.setAcmeCertStatus("revoked");
+                cert.setAcmeCertStatus(STATUS_REVOKED);
                 certificateMapper.updateById(cert);
                 log.info("[ACME] 证书吊销成功: id={}", certId);
                 return ReturnResult.ok(true);
@@ -278,7 +362,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         vo.setOrders(orders);
 
         // 生成curl自检命令（仅对待验证状态且HTTP-01挑战类型）
-        if ("validating".equals(cert.getAcmeCertStatus()) && "HTTP-01".equals(cert.getAcmeCertChallengeType())) {
+        if (STATUS_VALIDATING.equals(cert.getAcmeCertStatus()) && CHALLENGE_HTTP_01.equals(cert.getAcmeCertChallengeType())) {
             List<String> curlCommands = new ArrayList<>();
             if (!orders.isEmpty()) {
                 MonitorAcmeOrder latestOrder = orders.get(0);
@@ -309,9 +393,9 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         if (StringUtils.isNotEmpty(cert.getAcmeCertNotAfter())) {
             try {
                 LocalDateTime notAfter = LocalDateTime.parse(cert.getAcmeCertNotAfter(), DATE);
-                long days = java.time.temporal.ChronoUnit.DAYS.between(LocalDateTime.now(), notAfter);
+                long days = ChronoUnit.DAYS.between(LocalDateTime.now(), notAfter);
                 vo.setDaysUntilExpiry(days);
-                vo.setSoonExpiring(days <= 30 && days >= 0);
+                vo.setSoonExpiring(days <= SOON_EXPIRING_DAYS && days >= 0);
             } catch (Exception e) {
                 log.warn("[ACME] 解析证书到期时间失败: certId={}, notAfter={}", certId, cert.getAcmeCertNotAfter());
             }
@@ -319,22 +403,22 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
 
         // 设置当前步骤信息（用于前端展示申请流程）
         String status = cert.getAcmeCertStatus();
-        if ("pending".equals(status)) {
+        if (STATUS_PENDING.equals(status)) {
             vo.setCurrentStep(1);
             vo.setStepDescription("第1步: 提交申请 - 正在连接 ACME 服务器...");
-        } else if ("validating".equals(status)) {
+        } else if (STATUS_VALIDATING.equals(status)) {
             vo.setCurrentStep(2);
             vo.setStepDescription("第2步: 等待验证 - 请部署验证文件后点击重新验证");
-        } else if ("valid".equals(status)) {
+        } else if (STATUS_VALID.equals(status)) {
             vo.setCurrentStep(3);
             vo.setStepDescription("第3步: 签发完成 - 证书已成功签发");
-        } else if ("failed".equals(status)) {
+        } else if (STATUS_FAILED.equals(status)) {
             vo.setCurrentStep(3);
             vo.setStepDescription("第3步: 签发失败 - " + StringUtils.defaultString(cert.getAcmeCertLastError(), "未知错误"));
-        } else if ("revoked".equals(status)) {
+        } else if (STATUS_REVOKED.equals(status)) {
             vo.setCurrentStep(3);
             vo.setStepDescription("第3步: 证书已吐销");
-        } else if ("expired".equals(status)) {
+        } else if (STATUS_EXPIRED.equals(status)) {
             vo.setCurrentStep(3);
             vo.setStepDescription("第3步: 证书已过期");
         }
@@ -359,25 +443,25 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
 
         // 按状态统计
         stats.setValidCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
-                .eq(MonitorAcmeCertificate::getAcmeCertStatus, "valid")));
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_VALID)));
         stats.setPendingCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
-                .in(MonitorAcmeCertificate::getAcmeCertStatus, "pending", "validating")));
+                .in(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_PENDING, STATUS_VALIDATING)));
         stats.setRevokedCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
-                .eq(MonitorAcmeCertificate::getAcmeCertStatus, "revoked")));
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_REVOKED)));
         stats.setFailedCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
-                .eq(MonitorAcmeCertificate::getAcmeCertStatus, "failed")));
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_FAILED)));
 
         // 统计即将到期和已过期的证书
         String now = LocalDateTime.now().format(DATE);
-        String soon = LocalDateTime.now().plusDays(30).format(DATE);
+        String soon = LocalDateTime.now().plusDays(SOON_EXPIRING_DAYS).format(DATE);
 
         stats.setExpiringCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
-                .eq(MonitorAcmeCertificate::getAcmeCertStatus, "valid")
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_VALID)
                 .ge(MonitorAcmeCertificate::getAcmeCertNotAfter, now)
                 .le(MonitorAcmeCertificate::getAcmeCertNotAfter, soon)));
 
         stats.setExpiredCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
-                .eq(MonitorAcmeCertificate::getAcmeCertStatus, "valid")
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_VALID)
                 .lt(MonitorAcmeCertificate::getAcmeCertNotAfter, now)));
 
         return ReturnResult.ok(stats);
@@ -389,10 +473,10 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void checkAndRenewSoonExpired() {
-        int days = Math.max(acmeProperties.getRenewDaysBefore(), 7);
+        int days = Math.max(acmeProperties.getRenewDaysBefore(), MIN_RENEW_DAYS);
         String deadline = LocalDate.now().plusDays(days).atStartOfDay().format(DATE);
         List<MonitorAcmeCertificate> list = certificateMapper.selectList(new LambdaQueryWrapper<MonitorAcmeCertificate>()
-                .eq(MonitorAcmeCertificate::getAcmeCertStatus, "valid")
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_VALID)
                 .le(MonitorAcmeCertificate::getAcmeCertNotAfter, deadline)
         );
         for (MonitorAcmeCertificate it : list) {
@@ -417,7 +501,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         if (cert == null) {
             return ReturnResult.illegal("证书不存在: " + certId);
         }
-        if (!"validating".equals(cert.getAcmeCertStatus())) {
+        if (!STATUS_VALIDATING.equals(cert.getAcmeCertStatus())) {
             return ReturnResult.illegal("证书状态不是待验证，无法重新验证");
         }
 
@@ -437,27 +521,6 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         return ReturnResult.ok(true, "重新验证已提交，请在消息中心查看进度");
     }
 
-    // ======================== 内部工具方法 ========================
-
-    /**
-     * 构建域名列表（主域名 + SAN）
-     *
-     * @param cert 证书实体
-     * @return 域名列表
-     */
-    private List<String> buildDomains(MonitorAcmeCertificate cert) {
-        List<String> domains = new ArrayList<>();
-        domains.add(cert.getAcmeCertPrimaryDomain());
-        if (StringUtils.isNotEmpty(cert.getAcmeCertSan())) {
-            for (String s : cert.getAcmeCertSan().split(",")) {
-                if (StringUtils.isNotEmpty(s)) {
-                    domains.add(s.trim());
-                }
-            }
-        }
-        return domains;
-    }
-
     /**
      * 成功签发/续签后回填证书信息到实体
      *
@@ -465,32 +528,6 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
      * @param src    证书申请结果
      */
     private void fillCertificateSuccess(MonitorAcmeCertificate target, AcmeCertificateResult src) {
-        target.setAcmeCertStatus("valid");
-        if (src.getNotBefore() != null) {
-            target.setAcmeCertNotBefore(src.getNotBefore().format(DATE));
-        }
-        if (src.getNotAfter() != null) {
-            target.setAcmeCertNotAfter(src.getNotAfter().format(DATE));
-            // 计划续签日期：到期前 N 天
-            LocalDateTime renewAt = src.getNotAfter().minusDays(Math.max(acmeProperties.getRenewDaysBefore(), 7));
-            target.setAcmeCertRenewAt(renewAt.format(DATE));
-        }
-        target.setAcmeCertChainPem(src.getCertificatePem());
-        target.setAcmeCertKeyPem(src.getPrivateKeyPem());
-        target.setAcmeCertLastError(null);
-    }
-
-    /**
-     * 提取简短异常信息
-     *
-     * @param e 异常
-     * @return 简短信息
-     */
-    private String shortMsg(Exception e) {
-        String msg = e.getMessage();
-        if (msg == null) {
-            return "";
-        }
-        return msg.length() > 512 ? msg.substring(0, 512) : msg;
+        AcmeCertificateSupport.fillCertificateSuccess(target, src, acmeProperties.getRenewDaysBefore());
     }
 }

@@ -41,6 +41,11 @@ import java.util.Map;
 public class MonitorServerController {
 
     /**
+     * 服务器状态：启用
+     */
+    private static final int STATUS_ENABLED = 1;
+
+    /**
      * 服务器主机服务
      */
     private final MonitorServerService serverService;
@@ -116,7 +121,7 @@ public class MonitorServerController {
     @Operation(summary = "保存服务器")
     public ReturnResult<MonitorServer> save(@RequestBody MonitorServer server) {
         if (server.getServerStatus() == null) {
-            server.setServerStatus(1);
+            server.setServerStatus(STATUS_ENABLED);
         }
         serverService.save(server);
         return ReturnResult.ok(server);

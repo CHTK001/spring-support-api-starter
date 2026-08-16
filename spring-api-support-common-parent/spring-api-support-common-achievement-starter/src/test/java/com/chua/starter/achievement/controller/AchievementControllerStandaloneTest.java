@@ -40,11 +40,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 class AchievementControllerStandaloneTest {
 
+    /**
+     * 成就业务服务模拟
+     */
     private AchievementService achievementService;
+
+    /**
+     * 成就段位定义 Mapper 模拟
+     */
     private AchievementTierMapper tierMapper;
+
+    /**
+     * 用户成就记录 Mapper 模拟
+     */
     private UserAchievementMapper userAchievementMapper;
+
+    /**
+     * MockMvc 实例
+     */
     private MockMvc mockMvc;
 
+    /**
+     * 测试前初始化：构建控制器及其模拟依赖。
+     */
     @BeforeEach
     void setUp() {
         achievementService = mock(AchievementService.class);
@@ -58,6 +76,9 @@ class AchievementControllerStandaloneTest {
 
     // ==================== Admin CRUD ====================
 
+    /**
+     * 测试：分页查询段位定义，校验分页结构与记录内容。
+     */
     @Test
     void shouldPageTiers() throws Exception {
         Page<AchievementTier> page = new Page<>(1, 10, 1);
@@ -71,6 +92,9 @@ class AchievementControllerStandaloneTest {
                 .andExpect(jsonPath("$.data.records[0].name").value("首次登录"));
     }
 
+    /**
+     * 测试：按分组标识过滤分页查询段位定义。
+     */
     @Test
     void shouldPageTiers_withTypeFilter() throws Exception {
         Page<AchievementTier> page = new Page<>(1, 10, 0);
@@ -81,6 +105,9 @@ class AchievementControllerStandaloneTest {
                 .andExpect(jsonPath("$.data.total").value(0));
     }
 
+    /**
+     * 测试：新增段位定义，校验返回 true。
+     */
     @Test
     void shouldSaveTier() throws Exception {
         when(tierMapper.insert(any(AchievementTier.class))).thenReturn(1);
@@ -92,6 +119,9 @@ class AchievementControllerStandaloneTest {
                 .andExpect(jsonPath("$.data").value(true));
     }
 
+    /**
+     * 测试：更新段位定义，校验返回 true。
+     */
     @Test
     void shouldUpdateTier() throws Exception {
         when(tierMapper.updateById(any(AchievementTier.class))).thenReturn(1);
@@ -103,6 +133,9 @@ class AchievementControllerStandaloneTest {
                 .andExpect(jsonPath("$.data").value(true));
     }
 
+    /**
+     * 测试：删除段位定义，校验返回 true。
+     */
     @Test
     void shouldDeleteTier() throws Exception {
         when(tierMapper.deleteById(anyLong())).thenReturn(1);
@@ -112,6 +145,9 @@ class AchievementControllerStandaloneTest {
                 .andExpect(jsonPath("$.data").value(true));
     }
 
+    /**
+     * 测试：查询分组列表，校验去重结果。
+     */
     @Test
     void shouldListTypes() throws Exception {
         when(tierMapper.selectList(null)).thenReturn(List.of(
@@ -127,6 +163,9 @@ class AchievementControllerStandaloneTest {
                 .andExpect(jsonPath("$.data[1]").value("sign"));
     }
 
+    /**
+     * 测试：分页查询用户成就记录，校验记录内容。
+     */
     @Test
     void shouldPageRecords() throws Exception {
         Page<UserAchievement> page = new Page<>(1, 10, 1);
@@ -146,6 +185,9 @@ class AchievementControllerStandaloneTest {
 
     // ==================== User side ====================
 
+    /**
+     * 测试：查询用户已解锁成就列表。
+     */
     @Test
     void shouldGetMyAchievements() throws Exception {
         UnlockedAchievementDTO dto = new UnlockedAchievementDTO();
@@ -160,6 +202,9 @@ class AchievementControllerStandaloneTest {
                 .andExpect(jsonPath("$.data[0].type").value("login"));
     }
 
+    /**
+     * 测试：上报统计值接口，校验返回的解锁成就。
+     */
     @Test
     void shouldReportStats() throws Exception {
         UnlockedAchievementDTO dto = new UnlockedAchievementDTO();
@@ -176,6 +221,9 @@ class AchievementControllerStandaloneTest {
                 .andExpect(jsonPath("$.data[0].type").value("menu"));
     }
 
+    /**
+     * 测试：查询用户成就统计概览。
+     */
     @Test
     void shouldGetStats() throws Exception {
         UnlockedAchievementDTO dto = new UnlockedAchievementDTO();
@@ -191,6 +239,9 @@ class AchievementControllerStandaloneTest {
                 .andExpect(jsonPath("$.data.unlockedByType.login").value(1));
     }
 
+    /**
+     * 测试：无解锁成就时查询统计概览，校验为空。
+     */
     @Test
     void shouldGetStats_empty() throws Exception {
         when(achievementService.getUnlocked(anyLong())).thenReturn(List.of());
@@ -200,6 +251,9 @@ class AchievementControllerStandaloneTest {
                 .andExpect(jsonPath("$.data.totalUnlocked").value(0));
     }
 
+    /**
+     * 测试：查询指定分组的段位定义列表。
+     */
     @Test
     void shouldGetTierList() throws Exception {
         when(achievementService.getTierListByType(anyString())).thenReturn(List.of(createTier("login", 1, "首次登录")));
@@ -209,6 +263,9 @@ class AchievementControllerStandaloneTest {
                 .andExpect(jsonPath("$.data[0].type").value("login"));
     }
 
+    /**
+     * 测试：查询用户未解锁段位列表。
+     */
     @Test
     void shouldGetUncompleted() throws Exception {
         when(achievementService.getUncompleted(anyLong(), anyString())).thenReturn(List.of(createTier("login", 2, "登录达人")));
@@ -220,6 +277,14 @@ class AchievementControllerStandaloneTest {
 
     // ==================== helpers ====================
 
+    /**
+     * 构建测试用的段位定义对象。
+     *
+     * @param type  分组标识
+     * @param level 段位等级
+     * @param name  成就名称
+     * @return 段位定义对象
+     */
     private AchievementTier createTier(String type, int level, String name) {
         AchievementTier tier = new AchievementTier();
         tier.setId(Long.valueOf(level));
@@ -230,6 +295,14 @@ class AchievementControllerStandaloneTest {
         return tier;
     }
 
+    /**
+     * 构建测试用的段位 JSON 字符串。
+     *
+     * @param type  分组标识
+     * @param level 段位等级
+     * @param name  成就名称
+     * @return 段位 JSON 字符串
+     */
     private String getTierJson(String type, int level, String name) {
         return "{\"type\":\"" + type + "\",\"level\":" + level + ",\"name\":\"" + name + "\",\"status\":1}";
     }

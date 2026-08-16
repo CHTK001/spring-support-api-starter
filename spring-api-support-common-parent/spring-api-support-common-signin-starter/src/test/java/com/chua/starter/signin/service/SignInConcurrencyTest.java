@@ -23,9 +23,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * SignInService 并发测试
@@ -100,6 +109,9 @@ class SignInConcurrencyTest {
      */
     private static final int CONCURRENT_THREADS = 10;
 
+    /**
+     * 测试前初始化：构建签到服务并重置计数器。
+     */
     @BeforeEach
     void setUp() {
         signInService = new SignInService(recordMapper, pointsService, pushService, lockTemplate, eventPublisher, kvEngine);
@@ -285,10 +297,10 @@ class SignInConcurrencyTest {
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(1);
 
-        // 第一次调用获取锁成功，第二次失败
+        // 第一次调用获取锁成功，第二次调用失败
         when(lockTemplate.tryLock(anyString(), any(Duration.class), any(Duration.class), any(Runnable.class)))
-                .thenReturn(true)   // 第一次成功
-                .thenReturn(false); // 第二次失败
+                .thenReturn(true)
+                .thenReturn(false);
 
         // 第一次签到的流程
         when(recordMapper.selectByUserIdAndDate(TEST_USER_ID, today)).thenReturn(null);

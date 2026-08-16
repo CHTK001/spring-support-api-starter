@@ -31,6 +31,12 @@ public class SchedulerJobPlatformProperties {
      */
     private Console console = new Console();
 
+    /**
+     * 控制台访问配置类。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     @Data
     public static class Console {
 

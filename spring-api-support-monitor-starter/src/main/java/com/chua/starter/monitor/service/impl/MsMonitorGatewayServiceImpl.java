@@ -21,6 +21,12 @@ import java.util.List;
 public class MsMonitorGatewayServiceImpl extends ServiceImpl<MsMonitorGatewayMapper, MsMonitorGateway>
         implements MsMonitorGatewayService {
 
+    /**
+     * 根据监控资产ID查询关联的网关列表。
+     *
+     * @param monitorId 监控资产ID
+     * @return 网关列表
+     */
     @Override
     public List<MsMonitorGateway> listByMonitorId(Long monitorId) {
         return list(Wrappers.<MsMonitorGateway>lambdaQuery()

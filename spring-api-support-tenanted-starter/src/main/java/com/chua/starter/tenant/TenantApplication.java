@@ -54,6 +54,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 )
 public class TenantApplication extends SpringBootServletInitializer {
 
+    /**
+     * 应用启动入口。
+     *
+     * @param args 启动参数
+     */
     public static void main(String[] args) {
         SpringApplication app = new SpringApplicationBuilder()
                 .sources(TenantApplication.class)
@@ -62,6 +67,12 @@ public class TenantApplication extends SpringBootServletInitializer {
         app.run(args);
     }
 
+    /**
+     * 配置 Servlet 容器。
+     *
+     * @param builder Spring 应用构建器
+     * @return 配置后的构建器
+     */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(TenantApplication.class);

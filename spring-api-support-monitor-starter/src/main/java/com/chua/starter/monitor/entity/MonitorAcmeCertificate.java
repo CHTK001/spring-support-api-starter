@@ -12,11 +12,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * ACME 证书信息
+ * ACME 证书信息，保存证书主域名、SAN、挑战类型、状态、有效期、PEM 内容及部署模式等。
  *
- * 作者: CH
- * 创建时间: 2025-10-17
- * 版本: 1.0.0
+ * @author CH
+ * @since 2025-10-17
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -110,7 +109,59 @@ public class MonitorAcmeCertificate extends SysBase {
     private String acmeCertWebrootPath;
 
     /**
-     * 状态样式类型（前端 Tag 组件使用）
+     * 证书状态：待验证
+     */
+    private static final String STATUS_PENDING = "pending";
+
+    /**
+     * 证书状态：校验中
+     */
+    private static final String STATUS_VALIDATING = "validating";
+
+    /**
+     * 证书状态：已签发
+     */
+    private static final String STATUS_VALID = "valid";
+
+    /**
+     * 证书状态：已过期
+     */
+    private static final String STATUS_EXPIRED = "expired";
+
+    /**
+     * 证书状态：签发失败
+     */
+    private static final String STATUS_FAILED = "failed";
+
+    /**
+     * 证书状态：已吊销
+     */
+    private static final String STATUS_REVOKED = "revoked";
+
+    /**
+     * 前端标签样式：警告（黄色）
+     */
+    private static final String TYPE_WARNING = "warning";
+
+    /**
+     * 前端标签样式：成功（绿色）
+     */
+    private static final String TYPE_SUCCESS = "success";
+
+    /**
+     * 前端标签样式：危险（红色）
+     */
+    private static final String TYPE_DANGER = "danger";
+
+    /**
+     * 前端标签样式：信息（灰色）
+     */
+    private static final String TYPE_INFO = "info";
+
+    /**
+     * 状态样式类型（前端 Tag 组件使用）。
+     *
+     * @return 状态对应的标签样式类型，无匹配时返回空字符串
      */
     @ApiModelProperty("状态样式类型")
     @Schema(description = "状态样式类型: success/warning/danger/info")
@@ -119,10 +170,10 @@ public class MonitorAcmeCertificate extends SysBase {
             return "";
         }
         return switch (acmeCertStatus) {
-            case "pending", "validating" -> "warning";  // 待检验/检验中 - 黄色
-            case "valid" -> "success";                  // 有效 - 绿色
-            case "expired", "failed" -> "danger";       // 过期/失败 - 红色
-            case "revoked" -> "info";                   // 吐销 - 灰色
+            case STATUS_PENDING, STATUS_VALIDATING -> TYPE_WARNING;
+            case STATUS_VALID -> TYPE_SUCCESS;
+            case STATUS_EXPIRED, STATUS_FAILED -> TYPE_DANGER;
+            case STATUS_REVOKED -> TYPE_INFO;
             default -> "";
         };
     }

@@ -44,43 +44,97 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class SystemAdminController {
 
+    /**
+     * 系统服务配置属性
+     */
     private final SystemProperties systemProperties;
+
+    /**
+     * 日志系统
+     */
     private final LoggingSystem loggingSystem;
 
+    /**
+     * 调试模式开关状态
+     */
     private static volatile boolean debugMode = false;
+
+    /**
+     * 服务启动时间
+     */
     private static final LocalDateTime START_TIME = LocalDateTime.now();
+
+    /**
+     * 系统默认日志包名
+     */
+    private static final String SYSTEM_LOG_PACKAGE = "com.chua.starter.system";
+
+    /**
+     * 调试模式提示信息
+     */
+    private static final String MSG_DEBUG_ENABLED = "调试模式已启用";
+
+    /**
+     * 关闭调试模式提示信息
+     */
+    private static final String MSG_DEBUG_DISABLED = "调试模式已关闭";
+
+    /**
+     * 敏感信息掩码
+     */
+    private static final String SENSITIVE_MASK = "***";
 
     // ==================== 调试模式 ====================
 
+    /**
+     * 获取调试模式状态。
+     *
+     * @return 调试模式状态信息
+     */
     @GetMapping("/debug/status")
     @Operation(summary = "获取调试模式状态")
     public ReturnResult<Map<String, Object>> getDebugStatus() {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("debugMode", debugMode);
-        result.put("systemLogLevel", getLogLevel("com.chua.starter.system"));
+        result.put("systemLogLevel", getLogLevel(SYSTEM_LOG_PACKAGE));
         return ReturnResult.ok(result);
     }
 
+    /**
+     * 启用调试模式。
+     *
+     * @return 启用成功提示
+     */
     @PostMapping("/debug/enable")
     @Operation(summary = "启用调试模式")
     public ReturnResult<String> enableDebug() {
         debugMode = true;
-        setLogLevel("com.chua.starter.system", LogLevel.DEBUG);
+        setLogLevel(SYSTEM_LOG_PACKAGE, LogLevel.DEBUG);
         log.info("系统管理: 调试模式已启用");
-        return ReturnResult.ok("调试模式已启用");
+        return ReturnResult.ok(MSG_DEBUG_ENABLED);
     }
 
+    /**
+     * 关闭调试模式。
+     *
+     * @return 关闭成功提示
+     */
     @PostMapping("/debug/disable")
     @Operation(summary = "关闭调试模式")
     public ReturnResult<String> disableDebug() {
         debugMode = false;
-        setLogLevel("com.chua.starter.system", LogLevel.INFO);
+        setLogLevel(SYSTEM_LOG_PACKAGE, LogLevel.INFO);
         log.info("系统管理: 调试模式已关闭");
-        return ReturnResult.ok("调试模式已关闭");
+        return ReturnResult.ok(MSG_DEBUG_DISABLED);
     }
 
     // ==================== 服务器状态 ====================
 
+    /**
+     * 获取服务器运行状态。
+     *
+     * @return 服务器状态信息
+     */
     @GetMapping("/status")
     @Operation(summary = "获取服务器状态")
     public ReturnResult<Map<String, Object>> getServerStatus() {
@@ -97,6 +151,11 @@ public class SystemAdminController {
 
     // ==================== 系统信息 ====================
 
+    /**
+     * 获取系统信息 (版本/启动时间/Java 运行时)。
+     *
+     * @return 系统信息
+     */
     @GetMapping("/info")
     @Operation(summary = "获取系统信息(版本/启动时间/Java 运行时)")
     public ReturnResult<Map<String, Object>> getSystemInfo() {
@@ -118,6 +177,11 @@ public class SystemAdminController {
 
     // ==================== JVM 指标 ====================
 
+    /**
+     * 获取 JVM 运行时指标 (堆/非堆/线程/CPU)。
+     *
+     * @return JVM 指标信息
+     */
     @GetMapping("/metrics/jvm")
     @Operation(summary = "获取 JVM 运行时指标(堆/非堆/线程/CPU)")
     public ReturnResult<Map<String, Object>> getJvmMetrics() {
@@ -155,6 +219,12 @@ public class SystemAdminController {
 
     // ==================== 系统属性 ====================
 
+    /**
+     * 获取系统属性, 支持按前缀过滤并掩码敏感字段。
+     *
+     * @param prefix 属性前缀, 逗号分隔
+     * @return 过滤后的系统属性
+     */
     @GetMapping("/properties")
     @Operation(summary = "获取系统属性(过滤敏感字段)")
     public ReturnResult<Map<String, String>> getSystemProperties(
@@ -174,6 +244,13 @@ public class SystemAdminController {
         return ReturnResult.ok(filtered);
     }
 
+    /**
+     * 对敏感属性值进行掩码处理。
+     *
+     * @param key   属性名
+     * @param value 属性值
+     * @return 掩码后的属性值, 敏感字段返回 "***"
+     */
     private static String maskIfSensitive(String key, String value) {
         if (value == null) {
             return null;
@@ -181,13 +258,18 @@ public class SystemAdminController {
         String lower = key.toLowerCase();
         if (lower.contains("password") || lower.contains("secret") || lower.contains("token")
                 || lower.contains("credential") || lower.contains("key")) {
-            return "***";
+            return SENSITIVE_MASK;
         }
         return value;
     }
 
     // ==================== GC 触发 ====================
 
+    /**
+     * 建议 JVM 进行垃圾回收, 并返回回收前后堆内存变化。
+     *
+     * @return GC 前后堆内存信息
+     */
     @PostMapping("/gc")
     @Operation(summary = "建议 JVM 进行 GC")
     public ReturnResult<Map<String, Object>> suggestGc() {
@@ -204,6 +286,13 @@ public class SystemAdminController {
 
     // ==================== 临时文件清理 ====================
 
+    /**
+     * 清理临时文件目录中超过指定天数的文件。
+     *
+     * @param path          临时文件目录, 为空时使用系统临时目录
+     * @param olderThanDays 超过的天数
+     * @return 清理结果信息
+     */
     @PostMapping("/temp/clear")
     @Operation(summary = "清理临时文件目录(默认 java.io.tmpdir)")
     public ReturnResult<Map<String, Object>> clearTemp(
@@ -237,6 +326,13 @@ public class SystemAdminController {
 
     // ==================== 日志级别 ====================
 
+    /**
+     * 动态设置日志级别。
+     *
+     * @param level  日志级别
+     * @param logger 目标日志
+     * @return 设置结果提示
+     */
     @PostMapping("/log/{level}")
     @Operation(summary = "动态设置日志级别(DEBUG/INFO/WARN/ERROR)")
     public ReturnResult<String> setLogLevelByPath(
@@ -253,6 +349,12 @@ public class SystemAdminController {
         return ReturnResult.ok("已设置 " + logger + " -> " + logLevel);
     }
 
+    /**
+     * 设置指定日志的日志级别。
+     *
+     * @param loggerName 日志名称
+     * @param level      日志级别
+     */
     private void setLogLevel(String loggerName, LogLevel level) {
         if (loggingSystem == null) {
             log.warn("LoggingSystem 未配置,无法调整日志级别");
@@ -265,6 +367,12 @@ public class SystemAdminController {
         }
     }
 
+    /**
+     * 获取指定日志的有效级别。
+     *
+     * @param loggerName 日志名称
+     * @return 日志级别名称, 不可用时返回 UNKNOWN 或 UNAVAILABLE
+     */
     private String getLogLevel(String loggerName) {
         if (loggingSystem == null) {
             return "UNAVAILABLE";

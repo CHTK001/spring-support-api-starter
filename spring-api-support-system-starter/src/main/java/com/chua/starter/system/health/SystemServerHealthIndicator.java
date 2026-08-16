@@ -34,8 +34,19 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SystemServerHealthIndicator implements HealthIndicator {
 
+    /**
+     * Redis 模板
+     */
     private final StringRedisTemplate stringRedisTemplate;
+
+    /**
+     * 数据源
+     */
     private final DataSource dataSource;
+
+    /**
+     * 系统服务配置属性
+     */
     private final SystemProperties systemProperties;
 
     /**
@@ -43,6 +54,36 @@ public class SystemServerHealthIndicator implements HealthIndicator {
      */
     private static final String HEALTH_CHECK_KEY = "system:health:check";
 
+    /**
+     * 健康检查明细项: Redis
+     */
+    private static final String KEY_REDIS = "redis";
+
+    /**
+     * 健康检查明细项: 数据库
+     */
+    private static final String KEY_DATABASE = "database";
+
+    /**
+     * 健康检查明细项: 服务配置
+     */
+    private static final String KEY_SERVICE = "service";
+
+    /**
+     * 运行状态
+     */
+    private static final String STATUS_UP = "UP";
+
+    /**
+     * 故障状态描述前缀
+     */
+    private static final String STATUS_DOWN_PREFIX = "DOWN - ";
+
+    /**
+     * 执行健康检查, 汇总 Redis / 数据库 / 服务配置状态。
+     *
+     * @return 健康检查结果
+     */
     @Override
     public Health health() {
         Map<String, Object> details = new HashMap<>();
@@ -53,7 +94,7 @@ public class SystemServerHealthIndicator implements HealthIndicator {
             checkRedisConnection(details);
         } catch (Exception e) {
             isHealthy = false;
-            details.put("redis", "DOWN - " + e.getMessage());
+            details.put(KEY_REDIS, STATUS_DOWN_PREFIX + e.getMessage());
             log.error("【健康检查】Redis连接异常: {}", e.getMessage());
         }
 
@@ -62,7 +103,7 @@ public class SystemServerHealthIndicator implements HealthIndicator {
             checkDatabaseConnection(details);
         } catch (Exception e) {
             isHealthy = false;
-            details.put("database", "DOWN - " + e.getMessage());
+            details.put(KEY_DATABASE, STATUS_DOWN_PREFIX + e.getMessage());
             log.error("【健康检查】数据库连接异常: {}", e.getMessage());
         }
 
@@ -96,7 +137,7 @@ public class SystemServerHealthIndicator implements HealthIndicator {
         
         if (testValue.equals(readValue)) {
             Map<String, Object> redisInfo = new HashMap<>();
-            redisInfo.put("status", "UP");
+            redisInfo.put("status", STATUS_UP);
             redisInfo.put("latency", latency + "ms");
             
             // 获取Redis连接信息
@@ -105,7 +146,7 @@ public class SystemServerHealthIndicator implements HealthIndicator {
                 redisInfo.put("connection", factory.getClass().getSimpleName());
             }
             
-            details.put("redis", redisInfo);
+            details.put(KEY_REDIS, redisInfo);
         } else {
             throw new RuntimeException("Redis读写测试失败");
         }
@@ -123,11 +164,11 @@ public class SystemServerHealthIndicator implements HealthIndicator {
             
             if (isValid) {
                 Map<String, Object> dbInfo = new HashMap<>();
-                dbInfo.put("status", "UP");
+                dbInfo.put("status", STATUS_UP);
                 dbInfo.put("latency", latency + "ms");
                 dbInfo.put("database", connection.getMetaData().getDatabaseProductName());
                 dbInfo.put("version", connection.getMetaData().getDatabaseProductVersion());
-                details.put("database", dbInfo);
+                details.put(KEY_DATABASE, dbInfo);
             } else {
                 throw new RuntimeException("数据库连接无效");
             }
@@ -146,7 +187,7 @@ public class SystemServerHealthIndicator implements HealthIndicator {
         serviceInfo.put("cacheExpire", systemProperties.getCache().getExpire() + "s");
         serviceInfo.put("logEnabled", systemProperties.getLog().isEnable());
         serviceInfo.put("logAsync", systemProperties.getLog().isAsync());
-        details.put("service", serviceInfo);
+        details.put(KEY_SERVICE, serviceInfo);
     }
 }
 

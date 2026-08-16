@@ -56,32 +56,67 @@ public interface AppIdValidator {
     }
 
     /**
-     * 验证结果
+ * 验证结果
+ */
+class ValidationResult {
+
+    /**
+     * 是否校验通过
      */
-    class ValidationResult {
-        private final boolean valid;
-        private final String message;
+    private final boolean valid;
 
-        private ValidationResult(boolean valid, String message) {
-            this.valid = valid;
-            this.message = message;
-        }
+    /**
+     * 失败原因消息
+     */
+    private final String message;
 
-        public static ValidationResult success() {
-            return new ValidationResult(true, null);
-        }
-
-        public static ValidationResult failure(String message) {
-            return new ValidationResult(false, message);
-        }
-
-        public boolean isValid() {
-            return valid;
-        }
-
-        public String getMessage() {
-            return message;
-        }
+    /**
+     * 私有构造器, 通过静态工厂方法创建实例。
+     *
+     * @param valid   是否校验通过
+     * @param message 失败原因消息
+     */
+    private ValidationResult(boolean valid, String message) {
+        this.valid = valid;
+        this.message = message;
     }
+
+    /**
+     * 创建成功结果。
+     *
+     * @return 成功结果
+     */
+    public static ValidationResult success() {
+        return new ValidationResult(true, null);
+    }
+
+    /**
+     * 创建失败结果。
+     *
+     * @param message 失败原因消息
+     * @return 失败结果
+     */
+    public static ValidationResult failure(String message) {
+        return new ValidationResult(false, message);
+    }
+
+    /**
+     * 是否校验通过。
+     *
+     * @return 校验通过返回 true
+     */
+    public boolean isValid() {
+        return valid;
+    }
+
+    /**
+     * 获取失败原因消息。
+     *
+     * @return 失败原因消息
+     */
+    public String getMessage() {
+        return message;
+    }
+}
 }
 

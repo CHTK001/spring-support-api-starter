@@ -48,6 +48,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * 系统用户服务实现类
+ *
  * @author CH
  * @since 2024/8/7
  */
@@ -69,6 +71,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     final SystemSecurityProperties securityProperties;
     private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
 
+    /**
+     * 分页查询系统用户信息。
+     *
+     * @param sysUserQuery 用户查询对象
+     * @param roles        用户角色集合
+     * @return 分页用户列表
+     */
     @Override
     public IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles) {
         IPage<SysUser> sysUserPage = baseMapper.selectPageUser(sysUserQuery.createPage(), sysUserQuery);
@@ -407,7 +416,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             writer.println("用户名,昵称,邮箱,手机号,性别,部门,角色,状态,备注");
             
             // 查询数据
-            query.setPageSize(securityProperties.getMaxExportCount()); // 限制最大导出数量
+            // 限制最大导出数量
+            query.setPageSize(securityProperties.getMaxExportCount());
             IPage<SysUserVO> page = pageForUser(query, roles);
             
             for (SysUserVO user : page.getRecords()) {

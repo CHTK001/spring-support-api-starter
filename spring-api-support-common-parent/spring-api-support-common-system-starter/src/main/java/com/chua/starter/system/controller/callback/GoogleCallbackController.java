@@ -45,6 +45,9 @@ import java.util.Map;
 
 /**
  * 第三方登录回调(Google)
+ *
+ * @author CH
+ * @since 2026/08/03
  */
 @Controller
 @Slf4j
@@ -54,16 +57,50 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GoogleCallbackController {
 
+    /**
+     * 第三方登录类型标识
+     */
     private static final String THIRD_PARTY_TYPE = "google";
+
+    /**
+     * 登录开关配置组编码
+     */
     private static final String SSO_GROUP = "sso";
+
+    /**
+     * 登录开关配置名
+     */
     private static final String SSO_NAME = "Google";
 
+    /**
+     * 登录回调服务（允许缺省）
+     */
     @Autowired(required = false)
     private SysLoginCallbackService sysLoginCallbackService;
+
+    /**
+     * 三方用户绑定服务
+     */
     final SysUserThirdPartyService sysUserThirdPartyService;
+
+    /**
+     * 登录服务
+     */
     final SysLoginService sysLoginService;
+
+    /**
+     * 系统设置服务
+     */
     final SysSettingService sysSettingService;
+
+    /**
+     * 认证客户端配置
+     */
     final AuthClientProperties authProperties;
+
+    /**
+     * 系统安全配置
+     */
     final SystemSecurityProperties securityProperties;
 
     @Ignore

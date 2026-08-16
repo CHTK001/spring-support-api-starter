@@ -20,22 +20,54 @@ import java.util.Map;
  * 为部门负责人补齐负责人范围缓存，避免 oauth-client 直接依赖业务模块。
  *
  * @author CH
+ * @since 2025/8/1
  */
 @Component
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class ManagedDeptAwareAuthServiceBeanPostProcessor implements BeanPostProcessor {
+    /**
+     * 鉴权服务 Bean 名称
+     */
     private static final String AUTH_SERVICE_BEAN_NAME = "authService";
+
+    /**
+     * 部门负责人角色编码
+     */
     private static final String DEPT_LEADER = "DEPT_LEADER";
+
+    /**
+     * 负责部门ID集合扩展键
+     */
     private static final String MANAGED_DEPT_IDS = "managedDeptIds";
+
+    /**
+     * 负责部门树ID集合扩展键
+     */
     private static final String MANAGED_DEPT_TREE_IDS = "managedDeptTreeIds";
 
+    /**
+     * 部门负责人关系服务提供者
+     */
     private final ObjectProvider<SysDeptPrincipalRelService> sysDeptPrincipalRelServiceProvider;
 
+    /**
+     * 构造后置处理器。
+     *
+     * @param sysDeptPrincipalRelServiceProvider 部门负责人关系服务提供者
+     */
     public ManagedDeptAwareAuthServiceBeanPostProcessor(
             ObjectProvider<SysDeptPrincipalRelService> sysDeptPrincipalRelServiceProvider) {
         this.sysDeptPrincipalRelServiceProvider = sysDeptPrincipalRelServiceProvider;
     }
 
+    /**
+     * Bean 初始化后将部门负责人范围补齐到当前用户。
+     *
+     * @param bean     Bean 实例
+     * @param beanName Bean 名称
+     * @return 可能被代理包装后的 Bean
+     * @throws BeansException Bean 生命周期异常
+     */
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (!(bean instanceof AuthService authService) || !AUTH_SERVICE_BEAN_NAME.equals(beanName)) {
@@ -44,6 +76,12 @@ public class ManagedDeptAwareAuthServiceBeanPostProcessor implements BeanPostPro
         return (AuthService) () -> enrichManagedDeptScope(authService.getCurrentUser());
     }
 
+    /**
+     * 为部门负责人补齐负责人范围缓存。
+     *
+     * @param currentUser 当前用户
+     * @return 补齐后的当前用户
+     */
     private CurrentUser enrichManagedDeptScope(CurrentUser currentUser) {
         if (currentUser == null
                 || currentUser.getRoles() == null
@@ -72,6 +110,12 @@ public class ManagedDeptAwareAuthServiceBeanPostProcessor implements BeanPostPro
         return currentUser;
     }
 
+    /**
+     * 判断用户扩展属性中是否已存在负责人范围。
+     *
+     * @param ext 用户扩展属性
+     * @return true 表示已存在
+     */
     private boolean hasManagedDeptScope(Map<String, Object> ext) {
         if (ext == null) {
             return false;
@@ -86,6 +130,12 @@ public class ManagedDeptAwareAuthServiceBeanPostProcessor implements BeanPostPro
         return managedDeptTreeIds != null;
     }
 
+    /**
+     * 将用户 ID 字符串解析为整数。
+     *
+     * @param userId 用户 ID
+     * @return 解析后的整数，解析失败时为 null
+     */
     private Integer parseUserId(String userId) {
         if (userId == null || userId.isBlank()) {
             return null;
@@ -97,6 +147,11 @@ public class ManagedDeptAwareAuthServiceBeanPostProcessor implements BeanPostPro
         }
     }
 
+    /**
+     * 将补齐的负责人范围同步到会话中的用户信息。
+     *
+     * @param ext 用户扩展属性
+     */
     private void syncSessionUserExt(Map<String, Object> ext) {
         UserResume userResume = AuthSessionUtils.getUserInfo(UserResume.class);
         if (userResume == null) {

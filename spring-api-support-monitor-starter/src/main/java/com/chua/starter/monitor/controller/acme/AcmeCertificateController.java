@@ -31,13 +31,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * ACME 证书管理接口
- * 提供证书申请、续签、吊销、下载等完整的证书生命周期管理功能
+ * ACME 证书管理接口，提供证书申请、续签、吊销、下载、重新验证等完整的证书生命周期管理功能。
  *
  * @author CH
  * @version 1.0.0
  * @since 2025-10-17
- * @since 2025-12-06 补充完整的 CRUD 和分页查询接口
  */
 @Slf4j
 @RestController
@@ -47,9 +45,59 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AcmeCertificateController {
 
+    /**
+     * 通配符域名前缀
+     */
+    private static final String WILDCARD_PREFIX = "*";
+
+    /**
+     * 通配符域名在文件名中的替换文案
+     */
+    private static final String WILDCARD_REPLACEMENT = "wildcard";
+
+    /**
+     * 文件类型：私钥
+     */
+    private static final String FILE_TYPE_KEY = "key";
+
+    /**
+     * 文件类型：证书链
+     */
+    private static final String FILE_TYPE_CHAIN = "chain";
+
+    /**
+     * 文件类型：证书（默认下载类型）
+     */
+    private static final String FILE_TYPE_CERT = "cert";
+
+    /**
+     * 证书下载响应的 Content-Type：二进制流
+     */
+    private static final String CONTENT_TYPE_OCTET_STREAM = "application/octet-stream";
+
+    /**
+     * 证书下载响应的 Content-Disposition 响应头名称
+     */
+    private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
+
+    /**
+     * ACME 证书服务接口，提供申请、续签、吊销、重新验证等能力
+     */
     private final AcmeCertificateService acmeCertificateService;
+
+    /**
+     * ACME 账户服务接口
+     */
     private final MonitorAcmeAccountService accountService;
+
+    /**
+     * ACME 证书服务接口
+     */
     private final MonitorAcmeCertificateService certificateService;
+
+    /**
+     * ACME 订单服务接口
+     */
     private final MonitorAcmeOrderService orderService;
 
     // ======================== 账户管理 ========================
@@ -224,7 +272,7 @@ public class AcmeCertificateController {
     @Operation(summary = "下载证书文件 ForCert")
     public void downloadCertForCert(
             @ApiParam("证书ID") @PathVariable Integer certId,
-            @ApiParam("文件类型: cert/key/chain") @RequestParam(defaultValue = "cert") String fileType,
+            @ApiParam("文件类型: cert/key/chain") @RequestParam(defaultValue = FILE_TYPE_CERT) String fileType,
             HttpServletResponse response) {
         MonitorAcmeCertificate cert = certificateService.getById(certId);
         if (cert == null) {
@@ -236,16 +284,17 @@ public class AcmeCertificateController {
             return;
         }
 
+        // 生成文件基础名：通配符域名替换为 wildcard，避免文件名非法字符
         String content;
         String fileName;
-        String domain = cert.getAcmeCertPrimaryDomain().replace("*", "wildcard");
+        String domain = cert.getAcmeCertPrimaryDomain().replace(WILDCARD_PREFIX, WILDCARD_REPLACEMENT);
 
         switch (fileType.toLowerCase()) {
-            case "key" -> {
+            case FILE_TYPE_KEY -> {
                 content = cert.getAcmeCertKeyPem();
                 fileName = domain + ".key";
             }
-            case "chain" -> {
+            case FILE_TYPE_CHAIN -> {
                 content = cert.getAcmeCertChainPem();
                 fileName = domain + "_chain.crt";
             }
@@ -265,8 +314,8 @@ public class AcmeCertificateController {
         }
 
         try {
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+            response.setContentType(CONTENT_TYPE_OCTET_STREAM);
+            response.setHeader(HEADER_CONTENT_DISPOSITION, "attachment; filename=" + fileName);
             response.getOutputStream().write(content.getBytes(StandardCharsets.UTF_8));
             response.getOutputStream().flush();
             log.info("[ACME] 下载证书成功: certId={}, fileType={}", certId, fileType);

@@ -21,6 +21,12 @@ import java.util.Map;
 
 /**
  * 控制台轻量登录接口。
+ *
+ * <p>提供控制台登录状态的查询、登录与退出能力,
+ * 账号密码校验通过后写入 Session。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 @RestController
 @Ignore
@@ -29,13 +35,29 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = "plugin.scheduler.job-platform", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class SchedulerJobConsoleAuthController {
 
+    /**
+     * 调度平台配置
+     */
     private final SchedulerJobPlatformProperties properties;
 
+    /**
+     * 查询当前登录状态。
+     *
+     * @param request HTTP 请求
+     * @return 登录状态信息
+     */
     @GetMapping("/status")
     public ReturnResult<Object> status(HttpServletRequest request) {
         return ReturnResult.ok(statusPayload(request));
     }
 
+    /**
+     * 控制台登录。
+     *
+     * @param loginRequest 登录请求
+     * @param request      HTTP 请求
+     * @return 登录状态信息
+     */
     @PostMapping("/login")
     public ReturnResult<Object> login(@RequestBody(required = false) ConsoleLoginRequest loginRequest,
                                       HttpServletRequest request) {
@@ -59,6 +81,12 @@ public class SchedulerJobConsoleAuthController {
         return ReturnResult.ok(statusPayload(request));
     }
 
+    /**
+     * 控制台退出登录。
+     *
+     * @param request HTTP 请求
+     * @return 退出提示
+     */
     @PostMapping("/logout")
     public ReturnResult<Object> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -69,6 +97,12 @@ public class SchedulerJobConsoleAuthController {
         return ReturnResult.ok("已退出登录");
     }
 
+    /**
+     * 组装登录状态信息。
+     *
+     * @param request HTTP 请求
+     * @return 登录状态 Map
+     */
     private Map<String, Object> statusPayload(HttpServletRequest request) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("authEnabled", properties.getConsole().isAuthEnabled());
@@ -78,6 +112,12 @@ public class SchedulerJobConsoleAuthController {
         return payload;
     }
 
+    /**
+     * 去除空白, 空白文本转换为 null。
+     *
+     * @param value 文本值
+     * @return 去除空白后的文本
+     */
     private String trimToNull(String value) {
         if (!StringUtils.hasText(value)) {
             return null;
@@ -85,9 +125,23 @@ public class SchedulerJobConsoleAuthController {
         return value.trim();
     }
 
+    /**
+     * 控制台登录请求。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     @Data
     public static class ConsoleLoginRequest {
+
+        /**
+         * 登录用户名
+         */
         private String username;
+
+        /**
+         * 登录密码
+         */
         private String password;
     }
 }

@@ -59,6 +59,26 @@ public class MonitorSysGenServerLayoutServiceImpl
     private static final String TYPE_COPIED = "copied";
 
     /**
+     * 布局类型：自定义
+     */
+    private static final String TYPE_CUSTOM = "custom";
+
+    /**
+     * 布局版本初始值
+     */
+    private static final int VERSION_INIT = 1;
+
+    /**
+     * 布局排序初始值
+     */
+    private static final int SORT_INIT = 0;
+
+    /**
+     * 默认布局节点层级
+     */
+    private static final int DEFAULT_NODE_Z_INDEX = 1;
+
+    /**
      * 默认标记：是默认布局
      */
     private static final int DEFAULT_YES = 1;
@@ -155,7 +175,7 @@ public class MonitorSysGenServerLayoutServiceImpl
         }
         // 每次更新版本号自动递增
         Integer version = exist.getMonitorSysGenServerLayoutVersion();
-        layout.setMonitorSysGenServerLayoutVersion(version == null ? 1 : version + 1);
+        layout.setMonitorSysGenServerLayoutVersion(version == null ? VERSION_INIT : version + 1);
         updateById(layout);
         return ReturnResult.ok(getById(layout.getMonitorSysGenServerLayoutId()));
     }
@@ -339,7 +359,7 @@ public class MonitorSysGenServerLayoutServiceImpl
             node.put("y", (index / NODES_PER_ROW) * DEFAULT_NODE_HEIGHT);
             node.put("w", DEFAULT_NODE_WIDTH);
             node.put("h", DEFAULT_NODE_HEIGHT);
-            node.put("zIndex", 1);
+            node.put("zIndex", DEFAULT_NODE_Z_INDEX);
             nodes.add(node);
         }
         MonitorSysGenServerLayout layout = new MonitorSysGenServerLayout();
@@ -385,13 +405,13 @@ public class MonitorSysGenServerLayoutServiceImpl
             layout.setMonitorSysGenServerLayoutStatus(STATUS_ENABLED);
         }
         if (layout.getMonitorSysGenServerLayoutVersion() == null) {
-            layout.setMonitorSysGenServerLayoutVersion(1);
+            layout.setMonitorSysGenServerLayoutVersion(VERSION_INIT);
         }
         if (layout.getMonitorSysGenServerLayoutSort() == null) {
-            layout.setMonitorSysGenServerLayoutSort(0);
+            layout.setMonitorSysGenServerLayoutSort(SORT_INIT);
         }
         if (StringUtils.isEmpty(layout.getMonitorSysGenServerLayoutType())) {
-            layout.setMonitorSysGenServerLayoutType("custom");
+            layout.setMonitorSysGenServerLayoutType(TYPE_CUSTOM);
         }
     }
 

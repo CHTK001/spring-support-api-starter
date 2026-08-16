@@ -32,8 +32,21 @@ import java.util.Map;
 @Tag(name = "调度平台任务中心")
 public class SchedulerJobPlatformController {
 
+    /**
+     * 调度平台任务服务
+     */
     private final SchedulerJobPlatformService schedulerJobPlatformService;
 
+    /**
+     * 分页查询任务。
+     *
+     * @param pageNum       页码
+     * @param pageSize      每页大小
+     * @param jobName       任务名模糊查询
+     * @param triggerStatus 启用状态
+     * @param group         任务分组
+     * @return 任务分页结果
+     */
     @GetMapping("/job/page")
     @Operation(summary = "分页查询任务")
     public ReturnResult<Object> pageJobs(@RequestParam(defaultValue = "1") int pageNum,
@@ -45,84 +58,171 @@ public class SchedulerJobPlatformController {
         return ReturnResult.ok(pagePayload(page));
     }
 
+    /**
+     * 查询任务详情。
+     *
+     * @param jobId 任务 ID
+     * @return 任务详情
+     */
     @GetMapping("/job/{jobId}")
     @Operation(summary = "查询任务详情")
     public ReturnResult<Object> getJob(@PathVariable Long jobId) {
         return ReturnResult.ok(schedulerJobPlatformService.getJob(jobId));
     }
 
+    /**
+     * 按任务编号查询任务详情。
+     *
+     * @param jobNo 任务编号
+     * @return 任务详情
+     */
     @GetMapping("/job/no/{jobNo}")
     @Operation(summary = "按任务编号查询任务详情")
     public ReturnResult<Object> getJobByNo(@PathVariable String jobNo) {
         return ReturnResult.ok(schedulerJobPlatformService.getJobByNo(jobNo));
     }
 
+    /**
+     * 创建任务。
+     *
+     * @param job 任务实体
+     * @return 创建后的任务
+     */
     @PostMapping("/job")
     @Operation(summary = "创建任务")
     public ReturnResult<Object> createJob(@RequestBody JobEntity job) {
         return ReturnResult.ok(schedulerJobPlatformService.createJob(job));
     }
 
+    /**
+     * 更新任务。
+     *
+     * @param jobId 任务 ID
+     * @param job   任务实体
+     * @return 是否更新成功
+     */
     @PutMapping("/job/{jobId}")
     @Operation(summary = "更新任务")
     public ReturnResult<Object> updateJob(@PathVariable Long jobId, @RequestBody JobEntity job) {
         return ReturnResult.ok(schedulerJobPlatformService.updateJob(jobId, job));
     }
 
+    /**
+     * 按任务编号更新任务。
+     *
+     * @param jobNo 任务编号
+     * @param job   任务实体
+     * @return 是否更新成功
+     */
     @PutMapping("/job/no/{jobNo}")
     @Operation(summary = "按任务编号更新任务")
     public ReturnResult<Object> updateJobByNo(@PathVariable String jobNo, @RequestBody JobEntity job) {
         return ReturnResult.ok(schedulerJobPlatformService.updateJobByNo(jobNo, job));
     }
 
+    /**
+     * 删除任务。
+     *
+     * @param jobId 任务 ID
+     * @return 是否删除成功
+     */
     @DeleteMapping("/job/{jobId}")
     @Operation(summary = "删除任务")
     public ReturnResult<Object> deleteJob(@PathVariable Long jobId) {
         return ReturnResult.ok(schedulerJobPlatformService.deleteJob(jobId));
     }
 
+    /**
+     * 按任务编号删除任务。
+     *
+     * @param jobNo 任务编号
+     * @return 是否删除成功
+     */
     @DeleteMapping("/job/no/{jobNo}")
     @Operation(summary = "按任务编号删除任务")
     public ReturnResult<Object> deleteJobByNo(@PathVariable String jobNo) {
         return ReturnResult.ok(schedulerJobPlatformService.deleteJobByNo(jobNo));
     }
 
+    /**
+     * 恢复已删除任务。
+     *
+     * @param jobId 任务 ID
+     * @return 是否恢复成功
+     */
     @PostMapping("/job/{jobId}/restore")
     @Operation(summary = "恢复已删除任务")
     public ReturnResult<Object> restoreJob(@PathVariable Long jobId) {
         return ReturnResult.ok(schedulerJobPlatformService.restoreJob(jobId));
     }
 
+    /**
+     * 按任务编号恢复已删除任务。
+     *
+     * @param jobNo 任务编号
+     * @return 是否恢复成功
+     */
     @PostMapping("/job/no/{jobNo}/restore")
     @Operation(summary = "按任务编号恢复已删除任务")
     public ReturnResult<Object> restoreJobByNo(@PathVariable String jobNo) {
         return ReturnResult.ok(schedulerJobPlatformService.restoreJobByNo(jobNo));
     }
 
+    /**
+     * 启动任务。
+     *
+     * @param jobId 任务 ID
+     * @return 是否启动成功
+     */
     @PostMapping("/job/{jobId}/start")
     @Operation(summary = "启动任务")
     public ReturnResult<Object> startJob(@PathVariable Long jobId) {
         return ReturnResult.ok(schedulerJobPlatformService.startJob(jobId));
     }
 
+    /**
+     * 按任务编号启动任务。
+     *
+     * @param jobNo 任务编号
+     * @return 是否启动成功
+     */
     @PostMapping("/job/no/{jobNo}/start")
     @Operation(summary = "按任务编号启动任务")
     public ReturnResult<Object> startJobByNo(@PathVariable String jobNo) {
         return ReturnResult.ok(schedulerJobPlatformService.startJobByNo(jobNo));
     }
 
+    /**
+     * 停止任务。
+     *
+     * @param jobId 任务 ID
+     * @return 是否停止成功
+     */
     @PostMapping("/job/{jobId}/stop")
     @Operation(summary = "停止任务")
     public ReturnResult<Object> stopJob(@PathVariable Long jobId) {
         return ReturnResult.ok(schedulerJobPlatformService.stopJob(jobId));
     }
 
+    /**
+     * 按任务编号停止任务。
+     *
+     * @param jobNo 任务编号
+     * @return 是否停止成功
+     */
     @PostMapping("/job/no/{jobNo}/stop")
     @Operation(summary = "按任务编号停止任务")
     public ReturnResult<Object> stopJobByNo(@PathVariable String jobNo) {
         return ReturnResult.ok(schedulerJobPlatformService.stopJobByNo(jobNo));
     }
 
+    /**
+     * 立即执行任务。
+     *
+     * @param jobId 任务 ID
+     * @param param 执行参数
+     * @return 是否触发成功
+     */
     @PostMapping("/job/{jobId}/trigger")
     @Operation(summary = "立即执行任务")
     public ReturnResult<Object> triggerJob(@PathVariable Long jobId,
@@ -130,6 +230,13 @@ public class SchedulerJobPlatformController {
         return ReturnResult.ok(schedulerJobPlatformService.triggerJob(jobId, param));
     }
 
+    /**
+     * 按任务编号立即执行任务。
+     *
+     * @param jobNo 任务编号
+     * @param param 执行参数
+     * @return 是否触发成功
+     */
     @PostMapping("/job/no/{jobNo}/trigger")
     @Operation(summary = "按任务编号立即执行任务")
     public ReturnResult<Object> triggerJobByNo(@PathVariable String jobNo,
@@ -137,6 +244,16 @@ public class SchedulerJobPlatformController {
         return ReturnResult.ok(schedulerJobPlatformService.triggerJobByNo(jobNo, param));
     }
 
+    /**
+     * 分页查询任务日志。
+     *
+     * @param pageNum     页码
+     * @param pageSize    每页大小
+     * @param beanName    handler 名称模糊查询
+     * @param executeCode 执行状态码
+     * @param group       任务分组
+     * @return 日志分页结果
+     */
     @GetMapping("/job-log/page")
     @Operation(summary = "分页查询任务日志")
     public ReturnResult<Object> pageLogs(@RequestParam(defaultValue = "1") int pageNum,
@@ -148,6 +265,13 @@ public class SchedulerJobPlatformController {
         return ReturnResult.ok(pagePayload(page));
     }
 
+    /**
+     * 查询平台任务视图。
+     *
+     * @param includeDeleted 是否包含已删除
+     * @param group          任务分组
+     * @return 任务视图列表
+     */
     @GetMapping("/task/list")
     @Operation(summary = "查询平台任务视图")
     public ReturnResult<Object> listTasks(@RequestParam(defaultValue = "false") boolean includeDeleted,
@@ -155,6 +279,13 @@ public class SchedulerJobPlatformController {
         return ReturnResult.ok(schedulerJobPlatformService.listTasks(group, includeDeleted));
     }
 
+    /**
+     * 更新平台任务。
+     *
+     * @param taskKey 任务标识
+     * @param request 更新请求
+     * @return 更新后的任务视图
+     */
     @PutMapping("/task/{taskKey}")
     @Operation(summary = "更新平台任务")
     public ReturnResult<SchedulerTaskVO> updateTask(@PathVariable String taskKey,
@@ -162,12 +293,24 @@ public class SchedulerJobPlatformController {
         return ReturnResult.ok(schedulerJobPlatformService.updateTask(taskKey, request));
     }
 
+    /**
+     * 触发平台任务。
+     *
+     * @param taskKey 任务标识
+     * @return 触发后的任务视图
+     */
     @PostMapping("/task/{taskKey}/trigger")
     @Operation(summary = "触发平台任务")
     public ReturnResult<SchedulerTaskVO> triggerTask(@PathVariable String taskKey) {
         return ReturnResult.ok(schedulerJobPlatformService.triggerTask(taskKey));
     }
 
+    /**
+     * 组装分页结果载体。
+     *
+     * @param page 分页结果
+     * @return 分页数据 Map
+     */
     private Map<String, Object> pagePayload(Page<?> page) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("records", page.getRecords());

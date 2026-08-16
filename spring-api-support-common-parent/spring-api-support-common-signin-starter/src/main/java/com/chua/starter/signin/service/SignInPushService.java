@@ -1,7 +1,7 @@
 package com.chua.starter.signin.service;
 
 import com.chua.socket.support.session.SocketSessionTemplate;
-import com.chua.socket.support.util.Json;
+import com.chua.starter.achievement.service.support.SocketPushSupport;
 import com.chua.starter.signin.dto.SignInResultDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +35,9 @@ import java.util.Map;
 public class SignInPushService {
 
     /**
-     * 推送消息使用的协议事件名称（前端 subscribe 监听 "message" 事件）
+     * 统一 Socket 会话操作模板，支持 WebSocket / Socket.IO / RSocket / SSE
      */
-    private static final String PROTOCOL_EVENT = "message";
+    private final SocketSessionTemplate socketSessionTemplate;
 
     /**
      * 前端订阅模块名
@@ -50,11 +50,6 @@ public class SignInPushService {
     private static final String EVENT = "done";
 
     /**
-     * 统一 Socket 会话操作模板，支持 WebSocket / Socket.IO / RSocket / SSE
-     */
-    private final SocketSessionTemplate socketSessionTemplate;
-
-    /**
      * 推送签到成功消息到前端。
      *
      * <p>发送格式：协议事件名固定为 {@code "message"}，消息体包含 {@code module}、{@code event} 和 {@code data}，
@@ -64,12 +59,8 @@ public class SignInPushService {
      * @param result 签到结果
      */
     public void pushSignInDone(Long userId, SignInResultDTO result) {
-        String body = Json.toJson(Map.of(
-                "module", MODULE,
-                "event", EVENT,
-                "data", Map.of("event", "signin_done", "result", result)
-        ));
-        socketSessionTemplate.sendToUser(String.valueOf(userId), PROTOCOL_EVENT, body);
+        SocketPushSupport.push(socketSessionTemplate, userId, MODULE, EVENT,
+                Map.of("event", "signin_done", "result", result));
         log.info("用户 {} 签到成功，获得 {} 积分，连续 {} 天", userId, result.getTodayPoints(), result.getStreak());
     }
 }
