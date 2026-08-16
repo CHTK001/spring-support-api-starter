@@ -92,6 +92,16 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
      */
     private final JobProperties jobProperties;
 
+    /**
+     * 分页查询任务。
+     *
+     * @param pageNum       页码
+     * @param pageSize      每页大小
+     * @param jobName       任务名模糊查询
+     * @param triggerStatus 启用状态
+     * @param group         任务分组
+     * @return 任务分页结果
+     */
     @Override
     public Page<JobEntity> pageJobs(int pageNum, int pageSize, String jobName, Integer triggerStatus, String group) {
         int safePageNum = normalizePageNum(pageNum);
@@ -110,6 +120,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return jobMapper.selectPage(new Page<>(safePageNum, safePageSize), wrapper);
     }
 
+    /**
+     * 查询任务详情。
+     *
+     * @param jobId 任务 ID
+     * @return 任务实体
+     */
     @Override
     public JobEntity getJob(Long jobId) {
         JobEntity job = jobMapper.selectById(requireJobId(jobId));
@@ -119,6 +135,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return job;
     }
 
+    /**
+     * 按任务编号查询任务详情。
+     *
+     * @param jobNo 任务编号
+     * @return 任务实体
+     */
     @Override
     public JobEntity getJobByNo(String jobNo) {
         JobEntity job = findByNo(requireText(jobNo, "任务编号不能为空"));
@@ -128,6 +150,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return job;
     }
 
+    /**
+     * 创建任务, 自动补齐默认值并做校验。
+     *
+     * @param job 任务实体
+     * @return 创建后的任务实体
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public JobEntity createJob(JobEntity job) {
@@ -150,6 +178,13 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return saved;
     }
 
+    /**
+     * 更新任务, 按传入字段进行局部合并。
+     *
+     * @param jobId 任务 ID
+     * @param job   任务实体
+     * @return 是否更新成功
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateJob(Long jobId, JobEntity job) {
@@ -166,6 +201,13 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return jobMapper.updateById(existing) > 0;
     }
 
+    /**
+     * 按任务编号更新任务。
+     *
+     * @param jobNo 任务编号
+     * @param job   任务实体
+     * @return 是否更新成功
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateJobByNo(String jobNo, JobEntity job) {
@@ -181,6 +223,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return jobMapper.updateById(existing) > 0;
     }
 
+    /**
+     * 删除任务 (逻辑删除), 先停止任务再置删除标记。
+     *
+     * @param jobId 任务 ID
+     * @return 是否删除成功
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteJob(Long jobId) {
@@ -191,6 +239,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
                 .set(JobEntity::getSysJobIsDeleted, 1)) > 0;
     }
 
+    /**
+     * 按任务编号删除任务 (逻辑删除)。
+     *
+     * @param jobNo 任务编号
+     * @return 是否删除成功
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteJobByNo(String jobNo) {
@@ -201,6 +255,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
                 .set(JobEntity::getSysJobIsDeleted, 1)) > 0;
     }
 
+    /**
+     * 恢复已删除任务。
+     *
+     * @param jobId 任务 ID
+     * @return 是否恢复成功
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean restoreJob(Long jobId) {
@@ -210,6 +270,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
                 .set(JobEntity::getSysJobIsDeleted, 0)) > 0;
     }
 
+    /**
+     * 按任务编号恢复已删除任务。
+     *
+     * @param jobNo 任务编号
+     * @return 是否恢复成功
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean restoreJobByNo(String jobNo) {
@@ -219,6 +285,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
                 .set(JobEntity::getSysJobIsDeleted, 0)) > 0;
     }
 
+    /**
+     * 启动任务。
+     *
+     * @param jobId 任务 ID
+     * @return 是否启动成功
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean startJob(Long jobId) {
@@ -229,6 +301,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return jobMapper.updateById(job) > 0;
     }
 
+    /**
+     * 按任务编号启动任务。
+     *
+     * @param jobNo 任务编号
+     * @return 是否启动成功
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean startJobByNo(String jobNo) {
@@ -239,6 +317,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return jobMapper.updateById(job) > 0;
     }
 
+    /**
+     * 停止任务。
+     *
+     * @param jobId 任务 ID
+     * @return 是否停止成功
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean stopJob(Long jobId) {
@@ -247,6 +331,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return jobMapper.updateById(job) > 0;
     }
 
+    /**
+     * 按任务编号停止任务。
+     *
+     * @param jobNo 任务编号
+     * @return 是否停止成功
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean stopJobByNo(String jobNo) {
@@ -255,6 +345,13 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return jobMapper.updateById(job) > 0;
     }
 
+    /**
+     * 立即执行任务。
+     *
+     * @param jobId 任务 ID
+     * @param param 执行参数
+     * @return 是否触发成功
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean triggerJob(Long jobId, String param) {
@@ -262,6 +359,13 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return trigger(job, param);
     }
 
+    /**
+     * 按任务编号立即执行任务。
+     *
+     * @param jobNo 任务编号
+     * @param param 执行参数
+     * @return 是否触发成功
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean triggerJobByNo(String jobNo, String param) {
@@ -269,13 +373,30 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return trigger(job, param);
     }
 
+    /**
+     * 清理指定天数前的日志记录和对应的日志文件。
+     *
+     * @param retentionDays 保留天数
+     * @return 清理的日志记录数
+     */
+    /**
+     * 一天的毫秒数
+     */
+    private static final long MILLIS_PER_DAY = 86400000L;
+
+    /**
+     * 清理指定天数前的日志记录和对应的日志文件。
+     *
+     * @param retentionDays 保留天数
+     * @return 清理的日志记录数
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int cleanupLogs(int retentionDays) {
         if (retentionDays <= 0) {
             throw new IllegalArgumentException("保留天数必须大于0");
         }
-        long cutoff = System.currentTimeMillis() - retentionDays * 86400000L;
+        long cutoff = System.currentTimeMillis() - retentionDays * MILLIS_PER_DAY;
 
         // 1. 查出待删除的日志文件路径
         var files = jobLogMapper.selectList(Wrappers.<JobLogEntity>lambdaQuery()
@@ -286,7 +407,9 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         if (files != null && !files.isEmpty()) {
             Path base = Paths.get(jobProperties.getLog().getBasePath()).toAbsolutePath().normalize();
             for (JobLogEntity f : files) {
-                if (f.getSysJobLogFilePath() == null || f.getSysJobLogFilePath().isBlank()) continue;
+                if (f.getSysJobLogFilePath() == null || f.getSysJobLogFilePath().isBlank()) {
+                    continue;
+                }
                 try {
                     Path file = base.resolve(f.getSysJobLogFilePath()).normalize();
                     if (file.startsWith(base) && Files.exists(file)) {
@@ -319,6 +442,16 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return deleted;
     }
 
+    /**
+     * 分页查询任务日志。
+     *
+     * @param pageNum      页码
+     * @param pageSize     每页大小
+     * @param beanName     handler 名称模糊查询
+     * @param executeCode  执行状态码
+     * @param group        任务分组
+     * @return 日志分页结果
+     */
     @Override
     public Page<JobLogEntity> pageLogs(int pageNum, int pageSize, String beanName, String executeCode, String group) {
         int safePageNum = normalizePageNum(pageNum);
@@ -341,6 +474,13 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return jobLogMapper.selectPage(new Page<>(safePageNum, safePageSize), wrapper);
     }
 
+    /**
+     * 查询平台任务视图列表。
+     *
+     * @param group          任务分组
+     * @param includeDeleted 是否包含已删除
+     * @return 任务视图列表
+     */
     @Override
     public List<SchedulerTaskVO> listTasks(String group, boolean includeDeleted) {
         String normalizedGroup = trimToNull(group);
@@ -354,6 +494,13 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return jobs.stream().map(this::toTaskVO).toList();
     }
 
+    /**
+     * 更新平台任务。
+     *
+     * @param taskKey 任务标识 (编号/执行 Bean/名称)
+     * @param request 更新请求
+     * @return 更新后的任务视图
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public SchedulerTaskVO updateTask(String taskKey, SchedulerTaskUpdateRequest request) {
@@ -377,6 +524,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return toTaskVO(requireTask(taskKey));
     }
 
+    /**
+     * 触发平台任务。
+     *
+     * @param taskKey 任务标识 (编号/执行 Bean/名称)
+     * @return 触发后的任务视图
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public SchedulerTaskVO triggerTask(String taskKey) {
@@ -385,6 +538,13 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return toTaskVO(requireTask(taskKey));
     }
 
+    /**
+     * 触发任务, 将下次执行时间置为当前时间以便立即调度。
+     *
+     * @param job   任务实体
+     * @param param 执行参数
+     * @return 是否触发成功
+     */
     private boolean trigger(JobEntity job, String param) {
         if (param != null) {
             job.setSysJobExecuteParam(param);
@@ -396,6 +556,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return jobMapper.updateById(job) > 0;
     }
 
+    /**
+     * 将任务实体转换为平台任务视图。
+     *
+     * @param job 任务实体
+     * @return 任务视图
+     */
     private SchedulerTaskVO toTaskVO(JobEntity job) {
         SchedulerTaskVO vo = new SchedulerTaskVO();
         vo.setJobId(job.getSysJobId());
@@ -425,6 +591,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return vo;
     }
 
+    /**
+     * 查找任务最近一次执行日志。
+     *
+     * @param job 任务实体
+     * @return 最近一次执行日志, 不存在返回 null
+     */
     private JobLogEntity findLatestLog(JobEntity job) {
         if (StringUtils.hasText(trimToNull(job.getSysJobNo()))) {
             JobLogEntity byNo = findLatestLogByNo(job.getSysJobNo());
@@ -442,6 +614,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return null;
     }
 
+    /**
+     * 按任务编号查找最近一次执行日志。
+     *
+     * @param jobNo 任务编号
+     * @return 最近一次执行日志, 不存在返回 null
+     */
     private JobLogEntity findLatestLogByNo(String jobNo) {
         return jobLogMapper.selectOne(Wrappers.<JobLogEntity>lambdaQuery()
                 .eq(JobLogEntity::getSysJobNo, jobNo)
@@ -450,6 +628,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
                 .last("LIMIT 1"));
     }
 
+    /**
+     * 按执行 Bean 名称查找最近一次执行日志。
+     *
+     * @param triggerBean 执行 Bean 名称
+     * @return 最近一次执行日志, 不存在返回 null
+     */
     private JobLogEntity findLatestLogByBean(String triggerBean) {
         return jobLogMapper.selectOne(Wrappers.<JobLogEntity>lambdaQuery()
                 .eq(JobLogEntity::getSysJobLogTriggerBean, triggerBean)
@@ -458,6 +642,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
                 .last("LIMIT 1"));
     }
 
+    /**
+     * 按任务编号查找未删除的任务。
+     *
+     * @param jobNo 任务编号
+     * @return 任务实体, 不存在返回 null
+     */
     private JobEntity findByNo(String jobNo) {
         return jobMapper.selectOne(Wrappers.<JobEntity>lambdaQuery()
                 .eq(JobEntity::getSysJobNo, jobNo)
@@ -465,6 +655,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
                 .last("LIMIT 1"));
     }
 
+    /**
+     * 按任务标识 (编号/执行 Bean/名称) 解析任务。
+     *
+     * @param taskKey 任务标识
+     * @return 已存在的任务实体
+     */
     private JobEntity requireTask(String taskKey) {
         String normalizedTaskKey = requireText(taskKey, "任务标识不能为空");
 
@@ -497,6 +693,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         throw new IllegalArgumentException("任务不存在: " + normalizedTaskKey);
     }
 
+    /**
+     * 将补丁字段局部合并到目标任务。
+     *
+     * @param target 目标任务实体
+     * @param patch  补丁任务实体
+     */
     private void mergeJobPatch(JobEntity target, JobEntity patch) {
         if (patch.getSysJobName() != null) {
             target.setSysJobName(patch.getSysJobName());
@@ -566,6 +768,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         }
     }
 
+    /**
+     * 为任务补齐默认值。
+     *
+     * @param job 任务实体
+     */
     private void applyDefaults(JobEntity job) {
         if (!StringUtils.hasText(job.getSysJobNo())) {
             job.setSysJobNo(nextJobNo());
@@ -608,6 +815,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         }
     }
 
+    /**
+     * 校验任务关键字段合法性。
+     *
+     * @param job 任务实体
+     */
     private void validateJob(JobEntity job) {
         requireText(job.getSysJobNo(), "任务编号不能为空");
         requireText(job.getSysJobName(), "任务名称不能为空");
@@ -619,6 +831,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         }
     }
 
+    /**
+     * 规范化任务字段, 去除空白并统一枚举字符串。
+     *
+     * @param job 任务实体
+     */
     private void normalizeJob(JobEntity job) {
         applyDefaults(job);
         job.setSysJobNo(trimToNull(job.getSysJobNo()));
@@ -639,6 +856,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         job.setSysJobScheduleType(normalizeScheduleType(job.getSysJobScheduleType()));
     }
 
+    /**
+     * 规范化调度类型, 支持 CRON / FIXED / FIXED_MS / DELAY / AT / NONE。
+     *
+     * @param scheduleType 原始调度类型
+     * @return 规范化后的调度类型
+     */
     private String normalizeScheduleType(String scheduleType) {
         if (!StringUtils.hasText(scheduleType)) {
             return DEFAULT_SCHEDULE_TYPE;
@@ -650,6 +873,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return upper;
     }
 
+    /**
+     * 规范化分发模式。
+     *
+     * @param dispatchMode 原始分发模式
+     * @return 规范化后的分发模式
+     */
     private String normalizeDispatchMode(String dispatchMode) {
         String upper = trimToNull(dispatchMode);
         if (upper == null) {
@@ -662,6 +891,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return upper;
     }
 
+    /**
+     * 规范化日志存储模式。
+     *
+     * @param storageMode 原始存储模式
+     * @return 规范化后的存储模式
+     */
     private String normalizeStorageMode(String storageMode) {
         String upper = trimToNull(storageMode);
         if (upper == null) {
@@ -674,6 +909,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return upper;
     }
 
+    /**
+     * 应用触发器状态, 运行状态下计算下次触发时间。
+     *
+     * @param job     任务实体
+     * @param running 是否运行
+     */
     private void applyTriggerState(JobEntity job, boolean running) {
         String scheduleType = normalizeScheduleType(job.getSysJobScheduleType());
         if (running) {
@@ -694,6 +935,13 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         job.setSysJobTriggerNextTime(0L);
     }
 
+    /**
+     * 计算下次触发时间。
+     *
+     * @param scheduleType 调度类型
+     * @param scheduleTime 调度配置
+     * @return 下次触发时间戳
+     */
     private long calculateNextTriggerTime(String scheduleType, String scheduleTime) {
         try {
             if ("CRON".equals(scheduleType)) {
@@ -712,6 +960,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         throw new IllegalArgumentException("无效的调度配置: type=" + scheduleType + ", time=" + scheduleTime);
     }
 
+    /**
+     * 解析调度间隔 (毫秒)。
+     *
+     * @param scheduleTime 调度间隔配置
+     * @return 调度间隔毫秒数
+     */
     private long parseInterval(String scheduleTime) {
         if (!StringUtils.hasText(scheduleTime)) {
             throw new IllegalArgumentException("调度间隔不能为空");
@@ -723,12 +977,23 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         }
     }
 
+    /**
+     * 生成唯一任务编号。
+     *
+     * @return 任务编号
+     */
     private String nextJobNo() {
         String ts = Long.toString(System.currentTimeMillis());
         String rand = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase(java.util.Locale.ROOT);
         return "JOB-" + ts + "-" + rand;
     }
 
+    /**
+     * 时间戳毫秒数转换为本地时间。
+     *
+     * @param time 毫秒时间戳
+     * @return 本地时间, 空值或非正数返回 null
+     */
     private LocalDateTime toLocalDateTime(Long time) {
         if (time == null || time <= 0) {
             return null;
@@ -736,6 +1001,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
     }
 
+    /**
+     * 日期转换为本地时间。
+     *
+     * @param date 日期
+     * @return 本地时间, 空值返回 null
+     */
     private LocalDateTime toLocalDateTime(Date date) {
         if (date == null) {
             return null;
@@ -743,6 +1014,13 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
     }
 
+    /**
+     * 日期加耗时转换为本地时间。
+     *
+     * @param date 日期
+     * @param cost 耗时毫秒数
+     * @return 本地时间, 空值返回 null
+     */
     private LocalDateTime toLocalDateTime(Date date, java.math.BigDecimal cost) {
         if (date == null) {
             return null;
@@ -751,15 +1029,33 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return LocalDateTime.ofInstant(date.toInstant().plusMillis(plus), ZoneId.systemDefault());
     }
 
+    /**
+     * 规范化页码, 最小为 1。
+     *
+     * @param pageNum 页码
+     * @return 规范化后的页码
+     */
     private int normalizePageNum(int pageNum) {
         return Math.max(pageNum, 1);
     }
 
+    /**
+     * 规范化每页大小, 限制在 1 到最大分页大小之间。
+     *
+     * @param pageSize 每页大小
+     * @return 规范化后的每页大小
+     */
     private int normalizePageSize(int pageSize) {
         int normalized = Math.max(pageSize, 1);
         return Math.min(normalized, MAX_PAGE_SIZE);
     }
 
+    /**
+     * 校验任务 ID 合法性。
+     *
+     * @param jobId 任务 ID
+     * @return 合法任务 ID
+     */
     private Long requireJobId(Long jobId) {
         if (jobId == null || jobId <= 0) {
             throw new IllegalArgumentException("任务ID不能为空");
@@ -767,6 +1063,13 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return jobId;
     }
 
+    /**
+     * 校验文本参数非空。
+     *
+     * @param value   文本值
+     * @param message 空值时的异常消息
+     * @return 去除空白后的文本
+     */
     private String requireText(String value, String message) {
         String normalized = trimToNull(value);
         if (normalized == null) {
@@ -775,6 +1078,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return normalized;
     }
 
+    /**
+     * 去除空白, 空白文本转换为 null。
+     *
+     * @param value 文本值
+     * @return 去除空白后的文本, 空白返回 null
+     */
     private String trimToNull(String value) {
         if (!StringUtils.hasText(value)) {
             return null;
@@ -782,6 +1091,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         return value.trim();
     }
 
+    /**
+     * 空值状态转换为停止状态。
+     *
+     * @param triggerStatus 触发器状态
+     * @return 非空状态值, 空值返回停止状态
+     */
     private int safeStatus(Integer triggerStatus) {
         return triggerStatus == null ? STATUS_STOP : triggerStatus;
     }
@@ -804,6 +1119,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         }
     }
 
+    /**
+     * 转义 SQL 单引号, 防止 SQL 注入。
+     *
+     * @param value 原始字符串
+     * @return 转义后的字符串
+     */
     private String escape(String value) {
         if (value == null) {
             return "";

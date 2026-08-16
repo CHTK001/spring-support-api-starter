@@ -23,20 +23,40 @@ import java.util.Set;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
+/**
+ * 小程序菜单接口
+ *
+ * @author CH
+ * @since 2026/08/03
+ */
 @Tag(name = "小程序菜单接口")
 @RestController
 @RequestMapping("/v2/mini-menu")
 @RequiredArgsConstructor
 public class SysMiniMenuController {
 
+    /**
+     * 小程序菜单服务
+     */
     private final SysMiniMenuService sysMiniMenuService;
 
+    /**
+     * 查询后端管理用的小程序菜单列表。
+     *
+     * @return 菜单列表结果
+     */
     @Operation(summary = "小程序菜单列表")
     @GetMapping("/list")
     public ReturnResult<List<SysMiniMenu>> list() {
         return sysMiniMenuService.listManageMenus();
     }
 
+    /**
+     * 删除小程序菜单。
+     *
+     * @param sysMiniMenuId 菜单ID
+     * @return 删除结果
+     */
     @Operation(summary = "删除小程序菜单")
     @DeleteMapping("/delete")
     @ApiPlatform("system")
@@ -46,6 +66,14 @@ public class SysMiniMenuController {
         return sysMiniMenuService.deleteMenu(sysMiniMenuId);
     }
 
+    /**
+     * 更新小程序菜单。
+     *
+     * @param roles         用户角色集合
+     * @param sysMiniMenu   小程序菜单实体
+     * @param bindingResult 参数校验结果
+     * @return 更新结果
+     */
     @Operation(summary = "更新小程序菜单")
     @PutMapping("/update")
     @ApiPlatform("system")
@@ -60,6 +88,14 @@ public class SysMiniMenuController {
         return sysMiniMenuService.updateMenu(roles, sysMiniMenu);
     }
 
+    /**
+     * 新增小程序菜单。
+     *
+     * @param roles         用户角色集合
+     * @param sysMiniMenu   小程序菜单实体
+     * @param bindingResult 参数校验结果
+     * @return 保存结果
+     */
     @Operation(summary = "新增小程序菜单")
     @PostMapping("/save")
     @ApiPlatform("system")

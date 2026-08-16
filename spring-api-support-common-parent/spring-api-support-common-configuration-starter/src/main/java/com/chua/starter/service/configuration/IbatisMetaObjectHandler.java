@@ -25,9 +25,8 @@ import static com.chua.common.support.enums.Action.UPDATE;
 /**
  * mybatis-plus 字段自动填充
  *
- * @author haoxr
- * @link https://mp.baomidou.com/guide/auto-fill-metainfo.html
- * @since 2022/10/14
+ * @author CH
+ * @since 2024/10/14
  */
 @Component
 @ConditionalOnClass(name = {"com.baomidou.mybatisplus.core.handlers.MetaObjectHandler"})
@@ -142,6 +141,13 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
         return StringUtils.toString(value);
     }
 
+    /**
+     * 按字段类型注册自动填充（时间字段直接填充当前值）。
+     *
+     * @param metaObject 元对象
+     * @param name       字段名
+     * @param action     操作类型（新增/更新）
+     */
     private void registerField(MetaObject metaObject, String name, Action action) {
         Class<?> type = metaObject.getGetterType(name);
 //        Object value = metaObject.getValue(name);
@@ -187,6 +193,14 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
         }
 
     }
+    /**
+     * 按字段类型注册自动填充（自定义值，经类型转换后填充）。
+     *
+     * @param metaObject 元对象
+     * @param name       字段名
+     * @param value      待填充的值
+     * @param action     操作类型（新增/更新）
+     */
     @SuppressWarnings("unchecked")
     private void registerField(MetaObject metaObject, String name, Object value, Action action) {
         Class<?> type = metaObject.getGetterType(name);

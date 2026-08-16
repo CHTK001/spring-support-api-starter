@@ -11,12 +11,18 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 设备组织
+ *
+ * @author CH
+ * @since 2026/08/03
  */
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "设备组织")
 @Data
 @TableName(value = "sys_device_org")
 public class SysDeviceOrg extends SysBase {
+    /**
+     * 组织主键ID
+     */
     @TableId(value = "sys_device_org_id", type = IdType.INPUT)
     @Schema(description = "")
     private String sysDeviceOrgId;

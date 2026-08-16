@@ -15,12 +15,18 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 项目管理
+ *
+ * @author CH
+ * @since 2026/08/03
  */
 @Schema(description="项目管理")
 @Data
 @EqualsAndHashCode(callSuper=true)
 @TableName(value = "sys_project")
 public class SysProject extends SysBase {
+    /**
+     * 项目主键ID
+     */
     @TableId(value = "sys_project_id", type = IdType.AUTO)
     @Schema(description = "")
     @NotNull(message = "id不能为空", groups = {UpdateGroup.class})

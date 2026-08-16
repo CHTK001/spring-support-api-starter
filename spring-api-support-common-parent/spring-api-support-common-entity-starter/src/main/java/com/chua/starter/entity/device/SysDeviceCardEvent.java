@@ -13,12 +13,18 @@ import java.time.LocalDateTime;
 
 /**
  * 门禁事件
+ *
+ * @author CH
+ * @since 2026/08/03
  */
 @Schema(description = "门禁事件")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_device_card_event")
 public class SysDeviceCardEvent extends SysBase {
+    /**
+     * 门禁事件主键ID
+     */
     @TableId(value = "sys_device_card_event_id", type = IdType.AUTO)
     @Schema(description = "")
     private Integer sysDeviceCardEventId;

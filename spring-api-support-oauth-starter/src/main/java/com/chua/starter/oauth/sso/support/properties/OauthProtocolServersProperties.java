@@ -57,6 +57,9 @@ public class OauthProtocolServersProperties {
 
     /**
      * 单个协议 Server 配置
+     *
+     * @author CH
+     * @since 4.0.0.42
      */
     @Data
     public static class ProtocolServer {

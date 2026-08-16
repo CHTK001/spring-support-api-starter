@@ -21,18 +21,46 @@ import java.util.List;
 public class MsMonitorTaskServiceImpl extends ServiceImpl<MsMonitorTaskMapper, MsMonitorTask>
         implements MsMonitorTaskService {
 
+    /**
+     * 任务运行状态：运行中
+     */
+    private static final String STATUS_RUNNING = "RUNNING";
+
+    /**
+     * 任务运行状态：已停止
+     */
+    private static final String STATUS_STOPPED = "STOPPED";
+
+    /**
+     * 启用标记，值为 1 表示启用
+     */
+    private static final int ENABLED_FLAG = 1;
+
+    /**
+     * 根据监控资产ID查询关联的采集任务列表。
+     *
+     * @param monitorId 监控资产ID
+     * @return 采集任务列表
+     */
     @Override
     public List<MsMonitorTask> listByMonitorId(Long monitorId) {
         return list(Wrappers.<MsMonitorTask>lambdaQuery()
                 .eq(MsMonitorTask::getMonitorId, monitorId));
     }
 
+    /**
+     * 启用或停用采集任务，并同步更新运行状态。
+     *
+     * @param taskId      任务ID
+     * @param enabledFlag 启用状态（1启用/0停用）
+     * @return 是否更新成功
+     */
     @Override
     public Boolean updateTaskEnabled(Long taskId, Integer enabledFlag) {
         return update(Wrappers.<MsMonitorTask>lambdaUpdate()
                 .eq(MsMonitorTask::getId, taskId)
                 .set(MsMonitorTask::getTaskEnabled, enabledFlag)
                 .set(MsMonitorTask::getTaskStatus,
-                        enabledFlag != null && enabledFlag == 1 ? "RUNNING" : "STOPPED"));
+                        enabledFlag != null && enabledFlag == ENABLED_FLAG ? STATUS_RUNNING : STATUS_STOPPED));
     }
 }

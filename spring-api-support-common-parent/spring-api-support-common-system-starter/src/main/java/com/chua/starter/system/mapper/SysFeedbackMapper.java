@@ -8,14 +8,20 @@ import com.chua.starter.system.pojo.feedback.FeedbackV1Request;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+/**
+ * 用户反馈 Mapper
+ *
+ * @author CH
+ * @since 2026/08/03
+ */
 @Mapper
 public interface SysFeedbackMapper extends BaseMapper<SysFeedback> {
     /**
-     * 分页查询
+     * 分页查询反馈记录
      *
-     * @param page              分页瀵硅薄
-     * @param feedbackV1Request 请求
-     * @return 结果
+     * @param page              分页对象
+     * @param feedbackV1Request 查询请求
+     * @return 分页后的反馈记录
      */
     IPage<SysFeedback> pageFor(@Param("page") Page<SysFeedback> page, @Param("request") FeedbackV1Request feedbackV1Request);
 }

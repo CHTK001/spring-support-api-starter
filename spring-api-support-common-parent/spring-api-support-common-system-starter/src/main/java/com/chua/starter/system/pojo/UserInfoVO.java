@@ -17,9 +17,8 @@ import java.util.Set;
 /**
  * 用户登录视图对象
  *
- * @author haoxr
- * @version 1.0.0
- * @since 2022/1/14
+ * @author CH
+ * @since 2024/8/7
  */
 @Schema(description = "当前登录用户视图对象")
 @Data
@@ -104,12 +103,21 @@ public class UserInfoVO {
     /**
      * 租户ID
      */
+    /**
+     * 租户ID
+     */
     @Schema(description = "租户ID")
     private String tenantId;
 
+    /**
+     * 主部门ID
+     */
     @Schema(description = "主部门ID")
     private Integer sysDeptId;
 
+    /**
+     * 负责部门ID集合
+     */
     @Schema(description = "负责部门ID集合")
     private List<Integer> managedDeptIds;
 
@@ -125,18 +133,33 @@ public class UserInfoVO {
     @Schema(description = "用户权限标识集合")
     private Set<String> perms;
 
+    /**
+     * 当前用户协议版本
+     */
     @Schema(description = "当前用户协议版本")
     private String agreementVersion;
 
+    /**
+     * 当前用户协议更新时间
+     */
     @Schema(description = "当前用户协议更新时间")
     private String agreementUpdatedAt;
 
+    /**
+     * 用户已确认的协议版本
+     */
     @Schema(description = "用户已确认的协议版本")
     private String agreementAcceptedVersion;
 
+    /**
+     * 用户确认协议时间
+     */
     @Schema(description = "用户确认协议时间")
     private String agreementAcceptedAt;
 
+    /**
+     * 是否需要确认最新协议
+     */
     @Schema(description = "是否需要确认最新协议")
     private Boolean agreementNeedConfirm;
 }

@@ -44,6 +44,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         )
 )
 public class SystemApplication {
+    /**
+     * 应用启动入口, 启动前补全 MyBatis-Plus 加密器配置。
+     *
+     * @param args 启动参数
+     */
     public static void main(String[] args) {
         if (System.getProperty("mybatis-plus.encryptor.mode") == null) {
             System.setProperty("mybatis-plus.encryptor.mode", "PLAIN");

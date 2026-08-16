@@ -37,6 +37,36 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
      */
     private static final int STATUS_DISABLED = 0;
 
+    /**
+     * 组件布局默认 X 坐标
+     */
+    private static final int DEFAULT_X = 0;
+
+    /**
+     * 组件布局默认 Y 坐标
+     */
+    private static final int DEFAULT_Y = 0;
+
+    /**
+     * 组件布局默认宽度（栅格列数）
+     */
+    private static final int DEFAULT_WIDTH = 4;
+
+    /**
+     * 组件布局默认高度（栅格行数）
+     */
+    private static final int DEFAULT_HEIGHT = 3;
+
+    /**
+     * 组件布局默认层级
+     */
+    private static final int DEFAULT_Z_INDEX = 1;
+
+    /**
+     * 组件布局默认排序值
+     */
+    private static final int DEFAULT_SORT_ORDER = 0;
+
     @Override
     public ReturnResult<List<MonitorSysGenServerComponentLayout>> listByServer(Integer serverId) {
         if (serverId == null) {
@@ -266,19 +296,19 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
      */
     private void applyDefaults(MonitorSysGenServerComponentLayout layout) {
         if (layout.getMonitorSysGenServerComponentLayoutX() == null) {
-            layout.setMonitorSysGenServerComponentLayoutX(0);
+            layout.setMonitorSysGenServerComponentLayoutX(DEFAULT_X);
         }
         if (layout.getMonitorSysGenServerComponentLayoutY() == null) {
-            layout.setMonitorSysGenServerComponentLayoutY(0);
+            layout.setMonitorSysGenServerComponentLayoutY(DEFAULT_Y);
         }
         if (layout.getMonitorSysGenServerComponentLayoutW() == null) {
-            layout.setMonitorSysGenServerComponentLayoutW(4);
+            layout.setMonitorSysGenServerComponentLayoutW(DEFAULT_WIDTH);
         }
         if (layout.getMonitorSysGenServerComponentLayoutH() == null) {
-            layout.setMonitorSysGenServerComponentLayoutH(3);
+            layout.setMonitorSysGenServerComponentLayoutH(DEFAULT_HEIGHT);
         }
         if (layout.getMonitorSysGenServerComponentLayoutZIndex() == null) {
-            layout.setMonitorSysGenServerComponentLayoutZIndex(1);
+            layout.setMonitorSysGenServerComponentLayoutZIndex(DEFAULT_Z_INDEX);
         }
         if (layout.getMonitorSysGenServerComponentLayoutMovable() == null) {
             layout.setMonitorSysGenServerComponentLayoutMovable(STATUS_ENABLED);
@@ -290,7 +320,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
             layout.setMonitorSysGenServerComponentLayoutStatus(STATUS_ENABLED);
         }
         if (layout.getMonitorSysGenServerComponentLayoutSortOrder() == null) {
-            layout.setMonitorSysGenServerComponentLayoutSortOrder(0);
+            layout.setMonitorSysGenServerComponentLayoutSortOrder(DEFAULT_SORT_ORDER);
         }
     }
 }

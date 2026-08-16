@@ -34,6 +34,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 })
 public class SchedulerApplication {
 
+    /**
+     * 应用启动入口。
+     *
+     * @param args 启动参数
+     */
     public static void main(String[] args) {
         SpringApplication.run(SchedulerApplication.class, args);
     }

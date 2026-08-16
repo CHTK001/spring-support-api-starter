@@ -9,11 +9,17 @@ import lombok.Data;
 
 /**
  * 默认功能 <---->对象的项目; e.g. 短信默认采用那个项目配置
+ *
+ * @author CH
+ * @since 2026/08/03
  */
 @Schema(description = "默认功能 <---->对象的项目; e.g. 短信默认采用那个项目配置")
 @Data
 @TableName(value = "sys_project_default")
 public class SysProjectDefault {
+    /**
+     * 默认功能主键ID
+     */
     @TableId(value = "sys_project_default_id", type = IdType.AUTO)
     @Schema(description = "")
     private Integer sysProjectDefaultId;

@@ -10,6 +10,7 @@ import java.lang.annotation.Target;
  * 高权账号可见性注解
  *
  * @author CH
+ * @since 2025/5/1
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

@@ -8,17 +8,19 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 申请证书请求
+ * 申请证书请求，包含账户、域名（主域名与 SAN）、挑战类型、部署模式及 SSH 远程部署信息。
  *
- * 作者: CH
- * 创建时间: 2025-10-17
- * 版本: 1.0.0
+ * @author CH
+ * @since 2025-10-17
  */
 @Data
 @ApiModel(description = "申请证书请求")
 @Schema(description = "申请证书请求")
 public class AcmeApplyCertRequest {
 
+    /**
+     * ACME 账户 ID，关联已保存的 ACME 账户
+     */
     @ApiModelProperty("ACME账户ID")
     @Schema(description = "ACME账户ID")
     private Integer acmeAccountId;
@@ -51,32 +53,51 @@ public class AcmeApplyCertRequest {
     @Schema(description = "备用域名列表(SAN)，可选。用于一张证书保护多个域名，如 [\"www.example.com\", \"api.example.com\"]")
     private List<String> sanDomains;
 
+    /**
+     * 挑战类型，取值 HTTP-01 或 DNS-01，通配符域名仅支持 DNS-01
+     */
     @ApiModelProperty("挑战类型: HTTP-01 或 DNS-01")
     @Schema(description = "挑战类型: HTTP-01 或 DNS-01")
     private String challengeType;
 
+    /**
+     * 部署模式，取值 local（本机）/ssh（远程）/manual（手动），默认 manual
+     */
     @ApiModelProperty("部署模式: local(本机)/ssh(远程)/manual(手动)，默认manual")
     @Schema(description = "部署模式: local(本机)/ssh(远程)/manual(手动)，默认manual")
     private String deployMode;
 
+    /**
+     * webroot 验证路径，如 /var/www/html，本机/SSH 模式时使用
+     */
     @ApiModelProperty("webroot路径，如 /var/www/html（ssh模式使用）")
     @Schema(description = "webroot路径，如 /var/www/html（ssh模式使用）")
     private String webrootPath;
 
-    // ========== SSH远程部署相关字段 ==========
-
+    /**
+     * SSH 远程部署相关字段：SSH 主机地址
+     */
     @ApiModelProperty("SSH主机地址")
     @Schema(description = "SSH主机地址")
     private String sshHost;
 
+    /**
+     * SSH 端口，默认 22
+     */
     @ApiModelProperty("SSH端口，默认22")
     @Schema(description = "SSH端口，默认22")
     private Integer sshPort;
 
+    /**
+     * SSH 用户名
+     */
     @ApiModelProperty("SSH用户名")
     @Schema(description = "SSH用户名")
     private String sshUsername;
 
+    /**
+     * SSH 密码
+     */
     @ApiModelProperty("SSH密码")
     @Schema(description = "SSH密码")
     private String sshPassword;

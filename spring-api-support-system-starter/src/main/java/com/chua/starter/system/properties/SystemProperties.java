@@ -70,6 +70,9 @@ public class SystemProperties {
 
     /**
      * 缓存配置类
+     *
+     * @author CH
+     * @since 2024/12/11
      */
     @Data
     public static class CacheConfig {
@@ -92,6 +95,9 @@ public class SystemProperties {
 
     /**
      * 日志配置类
+     *
+     * @author CH
+     * @since 2024/12/11
      */
     @Data
     public static class LogConfig {

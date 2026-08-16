@@ -21,9 +21,19 @@ import lombok.extern.slf4j.Slf4j;
 @SpiDefault
 public class DefaultAppIdValidator implements AppIdValidator {
 
+    /**
+     * AppId 服务
+     */
     @AutoInject
     private SysAppIdService sysAppIdService;
 
+    /**
+     * 验证 AppId, 从 app_id 表查询并校验状态与过期时间。
+     *
+     * @param processedAppId 客户端算法处理后的 AppId
+     * @param appKey         数据库中的 AppKey 信息
+     * @return 验证结果
+     */
     @Override
     public ValidationResult validate(String processedAppId, SysAppKey appKey) {
         if (appKey == null) {

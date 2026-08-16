@@ -1,5 +1,6 @@
 package com.chua.starter.achievement.listener;
 
+import com.chua.starter.achievement.constant.AchievementContextConstants;
 import com.chua.starter.achievement.dto.UnlockedAchievementDTO;
 import com.chua.starter.achievement.event.UserActionEvent;
 import com.chua.starter.achievement.service.AchievementService;
@@ -42,6 +43,61 @@ public class AchievementEventListener {
     private final AchievementService achievementService;
 
     /**
+     * 行为类型：签到
+     */
+    private static final String ACTION_SIGN_IN = "sign_in";
+
+    /**
+     * 行为类型：登录
+     */
+    private static final String ACTION_LOGIN = "login";
+
+    /**
+     * 行为类型：菜单访问
+     */
+    private static final String ACTION_MENU_VISIT = "menu_visit";
+
+    /**
+     * 行为类型：消息发送
+     */
+    private static final String ACTION_MESSAGE_SENT = "message_sent";
+
+    /**
+     * 行为类型：获得相框
+     */
+    private static final String ACTION_FRAME_OWNED = "frame_owned";
+
+    /**
+     * 行为类型：rogue 玩法
+     */
+    private static final String ACTION_ROGUE_PLAY = "rogue_play";
+
+    /**
+     * 统计字段：累计登录次数
+     */
+    private static final String STAT_LOGIN_COUNT = "loginCount";
+
+    /**
+     * 统计字段：菜单访问次数
+     */
+    private static final String STAT_MENU_VISITED_COUNT = "menuVisitedCount";
+
+    /**
+     * 统计字段：消息发送次数
+     */
+    private static final String STAT_MESSAGE_SENT_COUNT = "messageSentCount";
+
+    /**
+     * 统计字段：获得相框数量
+     */
+    private static final String STAT_FRAME_OWNED_COUNT = "frameOwnedCount";
+
+    /**
+     * 统计字段：rogue 玩法计数
+     */
+    private static final String STAT_ROGUE_COUNTER = "rogueCounter";
+
+    /**
      * 监听用户行为事件，异步更新统计并判定成就。
      *
      * @param event 用户行为事件
@@ -81,13 +137,20 @@ public class AchievementEventListener {
      */
     private String mapActionToStatKey(String action) {
         switch (action) {
-            case "sign_in": return "signInCount";
-            case "login": return "loginCount";
-            case "menu_visit": return "menuVisitedCount";
-            case "message_sent": return "messageSentCount";
-            case "frame_owned": return "frameOwnedCount";
-            case "rogue_play": return "rogueCounter";
-            default: return null;
+            case ACTION_SIGN_IN:
+                return AchievementContextConstants.STAT_SIGN_IN_COUNT;
+            case ACTION_LOGIN:
+                return STAT_LOGIN_COUNT;
+            case ACTION_MENU_VISIT:
+                return STAT_MENU_VISITED_COUNT;
+            case ACTION_MESSAGE_SENT:
+                return STAT_MESSAGE_SENT_COUNT;
+            case ACTION_FRAME_OWNED:
+                return STAT_FRAME_OWNED_COUNT;
+            case ACTION_ROGUE_PLAY:
+                return STAT_ROGUE_COUNTER;
+            default:
+                return null;
         }
     }
 }

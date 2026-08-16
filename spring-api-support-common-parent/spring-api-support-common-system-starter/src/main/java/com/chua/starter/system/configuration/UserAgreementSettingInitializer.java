@@ -18,18 +18,29 @@ import java.util.Map;
 
 /**
  * 用户协议配置初始化
+ *
+ * @author CH
+ * @since 2026/08/03
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class UserAgreementSettingInitializer implements ApplicationRunner {
 
+    /**
+     * 配置组编码
+     */
     private static final String GROUP_CODE = "userAgreement";
 
     private final SysSettingMapper sysSettingMapper;
     private final SysSettingGroupMapper sysSettingGroupMapper;
     private final Map<String, CacheManager> cacheManagers;
 
+    /**
+     * 应用启动后执行用户协议配置初始化。
+     *
+     * @param args 启动参数
+     */
     @Override
     public void run(ApplicationArguments args) {
         boolean changed = false;
@@ -49,6 +60,11 @@ public class UserAgreementSettingInitializer implements ApplicationRunner {
         }
     }
 
+    /**
+     * 确保用户协议配置组存在。
+     *
+     * @return true 表示新建了配置组
+     */
     private boolean ensureGroup() {
         SysSettingGroup existed = sysSettingGroupMapper.selectOne(
                 Wrappers.<SysSettingGroup>lambdaQuery()
@@ -72,6 +88,16 @@ public class UserAgreementSettingInitializer implements ApplicationRunner {
         return true;
     }
 
+    /**
+     * 确保指定配置项存在。
+     *
+     * @param name      配置名
+     * @param value     配置值
+     * @param remark    配置备注
+     * @param valueType 值类型
+     * @param sort      排序
+     * @return true 表示新建了配置项
+     */
     private boolean ensureSetting(String name, String value, String remark, String valueType, int sort) {
         SysSetting existed = sysSettingMapper.selectOne(
                 Wrappers.<SysSetting>lambdaQuery()
@@ -99,6 +125,9 @@ public class UserAgreementSettingInitializer implements ApplicationRunner {
         return true;
     }
 
+    /**
+     * 清空所有缓存管理器下的缓存。
+     */
     private void clearCache() {
         cacheManagers.forEach((cacheName, manager) -> {
             Cache namedCache = manager.getCache(cacheName);

@@ -10,8 +10,10 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * 配置中心服务
+ * 配置中心服务（Monitor 模块启动入口），启用缓存、定时任务、MyBatis Mapper 扫描与 ACME 配置。
+ *
  * @author CH
+ * @since 4.0.0.42
  */
 @EnableCaching
 @EnableScheduling
@@ -21,6 +23,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication(scanBasePackages = "com.chua.starter.monitor")
 public class MonitorServerApplication {
 
+    /**
+     * 应用启动入口。
+     *
+     * @param args 启动参数
+     */
     public static void main(String[] args) {
         SpringApplication.run(MonitorServerApplication.class);
     }

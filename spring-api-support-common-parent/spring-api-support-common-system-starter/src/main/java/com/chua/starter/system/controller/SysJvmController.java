@@ -1897,7 +1897,8 @@ public class SysJvmController {
         
         // GC 频率评估
         long uptime = runtimeMXBean.getUptime();
-        double gcFrequency = uptime > 0 ? (double) totalGcCount / (uptime / 1000.0 / 60.0) : 0; // 每分钟GC次数
+        // 每分钟 GC 次数
+        double gcFrequency = uptime > 0 ? (double) totalGcCount / (uptime / 1000.0 / 60.0) : 0;
         if (gcFrequency > 10) {
             gcAdvice.setGcFrequencyAssessment("过高 - 每分钟GC " + String.format("%.1f", gcFrequency) + " 次");
             healthScore -= 15;
@@ -2290,7 +2291,8 @@ public class SysJvmController {
             
             for (Map.Entry<String, Long[]> entry : secondSnapshot.entrySet()) {
                 String className = entry.getKey();
-                Long[] secondData = entry.getValue(); // [count, bytes]
+                // 数据格式为 [count, bytes]
+                Long[] secondData = entry.getValue();
                 Long[] firstData = firstSnapshot.get(className);
                 
                 long firstCount = firstData != null ? firstData[0] : 0;

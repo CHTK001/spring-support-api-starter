@@ -421,6 +421,9 @@ public class AuthServerProperties {
 
     /**
      * JWT 配置类
+     *
+     * @author CH
+     * @since 4.0.0.42
      */
     @Data
     public static class JwtConfig {
@@ -516,6 +519,12 @@ public class AuthServerProperties {
         private boolean storeInRedis = false;
     }
 
+    /**
+     * 用户在线模式枚举。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     public enum Online {
         /**
          * 只允许一个在线

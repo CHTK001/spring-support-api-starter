@@ -8,13 +8,11 @@ import com.chua.starter.monitor.pojo.acme.AcmeCertificateDetailVo;
 import com.chua.starter.monitor.pojo.acme.CertStats;
 
 /**
- * ACME 证书服务接口
- * 提供证书生命周期管理功能
+ * ACME 证书服务接口，提供证书生命周期管理功能。
  *
  * @author CH
  * @version 1.0.0
  * @since 2025-10-17
- * @since 2025-12-06 补充完整接口
  */
 public interface AcmeCertificateService {
 
