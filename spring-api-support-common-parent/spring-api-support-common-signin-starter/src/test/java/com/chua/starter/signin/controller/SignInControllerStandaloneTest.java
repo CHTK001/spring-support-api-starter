@@ -58,6 +58,9 @@ class SignInControllerStandaloneTest {
 
     // ==================== POST /signin/do ====================
 
+    /**
+     * 测试：签到成功，校验返回的积分与连续天数。
+     */
     @Test
     void shouldDoSignIn_success() throws Exception {
         SignInResultDTO result = new SignInResultDTO();
@@ -80,6 +83,9 @@ class SignInControllerStandaloneTest {
                 .andExpect(jsonPath("$.data.msg").value("签到成功"));
     }
 
+    /**
+     * 测试：重复签到被防抖拦截，返回已签到提示。
+     */
     @Test
     void shouldDoSignIn_debounce() throws Exception {
         SignInResultDTO result = new SignInResultDTO();
@@ -98,6 +104,9 @@ class SignInControllerStandaloneTest {
 
     // ==================== GET /signin/today/{userId} ====================
 
+    /**
+     * 测试：今日已签到，查询签到状态返回 true。
+     */
     @Test
     void shouldCheckToday_signed() throws Exception {
         when(signInService.isSignedToday(anyLong())).thenReturn(true);
@@ -107,6 +116,9 @@ class SignInControllerStandaloneTest {
                 .andExpect(jsonPath("$.data.signed").value(true));
     }
 
+    /**
+     * 测试：今日未签到，查询签到状态返回 false。
+     */
     @Test
     void shouldCheckToday_notSigned() throws Exception {
         when(signInService.isSignedToday(anyLong())).thenReturn(false);
@@ -118,6 +130,9 @@ class SignInControllerStandaloneTest {
 
     // ==================== GET /signin/calendar/{userId} ====================
 
+    /**
+     * 测试：按指定月份查询签到日历。
+     */
     @Test
     void shouldGetCalendar() throws Exception {
         SignInDayDTO dto = new SignInDayDTO();
@@ -133,6 +148,9 @@ class SignInControllerStandaloneTest {
                 .andExpect(jsonPath("$.data[0].points").value(10));
     }
 
+    /**
+     * 测试：未传年月时使用默认当月查询日历。
+     */
     @Test
     void shouldGetCalendar_defaultMonth() throws Exception {
         when(signInService.getCalendar(anyLong(), anyString())).thenReturn(List.of());
@@ -143,6 +161,9 @@ class SignInControllerStandaloneTest {
 
     // ==================== GET /signin/stats/{userId} ====================
 
+    /**
+     * 测试：查询用户签到统计概览。
+     */
     @Test
     void shouldGetStats() throws Exception {
         SignInStatsDTO stats = new SignInStatsDTO();
@@ -165,6 +186,9 @@ class SignInControllerStandaloneTest {
                 .andExpect(jsonPath("$.data.signedToday").value(true));
     }
 
+    /**
+     * 测试：无签到记录时统计值均为 0。
+     */
     @Test
     void shouldGetStats_empty() throws Exception {
         SignInStatsDTO stats = new SignInStatsDTO();
@@ -185,6 +209,9 @@ class SignInControllerStandaloneTest {
 
     // ==================== GET /signin/users/page ====================
 
+    /**
+     * 测试：分页查询用户签到汇总（管理员端）。
+     */
     @Test
     void shouldPageUsers() throws Exception {
         UserSignInSummaryDTO summary = new UserSignInSummaryDTO();

@@ -64,6 +64,9 @@ public class OauthSecurityProperties {
 
     /**
      * 安全响应头配置
+     *
+     * @author CH
+     * @since 2025/01/01
      */
     @Data
     public static class Headers {
@@ -116,6 +119,9 @@ public class OauthSecurityProperties {
 
     /**
      * CSRF 防护配置
+     *
+     * @author CH
+     * @since 2025/01/01
      */
     @Data
     public static class Csrf {
@@ -162,6 +168,9 @@ public class OauthSecurityProperties {
 
     /**
      * IP 级请求限流配置
+     *
+     * @author CH
+     * @since 2025/01/01
      */
     @Data
     public static class RateLimit {
@@ -199,6 +208,9 @@ public class OauthSecurityProperties {
 
     /**
      * Session Fixation 防护配置
+     *
+     * @author CH
+     * @since 2025/01/01
      */
     @Data
     public static class SessionFixation {
@@ -216,6 +228,9 @@ public class OauthSecurityProperties {
 
     /**
      * 登录失败锁定配置
+     *
+     * @author CH
+     * @since 2025/01/01
      */
     @Data
     public static class LoginLock {

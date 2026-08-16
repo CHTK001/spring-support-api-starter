@@ -28,14 +28,16 @@ public class SettingGroupUtils {
      */
     public boolean isUseProjectInterface(String groupCode) {
         if (groupCode == null || groupCode.isEmpty()) {
-            return true; // 默认使用项目接口
+            // 编码为空时默认使用项目接口
+            return true;
         }
 
         List<SysSettingGroup> settingGroups = sysSettingGroupService.list(Wrappers.<SysSettingGroup>lambdaQuery()
                 .eq(SysSettingGroup::getSysSettingGroupCode, groupCode));
 
         if (settingGroups.isEmpty()) {
-            return true; // 默认使用项目接口
+            // 未找到配置组时默认使用项目接口
+            return true;
         }
 
         SysSettingGroup settingGroup = settingGroups.get(0);

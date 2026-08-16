@@ -25,6 +25,9 @@ import java.util.Objects;
 
 /**
  * 反馈管理菜单初始化
+ *
+ * @author CH
+ * @since 2026/08/03
  */
 @Slf4j
 @Component
@@ -32,10 +35,29 @@ import java.util.Objects;
 @ConditionalOnProperty(prefix = "plugin.system.feedback.menu", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class FeedbackMenuInitializer implements ApplicationRunner {
 
+    /**
+     * 父级菜单路径
+     */
     private static final String PARENT_MENU_PATH = "/manage";
+
+    /**
+     * 反馈管理菜单路径
+     */
     private static final String MENU_PATH = "/manage/feedback";
+
+    /**
+     * 菜单组件地址
+     */
     private static final String MENU_COMPONENT = "system/feedback/index";
+
+    /**
+     * 菜单标题
+     */
     private static final String MENU_TITLE = "反馈管理";
+
+    /**
+     * 菜单名称
+     */
     private static final String MENU_NAME = "feedback";
 
     private final SysMenuMapper sysMenuMapper;
@@ -43,6 +65,11 @@ public class FeedbackMenuInitializer implements ApplicationRunner {
     private final SysRoleMenuMapper sysRoleMenuMapper;
     private final Map<String, CacheManager> cacheManagers;
 
+    /**
+     * 应用启动后执行反馈菜单初始化。
+     *
+     * @param args 启动参数
+     */
     @Override
     public void run(ApplicationArguments args) {
         SysMenu parentMenu = sysMenuMapper.selectOne(
@@ -65,6 +92,12 @@ public class FeedbackMenuInitializer implements ApplicationRunner {
         }
     }
 
+    /**
+     * 确保反馈菜单存在并保持最新。
+     *
+     * @param parentMenu 父级菜单
+     * @return 反馈菜单
+     */
     private SysMenu ensureMenu(SysMenu parentMenu) {
         SysMenu existing = sysMenuMapper.selectOne(
                 Wrappers.<SysMenu>lambdaQuery()
@@ -120,6 +153,12 @@ public class FeedbackMenuInitializer implements ApplicationRunner {
         return menu;
     }
 
+    /**
+     * 确保管理员与超管角色已关联反馈菜单。
+     *
+     * @param menuId 菜单ID
+     * @return true 表示发生了新增关联
+     */
     private boolean ensureRoleMenus(Integer menuId) {
         boolean changed = false;
         List<SysRole> roles = sysRoleMapper.selectList(
@@ -145,6 +184,13 @@ public class FeedbackMenuInitializer implements ApplicationRunner {
         return changed;
     }
 
+    /**
+     * 构建菜单树ID。
+     *
+     * @param parentMenu 父级菜单
+     * @param menuId     菜单ID
+     * @return 树ID字符串
+     */
     private String buildTreeId(SysMenu parentMenu, Integer menuId) {
         String parentTreeId = parentMenu.getSysMenuTreeId();
         if (StringUtils.isBlank(parentTreeId)) {
@@ -153,6 +199,9 @@ public class FeedbackMenuInitializer implements ApplicationRunner {
         return parentTreeId + "," + menuId;
     }
 
+    /**
+     * 清空所有缓存管理器下的缓存。
+     */
     private void clearCache() {
         cacheManagers.forEach((cacheName, manager) -> {
             Cache namedCache = manager.getCache(cacheName);

@@ -86,6 +86,12 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
         return ReturnResult.of(updated);
     }
 
+    /**
+     * 查询 2FA 绑定状态。
+     *
+     * @param sysUserId 用户ID
+     * @return 绑定状态结果（true 表示已绑定）
+     */
     @Override
     public ReturnResult<Boolean> status(Integer sysUserId) {
         SysUser sysUser = getById(sysUserId);
@@ -187,7 +193,8 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
 
             // 验证前后时间窗口（容差）
             long currentTime = System.currentTimeMillis();
-            long interval = 30 * 1000L; // 30 秒一个窗口
+            // 每个时间窗口 30 秒
+            long interval = 30 * 1000L;
 
             for (int i = 1; i <= TIME_WINDOW_TOLERANCE; i++) {
                 // 检查之前的时间窗口

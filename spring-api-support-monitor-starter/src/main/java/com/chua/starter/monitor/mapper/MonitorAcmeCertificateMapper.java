@@ -8,11 +8,10 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * ACME 证书 Mapper
+ * ACME 证书 Mapper，提供 monitor_acme_certificate 表的基础增删改查能力。
  *
- * 作者: CH
- * 创建时间: 2025-10-17
- * 版本: 1.0.0
+ * @author CH
+ * @since 2025-10-17
  */
 @Mapper
 public interface MonitorAcmeCertificateMapper extends BaseMapper<MonitorAcmeCertificate> {

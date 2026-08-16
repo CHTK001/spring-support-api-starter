@@ -37,6 +37,19 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ServerComponentLayoutController {
 
+    /**
+     * 请求体键：源服务器ID
+     */
+    private static final String PARAM_SOURCE_SERVER_ID = "sourceServerId";
+
+    /**
+     * 请求体键：目标服务器ID
+     */
+    private static final String PARAM_TARGET_SERVER_ID = "targetServerId";
+
+    /**
+     * 服务器组件布局服务
+     */
     private final MonitorSysGenServerComponentLayoutService componentLayoutService;
 
     /**
@@ -219,8 +232,8 @@ public class ServerComponentLayoutController {
     @PostMapping("/copy")
     @Operation(summary = "复制布局到其他服务器")
     public ReturnResult<Integer> copy(@RequestBody Map<String, Integer> body) {
-        Integer sourceServerId = body.get("sourceServerId");
-        Integer targetServerId = body.get("targetServerId");
+        Integer sourceServerId = body.get(PARAM_SOURCE_SERVER_ID);
+        Integer targetServerId = body.get(PARAM_TARGET_SERVER_ID);
         return componentLayoutService.copyToServer(sourceServerId, targetServerId);
     }
 

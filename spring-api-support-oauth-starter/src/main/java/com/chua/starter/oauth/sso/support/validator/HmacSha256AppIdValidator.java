@@ -34,6 +34,36 @@ import java.util.stream.Collectors;
 public class HmacSha256AppIdValidator implements AppIdValidator {
 
     /**
+     * 请求头参数名: 时间戳
+     */
+    private static final String HEADER_X_TIME = "x-time";
+
+    /**
+     * 请求头参数名: 随机数
+     */
+    private static final String HEADER_X_RANDOM = "x-random";
+
+    /**
+     * 请求头参数名: 签名
+     */
+    private static final String HEADER_X_SIGN = "x-sign";
+
+    /**
+     * 请求头参数名: AppKey
+     */
+    private static final String HEADER_APP_KEY = "appKey";
+
+    /**
+     * 允许的时间戳最大偏差 (毫秒), 5 分钟
+     */
+    private static final long MAX_TIME_DIFF_MILLIS = 5L * 60 * 1000;
+
+    /**
+     * 签名拼接连接符
+     */
+    private static final String SIGN_JOINER = "&";
+
+    /**
      * 验证签名（从 OauthAuthInformation 中获取签名参数）
      *
      * @param authInformation 认证信息
@@ -48,10 +78,10 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
 
         try {
             // 1. 从 Header 获取签名参数
-            String xTime = authInformation.getRequestHeaderValue("x-time");
-            String xRandom = authInformation.getRequestHeaderValue("x-random");
-            String xSign = authInformation.getRequestHeaderValue("x-sign");
-            String appKeyFromHeader = authInformation.getRequestHeaderValue("appKey");
+            String xTime = authInformation.getRequestHeaderValue(HEADER_X_TIME);
+            String xRandom = authInformation.getRequestHeaderValue(HEADER_X_RANDOM);
+            String xSign = authInformation.getRequestHeaderValue(HEADER_X_SIGN);
+            String appKeyFromHeader = authInformation.getRequestHeaderValue(HEADER_APP_KEY);
 
             // 验证必需参数
             if (StringUtils.isBlank(xTime) || StringUtils.isBlank(xRandom) || StringUtils.isBlank(xSign)) {
@@ -97,7 +127,7 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
             long requestTime = Long.parseLong(xTime);
             long currentTime = System.currentTimeMillis();
             long timeDiff = Math.abs(currentTime - requestTime);
-            if (timeDiff > 5 * 60 * 1000) { // 5分钟
+            if (timeDiff > MAX_TIME_DIFF_MILLIS) {
                 log.warn("时间戳过期: requestTime={}, currentTime={}, diff={}ms", 
                         requestTime, currentTime, timeDiff);
                 return ValidationResult.failure("请求时间戳过期");
@@ -240,10 +270,10 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     private String buildSignString(String xBody, String xRandom, String xTime) {
         if (StringUtils.isNotBlank(xBody)) {
             // 有 x-body：x-body&x-random&x-time
-            return xBody + "&" + xRandom + "&" + xTime;
+            return xBody + SIGN_JOINER + xRandom + SIGN_JOINER + xTime;
         } else {
             // 没有 x-body：x-random&x-time
-            return xRandom + "&" + xTime;
+            return xRandom + SIGN_JOINER + xTime;
         }
     }
 
@@ -303,6 +333,12 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
         return maskValue(appKey);
     }
 
+    /**
+     * 判断当前验证器是否支持该 AppId 签名方式。
+     *
+     * @param appId 原始 AppId
+     * @return 默认返回 true, 实际验证时会检查参数是否存在
+     */
     @Override
     public boolean supports(String appId) {
         // 检查 Header 中是否有签名参数，如果有则支持

@@ -2,6 +2,7 @@ package com.chua.starter.achievement.service;
 
 import com.chua.common.support.concurrent.circuit.CircuitBreaker;
 import com.chua.common.support.lang.datasource.kv.KvEngine;
+import com.chua.starter.achievement.constant.AchievementContextConstants;
 import com.chua.starter.achievement.dto.UnlockedAchievementDTO;
 import com.chua.starter.achievement.mapper.AchievementTierMapper;
 import com.chua.starter.achievement.mapper.UserAchievementMapper;
@@ -38,11 +39,6 @@ import java.util.stream.Collectors;
 public class AchievementService {
 
     /**
-     * KvEngine 中成就数据的键前缀
-     */
-    private static final String KEY_PREFIX = "achievement:";
-
-    /**
      * 统一 KV 引擎，由 spring-support-redis-starter 注册
      */
     private final KvEngine kvEngine;
@@ -71,7 +67,7 @@ public class AchievementService {
      * @return 新解锁的成就列表
      */
     public List<UnlockedAchievementDTO> onUserAction(Long userId, String statKey, long delta) {
-        String key = KEY_PREFIX + userId + ":" + statKey;
+        String key = AchievementContextConstants.KEY_PREFIX + userId + ":" + statKey;
 
         // 根据增量正负更新统计值
         if (delta >= 1) {
@@ -84,7 +80,7 @@ public class AchievementService {
         }
 
         // 拉取该用户全部统计数据上下文
-        Map<String, String> context = kvEngine.findAllByPrefix(KEY_PREFIX + userId + ":");
+        Map<String, String> context = kvEngine.findAllByPrefix(AchievementContextConstants.KEY_PREFIX + userId + ":");
         return judgeAll(userId, context);
     }
 
@@ -97,9 +93,9 @@ public class AchievementService {
      * @return 新解锁的成就列表
      */
     public List<UnlockedAchievementDTO> setStatAndJudge(Long userId, String statKey, String value) {
-        String key = KEY_PREFIX + userId + ":" + statKey;
+        String key = AchievementContextConstants.KEY_PREFIX + userId + ":" + statKey;
         kvEngine.put(key, value);
-        Map<String, String> context = kvEngine.findAllByPrefix(KEY_PREFIX + userId + ":");
+        Map<String, String> context = kvEngine.findAllByPrefix(AchievementContextConstants.KEY_PREFIX + userId + ":");
         return judgeAll(userId, context);
     }
 
@@ -117,7 +113,7 @@ public class AchievementService {
         if (stats == null || stats.isEmpty()) {
             return new ArrayList<>();
         }
-        String prefix = KEY_PREFIX + userId + ":";
+        String prefix = AchievementContextConstants.KEY_PREFIX + userId + ":";
         for (Map.Entry<String, Object> entry : stats.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
@@ -258,7 +254,7 @@ public class AchievementService {
      * @return 数值类型已转换的断路器上下文
      */
     private Map<String, Object> convertToBreakerContext(Long userId, Map<String, String> context) {
-        String prefixToRemove = KEY_PREFIX + userId + ":";
+        String prefixToRemove = AchievementContextConstants.KEY_PREFIX + userId + ":";
         Map<String, Object> result = new java.util.HashMap<>();
         for (Map.Entry<String, String> entry : context.entrySet()) {
             String key = entry.getKey();

@@ -16,12 +16,18 @@ import java.io.Serializable;
 
 /**
  * 模板管理
+ *
+ * @author CH
+ * @since 2026/08/03
  */
 @Schema(description="模板管理")
 @Data
 @EqualsAndHashCode(callSuper=true)
 @TableName(value = "sys_sms_template")
 public class SysSmsTemplate extends SysBase implements Serializable {
+    /**
+     * 模板主键ID
+     */
     @TableId(value = "sys_sms_template_id", type = IdType.AUTO)
     @Schema(description="")
     private Integer sysSmsTemplateId;

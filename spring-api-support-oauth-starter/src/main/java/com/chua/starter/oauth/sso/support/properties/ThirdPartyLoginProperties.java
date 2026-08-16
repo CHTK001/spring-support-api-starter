@@ -243,10 +243,16 @@ public class ThirdPartyLoginProperties {
      * </ul>
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
+     * @author CH
+     * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Gitee extends Base {
+
+        /**
+         * 默认构造器, 内置演示用 ClientId/ClientSecret/回调地址。
+         */
         public Gitee() {
             this.setClientId("f0d999a2e91e9a4edcec329fe7e6b3f1fa8b7063f8a618c3c7a2e0d0a13d5943");
             this.setClientSecret("158ced91fe30cfa06798c638d2b477d54e57b623a7e869c42d34d3125e88f1b7");
@@ -334,6 +340,8 @@ public class ThirdPartyLoginProperties {
      * </ul>
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
+     * @author CH
+     * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -417,6 +425,8 @@ public class ThirdPartyLoginProperties {
      * </ul>
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
+     * @author CH
+     * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -495,6 +505,8 @@ public class ThirdPartyLoginProperties {
      * </ul>
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
+     * @author CH
+     * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -571,12 +583,20 @@ public class ThirdPartyLoginProperties {
      * </ul>
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
+     * @author CH
+     * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class WechatMini extends Base {
     }
 
+    /**
+     * QQ 互联登录配置。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Qq extends Base {
@@ -586,6 +606,12 @@ public class ThirdPartyLoginProperties {
         private boolean unionId = false;
     }
 
+    /**
+     * 支付宝登录配置。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Alipay extends Base {
@@ -595,11 +621,23 @@ public class ThirdPartyLoginProperties {
         private String alipayPublicKey;
     }
 
+    /**
+     * 钉钉登录配置。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class DingTalk extends Base {
     }
 
+    /**
+     * 企业微信登录配置。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class WechatEnterprise extends Base {
@@ -609,11 +647,23 @@ public class ThirdPartyLoginProperties {
         private String agentId;
     }
 
+    /**
+     * 新浪微博登录配置。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Weibo extends Base {
     }
 
+    /**
+     * 百度登录配置。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Baidu extends Base {
@@ -704,12 +754,20 @@ public class ThirdPartyLoginProperties {
      * </ul>
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
+     * @author CH
+     * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Google extends Base {
     }
 
+    /**
+     * Microsoft 登录配置。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Microsoft extends Base {
@@ -717,6 +775,12 @@ public class ThirdPartyLoginProperties {
 
     // ==================== 基础配置类 ====================
 
+    /**
+     * 平台基础配置。
+     *
+     * @author CH
+     * @since 4.0.0.42
+     */
     @Data
     public static class Base {
 

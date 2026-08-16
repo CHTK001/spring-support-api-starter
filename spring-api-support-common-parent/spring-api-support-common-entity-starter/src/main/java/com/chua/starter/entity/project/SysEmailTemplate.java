@@ -13,12 +13,18 @@ import java.io.Serializable;
 
 /**
  * 邮件模板
+ *
+ * @author CH
+ * @since 2026/08/03
  */
 @Schema(description="邮件模板")
 @Data
 @EqualsAndHashCode(callSuper=true)
 @TableName(value = "sys_email_template")
 public class SysEmailTemplate extends SysBase implements Serializable {
+    /**
+     * 模板主键ID
+     */
     @TableId(value = "sys_email_template_id", type = IdType.AUTO)
     @Schema(description="")
     private Integer sysEmailTemplateId;

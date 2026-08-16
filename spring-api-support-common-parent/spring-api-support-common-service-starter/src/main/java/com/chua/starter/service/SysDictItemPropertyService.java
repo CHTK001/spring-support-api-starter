@@ -9,6 +9,7 @@ import com.chua.starter.service.pojo.dict.DictItemPropertyV1Request;
  * 字典配置项
  *
  * @author CH
+ * @since 2025/9/28
  */
 public interface SysDictItemPropertyService extends IService<SysDictItemProperty> {
 

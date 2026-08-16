@@ -20,9 +20,16 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * SignInService 单元测试
@@ -86,6 +93,9 @@ class SignInServiceTest {
 
     // ==================== 签到成功 ====================
 
+    /**
+     * 测试：签到全流程成功，校验积分、连续天数、事件与推送。
+     */
     @Test
     void testSignIn_success() {
         Long userId = 1L;
@@ -149,6 +159,9 @@ class SignInServiceTest {
 
     // ==================== 防抖：锁获取失败 ====================
 
+    /**
+     * 测试：防抖锁获取失败时返回重复签到提示。
+     */
     @Test
     void testSignIn_debounce_lock_failed() {
         Long userId = 1L;
@@ -169,6 +182,9 @@ class SignInServiceTest {
 
     // ==================== 今日已签到 ====================
 
+    /**
+     * 测试：今日已签到过时返回已签到结果。
+     */
     @Test
     void testSignIn_already_signed() {
         Long userId = 1L;
@@ -197,6 +213,9 @@ class SignInServiceTest {
 
     // ==================== 首次签到（无昨日记录） ====================
 
+    /**
+     * 测试：首次签到（无昨日记录）连续天数从 1 开始。
+     */
     @Test
     void testSignIn_first_time() {
         Long userId = 2L;
@@ -235,12 +254,18 @@ class SignInServiceTest {
 
     // ==================== isSignedToday ====================
 
+    /**
+     * 测试：今日已签到返回 true。
+     */
     @Test
     void testIsSignedToday_true() {
         when(recordMapper.selectByUserIdAndDate(eq(1L), any(LocalDate.class))).thenReturn(new SignInRecord());
         assertTrue(signInService.isSignedToday(1L));
     }
 
+    /**
+     * 测试：今日未签到返回 false。
+     */
     @Test
     void testIsSignedToday_false() {
         when(recordMapper.selectByUserIdAndDate(eq(1L), any(LocalDate.class))).thenReturn(null);
@@ -249,6 +274,9 @@ class SignInServiceTest {
 
     // ==================== getCalendar ====================
 
+    /**
+     * 测试：按月份查询签到日历。
+     */
     @Test
     void testGetCalendar() {
         Long userId = 1L;
@@ -269,6 +297,9 @@ class SignInServiceTest {
 
     // ==================== getStats ====================
 
+    /**
+     * 测试：今日已签到时统计当前连续及历史最高连续天数。
+     */
     @Test
     void testGetStats_with_today_signed() {
         Long userId = 1L;
@@ -292,6 +323,9 @@ class SignInServiceTest {
         assertTrue(stats.isSignedToday());
     }
 
+    /**
+     * 测试：无任何签到记录时统计值均为 0。
+     */
     @Test
     void testGetStats_no_records() {
         Long userId = 1L;
@@ -312,6 +346,9 @@ class SignInServiceTest {
 
     // ==================== getUserSummaryPage ====================
 
+    /**
+     * 测试：分页查询用户签到汇总及总数。
+     */
     @Test
     void testGetUserSummaryPage() {
         UserSignInSummaryDTO summary = new UserSignInSummaryDTO();

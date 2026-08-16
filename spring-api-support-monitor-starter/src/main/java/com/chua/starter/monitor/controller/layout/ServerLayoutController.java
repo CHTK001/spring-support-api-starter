@@ -38,7 +38,24 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ServerLayoutController {
 
+    /**
+     * 请求体键：组件ID
+     */
+    private static final String PARAM_COMPONENT_ID = "componentId";
+
+    /**
+     * 请求体键：图表配置 JSON
+     */
+    private static final String PARAM_CHART_CONFIG = "chartConfig";
+
+    /**
+     * 服务器布局配置服务
+     */
     private final MonitorSysGenServerLayoutService layoutService;
+
+    /**
+     * 服务器组件布局服务，用于应用布局与读写组件图表配置
+     */
     private final MonitorSysGenServerComponentLayoutService componentLayoutService;
 
     /**
@@ -211,8 +228,8 @@ public class ServerLayoutController {
     public ReturnResult<Boolean> saveComponentConfig(
             @ApiParam("服务器ID") @PathVariable Integer serverId,
             @RequestBody Map<String, Object> body) {
-        Object componentId = body.get("componentId");
-        Object chartConfig = body.get("chartConfig");
+        Object componentId = body.get(PARAM_COMPONENT_ID);
+        Object chartConfig = body.get(PARAM_CHART_CONFIG);
         if (componentId == null) {
             return ReturnResult.illegal("componentId 不能为空");
         }
@@ -254,11 +271,11 @@ public class ServerLayoutController {
         }
         int saved = 0;
         for (Map<String, Object> config : configs) {
-            Object componentId = config.get("componentId");
+            Object componentId = config.get(PARAM_COMPONENT_ID);
             if (componentId == null) {
                 continue;
             }
-            Object chartConfig = config.get("chartConfig");
+            Object chartConfig = config.get(PARAM_CHART_CONFIG);
             ReturnResult<Boolean> result = componentLayoutService.saveChartConfig(
                     serverId,
                     Integer.valueOf(componentId.toString()),

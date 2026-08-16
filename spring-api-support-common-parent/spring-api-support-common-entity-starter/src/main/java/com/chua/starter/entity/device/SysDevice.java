@@ -14,12 +14,18 @@ import java.util.List;
 
 /**
  * 设备管理
+ *
+ * @author CH
+ * @since 2026/08/03
  */
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "设备管理")
 @Data
 @TableName(value = "sys_device")
 public class SysDevice extends SysBase {
+    /**
+     * 设备主键ID
+     */
     @TableId(value = "sys_device_id", type = IdType.AUTO)
     @Schema(description = "")
     private Integer sysDeviceId;

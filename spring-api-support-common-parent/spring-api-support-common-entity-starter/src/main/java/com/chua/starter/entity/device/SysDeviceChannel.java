@@ -9,11 +9,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * 设备通道信息
+ *
+ * @author CH
+ * @since 2026/08/03
+ */
 @Schema
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_device_channel")
 public class SysDeviceChannel extends SysBase {
+    /**
+     * 通道主键ID
+     */
     @TableId(value = "sys_device_channel_id", type = IdType.AUTO)
     @Schema(description = "")
     private Integer sysDeviceChannelId;

@@ -42,8 +42,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class EnableSystemServerConfiguration implements WebMvcConfigurer, CommandLineRunner {
 
+    /**
+     * 系统服务配置属性
+     */
     private final SystemProperties systemProperties;
 
+    /**
+     * 应用启动后注册系统服务信息标志。
+     *
+     * @param args 启动参数
+     */
     @Override
     public void run(String... args) throws Exception {
         ServiceInfoRegistry.getInstance().registerFlag(

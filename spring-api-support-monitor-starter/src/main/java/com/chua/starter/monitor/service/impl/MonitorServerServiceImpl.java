@@ -25,6 +25,16 @@ public class MonitorServerServiceImpl extends ServiceImpl<MonitorServerMapper, M
         implements MonitorServerService {
 
     /**
+     * 下拉选项键：服务器ID
+     */
+    private static final String KEY_SERVER_ID = "serverId";
+
+    /**
+     * 下拉选项键：服务器名称
+     */
+    private static final String KEY_SERVER_NAME = "serverName";
+
+    /**
      * 获取服务器下拉选项（ID 与名称），用于布局复制等场景的目标服务器选择。
      *
      * @return 服务器选项列表
@@ -33,8 +43,8 @@ public class MonitorServerServiceImpl extends ServiceImpl<MonitorServerMapper, M
     public List<Map<String, Object>> listOptions() {
         return list().stream()
                 .map(server -> Map.<String, Object>of(
-                        "serverId", server.getServerId(),
-                        "serverName", server.getServerName()))
+                        KEY_SERVER_ID, server.getServerId(),
+                        KEY_SERVER_NAME, server.getServerName()))
                 .collect(Collectors.toList());
     }
 }

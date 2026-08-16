@@ -10,8 +10,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * ACME 验证缓存服务
- * 用于本机部署模式，存储 token -> keyAuthorization 的映射
+ * ACME 验证缓存服务，用于本机部署模式，存储 token -> keyAuthorization 的映射，
+ * 并定时清理过期的验证信息。
  *
  * @author CH
  * @since 2025-12-28
@@ -26,17 +26,29 @@ public class AcmeChallengeService {
     private final Map<String, ChallengeInfo> challengeCache = new ConcurrentHashMap<>();
 
     /**
-     * 定时清理过期的验证信息（默认10分钟过期）
+     * 定时清理过期的验证信息（默认 10 分钟过期）
      */
     private final ScheduledExecutorService cleaner = Executors.newSingleThreadScheduledExecutor();
 
+    /**
+     * 验证信息过期时长（分钟）
+     */
+    private static final long EXPIRE_MINUTES = 10;
+
+    /**
+     * 清理任务执行间隔（分钟）
+     */
+    private static final long CLEAN_INTERVAL_MINUTES = 1;
+
+    /**
+     * 构造器：启动后台定时清理任务，每分钟清理一次过期的验证信息。
+     */
     public AcmeChallengeService() {
-        // 每分钟清理过期的验证信息
-        cleaner.scheduleAtFixedRate(this::cleanExpired, 1, 1, TimeUnit.MINUTES);
+        cleaner.scheduleAtFixedRate(this::cleanExpired, CLEAN_INTERVAL_MINUTES, CLEAN_INTERVAL_MINUTES, TimeUnit.MINUTES);
     }
 
     /**
-     * 存储验证信息
+     * 存储验证信息。
      *
      * @param token            验证 token
      * @param keyAuthorization 验证内容
@@ -47,7 +59,7 @@ public class AcmeChallengeService {
     }
 
     /**
-     * 获取验证内容
+     * 获取验证内容。
      *
      * @param token 验证 token
      * @return keyAuthorization，不存在返回 null
@@ -58,7 +70,7 @@ public class AcmeChallengeService {
     }
 
     /**
-     * 移除验证信息
+     * 移除验证信息。
      *
      * @param token 验证 token
      */
@@ -68,11 +80,11 @@ public class AcmeChallengeService {
     }
 
     /**
-     * 清理过期的验证信息（10分钟过期）
+     * 清理过期的验证信息（默认 10 分钟过期）。
      */
     private void cleanExpired() {
         long now = System.currentTimeMillis();
-        long expireTime = 10 * 60 * 1000; // 10分钟
+        long expireTime = EXPIRE_MINUTES * 60 * 1000;
         challengeCache.entrySet().removeIf(entry -> {
             boolean expired = now - entry.getValue().createTime > expireTime;
             if (expired) {
@@ -83,7 +95,10 @@ public class AcmeChallengeService {
     }
 
     /**
-     * 验证信息
+     * 验证信息记录，保存验证内容及创建时间。
+     *
+     * @author CH
+     * @since 2025-12-28
      */
     private record ChallengeInfo(String keyAuthorization, long createTime) {
     }

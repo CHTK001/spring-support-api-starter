@@ -7,14 +7,17 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * cas配置
  *
  * @author CH
+ * @since 4.0.0.42
  */
 @Data
 @ConfigurationProperties(prefix = "plugin.oauth.third.url")
 public class CasProperties {
+
     /**
      * 登录地址
      */
     private String newLoginUrl;
+
     /**
      * 主页地址
      */

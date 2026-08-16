@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * ACME 账户服务实现
+ * ACME 账户服务实现，提供账户按邮箱/状态/服务器查询、保存、状态更新与删除能力。
  *
  * @author CH
  * @since 4.0.0.42
@@ -22,6 +22,17 @@ public class MonitorAcmeAccountServiceImpl
         extends ServiceImpl<MonitorAcmeAccountMapper, MonitorAcmeAccount>
         implements MonitorAcmeAccountService {
 
+    /**
+     * 账户默认状态：有效
+     */
+    private static final String STATUS_VALID = "valid";
+
+    /**
+     * 按邮箱查询账户。
+     *
+     * @param email 邮箱
+     * @return 账户列表，邮箱为空时返回空列表
+     */
     @Override
     public List<MonitorAcmeAccount> listByEmail(String email) {
         if (email == null || email.isEmpty()) {
@@ -31,6 +42,12 @@ public class MonitorAcmeAccountServiceImpl
                 .eq(MonitorAcmeAccount::getAcmeAccountEmail, email));
     }
 
+    /**
+     * 按状态查询账户。
+     *
+     * @param status 状态
+     * @return 账户列表，状态为空时返回空列表
+     */
     @Override
     public List<MonitorAcmeAccount> listByStatus(String status) {
         if (status == null || status.isEmpty()) {
@@ -40,6 +57,12 @@ public class MonitorAcmeAccountServiceImpl
                 .eq(MonitorAcmeAccount::getAcmeAccountStatus, status));
     }
 
+    /**
+     * 按 ACME 服务器地址查询账户。
+     *
+     * @param server ACME 服务 URL
+     * @return 账户列表，服务器为空时返回空列表
+     */
     @Override
     public List<MonitorAcmeAccount> listByServer(String server) {
         if (server == null || server.isEmpty()) {
@@ -49,6 +72,12 @@ public class MonitorAcmeAccountServiceImpl
                 .eq(MonitorAcmeAccount::getAcmeAccountServer, server));
     }
 
+    /**
+     * 保存账户：无主键时新增（默认状态 valid），有主键时更新。
+     *
+     * @param account 账户
+     * @return 保存后的对象，参数为空或更新失败时返回 null
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public MonitorAcmeAccount saveOrUpdateAccount(MonitorAcmeAccount account) {
@@ -59,7 +88,7 @@ public class MonitorAcmeAccountServiceImpl
             account.setCreateTime(LocalDateTime.now());
             account.setUpdateTime(LocalDateTime.now());
             if (account.getAcmeAccountStatus() == null) {
-                account.setAcmeAccountStatus("valid");
+                account.setAcmeAccountStatus(STATUS_VALID);
             }
             save(account);
             return account;
@@ -69,6 +98,13 @@ public class MonitorAcmeAccountServiceImpl
         return ok ? account : null;
     }
 
+    /**
+     * 更新账户状态。
+     *
+     * @param accountId 账户主键
+     * @param newStatus 新状态
+     * @return 是否成功，参数为空时返回 false
+     */
     @Override
     public boolean updateStatus(Integer accountId, String newStatus) {
         if (accountId == null || newStatus == null) {
@@ -81,6 +117,12 @@ public class MonitorAcmeAccountServiceImpl
         return updateById(update);
     }
 
+    /**
+     * 删除账户（关联证书和订单的级联删除由调用方负责）。
+     *
+     * @param accountId 账户主键
+     * @return 是否成功，参数为空时返回 false
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean removeAccount(Integer accountId) {
@@ -90,6 +132,11 @@ public class MonitorAcmeAccountServiceImpl
         return removeById(accountId);
     }
 
+    /**
+     * 统计账户总数。
+     *
+     * @return 账户数量
+     */
     @Override
     public long countAccounts() {
         return count();

@@ -18,6 +18,9 @@ import java.io.Serializable;
  * 微信用户表
  *
  * 主要存储通过微信体系接入的用户基础信息
+ *
+ * @author CH
+ * @since 2026/08/03
  */
 @Schema(description = "微信用户表")
 @Data

@@ -16,14 +16,12 @@ import com.chua.starter.monitor.mapper.MonitorAcmeCertificateMapper;
 import com.chua.starter.monitor.mapper.MonitorAcmeOrderMapper;
 import com.chua.starter.monitor.pojo.acme.AcmeApplyCertRequest;
 import com.chua.starter.monitor.properties.AcmeProperties;
+import com.chua.starter.monitor.service.acme.support.AcmeCertificateSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,9 +68,9 @@ public class AcmeCertificateAsyncService {
     private static final String STATUS_FAILED = "failed";
 
     /**
-     * 时间格式化，与证书表时间字段格式保持一致
+     * 挑战类型：HTTP-01
      */
-    private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final String CHALLENGE_HTTP_01 = "HTTP-01";
 
     /**
      * 证书 Mapper，用于回填申请结果与状态
@@ -172,8 +170,8 @@ public class AcmeCertificateAsyncService {
                 accountMapper.updateById(account);
             }
 
-            List<String> domains = buildDomains(cert);
-            String challenge = StringUtils.defaultString(cert.getAcmeCertChallengeType(), "HTTP-01");
+            List<String> domains = AcmeCertificateSupport.buildDomains(cert);
+            String challenge = StringUtils.defaultString(cert.getAcmeCertChallengeType(), CHALLENGE_HTTP_01);
             pushProgress(userId, "apply", STATUS_VALIDATING, "已连接 ACME 服务器，正在申请证书",
                     baseMap(certId, cert.getAcmeCertPrimaryDomain()));
 
@@ -181,7 +179,7 @@ public class AcmeCertificateAsyncService {
             applyResult(cert, result, userId, "apply", certId);
         } catch (Exception e) {
             log.error("[ACME-ASYNC] 申请证书异常, certId={}", certId, e);
-            updateFailed(cert, shortMsg(e));
+            updateFailed(cert, AcmeCertificateSupport.shortMsg(e));
             pushProgress(userId, "apply", STATUS_FAILED, "申请异常: " + e.getMessage(),
                     baseMap(certId, cert.getAcmeCertPrimaryDomain()));
         } finally {
@@ -235,13 +233,13 @@ public class AcmeCertificateAsyncService {
                 return;
             }
 
-            List<String> domains = buildDomains(cert);
-            String challenge = StringUtils.defaultString(cert.getAcmeCertChallengeType(), "HTTP-01");
+            List<String> domains = AcmeCertificateSupport.buildDomains(cert);
+            String challenge = StringUtils.defaultString(cert.getAcmeCertChallengeType(), CHALLENGE_HTTP_01);
             AcmeCertificateResult result = provider.requestCertificate(domains, challenge);
             applyResult(cert, result, userId, "retry", certId);
         } catch (Exception e) {
             log.error("[ACME-ASYNC] 重新验证异常, certId={}", certId, e);
-            updateFailed(cert, shortMsg(e));
+            updateFailed(cert, AcmeCertificateSupport.shortMsg(e));
             pushProgress(userId, "retry", STATUS_FAILED, "重新验证异常: " + e.getMessage(),
                     baseMap(certId, cert.getAcmeCertPrimaryDomain()));
         } finally {
@@ -306,7 +304,7 @@ public class AcmeCertificateAsyncService {
      */
     private void updateFailed(MonitorAcmeCertificate cert, String error) {
         cert.setAcmeCertStatus(STATUS_FAILED);
-        cert.setAcmeCertLastError(shortMsg(error));
+        cert.setAcmeCertLastError(AcmeCertificateSupport.shortMsg(error));
         certificateMapper.updateById(cert);
     }
 
@@ -317,38 +315,7 @@ public class AcmeCertificateAsyncService {
      * @param src    证书申请结果
      */
     private void fillSuccess(MonitorAcmeCertificate target, AcmeCertificateResult src) {
-        target.setAcmeCertStatus(STATUS_VALID);
-        if (src.getNotBefore() != null) {
-            target.setAcmeCertNotBefore(src.getNotBefore().format(DATE));
-        }
-        if (src.getNotAfter() != null) {
-            target.setAcmeCertNotAfter(src.getNotAfter().format(DATE));
-            // 计划续签日期：到期前 N 天
-            LocalDateTime renewAt = src.getNotAfter().minusDays(Math.max(acmeProperties.getRenewDaysBefore(), 7));
-            target.setAcmeCertRenewAt(renewAt.format(DATE));
-        }
-        target.setAcmeCertChainPem(src.getCertificatePem());
-        target.setAcmeCertKeyPem(src.getPrivateKeyPem());
-        target.setAcmeCertLastError(null);
-    }
-
-    /**
-     * 构建域名列表（主域名 + SAN）。
-     *
-     * @param cert 证书实体
-     * @return 域名列表
-     */
-    private List<String> buildDomains(MonitorAcmeCertificate cert) {
-        List<String> domains = new ArrayList<>();
-        domains.add(cert.getAcmeCertPrimaryDomain());
-        if (StringUtils.isNotEmpty(cert.getAcmeCertSan())) {
-            for (String s : cert.getAcmeCertSan().split(",")) {
-                if (StringUtils.isNotEmpty(s)) {
-                    domains.add(s.trim());
-                }
-            }
-        }
-        return domains;
+        AcmeCertificateSupport.fillCertificateSuccess(target, src, acmeProperties.getRenewDaysBefore());
     }
 
     /**
@@ -405,29 +372,5 @@ public class AcmeCertificateAsyncService {
         Map<String, Object> map = baseMap(certId, domain);
         map.put("validationInfos", infos);
         return map;
-    }
-
-    /**
-     * 提取简短异常信息。
-     *
-     * @param e 异常
-     * @return 简短信息
-     */
-    private String shortMsg(Exception e) {
-        String msg = e.getMessage();
-        return shortMsg(msg);
-    }
-
-    /**
-     * 限制错误信息长度，避免超出数据库字段。
-     *
-     * @param error 原始错误信息
-     * @return 限制长度后的信息
-     */
-    private String shortMsg(String error) {
-        if (error == null) {
-            return "";
-        }
-        return error.length() > 512 ? error.substring(0, 512) : error;
     }
 }

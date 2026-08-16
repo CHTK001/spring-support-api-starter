@@ -1,8 +1,8 @@
 package com.chua.starter.achievement.service;
 
 import com.chua.socket.support.session.SocketSessionTemplate;
-import com.chua.socket.support.util.Json;
 import com.chua.starter.achievement.dto.UnlockedAchievementDTO;
+import com.chua.starter.achievement.service.support.SocketPushSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -42,11 +42,6 @@ public class AchievementPushService {
     private final SocketSessionTemplate socketSessionTemplate;
 
     /**
-     * 推送消息使用的协议事件名称（前端 subscribe 监听 "message" 事件）
-     */
-    private static final String PROTOCOL_EVENT = "message";
-
-    /**
      * 前端订阅模块名
      */
     private static final String MODULE = "achievement";
@@ -66,12 +61,8 @@ public class AchievementPushService {
      * @param achievements 新解锁的成就列表
      */
     public void pushAchievements(Long userId, List<UnlockedAchievementDTO> achievements) {
-        String body = Json.toJson(Map.of(
-                "module", MODULE,
-                "event", EVENT,
-                "data", Map.of("event", "achievement_unlocked", "list", achievements)
-        ));
-        socketSessionTemplate.sendToUser(String.valueOf(userId), PROTOCOL_EVENT, body);
+        SocketPushSupport.push(socketSessionTemplate, userId, MODULE, EVENT,
+                Map.of("event", "achievement_unlocked", "list", achievements));
         log.info("[成就推送] 用户 {} 解锁 {} 个成就", userId, achievements.size());
     }
 }

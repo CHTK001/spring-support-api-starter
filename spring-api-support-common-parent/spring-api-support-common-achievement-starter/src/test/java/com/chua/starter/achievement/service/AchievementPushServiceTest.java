@@ -11,9 +11,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 
 /**
  * AchievementPushService 单元测试
@@ -26,16 +27,28 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AchievementPushServiceTest {
 
+    /**
+     * Socket 会话模板模拟
+     */
     @Mock
     private SocketSessionTemplate socketSessionTemplate;
 
+    /**
+     * 测试目标推送服务
+     */
     private AchievementPushService pushService;
 
+    /**
+     * 测试前初始化：构建推送服务及其模拟依赖。
+     */
     @BeforeEach
     void setUp() {
         pushService = new AchievementPushService(socketSessionTemplate);
     }
 
+    /**
+     * 测试：推送成就时调用 SocketSessionTemplate 的 sendToUser。
+     */
     @Test
     void testPushAchievements_calls_socket_session_template() {
         Long userId = 1L;
@@ -50,6 +63,9 @@ class AchievementPushServiceTest {
         verify(socketSessionTemplate).sendToUser(eq("1"), eq("message"), anyString());
     }
 
+    /**
+     * 测试：推送空成就列表时不抛异常。
+     */
     @Test
     void testPushAchievements_empty_list() {
         Long userId = 1L;
@@ -59,6 +75,9 @@ class AchievementPushServiceTest {
         verify(socketSessionTemplate).sendToUser(eq("1"), eq("message"), anyString());
     }
 
+    /**
+     * 测试：推送消息体包含 module、event 及成就名称信息。
+     */
     @Test
     void testPushAchievements_json_contains_module_event() {
         Long userId = 1L;
@@ -76,6 +95,9 @@ class AchievementPushServiceTest {
                         && msg.contains("登录达人")));
     }
 
+    /**
+     * 测试：批量推送多个成就均正常发送。
+     */
     @Test
     void testPushAchievements_multiple_achievements() {
         Long userId = 1L;
@@ -92,6 +114,9 @@ class AchievementPushServiceTest {
         verify(socketSessionTemplate).sendToUser(eq("1"), eq("message"), anyString());
     }
 
+    /**
+     * 测试：推送消息体包含事件名 achievement_unlocked。
+     */
     @Test
     void testPushAchievements_json_contains_event_name() {
         Long userId = 2L;

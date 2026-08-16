@@ -22,6 +22,12 @@ public class MsMonitorMetricConfigServiceImpl
         extends ServiceImpl<MsMonitorMetricConfigMapper, MsMonitorMetricConfig>
         implements MsMonitorMetricConfigService {
 
+    /**
+     * 根据采集任务ID查询关联的解析规则列表。
+     *
+     * @param taskId 任务ID
+     * @return 解析规则列表
+     */
     @Override
     public List<MsMonitorMetricConfig> listByTaskId(Long taskId) {
         return list(Wrappers.<MsMonitorMetricConfig>lambdaQuery()

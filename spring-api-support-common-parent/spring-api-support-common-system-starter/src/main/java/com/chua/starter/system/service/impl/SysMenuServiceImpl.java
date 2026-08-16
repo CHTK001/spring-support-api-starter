@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 菜单服务实现类
@@ -77,7 +78,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                     .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == SystemConstant.NOT_DELETED)
                     .toList();
             if(CollectionUtils.isEmpty(filterMenus)) {
-                return ReturnResult.illegal("当前甯愬彿权限涓嶈冻");
+                return ReturnResult.illegal("当前角色权限不足");
             }
         }
 
@@ -172,7 +173,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                     .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == SystemConstant.NOT_DELETED)
                     .toList();
             if(CollectionUtils.isEmpty(filterMenus)) {
-                return ReturnResult.illegal("当前甯愬彿权限涓嶈冻");
+                return ReturnResult.illegal("当前角色权限不足");
             }
         }
 
@@ -181,7 +182,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         Set<Integer> directoryIds = filterMenus.stream()
                 .map(SysMenu::getSysMenuPid)
                 .filter(Objects::nonNull)
-                .collect(java.util.stream.Collectors.toSet());
+                .collect(Collectors.toSet());
 
         // 排序后输出扁平结构，字段对齐 koi 前端菜单契约
         List<SysMenuVO> result = filterMenus.stream()

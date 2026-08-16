@@ -12,11 +12,17 @@ import java.time.LocalDateTime;
 
 /**
  * 邮件下发日志表
+ *
+ * @author CH
+ * @since 2026/08/03
  */
 @Schema(description = "邮件下发日志表")
 @Data
 @TableName(value = "sys_email_log")
 public class SysEmailLog {
+    /**
+     * 日志主键ID
+     */
     @TableId(value = "sys_email_log_id", type = IdType.AUTO)
     @Schema(description = "")
     private Integer sysEmailLogId;
