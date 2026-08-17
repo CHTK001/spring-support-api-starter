@@ -30,6 +30,6 @@ COPY target/lib/ lib/
 COPY target/config/ config/
 
 # 预留端口（容器实际以 --network host 运行，端口取决于 SERVER_PORT）
-EXPOSE 19180 19181
+EXPOSE 19180 19181 19184 19185
 
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=70", "-jar", "app.jar"]

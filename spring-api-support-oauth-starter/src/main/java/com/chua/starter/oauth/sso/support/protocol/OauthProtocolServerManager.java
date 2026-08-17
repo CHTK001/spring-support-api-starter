@@ -12,6 +12,7 @@ import com.chua.common.support.network.server.response.AbstractServerResponse;
 import com.chua.common.support.network.server.response.ServerResponse;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.kcp.support.server.KcpServer;
+import com.chua.rsocket.support.server.RSocketServer;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.properties.OauthProtocolServersProperties;
@@ -31,6 +32,9 @@ import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants
 import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.DEFAULT_PORT;
 import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.DEFAULT_PROTOCOL;
 import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.DEFAULT_TYPE;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.KCP_REQ_PREFIX;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.KCP_RESP_PREFIX;
+import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.KCP_SEPARATOR;
 import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.LOCALHOST;
 
 /**
@@ -96,6 +100,9 @@ public class OauthProtocolServerManager implements AutoCloseable {
         setting.setHost(config.getHost());
         setting.setPort(config.getPort());
         setting.setProtocol(config.getProtocol());
+        // 强制使用阻塞式过滤链:响应式链中 UrlMappingServerFilter 异步执行 handler,
+        // 存在响应竞态(响应体未写入时响应已返回)。阻塞式链同步执行,保证响应完整。
+        setting.setReactor(false);
         // contextPath 使用根路径,路由注册完整路径(/login 等),避免 JDK HttpServer context 前缀不匹配
         setting.setContextPath(DEFAULT_CONTEXT_PATH);
 
@@ -105,6 +112,15 @@ public class OauthProtocolServerManager implements AutoCloseable {
         // KCP 为消息型协议(topic:payload),不走 filter 链路,单独适配
         if (server instanceof KcpServer kcpServer) {
             startKcpServer(kcpServer, handler, config.getAuthRoutes());
+            serverMap.put(config.getName(), server);
+            log.info("[OauthProtocolServer] 已启动: {} -> {}:{} [{}], 协议: {}",
+                    config.getName(), config.getHost(), config.getPort(),
+                    "SUCCESS", config.getProtocol());
+            return;
+        }
+        // RSocket 为消息型协议(request-response),不走 filter 链路,单独适配
+        if (server instanceof RSocketServer rsocketServer) {
+            startRsocketServer(rsocketServer, handler, config.getAuthRoutes());
             serverMap.put(config.getName(), server);
             log.info("[OauthProtocolServer] 已启动: {} -> {}:{} [{}], 协议: {}",
                     config.getName(), config.getHost(), config.getPort(),
@@ -145,14 +161,27 @@ public class OauthProtocolServerManager implements AutoCloseable {
                 if (message == null) {
                     return;
                 }
+                // 支持 req/<topic> 请求-响应协议:req/login:requestId|payload
+                var rawTopic = topic;
+                var requestId = "";
+                var rawMessage = String.valueOf(message);
+                if (topic.startsWith(KCP_REQ_PREFIX)) {
+                    rawTopic = topic.substring(KCP_REQ_PREFIX.length());
+                    int separatorIndex = rawMessage.indexOf(KCP_SEPARATOR);
+                    if (separatorIndex > 0) {
+                        requestId = rawMessage.substring(0, separatorIndex);
+                        rawMessage = rawMessage.substring(separatorIndex + 1);
+                    }
+                }
+                final var finalTopic = rawTopic;
+                final var finalMessage = rawMessage;
                 // 仅处理配置的认证 topic,其余消息忽略
                 var routeTopics = routes != null && !routes.isEmpty()
                         ? routes : Arrays.asList(AUTH_ROUTES);
-                if (routeTopics.stream().noneMatch(r -> r.equals("/" + topic) || r.equals(topic))) {
+                if (routeTopics.stream().noneMatch(r -> r.equals("/" + finalTopic) || r.equals(finalTopic))) {
                     return;
                 }
-                var body = String.valueOf(message);
-                var request = new MessageServerRequest(topic, body);
+                var request = new MessageServerRequest(finalTopic, finalMessage);
                 var response = new MessageServerResponse();
                 try {
                     handler.handle(request, response);
@@ -162,11 +191,45 @@ public class OauthProtocolServerManager implements AutoCloseable {
                             ReturnResult.error("服务处理异常")));
                 }
                 if (response.getBody() != null && clientId != null) {
-                    kcpServer.send(clientId, topic, new String(response.getBody(), StandardCharsets.UTF_8));
+                    var respTopic = rawTopic.startsWith("/") ? rawTopic.substring(1) : rawTopic;
+                    var responseText = new String(response.getBody(), StandardCharsets.UTF_8);
+                    // 请求-响应协议回传 reqId|body,普通消息直接回传 body
+                    kcpServer.send(clientId,
+                            KCP_RESP_PREFIX + respTopic,
+                            requestId.isEmpty() ? responseText : requestId + KCP_SEPARATOR + responseText);
                 }
             }
         });
         kcpServer.start();
+    }
+
+    /**
+     * 启动 RSocket 认证适配(消息型协议)
+     *
+     * <p>RSocket 使用 request-response 模型,topic 对应认证路径(login/logout/verify 等),
+     * payload 为 {@code {"data":"认证参数JSON或密文"}},认证结果作为响应体返回。</p>
+     *
+     * @param rsocketServer RSocket 服务器
+     * @param handler       OAuth 认证处理器
+     * @param routes        认证路由(topic)列表,为空时使用默认路由
+     */
+    private void startRsocketServer(RSocketServer rsocketServer, OauthProtocolHandler handler, List<String> routes) {
+        var routeTopics = routes != null && !routes.isEmpty()
+                ? routes : Arrays.asList(AUTH_ROUTES);
+        for (var topic : routeTopics) {
+            // RSocket 客户端 route 不带前导斜杠(如 login),这里统一注册两种形式
+            var rawTopic = topic.startsWith("/") ? topic.substring(1) : topic;
+            rsocketServer.onRequest(rawTopic, (request, response) -> {
+                try {
+                    handler.handle(request, response);
+                } catch (Exception e) {
+                    log.error("[OauthProtocolServer] RSocket 认证处理异常: topic={}", topic, e);
+                    response.setBody(com.chua.common.support.lang.json.Json.toJson(
+                            ReturnResult.error("服务处理异常")));
+                }
+            });
+        }
+        rsocketServer.start();
     }
 
     /**
