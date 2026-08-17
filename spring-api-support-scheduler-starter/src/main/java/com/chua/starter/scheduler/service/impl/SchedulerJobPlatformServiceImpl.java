@@ -14,7 +14,8 @@ import com.chua.starter.scheduler.vo.SchedulerTaskVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -45,7 +46,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformService {
+public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformService, SchedulingConfigurer {
 
     /**
      * 最大分页大小
@@ -437,7 +438,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         }
 
         // 2. 删除 DB 记录
-        int deleted = jobLogMapper.deleteByTriggerTimeBefore(cutoff);
+        int deleted = jobLogMapper.deleteByTriggerTimeBefore(new Date(cutoff));
         log.info("[job] 日志清理完成 retentionDays={} deleted={}", retentionDays, deleted);
         return deleted;
     }
@@ -1102,10 +1103,24 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 定时清理过期日志。
+     * 注册定时清理任务 (动态按 {@code plugin.job.log.cleanup-cron} 调度)。
+     *
+     * <p>不使用 {@code @Scheduled} 注解, 因为本模块的 {@code ScheduledAnnotationScanner}
+     * 不解析 Spring 占位符, 会按字面量解析 cron 导致启动失败。</p>
      */
-    @Scheduled(cron = "${plugin.job.log.cleanup-cron:0 0 0 * * ?}")
-    public void scheduledCleanup() {
+    @Override
+    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+        String cron = jobProperties.getLog().getCleanupCron();
+        if (cron == null || cron.isBlank()) {
+            cron = JobProperties.LogConfig.DEFAULT_CLEANUP_CRON;
+        }
+        taskRegistrar.addCronTask(this::cleanupIfEnabled, cron);
+    }
+
+    /**
+     * 按配置执行清理 (仅 {@code cleanupEnabled=true} 时生效)。
+     */
+    private void cleanupIfEnabled() {
         if (!jobProperties.getLog().isCleanupEnabled()) {
             return;
         }
