@@ -30,6 +30,7 @@ Spring API Support OAuth Starter 是一个功能完整的 OAuth 认证服务端/
 - **HTTP 协议** - 标准的 RESTful API
 - **Armeria 协议** - 基于 Armeria 框架的高性能异步 HTTP 通信
 - **RSocket 协议** - 响应式流协议，支持双向通信
+- **KCP 协议** - 基于 UDP 的可靠传输协议（依赖 kcp-netty，当前受底层库限制默认关闭）
 - **OAuth2 协议** - 符合 RFC 6749 标准的 OAuth 2.0 协议
 - **TCP 协议** - 二进制 TCP 通信
 - **UDP 协议** - 无连接 UDP 通信
@@ -117,16 +118,10 @@ server:
 plugin:
   oauth:
     server:
-      # 支持的协议
-      protocols: [http, armeria, rsocket, oauth2]
-      # Armeria 端口
-      armeria-port: 9091
-      # RSocket 端口
-      rsocket-port: 7000
-      # Token 过期时间（秒）
-      token-timeout: 7200
-      # 刷新 Token 过期时间（秒）
-      refresh-token-timeout: 604800
+      # Token 过期时间（秒），默认 30 天
+      expire: 2592000
+      # 刷新 Token 过期时间（秒），默认 40 天
+      refresh-expire: 3456000
       # 在线模式配置
       # SINGLE: 单点登录，同一用户只能在一个地方登录，新登录会踢掉所有旧设备
       # MULTIPLE: 多点登录，同一用户可以在多个地方同时登录（无限制）
@@ -134,6 +129,37 @@ plugin:
       online: MULTIPLE
       # 最大在线设备数量（仅当 online = LIMIT 时生效）
       max-online-count: 3
+    # 多协议认证 Server 配置（common network.Server）
+    protocol-server:
+      protocols:
+        - name: http
+          type: jdk
+          protocol: http
+          host: 0.0.0.0
+          port: 19180
+          enable: true
+          context-path: /
+        - name: armeria
+          type: armeria-http
+          protocol: http
+          host: 0.0.0.0
+          port: 19184
+          enable: true
+          context-path: /
+        - name: rsocket
+          type: rsocket
+          protocol: rsocket
+          host: 0.0.0.0
+          port: 19185
+          enable: true
+          context-path: /
+        - name: kcp
+          type: kcp
+          protocol: kcp
+          host: 0.0.0.0
+          port: 19186
+          enable: false
+          context-path: /
 ```
 
 ## 📋 数据库设计
@@ -354,6 +380,54 @@ grant_type=authorization_code&code=authorization_code&redirect_uri=http://callba
 ### 5. TCP/UDP 协议
 
 TCP 和 UDP 协议使用二进制格式传输，适合高性能场景。
+
+### 6. KCP 协议
+
+KCP 是基于 UDP 的可靠传输协议，通过 `utils-support-kcp-starter` 集成。KCP 使用**消息模型**（`topic:payload` 格式），与 HTTP 的请求-响应模型不同，因此走专门的认证适配。
+
+#### 配置
+
+通过 `protocol-server.protocols[]` 启用（默认关闭，因底层库兼容性限制）：
+
+```yaml
+plugin:
+  oauth:
+    protocol-server:
+      protocols:
+        - name: kcp
+          type: kcp
+          protocol: kcp
+          host: 0.0.0.0
+          port: 19186
+          enable: true   # 依赖 kcp-netty 升级兼容 netty 4.2 后启用
+          context-path: /
+```
+
+#### 认证适配（OauthProtocolServerManager.startKcpServer）
+
+服务端通过 `SyncServerListener.onMessage` 接收消息，支持 `req/<topic>` 请求-响应协议：
+
+```
+# 客户端请求（KcpClient.execute("login", body)）
+req/login:<requestId>|{"data":"认证参数JSON"}
+
+# 服务端响应
+resp/login:<requestId>|{"code":"00000","data":{...}}
+```
+
+`topic` 对应认证路径（`login`/`logout`/`verify`/`upgrade`/`temporary-token`），
+`requestId` 用于关联请求与响应，由 `KcpClient.execute()` 自动生成并校验。
+
+#### 当前限制
+
+**kcp-netty 1.5.2（最终版本）与 netty 4.2.9 不兼容**，具体原因：
+
+1. kcp-netty 基于 netty 4.1 开发，调用 `NioEventLoop.eventLoop()` 等 4.1 独有 API，netty 4.2 已移除
+2. netty 4.2.9 是 Armeria 1.32.5 和 Lettuce 7.5.2 的硬性依赖，无法全局降级
+3. 使用 JDK 25 重新编译 kcp-netty 时，还遇到 `Deque`/`List` 接口 `reversed()` 默认方法冲突
+
+因此 KCP 协议**当前无法实际承载认证**（Server 可启动监听，但客户端连接即抛 `NoSuchMethodError`）。
+配置已就绪、适配代码完整，需等待 kcp-netty 官方发布兼容 netty 4.2 的新版本后启用。
 
 ## 🔐 安全机制
 

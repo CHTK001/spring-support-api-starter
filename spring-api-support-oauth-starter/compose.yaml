@@ -8,6 +8,9 @@
 # 端口规划（协议收敛到 common-starter network.Server 后）：
 #   - 19180：common Server 多协议认证入口（client 调 http://172.16.0.40:19180/oauth/login）
 #   - 19181：Tomcat（Spring MVC 内部/管理入口）
+#   - 19184：Armeria 协议（备用高性能 HTTP 入口）
+#   - 19185：RSocket 协议（响应式流认证入口）
+#   - 19186：KCP 协议（默认关闭，依赖 kcp-netty 升级兼容 netty 4.2 后启用）
 # 数据库/Redis 指向 172.16.0.40(见 application-dev.yml)，容器内可直连。
 #
 # security_opt(seccomp=unconfined)：
@@ -28,5 +31,7 @@ services:
     ports:
       - "19180:19180"
       - "19181:19181"
+      - "19184:19184"
+      - "19185:19185"
     environment:
       - SERVER_PORT=19181
