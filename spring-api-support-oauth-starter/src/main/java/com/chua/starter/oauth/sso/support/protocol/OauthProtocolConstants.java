@@ -195,4 +195,19 @@ public final class OauthProtocolConstants {
      * 源令牌(用于生成临时令牌)
      */
     public static final String FIELD_SOURCE_TOKEN = "x-oauth-source-token";
+
+    /**
+     * KCP 请求-响应协议请求前缀
+     */
+    public static final String KCP_REQ_PREFIX = "req/";
+
+    /**
+     * KCP 请求-响应协议响应前缀
+     */
+    public static final String KCP_RESP_PREFIX = "resp/";
+
+    /**
+     * KCP 请求-响应协议分隔符
+     */
+    public static final String KCP_SEPARATOR = "|";
 }
