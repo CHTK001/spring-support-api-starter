@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p>模拟 N 个用户同时登录,统计:成功数、失败数、最慢/最快/平均延迟。
  * 判断系统能支撑多少并发用户。</p>
  * <p>用法:HttpUserLoadTest <url> <用户数></p>
+ * @author CH
  */
 public class HttpUserLoadTest {
 

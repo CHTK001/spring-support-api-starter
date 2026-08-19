@@ -26,8 +26,8 @@ import java.util.Set;
 
 /**
  * 操作日志接口
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Tag(name = "操作日志接口")
 @RestController
@@ -35,6 +35,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysUserLogController {
 
+    /** SYS用户日志服务 */
     private final SysUserLogService sysUserLogService;
     /**
      * 操作日志分页列表

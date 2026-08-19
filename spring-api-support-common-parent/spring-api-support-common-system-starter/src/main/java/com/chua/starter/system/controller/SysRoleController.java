@@ -32,8 +32,8 @@ import java.util.Set;
 
 /**
  * 角色接口
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Tag(name = "角色接口")
 @RestController
@@ -41,6 +41,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysRoleController {
 
+    /** SYSrole服务 */
     private final SysRoleService sysRoleService;
 
 

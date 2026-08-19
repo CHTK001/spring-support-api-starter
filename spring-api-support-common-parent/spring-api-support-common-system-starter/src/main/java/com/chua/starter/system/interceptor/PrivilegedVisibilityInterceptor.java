@@ -13,8 +13,8 @@ import java.util.function.Supplier;
 /**
  * 高权账号可见性拦截器
  *
- * @author CH
  * @since 2025/5/1
+ * @author CH
  */
 public class PrivilegedVisibilityInterceptor extends DataPermissionInterceptor {
     /**

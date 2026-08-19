@@ -28,8 +28,8 @@ import java.util.Set;
 /**
  * 系统公告接口
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Tag(name = "系统公告接口")
 @RestController
@@ -37,6 +37,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysAnnouncementController {
 
+    /** SYSannouncement服务 */
     private final SysAnnouncementService sysAnnouncementService;
 
     /**

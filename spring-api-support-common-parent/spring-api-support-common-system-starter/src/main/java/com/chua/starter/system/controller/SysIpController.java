@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>提供 IP 地址的地理位置和运营商信息查询，内部使用 IptablesService 解析并缓存。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Tag(name = "IP 地址查询接口")
 @RestController
@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SysIpController {
 
+    /** Iptables服务 */
     private final IptablesService iptablesService;
 
     /**

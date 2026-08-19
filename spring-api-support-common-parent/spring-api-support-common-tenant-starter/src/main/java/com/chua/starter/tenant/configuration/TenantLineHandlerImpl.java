@@ -8,12 +8,13 @@ import net.sf.jsqlparser.expression.StringValue;
 /**
  * 租户行处理器实现
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/06
+ * @author CH
  */
 public class TenantLineHandlerImpl implements TenantLineHandler {
 
+    /** Tenant属性 */
     private final TenantProperties tenantProperties;
     
     /**

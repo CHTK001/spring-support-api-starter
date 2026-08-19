@@ -17,8 +17,8 @@ import java.util.Set;
 /**
  * 用户登录视图对象
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Schema(description = "当前登录用户视图对象")
 @Data
@@ -31,6 +31,7 @@ public class UserInfoVO {
     @ApiModelProperty(value = "用户ID")
     @Schema(description = "用户ID")
     @NotNull(message = "不能为null")
+    /** SYS用户ID */
     private Integer sysUserId;
 
     /**
@@ -41,6 +42,7 @@ public class UserInfoVO {
     @Schema(description = "账号")
     @Size(max = 255, message = "账号最大长度要小于 255")
     @NotEmpty(message = "账号不能为空", groups = {AddGroup.class})
+    /** SYS用户username */
     private String sysUserUsername;
 
     /**
@@ -50,6 +52,7 @@ public class UserInfoVO {
     @ApiModelProperty(value = "名称")
     @Schema(description = "名称")
     @Size(max = 255, message = "名称最大长度要小于 255")
+    /** SYS用户nickname */
     private String sysUserNickname;
 
     /**
@@ -59,6 +62,7 @@ public class UserInfoVO {
     @ApiModelProperty(value = "手机号")
     @Schema(description = "手机号")
     @Size(max = 255, message = "手机号最大长度要小于 255")
+    /** SYS用户phone */
     private String sysUserPhone;
 
     /**
@@ -68,36 +72,42 @@ public class UserInfoVO {
     @ApiModelProperty(value = "邮箱")
     @Schema(description = "邮箱")
     @Size(max = 255, message = "邮箱最大长度要小于 255")
+    /** SYS用户email */
     private String sysUserEmail;
 
     /**
      * 头像地址
      */
     @Schema(description = "头像地址")
+    /** Avatar */
     private String avatar;
 
     /**
      * 性别（0:未知/男, 1:女, 2:保密）
      */
     @Schema(description = "性别")
+    /** SYS用户SEX */
     private Integer sysUserSex;
 
     /**
      * 头像框ID
      */
     @Schema(description = "头像框ID")
+    /** SYS用户avatarframe */
     private Integer sysUserAvatarFrame;
 
     /**
      * 是否显示头像框
      */
     @Schema(description = "是否显示头像框")
+    /** SYS用户avatarframeshow */
     private Integer sysUserAvatarFrameShow;
 
     /**
      * 生日
      */
     @Schema(description = "生日")
+    /** SYS用户birthday */
     private String sysUserBirthday;
 
     /**
@@ -107,59 +117,69 @@ public class UserInfoVO {
      * 租户ID
      */
     @Schema(description = "租户ID")
+    /** TenantID */
     private String tenantId;
 
     /**
      * 主部门ID
      */
     @Schema(description = "主部门ID")
+    /** SYSdeptID */
     private Integer sysDeptId;
 
     /**
      * 负责部门ID集合
      */
     @Schema(description = "负责部门ID集合")
+    /** ManageddeptIDS */
     private List<Integer> managedDeptIds;
 
     /**
      * 用户角色编码集合
      */
     @Schema(description = "用户角色编码集合")
+    /** Roles */
     private Set<String> roles;
 
     /**
      * 用户权限标识集合
      */
     @Schema(description = "用户权限标识集合")
+    /** Perms */
     private Set<String> perms;
 
     /**
      * 当前用户协议版本
      */
     @Schema(description = "当前用户协议版本")
+    /** Agreement版本 */
     private String agreementVersion;
 
     /**
      * 当前用户协议更新时间
      */
     @Schema(description = "当前用户协议更新时间")
+    /** Agreement更新时间AT */
     private String agreementUpdatedAt;
 
     /**
      * 用户已确认的协议版本
      */
     @Schema(description = "用户已确认的协议版本")
+    /** Agreementaccepted版本 */
     private String agreementAcceptedVersion;
 
     /**
      * 用户确认协议时间
      */
     @Schema(description = "用户确认协议时间")
+    /** AgreementacceptedAT */
     private String agreementAcceptedAt;
 
     /**
      * 是否需要确认最新协议
      */
     @Schema(description = "是否需要确认最新协议")
+    /** Agreementneedconfirm */
     private Boolean agreementNeedConfirm;
 }

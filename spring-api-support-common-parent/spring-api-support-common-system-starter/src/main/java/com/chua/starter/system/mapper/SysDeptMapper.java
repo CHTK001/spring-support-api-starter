@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Mapper
 public interface SysDeptMapper extends BaseMapper<SysDept> {

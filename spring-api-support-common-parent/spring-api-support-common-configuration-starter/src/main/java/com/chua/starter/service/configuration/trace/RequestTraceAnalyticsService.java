@@ -23,19 +23,26 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * 请求追踪分析服务。
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Slf4j
 @Service
 public class RequestTraceAnalyticsService {
 
+    /** Recentevents */
     private final Deque<RequestTraceEvent> recentEvents = new ArrayDeque<>();
+    /** Recentbehaviorrecords */
     private final Deque<RequestTraceBehaviorRecord> recentBehaviorRecords = new ArrayDeque<>();
+    /** 锁 */
     private final ReentrantLock lock = new ReentrantLock();
+    /** Analyzers */
     private final List<RequestTraceAnalyzer> analyzers;
+    /** 请求跟踪策略配置服务 */
     private final RequestTraceStrategyConfigService requestTraceStrategyConfigService;
+    /** 请求跟踪存储router */
     private final RequestTraceStorageRouter requestTraceStorageRouter;
+    /** 请求跟踪AIsummary服务 */
     private final RequestTraceAiSummaryService requestTraceAiSummaryService;
 
     public RequestTraceAnalyticsService(

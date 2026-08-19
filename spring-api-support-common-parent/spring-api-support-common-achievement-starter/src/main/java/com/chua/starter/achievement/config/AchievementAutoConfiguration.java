@@ -16,8 +16,8 @@ import org.springframework.context.annotation.Configuration;
  * <p>注册 {@link AchievementService} Bean，注入上游 {@link KvEngine}（由 spring-support-redis-starter 注册），
  * 以及 MyBatis Mapper 和推送服务。无需额外配置，依赖 spring-boot-starter-data-redis 即可。</p>
  *
- * @author CH
  * @since 2026-08-07
+ * @author CH
  */
 @Slf4j
 @Configuration

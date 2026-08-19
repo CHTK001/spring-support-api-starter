@@ -9,7 +9,6 @@ import java.util.Map;
  * Socket 推送公共支持工具，统一封装「协议事件 + module/event/data 消息体 + sendToUser」推送模板，
  * 供成就与签到等模块复用，避免重复实现。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class SocketPushSupport {

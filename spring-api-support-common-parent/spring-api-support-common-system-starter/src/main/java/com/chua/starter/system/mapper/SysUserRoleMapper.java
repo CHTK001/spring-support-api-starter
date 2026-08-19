@@ -8,8 +8,8 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Mapper
 public interface SysUserRoleMapper extends BaseMapper<SysUserRole> {

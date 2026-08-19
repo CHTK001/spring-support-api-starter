@@ -18,15 +18,17 @@ import java.util.List;
  * 校验失败时抛出异常阻止应用启动。
  * </p>
  *
- * @author CH
  * @since 2024/12/07
+ * @author CH
  */
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class AuthServerConfigValidator {
 
+    /** Auth服务器属性 */
     private final AuthServerProperties authServerProperties;
+    /** 环境 */
     private final Environment environment;
 
     /**

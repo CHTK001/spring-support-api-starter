@@ -18,14 +18,15 @@ import java.util.Set;
  * 解决 oauth 服务端 /verify 返回 roles 为空导致的权限不足问题。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Service
 @Spi("default")
 public class SystemUserRoleResolver implements UserRoleResolver {
 
     @Autowired
+    /** SYS用户rolemapper */
     private SysUserRoleMapper sysUserRoleMapper;
 
     @Override

@@ -29,8 +29,8 @@ import java.util.List;
  * <tr><td>rogue_play</td><td>rogueCounter</td></tr>
  * </table>
  *
- * @author CH
  * @since 2026-08-07
+ * @author CH
  */
 @Slf4j
 @Component

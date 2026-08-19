@@ -15,12 +15,13 @@ import java.util.Map;
 /**
  * Redis 版配置存储。
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Spi("redis")
 public class RedisRequestTraceConfigStorage implements RequestTraceConfigStorage {
 
+    /** Expire */
     private static final Duration EXPIRE = Duration.ofDays(30);
 
     @Override

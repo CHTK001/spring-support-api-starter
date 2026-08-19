@@ -14,8 +14,8 @@ import java.util.List;
  * <p>平台基于 job-starter 新架构 (SCHEDULER 角色) 提供统一任务管理能力,
  * 直接读写 {@code sys_job / sys_job_log} 表, 由 job-starter 的 Leader 循环扫描调度。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 public interface SchedulerJobPlatformService {
 

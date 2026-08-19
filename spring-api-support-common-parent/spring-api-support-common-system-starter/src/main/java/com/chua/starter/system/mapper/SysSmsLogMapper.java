@@ -6,8 +6,8 @@ import com.chua.starter.entity.project.SysSmsLog;
 /**
  * 短信发送日志 Mapper
  *
- * @author CH
  * @since 2026/3/19
+ * @author CH
  */
 public interface SysSmsLogMapper extends BaseMapper<SysSmsLog> {
 }

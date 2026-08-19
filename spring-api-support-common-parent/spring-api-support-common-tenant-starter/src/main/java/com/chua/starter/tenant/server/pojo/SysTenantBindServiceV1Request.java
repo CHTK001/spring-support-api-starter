@@ -11,9 +11,9 @@ import java.util.List;
 /**
  * 租户绑定服务请求
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/06
+ * @author CH
  */
 @Data
 @ApiModel(description = "租户绑定服务请求")
@@ -25,6 +25,7 @@ public class SysTenantBindServiceV1Request {
      */
     @ApiModelProperty(value = "租户ID", required = true)
     @Schema(description = "租户ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    /** SYStenantID */
     private String sysTenantId;
 
     /**
@@ -32,6 +33,7 @@ public class SysTenantBindServiceV1Request {
      */
     @ApiModelProperty(value = "服务绑定项列表")
     @Schema(description = "服务绑定项列表")
+    /** 服务binditems */
     private List<ServiceBindItem> serviceBindItems;
 
     /**
@@ -47,6 +49,7 @@ public class SysTenantBindServiceV1Request {
          */
         @ApiModelProperty(value = "服务ID", required = true)
         @Schema(description = "服务ID", requiredMode = Schema.RequiredMode.REQUIRED)
+        /** SYS服务ID */
         private Integer sysServiceId;
 
         /**
@@ -54,6 +57,7 @@ public class SysTenantBindServiceV1Request {
          */
         @ApiModelProperty(value = "到期时间")
         @Schema(description = "到期时间")
+        /** 是否有效时间 */
         private LocalDate validTime;
     }
 }

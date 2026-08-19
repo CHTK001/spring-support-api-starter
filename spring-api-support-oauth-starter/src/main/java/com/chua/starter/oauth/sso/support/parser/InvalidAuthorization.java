@@ -5,10 +5,10 @@ import com.chua.common.support.lang.code.ReturnResult;
 /**
  * 无效鉴权信息
  *
- * @author CH
  */
 public final class InvalidAuthorization implements Authorization {
 
+    /** 实例 */
     public static final InvalidAuthorization INSTANCE = new InvalidAuthorization();
 
     @Override

@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
  * 用户信息鉴权服务
  * <p>基于用户名/密码的标准Web登录验证服务</p>
  *
- * @author CH
  * @since 1.0.0
+ * @author CH
  */
 @Slf4j
 @Service

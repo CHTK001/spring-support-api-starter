@@ -20,8 +20,8 @@ import java.util.List;
  *   <li>登录失败锁定参数（与 LoginAttemptService 联动）</li>
  * </ul>
  *
- * @author CH
  * @since 2025/01/01
+ * @author CH
  */
 @Data
 @ConfigurationProperties(prefix = OauthSecurityProperties.PRE)
@@ -65,7 +65,6 @@ public class OauthSecurityProperties {
     /**
      * 安全响应头配置
      *
-     * @author CH
      * @since 2025/01/01
      */
     @Data
@@ -120,7 +119,6 @@ public class OauthSecurityProperties {
     /**
      * CSRF 防护配置
      *
-     * @author CH
      * @since 2025/01/01
      */
     @Data
@@ -169,7 +167,6 @@ public class OauthSecurityProperties {
     /**
      * IP 级请求限流配置
      *
-     * @author CH
      * @since 2025/01/01
      */
     @Data
@@ -209,7 +206,6 @@ public class OauthSecurityProperties {
     /**
      * Session Fixation 防护配置
      *
-     * @author CH
      * @since 2025/01/01
      */
     @Data
@@ -229,7 +225,6 @@ public class OauthSecurityProperties {
     /**
      * 登录失败锁定配置
      *
-     * @author CH
      * @since 2025/01/01
      */
     @Data

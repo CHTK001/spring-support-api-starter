@@ -12,8 +12,8 @@ import lombok.EqualsAndHashCode;
 /**
  * 用户账号管理表
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Schema(description = "用户账号管理表")
 @Data
@@ -26,6 +26,7 @@ public class SysAccount extends SysBase {
      */
     @TableId(value = "sys_account_id", type = IdType.AUTO)
     @Schema(description = "账号ID")
+    /** SYSaccountID */
     private Integer sysAccountId;
 
     /**
@@ -33,6 +34,7 @@ public class SysAccount extends SysBase {
      */
     @TableField(value = "sys_account_type")
     @Schema(description = "账号类型，如: wechat、alipay")
+    /** SYSaccount类型 */
     private String sysAccountType;
 
     /**
@@ -40,6 +42,7 @@ public class SysAccount extends SysBase {
      */
     @TableField(value = "sys_account_openid")
     @Schema(description = "第三方OpenID")
+    /** SYSaccountopenid */
     private String sysAccountOpenid;
 
     /**
@@ -47,6 +50,7 @@ public class SysAccount extends SysBase {
      */
     @TableField(value = "sys_account_unionid")
     @Schema(description = "第三方UnionID")
+    /** SYSaccountunionid */
     private String sysAccountUnionid;
 
     /**
@@ -54,6 +58,7 @@ public class SysAccount extends SysBase {
      */
     @TableField(value = "sys_account_name")
     @Schema(description = "账号名称/昵称")
+    /** SYSaccount名称 */
     private String sysAccountName;
 
     /**
@@ -61,6 +66,7 @@ public class SysAccount extends SysBase {
      */
     @TableField(value = "sys_account_avatar")
     @Schema(description = "头像URL")
+    /** SYSaccountavatar */
     private String sysAccountAvatar;
 
     /**
@@ -68,6 +74,7 @@ public class SysAccount extends SysBase {
      */
     @TableField(value = "sys_account_phone")
     @Schema(description = "手机号")
+    /** SYSaccountphone */
     private String sysAccountPhone;
 
     /**
@@ -75,6 +82,7 @@ public class SysAccount extends SysBase {
      */
     @TableField(value = "sys_account_email")
     @Schema(description = "邮箱")
+    /** SYSaccountemail */
     private String sysAccountEmail;
 
     /**
@@ -82,6 +90,7 @@ public class SysAccount extends SysBase {
      */
     @TableField(value = "sys_account_forbidden")
     @Schema(description = "是否禁用: true=禁用")
+    /** SYSaccountforbidden */
     private Boolean sysAccountForbidden;
 
     /**
@@ -89,6 +98,7 @@ public class SysAccount extends SysBase {
      */
     @TableField(value = "sys_account_login_count")
     @Schema(description = "登录次数")
+    /** SYSaccountlogin数量 */
     private Integer sysAccountLoginCount;
 
     /**
@@ -96,6 +106,7 @@ public class SysAccount extends SysBase {
      */
     @TableField(value = "sys_account_last_ip")
     @Schema(description = "最后登录IP")
+    /** SYSaccount最后IP */
     private String sysAccountLastIp;
 
     /**
@@ -103,6 +114,7 @@ public class SysAccount extends SysBase {
      */
     @TableField(value = "sys_account_last_ip_address")
     @Schema(description = "最后登录地址")
+    /** SYSaccount最后IP地址 */
     private String sysAccountLastIpAddress;
 
     /**
@@ -110,5 +122,6 @@ public class SysAccount extends SysBase {
      */
     @TableField(value = "sys_account_user_id")
     @Schema(description = "绑定的本地用户 ID")
+    /** SYSaccount用户ID */
     private Integer sysAccountUserId;
 }

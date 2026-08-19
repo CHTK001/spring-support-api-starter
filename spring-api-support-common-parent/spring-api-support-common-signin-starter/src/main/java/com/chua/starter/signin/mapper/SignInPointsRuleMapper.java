@@ -12,8 +12,8 @@ import java.util.List;
  * <p>基于 MyBatis-Plus {@link BaseMapper} 提供积分规则的基础 CRUD，
  * 并通过 XML 提供按状态查询启用的规则列表。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Mapper
 public interface SignInPointsRuleMapper extends BaseMapper<SignInPointsRule> {

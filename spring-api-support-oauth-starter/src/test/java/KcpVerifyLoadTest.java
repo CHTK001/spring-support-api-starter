@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * KCP 协议 verify(鉴权)压测程序
  * <p>先登录拿 token,多客户端并发 verify,统计 QPS/延迟。</p>
+ * @author CH
  */
 public class KcpVerifyLoadTest {
 

@@ -13,13 +13,18 @@ import org.springframework.data.redis.serializer.SerializationException;
  */
 @Data
 public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
+    /** 类型 */
     private Class<T> type;
+    /** Features */
     private JSONReader.Feature[] features;
 
+    /** Writefeatures */
     private JSONWriter.Feature[] writeFeatures;
 
+    /** Filters */
     private Filter[] filters;
 
+    /** 格式 */
     private String format = "yyyy-MM-dd HH:mm:ss";
 
     public FastJsonRedisSerializer(Class<T> type) {

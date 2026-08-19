@@ -34,8 +34,8 @@ import java.util.Properties;
  *   <li>日志级别动态调整</li>
  * </ul>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @RestController
 @RequestMapping("/system/admin")

@@ -12,18 +12,23 @@ import java.util.Set;
 /**
  * 请求追踪配置服务。
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Service
 @RequiredArgsConstructor
 public class RequestTraceStrategyConfigService {
 
+    /** Config_storage_defaults */
     private static final List<String> CONFIG_STORAGE_DEFAULTS = List.of("database", "redis", "memory");
+    /** Raw_storage_defaults */
     private static final List<String> RAW_STORAGE_DEFAULTS = List.of("file", "database");
+    /** Behavior_storage_defaults */
     private static final List<String> BEHAVIOR_STORAGE_DEFAULTS = List.of("database", "memory");
 
+    /** Runtime属性 */
     private final RequestTraceStrategyRuntimeProperties runtimeProperties;
+    /** 存储router */
     private final RequestTraceStorageRouter storageRouter;
 
     private volatile RequestTraceStrategyConfig cachedConfig;

@@ -46,8 +46,8 @@ import java.util.Map;
 /**
  * gitee接口
  *
- * @author CH
  * @since 2024/9/4
+ * @author CH
  */
 @Controller
 @Slf4j
@@ -58,10 +58,13 @@ import java.util.Map;
 public class GiteeCallbackController {
 
 
+    /** Third_party_type */
     private static final String THIRD_PARTY_TYPE = "gitee";
+    /** Sso_group */
     private static final String SSO_GROUP = "sso";
 
     @Autowired(required = false)
+    /** SYSlogincallback服务 */
     private SysLoginCallbackService sysLoginCallbackService;
     final SysUserThirdPartyService sysUserThirdPartyService;
     final SysLoginService sysLoginService;

@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 /**
  * 用户个性化配置服务实现
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Service
 public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, SysUserConfig> implements SysUserConfigService {

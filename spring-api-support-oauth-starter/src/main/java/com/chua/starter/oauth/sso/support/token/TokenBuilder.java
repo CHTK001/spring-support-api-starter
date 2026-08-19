@@ -19,7 +19,6 @@ import com.chua.common.support.utils.IdUtils;
  * 总长度：2 + 32 + 32 + 16 = 82位
  * </pre>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-12-07
  */

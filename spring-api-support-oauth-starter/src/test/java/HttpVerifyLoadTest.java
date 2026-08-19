@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * HTTP/Armeria verify 压测(统一环境,与 KCP 公平对比)
  * <p>用法:java HttpVerifyLoadTest <url> <并发> <每连接请求数></p>
+ * @author CH
  */
 public class HttpVerifyLoadTest {
 

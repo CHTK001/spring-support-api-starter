@@ -9,8 +9,8 @@ import org.apache.ibatis.annotations.Param;
 /**
  * 用户三方绑定 Mapper
  *
- * @author CH
  * @since 1.0.0
+ * @author CH
  */
 @Mapper
 public interface SysUserTripartiteBindMapper extends BaseMapper<SysUserTripartiteBind> {

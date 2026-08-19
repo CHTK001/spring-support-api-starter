@@ -28,10 +28,10 @@ import java.util.*;
  * 符合 RFC 7517 (JSON Web Key) 规范。
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-12-18
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc7517">RFC 7517 - JSON Web Key (JWK)</a>
+ * @author CH
  */
 @RestController
 @Slf4j
@@ -40,6 +40,7 @@ import java.util.*;
 @ConditionalOnProperty(name = "plugin.oauth.server.jwt.jwks-enabled", havingValue = "true")
 public class JwksController {
 
+    /** Auth服务器属性 */
     private final AuthServerProperties authServerProperties;
 
     /**

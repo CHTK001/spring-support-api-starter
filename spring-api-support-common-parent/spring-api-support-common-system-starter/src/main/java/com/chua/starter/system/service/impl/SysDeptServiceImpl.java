@@ -28,13 +28,14 @@ import java.util.stream.Collectors;
  * 部门服务实现类
  * <p>提供部门的增删改查及树形结构转换功能</p>
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Service
 @RequiredArgsConstructor
 public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> implements SysDeptService {
 
+    /** SYSdeptprincipalREL服务 */
     private final SysDeptPrincipalRelService sysDeptPrincipalRelService;
 
     @Override

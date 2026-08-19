@@ -16,8 +16,8 @@ import java.util.Set;
 
 /**
  * 系统全局配置
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 public interface SysSettingService extends IService<SysSetting> {
     /**

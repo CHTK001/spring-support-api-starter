@@ -42,8 +42,8 @@ import static org.mockito.Mockito.when;
  * <p>验证分布式锁防抖机制在多线程同时签到场景下的正确性：
  * 同一用户同一日期仅允许一次签到成功，其余请求被拦截。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @ExtendWith(MockitoExtension.class)
 class SignInConcurrencyTest {
@@ -52,36 +52,42 @@ class SignInConcurrencyTest {
      * 签到记录 Mapper 模拟
      */
     @Mock
+    /** Recordmapper */
     private SignInRecordMapper recordMapper;
 
     /**
      * 积分服务模拟
      */
     @Mock
+    /** Points服务 */
     private SignInPointsService pointsService;
 
     /**
      * 推送服务模拟
      */
     @Mock
+    /** Push服务 */
     private SignInPushService pushService;
 
     /**
      * 分布式锁模板模拟
      */
     @Mock
+    /** 锁模板 */
     private LockTemplate lockTemplate;
 
     /**
      * 事件发布器模拟
      */
     @Mock
+    /** 事件publisher */
     private ApplicationEventPublisher eventPublisher;
 
     /**
      * 统一 KV 引擎模拟（写入成就上下文数据）
      */
     @Mock
+    /** KV引擎 */
     private KvEngine kvEngine;
 
     /**

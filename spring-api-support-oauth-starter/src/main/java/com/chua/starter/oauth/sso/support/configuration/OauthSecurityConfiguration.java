@@ -20,9 +20,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
  * <p>注册安全响应头、IP 限流、CSRF、Session Fixation 等过滤器。</p>
  * <p>配置前缀：{@code plugin.oauth.server.security}</p>
  *
- * @author CH
  * @since 2025/01/01
  * @see OauthSecurityProperties
+ * @author CH
  */
 @Slf4j
 @Configuration

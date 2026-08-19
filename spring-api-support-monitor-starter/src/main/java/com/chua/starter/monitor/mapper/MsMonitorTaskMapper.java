@@ -7,8 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 采集任务 Mapper。
  *
- * @author CH
  * @since 2026-08-11
+ * @author CH
  */
 @Mapper
 public interface MsMonitorTaskMapper extends BaseMapper<MsMonitorTask> {

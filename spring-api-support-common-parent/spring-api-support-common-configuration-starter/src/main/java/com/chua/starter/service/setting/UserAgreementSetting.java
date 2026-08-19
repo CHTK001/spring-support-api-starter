@@ -10,8 +10,8 @@ import lombok.Data;
  * 字段对应 sys_setting 表的 sys_setting_name，通过 GlobalSettingFactory 反射映射。
  * 更新 sys_setting 后，工厂自动写入此 Bean。
  *
- * @author CH
  * @since 2026/4
+ * @author CH
  */
 @Data
 @GlobalSettingGroup("userAgreement")

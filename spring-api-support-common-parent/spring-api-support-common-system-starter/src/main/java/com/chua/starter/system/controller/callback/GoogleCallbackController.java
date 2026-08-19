@@ -46,8 +46,8 @@ import java.util.Map;
 /**
  * 第三方登录回调(Google)
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @Controller
 @Slf4j
@@ -76,6 +76,7 @@ public class GoogleCallbackController {
      * 登录回调服务（允许缺省）
      */
     @Autowired(required = false)
+    /** SYSlogincallback服务 */
     private SysLoginCallbackService sysLoginCallbackService;
 
     /**

@@ -13,16 +13,20 @@ import org.springframework.context.ApplicationContext;
 /**
  * 鉴权信息
  *
- * @author CH
  */
 @Slf4j
 public final class UpgradeAuthorization implements Authorization {
+    /** 令牌 */
     private final String token;
+    /** Cookie */
     private final String cookie;
+    /** Refresh令牌 */
     private final String refreshToken;
+    /** Upgrade类型 */
     private final String upgradeType;
     final ApplicationContext applicationContext;
     final LoginCheck loginCheck;
+    /** Authinformation */
     private final UpgradeAuthInformation authInformation;
 
     public UpgradeAuthorization(UpgradeAuthInformation authInformation,

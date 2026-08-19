@@ -18,51 +18,91 @@ import java.util.UUID;
 /**
  * 租户同步消息辅助类。
  *
- * @author CH
  * @since 2026/03/24
  */
 public final class TenantSyncMessageSupport {
 
+    /** Metadata_tenant_id */
     public static final String METADATA_TENANT_ID = "tenantId";
+    /** Metadata_sync_role */
     public static final String METADATA_SYNC_ROLE = "syncRole";
+    /** Role_tenant_client */
     public static final String ROLE_TENANT_CLIENT = "tenant-client";
+    /** Message_id */
     public static final String MESSAGE_ID = "messageId";
+    /** Target_tenant_id */
     public static final String TARGET_TENANT_ID = "targetTenantId";
+    /** Sync_mode */
     public static final String SYNC_MODE = "syncMode";
+    /** Sync_reason */
     public static final String SYNC_REASON = "syncReason";
+    /** 时间戳 */
     public static final String TIMESTAMP = "timestamp";
+    /** Sign */
     public static final String SIGN = "sign";
+    /** Sign_algorithm */
     public static final String SIGN_ALGORITHM = "signAlgorithm";
+    /** Sign_version */
     public static final String SIGN_VERSION = "signVersion";
+    /** Source_message_id */
     public static final String SOURCE_MESSAGE_ID = "sourceMessageId";
+    /** Source_topic */
     public static final String SOURCE_TOPIC = "sourceTopic";
+    /** Ack_success */
     public static final String ACK_SUCCESS = "ackSuccess";
+    /** Ack_status */
     public static final String ACK_STATUS = "ackStatus";
+    /** Ack_error_message */
     public static final String ACK_ERROR_MESSAGE = "ackErrorMessage";
+    /** Tenant */
     public static final String TENANT = "tenant";
+    /** Menus */
     public static final String MENUS = "menus";
+    /** Menu_ids */
     public static final String MENU_IDS = "menuIds";
+    /** Services */
     public static final String SERVICES = "services";
+    /** Modules */
     public static final String MODULES = "modules";
+    /** Items */
     public static final String ITEMS = "items";
+    /** Operation */
     public static final String OPERATION = "operation";
+    /** Topic_tenant_update */
     public static final String TOPIC_TENANT_UPDATE = "tenant/update";
+    /** Topic_tenant_delete */
     public static final String TOPIC_TENANT_DELETE = "tenant/delete";
+    /** Topic_tenant_service */
     public static final String TOPIC_TENANT_SERVICE = "tenant/service";
+    /** Topic_tenant_menu */
     public static final String TOPIC_TENANT_MENU = "tenant/menu";
+    /** Topic_tenant_sync_request */
     public static final String TOPIC_TENANT_SYNC_REQUEST = "tenant/sync/request";
+    /** Topic_tenant_sync_ack */
     public static final String TOPIC_TENANT_SYNC_ACK = "tenant/sync/ack";
+    /** Mode_full */
     public static final String MODE_FULL = "full";
+    /** Mode_incremental */
     public static final String MODE_INCREMENTAL = "incremental";
+    /** Op_replace */
     public static final String OP_REPLACE = "replace";
+    /** Op_create */
     public static final String OP_CREATE = "create";
+    /** Op_update */
     public static final String OP_UPDATE = "update";
+    /** Op_delete */
     public static final String OP_DELETE = "delete";
+    /** Hmac_sha256 */
     public static final String HMAC_SHA256 = "HmacSHA256";
+    /** Sign_version_v1 */
     public static final String SIGN_VERSION_V1 = "v1";
+    /** Ack_status_applied */
     public static final String ACK_STATUS_APPLIED = "applied";
+    /** Ack_status_duplicate */
     public static final String ACK_STATUS_DUPLICATE = "duplicate";
+    /** Ack_status_out_of_order */
     public static final String ACK_STATUS_OUT_OF_ORDER = "out-of-order";
+    /** Ack_status_failed */
     public static final String ACK_STATUS_FAILED = "failed";
 
     private TenantSyncMessageSupport() {
@@ -311,10 +351,14 @@ public final class TenantSyncMessageSupport {
 
     public static final class VerificationResult {
 
+        /** 是否有效 */
         private static final VerificationResult VALID = new VerificationResult(true, false, null);
 
+        /** 是否有效 */
         private final boolean valid;
+        /** Skipped */
         private final boolean skipped;
+        /** 消息 */
         private final String message;
 
         private VerificationResult(boolean valid, boolean skipped, String message) {

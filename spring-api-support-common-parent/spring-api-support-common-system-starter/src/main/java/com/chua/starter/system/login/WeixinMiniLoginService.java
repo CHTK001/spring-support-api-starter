@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit;
  * 微信小程序登录服务
  * <p>处理微信小程序用户的登录验证与授权</p>
  *
- * @author CH
  * @since 2024/12/2
+ * @author CH
  */
 @Slf4j
 @Service
@@ -48,9 +48,11 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
     private static final String OPENID_CACHE_PREFIX = "miniapp:openid:";
 
     @Autowired
+    /** SYS用户thirdpartymapper */
     private SysUserThirdPartyMapper sysUserThirdPartyMapper;
 
     @Autowired
+    /** SYSwechat用户mapper */
     private SysWechatUserMapper sysWechatUserMapper;
 
     @Override

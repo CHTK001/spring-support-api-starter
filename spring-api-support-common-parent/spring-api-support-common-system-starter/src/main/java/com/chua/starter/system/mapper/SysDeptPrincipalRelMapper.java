@@ -11,8 +11,8 @@ import java.util.List;
 /**
  * 部门负责人关系 Mapper
  *
- * @author CH
  * @since 2026/4/5
+ * @author CH
  */
 @Mapper
 public interface SysDeptPrincipalRelMapper extends BaseMapper<SysDeptPrincipalRel> {

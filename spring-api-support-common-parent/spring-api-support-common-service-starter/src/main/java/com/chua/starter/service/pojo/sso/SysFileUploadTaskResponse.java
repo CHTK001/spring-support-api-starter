@@ -6,8 +6,8 @@ import lombok.Data;
 
 /**
  * 任务创建响应
- * @author CH
  * @since 2024/12/4
+ * @author CH
  */
 @Data
 @Schema(description = "任务创建响应")
@@ -17,12 +17,14 @@ public class SysFileUploadTaskResponse {
      * 任务ID
      */
     @Schema(description = "任务ID")
+    /** 任务ID */
     private String taskId;
 
     /**
      * 任务数量
      */
     @Schema(description = "任务数量")
+    /** 集合SYS任务SSO数字 */
     private Integer setSysTaskSsoNumber;
 
     /**
@@ -30,6 +32,7 @@ public class SysFileUploadTaskResponse {
      */
     @TableField(value = "sys_task_sso_chuck")
     @Schema(description="文件大小")
+    /** SYS任务SSOchuck */
     private Long sysTaskSsoChuck;
 
     /**
@@ -37,5 +40,6 @@ public class SysFileUploadTaskResponse {
      */
     @TableField(value = "sys_task_sso_name")
     @Schema(description="文件名称/url")
+    /** URL */
     private String url;
 }

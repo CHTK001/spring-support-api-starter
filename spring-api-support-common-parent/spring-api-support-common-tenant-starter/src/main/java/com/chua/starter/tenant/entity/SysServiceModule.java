@@ -16,9 +16,9 @@ import lombok.EqualsAndHashCode;
  * 服务模块实体
  * 用于管理服务下的功能模块
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/07
+ * @author CH
  */
 @ApiModel(description = "服务模块")
 @Schema(description = "服务模块")
@@ -34,6 +34,7 @@ public class SysServiceModule extends SysBase {
     @ApiModelProperty(value = "服务模块ID")
     @Schema(description = "服务模块ID")
     @NotNull(message = "服务模块ID不能为空", groups = {UpdateGroup.class})
+    /** SYS服务moduleID */
     private Integer sysServiceModuleId;
 
     /**
@@ -43,6 +44,7 @@ public class SysServiceModule extends SysBase {
     @ApiModelProperty(value = "服务模块名称")
     @Schema(description = "服务模块名称")
     @NotBlank(message = "服务模块名称不能为空", groups = {AddGroup.class, UpdateGroup.class})
+    /** SYS服务module名称 */
     private String sysServiceModuleName;
 
     /**
@@ -52,6 +54,7 @@ public class SysServiceModule extends SysBase {
     @ApiModelProperty(value = "服务模块编码")
     @Schema(description = "服务模块编码")
     @NotBlank(message = "服务模块编码不能为空", groups = {AddGroup.class, UpdateGroup.class})
+    /** SYS服务module代码 */
     private String sysServiceModuleCode;
 
     /**
@@ -60,6 +63,7 @@ public class SysServiceModule extends SysBase {
     @TableField(value = "sys_service_module_desc")
     @ApiModelProperty(value = "服务模块描述")
     @Schema(description = "服务模块描述")
+    /** SYS服务moduledesc */
     private String sysServiceModuleDesc;
 
     /**
@@ -68,6 +72,7 @@ public class SysServiceModule extends SysBase {
     @TableField(value = "sys_service_module_sort")
     @ApiModelProperty(value = "服务模块排序")
     @Schema(description = "服务模块排序")
+    /** SYS服务modulesort */
     private Integer sysServiceModuleSort;
 
     /**
@@ -78,6 +83,7 @@ public class SysServiceModule extends SysBase {
     @ApiModelProperty(value = "删除标记")
     @Schema(description = "删除标记: 0-未删除, 1-已删除")
     @TableLogic(value = "0", delval = "1")
+    /** SYS服务moduledelete */
     private Integer sysServiceModuleDelete;
 
     /**
@@ -87,6 +93,7 @@ public class SysServiceModule extends SysBase {
     @TableField(value = "sys_service_module_status")
     @ApiModelProperty(value = "服务模块状态")
     @Schema(description = "服务模块状态: 0-启用, 1-禁用")
+    /** SYS服务module状态 */
     private Integer sysServiceModuleStatus;
 
     /**
@@ -96,6 +103,7 @@ public class SysServiceModule extends SysBase {
     @TableField(value = "sys_service_module_type")
     @ApiModelProperty(value = "服务模块类型")
     @Schema(description = "服务模块类型: API-API接口, SERVICE-服务, FUNCTION-功能")
+    /** SYS服务module类型 */
     private String sysServiceModuleType;
 
     /**
@@ -105,5 +113,6 @@ public class SysServiceModule extends SysBase {
     @TableField(value = "sys_menu_id")
     @ApiModelProperty(value = "关联菜单ID")
     @Schema(description = "关联菜单ID")
+    /** SYSmenuID */
     private Integer sysMenuId;
 }

@@ -15,8 +15,8 @@ import lombok.EqualsAndHashCode;
  * 被监控服务器主机实体，记录服务器的基础信息（名称、IP、主机名、操作系统、分组等），
  * 服务器布局、组件布局等均以 serverId 作为关联维度。
  *
- * @author CH
  * @since 2026-07-28
+ * @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -31,6 +31,7 @@ public class MonitorServer extends SysBase {
     @TableId(value = "server_id", type = IdType.AUTO)
     @ApiModelProperty("服务器ID")
     @Schema(description = "服务器ID")
+    /** 服务器ID */
     private Integer serverId;
 
     /**
@@ -39,6 +40,7 @@ public class MonitorServer extends SysBase {
     @TableField("server_name")
     @ApiModelProperty("服务器名称")
     @Schema(description = "服务器名称")
+    /** 服务器名称 */
     private String serverName;
 
     /**
@@ -47,6 +49,7 @@ public class MonitorServer extends SysBase {
     @TableField("server_ip")
     @ApiModelProperty("服务器IP")
     @Schema(description = "服务器IP")
+    /** 服务器IP */
     private String serverIp;
 
     /**
@@ -55,6 +58,7 @@ public class MonitorServer extends SysBase {
     @TableField("server_host")
     @ApiModelProperty("主机名")
     @Schema(description = "主机名")
+    /** 服务器主机 */
     private String serverHost;
 
     /**
@@ -63,6 +67,7 @@ public class MonitorServer extends SysBase {
     @TableField("server_port")
     @ApiModelProperty("端口")
     @Schema(description = "端口")
+    /** 服务器端口 */
     private Integer serverPort;
 
     /**
@@ -71,6 +76,7 @@ public class MonitorServer extends SysBase {
     @TableField("server_os")
     @ApiModelProperty("操作系统")
     @Schema(description = "操作系统")
+    /** 服务器OS */
     private String serverOs;
 
     /**
@@ -79,6 +85,7 @@ public class MonitorServer extends SysBase {
     @TableField("server_group")
     @ApiModelProperty("分组")
     @Schema(description = "分组")
+    /** 服务器分组 */
     private String serverGroup;
 
     /**
@@ -87,6 +94,7 @@ public class MonitorServer extends SysBase {
     @TableField("server_account")
     @ApiModelProperty("登录账号")
     @Schema(description = "登录账号")
+    /** 服务器account */
     private String serverAccount;
 
     /**
@@ -95,6 +103,7 @@ public class MonitorServer extends SysBase {
     @TableField("server_status")
     @ApiModelProperty("状态（0禁用/1启用）")
     @Schema(description = "状态（0禁用/1启用）")
+    /** 服务器状态 */
     private Integer serverStatus;
 
     /**
@@ -103,5 +112,6 @@ public class MonitorServer extends SysBase {
     @TableField("server_remark")
     @ApiModelProperty("备注")
     @Schema(description = "备注")
+    /** 服务器remark */
     private String serverRemark;
 }

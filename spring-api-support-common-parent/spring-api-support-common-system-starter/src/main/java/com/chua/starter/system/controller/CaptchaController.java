@@ -42,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 public class CaptchaController {
 
     @Autowired
+    /** Captcha属性 */
     private CaptchaProperties captchaProperties;
 
     @Autowired

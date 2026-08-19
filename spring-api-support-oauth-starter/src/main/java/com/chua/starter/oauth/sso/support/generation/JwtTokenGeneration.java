@@ -29,15 +29,16 @@ import java.util.UUID;
  * 支持多种签名算法：HS256/HS384/HS512、RS256/RS384/RS512、ES256/ES384/ES512
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-12-18
+ * @author CH
  */
 @Slf4j
 @Spi("jwt")
 public class JwtTokenGeneration implements TokenGeneration {
 
     @AutoInject
+    /** Auth服务器属性 */
     private AuthServerProperties authServerProperties;
 
     private volatile SecretKey hmacKey;

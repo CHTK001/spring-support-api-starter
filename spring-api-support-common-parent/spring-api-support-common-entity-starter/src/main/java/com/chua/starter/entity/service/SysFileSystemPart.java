@@ -23,9 +23,9 @@ import java.time.LocalDateTime;
  * 文件系统分片表
  * 用于管理文件分片上传的详细信息
  *
- * @author CH
  * @since 2024/12/10
  * @version 1.0.0
+ * @author CH
  */
 @Schema(description = "文件系统分片表")
 @Data
@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 public class SysFileSystemPart extends SysBase implements Serializable {
 
     @Serial
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -41,6 +42,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
      */
     @TableId(value = "sys_file_system_part_id", type = IdType.AUTO)
     @Schema(description = "分片ID")
+    /** SYS文件systempartID */
     private Integer sysFileSystemPartId;
 
     /**
@@ -49,6 +51,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_part_file_id")
     @Schema(description = "文件ID")
     @NotNull(message = "文件ID不能为null")
+    /** SYS文件systempart文件ID */
     private Integer sysFileSystemPartFileId;
 
     /**
@@ -57,6 +60,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_part_seq")
     @Schema(description = "分片序号(从1开始)")
     @NotNull(message = "分片序号不能为null")
+    /** SYS文件systempartSEQ */
     private Integer sysFileSystemPartSeq;
 
     /**
@@ -64,6 +68,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_part_size")
     @Schema(description = "分片大小(字节)")
+    /** SYS文件systempart尺寸 */
     private Long sysFileSystemPartSize;
 
     /**
@@ -72,6 +77,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_part_md5")
     @Schema(description = "分片MD5值")
     @Size(max = 32, message = "分片MD5值最大长度要小于 32")
+    /** SYS文件systempartMD5 */
     private String sysFileSystemPartMd5;
 
     /**
@@ -80,6 +86,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_part_local_path")
     @Schema(description = "分片本地存储路径")
     @Size(max = 500, message = "分片本地存储路径最大长度要小于 500")
+    /** SYS文件systempart本地路径 */
     private String sysFileSystemPartLocalPath;
 
     /**
@@ -88,6 +95,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_part_version")
     @Schema(description = "版本号(乐观锁)")
     @Version
+    /** SYS文件systempart版本 */
     private Integer sysFileSystemPartVersion;
 
     /**
@@ -95,6 +103,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_part_status")
     @Schema(description = "状态: 0-待上传, 1-上传中, 2-已完成, -1-处理异常")
+    /** SYS文件systempart状态 */
     private Integer sysFileSystemPartStatus;
 
     /**
@@ -102,6 +111,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_part_upload_time")
     @Schema(description = "上传时间")
+    /** SYS文件systempart上传时间 */
     private LocalDateTime sysFileSystemPartUploadTime;
 
     /**
@@ -109,6 +119,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_part_process_time")
     @Schema(description = "处理时间")
+    /** SYS文件systempartprocess时间 */
     private LocalDateTime sysFileSystemPartProcessTime;
 
     /**
@@ -117,6 +128,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_part_error_message")
     @Schema(description = "错误信息")
     @Size(max = 1000, message = "错误信息最大长度要小于 1000")
+    /** SYS文件systempart错误消息 */
     private String sysFileSystemPartErrorMessage;
 
     /**
@@ -124,6 +136,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_part_retry_count")
     @Schema(description = "重试次数")
+    /** SYS文件systempart重试数量 */
     private Integer sysFileSystemPartRetryCount;
 
     /**

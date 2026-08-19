@@ -14,6 +14,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** @author CH */
 class FileRequestTraceRawRecordStorageTest {
 
     @Test
@@ -59,4 +60,5 @@ class FileRequestTraceRawRecordStorageTest {
         assertThat(content).contains("\"requestUrl\":\"/api/public/resource?page=1\"");
     }
 }
+
 

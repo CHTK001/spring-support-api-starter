@@ -7,8 +7,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * 三方绑定
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -28,7 +28,6 @@ public class ThirdPartyBinderProperties {
     /**
      * Gitee 绑定配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -48,7 +47,6 @@ public class ThirdPartyBinderProperties {
     /**
      * 绑定基础配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Data

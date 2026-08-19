@@ -31,9 +31,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  *   <li>部门管理 - 部门树形结构、层级管理</li>
  * </ul>
  *
- * @author CH
  * @since 2024/12/11
  * @see SystemProperties 系统服务配置属性
+ * @author CH
  */
 @Slf4j
 @Configuration
@@ -59,5 +59,4 @@ public class EnableSystemServerConfiguration implements WebMvcConfigurer, Comman
                 systemProperties.isEnable(), "系统服务", null);
     }
 }
-
 

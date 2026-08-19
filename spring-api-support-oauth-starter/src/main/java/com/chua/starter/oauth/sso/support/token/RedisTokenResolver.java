@@ -58,6 +58,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.TOKEN_
 @SuppressWarnings("ALL")
 @Service
 public class RedisTokenResolver implements TokenResolver {
+    /** Auth_version */
     private static final String AUTH_VERSION = "authVersion";
 
     /**
@@ -92,12 +93,16 @@ public class RedisTokenResolver implements TokenResolver {
     private RedisTemplate<String, Object> stringRedisTemplate;
 
     @Autowired
+    /** Auth服务器属性 */
     private AuthServerProperties authServerProperties;
     @Autowired
+    /** Logincheck */
     private LoginCheck loginCheck;
     @Autowired
+    /** SYS用户日志服务 */
     private SysUserLogService sysUserLogService;
     @Autowired
+    /** 令牌blacklist服务 */
     private TokenBlacklistService tokenBlacklistService;
 
     @Override
@@ -390,7 +395,6 @@ public class RedisTokenResolver implements TokenResolver {
      * </p>
      *
      * @param userResult 用户信息
-     * @author CH
      * @since 1.0.0
      */
     private void sanitizeExt(UserResult userResult) {

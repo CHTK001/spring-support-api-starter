@@ -26,29 +26,36 @@ import java.util.UUID;
 /**
  * 系统配置变更历史服务实现类
  *
- * @author CH
  * @since 2024/12/20
+ * @author CH
  */
 @Service
 public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryMapper, SysSettingHistory>
         implements SysSettingHistoryService {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(SysSettingHistoryServiceImpl.class);
 
     @Autowired
+    /** SYS设置mapper */
     private SysSettingMapper sysSettingMapper;
 
     @Autowired
     @Lazy
+    /** SYS设置服务 */
     private SysSettingService sysSettingService;
 
     /**
      * 操作类型常量
      */
     private static final String OP_CREATE = "CREATE";
+    /** Op_update */
     private static final String OP_UPDATE = "UPDATE";
+    /** Op_delete */
     private static final String OP_DELETE = "DELETE";
+    /** Op_import */
     private static final String OP_IMPORT = "IMPORT";
+    /** Op_rollback */
     private static final String OP_ROLLBACK = "ROLLBACK";
 
     @Override

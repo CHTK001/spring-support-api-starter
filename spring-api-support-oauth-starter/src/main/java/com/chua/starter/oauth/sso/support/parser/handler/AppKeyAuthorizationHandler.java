@@ -22,9 +22,9 @@ import org.springframework.context.ApplicationContext;
  * 类似大模型的认证方式，只验证AppKey合法性，返回关联用户信息
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/11
+ * @author CH
  */
 @Slf4j
 @Spi("appkey")

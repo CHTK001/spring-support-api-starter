@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
  * ACME HTTP-01 验证响应控制器
  * 用于本机部署模式，响应 ACME 服务器的验证请求
  *
- * @author CH
  * @since 2025-12-28
+ * @author CH
  */
 @Slf4j
 @RestController
@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AcmeChallengeController {
 
+    /** Challenge服务 */
     private final AcmeChallengeService challengeService;
 
     /**

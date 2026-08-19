@@ -19,9 +19,9 @@ import lombok.extern.slf4j.Slf4j;
  * 处理基于Token的标准认证请求，返回用户信息（包含指纹）由客户端决定是否验证
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/11
+ * @author CH
  */
 @Slf4j
 @Spi("default")

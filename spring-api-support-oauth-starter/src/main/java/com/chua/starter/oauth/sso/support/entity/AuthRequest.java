@@ -5,8 +5,8 @@ import lombok.Data;
 /**
  * 身份验证请求
  *
- * @author CH
  * @since 2023/09/09
+ * @author CH
  */
 @Data
 public class AuthRequest {

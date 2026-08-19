@@ -60,10 +60,14 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
     final ThirdPartyBinderProperties thirdPartyBinderProperties;
     final LoginCheck loginCheck;
     final AuthServerProperties authServerProperties;
+    /** Auth状态缓存 */
     private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
+    /** Gitee服务 */
     private GiteeService giteeService;
+    /** Auth请求 */
     private AuthGiteeRequest authRequest;
     @Value("${plugin.auth.server.context-path:}")
+    /** 上下文路径 */
     private String contextPath;
 
     /**

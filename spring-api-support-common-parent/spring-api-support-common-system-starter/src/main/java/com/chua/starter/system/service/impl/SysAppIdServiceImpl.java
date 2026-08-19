@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 /**
  * AppId应用标识 Service 实现
  *
- * @author CH
  * @since 2025/01/05
+ * @author CH
  */
 @Slf4j
 @Service

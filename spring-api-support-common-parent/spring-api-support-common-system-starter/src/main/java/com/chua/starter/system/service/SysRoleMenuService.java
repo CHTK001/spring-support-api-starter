@@ -11,8 +11,8 @@ import java.util.List;
  * <p>管理 {@code sys_role_id} 与 {@code sys_menu_id} 的多对多关系,
  * 用于 RBAC 权限控制。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 public interface SysRoleMenuService extends IService<SysRoleMenu> {
 

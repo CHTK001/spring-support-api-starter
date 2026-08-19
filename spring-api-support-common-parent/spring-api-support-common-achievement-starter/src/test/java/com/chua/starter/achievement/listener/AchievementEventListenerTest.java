@@ -23,8 +23,8 @@ import static org.mockito.Mockito.when;
  *
  * <p>覆盖事件监听器的核心逻辑：行为类型映射、服务调用、异常处理。</p>
  *
- * @author CH
  * @since 2026-08-07
+ * @author CH
  */
 @ExtendWith(MockitoExtension.class)
 class AchievementEventListenerTest {
@@ -33,6 +33,7 @@ class AchievementEventListenerTest {
      * 成就业务服务模拟
      */
     @Mock
+    /** Achievement服务 */
     private AchievementService achievementService;
 
     /**

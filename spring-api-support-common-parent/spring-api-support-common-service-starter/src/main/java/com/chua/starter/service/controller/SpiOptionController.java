@@ -35,8 +35,8 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
  * 返回该 SPI 的全部实现选项，供下拉选择使用。
  * </p>
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @RestController
 @RequestMapping("/v1/option")
@@ -44,8 +44,10 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 @Tag(name = "选项")
 public class SpiOptionController {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(SpiOptionController.class);
 
+    /** API属性 */
     private final ApiProperties apiProperties;
 
     /**

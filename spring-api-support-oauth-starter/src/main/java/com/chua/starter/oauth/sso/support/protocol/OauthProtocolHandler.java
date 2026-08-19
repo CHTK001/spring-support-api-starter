@@ -68,14 +68,16 @@ import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants
  *     <li>/temporary-token - 临时令牌</li>
  * </ul>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @RequiredArgsConstructor
 public class OauthProtocolHandler implements ServerHandler {
 
+    /** Auth服务器属性 */
     private final AuthServerProperties authServerProperties;
+    /** Logincheck */
     private final LoginCheck loginCheck;
 
     @Override

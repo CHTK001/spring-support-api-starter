@@ -10,8 +10,8 @@ import java.util.List;
  * 服务器布局配置服务接口，提供布局的增删改查、默认布局管理、
  * 从组件生成布局、应用布局到组件以及跨服务器复制布局等能力。
  *
- * @author CH
  * @since 2026-07-28
+ * @author CH
  */
 public interface MonitorSysGenServerLayoutService extends IService<MonitorSysGenServerLayout> {
 

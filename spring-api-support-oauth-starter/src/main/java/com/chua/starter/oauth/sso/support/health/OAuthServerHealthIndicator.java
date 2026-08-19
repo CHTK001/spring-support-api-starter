@@ -26,16 +26,19 @@ import java.util.Map;
  * 访问路径: /actuator/health/oauth
  * </p>
  *
- * @author CH
  * @since 2024/12/07
+ * @author CH
  */
 @Slf4j
 @Component("oauthServerHealth")
 @RequiredArgsConstructor
 public class OAuthServerHealthIndicator implements HealthIndicator {
 
+    /** 字符串redis模板 */
     private final StringRedisTemplate stringRedisTemplate;
+    /** 数据来源 */
     private final DataSource dataSource;
+    /** Auth服务器属性 */
     private final AuthServerProperties authServerProperties;
 
     /**

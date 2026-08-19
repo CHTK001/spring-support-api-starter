@@ -33,8 +33,8 @@ import java.util.stream.Collectors;
 /**
  * 系统字典项服务实现类
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Service
 @RequiredArgsConstructor
@@ -42,11 +42,13 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
 
     @Autowired
     @Lazy
+    /** SYSdictitem服务 */
     private SysDictItemService sysDictItemService;
 
     final SysDictItemPropertyMapper sysDictItemPropertyMapper;
     final SysDictMapper sysDictMapper;
     @Autowired
+    /** Transaction模板 */
     private TransactionTemplate transactionTemplate;
 
     /**

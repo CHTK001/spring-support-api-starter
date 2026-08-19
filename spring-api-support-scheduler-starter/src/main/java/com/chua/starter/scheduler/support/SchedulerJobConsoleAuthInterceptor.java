@@ -18,8 +18,8 @@ import java.nio.charset.StandardCharsets;
  * 这里只保护内置控制台页面资源，不干预平台 API 的现有调用方。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @RequiredArgsConstructor
 public class SchedulerJobConsoleAuthInterceptor implements HandlerInterceptor {

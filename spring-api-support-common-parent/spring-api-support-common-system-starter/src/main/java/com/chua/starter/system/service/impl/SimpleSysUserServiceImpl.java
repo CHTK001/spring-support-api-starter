@@ -24,15 +24,16 @@ import java.security.SecureRandom;
  * 主要用于登录回调、2FA(TOTP) 等轻量能力。
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025/12/13
+ * @author CH
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SimpleSysUserService {
 
+    /** Issuer */
     private static final String ISSUER = "SpringAPI";
     /**
      * TOTP 时间窗口容差（前后各允许多少个时间窗口）

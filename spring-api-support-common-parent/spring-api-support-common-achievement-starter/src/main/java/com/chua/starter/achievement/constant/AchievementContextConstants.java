@@ -4,7 +4,6 @@ package com.chua.starter.achievement.constant;
  * 成就上下文常量，统一约定 KvEngine 中的键前缀与统计字段名，
  * 供成就模块与签到模块共享，避免各模块重复定义键名导致约定漂移。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class AchievementContextConstants {

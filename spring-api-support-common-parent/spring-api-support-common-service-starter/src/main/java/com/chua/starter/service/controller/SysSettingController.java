@@ -38,19 +38,24 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 
 /**
  * 系统设置接口(缓存)
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Tag(name = "系统全局设置接口")
 @RestController
 @RequestMapping("/v2/setting")
 @RequiredArgsConstructor
 public class SysSettingController {
+    /** Setting_list_cache_key_prefix */
     public static final String SETTING_LIST_CACHE_KEY_PREFIX = "sys:setting:v2:";
+    /** Runtime_public_codec_request_key */
     private static final String RUNTIME_PUBLIC_CODEC_REQUEST_KEY = "CodecRequestKey";
+    /** Admin */
     private static final String ADMIN = "ADMIN";
 
+    /** SYS设置服务 */
     private final SysSettingService sysSettingService;
+    /** SYS设置history服务 */
     private final SysSettingHistoryService sysSettingHistoryService;
 
 

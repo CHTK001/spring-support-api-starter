@@ -9,9 +9,9 @@ import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
  * 用于验证客户端提供的 appId 是否合法，支持算法验证
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-01-05
+ * @author CH
  */
 public interface AppIdValidator {
 

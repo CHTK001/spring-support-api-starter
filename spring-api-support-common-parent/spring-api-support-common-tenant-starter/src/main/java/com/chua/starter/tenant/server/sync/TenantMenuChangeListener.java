@@ -17,9 +17,9 @@ import org.springframework.stereotype.Component;
  * 而非全量清空重录，从而保留租户端菜单记录与关联数据
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @Component
@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")
 public class TenantMenuChangeListener {
 
+    /** 同步publisher提供者 */
     private final ObjectProvider<TenantServerSyncPublisher> syncPublisherProvider;
 
     /**

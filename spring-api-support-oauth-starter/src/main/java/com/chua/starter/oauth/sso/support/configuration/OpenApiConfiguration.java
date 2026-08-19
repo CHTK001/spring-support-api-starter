@@ -23,6 +23,7 @@ import java.util.List;
 public class OpenApiConfiguration {
 
     @Value("${server.servlet.context-path:/oauth}")
+    /** 上下文路径 */
     private String contextPath;
 
     @Bean

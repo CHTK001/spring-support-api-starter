@@ -14,8 +14,8 @@ import java.util.Set;
  * 系统用户日志服务接口
  * 该接口定义了与系统用户日志相关的操作，包括查询用户日志分页数据和删除指定的日志
  *
- * @author CH
  * @since 2024/8/8
+ * @author CH
  */
 public interface SysUserLogService extends IService<SysUserLog> {
 

@@ -22,17 +22,21 @@ import java.util.List;
  * 文件系统清理定时任务
  * 定时清理过期文件和临时文件
  *
- * @author CH
  * @since 2024/12/20
+ * @author CH
  */
 @SpringBootConfiguration
 @RequiredArgsConstructor
 public class SysFileSystemCleanTask {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(SysFileSystemCleanTask.class);
 
+    /** SYS文件system服务 */
     private final SysFileSystemService sysFileSystemService;
+    /** SYS文件systempart服务 */
     private final SysFileSystemPartService sysFileSystemPartService;
+    /** SYS文件system设置服务 */
     private final SysFileSystemSettingService sysFileSystemSettingService;
 
     @Scheduled(cron = "0 0 4 * * ?")

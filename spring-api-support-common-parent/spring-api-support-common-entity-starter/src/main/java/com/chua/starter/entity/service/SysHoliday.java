@@ -14,8 +14,8 @@ import java.time.LocalDate;
 /**
  * 节假日表
  *
- * @author CH
  * @since 2025/9/11
+ * @author CH
  */
 @Schema(description = "节假日表")
 @Data
@@ -28,6 +28,7 @@ public class SysHoliday extends SysBase {
      */
     @TableId(value = "sys_holiday_id", type = IdType.AUTO)
     @Schema(description = "节假日ID")
+    /** SYSholidayID */
     private Integer sysHolidayId;
 
     /**
@@ -35,6 +36,7 @@ public class SysHoliday extends SysBase {
      */
     @TableField(value = "sys_holiday_year")
     @Schema(description = "节假日年份")
+    /** SYSholidayyear */
     private Integer sysHolidayYear;
 
     /**
@@ -42,6 +44,7 @@ public class SysHoliday extends SysBase {
      */
     @TableField(value = "sys_holiday_date")
     @Schema(description = "节假日日期")
+    /** SYSholiday日期 */
     private LocalDate sysHolidayDate;
 
     /**
@@ -49,6 +52,7 @@ public class SysHoliday extends SysBase {
      */
     @TableField(value = "sys_holiday_name")
     @Schema(description = "节假日名称")
+    /** SYSholiday名称 */
     private String sysHolidayName;
 
     /**
@@ -56,5 +60,6 @@ public class SysHoliday extends SysBase {
      */
     @TableField(value = "sys_holiday_is_holiday")
     @Schema(description = "是否节假日")
+    /** SYSholidayISholiday */
     private Boolean sysHolidayIsHoliday;
 }

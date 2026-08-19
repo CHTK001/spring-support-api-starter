@@ -39,8 +39,8 @@ import java.util.UUID;
  * {@code sys_job / sys_job_log} 表。任务扫描与远程派发由 job-starter 的
  * Leader 循环 + 长链 Sync 完成, 平台不再维护自研轮询/HTTP 派发。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Service
 @RequiredArgsConstructor

@@ -7,8 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 系统配置变更历史Mapper
  *
- * @author CH
  * @since 2024/12/20
+ * @author CH
  */
 @Mapper
 public interface SysSettingHistoryMapper extends BaseMapper<SysSettingHistory> {

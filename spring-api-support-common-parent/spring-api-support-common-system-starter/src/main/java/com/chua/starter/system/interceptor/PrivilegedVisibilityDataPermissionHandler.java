@@ -20,8 +20,8 @@ import java.util.function.Supplier;
 /**
  * 高权账号可见性处理器
  *
- * @author CH
  * @since 2025/5/1
+ * @author CH
  */
 @Slf4j
 public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermissionHandler {

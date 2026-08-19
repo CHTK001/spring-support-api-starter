@@ -33,6 +33,7 @@ import static com.chua.starter.oauth.client.support.execute.AuthClientExecute.cr
 @Slf4j
 public class LoginCheck {
 
+    /** Auth服务器属性 */
     private final AuthServerProperties authServerProperties;
 
     /**
@@ -44,6 +45,7 @@ public class LoginCheck {
      * 登录尝试服务（可选注入）
      */
     @Autowired(required = false)
+    /** Loginattempt服务 */
     private LoginAttemptService loginAttemptService;
 
     public LoginCheck(AuthServerProperties authServerProperties) {

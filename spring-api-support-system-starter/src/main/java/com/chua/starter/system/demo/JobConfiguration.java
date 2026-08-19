@@ -9,8 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  *
  * <p>仅在系统服务模块中演示 job-starter 的任务注解使用方式。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @EnableScheduling
 @SpringBootConfiguration

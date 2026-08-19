@@ -32,9 +32,9 @@ import java.util.Set;
  * 使用 utils-common 的 TableDefinition 工具生成 DDL 语句。
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025/12/12
+ * @author CH
  */
 @Slf4j
 @Component
@@ -42,7 +42,9 @@ import java.util.Set;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".client", name = "auto-add-column", havingValue = "true")
 public class TenantAutoAddColumnInitializer implements ApplicationRunner {
 
+    /** JDBC模板 */
     private final JdbcTemplate jdbcTemplate;
+    /** Tenant属性 */
     private final TenantProperties tenantProperties;
 
     /**

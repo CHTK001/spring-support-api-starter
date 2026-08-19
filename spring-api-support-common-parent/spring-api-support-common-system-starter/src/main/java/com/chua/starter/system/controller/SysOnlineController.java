@@ -20,8 +20,8 @@ import java.util.List;
 /**
  * 在线用户管理接口
  *
- * @author CH
  * @since 2024/12/15
+ * @author CH
  */
 @Tag(name = "在线用户管理接口")
 @RestController
@@ -29,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysOnlineController {
 
+    /** SYSonline服务 */
     private final SysOnlineService sysOnlineService;
 
     /**

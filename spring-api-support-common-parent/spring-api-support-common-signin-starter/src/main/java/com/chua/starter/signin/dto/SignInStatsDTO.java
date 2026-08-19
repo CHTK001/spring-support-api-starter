@@ -7,8 +7,8 @@ import lombok.Data;
  *
  * <p>用户签到统计概览，包含总签到天数、当前连续天数、历史最高连续天数和总积分。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Data
 public class SignInStatsDTO {

@@ -48,9 +48,9 @@ import java.util.concurrent.TimeUnit;
  * 服务端模式下，用于向客户端推送租户数据变更
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/06
+ * @author CH
  */
 @Component
 @RequiredArgsConstructor
@@ -58,31 +58,50 @@ import java.util.concurrent.TimeUnit;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")
 public class TenantServerSyncPublisher implements InitializingBean, DisposableBean {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(TenantServerSyncPublisher.class);
 
     /**
      * 租户同步主题
      */
     public static final String TOPIC_TENANT_UPDATE = TenantSyncMessageSupport.TOPIC_TENANT_UPDATE;
+    /** Topic_tenant_delete */
     public static final String TOPIC_TENANT_DELETE = TenantSyncMessageSupport.TOPIC_TENANT_DELETE;
+    /** Topic_tenant_service */
     public static final String TOPIC_TENANT_SERVICE = TenantSyncMessageSupport.TOPIC_TENANT_SERVICE;
+    /** Topic_tenant_menu */
     public static final String TOPIC_TENANT_MENU = TenantSyncMessageSupport.TOPIC_TENANT_MENU;
 
+    /** Reason_register */
     private static final String REASON_REGISTER = "client-register";
+    /** Reason_scheduled */
     private static final String REASON_SCHEDULED = "scheduled-reconcile";
+    /** Reason_tenant_update */
     private static final String REASON_TENANT_UPDATE = "tenant-update";
+    /** Reason_tenant_delete */
     private static final String REASON_TENANT_DELETE = "tenant-delete";
+    /** Reason_service_update */
     private static final String REASON_SERVICE_UPDATE = "service-update";
+    /** Reason_menu_update */
     private static final String REASON_MENU_UPDATE = "menu-update";
 
+    /** Tenant属性 */
     private final TenantProperties tenantProperties;
+    /** 同步服务器提供者 */
     private final ObjectProvider<SyncServer> syncServerProvider;
+    /** SYStenantmapper */
     private final SysTenantMapper sysTenantMapper;
+    /** SYStenant服务mapper */
     private final SysTenantServiceMapper sysTenantServiceMapper;
+    /** SYSmenumapper */
     private final SysMenuMapper sysMenuMapper;
+    /** SYS服务mapper */
     private final SysServiceMapper sysServiceMapper;
+    /** SYS服务modulemapper */
     private final SysServiceModuleMapper sysServiceModuleMapper;
+    /** SYS服务moduleitemmapper */
     private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
+    /** 同步ACKtracker */
     private final TenantSyncAckTracker syncAckTracker;
 
     private volatile SyncServer syncServer;

@@ -11,8 +11,8 @@ import lombok.EqualsAndHashCode;
 /**
  * 摄像头记录
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "摄像头记录")
@@ -24,5 +24,6 @@ public class SysDeviceCameraRecord extends SysBase {
      */
     @TableId(value = "sys_device_camera_record_id", type = IdType.AUTO)
     @Schema(description = "")
+    /** SYSdevicerecordID */
     private Integer sysDeviceRecordId;
 }

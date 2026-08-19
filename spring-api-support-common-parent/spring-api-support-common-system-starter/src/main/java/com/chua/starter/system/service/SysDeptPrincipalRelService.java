@@ -11,8 +11,8 @@ import java.util.Map;
 /**
  * 部门负责人关系服务
  *
- * @author CH
  * @since 2026/4/5
+ * @author CH
  */
 public interface SysDeptPrincipalRelService extends IService<SysDeptPrincipalRel> {
 

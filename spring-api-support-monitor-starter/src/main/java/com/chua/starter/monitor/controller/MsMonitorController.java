@@ -44,8 +44,8 @@ import java.util.concurrent.TimeUnit;
  * 监控模块统一接口，涵盖监控资产、采集任务、指标解析规则、网关、全局配置、
  * Redis 操作与指标查询等全部端点。
  *
- * @author CH
  * @since 2026-08-11
+ * @author CH
  */
 @Slf4j
 @RestController

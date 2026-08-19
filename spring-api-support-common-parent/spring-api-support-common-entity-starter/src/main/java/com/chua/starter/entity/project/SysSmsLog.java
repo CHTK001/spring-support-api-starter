@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 /**
  *
  * @since 2024/11/27
- * @author CH    
  */
 
 /**
@@ -31,12 +30,14 @@ public class SysSmsLog extends SysBase implements Serializable {
     @TableId(value = "sys_sms_log_id", type = IdType.AUTO)
     @Schema(description = "")
     @NotNull(message = "不能为null")
+    /** SYSSMS日志ID */
     private Integer sysSmsLogId;
     /**
      * 项目ID
      */
     @TableField(value = "sys_project_id")
     @Schema(description = "项目ID")
+    /** SYSprojectID */
     private Integer sysProjectId;
     /**
      * 接收人
@@ -44,6 +45,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     @TableField(value = "sys_sms_log_target")
     @Schema(description = "接收人")
     @Size(max = 255, message = "接收人最大长度要小于 255")
+    /** SYSSMS日志目标 */
     private String sysSmsLogTarget;
 
     /**
@@ -52,6 +54,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     @TableField(value = "sys_sms_log_template_id")
     @Schema(description = "模板ID")
     @Size(max = 255, message = "模板ID最大长度要小于 255")
+    /** SYSSMS日志模板ID */
     private String sysSmsLogTemplateId;
 
     /**
@@ -59,6 +62,7 @@ public class SysSmsLog extends SysBase implements Serializable {
      */
     @TableField(value = "sys_sms_log_content")
     @Schema(description = "短信内容")
+    /** SYSSMS日志内容 */
     private String sysSmsLogContent;
 
     /**
@@ -67,6 +71,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     @TableField(value = "sys_sms_log_param")
     @Schema(description = "参数")
     @Size(max = 255, message = "参数最大长度要小于 255")
+    /** SYSSMS日志参数 */
     private String sysSmsLogParam;
 
     /**
@@ -74,6 +79,7 @@ public class SysSmsLog extends SysBase implements Serializable {
      */
     @TableField(value = "sys_sms_cost")
     @Schema(description = "耗时时间")
+    /** SYSSMScost */
     private BigDecimal sysSmsCost;
 
     /**
@@ -82,6 +88,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     @TableField(value = "sys_sms_code")
     @Schema(description = "错误码")
     @Size(max = 255, message = "错误码最大长度要小于 255")
+    /** SYSSMS代码 */
     private String sysSmsCode;
 
     /**
@@ -90,6 +97,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     @TableField(value = "sys_sms_message")
     @Schema(description = "错误信息")
     @Size(max = 255, message = "错误信息最大长度要小于 255")
+    /** SYSSMS消息 */
     private String sysSmsMessage;
 
     /**
@@ -98,6 +106,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     @TableField(value = "sys_sms_app_type")
     @Schema(description = "短信厂家")
     @Size(max = 255, message = "短信厂家最大长度要小于 255")
+    /** SYSSMSAPP类型 */
     private String sysSmsAppType;
 
     /**
@@ -106,6 +115,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     @TableField(value = "sys_sms_app_id")
     @Schema(description = "短信密钥")
     @Size(max = 255, message = "短信密钥最大长度要小于 255")
+    /** SYSSMSAPPID */
     private String sysSmsAppId;
 
     /**
@@ -114,5 +124,6 @@ public class SysSmsLog extends SysBase implements Serializable {
     @TableField(value = "sys_sms_app_sign")
     @Schema(description = "签名")
     @Size(max = 255, message = "签名最大长度要小于 255")
+    /** SYSSMSAPPsign */
     private String sysSmsAppSign;
 }

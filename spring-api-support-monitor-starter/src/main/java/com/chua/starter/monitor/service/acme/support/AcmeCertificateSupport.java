@@ -14,7 +14,6 @@ import java.util.List;
  * 供 {@code AcmeCertificateServiceImpl} 与 {@code AcmeCertificateAsyncService} 复用，
  * 避免重复实现。
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class AcmeCertificateSupport {

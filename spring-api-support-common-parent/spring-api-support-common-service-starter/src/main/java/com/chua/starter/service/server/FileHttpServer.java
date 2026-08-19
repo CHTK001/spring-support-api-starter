@@ -28,17 +28,22 @@ import java.util.Map;
  *
  * <p>使用 JDK 内置 HTTP Server + 虚拟线程池,零外部依赖。生命周期由 Service 显式管理。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 public class FileHttpServer {
 
     @Getter
+    /** 设置 */
     private final ServerSetting setting;
+    /** 服务器 */
     private final JdkHttpServer server;
+    /** SYS文件system服务 */
     private final SysFileSystemService sysFileSystemService;
+    /** SYS文件system设置服务 */
     private final SysFileSystemSettingService sysFileSystemSettingService;
+    /** Temp路径 */
     private final String tempPath;
     @Getter
     private volatile boolean running;

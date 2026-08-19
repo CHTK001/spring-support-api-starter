@@ -34,8 +34,8 @@ import java.util.concurrent.CompletableFuture;
  * 并把申请/续签/验证过程中的状态变化通过 {@link SocketSessionTemplate} 推送给对应用户，
  * 实现「消息中心查看进度」的体验。当项目未启用 Socket 时推送能力自动降级为日志记录。
  *
- * @author CH
  * @since 2025-12-23
+ * @author CH
  */
 @Slf4j
 @Service

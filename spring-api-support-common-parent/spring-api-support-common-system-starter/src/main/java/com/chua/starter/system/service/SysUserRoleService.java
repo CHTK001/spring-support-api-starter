@@ -5,8 +5,8 @@ import com.chua.starter.entity.system.SysUserRole;
 
 /**
  * 用户 - 角色关联琛?
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 public interface SysUserRoleService extends IService<SysUserRole> {
 

@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
  * <p>提供当前用户站内消息的分页查询、未读统计与已读标记，
  * 供前端站内消息中心（Header 铃铛/消息面板）调用。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Tag(name = "站内消息接口")
 @RestController
@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SysMessageController {
 
+    /** SYS消息服务 */
     private final SysMessageService sysMessageService;
 
     /**

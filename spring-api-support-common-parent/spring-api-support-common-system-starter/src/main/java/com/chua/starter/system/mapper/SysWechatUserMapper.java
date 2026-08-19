@@ -9,11 +9,10 @@ import org.apache.ibatis.annotations.Mapper;
  *
  * 负责微信用户基础信息的增删改查
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @Mapper
 public interface SysWechatUserMapper extends BaseMapper<SysWechatUser> {
 }
-
 

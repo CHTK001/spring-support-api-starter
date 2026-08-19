@@ -9,11 +9,12 @@ import org.springframework.context.ApplicationContext;
 /**
  * HTTP协议认证信息实现类
  * 
- * @author CH
  */
 public abstract class HttpAuthInformation extends BaseAuthInformation {
 
+    /** 请求 */
     private final HttpServletRequest request;
+    /** 响应 */
     private final HttpServletResponse response;
 
     public HttpAuthInformation(AuthServerProperties authServerProperties,

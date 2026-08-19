@@ -28,20 +28,25 @@ import java.util.stream.Collectors;
  * </ul>
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/12
+ * @author CH
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
+    /** Op_create */
     private static final String OP_CREATE = TenantSyncMessageSupport.OP_CREATE;
+    /** Op_update */
     private static final String OP_UPDATE = TenantSyncMessageSupport.OP_UPDATE;
+    /** Op_delete */
     private static final String OP_DELETE = TenantSyncMessageSupport.OP_DELETE;
 
+    /** JDBC模板 */
     private final JdbcTemplate jdbcTemplate;
+    /** Tenant属性 */
     private final TenantProperties tenantProperties;
 
     @Override

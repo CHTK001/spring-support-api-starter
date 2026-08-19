@@ -11,8 +11,8 @@ import java.util.List;
 /**
  * 字典项子项 Mapper 接口
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Mapper
 public interface SysDictItemMapper extends BaseMapper<SysDictItem> {

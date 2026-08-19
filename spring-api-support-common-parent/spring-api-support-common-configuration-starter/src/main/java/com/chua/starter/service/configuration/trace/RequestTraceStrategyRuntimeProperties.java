@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 /**
  * 请求追踪运行时属性。
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Data
 @Component

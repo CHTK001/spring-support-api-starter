@@ -11,9 +11,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
  * 用于在日志中输出追踪ID，支持分布式链路追踪
  * </p>
  *
- * @author CH
  * @since 2025/12/05
  * @version 1.0.0
+ * @author CH
  */
 @ConditionalOnClass(name = "ch.qos.logback.classic.pattern.ClassicConverter")
 public class TraceMessageConverter extends ClassicConverter {

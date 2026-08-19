@@ -5,8 +5,8 @@ import java.util.Set;
 /**
  * 请求追踪事件
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 public record RequestTraceEvent(
         long timestamp,

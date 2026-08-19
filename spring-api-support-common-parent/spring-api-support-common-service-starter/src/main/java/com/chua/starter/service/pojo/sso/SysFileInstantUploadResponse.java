@@ -6,8 +6,8 @@ import lombok.Data;
 /**
  * 秒传检查响应
  *
- * @author CH
  * @since 2024/12/20
+ * @author CH
  */
 @Data
 @Schema(description = "秒传检查响应")
@@ -17,30 +17,35 @@ public class SysFileInstantUploadResponse {
      * 是否可以秒传
      */
     @Schema(description = "是否可以秒传")
+    /** Instant上传 */
     private Boolean instantUpload;
 
     /**
      * 已存在的文件ID
      */
     @Schema(description = "已存在的文件ID")
+    /** Existing文件ID */
     private Integer existingFileId;
 
     /**
      * 已存在的文件访问URL
      */
     @Schema(description = "已存在的文件访问URL")
+    /** Existing文件URL */
     private String existingFileUrl;
 
     /**
      * 已存在的文件HTTP访问URL
      */
     @Schema(description = "已存在的文件HTTP访问URL")
+    /** Existing文件HTTPURL */
     private String existingFileHttpUrl;
 
     /**
      * 已存在的文件名
      */
     @Schema(description = "已存在的文件名")
+    /** Existing文件名称 */
     private String existingFileName;
 
     /**

@@ -10,8 +10,8 @@ import lombok.Data;
 /**
  * 默认功能 <---->对象的项目; e.g. 短信默认采用那个项目配置
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @Schema(description = "默认功能 <---->对象的项目; e.g. 短信默认采用那个项目配置")
 @Data
@@ -22,6 +22,7 @@ public class SysProjectDefault {
      */
     @TableId(value = "sys_project_default_id", type = IdType.AUTO)
     @Schema(description = "")
+    /** SYSproject默认ID */
     private Integer sysProjectDefaultId;
 
     /**
@@ -29,6 +30,7 @@ public class SysProjectDefault {
      */
     @TableField(value = "sys_project_default_type")
     @Schema(description = "类型； 字典表6;")
+    /** SYSproject默认类型 */
     private String sysProjectDefaultType;
 
     /**
@@ -36,5 +38,6 @@ public class SysProjectDefault {
      */
     @TableField(value = "sys_project_id")
     @Schema(description = "项目ID")
+    /** SYSprojectID */
     private Integer sysProjectId;
 }

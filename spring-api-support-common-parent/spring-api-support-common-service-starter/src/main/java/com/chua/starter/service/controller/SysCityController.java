@@ -22,8 +22,8 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 
 /**
  * 事件接口
- * @author CH
  * @since 2024/9/7
+ * @author CH
  */
 @RestController
 @Slf4j

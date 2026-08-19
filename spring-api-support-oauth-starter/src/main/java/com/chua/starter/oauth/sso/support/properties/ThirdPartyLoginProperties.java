@@ -71,10 +71,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *   <li>各平台申请指南请参考 docs/third-party-login/ 目录</li>
  * </ul>
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/01/01
  * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -243,7 +243,6 @@ public class ThirdPartyLoginProperties {
      * </ul>
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -340,7 +339,6 @@ public class ThirdPartyLoginProperties {
      * </ul>
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -425,7 +423,6 @@ public class ThirdPartyLoginProperties {
      * </ul>
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -505,7 +502,6 @@ public class ThirdPartyLoginProperties {
      * </ul>
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -583,7 +579,6 @@ public class ThirdPartyLoginProperties {
      * </ul>
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -594,7 +589,6 @@ public class ThirdPartyLoginProperties {
     /**
      * QQ 互联登录配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -609,7 +603,6 @@ public class ThirdPartyLoginProperties {
     /**
      * 支付宝登录配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -624,7 +617,6 @@ public class ThirdPartyLoginProperties {
     /**
      * 钉钉登录配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -635,7 +627,6 @@ public class ThirdPartyLoginProperties {
     /**
      * 企业微信登录配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -650,7 +641,6 @@ public class ThirdPartyLoginProperties {
     /**
      * 新浪微博登录配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -661,7 +651,6 @@ public class ThirdPartyLoginProperties {
     /**
      * 百度登录配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -754,7 +743,6 @@ public class ThirdPartyLoginProperties {
      * </ul>
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -765,7 +753,6 @@ public class ThirdPartyLoginProperties {
     /**
      * Microsoft 登录配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @EqualsAndHashCode(callSuper = true)
@@ -778,7 +765,6 @@ public class ThirdPartyLoginProperties {
     /**
      * 平台基础配置。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Data

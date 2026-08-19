@@ -60,16 +60,21 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 @Lazy(false)
 public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean, ApplicationListener<ApplicationReadyEvent> {
 
-    private static final Logger log = LoggerFactory.getLogger(SysSettingServiceImpl.class);
-    private static final String SETTING_LIST_CACHE_KEY_LEGACY_PREFIX = "sys:setting:";
-    private static final String SETTING_LIST_CACHE_KEY_PREFIX = "sys:setting:v2:";
+    /** log */
+    private static final Logger log= LoggerFactory.getLogger(SysSettingServiceImpl.class);
+    /** SETTINLISCACHKELEGACPREFIX */
+    private static final String SETTING_LIST_CACHE_KEY_LEGACY_PREFIX= "sys:setting:";
+    /** SETTINLISCACHKEPREFIX */
+    private static final String SETTING_LIST_CACHE_KEY_PREFIX= "sys:setting:v2:";
 
     @Autowired
     @Lazy
+    /** sys设置服务 */
     private SysSettingService sysSettingService;
     
     @Autowired
     @Lazy
+    /** sys设置History服务 */
     private SysSettingHistoryService sysSettingHistoryService;
 
     /**

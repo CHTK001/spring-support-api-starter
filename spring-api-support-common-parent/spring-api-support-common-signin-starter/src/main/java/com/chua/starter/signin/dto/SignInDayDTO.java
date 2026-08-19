@@ -9,8 +9,8 @@ import java.time.LocalDate;
  *
  * <p>月度日历中每一天的签到状态，用于前端渲染日历网格。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Data
 public class SignInDayDTO {

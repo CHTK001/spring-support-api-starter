@@ -32,9 +32,9 @@ import java.util.List;
 /**
  * 服务模块管理接口
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/15
+ * @author CH
  */
 @RestController
 @Slf4j
@@ -44,7 +44,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysServiceModuleController {
 
+    /** SYS服务modulemapper */
     private final SysServiceModuleMapper sysServiceModuleMapper;
+    /** SYS服务moduleitemmapper */
     private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
 
     /**

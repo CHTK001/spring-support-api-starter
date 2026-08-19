@@ -8,8 +8,8 @@ import java.util.function.Predicate;
 /**
  * 请求追踪分析上下文
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 public record RequestTraceAnalysisContext(
         RequestTraceEvent currentEvent,

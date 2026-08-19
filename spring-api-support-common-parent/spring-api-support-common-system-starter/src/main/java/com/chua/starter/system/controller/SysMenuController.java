@@ -31,8 +31,8 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 /**
  * 菜单接口
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Tag(name = "菜单接口")
 @RestController
@@ -40,6 +40,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 @RequiredArgsConstructor
 public class SysMenuController {
 
+    /** SYSmenu服务 */
     private final SysMenuService sysMenuService;
     /**
      * 菜单列表

@@ -16,14 +16,15 @@ import java.util.regex.Pattern;
  * OAuth追踪日志服务
  * 提供异步保存和敏感字段脱敏功能
  *
- * @author CH
  * @since 2025/01/01
+ * @author CH
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class OAuthTraceLogService {
 
+    /** 跟踪日志mapper */
     private final SysOAuthTraceLogMapper traceLogMapper;
 
     /**

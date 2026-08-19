@@ -27,8 +27,8 @@ import java.util.Map;
  * 服务器布局管理接口，提供布局列表、默认布局、保存/更新/删除、
  * 从组件生成布局、应用布局、复制布局以及组件图表配置的管理能力。
  *
- * @author CH
  * @since 2026-07-28
+ * @author CH
  */
 @Slf4j
 @RestController

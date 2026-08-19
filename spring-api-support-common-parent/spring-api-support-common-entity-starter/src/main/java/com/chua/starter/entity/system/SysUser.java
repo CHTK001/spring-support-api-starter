@@ -16,14 +16,15 @@ import java.util.List;
 /**
  * 用户表
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Schema(description = "用户表")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user")
 public class SysUser extends SysBase implements Serializable {
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -32,6 +33,7 @@ public class SysUser extends SysBase implements Serializable {
     @TableId(value = "sys_user_id", type = IdType.AUTO)
     @Schema(description = "用户ID")
     @NotNull(message = "用户ID不能为空")
+    /** SYS用户ID */
     private Integer sysUserId;
 
     /**
@@ -41,6 +43,7 @@ public class SysUser extends SysBase implements Serializable {
     @Schema(description = "账号")
     @Size(max = 255, message = "账号最大长度需小于255")
     @NotEmpty(message = "账号不能为空", groups = {AddGroup.class})
+    /** SYS用户username */
     private String sysUserUsername;
 
     /**
@@ -49,6 +52,7 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(value = "sys_user_nickname")
     @Schema(description = "名称")
     @Size(max = 255, message = "名称最大长度需小于255")
+    /** SYS用户nickname */
     private String sysUserNickname;
 
     /**
@@ -57,6 +61,7 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(value = "sys_user_full_address")
     @Schema(description = "居住地址")
     @Size(max = 400, message = "居住地址最大长度需小于400")
+    /** SYS用户full地址 */
     private String sysUserFullAddress;
 
     /**
@@ -66,6 +71,7 @@ public class SysUser extends SysBase implements Serializable {
     @Schema(description = "密码")
     @Size(max = 255, message = "密码最大长度需小于255")
     @NotEmpty(message = "密码不能为空", groups = {AddGroup.class})
+    /** SYS用户密码 */
     private String sysUserPassword;
 
     /**
@@ -74,6 +80,7 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(value = "sys_user_avatar")
     @Schema(description = "头像")
     @Size(max = 4000, message = "头像最大长度需小于4000")
+    /** SYS用户avatar */
     private String sysUserAvatar;
 
     /**
@@ -82,6 +89,7 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(value = "sys_user_salt")
     @Schema(description = "盐")
     @Size(max = 255, message = "盐最大长度需小于255")
+    /** SYS用户salt */
     private String sysUserSalt;
 
     /**
@@ -89,6 +97,7 @@ public class SysUser extends SysBase implements Serializable {
      */
     @TableField(value = "sys_user_totp_code")
     @Schema(description = "TOTP")
+    /** SYS用户totp代码 */
     private String sysUserTotpCode;
 
     /**
@@ -97,6 +106,7 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(value = "sys_user_delete")
     @Schema(description = "是否删除; 0: 未删除")
     @TableLogic(value = "0", delval = "1")
+    /** SYS用户delete */
     private Integer sysUserDelete;
 
     /**
@@ -104,6 +114,7 @@ public class SysUser extends SysBase implements Serializable {
      */
     @TableField(value = "sys_dept_id")
     @Schema(description = "部门ID")
+    /** SYSdeptID */
     private Integer sysDeptId;
 
     /**
@@ -111,6 +122,7 @@ public class SysUser extends SysBase implements Serializable {
      */
     @TableField(value = "sys_user_status")
     @Schema(description = "是否启用; 0:禁用")
+    /** SYS用户状态 */
     private Integer sysUserStatus;
 
     /**
@@ -119,6 +131,7 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(value = "sys_user_phone")
     @Schema(description = "手机号")
     @Size(max = 255, message = "手机号最大长度需小于255")
+    /** SYS用户phone */
     private String sysUserPhone;
 
     /**
@@ -127,6 +140,7 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(value = "sys_user_email")
     @Schema(description = "邮箱")
     @Size(max = 255, message = "邮箱最大长度需小于255")
+    /** SYS用户email */
     private String sysUserEmail;
 
     /**
@@ -134,6 +148,7 @@ public class SysUser extends SysBase implements Serializable {
      */
     @TableField(value = "sys_user_sex")
     @Schema(description = "性别; 0:男 1:女 2:其他")
+    /** SYS用户SEX */
     private Integer sysUserSex;
 
     /**
@@ -141,6 +156,7 @@ public class SysUser extends SysBase implements Serializable {
      */
     @TableField(value = "sys_user_login_count")
     @Schema(description = "登录次数")
+    /** SYS用户long数量 */
     private Integer sysUserLongCount;
 
     /**
@@ -148,6 +164,7 @@ public class SysUser extends SysBase implements Serializable {
      */
     @TableField(value = "sys_user_in_system")
     @Schema(description = "是否系统账号; 0: 非系统账号")
+    /** SYS用户INsystem */
     private Integer sysUserInSystem;
 
     /**
@@ -156,6 +173,7 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(value = "sys_user_card")
     @Schema(description = "身份证")
     @Size(max = 255, message = "身份证最大长度需小于255")
+    /** SYS用户card */
     private String sysUserCard;
 
     /**
@@ -164,6 +182,7 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(value = "sys_user_remark")
     @Schema(description = "备注")
     @Size(max = 255, message = "备注最大长度需小于255")
+    /** SYS用户remark */
     private String sysUserRemark;
 
     /**
@@ -172,6 +191,7 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(value = "sys_user_last_address")
     @Schema(description = "最后一次登录地点")
     @Size(max = 255, message = "最后一次登录地点最大长度需小于255")
+    /** SYS用户最后地址 */
     private String sysUserLastAddress;
 
     /**
@@ -179,6 +199,7 @@ public class SysUser extends SysBase implements Serializable {
      */
     @TableField(value = "sys_user_register_address")
     @Schema(description = "注册地点")
+    /** SYS用户register地址 */
     private String sysUserRegisterAddress;
 
     /**
@@ -187,6 +208,7 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(value = "sys_user_last_ip")
     @Schema(description = "最后一次登录IP")
     @Size(max = 255, message = "最后一次登录IP最大长度需小于255")
+    /** SYS用户最后IP */
     private String sysUserLastIp;
 
     /**
@@ -195,6 +217,7 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(value = "sys_user_register_ip")
     @Schema(description = "注册IP")
     @Size(max = 255, message = "注册IP最大长度需小于255")
+    /** SYS用户registerIP */
     private String sysUserRegisterIp;
 
     /**
@@ -202,6 +225,7 @@ public class SysUser extends SysBase implements Serializable {
      */
     @TableField(value = "sys_client_id")
     @Schema(description = "客户端ID")
+    /** SYS客户端ID */
     private String sysClientId;
 
     /**
@@ -209,6 +233,7 @@ public class SysUser extends SysBase implements Serializable {
      */
     @TableField(value = "sys_user_birthday")
     @Schema(description = "生日")
+    /** SYS用户birthday */
     private String sysUserBirthday;
 
     /**
@@ -216,6 +241,7 @@ public class SysUser extends SysBase implements Serializable {
      */
     @TableField(value = "sys_user_avatar_frame")
     @Schema(description = "头像框ID")
+    /** SYS用户avatarframe */
     private Integer sysUserAvatarFrame;
 
     /**
@@ -223,6 +249,7 @@ public class SysUser extends SysBase implements Serializable {
      */
     @TableField(value = "sys_user_avatar_frame_show")
     @Schema(description = "是否显示头像框; 0:不显示 1:显示")
+    /** SYS用户avatarframeshow */
     private Integer sysUserAvatarFrameShow;
 
     /**
@@ -230,11 +257,13 @@ public class SysUser extends SysBase implements Serializable {
      */
     @Schema(description = "角色列表(系统生成)")
     @TableField(exist = false)
+    /** 用户roles */
     private List<SysRole> userRoles;
 
     /**
      * 租户ID
      */
     @TableField(exist = false)
+    /** SYStenantID */
     private Integer sysTenantId;
 }

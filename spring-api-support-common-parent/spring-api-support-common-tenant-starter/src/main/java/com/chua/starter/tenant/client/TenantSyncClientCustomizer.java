@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit;
  * 避免首次注册后立刻收到全量同步时处理器尚未挂载。
  * </p>
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Slf4j
 @Component
@@ -32,10 +32,14 @@ import java.util.concurrent.TimeUnit;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".client", name = "enable", havingValue = "true")
 public class TenantSyncClientCustomizer implements SyncClientCustomizer, DisposableBean {
 
+    /** Reason_client_connect */
     private static final String REASON_CLIENT_CONNECT = "client-connect";
 
+    /** Tenant属性 */
     private final TenantProperties tenantProperties;
+    /** Tenant客户端同步处理器 */
     private final TenantClientSyncHandler tenantClientSyncHandler;
+    /** 调度器 */
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
         Thread thread = new Thread(runnable, "tenant-sync-client-customizer");
         thread.setDaemon(true);

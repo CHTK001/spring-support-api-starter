@@ -12,8 +12,8 @@ import java.io.Serializable;
 /**
  * 部门负责人关系表
  *
- * @author CH
  * @since 2026/4/5
+ * @author CH
  */
 @Data
 @Schema(description = "部门负责人关系表")
@@ -22,13 +22,16 @@ public class SysDeptPrincipalRel implements Serializable {
 
     @TableId(value = "sys_dept_principal_rel_id", type = IdType.AUTO)
     @Schema(description = "关系ID")
+    /** SYSdeptprincipalRELID */
     private Integer sysDeptPrincipalRelId;
 
     @TableField("sys_dept_id")
     @Schema(description = "部门ID")
+    /** SYSdeptID */
     private Integer sysDeptId;
 
     @TableField("sys_user_id")
     @Schema(description = "负责人用户ID")
+    /** SYS用户ID */
     private Integer sysUserId;
 }

@@ -15,21 +15,24 @@ import org.springframework.cache.annotation.Cacheable;
  * 从 sys_app_key 表查询 SK，带缓存
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/17
+ * @author CH
  */
 @Slf4j
 @Extension("database")
 @SpiDefault
 public class DatabaseSecretKeyResolver implements SecretKeyResolver {
 
+    /** Status_enabled */
     private static final int STATUS_ENABLED = 1;
 
     @AutoInject
+    /** SYSAPP密钥服务 */
     private SysAppKeyService sysAppKeyService;
 
     @AutoInject
+    /** 令牌blacklist服务 */
     private TokenBlacklistService tokenBlacklistService;
 
     @Override

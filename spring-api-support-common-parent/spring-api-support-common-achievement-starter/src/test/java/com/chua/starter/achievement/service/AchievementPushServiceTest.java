@@ -21,8 +21,8 @@ import static org.mockito.Mockito.verify;
  *
  * <p>覆盖推送服务的核心逻辑：JSON 序列化、SocketSessionTemplate 调用。</p>
  *
- * @author CH
  * @since 2026-08-07
+ * @author CH
  */
 @ExtendWith(MockitoExtension.class)
 class AchievementPushServiceTest {
@@ -31,6 +31,7 @@ class AchievementPushServiceTest {
      * Socket 会话模板模拟
      */
     @Mock
+    /** Socket会话模板 */
     private SocketSessionTemplate socketSessionTemplate;
 
     /**

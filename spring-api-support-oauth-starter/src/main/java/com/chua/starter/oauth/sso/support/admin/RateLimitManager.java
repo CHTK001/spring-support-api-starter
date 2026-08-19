@@ -14,13 +14,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>
  * 支持热更新：无需重启即可调整限流参数。
  * </p>
+ * @author CH
  */
 @Component
 @Slf4j
 public class RateLimitManager {
 
+    /** 是否启用 */
     private final AtomicBoolean enabled = new AtomicBoolean(false);
+    /** QPS */
     private final AtomicInteger qps = new AtomicInteger(100);
+    /** Burst尺寸 */
     private final AtomicInteger burstSize = new AtomicInteger(200);
     private volatile String dimension = "global";
     private volatile RateLimiter rateLimiter = RateLimiter.create(100);
@@ -67,3 +71,4 @@ public class RateLimitManager {
         return enabled.get();
     }
 }
+

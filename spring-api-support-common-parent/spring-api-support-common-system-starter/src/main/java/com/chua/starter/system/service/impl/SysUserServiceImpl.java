@@ -50,8 +50,8 @@ import java.util.stream.Collectors;
 /**
  * 系统用户服务实现类
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Service
 @Slf4j
@@ -69,7 +69,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     final SysUserLayoutMapper sysUserLayoutMapper;
     final SysUserLogMapper sysUserLogMapper;
     final SystemSecurityProperties securityProperties;
-    private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
+    /** GLOBASETTINFACTORY */
+    private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY= GlobalSettingFactory.getInstance();
 
     /**
      * 分页查询系统用户信息。

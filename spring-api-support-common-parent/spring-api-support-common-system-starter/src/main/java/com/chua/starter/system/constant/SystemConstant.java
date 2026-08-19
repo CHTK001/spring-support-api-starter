@@ -4,7 +4,6 @@ package com.chua.starter.system.constant;
  * 系统常量
  * <p>定义系统模块中使用的各类常量，避免魔法值</p>
  *
- * @author CH
  * @since 2024/8/7
  */
 public final class SystemConstant {

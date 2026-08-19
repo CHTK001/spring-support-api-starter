@@ -9,8 +9,8 @@ import java.util.List;
 /**
  * 字典子项属性
  *
- * @author CH
  * @since 2025/9/28
+ * @author CH
  */
 @Data
 @Schema(description = "字典子项属性")
@@ -20,11 +20,13 @@ public class DictItemPropertyV1Request {
      * 字典子项ID
      */
     @Schema(description = "字典子项ID")
+    /** SYSdictitemID */
     private Integer sysDictItemId;
 
     /**
      * 字典子项属性
      */
     @Schema(description = "字典子项属性")
+    /** Property */
     private List<SysDictItemProperty> property;
 }

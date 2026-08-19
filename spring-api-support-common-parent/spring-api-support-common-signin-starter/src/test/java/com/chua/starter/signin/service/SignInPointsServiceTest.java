@@ -25,8 +25,8 @@ import static org.mockito.Mockito.when;
  *
  * <p>覆盖积分计算逻辑：每日基础积分、连续天数里程碑奖励、积分总和计算。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @ExtendWith(MockitoExtension.class)
 class SignInPointsServiceTest {
@@ -35,12 +35,14 @@ class SignInPointsServiceTest {
      * 积分规则 Mapper 模拟
      */
     @Mock
+    /** Rulemapper */
     private SignInPointsRuleMapper ruleMapper;
 
     /**
      * 积分流水 Mapper 模拟
      */
     @Mock
+    /** Pointsrecordmapper */
     private SignInPointsRecordMapper pointsRecordMapper;
 
     /**

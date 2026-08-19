@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
  * <p>定义签到积分的发放规则，包括每日签到基础积分和连续签到里程碑奖励。
  * 内置规则类型：DAILY_SIGN（每日基础）、STREAK_BONUS_3/7/30（连续天数里程碑）。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Data
 @TableName("sign_in_points_rule")
@@ -24,6 +24,7 @@ public class SignInPointsRule {
      * 主键ID
      */
     @TableId(type = IdType.AUTO)
+    /** ID */
     private Long id;
 
     /**

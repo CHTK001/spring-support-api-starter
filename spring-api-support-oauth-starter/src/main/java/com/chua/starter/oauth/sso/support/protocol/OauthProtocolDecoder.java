@@ -24,8 +24,8 @@ import java.util.concurrent.TimeUnit;
  * {@code x-oauth-encode} 头判断是否加密,加密时用 {@code x-oauth-uuid}/{@code x-oauth-serial}
  * 解出对称密钥再解密 body;可选 AK/SK 二次解密;带 30s 解密缓存与 MD5 签名校验。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 public class OauthProtocolDecoder {
@@ -38,14 +38,22 @@ public class OauthProtocolDecoder {
             .expireAfterWrite(30, TimeUnit.SECONDS)
             .build();
 
+    /** Auth服务器属性 */
     private final AuthServerProperties authServerProperties;
+    /** UUID */
     private final String uuid;
+    /** Serial */
     private final String serial;
+    /** Sign */
     private final String sign;
+    /** Access密钥 */
     private final String accessKey;
+    /** ISencode */
     private final boolean isEncode;
+    /** 加密 */
     private final String encryption;
     private final Map<String, Object> bodyData = new LinkedHashMap<>();
+    /** Success */
     private boolean success = false;
 
     public OauthProtocolDecoder(AuthServerProperties authServerProperties,

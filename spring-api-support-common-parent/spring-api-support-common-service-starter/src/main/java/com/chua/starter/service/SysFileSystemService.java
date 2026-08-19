@@ -19,9 +19,9 @@ import java.io.File;
 /**
  * 文件系统服务接口
  *
- * @author CH
  * @since 2024/12/10
  * @version 1.0.0
+ * @author CH
  */
 public interface SysFileSystemService extends IService<SysFileSystem> {
 

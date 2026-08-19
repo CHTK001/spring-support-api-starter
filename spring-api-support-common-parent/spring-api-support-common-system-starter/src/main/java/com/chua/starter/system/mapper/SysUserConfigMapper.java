@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  *
  * @since 2024/8/28
- * @author CH    
+ * @author CH
  */
 @Mapper
 public interface SysUserConfigMapper extends BaseMapper<SysUserConfig> {

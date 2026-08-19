@@ -4,13 +4,14 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * @author CH
  * @since 2024/12/4
+ * @author CH
  */
 @Data
 @ConfigurationProperties(prefix = FileSystemProperties.PRE, ignoreInvalidFields = true)
 public class FileSystemProperties {
 
+    /** PRE */
     public static final String PRE = "plugin.filesystem";
 
     /**

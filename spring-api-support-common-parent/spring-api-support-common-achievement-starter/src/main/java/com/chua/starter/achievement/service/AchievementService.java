@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
  * 3. 条件通过则解锁对应段位，写入 user_achievement 表
  * </pre>
  *
- * @author CH
  * @since 2026-08-07
+ * @author CH
  */
 @Slf4j
 @RequiredArgsConstructor

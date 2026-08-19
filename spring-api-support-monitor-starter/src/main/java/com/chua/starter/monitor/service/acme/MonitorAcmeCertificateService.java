@@ -11,8 +11,8 @@ import java.util.List;
  * <p>管理由 ACME 协议签发的证书记录,跟踪状态、SAN、有效期等元数据,
  * 配合 {@link MonitorAcmeAccountService} 与 {@link MonitorAcmeOrderService} 使用。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 public interface MonitorAcmeCertificateService extends IService<MonitorAcmeCertificate> {
 

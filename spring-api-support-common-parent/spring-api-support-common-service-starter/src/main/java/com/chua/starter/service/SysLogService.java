@@ -12,8 +12,8 @@ import java.util.Set;
  * 系统日志服务接口，定义了与系统日志相关的操作
  * 继承了通用的服务接口IService，用于对SysLog实体进行增删查改等操作
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 public interface SysLogService extends IService<SysLog> {
 

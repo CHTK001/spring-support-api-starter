@@ -21,8 +21,8 @@ import org.springframework.context.ApplicationEvent;
  * }
  * }</pre>
  *
- * @author CH
  * @since 2026-08-07
+ * @author CH
  */
 @Getter
 public class UserActionEvent extends ApplicationEvent {

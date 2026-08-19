@@ -9,13 +9,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * 用于配置登录安全相关参数，包括账户锁定策略、密码策略、导入导出限制等
  * </p>
  *
- * @author CH
  * @since 2024/12/28
+ * @author CH
  */
 @Data
 @ConfigurationProperties(prefix = SystemSecurityProperties.PRE)
 public class SystemSecurityProperties {
 
+    /** PRE */
     public static final String PRE = "plugin.system.security";
 
     /**

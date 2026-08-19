@@ -20,6 +20,7 @@ import java.util.Map;
 @Slf4j
 public class LoginAuthInformation extends BaseAuthInformation {
 
+    /** SYS用户日志服务 */
     private final SysUserLogService sysUserLogService;
 
     // HTTP协议构造函数

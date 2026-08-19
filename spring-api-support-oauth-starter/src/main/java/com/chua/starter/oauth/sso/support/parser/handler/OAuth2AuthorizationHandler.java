@@ -30,14 +30,15 @@ import org.springframework.context.ApplicationContext;
  * </ul>
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/18
+ * @author CH
  */
 @Slf4j
 @Spi("oauth2")
 public class OAuth2AuthorizationHandler implements AuthorizationHandler {
 
+    /** Auth状态缓存 */
     private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
 
     @Override

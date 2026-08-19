@@ -4,8 +4,8 @@ package com.chua.starter.oauth.sso.support.token;
  * Token 黑名单服务
  * <p>用于管理已失效的 Token（登出、撤销、踢出等场景）</p>
  *
- * @author CH
  * @since 2025/03/18
+ * @author CH
  */
 public interface TokenBlacklistService {
 

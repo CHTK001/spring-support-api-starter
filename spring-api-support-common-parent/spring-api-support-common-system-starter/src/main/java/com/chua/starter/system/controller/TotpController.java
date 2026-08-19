@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 2fa密钥管理
- * @author CH
  * @since 2024/12/10
+ * @author CH
  */
 @RestController
 @Slf4j
