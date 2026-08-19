@@ -31,6 +31,13 @@ import org.springframework.context.ApplicationContext;
 public class AppKeyAuthorizationHandler implements AuthorizationHandler {
 
     @Override
+    /**
+     * Authenticate
+     * @param authInformation authInformation
+     * @param token token
+     * @param cookie cookie
+     * @param userCode userCode
+     */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation, 
                                             String token, 
                                             String cookie, 

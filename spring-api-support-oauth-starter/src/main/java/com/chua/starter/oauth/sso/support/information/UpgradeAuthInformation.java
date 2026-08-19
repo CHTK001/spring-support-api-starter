@@ -18,6 +18,15 @@ import org.springframework.context.ApplicationContext;
 public class UpgradeAuthInformation extends BaseAuthInformation {
 
     // HTTP协议构造函数
+    /**
+     * 创建 UpgradeAuthInformation 实例
+     * @param authServerProperties authServerProperties
+     * @param data data
+     * @param request request
+     * @param response response
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public UpgradeAuthInformation(AuthServerProperties authServerProperties,
                                  String data,
                                  HttpServletRequest request,
@@ -28,6 +37,15 @@ public class UpgradeAuthInformation extends BaseAuthInformation {
     }
 
     // Armeria协议构造函数
+    /**
+     * 创建 UpgradeAuthInformation 实例
+     * @param authServerProperties authServerProperties
+     * @param data data
+     * @param request request
+     * @param response response
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public UpgradeAuthInformation(AuthServerProperties authServerProperties,
                                  String data,
                                  ArmeriaAuthInformation.ArmeriaRequest request,

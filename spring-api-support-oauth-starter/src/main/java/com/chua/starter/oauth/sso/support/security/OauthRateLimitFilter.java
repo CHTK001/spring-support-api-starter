@@ -42,6 +42,11 @@ public class OauthRateLimitFilter implements Filter, Ordered {
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
+    /**
+     * Do过滤
+     * @param servletRequest servletRequest
+     * @param servletResponse servletResponse
+     */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
@@ -132,6 +137,10 @@ public class OauthRateLimitFilter implements Filter, Ordered {
         return ip == null ? "unknown" : ip;
     }
 
+    /**
+     * 写入TooManyRequests
+     * @param response response
+     */
     private void writeTooManyRequests(HttpServletResponse response, OauthSecurityProperties.RateLimit rateLimit)
             throws IOException {
         response.setStatus(429);

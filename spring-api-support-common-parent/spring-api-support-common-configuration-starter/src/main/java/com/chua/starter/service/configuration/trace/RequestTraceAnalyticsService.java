@@ -45,6 +45,13 @@ public class RequestTraceAnalyticsService {
     /** 请求跟踪AIsummary服务 */
     private final RequestTraceAiSummaryService requestTraceAiSummaryService;
 
+    /**
+     * 创建 RequestTraceAnalyticsService 实例
+     * @param analyzers analyzers
+     * @param requestTraceStrategyConfigService requestTraceStrategyConfigService
+     * @param requestTraceStorageRouter requestTraceStorageRouter
+     * @param requestTraceAiSummaryService requestTraceAiSummaryService
+     */
     public RequestTraceAnalyticsService(
             List<RequestTraceAnalyzer> analyzers,
             RequestTraceStrategyConfigService requestTraceStrategyConfigService,
@@ -222,6 +229,12 @@ public class RequestTraceAnalyticsService {
         }
     }
 
+    /**
+     * 构建BehaviorRecord
+     * @param event event
+     * @param history history
+     * @param config config
+     */
     private RequestTraceBehaviorRecord buildBehaviorRecord(
             RequestTraceEvent event,
             List<RequestTraceEvent> history,
@@ -284,6 +297,13 @@ public class RequestTraceAnalyticsService {
         );
     }
 
+    /**
+     * 构建Summary
+     * @param event event
+     * @param relatedRequestCount relatedRequestCount
+     * @param distinctPathCount distinctPathCount
+     * @param riskLevel riskLevel
+     */
     private String buildSummary(
             RequestTraceEvent event,
             long relatedRequestCount,
@@ -353,6 +373,12 @@ public class RequestTraceAnalyticsService {
         return Math.min(requestedWindowMinutes, config.getMaxWindowMinutes());
     }
 
+    /**
+     * ToMetricBuckets
+     * @param events events
+     * @param keyFunction keyFunction
+     * @param limit limit
+     */
     private List<RequestTraceAnalyticsSnapshot.MetricBucket> toMetricBuckets(
             List<RequestTraceEvent> events,
             java.util.function.Function<RequestTraceEvent, String> keyFunction,

@@ -24,6 +24,15 @@ public class LoginAuthInformation extends BaseAuthInformation {
     private final SysUserLogService sysUserLogService;
 
     // HTTP协议构造函数
+    /**
+     * 创建 LoginAuthInformation 实例
+     * @param authServerProperties authServerProperties
+     * @param data data
+     * @param request request
+     * @param response response
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public LoginAuthInformation(AuthServerProperties authServerProperties,
                                 String data,
                                 HttpServletRequest request,
@@ -35,6 +44,15 @@ public class LoginAuthInformation extends BaseAuthInformation {
     }
 
     // Armeria协议构造函数
+    /**
+     * 创建 LoginAuthInformation 实例
+     * @param authServerProperties authServerProperties
+     * @param data data
+     * @param request request
+     * @param response response
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public LoginAuthInformation(AuthServerProperties authServerProperties,
                                 String data,
                                 ArmeriaAuthInformation.ArmeriaRequest request,

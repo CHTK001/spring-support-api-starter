@@ -76,6 +76,14 @@ public class LoginController {
             action = Action.LOGIN,
             loginType = "WEB",
             content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
+    /**
+     * Login
+     * @param loginData loginData
+     * @param request request
+     * @param response response
+     * @param fingerprint fingerprint
+     * @param bindingResult bindingResult
+     */
     public ReturnResult<LoginResult> login(@Valid @RequestBody LoginData loginData,
                                            HttpServletRequest request,
                                            HttpServletResponse response,
@@ -92,6 +100,13 @@ public class LoginController {
     @PostMapping("/refresh-token")
     @SysLog
     @TokenForIgnore
+    /**
+     * RefreshToken
+     * @param refreshToken refreshToken
+     * @param request request
+     * @param response response
+     * @param bindingResult bindingResult
+     */
     public ReturnResult<LoginResult> refreshToken(@Valid @RequestBody RefreshToken refreshToken,
                                                   HttpServletRequest request,
                                                   HttpServletResponse response,
@@ -186,6 +201,10 @@ public class LoginController {
 
     @Operation(summary = "获取当前登录用户小程序菜单")
     @GetMapping("/mini-menu")
+    /**
+     * 获取UserMiniMenu
+     * @param roles roles
+     */
     public ReturnResult<List<SysMiniMenuVO>> getUserMiniMenu(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return sysUserService.getUserMiniMenu(roles);

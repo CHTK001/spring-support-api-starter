@@ -17,6 +17,15 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     /** 响应 */
     private final HttpServletResponse response;
 
+    /**
+     * 创建 HttpAuthInformation 实例
+     * @param authServerProperties authServerProperties
+     * @param data data
+     * @param request request
+     * @param response response
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public HttpAuthInformation(AuthServerProperties authServerProperties,
                               String data,
                               HttpServletRequest request,

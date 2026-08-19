@@ -97,6 +97,10 @@ public class SysAvatarFrameController {
 
     @GetMapping("/user")
     @Operation(summary = "用户已获取的头像框")
+    /**
+     * UserFrames
+     * @param userId userId
+     */
     public ReturnResult<List<SysUserAvatarFrame>> userFrames(
             @UserValue("sysUserId") Long userId) {
         List<SysUserAvatarFrame> list = sysUserAvatarFrameMapper.selectList(
@@ -107,6 +111,11 @@ public class SysAvatarFrameController {
 
     @PostMapping("/acquire")
     @Operation(summary = "获取头像框")
+    /**
+     * 获取
+     * @param userId userId
+     * @param frameId frameId
+     */
     public ReturnResult<Boolean> acquire(
             @UserValue("sysUserId") Long userId,
             @RequestParam Integer frameId) {

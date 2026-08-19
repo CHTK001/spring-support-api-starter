@@ -34,6 +34,11 @@ public class OAuthTraceFilter implements Filter, Ordered {
     );
 
     @Override
+    /**
+     * Do过滤
+     * @param servletRequest servletRequest
+     * @param servletResponse servletResponse
+     */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
         

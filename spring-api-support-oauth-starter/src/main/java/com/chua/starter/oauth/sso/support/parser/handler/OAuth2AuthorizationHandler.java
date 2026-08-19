@@ -42,6 +42,13 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
     private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
 
     @Override
+    /**
+     * Authenticate
+     * @param authInformation authInformation
+     * @param token token
+     * @param cookie cookie
+     * @param userCode userCode
+     */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation,
                                             String token,
                                             String cookie,

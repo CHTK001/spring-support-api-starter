@@ -49,6 +49,20 @@ public final class LoginAuthorization implements Authorization {
     /** authInformation */
     private final LoginAuthInformation authInformation;
 
+    /**
+     * 创建 LoginAuthorization 实例
+     * @param authInformation authInformation
+     * @param username username
+     * @param password password
+     * @param loginType loginType
+     * @param appName appName
+     * @param ext ext
+     * @param response response
+     * @param authServerProperties authServerProperties
+     * @param sysUserLogService sysUserLogService
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public LoginAuthorization(LoginAuthInformation authInformation,
                               String username,
                               String password,

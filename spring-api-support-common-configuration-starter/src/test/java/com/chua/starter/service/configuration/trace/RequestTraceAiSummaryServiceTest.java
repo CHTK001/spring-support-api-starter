@@ -133,6 +133,16 @@ class RequestTraceAiSummaryServiceTest {
         return setting;
     }
 
+    /**
+     * Event
+     * @param traceId traceId
+     * @param path path
+     * @param status status
+     * @param durationMs durationMs
+     * @param clientIp clientIp
+     * @param userId userId
+     * @param userAgent userAgent
+     */
     private RequestTraceEvent event(
             String traceId,
             String path,

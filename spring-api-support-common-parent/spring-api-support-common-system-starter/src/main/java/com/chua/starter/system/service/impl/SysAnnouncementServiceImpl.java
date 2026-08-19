@@ -41,6 +41,12 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     private final SysRoleMapper sysRoleMapper;
 
     @Override
+    /**
+     * 分页ForManage
+     * @param query query
+     * @param sysAnnouncement sysAnnouncement
+     * @param roles roles
+     */
     public IPage<SysAnnouncement> pageForManage(Query<SysAnnouncement> query, SysAnnouncement sysAnnouncement,
                                                  Set<String> roles) {
         LambdaQueryWrapper<SysAnnouncement> wrapper = new LambdaQueryWrapper<>();
@@ -64,6 +70,12 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     @Override
     @SysLog
     @Transactional(rollbackFor = Exception.class)
+    /**
+     * 保存Announcement
+     * @param sysAnnouncement sysAnnouncement
+     * @param roles roles
+     * @param userId userId
+     */
     public ReturnResult<SysAnnouncement> saveAnnouncement(SysAnnouncement sysAnnouncement, Set<String> roles,
                                                            Integer userId) {
         if (sysAnnouncement.getSysAnnouncementSort() == null) {

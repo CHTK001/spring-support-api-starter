@@ -117,6 +117,11 @@ public class TestRagController {
 
     @Operation(summary = "上传文档", description = "上传文件并自动索引，启用 GraphRAG 时自动抽取实体")
     @PostMapping(value = "/document/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    /**
+     * UploadDocument
+     * @param file file
+     * @param libraryId libraryId
+     */
     public ReturnResult<Map<String, Object>> uploadDocument(
             @RequestParam("file") MultipartFile file,
             @RequestParam(required = false) String libraryId) {
@@ -157,6 +162,12 @@ public class TestRagController {
 
     @Operation(summary = "文档列表")
     @GetMapping("/document/list")
+    /**
+     * 列表Documents
+     * @param page page
+     * @param pageSize pageSize
+     * @param libraryId libraryId
+     */
     public ReturnResult<RagDocumentManager.PaginatedResult> listDocuments(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int pageSize,
