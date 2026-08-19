@@ -48,6 +48,13 @@ public class FileHttpServer {
     @Getter
     private volatile boolean running;
 
+    /**
+     * 创建 FileHttpServer 实例
+     * @param sysFileSystemService sysFileSystemService
+     * @param sysFileSystemSettingService sysFileSystemSettingService
+     * @param setting setting
+     * @param tempPath tempPath
+     */
     public FileHttpServer(SysFileSystemService sysFileSystemService,
                           SysFileSystemSettingService sysFileSystemSettingService,
                           ServerSetting setting,

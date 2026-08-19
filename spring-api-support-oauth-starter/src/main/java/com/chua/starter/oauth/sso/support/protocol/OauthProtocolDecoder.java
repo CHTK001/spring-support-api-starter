@@ -56,6 +56,16 @@ public class OauthProtocolDecoder {
     /** Success */
     private boolean success = false;
 
+    /**
+     * 创建 OauthProtocolDecoder 实例
+     * @param authServerProperties authServerProperties
+     * @param data data
+     * @param uuid uuid
+     * @param serial serial
+     * @param sign sign
+     * @param accessKey accessKey
+     * @param encodeHeader encodeHeader
+     */
     public OauthProtocolDecoder(AuthServerProperties authServerProperties,
                                 String data,
                                 String uuid,

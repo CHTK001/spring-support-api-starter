@@ -29,6 +29,16 @@ public final class UpgradeAuthorization implements Authorization {
     /** Authinformation */
     private final UpgradeAuthInformation authInformation;
 
+    /**
+     * 创建 UpgradeAuthorization 实例
+     * @param authInformation authInformation
+     * @param token token
+     * @param cookie cookie
+     * @param refreshToken refreshToken
+     * @param upgradeType upgradeType
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public UpgradeAuthorization(UpgradeAuthInformation authInformation,
                                 String token,
                                 String cookie,

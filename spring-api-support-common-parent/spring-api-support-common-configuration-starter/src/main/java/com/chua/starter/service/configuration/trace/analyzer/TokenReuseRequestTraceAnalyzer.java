@@ -58,6 +58,13 @@ public class TokenReuseRequestTraceAnalyzer implements RequestTraceAnalyzer {
         return Set.of();
     }
 
+    /**
+     * CollectContext
+     * @param event event
+     * @param ips ips
+     * @param fingerprints fingerprints
+     * @param users users
+     */
     private void collectContext(
             RequestTraceEvent event,
             Set<String> ips,

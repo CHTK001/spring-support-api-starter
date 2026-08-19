@@ -83,6 +83,17 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         }
     }
 
+    /**
+     * 初始化
+     * @param executor executor
+     * @param dataSource dataSource
+     * @param initializedTables initializedTables
+     * @param entityType entityType
+     * @param tableName tableName
+     * @param actionType actionType
+     * @param namespace namespace
+     * @param databaseProductName databaseProductName
+     */
     private void initialize(JdbcTableExecutor executor,
                             DataSource dataSource,
                             Set<String> initializedTables,
@@ -116,6 +127,13 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         updateOrCreate(executor, dataSource, metadata, entityType, namespace, tableName, actionType);
     }
 
+    /**
+     * 执行
+     * @param executor executor
+     * @param metadata metadata
+     * @param actionType actionType
+     * @param namespace namespace
+     */
     private void execute(JdbcTableExecutor executor,
                          TableMetadata metadata,
                          ActionType actionType,
@@ -127,6 +145,16 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         }
     }
 
+    /**
+     * 创建OrSkip
+     * @param executor executor
+     * @param dataSource dataSource
+     * @param metadata metadata
+     * @param entityType entityType
+     * @param namespace namespace
+     * @param tableName tableName
+     * @param actionType actionType
+     */
     private void createOrSkip(JdbcTableExecutor executor,
                               DataSource dataSource,
                               TableMetadata metadata,
@@ -303,6 +331,16 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         throw new IllegalArgumentException("不支持的 Scheduler Job 实体类型: " + entityType.getName());
     }
 
+    /**
+     * 更新Or创建
+     * @param executor executor
+     * @param dataSource dataSource
+     * @param metadata metadata
+     * @param entityType entityType
+     * @param namespace namespace
+     * @param tableName tableName
+     * @param actionType actionType
+     */
     private void updateOrCreate(JdbcTableExecutor executor,
                                 DataSource dataSource,
                                 TableMetadata metadata,
@@ -370,6 +408,13 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         upgradeLegacyColumnTypes(dataSource, metadata.getName(), namespace);
     }
 
+    /**
+     * UpgradeLegacySchema
+     * @param dataSource dataSource
+     * @param entityType entityType
+     * @param tableName tableName
+     * @param namespace namespace
+     */
     private void upgradeLegacySchema(DataSource dataSource,
                                      Class<?> entityType,
                                      String tableName,
@@ -463,6 +508,13 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
                 namespace, tableName, List.of("job_trigger_last_time", "job_trigger_next_time"));
     }
 
+    /**
+     * CollectBigintUpgradeSql
+     * @param upgradeSql upgradeSql
+     * @param tableName tableName
+     * @param columnTypes columnTypes
+     * @param columnName columnName
+     */
     private void collectBigintUpgradeSql(List<String> upgradeSql,
                                          String tableName,
                                          Map<String, String> columnTypes,
@@ -474,6 +526,14 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         upgradeSql.add("ALTER TABLE `" + tableName + "` MODIFY COLUMN `" + columnName + "` BIGINT NULL DEFAULT 0");
     }
 
+    /**
+     * CollectMissingColumnSql
+     * @param upgradeSql upgradeSql
+     * @param tableName tableName
+     * @param columnTypes columnTypes
+     * @param columnName columnName
+     * @param sql sql
+     */
     private void collectMissingColumnSql(List<String> upgradeSql,
                                          String tableName,
                                          Map<String, String> columnTypes,

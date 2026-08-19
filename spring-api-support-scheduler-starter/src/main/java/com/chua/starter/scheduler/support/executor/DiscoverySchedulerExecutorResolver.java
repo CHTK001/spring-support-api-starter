@@ -114,6 +114,12 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * 加载Discoveries
+     * @param discoveryService discoveryService
+     * @param discoveryProperties discoveryProperties
+     * @param discoveryNamespace discoveryNamespace
+     */
     private Set<Discovery> loadDiscoveries(Object discoveryService,
                                            SchedulerJobPlatformProperties.Discovery discoveryProperties,
                                            String discoveryNamespace) {
@@ -131,6 +137,11 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         }
     }
 
+    /**
+     * ToExecutor
+     * @param discovery discovery
+     * @param discoveryProperties discoveryProperties
+     */
     private SchedulerJobPlatformProperties.Executor toExecutor(Discovery discovery,
                                                                SchedulerJobPlatformProperties.Discovery discoveryProperties) {
         SchedulerJobPlatformProperties.Executor executor = new SchedulerJobPlatformProperties.Executor();
@@ -154,6 +165,11 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         return trimToNull(discovery.getId());
     }
 
+    /**
+     * 构建DiscoveryBaseUrl
+     * @param discovery discovery
+     * @param discoveryProperties discoveryProperties
+     */
     private String buildDiscoveryBaseUrl(Discovery discovery,
                                          SchedulerJobPlatformProperties.Discovery discoveryProperties) {
         if (discovery == null || !StringUtils.hasText(discovery.getHost()) || discovery.getPort() <= 0) {
@@ -165,6 +181,11 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         return protocol + "://" + discovery.getHost() + ":" + discovery.getPort() + normalizePath(basePath);
     }
 
+    /**
+     * 解析DiscoveryBasePath
+     * @param discovery discovery
+     * @param discoveryProperties discoveryProperties
+     */
     private String resolveDiscoveryBasePath(Discovery discovery,
                                             SchedulerJobPlatformProperties.Discovery discoveryProperties) {
         String configuredBasePath = discoveryProperties == null ? null : trimToNull(discoveryProperties.getBasePath());
@@ -180,6 +201,11 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         return "";
     }
 
+    /**
+     * 解析DiscoveryAccessToken
+     * @param discovery discovery
+     * @param discoveryProperties discoveryProperties
+     */
     private String resolveDiscoveryAccessToken(Discovery discovery,
                                                SchedulerJobPlatformProperties.Discovery discoveryProperties) {
         if (discoveryProperties != null && StringUtils.hasText(discoveryProperties.getAccessToken())) {
@@ -194,6 +220,11 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         return null;
     }
 
+    /**
+     * 解析Discovery分发Path
+     * @param discovery discovery
+     * @param discoveryProperties discoveryProperties
+     */
     private String resolveDiscoveryDispatchPath(Discovery discovery,
                                                 SchedulerJobPlatformProperties.Discovery discoveryProperties) {
         if (discoveryProperties != null && StringUtils.hasText(discoveryProperties.getDispatchPath())) {
@@ -208,6 +239,11 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         return "/v1/job-executor/dispatch";
     }
 
+    /**
+     * 解析DiscoveryNamespace
+     * @param namespace namespace
+     * @param discoveryProperties discoveryProperties
+     */
     private String resolveDiscoveryNamespace(String namespace,
                                              SchedulerJobPlatformProperties.Discovery discoveryProperties) {
         String configuredNamespace = discoveryProperties == null ? null : trimToNull(discoveryProperties.getNamespace());

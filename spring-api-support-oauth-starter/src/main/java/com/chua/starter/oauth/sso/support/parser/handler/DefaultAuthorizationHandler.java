@@ -29,6 +29,13 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultAuthorizationHandler implements AuthorizationHandler {
 
     @Override
+    /**
+     * Authenticate
+     * @param authInformation authInformation
+     * @param token token
+     * @param cookie cookie
+     * @param userCode userCode
+     */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation,
                                             String token,
                                             String cookie,

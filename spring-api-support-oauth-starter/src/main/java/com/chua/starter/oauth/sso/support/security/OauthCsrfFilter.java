@@ -44,6 +44,11 @@ public class OauthCsrfFilter implements Filter, Ordered {
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
+    /**
+     * Do过滤
+     * @param servletRequest servletRequest
+     * @param servletResponse servletResponse
+     */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
@@ -145,6 +150,12 @@ public class OauthCsrfFilter implements Filter, Ordered {
         return null;
     }
 
+    /**
+     * EnsureTokenCookie
+     * @param request request
+     * @param response response
+     * @param csrf csrf
+     */
     private void ensureTokenCookie(HttpServletRequest request, HttpServletResponse response,
                                    OauthSecurityProperties.Csrf csrf) {
         String existing = resolveCookieToken(request, csrf.getCookieName());

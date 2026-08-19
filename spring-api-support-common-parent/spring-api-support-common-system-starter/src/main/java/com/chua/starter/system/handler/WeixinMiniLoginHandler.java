@@ -52,6 +52,14 @@ public class WeixinMiniLoginHandler implements LoginHandler {
     private static final String THIRD_PARTY_TYPE = "wx_mini_app";
 
     @Override
+    /**
+     * Login
+     * @param sysLoginService sysLoginService
+     * @param loginData loginData
+     * @param request request
+     * @param response response
+     * @param fingerprint fingerprint
+     */
     public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData,
                                            HttpServletRequest request, HttpServletResponse response,
                                            String fingerprint) {

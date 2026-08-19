@@ -45,6 +45,13 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
     private static final String BEARER_PREFIX = "Bearer ";
 
     @Override
+    /**
+     * Authenticate
+     * @param authInformation authInformation
+     * @param token token
+     * @param cookie cookie
+     * @param userCode userCode
+     */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation,
                                             String token,
                                             String cookie,

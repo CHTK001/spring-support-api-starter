@@ -85,6 +85,13 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
                     @ApiResponse(responseCode = "302", description = "重定向到指定页面")
             }
     )
+    /**
+     * ThirdIndex
+     * @param authCallback authCallback
+     * @param attributes attributes
+     * @param request request
+     * @param response response
+     */
     public RedirectView thirdIndex(
             @Parameter(description = "Gitee授权回调参数") AuthCallback authCallback,
             RedirectAttributes attributes,
@@ -140,6 +147,11 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
                     @ApiResponse(responseCode = "200", description = "返回Gitee登录URL")
             }
     )
+    /**
+     * Gitee
+     * @param loginCode loginCode
+     * @param callback callback
+     */
     public String gitee(
             @Parameter(description = "登录代码", required = true) @RequestParam("loginCode") String loginCode,
             @Parameter(description = "回调URL") String callback) {

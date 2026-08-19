@@ -33,6 +33,13 @@ import org.springframework.context.ApplicationContext;
 public class AppIdAuthorizationHandler implements AuthorizationHandler {
 
     @Override
+    /**
+     * Authenticate
+     * @param authInformation authInformation
+     * @param token token
+     * @param cookie cookie
+     * @param userCode userCode
+     */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation, 
                                             String token, 
                                             String cookie, 

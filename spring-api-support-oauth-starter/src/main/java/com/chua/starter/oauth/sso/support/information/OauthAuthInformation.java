@@ -19,6 +19,15 @@ import org.springframework.context.ApplicationContext;
 public class OauthAuthInformation extends BaseAuthInformation {
 
     // HTTP协议构造函数
+    /**
+     * 创建 OauthAuthInformation 实例
+     * @param authServerProperties authServerProperties
+     * @param data data
+     * @param request request
+     * @param response response
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public OauthAuthInformation(AuthServerProperties authServerProperties,
                                String data,
                                HttpServletRequest request,
@@ -29,6 +38,15 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     // Armeria协议构造函数
+    /**
+     * 创建 OauthAuthInformation 实例
+     * @param authServerProperties authServerProperties
+     * @param data data
+     * @param request request
+     * @param response response
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public OauthAuthInformation(AuthServerProperties authServerProperties,
                                String data,
                                ArmeriaAuthInformation.ArmeriaRequest request,
@@ -39,6 +57,15 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     // RSocket协议构造函数
+    /**
+     * 创建 OauthAuthInformation 实例
+     * @param authServerProperties authServerProperties
+     * @param data data
+     * @param request request
+     * @param response response
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public OauthAuthInformation(AuthServerProperties authServerProperties,
                                String data,
                                RsocketAuthInformation.RsocketRequest request,

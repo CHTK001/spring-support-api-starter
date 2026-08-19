@@ -230,6 +230,14 @@ public class SmsCodeServiceImpl implements SmsCodeService {
         return ReturnResult.ok(loginResult);
     }
 
+    /**
+     * 保存SmsLog
+     * @param phone phone
+     * @param code code
+     * @param bizType bizType
+     * @param smsSetting smsSetting
+     * @param result result
+     */
     private void saveSmsLog(String phone,
                             String code,
                             String bizType,

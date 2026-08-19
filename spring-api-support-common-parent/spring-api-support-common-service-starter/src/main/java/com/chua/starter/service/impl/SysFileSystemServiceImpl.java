@@ -77,6 +77,15 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     private FileUploadProgressPushService progressPushService;
 
     @Autowired
+    /**
+     * 创建 SysFileSystemServiceImpl 实例
+     * @param transactionTemplate transactionTemplate
+     * @param sysFileSystemPartService sysFileSystemPartService
+     * @param sysFileSystemSettingService sysFileSystemSettingService
+     * @param fileSystemProperties fileSystemProperties
+     * @param mergeTaskRegistration mergeTaskRegistration
+     * @param fileStorageSupport fileStorageSupport
+     */
     public SysFileSystemServiceImpl(TransactionTemplate transactionTemplate,
                                     SysFileSystemPartService sysFileSystemPartService,
                                     @Lazy SysFileSystemSettingService sysFileSystemSettingService,

@@ -93,6 +93,14 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     @Override
+    /**
+     * 分页ForUserLog
+     * @param query query
+     * @param sysUserLogQuery sysUserLogQuery
+     * @param sysUserId sysUserId
+     * @param roles roles
+     * @param managedDeptTreeIds managedDeptTreeIds
+     */
     public IPage<SysUserLog> pageForUserLog(Query<SysUserLog> query,
                                             SysUserLogQuery sysUserLogQuery,
                                             Integer sysUserId,
@@ -155,6 +163,13 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     @Override
+    /**
+     * Cleanup
+     * @param sysUserLogQuery sysUserLogQuery
+     * @param sysUserId sysUserId
+     * @param roles roles
+     * @param managedDeptTreeIds managedDeptTreeIds
+     */
     public ReturnResult<Integer> cleanup(SysUserLogQuery sysUserLogQuery,
                                          Integer sysUserId,
                                          Set<String> roles,

@@ -48,6 +48,10 @@ public class WeatherController {
 
     @Operation(summary = "根据城市获取天气")
     @GetMapping("city")
+    /**
+     * 获取WeatherByCity
+     * @param city city
+     */
     public ReturnResult<Map<String, Object>> getWeatherByCity(
             @RequestParam(value = "city", required = false) String city) {
         if (city == null || city.isBlank()) {

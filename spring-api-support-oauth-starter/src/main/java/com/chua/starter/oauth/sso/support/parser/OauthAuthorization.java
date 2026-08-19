@@ -29,6 +29,16 @@ public final class OauthAuthorization implements Authorization {
     /** Authinformation */
     private final OauthAuthInformation authInformation;
 
+    /**
+     * 创建 OauthAuthorization 实例
+     * @param authInformation authInformation
+     * @param token token
+     * @param cookie cookie
+     * @param subProtocol subProtocol
+     * @param userCode userCode
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public OauthAuthorization(OauthAuthInformation authInformation,
                               String token,
                               String cookie,

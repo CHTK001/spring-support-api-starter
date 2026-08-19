@@ -244,6 +244,11 @@ class RequestTraceAnalyticsServiceTest {
         assertThat(snapshot.recentSuspiciousEvents().get(0).signals()).containsExactly(RequestTraceSignal.ERROR_BURST);
     }
 
+    /**
+     * 创建Service
+     * @param analyzers analyzers
+     * @param customizer customizer
+     */
     private RequestTraceAnalyticsService createService(
             List<RequestTraceAnalyzer> analyzers,
             java.util.function.Consumer<RequestTraceStrategyConfig> customizer
@@ -268,6 +273,19 @@ class RequestTraceAnalyticsServiceTest {
         );
     }
 
+    /**
+     * Event
+     * @param timestamp timestamp
+     * @param traceId traceId
+     * @param method method
+     * @param path path
+     * @param status status
+     * @param durationMs durationMs
+     * @param clientIp clientIp
+     * @param userId userId
+     * @param username username
+     * @param userAgent userAgent
+     */
     private RequestTraceEvent event(
             long timestamp,
             String traceId,

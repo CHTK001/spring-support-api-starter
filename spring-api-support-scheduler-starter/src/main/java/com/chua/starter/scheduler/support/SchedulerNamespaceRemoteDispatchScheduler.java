@@ -374,6 +374,12 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         dispatchDiscoveryTasks(namespace);
     }
 
+    /**
+     * 加载DueJobs
+     * @param tables tables
+     * @param clusterMode clusterMode
+     * @param nsProps nsProps
+     */
     private List<SysJob> loadDueJobs(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables,
                                      boolean clusterMode,
                                      SchedulerJobPlatformProperties.Namespace nsProps) {
@@ -419,6 +425,13 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         return StringUtils.hasText(nsProps.getGroup()) ? nsProps.getGroup().trim() : null;
     }
 
+    /**
+     * 处理Job
+     * @param namespace namespace
+     * @param tables tables
+     * @param job job
+     * @param clusterMode clusterMode
+     */
     private void processJob(String namespace,
                             SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables,
                             SysJob job,

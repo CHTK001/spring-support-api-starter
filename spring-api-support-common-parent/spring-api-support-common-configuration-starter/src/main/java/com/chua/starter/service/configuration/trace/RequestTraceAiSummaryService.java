@@ -45,6 +45,15 @@ public class RequestTraceAiSummaryService {
         this.clock = clock == null ? System::currentTimeMillis : clock;
     }
 
+    /**
+     * Summarize
+     * @param event event
+     * @param signals signals
+     * @param relatedRequestCount relatedRequestCount
+     * @param distinctPathCount distinctPathCount
+     * @param riskLevel riskLevel
+     * @param config config
+     */
     public RequestTraceAiAnalysisResult summarize(
             RequestTraceEvent event,
             Set<RequestTraceSignal> signals,
@@ -123,6 +132,15 @@ public class RequestTraceAiSummaryService {
         );
     }
 
+    /**
+     * 构建HeuristicSummary
+     * @param event event
+     * @param signals signals
+     * @param relatedRequestCount relatedRequestCount
+     * @param distinctPathCount distinctPathCount
+     * @param riskLevel riskLevel
+     * @param config config
+     */
     private String buildHeuristicSummary(
             RequestTraceEvent event,
             Set<RequestTraceSignal> signals,
@@ -150,6 +168,15 @@ public class RequestTraceAiSummaryService {
         return String.join("；", parts);
     }
 
+    /**
+     * 构建ModelPrompt
+     * @param event event
+     * @param signals signals
+     * @param relatedRequestCount relatedRequestCount
+     * @param distinctPathCount distinctPathCount
+     * @param riskLevel riskLevel
+     * @param heuristicSummary heuristicSummary
+     */
     private String buildModelPrompt(
             RequestTraceEvent event,
             Set<RequestTraceSignal> signals,
