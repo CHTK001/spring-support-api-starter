@@ -10,6 +10,7 @@ import java.util.Map;
  */
 public final class RequestTraceStrategyConfigCodec {
 
+    /** 创建 RequestTraceStrategyConfigCodec 实例 */
     private RequestTraceStrategyConfigCodec() {
     }
 

@@ -29,6 +29,7 @@ public final class RequestTraceConstants {
     /** Group_code */
     public static final String GROUP_CODE = "request_trace_strategy";
 
+    /** 创建 RequestTraceConstants 实例 */
     private RequestTraceConstants() {
     }
 }

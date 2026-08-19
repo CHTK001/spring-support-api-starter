@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
  */
 public final class RequestTraceSupport {
 
+    /** 创建 RequestTraceSupport 实例 */
     private RequestTraceSupport() {
     }
 

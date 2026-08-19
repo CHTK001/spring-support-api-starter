@@ -9,6 +9,7 @@ import com.chua.protocol.support.network.protocol.client.ProtocolClientFactory;
  */
 public final class ProtocolClientSupport {
 
+    /** 创建 ProtocolClientSupport 实例 */
     private ProtocolClientSupport() {
     }
 

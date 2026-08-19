@@ -34,6 +34,10 @@ public class TenantSyncAckTracker {
     private final ConcurrentMap<String, AckRecord> lastAckRecords = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Long> compensationTimes = new ConcurrentHashMap<>();
 
+    /**
+     * 创建 TenantSyncAckTracker 实例
+     * @param tenantProperties tenantProperties
+     */
     public TenantSyncAckTracker(TenantProperties tenantProperties) {
         TenantProperties.ServerConfig serverConfig = tenantProperties == null ? new TenantProperties.ServerConfig() : tenantProperties.getServer();
         this.enabled = tenantProperties != null && tenantProperties.isServerSyncAckEnabled();
@@ -216,6 +220,15 @@ public class TenantSyncAckTracker {
         /** Reason */
         private final String reason;
 
+        /**
+         * 创建 PendingAck 实例
+         * @param sessionId sessionId
+         * @param tenantId tenantId
+         * @param topic topic
+         * @param messageId messageId
+         * @param sentAt sentAt
+         * @param reason reason
+         */
         public PendingAck(String sessionId, String tenantId, String topic, String messageId, long sentAt, String reason) {
             this.sessionId = sessionId;
             this.tenantId = tenantId;
@@ -274,6 +287,17 @@ public class TenantSyncAckTracker {
         /** ACKAT */
         private final long ackAt;
 
+        /**
+         * 创建 AckRecord 实例
+         * @param sessionId sessionId
+         * @param tenantId tenantId
+         * @param topic topic
+         * @param sourceMessageId sourceMessageId
+         * @param success success
+         * @param status status
+         * @param message message
+         * @param ackAt ackAt
+         */
         public AckRecord(String sessionId, String tenantId, String topic, String sourceMessageId, boolean success, String status, String message, long ackAt) {
             this.sessionId = sessionId;
             this.tenantId = tenantId;

@@ -35,6 +35,10 @@ public class ArmeriaAuthInformation {
         private final Map<String, String> headers = new ConcurrentHashMap<>();
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
 
+        /**
+         * 创建 ArmeriaRequest 实例
+         * @param clientAddress clientAddress
+         */
         public ArmeriaRequest(InetSocketAddress clientAddress) {
             this.clientAddress = clientAddress;
         }
