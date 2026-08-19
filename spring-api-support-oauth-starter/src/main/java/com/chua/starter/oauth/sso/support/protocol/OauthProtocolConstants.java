@@ -6,7 +6,6 @@ package com.chua.starter.oauth.sso.support.protocol;
  * <p>集中管理多协议 Server 的默认端口、认证路由路径、请求/响应头名称、内容类型等,
  * 避免在 {@link OauthProtocolServerManager} 与 {@link OauthProtocolHandler} 中散落硬编码值。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class OauthProtocolConstants {

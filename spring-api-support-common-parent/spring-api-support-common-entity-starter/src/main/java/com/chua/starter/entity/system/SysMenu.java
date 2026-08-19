@@ -17,14 +17,15 @@ import java.io.Serializable;
 /**
  * 系统菜单表
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Schema(description = "系统菜单表")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_menu")
 public class SysMenu extends SysBase implements Serializable {
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -33,6 +34,7 @@ public class SysMenu extends SysBase implements Serializable {
     @TableId(value = "sys_menu_id", type = IdType.AUTO)
     @Schema(description = "菜单ID")
     @NotNull(message = "菜单ID不能为空", groups = UpdateGroup.class)
+    /** SYSmenuID */
     private Integer sysMenuId;
 
     /**
@@ -41,6 +43,7 @@ public class SysMenu extends SysBase implements Serializable {
     @TableField(value = "sys_menu_name")
     @Schema(description = "菜单名称")
     @Size(max = 255, message = "菜单名称最大长度需小于255")
+    /** SYSmenu名称 */
     private String sysMenuName;
 
     /**
@@ -48,6 +51,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_home")
     @Schema(description = "是否首页; 0:否")
+    /** SYSmenuhome */
     private Integer sysMenuHome;
 
     /**
@@ -55,6 +59,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_engine")
     @Schema(description = "是否engine布局主页; 0:否")
+    /** SYSmenu引擎 */
     private Integer sysMenuEngine;
 
     /**
@@ -62,6 +67,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @Schema(description = "菜单标题")
     @TableField(value = "sys_menu_title")
+    /** SYSmenu标题 */
     private String sysMenuTitle;
 
     /**
@@ -69,6 +75,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @Schema(description = "按钮权限标识")
     @TableField(value = "sys_menu_perm")
+    /** SYSmenuperm */
     private String sysMenuPerm;
 
     /**
@@ -76,6 +83,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @Schema(description = "菜单激活路径")
     @TableField(value = "sys_menu_active_path")
+    /** SYSmenu是否激活路径 */
     private String sysMenuActivePath;
 
     /**
@@ -83,6 +91,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @Schema(description = "iframe链接地址")
     @TableField(value = "sys_menu_frame_src")
+    /** SYSmenuframeSRC */
     private String sysMenuFrameSrc;
 
     /**
@@ -90,6 +99,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_path")
     @Schema(description = "菜单路径")
+    /** SYSmenu路径 */
     private String sysMenuPath;
 
     /**
@@ -98,6 +108,7 @@ public class SysMenu extends SysBase implements Serializable {
     @TableField(value = "sys_menu_i18n")
     @Schema(description = "国际化key")
     @Size(max = 255, message = "国际化key最大长度需小于255")
+    /** SYSmenui18n */
     private String sysMenuI18n;
 
     /**
@@ -105,6 +116,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_pid")
     @Schema(description = "父菜单ID")
+    /** SYSmenuPID */
     private Integer sysMenuPid;
 
     /**
@@ -113,6 +125,7 @@ public class SysMenu extends SysBase implements Serializable {
     @TableField(value = "sys_menu_tree_id")
     @Schema(description = "菜单树路径(系统生成)")
     @Size(max = 255, message = "菜单树路径最大长度需小于255")
+    /** SYSmenutreeID */
     private String sysMenuTreeId;
 
     /**
@@ -121,6 +134,7 @@ public class SysMenu extends SysBase implements Serializable {
     @TableField(value = "sys_menu_component")
     @Schema(description = "菜单组件路径")
     @Size(max = 255, message = "菜单组件路径最大长度需小于255")
+    /** SYSmenucomponent */
     private String sysMenuComponent;
 
     /**
@@ -129,6 +143,7 @@ public class SysMenu extends SysBase implements Serializable {
     @TableField(value = "sys_menu_icon")
     @Schema(description = "菜单图标")
     @Size(max = 255, message = "菜单图标最大长度需小于255")
+    /** SYSmenuicon */
     private String sysMenuIcon;
 
     /**
@@ -137,6 +152,7 @@ public class SysMenu extends SysBase implements Serializable {
     @TableField(value = "sys_menu_extra_icon")
     @Schema(description = "右侧额外图标")
     @Size(max = 255, message = "右侧额外图标最大长度需小于255")
+    /** SYSmenuextraicon */
     private String sysMenuExtraIcon;
 
     /**
@@ -144,6 +160,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_type")
     @Schema(description = "菜单类型: 0:菜单 1:iframe 2:外链 3:按钮")
+    /** SYSmenu类型 */
     private Integer sysMenuType;
 
     /**
@@ -151,6 +168,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_sort")
     @Schema(description = "排序优先级")
+    /** SYSmenusort */
     private Integer sysMenuSort;
 
     /**
@@ -158,6 +176,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_role")
     @Schema(description = "所属角色编码")
+    /** SYSmenurole */
     private String sysMenuRole;
 
     /**
@@ -165,6 +184,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_redirect")
     @Schema(description = "路由重定向地址")
+    /** SYSmenuredirect */
     private String sysMenuRedirect;
 
     /**
@@ -172,6 +192,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_enter_transition")
     @Schema(description = "进场动画")
+    /** SYSmenuentertransition */
     private String sysMenuEnterTransition;
 
     /**
@@ -179,6 +200,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_leave_transition")
     @Schema(description = "离场动画")
+    /** SYSmenuleavetransition */
     private String sysMenuLeaveTransition;
 
     /**
@@ -186,6 +208,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_keep_alive")
     @Schema(description = "是否缓存; 0:否")
+    /** SYSmenukeepalive */
     private Integer sysMenuKeepAlive;
 
     /**
@@ -193,6 +216,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_hidden_tag")
     @Schema(description = "是否在标签栏隐藏; 0:否")
+    /** SYSmenuhidden标签 */
     private Integer sysMenuHiddenTag;
 
     /**
@@ -200,6 +224,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_fixed_tag")
     @Schema(description = "是否固定标签; 0:否")
+    /** SYSmenufixed标签 */
     private Integer sysMenuFixedTag;
 
     /**
@@ -207,6 +232,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_is_tag")
     @Schema(description = "是否开启菜单徽标; 0:否 1:是")
+    /** SYSmenuIS标签 */
     private Integer sysMenuIsTag;
 
     /**
@@ -214,6 +240,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_tag_type")
     @Schema(description = "徽标类型; danger/success/info/warning/primary")
+    /** SYSmenu标签类型 */
     private String sysMenuTagType;
 
     /**
@@ -221,6 +248,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_tag_name")
     @Schema(description = "徽标名称(留空则显示圆点徽标)")
+    /** SYSmenu标签名称 */
     private String sysMenuTagName;
 
     /**
@@ -228,6 +256,7 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_hidden")
     @Schema(description = "是否隐藏菜单; 0:显示")
+    /** SYSmenuhidden */
     private Integer sysMenuHidden;
 
     /**
@@ -235,5 +264,6 @@ public class SysMenu extends SysBase implements Serializable {
      */
     @TableField(value = "sys_menu_show_parent")
     @Schema(description = "当只有一个子级菜单时是否隐藏父级菜单; 0:显示")
+    /** SYSmenushow父级 */
     private Integer sysMenuShowParent;
 }

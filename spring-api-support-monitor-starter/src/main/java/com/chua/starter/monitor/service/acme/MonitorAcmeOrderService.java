@@ -10,8 +10,8 @@ import java.util.List;
  *
  * <p>记录 ACME 订单(pending/ready/processing/valid/invalid)及其关联 challenge。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 public interface MonitorAcmeOrderService extends IService<MonitorAcmeOrder> {
 

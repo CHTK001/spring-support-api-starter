@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * 前端异常上报接口
  *
- * @author CH
  * @since 2026/8/8
+ * @author CH
  */
 @Tag(name = "前端异常上报接口")
 @RestController

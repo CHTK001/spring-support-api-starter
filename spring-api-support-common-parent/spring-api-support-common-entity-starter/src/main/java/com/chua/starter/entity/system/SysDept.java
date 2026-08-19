@@ -20,14 +20,15 @@ import java.util.List;
 /**
  * 组织机构/部门表
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Schema(description = "组织机构/部门表")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_dept")
 public class SysDept extends SysBase implements Serializable {
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -36,6 +37,7 @@ public class SysDept extends SysBase implements Serializable {
     @TableId(value = "sys_dept_id", type = IdType.AUTO)
     @Schema(description = "机构ID")
     @NotNull(message = "机构ID不能为空", groups = UpdateGroup.class)
+    /** SYSdeptID */
     private Integer sysDeptId;
 
     /**
@@ -44,6 +46,7 @@ public class SysDept extends SysBase implements Serializable {
     @TableField(value = "sys_dept_name")
     @Schema(description = "机构名称")
     @Size(max = 255, message = "机构名称最大长度需小于255")
+    /** SYSdept名称 */
     private String sysDeptName;
 
     /**
@@ -52,18 +55,22 @@ public class SysDept extends SysBase implements Serializable {
     @TableField(value = "sys_dept_principal")
     @Schema(description = "部门负责人")
     @Size(max = 255, message = "部门负责人最大长度需小于255")
+    /** SYSdeptprincipal */
     private String sysDeptPrincipal;
 
     @TableField(exist = false)
     @Schema(description = "负责人用户ID集合")
+    /** Principal用户IDS */
     private List<Integer> principalUserIds;
 
     @TableField(exist = false)
     @Schema(description = "负责人名称集合")
+    /** Principal用户names */
     private List<String> principalUserNames;
 
     @TableField(exist = false)
     @Schema(description = "部门人数")
+    /** Member数量 */
     private Integer memberCount;
 
     /**
@@ -72,6 +79,7 @@ public class SysDept extends SysBase implements Serializable {
     @TableField(value = "sys_dept_contact")
     @Schema(description = "负责人联系方式")
     @Size(max = 255, message = "负责人联系方式最大长度需小于255")
+    /** SYSdeptcontact */
     private String sysDeptContact;
 
     /**
@@ -79,6 +87,7 @@ public class SysDept extends SysBase implements Serializable {
      */
     @TableField(value = "sys_dept_sort")
     @Schema(description = "排序优先级")
+    /** SYSdeptsort */
     private Integer sysDeptSort;
 
     /**
@@ -88,6 +97,7 @@ public class SysDept extends SysBase implements Serializable {
     @Schema(description = "机构编码")
     @Size(max = 255, message = "机构编码最大长度需小于255")
     @NotBlank(message = "机构编码不能为空", groups = {AddGroup.class})
+    /** SYSdept代码 */
     private String sysDeptCode;
 
     /**
@@ -95,6 +105,7 @@ public class SysDept extends SysBase implements Serializable {
      */
     @TableField(value = "sys_dept_pid")
     @Schema(description = "父机构ID")
+    /** SYSdeptPID */
     private Integer sysDeptPid;
 
     /**
@@ -103,6 +114,7 @@ public class SysDept extends SysBase implements Serializable {
     @TableField(value = "sys_dept_tree_id")
     @Schema(description = "机构树路径(系统生成)")
     @Size(max = 255, message = "机构树路径最大长度需小于255")
+    /** SYSdepttreeID */
     private String sysDeptTreeId;
 
     /**
@@ -110,6 +122,7 @@ public class SysDept extends SysBase implements Serializable {
      */
     @TableField(value = "sys_dept_status")
     @Schema(description = "状态: 是否禁用; 0:启用 1:禁用")
+    /** SYSdept状态 */
     private Integer sysDeptStatus;
 
     /**
@@ -117,6 +130,7 @@ public class SysDept extends SysBase implements Serializable {
      */
     @TableField(value = "sys_dept_remark")
     @Schema(description = "备注")
+    /** SYSdeptremark */
     private String sysDeptRemark;
 
     /**
@@ -124,6 +138,7 @@ public class SysDept extends SysBase implements Serializable {
      */
     @TableField(value = "sys_dept_data_permission")
     @Schema(description = "数据权限类型: 1:全部可见 2:本人可见 3:所在部门可见 4:所在部门及子级可见 5:选择的部门可见")
+    /** SYSdept数据permission */
     private Integer sysDeptDataPermission;
 
     /**
@@ -131,6 +146,7 @@ public class SysDept extends SysBase implements Serializable {
      */
     @TableField(value = "sys_dept_data_permission_dept_id")
     @Schema(description = "数据权限可见的部门ID列表(逗号分隔)")
+    /** SYSdept数据permissiondeptID */
     private String sysDeptDataPermissionDeptId;
 
 }

@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * KCP 单连接多路复用压测(真正发挥长连接优势)
  * <p>1 个 KCP 连接,多线程并发 executeAsync —— 类似 HTTP/2 多路复用。</p>
  * <p>用法:KcpMuxLoadTest <并发线程> <总请求数></p>
+ * @author CH
  */
 public class KcpMuxLoadTest {
 

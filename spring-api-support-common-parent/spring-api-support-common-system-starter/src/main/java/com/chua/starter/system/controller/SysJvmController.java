@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 /**
  * JVM 信息控制器
  *
- * @author CH
  * @since 2024/12/18
+ * @author CH
  */
 @Slf4j
 @RestController

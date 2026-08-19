@@ -28,8 +28,8 @@ import java.util.Set;
 
 /**
  * 字典子项接口(缓存)
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Tag(name = "字典子项接口")
 @RestController
@@ -37,6 +37,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysDictItemController {
 
+    /** SYSdictitem服务 */
     private final SysDictItemService sysDictItemService;
 
 

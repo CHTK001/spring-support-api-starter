@@ -13,13 +13,14 @@ import java.io.Serializable;
 /**
  * 用户-角色关系表
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Schema(description = "用户-角色关系表")
 @Data
 @TableName(value = "sys_user_role")
 public class SysUserRole implements Serializable {
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -28,6 +29,7 @@ public class SysUserRole implements Serializable {
     @TableId(value = "sys_user_role_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     @NotNull(message = "主键ID不能为空")
+    /** SYS用户roleID */
     private Integer sysUserRoleId;
 
     /**
@@ -35,6 +37,7 @@ public class SysUserRole implements Serializable {
      */
     @TableField(value = "sys_user_id")
     @Schema(description = "用户ID")
+    /** SYS用户ID */
     private Integer sysUserId;
 
     /**
@@ -42,5 +45,6 @@ public class SysUserRole implements Serializable {
      */
     @TableField(value = "sys_role_id")
     @Schema(description = "角色ID")
+    /** SYSroleID */
     private Integer sysRoleId;
 }

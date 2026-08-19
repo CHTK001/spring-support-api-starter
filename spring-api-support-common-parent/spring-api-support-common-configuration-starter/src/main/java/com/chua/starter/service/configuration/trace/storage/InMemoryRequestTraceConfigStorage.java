@@ -10,12 +10,13 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * 内存版配置存储。
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Spi("memory")
 public class InMemoryRequestTraceConfigStorage implements RequestTraceConfigStorage {
 
+    /** 缓存 */
     private static final AtomicReference<RequestTraceStrategyConfig> CACHE =
             new AtomicReference<>();
 

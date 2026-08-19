@@ -38,7 +38,6 @@ public interface SysFeedbackService extends IService<SysFeedback> {
      * 反馈统计
      *
      * @return 统计数据
-     * @author CH
      * @since 2024/12/10
      */
     ReturnResult<FeedbackStatisticV1Response> statistic();

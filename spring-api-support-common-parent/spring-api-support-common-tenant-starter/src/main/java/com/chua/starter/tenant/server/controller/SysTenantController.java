@@ -27,9 +27,9 @@ import java.util.List;
 /**
  * 租户管理接口
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/06
+ * @author CH
  */
 @RestController
 @Slf4j
@@ -40,6 +40,7 @@ import java.util.List;
 @SuppressWarnings("ALL")
 public class SysTenantController {
 
+    /** SYStenant服务 */
     private final SysTenantService sysTenantService;
 
     /**

@@ -6,8 +6,8 @@ import lombok.Data;
 /**
  * 用户密码修改
  *
- * @author CH
  * @since 2024/8/20
+ * @author CH
  */
 @Data
 @Schema(description = "用户密码修改")
@@ -17,17 +17,20 @@ public class SysUserPasswordUpdate {
      * 旧密码
      */
     @Schema(description = "旧密码")
+    /** OLD密码 */
     private String oldPassword;
 
     /**
      * 新密码
      */
     @Schema(description = "新密码")
+    /** NEW密码 */
     private String newPassword;
 
     /**
      * 确认密码
      */
     @Schema(description = "确认密码")
+    /** Confirm密码 */
     private String confirmPassword;
 }

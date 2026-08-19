@@ -7,9 +7,9 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 服务模块关联 Mapper 接口
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/07
+ * @author CH
  */
 @Mapper
 public interface SysServiceModuleItemMapper extends BaseMapper<SysServiceModuleItem> {

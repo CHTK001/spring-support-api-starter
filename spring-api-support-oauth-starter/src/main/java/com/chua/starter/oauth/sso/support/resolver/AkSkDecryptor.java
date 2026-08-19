@@ -11,13 +11,14 @@ import lombok.extern.slf4j.Slf4j;
  * 用于解密客户端使用 SK 加密的数据
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/17
+ * @author CH
  */
 @Slf4j
 public class AkSkDecryptor {
 
+    /** Default_encryption */
     private static final String DEFAULT_ENCRYPTION = "aes";
 
     /**

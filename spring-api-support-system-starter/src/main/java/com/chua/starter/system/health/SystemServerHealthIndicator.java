@@ -26,8 +26,8 @@ import java.util.Map;
  * 访问路径: /actuator/health/system
  * </p>
  *
- * @author CH
  * @since 2024/12/11
+ * @author CH
  */
 @Slf4j
 @Component("systemServerHealth")
@@ -190,5 +190,4 @@ public class SystemServerHealthIndicator implements HealthIndicator {
         details.put(KEY_SERVICE, serviceInfo);
     }
 }
-
 

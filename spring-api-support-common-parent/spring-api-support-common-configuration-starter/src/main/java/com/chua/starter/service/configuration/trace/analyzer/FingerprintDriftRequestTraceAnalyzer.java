@@ -17,8 +17,8 @@ import java.util.Set;
 /**
  * 指纹漂移分析器
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 20)

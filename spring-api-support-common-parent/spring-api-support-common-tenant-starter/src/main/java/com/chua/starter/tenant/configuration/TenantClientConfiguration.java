@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 /**
  * 租户客户端配置
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/06
  */

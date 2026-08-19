@@ -62,10 +62,14 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
     final ThirdPartyLoginProperties thirdPartyLoginProperties;
     final LoginCheck loginCheck;
     final AuthServerProperties authServerProperties;
-    private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
+    /** authStateCache */
+    private final AuthStateCache authStateCache= AuthDefaultStateCache.INSTANCE;
+    /** gitee服务 */
     private GiteeService giteeService;
+    /** auth请求 */
     private AuthGiteeRequest authRequest;
     @Value("${plugin.auth.server.context-path:}")
+    /** context路径 */
     private String contextPath;
 
     /**

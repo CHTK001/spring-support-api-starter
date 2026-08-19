@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p>模拟 N 个用户同时登录,统计成功/失败/延迟。
  * 判断 KCP 能支撑多少并发用户。</p>
  * <p>用法:KcpUserLoadTest <用户数> <每用户连接数(默认1)></p>
+ * @author CH
  */
 public class KcpUserLoadTest {
 

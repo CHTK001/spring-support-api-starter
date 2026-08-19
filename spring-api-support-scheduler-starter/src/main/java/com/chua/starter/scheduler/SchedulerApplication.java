@@ -17,7 +17,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * {@link JobAutoConfiguration} 自动装配 Leader 扫描 + 长链 Sync,
  * 业务执行器侧配置 job-starter 的 EXECUTOR 角色接入。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 @EnableCaching

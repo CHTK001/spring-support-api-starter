@@ -15,14 +15,15 @@ import java.util.Map;
 /**
  * 租户端客户端信息增强器。
  *
- * @author CH
  * @since 2026/03/24
+ * @author CH
  */
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".client", name = "enable", havingValue = "true")
 public class TenantSyncClientInfoCustomizer implements SyncClientInfoCustomizer {
 
+    /** Tenant属性 */
     private final TenantProperties tenantProperties;
 
     @Override

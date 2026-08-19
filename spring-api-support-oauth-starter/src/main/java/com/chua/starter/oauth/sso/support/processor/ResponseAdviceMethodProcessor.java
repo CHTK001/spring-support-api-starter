@@ -22,6 +22,7 @@ import java.util.List;
  */
 public class ResponseAdviceMethodProcessor extends RequestResponseBodyMethodProcessor {
 
+    /** Redirectpatterns */
     private String redirectPatterns;
 
     public ResponseAdviceMethodProcessor(List<HttpMessageConverter<?>> converters) {

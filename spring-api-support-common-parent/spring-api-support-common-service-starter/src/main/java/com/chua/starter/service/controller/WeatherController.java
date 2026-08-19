@@ -24,8 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * 命中后本地缓存 10 分钟，避免重复外网请求。
  * 离线 / 超时时返回 {@code cached=false} + 兜底数据。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Tag(name = "天气接口")
 @RestController
@@ -33,7 +33,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class WeatherController {
 
+    /** Wttr_base */
     private static final String WTTR_BASE = "https://wttr.in/";
+    /** Cache_ttl_ms */
     private static final long CACHE_TTL_MS = 10L * 60 * 1000;
 
     private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();

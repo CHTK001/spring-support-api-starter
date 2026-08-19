@@ -13,9 +13,9 @@ import java.util.List;
 /**
  * 租户服务接口
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/06
+ * @author CH
  */
 public interface SysTenantService extends IService<SysTenant> {
 

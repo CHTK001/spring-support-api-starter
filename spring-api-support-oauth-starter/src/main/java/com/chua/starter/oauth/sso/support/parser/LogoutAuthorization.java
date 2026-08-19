@@ -14,18 +14,24 @@ import org.springframework.context.ApplicationContext;
 /**
  * 鉴权信息
  *
- * @author CH
  */
 @Slf4j
 public final class LogoutAuthorization implements Authorization {
+    /** 令牌 */
     private final String token;
+    /** Cookie */
     private final String cookie;
+    /** UID */
     private final String uid;
+    /** Logout类型 */
     private final String logoutType;
+    /** 响应 */
     private final HttpServletResponse response;
+    /** Auth服务器属性 */
     private final AuthServerProperties authServerProperties;
     final ApplicationContext applicationContext;
     final LoginCheck loginCheck;
+    /** Authinformation */
     private final LogoutAuthInformation authInformation;
 
     public LogoutAuthorization(LogoutAuthInformation authInformation,

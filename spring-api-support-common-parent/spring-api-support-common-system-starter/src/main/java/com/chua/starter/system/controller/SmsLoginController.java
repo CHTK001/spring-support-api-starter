@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
  * 短信验证码登录控制器
  * <p>提供短信验证码发送和登录接口</p>
  *
- * @author CH
  * @since 2024/12/11
+ * @author CH
  */
 @Slf4j
 @RestController
@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SmsLoginController {
 
+    /** SMS代码服务 */
     private final SmsCodeService smsCodeService;
 
     /**

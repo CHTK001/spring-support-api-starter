@@ -12,8 +12,8 @@ import java.util.Set;
 /**
  * 系统角色服务接口
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 public interface SysRoleService extends IService<SysRole> {
 

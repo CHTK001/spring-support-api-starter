@@ -25,8 +25,8 @@ import java.util.Map;
  * <p>提供控制台登录状态的查询、登录与退出能力,
  * 账号密码校验通过后写入 Session。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @RestController
 @Ignore
@@ -128,7 +128,6 @@ public class SchedulerJobConsoleAuthController {
     /**
      * 控制台登录请求。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Data

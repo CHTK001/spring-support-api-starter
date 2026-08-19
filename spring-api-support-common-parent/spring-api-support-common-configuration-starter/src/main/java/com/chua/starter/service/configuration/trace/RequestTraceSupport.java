@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 /**
  * 请求追踪工具方法。
  *
- * @author CH
  * @since 2026/03/25
  */
 public final class RequestTraceSupport {

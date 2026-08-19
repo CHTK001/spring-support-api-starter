@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 /**
  * 系统字典服务实现类
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Service
 @RequiredArgsConstructor

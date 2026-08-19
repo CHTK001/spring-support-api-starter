@@ -19,8 +19,8 @@ import java.io.Serializable;
 /**
  * 用户三方绑定信息表
  *
- * @author CH
  * @since 1.0.0
+ * @author CH
  */
 @ApiModel(description = "用户三方绑定信息表")
 @Schema(description = "用户三方绑定信息表")
@@ -30,6 +30,7 @@ import java.io.Serializable;
 public class SysUserTripartiteBind extends SysTenantBase implements Serializable {
 
     @Serial
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -39,6 +40,7 @@ public class SysUserTripartiteBind extends SysTenantBase implements Serializable
     @ApiModelProperty(value = "用户ID")
     @Schema(description = "用户ID")
     @NotNull(message = "用户ID不能为空")
+    /** 用户ID */
     private Integer userId;
 
     /**
@@ -48,6 +50,7 @@ public class SysUserTripartiteBind extends SysTenantBase implements Serializable
     @ApiModelProperty(value = "登录类型")
     @Schema(description = "登录类型")
     @Size(max = 255, message = "登录类型最大长度为255")
+    /** Login代码类型 */
     private String loginCodeType;
 
     /**
@@ -57,6 +60,7 @@ public class SysUserTripartiteBind extends SysTenantBase implements Serializable
     @ApiModelProperty(value = "登录用户名")
     @Schema(description = "登录用户名")
     @Size(max = 255, message = "登录用户名最大长度为255")
+    /** Loginusername */
     private String loginUsername;
 
     /**
@@ -66,6 +70,7 @@ public class SysUserTripartiteBind extends SysTenantBase implements Serializable
     @ApiModelProperty(value = "登录UUID")
     @Schema(description = "登录UUID")
     @Size(max = 255, message = "登录UUID最大长度为255")
+    /** LoginUUID */
     private String loginUuid;
 
     /**
@@ -75,6 +80,7 @@ public class SysUserTripartiteBind extends SysTenantBase implements Serializable
     @ApiModelProperty(value = "登录头像")
     @Schema(description = "登录头像")
     @Size(max = 255, message = "登录头像最大长度为255")
+    /** Loginavatar */
     private String loginAvatar;
 
     /**
@@ -84,5 +90,6 @@ public class SysUserTripartiteBind extends SysTenantBase implements Serializable
     @ApiModelProperty(value = "登录名称")
     @Schema(description = "登录名称")
     @Size(max = 255, message = "登录名称最大长度为255")
+    /** Login名称 */
     private String loginName;
 }

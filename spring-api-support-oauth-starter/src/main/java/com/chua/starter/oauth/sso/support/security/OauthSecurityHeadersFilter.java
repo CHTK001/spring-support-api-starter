@@ -19,13 +19,14 @@ import java.io.IOException;
  *
  * <p>为所有响应追加安全相关 HTTP 头，降低点击劫持、MIME 嗅探、XSS 等风险。</p>
  *
- * @author CH
  * @since 2025/01/01
+ * @author CH
  */
 @Slf4j
 @RequiredArgsConstructor
 public class OauthSecurityHeadersFilter implements Filter, Ordered {
 
+    /** Security属性 */
     private final OauthSecurityProperties securityProperties;
 
     @Override

@@ -8,8 +8,8 @@ import lombok.Data;
  * <p>用于控制台或平台 API 部分更新任务的调度配置,
  * 仅需要传需要修改的字段。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Data
 public class SchedulerTaskUpdateRequest {

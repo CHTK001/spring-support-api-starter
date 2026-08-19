@@ -18,8 +18,8 @@ import java.util.Set;
 /**
  * 用户近期访问偏好分析器
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 30)

@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 /**
  * FileStorage 统一增强入口。
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @Component
 public class FileStorageSupport {
@@ -39,7 +39,9 @@ public class FileStorageSupport {
      */
     private static final String DEFAULT_LOCAL_ROOT = "oss/system";
 
+    /** environment */
     private final Environment environment;
+    /** sysFileSystem设置服务Provider */
     private final ObjectProvider<SysFileSystemSettingService> sysFileSystemSettingServiceProvider;
 
     /**

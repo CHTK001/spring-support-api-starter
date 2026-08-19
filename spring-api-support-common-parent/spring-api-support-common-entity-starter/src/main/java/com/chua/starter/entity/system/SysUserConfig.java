@@ -16,8 +16,8 @@ import java.io.Serializable;
 /**
  * 用户配置表
  *
- * @author CH
  * @since 2024/8/30
+ * @author CH
  */
 @Schema(description = "用户配置表")
 @Data
@@ -31,6 +31,7 @@ public class SysUserConfig extends SysBase implements Serializable {
     @TableId(value = "sys_user_config_id", type = IdType.AUTO)
     @Schema(description = "配置ID")
     @NotNull(message = "配置ID不能为空")
+    /** SYS用户配置ID */
     private Integer sysUserConfigId;
 
     /**
@@ -39,6 +40,7 @@ public class SysUserConfig extends SysBase implements Serializable {
     @TableField(value = "sys_user_config_wx_openid")
     @Schema(description = "微信OpenID")
     @Size(max = 255, message = "微信OpenID最大长度需小于255")
+    /** SYS用户配置WXopenid */
     private String sysUserConfigWxOpenid;
 
     /**
@@ -47,5 +49,6 @@ public class SysUserConfig extends SysBase implements Serializable {
     @TableField(value = "sys_user_config_wx_unionid")
     @Schema(description = "微信UnionID")
     @Size(max = 255, message = "微信UnionID最大长度需小于255")
+    /** SYS用户配置WXunionid */
     private String sysUserConfigWxUnionid;
 }

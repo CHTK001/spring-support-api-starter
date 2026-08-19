@@ -14,8 +14,8 @@ import java.util.List;
  * <p>基于 MyBatis-Plus {@link BaseMapper} 提供签到记录的基础 CRUD，
  * 并通过 XML 自定义签到查询、月度日历、连续天数和管理员汇总等复杂查询。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Mapper
 public interface SignInRecordMapper extends BaseMapper<SignInRecord> {

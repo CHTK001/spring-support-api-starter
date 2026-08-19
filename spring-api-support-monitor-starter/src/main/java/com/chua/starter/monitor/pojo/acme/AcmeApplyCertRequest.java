@@ -10,8 +10,8 @@ import java.util.List;
 /**
  * 申请证书请求，包含账户、域名（主域名与 SAN）、挑战类型、部署模式及 SSH 远程部署信息。
  *
- * @author CH
  * @since 2025-10-17
+ * @author CH
  */
 @Data
 @ApiModel(description = "申请证书请求")
@@ -23,6 +23,7 @@ public class AcmeApplyCertRequest {
      */
     @ApiModelProperty("ACME账户ID")
     @Schema(description = "ACME账户ID")
+    /** AcmeaccountID */
     private Integer acmeAccountId;
 
     /**
@@ -42,6 +43,7 @@ public class AcmeApplyCertRequest {
     @Schema(description = "主域名。支持普通域名(example.com)和通配符域名(*.example.com)，通配符仅支持DNS-01验证。" +
             "域名注册商推荐: 阿里云万网(https://wanwang.aliyun.com)、腾讯云DNSPod(https://dnspod.cloud.tencent.com)、" +
             "NameSilo(https://www.namesilo.com)、Cloudflare(https://www.cloudflare.com)")
+    /** Primarydomain */
     private String primaryDomain;
 
     /**
@@ -51,6 +53,7 @@ public class AcmeApplyCertRequest {
      */
     @ApiModelProperty(value = "备用域名列表(SAN)", notes = "可选，用于一张证书保护多个域名，如 www.example.com, api.example.com")
     @Schema(description = "备用域名列表(SAN)，可选。用于一张证书保护多个域名，如 [\"www.example.com\", \"api.example.com\"]")
+    /** SANdomains */
     private List<String> sanDomains;
 
     /**
@@ -58,6 +61,7 @@ public class AcmeApplyCertRequest {
      */
     @ApiModelProperty("挑战类型: HTTP-01 或 DNS-01")
     @Schema(description = "挑战类型: HTTP-01 或 DNS-01")
+    /** Challenge类型 */
     private String challengeType;
 
     /**
@@ -65,6 +69,7 @@ public class AcmeApplyCertRequest {
      */
     @ApiModelProperty("部署模式: local(本机)/ssh(远程)/manual(手动)，默认manual")
     @Schema(description = "部署模式: local(本机)/ssh(远程)/manual(手动)，默认manual")
+    /** Deploy模式 */
     private String deployMode;
 
     /**
@@ -72,6 +77,7 @@ public class AcmeApplyCertRequest {
      */
     @ApiModelProperty("webroot路径，如 /var/www/html（ssh模式使用）")
     @Schema(description = "webroot路径，如 /var/www/html（ssh模式使用）")
+    /** Webroot路径 */
     private String webrootPath;
 
     /**
@@ -79,6 +85,7 @@ public class AcmeApplyCertRequest {
      */
     @ApiModelProperty("SSH主机地址")
     @Schema(description = "SSH主机地址")
+    /** SSH主机 */
     private String sshHost;
 
     /**
@@ -86,6 +93,7 @@ public class AcmeApplyCertRequest {
      */
     @ApiModelProperty("SSH端口，默认22")
     @Schema(description = "SSH端口，默认22")
+    /** SSH端口 */
     private Integer sshPort;
 
     /**
@@ -93,6 +101,7 @@ public class AcmeApplyCertRequest {
      */
     @ApiModelProperty("SSH用户名")
     @Schema(description = "SSH用户名")
+    /** SSHusername */
     private String sshUsername;
 
     /**
@@ -100,5 +109,6 @@ public class AcmeApplyCertRequest {
      */
     @ApiModelProperty("SSH密码")
     @Schema(description = "SSH密码")
+    /** SSH密码 */
     private String sshPassword;
 }

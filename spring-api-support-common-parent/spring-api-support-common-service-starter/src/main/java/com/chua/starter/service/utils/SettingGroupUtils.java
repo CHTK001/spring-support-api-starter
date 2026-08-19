@@ -11,13 +11,14 @@ import java.util.List;
 /**
  * 配置组工具类
  *
- * @author CH
  * @since 2025/9/28
+ * @author CH
  */
 @Component
 @RequiredArgsConstructor
 public class SettingGroupUtils {
 
+    /** SYS设置分组服务 */
     private final SysSettingGroupService sysSettingGroupService;
 
     /**

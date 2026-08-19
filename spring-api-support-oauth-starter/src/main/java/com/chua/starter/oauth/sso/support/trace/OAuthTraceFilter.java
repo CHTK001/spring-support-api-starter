@@ -16,13 +16,14 @@ import java.util.Set;
  * OAuth追踪过滤器
  * 接收客户端传递的追踪头，创建追踪上下文，并在请求结束后保存追踪日志
  *
- * @author CH
  * @since 2025/01/01
+ * @author CH
  */
 @Slf4j
 @RequiredArgsConstructor
 public class OAuthTraceFilter implements Filter, Ordered {
 
+    /** 跟踪日志服务 */
     private final OAuthTraceLogService traceLogService;
 
     /**

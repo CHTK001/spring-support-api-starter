@@ -31,16 +31,19 @@ import java.util.Map;
  * 认证参数 JSON；响应格式：{@code {"code":"00000","data":"..."}}，data 加密时
  * 响应头携带 {@code x-oauth-response-serial} 供客户端解密。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 public class AuthProtocolController {
 
+    /** Auth服务器属性 */
     private final AuthServerProperties authServerProperties;
+    /** Application上下文 */
     private final ApplicationContext applicationContext;
+    /** Logincheck */
     private final LoginCheck loginCheck;
 
     /**

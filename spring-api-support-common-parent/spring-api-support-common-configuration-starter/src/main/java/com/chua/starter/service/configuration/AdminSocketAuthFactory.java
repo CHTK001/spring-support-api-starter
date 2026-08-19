@@ -16,8 +16,8 @@ import java.util.Map;
 /**
  * 管理员套接字身份验证工厂
  *
- * @author CH
  * @since 2025/7/1
+ * @author CH
  */
 @Configuration
 @ConditionalOnClass(name = {"com.chua.starter.oauth.client.support.execute.AuthClientExecute", "com.chua.socket.support.auth.SocketAuthFactory"})

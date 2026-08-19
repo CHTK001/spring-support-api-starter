@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 /**
  * 租户服务实现类
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/06
+ * @author CH
  */
 @Slf4j
 @Service
@@ -38,10 +38,13 @@ import java.util.stream.Collectors;
 public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant>
         implements com.chua.starter.tenant.server.service.SysTenantService {
 
+    /** Transaction模板 */
     private final TransactionTemplate transactionTemplate;
+    /** SYStenant服务mapper */
     private final SysTenantServiceMapper sysTenantServiceMapper;
 
     @Autowired(required = false)
+    /** 同步publisher */
     private TenantServerSyncPublisher syncPublisher;
 
     @Override

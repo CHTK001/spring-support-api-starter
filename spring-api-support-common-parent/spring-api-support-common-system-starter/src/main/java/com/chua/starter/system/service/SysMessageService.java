@@ -11,8 +11,8 @@ import com.chua.starter.entity.service.SysMessage;
  * <p>提供当前用户站内消息的分页查询、未读数统计与已读标记能力，
  * 供登录后的站内消息中心使用。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 public interface SysMessageService extends IService<SysMessage> {
 

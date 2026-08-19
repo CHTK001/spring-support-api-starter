@@ -26,8 +26,8 @@ import java.util.Map;
  * 服务器组件布局管理接口，提供组件布局的查询、保存、更新、删除、
  * 批量位置更新、启用禁用、统计、复制与重置等能力。
  *
- * @author CH
  * @since 2026-07-28
+ * @author CH
  */
 @Slf4j
 @RestController

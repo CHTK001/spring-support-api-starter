@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * KCP verify 压测(长连接复用模式,与 HTTP 公平对比)
  * <p>用法:KcpConnReuseVerify <客户端数> <每客户端请求数></p>
+ * @author CH
  */
 public class KcpConnReuseVerify {
 

@@ -13,13 +13,14 @@ import java.io.Serializable;
 /**
  * 角色-菜单关系表
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Schema(description = "角色-菜单关系表")
 @Data
 @TableName(value = "sys_role_menu")
 public class SysRoleMenu implements Serializable {
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -28,6 +29,7 @@ public class SysRoleMenu implements Serializable {
     @TableId(value = "sys_role_menu_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     @NotNull(message = "主键ID不能为空")
+    /** SYSrolemenuID */
     private Integer sysRoleMenuId;
 
     /**
@@ -35,6 +37,7 @@ public class SysRoleMenu implements Serializable {
      */
     @TableField(value = "sys_role_id")
     @Schema(description = "角色ID")
+    /** SYSroleID */
     private Integer sysRoleId;
 
     /**
@@ -42,5 +45,6 @@ public class SysRoleMenu implements Serializable {
      */
     @TableField(value = "sys_menu_id")
     @Schema(description = "菜单ID")
+    /** SYSmenuID */
     private Integer sysMenuId;
 }

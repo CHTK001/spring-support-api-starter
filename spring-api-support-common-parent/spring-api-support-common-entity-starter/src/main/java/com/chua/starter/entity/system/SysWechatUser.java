@@ -19,8 +19,8 @@ import java.io.Serializable;
  *
  * 主要存储通过微信体系接入的用户基础信息
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @Schema(description = "微信用户表")
 @Data
@@ -29,6 +29,7 @@ import java.io.Serializable;
 public class SysWechatUser extends SysBase implements Serializable {
 
     @Serial
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -37,6 +38,7 @@ public class SysWechatUser extends SysBase implements Serializable {
     @TableId(value = "sys_wechat_user_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     @NotNull(message = "主键ID不能为空")
+    /** SYSwechat用户ID */
     private Integer sysWechatUserId;
 
     /**
@@ -45,6 +47,7 @@ public class SysWechatUser extends SysBase implements Serializable {
     @TableField(value = "sys_wechat_open_id")
     @Schema(description = "微信 openid")
     @Size(max = 255, message = "微信 openid 最大长度需小于255")
+    /** SYSwechatopenID */
     private String sysWechatOpenId;
 
     /**
@@ -53,6 +56,7 @@ public class SysWechatUser extends SysBase implements Serializable {
     @TableField(value = "sys_wechat_union_id")
     @Schema(description = "微信 unionid")
     @Size(max = 255, message = "微信 unionid 最大长度需小于255")
+    /** SYSwechatunionID */
     private String sysWechatUnionId;
 
     /**
@@ -61,6 +65,7 @@ public class SysWechatUser extends SysBase implements Serializable {
     @TableField(value = "sys_wechat_nickname")
     @Schema(description = "昵称")
     @Size(max = 255, message = "昵称最大长度需小于255")
+    /** SYSwechatnickname */
     private String sysWechatNickname;
 
     /**
@@ -69,6 +74,7 @@ public class SysWechatUser extends SysBase implements Serializable {
     @TableField(value = "sys_wechat_avatar")
     @Schema(description = "头像")
     @Size(max = 4000, message = "头像最大长度需小于4000")
+    /** SYSwechatavatar */
     private String sysWechatAvatar;
 
     /**
@@ -76,7 +82,7 @@ public class SysWechatUser extends SysBase implements Serializable {
      */
     @TableField(value = "sys_user_id")
     @Schema(description = "绑定的系统用户ID")
+    /** SYS用户ID */
     private Integer sysUserId;
 }
-
 

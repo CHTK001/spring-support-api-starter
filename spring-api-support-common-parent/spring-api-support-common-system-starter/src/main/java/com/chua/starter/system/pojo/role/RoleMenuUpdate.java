@@ -9,8 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * @author CH
  * @since 2024/8/8
+ * @author CH
  */
 @Data
 @Schema(description = "角色菜单")
@@ -21,6 +21,7 @@ public class RoleMenuUpdate {
      */
     @NotNull(message = "角色ID不能为空", groups = {UpdateGroup.class, SelectGroup.class})
     @Schema(description = "角色ID")
+    /** RoleID */
     private Integer roleId;
 
     /**
@@ -28,5 +29,6 @@ public class RoleMenuUpdate {
      */
     @NotNull(message = "菜单ID不能为空", groups = {UpdateGroup.class})
     @Schema(description = "菜单ID")
+    /** MenuID */
     private List<Integer> menuId;
 }

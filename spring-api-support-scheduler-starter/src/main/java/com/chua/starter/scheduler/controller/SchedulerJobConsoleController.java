@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
  * 避免调用方必须记住具体的静态资源文件路径。
  * </p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Controller
 @Ignore

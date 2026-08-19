@@ -5,8 +5,8 @@ import lombok.Data;
 
 /**
  * 版本设置
- * @author CH
  * @since 2024/8/26
+ * @author CH
  */
 @Data
 @GlobalSettingGroup("config")

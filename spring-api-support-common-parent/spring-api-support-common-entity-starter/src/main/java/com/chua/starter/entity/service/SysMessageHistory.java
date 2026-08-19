@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 /**
  * 系统消息历史记录表
  *
- * @author CH
  * @since 2024/12/04
+ * @author CH
  */
 @Schema(description = "系统消息历史记录表")
 @Data

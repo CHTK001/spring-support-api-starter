@@ -15,8 +15,8 @@ import java.util.Set;
 /**
  * 高频请求分析器
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)

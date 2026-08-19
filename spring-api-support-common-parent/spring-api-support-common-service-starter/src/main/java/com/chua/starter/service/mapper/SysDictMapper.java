@@ -7,8 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 系统字典表数据访问层接口
  * 
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Mapper
 public interface SysDictMapper extends BaseMapper<SysDict> {

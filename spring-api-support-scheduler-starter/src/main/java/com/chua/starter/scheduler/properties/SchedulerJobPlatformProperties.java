@@ -10,8 +10,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * 任务统一存储在 {@code sys_job / sys_job_log} 单表中, 不再维护多命名空间
  * 物理表与远程 HTTP 派发。调度能力由 job-starter 的 Leader 循环 + 长链 Sync 承担。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Data
 @ConfigurationProperties(prefix = "plugin.scheduler.job-platform")
@@ -34,7 +34,6 @@ public class SchedulerJobPlatformProperties {
     /**
      * 控制台访问配置类。
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Data

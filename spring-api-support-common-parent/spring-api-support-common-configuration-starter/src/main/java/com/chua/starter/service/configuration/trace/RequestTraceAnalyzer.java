@@ -5,8 +5,8 @@ import java.util.Collection;
 /**
  * 请求追踪分析器
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 public interface RequestTraceAnalyzer {
 

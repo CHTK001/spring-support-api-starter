@@ -23,6 +23,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  * @see ConditionalOnBean
  * @see ConditionalOnMissingBean
  * @see ConditionalOnSingleCandidate
+ * @author CH
  */
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class OnBeanCondition implements Condition {
@@ -32,3 +33,4 @@ public class OnBeanCondition implements Condition {
         return !ArrayUtils.isEmpty(context.getBeanFactory().getBeanNamesForType(ClassUtils.forName(metadata.toString())));
     }
 }
+

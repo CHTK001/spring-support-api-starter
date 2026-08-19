@@ -8,8 +8,8 @@ import java.util.List;
 /**
  * 监控网关服务接口，提供网关基础 CRUD 与按监控资产ID查询能力。
  *
- * @author CH
  * @since 2026-08-11
+ * @author CH
  */
 public interface MsMonitorGatewayService extends IService<MsMonitorGateway> {
 

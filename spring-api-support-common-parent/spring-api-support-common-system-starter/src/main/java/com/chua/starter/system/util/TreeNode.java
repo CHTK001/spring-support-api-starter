@@ -12,8 +12,8 @@ import java.util.List;
  * 此处提供等价实现以保证部门树 / 菜单树功能可用。
  *
  * @param <T> 扩展对象类型
- * @author CH
  * @since 2026/08/02
+ * @author CH
  */
 public class TreeNode<T> {
 

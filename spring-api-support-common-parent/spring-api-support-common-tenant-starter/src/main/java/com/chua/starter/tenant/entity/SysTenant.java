@@ -17,9 +17,9 @@ import java.util.List;
 /**
  * 租户表
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/06
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(description = "租户表")
@@ -35,6 +35,7 @@ public class SysTenant extends SysBase {
     @ApiModelProperty(value = "租户ID/租户编码")
     @Schema(description = "租户ID/租户编码")
     @NotBlank(message = "租户ID不能为空", groups = {UpdateGroup.class})
+    /** SYStenantID */
     private String sysTenantId;
 
     /**
@@ -44,6 +45,7 @@ public class SysTenant extends SysBase {
     @ApiModelProperty(value = "名称")
     @Schema(description = "名称")
     @NotBlank(message = "租户名称不能为空", groups = {AddGroup.class, UpdateGroup.class})
+    /** SYStenant名称 */
     private String sysTenantName;
 
     /**
@@ -52,6 +54,7 @@ public class SysTenant extends SysBase {
     @TableField(value = "sys_tenant_username")
     @ApiModelProperty(value = "账号")
     @Schema(description = "账号")
+    /** SYStenantusername */
     private String sysTenantUsername;
 
     /**
@@ -60,6 +63,7 @@ public class SysTenant extends SysBase {
     @TableField(value = "sys_tenant_password")
     @ApiModelProperty(value = "密码")
     @Schema(description = "密码")
+    /** SYStenant密码 */
     private String sysTenantPassword;
 
     /**
@@ -68,6 +72,7 @@ public class SysTenant extends SysBase {
     @TableField(value = "sys_tenant_sign")
     @ApiModelProperty(value = "签名")
     @Schema(description = "签名")
+    /** SYStenantsign */
     private String sysTenantSign;
 
     /**
@@ -76,6 +81,7 @@ public class SysTenant extends SysBase {
     @TableField(value = "sys_tenant_corporation")
     @ApiModelProperty(value = "公司")
     @Schema(description = "公司")
+    /** SYStenantcorporation */
     private String sysTenantCorporation;
 
     /**
@@ -85,6 +91,7 @@ public class SysTenant extends SysBase {
     @ApiModelProperty(value = "是否删除; 0:正常")
     @Schema(description = "是否删除; 0:正常")
     @TableLogic(value = "0", delval = "1")
+    /** SYStenantdelete */
     private Integer sysTenantDelete;
 
     /**
@@ -93,6 +100,7 @@ public class SysTenant extends SysBase {
     @TableField(value = "sys_tenant_status")
     @ApiModelProperty(value = "是否禁用; 0:正常")
     @Schema(description = "是否禁用; 0:正常")
+    /** SYStenant状态 */
     private Integer sysTenantStatus;
 
     /**
@@ -101,6 +109,7 @@ public class SysTenant extends SysBase {
     @TableField(value = "sys_tenant_contact")
     @ApiModelProperty(value = "联系人")
     @Schema(description = "联系人")
+    /** SYStenantcontact */
     private String sysTenantContact;
 
     /**
@@ -109,6 +118,7 @@ public class SysTenant extends SysBase {
     @TableField(value = "sys_tenant_phone")
     @ApiModelProperty(value = "手机号")
     @Schema(description = "手机号")
+    /** SYStenantphone */
     private String sysTenantPhone;
 
     /**
@@ -117,6 +127,7 @@ public class SysTenant extends SysBase {
     @TableField(value = "sys_tenant_address")
     @ApiModelProperty(value = "地址")
     @Schema(description = "地址")
+    /** SYStenant地址 */
     private String sysTenantAddress;
 
     /**
@@ -125,6 +136,7 @@ public class SysTenant extends SysBase {
     @TableField(value = "sys_tenant_email")
     @ApiModelProperty(value = "邮件")
     @Schema(description = "邮件")
+    /** SYStenantemail */
     private String sysTenantEmail;
 
     /**
@@ -134,6 +146,7 @@ public class SysTenant extends SysBase {
     @TableField(value = "sys_tenant_code")
     @ApiModelProperty(value = "唯一编码（已废弃）")
     @Schema(description = "唯一编码（已废弃，使用 sysTenantId 代替）")
+    /** SYStenant代码 */
     private String sysTenantCode;
 
     /**
@@ -142,6 +155,7 @@ public class SysTenant extends SysBase {
     @TableField(value = "sys_tenant_gid")
     @ApiModelProperty(value = "租户对于配置唯一ID")
     @Schema(description = "租户对于配置唯一ID")
+    /** SYStenantGID */
     private String sysTenantGid;
 
     /**
@@ -150,6 +164,7 @@ public class SysTenant extends SysBase {
     @TableField(value = "sys_tenant_home_url")
     @ApiModelProperty(value = "租户访问地址")
     @Schema(description = "租户访问地址")
+    /** SYStenanthomeURL */
     private String sysTenantHomeUrl;
 
     /**
@@ -158,6 +173,7 @@ public class SysTenant extends SysBase {
     @TableField(value = "sys_tenant_remark")
     @ApiModelProperty(value = "备注")
     @Schema(description = "备注")
+    /** SYStenantremark */
     private String sysTenantRemark;
 
     /**
@@ -166,6 +182,7 @@ public class SysTenant extends SysBase {
     @TableField(exist = false)
     @ApiModelProperty(value = "租户 - 服务ID列表")
     @Schema(description = "租户 - 服务ID列表")
+    /** 服务IDS */
     private List<Integer> serviceIds;
 
     /**
@@ -174,5 +191,6 @@ public class SysTenant extends SysBase {
     @TableField(exist = false)
     @ApiModelProperty(value = "租户 - 服务列表")
     @Schema(description = "租户 - 服务列表")
+    /** SYStenant服务 */
     private List<SysTenantService> sysTenantService;
 }

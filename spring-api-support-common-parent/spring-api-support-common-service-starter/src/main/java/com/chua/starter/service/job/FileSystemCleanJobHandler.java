@@ -8,13 +8,14 @@ import org.springframework.stereotype.Component;
 /**
  * 文件系统清理任务处理器（接口桩）
  *
- * @author CH
  * @since 2024/12/20
+ * @author CH
  */
 @Component("fileSystemCleanJobHandler")
 @ConditionalOnClass(name = "com.chua.starter.job.support.handler.JobHandler")
 public class FileSystemCleanJobHandler {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(FileSystemCleanJobHandler.class);
 
     public void execute() {

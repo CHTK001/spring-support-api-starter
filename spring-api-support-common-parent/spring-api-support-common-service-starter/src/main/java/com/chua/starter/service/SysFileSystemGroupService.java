@@ -9,9 +9,9 @@ import java.util.List;
 /**
  * 文件系统分组服务接口
  *
- * @author CH
  * @since 2024/12/10
  * @version 1.0.0
+ * @author CH
  */
 public interface SysFileSystemGroupService extends IService<SysFileSystemGroup> {
 

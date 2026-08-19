@@ -37,9 +37,9 @@ import java.util.Map;
  * 文件系统管理接口
  * 提供文件上传、分片上传、配置管理、分组管理等功能
  *
- * @author CH
  * @since 2024/12/4
  * @version 1.0.0
+ * @author CH
  */
 @RestController
 @Slf4j
@@ -49,8 +49,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SysFileSystemController {
 
+    /** sysFileSystem服务 */
     private final SysFileSystemService sysFileSystemService;
+    /** sysFileSystem设置服务 */
     private final SysFileSystemSettingService sysFileSystemSettingService;
+    /** sysFileSystemGroup服务 */
     private final SysFileSystemGroupService sysFileSystemGroupService;
 
     /**

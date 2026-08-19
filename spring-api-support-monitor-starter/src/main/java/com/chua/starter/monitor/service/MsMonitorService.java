@@ -6,8 +6,8 @@ import com.chua.starter.monitor.entity.MsMonitor;
 /**
  * 监控资产服务接口，提供监控资产基础 CRUD 能力。
  *
- * @author CH
  * @since 2026-08-11
+ * @author CH
  */
 public interface MsMonitorService extends IService<MsMonitor> {
 }

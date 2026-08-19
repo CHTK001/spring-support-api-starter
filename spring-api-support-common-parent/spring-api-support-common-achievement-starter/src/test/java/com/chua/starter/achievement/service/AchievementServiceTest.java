@@ -38,8 +38,8 @@ import static org.mockito.Mockito.when;
  *
  * <p>覆盖核心业务逻辑：统计更新、规则判定、解锁、查询等。</p>
  *
- * @author CH
  * @since 2026-08-07
+ * @author CH
  */
 @ExtendWith(MockitoExtension.class)
 class AchievementServiceTest {
@@ -48,24 +48,28 @@ class AchievementServiceTest {
      * 统一 KV 引擎模拟
      */
     @Mock
+    /** KV引擎 */
     private KvEngine kvEngine;
 
     /**
      * 成就段位定义 Mapper 模拟
      */
     @Mock
+    /** Tiermapper */
     private AchievementTierMapper tierMapper;
 
     /**
      * 用户成就记录 Mapper 模拟
      */
     @Mock
+    /** 用户achievementmapper */
     private UserAchievementMapper userAchievementMapper;
 
     /**
      * 成就推送服务模拟
      */
     @Mock
+    /** Push服务 */
     private AchievementPushService pushService;
 
     /**

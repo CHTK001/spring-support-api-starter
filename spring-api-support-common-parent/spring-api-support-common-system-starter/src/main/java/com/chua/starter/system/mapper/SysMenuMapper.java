@@ -8,8 +8,8 @@ import org.apache.ibatis.annotations.Param;
 import java.util.Set;
 
 /**
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Mapper
 public interface SysMenuMapper extends BaseMapper<SysMenu> {

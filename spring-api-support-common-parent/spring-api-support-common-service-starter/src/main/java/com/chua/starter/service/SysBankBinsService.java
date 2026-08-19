@@ -8,8 +8,8 @@ import java.util.List;
 
 /**
  * 银行卡bin
- * @author CH
  * @since 2024/12/6
+ * @author CH
  */
 public interface SysBankBinsService extends IService<SysBankBins> {
 

@@ -11,8 +11,8 @@ import java.util.Map;
  * 服务器组件布局服务接口，提供组件布局的查询、位置更新、批量保存、
  * 启用禁用、统计、复制与重置等能力。
  *
- * @author CH
  * @since 2026-07-28
+ * @author CH
  */
 public interface MonitorSysGenServerComponentLayoutService extends IService<MonitorSysGenServerComponentLayout> {
 

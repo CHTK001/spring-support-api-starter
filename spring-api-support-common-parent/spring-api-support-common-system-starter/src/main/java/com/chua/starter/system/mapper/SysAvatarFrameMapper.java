@@ -7,8 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 头像框定义 Mapper
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Mapper
 public interface SysAvatarFrameMapper extends BaseMapper<SysAvatarFrame> {

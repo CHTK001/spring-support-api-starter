@@ -14,8 +14,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * <p>负责将控制台登录拦截器注册到 {@code /job-console/**} 路径,
  * 并排除登录页与静态资源。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Configuration
 @RequiredArgsConstructor

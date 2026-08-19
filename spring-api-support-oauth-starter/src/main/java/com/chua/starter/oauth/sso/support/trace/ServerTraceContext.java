@@ -12,12 +12,13 @@ import java.util.UUID;
  * 服务端追踪上下文
  * 用于接收客户端传递的追踪信息并记录服务端各节点耗时
  *
- * @author CH
  * @since 2025/01/01
+ * @author CH
  */
 @Getter
 public class ServerTraceContext {
 
+    /** Context_holder */
     private static final ThreadLocal<ServerTraceContext> CONTEXT_HOLDER = new ThreadLocal<>();
 
     /**
@@ -172,9 +173,13 @@ public class ServerTraceContext {
      */
     @Getter
     public static class TraceSpan {
+        /** Span名称 */
         private final String spanName;
+        /** 开始时间 */
         private final long startTime;
+        /** 结束时间 */
         private long endTime;
+        /** CostMS */
         private long costMs;
 
         public TraceSpan(String spanName) {

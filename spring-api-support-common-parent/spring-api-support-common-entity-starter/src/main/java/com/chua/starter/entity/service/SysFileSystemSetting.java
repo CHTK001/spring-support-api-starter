@@ -17,9 +17,9 @@ import java.io.Serializable;
  * 文件系统配置表
  * 用于管理文件系统的全局配置，包括分片上传、自动合并、HTTP服务等功能
  *
- * @author CH
  * @since 2024/12/10
  * @version 1.0.0
+ * @author CH
  */
 @Schema(description = "文件系统配置表")
 @Data

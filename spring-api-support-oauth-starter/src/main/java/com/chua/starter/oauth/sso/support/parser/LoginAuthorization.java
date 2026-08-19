@@ -24,21 +24,29 @@ import java.util.Map;
 /**
  * 鉴权信息
  *
- * @author CH
  */
 @Slf4j
 public final class LoginAuthorization implements Authorization {
+    /** 用户名 */
     private final String username;
+    /** 密码 */
     private final String password;
+    /** login类型 */
     private final String loginType;
+    /** app名称 */
     private final String appName;
     private final Map<String, String> ext;
+    /** 响应 */
     private final HttpServletResponse response;
+    /** authServerProperties */
     private final AuthServerProperties authServerProperties;
+    /** sys用户Log服务 */
     private final SysUserLogService sysUserLogService;
+    /** iptables服务 */
     private final IptablesService iptablesService;
     final ApplicationContext applicationContext;
     final LoginCheck loginCheck;
+    /** authInformation */
     private final LoginAuthInformation authInformation;
 
     public LoginAuthorization(LoginAuthInformation authInformation,

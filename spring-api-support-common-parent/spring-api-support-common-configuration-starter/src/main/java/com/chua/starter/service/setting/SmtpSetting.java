@@ -6,8 +6,8 @@ import lombok.Data;
 
 /**
  * smtp设置
- * @author CH
  * @since 2024/9/4
+ * @author CH
  */
 @Data
 @GlobalSettingGroup("smtp")

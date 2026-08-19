@@ -7,8 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 字典项属性 Mapper 接口
  *
- * @author CH
  * @since 2023-07-01
+ * @author CH
  */
 @Mapper
 public interface SysDictItemPropertyMapper extends BaseMapper<SysDictItemProperty> {

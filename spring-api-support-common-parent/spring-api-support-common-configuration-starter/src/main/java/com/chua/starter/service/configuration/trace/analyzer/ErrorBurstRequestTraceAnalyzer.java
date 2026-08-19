@@ -15,8 +15,8 @@ import java.util.Set;
 /**
  * 错误风暴分析器。
  *
- * @author CH
  * @since 2026/03/26
+ * @author CH
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 5)

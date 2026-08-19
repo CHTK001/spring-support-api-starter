@@ -8,8 +8,8 @@ import java.util.List;
 /**
  * 指标解析规则服务接口，提供解析规则基础 CRUD 与按任务ID查询能力。
  *
- * @author CH
  * @since 2026-08-11
+ * @author CH
  */
 public interface MsMonitorMetricConfigService extends IService<MsMonitorMetricConfig> {
 

@@ -26,16 +26,19 @@ import java.util.List;
  * <p>基于 Redis 计数器按客户端 IP 限制单位时间窗口内的请求次数，防止接口被刷。</p>
  * <p>与 {@link LoginAttemptService} 互补：本过滤器按 IP 限流，登录锁定按用户名限流。</p>
  *
- * @author CH
  * @since 2025/01/01
+ * @author CH
  */
 @Slf4j
 @RequiredArgsConstructor
 public class OauthRateLimitFilter implements Filter, Ordered {
 
+    /** Rate_limit_prefix */
     private static final String RATE_LIMIT_PREFIX = "oauth:security:rate:";
 
+    /** Security属性 */
     private final OauthSecurityProperties securityProperties;
+    /** 字符串redis模板 */
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override

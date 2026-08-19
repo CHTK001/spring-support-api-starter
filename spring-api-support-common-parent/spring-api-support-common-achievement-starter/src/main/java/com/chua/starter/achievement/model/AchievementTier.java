@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
  * <p>定义各成就类型的段位等级、判定规则及展示信息。
  * 规则字段 {@code rule} 使用 utils-support-common-starter 的 CircuitBreaker 表达式语法。</p>
  *
- * @author CH
  * @since 2026-08-07
+ * @author CH
  */
 @Data
 @TableName("achievement_tier")
@@ -24,6 +24,7 @@ public class AchievementTier {
      * 主键ID
      */
     @TableId(type = IdType.AUTO)
+    /** ID */
     private Long id;
 
     /**

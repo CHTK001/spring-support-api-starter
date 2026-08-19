@@ -13,9 +13,9 @@ import lombok.extern.slf4j.Slf4j;
  * 默认实现：从app_id表查询appId并比较是否匹配
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-01-05
+ * @author CH
  */
 @Slf4j
 @SpiDefault
@@ -25,6 +25,7 @@ public class DefaultAppIdValidator implements AppIdValidator {
      * AppId 服务
      */
     @AutoInject
+    /** SYSAPPID服务 */
     private SysAppIdService sysAppIdService;
 
     /**

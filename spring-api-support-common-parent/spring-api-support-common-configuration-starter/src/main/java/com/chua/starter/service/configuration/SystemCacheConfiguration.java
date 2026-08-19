@@ -15,8 +15,8 @@ import java.time.Duration;
 
 /**
  * 缓存配置
- * @author CH
  * @since 2024/8/8
+ * @author CH
  */
 @Configuration
 @EnableConfigurationProperties(CacheProperties.class)

@@ -5,8 +5,8 @@ import com.chua.common.support.spi.annotations.SpiDescribe;
 /**
  * 请求追踪配置存储 SPI。
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @SpiDescribe("请求追踪策略配置存储SPI")
 public interface RequestTraceConfigStorage {

@@ -13,8 +13,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
  * OAuth追踪配置
  * 配置追踪过滤器和异步支持
  *
- * @author CH
  * @since 2025/01/01
+ * @author CH
  */
 @Configuration
 @EnableAsync

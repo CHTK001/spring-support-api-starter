@@ -26,8 +26,8 @@ import java.util.Map;
  * <p>平台基于 job-starter 新架构, 命名空间参数仅作为任务分组 ({@code sys_job_group})
  * 参与过滤, 任务统一存放在 {@code sys_job / sys_job_log} 单表中。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @RestController
 @Ignore

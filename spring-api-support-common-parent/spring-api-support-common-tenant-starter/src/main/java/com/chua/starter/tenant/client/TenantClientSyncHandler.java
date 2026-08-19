@@ -30,9 +30,9 @@ import java.util.concurrent.ConcurrentMap;
  * 实现 SyncMessageHandler 接口，监听服务端推送的租户数据并通过 SPI 分发处理
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/06
+ * @author CH
  */
 @Component
 @Spi("tenant")
@@ -40,24 +40,32 @@ import java.util.concurrent.ConcurrentMap;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".client", name = "enable", havingValue = "true")
 public class TenantClientSyncHandler implements SyncMessageHandler {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(TenantClientSyncHandler.class);
 
     /**
      * 租户同步主题
      */
     public static final String TOPIC_TENANT = "tenant";
+    /** Topic_tenant_update */
     public static final String TOPIC_TENANT_UPDATE = TenantSyncMessageSupport.TOPIC_TENANT_UPDATE;
+    /** Topic_tenant_delete */
     public static final String TOPIC_TENANT_DELETE = TenantSyncMessageSupport.TOPIC_TENANT_DELETE;
+    /** Topic_tenant_service */
     public static final String TOPIC_TENANT_SERVICE = TenantSyncMessageSupport.TOPIC_TENANT_SERVICE;
+    /** Topic_tenant_menu */
     public static final String TOPIC_TENANT_MENU = TenantSyncMessageSupport.TOPIC_TENANT_MENU;
 
     @Autowired
+    /** Tenant属性 */
     private TenantProperties tenantProperties;
 
     @Autowired(required = false)
+    /** 同步providers */
     private List<TenantDataSyncProvider> syncProviders;
 
     @Autowired
+    /** 同步客户端提供者 */
     private ObjectProvider<SyncClient> syncClientProvider;
 
     /**

@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 /**
  * 用户协议
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @Tag(name = "用户协议")
 @RestController

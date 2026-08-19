@@ -21,8 +21,8 @@ import java.util.List;
 /**
  * 前端异常上报日志服务实现
  *
- * @author CH
  * @since 2026/8/8
+ * @author CH
  */
 @Service
 @Slf4j

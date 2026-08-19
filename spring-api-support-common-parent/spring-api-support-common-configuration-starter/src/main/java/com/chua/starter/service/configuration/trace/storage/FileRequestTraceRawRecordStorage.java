@@ -23,8 +23,8 @@ import java.util.Map;
 /**
  * 文件版原始记录存储。
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Spi("file")
 @SpiDefault

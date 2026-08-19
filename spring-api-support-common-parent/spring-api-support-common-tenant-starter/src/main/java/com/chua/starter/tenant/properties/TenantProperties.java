@@ -10,14 +10,15 @@ import java.util.Set;
 /**
  * 租户配置属性
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/06
+ * @author CH
  */
 @Data
 @ConfigurationProperties(prefix = TenantProperties.PRE, ignoreInvalidFields = true)
 public class TenantProperties {
 
+    /** PRE */
     public static final String PRE = "plugin.mybatis-plus.tenant";
 
     /**

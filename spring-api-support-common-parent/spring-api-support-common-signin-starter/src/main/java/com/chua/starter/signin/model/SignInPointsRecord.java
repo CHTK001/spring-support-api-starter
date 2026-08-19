@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
  * <p>记录每次签到产生的积分明细，每条记录对应一条签到规则。
  * 一次签到可能产生多条积分流水（如基础积分 + 连续奖励）。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Data
 @TableName("sign_in_points_record")
@@ -24,6 +24,7 @@ public class SignInPointsRecord {
      * 主键ID
      */
     @TableId(type = IdType.AUTO)
+    /** ID */
     private Long id;
 
     /**

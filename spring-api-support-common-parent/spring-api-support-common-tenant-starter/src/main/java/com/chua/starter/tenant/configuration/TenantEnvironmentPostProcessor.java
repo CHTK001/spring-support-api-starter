@@ -15,13 +15,15 @@ import java.util.Map;
  * 根据租户模块的配置自动设置 sync 模块的配置，实现配置串联。
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/06
+ * @author CH
  */
 public class TenantEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
+    /** Tenant_prefix */
     private static final String TENANT_PREFIX = "plugin.mybatis-plus.tenant.";
+    /** Sync_prefix */
     private static final String SYNC_PREFIX = "plugin.sync.";
 
     @Override

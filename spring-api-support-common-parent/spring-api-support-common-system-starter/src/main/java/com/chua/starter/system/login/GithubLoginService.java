@@ -18,8 +18,8 @@ import org.springframework.stereotype.Service;
  * Github 登录服务
  * <p>处理 Github 用户的登录验证与授权</p>
  *
- * @author CH
  * @since 2024/12/28
+ * @author CH
  */
 @Slf4j
 @Service
@@ -33,6 +33,7 @@ public class GithubLoginService extends AbstractUserLoginService {
     private static final String LOGIN_TYPE_PREFIX = "github";
 
     @Autowired
+    /** SYS用户thirdpartymapper */
     private SysUserThirdPartyMapper sysUserThirdPartyMapper;
 
     @Override

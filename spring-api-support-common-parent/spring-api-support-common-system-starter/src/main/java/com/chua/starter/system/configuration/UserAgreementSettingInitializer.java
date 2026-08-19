@@ -19,8 +19,8 @@ import java.util.Map;
 /**
  * 用户协议配置初始化
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @Slf4j
 @Component
@@ -32,7 +32,9 @@ public class UserAgreementSettingInitializer implements ApplicationRunner {
      */
     private static final String GROUP_CODE = "userAgreement";
 
+    /** SYS设置mapper */
     private final SysSettingMapper sysSettingMapper;
+    /** SYS设置分组mapper */
     private final SysSettingGroupMapper sysSettingGroupMapper;
     private final Map<String, CacheManager> cacheManagers;
 

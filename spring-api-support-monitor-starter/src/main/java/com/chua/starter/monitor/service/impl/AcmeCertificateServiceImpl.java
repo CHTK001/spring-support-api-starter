@@ -40,9 +40,9 @@ import java.util.Map;
  * ACME 证书服务实现，提供账户保存、证书申请（异步）、续签、吊销、详情、统计、
  * 到期自动续签与重新验证等完整的证书生命周期管理能力。
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-10-17
+ * @author CH
  */
 @Slf4j
 @Service

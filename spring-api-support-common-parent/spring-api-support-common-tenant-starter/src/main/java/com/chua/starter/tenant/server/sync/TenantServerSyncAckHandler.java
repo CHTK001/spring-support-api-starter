@@ -18,8 +18,8 @@ import java.util.Map;
 /**
  * 处理租户客户端上报的同步 ACK。
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Component
 @RequiredArgsConstructor
@@ -27,10 +27,14 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")
 public class TenantServerSyncAckHandler implements SyncMessageHandler {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(TenantServerSyncAckHandler.class);
 
+    /** Tenant属性 */
     private final TenantProperties tenantProperties;
+    /** 同步服务器 */
     private final SyncServer syncServer;
+    /** ACKtracker */
     private final TenantSyncAckTracker ackTracker;
 
     @Override

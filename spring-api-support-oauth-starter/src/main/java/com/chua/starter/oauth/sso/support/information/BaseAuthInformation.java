@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * 协议无关的认证信息抽象基类
  * 
- * @author CH
  */
 @Slf4j
 public abstract class BaseAuthInformation implements AuthInformation {
@@ -42,20 +41,34 @@ public abstract class BaseAuthInformation implements AuthInformation {
             .recordStats()
             .build();
 
+    /** Auth服务器属性 */
     protected final AuthServerProperties authServerProperties;
+    /** 数据 */
     private final String data;
+    /** 请求 */
     protected final Object request;
+    /** 响应 */
     protected final Object response;
+    /** Application上下文 */
     protected final ApplicationContext applicationContext;
+    /** Logincheck */
     protected final LoginCheck loginCheck;
+    /** 协议 */
     private final String protocol;
+    /** UUID */
     protected final String uuid;
+    /** Serial */
     private final String serial;
+    /** Sign */
     private final String sign;
+    /** Access密钥 */
     private final String accessKey;
+    /** ISencode */
     protected final boolean isEncode;
     protected final Map<String, Object> bodyData = new LinkedHashMap<>();
+    /** 加密 */
     private final String encryption;
+    /** Success */
     private AtomicBoolean success = new AtomicBoolean(false);
 
     /**

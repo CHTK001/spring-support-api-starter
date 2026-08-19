@@ -9,8 +9,8 @@ import org.apache.ibatis.annotations.Update;
 /**
  * AppId应用标识 Mapper
  *
- * @author CH
  * @since 2025/01/05
+ * @author CH
  */
 @Mapper
 public interface SysAppIdMapper extends BaseMapper<SysAppId> {

@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p>少量 KCP 客户端,每个客户端复用一个连接连续发 login 请求,
  * 模拟 RSocket/HTTP keep-alive 的多路复用模型。</p>
  * <p>用法:KcpConnReuseLoadTest <客户端数> <每客户端请求数></p>
+ * @author CH
  */
 public class KcpConnReuseLoadTest {
 

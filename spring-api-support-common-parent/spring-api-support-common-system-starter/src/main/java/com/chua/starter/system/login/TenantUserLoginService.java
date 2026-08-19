@@ -21,8 +21,8 @@ import java.util.concurrent.TimeUnit;
  * 租户用户登录服务
  * <p>支持多租户环境下的用户登录验证与授权</p>
  *
- * @author CH
  * @since 1.0.0
+ * @author CH
  */
 @Slf4j
 @Service

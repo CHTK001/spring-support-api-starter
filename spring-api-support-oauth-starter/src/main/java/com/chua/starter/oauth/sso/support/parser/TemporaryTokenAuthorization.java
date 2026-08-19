@@ -18,14 +18,15 @@ import java.util.Map;
  * 临时令牌授权处理器
  * <p>负责验证源令牌并创建临时令牌</p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-12-11
  */
 @Slf4j
 public final class TemporaryTokenAuthorization implements Authorization {
 
+    /** Authinformation */
     private final TemporaryTokenAuthInformation authInformation;
+    /** Application上下文 */
     private final ApplicationContext applicationContext;
 
     /**

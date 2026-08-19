@@ -3,6 +3,7 @@ import com.chua.kcp.support.client.KcpClient;
 
 /**
  * KCP 集成测试(在 oauth 模块内运行,自动有完整 classpath)
+ * @author CH
  */
 public class KcpIntegrationTest {
     public static void main(String[] args) throws Exception {
@@ -23,3 +24,4 @@ public class KcpIntegrationTest {
         }
     }
 }
+

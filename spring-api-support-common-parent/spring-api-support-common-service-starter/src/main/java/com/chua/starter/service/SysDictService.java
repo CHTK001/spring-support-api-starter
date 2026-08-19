@@ -13,8 +13,8 @@ import java.util.Set;
  * 本接口提供系统字典相关的业务操作方法
  * 包括分页查询、删除、更新和保存系统字典信息
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 public interface SysDictService extends IService<SysDict> {
 

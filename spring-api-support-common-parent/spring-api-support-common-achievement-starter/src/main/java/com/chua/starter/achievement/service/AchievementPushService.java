@@ -27,9 +27,9 @@ import java.util.Map;
  * }</pre>
  * <p>前端通过 {@code subscribe("achievement", "unlock", handler)} 监听。</p>
  *
- * @author CH
  * @since 2026-08-07
  * @see SocketSessionTemplate#sendToUser(String, String, String)
+ * @author CH
  */
 @Slf4j
 @Service

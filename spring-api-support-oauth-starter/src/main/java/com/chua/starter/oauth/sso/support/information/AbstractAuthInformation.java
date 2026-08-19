@@ -21,24 +21,36 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * 鉴权信息
  *
- * @author CH
  */
 @Slf4j
 public abstract class AbstractAuthInformation implements AuthInformation{
 
+    /** Auth服务器属性 */
     protected final AuthServerProperties authServerProperties;
+    /** 数据 */
     private final String data;
+    /** 请求 */
     private final HttpServletRequest request;
+    /** 响应 */
     protected final HttpServletResponse response;
+    /** Application上下文 */
     protected final ApplicationContext applicationContext;
+    /** Logincheck */
     protected final LoginCheck loginCheck;
+    /** 协议 */
     private final String protocol;
+    /** UUID */
     protected final String uuid;
+    /** Serial */
     private final String serial;
+    /** Sign */
     private final String sign;
+    /** ISencode */
     protected final boolean isEncode;
     protected final Map<String, Object> bodyData = new LinkedHashMap<>();
+    /** 加密 */
     private final String encryption;
+    /** Success */
     private AtomicBoolean success = new AtomicBoolean(false);
 
     public AbstractAuthInformation(AuthServerProperties authServerProperties,

@@ -44,8 +44,8 @@ import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants
  * {@code network.Server} 的协议 Server(HTTP/KCP/WS/UDP 等,可插拔扩展),
  * 把 OAuth 认证协议入口以多协议暴露,统一路由到 {@link OauthProtocolHandler}。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 public class OauthProtocolServerManager implements AutoCloseable {
@@ -55,8 +55,11 @@ public class OauthProtocolServerManager implements AutoCloseable {
      */
     private final Map<String, Server> serverMap = new ConcurrentHashMap<>();
 
+    /** 属性 */
     private final OauthProtocolServersProperties properties;
+    /** Auth服务器属性 */
     private final AuthServerProperties authServerProperties;
+    /** Logincheck */
     private final LoginCheck loginCheck;
 
     public OauthProtocolServerManager(OauthProtocolServersProperties properties,
@@ -283,12 +286,13 @@ public class OauthProtocolServerManager implements AutoCloseable {
      * 将 {@code topic:payload} 报文的 topic 映射为请求路径,payload 作为请求体,
      * 使 {@link OauthProtocolHandler} 无需感知底层传输协议。</p>
      *
-     * @author CH
      * @since 4.0.0.42
      */
     private static class MessageServerRequest extends AbstractServerRequest {
 
+        /** Topic */
         private final String topic;
+        /** 请求体 */
         private final byte[] body;
 
         MessageServerRequest(String topic, String body) {
@@ -343,7 +347,6 @@ public class OauthProtocolServerManager implements AutoCloseable {
      * <p>继承 {@link AbstractServerResponse},仅实现协议特定的输出方法;
      * 捕获 {@link OauthProtocolHandler} 写入的响应体,由 KCP 适配层回传客户端。</p>
      *
-     * @author CH
      * @since 4.0.0.42
      */
     private static class MessageServerResponse extends AbstractServerResponse {

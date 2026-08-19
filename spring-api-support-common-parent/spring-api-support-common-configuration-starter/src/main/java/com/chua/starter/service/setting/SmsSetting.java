@@ -8,8 +8,8 @@ import lombok.Data;
 /**
  * sms设置
  *
- * @author CH
  * @since 2024/9/4
+ * @author CH
  */
 @Data
 @GlobalSettingGroup("sms")

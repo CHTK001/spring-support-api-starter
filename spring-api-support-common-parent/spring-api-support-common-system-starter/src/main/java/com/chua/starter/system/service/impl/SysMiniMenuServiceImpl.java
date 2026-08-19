@@ -27,8 +27,8 @@ import java.util.Set;
 /**
  * 小程序菜单服务实现类
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @Service
 public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMiniMenu> implements SysMiniMenuService {

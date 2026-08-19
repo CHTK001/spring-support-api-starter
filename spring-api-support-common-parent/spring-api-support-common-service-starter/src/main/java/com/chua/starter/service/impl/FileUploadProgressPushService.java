@@ -18,8 +18,8 @@ import java.util.Map;
  * 文件上传进度Socket推送服务
  * 通过WebSocket实时推送上传进度到前端
  *
- * @author CH
  * @since 2024/12/20
+ * @author CH
  */
 @Service
 @RequiredArgsConstructor
@@ -27,10 +27,13 @@ import java.util.Map;
 @ConditionalOnBean(SocketSessionTemplate.class)
 public class FileUploadProgressPushService {
 
+    /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(FileUploadProgressPushService.class);
 
+    /** Socket会话模板 */
     private final SocketSessionTemplate socketSessionTemplate;
 
+    /** Topic_upload_progress */
     private static final String TOPIC_UPLOAD_PROGRESS = "service:file:upload:progress";
 
     public void pushProgress(String taskId, Long userId, int totalChunks, int uploadedChunks,

@@ -43,9 +43,9 @@ import java.util.Set;
  *       token-management: redis
  * }</pre>
  *
- * @author CH
  * @since 2022/7/23 14:51
  * @see org.springframework.boot.context.properties.ConfigurationProperties
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = false)
 @Data
@@ -422,7 +422,6 @@ public class AuthServerProperties {
     /**
      * JWT 配置类
      *
-     * @author CH
      * @since 4.0.0.42
      */
     @Data
@@ -522,8 +521,8 @@ public class AuthServerProperties {
     /**
      * 用户在线模式枚举。
      *
-     * @author CH
      * @since 4.0.0.42
+     * @author CH
      */
     public enum Online {
         /**

@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
  * <p>面向平台管理页面与对外 API 返回的任务展示模型,
  * 聚合任务基本信息与最近一次执行日志概览。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Data
 public class SchedulerTaskVO {

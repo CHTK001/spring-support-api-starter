@@ -31,9 +31,9 @@ import java.security.PublicKey;
  * </ul>
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-12-18
+ * @author CH
  */
 @Slf4j
 @Spi("jwt")

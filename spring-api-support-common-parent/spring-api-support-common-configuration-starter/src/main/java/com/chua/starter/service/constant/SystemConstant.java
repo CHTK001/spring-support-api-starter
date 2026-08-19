@@ -2,8 +2,8 @@ package com.chua.starter.service.constant;
 
 /**
  * 系统常量
- * @author CH
  * @since 2024/8/8
+ * @author CH
  */
 public interface SystemConstant {
 

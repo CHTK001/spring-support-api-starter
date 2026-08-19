@@ -15,8 +15,8 @@ import java.util.List;
 /**
  * 用户第三方账号绑定服务实现
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Service
 public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyMapper, SysUserThirdParty> implements SysUserThirdPartyService {

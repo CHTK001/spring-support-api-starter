@@ -6,7 +6,6 @@ import java.util.Map;
 /**
  * 请求追踪策略配置编解码。
  *
- * @author CH
  * @since 2026/03/25
  */
 public final class RequestTraceStrategyConfigCodec {

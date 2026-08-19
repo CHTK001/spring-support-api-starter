@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 /**
  * 系统公告服务实现
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @Service
@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMapper, SysAnnouncement>
         implements SysAnnouncementService {
 
+    /** SYSrolemapper */
     private final SysRoleMapper sysRoleMapper;
 
     @Override

@@ -7,8 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 前端异常上报日志 Mapper
  *
- * @author CH
  * @since 2026/8/8
+ * @author CH
  */
 @Mapper
 public interface SysErrorLogMapper extends BaseMapper<SysErrorLog> {

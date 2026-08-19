@@ -19,8 +19,8 @@ import java.util.Map;
 /**
  * 为部门负责人补齐负责人范围缓存，避免 oauth-client 直接依赖业务模块。
  *
- * @author CH
  * @since 2025/8/1
+ * @author CH
  */
 @Component
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)

@@ -12,8 +12,8 @@ import java.util.List;
 /**
  * 前端异常上报日志服务
  *
- * @author CH
  * @since 2026/8/8
+ * @author CH
  */
 public interface SysErrorLogService extends IService<SysErrorLog> {
 

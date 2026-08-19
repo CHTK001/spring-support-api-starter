@@ -16,9 +16,9 @@ import java.util.List;
 /**
  * 登录服务接口
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/9/12
+ * @author CH
  */
 public interface SysLoginService {
 

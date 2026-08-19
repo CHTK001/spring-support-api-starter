@@ -8,8 +8,8 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 用户查询
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -20,34 +20,40 @@ public class SysUserQuery extends Query<SysUser> {
      * 用户名
      */
     @Schema(description = "用户名")
+    /** Username */
     private String username;
 
     /**
      * 昵称
      */
     @Schema(description = "昵称")
+    /** Nickname */
     private String nickname;
 
     /**
      * 手机号
      */
     @Schema(description = "手机号")
+    /** Phone */
     private String phone;
 
     /**
      * 性别; 0:女;1:男; 2:其他
      */
     @Schema(description = "性别; 0:女;1:男; 2:其他")
+    /** SEX */
     private Integer sex;
 
     /**
      * 是否启用；0：禁用
      */
     @Schema(description = "是否启用；0：禁用")
+    /** 状态 */
     private Integer status;
     /**
      * 部门id
      */
     @Schema(description = "部门id")
+    /** SYSdeptID */
     private Integer sysDeptId;
 }

@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 /**
  * 解锁成就响应 DTO
  *
- * @author CH
  * @since 2026-08-07
+ * @author CH
  */
 @Data
 public class UnlockedAchievementDTO {

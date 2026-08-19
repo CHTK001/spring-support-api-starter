@@ -10,8 +10,8 @@ import lombok.Data;
 /**
  * 字典配置项表
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Schema(description = "字典配置项表")
 @Data
@@ -23,6 +23,7 @@ public class SysDictItemProperty {
      */
     @TableId(value = "sys_dict_item_property_id", type = IdType.AUTO)
     @Schema(description = "配置项ID")
+    /** SYSdictitempropertyID */
     private Integer sysDictItemPropertyId;
 
     /**
@@ -30,6 +31,7 @@ public class SysDictItemProperty {
      */
     @TableField(value = "sys_dict_item_id")
     @Schema(description = "字典子项ID")
+    /** SYSdictitemID */
     private Integer sysDictItemId;
 
     /**
@@ -37,6 +39,7 @@ public class SysDictItemProperty {
      */
     @TableField(value = "sys_dict_item_property_group")
     @Schema(description = "配置项分组")
+    /** SYSdictitemproperty分组 */
     private String sysDictItemPropertyGroup;
 
     /**
@@ -44,6 +47,7 @@ public class SysDictItemProperty {
      */
     @TableField(value = "sys_dict_item_property_name")
     @Schema(description = "配置项名称")
+    /** SYSdictitemproperty名称 */
     private String sysDictItemPropertyName;
 
     /**
@@ -51,6 +55,7 @@ public class SysDictItemProperty {
      */
     @TableField(value = "sys_dict_item_property_value")
     @Schema(description = "配置项值")
+    /** SYSdictitemproperty值 */
     private String sysDictItemPropertyValue;
 
     /**
@@ -58,5 +63,6 @@ public class SysDictItemProperty {
      */
     @TableField(value = "sys_dict_item_property_selected_type")
     @Schema(description = "选中类型")
+    /** SYSdictitempropertyselected类型 */
     private String sysDictItemPropertySelectedType;
 }

@@ -10,8 +10,8 @@ import jakarta.servlet.http.Cookie;
 /**
  * 令牌解释器
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 public interface TokenResolver {
 
@@ -127,8 +127,8 @@ public interface TokenResolver {
     /**
      * 在线状态信息
      *
-     * @author CH
      * @since 4.0.0.42
+     * @author CH
      */
     @lombok.Data
     @lombok.NoArgsConstructor

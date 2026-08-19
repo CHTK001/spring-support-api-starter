@@ -23,8 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 在线用户服务实现
  * <p>通过OAuth客户端获取在线用户信息，避免直接操作Redis</p>
  *
- * @author CH
  * @since 2024/12/15
+ * @author CH
  */
 @Slf4j
 @Service

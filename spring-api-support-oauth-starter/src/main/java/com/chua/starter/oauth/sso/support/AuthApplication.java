@@ -16,7 +16,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 /**
  * 单点登录
  *
- * @author CH
  * @since 2022/7/25 10:59
  */
 @EnableCaching

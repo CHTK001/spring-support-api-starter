@@ -25,8 +25,8 @@ import java.util.Map;
  *
  * <p>提供签到系统的用户端接口（签到、日历、统计）和管理员端接口（用户签到汇总）。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @RestController

@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
  * <p>根据启用的积分规则计算签到积分，包含每日基础积分和连续天数里程碑奖励。
  * 积分规则由 {@code sign_in_points_rule} 表驱动，支持动态调整。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @Service

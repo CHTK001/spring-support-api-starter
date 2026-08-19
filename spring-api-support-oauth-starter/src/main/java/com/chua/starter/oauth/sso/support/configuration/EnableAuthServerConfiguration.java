@@ -75,7 +75,6 @@ import java.util.Properties;
  *
  * <p>该配置类实现了多个Spring接口，确保在应用启动的不同阶段正确初始化各个组件。</p>
  *
- * @author CH
  * @since 2022/7/23 8:51
  * @see AuthServerProperties 认证服务器配置属性
  * @see LoginCheck 登录检查服务
@@ -105,6 +104,7 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
      * 多协议 Server 管理器(由 oauthProtocolServerManager bean 注入)
      */
     @org.springframework.beans.factory.annotation.Autowired
+    /** OAuth协议服务器管理器 */
     private OauthProtocolServerManager oauthProtocolServerManager;
 
     /**

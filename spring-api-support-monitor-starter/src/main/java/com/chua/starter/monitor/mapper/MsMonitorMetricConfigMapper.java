@@ -7,8 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 指标解析规则 Mapper。
  *
- * @author CH
  * @since 2026-08-11
+ * @author CH
  */
 @Mapper
 public interface MsMonitorMetricConfigMapper extends BaseMapper<MsMonitorMetricConfig> {

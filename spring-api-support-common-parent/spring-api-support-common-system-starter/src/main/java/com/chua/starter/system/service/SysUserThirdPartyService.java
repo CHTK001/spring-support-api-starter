@@ -10,8 +10,8 @@ import java.util.List;
  *
  * <p>提供 Gitee、微信小程序、GitHub 等第三方平台账号与本地用户绑定的管理能力。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 public interface SysUserThirdPartyService extends IService<SysUserThirdParty> {
 

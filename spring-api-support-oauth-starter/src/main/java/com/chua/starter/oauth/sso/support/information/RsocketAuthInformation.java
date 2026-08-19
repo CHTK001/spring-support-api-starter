@@ -19,9 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * 提供 RSocket 协议的请求/响应适配，使其能够复用现有的认证逻辑
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-01-05
+ * @author CH
  */
 public class RsocketAuthInformation {
 
@@ -30,9 +30,11 @@ public class RsocketAuthInformation {
      * <p>实现 HttpServletRequest 接口，用于适配 RSocket 请求</p>
      */
     public static class RsocketRequest implements HttpServletRequest {
+        /** 客户端地址 */
         private final InetSocketAddress clientAddress;
         private final Map<String, String> headers = new ConcurrentHashMap<>();
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+        /** 请求体 */
         private String body;
 
         public RsocketRequest(InetSocketAddress clientAddress) {
@@ -159,7 +161,9 @@ public class RsocketAuthInformation {
      */
     public static class RsocketResponse implements HttpServletResponse {
         private final Map<String, String> headers = new ConcurrentHashMap<>();
+        /** 状态 */
         private int status = 200;
+        /** 请求体 */
         private String body;
 
         @Override

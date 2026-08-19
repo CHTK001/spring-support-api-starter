@@ -10,9 +10,9 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * 登录处理器接口
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/2
+ * @author CH
  */
 public interface LoginHandler {
 

@@ -11,7 +11,6 @@ import java.lang.annotation.Target;
  *
  * <p>仅标注了该注解的接口或控制器，才会进入请求追踪与行为分析链路。</p>
  *
- * @author CH
  * @since 2026/03/25
  */
 @Documented

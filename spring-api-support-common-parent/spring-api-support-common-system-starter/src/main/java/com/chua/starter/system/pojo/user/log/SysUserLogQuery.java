@@ -9,8 +9,8 @@ import lombok.EqualsAndHashCode;
 /**
  * 用户日志查询
  *
- * @author CH
  * @since 2024/8/23
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -22,29 +22,34 @@ public class SysUserLogQuery extends DateQuery {
      */
     @Schema(description = "账号")
     @Size(max = 255, message = "账号最大长度需小于255")
+    /** SYS日志username */
     private String sysLogUsername;
 
     /**
      * 请求模块
      */
     @Schema(description = "请求模块")
+    /** SYS日志from */
     private String sysLogFrom;
 
     /**
      * 请求地址
      */
     @Schema(description = "请求地址")
+    /** SYS日志地址 */
     private String sysLogAddress;
 
     /**
      * 请求IP
      */
     @Schema(description = "请求IP")
+    /** SYS日志IP */
     private String sysLogIp;
 
     /**
      * 请求状态: 0:失败 1:成功
      */
     @Schema(description = "请求状态: 0:失败 1:成功")
+    /** SYS日志状态 */
     private Integer sysLogStatus;
 }

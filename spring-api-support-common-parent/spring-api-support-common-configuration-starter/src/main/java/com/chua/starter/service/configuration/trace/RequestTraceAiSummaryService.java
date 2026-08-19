@@ -20,17 +20,21 @@ import java.util.function.LongSupplier;
  * <p>当前为纯启发式摘要实现（基于信号、路由、风险等级等规则拼接），
  * 不依赖任何大模型客户端。</p>
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Slf4j
 @Service
 public class RequestTraceAiSummaryService {
 
-    private static final int MAX_SUMMARY_LENGTH = 200;
+    /** MASUMMARLENGTH */
+    private static final int MAX_SUMMARY_LENGTH= 200;
 
-    private final Deque<Long> invocationTimestamps = new ArrayDeque<>();
-    private final ReentrantLock rateLimitLock = new ReentrantLock();
+    /** invocationTimestamps */
+    private final Deque<Long> invocationTimestamps= new ArrayDeque<>();
+    /** rateLimitLock */
+    private final ReentrantLock rateLimitLock= new ReentrantLock();
+    /** clock */
     private final LongSupplier clock;
 
     public RequestTraceAiSummaryService() {

@@ -15,8 +15,8 @@ import lombok.EqualsAndHashCode;
  * 服务器组件布局实体，保存单个监控组件（如 CPU、内存、磁盘卡片）在大屏栅格中的
  * 位置（x/y）、尺寸（w/h）、层级与交互能力（是否可移动/可缩放）以及图表配置 JSON。
  *
- * @author CH
  * @since 2026-07-28
+ * @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -31,6 +31,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     @TableId(value = "monitor_sys_gen_server_component_layout_id", type = IdType.AUTO)
     @ApiModelProperty("组件布局ID")
     @Schema(description = "组件布局ID")
+    /** MonitorSYSGEN服务器componentlayoutID */
     private Integer monitorSysGenServerComponentLayoutId;
 
     /**
@@ -39,6 +40,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     @TableField("monitor_sys_gen_server_id")
     @ApiModelProperty("关联服务器ID")
     @Schema(description = "关联服务器ID")
+    /** MonitorSYSGEN服务器ID */
     private Integer monitorSysGenServerId;
 
     /**
@@ -47,6 +49,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     @TableField("monitor_sys_gen_server_component_id")
     @ApiModelProperty("关联组件ID")
     @Schema(description = "关联组件ID")
+    /** MonitorSYSGEN服务器componentID */
     private Integer monitorSysGenServerComponentId;
 
     /**
@@ -55,6 +58,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     @TableField("monitor_sys_gen_server_component_layout_x")
     @ApiModelProperty("X 坐标")
     @Schema(description = "X 坐标")
+    /** MonitorSYSGEN服务器componentlayoutX坐标 */
     private Integer monitorSysGenServerComponentLayoutX;
 
     /**
@@ -63,6 +67,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     @TableField("monitor_sys_gen_server_component_layout_y")
     @ApiModelProperty("Y 坐标")
     @Schema(description = "Y 坐标")
+    /** MonitorSYSGEN服务器componentlayoutY坐标 */
     private Integer monitorSysGenServerComponentLayoutY;
 
     /**
@@ -71,6 +76,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     @TableField("monitor_sys_gen_server_component_layout_w")
     @ApiModelProperty("宽度")
     @Schema(description = "宽度")
+    /** MonitorSYSGEN服务器componentlayoutW */
     private Integer monitorSysGenServerComponentLayoutW;
 
     /**
@@ -79,6 +85,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     @TableField("monitor_sys_gen_server_component_layout_h")
     @ApiModelProperty("高度")
     @Schema(description = "高度")
+    /** MonitorSYSGEN服务器componentlayoutH */
     private Integer monitorSysGenServerComponentLayoutH;
 
     /**
@@ -87,6 +94,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     @TableField("monitor_sys_gen_server_component_layout_z_index")
     @ApiModelProperty("层级")
     @Schema(description = "层级")
+    /** MonitorSYSGEN服务器componentlayoutzindex */
     private Integer monitorSysGenServerComponentLayoutZIndex;
 
     /**
@@ -95,6 +103,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     @TableField("monitor_sys_gen_server_component_layout_movable")
     @ApiModelProperty("是否可移动（0/1）")
     @Schema(description = "是否可移动（0/1）")
+    /** MonitorSYSGEN服务器componentlayoutmovable */
     private Integer monitorSysGenServerComponentLayoutMovable;
 
     /**
@@ -103,6 +112,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     @TableField("monitor_sys_gen_server_component_layout_resizable")
     @ApiModelProperty("是否可调整大小（0/1）")
     @Schema(description = "是否可调整大小（0/1）")
+    /** MonitorSYSGEN服务器componentlayoutresizable */
     private Integer monitorSysGenServerComponentLayoutResizable;
 
     /**
@@ -111,6 +121,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     @TableField("monitor_sys_gen_server_component_layout_status")
     @ApiModelProperty("布局状态（0禁用/1启用）")
     @Schema(description = "布局状态（0禁用/1启用）")
+    /** MonitorSYSGEN服务器componentlayout状态 */
     private Integer monitorSysGenServerComponentLayoutStatus;
 
     /**
@@ -119,6 +130,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     @TableField("monitor_sys_gen_server_component_layout_sort_order")
     @ApiModelProperty("排序顺序")
     @Schema(description = "排序顺序")
+    /** MonitorSYSGEN服务器componentlayoutsort排序 */
     private Integer monitorSysGenServerComponentLayoutSortOrder;
 
     /**
@@ -127,5 +139,6 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     @TableField("monitor_sys_gen_server_component_layout_chart_config")
     @ApiModelProperty("组件图表配置 JSON")
     @Schema(description = "组件图表配置 JSON")
+    /** MonitorSYSGEN服务器componentlayoutchart配置 */
     private String monitorSysGenServerComponentLayoutChartConfig;
 }

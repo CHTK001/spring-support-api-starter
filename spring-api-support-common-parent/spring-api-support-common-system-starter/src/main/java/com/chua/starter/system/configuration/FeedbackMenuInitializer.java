@@ -26,8 +26,8 @@ import java.util.Objects;
 /**
  * 反馈管理菜单初始化
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @Slf4j
 @Component
@@ -60,8 +60,11 @@ public class FeedbackMenuInitializer implements ApplicationRunner {
      */
     private static final String MENU_NAME = "feedback";
 
+    /** SYSmenumapper */
     private final SysMenuMapper sysMenuMapper;
+    /** SYSrolemapper */
     private final SysRoleMapper sysRoleMapper;
+    /** SYSrolemenumapper */
     private final SysRoleMenuMapper sysRoleMenuMapper;
     private final Map<String, CacheManager> cacheManagers;
 

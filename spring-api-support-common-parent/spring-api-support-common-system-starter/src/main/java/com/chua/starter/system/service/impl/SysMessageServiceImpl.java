@@ -19,8 +19,8 @@ import java.time.LocalDateTime;
  * <p>查询接收者为当前用户或广播消息（receiverId=0）的站内消息，
  * 支持分页、未读统计与批量已读标记。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @Service

@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * RSocket 并发用户承载测试
  * <p>模拟 N 个用户同时登录,统计成功/失败/延迟。</p>
  * <p>用法:RsocketUserLoadTest <用户数></p>
+ * @author CH
  */
 public class RsocketUserLoadTest {
 
