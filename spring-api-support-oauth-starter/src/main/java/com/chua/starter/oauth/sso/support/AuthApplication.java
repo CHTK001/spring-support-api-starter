@@ -35,6 +35,12 @@ import org.springframework.scheduling.annotation.EnableAsync;
                 description = "提供单点登录、第三方登录和认证授权功能"
         )
 )
+/**
+ * public class AuthApplication {
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class AuthApplication {
 
     public static void main(String[] args) {

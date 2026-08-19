@@ -13,4 +13,10 @@
         "org.springframework.web.bind.annotation.RestController",
         "com.chua.common.support.lang.code.ReturnResult"
 })
+/**
+ * public class RequestTraceAnalyticsController
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class RequestTraceAnalyticsController
