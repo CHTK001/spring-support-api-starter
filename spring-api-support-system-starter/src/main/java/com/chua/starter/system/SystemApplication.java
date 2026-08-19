@@ -43,6 +43,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
                 description = "提供用户管理、角色管理、菜单管理、部门管理、成就系统等系统管理功能"
         )
 )
+/**
+ * public class SystemApplication {
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class SystemApplication {
     /**
      * 应用启动入口, 启动前补全 MyBatis-Plus 加密器配置。

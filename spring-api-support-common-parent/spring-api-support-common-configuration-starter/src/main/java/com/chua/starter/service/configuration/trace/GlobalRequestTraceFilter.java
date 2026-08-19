@@ -15,4 +15,10 @@
         "org.springframework.web.filter.OncePerRequestFilter",
         "jakarta.servlet.http.HttpServletRequest"
 })
+/**
+ * public class GlobalRequestTraceFilter
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class GlobalRequestTraceFilter

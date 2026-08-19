@@ -20,4 +20,10 @@
         "com.chua.starter.service.task",
         "com.chua.starter.service.configuration"
 })
+/**
+ * public class SchedulerApplication
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class SchedulerApplication

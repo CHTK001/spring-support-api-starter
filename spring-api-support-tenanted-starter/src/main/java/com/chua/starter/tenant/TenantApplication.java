@@ -52,6 +52,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
                 @Server(url = "https://tenant.chua.local", description = "生产环境")
         }
 )
+/**
+ * public class TenantApplication extends SpringBootServletInitializer {
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class TenantApplication extends SpringBootServletInitializer {
 
     /**

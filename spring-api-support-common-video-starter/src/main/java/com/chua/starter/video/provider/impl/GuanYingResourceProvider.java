@@ -1,0 +1,1315 @@
+package com.chua.starter.video.provider.impl;
+
+import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.base.bean.BeanUtils;
+import com.chua.common.support.base.converter.Converter;
+import com.chua.protocol.support.network.http.HttpClient;
+import com.chua.protocol.support.network.http.HttpResponse;
+import com.chua.common.support.text.json.Json;
+import com.chua.common.support.text.json.JsonObject;
+import com.chua.common.support.lang.code.ReturnPageResult;
+import com.chua.common.support.objects.annotation.AutoInject;
+import com.chua.common.support.core.utils.*;
+import com.chua.starter.mybatis.utils.ReturnPageResultUtils;
+import com.chua.starter.video.entity.VideoPlayAddress;
+import com.chua.starter.video.entity.VideoPlayAddressChannel;
+import com.chua.starter.video.entity.VideoSource;
+import com.chua.starter.video.entity.VideoDownload;
+import com.chua.starter.video.entity.VideoMark;
+import com.chua.common.support.video.model.VideoSyncConfig;
+import com.chua.starter.video.mapper.VideoSourceMapper;
+import com.chua.starter.video.mapper.VideoSyncConfigMapper;
+import com.chua.common.support.video.model.VideoInfoResult;
+import com.chua.common.support.video.model.VideoSearch;
+import com.chua.common.support.video.model.VideoSyncProcessConfig;
+import com.chua.common.support.video.spi.SyncProvider;
+import com.google.common.base.Joiner;
+import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.File;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.stream.IntStream;
+
+import static com.chua.common.support.core.constant.CommonConstant.EMPTY_STRING;
+import static com.chua.starter.video.provider.impl.GuanYingResourceProvider.EmbeddedDownload.DownlistDTO;
+import static com.chua.starter.video.provider.impl.GuanYingResourceProvider.EmbeddedDownload.PanlistDTO;
+import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_STATUS_ERROR;
+import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_STATUS_FINISH;
+
+/**
+ * 观影视频资源提供者实现类
+ *
+ * @since 2025/9/15 23:27
+ * @author CH
+ */
+@Slf4j
+@Spi("guanying")
+public class GuanYingResourceProvider extends AbstractResourceProvider implements SyncProvider {
+    /**
+     * 视频封面存储路径
+     */
+    static final String COVER_PATH = "./video/cover";
+    /**
+     * 最小年份
+     */
+    static final int MIN_YEAR = 1960;
+    /**
+     * 标签映射数组，用于将数字索引转换为具体的标签名称
+     */
+    static String[] TAG = new String[]{
+            "美国", "大陆", "日本", "剧情", "科幻", "动作", "喜剧", "爱情", "冒险", "犯罪", "悬疑", "儿童", "歌舞", "音乐", "奇幻", "动画", "恐怖", "惊悚", "丧尸", "战争", "传记", "纪录", "西部", "灾难", "古装", "武侠", "家庭", "短片", "校园", "文艺", "运动", "青春", "同性", "励志", "人性", "美食", "女性", "治愈", "历史", "真人秀", "脱口秀", "萌系", "日常", "热血", "机战", "游戏", "情色", "搞笑", "恋爱", "后宫", "百合", "基腐", "致郁", "异世界", "泡面", "战斗", "加拿大", "香港", "台湾", "韩国", "印度", "德国", "法国", "英国", "意大利", "巴西", "泰国", "澳大利亚", "荷兰", "西班牙", "墨西哥"
+    };
+    /**
+     * 封面存储路径
+     */
+    File file = null;
+    @AutoInject
+    /** 视频来源mapper */
+    private VideoSourceMapper videoSourceMapper;
+    @AutoInject
+    /** 视频同步配置mapper */
+    private VideoSyncConfigMapper videoSyncConfigMapper;
+
+    /**
+     * 构造方法
+     *
+     * @param videoSource 视频源配置信息
+     *                    <pre>
+     *                                                                                                                                      {@code
+     *                                                                                                                                      VideoSource videoSource = new VideoSource();
+     *                                                                                                                                      videoSource.setVideoSourcePlatform("GUANYING");
+     *                                                                                                                                      videoSource.setVideoSourceToken("your_token_here");
+     *                                                                                                                                      GuanYingResourceProvider provider = new GuanYingResourceProvider(videoSource);
+     *                                                                                                                                      }
+     *                                                                                                                                      </pre>
+     */
+    public GuanYingResourceProvider(VideoSource videoSource) {
+        super(videoSource);
+        file = new File(COVER_PATH, "guanying");
+        FileUtils.mkdir(file);
+    }
+
+    /**
+     * 搜索视频资源
+     *
+     * @param videoSearch 视频搜索条件，包含关键词、年份、分类等信息
+     *                    <pre>
+     *                                                                                                                   {@code
+     *                                                                                                                   VideoSearch videoSearch = new VideoSearch();
+     *                                                                                                                   videoSearch.setKeyword("复仇者联盟");
+     *                                                                                                                   videoSearch.setYear(2012);
+     *                                                                                                                   videoSearch.setCategory("movie");
+     *                                                                                                                   ReturnPageResult<VideoInfoResult> result = provider.searchResource(videoSearch);
+     *                                                                                                                   }
+     *                                                                                                                   </pre>
+     * @return 分页结果，包含匹配的视频信息列表
+     */
+    @Override
+    public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
+        String apiUrl = getApiUrl(videoSearch);
+        if (null == apiUrl) {
+            return ReturnPageResult.empty();
+        }
+
+        BaseConfig baseConfig = createBaseConfig(apiUrl, videoSearch);
+
+        EmbeddedVideoInfo embeddedVideoInfo = HttpClient.get(apiUrl + "?year=" + (videoSearch.getYear()) + "&page=" + videoSearch.getPage())
+                .cookie(videoSource.getVideoSourceToken())
+                .newInvoker()
+                .execute()
+                .content(EmbeddedVideoInfo.class);
+        Integer pages = embeddedVideoInfo.getPage().getPages();
+        log.info("从观影获取视频{}列表，配置: {}, 当前第{}, {}/{}页",
+                baseConfig.getApiVideoType(),
+                videoSource.getVideoSourcePlatform(),
+                videoSearch.getYear(),
+                videoSearch.getPage() - 1,
+                pages);
+
+        if (embeddedVideoInfo.getInlist() == null || embeddedVideoInfo.getInlist().getA() == null || embeddedVideoInfo.getInlist().getA().isEmpty()) {
+            return ReturnPageResult.empty();
+        }
+        List<VideoInfoResult> videoInfoResults = new LinkedList<>();
+        createAndSearchVideo(embeddedVideoInfo, videoInfoResults, baseConfig, 1, pages, null);
+        return ReturnPageResultUtils.ok(videoInfoResults, videoSearch.getPage(), videoSearch.getPageSize(), pages);
+    }
+
+    /**
+     * 创建视频信息并搜索
+     *
+     * @param embeddedVideoInfo 嵌入视频信息对象
+     * @param videoInfoResults  视频信息结果列表
+     * @param baseConfig        基础配置对象
+     * @param page              当前页码
+     * @param pages             总页数
+     * @param consumer          消费者对象
+     */
+    private void createAndSearchVideo(EmbeddedVideoInfo embeddedVideoInfo,
+                                      List<VideoInfoResult> videoInfoResults,
+                                      BaseConfig baseConfig,
+                                      int page,
+                                      Integer pages,
+                                      BiConsumer<VideoInfoResult, VideoSyncProcessConfig> consumer) {
+        EmbeddedVideoInfo.InlistDTO inlist = embeddedVideoInfo.getInlist();
+        List<String> names = inlist.getT();
+        List<Double> readPeople = inlist.getR();
+        List<Double> score = inlist.getD();
+        List<String> image = inlist.getI();
+        List<List<String>> q = inlist.getQ();
+        List yearAndType = inlist.getA();
+        String apiVideoType = baseConfig.getApiVideoType();
+        int totalInPage = names.size();
+        for (int i = 0; i < totalInPage; i++) {
+            log.info("从观影获取视频{}列表，配置: {},  {}/{}页, 数据{}/{}",
+                    apiVideoType,
+                    videoSource.getVideoSourcePlatform(),
+                    page,
+                    pages,
+                    i + 1,
+                    totalInPage + 1);
+
+            List o = (List) yearAndType.get(i);
+            VideoInfoResult video = new VideoInfoResult();
+            video.setVideoTitle(names.get(i));
+            video.setVideoScore(BigDecimal.valueOf(Optional.ofNullable(score.get(i)).orElse(-1D)));
+            video.setVideoYear((Integer.valueOf(o.getFirst().toString())));
+            registerDistrict(video, o.get(1));
+            registerTag(video, o);
+            video.setVideoCategory(apiVideoType.toUpperCase());
+            video.setVideoPlatform("GUANYING");
+            video.setVideoQuality(Joiner.on(",").join(q.get(i)));
+            String dataId = image.get(i);
+            registerCover(video, dataId, baseConfig);
+            video.setVideoViews(BigDecimal.valueOf(Optional.ofNullable(readPeople.get(i)).orElse(-1D)));
+            video.setVideoStatus(0);
+            registerDetail(video, dataId, baseConfig);
+            registerDownload(video, dataId, baseConfig);
+
+            videoInfoResults.add(video);
+            if (null != consumer) {
+                consumer.accept(video, VideoSyncProcessConfig.builder()
+                        .videoType(apiVideoType)
+                        .totalPages(pages)
+                        .page(page)
+                        .currentPageInPage(i)
+                        .totalInPage(totalInPage)
+                        .build()
+                );
+            }
+        }
+    }
+
+    /**
+     * 注册封面信息
+     *
+     * @param video      视频信息对象
+     * @param dataId     数据ID
+     * @param baseConfig 基础配置对象
+     */
+    private void registerCover(VideoInfoResult video, String dataId, BaseConfig baseConfig) {
+        String cover = baseConfig.getCoverUrl() + "/%s/%s".formatted(dataId, videoSource.getVideoSourceCoverSuffix());
+        video.setVideoCover(cover + ",cover/%s/%s".formatted(dataId, videoSource.getVideoSourceCoverSuffix()));
+        try {
+            downloadCover(cover, "/%s/%s".formatted(dataId, videoSource.getVideoSourceCoverSuffix()));
+        } catch (Exception ignored) {
+        }
+    }
+
+    /**
+     * 注册标签信息
+     *
+     * @param video 视频信息对象
+     * @param o     标签信息对象
+     */
+    private void registerTag(VideoInfoResult video, List o) {
+        List<String> tags = new LinkedList<>();
+        for (int j = 2; j < o.size(); j++) {
+            Object s = o.get(j);
+            if (s instanceof Number n) {
+                tags.add(TAG[n.intValue()]);
+            } else {
+                String value = s.toString();
+                if (NumberUtils.isNumber(value)) {
+                    tags.add(TAG[Integer.parseInt(value)]);
+                } else {
+                    tags.add(value);
+                }
+            }
+
+        }
+        video.setVideoType(Joiner.on(",").join(tags));
+    }
+
+    /**
+     * 注册地区信息
+     *
+     * @param video 视频信息对象
+     * @param o1    地区信息对象
+     */
+    private void registerDistrict(VideoInfoResult video, Object o1) {
+        if (o1 instanceof Number n) {
+            video.setVideoDistrict(TAG[n.intValue()]);
+            return;
+        }
+        String value = o1.toString();
+        if (NumberUtils.isNumber(value)) {
+            video.setVideoDistrict(TAG[Integer.parseInt(value)]);
+        } else {
+            video.setVideoDistrict(value);
+        }
+    }
+
+    /**
+     * 创建基础配置对象
+     *
+     * @param apiUrl      API URL
+     * @param videoSearch 视频搜索条件
+     * @return 基础配置对象
+     */
+    private BaseConfig createBaseConfig(String apiUrl, VideoSearch videoSearch) {
+        String coverUrl = getCoverUrl(videoSearch);
+        String downloadUrl = getDownloadUrl(videoSearch);
+        String detailUrl = getDetailUrl(videoSearch);
+        String mvType = getApiVideoType(videoSearch);
+        return new BaseConfig(apiUrl, detailUrl, coverUrl, videoSource.getVideoSourceCoverSuffix(), downloadUrl, mvType);
+    }
+
+    /**
+     * 获取API视频类型
+     *
+     * @param videoSearch 视频搜索条件
+     * @return API视频类型字符串
+     */
+    private String getApiVideoType(VideoSearch videoSearch) {
+        String videoType = videoSearch.getVideoType();
+        if ("MV".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
+            return "mv";
+        }
+
+        if ("TV".equalsIgnoreCase(videoType)) {
+            return "tv";
+        }
+
+        if ("AC".equalsIgnoreCase(videoType)) {
+            return "ac";
+        }
+
+        return EMPTY_STRING;
+    }
+
+    /**
+     * 获取详情页URL
+     *
+     * @param videoSearch 视频搜索条件
+     * @return 详情页URL
+     */
+    private String getDetailUrl(VideoSearch videoSearch) {
+        String videoType = videoSearch.getVideoType();
+        if ("MV".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
+            return "https://www.gyg.la/mv/";
+        }
+
+        if ("TV".equalsIgnoreCase(videoType)) {
+            return "https://www.gyg.la/tv/";
+        }
+
+        if ("AC".equalsIgnoreCase(videoType)) {
+            return "https://www.gyg.la/ac/";
+        }
+
+        return EMPTY_STRING;
+    }
+
+    /**
+     * 获取下载URL
+     *
+     * @param videoSearch 视频搜索条件
+     * @return 下载URL
+     */
+    private String getDownloadUrl(VideoSearch videoSearch) {
+        String videoType = videoSearch.getVideoType();
+        if ("MV".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
+            return "https://www.gyg.la/res/downurl/mv/";
+        }
+
+        if ("TV".equalsIgnoreCase(videoType)) {
+            return "https://www.gyg.la/res/downurl/tv/";
+        }
+
+        if ("AC".equalsIgnoreCase(videoType)) {
+            return "https://www.gyg.la/res/downurl/ac/";
+        }
+
+        return EMPTY_STRING;
+    }
+
+    /**
+     * 获取封面URL
+     *
+     * @param videoSearch 视频搜索条件
+     * @return 封面URL
+     */
+    private String getCoverUrl(VideoSearch videoSearch) {
+        String videoType = videoSearch.getVideoType();
+        if ("MV".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
+            return "https://s.tutu.pm/img/mv";
+        }
+
+        if ("TV".equalsIgnoreCase(videoType)) {
+            return "https://s.tutu.pm/img/tv";
+        }
+
+        if ("AC".equalsIgnoreCase(videoType)) {
+            return "https://s.tutu.pm/img/ac";
+        }
+
+        return EMPTY_STRING;
+    }
+
+    /**
+     * 获取API URL
+     *
+     * @param videoSearch 视频搜索条件
+     * @return API URL
+     */
+    private String getApiUrl(VideoSearch videoSearch) {
+        String videoType = videoSearch.getVideoType();
+        if ("MV".equalsIgnoreCase(videoType) || "film".equalsIgnoreCase(videoType)) {
+            return "https://www.gyg.la/res/mv";
+        }
+
+        if ("TV".equalsIgnoreCase(videoType)) {
+            return "https://www.gyg.la/res/tv";
+        }
+
+        if ("AC".equalsIgnoreCase(videoType)) {
+            return "https://www.gyg.la/res/ac";
+        }
+
+        return null;
+    }
+
+    /**
+     * 注册下载信息
+     *
+     * @param video      视频信息结果对象
+     * @param dataId     数据ID
+     * @param baseConfig 基础配置对象
+     */
+    private void registerDownload(VideoInfoResult video, String dataId, BaseConfig baseConfig) {
+        //https://www.gyg.la/res/downurl/mv/mXr4
+        EmbeddedDownload embeddedDownload = HttpClient.get(baseConfig.getDownloadUrl() + dataId)
+                .cookie(videoSource.getVideoSourceToken())
+                .newInvoker()
+                .execute()
+                .content(EmbeddedDownload.class);
+
+        List<VideoDownload> videoDownloads = new ArrayList<>();
+        List<VideoPlayAddress> playAddresses = new ArrayList<>();
+        registerClDownload(videoDownloads, embeddedDownload.getDownlist());
+        registerPanDownload(videoDownloads, embeddedDownload.getPanlist());
+        registerPlayAddress(playAddresses, embeddedDownload.getPlaylist());
+        video.setDownloadList(videoDownloads);
+        video.setPlayAddressesList(playAddresses);
+    }
+
+    /**
+     * 注册播放地址信息
+     *
+     * @param videoPlayAddresses 视频下载列表
+     * @param playlist           播放列表数据传输对象
+     */
+    private void registerPlayAddress(List<VideoPlayAddress> videoPlayAddresses, List<EmbeddedDownload.PlaylistDTO> playlist) {
+        if (null == playlist) {
+            return;
+        }
+        for (EmbeddedDownload.PlaylistDTO playlistDTO : playlist) {
+            VideoPlayAddress videoPlayAddress = new VideoPlayAddress();
+            videoPlayAddress.setVideoPlayAddressName(playlistDTO.getT());
+            videoPlayAddress.setVideoPlayAddressCode(playlistDTO.getI());
+            videoPlayAddress.setVideoPlayAddressUnique(playlistDTO.getM());
+
+            List list = playlistDTO.getList();
+            List<VideoPlayAddressChannel> videoPlayAddressChannels = new ArrayList<>(list.size());
+            for (Object s : list) {
+                ThreadUtils.sleep(500);
+                if (s instanceof String str) {
+                    VideoPlayAddressChannel videoPlayAddressChannel = new VideoPlayAddressChannel();
+                    videoPlayAddressChannel.setVideoPlayAddressChannelName(str);
+                    videoPlayAddressChannel.setVideoPlayAddressStartIndex(1);
+                    videoPlayAddressChannel.setVideoPlayAddressEndIndex(1);
+                    videoPlayAddressChannel.setVideoPlayAddressUrl(createVideoPlayAddressUrl(playlistDTO, 1));
+                    videoPlayAddressChannels.add(videoPlayAddressChannel);
+                    continue;
+                }
+
+                if (s instanceof List list1) {
+                    Object object = list1.get(1);
+                    if (object instanceof List o1) {
+                        Integer start = (Integer) o1.get(0);
+                        Integer end = (Integer) o1.get(1);
+                        IntStream.rangeClosed(start, end).forEach(i -> {
+                            VideoPlayAddressChannel videoPlayAddressChannel = new VideoPlayAddressChannel();
+                            videoPlayAddressChannel.setVideoPlayAddressChannelName("第%s集".formatted(i));
+                            videoPlayAddressChannel.setVideoPlayAddressStartIndex(i);
+                            videoPlayAddressChannel.setVideoPlayAddressEndIndex(i);
+                            videoPlayAddressChannel.setVideoPlayAddressUrl(createVideoPlayAddressUrl(playlistDTO, i));
+                            videoPlayAddressChannels.add(videoPlayAddressChannel);
+                        });
+                        continue;
+                    }
+                    if (object instanceof Number number) {
+                        VideoPlayAddressChannel videoPlayAddressChannel = new VideoPlayAddressChannel();
+                        videoPlayAddressChannel.setVideoPlayAddressChannelName("第%s集".formatted(number));
+                        videoPlayAddressChannel.setVideoPlayAddressStartIndex(number.intValue());
+                        videoPlayAddressChannel.setVideoPlayAddressEndIndex(number.intValue());
+                        videoPlayAddressChannel.setVideoPlayAddressUrl(createVideoPlayAddressUrl(playlistDTO, number.intValue()));
+                        videoPlayAddressChannels.add(videoPlayAddressChannel);
+                    }
+                }
+            }
+
+            videoPlayAddress.setVideoPlayAddressChannels(videoPlayAddressChannels);
+            videoPlayAddresses.add(videoPlayAddress);
+        }
+
+    }
+
+    private String createVideoPlayAddressUrl(EmbeddedDownload.PlaylistDTO playlistDTO, int index) {
+        try {
+            String s = playlistDTO.getI();
+
+            HttpResponse httpResponse = HttpClient.post(
+                            "https://www.gyg.la/py/%s/%s".formatted(s, index)
+                    ).header("Content-Type", "application/x-www-form-urlencoded")
+                    .cookie(videoSource.getVideoSourceToken())
+                    .form("ajax", 1)
+                    .execute();
+            JsonObject content = httpResponse.content(JsonObject.class);
+            return MapUtils.getString(content, "url");
+        } catch (Exception e) {
+        }
+
+        return null;
+    }
+
+
+    /**
+     * 注册网盘下载信息
+     *
+     * @param videoDownloads 视频下载列表
+     * @param panlist        网盘列表数据传输对象
+     */
+    private void registerPanDownload(List<VideoDownload> videoDownloads, PanlistDTO panlist) {
+        if (null == panlist) {
+            return;
+        }
+        try {
+            List<String> name = panlist.getName();
+            List<String> tname = panlist.getTname();
+            List<Integer> type = panlist.getType();
+            Map<String, String> typeMap = new LinkedHashMap<>();
+            for (Integer i : type) {
+                typeMap.put(String.valueOf(i), CollectionUtils.get(tname, i));
+            }
+            List<String> url = panlist.getUrl();
+            List<String> user = panlist.getUser();
+            List<String> time = panlist.getTime();
+            for (int i = 0; i < name.size(); i++) {
+                String s = name.get(i);
+                VideoDownload videoDownload = new VideoDownload();
+                videoDownload.setVideoDownloadName(s);
+                videoDownload.setVideoDownloadUrl(CollectionUtils.get(url, i));
+                videoDownload.setCreateName(CollectionUtils.get(user, i));
+                videoDownload.setVideoDownloadShareTime(CollectionUtils.get(time, i));
+                videoDownload.setVideoDownloadType("网盘资源");
+                videoDownload.setVideoDownloadQuality(typeMap.get(String.valueOf(type.get(i))));
+                videoDownloads.add(videoDownload);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /**
+     * 注册磁力链接下载信息
+     *
+     * @param videoDownloads 视频下载列表
+     * @param downlist       下载列表数据传输对象
+     */
+    private void registerClDownload(List<VideoDownload> videoDownloads, DownlistDTO downlist) {
+        if (null == downlist) {
+            return;
+        }
+        try {
+            DownlistDTO.ListDTO list = downlist.getList();
+            DownlistDTO.TypeDTO type = downlist.getType();
+            Map<String, String> typeMap = new LinkedHashMap<>();
+            List<String> b = type.getB();
+            List<String> a = type.getA();
+            for (int i = 0; i < b.size(); i++) {
+                typeMap.put(b.get(i), a.get(i));
+            }
+
+            List<String> names = list.getT();
+            List<String> size = list.getS();
+            List<String> p = list.getP();
+            List<Integer> downloadedSize = list.getE();
+            List<String> magnetic = list.getM();
+            for (int i = 0; i < names.size(); i++) {
+                String name = names.get(i);
+                VideoDownload videoDownload = new VideoDownload();
+                videoDownload.setVideoDownloadType("磁力资源");
+                videoDownload.setVideoDownloadName(name);
+                videoDownload.setVideoDownloadSize(CollectionUtils.get(size, i));
+                videoDownload.setVideoDownloadCount(CollectionUtils.get(downloadedSize, i));
+                videoDownload.setVideoDownloadMagnetic(CollectionUtils.get(magnetic, i));
+                videoDownload.setVideoDownloadQuality(typeMap.get(CollectionUtils.get(p, i)));
+                videoDownload.setVideoDownloadUrl(CollectionUtils.get(magnetic, i));
+
+                videoDownloads.add(videoDownload);
+            }
+        } catch (Exception ignored) {
+        }
+
+    }
+
+    /**
+     * 注册详细信息
+     *
+     * @param video      视频信息结果对象
+     * @param dataId     数据ID
+     * @param baseConfig 基础配置对象
+     */
+    private void registerDetail(VideoInfoResult video, String dataId, BaseConfig baseConfig) {
+        String detailHtml = HttpClient.get(baseConfig.getDetailUrl() + dataId)
+                .cookie(videoSource.getVideoSourceToken())
+                .newInvoker()
+                .execute()
+                .content(String.class);
+
+        int i = detailHtml.indexOf("_obj.d=");
+        if (i > 0) {
+            registerDetailMoreBase(video, detailHtml.substring(i + 7, detailHtml.indexOf("};", i + 7) + 1));
+        }
+
+    }
+
+    /**
+     * 注册更多基础详细信息
+     *
+     * @param video    视频信息结果对象
+     * @param baseJson 基础JSON字符串
+     */
+    private void registerDetailMoreBase(VideoInfoResult video, String baseJson) {
+        try {
+            BaseDetail baseDetail = Json.fromJson(baseJson, BaseDetail.class);
+            video.setVideoName(null == baseDetail.getName() ? null : baseDetail.getName().trim());
+            video.setVideoDirector(Joiner.on(",").join(baseDetail.getDaoyan()));
+            video.setVideoWriter(Joiner.on(",").join(baseDetail.getBianju()));
+            video.setVideoActor(Joiner.on(",").join(baseDetail.getZhuyan()));
+            video.setVideoType(Joiner.on(",").join(baseDetail.getLeixing()));
+            video.setVideoDistrict(Joiner.on(",").join(baseDetail.getDiqu()));
+            video.setVideoLanguage(Joiner.on(",").join(baseDetail.getYuyan()));
+            video.setVideoDuration(RegexUtils.getFirstNumber(baseDetail.getTimes()));
+            video.setVideoRelease(baseDetail.getStime());
+            video.setVideoDescription(baseDetail.getIntroduce());
+            video.setVideoAliasName(baseDetail.getEname());
+            BaseDetail.PfDTO pf = baseDetail.getPf();
+            if (null != pf) {
+                video.setVideoDouBanId(String.valueOf(pf.getDb().getId()));
+                List<VideoMark> videoMarks = new ArrayList<>();
+                VideoMark videoMark = new VideoMark();
+                videoMark.setVideoMarkType("豆瓣");
+                try {
+                    videoMark.setVideoMarkScore(Converter.convertIfNecessary(pf.getDb().getS(), BigDecimal.class));
+                } catch (Exception ignored) {
+                }
+                videoMark.setVideoMarkPeople(pf.getDb().getR());
+
+                videoMarks.add(videoMark);
+
+                VideoMark videoMark1 = new VideoMark();
+                videoMark1.setVideoMarkType("IMDb");
+                videoMark1.setVideoMarkScore(Converter.convertIfNecessary(pf.getIm().getS(), BigDecimal.class));
+                try {
+                    videoMark1.setVideoMarkPeople(pf.getIm().getR());
+                } catch (Exception ignored) {
+                }
+
+                videoMarks.add(videoMark1);
+                video.setVideoMarkList(videoMarks);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /**
+     * 下载封面图片
+     *
+     * @param cover 封面URL
+     * @param name  文件名
+     */
+    private void downloadCover(String cover, String name) {
+        File file1 = new File(file, name);
+        FileUtils.forceMkdirParent(file1);
+        try (InputStream is = new URI(cover).toURL().openStream()) {
+            FileUtils.writeTo(is, file1);
+        } catch (Exception e) {
+            throw new RuntimeException("下载封面图片失败: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void fetchVideos(VideoSyncConfig config, BiConsumer<VideoInfoResult, VideoSyncProcessConfig> consumer) {
+        String videoSyncConfigStatus = config.getVideoSyncConfigStatus();
+        if (SYNC_STATUS_FINISH.equals(videoSyncConfigStatus) ||
+                SYNC_STATUS_ERROR.equals(videoSyncConfigStatus)
+        ) {
+            return;
+        }
+        String videoSourceId = config.getVideoSourceId();
+        if (null == videoSourceId) {
+            log.warn("视频源ID为空: {}", config.getVideoSyncConfigName());
+            return;
+        }
+        VideoSource videoSource1 = videoSourceMapper.selectById(videoSourceId);
+        if (null == videoSource1 || videoSource1.getVideoSourceEnable() == 0) {
+            log.warn("视频源已禁用: {}", config.getVideoSyncConfigName());
+            return;
+        }
+
+        String videoSyncConfigLastOffset = config.getVideoSyncConfigLastOffset();
+        JsonObject jsonObject = Json.getJsonObject(videoSyncConfigLastOffset);
+        String[] mvType = createMvType(jsonObject);
+        int minYear = ObjectUtils.defaultIfNull(videoSource.getVideoSourceMinYear(), MIN_YEAR);
+        root:
+        for (String videoType : mvType) {
+            AtomicInteger searchPage = new AtomicInteger(createCount(jsonObject, videoType));
+            AtomicInteger year = createYear(jsonObject, videoType);
+            while (year.get() >= minYear) {
+                VideoSearch videoSearch = new VideoSearch();
+                videoSearch.setVideoType(videoType.toUpperCase());
+                String apiUrl = getApiUrl(videoSearch);
+                BaseConfig baseConfig = createBaseConfig(apiUrl, videoSearch);
+
+                String mvUrl = baseConfig.getApiUrl() + "?year=" + (year.get()) + "&page=" + searchPage.get();
+                HttpResponse httpResponse = HttpClient.get(mvUrl)
+                        .cookie(videoSource1.getVideoSourceToken())
+                        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+                        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+                        .header("Accept-Language", "en-US,en;q=0.5")
+                        .header("Accept-Encoding", "gzip, deflate, br")
+                        .header("Connection", "keep-alive")
+                        .header("Upgrade-Insecure-Requests", "1")
+                        .newInvoker()
+                        .execute();
+                if (httpResponse.code() == 500) {
+                    config.setVideoSyncConfigStatus(SYNC_STATUS_ERROR);
+                    config.setVideoSyncConfigMessage(httpResponse.message());
+                    break root;
+                }
+                EmbeddedVideoInfo embeddedVideoInfo = httpResponse.content(EmbeddedVideoInfo.class);
+                EmbeddedVideoInfo.PageDTO page = embeddedVideoInfo.getPage();
+                if (null == page) {
+                    break;
+                }
+                Integer pages = page.getPages();
+                if (searchPage.get() > pages) {
+                    countdownYear(year, searchPage);
+                    continue;
+                }
+                String logMessage = StringUtils.format("从观影获取视频{}列表，配置: {}, 当前第{}, {}/{}页",
+                        videoType,
+                        config.getVideoSyncConfigName(),
+                        year.get(),
+                        searchPage.get(),
+                        pages);
+                log.info(logMessage);
+
+
+                videoSyncConfigStatus = config.getVideoSyncConfigStatus();
+                if (SYNC_STATUS_FINISH.equals(videoSyncConfigStatus) ||
+                        SYNC_STATUS_ERROR.equals(videoSyncConfigStatus)
+                ) {
+                    break root;
+                }
+
+                List<VideoInfoResult> videoInfoResults = new LinkedList<>();
+                createAndSearchVideo(embeddedVideoInfo, videoInfoResults, baseConfig, searchPage.get(), pages, consumer);
+                searchPage.incrementAndGet();
+                JsonObject jsonObject1 = new JsonObject();
+                jsonObject1.fluentPut(videoType + "_page", searchPage.get());
+                jsonObject1.fluentPut(videoType + "_year", year.get());
+                jsonObject1.fluentPut("videoType", videoType);
+                config.setVideoSyncConfigLastOffset(jsonObject1.toJSONString());
+                config.setVideoSyncConfigLastLog(logMessage);
+                videoSyncConfigMapper.updateById(
+                        BeanUtils.copyProperties(config, com.chua.starter.video.entity.VideoSyncConfig.class));
+                if (searchPage.get() > pages) {
+                    countdownYear(year, searchPage);
+                }
+            }
+        }
+    }
+
+    private void countdownYear(AtomicInteger year, AtomicInteger searchPage) {
+        year.decrementAndGet();
+        searchPage.set(1);
+    }
+
+    /**
+     * 创建年份
+     *
+     * @param jsonObject
+     * @param videoType
+     * @return
+     */
+    private AtomicInteger createYear(JsonObject jsonObject, String videoType) {
+        return new AtomicInteger(jsonObject.getInteger(videoType + "_year", LocalDateTime.now().getYear()));
+    }
+
+    /**
+     * 根据指定的视频类型从JSON对象中获取对应的页码计数，如果不存在则返回默认值1。
+     *
+     * @param jsonObject 包含视频同步偏移量信息的JSON对象，用于记录不同视频类型的同步进度
+     *                   <pre><code>
+     *                                                                                                             JsonObject offset = new JsonObject();
+     *                                                                                                             offset.put("MV", 3);
+     *                                                                                                             int count = provider.createCount(offset, "MV"); // 返回3
+     *                                                                                                             </code></pre>
+     * @param videoType  视频类型字符串，例如"MV"、"TV"或"AC"，表示当前正在处理的视频类别
+     *                   <pre><code>
+     *                                                                                                             String videoType = "TV";
+     *                                                                                                             int count = provider.createCount(offset, videoType);
+     *                                                                                                             </code></pre>
+     * @return 返回对应视频类型的页码计数，若未找到则返回默认值1
+     * @since 2025/9/18 22:15
+     */
+    private int createCount(JsonObject jsonObject, String videoType) {
+        return jsonObject.getIntValue(videoType + "_page", 1);
+    }
+
+    /**
+     * 根据视频同步配置中的偏移量信息创建视频类型数组
+     *
+     * @param videoSyncConfigLastOffset 视频同步配置的最后偏移量信息，用于确定当前处理的视频类型及位置
+     *                                  <pre>{@code
+     *                                                                                                                                                                                                       JsonObject offset = new JsonObject();
+     *                                                                                                                                                                                                       offset.put("videoType", "TV");
+     *                                                                                                                                                                                                       String[] types = provider.createMvType(offset);
+     *                                                                                                                                                                                                       }</pre>
+     * @return 返回根据当前视频类型确定的后续需要处理的视频类型数组
+     * @since 2025/9/18 14:30
+     */
+    private String[] createMvType(JsonObject videoSyncConfigLastOffset) {
+        String videoType = videoSyncConfigLastOffset.getString("videoType");
+        if (StringUtils.isEmpty(videoType)) {
+            return videoSource.getVideoSourceTypeForList();
+        }
+
+        return switch (videoType.toUpperCase()) {
+            case "MV" -> videoSource.getVideoSourceTypeForList();
+            case "TV" -> videoSource.getVideoSourceTypeForListAfter("MV");
+            case "AC" -> videoSource.getVideoSourceTypeForListAfter("TV");
+            default -> new String[0];
+        };
+    }
+
+    /**
+     * 基础配置类
+     */
+    @Data
+    @AllArgsConstructor
+    static class BaseConfig {
+        /**
+         * API URL
+         */
+        String apiUrl;
+        /**
+         * 详情页URL
+         */
+        String detailUrl;
+        /**
+         * 封面URL
+         */
+        String coverUrl;
+        /**
+         * 封面后缀
+         */
+        String coverSuffix;
+        /**
+         * 下载URL
+         */
+        String downloadUrl;
+        /**
+         * API视频类型
+         */
+        String apiVideoType;
+    }
+
+    @NoArgsConstructor
+    @Data
+    static class EmbeddedDownload {
+
+        /**
+         * 响应状态码
+         *
+         * @see #getCode()
+         * @see #setCode(Integer)
+         * <pre>{@code
+         * EmbeddedDownload download = new EmbeddedDownload();
+         * download.setCode(200);
+         * }</pre>
+         * @since 2025/9/19 14:20
+         */
+        @SerializedName("code")
+        /** 代码 */
+        private Integer code;
+
+        /**
+         * 磁力链接下载列表数据传输对象
+         *
+         * @see #getDownlist()
+         * @see #setDownlist(DownlistDTO)
+         * <pre>{@code
+         * EmbeddedDownload download = new EmbeddedDownload();
+         * DownlistDTO downlist = new DownlistDTO();
+         * download.setDownlist(downlist);
+         * }</pre>
+         * @since 2025/9/19 14:20
+         */
+        @SerializedName("downlist")
+        /** Downlist */
+        private DownlistDTO downlist;
+
+        /**
+         * 播放列表数据传输对象集合
+         *
+         * @see #getPlaylist()
+         * @see #setPlaylist(List)
+         * <pre>{@code
+         * EmbeddedDownload download = new EmbeddedDownload();
+         * List<PlaylistDTO> playlist = new ArrayList<>();
+         * download.setPlaylist(playlist);
+         * }</pre>
+         * @since 2025/9/19 14:20
+         */
+        @SerializedName("playlist")
+        /** Playlist */
+        private List<PlaylistDTO> playlist;
+
+        /**
+         * 网盘资源列表数据传输对象
+         *
+         * @see #getPanlist()
+         * @see #setPanlist(PanlistDTO)
+         * <pre>{@code
+         * EmbeddedDownload download = new EmbeddedDownload();
+         * PanlistDTO panlist = new PanlistDTO();
+         * download.setPanlist(panlist);
+         * }</pre>
+         * @since 2025/9/19 14:20
+         */
+        @SerializedName("panlist")
+        /** Panlist */
+        private PanlistDTO panlist;
+
+        @NoArgsConstructor
+        @Data
+        public static class DownlistDTO {
+            @SerializedName("imdb")
+            /** Imdb */
+            private String imdb;
+            @SerializedName("type")
+            /** 类型 */
+            private TypeDTO type;
+            @SerializedName("list")
+            /** 列表 */
+            private ListDTO list;
+            @SerializedName("key")
+            /** 密钥 */
+            private String key;
+            @SerializedName("sort")
+            /** Sort */
+            private List<Integer> sort;
+
+            @NoArgsConstructor
+            @Data
+            public static class TypeDTO {
+                @SerializedName("a")
+                /** A */
+                private List<String> a;
+                @SerializedName("b")
+                /** B */
+                private List<String> b;
+            }
+
+            @NoArgsConstructor
+            @Data
+            public static class ListDTO {
+                @SerializedName("m")
+                /** M */
+                private List<String> m;
+                @SerializedName("t")
+                /** T */
+                private List<String> t;
+                @SerializedName("s")
+                /** S */
+                private List<String> s;
+                @SerializedName("e")
+                /** E */
+                private List<Integer> e;
+                @SerializedName("p")
+                /** P */
+                private List<String> p;
+                @SerializedName("u")
+                /** U */
+                private List<String> u;
+                @SerializedName("k")
+                /** K */
+                private List<Integer> k;
+                @SerializedName("n")
+                /** N */
+                private List<String> n;
+            }
+        }
+
+        /**
+         * 网盘列表数据传输对象
+         *
+         * @since 2025/9/19 14:20
+         */
+        @NoArgsConstructor
+        @Data
+        public static class PanlistDTO {
+            /**
+             * 网盘资源ID列表
+             * <pre>{@code
+             * List<String> ids = Arrays.asList("1", "2", "3");
+             * panlistDTO.setId(ids);
+             * }</pre>
+             */
+            @SerializedName("id")
+            /** ID */
+            private List<String> id;
+
+            /**
+             * 网盘资源名称列表
+             * <pre>{@code
+             * List<String> names = Arrays.asList("资源1", "资源2");
+             * panlistDTO.setName(names);
+             * }</pre>
+             */
+            @SerializedName("name")
+            /** 名称 */
+            private List<String> name;
+
+            /**
+             * 网盘资源路径列表
+             * <pre>{@code
+             * List<String> paths = Arrays.asList("/path1", "/path2");
+             * panlistDTO.setP(paths);
+             * }</pre>
+             */
+            @SerializedName("p")
+            /** P */
+            private List<String> p;
+
+            /**
+             * 网盘资源链接列表
+             * <pre>{@code
+             * List<String> urls = Arrays.asList("http://example.com/1", "http://example.com/2");
+             * panlistDTO.setUrl(urls);
+             * }</pre>
+             */
+            @SerializedName("url")
+            /** URL */
+            private List<String> url;
+
+            /**
+             * 网盘资源类型列表（对应tname的索引）
+             * <pre>{@code
+             * List<Integer> types = Arrays.asList(0, 1);
+             * panlistDTO.setType(types);
+             * }</pre>
+             */
+            @SerializedName("type")
+            /** 类型 */
+            private List<Integer> type;
+
+            /**
+             * 网盘资源分享用户列表
+             * <pre>{@code
+             * List<String> users = Arrays.asList("user1", "user2");
+             * panlistDTO.setUser(users);
+             * }</pre>
+             */
+            @SerializedName("user")
+            /** 用户 */
+            private List<String> user;
+
+            /**
+             * 网盘资源分享时间列表
+             * <pre>{@code
+             * List<String> times = Arrays.asList("2025-01-01", "2025-01-02");
+             * panlistDTO.setTime(times);
+             * }</pre>
+             */
+            @SerializedName("time")
+            /** 时间 */
+            private List<String> time;
+
+            /**
+             * 网盘资源扩展信息列表
+             * <pre>{@code
+             * List<Integer> extras = Arrays.asList(1, 2);
+             * panlistDTO.setE(extras);
+             * }</pre>
+             */
+            @SerializedName("e")
+            /** E */
+            private List<Integer> e;
+
+            /**
+             * 网盘资源类型名称列表
+             * <pre>{@code
+             * List<String> typeNames = Arrays.asList("百度网盘", "阿里云盘");
+             * panlistDTO.setTname(typeNames);
+             * }</pre>
+             */
+            @SerializedName("tname")
+            /** Tname */
+            private List<String> tname;
+        }
+
+        @NoArgsConstructor
+        @Data
+        public static class PlaylistDTO {
+            @SerializedName("i")
+            /** I */
+            private String i;
+            @SerializedName("t")
+            /** T */
+            private String t;
+            @SerializedName("m")
+            /** M */
+            private String m;
+            @SerializedName("list")
+            /** 列表 */
+            private List list;
+        }
+    }
+
+    @NoArgsConstructor
+    @Data
+    static class BaseDetail {
+
+        @SerializedName("title")
+        /** 标题 */
+        private String title;
+        @SerializedName("name")
+        /** 名称 */
+        private String name;
+        @SerializedName("year")
+        /** Year */
+        private Integer year;
+        @SerializedName("dir")
+        /** 目录 */
+        private String dir;
+        @SerializedName("status")
+        /** 状态 */
+        private String status;
+        @SerializedName("fa")
+        /** FA */
+        private Integer fa;
+        @SerializedName("daoyan")
+        /** Daoyan */
+        private List<String> daoyan;
+        @SerializedName("bianju")
+        /** Bianju */
+        private List<String> bianju;
+        @SerializedName("zhuyan")
+        /** Zhuyan */
+        private List<String> zhuyan;
+        @SerializedName("leixing")
+        /** Leixing */
+        private List<String> leixing;
+        @SerializedName("diqu")
+        /** Diqu */
+        private List<String> diqu;
+        @SerializedName("yuyan")
+        /** Yuyan */
+        private List<String> yuyan;
+        @SerializedName("stime")
+        /** Stime */
+        private String stime;
+        @SerializedName("times")
+        /** Times */
+        private String times;
+        @SerializedName("ename")
+        /** Ename */
+        private String ename;
+        @SerializedName("pf")
+        /** PF */
+        private PfDTO pf;
+        @SerializedName("introduce")
+        /** Introduce */
+        private String introduce;
+        @SerializedName("id")
+        /** ID */
+        private String id;
+        @SerializedName("dname")
+        /** Dname */
+        private String dname;
+
+        @NoArgsConstructor
+        @Data
+        public static class PfDTO {
+            @SerializedName("db")
+            /** 数据库 */
+            private DbDTO db;
+            @SerializedName("im")
+            /** IM */
+            private ImDTO im;
+            @SerializedName("ro")
+            /** RO */
+            private RoDTO ro;
+
+            @NoArgsConstructor
+            @Data
+            public static class DbDTO {
+                @SerializedName("id")
+                /** ID */
+                private String id;
+                @SerializedName("n")
+                /** N */
+                private Integer n;
+                @SerializedName("s")
+                /** S */
+                private String s;
+                @SerializedName("r")
+                /** R */
+                private Integer r;
+            }
+
+            @NoArgsConstructor
+            @Data
+            public static class ImDTO {
+                @SerializedName("id")
+                /** ID */
+                private String id;
+                @SerializedName("s")
+                /** S */
+                private String s;
+                @SerializedName("r")
+                /** R */
+                private Integer r;
+                @SerializedName("n")
+                /** N */
+                private Integer n;
+            }
+
+            @NoArgsConstructor
+            @Data
+            public static class RoDTO {
+                @SerializedName("id")
+                /** ID */
+                private String id;
+                @SerializedName("x1")
+                /** X1 */
+                private Integer x1;
+                @SerializedName("s1")
+                /** S1 */
+                private String s1;
+                @SerializedName("r1")
+                /** R1 */
+                private Integer r1;
+                @SerializedName("x2")
+                /** X2 */
+                private Integer x2;
+                @SerializedName("s2")
+                /** S2 */
+                private String s2;
+                @SerializedName("r2")
+                /** R2 */
+                private Integer r2;
+            }
+        }
+    }
+
+    @NoArgsConstructor
+    @Data
+    static class EmbeddedVideoInfo {
+
+        @SerializedName("page")
+        /** 页 */
+        private PageDTO page;
+        @SerializedName("inlist")
+        /** Inlist */
+        private InlistDTO inlist;
+        @SerializedName("footer")
+        /** Footer */
+        private FooterDTO footer;
+
+        @NoArgsConstructor
+        @Data
+        public static class PageDTO {
+            @SerializedName("pages")
+            /** Pages */
+            private Integer pages;
+        }
+
+        @NoArgsConstructor
+        @Data
+        public static class InlistDTO {
+            @SerializedName("a")
+            /** A */
+            private List<List<String>> a;
+            @SerializedName("r")
+            /** R */
+            private List<Double> r;
+            @SerializedName("z")
+            /** Z坐标 */
+            private List<Integer> z;
+            @SerializedName("d")
+            /** D */
+            private List<Double> d;
+            @SerializedName("i")
+            /** I */
+            private List<String> i;
+            @SerializedName("g")
+            /** G */
+            private List<String> g;
+            @SerializedName("t")
+            /** T */
+            private List<String> t;
+            @SerializedName("q")
+            /** Q */
+            private List<List<String>> q;
+            @SerializedName("ty")
+            /** TY */
+            private String ty;
+            @SerializedName("load")
+            /** Load */
+            private Integer load;
+        }
+
+        @NoArgsConstructor
+        @Data
+        public static class FooterDTO {
+            @SerializedName("t")
+            /** T */
+            private String t;
+        }
+    }
+}

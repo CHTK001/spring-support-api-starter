@@ -13,4 +13,10 @@
         "com.chua.starter.tenant.server.service",
         "com.chua.starter.tenant.server.sync"
 })
+/**
+ * public class TenantServerConfiguration
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class TenantServerConfiguration
