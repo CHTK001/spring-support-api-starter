@@ -21,6 +21,5 @@ public class AcmeProperties {
     private boolean enabled = true;
 
     /** 到期前多少天触发续签 */
-    /** Renewdaysbefore */
     private int renewDaysBefore = 30;
 }

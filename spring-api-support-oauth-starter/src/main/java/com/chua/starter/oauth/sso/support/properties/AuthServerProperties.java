@@ -522,7 +522,7 @@ public class AuthServerProperties {
      * 用户在线模式枚举。
      *
      * @since 4.0.0.42
-     * @author CH
+ * @author CH
      */
     public enum Online {
         /**
