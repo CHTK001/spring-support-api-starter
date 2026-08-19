@@ -106,6 +106,7 @@ public class RedisTokenResolver implements TokenResolver {
     private TokenBlacklistService tokenBlacklistService;
 
     @Override
+    /** 创建Token */
     public ReturnResult<LoginResult> createToken(String address, UserResult userResult, String authType) {
         String userId = userResult.getUserId();
         
@@ -411,6 +412,7 @@ public class RedisTokenResolver implements TokenResolver {
         userResult.setExt(sanitized);
     }
 
+    /** SanitizeExtValue */
     private Object sanitizeExtValue(Object value) {
         if (value == null) {
             return null;
@@ -538,12 +540,14 @@ public class RedisTokenResolver implements TokenResolver {
         }
     }
 
+    /** LogoutRefresh */
     private void logoutRefresh(String token) {
         stringRedisTemplate.delete(TOKEN_REFRESH_PRE + token);
     }
 
     @Override
     @SuppressWarnings("ALL")
+    /** Logout */
     public void logout(String token) {
         long startTime = System.currentTimeMillis();
         // 清除本地缓存
@@ -592,6 +596,7 @@ public class RedisTokenResolver implements TokenResolver {
 
     @Override
     @SuppressWarnings("ALL")
+    /** Logout */
     public void logout(String uid, LogoutType type) {
         if (type == LogoutType.UN_REGISTER || type == LogoutType.LOGOUT_ALL) {
             // uid 实际上是 token，优先从 token 结构中提取 userIdHash（即使 token 已从 Redis 删除也能工作）
@@ -709,6 +714,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
+    /** 解析 */
     public ReturnResult<UserResume> resolve(String cookie, String token) {
         String cv = token;
         if (StringUtils.isEmpty(StringUtils.ifValid(cv, ""))) {
@@ -762,6 +768,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
+    /** UpgradeForTimestamp */
     public ReturnResult<UserResume> upgradeForTimestamp(String token, String refreshToken) {
         // 清除本地缓存，强制下次 resolve 从 Redis 重新读取
         if (token != null) {
@@ -787,6 +794,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
+    /** UpgradeForVersion */
     public ReturnResult<UserResume> upgradeForVersion(String token, String refreshToken) {
         // 清除本地缓存，强制下次 resolve 从 Redis 重新读取
         if (token != null) {
@@ -859,6 +867,7 @@ public class RedisTokenResolver implements TokenResolver {
         return ReturnResult.ok(newUserResult);
     }
 
+    /** 解析AuthVersion */
     private String resolveAuthVersion(UserResume userResume) {
         if (userResume == null || userResume.getExt() == null) {
             return null;
@@ -868,6 +877,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
+    /** UpgradeForRefresh */
     public ReturnResult<UserResume> upgradeForRefresh(String token, String refreshToken) {
         // 清除本地缓存（新旧两个都应失效）
         if (token != null) {
@@ -961,6 +971,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
+    /** Logout */
     public void logout(Cookie[] cookies, String token, String refreshToken, String cookieName) {
         Cookie cookie = CookieUtil.getCookie(cookies, cookieName);
         if (null != cookie) {
@@ -977,6 +988,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
+    /** 解析UserCode */
     public ReturnResult<UserResume> resolveUserCode(String userCode) {
         if (StringUtils.isBlank(userCode)) {
             return ReturnResult.error("用户代码不能为空");
@@ -1379,6 +1391,7 @@ public class RedisTokenResolver implements TokenResolver {
         return false;
     }
 
+    /** 获取StringFromMap */
     private String getStringFromMap(Map<String, Object> map, String key) {
         if (map == null) {
             return null;

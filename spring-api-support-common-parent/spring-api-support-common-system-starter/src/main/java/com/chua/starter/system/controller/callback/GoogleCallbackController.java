@@ -106,6 +106,7 @@ public class GoogleCallbackController {
 
     @Ignore
     @GetMapping("binder")
+    /** Binder */
     public RedirectView binder(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
         String userId = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_userId");
         RedirectView view = new RedirectView();
@@ -163,6 +164,7 @@ public class GoogleCallbackController {
 
     @Ignore
     @GetMapping("callback")
+    /** Callback */
     public RedirectView callback(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
         RedirectView errorView = new RedirectView();
@@ -218,6 +220,7 @@ public class GoogleCallbackController {
         return view;
     }
 
+    /** DoAuthLogin */
     private AuthUser doAuthLogin(AuthCallback authCallback) {
         String clientSecret = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_clientSecret");
         String clientId = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_clientId");
@@ -236,6 +239,7 @@ public class GoogleCallbackController {
         return (AuthUser) login.getData();
     }
 
+    /** 是否ThirdPartyEnabled */
     private boolean isThirdPartyEnabled() {
         try {
             SysSetting setting = sysSettingService.getOne(

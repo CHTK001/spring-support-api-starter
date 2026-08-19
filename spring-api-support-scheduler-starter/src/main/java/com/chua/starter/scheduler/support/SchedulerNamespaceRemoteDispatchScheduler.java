@@ -76,6 +76,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     private static final String DISCOVERY_SERVICE_CLASS = "com.chua.starter.discovery.support.service.DiscoveryService";
 
     @Scheduled(fixedDelayString = "${plugin.scheduler.job-platform.dispatch-interval-ms:1000}")
+    /** 分发DueJobs */
     public void dispatchDueJobs() {
         if (!platformProperties.isRemoteDispatchEnabled() || platformProperties.getNamespaces() == null) {
             return;
@@ -249,6 +250,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         return records.isEmpty() ? null : records.get(0);
     }
 
+    /** DiscoveryJobNo */
     private static String discoveryJobNo(String handlerName) {
         return "disc:" + handlerName;
     }
@@ -344,6 +346,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         }
     }
 
+    /** 分发Namespace */
     private void dispatchNamespace(String namespace) {
         ReentrantLock lock = namespaceLocks.computeIfAbsent(namespace.toLowerCase(), key -> new ReentrantLock());
         if (!lock.tryLock()) {
@@ -418,6 +421,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         return namedParameterJdbcTemplate.query(sql, parameters, jobRowMapper);
     }
 
+    /** 解析分组 */
     private String resolveGroup(SchedulerJobPlatformProperties.Namespace nsProps) {
         if (nsProps == null) {
             return null;
@@ -468,6 +472,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         }
     }
 
+    /** 构建Plan */
     private DispatchPlan buildPlan(SysJob job) throws Exception {
         long now = System.currentTimeMillis();
         long currentNextTime = safeLong(job.getJobTriggerNextTime());
@@ -494,6 +499,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         );
     }
 
+    /** ClaimJob */
     private boolean claimJob(String tableName, SysJob job, DispatchPlan plan) {
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("jobId", job.getJobId());
@@ -515,6 +521,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         return updated > 0;
     }
 
+    /** 回滚Claim */
     private void rollbackClaim(String tableName, SysJob job, DispatchPlan plan) {
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("jobId", job.getJobId());
@@ -537,6 +544,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         );
     }
 
+    /** 是否可以分发 */
     private boolean canDispatch(SysJob job, boolean clusterMode) {
         if (job == null || !StringUtils.hasText(job.getJobExecuteBean())) {
             return false;
@@ -552,6 +560,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         return JobDispatchModeEnum.REMOTE == JobDispatchModeEnum.match(job.getJobDispatchMode());
     }
 
+    /** SafeLong */
     private long safeLong(Long value) {
         return value == null ? 0L : value;
     }
@@ -644,6 +653,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         }
     }
 
+    /** DiscoveryCacheKey */
     private static String discoveryCacheKey(String namespace, String handlerName) {
         return namespace + ":" + handlerName;
     }
@@ -820,6 +830,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         return job;
     }
 
+    /** 去空格ToNull */
     private String trimToNull(String value) {
         return (value != null && !value.trim().isEmpty()) ? value.trim() : null;
     }

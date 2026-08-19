@@ -94,6 +94,7 @@ public final class LoginAuthorization implements Authorization {
     }
 
     @Override
+    /** Authentication */
     public ReturnResult<String> authentication() {
         long startTime = System.currentTimeMillis();
         String traceId = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16);

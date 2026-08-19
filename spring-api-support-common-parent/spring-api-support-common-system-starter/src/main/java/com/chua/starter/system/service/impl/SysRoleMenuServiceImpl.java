@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRoleMenu> implements SysRoleMenuService {
 
     @Override
+    /** ListMenuIdsByRoleId */
     public List<Integer> listMenuIdsByRoleId(Integer roleId) {
         if (roleId == null) {
             return Collections.emptyList();
@@ -37,6 +38,7 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
     }
 
     @Override
+    /** ListRoleIdsByMenuId */
     public List<Integer> listRoleIdsByMenuId(Integer menuId) {
         if (menuId == null) {
             return Collections.emptyList();
@@ -49,6 +51,7 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
     }
 
     @Override
+    /** ListMenuIdsByUserId */
     public List<Integer> listMenuIdsByUserId(Integer userId) {
         if (userId == null) {
             return Collections.emptyList();
@@ -73,6 +76,7 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** AssignMenusToRole */
     public boolean assignMenusToRole(Integer roleId, List<Integer> menuIds) {
         if (roleId == null) {
             return false;
@@ -86,6 +90,7 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 添加MenusToRole */
     public int addMenusToRole(Integer roleId, List<Integer> menuIds) {
         if (roleId == null || menuIds == null || menuIds.isEmpty()) {
             return 0;
@@ -109,6 +114,7 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 移除RoleMenu */
     public boolean removeRoleMenu(Integer roleId, Integer menuId) {
         if (roleId == null || menuId == null) {
             return false;
@@ -120,6 +126,7 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 移除AllMenusOfRole */
     public int removeAllMenusOfRole(Integer roleId) {
         if (roleId == null) {
             return 0;
@@ -130,6 +137,7 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 移除AllRolesOfMenu */
     public int removeAllRolesOfMenu(Integer menuId) {
         if (menuId == null) {
             return 0;

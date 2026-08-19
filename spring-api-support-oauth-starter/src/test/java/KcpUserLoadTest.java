@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class KcpUserLoadTest {
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         int users = args.length > 0 ? Integer.parseInt(args[0]) : 50;
         String serverUrl = "kcp://127.0.0.1:19186";

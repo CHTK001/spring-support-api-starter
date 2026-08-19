@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class KcpLoadTest {
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         int clients = args.length > 0 ? Integer.parseInt(args[0]) : 8;
         int iterations = args.length > 1 ? Integer.parseInt(args[1]) : 5;
@@ -77,6 +78,7 @@ public class KcpLoadTest {
         System.out.println("P99 延迟: " + p99 + "ms");
     }
 
+    /** Pct */
     private static long pct(List<Long> sorted, double p) {
         if (sorted.isEmpty()) return 0;
         int idx = (int) Math.ceil(p / 100.0 * sorted.size()) - 1;

@@ -108,6 +108,7 @@ public final class TenantSyncMessageSupport {
     private TenantSyncMessageSupport() {
     }
 
+    /** 创建Envelope */
     public static Map<String, Object> createEnvelope(String tenantId, String syncMode, String reason) {
         Map<String, Object> message = new HashMap<>();
         message.put(MESSAGE_ID, UUID.randomUUID().toString());
@@ -255,6 +256,7 @@ public final class TenantSyncMessageSupport {
     }
 
     @SuppressWarnings("unchecked")
+    /** 解析TargetTenantId */
     public static String resolveTargetTenantId(Map<String, Object> data) {
         if (data == null || data.isEmpty()) {
             return null;
@@ -282,6 +284,7 @@ public final class TenantSyncMessageSupport {
         return null;
     }
 
+    /** 解析MessageId */
     public static String resolveMessageId(Map<String, Object> data) {
         if (data == null || data.isEmpty()) {
             return null;
@@ -294,6 +297,7 @@ public final class TenantSyncMessageSupport {
         return MapUtils.getString(data, "requestId");
     }
 
+    /** 解析Timestamp */
     public static long resolveTimestamp(Map<String, Object> data) {
         if (data == null || data.isEmpty()) {
             return 0L;
@@ -302,6 +306,7 @@ public final class TenantSyncMessageSupport {
     }
 
     @SuppressWarnings("unchecked")
+    /** 解析TenantPayload */
     public static Map<String, Object> resolveTenantPayload(Map<String, Object> data) {
         if (data == null) {
             return null;
@@ -313,6 +318,7 @@ public final class TenantSyncMessageSupport {
         return data;
     }
 
+    /** 解析TenantId */
     public static String resolveTenantId(ClientInfo clientInfo) {
         if (clientInfo == null || clientInfo.getClientMetadata() == null) {
             return null;
@@ -321,10 +327,12 @@ public final class TenantSyncMessageSupport {
         return tenantId == null ? null : String.valueOf(tenantId);
     }
 
+    /** 是否拥有Text */
     public static boolean hasText(String value) {
         return value != null && !value.isBlank();
     }
 
+    /** NormalizeForSign */
     private static Object normalizeForSign(Object value) {
         if (value == null) {
             return null;
@@ -376,26 +384,32 @@ public final class TenantSyncMessageSupport {
             this.message = message;
         }
 
+        /** Valid */
         public static VerificationResult valid() {
             return VALID;
         }
 
+        /** 跳过 */
         public static VerificationResult skip(String message) {
             return new VerificationResult(true, true, message);
         }
 
+        /** Invalid */
         public static VerificationResult invalid(String message) {
             return new VerificationResult(false, false, message);
         }
 
+        /** 是否Valid */
         public boolean isValid() {
             return valid;
         }
 
+        /** 是否Skipped */
         public boolean isSkipped() {
             return skipped;
         }
 
+        /** 获取Message */
         public String getMessage() {
             return message;
         }

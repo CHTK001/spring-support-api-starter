@@ -175,6 +175,7 @@ public class OAuthTraceFilter implements Filter, Ordered {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 10;
     }

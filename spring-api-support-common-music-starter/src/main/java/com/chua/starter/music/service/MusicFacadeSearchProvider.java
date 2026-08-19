@@ -32,12 +32,14 @@ public class MusicFacadeSearchProvider implements MusicWebSearchProvider {
     private final MusicFacadeService musicFacadeService;
 
     @PostConstruct
+    /** 注册 */
     public void register() {
         ServiceProvider.of(MusicWebSearchProvider.class).register("music-facade", this);
         log.debug("[Music] MusicFacadeSearchProvider registered to SPI");
     }
 
     @Override
+    /** 搜索 */
     public List<String> search(String query, int maxResults) {
         try {
             MusicSearchResult result = musicFacadeService.search("all", query, 1, maxResults);

@@ -109,6 +109,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    /** 删除 */
     public ReturnResult<Boolean> delete(Long userId) {
         SysUser sysUser1 = getById(userId);
         if (null == sysUser1) {
@@ -123,6 +124,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    /** 重置Owner */
     public ReturnResult<SysUser> resetOwner(Long userId) {
         SysUser sysUser1 = getById(userId);
         if (null == sysUser1) {
@@ -138,6 +140,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    /** 重置 */
     public ReturnResult<String> reset(Long userId) {
         SysUser sysUser1 = getById(userId);
         if (null == sysUser1) {
@@ -153,6 +156,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    /** 更新User */
     public ReturnResult<SysUser> updateUser(Set<String> roles, Long userId, SysUserUpdate sysUser) {
         Integer sysUserId = sysUser.getSysUserId();
         SysUser sysUser1;
@@ -202,6 +206,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    /** 保存User */
     public ReturnResult<SysUser> saveUser(SysUserUpdate sysUserUpdate, HttpServletRequest request) {
         if(baseMapper.selectCount(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getSysUserUsername, sysUserUpdate.getSysUserUsername())
         ) > 0L) {
@@ -234,6 +239,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    /** 获取UserMenu */
     public ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles, Integer sysMenuEngine) {
         SysMenu sysMenu = new SysMenu();
         sysMenu.setSysMenuEngine(null == sysMenuEngine ? 0 : sysMenuEngine);
@@ -241,10 +247,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    /** 获取UserMiniMenu */
     public ReturnResult<List<SysMiniMenuVO>> getUserMiniMenu(Set<String> roles) {
         return sysMiniMenuService.listUserMenus(roles);
     }
 
+    /** 解析GeoAddress */
     private String resolveGeoAddress(String rawIp) {
         String ip = normalizeClientIp(rawIp);
         if (org.apache.commons.lang3.StringUtils.isBlank(ip)) {
@@ -266,6 +274,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
     }
 
+    /** NormalizeClientIp */
     private String normalizeClientIp(String rawIp) {
         if (org.apache.commons.lang3.StringUtils.isBlank(rawIp)) {
             return null;
@@ -277,6 +286,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .orElse(null);
     }
 
+    /** NormalizeLastLoginState */
     private void normalizeLastLoginState(SysUser source, SysUserVO target) {
         if (null == source || null == target) {
             return;
@@ -289,6 +299,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         target.setSysUserLastAddress(null);
     }
 
+    /** EnrichLastLoginInfo */
     private void enrichLastLoginInfo(List<SysUserVO> records) {
         if (CollectionUtils.isEmpty(records)) {
             return;
@@ -330,6 +341,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
 
     @Override
+    /** 更新Owner */
     public ReturnResult<SysUser> updateOwner(Set<String> roles, Long userId, SysUserPasswordUpdate sysUserPasswordUpdate) {
         SysUser sysUser = baseMapper.selectById(userId);
         if(null == sysUser) {
@@ -366,6 +378,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    /** 获取UserLayout */
     public UserLayout getUserLayout(Long userId, Set<String> roles) {
         SysUserLayout sysUserLayout = sysUserLayoutMapper.selectOne(Wrappers.<SysUserLayout>lambdaQuery().eq(SysUserLayout::getSysLayoutUserId, userId));
         UserLayout userLayout = new UserLayout();
@@ -380,6 +393,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    /** 保存UserLayout */
     public UserLayout saveUserLayout(Long userId, UserLayout userLayout) {
         SysUserLayout sysUserLayout = sysUserLayoutMapper.selectOne(Wrappers.<SysUserLayout>lambdaQuery().eq(SysUserLayout::getSysLayoutUserId, userId));
         if(null == sysUserLayout) {
@@ -401,6 +415,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    /** ExportUsers */
     public void exportUsers(SysUserQuery query, Set<String> roles, jakarta.servlet.http.HttpServletResponse response) {
         try {
             response.setContentType("text/csv;charset=UTF-8");
@@ -444,6 +459,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    /** DownloadTemplate */
     public void downloadTemplate(jakarta.servlet.http.HttpServletResponse response) {
         try {
             response.setContentType("text/csv;charset=UTF-8");
@@ -467,6 +483,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    /** ImportUsers */
     public ReturnResult<String> importUsers(org.springframework.web.multipart.MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ReturnResult.illegal("请上传文件");

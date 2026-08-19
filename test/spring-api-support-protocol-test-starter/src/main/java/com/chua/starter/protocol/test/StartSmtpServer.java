@@ -8,6 +8,7 @@ import com.chua.protocol.support.network.protocol.server.ProtocolServer;
  * @author CH
  */
 public class StartSmtpServer {
+    /** Main */
     public static void main(String[] args) throws Exception {
         int port = args.length > 0 ? Integer.parseInt(args[0]) : 2525;
         String host = args.length > 1 ? args[1] : "0.0.0.0";

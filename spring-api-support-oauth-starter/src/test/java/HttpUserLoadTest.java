@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class HttpUserLoadTest {
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String baseUrl = args.length > 0 ? args[0] : "http://localhost:19180";
         int users = args.length > 1 ? Integer.parseInt(args[1]) : 100;

@@ -37,6 +37,7 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
     private static final int STATUS_SENT = 1;
 
     @Override
+    /** PageForUser */
     public IPage<SysMessage> pageForUser(Integer sysUserId, long page, long pageSize) {
         Page<SysMessage> pager = new Page<>(Math.max(page, 1), Math.max(pageSize, 1));
         return page(pager, Wrappers.<SysMessage>lambdaQuery()
@@ -49,6 +50,7 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
     }
 
     @Override
+    /** 计算数量Unread */
     public long countUnread(Integer sysUserId) {
         return count(Wrappers.<SysMessage>lambdaQuery()
                 .and(w -> w.eq(SysMessage::getSysMessageReceiverId, sysUserId)
@@ -59,6 +61,7 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
     }
 
     @Override
+    /** 标记读取 */
     public ReturnResult<Boolean> markRead(Integer sysUserId, Long lastId) {
         SysMessage update = new SysMessage();
         update.setSysMessageRead(1);

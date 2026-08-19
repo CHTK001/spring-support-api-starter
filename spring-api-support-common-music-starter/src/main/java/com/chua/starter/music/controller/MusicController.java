@@ -44,12 +44,14 @@ public class MusicController {
 
     @GetMapping("/sources")
     @Operation(summary = "获取音源列表")
+    /** ListSources */
     public ReturnResult<List<MusicSourceOption>> listSources() {
         return ReturnResult.ok(musicFacadeService.listSources());
     }
 
     @GetMapping("/overview")
     @Operation(summary = "获取音乐首页概览")
+    /** Overview */
     public ReturnResult<MusicOverview> overview(@RequestParam(required = false) String source) {
         return ReturnResult.ok(musicFacadeService.getOverview(source));
     }
@@ -158,6 +160,7 @@ public class MusicController {
         return musicStreamProxyService.proxy(trackDetail, rangeHeader);
     }
 
+    /** RewriteTrackStreamUrl */
     private MusicTrackDetail rewriteTrackStreamUrl(MusicTrackDetail trackDetail) {
         String streamUrl = trackDetail.getStreamUrl();
         if (StringUtils.hasText(streamUrl)) {

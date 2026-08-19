@@ -433,10 +433,12 @@ public class OAuth2CoreService {
             String errorMessage,
             Set<String> grantedScopes
     ) {
+        /** Success */
         public static ScopeValidationResult success(Set<String> scopes) {
             return new ScopeValidationResult(true, null, scopes);
         }
 
+        /** Failure */
         public static ScopeValidationResult failure(String message) {
             return new ScopeValidationResult(false, message, Collections.emptySet());
         }

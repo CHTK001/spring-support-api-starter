@@ -35,6 +35,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     private SysFileSystemService sysFileSystemService;
 
     @Override
+    /** 获取EnabledSettingForFileSystem */
     public SysFileSystemSetting getEnabledSettingForFileSystem() {
         return getOne(Wrappers.<SysFileSystemSetting>lambdaQuery()
                 .eq(SysFileSystemSetting::getSysFileSystemSettingEnabled, true)
@@ -43,6 +44,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 启用SettingForFileSystem */
     public ReturnResult<Boolean> enableSettingForFileSystem(Integer settingId) {
         log.info("启用配置: settingId={}", settingId);
         update(Wrappers.<SysFileSystemSetting>lambdaUpdate()
@@ -55,6 +57,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 初始化DefaultSettingForFileSystem */
     public ReturnResult<Boolean> initDefaultSettingForFileSystem() {
         log.info("初始化默认配置");
         long count = count();
@@ -67,6 +70,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
+    /** 开始FileServerForFileSystem */
     public synchronized ReturnResult<Boolean> startFileServerForFileSystem() {
         if (fileHttpServer != null && fileHttpServer.isRunning()) {
             return ReturnResult.ok(true);
@@ -104,6 +108,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
+    /** 停止FileServerForFileSystem */
     public synchronized ReturnResult<Boolean> stopFileServerForFileSystem() {
         if (fileHttpServer == null) {
             return ReturnResult.ok(true);
@@ -119,6 +124,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
+    /** 获取FileServerStatusForFileSystem */
     public ReturnResult<String> getFileServerStatusForFileSystem() {
         if (fileHttpServer != null && fileHttpServer.isRunning()) {
             return ReturnResult.ok("running");
@@ -127,6 +133,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
+    /** 校验PortAvailableForFileSystem */
     public ReturnResult<Boolean> checkPortAvailableForFileSystem(Integer port) {
         if (port == null || port < 1 || port > 65535) {
             return ReturnResult.error("端口号无效");

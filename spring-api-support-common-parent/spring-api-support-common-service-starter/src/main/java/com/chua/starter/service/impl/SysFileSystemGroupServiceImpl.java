@@ -47,6 +47,7 @@ public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGrou
     }
 
     @Override
+    /** 获取TreeForFileSystem */
     public List<SysFileSystemGroup> getTreeForFileSystem() {
         List<SysFileSystemGroup> allGroups = list(Wrappers.<SysFileSystemGroup>lambdaQuery()
                 .eq(SysFileSystemGroup::getSysFileSystemGroupStatus, SysFileSystemGroup.Status.ENABLED)
@@ -56,6 +57,7 @@ public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGrou
     }
 
     @Override
+    /** 获取Default分组ForFileSystem */
     public SysFileSystemGroup getDefaultGroupForFileSystem() {
         return getOne(Wrappers.<SysFileSystemGroup>lambdaQuery()
                 .eq(SysFileSystemGroup::getSysFileSystemGroupIsDefault, true)
@@ -65,6 +67,7 @@ public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGrou
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 初始化DefaultGroupsForFileSystem */
     public ReturnResult<Boolean> initDefaultGroupsForFileSystem() {
         log.info("初始化默认分组");
 

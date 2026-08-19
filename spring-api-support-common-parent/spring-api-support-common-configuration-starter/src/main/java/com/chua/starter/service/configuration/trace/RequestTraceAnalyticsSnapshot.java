@@ -32,9 +32,11 @@ public record RequestTraceAnalyticsSnapshot(
         recentSuspiciousEvents = recentSuspiciousEvents == null ? List.of() : List.copyOf(recentSuspiciousEvents);
     }
 
+    /** SignalBucket */
     public record SignalBucket(String code, String description, long count) {
     }
 
+    /** MetricBucket */
     public record MetricBucket(String key, long count) {
     }
 

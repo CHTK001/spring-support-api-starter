@@ -125,6 +125,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     private static final DateTimeFormatter GENERATED_AT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
+    /** ListByServerId */
     public ReturnResult<List<MonitorSysGenServerLayout>> listByServerId(Integer serverId) {
         if (serverId == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -136,6 +137,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     @Override
+    /** 获取DefaultLayout */
     public ReturnResult<MonitorSysGenServerLayout> getDefaultLayout(Integer serverId) {
         if (serverId == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -152,6 +154,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     @Override
+    /** 保存Layout */
     public ReturnResult<MonitorSysGenServerLayout> saveLayout(MonitorSysGenServerLayout layout) {
         if (layout == null || layout.getMonitorSysGenServerId() == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -165,6 +168,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     @Override
+    /** 更新Layout */
     public ReturnResult<MonitorSysGenServerLayout> updateLayout(MonitorSysGenServerLayout layout) {
         if (layout == null || layout.getMonitorSysGenServerLayoutId() == null) {
             return ReturnResult.illegal("布局ID不能为空");
@@ -181,6 +185,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     @Override
+    /** 删除Layout */
     public ReturnResult<Boolean> deleteLayout(Integer layoutId) {
         if (layoutId == null) {
             return ReturnResult.illegal("布局ID不能为空");
@@ -198,6 +203,7 @@ public class MonitorSysGenServerLayoutServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 设置DefaultLayout */
     public ReturnResult<Boolean> setDefaultLayout(Integer serverId, Integer layoutId) {
         if (serverId == null || layoutId == null) {
             return ReturnResult.illegal("服务器ID和布局ID不能为空");
@@ -220,6 +226,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     @Override
+    /** GenerateFromComponents */
     public ReturnResult<MonitorSysGenServerLayout> generateFromComponents(Integer serverId, String layoutName) {
         if (serverId == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -260,6 +267,7 @@ public class MonitorSysGenServerLayoutServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 应用ToComponents */
     public ReturnResult<Integer> applyToComponents(Integer serverId, Integer layoutId) {
         if (serverId == null || layoutId == null) {
             return ReturnResult.illegal("服务器ID和布局ID不能为空");
@@ -298,6 +306,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     @Override
+    /** 复制Layout */
     public ReturnResult<MonitorSysGenServerLayout> copyLayout(Integer sourceLayoutId, Integer targetServerId, String layoutName) {
         if (sourceLayoutId == null || targetServerId == null) {
             return ReturnResult.illegal("源布局ID和目标服务器ID不能为空");
@@ -322,6 +331,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     @Override
+    /** 获取Detail */
     public ReturnResult<MonitorSysGenServerLayout> getDetail(Integer layoutId) {
         if (layoutId == null) {
             return ReturnResult.illegal("布局ID不能为空");
@@ -334,6 +344,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     @Override
+    /** ListByType */
     public ReturnResult<List<MonitorSysGenServerLayout>> listByType(String layoutType) {
         if (StringUtils.isEmpty(layoutType)) {
             return ReturnResult.illegal("布局类型不能为空");
@@ -345,6 +356,7 @@ public class MonitorSysGenServerLayoutServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 创建DefaultLayout */
     public ReturnResult<MonitorSysGenServerLayout> createDefaultLayout(Integer serverId) {
         if (serverId == null) {
             return ReturnResult.illegal("服务器ID不能为空");

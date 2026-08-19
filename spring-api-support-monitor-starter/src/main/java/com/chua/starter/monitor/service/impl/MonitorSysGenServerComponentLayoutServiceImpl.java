@@ -68,6 +68,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     private static final int DEFAULT_SORT_ORDER = 0;
 
     @Override
+    /** ListByServer */
     public ReturnResult<List<MonitorSysGenServerComponentLayout>> listByServer(Integer serverId) {
         if (serverId == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -78,6 +79,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     }
 
     @Override
+    /** ListEnabledByServer */
     public ReturnResult<List<MonitorSysGenServerComponentLayout>> listEnabledByServer(Integer serverId) {
         if (serverId == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -89,6 +91,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     }
 
     @Override
+    /** 获取ByComponent */
     public ReturnResult<MonitorSysGenServerComponentLayout> getByComponent(Integer serverId, Integer componentId) {
         if (serverId == null || componentId == null) {
             return ReturnResult.illegal("服务器ID和组件ID不能为空");
@@ -104,6 +107,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     }
 
     @Override
+    /** 保存ComponentLayout */
     public ReturnResult<MonitorSysGenServerComponentLayout> saveComponentLayout(MonitorSysGenServerComponentLayout layout) {
         if (layout == null || layout.getMonitorSysGenServerId() == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -126,6 +130,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** Batch更新Position */
     public ReturnResult<Integer> batchUpdatePosition(List<MonitorSysGenServerComponentLayout> layouts) {
         if (layouts == null || layouts.isEmpty()) {
             return ReturnResult.ok(0);
@@ -151,6 +156,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     }
 
     @Override
+    /** 更新Position */
     public ReturnResult<Boolean> updatePosition(Integer layoutId, MonitorSysGenServerComponentLayout layout) {
         if (layoutId == null || layout == null) {
             return ReturnResult.illegal("组件布局ID不能为空");
@@ -166,6 +172,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     }
 
     @Override
+    /** 更新Status */
     public ReturnResult<Boolean> updateStatus(Integer layoutId, Integer status) {
         if (layoutId == null || status == null) {
             return ReturnResult.illegal("组件布局ID和状态不能为空");
@@ -177,6 +184,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     }
 
     @Override
+    /** Statistics */
     public ReturnResult<Map<String, Object>> statistics(Integer serverId) {
         if (serverId == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -195,6 +203,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 复制ToServer */
     public ReturnResult<Integer> copyToServer(Integer sourceServerId, Integer targetServerId) {
         if (sourceServerId == null || targetServerId == null) {
             return ReturnResult.illegal("源服务器ID和目标服务器ID不能为空");
@@ -223,6 +232,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 重置Server */
     public ReturnResult<Integer> resetServer(Integer serverId) {
         if (serverId == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -236,6 +246,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     }
 
     @Override
+    /** 删除ByComponent */
     public ReturnResult<Boolean> deleteByComponent(Integer componentId) {
         if (componentId == null) {
             return ReturnResult.illegal("组件ID不能为空");
@@ -245,6 +256,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     }
 
     @Override
+    /** 删除ByServer */
     public ReturnResult<Boolean> deleteByServer(Integer serverId) {
         if (serverId == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -254,6 +266,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     }
 
     @Override
+    /** 保存ChartConfig */
     public ReturnResult<Boolean> saveChartConfig(Integer serverId, Integer componentId, String chartConfig) {
         if (serverId == null || componentId == null) {
             return ReturnResult.illegal("服务器ID和组件ID不能为空");
@@ -274,6 +287,7 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     }
 
     @Override
+    /** 获取ChartConfig */
     public ReturnResult<String> getChartConfig(Integer serverId, Integer componentId) {
         if (serverId == null || componentId == null) {
             return ReturnResult.illegal("服务器ID和组件ID不能为空");

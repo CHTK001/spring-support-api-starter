@@ -126,6 +126,7 @@ public class AdminController {
     }
 
     // ---- 内嵌 HTML 控制台 ----
+    /** 构建Html */
     private String buildHtml() {
         return """
 <!DOCTYPE html>

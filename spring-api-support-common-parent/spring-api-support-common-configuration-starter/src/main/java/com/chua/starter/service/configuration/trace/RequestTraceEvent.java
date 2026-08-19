@@ -47,6 +47,7 @@ public record RequestTraceEvent(
         signals = signals == null || signals.isEmpty() ? Set.of() : Set.copyOf(signals);
     }
 
+    /** WithSignals */
     public RequestTraceEvent withSignals(Set<RequestTraceSignal> newSignals) {
         return new RequestTraceEvent(
                 timestamp,
@@ -70,10 +71,12 @@ public record RequestTraceEvent(
         );
     }
 
+    /** Suspicious */
     public boolean suspicious() {
         return !signals.isEmpty();
     }
 
+    /** RouteKey */
     public String routeKey() {
         if (method == null && path == null) {
             return "UNKNOWN";
@@ -88,6 +91,7 @@ public record RequestTraceEvent(
         return method + " " + route;
     }
 
+    /** RequestUrl */
     public String requestUrl() {
         if (path == null) {
             return null;
@@ -98,10 +102,12 @@ public record RequestTraceEvent(
         return path + "?" + query;
     }
 
+    /** ActorKey */
     public String actorKey() {
         return RequestTraceSupport.firstNonBlank(userId, fingerprint, clientIp);
     }
 
+    /** PrincipalKey */
     public String principalKey() {
         return RequestTraceSupport.firstNonBlank(userId, tokenHash, fingerprint, clientIp);
     }

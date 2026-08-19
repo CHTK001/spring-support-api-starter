@@ -83,6 +83,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
     private final SysSmsLogMapper sysSmsLogMapper;
 
     @Override
+    /** 发送Code */
     public ReturnResult<Boolean> sendCode(SmsCodeRequest request) {
         String phone = request.getPhone();
         String bizType = request.getBizType();
@@ -150,6 +151,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
     }
 
     @Override
+    /** 验证Code */
     public boolean verifyCode(String phone, String code, String bizType) {
         if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(code)) {
             return false;
@@ -177,6 +179,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
     }
 
     @Override
+    /** Login */
     public ReturnResult<LoginResult> login(SmsLoginRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
         String phone = request.getPhone();
         String code = request.getCode();
@@ -266,6 +269,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
         }
     }
 
+    /** Truncate */
     private String truncate(String value, int maxLength) {
         if (StringUtils.isEmpty(value) || value.length() <= maxLength) {
             return value;

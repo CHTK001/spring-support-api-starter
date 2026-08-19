@@ -27,6 +27,7 @@ public class OpenApiConfiguration {
     private String contextPath;
 
     @Bean
+    /** Custom打开API */
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()

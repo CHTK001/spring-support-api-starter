@@ -37,11 +37,13 @@ public class DingtalkLoginService extends AbstractUserLoginService {
     private SysUserThirdPartyMapper sysUserThirdPartyMapper;
 
     @Override
+    /** 获取LoginTypePrefix */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
+    /** GenerateUserIds */
     protected String[] generateUserIds(SysUser user) {
         String baseId = user.getSysUserId() + "DINGTALK";
         return new String[]{
@@ -93,6 +95,7 @@ public class DingtalkLoginService extends AbstractUserLoginService {
     }
 
     @Override
+    /** Upgrade */
     public UserResume upgrade(UserResult userResult) {
         SysUser user = sysUserMapper.selectById(userResult.getUserId());
         if (null == user) {

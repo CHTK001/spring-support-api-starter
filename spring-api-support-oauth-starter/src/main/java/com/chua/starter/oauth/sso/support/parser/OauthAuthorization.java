@@ -56,6 +56,7 @@ public final class OauthAuthorization implements Authorization {
     }
 
     @Override
+    /** Authentication */
     public ReturnResult<String> authentication() {
         log.info("开始认证: subProtocol={}, hasToken={}, hasUserCode={}", 
                 subProtocol, StringUtils.isNotBlank(token), StringUtils.isNotBlank(userCode));

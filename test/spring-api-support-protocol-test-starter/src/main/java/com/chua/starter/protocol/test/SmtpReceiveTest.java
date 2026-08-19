@@ -26,6 +26,7 @@ public class SmtpReceiveTest {
     /** 失败计数 */
     private static int failCount = 0;
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         log.info("=== SMTP 邮件接收测试开始 ===");
 
@@ -84,6 +85,7 @@ public class SmtpReceiveTest {
         }
     }
 
+    /** Test发送Email */
     static void testSendEmail(String from, String to, String subject, String body) throws IOException {
         log.info("发送邮件: {} -> {}", from, to);
 
@@ -138,6 +140,7 @@ public class SmtpReceiveTest {
         successCount++;
     }
 
+    /** Test发送EmailToMultiple */
     static void testSendEmailToMultiple(String from, String[] tos, String subject, String body) throws IOException {
         log.info("群发邮件: {} -> {}", from, String.join(", ", tos));
 
@@ -185,6 +188,7 @@ public class SmtpReceiveTest {
         successCount++;
     }
 
+    /** 发送Command */
     static void sendCommand(BufferedWriter writer, BufferedReader reader, String command) throws IOException {
         log.info(">>> {}", command);
         writer.write(command + "\r\n");
@@ -194,6 +198,7 @@ public class SmtpReceiveTest {
         checkResponse(response);
     }
 
+    /** 校验Response */
     static void checkResponse(String response) {
         if (response.startsWith("5")) {
             failCount++;
@@ -201,6 +206,7 @@ public class SmtpReceiveTest {
         }
     }
 
+    /** 校验Response */
     static void checkResponse(String response, String expectedCode) {
         if (!response.startsWith(expectedCode)) {
             failCount++;
@@ -208,6 +214,7 @@ public class SmtpReceiveTest {
         }
     }
 
+    /** 读取Response */
     static String readResponse(BufferedReader reader) throws IOException {
         StringBuilder sb = new StringBuilder();
         String line;

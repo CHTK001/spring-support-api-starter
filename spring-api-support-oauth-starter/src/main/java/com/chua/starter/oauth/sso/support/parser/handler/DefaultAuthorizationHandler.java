@@ -91,6 +91,7 @@ public class DefaultAuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
+    /** Supports */
     public boolean supports(String subProtocol, String token, String userCode) {
         // Token认证：有token参数，无userCode参数
         return StringUtils.isNotBlank(token) && StringUtils.isBlank(userCode);

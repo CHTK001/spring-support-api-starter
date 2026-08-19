@@ -166,6 +166,7 @@ public class OauthProtocolServerManager implements AutoCloseable {
     private void startKcpServer(KcpServer kcpServer, OauthProtocolHandler handler, List<String> routes) {
         kcpServer.addListener(new SyncServerListener() {
             @Override
+            /** OnMessage */
             public void onMessage(String clientId, String topic, Object message) {
                 if (message == null) {
                     return;
@@ -307,41 +308,49 @@ public class OauthProtocolServerManager implements AutoCloseable {
         }
 
         @Override
+        /** 读取Body */
         protected byte[] readBody() {
             return body;
         }
 
         @Override
+        /** 获取Headers */
         public HttpHeader getHeaders() {
             return HttpHeader.create();
         }
 
         @Override
+        /** 获取Header */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
+        /** 获取Uri */
         public String getUri() {
             return "/" + topic;
         }
 
         @Override
+        /** 获取Path */
         public String getPath() {
             return "/" + topic;
         }
 
         @Override
+        /** 获取Method */
         public HttpMethod getMethod() {
             return HttpMethod.POST;
         }
 
         @Override
+        /** 获取RemoteAddress */
         public String getRemoteAddress() {
             return LOCALHOST;
         }
 
         @Override
+        /** 获取RemotePort */
         public int getRemotePort() {
             return 0;
         }
@@ -358,11 +367,13 @@ public class OauthProtocolServerManager implements AutoCloseable {
     private static class MessageServerResponse extends AbstractServerResponse {
 
         @Override
+        /** 获取OutputStream */
         public OutputStream getOutputStream() {
             return new ByteArrayOutputStream();
         }
 
         @Override
+        /** 写入Raw */
         public void writeRaw(byte[] bytes) {
             this.body = bytes;
         }

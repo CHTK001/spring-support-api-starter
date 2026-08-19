@@ -41,6 +41,7 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 保存Report */
     public ReturnResult<Boolean> saveReport(ErrorReportV1Request request) {
         if (request == null || request.getRecords() == null || request.getRecords().isEmpty()) {
             return ReturnResult.illegal("异常记录列表不能为空");
@@ -73,6 +74,7 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
     }
 
     @Override
+    /** ListRecent */
     public List<SysErrorLog> listRecent(String source, int limit) {
         return list(
                 Wrappers.<SysErrorLog>lambdaQuery()
@@ -87,6 +89,7 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
     }
 
     @Override
+    /** PageFor记录日志 */
     public IPage<SysErrorLog> pageForLog(Query<SysErrorLog> query, SysErrorLog sysErrorLog) {
         LambdaQueryWrapper<SysErrorLog> wrapper = new LambdaQueryWrapper<>();
         if (sysErrorLog != null) {

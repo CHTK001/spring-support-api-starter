@@ -88,6 +88,7 @@ public class GuestDefaultSetting implements Upgrade<GuestDefaultSetting> {
     private String featureTags;
 
     @Override
+    /** Upgrade */
     public void upgrade(GuestDefaultSetting guestDefaultSetting) {
         this.checkCodeOpen = guestDefaultSetting.checkCodeOpen;
         this.checkTotpCodeOpen = guestDefaultSetting.checkTotpCodeOpen;

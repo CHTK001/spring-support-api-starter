@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class HttpLoginLoadTest {
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         String baseUrl = args.length > 0 ? args[0] : "http://localhost:19180";
         int clients = args.length > 1 ? Integer.parseInt(args[1]) : 16;
@@ -83,6 +84,7 @@ public class HttpLoginLoadTest {
         System.out.println("P50: " + p50 + "ms, P95: " + p95 + "ms, P99: " + p99 + "ms");
     }
 
+    /** Pct */
     private static long pct(List<Long> sorted, double p) {
         if (sorted.isEmpty()) return 0;
         int idx = (int) Math.ceil(p / 100.0 * sorted.size()) - 1;

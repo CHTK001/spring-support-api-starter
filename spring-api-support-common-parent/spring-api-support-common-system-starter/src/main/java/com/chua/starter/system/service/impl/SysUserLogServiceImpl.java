@@ -41,6 +41,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     final IptablesService iptablesService;
 
     @Override
+    /** OnApplicationEvent */
     public void onApplicationEvent(UserLoggerInfo userLoggerInfo) {
 //        SysUserLog sysUserLog = createSysUserLog(userLoggerInfo);
 //        ThreadUtils.newStaticThreadPool()
@@ -139,6 +140,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         return page;
     }
 
+    /** NormalizeUser记录日志查询 */
     private SysUserLogQuery normalizeUserLogQuery(SysUserLogQuery source) {
         SysUserLogQuery target = null == source ? new SysUserLogQuery() : source;
         target.setSysLogUsername(normalizeNullableString(target.getSysLogUsername()));
@@ -150,6 +152,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         return target;
     }
 
+    /** NormalizeNullableString */
     private String normalizeNullableString(String value) {
         if (StringUtils.isBlank(value)) {
             return null;
@@ -158,6 +161,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     @Override
+    /** 删除 */
     public ReturnResult<Boolean> delete(Long userLogId) {
         return baseMapper.deleteById(userLogId) > 0 ? ReturnResult.ok() : ReturnResult.error("删除失败");
     }
@@ -190,6 +194,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     @Override
+    /** MineLogs */
     public IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Integer sysUserId, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysUserLog>lambdaQuery()
                 .eq(SysUserLog::getCreateBy, sysUserId)
@@ -202,6 +207,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     @Override
+    /** Async保存User记录日志 */
     public void asyncSaveUserLog(SysUserLog sysUserLog) {
         if (null == sysUserLog) {
             return;

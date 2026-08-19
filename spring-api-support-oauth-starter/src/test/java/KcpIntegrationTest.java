@@ -6,6 +6,7 @@ import com.chua.kcp.support.client.KcpClient;
  * @author CH
  */
 public class KcpIntegrationTest {
+    /** Main */
     public static void main(String[] args) throws Exception {
         String body = "{\"data\":\"{\\\"x-oauth-username\\\":\\\"admin\\\",\\\"x-oauth-password\\\":\\\"admin123\\\",\\\"x-oauth-auth-type\\\":\\\"WEB\\\",\\\"x-oauth-access-key\\\":\\\"\\\",\\\"x-oauth-secret-key\\\":\\\"\\\"}\"}";
 

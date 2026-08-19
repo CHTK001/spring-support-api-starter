@@ -39,6 +39,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     final SysRoleMenuService sysRoleMenuService;
 
     @Override
+    /** PageForRole */
     public IPage<SysRole> pageForRole(Query<SysRole> query, SysRole sysRole, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysRole>lambdaQuery()
                 .like(StringUtils.isNotBlank(sysRole.getSysRoleCode()), SysRole::getSysRoleCode, sysRole.getSysRoleCode())
@@ -49,6 +50,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     }
 
     @Override
+    /** 删除 */
     public ReturnResult<Boolean> delete(Long roleId) {
         if(null == roleId) {
             return ReturnResult.error("角色ID不能为空");
@@ -69,6 +71,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     }
 
     @Override
+    /** 更新Role */
     public ReturnResult<Boolean> updateRole(Set<String> roles, SysRole sysRole) {
         SysRole sysRole2 = baseMapper.selectById(sysRole.getSysRoleId());
         Integer sysRoleInSystem = sysRole2.getSysRoleInSystem();
@@ -91,6 +94,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     }
 
     @Override
+    /** 保存Role */
     public ReturnResult<SysRole> saveRole(SysRole sysRole) {
         sysRole.setSysRoleInSystem(SystemConstant.IN_SYSTEM_NO);
         String sysRoleCode = sysRole.getSysRoleCode();
@@ -113,6 +117,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     }
 
     @Override
+    /** 更新Menu */
     public ReturnResult<Boolean> updateMenu(Set<String> roles, RoleMenuUpdate roleMenuUpdate) {
         return ReturnResult.of(Optional.ofNullable(transactionTemplate.execute(status -> {
             sysRoleMenuService.remove(Wrappers.<SysRoleMenu>lambdaQuery().eq(SysRoleMenu::getSysRoleId, roleMenuUpdate.getRoleId()));
@@ -130,6 +135,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     }
 
     @Override
+    /** 获取Menu */
     public ReturnResult<Set<Integer>> getMenu(RoleMenuUpdate roleMenuUpdate) {
         List<SysRoleMenu> list = sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery().eq(SysRoleMenu::getSysRoleId, roleMenuUpdate.getRoleId()));
         return ReturnResult.ok(list.stream().map(SysRoleMenu::getSysMenuId).collect(Collectors.toUnmodifiableSet()));

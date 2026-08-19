@@ -47,11 +47,13 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
     });
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return -100;
     }
 
     @Override
+    /** Customize */
     public void customize(SyncClient syncClient) {
         if (!tenantProperties.isClientMode() || !tenantProperties.getClient().isSyncEnable()) {
             return;
@@ -67,6 +69,7 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
 
         syncClient.addListener(new SyncFlowListener() {
             @Override
+            /** OnClientConnected */
             public void onClientConnected(String clientId) {
                 scheduleFullSyncRequest(syncClient);
             }
@@ -86,6 +89,7 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
         syncClient.registerHandler(topic, tenantClientSyncHandler);
     }
 
+    /** ScheduleFullSyncRequest */
     private void scheduleFullSyncRequest(SyncClient syncClient) {
         if (!tenantProperties.getClient().isSyncRequestFullPushOnConnect()) {
             return;
@@ -100,6 +104,7 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
         );
     }
 
+    /** RequestFullSyncIfNecessary */
     private void requestFullSyncIfNecessary(SyncClient syncClient, long connectedAt, String reason) {
         if (!syncClient.isConnected()) {
             return;
@@ -113,6 +118,7 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
         requestFullSync(syncClient, reason);
     }
 
+    /** RequestFullSync */
     private void requestFullSync(SyncClient syncClient, String reason) {
         String tenantId = tenantProperties.getClient().getTenantId();
         if (!TenantSyncMessageSupport.hasText(tenantId)) {
@@ -133,6 +139,7 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
     }
 
     @Override
+    /** 销毁 */
     public void destroy() {
         scheduler.shutdownNow();
     }

@@ -81,6 +81,7 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     }
 
     @Override
+    /** PageFor */
     public ReturnPageResult<SysFeedback> pageFor(FeedbackV1Request feedbackV1Request) {
         FeedbackV1Request request =
                 feedbackV1Request == null ? new FeedbackV1Request() : feedbackV1Request;
@@ -112,6 +113,7 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** Issue */
     public ReturnResult<Boolean> issue(FeedbackIssueV1Request request, UserResume userResume) {
         if (request == null || request.getSysFeedbackId() == null) {
             return ReturnResult.illegal("反馈ID不能为空");
@@ -154,6 +156,7 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     }
 
     @Override
+    /** Statistic */
     public ReturnResult<FeedbackStatisticV1Response> statistic() {
         log.debug("开始获取反馈统计数据");
         FeedbackStatisticV1Response response = new FeedbackStatisticV1Response();
@@ -270,6 +273,7 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
         }
     }
 
+    /** 解析UserId */
     private Integer parseUserId(Object rawUserId) {
         String normalizedUserId = rawUserId == null ? "" : String.valueOf(rawUserId).trim();
         if (StringUtils.isBlank(normalizedUserId)) {

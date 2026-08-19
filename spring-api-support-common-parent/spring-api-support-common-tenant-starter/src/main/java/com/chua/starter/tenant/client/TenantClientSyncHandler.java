@@ -84,12 +84,14 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
     private final AtomicLong lastReceivedSyncMessageTime = new AtomicLong(0L);
 
     @Override
+    /** 获取Name */
     public String getName() {
         return "tenant-client";
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 处理 */
     public Object handle(String topic, String sourceClientId, Map<String, Object> data) {
         if (data == null) {
             data = new HashMap<>();
@@ -157,6 +159,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         return !TenantSyncMessageSupport.hasText(selfTenantId) || selfTenantId.equals(tenantId);
     }
 
+    /** 获取Provider */
     private TenantDataSyncProvider getProvider() {
         if (syncProviders == null || syncProviders.isEmpty()) {
             log.warn("[�⻧�ͻ���] δ�ҵ� TenantDataSyncProvider ʵ��");
@@ -343,6 +346,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         return TenantSyncMessageSupport.hasText(targetTenantId) && !localTenantId.equals(targetTenantId);
     }
 
+    /** 验证Signature */
     private TenantSyncMessageSupport.VerificationResult verifySignature(Map<String, Object> data) {
         if (!tenantProperties.isClientSyncSignEnabled()) {
             return TenantSyncMessageSupport.VerificationResult.skip("client sign 未启用");
@@ -401,6 +405,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         return true;
     }
 
+    /** 标记AppliedMessage */
     private void markAppliedMessage(String topic, Map<String, Object> data, Object result) {
         if (!tenantProperties.getClient().isSyncIgnoreOutOfOrderMessages()
                 || !shouldTrackOrdering(topic)
@@ -418,6 +423,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         latestAppliedTimestamps.merge(buildOrderingKey(topic, data), timestamp, Math::max);
     }
 
+    /** CleanupAppliedTimestamps */
     private void cleanupAppliedTimestamps() {
         if (latestAppliedTimestamps.isEmpty()) {
             return;
@@ -438,6 +444,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         }
     }
 
+    /** 是否应该TrackOrdering */
     private boolean shouldTrackOrdering(String topic) {
         return TOPIC_TENANT_UPDATE.equals(topic)
                 || TOPIC_TENANT_DELETE.equals(topic)
@@ -445,6 +452,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
                 || TOPIC_TENANT_MENU.equals(topic);
     }
 
+    /** 构建OrderingKey */
     private String buildOrderingKey(String topic, Map<String, Object> data) {
         String tenantId = TenantSyncMessageSupport.resolveTargetTenantId(data);
         if (!TenantSyncMessageSupport.hasText(tenantId)) {
@@ -456,6 +464,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         return topic + ":" + tenantId;
     }
 
+    /** 是否SuccessfulResult */
     private boolean isSuccessfulResult(Object result) {
         if (!(result instanceof Map<?, ?> resultMap)) {
             return true;
@@ -465,6 +474,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         return !Boolean.FALSE.equals(success);
     }
 
+    /** 发送Ack */
     private void sendAck(String topic, Map<String, Object> data, Object result) {
         if (!tenantProperties.isClientSyncAckEnabled() || !shouldTrackOrdering(topic) || data == null || data.isEmpty()) {
             return;
@@ -506,6 +516,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
                 tenantId, topic, sourceMessageId, success, status);
     }
 
+    /** 解析AckStatus */
     private String resolveAckStatus(Object result) {
         if (!(result instanceof Map<?, ?> resultMap)) {
             return TenantSyncMessageSupport.ACK_STATUS_APPLIED;
@@ -523,6 +534,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         return TenantSyncMessageSupport.ACK_STATUS_APPLIED;
     }
 
+    /** 解析Ack记录错误Message */
     private String resolveAckErrorMessage(Object result, boolean success) {
         if (success || !(result instanceof Map<?, ?> resultMap)) {
             return null;
@@ -554,15 +566,18 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         }
     }
 
+    /** 是否拥有ReceivedSyncMessageSince */
     public boolean hasReceivedSyncMessageSince(long timestamp) {
         return lastReceivedSyncMessageTime.get() >= timestamp;
     }
 
+    /** 标记SyncMessageReceived */
     private void markSyncMessageReceived() {
         lastReceivedSyncMessageTime.set(System.currentTimeMillis());
     }
 
     @SuppressWarnings("unchecked")
+    /** ToIntegerList */
     private List<Integer> toIntegerList(Object rawValue) {
         if (!(rawValue instanceof List<?> values) || values.isEmpty()) {
             return List.of();

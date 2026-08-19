@@ -13,6 +13,7 @@ public final class RequestTraceStrategyConfigCodec {
     private RequestTraceStrategyConfigCodec() {
     }
 
+    /** ToMap */
     public static Map<String, String> toMap(RequestTraceStrategyConfig config) {
         RequestTraceStrategyConfig normalized = normalize(config);
         Map<String, String> values = new LinkedHashMap<>();
@@ -64,6 +65,7 @@ public final class RequestTraceStrategyConfigCodec {
         return values;
     }
 
+    /** FromMap */
     public static RequestTraceStrategyConfig fromMap(Map<String, String> values) {
         RequestTraceStrategyConfig config = new RequestTraceStrategyConfig();
         if (values == null || values.isEmpty()) {
@@ -116,14 +118,17 @@ public final class RequestTraceStrategyConfigCodec {
         return config.normalize();
     }
 
+    /** Normalize */
     public static RequestTraceStrategyConfig normalize(RequestTraceStrategyConfig config) {
         return config == null ? new RequestTraceStrategyConfig().normalize() : config.copy().normalize();
     }
 
+    /** 解析Boolean */
     private static Boolean parseBoolean(String value, Boolean defaultValue) {
         return value == null ? defaultValue : Boolean.parseBoolean(value);
     }
 
+    /** 解析Integer */
     private static Integer parseInteger(String value, Integer defaultValue) {
         try {
             return value == null ? defaultValue : Integer.parseInt(value);
@@ -132,6 +137,7 @@ public final class RequestTraceStrategyConfigCodec {
         }
     }
 
+    /** 解析Long */
     private static Long parseLong(String value, Long defaultValue) {
         try {
             return value == null ? defaultValue : Long.parseLong(value);

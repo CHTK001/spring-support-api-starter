@@ -29,6 +29,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 public class OnBeanCondition implements Condition {
 
     @Override
+    /** Matches */
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
         return !ArrayUtils.isEmpty(context.getBeanFactory().getBeanNamesForType(ClassUtils.forName(metadata.toString())));
     }

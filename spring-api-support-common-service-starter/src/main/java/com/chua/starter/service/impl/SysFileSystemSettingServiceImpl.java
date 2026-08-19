@@ -51,6 +51,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     private final FileStorageSupport fileStorageSupport;
 
     @Override
+    /** 获取EnabledSettingForFileSystem */
     public SysFileSystemSetting getEnabledSettingForFileSystem() {
         return getOne(Wrappers.<SysFileSystemSetting>lambdaQuery()
                 .eq(SysFileSystemSetting::getSysFileSystemSettingEnabled, true)
@@ -59,6 +60,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 启用SettingForFileSystem */
     public ReturnResult<Boolean> enableSettingForFileSystem(Integer settingId) {
         log.info("启用配置: settingId={}", settingId);
 
@@ -76,6 +78,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 初始化DefaultSettingForFileSystem */
     public ReturnResult<Boolean> initDefaultSettingForFileSystem() {
         log.info("初始化默认配置");
 
@@ -94,6 +97,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
+    /** 开始FileServerForFileSystem */
     public ReturnResult<Boolean> startFileServerForFileSystem() {
         log.info("启动文件服务器");
 
@@ -156,6 +160,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
+    /** 停止FileServerForFileSystem */
     public ReturnResult<Boolean> stopFileServerForFileSystem() {
         log.info("停止文件服务器");
 
@@ -189,6 +194,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
+    /** 获取FileServerStatusForFileSystem */
     public ReturnResult<String> getFileServerStatusForFileSystem() {
         ProtocolServer serverInstance = FILE_SERVER_INSTANCES.get(FILE_SERVER_KEY);
         if (serverInstance != null) {
@@ -198,6 +204,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
+    /** 校验PortAvailableForFileSystem */
     public ReturnResult<Boolean> checkPortAvailableForFileSystem(Integer port) {
         if (port == null || port < 1 || port > 65535) {
             return ReturnResult.error("端口号无效");

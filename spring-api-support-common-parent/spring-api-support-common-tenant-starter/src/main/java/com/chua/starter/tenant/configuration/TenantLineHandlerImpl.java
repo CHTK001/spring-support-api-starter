@@ -64,6 +64,7 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
     }
 
     @Override
+    /** 获取TenantId */
     public Expression getTenantId() {
         String tenantId = CURRENT_TENANT_ID.get();
         if (tenantId == null && clientMode) {
@@ -77,11 +78,13 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
     }
 
     @Override
+    /** 获取TenantIdColumn */
     public String getTenantIdColumn() {
         return tenantProperties.getEffectiveTenantIdColumn();
     }
 
     @Override
+    /** IgnoreTable */
     public boolean ignoreTable(String tableName) {
         return tenantProperties.getEffectiveIgnoreTable().contains(tableName);
     }

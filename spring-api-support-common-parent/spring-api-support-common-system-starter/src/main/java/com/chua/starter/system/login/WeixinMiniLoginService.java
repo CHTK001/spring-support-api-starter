@@ -56,11 +56,13 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
     private SysWechatUserMapper sysWechatUserMapper;
 
     @Override
+    /** 获取LoginTypePrefix */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
+    /** GenerateUserIds */
     protected String[] generateUserIds(SysUser user) {
         String baseId = user.getSysUserId() + "WECHAT";
         return new String[]{
@@ -70,6 +72,7 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
     }
 
     @Override
+    /** 校验Login */
     public UserResume checkLogin(String openId, String password, String address, Object ext) {
         log.debug("微信小程序登录请求: OpenID={}, IP={}", openId, address);
 
@@ -128,6 +131,7 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
     }
 
     @Override
+    /** Upgrade */
     public UserResume upgrade(UserResult userResult) {
         SysUser user = sysUserMapper.selectById(userResult.getUserId());
         if (null == user) {

@@ -162,6 +162,7 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
     }
 
     @Override
+    /** AfterProperties设置 */
     public void afterPropertiesSet() throws Exception {
         this.authRequest = new AuthGiteeRequest(AuthConfig.builder()
                 .clientId(thirdPartyLoginProperties.getGitee().getClientId())
@@ -171,6 +172,7 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
     }
 
     @Override
+    /** 设置ApplicationContext */
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         try {
             giteeService = applicationContext.getBean(GiteeService.class);

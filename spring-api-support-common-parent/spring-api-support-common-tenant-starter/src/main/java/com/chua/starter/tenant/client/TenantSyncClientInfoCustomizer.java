@@ -27,11 +27,13 @@ public class TenantSyncClientInfoCustomizer implements SyncClientInfoCustomizer 
     private final TenantProperties tenantProperties;
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return -100;
     }
 
     @Override
+    /** Customize */
     public void customize(ClientInfo clientInfo) {
         if (clientInfo == null) {
             return;

@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class KcpMuxLoadTest {
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         int concurrency = args.length > 0 ? Integer.parseInt(args[0]) : 32;
         int total = args.length > 1 ? Integer.parseInt(args[1]) : 500;
@@ -87,6 +88,7 @@ public class KcpMuxLoadTest {
         System.out.println("P50: " + p50 + "ms, P95: " + p95 + "ms, P99: " + p99 + "ms");
     }
 
+    /** Pct */
     private static long pct(List<Long> sorted, double p) {
         if (sorted.isEmpty()) return 0;
         int idx = (int) Math.ceil(p / 100.0 * sorted.size()) - 1;

@@ -92,6 +92,7 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     @Override
     @SysLog
     @Transactional(rollbackFor = Exception.class)
+    /** 更新Announcement */
     public ReturnResult<Boolean> updateAnnouncement(SysAnnouncement sysAnnouncement, Set<String> roles) {
         if (sysAnnouncement.getSysAnnouncementId() == null) {
             return ReturnResult.illegal("公告ID不能为空");
@@ -109,6 +110,7 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     @Override
     @SysLog
     @Transactional(rollbackFor = Exception.class)
+    /** 删除Announcement */
     public ReturnResult<Boolean> deleteAnnouncement(Integer announcementId, Set<String> roles) {
         if (announcementId == null) {
             return ReturnResult.illegal("公告ID不能为空");

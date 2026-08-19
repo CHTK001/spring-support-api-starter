@@ -33,6 +33,7 @@ public class MusicSourceRegistry {
     /** Music来源availability服务 */
     private final ObjectProvider<MusicSourceAvailabilityService> musicSourceAvailabilityService;
 
+    /** ListSources */
     public List<MusicSourceOption> listSources() {
         List<MusicSourceOption> result = new ArrayList<>();
         for (MusicSourceProvider provider : listProviders()) {
@@ -42,6 +43,7 @@ public class MusicSourceRegistry {
         return result;
     }
 
+    /** ListAllSources */
     public List<MusicSourceOption> listAllSources() {
         List<MusicSourceOption> result = new ArrayList<>();
         for (MusicSourceProvider provider : listAllProviders()) {
@@ -51,12 +53,14 @@ public class MusicSourceRegistry {
         return result;
     }
 
+    /** ListProviders */
     public List<MusicSourceProvider> listProviders() {
         return listAllProviders().stream()
                 .filter(provider -> isEnabled(provider.getSource().getCode()))
                 .toList();
     }
 
+    /** ListAllProviders */
     public List<MusicSourceProvider> listAllProviders() {
         ServiceProvider<MusicSourceProvider> provider = ServiceProvider.of(MusicSourceProvider.class);
         Set<String> extensions = provider.getExtensions();
@@ -72,10 +76,12 @@ public class MusicSourceRegistry {
         return result;
     }
 
+    /** 是否AggregateSource */
     public boolean isAggregateSource(String source) {
         return !StringUtils.hasText(source) || ALL_SOURCE.equalsIgnoreCase(source);
     }
 
+    /** 解析Source */
     public String resolveSource(String source) {
         if (StringUtils.hasText(source)) {
             return source;
@@ -92,6 +98,7 @@ public class MusicSourceRegistry {
         return DEFAULT_SOURCE;
     }
 
+    /** RequireProvider */
     public MusicSourceProvider requireProvider(String source) {
         String actualSource = resolveSource(source);
         MusicSourceProvider provider = listAllProviders().stream()
@@ -107,11 +114,13 @@ public class MusicSourceRegistry {
         return provider;
     }
 
+    /** 是否Enabled */
     private boolean isEnabled(String sourceCode) {
         MusicSourceAvailabilityService service = musicSourceAvailabilityService.getIfAvailable();
         return service == null || service.isEnabled(sourceCode);
     }
 
+    /** ToSourceOption */
     private MusicSourceOption toSourceOption(MusicSourceProvider provider, boolean enabled) {
         MusicSourceOption source = provider.getSource();
         return MusicSourceOption.builder()

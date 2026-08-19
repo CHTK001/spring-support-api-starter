@@ -66,6 +66,7 @@ public class FileUploadProgressPushService {
         }
     }
 
+    /** 推送Completed */
     public void pushCompleted(String taskId, Long userId, String fileUrl, String fileName) {
         try {
             Map<String, Object> data = new HashMap<>(8);
@@ -85,6 +86,7 @@ public class FileUploadProgressPushService {
         }
     }
 
+    /** 推送记录错误 */
     public void pushError(String taskId, Long userId, String message) {
         try {
             Map<String, Object> data = new HashMap<>(6);
@@ -102,6 +104,7 @@ public class FileUploadProgressPushService {
         }
     }
 
+    /** 推送合并Status */
     public void pushMergeStatus(String taskId, Long userId, String status) {
         try {
             Map<String, Object> data = new HashMap<>(5);

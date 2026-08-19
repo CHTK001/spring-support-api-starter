@@ -65,6 +65,7 @@ class RequestTraceStrategyConfigServiceTest {
 
         RequestTraceStorageRouter router = new RequestTraceStorageRouter() {
             @Override
+            /** ConfigStorage */
             public RequestTraceConfigStorage configStorage(String type) {
                 return storage;
             }
@@ -81,11 +82,13 @@ class RequestTraceStrategyConfigServiceTest {
         assertThat(config.getAiTimeoutMs()).isEqualTo(900L);
     }
 
+    /** 创建Service */
     private RequestTraceStrategyConfigService createService(StubConfigStorage storage, String runtimeStorageType) {
         RequestTraceStrategyRuntimeProperties runtimeProperties = new RequestTraceStrategyRuntimeProperties();
         runtimeProperties.setConfigStorageType(runtimeStorageType);
         RequestTraceStorageRouter router = new RequestTraceStorageRouter() {
             @Override
+            /** ConfigStorage */
             public RequestTraceConfigStorage configStorage(String type) {
                 return storage;
             }
@@ -99,16 +102,19 @@ class RequestTraceStrategyConfigServiceTest {
         private RequestTraceStrategyConfig loaded = new RequestTraceStrategyConfig();
 
         @Override
+        /** Type */
         public String type() {
             return "memory";
         }
 
         @Override
+        /** 加载 */
         public RequestTraceStrategyConfig load(String groupCode) {
             return loaded == null ? null : loaded.copy();
         }
 
         @Override
+        /** 保存 */
         public RequestTraceStrategyConfig save(String groupCode, RequestTraceStrategyConfig config) {
             loaded = config == null ? null : config.copy();
             return load(groupCode);

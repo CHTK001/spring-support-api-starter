@@ -18,6 +18,7 @@ public class FileSystemCleanJobHandler {
     /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(FileSystemCleanJobHandler.class);
 
+    /** 执行 */
     public void execute() {
         log.info("文件系统清理任务桩实现，外部依赖未配置");
     }

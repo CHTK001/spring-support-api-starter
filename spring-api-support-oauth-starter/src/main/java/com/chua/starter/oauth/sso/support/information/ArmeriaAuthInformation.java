@@ -39,41 +39,49 @@ public class ArmeriaAuthInformation {
             this.clientAddress = clientAddress;
         }
 
+        /** 设置Header */
         public void setHeader(String name, String value) {
             headers.put(name, value);
         }
 
         @Override
+        /** 获取Header */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
         @Override
+        /** 获取RemoteAddr */
         public String getRemoteAddr() {
             return clientAddress != null ? clientAddress.getAddress().getHostAddress() : "unknown";
         }
 
         @Override
+        /** 获取RemotePort */
         public int getRemotePort() {
             return clientAddress != null ? clientAddress.getPort() : 0;
         }
 
         @Override
+        /** 获取Attribute */
         public Object getAttribute(String name) {
             return attributes.get(name);
         }
 
         @Override
+        /** 设置Attribute */
         public void setAttribute(String name, Object value) {
             attributes.put(name, value);
         }
 
         @Override
+        /** 获取HeaderNames */
         public Enumeration<String> getHeaderNames() {
             return Collections.enumeration(headers.keySet());
         }
 
         @Override
+        /** 获取Headers */
         public Enumeration<String> getHeaders(String name) {
             String value = headers.get(name);
             return value != null ? Collections.enumeration(Collections.singletonList(value)) : Collections.emptyEnumeration();
@@ -155,41 +163,49 @@ public class ArmeriaAuthInformation {
         private int status = 200;
 
         @Override
+        /** 设置Header */
         public void setHeader(String name, String value) {
             headers.put(name, value);
         }
 
         @Override
+        /** 添加Header */
         public void addHeader(String name, String value) {
             headers.put(name, value);
         }
 
         @Override
+        /** 获取Header */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
         @Override
+        /** 获取Headers */
         public Collection<String> getHeaders(String name) {
             String value = headers.get(name);
             return value != null ? Collections.singletonList(value) : Collections.emptyList();
         }
 
         @Override
+        /** 获取HeaderNames */
         public Collection<String> getHeaderNames() {
             return headers.keySet();
         }
 
+        /** 获取AllHeaders */
         public Map<String, String> getAllHeaders() {
             return new HashMap<>(headers);
         }
 
         @Override
+        /** 设置Status */
         public void setStatus(int sc) {
             this.status = sc;
         }
 
         @Override
+        /** 获取Status */
         public int getStatus() {
             return status;
         }

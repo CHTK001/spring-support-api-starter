@@ -56,6 +56,7 @@ public class OauthSecurityHeadersFilter implements Filter, Ordered {
         chain.doFilter(servletRequest, response);
     }
 
+    /** 设置HeaderIfPresent */
     private void setHeaderIfPresent(HttpServletResponse response, String name, String value) {
         if (StringUtils.hasText(value)) {
             response.setHeader(name, value);
@@ -63,6 +64,7 @@ public class OauthSecurityHeadersFilter implements Filter, Ordered {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 1;
     }

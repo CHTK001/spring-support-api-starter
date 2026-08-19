@@ -34,6 +34,7 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 public class TenantLoginHandler extends DefaultLoginHandler {
 
     @Override
+    /** Login */
     public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
         ReturnResult<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
         if (null != check) {

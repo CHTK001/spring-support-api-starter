@@ -52,6 +52,7 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
     /** BIG模型客户端 */
     private BigModelClient bigModelClient;
 
+    /** 获取BigModelClient */
     public BigModelClient getBigModelClient() {
         if(null == bigModelClient) {
             throw new RuntimeException(StringUtils.format("暂不支持{}, 请重新设置!", appType));
@@ -60,6 +61,7 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
     }
 
     @Override
+    /** Upgrade */
     public void upgrade(BigModelSetting bigModelSetting) {
          if (null != bigModelSetting) {
              this.appType = bigModelSetting.appType;
