@@ -10,6 +10,7 @@ package com.chua.starter.oauth.sso.support.protocol;
  */
 public final class OauthProtocolConstants {
 
+    /** 创建 OauthProtocolConstants 实例 */
     private OauthProtocolConstants() {
     }
 

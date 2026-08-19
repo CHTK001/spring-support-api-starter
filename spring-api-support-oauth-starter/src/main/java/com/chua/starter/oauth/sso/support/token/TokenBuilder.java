@@ -69,6 +69,7 @@ public final class TokenBuilder {
      */
     public static final int TOKEN_LENGTH = 2 + USER_ID_HASH_LENGTH + UID_HASH_LENGTH + RANDOM_LENGTH;
 
+    /** 创建 TokenBuilder 实例 */
     private TokenBuilder() {
         // 工具类禁止实例化
     }

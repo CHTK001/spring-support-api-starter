@@ -37,6 +37,7 @@ public class RequestTraceAiSummaryService {
     /** clock */
     private final LongSupplier clock;
 
+    /** 创建 RequestTraceAiSummaryService 实例 */
     public RequestTraceAiSummaryService() {
         this(System::currentTimeMillis);
     }

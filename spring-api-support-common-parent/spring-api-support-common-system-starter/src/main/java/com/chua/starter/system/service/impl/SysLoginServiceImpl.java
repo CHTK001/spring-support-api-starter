@@ -139,6 +139,11 @@ public class SysLoginServiceImpl implements SysLoginService {
         /** 过期时间戳 */
         private final long expireAt;
 
+        /**
+         * 创建 CachedValue 实例
+         * @param value value
+         * @param expireAt expireAt
+         */
         private CachedValue(Object value, long expireAt) {
             this.value = value;
             this.expireAt = expireAt;

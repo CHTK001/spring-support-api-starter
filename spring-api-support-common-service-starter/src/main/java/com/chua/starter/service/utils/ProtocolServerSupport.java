@@ -9,6 +9,7 @@ import com.chua.common.support.core.utils.StringUtils;
  */
 public final class ProtocolServerSupport {
 
+    /** 创建 ProtocolServerSupport 实例 */
     private ProtocolServerSupport() {
     }
 
