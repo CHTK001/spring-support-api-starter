@@ -33,4 +33,4 @@ CREATE TABLE IF NOT EXISTS `sys_error_log` (
   KEY `idx_error_log_source` (`sys_error_source`) USING BTREE,
   KEY `idx_error_log_key` (`sys_error_key`) USING BTREE,
   KEY `idx_error_log_create_time` (`create_time`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='前端异常上报日志表' ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='前端异常上报日志表' ROW_FORMAT=DYNAMIC;
