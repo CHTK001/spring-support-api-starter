@@ -26,8 +26,8 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 /**
  * 系统设置接口(缓存)
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Tag(name = "系统全局设置接口")
 @RestController
@@ -35,6 +35,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 @RequiredArgsConstructor
 public class SysSettingGroupController {
 
+    /** SYS设置分组服务 */
     private final SysSettingGroupService sysSettingGroupService;
 
 

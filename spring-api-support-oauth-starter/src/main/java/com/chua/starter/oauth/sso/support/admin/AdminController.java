@@ -17,6 +17,7 @@ import java.util.Map;
  * <p>
  * 访问地址：/oauth/admin（GET 返回 HTML 控制台，POST 接口热更新配置）
  * </p>
+ * @author CH
  */
 @RestController
 @RequestMapping("/admin")
@@ -25,7 +26,9 @@ import java.util.Map;
 @Tag(name = "OAuth 管理控制台", description = "运行时热控制 OAuth 服务端配置")
 public class AdminController {
 
+    /** Auth服务器属性 */
     private final AuthServerProperties authServerProperties;
+    /** 比率限制管理器 */
     private final RateLimitManager rateLimitManager;
 
     /** 管理控制台首页（内嵌 HTML） */
@@ -357,3 +360,4 @@ setInterval(loadStatus, 30000);
 """;
     }
 }
+

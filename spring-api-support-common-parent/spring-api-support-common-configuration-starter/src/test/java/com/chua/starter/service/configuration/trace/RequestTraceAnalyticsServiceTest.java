@@ -14,6 +14,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** @author CH */
 class RequestTraceAnalyticsServiceTest {
 
     @Test
@@ -301,3 +302,4 @@ class RequestTraceAnalyticsServiceTest {
         );
     }
 }
+

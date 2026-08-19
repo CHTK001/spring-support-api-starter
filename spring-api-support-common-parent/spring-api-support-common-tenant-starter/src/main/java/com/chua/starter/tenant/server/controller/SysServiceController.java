@@ -34,9 +34,9 @@ import java.util.stream.Collectors;
 /**
  * 服务管理接口
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/15
+ * @author CH
  */
 @RestController
 @Slf4j
@@ -46,8 +46,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SysServiceController {
 
+    /** SYS服务mapper */
     private final SysServiceMapper sysServiceMapper;
+    /** SYS服务moduleitemmapper */
     private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
+    /** SYS服务modulemapper */
     private final SysServiceModuleMapper sysServiceModuleMapper;
 
     /**

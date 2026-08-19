@@ -26,13 +26,14 @@ import java.util.List;
 /**
  * 用户视图对象
  *
- * @author CH
  * @since 2024/8/20
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "用户视图对象")
 public class SysUserVO extends SysBase implements Serializable {
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -42,6 +43,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "用户ID")
     @Schema(description = "用户ID")
     @NotNull(message = "用户ID不能为空")
+    /** SYS用户ID */
     private Integer sysUserId;
 
     /**
@@ -52,6 +54,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @Schema(description = "账号")
     @Size(max = 255, message = "账号最大长度需小于255")
     @NotEmpty(message = "账号不能为空", groups = {AddGroup.class})
+    /** SYS用户username */
     private String sysUserUsername;
 
     /**
@@ -61,6 +64,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "名称")
     @Schema(description = "名称")
     @Size(max = 255, message = "名称最大长度需小于255")
+    /** SYS用户nickname */
     private String sysUserNickname;
 
     /**
@@ -70,6 +74,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "居住地址")
     @Schema(description = "居住地址")
     @Size(max = 400, message = "居住地址最大长度需小于400")
+    /** SYS用户full地址 */
     private String sysUserFullAddress;
 
     /**
@@ -79,6 +84,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "头像")
     @Schema(description = "头像")
     @Size(max = 4000, message = "头像最大长度需小于4000")
+    /** SYS用户avatar */
     private String sysUserAvatar;
 
     /**
@@ -87,6 +93,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @TableField(value = "sys_dept_id")
     @ApiModelProperty(value = "部门ID")
     @Schema(description = "部门ID")
+    /** SYSdeptID */
     private Integer sysDeptId;
 
     /**
@@ -95,6 +102,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @TableField(value = "sys_user_status")
     @ApiModelProperty(value = "是否启用: 0:禁用")
     @Schema(description = "是否启用: 0:禁用")
+    /** SYS用户状态 */
     private Integer sysUserStatus;
 
     /**
@@ -104,6 +112,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "手机号")
     @Schema(description = "手机号")
     @Size(max = 255, message = "手机号最大长度需小于255")
+    /** SYS用户phone */
     private String sysUserPhone;
 
     /**
@@ -113,6 +122,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "邮箱")
     @Schema(description = "邮箱")
     @Size(max = 255, message = "邮箱最大长度需小于255")
+    /** SYS用户email */
     private String sysUserEmail;
 
     /**
@@ -121,6 +131,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @TableField(value = "sys_user_sex")
     @ApiModelProperty(value = "性别: 0:女 1:男 2:其他")
     @Schema(description = "性别: 0:女 1:男 2:其他")
+    /** SYS用户SEX */
     private Integer sysUserSex;
 
     /**
@@ -129,6 +140,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @TableField(value = "sys_user_in_system")
     @ApiModelProperty(value = "是否系统账号: 0:非系统账号")
     @Schema(description = "是否系统账号: 0:非系统账号")
+    /** SYS用户INsystem */
     private Integer sysUserInSystem;
 
     /**
@@ -138,6 +150,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "身份证")
     @Schema(description = "身份证")
     @Size(max = 255, message = "身份证最大长度需小于255")
+    /** SYS用户card */
     private String sysUserCard;
 
     /**
@@ -147,6 +160,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "备注")
     @Schema(description = "备注")
     @Size(max = 255, message = "备注最大长度需小于255")
+    /** SYS用户remark */
     private String sysUserRemark;
 
     /**
@@ -156,6 +170,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "最后一次登录地点")
     @Schema(description = "最后一次登录地点")
     @Size(max = 255, message = "最后一次登录地点最大长度需小于255")
+    /** SYS用户最后地址 */
     private String sysUserLastAddress;
 
     /**
@@ -165,6 +180,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "最后一次登录IP")
     @Schema(description = "最后一次登录IP")
     @Size(max = 255, message = "最后一次登录IP最大长度需小于255")
+    /** SYS用户最后IP */
     private String sysUserLastIp;
 
     /**
@@ -174,6 +190,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "注册IP")
     @Schema(description = "注册IP")
     @Size(max = 255, message = "注册IP最大长度需小于255")
+    /** SYS用户registerIP */
     private String sysUserRegisterIp;
 
     /**
@@ -183,6 +200,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "注册地点")
     @Schema(description = "注册地点")
     @Size(max = 255, message = "注册地点最大长度需小于255")
+    /** SYS用户register地址 */
     private String sysUserRegisterAddress;
 
     /**
@@ -194,6 +212,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    /** SYS用户最后login时间 */
     private LocalDateTime sysUserLastLoginTime;
 
     /**
@@ -201,6 +220,7 @@ public class SysUserVO extends SysBase implements Serializable {
      */
     @Schema(description = "角色列表(系统生成)")
     @TableField(exist = false)
+    /** 用户roles */
     private List<SysRole> userRoles;
 
     /**
@@ -209,6 +229,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @TableField(value = "sys_user_birthday")
     @ApiModelProperty(value = "生日")
     @Schema(description = "生日")
+    /** SYS用户birthday */
     private String sysUserBirthday;
 
     /**
@@ -217,6 +238,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @TableField(value = "sys_user_avatar_frame")
     @ApiModelProperty(value = "头像框ID")
     @Schema(description = "头像框ID")
+    /** SYS用户avatarframe */
     private Integer sysUserAvatarFrame;
 
     /**
@@ -225,5 +247,6 @@ public class SysUserVO extends SysBase implements Serializable {
     @TableField(value = "sys_user_avatar_frame_show")
     @ApiModelProperty(value = "是否显示头像框")
     @Schema(description = "是否显示头像框")
+    /** SYS用户avatarframeshow */
     private Integer sysUserAvatarFrameShow;
 }

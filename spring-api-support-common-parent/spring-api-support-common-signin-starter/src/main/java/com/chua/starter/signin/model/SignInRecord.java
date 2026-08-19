@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
  * <p>每个用户每天只能签到一次，记录签到日期、获得积分和连续签到天数。
  * 通过唯一索引 {@code (user_id, sign_date)} 防止重复签到。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Data
 @TableName("sign_in_record")
@@ -25,6 +25,7 @@ public class SignInRecord {
      * 主键ID
      */
     @TableId(type = IdType.AUTO)
+    /** ID */
     private Long id;
 
     /**

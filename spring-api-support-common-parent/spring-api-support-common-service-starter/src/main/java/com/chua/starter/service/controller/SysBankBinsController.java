@@ -17,8 +17,8 @@ import java.util.List;
 /**
  * 组织机构接口
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Tag(name = "银行卡bin接口")
 @RestController
@@ -26,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysBankBinsController {
 
+    /** SYSbankbins服务 */
     private final SysBankBinsService sysBankBinsService;
 
     /**

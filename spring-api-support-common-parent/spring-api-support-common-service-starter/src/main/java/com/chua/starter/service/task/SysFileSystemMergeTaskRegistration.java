@@ -35,20 +35,25 @@ import java.util.concurrent.TimeUnit;
  * 文件系统合并任务注册器
  * 用于管理文件分片合并任务
  *
- * @author CH
  * @since 2024/12/10
  * @version 1.0.0
+ * @author CH
  */
 @Component
 @RequiredArgsConstructor
 public class SysFileSystemMergeTaskRegistration {
 
-    private static final Logger log = LoggerFactory.getLogger(SysFileSystemMergeTaskRegistration.class);
+    /** log */
+    private static final Logger log= LoggerFactory.getLogger(SysFileSystemMergeTaskRegistration.class);
 
+    /** sysFileSystemPart服务 */
     private final SysFileSystemPartService sysFileSystemPartService;
+    /** fileSystemProperties */
     private final FileSystemProperties fileSystemProperties;
+    /** fileStorageSupport */
     private final FileStorageSupport fileStorageSupport;
 
+    /** executor */
     private ThreadPoolExecutor executor;
 
     @PostConstruct

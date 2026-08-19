@@ -7,8 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 全局配置 Mapper。
  *
- * @author CH
  * @since 2026-08-11
+ * @author CH
  */
 @Mapper
 public interface MsMonitorConfigMapper extends BaseMapper<MsMonitorConfig> {

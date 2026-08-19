@@ -34,9 +34,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *         expire: 3600
  * }</pre>
  *
- * @author CH
  * @since 2024/12/11
  * @see org.springframework.boot.context.properties.ConfigurationProperties
+ * @author CH
  */
 @Data
 @ConfigurationProperties(prefix = SystemProperties.PRE, ignoreUnknownFields = false)
@@ -71,7 +71,6 @@ public class SystemProperties {
     /**
      * 缓存配置类
      *
-     * @author CH
      * @since 2024/12/11
      */
     @Data
@@ -96,7 +95,6 @@ public class SystemProperties {
     /**
      * 日志配置类
      *
-     * @author CH
      * @since 2024/12/11
      */
     @Data

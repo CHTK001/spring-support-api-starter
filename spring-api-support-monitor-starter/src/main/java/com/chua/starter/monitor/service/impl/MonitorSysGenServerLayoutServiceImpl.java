@@ -28,8 +28,8 @@ import java.util.Map;
  * 从组件生成布局、应用布局到组件以及跨服务器复制布局。
  * 布局配置以 JSON 形式存储，结构包含 nodes / edges / version / generatedAt。
  *
- * @author CH
  * @since 2026-07-28
+ * @author CH
  */
 @Slf4j
 @Service

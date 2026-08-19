@@ -21,9 +21,9 @@ import java.util.concurrent.TimeUnit;
  * 未配置时回退到默认值（5 次 / 15 分钟）。
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-12-28
+ * @author CH
  */
 @Slf4j
 @Service
@@ -54,6 +54,7 @@ public class LoginAttemptService {
      */
     private static final int ATTEMPT_EXPIRE_MINUTES = 30;
 
+    /** 字符串redis模板 */
     private final StringRedisTemplate stringRedisTemplate;
 
     /**

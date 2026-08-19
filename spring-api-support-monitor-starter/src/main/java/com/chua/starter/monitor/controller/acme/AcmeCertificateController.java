@@ -33,9 +33,9 @@ import java.util.List;
 /**
  * ACME 证书管理接口，提供证书申请、续签、吊销、下载、重新验证等完整的证书生命周期管理功能。
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-10-17
+ * @author CH
  */
 @Slf4j
 @RestController

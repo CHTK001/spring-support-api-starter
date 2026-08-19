@@ -9,9 +9,9 @@ import lombok.Data;
  * 文件系统包装类
  * 用于任务处理时传递文件系统对象和服务
  *
- * @author CH
  * @since 2024/12/10
  * @version 1.0.0
+ * @author CH
  */
 @Data
 @AllArgsConstructor

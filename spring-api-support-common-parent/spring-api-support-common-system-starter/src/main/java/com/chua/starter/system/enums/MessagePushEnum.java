@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 
 /**
  * 通知
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @AllArgsConstructor
 public enum MessagePushEnum {
@@ -17,6 +17,8 @@ public enum MessagePushEnum {
 
     ;
 
+    /** 代码 */
     private final int code;
+    /** Desc */
     private final String desc;
 }

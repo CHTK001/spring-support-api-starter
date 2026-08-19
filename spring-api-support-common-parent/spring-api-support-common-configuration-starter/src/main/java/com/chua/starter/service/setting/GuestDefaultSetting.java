@@ -14,8 +14,8 @@ import java.util.List;
  * 更新 sys_setting 后，工厂会自动将值写入此 Bean，消费者通过
  * {@code GlobalSettingFactory.getInstance().get("default", GuestDefaultSetting.class)} 读取。
  *
- * @author CH
  * @since 2024/8/13
+ * @author CH
  */
 @Data
 @GlobalSettingGroup("default")

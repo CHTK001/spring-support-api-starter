@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author CH
  * @since 2025/9/10 16:26
+ * @author CH
  */
 @Service
 public class SysSettingGroupServiceImpl extends ServiceImpl<SysSettingGroupMapper, SysSettingGroup> implements SysSettingGroupService {

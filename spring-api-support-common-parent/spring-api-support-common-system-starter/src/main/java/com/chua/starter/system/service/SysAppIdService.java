@@ -6,8 +6,8 @@ import com.chua.starter.entity.system.SysAppId;
 /**
  * AppId应用标识 Service
  *
- * @author CH
  * @since 2025/01/05
+ * @author CH
  */
 public interface SysAppIdService extends IService<SysAppId> {
 

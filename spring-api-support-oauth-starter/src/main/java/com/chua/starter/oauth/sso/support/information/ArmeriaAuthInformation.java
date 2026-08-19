@@ -19,9 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * 提供 Armeria 协议的请求/响应适配，使其能够复用现有的认证逻辑
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-12-07
+ * @author CH
  */
 public class ArmeriaAuthInformation {
 
@@ -30,6 +30,7 @@ public class ArmeriaAuthInformation {
      * <p>实现 HttpServletRequest 接口，用于适配 Armeria 请求</p>
      */
     public static class ArmeriaRequest implements HttpServletRequest {
+        /** 客户端地址 */
         private final InetSocketAddress clientAddress;
         private final Map<String, String> headers = new ConcurrentHashMap<>();
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
@@ -150,6 +151,7 @@ public class ArmeriaAuthInformation {
      */
     public static class ArmeriaResponse implements HttpServletResponse {
         private final Map<String, String> headers = new ConcurrentHashMap<>();
+        /** 状态 */
         private int status = 200;
 
         @Override

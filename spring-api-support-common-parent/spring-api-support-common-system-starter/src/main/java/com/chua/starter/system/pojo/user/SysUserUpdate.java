@@ -10,8 +10,8 @@ import java.util.List;
 /**
  * 用户更新
  *
- * @author CH
  * @since 2024/8/8
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -22,11 +22,13 @@ public class SysUserUpdate extends SysUser {
      * 角色ID列表
      */
     @Schema(description = "角色ID列表")
+    /** RoleIDS */
     private List<String> roleIds;
 
     /**
      * 是否更新角色
      */
     @Schema(description = "是否更新角色")
+    /** Updaterole */
     private boolean updateRole;
 }

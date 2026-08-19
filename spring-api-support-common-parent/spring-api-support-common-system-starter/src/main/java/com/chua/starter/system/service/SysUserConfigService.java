@@ -8,8 +8,8 @@ import com.chua.starter.entity.system.SysUserConfig;
  *
  * <p>管理用户维度的轻量配置(主题/语言/通知偏好/快捷键等)。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 public interface SysUserConfigService extends IService<SysUserConfig> {
 

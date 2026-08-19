@@ -35,8 +35,8 @@ import java.util.stream.Collectors;
 /**
  * 反馈服务实现
  *
- * @author CH
  * @since 2024/12/10
+ * @author CH
  */
 @Service
 @Slf4j
@@ -67,6 +67,7 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
      * Socket 会话操作模板（未接入 socket 时为 null，不影响反馈处理主流程）
      */
     @Autowired(required = false)
+    /** Socket会话模板 */
     private SocketSessionTemplate socketSessionTemplate;
 
     /**

@@ -15,9 +15,9 @@ import java.util.Map;
  * 临时令牌认证信息 - 支持多协议
  * <p>用于解析临时令牌创建请求</p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-12-11
+ * @author CH
  */
 @Slf4j
 public class TemporaryTokenAuthInformation extends BaseAuthInformation {

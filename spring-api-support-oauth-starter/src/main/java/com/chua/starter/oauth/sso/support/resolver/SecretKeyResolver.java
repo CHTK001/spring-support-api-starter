@@ -6,9 +6,9 @@ package com.chua.starter.oauth.sso.support.resolver;
  * 根据 AccessKey 查询 SecretKey，用于 AK/SK 加密验证
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/17
+ * @author CH
  */
 public interface SecretKeyResolver {
 

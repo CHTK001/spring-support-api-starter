@@ -18,9 +18,9 @@ import java.util.List;
  * 服务实体
  * 用于管理系统中的服务定义
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/07
+ * @author CH
  */
 @ApiModel(description = "服务")
 @Schema(description = "服务")
@@ -36,6 +36,7 @@ public class SysService extends SysBase {
     @ApiModelProperty(value = "服务ID")
     @Schema(description = "服务ID")
     @NotNull(message = "服务ID不能为空", groups = {UpdateGroup.class})
+    /** SYS服务ID */
     private Integer sysServiceId;
 
     /**
@@ -45,6 +46,7 @@ public class SysService extends SysBase {
     @ApiModelProperty(value = "服务名称")
     @Schema(description = "服务名称")
     @NotBlank(message = "服务名称不能为空", groups = {AddGroup.class, UpdateGroup.class})
+    /** SYS服务名称 */
     private String sysServiceName;
 
     /**
@@ -54,6 +56,7 @@ public class SysService extends SysBase {
     @ApiModelProperty(value = "服务编码")
     @Schema(description = "服务编码")
     @NotBlank(message = "服务编码不能为空", groups = {AddGroup.class, UpdateGroup.class})
+    /** SYS服务代码 */
     private String sysServiceCode;
 
     /**
@@ -62,6 +65,7 @@ public class SysService extends SysBase {
     @TableField(value = "sys_service_desc")
     @ApiModelProperty(value = "服务描述")
     @Schema(description = "服务描述")
+    /** SYS服务desc */
     private String sysServiceDesc;
 
     /**
@@ -70,6 +74,7 @@ public class SysService extends SysBase {
     @TableField(value = "sys_service_sort")
     @ApiModelProperty(value = "服务排序")
     @Schema(description = "服务排序")
+    /** SYS服务sort */
     private Integer sysServiceSort;
 
     /**
@@ -80,6 +85,7 @@ public class SysService extends SysBase {
     @ApiModelProperty(value = "删除标记")
     @Schema(description = "删除标记: 0-未删除, 1-已删除")
     @TableLogic(value = "0", delval = "1")
+    /** SYS服务delete */
     private Integer sysServiceDelete;
 
     /**
@@ -89,6 +95,7 @@ public class SysService extends SysBase {
     @TableField(value = "sys_service_status")
     @ApiModelProperty(value = "服务状态")
     @Schema(description = "服务状态: 0-启用, 1-禁用")
+    /** SYS服务状态 */
     private Integer sysServiceStatus;
 
     /**
@@ -98,5 +105,6 @@ public class SysService extends SysBase {
     @TableField(exist = false)
     @ApiModelProperty(value = "关联的服务模块ID列表")
     @Schema(description = "关联的服务模块ID列表")
+    /** SYS服务tags */
     private List<Integer> sysServiceTags;
 }

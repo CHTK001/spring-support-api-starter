@@ -4,8 +4,8 @@ import com.chua.starter.entity.system.SysUser;
 
 /**
  * 登录回调
- * @author CH
  * @since 2024/9/12
+ * @author CH
  */
 public interface SysLoginCallbackService {
     /**

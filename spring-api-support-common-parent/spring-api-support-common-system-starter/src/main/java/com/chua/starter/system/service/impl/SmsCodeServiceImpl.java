@@ -40,8 +40,8 @@ import java.util.concurrent.TimeUnit;
  * 短信验证码服务实现
  * <p>使用 Redis 存储验证码，通过 SmsSetting 配置的 MessagePush 发送短信</p>
  *
- * @author CH
  * @since 2024/12/11
+ * @author CH
  */
 @Slf4j
 @Service
@@ -68,12 +68,18 @@ public class SmsCodeServiceImpl implements SmsCodeService {
      */
     private static final int SEND_INTERVAL_SECONDS = 60;
 
+    /** Log_message_max_length */
     private static final int LOG_MESSAGE_MAX_LENGTH = 255;
+    /** Log_param_max_length */
     private static final int LOG_PARAM_MAX_LENGTH = 255;
 
+    /** 字符串redis模板 */
     private final StringRedisTemplate stringRedisTemplate;
+    /** SYS用户mapper */
     private final SysUserMapper sysUserMapper;
+    /** SYSlogin服务 */
     private final SysLoginService sysLoginService;
+    /** SYSSMS日志mapper */
     private final SysSmsLogMapper sysSmsLogMapper;
 
     @Override

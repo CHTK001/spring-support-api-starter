@@ -12,8 +12,8 @@ import java.util.List;
  * <p>提供分片上传的查询、状态管理、合并辅助等业务能力。
  * 底层 CRUD 由 MyBatis Plus {@link IService} 提供。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 public interface SysFileSystemPartService extends IService<SysFileSystemPart> {
 

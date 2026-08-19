@@ -7,9 +7,9 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 用户第三方绑定信息 Mapper
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/11
+ * @author CH
  */
 @Mapper
 public interface SysUserThirdPartyMapper extends BaseMapper<SysUserThirdParty> {

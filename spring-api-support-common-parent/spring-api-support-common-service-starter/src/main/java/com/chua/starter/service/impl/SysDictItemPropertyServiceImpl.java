@@ -18,8 +18,8 @@ import java.util.List;
 /**
  * 字典配置项服务实现类
  *
- * @author CH
  * @since 2024-08-07
+ * @author CH
  */
 @Service
 @RequiredArgsConstructor

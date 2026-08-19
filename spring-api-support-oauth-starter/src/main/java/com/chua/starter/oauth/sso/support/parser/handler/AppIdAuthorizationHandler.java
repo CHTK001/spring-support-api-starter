@@ -24,9 +24,9 @@ import org.springframework.context.ApplicationContext;
  * AppId和AppKey是并列关系，各自独立处理
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2025/01/05
+ * @author CH
  */
 @Slf4j
 @Spi("appid")

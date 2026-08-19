@@ -12,8 +12,8 @@ import lombok.EqualsAndHashCode;
 /**
  * 设备组织
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "设备组织")
@@ -25,6 +25,7 @@ public class SysDeviceOrg extends SysBase {
      */
     @TableId(value = "sys_device_org_id", type = IdType.INPUT)
     @Schema(description = "")
+    /** SYSdeviceORGID */
     private String sysDeviceOrgId;
 
     /**
@@ -32,6 +33,7 @@ public class SysDeviceOrg extends SysBase {
      */
     @TableField(value = "sys_project_id")
     @Schema(description = "产品id")
+    /** SYSprojectID */
     private Integer sysProjectId;
 
     /**
@@ -39,6 +41,7 @@ public class SysDeviceOrg extends SysBase {
      */
     @TableField(value = "sys_device_org_name")
     @Schema(description = "组织名称")
+    /** SYSdeviceORG名称 */
     private String sysDeviceOrgName;
 
     /**
@@ -46,6 +49,7 @@ public class SysDeviceOrg extends SysBase {
      */
     @TableField(value = "sys_device_org_pid")
     @Schema(description = "上级组织")
+    /** SYSdeviceORGPID */
     private String sysDeviceOrgPid;
 
     /**
@@ -53,5 +57,6 @@ public class SysDeviceOrg extends SysBase {
      */
     @TableField(value = "sys_device_org_tree_path")
     @Schema(description = "路径")
+    /** SYSdeviceORGtree路径 */
     private String sysDeviceOrgTreePath;
 }

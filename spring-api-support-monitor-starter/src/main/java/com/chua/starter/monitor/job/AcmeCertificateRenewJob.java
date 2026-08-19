@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
  * ACME 证书自动续签定时任务
  * 每天凌晨 2 点检查即将到期的证书并自动续签
  *
- * @author CH
  * @version 1.0.0
  * @since 2025-12-06
+ * @author CH
  */
 @Slf4j
 @Component
@@ -22,7 +22,9 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = "monitor.acme", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class AcmeCertificateRenewJob {
 
+    /** Acme证书服务 */
     private final AcmeCertificateService acmeCertificateService;
+    /** Acme属性 */
     private final AcmeProperties acmeProperties;
 
     /**

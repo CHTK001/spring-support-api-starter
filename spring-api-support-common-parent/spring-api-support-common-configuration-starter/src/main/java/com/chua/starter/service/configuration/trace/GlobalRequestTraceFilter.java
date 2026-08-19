@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
  *
  * <p>仅对带有 {@link RequestTraceStrategy} 注解的控制器或方法记录行为数据。</p>
  *
- * @author CH
  * @since 2026/03/25
  */
 @Slf4j
@@ -49,13 +48,16 @@ import java.util.stream.Collectors;
 })
 public class GlobalRequestTraceFilter extends OncePerRequestFilter {
 
+    /** Ignore_path_prefixes */
     private static final Set<String> IGNORE_PATH_PREFIXES = Set.of(
             "/v1/request-trace/analytics",
             "/actuator"
     );
+    /** Static_suffixes */
     private static final Set<String> STATIC_SUFFIXES = Set.of(
             ".js", ".css", ".map", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico", ".woff", ".woff2"
     );
+    /** Ip_headers */
     private static final List<String> IP_HEADERS = List.of(
             "X-Forwarded-For",
             "X-Real-IP",
@@ -64,6 +66,7 @@ public class GlobalRequestTraceFilter extends OncePerRequestFilter {
             "HTTP_CLIENT_IP",
             "HTTP_X_FORWARDED_FOR"
     );
+    /** Fingerprint_headers */
     private static final List<String> FINGERPRINT_HEADERS = List.of(
             "x-oauth-fingerprint",
             "x-req-fingerprint",
@@ -72,7 +75,9 @@ public class GlobalRequestTraceFilter extends OncePerRequestFilter {
             "fingerprint"
     );
 
+    /** 请求跟踪analytics服务 */
     private final RequestTraceAnalyticsService requestTraceAnalyticsService;
+    /** Application上下文 */
     private final ApplicationContext applicationContext;
 
     @Override
@@ -547,6 +552,7 @@ public class GlobalRequestTraceFilter extends OncePerRequestFilter {
     }
 
     private record CurrentUser(String userId, String username, String fingerprint) {
+        /** 是否为空 */
         private static final CurrentUser EMPTY = new CurrentUser(null, null, null);
     }
 

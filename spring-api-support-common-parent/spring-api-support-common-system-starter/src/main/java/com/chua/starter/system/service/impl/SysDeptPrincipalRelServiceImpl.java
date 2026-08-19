@@ -27,15 +27,17 @@ import java.util.stream.Collectors;
 /**
  * 部门负责人关系服务实现
  *
- * @author CH
  * @since 2026/4/5
+ * @author CH
  */
 @Service
 @RequiredArgsConstructor
 public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipalRelMapper, SysDeptPrincipalRel>
         implements SysDeptPrincipalRelService {
 
+    /** SYS用户mapper */
     private final SysUserMapper sysUserMapper;
+    /** SYSdeptmapper */
     private final SysDeptMapper sysDeptMapper;
 
     @Override

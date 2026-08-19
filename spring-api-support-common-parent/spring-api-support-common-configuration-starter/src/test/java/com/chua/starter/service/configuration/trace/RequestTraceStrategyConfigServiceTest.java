@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/** @author CH */
 class RequestTraceStrategyConfigServiceTest {
 
     @Test
@@ -94,6 +95,7 @@ class RequestTraceStrategyConfigServiceTest {
 
     private static final class StubConfigStorage implements RequestTraceConfigStorage {
 
+        /** Loaded */
         private RequestTraceStrategyConfig loaded = new RequestTraceStrategyConfig();
 
         @Override
@@ -113,3 +115,4 @@ class RequestTraceStrategyConfigServiceTest {
         }
     }
 }
+

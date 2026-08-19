@@ -48,8 +48,8 @@ import java.util.Map;
  * 微信网页登录回调接口
  * <p>处理微信开放平台OAuth2.0授权回调</p>
  *
- * @author CH
  * @since 2024/12/11
+ * @author CH
  */
 @Controller
 @Slf4j
@@ -59,11 +59,15 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WechatCallbackController {
 
+    /** Third_party_type */
     private static final String THIRD_PARTY_TYPE = "wechat";
+    /** Sso_group */
     private static final String SSO_GROUP = "sso";
+    /** Sso_name */
     private static final String SSO_NAME = "Wechat";
 
     @Autowired(required = false)
+    /** SYSlogincallback服务 */
     private SysLoginCallbackService sysLoginCallbackService;
     final SysUserThirdPartyService sysUserThirdPartyService;
     final SysLoginService sysLoginService;

@@ -19,8 +19,8 @@ import java.util.Set;
 /**
  * 系统日志服务实现类，提供系统日志的分页查询、删除和监听日志事件功能
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Service
 public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> implements SysLogService, ApplicationListener<SysLoggerInfo> {

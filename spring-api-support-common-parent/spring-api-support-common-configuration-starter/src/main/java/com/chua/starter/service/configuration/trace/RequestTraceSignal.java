@@ -3,8 +3,8 @@ package com.chua.starter.service.configuration.trace;
 /**
  * 请求追踪信号
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 public enum RequestTraceSignal {
 
@@ -18,7 +18,9 @@ public enum RequestTraceSignal {
     FINGERPRINT_DRIFT("fingerprint_drift", "同一主体在短时间内切换指纹"),
     USER_PREFERENCE_DRIFT("user_preference_drift", "当前访问行为偏离近期常用模式");
 
+    /** 代码 */
     private final String code;
+    /** 描述 */
     private final String description;
 
     RequestTraceSignal(String code, String description) {

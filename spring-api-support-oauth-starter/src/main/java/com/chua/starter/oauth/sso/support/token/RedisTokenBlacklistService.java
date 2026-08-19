@@ -13,8 +13,8 @@ import java.util.Set;
  * 基于 Redis 的 Token 黑名单服务实现
  * <p>使用 Redis 存储黑名单，利用 TTL 自动清理过期记录</p>
  *
- * @author CH
  * @since 2025/03/18
+ * @author CH
  */
 @Slf4j
 @Service
@@ -198,12 +198,18 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     @lombok.NoArgsConstructor
     @lombok.AllArgsConstructor
     private static class BlacklistEntry implements java.io.Serializable {
+        /** Serial版本UID */
         private static final long serialVersionUID = 1L;
         
+        /** 令牌 */
         private String token;
+        /** Reason */
         private String reason;
+        /** 用户ID */
         private String userId;
+        /** Username */
         private String username;
+        /** 时间戳 */
         private Long timestamp;
     }
 
@@ -214,10 +220,14 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     @lombok.NoArgsConstructor
     @lombok.AllArgsConstructor
     private static class UserBlacklistEntry implements java.io.Serializable {
+        /** Serial版本UID */
         private static final long serialVersionUID = 1L;
         
+        /** 用户ID */
         private String userId;
+        /** Reason */
         private String reason;
+        /** 时间戳 */
         private Long timestamp;
     }
 }

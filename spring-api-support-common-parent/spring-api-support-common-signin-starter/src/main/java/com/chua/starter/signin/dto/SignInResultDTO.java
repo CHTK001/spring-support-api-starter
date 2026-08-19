@@ -10,8 +10,8 @@ import java.util.List;
  * <p>签到操作成功后返回给前端的结果，包含签到状态、积分、连续天数等信息。
  * 如果用户当天已签到，{@code alreadySigned} 为 true。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Data
 public class SignInResultDTO {

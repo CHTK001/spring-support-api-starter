@@ -9,8 +9,8 @@ import org.apache.ibatis.annotations.Update;
 /**
  * 应用密钥 Mapper
  *
- * @author CH
  * @since 2025/10/23
+ * @author CH
  */
 @Mapper
 public interface SysAppKeyMapper extends BaseMapper<SysAppKey> {

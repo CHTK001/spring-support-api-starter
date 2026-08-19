@@ -17,8 +17,8 @@ import java.util.Map;
 /**
  * 处理租户客户端主动发起的全量同步请求。
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Slf4j
 @Component
@@ -27,8 +27,11 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")
 public class TenantServerSyncRequestHandler implements SyncMessageHandler {
 
+    /** Tenant属性 */
     private final TenantProperties tenantProperties;
+    /** 同步服务器 */
     private final SyncServer syncServer;
+    /** 同步publisher */
     private final TenantServerSyncPublisher syncPublisher;
 
     @Override

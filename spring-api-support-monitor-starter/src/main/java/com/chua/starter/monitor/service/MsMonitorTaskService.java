@@ -8,8 +8,8 @@ import java.util.List;
 /**
  * 采集任务服务接口，提供采集任务基础 CRUD 与启用/停用能力。
  *
- * @author CH
  * @since 2026-08-11
+ * @author CH
  */
 public interface MsMonitorTaskService extends IService<MsMonitorTask> {
 

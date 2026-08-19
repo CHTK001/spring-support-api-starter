@@ -11,8 +11,8 @@ import java.util.Set;
 /**
  * 配置组服务接口
  *
- * @author CH
  * @since 2025/9/10 16:26
+ * @author CH
  */
 public interface SysSettingGroupService extends IService<SysSettingGroup> {
 

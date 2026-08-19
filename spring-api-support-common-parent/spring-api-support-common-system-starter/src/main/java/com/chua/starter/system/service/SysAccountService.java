@@ -12,8 +12,8 @@ import java.util.List;
  * <p>管理用户绑定的第三方账号(微信/支付宝/钉钉等),基于 {@code sysAccountOpenid}/{@code sysAccountUnionid}
  * 进行绑定/查找/解绑,与 {@code SysUser} 通过 {@code sysAccountUserId} 关联。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 public interface SysAccountService extends IService<SysAccount> {
 

@@ -15,8 +15,8 @@ import org.springframework.core.env.Environment;
  * <p>在缺少统一 OAuth 客户端配置时, 将运行环境注入
  * {@link OauthClientRuntimeContext} 并提供默认的静态协议配置。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Configuration
 public class OAuthClientFallbackConfiguration {

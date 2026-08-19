@@ -15,8 +15,8 @@ import lombok.EqualsAndHashCode;
 /**
  * 指标解析规则实体，定义采集任务返回数据的匹配与提取规则。
  *
- * @author CH
  * @since 2026-08-11
+ * @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -31,6 +31,7 @@ public class MsMonitorMetricConfig extends SysBase {
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
+    /** ID */
     private Long id;
 
     /**
@@ -39,6 +40,7 @@ public class MsMonitorMetricConfig extends SysBase {
     @TableField("metric_name")
     @ApiModelProperty("指标名称")
     @Schema(description = "指标名称")
+    /** 指标名称 */
     private String metricName;
 
     /**
@@ -47,6 +49,7 @@ public class MsMonitorMetricConfig extends SysBase {
     @TableField("task_id")
     @ApiModelProperty("任务ID")
     @Schema(description = "任务ID")
+    /** 任务ID */
     private Long taskId;
 
     /**
@@ -55,6 +58,7 @@ public class MsMonitorMetricConfig extends SysBase {
     @TableField("metric_type")
     @ApiModelProperty("指标类型")
     @Schema(description = "指标类型")
+    /** 指标类型 */
     private String metricType;
 
     /**
@@ -63,6 +67,7 @@ public class MsMonitorMetricConfig extends SysBase {
     @TableField("match_pattern")
     @ApiModelProperty("匹配模式")
     @Schema(description = "匹配模式")
+    /** Match模式 */
     private String matchPattern;
 
     /**
@@ -71,6 +76,7 @@ public class MsMonitorMetricConfig extends SysBase {
     @TableField("extract_rule")
     @ApiModelProperty("提取规则")
     @Schema(description = "提取规则")
+    /** Extractrule */
     private String extractRule;
 
     /**
@@ -79,6 +85,7 @@ public class MsMonitorMetricConfig extends SysBase {
     @TableField("unit")
     @ApiModelProperty("单位")
     @Schema(description = "单位")
+    /** 单位 */
     private String unit;
 
     /**
@@ -88,5 +95,6 @@ public class MsMonitorMetricConfig extends SysBase {
     @TableLogic
     @ApiModelProperty("逻辑删除")
     @Schema(description = "逻辑删除")
+    /** 删除标记 */
     private Integer deleted;
 }

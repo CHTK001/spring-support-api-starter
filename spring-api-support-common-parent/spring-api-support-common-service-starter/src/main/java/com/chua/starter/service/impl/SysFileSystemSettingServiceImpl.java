@@ -21,8 +21,8 @@ import java.net.ServerSocket;
 /**
  * 文件系统配置服务实现类
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @Service
@@ -31,6 +31,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     private volatile FileHttpServer fileHttpServer;
 
     @Autowired
+    /** SYS文件system服务 */
     private SysFileSystemService sysFileSystemService;
 
     @Override

@@ -12,8 +12,8 @@ import java.util.Set;
  * 系统部门服务接口
  * 该接口定义了与系统部门相关的业务操作，包括查询、增删改等
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 public interface SysDeptService extends IService<SysDept>{
 

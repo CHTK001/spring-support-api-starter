@@ -11,8 +11,8 @@ import java.util.Set;
 /**
  * 小程序菜单服务接口
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 public interface SysMiniMenuService extends IService<SysMiniMenu> {
 

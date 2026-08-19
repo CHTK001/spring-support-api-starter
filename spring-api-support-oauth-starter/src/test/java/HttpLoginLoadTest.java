@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * HTTP/Armeria 登录压测程序(统一环境,与 KCP 压测公平对比)
  * <p>用法:java HttpLoginLoadTest <url> <并发> <每连接请求数></p>
+ * @author CH
  */
 public class HttpLoginLoadTest {
 

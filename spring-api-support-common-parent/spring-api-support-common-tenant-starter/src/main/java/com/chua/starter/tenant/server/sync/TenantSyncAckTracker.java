@@ -19,14 +19,16 @@ import java.util.concurrent.ConcurrentMap;
  * 当前仅面向平台单机部署，采用内存态缓存跟踪最近发送和确认状态。
  * </p>
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Component
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")
 public class TenantSyncAckTracker {
 
+    /** 是否启用 */
     private final boolean enabled;
+    /** 最大值pending */
     private final int maxPending;
     private final ConcurrentMap<String, PendingAck> pendingAcks = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, AckRecord> lastAckRecords = new ConcurrentHashMap<>();
@@ -189,11 +191,17 @@ public class TenantSyncAckTracker {
     }
 
     public static final class PendingAck {
+        /** 会话ID */
         private final String sessionId;
+        /** TenantID */
         private final String tenantId;
+        /** Topic */
         private final String topic;
+        /** 消息ID */
         private final String messageId;
+        /** SentAT */
         private final long sentAt;
+        /** Reason */
         private final String reason;
 
         public PendingAck(String sessionId, String tenantId, String topic, String messageId, long sentAt, String reason) {
@@ -231,13 +239,21 @@ public class TenantSyncAckTracker {
     }
 
     public static final class AckRecord {
+        /** 会话ID */
         private final String sessionId;
+        /** TenantID */
         private final String tenantId;
+        /** Topic */
         private final String topic;
+        /** 来源消息ID */
         private final String sourceMessageId;
+        /** Success */
         private final boolean success;
+        /** 状态 */
         private final String status;
+        /** 消息 */
         private final String message;
+        /** ACKAT */
         private final long ackAt;
 
         public AckRecord(String sessionId, String tenantId, String topic, String sourceMessageId, boolean success, String status, String message, long ackAt) {

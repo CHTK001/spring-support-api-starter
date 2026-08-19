@@ -23,8 +23,8 @@ import java.util.Set;
  * 系统用户服务接口，定义了与系统用户相关的操作
  * 继承了通用的服务接口IService，为系统用户提供增删查改等操作
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 public interface SysUserService extends IService<SysUser> {
 

@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
  *
  * <p>每个用户每个 type 只保留一条记录，记录当前最高解锁等级。</p>
  *
- * @author CH
  * @since 2026-08-07
+ * @author CH
  */
 @Data
 @TableName("user_achievement")
@@ -23,6 +23,7 @@ public class UserAchievement {
      * 主键ID
      */
     @TableId(type = IdType.AUTO)
+    /** ID */
     private Long id;
 
     /**

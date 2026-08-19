@@ -26,8 +26,8 @@ import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 
 /**
  * 第三方登录
- * @author CH
  * @since 2024/9/12
+ * @author CH
  */
 @RestController
 @Slf4j

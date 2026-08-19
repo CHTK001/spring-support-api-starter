@@ -26,8 +26,8 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 /**
  * 小程序菜单接口
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @Tag(name = "小程序菜单接口")
 @RestController

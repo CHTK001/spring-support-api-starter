@@ -12,8 +12,8 @@ import java.util.Set;
 /**
  * 系统公告服务接口
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 public interface SysAnnouncementService extends IService<SysAnnouncement> {
 

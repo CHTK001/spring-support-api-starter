@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
  * ACME 验证缓存服务，用于本机部署模式，存储 token -> keyAuthorization 的映射，
  * 并定时清理过期的验证信息。
  *
- * @author CH
  * @since 2025-12-28
+ * @author CH
  */
 @Slf4j
 @Service
@@ -97,7 +97,6 @@ public class AcmeChallengeService {
     /**
      * 验证信息记录，保存验证内容及创建时间。
      *
-     * @author CH
      * @since 2025-12-28
      */
     private record ChallengeInfo(String keyAuthorization, long createTime) {

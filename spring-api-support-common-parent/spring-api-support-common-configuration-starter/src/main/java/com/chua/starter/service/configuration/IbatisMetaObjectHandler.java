@@ -25,14 +25,15 @@ import static com.chua.common.support.enums.Action.UPDATE;
 /**
  * mybatis-plus 字段自动填充
  *
- * @author CH
  * @since 2024/10/14
+ * @author CH
  */
 @Component
 @ConditionalOnClass(name = {"com.baomidou.mybatisplus.core.handlers.MetaObjectHandler"})
 public class IbatisMetaObjectHandler implements MetaObjectHandler {
 
     @Autowired(required = false)
+    /** Auth属性 */
     private AuthClientProperties authProperties;
 
     /**

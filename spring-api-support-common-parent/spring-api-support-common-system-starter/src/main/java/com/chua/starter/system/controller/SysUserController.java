@@ -38,8 +38,8 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 
 /**
  * 用户接口
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Tag(name = "用户接口")
 @RestController
@@ -47,6 +47,7 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 @RequiredArgsConstructor
 public class SysUserController {
 
+    /** SYS用户服务 */
     private final SysUserService sysUserService;
 
     /**

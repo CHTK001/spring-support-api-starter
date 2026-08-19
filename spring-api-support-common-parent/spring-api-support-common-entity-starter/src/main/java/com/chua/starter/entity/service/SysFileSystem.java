@@ -15,9 +15,9 @@ import java.time.LocalDateTime;
  * 文件系统管理表
  * 用于管理分片上传的文件信息
  *
- * @author CH
  * @since 2024/12/10
  * @version 1.0.0
+ * @author CH
  */
 @Schema(description = "文件系统管理表")
 @Data
@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 public class SysFileSystem extends SysBase implements Serializable {
 
     @Serial
+    /** Serial版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -33,6 +34,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableId(value = "sys_file_system_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
+    /** SYS文件systemID */
     private Integer sysFileSystemId;
 
     /**
@@ -41,6 +43,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_tid")
     @Schema(description = "任务唯一标识（ULID）")
     @Size(max = 64, message = "任务唯一标识最大长度要小于 64")
+    /** SYS文件systemTID */
     private String sysFileSystemTid;
 
     /**
@@ -49,6 +52,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_bucket")
     @Schema(description = "存储桶/存储位置")
     @Size(max = 255, message = "存储桶最大长度要小于 255")
+    /** SYS文件system存储桶 */
     private String sysFileSystemBucket;
 
     /**
@@ -57,6 +61,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_name")
     @Schema(description = "文件名称")
     @Size(max = 255, message = "文件名称最大长度要小于 255")
+    /** SYS文件system名称 */
     private String sysFileSystemName;
 
     /**
@@ -65,6 +70,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_original_name")
     @Schema(description = "文件原始名称")
     @Size(max = 255, message = "文件原始名称最大长度要小于 255")
+    /** SYS文件systemoriginal名称 */
     private String sysFileSystemOriginalName;
 
     /**
@@ -73,6 +79,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_type")
     @Schema(description = "存储类型：local-本地存储, oss-阿里云OSS, cos-腾讯云COS等")
     @Size(max = 50, message = "存储类型最大长度要小于 50")
+    /** SYS文件system类型 */
     private String sysFileSystemType;
 
     /**
@@ -81,6 +88,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_extension")
     @Schema(description = "文件扩展名")
     @Size(max = 20, message = "文件扩展名最大长度要小于 20")
+    /** SYS文件systemextension */
     private String sysFileSystemExtension;
 
     /**
@@ -89,6 +97,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_path")
     @Schema(description = "文件路径")
     @Size(max = 500, message = "文件路径最大长度要小于 500")
+    /** SYS文件system路径 */
     private String sysFileSystemPath;
 
     /**
@@ -96,6 +105,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_size")
     @Schema(description = "文件大小(字节)")
+    /** SYS文件system尺寸 */
     private Long sysFileSystemSize;
 
     /**
@@ -104,6 +114,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_md5")
     @Schema(description = "文件MD5值")
     @Size(max = 32, message = "文件MD5值最大长度要小于 32")
+    /** SYS文件systemMD5 */
     private String sysFileSystemMd5;
 
     /**
@@ -111,6 +122,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_chunk_total")
     @Schema(description = "分片数量")
+    /** SYS文件systemchunk总数 */
     private Integer sysFileSystemChunkTotal;
 
     /**
@@ -118,6 +130,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_chunk_uploaded")
     @Schema(description = "已上传分片数")
+    /** SYS文件systemchunkuploaded */
     private Integer sysFileSystemChunkUploaded;
 
     /**
@@ -125,6 +138,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_chunk_size")
     @Schema(description = "分片大小(字节)")
+    /** SYS文件systemchunk尺寸 */
     private Long sysFileSystemChunkSize;
 
     /**
@@ -133,6 +147,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_version")
     @Schema(description = "版本号(乐观锁)")
     @Version
+    /** SYS文件system版本 */
     private Integer sysFileSystemVersion;
 
     /**
@@ -140,6 +155,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_status")
     @Schema(description = "状态: 0-待上传, 1-上传中, 2-待合并, 3-合并中, 4-已完成, -1-处理异常")
+    /** SYS文件system状态 */
     private Integer sysFileSystemStatus;
 
     /**
@@ -147,6 +163,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_http_enabled")
     @Schema(description = "是否启用HTTP访问")
+    /** SYS文件systemHTTP是否启用 */
     private Boolean sysFileSystemHttpEnabled;
 
     /**
@@ -155,6 +172,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_http_url")
     @Schema(description = "HTTP访问URL")
     @Size(max = 500, message = "HTTP访问URL最大长度要小于 500")
+    /** SYS文件systemHTTPURL */
     private String sysFileSystemHttpUrl;
 
     /**
@@ -162,6 +180,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_service_id")
     @Schema(description = "绑定的服务ID")
+    /** SYS文件system服务ID */
     private Integer sysFileSystemServiceId;
 
     /**
@@ -169,6 +188,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_group_id")
     @Schema(description = "文件分组ID")
+    /** SYS文件system分组ID */
     private Integer sysFileSystemGroupId;
 
     /**
@@ -176,6 +196,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_upload_start_time")
     @Schema(description = "上传开始时间")
+    /** SYS文件system上传开始时间 */
     private LocalDateTime sysFileSystemUploadStartTime;
 
     /**
@@ -183,6 +204,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_upload_complete_time")
     @Schema(description = "上传完成时间")
+    /** SYS文件system上传complete时间 */
     private LocalDateTime sysFileSystemUploadCompleteTime;
 
     /**
@@ -191,6 +213,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_local_path")
     @Schema(description = "本地临时文件路径")
     @Size(max = 500, message = "本地临时文件路径最大长度要小于 500")
+    /** SYS文件system本地路径 */
     private String sysFileSystemLocalPath;
 
     /**
@@ -199,6 +222,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_summary")
     @Schema(description = "描述/摘要")
     @Size(max = 500, message = "描述最大长度要小于 500")
+    /** SYS文件systemsummary */
     private String sysFileSystemSummary;
 
     /**
@@ -206,6 +230,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(exist = false)
     @Schema(description = "文件分组名称")
+    /** SYS文件system分组名称 */
     private String sysFileSystemGroupName;
 
     /**

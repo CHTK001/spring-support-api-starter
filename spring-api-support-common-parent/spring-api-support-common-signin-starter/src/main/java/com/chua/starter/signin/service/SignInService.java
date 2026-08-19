@@ -33,8 +33,8 @@ import java.util.stream.Collectors;
  * <p>签到成功后通过 {@link KvEngine} 写入成就上下文数据（持续天数、累计积分、最高连续），
  * 供成就模块的 CircuitBreaker 规则判定使用，随后发布签到事件触发成就判定。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @Service

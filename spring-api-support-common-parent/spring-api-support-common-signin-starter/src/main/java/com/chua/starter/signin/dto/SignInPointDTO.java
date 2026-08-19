@@ -7,8 +7,8 @@ import lombok.Data;
  *
  * <p>一次签到中每条积分规则的发放明细，用于前端展示积分构成。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Data
 public class SignInPointDTO {

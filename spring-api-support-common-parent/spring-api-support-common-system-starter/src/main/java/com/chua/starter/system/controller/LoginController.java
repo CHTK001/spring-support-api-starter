@@ -44,8 +44,8 @@ import static com.chua.starter.common.support.logger.AbstractLoggerPointcutAdvis
 /**
  * 登录
  *
- * @author CH
  * @since 2024/9/12
+ * @author CH
  */
 @RestController
 @Slf4j
@@ -173,7 +173,6 @@ public class LoginController {
      *
      * @param roles 用户角色集合
      * @return 菜单列表
-     * @author CH
      * @since 2024/12/10
      * @version 1.0
      */

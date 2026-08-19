@@ -14,8 +14,8 @@ import lombok.EqualsAndHashCode;
 /**
  * ACME 账户信息，保存 ACME CA（Let's Encrypt / ZeroSSL 等）账户的邮箱、服务端点、私钥与 EAB 扩展。
  *
- * @author CH
  * @since 2025-10-17
+ * @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -28,47 +28,55 @@ public class MonitorAcmeAccount extends SysBase {
     @TableId(value = "acme_account_id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
+    /** AcmeaccountID */
     private Integer acmeAccountId;
 
     /** 帐号邮箱 */
     @TableField("acme_account_email")
     @ApiModelProperty("账号邮箱")
     @Schema(description = "账号邮箱")
+    /** Acmeaccountemail */
     private String acmeAccountEmail;
 
     /** ACME 服务端点（例如：https://acme-v02.api.letsencrypt.org/directory） */
     @TableField("acme_account_server")
     @ApiModelProperty("ACME 服务端点")
     @Schema(description = "ACME 服务端点")
+    /** Acmeaccount服务器 */
     private String acmeAccountServer;
 
     /** 账户状态（valid, deactivated, revoked 等） */
     @TableField("acme_account_status")
     @ApiModelProperty("账户状态")
     @Schema(description = "账户状态")
+    /** Acmeaccount状态 */
     private String acmeAccountStatus;
 
     /** 账户私钥（PEM）- 可选，若外部托管则为空 */
     @TableField("acme_account_private_key_pem")
     @ApiModelProperty("账户私钥（PEM）")
     @Schema(description = "账户私钥（PEM）")
+    /** Acmeaccount私有密钥PEM */
     private String acmeAccountPrivateKeyPem;
 
     /** 备注 */
     @TableField("acme_account_remark")
     @ApiModelProperty("备注")
     @Schema(description = "备注")
+    /** Acmeaccountremark */
     private String acmeAccountRemark;
 
     /** EAB Key ID (ZeroSSL 等需要 External Account Binding 的 CA) */
     @TableField("acme_account_eab_kid")
     @ApiModelProperty("EAB Key ID")
     @Schema(description = "EAB Key ID (ZeroSSL 等需要)")
+    /** AcmeaccountEABKID */
     private String acmeAccountEabKid;
 
     /** EAB HMAC Key (Base64 编码) */
     @TableField("acme_account_eab_hmac_key")
     @ApiModelProperty("EAB HMAC Key")
     @Schema(description = "EAB HMAC Key (Base64 编码)")
+    /** AcmeaccountEABhmac密钥 */
     private String acmeAccountEabHmacKey;
 }

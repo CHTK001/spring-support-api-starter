@@ -7,8 +7,8 @@ import lombok.Data;
  *
  * <p>按用户聚合签到数据，包含签到天数和总积分，用于管理员查看所有用户的签到概况。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Data
 public class UserSignInSummaryDTO {

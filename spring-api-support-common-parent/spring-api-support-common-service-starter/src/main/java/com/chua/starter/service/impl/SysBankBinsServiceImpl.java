@@ -19,8 +19,8 @@ import java.util.List;
 /**
  * 银行卡BIN服务实现类
  *
- * @author CH
  * @since 2024/12/6
+ * @author CH
  */
 @Service
 @RequiredArgsConstructor
@@ -28,6 +28,7 @@ public class SysBankBinsServiceImpl extends ServiceImpl<SysBankBinsMapper, SysBa
 
     @Lazy
     @Autowired
+    /** SYSbankbins服务 */
     private SysBankBinsService sysBankBinsService;
 
     /**

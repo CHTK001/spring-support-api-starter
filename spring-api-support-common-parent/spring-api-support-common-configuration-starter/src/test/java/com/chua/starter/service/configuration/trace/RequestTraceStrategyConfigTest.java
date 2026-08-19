@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/** @author CH */
 class RequestTraceStrategyConfigTest {
 
     @Test
@@ -44,3 +45,4 @@ class RequestTraceStrategyConfigTest {
         assertThat(config.getAiTimeoutMs()).isEqualTo(1500L);
     }
 }
+

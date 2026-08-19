@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
  *
  * <p>面向前端提供成就查询接口：用户成就状态、段位定义、统计概览以及管理员 CRUD 操作。</p>
  *
- * @author CH
  * @since 2026-08-07
+ * @author CH
  */
 @Slf4j
 @RestController

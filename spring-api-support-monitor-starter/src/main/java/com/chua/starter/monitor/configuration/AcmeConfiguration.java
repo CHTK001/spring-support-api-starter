@@ -15,8 +15,8 @@ import com.chua.starter.monitor.service.impl.AcmeCertificateServiceImpl;
  * ACME 自动装配与调度配置，按属性 {@code monitor.acme.enabled} 控制是否启用，
  * 注册监控模块服务信息，并调度证书自动续签任务。
  *
- * @author CH
  * @since 2025-10-17
+ * @author CH
  */
 @Configuration
 @EnableScheduling

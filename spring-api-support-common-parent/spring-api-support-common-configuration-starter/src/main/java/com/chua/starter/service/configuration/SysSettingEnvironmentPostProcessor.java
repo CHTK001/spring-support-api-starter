@@ -7,8 +7,8 @@ import org.springframework.core.env.ConfigurableEnvironment;
 
 /**
  * 自定义系统配置
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @SpringBootConfiguration
 public class SysSettingEnvironmentPostProcessor implements EnvironmentPostProcessor {

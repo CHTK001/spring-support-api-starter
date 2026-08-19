@@ -6,8 +6,8 @@ import com.chua.starter.entity.system.SysAppKey;
 /**
  * 应用密钥 Service
  *
- * @author CH
  * @since 2025/10/23
+ * @author CH
  */
 public interface SysAppKeyService extends IService<SysAppKey> {
 

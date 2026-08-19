@@ -28,16 +28,19 @@ import java.util.UUID;
  * <p>对状态变更请求校验 CSRF 令牌；安全方法（GET 等）自动下发令牌 Cookie。</p>
  * <p>令牌存储于 Redis，键前缀 {@code oauth:security:csrf:}。</p>
  *
- * @author CH
  * @since 2025/01/01
+ * @author CH
  */
 @Slf4j
 @RequiredArgsConstructor
 public class OauthCsrfFilter implements Filter, Ordered {
 
+    /** Csrf_prefix */
     private static final String CSRF_PREFIX = "oauth:security:csrf:";
 
+    /** Security属性 */
     private final OauthSecurityProperties securityProperties;
+    /** 字符串redis模板 */
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override

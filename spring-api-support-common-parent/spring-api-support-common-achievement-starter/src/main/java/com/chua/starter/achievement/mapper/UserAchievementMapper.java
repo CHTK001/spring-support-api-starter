@@ -11,8 +11,8 @@ import java.util.Map;
 /**
  * 用户成就记录 Mapper
  *
- * @author CH
  * @since 2026-08-07
+ * @author CH
  */
 @Mapper
 public interface UserAchievementMapper extends BaseMapper<UserAchievement> {

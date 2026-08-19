@@ -42,27 +42,33 @@ import static com.chua.starter.common.support.constant.DataFilterTypeEnum.ALL;
  *   <li>{@link TenantUserLoginService} - 多租户登录</li>
  * </ul>
  *
- * @author CH
  * @since 1.0.0
  */
 @Slf4j
 public abstract class AbstractUserLoginService implements UserInfoService, Constant {
+    /** Dept_leader */
     private static final String DEPT_LEADER = "DEPT_LEADER";
+    /** Auth_version */
     private static final String AUTH_VERSION = "authVersion";
 
     @Autowired
+    /** Security属性 */
     protected SystemSecurityProperties securityProperties;
 
     @Autowired
+    /** 字符串redis模板 */
     protected StringRedisTemplate stringRedisTemplate;
 
     @Autowired
+    /** SYS用户mapper */
     protected SysUserMapper sysUserMapper;
 
     @Autowired
+    /** SYSdeptmapper */
     protected SysDeptMapper sysDeptMapper;
 
     @Autowired
+    /** SYSdeptprincipalREL服务 */
     protected SysDeptPrincipalRelService sysDeptPrincipalRelService;
 
     /**
@@ -302,10 +308,15 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
     }
 
     private static final class LoginAuthProfile {
+        /** Rolecodes */
         private final LinkedHashSet<String> roleCodes = new LinkedHashSet<>();
+        /** Roleinfos */
         private final LinkedHashSet<RoleInfo> roleInfos = new LinkedHashSet<>();
+        /** Permissions */
         private final LinkedHashSet<String> permissions = new LinkedHashSet<>();
+        /** 数据permission */
         private DataFilterTypeEnum dataPermission = ALL;
+        /** 数据permissionrule */
         private String dataPermissionRule = "";
     }
 

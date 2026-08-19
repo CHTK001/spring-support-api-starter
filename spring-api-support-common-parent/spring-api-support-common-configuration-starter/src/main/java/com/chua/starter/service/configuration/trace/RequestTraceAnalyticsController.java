@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 /**
  * 请求追踪分析控制器。
  *
- * @author CH
  * @since 2026/03/25
  */
 @Slf4j
@@ -35,7 +34,9 @@ import java.util.stream.Collectors;
 })
 public class RequestTraceAnalyticsController {
 
+    /** 请求跟踪analytics服务 */
     private final RequestTraceAnalyticsService requestTraceAnalyticsService;
+    /** 请求跟踪策略配置服务 */
     private final RequestTraceStrategyConfigService requestTraceStrategyConfigService;
 
     @GetMapping

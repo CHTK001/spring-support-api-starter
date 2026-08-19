@@ -16,8 +16,8 @@ import java.io.Serializable;
 /**
  * 用户第三方绑定表
  *
- * @author CH
  * @since 2024/9/6
+ * @author CH
  */
 @Schema(description = "用户第三方绑定表")
 @Data
@@ -31,6 +31,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     @TableId(value = "sys_user_third_party_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     @NotNull(message = "主键ID不能为空")
+    /** SYS用户thirdpartyID */
     private Integer sysUserThirdPartyId;
 
     /**
@@ -39,6 +40,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     @TableField(value = "sys_user_third_party_type")
     @Schema(description = "第三方类型，如: gitee、wx_mini_app")
     @Size(max = 255, message = "第三方类型最大长度需小于255")
+    /** SYS用户thirdparty类型 */
     private String sysUserThirdPartyType;
 
     /**
@@ -47,6 +49,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     @TableField(value = "sys_user_third_party_name")
     @Schema(description = "第三方信息名称")
     @Size(max = 255, message = "第三方信息名称最大长度需小于255")
+    /** SYS用户thirdparty名称 */
     private String sysUserThirdPartyName;
 
     /**
@@ -55,6 +58,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     @TableField(value = "sys_user_third_party_value")
     @Schema(description = "第三方信息值")
     @Size(max = 255, message = "第三方信息值最大长度需小于255")
+    /** SYS用户thirdparty值 */
     private String sysUserThirdPartyValue;
 
     /**
@@ -62,6 +66,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
      */
     @TableField(value = "sys_user_id")
     @Schema(description = "当前系统用户ID")
+    /** SYS用户ID */
     private Integer sysUserId;
 
     /**
@@ -70,6 +75,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     @TableField(value = "sys_user_third_party_uid")
     @Schema(description = "第三方用户ID")
     @Size(max = 255, message = "第三方用户ID最大长度需小于255")
+    /** SYS用户thirdpartyUID */
     private String sysUserThirdPartyUid;
 
     /**

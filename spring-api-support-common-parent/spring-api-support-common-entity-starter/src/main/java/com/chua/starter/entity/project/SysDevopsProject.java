@@ -16,8 +16,8 @@ import lombok.EqualsAndHashCode;
 /**
  * 运维项目管理（含服务器连接信息）
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @Schema(description = "运维项目管理")
 @Data
@@ -31,6 +31,7 @@ public class SysDevopsProject extends SysBase {
     @TableId(value = "project_id", type = IdType.AUTO)
     @Schema(description = "主键")
     @NotNull(message = "id不能为空", groups = {UpdateGroup.class})
+    /** ProjectID */
     private Long projectId;
 
     /**
@@ -39,6 +40,7 @@ public class SysDevopsProject extends SysBase {
     @TableField(value = "project_name")
     @Schema(description = "项目名称")
     @NotBlank(message = "项目名称不能为空", groups = {AddGroup.class})
+    /** Project名称 */
     private String projectName;
 
     /**
@@ -46,6 +48,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "project_description")
     @Schema(description = "项目描述")
+    /** Project描述 */
     private String projectDescription;
 
     /**
@@ -53,6 +56,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "project_icon")
     @Schema(description = "项目图标URL")
+    /** Projecticon */
     private String projectIcon;
 
     /**
@@ -60,6 +64,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "server_os")
     @Schema(description = "服务器OS类型：linux/windows/macos/unknown")
+    /** 服务器OS */
     private String serverOs;
 
     /**
@@ -67,6 +72,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "sort_order")
     @Schema(description = "排序")
+    /** Sort排序 */
     private Integer sortOrder;
 
     /**
@@ -74,6 +80,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "status")
     @Schema(description = "状态：1启用 0禁用")
+    /** 状态 */
     private Integer status;
 
     // ── 服务器连接信息（AES加密存储） ──
@@ -83,6 +90,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "server_type")
     @Schema(description = "连接类型：SSH/WINRM/LOCAL")
+    /** 服务器类型 */
     private String serverType;
 
     /**
@@ -90,6 +98,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "server_host")
     @Schema(description = "主机地址（加密）")
+    /** 服务器主机 */
     private String serverHost;
 
     /**
@@ -97,6 +106,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "server_port")
     @Schema(description = "端口号")
+    /** 服务器端口 */
     private Integer serverPort;
 
     /**
@@ -104,6 +114,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "server_username")
     @Schema(description = "用户名（加密）")
+    /** 服务器username */
     private String serverUsername;
 
     /**
@@ -111,6 +122,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "server_password")
     @Schema(description = "密码（加密）")
+    /** 服务器密码 */
     private String serverPassword;
 
     /**
@@ -118,6 +130,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "server_private_key")
     @Schema(description = "SSH私钥（加密）")
+    /** 服务器私有密钥 */
     private String serverPrivateKey;
 
     /**
@@ -125,6 +138,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "server_connect_timeout")
     @Schema(description = "连接超时（秒）")
+    /** 服务器connect超时 */
     private Integer serverConnectTimeout;
 
     /**
@@ -132,6 +146,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "server_enabled")
     @Schema(description = "服务器信息是否激活：1是 0否")
+    /** 服务器是否启用 */
     private Integer serverEnabled;
 
     /**
@@ -139,6 +154,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "server_activated_at")
     @Schema(description = "最近激活时间")
+    /** 服务器activatedAT */
     private java.time.LocalDateTime serverActivatedAt;
 
     // ── 路径配置 ──
@@ -148,6 +164,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "log_path")
     @Schema(description = "日志路径")
+    /** 日志路径 */
     private String logPath;
 
     /**
@@ -155,6 +172,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "config_path")
     @Schema(description = "配置文件路径")
+    /** 配置路径 */
     private String configPath;
 
     /**
@@ -162,6 +180,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "lib_path")
     @Schema(description = "依赖目录路径")
+    /** LIB路径 */
     private String libPath;
 
     /**
@@ -169,6 +188,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "root_path")
     @Schema(description = "项目根目录")
+    /** 根级路径 */
     private String rootPath;
 
     // ── 操作脚本 ──
@@ -178,6 +198,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "start_script")
     @Schema(description = "启动脚本")
+    /** 开始script */
     private String startScript;
 
     /**
@@ -185,6 +206,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "stop_script")
     @Schema(description = "停止脚本")
+    /** Stopscript */
     private String stopScript;
 
     /**
@@ -192,6 +214,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "restart_script")
     @Schema(description = "重启脚本")
+    /** Restartscript */
     private String restartScript;
 
     // ── 运行时状态（不存库，动态查询） ──
@@ -201,6 +224,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(exist = false)
     @Schema(description = "运行时状态：running/stopped/unknown")
+    /** Runtime状态 */
     private String runtimeStatus;
 
     /**
@@ -208,5 +232,6 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(exist = false)
     @Schema(description = "关联密钥数量")
+    /** Secret数量 */
     private Integer secretCount;
 }

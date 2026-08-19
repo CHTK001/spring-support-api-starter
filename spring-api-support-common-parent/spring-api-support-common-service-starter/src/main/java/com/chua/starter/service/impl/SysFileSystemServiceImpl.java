@@ -48,23 +48,32 @@ import java.util.List;
 /**
  * 文件系统服务实现类
  *
- * @author CH
  * @since 2024/12/10
  * @version 1.0.0
+ * @author CH
  */
 @Service
 public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, SysFileSystem> implements SysFileSystemService {
 
-    private static final Logger log = LoggerFactory.getLogger(SysFileSystemServiceImpl.class);
+    /** log */
+    private static final Logger log= LoggerFactory.getLogger(SysFileSystemServiceImpl.class);
 
-    private static final long DEFAULT_CHUNK_SIZE = 1024 * 1024 * 100L;
+    /** DEFAULCHUN大小 */
+    private static final long DEFAULT_CHUNK_SIZE= 1024 * 1024 * 100L;
+    /** transactionTemplate */
     private final TransactionTemplate transactionTemplate;
+    /** sysFileSystemPart服务 */
     private final SysFileSystemPartService sysFileSystemPartService;
+    /** sysFileSystem设置服务 */
     private final SysFileSystemSettingService sysFileSystemSettingService;
+    /** fileSystemProperties */
     private final FileSystemProperties fileSystemProperties;
+    /** mergeTaskRegistration */
     private final SysFileSystemMergeTaskRegistration mergeTaskRegistration;
+    /** fileStorageSupport */
     private final FileStorageSupport fileStorageSupport;
 
+    /** progressPush服务 */
     private FileUploadProgressPushService progressPushService;
 
     @Autowired

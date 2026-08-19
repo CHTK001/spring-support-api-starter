@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 /**
  * 自动向 SyncServer 注册租户同步服务端处理器。
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Slf4j
 @Component
@@ -23,9 +23,13 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")
 public class TenantSyncServerRegistrar implements InitializingBean {
 
+    /** Tenant属性 */
     private final TenantProperties tenantProperties;
+    /** 同步服务器 */
     private final SyncServer syncServer;
+    /** Tenant服务器同步请求处理器 */
     private final TenantServerSyncRequestHandler tenantServerSyncRequestHandler;
+    /** Tenant服务器同步ACK处理器 */
     private final TenantServerSyncAckHandler tenantServerSyncAckHandler;
 
     @Override

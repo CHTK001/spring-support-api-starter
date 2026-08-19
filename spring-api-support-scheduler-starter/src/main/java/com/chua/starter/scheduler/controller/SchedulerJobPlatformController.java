@@ -22,8 +22,8 @@ import java.util.Map;
  * <p>平台基于 job-starter 新架构 (SCHEDULER 角色) 提供统一任务管理能力,
  * 任务统一存储在 {@code sys_job / sys_job_log} 单表中, 命名空间参数作为任务分组过滤。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @RestController
 @RequestMapping("/v1/job-platform")

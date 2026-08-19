@@ -13,16 +13,20 @@ import org.springframework.context.ApplicationContext;
 /**
  * 鉴权信息
  *
- * @author CH
  */
 @Slf4j
 public final class OauthAuthorization implements Authorization {
+    /** 令牌 */
     private final String token;
+    /** Cookie */
     private final String cookie;
+    /** SUB协议 */
     private final String subProtocol;
+    /** 用户代码 */
     private final String userCode;
     final ApplicationContext applicationContext;
     final LoginCheck loginCheck;
+    /** Authinformation */
     private final OauthAuthInformation authInformation;
 
     public OauthAuthorization(OauthAuthInformation authInformation,

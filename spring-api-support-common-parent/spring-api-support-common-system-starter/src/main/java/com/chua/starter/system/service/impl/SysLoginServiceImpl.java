@@ -84,29 +84,38 @@ import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERRO
 /**
  * 登录服务实现
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/9/12
+ * @author CH
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SysLoginServiceImpl implements SysLoginService {
 
+    /** Global_setting_factory */
     public static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
+    /** User_agreement_group */
     private static final String USER_AGREEMENT_GROUP = "userAgreement";
+    /** Default_agreement_version */
     private static final String DEFAULT_AGREEMENT_VERSION = "2026.04";
+    /** Default_agreement_updated_at */
     private static final String DEFAULT_AGREEMENT_UPDATED_AT = "2026-04-09";
+    /** Agreement_accepted_version_key */
     private static final String AGREEMENT_ACCEPTED_VERSION_KEY = "agreementAcceptedVersion";
+    /** Agreement_accepted_at_key */
     private static final String AGREEMENT_ACCEPTED_AT_KEY = "agreementAcceptedAt";
 
     /** 生日框记录ID（与 sys_avatar_frame 种子 id=100 一致） */
+    /** Birthday_frame_id */
     private static final Integer BIRTHDAY_FRAME_ID = 100;
 
     /** 生日窗口：前后 3 天共 7 天 */
+    /** Birthday_window_days */
     private static final int BIRTHDAY_WINDOW_DAYS = 3;
 
     /** 生日日期解析：yyyy-MM-dd / yyyy/MM/dd / yyyy.MM.dd */
+    /** Birthday_pattern */
     private static final Pattern BIRTHDAY_PATTERN = Pattern.compile("(\\d{4})[-/.](\\d{1,2})[-/.](\\d{1,2})");
 
     /**
@@ -129,8 +138,10 @@ public class SysLoginServiceImpl implements SysLoginService {
      */
     private static class CachedValue {
         /** 缓存值 */
+        /** 值 */
         private final Object value;
         /** 过期时间戳 */
+        /** ExpireAT */
         private final long expireAt;
 
         private CachedValue(Object value, long expireAt) {
@@ -144,16 +155,27 @@ public class SysLoginServiceImpl implements SysLoginService {
      */
     private static final String THIRD_PARTY_TYPE_WECHAT = "wechat";
 
+    /** Auth属性 */
     private final AuthClientProperties authProperties;
+    /** SYS用户thirdpartymapper */
     private final SysUserThirdPartyMapper sysUserThirdPartyMapper;
+    /** SYSwechat用户mapper */
     private final SysWechatUserMapper sysWechatUserMapper;
+    /** Redis模板 */
     private final RedisTemplate redisTemplate;
+    /** SYS设置服务 */
     private final SysSettingService sysSettingService;
+    /** SimpleSYS用户服务 */
     private final SimpleSysUserService simpleSysUserService;
+    /** SYS用户服务 */
     private final SysUserService sysUserService;
+    /** SYS用户rolemapper */
     private final SysUserRoleMapper sysUserRoleMapper;
+    /** SYSrolemapper */
     private final SysRoleMapper sysRoleMapper;
+    /** SYSdeptmapper */
     private final SysDeptMapper sysDeptMapper;
+    /** Objectmapper */
     private final ObjectMapper objectMapper;
 
     @Override

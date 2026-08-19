@@ -7,8 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 银行卡BIN信息数据访问层接口
  *
- * @author CH
  * @since 2024/12/6
+ * @author CH
  */
 @Mapper
 public interface SysBankBinsMapper extends BaseMapper<SysBankBins> {

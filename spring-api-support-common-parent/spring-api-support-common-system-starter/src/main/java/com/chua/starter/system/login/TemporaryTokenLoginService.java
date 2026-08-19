@@ -43,8 +43,8 @@ import java.util.*;
  *   <li>allowedUrls: 允许访问的URL列表，默认为空表示允许所有URL</li>
  * </ul>
  *
- * @author CH
  * @since 1.0.0
+ * @author CH
  */
 @Slf4j
 @Service

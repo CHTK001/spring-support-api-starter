@@ -15,8 +15,8 @@ import java.util.concurrent.ThreadPoolExecutor;
  * 提供通用的异步任务线程池，用于AppKey使用统计更新等异步操作
  * </p>
  *
- * @author CH
  * @since 2024/12/28
+ * @author CH
  */
 @Slf4j
 @Configuration

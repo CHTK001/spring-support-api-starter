@@ -8,8 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * ACME 配置项，前缀为 {@code monitor.acme}。
  *
- * @author CH
  * @since 2025-10-17
+ * @author CH
  */
 @Data
 @ConfigurationProperties(prefix = "monitor.acme")
@@ -21,5 +21,6 @@ public class AcmeProperties {
     private boolean enabled = true;
 
     /** 到期前多少天触发续签 */
+    /** Renewdaysbefore */
     private int renewDaysBefore = 30;
 }

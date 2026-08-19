@@ -12,8 +12,8 @@ import java.util.List;
 /**
  * 系统配置变更历史服务接口
  *
- * @author CH
  * @since 2024/12/20
+ * @author CH
  */
 public interface SysSettingHistoryService extends IService<SysSettingHistory> {
 

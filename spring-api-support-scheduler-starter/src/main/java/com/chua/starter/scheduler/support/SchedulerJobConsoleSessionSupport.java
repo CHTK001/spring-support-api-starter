@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpSession;
  * <p>提供控制台登录状态的写入、读取与清理能力,
  * 会话信息保存在 Servlet 标准 HttpSession 中。</p>
  *
- * @author CH
  * @since 4.0.0.42
  */
 public final class SchedulerJobConsoleSessionSupport {

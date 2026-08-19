@@ -6,8 +6,8 @@ import org.slf4j.MDC;
 /**
  * sql日志
  *
- * @author CH
  * @since 2024/9/6
+ * @author CH
  */
 public class SqlLogMessageConfiguration implements MessageFormattingStrategy {
 
@@ -22,7 +22,6 @@ public class SqlLogMessageConfiguration implements MessageFormattingStrategy {
      * @param sql          最终执行的SQL
      * @param url          数据库连接地址
      * @return 格式化日志结果
-     * @author CH
      * @since 1.0.0
      */
     @Override

@@ -26,8 +26,8 @@ import java.util.Map;
  * }</pre>
  * <p>前端通过 {@code subscribe("signin", "done", handler)} 监听。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @Service

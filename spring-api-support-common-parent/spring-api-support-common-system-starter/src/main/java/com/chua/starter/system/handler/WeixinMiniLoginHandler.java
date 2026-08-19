@@ -38,9 +38,9 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
  * 6. 更新或创建 SysUserThirdParty 记录，保存 openid
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/11
+ * @author CH
  */
 @Slf4j
 @Spi("WECHAT")

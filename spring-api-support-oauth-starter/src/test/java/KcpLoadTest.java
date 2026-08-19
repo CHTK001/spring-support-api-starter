@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * KCP 协议登录压测程序
  * <p>多客户端并发执行 login,统计 QPS/成功率/P50/P95 延迟。</p>
+ * @author CH
  */
 public class KcpLoadTest {
 

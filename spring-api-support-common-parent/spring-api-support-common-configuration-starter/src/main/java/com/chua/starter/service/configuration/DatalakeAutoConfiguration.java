@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Bean;
 /**
  * 数据中台自动装配 — 使用 DatalakeServerBuilder 构建完整服务器
  *
- * @author CH
  * @since 2025/6/2
+ * @author CH
  */
 @Slf4j
 @AutoConfiguration
@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 @ConditionalOnProperty(name = "datalake.enabled", havingValue = "true", matchIfMissing = false)
 public class DatalakeAutoConfiguration {
 
+    /** Datalake服务器 */
     private DatalakeServer datalakeServer;
 
     @Bean

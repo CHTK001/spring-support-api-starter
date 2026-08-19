@@ -11,7 +11,7 @@ import java.util.List;
 /**
  *
  * @since 2024/8/8
- * @author CH    
+ * @author CH
  */
 @Mapper
 public interface SysUserLogMapper extends BaseMapper<SysUserLog> {

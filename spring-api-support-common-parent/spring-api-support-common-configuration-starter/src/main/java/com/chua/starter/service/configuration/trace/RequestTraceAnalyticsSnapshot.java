@@ -7,8 +7,8 @@ import java.util.Set;
 /**
  * 请求追踪分析快照
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 public record RequestTraceAnalyticsSnapshot(
         Instant generatedAt,

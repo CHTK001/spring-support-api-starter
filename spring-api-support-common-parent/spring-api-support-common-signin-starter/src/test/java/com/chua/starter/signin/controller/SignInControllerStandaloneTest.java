@@ -29,8 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * <p>不加载 Spring 容器，手动 mock 依赖并验证各接口的 HTTP 状态码与响应 JSON 结构。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 class SignInControllerStandaloneTest {
 

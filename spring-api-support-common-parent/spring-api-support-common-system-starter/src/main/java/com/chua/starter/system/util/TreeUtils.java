@@ -10,8 +10,8 @@ import java.util.function.Function;
  * <p>原 com.chua.common.support.utils.TreeUtils 在当前 utils 版本中已移除，
  * 此处提供等价实现以保证部门树 / 菜单树功能可用。
  *
- * @author CH
  * @since 2026/08/02
+ * @author CH
  */
 public class TreeUtils {
 

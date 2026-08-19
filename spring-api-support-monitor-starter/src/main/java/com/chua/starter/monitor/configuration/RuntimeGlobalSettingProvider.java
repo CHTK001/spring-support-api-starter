@@ -5,8 +5,8 @@ import java.util.List;
 /**
  * 运行时全局设置提供者，向全局设置中心提供「运行时配置」分组及其配置项。
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 public class RuntimeGlobalSettingProvider {
 

@@ -15,8 +15,8 @@ import java.util.Set;
  * 系统菜单服务接口，定义了与系统菜单相关的业务操作
  * 继承了通用的服务接口IService<SysMenu>，提供了更具体的菜单操作方法
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 public interface SysMenuService extends IService<SysMenu> {
 

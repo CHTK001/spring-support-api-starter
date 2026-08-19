@@ -12,8 +12,8 @@ import java.util.List;
 /**
  * 城市数据访问层接口
  *
- * @author CH
  * @since 2022-11-03
+ * @author CH
  */
 @Mapper
 public interface SysCityMapper extends BaseMapper<SysCity> {

@@ -7,9 +7,9 @@ import com.chua.starter.entity.service.SysFileSystemSetting;
 /**
  * 文件系统配置服务接口
  *
- * @author CH
  * @since 2024/12/10
  * @version 1.0.0
+ * @author CH
  */
 public interface SysFileSystemSettingService extends IService<SysFileSystemSetting> {
 

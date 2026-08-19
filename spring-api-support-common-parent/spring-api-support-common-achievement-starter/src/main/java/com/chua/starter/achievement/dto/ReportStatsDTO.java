@@ -10,8 +10,8 @@ import java.util.Map;
  * <p>前端将自身掌握的行为数据（如菜单点击次数、消息发送次数等）
  * 批量上报到成就模块，写入 KvEngine 后触发成就判定。</p>
  *
- * @author CH
  * @since 4.0.0.42
+ * @author CH
  */
 @Data
 public class ReportStatsDTO {

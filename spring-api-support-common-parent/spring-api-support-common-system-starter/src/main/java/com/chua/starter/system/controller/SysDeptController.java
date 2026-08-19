@@ -28,8 +28,8 @@ import java.util.Set;
 /**
  * 组织机构接口
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Tag(name = "组织机构接口")
 @RestController
@@ -37,6 +37,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysDeptController {
 
+    /** SYSdept服务 */
     private final SysDeptService sysDeptService;
 
 

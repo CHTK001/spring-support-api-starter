@@ -9,8 +9,8 @@ import java.util.List;
 /**
  * 成就段位定义 Mapper
  *
- * @author CH
  * @since 2026-08-07
+ * @author CH
  */
 @Mapper
 public interface AchievementTierMapper extends BaseMapper<AchievementTier> {

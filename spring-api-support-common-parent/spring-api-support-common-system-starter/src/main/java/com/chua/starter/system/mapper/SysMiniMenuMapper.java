@@ -7,8 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 小程序菜单 Mapper
  *
- * @author CH
  * @since 2026/08/03
+ * @author CH
  */
 @Mapper
 public interface SysMiniMenuMapper extends BaseMapper<SysMiniMenu> {

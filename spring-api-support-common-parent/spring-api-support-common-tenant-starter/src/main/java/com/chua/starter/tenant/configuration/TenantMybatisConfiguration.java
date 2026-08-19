@@ -16,15 +16,16 @@ import org.springframework.context.annotation.Configuration;
  * 配置租户拦截器，实现多租户数据隔离
  * </p>
  *
- * @author CH
  * @version 1.0.0
  * @since 2024/12/06
+ * @author CH
  */
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class TenantMybatisConfiguration {
 
+    /** Tenant属性 */
     private final TenantProperties tenantProperties;
 
     /**

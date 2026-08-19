@@ -9,16 +9,19 @@ import org.springframework.stereotype.Component;
 /**
  * 请求追踪 SPI 路由器。
  *
- * @author CH
  * @since 2026/03/25
+ * @author CH
  */
 @Component
 public class RequestTraceStorageRouter {
 
+    /** Database_config_storage */
     private static final String DATABASE_CONFIG_STORAGE =
             "com.chua.starter.service.trace.storage.DatabaseRequestTraceConfigStorage";
+    /** Database_raw_storage */
     private static final String DATABASE_RAW_STORAGE =
             "com.chua.starter.service.trace.storage.DatabaseRequestTraceRawRecordStorage";
+    /** Database_behavior_storage */
     private static final String DATABASE_BEHAVIOR_STORAGE =
             "com.chua.starter.service.trace.storage.DatabaseRequestTraceBehaviorStorage";
 

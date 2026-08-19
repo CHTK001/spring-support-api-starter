@@ -29,8 +29,11 @@ public class IpcAuthInformation {
     public static class IpcRequest implements HttpServletRequest {
         private final Map<String, String> headers = new ConcurrentHashMap<>();
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+        /** 请求体 */
         private String body;
+        /** 远程addr */
         private final String remoteAddr;
+        /** 远程端口 */
         private final int remotePort;
 
         public IpcRequest(String remoteAddr, int remotePort) {
@@ -157,7 +160,9 @@ public class IpcAuthInformation {
      */
     public static class IpcResponse implements HttpServletResponse {
         private final Map<String, String> headers = new ConcurrentHashMap<>();
+        /** 状态 */
         private int status = 200;
+        /** 请求体 */
         private String body;
 
         @Override

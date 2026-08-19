@@ -14,8 +14,8 @@ import lombok.EqualsAndHashCode;
 /**
  * ACME 订单信息，记录 ACME 订单地址、授权地址、状态及最终证书地址。
  *
- * @author CH
  * @since 2025-10-17
+ * @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -28,41 +28,48 @@ public class MonitorAcmeOrder extends SysBase {
     @TableId(value = "acme_order_id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
+    /** Acme排序ID */
     private Integer acmeOrderId;
 
     /** 账户ID */
     @TableField("acme_account_id")
     @ApiModelProperty("账户ID")
     @Schema(description = "账户ID")
+    /** AcmeaccountID */
     private Integer acmeAccountId;
 
     /** 证书ID */
     @TableField("acme_cert_id")
     @ApiModelProperty("证书ID")
     @Schema(description = "证书ID")
+    /** Acme证书ID */
     private Integer acmeCertId;
 
     /** 订单URL */
     @TableField("acme_order_url")
     @ApiModelProperty("订单URL")
     @Schema(description = "订单URL")
+    /** Acme排序URL */
     private String acmeOrderUrl;
 
     /** 授权URL列表(JSON) */
     @TableField("acme_authz_urls")
     @ApiModelProperty("授权URL列表(JSON)")
     @Schema(description = "授权URL列表(JSON)")
+    /** Acmeauthzurls */
     private String acmeAuthzUrls;
 
     /** 状态 */
     @TableField("acme_order_status")
     @ApiModelProperty("状态")
     @Schema(description = "状态")
+    /** Acme排序状态 */
     private String acmeOrderStatus;
 
     /** 最终证书URL */
     @TableField("acme_certificate_url")
     @ApiModelProperty("最终证书URL")
     @Schema(description = "最终证书URL")
+    /** Acme证书URL */
     private String acmeCertificateUrl;
 }

@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 反馈接口
  *
- * @author CH
  * @since 2024/8/7
+ * @author CH
  */
 @Tag(name = "反馈接口")
 @RestController
@@ -70,7 +70,6 @@ public class SysFeedbackController {
      * 反馈统计
      *
      * @return 反馈统计
-     * @author CH
      * @since 2024/12/10
      */
     @GetMapping("/statistic")
