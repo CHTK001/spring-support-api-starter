@@ -27,6 +27,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * <p>提供多租户切换、独立数据库、租户级权限分配、SaaS 服务编排等能力。
  * 可独立部署或被嵌入到其他业务系统。</p>
  *
+ * @author CH
  * @since 4.0.0.42
  */
 @EnableAsync

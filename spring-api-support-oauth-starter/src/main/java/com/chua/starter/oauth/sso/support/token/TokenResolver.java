@@ -128,7 +128,7 @@ public interface TokenResolver {
      * 在线状态信息
      *
      * @since 4.0.0.42
-     * @author CH
+ * @author CH
      */
     @lombok.Data
     @lombok.NoArgsConstructor

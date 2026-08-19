@@ -42,11 +42,9 @@ public class SysAvatarFrameController {
     final SysUserMapper sysUserMapper;
 
     /** 生日窗口：前后 3 天共 7 天 */
-    /** Birthday_window_days */
     private static final int BIRTHDAY_WINDOW_DAYS = 3;
 
     /** 生日日期解析：yyyy-MM-dd / yyyy/MM/dd / yyyy.MM.dd */
-    /** Birthday_pattern */
     private static final Pattern BIRTHDAY_PATTERN = Pattern.compile("(\\d{4})[-/.](\\d{1,2})[-/.](\\d{1,2})");
 
     @GetMapping("/list")

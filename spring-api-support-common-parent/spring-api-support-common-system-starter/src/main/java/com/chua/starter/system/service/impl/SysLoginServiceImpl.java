@@ -107,15 +107,12 @@ public class SysLoginServiceImpl implements SysLoginService {
     private static final String AGREEMENT_ACCEPTED_AT_KEY = "agreementAcceptedAt";
 
     /** 生日框记录ID（与 sys_avatar_frame 种子 id=100 一致） */
-    /** Birthday_frame_id */
     private static final Integer BIRTHDAY_FRAME_ID = 100;
 
     /** 生日窗口：前后 3 天共 7 天 */
-    /** Birthday_window_days */
     private static final int BIRTHDAY_WINDOW_DAYS = 3;
 
     /** 生日日期解析：yyyy-MM-dd / yyyy/MM/dd / yyyy.MM.dd */
-    /** Birthday_pattern */
     private static final Pattern BIRTHDAY_PATTERN = Pattern.compile("(\\d{4})[-/.](\\d{1,2})[-/.](\\d{1,2})");
 
     /**
@@ -138,10 +135,8 @@ public class SysLoginServiceImpl implements SysLoginService {
      */
     private static class CachedValue {
         /** 缓存值 */
-        /** 值 */
         private final Object value;
         /** 过期时间戳 */
-        /** ExpireAT */
         private final long expireAt;
 
         private CachedValue(Object value, long expireAt) {

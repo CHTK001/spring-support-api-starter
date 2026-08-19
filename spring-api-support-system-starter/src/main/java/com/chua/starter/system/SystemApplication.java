@@ -19,6 +19,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * 提供完整的系统管理功能，包括用户管理、角色管理、菜单管理、部门管理等基础系统服务。
  * </p>
  *
+ * @author CH
  * @since 2024/12/11
  */
 @EnableCaching
