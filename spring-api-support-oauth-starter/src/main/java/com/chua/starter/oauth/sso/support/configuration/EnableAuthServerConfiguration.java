@@ -89,6 +89,15 @@ import java.util.Properties;
         ThirdPartyLoginProperties.class,
         OauthSecurityProperties.class
 })
+/**
+ * OAuth 认证服务器自动配置，负责整合登录、CAS、第三方登录等能力。
+ *
+ * <p>实现 {@link BeanDefinitionRegistryPostProcessor} 以动态注册认证相关 Bean，
+ * 同时作为 {@link WebMvcConfigurer} 注册全局拦截器。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPostProcessor,
         EnvironmentPostProcessor,
         CommandLineRunner,

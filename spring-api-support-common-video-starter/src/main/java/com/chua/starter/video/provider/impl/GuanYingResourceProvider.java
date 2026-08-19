@@ -485,6 +485,11 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
 
     }
 
+    /**
+     * 创建VideoPlayAddressUrl
+     * @param playlistDTO playlistDTO
+     * @param index index
+     */
     private String createVideoPlayAddressUrl(EmbeddedDownload.PlaylistDTO playlistDTO, int index) {
         try {
             String s = playlistDTO.getI();
@@ -670,6 +675,11 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     @Override
+    /**
+     * FetchVideos
+     * @param config config
+     * @param consumer consumer
+     */
     public void fetchVideos(VideoSyncConfig config, BiConsumer<VideoInfoResult, VideoSyncProcessConfig> consumer) {
         String videoSyncConfigStatus = config.getVideoSyncConfigStatus();
         if (SYNC_STATUS_FINISH.equals(videoSyncConfigStatus) ||
@@ -762,6 +772,11 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
         }
     }
 
+    /**
+     * CountdownYear
+     * @param year year
+     * @param searchPage searchPage
+     */
     private void countdownYear(AtomicInteger year, AtomicInteger searchPage) {
         year.decrementAndGet();
         searchPage.set(1);
