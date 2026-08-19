@@ -50,17 +50,20 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
     private final TenantProperties tenantProperties;
 
     @Override
+    /** 获取Name */
     public String getName() {
         return "default";
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Integer.MAX_VALUE;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** SyncTenantUser */
     public SysUser syncTenantUser(SysTenant tenant, String operation) {
         if (tenant == null || tenant.getSysTenantId() == null) {
             log.warn("[租户同步] 租户信息不完整，无法同步用户");
@@ -89,6 +92,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         }
     }
 
+    /** 创建TenantUser */
     private SysUser createTenantUser(SysTenant tenant, String tenantIdColumn) {
         String checkSql = String.format("SELECT COUNT(*) FROM sys_user WHERE %s = ?", tenantIdColumn);
         Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, tenant.getSysTenantId());
@@ -121,6 +125,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         return toSysUser(tenant);
     }
 
+    /** 更新TenantUser */
     private SysUser updateTenantUser(SysTenant tenant, String tenantIdColumn) {
         StringBuilder updateSql = new StringBuilder("""
                 UPDATE sys_user SET
@@ -155,12 +160,14 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         return toSysUser(tenant);
     }
 
+    /** 删除TenantUser */
     private void deleteTenantUser(String tenantId, String tenantIdColumn) {
         String deleteSql = String.format("DELETE FROM sys_user WHERE %s = ?", tenantIdColumn);
         int rows = jdbcTemplate.update(deleteSql, tenantId);
         log.info("[租户同步] 删除租户用户: tenantId={}, rows={}", tenantId, rows);
     }
 
+    /** ToSysUser */
     private SysUser toSysUser(SysTenant tenant) {
         SysUser user = new SysUser();
         user.setSysUserNickname(tenant.getSysTenantName());
@@ -170,6 +177,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** SyncTenantMenu */
     public boolean syncTenantMenu(String tenantId, List<Integer> menuIds) {
         if (!TenantSyncMessageSupport.hasText(tenantId)) {
             log.warn("[租户同步] 租户ID为空，无法同步菜单");
@@ -209,6 +217,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** SyncMenuData */
     public boolean syncMenuData(String tenantId, List<Map<String, Object>> menus, String operation) {
         if (!TenantSyncMessageSupport.hasText(tenantId)) {
             log.warn("[租户同步] 租户ID为空，无法同步菜单数据");
@@ -437,6 +446,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
                 tenantId);
     }
 
+    /** ReplaceMenus */
     private void replaceMenus(String tenantId, List<Map<String, Object>> menus, String tenantIdColumn) {
         List<Integer> keepIds = new ArrayList<>();
         for (Map<String, Object> menu : menus) {
@@ -467,6 +477,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         jdbcTemplate.update(deleteSql, params);
     }
 
+    /** UpsertMenu */
     private void upsertMenu(String tenantId, Map<String, Object> menu, String tenantIdColumn) {
         SysMenu sysMenu = toSysMenu(menu);
         if (sysMenu.getSysMenuId() == null) {
@@ -484,6 +495,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         insertMenu(tenantId, sysMenu, tenantIdColumn);
     }
 
+    /** 更新Menu */
     private void updateMenu(String tenantId, SysMenu menu, String tenantIdColumn) {
         String updateSql = String.format("""
                 UPDATE sys_menu SET
@@ -510,6 +522,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
                 menu.getSysMenuId());
     }
 
+    /** 插入Menu */
     private void insertMenu(String tenantId, SysMenu menu, String tenantIdColumn) {
         String insertSql = String.format("""
                 INSERT INTO sys_menu (
@@ -533,6 +546,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
                 menu.getSysMenuEngine(), tenantId);
     }
 
+    /** 删除Menu */
     private void deleteMenu(String tenantId, Map<String, Object> menu, String tenantIdColumn) {
         Integer menuId = MapUtils.getInteger(menu, "sysMenuId", 0);
         if (menuId == 0) {
@@ -542,6 +556,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         jdbcTemplate.update(deleteSql, menuId, tenantId);
     }
 
+    /** ToSysMenu */
     private SysMenu toSysMenu(Map<String, Object> menu) {
         SysMenu sysMenu = new SysMenu();
         if (menu == null) {
@@ -577,6 +592,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         return sysMenu;
     }
 
+    /** NormalizeOperation */
     private String normalizeOperation(String operation) {
         if (!TenantSyncMessageSupport.hasText(operation)) {
             return OP_UPDATE;

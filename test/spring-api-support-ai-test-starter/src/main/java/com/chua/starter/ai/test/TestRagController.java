@@ -56,6 +56,7 @@ public class TestRagController {
     private int graphMaxTokens;
 
     @PostConstruct
+    /** 初始化 */
     public void init() {
         if (useGraph) {
             ragService.setGraphContextProvider((query, documentIds, chunkContents) -> {
@@ -180,6 +181,7 @@ public class TestRagController {
 
     @Operation(summary = "删除文档")
     @DeleteMapping("/document/{id}")
+    /** 删除Document */
     public ReturnResult<Boolean> deleteDocument(@PathVariable String id) {
         boolean deleted = documentManager.deleteDocument(id);
         return deleted ? ReturnResult.ok(true) : ReturnResult.error("文档不存在");
@@ -189,6 +191,7 @@ public class TestRagController {
 
     @Operation(summary = "RAG 问答", description = "基于已索引文档进行问答（useGraph=true 时自动注入图谱上下文）")
     @PostMapping("/query")
+    /** 查询 */
     public ReturnResult<Map<String, Object>> query(@RequestBody Map<String, Object> body) {
         String query = body.getOrDefault("query", "").toString();
         if (query.isBlank()) return ReturnResult.error("查询内容不能为空");
@@ -217,6 +220,7 @@ public class TestRagController {
 
     @Operation(summary = "状态")
     @GetMapping("/status")
+    /** Status */
     public ReturnResult<Map<String, Object>> status() {
         Map<String, Object> status = new LinkedHashMap<>();
         status.put("engine", ragProperties.getEmbeddingEngine());
@@ -239,6 +243,7 @@ public class TestRagController {
 
     // ── 辅助 ─────────────────────────────────────────────
 
+    /** ExtractKeywords */
     private Set<String> extractKeywords(List<String> contents) {
         Set<String> keywords = new LinkedHashSet<>();
         for (String content : contents) {

@@ -81,6 +81,7 @@ public class OauthProtocolHandler implements ServerHandler {
     private final LoginCheck loginCheck;
 
     @Override
+    /** 处理 */
     public void handle(ServerRequest request, ServerResponse response) throws Exception {
         var path = normalize(request.getPath());
         try {
@@ -110,6 +111,7 @@ public class OauthProtocolHandler implements ServerHandler {
 
     // ==================== 登录 ====================
 
+    /** 处理Login */
     private void handleLogin(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
         if (!decoder.isSuccessful()) {
@@ -137,6 +139,7 @@ public class OauthProtocolHandler implements ServerHandler {
 
     // ==================== 鉴权 ====================
 
+    /** 处理验证 */
     private void handleVerify(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
         if (!decoder.isSuccessful()) {
@@ -149,6 +152,7 @@ public class OauthProtocolHandler implements ServerHandler {
 
     // ==================== 升级 ====================
 
+    /** 处理Upgrade */
     private void handleUpgrade(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
         if (!decoder.isSuccessful()) {
@@ -168,6 +172,7 @@ public class OauthProtocolHandler implements ServerHandler {
 
     // ==================== 登出 ====================
 
+    /** 处理Logout */
     private void handleLogout(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
         if (!decoder.isSuccessful()) {
@@ -189,6 +194,7 @@ public class OauthProtocolHandler implements ServerHandler {
 
     // ==================== 临时令牌 ====================
 
+    /** 处理TemporaryToken */
     private void handleTemporaryToken(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
         if (!decoder.isSuccessful()) {

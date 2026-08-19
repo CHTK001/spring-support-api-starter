@@ -161,6 +161,7 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         return result;
     }
 
+    /** AuthVersion */
     public String authVersion(UserResult userResult) {
         if (userResult == null || StringUtils.isEmpty(userResult.getUserId())) {
             return null;
@@ -168,14 +169,17 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         return authVersion(Converter.convertIfNecessary(userResult.getUserId(), Integer.class));
     }
 
+    /** AuthVersion */
     protected String authVersion(SysUser user) {
         return user == null ? null : authVersion(user.getSysUserId());
     }
 
+    /** AuthVersion */
     protected String authVersion(Integer userId) {
         return userId == null ? null : sysUserMapper.selectAuthVersion(userId);
     }
 
+    /** 解析AuthProfile */
     private LoginAuthProfile resolveAuthProfile(SysUser user) {
         LoginAuthProfile profile = new LoginAuthProfile();
         List<Map<String, Object>> authRows = sysUserMapper.selectAuthRows(user.getSysUserId());
@@ -251,6 +255,7 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         return item;
     }
 
+    /** ToRoleInfo */
     private RoleInfo toRoleInfo(Map<String, Object> authRow, String roleCode) {
         RoleInfo item = new RoleInfo();
         item.setRoleCode(roleCode);

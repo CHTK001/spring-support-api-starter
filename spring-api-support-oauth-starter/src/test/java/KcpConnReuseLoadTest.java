@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class KcpConnReuseLoadTest {
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         int clients = args.length > 0 ? Integer.parseInt(args[0]) : 4;
         int iterations = args.length > 1 ? Integer.parseInt(args[1]) : 40;
@@ -76,6 +77,7 @@ public class KcpConnReuseLoadTest {
         System.out.println("P50: " + p50 + "ms, P95: " + p95 + "ms, P99: " + p99 + "ms");
     }
 
+    /** Pct */
     private static long pct(List<Long> sorted, double p) {
         if (sorted.isEmpty()) return 0;
         int idx = (int) Math.ceil(p / 100.0 * sorted.size()) - 1;

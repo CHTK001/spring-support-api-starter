@@ -35,12 +35,14 @@ public class TenantServerSyncRequestHandler implements SyncMessageHandler {
     private final TenantServerSyncPublisher syncPublisher;
 
     @Override
+    /** 获取Name */
     public String getName() {
         return "tenant-server-sync-request";
     }
 
     @Override
     @SuppressWarnings("unchecked")
+    /** 处理 */
     public Object handle(String topic, String sessionId, Map<String, Object> data) {
         if (data == null) {
             data = new java.util.HashMap<>();
@@ -86,6 +88,7 @@ public class TenantServerSyncRequestHandler implements SyncMessageHandler {
         return null;
     }
 
+    /** 验证Signature */
     private TenantSyncMessageSupport.VerificationResult verifySignature(Map<String, Object> data) {
         if (!tenantProperties.isServerSyncSignEnabled()) {
             return TenantSyncMessageSupport.VerificationResult.skip("server sign 未启用");

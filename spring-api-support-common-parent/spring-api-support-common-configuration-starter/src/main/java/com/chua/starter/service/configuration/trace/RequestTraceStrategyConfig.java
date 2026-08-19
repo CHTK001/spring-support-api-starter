@@ -116,6 +116,7 @@ public class RequestTraceStrategyConfig {
     /** 用户preferencedominant数量 */
     private Integer userPreferenceDominantCount = 4;
 
+    /** 复制 */
     public RequestTraceStrategyConfig copy() {
         RequestTraceStrategyConfig target = new RequestTraceStrategyConfig();
         target.enabled = enabled;
@@ -165,6 +166,7 @@ public class RequestTraceStrategyConfig {
         return target;
     }
 
+    /** Normalize */
     public RequestTraceStrategyConfig normalize() {
         enabled = defaultBoolean(enabled, true);
         rawStorageType = lowerCaseText(defaultText(rawStorageType, "file"));
@@ -223,23 +225,28 @@ public class RequestTraceStrategyConfig {
         return this;
     }
 
+    /** DefaultBoolean */
     private Boolean defaultBoolean(Boolean value, boolean defaultValue) {
         return value == null ? defaultValue : value;
     }
 
+    /** Positive */
     private Integer positive(Integer value, int defaultValue) {
         return value == null || value <= 0 ? defaultValue : value;
     }
 
+    /** Positive */
     private Long positive(Long value, long defaultValue) {
         return value == null || value <= 0 ? defaultValue : value;
     }
 
+    /** DefaultText */
     private String defaultText(String value, String defaultValue) {
         String normalized = normalizeText(value);
         return normalized == null ? defaultValue : normalized;
     }
 
+    /** NormalizeText */
     private String normalizeText(String value) {
         if (value == null) {
             return null;
@@ -248,6 +255,7 @@ public class RequestTraceStrategyConfig {
         return text.isEmpty() ? null : text;
     }
 
+    /** LowerCaseText */
     private String lowerCaseText(String value) {
         String text = normalizeText(value);
         return text == null ? null : text.toLowerCase(Locale.ROOT);

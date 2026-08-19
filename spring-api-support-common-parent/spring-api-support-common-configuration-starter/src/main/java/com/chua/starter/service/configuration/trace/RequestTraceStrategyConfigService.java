@@ -33,6 +33,7 @@ public class RequestTraceStrategyConfigService {
 
     private volatile RequestTraceStrategyConfig cachedConfig;
 
+    /** CurrentConfig */
     public RequestTraceStrategyConfig currentConfig() {
         RequestTraceStrategyConfig local = cachedConfig;
         if (local != null) {
@@ -41,6 +42,7 @@ public class RequestTraceStrategyConfigService {
         return refresh();
     }
 
+    /** Refresh */
     public synchronized RequestTraceStrategyConfig refresh() {
         RequestTraceConfigStorage storage = storageRouter.configStorage(runtimeProperties.getConfigStorageType());
         RequestTraceStrategyConfig loaded = storage.load(RequestTraceConstants.GROUP_CODE);
@@ -51,6 +53,7 @@ public class RequestTraceStrategyConfigService {
         return normalized.copy();
     }
 
+    /** 更新 */
     public synchronized RequestTraceStrategyConfig update(RequestTraceStrategyConfig config) {
         RequestTraceStrategyConfig normalized = validateWritableConfig(RequestTraceStrategyConfigCodec.normalize(config));
         RequestTraceConfigStorage storage = storageRouter.configStorage(runtimeProperties.getConfigStorageType());
@@ -60,28 +63,34 @@ public class RequestTraceStrategyConfigService {
         return target.copy();
     }
 
+    /** ConfigStorageType */
     public String configStorageType() {
         return sanitizeStorageType(runtimeProperties.getConfigStorageType(), configStorageTypes(), "database");
     }
 
+    /** ConfigStorageTypes */
     public List<String> configStorageTypes() {
         return storageTypes(RequestTraceConfigStorage.class, CONFIG_STORAGE_DEFAULTS);
     }
 
+    /** RawStorageTypes */
     public List<String> rawStorageTypes() {
         return storageTypes(RequestTraceRawRecordStorage.class, RAW_STORAGE_DEFAULTS);
     }
 
+    /** BehaviorStorageTypes */
     public List<String> behaviorStorageTypes() {
         return storageTypes(RequestTraceBehaviorStorage.class, BEHAVIOR_STORAGE_DEFAULTS);
     }
 
+    /** SanitizeLoadedConfig */
     private RequestTraceStrategyConfig sanitizeLoadedConfig(RequestTraceStrategyConfig config) {
         config.setRawStorageType(sanitizeStorageType(config.getRawStorageType(), rawStorageTypes(), "file"));
         config.setBehaviorStorageType(sanitizeStorageType(config.getBehaviorStorageType(), behaviorStorageTypes(), "database"));
         return config;
     }
 
+    /** 解析RuntimeDefaultConfig */
     private RequestTraceStrategyConfig resolveRuntimeDefaultConfig() {
         RequestTraceStrategyConfig config = new RequestTraceStrategyConfig();
         config.setAiSummaryEnabled(runtimeProperties.getAiSummaryEnabled());
@@ -93,12 +102,14 @@ public class RequestTraceStrategyConfigService {
         return sanitizeLoadedConfig(RequestTraceStrategyConfigCodec.normalize(config));
     }
 
+    /** 校验WritableConfig */
     private RequestTraceStrategyConfig validateWritableConfig(RequestTraceStrategyConfig config) {
         validateStorageType("rawStorageType", config.getRawStorageType(), rawStorageTypes(), "file");
         validateStorageType("behaviorStorageType", config.getBehaviorStorageType(), behaviorStorageTypes(), "database");
         return config;
     }
 
+    /** 校验StorageType */
     private void validateStorageType(String fieldName, String value, List<String> supportedTypes, String defaultType) {
         String normalized = lowerCase(value);
         if (normalized == null || normalized.equals(defaultType)) {
@@ -110,6 +121,7 @@ public class RequestTraceStrategyConfigService {
         throw new IllegalArgumentException("不支持的 " + fieldName + "=" + value + "，可选值: " + supportedTypes);
     }
 
+    /** SanitizeStorageType */
     private String sanitizeStorageType(String value, List<String> supportedTypes, String defaultType) {
         String normalized = lowerCase(value);
         if (normalized == null) {
@@ -118,6 +130,7 @@ public class RequestTraceStrategyConfigService {
         return supportedTypes.contains(normalized) ? normalized : defaultType;
     }
 
+    /** StorageTypes */
     private List<String> storageTypes(Class<?> spiType, List<String> defaults) {
         Set<String> values = new LinkedHashSet<>();
         defaults.stream()
@@ -134,6 +147,7 @@ public class RequestTraceStrategyConfigService {
         return List.copyOf(values);
     }
 
+    /** LowerCase */
     private String lowerCase(String value) {
         String normalized = RequestTraceSupport.normalize(value);
         return normalized == null ? null : normalized.toLowerCase(Locale.ROOT);

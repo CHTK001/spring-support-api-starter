@@ -36,26 +36,32 @@ public class TenantProperties {
      */
     private ClientConfig client = new ClientConfig();
 
+    /** 获取IgnoreTable */
     public Set<String> getIgnoreTable() {
         return new HashSet<>(ignoreTable);
     }
 
+    /** 设置IgnoreTable */
     public void setIgnoreTable(Set<String> ignoreTable) {
         this.ignoreTable = ignoreTable == null ? new HashSet<>() : new HashSet<>(ignoreTable);
     }
 
+    /** 获取Server */
     public ServerConfig getServer() {
         return server == null ? new ServerConfig() : server.copy();
     }
 
+    /** 设置Server */
     public void setServer(ServerConfig server) {
         this.server = server == null ? new ServerConfig() : server.copy();
     }
 
+    /** 获取Client */
     public ClientConfig getClient() {
         return client == null ? new ClientConfig() : client.copy();
     }
 
+    /** 设置Client */
     public void setClient(ClientConfig client) {
         this.client = client == null ? new ClientConfig() : client.copy();
     }
@@ -140,6 +146,7 @@ public class TenantProperties {
         return result;
     }
 
+    /** 是否拥有Text */
     private static boolean hasText(String value) {
         return value != null && !value.isBlank();
     }
@@ -241,74 +248,92 @@ public class TenantProperties {
          */
         private int port = 19380;
 
+        /** 是否启用 */
         public boolean isEnable() {
             return enable;
         }
 
+        /** 是否Sync启用 */
         public boolean isSyncEnable() {
             return syncEnable;
         }
 
+        /** 是否SyncFull推送On注册 */
         public boolean isSyncFullPushOnRegister() {
             return syncFullPushOnRegister;
         }
 
+        /** 获取SyncFull推送IntervalSeconds */
         public long getSyncFullPushIntervalSeconds() {
             return syncFullPushIntervalSeconds;
         }
 
+        /** 是否SyncBroadcastFallback */
         public boolean isSyncBroadcastFallback() {
             return syncBroadcastFallback;
         }
 
+        /** 是否Sync跳过UnchangedFull推送 */
         public boolean isSyncSkipUnchangedFullPush() {
             return syncSkipUnchangedFullPush;
         }
 
+        /** 获取SyncSignSecret */
         public String getSyncSignSecret() {
             return syncSignSecret;
         }
 
+        /** 获取SyncSignAllowedClockSkewSeconds */
         public long getSyncSignAllowedClockSkewSeconds() {
             return syncSignAllowedClockSkewSeconds;
         }
 
+        /** 是否SyncAckEnabled */
         public boolean isSyncAckEnabled() {
             return syncAckEnabled;
         }
 
+        /** 获取SyncAckTimeoutSeconds */
         public long getSyncAckTimeoutSeconds() {
             return syncAckTimeoutSeconds;
         }
 
+        /** 获取SyncAck校验IntervalSeconds */
         public long getSyncAckCheckIntervalSeconds() {
             return syncAckCheckIntervalSeconds;
         }
 
+        /** 获取SyncAckCompensationCooldownSeconds */
         public long getSyncAckCompensationCooldownSeconds() {
             return syncAckCompensationCooldownSeconds;
         }
 
+        /** 获取SyncAck最大值Pending */
         public int getSyncAckMaxPending() {
             return syncAckMaxPending;
         }
 
+        /** 获取IgnoreTable */
         public Set<String> getIgnoreTable() {
             return ignoreTable;
         }
 
+        /** 获取Protocol */
         public String getProtocol() {
             return protocol;
         }
 
+        /** 获取Host */
         public String getHost() {
             return host;
         }
 
+        /** 获取Port */
         public int getPort() {
             return port;
         }
 
+        /** 复制 */
         public ServerConfig copy() {
             ServerConfig copy = new ServerConfig();
             copy.enable = this.enable;
@@ -438,78 +463,97 @@ public class TenantProperties {
          */
         private int serverPort = 19380;
 
+        /** 是否启用 */
         public boolean isEnable() {
             return enable;
         }
 
+        /** 是否Sync启用 */
         public boolean isSyncEnable() {
             return syncEnable;
         }
 
+        /** 获取TenantId */
         public String getTenantId() {
             return tenantId;
         }
 
+        /** 获取SyncSignSecret */
         public String getSyncSignSecret() {
             return syncSignSecret;
         }
 
+        /** 获取SyncSignAllowedClockSkewSeconds */
         public long getSyncSignAllowedClockSkewSeconds() {
             return syncSignAllowedClockSkewSeconds;
         }
 
+        /** 是否SyncAckEnabled */
         public boolean isSyncAckEnabled() {
             return syncAckEnabled;
         }
 
+        /** 是否SyncDeduplicateMessages */
         public boolean isSyncDeduplicateMessages() {
             return syncDeduplicateMessages;
         }
 
+        /** 获取SyncDeduplicateWindowSeconds */
         public long getSyncDeduplicateWindowSeconds() {
             return syncDeduplicateWindowSeconds;
         }
 
+        /** 获取SyncDeduplicate最大值获取大小 */
         public int getSyncDeduplicateMaxSize() {
             return syncDeduplicateMaxSize;
         }
 
+        /** 是否SyncAuto订阅Topics */
         public boolean isSyncAutoSubscribeTopics() {
             return syncAutoSubscribeTopics;
         }
 
+        /** 是否SyncRequestFull推送On连接 */
         public boolean isSyncRequestFullPushOnConnect() {
             return syncRequestFullPushOnConnect;
         }
 
+        /** 获取SyncRequestFull推送DelayMillis */
         public long getSyncRequestFullPushDelayMillis() {
             return syncRequestFullPushDelayMillis;
         }
 
+        /** 是否SyncIgnoreOutOfOrderMessages */
         public boolean isSyncIgnoreOutOfOrderMessages() {
             return syncIgnoreOutOfOrderMessages;
         }
 
+        /** 获取IgnoreTable */
         public Set<String> getIgnoreTable() {
             return ignoreTable;
         }
 
+        /** 是否Auto添加Column */
         public boolean isAutoAddColumn() {
             return autoAddColumn;
         }
 
+        /** 获取Protocol */
         public String getProtocol() {
             return protocol;
         }
 
+        /** 获取ServerHost */
         public String getServerHost() {
             return serverHost;
         }
 
+        /** 获取ServerPort */
         public int getServerPort() {
             return serverPort;
         }
 
+        /** 复制 */
         public ClientConfig copy() {
             ClientConfig copy = new ClientConfig();
             copy.enable = this.enable;

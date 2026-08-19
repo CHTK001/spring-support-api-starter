@@ -45,6 +45,7 @@ public class SchedulerJobConsoleAuthInterceptor implements HandlerInterceptor {
     private static final String UNAUTHORIZED_JSON = "{\"code\":\"401\",\"msg\":\"请先登录控制台\"}";
 
     @Override
+    /** Pre处理 */
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (!properties.getConsole().isAuthEnabled()) {
             return true;

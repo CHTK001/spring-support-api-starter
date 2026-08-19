@@ -135,6 +135,7 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
     }
 
     @Override
+    /** AfterProperties设置 */
     public void afterPropertiesSet() throws Exception {
         this.authRequest = new AuthGiteeRequest(AuthConfig.builder()
                 .clientId(thirdPartyBinderProperties.getGitee().getClientId())
@@ -144,6 +145,7 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
     }
 
     @Override
+    /** 设置ApplicationContext */
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         try {
             giteeService = applicationContext.getBean(GiteeService.class);

@@ -42,11 +42,13 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     final SysSfcInstallMapper sysSfcInstallMapper;
 
     @Override
+    /** PageForUserId */
     public IPage<SysSfc> pageForUserId(Query<SysSfc> query, SysSfc sysSfc, Set<String> roles, String userId) {
         return baseMapper.selectPageForSfc(query.createPage(), sysSfc, userId);
     }
 
     @Override
+    /** UploadSfc */
     public ReturnResult<Boolean> uploadSfc(MultipartFile multipartFile, SysSfc sysSfc) {
         if(null == multipartFile) {
             return ReturnResult.error("请上传组件");
@@ -71,6 +73,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     }
 
     @Override
+    /** 保存 */
     public ReturnResult<SysSfc> save(SysSfc sysSfc, Set<String> roles) {
         if(!AuthConstant.hasAdmin(roles)) {
             return ReturnResult.error("无权限新增组件");
@@ -81,6 +84,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     }
 
     @Override
+    /** 更新ById */
     public ReturnResult<Boolean> updateById(SysSfc sysSfc, Set<String> roles) {
         if(!AuthConstant.hasAdmin(roles)) {
             return ReturnResult.error("无权限修改组件");
@@ -89,6 +93,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     }
 
     @Override
+    /** 删除 */
     public ReturnResult<Boolean> delete(Long sysSfcId, Set<String> roles) {
         if(!AuthConstant.hasAdmin(roles)) {
             return ReturnResult.error("无权限删除组件");
@@ -107,6 +112,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     }
 
     @Override
+    /** Install */
     public ReturnResult<Boolean> install(SysSfc sysSfc, Integer userId) {
         if(sysSfcInstallMapper.exists(Wrappers.<SysSfcInstall>lambdaQuery()
                 .eq(SysSfcInstall::getSysSfcId, sysSfc.getSysSfcId())
@@ -129,6 +135,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     }
 
     @Override
+    /** Uninstall */
     public ReturnResult<Boolean> uninstall(SysSfc sysSfc, Integer userId) {
         if(!sysSfcInstallMapper.exists(Wrappers.<SysSfcInstall>lambdaQuery()
                 .eq(SysSfcInstall::getSysSfcId, sysSfc.getSysSfcId())
@@ -150,6 +157,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     }
 
     @Override
+    /** 获取 */
     public ReturnResult<String> get(Long sysSfcId, Set<String> roles, String userId) {
         SysSfc sysSfc = baseMapper.selectById(sysSfcId);
         if(sysSfc.getSysSfcType() == 0 && StringUtils.isBlank(sysSfc.getSysSfcPath())) {
@@ -189,6 +197,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     }
 
     @Override
+    /** Mine */
     public ReturnResult<List<SysSfc>> mine(String sysSfcCategory, String userId) {
         return ReturnResult.of(baseMapper.mine(sysSfcCategory, userId));
     }

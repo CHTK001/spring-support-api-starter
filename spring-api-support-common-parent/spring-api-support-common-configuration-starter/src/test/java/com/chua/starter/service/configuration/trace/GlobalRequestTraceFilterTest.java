@@ -48,6 +48,7 @@ class GlobalRequestTraceFilterTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain(new HttpServlet() {
             @Override
+            /** Service */
             protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
                 resp.setStatus(201);
             }
@@ -96,9 +97,11 @@ class GlobalRequestTraceFilterTest {
     private static final class DemoController {
 
         @RequestTraceStrategy("demo:annotated")
+        /** Annotated */
         public void annotated() {
         }
 
+        /** Plain */
         public void plain() {
         }
     }

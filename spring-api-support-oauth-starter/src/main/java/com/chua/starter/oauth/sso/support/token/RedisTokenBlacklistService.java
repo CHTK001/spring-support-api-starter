@@ -40,11 +40,13 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     private RedisTemplate<String, Object> stringRedisTemplate;
 
     @Override
+    /** 添加ToBlacklist */
     public void addToBlacklist(String token, BlacklistReason reason) {
         addToBlacklist(token, reason, DEFAULT_EXPIRE_SECONDS, null, null);
     }
 
     @Override
+    /** 添加ToBlacklist */
     public void addToBlacklist(String token, BlacklistReason reason, long expireTime, String userId, String username) {
         if (token == null || token.isEmpty()) {
             return;
@@ -75,6 +77,7 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     }
 
     @Override
+    /** 是否Blacklisted */
     public boolean isBlacklisted(String token) {
         if (token == null || token.isEmpty()) {
             return false;
@@ -92,6 +95,7 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     }
 
     @Override
+    /** 添加UserToBlacklist */
     public void addUserToBlacklist(String userId, String reason) {
         if (userId == null || userId.isEmpty()) {
             return;
@@ -114,6 +118,7 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     }
 
     @Override
+    /** 移除UserFromBlacklist */
     public void removeUserFromBlacklist(String userId) {
         if (userId == null || userId.isEmpty()) {
             return;
@@ -129,6 +134,7 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     }
 
     @Override
+    /** 是否UserBlacklisted */
     public boolean isUserBlacklisted(String userId) {
         if (userId == null || userId.isEmpty()) {
             return false;
@@ -145,6 +151,7 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     }
 
     @Override
+    /** 移除FromBlacklist */
     public void removeFromBlacklist(String token) {
         if (token == null || token.isEmpty()) {
             return;
@@ -161,6 +168,7 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     }
 
     @Override
+    /** ClearAll */
     public void clearAll() {
         try {
             // 删除所有 Token 黑名单

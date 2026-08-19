@@ -56,6 +56,7 @@ public final class UpgradeAuthorization implements Authorization {
     }
 
     @Override
+    /** Authentication */
     public ReturnResult<String> authentication() {
         long startTime = System.currentTimeMillis();
         String tokenManagement = authInformation.getAuthServerProperties().getTokenManagement();

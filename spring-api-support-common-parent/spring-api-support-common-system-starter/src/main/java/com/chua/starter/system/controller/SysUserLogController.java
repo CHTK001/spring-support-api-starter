@@ -74,6 +74,7 @@ public class SysUserLogController {
         ));
     }
 
+    /** NormalizeDeptTreeIdToken */
     private String normalizeDeptTreeIdToken(Object value) {
         if (value == null) {
             return null;
@@ -91,6 +92,7 @@ public class SysUserLogController {
         return normalized.isBlank() ? null : normalized;
     }
 
+    /** NormalizeManagedDeptTreeIds */
     private List<String> normalizeManagedDeptTreeIds(Object managedDeptTreeIds) {
         if (managedDeptTreeIds == null) {
             return Collections.emptyList();

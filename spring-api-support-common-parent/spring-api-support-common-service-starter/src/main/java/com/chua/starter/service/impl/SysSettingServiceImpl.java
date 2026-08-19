@@ -169,6 +169,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     private static final String SOCKET_REMARK_PROTOCOL = "socket.io协议类型";
 
     @Override
+    /** List */
     public List<SysSetting> list(SysSettingUpdate sysSettingUpdate, Set<String> roles) {
         return baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
                 .in(StringUtils.isNotBlank(sysSettingUpdate.getSysSettingGroup()), SysSetting::getSysSettingGroup, new java.util.LinkedHashSet<>(Splitter.on(",").omitEmptyStrings().trimResults().splitToList(sysSettingUpdate.getSysSettingGroup())))
@@ -178,6 +179,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     @Override
+    /** 删除 */
     public ReturnResult<Boolean> delete(Long settingId) {
         if(null == settingId) {
             return ReturnResult.error("配置ID不能为空");
@@ -208,6 +210,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     @Override
+    /** 更新 */
     public ReturnResult<Boolean> update(Set<String> roles, SysSetting sysSetting) {
         if (null == sysSetting || null == sysSetting.getSysSettingId()) {
             return ReturnResult.error("配置ID不能为空");
@@ -274,6 +277,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     @Override
+    /** 保存ForEntity */
     public ReturnResult<SysSetting> saveForEntity(SysSetting sysSetting, Set<String> roles) {
         sysSetting.setSysSettingInSystem(0);
         if(!AuthConstant.isSuperAdmin(roles)) {
@@ -315,6 +319,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     @Override
+    /** PageForSetting */
     public IPage<SysSetting> pageForSetting(Query<SysSetting> query, SysSetting sysSetting, Set<String> roles) {
         var queryWrapper = Wrappers.<SysSetting>lambdaQuery()
                 .like(StringUtils.isNotBlank(sysSetting.getSysSettingGroup()), SysSetting::getSysSettingGroup, sysSetting.getSysSettingGroup())
@@ -336,6 +341,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     @Override
+    /** 更新Batch */
     public ReturnResult<Boolean> updateBatch(Set<String> roles, List<SysSetting> sysSettings) {
         if (null == sysSettings || sysSettings.isEmpty()) {
             return ReturnResult.error("配置不能为空");
@@ -354,6 +360,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     @Override
+    /** 获取AuthRequest */
     public SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> getAuthRequest(ThirdLoginData loginData) {
         String loginType = StringUtils.trimToEmpty(loginData.getLoginType()).toLowerCase(Locale.ROOT);
         if (StringUtils.isBlank(loginType)) {
@@ -425,6 +432,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         };
     }
 
+    /** UpgradeVersion */
     private void upgradeVersion(SysSetting version) {
         GlobalSettingFactory.getInstance().set("config", "version", version.getSysSettingVersion());
     }
@@ -504,6 +512,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
 
     @Override
+    /** AfterProperties设置 */
     public void afterPropertiesSet() throws Exception {
         // @GlobalSettingGroup 注解的 Setting Bean 由 GlobalSettingAutoConfiguration 自动扫描注册
         // 这里仅注册那些没有标注注解、或需要兼容旧逻辑的 Bean
@@ -523,6 +532,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         upgrade();
     }
 
+    /** Upgrade */
     private void upgrade() {
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
         try {
@@ -605,6 +615,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
     }
 
+    /** 解析Socket发布Host */
     private String resolveSocketPublishHost() {
         if (StringUtils.isNotBlank(socketPublishHost)) {
             return socketPublishHost.trim();
@@ -622,6 +633,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         return socketHost;
     }
 
+    /** 是否SocketLocal发布Host */
     private boolean isSocketLocalPublishHost(String host) {
         if (StringUtils.isBlank(host)) {
             return true;
@@ -640,6 +652,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
     }
 
+    /** 解析PreferredSocket发布Host */
     private String resolvePreferredSocketPublishHost() {
         try {
             List<String> candidates = new ArrayList<>();
@@ -691,10 +704,12 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         return null;
     }
 
+    /** 比较Socket发布Host */
     private int compareSocketPublishHost(String left, String right) {
         return Integer.compare(scoreSocketPublishHost(right), scoreSocketPublishHost(left));
     }
 
+    /** ScoreSocket发布Host */
     private int scoreSocketPublishHost(String host) {
         if (StringUtils.isBlank(host)) {
             return Integer.MIN_VALUE;
@@ -715,6 +730,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         return 100;
     }
 
+    /** 是否SiteLocalAddress */
     private boolean isSiteLocal172Address(String host) {
         if (!host.startsWith("172.")) {
             return false;
@@ -733,6 +749,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
     }
 
+    /** 是否DockerLikeInterface */
     private boolean isDockerLikeInterface(String name, String displayName) {
         return name.startsWith("docker")
                 || name.startsWith("br-")
@@ -743,6 +760,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 || displayName.contains("virtual");
     }
 
+    /** 是否DockerLikeAddress */
     private boolean isDockerLikeAddress(String host) {
         return host.startsWith("172.17.")
                 || host.startsWith("172.18.")
@@ -761,6 +779,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 || host.startsWith("172.31.");
     }
 
+    /** 是否AnyHost */
     private boolean isAnyHost(String host) {
         if (StringUtils.isBlank(host)) {
             return false;
@@ -769,6 +788,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         return "0.0.0.0".equals(h) || "0:0:0:0:0:0:0:0".equals(h);
     }
 
+    /** 是否LocalHost */
     private boolean isLocalHost(String host) {
         if (StringUtils.isBlank(host)) {
             return false;
@@ -777,6 +797,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         return "localhost".equals(h) || "127.0.0.1".equals(h) || "::1".equals(h);
     }
 
+    /** 解析Socket发布Port */
     private int resolveSocketPublishPort() {
         return socketPublishPort > 0 ? socketPublishPort : socketPort;
     }
@@ -837,6 +858,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     @Override
+    /** ExportSettings */
     public ReturnResult<String> exportSettings(String group) {
         List<SysSetting> settings;
         if (StringUtils.isNotBlank(group)) {
@@ -876,6 +898,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** ImportSettings */
     public ReturnResult<String> importSettings(String json, boolean overwrite, Set<String> roles) {
         if (StringUtils.isBlank(json)) {
             return ReturnResult.error("导入内容不能为空");

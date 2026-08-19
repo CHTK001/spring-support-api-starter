@@ -54,6 +54,7 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
 
     @Override
     @Cacheable(value = "appKey:secret", key = "#appKey", unless = "#result == null")
+    /** 获取ByAppKey */
     public SysAppKey getByAppKey(String appKey) {
         if (StringUtils.isBlank(appKey)) {
             return null;
@@ -62,6 +63,7 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     }
 
     @Override
+    /** 验证 */
     public boolean verify(String appKey, String secret) {
         SysAppKey dbAppKey = getByAppKey(appKey);
         if (dbAppKey == null) {
@@ -94,6 +96,7 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     }
 
     @Override
+    /** 验证 */
     public boolean verify(String appKey, String secret, String ip) {
         SysAppKey dbAppKey = getByAppKey(appKey);
         if (dbAppKey == null) {
@@ -141,6 +144,7 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
 
     @Override
     @Async("taskExecutor")
+    /** 更新UseInfoByAppKey */
     public void updateUseInfoByAppKey(String appKey) {
         try {
             long currentTime = System.currentTimeMillis() / MILLIS_PER_SECOND;
@@ -152,6 +156,7 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     }
 
     @Override
+    /** 是否Expired */
     public boolean isExpired(SysAppKey appKey) {
         Long expireTime = resolveExpireTime(appKey);
         if (expireTime == null) {
@@ -162,6 +167,7 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     }
 
     @Override
+    /** 解析ExpireTime */
     public Long resolveExpireTime(SysAppKey appKey) {
         if (appKey == null) {
             return null;

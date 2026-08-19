@@ -37,6 +37,7 @@ public class DatabaseSecretKeyResolver implements SecretKeyResolver {
 
     @Override
     @Cacheable(value = "aksk:secret", key = "#accessKey", unless = "#result == null")
+    /** 获取SecretKey */
     public String getSecretKey(String accessKey) {
         if (accessKey == null || accessKey.isEmpty()) {
             return null;

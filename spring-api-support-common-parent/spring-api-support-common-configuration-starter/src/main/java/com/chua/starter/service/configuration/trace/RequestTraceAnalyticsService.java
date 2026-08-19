@@ -66,6 +66,7 @@ public class RequestTraceAnalyticsService {
         this.requestTraceAiSummaryService = requestTraceAiSummaryService;
     }
 
+    /** Record */
     public RequestTraceEvent record(RequestTraceEvent event) {
         if (event == null) {
             return null;
@@ -120,6 +121,7 @@ public class RequestTraceAnalyticsService {
         return stored;
     }
 
+    /** Snapshot */
     public RequestTraceAnalyticsSnapshot snapshot(Integer requestedWindowMinutes) {
         RequestTraceStrategyConfig config = requestTraceStrategyConfigService.currentConfig();
         int windowMinutes = normalizeWindowMinutes(requestedWindowMinutes, config);
@@ -218,6 +220,7 @@ public class RequestTraceAnalyticsService {
         }
     }
 
+    /** RecentEvents */
     public List<RequestTraceEvent> recentEvents() {
         RequestTraceStrategyConfig config = requestTraceStrategyConfigService.currentConfig();
         lock.lock();
@@ -323,6 +326,7 @@ public class RequestTraceAnalyticsService {
         return String.join("；", parts);
     }
 
+    /** StoreRawEvent */
     private void storeRawEvent(RequestTraceEvent event, RequestTraceStrategyConfig config) {
         try {
             requestTraceStorageRouter.rawStorage(config.getRawStorageType()).store(event, config);
@@ -331,6 +335,7 @@ public class RequestTraceAnalyticsService {
         }
     }
 
+    /** StoreBehaviorRecord */
     private void storeBehaviorRecord(RequestTraceBehaviorRecord record, RequestTraceStrategyConfig config) {
         try {
             requestTraceStorageRouter.behaviorStorage(config.getBehaviorStorageType()).store(record, config);
@@ -339,6 +344,7 @@ public class RequestTraceAnalyticsService {
         }
     }
 
+    /** 去空格Overflow */
     private void trimOverflow(RequestTraceStrategyConfig config) {
         while (recentEvents.size() > config.getMaxEvents()) {
             recentEvents.pollFirst();
@@ -348,6 +354,7 @@ public class RequestTraceAnalyticsService {
         }
     }
 
+    /** PruneExpired */
     private void pruneExpired(long now, RequestTraceStrategyConfig config) {
         long cutoff = now - Duration.ofMinutes(config.getRetentionMinutes()).toMillis();
         while (!recentEvents.isEmpty()) {
@@ -366,6 +373,7 @@ public class RequestTraceAnalyticsService {
         }
     }
 
+    /** NormalizeWindowMinutes */
     private int normalizeWindowMinutes(Integer requestedWindowMinutes, RequestTraceStrategyConfig config) {
         if (requestedWindowMinutes == null || requestedWindowMinutes <= 0) {
             return config.getDefaultWindowMinutes();
@@ -399,6 +407,7 @@ public class RequestTraceAnalyticsService {
                 .toList();
     }
 
+    /** FirstNonBlank */
     private String firstNonBlank(String first, String second) {
         if (first != null && !first.isBlank()) {
             return first;
@@ -406,6 +415,7 @@ public class RequestTraceAnalyticsService {
         return second;
     }
 
+    /** RememberBehaviorRecord */
     private void rememberBehaviorRecord(RequestTraceBehaviorRecord record, RequestTraceStrategyConfig config) {
         if (record == null) {
             return;
@@ -420,18 +430,22 @@ public class RequestTraceAnalyticsService {
         }
     }
 
+    /** AiAnalysisOf */
     private RequestTraceAiAnalysisResult aiAnalysisOf(RequestTraceBehaviorRecord record) {
         return record == null ? null : record.aiAnalysis();
     }
 
+    /** AiSummaryOf */
     private String aiSummaryOf(RequestTraceBehaviorRecord record) {
         return record == null ? null : record.aiSummary();
     }
 
+    /** SummaryOf */
     private String summaryOf(RequestTraceBehaviorRecord record) {
         return record == null ? null : record.summary();
     }
 
+    /** RiskLevelOf */
     private String riskLevelOf(RequestTraceBehaviorRecord record, RequestTraceEvent event) {
         if (record != null && record.riskLevel() != null) {
             return record.riskLevel();
@@ -439,6 +453,7 @@ public class RequestTraceAnalyticsService {
         return event == null ? null : RequestTraceSupport.resolveRiskLevel(event.signals());
     }
 
+    /** ToAiMap */
     private Map<String, Object> toAiMap(RequestTraceAiAnalysisResult aiAnalysis) {
         if (aiAnalysis == null) {
             return Map.of();

@@ -35,17 +35,20 @@ public class UserLoginService extends AbstractUserLoginService {
     private static final String LOGIN_TYPE_PREFIX = "system";
 
     @Override
+    /** 获取LoginTypePrefix */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
+    /** GenerateUserIds */
     protected String[] generateUserIds(SysUser user) {
         String userId = String.valueOf(user.getSysUserId());
         return OpenIdGenerator.generateSystemIds("web", userId);
     }
 
     @Override
+    /** 校验Login */
     public UserResume checkLogin(String principal, String credential, String address, Object ext) {
         String redisKey = LOGIN_TYPE_PREFIX + ":login_error:" + principal;
         long startTime = System.currentTimeMillis();
@@ -100,6 +103,7 @@ public class UserLoginService extends AbstractUserLoginService {
     }
 
     @Override
+    /** Upgrade */
     public UserResume upgrade(UserResult userResult) {
         long startTime = System.currentTimeMillis();
         SysUser user = sysUserMapper.selectOne(Wrappers.<SysUser>lambdaQuery()

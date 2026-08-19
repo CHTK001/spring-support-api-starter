@@ -32,6 +32,7 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
     }
 
 
+    /** 序列化 */
     public byte[] serialize(T t) throws SerializationException {
         if (t == null) {
             return new byte[0];
@@ -44,6 +45,7 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
         }
     }
 
+    /** 反序列化 */
     public T deserialize(byte[] bytes) throws SerializationException {
         if (bytes != null && bytes.length != 0) {
             try {

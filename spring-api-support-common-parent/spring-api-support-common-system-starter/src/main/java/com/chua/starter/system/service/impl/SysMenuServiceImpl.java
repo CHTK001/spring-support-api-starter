@@ -52,6 +52,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     final SysRoleMenuService sysRoleMenuService;
     final ApplicationEventPublisher eventPublisher;
     @Override
+    /** ListMenu */
     public ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles) {
         List<SysRoleMenu> list;
         if(!roles.isEmpty()) {
@@ -87,6 +88,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
+    /** All */
     public ReturnResult<List<SysMenu>> all(SysMenu sysMenu, Set<String> roles) {
         return ReturnResult.ok(filterMenusByEngine(
                 listAll(),
@@ -94,6 +96,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         ));
     }
 
+    /** 构建MenuSettingTree */
     private List<SysMenuSettingVO> buildMenuSettingTree(List<SysMenu> menus) {
         if (CollectionUtils.isEmpty(menus)) {
             return Collections.emptyList();
@@ -125,6 +128,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         return roots;
     }
 
+    /** 排序MenuSettingTree */
     private void sortMenuSettingTree(List<SysMenuSettingVO> nodes, Comparator<SysMenuSettingVO> comparator) {
         if (CollectionUtils.isEmpty(nodes)) {
             return;
@@ -140,6 +144,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
+    /** List */
     public ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles, int ignoreType) {
         List<SysRoleMenu> list = CollectionUtils.isEmpty(roles) ? Collections.emptyList() : sysRoleMenuService.list(
                 MPJWrappers.<SysRoleMenu>lambdaJoin()
@@ -223,6 +228,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
+    /** ListAll */
     public List<SysMenu> listAll() {
         return baseMapper.selectList(Wrappers.<SysMenu>lambdaQuery()
                 .orderByAsc(SysMenu::getSysMenuSort));
@@ -230,6 +236,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
 
     @Override
+    /** PageForMenu */
     public IPage<SysMenu> pageForMenu(Query<SysMenu> query, SysMenu sysMenu, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysMenu>lambdaQuery()
                 .like(StringUtils.isNotBlank(sysMenu.getSysMenuName()), SysMenu::getSysMenuName, sysMenu.getSysMenuName())
@@ -237,6 +244,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         );
     }
 
+    /** 过滤MenusByEngine */
     private List<SysMenu> filterMenusByEngine(List<SysMenu> sysMenus, Integer sysMenuEngine) {
         if (CollectionUtils.isEmpty(sysMenus)) {
             return Collections.emptyList();
@@ -251,6 +259,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
+    /** 删除 */
     public ReturnResult<Boolean> delete(Long menuId) {
         boolean deleted = baseMapper.deleteById(menuId) > 0;
         if (deleted) {
@@ -262,6 +271,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
     @Transactional(rollbackFor = Exception.class)
+    /** 更新 */
     public ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu) {
         if (null == sysMenu) {
             return ReturnResult.error("菜单不存在");
@@ -289,6 +299,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
     @Transactional(rollbackFor = Exception.class)
+    /** 保存 */
     public ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles) {
         if (null == sysMenu) {
             return ReturnResult.error("菜单不存在");
@@ -316,6 +327,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         return ReturnResult.of(saved);
     }
 
+    /** 解析MenuTreeId */
     private String resolveMenuTreeId(Integer menuId, Integer parentMenuId, boolean validateSelfReference) {
         if (null == parentMenuId || parentMenuId == SystemConstant.ROOT_NODE_ID) {
             return Joiner.on(",").join(SystemConstant.ROOT_NODE_ID, menuId);

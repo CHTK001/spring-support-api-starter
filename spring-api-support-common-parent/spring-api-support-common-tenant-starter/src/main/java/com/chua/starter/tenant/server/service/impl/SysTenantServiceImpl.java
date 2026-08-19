@@ -48,6 +48,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     private TenantServerSyncPublisher syncPublisher;
 
     @Override
+    /** PageForSysTenant */
     public IPage<SysTenant> pageForSysTenant(Query<SysTenant> query, SysTenant sysTenant) {
         log.debug("分页查询租户, 条件: {}", sysTenant);
         IPage<SysTenant> page = baseMapper.selectPage(query.createPage(),
@@ -71,6 +72,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
+    /** ListForSysTenant */
     public ReturnResult<List<SysTenant>> listForSysTenant(SysTenant sysTenant) {
         log.debug("查询租户列表, 条件: {}", sysTenant);
         List<SysTenant> records = baseMapper.selectList(
@@ -92,6 +94,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
 
     @Override
     @SuppressWarnings("deprecation")
+    /** 保存ForSysTenant */
     public ReturnResult<SysTenant> saveForSysTenant(SysTenant sysTenant) {
         log.debug("保存租户: {}", sysTenant);
 
@@ -136,6 +139,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
 
     @Override
     @SuppressWarnings("deprecation")
+    /** 更新ForSysTenant */
     public ReturnResult<Boolean> updateForSysTenant(SysTenant sysTenant) {
         log.debug("更新租户: {}", sysTenant);
 
@@ -168,6 +172,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
+    /** 删除ForSysTenant */
     public ReturnResult<Boolean> deleteForSysTenant(String sysTenantId) {
         log.debug("删除租户, ID: {}", sysTenantId);
 
@@ -188,6 +193,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
+    /** 获取ForSysTenant */
     public ReturnResult<SysTenant> getForSysTenant(String sysTenantId) {
         log.debug("获取租户详情, ID: {}", sysTenantId);
         SysTenant sysTenant = getById(sysTenantId);
@@ -200,6 +206,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
+    /** 绑定ServiceForSysTenant */
     public ReturnResult<Boolean> bindServiceForSysTenant(SysTenantBindServiceV1Request request) {
         log.debug("绑定租户服务, 租户ID: {}, 服务数量: {}",
                 request.getSysTenantId(),
@@ -236,6 +243,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
+    /** 更新StatusForSysTenant */
     public ReturnResult<Boolean> updateStatusForSysTenant(String sysTenantId, Integer status) {
         log.debug("更新租户状态, ID: {}, 状态: {}", sysTenantId, status);
 
@@ -255,6 +263,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
+    /** StatsForSysTenant */
     public ReturnResult<SysTenantStats> statsForSysTenant() {
         log.debug("获取租户统计数据");
         SysTenantStats stats = new SysTenantStats();
@@ -279,6 +288,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
+    /** 重置PasswordForSysTenant */
     public ReturnResult<Boolean> resetPasswordForSysTenant(String sysTenantId, String sysTenantPassword) {
         if (StringUtils.isBlank(sysTenantId)) {
             return ReturnResult.illegal("租户ID不能为空");
@@ -307,6 +317,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
+    /** 重置MenuForSysTenant */
     public void resetMenuForSysTenant(String sysTenantId) {
         if (syncPublisher == null || StringUtils.isBlank(sysTenantId)) {
             return;

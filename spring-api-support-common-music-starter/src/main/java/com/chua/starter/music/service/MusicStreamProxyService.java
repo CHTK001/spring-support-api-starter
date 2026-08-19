@@ -24,6 +24,7 @@ import java.util.Optional;
 @Service
 public class MusicStreamProxyService {
 
+    /** Proxy */
     public ResponseEntity<StreamingResponseBody> proxy(MusicTrackDetail trackDetail, String rangeHeader) {
         if (trackDetail == null || !StringUtils.hasText(trackDetail.getStreamUrl())) {
             return ResponseEntity.notFound().build();
@@ -88,6 +89,7 @@ public class MusicStreamProxyService {
                 .body(body);
     }
 
+    /** 复制Header */
     private void copyHeader(HttpResponse response, HttpHeaders headers, String headerName) {
         String headerValue = response.header(headerName);
         if (StringUtils.hasText(headerValue)) {
@@ -95,6 +97,7 @@ public class MusicStreamProxyService {
         }
     }
 
+    /** 解析Content获取长度 */
     private long parseContentLength(Optional<String> contentLength) {
         if (contentLength.isEmpty() || !StringUtils.hasText(contentLength.get())) {
             return -1L;
@@ -106,6 +109,7 @@ public class MusicStreamProxyService {
         }
     }
 
+    /** 解析MediaType */
     private MediaType parseMediaType(String contentType) {
         if (!StringUtils.hasText(contentType)) {
             return null;

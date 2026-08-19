@@ -49,6 +49,7 @@ public class SysAvatarFrameController {
 
     @GetMapping("/list")
     @Operation(summary = "头像框列表")
+    /** List */
     public ReturnResult<List<SysAvatarFrame>> list(@UserValue("sysUserId") Long userId) {
         // 查询全部启用的头像框（含生日框记录）
         List<SysAvatarFrame> frames = sysAvatarFrameMapper.selectList(

@@ -30,18 +30,21 @@ public class ResponseAdviceMethodProcessor extends RequestResponseBodyMethodProc
     }
 
     @Override
+    /** SupportsParameter */
     public boolean supportsParameter(MethodParameter returnType) {
         Class<?> paramType = returnType.getParameterType();
         return AdviceView.class.isAssignableFrom(paramType);
     }
 
     @Override
+    /** SupportsReturnType */
     public boolean supportsReturnType(MethodParameter returnType) {
         Class<?> paramType = returnType.getParameterType();
         return AdviceView.class.isAssignableFrom(paramType);
     }
 
     @Override
+    /** 处理ReturnValue */
     public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
         AdviceView adviceView = (AdviceView) returnValue;
         Object data = adviceView.getData();

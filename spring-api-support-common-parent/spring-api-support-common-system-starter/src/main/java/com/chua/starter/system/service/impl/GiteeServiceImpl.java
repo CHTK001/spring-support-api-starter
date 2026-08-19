@@ -29,6 +29,7 @@ public class GiteeServiceImpl implements GiteeService {
     private final SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
 
     @Override
+    /** Binder */
     public void binder(AuthUser data, UserResume userResume) {
         String userId = userResume.getUserId();
         if (userId == null) {

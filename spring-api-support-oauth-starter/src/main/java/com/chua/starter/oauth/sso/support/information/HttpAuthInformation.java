@@ -38,6 +38,7 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
+    /** 获取RequestHeader */
     protected String getRequestHeader(Object request, String headerName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getHeader(headerName);
@@ -46,6 +47,7 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
+    /** 设置ResponseHeader */
     protected void setResponseHeader(Object response, String headerName, String headerValue) {
         if (response instanceof HttpServletResponse) {
             ((HttpServletResponse) response).setHeader(headerName, headerValue);
@@ -53,6 +55,7 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
+    /** 获取RemoteAddress */
     protected String getRemoteAddress(Object request) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getRemoteAddr();
@@ -61,6 +64,7 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
+    /** 获取RequestAttribute */
     protected Object getRequestAttribute(Object request, String attributeName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getAttribute(attributeName);
@@ -69,6 +73,7 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
+    /** 设置RequestAttribute */
     protected void setRequestAttribute(Object request, String attributeName, Object attributeValue) {
         if (request instanceof HttpServletRequest) {
             ((HttpServletRequest) request).setAttribute(attributeName, attributeValue);
@@ -76,20 +81,24 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
+    /** 获取Response */
     protected Object getResponse() {
         return response;
     }
 
     @Override
+    /** 获取Request */
     protected Object getRequest() {
         return request;
     }
 
     // 提供类型安全的访问方法
+    /** 获取HttpRequest */
     public HttpServletRequest getHttpRequest() {
         return request;
     }
 
+    /** 获取HttpResponse */
     public HttpServletResponse getHttpResponse() {
         return response;
     }

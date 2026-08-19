@@ -122,6 +122,7 @@ public class LoginController {
     @UserLog(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @DeleteMapping("/logout")
     @SysLog
+    /** Logout */
     public ReturnResult<String> logout(@UserValue("token") String uid, String loginType,
                                        @RequestHeader(name = "x-oauth-logout-type", required = false) String logoutTypeHeader,
                                        HttpServletRequest request, HttpServletResponse response) {

@@ -59,6 +59,7 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     private static final String OP_ROLLBACK = "ROLLBACK";
 
     @Override
+    /** Record创建 */
     public void recordCreate(SysSetting sysSetting, String operatorId, String operatorName, String batchNo) {
         SysSettingHistory history = new SysSettingHistory();
         history.setSysSettingId(sysSetting.getSysSettingId());
@@ -76,6 +77,7 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     @Override
+    /** Record更新 */
     public void recordUpdate(SysSetting oldSetting, SysSetting newSetting, String operatorId, String operatorName, String batchNo) {
         // 只有值变化时才记录
         if (StringUtils.equals(oldSetting.getSysSettingValue(), newSetting.getSysSettingValue())) {
@@ -100,6 +102,7 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     @Override
+    /** Record删除 */
     public void recordDelete(SysSetting sysSetting, String operatorId, String operatorName, String batchNo) {
         SysSettingHistory history = new SysSettingHistory();
         history.setSysSettingId(sysSetting.getSysSettingId());
@@ -117,6 +120,7 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     @Override
+    /** RecordImport */
     public void recordImport(List<SysSetting> settings, String operatorId, String operatorName, String batchNo) {
         for (SysSetting setting : settings) {
             SysSettingHistory history = new SysSettingHistory();
@@ -136,6 +140,7 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     @Override
+    /** RecordImport更新 */
     public void recordImportUpdate(SysSetting oldSetting, SysSetting newSetting, String operatorId, String operatorName, String batchNo) {
         SysSettingHistory history = new SysSettingHistory();
         history.setSysSettingId(newSetting.getSysSettingId());
@@ -155,6 +160,7 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     @Override
+    /** PageHistory */
     public IPage<SysSettingHistory> pageHistory(Query<SysSettingHistory> query, Integer settingId, String group) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysSettingHistory>lambdaQuery()
                 .eq(settingId != null, SysSettingHistory::getSysSettingId, settingId)
@@ -164,6 +170,7 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     @Override
+    /** ListByBatchNo */
     public List<SysSettingHistory> listByBatchNo(String batchNo) {
         return baseMapper.selectList(Wrappers.<SysSettingHistory>lambdaQuery()
                 .eq(SysSettingHistory::getSysSettingBatchNo, batchNo)
@@ -173,6 +180,7 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 回滚ToBatch */
     public ReturnResult<Boolean> rollbackToBatch(String batchNo, String operatorId, String operatorName) {
         List<SysSettingHistory> histories = listByBatchNo(batchNo);
         if (histories.isEmpty()) {
@@ -191,6 +199,7 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 回滚ToHistory */
     public ReturnResult<Boolean> rollbackToHistory(Long historyId, String operatorId, String operatorName) {
         SysSettingHistory history = baseMapper.selectById(historyId);
         if (history == null) {

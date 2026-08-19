@@ -25,6 +25,7 @@ public class RequestTraceStorageRouter {
     private static final String DATABASE_BEHAVIOR_STORAGE =
             "com.chua.starter.service.trace.storage.DatabaseRequestTraceBehaviorStorage";
 
+    /** ConfigStorage */
     public RequestTraceConfigStorage configStorage(String type) {
         RequestTraceConfigStorage storage = ServiceProvider.of(RequestTraceConfigStorage.class)
                 .getNewExtension(RequestTraceSupport.firstNonBlank(type, "database"));
@@ -47,6 +48,7 @@ public class RequestTraceStorageRouter {
         return storage != null ? storage : new InMemoryRequestTraceConfigStorage();
     }
 
+    /** RawStorage */
     public RequestTraceRawRecordStorage rawStorage(String type) {
         RequestTraceRawRecordStorage storage = ServiceProvider.of(RequestTraceRawRecordStorage.class)
                 .getNewExtension(RequestTraceSupport.firstNonBlank(type, "file"));
@@ -63,6 +65,7 @@ public class RequestTraceStorageRouter {
         return storage != null ? storage : new FileRequestTraceRawRecordStorage();
     }
 
+    /** BehaviorStorage */
     public RequestTraceBehaviorStorage behaviorStorage(String type) {
         RequestTraceBehaviorStorage storage = ServiceProvider.of(RequestTraceBehaviorStorage.class)
                 .getNewExtension(RequestTraceSupport.firstNonBlank(type, "database"));
@@ -81,6 +84,7 @@ public class RequestTraceStorageRouter {
         return storage != null ? storage : new MemoryRequestTraceBehaviorStorage();
     }
 
+    /** Instantiate */
     private <T> T instantiate(String className, Class<T> type) {
         try {
             Class<?> target = Class.forName(className);

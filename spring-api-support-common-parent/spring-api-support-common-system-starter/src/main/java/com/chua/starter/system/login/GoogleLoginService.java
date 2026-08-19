@@ -34,11 +34,13 @@ public class GoogleLoginService extends AbstractUserLoginService {
     private SysUserThirdPartyMapper sysUserThirdPartyMapper;
 
     @Override
+    /** 获取LoginTypePrefix */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
+    /** GenerateUserIds */
     protected String[] generateUserIds(SysUser user) {
         String baseId = user.getSysUserId() + "GOOGLE";
         return new String[]{
@@ -48,6 +50,7 @@ public class GoogleLoginService extends AbstractUserLoginService {
     }
 
     @Override
+    /** 校验Login */
     public UserResume checkLogin(String googleId, String password, String address, Object ext) {
         log.debug("Google登录请求: googleId={}, IP={}", googleId, address);
 
@@ -79,6 +82,7 @@ public class GoogleLoginService extends AbstractUserLoginService {
     }
 
     @Override
+    /** Upgrade */
     public UserResume upgrade(UserResult userResult) {
         SysUser user = sysUserMapper.selectById(userResult.getUserId());
         if (user == null) {

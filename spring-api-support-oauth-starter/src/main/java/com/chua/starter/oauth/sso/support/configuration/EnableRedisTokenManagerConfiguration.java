@@ -90,6 +90,7 @@ public class EnableRedisTokenManagerConfiguration {
         }
 
         @Override
+        /** OnMessage */
         public void onMessage(Message message, byte[] pattern) {
             //获取过期的key
             String expireKey = message.toString();

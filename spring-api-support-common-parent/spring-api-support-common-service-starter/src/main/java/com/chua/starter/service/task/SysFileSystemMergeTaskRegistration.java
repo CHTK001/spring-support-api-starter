@@ -57,6 +57,7 @@ public class SysFileSystemMergeTaskRegistration {
     private ThreadPoolExecutor executor;
 
     @PostConstruct
+    /** 初始化 */
     public void init() {
         int corePoolSize = fileSystemProperties.getMergeTaskPoolSize();
         executor = new ThreadPoolExecutor(
@@ -71,11 +72,13 @@ public class SysFileSystemMergeTaskRegistration {
         log.info("文件系统合并任务线程池初始化完成, 核心线程数: {}", corePoolSize);
     }
 
+    /** 注册 */
     public void register(SysFileSystemWrapper wrapper) {
         log.info("注册合并任务: taskId={}", wrapper.getSysFileSystem().getSysFileSystemTid());
         executor.submit(() -> executeMerge(wrapper));
     }
 
+    /** 执行合并 */
     private void executeMerge(SysFileSystemWrapper wrapper) {
         SysFileSystem sysFileSystem = wrapper.getSysFileSystem();
         String taskId = sysFileSystem.getSysFileSystemTid();
@@ -123,6 +126,7 @@ public class SysFileSystemMergeTaskRegistration {
         }
     }
 
+    /** 合并Chunks */
     private byte[] mergeChunks(List<SysFileSystemPart> parts) throws IOException {
         parts.sort(Comparator.comparing(SysFileSystemPart::getSysFileSystemPartSeq));
 
@@ -135,6 +139,7 @@ public class SysFileSystemMergeTaskRegistration {
         }
     }
 
+    /** UploadToStorage */
     private PutObjectResult uploadToStorage(SysFileSystem sysFileSystem, byte[] data) {
         BucketSetting bucketSetting = fileStorageSupport.createUploadBucketSetting(
                 sysFileSystem.getSysFileSystemType(),
@@ -154,6 +159,7 @@ public class SysFileSystemMergeTaskRegistration {
         }
     }
 
+    /** CleanTempFiles */
     private void cleanTempFiles(List<SysFileSystemPart> parts, String taskId) {
         try {
             for (SysFileSystemPart part : parts) {
@@ -171,6 +177,7 @@ public class SysFileSystemMergeTaskRegistration {
         }
     }
 
+    /** Force删除 */
     private void forceDelete(File file) {
         if (null == file || !file.exists()) {
             return;

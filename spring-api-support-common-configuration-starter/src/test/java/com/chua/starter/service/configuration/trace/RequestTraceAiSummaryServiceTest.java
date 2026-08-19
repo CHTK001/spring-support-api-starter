@@ -126,6 +126,7 @@ class RequestTraceAiSummaryServiceTest {
         assertThat(second.reason()).contains("限流");
     }
 
+    /** 创建Setting */
     private BigModelSetting createSetting(BigModelClient client) {
         BigModelSetting setting = GlobalSettingFactory.getInstance().get("llm", BigModelSetting.class);
         setting.setAppType("mock");
@@ -184,11 +185,13 @@ class RequestTraceAiSummaryServiceTest {
         }
 
         @Override
+        /** SupportedModels */
         public List<com.chua.common.support.ai.bigmodel.BigModelMetadata> supportedModels() {
             return List.of();
         }
 
         @Override
+        /** 调用 */
         public BigModelResponse call(BigModelRequest request) {
             if (output == null) {
                 return null;
@@ -199,10 +202,12 @@ class RequestTraceAiSummaryServiceTest {
                     .build();
         }
 
+        /** 调用Async */
         public void callAsync(BigModelRequest request, BigModelCallback callback) throws InterruptedException {
             throw new UnsupportedOperationException();
         }
 
+        /** 调用Stream */
         public void callStream(BigModelRequest request, BigModelCallback callback) {
             throw new UnsupportedOperationException();
         }

@@ -42,6 +42,7 @@ public class WeatherController {
 
     @Operation(summary = "根据 IP 定位获取当前天气")
     @GetMapping("address")
+    /** 获取Weather */
     public ReturnResult<Map<String, Object>> getWeather() {
         return ReturnResult.ok(fetchWeather("beijing", null));
     }
@@ -101,6 +102,7 @@ public class WeatherController {
     }
 
     @SuppressWarnings("unchecked")
+    /** 解析WttrJson */
     private Map<String, Object> parseWttrJson(String json, String city) {
         Map<String, Object> out = new HashMap<>();
         out.put("city", city);
@@ -129,6 +131,7 @@ public class WeatherController {
         return out;
     }
 
+    /** Fallback */
     private Map<String, Object> fallback(String city, String reason) {
         Map<String, Object> out = new HashMap<>();
         out.put("city", city);

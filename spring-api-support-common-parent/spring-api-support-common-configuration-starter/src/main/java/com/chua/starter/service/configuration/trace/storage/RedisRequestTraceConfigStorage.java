@@ -25,11 +25,13 @@ public class RedisRequestTraceConfigStorage implements RequestTraceConfigStorage
     private static final Duration EXPIRE = Duration.ofDays(30);
 
     @Override
+    /** Type */
     public String type() {
         return "redis";
     }
 
     @Override
+    /** 加载 */
     public RequestTraceStrategyConfig load(String groupCode) {
         StringRedisTemplate template = redisTemplate();
         if (template == null) {
@@ -47,6 +49,7 @@ public class RedisRequestTraceConfigStorage implements RequestTraceConfigStorage
     }
 
     @Override
+    /** 保存 */
     public RequestTraceStrategyConfig save(String groupCode, RequestTraceStrategyConfig config) {
         RequestTraceStrategyConfig normalized = RequestTraceStrategyConfigCodec.normalize(config);
         StringRedisTemplate template = redisTemplate();
@@ -61,6 +64,7 @@ public class RedisRequestTraceConfigStorage implements RequestTraceConfigStorage
         return normalized.copy();
     }
 
+    /** RedisTemplate */
     private StringRedisTemplate redisTemplate() {
         try {
             return SpringBeanUtils.getBean(StringRedisTemplate.class);
@@ -69,6 +73,7 @@ public class RedisRequestTraceConfigStorage implements RequestTraceConfigStorage
         }
     }
 
+    /** Key */
     private String key(String groupCode) {
         return "request:trace:config:" + groupCode;
     }

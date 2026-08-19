@@ -68,6 +68,7 @@ public class OauthSessionFixationFilter implements Filter, Ordered {
         }
     }
 
+    /** 是否LoginPost */
     private boolean isLoginPost(HttpServletRequest request) {
         if (!"POST".equalsIgnoreCase(request.getMethod())) {
             return false;
@@ -89,6 +90,7 @@ public class OauthSessionFixationFilter implements Filter, Ordered {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 20;
     }

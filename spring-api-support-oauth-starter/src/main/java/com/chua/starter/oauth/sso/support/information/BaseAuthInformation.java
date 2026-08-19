@@ -277,6 +277,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
     }
 
     @Override
+    /** 记录错误Message */
     public String errorMessage() {
         if (!success.get()) {
             return "解析失败!";
@@ -285,6 +286,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
     }
 
     @Override
+    /** 是否Successful */
     public boolean isSuccessful() {
         if (!success.get()) {
             return false;
@@ -296,6 +298,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
     }
 
     @Override
+    /** 获取AuthServerProperties */
     public AuthServerProperties getAuthServerProperties() {
         return authServerProperties;
     }
@@ -346,30 +349,37 @@ public abstract class BaseAuthInformation implements AuthInformation {
     }
 
     // Getter方法
+    /** 获取Uuid */
     public String getUuid() {
         return uuid;
     }
 
+    /** 获取Serial */
     public String getSerial() {
         return serial;
     }
 
+    /** 获取Protocol */
     public String getProtocol() {
         return protocol;
     }
 
+    /** 获取Sign */
     public String getSign() {
         return sign;
     }
 
+    /** 是否编码 */
     public boolean isEncode() {
         return isEncode;
     }
 
+    /** 获取BodyData */
     public Map<String, Object> getBodyData() {
         return bodyData;
     }
 
+    /** 获取Encryption */
     public String getEncryption() {
         return encryption;
     }

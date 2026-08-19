@@ -21,17 +21,20 @@ public class InMemoryRequestTraceConfigStorage implements RequestTraceConfigStor
             new AtomicReference<>();
 
     @Override
+    /** Type */
     public String type() {
         return "memory";
     }
 
     @Override
+    /** 加载 */
     public RequestTraceStrategyConfig load(String groupCode) {
         RequestTraceStrategyConfig config = CACHE.get();
         return config == null ? null : config.copy();
     }
 
     @Override
+    /** 保存 */
     public RequestTraceStrategyConfig save(String groupCode, RequestTraceStrategyConfig config) {
         RequestTraceStrategyConfig normalized = RequestTraceStrategyConfigCodec.normalize(config);
         CACHE.set(normalized);

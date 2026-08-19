@@ -47,6 +47,7 @@ public class OAuthServerHealthIndicator implements HealthIndicator {
     private static final String HEALTH_CHECK_KEY = "oauth:health:check";
 
     @Override
+    /** Health */
     public Health health() {
         Map<String, Object> details = new HashMap<>();
         boolean isHealthy = true;

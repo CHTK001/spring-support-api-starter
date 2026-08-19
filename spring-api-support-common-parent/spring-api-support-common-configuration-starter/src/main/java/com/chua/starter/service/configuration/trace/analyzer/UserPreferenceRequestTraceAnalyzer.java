@@ -26,6 +26,7 @@ import java.util.Set;
 public class UserPreferenceRequestTraceAnalyzer implements RequestTraceAnalyzer {
 
     @Override
+    /** Analyze */
     public Collection<RequestTraceSignal> analyze(RequestTraceAnalysisContext context) {
         RequestTraceEvent currentEvent = context.currentEvent();
         if (!Boolean.TRUE.equals(context.config().getUserPreferenceDriftEnabled())) {
@@ -89,6 +90,7 @@ public class UserPreferenceRequestTraceAnalyzer implements RequestTraceAnalyzer 
                 .orElse(null);
     }
 
+    /** DominantValue */
     private record DominantValue(String value, int count) {
     }
 }

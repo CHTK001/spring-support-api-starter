@@ -9,6 +9,7 @@ import java.io.File;
  * @author CH
  */
 public class StartFtpServer {
+    /** Main */
     public static void main(String[] args) throws Exception {
         int port = 2121;
         String host = "0.0.0.0";

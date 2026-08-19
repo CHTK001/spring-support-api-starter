@@ -182,6 +182,7 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
+    /** Supports */
     public boolean supports(String subProtocol, String token, String userCode) {
         // AppId认证：没有userCode（appKey），且没有token（避免与DefaultAuthorizationHandler冲突）
         // 注意：实际的appId验证在authenticate方法中进行
