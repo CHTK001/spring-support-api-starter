@@ -11,6 +11,12 @@
 @ComponentScan(basePackages = {
         "com.chua.starter.system"
 })
+/**
+ * public class SystemAutoConfiguration
+ *
+ * @author CH
+ * @since 4.0.0.42
+ */
 @MapperScan(basePackages = "com.chua.starter.system.mapper")
 @EnableConfigurationProperties(SystemSecurityProperties.class)
 public class SystemAutoConfiguration
