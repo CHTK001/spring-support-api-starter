@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class RsocketUserLoadTest {
 
     public static void main(String[] args) throws Exception {
-        int users = args.length > 0 ? Integer.parseInt(args[0]) : 50;
+        int users = args.length > 0 ? Integer.parseInt(args[0].trim()) : 50;
         String body = "{\"data\":\"{\\\"x-oauth-username\\\":\\\"admin\\\",\\\"x-oauth-password\\\":\\\"admin123\\\",\\\"x-oauth-auth-type\\\":\\\"WEB\\\",\\\"x-oauth-access-key\\\":\\\"\\\",\\\"x-oauth-secret-key\\\":\\\"\\\"}\"}";
         String metadata = "{\"route\":\"login\",\"x-oauth-encode\":\"false\"}";
 
