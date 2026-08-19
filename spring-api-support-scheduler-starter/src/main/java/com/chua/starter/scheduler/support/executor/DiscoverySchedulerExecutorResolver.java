@@ -43,6 +43,7 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
                     .build();
 
     @Override
+    /** 解析 */
     public List<SchedulerJobPlatformProperties.Executor> resolve(SchedulerExecutorResolveContext context) {
         if (context == null || context.namespaceProperties() == null) {
             return List.of();
@@ -89,6 +90,7 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         }
     }
 
+    /** DiscoveryService */
     private Object discoveryService(ListableBeanFactory beanFactory) {
         if (beanFactory == null) {
             return null;
@@ -154,6 +156,7 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         return executor;
     }
 
+    /** 解析DiscoveryExecutorName */
     private String resolveDiscoveryExecutorName(Discovery discovery) {
         if (discovery == null) {
             return null;
@@ -253,12 +256,14 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         return StringUtils.hasText(namespace) ? "/job-executor/" + namespace.trim() : null;
     }
 
+    /** 是否拥有UsableBaseUrl */
     private boolean hasUsableBaseUrl(SchedulerJobPlatformProperties.Executor executor) {
         return executor != null
                 && executor.getBaseUrl() != null
                 && !executor.getBaseUrl().trim().isEmpty();
     }
 
+    /** NormalizePath */
     private String normalizePath(String path) {
         String value = trimToNull(path);
         if (!StringUtils.hasText(value)) {
@@ -267,6 +272,7 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         return value.startsWith("/") ? value : "/" + value;
     }
 
+    /** 去空格ToNull */
     private String trimToNull(String value) {
         if (!StringUtils.hasText(value)) {
             return null;

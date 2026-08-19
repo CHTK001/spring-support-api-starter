@@ -202,6 +202,7 @@ public class RequestTraceAiSummaryService {
         return String.join("\n", lines);
     }
 
+    /** NormalizeSummary */
     private String normalizeSummary(String summary) {
         String normalized = RequestTraceSupport.normalize(summary);
         if (normalized == null) {
@@ -217,6 +218,7 @@ public class RequestTraceAiSummaryService {
         return compact.substring(0, MAX_SUMMARY_LENGTH);
     }
 
+    /** Try获取Quota */
     private boolean tryAcquireQuota(int windowSeconds, int maxRequests) {
         long now = clock.getAsLong();
         long cutoff = now - Math.max(windowSeconds, 1) * 1000L;
@@ -239,6 +241,7 @@ public class RequestTraceAiSummaryService {
         }
     }
 
+    /** HashText */
     private String hashText(String text) {
         String normalized = RequestTraceSupport.normalize(text);
         if (normalized == null) {

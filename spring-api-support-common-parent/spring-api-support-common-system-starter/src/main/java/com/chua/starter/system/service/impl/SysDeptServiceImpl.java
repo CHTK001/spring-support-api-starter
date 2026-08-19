@@ -39,6 +39,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
     private final SysDeptPrincipalRelService sysDeptPrincipalRelService;
 
     @Override
+    /** List */
     public List<SysDeptVO> list(SysDept sysDept, Set<String> roles) {
         List<SysDept> sysDepts = baseMapper.selectList(
                 Wrappers.<SysDept>lambdaQuery()
@@ -63,6 +64,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
             treeNode.setExt(sysDeptVO);
             treeNode.setChildrenConsumer(new SafeConsumer<List<SysDeptVO>>() {
                 @Override
+                /** SafeAccept */
                 public void safeAccept(List<SysDeptVO> sysDeptVOS) throws Throwable {
                     sysDeptVO.setChildren(sysDeptVOS);
                 }
@@ -76,11 +78,13 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
     }
 
     @Override
+    /** 删除 */
     public ReturnResult<Boolean> delete(Long deptId) {
         return ReturnResult.of(baseMapper.deleteById(deptId) > 0);
     }
 
     @Override
+    /** 更新 */
     public ReturnResult<Boolean> update(Set<String> roles, SysDept sysDept) {
         if (null != sysDept.getSysDeptPid() && sysDept.getSysDeptPid() != SystemConstant.ROOT_NODE_ID) {
             SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
@@ -102,6 +106,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
     }
 
     @Override
+    /** 保存 */
     public ReturnResult<SysDept> save(SysDept sysDept, Set<String> roles) {
         String menuTreeId = "";
         String parentTreeId = "";
@@ -127,6 +132,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         return ReturnResult.of(sysDept);
     }
 
+    /** 过滤TreeByName */
     private List<SysDeptVO> filterTreeByName(List<SysDeptVO> source, String keyword) {
         if (null == source || source.isEmpty()) {
             return new ArrayList<>();
@@ -141,6 +147,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         return result;
     }
 
+    /** 过滤TreeNode */
     private SysDeptVO filterTreeNode(SysDeptVO node, String keyword) {
         List<SysDeptVO> matchedChildren = filterTreeByName(node.getChildren(), keyword);
         boolean selfMatched = startsWithIgnoreCase(node.getSysDeptName(), keyword);
@@ -152,6 +159,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         return copy;
     }
 
+    /** StartsWithIgnoreCase */
     private boolean startsWithIgnoreCase(String value, String prefix) {
         if (StringUtils.isEmpty(value) || StringUtils.isEmpty(prefix)) {
             return false;

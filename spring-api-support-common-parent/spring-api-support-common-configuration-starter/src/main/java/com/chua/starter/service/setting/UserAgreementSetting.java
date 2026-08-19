@@ -28,6 +28,7 @@ public class UserAgreementSetting implements Upgrade<UserAgreementSetting> {
     private String updatedAt;
 
     @Override
+    /** Upgrade */
     public void upgrade(UserAgreementSetting setting) {
         this.version = setting.version;
         this.updatedAt = setting.updatedAt;

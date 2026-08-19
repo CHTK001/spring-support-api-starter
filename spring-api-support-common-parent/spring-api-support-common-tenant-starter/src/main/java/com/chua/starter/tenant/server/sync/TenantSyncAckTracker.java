@@ -40,10 +40,12 @@ public class TenantSyncAckTracker {
         this.maxPending = serverConfig.getSyncAckMaxPending();
     }
 
+    /** 是否Enabled */
     public boolean isEnabled() {
         return enabled;
     }
 
+    /** Track */
     public void track(String sessionId, String tenantId, String topic, Map<String, Object> payload) {
         if (!isEnabled()
                 || !TenantSyncMessageSupport.hasText(sessionId)
@@ -76,6 +78,7 @@ public class TenantSyncAckTracker {
         evictOverflow();
     }
 
+    /** Acknowledge */
     public AckRecord acknowledge(String sessionId, Map<String, Object> payload) {
         if (!TenantSyncMessageSupport.hasText(sessionId) || payload == null || payload.isEmpty()) {
             return null;
@@ -101,6 +104,7 @@ public class TenantSyncAckTracker {
         return record;
     }
 
+    /** DrainExpired */
     public List<PendingAck> drainExpired(long timeoutMillis) {
         if (!isEnabled() || timeoutMillis <= 0 || pendingAcks.isEmpty()) {
             return List.of();
@@ -123,6 +127,7 @@ public class TenantSyncAckTracker {
         return expired;
     }
 
+    /** Try标记Compensation */
     public boolean tryMarkCompensation(String sessionId, String tenantId, long cooldownMillis) {
         if (!TenantSyncMessageSupport.hasText(sessionId) || !TenantSyncMessageSupport.hasText(tenantId)) {
             return false;
@@ -141,6 +146,7 @@ public class TenantSyncAckTracker {
         return true;
     }
 
+    /** ClearSession */
     public void clearSession(String sessionId) {
         if (!TenantSyncMessageSupport.hasText(sessionId)) {
             return;
@@ -151,6 +157,7 @@ public class TenantSyncAckTracker {
         compensationTimes.keySet().removeIf(key -> key.startsWith(sessionId + "|"));
     }
 
+    /** EvictOverflow */
     private void evictOverflow() {
         if (maxPending <= 0) {
             return;
@@ -161,6 +168,7 @@ public class TenantSyncAckTracker {
         trimOldest(compensationTimes, maxPending, Long::longValue);
     }
 
+    /** 去空格Oldest */
     private <T> void trimOldest(ConcurrentMap<String, T> values, int maxSize, java.util.function.ToLongFunction<T> sorter) {
         if (values.size() <= maxSize) {
             return;
@@ -174,18 +182,22 @@ public class TenantSyncAckTracker {
                 .forEach(values::remove);
     }
 
+    /** CleanupCompensations */
     private void cleanupCompensations(long expireBefore) {
         compensationTimes.entrySet().removeIf(entry -> entry.getValue() < expireBefore);
     }
 
+    /** 构建PendingKey */
     private String buildPendingKey(String sessionId, String messageId) {
         return sessionId + "|" + messageId;
     }
 
+    /** 构建AckKey */
     private String buildAckKey(String sessionId, String tenantId, String topic) {
         return sessionId + "|" + tenantId + "|" + topic;
     }
 
+    /** 构建CompensationKey */
     private String buildCompensationKey(String sessionId, String tenantId) {
         return sessionId + "|" + tenantId;
     }
@@ -213,26 +225,32 @@ public class TenantSyncAckTracker {
             this.reason = reason;
         }
 
+        /** 获取SessionId */
         public String getSessionId() {
             return sessionId;
         }
 
+        /** 获取TenantId */
         public String getTenantId() {
             return tenantId;
         }
 
+        /** 获取Topic */
         public String getTopic() {
             return topic;
         }
 
+        /** 获取MessageId */
         public String getMessageId() {
             return messageId;
         }
 
+        /** 获取SentAt */
         public long getSentAt() {
             return sentAt;
         }
 
+        /** 获取Reason */
         public String getReason() {
             return reason;
         }
@@ -267,34 +285,42 @@ public class TenantSyncAckTracker {
             this.ackAt = ackAt;
         }
 
+        /** 获取SessionId */
         public String getSessionId() {
             return sessionId;
         }
 
+        /** 获取TenantId */
         public String getTenantId() {
             return tenantId;
         }
 
+        /** 获取Topic */
         public String getTopic() {
             return topic;
         }
 
+        /** 获取SourceMessageId */
         public String getSourceMessageId() {
             return sourceMessageId;
         }
 
+        /** 是否Success */
         public boolean isSuccess() {
             return success;
         }
 
+        /** 获取Status */
         public String getStatus() {
             return status;
         }
 
+        /** 获取Message */
         public String getMessage() {
             return message;
         }
 
+        /** 获取AckAt */
         public long getAckAt() {
             return ackAt;
         }

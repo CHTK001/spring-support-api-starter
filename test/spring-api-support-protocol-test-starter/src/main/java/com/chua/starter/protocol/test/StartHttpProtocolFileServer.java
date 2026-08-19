@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class StartHttpProtocolFileServer {
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         int port = args.length > 0 ? Integer.parseInt(args[0]) : 8080;
         String host = args.length > 1 ? args[1] : "0.0.0.0";

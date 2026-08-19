@@ -18,6 +18,7 @@ public class SmtpServerTest {
     /** Smtp_port */
     private static final int SMTP_PORT = 2525;
 
+    /** Main */
     public static void main(String[] args) throws Exception {
         log.info("=== SMTP 服务器测试开始 ===");
 
@@ -169,6 +170,7 @@ public class SmtpServerTest {
         }
     }
 
+    /** 发送Command */
     static void sendCommand(BufferedWriter writer, BufferedReader reader, String command) throws IOException {
         log.info("Client: {}", command);
         writer.write(command + "\r\n");
@@ -179,6 +181,7 @@ public class SmtpServerTest {
         assert !response.startsWith("5") : "服务器返回错误: " + response;
     }
 
+    /** 读取Response */
     static String readResponse(BufferedReader reader) throws IOException {
         StringBuilder sb = new StringBuilder();
         String line;

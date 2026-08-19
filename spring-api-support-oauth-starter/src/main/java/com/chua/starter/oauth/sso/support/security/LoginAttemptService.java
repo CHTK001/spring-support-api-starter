@@ -250,6 +250,7 @@ public class LoginAttemptService {
         return new LockInfo(locked, remainingSeconds, failedAttempts, resolveMaxAttempts());
     }
 
+    /** 解析最大值Attempts */
     private int resolveMaxAttempts() {
         if (securityProperties != null && securityProperties.getLoginLock() != null) {
             return securityProperties.getLoginLock().getMaxAttempts();
@@ -257,6 +258,7 @@ public class LoginAttemptService {
         return DEFAULT_MAX_ATTEMPTS;
     }
 
+    /** 解析锁DurationMinutes */
     private int resolveLockDurationMinutes() {
         if (securityProperties != null && securityProperties.getLoginLock() != null) {
             return securityProperties.getLoginLock().getLockDurationMinutes();
@@ -264,6 +266,7 @@ public class LoginAttemptService {
         return DEFAULT_LOCK_DURATION_MINUTES;
     }
 
+    /** 解析AttemptExpireMinutes */
     private int resolveAttemptExpireMinutes() {
         if (securityProperties != null && securityProperties.getLoginLock() != null) {
             return securityProperties.getLoginLock().getAttemptExpireMinutes();

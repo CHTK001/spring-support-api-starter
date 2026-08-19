@@ -122,17 +122,20 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
 
 
     @Override
+    /** Post处理BeanDefinitionRegistry */
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeLoginProvider.class);
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeBinderProvider.class);
     }
 
     @Override
+    /** Post处理BeanFactory */
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
     }
 
     @Override
+    /** Post处理Environment */
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         Properties properties = new Properties();
         properties.setProperty("spring.freemarker.templateLoaderPath", "classpath:/templates/");
@@ -149,11 +152,13 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     }
 
     @Override
+    /** 销毁 */
     public void destroy() throws Exception {
     }
 
 
     @Override
+    /** 设置ApplicationContext */
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         if (null != authServerProperties) {
             return;
@@ -166,11 +171,13 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     }
 
     @Override
+    /** 添加ReturnValueHandlers */
     public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> handlers) {
         handlers.add(0, new ResponseAdviceMethodProcessor(messageConverters));
     }
 
     @Override
+    /** 运行 */
     public void run(String... args) throws Exception {
         ServiceInfoRegistry registry = ServiceInfoRegistry.getInstance();
         registry.registerFlag("auth-server", "鉴权服务",

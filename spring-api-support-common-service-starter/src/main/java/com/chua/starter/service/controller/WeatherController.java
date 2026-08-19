@@ -41,6 +41,7 @@ public class WeatherController {
     @GetMapping("address")
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_HOUR, cacheNames = CacheConstant.REDIS_CACHE_HOUR,
             key = "'cache:weather:' + T(com.chua.starter.common.support.utils.RequestUtils).getIpAddress()")
+    /** 获取Weather */
     public ReturnResult<Weather> getWeather(HttpServletRequest request) {
         String ipAddress = RequestUtils.getIpAddress(request);
         if(NetUtils.isLocalHost(ipAddress)) {

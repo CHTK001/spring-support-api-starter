@@ -43,6 +43,7 @@ public record RequestTraceAiAnalysisResult(
         latencyMs = Math.max(latencyMs, 0L);
     }
 
+    /** FinalSummary */
     public String finalSummary() {
         return RequestTraceSupport.firstNonBlank(summary, heuristicSummary);
     }

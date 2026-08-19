@@ -75,6 +75,7 @@ public class OauthCsrfFilter implements Filter, Ordered {
         chain.doFilter(request, response);
     }
 
+    /** 是否Ignored */
     private boolean isIgnored(HttpServletRequest request, OauthSecurityProperties.Csrf csrf) {
         String uri = request.getRequestURI();
         List<String> ignorePaths = csrf.getIgnorePaths();
@@ -92,6 +93,7 @@ public class OauthCsrfFilter implements Filter, Ordered {
         return false;
     }
 
+    /** RequiresValidation */
     private boolean requiresValidation(String method, OauthSecurityProperties.Csrf csrf) {
         List<String> methods = csrf.getMethods();
         if (methods == null || methods.isEmpty()) {
@@ -105,6 +107,7 @@ public class OauthCsrfFilter implements Filter, Ordered {
         return false;
     }
 
+    /** 校验Token */
     private boolean validateToken(HttpServletRequest request, OauthSecurityProperties.Csrf csrf) {
         String requestToken = resolveRequestToken(request, csrf);
         if (!StringUtils.hasText(requestToken)) {
@@ -129,6 +132,7 @@ public class OauthCsrfFilter implements Filter, Ordered {
         }
     }
 
+    /** 解析RequestToken */
     private String resolveRequestToken(HttpServletRequest request, OauthSecurityProperties.Csrf csrf) {
         String token = request.getHeader(csrf.getHeaderName());
         if (StringUtils.hasText(token)) {
@@ -137,6 +141,7 @@ public class OauthCsrfFilter implements Filter, Ordered {
         return request.getParameter(csrf.getParameterName());
     }
 
+    /** 解析CookieToken */
     private String resolveCookieToken(HttpServletRequest request, String cookieName) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
@@ -191,6 +196,7 @@ public class OauthCsrfFilter implements Filter, Ordered {
         response.setHeader(csrf.getHeaderName(), token);
     }
 
+    /** 写入Forbidden */
     private void writeForbidden(HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -200,6 +206,7 @@ public class OauthCsrfFilter implements Filter, Ordered {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 15;
     }

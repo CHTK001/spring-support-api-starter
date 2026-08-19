@@ -172,6 +172,7 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
+    /** Supports */
     public boolean supports(String subProtocol, String token, String userCode) {
         // OAuth2 认证条件：
         // 1. subProtocol 为 "oauth2"

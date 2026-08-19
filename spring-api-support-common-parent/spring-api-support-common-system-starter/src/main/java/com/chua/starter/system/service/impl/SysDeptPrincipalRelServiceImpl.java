@@ -41,6 +41,7 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     private final SysDeptMapper sysDeptMapper;
 
     @Override
+    /** SyncDeptPrincipals */
     public void syncDeptPrincipals(Integer deptId, Collection<Integer> userIds) {
         if (deptId == null) {
             return;
@@ -65,6 +66,7 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     @Override
+    /** ListManagedDeptScopes */
     public List<SysDept> listManagedDeptScopes(Integer userId) {
         if (userId == null) {
             return Collections.emptyList();
@@ -73,6 +75,7 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     @Override
+    /** ListManagedDeptIds */
     public List<Integer> listManagedDeptIds(Integer userId) {
         return listManagedDeptScopes(userId).stream()
                 .map(SysDept::getSysDeptId)
@@ -82,6 +85,7 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     @Override
+    /** ListManagedDeptTreeIds */
     public List<String> listManagedDeptTreeIds(Integer userId) {
         return listManagedDeptScopes(userId).stream()
                 .map(SysDept::getSysDeptTreeId)
@@ -91,6 +95,7 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     @Override
+    /** ListManagedDeptTreeIds */
     public List<String> listManagedDeptTreeIds(Collection<Integer> deptIds) {
         if (CollectionUtils.isEmpty(deptIds)) {
             return Collections.emptyList();
@@ -103,6 +108,7 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     @Override
+    /** FillPrincipalInfo */
     public void fillPrincipalInfo(List<? extends SysDept> departments) {
         if (CollectionUtils.isEmpty(departments)) {
             return;
@@ -133,6 +139,7 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     @Override
+    /** MapPrincipalUserIds */
     public Map<Integer, List<Integer>> mapPrincipalUserIds(Collection<Integer> deptIds) {
         if (CollectionUtils.isEmpty(deptIds)) {
             return Collections.emptyMap();
@@ -149,6 +156,7 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
                         Collectors.mapping(SysDeptPrincipalRel::getSysUserId, Collectors.toList())));
     }
 
+    /** NormalizeIds */
     private List<Integer> normalizeIds(Collection<Integer> userIds) {
         if (CollectionUtils.isEmpty(userIds)) {
             return Collections.emptyList();
@@ -159,10 +167,12 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
                 .collect(Collectors.toList());
     }
 
+    /** 解析PrincipalNames */
     private List<String> resolvePrincipalNames(Collection<Integer> userIds) {
         return resolvePrincipalNameMap(userIds).values().stream().toList();
     }
 
+    /** 解析PrincipalNameMap */
     private Map<Integer, String> resolvePrincipalNameMap(Collection<Integer> userIds) {
         if (CollectionUtils.isEmpty(userIds)) {
             return Collections.emptyMap();

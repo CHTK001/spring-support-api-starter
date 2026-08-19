@@ -367,6 +367,7 @@ public class LoginCheck {
         }
     }
 
+    /** 获取AuthVersion */
     public String getAuthVersion(UserResult userResult) {
         try {
             String loginType = userResult.getLoginType();

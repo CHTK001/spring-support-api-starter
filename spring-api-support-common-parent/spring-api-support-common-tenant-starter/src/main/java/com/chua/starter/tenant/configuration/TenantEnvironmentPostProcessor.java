@@ -27,6 +27,7 @@ public class TenantEnvironmentPostProcessor implements EnvironmentPostProcessor 
     private static final String SYNC_PREFIX = "plugin.sync.";
 
     @Override
+    /** Post处理Environment */
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         // 检查服务端同步是否启用
         boolean serverEnabled = "true".equalsIgnoreCase(environment.getProperty(TENANT_PREFIX + "server.enable", "false"));

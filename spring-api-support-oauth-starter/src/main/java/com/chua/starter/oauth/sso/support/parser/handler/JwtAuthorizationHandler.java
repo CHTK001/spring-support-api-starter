@@ -222,6 +222,7 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
+    /** Supports */
     public boolean supports(String subProtocol, String token, String userCode) {
         // JWT 认证条件：
         // 1. subProtocol 为 "jwt"

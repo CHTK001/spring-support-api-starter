@@ -30,10 +30,12 @@ public class SysMenuChangeEvent extends ApplicationEvent {
         this.operation = operation;
     }
 
+    /** 获取SysMenuId */
     public Integer getSysMenuId() {
         return sysMenuId;
     }
 
+    /** 获取Operation */
     public String getOperation() {
         return operation;
     }

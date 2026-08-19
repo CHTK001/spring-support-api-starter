@@ -40,6 +40,7 @@ public class SysFileSystemCleanTask {
     private final SysFileSystemSettingService sysFileSystemSettingService;
 
     @Scheduled(cron = "0 0 4 * * ?")
+    /** CleanExpiredFiles */
     public void cleanExpiredFiles() {
         log.info("开始执行过期文件清理定时任务");
         try {
@@ -85,6 +86,7 @@ public class SysFileSystemCleanTask {
     }
 
     @Scheduled(cron = "0 30 4 * * ?")
+    /** CleanFailedTasks */
     public void cleanFailedTasks() {
         log.info("开始执行失败任务清理定时任务");
         try {
@@ -132,6 +134,7 @@ public class SysFileSystemCleanTask {
     }
 
     @Scheduled(cron = "0 0 5 * * ?")
+    /** CleanPending合并Tasks */
     public void cleanPendingMergeTasks() {
         log.info("开始执行待合并超时任务清理");
         try {
@@ -160,6 +163,7 @@ public class SysFileSystemCleanTask {
         }
     }
 
+    /** 删除PhysicalFile */
     private void deletePhysicalFile(SysFileSystem file) {
         try {
             String path = file.getSysFileSystemPath();
@@ -176,6 +180,7 @@ public class SysFileSystemCleanTask {
         }
     }
 
+    /** 删除DirectoryQuietly */
     private void deleteDirectoryQuietly(File file) {
         if (null == file || !file.exists()) {
             return;
@@ -193,6 +198,7 @@ public class SysFileSystemCleanTask {
         }
     }
 
+    /** ManualCleanExpiredFiles */
     public int manualCleanExpiredFiles(Integer days) {
         log.info("手动触发过期文件清理任务");
         try {

@@ -174,6 +174,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     private final ObjectMapper objectMapper;
 
     @Override
+    /** Login */
     public ReturnResult<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
         log.info("\n登录信息包含 \n登录账号 -> {}\n登陆方式 -> {}", loginData.getUsername(), loginData.getLoginType());
         return ServiceProvider.of(LoginHandler.class).getNewExtension(Joiner.on("-").skipNulls().join(loginData.getLoginType(), loginData.getAccountType()))
@@ -301,6 +302,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         return ReturnResult.error(RESOURCE_CAPTCHA_ERROR.getCode(), "请重新刷新校验码");
     }
 
+    /** 校验Environment */
     public ReturnResult<LoginResult> checkEnvironment(LoginData loginData, HttpServletRequest request) {
         String code = loginData.getVerifyCodeKey();
         boolean totpRequired = requiresTotp(loginData.getUsername());
@@ -336,11 +338,13 @@ public class SysLoginServiceImpl implements SysLoginService {
         return null;
     }
 
+    /** 是否拥有CaptchaContext */
     private boolean hasCaptchaContext(LoginData loginData, HttpServletRequest request) {
         String sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse("").toString();
         return StringUtils.isNotBlank(sessionKey) || StringUtils.isNotBlank(loginData.getVerifyCodeUlid());
     }
 
+    /** RequiresTotp */
     private boolean requiresTotp(String username) {
         if (!isTotpLoginEnabled() || StringUtils.isBlank(username)) {
             return false;
@@ -353,18 +357,21 @@ public class SysLoginServiceImpl implements SysLoginService {
         return null != sysUser && StringUtils.isNotBlank(sysUser.getSysUserTotpCode());
     }
 
+    /** 是否TotpLoginEnabled */
     private boolean isTotpLoginEnabled() {
         GuestDefaultSetting gs = GLOBAL_SETTING_FACTORY.get("default", GuestDefaultSetting.class);
         return null != gs && gs.isCheckTotpCodeOpen();
     }
 
     @Override
+    /** 获取UserLoginInfo */
     public UserInfoVO getUserLoginInfo() {
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         return buildUserInfo(userLoginInfo);
     }
 
     @Override
+    /** 获取UserLoginInfo */
     public UserInfoVO getUserLoginInfo(String token) {
         if (StringUtils.isBlank(token)) {
             return new UserInfoVO();
@@ -386,6 +393,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
+    /** 构建UserInfo */
     public UserInfoVO buildUserInfo(UserResume userLoginInfo) {
         UserInfoVO userInfoVO = new UserInfoVO();
         if (userLoginInfo == null) {
@@ -464,6 +472,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         return diff <= BIRTHDAY_WINDOW_DAYS;
     }
 
+    /** EnrichAgreementStatus */
     private void enrichAgreementStatus(UserInfoVO userInfoVO) {
         UserAgreementSetting agreement = GLOBAL_SETTING_FACTORY.get(USER_AGREEMENT_GROUP, UserAgreementSetting.class);
         String agreementVersion = StringUtils.isNotBlank(agreement.getVersion()) ? agreement.getVersion() : DEFAULT_AGREEMENT_VERSION;
@@ -533,6 +542,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         return roleCodes;
     }
 
+    /** 解析PreferenceValue */
     private String resolvePreferenceValue(String preference, String key) {
         if (StringUtils.isBlank(preference) || StringUtils.isBlank(key)) {
             return "";
@@ -547,6 +557,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
+    /** Refresh */
     public ReturnResult<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response) {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(refreshToken.getRefreshToken(), UpgradeType.REFRESH);
@@ -565,6 +576,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
+    /** ThirdLoginCode */
     public ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         log.debug("第三方登录请求: loginType={}, thirdType={}", loginData.getLoginType(), loginData.getThirdType());
         
@@ -584,11 +596,13 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
+    /** Third绑定Code */
     public ReturnResult<String> thirdBindCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         return thirdLoginCode(loginData, request, response);
     }
 
     @Override
+    /** Third绑定Info */
     public ReturnResult<List<String>> thirdBindInfo(String userId) {
         List<SysUserThirdParty> sysUserThirdParties = sysUserThirdPartyMapper.selectList(
                 Wrappers.<SysUserThirdParty>lambdaQuery()
@@ -612,6 +626,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
+    /** Third解绑 */
     public ReturnResult<Boolean> thirdUnbind(String userId, ThirdPartyUnbindRequest thirdPartyUnbindRequest) {
         if (StringUtils.isBlank(thirdPartyUnbindRequest.getLoginType())) {
             return ReturnResult.error("登录类型不能为空");

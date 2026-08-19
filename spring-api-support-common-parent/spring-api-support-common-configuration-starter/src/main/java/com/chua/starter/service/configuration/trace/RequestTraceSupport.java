@@ -13,6 +13,7 @@ public final class RequestTraceSupport {
     private RequestTraceSupport() {
     }
 
+    /** Normalize */
     public static String normalize(String value) {
         if (value == null) {
             return null;
@@ -21,6 +22,7 @@ public final class RequestTraceSupport {
         return trimmed.isEmpty() ? null : trimmed;
     }
 
+    /** FirstNonBlank */
     public static String firstNonBlank(String... values) {
         if (values == null) {
             return null;
@@ -34,6 +36,7 @@ public final class RequestTraceSupport {
         return null;
     }
 
+    /** SignalCodes */
     public static String signalCodes(Set<RequestTraceSignal> signals) {
         if (signals == null || signals.isEmpty()) {
             return null;
@@ -44,6 +47,7 @@ public final class RequestTraceSupport {
                 .collect(Collectors.joining(","));
     }
 
+    /** 是否CrawlerUserAgent */
     public static boolean isCrawlerUserAgent(String userAgent) {
         String normalized = normalize(userAgent);
         if (normalized == null) {
@@ -58,6 +62,7 @@ public final class RequestTraceSupport {
                 || lower.contains("curl");
     }
 
+    /** 解析Browser */
     public static String resolveBrowser(String userAgent) {
         String normalized = normalize(userAgent);
         if (normalized == null) {
@@ -97,6 +102,7 @@ public final class RequestTraceSupport {
         return "Other";
     }
 
+    /** 解析RiskLevel */
     public static String resolveRiskLevel(Set<RequestTraceSignal> signals) {
         if (signals == null || signals.isEmpty()) {
             return "normal";

@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SysOnlineServiceImpl implements SysOnlineService {
 
     @Override
+    /** 获取OnlineUsers */
     public List<OnlineUserVO> getOnlineUsers(String username, String ip) {
         List<OnlineUserVO> onlineUsers = new ArrayList<>();
 
@@ -60,6 +61,7 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     @Override
+    /** 获取Online计算数量 */
     public Integer getOnlineCount() {
         try {
             // 通过OAuth客户端获取在线用户数量
@@ -73,6 +75,7 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     @Override
+    /** KickUser */
     public ReturnResult<Boolean> kickUser(String userId) {
         try {
             // 通过OAuth客户端强制下线用户
@@ -89,6 +92,7 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     @Override
+    /** KickUsers */
     public ReturnResult<Integer> kickUsers(List<String> userIds) {
         if (userIds == null || userIds.isEmpty()) {
             return ReturnResult.ok(0);

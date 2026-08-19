@@ -24,6 +24,7 @@ import java.util.List;
 public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAccount> implements SysAccountService {
 
     @Override
+    /** 获取ByOpenid */
     public SysAccount getByOpenid(String accountType, String openid) {
         if (accountType == null || openid == null) {
             return null;
@@ -35,6 +36,7 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     }
 
     @Override
+    /** ListByUnionid */
     public List<SysAccount> listByUnionid(String accountType, String unionid) {
         if (accountType == null || unionid == null) {
             return List.of();
@@ -46,6 +48,7 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 绑定Account */
     public ReturnResult<SysAccount> bindAccount(SysAccount account) {
         if (account == null || account.getSysAccountOpenid() == null || account.getSysAccountType() == null) {
             return ReturnResult.error("账号信息不完整");
@@ -74,6 +77,7 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 解绑Account */
     public ReturnResult<Boolean> unbindAccount(Integer accountId) {
         if (accountId == null) {
             return ReturnResult.error("accountId 不能为空");
@@ -84,6 +88,7 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 解绑ByUserId */
     public int unbindByUserId(Integer userId) {
         if (userId == null) {
             return 0;
@@ -93,6 +98,7 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     }
 
     @Override
+    /** ListByUserId */
     public List<SysAccount> listByUserId(Integer userId) {
         if (userId == null) {
             return List.of();
@@ -102,6 +108,7 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     }
 
     @Override
+    /** 更新LoginInfo */
     public boolean updateLoginInfo(Integer accountId, String ip, String ipAddress) {
         if (accountId == null) {
             return false;
@@ -118,6 +125,7 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     }
 
     @Override
+    /** 设置Forbidden */
     public boolean setForbidden(Integer accountId, boolean forbidden) {
         if (accountId == null) {
             return false;

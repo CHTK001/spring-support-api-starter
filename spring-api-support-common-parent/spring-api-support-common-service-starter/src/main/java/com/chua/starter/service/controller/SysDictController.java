@@ -52,6 +52,7 @@ public class SysDictController {
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
             key = "'sys:dict:page:' + #userId + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDict.sysDictCode,'') + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDict.sysDictName,'') + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#query.page,1) + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#query.pageSize,10)",
             unless = "#result == null || #result.data == null || #result.data.data == null || #result.data.data.isEmpty()")
+    /** PageForRole */
     public ReturnPageResult<SysDict> pageForRole(@ParameterObject Query<SysDict> query, @ParameterObject SysDict sysDict, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         return PageResultUtils.ok(sysDictService.pageForDict(query, sysDict, roles));
     }

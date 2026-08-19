@@ -12,6 +12,7 @@ public final class InvalidAuthorization implements Authorization {
     public static final InvalidAuthorization INSTANCE = new InvalidAuthorization();
 
     @Override
+    /** Authentication */
     public ReturnResult<String> authentication() {
         return ReturnResult.error("未认证");
     }

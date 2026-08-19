@@ -25,6 +25,7 @@ public class DatalakeAutoConfiguration {
     private DatalakeServer datalakeServer;
 
     @Bean
+    /** DatalakeServer */
     public DatalakeServer datalakeServer() {
         this.datalakeServer = DatalakeServerBuilder.builder()
                 .build();
@@ -40,6 +41,7 @@ public class DatalakeAutoConfiguration {
     }
 
     @PreDestroy
+    /** 销毁 */
     public void destroy() {
         if (datalakeServer != null) {
             datalakeServer.stop();

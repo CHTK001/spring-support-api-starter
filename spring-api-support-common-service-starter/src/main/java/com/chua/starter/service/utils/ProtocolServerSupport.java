@@ -12,6 +12,7 @@ public final class ProtocolServerSupport {
     private ProtocolServerSupport() {
     }
 
+    /** 创建 */
     public static ProtocolServer create(String type, ServerSetting setting) {
         if (setting == null) {
             throw new IllegalArgumentException("ServerSetting 不能为空");
@@ -20,6 +21,7 @@ public final class ProtocolServerSupport {
         return ProtocolServer.create(protocol, setting);
     }
 
+    /** 开始IfNecessary */
     public static ProtocolServer startIfNecessary(ProtocolServer server) throws Exception {
         if (server == null) {
             throw new IllegalArgumentException("ProtocolServer 不能为空");
@@ -30,6 +32,7 @@ public final class ProtocolServerSupport {
         return server;
     }
 
+    /** 停止Quietly */
     public static void stopQuietly(ProtocolServer server) {
         if (server == null) {
             return;

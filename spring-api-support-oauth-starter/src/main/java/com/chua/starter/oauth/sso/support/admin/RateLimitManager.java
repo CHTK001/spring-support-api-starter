@@ -67,6 +67,7 @@ public class RateLimitManager {
         return status;
     }
 
+    /** 是否Enabled */
     public boolean isEnabled() {
         return enabled.get();
     }

@@ -25,6 +25,7 @@ import java.util.List;
 public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartMapper, SysFileSystemPart> implements SysFileSystemPartService {
 
     @Override
+    /** ListByFileId */
     public List<SysFileSystemPart> listByFileId(Integer fileId) {
         if (fileId == null) {
             return List.of();
@@ -35,6 +36,7 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
     }
 
     @Override
+    /** ListByFileIdAndVersion */
     public List<SysFileSystemPart> listByFileIdAndVersion(Integer fileId, Integer version) {
         if (fileId == null || version == null) {
             return List.of();
@@ -47,6 +49,7 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 删除ByFileId */
     public int deleteByFileId(Integer fileId) {
         if (fileId == null) {
             return 0;
@@ -56,6 +59,7 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
     }
 
     @Override
+    /** 计算数量CompletedByFileId */
     public long countCompletedByFileId(Integer fileId) {
         if (fileId == null) {
             return 0L;
@@ -67,6 +71,7 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 重置FailedToPending */
     public int resetFailedToPending(Integer fileId) {
         if (fileId == null) {
             return 0;
@@ -80,6 +85,7 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 标记Processing */
     public int markProcessing(Integer fileId) {
         if (fileId == null) {
             return 0;
@@ -91,6 +97,7 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
     }
 
     @Override
+    /** 验证Integrity */
     public ReturnResult<Boolean> verifyIntegrity(Integer fileId, int expectedChunks) {
         if (fileId == null || expectedChunks <= 0) {
             return ReturnResult.error("参数无效");

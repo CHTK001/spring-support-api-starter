@@ -99,6 +99,7 @@ public abstract class AbstractAuthInformation implements AuthInformation{
     }
 
     @Override
+    /** 记录错误Message */
     public String errorMessage() {
         if(!success.get()) {
             return "解析失败!";
@@ -107,6 +108,7 @@ public abstract class AbstractAuthInformation implements AuthInformation{
     }
 
     @Override
+    /** 是否Successful */
     public boolean isSuccessful() {
         return success.get() && (
                 authServerProperties.isSignVerify() &&
@@ -114,6 +116,7 @@ public abstract class AbstractAuthInformation implements AuthInformation{
     }
 
     @Override
+    /** 获取AuthServerProperties */
     public AuthServerProperties getAuthServerProperties() {
         return authServerProperties;
     }

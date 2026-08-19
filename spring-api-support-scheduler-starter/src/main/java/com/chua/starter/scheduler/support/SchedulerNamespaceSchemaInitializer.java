@@ -54,6 +54,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
     private final ObjectProvider<DataSource> dataSourceProvider;
 
     @Override
+    /** AfterProperties设置 */
     public void afterPropertiesSet() {
         ActionType actionType = resolveActionType(jobProperties);
         if (actionType == null) {
@@ -206,6 +207,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         }
     }
 
+    /** HSchemaSql */
     private List<String> h2SchemaSql(Class<?> entityType, String tableName) {
         if (SysJob.class == entityType) {
             return List.of(
@@ -370,6 +372,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
                 + namespace + ", table=" + tableName + ", error=" + result.getFirstError());
     }
 
+    /** 是否Already是否存在 */
     private boolean isAlreadyExists(ErrorResult<String> result) {
         String message = result == null ? null : result.getFirstError();
         if (message == null) {
@@ -381,6 +384,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
                 || normalized.contains("duplicate");
     }
 
+    /** 是否TableMissing */
     private boolean isTableMissing(ErrorResult<String> result) {
         String message = result == null ? null : result.getFirstError();
         if (message == null) {
@@ -395,6 +399,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
                 || normalized.contains("not found");
     }
 
+    /** 校验ExistingTable */
     private void validateExistingTable(DataSource dataSource, TableMetadata metadata, String namespace) {
         Set<String> existingColumns = readExistingColumns(dataSource, metadata.getName(), namespace);
         List<String> missingColumns = metadata.getColumnMetadata().stream()
@@ -459,6 +464,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
                 namespace, tableName, upgradeSql.size());
     }
 
+    /** 读取ExistingColumns */
     private Set<String> readExistingColumns(DataSource dataSource, String tableName, String namespace) {
         try (Connection connection = dataSource.getConnection()) {
             DatabaseMetaData metaData = connection.getMetaData();
@@ -545,6 +551,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         upgradeSql.add(sql);
     }
 
+    /** 读取ExistingColumnTypes */
     private Map<String, String> readExistingColumnTypes(DataSource dataSource, String tableName, String namespace) {
         try (Connection connection = dataSource.getConnection()) {
             DatabaseMetaData metaData = connection.getMetaData();
@@ -564,6 +571,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         }
     }
 
+    /** 读取Columns */
     private Set<String> readColumns(DatabaseMetaData metaData, String catalog, String tableName) throws SQLException {
         Set<String> columns = new LinkedHashSet<>();
         try (ResultSet resultSet = metaData.getColumns(catalog, null, tableName, null)) {
@@ -574,6 +582,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         return columns;
     }
 
+    /** 读取ColumnTypes */
     private Map<String, String> readColumnTypes(DatabaseMetaData metaData, String catalog, String tableName) throws SQLException {
         Map<String, String> columnTypes = new LinkedHashMap<>();
         try (ResultSet resultSet = metaData.getColumns(catalog, null, tableName, null)) {
@@ -585,14 +594,17 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         return columnTypes;
     }
 
+    /** NormalizeColumnName */
     private String normalizeColumnName(String columnName) {
         return columnName == null ? null : columnName.trim().toLowerCase(Locale.ROOT);
     }
 
+    /** NormalizeColumnType */
     private String normalizeColumnType(String columnType) {
         return columnType == null ? null : columnType.trim().toLowerCase(Locale.ROOT);
     }
 
+    /** DetectDatabaseProductName */
     private String detectDatabaseProductName(DataSource dataSource) {
         try (Connection connection = dataSource.getConnection()) {
             return connection.getMetaData().getDatabaseProductName();
@@ -601,6 +613,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         }
     }
 
+    /** 是否Database */
     private boolean isH2Database(String databaseProductName) {
         if (databaseProductName == null) {
             return false;
@@ -608,6 +621,7 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         return databaseProductName.trim().toLowerCase(Locale.ROOT).contains("h2");
     }
 
+    /** 解析ActionType */
     private ActionType resolveActionType(JobProperties properties) {
         if (properties == null) {
             return null;

@@ -67,6 +67,7 @@ public class FileHttpServer {
         registerRoutes();
     }
 
+    /** 注册Routes */
     private void registerRoutes() {
         // 解析 body 中的二进制流(由 JdkHttpServer 内部已 wrap 成 ServerResponse)
         this.server.registerMapping("/health", (req, res) -> {
@@ -130,6 +131,7 @@ public class FileHttpServer {
         log.info("FileHttpServer stopped on {}:{}", setting.getHost(), setting.getPort());
     }
 
+    /** ServeFileById */
     private void serveFileById(Integer fileId, com.chua.common.support.network.server.response.ServerResponse res) {
         SysFileSystem file = sysFileSystemService.getById(fileId);
         if (file == null) {
@@ -160,6 +162,7 @@ public class FileHttpServer {
         writeFile(res, localPath, file.getSysFileSystemOriginalName());
     }
 
+    /** ServeRawPath */
     private void serveRawPath(String decoded, com.chua.common.support.network.server.response.ServerResponse res) {
         if (decoded.contains("..")) {
             res.setStatus(400);
@@ -184,6 +187,7 @@ public class FileHttpServer {
         writeFile(res, target, target.getFileName().toString());
     }
 
+    /** 解析LocalPath */
     private Path resolveLocalPath(SysFileSystem file) {
         String local = file.getSysFileSystemLocalPath();
         if (local == null || local.isEmpty()) {
@@ -195,6 +199,7 @@ public class FileHttpServer {
         return Paths.get(local);
     }
 
+    /** 获取CurrentDownloadEnabled */
     private Boolean getCurrentDownloadEnabled() {
         try {
             SysFileSystemSetting enabled = sysFileSystemSettingService.getEnabledSettingForFileSystem();
@@ -205,6 +210,7 @@ public class FileHttpServer {
         }
     }
 
+    /** 写入File */
     private void writeFile(com.chua.common.support.network.server.response.ServerResponse res, Path file, String name) {
         try {
             long len = Files.size(file);
@@ -223,6 +229,7 @@ public class FileHttpServer {
         }
     }
 
+    /** GuessContentType */
     private static String guessContentType(String name) {
         String lower = name.toLowerCase();
         if (lower.endsWith(".html") || lower.endsWith(".htm")) return "text/html;charset=UTF-8";
@@ -236,6 +243,7 @@ public class FileHttpServer {
         return "application/octet-stream";
     }
 
+    /** 编码 */
     private static String encode(String name) {
         StringBuilder sb = new StringBuilder();
         for (char c : name.toCharArray()) {

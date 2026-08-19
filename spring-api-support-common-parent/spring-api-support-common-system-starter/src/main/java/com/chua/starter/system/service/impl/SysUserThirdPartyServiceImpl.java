@@ -22,6 +22,7 @@ import java.util.List;
 public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyMapper, SysUserThirdParty> implements SysUserThirdPartyService {
 
     @Override
+    /** ListByUserId */
     public List<SysUserThirdParty> listByUserId(Integer userId) {
         if (userId == null) {
             return Collections.emptyList();
@@ -31,6 +32,7 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
     }
 
     @Override
+    /** ListByUserIdAndType */
     public List<SysUserThirdParty> listByUserIdAndType(Integer userId, String type) {
         if (userId == null || type == null) {
             return Collections.emptyList();
@@ -41,6 +43,7 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
     }
 
     @Override
+    /** 获取ByThirdPartyUid */
     public SysUserThirdParty getByThirdPartyUid(String type, String uid) {
         if (type == null || uid == null) {
             return null;
@@ -53,6 +56,7 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 绑定 */
     public SysUserThirdParty bind(SysUserThirdParty record) {
         if (record == null || record.getSysUserThirdPartyType() == null
                 || record.getSysUserThirdPartyUid() == null) {
@@ -78,6 +82,7 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 解绑 */
     public boolean unbind(Integer id) {
         if (id == null) {
             return false;
@@ -87,6 +92,7 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 解绑All */
     public int unbindAll(Integer userId) {
         if (userId == null) {
             return 0;
@@ -97,6 +103,7 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 更新Value */
     public boolean updateValue(Integer id, String newValue) {
         if (id == null) {
             return false;

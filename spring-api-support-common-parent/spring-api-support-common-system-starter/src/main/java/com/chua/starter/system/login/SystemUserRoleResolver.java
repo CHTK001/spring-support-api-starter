@@ -30,6 +30,7 @@ public class SystemUserRoleResolver implements UserRoleResolver {
     private SysUserRoleMapper sysUserRoleMapper;
 
     @Override
+    /** 解析 */
     public Set<String> resolve(String userId, String username) {
         if (!StringUtils.hasText(userId)) {
             return null;

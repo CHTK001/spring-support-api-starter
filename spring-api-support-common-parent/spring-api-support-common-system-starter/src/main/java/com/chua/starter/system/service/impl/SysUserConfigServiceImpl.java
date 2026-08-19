@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, SysUserConfig> implements SysUserConfigService {
 
     @Override
+    /** 获取ByConfigId */
     public SysUserConfig getByConfigId(Integer configId) {
         if (configId == null) {
             return null;
@@ -28,6 +29,7 @@ public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, S
     }
 
     @Override
+    /** 获取ByWxUnionid */
     public SysUserConfig getByWxUnionid(String unionid) {
         if (unionid == null || unionid.isEmpty()) {
             return null;
@@ -38,6 +40,7 @@ public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, S
     }
 
     @Override
+    /** 获取ByWxOpenid */
     public SysUserConfig getByWxOpenid(String openid) {
         if (openid == null || openid.isEmpty()) {
             return null;
@@ -49,6 +52,7 @@ public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, S
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 保存Or更新Config */
     public SysUserConfig saveOrUpdateConfig(SysUserConfig config) {
         if (config == null) {
             return null;
@@ -66,6 +70,7 @@ public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, S
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /** 解绑Wx */
     public boolean unbindWx(Integer configId) {
         if (configId == null) {
             return false;

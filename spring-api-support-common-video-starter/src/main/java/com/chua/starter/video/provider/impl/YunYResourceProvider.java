@@ -297,6 +297,7 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
         }
     }
 
+    /** 创建VideoInfoResults */
     private void createVideoInfoResults(List<VideoInfoResult> videoInfoResults, List<VideoInfoResult> videoInfoResult) {
         for (VideoInfoResult infoResult : videoInfoResult) {
             registerDetail(infoResult);

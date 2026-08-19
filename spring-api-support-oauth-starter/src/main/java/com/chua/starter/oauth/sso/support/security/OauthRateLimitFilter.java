@@ -84,6 +84,7 @@ public class OauthRateLimitFilter implements Filter, Ordered {
         chain.doFilter(request, response);
     }
 
+    /** 是否应该Limit */
     private boolean shouldLimit(HttpServletRequest request) {
         String uri = request.getRequestURI();
         OauthSecurityProperties.RateLimit rateLimit = securityProperties.getRateLimit();
@@ -99,6 +100,7 @@ public class OauthRateLimitFilter implements Filter, Ordered {
         return matchesAny(uri, paths);
     }
 
+    /** MatchesAny */
     private boolean matchesAny(String uri, List<String> patterns) {
         if (patterns == null || patterns.isEmpty()) {
             return false;
@@ -114,6 +116,7 @@ public class OauthRateLimitFilter implements Filter, Ordered {
         return false;
     }
 
+    /** 解析ClientIp */
     private String resolveClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         if (!StringUtils.hasText(ip) || "unknown".equalsIgnoreCase(ip)) {
@@ -152,6 +155,7 @@ public class OauthRateLimitFilter implements Filter, Ordered {
     }
 
     @Override
+    /** 获取Order */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 5;
     }

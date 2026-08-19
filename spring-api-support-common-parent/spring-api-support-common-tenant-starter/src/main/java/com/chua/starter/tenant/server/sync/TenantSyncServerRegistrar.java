@@ -33,6 +33,7 @@ public class TenantSyncServerRegistrar implements InitializingBean {
     private final TenantServerSyncAckHandler tenantServerSyncAckHandler;
 
     @Override
+    /** AfterProperties设置 */
     public void afterPropertiesSet() {
         if (!tenantProperties.isServerMode() || !tenantProperties.getServer().isSyncEnable()) {
             return;

@@ -22,6 +22,7 @@ public class SysAppIdServiceImpl extends ServiceImpl<SysAppIdMapper, SysAppId> i
 
     @Override
     @Cacheable(value = "appId:info", key = "#appIdValue", unless = "#result == null")
+    /** 获取ByAppIdValue */
     public SysAppId getByAppIdValue(String appIdValue) {
         if (StringUtils.isBlank(appIdValue)) {
             return null;
@@ -31,6 +32,7 @@ public class SysAppIdServiceImpl extends ServiceImpl<SysAppIdMapper, SysAppId> i
 
     @Override
     @Async("taskExecutor")
+    /** 更新UseInfo */
     public void updateUseInfo(String appIdValue) {
         try {
             long currentTime = System.currentTimeMillis();

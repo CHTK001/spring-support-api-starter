@@ -101,11 +101,13 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     }
 
     @Autowired(required = false)
+    /** 设置Progress推送Service */
     public void setProgressPushService(FileUploadProgressPushService progressPushService) {
         this.progressPushService = progressPushService;
     }
 
     @Override
+    /** UploadForFileSystem */
     public ReturnResult<PutObjectResult> uploadForFileSystem(SysFileUploadRequest request, MultipartFile multipartFile) {
         log.info("开始上传文件: fileName={}, bucket={}", multipartFile.getOriginalFilename(), request.getFileBucket());
         BucketSetting bucketSetting = createSetting(request, multipartFile.getOriginalFilename());
@@ -121,6 +123,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     }
 
     @Override
+    /** UploadForFileSystem */
     public ReturnResult<PutObjectResult> uploadForFileSystem(SysFileUploadRequest request, File file) {
         log.info("开始上传文件: fileName={}, bucket={}", file.getName(), request.getFileBucket());
         BucketSetting bucketSetting = createSetting(request, file.getName());
@@ -136,6 +139,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     }
 
     @Override
+    /** UploadForFileSystem */
     public ReturnResult<PutObjectResult> uploadForFileSystem(SysFileUploadRequest request, String fileName, byte[] bytes) {
         log.info("开始上传文件: fileName={}, bucket={}", fileName, request.getFileBucket());
         BucketSetting bucketSetting = createSetting(request, fileName);
@@ -150,6 +154,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         }
     }
 
+    /** 创建Setting */
     private BucketSetting createSetting(SysFileUploadRequest request, String originalFilename) {
         return fileStorageSupport.createUploadBucketSetting(
                 request.getOssType(),
@@ -160,6 +165,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     }
 
     @Override
+    /** 创建TaskForFileSystem */
     public ReturnResult<SysFileUploadTaskResponse> createTaskForFileSystem(SysFileUploadTaskRequest request) {
         log.info("创建分片上传任务: fileName={}, fileSize={}", request.getFileName(), request.getFileSize());
 
@@ -207,6 +213,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         });
     }
 
+    /** 获取Chunk获取大小FromSetting */
     private long getChunkSizeFromSetting() {
         SysFileSystemSetting setting = sysFileSystemSettingService.getEnabledSettingForFileSystem();
         if (setting != null && setting.getSysFileSystemSettingChunkSizeMb() != null
@@ -217,6 +224,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     }
 
     @Override
+    /** UploadTaskForFileSystem */
     public ReturnResult<SysFileUploadTaskPartResponse> uploadTaskForFileSystem(SysFileUploadTaskPartRequest request, MultipartFile multipartFile) {
         log.info("上传分片: taskId={}, seq={}", request.getTaskId(), request.getTaskSeq());
 
@@ -288,6 +296,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         return ReturnResult.ok(new SysFileUploadTaskPartResponse());
     }
 
+    /** 校验And合并 */
     private void checkAndMerge(SysFileSystem sysFileSystem) {
         List<SysFileSystemPart> completedParts = sysFileSystemPartService.list(Wrappers.<SysFileSystemPart>lambdaQuery()
                 .eq(SysFileSystemPart::getSysFileSystemPartFileId, sysFileSystem.getSysFileSystemId())
@@ -315,6 +324,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     }
 
     @Override
+    /** 校验InstantUploadForFileSystem */
     public ReturnResult<SysFileInstantUploadResponse> checkInstantUploadForFileSystem(SysFileInstantUploadRequest request) {
         log.info("检查秒传: md5={}, fileSize={}, fileName={}", request.getFileMd5(), request.getFileSize(), request.getFileName());
 
@@ -349,6 +359,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     }
 
     @Override
+    /** 获取TaskInfoForFileSystem */
     public ReturnResult<SysFileTaskInfoResponse> getTaskInfoForFileSystem(String taskId) {
         log.info("获取任务信息: taskId={}", taskId);
 
@@ -369,6 +380,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     }
 
     @Override
+    /** 查找TaskByMdForFileSystem */
     public ReturnResult<SysFileTaskInfoResponse> findTaskByMd5ForFileSystem(String fileMd5, Long fileSize) {
         log.info("根据MD5查找任务: md5={}, fileSize={}", fileMd5, fileSize);
 
@@ -393,6 +405,7 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         return ReturnResult.ok(buildTaskInfoResponse(sysFileSystem));
     }
 
+    /** 构建TaskInfoResponse */
     private SysFileTaskInfoResponse buildTaskInfoResponse(SysFileSystem sysFileSystem) {
         SysFileTaskInfoResponse response = new SysFileTaskInfoResponse();
         response.setExists(true);

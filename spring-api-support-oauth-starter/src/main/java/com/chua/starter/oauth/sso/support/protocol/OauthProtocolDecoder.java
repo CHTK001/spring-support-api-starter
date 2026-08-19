@@ -146,6 +146,7 @@ public class OauthProtocolDecoder {
         log.debug("[OauthProtocolDecoder] 解析耗时: {}ms, 结果: {}", System.currentTimeMillis() - startTime, success ? "成功" : "失败");
     }
 
+    /** 构建DecryptCacheKey */
     private String buildDecryptCacheKey() {
         if (sign == null || sign.isBlank() || uuid == null || uuid.isBlank()) {
             return null;

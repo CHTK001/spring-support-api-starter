@@ -48,18 +48,22 @@ public class CaptchaController {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
+    /** Producer */
     public Captcha producer() {
         return createCaptcha(captchaProperties.getType(), captchaProperties.getLength());
     }
 
+    /** Producer */
     public Captcha producer(CaptchaTypeEnum typeEnum) {
         return createCaptcha(typeEnum, captchaProperties.getLength());
     }
 
+    /** Producer */
     public Captcha producer(CaptchaTypeEnum typeEnum, int length) {
         return createCaptcha(typeEnum, length);
     }
 
+    /** 创建Captcha */
     private Captcha createCaptcha(CaptchaTypeEnum type, int length) {
         Captcha captcha;
         int width = captchaProperties.getWidth();
@@ -96,6 +100,7 @@ public class CaptchaController {
     }
 
 
+    /** 创建Captcha */
     public Captcha createCaptcha() {
         int randomInt = RandomUtils.randomInt(2, 3);
         CaptchaTypeEnum typeEnum = captchaProperties.getType();

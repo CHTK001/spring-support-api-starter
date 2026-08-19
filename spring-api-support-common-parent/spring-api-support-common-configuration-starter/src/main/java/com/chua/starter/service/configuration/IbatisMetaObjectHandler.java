@@ -105,6 +105,7 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
         }
     }
 
+    /** 获取CurrentUser */
     private UserResult getCurrentUser() {
         if (authProperties != null && !authProperties.isEnable()) {
             return null;

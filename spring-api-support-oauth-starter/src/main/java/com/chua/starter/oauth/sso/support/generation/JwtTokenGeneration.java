@@ -47,6 +47,7 @@ public class JwtTokenGeneration implements TokenGeneration {
     private volatile boolean initialized = false;
 
     @Override
+    /** Generation */
     public String generation(String key) {
         // 简单生成模式，返回 JWT ID
         return UUID.randomUUID().toString().replace("-", "");
