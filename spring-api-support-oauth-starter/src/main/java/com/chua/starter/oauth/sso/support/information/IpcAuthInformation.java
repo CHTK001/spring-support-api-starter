@@ -36,6 +36,11 @@ public class IpcAuthInformation {
         /** 远程端口 */
         private final int remotePort;
 
+        /**
+         * 创建 IpcRequest 实例
+         * @param remoteAddr remoteAddr
+         * @param remotePort remotePort
+         */
         public IpcRequest(String remoteAddr, int remotePort) {
             this.remoteAddr = remoteAddr;
             this.remotePort = remotePort;

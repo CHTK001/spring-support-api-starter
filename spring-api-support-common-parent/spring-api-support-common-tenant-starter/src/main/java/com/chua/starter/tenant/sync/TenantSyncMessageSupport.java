@@ -105,6 +105,7 @@ public final class TenantSyncMessageSupport {
     /** Ack_status_failed */
     public static final String ACK_STATUS_FAILED = "failed";
 
+    /** 创建 TenantSyncMessageSupport 实例 */
     private TenantSyncMessageSupport() {
     }
 
@@ -378,6 +379,12 @@ public final class TenantSyncMessageSupport {
         /** 消息 */
         private final String message;
 
+        /**
+         * 创建 VerificationResult 实例
+         * @param valid valid
+         * @param skipped skipped
+         * @param message message
+         */
         private VerificationResult(boolean valid, boolean skipped, String message) {
             this.valid = valid;
             this.skipped = skipped;

@@ -24,6 +24,12 @@ public class SysMenuChangeEvent extends ApplicationEvent {
      */
     private final String operation;
 
+    /**
+     * 创建 SysMenuChangeEvent 实例
+     * @param source source
+     * @param sysMenuId sysMenuId
+     * @param operation operation
+     */
     public SysMenuChangeEvent(Object source, Integer sysMenuId, String operation) {
         super(source);
         this.sysMenuId = sysMenuId;

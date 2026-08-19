@@ -8,6 +8,7 @@ package com.chua.starter.system.constant;
  */
 public final class SystemConstant {
 
+    /** 创建 SystemConstant 实例 */
     private SystemConstant() {
     }
 

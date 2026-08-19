@@ -62,6 +62,10 @@ public class LoginAttemptService {
      */
     private OauthSecurityProperties securityProperties;
 
+    /**
+     * 创建 LoginAttemptService 实例
+     * @param stringRedisTemplate stringRedisTemplate
+     */
     public LoginAttemptService(StringRedisTemplate stringRedisTemplate) {
         this.stringRedisTemplate = stringRedisTemplate;
     }

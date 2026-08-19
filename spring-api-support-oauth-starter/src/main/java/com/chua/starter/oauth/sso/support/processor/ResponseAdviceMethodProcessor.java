@@ -25,6 +25,10 @@ public class ResponseAdviceMethodProcessor extends RequestResponseBodyMethodProc
     /** Redirectpatterns */
     private String redirectPatterns;
 
+    /**
+     * 创建 ResponseAdviceMethodProcessor 实例
+     * @param converters converters
+     */
     public ResponseAdviceMethodProcessor(List<HttpMessageConverter<?>> converters) {
         super(converters);
     }

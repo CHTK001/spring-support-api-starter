@@ -48,10 +48,19 @@ public class LoginCheck {
     /** Loginattempt服务 */
     private LoginAttemptService loginAttemptService;
 
+    /**
+     * 创建 LoginCheck 实例
+     * @param authServerProperties authServerProperties
+     */
     public LoginCheck(AuthServerProperties authServerProperties) {
         this(authServerProperties, null);
     }
 
+    /**
+     * 创建 LoginCheck 实例
+     * @param authServerProperties authServerProperties
+     * @param applicationContext applicationContext
+     */
     public LoginCheck(AuthServerProperties authServerProperties, ApplicationContext applicationContext) {
         this.authServerProperties = authServerProperties;
         this.applicationContext = applicationContext;

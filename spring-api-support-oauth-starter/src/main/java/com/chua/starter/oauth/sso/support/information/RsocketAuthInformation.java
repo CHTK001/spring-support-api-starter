@@ -37,6 +37,10 @@ public class RsocketAuthInformation {
         /** 请求体 */
         private String body;
 
+        /**
+         * 创建 RsocketRequest 实例
+         * @param clientAddress clientAddress
+         */
         public RsocketRequest(InetSocketAddress clientAddress) {
             this.clientAddress = clientAddress;
         }

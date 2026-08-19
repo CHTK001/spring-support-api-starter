@@ -56,6 +56,11 @@ public class ServerTraceContext {
      */
     private TraceSpan currentSpan;
 
+    /**
+     * 创建 ServerTraceContext 实例
+     * @param traceId traceId
+     * @param clientStartTimestamp clientStartTimestamp
+     */
     private ServerTraceContext(String traceId, long clientStartTimestamp) {
         this.traceId = traceId != null ? traceId : UUID.randomUUID().toString().replace("-", "");
         this.clientStartTimestamp = clientStartTimestamp;
@@ -182,6 +187,10 @@ public class ServerTraceContext {
         /** CostMS */
         private long costMs;
 
+        /**
+         * 创建 TraceSpan 实例
+         * @param spanName spanName
+         */
         public TraceSpan(String spanName) {
             this.spanName = spanName;
             this.startTime = System.currentTimeMillis();
