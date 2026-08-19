@@ -18,6 +18,15 @@ import org.springframework.context.ApplicationContext;
 public class LogoutAuthInformation extends BaseAuthInformation {
 
     // HTTP协议构造函数
+    /**
+     * 创建 LogoutAuthInformation 实例
+     * @param authServerProperties authServerProperties
+     * @param data data
+     * @param request request
+     * @param response response
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public LogoutAuthInformation(AuthServerProperties authServerProperties,
                                  String data,
                                  HttpServletRequest request,
@@ -28,6 +37,15 @@ public class LogoutAuthInformation extends BaseAuthInformation {
     }
 
     // Armeria协议构造函数
+    /**
+     * 创建 LogoutAuthInformation 实例
+     * @param authServerProperties authServerProperties
+     * @param data data
+     * @param request request
+     * @param response response
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public LogoutAuthInformation(AuthServerProperties authServerProperties,
                                  String data,
                                  ArmeriaAuthInformation.ArmeriaRequest request,

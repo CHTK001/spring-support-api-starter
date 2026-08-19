@@ -39,6 +39,10 @@ public class OauthSecurityConfiguration {
     @Bean
     @ConditionalOnProperty(prefix = OauthSecurityProperties.PRE + ".headers", name = "enabled",
             havingValue = "true", matchIfMissing = true)
+    /**
+     * OauthSecurityHeaders过滤Registration
+     * @param securityProperties securityProperties
+     */
     public FilterRegistrationBean<OauthSecurityHeadersFilter> oauthSecurityHeadersFilterRegistration(
             OauthSecurityProperties securityProperties) {
         FilterRegistrationBean<OauthSecurityHeadersFilter> registration = new FilterRegistrationBean<>();
@@ -60,6 +64,11 @@ public class OauthSecurityConfiguration {
     @Bean
     @ConditionalOnProperty(prefix = OauthSecurityProperties.PRE + ".rate-limit", name = "enabled",
             havingValue = "true", matchIfMissing = true)
+    /**
+     * OauthRateLimit过滤Registration
+     * @param securityProperties securityProperties
+     * @param stringRedisTemplate stringRedisTemplate
+     */
     public FilterRegistrationBean<OauthRateLimitFilter> oauthRateLimitFilterRegistration(
             OauthSecurityProperties securityProperties,
             StringRedisTemplate stringRedisTemplate) {
@@ -84,6 +93,11 @@ public class OauthSecurityConfiguration {
     @Bean
     @ConditionalOnProperty(prefix = OauthSecurityProperties.PRE + ".csrf", name = "enabled",
             havingValue = "true", matchIfMissing = true)
+    /**
+     * OauthCsrf过滤Registration
+     * @param securityProperties securityProperties
+     * @param stringRedisTemplate stringRedisTemplate
+     */
     public FilterRegistrationBean<OauthCsrfFilter> oauthCsrfFilterRegistration(
             OauthSecurityProperties securityProperties,
             StringRedisTemplate stringRedisTemplate) {
@@ -105,6 +119,10 @@ public class OauthSecurityConfiguration {
     @Bean
     @ConditionalOnProperty(prefix = OauthSecurityProperties.PRE + ".session-fixation", name = "enabled",
             havingValue = "true", matchIfMissing = true)
+    /**
+     * OauthSessionFixation过滤Registration
+     * @param securityProperties securityProperties
+     */
     public FilterRegistrationBean<OauthSessionFixationFilter> oauthSessionFixationFilterRegistration(
             OauthSecurityProperties securityProperties) {
         FilterRegistrationBean<OauthSessionFixationFilter> registration = new FilterRegistrationBean<>();

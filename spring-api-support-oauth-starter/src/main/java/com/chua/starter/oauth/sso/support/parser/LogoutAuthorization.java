@@ -34,6 +34,18 @@ public final class LogoutAuthorization implements Authorization {
     /** Authinformation */
     private final LogoutAuthInformation authInformation;
 
+    /**
+     * 创建 LogoutAuthorization 实例
+     * @param authInformation authInformation
+     * @param token token
+     * @param cookie cookie
+     * @param uid uid
+     * @param logoutType logoutType
+     * @param response response
+     * @param authServerProperties authServerProperties
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public LogoutAuthorization(LogoutAuthInformation authInformation,
                                String token,
                                String cookie,

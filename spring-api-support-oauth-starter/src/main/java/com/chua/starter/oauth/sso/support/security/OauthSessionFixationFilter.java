@@ -33,6 +33,11 @@ public class OauthSessionFixationFilter implements Filter, Ordered {
     private final OauthSecurityProperties securityProperties;
 
     @Override
+    /**
+     * Do过滤
+     * @param servletRequest servletRequest
+     * @param servletResponse servletResponse
+     */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;

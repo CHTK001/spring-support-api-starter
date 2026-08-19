@@ -445,6 +445,15 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return publishServiceUpdateInternal(tenantId, menuIds, null, syncMode, reason, sessionId);
     }
 
+    /**
+     * 发布Service更新Internal
+     * @param tenantId tenantId
+     * @param menuIds menuIds
+     * @param preloadedMenus preloadedMenus
+     * @param syncMode syncMode
+     * @param reason reason
+     * @param sessionId sessionId
+     */
     private int publishServiceUpdateInternal(String tenantId,
                                              List<Integer> menuIds,
                                              List<Map<String, Object>> preloadedMenus,
@@ -751,6 +760,13 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         }
     }
 
+    /**
+     * 构建TenantSnapshotFingerprint
+     * @param tenantId tenantId
+     * @param tenant tenant
+     * @param menuIds menuIds
+     * @param menus menus
+     */
     private String buildTenantSnapshotFingerprint(String tenantId,
                                                   SysTenant tenant,
                                                   List<Integer> menuIds,

@@ -118,6 +118,15 @@ public final class TenantSyncMessageSupport {
         return message;
     }
 
+    /**
+     * 创建Ack
+     * @param tenantId tenantId
+     * @param sourceTopic sourceTopic
+     * @param sourceData sourceData
+     * @param success success
+     * @param status status
+     * @param errorMessage errorMessage
+     */
     public static Map<String, Object> createAck(String tenantId,
                                                 String sourceTopic,
                                                 Map<String, Object> sourceData,

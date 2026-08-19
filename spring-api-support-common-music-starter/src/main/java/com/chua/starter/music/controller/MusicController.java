@@ -56,6 +56,13 @@ public class MusicController {
 
     @GetMapping("/search")
     @Operation(summary = "搜索歌曲")
+    /**
+     * 搜索
+     * @param source source
+     * @param keyword keyword
+     * @param page page
+     * @param pageSize pageSize
+     */
     public ReturnResult<MusicSearchResult> search(
             @RequestParam(required = false) String source,
             @RequestParam String keyword,
@@ -66,6 +73,13 @@ public class MusicController {
 
     @GetMapping("/search/playlists")
     @Operation(summary = "搜索歌单")
+    /**
+     * 搜索Playlists
+     * @param source source
+     * @param keyword keyword
+     * @param page page
+     * @param pageSize pageSize
+     */
     public ReturnResult<MusicPlaylistSearchResult> searchPlaylists(
             @RequestParam(required = false) String source,
             @RequestParam String keyword,
@@ -76,6 +90,10 @@ public class MusicController {
 
     @GetMapping("/playlist/categories")
     @Operation(summary = "获取歌单分类")
+    /**
+     * PlaylistCategories
+     * @param source source
+     */
     public ReturnResult<MusicPlaylistCategoryCatalog> playlistCategories(
             @RequestParam(required = false) String source) {
         return ReturnResult.ok(musicFacadeService.getPlaylistCategoryCatalog(source));
@@ -83,6 +101,13 @@ public class MusicController {
 
     @GetMapping("/playlist/category")
     @Operation(summary = "按分类获取歌单")
+    /**
+     * CategoryPlaylists
+     * @param source source
+     * @param tagId tagId
+     * @param page page
+     * @param pageSize pageSize
+     */
     public ReturnResult<MusicPlaylistCategoryResult> categoryPlaylists(
             @RequestParam(required = false) String source,
             @RequestParam(required = false) String tagId,
@@ -93,6 +118,11 @@ public class MusicController {
 
     @GetMapping("/playlist/{source}/{playlistId}")
     @Operation(summary = "获取歌单详情")
+    /**
+     * Playlist详情
+     * @param source source
+     * @param playlistId playlistId
+     */
     public ReturnResult<MusicPlaylistDetail> playlistDetail(
             @PathVariable String source,
             @PathVariable String playlistId) {
@@ -101,6 +131,11 @@ public class MusicController {
 
     @GetMapping("/track/{source}/{trackId}")
     @Operation(summary = "获取歌曲详情")
+    /**
+     * Track详情
+     * @param source source
+     * @param trackId trackId
+     */
     public ReturnResult<MusicTrackDetail> trackDetail(
             @PathVariable String source,
             @PathVariable String trackId) {
@@ -109,6 +144,12 @@ public class MusicController {
 
     @GetMapping("/track/{source}/{trackId}/stream")
     @Operation(summary = "代理歌曲音频流")
+    /**
+     * 流式输出Track
+     * @param source source
+     * @param trackId trackId
+     * @param rangeHeader rangeHeader
+     */
     public ResponseEntity<StreamingResponseBody> streamTrack(
             @PathVariable String source,
             @PathVariable String trackId,

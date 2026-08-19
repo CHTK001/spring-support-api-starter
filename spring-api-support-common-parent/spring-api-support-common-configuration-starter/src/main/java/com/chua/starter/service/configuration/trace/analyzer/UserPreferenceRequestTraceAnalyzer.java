@@ -65,6 +65,11 @@ public class UserPreferenceRequestTraceAnalyzer implements RequestTraceAnalyzer 
         return Set.of();
     }
 
+    /**
+     * Dominant
+     * @param history history
+     * @param valueExtractor valueExtractor
+     */
     private DominantValue dominant(
             List<RequestTraceEvent> history,
             java.util.function.Function<RequestTraceEvent, String> valueExtractor

@@ -83,6 +83,13 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
                     @ApiResponse(responseCode = "302", description = "重定向到指定页面")
             }
     )
+    /**
+     * ThirdIndex
+     * @param authCallback authCallback
+     * @param attributes attributes
+     * @param request request
+     * @param response response
+     */
     public RedirectView thirdIndex(
             @Parameter(description = "Gitee授权回调参数") AuthCallback authCallback,
             RedirectAttributes attributes,

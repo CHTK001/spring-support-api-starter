@@ -38,6 +38,23 @@ public record RequestTraceAnalyticsSnapshot(
     public record MetricBucket(String key, long count) {
     }
 
+    /**
+     * SuspiciousTrace
+     * @param timestamp timestamp
+     * @param traceId traceId
+     * @param route route
+     * @param status status
+     * @param durationMs durationMs
+     * @param clientIp clientIp
+     * @param userId userId
+     * @param username username
+     * @param fingerprint fingerprint
+     * @param riskLevel riskLevel
+     * @param summary summary
+     * @param aiSummary aiSummary
+     * @param aiAnalysis aiAnalysis
+     * @param signals signals
+     */
     public record SuspiciousTrace(
             long timestamp,
             String traceId,

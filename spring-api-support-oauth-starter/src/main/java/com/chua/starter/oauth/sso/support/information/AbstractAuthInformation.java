@@ -53,6 +53,15 @@ public abstract class AbstractAuthInformation implements AuthInformation{
     /** Success */
     private AtomicBoolean success = new AtomicBoolean(false);
 
+    /**
+     * 创建 AbstractAuthInformation 实例
+     * @param authServerProperties authServerProperties
+     * @param data data
+     * @param request request
+     * @param response response
+     * @param applicationContext applicationContext
+     * @param loginCheck loginCheck
+     */
     public AbstractAuthInformation(AuthServerProperties authServerProperties,
                                    String data,
                                    HttpServletRequest request,

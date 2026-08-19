@@ -36,6 +36,15 @@ public class FileUploadProgressPushService {
     /** Topic_upload_progress */
     private static final String TOPIC_UPLOAD_PROGRESS = "service:file:upload:progress";
 
+    /**
+     * 推送Progress
+     * @param taskId taskId
+     * @param userId userId
+     * @param totalChunks totalChunks
+     * @param uploadedChunks uploadedChunks
+     * @param currentChunk currentChunk
+     * @param status status
+     */
     public void pushProgress(String taskId, Long userId, int totalChunks, int uploadedChunks,
                             int currentChunk, String status) {
         try {
