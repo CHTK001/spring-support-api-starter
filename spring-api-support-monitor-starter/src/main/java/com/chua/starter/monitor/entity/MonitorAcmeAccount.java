@@ -45,6 +45,13 @@ public class MonitorAcmeAccount extends SysBase {
     /** Acmeaccount服务器 */
     private String acmeAccountServer;
 
+    /** 证书服务商类型（acme=ACME协议，cas=阿里云CAS） */
+    @TableField("acme_account_provider_type")
+    @ApiModelProperty("证书服务商类型(acme/cas)")
+    @Schema(description = "证书服务商类型(acme=ACME协议，cas=阿里云CAS)")
+    /** 服务商类型 */
+    private String acmeAccountProviderType;
+
     /** 账户状态（valid, deactivated, revoked 等） */
     @TableField("acme_account_status")
     @ApiModelProperty("账户状态")
