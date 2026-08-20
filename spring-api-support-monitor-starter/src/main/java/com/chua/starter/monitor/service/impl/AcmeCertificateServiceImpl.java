@@ -1,9 +1,9 @@
 package com.chua.starter.monitor.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.chua.acme.support.AcmeCertificateResult;
-import com.chua.acme.support.AcmeConnectionResult;
-import com.chua.acme.support.AcmeProvider;
+import com.chua.common.support.network.ssl.AcmeCertificateResult;
+import com.chua.common.support.network.ssl.AcmeConnectionResult;
+import com.chua.common.support.network.ssl.AcmeProvider;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
@@ -48,11 +48,6 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AcmeCertificateServiceImpl implements AcmeCertificateService {
-
-    /**
-     * ACME 服务提供者 SPI 扩展名
-     */
-    private static final String ACME_PROVIDER = "acme4j";
 
     /**
      * 挑战类型：HTTP-01
@@ -154,7 +149,11 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         if (StringUtils.isNullOrEmpty(account.getAcmeAccountServer())) {
             return ReturnResult.illegal("参数错误: acmeAccountServer 不能为空");
         }
-        log.info("[ACME] 保存账户: email={}, server={}", account.getAcmeAccountEmail(), account.getAcmeAccountServer());
+        // 服务商类型为空时默认 ACME 协议
+        if (StringUtils.isNullOrEmpty(account.getAcmeAccountProviderType())) {
+            account.setAcmeAccountProviderType(AcmeCertificateSupport.PROVIDER_TYPE_ACME);
+        }
+        log.info("[ACME] 保存账户: email={}, server={}, providerType={}", account.getAcmeAccountEmail(), account.getAcmeAccountServer(), account.getAcmeAccountProviderType());
         if (account.getAcmeAccountId() == null) {
             accountMapper.insert(account);
         } else {
@@ -236,8 +235,9 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         }
         log.info("[ACME] 续签证书: id={}, domain={}", certId, cert.getAcmeCertPrimaryDomain());
 
-        // 通过 SPI 获取 ACME 提供者
-        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class).getNewExtension(ACME_PROVIDER);
+        // 通过 SPI 获取 ACME 提供者（按账户服务商类型路由）
+        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class)
+                .getNewExtension(AcmeCertificateSupport.providerName(account.getAcmeAccountProviderType()));
         if (provider == null) {
             return ReturnResult.illegal("ACME 服务提供者不可用");
         }
@@ -299,8 +299,14 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         }
         log.warn("[ACME] 吊销证书: id={}, domain={}", certId, cert.getAcmeCertPrimaryDomain());
 
-        // 通过 SPI 获取 ACME 提供者
-        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class).getNewExtension(ACME_PROVIDER);
+        // CAS 服务商需 certificateId+instanceId 才能吊销，当前业务层无该信息，直接提示
+        if (AcmeCertificateSupport.PROVIDER_TYPE_CAS.equalsIgnoreCase(account.getAcmeAccountProviderType())) {
+            return ReturnResult.illegal("阿里云 CAS 吊销需证书实例ID，暂不支持在线吊销，请前往阿里云控制台操作");
+        }
+
+        // 通过 SPI 获取 ACME 提供者（按账户服务商类型路由）
+        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class)
+                .getNewExtension(AcmeCertificateSupport.providerName(account.getAcmeAccountProviderType()));
         if (provider == null) {
             return ReturnResult.illegal("ACME 服务提供者不可用");
         }

@@ -1,9 +1,9 @@
 package com.chua.starter.monitor.service.acme;
 
-import com.chua.acme.support.AcmeCertificateResult;
-import com.chua.acme.support.AcmeConnectionResult;
-import com.chua.acme.support.AcmeProvider;
-import com.chua.acme.support.AcmeValidationInfo;
+import com.chua.common.support.network.ssl.AcmeCertificateResult;
+import com.chua.common.support.network.ssl.AcmeConnectionResult;
+import com.chua.common.support.network.ssl.AcmeProvider;
+import com.chua.common.support.network.ssl.AcmeValidationInfo;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.StringUtils;
@@ -46,11 +46,6 @@ public class AcmeCertificateAsyncService {
      * Socket 推送事件名称，前端监听该事件获取证书申请/续签/验证进度
      */
     private static final String ACME_EVENT = "acme-cert-progress";
-
-    /**
-     * ACME 服务提供者扩展名（SPI 名称）
-     */
-    private static final String ACME_PROVIDER = "acme4j";
 
     /**
      * 证书状态：待验证（已提交申请，等待域名验证）
@@ -142,7 +137,8 @@ public class AcmeCertificateAsyncService {
             return;
         }
 
-        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class).getNewExtension(ACME_PROVIDER);
+        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class)
+                .getNewExtension(AcmeCertificateSupport.providerName(account.getAcmeAccountProviderType()));
         if (provider == null) {
             updateFailed(cert, "ACME 服务提供者不可用");
             pushProgress(userId, "apply", STATUS_FAILED, "ACME 服务提供者不可用",
@@ -213,7 +209,8 @@ public class AcmeCertificateAsyncService {
             return;
         }
 
-        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class).getNewExtension(ACME_PROVIDER);
+        AcmeProvider provider = ServiceProvider.of(AcmeProvider.class)
+                .getNewExtension(AcmeCertificateSupport.providerName(account.getAcmeAccountProviderType()));
         if (provider == null) {
             pushProgress(userId, "retry", STATUS_FAILED, "ACME 服务提供者不可用",
                     baseMap(certId, cert.getAcmeCertPrimaryDomain()));

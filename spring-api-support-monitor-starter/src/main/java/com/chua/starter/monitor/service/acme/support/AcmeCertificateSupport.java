@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.service.acme.support;
 
-import com.chua.acme.support.AcmeCertificateResult;
+import com.chua.common.support.network.ssl.AcmeCertificateResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.entity.MonitorAcmeCertificate;
 
@@ -24,6 +24,16 @@ public final class AcmeCertificateSupport {
     private static final String STATUS_VALID = "valid";
 
     /**
+     * 证书服务商类型：ACME 协议
+     */
+    public static final String PROVIDER_TYPE_ACME = "acme";
+
+    /**
+     * 证书服务商类型：阿里云 CAS
+     */
+    public static final String PROVIDER_TYPE_CAS = "cas";
+
+    /**
      * 自动续签窗口下限天数，防止配置值过小导致高频无效续签
      */
     private static final int MIN_RENEW_DAYS = 7;
@@ -42,6 +52,21 @@ public final class AcmeCertificateSupport {
      * 私有构造方法，禁止实例化
      */
     private AcmeCertificateSupport() {
+    }
+
+    /**
+     * 根据账户证书服务商类型解析 SPI 提供者扩展名。
+     * <p>
+     * acme 类型对应 acme4j 实现，cas 类型对应阿里云 CAS 实现，其余值回退到 acme4j。
+     *
+     * @param providerType 服务商类型（acme/cas），可空
+     * @return SPI 扩展名（acme4j/cas）
+     */
+    public static String providerName(String providerType) {
+        if (PROVIDER_TYPE_CAS.equalsIgnoreCase(providerType)) {
+            return PROVIDER_TYPE_CAS;
+        }
+        return "acme4j";
     }
 
     /**
