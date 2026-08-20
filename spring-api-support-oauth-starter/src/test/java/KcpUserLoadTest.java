@@ -17,7 +17,7 @@ public class KcpUserLoadTest {
     /** Main */
     public static void main(String[] args) throws Exception {
         int users = args.length > 0 ? Integer.parseInt(args[0]) : 50;
-        String serverUrl = "kcp://127.0.0.1:19186";
+        String serverUrl = args.length > 1 ? "kcp://" + args[1] + ":19186" : "kcp://127.0.0.1:19186";
         String body = "{\"data\":\"{\\\"x-oauth-username\\\":\\\"admin\\\",\\\"x-oauth-password\\\":\\\"admin123\\\",\\\"x-oauth-auth-type\\\":\\\"WEB\\\",\\\"x-oauth-access-key\\\":\\\"\\\",\\\"x-oauth-secret-key\\\":\\\"\\\"}\"}";
 
         AtomicInteger success = new AtomicInteger();
