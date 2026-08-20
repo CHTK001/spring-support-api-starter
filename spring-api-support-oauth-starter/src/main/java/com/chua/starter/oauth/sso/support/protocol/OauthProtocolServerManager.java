@@ -6,6 +6,7 @@ import com.chua.common.support.network.http.HttpMethod;
 import com.chua.common.support.network.server.Server;
 import com.chua.common.support.network.server.ServerSetting;
 import com.chua.common.support.network.server.SyncServerListener;
+import com.chua.common.support.network.server.SyncServer;
 import com.chua.common.support.network.server.filter.UrlMappingServerFilter;
 import com.chua.common.support.network.server.request.AbstractServerRequest;
 import com.chua.common.support.network.server.response.AbstractServerResponse;
@@ -116,6 +117,11 @@ public class OauthProtocolServerManager implements AutoCloseable {
         setting.setContextPath(DEFAULT_CONTEXT_PATH);
 
         var server = createServer(config.getType(), setting);
+        // TCP 类型需使用 SyncServer 消息实现(TcpSyncServer),避免 SPI 歧义命中 JdkTcpServer(裸长度帧 echo 语义)
+        if ("tcp".equalsIgnoreCase(config.getType()) && !(server instanceof SyncServer)) {
+            server = new com.chua.common.support.network.sync.impl.TcpSyncServer(setting);
+            log.info("[OauthProtocolServer] TCP 使用 SyncServer 消息适配: TcpSyncServer");
+        }
         // 注册 OAuth 认证路由(独立 UrlMappingServerFilter,避免依赖 Server 内部 urlMappingFilter 的初始化顺序)
         var handler = new OauthProtocolHandler(authServerProperties, loginCheck);
         // KCP 为消息型协议(topic:payload),不走 filter 链路,单独适配
@@ -130,6 +136,16 @@ public class OauthProtocolServerManager implements AutoCloseable {
         // RSocket 为消息型协议(request-response),不走 filter 链路,单独适配
         if (server instanceof RSocketServer rsocketServer) {
             startRsocketServer(rsocketServer, handler, config.getAuthRoutes());
+            serverMap.put(config.getName(), server);
+            log.info("[OauthProtocolServer] 已启动: {} -> {}:{} [{}], 协议: {}",
+                    config.getName(), config.getHost(), config.getPort(),
+                    "SUCCESS", config.getProtocol());
+            return;
+        }
+        // 通用 SyncServer 消息型协议(TCP/WebSocket/UDP 等, topic:payload 长连接),
+        // 复用 KCP 的请求-响应适配(req/<topic>:requestId|payload)
+        if (server instanceof SyncServer syncServer) {
+            startSyncServer(syncServer, handler, config.getAuthRoutes());
             serverMap.put(config.getName(), server);
             log.info("[OauthProtocolServer] 已启动: {} -> {}:{} [{}], 协议: {}",
                     config.getName(), config.getHost(), config.getPort(),
@@ -153,10 +169,67 @@ public class OauthProtocolServerManager implements AutoCloseable {
                 "SUCCESS", config.getProtocol());
     }
 
+/**
+     * 启动 SyncServer 认证适配(通用消息型协议: TCP/WebSocket/UDP 等)
+     *
+     * <p>复用 KCP 的请求-响应适配:topic 对应认证路径(login/logout/verify 等),
+     * 首包建立 clientId 会话(CONNECTION 帧),之后 req/{topic}:requestId|payload 请求,
+     * 认证结果回传 resp/{topic}:requestId|body。</p>
+     *
+     * @param syncServer  SyncServer 实例
+     * @param handler     OAuth 认证处理器
+     * @param routes      认证路由(topic)列表,为空时使用默认路由
+     */
+    private void startSyncServer(SyncServer syncServer, OauthProtocolHandler handler, List<String> routes) {
+        syncServer.addListener(new SyncServerListener() {
+            @Override
+            /** OnMessage */
+            public void onMessage(String clientId, String topic, Object message) {
+                if (message == null) {
+                    return;
+                }
+                var rawTopic = topic;
+                var requestId = "";
+                var rawMessage = String.valueOf(message);
+                if (topic.startsWith(KCP_REQ_PREFIX)) {
+                    rawTopic = topic.substring(KCP_REQ_PREFIX.length());
+                    int separatorIndex = rawMessage.indexOf(KCP_SEPARATOR);
+                    if (separatorIndex > 0) {
+                        requestId = rawMessage.substring(0, separatorIndex);
+                        rawMessage = rawMessage.substring(separatorIndex + 1);
+                    }
+                }
+                final var finalTopic = rawTopic;
+                final var finalMessage = rawMessage;
+                var routeTopics = routes != null && !routes.isEmpty()
+                        ? routes : Arrays.asList(AUTH_ROUTES);
+                if (routeTopics.stream().noneMatch(r -> r.equals("/" + finalTopic) || r.equals(finalTopic))) {
+                    return;
+                }
+                var request = new MessageServerRequest(finalTopic, finalMessage);
+                var response = new MessageServerResponse();
+                try {
+                    handler.handle(request, response);
+                } catch (Exception e) {
+                    log.error("[OauthProtocolServer] {} 认证处理异常: topic={}", syncServer.getProtocol(), topic, e);
+                    response.setBody(com.chua.common.support.lang.json.Json.toJson(ReturnResult.error("服务处理异常")));
+                }
+                if (response.getBody() != null && clientId != null) {
+                    var respTopic = rawTopic.startsWith("/") ? rawTopic.substring(1) : rawTopic;
+                    var responseText = new String(response.getBody(), StandardCharsets.UTF_8);
+                    syncServer.send(clientId,
+                            KCP_RESP_PREFIX + respTopic,
+                            requestId.isEmpty() ? responseText : requestId + KCP_SEPARATOR + responseText);
+                }
+            }
+        });
+        syncServer.start();
+    }
+
     /**
      * 启动 KCP 认证适配(消息型协议)
      *
-     * <p>KCP 报文格式为 {@code topic:payload},topic 对应认证路径(login/logout/verify 等),
+     * <p>KCP 使用 topic:payload 模型,topic 对应认证路径(login/logout/verify 等),
      * payload 为 {@code {"data":"认证参数JSON或密文"}},认证结果通过 {@code send(clientId, topic, body)} 回传。</p>
      *
      * @param kcpServer KCP 服务器
