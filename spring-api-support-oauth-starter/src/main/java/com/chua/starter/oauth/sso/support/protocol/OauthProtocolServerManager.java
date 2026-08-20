@@ -107,6 +107,9 @@ public class OauthProtocolServerManager implements AutoCloseable {
      */
     private void startServer(OauthProtocolServersProperties.ProtocolServer config) throws Exception {
         var setting = ServerSetting.defaults();
+        // 并发承载压测:放大并发信号量,避免 autoConfig 按 CPU 核数收敛到较小上限(2核→32)
+        // 默认 0 表示不启用并发限制;设为较大值以充分暴露真实认证瓶颈,而非协议层限流
+        setting.setMaxConcurrency(0);
         setting.setHost(config.getHost());
         setting.setPort(config.getPort());
         setting.setProtocol(config.getProtocol());
