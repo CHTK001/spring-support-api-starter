@@ -20,6 +20,7 @@ public class RsocketUserLoadTest {
     /** Main */
     public static void main(String[] args) throws Exception {
         int users = args.length > 0 ? Integer.parseInt(args[0].trim()) : 50;
+        String host = args.length > 1 ? args[1] : "localhost";
         String body = "{\"data\":\"{\\\"x-oauth-username\\\":\\\"admin\\\",\\\"x-oauth-password\\\":\\\"admin123\\\",\\\"x-oauth-auth-type\\\":\\\"WEB\\\",\\\"x-oauth-access-key\\\":\\\"\\\",\\\"x-oauth-secret-key\\\":\\\"\\\"}\"}";
         String metadata = "{\"route\":\"login\",\"x-oauth-encode\":\"false\"}";
 
@@ -31,11 +32,14 @@ public class RsocketUserLoadTest {
         long startTime = System.currentTimeMillis();
 
         for (int u = 0; u < users; u++) {
+            final int uid = u;
             Thread.ofVirtual().start(() -> {
                 long t0 = System.nanoTime();
                 try {
                     var socket = RSocketConnector.create()
-                            .connect(TcpClientTransport.create("localhost", 19185))
+                            .metadataMimeType("message/x.rsocket.composite-metadata.v0")
+                            .dataMimeType("application/json")
+                            .connect(TcpClientTransport.create(host, 19185))
                             .block(Duration.ofSeconds(10));
                     if (socket == null) {
                         failError.incrementAndGet();
@@ -45,8 +49,16 @@ public class RsocketUserLoadTest {
                     Payload resp = socket.requestResponse(req).block(Duration.ofSeconds(30));
                     long ms = (System.nanoTime() - t0) / 1_000_000L;
                     latencies.add(ms);
-                    if (resp != null && resp.getDataUtf8().contains("\"code\":\"00000\"")) {
-                        success.incrementAndGet();
+                    if (resp != null) {
+                        String dataUtf8 = resp.getDataUtf8();
+                        if (uid < 3) {
+                            System.out.println("[RSDEBUG] resp uid=" + uid + " -> " + dataUtf8);
+                        }
+                        if (dataUtf8 != null && dataUtf8.contains("\"code\":\"00000\"")) {
+                            success.incrementAndGet();
+                        } else {
+                            failError.incrementAndGet();
+                        }
                     } else {
                         failError.incrementAndGet();
                     }
