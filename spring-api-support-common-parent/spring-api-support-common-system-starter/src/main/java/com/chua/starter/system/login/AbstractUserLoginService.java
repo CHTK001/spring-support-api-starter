@@ -332,7 +332,20 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
      */
     protected Set<String> getPermission(SysUser user) {
         try {
-            return sysUserMapper.selectPermission(user.getSysUserId());
+            // 复用 selectAuthRows(已在 resolveAuthProfile 中调用),替代独立的 selectPermission 查询
+            List<Map<String, Object>> authRows = sysUserMapper.selectAuthRows(user.getSysUserId());
+            if (authRows == null || authRows.isEmpty()) {
+                return Collections.emptySet();
+            }
+            Set<String> permissions = new java.util.LinkedHashSet<>();
+            for (Map<String, Object> row : authRows) {
+                if (row == null) continue;
+                String perm = Converter.convertIfNecessary(row.get("sys_menu_perm"), String.class);
+                if (StringUtils.isNotEmpty(perm)) {
+                    permissions.add(perm);
+                }
+            }
+            return permissions;
         } catch (Exception e) {
             log.warn("获取用户权限失败: 用户ID={}, 错误={}", user.getSysUserId(), e.getMessage());
             return Collections.emptySet();
