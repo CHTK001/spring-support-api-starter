@@ -51,6 +51,12 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
     /** Auth_version */
     private static final String AUTH_VERSION = "authVersion";
 
+    /**
+     * 登录信息写库节流阈值(毫秒):距上次持久化超过该值才 updateById,
+     * 避免高频登录每次 write-back 造成认证链写锁竞争。默认 60s。
+     */
+    private static final long LOGIN_UPDATE_THROTTLE_MS = 60_000L;
+
     @Autowired
     /** Security属性 */
     protected SystemSecurityProperties securityProperties;
@@ -89,11 +95,18 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         String countKey = "system:login:count:" + user.getSysUserId();
         Long count = valueOps.increment(countKey);
 
-        // 更新用户登录信息
+        // 更新用户登录信息:高频登录场景下避免每次 write-back(写库是认证链主要锁竞争点),
+        // 仅在距上次持久化超过一段时间(默认 60s)时更新,登录计数仍实时走 Redis increment
         if (null != address && count != null) {
             user.setSysUserLastIp(address);
             user.setSysUserLongCount(Converter.convertIfNecessary(count, Integer.class));
-            sysUserMapper.updateById(user);
+            // 高频登录场景节流写库:距上次持久化超过阈值才 updateById,避免写锁竞争
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            if (user.getUpdateTime() == null
+                    || java.time.Duration.between(user.getUpdateTime(), now).toMillis() > LOGIN_UPDATE_THROTTLE_MS) {
+                sysUserMapper.updateById(user);
+                user.setUpdateTime(now);
+            }
         }
 
         LoginAuthProfile authProfile = resolveAuthProfile(user);
@@ -176,7 +189,25 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
 
     /** AuthVersion */
     protected String authVersion(Integer userId) {
-        return userId == null ? null : sysUserMapper.selectAuthVersion(userId);
+        if (userId == null) {
+            return null;
+        }
+        // 缓存 authVersion(重型聚合查询),降低高并发登录对 DB 的压力;
+        // 权限变更时依赖短 TTL 过期(生产可配合权限写操作主动失效)
+        String cacheKey = "system:auth:ver:" + userId;
+        try {
+            String cached = stringRedisTemplate.opsForValue().get(cacheKey);
+            if (cached != null) {
+                return cached;
+            }
+            String version = sysUserMapper.selectAuthVersion(userId);
+            if (version != null) {
+                stringRedisTemplate.opsForValue().set(cacheKey, version, java.time.Duration.ofSeconds(30));
+            }
+            return version;
+        } catch (Exception e) {
+            return sysUserMapper.selectAuthVersion(userId);
+        }
     }
 
     /** 解析AuthProfile */
