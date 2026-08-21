@@ -474,13 +474,20 @@ public class RedisTokenResolver implements TokenResolver {
     private void handleOnlineControl(UserResult userResult, String newToken) {
         AuthServerProperties.Online onlineMode = getOnlineMode(userResult);
 
-        // SINGLE 模式：踢掉该用户所有旧设备
+        // SINGLE 模式：踢掉该用户所有旧设备(异步执行,不阻塞登录返回)
         if (onlineMode == AuthServerProperties.Online.SINGLE) {
             String userId = userResult.getUserId();
-            int before = countUserOnlineTokens(userId);
-            deleteUserAllTokens(userId);
-            log.info("[SINGLE][userId={}] 单点登录踢出旧设备: 踢出数量={}, 新token={}...",
-                    userId, before, newToken.length() > 8 ? newToken.substring(0, 8) : newToken);
+            String newTokenPrefix = newToken.length() > 8 ? newToken.substring(0, 8) : newToken;
+            Thread.ofVirtual().start(() -> {
+                try {
+                    int before = countUserOnlineTokens(userId);
+                    deleteUserAllTokens(userId);
+                    log.info("[SINGLE][userId={}] 单点登录踢出旧设备: 踢出数量={}, 新token={}...",
+                            userId, before, newTokenPrefix);
+                } catch (Exception e) {
+                    log.warn("[SINGLE] 异步踢出旧设备失败: userId={}", userId, e);
+                }
+            });
         }
         // LIMIT 模式：在 checkOnlineLimit 已检查，达到上限直接拒绝，不踢旧设备
         // MULTIPLE 模式：不限制
