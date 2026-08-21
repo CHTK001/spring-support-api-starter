@@ -51,12 +51,6 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
     /** Auth_version */
     private static final String AUTH_VERSION = "authVersion";
 
-    /**
-     * 登录信息写库节流阈值(毫秒):距上次持久化超过该值才 updateById,
-     * 避免高频登录每次 write-back 造成认证链写锁竞争。默认 60s。
-     */
-    private static final long LOGIN_UPDATE_THROTTLE_MS = 60_000L;
-
     @Autowired
     /** Security属性 */
     protected SystemSecurityProperties securityProperties;
@@ -95,18 +89,20 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         String countKey = "system:login:count:" + user.getSysUserId();
         Long count = valueOps.increment(countKey);
 
-        // 更新用户登录信息:高频登录场景下避免每次 write-back(写库是认证链主要锁竞争点),
-        // 仅在距上次持久化超过一段时间(默认 60s)时更新,登录计数仍实时走 Redis increment
+        // 更新用户登录信息:异步写库(虚拟线程),不打认证链路同步耗时;
+        // 上次 updateById 的结果在此线程 setUpdateTime,避免频繁重复写
         if (null != address && count != null) {
             user.setSysUserLastIp(address);
             user.setSysUserLongCount(Converter.convertIfNecessary(count, Integer.class));
-            // 高频登录场景节流写库:距上次持久化超过阈值才 updateById,避免写锁竞争
-            java.time.LocalDateTime now = java.time.LocalDateTime.now();
-            if (user.getUpdateTime() == null
-                    || java.time.Duration.between(user.getUpdateTime(), now).toMillis() > LOGIN_UPDATE_THROTTLE_MS) {
-                sysUserMapper.updateById(user);
-                user.setUpdateTime(now);
-            }
+            final SysUser loginUser = user;
+            Thread.ofVirtual().start(() -> {
+                try {
+                    sysUserMapper.updateById(loginUser);
+                    loginUser.setUpdateTime(java.time.LocalDateTime.now());
+                } catch (Exception e) {
+                    log.warn("异步更新用户登录信息失败: userId={}", loginUser.getSysUserId(), e);
+                }
+            });
         }
 
         LoginAuthProfile authProfile = resolveAuthProfile(user);
