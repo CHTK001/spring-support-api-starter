@@ -203,7 +203,7 @@ public class SysLoginServiceImpl implements SysLoginService {
                     AuthType.WEB,
                     null);
         }
-        SysUser user = simpleSysUserService.lambdaQuery()
+        var user = simpleSysUserService.lambdaQuery()
                 .eq(SysUser::getSysUserUsername, loginData.getUsername())
                 .one();
         if (user == null) {
@@ -217,9 +217,9 @@ public class SysLoginServiceImpl implements SysLoginService {
         log.info("本地登录成功(跳过密码校验): user={}", loginData.getUsername());
 
         // 一�?JOIN 查询用户全部角色编码（带缓存），替代原两�?selectList
-        Set<String> roleCodes = getCachedRoleCodes(user.getSysUserId());
+        var roleCodes = getCachedRoleCodes(user.getSysUserId());
 
-        UserResult userResult = new UserResult();
+        var userResult = new UserResult();
         userResult.setUsername(user.getSysUserUsername());
         userResult.setNickName(user.getSysUserNickname());
         userResult.setUserId(String.valueOf(user.getSysUserId()));
@@ -234,7 +234,7 @@ public class SysLoginServiceImpl implements SysLoginService {
             userResult.setDeptId(String.valueOf(user.getSysDeptId()));
         }
         // 填充业务扩展信息，供 @UserValue("sysUserId") 等接口与 /me 完整返回用户信息使用
-        Map<String, Object> ext = new HashMap<>(16);
+        var ext = new HashMap<String, Object>(16);
         ext.put("sysUserId", user.getSysUserId());
         ext.put("sysUserUsername", user.getSysUserUsername());
         ext.put("sysUserNickname", user.getSysUserNickname());
@@ -246,9 +246,9 @@ public class SysLoginServiceImpl implements SysLoginService {
         userResult.setExt(ext);
 
         // 数据权限：从用户所属部门读取数据权限配置（DEPT/SELF/DEPT_AND_SUB 等）
-        DataFilterTypeEnum dataPermission = DataFilterTypeEnum.ALL;
-        String dataPermissionRule = "";
-        Integer deptId = user.getSysDeptId();
+        var dataPermission = DataFilterTypeEnum.ALL;
+        var dataPermissionRule = "";
+        var deptId = user.getSysDeptId();
         if (null != deptId && deptId > 0) {
             SysDept dept = sysDeptMapper.selectById(deptId);
             if (null != dept) {
@@ -262,10 +262,10 @@ public class SysLoginServiceImpl implements SysLoginService {
         userResult.setDataPermission(dataPermission);
         userResult.setDataPermissionRule(dataPermissionRule);
 
-        String sm4Token = TokenCipher.encrypt(userResult);
-        UserResume resume = userResult;
+        var sm4Token = TokenCipher.encrypt(userResult);
+        var resume = (UserResume) userResult;
 
-        LoginAuthResult result = new LoginAuthResult(200, "成功");
+        var result = new LoginAuthResult(200, "成功");
         result.setToken(sm4Token);
         result.setRefreshToken(sm4Token);
         result.setUserResume(resume);
