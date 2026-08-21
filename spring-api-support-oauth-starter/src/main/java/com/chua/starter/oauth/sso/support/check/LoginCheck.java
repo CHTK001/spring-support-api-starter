@@ -82,8 +82,9 @@ public class LoginCheck {
      */
     public ReturnResult<LoginResult> doLogin(String address, String principal, String credential, String authType, Object ext) {
         long startTime = System.currentTimeMillis();
-        log.info("========== 登录检测开始 ==========");
-        log.info("用户标识: {}, 认证类型: {}, 客户端地址: {}", principal, authType, address);
+        long totalNanosStart = System.nanoTime();
+        log.debug("========== 登录检测开始 ==========");
+        log.debug("用户标识: {}, 认证类型: {}, 客户端地址: {}", principal, authType, address);
 
         // 检查账户是否被锁定
         if (loginAttemptService != null && loginAttemptService.isAccountLocked(principal)) {
@@ -110,11 +111,14 @@ public class LoginCheck {
         
         UserResume userResume = null;
         long checkStartTime = System.currentTimeMillis();
+        long checkStartNanos = System.nanoTime();
+        long checkLoginMs = 0L;
         
         try {
             userResume = userInfoService.checkLogin(principal, credential, address, ext);
+            checkLoginMs = System.nanoTime();
             log.debug("用户凭证验证完成, 耗时: {}ms, 结果: {}", 
-                    System.currentTimeMillis() - checkStartTime,
+                    (checkLoginMs - checkStartTime) / 1_000_000L,
                     userResume != null ? (Strings.isNullOrEmpty(userResume.getMessage()) ? "成功" : "失败:" + userResume.getMessage()) : "null");
         } catch (Exception e) {
             log.error("用户认证异常: {}, 类型: {}, 异常信息: {}", principal, authType, e.getMessage(), e);
@@ -155,6 +159,7 @@ public class LoginCheck {
         
         long tokenStartTime = System.currentTimeMillis();
         ReturnResult<LoginResult> token = tokenManagement.createToken(address, userResult, authType);
+        long tokenEndNanos = System.nanoTime();
         log.debug("Token创建完成, 耗时: {}ms, 结果: {}", 
                 System.currentTimeMillis() - tokenStartTime, token.isOk() ? "成功" : "失败:" + token.getMsg());
         
@@ -169,7 +174,15 @@ public class LoginCheck {
             }
             // 登录成功，清除失败记录
             clearLoginFailure(principal);
-            log.info("登录成功: 用户={}, 类型={}, 总耗时={}ms", principal, authType, System.currentTimeMillis() - startTime);
+            log.debug("登录成功: 用户={}, 类型={}, 总耗时={}ms", principal, authType, System.currentTimeMillis() - startTime);
+            // 埋点:认证链分段耗时(纳秒→毫秒),用于定位 DB/Redis/JWT 各环节瓶颈
+            long totalNs = System.nanoTime() - totalNanosStart;
+            log.debug("[AUTH-PROFILE] user={} total={}ms checkLogin={}ms token={}ms other={}ms",
+                    principal,
+                    totalNs / 1_000_000L,
+                    (checkLoginMs - checkStartNanos) / 1_000_000L,
+                    (tokenEndNanos - checkLoginMs) / 1_000_000L,
+                    (totalNs - (checkLoginMs - checkStartNanos) - (tokenEndNanos - checkLoginMs)) / 1_000_000L);
         }
         
         log.debug("========== 登录检测结束 ==========");
