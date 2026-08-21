@@ -156,7 +156,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     /**
      * SocketOpen 配置备注
      */
-    private static final String SOCKET_REMARK_OPEN = "socket.io是否开启";
+    private static final String SOCKET_REMARK_OPEN = "socket.io是否开�?;
 
     /**
      * SocketPath 配置备注
@@ -187,13 +187,13 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
         SysSetting sysSetting = baseMapper.selectById(settingId);
         if(null == sysSetting) {
-            return ReturnResult.error("配置不存在, 请刷新后重试!");
+            return ReturnResult.error("配置不存�? 请刷新后重试!");
         }
 
         Integer sysRoleInSystem = sysSetting.getSysSettingInSystem();
 
         if(null != sysRoleInSystem && sysRoleInSystem == 1) {
-            return ReturnResult.error("内置配置不允许删除");
+            return ReturnResult.error("内置配置不允许删�?);
         }
 
         int b = baseMapper.deleteById(settingId);
@@ -217,19 +217,19 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
         SysSetting sysSetting1 = baseMapper.selectById(sysSetting.getSysSettingId());
         if (null == sysSetting1) {
-            return ReturnResult.error("配置不存在, 请刷新后重试!");
+            return ReturnResult.error("配置不存�? 请刷新后重试!");
         }
         Integer sysRoleInSystem = sysSetting1.getSysSettingInSystem();
         if(!AuthConstant.isSuperAdmin(roles)) {
             if(null != sysRoleInSystem && sysRoleInSystem == 1) {
-                return ReturnResult.error("内置配置不允许修改");
+                return ReturnResult.error("内置配置不允许修�?);
             }
             sysSetting.setSysSettingAppInner(null);
         }
-        // 超管也不能 disable 内置配置（防止系统核心配置被误关停）
+        // 超管也不�?disable 内置配置（防止系统核心配置被误关停）
         if (null != sysRoleInSystem && sysRoleInSystem == 1
                 && null != sysSetting.getSysSettingStatus() && sysSetting.getSysSettingStatus() == 0) {
-            return ReturnResult.error("内置配置不允许禁用");
+            return ReturnResult.error("内置配置不允许禁�?);
         }
 
         String sysSettingName = sysSetting.getSysSettingName();
@@ -241,14 +241,13 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                     .ne(SysSetting::getSysSettingId, sysSetting.getSysSettingId()))
                     ;
             if(null != sysSetting2) {
-                return ReturnResult.error("配置编码已存在");
+                return ReturnResult.error("配置编码已存�?);
             }
         }
         SysSetting version = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSysSettingName, "version"));
         List<SysSetting> sysSettings = new LinkedList<>();
         sysSettings.add(sysSetting);
-        // 仅当被更新的不是 version 自身时，才触发 version 配置刷新（避免双重 UUID 写入）
-        if (null != version && !StringUtils.equalsIgnoreCase("version", sysSetting.getSysSettingName())) {
+        // 仅当被更新的不是 version 自身时，才触�?version 配置刷新（避免双�?UUID 写入�?        if (null != version && !StringUtils.equalsIgnoreCase("version", sysSetting.getSysSettingName())) {
             version.setSysSettingConfig(UUID.randomUUID().toString());
             sysSettings.add(version);
         }
@@ -291,13 +290,13 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 .eq(SysSetting::getSysSettingName, sysSetting.getSysSettingName())
                 .eq(SysSetting::getSysSettingGroup, sysSetting.getSysSettingGroup()));
         if(null != setting) {
-            return ReturnResult.error("配置编码已存在");
+            return ReturnResult.error("配置编码已存�?);
         }
         if(StringUtils.isNotBlank(sysSetting.getSysSettingCode())) {
             SysSetting codeSetting = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery()
                     .eq(SysSetting::getSysSettingCode, sysSetting.getSysSettingCode()));
             if(null != codeSetting) {
-                return ReturnResult.error("配置编码已存在");
+                return ReturnResult.error("配置编码已存�?);
             }
         }
 
@@ -329,7 +328,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 .eq(StringUtils.isNotBlank(sysSetting.getSysSettingValueType()), SysSetting::getSysSettingValueType, sysSetting.getSysSettingValueType())
                 .eq(null != sysSetting.getSysSettingInSystem(), SysSetting::getSysSettingInSystem, sysSetting.getSysSettingInSystem())
                 .orderByDesc(SysSetting::getCreateTime);
-        log.debug("设置分页筛选参数: group={}, name={}, remark={}, code={}, valueType={}, inSystem={}, sqlSegment={}",
+        log.debug("设置分页筛选参�? group={}, name={}, remark={}, code={}, valueType={}, inSystem={}, sqlSegment={}",
                 sysSetting.getSysSettingGroup(),
                 sysSetting.getSysSettingName(),
                 sysSetting.getSysSettingRemark(),
@@ -362,33 +361,33 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Override
     /** 获取AuthRequest */
     public SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> getAuthRequest(ThirdLoginData loginData) {
-        String loginType = StringUtils.trimToEmpty(loginData.getLoginType()).toLowerCase(Locale.ROOT);
+        var loginType = StringUtils.trimToEmpty(loginData.getLoginType()).toLowerCase(Locale.ROOT);
         if (StringUtils.isBlank(loginType)) {
-            log.warn("第三方登录类型为空");
+            log.warn("第三方登录类型为�?);
             return null;
         }
 
-        List<SysSetting> sysSettings = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
+        var sysSettings = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
                 .in(SysSetting::getSysSettingGroup, loginType, "sso")
                 .eq(SysSetting::getSysSettingStatus, 1)
         );
 
-        Set<SysSetting> sso = sysSettings.stream().filter(item -> StringUtils.equals(item.getSysSettingGroup(), "sso"))
+        var sso = sysSettings.stream().filter(item -> StringUtils.equals(item.getSysSettingGroup(), "sso"))
                 .filter(item -> StringUtils.equalsIgnoreCase(item.getSysSettingName(), loginType))
                 .filter(item -> StringUtils.equals("true", item.getSysSettingValue())).collect(Collectors.toUnmodifiableSet());
 
         if(sso.isEmpty()) {
-            log.warn("第三方登录开关未开启: loginType={}", loginType);
+            log.warn("第三方登录开关未开�? loginType={}", loginType);
             return null;
         }
 
-        List<SysSetting> providerSettings = sysSettings.stream()
+        var providerSettings = sysSettings.stream()
                 .filter(item -> StringUtils.equals(item.getSysSettingGroup(), loginType))
                 .toList();
 
-        AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
+        var authStateCache = AuthDefaultStateCache.INSTANCE;
 
-        AuthConfig authConfig = AuthConfig.builder()
+        var authConfig = AuthConfig.builder()
                 .clientId(ObjectUtils.firstNonNull(providerSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_KEY, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
                 .clientSecret(ObjectUtils.firstNonNull(providerSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_SECRET, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
                 .redirectUri(ObjectUtils.firstNonNull(providerSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_REDIRECT_URI, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
@@ -404,14 +403,14 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             return null;
         }
 
-        String state = AuthStateUtils.createState();
+        var state = AuthStateUtils.createState();
         authStateCache.cache(state + "_userId", RequestUtils.getUserId());
-        authStateCache.cache(state + "_thirdType", loginData.getThirdType());
-        authStateCache.cache(state + "_info", loginData.getLoginCode());
+        authStateCache.cache(state + "_thirdType", loginData.thirdType());
+        authStateCache.cache(state + "_info", loginData.loginCode());
         authStateCache.cache(state + "_clientId", authConfig.getClientId());
         authStateCache.cache(state + "_clientSecret", authConfig.getClientSecret());
         authStateCache.cache(state + "_callback", authConfig.getRedirectUri());
-        authStateCache.cache(state + "_system_callback", loginData.getCallback());
+        authStateCache.cache(state + "_system_callback", loginData.callback());
         return switch (loginType) {
             case "gitee" -> new SysSettingThirdPartyRequest<>(new AuthGiteeRequest(authConfig, authStateCache), authStateCache, state);
             case "wechat" -> new SysSettingThirdPartyRequest<>(new AuthWeChatOpenRequest(authConfig, authStateCache), authStateCache, state);
@@ -438,20 +437,15 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     /**
-     * 清理缓存。
-     * <p>
-     * 使用 {@code @CacheEvict} 注解是声明式缓存清理，但如果 Redis cacheManager Bean 缺失或抛异常，
-     * 注解会静默失败导致缓存永远不清理（问题 #23）。这里改用编程式清理：
-     * <ol>
-     *   <li>遍历所有可用的 CacheManager（REDIS_CACHE_ALWAYS + 默认 cacheManager）</li>
-     *   <li>对每个 CacheManager 驱逐指定 key + 清空整个 cacheName（防御性）</li>
+     * 清理缓存�?     * <p>
+     * 使用 {@code @CacheEvict} 注解是声明式缓存清理，但如果 Redis cacheManager Bean 缺失或抛异常�?     * 注解会静默失败导致缓存永远不清理（问�?#23）。这里改用编程式清理�?     * <ol>
+     *   <li>遍历所有可用的 CacheManager（REDIS_CACHE_ALWAYS + 默认 cacheManager�?/li>
+     *   <li>对每�?CacheManager 驱逐指�?key + 清空整个 cacheName（防御性）</li>
      *   <li>捕获所有异常，Redis 不可用时不阻塞主流程</li>
      * </ol>
      * </p>
      *
-     * @param sysSetting 配置（group 用于构造缓存 key）
-     * @return 原样返回 sysSetting，便于链式调用
-     */
+     * @param sysSetting 配置（group 用于构造缓�?key�?     * @return 原样返回 sysSetting，便于链式调�?     */
     @Override
     public SysSetting clearCache(SysSetting sysSetting) {
         if (null == sysSetting) {
@@ -462,7 +456,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             return sysSetting;
         }
 
-        // 编程式清理所有可用的 CacheManager，避免依赖特定 cacheManager Bean 存在
+        // 编程式清理所有可用的 CacheManager，避免依赖特�?cacheManager Bean 存在
         try {
             List<String> cacheManagerNames = Arrays.asList(
                     REDIS_CACHE_ALWAYS, "cacheManager");
@@ -472,26 +466,23 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                     if (null == cm) {
                         continue;
                     }
-                    // 1) 精确清理指定 group 的两个历史 key
+                    // 1) 精确清理指定 group 的两个历�?key
                     evictCache(cm, SETTING_LIST_CACHE_KEY_LEGACY_PREFIX + group);
                     evictCache(cm, SETTING_LIST_CACHE_KEY_PREFIX + group);
-                    // 2) 防御性清理整个 cacheName（覆盖遗漏子键）
+                    // 2) 防御性清理整�?cacheName（覆盖遗漏子键）
                     clearAll(cm);
                 } catch (Exception ex) {
-                    log.debug("[SysSetting.clearCache] CacheManager[{}] 清理失败，跳过: {}", beanName, ex.getMessage());
+                    log.debug("[SysSetting.clearCache] CacheManager[{}] 清理失败，跳�? {}", beanName, ex.getMessage());
                 }
             }
         } catch (Exception e) {
-            log.warn("[SysSetting.clearCache] 编程式清理异常（不影响主流程）: {}", e.getMessage());
+            log.warn("[SysSetting.clearCache] 编程式清理异常（不影响主流程�? {}", e.getMessage());
         }
         return sysSetting;
     }
 
     /**
-     * 从指定 CacheManager 中驱逐指定 key。
-     * @param cm 缓存管理器
-     * @param key 缓存键
-     */
+     * 从指�?CacheManager 中驱逐指�?key�?     * @param cm 缓存管理�?     * @param key 缓存�?     */
     private void evictCache(CacheManager cm, String key) {
         Cache cache = cm.getCache(REDIS_CACHE_ALWAYS);
         if (null != cache) {
@@ -500,9 +491,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     /**
-     * 清空指定 CacheManager 中 REDIS_CACHE_ALWAYS cacheName 的所有 key。
-     * @param cm 缓存管理器
-     */
+     * 清空指定 CacheManager �?REDIS_CACHE_ALWAYS cacheName 的所�?key�?     * @param cm 缓存管理�?     */
     private void clearAll(CacheManager cm) {
         Cache cache = cm.getCache(REDIS_CACHE_ALWAYS);
         if (null != cache) {
@@ -514,17 +503,15 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Override
     /** AfterProperties设置 */
     public void afterPropertiesSet() throws Exception {
-        // @GlobalSettingGroup 注解的 Setting Bean 由 GlobalSettingAutoConfiguration 自动扫描注册
-        // 这里仅注册那些没有标注注解、或需要兼容旧逻辑的 Bean
+        // @GlobalSettingGroup 注解�?Setting Bean �?GlobalSettingAutoConfiguration 自动扫描注册
+        // 这里仅注册那些没有标注注解、或需要兼容旧逻辑�?Bean
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
-        // 兼容老配置：ApiResponseEncodeConfiguration / ApiRequestDecodeSetting 等其他配置
-        globalSettingFactory.register("config", new ApiResponseEncodeConfiguration());
+        // 兼容老配置：ApiResponseEncodeConfiguration / ApiRequestDecodeSetting 等其他配�?        globalSettingFactory.register("config", new ApiResponseEncodeConfiguration());
         globalSettingFactory.register("config", new ApiRequestDecodeSetting());
     }
 
     /**
-     * 应用启动完成后加载并注册系统配置。
-     *
+     * 应用启动完成后加载并注册系统配置�?     *
      * @param event 应用就绪事件
      */
     @Override
@@ -541,7 +528,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             );
             register(globalSettingFactory, list);
             syncSocketConfig();
-            log.info("[系统配置][初始化] 系统配置加载完成，共 {} 条配置", list.size());
+            log.info("[系统配置][初始化] 系统配置加载完成，共 {} 条配�?, list.size());
         } catch (Exception e) {
             log.warn("配置加载失败: {}", e.getMessage());
         }
@@ -549,8 +536,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     /**
      * 同步Socket配置到数据库
-     * 将YAML中的socket配置同步到sys_setting表，确保前端获取的配置与后端一致
-     */
+     * 将YAML中的socket配置同步到sys_setting表，确保前端获取的配置与后端一�?     */
     private void syncSocketConfig() {
         try {
             // 构建Socket URL
@@ -564,7 +550,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             desired.put(SOCKET_SETTING_PATH, new SysSettingDesiredValue(socketPath, SOCKET_REMARK_PATH));
             desired.put(SOCKET_SETTING_PROTOCOL, new SysSettingDesiredValue(socketProtocol, SOCKET_REMARK_PROTOCOL));
 
-            // 只查询一次，拿到 Socket 相关配置后统一对比并更新/新增
+            // 只查询一次，拿到 Socket 相关配置后统一对比并更�?新增
             var existList = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
                     .eq(SysSetting::getSysSettingGroup, SOCKET_SETTING_GROUP)
                     .in(SysSetting::getSysSettingName, desired.keySet()));
@@ -803,10 +789,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     /**
-     * Socket 配置期望值
-     *
-     * @param value  配置值
-     * @param remark 配置备注
+     * Socket 配置期望�?     *
+     * @param value  配置�?     * @param remark 配置备注
      */
     private record SysSettingDesiredValue(String value, String remark) {
     }
@@ -826,8 +810,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     /**
      * 注册配置
      * @param globalSettingFactory 配置工厂
-     * @param key 配置组
-     * @param value 配置
+     * @param key 配置�?     * @param value 配置
      */
     private void register(GlobalSettingFactory globalSettingFactory, String key, List<SysSetting> value) {
         Map<String, Object> map = new LinkedHashMap<>();
@@ -877,8 +860,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             return ReturnResult.error("没有可导出的配置");
         }
 
-        // 转换为导出格式，去除ID等内部字段
-        List<Map<String, Object>> exportList = new ArrayList<>();
+        // 转换为导出格式，去除ID等内部字�?        List<Map<String, Object>> exportList = new ArrayList<>();
         for (SysSetting setting : settings) {
             Map<String, Object> item = new LinkedHashMap<>();
             item.put("name", setting.getSysSettingName());
@@ -921,7 +903,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         List<SysSetting> newSettings = new ArrayList<>();
         List<SysSetting> allImportedSettings = new ArrayList<>();
 
-        // 一次性查出所有 (group, name) 组合已存在的记录，避免循环内 N+1 查询
+        // 一次性查出所�?(group, name) 组合已存在的记录，避免循环内 N+1 查询
         Set<String> targetGroupNames = new HashSet<>();
         for (Map<String, Object> item : importList) {
             String name = MapUtils.getString(item, "name");
@@ -947,15 +929,13 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 continue;
             }
 
-            // 检查是否已存在（从批量预加载的 Map 中查找，O(1)）
-            SysSetting existing = existingMap.get(group + "|" + name);
+            // 检查是否已存在（从批量预加载的 Map 中查找，O(1)�?            SysSetting existing = existingMap.get(group + "|" + name);
 
             if (existing != null) {
                 if (!overwrite) {
                     continue;
                 }
-                // 覆盖更新，先保存旧值
-                String oldValue = existing.getSysSettingValue();
+                // 覆盖更新，先保存旧�?                String oldValue = existing.getSysSettingValue();
                 SysSetting oldSetting = new SysSetting();
                 oldSetting.setSysSettingId(existing.getSysSettingId());
                 oldSetting.setSysSettingName(existing.getSysSettingName());
@@ -972,8 +952,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 baseMapper.updateById(existing);
                 sysSettingService.clearCache(existing);
                 allImportedSettings.add(existing);
-                // 记录覆盖更新历史，包含旧值
-                try {
+                // 记录覆盖更新历史，包含旧�?                try {
                     sysSettingHistoryService.recordImportUpdate(oldSetting, existing, operatorId, operatorName, batchNo);
                 } catch (Exception e) {
                     log.warn("记录配置导入覆盖历史失败: {}", e.getMessage());
@@ -999,8 +978,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             }
         }
 
-        // 记录新增配置的导入历史
-        if (!newSettings.isEmpty()) {
+        // 记录新增配置的导入历�?        if (!newSettings.isEmpty()) {
             try {
                 sysSettingHistoryService.recordImport(newSettings, operatorId, operatorName, batchNo);
             } catch (Exception e) {
