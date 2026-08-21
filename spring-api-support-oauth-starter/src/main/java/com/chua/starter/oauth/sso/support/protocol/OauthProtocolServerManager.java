@@ -121,16 +121,24 @@ public class OauthProtocolServerManager implements AutoCloseable {
         var server = createServer(config.getType(), setting);
         // 注册 OAuth 认证路由(独立 UrlMappingServerFilter,避免依赖 Server 内部 urlMappingFilter 的初始化顺序)
         var handler = new OauthProtocolHandler(authServerProperties, loginCheck);
-        // TCP 帧协议(TcpServer 接口):裸帧请求-响应,4 字节长度头+body,无 topic/注册
-        // 帧处理器接收 body 字节,调 OAuth 认证后返回响应 body
+        // TCP 帧协议(TcpServer 接口):帧格式为 topic:body(如 login:{...} 或 verify:{...}),
+        // 无 topic 前缀时默认 login,兼容旧版纯 body 帧
         if (server instanceof com.chua.common.support.network.tcp.TcpServer tcpServer) {
             tcpServer.setHandler(request -> {
-                var req = new MessageServerRequest("login", new String(request, StandardCharsets.UTF_8));
+                String frame = new String(request, StandardCharsets.UTF_8);
+                String topic = "login";
+                String frameBody = frame;
+                int colon = frame.indexOf(':');
+                if (colon > 0 && !frame.startsWith("{\"") && !frame.startsWith("{")) {
+                    topic = frame.substring(0, colon);
+                    frameBody = frame.substring(colon + 1);
+                }
+                var req = new MessageServerRequest(topic, frameBody);
                 var resp = new MessageServerResponse();
                 try {
                     handler.handle(req, resp);
                 } catch (Exception e) {
-                    log.error("[OauthProtocolServer] TCP 认证异常", e);
+                    log.error("[OauthProtocolServer] TCP 认证异常 topic={}", topic, e);
                     resp.setBody(com.chua.common.support.lang.json.Json.toJson(
                             ReturnResult.error("认证处理异常")).getBytes(StandardCharsets.UTF_8));
                 }
