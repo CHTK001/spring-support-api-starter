@@ -31,7 +31,7 @@ CREATE TABLE `achievement_tier` (
     `update_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
     UNIQUE INDEX `uk_type_level` (`type`, `level`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='成就段位定义表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='成就段位定义表';
 
 DROP TABLE IF EXISTS `user_achievement`;
 CREATE TABLE `user_achievement` (
@@ -45,7 +45,7 @@ CREATE TABLE `user_achievement` (
     PRIMARY KEY (`id`),
     UNIQUE INDEX `uk_user_type` (`user_id`, `type`),
     INDEX `idx_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户成就记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户成就记录表';
 
 -- 登录成就
 INSERT INTO `achievement_tier` (`type`, `level`, `name`, `badge`, `description`, `rule`, `sort`) VALUES

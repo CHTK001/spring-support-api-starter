@@ -22,7 +22,7 @@ CREATE TABLE `monitor_acme_account` (
   `update_name` varchar(255) NULL DEFAULT NULL COMMENT '更新人姓名',
   `update_by` int NULL DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`acme_account_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ACME 账户表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='ACME 账户表';
 
 -- ACME 证书表
 DROP TABLE IF EXISTS `monitor_acme_certificate`;
@@ -51,7 +51,7 @@ CREATE TABLE `monitor_acme_certificate` (
   KEY `idx_account_id` (`acme_account_id`),
   KEY `idx_domain` (`acme_cert_primary_domain`),
   KEY `idx_status` (`acme_cert_status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ACME 证书表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='ACME 证书表';
 
 -- ACME 订单表
 DROP TABLE IF EXISTS `monitor_acme_order`;
@@ -73,7 +73,7 @@ CREATE TABLE `monitor_acme_order` (
   KEY `idx_account_id` (`acme_account_id`),
   KEY `idx_cert_id` (`acme_cert_id`),
   KEY `idx_status` (`acme_order_status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ACME 订单表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='ACME 订单表';
 
 -- 服务器布局表
 DROP TABLE IF EXISTS `monitor_sys_gen_server_layout`;
@@ -97,7 +97,7 @@ CREATE TABLE `monitor_sys_gen_server_layout` (
   PRIMARY KEY (`monitor_sys_gen_server_layout_id`),
   KEY `idx_server_id` (`monitor_sys_gen_server_id`),
   KEY `idx_type` (`monitor_sys_gen_server_layout_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务器布局表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='服务器布局表';
 
 -- 服务器组件布局表
 DROP TABLE IF EXISTS `monitor_sys_gen_server_component_layout`;
@@ -124,7 +124,7 @@ CREATE TABLE `monitor_sys_gen_server_component_layout` (
   PRIMARY KEY (`monitor_sys_gen_server_component_layout_id`),
   KEY `idx_server_id` (`monitor_sys_gen_server_id`),
   KEY `idx_component_id` (`monitor_sys_gen_server_component_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务器组件布局表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='服务器组件布局表';
 
 -- 被监控服务器主机表
 DROP TABLE IF EXISTS `monitor_server`;
@@ -150,6 +150,6 @@ CREATE TABLE `monitor_server` (
   KEY `idx_ip` (`server_ip`),
   KEY `idx_group` (`server_group`),
   KEY `idx_status` (`server_status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='被监控服务器主机表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='被监控服务器主机表';
 
 SET FOREIGN_KEY_CHECKS = 1;
