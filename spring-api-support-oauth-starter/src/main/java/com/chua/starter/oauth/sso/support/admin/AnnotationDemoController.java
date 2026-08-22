@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api-test")
-public class AnnotationTestController {
+public class AnnotationDemoController {
 
     @GetMapping("/version")
     @ApiVersion("1.0.0")
