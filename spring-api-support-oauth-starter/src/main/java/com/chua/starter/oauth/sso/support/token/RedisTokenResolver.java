@@ -164,15 +164,13 @@ public class RedisTokenResolver implements TokenResolver {
         // 清理 ext 中不可序列化的值
         sanitizeExt(userResult);
 
-        // 存储 Token
-        ValueOperations<String, Object> forValue = stringRedisTemplate.opsForValue();
-        forValue.set(redisKey, userResult);
-        forValue.set(redisRefreshKey, userResult);
-
-        // 设置过期时间
+        // 存储 Token(一次性设置值和过期时间,减少 Redis 往返)
         if (expire > 0) {
-            stringRedisTemplate.expire(redisKey, Duration.ofSeconds(expire));
-            stringRedisTemplate.expire(redisRefreshKey, Duration.ofSeconds(refreshExpire));
+            stringRedisTemplate.opsForValue().set(redisKey, userResult, Duration.ofSeconds(expire));
+            stringRedisTemplate.opsForValue().set(redisRefreshKey, userResult, Duration.ofSeconds(refreshExpire));
+        } else {
+            stringRedisTemplate.opsForValue().set(redisKey, userResult);
+            stringRedisTemplate.opsForValue().set(redisRefreshKey, userResult);
         }
 
         LoginResult loginResult = new LoginResult();
@@ -724,16 +722,18 @@ public class RedisTokenResolver implements TokenResolver {
     /** 解析 */
     public ReturnResult<UserResume> resolve(String cookie, String token) {
         String cv = token;
-        if (StringUtils.isEmpty(StringUtils.ifValid(cv, ""))) {
-            cv = null == cookie ? null : cookie;
+        if (StringUtils.isEmpty(cv)) {
+            cv = cookie;
         }
-
-        if (null == cv) {
+        if (cv == null) {
             return ReturnResult.error("未认证");
         }
 
-        // 检查本地缓存（避免高并发下重复查 Redis）
-        ReturnResult<UserResume> cached = TOKEN_RESOLVE_CACHE.getIfPresent(cv);
+        // 检查本地缓存,防止缓存击穿(加锁同步)
+        ReturnResult<UserResume> cached = null;
+        synchronized (TOKEN_RESOLVE_CACHE) {
+            cached = TOKEN_RESOLVE_CACHE.getIfPresent(cv);
+        }
         if (cached != null) {
             return cached;
         }
@@ -749,14 +749,18 @@ public class RedisTokenResolver implements TokenResolver {
 
         String redisKey = TOKEN_PRE + cv;
         Object s = stringRedisTemplate.opsForValue().get(redisKey);
-        if (null == s) {
+        if (s == null) {
             return ReturnResult.error("未认证");
         }
-        UserResult userResult = null;
-        if(s instanceof Map map) {
+        UserResult userResult;
+        if (s instanceof UserResult ur) {
+            userResult = ur;
+        } else if (s instanceof Map map) {
+            // 兼容旧格式:部分 Redis 序列化配置可能反序列化为 Map
             userResult = BeanUtils.copyProperties((Object) map, UserResult.class);
         } else {
-            userResult = (UserResult) s;
+            log.warn("Token数据格式异常: key={}, type={}", redisKey, s.getClass().getName());
+            return ReturnResult.error("Token数据异常");
         }
 
         // 检查用户是否被全局拉黑
@@ -769,8 +773,9 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         ReturnResult<UserResume> result = ReturnResult.ok(userResult);
-        // 写入本地缓存
-        TOKEN_RESOLVE_CACHE.put(cv, result);
+        synchronized (TOKEN_RESOLVE_CACHE) {
+            TOKEN_RESOLVE_CACHE.put(cv, result);
+        }
         return result;
     }
 
