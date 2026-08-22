@@ -41,7 +41,7 @@ public class RedisRequestTraceConfigStorage implements RequestTraceConfigStorage
         if (value == null || value.isBlank()) {
             return null;
         }
-        Map<String, String> values = Json.fromJson(value, Map.class);
+        Map<String, String> values = Json.fromJson(value, new com.chua.common.support.lang.json.TypeReference<Map<String, String>>() {});
         if (values == null) {
             return null;
         }
