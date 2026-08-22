@@ -244,7 +244,8 @@ public class RedisTokenResolver implements TokenResolver {
         if (StringUtils.isNotBlank(userOnlineMode)) {
             try {
                 return AuthServerProperties.Online.valueOf(userOnlineMode.toUpperCase());
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.warn("解析在线模式失败,userOnlineMode={}", userOnlineMode, e);
             }
         }
         // 未注入配置时，采用默认多点登录策略，避免空指针导致登录直接失败
@@ -353,7 +354,8 @@ public class RedisTokenResolver implements TokenResolver {
                 if (expire > 0) {
                     return expire;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.warn("解析tokenExpire失败,value={}", tokenExpire, e);
             }
         }
         // 兼容旧字段
