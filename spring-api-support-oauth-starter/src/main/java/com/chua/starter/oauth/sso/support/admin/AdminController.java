@@ -11,6 +11,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 /**
  * OAuth 服务端热控制管理页面
@@ -52,6 +54,19 @@ public class AdminController {
         status.put("protocols", authServerProperties.getProtocols());
         status.put("rateLimit", rateLimitManager.getStatus());
         return ReturnResult.ok(status);
+    }
+
+    /** 获取请求统计 */
+    @GetMapping("/metrics")
+    @Operation(summary = "获取请求统计")
+    public ReturnResult<Map<String, Object>> getMetrics() {
+        Map<String, Object> m = new LinkedHashMap<>();
+        Runtime rt = Runtime.getRuntime();
+        m.put("availableMemory", rt.freeMemory() / 1024 / 1024 + "MB");
+        m.put("totalMemory", rt.totalMemory() / 1024 / 1024 + "MB");
+        m.put("maxMemory", rt.maxMemory() / 1024 / 1024 + "MB");
+        m.put("processors", rt.availableProcessors());
+        return ReturnResult.ok(m);
     }
 
     /** 热切换签名校验 */
