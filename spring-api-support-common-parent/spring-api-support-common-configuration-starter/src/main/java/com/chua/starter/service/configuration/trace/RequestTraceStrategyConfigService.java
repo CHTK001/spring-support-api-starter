@@ -138,7 +138,7 @@ public class RequestTraceStrategyConfigService {
                 .filter(item -> item != null && !item.isBlank())
                 .forEach(values::add);
         try {
-            ServiceProvider.of(spiType).list().values().stream()
+            ServiceProvider.of(spiType).list().values().stream().map(String::valueOf)
                     .map(this::lowerCase)
                     .filter(item -> item != null && !item.isBlank())
                     .forEach(values::add);
