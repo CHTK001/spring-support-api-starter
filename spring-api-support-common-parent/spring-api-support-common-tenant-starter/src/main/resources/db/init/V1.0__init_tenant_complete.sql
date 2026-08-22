@@ -38,7 +38,7 @@ CREATE TABLE `sys_tenant` (
     `update_by` int NULL DEFAULT NULL,
     `update_time` datetime NULL DEFAULT NULL,
     PRIMARY KEY (`sys_tenant_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `sys_service`;
 CREATE TABLE `sys_service` (
@@ -56,7 +56,7 @@ CREATE TABLE `sys_service` (
     `update_by` int NULL DEFAULT NULL,
     `update_time` datetime NULL DEFAULT NULL,
     PRIMARY KEY (`sys_service_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `sys_service_module`;
 CREATE TABLE `sys_service_module` (
@@ -76,7 +76,7 @@ CREATE TABLE `sys_service_module` (
     `update_by` int NULL DEFAULT NULL,
     `update_time` datetime NULL DEFAULT NULL,
     PRIMARY KEY (`sys_service_module_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `sys_service_module_item`;
 CREATE TABLE `sys_service_module_item` (
@@ -91,7 +91,7 @@ CREATE TABLE `sys_service_module_item` (
     `update_by` int NULL DEFAULT NULL,
     `update_time` datetime NULL DEFAULT NULL,
     PRIMARY KEY (`sys_service_module_item_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `sys_tenant_service`;
 CREATE TABLE `sys_tenant_service` (
@@ -106,4 +106,4 @@ CREATE TABLE `sys_tenant_service` (
     `update_by` int NULL DEFAULT NULL,
     `update_time` datetime NULL DEFAULT NULL,
     PRIMARY KEY (`sys_tenant_service_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;

@@ -22,7 +22,7 @@ import static com.chua.common.support.lang.code.ReturnCode.USERNAME_OR_PASSWORD_
 import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 
 /**
- * 租户登录处理�? *
+ * 租户登录处理�? *
  * @version 1.0.0
  * @since 2024/12/2
  * @author CH

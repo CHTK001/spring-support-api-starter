@@ -23,7 +23,7 @@ CREATE TABLE `ms_monitor` (
   KEY `idx_service_type` (`service_type`),
   KEY `idx_monitor_group` (`monitor_group`),
   KEY `idx_monitor_enabled` (`monitor_enabled`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='监控资产表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='监控资产表';
 
 -- 采集任务表
 DROP TABLE IF EXISTS `ms_monitor_task`;
@@ -44,7 +44,7 @@ CREATE TABLE `ms_monitor_task` (
   KEY `idx_monitor_id` (`monitor_id`),
   KEY `idx_task_type` (`task_type`),
   KEY `idx_task_status` (`task_status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='采集任务表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采集任务表';
 
 -- 指标解析规则表
 DROP TABLE IF EXISTS `ms_monitor_metric_config`;
@@ -62,7 +62,7 @@ CREATE TABLE `ms_monitor_metric_config` (
   PRIMARY KEY (`id`),
   KEY `idx_task_id` (`task_id`),
   KEY `idx_metric_type` (`metric_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='指标解析规则表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='指标解析规则表';
 
 -- 监控网关表
 DROP TABLE IF EXISTS `ms_monitor_gateway`;
@@ -81,7 +81,7 @@ CREATE TABLE `ms_monitor_gateway` (
   PRIMARY KEY (`id`),
   KEY `idx_monitor_id` (`monitor_id`),
   KEY `idx_gateway_status` (`gateway_status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='监控网关表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='监控网关表';
 
 -- 全局配置表
 DROP TABLE IF EXISTS `ms_monitor_config`;
@@ -96,6 +96,6 @@ CREATE TABLE `ms_monitor_config` (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_config_key` (`config_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='全局配置表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='全局配置表';
 
 SET FOREIGN_KEY_CHECKS = 1;

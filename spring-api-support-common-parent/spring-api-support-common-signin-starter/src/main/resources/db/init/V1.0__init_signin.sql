@@ -14,7 +14,7 @@ CREATE TABLE `sign_in_record` (
     UNIQUE INDEX `uk_user_sign_date` (`user_id`, `sign_date`),
     INDEX `idx_user_id` (`user_id`),
     INDEX `idx_sign_date` (`sign_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='签到记录表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='签到记录表';
 
 DROP TABLE IF EXISTS `sign_in_points_rule`;
 CREATE TABLE `sign_in_points_rule` (
@@ -27,7 +27,7 @@ CREATE TABLE `sign_in_points_rule` (
     `update_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
     UNIQUE INDEX `uk_type` (`type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='签到积分规则表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='签到积分规则表';
 
 DROP TABLE IF EXISTS `sign_in_points_record`;
 CREATE TABLE `sign_in_points_record` (
@@ -40,7 +40,7 @@ CREATE TABLE `sign_in_points_record` (
     PRIMARY KEY (`id`),
     INDEX `idx_user_id` (`user_id`),
     INDEX `idx_sign_in_record_id` (`sign_in_record_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='签到积分流水表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='签到积分流水表';
 
 -- 默认积分规则
 INSERT INTO `sign_in_points_rule` (`type`, `points`, `description`, `status`) VALUES
