@@ -109,7 +109,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     /** 生日框记录ID（与 sys_avatar_frame 种子 id=100 一致） */
     private static final Integer BIRTHDAY_FRAME_ID = 100;
 
-    /** 生日窗口：前�?3 天共 7 �?*/
+    /** 生日窗口：前�?3 天共 7 �?*/
     private static final int BIRTHDAY_WINDOW_DAYS = 3;
 
     /** 生日日期解析：yyyy-MM-dd / yyyy/MM/dd / yyyy.MM.dd */
@@ -121,12 +121,12 @@ public class SysLoginServiceImpl implements SysLoginService {
     private static final Map<Long, CachedValue> USER_LAYOUT_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * 用户角色编码缓存（key = "role:userId"），避免每次登录重复查询数据�?
+     * 用户角色编码缓存（key = "role:userId"），避免每次登录重复查询数据�?
      */
     private static final Map<String, CachedValue> USER_ROLE_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * 查询缓存有效期（毫秒�?
+     * 查询缓存有效期（毫秒�?
      */
     private static final long CACHE_TTL_MILLIS = 60_000L;
 
@@ -134,9 +134,9 @@ public class SysLoginServiceImpl implements SysLoginService {
      * 缓存条目
      */
     private static class CachedValue {
-        /** 缓存�?*/
+        /** 缓存�?*/
         private final Object value;
-        /** 过期时间�?*/
+        /** 过期时间�?*/
         private final long expireAt;
 
         /**
@@ -151,11 +151,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * 微信第三方类�?
+     * 微信第三方类�?
      */
     private static final String THIRD_PARTY_TYPE_WECHAT = "wechat";
 
-    /** Auth属�?*/
+    /** Auth属�?*/
     private final AuthClientProperties authProperties;
     /** SYS用户thirdpartymapper */
     private final SysUserThirdPartyMapper sysUserThirdPartyMapper;
@@ -187,15 +187,15 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * 本地认证登录，绕过OAuth服务�?
+     * 本地认证登录，绕过OAuth服务�?
      *
      * @param loginData  登录数据
      * @param request    HTTP请求
      * @return 登录认证结果
      */
     public LoginAuthResult authenticateLocal(LoginData loginData) {
-        // 远程 OAuth 认证(http / http-lite)：登录由 oauth 服务�?172.16.0.40)验证并签�?token�?
-        // �?http-lite 验签(RedisTokenResolver)配套；static 保持本地校验
+        // 远程 OAuth 认证(http / http-lite)：登录由 oauth 服务�?172.16.0.40)验证并签�?token�?
+        // �?http-lite 验签(RedisTokenResolver)配套；static 保持本地校验
         if (authProperties != null && !"static".equalsIgnoreCase(authProperties.getProtocol())) {
             return AuthClientExecute.getInstance().getAccessToken(
                     loginData.getUsername(),
@@ -207,16 +207,16 @@ public class SysLoginServiceImpl implements SysLoginService {
                 .eq(SysUser::getSysUserUsername, loginData.getUsername())
                 .one();
         if (user == null) {
-            log.warn("本地登录失败: 用户不存�?- {}", loginData.getUsername());
+            log.warn("本地登录失败: 用户不存�?- {}", loginData.getUsername());
             return null;
         }
         if (SystemConstant.USER_STATUS_ENABLED != user.getSysUserStatus()) {
-            log.warn("本地登录失败: 账户已禁�?- {}", loginData.getUsername());
+            log.warn("本地登录失败: 账户已禁�?- {}", loginData.getUsername());
             return new LoginAuthResult(403, "账号已被禁用");
         }
         log.info("本地登录成功(跳过密码校验): user={}", loginData.getUsername());
 
-        // 一�?JOIN 查询用户全部角色编码（带缓存），替代原两�?selectList
+        // 一�?JOIN 查询用户全部角色编码（带缓存），替代原两�?selectList
         var roleCodes = getCachedRoleCodes(user.getSysUserId());
 
         var userResult = new UserResult();
@@ -229,7 +229,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         userResult.setOpenId(userResult.getUid());
         userResult.setUnionId(userResult.getUid());
         userResult.setExpireTime(System.currentTimeMillis() / 1000 + 30L * 24 * 60 * 60);
-        // 填充部门ID，供数据权限(DEPT/DEPT_AND_SUB)与接口使�?
+        // 填充部门ID，供数据权限(DEPT/DEPT_AND_SUB)与接口使�?
         if (null != user.getSysDeptId() && user.getSysDeptId() > 0) {
             userResult.setDeptId(String.valueOf(user.getSysDeptId()));
         }
@@ -280,7 +280,7 @@ public class SysLoginServiceImpl implements SysLoginService {
      *
      * @param loginData 登录数据
      * @param request   请求
-     * @return 检查结�?
+     * @return 检查结�?
      */
     @SuppressWarnings("ALL")
     public ReturnResult<LoginResult> checkVerifyCode(LoginData loginData, HttpServletRequest request) {
@@ -381,10 +381,10 @@ public class SysLoginServiceImpl implements SysLoginService {
         if (StringUtils.isBlank(token)) {
             return new UserInfoVO();
         }
-        // 直接�?token 去鉴权服务器获取用户信息，不依赖 request header
+        // 直接�?token 去鉴权服务器获取用户信息，不依赖 request header
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult(token);
         if (userLoginInfo == null || userLoginInfo.getExt() == null || userLoginInfo.getExt().isEmpty()) {
-            // fallback: 通过 request attribute 设置 token 再获�?
+            // fallback: 通过 request attribute 设置 token 再获�?
             RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
             if (requestAttributes != null) {
                 ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
@@ -457,7 +457,7 @@ public class SysLoginServiceImpl implements SysLoginService {
 
     /**
      * 判断指定生日字符串是否处于生日窗口内（忽略年份比较月/日）
-     * <p>窗口为生日前�?{@link #BIRTHDAY_WINDOW_DAYS} 天；生日为空或格式不合法时返�?false</p>
+     * <p>窗口为生日前�?{@link #BIRTHDAY_WINDOW_DAYS} 天；生日为空或格式不合法时返�?false</p>
      *
      * @param birthday 生日字符串（yyyy-MM-dd 等）
      * @return 是否处于生日窗口
@@ -504,7 +504,7 @@ public class SysLoginServiceImpl implements SysLoginService {
                     StringUtils.isNotBlank(agreementVersion) && !agreementVersion.equalsIgnoreCase(acceptedVersion)
             );
         } catch (Exception ex) {
-            log.debug("[用户协议] 读取用户协议确认状态失�? userId={}", sysUserId, ex);
+            log.debug("[用户协议] 读取用户协议确认状态失�? userId={}", sysUserId, ex);
         }
     }
 
@@ -525,7 +525,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * 读取用户角色编码（带 60 秒缓存，一�?JOIN 查询�?
+     * 读取用户角色编码（带 60 秒缓存，一�?JOIN 查询�?
      *
      * @param userId 用户 ID
      * @return 角色编码集合
@@ -567,7 +567,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(refreshToken.getRefreshToken(), UpgradeType.REFRESH);
         if (null == upgrade) {
-            return ReturnResult.error("登录已过�?);
+            return ReturnResult.error("登录已过�?);
         }
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(buildUserInfo(upgrade.getUserResume()))
@@ -583,13 +583,13 @@ public class SysLoginServiceImpl implements SysLoginService {
     @Override
     /** ThirdLoginCode */
     public ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
-        log.debug("第三方登录请�? loginType={}, thirdType={}", loginData.getLoginType(), loginData.thirdType());
+        log.debug("第三方登录请�? loginType={}, thirdType={}", loginData.getLoginType(), loginData.thirdType());
         
-        // 获取第三方登录配�?
+        // 获取第三方登录配�?
         var authRequest = sysSettingService.getAuthRequest(loginData);
         if (authRequest == null) {
             log.warn("第三方登录配置未找到或未启用: loginType={}", loginData.getLoginType());
-            return ReturnResult.error("第三方登录未配置或未启用，请联系管理�?);
+            return ReturnResult.error("第三方登录未配置或未启用，请联系管理�?);
         }
         
         // 获取授权 URL
