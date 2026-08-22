@@ -11,6 +11,7 @@ import org.springframework.core.Ordered;
 
 import java.io.IOException;
 import java.util.Set;
+import org.slf4j.MDC;
 
 /**
  * OAuth追踪过滤器
@@ -68,6 +69,9 @@ public class OAuthTraceFilter implements Filter, Ordered {
 
         // 创建追踪上下文
         ServerTraceContext traceContext = ServerTraceContext.create(traceId, traceTimestamp, clientAppName, clientIp);
+        // 设置 MDC 日志上下文,使日志输出自动包含 traceId
+        MDC.put("traceId", traceContext.getTraceId());
+        if (clientAppName != null) MDC.put("appName", clientAppName);
         
         // 开始接收请求的Span
         traceContext.startSpan("server_receive");
@@ -126,6 +130,7 @@ public class OAuthTraceFilter implements Filter, Ordered {
             
             // 清理追踪上下文
             ServerTraceContext.clear();
+            MDC.clear();
         }
     }
 
