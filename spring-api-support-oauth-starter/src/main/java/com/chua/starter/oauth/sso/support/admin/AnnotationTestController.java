@@ -26,16 +26,4 @@ public class AnnotationTestController {
     @GetMapping("/profile")
     @ApiProfile("dev")
     public String profile() { return "profile"; }
-
-    @PostMapping("/crypto")
-    @ApiFieldCrypto
-    public String crypto(@RequestBody String body) { return body; }
-
-    @PostMapping("/ignore")
-    @ApiFieldIgnore
-    public String ignore(@RequestBody String body) { return body; }
-
-    @PostMapping("/privacy")
-    @ApiFieldPrivacyEncrypt
-    public String privacy(@RequestBody String body) { return body; }
 }
