@@ -208,6 +208,57 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
 
     /** 解析AuthProfile */
     private LoginAuthProfile resolveAuthProfile(SysUser user) {
+        if (user == null || user.getSysUserId() == null) {
+            return new LoginAuthProfile();
+        }
+        // 缓存 selectAuthRows 结果(多表 JOIN 较重的查询),权限相对稳定,10s TTL
+        String cacheKey = "system:auth:rows:" + user.getSysUserId();
+        try {
+            String cached = stringRedisTemplate.opsForValue().get(cacheKey);
+            if (cached != null) {
+                return rebuildProfileFromCache(cached);
+            }
+        } catch (Exception e) {
+            log.warn("读取权限缓存失败,userId={}", user.getSysUserId(), e);
+        }
+        LoginAuthProfile profile = doResolveProfile(user);
+        try {
+            String json = profileToCacheJson(profile);
+            stringRedisTemplate.opsForValue().set(cacheKey, json, java.time.Duration.ofSeconds(10));
+        } catch (Exception e) {
+            log.warn("写入权限缓存失败,userId={}", user.getSysUserId(), e);
+        }
+        return profile;
+    }
+
+    /** 串行缓存字段 */
+    private String profileToCacheJson(LoginAuthProfile p) {
+        return String.join("|",
+                String.join(",", p.roleCodes),
+                String.join(",", p.permissions),
+                p.dataPermission.name(),
+                p.dataPermissionRule == null ? "" : p.dataPermissionRule);
+    }
+
+    /** 反序列化缓存 */
+    private LoginAuthProfile rebuildProfileFromCache(String cache) {
+        LoginAuthProfile p = new LoginAuthProfile();
+        String[] parts = cache.split("\\|", 4);
+        if (parts.length >= 1 && !parts[0].isEmpty()) {
+            for (String s : parts[0].split(",")) p.roleCodes.add(s);
+        }
+        if (parts.length >= 2 && !parts[1].isEmpty()) {
+            for (String s : parts[1].split(",")) p.permissions.add(s);
+        }
+        if (parts.length >= 3 && !parts[2].isEmpty()) {
+            try { p.dataPermission = DataFilterTypeEnum.valueOf(parts[2]); } catch (Exception ignored) {}
+        }
+        if (parts.length >= 4) p.dataPermissionRule = parts[3];
+        return p;
+    }
+
+    /** 实际查询DB解析权限 */
+    private LoginAuthProfile doResolveProfile(SysUser user) {
         LoginAuthProfile profile = new LoginAuthProfile();
         List<Map<String, Object>> authRows = sysUserMapper.selectAuthRows(user.getSysUserId());
         if (authRows == null || authRows.isEmpty()) {
