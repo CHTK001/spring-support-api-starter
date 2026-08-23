@@ -1,4 +1,4 @@
-﻿spring:
+spring:
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:monitor;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
@@ -7,6 +7,12 @@
   h2:
     console:
       enabled: true
+  main:
+    allow-bean-definition-overriding: true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
 plugin:
   datasource:
     script:
@@ -14,3 +20,14 @@ plugin:
   redis:
     server:
       enable: false
+  job:
+    enable: false
+  user-agreement:
+    enable: false
+  system:
+    feedback:
+      menu:
+        enable: false
+monitor:
+  acme:
+    enabled: false

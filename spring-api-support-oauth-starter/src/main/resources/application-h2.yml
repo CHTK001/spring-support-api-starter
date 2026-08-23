@@ -7,7 +7,6 @@ spring:
   h2:
     console:
       enabled: true
-
 plugin:
   datasource:
     script:
@@ -18,3 +17,9 @@ plugin:
   oauth:
     client:
       enable: false
+  user-agreement:
+    enable: false
+  system:
+    feedback:
+      menu:
+        enable: false

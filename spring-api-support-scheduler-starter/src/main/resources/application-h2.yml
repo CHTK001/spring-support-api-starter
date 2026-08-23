@@ -1,4 +1,4 @@
-﻿spring:
+spring:
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:scheduler;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
@@ -14,3 +14,12 @@ plugin:
   redis:
     server:
       enable: false
+  sync:
+    client:
+      enable: false
+  user-agreement:
+    enable: false
+  system:
+    feedback:
+      menu:
+        enable: false
