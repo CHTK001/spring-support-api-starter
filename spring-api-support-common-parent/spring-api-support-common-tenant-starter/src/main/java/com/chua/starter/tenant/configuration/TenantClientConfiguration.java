@@ -1,8 +1,14 @@
+package com.chua.starter.tenant.configuration;
+
+import com.chua.starter.tenant.properties.TenantProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
 /**
  * 租户客户端配置
  *
  * @version 1.0.0
- * @author CH
  * @since 2024/12/06
  */
 @Configuration
@@ -11,10 +17,5 @@
         "com.chua.starter.tenant.client",
         "com.chua.starter.tenant.spi"
 })
-/**
- * public class TenantClientConfiguration
- *
- * @author CH
- * @since 4.0.0.42
- */
-public class TenantClientConfiguration
+public class TenantClientConfiguration {
+}

@@ -487,7 +487,7 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         data.put(TenantSyncMessageSupport.OPERATION, TenantSyncMessageSupport.OP_REPLACE);
 
         int sent = publishToTarget(sessionId, tenantId, TOPIC_TENANT_SERVICE, data);
-        log.info("[�⻧�����] �����������: tenantId={}, menuCount={}, serviceCount={}, receivers={}, mode={}",
+        log.info("[租户服务端] 租户服务数据推送完成: tenantId={}, menuCount={}, serviceCount={}, receivers={}, mode={}",
                 tenantId, menus.size(), services.size(), sent, syncMode);
         return sent;
     }
