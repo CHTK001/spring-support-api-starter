@@ -14,6 +14,8 @@ plugin:
   redis:
     server:
       enable: false
+  job:
+    enable: false
   sync:
     client:
       enable: false
@@ -22,4 +24,4 @@ plugin:
   system:
     feedback:
       menu:
-        enable: false
+        enabled: false
