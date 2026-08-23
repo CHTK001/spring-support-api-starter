@@ -17,9 +17,11 @@ plugin:
   oauth:
     client:
       enable: false
+  job:
+    enable: false
   user-agreement:
     enable: false
   system:
     feedback:
       menu:
-        enable: false
+        enabled: false

@@ -21,4 +21,4 @@ plugin:
   system:
     feedback:
       menu:
-        enable: false
+        enabled: false
