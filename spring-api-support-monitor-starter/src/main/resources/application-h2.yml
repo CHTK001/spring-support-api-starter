@@ -27,7 +27,7 @@ plugin:
   system:
     feedback:
       menu:
-        enable: false
+        enabled: false
 monitor:
   acme:
     enabled: false
