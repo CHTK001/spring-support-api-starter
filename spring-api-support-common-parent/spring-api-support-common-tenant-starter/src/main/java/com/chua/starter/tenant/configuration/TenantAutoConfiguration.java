@@ -1,8 +1,14 @@
+package com.chua.starter.tenant.configuration;
+
+import com.chua.starter.tenant.properties.TenantProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+
 /**
  * 租户自动配置
  *
  * @version 1.0.0
- * @author CH
  * @since 2024/12/06
  */
 @Configuration
@@ -12,10 +18,5 @@
         TenantServerConfiguration.class,
         TenantClientConfiguration.class
 })
-/**
- * public class TenantAutoConfiguration
- *
- * @author CH
- * @since 4.0.0.42
- */
-public class TenantAutoConfiguration
+public class TenantAutoConfiguration {
+}

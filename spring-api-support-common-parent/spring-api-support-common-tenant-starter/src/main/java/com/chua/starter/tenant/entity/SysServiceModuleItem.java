@@ -42,20 +42,20 @@ public class SysServiceModuleItem extends SysBase {
     private Integer sysServiceId;
 
     /**
-     * ����ģ��ID
+     * 服务模块ID
      */
     @TableField(value = "sys_service_module_id")
-    @ApiModelProperty(value = "����ģ��ID")
-    @Schema(description = "����ģ��ID")
+    @ApiModelProperty(value = "服务模块ID")
+    @Schema(description = "服务模块ID")
     /** SYS服务moduleID */
     private Integer sysServiceModuleId;
 
     /**
-     * �˵�ID
+     * 菜单ID
      */
     @TableField(value = "sys_menu_id")
-    @ApiModelProperty(value = "�˵�ID")
-    @Schema(description = "�˵�ID")
+    @ApiModelProperty(value = "菜单ID")
+    @Schema(description = "菜单ID")
     /** SYSmenuID */
     private Integer sysMenuId;
 }
