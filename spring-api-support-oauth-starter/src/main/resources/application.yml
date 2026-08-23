@@ -10,7 +10,7 @@ spring:
     exclude:
       - com.chua.starter.common.support.configuration.AsyncThreadPoolConfiguration  # 排除冲突的 AsyncConfigurer（与 Spring Boot 默认异步配置重复注册）
   profiles:
-    active: dev                  # 当前激活的环境
+    active: ${SPRING_PROFILES_ACTIVE:dev}   # 当前激活的环境（可用 SPRING_PROFILES_ACTIVE 覆盖，如 h2）
     include: plugin,mybatis,socket,report,api,ip,actuator  # 引入的公共配置模块
   application:
     name: oss                    # 应用名称（OAuth 认证服务）
