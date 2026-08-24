@@ -42,6 +42,6 @@ public class SmtpSetting implements Upgrade<SmtpSetting> {
         this.password = smtpSetting.password;
         this.port = smtpSetting.port;
         this.isLoaded = true;
-        // TODO: 邮件发送器初始化需要 MailConfiguration 和 MailSender 类，待 utils-support-extension-starter 模块提供
+        // TODO[@L45]: 邮件发送器初始化需要 MailConfiguration 和 MailSender 类，待 utils-support-extension-starter 模块提供
     }
 }

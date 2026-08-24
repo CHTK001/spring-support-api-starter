@@ -13,6 +13,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+    private static final long serialVersionUID = 1L;
 
 /**
  * 模板管理
