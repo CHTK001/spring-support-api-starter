@@ -18,7 +18,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.Method;
+import com.chua.common.support.reflection.ReflectUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -204,12 +205,7 @@ public class WeixinMiniLoginHandler implements LoginHandler {
      */
     private Object invokeMethod(Object target, String methodName, Object... args) {
         try {
-            Class<?>[] paramTypes = new Class<?>[args.length];
-            for (int i = 0; i < args.length; i++) {
-                paramTypes[i] = args[i].getClass();
-            }
-            Method method = target.getClass().getMethod(methodName, paramTypes);
-            return method.invoke(target, args);
+            return ReflectUtils.invoke(target, methodName, Object.class, args);
         } catch (Exception e) {
             log.error("反射调用方法 {} 失败: {}", methodName, e.getMessage(), e);
             return null;
@@ -230,8 +226,7 @@ public class WeixinMiniLoginHandler implements LoginHandler {
         try {
             // 尝试调用 getter 方法
             String getterName = "get" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
-            Method method = target.getClass().getMethod(getterName);
-            Object result = method.invoke(target);
+            Object result = ReflectUtils.invoke(target, getterName, Object.class);
             return result != null ? result.toString() : null;
         } catch (Exception e) {
             log.debug("获取属性 {} 失败: {}", propertyName, e.getMessage());
