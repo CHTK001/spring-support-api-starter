@@ -166,7 +166,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
         List<Double> score = inlist.getD();
         List<String> image = inlist.getI();
         List<List<String>> q = inlist.getQ();
-        List yearAndType = inlist.getA();
+        List<List<String>> yearAndType = inlist.getA();
         String apiVideoType = baseConfig.getApiVideoType();
         int totalInPage = names.size();
         for (int i = 0; i < totalInPage; i++) {
@@ -178,7 +178,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
                     i + 1,
                     totalInPage + 1);
 
-            List o = (List) yearAndType.get(i);
+            List<String> o = (List<String>) yearAndType.get(i);
             VideoInfoResult video = new VideoInfoResult();
             video.setVideoTitle(names.get(i));
             video.setVideoScore(BigDecimal.valueOf(Optional.ofNullable(score.get(i)).orElse(-1D)));
@@ -231,7 +231,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      * @param video 视频信息对象
      * @param o     标签信息对象
      */
-    private void registerTag(VideoInfoResult video, List o) {
+    private void registerTag(VideoInfoResult video, List<String> o) {
         List<String> tags = new LinkedList<>();
         for (int j = 2; j < o.size(); j++) {
             Object s = o.get(j);
@@ -439,7 +439,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             videoPlayAddress.setVideoPlayAddressCode(playlistDTO.getI());
             videoPlayAddress.setVideoPlayAddressUnique(playlistDTO.getM());
 
-            List list = playlistDTO.getList();
+            List<Object> list = playlistDTO.getList();
             List<VideoPlayAddressChannel> videoPlayAddressChannels = new ArrayList<>(list.size());
             for (Object s : list) {
                 ThreadUtils.sleep(500);
@@ -453,9 +453,9 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
                     continue;
                 }
 
-                if (s instanceof List list1) {
+                if (s instanceof List<Object> list1) {
                     Object object = list1.get(1);
-                    if (object instanceof List o1) {
+                    if (object instanceof List<Object> o1) {
                         Integer start = (Integer) o1.get(0);
                         Integer end = (Integer) o1.get(1);
                         IntStream.rangeClosed(start, end).forEach(i -> {
@@ -1121,7 +1121,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             private String m;
             @SerializedName("list")
             /** 列表 */
-            private List list;
+            private List<Object> list;
         }
     }
 
