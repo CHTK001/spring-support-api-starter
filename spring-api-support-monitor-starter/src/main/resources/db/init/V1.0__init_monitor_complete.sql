@@ -1,7 +1,7 @@
 -- 监控中心完整表结构
 -- 包含 ACME 证书管理、服务器/组件布局管理、Docker 软件库与软件仓库
 
-SET NAMES utf8mb4;
+SET NAMES utf8;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ACME 账户表
