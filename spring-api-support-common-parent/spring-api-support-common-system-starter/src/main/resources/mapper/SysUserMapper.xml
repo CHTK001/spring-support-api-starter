@@ -200,4 +200,16 @@
     ORDER BY t.create_time DESC
     LIMIT 1
   </select>
+
+  <!-- 检查用户是否拥有管理员角色 -->
+  <select id="hasAdminRole" resultType="java.lang.Boolean">
+    SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+    FROM sys_user_role sur
+    INNER JOIN sys_role sr ON sr.sys_role_id = sur.sys_role_id
+    WHERE sur.sys_user_id = #{userId}
+      AND sr.sys_role_id IN
+      <foreach collection="adminRoleIds" item="roleId" open="(" separator="," close=")">
+        #{roleId}
+      </foreach>
+  </select>
 </mapper>
