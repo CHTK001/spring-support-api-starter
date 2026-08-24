@@ -22,4 +22,9 @@
         AND (ts.sys_tenant_service_valid_time IS NULL OR ts.sys_tenant_service_valid_time > CURDATE())
     </select>
 
+    <!-- 按租户ID删除租户-服务绑定关系 -->
+    <delete id="deleteByTenantId">
+        DELETE FROM sys_tenant_service WHERE sys_tenant_id = #{tenantId}
+    </delete>
+
 </mapper>

@@ -47,4 +47,19 @@ public interface SysUserRoleMapper extends BaseMapper<SysUserRole> {
      * @param sysTenantId 绉熸埛ID
      */
     void insertWithTenant(@Param("sysUserRole") SysUserRole sysUserRole, @Param("sysTenantId") Integer sysTenantId);
+
+    /**
+     * 根据角色编码列表查询角色ID
+     *
+     * @param roleCodes 角色编码列表
+     * @return 角色ID列表
+     */
+    List<Integer> selectRoleIdsByCodes(@Param("roleCodes") List<String> roleCodes);
+
+    /**
+     * 查询所有管理员角色ID（含超级管理员）。
+     *
+     * @return 管理员角色ID列表
+     */
+    List<Integer> selectAdminRoleIds();
 }

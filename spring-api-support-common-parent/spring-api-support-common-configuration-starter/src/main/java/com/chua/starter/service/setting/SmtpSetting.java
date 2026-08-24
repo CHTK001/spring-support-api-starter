@@ -3,6 +3,7 @@ package com.chua.starter.service.setting;
 import com.chua.common.support.function.Upgrade;
 import com.chua.common.support.setting.GlobalSettingGroup;
 import lombok.Data;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 
 /**
  * smtp设置
@@ -11,6 +12,7 @@ import lombok.Data;
  */
 @Data
 @GlobalSettingGroup("smtp")
+@ConditionalOnClass(name = {"org.springframework.mail.javamail.JavaMailSenderImpl"})
 public class SmtpSetting implements Upgrade<SmtpSetting> {
     /**
      * 发送人
@@ -42,6 +44,7 @@ public class SmtpSetting implements Upgrade<SmtpSetting> {
         this.password = smtpSetting.password;
         this.port = smtpSetting.port;
         this.isLoaded = true;
-        // TODO[@L45]: 邮件发送器初始化需要 MailConfiguration 和 MailSender 类，待 utils-support-extension-starter 模块提供
+        // MailConfiguration / MailSender 由 utils-support-extension-starter 模块提供，
+        // 待该模块引入后在此处初始化邮件发送器。
     }
 }

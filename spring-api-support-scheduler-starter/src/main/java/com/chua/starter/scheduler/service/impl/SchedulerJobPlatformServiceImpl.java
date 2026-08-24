@@ -9,6 +9,7 @@ import com.chua.starter.job.support.store.JobLogEntity;
 import com.chua.starter.job.support.store.JobLogMapper;
 import com.chua.starter.job.support.store.JobMapper;
 import com.chua.starter.scheduler.dto.SchedulerTaskUpdateRequest;
+import com.chua.starter.scheduler.mapper.SchedulerJobMapper;
 import com.chua.starter.scheduler.service.SchedulerJobPlatformService;
 import com.chua.starter.scheduler.vo.SchedulerTaskVO;
 import lombok.RequiredArgsConstructor;
@@ -92,6 +93,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
      * 任务配置
      */
     private final JobProperties jobProperties;
+
+    /**
+     * 调度任务 Mapper
+     */
+    private final SchedulerJobMapper schedulerJobMapper;
 
     /**
      * 分页查询任务。
@@ -469,8 +475,8 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
                 .and(StringUtils.hasText(normalizedGroup), w -> w
                         .isNull(JobLogEntity::getSysJobNo)
                         .or()
-                        .inSql(JobLogEntity::getSysJobNo,
-                                "SELECT sys_job_no FROM sys_job WHERE sys_job_group = '" + escape(normalizedGroup) + "' AND sys_job_is_deleted = 0"))
+                        .in(JobLogEntity::getSysJobNo,
+                                schedulerJobMapper.selectJobNosByGroup(normalizedGroup)))
                 .orderByDesc(JobLogEntity::getSysJobLogId);
         return jobLogMapper.selectPage(new Page<>(safePageNum, safePageSize), wrapper);
     }

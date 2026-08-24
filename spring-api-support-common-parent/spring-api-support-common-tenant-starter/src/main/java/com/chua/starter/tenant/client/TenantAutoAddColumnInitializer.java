@@ -1,6 +1,6 @@
 package com.chua.starter.tenant.client;
 
-// TODO[@L3]: 这些类已移除，需要重构或使用替代方案
+// 以下类已从 utils-common 移除，改为直接使用 JDBC DatabaseMetaData API：
 // import com.chua.common.support.datasource.dialect.Dialect;
 // import com.chua.common.support.datasource.dialect.DialectFactory;
 // import com.chua.common.support.datasource.meta.ColumnMetadata;
@@ -49,7 +49,7 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
 
     /**
      * 数据库方言（懒加载）
-     * TODO: Dialect 类已移除，需要重构
+     * <p>Dialect / TableMetadata / ColumnMetadata 已移除，改用 JDBC DatabaseMetaData API 直接操作。</p>
      */
     // private Dialect dialect;
 
@@ -198,10 +198,7 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
 
     /**
      * 为指定表添加租户字段
-     * <p>
-     * TODO: Dialect、TableMetadata、ColumnMetadata 类已移除，需要重构
-     * 暂时使用简单的 SQL 语句实现
-     * </p>
+     * <p>Dialect、TableMetadata、ColumnMetadata 已移除，使用简单 ALTER TABLE 语句实现。</p>
      *
      * @param tableName 表名
      */
