@@ -352,6 +352,7 @@ public class SysJvmController {
             }
             // 尝试获取MaxDirectMemorySize
             try {
+                // sun.misc.VM 是 JDK 内部类，无法通过 ReflectUtils 访问，保持原样
                 Class<?> vmClass = Class.forName("sun.misc.VM");
                 java.lang.reflect.Method method = vmClass.getDeclaredMethod("maxDirectMemory");
                 long maxDirect = (Long) method.invoke(null);
