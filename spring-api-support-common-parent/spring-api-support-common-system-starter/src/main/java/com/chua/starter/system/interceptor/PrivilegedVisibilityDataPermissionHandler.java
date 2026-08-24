@@ -6,16 +6,22 @@ import com.chua.starter.common.support.oauth.AuthService;
 import com.chua.starter.common.support.oauth.CurrentUser;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.annotations.PrivilegedVisibility;
+import com.chua.starter.system.mapper.SysUserMapper;
+import com.chua.starter.system.mapper.SysUserRoleMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Table;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * 高权账号可见性处理器
@@ -49,6 +55,18 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
      * 鉴权服务提供者
      */
     private final Supplier<AuthService> authServiceSupplier;
+
+    /**
+     * 用户 Mapper（用于查询管理员角色信息）
+     */
+    @Autowired(required = false)
+    private SysUserMapper sysUserMapper;
+
+    /**
+     * 用户角色 Mapper（用于查询管理员角色ID列表）
+     */
+    @Autowired(required = false)
+    private SysUserRoleMapper sysUserRoleMapper;
 
     /**
      * 空构造器，鉴权服务提供者为空。
@@ -223,12 +241,16 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
         if (isAdmin(currentUser)) {
             return usernameColumn + " <> '" + SA_USERNAME + "'";
         }
+        List<Integer> adminRoleIds = getAdminRoleIds();
+        if (adminRoleIds.isEmpty()) {
+            return usernameColumn + " <> '" + SA_USERNAME + "'";
+        }
         return usernameColumn + " <> '" + SA_USERNAME + "'"
                 + " AND NOT EXISTS ("
                 + "SELECT 1 FROM sys_user_role privileged_sur "
                 + "LEFT JOIN sys_role privileged_sr ON privileged_sr.sys_role_id = privileged_sur.sys_role_id "
                 + "WHERE privileged_sur.sys_user_id = " + userAlias + ".sys_user_id "
-                + "AND privileged_sr.sys_role_code IN ('" + ADMIN + "', '" + SUPER_ADMIN + "')"
+                + "AND privileged_sr.sys_role_id IN (" + formatIdList(adminRoleIds) + ")"
                 + ")";
     }
 
@@ -243,14 +265,40 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
         if (isAdmin(currentUser)) {
             return usernameColumn + " <> '" + SA_USERNAME + "'";
         }
+        List<Integer> adminRoleIds = getAdminRoleIds();
+        if (adminRoleIds.isEmpty()) {
+            return usernameColumn + " <> '" + SA_USERNAME + "'";
+        }
         return usernameColumn + " <> '" + SA_USERNAME + "'"
                 + " AND NOT EXISTS ("
                 + "SELECT 1 FROM sys_user privileged_su "
                 + "LEFT JOIN sys_user_role privileged_sur ON privileged_sur.sys_user_id = privileged_su.sys_user_id "
                 + "LEFT JOIN sys_role privileged_sr ON privileged_sr.sys_role_id = privileged_sur.sys_role_id "
                 + "WHERE privileged_su.sys_user_username = " + usernameColumn + " "
-                + "AND privileged_sr.sys_role_code IN ('" + ADMIN + "', '" + SUPER_ADMIN + "')"
+                + "AND privileged_sr.sys_role_id IN (" + formatIdList(adminRoleIds) + ")"
                 + ")";
+    }
+
+    /**
+     * 获取管理员角色ID列表。
+     *
+     * @return 管理员角色ID列表
+     */
+    private List<Integer> getAdminRoleIds() {
+        if (sysUserRoleMapper == null) {
+            return Collections.emptyList();
+        }
+        return sysUserRoleMapper.selectRoleIdsByCodes(List.of(ADMIN, SUPER_ADMIN));
+    }
+
+    /**
+     * 将整数列表格式化为 SQL IN 子句的值列表。
+     *
+     * @param ids 整数ID列表
+     * @return 格式化后的字符串，如 "1,2,3"
+     */
+    private String formatIdList(List<Integer> ids) {
+        return ids.stream().map(Object::toString).collect(Collectors.joining(","));
     }
 
     /**

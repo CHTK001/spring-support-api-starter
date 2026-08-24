@@ -32,4 +32,12 @@ public interface SysTenantServiceMapper extends BaseMapper<SysTenantService> {
      * @return 租户ID列表
      */
     List<String> findTenantIdsByMenuId(@Param("menuId") Integer menuId);
+
+    /**
+     * 按租户ID删除租户-服务绑定关系
+     *
+     * @param tenantId 租户ID
+     * @return 删除行数
+     */
+    int deleteByTenantId(@Param("tenantId") String tenantId);
 }

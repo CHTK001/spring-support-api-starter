@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chua.starter.tenant.server.mapper.TenantServiceMapper">
+
+    <delete id="deleteByTenantId">
+        DELETE FROM sys_service WHERE sys_tenant_id = #{tenantId}
+    </delete>
+
+    <delete id="deleteModuleByTenantId">
+        DELETE FROM sys_service_module WHERE sys_tenant_id = #{tenantId}
+    </delete>
+
+    <delete id="deleteModuleItemByTenantId">
+        DELETE FROM sys_service_module_item WHERE sys_tenant_id = #{tenantId}
+    </delete>
+
+</mapper>

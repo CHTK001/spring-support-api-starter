@@ -24,4 +24,20 @@
     INNER JOIN sys_role r ON ur.sys_role_id = r.sys_role_id
     WHERE ur.sys_user_id = #{sysUserId}
   </select>
+
+  <select id="selectRoleIdsByCodes" resultType="java.lang.Integer">
+    SELECT sr.sys_role_id
+    FROM sys_role sr
+    WHERE sr.sys_role_code IN
+    <foreach collection="roleCodes" item="code" open="(" separator="," close=")">
+      #{code}
+    </foreach>
+  </select>
+
+  <!-- 查询所有管理员角色ID（含超级管理员） -->
+  <select id="selectAdminRoleIds" resultType="java.lang.Integer">
+    SELECT sr.sys_role_id
+    FROM sys_role sr
+    WHERE UPPER(sr.sys_role_code) IN ('SUPER_ADMIN', 'ADMIN')
+  </select>
 </mapper>

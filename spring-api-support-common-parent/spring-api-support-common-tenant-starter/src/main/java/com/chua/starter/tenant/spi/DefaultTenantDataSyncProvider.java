@@ -5,6 +5,11 @@ import com.chua.starter.entity.system.SysMenu;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.properties.TenantProperties;
+import com.chua.starter.tenant.server.mapper.SysServiceMapper;
+import com.chua.starter.tenant.server.mapper.SysServiceModuleItemMapper;
+import com.chua.starter.tenant.server.mapper.SysServiceModuleMapper;
+import com.chua.starter.tenant.server.mapper.SysTenantServiceMapper;
+import com.chua.starter.tenant.server.mapper.TenantServiceMapper;
 import com.chua.starter.tenant.sync.TenantSyncMessageSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +53,16 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
     private final JdbcTemplate jdbcTemplate;
     /** Tenant属性 */
     private final TenantProperties tenantProperties;
+    /** 服务 Mapper */
+    private final SysServiceMapper sysServiceMapper;
+    /** 服务模块 Mapper */
+    private final SysServiceModuleMapper sysServiceModuleMapper;
+    /** 服务模块项 Mapper */
+    private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
+    /** 租户服务绑定 Mapper */
+    private final SysTenantServiceMapper sysTenantServiceMapper;
+    /** 租户服务删除 Mapper */
+    private final TenantServiceMapper tenantServiceMapper;
 
     @Override
     /** 获取Name */
@@ -285,15 +300,15 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         String op = normalizeOperation(operation);
         try {
             if (OP_DELETE.equals(op)) {
-                jdbcTemplate.update("DELETE FROM sys_service WHERE " + tenantIdColumn + " = ?", tenantId);
-                jdbcTemplate.update("DELETE FROM sys_service_module WHERE " + tenantIdColumn + " = ?", tenantId);
-                jdbcTemplate.update("DELETE FROM sys_service_module_item WHERE " + tenantIdColumn + " = ?", tenantId);
-                jdbcTemplate.update("DELETE FROM sys_tenant_service WHERE sys_tenant_id = ?", tenantId);
+                tenantServiceMapper.deleteByTenantId(tenantId);
+                tenantServiceMapper.deleteModuleByTenantId(tenantId);
+                tenantServiceMapper.deleteModuleItemByTenantId(tenantId);
+                sysTenantServiceMapper.deleteByTenantId(tenantId);
                 return true;
             }
 
             upsertTenantRow(tenant);
-            jdbcTemplate.update("DELETE FROM sys_tenant_service WHERE sys_tenant_id = ?", tenantId);
+            sysTenantServiceMapper.deleteByTenantId(tenantId);
             if (services != null) {
                 for (Map<String, Object> service : services) {
                     Integer serviceId = MapUtils.getInteger(service, "sysServiceId", null);

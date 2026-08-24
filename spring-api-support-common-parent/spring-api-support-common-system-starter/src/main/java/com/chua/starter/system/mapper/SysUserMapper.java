@@ -127,4 +127,14 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      */
     @DataScope(enabled = false)
     String selectLatestTenantCodeByUsername(@Param("username") String username);
+
+    /**
+     * 检查用户是否拥有管理员角色（通过 sys_user_role + sys_role JOIN）
+     *
+     * @param userId      用户ID
+     * @param adminRoleIds 管理员角色ID列表
+     * @return true 表示拥有管理员角色
+     */
+    @DataScope(enabled = false)
+    boolean hasAdminRole(@Param("userId") Integer userId, @Param("adminRoleIds") List<Integer> adminRoleIds);
 }
