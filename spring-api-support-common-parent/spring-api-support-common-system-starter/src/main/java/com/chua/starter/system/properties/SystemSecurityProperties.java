@@ -43,9 +43,10 @@ public class SystemSecurityProperties {
     private int saltLength = 14;
 
     /**
-     * 用户导入时的默认密码
+     * 用户导入时的默认密码，由配置文件 plugin.system.security.default-import-password 覆盖。
+     * <p>建议部署时显式配置，不在此处硬编码。</p>
      */
-    private String defaultImportPassword = "123456";
+    private String defaultImportPassword = "";
 
     /**
      * 用户导出最大数量限制
