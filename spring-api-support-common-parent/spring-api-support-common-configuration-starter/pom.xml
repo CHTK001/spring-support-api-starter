@@ -19,6 +19,11 @@
       <artifactId>jakarta.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
+    <!-- Reactor 支持：Controller 可直接返回 Mono/Flux，Spring MVC 经 ReactiveTypeHandler 自动异步化（无需 WebFlux） -->
+    <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-core</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-support-common-starter</artifactId>
