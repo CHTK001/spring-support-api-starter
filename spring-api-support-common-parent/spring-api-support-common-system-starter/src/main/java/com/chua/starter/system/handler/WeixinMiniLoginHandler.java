@@ -1,6 +1,7 @@
 package com.chua.starter.system.handler;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.annotations.Spi;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
@@ -297,7 +298,7 @@ public class WeixinMiniLoginHandler implements LoginHandler {
     private Object getTencentMaHandler() {
         try {
             // 通过类名获取 Bean，避免编译时依赖
-            Class<?> clazz = Class.forName("com.chua.tencent.support.miniapp.TencentMaHandler");
+            Class<?> clazz = ReflectUtils.forName("com.chua.tencent.support.miniapp.TencentMaHandler");
             return SpringBeanUtils.getBean(clazz);
         } catch (ClassNotFoundException e) {
             log.debug("TencentMaHandler 类未找到，微信小程序功能不可用");

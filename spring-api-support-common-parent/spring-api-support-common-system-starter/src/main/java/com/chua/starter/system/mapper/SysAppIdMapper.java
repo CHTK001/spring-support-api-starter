@@ -29,6 +29,7 @@ public interface SysAppIdMapper extends BaseMapper<SysAppId> {
      * @param appIdValue   AppId值
      * @param lastUseTime 最后使用时间
      */
+    // 豁免：MyBatis @Update 注解，参数通过 #{param} 占位符参数化，+ 仅为多行字符串拼接
     @Update("UPDATE app_id SET app_id_use_count = app_id_use_count + 1, " +
             "app_id_last_use_time = #{lastUseTime} WHERE app_id_value = #{appIdValue} AND delete_flag = 0")
     void updateUseInfo(@Param("appIdValue") String appIdValue, @Param("lastUseTime") Long lastUseTime);
