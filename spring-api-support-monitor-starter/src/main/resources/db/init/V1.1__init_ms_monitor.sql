@@ -1,7 +1,7 @@
 -- 监控模块核心业务表（资产、采集任务、解析规则、网关、全局配置）
 -- 对应 pages/monitor 前端模块
 
-SET NAMES utf8mb4;
+SET NAMES utf8;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- 监控资产表
