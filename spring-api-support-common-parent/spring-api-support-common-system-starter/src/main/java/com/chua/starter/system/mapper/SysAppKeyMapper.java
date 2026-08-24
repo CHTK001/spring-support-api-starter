@@ -29,6 +29,7 @@ public interface SysAppKeyMapper extends BaseMapper<SysAppKey> {
      * @param appKey       应用密钥（sys_app_key_secret）
      * @param lastUsedTime 最后使用时间
      */
+    // 豁免：MyBatis @Update 注解，参数通过 #{param} 占位符参数化，+ 仅为多行字符串拼接
     @Update("UPDATE sys_app_key " +
             "SET sys_app_key_use_count = sys_app_key_use_count + 1, " +
             "sys_app_key_last_used_time = #{lastUsedTime} " +
