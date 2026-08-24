@@ -53,7 +53,7 @@ public class AdminSocketAuthFactory implements SocketAuthFactory {
         }
         UserResult userResult = AuthClientExecute.getInstance().getUserResult(singleUrlParam);
         SocketUser socketUser = BeanUtils.copyProperties(userResult, SocketUser.class);
-        // TODO: SocketUser 可能没有 setRoomId 方法，需要检查 SocketUser 类的实际结构
+        // TODO[@L56]: SocketUser 可能没有 setRoomId 方法，需要检查 SocketUser 类的实际结构
         // socketUser.setRoomId(MapUtils.getString(handshakeData, "roomId"));
         return socketUser;
     }

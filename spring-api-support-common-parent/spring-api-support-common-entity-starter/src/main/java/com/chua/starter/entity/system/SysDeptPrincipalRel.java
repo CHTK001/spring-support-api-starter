@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
+    private static final long serialVersionUID = 1L;
 
 /**
  * 部门负责人关系表
