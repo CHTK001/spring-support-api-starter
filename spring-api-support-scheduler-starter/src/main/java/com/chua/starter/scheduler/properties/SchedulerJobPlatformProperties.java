@@ -53,8 +53,9 @@ public class SchedulerJobPlatformProperties {
          * 控制台登录密码。
          * <p>
          * 这是轻量页面登录，不走统一用户中心，建议部署时显式覆盖。
+         * 由配置文件 plugin.scheduler.job-platform.console.password 设置。
          * </p>
          */
-        private String password = "admin123456";
+        private String password = "";
     }
 }
