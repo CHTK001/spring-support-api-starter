@@ -3,6 +3,7 @@ package com.chua.starter.oauth.sso.support.check;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.crypto.AesCodec;
 import com.chua.starter.oauth.client.support.user.LoginResult;
@@ -404,12 +405,8 @@ public class LoginCheck {
                 return null;
             }
 
-            var authVersionMethod = userInfoService.getClass().getMethod("authVersion", UserResult.class);
-            Object value = authVersionMethod.invoke(userInfoService, userResult);
+            Object value = ReflectUtils.invoke(userInfoService, "authVersion", Object.class, UserResult.class, userResult);
             return value == null ? null : value.toString();
-        } catch (NoSuchMethodException e) {
-            log.debug("当前 UserInfoService 未提供 authVersion 能力: {}", userResult.getLoginType());
-            return null;
         } catch (Exception e) {
             log.error("获取认证版本异常", e);
             return null;

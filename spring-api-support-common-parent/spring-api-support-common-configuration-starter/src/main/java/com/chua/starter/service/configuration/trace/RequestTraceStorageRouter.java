@@ -1,5 +1,6 @@
 package com.chua.starter.service.configuration.trace;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.service.configuration.trace.storage.FileRequestTraceRawRecordStorage;
 import com.chua.starter.service.configuration.trace.storage.InMemoryRequestTraceConfigStorage;
@@ -86,13 +87,9 @@ public class RequestTraceStorageRouter {
 
     /** Instantiate */
     private <T> T instantiate(String className, Class<T> type) {
-        try {
-            Class<?> target = Class.forName(className);
-            Object instance = target.getDeclaredConstructor().newInstance();
-            if (type.isInstance(instance)) {
-                return type.cast(instance);
-            }
-        } catch (Exception ignored) {
+        T instance = ReflectUtils.instantiate(className);
+        if (instance != null && type.isInstance(instance)) {
+            return type.cast(instance);
         }
         return null;
     }
