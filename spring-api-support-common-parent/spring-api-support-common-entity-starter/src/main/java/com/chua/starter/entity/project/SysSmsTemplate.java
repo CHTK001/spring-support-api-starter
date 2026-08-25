@@ -13,7 +13,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-    private static final long serialVersionUID = 1L;
 
 /**
  * 模板管理
@@ -26,6 +25,8 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper=true)
 @TableName(value = "sys_sms_template")
 public class SysSmsTemplate extends SysBase implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     /**
      * 模板主键ID
      */

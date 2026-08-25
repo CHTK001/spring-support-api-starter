@@ -12,7 +12,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-    private static final long serialVersionUID = 1L;
 import java.math.BigDecimal;
 
 /**
@@ -23,9 +22,10 @@ import java.math.BigDecimal;
  */
 @Schema(description = "用户操作日志表")
 @Data
-@EqualsAndHashCode(callSuper = true)
-@TableName(value = "sys_user_log")
+@EqualsAndHashCode(callSuper = false)
 public class SysUserLog extends SysBase implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 日志ID

@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
-    private static final long serialVersionUID = 1L;
 import java.util.List;
 
 /**
@@ -21,6 +20,8 @@ import java.util.List;
 @Schema(description = "行政区划表")
 @Data
 public class SysCity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 区划代码

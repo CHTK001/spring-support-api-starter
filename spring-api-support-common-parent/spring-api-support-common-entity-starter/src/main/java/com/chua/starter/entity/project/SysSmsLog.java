@@ -12,13 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-    private static final long serialVersionUID = 1L;
 import java.math.BigDecimal;
-
-/**
- *
- * @since 2024/11/27
- */
 
 /**
  * 短信下发日志表
@@ -28,6 +22,8 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_sms_log")
 public class SysSmsLog extends SysBase implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     @TableId(value = "sys_sms_log_id", type = IdType.AUTO)
     @Schema(description = "")
     @NotNull(message = "不能为null")

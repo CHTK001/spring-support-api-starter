@@ -12,7 +12,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-    private static final long serialVersionUID = 1L;
 
 /**
  * 用户布局配置表
@@ -25,6 +24,8 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_user_layout")
 public class SysUserLayout extends SysBase implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 布局ID
