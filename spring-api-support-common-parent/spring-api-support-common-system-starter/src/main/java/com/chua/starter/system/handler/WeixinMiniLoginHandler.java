@@ -299,10 +299,11 @@ public class WeixinMiniLoginHandler implements LoginHandler {
         try {
             // 通过类名获取 Bean，避免编译时依赖
             Class<?> clazz = ReflectUtils.forName("com.chua.tencent.support.miniapp.TencentMaHandler");
+            if (clazz == null) {
+                log.debug("TencentMaHandler 类未找到，微信小程序功能不可用");
+                return null;
+            }
             return SpringBeanUtils.getBean(clazz);
-        } catch (ClassNotFoundException e) {
-            log.debug("TencentMaHandler 类未找到，微信小程序功能不可用");
-            return null;
         } catch (Exception e) {
             log.debug("TencentMaHandler 未配置: {}", e.getMessage());
             return null;
