@@ -1,2 +1,2 @@
-﻿com.chua.starter.service.configuration.ConfigurationServiceConfiguration
+com.chua.starter.service.configuration.ConfigurationServiceConfiguration
 com.chua.starter.service.configuration.reactive.ReactiveWebConfiguration
