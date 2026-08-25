@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-    private static final long serialVersionUID = 1L;
 
 /**
  * 邮件模板
@@ -23,6 +22,8 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper=true)
 @TableName(value = "sys_email_template")
 public class SysEmailTemplate extends SysBase implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     /**
      * 模板主键ID
      */
