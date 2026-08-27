@@ -45,4 +45,16 @@
           AND sys_app_key_delete = 0
     </select>
 
+    <!--
+        原子自增使用次数并更新最后使用时间。
+        每次 API 调用成功后触发，用于统计和限流。
+    -->
+    <update id="updateUseInfoByAppKey">
+        UPDATE sys_app_key
+        SET sys_app_key_use_count        = sys_app_key_use_count + 1,
+            sys_app_key_last_used_time   = #{lastUsedTime}
+        WHERE sys_app_key_secret = #{appKey}
+          AND sys_app_key_delete = 0
+    </update>
+
 </mapper>

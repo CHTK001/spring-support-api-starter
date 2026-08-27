@@ -13,11 +13,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * OAuth 服务端热控制管理页面
+ * OAuth 服务端热控制管理页面，提供运行时配置查看与动态更新能力。
  * <p>
  * 访问地址：/oauth/admin（GET 返回 HTML 控制台，POST 接口热更新配置）
  * </p>
+ *
  * @author CH
+ * @since 4.0.0.50
  */
 @RestController
 @RequestMapping("/admin")
