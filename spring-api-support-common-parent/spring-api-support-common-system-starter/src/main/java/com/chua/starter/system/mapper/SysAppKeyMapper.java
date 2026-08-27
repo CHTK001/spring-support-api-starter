@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.entity.system.SysAppKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Update;
 
 /**
  * 应用密钥 Mapper
@@ -29,10 +28,5 @@ public interface SysAppKeyMapper extends BaseMapper<SysAppKey> {
      * @param appKey       应用密钥（sys_app_key_secret）
      * @param lastUsedTime 最后使用时间
      */
-    // 豁免：MyBatis @Update 注解，参数通过 #{param} 占位符参数化，+ 仅为多行字符串拼接
-    @Update("UPDATE sys_app_key " +
-            "SET sys_app_key_use_count = sys_app_key_use_count + 1, " +
-            "sys_app_key_last_used_time = #{lastUsedTime} " +
-            "WHERE sys_app_key_secret = #{appKey} AND sys_app_key_delete = 0")
     void updateUseInfoByAppKey(@Param("appKey") String appKey, @Param("lastUsedTime") Long lastUsedTime);
 }

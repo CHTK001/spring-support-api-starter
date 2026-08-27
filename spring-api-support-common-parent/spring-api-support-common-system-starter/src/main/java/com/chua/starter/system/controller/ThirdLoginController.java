@@ -37,15 +37,16 @@ import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 @RequiredArgsConstructor
 public class ThirdLoginController {
 
+    /** 用户登录服务，处理第三方授权登录逻辑 */
     final SysLoginService sysLoginService;
     /**
-     * 第三方登录
+     * 第三方授权登录，将授权码换取用户身份并写入 Token。
      *
-     * @param loginData     登录信息
-     * @param request       请求
-     * @param response      响应
-     * @param bindingResult 参数处理
-     * @return 结果
+     * @param loginData     第三方登录凭证（包含 provider 与 code）
+     * @param request       HTTP请求
+     * @param response      HTTP响应
+     * @param bindingResult 参数校验结果
+     * @return 登录结果，包含 accessToken 等信息
      */
     @Operation(summary = "第三方登录码")
     @PostMapping("/third/login/code")
@@ -61,13 +62,13 @@ public class ThirdLoginController {
         return sysLoginService.thirdLoginCode(loginData, request, response);
     }
     /**
-     * 第三方绑定
+     * 将第三方账号绑定到当前登录用户。
      *
-     * @param loginData     登录信息
-     * @param request       请求
-     * @param response      响应
-     * @param bindingResult 参数处理
-     * @return 结果
+     * @param loginData     第三方授权凭证
+     * @param request       HTTP请求
+     * @param response      HTTP响应
+     * @param bindingResult 参数校验结果
+     * @return 绑定操作结果
      */
     @Operation(summary = "第三方绑定码")
     @PostMapping("/third/bind/code")
@@ -82,10 +83,10 @@ public class ThirdLoginController {
         return sysLoginService.thirdBindCode(loginData, request, response);
     }
     /**
-     * 第三方绑定
+     * 查询当前用户的第三方账号绑定情况。
      *
-     * @param userId       userId
-     * @return 结果
+     * @param userId 当前登录用户 ID
+     * @return 已绑定的第三方平台列表
      */
     @Operation(summary = "第三方绑定情况")
     @PostMapping("/third/bind/info")
@@ -93,10 +94,11 @@ public class ThirdLoginController {
         return sysLoginService.thirdBindInfo(userId);
     }
     /**
-     * 第三方解绑
+     * 解绑指定第三方账号。
      *
-     * @param userId       userId
-     * @return 结果
+     * @param userId                  当前登录用户 ID
+     * @param thirdPartyUnbindRequest 解绑请求，包含目标 provider 标识
+     * @return 是否解绑成功
      */
     @Operation(summary = "第三方绑定解绑")
     @PostMapping("/third/unbind")
