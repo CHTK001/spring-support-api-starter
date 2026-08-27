@@ -43,5 +43,16 @@
           AND delete_flag = 0
     </select>
 
-</mapper>
+    <!--
+        原子自增使用次数并更新最后使用时间。
+        每次 API 调用成功后触发，用于统计和限流。
+    -->
+    <update id="updateUseInfo">
+        UPDATE app_id
+        SET app_id_use_count     = app_id_use_count + 1,
+            app_id_last_use_time = #{lastUseTime}
+        WHERE app_id_value = #{appIdValue}
+          AND delete_flag = 0
+    </update>
 
+</mapper>

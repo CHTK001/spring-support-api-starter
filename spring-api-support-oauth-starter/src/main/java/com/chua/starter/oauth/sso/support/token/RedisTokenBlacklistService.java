@@ -40,13 +40,26 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     private RedisTemplate<String, Object> stringRedisTemplate;
 
     @Override
-    /** 添加ToBlacklist */
+    /**
+     * 将 Token 加入黑名单，使用默认过期时间（24小时）。
+     *
+     * @param token  待加入黑名单的 Token
+     * @param reason 加入黑名单的原因
+     */
     public void addToBlacklist(String token, BlacklistReason reason) {
         addToBlacklist(token, reason, DEFAULT_EXPIRE_SECONDS, null, null);
     }
 
     @Override
-    /** 添加ToBlacklist */
+    /**
+     * 将 Token 加入黑名单，支持指定过期时间、用户ID和用户名。
+     *
+     * @param token       待加入黑名单的 Token
+     * @param reason      加入黑名单的原因
+     * @param expireTime  过期时间（秒），<=0 时不设置过期
+     * @param userId      用户ID（可选）
+     * @param username    用户名（可选）
+     */
     public void addToBlacklist(String token, BlacklistReason reason, long expireTime, String userId, String username) {
         if (token == null || token.isEmpty()) {
             return;
@@ -77,7 +90,12 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     }
 
     @Override
-    /** 是否Blacklisted */
+    /**
+     * 检查 Token 是否在黑名单中。
+     *
+     * @param token 待检查的 Token
+     * @return true 表示已被拉黑，false 表示未找到
+     */
     public boolean isBlacklisted(String token) {
         if (token == null || token.isEmpty()) {
             return false;
@@ -95,7 +113,12 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     }
 
     @Override
-    /** 添加UserToBlacklist */
+    /**
+     * 将用户加入全局黑名单（不设过期时间，需手动移除）。
+     *
+     * @param userId 用户ID
+     * @param reason 加入黑名单的原因
+     */
     public void addUserToBlacklist(String userId, String reason) {
         if (userId == null || userId.isEmpty()) {
             return;
@@ -118,7 +141,11 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     }
 
     @Override
-    /** 移除UserFromBlacklist */
+    /**
+     * 从全局黑名单中移除用户。
+     *
+     * @param userId 用户ID
+     */
     public void removeUserFromBlacklist(String userId) {
         if (userId == null || userId.isEmpty()) {
             return;
@@ -134,7 +161,12 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     }
 
     @Override
-    /** 是否UserBlacklisted */
+    /**
+     * 检查用户是否在全局黑名单中。
+     *
+     * @param userId 用户ID
+     * @return true 表示已被拉黑，false 表示未找到
+     */
     public boolean isUserBlacklisted(String userId) {
         if (userId == null || userId.isEmpty()) {
             return false;
@@ -151,7 +183,11 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     }
 
     @Override
-    /** 移除FromBlacklist */
+    /**
+     * 从 Token 黑名单中移除指定 Token。
+     *
+     * @param token 待移除的 Token
+     */
     public void removeFromBlacklist(String token) {
         if (token == null || token.isEmpty()) {
             return;
@@ -168,7 +204,9 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     }
 
     @Override
-    /** ClearAll */
+    /**
+     * 清空所有 Token 黑名单和用户黑名单记录。
+     */
     public void clearAll() {
         try {
             // 删除所有 Token 黑名单

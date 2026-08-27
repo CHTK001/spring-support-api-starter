@@ -29,9 +29,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 校验码
+ * 图形校验码接口，提供滑动/点选/算术等多种验证码生成与校验能力。
  *
  * @author CH
+ * @since 4.0.0.50
  */
 @RestController
 @Slf4j

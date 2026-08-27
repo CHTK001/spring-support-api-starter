@@ -37,9 +37,12 @@ import java.util.Set;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 
 /**
- * 用户接口
- * @since 2024/8/7
+ * 用户管理接口
+ *
+ * <p>提供用户 CRUD、密码管理、用户布局/偏好配置、导入导出等运维管理能力。</p>
+ *
  * @author CH
+ * @since 4.0.0.42
  */
 @Tag(name = "用户接口")
 @RestController
@@ -51,10 +54,11 @@ public class SysUserController {
     private final SysUserService sysUserService;
 
     /**
-     * 用户分页列表
+     * 用户分页列表查询。
      *
-     * @param sysUserQuery 条件
-     * @return 用户分页列表
+     * @param sysUserQuery 查询条件
+     * @param roles        当前用户角色集合
+     * @return 用户分页结果
      */
     @Operation(summary = "用户分页列表")
     @GetMapping("/page")
@@ -65,9 +69,11 @@ public class SysUserController {
 
 
     /**
-     * 获取当前用户布局
+     * 获取当前用户的布局配置。
      *
-     * @return 获取当前用户布局
+     * @param userId 当前用户ID
+     * @param roles  当前用户角色集合
+     * @return 用户布局信息
      */
     @Operation(summary = "获取当前用户布局")
     @GetMapping("/layout")
@@ -77,9 +83,11 @@ public class SysUserController {
         return ReturnResult.ok(sysUserService.getUserLayout(userId, roles));
     }
     /**
-     * 保存当前用户布局
+     * 保存当前用户的布局配置。
      *
-     * @return 更新用户
+     * @param userId      当前用户ID
+     * @param userLayout  布局信息
+     * @return 更新后的用户布局
      */
     @Operation(summary = "保存当前用户布局")
     @PutMapping("/layout")
@@ -89,9 +97,11 @@ public class SysUserController {
     }
 
     /**
-     * 获取当前用户偏好配置
+     * 获取当前用户的偏好配置。
      *
-     * @return 获取当前用户偏好配置
+     * @param userId 当前用户ID
+     * @param roles  当前用户角色集合
+     * @return 偏好配置 JSON 字符串
      */
     @Operation(summary = "获取当前用户偏好配置")
     @GetMapping("/preference")
@@ -103,8 +113,10 @@ public class SysUserController {
     }
 
     /**
-     * 保存当前用户偏好配置
+     * 保存当前用户的偏好配置。
      *
+     * @param userId     当前用户ID
+     * @param preference 偏好配置 JSON 字符串
      * @return 保存结果
      */
     @Operation(summary = "保存当前用户偏好配置")
@@ -122,9 +134,11 @@ public class SysUserController {
         return ReturnResult.ok(true);
     }
     /**
-     * 删除用户
+     * 删除用户（逻辑删除）。
      *
-     * @return 更新用户
+     * @param sysUserId 用户ID
+     * @return 删除结果
+     * @throws Exception 删除失败时抛出异常
      */
     @Operation(summary = "删除用户")
     @DeleteMapping("/delete")
@@ -141,10 +155,10 @@ public class SysUserController {
     }
 
     /**
-     * 重置自身密码
+     * 重置当前用户自身密码。
      *
-     * @param userId 用户ID
-     * @return 重置用户密码
+     * @param userId 当前用户ID
+     * @return 重置后的用户信息
      */
     @Operation(summary = "重置当前账号密码")
     @GetMapping("/resetOwner")
@@ -159,10 +173,10 @@ public class SysUserController {
     }
 
     /**
-     * 重置用户密码
+     * 管理员重置指定用户密码。
      *
-     * @param userId 用户ID
-     * @return 重置用户密码
+     * @param userId 目标用户ID
+     * @return 重置结果提示
      */
     @Operation(summary = "重置用户密码")
     @GetMapping("/reset")
@@ -178,9 +192,13 @@ public class SysUserController {
     }
 
     /**
-     * 更新当前账号密码
+     * 更新当前用户自身密码。
      *
-     * @return 更新用户
+     * @param roles                 当前用户角色集合
+     * @param userId                当前用户ID
+     * @param sysUserPasswordUpdate 密码更新参数（含原密码和新密码）
+     * @param bindingResult         校验结果
+     * @return 更新后的用户信息
      */
     @Operation(summary = "更新用户自身密码")
     @PutMapping("/updateOwner")
@@ -197,9 +215,13 @@ public class SysUserController {
         return sysUserService.updateOwner(roles, userId, sysUserPasswordUpdate);
     }
     /**
-     * 更新用户
+     * 管理员更新指定用户信息。
      *
-     * @return 更新用户
+     * @param roles       当前用户角色集合
+     * @param userId      当前管理员用户ID
+     * @param sysUser     用户更新参数
+     * @param bindingResult 校验结果
+     * @return 更新后的用户信息
      */
     @Operation(summary = "更新用户")
     @PutMapping("/update")
@@ -217,9 +239,12 @@ public class SysUserController {
     }
 
     /**
-     * 新增用户
+     * 新增用户。
      *
-     * @return 新增用户
+     * @param sysUserUpdate 用户新增参数
+     * @param bindingResult 校验结果
+     * @param request       HTTP请求对象
+     * @return 新增后的用户信息
      */
     @Operation(summary = "新增用户")
     @PostMapping("/save")
@@ -251,9 +276,9 @@ public class SysUserController {
     }
 
     /**
-     * 下载用户导入模板
+     * 下载用户导入模板。
      *
-     * @param response 响应对象
+     * @param response HTTP响应对象，用于写入Excel文件流
      */
     @Operation(summary = "下载用户导入模板")
     @GetMapping("/template")
