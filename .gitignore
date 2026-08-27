@@ -109,3 +109,11 @@ scan_script2.py
 scan_script4.py
 scan_script5.py
 test_script.py
+
+# 运行时输出/探针系统文件
+sys
+!**/src/main/java/sys**
+hs_err_pid*.log
+replay_pid*.log
+spy.log
+*.log.gz
