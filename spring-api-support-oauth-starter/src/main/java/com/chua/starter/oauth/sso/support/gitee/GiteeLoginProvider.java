@@ -2,8 +2,8 @@ package com.chua.starter.oauth.sso.support.gitee;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.system.service.GiteeService;
-import com.chua.common.support.network.net.NetAddress;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.protocol.support.network.net.NetAddress;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.common.support.utils.LocaleUtils;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.oauth.client.support.user.LoginResult;
@@ -62,14 +62,10 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
     final ThirdPartyLoginProperties thirdPartyLoginProperties;
     final LoginCheck loginCheck;
     final AuthServerProperties authServerProperties;
-    /** authStateCache */
-    private final AuthStateCache authStateCache= AuthDefaultStateCache.INSTANCE;
-    /** gitee服务 */
+    private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
     private GiteeService giteeService;
-    /** auth请求 */
     private AuthGiteeRequest authRequest;
     @Value("${plugin.auth.server.context-path:}")
-    /** context路径 */
     private String contextPath;
 
     /**
@@ -85,13 +81,6 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
                     @ApiResponse(responseCode = "302", description = "重定向到指定页面")
             }
     )
-    /**
-     * ThirdIndex
-     * @param authCallback authCallback
-     * @param attributes attributes
-     * @param request request
-     * @param response response
-     */
     public RedirectView thirdIndex(
             @Parameter(description = "Gitee授权回调参数") AuthCallback authCallback,
             RedirectAttributes attributes,
@@ -147,11 +136,6 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
                     @ApiResponse(responseCode = "200", description = "返回Gitee登录URL")
             }
     )
-    /**
-     * Gitee
-     * @param loginCode loginCode
-     * @param callback callback
-     */
     public String gitee(
             @Parameter(description = "登录代码", required = true) @RequestParam("loginCode") String loginCode,
             @Parameter(description = "回调URL") String callback) {
@@ -162,7 +146,6 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
     }
 
     @Override
-    /** AfterProperties设置 */
     public void afterPropertiesSet() throws Exception {
         this.authRequest = new AuthGiteeRequest(AuthConfig.builder()
                 .clientId(thirdPartyLoginProperties.getGitee().getClientId())
@@ -172,7 +155,6 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
     }
 
     @Override
-    /** 设置ApplicationContext */
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         try {
             giteeService = applicationContext.getBean(GiteeService.class);

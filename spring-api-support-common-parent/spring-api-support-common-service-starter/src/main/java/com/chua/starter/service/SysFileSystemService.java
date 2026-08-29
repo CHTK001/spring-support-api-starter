@@ -2,7 +2,7 @@ package com.chua.starter.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.storage.result.PutObjectResult;
+import com.chua.storage.support.storage.oss.result.PutObjectResult;
 import com.chua.starter.entity.service.SysFileSystem;
 import com.chua.starter.service.pojo.sso.SysFileInstantUploadRequest;
 import com.chua.starter.service.pojo.sso.SysFileInstantUploadResponse;
@@ -19,9 +19,9 @@ import java.io.File;
 /**
  * 文件系统服务接口
  *
+ * @author CH
  * @since 2024/12/10
  * @version 1.0.0
- * @author CH
  */
 public interface SysFileSystemService extends IService<SysFileSystem> {
 

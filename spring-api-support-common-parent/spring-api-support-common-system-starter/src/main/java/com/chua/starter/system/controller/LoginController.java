@@ -1,7 +1,8 @@
 package com.chua.starter.system.controller;
 
-import com.chua.common.support.enums.Action;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.core.constant.Action;
+import com.chua.task.support.task.debounce.Debounce;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.UserLog;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -44,8 +45,8 @@ import static com.chua.starter.common.support.logger.AbstractLoggerPointcutAdvis
 /**
  * 登录
  *
- * @since 2024/9/12
  * @author CH
+ * @since 2024/9/12
  */
 @RestController
 @Slf4j
@@ -56,20 +57,17 @@ import static com.chua.starter.common.support.logger.AbstractLoggerPointcutAdvis
 @RequiredArgsConstructor
 public class LoginController {
 
-    /** 用户登录服务 */
     final SysLoginService sysLoginService;
-    /** 用户信息服务 */
     final SysUserService sysUserService;
 
     /**
-     * 用户密码登录，写入访问令牌到响应 Cookie。
+     * 登录
      *
-     * @param loginData     登录凭证（用户名/密码）
-     * @param request       HTTP请求
-     * @param response      HTTP响应
-     * @param fingerprint   客户端指纹
-     * @param bindingResult 参数校验结果
-     * @return 登录结果，包含 accessToken、userInfo 等
+     * @param loginData     登录信息
+     * @param request       请求
+     * @param response      响应
+     * @param bindingResult 参数处理
+     * @return 结果
      */
     @Operation(summary = "登录")
     @PostMapping("/login")
@@ -79,27 +77,19 @@ public class LoginController {
             action = Action.LOGIN,
             loginType = "WEB",
             content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
+    @Debounce(key = "#loginData.username #loginData.loginType")
     public ReturnResult<LoginResult> login(@Valid @RequestBody LoginData loginData,
                                            HttpServletRequest request,
                                            HttpServletResponse response,
                                            @RequestHeader(name = X_REQ_FINGERPRINT, required = false) String fingerprint,
                                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.error(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysLoginService.login(loginData, request, response, fingerprint);
     }
 
-    /**
-     * 使用 refreshToken 刷新访问令牌。
-     *
-     * @param refreshToken  刷新令牌
-     * @param request       HTTP请求
-     * @param response      HTTP响应
-     * @param bindingResult 参数校验结果
-     * @return 新令牌及用户信息
-     */
     @Operation(summary = "刷新token")
     @PostMapping("/refresh-token")
     @SysLog
@@ -109,22 +99,12 @@ public class LoginController {
                                                   HttpServletResponse response,
                                                   BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.error(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysLoginService.refresh(refreshToken, request, response);
     }
 
-    /**
-     * 用户注销，清除令牌缓存及 Cookie。支持单设备登出与全端登出。
-     *
-     * @param uid              当前用户令牌（从 @UserValue 或请求头中获取）
-     * @param loginType        登录类型
-     * @param logoutTypeHeader x-oauth-logout-type 请求头，指定登出类型
-     * @param request          HTTP请求
-     * @param response         HTTP响应
-     * @return 注销结果
-     */
     @Operation(summary = "注销")
     @UserLog(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @DeleteMapping("/logout")
@@ -195,6 +175,7 @@ public class LoginController {
      *
      * @param roles 用户角色集合
      * @return 菜单列表
+     * @author CH
      * @since 2024/12/10
      * @version 1.0
      */
@@ -206,12 +187,6 @@ public class LoginController {
         return sysUserService.getUserMenu(roles, sysMenuEngine);
     }
 
-    /**
-     * 获取当前登录用户的迷你菜单列表。
-     *
-     * @param roles 当前用户角色集合（从上下文注入）
-     * @return 小程序菜单列表
-     */
     @Operation(summary = "获取当前登录用户小程序菜单")
     @GetMapping("/mini-menu")
     public ReturnResult<List<SysMiniMenuVO>> getUserMiniMenu(

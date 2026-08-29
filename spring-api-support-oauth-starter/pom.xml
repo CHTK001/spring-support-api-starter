@@ -3,9 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.chua</groupId>
-    <artifactId>spring-api-support-business-parent</artifactId>
-    <version>4.0.0.42</version>
-    <relativePath>../spring-api-support-business-parent/pom.xml</relativePath>
+    <artifactId>spring-support-api-parent</artifactId>
+    <version>4.0.0.40</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>spring-api-support-oauth-starter</artifactId>
   <description>OAuth单点登录系统</description>
@@ -15,12 +15,20 @@
     <protoc.version>3.24.4</protoc.version>
   </properties>
     <dependencies>
-      <!-- 移除 netty-all 聚合包：其内置旧版 resolver-dns 类与 Lettuce 7.5.2 的
-           DnsNameResolverBuilder.datagramChannelType 冲突，导致 oauth 启动失败；
-           单独 netty 模块(epoll/unix-common)仍统一 Armeria 与 Lettuce 的版本 -->
+      <!-- 强制统一 Netty 版本，解决 Armeria 引入的 4.1.130 与 4.2.7 冲突 -->
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-all</artifactId>
+        <version>4.2.9.Final</version>
+      </dependency>
       <dependency>
         <groupId>io.netty</groupId>
         <artifactId>netty-transport-native-epoll</artifactId>
+        <version>4.2.9.Final</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport-native-kqueue</artifactId>
         <version>4.2.9.Final</version>
       </dependency>
       <dependency>
@@ -34,24 +42,7 @@
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>spring-support-socket-starter</artifactId>
-      <version>${module.version}</version>
-      <exclusions>
-        <!-- 排除 netty-all 聚合包：其内置旧版 resolver-dns 类与 Lettuce 7.5.2 的
-             DnsNameResolverBuilder.datagramChannelType 冲突，导致 oauth 启动失败 -->
-        <exclusion>
-          <groupId>io.netty</groupId>
-          <artifactId>netty-all</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.chua</groupId>
       <artifactId>spring-support-mybatis-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.chua</groupId>
-      <artifactId>spring-support-datasource-starter</artifactId>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
@@ -61,10 +52,34 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-service-starter</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>spring-support-server-starter</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>spring-support-ai-starter</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-api-support-common-system-starter</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-undertow</artifactId>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
@@ -96,29 +111,10 @@
       <artifactId>jjwt-jackson</artifactId>
       <scope>runtime</scope>
     </dependency>
-      <dependency>
-        <groupId>com.chua</groupId>
-        <artifactId>utils-support-netty-starter</artifactId>
-        <exclusions>
-          <!-- 排除 netty-all 聚合包：其内置旧版 resolver-dns 类与 Lettuce 7.5.2 的
-               DnsNameResolverBuilder.datagramChannelType 冲突，导致 oauth 启动失败 -->
-          <exclusion>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-rsocket</artifactId>
-    </dependency>
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>utils-support-kcp-starter</artifactId>
-      <version>${module.version}</version>
+      <artifactId>utils-support-netty-starter</artifactId>
       <exclusions>
-        <!-- 排除 netty-all 聚合包：其内置旧版 resolver-dns 类与 Lettuce 7.5.2 的
-             DnsNameResolverBuilder.datagramChannelType 冲突，导致 oauth 启动失败 -->
         <exclusion>
           <groupId>io.netty</groupId>
           <artifactId>netty-all</artifactId>
@@ -127,15 +123,64 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-health</artifactId>
+      <artifactId>spring-boot-starter-rsocket</artifactId>
     </dependency>
-  </dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- 排除旧版 netty epoll，Armeria 使用 4.2.x，与 4.1.x 的 native library 不兼容 -->
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-epoll</artifactId>
+      <version>4.2.7.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-kqueue</artifactId>
+      <version>4.2.7.Final</version>
+    </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-transport-native-unix-common</artifactId>
+      <version>4.2.7.Final</version>
+    </dependency>
+          <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-protocol-starter</artifactId>
+            <version>${utils.version}</version>
+        </dependency>
+    </dependencies>
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
+          <excludes>
+            <exclude>*.yml</exclude>
+            <exclude>*.yaml</exclude>
+            <exclude>*.properties</exclude>
+            <exclude>logback*.xml</exclude>
+            <exclude>log4j2*.xml</exclude>
+            <exclude>config/**</exclude>
+          </excludes>
           <archive>
             <manifest>
               <mainClass>com.chua.starter.oauth.sso.support.AuthApplication</mainClass>

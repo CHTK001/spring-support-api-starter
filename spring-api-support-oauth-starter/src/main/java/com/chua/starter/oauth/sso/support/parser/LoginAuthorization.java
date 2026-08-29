@@ -1,10 +1,9 @@
 package com.chua.starter.oauth.sso.support.parser;
 
-import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.text.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.network.ip.GeoCity;
-import com.chua.starter.common.support.network.UserAgent;
-import com.chua.common.support.utils.MapUtils;
+import com.chua.protocol.support.network.net.UserAgent;
+import com.chua.common.support.core.utils.MapUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.IpUtils;
 import com.chua.starter.oauth.client.support.user.LoginResult;
@@ -24,45 +23,23 @@ import java.util.Map;
 /**
  * 鉴权信息
  *
+ * @author CH
  */
 @Slf4j
 public final class LoginAuthorization implements Authorization {
-    /** 用户名 */
     private final String username;
-    /** 密码 */
     private final String password;
-    /** login类型 */
     private final String loginType;
-    /** app名称 */
     private final String appName;
     private final Map<String, String> ext;
-    /** 响应 */
     private final HttpServletResponse response;
-    /** authServerProperties */
     private final AuthServerProperties authServerProperties;
-    /** sys用户Log服务 */
     private final SysUserLogService sysUserLogService;
-    /** iptables服务 */
     private final IptablesService iptablesService;
     final ApplicationContext applicationContext;
     final LoginCheck loginCheck;
-    /** authInformation */
     private final LoginAuthInformation authInformation;
 
-    /**
-     * 创建 LoginAuthorization 实例
-     * @param authInformation authInformation
-     * @param username username
-     * @param password password
-     * @param loginType loginType
-     * @param appName appName
-     * @param ext ext
-     * @param response response
-     * @param authServerProperties authServerProperties
-     * @param sysUserLogService sysUserLogService
-     * @param applicationContext applicationContext
-     * @param loginCheck loginCheck
-     */
     public LoginAuthorization(LoginAuthInformation authInformation,
                               String username,
                               String password,
@@ -94,7 +71,6 @@ public final class LoginAuthorization implements Authorization {
     }
 
     @Override
-    /** Authentication */
     public ReturnResult<String> authentication() {
         long startTime = System.currentTimeMillis();
         String traceId = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16);
@@ -157,12 +133,10 @@ public final class LoginAuthorization implements Authorization {
         }
         sysUserLog.setSysLogFingerprint(fingerprint);
 
-        UserAgent.UserAgentInfo userAgent = UserAgent.parseUserAgentString(ua);
-        sysUserLog.setSysLogBrowser(userAgent != null && userAgent.getBrowser() != null
-                ? userAgent.getBrowser().toString() : null);
+        UserAgent userAgent = UserAgent.parseUserAgentString(ua);
+        sysUserLog.setSysLogBrowser(userAgent.getBrowser().toString());
         sysUserLog.setSysLogUsername(loginAuthorization.username);
-        sysUserLog.setSysLogSystem(userAgent != null && userAgent.getOperatingSystem() != null
-                ? userAgent.getOperatingSystem().getName() : null);
+        sysUserLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
         sysUserLog.setSysLogUrl("/login");
         sysUserLog.setSysLogFrom(returnResult.isOk() ? "LOGIN" : "LOGIN_FAIL");
         sysUserLog.setSysLogAppName(appName);
@@ -201,10 +175,10 @@ public final class LoginAuthorization implements Authorization {
         // IP 归属地解析
         if (iptablesService != null && ip != null && !ip.isBlank()) {
             try {
-                ReturnResult<GeoCity> geoResult =
+                com.chua.common.support.lang.code.ReturnResult<com.chua.common.support.geo.GeoCity> geoResult =
                         iptablesService.transferAddress(ip);
                 if (geoResult != null && geoResult.isOk() && geoResult.getData() != null) {
-                    GeoCity city = geoResult.getData();
+                    com.chua.common.support.geo.GeoCity city = geoResult.getData();
                     sysUserLog.setSysLogAddress(city.toString());
                     sysUserLog.setSysLogIsp(city.getIsp());
                 }

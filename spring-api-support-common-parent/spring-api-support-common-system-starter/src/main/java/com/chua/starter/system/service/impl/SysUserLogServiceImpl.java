@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.network.ip.GeoCity;
+import com.chua.geo.support.geo.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.DateUtils;
-import com.chua.common.support.utils.ObjectUtils;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.time.date.DateUtils;
+import com.chua.common.support.core.utils.ObjectUtils;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.common.support.logger.UserLoggerInfo;
 import com.chua.starter.common.support.service.IptablesService;
@@ -30,8 +30,8 @@ import java.util.Set;
  * 用户操作日志服务实现类
  * <p>提供用户操作日志的记录、查询和删除功能</p>
  *
- * @since 2024/8/8
  * @author CH
+ * @since 2024/8/8
  */
 @Slf4j
 @Service
@@ -41,7 +41,6 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     final IptablesService iptablesService;
 
     @Override
-    /** OnApplicationEvent */
     public void onApplicationEvent(UserLoggerInfo userLoggerInfo) {
 //        SysUserLog sysUserLog = createSysUserLog(userLoggerInfo);
 //        ThreadUtils.newStaticThreadPool()
@@ -94,14 +93,6 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     @Override
-    /**
-     * 分页ForUserLog
-     * @param query query
-     * @param sysUserLogQuery sysUserLogQuery
-     * @param sysUserId sysUserId
-     * @param roles roles
-     * @param managedDeptTreeIds managedDeptTreeIds
-     */
     public IPage<SysUserLog> pageForUserLog(Query<SysUserLog> query,
                                             SysUserLogQuery sysUserLogQuery,
                                             Integer sysUserId,
@@ -140,7 +131,6 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         return page;
     }
 
-    /** NormalizeUser记录日志查询 */
     private SysUserLogQuery normalizeUserLogQuery(SysUserLogQuery source) {
         SysUserLogQuery target = null == source ? new SysUserLogQuery() : source;
         target.setSysLogUsername(normalizeNullableString(target.getSysLogUsername()));
@@ -152,7 +142,6 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         return target;
     }
 
-    /** NormalizeNullableString */
     private String normalizeNullableString(String value) {
         if (StringUtils.isBlank(value)) {
             return null;
@@ -161,19 +150,11 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     @Override
-    /** 删除 */
     public ReturnResult<Boolean> delete(Long userLogId) {
-        return baseMapper.deleteById(userLogId) > 0 ? ReturnResult.ok() : ReturnResult.error("删除失败");
+        return baseMapper.deleteById(userLogId) > 0 ? ReturnResult.ok() : ReturnResult.error();
     }
 
     @Override
-    /**
-     * Cleanup
-     * @param sysUserLogQuery sysUserLogQuery
-     * @param sysUserId sysUserId
-     * @param roles roles
-     * @param managedDeptTreeIds managedDeptTreeIds
-     */
     public ReturnResult<Integer> cleanup(SysUserLogQuery sysUserLogQuery,
                                          Integer sysUserId,
                                          Set<String> roles,
@@ -194,7 +175,6 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     @Override
-    /** MineLogs */
     public IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Integer sysUserId, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysUserLog>lambdaQuery()
                 .eq(SysUserLog::getCreateBy, sysUserId)
@@ -207,7 +187,6 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     @Override
-    /** Async保存User记录日志 */
     public void asyncSaveUserLog(SysUserLog sysUserLog) {
         if (null == sysUserLog) {
             return;

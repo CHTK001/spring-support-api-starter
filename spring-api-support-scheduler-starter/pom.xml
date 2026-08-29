@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.chua</groupId>
-    <artifactId>spring-api-support-business-parent</artifactId>
-    <version>4.0.0.42</version>
-    <relativePath>../spring-api-support-business-parent/pom.xml</relativePath>
+    <artifactId>spring-support-api-parent</artifactId>
+    <version>4.0.0.40</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>spring-api-support-scheduler-starter</artifactId>
   <description>定时任务</description>
@@ -14,20 +14,25 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-system-starter</artifactId>
       <exclusions>
-        <!-- 排除 3.5.17 spring-boot4-starter, 强制收敛到 3.5.16 -->
         <exclusion>
-          <groupId>com.baomidou</groupId>
-          <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.baomidou</groupId>
-          <artifactId>mybatis-plus-spring-boot-native-image</artifactId>
+          <groupId>com.chua</groupId>
+          <artifactId>utils-support-armeria-starter</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-undertow</artifactId>
     </dependency>
     <dependency>
       <groupId>io.swagger.core.v3</groupId>
@@ -40,24 +45,18 @@
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>spring-support-datasource-starter</artifactId>
-      <exclusions>
-        <!-- 排除 3.5.17 spring-boot4-starter, 强制收敛到 3.5.16 (与 spring-support-mybatis-starter jar 内字节码一致) -->
-        <exclusion>
-          <groupId>com.baomidou</groupId>
-          <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.baomidou</groupId>
-          <artifactId>mybatis-plus-spring-boot-native-image</artifactId>
-        </exclusion>
-      </exclusions>
+      <artifactId>utils-support-task-starter</artifactId>
+      <version>${utils.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-support-discovery-starter</artifactId>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-nacos-starter</artifactId>
+      <version>4.0.0.40</version>
     </dependency>
     <dependency>
       <groupId>com.mysql</groupId>
@@ -78,100 +77,31 @@
       <groupId>org.apache.httpcomponents.client5</groupId>
       <artifactId>httpclient5</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.mybatis</groupId>
-      <artifactId>mybatis-spring</artifactId>
-      <version>3.0.5</version>
-    </dependency>
-    <!-- 3.5.16+ 把 IService 接口移到了 mybatis-plus-spring, 显式引入以保证系统模块 ServiceImpl 编译期可用 -->
-    <dependency>
-      <groupId>com.baomidou</groupId>
-      <artifactId>mybatis-plus-spring</artifactId>
-      <version>3.5.16</version>
-    </dependency>
-    <!--
-      显式引入 mybatis-plus-spring-boot3-starter + autoconfigure:
-      spring-support-mybatis-starter 的 pom 引用 spring-boot3-starter 无 version, 父 depMgmt 已锁定 3.5.16,
-      但 starter 本身不显式传递依赖 autoconfigure (在 runtime); 我们显式声明以确保 ConfigurationCustomizer 进 lib.
-    -->
-    <dependency>
-      <groupId>com.baomidou</groupId>
-      <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-      <version>3.5.16</version>
-    </dependency>
-    <!--
-      spring-support-common-starter-4.0.0.42 的 ApiConfiguration 用 spring-boot 4.x 接口
-      org.springframework.boot.webmvc.autoconfigure.WebMvcRegistrations,
-      必须显式引入 spring-boot-webmvc-4.1.0 以避免 classpath 缺失.
-    -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-webmvc</artifactId>
-      <version>4.1.0</version>
-    </dependency>
-  </dependencies>
-  <dependencyManagement>
-    <dependencies>
-      <!--
-        锁定 MyBatis-Plus 到 3.5.16: spring-support-mybatis-starter 4.0.0.42 的 jar 仍是基于
-        3.5.16 的 com.baomidou.mybatisplus.extension.spring.* 包路径编译, 而 3.5.17 起
-        MybatisSqlSessionFactoryBean 已迁至 com.baomidou.mybatisplus.spring.* (无 extension.),
-        会导致 runtime NoClassDefFoundError.
-      -->
-      <dependency>
-        <groupId>com.baomidou</groupId>
-        <artifactId>mybatis-plus-annotation</artifactId>
-        <version>3.5.16</version>
-      </dependency>
-      <dependency>
-        <groupId>com.baomidou</groupId>
-        <artifactId>mybatis-plus-core</artifactId>
-        <version>3.5.16</version>
-      </dependency>
-      <dependency>
-        <groupId>com.baomidou</groupId>
-        <artifactId>mybatis-plus-extension</artifactId>
-        <version>3.5.16</version>
-      </dependency>
-      <dependency>
-        <groupId>com.baomidou</groupId>
-        <artifactId>mybatis-plus</artifactId>
-        <version>3.5.16</version>
-      </dependency>
-      <dependency>
-        <groupId>com.baomidou</groupId>
-        <artifactId>mybatis-plus-spring</artifactId>
-        <version>3.5.16</version>
-      </dependency>
-      <dependency>
-        <groupId>com.baomidou</groupId>
-        <artifactId>mybatis-plus-jsqlparser</artifactId>
-        <version>3.5.16</version>
-      </dependency>
-      <dependency>
-        <groupId>com.baomidou</groupId>
-        <artifactId>mybatis-plus-jsqlparser-common</artifactId>
-        <version>3.5.16</version>
-      </dependency>
-      <dependency>
-        <groupId>com.baomidou</groupId>
-        <artifactId>mybatis-plus-spring-boot-autoconfigure</artifactId>
-        <version>3.5.16</version>
-      </dependency>
-      <!-- mybatis-spring: 为 SchedulerApplication @MapperScan 提供 org.mybatis.spring.annotation.MapperScan -->
-      <dependency>
-        <groupId>org.mybatis</groupId>
-        <artifactId>mybatis-spring</artifactId>
-        <version>3.0.5</version>
-      </dependency>
+          <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-protocol-starter</artifactId>
+            <version>${utils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-datasource-starter</artifactId>
+            <version>${utils.version}</version>
+        </dependency>
     </dependencies>
-  </dependencyManagement>
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
+          <excludes>
+            <exclude>*.yml</exclude>
+            <exclude>*.yaml</exclude>
+            <exclude>*.properties</exclude>
+            <exclude>logback*.xml</exclude>
+            <exclude>log4j2*.xml</exclude>
+            <exclude>config/**</exclude>
+          </excludes>
           <archive>
             <manifest>
               <mainClass>com.chua.starter.scheduler.SchedulerApplication</mainClass>

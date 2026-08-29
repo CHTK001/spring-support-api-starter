@@ -4,14 +4,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.utils.BeanUtils;
-import com.chua.common.support.network.ip.GeoCity;
+import com.chua.common.support.base.bean.BeanUtils;
+import com.chua.geo.support.geo.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.CollectionUtils;
-import com.chua.common.support.utils.DigestUtils;
-import com.chua.common.support.utils.IdUtils;
-import com.chua.common.support.utils.StringUtils;
-import com.chua.common.support.application.GlobalSettingFactory;
+import com.chua.common.support.core.utils.CollectionUtils;
+import com.chua.common.support.core.utils.DigestUtils;
+import com.chua.common.support.core.utils.RandomUtils;
+import com.chua.common.support.core.utils.StringUtils;
+import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.service.IptablesService;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
@@ -48,10 +48,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 系统用户服务实现类
- *
- * @since 2024/8/7
  * @author CH
+ * @since 2024/8/7
  */
 @Service
 @Slf4j
@@ -69,16 +67,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     final SysUserLayoutMapper sysUserLayoutMapper;
     final SysUserLogMapper sysUserLogMapper;
     final SystemSecurityProperties securityProperties;
-    /** GLOBASETTINFACTORY */
-    private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY= GlobalSettingFactory.getInstance();
+    private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
 
-    /**
-     * 分页查询系统用户信息。
-     *
-     * @param sysUserQuery 用户查询对象
-     * @param roles        用户角色集合
-     * @return 分页用户列表
-     */
     @Override
     public IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles) {
         IPage<SysUser> sysUserPage = baseMapper.selectPageUser(sysUserQuery.createPage(), sysUserQuery);
@@ -109,7 +99,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    /** 删除 */
     public ReturnResult<Boolean> delete(Long userId) {
         SysUser sysUser1 = getById(userId);
         if (null == sysUser1) {
@@ -124,15 +113,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    /** 重置Owner */
     public ReturnResult<SysUser> resetOwner(Long userId) {
         SysUser sysUser1 = getById(userId);
         if (null == sysUser1) {
             return ReturnResult.illegal("用户信息不存在");
         }
 
-        String newPassword = IdUtils.createSimpleUuid().substring(0, 8);
-        sysUser1.setSysUserSalt(IdUtils.createSimpleUuid().substring(0, securityProperties.getSaltLength()));
+        String newPassword = RandomUtils.randomString(8);
+        sysUser1.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
         sysUser1.setSysUserPassword(DigestUtils.md5Hex(newPassword + sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
@@ -140,15 +128,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    /** 重置 */
     public ReturnResult<String> reset(Long userId) {
         SysUser sysUser1 = getById(userId);
         if (null == sysUser1) {
             return ReturnResult.illegal("用户信息不存在");
         }
 
-        String password = IdUtils.createSimpleUuid().substring(0, 8);
-        sysUser1.setSysUserSalt(IdUtils.createSimpleUuid().substring(0, securityProperties.getSaltLength()));
+        String password = RandomUtils.randomString(8);
+        sysUser1.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
         sysUser1.setSysUserPassword(DigestUtils.md5Hex(password + sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
@@ -156,7 +143,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    /** 更新User */
     public ReturnResult<SysUser> updateUser(Set<String> roles, Long userId, SysUserUpdate sysUser) {
         Integer sysUserId = sysUser.getSysUserId();
         SysUser sysUser1;
@@ -165,7 +151,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             sysUser1 = getById(userId);
         } else {
             //更新其他账号
-            if (!AuthConstant.isAdmin(roles)) {
+            if (!AuthConstant.hasAdmin(roles)) {
                 return ReturnResult.illegal("没有权限操作");
             }
             sysUser1 = getById(sysUserId);
@@ -174,7 +160,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         BeanUtils.copyProperties(sysUser, sysUser1);
 
         if (StringUtils.isNotBlank(sysUser.getSysUserPassword())) {
-            sysUser1.setSysUserSalt(IdUtils.createSimpleUuid().substring(0, securityProperties.getSaltLength()));
+            sysUser1.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
             sysUser1.setSysUserPassword(DigestUtils.md5Hex(sysUser.getSysUserPassword() + sysUser1.getSysUserSalt()));
         }
         sysUser1.setSysUserUsername(null);
@@ -206,13 +192,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    /** 保存User */
     public ReturnResult<SysUser> saveUser(SysUserUpdate sysUserUpdate, HttpServletRequest request) {
         if(baseMapper.selectCount(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getSysUserUsername, sysUserUpdate.getSysUserUsername())
         ) > 0L) {
             return ReturnResult.illegal("账号已存在");
         }
-        sysUserUpdate.setSysUserSalt(IdUtils.createSimpleUuid().substring(0, securityProperties.getSaltLength()));
+        sysUserUpdate.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
         sysUserUpdate.setSysUserPassword(DigestUtils.md5Hex(sysUserUpdate.getSysUserPassword() + sysUserUpdate.getSysUserSalt()));
         sysUserUpdate.setSysUserInSystem(SystemConstant.IN_SYSTEM_NO);
         sysUserUpdate.setSysUserDelete(SystemConstant.NOT_DELETED);
@@ -239,7 +224,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    /** 获取UserMenu */
     public ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles, Integer sysMenuEngine) {
         SysMenu sysMenu = new SysMenu();
         sysMenu.setSysMenuEngine(null == sysMenuEngine ? 0 : sysMenuEngine);
@@ -247,12 +231,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    /** 获取UserMiniMenu */
     public ReturnResult<List<SysMiniMenuVO>> getUserMiniMenu(Set<String> roles) {
         return sysMiniMenuService.listUserMenus(roles);
     }
 
-    /** 解析GeoAddress */
     private String resolveGeoAddress(String rawIp) {
         String ip = normalizeClientIp(rawIp);
         if (org.apache.commons.lang3.StringUtils.isBlank(ip)) {
@@ -274,7 +256,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
     }
 
-    /** NormalizeClientIp */
     private String normalizeClientIp(String rawIp) {
         if (org.apache.commons.lang3.StringUtils.isBlank(rawIp)) {
             return null;
@@ -286,7 +267,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .orElse(null);
     }
 
-    /** NormalizeLastLoginState */
     private void normalizeLastLoginState(SysUser source, SysUserVO target) {
         if (null == source || null == target) {
             return;
@@ -299,7 +279,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         target.setSysUserLastAddress(null);
     }
 
-    /** EnrichLastLoginInfo */
     private void enrichLastLoginInfo(List<SysUserVO> records) {
         if (CollectionUtils.isEmpty(records)) {
             return;
@@ -341,7 +320,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
 
     @Override
-    /** 更新Owner */
     public ReturnResult<SysUser> updateOwner(Set<String> roles, Long userId, SysUserPasswordUpdate sysUserPasswordUpdate) {
         SysUser sysUser = baseMapper.selectById(userId);
         if(null == sysUser) {
@@ -362,7 +340,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         if (StringUtils.isNotBlank(sysUserPasswordUpdate.getNewPassword())) {
-            sysUser.setSysUserSalt(IdUtils.createSimpleUuid().substring(0, securityProperties.getSaltLength()));
+            sysUser.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
             sysUser.setSysUserPassword(DigestUtils.md5Hex(sysUserPasswordUpdate.getNewPassword() + sysUser.getSysUserSalt()));
         } else {
             return ReturnResult.illegal("新密码不能为空！");
@@ -378,7 +356,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    /** 获取UserLayout */
     public UserLayout getUserLayout(Long userId, Set<String> roles) {
         SysUserLayout sysUserLayout = sysUserLayoutMapper.selectOne(Wrappers.<SysUserLayout>lambdaQuery().eq(SysUserLayout::getSysLayoutUserId, userId));
         UserLayout userLayout = new UserLayout();
@@ -393,7 +370,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    /** 保存UserLayout */
     public UserLayout saveUserLayout(Long userId, UserLayout userLayout) {
         SysUserLayout sysUserLayout = sysUserLayoutMapper.selectOne(Wrappers.<SysUserLayout>lambdaQuery().eq(SysUserLayout::getSysLayoutUserId, userId));
         if(null == sysUserLayout) {
@@ -415,7 +391,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    /** ExportUsers */
     public void exportUsers(SysUserQuery query, Set<String> roles, jakarta.servlet.http.HttpServletResponse response) {
         try {
             response.setContentType("text/csv;charset=UTF-8");
@@ -432,8 +407,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             writer.println("用户名,昵称,邮箱,手机号,性别,部门,角色,状态,备注");
             
             // 查询数据
-            // 限制最大导出数量
-            query.setPageSize(securityProperties.getMaxExportCount());
+            query.setPageSize(securityProperties.getMaxExportCount()); // 限制最大导出数量
             IPage<SysUserVO> page = pageForUser(query, roles);
             
             for (SysUserVO user : page.getRecords()) {
@@ -459,7 +433,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    /** DownloadTemplate */
     public void downloadTemplate(jakarta.servlet.http.HttpServletResponse response) {
         try {
             response.setContentType("text/csv;charset=UTF-8");
@@ -483,7 +456,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    /** ImportUsers */
     public ReturnResult<String> importUsers(org.springframework.web.multipart.MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ReturnResult.illegal("请上传文件");
@@ -550,7 +522,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     sysUser.setSysUserRemark(fields.length > 8 ? fields[8].trim() : null);
                     
                     // 设置默认密码
-                    sysUser.setSysUserSalt(IdUtils.createSimpleUuid().substring(0, securityProperties.getSaltLength()));
+                    sysUser.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
                     sysUser.setSysUserPassword(DigestUtils.md5Hex(securityProperties.getDefaultImportPassword() + sysUser.getSysUserSalt()));
                     sysUser.setSysUserInSystem(SystemConstant.IN_SYSTEM_NO);
                     sysUser.setSysUserDelete(SystemConstant.NOT_DELETED);
