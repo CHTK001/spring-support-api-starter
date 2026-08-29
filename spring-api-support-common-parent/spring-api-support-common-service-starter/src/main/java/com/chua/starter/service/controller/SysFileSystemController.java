@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.storage.result.PutObjectResult;
+import com.chua.storage.support.storage.oss.result.PutObjectResult;
 import com.chua.common.support.base.validator.group.AddGroup;
 import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.common.support.base.validator.group.UploadGroup;
@@ -37,9 +37,9 @@ import java.util.Map;
  * 文件系统管理接口
  * 提供文件上传、分片上传、配置管理、分组管理等功能
  *
+ * @author CH
  * @since 2024/12/4
  * @version 1.0.0
- * @author CH
  */
 @RestController
 @Slf4j
@@ -49,11 +49,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SysFileSystemController {
 
-    /** sysFileSystem服务 */
     private final SysFileSystemService sysFileSystemService;
-    /** sysFileSystem设置服务 */
     private final SysFileSystemSettingService sysFileSystemSettingService;
-    /** sysFileSystemGroup服务 */
     private final SysFileSystemGroupService sysFileSystemGroupService;
 
     /**

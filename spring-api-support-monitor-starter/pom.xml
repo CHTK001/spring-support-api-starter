@@ -1,11 +1,11 @@
-﻿<?xml version='1.0' encoding='utf-8'?>
+<?xml version='1.0' encoding='utf-8'?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.chua</groupId>
-        <artifactId>spring-api-support-business-parent</artifactId>
-        <version>4.0.0.42</version>
-        <relativePath>../spring-api-support-business-parent/pom.xml</relativePath>
+        <artifactId>spring-support-api-parent</artifactId>
+        <version>4.0.0.40</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>spring-api-support-monitor-starter</artifactId>
     <description>SSL证书自动化管理 (ACME)</description>
@@ -13,7 +13,6 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-acme-starter</artifactId>
-            <version>${utils.version}</version>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
@@ -33,16 +32,11 @@
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-socket-starter</artifactId>
-            <version>${project.version}</version>
+            <artifactId>spring-support-panel-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>spring-support-redis-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-socket-io-starter</artifactId>
+            <artifactId>spring-support-server-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
@@ -52,107 +46,49 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-common-starter</artifactId>
         </dependency>
-        <!-- ssh provides com.chua.ssh.support.client - 移除防止 sshd-core 不可用 -->
-        <!-- <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-ssh-starter</artifactId>
-            <version>${utils.version}</version>
-            <optional>true</optional>
-        </dependency> -->
-        <!-- acme for ACME protocol support -->
-        <!-- already declared above -->
-        <!-- utils-support-common-starter already included -->
-        <!-- utils-support-tshark-starter provides core.spi/core.utils but not needed -->
-        <!-- utils-support-deeplearning-starter provides rag - optional -->
-        <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-deeplearning-starter</artifactId>
-            <version>${utils.version}</version>
-            <optional>true</optional>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>spring-support-oauth-client-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>me.zhyd.oauth</groupId>
-            <artifactId>JustAuth</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
+            <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-protocol-starter</artifactId>
+            <version>${utils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-deeplearning-starter</artifactId>
+            <version>${utils.version}</version>
+        </dependency>
     </dependencies>
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.chua.starter.monitor.MonitorServerApplication</mainClass>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <excludeTransitive>false</excludeTransitive>
-                            <stripVersion>false</stripVersion>
-                            <includeScope>runtime</includeScope>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/config</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/resources</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
