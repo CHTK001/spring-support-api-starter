@@ -1,8 +1,8 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.network.net.NetAddress;
-import com.chua.common.support.utils.StringUtils;
+import com.chua.protocol.support.network.net.NetAddress;
+import com.chua.common.support.core.utils.StringUtils;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
@@ -46,9 +46,9 @@ import java.util.Map;
  * </ul>
  * </p>
  *
+ * @author CH
  * @version 1.0.0
  * @since 2024/12/18
- * @author CH
  */
 @Slf4j
 @RestController
@@ -57,17 +57,12 @@ import java.util.Map;
 @Tag(name = "OAuth2 第三方登录", description = "提供多平台第三方 OAuth2 登录功能")
 public class OAuth2LoginController {
 
-    /** thirdPartyLoginProperties */
     private final ThirdPartyLoginProperties thirdPartyLoginProperties;
-    /** authServerProperties */
     private final AuthServerProperties authServerProperties;
-    /** loginCheck */
     private final LoginCheck loginCheck;
-    /** authStateCache */
-    private final AuthStateCache authStateCache= AuthDefaultStateCache.INSTANCE;
+    private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
 
     @Value("${plugin.auth.server.context-path:}")
-    /** context路径 */
     private String contextPath;
 
     /**

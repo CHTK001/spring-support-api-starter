@@ -1,44 +1,41 @@
 package com.chua.starter.monitor.configuration;
 
+import com.chua.deeplearning.support.ai.rag.GlobalSettingProvider;
+import com.chua.common.support.core.annotation.Spi;
+
 import java.util.List;
 
 /**
- * 运行时全局设置提供者，向全局设置中心提供「运行时配置」分组及其配置项。
+ * 运行时 (runtime) 全局设置提供者 SPI。
+ * <p>
+ * 注册 AI 端口开关等运行时配置项到 sys_ai_global_setting 表。
+ * </p>
  *
- * @since 4.0.0.42
  * @author CH
  */
-public class RuntimeGlobalSettingProvider {
+@Spi("runtime")
+public class RuntimeGlobalSettingProvider implements GlobalSettingProvider {
 
-    /**
-     * 配置分组编码，用于标识「运行时配置」分组
-     */
-    private static final String GROUP_CODE = "runtime";
-
-    /**
-     * 获取配置分组编码。
-     *
-     * @return 分组编码
-     */
+    @Override
     public String group() {
-        return GROUP_CODE;
+        return "runtime";
     }
 
-    /**
-     * 获取配置分组的中文名称。
-     *
-     * @return 分组名称
-     */
+    @Override
     public String groupName() {
         return "运行时配置";
     }
 
-    /**
-     * 获取该分组下的全部配置项。
-     *
-     * @return 配置项列表，当前为空
-     */
-    public List<Object> getItems() {
-        return List.of();
+    @Override
+    public List<SettingItem> getItems() {
+        return List.of(
+                new SettingItem("enabled", "true", "BOOLEAN", "启用聊天能力", 1),
+                new SettingItem("appKeyEnabled", "true", "BOOLEAN", "AppKey 校验（开启 REST 能力时建议开启）", 2),
+                new SettingItem("openaiRestEnabled", "true", "BOOLEAN", "开启 OpenAI RESTful 端口 (/v1/chat/completions)", 3),
+                new SettingItem("claudeRestEnabled", "true", "BOOLEAN", "开启 Claude RESTful 端口", 4),
+                new SettingItem("textEmbedEnabled", "true", "BOOLEAN", "开启 Text Embed 端口 (/v1/embeddings)", 5),
+                new SettingItem("default_model", "", "STRING", "默认模型", 10),
+                new SettingItem("compression_model", "", "STRING", "压缩模型", 11)
+        );
     }
 }
