@@ -1,9 +1,9 @@
 package com.chua.starter.geo.service;
 
-import com.chua.starter.geo.model.TileCoord;
+import com.chua.starter.geo.model.Bounds;
 
 import java.awt.image.BufferedImage;
-import java.util.List;
+import java.util.Map;
 
 /**
  * 瓦片拼接服务，将多个瓦片图像合并为一张完整图像。
@@ -14,12 +14,12 @@ import java.util.List;
 public interface TileMergerService {
 
     /**
-     * 将瓦片列表拼接为完整图像。
+     * 将瓦片字节 Map 拼接为完整 RGB 图像。
      *
-     * @param tiles   瓦片图像列表（顺序应与 getTilesInBounds 返回一致）
-     * @param bounds  地理边界
-     * @param zoom    缩放级别
+     * @param tileData 瓦片数据 Map，key 格式 "{z}_{x}_{y}"，value 为瓦片原始字节
+     * @param bounds   地理边界
+     * @param zoom     缩放级别
      * @return 拼接后的完整图像
      */
-    BufferedImage mergeTiles(List<BufferedImage> tiles, com.chua.starter.geo.model.Bounds bounds, int zoom);
+    BufferedImage mergeTiles(Map<String, byte[]> tileData, Bounds bounds, int zoom);
 }
