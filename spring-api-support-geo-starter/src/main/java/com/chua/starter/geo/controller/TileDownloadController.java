@@ -8,6 +8,8 @@ import com.chua.starter.geo.service.TileDownloaderService;
 import com.chua.starter.geo.service.TileMergerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.image.BufferedImage;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -50,7 +53,19 @@ public class TileDownloadController {
     private final GeoTileSources tileSources;
 
     /** 异步任务执行线程池（Virtual Thread） */
-    private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+    private ExecutorService executor;
+
+    @PostConstruct
+    public void init() {
+        this.executor = Executors.newVirtualThreadPerTaskExecutor();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        if (executor != null) {
+            executor.shutdown();
+        }
+    }
 
     /**
      * 估算指定区域的瓦片数量与大小。
@@ -110,7 +125,7 @@ public class TileDownloadController {
                 request.getSavePath() != null ? request.getSavePath() : "/tmp",
                 total);
         executor.submit(() -> runDownload(taskId, request, source));
-        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        Map<String, Object> result = new LinkedHashMap<>();
         result.put("taskId", taskId);
         result.put("tileCount", total);
         return ResponseEntity.ok(result);
@@ -170,7 +185,7 @@ public class TileDownloadController {
     @Operation(summary = "获取可用图源列表")
     public ResponseEntity<Map<String, Object>> getSources(@RequestParam(required = false) String tiandituToken) {
         Map<String, TileSource> all = tileSources.getAllSources(tiandituToken);
-        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        Map<String, Object> result = new LinkedHashMap<>();
         for (Map.Entry<String, TileSource> entry : all.entrySet()) {
             TileSource s = entry.getValue();
             result.put(entry.getKey(), Map.of(

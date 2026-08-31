@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * 瓦片图源配置服务，管理内置图源及天地图图源。
@@ -17,16 +16,16 @@ import java.util.Objects;
 @Component
 public class GeoTileSources {
 
+    /** 天地图域名前缀常量 */
+    private static final String TIANDITU_HOST = "tianditu";
+
     /** 图源缓存，key 为图源 ID，value 为图源配置 */
     private final Map<String, TileSource> builtInSources = new LinkedHashMap<>();
 
     /**
      * 构造方法，初始化内置图源列表。
-     * 天地图 Token 从 GeoProperties 中读取，避免硬编码敏感信息。
-     *
-     * @param geoProperties Geo 全局配置属性
      */
-    public GeoTileSources(GeoProperties geoProperties) {
+    public GeoTileSources() {
         initBuiltInSources();
     }
 
@@ -71,7 +70,7 @@ public class GeoTileSources {
      */
     public Map<String, TileSource> getAllSources(String tiandituToken) {
         Map<String, TileSource> result = new LinkedHashMap<>(builtInSources);
-        String token = Objects.requireNonNullElse(tiandituToken, "");
+        String token = tiandituToken != null ? tiandituToken : "";
         if (!token.isEmpty()) {
             result.put("tianditu_img", makeTianditu(token, "img", "天地图影像", 18));
             result.put("tianditu_cia", makeTianditu(token, "cia", "天地图影像标注", 18));
@@ -125,7 +124,7 @@ public class GeoTileSources {
      */
     private TileSource makeTianditu(String token, String layer, String name, int maxZoom) {
         String firstChar = layer.substring(0, 1).toLowerCase();
-        String url = "https://t" + firstChar + "ianditu.gov.cn/" + layer + "_wmts?"
+        String url = "https://t" + firstChar + TIANDITU_HOST + ".gov.cn/" + layer + "_wmts?"
                 + "service=wmts&request=GetTile&version=1.0.0&layer=" + layer
                 + "&styles=default&tileMatrixSet=w&format=tiles&tk=" + token
                 + "&TileMatrix={z}&TileRow={y}&TileCol={x}";
