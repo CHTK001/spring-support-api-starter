@@ -84,9 +84,9 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
              // 优先使用 openai（嵌入式兼容），其次用配置的 appType，最后回退默认
              ServiceProvider<BigModelClient> provider = ServiceProvider.of(BigModelClient.class);
              this.bigModelClient = provider.getFirstAvailable(new Object[]{bms}, "openai", bigModelSetting.appType);
-             if(null == bigModelClient) {
-                 System.out.println(StringUtils.format("暂不支持{}, 请重新设置!", appType));
-             }
+              if(null == bigModelClient) {
+                  log.warn(StringUtils.format("暂不支持{}, 请重新设置!", appType));
+              }
          }
     }
 }

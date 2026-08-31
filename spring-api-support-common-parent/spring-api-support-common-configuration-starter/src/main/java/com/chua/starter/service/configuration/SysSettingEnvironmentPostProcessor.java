@@ -15,6 +15,5 @@ public class SysSettingEnvironmentPostProcessor implements EnvironmentPostProces
     @Override
     /** Post处理Environment */
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        System.out.println();
     }
 }

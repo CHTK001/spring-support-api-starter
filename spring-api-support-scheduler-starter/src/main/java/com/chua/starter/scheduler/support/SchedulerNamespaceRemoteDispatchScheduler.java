@@ -650,8 +650,9 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     /**
      * 通过反射加载 Discovery 实例列表。
+     * 使用反射是因为 DiscoveryService 来自外部模块，此处仅调用公共方法，无标准替代方案。
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "java:S1186"})
     private Set<Discovery> loadDiscoveryInstances(Object discoveryService,
                                                    SchedulerJobPlatformProperties.Discovery discoveryProps,
                                                    String discoveryNamespace) {
