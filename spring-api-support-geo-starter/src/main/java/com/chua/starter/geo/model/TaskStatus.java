@@ -13,7 +13,7 @@ public enum TaskStatus {
     DOWNLOADING,
     /** 已暂停 */
     PAUSED,
-    /** 等待决策 */
+    /** 成功率过低，等待用户决策 */
     PENDING_DECISION,
     /** 拼接中 */
     MERGING,
@@ -23,7 +23,7 @@ public enum TaskStatus {
     EXPORTING,
     /** 已完成 */
     COMPLETED,
-    /** 完成但有空缺 */
+    /** 部分失败但已自动导出 */
     COMPLETED_WITH_GAPS,
     /** 失败 */
     FAILED,
