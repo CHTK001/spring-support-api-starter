@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: geo
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - com.chua.starter.ai.support.configuration.AiConfiguration
+profiles:
+  active: dev
+server:
+  port: 18171
+  servlet:
+    context-path: /geo/api
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+plugin:
+  mybatis:
+    data:
+      scope:
+        enable: false
