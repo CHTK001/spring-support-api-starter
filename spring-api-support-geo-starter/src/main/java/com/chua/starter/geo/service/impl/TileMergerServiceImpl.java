@@ -10,10 +10,13 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
- * 瓦片拼接服务实现，按瓦片坐标精确放置每张图片。
+ * 瓦片拼接服务实现，将瓦片 Map 按坐标顺序合并为单张图像。
  *
  * @author CH
  * @since 1.0.0
@@ -22,59 +25,54 @@ import java.util.Map;
 @Slf4j
 public class TileMergerServiceImpl implements TileMergerService {
 
-    /** 标准瓦片大小（像素） */
-    private static final int TILE_SIZE = 256;
+    private static final int DEFAULT_TILE_SIZE = 256;
 
-    /**
-     * 将瓦片字节 Map 拼接为完整 RGB 图像。
-     *
-     * @param tileData 瓦片数据 Map，key 格式 "{z}_{x}_{y}"
-     * @param bounds   地理边界
-     * @param zoom     缩放级别
-     * @return 拼接后的完整图像
-     */
     @Override
-    public BufferedImage mergeTiles(Map<String, byte[]> tileData, Bounds bounds, int zoom) {
+    public BufferedImage mergeTiles(Map<String, byte[]> tiles, Bounds bounds, int zoom) {
+        if (tiles == null || tiles.isEmpty()) {
+            return new BufferedImage(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE, BufferedImage.TYPE_INT_RGB);
+        }
         int[] tl = TileMathUtils.toTile(bounds.getNorth(), bounds.getWest(), zoom);
         int[] br = TileMathUtils.toTile(bounds.getSouth(), bounds.getEast(), zoom);
         int cols = br[0] - tl[0] + 1;
         int rows = br[1] - tl[1] + 1;
-        int width = cols * TILE_SIZE;
-        int height = rows * TILE_SIZE;
 
-        BufferedImage canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = canvas.createGraphics();
-        g2d.setColor(Color.WHITE);
-        g2d.fillRect(0, 0, width, height);
-
-        int placed = 0;
-        for (Map.Entry<String, byte[]> entry : tileData.entrySet()) {
+        TreeMap<Integer, List<TileEntry>> rowMap = new TreeMap<>();
+        for (Map.Entry<String, byte[]> entry : tiles.entrySet()) {
             String[] parts = entry.getKey().split("_");
-            if (parts.length != 3) {
-                continue;
-            }
-            try {
-                int z = Integer.parseInt(parts[0]);
-                int x = Integer.parseInt(parts[1]);
-                int y = Integer.parseInt(parts[2]);
-                if (z != zoom || x < tl[0] || x > br[0] || y < tl[1] || y > br[1]) {
-                    continue;
-                }
-                int px = (x - tl[0]) * TILE_SIZE;
-                int py = (y - tl[1]) * TILE_SIZE;
-                try (ByteArrayInputStream bis = new ByteArrayInputStream(entry.getValue())) {
-                    BufferedImage tile = ImageIO.read(bis);
+            int x = Integer.parseInt(parts[1]);
+            int y = Integer.parseInt(parts[2]);
+            rowMap.computeIfAbsent(y, k -> new ArrayList<>()).add(new TileEntry(x, entry.getValue()));
+        }
+
+        int tileSize = DEFAULT_TILE_SIZE;
+        BufferedImage merged = new BufferedImage(cols * tileSize, rows * tileSize, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = merged.createGraphics();
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0, 0, merged.getWidth(), merged.getHeight());
+
+        int rowIdx = 0;
+        for (List<TileEntry> row : rowMap.values()) {
+            row.sort((a, b) -> Integer.compare(a.x, b.x));
+            int xIdx = 0;
+            for (TileEntry entry : row) {
+                try {
+                    ByteArrayInputStream bais = new ByteArrayInputStream(entry.data);
+                    BufferedImage tile = ImageIO.read(bais);
                     if (tile != null) {
-                        g2d.drawImage(tile, px, py, null);
-                        placed++;
+                        g2d.drawImage(tile, xIdx * tileSize, rowIdx * tileSize, null);
                     }
+                } catch (Exception e) {
+                    log.warn("瓦片解码失败: {}", e.getMessage());
                 }
-            } catch (Exception e) {
-                log.warn("[{}] 瓦片处理异常: {}", entry.getKey(), e.getMessage());
+                xIdx++;
             }
+            rowIdx++;
         }
         g2d.dispose();
-        log.info("瓦片拼接完成: {} 张瓦片放入 {}x{} 画布", placed, width, height);
-        return canvas;
+        log.info("拼接完成: {}x{} tiles, size={}", cols, rows, tiles.size());
+        return merged;
     }
+
+    private record TileEntry(int x, byte[] data) {}
 }
