@@ -30,5 +30,6 @@
         <module>../spring-api-support-scheduler-starter</module>
         <module>../spring-api-support-system-starter</module>
         <module>../spring-api-support-tenanted-starter</module>
+        <module>../spring-api-support-geo-starter</module>
     </modules>
 </project>
