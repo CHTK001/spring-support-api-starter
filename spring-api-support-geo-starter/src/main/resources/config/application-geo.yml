@@ -1,0 +1,18 @@
+# Geo 服务配置
+geo:
+  tile:
+    size: 256
+    max-concurrency: 50
+    retry-times: 2
+    timeout-seconds: 15
+    delay-ms: 20
+    cache-enabled: true
+    cache-max-size-mb: 2048
+  export:
+    compression: lzw
+    build-pyramid: true
+    generate-sidecars: true
+  proxy:
+    enabled: false
+    url: ""
+  allow-invalid-certs: false
