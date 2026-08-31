@@ -388,7 +388,7 @@ public class Tiles3dServiceImpl implements Tiles3dService {
         URL urlObj = new URL(url);
         HttpURLConnection conn;
         if (proxy != null && !proxy.isEmpty()) {
-            java.net.URI proxyUri = new java.net.URI(proxy);
+            URI proxyUri = new URI(proxy);
             Proxy proxyObj = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyUri.getHost(), proxyUri.getPort()));
             conn = (HttpURLConnection) urlObj.openConnection(proxyObj);
         } else {
