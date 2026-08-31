@@ -1,6 +1,7 @@
 package com.chua.starter.system.demo;
 
 import com.chua.starter.job.support.annotation.Job;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -12,6 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @since 4.0.0.42
  * @author CH
  */
+@Slf4j
 @EnableScheduling
 @SpringBootConfiguration
 class DemoJobConfiguration {
@@ -21,6 +23,6 @@ class DemoJobConfiguration {
      */
     @Job("test")
     public void execute() {
-        System.out.println("测试");
+        log.info("测试任务执行");
     }
 }

@@ -352,7 +352,7 @@ public class SysJvmController {
             }
             // 尝试获取MaxDirectMemorySize
             try {
-                // sun.misc.VM 是 JDK 内部类，无法通过 ReflectUtils 访问，保持原样
+                // sun.misc.VM 是 JDK 内部类，无标准 API 可获取 maxDirectMemory，使用反射访问其公开方法
                 Class<?> vmClass = Class.forName("sun.misc.VM");
                 java.lang.reflect.Method method = vmClass.getDeclaredMethod("maxDirectMemory");
                 long maxDirect = (Long) method.invoke(null);
@@ -361,7 +361,7 @@ public class SysJvmController {
                     directMemoryInfo.setUsagePercent((double) directMemoryInfo.getUsed() / maxDirect * 100);
                 }
             } catch (Exception e) {
-                // 忽略
+                log.debug("获取最大直接内存失败: {}", e.getMessage());
             }
         } catch (Exception e) {
             log.warn("获取直接内存信息失败: {}", e.getMessage());
@@ -2242,7 +2242,7 @@ public class SysJvmController {
     }
     
     // 用于存储上一次堆快照的缓存
-    private static volatile Map<String, Long[]> lastHeapSnapshot = null;
+    private static final volatile Map<String, Long[]> lastHeapSnapshot = null;
     private static volatile long lastSnapshotTime = 0;
     
     /**

@@ -544,6 +544,11 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         return databaseProductName.trim().toLowerCase(Locale.ROOT).contains("h2");
     }
 
+    /**
+     * 通过反射获取 JobProperties 的表初始化模式。
+     * 使用反射是因为 JobProperties 来自外部模块，此处仅读取属性，无标准替代方案。
+     */
+    @SuppressWarnings("java:S1186")
     private ActionType resolveActionType(JobProperties properties) {
         if (properties == null) {
             return null;

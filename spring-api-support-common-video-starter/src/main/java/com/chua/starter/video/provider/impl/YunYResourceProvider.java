@@ -81,7 +81,6 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
         videoSearch.setKeyword("毕正明的证明");
         YunYResourceProvider yunYResourceProvider = new YunYResourceProvider(new VideoSource());
         yunYResourceProvider.fetchVideos(new VideoSyncConfig(), (videoInfoResult, videoSyncProcessConfig) -> {
-            System.out.println();
         });
     }
 
