@@ -40,7 +40,7 @@ public class SettingsController {
         settings.setProxyUrl(geoProperties.getProxy().getUrl());
         settings.setDefaultConcurrency(geoProperties.getTile().getMaxConcurrency());
         settings.setDefaultZoom(geoProperties.getTile().getDefaultZoom());
-        settings.setDefaultFormat(geoProperties.getExport().getCompression());
+        settings.setDefaultFormat("geotiff");
         settings.setAllowInvalidCerts(geoProperties.isAllowInvalidCerts());
         settings.setTileCacheEnabled(geoProperties.getTile().isCacheEnabled());
         settings.setTileCacheMaxSizeMb(geoProperties.getTile().getCacheMaxSizeMb());
@@ -71,6 +71,9 @@ public class SettingsController {
             }
             if (settings.getDefaultZoom() > 0) {
                 geoProperties.getTile().setDefaultZoom(settings.getDefaultZoom());
+            }
+            if (settings.getDefaultFormat() != null) {
+                geoProperties.getExport().setCompression(settings.getDefaultFormat());
             }
         }
         log.info("全局设置已更新");
