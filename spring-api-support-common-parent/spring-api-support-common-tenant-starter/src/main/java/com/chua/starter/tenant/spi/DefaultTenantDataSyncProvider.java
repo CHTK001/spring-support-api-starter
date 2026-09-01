@@ -64,6 +64,11 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
     /** 租户服务删除 Mapper */
     private final TenantServiceMapper tenantServiceMapper;
 
+    /** 合法的租户 ID 列名白名单，用于防止 SQL 注入 */
+    private static final java.util.Set<String> ALLOWED_TENANT_COLUMNS = java.util.Set.of(
+            "sys_tenant_id", "tenant_id", "tenant_code", "org_id", "dept_id"
+    );
+
     @Override
     /** 获取Name */
     public String getName() {
@@ -86,7 +91,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         }
 
         String tenantId = tenant.getSysTenantId();
-        String tenantIdColumn = tenantProperties.getEffectiveTenantIdColumn();
+        String tenantIdColumn = sanitizeTenantColumn(tenantProperties.getEffectiveTenantIdColumn());
 
         try {
             return switch (normalizeOperation(operation)) {
@@ -199,7 +204,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
             return false;
         }
 
-        String tenantIdColumn = tenantProperties.getEffectiveTenantIdColumn();
+        String tenantIdColumn = sanitizeTenantColumn(tenantProperties.getEffectiveTenantIdColumn());
 
         try {
             if (menuIds == null || menuIds.isEmpty()) {
@@ -239,7 +244,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
             return false;
         }
 
-        String tenantIdColumn = tenantProperties.getEffectiveTenantIdColumn();
+        String tenantIdColumn = sanitizeTenantColumn(tenantProperties.getEffectiveTenantIdColumn());
         String normalizedOperation = normalizeOperation(operation);
         List<Map<String, Object>> safeMenus = menus == null ? List.of() : menus;
 
@@ -296,7 +301,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
             return false;
         }
         String tenantId = tenant.getSysTenantId();
-        String tenantIdColumn = tenantProperties.getEffectiveTenantIdColumn();
+        String tenantIdColumn = sanitizeTenantColumn(tenantProperties.getEffectiveTenantIdColumn());
         String op = normalizeOperation(operation);
         try {
             if (OP_DELETE.equals(op)) {
@@ -613,5 +618,20 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
             return OP_UPDATE;
         }
         return operation.trim().toLowerCase();
+    }
+
+    /**
+     * 校验租户 ID 列名是否合法，防止 SQL 注入。
+     *
+     * @param column 列名
+     * @return 合法的列名
+     * @throws IllegalArgumentException 当列名不在白名单中时
+     */
+    private String sanitizeTenantColumn(String column) {
+        if (column == null || !ALLOWED_TENANT_COLUMNS.contains(column)) {
+            throw new IllegalArgumentException("非法的租户 ID 列名: " + column
+                    + "，允许的列名: " + ALLOWED_TENANT_COLUMNS);
+        }
+        return column;
     }
 }
