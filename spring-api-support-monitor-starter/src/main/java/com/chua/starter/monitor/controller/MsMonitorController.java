@@ -15,6 +15,8 @@ import com.chua.starter.monitor.service.MsMonitorMetricConfigService;
 import com.chua.starter.monitor.service.MsMonitorService;
 import com.chua.starter.monitor.service.MsMonitorTaskService;
 import com.chua.starter.mybatis.utils.PageResultUtils;
+import com.chua.starter.server.support.entity.MsServerHost;
+import com.chua.starter.server.support.service.ServerHostService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -84,6 +86,64 @@ public class MsMonitorController {
      * Redis 模板
      */
     private final RedisTemplate<String, Object> redisTemplate;
+
+    /**
+     * 服务器主机服务
+     */
+    private final ServerHostService serverHostService;
+
+    // ==================== 关联服务器主机查询 ====================
+
+    /**
+     * 查询可用服务器主机列表（仅返回下拉所需字段）。
+     *
+     * @return 主机简表列表
+     */
+    @GetMapping("/server-hosts")
+    @ApiOperation("查询可用服务器主机列表")
+    @Operation(summary = "查询可用服务器主机列表")
+    public ReturnResult<List<Map<String, Object>>> listServerHosts() {
+        List<Map<String, Object>> result = new ArrayList<>();
+        try {
+            ReturnResult<List<MsServerHost>> q = serverHostService.query(null, null, 1);
+            List<MsServerHost> hosts = q.getData();
+            if (hosts != null) {
+                for (MsServerHost h : hosts) {
+                    Map<String, Object> item = new LinkedHashMap<>();
+                    item.put("id", h.getId());
+                    item.put("serverHostName", h.getServerHostName());
+                    item.put("serverHostAddress", h.getServerHostAddress());
+                    item.put("serverHostPort", h.getServerHostPort());
+                    item.put("serverHostOsType", h.getServerHostOsType());
+                    result.add(item);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("查询服务器主机列表失败", e);
+        }
+        return ReturnResult.ok(result);
+    }
+
+    /**
+     * 获取指定服务器主机详情。
+     *
+     * @param id 服务器主机 ID
+     * @return 主机详情
+     */
+    @GetMapping("/server-host/{id}")
+    @ApiOperation("获取服务器主机详情")
+    @Operation(summary = "获取服务器主机详情")
+    public ReturnResult<MsServerHost> getServerHost(@ApiParam("服务器主机ID") @PathVariable Long id) {
+        ReturnResult<MsServerHost> result = serverHostService.get(id);
+        if (result.getData() != null) {
+            MsServerHost h = result.getData();
+            // 隐藏敏感字段
+            h.setServerHostAccount(null);
+            h.setServerHostPassword(null);
+            h.setServerHostPrivateKey(null);
+        }
+        return result;
+    }
 
     // ==================== 监控资产 CRUD ====================
 
