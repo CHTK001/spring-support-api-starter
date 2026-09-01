@@ -222,7 +222,7 @@ INSERT INTO sys_ai_global_setting (sys_ai_global_setting_group, sys_ai_global_se
 SELECT 'runtime', 'provider_base_url', 'https://open.bigmodel.cn/api/paas/v4/', 'STRING', 'API基础URL', 3, 1 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM sys_ai_global_setting WHERE sys_ai_global_setting_group='runtime' AND sys_ai_global_setting_field='provider_base_url');
 
 INSERT INTO sys_ai_global_setting (sys_ai_global_setting_group, sys_ai_global_setting_field, sys_ai_global_setting_value, sys_ai_global_setting_value_type, sys_ai_global_setting_description, sys_ai_global_setting_sort, sys_ai_global_setting_status)
-SELECT 'runtime', 'provider_api_key', 'acb7372b94c3428bb75c03f695fcb2ee.p82pPKkxRovK8dqz', 'STRING', 'API密钥', 4, 1 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM sys_ai_global_setting WHERE sys_ai_global_setting_group='runtime' AND sys_ai_global_setting_field='provider_api_key');
+SELECT 'runtime', 'provider_api_key', '${GLM_API_KEY:your-api-key-here}', 'STRING', 'API密钥', 4, 1 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM sys_ai_global_setting WHERE sys_ai_global_setting_group='runtime' AND sys_ai_global_setting_field='provider_api_key');
 
 INSERT INTO sys_ai_global_setting (sys_ai_global_setting_group, sys_ai_global_setting_field, sys_ai_global_setting_value, sys_ai_global_setting_value_type, sys_ai_global_setting_description, sys_ai_global_setting_sort, sys_ai_global_setting_status)
 SELECT 'runtime', 'default_model', 'glm-4-flash', 'STRING', '默认模型', 5, 1 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM sys_ai_global_setting WHERE sys_ai_global_setting_group='runtime' AND sys_ai_global_setting_field='default_model');
