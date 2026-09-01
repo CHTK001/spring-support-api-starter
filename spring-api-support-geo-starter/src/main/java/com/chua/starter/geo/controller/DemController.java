@@ -42,11 +42,11 @@ public class DemController {
     @Operation(summary = "估算DEM瓦片数量")
     public ResponseEntity<Map<String, Object>> estimate(
             @RequestBody @Valid DemEstimateRequest request) {
-        long count = demDownloadService.estimateTiles(request.getBounds(), request.getZoom());
+        long count = demDownloadService.estimateTiles(request.bounds(), request.zoom());
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("tileCount", count);
-        result.put("zoom", request.getZoom());
-        result.put("source", request.getSource());
+        result.put("zoom", request.zoom());
+        result.put("source", request.source());
         return ResponseEntity.ok(result);
     }
 
@@ -59,17 +59,17 @@ public class DemController {
     @PostMapping("/download")
     @Operation(summary = "创建DEM下载任务")
     public ResponseEntity<Map<String, Object>> download(@RequestBody @Valid DemDownloadRequest request) {
-        DemSource source = DemSource.fromString(request.getSource());
+        DemSource source = DemSource.fromString(request.source());
         if (source == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Unknown DEM source: " + request.getSource()));
+            return ResponseEntity.badRequest().body(Map.of("error", "Unknown DEM source: " + request.source()));
         }
-        long count = demDownloadService.estimateTiles(request.getBounds(), request.getZoom());
+        long count = demDownloadService.estimateTiles(request.bounds(), request.zoom());
         if (count == 0) {
             return ResponseEntity.badRequest().body(Map.of("error", "No tiles at this zoom level"));
         }
         int total = (int) Math.min(count, Integer.MAX_VALUE);
         String taskId = "dem_" + System.currentTimeMillis();
-        log.info("[DEM] 创建任务: source={} zoom={} tiles={}", source.getDisplayName(), request.getZoom(), total);
+        log.info("[DEM] 创建任务: source={} zoom={} tiles={}", source.getDisplayName(), request.zoom(), total);
         // TODO: 接入 TaskManager 做异步任务管理（当前简化处理直接返回）
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("taskId", taskId);
