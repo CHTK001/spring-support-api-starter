@@ -61,6 +61,23 @@ public class HistoryController {
     }
 
     /**
+     * 添加一条下载记录。
+     *
+     * @param record 下载记录
+     * @return 操作结果
+     */
+    @PostMapping
+    @Operation(summary = "添加下载记录")
+    public ResponseEntity<Map<String, String>> add(@RequestBody DownloadHistoryRecord record) {
+        if ("completed".equals(record.getStatus())) {
+            historyService.save(record);
+        } else {
+            historyService.saveFailed(record);
+        }
+        return ResponseEntity.ok(Map.of("message", "Record added"));
+    }
+
+    /**
      * 删除指定历史记录。
      *
      * @param id 记录 ID
@@ -72,6 +89,19 @@ public class HistoryController {
         boolean removed = historyService.delete(id);
         return removed ? ResponseEntity.ok(Map.of("message", "Record deleted"))
                        : ResponseEntity.notFound().build();
+    }
+
+    /**
+     * 构建影像金字塔（Web 版为 no-op）。
+     *
+     * @param id 记录 ID
+     * @return 操作结果
+     */
+    @PostMapping("/{id}/pyramid")
+    @Operation(summary = "构建影像金字塔")
+    public ResponseEntity<Map<String, String>> buildPyramid(@PathVariable String id) {
+        log.info("[历史] 金字塔构建请求（Web版跳过）: {}", id);
+        return ResponseEntity.ok(Map.of("message", "Pyramid build skipped (web mode)"));
     }
 
     /**

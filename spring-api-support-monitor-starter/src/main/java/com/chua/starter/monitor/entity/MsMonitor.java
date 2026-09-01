@@ -116,4 +116,13 @@ public class MsMonitor extends SysBase {
     @Schema(description = "逻辑删除")
     /** 删除标记 */
     private Integer deleted;
+
+    /**
+     * 关联服务器主机 ID（ms_server_host.id，用于联动服务器台账配置）
+     */
+    @TableField("ms_server_host_id")
+    @ApiModelProperty("关联服务器主机ID")
+    @Schema(description = "关联服务器主机ID")
+    /** 关联服务器主机ID */
+    private Long msServerHostId;
 }
