@@ -32,7 +32,7 @@ public class GeoProperties {
 
     /** 瓦片下载配置 */
     @Data
-    private static class TileCfg {
+    public static class TileCfg {
         /** 瓦片大小（像素） */
         private int size = 256;
         /** 最大并发下载数 */
@@ -53,7 +53,7 @@ public class GeoProperties {
 
     /** 导出配置 */
     @Data
-    private static class ExportCfg {
+    public static class ExportCfg {
         /** TIFF 压缩方式：none/lzw/deflate */
         private String compression = "lzw";
         /** 是否构建影像金字塔 */
@@ -64,7 +64,7 @@ public class GeoProperties {
 
     /** 代理配置 */
     @Data
-    private static class ProxyCfg {
+    public static class ProxyCfg {
         /** 是否启用代理 */
         private boolean enabled = false;
         /** 代理地址，如 http://127.0.0.1:7890 */
