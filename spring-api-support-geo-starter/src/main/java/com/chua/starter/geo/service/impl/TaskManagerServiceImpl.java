@@ -94,7 +94,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
         if (info != null) {
             info.setCompleted(completed);
             info.setFailedCount(failed);
-            info.setSuccessCount(completed - failed);
+            info.setSuccessCount(Math.max(0, completed - failed));
             info.setProgress(progress);
             info.setMessage(message);
         }
