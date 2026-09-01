@@ -132,10 +132,9 @@ public class Tiles3dServiceImpl implements Tiles3dService {
      * @throws Exception 请求或解析失败
      */
     private JsonNode fetchTileset(Tiles3dSource source, String proxy) throws Exception {
-        String tilesetQueryUrl = resolveTilesetQueryUrl(source, proxy);
-        String body = doHttpGet(tilessetQueryUrl, proxy, source != null ? source.getHeaders() : null);
-        return objectMapper.readTree(body);
-    }
+         JsonNode tileset = objectMapper.readTree(doHttpGet(resolveTilesetQueryUrl(source, proxy), proxy, source != null ? source.getHeaders() : null));
+         return tileset;
+     }
 
     /**
      * 解析数据源获取 tileset.json URL。
