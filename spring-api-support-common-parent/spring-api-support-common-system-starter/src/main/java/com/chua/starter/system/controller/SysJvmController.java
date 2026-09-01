@@ -2241,8 +2241,8 @@ public class SysJvmController {
         return ReturnResult.ok(dump);
     }
     
-    // 用于存储上一次堆快照的缓存
-    private static final volatile Map<String, Long[]> lastHeapSnapshot = null;
+    // 用于存储上一次堆快照的缓存（volatile 保证多线程可见性，非 final 允许更新引用）
+    private static volatile Map<String, Long[]> lastHeapSnapshot;
     private static volatile long lastSnapshotTime = 0;
     
     /**
