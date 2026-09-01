@@ -245,4 +245,17 @@ public class TileDownloadController {
         taskManager.removeTask(taskId);
         return ResponseEntity.ok(Map.of("message", "Task removed"));
     }
+
+    /**
+     * 导出部分下载结果（Web 版为 no-op）。
+     *
+     * @param taskId 任务 ID
+     * @return 操作结果
+     */
+    @PostMapping("/task/{taskId}/export")
+    @Operation(summary = "导出部分下载结果")
+    public ResponseEntity<Map<String, String>> exportPartial(@PathVariable String taskId) {
+        log.info("[Tile] 部分导出请求（Web版跳过）: {}", taskId);
+        return ResponseEntity.ok(Map.of("message", "Partial export skipped (web mode)"));
+    }
 }
