@@ -1,6 +1,7 @@
 package com.chua.starter.monitor.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.lang.ReturnPageResult;
@@ -9,12 +10,15 @@ import com.chua.starter.monitor.entity.MsMonitorConfig;
 import com.chua.starter.monitor.entity.MsMonitorGateway;
 import com.chua.starter.monitor.entity.MsMonitorMetricConfig;
 import com.chua.starter.monitor.entity.MsMonitorTask;
+import com.chua.starter.monitor.entity.MsOperationLog;
 import com.chua.starter.monitor.service.MsMonitorConfigService;
 import com.chua.starter.monitor.service.MsMonitorGatewayService;
 import com.chua.starter.monitor.service.MsMonitorMetricConfigService;
 import com.chua.starter.monitor.service.MsMonitorService;
 import com.chua.starter.monitor.service.MsMonitorTaskService;
+import com.chua.starter.monitor.service.MsOperationLogService;
 import com.chua.starter.mybatis.utils.PageResultUtils;
+import com.chua.starter.oauth.sso.support.trace.ServerTraceContext;
 import com.chua.starter.server.support.entity.MsServerHost;
 import com.chua.starter.server.support.service.ServerHostService;
 import io.swagger.annotations.Api;
@@ -91,6 +95,25 @@ public class MsMonitorController {
      * 服务器主机服务
      */
     private final ServerHostService serverHostService;
+
+    /**
+     * 操作日志服务
+     */
+    private final MsOperationLogService operationLogService;
+
+    /**
+     * 从当前线程上下文获取操作用户标识；若不可用则返回默认值。
+     */
+    private String getOperator() {
+        try {
+            var ctx = com.chua.starter.oauth.sso.support.trace.ServerTraceContext.current();
+            if (ctx != null && StringUtils.isNotEmpty(ctx.getClientAppName())) {
+                return ctx.getClientAppName();
+            }
+        } catch (Exception ignored) {
+        }
+        return "default";
+    }
 
     // ==================== 关联服务器主机查询 ====================
 
@@ -201,8 +224,9 @@ public class MsMonitorController {
     @ApiOperation("新增监控资产")
     @Operation(summary = "新增监控资产")
     public ReturnResult<Boolean> save(@RequestBody MsMonitor entity) {
-        monitorService.save(entity);
-        return ReturnResult.ok(true);
+        boolean ok = monitorService.save(entity);
+        tryOpLog("CREATE", "HOST", String.valueOf(entity.getId()), entity.getMonitorName());
+        return ReturnResult.ok(ok);
     }
 
     /**
@@ -216,7 +240,9 @@ public class MsMonitorController {
     @Operation(summary = "更新监控资产")
     public ReturnResult<Boolean> update(@PathVariable Long id, @RequestBody MsMonitor entity) {
         entity.setId(id);
-        return ReturnResult.ok(monitorService.updateById(entity));
+        boolean ok = monitorService.updateById(entity);
+        tryOpLog("UPDATE", "HOST", String.valueOf(id), entity.getMonitorName());
+        return ReturnResult.ok(ok);
     }
 
     /**
@@ -229,7 +255,9 @@ public class MsMonitorController {
     @ApiOperation("删除监控资产")
     @Operation(summary = "删除监控资产")
     public ReturnResult<Boolean> remove(@ApiParam("监控资产ID") @PathVariable Long id) {
-        return ReturnResult.ok(monitorService.removeById(id));
+        boolean ok = monitorService.removeById(id);
+        tryOpLog("DELETE", "HOST", String.valueOf(id), null);
+        return ReturnResult.ok(ok);
     }
 
     // ==================== 采集任务 CRUD ====================
@@ -290,8 +318,9 @@ public class MsMonitorController {
     @ApiOperation("新增采集任务")
     @Operation(summary = "新增采集任务")
     public ReturnResult<Boolean> saveTask(@RequestBody MsMonitorTask entity) {
-        taskService.save(entity);
-        return ReturnResult.ok(true);
+        boolean ok = taskService.save(entity);
+        tryOpLog("CREATE", "TASK", String.valueOf(entity.getId()), entity.getTaskName());
+        return ReturnResult.ok(ok);
     }
 
     /**
@@ -336,7 +365,9 @@ public class MsMonitorController {
     public ReturnResult<Boolean> enableTask(@ApiParam("任务ID") @PathVariable Long id,
                                             @ApiParam("启用状态（1启用/0停用）")
                                             @RequestParam Integer enabled) {
-        return ReturnResult.ok(taskService.updateTaskEnabled(id, enabled));
+        boolean ok = taskService.updateTaskEnabled(id, enabled);
+        tryOpLog(enabled != null && enabled == 1 ? "ENABLE" : "DISABLE", "TASK", String.valueOf(id), null);
+        return ReturnResult.ok(ok);
     }
 
     // ==================== 指标解析规则 CRUD ====================
@@ -380,8 +411,9 @@ public class MsMonitorController {
     @ApiOperation("新增指标解析规则")
     @Operation(summary = "新增指标解析规则")
     public ReturnResult<Boolean> saveMetricConfig(@RequestBody MsMonitorMetricConfig entity) {
-        metricConfigService.save(entity);
-        return ReturnResult.ok(true);
+        boolean ok = metricConfigService.save(entity);
+        tryOpLog("CREATE", "TASK", String.valueOf(entity.getId()), entity.getMetricName());
+        return ReturnResult.ok(ok);
     }
 
     /**
@@ -397,7 +429,9 @@ public class MsMonitorController {
     public ReturnResult<Boolean> updateMetricConfig(@PathVariable Long id,
                                                     @RequestBody MsMonitorMetricConfig entity) {
         entity.setId(id);
-        return ReturnResult.ok(metricConfigService.updateById(entity));
+        boolean ok = metricConfigService.updateById(entity);
+        tryOpLog("UPDATE", "TASK", String.valueOf(id), entity.getMetricName());
+        return ReturnResult.ok(ok);
     }
 
     /**
@@ -410,7 +444,9 @@ public class MsMonitorController {
     @ApiOperation("删除指标解析规则")
     @Operation(summary = "删除指标解析规则")
     public ReturnResult<Boolean> removeMetricConfig(@ApiParam("规则ID") @PathVariable Long id) {
-        return ReturnResult.ok(metricConfigService.removeById(id));
+        boolean ok = metricConfigService.removeById(id);
+        tryOpLog("DELETE", "TASK", String.valueOf(id), null);
+        return ReturnResult.ok(ok);
     }
 
     // ==================== 监控网关 CRUD ====================
@@ -454,8 +490,9 @@ public class MsMonitorController {
     @ApiOperation("新增监控网关")
     @Operation(summary = "新增监控网关")
     public ReturnResult<Boolean> saveGateway(@RequestBody MsMonitorGateway entity) {
-        gatewayService.save(entity);
-        return ReturnResult.ok(true);
+        boolean ok = gatewayService.save(entity);
+        tryOpLog("CREATE", "CONFIG", String.valueOf(entity.getId()), entity.getGatewayName());
+        return ReturnResult.ok(ok);
     }
 
     /**
@@ -495,8 +532,9 @@ public class MsMonitorController {
     @ApiOperation("批量保存全局配置")
     @Operation(summary = "批量保存全局配置")
     public ReturnResult<Boolean> saveConfig(@RequestBody List<MsMonitorConfig> configs) {
-        configService.saveBatch(configs);
-        return ReturnResult.ok(true);
+        boolean ok = configService.saveBatch(configs);
+        tryOpLog("CONFIG", "CONFIG", null, "批量更新全局配置");
+        return ReturnResult.ok(ok);
     }
 
     // ==================== Redis 操作 ====================
@@ -592,6 +630,7 @@ public class MsMonitorController {
             } else {
                 redisTemplate.opsForValue().set(key, value);
             }
+            tryOpLog("SET", "REDIS", key, null);
             return ReturnResult.ok(true);
         } catch (Exception e) {
             log.error("设置Redis值失败，taskId={}, key={}", taskId, key, e);
@@ -617,6 +656,7 @@ public class MsMonitorController {
                 return ReturnResult.illegal("key列表不能为空");
             }
             redisTemplate.delete(keys);
+            tryOpLog("DEL", "REDIS", String.join(",", keys), null);
             return ReturnResult.ok(true);
         } catch (Exception e) {
             log.error("批量删除Redis key失败，taskId={}", taskId, e);
@@ -645,6 +685,59 @@ public class MsMonitorController {
         } catch (Exception e) {
             log.error("设置Redis过期时间失败，taskId={}, key={}", taskId, key, e);
             return ReturnResult.illegal("设置Redis过期时间失败：" + e.getMessage());
+        }
+    }
+
+    // ==================== 操作日志 ====================
+
+    /**
+     * 查询操作日志列表（分页）。
+     *
+     * @param page        页码（从1开始，可选，默认1）
+     * @param pageSize    每页大小（可选，默认100）
+     * @param operator    操作用户（可选）
+     * @param targetModule 目标模块（可选）
+     * @return 操作日志分页列表
+     */
+    @GetMapping("/logs")
+    @ApiOperation("查询操作日志列表")
+    @Operation(summary = "查询操作日志列表")
+    public ReturnPageResult<MsOperationLog> listLogs(
+            @ApiParam("页码") @RequestParam(required = false, defaultValue = "1") Integer page,
+            @ApiParam("每页大小") @RequestParam(required = false, defaultValue = "100") Integer pageSize,
+            @ApiParam("操作用户") @RequestParam(required = false) String operator,
+            @ApiParam("目标模块") @RequestParam(required = false) String targetModule) {
+        var query = Wrappers.<MsOperationLog>lambdaQuery()
+                .eq(StringUtils.isNotEmpty(operator), MsOperationLog::getOperator, operator)
+                .eq(StringUtils.isNotEmpty(targetModule), MsOperationLog::getTargetModule, targetModule)
+                .orderByDesc(MsOperationLog::getCreateTime);
+        return PageResultUtils.ok(operationLogService.page(
+                new Page<>(page, pageSize), query));
+    }
+
+    /**
+     * 查询单条操作日志详情。
+     *
+     * @param id 日志ID
+     * @return 操作日志详情
+     */
+    @GetMapping("/logs/{id}")
+    @ApiOperation("查询操作日志详情")
+    @Operation(summary = "查询操作日志详情")
+    public ReturnResult<MsOperationLog> getLog(
+            @ApiParam("日志ID") @PathVariable Long id) {
+        return ReturnResult.ok(operationLogService.getById(id));
+    }
+
+    /**
+     * 辅助方法：记录操作日志，异常静默处理。
+     */
+    private void tryOpLog(String operation, String targetModule, String targetId, String description) {
+        try {
+            String desc = description != null ? description : "";
+            operationLogService.log(getOperator(), operation, targetModule, targetId, desc);
+        } catch (Exception e) {
+            log.warn("记录操作日志失败: op={}, module={}", operation, targetModule, e);
         }
     }
 
