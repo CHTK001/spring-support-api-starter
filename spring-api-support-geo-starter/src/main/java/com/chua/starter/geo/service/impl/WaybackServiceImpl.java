@@ -58,14 +58,20 @@ public class WaybackServiceImpl implements WaybackService {
             }
             JsonNode root = objectMapper.readTree(response.body());
             List<WaybackVersion> versions = new ArrayList<>();
-            if (root.isArray()) {
-                for (JsonNode node : root) {
+            if (root.isObject()) {
+                var fields = root.fields();
+                while (fields.hasNext()) {
+                    var entry = fields.next();
+                    JsonNode node = entry.getValue();
+                    String title = node.path("itemTitle").asText();
                     WaybackVersion v = new WaybackVersion();
-                    v.setId(node.path("itemTitle").asText());
-                    v.setTitle(node.path("itemTitle").asText());
+                    v.setId(node.path("itemID").asText());
+                    v.setTitle(title);
                     v.setLayerId(node.path("layerIdentifier").asText());
+                    v.setDate(extractDate(title));
                     versions.add(v);
                 }
+                versions.sort((a, b) -> b.getDate().compareTo(a.getDate()));
             }
             log.info("Wayback 版本列表获取完成: {} 条", versions.size());
             return versions;
@@ -73,5 +79,27 @@ public class WaybackServiceImpl implements WaybackService {
             log.warn("获取 Wayback 版本失败: {}", e.getMessage());
             return Collections.emptyList();
         }
+    }
+
+    /**
+     * 从标题中提取日期（如 "World Imagery (Wayback 2026-08-05)" → "2026-08-05"）。
+     *
+     * @param title 版本标题
+     * @return 日期字符串，提取失败返回空串
+     */
+    private String extractDate(String title) {
+        if (title == null) {
+            return "";
+        }
+        int idx = title.lastIndexOf("(Wayback ");
+        if (idx < 0) {
+            return "";
+        }
+        int start = idx + "(Wayback ".length();
+        int end = title.indexOf(")", start);
+        if (end < 0) {
+            return "";
+        }
+        return title.substring(start, end).trim();
     }
 }
