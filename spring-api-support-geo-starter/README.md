@@ -25,15 +25,25 @@ GeoD 地理空间数据下载服务 — Spring Boot 3 实现版本。
 | 影像瓦片下载 | `POST /v1/geo/tile/download` | 并发下载瓦片，导出 GeoTIFF/PNG/JPEG |
 | 瓦片估算 | `POST /v1/geo/tile/estimate` | 估算瓦片数量和大小 |
 | 图源列表 | `GET /v1/geo/tile/sources` | 内置 12 个图源（Google/OSM/天地图/高德/Esri/Carto） |
-| 任务管理 | `GET/POST/DELETE /v1/geo/tile/task/*` | 创建/查询/取消/删除下载任务 |
+| 任务管理 | `GET/POST/DELETE /v1/geo/tile/task/*` | 创建/查询/取消/删除下载任务，`/export` 导出结果 |
 | DEM 高程模型 | `POST /v1/geo/dem/download` | Terrarium 编码 PNG → GeoTIFF 高程文件 |
 | DEM 数据源 | `GET /v1/geo/dem/sources` | AWS Terrain (Terrarium) 全球免费 DEM |
+| DEM 估算 | `POST /v1/geo/dem/estimate` | DEM 瓦片量/大小预估 |
 | 3D Tiles | `POST /v1/geo/3dtiles/download` | Cesium Ion / 自定义 URL，递归下载，URI 本地化 |
 | 3D Tiles 分析 | `POST /v1/geo/3dtiles/analyze` | 解析 tileset.json，返回节点数/层级/覆盖范围 |
 | Overpass OSM | `POST /v1/geo/osm/query` | 执行 Overpass API 查询，返回元素统计 |
-| Wayback 历史影像 | `GET /v1/geo/wayback/versions` | Esri World Imagery 历史版本列表 |
+| OSM 下载任务 | `POST /v1/geo/osm/download` | 创建 OSM 矢量下载任务 |
+| Wayback 历史影像 | `GET /v1/geo/wayback/versions` | Esri World Imagery 历史版本列表（真实拉取，约 196 个版本） |
+| Wayback 下载 | `POST /v1/geo/wayback/download` | 创建历史影像下载任务 |
+| Wayback 探测 | `POST /v1/geo/wayback/probe` | 探测最大可用缩放级别 |
+| Wayback 扫描 | `POST /v1/geo/wayback/scan` | 扫描元数据 |
+| 自定义图源 | `GET /v1/geo/source/all` · `POST /analyze` · `POST /custom` | 全量图源模板、URL 解析、自定义图源注册 |
+| 下载代理 | `POST /v1/geo/proxy/start` | 本地下载代理 |
+| AI 助手 | `GET /v1/geo/assistant/status` · `POST /chat`（SSE）· `POST /cancel` | 模型状态 / 流式对话 |
+| 瓦片服务 | `POST /v1/geo/tiles/serve` | 本地瓦片服务 |
+| 应用更新 | `GET /v1/geo/update/info` · `POST /install` | 版本检查 / 安装 |
 | 全局设置 | `GET/POST /v1/geo/settings` | Token/代理/并发/缓存等配置读写 |
-| 下载历史 | `GET/DELETE /v1/geo/history` | JSON 文件持久化，分页查询 |
+| 下载历史 | `GET/DELETE /v1/geo/history` · `GET /page` · `POST /{id}/pyramid` | JSON 文件持久化，分页查询，瓦片重建金字塔 |
 
 ## 内置图源
 
@@ -138,6 +148,8 @@ geo:
 
 ## 模块依赖
 
+> 以下依赖声明在 `spring-api-support-geo-starter/pom.xml`（Web 版补充的新增依赖已包含在内）。
+
 ```xml
 <!-- Web 服务 -->
 <dependency>
@@ -158,6 +170,26 @@ geo:
     <version>3.1.8</version>
 </dependency>
 
+<!-- 嵌入式数据库（任务/历史持久化） -->
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <scope>runtime</scope>
+</dependency>
+
+<!-- 图像/GeoTIFF 辅助处理 -->
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-imaging</artifactId>
+    <version>1.0.0-alpha5</version>
+</dependency>
+
+<!-- API 文档 -->
+<dependency>
+    <groupId>com.chua</groupId>
+    <artifactId>spring-support-swagger-starter</artifactId>
+</dependency>
+
 <!-- 内部依赖 -->
 <dependency>
     <groupId>com.chua</groupId>
@@ -165,9 +197,18 @@ geo:
 </dependency>
 <dependency>
     <groupId>com.chua</groupId>
+    <artifactId>spring-support-common-starter</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.chua</groupId>
     <artifactId>utils-support-image-starter</artifactId>
 </dependency>
 ```
+
+> 补充说明：Web 版为 Backend 与 Frontend 分离架构，前端应用位于
+> `vue-support-parent-starter/apps/vue-support-geo-starter`，其补充依赖
+> （Leaflet 地图、Axios、Element Plus、Pinia 等）声明在
+> `apps/vue-support-geo-starter/package.json`，详见其独立 README。
 
 ## 与原生项目的对比
 
@@ -181,7 +222,7 @@ geo:
 | DEM | Terrarium 解码 + 拼接 | 同左（TerrariumDecoder） |
 | 历史影像 | Esri Wayback API | 同左（HttpClient） |
 | 矢量数据 | Overpass API | 同左（HttpClient） |
-| 数据存储 | SQLite | JSON 文件 |
+| 数据存储 | SQLite | JSON 文件 + H2 嵌入式数据库 |
 | 部署方式 | 桌面安装包 | jar 包 / Docker |
 
 ## 许可证
