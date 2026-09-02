@@ -532,25 +532,41 @@ public class MsMonitorController {
     }
 
     /**
-     * 获取Redis中指定key的值。
+     * 获取Redis中指定key的值（返回结构化数据，包含 key、value、type、ttl）。
      *
      * @param taskId 任务ID
      * @param key    Redis key
-     * @return key对应的值
+     * @return key对应的值（含类型信息）
      */
     @GetMapping("/operation/redis/{taskId}/kv/{key}")
     @ApiOperation("获取Redis值")
-    @Operation(summary = "获取Redis值")
-    public ReturnResult<Object> getRedisValue(
+    @Operation(summary = "获取Redis值（返回结构化数据）")
+    public ReturnResult<Map<String, Object>> getRedisValue(
             @ApiParam("任务ID") @PathVariable Long taskId,
             @ApiParam("Redis key") @PathVariable String key) {
         try {
             Object value = redisTemplate.opsForValue().get(key);
-            return ReturnResult.ok(value);
+            var result = new LinkedHashMap<String, Object>();
+            result.put("key", key);
+            result.put("value", value != null ? value : "");
+            result.put("type", value == null ? "none" : detectType(value));
+            Long ttl = redisTemplate.expire(key, 0, TimeUnit.SECONDS);
+            result.put("ttl", ttl != null && ttl > 0 ? ttl : -1);
+            return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("获取Redis值失败，taskId={}, key={}", taskId, key, e);
             return ReturnResult.illegal("获取Redis值失败：" + e.getMessage());
         }
+    }
+
+    /** 根据值类型返回 Redis 数据类型名称 */
+    private String detectType(Object value) {
+        if (value instanceof String) return "string";
+        if (value instanceof byte[]) return "raw_bytes";
+        if (value instanceof java.util.List) return "list";
+        if (value instanceof java.util.Set) return "set";
+        if (value instanceof java.util.Map) return "hash";
+        return value.getClass().getSimpleName();
     }
 
     /**
@@ -635,19 +651,24 @@ public class MsMonitorController {
     // ==================== 指标查询 ====================
 
     /**
-     * 查询最新指标数据（示例数据）。
+     * 查询最新指标数据（示例数据，仅用于演示和开发调试）。
+     *
+     * <p>注意：当前实现返回模拟数据，响应中包含 {@code "mock": true} 标记，
+     * 待真实采集器接入后替换此实现。</p>
      *
      * @param type      指标类型（cpu/memory/disk/network/jvm/redis）
      * @param monitorId 监控资产ID
-     * @return 最新指标数据
+     * @return 最新指标数据（含 mock 标识）
      */
     @GetMapping("/metric/{type}/{monitorId}")
     @ApiOperation("查询最新指标")
-    @Operation(summary = "查询最新指标")
+    @Operation(summary = "查询最新指标（当前为模拟数据）")
     public ReturnResult<Map<String, Object>> getLatestMetric(
             @ApiParam("指标类型") @PathVariable String type,
             @ApiParam("监控资产ID") @PathVariable Long monitorId) {
         var result = new LinkedHashMap<String, Object>();
+        result.put("mock", true);
+        result.put("note", "当前为模拟数据，待真实采集器接入");
         result.put("monitorId", monitorId);
         result.put("type", type);
         result.putAll(generateMockMetric(type));
@@ -655,16 +676,19 @@ public class MsMonitorController {
     }
 
     /**
-     * 查询历史指标数据（示例数据）。
+     * 查询历史指标数据（示例数据，仅用于演示和开发调试）。
+     *
+     * <p>注意：当前实现返回模拟数据，每条记录包含 {@code "mock": true} 标记，
+     * 待真实采集器接入后替换此实现。</p>
      *
      * @param type      指标类型（cpu/memory/disk/network/jvm/redis）
      * @param monitorId 监控资产ID
      * @param hours     查询时间范围（小时）
-     * @return 历史指标数据列表
+     * @return 历史指标数据列表（含 mock 标识）
      */
     @GetMapping("/metric/{type}/history/{monitorId}")
     @ApiOperation("查询历史指标")
-    @Operation(summary = "查询历史指标")
+    @Operation(summary = "查询历史指标（当前为模拟数据）")
     public ReturnResult<List<Map<String, Object>>> getHistoryMetric(
             @ApiParam("指标类型") @PathVariable String type,
             @ApiParam("监控资产ID") @PathVariable Long monitorId,
@@ -673,6 +697,7 @@ public class MsMonitorController {
         int sampleCount = hours * 4;
         for (int i = 0; i < sampleCount; i++) {
             var item = new LinkedHashMap<String, Object>();
+            item.put("mock", true);
             item.put("timestamp", System.currentTimeMillis()
                     - (long) (sampleCount - i) * 15 * 60 * 1000L);
             item.put("monitorId", monitorId);
@@ -688,7 +713,9 @@ public class MsMonitorController {
      *
      * @param type 指标类型
      * @return 模拟指标Map
+     * @deprecated 仅用于演示，待真实采集器接入后移除
      */
+    @Deprecated(since = "4.0.0", forRemoval = true)
     private Map<String, Object> generateMockMetric(String type) {
         var metric = new LinkedHashMap<String, Object>();
         double random = Math.random();
