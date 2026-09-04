@@ -142,7 +142,7 @@ public class AcmeCertificateAsyncService {
                             item.put("domain", info.getDomain());
                             item.put("type", info.getChallengeType());
                             item.put("token", info.getToken());
-                            item.put("keyAuthorization", info.getKeyAuthorization());
+                            item.put("keyAuthorization", info.getHttpContent());
                             item.put("httpPath", info.getHttpPath());
                             item.put("httpContent", info.getHttpContent());
                             item.put("dnsName", info.getDnsName());
@@ -165,7 +165,7 @@ public class AcmeCertificateAsyncService {
                             // 本机模式：通过内置 HTTP 端点响应验证请求
                             for (AcmeValidationInfo info : validationInfos) {
                                 if ("HTTP-01".equals(info.getChallengeType()) && StringUtils.isNotEmpty(info.getToken())) {
-                                    challengeService.put(info.getToken(), info.getKeyAuthorization());
+                                    challengeService.put(info.getToken(), info.getHttpContent());
                                 }
                             }
                             log.info("[ACME-ASYNC] 本机模式，验证信息已存储到缓存");
@@ -317,7 +317,7 @@ public class AcmeCertificateAsyncService {
             for (AcmeValidationInfo info : validationInfos) {
                 if ("HTTP-01".equals(info.getChallengeType()) && StringUtils.isNotEmpty(info.getToken())) {
                     Path tokenFile = challengeDir.resolve(info.getToken());
-                    Files.writeString(tokenFile, info.getKeyAuthorization(), StandardCharsets.UTF_8);
+                    Files.writeString(tokenFile, info.getHttpContent(), StandardCharsets.UTF_8);
                     log.info("[ACME-ASYNC] 已写入验证文件: {}", tokenFile);
                 }
             }
@@ -362,15 +362,15 @@ public class AcmeCertificateAsyncService {
             String webroot = request.getWebrootPath();
             // 创建验证目录
             String mkdirCmd = String.format("mkdir -p %s/.well-known/acme-challenge", webroot);
-            sshClient.executeCommand(mkdirCmd);
+            sshClient.exec().command(mkdirCmd).execute();
             log.info("[ACME-ASYNC] 创建验证目录: {}", mkdirCmd);
 
             // 写入验证文件
             for (AcmeValidationInfo info : validationInfos) {
                 if ("HTTP-01".equals(info.getChallengeType()) && StringUtils.isNotEmpty(info.getToken())) {
                     String writeCmd = String.format("echo '%s' > %s/.well-known/acme-challenge/%s",
-                            info.getKeyAuthorization(), webroot, info.getToken());
-                    sshClient.executeCommand(writeCmd);
+                            info.getHttpContent(), webroot, info.getToken());
+                    sshClient.exec().command(writeCmd).execute();
                     log.info("[ACME-ASYNC] SSH写入验证文件: {}", info.getToken());
                 }
             }
