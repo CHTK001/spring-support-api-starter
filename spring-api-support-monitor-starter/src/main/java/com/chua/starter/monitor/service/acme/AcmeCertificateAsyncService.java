@@ -119,14 +119,14 @@ public class AcmeCertificateAsyncService {
                         );
 
                         if (!connResult.isSuccess()) {
-                            updateCertStatus(cert, "failed", connResult.getErrorMessage());
-                            pushMessage(userId, "证书申请失败", "连接 ACME 服务器失败: " + connResult.getErrorMessage(), "error", certId, request.getPrimaryDomain());
+                            updateCertStatus(cert, "failed", connResult.getError());
+                            pushMessage(userId, "证书申请失败", "连接 ACME 服务器失败: " + connResult.getError(), "error", certId, request.getPrimaryDomain());
                             return;
                         }
 
                         // 保存账户私钥（如果是新生成的）
-                        if (account.getAcmeAccountPrivateKeyPem() == null && connResult.getAccountPrivateKeyPem() != null) {
-                            account.setAcmeAccountPrivateKeyPem(connResult.getAccountPrivateKeyPem());
+                        if (account.getAcmeAccountPrivateKeyPem() == null && connResult.getPrivateKeyPem() != null) {
+                            account.setAcmeAccountPrivateKeyPem(connResult.getPrivateKeyPem());
                             account.setAcmeAccountStatus("valid");
                             accountMapper.updateById(account);
                         }
@@ -145,8 +145,8 @@ public class AcmeCertificateAsyncService {
                             item.put("keyAuthorization", info.getKeyAuthorization());
                             item.put("httpPath", info.getHttpPath());
                             item.put("httpContent", info.getHttpContent());
-                            item.put("dnsName", info.getDnsRecordName());
-                            item.put("dnsValue", info.getDnsRecordValue());
+                            item.put("dnsName", info.getDnsName());
+                            item.put("dnsValue", info.getDnsValue());
                             validations.add(item);
                         }
 
@@ -211,10 +211,10 @@ public class AcmeCertificateAsyncService {
                         } else {
                             // 需要手动验证
                             cert.setAcmeCertStatus("validating");
-                            cert.setAcmeCertLastError(certResult.getErrorMessage());
+                            cert.setAcmeCertLastError(certResult.getError());
                             certificateMapper.updateById(cert);
 
-                            log.warn("[ACME-ASYNC] 证书申请需要验证: certId={}, err={}", certId, certResult.getErrorMessage());
+                            log.warn("[ACME-ASYNC] 证书申请需要验证: certId={}, err={}", certId, certResult.getError());
                             pushMessage(userId, "证书申请待验证",
                                     String.format("域名 %s 需要完成 %s 验证，请查看证书详情获取验证信息",
                                             request.getPrimaryDomain(), challenge),
@@ -354,8 +354,7 @@ public class AcmeCertificateAsyncService {
                     .port(request.getSshPort() != null ? request.getSshPort() : 22)
                     .username(request.getSshUsername())
                     .password(request.getSshPassword())
-                    .clientType("ssh")
-                    .connectTimeoutMillis(30000)
+                    .connectTimeout(30000)
                     .build();
             sshClient = ProtocolClientSupport.create(clientId, SshClient.class, setting);
             log.info("[ACME-ASYNC] SSH连接成功: {}@{}", request.getSshUsername(), request.getSshHost());
@@ -442,8 +441,8 @@ public class AcmeCertificateAsyncService {
                         );
 
                         if (!connResult.isSuccess()) {
-                            updateCertStatus(cert, "failed", connResult.getErrorMessage());
-                            pushMessage(userId, "重新验证失败", "连接 ACME 服务器失败: " + connResult.getErrorMessage(), "error", certId, cert.getAcmeCertPrimaryDomain());
+                            updateCertStatus(cert, "failed", connResult.getError());
+                            pushMessage(userId, "重新验证失败", "连接 ACME 服务器失败: " + connResult.getError(), "error", certId, cert.getAcmeCertPrimaryDomain());
                             return;
                         }
 
@@ -472,12 +471,12 @@ public class AcmeCertificateAsyncService {
                                     "success", certId, cert.getAcmeCertPrimaryDomain());
                         } else {
                             cert.setAcmeCertStatus("validating");
-                            cert.setAcmeCertLastError(certResult.getErrorMessage());
+                            cert.setAcmeCertLastError(certResult.getError());
                             certificateMapper.updateById(cert);
 
-                            log.warn("[ACME-ASYNC] 重新验证失败: certId={}, err={}", certId, certResult.getErrorMessage());
+                            log.warn("[ACME-ASYNC] 重新验证失败: certId={}, err={}", certId, certResult.getError());
                             pushMessage(userId, "重新验证失败",
-                                    String.format("域名验证失败: %s，请检查验证文件是否正确部署", certResult.getErrorMessage()),
+                                    String.format("域名验证失败: %s，请检查验证文件是否正确部署", certResult.getError()),
                                     "error", certId, cert.getAcmeCertPrimaryDomain());
                         }
                     } catch (Exception e) {

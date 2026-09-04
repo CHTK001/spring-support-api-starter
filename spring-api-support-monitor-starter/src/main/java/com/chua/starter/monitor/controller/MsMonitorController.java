@@ -588,8 +588,8 @@ public class MsMonitorController {
             result.put("key", key);
             result.put("value", value != null ? value : "");
             result.put("type", value == null ? "none" : detectType(value));
-            Long ttl = redisTemplate.expire(key, 0, TimeUnit.SECONDS);
-            result.put("ttl", ttl != null && ttl > 0 ? ttl : -1);
+            Boolean expired = redisTemplate.expire(key, 0, TimeUnit.SECONDS);
+            result.put("ttl", expired != null && expired ? 0 : -1);
             return ReturnResult.ok(result);
         } catch (Exception e) {
             log.error("获取Redis值失败，taskId={}, key={}", taskId, key, e);

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.storage.support.storage.oss.result.PutObjectResult;
+import com.chua.common.support.storage.result.PutObjectResult;
 import com.chua.common.support.base.validator.group.AddGroup;
 import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.common.support.base.validator.group.UploadGroup;
