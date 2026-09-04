@@ -1,13 +1,9 @@
 package com.chua.starter.service.utils;
 
-import com.chua.common.support.core.utils.FileUtils;
-import com.chua.common.support.core.utils.IdUtils;
-import com.chua.common.support.core.utils.StringUtils;
-import com.chua.storage.support.storage.oss.FileStorage;
-import com.chua.storage.support.storage.oss.extension.NamingResolver;
-import com.chua.storage.support.storage.oss.metadata.Metadata;
-import com.chua.storage.support.storage.oss.setting.BucketSetting;
-import com.chua.common.support.io.binary.ByteSource;
+import com.chua.common.support.storage.setting.BucketSetting;
+import com.chua.common.support.utils.FileUtils;
+import com.chua.common.support.utils.IdUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.entity.service.SysFileSystemSetting;
 import com.chua.starter.service.SysFileSystemSettingService;
 import org.springframework.beans.factory.ObjectProvider;
@@ -36,7 +32,7 @@ public class FileStorageSupport {
         this.sysFileSystemSettingServiceProvider = sysFileSystemSettingServiceProvider;
     }
 
-    public FileStorage createStorage(String storageType, BucketSetting bucketSetting) {
+    public com.chua.common.support.storage.FileStorage createStorage(String storageType, BucketSetting bucketSetting) {
         String resolvedType = resolveStorageType(storageType);
         BucketSetting resolvedSetting = enrichSetting(resolvedType, bucketSetting);
         if (!isLocalStorageType(resolvedType)) {
@@ -44,25 +40,15 @@ public class FileStorageSupport {
                 throw new IllegalStateException("存储类型 " + resolvedType + " 缺少 accessKeyId/accessKeySecret 配置");
             }
         }
-        return FileStorage.createStorage(resolvedType, resolvedSetting);
+        return com.chua.common.support.storage.FileStorage.createStorage(resolvedType, resolvedSetting);
     }
 
     public BucketSetting createUploadBucketSetting(String storageType, String bucket, String originalFilename, String preferredFileName) {
         String resolvedType = resolveStorageType(storageType);
         String finalBucket = normalizeBucket(bucket);
-        BucketSetting.BucketSettingBuilder<?, ?> builder = BucketSetting.builder()
+        var builder = BucketSetting.builder()
                 .bucket(finalBucket)
-                .endpoint(resolveEndpoint(resolvedType))
-                .charset(StandardCharsets.UTF_8)
-                .nameResolver(new NamingResolver() {
-                    @Override
-                    public String transform(Metadata metadata, ByteSource byteSource) {
-                        return StringUtils.defaultString(
-                                preferredFileName,
-                                IdUtils.createSimpleUuid() + "." + FileUtils.getExtension(originalFilename)
-                        );
-                    }
-                });
+                .endpoint(resolveEndpoint(resolvedType));
 
         if (isLocalStorageType(resolvedType)) {
             builder.accessKeyId(DEFAULT_LOCAL_ACCESS_KEY);
@@ -82,7 +68,6 @@ public class FileStorageSupport {
                 .endpoint(StringUtils.defaultString(rootPath, resolveLocalRootPath()))
                 .accessKeyId(DEFAULT_LOCAL_ACCESS_KEY)
                 .accessKeySecret(DEFAULT_LOCAL_ACCESS_SECRET)
-                .charset(StandardCharsets.UTF_8)
                 .build();
     }
 
@@ -119,10 +104,6 @@ public class FileStorageSupport {
                 .accessKeySecret(StringUtils.isBlank(setting.getAccessKeySecret()) ? DEFAULT_LOCAL_ACCESS_SECRET : setting.getAccessKeySecret())
                 .connectionTimeoutMills(setting.getConnectionTimeoutMills())
                 .sessionTimeoutMills(setting.getSessionTimeoutMills())
-                .nameResolver(setting.getNameResolver())
-                .fileConversionResolver(setting.getFileConversionResolver())
-                .progressListener(setting.getProgressListener())
-                .charset(setting.getCharset())
                 .build();
     }
 
