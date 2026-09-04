@@ -30,10 +30,10 @@
             <groupId>com.chua</groupId>
             <artifactId>spring-support-datasource-starter</artifactId>
         </dependency>
-        <dependency>
+        <!-- dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-panel-starter</artifactId>
-        </dependency>
+        </dependency -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-support-server-starter</artifactId>
@@ -41,6 +41,26 @@
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>spring-api-support-common-service-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-api-support-oauth-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-socket-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-socket-io-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-ssh-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
@@ -78,11 +98,11 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
-            <dependency>
+            <!-- dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-protocol-starter</artifactId>
             <version>${utils.version}</version>
-        </dependency>
+        </dependency -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-deeplearning-starter</artifactId>
