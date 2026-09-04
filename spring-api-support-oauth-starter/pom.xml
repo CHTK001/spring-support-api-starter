@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>4.0.0.40</version>
+    <version>4.0.0.42</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>spring-api-support-oauth-starter</artifactId>
@@ -263,7 +263,7 @@
   <parent>
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>4.0.0.40</version>
+    <version>4.0.0.42</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>spring-api-support-oauth-starter</artifactId>
