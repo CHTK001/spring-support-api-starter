@@ -1,7 +1,7 @@
 package com.chua.starter.monitor.configuration;
 
-import com.chua.deeplearning.support.ai.rag.GlobalSettingProvider;
-import com.chua.common.support.core.annotation.Spi;
+import com.chua.common.support.ai.rag.GlobalSettingProvider;
+import com.chua.common.support.spi.annotations.Spi;
 
 import java.util.List;
 

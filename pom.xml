@@ -68,21 +68,21 @@
             <artifactId>utils-support-geoip2-starter</artifactId>
             <version>${utils.version}</version>
         </dependency>
-        <dependency>
+        <!-- dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-storage-starter</artifactId>
             <version>${utils.version}</version>
-        </dependency>
+        </dependency -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-datasearch-starter</artifactId>
             <version>${utils.version}</version>
         </dependency>
-        <dependency>
+        <!-- dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-protocol-starter</artifactId>
             <version>${utils.version}</version>
-        </dependency>
+        </dependency -->
     </dependencies>
 
 
@@ -692,23 +692,23 @@
                 <version>${module.version}</version>
             </dependency>
 
-            <dependency>
+            <!-- dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-panel-starter</artifactId>
                 <version>${module.version}</version>
-            </dependency>
+            </dependency -->
 
-            <dependency>
+            <!-- dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-appimage-starter</artifactId>
                 <version>${module.version}</version>
-            </dependency>
+            </dependency -->
 
-            <dependency>
+            <!-- dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-protocol-starter</artifactId>
                 <version>${module.version}</version>
-            </dependency>
+            </dependency -->
 
             <dependency>
                 <groupId>com.chua</groupId>
