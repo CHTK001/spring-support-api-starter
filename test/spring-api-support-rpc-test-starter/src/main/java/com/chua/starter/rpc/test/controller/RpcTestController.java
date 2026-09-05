@@ -25,7 +25,6 @@ public class RpcTestController {
         return ok(result, cost);
     }
 
-    @Operation(summary = "调用 RPC add", description = "通过 Dubbo RPC 调用远程服务的 add 方法")
     @GetMapping("/add")
     public Map<String, Object> add(@RequestParam int a, @RequestParam int b) {
         long start = System.currentTimeMillis();
@@ -35,7 +34,6 @@ public class RpcTestController {
         return ok(Map.of("a", a, "b", b, "result", result), cost);
     }
 
-    @Operation(summary = "调用 RPC hello", description = "通过 Dubbo RPC 调用远程服务的 hello 方法")
     @GetMapping("/hello/{name}")
     public Map<String, Object> hello(@PathVariable String name) {
         long start = System.currentTimeMillis();
@@ -45,7 +43,6 @@ public class RpcTestController {
         return ok(result, cost);
     }
 
-    @Operation(summary = "健康检查", description = "验证 RPC 服务是否正常")
     @GetMapping("/health")
     public Map<String, Object> health() {
         Map<String, Object> status = new LinkedHashMap<>();
