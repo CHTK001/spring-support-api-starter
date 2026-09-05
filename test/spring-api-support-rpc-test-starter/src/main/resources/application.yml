@@ -6,31 +6,46 @@ spring:
     name: rpc-test-app
   main:
     allow-circular-references: true
+    allow-bean-definition-overriding: true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerAutoConfiguration
 
 # RPC 配置
 plugin:
   rpc:
     enable: true
     # DUBBO / SOFA / JSON 三种协议可选
-    type: DUBBO
+    # JSON 基于 JDK HttpServer，无需注册中心，最适合作本机自测
+    type: JSON
     application-name: rpc-test-app
-    # 注册中心：multicast 无需外部服务，适合本机测试
+    # JSON 模式下 registry.address 即客户端连接地址（HTTP URL）
     registry:
-      - address: 224.5.6.7:1234
-        protocol: multicast
-        timeout: 5000
-        check: false
+      - address: http://127.0.0.1:18099
     # 协议配置
     protocols:
-      - name: dubbo
+      - name: json
         host: 0.0.0.0
-        port: 20880
-    # 消费者配置
+        port: 18099
+    # 消费者配置（version 需与服务端 @RpcService.version 一致）
     consumer:
       timeout: 5000
       retries: 1
-      load-balance: random
+      version: 1.0.0
       check: false
+
+# 如需 DUBBO（multicast 无需外部服务）：
+#    type: DUBBO
+#    registry:
+#      - address: 224.5.6.7:1234
+#        protocol: multicast
+#        timeout: 5000
+#        check: false
+#    protocols:
+#      - name: dubbo
+#        host: 0.0.0.0
+#        port: 20880
 
 logging:
   level:

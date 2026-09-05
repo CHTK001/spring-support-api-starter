@@ -104,6 +104,9 @@ public class RedisTokenResolver implements TokenResolver {
     @Autowired
     /** 令牌blacklist服务 */
     private TokenBlacklistService tokenBlacklistService;
+    @Autowired(required = false)
+    /** 指纹存储服务 */
+    private com.chua.starter.oauth.sso.support.service.FingerprintStorageService fingerprintStorageService;
 
     @Override
     /** 创建Token */
@@ -179,6 +182,9 @@ public class RedisTokenResolver implements TokenResolver {
         // 设置浏览器指纹到返回结果
         loginResult.setFingerprint(userResult.getFingerprint());
 
+        // 将指纹+IP+用户信息写入 MySQL 缓存（供反查使用）
+        saveFingerprintRecord(userResult, address);
+
         log.info("[TOKEN][userId={}] 创建成功: mode={}, expire={}s, refreshExpire={}s, token={}...",
                 userId, getOnlineMode(userResult), expire, refreshExpire,
                 token.length() > 8 ? token.substring(0, 8) : token);
@@ -197,10 +203,46 @@ public class RedisTokenResolver implements TokenResolver {
         if (ext == null) {
             return;
         }
-        
+
         Object fingerprintObj = ext.get("fingerprint");
         if (fingerprintObj != null) {
             userResult.setFingerprint(fingerprintObj.toString());
+        }
+    }
+
+    /**
+     * 将登录时的指纹+IP+用户信息写入 MySQL + Redis 缓存，供反查接口使用
+     *
+     * @param userResult 已包含 fingerprint/address/ext 信息的用户结果
+     * @param address    客户端 IP 地址
+     */
+    private void saveFingerprintRecord(UserResult userResult, String address) {
+        if (fingerprintStorageService == null) {
+            return;
+        }
+        try {
+            String fp = userResult.getFingerprint();
+            if (StringUtils.isBlank(fp) || StringUtils.isBlank(userResult.getUserId())) {
+                return;
+            }
+            Map<String, Object> ext = userResult.getExt();
+            String ua = ext != null ? String.valueOf(ext.get("ua")) : null;
+            com.chua.starter.common.support.network.UserAgent.UserAgentInfo uaInfo = null;
+            if (StringUtils.isNotBlank(ua)) {
+                uaInfo = com.chua.starter.common.support.network.UserAgent.parseUserAgentString(ua);
+            }
+            fingerprintStorageService.saveFingerprint(
+                    new com.chua.starter.oauth.sso.support.service.FingerprintStorageService.FingerprintRecord(
+                            userResult.getUserId(),
+                            userResult.getUsername(),
+                            fp,
+                            address,
+                            userResult.getLoginType(),
+                            ua,
+                            uaInfo != null ? uaInfo.getBrowser().toString() : null,
+                            uaInfo != null ? uaInfo.getOperatingSystem().getName() : null));
+        } catch (Exception e) {
+            log.warn("[Fingerprint] 写入指纹映射失败: userId={}", userResult.getUserId(), e);
         }
     }
 
