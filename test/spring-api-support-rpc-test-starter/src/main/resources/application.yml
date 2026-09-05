@@ -1,0 +1,37 @@
+server:
+  port: 18080
+
+spring:
+  application:
+    name: rpc-test-app
+  main:
+    allow-circular-references: true
+
+# RPC 配置
+plugin:
+  rpc:
+    enable: true
+    # DUBBO / SOFA / JSON 三种协议可选
+    type: DUBBO
+    application-name: rpc-test-app
+    # 注册中心：multicast 无需外部服务，适合本机测试
+    registry:
+      - address: 224.5.6.7:1234
+        protocol: multicast
+        timeout: 5000
+        check: false
+    # 协议配置
+    protocols:
+      - name: dubbo
+        host: 0.0.0.0
+        port: 20880
+    # 消费者配置
+    consumer:
+      timeout: 5000
+      retries: 1
+      load-balance: random
+      check: false
+
+logging:
+  level:
+    com.chua.starter.rpc: debug
