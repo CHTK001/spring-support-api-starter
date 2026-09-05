@@ -17,36 +17,43 @@ plugin:
   rpc:
     enable: true
     # DUBBO / SOFA / JSON 三种协议可选
-    # JSON 基于 JDK HttpServer，无需注册中心，最适合作本机自测
-    type: JSON
+    type: DUBBO
     application-name: rpc-test-app
-    # JSON 模式下 registry.address 即客户端连接地址（HTTP URL）
+    # 注册中心：multicast 无需外部服务，适合本机测试
     registry:
-      - address: http://127.0.0.1:18099
+      - address: 224.5.6.7:1234
+        protocol: multicast
+        port: 1234
+        timeout: 5000
+        check: false
+        parameters:
+          register-mode: interface
     # 协议配置
     protocols:
-      - name: json
+      - name: dubbo
         host: 0.0.0.0
-        port: 18099
-    # 消费者配置（version 需与服务端 @RpcService.version 一致）
+        port: 20880
+    # 消费者配置（Dubbo 模式 service 导出未携带版本，consumer 不设 version 以默认 "" 匹配）
     consumer:
       timeout: 5000
       retries: 1
-      version: 1.0.0
       check: false
 
-# 如需 DUBBO（multicast 无需外部服务）：
-#    type: DUBBO
+# JSON 模式（备选）：
+#    type: JSON
 #    registry:
-#      - address: 224.5.6.7:1234
-#        protocol: multicast
-#        timeout: 5000
-#        check: false
+#      - address: http://127.0.0.1:18099
 #    protocols:
-#      - name: dubbo
+#      - name: json
 #        host: 0.0.0.0
-#        port: 20880
+#        port: 18099
+#    consumer:
+#      timeout: 5000
+#      retries: 1
+#      version: 1.0.0
+#      check: false
 
 logging:
   level:
     com.chua.starter.rpc: debug
+    org.apache.dubbo.registry: debug
