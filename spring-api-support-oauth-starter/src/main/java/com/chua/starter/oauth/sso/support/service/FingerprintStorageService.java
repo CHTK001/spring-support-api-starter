@@ -1,22 +1,27 @@
 package com.chua.starter.oauth.sso.support.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.sso.support.entity.SysFingerprint;
 import com.chua.starter.oauth.sso.support.mapper.SysFingerprintMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 指纹/IP 映射存储服务
  * <p>
- * 登录时将指纹+IP+用户信息写入 MySQL 并缓存至 Redis，
+ * 登录时将 fingerprint+IP+用户信息写入 MySQL 并缓存至 Redis，
  * 支持通过指纹或 IP 反查用户身份。
  * </p>
  *
@@ -31,7 +36,7 @@ public class FingerprintStorageService {
     private static final String FP_CACHE_PREFIX = "oauth:fingerprint:";
     /** Redis key 前缀 - 按IP查询 */
     private static final String IP_CACHE_PREFIX = "oauth:ip:";
-    /** 缓存过期时间（秒）- 与 Token 过期时间对齐 */
+    /** 缓存过期时间（秒）*/
     private static final int CACHE_TTL_SECONDS = 86_400 * 30;
 
     @Autowired(required = false)
@@ -44,60 +49,80 @@ public class FingerprintStorageService {
      * 保存或更新指纹映射
      * <p>同时写入 MySQL 和 Redis 缓存</p>
      *
-     * @param userId   用户ID
-     * @param username 用户名
-     * @param fingerprint 浏览器指纹（明文）
-     * @param ip       客户端IP
-     * @param loginType   登录类型
-     * @param userAgent  User-Agent
-     * @param browser    浏览器
-     * @param os         操作系统
+     * @param req 指纹记录参数对象
      */
-    public void saveFingerprint(String userId, String username, String fingerprint,
-                                String ip, String loginType,
-                                String userAgent, String browser, String os) {
-        if (StringUtils.isBlank(fingerprint) || StringUtils.isBlank(userId)) {
+    public void saveFingerprint(FingerprintRecord req) {
+        if (req == null || StringUtils.isBlank(req.fingerprint()) || StringUtils.isBlank(req.userId())) {
             return;
         }
 
         long now = System.currentTimeMillis();
 
-        // 写入 MySQL
+        // 写入 MySQL（upsert）
         if (fingerprintMapper != null) {
             try {
+                SysFingerprint existing = fingerprintMapper.selectOne(
+                        new LambdaQueryWrapper<SysFingerprint>()
+                                .eq(SysFingerprint::getFingerprint, req.fingerprint()));
                 SysFingerprint record = new SysFingerprint();
-                record.setFingerprint(fingerprint);
-                record.setUserId(userId);
-                record.setUsername(username);
-                record.setIp(ip);
-                record.setLoginType(loginType);
-                record.setUserAgent(userAgent);
-                record.setBrowser(browser);
-                record.setOs(os);
+                record.setFingerprint(req.fingerprint());
+                record.setUserId(req.userId());
+                record.setUsername(req.username());
+                record.setIp(req.ip());
+                record.setLoginType(req.loginType());
+                record.setUserAgent(req.userAgent());
+                record.setBrowser(req.browser());
+                record.setOs(req.os());
                 record.setLoginTime(now);
                 record.setLastLoginTime(now);
                 record.setTokenCount(1);
                 record.setStatus(1);
-
-                SysFingerprint existing = findByFingerprint(fingerprint);
                 if (existing == null) {
                     fingerprintMapper.insert(record);
                 } else {
                     record.setId(existing.getId());
-                    record.setUpdateTime(new java.util.Date());
+                    record.setTokenCount(existing.getTokenCount() != null ? existing.getTokenCount() : 1);
+                    record.setStatus(existing.getStatus() != null ? existing.getStatus() : 1);
                     fingerprintMapper.updateById(record);
                 }
             } catch (Exception e) {
-                log.warn("[Fingerprint] MySQL 写入失败: fingerprint={}", fingerprint, e);
+                log.warn("[Fingerprint] MySQL 写入失败: fingerprint={}", req.fingerprint(), e);
             }
         }
 
         // 写入 Redis 缓存
-        saveToCache(fingerprint, userId, username, ip, loginType, browser, os, now);
+        saveToCache(req.fingerprint(), req.userId(), req.username(), req.ip(),
+                req.loginType(), req.browser(), req.os(), now);
     }
 
     /**
-     * 更新 Token 计数（登录/登出时调用）
+     * 指纹记录参数对象（规约十九：8 个参数提取为不可变 record）
+     *
+     * @param userId      用户ID
+     * @param username    用户名
+     * @param fingerprint 浏览器指纹
+     * @param ip          客户端IP
+     * @param loginType   登录类型
+     * @param userAgent   User-Agent
+     * @param browser     浏览器
+     * @param os          操作系统
+     */
+    public record FingerprintRecord(
+            String userId,
+            String username,
+            String fingerprint,
+            String ip,
+            String loginType,
+            String userAgent,
+            String browser,
+            String os
+    ) {}
+
+    /**
+     * 更新指纹的 Token 计数（登录+1 / 登出-1）
+     *
+     * @param fingerprint 浏览器指纹
+     * @param delta       变化量（+1 或 -1）
      */
     public void updateTokenCount(String fingerprint, int delta) {
         if (StringUtils.isBlank(fingerprint)) {
@@ -109,17 +134,16 @@ public class FingerprintStorageService {
             return;
         }
         try {
-            Map<String, String> map = com.chua.common.support.lang.json.Json.fromJson(val, Map.class);
+            @SuppressWarnings("unchecked")
+            Map<String, String> map = Json.fromJson(val, Map.class);
             if (map != null) {
                 int count = Integer.parseInt(map.getOrDefault("tokenCount", "1"));
                 count = Math.max(0, count + delta);
                 map.put("tokenCount", String.valueOf(count));
                 map.put("lastLoginTime", String.valueOf(System.currentTimeMillis()));
-                if (count == 0) {
-                    map.put("status", "0");
-                }
-                stringRedisTemplate.opsForValue().set(redisKey, com.chua.common.support.lang.json.Json.toJson(map),
-                        CACHE_TTL_SECONDS, java.util.concurrent.TimeUnit.SECONDS);
+                map.put("status", count > 0 ? "1" : "0");
+                stringRedisTemplate.opsForValue().set(redisKey, Json.toJson(map),
+                        CACHE_TTL_SECONDS, TimeUnit.SECONDS);
             }
         } catch (Exception e) {
             log.warn("[Fingerprint] tokenCount 更新失败", e);
@@ -133,7 +157,6 @@ public class FingerprintStorageService {
      * @param fingerprint 浏览器指纹
      * @return 用户信息 Map，不存在返回 null
      */
-    @Cacheable(value = "oauth:fingerprint", key = "#fingerprint", unless = "#result == null")
     public Map<String, Object> findByFingerprint(String fingerprint) {
         if (StringUtils.isBlank(fingerprint)) {
             return null;
@@ -143,7 +166,11 @@ public class FingerprintStorageService {
         String cached = stringRedisTemplate.opsForValue().get(redisKey);
         if (StringUtils.isNotBlank(cached)) {
             try {
-                return com.chua.common.support.lang.json.Json.fromJson(cached, Map.class);
+                @SuppressWarnings("unchecked")
+                Map<String, Object> result = Json.fromJson(cached, Map.class);
+                if (result != null) {
+                    return result;
+                }
             } catch (Exception e) {
                 log.warn("[Fingerprint] Redis 解析失败", e);
             }
@@ -152,13 +179,12 @@ public class FingerprintStorageService {
         if (fingerprintMapper != null) {
             try {
                 SysFingerprint fp = fingerprintMapper.selectOne(
-                        new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<SysFingerprint>()
+                        new LambdaQueryWrapper<SysFingerprint>()
                                 .eq(SysFingerprint::getFingerprint, fingerprint));
                 if (fp != null) {
                     Map<String, Object> result = toMap(fp);
-                    stringRedisTemplate.opsForValue().set(redisKey,
-                            com.chua.common.support.lang.json.Json.toJson(result),
-                            CACHE_TTL_SECONDS, java.util.concurrent.TimeUnit.SECONDS);
+                    stringRedisTemplate.opsForValue().set(redisKey, Json.toJson(result),
+                            CACHE_TTL_SECONDS, TimeUnit.SECONDS);
                     return result;
                 }
             } catch (Exception e) {
@@ -175,18 +201,21 @@ public class FingerprintStorageService {
      * @param ip 客户端IP
      * @return 用户信息列表，不存在返回空列表
      */
-    @Cacheable(value = "oauth:ip", key = "#ip", unless = "#result == null")
-    public java.util.List<Map<String, Object>> findByIp(String ip) {
+    public List<Map<String, Object>> findByIp(String ip) {
         if (StringUtils.isBlank(ip)) {
-            return java.util.Collections.emptyList();
+            return List.of();
         }
         // 先查 Redis
         String redisKey = IP_CACHE_PREFIX + ip;
         String cached = stringRedisTemplate.opsForValue().get(redisKey);
         if (StringUtils.isNotBlank(cached)) {
             try {
-                return com.chua.common.support.lang.json.Json.fromJson(cached,
-                        new com.fasterxml.jackson.core.type.TypeReference<java.util.List<Map<String, Object>>>() {});
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> result =
+                        Json.fromJson(cached, new TypeReference<List<Map<String, Object>>>() {});
+                if (result != null) {
+                    return result;
+                }
             } catch (Exception e) {
                 log.warn("[Fingerprint] Redis 解析失败", e);
             }
@@ -195,39 +224,44 @@ public class FingerprintStorageService {
         if (fingerprintMapper != null) {
             try {
                 var list = fingerprintMapper.selectList(
-                        new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<SysFingerprint>()
+                        new LambdaQueryWrapper<SysFingerprint>()
                                 .eq(SysFingerprint::getIp, ip)
                                 .orderByDesc(SysFingerprint::getLastLoginTime));
                 if (!list.isEmpty()) {
-                    java.util.List<Map<String, Object>> results = list.stream()
+                    List<Map<String, Object>> results = list.stream()
                             .map(this::toMap)
-                            .collect(java.util.stream.Collectors.toList());
-                    stringRedisTemplate.opsForValue().set(redisKey,
-                            com.chua.common.support.lang.json.Json.toJson(results),
-                            CACHE_TTL_SECONDS, java.util.concurrent.TimeUnit.SECONDS);
+                            .collect(Collectors.toList());
+                    stringRedisTemplate.opsForValue().set(redisKey, Json.toJson(results),
+                            CACHE_TTL_SECONDS, TimeUnit.SECONDS);
                     return results;
                 }
             } catch (Exception e) {
                 log.warn("[Fingerprint] MySQL 查询失败: ip={}", ip, e);
             }
         }
-        return java.util.Collections.emptyList();
+        return List.of();
     }
 
     /**
-     * 清除指定指纹的缓存
+     * 清除指纹缓存
+     *
+     * @param fingerprint 浏览器指纹
      */
-    @CacheEvict(value = "oauth:fingerprint", key = "#fingerprint")
     public void evictFingerprintCache(String fingerprint) {
-        stringRedisTemplate.delete(FP_CACHE_PREFIX + fingerprint);
+        if (StringUtils.isNotBlank(fingerprint)) {
+            stringRedisTemplate.delete(FP_CACHE_PREFIX + fingerprint);
+        }
     }
 
     /**
-     * 清除指定 IP 的缓存
+     * 清除 IP 缓存
+     *
+     * @param ip 客户端IP
      */
-    @CacheEvict(value = "oauth:ip", key = "#ip")
     public void evictIpCache(String ip) {
-        stringRedisTemplate.delete(IP_CACHE_PREFIX + ip);
+        if (StringUtils.isNotBlank(ip)) {
+            stringRedisTemplate.delete(IP_CACHE_PREFIX + ip);
+        }
     }
 
     // ==================== 内部方法 ====================
@@ -264,8 +298,7 @@ public class FingerprintStorageService {
             cache.put("tokenCount", "1");
             cache.put("status", "1");
             stringRedisTemplate.opsForValue().set(FP_CACHE_PREFIX + fingerprint,
-                    com.chua.common.support.lang.json.Json.toJson(cache),
-                    CACHE_TTL_SECONDS, java.util.concurrent.TimeUnit.SECONDS);
+                    Json.toJson(cache), CACHE_TTL_SECONDS, TimeUnit.SECONDS);
         } catch (Exception e) {
             log.warn("[Fingerprint] Redis 写入失败: fingerprint={}", fingerprint, e);
         }

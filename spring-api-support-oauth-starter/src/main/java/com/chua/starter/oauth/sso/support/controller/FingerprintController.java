@@ -32,7 +32,10 @@ public class FingerprintController {
     private final FingerprintStorageService fingerprintStorageService;
 
     /**
-     * 根据指纹查询用户
+     * 根据指纹查询对应用户信息，用于安全审计和异常登录排查。
+     *
+     * @param fingerprint 浏览器指纹，不能为空
+     * @return 用户信息（含 userId、username、ip、browser、os 等），未找到返回 found=false
      */
     @GetMapping("/by-fingerprint")
     @Operation(summary = "根据指纹查询用户")
@@ -53,12 +56,15 @@ public class FingerprintController {
     }
 
     /**
-     * 根据 IP 查询登录用户列表
+     * 根据 IP 查询登录过的用户列表，用于排查同一 IP 的多个登录账户。
+     *
+     * @param ip 客户端 IP 地址，不能为空
+     * @return 用户列表及总数
      */
     @GetMapping("/by-ip")
     @Operation(summary = "根据IP查询登录用户列表")
     @Parameter(name = "ip", description = "客户端IP地址", required = true)
-    public ReturnResult<List<Map<String, Object>>> findByIp(
+    public ReturnResult<Map<String, Object>> findByIp(
             @RequestParam("ip") String ip) {
         if (ip == null || ip.isBlank()) {
             return ReturnResult.illegal("ip 不能为空");
@@ -71,7 +77,11 @@ public class FingerprintController {
     }
 
     /**
-     * 清除指纹缓存
+     * 清除指纹缓存，通常在数据修正后手动调用。
+     *
+     * @param fingerprint 指定指纹（可选）
+     * @param ip          指定 IP（可选）
+     * @return 操作结果
      */
     @PostMapping("/cache/evict")
     @Operation(summary = "清除指纹缓存")
