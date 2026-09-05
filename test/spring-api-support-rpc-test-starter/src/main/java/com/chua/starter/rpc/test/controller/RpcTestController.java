@@ -1,0 +1,76 @@
+package com.chua.starter.rpc.test.controller;
+
+import com.chua.starter.rpc.test.service.EchoServiceClient;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@Slf4j
+@RestController
+@RequestMapping("/v2/rpc/test")
+@RequiredArgsConstructor
+@Tag(name = "RPC 测试", description = "Dubbo RPC 远程调用测试接口")
+public class RpcTestController {
+
+    private final EchoServiceClient echoServiceClient;
+
+    @Operation(summary = "调用 RPC echo", description = "通过 Dubbo RPC 调用远程服务的 echo 方法")
+    @GetMapping("/echo")
+    public Map<String, Object> echo(@RequestParam(defaultValue = "hello world") String message) {
+        long start = System.currentTimeMillis();
+        String result = echoServiceClient.callEcho(message);
+        long cost = System.currentTimeMillis() - start;
+        log.info("[RPC] echo cost={}ms result={}", cost, result);
+        return ok(result, cost);
+    }
+
+    @Operation(summary = "调用 RPC add", description = "通过 Dubbo RPC 调用远程服务的 add 方法")
+    @GetMapping("/add")
+    public Map<String, Object> add(@RequestParam int a, @RequestParam int b) {
+        long start = System.currentTimeMillis();
+        int result = echoServiceClient.callAdd(a, b);
+        long cost = System.currentTimeMillis() - start;
+        log.info("[RPC] add({},{}) cost={}ms result={}", a, b, cost, result);
+        return ok(Map.of("a", a, "b", b, "result", result), cost);
+    }
+
+    @Operation(summary = "调用 RPC hello", description = "通过 Dubbo RPC 调用远程服务的 hello 方法")
+    @GetMapping("/hello/{name}")
+    public Map<String, Object> hello(@PathVariable String name) {
+        long start = System.currentTimeMillis();
+        String result = echoServiceClient.callHello(name);
+        long cost = System.currentTimeMillis() - start;
+        log.info("[RPC] hello({}) cost={}ms result={}", name, cost, result);
+        return ok(result, cost);
+    }
+
+    @Operation(summary = "健康检查", description = "验证 RPC 服务是否正常")
+    @GetMapping("/health")
+    public Map<String, Object> health() {
+        Map<String, Object> status = new LinkedHashMap<>();
+        status.put("rpc", "ok");
+        status.put("service", "spring-api-support-rpc-test-starter");
+        try {
+            String r = echoServiceClient.callEcho("ping");
+            status.put("rpcCall", "ok");
+            status.put("echoResult", r);
+        } catch (Exception e) {
+            status.put("rpcCall", "error");
+            status.put("rpcError", e.getMessage());
+        }
+        return status;
+    }
+
+    private Map<String, Object> ok(Object data, long cost) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("success", true);
+        result.put("data", data);
+        result.put("costMs", cost);
+        return result;
+    }
+}
