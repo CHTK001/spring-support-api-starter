@@ -57,3 +57,4 @@ logging:
   level:
     com.chua.starter.rpc: debug
     org.apache.dubbo.registry: debug
+    com.chua.rpc.support.dubbo: debug
