@@ -186,7 +186,7 @@ CREATE TABLE `sys_oauth_trace_log` (
 COMMENT = 'OAuth追踪日志表 - 记录认证请求的完整链路追踪信息，用于问题排查和性能分析' ROW_FORMAT = DYNAMIC;
 
 -- =====================================================
--- 5. 浏览器指纹与用户映射表 (sys_fingerprint)
+-- 6. 浏览器指纹与用户映射表 (sys_fingerprint)
 -- 用途: 记录用户登录时的浏览器指纹和IP，支持通过指纹/IP反查用户身份
 -- =====================================================
 DROP TABLE IF EXISTS `sys_fingerprint`;
