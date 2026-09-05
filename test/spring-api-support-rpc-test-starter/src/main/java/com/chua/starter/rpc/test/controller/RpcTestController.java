@@ -1,8 +1,6 @@
 package com.chua.starter.rpc.test.controller;
 
 import com.chua.starter.rpc.test.service.EchoServiceClient;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -14,12 +12,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/v2/rpc/test")
 @RequiredArgsConstructor
-@Tag(name = "RPC 测试", description = "Dubbo RPC 远程调用测试接口")
 public class RpcTestController {
 
     private final EchoServiceClient echoServiceClient;
 
-    @Operation(summary = "调用 RPC echo", description = "通过 Dubbo RPC 调用远程服务的 echo 方法")
     @GetMapping("/echo")
     public Map<String, Object> echo(@RequestParam(defaultValue = "hello world") String message) {
         long start = System.currentTimeMillis();
