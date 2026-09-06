@@ -24,21 +24,22 @@
             <artifactId>utils-support-rpc-json-starter</artifactId>
             <version>4.0.0.42</version>
         </dependency>
-        <!-- SOFA RPC — 显式排除其传递的 logback/slf4j，避免与 Boot 4 logback 1.5.x 冲突 -->
+        <!-- SOFA RPC — 保留其 logback/slf4j 传递依赖以解决 logback 1.2.x API 兼容 -->
         <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-rpc-sofa-starter</artifactId>
             <version>4.0.0.42</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+        </dependency>
+        <!-- 显式锁定 logback/slf4j 为 SOFA 所需的 1.2.x/1.7.x 版本 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.12</version>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
