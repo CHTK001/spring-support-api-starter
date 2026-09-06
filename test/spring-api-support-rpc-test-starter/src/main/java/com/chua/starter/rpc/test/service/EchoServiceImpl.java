@@ -11,6 +11,9 @@ public class EchoServiceImpl implements EchoService {
 
     @Override
     public String echo(String message) {
+        if (message == null) {
+            throw new IllegalArgumentException("message must not be null");
+        }
         log.info("[EchoService] received: {}", message);
         return "Echo: " + message;
     }
