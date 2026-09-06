@@ -89,6 +89,22 @@ public class RpcTestController {
     }
 
     /**
+     * 触发远程异常（传 null 参数），用于验证失败统计。
+     *
+     * @return 失败结果
+     */
+    @GetMapping("/fail")
+    public RpcTestResult fail() {
+        try {
+            echoServiceClient.callEcho(null);
+            return new RpcTestResult(true, "unexpected success", 0);
+        } catch (Exception e) {
+            log.warn("[RPC] fail endpoint caught: {}", e.getMessage());
+            return new RpcTestResult(false, e.getClass().getSimpleName(), 0);
+        }
+    }
+
+    /**
      * RPC 调用结果。
      *
      * @param success 是否成功
