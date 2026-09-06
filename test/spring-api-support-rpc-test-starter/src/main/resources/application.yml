@@ -17,21 +17,22 @@ plugin:
   rpc:
     enable: true
     # DUBBO / SOFA / JSON 三种协议可选
-    type: SOFA
+    type: DUBBO
     application-name: rpc-test-app
     # 注册中心：multicast 无需外部服务，适合本机测试
     registry:
       - address: 224.5.6.7:1234
         protocol: multicast
+        port: 1234
         timeout: 5000
         check: false
         parameters:
           register-mode: interface
     # 协议配置
     protocols:
-      - name: sofa
+      - name: dubbo
         host: 0.0.0.0
-        port: 12200
+        port: 20880
     # 消费者配置
     consumer:
       timeout: 5000
