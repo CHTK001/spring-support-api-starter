@@ -8,7 +8,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>spring-api-support-rpc-test-starter</artifactId>
-    <description>RPC 模块集成测试 — Dubbo 协议直连模式</description>
+    <description>RPC 模块集成测试 — Dubbo/SOFA/JSON 三协议支持</description>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -23,6 +23,22 @@
             <groupId>com.chua</groupId>
             <artifactId>utils-support-rpc-json-starter</artifactId>
             <version>4.0.0.42</version>
+        </dependency>
+        <!-- SOFA RPC — 显式排除其传递的 logback/slf4j，避免与 Boot 4 logback 1.5.x 冲突 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-rpc-sofa-starter</artifactId>
+            <version>4.0.0.42</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
