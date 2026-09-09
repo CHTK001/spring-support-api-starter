@@ -248,7 +248,7 @@ public class ProtocolServerAuthInformation {
         private int status = 200;
         private String bodyString;
         
-        public ProtocolServerResponse(com.chua.common.support.network.protocol.request.ServletResponse protocolResponse) {
+        public ProtocolServerResponse(ServletResponse protocolResponse) {
             this.protocolResponse = protocolResponse;
         }
         
