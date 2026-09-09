@@ -2,7 +2,7 @@ package com.chua.starter.oauth.sso.support.parser;
 
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.protocol.support.network.net.UserAgent;
+import com.chua.common.support.network.net.UserAgent;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.IpUtils;
