@@ -30,7 +30,6 @@ import java.util.Map;
  */
 @Slf4j
 @Component("oauthServerHealth")
-@RequiredArgsConstructor
 public class OAuthServerHealthIndicator extends AbstractHealthIndicator {
 
     /** 字符串redis模板 */
