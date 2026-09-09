@@ -1,17 +1,16 @@
 package com.chua.starter.oauth.sso.support.health;
 
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.health.contributor.AbstractHealthIndicator;
 import org.springframework.boot.health.contributor.Health;
-import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -32,7 +31,7 @@ import java.util.Map;
 @Slf4j
 @Component("oauthServerHealth")
 @RequiredArgsConstructor
-public class OAuthServerHealthIndicator implements HealthIndicator {
+public class OAuthServerHealthIndicator extends AbstractHealthIndicator {
 
     /** 字符串redis模板 */
     private final StringRedisTemplate stringRedisTemplate;
@@ -46,12 +45,20 @@ public class OAuthServerHealthIndicator implements HealthIndicator {
      */
     private static final String HEALTH_CHECK_KEY = "oauth:health:check";
 
+    public OAuthServerHealthIndicator(StringRedisTemplate stringRedisTemplate,
+                                      DataSource dataSource,
+                                      AuthServerProperties authServerProperties) {
+        super("OAuth服务健康检查失败");
+        this.stringRedisTemplate = stringRedisTemplate;
+        this.dataSource = dataSource;
+        this.authServerProperties = authServerProperties;
+    }
+
     @Override
-    /** Health */
-    public Health health() {
-        Map<String, Object> details = new HashMap<>();
+    protected void doHealthCheck(Health.Builder builder) throws Exception {
+        Map<String, Object> details = new LinkedHashMap<>();
         boolean isHealthy = true;
-        
+
         // 1. 检查Redis连接
         try {
             checkRedisConnection(details);
@@ -75,13 +82,9 @@ public class OAuthServerHealthIndicator implements HealthIndicator {
 
         // 返回健康状态
         if (isHealthy) {
-            return Health.up()
-                    .withDetails(details)
-                    .build();
+            builder.up().withDetails(details);
         } else {
-            return Health.down()
-                    .withDetails(details)
-                    .build();
+            builder.down().withDetails(details);
         }
     }
 
@@ -90,25 +93,25 @@ public class OAuthServerHealthIndicator implements HealthIndicator {
      */
     private void checkRedisConnection(Map<String, Object> details) {
         long startTime = System.currentTimeMillis();
-        
+
         // 执行简单的读写测试
         String testValue = String.valueOf(System.currentTimeMillis());
         stringRedisTemplate.opsForValue().set(HEALTH_CHECK_KEY, testValue);
         String readValue = stringRedisTemplate.opsForValue().get(HEALTH_CHECK_KEY);
-        
+
         long latency = System.currentTimeMillis() - startTime;
-        
+
         if (testValue.equals(readValue)) {
-            Map<String, Object> redisInfo = new HashMap<>();
+            Map<String, Object> redisInfo = new LinkedHashMap<>();
             redisInfo.put("status", "UP");
             redisInfo.put("latency", latency + "ms");
-            
+
             // 获取Redis连接信息
             RedisConnectionFactory factory = stringRedisTemplate.getConnectionFactory();
             if (factory != null) {
                 redisInfo.put("connection", factory.getClass().getSimpleName());
             }
-            
+
             details.put("redis", redisInfo);
         } else {
             throw new RuntimeException("Redis读写测试失败");
@@ -120,13 +123,13 @@ public class OAuthServerHealthIndicator implements HealthIndicator {
      */
     private void checkDatabaseConnection(Map<String, Object> details) {
         long startTime = System.currentTimeMillis();
-        
+
         try (Connection connection = dataSource.getConnection()) {
             boolean isValid = connection.isValid(5);
             long latency = System.currentTimeMillis() - startTime;
-            
+
             if (isValid) {
-                Map<String, Object> dbInfo = new HashMap<>();
+                Map<String, Object> dbInfo = new LinkedHashMap<>();
                 dbInfo.put("status", "UP");
                 dbInfo.put("latency", latency + "ms");
                 dbInfo.put("database", connection.getMetaData().getDatabaseProductName());
@@ -144,7 +147,7 @@ public class OAuthServerHealthIndicator implements HealthIndicator {
      * 添加服务配置信息
      */
     private void addServiceInfo(Map<String, Object> details) {
-        Map<String, Object> serviceInfo = new HashMap<>();
+        Map<String, Object> serviceInfo = new LinkedHashMap<>();
         serviceInfo.put("protocols", authServerProperties.getProtocols());
         serviceInfo.put("tokenExpire", authServerProperties.getExpire() + "s");
         serviceInfo.put("refreshTokenExpire", authServerProperties.getRefreshExpire() + "s");
