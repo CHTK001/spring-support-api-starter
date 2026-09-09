@@ -132,6 +132,7 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
      * 根据平台创建对应的 AuthRequest
      */
     private AuthRequest createAuthRequest(String platform, AuthConfig authConfig) {
+        // TODO: 迁移到 ServiceProvider（第三方 JustAuth OAuth 实现需先建立 SPI 扩展点）
         return switch (platform.toLowerCase()) {
             case "gitee" -> new AuthGiteeRequest(authConfig, authStateCache);
             case "github" -> new AuthGithubRequest(authConfig, authStateCache);
