@@ -139,7 +139,7 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
                 var result = authorization.authentication();
                 
                 long cost = System.currentTimeMillis() - startTime;
-                if (result.isFailure()) {
+                if (!result.isOk()) {
                     log.warn("[OAuth][HTTP] 登录认证失败: {}, 客户端IP: {}, 耗时: {}ms", 
                             result.getMsg(), clientIp, cost);
                 } else {
@@ -190,7 +190,7 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
                 var result = authorization.authentication();
                 
                 long cost = System.currentTimeMillis() - startTime;
-                if (result.isFailure()) {
+                if (!result.isOk()) {
                     log.warn("[OAuth][HTTP] 登出失败: {}, 客户端IP: {}, 耗时: {}ms", 
                             result.getMsg(), clientIp, cost);
                 } else {
@@ -241,7 +241,7 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
                 var result = authorization.authentication();
                 
                 long cost = System.currentTimeMillis() - startTime;
-                if (result.isFailure()) {
+                if (!result.isOk()) {
                     log.debug("[OAuth][HTTP] 鉴权失败: {}, 客户端IP: {}, 耗时: {}ms", result.getMsg(), clientIp, cost);
                 } else {
                     log.debug("[OAuth][HTTP] 鉴权成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);
@@ -291,7 +291,7 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
                 var result = authorization.authentication();
                 
                 long cost = System.currentTimeMillis() - startTime;
-                if (result.isFailure()) {
+                if (!result.isOk()) {
                     log.warn("[OAuth][HTTP] 令牌升级失败: {}, 客户端IP: {}, 耗时: {}ms", result.getMsg(), clientIp, cost);
                 } else {
                     log.info("[OAuth][HTTP] 令牌升级成功, 客户端IP: {}, 耗时: {}ms", clientIp, cost);

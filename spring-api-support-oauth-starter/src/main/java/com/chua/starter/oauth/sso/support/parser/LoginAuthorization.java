@@ -175,10 +175,10 @@ public final class LoginAuthorization implements Authorization {
         // IP 归属地解析
         if (iptablesService != null && ip != null && !ip.isBlank()) {
             try {
-                com.chua.common.support.lang.code.ReturnResult<com.chua.common.support.geo.GeoCity> geoResult =
+                com.chua.common.support.lang.code.ReturnResult<com.chua.common.support.network.ip.GeoCity> geoResult =
                         iptablesService.transferAddress(ip);
                 if (geoResult != null && geoResult.isOk() && geoResult.getData() != null) {
-                    com.chua.common.support.geo.GeoCity city = geoResult.getData();
+                    com.chua.common.support.network.ip.GeoCity city = geoResult.getData();
                     sysUserLog.setSysLogAddress(city.toString());
                     sysUserLog.setSysLogIsp(city.getIsp());
                 }

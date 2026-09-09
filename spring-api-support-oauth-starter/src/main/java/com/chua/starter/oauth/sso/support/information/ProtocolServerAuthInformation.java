@@ -326,7 +326,10 @@ public class ProtocolServerAuthInformation {
             setStatus(sc);
         }
         @Override public void sendRedirect(String location) throws IOException {
-            setStatus(302);
+            sendRedirect(location, 302, false);
+        }
+        @Override public void sendRedirect(String location, int statusCode, boolean isSameContext) throws IOException {
+            setStatus(statusCode);
             setHeader("Location", location);
         }
         @Override public void setDateHeader(String name, long date) {
