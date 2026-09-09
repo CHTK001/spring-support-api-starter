@@ -140,6 +140,11 @@
             <artifactId>utils-support-protocol-starter</artifactId>
             <version>${utils.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-kcp-starter</artifactId>
+            <version>${utils.version}</version>
+        </dependency>
     </dependencies>
   <build>
     <plugins>
