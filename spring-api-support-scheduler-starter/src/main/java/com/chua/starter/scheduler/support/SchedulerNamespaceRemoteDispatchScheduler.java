@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
 
 /**
  * 命名空间远程分发轮询器。
@@ -64,6 +65,8 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     private final Map<String, IdleState> namespaceIdleStates = new ConcurrentHashMap<>();
 
     private static final String DISCOVERY_SERVICE_CLASS = "com.chua.starter.discovery.support.service.DiscoveryService";
+
+    private static final Pattern SAFE_SQL_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_.]+$");
 
     @Scheduled(fixedDelayString = "${plugin.scheduler.job-platform.dispatch-interval-ms:1000}")
     public void dispatchDueJobs() {
@@ -229,10 +232,11 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
      */
     public SysJob findDiscoveryControlRecord(String namespace, String handlerName) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+        String table = safeIdentifier(tables.jobTable());
         String discJobNo = discoveryJobNo(handlerName);
         MapSqlParameterSource params = new MapSqlParameterSource("jobNo", discJobNo);
         List<SysJob> records = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + tables.jobTable() + " WHERE job_no = :jobNo LIMIT 1",
+                "SELECT * FROM " + table + " WHERE job_no = :jobNo LIMIT 1",
                 params,
                 jobRowMapper
         );
@@ -249,9 +253,10 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     private Set<String> loadDiscoveryDisabledHandlers(String namespace) {
         try {
             SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+            String table = safeIdentifier(tables.jobTable());
             MapSqlParameterSource params = new MapSqlParameterSource();
             List<String> handlers = namedParameterJdbcTemplate.query(
-                    "SELECT job_execute_bean FROM " + tables.jobTable()
+                    "SELECT job_execute_bean FROM " + table
                             + " WHERE job_no LIKE 'disc:%'"
                             + " AND (job_trigger_status = 0 OR is_deleted = 1)",
                     params,
@@ -279,12 +284,13 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
      */
     private void upsertDiscoveryControlRecord(String namespace, String handlerName, int status, int deleted) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
+        String table = safeIdentifier(tables.jobTable());
         String discJobNo = discoveryJobNo(handlerName);
 
         // 先检查是否已有记录
         MapSqlParameterSource checkParams = new MapSqlParameterSource("jobNo", discJobNo);
         Integer exists = namedParameterJdbcTemplate.query(
-                "SELECT COUNT(1) FROM " + tables.jobTable() + " WHERE job_no = :jobNo",
+                "SELECT COUNT(1) FROM " + table + " WHERE job_no = :jobNo",
                 checkParams,
                 (rs) -> rs.next() ? rs.getInt(1) : 0
         );
@@ -296,7 +302,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             updateParams.addValue("status", status);
             updateParams.addValue("deleted", deleted);
             namedParameterJdbcTemplate.update(
-                    "UPDATE " + tables.jobTable()
+                    "UPDATE " + table
                             + " SET job_trigger_status = :status, is_deleted = :deleted"
                             + " WHERE job_no = :jobNo",
                     updateParams
@@ -320,7 +326,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             insertParams.addValue("jobTriggerLastTime", 0L);
 
             namedParameterJdbcTemplate.update(
-                    "INSERT INTO " + tables.jobTable() + " ("
+                    "INSERT INTO " + table + " ("
                             + "job_id, job_no, job_name, job_schedule_type, job_schedule_time,"
                             + "job_glue_type, job_dispatch_mode, job_execute_bean,"
                             + "job_trigger_status, is_deleted, job_trigger_next_time, job_trigger_last_time"
@@ -366,7 +372,8 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     private List<SysJob> loadDueJobs(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables,
                                      boolean clusterMode,
-                                     SchedulerJobPlatformProperties.Namespace nsProps) {
+                                      SchedulerJobPlatformProperties.Namespace nsProps) {
+        String table = safeIdentifier(tables.jobTable());
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("status", STATUS_RUNNING);
         parameters.addValue("now", System.currentTimeMillis());
@@ -382,7 +389,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         String sql;
         if (clusterMode) {
             // 集群模式：拾取所有到期任务（包括 LOCAL 和 REMOTE）
-            sql = "SELECT * FROM " + tables.jobTable()
+            sql = "SELECT * FROM " + table
                     + " WHERE job_trigger_status = :status"
                     + " AND job_trigger_next_time > 0"
                     + " AND job_trigger_next_time <= :now"
@@ -391,7 +398,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         } else {
             // 单机模式：仅拾取 REMOTE 类型任务
             parameters.addValue("dispatchMode", JobDispatchModeEnum.REMOTE.name());
-            sql = "SELECT * FROM " + tables.jobTable()
+            sql = "SELECT * FROM " + table
                     + " WHERE job_trigger_status = :status"
                     + " AND job_dispatch_mode = :dispatchMode"
                     + " AND job_trigger_next_time > 0"
@@ -472,6 +479,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     private boolean claimJob(String tableName, SysJob job, DispatchPlan plan) {
+        String table = safeIdentifier(tableName);
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("jobId", job.getJobId());
         parameters.addValue("expectedStatus", plan.previousStatus());
@@ -480,7 +488,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         parameters.addValue("nextLastTime", plan.nextLastTime());
         parameters.addValue("nextNextTime", plan.nextNextTime());
         int updated = namedParameterJdbcTemplate.update(
-                "UPDATE " + tableName
+                "UPDATE " + table
                         + " SET job_trigger_status = :nextStatus,"
                         + " job_trigger_last_time = :nextLastTime,"
                         + " job_trigger_next_time = :nextNextTime"
@@ -493,6 +501,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     private void rollbackClaim(String tableName, SysJob job, DispatchPlan plan) {
+        String table = safeIdentifier(tableName);
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("jobId", job.getJobId());
         parameters.addValue("currentStatus", plan.nextStatus());
@@ -502,7 +511,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         parameters.addValue("rollbackLastTime", plan.previousLastTime());
         parameters.addValue("rollbackNextTime", plan.previousNextTime());
         namedParameterJdbcTemplate.update(
-                "UPDATE " + tableName
+                "UPDATE " + table
                         + " SET job_trigger_status = :rollbackStatus,"
                         + " job_trigger_last_time = :rollbackLastTime,"
                         + " job_trigger_next_time = :rollbackNextTime"
@@ -531,6 +540,20 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     private long safeLong(Long value) {
         return value == null ? 0L : value;
+    }
+
+    /**
+     * 校验并返回可用于 SQL 拼接的标识符（表名/列名）。
+     * <p>
+     * 命名空间表名等标识符来自配置，拼接进 SQL 前必须通过白名单校验，
+     * 仅允许字母、数字、下划线和点，防止被注入 SQL 元字符。
+     * </p>
+     */
+    private String safeIdentifier(String identifier) {
+        if (identifier == null || !SAFE_SQL_IDENTIFIER.matcher(identifier).matches()) {
+            throw new IllegalArgumentException("非法的 SQL 标识符: " + identifier);
+        }
+        return identifier;
     }
 
     // ==================== 发现服务任务调度 ====================
