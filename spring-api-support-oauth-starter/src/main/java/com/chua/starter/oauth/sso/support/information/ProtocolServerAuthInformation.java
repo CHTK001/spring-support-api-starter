@@ -34,13 +34,13 @@ public class ProtocolServerAuthInformation {
      * <p>实现 HttpServletRequest 接口，用于适配 ProtocolServer 请求</p>
      */
     public static class ProtocolServerRequest implements HttpServletRequest {
-        private final com.chua.common.support.network.protocol.request.ServletRequest protocolRequest;
+        private final ServletRequest protocolRequest;
         private final Map<String, String> headers = new ConcurrentHashMap<>();
         private final Map<String, Object> attributes = new ConcurrentHashMap<>();
         private String remoteAddr;
         private int remotePort;
 
-        public ProtocolServerRequest(com.chua.common.support.network.protocol.request.ServletRequest protocolRequest) {
+        public ProtocolServerRequest(ServletRequest protocolRequest) {
             this.protocolRequest = protocolRequest;
             // 从 ProtocolServer 的 ServletRequest 获取客户端地址
             if (protocolRequest != null) {
@@ -243,7 +243,7 @@ public class ProtocolServerAuthInformation {
      * <p>实现 HttpServletResponse 接口，用于适配 ProtocolServer 响应</p>
      */
     public static class ProtocolServerResponse implements HttpServletResponse {
-        private final com.chua.common.support.network.protocol.request.ServletResponse protocolResponse;
+        private final ServletResponse protocolResponse;
         private final Map<String, String> headers = new ConcurrentHashMap<>();
         private int status = 200;
         private String bodyString;
