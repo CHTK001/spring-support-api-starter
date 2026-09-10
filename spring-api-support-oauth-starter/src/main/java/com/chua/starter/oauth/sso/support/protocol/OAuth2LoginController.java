@@ -8,6 +8,7 @@ import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.properties.ThirdPartyLoginProperties;
+import com.chua.starter.service.dto.setting.AuthRequestFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -255,7 +256,7 @@ public class OAuth2LoginController {
                 .redirectUri(config.getRedirectUri())
                 .build();
 
-        AuthRequest authRequest = createAuthRequest(platform, authConfig);
+        AuthRequest authRequest = AuthRequestFactory.createAuthRequest(platform, authConfig, authStateCache);
         if (authRequest == null) {
             log.error("不支持的第三方登录平台: platform={}", platform);
             return ReturnResult.error("登录失败：不支持的平台 '" + platform + "'。" +
@@ -410,7 +411,7 @@ public class OAuth2LoginController {
                     .redirectUri(redirectUri)
                     .build();
 
-            AuthRequest authRequest = createAuthRequest(platform, authConfig);
+            AuthRequest authRequest = AuthRequestFactory.createAuthRequest(platform, authConfig, authStateCache);
             if (authRequest == null) {
                 log.error("不支持的登录平台: platform={}", platform);
                 addErrorCookie(response, "登录失败：不支持的平台 '" + platform + "'。" +
@@ -1538,7 +1539,7 @@ public class OAuth2LoginController {
                     .redirectUri(redirectUri)
                     .build();
 
-            AuthRequest authRequest = createAuthRequest(platform, authConfig);
+            AuthRequest authRequest = AuthRequestFactory.createAuthRequest(platform, authConfig, authStateCache);
             if (authRequest == null) {
                 log.error("不支持的登录平台: platform={}", platform);
                 return ReturnResult.error("登录失败：不支持的平台 '" + platform + "'。" +
@@ -1636,58 +1637,6 @@ public class OAuth2LoginController {
             case "baidu" -> thirdPartyLoginProperties.getBaidu();
             case "google" -> thirdPartyLoginProperties.getGoogle();
             case "microsoft" -> thirdPartyLoginProperties.getMicrosoft();
-            default -> null;
-        };
-    }
-
-    /**
-     * 创建 AuthRequest 实例
-     * 
-     * <p>
-     * 根据平台标识创建对应的 JustAuth AuthRequest 实例。
-     * 每个平台使用不同的 AuthRequest 实现类。
-     * </p>
-     * 
-     * <h3>支持的平台及对应的 AuthRequest</h3>
-     * <ul>
-     *   <li>gitee → AuthGiteeRequest</li>
-     *   <li>github → AuthGithubRequest</li>
-     *   <li>wechat/wechat_open → AuthWeChatOpenRequest（微信开放平台）</li>
-     *   <li>wechat_mp → AuthWeChatMpRequest（微信公众号）</li>
-     *   <li>wechat_enterprise → AuthWeChatEnterpriseQrcodeRequest（企业微信）</li>
-     *   <li>qq → AuthQqRequest</li>
-     *   <li>alipay → AuthAlipayRequest</li>
-     *   <li>dingtalk → AuthDingTalkRequest</li>
-     *   <li>weibo → AuthWeiboRequest</li>
-     *   <li>baidu → AuthBaiduRequest</li>
-     *   <li>google → AuthGoogleRequest</li>
-     *   <li>microsoft → AuthMicrosoftRequest</li>
-     *   <li>taobao → AuthTaobaoRequest</li>
-     *   <li>douyin → AuthDouyinRequest</li>
-     *   <li>feishu → AuthFeishuRequest</li>
-     * </ul>
-     * 
-     * @param platform 平台标识（不区分大小写）
-     * @param authConfig 认证配置（包含 clientId、clientSecret、redirectUri）
-     * @return AuthRequest 实例，如果平台不支持则返回 null
-     */
-    private AuthRequest createAuthRequest(String platform, AuthConfig authConfig) {
-        return switch (platform.toLowerCase()) {
-            case "gitee" -> new AuthGiteeRequest(authConfig, authStateCache);
-            case "github" -> new AuthGithubRequest(authConfig, authStateCache);
-            case "wechat" -> new AuthWeChatOpenRequest(authConfig, authStateCache);
-            case "wechat_mp" -> new AuthWeChatMpRequest(authConfig, authStateCache);
-            case "wechat_enterprise" -> new AuthWeChatEnterpriseQrcodeRequest(authConfig, authStateCache);
-            case "qq" -> new AuthQqRequest(authConfig, authStateCache);
-            case "alipay" -> new AuthAlipayRequest(authConfig, authStateCache);
-            case "dingtalk" -> new AuthDingTalkRequest(authConfig, authStateCache);
-            case "weibo" -> new AuthWeiboRequest(authConfig, authStateCache);
-            case "baidu" -> new AuthBaiduRequest(authConfig, authStateCache);
-            case "google" -> new AuthGoogleRequest(authConfig, authStateCache);
-            case "microsoft" -> new AuthMicrosoftRequest(authConfig, authStateCache);
-            case "taobao" -> new AuthTaobaoRequest(authConfig, authStateCache);
-            case "douyin" -> new AuthDouyinRequest(authConfig, authStateCache);
-            case "feishu" -> new AuthFeishuRequest(authConfig, authStateCache);
             default -> null;
         };
     }

@@ -6,6 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
+import com.chua.starter.service.dto.setting.AuthRequestFactory;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.cache.AuthDefaultStateCache;
 import me.zhyd.oauth.cache.AuthStateCache;
@@ -83,7 +84,7 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
                     .build();
 
             // 创建对应平台的 AuthRequest
-            AuthRequest authRequest = createAuthRequest(platform, authConfig);
+            AuthRequest authRequest = AuthRequestFactory.createAuthRequest(platform, authConfig, authStateCache);
             if (authRequest == null) {
                 return ReturnResult.error("不支持的 OAuth2 平台: " + platform);
             }
@@ -126,31 +127,6 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
             log.error("OAuth2 认证异常", e);
             return ReturnResult.error("认证失败: " + e.getMessage());
         }
-    }
-
-    /**
-     * 根据平台创建对应的 AuthRequest
-     */
-    private AuthRequest createAuthRequest(String platform, AuthConfig authConfig) {
-        // TODO: 迁移到 ServiceProvider（第三方 JustAuth OAuth 实现需先建立 SPI 扩展点）
-        return switch (platform.toLowerCase()) {
-            case "gitee" -> new AuthGiteeRequest(authConfig, authStateCache);
-            case "github" -> new AuthGithubRequest(authConfig, authStateCache);
-            case "wechat" -> new AuthWeChatOpenRequest(authConfig, authStateCache);
-            case "wechat_mp" -> new AuthWeChatMpRequest(authConfig, authStateCache);
-            case "wechat_enterprise" -> new AuthWeChatEnterpriseQrcodeRequest(authConfig, authStateCache);
-            case "qq" -> new AuthQqRequest(authConfig, authStateCache);
-            case "alipay" -> new AuthAlipayRequest(authConfig, authStateCache);
-            case "dingtalk" -> new AuthDingTalkRequest(authConfig, authStateCache);
-            case "weibo" -> new AuthWeiboRequest(authConfig, authStateCache);
-            case "baidu" -> new AuthBaiduRequest(authConfig, authStateCache);
-            case "google" -> new AuthGoogleRequest(authConfig, authStateCache);
-            case "microsoft" -> new AuthMicrosoftRequest(authConfig, authStateCache);
-            case "taobao" -> new AuthTaobaoRequest(authConfig, authStateCache);
-            case "douyin" -> new AuthDouyinRequest(authConfig, authStateCache);
-            case "feishu" -> new AuthFeishuRequest(authConfig, authStateCache);
-            default -> null;
-        };
     }
 
     /**
