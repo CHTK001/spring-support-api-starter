@@ -26,6 +26,7 @@ import com.chua.starter.service.setting.GuestDefaultSetting;
 import com.chua.starter.service.setting.SmsSetting;
 import com.chua.starter.service.setting.SmtpSetting;
 import com.chua.starter.service.setting.VersionSetting;
+import com.chua.starter.service.dto.setting.AuthRequestFactory;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.entity.service.SysSetting;
 import com.chua.starter.service.pojo.setting.SysSettingUpdate;
@@ -390,24 +391,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         authStateCache.cache(state + "_callback", authConfig.getRedirectUri());
         authStateCache.cache(state + "_system_callback", loginData.callback());
         // TODO: 迁移到 ServiceProvider（第三方 JustAuth OAuth 实现需先建立 SPI 扩展点）
-        return switch (loginType) {
-            case "gitee" -> new SysSettingThirdPartyRequest<>(new AuthGiteeRequest(authConfig, authStateCache), authStateCache, state);
-            case "wechat" -> new SysSettingThirdPartyRequest<>(new AuthWeChatOpenRequest(authConfig, authStateCache), authStateCache, state);
-            case "wechat_mp" -> new SysSettingThirdPartyRequest<>(new AuthWeChatMpRequest(authConfig, authStateCache), authStateCache, state);
-            case "github" -> new SysSettingThirdPartyRequest<>(new AuthGithubRequest(authConfig, authStateCache), authStateCache, state);
-            case "qq" -> new SysSettingThirdPartyRequest<>(new AuthQqRequest(authConfig, authStateCache), authStateCache, state);
-            case "alipay" -> new SysSettingThirdPartyRequest<>(new AuthAlipayRequest(authConfig, authStateCache), authStateCache, state);
-            case "dingtalk" -> new SysSettingThirdPartyRequest<>(new AuthDingTalkRequest(authConfig, authStateCache), authStateCache, state);
-            case "wechat_enterprise" -> new SysSettingThirdPartyRequest<>(new AuthWeChatEnterpriseQrcodeRequest(authConfig, authStateCache), authStateCache, state);
-            case "weibo" -> new SysSettingThirdPartyRequest<>(new AuthWeiboRequest(authConfig, authStateCache), authStateCache, state);
-            case "baidu" -> new SysSettingThirdPartyRequest<>(new AuthBaiduRequest(authConfig, authStateCache), authStateCache, state);
-            case "google" -> new SysSettingThirdPartyRequest<>(new AuthGoogleRequest(authConfig, authStateCache), authStateCache, state);
-            case "microsoft" -> new SysSettingThirdPartyRequest<>(new AuthMicrosoftRequest(authConfig, authStateCache), authStateCache, state);
-            case "taobao" -> new SysSettingThirdPartyRequest<>(new AuthTaobaoRequest(authConfig, authStateCache), authStateCache, state);
-            case "douyin" -> new SysSettingThirdPartyRequest<>(new AuthDouyinRequest(authConfig, authStateCache), authStateCache, state);
-            case "feishu" -> new SysSettingThirdPartyRequest<>(new AuthFeishuRequest(authConfig, authStateCache), authStateCache, state);
-            default -> null;
-        };
+        AuthRequest authRequest = AuthRequestFactory.createAuthRequest(loginType, authConfig, authStateCache);
+        return authRequest == null ? null : new SysSettingThirdPartyRequest<>(authRequest, authStateCache, state);
     }
 
     private void upgradeVersion(SysSetting version) {
