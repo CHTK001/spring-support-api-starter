@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chua.common.support.network.ssl.AcmeCertificateResult;
 import com.chua.common.support.network.ssl.AcmeConnectionResult;
 import com.chua.common.support.network.ssl.AcmeProvider;
+import com.chua.common.support.network.ssl.AcmeValidationInfo;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
@@ -21,6 +22,7 @@ import com.chua.starter.monitor.pojo.acme.AcmeCertificateDetailVo;
 import com.chua.starter.monitor.pojo.acme.CertStats;
 import com.chua.starter.monitor.properties.AcmeProperties;
 import com.chua.starter.monitor.service.acme.AcmeCertificateAsyncService;
+import com.chua.starter.monitor.service.acme.AcmeChallengeService;
 import com.chua.starter.monitor.service.acme.support.AcmeCertificateSupport;
 import com.chua.starter.monitor.service.acme.AcmeCertificateService;
 import lombok.RequiredArgsConstructor;
@@ -131,8 +133,13 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
 
     /**
     * 异步证书服务，负责后台执行证书申请与重新验证
-     */
+    */
     private final AcmeCertificateAsyncService asyncService;
+
+    /**
+    * 本机 HTTP-01 验证缓存服务
+    */
+    private final AcmeChallengeService challengeService;
 
     /**
     * 保存/更新 ACME 账户 forcert
@@ -165,11 +172,12 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     /**
     * 申请证书 forcert（异步执行，立即返回）
     *
+    * <p>不使用事务：证书记录插入后需立即提交，异步虚拟线程才能读取到该记录。</p>
+    *
     * @param request 请求
     * @return 证书ID
-     */
+    */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Integer> applyCertificateForCert(AcmeApplyCertRequest request) {
         if (request == null || request.getAcmeAccountId() == null || StringUtils.isNullOrEmpty(request.getPrimaryDomain())) {
             return ReturnResult.illegal("参数错误: acmeAccountId/primaryDomain 不能为空");
@@ -219,11 +227,18 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     /**
     * 续签证书 forcert
     *
+    * <p>续签即基于同一账户重新走完整 ACME 流程：创建续签订单 → 获取验证信息 →
+    * 按部署模式完成 HTTP-01 验证部署 → 触发验证并下载新证书。
+    * 本机模式（local）自动完成验证；SSH/手动/DNS-01 模式无法自动部署时，
+    * 订单与验证信息入库、证书转入待验证状态，用户部署后点击重新验证即可完成续签。</p>
+    *
+    * <p>不使用事务：方法包含最长可达分钟级的 CA 轮询网络调用，
+    * 每次数据库写入均为单条语句，由 MyBatis 自动提交。</p>
+    *
     * @param certId 证书标识
     * @return 是否成功
-     */
+    */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> renewCertificateForCert(Integer certId) {
         MonitorAcmeCertificate cert = certificateMapper.selectById(certId);
         if (cert == null) {
@@ -242,7 +257,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
             return ReturnResult.illegal("ACME 服务提供者不可用");
         }
 
- // 连接 ACME 服务器（支持 EAB，zerossl 等 CA 需要）
+        // 连接 ACME 服务器（支持 EAB，ZeroSSL 等 CA 需要）
         AcmeConnectionResult connResult = provider.connect(
                 account.getAcmeAccountServer(),
                 account.getAcmeAccountEmail(),
@@ -255,21 +270,60 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
             return ReturnResult.illegal("连接 ACME 服务器失败: " + connResult.getError());
         }
 
-        // 续签证书
         List<String> domains = AcmeCertificateSupport.buildDomains(cert);
         String challenge = cert.getAcmeCertChallengeType();
         try {
-            AcmeCertificateResult certResult = provider.renewCertificate(domains, challenge);
+            // 1.创建续签订单并获取各域名的验证信息（授权仍有效时列表为空）
+            List<AcmeValidationInfo> validationInfos = provider.getValidationInfo(domains, challenge);
+
+            // 2.续签订单与验证信息入库，保证后续重新验证可按订单地址恢复
+            MonitorAcmeOrder order = new MonitorAcmeOrder();
+            order.setAcmeAccountId(account.getAcmeAccountId());
+            order.setAcmeCertId(certId);
+            order.setAcmeOrderStatus(STATUS_VALIDATING);
+            order.setAcmeOrderUrl(AcmeCertificateSupport.resolveOrderUrl(validationInfos));
+            order.setAcmeAuthzUrls(AcmeCertificateSupport.toValidationJson(validationInfos));
+            orderMapper.insert(order);
+
+            // 3.存在待完成验证时，按部署模式处理
+            if (!validationInfos.isEmpty()) {
+                String deployMode = StringUtils.defaultString(cert.getAcmeCertDeployMode(), DEPLOY_MODE_MANUAL);
+                boolean autoDeployable = AcmeCertificateSupport.DEPLOY_MODE_LOCAL.equals(deployMode)
+                        && CHALLENGE_HTTP_01.equalsIgnoreCase(challenge);
+                if (!autoDeployable) {
+                    // SSH 凭据未随证书持久化、手动模式与 DNS-01 均无法自动部署，转待验证由用户处理
+                    cert.setAcmeCertStatus(STATUS_VALIDATING);
+                    cert.setAcmeCertLastError(buildDeployPendingMessage(deployMode, challenge));
+                    certificateMapper.updateById(cert);
+                    log.warn("[ACME] 续签需手动完成域名验证: id={}, deployMode={}", certId, deployMode);
+                    return ReturnResult.illegal("续签需完成域名验证，验证信息已保存，部署完成后请点击重新验证");
+                }
+
+                // 本机模式：写入内存缓存，由内置 /.well-known/acme-challenge 端点响应 CA
+                for (AcmeValidationInfo info : validationInfos) {
+                    if (StringUtils.isNotEmpty(info.getToken())) {
+                        challengeService.put(info.getToken(), info.getHttpContent());
+                    }
+                }
+
+                // 配置了本机 webroot 时同步写静态文件（尽力而为，失败不影响内置端点响应）
+                AcmeCertificateSupport.writeHttpChallengeFiles(cert.getAcmeCertWebrootPath(), validationInfos);
+            }
+
+            // 4.触发验证、提交 CSR 并下载新证书（复用第 1 步创建的同一订单）
+            AcmeCertificateResult certResult = provider.requestCertificate(domains, challenge);
             if (certResult.isSuccess()) {
                 fillCertificateSuccess(cert, certResult);
                 certificateMapper.updateById(cert);
+                order.setAcmeOrderStatus(STATUS_VALID);
+                orderMapper.updateById(order);
                 log.info("[ACME] 续签成功: id={}, domain={}", certId, cert.getAcmeCertPrimaryDomain());
                 return ReturnResult.ok(true, "续签成功");
-            } else {
-                cert.setAcmeCertLastError(certResult.getError());
-                certificateMapper.updateById(cert);
-                return ReturnResult.illegal("续签失败: " + certResult.getError());
             }
+
+            cert.setAcmeCertLastError(AcmeCertificateSupport.shortMsg(certResult.getError()));
+            certificateMapper.updateById(cert);
+            return ReturnResult.illegal("续签失败: " + certResult.getError());
         } catch (Exception e) {
             log.error("[ACME] 续签失败: id={}", certId, e);
             cert.setAcmeCertLastError(AcmeCertificateSupport.shortMsg(e));
@@ -281,13 +335,31 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
+    * 根据部署模式与挑战类型生成待验证提示信息。
+    *
+    * @param deployMode    部署模式
+    * @param challengeType 挑战类型
+    * @return 提示信息
+    */
+    private String buildDeployPendingMessage(String deployMode, String challengeType) {
+        if (AcmeCertificateSupport.DEPLOY_MODE_SSH.equals(deployMode)) {
+            return "自动续签无法完成 SSH 远程验证（证书未保存 SSH 凭据），请手动部署验证文件后重新验证";
+        }
+        if (AcmeCertificateSupport.CHALLENGE_DNS_01.equalsIgnoreCase(challengeType)) {
+            return "DNS-01 验证需手动配置 DNS 记录，配置完成后请重新验证";
+        }
+        return "自动续签需手动完成域名验证，部署验证文件后请重新验证";
+    }
+
+    /**
     * 吊销证书 forcert
+    *
+    * <p>不使用事务：吊销包含 CA 网络调用，吊销成功后的状态更新为单条语句自动提交。</p>
     *
     * @param certId 证书标识
     * @return 是否成功
-     */
+    */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> revokeCertificateForCert(Integer certId) {
         MonitorAcmeCertificate cert = certificateMapper.selectById(certId);
         if (cert == null) {
@@ -475,9 +547,11 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
 
     /**
     * 检查并续签到期前 N 天的证书（调度）
+    *
+    * <p>不使用事务：续签为逐证书独立的网络密集型操作，单证书失败不影响其它证书，
+    * 数据库写入由各 Mapper 单条自动提交。</p>
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void checkAndRenewSoonExpired() {
         int days = Math.max(acmeProperties.getRenewDaysBefore(), MIN_RENEW_DAYS);
         String deadline = LocalDate.now().plusDays(days).atStartOfDay().format(DATE);

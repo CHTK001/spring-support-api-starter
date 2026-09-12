@@ -1,13 +1,23 @@
 package com.chua.starter.monitor.service.acme.support;
 
+import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.network.ssl.AcmeCertificateResult;
+import com.chua.common.support.network.ssl.AcmeValidationInfo;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.monitor.entity.MonitorAcmeCertificate;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
 * ACME 证书公共支持类，集中提供域名列表构建、错误信息截断与签发结果回填等公共逻辑，
@@ -15,9 +25,50 @@ import java.util.List;
 * 避免重复实现。
 *
 * @since 4.0.0.42
-* @author CH
+ * @author CH
  */
+@Slf4j
 public final class AcmeCertificateSupport {
+
+    /**
+     * 挑战类型：HTTP-01
+     */
+    public static final String CHALLENGE_HTTP_01 = "HTTP-01";
+
+    /**
+     * 挑战类型：DNS-01
+     */
+    public static final String CHALLENGE_DNS_01 = "DNS-01";
+
+    /**
+     * 证书状态：签发失败
+     */
+    public static final String STATUS_FAILED = "failed";
+
+    /**
+     * 部署模式：本机自动
+     */
+    public static final String DEPLOY_MODE_LOCAL = "local";
+
+    /**
+     * 部署模式：SSH 远程
+     */
+    public static final String DEPLOY_MODE_SSH = "ssh";
+
+    /**
+     * 部署模式：手动
+     */
+    public static final String DEPLOY_MODE_MANUAL = "manual";
+
+    /**
+     * 订单/证书状态：待验证
+     */
+    public static final String STATUS_VALIDATING = "validating";
+
+    /**
+     * 订单状态：已完成
+     */
+    public static final String ORDER_STATUS_VALID = "valid";
 
     /**
     * 证书状态：已签发
@@ -40,9 +91,19 @@ public final class AcmeCertificateSupport {
     private static final int MIN_RENEW_DAYS = 7;
 
     /**
-    * 错误信息最大长度，避免超出数据库字段长度
+     * 错误信息最大长度，避免超出数据库字段长度
      */
     private static final int MAX_ERROR_LENGTH = 512;
+
+    /**
+     * PEM 内容识别标识
+     */
+    private static final String PEM_BEGIN_MARKER = "-----BEGIN";
+
+    /**
+     * acme4j 提供者的 SPI 扩展名
+     */
+    private static final String PROVIDER_NAME_ACME4J = "acme4j";
 
     /**
     * 时间格式化器，与证书表时间字段格式保持一致
@@ -67,7 +128,20 @@ public final class AcmeCertificateSupport {
         if (PROVIDER_TYPE_CAS.equalsIgnoreCase(providerType)) {
             return PROVIDER_TYPE_CAS;
         }
-        return "acme4j";
+        return PROVIDER_NAME_ACME4J;
+    }
+
+    /**
+     * 判断已保存的账户私钥是否为空或历史占位值（非 PEM 文本）。
+     *
+     * <p>命中时说明提供者本次新生成了真实密钥，调用方应将返回的 PEM 持久化，
+     * 否则每次连接都会生成新密钥并向 CA 注册重复账户。</p>
+     *
+     * @param savedPrivateKeyPem 已持久化的账户私钥 PEM
+     * @return 需要重新持久化返回 true
+     */
+    public static boolean needPersistAccountKey(String savedPrivateKeyPem) {
+        return savedPrivateKeyPem == null || !savedPrivateKeyPem.contains(PEM_BEGIN_MARKER);
     }
 
     /**
@@ -134,5 +208,91 @@ public final class AcmeCertificateSupport {
         target.setAcmeCertChainPem(src.getCertificatePem());
         target.setAcmeCertKeyPem(src.getPrivateKeyPem());
         target.setAcmeCertLastError(null);
+    }
+
+    /**
+     * 将 ACME 验证信息序列化为订单表存储的 JSON 结构。
+     *
+     * @param validationInfos 验证信息列表
+     * @return JSON 字符串，入参为空时返回空列表 JSON
+     */
+    public static String toValidationJson(List<AcmeValidationInfo> validationInfos) {
+        List<Map<String, Object>> validations = new ArrayList<>();
+        if (validationInfos != null) {
+            for (AcmeValidationInfo info : validationInfos) {
+                Map<String, Object> item = new HashMap<>(10);
+                item.put("orderUrl", info.getOrderUrl());
+                item.put("domain", info.getDomain());
+                item.put("type", info.getChallengeType());
+                item.put("token", info.getToken());
+                item.put("keyAuthorization", info.getHttpContent());
+                item.put("httpPath", info.getHttpPath());
+                item.put("httpContent", info.getHttpContent());
+                item.put("dnsName", info.getDnsName());
+                item.put("dnsValue", info.getDnsValue());
+                validations.add(item);
+            }
+        }
+        return Json.toJson(validations);
+    }
+
+    /**
+     * 从验证信息列表中提取 ACME 订单地址。
+     *
+     * @param validationInfos 验证信息列表
+     * @return 首个非空订单地址，不存在时返回 {@code null}
+     */
+    public static String resolveOrderUrl(List<AcmeValidationInfo> validationInfos) {
+        if (validationInfos == null || validationInfos.isEmpty()) {
+            return null;
+        }
+        for (AcmeValidationInfo info : validationInfos) {
+            if (StringUtils.isNotEmpty(info.getOrderUrl())) {
+                return info.getOrderUrl();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 将 HTTP-01 验证文件写入本机 webroot 目录。
+     *
+     * <p>写入路径为 {@code ${webrootPath}/.well-known/acme-challenge/${token}}，
+     * 用于本机静态目录与内置验证端点并存的部署方式；webroot 未配置时跳过。</p>
+     *
+     * @param webrootPath     webroot 根目录
+     * @param validationInfos 验证信息列表
+     * @return 全部写入成功返回 true，未配置路径或存在写入失败返回 false
+     */
+    public static boolean writeHttpChallengeFiles(String webrootPath, List<AcmeValidationInfo> validationInfos) {
+        if (StringUtils.isEmpty(webrootPath)) {
+            return false;
+        }
+        if (validationInfos == null || validationInfos.isEmpty()) {
+            return true;
+        }
+        boolean allSuccess = true;
+        try {
+            Path challengeDir = Paths.get(webrootPath, ".well-known", "acme-challenge");
+            Files.createDirectories(challengeDir);
+            for (AcmeValidationInfo info : validationInfos) {
+                if (!CHALLENGE_HTTP_01.equalsIgnoreCase(info.getChallengeType())
+                        || StringUtils.isEmpty(info.getToken())) {
+                    continue;
+                }
+                try {
+                    Path tokenFile = challengeDir.resolve(info.getToken());
+                    Files.writeString(tokenFile, info.getHttpContent(), StandardCharsets.UTF_8);
+                    log.info("[ACME] 已写入本机验证文件: {}", tokenFile);
+                } catch (IOException e) {
+                    allSuccess = false;
+                    log.error("[ACME] 写入验证文件失败: token={}, error={}", info.getToken(), e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            log.error("[ACME] 创建验证目录失败: webroot={}, error={}", webrootPath, e.getMessage());
+            return false;
+        }
+        return allSuccess;
     }
 }
