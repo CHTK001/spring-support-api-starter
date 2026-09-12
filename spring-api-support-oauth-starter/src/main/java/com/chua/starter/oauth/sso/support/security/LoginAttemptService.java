@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * 未配置时回退到默认值（5 次 / 15 分钟）。
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-12-28
  * @author CH
  */
@@ -54,7 +54,7 @@ public class LoginAttemptService {
      */
     private static final int ATTEMPT_EXPIRE_MINUTES = 30;
 
-    /** 字符串redis模板 */
+    /** 字符串Redis模板 */
     private final StringRedisTemplate stringRedisTemplate;
 
     /**
@@ -63,8 +63,8 @@ public class LoginAttemptService {
     private OauthSecurityProperties securityProperties;
 
     /**
-     * 创建 LoginAttemptService 实例
-     * @param stringRedisTemplate stringRedisTemplate
+      * 创建 login尝试服务 实例
+     * @param stringRedisTemplate 字符串redistemplate
      */
     public LoginAttemptService(StringRedisTemplate stringRedisTemplate) {
         this.stringRedisTemplate = stringRedisTemplate;
@@ -254,7 +254,11 @@ public class LoginAttemptService {
         return new LockInfo(locked, remainingSeconds, failedAttempts, resolveMaxAttempts());
     }
 
-    /** 解析最大值Attempts */
+    /**
+     * 解析最大值尝试
+     *
+     * @return resolve最大尝试的结果
+     */
     private int resolveMaxAttempts() {
         if (securityProperties != null && securityProperties.getLoginLock() != null) {
             return securityProperties.getLoginLock().getMaxAttempts();
@@ -262,7 +266,11 @@ public class LoginAttemptService {
         return DEFAULT_MAX_ATTEMPTS;
     }
 
-    /** 解析锁DurationMinutes */
+    /**
+     * 解析锁持续时间minutes
+     *
+     * @return resolve锁持续时间minutes的结果
+     */
     private int resolveLockDurationMinutes() {
         if (securityProperties != null && securityProperties.getLoginLock() != null) {
             return securityProperties.getLoginLock().getLockDurationMinutes();
@@ -270,7 +278,11 @@ public class LoginAttemptService {
         return DEFAULT_LOCK_DURATION_MINUTES;
     }
 
-    /** 解析AttemptExpireMinutes */
+    /**
+     * 解析尝试expireminutes
+     *
+     * @return resolve尝试expireminutes的结果
+     */
     private int resolveAttemptExpireMinutes() {
         if (securityProperties != null && securityProperties.getLoginLock() != null) {
             return securityProperties.getLoginLock().getAttemptExpireMinutes();
@@ -289,6 +301,7 @@ public class LoginAttemptService {
     ) {
         /**
          * 获取剩余尝试次数
+         * @return remaining尝试的结果
          */
         public int remainingAttempts() {
             return Math.max(0, maxAttempts - failedAttempts);
@@ -296,6 +309,7 @@ public class LoginAttemptService {
 
         /**
          * 获取格式化的锁定剩余时间
+         * @return formattedremaining时间的结果
          */
         public String formattedRemainingTime() {
             if (remainingSeconds <= 0) {

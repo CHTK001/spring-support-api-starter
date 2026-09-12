@@ -9,7 +9,7 @@ import com.chua.starter.entity.service.SysDict;
 import java.util.Set;
 
 /**
- * 系统字典服务接口，继承自通用服务接口IService
+   * 系统字典服务接口，继承自通用服务接口i服务
  * 本接口提供系统字典相关的业务操作方法
  * 包括分页查询、删除、更新和保存系统字典信息
  *
@@ -32,7 +32,7 @@ public interface SysDictService extends IService<SysDict> {
     /**
      * 删除指定的系统字典
      *
-     * @param dictId 字典ID，唯一标识要删除的字典
+     * @param dictId 字典标识，唯一标识要删除的字典
      * @return 删除操作的结果，包含成功与否的标志
      */
     ReturnResult<Boolean> delete(Long dictId);

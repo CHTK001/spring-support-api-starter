@@ -17,7 +17,7 @@ public interface SysCityService extends IService<SysCity> {
     /**
      * 查询城市信息
      *
-     * 本方法通过接收SysCityQuery对象作为查询条件，返回符合条件的城市列表
+      * 本方法通过接收syscity查询对象作为查询条件，返回符合条件的城市列表
      * 主要用于展示城市信息的场景，如城市列表展示、城市搜索等
      *
      * @param query 查询条件对象，包含需要查询的城市的相关条件
@@ -28,7 +28,7 @@ public interface SysCityService extends IService<SysCity> {
     /**
      * 获取下级以及子集行政区划
      *
-     * 本方法通过接收SysCityQuery对象作为查询条件，返回符合条件的城市列表
+      * 本方法通过接收syscity查询对象作为查询条件，返回符合条件的城市列表
      * 主要用于获取下级行政区划信息的场景，如获取某个城市的下级行政区划等
      *
      * @param query 查询条件对象，包含需要查询的城市的相关条件

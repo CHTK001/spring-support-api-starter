@@ -21,7 +21,7 @@ public class InMemoryRequestTraceConfigStorage implements RequestTraceConfigStor
             new AtomicReference<>();
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "memory";
     }

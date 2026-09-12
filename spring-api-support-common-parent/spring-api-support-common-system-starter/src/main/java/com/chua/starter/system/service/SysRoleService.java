@@ -30,7 +30,7 @@ public interface SysRoleService extends IService<SysRole> {
     /**
      * 删除角色
      *
-     * @param roleId 角色ID，用于确定要删除的角色
+     * @param roleId 角色标识，用于确定要删除的角色
      * @return 删除结果，包含操作是否成功的标志
      */
     ReturnResult<Boolean> delete(Long roleId);

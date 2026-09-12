@@ -18,7 +18,7 @@ import java.util.*;
 
 /**
  * 下载历史记录服务实现，使用 JSON 文件持久化。
- * 文件路径默认 ~/.geo-downloader/history.json，可通过配置覆盖。
+   * 文件路径默认 ~/.geo-downloader/历史.json，可通过配置覆盖。
  *
  * @author CH
  * @since 1.0.0
@@ -27,7 +27,7 @@ import java.util.*;
 @Slf4j
 public class DownloadHistoryServiceImpl implements DownloadHistoryService {
 
-    private static final String DEFAULT_HISTORY_FILE = "history.json";
+    private static final String DEFAULT_HISTORY_FILE = "history.json"; // 默认历史文件
 
     /** JSON 序列化器 */
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -39,6 +39,7 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
      * 构造方法，支持通过配置覆盖历史文件路径。
      *
      * @param historyDir 历史数据存储目录（可选，默认 ~/.geo-downloader）
+     * @param @Value("${geo.history.dir:}" @Value("${geo.history.dir:}"
      */
     public DownloadHistoryServiceImpl(@Value("${geo.history.dir:}") String historyDir) {
         objectMapper.registerModule(new JavaTimeModule());
@@ -125,7 +126,7 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
     /**
      * 删除指定记录。
      *
-     * @param id 记录 ID
+     * @param id 记录 标识
      * @return 是否删除成功
      */
     @Override

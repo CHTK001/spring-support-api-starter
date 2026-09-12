@@ -16,7 +16,7 @@ import lombok.Data;
 public class SmsSetting implements Upgrade<SmsSetting> {
 
     /**
-     * 短信厂家, ALIYUN,BAIDU
+      * 短信厂家, 阿里云,百度云
      */
     private String appType;
 

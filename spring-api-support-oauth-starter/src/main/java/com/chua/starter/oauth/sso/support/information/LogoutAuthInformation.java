@@ -13,19 +13,20 @@ import org.springframework.context.ApplicationContext;
  * 登出认证信息 - 支持多协议
  *
  * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public class LogoutAuthInformation extends BaseAuthInformation {
 
     // HTTP协议构造函数
     /**
-     * 创建 LogoutAuthInformation 实例
-     * @param authServerProperties authServerProperties
-     * @param data data
-     * @param request request
-     * @param response response
-     * @param applicationContext applicationContext
-     * @param loginCheck loginCheck
+      * 创建 logout认证信息 实例
+     * @param authServerProperties 认证服务端属性
+     * @param data 数据
+     * @param request 请求
+     * @param response 响应
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public LogoutAuthInformation(AuthServerProperties authServerProperties,
                                  String data,
@@ -38,13 +39,13 @@ public class LogoutAuthInformation extends BaseAuthInformation {
 
     // Armeria协议构造函数
     /**
-     * 创建 LogoutAuthInformation 实例
-     * @param authServerProperties authServerProperties
-     * @param data data
-     * @param request request
-     * @param response response
-     * @param applicationContext applicationContext
-     * @param loginCheck loginCheck
+      * 创建 logout认证信息 实例
+     * @param authServerProperties 认证服务端属性
+     * @param data 数据
+     * @param request 请求
+     * @param response 响应
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public LogoutAuthInformation(AuthServerProperties authServerProperties,
                                  String data,
@@ -56,7 +57,7 @@ public class LogoutAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RequestHeader */
+    /** 获取请求头部 */
     protected String getRequestHeader(Object request, String headerName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getHeader(headerName);
@@ -67,7 +68,7 @@ public class LogoutAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置ResponseHeader */
+    /** 设置响应头部 */
     protected void setResponseHeader(Object response, String headerName, String headerValue) {
         if (response instanceof HttpServletResponse) {
             ((HttpServletResponse) response).setHeader(headerName, headerValue);
@@ -77,7 +78,7 @@ public class LogoutAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RemoteAddress */
+    /** 获取远程地址 */
     protected String getRemoteAddress(Object request) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getRemoteAddr();
@@ -88,7 +89,7 @@ public class LogoutAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RequestAttribute */
+    /** 获取请求attribute */
     protected Object getRequestAttribute(Object request, String attributeName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getAttribute(attributeName);
@@ -99,7 +100,7 @@ public class LogoutAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置RequestAttribute */
+    /** 设置请求attribute */
     protected void setRequestAttribute(Object request, String attributeName, Object attributeValue) {
         if (request instanceof HttpServletRequest) {
             ((HttpServletRequest) request).setAttribute(attributeName, attributeValue);

@@ -80,7 +80,7 @@ public class HistoryController {
     /**
      * 删除指定历史记录。
      *
-     * @param id 记录 ID
+     * @param id 记录 标识
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
@@ -94,7 +94,7 @@ public class HistoryController {
     /**
      * 构建影像金字塔（Web 版为 no-op）。
      *
-     * @param id 记录 ID
+     * @param id 记录 标识
      * @return 操作结果
      */
     @PostMapping("/{id}/pyramid")

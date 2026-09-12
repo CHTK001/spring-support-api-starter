@@ -29,7 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysOnlineController {
 
-    /** SYSonline服务 */
+    /** sysonline服务 */
     private final SysOnlineService sysOnlineService;
 
     /**
@@ -61,7 +61,7 @@ public class SysOnlineController {
     /**
      * 获取用户在线状态
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 在线状态
      */
     @Operation(summary = "获取用户在线状态")
@@ -75,7 +75,7 @@ public class SysOnlineController {
     /**
      * 强制下线指定用户
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 操作结果
      */
     @Operation(summary = "强制下线用户")
@@ -89,7 +89,7 @@ public class SysOnlineController {
     /**
      * 批量强制下线用户
      *
-     * @param userIds 用户ID列表
+     * @param userIds 用户标识列表
      * @return 操作结果
      */
     @Operation(summary = "批量强制下线用户")

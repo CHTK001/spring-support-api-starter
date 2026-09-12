@@ -22,51 +22,51 @@ import java.util.Date;
 public class SysFingerprint implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     @TableId(type = IdType.AUTO)
     @Schema(description = "主键ID")
-    private Long id;
+    private Long id; // id
 
     @Schema(description = "浏览器指纹（SHA-256哈希）")
-    private String fingerprint;
+    private String fingerprint; // fingerprint
 
     @Schema(description = "用户ID")
-    private String userId;
+    private String userId; // 用户id
 
     @Schema(description = "用户名")
-    private String username;
+    private String username; // 用户名
 
     @Schema(description = "登录IP")
-    private String ip;
+    private String ip; // ip
 
     @Schema(description = "登录类型")
-    private String loginType;
+    private String loginType; // login类型
 
     @Schema(description = "User-Agent")
-    private String userAgent;
+    private String userAgent; // 用户智能体
 
     @Schema(description = "浏览器")
-    private String browser;
+    private String browser; // browser
 
     @Schema(description = "操作系统")
-    private String os;
+    private String os; // os
 
     @Schema(description = "登录时间戳（毫秒）")
-    private Long loginTime;
+    private Long loginTime; // login时间
 
     @Schema(description = "最后在线时间戳（毫秒）")
-    private Long lastLoginTime;
+    private Long lastLoginTime; // 最后一个login时间
 
     @Schema(description = "当前在线Token数")
-    private Integer tokenCount;
+    private Integer tokenCount; // 令牌数量
 
     @Schema(description = "状态：0-离线，1-在线")
-    private Integer status;
+    private Integer status; // 状态
 
     @Schema(description = "创建时间")
-    private Date createTime;
+    private Date createTime; // 创建时间
 
     @Schema(description = "更新时间")
-    private Date updateTime;
+    private Date updateTime; // 更新时间
 }

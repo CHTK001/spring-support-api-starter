@@ -33,7 +33,7 @@ public class OverpassServiceImpl implements OverpassService {
     /** 每个 OSM 元素平均大小估计（字节） */
     private static final long BYTES_PER_ELEMENT = 512L;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper(); // 对象映射器
 
     /**
      * 执行 Overpass API 查询并返回结果统计。

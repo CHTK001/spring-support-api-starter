@@ -26,6 +26,11 @@ import java.util.function.LongSupplier;
  *
  * @author CH
  * @since 2026/03/25
+ * @param summary summary
+ * @param reason ReasonML
+ * @param model 模型
+ * @return 模型尝试的结果
+ * @param text 文本
  */
 @Slf4j
 @Service
@@ -35,11 +40,14 @@ public class RequestTraceAiSummaryService {
             "你是请求追踪风控助手。请基于输入的访问行为，输出一句中文风险摘要，"
                     + "需要点明风险等级、行为类型和处置建议。"
                     + "不要输出 Markdown，不要分点，控制在 80 个字以内。";
-    private static final int MAX_SUMMARY_LENGTH = 200;
+    private static final int MAX_SUMMARY_LENGTH = 200; // 最大summary长度
+/**
+ * 请求追踪AIsummary服务。
+ */
 
-    private final Deque<Long> invocationTimestamps = new ArrayDeque<>();
-    private final ReentrantLock rateLimitLock = new ReentrantLock();
-    private final LongSupplier clock;
+    private final Deque<Long> invocationTimestamps = new ArrayDeque<>(); // invocation时间戳
+    private final ReentrantLock rateLimitLock = new ReentrantLock(); // rate限制锁
+    private final LongSupplier clock; // clock
 
     public RequestTraceAiSummaryService() {
         this(System::currentTimeMillis);
@@ -237,6 +245,11 @@ public class RequestTraceAiSummaryService {
         lines.add("耗时: " + event.durationMs() + "ms");
         lines.add("关联请求数: " + relatedRequestCount);
         lines.add("扫描路径数: " + distinctPathCount);
+        /**
+         * normalizeSummary。
+         * @param summary summary
+         * @return normalizeSummary的结果
+         */
         lines.add("规则摘要: " + heuristicSummary);
         lines.add("输出要求: 一句话，包含行为判断与建议。");
         return String.join("\n", lines);
@@ -252,6 +265,12 @@ public class RequestTraceAiSummaryService {
                 .replaceAll("\\s+", " ")
                 .trim();
         if (compact.length() <= MAX_SUMMARY_LENGTH) {
+            /**
+             * 尝试acquire配额。
+             * @param windowSeconds 窗口seconds
+             * @param maxRequests 最大Requests
+             * @return 尝试acquire配额的结果
+             */
             return compact;
         }
         return compact.substring(0, MAX_SUMMARY_LENGTH);

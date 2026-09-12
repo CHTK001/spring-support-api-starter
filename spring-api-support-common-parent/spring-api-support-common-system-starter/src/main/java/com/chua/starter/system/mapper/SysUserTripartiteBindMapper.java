@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
- * 用户三方绑定 Mapper
+   * 用户三方绑定 映射器
  *
  * @since 1.0.0
  * @author CH

@@ -18,13 +18,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 
 /**
- * AppId认证处理器
+   * appid认证处理器
  * <p>
- * 独立处理AppId认证，验证AppId合法性并返回关联用户信息
- * AppId和AppKey是并列关系，各自独立处理
+   * 独立处理appid认证，验证appid合法性并返回关联用户信息
+   * appid和app键是并列关系，各自独立处理
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025/01/05
  * @author CH
  */
@@ -35,10 +35,10 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
     @Override
     /**
      * Authenticate
-     * @param authInformation authInformation
-     * @param token token
-     * @param cookie cookie
-     * @param userCode userCode
+     * @param authInformation 认证信息
+     * @param token 令牌
+     * @param cookie Cookie
+     * @param userCode 用户编码
      */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation, 
                                             String token, 
@@ -49,7 +49,7 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
         ApplicationContext applicationContext = authInformation.getApplicationContext();
         
         try {
-            // 从请求中提取 appId
+ // 从请求中提取 appid
             String appId = MapUtils.getString(authInformation.getBodyData(), "x-oauth-app-id");
             if (StringUtils.isBlank(appId)) {
                 appId = authInformation.getRequestHeaderValue("x-oauth-app-id");
@@ -61,7 +61,7 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
             
             log.info("AppId认证开始: appId={}", maskAppId(appId));
 
-            // 查询AppId是否有效（从数据库获取）
+ // 查询appid是否有效（从数据库获取）
             SysAppIdService appIdService = applicationContext.getBean(SysAppIdService.class);
             SysAppId dbAppId = appIdService.getByAppIdValue(appId);
             if (dbAppId == null) {
@@ -91,8 +91,8 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
                 return ReturnResult.error("用户已被禁用");
             }
 
-            // 验证 appId（使用默认验证器）
-            // AppId 认证使用简单的验证方式，不需要签名验证（签名验证用于 AppKey+AppId 组合场景）
+ // 验证 appid（使用默认验证器）
+ // appid 认证使用简单的验证方式，不需要签名验证（签名验证用于 app键+appid 组合场景）
             AppIdValidator validator = ServiceProvider.of(AppIdValidator.class)
                     .getNewExtension("default");
             
@@ -123,7 +123,7 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
             }
             
             // 获取用户信息
-            // AppId认证必须要有code（用户唯一编码），否则返回用户信息不存在
+ // appid认证必须要有编码（用户唯一编码），否则返回用户信息不存在
             String code = MapUtils.getString(authInformation.getBodyData(), "code");
             if (StringUtils.isBlank(code)) {
                 // 如果请求体中没有，尝试从请求头获取
@@ -134,21 +134,21 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
                 return ReturnResult.error("用户信息不存在: code参数（用户唯一编码）不能为空");
             }
             
-            // 创建 UserResult 对象，设置基本信息
+ // 创建 用户结果 对象，设置基本信息
             UserResult userResult = new UserResult();
             userResult.setUserId(String.valueOf(dbAppId.getUserId()));
             userResult.setUsername(dbAppId.getAppIdName());
-            // 使用 WEB 登录类型，通过 UserLoginService 获取完整用户信息（包括角色、权限、部门等）
+ // 使用 WEB 登录类型，通过 用户login服务 获取完整用户信息（包括角色、权限、部门等）
             userResult.setLoginType("WEB");
             
-            // 将 code 设置到 UserResult 的 ext 中，以便传递给用户信息获取逻辑
+ // 将 编码 设置到 用户结果 的 ext 中，以便传递给用户信息获取逻辑
             if (userResult.getExt() == null) {
                 userResult.setExt(new java.util.HashMap<>());
             }
             userResult.getExt().put("code", code);
             log.debug("从请求中获取到 code 参数: code={}", code);
             
-            // 通过 LoginCheck 获取完整的用户信息（包括角色、权限、部门等）
+ // 通过 login检查 获取完整的用户信息（包括角色、权限、部门等）
             LoginCheck loginCheck = authInformation.getLoginCheck();
             UserResume userResume = loginCheck.getUserInfo(userResult);
             
@@ -157,7 +157,7 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
                 return ReturnResult.error("获取用户信息失败");
             }
             
-            // 设置 appId 信息
+ // 设置 appid 信息
             userResume.setAppId(appId);
             
             String json = Json.toJson(userResume);
@@ -172,7 +172,9 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
     }
     
     /**
-     * 脱敏AppId
+      * 脱敏appid
+     * @param appId appId
+     * @return maskAppId的结果
      */
     private String maskAppId(String appId) {
         if (appId == null || appId.length() < 8) {
@@ -182,10 +184,10 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
-    /** Supports */
+    /** 支持 */
     public boolean supports(String subProtocol, String token, String userCode) {
-        // AppId认证：没有userCode（appKey），且没有token（避免与DefaultAuthorizationHandler冲突）
-        // 注意：实际的appId验证在authenticate方法中进行
+ // appid认证：没有用户编码（app键），且没有令牌（避免与默认授权处理器冲突）
+ // 注意：实际的appid验证在authenticate方法中进行
         return StringUtils.isBlank(userCode) && StringUtils.isBlank(token);
     }
 }

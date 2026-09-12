@@ -5,7 +5,7 @@ import com.chua.starter.monitor.entity.MonitorAcmeOrder;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * ACME 订单 Mapper，提供 monitor_acme_order 表的基础增删改查能力。
+   * ACME 订单 映射器，提供 监控_acme_订单 表的基础增删改查能力。
  *
  * @since 2025-10-17
  * @author CH

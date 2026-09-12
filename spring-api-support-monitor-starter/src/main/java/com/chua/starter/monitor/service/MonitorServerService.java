@@ -15,9 +15,9 @@ import java.util.Map;
 public interface MonitorServerService extends IService<MonitorServer> {
 
     /**
-     * 获取服务器下拉选项（ID 与名称），用于布局复制等场景的目标服务器选择。
+      * 获取服务器下拉选项（标识 与名称），用于布局复制等场景的目标服务器选择。
      *
-     * @return 服务器选项列表，每项包含 serverId 与 serverName
+     * @return 服务器选项列表，每项包含 服务端id 与 服务端名称
      */
     List<Map<String, Object>> listOptions();
 }

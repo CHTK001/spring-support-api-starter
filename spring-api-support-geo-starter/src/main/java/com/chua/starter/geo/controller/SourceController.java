@@ -31,8 +31,9 @@ public class SourceController {
     /**
      * 获取所有可用图源（含自定义图源）。
      *
-     * @param tiandituToken 天地图 Token（可为 null）
-     * @return 图源详情 Map
+     * @param tiandituToken 天地图 令牌（可为 空）
+     * @return 图源详情 映射
+     * @param false false
      */
     @GetMapping("/all")
     @Operation(summary = "获取所有图源")

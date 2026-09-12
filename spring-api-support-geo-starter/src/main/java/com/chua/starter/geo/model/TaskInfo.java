@@ -15,7 +15,7 @@ public class TaskInfo {
     private String id;
     /** 任务名称 */
     private String name;
-    /** 图源 ID */
+    /** 图源 标识 */
     private String source;
     /** 图源显示名称 */
     private String sourceName;
@@ -35,7 +35,7 @@ public class TaskInfo {
     private int total;
     /** 失败的瓦片数 */
     private int failedCount;
-    /** 成功的瓦片数（= completed - failedCount） */
+    /** 成功的瓦片数（= 完成 - 失败数量） */
     private int successCount;
     /** 输出文件大小（字节） */
     private long fileSize;

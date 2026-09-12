@@ -38,12 +38,12 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
     private static final String LOGIN_TYPE_PREFIX = "wechat";
 
     /**
-     * OpenID映射缓存过期时间（分钟）
+      * 打开id映射缓存过期时间（分钟）
      */
     private static final long OPENID_CACHE_EXPIRE = 60L;
 
     /**
-     * OpenID映射缓存键前缀
+      * 打开id映射缓存键前缀
      */
     private static final String OPENID_CACHE_PREFIX = "miniapp:openid:";
 
@@ -52,17 +52,17 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
     private SysUserThirdPartyMapper sysUserThirdPartyMapper;
 
     @Autowired
-    /** SYSwechat用户mapper */
+    /** syswechat用户映射器 */
     private SysWechatUserMapper sysWechatUserMapper;
 
     @Override
-    /** 获取LoginTypePrefix */
+    /** 获取login类型前缀 */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
-    /** GenerateUserIds */
+    /** generate用户标识 */
     protected String[] generateUserIds(SysUser user) {
         String baseId = user.getSysUserId() + "WECHAT";
         return new String[]{
@@ -79,7 +79,7 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
         String cacheKey = OPENID_CACHE_PREFIX + openId;
         ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
 
-        // 尝试从缓存获取用户ID
+ // 尝试从缓存获取用户标识
         String cachedUserId = ops.get(cacheKey);
         Integer sysUserId = null;
 
@@ -148,8 +148,8 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
     /**
      * 保存或更新微信用户信息
      *
-     * @param sysUserId 系统用户ID
-     * @param openId    微信OpenID
+     * @param sysUserId 系统用户标识
+     * @param openId    微信打开id
      */
     private void saveOrUpdateWechatUser(Integer sysUserId, String openId) {
         if (sysUserId == null || openId == null || openId.isEmpty()) {

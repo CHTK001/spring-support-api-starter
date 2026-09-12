@@ -35,43 +35,43 @@ public interface TokenResolver {
     /**
      * 注销
      *
-     * @param uid  账号ID
+     * @param uid  账号标识
      * @param type 类型
      */
     void logout(String uid, LogoutType type);
 
     /**
-     * 解析token
+      * 解析令牌
      *
-     * @param cookie cookie
-     * @param token   token
+     * @param cookie Cookie
+     * @param token   令牌
      * @return 登录信息
      */
     ReturnResult<UserResume> resolve(String cookie, String token);
 
     /**
-     * 刷新token
+      * 刷新令牌
      *
-     * @param token        token
+     * @param token        令牌
      * @param refreshToken
      * @return 登录信息
      */
     ReturnResult<UserResume> upgradeForTimestamp(String token, String refreshToken);
 
     /**
-     * 刷新token内容
+      * 刷新令牌内容
      *
-     * @param token        token
-     * @param refreshToken 刷新token
+     * @param token        令牌
+     * @param refreshToken 刷新令牌
      * @return 登录信息
      */
     ReturnResult<UserResume> upgradeForVersion(String token, String refreshToken);
 
     /**
-     * 刷新token
+      * 刷新令牌
      *
-     * @param token        token
-     * @param refreshToken 刷新token
+     * @param token        令牌
+     * @param refreshToken 刷新令牌
      * @return 登录信息
      */
     ReturnResult<UserResume> upgradeForRefresh(String token, String refreshToken);
@@ -79,15 +79,15 @@ public interface TokenResolver {
     /**
      * 注销
      *
-     * @param cookies      cookie
-     * @param token        token
-     * @param refreshToken 刷新token
-     * @param cookieName   cookieName
+     * @param cookies      Cookie
+     * @param token        令牌
+     * @param refreshToken 刷新令牌
+     * @param cookieName   Cookie名称
      */
     void logout(Cookie[] cookies, String token, String refreshToken, String cookieName);
 
     /**
-     * 解析 userCode（等价于uid）
+      * 解析 用户编码（等价于uid）
      *
      * @param userCode 用户代码
      * @return 用户信息
@@ -117,7 +117,7 @@ public interface TokenResolver {
     /**
      * 强制踢出用户
      *
-     * @param token 用户token
+     * @param token 用户令牌
      * @return 是否成功
      */
     default boolean kickUser(String token) {
@@ -145,12 +145,13 @@ public interface TokenResolver {
         private int maxOnlineCount = -1;
 
         /**
-         * 在线模式（SINGLE/MULTIPLE/LIMIT）
+          * 在线模式（单个/多个/限制）
          */
         private String onlineMode = "MULTIPLE";
 
         /**
          * 是否已达上限
+         * @return 是否reached限制的结果
          */
         public boolean isReachedLimit() {
             return maxOnlineCount > 0 && onlineCount >= maxOnlineCount;
@@ -158,6 +159,7 @@ public interface TokenResolver {
 
         /**
          * 剩余可登录数量（-1表示不限制）
+         * @return 获取remainingslots的结果
          */
         public int getRemainingSlots() {
             return maxOnlineCount > 0 ? Math.max(0, maxOnlineCount - onlineCount) : -1;
@@ -166,6 +168,8 @@ public interface TokenResolver {
 
     /**
      * 在线用户查询参数
+     * @author CH
+     * @since 4.0.0
      */
     @lombok.Data
     @lombok.NoArgsConstructor
@@ -191,6 +195,8 @@ public interface TokenResolver {
 
     /**
      * 在线用户列表返回结果
+     * @author CH
+     * @since 4.0.0
      */
     @lombok.Data
     @lombok.NoArgsConstructor
@@ -213,7 +219,11 @@ public interface TokenResolver {
          */
         private int size;
 
-        /** Empty */
+        /**
+         * 空
+         *
+         * @return 空的结果
+         */
         public static OnlineUserResult empty() {
             return new OnlineUserResult(java.util.Collections.emptyList(), 0, 1, 20);
         }
@@ -221,13 +231,15 @@ public interface TokenResolver {
 
     /**
      * 在线用户信息
+     * @author CH
+     * @since 4.0.0
      */
     @lombok.Data
     @lombok.NoArgsConstructor
     @lombok.AllArgsConstructor
     class OnlineUserInfo {
         /**
-         * 用户ID
+          * 用户标识
          */
         private String userId;
         /**
@@ -259,7 +271,7 @@ public interface TokenResolver {
          */
         private Long loginTime;
         /**
-         * Token
+          * 令牌
          */
         private String token;
         /**

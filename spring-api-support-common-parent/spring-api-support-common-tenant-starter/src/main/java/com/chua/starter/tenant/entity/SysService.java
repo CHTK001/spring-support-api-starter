@@ -18,7 +18,7 @@ import java.util.List;
  * 服务实体
  * 用于管理系统中的服务定义
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/07
  * @author CH
  */
@@ -30,13 +30,13 @@ import java.util.List;
 public class SysService extends SysBase {
 
     /**
-     * 服务ID
+      * 服务标识
      */
     @TableId(value = "sys_service_id", type = IdType.AUTO)
     @ApiModelProperty(value = "服务ID")
     @Schema(description = "服务ID")
     @NotNull(message = "服务ID不能为空", groups = {UpdateGroup.class})
-    /** SYS服务ID */
+    /** SYS服务标识 */
     private Integer sysServiceId;
 
     /**
@@ -74,7 +74,7 @@ public class SysService extends SysBase {
     @TableField(value = "sys_service_sort")
     @ApiModelProperty(value = "服务排序")
     @Schema(description = "服务排序")
-    /** SYS服务sort */
+    /** SYS服务排序 */
     private Integer sysServiceSort;
 
     /**
@@ -85,7 +85,7 @@ public class SysService extends SysBase {
     @ApiModelProperty(value = "删除标记")
     @Schema(description = "删除标记: 0-未删除, 1-已删除")
     @TableLogic(value = "0", delval = "1")
-    /** SYS服务delete */
+    /** SYS服务删除 */
     private Integer sysServiceDelete;
 
     /**
@@ -99,12 +99,12 @@ public class SysService extends SysBase {
     private Integer sysServiceStatus;
 
     /**
-     * 关联的服务模块ID列表
+      * 关联的服务模块标识列表
      * 非数据库字段，用于前端展示
      */
     @TableField(exist = false)
     @ApiModelProperty(value = "关联的服务模块ID列表")
     @Schema(description = "关联的服务模块ID列表")
-    /** SYS服务tags */
+    /** SYS服务标签 */
     private List<Integer> sysServiceTags;
 }

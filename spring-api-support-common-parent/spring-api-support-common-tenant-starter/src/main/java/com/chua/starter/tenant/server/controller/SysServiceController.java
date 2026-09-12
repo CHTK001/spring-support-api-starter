@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 /**
  * 服务管理接口
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/15
  * @author CH
  */
@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SysServiceController {
 
-    /** SYS服务mapper */
+    /** SYS服务映射器 */
     private final SysServiceMapper sysServiceMapper;
     /** SYS服务moduleitemmapper */
     private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
@@ -66,7 +66,7 @@ public class SysServiceController {
                                                           @ParameterObject SysService sysService) {
         LambdaQueryWrapper<SysService> wrapper = createWrapper(sysService);
         Page<SysService> page = sysServiceMapper.selectPage(query.createPage(), wrapper);
-        // 填充关联的模块ID
+ // 填充关联的模块标识
         fillServiceTags(page.getRecords());
         return PageResultUtils.ok(page);
     }
@@ -82,7 +82,7 @@ public class SysServiceController {
     public ReturnResult<List<SysService>> listForSysService(@ParameterObject SysService sysService) {
         LambdaQueryWrapper<SysService> wrapper = createWrapper(sysService);
         List<SysService> list = sysServiceMapper.selectList(wrapper);
-        // 填充关联的模块ID
+ // 填充关联的模块标识
         fillServiceTags(list);
         return ReturnResult.ok(list);
     }
@@ -90,8 +90,9 @@ public class SysServiceController {
     /**
      * 获取服务详情
      *
-     * @param sysServiceId 服务ID
+     * @param sysServiceId 服务标识
      * @return 服务详情
+     * @param "服务ID" "服务ID"
      */
     @GetMapping("get")
     @Operation(summary = "获取服务详情")
@@ -159,8 +160,9 @@ public class SysServiceController {
     /**
      * 删除服务
      *
-     * @param sysServiceId 服务ID
+     * @param sysServiceId 服务标识
      * @return 删除结果
+     * @param "服务ID" "服务ID"
      */
     @DeleteMapping("delete")
     @Operation(summary = "删除服务")
@@ -181,7 +183,7 @@ public class SysServiceController {
     /**
      * 绑定服务与模块
      *
-     * @param sysService 包含服务ID和模块ID列表
+     * @param sysService 包含服务标识和模块标识列表
      * @return 绑定结果
      */
     @PutMapping("bind")
@@ -198,7 +200,7 @@ public class SysServiceController {
     /**
      * 更新服务状态
      *
-     * @param sysServiceId 服务ID
+     * @param sysServiceId 服务标识
      * @param status       状态值 (0-启用, 1-禁用)
      * @return 更新结果
      */
@@ -244,6 +246,8 @@ public class SysServiceController {
 
     /**
      * 创建查询条件
+     * @param sysService sys服务
+     * @return 创建包装器的结果
      */
     private LambdaQueryWrapper<SysService> createWrapper(SysService sysService) {
         LambdaQueryWrapper<SysService> wrapper = Wrappers.lambdaQuery();
@@ -264,6 +268,9 @@ public class SysServiceController {
 
     /**
      * 检查编码是否存在
+     * @param code 编码
+     * @param excludeId excludeId
+     * @return 是否编码exists的结果
      */
     private boolean isCodeExists(String code, Integer excludeId) {
         if (StringUtils.isBlank(code)) {
@@ -278,7 +285,8 @@ public class SysServiceController {
     }
 
     /**
-     * 填充服务关联的模块ID列表
+      * 填充服务关联的模块标识列表
+     * @param services 服务
      */
     private void fillServiceTags(List<SysService> services) {
         if (services == null || services.isEmpty()) {
@@ -301,6 +309,7 @@ public class SysServiceController {
 
     /**
      * 保存服务与模块的关联关系
+     * @param sysService sys服务
      */
     private void saveServiceModuleItems(SysService sysService) {
         if (sysService.getSysServiceId() == null) {

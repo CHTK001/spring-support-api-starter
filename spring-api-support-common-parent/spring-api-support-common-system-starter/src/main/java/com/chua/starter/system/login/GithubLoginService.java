@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Github 登录服务
+   * GitHub 登录服务
  * <p>处理 Github 用户的登录验证与授权</p>
  *
  * @since 2024/12/28
@@ -37,13 +37,13 @@ public class GithubLoginService extends AbstractUserLoginService {
     private SysUserThirdPartyMapper sysUserThirdPartyMapper;
 
     @Override
-    /** 获取LoginTypePrefix */
+    /** 获取login类型前缀 */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
-    /** GenerateUserIds */
+    /** generate用户标识 */
     protected String[] generateUserIds(SysUser user) {
         String baseId = user.getSysUserId() + "GITHUB";
         return new String[]{
@@ -53,12 +53,12 @@ public class GithubLoginService extends AbstractUserLoginService {
     }
 
     /**
-     * Github 用户登录验证
+      * GitHub 用户登录验证
      *
-     * @param githubId   Github 用户唯一标识
-     * @param password   不使用，可为null
+     * @param githubId   GitHub 用户唯一标识
+     * @param password   不使用，可为空
      * @param address    客户端IP地址
-     * @param ext        扩展参数，可为null
+     * @param ext        扩展参数，可为空
      * @return 用户信息，若验证失败则message字段包含错误信息
      */
     @Override

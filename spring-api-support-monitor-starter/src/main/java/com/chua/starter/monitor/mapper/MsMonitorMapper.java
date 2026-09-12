@@ -5,7 +5,7 @@ import com.chua.starter.monitor.entity.MsMonitor;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 监控资产 Mapper。
+   * 监控资产 映射器。
  *
  * @since 2026-08-11
  * @author CH

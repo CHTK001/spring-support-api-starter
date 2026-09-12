@@ -39,7 +39,7 @@ public class WaybackController {
     }
 
     /**
-     * 创建 Wayback 下载任务（Web 版返回模拟 taskId）。
+      * 创建 Wayback 下载任务（Web 版返回模拟 任务id）。
      *
      * @param body 请求参数
      * @return 任务信息
@@ -55,7 +55,7 @@ public class WaybackController {
     /**
      * 探测 Wayback 最大可用缩放级别（Web 版返回默认值 18）。
      *
-     * @param body 请求参数（versionId, lat, lng）
+     * @param body 请求参数（版本id, lat, lng）
      * @return 最大缩放级别
      */
     @PostMapping("/probe")

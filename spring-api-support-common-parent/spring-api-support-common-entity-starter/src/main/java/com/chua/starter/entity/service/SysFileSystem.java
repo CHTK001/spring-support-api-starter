@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * 用于管理分片上传的文件信息
  *
  * @since 2024/12/10
- * @version 1.0.0
+   * @版本 1.0.0
  * @author CH
  */
 @Schema(description = "文件系统管理表")
@@ -26,15 +26,15 @@ import java.time.LocalDateTime;
 public class SysFileSystem extends SysBase implements Serializable {
 
     @Serial
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键ID
+      * 主键标识
      */
     @TableId(value = "sys_file_system_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
-    /** SYS文件systemID */
+    /** SYS文件系统id */
     private Integer sysFileSystemId;
 
     /**
@@ -43,7 +43,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_tid")
     @Schema(description = "任务唯一标识（ULID）")
     @Size(max = 64, message = "任务唯一标识最大长度要小于 64")
-    /** SYS文件systemTID */
+    /** SYS文件系统tid */
     private String sysFileSystemTid;
 
     /**
@@ -52,7 +52,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_bucket")
     @Schema(description = "存储桶/存储位置")
     @Size(max = 255, message = "存储桶最大长度要小于 255")
-    /** SYS文件system存储桶 */
+    /** SYS文件系统存储桶 */
     private String sysFileSystemBucket;
 
     /**
@@ -61,7 +61,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_name")
     @Schema(description = "文件名称")
     @Size(max = 255, message = "文件名称最大长度要小于 255")
-    /** SYS文件system名称 */
+    /** SYS文件系统名称 */
     private String sysFileSystemName;
 
     /**
@@ -74,12 +74,12 @@ public class SysFileSystem extends SysBase implements Serializable {
     private String sysFileSystemOriginalName;
 
     /**
-     * 存储类型：local-本地存储, oss-阿里云OSS, cos-腾讯云COS等
+      * 存储类型：本地-本地存储, 对象存储-阿里云对象存储, COS-腾讯云COS等
      */
     @TableField(value = "sys_file_system_type")
     @Schema(description = "存储类型：local-本地存储, oss-阿里云OSS, cos-腾讯云COS等")
     @Size(max = 50, message = "存储类型最大长度要小于 50")
-    /** SYS文件system类型 */
+    /** SYS文件系统类型 */
     private String sysFileSystemType;
 
     /**
@@ -97,7 +97,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_path")
     @Schema(description = "文件路径")
     @Size(max = 500, message = "文件路径最大长度要小于 500")
-    /** SYS文件system路径 */
+    /** SYS文件系统路径 */
     private String sysFileSystemPath;
 
     /**
@@ -105,7 +105,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_size")
     @Schema(description = "文件大小(字节)")
-    /** SYS文件system尺寸 */
+    /** SYS文件系统尺寸 */
     private Long sysFileSystemSize;
 
     /**
@@ -114,7 +114,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_md5")
     @Schema(description = "文件MD5值")
     @Size(max = 32, message = "文件MD5值最大长度要小于 32")
-    /** SYS文件systemMD5 */
+    /** SYS文件系统md5 */
     private String sysFileSystemMd5;
 
     /**
@@ -147,7 +147,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_version")
     @Schema(description = "版本号(乐观锁)")
     @Version
-    /** SYS文件system版本 */
+    /** SYS文件系统版本 */
     private Integer sysFileSystemVersion;
 
     /**
@@ -155,7 +155,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_status")
     @Schema(description = "状态: 0-待上传, 1-上传中, 2-待合并, 3-合并中, 4-已完成, -1-处理异常")
-    /** SYS文件system状态 */
+    /** SYS文件系统状态 */
     private Integer sysFileSystemStatus;
 
     /**
@@ -163,7 +163,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_http_enabled")
     @Schema(description = "是否启用HTTP访问")
-    /** SYS文件systemHTTP是否启用 */
+    /** SYS文件系统http是否启用 */
     private Boolean sysFileSystemHttpEnabled;
 
     /**
@@ -172,23 +172,23 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_http_url")
     @Schema(description = "HTTP访问URL")
     @Size(max = 500, message = "HTTP访问URL最大长度要小于 500")
-    /** SYS文件systemHTTPURL */
+    /** SYS文件系统httpurl */
     private String sysFileSystemHttpUrl;
 
     /**
-     * 绑定的服务ID
+      * 绑定的服务标识
      */
     @TableField(value = "sys_file_system_service_id")
     @Schema(description = "绑定的服务ID")
-    /** SYS文件system服务ID */
+    /** SYS文件系统服务标识 */
     private Integer sysFileSystemServiceId;
 
     /**
-     * 文件分组ID
+      * 文件分组标识
      */
     @TableField(value = "sys_file_system_group_id")
     @Schema(description = "文件分组ID")
-    /** SYS文件system分组ID */
+    /** SYS文件系统分组标识 */
     private Integer sysFileSystemGroupId;
 
     /**
@@ -196,7 +196,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_upload_start_time")
     @Schema(description = "上传开始时间")
-    /** SYS文件system上传开始时间 */
+    /** SYS文件系统上传开始时间 */
     private LocalDateTime sysFileSystemUploadStartTime;
 
     /**
@@ -204,7 +204,7 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_upload_complete_time")
     @Schema(description = "上传完成时间")
-    /** SYS文件system上传complete时间 */
+    /** SYS文件系统上传完成时间 */
     private LocalDateTime sysFileSystemUploadCompleteTime;
 
     /**
@@ -213,7 +213,7 @@ public class SysFileSystem extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_local_path")
     @Schema(description = "本地临时文件路径")
     @Size(max = 500, message = "本地临时文件路径最大长度要小于 500")
-    /** SYS文件system本地路径 */
+    /** SYS文件系统本地路径 */
     private String sysFileSystemLocalPath;
 
     /**
@@ -230,11 +230,13 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     @TableField(exist = false)
     @Schema(description = "文件分组名称")
-    /** SYS文件system分组名称 */
+    /** SYS文件系统分组名称 */
     private String sysFileSystemGroupName;
 
     /**
      * 文件状态枚举
+     * @author CH
+     * @since 4.0.0
      */
     public static class Status {
         /**

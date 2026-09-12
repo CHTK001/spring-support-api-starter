@@ -22,7 +22,7 @@ import java.util.List;
 public class SysUserLayoutServiceImpl extends ServiceImpl<SysUserLayoutMapper, SysUserLayout> implements SysUserLayoutService {
 
     @Override
-    /** ListByUserId */
+    /** 列表by用户id */
     public List<SysUserLayout> listByUserId(Integer userId) {
         if (userId == null) {
             return Collections.emptyList();
@@ -32,7 +32,7 @@ public class SysUserLayoutServiceImpl extends ServiceImpl<SysUserLayoutMapper, S
     }
 
     @Override
-    /** 获取ByUserIdAndKey */
+    /** 获取by用户id和键 */
     public SysUserLayout getByUserIdAndKey(Integer userId, String layoutKey) {
         if (userId == null || layoutKey == null) {
             return null;
@@ -45,7 +45,12 @@ public class SysUserLayoutServiceImpl extends ServiceImpl<SysUserLayoutMapper, S
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 保存Or更新Layout */
+    /**
+     * 保存或更新Layout
+     *
+     * @param layout layout
+     * @return 保存或更新layout的结果
+     */
     public SysUserLayout saveOrUpdateLayout(SysUserLayout layout) {
         if (layout == null) {
             return null;
@@ -70,7 +75,12 @@ public class SysUserLayoutServiceImpl extends ServiceImpl<SysUserLayoutMapper, S
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 删除ByUserId */
+    /**
+     * 删除by用户id
+     *
+     * @param userId 用户id
+     * @return 删除by用户id的结果
+     */
     public int deleteByUserId(Integer userId) {
         if (userId == null) {
             return 0;

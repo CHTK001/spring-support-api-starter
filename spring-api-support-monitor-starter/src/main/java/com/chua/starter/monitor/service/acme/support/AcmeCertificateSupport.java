@@ -15,6 +15,7 @@ import java.util.List;
  * 避免重复实现。
  *
  * @since 4.0.0.42
+ * @author CH
  */
 public final class AcmeCertificateSupport {
 
@@ -57,10 +58,10 @@ public final class AcmeCertificateSupport {
     /**
      * 根据账户证书服务商类型解析 SPI 提供者扩展名。
      * <p>
-     * acme 类型对应 acme4j 实现，cas 类型对应阿里云 CAS 实现，其余值回退到 acme4j。
+      * acme 类型对应 acme4j 实现，CAS 类型对应阿里云 CAS 实现，其余值回退到 acme4j。
      *
-     * @param providerType 服务商类型（acme/cas），可空
-     * @return SPI 扩展名（acme4j/cas）
+     * @param providerType 服务商类型（acme/CAS），可空
+     * @return SPI 扩展名（acme4j/CAS）
      */
     public static String providerName(String providerType) {
         if (PROVIDER_TYPE_CAS.equalsIgnoreCase(providerType)) {
@@ -126,7 +127,7 @@ public final class AcmeCertificateSupport {
         }
         if (src.getNotAfter() != null) {
             target.setAcmeCertNotAfter(src.getNotAfter().format(DATE));
-            // 计划续签日期：到期前 N 天（下限 MIN_RENEW_DAYS 天）
+ // 计划续签日期：到期前 N 天（下限 最小_RENEW_DAYS 天）
             LocalDateTime renewAt = src.getNotAfter().minusDays(Math.max(renewDaysBefore, MIN_RENEW_DAYS));
             target.setAcmeCertRenewAt(renewAt.format(DATE));
         }

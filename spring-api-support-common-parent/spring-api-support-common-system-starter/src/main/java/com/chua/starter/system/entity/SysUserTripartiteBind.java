@@ -30,17 +30,17 @@ import java.io.Serializable;
 public class SysUserTripartiteBind extends SysTenantBase implements Serializable {
 
     @Serial
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 用户ID
+      * 用户标识
      */
     @TableId(value = "user_id", type = IdType.AUTO)
     @ApiModelProperty(value = "用户ID")
     @Schema(description = "用户ID")
     @NotNull(message = "用户ID不能为空")
-    /** 用户ID */
+    /** 用户标识 */
     private Integer userId;
 
     /**
@@ -70,7 +70,7 @@ public class SysUserTripartiteBind extends SysTenantBase implements Serializable
     @ApiModelProperty(value = "登录UUID")
     @Schema(description = "登录UUID")
     @Size(max = 255, message = "登录UUID最大长度为255")
-    /** LoginUUID */
+    /** loginuuid */
     private String loginUuid;
 
     /**

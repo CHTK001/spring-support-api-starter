@@ -33,16 +33,20 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class WeatherController {
 
-    /** Wttr_base */
+    /** Wttr_基础 */
     private static final String WTTR_BASE = "https://wttr.in/";
-    /** Cache_ttl_ms */
+    /** 缓存_ttl_ms */
     private static final long CACHE_TTL_MS = 10L * 60 * 1000;
 
-    private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();
+    private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>(); // 缓存
 
     @Operation(summary = "根据 IP 定位获取当前天气")
     @GetMapping("address")
-    /** 获取Weather */
+    /**
+     * 获取天气
+     *
+     * @return 获取天气的结果
+     */
     public ReturnResult<Map<String, Object>> getWeather() {
         return ReturnResult.ok(fetchWeather("beijing", null));
     }
@@ -50,7 +54,7 @@ public class WeatherController {
     @Operation(summary = "根据城市获取天气")
     @GetMapping("city")
     /**
-     * 获取WeatherByCity
+      * 获取天气bycity
      * @param city city
      */
     public ReturnResult<Map<String, Object>> getWeatherByCity(
@@ -62,11 +66,11 @@ public class WeatherController {
     }
 
     /**
-     * 调用 wttr.in 拉取天气，命中本地缓存。
+      * 调用 wttr.入 拉取天气，命中本地缓存。
      *
-     * @param city  城市名(拼音或英文,wttr.in 支持)
+     * @param city  城市名(拼音或英文,wttr.入 支持)
      * @param extra 预留扩展
-     * @return 天气数据 {city, temperatureC, humidity, wind, description, observedAt, cached}
+     * @return 天气数据 {city, temperaturec, humidity, wind, description, observedat, 缓存}
      */
     private Map<String, Object> fetchWeather(String city, Object extra) {
         String key = city.toLowerCase();
@@ -102,7 +106,13 @@ public class WeatherController {
     }
 
     @SuppressWarnings("unchecked")
-    /** 解析WttrJson */
+    /**
+     * 解析wttrjson
+     *
+     * @param json json
+     * @param city city
+     * @return 解析wttrjson的结果
+     */
     private Map<String, Object> parseWttrJson(String json, String city) {
         Map<String, Object> out = new HashMap<>();
         out.put("city", city);
@@ -131,7 +141,13 @@ public class WeatherController {
         return out;
     }
 
-    /** Fallback */
+    /**
+     * 降级
+     *
+     * @param city city
+     * @param reason ReasonML
+     * @return 降级的结果
+     */
     private Map<String, Object> fallback(String city, String reason) {
         Map<String, Object> out = new HashMap<>();
         out.put("city", city);

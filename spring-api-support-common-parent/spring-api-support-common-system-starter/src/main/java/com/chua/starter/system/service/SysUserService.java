@@ -21,7 +21,7 @@ import java.util.Set;
 
 /**
  * 系统用户服务接口，定义了与系统用户相关的操作
- * 继承了通用的服务接口IService，为系统用户提供增删查改等操作
+   * 继承了通用的服务接口i服务，为系统用户提供增删查改等操作
  *
  * @since 2024/8/7
  * @author CH
@@ -40,7 +40,7 @@ public interface SysUserService extends IService<SysUser> {
     /**
      * 删除指定用户
      *
-     * @param userId 用户ID，用于确定要删除的用户
+     * @param userId 用户标识，用于确定要删除的用户
      * @return 操作结果对象，包含操作是否成功和相关提示信息
      */
     ReturnResult<Boolean> delete(Long userId);
@@ -48,7 +48,7 @@ public interface SysUserService extends IService<SysUser> {
     /**
      * 重置指定用户的业主信息
      *
-     * @param userId 用户ID，用于确定要重置的用户
+     * @param userId 用户标识，用于确定要重置的用户
      * @return 操作结果对象，包含操作是否成功和相关提示信息
      */
     ReturnResult<SysUser> resetOwner(Long userId);
@@ -56,7 +56,7 @@ public interface SysUserService extends IService<SysUser> {
     /**
      * 重置指定用户的登录密码
      *
-     * @param userId 用户ID，用于确定要重置的用户
+     * @param userId 用户标识，用于确定要重置的用户
      * @return 操作结果对象，包含操作是否成功和相关提示信息
      */
     ReturnResult<String> reset(Long userId);
@@ -65,7 +65,7 @@ public interface SysUserService extends IService<SysUser> {
      * 更新用户信息，包括角色等
      *
      * @param roles 用户的新角色集合
-     * @param userId 用户ID，用于确定要更新的用户
+     * @param userId 用户标识，用于确定要更新的用户
      * @param sysUser 更新的用户信息对象
      * @return 操作结果对象，包含操作是否成功和相关提示信息
      */
@@ -94,7 +94,7 @@ public interface SysUserService extends IService<SysUser> {
      * 更新指定用户的登录密码
      *
      * @param roles 角色集合
-     * @param userId 用户ID，用于确定要更新的用户
+     * @param userId 用户标识，用于确定要更新的用户
      * @param sysUserPasswordUpdate 更新的用户密码信息对象
      * @return 操作结果对象，包含操作是否成功和相关提示信息
      */
@@ -103,7 +103,7 @@ public interface SysUserService extends IService<SysUser> {
     /**
      * 获取当前登录用户的布局信息
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @param roles  用户的角色集合，用于筛选布局信息
      * @return 布局信息对象，包含当前登录用户的布局信息
      */
@@ -112,7 +112,7 @@ public interface SysUserService extends IService<SysUser> {
     /**
      * 保存用户布局信息
      *
-     * @param userId 用户ID，用于确定要保存布局的用户
+     * @param userId 用户标识，用于确定要保存布局的用户
      * @param userLayout 用户布局信息对象，包含用户的布局信息
      * @return 布局信息对象，包含保存后的布局信息
      */

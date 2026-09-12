@@ -1,11 +1,11 @@
 package com.chua.starter.tenant.client;
 
-// 以下类已从 utils-common 移除，改为直接使用 JDBC DatabaseMetaData API：
-// import com.chua.common.support.datasource.dialect.Dialect;
-// import com.chua.common.support.datasource.dialect.DialectFactory;
-// import com.chua.common.support.datasource.meta.ColumnMetadata;
-// import com.chua.common.support.datasource.meta.TableMetadata;
-// import com.chua.common.support.datasource.type.JavaType;
+ // 以下类已从 工具-通用 移除，改为直接使用 JDBC databasemeta数据 API：
+ // 导入 com.chua.通用.支持.datasource.dialect.Dialect;
+ // 导入 com.chua.通用.支持.datasource.dialect.dialect工厂;
+ // 导入 com.chua.通用.支持.datasource.meta.columnmetadata;
+ // 导入 com.chua.通用.支持.datasource.meta.tablemetadata;
+ // 导入 com.chua.通用.支持.datasource.类型.java类型;
 import com.chua.starter.tenant.constant.TenantDbConstants;
 import com.chua.starter.tenant.properties.TenantProperties;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +28,11 @@ import java.util.Set;
 /**
  * 租户端自动补齐租户字段初始化器
  * <p>
- * 用于租户端（client 模式）启动时自动为业务表补齐租户隔离字段：sys_tenant_id。
- * 使用 utils-common 的 TableDefinition 工具生成 DDL 语句。
+   * 用于租户端（客户端 模式）启动时自动为业务表补齐租户隔离字段：sys_tenant_标识。
+   * 使用 工具-通用 的 tabledefinition 工具生成 DDL 语句。
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025/12/12
  * @author CH
  */
@@ -51,7 +51,7 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
      * 数据库方言（懒加载）
      * <p>Dialect / TableMetadata / ColumnMetadata 已移除，改用 JDBC DatabaseMetaData API 直接操作。</p>
      */
-    // private Dialect dialect;
+ // 私募 Dialect dialect;
 
     /**
      * 执行初始化逻辑
@@ -93,9 +93,9 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
     }
 
     /**
-     * 获取当前数据库 schema/catalog
+      * 获取当前数据库 模式/catalog
      * <p>
-     * 使用 JDBC DatabaseMetaData API 兼容任意数据库
+      * 使用 JDBC databasemeta数据 API 兼容任意数据库
      * </p>
      *
      * @return schema 名称
@@ -108,14 +108,14 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
         }
 
         try (Connection connection = dataSource.getConnection()) {
-            // 优先使用 catalog（MySQL、SQL Server 等使用 catalog）
+ // 优先使用 catalog（MySQL、SQL 服务端 等使用 catalog）
             String catalog = connection.getCatalog();
             if (catalog != null && !catalog.isEmpty()) {
                 log.debug("[租户自动加字段] 使用 catalog: {}", catalog);
                 return catalog;
             }
 
-            // 其次使用 schema（PostgreSQL、Oracle 等使用 schema）
+ // 其次使用 模式（PostgreSQL、Oracle 等使用 模式）
             String schema = connection.getSchema();
             if (schema != null && !schema.isEmpty()) {
                 log.debug("[租户自动加字段] 使用 schema: {}", schema);
@@ -131,12 +131,12 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
     }
 
     /**
-     * 查询当前 schema 下的所有表
+      * 查询当前 模式 下的所有表
      * <p>
-     * 使用 JDBC DatabaseMetaData.getTables() 兼容任意数据库
+      * 使用 JDBC databasemeta数据.获取tables() 兼容任意数据库
      * </p>
      *
-     * @param schema schema
+     * @param schema 模式
      * @return 表名列表
      */
     private List<String> queryTables(String schema) {
@@ -148,7 +148,7 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
 
         try (Connection connection = dataSource.getConnection()) {
             DatabaseMetaData metaData = connection.getMetaData();
-            // 参数说明：catalog, schemaPattern, tableNamePattern, types
+ // 参数说明：catalog, 模式模式, table名称模式, 类型
             // types = "TABLE" 只查询普通表，不包含视图等
             try (ResultSet rs = metaData.getTables(schema, schema, "%", new String[]{"TABLE"})) {
                 while (rs.next()) {
@@ -168,10 +168,10 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
     /**
      * 判断指定表是否存在租户字段
      * <p>
-     * 使用 JDBC DatabaseMetaData.getColumns() 兼容任意数据库
+      * 使用 JDBC databasemeta数据.获取columns() 兼容任意数据库
      * </p>
      *
-     * @param schema    schema
+     * @param schema    模式
      * @param tableName 表名
      * @return 是否存在
      */
@@ -183,7 +183,7 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
 
         try (Connection connection = dataSource.getConnection()) {
             DatabaseMetaData metaData = connection.getMetaData();
-            // 参数说明：catalog, schemaPattern, tableNamePattern, columnNamePattern
+ // 参数说明：catalog, 模式模式, table名称模式, column名称模式
             try (ResultSet rs = metaData.getColumns(schema, schema, tableName, TenantDbConstants.TENANT_ID_COLUMN)) {
                 boolean exists = rs.next();
                 log.debug("[租户自动加字段] 检查租户字段: table={}, column={}, exists={}",

@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_request_trace_raw")
 public class SysRequestTraceRaw extends SysBase implements Serializable {
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "sys_request_trace_raw_id", type = IdType.AUTO)
@@ -38,7 +38,7 @@ public class SysRequestTraceRaw extends SysBase implements Serializable {
 
     @TableField(value = "sys_request_trace_trace_id")
     @Schema(description = "追踪ID")
-    /** SYS请求跟踪跟踪ID */
+    /** SYS请求跟踪跟踪标识 */
     private String sysRequestTraceTraceId;
 
     @TableField(value = "sys_request_trace_strategy_code")
@@ -48,7 +48,7 @@ public class SysRequestTraceRaw extends SysBase implements Serializable {
 
     @TableField(value = "sys_request_trace_method")
     @Schema(description = "请求方法")
-    /** SYS请求跟踪method */
+    /** SYS请求跟踪方法 */
     private String sysRequestTraceMethod;
 
     @TableField(value = "sys_request_trace_path")
@@ -63,7 +63,7 @@ public class SysRequestTraceRaw extends SysBase implements Serializable {
 
     @TableField(value = "sys_request_trace_query")
     @Schema(description = "查询参数")
-    /** SYS请求跟踪query */
+    /** SYS请求跟踪查询 */
     private String sysRequestTraceQuery;
 
     @TableField(value = "sys_request_trace_url")
@@ -93,7 +93,7 @@ public class SysRequestTraceRaw extends SysBase implements Serializable {
 
     @TableField(value = "sys_request_trace_user_agent")
     @Schema(description = "浏览器标识")
-    /** SYS请求跟踪用户agent */
+    /** SYS请求跟踪用户智能体 */
     private String sysRequestTraceUserAgent;
 
     @TableField(value = "sys_request_trace_app_name")
@@ -103,12 +103,12 @@ public class SysRequestTraceRaw extends SysBase implements Serializable {
 
     @TableField(value = "sys_request_trace_user_id")
     @Schema(description = "用户ID")
-    /** SYS请求跟踪用户ID */
+    /** SYS请求跟踪用户标识 */
     private String sysRequestTraceUserId;
 
     @TableField(value = "sys_request_trace_username")
     @Schema(description = "用户名")
-    /** SYS请求跟踪username */
+    /** SYS请求跟踪用户名 */
     private String sysRequestTraceUsername;
 
     @TableField(value = "sys_request_trace_fingerprint")

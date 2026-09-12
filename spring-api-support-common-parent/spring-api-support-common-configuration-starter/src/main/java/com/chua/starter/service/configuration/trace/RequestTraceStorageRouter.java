@@ -16,17 +16,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class RequestTraceStorageRouter {
 
-    /** Database_config_storage */
+    /** Database_配置_storage */
     private static final String DATABASE_CONFIG_STORAGE =
             "com.chua.starter.service.trace.storage.DatabaseRequestTraceConfigStorage";
     /** Database_raw_storage */
     private static final String DATABASE_RAW_STORAGE =
             "com.chua.starter.service.trace.storage.DatabaseRequestTraceRawRecordStorage";
-    /** Database_behavior_storage */
+    /** Database_行为_storage */
     private static final String DATABASE_BEHAVIOR_STORAGE =
             "com.chua.starter.service.trace.storage.DatabaseRequestTraceBehaviorStorage";
 
-    /** ConfigStorage */
+    /**
+     * 配置storage
+     *
+     * @param type 类型
+     * @return 配置storage的结果
+     */
     public RequestTraceConfigStorage configStorage(String type) {
         RequestTraceConfigStorage storage = ServiceProvider.of(RequestTraceConfigStorage.class)
                 .getNewExtension(RequestTraceSupport.firstNonBlank(type, "database"));
@@ -49,7 +54,12 @@ public class RequestTraceStorageRouter {
         return storage != null ? storage : new InMemoryRequestTraceConfigStorage();
     }
 
-    /** RawStorage */
+    /**
+     * rawstorage
+     *
+     * @param type 类型
+     * @return rawStorage的结果
+     */
     public RequestTraceRawRecordStorage rawStorage(String type) {
         RequestTraceRawRecordStorage storage = ServiceProvider.of(RequestTraceRawRecordStorage.class)
                 .getNewExtension(RequestTraceSupport.firstNonBlank(type, "file"));
@@ -66,7 +76,12 @@ public class RequestTraceStorageRouter {
         return storage != null ? storage : new FileRequestTraceRawRecordStorage();
     }
 
-    /** BehaviorStorage */
+    /**
+     * 行为storage
+     *
+     * @param type 类型
+     * @return 行为storage的结果
+     */
     public RequestTraceBehaviorStorage behaviorStorage(String type) {
         RequestTraceBehaviorStorage storage = ServiceProvider.of(RequestTraceBehaviorStorage.class)
                 .getNewExtension(RequestTraceSupport.firstNonBlank(type, "database"));
@@ -85,7 +100,13 @@ public class RequestTraceStorageRouter {
         return storage != null ? storage : new MemoryRequestTraceBehaviorStorage();
     }
 
-    /** Instantiate */
+    /**
+     * Instantiate
+     *
+     * @param className 类名称
+     * @param type 类型
+     * @return instantiate的结果
+     */
     private <T> T instantiate(String className, Class<T> type) {
         T instance = ReflectUtils.instantiate(className);
         if (instance != null && type.isInstance(instance)) {

@@ -45,7 +45,7 @@ public class UserLayout {
      * 组件列表
      */
     @Schema(description = "组件列表")
-    /** Component */
+    /** 组件 */
     private String component;
 
     /**

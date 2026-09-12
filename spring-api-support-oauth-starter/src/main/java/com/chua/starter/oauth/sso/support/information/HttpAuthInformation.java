@@ -9,6 +9,8 @@ import org.springframework.context.ApplicationContext;
 /**
  * HTTP协议认证信息实现类
  * 
+ * @author CH
+ * @since 4.0.0
  */
 public abstract class HttpAuthInformation extends BaseAuthInformation {
 
@@ -18,13 +20,13 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     private final HttpServletResponse response;
 
     /**
-     * 创建 HttpAuthInformation 实例
-     * @param authServerProperties authServerProperties
-     * @param data data
-     * @param request request
-     * @param response response
-     * @param applicationContext applicationContext
-     * @param loginCheck loginCheck
+      * 创建 http认证信息 实例
+     * @param authServerProperties 认证服务端属性
+     * @param data 数据
+     * @param request 请求
+     * @param response 响应
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public HttpAuthInformation(AuthServerProperties authServerProperties,
                               String data,
@@ -38,7 +40,7 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RequestHeader */
+    /** 获取请求头部 */
     protected String getRequestHeader(Object request, String headerName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getHeader(headerName);
@@ -47,7 +49,7 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置ResponseHeader */
+    /** 设置响应头部 */
     protected void setResponseHeader(Object response, String headerName, String headerValue) {
         if (response instanceof HttpServletResponse) {
             ((HttpServletResponse) response).setHeader(headerName, headerValue);
@@ -55,7 +57,7 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RemoteAddress */
+    /** 获取远程地址 */
     protected String getRemoteAddress(Object request) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getRemoteAddr();
@@ -64,7 +66,7 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RequestAttribute */
+    /** 获取请求attribute */
     protected Object getRequestAttribute(Object request, String attributeName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getAttribute(attributeName);
@@ -73,7 +75,7 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置RequestAttribute */
+    /** 设置请求attribute */
     protected void setRequestAttribute(Object request, String attributeName, Object attributeValue) {
         if (request instanceof HttpServletRequest) {
             ((HttpServletRequest) request).setAttribute(attributeName, attributeValue);
@@ -81,24 +83,32 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取Response */
+    /** 获取响应 */
     protected Object getResponse() {
         return response;
     }
 
     @Override
-    /** 获取Request */
+    /** 获取请求 */
     protected Object getRequest() {
         return request;
     }
 
     // 提供类型安全的访问方法
-    /** 获取HttpRequest */
+    /**
+     * 获取http请求
+     *
+     * @return 获取http请求的结果
+     */
     public HttpServletRequest getHttpRequest() {
         return request;
     }
 
-    /** 获取HttpResponse */
+    /**
+     * 获取http响应
+     *
+     * @return 获取http响应的结果
+     */
     public HttpServletResponse getHttpResponse() {
         return response;
     }

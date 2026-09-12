@@ -12,7 +12,7 @@ import java.util.List;
  * 调度平台任务服务。
  *
  * <p>平台基于 job-starter 新架构 (SCHEDULER 角色) 提供统一任务管理能力,
- * 直接读写 {@code sys_job / sys_job_log} 表, 由 job-starter 的 Leader 循环扫描调度。</p>
+   * 直接读写 {@code sys_job / sys_job_log} 表, 由 作业-启动 的 铅 循环扫描调度。</p>
  *
  * @since 4.0.0.42
  * @author CH
@@ -34,7 +34,7 @@ public interface SchedulerJobPlatformService {
     /**
      * 查询任务详情。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 任务实体
      */
     JobEntity getJob(Long jobId);
@@ -58,7 +58,7 @@ public interface SchedulerJobPlatformService {
     /**
      * 更新任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @param job   任务实体
      * @return 是否更新成功
      */
@@ -76,7 +76,7 @@ public interface SchedulerJobPlatformService {
     /**
      * 删除任务 (逻辑删除)。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 是否删除成功
      */
     boolean deleteJob(Long jobId);
@@ -92,7 +92,7 @@ public interface SchedulerJobPlatformService {
     /**
      * 恢复已删除任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 是否恢复成功
      */
     boolean restoreJob(Long jobId);
@@ -108,7 +108,7 @@ public interface SchedulerJobPlatformService {
     /**
      * 启动任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 是否启动成功
      */
     boolean startJob(Long jobId);
@@ -124,7 +124,7 @@ public interface SchedulerJobPlatformService {
     /**
      * 停止任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 是否停止成功
      */
     boolean stopJob(Long jobId);
@@ -140,7 +140,7 @@ public interface SchedulerJobPlatformService {
     /**
      * 立即执行任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @param param 执行参数
      * @return 是否触发成功
      */
@@ -168,7 +168,7 @@ public interface SchedulerJobPlatformService {
      *
      * @param pageNum      页码
      * @param pageSize     每页大小
-     * @param beanName     handler 名称模糊查询
+     * @param beanName     处理器 名称模糊查询
      * @param executeCode  执行状态码
      * @param group        任务分组
      * @return 日志分页

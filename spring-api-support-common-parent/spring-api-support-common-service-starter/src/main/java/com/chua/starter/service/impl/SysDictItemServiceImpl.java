@@ -42,11 +42,11 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
 
     @Autowired
     @Lazy
-    /** SYSdictitem服务 */
+    /** sysdictitem服务 */
     private SysDictItemService sysDictItemService;
 
-    final SysDictItemPropertyMapper sysDictItemPropertyMapper;
-    final SysDictMapper sysDictMapper;
+    final SysDictItemPropertyMapper sysDictItemPropertyMapper; // sysdictitem财产映射器
+    final SysDictMapper sysDictMapper; // sysdict映射器
     @Autowired
     /** Transaction模板 */
     private TransactionTemplate transactionTemplate;
@@ -55,11 +55,11 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * 分页查询字典项
      *
      * @param query     查询条件对象，用于封装分页及排序等信息
-     *                  例如：new Query<SysDictItem>().setPage(1).setPageSize(10)
-     * @param sysDictId 字典ID，用于过滤查询结果
+      * 例如：新 查询<SysDictItem>().设置page(1).设置page大小(10)
+     * @param sysDictId 字典标识，用于过滤查询结果
      *                  例如：1
      * @param roles     用户角色集合，用于进行权限控制
-     *                  例如：Set.of("admin", "login")
+      * 例如：设置.的("admin", "login")
      * @return 分页查询结果，包含字典项列表和分页信息
      */
     @Override
@@ -115,9 +115,9 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * 更新字典项信息
      *
      * @param roles       用户角色集合，用于进行权限控制
-     *                    例如：Set.of("admin", "login")
+      * 例如：设置.的("admin", "login")
      * @param sysDictItem 待更新的字典项实体对象
-     *                    例如：SysDictItem.builder().sysDictItemId(1).sysDictItemName("更新名称").build()
+      * 例如：sysdictitem.构建器().sysdictitemid(1).sysdictitem名称("更新名称").构建()
      * @return 更新操作的结果，包含成功与否的标志和消息
      */
     @Override
@@ -147,9 +147,9 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * 新增字典项
      *
      * @param sysDictItem 待新增的字典项实体对象
-     *                    例如：SysDictItem.builder().sysDictId(1).sysDictItemName("新增项").sysDictItemCode("new_item").build()
+      * 例如：sysdictitem.构建器().sysdictid(1).sysdictitem名称("新增项").sysdictitem编码("新_item").构建()
      * @param roles       用户角色集合，用于进行权限控制
-     *                    例如：Set.of("admin", "login")
+      * 例如：设置.的("admin", "login")
      * @return 新增操作的结果，包含成功与否的标志和消息，以及新增的字典项信息
      */
     @Override
@@ -178,10 +178,10 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     }
 
     /**
-     * 清除缓存 - 根据字典ID
+      * 清除缓存 - 根据字典标识
      *
      * @param sysDictItem 待清除缓存的字典项实体对象
-     *                    例如：SysDictItem.builder().sysDictId(1).build()
+      * 例如：sysdictitem.构建器().sysdictid(1).构建()
      */
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:id:' + #sysDictItem.sysDictId")
@@ -193,7 +193,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * 清除缓存 - 根据字典编码
      *
      * @param sysDictItem 待清除缓存的字典项实体对象
-     *                    例如：SysDictItem.builder().sysDictCode("dict_code").build()
+      * 例如：sysdictitem.构建器().sysdict编码("dict_编码").构建()
      */
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:code:' + #sysDictItem.sysDictCode")
@@ -202,10 +202,10 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     }
 
     /**
-     * 清除缓存 - 根据字典父ID
+      * 清除缓存 - 根据字典父标识
      *
      * @param sysDictItem 待清除缓存的字典项实体对象
-     *                    例如：SysDictItem.builder().sysDictId(1).build()
+      * 例如：sysdictitem.构建器().sysdictid(1).构建()
      */
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:pid:' + #sysDictItem.sysDictId")
@@ -217,7 +217,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * 清除缓存 - 根据字典父编码
      *
      * @param sysDictItem 待清除缓存的字典项实体对象
-     *                    例如：SysDictItem.builder().sysDictCode("parent_dict_code").build()
+      * 例如：sysdictitem.构建器().sysdict编码("父_dict_编码").构建()
      */
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:pcode:' + #sysDictItem.sysDictCode")
@@ -226,14 +226,14 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     }
 
     /**
-     * 查询字典项列表 - 根据字典ID
+      * 查询字典项列表 - 根据字典标识
      *
      * @param query     查询条件对象，用于封装分页及排序等信息
-     *                  例如：new Query<SysDictItem>().setPage(1).setPageSize(10)
-     * @param sysDictId 字典ID，用于过滤查询结果
+      * 例如：新 查询<SysDictItem>().设置page(1).设置page大小(10)
+     * @param sysDictId 字典标识，用于过滤查询结果
      *                  例如：1
      * @param roles     用户角色集合，用于进行权限控制
-     *                  例如：Set.of("admin", "login")
+      * 例如：设置.的("admin", "login")
      * @return 字典项列表
      */
     @Override
@@ -263,11 +263,11 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * 查询字典项列表 - 根据字典编码
      *
      * @param query       查询条件对象，用于封装分页及排序等信息
-     *                    例如：new Query<SysDictItem>().setPage(1).setPageSize(10)
+      * 例如：新 查询<SysDictItem>().设置page(1).设置page大小(10)
      * @param sysDictCode 字典编码，用于过滤查询结果
-     *                    例如："dict_code"
+      * 例如："dict_编码"
      * @param roles       用户角色集合，用于进行权限控制
-     *                    例如：Set.of("admin", "login")
+      * 例如：设置.的("admin", "login")
      * @return 字典项列表
      */
     @Override
@@ -279,11 +279,11 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * 查询字典项列表 - 根据字典父编码
      *
      * @param query        查询条件对象，用于封装分页及排序等信息
-     *                     例如：new Query<SysDictItem>().setPage(1).setPageSize(10)
+      * 例如：新 查询<SysDictItem>().设置page(1).设置page大小(10)
      * @param sysDictCode  字典父编码，用于过滤查询结果
-     *                     例如："parent_dict_code"
+      * 例如："父_dict_编码"
      * @param roles        用户角色集合，用于进行权限控制
-     *                     例如：Set.of("admin", "login")
+      * 例如：设置.的("admin", "login")
      * @return 字典项列表
      */
     @Override
@@ -292,14 +292,14 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     }
 
     /**
-     * 查询字典项列表 - 根据字典父ID
+      * 查询字典项列表 - 根据字典父标识
      *
      * @param query      查询条件对象，用于封装分页及排序等信息
-     *                   例如：new Query<SysDictItem>().setPage(1).setPageSize(10)
-     * @param sysDictId  字典父ID，用于过滤查询结果
+      * 例如：新 查询<SysDictItem>().设置page(1).设置page大小(10)
+     * @param sysDictId  字典父标识，用于过滤查询结果
      *                   例如：1
      * @param roles      用户角色集合，用于进行权限控制
-     *                   例如：Set.of("admin", "login")
+      * 例如：设置.的("admin", "login")
      * @return 字典项列表
      */
     @Override
@@ -308,11 +308,11 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     }
 
     /**
-     * 根据字典编码和字典ID获取字典项
+      * 根据字典编码和字典标识获取字典项
      *
      * @param sysDictCode 字典编码
-     *                    例如："item_code"
-     * @param sysDictId   字典ID
+      * 例如："item_编码"
+     * @param sysDictId   字典标识
      *                    例如：1
      * @return 字典项对象
      */

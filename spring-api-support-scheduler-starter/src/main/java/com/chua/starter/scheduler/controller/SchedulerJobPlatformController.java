@@ -61,7 +61,7 @@ public class SchedulerJobPlatformController {
     /**
      * 查询任务详情。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 任务详情
      */
     @GetMapping("/job/{jobId}")
@@ -97,7 +97,7 @@ public class SchedulerJobPlatformController {
     /**
      * 更新任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @param job   任务实体
      * @return 是否更新成功
      */
@@ -123,7 +123,7 @@ public class SchedulerJobPlatformController {
     /**
      * 删除任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 是否删除成功
      */
     @DeleteMapping("/job/{jobId}")
@@ -147,7 +147,7 @@ public class SchedulerJobPlatformController {
     /**
      * 恢复已删除任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 是否恢复成功
      */
     @PostMapping("/job/{jobId}/restore")
@@ -171,7 +171,7 @@ public class SchedulerJobPlatformController {
     /**
      * 启动任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 是否启动成功
      */
     @PostMapping("/job/{jobId}/start")
@@ -195,7 +195,7 @@ public class SchedulerJobPlatformController {
     /**
      * 停止任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 是否停止成功
      */
     @PostMapping("/job/{jobId}/stop")
@@ -219,7 +219,7 @@ public class SchedulerJobPlatformController {
     /**
      * 立即执行任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @param param 执行参数
      * @return 是否触发成功
      */
@@ -249,7 +249,7 @@ public class SchedulerJobPlatformController {
      *
      * @param pageNum     页码
      * @param pageSize    每页大小
-     * @param beanName    handler 名称模糊查询
+     * @param beanName    处理器 名称模糊查询
      * @param executeCode 执行状态码
      * @param group       任务分组
      * @return 日志分页结果
@@ -309,7 +309,7 @@ public class SchedulerJobPlatformController {
      * 组装分页结果载体。
      *
      * @param page 分页结果
-     * @return 分页数据 Map
+     * @return 分页数据 映射
      */
     private Map<String, Object> pagePayload(Page<?> page) {
         Map<String, Object> payload = new LinkedHashMap<>();

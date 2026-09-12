@@ -20,20 +20,20 @@ import java.io.Serializable;
 @TableName("sys_dept_principal_rel")
 public class SysDeptPrincipalRel implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     @TableId(value = "sys_dept_principal_rel_id", type = IdType.AUTO)
     @Schema(description = "关系ID")
-    /** SYSdeptprincipalRELID */
+    /** sysdeptprincipalrelid */
     private Integer sysDeptPrincipalRelId;
 
     @TableField("sys_dept_id")
     @Schema(description = "部门ID")
-    /** SYSdeptID */
+    /** sysdeptid */
     private Integer sysDeptId;
 
     @TableField("sys_user_id")
     @Schema(description = "负责人用户ID")
-    /** SYS用户ID */
+    /** SYS用户标识 */
     private Integer sysUserId;
 }

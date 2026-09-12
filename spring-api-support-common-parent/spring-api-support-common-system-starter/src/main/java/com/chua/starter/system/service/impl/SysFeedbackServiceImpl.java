@@ -49,7 +49,7 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     private static final String FEEDBACK_MESSAGE_URL = "/message/center";
 
     /**
-     * Socket 消息事件名（与前端 socket 订阅保持一致）
+      * 套接字 消息事件名（与前端 套接字 订阅保持一致）
      */
     private static final String SOCKET_EVENT_MESSAGE = "message";
 
@@ -64,10 +64,10 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     private static final String MESSAGE_PUSH_EVENT = "push";
 
     /**
-     * Socket 会话操作模板（未接入 socket 时为 null，不影响反馈处理主流程）
+      * 套接字 会话操作模板（未接入 套接字 时为 空，不影响反馈处理主流程）
      */
     @Autowired(required = false)
-    /** Socket会话模板 */
+    /** 套接字会话模板 */
     private SocketSessionTemplate socketSessionTemplate;
 
     /**
@@ -81,7 +81,7 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     }
 
     @Override
-    /** PageFor */
+    /** pagefor */
     public ReturnPageResult<SysFeedback> pageFor(FeedbackV1Request feedbackV1Request) {
         FeedbackV1Request request =
                 feedbackV1Request == null ? new FeedbackV1Request() : feedbackV1Request;
@@ -113,7 +113,13 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** Issue */
+    /**
+     * Issue
+     *
+     * @param request 请求
+     * @param userResume 用户resume
+     * @return issue的结果
+     */
     public ReturnResult<Boolean> issue(FeedbackIssueV1Request request, UserResume userResume) {
         if (request == null || request.getSysFeedbackId() == null) {
             return ReturnResult.illegal("反馈ID不能为空");
@@ -218,7 +224,7 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     }
 
     /**
-     * 推送反馈处理结果站内通知（通过 socket 推送给反馈提交人）
+      * 推送反馈处理结果站内通知（通过 套接字 推送给反馈提交人）
      *
      * @param sysFeedback 反馈信息
      * @param userResume  当前处理人信息
@@ -244,12 +250,12 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     }
 
     /**
-     * 通过 socket 向指定用户推送站内消息
+      * 通过 套接字 向指定用户推送站内消息
      *
-     * @param userId   目标用户ID
+     * @param userId   目标用户标识
      * @param title    消息标题
      * @param content  消息内容
-     * @param bizId    业务ID（反馈ID）
+     * @param bizId    业务标识（反馈标识）
      */
     private void pushStationMessage(String userId, String title, String content, Integer bizId) {
         if (socketSessionTemplate == null) {
@@ -273,7 +279,12 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
         }
     }
 
-    /** 解析UserId */
+    /**
+     * 解析用户id
+     *
+     * @param rawUserId raw用户id
+     * @return 解析用户id的结果
+     */
     private Integer parseUserId(Object rawUserId) {
         String normalizedUserId = rawUserId == null ? "" : String.valueOf(rawUserId).trim();
         if (StringUtils.isBlank(normalizedUserId)) {

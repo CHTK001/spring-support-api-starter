@@ -35,11 +35,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> implements SysDeptService {
 
-    /** SYSdeptprincipalREL服务 */
+    /** sysdeptprincipalrel服务 */
     private final SysDeptPrincipalRelService sysDeptPrincipalRelService;
 
     @Override
-    /** List */
+    /** 列表 */
     public List<SysDeptVO> list(SysDept sysDept, Set<String> roles) {
         List<SysDept> sysDepts = baseMapper.selectList(
                 Wrappers.<SysDept>lambdaQuery()
@@ -64,7 +64,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
             treeNode.setExt(sysDeptVO);
             treeNode.setChildrenConsumer(new SafeConsumer<List<SysDeptVO>>() {
                 @Override
-                /** SafeAccept */
+                /** safeaccept */
                 public void safeAccept(List<SysDeptVO> sysDeptVOS) throws Throwable {
                     sysDeptVO.setChildren(sysDeptVOS);
                 }
@@ -132,7 +132,13 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         return ReturnResult.of(sysDept);
     }
 
-    /** 过滤TreeByName */
+    /**
+     * 过滤树by名称
+     *
+     * @param source 源
+     * @param keyword keyword
+     * @return 过滤器树by名称的结果
+     */
     private List<SysDeptVO> filterTreeByName(List<SysDeptVO> source, String keyword) {
         if (null == source || source.isEmpty()) {
             return new ArrayList<>();
@@ -147,7 +153,13 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         return result;
     }
 
-    /** 过滤TreeNode */
+    /**
+     * 过滤树节点
+     *
+     * @param node 节点
+     * @param keyword keyword
+     * @return 过滤器树节点的结果
+     */
     private SysDeptVO filterTreeNode(SysDeptVO node, String keyword) {
         List<SysDeptVO> matchedChildren = filterTreeByName(node.getChildren(), keyword);
         boolean selfMatched = startsWithIgnoreCase(node.getSysDeptName(), keyword);
@@ -159,7 +171,13 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         return copy;
     }
 
-    /** StartsWithIgnoreCase */
+    /**
+     * 启动withignore大小写
+     *
+     * @param value 值
+     * @param prefix 前缀
+     * @return 启动withignore大小写的结果
+     */
     private boolean startsWithIgnoreCase(String value, String prefix) {
         if (StringUtils.isEmpty(value) || StringUtils.isEmpty(prefix)) {
             return false;

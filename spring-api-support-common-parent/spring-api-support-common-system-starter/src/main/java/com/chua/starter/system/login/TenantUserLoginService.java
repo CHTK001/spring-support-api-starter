@@ -47,13 +47,13 @@ public class TenantUserLoginService extends AbstractUserLoginService {
     private static final long LAST_TENANT_EXPIRE_DAYS = 30;
 
     @Override
-    /** 获取LoginTypePrefix */
+    /** 获取login类型前缀 */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
-    /** GenerateUserIds */
+    /** generate用户标识 */
     protected String[] generateUserIds(SysUser user) {
         String baseId = user.getSysUserId() + String.valueOf(user.getSysClientId());
         return new String[]{
@@ -63,9 +63,9 @@ public class TenantUserLoginService extends AbstractUserLoginService {
     }
 
     @Override
-    /** CustomizeUserResult */
+    /** customize用户结果 */
     protected void customizeUserResult(UserResume result, SysUser user) {
-        // 设置租户ID
+ // 设置租户标识
         if (user.getSysTenantId() != null) {
             result.setTenantId(String.valueOf(user.getSysTenantId()));
         }
@@ -73,7 +73,15 @@ public class TenantUserLoginService extends AbstractUserLoginService {
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 校验Login */
+    /**
+     * 校验Login
+     *
+     * @param principal principal
+     * @param credential credential
+     * @param address 地址
+     * @param ext ext
+     * @return 检查login的结果
+     */
     public UserResume checkLogin(String principal, String credential, String address, Object ext) {
         String redisKey = LOGIN_TYPE_PREFIX + ":login_error:" + principal;
 

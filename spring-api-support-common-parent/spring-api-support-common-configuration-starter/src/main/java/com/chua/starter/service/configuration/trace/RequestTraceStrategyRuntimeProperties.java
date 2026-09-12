@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class RequestTraceStrategyRuntimeProperties {
 
     /**
-     * 配置存储类型：database / redis / memory
+      * 配置存储类型：database / Redis / 内存
      */
     private String configStorageType = "database";
 

@@ -37,7 +37,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysDictItemController {
 
-    /** SYSdictitem服务 */
+    /** sysdictitem服务 */
     private final SysDictItemService sysDictItemService;
 
 
@@ -45,6 +45,9 @@ public class SysDictItemController {
      * 字典子项列表
      *
      * @return 字典子项列表
+     * @param query 查询
+     * @param sysDictCode sysdict编码
+     * @param true true
      */
     @Operation(summary = "字典子项列表(父code码查询)")
     @GetMapping("/pCode")
@@ -60,6 +63,9 @@ public class SysDictItemController {
      * 字典子项列表
      *
      * @return 字典子项列表
+     * @param query 查询
+     * @param sysDictCode sysdict编码
+     * @param true true
      */
     @Operation(summary = "字典子项列表(code码查询)")
     @GetMapping("/code")
@@ -76,6 +82,9 @@ public class SysDictItemController {
      * 字典子项列表
      *
      * @return 字典子项列表
+     * @param query 查询
+     * @param sysDictId sysDictId
+     * @param true true
      */
     @Operation(summary = "字典子项列表(父ID)")
     @GetMapping("/pList")
@@ -91,6 +100,9 @@ public class SysDictItemController {
      * 字典子项列表
      *
      * @return 字典子项列表
+     * @param query 查询
+     * @param sysDictId sysDictId
+     * @param true true
      */
     @Operation(summary = "字典子项列表")
     @GetMapping("/list")
@@ -105,6 +117,9 @@ public class SysDictItemController {
      * 字典子项分页列表
      *
      * @return 字典子项分页列表
+     * @param query 查询
+     * @param sysDictId sysDictId
+     * @param true true
      */
     @Operation(summary = "字典子项分页")
     @GetMapping("/page")
@@ -119,6 +134,7 @@ public class SysDictItemController {
      * 删除字典子项
      *
      * @return 更新字典子项
+     * @param sysDictItemId sysDictItemId
      */
     @Operation(summary = "删除字典子项")
     @DeleteMapping("/delete")

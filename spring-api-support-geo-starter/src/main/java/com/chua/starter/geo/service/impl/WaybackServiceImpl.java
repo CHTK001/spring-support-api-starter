@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Esri Wayback 历史影像服务实现，调用 Esri Wayback Config API 获取真实版本列表。
+   * Esri Wayback 历史影像服务实现，调用 Esri Wayback 配置 API 获取真实版本列表。
  *
  * @see <a href="https://opendata.arcgis.com/">Esri Open Data</a>
  * @author CH

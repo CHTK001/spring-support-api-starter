@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 文件系统配置服务实现类
  *
  * @since 2024/12/10
- * @version 1.0.0
+   * @版本 1.0.0
  * @author CH
  */
 @Slf4j
@@ -44,14 +44,14 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     private static final ConcurrentHashMap<String, ProtocolServer> FILE_SERVER_INSTANCES = new ConcurrentHashMap<>();
 
     /**
-     * 文件服务器实例Key
+      * 文件服务器实例键
      */
     private static final String FILE_SERVER_KEY = "file_system_server";
-    /** 文件存储support */
+    /** 文件存储支持 */
     private final FileStorageSupport fileStorageSupport;
 
     @Override
-    /** 获取EnabledSettingForFileSystem */
+    /** 获取已启用settingfor文件系统 */
     public SysFileSystemSetting getEnabledSettingForFileSystem() {
         return getOne(Wrappers.<SysFileSystemSetting>lambdaQuery()
                 .eq(SysFileSystemSetting::getSysFileSystemSettingEnabled, true)
@@ -60,7 +60,12 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 启用SettingForFileSystem */
+    /**
+     * 启用settingfor文件系统
+     *
+     * @param settingId settingId
+     * @return enablesettingfor文件系统的结果
+     */
     public ReturnResult<Boolean> enableSettingForFileSystem(Integer settingId) {
         log.info("启用配置: settingId={}", settingId);
 
@@ -78,7 +83,11 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 初始化DefaultSettingForFileSystem */
+    /**
+     * 初始化默认settingfor文件系统
+     *
+     * @return 初始化默认settingfor文件系统的结果
+     */
     public ReturnResult<Boolean> initDefaultSettingForFileSystem() {
         log.info("初始化默认配置");
 
@@ -97,7 +106,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
-    /** 开始FileServerForFileSystem */
+    /** 开始文件服务端for文件系统 */
     public ReturnResult<Boolean> startFileServerForFileSystem() {
         log.info("启动文件服务器");
 
@@ -160,7 +169,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
-    /** 停止FileServerForFileSystem */
+    /** 停止文件服务端for文件系统 */
     public ReturnResult<Boolean> stopFileServerForFileSystem() {
         log.info("停止文件服务器");
 
@@ -194,7 +203,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
-    /** 获取FileServerStatusForFileSystem */
+    /** 获取文件服务端状态for文件系统 */
     public ReturnResult<String> getFileServerStatusForFileSystem() {
         ProtocolServer serverInstance = FILE_SERVER_INSTANCES.get(FILE_SERVER_KEY);
         if (serverInstance != null) {
@@ -204,7 +213,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
-    /** 校验PortAvailableForFileSystem */
+    /** 校验端口可用for文件系统 */
     public ReturnResult<Boolean> checkPortAvailableForFileSystem(Integer port) {
         if (port == null || port < 1 || port > 65535) {
             return ReturnResult.error("端口号无效");
@@ -253,7 +262,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
                 return null;
             }
 
-            // 创建FileStorageSetting配置
+ // 创建文件storagesetting配置
             FileStorageFactory.FileStorageSetting fileStorageSetting = FileStorageFactory.FileStorageSetting.builder()
                     .openDownload(downloadEnabled)
                     .openPreview(previewEnabled)
@@ -261,7 +270,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
                     .openRemoteFile(remoteFileEnabled)
                     .build();
 
-            // 创建FileStorageServletFilter
+ // 创建文件storageservlet过滤器
             FileStorageServletFilter fileStorageFilter = new FileStorageServletFilter(fileStorageSetting);
 
             // 添加本地文件存储
@@ -272,7 +281,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
             // 添加文件存储过滤器
             serverInstance.addFilter(fileStorageFilter);
 
-            // 如果启用视图预览，添加ViewServletFilter
+ // 如果启用视图预览，添加viewservlet过滤器
             if (viewEnabled) {
                 ViewServletFilter viewServletFilter = new ViewServletFilter(remoteFileEnabled);
                 serverInstance.addFilter(viewServletFilter);

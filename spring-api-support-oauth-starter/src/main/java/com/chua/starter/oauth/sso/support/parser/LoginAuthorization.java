@@ -24,21 +24,22 @@ import java.util.Map;
  * 鉴权信息
  *
  * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public final class LoginAuthorization implements Authorization {
-    private final String username;
-    private final String password;
-    private final String loginType;
-    private final String appName;
-    private final Map<String, String> ext;
-    private final HttpServletResponse response;
-    private final AuthServerProperties authServerProperties;
-    private final SysUserLogService sysUserLogService;
-    private final IptablesService iptablesService;
-    final ApplicationContext applicationContext;
-    final LoginCheck loginCheck;
-    private final LoginAuthInformation authInformation;
+    private final String username; // 用户名
+    private final String password; // 密码
+    private final String loginType; // login类型
+    private final String appName; // app名称
+    private final Map<String, String> ext; // ext
+    private final HttpServletResponse response; // 响应
+    private final AuthServerProperties authServerProperties; // 认证服务端属性
+    private final SysUserLogService sysUserLogService; // sys用户日志服务
+    private final IptablesService iptablesService; // iptables服务
+    final ApplicationContext applicationContext; // application上下文
+    final LoginCheck loginCheck; // login检查
+    private final LoginAuthInformation authInformation; // 认证信息
 
     public LoginAuthorization(LoginAuthInformation authInformation,
                               String username,
@@ -62,7 +63,7 @@ public final class LoginAuthorization implements Authorization {
         this.sysUserLogService = sysUserLogService;
         this.applicationContext = applicationContext;
         this.loginCheck = loginCheck;
-        // 可选注入 IptablesService（用于 IP 归属地解析）
+ // 可选注入 iptables服务（用于 IP 归属地解析）
         IptablesService iptSvc = null;
         try {
             iptSvc = applicationContext.getBean(IptablesService.class);
@@ -126,7 +127,7 @@ public final class LoginAuthorization implements Authorization {
         String ua = MapUtils.getString(stringMap, "ua");
         sysUserLog.setSysLogUa(ua);
 
-        // 指纹：优先用客户端上报的，fallback 到 UA 生成的伪指纹
+ // 指纹：优先用客户端上报的，降级 到 UA 生成的伪指纹
         String fingerprint = MapUtils.getString(stringMap, "fingerprint");
         if (fingerprint == null || fingerprint.isBlank()) {
             fingerprint = IpUtils.fingerprintFromUserAgent(ua);

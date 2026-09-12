@@ -108,12 +108,12 @@ public interface SysDictItemService extends IService<SysDictItem> {
     List<SysDictItem> listForItemPcode(Query<SysDictItem> query, String sysDictCode, Set<String> roles);
 
     /**
-     * 根据字典项的父ID查询字典项列表，并进行权限控制
-     * 此方法用于根据特定字典的父字典项ID检索字典项，同时考虑当前用户的角色来进行数据过滤，
+      * 根据字典项的父标识查询字典项列表，并进行权限控制
+      * 此方法用于根据特定字典的父字典项标识检索字典项，同时考虑当前用户的角色来进行数据过滤，
      * 确保用户只能看到其有权限访问的字典项数据
      *
      * @param query 查询条件对象，用于指定查询条件
-     * @param sysDictId 字典项的父ID，用于确定属于哪个字典的字典项
+     * @param sysDictId 字典项的父标识，用于确定属于哪个字典的字典项
      * @param roles 当前用户的角色集合，用于权限控制
      * @return 返回经过权限过滤的字典项列表如果用户对某些字典项没有访问权限，
      *         这些字典项将不会包含在返回的列表中

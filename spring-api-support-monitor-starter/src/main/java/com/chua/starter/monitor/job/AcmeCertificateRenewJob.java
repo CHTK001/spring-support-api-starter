@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * ACME 证书自动续签定时任务
  * 每天凌晨 2 点检查即将到期的证书并自动续签
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-12-06
  * @author CH
  */

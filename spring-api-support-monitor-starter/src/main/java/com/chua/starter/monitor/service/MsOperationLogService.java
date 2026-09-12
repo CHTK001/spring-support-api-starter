@@ -14,10 +14,10 @@ public interface MsOperationLogService extends IService<MsOperationLog> {
     /**
      * 记录一条操作日志。失败时静默处理，不影响主业务流程。
      *
-     * @param operator    操作用户ID
-     * @param operation   操作类型（CREATE/UPDATE/DELETE/ENABLE/DISABLE/MOVE/SET/DEL）
-     * @param targetModule 目标模块（HOST/TASK/REDIS/CONFIG）
-     * @param targetId    目标对象ID
+     * @param operator    操作用户标识
+     * @param operation   操作类型（创建/更新/删除/ENABLE/DISABLE/Move.com/设置/DEL）
+     * @param targetModule 目标模块（主机/任务/Redis/配置）
+     * @param targetId    目标对象标识
      * @param description 操作描述
      */
     void log(String operator, String operation, String targetModule, String targetId, String description);

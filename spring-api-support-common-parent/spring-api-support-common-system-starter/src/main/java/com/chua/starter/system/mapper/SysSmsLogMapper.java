@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.entity.project.SysSmsLog;
 
 /**
- * 短信发送日志 Mapper
+   * 短信发送日志 映射器
  *
  * @since 2026/3/19
  * @author CH

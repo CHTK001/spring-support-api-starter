@@ -18,10 +18,10 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     /**
-     * 处理 GeoException 业务异常。
+      * 处理 geo异常 业务异常。
      *
      * @param e 业务异常
-     * @return 错误响应 Map
+     * @return 错误响应 映射
      */
     @ExceptionHandler(GeoException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
      * 处理通用异常。
      *
      * @param e 异常对象
-     * @return 错误响应 Map
+     * @return 错误响应 映射
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -32,18 +32,18 @@ import java.util.stream.Collectors;
 @Service
 public class FingerprintStorageService {
 
-    /** Redis key 前缀 - 按指纹查询 */
+    /** Redis 键 前缀 - 按指纹查询 */
     private static final String FP_CACHE_PREFIX = "oauth:fingerprint:";
-    /** Redis key 前缀 - 按IP查询 */
+    /** Redis 键 前缀 - 按IP查询 */
     private static final String IP_CACHE_PREFIX = "oauth:ip:";
     /** 缓存过期时间（秒）*/
     private static final int CACHE_TTL_SECONDS = 86_400 * 30;
 
     @Autowired(required = false)
-    private SysFingerprintMapper fingerprintMapper;
+    private SysFingerprintMapper fingerprintMapper; // fingerprint映射器
 
     @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    private StringRedisTemplate stringRedisTemplate; // 字符串redistemplate
 
     /**
      * 保存或更新指纹映射
@@ -98,12 +98,12 @@ public class FingerprintStorageService {
     /**
      * 指纹记录参数对象（规约十九：8 个参数提取为不可变 record）
      *
-     * @param userId      用户ID
+     * @param userId      用户标识
      * @param username    用户名
      * @param fingerprint 浏览器指纹
      * @param ip          客户端IP
      * @param loginType   登录类型
-     * @param userAgent   User-Agent
+     * @param userAgent   用户-智能体
      * @param browser     浏览器
      * @param os          操作系统
      */
@@ -119,7 +119,7 @@ public class FingerprintStorageService {
     ) {}
 
     /**
-     * 更新指纹的 Token 计数（登录+1 / 登出-1）
+      * 更新指纹的 令牌 计数（登录+1 / 登出-1）
      *
      * @param fingerprint 浏览器指纹
      * @param delta       变化量（+1 或 -1）
@@ -155,7 +155,7 @@ public class FingerprintStorageService {
      * <p>优先从 Redis 缓存读取，未命中则查 MySQL</p>
      *
      * @param fingerprint 浏览器指纹
-     * @return 用户信息 Map，不存在返回 null
+     * @return 用户信息 映射，不存在返回 空
      */
     public Map<String, Object> findByFingerprint(String fingerprint) {
         if (StringUtils.isBlank(fingerprint)) {
@@ -266,6 +266,11 @@ public class FingerprintStorageService {
 
     // ==================== 内部方法 ====================
 
+    /**
+     * 转为映射。
+     * @param fp fp
+     * @return 转为映射的结果
+     */
     private Map<String, Object> toMap(SysFingerprint fp) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("id", fp.getId());

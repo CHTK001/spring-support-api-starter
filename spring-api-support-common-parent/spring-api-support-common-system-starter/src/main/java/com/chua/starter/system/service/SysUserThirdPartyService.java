@@ -27,7 +27,7 @@ public interface SysUserThirdPartyService extends IService<SysUserThirdParty> {
      * 按类型查询用户的第三方账号。
      *
      * @param userId 用户主键
-     * @param type   平台类型 (gitee/wechat-mp/github/...)
+     * @param type   平台类型 (gitee/wechat-mp/GitHub/...)
      * @return 该类型下的绑定列表
      */
     List<SysUserThirdParty> listByUserIdAndType(Integer userId, String type);
@@ -37,7 +37,7 @@ public interface SysUserThirdPartyService extends IService<SysUserThirdParty> {
      *
      * @param type 平台类型
      * @param uid  第三方 uid
-     * @return SysUserThirdParty 或 null
+     * @return SysUserThirdParty 或 空
      */
     SysUserThirdParty getByThirdPartyUid(String type, String uid);
 
@@ -66,10 +66,10 @@ public interface SysUserThirdPartyService extends IService<SysUserThirdParty> {
     int unbindAll(Integer userId);
 
     /**
-     * 更新 token / value 字段(用于刷新第三方 access_token)。
+      * 更新 令牌 / 值 字段(用于刷新第三方 access_令牌)。
      *
      * @param id       主键
-     * @param newValue 新 token 或 value
+     * @param newValue 新 令牌 或 值
      * @return 是否成功
      */
     boolean updateValue(Integer id, String newValue);

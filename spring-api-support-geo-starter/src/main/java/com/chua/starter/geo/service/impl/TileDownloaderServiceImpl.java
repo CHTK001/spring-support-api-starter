@@ -31,19 +31,33 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 瓦片下载服务实现，使用 Virtual Thread + Semaphore 控制并发。
+   * 瓦片下载服务实现，使用 虚拟 Thread + Semaphore 控制并发。
  *
  * @author CH
  * @since 1.0.0
+ * @param source 源
+ * @param x x
+ * @param y y
+ * @param z z
+ * @return 构建瓷砖url的结果
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class TileDownloaderServiceImpl implements TileDownloaderService {
 
+    /**
+     * download瓷砖。
+     * @param source 源
+     * @param bounds bounds
+     * @param zoom zoom
+     * @param proxy 代理
+     * @param parallel 并行
+     * @return download瓷砖的结果
+     */
     private final GeoProperties properties;
-    private final TileCacheService cacheService;
-    private static final int TILE_SIZE = 256;
+    private final TileCacheService cacheService; // 缓存服务
+    private static final int TILE_SIZE = 256; // 瓷砖大小
 
     @Override
     public DownloadResult downloadTiles(TileSource source, Bounds bounds, int zoom, String proxy, boolean parallel) {
@@ -114,6 +128,13 @@ public class TileDownloaderServiceImpl implements TileDownloaderService {
         }
         executor.shutdown();
 
+        /**
+         * 执行download。
+         * @param url url
+         * @param source 源
+         * @param proxy 代理
+         * @return 执行download的结果
+         */
         log.info("[{}] 瓦片下载完成: {}/{} 成功, {} 失败", source.getId(),
                 completed.get(), total, failed.get());
         return new DownloadResult(results, total, completed.get(), failed.get());
@@ -123,12 +144,23 @@ public class TileDownloaderServiceImpl implements TileDownloaderService {
         try {
             HttpClient.Builder builder = HttpClient.newBuilder()
                     .connectTimeout(Duration.ofSeconds(properties.getTile().getTimeoutSeconds()))
+                    /**
+                     * 选择。
+                     * @param uri uri
+                     * @return 选择的结果
+                     */
                     .followRedirects(HttpClient.Redirect.NORMAL);
             if (proxy != null && !proxy.isEmpty() && !url.contains("tianditu")) {
                 URI proxyUri = new URI(proxy);
                 builder.proxy(new ProxySelector() {
                     @Override
                     public List<Proxy> select(URI uri) {
+                        /**
+                         * 连接失败。
+                         * @param uri uri
+                         * @param sa sa
+                         * @param ie ie
+                         */
                         return List.of(new Proxy(Proxy.Type.HTTP,
                                 new InetSocketAddress(proxyUri.getHost(), proxyUri.getPort())));
                     }

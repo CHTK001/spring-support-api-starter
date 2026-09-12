@@ -25,15 +25,15 @@ import java.io.Serializable;
 @TableName(value = "sys_user_third_party")
 public class SysUserThirdParty extends SysBase implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-     * 主键ID
+      * 主键标识
      */
     @TableId(value = "sys_user_third_party_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     @NotNull(message = "主键ID不能为空")
-    /** SYS用户thirdpartyID */
+    /** SYS用户thirdpartyid */
     private Integer sysUserThirdPartyId;
 
     /**
@@ -64,24 +64,26 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     private String sysUserThirdPartyValue;
 
     /**
-     * 当前系统用户ID
+      * 当前系统用户标识
      */
     @TableField(value = "sys_user_id")
     @Schema(description = "当前系统用户ID")
-    /** SYS用户ID */
+    /** SYS用户标识 */
     private Integer sysUserId;
 
     /**
-     * 第三方用户ID
+      * 第三方用户标识
      */
     @TableField(value = "sys_user_third_party_uid")
     @Schema(description = "第三方用户ID")
     @Size(max = 255, message = "第三方用户ID最大长度需小于255")
-    /** SYS用户thirdpartyUID */
+    /** SYS用户thirdpartyuid */
     private String sysUserThirdPartyUid;
 
     /**
      * 第三方类型枚举
+     * @author CH
+     * @since 4.0.0
      */
     public enum Type {
         /**
@@ -89,7 +91,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
          */
         GITEE,
         /**
-         * Github
+          * GitHub
          */
         GITHUB,
         /**

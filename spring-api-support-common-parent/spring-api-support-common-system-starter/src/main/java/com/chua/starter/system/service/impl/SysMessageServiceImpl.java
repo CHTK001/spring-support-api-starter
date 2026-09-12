@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMessage> implements SysMessageService {
 
     /**
-     * 广播消息接收者ID（表示发送给所有用户）
+      * 广播消息接收者标识（表示发送给所有用户）
      */
     private static final int BROADCAST_RECEIVER_ID = 0;
 
@@ -37,7 +37,7 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
     private static final int STATUS_SENT = 1;
 
     @Override
-    /** PageForUser */
+    /** pagefor用户 */
     public IPage<SysMessage> pageForUser(Integer sysUserId, long page, long pageSize) {
         Page<SysMessage> pager = new Page<>(Math.max(page, 1), Math.max(pageSize, 1));
         return page(pager, Wrappers.<SysMessage>lambdaQuery()

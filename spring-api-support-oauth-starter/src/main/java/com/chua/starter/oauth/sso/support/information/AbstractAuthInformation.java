@@ -21,11 +21,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * 鉴权信息
  *
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public abstract class AbstractAuthInformation implements AuthInformation{
 
-    /** Auth服务器属性 */
+    /** 认证服务器属性 */
     protected final AuthServerProperties authServerProperties;
     /** 数据 */
     private final String data;
@@ -41,26 +43,26 @@ public abstract class AbstractAuthInformation implements AuthInformation{
     private final String protocol;
     /** UUID */
     protected final String uuid;
-    /** Serial */
+    /** 串行 */
     private final String serial;
-    /** Sign */
+    /** 标志 */
     private final String sign;
-    /** ISencode */
+    /** isencode */
     protected final boolean isEncode;
-    protected final Map<String, Object> bodyData = new LinkedHashMap<>();
+    protected final Map<String, Object> bodyData = new LinkedHashMap<>(); // 主体数据
     /** 加密 */
     private final String encryption;
-    /** Success */
+    /** 成功 */
     private AtomicBoolean success = new AtomicBoolean(false);
 
     /**
-     * 创建 AbstractAuthInformation 实例
-     * @param authServerProperties authServerProperties
-     * @param data data
-     * @param request request
-     * @param response response
-     * @param applicationContext applicationContext
-     * @param loginCheck loginCheck
+      * 创建 抽象认证信息 实例
+     * @param authServerProperties 认证服务端属性
+     * @param data 数据
+     * @param request 请求
+     * @param response 响应
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public AbstractAuthInformation(AuthServerProperties authServerProperties,
                                    String data,
@@ -99,7 +101,7 @@ public abstract class AbstractAuthInformation implements AuthInformation{
     }
 
     @Override
-    /** 记录错误Message */
+    /** 记录错误消息 */
     public String errorMessage() {
         if(!success.get()) {
             return "解析失败!";
@@ -116,7 +118,7 @@ public abstract class AbstractAuthInformation implements AuthInformation{
     }
 
     @Override
-    /** 获取AuthServerProperties */
+    /** 获取认证服务端属性 */
     public AuthServerProperties getAuthServerProperties() {
         return authServerProperties;
     }

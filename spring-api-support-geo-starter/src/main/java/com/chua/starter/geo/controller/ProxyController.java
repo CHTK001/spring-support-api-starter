@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * 瓦片代理控制器，提供 CORS 转发接口。
+   * 瓦片代理控制器，提供 跨域资源共享 转发接口。
  * Web 版为 no-op，仅作占位。
  *
  * @author CH
@@ -24,7 +24,7 @@ public class ProxyController {
     /**
      * 启动瓦片代理服务（Web 版为 no-op）。
      *
-     * @param body 请求参数（baseUrl, headers, proxy）
+     * @param body 请求参数（baseurl, 头部, 代理）
      * @return 代理地址
      */
     @PostMapping("/start")

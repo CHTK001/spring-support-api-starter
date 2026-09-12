@@ -74,10 +74,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      */
     File file = null;
     @AutoInject
-    /** 视频来源mapper */
+    /** 视频来源映射器 */
     private VideoSourceMapper videoSourceMapper;
     @AutoInject
-    /** 视频同步配置mapper */
+    /** 视频同步配置映射器 */
     private VideoSyncConfigMapper videoSyncConfigMapper;
 
     /**
@@ -89,6 +89,9 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      *                                                                                                                                      VideoSource videoSource = new VideoSource();
      *                                                                                                                                      videoSource.setVideoSourcePlatform("GUANYING");
      *                                                                                                                                      videoSource.setVideoSourceToken("your_token_here");
+     *                                                                                                                                      GuanYingResourceProvider provider = new GuanYingResourceProvider(videoSource);
+     *                                                                                                                                      }
+     *                                                                                                                                      </pre>                                                            videoSource.setVideoSourceToken("your_token_here");
      *                                                                                                                                      GuanYingResourceProvider provider = new GuanYingResourceProvider(videoSource);
      *                                                                                                                                      }
      *                                                                                                                                      </pre>
@@ -108,6 +111,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      *                                                                                                                   VideoSearch videoSearch = new VideoSearch();
      *                                                                                                                   videoSearch.setKeyword("复仇者联盟");
      *                                                                                                                   videoSearch.setYear(2012);
+     *                                                                                                                   videoSearch.setCategory("movie");
+     *                                                                                                                   ReturnPageResult<VideoInfoResult> result = provider.searchResource(videoSearch);
+     *                                                                                                                   }
+     *                                                                                                                   </pre>            videoSearch.setYear(2012);
      *                                                                                                                   videoSearch.setCategory("movie");
      *                                                                                                                   ReturnPageResult<VideoInfoResult> result = provider.searchResource(videoSearch);
      *                                                                                                                   }
@@ -213,7 +220,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      * 注册封面信息
      *
      * @param video      视频信息对象
-     * @param dataId     数据ID
+     * @param dataId     数据标识
      * @param baseConfig 基础配置对象
      */
     private void registerCover(VideoInfoResult video, String dataId, BaseConfig baseConfig) {
@@ -403,7 +410,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      * 注册下载信息
      *
      * @param video      视频信息结果对象
-     * @param dataId     数据ID
+     * @param dataId     数据标识
      * @param baseConfig 基础配置对象
      */
     private void registerDownload(VideoInfoResult video, String dataId, BaseConfig baseConfig) {
@@ -486,9 +493,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 创建VideoPlayAddressUrl
-     * @param playlistDTO playlistDTO
-     * @param index index
+      * 创建视频play地址url
+     * @param playlistDTO playlistdto
+     * @param index 索引
+     * @return 创建视频play地址url的结果
      */
     private String createVideoPlayAddressUrl(EmbeddedDownload.PlaylistDTO playlistDTO, int index) {
         try {
@@ -592,7 +600,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      * 注册详细信息
      *
      * @param video      视频信息结果对象
-     * @param dataId     数据ID
+     * @param dataId     数据标识
      * @param baseConfig 基础配置对象
      */
     private void registerDetail(VideoInfoResult video, String dataId, BaseConfig baseConfig) {
@@ -676,8 +684,8 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
 
     @Override
     /**
-     * FetchVideos
-     * @param config config
+      * 获取视频
+     * @param config 配置
      * @param consumer consumer
      */
     public void fetchVideos(VideoSyncConfig config, BiConsumer<VideoInfoResult, VideoSyncProcessConfig> consumer) {
@@ -773,9 +781,9 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * CountdownYear
+      * countdownyear
      * @param year year
-     * @param searchPage searchPage
+     * @param searchPage 搜索page
      */
     private void countdownYear(AtomicInteger year, AtomicInteger searchPage) {
         year.decrementAndGet();
@@ -822,6 +830,8 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
      *                                                                                                                                                                                                       JsonObject offset = new JsonObject();
      *                                                                                                                                                                                                       offset.put("videoType", "TV");
      *                                                                                                                                                                                                       String[] types = provider.createMvType(offset);
+     *                                                                                                                                                                                                       }</pre>                                                                                                                                         offset.put("videoType", "TV");
+     *                                                                                                                                                                                                       String[] types = provider.createMvType(offset);
      *                                                                                                                                                                                                       }</pre>
      * @return 返回根据当前视频类型确定的后续需要处理的视频类型数组
      * @since 2025/9/18 14:30
@@ -842,6 +852,8 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
 
     /**
      * 基础配置类
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @AllArgsConstructor
@@ -868,6 +880,8 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
         String downloadUrl;
         /**
          * API视频类型
+         * @author CH
+         * @since 4.0.0
          */
         String apiVideoType;
     }
@@ -884,7 +898,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
          * <pre>{@code
          * EmbeddedDownload download = new EmbeddedDownload();
          * download.setCode(200);
-         * }</pre>
+         * }</pre>re>
          * @since 2025/9/19 14:20
          */
         @SerializedName("code")
@@ -900,7 +914,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
          * EmbeddedDownload download = new EmbeddedDownload();
          * DownlistDTO downlist = new DownlistDTO();
          * download.setDownlist(downlist);
-         * }</pre>
+         * }</pre>e>
          * @since 2025/9/19 14:20
          */
         @SerializedName("downlist")
@@ -916,7 +930,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
          * EmbeddedDownload download = new EmbeddedDownload();
          * List<PlaylistDTO> playlist = new ArrayList<>();
          * download.setPlaylist(playlist);
-         * }</pre>
+         * }</pre></pre>
          * @since 2025/9/19 14:20
          */
         @SerializedName("playlist")
@@ -932,7 +946,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
          * EmbeddedDownload download = new EmbeddedDownload();
          * PanlistDTO panlist = new PanlistDTO();
          * download.setPanlist(panlist);
-         * }</pre>
+         * }</pre>e>
          * @since 2025/9/19 14:20
          */
         @SerializedName("panlist")
@@ -955,7 +969,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             /** 密钥 */
             private String key;
             @SerializedName("sort")
-            /** Sort */
+            /** 排序 */
             private List<Integer> sort;
 
             @NoArgsConstructor
@@ -1003,19 +1017,20 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
          * 网盘列表数据传输对象
          *
          * @since 2025/9/19 14:20
+         * @author CH
          */
         @NoArgsConstructor
         @Data
         public static class PanlistDTO {
             /**
-             * 网盘资源ID列表
+              * 网盘资源标识列表
              * <pre>{@code
              * List<String> ids = Arrays.asList("1", "2", "3");
              * panlistDTO.setId(ids);
-             * }</pre>
+             * }</pre>/pre>
              */
             @SerializedName("id")
-            /** ID */
+            /** 标识 */
             private List<String> id;
 
             /**
@@ -1023,7 +1038,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
              * <pre>{@code
              * List<String> names = Arrays.asList("资源1", "资源2");
              * panlistDTO.setName(names);
-             * }</pre>
+             * }</pre>  * }</pre>
              */
             @SerializedName("name")
             /** 名称 */
@@ -1034,7 +1049,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
              * <pre>{@code
              * List<String> paths = Arrays.asList("/path1", "/path2");
              * panlistDTO.setP(paths);
-             * }</pre>
+             * }</pre>    * }</pre>
              */
             @SerializedName("p")
             /** P */
@@ -1045,7 +1060,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
              * <pre>{@code
              * List<String> urls = Arrays.asList("http://example.com/1", "http://example.com/2");
              * panlistDTO.setUrl(urls);
-             * }</pre>
+             * }</pre>re>
              */
             @SerializedName("url")
             /** URL */
@@ -1056,7 +1071,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
              * <pre>{@code
              * List<Integer> types = Arrays.asList(0, 1);
              * panlistDTO.setType(types);
-             * }</pre>
+             * }</pre>  * }</pre>
              */
             @SerializedName("type")
             /** 类型 */
@@ -1067,7 +1082,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
              * <pre>{@code
              * List<String> users = Arrays.asList("user1", "user2");
              * panlistDTO.setUser(users);
-             * }</pre>
+             * }</pre>      * }</pre>
              */
             @SerializedName("user")
             /** 用户 */
@@ -1078,7 +1093,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
              * <pre>{@code
              * List<String> times = Arrays.asList("2025-01-01", "2025-01-02");
              * panlistDTO.setTime(times);
-             * }</pre>
+             * }</pre>  * }</pre>
              */
             @SerializedName("time")
             /** 时间 */
@@ -1089,7 +1104,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
              * <pre>{@code
              * List<Integer> extras = Arrays.asList(1, 2);
              * panlistDTO.setE(extras);
-             * }</pre>
+             * }</pre>re>
              */
             @SerializedName("e")
             /** E */
@@ -1100,7 +1115,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
              * <pre>{@code
              * List<String> typeNames = Arrays.asList("百度网盘", "阿里云盘");
              * panlistDTO.setTname(typeNames);
-             * }</pre>
+             * }</pre>    * }</pre>
              */
             @SerializedName("tname")
             /** Tname */
@@ -1169,7 +1184,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
         /** Stime */
         private String stime;
         @SerializedName("times")
-        /** Times */
+        /** 时间 */
         private String times;
         @SerializedName("ename")
         /** Ename */
@@ -1181,7 +1196,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
         /** Introduce */
         private String introduce;
         @SerializedName("id")
-        /** ID */
+        /** 标识 */
         private String id;
         @SerializedName("dname")
         /** Dname */
@@ -1204,7 +1219,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             @Data
             public static class DbDTO {
                 @SerializedName("id")
-                /** ID */
+                /** 标识 */
                 private String id;
                 @SerializedName("n")
                 /** N */
@@ -1221,7 +1236,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             @Data
             public static class ImDTO {
                 @SerializedName("id")
-                /** ID */
+                /** 标识 */
                 private String id;
                 @SerializedName("s")
                 /** S */
@@ -1238,7 +1253,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             @Data
             public static class RoDTO {
                 @SerializedName("id")
-                /** ID */
+                /** 标识 */
                 private String id;
                 @SerializedName("x1")
                 /** X1 */
@@ -1315,7 +1330,7 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             /** TY */
             private String ty;
             @SerializedName("load")
-            /** Load */
+            /** 加载 */
             private Integer load;
         }
 

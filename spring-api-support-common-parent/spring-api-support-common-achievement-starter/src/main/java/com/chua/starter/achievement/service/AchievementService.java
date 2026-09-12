@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * 成就服务核心业务逻辑
  *
  * <p>使用上游统一 {@link KvEngine}（由 spring-support-redis-starter 注册）存储用户统计数据。
- * 使用 {@link CircuitBreaker} + {@link com.chua.common.support.concurrent.circuit.BreakerJudge}（由 utils-support-common-starter 提供）
+   * 使用 {@link CircuitBreaker} + {@link com.chua.common.support.concurrent.circuit.BreakerJudge}（由 utils-support-common-starter 提供）
  * 对段位规则进行判定，通过 SPI 自动加载默认判断器，无需自建规则引擎。</p>
  *
  * <h3>数据流</h3>
@@ -39,17 +39,17 @@ import java.util.stream.Collectors;
 public class AchievementService {
 
     /**
-     * 统一 KV 引擎，由 spring-support-redis-starter 注册
+      * 统一 KV 引擎，由 spring-支持-Redis-启动 注册
      */
     private final KvEngine kvEngine;
 
     /**
-     * 成就段位定义 Mapper
+      * 成就段位定义 映射器
      */
     private final AchievementTierMapper tierMapper;
 
     /**
-     * 用户成就记录 Mapper
+      * 用户成就记录 映射器
      */
     private final UserAchievementMapper userAchievementMapper;
 
@@ -61,7 +61,7 @@ public class AchievementService {
     /**
      * 处理用户行为事件：更新统计数据 + 判定成就。
      *
-     * @param userId  用户ID
+     * @param userId  用户标识
      * @param statKey 统计字段名
      * @param delta   增量值
      * @return 新解锁的成就列表
@@ -87,7 +87,7 @@ public class AchievementService {
     /**
      * 设置统计值（非增量）并判定成就。
      *
-     * @param userId  用户ID
+     * @param userId  用户标识
      * @param statKey 统计字段名
      * @param value   统计值
      * @return 新解锁的成就列表
@@ -103,10 +103,10 @@ public class AchievementService {
      * 批量上报统计值并判定成就（刷新接口）。
      *
      * <p>前端将自身掌握但后端无法感知的行为数据（如菜单点击次数、消息发送次数等）
-     * 通过此接口批量上报，写入 KvEngine 后统一判定成就解锁。</p>
+      * 通过此接口批量上报，写入 kvengine 后统一判定成就解锁。</p>
      *
-     * @param userId 用户ID
-     * @param stats  统计值映射，key 为统计字段名（如 menuVisitedCount），value 为数值
+     * @param userId 用户标识
+     * @param stats  统计值映射，键 为统计字段名（如 menuvisited数量），值 为数值
      * @return 新解锁的成就列表
      */
     public List<UnlockedAchievementDTO> reportStats(Long userId, Map<String, Object> stats) {
@@ -130,14 +130,14 @@ public class AchievementService {
      * <p>使用 {@link CircuitBreaker} 对每个段位的规则表达式进行判定，
      * 通过 {@link BreakerJudge} SPI 自动选择默认判断器。</p>
      *
-     * @param userId  用户ID
-     * @param context 用户统计数据上下文，key 为统计字段名（如 loginCount），value 为当前值
+     * @param userId  用户标识
+     * @param context 用户统计数据上下文，键 为统计字段名（如 login数量），值 为当前值
      * @return 新解锁的成就列表
      */
     public List<UnlockedAchievementDTO> judgeAll(Long userId, Map<String, String> context) {
         List<UnlockedAchievementDTO> unlockedList = new ArrayList<>();
 
-        // 将 KvEngine 的 String 值转换为 CircuitBreaker 需要的 Object 上下文
+ // 将 kvengine 的 字符串 值转换为 熔断中断 需要的 对象 上下文
         Map<String, Object> breakerContext = convertToBreakerContext(userId, context);
 
         // 获取用户已解锁的各分组及最高等级
@@ -151,7 +151,7 @@ public class AchievementService {
                 .collect(Collectors.toList());
 
         for (String type : types) {
-            // 按 sort、level 排序获取该分组段位列表
+ // 按 排序、级别 排序获取该分组段位列表
             List<AchievementTier> tierList = allTiers.stream()
                     .filter(t -> type.equals(t.getType()))
                     .sorted((a, b) -> {
@@ -170,7 +170,7 @@ public class AchievementService {
                     continue;
                 }
 
-                // 使用 CircuitBreaker 判定规则表达式
+ // 使用 熔断中断 判定规则表达式
                 String ruleExpression = tier.getRule();
                 if (ruleExpression == null || ruleExpression.trim().isEmpty()) {
                     continue;
@@ -199,7 +199,7 @@ public class AchievementService {
     /**
      * 查询用户已解锁的成就概览。
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 已解锁成就列表
      */
     public List<UnlockedAchievementDTO> getUnlocked(Long userId) {
@@ -221,7 +221,7 @@ public class AchievementService {
     /**
      * 查询用户在指定分组下尚未解锁的段位。
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @param type   分组标识
      * @return 未解锁段位列表
      */
@@ -244,13 +244,13 @@ public class AchievementService {
     }
 
     /**
-     * 将 KvEngine 的 String 上下文转换为 CircuitBreaker 需要的 Object 上下文。
+      * 将 kvengine 的 字符串 上下文转换为 熔断中断 需要的 对象 上下文。
      *
      * <p>KvEngine 以 String 存储所有值，CircuitBreaker 需要 Number 类型才能正确执行数值比较。
      * 同时去除键前缀 {@code achievement:{userId}:}，保留纯统计字段名（如 {@code loginCount}）。</p>
      *
-     * @param userId  用户ID，用于构建待去除的前缀
-     * @param context KvEngine 上下文
+     * @param userId  用户标识，用于构建待去除的前缀
+     * @param context kvengine 上下文
      * @return 数值类型已转换的断路器上下文
      */
     private Map<String, Object> convertToBreakerContext(Long userId, Map<String, String> context) {
@@ -290,7 +290,7 @@ public class AchievementService {
     /**
      * 保存解锁记录到数据库。
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @param tier   段位定义
      */
     private void saveUnlocked(Long userId, AchievementTier tier) {
@@ -322,7 +322,7 @@ public class AchievementService {
      * 段位定义转解锁成就 DTO。
      *
      * @param tier   段位定义
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 解锁成就 DTO
      */
     private UnlockedAchievementDTO toDTO(AchievementTier tier, Long userId) {

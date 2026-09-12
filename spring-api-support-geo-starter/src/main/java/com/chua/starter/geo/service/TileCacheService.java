@@ -58,7 +58,7 @@ public class TileCacheService {
      * 从缓存中获取瓦片数据。
      *
      * @param key 缓存键，格式 "{z}_{x}_{y}"
-     * @return 缓存的瓦片字节数组，未命中返回 null
+     * @return 缓存的瓦片字节数组，未命中返回 空
      */
     public byte[] get(String key) {
         return cache.getIfPresent(key);

@@ -20,10 +20,10 @@ import lombok.EqualsAndHashCode;
 @TableName(value = "sys_device_camera_record")
 public class SysDeviceCameraRecord extends SysBase {
     /**
-     * 摄像头记录主键ID
+      * 摄像头记录主键标识
      */
     @TableId(value = "sys_device_camera_record_id", type = IdType.AUTO)
     @Schema(description = "")
-    /** SYSdevicerecordID */
+    /** sysdevicerecordid */
     private Integer sysDeviceRecordId;
 }

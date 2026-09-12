@@ -32,13 +32,13 @@ import java.util.Map;
 public class FileRequestTraceRawRecordStorage implements RequestTraceRawRecordStorage {
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "file";
     }
 
     @Override
-    /** Store */
+    /** 存储 */
     public void store(RequestTraceEvent event, RequestTraceStrategyConfig config) {
         if (event == null || config == null) {
             return;
@@ -63,7 +63,12 @@ public class FileRequestTraceRawRecordStorage implements RequestTraceRawRecordSt
         }
     }
 
-    /** ToMap */
+    /**
+     * 转为映射
+     *
+     * @param event 事件
+     * @return 转为映射的结果
+     */
     private Map<String, Object> toMap(RequestTraceEvent event) {
         Map<String, Object> values = new LinkedHashMap<>();
         values.put("timestamp", event.timestamp());

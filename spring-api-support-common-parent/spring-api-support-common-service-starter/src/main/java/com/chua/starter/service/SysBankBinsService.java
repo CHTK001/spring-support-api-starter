@@ -17,14 +17,14 @@ public interface SysBankBinsService extends IService<SysBankBins> {
     /**
      * bin
      *
-     * @param bankBin bankBin
+     * @param bankBin bankbin
      * @return SysBankBins
      */
     ReturnResult<List<SysBankBins>> bin(String bankBin);
 
 
     /**
-     * list
+      * 列表
      *
      * @return List<SysBankBins>
      */

@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
- * 用户反馈 Mapper
+   * 用户反馈 映射器
  *
  * @since 2026/08/03
  * @author CH

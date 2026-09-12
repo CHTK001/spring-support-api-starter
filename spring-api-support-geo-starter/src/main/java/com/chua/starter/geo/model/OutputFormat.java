@@ -7,7 +7,7 @@ package com.chua.starter.geo.model;
  * @since 1.0.0
  */
 public enum OutputFormat {
-    /** GeoTIFF 格式（带地理坐标信息） */
+    /** geotiff 格式（带地理坐标信息） */
     GEOTIFF("geotiff", ".tif", "image/tiff"),
     /** PNG 格式（无损，支持透明） */
     PNG("png", ".png", "image/png"),
@@ -22,7 +22,11 @@ public enum OutputFormat {
     private final String label;
     /** 文件扩展名 */
     private final String extension;
-    /** MIME 类型 */
+    /**
+     * MIME 类型
+     *
+     * @return 获取标签的结果
+     */
     private final String mimeType;
 
     OutputFormat(String label, String extension, String mimeType) {
@@ -32,14 +36,22 @@ public enum OutputFormat {
     }
 
     public String getLabel() { return label; }
+    /**
+     * 获取延伸。
+     * @return 获取延伸的结果
+     */
     public String getExtension() { return extension; }
+    /**
+     * 获取mime类型。
+     * @return 获取mime类型的结果
+     */
     public String getMimeType() { return mimeType; }
 
     /**
      * 从字符串解析输出格式。
      *
      * @param value 格式字符串（如 "geotiff"、"png"）
-     * @return 对应的 OutputFormat 枚举值，无法识别返回 null
+     * @return 对应的 输出格式化 枚举值，无法识别返回 空
      */
     public static OutputFormat fromString(String value) {
         if (value == null) {

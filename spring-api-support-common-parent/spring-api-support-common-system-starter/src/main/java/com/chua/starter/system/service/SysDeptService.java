@@ -29,9 +29,9 @@ public interface SysDeptService extends IService<SysDept>{
 
     /**
      * 删除部门
-     * 根据部门ID进行部门删除操作，返回删除结果
+      * 根据部门标识进行部门删除操作，返回删除结果
      *
-     * @param deptId 部门ID，唯一标识要删除的部门
+     * @param deptId 部门标识，唯一标识要删除的部门
      * @return 删除结果，包含成功与否的标志和提示信息
      */
     ReturnResult<Boolean> delete(Long deptId);

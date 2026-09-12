@@ -26,12 +26,12 @@ import lombok.EqualsAndHashCode;
 public class MsMonitorGateway extends SysBase {
 
     /**
-     * 网关主键ID，自增
+      * 网关主键标识，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    /** ID */
+    /** 标识 */
     private Long id;
 
     /**
@@ -44,12 +44,12 @@ public class MsMonitorGateway extends SysBase {
     private String gatewayName;
 
     /**
-     * 关联的监控资产ID
+      * 关联的监控资产标识
      */
     @TableField("monitor_id")
     @ApiModelProperty("监控资产ID")
     @Schema(description = "监控资产ID")
-    /** MonitorID */
+    /** 监控id */
     private Long monitorId;
 
     /**
@@ -85,11 +85,11 @@ public class MsMonitorGateway extends SysBase {
     @TableField("auth_enabled")
     @ApiModelProperty("鉴权启用（0禁用/1启用）")
     @Schema(description = "鉴权启用（0禁用/1启用）")
-    /** Auth是否启用 */
+    /** 认证是否启用 */
     private Integer authEnabled;
 
     /**
-     * 网关运行状态，取值 ACTIVE/STANDBY/ERROR
+      * 网关运行状态，取值 活跃/STANDBY/错误
      */
     @TableField("gateway_status")
     @ApiModelProperty("网关状态（ACTIVE/STANDBY/ERROR）")

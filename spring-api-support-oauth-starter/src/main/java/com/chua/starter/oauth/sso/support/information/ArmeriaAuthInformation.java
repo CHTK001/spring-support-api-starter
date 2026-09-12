@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 提供 Armeria 协议的请求/响应适配，使其能够复用现有的认证逻辑
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-12-07
  * @author CH
  */
@@ -28,40 +28,47 @@ public class ArmeriaAuthInformation {
     /**
      * Armeria 请求适配器
      * <p>实现 HttpServletRequest 接口，用于适配 Armeria 请求</p>
+     * @author CH
+     * @since 4.0.0
      */
     public static class ArmeriaRequest implements HttpServletRequest {
         /** 客户端地址 */
         private final InetSocketAddress clientAddress;
-        private final Map<String, String> headers = new ConcurrentHashMap<>();
-        private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+        private final Map<String, String> headers = new ConcurrentHashMap<>(); // 头部
+        private final Map<String, Object> attributes = new ConcurrentHashMap<>(); // attributes
 
         /**
-         * 创建 ArmeriaRequest 实例
-         * @param clientAddress clientAddress
+          * 创建 armeria请求 实例
+         * @param clientAddress 客户端地址
          */
         public ArmeriaRequest(InetSocketAddress clientAddress) {
             this.clientAddress = clientAddress;
         }
 
-        /** 设置Header */
+        /**
+         * 设置头部
+         *
+         * @param name 名称
+         * @param value 值
+         */
         public void setHeader(String name, String value) {
             headers.put(name, value);
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
         @Override
-        /** 获取RemoteAddr */
+        /** 获取远程addr */
         public String getRemoteAddr() {
             return clientAddress != null ? clientAddress.getAddress().getHostAddress() : "unknown";
         }
 
         @Override
-        /** 获取RemotePort */
+        /** 获取远程端口 */
         public int getRemotePort() {
             return clientAddress != null ? clientAddress.getPort() : 0;
         }
@@ -79,13 +86,13 @@ public class ArmeriaAuthInformation {
         }
 
         @Override
-        /** 获取HeaderNames */
+        /** 获取头部名称 */
         public Enumeration<String> getHeaderNames() {
             return Collections.enumeration(headers.keySet());
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public Enumeration<String> getHeaders(String name) {
             String value = headers.get(name);
             return value != null ? Collections.enumeration(Collections.singletonList(value)) : Collections.emptyEnumeration();
@@ -160,56 +167,62 @@ public class ArmeriaAuthInformation {
     /**
      * Armeria 响应适配器
      * <p>实现 HttpServletResponse 接口，用于适配 Armeria 响应</p>
+     * @author CH
+     * @since 4.0.0
      */
     public static class ArmeriaResponse implements HttpServletResponse {
-        private final Map<String, String> headers = new ConcurrentHashMap<>();
+        private final Map<String, String> headers = new ConcurrentHashMap<>(); // 头部
         /** 状态 */
         private int status = 200;
 
         @Override
-        /** 设置Header */
+        /** 设置头部 */
         public void setHeader(String name, String value) {
             headers.put(name, value);
         }
 
         @Override
-        /** 添加Header */
+        /** 添加头部 */
         public void addHeader(String name, String value) {
             headers.put(name, value);
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public Collection<String> getHeaders(String name) {
             String value = headers.get(name);
             return value != null ? Collections.singletonList(value) : Collections.emptyList();
         }
 
         @Override
-        /** 获取HeaderNames */
+        /** 获取头部名称 */
         public Collection<String> getHeaderNames() {
             return headers.keySet();
         }
 
-        /** 获取AllHeaders */
+        /**
+         * 获取全部头部
+         *
+         * @return 获取全部头部的结果
+         */
         public Map<String, String> getAllHeaders() {
             return new HashMap<>(headers);
         }
 
         @Override
-        /** 设置Status */
+        /** 设置状态 */
         public void setStatus(int sc) {
             this.status = sc;
         }
 
         @Override
-        /** 获取Status */
+        /** 获取状态 */
         public int getStatus() {
             return status;
         }

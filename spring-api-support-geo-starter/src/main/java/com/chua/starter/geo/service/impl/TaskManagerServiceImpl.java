@@ -23,20 +23,20 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class TaskManagerServiceImpl implements TaskManagerService {
 
-    /** 任务存储：taskId -> TaskInfo */
+    /** 任务存储：任务id -> 任务信息 */
     private final Map<String, TaskInfo> tasks = new ConcurrentHashMap<>();
 
     /**
      * 创建下载任务。
      *
      * @param name       任务名称
-     * @param source     图源 ID
+     * @param source     图源 标识
      * @param sourceName 图源显示名称
      * @param zoom       缩放级别
      * @param format     输出格式
      * @param savePath   保存路径
      * @param total      总瓦片数
-     * @return 任务 ID
+     * @return 任务 标识
      */
     @Override
     public String createTask(String name, String source, String sourceName, int zoom,
@@ -61,8 +61,8 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     /**
      * 获取任务信息。
      *
-     * @param taskId 任务 ID
-     * @return 任务信息，不存在返回 null
+     * @param taskId 任务 标识
+     * @return 任务信息，不存在返回 空
      */
     @Override
     public TaskInfo getTask(String taskId) {
@@ -82,7 +82,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     /**
      * 更新任务进度。
      *
-     * @param taskId   任务 ID
+     * @param taskId   任务 标识
      * @param completed 已完成数
      * @param failed   失败数
      * @param progress 进度百分比
@@ -103,7 +103,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     /**
      * 设置任务状态。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @param status 目标状态
      */
     @Override
@@ -118,7 +118,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     /**
      * 取消任务。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      */
     @Override
     public void cancelTask(String taskId) {
@@ -135,7 +135,7 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     /**
      * 删除任务记录。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      */
     @Override
     public void removeTask(String taskId) {

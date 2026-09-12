@@ -54,7 +54,7 @@ public class DemController {
      * 创建 DEM 下载任务。
      *
      * @param request DEM 下载请求
-     * @return 包含 taskId 和 tileCount 的结果
+     * @return 包含 任务id 和 瓷砖数量 的结果
      */
     @PostMapping("/download")
     @Operation(summary = "创建DEM下载任务")
@@ -70,7 +70,7 @@ public class DemController {
         int total = (int) Math.min(count, Integer.MAX_VALUE);
         String taskId = "dem_" + System.currentTimeMillis();
         log.info("[DEM] 创建任务: source={} zoom={} tiles={}", source.getDisplayName(), request.zoom(), total);
-        // TODO: 接入 TaskManager 做异步任务管理（当前简化处理直接返回）
+ // TODO: 接入 任务管理器 做异步任务管理（当前简化处理直接返回）
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("taskId", taskId);
         result.put("tileCount", total);
@@ -104,7 +104,7 @@ public class DemController {
             @NotNull Bounds bounds,
             /** 缩放级别 */
             @NotNull @Min(1) Integer zoom,
-            /** DEM 数据源 ID */
+            /** DEM 数据源 标识 */
             @NotNull String source
     ) {}
 
@@ -116,7 +116,7 @@ public class DemController {
             @NotNull Bounds bounds,
             /** 缩放级别 */
             @NotNull @Min(1) Integer zoom,
-            /** DEM 数据源 ID */
+            /** DEM 数据源 标识 */
             @NotNull String source,
             /** 保存路径 */
             String savePath,

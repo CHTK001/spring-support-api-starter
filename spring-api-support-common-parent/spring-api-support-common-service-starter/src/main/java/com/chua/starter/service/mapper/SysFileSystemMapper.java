@@ -5,10 +5,10 @@ import com.chua.starter.entity.service.SysFileSystem;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 文件系统Mapper
+   * 文件系统映射器
  *
  * @since 2024/12/10
- * @version 1.0.0
+   * @版本 1.0.0
  * @author CH
  */
 @Mapper

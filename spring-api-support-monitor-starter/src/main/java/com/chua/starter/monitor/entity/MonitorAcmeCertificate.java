@@ -24,18 +24,18 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "ACME 证书信息")
 public class MonitorAcmeCertificate extends SysBase {
 
-    /** 主键ID */
+    /** 主键标识 */
     @TableId(value = "acme_cert_id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    /** Acme证书ID */
+    /** Acme证书标识 */
     private Integer acmeCertId;
 
-    /** 账户ID */
+    /** 账户标识 */
     @TableField("acme_account_id")
     @ApiModelProperty("账户ID")
     @Schema(description = "账户ID")
-    /** AcmeaccountID */
+    /** acmeaccountid */
     private Integer acmeAccountId;
 
     /** 主域名 */
@@ -59,7 +59,7 @@ public class MonitorAcmeCertificate extends SysBase {
     /** Acme证书challenge类型 */
     private String acmeCertChallengeType;
 
-    /** 证书状态（pending, valid, expired, revoked, failed） */
+    /** 证书状态（pending, valid, expired, revoked, 失败） */
     @TableField("acme_cert_status")
     @ApiModelProperty("证书状态")
     @Schema(description = "证书状态")
@@ -70,28 +70,28 @@ public class MonitorAcmeCertificate extends SysBase {
     @TableField("acme_cert_not_before")
     @ApiModelProperty("有效期起")
     @Schema(description = "有效期起")
-    /** Acme证书NOTbefore */
+    /** Acme证书notbefore */
     private String acmeCertNotBefore;
 
     /** 有效期止 */
     @TableField("acme_cert_not_after")
     @ApiModelProperty("有效期止")
     @Schema(description = "有效期止")
-    /** Acme证书NOTafter */
+    /** Acme证书notafter */
     private String acmeCertNotAfter;
 
     /** 计划续签日期（到期前N天） */
     @TableField("acme_cert_renew_at")
     @ApiModelProperty("计划续签日期")
     @Schema(description = "计划续签日期")
-    /** Acme证书renewAT */
+    /** Acme证书renewat */
     private String acmeCertRenewAt;
 
     /** 证书PEM（含链） */
     @TableField("acme_cert_chain_pem")
     @ApiModelProperty("证书PEM（含链）")
     @Schema(description = "证书PEM（含链）")
-    /** Acme证书chainPEM */
+    /** Acme证书chainpem */
     private String acmeCertChainPem;
 
     /** 私钥PEM */
@@ -108,7 +108,7 @@ public class MonitorAcmeCertificate extends SysBase {
     /** Acme证书最后错误 */
     private String acmeCertLastError;
 
-    /** 部署模式：local(本机自动)/manual(手动) */
+    /** 部署模式：本地(本机自动)/manual(手动) */
     @TableField("acme_cert_deploy_mode")
     @ApiModelProperty("部署模式: local(本机自动)/manual(手动)")
     @Schema(description = "部署模式: local(本机自动)/manual(手动)")
@@ -173,7 +173,7 @@ public class MonitorAcmeCertificate extends SysBase {
     private static final String TYPE_INFO = "info";
 
     /**
-     * 状态样式类型（前端 Tag 组件使用）。
+      * 状态样式类型（前端 标签 组件使用）。
      *
      * @return 状态对应的标签样式类型，无匹配时返回空字符串
      */

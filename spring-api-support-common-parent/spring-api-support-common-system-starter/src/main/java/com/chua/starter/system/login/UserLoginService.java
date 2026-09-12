@@ -35,13 +35,13 @@ public class UserLoginService extends AbstractUserLoginService {
     private static final String LOGIN_TYPE_PREFIX = "system";
 
     @Override
-    /** 获取LoginTypePrefix */
+    /** 获取login类型前缀 */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
-    /** GenerateUserIds */
+    /** generate用户标识 */
     protected String[] generateUserIds(SysUser user) {
         String userId = String.valueOf(user.getSysUserId());
         return OpenIdGenerator.generateSystemIds("web", userId);

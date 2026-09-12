@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
  * 用于管理文件分片上传的详细信息
  *
  * @since 2024/12/10
- * @version 1.0.0
+   * @版本 1.0.0
  * @author CH
  */
 @Schema(description = "文件系统分片表")
@@ -34,24 +34,24 @@ import java.time.LocalDateTime;
 public class SysFileSystemPart extends SysBase implements Serializable {
 
     @Serial
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 分片ID
+      * 分片标识
      */
     @TableId(value = "sys_file_system_part_id", type = IdType.AUTO)
     @Schema(description = "分片ID")
-    /** SYS文件systempartID */
+    /** SYS文件systempartid */
     private Integer sysFileSystemPartId;
 
     /**
-     * 文件ID
+      * 文件标识
      */
     @TableField(value = "sys_file_system_part_file_id")
     @Schema(description = "文件ID")
     @NotNull(message = "文件ID不能为null")
-    /** SYS文件systempart文件ID */
+    /** SYS文件systempart文件标识 */
     private Integer sysFileSystemPartFileId;
 
     /**
@@ -60,7 +60,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_part_seq")
     @Schema(description = "分片序号(从1开始)")
     @NotNull(message = "分片序号不能为null")
-    /** SYS文件systempartSEQ */
+    /** SYS文件systempartseq */
     private Integer sysFileSystemPartSeq;
 
     /**
@@ -77,7 +77,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_part_md5")
     @Schema(description = "分片MD5值")
     @Size(max = 32, message = "分片MD5值最大长度要小于 32")
-    /** SYS文件systempartMD5 */
+    /** SYS文件systempartmd5 */
     private String sysFileSystemPartMd5;
 
     /**
@@ -166,6 +166,8 @@ public class SysFileSystemPart extends SysBase implements Serializable {
 
     /**
      * 分片状态枚举
+     * @author CH
+     * @since 4.0.0
      */
     public static class Status {
         /**

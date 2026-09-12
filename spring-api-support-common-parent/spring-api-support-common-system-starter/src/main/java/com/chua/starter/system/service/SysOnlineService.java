@@ -32,7 +32,7 @@ public interface SysOnlineService {
     /**
      * 强制下线指定用户
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 操作结果
      */
     ReturnResult<Boolean> kickUser(String userId);
@@ -40,7 +40,7 @@ public interface SysOnlineService {
     /**
      * 批量强制下线用户
      *
-     * @param userIds 用户ID列表
+     * @param userIds 用户标识列表
      * @return 成功下线的用户数量
      */
     ReturnResult<Integer> kickUsers(List<String> userIds);

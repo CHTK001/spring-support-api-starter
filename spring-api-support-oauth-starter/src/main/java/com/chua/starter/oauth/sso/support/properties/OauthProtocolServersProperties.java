@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * OAuth 认证服务多协议 Server 配置
+   * OAuth 认证服务多协议 服务端 配置
  *
  * <p>通过 {@code plugin.oauth.protocol-server.protocols[]} 配置启动多个协议 Server,
- * 基于 common-starter 的 {@code network.Server} 承载 OAuth 认证协议入口
- * (HTTP/KCP/WS/UDP 等,可插拔扩展)。每个协议一个 Server 实例。</p>
+   * 基于 common-starter 的 {@code network.Server} 承载 OAuth 认证协议入口
+   * (HTTP/KCP/WS/UDP 等,可插拔扩展)。每个协议一个 服务端 实例。</p>
  *
  * <p>配置示例:</p>
  * <pre>{@code
@@ -35,6 +35,12 @@ import java.util.List;
  *           protocol: kcp
  *           port: 19183
  *           enable: false
+ * }</pre>         - /verify
+ *         - name: kcp
+ *           type: kcp
+ *           protocol: kcp
+ *           port: 19183
+ *           enable: false
  * }</pre>
  *
  * @since 4.0.0.42
@@ -51,30 +57,31 @@ public class OauthProtocolServersProperties {
     public static final String PRE = "plugin.oauth.protocol-server";
 
     /**
-     * 协议 Server 配置列表
+      * 协议 服务端 配置列表
      */
     private List<ProtocolServer> protocols = new ArrayList<>();
 
     /**
-     * 单个协议 Server 配置
+      * 单个协议 服务端 配置
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @Data
     public static class ProtocolServer {
 
         /**
-         * Server 名称(唯一标识,用于日志/管理)
+          * 服务端 名称(唯一标识,用于日志/管理)
          */
         private String name = "http";
 
         /**
-         * Server 实现类型(对应 network.Server 的 SPI 键,如 jdk / nio)
+          * 服务端 实现类型(对应 network.服务端 的 SPI 键,如 jdk / nio)
          */
         private String type = "jdk";
 
         /**
-         * 协议类型(对应 network.ProtocolType: http / tcp / udp / kcp / ws 等)
+          * 协议类型(对应 network.协议类型: http / tcp / udp / kcp / ws 等)
          */
         private String protocol = "http";
 
@@ -99,7 +106,7 @@ public class OauthProtocolServersProperties {
         private String contextPath = "/";
 
         /**
-         * 认证路由路径列表(为空时使用默认路径 /login /verify 等)
+          * 认证路由路径列表(为空时使用默认路径 /login /验证 等)
          */
         private List<String> authRoutes = new ArrayList<>();
     }

@@ -25,10 +25,10 @@ import java.util.Map;
  * 认证协议 HTTP 入口控制器
  *
  * <p>接收 OAuth 客户端（oauth-client http 协议）的认证请求，按请求路径分派到
- * 对应的认证信息处理器：登录、注销、升级、临时令牌、鉴权（AppKey/Bearer/JWT/OAuth2）。</p>
+   * 对应的认证信息处理器：登录、注销、升级、临时令牌、鉴权（app键/Bearer/JWT/OAuth2）。</p>
  *
  * <p>请求体格式：{@code {"data":"..."}}，data 为加密（x-oauth-encode=true）或明文的
- * 认证参数 JSON；响应格式：{@code {"code":"00000","data":"..."}}，data 加密时
+   * 认证参数 JSON；响应格式：{@code {"code":"00000","data":"..."}}，数据 加密时
  * 响应头携带 {@code x-oauth-response-serial} 供客户端解密。</p>
  *
  * @since 4.0.0.42
@@ -39,7 +39,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthProtocolController {
 
-    /** Auth服务器属性 */
+    /** 认证服务器属性 */
     private final AuthServerProperties authServerProperties;
     /** Application上下文 */
     private final ApplicationContext applicationContext;
@@ -49,7 +49,7 @@ public class AuthProtocolController {
     /**
      * 统一认证入口
      *
-     * @param body     请求体（含 data 字段）
+     * @param body     请求体（含 数据 字段）
      * @param request  HTTP 请求
      * @param response HTTP 响应
      * @return 认证结果

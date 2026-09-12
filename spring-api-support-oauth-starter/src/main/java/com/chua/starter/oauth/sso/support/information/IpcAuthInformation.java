@@ -15,20 +15,23 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * IPC 协议认证信息适配器
  * <p>
- * 提供基于 Unix Domain Socket 的 IPC 请求/响应适配，使其能够复用现有的认证逻辑
+   * 提供基于 Unix Domain 套接字 的 IPC 请求/响应适配，使其能够复用现有的认证逻辑
  * </p>
  *
  * @author CH
+ * @since 4.0.0
  */
 public class IpcAuthInformation {
 
     /**
      * IPC 请求适配器
      * <p>实现 HttpServletRequest 接口，用于适配 IPC 请求</p>
+     * @author CH
+     * @since 4.0.0
      */
     public static class IpcRequest implements HttpServletRequest {
-        private final Map<String, String> headers = new ConcurrentHashMap<>();
-        private final Map<String, Object> attributes = new ConcurrentHashMap<>();
+        private final Map<String, String> headers = new ConcurrentHashMap<>(); // 头部
+        private final Map<String, Object> attributes = new ConcurrentHashMap<>(); // attributes
         /** 请求体 */
         private String body;
         /** 远程addr */
@@ -37,44 +40,57 @@ public class IpcAuthInformation {
         private final int remotePort;
 
         /**
-         * 创建 IpcRequest 实例
-         * @param remoteAddr remoteAddr
-         * @param remotePort remotePort
+          * 创建 ipc请求 实例
+         * @param remoteAddr 远程addr
+         * @param remotePort 远程端口
          */
         public IpcRequest(String remoteAddr, int remotePort) {
             this.remoteAddr = remoteAddr;
             this.remotePort = remotePort;
         }
 
-        /** 设置Header */
+        /**
+         * 设置头部
+         *
+         * @param name 名称
+         * @param value 值
+         */
         public void setHeader(String name, String value) {
             headers.put(name, value);
         }
 
-        /** 设置Body */
+        /**
+         * 设置主体
+         *
+         * @param body 主体
+         */
         public void setBody(String body) {
             this.body = body;
         }
 
-        /** 获取Body */
+        /**
+         * 获取主体
+         *
+         * @return 获取主体的结果
+         */
         public String getBody() {
             return body;
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
         @Override
-        /** 获取RemoteAddr */
+        /** 获取远程addr */
         public String getRemoteAddr() {
             return remoteAddr;
         }
 
         @Override
-        /** 获取RemotePort */
+        /** 获取远程端口 */
         public int getRemotePort() {
             return remotePort;
         }
@@ -92,13 +108,13 @@ public class IpcAuthInformation {
         }
 
         @Override
-        /** 获取HeaderNames */
+        /** 获取头部名称 */
         public Enumeration<String> getHeaderNames() {
             return Collections.enumeration(headers.keySet());
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public Enumeration<String> getHeaders(String name) {
             String value = headers.get(name);
             return value != null ? Collections.enumeration(Collections.singletonList(value)) : Collections.emptyEnumeration();
@@ -172,68 +188,82 @@ public class IpcAuthInformation {
     /**
      * IPC 响应适配器
      * <p>实现 HttpServletResponse 接口，用于适配 IPC 响应</p>
+     * @author CH
+     * @since 4.0.0
      */
     public static class IpcResponse implements HttpServletResponse {
-        private final Map<String, String> headers = new ConcurrentHashMap<>();
+        private final Map<String, String> headers = new ConcurrentHashMap<>(); // 头部
         /** 状态 */
         private int status = 200;
         /** 请求体 */
         private String body;
 
         @Override
-        /** 设置Header */
+        /** 设置头部 */
         public void setHeader(String name, String value) {
             headers.put(name, value);
         }
 
         @Override
-        /** 添加Header */
+        /** 添加头部 */
         public void addHeader(String name, String value) {
             headers.put(name, value);
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public Collection<String> getHeaders(String name) {
             String value = headers.get(name);
             return value != null ? Collections.singletonList(value) : Collections.emptyList();
         }
 
         @Override
-        /** 获取HeaderNames */
+        /** 获取头部名称 */
         public Collection<String> getHeaderNames() {
             return headers.keySet();
         }
 
-        /** 获取AllHeaders */
+        /**
+         * 获取全部头部
+         *
+         * @return 获取全部头部的结果
+         */
         public Map<String, String> getAllHeaders() {
             return new HashMap<>(headers);
         }
 
-        /** 获取Body */
+        /**
+         * 获取主体
+         *
+         * @return 获取主体的结果
+         */
         public String getBody() {
             return body;
         }
 
-        /** 设置Body */
+        /**
+         * 设置主体
+         *
+         * @param body 主体
+         */
         public void setBody(String body) {
             this.body = body;
         }
 
         @Override
-        /** 设置Status */
+        /** 设置状态 */
         public void setStatus(int sc) {
             this.status = sc;
         }
 
         @Override
-        /** 获取Status */
+        /** 获取状态 */
         public int getStatus() {
             return status;
         }

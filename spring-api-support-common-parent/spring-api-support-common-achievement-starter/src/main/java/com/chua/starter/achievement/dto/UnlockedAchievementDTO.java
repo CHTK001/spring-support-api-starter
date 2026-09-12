@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class UnlockedAchievementDTO {
 
     /**
-     * 段位定义ID（对应 achievement_tier.id）
+      * 段位定义标识（对应 achievement_tier.标识）
      */
     private Long id;
 

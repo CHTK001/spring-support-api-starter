@@ -25,7 +25,7 @@ import java.util.Set;
 public class SysSettingGroupServiceImpl extends ServiceImpl<SysSettingGroupMapper, SysSettingGroup> implements SysSettingGroupService {
 
     @Override
-    /** 保存Or更新For分组 */
+    /** 保存或更新For分组 */
     public ReturnResult<Boolean> saveOrUpdateForGroup(@NonNull SysSettingGroup sysSettingGroup, @NonNull Set<String> roles) {
         Errors errors = JakartaValidationUtils.validate(sysSettingGroup, it -> it.getSysSettingGroupId() != null, UpdateGroup.class, AddGroup.class);
         if (errors.hasErrors()) {
@@ -59,7 +59,7 @@ public class SysSettingGroupServiceImpl extends ServiceImpl<SysSettingGroupMappe
     }
 
     @Override
-    /** ListForSetting分组 */
+    /** 列表forsetting分组 */
     public List<SysSettingGroup> listForSettingGroup(@NonNull SysSettingGroup sysSettingGroup, @NonNull Set<String> roles) {
         return this.list(Wrappers.lambdaQuery(SysSettingGroup.class)
                 .orderByAsc(SysSettingGroup::getSysSettingGroupSort)
@@ -67,7 +67,7 @@ public class SysSettingGroupServiceImpl extends ServiceImpl<SysSettingGroupMappe
     }
 
     @Override
-    /** Batch更新 */
+    /** 批量更新 */
     public ReturnResult<Boolean> batchUpdate(List<SysSettingGroup> sysSettingGroups, Set<String> roles) {
         return ReturnResult.of(
                 this.saveOrUpdateBatch(sysSettingGroups)

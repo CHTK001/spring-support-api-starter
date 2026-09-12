@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SysOnlineServiceImpl implements SysOnlineService {
 
     @Override
-    /** 获取OnlineUsers */
+    /** 获取online用户 */
     public List<OnlineUserVO> getOnlineUsers(String username, String ip) {
         List<OnlineUserVO> onlineUsers = new ArrayList<>();
 
@@ -52,8 +52,12 @@ public class SysOnlineServiceImpl implements SysOnlineService {
 
         // 按登录时间倒序排列
         onlineUsers.sort((a, b) -> {
-            if (a.getLoginTime() == null) return 1;
-            if (b.getLoginTime() == null) return -1;
+            if (a.getLoginTime() == null) {
+                return 1;
+            }
+            if (b.getLoginTime() == null) {
+                return -1;
+            }
             return b.getLoginTime().compareTo(a.getLoginTime());
         });
 
@@ -75,7 +79,7 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     @Override
-    /** KickUser */
+    /** kick用户 */
     public ReturnResult<Boolean> kickUser(String userId) {
         try {
             // 通过OAuth客户端强制下线用户
@@ -92,7 +96,7 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     @Override
-    /** KickUsers */
+    /** kick用户 */
     public ReturnResult<Integer> kickUsers(List<String> userIds) {
         if (userIds == null || userIds.isEmpty()) {
             return ReturnResult.ok(0);
@@ -114,7 +118,9 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     /**
-     * 将Protocol中的用户信息转换为VO对象
+      * 将协议中的用户信息转换为VO对象
+     * @param info 信息
+     * @return 转换转为online用户vo的结果
      */
     private OnlineUserVO convertToOnlineUserVO(Protocol.OnlineUserInfo info) {
         OnlineUserVO vo = new OnlineUserVO();

@@ -53,7 +53,7 @@ public class OauthSecurityProperties {
     private RateLimit rateLimit = new RateLimit();
 
     /**
-     * Session Fixation 防护配置
+      * 会话 Fixation 防护配置
      */
     private SessionFixation sessionFixation = new SessionFixation();
 
@@ -66,6 +66,7 @@ public class OauthSecurityProperties {
      * 安全响应头配置
      *
      * @since 2025/01/01
+     * @author CH
      */
     @Data
     public static class Headers {
@@ -76,12 +77,12 @@ public class OauthSecurityProperties {
         private boolean enabled = true;
 
         /**
-         * X-Content-Type-Options 值
+          * X-内容-类型-期权 值
          */
         private String contentTypeOptions = "nosniff";
 
         /**
-         * X-Frame-Options 值
+          * X-帧-期权 值
          */
         private String frameOptions = "DENY";
 
@@ -96,22 +97,22 @@ public class OauthSecurityProperties {
         private String referrerPolicy = "strict-origin-when-cross-origin";
 
         /**
-         * Content-Security-Policy 值，为空则不设置
+          * 内容-安全性-Policy 值，为空则不设置
          */
         private String contentSecurityPolicy = "default-src 'self'";
 
         /**
-         * Strict-Transport-Security 值，为空则不设置
+          * Strict-Transport-安全性 值，为空则不设置
          */
         private String strictTransportSecurity = "max-age=31536000; includeSubDomains";
 
         /**
-         * Permissions-Policy 值，为空则不设置
+          * 权限-Policy 值，为空则不设置
          */
         private String permissionsPolicy = "geolocation=(), microphone=(), camera=()";
 
         /**
-         * Cache-Control 值，为空则不设置
+          * 缓存-Control 值，为空则不设置
          */
         private String cacheControl = "no-store, no-cache, must-revalidate, max-age=0";
     }
@@ -120,6 +121,7 @@ public class OauthSecurityProperties {
      * CSRF 防护配置
      *
      * @since 2025/01/01
+     * @author CH
      */
     @Data
     public static class Csrf {
@@ -155,7 +157,7 @@ public class OauthSecurityProperties {
         private List<String> methods = new ArrayList<>(List.of("POST", "PUT", "PATCH", "DELETE"));
 
         /**
-         * 免 CSRF 校验的路径（Ant 风格，按 endsWith / equals 匹配）
+          * 免 CSRF 校验的路径（Ant 风格，按 结束with / equals 匹配）
          */
         private List<String> ignorePaths = new ArrayList<>(List.of(
                 "/oauth",
@@ -168,6 +170,7 @@ public class OauthSecurityProperties {
      * IP 级请求限流配置
      *
      * @since 2025/01/01
+     * @author CH
      */
     @Data
     public static class RateLimit {
@@ -204,20 +207,21 @@ public class OauthSecurityProperties {
     }
 
     /**
-     * Session Fixation 防护配置
+      * 会话 Fixation 防护配置
      *
      * @since 2025/01/01
+     * @author CH
      */
     @Data
     public static class SessionFixation {
 
         /**
-         * 是否启用 Session Fixation 防护
+          * 是否启用 会话 Fixation 防护
          */
         private boolean enabled = true;
 
         /**
-         * 登录成功后需要刷新 Session 的路径
+          * 登录成功后需要刷新 会话 的路径
          */
         private List<String> loginPaths = new ArrayList<>(List.of("/login"));
     }
@@ -226,6 +230,7 @@ public class OauthSecurityProperties {
      * 登录失败锁定配置
      *
      * @since 2025/01/01
+     * @author CH
      */
     @Data
     public static class LoginLock {

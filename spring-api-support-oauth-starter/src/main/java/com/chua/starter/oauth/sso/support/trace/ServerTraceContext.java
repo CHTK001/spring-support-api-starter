@@ -18,11 +18,11 @@ import java.util.UUID;
 @Getter
 public class ServerTraceContext {
 
-    /** Context_holder */
+    /** 上下文_holder */
     private static final ThreadLocal<ServerTraceContext> CONTEXT_HOLDER = new ThreadLocal<>();
 
     /**
-     * 追踪ID
+      * 追踪标识
      */
     private final String traceId;
 
@@ -57,9 +57,9 @@ public class ServerTraceContext {
     private TraceSpan currentSpan;
 
     /**
-     * 创建 ServerTraceContext 实例
-     * @param traceId traceId
-     * @param clientStartTimestamp clientStartTimestamp
+      * 创建 服务端追踪上下文 实例
+     * @param traceId 追踪id
+     * @param clientStartTimestamp 客户端启动时间戳
      */
     private ServerTraceContext(String traceId, long clientStartTimestamp) {
         this.traceId = traceId != null ? traceId : UUID.randomUUID().toString().replace("-", "");
@@ -92,6 +92,7 @@ public class ServerTraceContext {
 
     /**
      * 获取当前追踪上下文
+     * @return 当前的结果
      */
     public static ServerTraceContext current() {
         return CONTEXT_HOLDER.get();
@@ -107,6 +108,8 @@ public class ServerTraceContext {
 
     /**
      * 开始一个新的Span
+     * @param spanName span名称
+     * @return 启动span的结果
      */
     public TraceSpan startSpan(String spanName) {
         TraceSpan span = new TraceSpan(spanName);
@@ -127,6 +130,7 @@ public class ServerTraceContext {
 
     /**
      * 获取服务端总耗时（毫秒）
+     * @return 获取服务端costms的结果
      */
     public long getServerCostMs() {
         return System.currentTimeMillis() - serverReceiveTime;
@@ -134,6 +138,7 @@ public class ServerTraceContext {
 
     /**
      * 获取从客户端开始的总耗时（如果客户端时间戳有效）
+     * @return 获取totalcostms的结果
      */
     public long getTotalCostMs() {
         if (clientStartTimestamp > 0) {
@@ -144,6 +149,7 @@ public class ServerTraceContext {
 
     /**
      * 获取Span列表的JSON表示
+     * @return 获取spansjson的结果
      */
     public String getSpansJson() {
         List<SpanInfo> spanInfos = new ArrayList<>();
@@ -155,6 +161,7 @@ public class ServerTraceContext {
 
     /**
      * 获取Span摘要信息
+     * @return 获取spanssummary的结果
      */
     public String getSpansSummary() {
         StringBuilder sb = new StringBuilder();
@@ -170,11 +177,16 @@ public class ServerTraceContext {
 
     /**
      * Span信息（用于JSON序列化）
+     * @param name 名称
+     * @param costMs costMs
+     * @return span信息的结果
      */
     public record SpanInfo(String name, long costMs) {}
 
     /**
      * 追踪Span
+     * @author CH
+     * @since 4.0.0
      */
     @Getter
     public static class TraceSpan {
@@ -184,19 +196,19 @@ public class ServerTraceContext {
         private final long startTime;
         /** 结束时间 */
         private long endTime;
-        /** CostMS */
+        /** costms */
         private long costMs;
 
         /**
-         * 创建 TraceSpan 实例
-         * @param spanName spanName
+          * 创建 追踪span 实例
+         * @param spanName span名称
          */
         public TraceSpan(String spanName) {
             this.spanName = spanName;
             this.startTime = System.currentTimeMillis();
         }
 
-        /** End */
+        /** 结束 */
         public void end() {
             this.endTime = System.currentTimeMillis();
             this.costMs = endTime - startTime;

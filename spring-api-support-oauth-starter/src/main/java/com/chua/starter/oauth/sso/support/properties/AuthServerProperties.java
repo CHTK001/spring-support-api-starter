@@ -41,6 +41,7 @@ import java.util.Set;
  *       expire: 86400
  *       protocols: [http, armeria, rsocket, oauth2]
  *       token-management: redis
+ * }</pre> token-management: redis
  * }</pre>
  *
  * @since 2022/7/23 14:51
@@ -72,7 +73,7 @@ public class AuthServerProperties {
      * 客户端在HTTP请求头中传递访问令牌时使用的字段名
      * </p>
      * <p>
-     * 默认值：x-oauth-token
+      * 默认值：x-OAuth-令牌
      * </p>
      */
     private String tokenName = "x-oauth-token";
@@ -83,7 +84,7 @@ public class AuthServerProperties {
      * 存储在浏览器Cookie中的令牌字段名
      * </p>
      * <p>
-     * 默认值：x-oauth-cookie
+      * 默认值：x-OAuth-Cookie
      * </p>
      */
     private String cookieName = "x-oauth-cookie";
@@ -147,13 +148,13 @@ public class AuthServerProperties {
     /**
      * 刷新令牌轮换
      * <p>
-     * 使用 refreshToken 换取新 accessToken 时，是否同时生成新的 refreshToken（旧的失效）
+      * 使用 refresh令牌 换取新 access令牌 时，是否同时生成新的 refresh令牌（旧的失效）
      * </p>
      * <p>
-     * false（默认）：refreshToken 不轮换，旧 refreshToken 继续有效，直到自然过期
+      * false（默认）：refresh令牌 不轮换，旧 refresh令牌 继续有效，直到自然过期
      * </p>
      * <p>
-     * true：每次刷新都生成新的 refreshToken，旧的立即失效（更安全，但客户端需保存新值）
+      * true：每次刷新都生成新的 refresh令牌，旧的立即失效（更安全，但客户端需保存新值）
      * </p>
      * <p>
      * 默认值：false
@@ -202,7 +203,7 @@ public class AuthServerProperties {
     /**
      * 是否启用AK/SK密钥校验
      * <p>
-     * 启用后，客户端需要提供Access Key和Secret Key进行身份验证
+      * 启用后，客户端需要提供Access 键和Secret 键进行身份验证
      * </p>
      * <p>
      * 适用于API接口的安全访问控制
@@ -233,7 +234,7 @@ public class AuthServerProperties {
      * 启用后，只有在IP白名单中的客户端才能访问
      * </p>
      * <p>
-     * 需要配合openCheckAkSk使用
+      * 需要配合打开检查aksk使用
      * </p>
      * <p>
      * 默认值：false
@@ -269,7 +270,7 @@ public class AuthServerProperties {
      * <li>database - 使用数据库存储令牌</li>
      * </ul>
      * <p>
-     * 默认值：redis
+      * 默认值：Redis
      * </p>
      */
     private String tokenManagement = "redis";
@@ -288,7 +289,7 @@ public class AuthServerProperties {
      * <li>jwt - JWT令牌生成器</li>
      * </ul>
      * <p>
-     * 默认值：simple
+      * 默认值：简单
      * </p>
      */
     private String tokenGeneration = "simple";
@@ -307,7 +308,7 @@ public class AuthServerProperties {
      * <li>elasticsearch - ES日志记录器</li>
      * </ul>
      * <p>
-     * 默认值：simple
+      * 默认值：简单
      * </p>
      */
     private String log = "simple";
@@ -315,7 +316,7 @@ public class AuthServerProperties {
     /**
      * AK/SK认证管理器
      * <p>
-     * 指定用于管理Access Key和Secret Key的实现方式
+      * 指定用于管理Access 键和Secret 键的实现方式
      * </p>
      * <p>
      * 空字符串表示不启用AK/SK认证
@@ -341,7 +342,7 @@ public class AuthServerProperties {
      * <li>LIMIT - 限制登录，同一用户最多在指定数量的设备上登录</li>
      * </ul>
      * <p>
-     * 默认值：MULTIPLE
+      * 默认值：多个
      * </p>
      */
     private Online online = Online.MULTIPLE;
@@ -349,7 +350,7 @@ public class AuthServerProperties {
     /**
      * 最大在线设备数量
      * <p>
-     * 仅当 online = LIMIT 时生效
+      * 仅当 online = 限制 时生效
      * </p>
      * <p>
      * 默认值：3
@@ -388,9 +389,9 @@ public class AuthServerProperties {
     private Integer armeriaPort = 19180;
 
     /**
-     * RSocket服务器端口
+      * r套接字服务器端口
      * <p>
-     * RSocket协议服务器监听端口
+      * r套接字协议服务器监听端口
      * </p>
      * <p>
      * 默认值：7000
@@ -399,17 +400,17 @@ public class AuthServerProperties {
     private Integer rsocketPort = 7000;
 
     /**
-     * IPC 协议 socket 文件路径
+      * IPC 协议 套接字 文件路径
      * <p>
-     * 仅当 protocols 包含 "ipc" 时生效。IPC 协议使用 Unix Domain Socket 进行本地进程间通信，
+      * 仅当 协议 包含 "ipc" 时生效。IPC 协议使用 Unix Domain 套接字 进行本地进程间通信，
      * 避免 TCP/IP 协议栈开销，适用于客户端与服务端在同一台机器上的场景。
      * </p>
      * <p>
-     * 默认值：${java.io.tmpdir}/oauth-ipc.sock
+      * 默认值：${Java.io.tmpdir}/OAuth-ipc.sock
      * </p>
      * <p>
-     * Linux 示例：/var/run/oauth-ipc.sock
-     * Windows 示例：C:/Users/AppData/Local/Temp/oauth-ipc.sock
+      * Linux 示例：/var/运行/OAuth-ipc.sock
+      * 窗口 示例：C:/用户/app数据/本地/Temp/OAuth-ipc.sock
      * </p>
      */
     private String ipcSocketPath;
@@ -423,6 +424,7 @@ public class AuthServerProperties {
      * JWT 配置类
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @Data
     public static class JwtConfig {
@@ -460,17 +462,17 @@ public class AuthServerProperties {
         private String secret = "your-256-bit-secret-key-here-32b";
 
         /**
-         * RSA/ECDSA 公钥文件路径 (RS/ES 算法使用)
+          * RSA/ECDSA 公钥文件路径 (R/ES 算法使用)
          * <p>
-         * 支持 classpath: 前缀, 如: classpath:jwt/public.pem
+          * 支持 类路径: 前缀, 如: 类路径:JWT/公共.pem
          * </p>
          */
         private String publicKeyPath;
 
         /**
-         * RSA/ECDSA 私钥文件路径 (RS/ES 算法使用)
+          * RSA/ECDSA 私钥文件路径 (R/ES 算法使用)
          * <p>
-         * 支持 classpath: 前缀, 如: classpath:jwt/private.pem
+          * 支持 类路径: 前缀, 如: 类路径:JWT/私募.pem
          * </p>
          */
         private String privateKeyPath;
@@ -494,7 +496,7 @@ public class AuthServerProperties {
         private long expireSeconds = 3600L;
 
         /**
-         * Refresh Token 过期时间（秒）
+          * Refresh 令牌 过期时间（秒）
          * <p>
          * 默认 604800 秒（7天）
          * </p>

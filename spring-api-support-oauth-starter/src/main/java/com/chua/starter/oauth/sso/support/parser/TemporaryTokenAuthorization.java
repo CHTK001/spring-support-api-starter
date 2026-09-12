@@ -18,8 +18,9 @@ import java.util.Map;
  * 临时令牌授权处理器
  * <p>负责验证源令牌并创建临时令牌</p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-12-11
+ * @author CH
  */
 @Slf4j
 public final class TemporaryTokenAuthorization implements Authorization {
@@ -61,7 +62,7 @@ public final class TemporaryTokenAuthorization implements Authorization {
             return ReturnResult.illegal("源令牌不能为空");
         }
 
-        // 获取 TokenResolver（优先 Spring 容器，回退 SPI）
+ // 获取 令牌解析器（优先 Spring 容器，回退 SPI）
         String tokenManagement = authInformation.getAuthServerProperties().getTokenManagement();
         TokenResolver tokenResolver = null;
         if (applicationContext != null) {

@@ -15,9 +15,10 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 /**
- * OpenAPI配置类
+   * 打开api配置类
  *
  * @author CH
+ * @since 4.0.0
  */
 @Configuration
 public class OpenApiConfiguration {
@@ -27,7 +28,11 @@ public class OpenApiConfiguration {
     private String contextPath;
 
     @Bean
-    /** Custom打开API */
+    /**
+     * 习俗打开API
+     *
+     * @return 习俗打开api的结果
+     */
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()

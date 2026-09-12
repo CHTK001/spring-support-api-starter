@@ -20,7 +20,7 @@ public class SysFileUploadTaskPartRequest {
      */
     @Schema(description = "任务ID")
     @NotNull(message = "任务ID不能为空", groups = {UploadGroup.class})
-    /** 任务ID */
+    /** 任务标识 */
     private String taskId;
     /**
      * 文件md5

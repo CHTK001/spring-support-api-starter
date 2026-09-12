@@ -27,12 +27,12 @@ import lombok.EqualsAndHashCode;
 public class MsMonitor extends SysBase {
 
     /**
-     * 监控资产主键ID，自增
+      * 监控资产主键标识，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    /** ID */
+    /** 标识 */
     private Long id;
 
     /**
@@ -41,16 +41,16 @@ public class MsMonitor extends SysBase {
     @TableField("monitor_name")
     @ApiModelProperty("监控名称")
     @Schema(description = "监控名称")
-    /** Monitor名称 */
+    /** 监控名称 */
     private String monitorName;
 
     /**
-     * 监控资产主机地址，例如 192.168.1.10 或 redis.example.com
+      * 监控资产主机地址，例如 192.168.1.10 或 Redis.example.com
      */
     @TableField("monitor_host")
     @ApiModelProperty("主机地址")
     @Schema(description = "主机地址")
-    /** Monitor主机 */
+    /** 监控主机 */
     private String monitorHost;
 
     /**
@@ -59,11 +59,11 @@ public class MsMonitor extends SysBase {
     @TableField("monitor_port")
     @ApiModelProperty("端口")
     @Schema(description = "端口")
-    /** Monitor端口 */
+    /** 监控端口 */
     private Integer monitorPort;
 
     /**
-     * 服务类型，取值 SERVER/REDIS/MYSQL/PG/ORACLE/MSSQL
+      * 服务类型，取值 服务端/Redis/MySQL/PG/ORACLE/MSSQL
      */
     @TableField("service_type")
     @ApiModelProperty("服务类型（SERVER/REDIS/MYSQL/PG/ORACLE/MSSQL）")
@@ -72,7 +72,7 @@ public class MsMonitor extends SysBase {
     private String serviceType;
 
     /**
-     * 服务器操作系统类型，取值 LINUX/WINDOWS/MACOS
+      * 服务器操作系统类型，取值 Linux/窗口/macOS
      */
     @TableField("server_type")
     @ApiModelProperty("服务器类型（LINUX/WINDOWS/MACOS）")
@@ -86,7 +86,7 @@ public class MsMonitor extends SysBase {
     @TableField("monitor_group")
     @ApiModelProperty("监控分组")
     @Schema(description = "监控分组")
-    /** Monitor分组 */
+    /** 监控分组 */
     private String monitorGroup;
 
     /**
@@ -95,7 +95,7 @@ public class MsMonitor extends SysBase {
     @TableField("monitor_enabled")
     @ApiModelProperty("启用状态（0禁用/1启用）")
     @Schema(description = "启用状态（0禁用/1启用）")
-    /** Monitor是否启用 */
+    /** 监控是否启用 */
     private Integer monitorEnabled;
 
     /**
@@ -104,7 +104,7 @@ public class MsMonitor extends SysBase {
     @TableField("monitor_description")
     @ApiModelProperty("描述")
     @Schema(description = "描述")
-    /** Monitor描述 */
+    /** 监控描述 */
     private String monitorDescription;
 
     /**
@@ -118,11 +118,11 @@ public class MsMonitor extends SysBase {
     private Integer deleted;
 
     /**
-     * 关联服务器主机 ID（ms_server_host.id，用于联动服务器台账配置）
+      * 关联服务器主机 标识（ms_服务端_主机.标识，用于联动服务器台账配置）
      */
     @TableField("ms_server_host_id")
     @ApiModelProperty("关联服务器主机ID")
     @Schema(description = "关联服务器主机ID")
-    /** 关联服务器主机ID */
+    /** 关联服务器主机标识 */
     private Long msServerHostId;
 }

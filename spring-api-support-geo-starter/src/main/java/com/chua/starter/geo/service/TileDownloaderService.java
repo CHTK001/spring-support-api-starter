@@ -19,16 +19,16 @@ public interface TileDownloaderService {
      * @param source   图源配置
      * @param bounds   地理边界
      * @param zoom     缩放级别
-     * @param proxy    代理地址（可为 null）
+     * @param proxy    代理地址（可为 空）
      * @param parallel 是否并行下载（当前始终并行）
-     * @return 下载结果，包含瓦片字节 Map 和统计信息
+     * @return 下载结果，包含瓦片字节 映射 和统计信息
      */
     DownloadResult downloadTiles(TileSource source, Bounds bounds, int zoom, String proxy, boolean parallel);
 
     /**
      * 瓦片下载结果记录。
      *
-     * @param tiles     下载成功的瓦片 Map，key 格式 "{z}_{x}_{y}"，value 为原始字节
+     * @param tiles     下载成功的瓦片 映射，键 格式 "{z}_{x}_{y}"，值 为原始字节
      * @param total     总瓦片数
      * @param completed 成功完成数
      * @param failed    失败数

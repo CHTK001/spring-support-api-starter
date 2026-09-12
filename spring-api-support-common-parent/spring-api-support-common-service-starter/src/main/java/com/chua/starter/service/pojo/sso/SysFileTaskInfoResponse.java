@@ -16,10 +16,10 @@ import java.util.List;
 public class SysFileTaskInfoResponse {
 
     /**
-     * 任务ID
+      * 任务标识
      */
     @Schema(description = "任务ID")
-    /** 任务ID */
+    /** 任务标识 */
     private String taskId;
 
     /**

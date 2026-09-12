@@ -17,14 +17,14 @@ public class SysUserPasswordUpdate {
      * 旧密码
      */
     @Schema(description = "旧密码")
-    /** OLD密码 */
+    /** 旧密码 */
     private String oldPassword;
 
     /**
      * 新密码
      */
     @Schema(description = "新密码")
-    /** NEW密码 */
+    /** 新密码 */
     private String newPassword;
 
     /**

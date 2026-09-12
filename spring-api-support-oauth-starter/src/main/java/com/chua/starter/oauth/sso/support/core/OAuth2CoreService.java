@@ -30,7 +30,7 @@ import java.util.*;
  * </ul>
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-12-28
  * @author CH
  */
@@ -75,13 +75,13 @@ public class OAuth2CoreService {
     private static final Set<String> DEFAULT_SCOPES = Set.of("read", "write", "admin", "openid", "profile", "email");
 
     /**
-     * 默认允许的所有 grant_type
+      * 默认允许的所有 grant_类型
      */
     private static final Set<String> DEFAULT_GRANT_TYPES = Set.of(
             "client_credentials", "password", "authorization_code", "refresh_token"
     );
 
-    /** 字符串redis模板 */
+    /** 字符串Redis模板 */
     private final StringRedisTemplate stringRedisTemplate;
     /** Securerandom */
     private final SecureRandom secureRandom = new SecureRandom();
@@ -91,13 +91,13 @@ public class OAuth2CoreService {
     /**
      * 生成授权码
      *
-     * @param clientId            客户端ID
+     * @param clientId            客户端标识
      * @param redirectUri         回调地址
      * @param scope               请求的权限范围
      * @param state               状态码
-     * @param codeChallenge       PKCE code_challenge
+     * @param codeChallenge       PKCE 编码_challenge
      * @param codeChallengeMethod PKCE 方法（S256 或 plain）
-     * @param userId              用户ID
+     * @param userId              用户标识
      * @param username            用户名
      * @return 授权码
      */
@@ -138,10 +138,10 @@ public class OAuth2CoreService {
      * 验证并消费授权码
      *
      * @param code         授权码
-     * @param clientId     客户端ID
+     * @param clientId     客户端标识
      * @param redirectUri  回调地址
-     * @param codeVerifier PKCE code_verifier
-     * @return 授权码数据，验证失败返回 null
+     * @param codeVerifier PKCE 编码_verifier
+     * @return 授权码数据，验证失败返回 空
      */
     public AuthorizationCodeData validateAndConsumeCode(String code, String clientId, 
                                                         String redirectUri, String codeVerifier) {
@@ -160,7 +160,7 @@ public class OAuth2CoreService {
         // 删除授权码（一次性使用）
         stringRedisTemplate.delete(redisKey);
 
-        // 验证 client_id
+ // 验证 客户端_标识
         String storedClientId = (String) codeData.get("client_id");
         if (!clientId.equals(storedClientId)) {
             log.warn("授权码客户端ID不匹配: expected={}, actual={}", storedClientId, clientId);
@@ -203,8 +203,8 @@ public class OAuth2CoreService {
     /**
      * 验证 PKCE
      *
-     * @param codeVerifier  code_verifier
-     * @param codeChallenge code_challenge
+     * @param codeVerifier  编码_verifier
+     * @param codeChallenge 编码_challenge
      * @param method        验证方法（S256 或 plain）
      * @return 是否验证通过
      */
@@ -227,7 +227,9 @@ public class OAuth2CoreService {
     }
 
     /**
-     * 计算 S256 code_challenge
+      * 计算 S256 编码_challenge
+     * @param codeVerifier 编码verifier
+     * @return computeS256Challenge的结果
      */
     private String computeS256Challenge(String codeVerifier) {
         try {
@@ -244,24 +246,24 @@ public class OAuth2CoreService {
     /**
      * 验证客户端请求的 scope
      *
-     * @param clientId       客户端ID
+     * @param clientId       客户端标识
      * @param requestedScope 请求的 scope
      * @return 验证结果
      */
     public ScopeValidationResult validateScope(String clientId, String requestedScope) {
-        // 先尝试通过 AppId 查询
+ // 先尝试通过 appid 查询
         SysAppId appId = getAppIdSafely(clientId);
         Set<String> allowedScopes;
         if (appId != null) {
-            // 获取 AppId 允许的 scope
+ // 获取 appid 允许的 scope
             allowedScopes = parseScopes(appId.getAppIdScope());
         } else {
-            // 如果 AppId 不存在，尝试通过 AppKey 查询
+ // 如果 appid 不存在，尝试通过 app键 查询
             SysAppKey appKey = sysAppKeyService.getByAppKey(clientId);
             if (appKey == null) {
                 return ScopeValidationResult.failure("客户端不存在");
             }
-            // 获取 AppKey 允许的 scope
+ // 获取 app键 允许的 scope
             allowedScopes = parseScopes(appKey.getSysAppKeyScope());
         }
         if (allowedScopes.isEmpty()) {
@@ -271,7 +273,7 @@ public class OAuth2CoreService {
         // 解析请求的 scope
         Set<String> requestedScopes = parseScopes(requestedScope);
         if (requestedScopes.isEmpty()) {
-            // 未指定 scope，使用默认的 read
+ // 未指定 scope，使用默认的 读取
             return ScopeValidationResult.success(Set.of("read"));
         }
 
@@ -293,24 +295,24 @@ public class OAuth2CoreService {
     /**
      * 验证客户端是否允许指定的授权类型
      *
-     * @param clientId  客户端ID
+     * @param clientId  客户端标识
      * @param grantType 授权类型
      * @return 是否允许
      */
     public boolean isGrantTypeAllowed(String clientId, String grantType) {
-        // 先尝试通过 AppId 查询
+ // 先尝试通过 appid 查询
         SysAppId appId = getAppIdSafely(clientId);
         Set<String> allowedGrantTypes;
         if (appId != null) {
-            // 获取 AppId 允许的 grant types
+ // 获取 appid 允许的 grant 类型
             allowedGrantTypes = parseScopes(appId.getAppIdGrantTypes());
         } else {
-            // 如果 AppId 不存在，尝试通过 AppKey 查询
+ // 如果 appid 不存在，尝试通过 app键 查询
             SysAppKey appKey = sysAppKeyService.getByAppKey(clientId);
             if (appKey == null) {
                 return false;
             }
-            // 获取 AppKey 允许的 grant types
+ // 获取 app键 允许的 grant 类型
             allowedGrantTypes = parseScopes(appKey.getSysAppKeyGrantTypes());
         }
         if (allowedGrantTypes.isEmpty()) {
@@ -323,7 +325,7 @@ public class OAuth2CoreService {
     /**
      * 验证回调地址
      *
-     * @param clientId    客户端ID
+     * @param clientId    客户端标识
      * @param redirectUri 回调地址
      * @return 是否有效
      */
@@ -332,13 +334,13 @@ public class OAuth2CoreService {
             return false;
         }
 
-        // 先尝试通过 AppId 查询
+ // 先尝试通过 appid 查询
         SysAppId appId = getAppIdSafely(clientId);
         String allowedUris;
         if (appId != null) {
             allowedUris = appId.getAppIdRedirectUris();
         } else {
-            // 如果 AppId 不存在，尝试通过 AppKey 查询
+ // 如果 appid 不存在，尝试通过 app键 查询
             SysAppKey appKey = sysAppKeyService.getByAppKey(clientId);
             if (appKey == null) {
                 return false;
@@ -365,6 +367,7 @@ public class OAuth2CoreService {
 
     /**
      * 生成随机授权码
+     * @return generate随机编码的结果
      */
     private String generateRandomCode() {
         byte[] bytes = new byte[AUTH_CODE_LENGTH];
@@ -374,6 +377,8 @@ public class OAuth2CoreService {
 
     /**
      * 解析 scope 字符串（逗号或空格分隔）
+     * @param scopeStr scopeStr
+     * @return 解析scopes的结果
      */
     private Set<String> parseScopes(String scopeStr) {
         if (StringUtils.isBlank(scopeStr)) {
@@ -391,8 +396,10 @@ public class OAuth2CoreService {
     }
 
     /**
-     * 安全查询 AppId。
+      * 安全查询 appid。
      * <p>部分部署仅启用 AppKey，数据库中不存在 app_id 表时应回退到 AppKey 流程，而不是直接抛 500。</p>
+     * @param clientId 客户端id
+     * @return 获取appidsafely的结果
      */
     private SysAppId getAppIdSafely(String clientId) {
         try {
@@ -405,6 +412,8 @@ public class OAuth2CoreService {
 
     /**
      * 遮蔽授权码（用于日志）
+     * @param code 编码
+     * @return mask编码的结果
      */
     private String maskCode(String code) {
         if (code == null || code.length() <= 8) {
@@ -433,12 +442,22 @@ public class OAuth2CoreService {
             String errorMessage,
             Set<String> grantedScopes
     ) {
-        /** Success */
+        /**
+         * 成功
+         *
+         * @param scopes scopes
+         * @return 成功的结果
+         */
         public static ScopeValidationResult success(Set<String> scopes) {
             return new ScopeValidationResult(true, null, scopes);
         }
 
-        /** Failure */
+        /**
+         * 失败
+         *
+         * @param message 消息
+         * @return 失败的结果
+         */
         public static ScopeValidationResult failure(String message) {
             return new ScopeValidationResult(false, message, Collections.emptySet());
         }

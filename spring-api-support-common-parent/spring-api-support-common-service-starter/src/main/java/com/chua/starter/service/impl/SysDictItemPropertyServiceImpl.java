@@ -33,13 +33,13 @@ public class SysDictItemPropertyServiceImpl extends ServiceImpl<SysDictItemPrope
     /**
      * 保存或更新字典子项的属性配置
      *
-     * @param request 字典子项属性请求对象，包含要保存或更新的属性列表和关联的字典子项ID
+     * @param request 字典子项属性请求对象，包含要保存或更新的属性列表和关联的字典子项标识
      *                示例: {
-     *                "sysDictItemId": 1,
-     *                "property": [
+      * "sysdictitemid": 1,
+      * "财产": [
      *                {
-     *                "sysDictItemPropertyName": "color",
-     *                "sysDictItemPropertyValue": "red"
+      * "sysdictitem财产名称": "color",
+      * "sysdictitem财产值": "R"
      *                }
      *                ]
      *                }
@@ -47,13 +47,13 @@ public class SysDictItemPropertyServiceImpl extends ServiceImpl<SysDictItemPrope
      */
     @Override
     public ReturnResult<Boolean> saveOrUpdate(DictItemPropertyV1Request request) {
-        // 获取请求中的字典子项ID
+ // 获取请求中的字典子项标识
         Integer sysDictItemId = request.getSysDictItemId();
-        // 检查字典子项ID是否为空
+ // 检查字典子项标识是否为空
         if (null == sysDictItemId) {
             return ReturnResult.error("字典子项ID不能为空");
         }
-        // 根据ID获取字典子项信息
+ // 根据标识获取字典子项信息
         SysDictItem sysDictItem = sysDictItemService.getById(sysDictItemId);
         // 检查字典子项是否存在
         if (null == sysDictItem) {
@@ -75,7 +75,7 @@ public class SysDictItemPropertyServiceImpl extends ServiceImpl<SysDictItemPrope
             return ReturnResult.of(true);
         }
 
-        // 为每个属性设置字典子项ID
+ // 为每个属性设置字典子项标识
         for (SysDictItemProperty sysDictItemProperty : property) {
             sysDictItemProperty.setSysDictItemId(sysDictItemId);
         }

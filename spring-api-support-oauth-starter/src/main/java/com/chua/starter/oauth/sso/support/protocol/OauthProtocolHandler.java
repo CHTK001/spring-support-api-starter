@@ -75,7 +75,7 @@ import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants
 @RequiredArgsConstructor
 public class OauthProtocolHandler implements ServerHandler {
 
-    /** Auth服务器属性 */
+    /** 认证服务器属性 */
     private final AuthServerProperties authServerProperties;
     /** Logincheck */
     private final LoginCheck loginCheck;
@@ -85,12 +85,24 @@ public class OauthProtocolHandler implements ServerHandler {
     public void handle(ServerRequest request, ServerResponse response) throws Exception {
         var path = normalize(request.getPath());
         try {
-            if (path.endsWith(PATH_LOGIN)) handleLogin(request, response);
-            else if (path.endsWith(PATH_VERIFY) || path.endsWith(PATH_OAUTH)) handleVerify(request, response);
-            else if (path.endsWith(PATH_UPGRADE)) handleUpgrade(request, response);
-            else if (path.endsWith(PATH_LOGOUT)) handleLogout(request, response);
-            else if (path.endsWith(PATH_TEMPORARY_TOKEN)) handleTemporaryToken(request, response);
-            else writeError(response, "不支持的认证路径: " + path);
+            if (path.endsWith(PATH_LOGIN)) {
+                handleLogin(request, response);
+            }
+            else if (path.endsWith(PATH_VERIFY) || path.endsWith(PATH_OAUTH)) {
+                handleVerify(request, response);
+            }
+            else if (path.endsWith(PATH_UPGRADE)) {
+                handleUpgrade(request, response);
+            }
+            else if (path.endsWith(PATH_LOGOUT)) {
+                handleLogout(request, response);
+            }
+            else if (path.endsWith(PATH_TEMPORARY_TOKEN)) {
+                handleTemporaryToken(request, response);
+            }
+            else {
+                writeError(response, "不支持的认证路径: " + path);
+            }
         } catch (Exception e) {
             log.error("[OauthProtocolHandler] 处理失败: path={}, error={}", path, e.getMessage(), e);
             writeError(response, "处理异常: " + e.getMessage());
@@ -100,7 +112,9 @@ public class OauthProtocolHandler implements ServerHandler {
     }
 
     /**
-     * 归一化认证路径(兼容 client address 含 /oauth 前缀的调用)
+      * 归一化认证路径(兼容 客户端 地址 含 /OAuth 前缀的调用)
+     * @param path 路径
+     * @return normalize的结果
      */
     private String normalize(String path) {
         if (path != null && path.startsWith(OAUTH_PREFIX + "/")) {
@@ -111,7 +125,12 @@ public class OauthProtocolHandler implements ServerHandler {
 
     // ==================== 登录 ====================
 
-    /** 处理Login */
+    /**
+     * 处理Login
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleLogin(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
         if (!decoder.isSuccessful()) {
@@ -139,7 +158,12 @@ public class OauthProtocolHandler implements ServerHandler {
 
     // ==================== 鉴权 ====================
 
-    /** 处理验证 */
+    /**
+     * 处理验证
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleVerify(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
         if (!decoder.isSuccessful()) {
@@ -152,7 +176,12 @@ public class OauthProtocolHandler implements ServerHandler {
 
     // ==================== 升级 ====================
 
-    /** 处理Upgrade */
+    /**
+     * 处理Upgrade
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleUpgrade(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
         if (!decoder.isSuccessful()) {
@@ -172,7 +201,12 @@ public class OauthProtocolHandler implements ServerHandler {
 
     // ==================== 登出 ====================
 
-    /** 处理Logout */
+    /**
+     * 处理Logout
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleLogout(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
         if (!decoder.isSuccessful()) {
@@ -194,7 +228,12 @@ public class OauthProtocolHandler implements ServerHandler {
 
     // ==================== 临时令牌 ====================
 
-    /** 处理TemporaryToken */
+    /**
+     * 处理temporary令牌
+     *
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleTemporaryToken(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
         if (!decoder.isSuccessful()) {
@@ -217,7 +256,9 @@ public class OauthProtocolHandler implements ServerHandler {
     // ==================== 工具方法 ====================
 
     /**
-     * 解码报文体(取外层 data 字段,再解析/解密认证参数)
+      * 解码报文体(取外层 数据 字段,再解析/解密认证参数)
+     * @param request 请求
+     * @return decode的结果
      */
     private OauthProtocolDecoder decode(ServerRequest request) {
         var headers = request.getHeaders();
@@ -238,12 +279,19 @@ public class OauthProtocolHandler implements ServerHandler {
     }
 
     /**
-     * 大小写不敏感读取请求头(common HttpClient 可能首字母大写,如 X-oauth-uuid)
+      * 大小写不敏感读取请求头(通用 HTTP客户端 可能首字母大写,如 X-OAuth-uuid)
+     * @param headers 头部
+     * @param name 名称
+     * @return 头部的结果
      */
     private String header(HttpHeader headers, String name) {
-        if (headers == null) return null;
+        if (headers == null) {
+            return null;
+        }
         var value = headers.get(name);
-        if (value != null) return value;
+        if (value != null) {
+            return value;
+        }
         return headers.toMap().entrySet().stream()
                 .filter(e -> e.getKey() != null && e.getKey().equalsIgnoreCase(name))
                 .map(Map.Entry::getValue)
@@ -251,18 +299,26 @@ public class OauthProtocolHandler implements ServerHandler {
     }
 
     /**
-     * 从请求体/请求头解析 token
+      * 从请求体/请求头解析 令牌
+     * @param request 请求
+     * @param decoder 解码器
+     * @return resolve令牌的结果
      */
     private String resolveToken(ServerRequest request, OauthProtocolDecoder decoder) {
         var token = decoder.getString(FIELD_TOKEN);
-        if (StringUtils.isNotBlank(token)) return token;
+        if (StringUtils.isNotBlank(token)) {
+            return token;
+        }
         var authorization = header(request.getHeaders(), HEADER_AUTHORIZATION);
         return authorization != null && authorization.startsWith(AUTH_SCHEME_BEARER)
                 ? authorization.substring(AUTH_SCHEME_BEARER.length()) : null;
     }
 
     /**
-     * 解析客户端地址(优先请求头 x-oauth-param-address)
+      * 解析客户端地址(优先请求头 x-OAuth-参数-地址)
+     * @param request 请求
+     * @param decoder 解码器
+     * @return resolve地址的结果
      */
     private String resolveAddress(ServerRequest request, OauthProtocolDecoder decoder) {
         var address = header(request.getHeaders(), HEADER_ADDRESS);
@@ -270,21 +326,25 @@ public class OauthProtocolHandler implements ServerHandler {
     }
 
     /**
-     * 解析 TokenResolver(与 LoginCheck 一致)
+      * 解析 令牌解析器(与 login检查 一致)
+     * @return resolve令牌解析器的结果
      */
     private TokenResolver resolveTokenResolver() {
         return loginCheck.resolveTokenResolver(authServerProperties.getTokenManagement());
     }
 
     /**
-     * 写入结果(加密/明文由请求 x-oauth-encode 决定)
+      * 写入结果(加密/明文由请求 x-OAuth-encode 决定)
      * <p>与原 LoginAuthorization 一致:外层 ReturnResult JSON 明文,data 字段加密。</p>
+     * @param response 响应
+     * @param decoder 解码器
+     * @param result 结果
      */
     private void writeResult(ServerResponse response, OauthProtocolDecoder decoder, ReturnResult<?> result) {
         response.setContentType(CONTENT_TYPE_JSON);
         String body;
         if (decoder != null && decoder.isEncode() && result.getData() != null) {
-            // 加密 data 字段,外层 ReturnResult 保持明文
+ // 加密 数据 字段,外层 返回结果 保持明文
             var newKey = com.chua.common.support.utils.IdUtils.createSimpleUuid();
             response.setHeader(HEADER_RESPONSE_SERIAL, newKey);
             var encrypted = com.chua.starter.common.support.algorithm.crypto.Codec
@@ -304,6 +364,8 @@ public class OauthProtocolHandler implements ServerHandler {
 
     /**
      * 写入失败结果
+     * @param response 响应
+     * @param message 消息
      */
     private void writeError(ServerResponse response, String message) {
         writeResult(response, null, ReturnResult.error(message));

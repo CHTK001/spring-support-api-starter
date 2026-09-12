@@ -16,6 +16,7 @@ import java.util.Map;
  * 登录认证信息 - 支持多协议
  *
  * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public class LoginAuthInformation extends BaseAuthInformation {
@@ -25,13 +26,13 @@ public class LoginAuthInformation extends BaseAuthInformation {
 
     // HTTP协议构造函数
     /**
-     * 创建 LoginAuthInformation 实例
-     * @param authServerProperties authServerProperties
-     * @param data data
-     * @param request request
-     * @param response response
-     * @param applicationContext applicationContext
-     * @param loginCheck loginCheck
+      * 创建 login认证信息 实例
+     * @param authServerProperties 认证服务端属性
+     * @param data 数据
+     * @param request 请求
+     * @param response 响应
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public LoginAuthInformation(AuthServerProperties authServerProperties,
                                 String data,
@@ -45,13 +46,13 @@ public class LoginAuthInformation extends BaseAuthInformation {
 
     // Armeria协议构造函数
     /**
-     * 创建 LoginAuthInformation 实例
-     * @param authServerProperties authServerProperties
-     * @param data data
-     * @param request request
-     * @param response response
-     * @param applicationContext applicationContext
-     * @param loginCheck loginCheck
+      * 创建 login认证信息 实例
+     * @param authServerProperties 认证服务端属性
+     * @param data 数据
+     * @param request 请求
+     * @param response 响应
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public LoginAuthInformation(AuthServerProperties authServerProperties,
                                 String data,
@@ -64,7 +65,7 @@ public class LoginAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RequestHeader */
+    /** 获取请求头部 */
     protected String getRequestHeader(Object request, String headerName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getHeader(headerName);
@@ -75,7 +76,7 @@ public class LoginAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置ResponseHeader */
+    /** 设置响应头部 */
     protected void setResponseHeader(Object response, String headerName, String headerValue) {
         if (response instanceof HttpServletResponse) {
             ((HttpServletResponse) response).setHeader(headerName, headerValue);
@@ -85,7 +86,7 @@ public class LoginAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RemoteAddress */
+    /** 获取远程地址 */
     protected String getRemoteAddress(Object request) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getRemoteAddr();
@@ -96,7 +97,7 @@ public class LoginAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RequestAttribute */
+    /** 获取请求attribute */
     protected Object getRequestAttribute(Object request, String attributeName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getAttribute(attributeName);
@@ -107,7 +108,7 @@ public class LoginAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置RequestAttribute */
+    /** 设置请求attribute */
     protected void setRequestAttribute(Object request, String attributeName, Object attributeValue) {
         if (request instanceof HttpServletRequest) {
             ((HttpServletRequest) request).setAttribute(attributeName, attributeValue);
@@ -125,10 +126,10 @@ public class LoginAuthInformation extends BaseAuthInformation {
     @SuppressWarnings("unchecked")
     @Override
     public LoginAuthorization authorization() {
-        // Armeria 协议下 response 不是 HttpServletResponse，安全转换，Cookie 由客户端自行处理
+ // Armeria 协议下 响应 不是 httpservlet响应，安全转换，Cookie 由客户端自行处理
         HttpServletResponse httpResponse = (getResponse() instanceof HttpServletResponse)
                 ? (HttpServletResponse) getResponse() : null;
-        // 安全转换 ext map：将所有 value 转为 String，避免 JSON 反序列化产生 Integer 等类型导致 ClassCastException
+ // 安全转换 ext 映射：将所有 值 转为 字符串，避免 JSON 反序列化产生 Integer 等类型导致 类cast异常
         Object rawExt = MapUtils.getObject(this.getBodyData(), "x-oauth-ext");
         Map<String, String> extMap = null;
         if (rawExt instanceof Map) {

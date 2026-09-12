@@ -23,7 +23,7 @@ import static com.chua.common.support.enums.Action.CREATE;
 import static com.chua.common.support.enums.Action.UPDATE;
 
 /**
- * mybatis-plus 字段自动填充
+   * MyBatis-plus 字段自动填充
  *
  * @since 2024/10/14
  * @author CH
@@ -33,13 +33,13 @@ import static com.chua.common.support.enums.Action.UPDATE;
 public class IbatisMetaObjectHandler implements MetaObjectHandler {
 
     @Autowired(required = false)
-    /** Auth属性 */
+    /** 认证属性 */
     private AuthClientProperties authProperties;
 
     /**
      * 新增填充创建时间
      *
-     * @param metaObject metaObject
+     * @param metaObject meta对象
      */
     @Override
     public void insertFill(MetaObject metaObject) {
@@ -79,7 +79,7 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
     /**
      * 更新填充更新时间
      *
-     * @param metaObject metaObject
+     * @param metaObject meta对象
      */
     @Override
     public void updateFill(MetaObject metaObject) {
@@ -105,7 +105,11 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
         }
     }
 
-    /** 获取CurrentUser */
+    /**
+     * 获取当前用户
+     *
+     * @return 获取当前用户的结果
+     */
     private UserResult getCurrentUser() {
         if (authProperties != null && !authProperties.isEnable()) {
             return null;
@@ -118,7 +122,7 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
     }
 
     /**
-     * 从用户扩展属性中取值（兼容旧版双参 getOption 的语义）。
+      * 从用户扩展属性中取值（兼容旧版双参 获取期权 的语义）。
      *
      * @param userResult   用户信息
      * @param optionKey    扩展属性键
@@ -154,7 +158,7 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
         Class<?> type = metaObject.getGetterType(name);
 //        Object value = metaObject.getValue(name);
 //        if(null != value) {
-//            return ;
+ // 返回 ;
 //        }
         if (action == UPDATE) {
             metaObject.setValue(name, null);

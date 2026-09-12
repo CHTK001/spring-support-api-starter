@@ -40,7 +40,7 @@ import java.util.Map;
  * ACME 证书服务实现，提供账户保存、证书申请（异步）、续签、吊销、详情、统计、
  * 到期自动续签与重新验证等完整的证书生命周期管理能力。
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-10-17
  * @author CH
  */
@@ -105,17 +105,17 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
-     * ACME 账户 Mapper，用于账户查询与持久化
+      * ACME 账户 映射器，用于账户查询与持久化
      */
     private final MonitorAcmeAccountMapper accountMapper;
 
     /**
-     * ACME 证书 Mapper，用于证书查询与持久化
+      * ACME 证书 映射器，用于证书查询与持久化
      */
     private final MonitorAcmeCertificateMapper certificateMapper;
 
     /**
-     * ACME 订单 Mapper，用于订单查询与持久化
+      * ACME 订单 映射器，用于订单查询与持久化
      */
     private final MonitorAcmeOrderMapper orderMapper;
 
@@ -135,7 +135,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     private final AcmeCertificateAsyncService asyncService;
 
     /**
-     * 保存/更新 ACME 账户 ForCert
+      * 保存/更新 ACME 账户 forcert
      *
      * @param account 账户
      * @return 结果（账户ID）
@@ -163,7 +163,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-     * 申请证书 ForCert（异步执行，立即返回）
+      * 申请证书 forcert（异步执行，立即返回）
      *
      * @param request 请求
      * @return 证书ID
@@ -199,7 +199,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
 
         log.info("[ACME] 提交证书申请, certId={}, domain={}, san={}, challenge={}", certId, cert.getAcmeCertPrimaryDomain(), sanStr, challenge);
 
-        // 获取当前用户ID用于消息推送
+ // 获取当前用户标识用于消息推送
         Integer userId = null;
         try {
             CurrentUser currentUser = authService.getCurrentUser();
@@ -217,9 +217,9 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-     * 续签证书 ForCert
+      * 续签证书 forcert
      *
-     * @param certId 证书ID
+     * @param certId 证书标识
      * @return 是否成功
      */
     @Override
@@ -242,7 +242,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
             return ReturnResult.illegal("ACME 服务提供者不可用");
         }
 
-        // 连接 ACME 服务器（支持 EAB，ZeroSSL 等 CA 需要）
+ // 连接 ACME 服务器（支持 EAB，zerossl 等 CA 需要）
         AcmeConnectionResult connResult = provider.connect(
                 account.getAcmeAccountServer(),
                 account.getAcmeAccountEmail(),
@@ -281,9 +281,9 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-     * 吊销证书 ForCert
+      * 吊销证书 forcert
      *
-     * @param certId 证书ID
+     * @param certId 证书标识
      * @return 是否成功
      */
     @Override
@@ -299,7 +299,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         }
         log.warn("[ACME] 吊销证书: id={}, domain={}", certId, cert.getAcmeCertPrimaryDomain());
 
-        // CAS 服务商需 certificateId+instanceId 才能吊销，当前业务层无该信息，直接提示
+ // CAS 服务商需 证书id+instanceid 才能吊销，当前业务层无该信息，直接提示
         if (AcmeCertificateSupport.PROVIDER_TYPE_CAS.equalsIgnoreCase(account.getAcmeAccountProviderType())) {
             return ReturnResult.illegal("阿里云 CAS 吊销需证书实例ID，暂不支持在线吊销，请前往阿里云控制台操作");
         }
@@ -341,9 +341,9 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-     * 获取证书详情 ForCert（含账户和订单信息）
+      * 获取证书详情 forcert（含账户和订单信息）
      *
-     * @param certId 证书ID
+     * @param certId 证书标识
      * @return 证书详情VO
      */
     @Override
@@ -367,7 +367,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
                 .orderByDesc(MonitorAcmeOrder::getUpdateTime));
         vo.setOrders(orders);
 
-        // 生成curl自检命令（仅对待验证状态且HTTP-01挑战类型）
+ // 生成cURL自检命令（仅对待验证状态且HTTP-01挑战类型）
         if (STATUS_VALIDATING.equals(cert.getAcmeCertStatus()) && CHALLENGE_HTTP_01.equals(cert.getAcmeCertChallengeType())) {
             List<String> curlCommands = new ArrayList<>();
             if (!orders.isEmpty()) {
@@ -381,7 +381,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
                                 String domain = (String) v.get("domain");
                                 String httpPath = (String) v.get("httpPath");
                                 if (StringUtils.isNotEmpty(domain) && StringUtils.isNotEmpty(httpPath)) {
-                                    // 生成curl命令，使用-I检查响应头，使用-s静默模式
+ // 生成cURL命令，使用-I检查响应头，使用-s静默模式
                                     String curlCmd = String.format("curl -s -o /dev/null -w '%%{http_code}' http://%s%s", domain, httpPath);
                                     curlCommands.add(curlCmd);
                                 }
@@ -433,7 +433,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-     * 获取证书统计信息 ForCert
+      * 获取证书统计信息 forcert
      *
      * @return 统计信息
      */
@@ -496,9 +496,9 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-     * 重新验证证书 ForCert（用户手动部署完成后调用）
+      * 重新验证证书 forcert（用户手动部署完成后调用）
      *
-     * @param certId 证书ID
+     * @param certId 证书标识
      * @return 是否提交成功
      */
     @Override
@@ -511,7 +511,7 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
             return ReturnResult.illegal("证书状态不是待验证，无法重新验证");
         }
 
-        // 获取当前用户ID用于消息推送
+ // 获取当前用户标识用于消息推送
         Integer userId = null;
         try {
             CurrentUser currentUser = authService.getCurrentUser();

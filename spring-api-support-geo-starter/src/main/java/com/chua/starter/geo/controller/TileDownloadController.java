@@ -53,7 +53,7 @@ public class TileDownloadController {
     /** 图源配置服务 */
     private final GeoTileSources tileSources;
 
-    /** 异步任务执行线程池（Virtual Thread） */
+    /** 异步任务执行线程池（虚拟 Thread） */
     private ExecutorService executor;
 
     @PostConstruct
@@ -102,7 +102,7 @@ public class TileDownloadController {
      * 创建瓦片下载任务并异步启动下载流程。
      *
      * @param request 下载请求参数
-     * @return 包含 taskId 和 tileCount 的结果
+     * @return 包含 任务id 和 瓷砖数量 的结果
      */
     @PostMapping("/download")
     @Operation(summary = "创建瓦片下载任务")
@@ -135,7 +135,7 @@ public class TileDownloadController {
     /**
      * 异步执行完整的下载→拼接→导出流程。
      *
-     * @param taskId  任务 ID
+     * @param taskId  任务 标识
      * @param request 下载请求
      * @param source  图源配置
      */
@@ -179,8 +179,9 @@ public class TileDownloadController {
     /**
      * 获取所有可用图源列表。
      *
-     * @param tiandituToken 天地图 Token（可为 null）
-     * @return 图源详情 Map
+     * @param tiandituToken 天地图 令牌（可为 空）
+     * @return 图源详情 映射
+     * @param false false
      */
     @GetMapping("/sources")
     @Operation(summary = "获取可用图源列表")
@@ -199,7 +200,7 @@ public class TileDownloadController {
     /**
      * 查询单个任务状态。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return 任务信息
      */
     @GetMapping("/task/{taskId}")
@@ -223,7 +224,7 @@ public class TileDownloadController {
     /**
      * 取消任务。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return 操作结果
      */
     @PostMapping("/task/{taskId}/cancel")
@@ -236,7 +237,7 @@ public class TileDownloadController {
     /**
      * 删除任务记录。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return 操作结果
      */
     @DeleteMapping("/task/{taskId}")
@@ -249,7 +250,7 @@ public class TileDownloadController {
     /**
      * 导出部分下载结果（Web 版为 no-op）。
      *
-     * @param taskId 任务 ID
+     * @param taskId 任务 标识
      * @return 操作结果
      */
     @PostMapping("/task/{taskId}/export")

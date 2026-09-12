@@ -72,6 +72,7 @@ public class UserAgreementVO {
      * 协议章节
      *
      * @since 2026/08/03
+     * @author CH
      */
     @Data
     @NoArgsConstructor

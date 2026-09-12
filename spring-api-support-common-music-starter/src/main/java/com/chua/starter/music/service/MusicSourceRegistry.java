@@ -17,23 +17,28 @@ import java.util.Set;
 /**
  * 音源 SPI 注册中心。
  * @author CH
+ * @since 4.0.0
  */
 @Component
 @RequiredArgsConstructor
 public class MusicSourceRegistry {
 
-    /** Default_source */
+    /** 默认_源 */
     private static final String DEFAULT_SOURCE = "tx";
-    /** All_source */
+    /** 全部_源 */
     private static final String ALL_SOURCE = "all";
-    /** Preferred_order */
+    /** Preferred_订单 */
     private static final List<String> PREFERRED_ORDER = Arrays.asList(
             "tx", "kw", "mg", "wy", "kg", "bd", "git", "demo"
     );
-    /** Music来源availability服务 */
+    /** Music来源可用性服务 */
     private final ObjectProvider<MusicSourceAvailabilityService> musicSourceAvailabilityService;
 
-    /** ListSources */
+    /**
+     * 列表源
+     *
+     * @return 列表源的结果
+     */
     public List<MusicSourceOption> listSources() {
         List<MusicSourceOption> result = new ArrayList<>();
         for (MusicSourceProvider provider : listProviders()) {
@@ -43,7 +48,11 @@ public class MusicSourceRegistry {
         return result;
     }
 
-    /** ListAllSources */
+    /**
+     * 列表全部源
+     *
+     * @return 列表全部源的结果
+     */
     public List<MusicSourceOption> listAllSources() {
         List<MusicSourceOption> result = new ArrayList<>();
         for (MusicSourceProvider provider : listAllProviders()) {
@@ -53,14 +62,22 @@ public class MusicSourceRegistry {
         return result;
     }
 
-    /** ListProviders */
+    /**
+     * 列表提供者
+     *
+     * @return 列表提供者的结果
+     */
     public List<MusicSourceProvider> listProviders() {
         return listAllProviders().stream()
                 .filter(provider -> isEnabled(provider.getSource().getCode()))
                 .toList();
     }
 
-    /** ListAllProviders */
+    /**
+     * 列表全部提供者
+     *
+     * @return 列表全部提供者的结果
+     */
     public List<MusicSourceProvider> listAllProviders() {
         ServiceProvider<MusicSourceProvider> provider = ServiceProvider.of(MusicSourceProvider.class);
         Set<String> extensions = provider.getExtensions();
@@ -76,12 +93,22 @@ public class MusicSourceRegistry {
         return result;
     }
 
-    /** 是否AggregateSource */
+    /**
+     * 是否aggregate源
+     *
+     * @param source 源
+     * @return 是否aggregate源的结果
+     */
     public boolean isAggregateSource(String source) {
         return !StringUtils.hasText(source) || ALL_SOURCE.equalsIgnoreCase(source);
     }
 
-    /** 解析Source */
+    /**
+     * 解析源
+     *
+     * @param source 源
+     * @return resolve源的结果
+     */
     public String resolveSource(String source) {
         if (StringUtils.hasText(source)) {
             return source;
@@ -98,7 +125,12 @@ public class MusicSourceRegistry {
         return DEFAULT_SOURCE;
     }
 
-    /** RequireProvider */
+    /**
+     * require提供者
+     *
+     * @param source 源
+     * @return require提供者的结果
+     */
     public MusicSourceProvider requireProvider(String source) {
         String actualSource = resolveSource(source);
         MusicSourceProvider provider = listAllProviders().stream()
@@ -114,13 +146,24 @@ public class MusicSourceRegistry {
         return provider;
     }
 
-    /** 是否Enabled */
+    /**
+     * 是否已启用
+     *
+     * @param sourceCode 源编码
+     * @return 是否已启用的结果
+     */
     private boolean isEnabled(String sourceCode) {
         MusicSourceAvailabilityService service = musicSourceAvailabilityService.getIfAvailable();
         return service == null || service.isEnabled(sourceCode);
     }
 
-    /** ToSourceOption */
+    /**
+     * 转为源期权
+     *
+     * @param provider 提供者
+     * @param enabled 已启用
+     * @return 转为源期权的结果
+     */
     private MusicSourceOption toSourceOption(MusicSourceProvider provider, boolean enabled) {
         MusicSourceOption source = provider.getSource();
         return MusicSourceOption.builder()

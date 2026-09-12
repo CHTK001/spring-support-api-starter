@@ -22,11 +22,11 @@ import lombok.EqualsAndHashCode;
 public class SysSettingGroup extends SysBase {
 
     /**
-     * 配置组ID
+      * 配置组标识
      */
     @TableId(value = "sys_setting_group_id", type = IdType.AUTO)
     @Schema(description = "配置组ID")
-    /** SYS设置分组ID */
+    /** SYS设置分组标识 */
     private Integer sysSettingGroupId;
 
     /**
@@ -66,7 +66,7 @@ public class SysSettingGroup extends SysBase {
      */
     @TableField(value = "sys_setting_group_remark")
     @Schema(description = "配置组描述")
-    /** SYS设置分组remark */
+    /** SYS设置分组评论 */
     private String sysSettingGroupRemark;
 
     /**
@@ -74,7 +74,7 @@ public class SysSettingGroup extends SysBase {
      */
     @TableField(value = "sys_setting_group_sort")
     @Schema(description = "排序")
-    /** SYS设置分组sort */
+    /** SYS设置分组排序 */
     private Integer sysSettingGroupSort;
 
     /**
@@ -82,6 +82,6 @@ public class SysSettingGroup extends SysBase {
      */
     @TableField(value = "sys_setting_group_use_project_interface")
     @Schema(description = "是否使用项目组接口")
-    /** SYS设置分组USEproject接口 */
+    /** SYS设置分组useproject接口 */
     private Boolean sysSettingGroupUseProjectInterface;
 }

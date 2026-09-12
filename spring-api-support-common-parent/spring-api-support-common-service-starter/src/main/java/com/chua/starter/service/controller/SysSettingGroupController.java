@@ -44,6 +44,7 @@ public class SysSettingGroupController {
      *
      * @param sysSettingGroup 条件
      * @return 设置分页列表
+     * @param true true
      */
     @Operation(summary = "设置分页列表")
     @GetMapping("/list")
@@ -80,6 +81,7 @@ public class SysSettingGroupController {
      * 新增设置
      *
      * @return 新增设置
+     * @param true true
      */
     @Operation(summary = "更新设置")
     @PostMapping("/saveOrUpdate")
@@ -98,6 +100,7 @@ public class SysSettingGroupController {
      * 新增设置
      *
      * @return 新增设置
+     * @param true true
      */
     @Operation(summary = "更新设置")
     @PostMapping("/batchUpdate")

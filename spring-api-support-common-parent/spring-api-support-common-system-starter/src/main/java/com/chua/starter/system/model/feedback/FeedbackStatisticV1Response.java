@@ -9,7 +9,7 @@ import java.util.List;
  * 统计反馈信息响应
  *
  * @since 2024/12/10
- * @version 1.0
+   * @版本 1.0
  * @author CH
  */
 @Data
@@ -53,6 +53,8 @@ public class FeedbackStatisticV1Response {
 
     /**
      * 类型统计
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "类型统计")
@@ -81,6 +83,8 @@ public class FeedbackStatisticV1Response {
 
     /**
      * 趋势统计
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "趋势统计")

@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 @Tag(name = "Google登录", description = "基于Google OAuth的用户登录验证")
 public class GoogleLoginService extends AbstractUserLoginService {
 
-    /** Login_type_prefix */
+    /** Login_类型_前缀 */
     private static final String LOGIN_TYPE_PREFIX = "google";
 
     @Autowired
@@ -34,13 +34,13 @@ public class GoogleLoginService extends AbstractUserLoginService {
     private SysUserThirdPartyMapper sysUserThirdPartyMapper;
 
     @Override
-    /** 获取LoginTypePrefix */
+    /** 获取login类型前缀 */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
-    /** GenerateUserIds */
+    /** generate用户标识 */
     protected String[] generateUserIds(SysUser user) {
         String baseId = user.getSysUserId() + "GOOGLE";
         return new String[]{

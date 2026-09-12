@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleMapper, SysUserRole> implements SysUserRoleService{
     @Override
-    /** 保存UserRole */
+    /** 保存用户角色 */
     public void saveUserRole(Integer sysUserId, String roleCode) {
         baseMapper.saveUserRole(sysUserId, roleCode);
     }

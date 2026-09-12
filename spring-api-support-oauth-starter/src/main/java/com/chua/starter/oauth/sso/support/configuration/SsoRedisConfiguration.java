@@ -16,12 +16,18 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  * 租户数据库
  *
  * @author CH
+ * @since 4.0.0
  */
 @Configuration
 public class SsoRedisConfiguration {
     @Bean
     @Primary
-    /** SsoRedisTemplate */
+    /**
+     * ssoredistemplate
+     *
+     * @param factory 工厂
+     * @return ssoRedisTemplate的结果
+     */
     public RedisTemplate<String, Object> ssoRedisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
@@ -31,7 +37,7 @@ public class SsoRedisConfiguration {
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         om.activateDefaultTyping(om.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL);
         om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        // 使用Jackson2JsonRedisSerializer来序列化value
+ // 使用Jackson2jsonredis序列化器来序列化值
         Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(om, Object.class);
 
         template.setKeySerializer(new StringRedisSerializer());

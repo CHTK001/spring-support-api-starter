@@ -26,14 +26,14 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OauthSecurityHeadersFilter implements Filter, Ordered {
 
-    /** Security属性 */
+    /** 安全性属性 */
     private final OauthSecurityProperties securityProperties;
 
     @Override
     /**
-     * Do过滤
-     * @param servletRequest servletRequest
-     * @param servletResponse servletResponse
+      * 执行过滤
+     * @param servletRequest servlet请求
+     * @param servletResponse servlet响应
      */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
@@ -56,7 +56,13 @@ public class OauthSecurityHeadersFilter implements Filter, Ordered {
         chain.doFilter(servletRequest, response);
     }
 
-    /** 设置HeaderIfPresent */
+    /**
+     * 设置头部ifpresent
+     *
+     * @param response 响应
+     * @param name 名称
+     * @param value 值
+     */
     private void setHeaderIfPresent(HttpServletResponse response, String name, String value) {
         if (StringUtils.hasText(value)) {
             response.setHeader(name, value);
@@ -64,7 +70,7 @@ public class OauthSecurityHeadersFilter implements Filter, Ordered {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 1;
     }

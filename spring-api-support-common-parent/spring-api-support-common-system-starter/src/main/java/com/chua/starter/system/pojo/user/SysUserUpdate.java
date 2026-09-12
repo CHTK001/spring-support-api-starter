@@ -19,10 +19,10 @@ import java.util.List;
 public class SysUserUpdate extends SysUser {
 
     /**
-     * 角色ID列表
+      * 角色标识列表
      */
     @Schema(description = "角色ID列表")
-    /** RoleIDS */
+    /** 角色标识 */
     private List<String> roleIds;
 
     /**

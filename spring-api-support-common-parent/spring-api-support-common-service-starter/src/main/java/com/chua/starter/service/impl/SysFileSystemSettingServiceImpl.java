@@ -28,14 +28,14 @@ import java.net.ServerSocket;
 @Service
 public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSettingMapper, SysFileSystemSetting> implements SysFileSystemSettingService {
 
-    private volatile FileHttpServer fileHttpServer;
+    private volatile FileHttpServer fileHttpServer; // 文件http服务端
 
     @Autowired
-    /** SYS文件system服务 */
+    /** SYS文件系统服务 */
     private SysFileSystemService sysFileSystemService;
 
     @Override
-    /** 获取EnabledSettingForFileSystem */
+    /** 获取已启用settingfor文件系统 */
     public SysFileSystemSetting getEnabledSettingForFileSystem() {
         return getOne(Wrappers.<SysFileSystemSetting>lambdaQuery()
                 .eq(SysFileSystemSetting::getSysFileSystemSettingEnabled, true)
@@ -44,7 +44,12 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 启用SettingForFileSystem */
+    /**
+     * 启用settingfor文件系统
+     *
+     * @param settingId settingId
+     * @return enablesettingfor文件系统的结果
+     */
     public ReturnResult<Boolean> enableSettingForFileSystem(Integer settingId) {
         log.info("启用配置: settingId={}", settingId);
         update(Wrappers.<SysFileSystemSetting>lambdaUpdate()
@@ -57,7 +62,11 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 初始化DefaultSettingForFileSystem */
+    /**
+     * 初始化默认settingfor文件系统
+     *
+     * @return 初始化默认settingfor文件系统的结果
+     */
     public ReturnResult<Boolean> initDefaultSettingForFileSystem() {
         log.info("初始化默认配置");
         long count = count();
@@ -70,7 +79,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
-    /** 开始FileServerForFileSystem */
+    /** 开始文件服务端for文件系统 */
     public synchronized ReturnResult<Boolean> startFileServerForFileSystem() {
         if (fileHttpServer != null && fileHttpServer.isRunning()) {
             return ReturnResult.ok(true);
@@ -108,7 +117,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
-    /** 停止FileServerForFileSystem */
+    /** 停止文件服务端for文件系统 */
     public synchronized ReturnResult<Boolean> stopFileServerForFileSystem() {
         if (fileHttpServer == null) {
             return ReturnResult.ok(true);
@@ -124,7 +133,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
-    /** 获取FileServerStatusForFileSystem */
+    /** 获取文件服务端状态for文件系统 */
     public ReturnResult<String> getFileServerStatusForFileSystem() {
         if (fileHttpServer != null && fileHttpServer.isRunning()) {
             return ReturnResult.ok("running");
@@ -133,7 +142,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     @Override
-    /** 校验PortAvailableForFileSystem */
+    /** 校验端口可用for文件系统 */
     public ReturnResult<Boolean> checkPortAvailableForFileSystem(Integer port) {
         if (port == null || port < 1 || port > 65535) {
             return ReturnResult.error("端口号无效");

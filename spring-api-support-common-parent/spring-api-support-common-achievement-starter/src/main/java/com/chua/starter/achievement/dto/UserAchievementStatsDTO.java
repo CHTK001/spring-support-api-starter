@@ -12,7 +12,7 @@ import lombok.Data;
 public class UserAchievementStatsDTO {
 
     /**
-     * 用户ID
+      * 用户标识
      */
     private Long userId;
 

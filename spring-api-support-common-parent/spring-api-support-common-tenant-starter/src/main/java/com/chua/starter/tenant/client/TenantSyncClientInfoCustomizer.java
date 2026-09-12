@@ -27,7 +27,7 @@ public class TenantSyncClientInfoCustomizer implements SyncClientInfoCustomizer 
     private final TenantProperties tenantProperties;
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return -100;
     }

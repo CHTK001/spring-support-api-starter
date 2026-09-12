@@ -17,10 +17,15 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * @author CH
+ * @since 4.0.0
  */
 public class StartHttpProtocolFileServer {
 
-    /** Main */
+    /**
+     * Main
+     *
+     * @param args 参数
+     */
     public static void main(String[] args) throws Exception {
         int port = args.length > 0 ? Integer.parseInt(args[0]) : 8080;
         String host = args.length > 1 ? args[1] : "0.0.0.0";
@@ -39,7 +44,7 @@ public class StartHttpProtocolFileServer {
 
         ProtocolServer server = ProtocolServer.create("http", setting);
 
-        // 2. 配置内置 FileStorageServletFilter
+ // 2. 配置内置 文件storageservlet过滤器
         //    使用本地文件系统作为存储后端
         FileStorageFactory.FileStorageSetting fsSetting = FileStorageFactory.FileStorageSetting.builder()
                 .openDownload(true)

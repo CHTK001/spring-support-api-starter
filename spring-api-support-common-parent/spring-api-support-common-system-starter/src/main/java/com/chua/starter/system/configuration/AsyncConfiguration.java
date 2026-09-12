@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * 异步任务配置
  * <p>
- * 提供通用的异步任务线程池，用于AppKey使用统计更新等异步操作
+   * 提供通用的异步任务线程池，用于app键使用统计更新等异步操作
  * </p>
  *
  * @since 2024/12/28

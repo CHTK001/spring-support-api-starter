@@ -5,10 +5,11 @@ package com.chua.starter.system.constant;
  * <p>定义系统模块中使用的各类常量，避免魔法值</p>
  *
  * @since 2024/8/7
+ * @author CH
  */
 public final class SystemConstant {
 
-    /** 创建 SystemConstant 实例 */
+    /** 创建 系统常量 实例 */
     private SystemConstant() {
     }
 
@@ -80,7 +81,7 @@ public final class SystemConstant {
     // ==================== 树形结构 ====================
     
     /**
-     * 根节点ID
+      * 根节点标识
      */
     public static final int ROOT_NODE_ID = 0;
 

@@ -34,11 +34,11 @@ public class UserAgreementSettingInitializer implements ApplicationRunner {
      */
     private static final String GROUP_CODE = "userAgreement";
 
-    /** SYS设置mapper */
+    /** SYS设置映射器 */
     private final SysSettingMapper sysSettingMapper;
-    /** SYS设置分组mapper */
+    /** SYS设置分组映射器 */
     private final SysSettingGroupMapper sysSettingGroupMapper;
-    private final Map<String, CacheManager> cacheManagers;
+    private final Map<String, CacheManager> cacheManagers; // 缓存管理器
 
     /**
      * 应用启动后执行用户协议配置初始化。

@@ -24,25 +24,25 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "ACME 订单信息")
 public class MonitorAcmeOrder extends SysBase {
 
-    /** 主键ID */
+    /** 主键标识 */
     @TableId(value = "acme_order_id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    /** Acme排序ID */
+    /** Acme排序标识 */
     private Integer acmeOrderId;
 
-    /** 账户ID */
+    /** 账户标识 */
     @TableField("acme_account_id")
     @ApiModelProperty("账户ID")
     @Schema(description = "账户ID")
-    /** AcmeaccountID */
+    /** acmeaccountid */
     private Integer acmeAccountId;
 
-    /** 证书ID */
+    /** 证书标识 */
     @TableField("acme_cert_id")
     @ApiModelProperty("证书ID")
     @Schema(description = "证书ID")
-    /** Acme证书ID */
+    /** Acme证书标识 */
     private Integer acmeCertId;
 
     /** 订单URL */

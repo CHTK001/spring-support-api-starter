@@ -35,6 +35,7 @@ public class AssistantController {
 
     /**
      * 获取助手状态。
+     * @return 状态的结果
      */
     @GetMapping("/status")
     @Operation(summary = "获取助手状态")
@@ -50,8 +51,10 @@ public class AssistantController {
 
     /**
      * 流式聊天（SSE）。
-     * 请求体包含 messages 数组和可选的 diagnosticContext。
-     * 返回 SSE 流，每行格式：data: {"type":"delta","content":"..."}
+      * 请求体包含 消息 数组和可选的 diagnostic上下文。
+      * 返回 SSE 流，每行格式：数据: {"类型":"delta","内容":"..."}
+     * @param body 主体
+     * @return 对话的结果
      */
     @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "流式聊天")
@@ -86,6 +89,8 @@ public class AssistantController {
 
     /**
      * 取消聊天（Web 版无操作）。
+     * @param body 主体
+     * @return cancel的结果
      */
     @PostMapping("/cancel")
     @Operation(summary = "取消聊天")
@@ -96,7 +101,7 @@ public class AssistantController {
     /**
      * 使用 Jackson 转义 JSON 字符串。
      *
-     * @param s 待转义字符串，可为 null
+     * @param s 待转义字符串，可为 空
      * @return 转义后的 JSON 字符串（不含引号）
      */
     private String escapeJson(String s) {
@@ -104,7 +109,7 @@ public class AssistantController {
             return "";
         }
         try {
-            // writeValueAsString 输出带引号的 JSON 字符串，去掉首尾引号
+ // 写入值as字符串 输出带引号的 JSON 字符串，去掉首尾引号
             String escaped = objectMapper.writeValueAsString(s);
             return escaped.substring(1, escaped.length() - 1);
         } catch (Exception e) {

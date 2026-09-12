@@ -19,6 +19,7 @@ import java.util.List;
  * 响应加载器
  *
  * @author CH
+ * @since 4.0.0
  */
 public class ResponseAdviceMethodProcessor extends RequestResponseBodyMethodProcessor {
 
@@ -26,29 +27,29 @@ public class ResponseAdviceMethodProcessor extends RequestResponseBodyMethodProc
     private String redirectPatterns;
 
     /**
-     * 创建 ResponseAdviceMethodProcessor 实例
-     * @param converters converters
+      * 创建 响应advice方法处理器 实例
+     * @param converters 转换器
      */
     public ResponseAdviceMethodProcessor(List<HttpMessageConverter<?>> converters) {
         super(converters);
     }
 
     @Override
-    /** SupportsParameter */
+    /** 支持参数 */
     public boolean supportsParameter(MethodParameter returnType) {
         Class<?> paramType = returnType.getParameterType();
         return AdviceView.class.isAssignableFrom(paramType);
     }
 
     @Override
-    /** SupportsReturnType */
+    /** 支持返回类型 */
     public boolean supportsReturnType(MethodParameter returnType) {
         Class<?> paramType = returnType.getParameterType();
         return AdviceView.class.isAssignableFrom(paramType);
     }
 
     @Override
-    /** 处理ReturnValue */
+    /** 处理返回值 */
     public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
         AdviceView adviceView = (AdviceView) returnValue;
         Object data = adviceView.getData();
@@ -59,7 +60,7 @@ public class ResponseAdviceMethodProcessor extends RequestResponseBodyMethodProc
             ServletServerHttpRequest inputMessage = createInputMessage(webRequest);
             ServletServerHttpResponse outputMessage = createOutputMessage(webRequest);
 
-            // Try even with null return value. ResponseBodyAdvice could get involved.
+ // 尝试 even with 空 返回 值. 响应主体advice could 获取 involved.
             writeWithMessageConverters(data, returnType, inputMessage, outputMessage);
             return;
         }
@@ -79,13 +80,13 @@ public class ResponseAdviceMethodProcessor extends RequestResponseBodyMethodProc
 
 
     /**
-     * Whether the given view name is a redirect view reference.
-     * The default implementation checks the configured redirect patterns and
-     * also if the view name starts with the "redirect:" prefix.
+      * Whether the given view 名称 是否 a redirect view 引用.
+      * The 默认 implementation 检查 the configured redirect 模式 和
+      * also if the view 名称 启动 with the "redirect:" 前缀.
      *
-     * @param viewName the view name to check, never {@code null}
-     * @return "true" if the given view name is recognized as a redirect view
-     * reference; "false" otherwise.
+     * @param viewName the view 名称 转为 检查, 从不 {@code null}
+     * @return "true" if the given view 名称 是否 recognized as a redirect view
+      * 引用; "false" otherwise.
      */
     protected boolean isRedirectViewName(String viewName) {
         return (PatternMatchUtils.simpleMatch(this.redirectPatterns, viewName) || viewName.startsWith("redirect:"));

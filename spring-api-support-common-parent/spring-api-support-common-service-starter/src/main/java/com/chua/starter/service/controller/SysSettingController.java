@@ -46,16 +46,16 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 @RequestMapping("/v2/setting")
 @RequiredArgsConstructor
 public class SysSettingController {
-    /** Setting_list_cache_key_prefix */
+    /** Setting_列表_缓存_键_前缀 */
     public static final String SETTING_LIST_CACHE_KEY_PREFIX = "sys:setting:v2:";
-    /** Runtime_public_codec_request_key */
+    /** Runtime_公共_codec_请求_键 */
     private static final String RUNTIME_PUBLIC_CODEC_REQUEST_KEY = "CodecRequestKey";
     /** Admin */
     private static final String ADMIN = "ADMIN";
 
     /** SYS设置服务 */
     private final SysSettingService sysSettingService;
-    /** SYS设置history服务 */
+    /** SYS设置历史服务 */
     private final SysSettingHistoryService sysSettingHistoryService;
 
 
@@ -101,6 +101,7 @@ public class SysSettingController {
      *
      * @param sysSettingUpdate 条件
      * @return 设置分页列表
+     * @param true true
      */
     @Operation(summary = "设置列表")
     @GetMapping("/list")
@@ -126,6 +127,7 @@ public class SysSettingController {
      * 删除设置
      *
      * @return 更新设置
+     * @param true true
      */
     @Operation(summary = "删除设置")
     @DeleteMapping("/delete")
@@ -183,6 +185,7 @@ public class SysSettingController {
      * 新增设置
      *
      * @return 新增设置
+     * @param true true
      */
     @Operation(summary = "新增设置")
     @PostMapping("/save")
@@ -201,6 +204,7 @@ public class SysSettingController {
      *
      * @param group 配置分组（可选）
      * @return JSON配置字符串
+     * @param false false
      */
     @Operation(summary = "导出配置")
     @GetMapping("/export")
@@ -232,7 +236,7 @@ public class SysSettingController {
      * 查询配置变更历史
      *
      * @param query 分页参数
-     * @param settingId 配置ID（可选）
+     * @param settingId 配置标识（可选）
      * @param group 配置分组（可选）
      * @return 变更历史分页列表
      */
@@ -281,7 +285,7 @@ public class SysSettingController {
     /**
      * 回滚到指定历史记录
      *
-     * @param historyId 历史记录ID
+     * @param historyId 历史记录标识
      * @return 回滚结果
      */
     @Operation(summary = "回滚单条配置到指定历史记录")

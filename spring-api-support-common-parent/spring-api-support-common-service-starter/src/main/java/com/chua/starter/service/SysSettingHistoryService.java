@@ -21,7 +21,7 @@ public interface SysSettingHistoryService extends IService<SysSettingHistory> {
      * 记录配置新增历史
      *
      * @param sysSetting   新增的配置
-     * @param operatorId   操作人ID
+     * @param operatorId   操作人标识
      * @param operatorName 操作人名称
      * @param batchNo      批次号
      */
@@ -32,7 +32,7 @@ public interface SysSettingHistoryService extends IService<SysSettingHistory> {
      *
      * @param oldSetting   旧配置
      * @param newSetting   新配置
-     * @param operatorId   操作人ID
+     * @param operatorId   操作人标识
      * @param operatorName 操作人名称
      * @param batchNo      批次号
      */
@@ -42,7 +42,7 @@ public interface SysSettingHistoryService extends IService<SysSettingHistory> {
      * 记录配置删除历史
      *
      * @param sysSetting   删除的配置
-     * @param operatorId   操作人ID
+     * @param operatorId   操作人标识
      * @param operatorName 操作人名称
      * @param batchNo      批次号
      */
@@ -52,7 +52,7 @@ public interface SysSettingHistoryService extends IService<SysSettingHistory> {
      * 记录配置导入历史（新增）
      *
      * @param settings     导入的配置列表
-     * @param operatorId   操作人ID
+     * @param operatorId   操作人标识
      * @param operatorName 操作人名称
      * @param batchNo      批次号
      */
@@ -63,7 +63,7 @@ public interface SysSettingHistoryService extends IService<SysSettingHistory> {
      *
      * @param oldSetting   旧配置
      * @param newSetting   新配置
-     * @param operatorId   操作人ID
+     * @param operatorId   操作人标识
      * @param operatorName 操作人名称
      * @param batchNo      批次号
      */
@@ -73,7 +73,7 @@ public interface SysSettingHistoryService extends IService<SysSettingHistory> {
      * 分页查询变更历史
      *
      * @param query     分页参数
-     * @param settingId 配置ID（可选）
+     * @param settingId 配置标识（可选）
      * @param group     配置分组（可选）
      * @return 分页结果
      */
@@ -91,7 +91,7 @@ public interface SysSettingHistoryService extends IService<SysSettingHistory> {
      * 回滚到指定批次
      *
      * @param batchNo      批次号
-     * @param operatorId   操作人ID
+     * @param operatorId   操作人标识
      * @param operatorName 操作人名称
      * @return 回滚结果
      */
@@ -100,8 +100,8 @@ public interface SysSettingHistoryService extends IService<SysSettingHistory> {
     /**
      * 回滚单条配置到指定历史记录
      *
-     * @param historyId    历史记录ID
-     * @param operatorId   操作人ID
+     * @param historyId    历史记录标识
+     * @param operatorId   操作人标识
      * @param operatorName 操作人名称
      * @return 回滚结果
      */

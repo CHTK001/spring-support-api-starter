@@ -24,12 +24,23 @@ public record RequestTraceAnalysisContext(
         config = RequestTraceStrategyConfigCodec.normalize(config);
     }
 
-    /** HistoryWithin */
+    /**
+     * 历史within
+     *
+     * @param duration 持续时间
+     * @return 历史within的结果
+     */
     public List<RequestTraceEvent> historyWithin(Duration duration) {
         return historyWithin(duration, event -> true);
     }
 
-    /** HistoryWithin */
+    /**
+     * 历史within
+     *
+     * @param duration 持续时间
+     * @param predicate predicate
+     * @return 历史within的结果
+     */
     public List<RequestTraceEvent> historyWithin(Duration duration, Predicate<RequestTraceEvent> predicate) {
         long cutoff = now.minus(duration).toEpochMilli();
         return recentEvents.stream()

@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * OAuth 服务端热控制管理页面，提供运行时配置查看与动态更新能力。
  * <p>
- * 访问地址：/oauth/admin（GET 返回 HTML 控制台，POST 接口热更新配置）
+   * 访问地址：/OAuth/admin（获取 返回 HTML 控制台，POST 接口热更新配置）
  * </p>
  *
  * @author CH
@@ -28,18 +28,26 @@ import java.util.Map;
 @Tag(name = "OAuth 管理控制台", description = "运行时热控制 OAuth 服务端配置")
 public class AdminController {
 
-    /** Auth服务器属性 */
+    /** 认证服务器属性 */
     private final AuthServerProperties authServerProperties;
     /** 比率限制管理器 */
     private final RateLimitManager rateLimitManager;
 
-    /** 管理控制台首页（内嵌 HTML） */
+    /**
+     * 管理控制台首页（内嵌 HTML）
+     *
+     * @return 索引的结果
+     */
     @GetMapping(produces = "text/html;charset=UTF-8")
     public String index() {
         return buildHtml();
     }
 
-    /** 获取当前配置状态 */
+    /**
+     * 获取当前配置状态
+     *
+     * @return 获取状态的结果
+     */
     @GetMapping("/status")
     @Operation(summary = "获取当前配置状态")
     public ReturnResult<Map<String, Object>> getStatus() {
@@ -56,7 +64,11 @@ public class AdminController {
         return ReturnResult.ok(status);
     }
 
-    /** 获取请求统计 */
+    /**
+     * 获取请求统计
+     *
+     * @return 获取指标的结果
+     */
     @GetMapping("/metrics")
     @Operation(summary = "获取请求统计")
     public ReturnResult<Map<String, Object>> getMetrics() {
@@ -69,7 +81,12 @@ public class AdminController {
         return ReturnResult.ok(m);
     }
 
-    /** 热切换签名校验 */
+    /**
+     * 热切换签名校验
+     *
+     * @param enabled 已启用
+     * @return toggle标志验证的结果
+     */
     @PostMapping("/sign-verify")
     @Operation(summary = "切换签名校验开关")
     public ReturnResult<String> toggleSignVerify(@RequestParam boolean enabled) {
@@ -96,7 +113,12 @@ public class AdminController {
         }
     }
 
-    /** 热更新限流配置 */
+    /**
+     * 热更新限流配置
+     *
+     * @param config 配置
+     * @return 配置rate限制的结果
+     */
     @PostMapping("/rate-limit")
     @Operation(summary = "配置限流")
     public ReturnResult<String> configRateLimit(@RequestBody RateLimitConfig config) {
@@ -105,7 +127,12 @@ public class AdminController {
         return ReturnResult.ok("限流配置已更新");
     }
 
-    /** 热切换 token 自动续期 */
+    /**
+     * 热切换 令牌 自动续期
+     *
+     * @param enabled 已启用
+     * @return toggleRenew的结果
+     */
     @PostMapping("/renew")
     @Operation(summary = "切换 token 自动续期")
     public ReturnResult<String> toggleRenew(@RequestParam boolean enabled) {
@@ -114,7 +141,12 @@ public class AdminController {
         return ReturnResult.ok(enabled ? "Token 自动续期已开启" : "Token 自动续期已关闭");
     }
 
-    /** 热切换 refreshToken 轮换 */
+    /**
+     * 热切换 refresh令牌 轮换
+     *
+     * @param enabled 已启用
+     * @return togglerefresh令牌rotation的结果
+     */
     @PostMapping("/refresh-token-rotation")
     @Operation(summary = "切换 refreshToken 轮换")
     public ReturnResult<String> toggleRefreshTokenRotation(@RequestParam boolean enabled) {
@@ -123,7 +155,7 @@ public class AdminController {
         return ReturnResult.ok(enabled ? "RefreshToken 轮换已开启" : "RefreshToken 轮换已关闭");
     }
 
-    /** 修改 token 过期时间 */
+    /** 修改 令牌 过期时间 */
     @PostMapping("/expire")
     @Operation(summary = "修改 token 过期时间（秒）")
     public ReturnResult<String> setExpire(@RequestParam long expire,
@@ -141,7 +173,11 @@ public class AdminController {
     }
 
     // ---- 内嵌 HTML 控制台 ----
-    /** 构建Html */
+    /**
+     * 构建HTML
+     *
+     * @return 构建html的结果
+     */
     private String buildHtml() {
         return """
 <!DOCTYPE html>
@@ -151,7 +187,7 @@ public class AdminController {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OAuth 管理控制台</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
   .header { background: #1a1a2e; color: #fff; padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
   .header h1 { font-size: 20px; font-weight: 600; }

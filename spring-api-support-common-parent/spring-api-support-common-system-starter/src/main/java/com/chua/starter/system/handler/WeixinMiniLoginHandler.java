@@ -32,15 +32,15 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
  * 微信小程序登录处理器
  * <p>
  * 微信小程序登录流程：
- * 1. 前端调用 wx.login() 获取 code
- * 2. 前端调用 wx.getPhoneNumber() 获取手机号加密数据（或直接传 phoneCode）
- * 3. 后端通过 code 换取 session_key 与 openid
- * 4. 后端通过 phoneCode 获取手机号
+   * 1. 前端调用 wx.login() 获取 编码
+   * 2. 前端调用 wx.获取phone数字() 获取手机号加密数据（或直接传 phone编码）
+   * 3. 后端通过 编码 换取 会话_键 与 openid
+   * 4. 后端通过 phone编码 获取手机号
  * 5. 使用手机号作为用户名进行登录认证
- * 6. 更新或创建 SysUserThirdParty 记录，保存 openid
+   * 6. 更新或创建 sys用户thirdparty 记录，保存 openid
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/11
  * @author CH
  */
@@ -56,10 +56,10 @@ public class WeixinMiniLoginHandler implements LoginHandler {
     @Override
     /**
      * Login
-     * @param sysLoginService sysLoginService
-     * @param loginData loginData
-     * @param request request
-     * @param response response
+     * @param sysLoginService syslogin服务
+     * @param loginData login数据
+     * @param request 请求
+     * @param response 响应
      * @param fingerprint fingerprint
      */
     public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData,
@@ -75,9 +75,9 @@ public class WeixinMiniLoginHandler implements LoginHandler {
         }
 
         try {
-            // 1. 从登录数据中获取微信 code 与 phoneCode
-            // 微信小程序登录：username 传 wx.login 的 code
-            // password 传 wx.getPhoneNumber 的 code（phoneCode）
+ // 1. 从登录数据中获取微信 编码 与 phone编码
+ // 微信小程序登录：用户名 传 wx.login 的 编码
+ // 密码 传 wx.获取phone数字 的 编码（phone编码）
             var wxCode = loginData.getUsername();
             var phoneCode = loginData.getPassword();
 
@@ -86,7 +86,7 @@ public class WeixinMiniLoginHandler implements LoginHandler {
                 return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), "缺少微信授权码");
             }
 
-            // 2. 通过 code 换取 session_key 与 openid（使用反射调用）
+ // 2. 通过 编码 换取 会话_键 与 openid（使用反射调用）
             Object sessionInfo = invokeMethod(tencentMaHandler, "getSessionInfo", wxCode);
             if (sessionInfo == null) {
                 return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), "微信授权码无效");
@@ -108,7 +108,7 @@ public class WeixinMiniLoginHandler implements LoginHandler {
             AuthClientExecute clientExecute = AuthClientExecute.getInstance();
             long startTime = System.currentTimeMillis();
 
-            // 获取租户ID
+ // 获取租户标识
             var tenantId = loginData.getTenantId();
 
             Map<String, Object> wechatExt = new HashMap<>();
@@ -169,7 +169,7 @@ public class WeixinMiniLoginHandler implements LoginHandler {
      * @return 手机号
      */
     private String getPhoneNumber(Object tencentMaHandler, String phoneCode, LoginData loginData) {
-        // 优先使用 phoneCode 获取手机号（新版微信接口）
+ // 优先使用 phone编码 获取手机号（新版微信接口）
         if (StringUtils.isNotBlank(phoneCode)) {
             try {
                 Object phoneNumberInfo = invokeMethod(tencentMaHandler, "getPhoneNumber", phoneCode);
@@ -263,7 +263,7 @@ public class WeixinMiniLoginHandler implements LoginHandler {
             }
 
             // 查找是否已存在该类型的绑定记录（通过手机号关联的用户）
-            // 这里需要通过手机号找到用户ID，然后更新或创建绑定记录
+ // 这里需要通过手机号找到用户标识，然后更新或创建绑定记录
             SysUserThirdParty existingByPhone = mapper.selectOne(
                     Wrappers.<SysUserThirdParty>lambdaQuery()
                             .eq(SysUserThirdParty::getSysUserThirdPartyType, THIRD_PARTY_TYPE)
@@ -293,7 +293,7 @@ public class WeixinMiniLoginHandler implements LoginHandler {
     /**
      * 获取微信小程序处理器
      *
-     * @return TencentMaHandler 实例，未配置时返回 null
+     * @return TencentMaHandler 实例，未配置时返回 空
      */
     private Object getTencentMaHandler() {
         try {

@@ -17,18 +17,18 @@ import java.util.List;
 public class RoleMenuUpdate {
 
     /**
-     * 角色ID
+      * 角色标识
      */
     @NotNull(message = "角色ID不能为空", groups = {UpdateGroup.class, SelectGroup.class})
     @Schema(description = "角色ID")
-    /** RoleID */
+    /** 角色id */
     private Integer roleId;
 
     /**
-     * 菜单ID
+      * 菜单标识
      */
     @NotNull(message = "菜单ID不能为空", groups = {UpdateGroup.class})
     @Schema(description = "菜单ID")
-    /** MenuID */
+    /** menuid */
     private List<Integer> menuId;
 }

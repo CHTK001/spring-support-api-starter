@@ -133,7 +133,7 @@ public class AchievementEventListener {
      * 将业务行为类型映射为统计字段名。
      *
      * @param action 行为类型标识
-     * @return 统计字段名，未匹配时返回 null
+     * @return 统计字段名，未匹配时返回 空
      */
     private String mapActionToStatKey(String action) {
         switch (action) {

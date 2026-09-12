@@ -23,7 +23,7 @@ public class TileEstimate {
     private Double estimatedOutputMb;
     /** 缩放级别 */
     private int zoom;
-    /** 最大缩放级别（可为 null） */
+    /** 最大缩放级别（可为 空） */
     private Integer zoomMax;
     /** 各级别明细（仅多级别下载时有值） */
     private List<LevelEstimate> levels;
@@ -36,6 +36,8 @@ public class TileEstimate {
      * @param zoom          缩放级别
      * @param tileCount     该级别瓦片数量
      * @param estimatedSizeMb 该级别预估大小（MB）
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     public static class LevelEstimate {

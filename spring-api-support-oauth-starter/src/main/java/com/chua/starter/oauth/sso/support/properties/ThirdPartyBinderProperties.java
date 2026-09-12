@@ -29,13 +29,14 @@ public class ThirdPartyBinderProperties {
      * Gitee 绑定配置。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Gitee extends Base {
 
         /**
-         * 默认构造器, 内置演示用 ClientId/ClientSecret/回调地址。
+          * 默认构造器, 内置演示用 客户端id/客户端secret/回调地址。
          */
         public Gitee() {
             this.setClientId("5117d2bf0e3f32c866afb7dd752cdcbc7947dafdb31bf7d9dc47bc4839609c50");
@@ -48,17 +49,18 @@ public class ThirdPartyBinderProperties {
      * 绑定基础配置。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @Data
     public static class Base {
 
         /**
-         * 客户端id：对应各平台的appKey
+          * 客户端标识：对应各平台的app键
          */
         private String clientId;
 
         /**
-         * 客户端Secret：对应各平台的appSecret
+          * 客户端Secret：对应各平台的appsecret
          */
         private String clientSecret;
 

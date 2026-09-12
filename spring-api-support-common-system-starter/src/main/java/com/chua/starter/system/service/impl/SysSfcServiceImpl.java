@@ -38,17 +38,17 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> implements SysSfcService{
 
-    final TransactionTemplate transactionTemplate;
-    final SysSfcInstallMapper sysSfcInstallMapper;
+    final TransactionTemplate transactionTemplate; // transactionTemplate
+    final SysSfcInstallMapper sysSfcInstallMapper; // syssfcinstall映射器
 
     @Override
-    /** PageForUserId */
+    /** pagefor用户id */
     public IPage<SysSfc> pageForUserId(Query<SysSfc> query, SysSfc sysSfc, Set<String> roles, String userId) {
         return baseMapper.selectPageForSfc(query.createPage(), sysSfc, userId);
     }
 
     @Override
-    /** UploadSfc */
+    /** uploadsfc */
     public ReturnResult<Boolean> uploadSfc(MultipartFile multipartFile, SysSfc sysSfc) {
         if(null == multipartFile) {
             return ReturnResult.error("请上传组件");
@@ -84,7 +84,7 @@ public class SysSfcServiceImpl extends ServiceImpl<SysSfcMapper, SysSfc> impleme
     }
 
     @Override
-    /** 更新ById */
+    /** 更新byid */
     public ReturnResult<Boolean> updateById(SysSfc sysSfc, Set<String> roles) {
         if(!AuthConstant.hasAdmin(roles)) {
             return ReturnResult.error("无权限修改组件");

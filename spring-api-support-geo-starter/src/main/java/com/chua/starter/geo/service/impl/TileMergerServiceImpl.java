@@ -16,15 +16,25 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * 瓦片拼接服务实现，将瓦片 Map 按坐标顺序合并为单张图像。
+   * 瓦片拼接服务实现，将瓦片 映射 按坐标顺序合并为单张图像。
  *
  * @author CH
  * @since 1.0.0
+ * @param x x
+ * @param data 数据
+ * @return 瓷砖entry的结果
  */
 @Service
 @Slf4j
 public class TileMergerServiceImpl implements TileMergerService {
 
+    /**
+     * 合并瓷砖。
+     * @param tiles 瓷砖
+     * @param bounds bounds
+     * @param zoom zoom
+     * @return 合并瓷砖的结果
+     */
     private static final int DEFAULT_TILE_SIZE = 256;
 
     @Override

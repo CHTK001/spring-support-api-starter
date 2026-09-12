@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 
 /**
- * 回退OAuth客户端配置，当AuthClientConfiguration未加载时提供默认Bean
+   * 回退OAuth客户端配置，当认证客户端配置未加载时提供默认Bean
  *
  * <p>在缺少统一 OAuth 客户端配置时, 将运行环境注入
  * {@link OauthClientRuntimeContext} 并提供默认的静态协议配置。</p>

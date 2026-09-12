@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
- * 3D Tiles 下载控制器，提供 Cesium Ion 和自定义 URL 的 3D Tiles 下载接口。
+   * 3D 瓷砖 下载控制器，提供 铯 Ion 和自定义 URL 的 3D 瓷砖 下载接口。
  *
  * @author CH
  * @since 1.0.0
@@ -31,14 +31,14 @@ import java.util.Map;
 @Slf4j
 public class Tiles3dController {
 
-    /** 3D Tiles 下载服务 */
+    /** 3D 瓷砖 下载服务 */
     private final Tiles3dService tiles3dService;
 
     /**
      * 分析 tileset 结构，返回摘要信息。
      *
      * @param request 数据源配置
-     * @param proxy   代理地址（可为 null）
+     * @param proxy   代理地址（可为 空）
      * @return tileset 摘要
      */
     @PostMapping("/analyze")
@@ -57,7 +57,7 @@ public class Tiles3dController {
     }
 
     /**
-     * 创建 3D Tiles 下载任务。
+      * 创建 3D 瓷砖 下载任务。
      *
      * @param request 下载请求
      * @return 任务结果
@@ -83,7 +83,7 @@ public class Tiles3dController {
     }
 
     /**
-     * 从 Map 构建 Tiles3dSource（供 analyze 接口使用）。
+      * 从 映射 构建 瓷砖3d源（供 分析 接口使用）。
      *
      * @param map 请求参数字典
      * @return Tiles3dSource

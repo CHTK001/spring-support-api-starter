@@ -69,10 +69,10 @@ public class MonitorAcmeOrderServiceImpl
     }
 
     /**
-     * 按 ACME Order URL 查找订单（去重/幂等）。订单 URL 为空时返回 null。
+      * 按 ACME 订单 URL 查找订单（去重/幂等）。订单 URL 为空时返回 空。
      *
-     * @param orderUrl ACME 服务下发的 order URL
-     * @return 订单或 null
+     * @param orderUrl ACME 服务下发的 订单 URL
+     * @return 订单或 空
      */
     @Override
     public MonitorAcmeOrder getByOrderUrl(String orderUrl) {
@@ -88,7 +88,7 @@ public class MonitorAcmeOrderServiceImpl
      * 保存订单：无主键时新增（回填创建/更新时间），有主键时更新。
      *
      * @param order 订单
-     * @return 保存后的对象，参数为空或更新失败时返回 null
+     * @return 保存后的对象，参数为空或更新失败时返回 空
      */
     @Override
     @Transactional(rollbackFor = Exception.class)

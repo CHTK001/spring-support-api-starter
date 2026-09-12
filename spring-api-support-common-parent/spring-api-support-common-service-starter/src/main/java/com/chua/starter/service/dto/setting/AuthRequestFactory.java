@@ -5,10 +5,10 @@ import me.zhyd.oauth.config.AuthConfig;
 import me.zhyd.oauth.request.*;
 
 /**
- * JustAuth AuthRequest 工厂
+   * just认证 认证请求 工厂
  *
  * <p>
- * 根据平台标识创建对应的 JustAuth {@link AuthRequest} 实例，
+   * 根据平台标识创建对应的 just认证 {@link AuthRequest} 实例，
  * 集中管理各平台 {@code Auth*Request} 的构造逻辑，避免多处重复。
  * </p>
  *
@@ -36,16 +36,19 @@ import me.zhyd.oauth.request.*;
  */
 public final class AuthRequestFactory {
 
+    /**
+     * 认证请求工厂。
+     */
     private AuthRequestFactory() {
     }
 
     /**
-     * 创建指定平台的 AuthRequest 实例
+      * 创建指定平台的 认证请求 实例
      *
      * @param platform 平台标识（不区分大小写）
-     * @param authConfig 认证配置（包含 clientId、clientSecret、redirectUri）
+     * @param authConfig 认证配置（包含 客户端id、客户端secret、redirecturi）
      * @param authStateCache 认证状态缓存
-     * @return 对应平台的 AuthRequest 实例，若平台不支持则返回 null
+     * @return 对应平台的 认证请求 实例，若平台不支持则返回 空
      */
     public static AuthRequest createAuthRequest(String platform, AuthConfig authConfig, AuthStateCache authStateCache) {
         return switch (platform.toLowerCase()) {

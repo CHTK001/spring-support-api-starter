@@ -4,14 +4,14 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 全局应用设置，对应 GeoProperties 的运行时快照。
+   * 全局应用设置，对应 geo属性 的运行时快照。
  *
  * @author CH
  * @since 1.0.0
  */
 @Data
 public class AppSettings {
-    /** 天地图 Token */
+    /** 天地图 令牌 */
     private String tiandituToken;
     /** 代理是否启用 */
     private Boolean proxyEnabled;
@@ -27,7 +27,7 @@ public class AppSettings {
     private String defaultSource;
     /** 自定义图源列表 */
     private List<CustomTileSource> customSources;
-    /** Cesium Ion Token */
+    /** 铯 Ion 令牌 */
     private String cesiumIonToken;
     /** 调试模式 */
     private Boolean debugMode;

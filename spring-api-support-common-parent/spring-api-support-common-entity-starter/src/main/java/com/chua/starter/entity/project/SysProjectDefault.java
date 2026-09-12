@@ -18,11 +18,11 @@ import lombok.Data;
 @TableName(value = "sys_project_default")
 public class SysProjectDefault {
     /**
-     * 默认功能主键ID
+      * 默认功能主键标识
      */
     @TableId(value = "sys_project_default_id", type = IdType.AUTO)
     @Schema(description = "")
-    /** SYSproject默认ID */
+    /** sysproject默认标识 */
     private Integer sysProjectDefaultId;
 
     /**
@@ -30,14 +30,14 @@ public class SysProjectDefault {
      */
     @TableField(value = "sys_project_default_type")
     @Schema(description = "类型； 字典表6;")
-    /** SYSproject默认类型 */
+    /** sysproject默认类型 */
     private String sysProjectDefaultType;
 
     /**
-     * 项目ID
+      * 项目标识
      */
     @TableField(value = "sys_project_id")
     @Schema(description = "项目ID")
-    /** SYSprojectID */
+    /** sysprojectid */
     private Integer sysProjectId;
 }

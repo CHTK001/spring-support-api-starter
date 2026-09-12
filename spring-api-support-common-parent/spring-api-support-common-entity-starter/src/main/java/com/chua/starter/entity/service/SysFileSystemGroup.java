@@ -19,7 +19,7 @@ import java.util.List;
  * 用于管理文件分组，支持树形结构
  *
  * @since 2024/12/10
- * @version 1.0.0
+   * @版本 1.0.0
  * @author CH
  */
 @Schema(description = "文件系统分组表")
@@ -29,15 +29,15 @@ import java.util.List;
 public class SysFileSystemGroup extends SysBase implements Serializable {
 
     @Serial
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 分组ID
+      * 分组标识
      */
     @TableId(value = "sys_file_system_group_id", type = IdType.AUTO)
     @Schema(description = "分组ID")
-    /** SYS文件system分组ID */
+    /** SYS文件系统分组标识 */
     private Integer sysFileSystemGroupId;
 
     /**
@@ -46,15 +46,15 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_group_name")
     @Schema(description = "分组名称")
     @Size(max = 100, message = "分组名称最大长度要小于 100")
-    /** SYS文件system分组名称 */
+    /** SYS文件系统分组名称 */
     private String sysFileSystemGroupName;
 
     /**
-     * 父分组ID
+      * 父分组标识
      */
     @TableField(value = "sys_file_system_group_parent_id")
     @Schema(description = "父分组ID，顶级分组为0")
-    /** SYS文件system分组父级ID */
+    /** SYS文件系统分组父级标识 */
     private Integer sysFileSystemGroupParentId;
 
     /**
@@ -63,7 +63,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_group_path")
     @Schema(description = "分组路径")
     @Size(max = 255, message = "分组路径最大长度要小于 255")
-    /** SYS文件system分组路径 */
+    /** SYS文件系统分组路径 */
     private String sysFileSystemGroupPath;
 
     /**
@@ -72,7 +72,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_group_full_path")
     @Schema(description = "分组完整路径")
     @Size(max = 500, message = "分组完整路径最大长度要小于 500")
-    /** SYS文件system分组full路径 */
+    /** SYS文件系统分组完整路径 */
     private String sysFileSystemGroupFullPath;
 
     /**
@@ -80,16 +80,16 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_group_level")
     @Schema(description = "分组层级，从1开始")
-    /** SYS文件system分组级别 */
+    /** SYS文件系统分组级别 */
     private Integer sysFileSystemGroupLevel;
 
     /**
-     * 分组树路径（ID链路，用于快速查询）
+      * 分组树路径（标识链路，用于快速查询）
      */
     @TableField(value = "sys_file_system_group_tree_path")
     @Schema(description = "分组树路径（ID链路，如：1/2/3）")
     @Size(max = 500, message = "分组树路径最大长度要小于 500")
-    /** SYS文件system分组tree路径 */
+    /** SYS文件系统分组树路径 */
     private String sysFileSystemGroupTreePath;
 
     /**
@@ -98,7 +98,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_group_description")
     @Schema(description = "分组描述")
     @Size(max = 500, message = "分组描述最大长度要小于 500")
-    /** SYS文件system分组描述 */
+    /** SYS文件系统分组描述 */
     private String sysFileSystemGroupDescription;
 
     /**
@@ -106,7 +106,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_group_is_default")
     @Schema(description = "是否默认分组")
-    /** SYS文件system分组IS默认 */
+    /** SYS文件系统分组是否默认 */
     private Boolean sysFileSystemGroupIsDefault;
 
     /**
@@ -114,7 +114,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_group_sort")
     @Schema(description = "分组排序，数字越小越靠前")
-    /** SYS文件system分组sort */
+    /** SYS文件系统分组排序 */
     private Integer sysFileSystemGroupSort;
 
     /**
@@ -122,7 +122,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
      */
     @TableField(value = "sys_file_system_group_status")
     @Schema(description = "分组状态: 0-禁用, 1-启用")
-    /** SYS文件system分组状态 */
+    /** SYS文件系统分组状态 */
     private Integer sysFileSystemGroupStatus;
 
     /**
@@ -131,7 +131,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_group_icon")
     @Schema(description = "分组图标")
     @Size(max = 100, message = "分组图标最大长度要小于 100")
-    /** SYS文件system分组icon */
+    /** SYS文件系统分组icon */
     private String sysFileSystemGroupIcon;
 
     /**
@@ -140,7 +140,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     @TableField(value = "sys_file_system_group_color")
     @Schema(description = "分组颜色")
     @Size(max = 20, message = "分组颜色最大长度要小于 20")
-    /** SYS文件system分组颜色 */
+    /** SYS文件系统分组颜色 */
     private String sysFileSystemGroupColor;
 
     /**
@@ -161,6 +161,8 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
 
     /**
      * 分组状态枚举
+     * @author CH
+     * @since 4.0.0
      */
     public static class Status {
         /**
@@ -175,6 +177,8 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
 
     /**
      * 默认分组类型
+     * @author CH
+     * @since 4.0.0
      */
     public static class DefaultGroupType {
         /**

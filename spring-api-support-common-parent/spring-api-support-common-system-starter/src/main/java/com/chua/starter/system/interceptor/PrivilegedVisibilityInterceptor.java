@@ -96,7 +96,7 @@ public class PrivilegedVisibilityInterceptor extends DataPermissionInterceptor {
     /**
      * 获取当前登录用户。
      *
-     * @return 当前用户，无鉴权服务时为 null
+     * @return 当前用户，无鉴权服务时为 空
      */
     private CurrentUser getCurrentUser() {
         if (authServiceSupplier == null) {

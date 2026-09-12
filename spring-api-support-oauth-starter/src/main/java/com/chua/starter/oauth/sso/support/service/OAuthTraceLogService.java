@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class OAuthTraceLogService {
 
-    /** 跟踪日志mapper */
+    /** 跟踪日志映射器 */
     private final SysOAuthTraceLogMapper traceLogMapper;
 
     /**
@@ -61,7 +61,7 @@ public class OAuthTraceLogService {
             if (traceLog.getSysRequestParams() != null) {
                 traceLog.setSysRequestParams(maskSensitiveData(traceLog.getSysRequestParams()));
             }
-            // 对AccessKey进行脱敏
+ // 对访问密钥进行脱敏
             if (traceLog.getSysAccessKey() != null) {
                 traceLog.setSysAccessKey(maskPartial(traceLog.getSysAccessKey()));
             }
@@ -77,7 +77,7 @@ public class OAuthTraceLogService {
     /**
      * 构建追踪日志对象
      *
-     * @param traceId       追踪ID
+     * @param traceId       追踪标识
      * @param operationType 操作类型
      * @param clientAppName 客户端应用名
      * @param clientIp      客户端IP
@@ -119,6 +119,7 @@ public class OAuthTraceLogService {
 
     /**
      * 递归处理JSON对象中的敏感字段
+     * @param json json
      */
     private void maskJsonObject(JSONObject json) {
         if (json == null) {
@@ -149,6 +150,8 @@ public class OAuthTraceLogService {
 
     /**
      * 部分脱敏 - 保留首尾4字符
+     * @param value 值
+     * @return mask部分的结果
      */
     private String maskPartial(String value) {
         if (value == null || value.length() <= 8) {
@@ -159,6 +162,8 @@ public class OAuthTraceLogService {
 
     /**
      * 短脱敏 - 保留首8字符
+     * @param value 值
+     * @return maskShort的结果
      */
     private String maskShort(String value) {
         if (value == null || value.length() <= 8) {
@@ -168,7 +173,9 @@ public class OAuthTraceLogService {
     }
 
     /**
-     * 将Map转换为脱敏后的JSON字符串
+      * 将映射转换为脱敏后的JSON字符串
+     * @param params 参数
+     * @return 映射转为maskedjson的结果
      */
     public String mapToMaskedJson(Map<String, Object> params) {
         if (params == null || params.isEmpty()) {

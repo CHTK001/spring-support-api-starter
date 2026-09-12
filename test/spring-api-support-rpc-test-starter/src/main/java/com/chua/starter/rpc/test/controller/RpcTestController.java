@@ -31,6 +31,7 @@ public class RpcTestController {
      *
      * @param message 待回显消息
      * @return 调用结果
+     * @param world" world"
      */
     @GetMapping("/echo")
     public RpcTestResult echo(@RequestParam(defaultValue = "hello world") String message) {
@@ -42,7 +43,7 @@ public class RpcTestController {
     }
 
     /**
-     * 调用远程 add 方法。
+      * 调用远程 添加 方法。
      *
      * @param a 加数
      * @param b 加数
@@ -89,7 +90,7 @@ public class RpcTestController {
     }
 
     /**
-     * 触发远程异常（传 null 参数），用于验证失败统计。
+      * 触发远程异常（传 空 参数），用于验证失败统计。
      *
      * @return 失败结果
      */
@@ -110,6 +111,7 @@ public class RpcTestController {
      * @param success 是否成功
      * @param data    返回数据
      * @param costMs  调用耗时（毫秒）
+     * @return rpc测试结果的结果
      */
     public record RpcTestResult(boolean success, Object data, long costMs) {
     }
@@ -120,6 +122,7 @@ public class RpcTestController {
      * @param a      加数
      * @param b      加数
      * @param result 和
+     * @return 添加结果的结果
      */
     public record AddResult(int a, int b, int result) {
     }
@@ -132,6 +135,7 @@ public class RpcTestController {
      * @param rpcCall    RPC 调用状态
      * @param echoResult 回显结果
      * @param rpcError   调用错误信息
+     * @return rpc健康信息的结果
      */
     public record RpcHealthInfo(String rpc, String service, String rpcCall, String echoResult, String rpcError) {
     }

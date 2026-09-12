@@ -49,7 +49,7 @@ import java.util.concurrent.TimeUnit;
 public class SmsCodeServiceImpl implements SmsCodeService {
 
     /**
-     * Redis 验证码 Key 前缀
+      * Redis 验证码 键 前缀
      */
     private static final String SMS_CODE_KEY_PREFIX = "sms:code:";
 
@@ -68,22 +68,22 @@ public class SmsCodeServiceImpl implements SmsCodeService {
      */
     private static final int SEND_INTERVAL_SECONDS = 60;
 
-    /** Log_message_max_length */
+    /** 日志_消息_最大_长度 */
     private static final int LOG_MESSAGE_MAX_LENGTH = 255;
-    /** Log_param_max_length */
+    /** 日志_参数_最大_长度 */
     private static final int LOG_PARAM_MAX_LENGTH = 255;
 
-    /** 字符串redis模板 */
+    /** 字符串Redis模板 */
     private final StringRedisTemplate stringRedisTemplate;
-    /** SYS用户mapper */
+    /** SYS用户映射器 */
     private final SysUserMapper sysUserMapper;
-    /** SYSlogin服务 */
+    /** syslogin服务 */
     private final SysLoginService sysLoginService;
-    /** SYSSMS日志mapper */
+    /** SYSSMS日志映射器 */
     private final SysSmsLogMapper sysSmsLogMapper;
 
     @Override
-    /** 发送Code */
+    /** 发送编码 */
     public ReturnResult<Boolean> sendCode(SmsCodeRequest request) {
         String phone = request.getPhone();
         String bizType = request.getBizType();
@@ -151,7 +151,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
     }
 
     @Override
-    /** 验证Code */
+    /** 验证编码 */
     public boolean verifyCode(String phone, String code, String bizType) {
         if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(code)) {
             return false;
@@ -171,7 +171,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
             stringRedisTemplate.delete(codeKey);
             log.info("短信验证码验证成功: phone={}", phone);
         } else {
-            // 不打印用户输入的 code,只记录失败次数
+ // 不打印用户输入的 编码,只记录失败次数
             log.warn("短信验证码验证失败: phone={}", phone);
         }
 
@@ -202,7 +202,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
             return ReturnResult.error("该手机号未注册");
         }
 
-        // 获取 AccessToken
+ // 获取 access令牌
         Map<String, Object> ext = new HashMap<>();
         ext.put("loginType", "sms");
         ext.put("phone", phone);
@@ -234,12 +234,12 @@ public class SmsCodeServiceImpl implements SmsCodeService {
     }
 
     /**
-     * 保存SmsLog
+      * 保存sms日志
      * @param phone phone
-     * @param code code
-     * @param bizType bizType
-     * @param smsSetting smsSetting
-     * @param result result
+     * @param code 编码
+     * @param bizType biz类型
+     * @param smsSetting smssetting
+     * @param result 结果
      */
     private void saveSmsLog(String phone,
                             String code,
@@ -269,7 +269,13 @@ public class SmsCodeServiceImpl implements SmsCodeService {
         }
     }
 
-    /** Truncate */
+    /**
+     * Truncate
+     *
+     * @param value 值
+     * @param maxLength 最大长度
+     * @return truncate的结果
+     */
     private String truncate(String value, int maxLength) {
         if (StringUtils.isEmpty(value) || value.length() <= maxLength) {
             return value;

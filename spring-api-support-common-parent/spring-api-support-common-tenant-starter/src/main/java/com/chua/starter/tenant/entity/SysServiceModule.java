@@ -16,7 +16,7 @@ import lombok.EqualsAndHashCode;
  * 服务模块实体
  * 用于管理服务下的功能模块
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/07
  * @author CH
  */
@@ -28,13 +28,13 @@ import lombok.EqualsAndHashCode;
 public class SysServiceModule extends SysBase {
 
     /**
-     * 服务模块ID
+      * 服务模块标识
      */
     @TableId(value = "sys_service_module_id", type = IdType.AUTO)
     @ApiModelProperty(value = "服务模块ID")
     @Schema(description = "服务模块ID")
     @NotNull(message = "服务模块ID不能为空", groups = {UpdateGroup.class})
-    /** SYS服务moduleID */
+    /** SYS服务moduleid */
     private Integer sysServiceModuleId;
 
     /**
@@ -98,7 +98,7 @@ public class SysServiceModule extends SysBase {
 
     /**
      * 服务模块类型
-     * API: API接口模块, SERVICE: 服务模块, FUNCTION: 功能模块
+      * API: API接口模块, 服务: 服务模块, FUNCTION: 功能模块
      */
     @TableField(value = "sys_service_module_type")
     @ApiModelProperty(value = "服务模块类型")
@@ -107,12 +107,12 @@ public class SysServiceModule extends SysBase {
     private String sysServiceModuleType;
 
     /**
-     * 关联菜单ID
+      * 关联菜单标识
      * <p>功能模块(FUNCTION)映射到平台菜单，租户菜单推送时据此计算</p>
      */
     @TableField(value = "sys_menu_id")
     @ApiModelProperty(value = "关联菜单ID")
     @Schema(description = "关联菜单ID")
-    /** SYSmenuID */
+    /** sysmenuid */
     private Integer sysMenuId;
 }
