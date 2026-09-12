@@ -24,10 +24,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
-   * RAG 测试控制器 — 覆盖文档上传 + 向量检索 + 图计算rag 知识图谱增强。
- *
- * @author CH
- * @since 4.0.0
+* RAG 测试控制器 — 覆盖文档上传 + 向量检索 + 图计算rag 知识图谱增强。
+*
+* @author CH
+* @since 4.0.0
  */
 @Slf4j
 @RestController
@@ -185,10 +185,10 @@ public class TestRagController {
     @Operation(summary = "文档列表")
     @GetMapping("/document/list")
     /**
-      * 列表文档
-     * @param page page
-     * @param pageSize page大小
-     * @param libraryId 图书馆id
+    * 列表文档
+    * @param page page
+    * @param pageSize page大小
+    * @param libraryId 图书馆id
      */
     public ReturnResult<RagDocumentManager.PaginatedResult> listDocuments(
             @RequestParam(defaultValue = "1") int page,
@@ -209,10 +209,10 @@ public class TestRagController {
     @Operation(summary = "删除文档")
     @DeleteMapping("/document/{id}")
     /**
-     * 删除文档
-     *
-     * @param id id
-     * @return 删除文档的结果
+    * 删除文档
+    *
+    * @param id id
+    * @return 删除文档的结果
      */
     public ReturnResult<Boolean> deleteDocument(@PathVariable String id) {
         boolean deleted = documentManager.deleteDocument(id);
@@ -224,10 +224,10 @@ public class TestRagController {
     @Operation(summary = "RAG 问答", description = "基于已索引文档进行问答（useGraph=true 时自动注入图谱上下文）")
     @PostMapping("/query")
     /**
-     * 查询
-     *
-     * @param body 主体
-     * @return 查询的结果
+    * 查询
+    *
+    * @param body 主体
+    * @return 查询的结果
      */
     public ReturnResult<Map<String, Object>> query(@RequestBody Map<String, Object> body) {
         String query = body.getOrDefault("query", "").toString();
@@ -260,9 +260,9 @@ public class TestRagController {
     @Operation(summary = "状态")
     @GetMapping("/status")
     /**
-     * 状态
-     *
-     * @return 状态的结果
+    * 状态
+    *
+    * @return 状态的结果
      */
     public ReturnResult<Map<String, Object>> status() {
         Map<String, Object> status = new LinkedHashMap<>();
@@ -287,10 +287,10 @@ public class TestRagController {
     // ── 辅助 ─────────────────────────────────────────────
 
     /**
-     * extractkeywords
-     *
-     * @param contents 内容
-     * @return extractKeywords的结果
+    * extractkeywords
+    *
+    * @param contents 内容
+    * @return extractKeywords的结果
      */
     private Set<String> extractKeywords(List<String> contents) {
         Set<String> keywords = new LinkedHashSet<>();

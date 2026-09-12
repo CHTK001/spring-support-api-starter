@@ -15,10 +15,10 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * 用户操作日志表
- *
- * @since 2024/8/8
- * @author CH
+* 用户操作日志表
+*
+* @since 2024/8/8
+* @author CH
  */
 @Schema(description = "用户操作日志表")
 @Data
@@ -28,7 +28,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-      * 日志标识
+    * 日志标识
      */
     @TableId(value = "sys_log_id", type = IdType.AUTO)
     @Schema(description = "日志ID")

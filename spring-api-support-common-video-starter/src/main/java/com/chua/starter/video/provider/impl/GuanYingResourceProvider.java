@@ -47,30 +47,30 @@ import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_
 import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_STATUS_FINISH;
 
 /**
- * 观影视频资源提供者实现类
- *
- * @since 2025/9/15 23:27
- * @author CH
+* 观影视频资源提供者实现类
+*
+* @since 2025/9/15 23:27
+* @author CH
  */
 @Slf4j
 @Spi("guanying")
 public class GuanYingResourceProvider extends AbstractResourceProvider implements SyncProvider {
     /**
-     * 视频封面存储路径
+    * 视频封面存储路径
      */
     static final String COVER_PATH = "./video/cover";
     /**
-     * 最小年份
+    * 最小年份
      */
     static final int MIN_YEAR = 1960;
     /**
-     * 标签映射数组，用于将数字索引转换为具体的标签名称
+    * 标签映射数组，用于将数字索引转换为具体的标签名称
      */
     static String[] TAG = new String[]{
             "美国", "大陆", "日本", "剧情", "科幻", "动作", "喜剧", "爱情", "冒险", "犯罪", "悬疑", "儿童", "歌舞", "音乐", "奇幻", "动画", "恐怖", "惊悚", "丧尸", "战争", "传记", "纪录", "西部", "灾难", "古装", "武侠", "家庭", "短片", "校园", "文艺", "运动", "青春", "同性", "励志", "人性", "美食", "女性", "治愈", "历史", "真人秀", "脱口秀", "萌系", "日常", "热血", "机战", "游戏", "情色", "搞笑", "恋爱", "后宫", "百合", "基腐", "致郁", "异世界", "泡面", "战斗", "加拿大", "香港", "台湾", "韩国", "印度", "德国", "法国", "英国", "意大利", "巴西", "泰国", "澳大利亚", "荷兰", "西班牙", "墨西哥"
     };
     /**
-     * 封面存储路径
+    * 封面存储路径
      */
     File file = null;
     @AutoInject
@@ -103,23 +103,23 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 搜索视频资源
-     *
-     * @param videoSearch 视频搜索条件，包含关键词、年份、分类等信息
-     *                    <pre>
-     *                                                                                                                   {@code
-     *                                                                                                                   VideoSearch videoSearch = new VideoSearch();
-     *                                                                                                                   videoSearch.setKeyword("复仇者联盟");
-     *                                                                                                                   videoSearch.setYear(2012);
-     *                                                                                                                   videoSearch.setCategory("movie");
-     *                                                                                                                   ReturnPageResult<VideoInfoResult> result = provider.searchResource(videoSearch);
-     *                                                                                                                   }
-     *                                                                                                                   </pre>            videoSearch.setYear(2012);
-     *                                                                                                                   videoSearch.setCategory("movie");
-     *                                                                                                                   ReturnPageResult<VideoInfoResult> result = provider.searchResource(videoSearch);
-     *                                                                                                                   }
-     *                                                                                                                   </pre>
-     * @return 分页结果，包含匹配的视频信息列表
+    * 搜索视频资源
+    *
+    * @param videoSearch 视频搜索条件，包含关键词、年份、分类等信息
+    *                    <pre>
+    *                                                                                                                   {@code
+    *                                                                                                                   VideoSearch videoSearch = new VideoSearch();
+    *                                                                                                                   videoSearch.setKeyword("复仇者联盟");
+    *                                                                                                                   videoSearch.setYear(2012);
+    *                                                                                                                   videoSearch.setCategory("movie");
+    *                                                                                                                   ReturnPageResult<VideoInfoResult> result = provider.searchResource(videoSearch);
+    *                                                                                                                   }
+    *                                                                                                                   </pre>            videoSearch.setYear(2012);
+    *                                                                                                                   videoSearch.setCategory("movie");
+    *                                                                                                                   ReturnPageResult<VideoInfoResult> result = provider.searchResource(videoSearch);
+    *                                                                                                                   }
+    *                                                                                                                   </pre>
+    * @return 分页结果，包含匹配的视频信息列表
      */
     @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
@@ -152,14 +152,14 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 创建视频信息并搜索
-     *
-     * @param embeddedVideoInfo 嵌入视频信息对象
-     * @param videoInfoResults  视频信息结果列表
-     * @param baseConfig        基础配置对象
-     * @param page              当前页码
-     * @param pages             总页数
-     * @param consumer          消费者对象
+    * 创建视频信息并搜索
+    *
+    * @param embeddedVideoInfo 嵌入视频信息对象
+    * @param videoInfoResults  视频信息结果列表
+    * @param baseConfig        基础配置对象
+    * @param page              当前页码
+    * @param pages             总页数
+    * @param consumer          消费者对象
      */
     private void createAndSearchVideo(EmbeddedVideoInfo embeddedVideoInfo,
                                       List<VideoInfoResult> videoInfoResults,
@@ -217,11 +217,11 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 注册封面信息
-     *
-     * @param video      视频信息对象
-     * @param dataId     数据标识
-     * @param baseConfig 基础配置对象
+    * 注册封面信息
+    *
+    * @param video      视频信息对象
+    * @param dataId     数据标识
+    * @param baseConfig 基础配置对象
      */
     private void registerCover(VideoInfoResult video, String dataId, BaseConfig baseConfig) {
         String cover = baseConfig.getCoverUrl() + "/%s/%s".formatted(dataId, videoSource.getVideoSourceCoverSuffix());
@@ -233,10 +233,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 注册标签信息
-     *
-     * @param video 视频信息对象
-     * @param o     标签信息对象
+    * 注册标签信息
+    *
+    * @param video 视频信息对象
+    * @param o     标签信息对象
      */
     private void registerTag(VideoInfoResult video, List<String> o) {
         List<String> tags = new LinkedList<>();
@@ -258,10 +258,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 注册地区信息
-     *
-     * @param video 视频信息对象
-     * @param o1    地区信息对象
+    * 注册地区信息
+    *
+    * @param video 视频信息对象
+    * @param o1    地区信息对象
      */
     private void registerDistrict(VideoInfoResult video, Object o1) {
         if (o1 instanceof Number n) {
@@ -277,11 +277,11 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 创建基础配置对象
-     *
-     * @param apiUrl      API URL
-     * @param videoSearch 视频搜索条件
-     * @return 基础配置对象
+    * 创建基础配置对象
+    *
+    * @param apiUrl      API URL
+    * @param videoSearch 视频搜索条件
+    * @return 基础配置对象
      */
     private BaseConfig createBaseConfig(String apiUrl, VideoSearch videoSearch) {
         String coverUrl = getCoverUrl(videoSearch);
@@ -292,10 +292,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 获取API视频类型
-     *
-     * @param videoSearch 视频搜索条件
-     * @return API视频类型字符串
+    * 获取API视频类型
+    *
+    * @param videoSearch 视频搜索条件
+    * @return API视频类型字符串
      */
     private String getApiVideoType(VideoSearch videoSearch) {
         String videoType = videoSearch.getVideoType();
@@ -315,10 +315,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 获取详情页URL
-     *
-     * @param videoSearch 视频搜索条件
-     * @return 详情页URL
+    * 获取详情页URL
+    *
+    * @param videoSearch 视频搜索条件
+    * @return 详情页URL
      */
     private String getDetailUrl(VideoSearch videoSearch) {
         String videoType = videoSearch.getVideoType();
@@ -338,10 +338,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 获取下载URL
-     *
-     * @param videoSearch 视频搜索条件
-     * @return 下载URL
+    * 获取下载URL
+    *
+    * @param videoSearch 视频搜索条件
+    * @return 下载URL
      */
     private String getDownloadUrl(VideoSearch videoSearch) {
         String videoType = videoSearch.getVideoType();
@@ -361,10 +361,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 获取封面URL
-     *
-     * @param videoSearch 视频搜索条件
-     * @return 封面URL
+    * 获取封面URL
+    *
+    * @param videoSearch 视频搜索条件
+    * @return 封面URL
      */
     private String getCoverUrl(VideoSearch videoSearch) {
         String videoType = videoSearch.getVideoType();
@@ -384,10 +384,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 获取API URL
-     *
-     * @param videoSearch 视频搜索条件
-     * @return API URL
+    * 获取API URL
+    *
+    * @param videoSearch 视频搜索条件
+    * @return API URL
      */
     private String getApiUrl(VideoSearch videoSearch) {
         String videoType = videoSearch.getVideoType();
@@ -407,11 +407,11 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 注册下载信息
-     *
-     * @param video      视频信息结果对象
-     * @param dataId     数据标识
-     * @param baseConfig 基础配置对象
+    * 注册下载信息
+    *
+    * @param video      视频信息结果对象
+    * @param dataId     数据标识
+    * @param baseConfig 基础配置对象
      */
     private void registerDownload(VideoInfoResult video, String dataId, BaseConfig baseConfig) {
         //https://www.gyg.la/res/downurl/mv/mXr4
@@ -431,10 +431,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 注册播放地址信息
-     *
-     * @param videoPlayAddresses 视频下载列表
-     * @param playlist           播放列表数据传输对象
+    * 注册播放地址信息
+    *
+    * @param videoPlayAddresses 视频下载列表
+    * @param playlist           播放列表数据传输对象
      */
     private void registerPlayAddress(List<VideoPlayAddress> videoPlayAddresses, List<EmbeddedDownload.PlaylistDTO> playlist) {
         if (null == playlist) {
@@ -493,10 +493,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-      * 创建视频play地址url
-     * @param playlistDTO playlistdto
-     * @param index 索引
-     * @return 创建视频play地址url的结果
+    * 创建视频play地址url
+    * @param playlistDTO playlistdto
+    * @param index 索引
+    * @return 创建视频play地址url的结果
      */
     private String createVideoPlayAddressUrl(EmbeddedDownload.PlaylistDTO playlistDTO, int index) {
         try {
@@ -518,10 +518,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
 
 
     /**
-     * 注册网盘下载信息
-     *
-     * @param videoDownloads 视频下载列表
-     * @param panlist        网盘列表数据传输对象
+    * 注册网盘下载信息
+    *
+    * @param videoDownloads 视频下载列表
+    * @param panlist        网盘列表数据传输对象
      */
     private void registerPanDownload(List<VideoDownload> videoDownloads, PanlistDTO panlist) {
         if (null == panlist) {
@@ -554,10 +554,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 注册磁力链接下载信息
-     *
-     * @param videoDownloads 视频下载列表
-     * @param downlist       下载列表数据传输对象
+    * 注册磁力链接下载信息
+    *
+    * @param videoDownloads 视频下载列表
+    * @param downlist       下载列表数据传输对象
      */
     private void registerClDownload(List<VideoDownload> videoDownloads, DownlistDTO downlist) {
         if (null == downlist) {
@@ -597,11 +597,11 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 注册详细信息
-     *
-     * @param video      视频信息结果对象
-     * @param dataId     数据标识
-     * @param baseConfig 基础配置对象
+    * 注册详细信息
+    *
+    * @param video      视频信息结果对象
+    * @param dataId     数据标识
+    * @param baseConfig 基础配置对象
      */
     private void registerDetail(VideoInfoResult video, String dataId, BaseConfig baseConfig) {
         String detailHtml = HttpClient.get(baseConfig.getDetailUrl() + dataId)
@@ -618,10 +618,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 注册更多基础详细信息
-     *
-     * @param video    视频信息结果对象
-     * @param baseJson 基础JSON字符串
+    * 注册更多基础详细信息
+    *
+    * @param video    视频信息结果对象
+    * @param baseJson 基础JSON字符串
      */
     private void registerDetailMoreBase(VideoInfoResult video, String baseJson) {
         try {
@@ -667,10 +667,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 下载封面图片
-     *
-     * @param cover 封面URL
-     * @param name  文件名
+    * 下载封面图片
+    *
+    * @param cover 封面URL
+    * @param name  文件名
      */
     private void downloadCover(String cover, String name) {
         File file1 = new File(file, name);
@@ -684,9 +684,9 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
 
     @Override
     /**
-      * 获取视频
-     * @param config 配置
-     * @param consumer consumer
+    * 获取视频
+    * @param config 配置
+    * @param consumer consumer
      */
     public void fetchVideos(VideoSyncConfig config, BiConsumer<VideoInfoResult, VideoSyncProcessConfig> consumer) {
         String videoSyncConfigStatus = config.getVideoSyncConfigStatus();
@@ -781,9 +781,9 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-      * countdownyear
-     * @param year year
-     * @param searchPage 搜索page
+    * countdownyear
+    * @param year year
+    * @param searchPage 搜索page
      */
     private void countdownYear(AtomicInteger year, AtomicInteger searchPage) {
         year.decrementAndGet();
@@ -791,50 +791,50 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 创建年份
-     *
-     * @param jsonObject
-     * @param videoType
-     * @return
+    * 创建年份
+    *
+    * @param jsonObject
+    * @param videoType
+    * @return
      */
     private AtomicInteger createYear(JsonObject jsonObject, String videoType) {
         return new AtomicInteger(jsonObject.getInteger(videoType + "_year", LocalDateTime.now().getYear()));
     }
 
     /**
-     * 根据指定的视频类型从JSON对象中获取对应的页码计数，如果不存在则返回默认值1。
-     *
-     * @param jsonObject 包含视频同步偏移量信息的JSON对象，用于记录不同视频类型的同步进度
-     *                   <pre><code>
-     *                                                                                                             JsonObject offset = new JsonObject();
-     *                                                                                                             offset.put("MV", 3);
-     *                                                                                                             int count = provider.createCount(offset, "MV"); // 返回3
-     *                                                                                                             </code></pre>
-     * @param videoType  视频类型字符串，例如"MV"、"TV"或"AC"，表示当前正在处理的视频类别
-     *                   <pre><code>
-     *                                                                                                             String videoType = "TV";
-     *                                                                                                             int count = provider.createCount(offset, videoType);
-     *                                                                                                             </code></pre>
-     * @return 返回对应视频类型的页码计数，若未找到则返回默认值1
-     * @since 2025/9/18 22:15
+    * 根据指定的视频类型从JSON对象中获取对应的页码计数，如果不存在则返回默认值1。
+    *
+    * @param jsonObject 包含视频同步偏移量信息的JSON对象，用于记录不同视频类型的同步进度
+    *                   <pre><code>
+    *                                                                                                             JsonObject offset = new JsonObject();
+    *                                                                                                             offset.put("MV", 3);
+    *                                                                                                             int count = provider.createCount(offset, "MV"); // 返回3
+    *                                                                                                             </code></pre>
+    * @param videoType  视频类型字符串，例如"MV"、"TV"或"AC"，表示当前正在处理的视频类别
+    *                   <pre><code>
+    *                                                                                                             String videoType = "TV";
+    *                                                                                                             int count = provider.createCount(offset, videoType);
+    *                                                                                                             </code></pre>
+    * @return 返回对应视频类型的页码计数，若未找到则返回默认值1
+    * @since 2025/9/18 22:15
      */
     private int createCount(JsonObject jsonObject, String videoType) {
         return jsonObject.getIntValue(videoType + "_page", 1);
     }
 
     /**
-     * 根据视频同步配置中的偏移量信息创建视频类型数组
-     *
-     * @param videoSyncConfigLastOffset 视频同步配置的最后偏移量信息，用于确定当前处理的视频类型及位置
-     *                                  <pre>{@code
-     *                                                                                                                                                                                                       JsonObject offset = new JsonObject();
-     *                                                                                                                                                                                                       offset.put("videoType", "TV");
-     *                                                                                                                                                                                                       String[] types = provider.createMvType(offset);
-     *                                                                                                                                                                                                       }</pre>                                                                                                                                         offset.put("videoType", "TV");
-     *                                                                                                                                                                                                       String[] types = provider.createMvType(offset);
-     *                                                                                                                                                                                                       }</pre>
-     * @return 返回根据当前视频类型确定的后续需要处理的视频类型数组
-     * @since 2025/9/18 14:30
+    * 根据视频同步配置中的偏移量信息创建视频类型数组
+    *
+    * @param videoSyncConfigLastOffset 视频同步配置的最后偏移量信息，用于确定当前处理的视频类型及位置
+    *                                  <pre>{@code
+    *                                                                                                                                                                                                       JsonObject offset = new JsonObject();
+    *                                                                                                                                                                                                       offset.put("videoType", "TV");
+    *                                                                                                                                                                                                       String[] types = provider.createMvType(offset);
+    *                                                                                                                                                                                                       }</pre>                                                                                                                                         offset.put("videoType", "TV");
+    *                                                                                                                                                                                                       String[] types = provider.createMvType(offset);
+    *                                                                                                                                                                                                       }</pre>
+    * @return 返回根据当前视频类型确定的后续需要处理的视频类型数组
+    * @since 2025/9/18 14:30
      */
     private String[] createMvType(JsonObject videoSyncConfigLastOffset) {
         String videoType = videoSyncConfigLastOffset.getString("videoType");
@@ -851,37 +851,37 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     }
 
     /**
-     * 基础配置类
-     * @author CH
-     * @since 4.0.0
+    * 基础配置类
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @AllArgsConstructor
     static class BaseConfig {
         /**
-         * API URL
+        * API URL
          */
         String apiUrl;
         /**
-         * 详情页URL
+        * 详情页URL
          */
         String detailUrl;
         /**
-         * 封面URL
+        * 封面URL
          */
         String coverUrl;
         /**
-         * 封面后缀
+        * 封面后缀
          */
         String coverSuffix;
         /**
-         * 下载URL
+        * 下载URL
          */
         String downloadUrl;
         /**
-         * API视频类型
-         * @author CH
-         * @since 4.0.0
+        * API视频类型
+        * @author CH
+        * @since 4.0.0
          */
         String apiVideoType;
     }
@@ -891,15 +891,15 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     static class EmbeddedDownload {
 
         /**
-         * 响应状态码
-         *
-         * @see #getCode()
-         * @see #setCode(Integer)
-         * <pre>{@code
-         * EmbeddedDownload download = new EmbeddedDownload();
-         * download.setCode(200);
-         * }</pre>re>
-         * @since 2025/9/19 14:20
+        * 响应状态码
+        *
+        * @see #getCode()
+        * @see #setCode(Integer)
+        * <pre>{@code
+        * EmbeddedDownload download = new EmbeddedDownload();
+        * download.setCode(200);
+        * }</pre>re>
+        * @since 2025/9/19 14:20
          */
         @SerializedName("code")
         /** 代码 */
@@ -1023,11 +1023,11 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
         @Data
         public static class PanlistDTO {
             /**
-              * 网盘资源标识列表
-             * <pre>{@code
-             * List<String> ids = Arrays.asList("1", "2", "3");
-             * panlistDTO.setId(ids);
-             * }</pre>/pre>
+            * 网盘资源标识列表
+            * <pre>{@code
+            * List<String> ids = Arrays.asList("1", "2", "3");
+            * panlistDTO.setId(ids);
+            * }</pre>/pre>
              */
             @SerializedName("id")
             /** 标识 */

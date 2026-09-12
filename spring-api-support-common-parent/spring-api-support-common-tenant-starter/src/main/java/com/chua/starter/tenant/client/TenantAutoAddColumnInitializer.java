@@ -26,15 +26,15 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 租户端自动补齐租户字段初始化器
- * <p>
-   * 用于租户端（客户端 模式）启动时自动为业务表补齐租户隔离字段：sys_tenant_标识。
-   * 使用 工具-通用 的 tabledefinition 工具生成 DDL 语句。
- * </p>
- *
-   * @版本 1.0.0
- * @since 2025/12/12
- * @author CH
+* 租户端自动补齐租户字段初始化器
+* <p>
+* 用于租户端（客户端 模式）启动时自动为业务表补齐租户隔离字段：sys_tenant_标识。
+* 使用 工具-通用 的 tabledefinition 工具生成 DDL 语句。
+* </p>
+*
+* @版本 1.0.0
+* @since 2025/12/12
+* @author CH
  */
 @Slf4j
 @Component
@@ -54,9 +54,9 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
  // 私募 Dialect dialect;
 
     /**
-     * 执行初始化逻辑
-     *
-     * @param args 启动参数
+    * 执行初始化逻辑
+    *
+    * @param args 启动参数
      */
     @Override
     public void run(ApplicationArguments args) {
@@ -93,12 +93,12 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
     }
 
     /**
-      * 获取当前数据库 模式/catalog
-     * <p>
-      * 使用 JDBC databasemeta数据 API 兼容任意数据库
-     * </p>
-     *
-     * @return schema 名称
+    * 获取当前数据库 模式/catalog
+    * <p>
+    * 使用 JDBC databasemeta数据 API 兼容任意数据库
+    * </p>
+    *
+    * @return schema 名称
      */
     private String resolveSchema() {
         DataSource dataSource = jdbcTemplate.getDataSource();
@@ -131,13 +131,13 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
     }
 
     /**
-      * 查询当前 模式 下的所有表
-     * <p>
-      * 使用 JDBC databasemeta数据.获取tables() 兼容任意数据库
-     * </p>
-     *
-     * @param schema 模式
-     * @return 表名列表
+    * 查询当前 模式 下的所有表
+    * <p>
+    * 使用 JDBC databasemeta数据.获取tables() 兼容任意数据库
+    * </p>
+    *
+    * @param schema 模式
+    * @return 表名列表
      */
     private List<String> queryTables(String schema) {
         List<String> tables = new ArrayList<>();
@@ -166,14 +166,14 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
     }
 
     /**
-     * 判断指定表是否存在租户字段
-     * <p>
-      * 使用 JDBC databasemeta数据.获取columns() 兼容任意数据库
-     * </p>
-     *
-     * @param schema    模式
-     * @param tableName 表名
-     * @return 是否存在
+    * 判断指定表是否存在租户字段
+    * <p>
+    * 使用 JDBC databasemeta数据.获取columns() 兼容任意数据库
+    * </p>
+    *
+    * @param schema    模式
+    * @param tableName 表名
+    * @return 是否存在
      */
     private boolean existsTenantColumn(String schema, String tableName) {
         DataSource dataSource = jdbcTemplate.getDataSource();
@@ -197,10 +197,10 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
     }
 
     /**
-     * 为指定表添加租户字段
-     * <p>Dialect、TableMetadata、ColumnMetadata 已移除，使用简单 ALTER TABLE 语句实现。</p>
-     *
-     * @param tableName 表名
+    * 为指定表添加租户字段
+    * <p>Dialect、TableMetadata、ColumnMetadata 已移除，使用简单 ALTER TABLE 语句实现。</p>
+    *
+    * @param tableName 表名
      */
     private void addTenantColumn(String tableName) {
         try {

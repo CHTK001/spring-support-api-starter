@@ -14,10 +14,10 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Map;
 
 /**
- * 管理员套接字身份验证工厂
- *
- * @since 2025/7/1
- * @author CH
+* 管理员套接字身份验证工厂
+*
+* @since 2025/7/1
+* @author CH
  */
 @Configuration
 @ConditionalOnClass(name = {"com.chua.starter.oauth.client.support.execute.AuthClientExecute", "com.chua.socket.support.auth.SocketAuthFactory"})
@@ -25,10 +25,10 @@ public class AdminSocketAuthFactory implements SocketAuthFactory {
 
 
     /**
-      * 校验握手数据是否携带有效的 OAuth 令牌。
-     *
-     * @param handshakeData 握手数据
-     * @return true 表示已授权
+    * 校验握手数据是否携带有效的 OAuth 令牌。
+    *
+    * @param handshakeData 握手数据
+    * @return true 表示已授权
      */
     @Override
     public boolean isAuthorized(Map<String, Object> handshakeData) {
@@ -40,10 +40,10 @@ public class AdminSocketAuthFactory implements SocketAuthFactory {
     }
 
     /**
-     * 根据握手数据构建套接字用户。
-     *
-     * @param handshakeData 握手数据
-     * @return 套接字用户，未携带 令牌 时为 空
+    * 根据握手数据构建套接字用户。
+    *
+    * @param handshakeData 握手数据
+    * @return 套接字用户，未携带 令牌 时为 空
      */
     @Override
     public SocketUser getUser(Map<String, Object> handshakeData) {

@@ -7,10 +7,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 用户查询对象
- *
- * @since 2024/8/7
- * @author CH
+* 用户查询对象
+*
+* @since 2024/8/7
+* @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
 public class SysUserQuery extends Query<SysUser> {
 
     /**
-     * 用户名
+    * 用户名
      */
     @Schema(description = "用户名")
     /** SYS用户名称 */

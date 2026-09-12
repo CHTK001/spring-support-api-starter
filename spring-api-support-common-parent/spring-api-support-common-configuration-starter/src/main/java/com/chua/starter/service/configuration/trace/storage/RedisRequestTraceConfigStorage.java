@@ -13,10 +13,10 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * Redis 版配置存储。
- *
- * @since 2026/03/25
- * @author CH
+* Redis 版配置存储。
+*
+* @since 2026/03/25
+* @author CH
  */
 @Spi("redis")
 public class RedisRequestTraceConfigStorage implements RequestTraceConfigStorage {
@@ -79,10 +79,10 @@ public class RedisRequestTraceConfigStorage implements RequestTraceConfigStorage
     }
 
     /**
-     * 键
-     *
-     * @param groupCode 群体编码
-     * @return 键的结果
+    * 键
+    *
+    * @param groupCode 群体编码
+    * @return 键的结果
      */
     private String key(String groupCode) {
         return "request:trace:config:" + groupCode;

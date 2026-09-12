@@ -15,10 +15,10 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 /**
-   * 打开api配置类
- *
- * @author CH
- * @since 4.0.0
+* 打开api配置类
+*
+* @author CH
+* @since 4.0.0
  */
 @Configuration
 public class OpenApiConfiguration {

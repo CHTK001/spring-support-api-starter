@@ -18,22 +18,22 @@ import me.zhyd.oauth.request.*;
 import org.springframework.context.ApplicationContext;
 
 /**
- * OAuth2 第三方登录认证处理器
- * <p>
- * 处理基于 OAuth2 协议的第三方平台登录认证，支持：
- * <ul>
- *   <li>Gitee、Github</li>
- *   <li>微信开放平台、微信公众号、企业微信</li>
- *   <li>QQ、支付宝、钉钉</li>
- *   <li>微博、百度</li>
- *   <li>Google、Microsoft</li>
- *   <li>抖音、飞书、淘宝等</li>
- * </ul>
- * </p>
- *
-   * @版本 1.0.0
- * @since 2024/12/18
- * @author CH
+* OAuth2 第三方登录认证处理器
+* <p>
+* 处理基于 OAuth2 协议的第三方平台登录认证，支持：
+* <ul>
+*   <li>Gitee、Github</li>
+*   <li>微信开放平台、微信公众号、企业微信</li>
+*   <li>QQ、支付宝、钉钉</li>
+*   <li>微博、百度</li>
+*   <li>Google、Microsoft</li>
+*   <li>抖音、飞书、淘宝等</li>
+* </ul>
+* </p>
+*
+* @版本 1.0.0
+* @since 2024/12/18
+* @author CH
  */
 @Slf4j
 @Spi("oauth2")
@@ -130,10 +130,10 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
     }
 
     /**
-     * 构建用户信息
-     * @param authUser 认证用户
-     * @param platform platform
-     * @return 构建用户resume的结果
+    * 构建用户信息
+    * @param authUser 认证用户
+    * @param platform platform
+    * @return 构建用户resume的结果
      */
     private UserResume buildUserResume(AuthUser authUser, String platform) {
         UserResume userResume = new UserResume();
@@ -187,9 +187,9 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
     }
     
     /**
-      * 脱敏appid
-     * @param appId appId
-     * @return maskAppId的结果
+    * 脱敏appid
+    * @param appId appId
+    * @return maskAppId的结果
      */
     private String maskAppId(String appId) {
         if (appId == null || appId.length() < 8) {

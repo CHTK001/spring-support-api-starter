@@ -24,10 +24,10 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
- * 系统设置接口(缓存)
- *
- * @since 2024/8/7
- * @author CH
+* 系统设置接口(缓存)
+*
+* @since 2024/8/7
+* @author CH
  */
 @Tag(name = "系统全局设置接口")
 @RestController
@@ -56,9 +56,9 @@ public class SysSettingGroupController {
     }
 
     /**
-     * 删除设置
-     *
-     * @return 更新设置
+    * 删除设置
+    *
+    * @return 更新设置
      */
     @Operation(summary = "删除设置")
     @RequestMapping(value = "/delete", method = {RequestMethod.DELETE, RequestMethod.POST})
@@ -78,10 +78,10 @@ public class SysSettingGroupController {
 
 
     /**
-     * 新增设置
-     *
-     * @return 新增设置
-     * @param true true
+    * 新增设置
+    *
+    * @return 新增设置
+    * @param true true
      */
     @Operation(summary = "更新设置")
     @PostMapping("/saveOrUpdate")
@@ -97,10 +97,10 @@ public class SysSettingGroupController {
     }
 
     /**
-     * 新增设置
-     *
-     * @return 新增设置
-     * @param true true
+    * 新增设置
+    *
+    * @return 新增设置
+    * @param true true
      */
     @Operation(summary = "更新设置")
     @PostMapping("/batchUpdate")

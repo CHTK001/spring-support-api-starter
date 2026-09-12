@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 服务器布局配置服务实现，负责布局的增删改查、默认布局管理、
- * 从组件生成布局、应用布局到组件以及跨服务器复制布局。
-   * 布局配置以 JSON 形式存储，结构包含 节点 / edges / 版本 / generatedat。
- *
- * @since 2026-07-28
- * @author CH
+* 服务器布局配置服务实现，负责布局的增删改查、默认布局管理、
+* 从组件生成布局、应用布局到组件以及跨服务器复制布局。
+* 布局配置以 JSON 形式存储，结构包含 节点 / edges / 版本 / generatedat。
+*
+* @since 2026-07-28
+* @author CH
  */
 @Slf4j
 @Service
@@ -39,62 +39,62 @@ public class MonitorSysGenServerLayoutServiceImpl
         implements MonitorSysGenServerLayoutService {
 
     /**
-     * 组件布局服务，用于生成布局与应用布局时读写组件位置
+    * 组件布局服务，用于生成布局与应用布局时读写组件位置
      */
     private final MonitorSysGenServerComponentLayoutService componentLayoutService;
 
     /**
-     * 布局类型：默认布局
+    * 布局类型：默认布局
      */
     private static final String TYPE_DEFAULT = "default";
 
     /**
-     * 布局类型：从组件生成
+    * 布局类型：从组件生成
      */
     private static final String TYPE_GENERATED = "generated";
 
     /**
-     * 布局类型：从其它服务器复制
+    * 布局类型：从其它服务器复制
      */
     private static final String TYPE_COPIED = "copied";
 
     /**
-     * 布局类型：自定义
+    * 布局类型：自定义
      */
     private static final String TYPE_CUSTOM = "custom";
 
     /**
-     * 布局版本初始值
+    * 布局版本初始值
      */
     private static final int VERSION_INIT = 1;
 
     /**
-     * 布局排序初始值
+    * 布局排序初始值
      */
     private static final int SORT_INIT = 0;
 
     /**
-     * 默认布局节点层级
+    * 默认布局节点层级
      */
     private static final int DEFAULT_NODE_Z_INDEX = 1;
 
     /**
-     * 默认标记：是默认布局
+    * 默认标记：是默认布局
      */
     private static final int DEFAULT_YES = 1;
 
     /**
-     * 默认标记：非默认布局
+    * 默认标记：非默认布局
      */
     private static final int DEFAULT_NO = 0;
 
     /**
-     * 布局状态：启用
+    * 布局状态：启用
      */
     private static final int STATUS_ENABLED = 1;
 
     /**
-     * 默认布局包含的基础监控节点（编码与名称）
+    * 默认布局包含的基础监控节点（编码与名称）
      */
     private static final String[][] DEFAULT_NODES = {
             {"cpu", "CPU"},
@@ -105,22 +105,22 @@ public class MonitorSysGenServerLayoutServiceImpl
     };
 
     /**
-     * 默认节点宽度（栅格列数）
+    * 默认节点宽度（栅格列数）
      */
     private static final int DEFAULT_NODE_WIDTH = 4;
 
     /**
-     * 默认节点高度（栅格行数）
+    * 默认节点高度（栅格行数）
      */
     private static final int DEFAULT_NODE_HEIGHT = 3;
 
     /**
-     * 每行放置的节点数量
+    * 每行放置的节点数量
      */
     private static final int NODES_PER_ROW = 3;
 
     /**
-     * 生成时间格式化器，输出 ISO 风格时间字符串
+    * 生成时间格式化器，输出 ISO 风格时间字符串
      */
     private static final DateTimeFormatter GENERATED_AT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -407,10 +407,10 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     /**
-      * 构建布局配置 JSON 字符串，结构包含 节点 / edges / 版本 / generatedat。
-     *
-     * @param nodes 布局节点列表
-     * @return 布局配置 JSON 字符串
+    * 构建布局配置 JSON 字符串，结构包含 节点 / edges / 版本 / generatedat。
+    *
+    * @param nodes 布局节点列表
+    * @return 布局配置 JSON 字符串
      */
     private String buildConfigJson(List<Map<String, Object>> nodes) {
         Map<String, Object> config = new HashMap<>(8);
@@ -422,9 +422,9 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     /**
-      * 为布局实体填充默认值：非默认布局、启用状态、版本 1、排序 0、类型 习俗。
-     *
-     * @param layout 布局实体
+    * 为布局实体填充默认值：非默认布局、启用状态、版本 1、排序 0、类型 习俗。
+    *
+    * @param layout 布局实体
      */
     private void applyDefaults(MonitorSysGenServerLayout layout) {
         if (layout.getMonitorSysGenServerLayoutDefault() == null) {
@@ -445,10 +445,10 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     /**
-      * 将任意对象安全地转换为 Integer，无法转换时返回 空。
-     *
-     * @param value 待转换对象
-     * @return Integer 值或 空
+    * 将任意对象安全地转换为 Integer，无法转换时返回 空。
+    *
+    * @param value 待转换对象
+    * @return Integer 值或 空
      */
     private Integer toInteger(Object value) {
         if (value == null) {

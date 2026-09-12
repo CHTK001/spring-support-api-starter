@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
-   * 瓦片代理控制器，提供 跨域资源共享 转发接口。
- * Web 版为 no-op，仅作占位。
- *
- * @author CH
- * @since 1.0.0
+* 瓦片代理控制器，提供 跨域资源共享 转发接口。
+* Web 版为 no-op，仅作占位。
+*
+* @author CH
+* @since 1.0.0
  */
 @RestController
 @RequestMapping("/v1/geo/proxy")
@@ -22,10 +22,10 @@ import java.util.Map;
 public class ProxyController {
 
     /**
-     * 启动瓦片代理服务（Web 版为 no-op）。
-     *
-     * @param body 请求参数（baseurl, 头部, 代理）
-     * @return 代理地址
+    * 启动瓦片代理服务（Web 版为 no-op）。
+    *
+    * @param body 请求参数（baseurl, 头部, 代理）
+    * @return 代理地址
      */
     @PostMapping("/start")
     @Operation(summary = "启动瓦片代理")

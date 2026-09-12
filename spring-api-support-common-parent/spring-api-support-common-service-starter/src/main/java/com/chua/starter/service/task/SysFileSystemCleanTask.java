@@ -19,11 +19,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 文件系统清理定时任务
- * 定时清理过期文件和临时文件
- *
- * @since 2024/12/20
- * @author CH
+* 文件系统清理定时任务
+* 定时清理过期文件和临时文件
+*
+* @since 2024/12/20
+* @author CH
  */
 @SpringBootConfiguration
 @RequiredArgsConstructor
@@ -185,9 +185,9 @@ public class SysFileSystemCleanTask {
     }
 
     /**
-     * 删除目录quietly
-     *
-     * @param file 文件
+    * 删除目录quietly
+    *
+    * @param file 文件
      */
     private void deleteDirectoryQuietly(File file) {
         if (null == file || !file.exists()) {
@@ -207,10 +207,10 @@ public class SysFileSystemCleanTask {
     }
 
     /**
-     * manualcleanexpired文件
-     *
-     * @param days days
-     * @return manualcleanexpired文件的结果
+    * manualcleanexpired文件
+    *
+    * @param days days
+    * @return manualcleanexpired文件的结果
      */
     public int manualCleanExpiredFiles(Integer days) {
         log.info("手动触发过期文件清理任务");

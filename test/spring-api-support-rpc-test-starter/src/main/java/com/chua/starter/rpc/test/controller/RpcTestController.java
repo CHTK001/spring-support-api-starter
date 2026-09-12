@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * RPC 测试控制器，通过 {@code @RpcResource} 注入的远程代理验证 RPC 调用。
- *
- * @author CH
- * @since 4.0.0.42
+* RPC 测试控制器，通过 {@code @RpcResource} 注入的远程代理验证 RPC 调用。
+*
+* @author CH
+* @since 4.0.0.42
  */
 @Slf4j
 @RestController
@@ -22,16 +22,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class RpcTestController {
 
     /**
-     * 远程服务客户端（注入的 RPC 代理）
+    * 远程服务客户端（注入的 RPC 代理）
      */
     private final EchoServiceClient echoServiceClient;
 
     /**
-     * 调用远程 echo 方法。
-     *
-     * @param message 待回显消息
-     * @return 调用结果
-     * @param world" world"
+    * 调用远程 echo 方法。
+    *
+    * @param message 待回显消息
+    * @return 调用结果
+    * @param world" world"
      */
     @GetMapping("/echo")
     public RpcTestResult echo(@RequestParam(defaultValue = "hello world") String message) {
@@ -43,11 +43,11 @@ public class RpcTestController {
     }
 
     /**
-      * 调用远程 添加 方法。
-     *
-     * @param a 加数
-     * @param b 加数
-     * @return 调用结果
+    * 调用远程 添加 方法。
+    *
+    * @param a 加数
+    * @param b 加数
+    * @return 调用结果
      */
     @GetMapping("/add")
     public RpcTestResult add(@RequestParam int a, @RequestParam int b) {
@@ -59,10 +59,10 @@ public class RpcTestController {
     }
 
     /**
-     * 调用远程 hello 方法。
-     *
-     * @param name 姓名
-     * @return 调用结果
+    * 调用远程 hello 方法。
+    *
+    * @param name 姓名
+    * @return 调用结果
      */
     @GetMapping("/hello/{name}")
     public RpcTestResult hello(@PathVariable String name) {
@@ -74,9 +74,9 @@ public class RpcTestController {
     }
 
     /**
-     * RPC 健康检查。
-     *
-     * @return 健康状态
+    * RPC 健康检查。
+    *
+    * @return 健康状态
      */
     @GetMapping("/health")
     public RpcHealthInfo health() {
@@ -90,9 +90,9 @@ public class RpcTestController {
     }
 
     /**
-      * 触发远程异常（传 空 参数），用于验证失败统计。
-     *
-     * @return 失败结果
+    * 触发远程异常（传 空 参数），用于验证失败统计。
+    *
+    * @return 失败结果
      */
     @GetMapping("/fail")
     public RpcTestResult fail() {
@@ -106,36 +106,36 @@ public class RpcTestController {
     }
 
     /**
-     * RPC 调用结果。
-     *
-     * @param success 是否成功
-     * @param data    返回数据
-     * @param costMs  调用耗时（毫秒）
-     * @return rpc测试结果的结果
+    * RPC 调用结果。
+    *
+    * @param success 是否成功
+    * @param data    返回数据
+    * @param costMs  调用耗时（毫秒）
+    * @return rpc测试结果的结果
      */
     public record RpcTestResult(boolean success, Object data, long costMs) {
     }
 
     /**
-     * 加法调用返回数据。
-     *
-     * @param a      加数
-     * @param b      加数
-     * @param result 和
-     * @return 添加结果的结果
+    * 加法调用返回数据。
+    *
+    * @param a      加数
+    * @param b      加数
+    * @param result 和
+    * @return 添加结果的结果
      */
     public record AddResult(int a, int b, int result) {
     }
 
     /**
-     * 健康检查结果。
-     *
-     * @param rpc        RPC 模块状态
-     * @param service    服务标识
-     * @param rpcCall    RPC 调用状态
-     * @param echoResult 回显结果
-     * @param rpcError   调用错误信息
-     * @return rpc健康信息的结果
+    * 健康检查结果。
+    *
+    * @param rpc        RPC 模块状态
+    * @param service    服务标识
+    * @param rpcCall    RPC 调用状态
+    * @param echoResult 回显结果
+    * @param rpcError   调用错误信息
+    * @return rpc健康信息的结果
      */
     public record RpcHealthInfo(String rpc, String service, String rpcCall, String echoResult, String rpcError) {
     }

@@ -4,8 +4,8 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * @since 2024/12/4
- * @author CH
+* @since 2024/12/4
+* @author CH
  */
 @Data
 @ConfigurationProperties(prefix = FileSystemProperties.PRE, ignoreInvalidFields = true)
@@ -22,7 +22,7 @@ public class FileSystemProperties {
 
 
     /**
-     * 临时文件路径
+    * 临时文件路径
      */
     private String tempPath = "./temp/filesystem";
 }

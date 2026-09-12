@@ -18,15 +18,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 
 /**
-   * appid认证处理器
- * <p>
-   * 独立处理appid认证，验证appid合法性并返回关联用户信息
-   * appid和app键是并列关系，各自独立处理
- * </p>
- *
-   * @版本 1.0.0
- * @since 2025/01/05
- * @author CH
+* appid认证处理器
+* <p>
+* 独立处理appid认证，验证appid合法性并返回关联用户信息
+* appid和app键是并列关系，各自独立处理
+* </p>
+*
+* @版本 1.0.0
+* @since 2025/01/05
+* @author CH
  */
 @Slf4j
 @Spi("appid")
@@ -34,11 +34,11 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
 
     @Override
     /**
-     * Authenticate
-     * @param authInformation 认证信息
-     * @param token 令牌
-     * @param cookie Cookie
-     * @param userCode 用户编码
+    * Authenticate
+    * @param authInformation 认证信息
+    * @param token 令牌
+    * @param cookie Cookie
+    * @param userCode 用户编码
      */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation, 
                                             String token, 
@@ -172,9 +172,9 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
     }
     
     /**
-      * 脱敏appid
-     * @param appId appId
-     * @return maskAppId的结果
+    * 脱敏appid
+    * @param appId appId
+    * @return maskAppId的结果
      */
     private String maskAppId(String appId) {
         if (appId == null || appId.length() < 8) {

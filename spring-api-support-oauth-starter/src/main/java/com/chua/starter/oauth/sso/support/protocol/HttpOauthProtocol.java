@@ -34,10 +34,10 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 
 /**
- * http
- *
- * @author CH
- * @since 4.0.0
+* http
+*
+* @author CH
+* @since 4.0.0
  */
 @Component
 @Extension("http")
@@ -98,9 +98,9 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
     }
     
     /**
-      * 注册 协议服务端 路由
-     *
-     * @param server 协议服务端 实例
+    * 注册 协议服务端 路由
+    *
+    * @param server 协议服务端 实例
      */
     private void registerProtocolServerRoutes(ProtocolServer server) {
         // 登录端点
@@ -349,9 +349,9 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-      * 从 servlet请求 提取请求体
-     * @param request 请求
-     * @return extract主体的结果
+    * 从 servlet请求 提取请求体
+    * @param request 请求
+    * @return extract主体的结果
      */
     private String extractBody(ServletRequest request) {
         try {
@@ -367,9 +367,9 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
     }
     
     /**
-     * 写入响应
-     * @param response 响应
-     * @param result 结果
+    * 写入响应
+    * @param response 响应
+    * @param result 结果
      */
     private void writeResponse(ServletResponse response, ReturnResult<?> result) {
         try {

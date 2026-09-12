@@ -17,14 +17,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 
 /**
-   * app键认证处理器
- * <p>
-   * 类似大模型的认证方式，只验证app键合法性，返回关联用户信息
- * </p>
- *
-   * @版本 1.0.0
- * @since 2024/12/11
- * @author CH
+* app键认证处理器
+* <p>
+* 类似大模型的认证方式，只验证app键合法性，返回关联用户信息
+* </p>
+*
+* @版本 1.0.0
+* @since 2024/12/11
+* @author CH
  */
 @Slf4j
 @Spi("appkey")
@@ -32,11 +32,11 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
 
     @Override
     /**
-     * Authenticate
-     * @param authInformation 认证信息
-     * @param token 令牌
-     * @param cookie Cookie
-     * @param userCode 用户编码
+    * Authenticate
+    * @param authInformation 认证信息
+    * @param token 令牌
+    * @param cookie Cookie
+    * @param userCode 用户编码
      */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation, 
                                             String token, 
@@ -158,9 +158,9 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
     }
     
     /**
-      * 脱敏app键
-     * @param appKey app键
-     * @return maskapp键的结果
+    * 脱敏app键
+    * @param appKey app键
+    * @return maskapp键的结果
      */
     private String maskAppKey(String appKey) {
         if (appKey == null || appKey.length() < 8) {

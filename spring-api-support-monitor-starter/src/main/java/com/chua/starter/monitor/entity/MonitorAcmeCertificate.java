@@ -12,10 +12,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * ACME 证书信息，保存证书主域名、SAN、挑战类型、状态、有效期、PEM 内容及部署模式等。
- *
- * @since 2025-10-17
- * @author CH
+* ACME 证书信息，保存证书主域名、SAN、挑战类型、状态、有效期、PEM 内容及部署模式等。
+*
+* @since 2025-10-17
+* @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -128,54 +128,54 @@ public class MonitorAcmeCertificate extends SysBase {
     private static final String STATUS_PENDING = "pending";
 
     /**
-     * 证书状态：校验中
+    * 证书状态：校验中
      */
     private static final String STATUS_VALIDATING = "validating";
 
     /**
-     * 证书状态：已签发
+    * 证书状态：已签发
      */
     private static final String STATUS_VALID = "valid";
 
     /**
-     * 证书状态：已过期
+    * 证书状态：已过期
      */
     private static final String STATUS_EXPIRED = "expired";
 
     /**
-     * 证书状态：签发失败
+    * 证书状态：签发失败
      */
     private static final String STATUS_FAILED = "failed";
 
     /**
-     * 证书状态：已吊销
+    * 证书状态：已吊销
      */
     private static final String STATUS_REVOKED = "revoked";
 
     /**
-     * 前端标签样式：警告（黄色）
+    * 前端标签样式：警告（黄色）
      */
     private static final String TYPE_WARNING = "warning";
 
     /**
-     * 前端标签样式：成功（绿色）
+    * 前端标签样式：成功（绿色）
      */
     private static final String TYPE_SUCCESS = "success";
 
     /**
-     * 前端标签样式：危险（红色）
+    * 前端标签样式：危险（红色）
      */
     private static final String TYPE_DANGER = "danger";
 
     /**
-     * 前端标签样式：信息（灰色）
+    * 前端标签样式：信息（灰色）
      */
     private static final String TYPE_INFO = "info";
 
     /**
-      * 状态样式类型（前端 标签 组件使用）。
-     *
-     * @return 状态对应的标签样式类型，无匹配时返回空字符串
+    * 状态样式类型（前端 标签 组件使用）。
+    *
+    * @return 状态对应的标签样式类型，无匹配时返回空字符串
      */
     @ApiModelProperty("状态样式类型")
     @Schema(description = "状态样式类型: success/warning/danger/info")

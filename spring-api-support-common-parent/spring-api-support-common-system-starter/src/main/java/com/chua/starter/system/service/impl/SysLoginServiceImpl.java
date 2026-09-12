@@ -82,11 +82,11 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.CAPTCH
 import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERROR;
 
 /**
- * 登录服务实现
- *
-   * @版本 1.0.0
- * @since 2024/9/12
- * @author CH
+* 登录服务实现
+*
+* @版本 1.0.0
+* @since 2024/9/12
+* @author CH
  */
 @Slf4j
 @Service
@@ -121,19 +121,19 @@ public class SysLoginServiceImpl implements SysLoginService {
     private static final Map<Long, CachedValue> USER_LAYOUT_CACHE = new ConcurrentHashMap<>();
 
     /**
-      * 用户角色编码缓存（键 = "角色:用户id"），避免每次登录重复查询数据库
+    * 用户角色编码缓存（键 = "角色:用户id"），避免每次登录重复查询数据库
      */
     private static final Map<String, CachedValue> USER_ROLE_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * 查询缓存有效期（毫秒）
+    * 查询缓存有效期（毫秒）
      */
     private static final long CACHE_TTL_MILLIS = 60_000L;
 
     /**
-     * 缓存条目
-     * @author CH
-     * @since 4.0.0
+    * 缓存条目
+    * @author CH
+    * @since 4.0.0
      */
     private static class CachedValue {
         /** 缓存值 */
@@ -153,7 +153,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * 微信第三方类型
+    * 微信第三方类型
      */
     private static final String THIRD_PARTY_TYPE_WECHAT = "wechat";
 
@@ -278,11 +278,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * 检查验证码
-     *
-     * @param loginData 登录数据
-     * @param request   请求
-     * @return 检查结果
+    * 检查验证码
+    *
+    * @param loginData 登录数据
+    * @param request   请求
+    * @return 检查结果
      */
     @SuppressWarnings("ALL")
     public ReturnResult<LoginResult> checkVerifyCode(LoginData loginData, HttpServletRequest request) {
@@ -310,11 +310,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * 校验环境
-     *
-     * @param loginData login数据
-     * @param request 请求
-     * @return 检查环境的结果
+    * 校验环境
+    *
+    * @param loginData login数据
+    * @param request 请求
+    * @return 检查环境的结果
      */
     public ReturnResult<LoginResult> checkEnvironment(LoginData loginData, HttpServletRequest request) {
         var code = loginData.getVerifyCodeKey();
@@ -352,11 +352,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * 是否拥有captcha上下文
-     *
-     * @param loginData login数据
-     * @param request 请求
-     * @return 是否包含captcha上下文的结果
+    * 是否拥有captcha上下文
+    *
+    * @param loginData login数据
+    * @param request 请求
+    * @return 是否包含captcha上下文的结果
      */
     private boolean hasCaptchaContext(LoginData loginData, HttpServletRequest request) {
         var sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse("").toString();
@@ -364,10 +364,10 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * requirestotp
-     *
-     * @param username 用户名
-     * @return requiresTotp的结果
+    * requirestotp
+    *
+    * @param username 用户名
+    * @return requiresTotp的结果
      */
     private boolean requiresTotp(String username) {
         if (!isTotpLoginEnabled() || StringUtils.isBlank(username)) {
@@ -382,9 +382,9 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * 是否totplogin已启用
-     *
-     * @return 是否totplogin已启用的结果
+    * 是否totplogin已启用
+    *
+    * @return 是否totplogin已启用的结果
      */
     private boolean isTotpLoginEnabled() {
         GuestDefaultSetting gs = GLOBAL_SETTING_FACTORY.get("default", GuestDefaultSetting.class);
@@ -501,9 +501,9 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * enrichagreement状态
-     *
-     * @param userInfoVO 用户信息vo
+    * enrichagreement状态
+    *
+    * @param userInfoVO 用户信息vo
      */
     private void enrichAgreementStatus(UserInfoVO userInfoVO) {
         UserAgreementSetting agreement = GLOBAL_SETTING_FACTORY.get(USER_AGREEMENT_GROUP, UserAgreementSetting.class);
@@ -536,10 +536,10 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * 读取用户布局（带 60 秒缓存）
-     *
-     * @param userId 用户 标识
-     * @return 用户布局
+    * 读取用户布局（带 60 秒缓存）
+    *
+    * @param userId 用户 标识
+    * @return 用户布局
      */
     private UserLayout getCachedUserLayout(Long userId) {
         CachedValue cached = USER_LAYOUT_CACHE.get(userId);
@@ -552,10 +552,10 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-      * 读取用户角色编码（带 60 秒缓存，一次 连接 查询）
-     *
-     * @param userId 用户 标识
-     * @return 角色编码集合
+    * 读取用户角色编码（带 60 秒缓存，一次 连接 查询）
+    *
+    * @param userId 用户 标识
+    * @return 角色编码集合
      */
     private Set<String> getCachedRoleCodes(Integer userId) {
         String key = "role:" + userId;
@@ -575,11 +575,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * 解析preference值
-     *
-     * @param preference preference
-     * @param key 键
-     * @return resolvepreference值的结果
+    * 解析preference值
+    *
+    * @param preference preference
+    * @param key 键
+    * @return resolvepreference值的结果
      */
     private String resolvePreferenceValue(String preference, String key) {
         if (StringUtils.isBlank(preference) || StringUtils.isBlank(key)) {

@@ -6,10 +6,10 @@ import com.chua.starter.service.configuration.trace.RequestTraceBehaviorStorage;
 import com.chua.starter.service.configuration.trace.RequestTraceStrategyConfig;
 
 /**
- * 内存占位行为结果存储。
- *
- * @since 2026/03/25
- * @author CH
+* 内存占位行为结果存储。
+*
+* @since 2026/03/25
+* @author CH
  */
 @Spi("memory")
 public class MemoryRequestTraceBehaviorStorage implements RequestTraceBehaviorStorage {

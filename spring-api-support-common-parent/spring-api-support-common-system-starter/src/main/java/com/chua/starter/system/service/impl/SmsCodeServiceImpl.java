@@ -37,11 +37,11 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 短信验证码服务实现
- * <p>使用 Redis 存储验证码，通过 SmsSetting 配置的 MessagePush 发送短信</p>
- *
- * @since 2024/12/11
- * @author CH
+* 短信验证码服务实现
+* <p>使用 Redis 存储验证码，通过 SmsSetting 配置的 MessagePush 发送短信</p>
+*
+* @since 2024/12/11
+* @author CH
  */
 @Slf4j
 @Service
@@ -49,22 +49,22 @@ import java.util.concurrent.TimeUnit;
 public class SmsCodeServiceImpl implements SmsCodeService {
 
     /**
-      * Redis 验证码 键 前缀
+    * Redis 验证码 键 前缀
      */
     private static final String SMS_CODE_KEY_PREFIX = "sms:code:";
 
     /**
-     * 验证码有效期（分钟）
+    * 验证码有效期（分钟）
      */
     private static final int CODE_EXPIRE_MINUTES = 5;
 
     /**
-     * 验证码长度
+    * 验证码长度
      */
     private static final int CODE_LENGTH = 6;
 
     /**
-     * 发送间隔时间（秒）
+    * 发送间隔时间（秒）
      */
     private static final int SEND_INTERVAL_SECONDS = 60;
 
@@ -270,11 +270,11 @@ public class SmsCodeServiceImpl implements SmsCodeService {
     }
 
     /**
-     * Truncate
-     *
-     * @param value 值
-     * @param maxLength 最大长度
-     * @return truncate的结果
+    * Truncate
+    *
+    * @param value 值
+    * @param maxLength 最大长度
+    * @return truncate的结果
      */
     private String truncate(String value, int maxLength) {
         if (StringUtils.isEmpty(value) || value.length() <= maxLength) {

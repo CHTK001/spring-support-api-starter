@@ -21,43 +21,43 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * 用户协议
- *
- * @since 2026/08/03
- * @author CH
+* 用户协议
+*
+* @since 2026/08/03
+* @author CH
  */
 @Tag(name = "用户协议")
 @RestController
 @RequestMapping("/v2/user")
 public class UserAgreementController {
     /**
-     * 默认用户协议配置组编码
+    * 默认用户协议配置组编码
      */
     private static final String USER_AGREEMENT_GROUP = "userAgreement";
 
     /**
-     * 协议章节字段前缀
+    * 协议章节字段前缀
      */
     private static final String SECTION_PREFIX = "section.";
 
     /**
-     * 系统设置服务
+    * 系统设置服务
      */
     private final SysSettingService sysSettingService;
 
     /**
-     * 构造用户协议控制器。
-     *
-     * @param sysSettingService 系统设置服务
+    * 构造用户协议控制器。
+    *
+    * @param sysSettingService 系统设置服务
      */
     public UserAgreementController(SysSettingService sysSettingService) {
         this.sysSettingService = sysSettingService;
     }
 
     /**
-     * 获取用户协议。
-     *
-     * @return 用户协议内容
+    * 获取用户协议。
+    *
+    * @return 用户协议内容
      */
     @Operation(summary = "获取用户协议")
     @GetMapping("/agreement")
@@ -89,9 +89,9 @@ public class UserAgreementController {
     }
 
     /**
-     * 加载当前有效的用户协议配置项。
-     *
-     * @return 已按排序规则整理的配置项列表
+    * 加载当前有效的用户协议配置项。
+    *
+    * @return 已按排序规则整理的配置项列表
      */
     private List<SysSetting> loadAgreementSettings() {
         SysSettingUpdate query = new SysSettingUpdate();
@@ -106,12 +106,12 @@ public class UserAgreementController {
     }
 
     /**
-     * 解析指定配置项的取值，无配置或为空时回退默认值。
-     *
-     * @param settingMap    配置项索引表
-     * @param settingName   配置名
-     * @param fallbackValue 默认值
-     * @return 配置值
+    * 解析指定配置项的取值，无配置或为空时回退默认值。
+    *
+    * @param settingMap    配置项索引表
+    * @param settingName   配置名
+    * @param fallbackValue 默认值
+    * @return 配置值
      */
     private String resolveSettingValue(Map<String, SysSetting> settingMap, String settingName, String fallbackValue) {
         SysSetting setting = settingMap.get(settingName);
@@ -122,10 +122,10 @@ public class UserAgreementController {
     }
 
     /**
-     * 根据配置名解析章节标题。
-     *
-     * @param settingName 配置名
-     * @return 章节标题
+    * 根据配置名解析章节标题。
+    *
+    * @param settingName 配置名
+    * @return 章节标题
      */
     private String resolveSectionTitle(String settingName) {
         String rawName = StringUtils.removeStart(defaultString(settingName), SECTION_PREFIX);
@@ -136,30 +136,30 @@ public class UserAgreementController {
     }
 
     /**
-     * 空值转为空字符串。
-     *
-     * @param value 原始值
-     * @return 非空字符串
+    * 空值转为空字符串。
+    *
+    * @param value 原始值
+    * @return 非空字符串
      */
     private String defaultString(String value) {
         return value == null ? "" : value;
     }
 
     /**
-     * 取第一个非空值。
-     *
-     * @param value         首选值
-     * @param fallbackValue 默认值
-     * @return 非空的结果值
+    * 取第一个非空值。
+    *
+    * @param value         首选值
+    * @param fallbackValue 默认值
+    * @return 非空的结果值
      */
     private String firstNonBlank(String value, String fallbackValue) {
         return StringUtils.isNotBlank(value) ? value : fallbackValue;
     }
 
     /**
-     * 返回内置的默认协议章节列表。
-     *
-     * @return 默认章节列表
+    * 返回内置的默认协议章节列表。
+    *
+    * @return 默认章节列表
      */
     private List<UserAgreementVO.Section> defaultSections() {
         return List.of(

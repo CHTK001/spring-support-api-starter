@@ -7,32 +7,32 @@ import com.chua.starter.entity.service.SysFileSystemGroup;
 import java.util.List;
 
 /**
- * 文件系统分组服务接口
- *
- * @since 2024/12/10
-   * @版本 1.0.0
- * @author CH
+* 文件系统分组服务接口
+*
+* @since 2024/12/10
+* @版本 1.0.0
+* @author CH
  */
 public interface SysFileSystemGroupService extends IService<SysFileSystemGroup> {
 
     /**
-     * 获取分组树
-     *
-     * @return 分组树列表
+    * 获取分组树
+    *
+    * @return 分组树列表
      */
     List<SysFileSystemGroup> getTreeForFileSystem();
 
     /**
-     * 获取默认分组
-     *
-     * @return 默认分组
+    * 获取默认分组
+    *
+    * @return 默认分组
      */
     SysFileSystemGroup getDefaultGroupForFileSystem();
 
     /**
-     * 初始化默认分组
-     *
-     * @return 操作结果
+    * 初始化默认分组
+    *
+    * @return 操作结果
      */
     ReturnResult<Boolean> initDefaultGroupsForFileSystem();
 }

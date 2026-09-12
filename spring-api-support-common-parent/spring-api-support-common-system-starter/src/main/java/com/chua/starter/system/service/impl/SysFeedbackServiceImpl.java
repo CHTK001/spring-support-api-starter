@@ -33,10 +33,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 反馈服务实现
- *
- * @since 2024/12/10
- * @author CH
+* 反馈服务实现
+*
+* @since 2024/12/10
+* @author CH
  */
 @Service
 @Slf4j
@@ -44,27 +44,27 @@ import java.util.stream.Collectors;
 public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFeedback> implements SysFeedbackService {
 
     /**
-     * 反馈处理结果站内消息地址
+    * 反馈处理结果站内消息地址
      */
     private static final String FEEDBACK_MESSAGE_URL = "/message/center";
 
     /**
-      * 套接字 消息事件名（与前端 套接字 订阅保持一致）
+    * 套接字 消息事件名（与前端 套接字 订阅保持一致）
      */
     private static final String SOCKET_EVENT_MESSAGE = "message";
 
     /**
-     * 站内消息模块标识
+    * 站内消息模块标识
      */
     private static final String MESSAGE_MODULE = "message";
 
     /**
-     * 站内消息推送事件
+    * 站内消息推送事件
      */
     private static final String MESSAGE_PUSH_EVENT = "push";
 
     /**
-      * 套接字 会话操作模板（未接入 套接字 时为 空，不影响反馈处理主流程）
+    * 套接字 会话操作模板（未接入 套接字 时为 空，不影响反馈处理主流程）
      */
     @Autowired(required = false)
     /** 套接字会话模板 */
@@ -250,12 +250,12 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     }
 
     /**
-      * 通过 套接字 向指定用户推送站内消息
-     *
-     * @param userId   目标用户标识
-     * @param title    消息标题
-     * @param content  消息内容
-     * @param bizId    业务标识（反馈标识）
+    * 通过 套接字 向指定用户推送站内消息
+    *
+    * @param userId   目标用户标识
+    * @param title    消息标题
+    * @param content  消息内容
+    * @param bizId    业务标识（反馈标识）
      */
     private void pushStationMessage(String userId, String title, String content, Integer bizId) {
         if (socketSessionTemplate == null) {
@@ -280,10 +280,10 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     }
 
     /**
-     * 解析用户id
-     *
-     * @param rawUserId raw用户id
-     * @return 解析用户id的结果
+    * 解析用户id
+    *
+    * @param rawUserId raw用户id
+    * @return 解析用户id的结果
      */
     private Integer parseUserId(Object rawUserId) {
         String normalizedUserId = rawUserId == null ? "" : String.valueOf(rawUserId).trim();

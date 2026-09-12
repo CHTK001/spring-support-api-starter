@@ -5,11 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * 登录响应对象
- *
-   * @版本 1.0.0
- * @since 2024/8/15
- * @author CH
+* 登录响应对象
+*
+* @版本 1.0.0
+* @since 2024/8/15
+* @author CH
  */
 @Schema(description = "登录响应对象")
 @Data
@@ -17,7 +17,7 @@ import lombok.Data;
 public class LoginResult {
 
     /**
-      * 访问令牌
+    * 访问令牌
      */
     @Schema(description = "访问token")
     /** Access令牌 */

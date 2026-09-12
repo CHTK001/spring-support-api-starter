@@ -15,12 +15,12 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 文件系统分组表
- * 用于管理文件分组，支持树形结构
- *
- * @since 2024/12/10
-   * @版本 1.0.0
- * @author CH
+* 文件系统分组表
+* 用于管理文件分组，支持树形结构
+*
+* @since 2024/12/10
+* @版本 1.0.0
+* @author CH
  */
 @Schema(description = "文件系统分组表")
 @Data
@@ -166,39 +166,39 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
      */
     public static class Status {
         /**
-         * 禁用
+        * 禁用
          */
         public static final int DISABLED = 0;
         /**
-         * 启用
+        * 启用
          */
         public static final int ENABLED = 1;
     }
 
     /**
-     * 默认分组类型
-     * @author CH
-     * @since 4.0.0
+    * 默认分组类型
+    * @author CH
+    * @since 4.0.0
      */
     public static class DefaultGroupType {
         /**
-         * 图片分组
+        * 图片分组
          */
         public static final String IMAGE = "images";
         /**
-         * 视频分组
+        * 视频分组
          */
         public static final String VIDEO = "videos";
         /**
-         * 文档分组
+        * 文档分组
          */
         public static final String DOCUMENT = "documents";
         /**
-         * 音频分组
+        * 音频分组
          */
         public static final String AUDIO = "audios";
         /**
-         * 默认分组
+        * 默认分组
          */
         public static final String DEFAULT = "default";
     }

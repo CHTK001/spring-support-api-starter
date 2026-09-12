@@ -10,13 +10,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 前端异常上报日志表
- *
- * <p>承接前端全局异常监控（monitor worker）批量上报的运行时错误记录，
- * 覆盖 JS 运行时错误、未处理 Promise 拒绝、资源加载失败等场景。</p>
- *
- * @since 2026/8/8
- * @author CH
+* 前端异常上报日志表
+*
+* <p>承接前端全局异常监控（monitor worker）批量上报的运行时错误记录，
+* 覆盖 JS 运行时错误、未处理 Promise 拒绝、资源加载失败等场景。</p>
+*
+* @since 2026/8/8
+* @author CH
  */
 @Schema(description = "前端异常上报日志表")
 @Data
@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 public class SysErrorLog extends SysBase {
 
     /**
-      * 异常日志标识
+    * 异常日志标识
      */
     @TableId(value = "sys_error_log_id", type = IdType.AUTO)
     @Schema(description = "异常日志ID")

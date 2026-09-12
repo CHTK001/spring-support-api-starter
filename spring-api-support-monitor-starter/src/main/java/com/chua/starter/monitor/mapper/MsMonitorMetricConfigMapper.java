@@ -5,10 +5,10 @@ import com.chua.starter.monitor.entity.MsMonitorMetricConfig;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
-   * 指标解析规则 映射器。
- *
- * @since 2026-08-11
- * @author CH
+* 指标解析规则 映射器。
+*
+* @since 2026-08-11
+* @author CH
  */
 @Mapper
 public interface MsMonitorMetricConfigMapper extends BaseMapper<MsMonitorMetricConfig> {

@@ -6,18 +6,18 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 统计反馈信息响应
- *
- * @since 2024/12/10
-   * @版本 1.0
- * @author CH
+* 统计反馈信息响应
+*
+* @since 2024/12/10
+* @版本 1.0
+* @author CH
  */
 @Data
 @Schema(description = "反馈统计响应")
 public class FeedbackStatisticV1Response {
 
     /**
-     * 反馈类型统计（用于饼图）
+    * 反馈类型统计（用于饼图）
      */
     @Schema(description = "反馈类型统计")
     /** 类型统计 */
@@ -60,7 +60,7 @@ public class FeedbackStatisticV1Response {
     @Schema(description = "类型统计")
     public static class TypeStatistic {
         /**
-         * 类型名称
+        * 类型名称
          */
         @Schema(description = "类型名称")
         /** 名称 */
@@ -82,15 +82,15 @@ public class FeedbackStatisticV1Response {
     }
 
     /**
-     * 趋势统计
-     * @author CH
-     * @since 4.0.0
+    * 趋势统计
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "趋势统计")
     public static class TrendStatistic {
         /**
-         * 日期
+        * 日期
          */
         @Schema(description = "日期")
         /** 日期 */

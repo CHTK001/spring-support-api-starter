@@ -19,14 +19,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * 指纹/IP 映射存储服务
- * <p>
- * 登录时将 fingerprint+IP+用户信息写入 MySQL 并缓存至 Redis，
- * 支持通过指纹或 IP 反查用户身份。
- * </p>
- *
- * @since 4.0.0.42
- * @author CH
+* 指纹/IP 映射存储服务
+* <p>
+* 登录时将 fingerprint+IP+用户信息写入 MySQL 并缓存至 Redis，
+* 支持通过指纹或 IP 反查用户身份。
+* </p>
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Slf4j
 @Service
@@ -96,16 +96,16 @@ public class FingerprintStorageService {
     }
 
     /**
-     * 指纹记录参数对象（规约十九：8 个参数提取为不可变 record）
-     *
-     * @param userId      用户标识
-     * @param username    用户名
-     * @param fingerprint 浏览器指纹
-     * @param ip          客户端IP
-     * @param loginType   登录类型
-     * @param userAgent   用户-智能体
-     * @param browser     浏览器
-     * @param os          操作系统
+    * 指纹记录参数对象（规约十九：8 个参数提取为不可变 record）
+    *
+    * @param userId      用户标识
+    * @param username    用户名
+    * @param fingerprint 浏览器指纹
+    * @param ip          客户端IP
+    * @param loginType   登录类型
+    * @param userAgent   用户-智能体
+    * @param browser     浏览器
+    * @param os          操作系统
      */
     public record FingerprintRecord(
             String userId,
@@ -119,10 +119,10 @@ public class FingerprintStorageService {
     ) {}
 
     /**
-      * 更新指纹的 令牌 计数（登录+1 / 登出-1）
-     *
-     * @param fingerprint 浏览器指纹
-     * @param delta       变化量（+1 或 -1）
+    * 更新指纹的 令牌 计数（登录+1 / 登出-1）
+    *
+    * @param fingerprint 浏览器指纹
+    * @param delta       变化量（+1 或 -1）
      */
     public void updateTokenCount(String fingerprint, int delta) {
         if (StringUtils.isBlank(fingerprint)) {
@@ -151,11 +151,11 @@ public class FingerprintStorageService {
     }
 
     /**
-     * 按指纹查询用户信息
-     * <p>优先从 Redis 缓存读取，未命中则查 MySQL</p>
-     *
-     * @param fingerprint 浏览器指纹
-     * @return 用户信息 映射，不存在返回 空
+    * 按指纹查询用户信息
+    * <p>优先从 Redis 缓存读取，未命中则查 MySQL</p>
+    *
+    * @param fingerprint 浏览器指纹
+    * @return 用户信息 映射，不存在返回 空
      */
     public Map<String, Object> findByFingerprint(String fingerprint) {
         if (StringUtils.isBlank(fingerprint)) {
@@ -195,11 +195,11 @@ public class FingerprintStorageService {
     }
 
     /**
-     * 按 IP 查询登录过的用户列表
-     * <p>优先从 Redis 缓存读取</p>
-     *
-     * @param ip 客户端IP
-     * @return 用户信息列表，不存在返回空列表
+    * 按 IP 查询登录过的用户列表
+    * <p>优先从 Redis 缓存读取</p>
+    *
+    * @param ip 客户端IP
+    * @return 用户信息列表，不存在返回空列表
      */
     public List<Map<String, Object>> findByIp(String ip) {
         if (StringUtils.isBlank(ip)) {
@@ -243,9 +243,9 @@ public class FingerprintStorageService {
     }
 
     /**
-     * 清除指纹缓存
-     *
-     * @param fingerprint 浏览器指纹
+    * 清除指纹缓存
+    *
+    * @param fingerprint 浏览器指纹
      */
     public void evictFingerprintCache(String fingerprint) {
         if (StringUtils.isNotBlank(fingerprint)) {
@@ -254,9 +254,9 @@ public class FingerprintStorageService {
     }
 
     /**
-     * 清除 IP 缓存
-     *
-     * @param ip 客户端IP
+    * 清除 IP 缓存
+    *
+    * @param ip 客户端IP
      */
     public void evictIpCache(String ip) {
         if (StringUtils.isNotBlank(ip)) {
@@ -267,9 +267,9 @@ public class FingerprintStorageService {
     // ==================== 内部方法 ====================
 
     /**
-     * 转为映射。
-     * @param fp fp
-     * @return 转为映射的结果
+    * 转为映射。
+    * @param fp fp
+    * @return 转为映射的结果
      */
     private Map<String, Object> toMap(SysFingerprint fp) {
         Map<String, Object> map = new LinkedHashMap<>();

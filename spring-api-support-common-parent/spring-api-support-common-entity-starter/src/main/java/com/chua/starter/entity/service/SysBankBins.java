@@ -13,10 +13,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 银行BIN对照表
- *
- * @since 2024/12/6
- * @author CH
+* 银行BIN对照表
+*
+* @since 2024/12/6
+* @author CH
  */
 @Schema(description = "银行BIN对照表")
 @Data
@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 public class SysBankBins extends SysBase {
 
     /**
-      * 主键标识
+    * 主键标识
      */
     @TableId(value = "sys_blank_bin_id", type = IdType.AUTO)
     @Schema(description = "主键ID")

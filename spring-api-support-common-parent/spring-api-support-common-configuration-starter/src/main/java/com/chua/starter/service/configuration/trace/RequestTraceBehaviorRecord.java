@@ -3,10 +3,10 @@ package com.chua.starter.service.configuration.trace;
 import java.util.Set;
 
 /**
- * 请求追踪行为分析结果。
- *
- * @since 2026/03/25
- * @author CH
+* 请求追踪行为分析结果。
+*
+* @since 2026/03/25
+* @author CH
  */
 public record RequestTraceBehaviorRecord(
         long analyzedAt,

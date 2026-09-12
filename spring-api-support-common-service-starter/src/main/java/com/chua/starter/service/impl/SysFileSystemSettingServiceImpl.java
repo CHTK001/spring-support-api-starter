@@ -27,11 +27,11 @@ import java.net.ServerSocket;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 文件系统配置服务实现类
- *
- * @since 2024/12/10
-   * @版本 1.0.0
- * @author CH
+* 文件系统配置服务实现类
+*
+* @since 2024/12/10
+* @版本 1.0.0
+* @author CH
  */
 @Slf4j
 @Service
@@ -39,12 +39,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSettingMapper, SysFileSystemSetting> implements SysFileSystemSettingService {
 
     /**
-     * 文件服务器实例缓存
+    * 文件服务器实例缓存
      */
     private static final ConcurrentHashMap<String, ProtocolServer> FILE_SERVER_INSTANCES = new ConcurrentHashMap<>();
 
     /**
-      * 文件服务器实例键
+    * 文件服务器实例键
      */
     private static final String FILE_SERVER_KEY = "file_system_server";
     /** 文件存储支持 */
@@ -84,9 +84,9 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * 初始化默认settingfor文件系统
-     *
-     * @return 初始化默认settingfor文件系统的结果
+    * 初始化默认settingfor文件系统
+    *
+    * @return 初始化默认settingfor文件系统的结果
      */
     public ReturnResult<Boolean> initDefaultSettingForFileSystem() {
         log.info("初始化默认配置");
@@ -297,10 +297,10 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     /**
-     * 检查端口是否可用
-     *
-     * @param port 端口号
-     * @return 是否可用
+    * 检查端口是否可用
+    *
+    * @param port 端口号
+    * @return 是否可用
      */
     private boolean checkPortAvailable(Integer port) {
         try (ServerSocket socket = new ServerSocket(port)) {

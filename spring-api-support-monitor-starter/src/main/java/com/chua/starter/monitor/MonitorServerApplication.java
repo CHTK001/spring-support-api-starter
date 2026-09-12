@@ -10,10 +10,10 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
-   * 配置中心服务（监控 模块启动入口），启用缓存、定时任务、MyBatis 映射器 扫描与 ACME 配置。
- *
- * @since 4.0.0.42
- * @author CH
+* 配置中心服务（监控 模块启动入口），启用缓存、定时任务、MyBatis 映射器 扫描与 ACME 配置。
+*
+* @since 4.0.0.42
+* @author CH
  */
 @EnableCaching
 @EnableScheduling
@@ -24,9 +24,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class MonitorServerApplication {
 
     /**
-     * 应用启动入口。
-     *
-     * @param args 启动参数
+    * 应用启动入口。
+    *
+    * @param args 启动参数
      */
     public static void main(String[] args) {
         SpringApplication.run(MonitorServerApplication.class);

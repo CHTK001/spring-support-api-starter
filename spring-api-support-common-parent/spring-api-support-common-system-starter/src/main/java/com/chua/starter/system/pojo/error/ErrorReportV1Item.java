@@ -4,17 +4,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 前端异常上报单条记录
- *
- * @since 2026/8/8
- * @author CH
+* 前端异常上报单条记录
+*
+* @since 2026/8/8
+* @author CH
  */
 @Data
 @Schema(description = "前端异常上报单条记录")
 public class ErrorReportV1Item {
 
     /**
-      * 去重指纹(消息 + 源 + 行列号归一化)
+    * 去重指纹(消息 + 源 + 行列号归一化)
      */
     @Schema(description = "去重指纹")
     /** 密钥 */

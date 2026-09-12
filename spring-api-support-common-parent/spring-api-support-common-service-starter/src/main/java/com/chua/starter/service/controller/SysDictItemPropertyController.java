@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 字典子项接口(缓存)
- *
- * @since 2024/8/7
- * @author CH
+* 字典子项接口(缓存)
+*
+* @since 2024/8/7
+* @author CH
  */
 @Tag(name = "字典子项配置项接口")
 @RestController

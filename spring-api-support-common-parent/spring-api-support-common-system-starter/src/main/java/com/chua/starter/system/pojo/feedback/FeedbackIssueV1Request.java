@@ -4,17 +4,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 反馈问题请求
- *
- * @since 2024/8/20
- * @author CH
+* 反馈问题请求
+*
+* @since 2024/8/20
+* @author CH
  */
 @Data
 @Schema(description = "反馈问题请求")
 public class FeedbackIssueV1Request {
 
     /**
-      * 反馈标识
+    * 反馈标识
      */
     @Schema(description = "反馈ID")
     /** sysfeedbackid */

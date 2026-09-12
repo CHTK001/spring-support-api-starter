@@ -15,10 +15,10 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
- * 处理租户客户端主动发起的全量同步请求。
- *
- * @since 2026/03/25
- * @author CH
+* 处理租户客户端主动发起的全量同步请求。
+*
+* @since 2026/03/25
+* @author CH
  */
 @Slf4j
 @Component
@@ -96,10 +96,10 @@ public class TenantServerSyncRequestHandler implements SyncMessageHandler {
     }
 
     /**
-     * 验证签名
-     *
-     * @param data 数据
-     * @return 验证签名的结果
+    * 验证签名
+    *
+    * @param data 数据
+    * @return 验证签名的结果
      */
     private TenantSyncMessageSupport.VerificationResult verifySignature(Map<String, Object> data) {
         if (!tenantProperties.isServerSyncSignEnabled()) {

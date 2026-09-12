@@ -13,15 +13,15 @@ import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-   * Bearer 令牌 认证处理器
- * <p>
-   * 处理标准的 授权: Bearer &lt;令牌&gt; 认证请求。
-   * 通过 SPI 机制由 sub协议="bearer" 匹配选择，
-   * 从请求头或 主体数据 中提取 令牌 后调用 令牌解析器 验证。
- * </p>
- *
- * @author CH
- * @since 4.0.0
+* Bearer 令牌 认证处理器
+* <p>
+* 处理标准的 授权: Bearer &lt;令牌&gt; 认证请求。
+* 通过 SPI 机制由 sub协议="bearer" 匹配选择，
+* 从请求头或 主体数据 中提取 令牌 后调用 令牌解析器 验证。
+* </p>
+*
+* @author CH
+* @since 4.0.0
  */
 @Slf4j
 @Spi("bearer")
@@ -29,11 +29,11 @@ public class BearerAuthorizationHandler implements AuthorizationHandler {
 
     @Override
     /**
-     * Authenticate
-     * @param authInformation 认证信息
-     * @param token 令牌
-     * @param cookie Cookie
-     * @param userCode 用户编码
+    * Authenticate
+    * @param authInformation 认证信息
+    * @param token 令牌
+    * @param cookie Cookie
+    * @param userCode 用户编码
      */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation,
                                             String token,
@@ -86,9 +86,9 @@ public class BearerAuthorizationHandler implements AuthorizationHandler {
     }
 
     /**
-      * 从请求头 授权: Bearer 提取 令牌
-     * @param authInformation 认证信息
-     * @return extractbearer令牌的结果
+    * 从请求头 授权: Bearer 提取 令牌
+    * @param authInformation 认证信息
+    * @return extractbearer令牌的结果
      */
     private String extractBearerToken(OauthAuthInformation authInformation) {
         String authHeader = authInformation.getRequestHeaderValue("Authorization");

@@ -25,11 +25,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 角色服务实现类
- * <p>提供角色的增删改查及角色菜单管理功能</p>
- *
- * @since 2024/8/7
- * @author CH
+* 角色服务实现类
+* <p>提供角色的增删改查及角色菜单管理功能</p>
+*
+* @since 2024/8/7
+* @author CH
  */
 @Service
 @RequiredArgsConstructor

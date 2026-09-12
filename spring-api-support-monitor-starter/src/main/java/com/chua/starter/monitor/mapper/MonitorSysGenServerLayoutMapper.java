@@ -5,10 +5,10 @@ import com.chua.starter.monitor.entity.MonitorSysGenServerLayout;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
-   * 服务器布局配置 映射器，提供 监控_sys_gen_服务端_layout 表的基础增删改查能力。
- *
- * @since 2026-07-28
- * @author CH
+* 服务器布局配置 映射器，提供 监控_sys_gen_服务端_layout 表的基础增删改查能力。
+*
+* @since 2026-07-28
+* @author CH
  */
 @Mapper
 public interface MonitorSysGenServerLayoutMapper extends BaseMapper<MonitorSysGenServerLayout> {

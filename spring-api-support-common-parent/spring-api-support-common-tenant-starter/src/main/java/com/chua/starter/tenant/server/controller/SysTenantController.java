@@ -25,11 +25,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * 租户管理接口
- *
-   * @版本 1.0.0
- * @since 2024/12/06
- * @author CH
+* 租户管理接口
+*
+* @版本 1.0.0
+* @since 2024/12/06
+* @author CH
  */
 @RestController
 @Slf4j
@@ -56,11 +56,11 @@ public class SysTenantController {
     }
 
     /**
-     * 分页查询租户
-     *
-     * @param query     分页查询对象
-     * @param sysTenant 租户查询条件
-     * @return 分页结果
+    * 分页查询租户
+    *
+    * @param query     分页查询对象
+    * @param sysTenant 租户查询条件
+    * @return 分页结果
      */
     @GetMapping("page")
     @Operation(summary = "分页查询租户")
@@ -71,11 +71,11 @@ public class SysTenantController {
     }
 
     /**
-     * 获取租户详情
-     *
-     * @param sysTenantId 租户标识
-     * @return 租户详情
-     * @param "租户ID" "租户ID"
+    * 获取租户详情
+    *
+    * @param sysTenantId 租户标识
+    * @return 租户详情
+    * @param "租户ID" "租户ID"
      */
     @GetMapping("get")
     @Operation(summary = "获取租户详情")
@@ -85,11 +85,11 @@ public class SysTenantController {
     }
 
     /**
-     * 保存租户
-     *
-     * @param sysTenant     租户对象
-     * @param bindingResult 校验结果
-     * @return 保存结果
+    * 保存租户
+    *
+    * @param sysTenant     租户对象
+    * @param bindingResult 校验结果
+    * @return 保存结果
      */
     @PostMapping("save")
     @Operation(summary = "保存租户")
@@ -103,11 +103,11 @@ public class SysTenantController {
     }
 
     /**
-     * 更新租户
-     *
-     * @param sysTenant     租户对象
-     * @param bindingResult 校验结果
-     * @return 更新结果
+    * 更新租户
+    *
+    * @param sysTenant     租户对象
+    * @param bindingResult 校验结果
+    * @return 更新结果
      */
     @PutMapping("update")
     @Operation(summary = "更新租户")
@@ -121,11 +121,11 @@ public class SysTenantController {
     }
 
     /**
-     * 删除租户
-     *
-     * @param sysTenantId 租户标识
-     * @return 删除结果
-     * @param "租户ID" "租户ID"
+    * 删除租户
+    *
+    * @param sysTenantId 租户标识
+    * @return 删除结果
+    * @param "租户ID" "租户ID"
      */
     @DeleteMapping("delete")
     @Operation(summary = "删除租户")
@@ -135,10 +135,10 @@ public class SysTenantController {
     }
 
     /**
-     * 绑定租户服务
-     *
-     * @param request 绑定请求
-     * @return 绑定结果
+    * 绑定租户服务
+    *
+    * @param request 绑定请求
+    * @return 绑定结果
      */
     @PutMapping("bind/service")
     @Operation(summary = "绑定租户服务")
@@ -148,11 +148,11 @@ public class SysTenantController {
     }
 
     /**
-     * 更新租户状态
-     *
-     * @param sysTenantId 租户标识
-     * @param status      状态值 (0-启用, 1-禁用)
-     * @return 更新结果
+    * 更新租户状态
+    *
+    * @param sysTenantId 租户标识
+    * @param status      状态值 (0-启用, 1-禁用)
+    * @return 更新结果
      */
     @PutMapping("status")
     @Operation(summary = "更新租户状态")
@@ -164,9 +164,9 @@ public class SysTenantController {
     }
 
     /**
-     * 获取租户统计数据
-     *
-     * @return 统计数据
+    * 获取租户统计数据
+    *
+    * @return 统计数据
      */
     @GetMapping("stats")
     @Operation(summary = "获取租户统计数据")
@@ -175,11 +175,11 @@ public class SysTenantController {
     }
 
     /**
-     * 重置租户密码（推送给租户端）
-     *
-     * @param sysTenantId       租户标识
-     * @param sysTenantPassword 新密码
-     * @return 重置结果
+    * 重置租户密码（推送给租户端）
+    *
+    * @param sysTenantId       租户标识
+    * @param sysTenantPassword 新密码
+    * @return 重置结果
      */
     @PutMapping("reset-password")
     @Operation(summary = "重置租户密码")
@@ -191,10 +191,10 @@ public class SysTenantController {
     }
 
     /**
-     * 重置租户菜单（按订阅重新计算并推送给租户端）
-     *
-     * @param sysTenantId 租户标识
-     * @return 重置结果
+    * 重置租户菜单（按订阅重新计算并推送给租户端）
+    *
+    * @param sysTenantId 租户标识
+    * @return 重置结果
      */
     @PutMapping("reset-menu")
     @Operation(summary = "重置租户菜单")

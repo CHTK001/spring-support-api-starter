@@ -3,10 +3,10 @@ package com.chua.starter.oauth.sso.support.parser;
 import com.chua.common.support.lang.code.ReturnResult;
 
 /**
- * 无效鉴权信息
- *
- * @author CH
- * @since 4.0.0
+* 无效鉴权信息
+*
+* @author CH
+* @since 4.0.0
  */
 public final class InvalidAuthorization implements Authorization {
 

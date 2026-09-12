@@ -45,11 +45,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 微信网页登录回调接口
- * <p>处理微信开放平台OAuth2.0授权回调</p>
- *
- * @since 2024/12/11
- * @author CH
+* 微信网页登录回调接口
+* <p>处理微信开放平台OAuth2.0授权回调</p>
+*
+* @since 2024/12/11
+* @author CH
  */
 @Controller
 @Slf4j
@@ -162,14 +162,14 @@ public class WechatCallbackController {
     }
 
     /**
-     * 微信登录回调
-     * <p>用户授权后回调此接口进行登录，需要先绑定账号</p>
-     *
-     * @param authCallback 微信回调参数
-     * @param attributes   重定向属性
-     * @param request      请求
-     * @param response     响应
-     * @return 重定向视图
+    * 微信登录回调
+    * <p>用户授权后回调此接口进行登录，需要先绑定账号</p>
+    *
+    * @param authCallback 微信回调参数
+    * @param attributes   重定向属性
+    * @param request      请求
+    * @param response     响应
+    * @return 重定向视图
      */
     @Ignore
     @GetMapping("callback")
@@ -253,10 +253,10 @@ public class WechatCallbackController {
     }
 
     /**
-     * 保存或更新微信用户信息
-     *
-     * @param sysUserId 系统用户标识
-     * @param authUser  微信返回的用户信息
+    * 保存或更新微信用户信息
+    *
+    * @param sysUserId 系统用户标识
+    * @param authUser  微信返回的用户信息
      */
     private void saveOrUpdateWechatUser(Integer sysUserId, AuthUser authUser) {
         if (sysUserId == null || authUser == null) {
@@ -290,10 +290,10 @@ public class WechatCallbackController {
     }
 
     /**
-     * 检查第三方登录是否开启
-     * <p>从sys_setting表中查询sso组下Wechat配置是否为true</p>
-     *
-     * @return true-开启，false-未开启
+    * 检查第三方登录是否开启
+    * <p>从sys_setting表中查询sso组下Wechat配置是否为true</p>
+    *
+    * @return true-开启，false-未开启
      */
     private boolean isThirdPartyEnabled() {
         try {

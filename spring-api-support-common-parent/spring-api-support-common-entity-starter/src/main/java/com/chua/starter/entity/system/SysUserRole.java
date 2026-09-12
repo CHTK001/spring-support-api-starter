@@ -11,10 +11,10 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 用户-角色关系表
- *
- * @since 2024/8/7
- * @author CH
+* 用户-角色关系表
+*
+* @since 2024/8/7
+* @author CH
  */
 @Schema(description = "用户-角色关系表")
 @Data

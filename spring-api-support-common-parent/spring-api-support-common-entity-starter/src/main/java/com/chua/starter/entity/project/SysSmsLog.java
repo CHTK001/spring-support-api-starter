@@ -15,9 +15,9 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * 短信下发日志表
- * @author CH
- * @since 4.0.0
+* 短信下发日志表
+* @author CH
+* @since 4.0.0
  */
 @Schema(description = "短信下发日志表")
 @Data

@@ -24,13 +24,13 @@ import static com.chua.common.support.lang.code.ReturnCode.OK;
 import static com.chua.starter.oauth.client.support.execute.AuthClientExecute.createUid;
 
 /**
- * 登录检测
- * <p>
- * 支持登录失败锁定机制，防止暴力破解攻击。
- * </p>
- *
- * @author CH
- * @since 4.0.0
+* 登录检测
+* <p>
+* 支持登录失败锁定机制，防止暴力破解攻击。
+* </p>
+*
+* @author CH
+* @since 4.0.0
  */
 @Slf4j
 public class LoginCheck {
@@ -44,7 +44,7 @@ public class LoginCheck {
     private final ApplicationContext applicationContext;
 
     /**
-     * 登录尝试服务（可选注入）
+    * 登录尝试服务（可选注入）
      */
     @Autowired(required = false)
     /** Loginattempt服务 */
@@ -59,9 +59,9 @@ public class LoginCheck {
     }
 
     /**
-      * 创建 login检查 实例
-     * @param authServerProperties 认证服务端属性
-     * @param applicationContext application上下文
+    * 创建 login检查 实例
+    * @param authServerProperties 认证服务端属性
+    * @param applicationContext application上下文
      */
     public LoginCheck(AuthServerProperties authServerProperties, ApplicationContext applicationContext) {
         this.authServerProperties = authServerProperties;
@@ -69,18 +69,18 @@ public class LoginCheck {
     }
 
     /**
-     * 登录验证
-     * <p>
-      * 根据登录类型通过SPI选择合适的用户信息服务实现，验证用户凭证，并生成登录令牌。
-     * 不同登录类型的参数含义可能不同，如用户名密码登录、令牌登录或第三方登录。
-     * </p>
-     *
-     * @param address    客户端地址
-     * @param principal  用户标识（用户名/手机号/邮箱/令牌等）
-     * @param credential 用户凭证（密码/令牌/证书等）
-     * @param authType   认证类型，与用户信息服务实现的@延伸注解值匹配
-     * @param ext        扩展参数，传递给用户信息服务实现
-     * @return 登录结果，包含令牌和用户信息
+    * 登录验证
+    * <p>
+    * 根据登录类型通过SPI选择合适的用户信息服务实现，验证用户凭证，并生成登录令牌。
+    * 不同登录类型的参数含义可能不同，如用户名密码登录、令牌登录或第三方登录。
+    * </p>
+    *
+    * @param address    客户端地址
+    * @param principal  用户标识（用户名/手机号/邮箱/令牌等）
+    * @param credential 用户凭证（密码/令牌/证书等）
+    * @param authType   认证类型，与用户信息服务实现的@延伸注解值匹配
+    * @param ext        扩展参数，传递给用户信息服务实现
+    * @return 登录结果，包含令牌和用户信息
      */
     public ReturnResult<LoginResult> doLogin(String address, String principal, String credential, String authType, Object ext) {
         long startTime = System.currentTimeMillis();
@@ -192,12 +192,12 @@ public class LoginCheck {
     }
 
     /**
-      * 解析 用户信息服务 实现
-     * <p>优先从 Spring 容器获取（实现类为 @Service，依赖 Spring 依赖注入），
-      * 按 @Spi/@login类型 注解值匹配认证类型；未找到时回退 SPI 加载。</p>
-     *
-     * @param authType 认证类型
-     * @return 用户信息服务实现
+    * 解析 用户信息服务 实现
+    * <p>优先从 Spring 容器获取（实现类为 @Service，依赖 Spring 依赖注入），
+    * 按 @Spi/@login类型 注解值匹配认证类型；未找到时回退 SPI 加载。</p>
+    *
+    * @param authType 认证类型
+    * @return 用户信息服务实现
      */
     private UserInfoService resolveUserInfoService(String authType) {
         if (applicationContext != null) {
@@ -217,12 +217,12 @@ public class LoginCheck {
     }
 
     /**
-      * 解析 令牌解析器 实现
-     * <p>优先从 Spring 容器获取（实现类为 @Service，依赖 Spring 依赖注入 RedisTemplate 等），
-     * 按 @Spi 注解值匹配令牌管理类型；未找到时回退 SPI 加载。</p>
-     *
-     * @param tokenManagement 令牌管理类型
-     * @return 令牌解析器实现
+    * 解析 令牌解析器 实现
+    * <p>优先从 Spring 容器获取（实现类为 @Service，依赖 Spring 依赖注入 RedisTemplate 等），
+    * 按 @Spi 注解值匹配令牌管理类型；未找到时回退 SPI 加载。</p>
+    *
+    * @param tokenManagement 令牌管理类型
+    * @return 令牌解析器实现
      */
     public TokenResolver resolveTokenResolver(String tokenManagement) {
         if (applicationContext != null) {
@@ -242,8 +242,8 @@ public class LoginCheck {
     }
 
     /**
-     * 记录登录失败
-     * @param username 用户名
+    * 记录登录失败
+    * @param username 用户名
      */
     private void recordLoginFailure(String username) {
         if (loginAttemptService != null && StringUtils.isNotBlank(username)) {
@@ -252,8 +252,8 @@ public class LoginCheck {
     }
 
     /**
-     * 清除登录失败记录
-     * @param username 用户名
+    * 清除登录失败记录
+    * @param username 用户名
      */
     private void clearLoginFailure(String username) {
         if (loginAttemptService != null && StringUtils.isNotBlank(username)) {
@@ -262,19 +262,19 @@ public class LoginCheck {
     }
 
     /**
-     * 构建登录失败结果
-     * @param username 用户名
-     * @return 构建login失败结果的结果
+    * 构建登录失败结果
+    * @param username 用户名
+    * @return 构建login失败结果的结果
      */
     private ReturnResult<LoginResult> buildLoginFailureResult(String username) {
         return buildLoginFailureResult(username, "用户名或密码错误");
     }
 
     /**
-     * 构建登录失败结果（带剩余尝试次数提示）
-     * @param username 用户名
-     * @param message 消息
-     * @return 构建login失败结果的结果
+    * 构建登录失败结果（带剩余尝试次数提示）
+    * @param username 用户名
+    * @param message 消息
+    * @return 构建login失败结果的结果
      */
     private ReturnResult<LoginResult> buildLoginFailureResult(String username, String message) {
         if (loginAttemptService != null && StringUtils.isNotBlank(username)) {
@@ -291,9 +291,9 @@ public class LoginCheck {
     }
 
     /**
-     * 格式化剩余时间
-     * @param seconds seconds
-     * @return 格式化remaining时间的结果
+    * 格式化剩余时间
+    * @param seconds seconds
+    * @return 格式化remaining时间的结果
      */
     private String formatRemainingTime(long seconds) {
         if (seconds <= 0) {
@@ -308,17 +308,17 @@ public class LoginCheck {
     }
 
     /**
-     * 构建用户编码
-     * <p>
-      * 优化后的 用户编码 格式：{uid}:{加密的用户id}
-     * </p>
-     * <ul>
-     *   <li>uid - 用户唯一标识（MD5）</li>
-     *   <li>加密的userId - 使用 AES 加密的用户ID</li>
-     * </ul>
-     *
-     * @param userResume 用户信息
-     * @return 用户编码
+    * 构建用户编码
+    * <p>
+    * 优化后的 用户编码 格式：{uid}:{加密的用户id}
+    * </p>
+    * <ul>
+    *   <li>uid - 用户唯一标识（MD5）</li>
+    *   <li>加密的userId - 使用 AES 加密的用户ID</li>
+    * </ul>
+    *
+    * @param userResume 用户信息
+    * @return 用户编码
      */
     private String buildUserCode(UserResume userResume) {
         if (userResume == null || userResume.getUid() == null || userResume.getUserId() == null) {
@@ -331,15 +331,15 @@ public class LoginCheck {
     }
 
     /**
-      * 第三方登录检查（just认证）
-     * <p>
-      * 将 just认证 的 认证用户 对象转换为系统登录流程。
-      * 用于处理 OAuth2 第三方平台（Gitee、GitHub、微信等）的登录。
-     * </p>
-     *
-     * @param authUser just认证 的用户对象
-     * @param request HTTP 请求对象
-     * @return 登录结果，包含令牌和用户信息；如果登录失败返回 空
+    * 第三方登录检查（just认证）
+    * <p>
+    * 将 just认证 的 认证用户 对象转换为系统登录流程。
+    * 用于处理 OAuth2 第三方平台（Gitee、GitHub、微信等）的登录。
+    * </p>
+    *
+    * @param authUser just认证 的用户对象
+    * @param request HTTP 请求对象
+    * @return 登录结果，包含令牌和用户信息；如果登录失败返回 空
      */
     public LoginResult check(me.zhyd.oauth.model.AuthUser authUser, jakarta.servlet.http.HttpServletRequest request) {
         if (authUser == null) {
@@ -372,11 +372,11 @@ public class LoginCheck {
     }
 
     /**
-     * 获取用户信息
-     * <p>通过 SPI 机制根据登录类型获取对应的 UserInfoService 实现</p>
-     *
-     * @param userResult 用户信息
-     * @return 用户信息
+    * 获取用户信息
+    * <p>通过 SPI 机制根据登录类型获取对应的 UserInfoService 实现</p>
+    *
+    * @param userResult 用户信息
+    * @return 用户信息
      */
     public UserResume getUserInfo(UserResult userResult) {
         try {
@@ -401,10 +401,10 @@ public class LoginCheck {
     }
 
     /**
-     * 获取认证版本
-     *
-     * @param userResult 用户结果
-     * @return 获取认证版本的结果
+    * 获取认证版本
+    *
+    * @param userResult 用户结果
+    * @return 获取认证版本的结果
      */
     public String getAuthVersion(UserResult userResult) {
         try {

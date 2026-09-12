@@ -15,10 +15,10 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 字典表
- *
- * @since 2024/8/7
- * @author CH
+* 字典表
+*
+* @since 2024/8/7
+* @author CH
  */
 @Schema(description = "字典表")
 @Data

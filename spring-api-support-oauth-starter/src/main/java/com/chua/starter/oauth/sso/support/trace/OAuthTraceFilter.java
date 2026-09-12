@@ -14,11 +14,11 @@ import java.util.Set;
 import org.slf4j.MDC;
 
 /**
- * OAuth追踪过滤器
- * 接收客户端传递的追踪头，创建追踪上下文，并在请求结束后保存追踪日志
- *
- * @since 2025/01/01
- * @author CH
+* OAuth追踪过滤器
+* 接收客户端传递的追踪头，创建追踪上下文，并在请求结束后保存追踪日志
+*
+* @since 2025/01/01
+* @author CH
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -36,9 +36,9 @@ public class OAuthTraceFilter implements Filter, Ordered {
 
     @Override
     /**
-      * 执行过滤
-     * @param servletRequest servlet请求
-     * @param servletResponse servlet响应
+    * 执行过滤
+    * @param servletRequest servlet请求
+    * @param servletResponse servlet响应
      */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
@@ -137,9 +137,9 @@ public class OAuthTraceFilter implements Filter, Ordered {
     }
 
     /**
-     * 根据请求URI确定操作类型
-     * @param uri uri
-     * @return determineoperation类型的结果
+    * 根据请求URI确定操作类型
+    * @param uri uri
+    * @return determineoperation类型的结果
      */
     private String determineOperationType(String uri) {
         if (uri.endsWith("/login")) {
@@ -157,9 +157,9 @@ public class OAuthTraceFilter implements Filter, Ordered {
     }
 
     /**
-     * 获取客户端真实IP
-     * @param request 请求
-     * @return 获取客户端ip的结果
+    * 获取客户端真实IP
+    * @param request 请求
+    * @return 获取客户端ip的结果
      */
     private String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");

@@ -4,10 +4,10 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 瓦片图源配置，描述一个可用的地图瓦片服务。
- *
- * @author CH
- * @since 1.0.0
+* 瓦片图源配置，描述一个可用的地图瓦片服务。
+*
+* @author CH
+* @since 1.0.0
  */
 @Data
 public class TileSource {

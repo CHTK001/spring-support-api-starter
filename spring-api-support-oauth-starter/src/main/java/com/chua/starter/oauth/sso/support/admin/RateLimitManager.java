@@ -10,12 +10,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 运行时限流管理器（令牌桶算法）
- * <p>
- * 支持热更新：无需重启即可调整限流参数。
- * </p>
- * @author CH
- * @since 4.0.0
+* 运行时限流管理器（令牌桶算法）
+* <p>
+* 支持热更新：无需重启即可调整限流参数。
+* </p>
+* @author CH
+* @since 4.0.0
  */
 @Component
 @Slf4j
@@ -43,8 +43,8 @@ public class RateLimitManager {
     }
 
     /**
-     * 热更新限流配置
-     * @param config 配置
+    * 热更新限流配置
+    * @param config 配置
      */
     public void update(RateLimitConfig config) {
         this.enabled.set(config.isEnabled());
@@ -58,8 +58,8 @@ public class RateLimitManager {
     }
 
     /**
-     * 获取当前限流状态
-     * @return 获取状态的结果
+    * 获取当前限流状态
+    * @return 获取状态的结果
      */
     public Map<String, Object> getStatus() {
         Map<String, Object> status = new LinkedHashMap<>();
@@ -71,9 +71,9 @@ public class RateLimitManager {
     }
 
     /**
-     * 是否已启用
-     *
-     * @return 是否已启用的结果
+    * 是否已启用
+    *
+    * @return 是否已启用的结果
      */
     public boolean isEnabled() {
         return enabled.get();

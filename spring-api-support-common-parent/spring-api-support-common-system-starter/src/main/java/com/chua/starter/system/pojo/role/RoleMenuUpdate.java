@@ -9,15 +9,15 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * @since 2024/8/8
- * @author CH
+* @since 2024/8/8
+* @author CH
  */
 @Data
 @Schema(description = "角色菜单")
 public class RoleMenuUpdate {
 
     /**
-      * 角色标识
+    * 角色标识
      */
     @NotNull(message = "角色ID不能为空", groups = {UpdateGroup.class, SelectGroup.class})
     @Schema(description = "角色ID")

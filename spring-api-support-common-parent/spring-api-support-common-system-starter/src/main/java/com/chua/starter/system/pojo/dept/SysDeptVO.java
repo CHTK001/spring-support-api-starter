@@ -6,17 +6,17 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 部门VO
- *
- * @since 2024/8/20
- * @author CH
+* 部门VO
+*
+* @since 2024/8/20
+* @author CH
  */
 @Data
 @Schema(description = "部门VO")
 public class SysDeptVO {
 
     /**
-      * 部门标识
+    * 部门标识
      */
     @Schema(description = "部门ID")
     /** sysdeptid */

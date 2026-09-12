@@ -23,10 +23,10 @@ import static com.chua.common.support.enums.Action.CREATE;
 import static com.chua.common.support.enums.Action.UPDATE;
 
 /**
-   * MyBatis-plus 字段自动填充
- *
- * @since 2024/10/14
- * @author CH
+* MyBatis-plus 字段自动填充
+*
+* @since 2024/10/14
+* @author CH
  */
 @Component
 @ConditionalOnClass(name = {"com.baomidou.mybatisplus.core.handlers.MetaObjectHandler"})
@@ -77,9 +77,9 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
     }
 
     /**
-     * 更新填充更新时间
-     *
-     * @param metaObject meta对象
+    * 更新填充更新时间
+    *
+    * @param metaObject meta对象
      */
     @Override
     public void updateFill(MetaObject metaObject) {
@@ -106,9 +106,9 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
     }
 
     /**
-     * 获取当前用户
-     *
-     * @return 获取当前用户的结果
+    * 获取当前用户
+    *
+    * @return 获取当前用户的结果
      */
     private UserResult getCurrentUser() {
         if (authProperties != null && !authProperties.isEnable()) {
@@ -122,12 +122,12 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
     }
 
     /**
-      * 从用户扩展属性中取值（兼容旧版双参 获取期权 的语义）。
-     *
-     * @param userResult   用户信息
-     * @param optionKey    扩展属性键
-     * @param defaultValue 缺省值
-     * @return 属性值（null 时回退缺省值）
+    * 从用户扩展属性中取值（兼容旧版双参 获取期权 的语义）。
+    *
+    * @param userResult   用户信息
+    * @param optionKey    扩展属性键
+    * @param defaultValue 缺省值
+    * @return 属性值（null 时回退缺省值）
      */
     private String option(UserResult userResult, String optionKey, String defaultValue) {
         Object value = userResult.getOption(optionKey);
@@ -136,11 +136,11 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
     }
 
     /**
-     * 从用户扩展属性中取值。
-     *
-     * @param userResult 用户信息
-     * @param optionKey  扩展属性键
-     * @return 属性值
+    * 从用户扩展属性中取值。
+    *
+    * @param userResult 用户信息
+    * @param optionKey  扩展属性键
+    * @return 属性值
      */
     private String option(UserResult userResult, String optionKey) {
         Object value = userResult.getOption(optionKey);
@@ -148,11 +148,11 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
     }
 
     /**
-     * 按字段类型注册自动填充（时间字段直接填充当前值）。
-     *
-     * @param metaObject 元对象
-     * @param name       字段名
-     * @param action     操作类型（新增/更新）
+    * 按字段类型注册自动填充（时间字段直接填充当前值）。
+    *
+    * @param metaObject 元对象
+    * @param name       字段名
+    * @param action     操作类型（新增/更新）
      */
     private void registerField(MetaObject metaObject, String name, Action action) {
         Class<?> type = metaObject.getGetterType(name);
@@ -200,12 +200,12 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
 
     }
     /**
-     * 按字段类型注册自动填充（自定义值，经类型转换后填充）。
-     *
-     * @param metaObject 元对象
-     * @param name       字段名
-     * @param value      待填充的值
-     * @param action     操作类型（新增/更新）
+    * 按字段类型注册自动填充（自定义值，经类型转换后填充）。
+    *
+    * @param metaObject 元对象
+    * @param name       字段名
+    * @param value      待填充的值
+    * @param action     操作类型（新增/更新）
      */
     @SuppressWarnings("unchecked")
     private void registerField(MetaObject metaObject, String name, Object value, Action action) {

@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 用户导入VO
- *
- * @since 2024/12/15
- * @author CH
+* 用户导入VO
+*
+* @since 2024/12/15
+* @author CH
  */
 @Data
 @Schema(description = "用户导入VO")

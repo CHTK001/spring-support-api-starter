@@ -32,19 +32,19 @@ public class MusicFacadeService {
     private final MusicSourceRegistry musicSourceRegistry;
 
     /**
-* 列表源
-*
-* @return 列表源的结果
+    * 列表源
+    *
+    * @return 列表源的结果
      */
     public List<MusicSourceOption> listSources() {
         return musicSourceRegistry.listSources();
     }
 
     /**
-     * 获取Overview
-     *
-     * @param source 源
-     * @return 获取overview的结果
+    * 获取Overview
+    *
+    * @param source 源
+    * @return 获取overview的结果
      */
     public MusicOverview getOverview(String source) {
         if (!musicSourceRegistry.isAggregateSource(source)) {
@@ -64,13 +64,13 @@ public class MusicFacadeService {
     }
 
     /**
-     * 搜索
-     *
-     * @param source 源
-     * @param keyword keyword
-     * @param page page
-     * @param pageSize page大小
-     * @return 搜索的结果
+    * 搜索
+    *
+    * @param source 源
+    * @param keyword keyword
+    * @param page page
+    * @param pageSize page大小
+    * @return 搜索的结果
      */
     public MusicSearchResult search(String source, String keyword, int page, int pageSize) {
         int actualPage = normalizePage(page);
@@ -108,13 +108,13 @@ public class MusicFacadeService {
     }
 
     /**
-     * 搜索Playlists
-     *
-     * @param source 源
-     * @param keyword keyword
-     * @param page page
-     * @param pageSize page大小
-     * @return 搜索playlists的结果
+    * 搜索Playlists
+    *
+    * @param source 源
+    * @param keyword keyword
+    * @param page page
+    * @param pageSize page大小
+    * @return 搜索playlists的结果
      */
     public MusicPlaylistSearchResult searchPlaylists(String source, String keyword, int page, int pageSize) {
         int actualPage = normalizePage(page);
@@ -152,56 +152,56 @@ public class MusicFacadeService {
     }
 
     /**
-     * 获取playlist分类catalog
-     *
-     * @param source 源
-     * @return 获取playlist分类catalog的结果
+    * 获取playlist分类catalog
+    *
+    * @param source 源
+    * @return 获取playlist分类catalog的结果
      */
     public MusicPlaylistCategoryCatalog getPlaylistCategoryCatalog(String source) {
         return musicSourceRegistry.requireProvider(source).getPlaylistCategoryCatalog();
     }
 
     /**
-     * 获取分类playlists
-     *
-     * @param source 源
-     * @param tagId 标签id
-     * @param page page
-     * @param pageSize page大小
-     * @return 获取分类playlists的结果
+    * 获取分类playlists
+    *
+    * @param source 源
+    * @param tagId 标签id
+    * @param page page
+    * @param pageSize page大小
+    * @return 获取分类playlists的结果
      */
     public MusicPlaylistCategoryResult getCategoryPlaylists(String source, String tagId, int page, int pageSize) {
         return musicSourceRegistry.requireProvider(source).getCategoryPlaylists(tagId, page, pageSize);
     }
 
     /**
-     * 获取playlistdetail
-     *
-     * @param source 源
-     * @param playlistId playlistId
-     * @return 获取playlistdetail的结果
+    * 获取playlistdetail
+    *
+    * @param source 源
+    * @param playlistId playlistId
+    * @return 获取playlistdetail的结果
      */
     public MusicPlaylistDetail getPlaylistDetail(String source, String playlistId) {
         return musicSourceRegistry.requireProvider(source).getPlaylistDetail(playlistId);
     }
 
     /**
-     * 获取trackdetail
-     *
-     * @param source 源
-     * @param trackId trackId
-     * @return 获取trackdetail的结果
+    * 获取trackdetail
+    *
+    * @param source 源
+    * @param trackId trackId
+    * @return 获取trackdetail的结果
      */
     public MusicTrackDetail getTrackDetail(String source, String trackId) {
         return musicSourceRegistry.requireProvider(source).getTrackDetail(trackId);
     }
 
     /**
-     * enrichoverview
-     *
-     * @param overview overview
-     * @param defaultSource 默认源
-     * @return enrichOverview的结果
+    * enrichoverview
+    *
+    * @param overview overview
+    * @param defaultSource 默认源
+    * @return enrichOverview的结果
      */
     private MusicOverview enrichOverview(MusicOverview overview, String defaultSource) {
         MusicOverview target = overview == null ? MusicOverview.builder()
@@ -214,10 +214,10 @@ public class MusicFacadeService {
     }
 
     /**
-     * 是否拥有overview内容
-     *
-     * @param overview overview
-     * @return 是否包含overview内容的结果
+    * 是否拥有overview内容
+    *
+    * @param overview overview
+    * @return 是否包含overview内容的结果
      */
     private boolean hasOverviewContent(MusicOverview overview) {
         return overview != null
@@ -226,32 +226,32 @@ public class MusicFacadeService {
     }
 
     /**
-     * normalizepage
-     *
-     * @param page page
-     * @return normalizePage的结果
+    * normalizepage
+    *
+    * @param page page
+    * @return normalizePage的结果
      */
     private int normalizePage(int page) {
         return Math.max(page, 1);
     }
 
     /**
-     * normalizepage获取大小
-     *
-     * @param pageSize page大小
-     * @return normalizepage大小的结果
+    * normalizepage获取大小
+    *
+    * @param pageSize page大小
+    * @return normalizepage大小的结果
      */
     private int normalizePageSize(int pageSize) {
         return Math.min(Math.max(pageSize, 1), 100);
     }
 
     /**
-     * page的
-     *
-     * @param items items
-     * @param page page
-     * @param pageSize page大小
-     * @return page的的结果
+    * page的
+    *
+    * @param items items
+    * @param page page
+    * @param pageSize page大小
+    * @return page的的结果
      */
     private <T> List<T> pageOf(List<T> items, int page, int pageSize) {
         int fromIndex = Math.max(0, (page - 1) * pageSize);
@@ -263,12 +263,12 @@ public class MusicFacadeService {
     }
 
     /**
-     * 调用Safely
-     *
-     * @param provider 提供者
-     * @param operation operation
-     * @param supplier 供应商
-     * @return invokeSafely的结果
+    * 调用Safely
+    *
+    * @param provider 提供者
+    * @param operation operation
+    * @param supplier 供应商
+    * @return invokeSafely的结果
      */
     private <T> T invokeSafely(MusicSourceProvider provider, String operation, Supplier<T> supplier) {
         try {
@@ -281,10 +281,10 @@ public class MusicFacadeService {
     }
 
     /**
-     * 提供者编码
-     *
-     * @param provider 提供者
-     * @return 提供者编码的结果
+    * 提供者编码
+    *
+    * @param provider 提供者
+    * @return 提供者编码的结果
      */
     private String providerCode(MusicSourceProvider provider) {
         if (provider == null || provider.getSource() == null || !StringUtils.hasText(provider.getSource().getCode())) {
@@ -294,10 +294,10 @@ public class MusicFacadeService {
     }
 
     /**
-     * track键
-     *
-     * @param track track
-     * @return track键的结果
+    * track键
+    *
+    * @param track track
+    * @return track键的结果
      */
     private String trackKey(MusicTrackSummary track) {
         String source = StringUtils.hasText(track.getSource()) ? track.getSource() : "unknown";
@@ -307,10 +307,10 @@ public class MusicFacadeService {
     }
 
     /**
-     * playlist键
-     *
-     * @param playlist playlist
-     * @return playlist键的结果
+    * playlist键
+    *
+    * @param playlist playlist
+    * @return playlist键的结果
      */
     private String playlistKey(MusicPlaylistSummary playlist) {
         String source = StringUtils.hasText(playlist.getSource()) ? playlist.getSource() : "unknown";

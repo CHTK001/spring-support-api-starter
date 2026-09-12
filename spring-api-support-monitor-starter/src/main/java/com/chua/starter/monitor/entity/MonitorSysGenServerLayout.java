@@ -12,11 +12,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 服务器布局配置实体，保存服务器监控大屏的整体布局信息，
-   * 布局内容以 JSON 形式存储（节点 / edges / 版本 / generatedat 等结构），前端可直接回显。
- *
- * @since 2026-07-28
- * @author CH
+* 服务器布局配置实体，保存服务器监控大屏的整体布局信息，
+* 布局内容以 JSON 形式存储（节点 / edges / 版本 / generatedat 等结构），前端可直接回显。
+*
+* @since 2026-07-28
+* @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
 public class MonitorSysGenServerLayout extends SysBase {
 
     /**
-      * 布局主键标识，自增
+    * 布局主键标识，自增
      */
     @TableId(value = "monitor_sys_gen_server_layout_id", type = IdType.AUTO)
     @ApiModelProperty("布局ID")

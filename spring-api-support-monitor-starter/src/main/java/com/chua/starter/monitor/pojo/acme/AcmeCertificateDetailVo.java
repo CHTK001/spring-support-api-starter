@@ -11,12 +11,12 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * ACME 证书详情 VO
- * 包含证书信息、关联账户信息和订单信息
- *
-   * @版本 1.0.0
- * @since 2025-12-06
- * @author CH
+* ACME 证书详情 VO
+* 包含证书信息、关联账户信息和订单信息
+*
+* @版本 1.0.0
+* @since 2025-12-06
+* @author CH
  */
 @Data
 @ApiModel(description = "ACME 证书详情 VO")
@@ -24,7 +24,7 @@ import java.util.List;
 public class AcmeCertificateDetailVo {
 
     /**
-     * 证书信息
+    * 证书信息
      */
     @ApiModelProperty("证书信息")
     @Schema(description = "证书信息")

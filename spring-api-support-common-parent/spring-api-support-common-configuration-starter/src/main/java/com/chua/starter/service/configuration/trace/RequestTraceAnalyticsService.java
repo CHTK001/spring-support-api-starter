@@ -21,10 +21,10 @@ import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 请求追踪分析服务。
- *
- * @since 2026/03/25
- * @author CH
+* 请求追踪分析服务。
+*
+* @since 2026/03/25
+* @author CH
  */
 @Slf4j
 @Service
@@ -67,10 +67,10 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * Record
-     *
-     * @param event 事件
-     * @return record的结果
+    * Record
+    *
+    * @param event 事件
+    * @return record的结果
      */
     public RequestTraceEvent record(RequestTraceEvent event) {
         if (event == null) {
@@ -127,10 +127,10 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * Snapshot
-     *
-     * @param requestedWindowMinutes 请求窗口minutes
-     * @return snapshot的结果
+    * Snapshot
+    *
+    * @param requestedWindowMinutes 请求窗口minutes
+    * @return snapshot的结果
      */
     public RequestTraceAnalyticsSnapshot snapshot(Integer requestedWindowMinutes) {
         RequestTraceStrategyConfig config = requestTraceStrategyConfigService.currentConfig();
@@ -231,9 +231,9 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * recent事件
-     *
-     * @return recent事件的结果
+    * recent事件
+    *
+    * @return recent事件的结果
      */
     public List<RequestTraceEvent> recentEvents() {
         RequestTraceStrategyConfig config = requestTraceStrategyConfigService.currentConfig();
@@ -247,10 +247,10 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-      * 构建行为record
-     * @param event 事件
-     * @param history 历史
-     * @param config 配置
+    * 构建行为record
+    * @param event 事件
+    * @param history 历史
+    * @param config 配置
      */
     private RequestTraceBehaviorRecord buildBehaviorRecord(
             RequestTraceEvent event,
@@ -315,11 +315,11 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * 构建Summary
-     * @param event 事件
-     * @param relatedRequestCount related请求数量
-     * @param distinctPathCount 去重路径数量
-     * @param riskLevel risk级别
+    * 构建Summary
+    * @param event 事件
+    * @param relatedRequestCount related请求数量
+    * @param distinctPathCount 去重路径数量
+    * @param riskLevel risk级别
      */
     private String buildSummary(
             RequestTraceEvent event,
@@ -341,10 +341,10 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * 存储raw事件
-     *
-     * @param event 事件
-     * @param config 配置
+    * 存储raw事件
+    *
+    * @param event 事件
+    * @param config 配置
      */
     private void storeRawEvent(RequestTraceEvent event, RequestTraceStrategyConfig config) {
         try {
@@ -355,10 +355,10 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * 存储行为record
-     *
-     * @param record record
-     * @param config 配置
+    * 存储行为record
+    *
+    * @param record record
+    * @param config 配置
      */
     private void storeBehaviorRecord(RequestTraceBehaviorRecord record, RequestTraceStrategyConfig config) {
         try {
@@ -369,9 +369,9 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * 去空格Overflow
-     *
-     * @param config 配置
+    * 去空格Overflow
+    *
+    * @param config 配置
      */
     private void trimOverflow(RequestTraceStrategyConfig config) {
         while (recentEvents.size() > config.getMaxEvents()) {
@@ -383,10 +383,10 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * pruneexpired
-     *
-     * @param now now
-     * @param config 配置
+    * pruneexpired
+    *
+    * @param now now
+    * @param config 配置
      */
     private void pruneExpired(long now, RequestTraceStrategyConfig config) {
         long cutoff = now - Duration.ofMinutes(config.getRetentionMinutes()).toMillis();
@@ -407,11 +407,11 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * normalize窗口minutes
-     *
-     * @param requestedWindowMinutes 请求窗口minutes
-     * @param config 配置
-     * @return normalize窗口minutes的结果
+    * normalize窗口minutes
+    *
+    * @param requestedWindowMinutes 请求窗口minutes
+    * @param config 配置
+    * @return normalize窗口minutes的结果
      */
     private int normalizeWindowMinutes(Integer requestedWindowMinutes, RequestTraceStrategyConfig config) {
         if (requestedWindowMinutes == null || requestedWindowMinutes <= 0) {
@@ -421,10 +421,10 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-      * 转为指标buckets
-     * @param events 事件
-     * @param keyFunction 键function
-     * @param limit 限制
+    * 转为指标buckets
+    * @param events 事件
+    * @param keyFunction 键function
+    * @param limit 限制
      */
     private List<RequestTraceAnalyticsSnapshot.MetricBucket> toMetricBuckets(
             List<RequestTraceEvent> events,
@@ -447,11 +447,11 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * 第一个nonblank
-     *
-     * @param first 第一个
-     * @param second second
-     * @return 第一个nonblank的结果
+    * 第一个nonblank
+    *
+    * @param first 第一个
+    * @param second second
+    * @return 第一个nonblank的结果
      */
     private String firstNonBlank(String first, String second) {
         if (first != null && !first.isBlank()) {
@@ -461,10 +461,10 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * remember行为record
-     *
-     * @param record record
-     * @param config 配置
+    * remember行为record
+    *
+    * @param record record
+    * @param config 配置
      */
     private void rememberBehaviorRecord(RequestTraceBehaviorRecord record, RequestTraceStrategyConfig config) {
         if (record == null) {
@@ -481,41 +481,41 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * AIanalysis的
-     *
-     * @param record record
-     * @return AIanalysis的的结果
+    * AIanalysis的
+    *
+    * @param record record
+    * @return AIanalysis的的结果
      */
     private RequestTraceAiAnalysisResult aiAnalysisOf(RequestTraceBehaviorRecord record) {
         return record == null ? null : record.aiAnalysis();
     }
 
     /**
-     * AIsummary的
-     *
-     * @param record record
-     * @return AIsummary的的结果
+    * AIsummary的
+    *
+    * @param record record
+    * @return AIsummary的的结果
      */
     private String aiSummaryOf(RequestTraceBehaviorRecord record) {
         return record == null ? null : record.aiSummary();
     }
 
     /**
-     * summary的
-     *
-     * @param record record
-     * @return summary的的结果
+    * summary的
+    *
+    * @param record record
+    * @return summary的的结果
      */
     private String summaryOf(RequestTraceBehaviorRecord record) {
         return record == null ? null : record.summary();
     }
 
     /**
-     * risk级别的
-     *
-     * @param record record
-     * @param event 事件
-     * @return risk级别的的结果
+    * risk级别的
+    *
+    * @param record record
+    * @param event 事件
+    * @return risk级别的的结果
      */
     private String riskLevelOf(RequestTraceBehaviorRecord record, RequestTraceEvent event) {
         if (record != null && record.riskLevel() != null) {
@@ -525,10 +525,10 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * 转为AI映射
-     *
-     * @param aiAnalysis AIanalysis
-     * @return 转为AI映射的结果
+    * 转为AI映射
+    *
+    * @param aiAnalysis AIanalysis
+    * @return 转为AI映射的结果
      */
     private Map<String, Object> toAiMap(RequestTraceAiAnalysisResult aiAnalysis) {
         if (aiAnalysis == null) {

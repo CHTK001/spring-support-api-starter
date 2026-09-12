@@ -15,11 +15,11 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 
 /**
- * 租户表
- *
-   * @版本 1.0.0
- * @since 2024/12/06
- * @author CH
+* 租户表
+*
+* @版本 1.0.0
+* @since 2024/12/06
+* @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(description = "租户表")
@@ -29,7 +29,7 @@ import java.util.List;
 public class SysTenant extends SysBase {
 
     /**
-      * 租户标识（同时作为租户编码使用）
+    * 租户标识（同时作为租户编码使用）
      */
     @TableId(value = "sys_tenant_id", type = IdType.ASSIGN_ID)
     @ApiModelProperty(value = "租户ID/租户编码")

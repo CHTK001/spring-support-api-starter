@@ -9,18 +9,18 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 
 /**
-   * 监控 H2 模式下的 Mock Redis 配置
- *
- * @author CH
- * @since 4.0.0
+* 监控 H2 模式下的 Mock Redis 配置
+*
+* @author CH
+* @since 4.0.0
  */
 @Configuration
 public class MonitorRedisConfig {
 
     /**
-      * 创建 Mock redisconnection工厂
-     *
-     * @return RedisConnectionFactory 实例
+    * 创建 Mock redisconnection工厂
+    *
+    * @return RedisConnectionFactory 实例
      */
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
@@ -33,10 +33,10 @@ public class MonitorRedisConfig {
     }
 
     /**
-      * 创建 Mock redistemplate
-     *
-     * @param connectionFactory Redis 连接工厂
-     * @return RedisTemplate 实例
+    * 创建 Mock redistemplate
+    *
+    * @param connectionFactory Redis 连接工厂
+    * @return RedisTemplate 实例
      */
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {

@@ -12,14 +12,14 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 系统用户角色解析器
- * <p>
-   * 为 OAuth 客户端（http / http-lite 协议）补充用户角色编码，
-   * 解决 OAuth 服务端 /验证 返回 角色 为空导致的权限不足问题。
- * </p>
- *
- * @since 4.0.0.42
- * @author CH
+* 系统用户角色解析器
+* <p>
+* 为 OAuth 客户端（http / http-lite 协议）补充用户角色编码，
+* 解决 OAuth 服务端 /验证 返回 角色 为空导致的权限不足问题。
+* </p>
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Service
 @Spi("default")

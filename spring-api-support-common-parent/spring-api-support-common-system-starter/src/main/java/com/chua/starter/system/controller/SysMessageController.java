@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 站内消息接口
- *
- * <p>提供当前用户站内消息的分页查询、未读统计与已读标记，
-   * 供前端站内消息中心（头部 铃铛/消息面板）调用。</p>
- *
- * @since 4.0.0.42
- * @author CH
+* 站内消息接口
+*
+* <p>提供当前用户站内消息的分页查询、未读统计与已读标记，
+* 供前端站内消息中心（头部 铃铛/消息面板）调用。</p>
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Tag(name = "站内消息接口")
 @RestController
@@ -56,10 +56,10 @@ public class SysMessageController {
     }
 
     /**
-     * 统计当前用户未读消息数
-     *
-     * @param sysUserId 当前用户标识（自动注入）
-     * @return 未读数量
+    * 统计当前用户未读消息数
+    *
+    * @param sysUserId 当前用户标识（自动注入）
+    * @return 未读数量
      */
     @Operation(summary = "站内消息未读数")
     @GetMapping("/unread-count")
@@ -69,11 +69,11 @@ public class SysMessageController {
     }
 
     /**
-     * 标记消息已读
-     *
-     * @param sysUserId 当前用户标识（自动注入）
-     * @param lastId    已读到的最大消息标识（为空标记全部已读）
-     * @return 处理结果
+    * 标记消息已读
+    *
+    * @param sysUserId 当前用户标识（自动注入）
+    * @param lastId    已读到的最大消息标识（为空标记全部已读）
+    * @return 处理结果
      */
     @Operation(summary = "标记站内消息已读")
     @PutMapping("/read")
@@ -84,10 +84,10 @@ public class SysMessageController {
     }
 
     /**
-     * 消息实体转前端视图
-     *
-     * @param message 消息实体
-     * @return 前端视图对象
+    * 消息实体转前端视图
+    *
+    * @param message 消息实体
+    * @return 前端视图对象
      */
     private SysMessageVO toVO(SysMessage message) {
         SysMessageVO vo = new SysMessageVO();

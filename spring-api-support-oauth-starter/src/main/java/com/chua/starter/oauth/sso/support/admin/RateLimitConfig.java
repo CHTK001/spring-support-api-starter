@@ -3,9 +3,9 @@ package com.chua.starter.oauth.sso.support.admin;
 import lombok.Data;
 
 /**
- * 限流配置
- * @author CH
- * @since 4.0.0
+* 限流配置
+* @author CH
+* @since 4.0.0
  */
 @Data
 public class RateLimitConfig {

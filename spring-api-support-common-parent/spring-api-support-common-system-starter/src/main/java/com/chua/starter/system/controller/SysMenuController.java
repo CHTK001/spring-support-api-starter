@@ -29,10 +29,10 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
- * 菜单接口
- *
- * @since 2024/8/7
- * @author CH
+* 菜单接口
+*
+* @since 2024/8/7
+* @author CH
  */
 @Tag(name = "菜单接口")
 @RestController
@@ -56,11 +56,11 @@ public class SysMenuController {
     }
 
     /**
-     * 菜单列表
-     *
-     * @param sysMenu 条件
-     * @return 菜单分页列表
-     * @param true true
+    * 菜单列表
+    *
+    * @param sysMenu 条件
+    * @return 菜单分页列表
+    * @param true true
      */
     @Operation(summary = "菜单列表")
     @GetMapping("/list")
@@ -69,12 +69,12 @@ public class SysMenuController {
     }
 
     /**
-     * 菜单分页列表
-     *
-     * @param sysMenu 条件
-     * @return 菜单分页列表
-     * @param query 查询
-     * @param true true
+    * 菜单分页列表
+    *
+    * @param sysMenu 条件
+    * @return 菜单分页列表
+    * @param query 查询
+    * @param true true
      */
     @Operation(summary = "菜单分页列表")
     @GetMapping("/page")
@@ -83,10 +83,10 @@ public class SysMenuController {
     }
 
     /**
-     * 删除菜单
-     *
-     * @return 更新菜单
-     * @param sysMenuId sysMenuId
+    * 删除菜单
+    *
+    * @return 更新菜单
+    * @param sysMenuId sysMenuId
      */
     @Operation(summary = "删除菜单")
     @DeleteMapping("/delete")
@@ -103,9 +103,9 @@ public class SysMenuController {
 
 
     /**
-     * 更新菜单
-     *
-     * @return 更新菜单
+    * 更新菜单
+    *
+    * @return 更新菜单
      */
     @Operation(summary = "更新菜单")
     @PutMapping("/update")
@@ -123,9 +123,9 @@ public class SysMenuController {
     }
 
     /**
-     * 新增菜单
-     *
-     * @return 新增菜单
+    * 新增菜单
+    *
+    * @return 新增菜单
      */
     @Operation(summary = "新增菜单")
     @PostMapping("/save")

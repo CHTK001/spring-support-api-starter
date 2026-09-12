@@ -14,10 +14,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 第三方账号服务实现
- *
- * @since 4.0.0.42
- * @author CH
+* 第三方账号服务实现
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Slf4j
 @Service
@@ -83,10 +83,10 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * 解绑账户
-     *
-     * @param accountId 账户id
-     * @return unbind账户的结果
+    * 解绑账户
+    *
+    * @param accountId 账户id
+    * @return unbind账户的结果
      */
     public ReturnResult<Boolean> unbindAccount(Integer accountId) {
         if (accountId == null) {
@@ -99,10 +99,10 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * 解绑by用户id
-     *
-     * @param userId 用户id
-     * @return unbindby用户id的结果
+    * 解绑by用户id
+    *
+    * @param userId 用户id
+    * @return unbindby用户id的结果
      */
     public int unbindByUserId(Integer userId) {
         if (userId == null) {

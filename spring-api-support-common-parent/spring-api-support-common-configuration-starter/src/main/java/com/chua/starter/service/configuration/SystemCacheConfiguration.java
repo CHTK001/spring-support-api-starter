@@ -14,9 +14,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import java.time.Duration;
 
 /**
- * 缓存配置
- * @since 2024/8/8
- * @author CH
+* 缓存配置
+* @since 2024/8/8
+* @author CH
  */
 @Configuration
 @EnableConfigurationProperties(CacheProperties.class)
@@ -24,15 +24,15 @@ import java.time.Duration;
 public class SystemCacheConfiguration {
 
     /**
-     * 默认缓存TTL（秒）
+    * 默认缓存TTL（秒）
      */
     private static final int DEFAULT_TTL_SECONDS = 3600;
 
     /**
-     * 缓存配置
-     * @return CacheManager
-     * @param factory 工厂
-     * @param cacheProperties 缓存属性
+    * 缓存配置
+    * @return CacheManager
+    * @param factory 工厂
+    * @param cacheProperties 缓存属性
      */
     @Bean({SystemConstant.CACHE_WITH_REDIS, "cacheWithRedis"})
     @Primary

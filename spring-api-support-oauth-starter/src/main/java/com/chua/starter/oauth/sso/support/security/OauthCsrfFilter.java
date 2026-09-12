@@ -23,13 +23,13 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * OAuth CSRF 防护过滤器
- *
- * <p>对状态变更请求校验 CSRF 令牌；安全方法（GET 等）自动下发令牌 Cookie。</p>
- * <p>令牌存储于 Redis，键前缀 {@code oauth:security:csrf:}。</p>
- *
- * @since 2025/01/01
- * @author CH
+* OAuth CSRF 防护过滤器
+*
+* <p>对状态变更请求校验 CSRF 令牌；安全方法（GET 等）自动下发令牌 Cookie。</p>
+* <p>令牌存储于 Redis，键前缀 {@code oauth:security:csrf:}。</p>
+*
+* @since 2025/01/01
+* @author CH
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -76,11 +76,11 @@ public class OauthCsrfFilter implements Filter, Ordered {
     }
 
     /**
-     * 是否Ignored
-     *
-     * @param request 请求
-     * @param csrf csrf
-     * @return 是否ignored的结果
+    * 是否Ignored
+    *
+    * @param request 请求
+    * @param csrf csrf
+    * @return 是否ignored的结果
      */
     private boolean isIgnored(HttpServletRequest request, OauthSecurityProperties.Csrf csrf) {
         String uri = request.getRequestURI();
@@ -100,11 +100,11 @@ public class OauthCsrfFilter implements Filter, Ordered {
     }
 
     /**
-     * requires校验
-     *
-     * @param method 方法
-     * @param csrf csrf
-     * @return requires校验的结果
+    * requires校验
+    *
+    * @param method 方法
+    * @param csrf csrf
+    * @return requires校验的结果
      */
     private boolean requiresValidation(String method, OauthSecurityProperties.Csrf csrf) {
         List<String> methods = csrf.getMethods();
@@ -120,11 +120,11 @@ public class OauthCsrfFilter implements Filter, Ordered {
     }
 
     /**
-     * 校验令牌
-     *
-     * @param request 请求
-     * @param csrf csrf
-     * @return 校验令牌的结果
+    * 校验令牌
+    *
+    * @param request 请求
+    * @param csrf csrf
+    * @return 校验令牌的结果
      */
     private boolean validateToken(HttpServletRequest request, OauthSecurityProperties.Csrf csrf) {
         String requestToken = resolveRequestToken(request, csrf);
@@ -151,11 +151,11 @@ public class OauthCsrfFilter implements Filter, Ordered {
     }
 
     /**
-     * 解析请求令牌
-     *
-     * @param request 请求
-     * @param csrf csrf
-     * @return resolve请求令牌的结果
+    * 解析请求令牌
+    *
+    * @param request 请求
+    * @param csrf csrf
+    * @return resolve请求令牌的结果
      */
     private String resolveRequestToken(HttpServletRequest request, OauthSecurityProperties.Csrf csrf) {
         String token = request.getHeader(csrf.getHeaderName());
@@ -166,11 +166,11 @@ public class OauthCsrfFilter implements Filter, Ordered {
     }
 
     /**
-     * 解析Cookie令牌
-     *
-     * @param request 请求
-     * @param cookieName Cookie名称
-     * @return resolveCookie令牌的结果
+    * 解析Cookie令牌
+    *
+    * @param request 请求
+    * @param cookieName Cookie名称
+    * @return resolveCookie令牌的结果
      */
     private String resolveCookieToken(HttpServletRequest request, String cookieName) {
         Cookie[] cookies = request.getCookies();
@@ -186,10 +186,10 @@ public class OauthCsrfFilter implements Filter, Ordered {
     }
 
     /**
-      * ensure令牌Cookie
-     * @param request 请求
-     * @param response 响应
-     * @param csrf CSRF
+    * ensure令牌Cookie
+    * @param request 请求
+    * @param response 响应
+    * @param csrf CSRF
      */
     private void ensureTokenCookie(HttpServletRequest request, HttpServletResponse response,
                                    OauthSecurityProperties.Csrf csrf) {
@@ -227,9 +227,9 @@ public class OauthCsrfFilter implements Filter, Ordered {
     }
 
     /**
-     * 写入Forbidden
-     *
-     * @param response 响应
+    * 写入Forbidden
+    *
+    * @param response 响应
      */
     private void writeForbidden(HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);

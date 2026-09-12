@@ -1,10 +1,10 @@
 package com.chua.starter.service.configuration.trace;
 
 /**
- * 请求追踪信号
- *
- * @since 2026/03/25
- * @author CH
+* 请求追踪信号
+*
+* @since 2026/03/25
+* @author CH
  */
 public enum RequestTraceSignal {
 
@@ -38,9 +38,9 @@ public enum RequestTraceSignal {
     }
 
     /**
-     * 获取Description
-     *
-     * @return 获取description的结果
+    * 获取Description
+    *
+    * @return 获取description的结果
      */
     public String getDescription() {
         return description;

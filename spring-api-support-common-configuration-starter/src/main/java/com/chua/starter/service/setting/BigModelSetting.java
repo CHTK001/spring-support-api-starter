@@ -9,42 +9,42 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 大模型设置类，用于存储和处理与大模型应用相关的配置信息
- *
- * @since 2024/9/10
- * @author CH
+* 大模型设置类，用于存储和处理与大模型应用相关的配置信息
+*
+* @since 2024/9/10
+* @author CH
  */
 @Data
 @Slf4j
 public class BigModelSetting implements Upgrade<BigModelSetting> {
 
     /**
-     * 应用类型，标识大模型应用的类别
+    * 应用类型，标识大模型应用的类别
      */
     private String appType;
 
     /**
-      * 应用标识，唯一标识一个大模型应用
+    * 应用标识，唯一标识一个大模型应用
      */
     private String appId;
 
     /**
-     * 应用密钥，用于应用的安全验证
+    * 应用密钥，用于应用的安全验证
      */
     private String appSecret;
 
     /**
-     * 应用公钥，与应用密钥配合使用，增强应用的安全性
+    * 应用公钥，与应用密钥配合使用，增强应用的安全性
      */
     private String appKey;
 
     /**
-      * API 主机 地址（如 https://api.agnes-ai.com）
+    * API 主机 地址（如 https://api.agnes-ai.com）
      */
     private String host;
 
     /**
-      * API 基础 URL（如 https://api.agnes-ai.com/v1/chat/completions）
+    * API 基础 URL（如 https://api.agnes-ai.com/v1/chat/completions）
      */
     private String baseUrl;
 

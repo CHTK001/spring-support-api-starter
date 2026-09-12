@@ -18,11 +18,11 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * 租户用户登录服务
- * <p>支持多租户环境下的用户登录验证与授权</p>
- *
- * @since 1.0.0
- * @author CH
+* 租户用户登录服务
+* <p>支持多租户环境下的用户登录验证与授权</p>
+*
+* @since 1.0.0
+* @author CH
  */
 @Slf4j
 @Service
@@ -32,17 +32,17 @@ import java.util.concurrent.TimeUnit;
 public class TenantUserLoginService extends AbstractUserLoginService {
 
     /**
-     * 登录类型前缀
+    * 登录类型前缀
      */
     private static final String LOGIN_TYPE_PREFIX = "tenant";
 
     /**
-     * 用户上次登录租户编码缓存前缀
+    * 用户上次登录租户编码缓存前缀
      */
     private static final String LAST_TENANT_CODE_KEY = "user:last_tenant_code:";
 
     /**
-     * 上次登录租户缓存过期时间（天）
+    * 上次登录租户缓存过期时间（天）
      */
     private static final long LAST_TENANT_EXPIRE_DAYS = 30;
 
@@ -191,10 +191,10 @@ public class TenantUserLoginService extends AbstractUserLoginService {
     }
 
     /**
-     * 保存用户上次登录的租户编码
-     *
-     * @param username   用户名
-     * @param tenantCode 租户编码
+    * 保存用户上次登录的租户编码
+    *
+    * @param username   用户名
+    * @param tenantCode 租户编码
      */
     private void saveLastTenantCode(String username, String tenantCode) {
         try {
