@@ -29,7 +29,7 @@ public class TerrariumDecoder {
 
     /**
      * 将 RGBA 像素数组解码为高程 float 数组。
-     * 输入为 BufferedImage.getRaster().getDataElements() 返回的 int[]。
+      * 输入为 缓冲镜像.获取raster().获取数据elements() 返回的 int[]。
      *
      * @param pixels RGBA 像素数组（每元素为一个 int，包含 R/G/B/A）
      * @param width  图像宽度

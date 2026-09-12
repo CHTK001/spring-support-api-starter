@@ -15,7 +15,7 @@ import java.util.Map;
  * 临时令牌认证信息 - 支持多协议
  * <p>用于解析临时令牌创建请求</p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-12-11
  * @author CH
  */
@@ -61,7 +61,7 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RequestHeader */
+    /** 获取请求头部 */
     protected String getRequestHeader(Object request, String headerName) {
         if (request instanceof HttpServletRequest httpRequest) {
             return httpRequest.getHeader(headerName);
@@ -72,7 +72,7 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置ResponseHeader */
+    /** 设置响应头部 */
     protected void setResponseHeader(Object response, String headerName, String headerValue) {
         if (response instanceof HttpServletResponse httpResponse) {
             httpResponse.setHeader(headerName, headerValue);
@@ -82,7 +82,7 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RemoteAddress */
+    /** 获取远程地址 */
     protected String getRemoteAddress(Object request) {
         if (request instanceof HttpServletRequest httpRequest) {
             return httpRequest.getRemoteAddr();
@@ -93,7 +93,7 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RequestAttribute */
+    /** 获取请求attribute */
     protected Object getRequestAttribute(Object request, String attributeName) {
         if (request instanceof HttpServletRequest httpRequest) {
             return httpRequest.getAttribute(attributeName);
@@ -104,7 +104,7 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置RequestAttribute */
+    /** 设置请求attribute */
     protected void setRequestAttribute(Object request, String attributeName, Object attributeValue) {
         if (request instanceof HttpServletRequest httpRequest) {
             httpRequest.setAttribute(attributeName, attributeValue);
@@ -114,7 +114,7 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     }
 
     /**
-     * 获取ApplicationContext
+      * 获取application上下文
      *
      * @return ApplicationContext
      */
@@ -123,7 +123,7 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     }
 
     /**
-     * 获取LoginCheck
+      * 获取login检查
      *
      * @return LoginCheck
      */

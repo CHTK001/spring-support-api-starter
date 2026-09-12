@@ -36,13 +36,17 @@ import org.springframework.scheduling.annotation.EnableAsync;
         )
 )
 /**
- * public class AuthApplication {
+   * 公共 类 认证application {
  *
  * @author CH
  * @since 4.0.0.42
  */
 public class AuthApplication {
 
+    /**
+     * main。
+     * @param args 参数
+     */
     public static void main(String[] args) {
         SpringApplication.run(AuthApplication.class);
     }

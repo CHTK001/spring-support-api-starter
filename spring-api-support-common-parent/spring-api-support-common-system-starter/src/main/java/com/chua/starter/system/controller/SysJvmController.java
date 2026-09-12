@@ -141,7 +141,7 @@ public class SysJvmController {
                     jvmInfo.setFileDescriptorInfo(fdInfo);
                 }
             } catch (Exception e) {
-                // Windows系统不支持
+ // 窗口系统不支持
             }
         }
         jvmInfo.setOsInfo(osInfo);
@@ -274,7 +274,7 @@ public class SysJvmController {
             totalGcCount += count;
             totalGcTime += time;
             lastGcName = gc.getName();
-            // 区分Young/Old GC
+ // 区分Young/旧 GC
             if (gcName.contains("young") || gcName.contains("minor") || gcName.contains("scavenge") 
                 || gcName.contains("parnew") || gcName.contains("copy") || gcName.contains("g1 young")) {
                 youngGcCount += count;
@@ -350,9 +350,9 @@ public class SysJvmController {
                     directMemoryInfo.setMappedCount(pool.getCount());
                 }
             }
-            // 尝试获取MaxDirectMemorySize
+ // 尝试获取最大direct内存大小
             try {
-                // sun.misc.VM 是 JDK 内部类，无标准 API 可获取 maxDirectMemory，使用反射访问其公开方法
+ // sun.misc.VM 是 JDK 内部类，无标准 API 可获取 最大direct内存，使用反射访问其公开方法
                 Class<?> vmClass = Class.forName("sun.misc.VM");
                 java.lang.reflect.Method method = vmClass.getDeclaredMethod("maxDirectMemory");
                 long maxDirect = (Long) method.invoke(null);
@@ -489,8 +489,9 @@ public class SysJvmController {
     /**
      * 获取单个线程详细信息(包含堆栈)
      *
-     * @param threadId 线程ID
+     * @param threadId 线程标识
      * @return 线程详情
+     * @param @RequestParam("threadId" @RequestParam("threadId"
      */
     @GetMapping("/thread")
     @Operation(summary = "获取单个线程详细信息")
@@ -573,7 +574,9 @@ public class SysJvmController {
             java.lang.management.ThreadInfo[] threadInfos = threadMXBean.getThreadInfo(threadIds, 50);
             
             for (java.lang.management.ThreadInfo info : threadInfos) {
-                if (info == null) continue;
+                if (info == null) {
+                    continue;
+                }
                 
                 // 排除空闲线程
                 if (excludeIdle && isIdleThread(info)) {
@@ -583,7 +586,9 @@ public class SysJvmController {
                 sampledThreads.add(info.getThreadId());
                 StackTraceElement[] stackTrace = info.getStackTrace();
                 
-                if (stackTrace.length == 0) continue;
+                if (stackTrace.length == 0) {
+                    continue;
+                }
                 
                 // 统计栈顶方法(正在执行的代码)
                 for (int j = 0; j < Math.min(stackTrace.length, 10); j++) {
@@ -754,11 +759,11 @@ public class SysJvmController {
         
         // 尝试获取堆直方图
         try {
-            // 使用 DiagnosticCommandMBean 执行 GC.class_histogram
+ // 使用 diagnostic命令mBean 执行 GC.类_histogram
             javax.management.MBeanServer server = ManagementFactory.getPlatformMBeanServer();
             javax.management.ObjectName diagCmdName = new javax.management.ObjectName("com.sun.management:type=DiagnosticCommand");
             
-            // 执行 gcClassHistogram 命令
+ // 执行 gc类histogram 命令
             String[] emptyArgs = new String[0];
             String histogram = (String) server.invoke(diagCmdName, "gcClassHistogram", 
                     new Object[]{emptyArgs}, new String[]{String[].class.getName()});
@@ -779,6 +784,10 @@ public class SysJvmController {
     
     /**
      * 解析堆直方图输出
+     * @param analysis analysis
+     * @param histogram histogram
+     * @param topN topN
+     * @param packageFilter 包过滤器
      */
     private void parseHistogram(JvmInfo.HeapAnalysis analysis, String histogram, int topN, String packageFilter) {
         List<HeapHistogramEntry> entries = new ArrayList<>();
@@ -910,9 +919,13 @@ public class SysJvmController {
     
     /**
      * 规范化类名 (处理数组类型等)
+     * @param className 类名称
+     * @return normalize类名称的结果
      */
     private String normalizeClassName(String className) {
-        if (className == null) return "";
+        if (className == null) {
+            return "";
+        }
         
         // 处理数组类型
         if (className.startsWith("[")) {
@@ -937,7 +950,7 @@ public class SysJvmController {
                     case 'J': return "long" + suffix;
                     case 'S': return "short" + suffix;
                     case 'L':
-                        // 对象数组 [Ljava.lang.String;
+ // 对象数组 [Ljava.lang.字符串;
                         String objClass = className.substring(i + 1);
                         if (objClass.endsWith(";")) {
                             objClass = objClass.substring(0, objClass.length() - 1);
@@ -954,37 +967,45 @@ public class SysJvmController {
     
     /**
      * 堆直方图条目
+     * @author CH
+     * @since 4.0.0
      */
     private static class HeapHistogramEntry {
-        String className;
-        long instanceCount;
-        long bytes;
+        String className; // 类名称
+        long instanceCount; // instance数量
+        long bytes; // bytes
     }
     
     /**
      * 包统计信息
+     * @author CH
+     * @since 4.0.0
      */
     private static class PackageStats {
-        long bytes;
-        long instanceCount;
-        int classCount;
+        long bytes; // bytes
+        long instanceCount; // instance数量
+        int classCount; // 类数量
     }
     
     /**
      * 方法命中信息
+     * @author CH
+     * @since 4.0.0
      */
     private static class MethodHitInfo {
-        String className;
-        String methodName;
-        String fileName;
-        int lineNumber;
-        int hitCount;
-        Map<Integer, Integer> lineNumbers = new HashMap<>();
-        Map<String, Integer> callers = new HashMap<>();
+        String className; // 类名称
+        String methodName; // 方法名称
+        String fileName; // 文件名称
+        int lineNumber; // 线数字
+        int hitCount; // hit数量
+        Map<Integer, Integer> lineNumbers = new HashMap<>(); // 线数字
+        Map<String, Integer> callers = new HashMap<>(); // callers
     }
     
     /**
      * 判断是否为空闲线程
+     * @param info 信息
+     * @return 是否空闲thread的结果
      */
     private boolean isIdleThread(java.lang.management.ThreadInfo info) {
         Thread.State state = info.getThreadState();
@@ -1008,6 +1029,8 @@ public class SysJvmController {
     
     /**
      * 获取包名
+     * @param className 类名称
+     * @return 获取包名称的结果
      */
     private String getPackageName(String className) {
         int lastDot = className.lastIndexOf('.');
@@ -1016,6 +1039,9 @@ public class SysJvmController {
 
     /**
      * 获取 CPU 占用最高的线程列表
+     * @param threadMXBean threadmxBean
+     * @param topN topN
+     * @return 获取topcputhreads的结果
      */
     private List<JvmInfo.ThreadDetail> getTopCpuThreads(ThreadMXBean threadMXBean, int topN) {
         List<JvmInfo.ThreadDetail> threadDetails = new ArrayList<>();
@@ -1094,7 +1120,8 @@ public class SysJvmController {
     }
     
     /**
-     * 获取所有线程的 Map
+      * 获取所有线程的 映射
+     * @return 获取thread映射的结果
      */
     private Map<Long, Thread> getThreadMap() {
         Map<Long, Thread> threadMap = new HashMap<>();
@@ -1111,7 +1138,9 @@ public class SysJvmController {
     }
     
     /**
-     * 根据 ID 查找线程
+      * 根据 标识 查找线程
+     * @param threadId threadId
+     * @return findThreadById的结果
      */
     private Thread findThreadById(long threadId) {
         return getThreadMap().get(threadId);
@@ -1152,13 +1181,19 @@ public class SysJvmController {
             java.lang.management.ThreadInfo[] threadInfos = threadMXBean.getThreadInfo(threadIds, 100);
             
             for (java.lang.management.ThreadInfo info : threadInfos) {
-                if (info == null) continue;
+                if (info == null) {
+                    continue;
+                }
                 
                 // 排除空闲线程
-                if (isIdleThread(info)) continue;
+                if (isIdleThread(info)) {
+                    continue;
+                }
                 
                 StackTraceElement[] stackTrace = info.getStackTrace();
-                if (stackTrace.length == 0) continue;
+                if (stackTrace.length == 0) {
+                    continue;
+                }
                 
                 totalSamples++;
                 
@@ -1398,6 +1433,9 @@ public class SysJvmController {
     
     /**
      * 检测入口类型
+     * @param className 类名称
+     * @param methodName 方法名称
+     * @return detectentry类型的结果
      */
     private String detectEntryType(String className, String methodName) {
         String lowerClassName = className.toLowerCase();
@@ -1485,6 +1523,9 @@ public class SysJvmController {
     
     /**
      * 构建简化的调用链
+     * @param stackTrace stack追踪
+     * @param businessPackage 业务包
+     * @return 构建simplifiedcallchain的结果
      */
     private List<String> buildSimplifiedCallChain(StackTraceElement[] stackTrace, String businessPackage) {
         List<String> chain = new ArrayList<>();
@@ -1526,6 +1567,8 @@ public class SysJvmController {
     
     /**
      * 获取简化类名
+     * @param fullClassName 完整类名称
+     * @return 获取简单类名称的结果
      */
     private String getSimpleClassName(String fullClassName) {
         int lastDot = fullClassName.lastIndexOf('.');
@@ -1534,6 +1577,9 @@ public class SysJvmController {
     
     /**
      * 生成影响描述
+     * @param stats stats
+     * @param type 类型
+     * @return generateImpactDescription的结果
      */
     private String generateImpactDescription(BusinessMethodStats stats, String type) {
         StringBuilder desc = new StringBuilder();
@@ -1569,6 +1615,8 @@ public class SysJvmController {
     
     /**
      * 生成入口点描述
+     * @param stats stats
+     * @return generateEntryPointDescription的结果
      */
     private String generateEntryPointDescription(EntryPointStats stats) {
         StringBuilder desc = new StringBuilder();
@@ -1581,39 +1629,45 @@ public class SysJvmController {
     
     /**
      * 业务方法统计
+     * @author CH
+     * @since 4.0.0
      */
     private static class BusinessMethodStats {
-        String className;
-        String methodName;
-        String fileName;
-        int lineNumber;
-        int callCount = 0;
-        int cpuScore = 0;
-        int memoryScore = 0;
-        Map<String, Integer> relatedHotspots = new HashMap<>();
-        Map<String, Integer> memoryRelatedMethods = new HashMap<>();
+        String className; // 类名称
+        String methodName; // 方法名称
+        String fileName; // 文件名称
+        int lineNumber; // 线数字
+        int callCount = 0; // call数量
+        int cpuScore = 0; // cpuScore
+        int memoryScore = 0; // 内存score
+        Map<String, Integer> relatedHotspots = new HashMap<>(); // relatedHotspots
+        Map<String, Integer> memoryRelatedMethods = new HashMap<>(); // 内存related方法
     }
     
     /**
      * 调用链统计
+     * @author CH
+     * @since 4.0.0
      */
     private static class CallChainStats {
-        String businessEntry;
-        String hotspotMethod;
-        List<String> callChain;
-        int count = 0;
+        String businessEntry; // 业务entry
+        String hotspotMethod; // hotspot方法
+        List<String> callChain; // callChain
+        int count = 0; // 数量
     }
     
     /**
      * 入口点统计
+     * @author CH
+     * @since 4.0.0
      */
     private static class EntryPointStats {
-        String className;
-        String methodName;
-        String entryType;
-        int triggerCount = 0;
-        int cpuImpactScore = 0;
-        Set<String> relatedHotspots = new HashSet<>();
+        String className; // 类名称
+        String methodName; // 方法名称
+        String entryType; // entry类型
+        int triggerCount = 0; // trigger数量
+        int cpuImpactScore = 0; // cpuImpactScore
+        Set<String> relatedHotspots = new HashSet<>(); // relatedHotspots
     }
 
     /**
@@ -2024,16 +2078,28 @@ public class SysJvmController {
     
     /**
      * 格式化字节数为紧凑格式
+     * @param bytes bytes
+     * @return 格式化bytescompact的结果
      */
     private String formatBytesCompact(long bytes) {
-        if (bytes < 1024) return bytes + "";
-        if (bytes < 1024 * 1024) return (bytes / 1024) + "k";
-        if (bytes < 1024L * 1024 * 1024) return (bytes / (1024 * 1024)) + "m";
+        if (bytes < 1024) {
+            return bytes + "";
+        }
+        if (bytes < 1024 * 1024) {
+            return (bytes / 1024) + "k";
+        }
+        if (bytes < 1024L * 1024 * 1024) {
+            return (bytes / (1024 * 1024)) + "m";
+        }
         return (bytes / (1024L * 1024 * 1024)) + "g";
     }
     
     /**
      * 生成内存建议文本
+     * @param heapUsagePercent heapUsagePercent
+     * @param currentMax 当前最大
+     * @param recommendedMax recommended最大
+     * @return generate内存advice文本的结果
      */
     private String generateMemoryAdviceText(double heapUsagePercent, long currentMax, long recommendedMax) {
         StringBuilder sb = new StringBuilder();
@@ -2051,6 +2117,9 @@ public class SysJvmController {
     
     /**
      * 生成线程建议文本
+     * @param threadCount thread数量
+     * @param processors 处理器
+     * @return generatethreadadvice文本的结果
      */
     private String generateThreadAdviceText(int threadCount, int processors) {
         StringBuilder sb = new StringBuilder();
@@ -2067,6 +2136,9 @@ public class SysJvmController {
     
     /**
      * 生成完整启动命令
+     * @param params 参数
+     * @param gc gc
+     * @return generate完整命令的结果
      */
     private String generateFullCommand(List<JvmInfo.JvmParameter> params, String gc) {
         StringBuilder cmd = new StringBuilder("java");
@@ -2113,7 +2185,7 @@ public class SysJvmController {
     /**
      * 获取线程Dump
      *
-     * @param format 输出格式: json/text
+     * @param format 输出格式: json/文本
      * @return 线程Dump信息
      */
     @GetMapping("/thread-dump")
@@ -2158,7 +2230,9 @@ public class SysJvmController {
         Map<Long, Thread> threadMap = getThreadMap();
         
         for (java.lang.management.ThreadInfo info : threadInfos) {
-            if (info == null) continue;
+            if (info == null) {
+                continue;
+            }
             
             JvmInfo.ThreadDumpDetail detail = new JvmInfo.ThreadDumpDetail();
             detail.setThreadId(info.getThreadId());
@@ -2241,7 +2315,7 @@ public class SysJvmController {
         return ReturnResult.ok(dump);
     }
     
-    // 用于存储上一次堆快照的缓存（volatile 保证多线程可见性，非 final 允许更新引用）
+ // 用于存储上一次堆快照的缓存（volatile 保证多线程可见性，非 最终 允许更新引用）
     private static volatile Map<String, Long[]> lastHeapSnapshot;
     private static volatile long lastSnapshotTime = 0;
     
@@ -2292,7 +2366,7 @@ public class SysJvmController {
             
             for (Map.Entry<String, Long[]> entry : secondSnapshot.entrySet()) {
                 String className = entry.getKey();
-                // 数据格式为 [count, bytes]
+ // 数据格式为 [数量, bytes]
                 Long[] secondData = entry.getValue();
                 Long[] firstData = firstSnapshot.get(className);
                 
@@ -2375,6 +2449,7 @@ public class SysJvmController {
     
     /**
      * 获取堆直方图快照
+     * @return 获取heaphistogramsnapshot的结果
      */
     private Map<String, Long[]> getHeapHistogramSnapshot() {
         Map<String, Long[]> snapshot = new HashMap<>();
@@ -2404,7 +2479,9 @@ public class SysJvmController {
                     String[] parts = line.split("\\s+");
                     if (parts.length >= 4) {
                         int idx = 0;
-                        if (parts[idx].endsWith(":")) idx++;
+                        if (parts[idx].endsWith(":")) {
+                            idx++;
+                        }
                         long instances = Long.parseLong(parts[idx++]);
                         long bytes = Long.parseLong(parts[idx++]);
                         String className = parts[idx];
@@ -2449,7 +2526,9 @@ public class SysJvmController {
             String[] lines = flagsOutput.split("\n");
             for (String line : lines) {
                 line = line.trim();
-                if (line.isEmpty() || !line.contains("=")) continue;
+                if (line.isEmpty() || !line.contains("=")) {
+                    continue;
+                }
                 
                 JvmInfo.VmFlag flag = new JvmInfo.VmFlag();
                 
@@ -2508,7 +2587,7 @@ public class SysJvmController {
         if (includeEnv) {
             Map<String, String> envVars = new LinkedHashMap<>();
             Map<String, String> env = System.getenv();
-            // 只包含java相关的环境变量
+ // 只包含Java相关的环境变量
             for (Map.Entry<String, String> entry : env.entrySet()) {
                 String key = entry.getKey().toUpperCase();
                 if (key.contains("JAVA") || key.contains("JVM") || key.contains("CLASSPATH") ||
@@ -2597,6 +2676,8 @@ public class SysJvmController {
 
     /**
      * 转换内存使用信息
+     * @param memoryUsage 内存usage
+     * @return 转换内存usage的结果
      */
     private JvmInfo.MemoryInfo convertMemoryUsage(MemoryUsage memoryUsage) {
         if (memoryUsage == null) {

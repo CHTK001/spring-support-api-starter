@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  * 成就模块自动配置
  *
  * <p>注册 {@link AchievementService} Bean，注入上游 {@link KvEngine}（由 spring-support-redis-starter 注册），
- * 以及 MyBatis Mapper 和推送服务。无需额外配置，依赖 spring-boot-starter-data-redis 即可。</p>
+   * 以及 MyBatis 映射器 和推送服务。无需额外配置，依赖 spring-boot-启动-数据-Redis 即可。</p>
  *
  * @since 2026-08-07
  * @author CH
@@ -25,17 +25,17 @@ import org.springframework.context.annotation.Configuration;
 public class AchievementAutoConfiguration {
 
     /**
-     * 统一 KV 引擎，由 spring-support-redis-starter 提供
+      * 统一 KV 引擎，由 spring-支持-Redis-启动 提供
      */
     private final KvEngine kvEngine;
 
     /**
-     * 成就段位定义 Mapper
+      * 成就段位定义 映射器
      */
     private final AchievementTierMapper tierMapper;
 
     /**
-     * 用户成就记录 Mapper
+      * 用户成就记录 映射器
      */
     private final UserAchievementMapper userAchievementMapper;
 

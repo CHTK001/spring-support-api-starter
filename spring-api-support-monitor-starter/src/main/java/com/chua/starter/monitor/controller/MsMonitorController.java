@@ -103,6 +103,7 @@ public class MsMonitorController {
 
     /**
      * 从当前线程上下文获取操作用户标识；若不可用则返回默认值。
+     * @return 获取操作符的结果
      */
     private String getOperator() {
         try {
@@ -150,8 +151,9 @@ public class MsMonitorController {
     /**
      * 获取指定服务器主机详情。
      *
-     * @param id 服务器主机 ID
+     * @param id 服务器主机 标识
      * @return 主机详情
+     * @param @ApiParam("服务器主机ID" @ApiParam("服务器主机ID"
      */
     @GetMapping("/server-host/{id}")
     @ApiOperation("获取服务器主机详情")
@@ -204,8 +206,9 @@ public class MsMonitorController {
     /**
      * 获取监控资产详情。
      *
-     * @param id 监控资产ID
+     * @param id 监控资产标识
      * @return 监控资产详情
+     * @param @ApiParam("监控资产ID" @ApiParam("监控资产ID"
      */
     @GetMapping("/{id}")
     @ApiOperation("监控资产详情")
@@ -234,6 +237,7 @@ public class MsMonitorController {
      *
      * @param entity 监控资产实体
      * @return 是否更新成功
+     * @param id id
      */
     @PutMapping("/{id}")
     @ApiOperation("更新监控资产")
@@ -248,8 +252,9 @@ public class MsMonitorController {
     /**
      * 删除监控资产。
      *
-     * @param id 监控资产ID
+     * @param id 监控资产标识
      * @return 是否删除成功
+     * @param @ApiParam("监控资产ID" @ApiParam("监控资产ID"
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除监控资产")
@@ -263,12 +268,12 @@ public class MsMonitorController {
     // ==================== 采集任务 CRUD ====================
 
     /**
-     * 采集任务列表查询（支持按监控资产ID筛选）。
+      * 采集任务列表查询（支持按监控资产标识筛选）。
      *
      * @param page      页码（从1开始，可选，默认1）
      * @param pageSize  每页大小（可选，默认100）
      * @param entity    查询条件
-     * @param monitorId 监控资产ID（可选）
+     * @param monitorId 监控资产标识（可选）
      * @return 采集任务分页列表
      */
     @GetMapping("/task")
@@ -298,8 +303,9 @@ public class MsMonitorController {
     /**
      * 获取采集任务详情。
      *
-     * @param id 任务ID
+     * @param id 任务标识
      * @return 采集任务详情
+     * @param @ApiParam("任务ID" @ApiParam("任务ID"
      */
     @GetMapping("/task/{id}")
     @ApiOperation("采集任务详情")
@@ -326,7 +332,7 @@ public class MsMonitorController {
     /**
      * 更新采集任务。
      *
-     * @param id     任务ID
+     * @param id     任务标识
      * @param entity 采集任务实体
      * @return 是否更新成功
      */
@@ -342,8 +348,9 @@ public class MsMonitorController {
     /**
      * 删除采集任务。
      *
-     * @param id 任务ID
+     * @param id 任务标识
      * @return 是否删除成功
+     * @param @ApiParam("任务ID" @ApiParam("任务ID"
      */
     @DeleteMapping("/task/{id}")
     @ApiOperation("删除采集任务")
@@ -355,7 +362,7 @@ public class MsMonitorController {
     /**
      * 启用或停用采集任务。
      *
-     * @param id     任务ID
+     * @param id     任务标识
      * @param enabled 启用状态（1启用/0停用）
      * @return 是否更新成功
      */
@@ -373,12 +380,12 @@ public class MsMonitorController {
     // ==================== 指标解析规则 CRUD ====================
 
     /**
-     * 指标解析规则列表查询（支持按任务ID筛选）。
+      * 指标解析规则列表查询（支持按任务标识筛选）。
      *
      * @param page     页码（从1开始，可选，默认1）
      * @param pageSize 每页大小（可选，默认100）
      * @param entity   查询条件
-     * @param taskId   任务ID（可选）
+     * @param taskId   任务标识（可选）
      * @return 解析规则分页列表
      */
     @GetMapping("/metric-config")
@@ -419,7 +426,7 @@ public class MsMonitorController {
     /**
      * 更新指标解析规则。
      *
-     * @param id     规则ID
+     * @param id     规则标识
      * @param entity 解析规则实体
      * @return 是否更新成功
      */
@@ -437,8 +444,9 @@ public class MsMonitorController {
     /**
      * 删除指标解析规则。
      *
-     * @param id 规则ID
+     * @param id 规则标识
      * @return 是否删除成功
+     * @param @ApiParam("规则ID" @ApiParam("规则ID"
      */
     @DeleteMapping("/metric-config/{id}")
     @ApiOperation("删除指标解析规则")
@@ -452,12 +460,12 @@ public class MsMonitorController {
     // ==================== 监控网关 CRUD ====================
 
     /**
-     * 监控网关列表查询（支持按监控资产ID筛选）。
+      * 监控网关列表查询（支持按监控资产标识筛选）。
      *
      * @param page      页码（从1开始，可选，默认1）
      * @param pageSize  每页大小（可选，默认100）
      * @param entity    查询条件
-     * @param monitorId 监控资产ID（可选）
+     * @param monitorId 监控资产标识（可选）
      * @return 网关分页列表
      */
     @GetMapping("/gateway")
@@ -498,8 +506,9 @@ public class MsMonitorController {
     /**
      * 删除监控网关。
      *
-     * @param id 网关ID
+     * @param id 网关标识
      * @return 是否删除成功
+     * @param @ApiParam("网关ID" @ApiParam("网关ID"
      */
     @DeleteMapping("/gateway/{id}")
     @ApiOperation("删除监控网关")
@@ -511,7 +520,7 @@ public class MsMonitorController {
     // ==================== 全局配置 ====================
 
     /**
-     * 读取全部配置项，返回键值对Map。
+      * 读取全部配置项，返回键值对映射。
      *
      * @return 配置键值对
      */
@@ -540,10 +549,10 @@ public class MsMonitorController {
     // ==================== Redis 操作 ====================
 
     /**
-     * 扫描Redis中符合模式的key。
+      * 扫描Redis中符合模式的键。
      *
-     * @param taskId 任务ID
-     * @param pattern key匹配模式，例如 *
+     * @param taskId 任务标识
+     * @param pattern 键匹配模式，例如 *
      * @return key列表
      */
     @GetMapping("/operation/redis/{taskId}/keys")
@@ -570,10 +579,10 @@ public class MsMonitorController {
     }
 
     /**
-     * 获取Redis中指定key的值（返回结构化数据，包含 key、value、type、ttl）。
+      * 获取Redis中指定键的值（返回结构化数据，包含 键、值、类型、ttl）。
      *
-     * @param taskId 任务ID
-     * @param key    Redis key
+     * @param taskId 任务标识
+     * @param key    Redis 键
      * @return key对应的值（含类型信息）
      */
     @GetMapping("/operation/redis/{taskId}/kv/{key}")
@@ -597,21 +606,36 @@ public class MsMonitorController {
         }
     }
 
-    /** 根据值类型返回 Redis 数据类型名称 */
+    /**
+     * 根据值类型返回 Redis 数据类型名称
+     *
+     * @param value 值
+     * @return detect类型的结果
+     */
     private String detectType(Object value) {
-        if (value instanceof String) return "string";
-        if (value instanceof byte[]) return "raw_bytes";
-        if (value instanceof java.util.List) return "list";
-        if (value instanceof java.util.Set) return "set";
-        if (value instanceof java.util.Map) return "hash";
+        if (value instanceof String) {
+            return "string";
+        }
+        if (value instanceof byte[]) {
+            return "raw_bytes";
+        }
+        if (value instanceof java.util.List) {
+            return "list";
+        }
+        if (value instanceof java.util.Set) {
+            return "set";
+        }
+        if (value instanceof java.util.Map) {
+            return "hash";
+        }
         return value.getClass().getSimpleName();
     }
 
     /**
-     * 设置Redis中指定key的值，可选择性设置过期时间。
+      * 设置Redis中指定键的值，可选择性设置过期时间。
      *
-     * @param taskId 任务ID
-     * @param key    Redis key
+     * @param taskId 任务标识
+     * @param key    Redis 键
      * @param value  值
      * @param ttl    过期时间（秒），可选，0或不传表示不设置过期
      * @return 是否设置成功
@@ -639,10 +663,10 @@ public class MsMonitorController {
     }
 
     /**
-     * 批量删除Redis中的key。
+      * 批量删除Redis中的键。
      *
-     * @param taskId 任务ID
-     * @param keys   待删除的key列表
+     * @param taskId 任务标识
+     * @param keys   待删除的键列表
      * @return 是否删除成功
      */
     @DeleteMapping("/operation/redis/{taskId}/keys")
@@ -665,10 +689,10 @@ public class MsMonitorController {
     }
 
     /**
-     * 设置Redis中指定key的过期时间。
+      * 设置Redis中指定键的过期时间。
      *
-     * @param taskId     任务ID
-     * @param key        Redis key
+     * @param taskId     任务标识
+     * @param key        Redis 键
      * @param ttlSeconds 过期时间（秒）
      * @return 是否设置成功
      */
@@ -718,7 +742,7 @@ public class MsMonitorController {
     /**
      * 查询单条操作日志详情。
      *
-     * @param id 日志ID
+     * @param id 日志标识
      * @return 操作日志详情
      */
     @GetMapping("/logs/{id}")
@@ -731,6 +755,10 @@ public class MsMonitorController {
 
     /**
      * 辅助方法：记录操作日志，异常静默处理。
+     * @param operation operation
+     * @param targetModule Targetmodule
+     * @param targetId Targetid
+     * @param description description
      */
     private void tryOpLog(String operation, String targetModule, String targetId, String description) {
         try {
@@ -749,8 +777,8 @@ public class MsMonitorController {
      * <p>注意：当前实现返回模拟数据，响应中包含 {@code "mock": true} 标记，
      * 待真实采集器接入后替换此实现。</p>
      *
-     * @param type      指标类型（cpu/memory/disk/network/jvm/redis）
-     * @param monitorId 监控资产ID
+     * @param type      指标类型（cpu/内存/disk/network/jvm/Redis）
+     * @param monitorId 监控资产标识
      * @return 最新指标数据（含 mock 标识）
      */
     @GetMapping("/metric/{type}/{monitorId}")
@@ -774,8 +802,8 @@ public class MsMonitorController {
      * <p>注意：当前实现返回模拟数据，每条记录包含 {@code "mock": true} 标记，
      * 待真实采集器接入后替换此实现。</p>
      *
-     * @param type      指标类型（cpu/memory/disk/network/jvm/redis）
-     * @param monitorId 监控资产ID
+     * @param type      指标类型（cpu/内存/disk/network/jvm/Redis）
+     * @param monitorId 监控资产标识
      * @param hours     查询时间范围（小时）
      * @return 历史指标数据列表（含 mock 标识）
      */

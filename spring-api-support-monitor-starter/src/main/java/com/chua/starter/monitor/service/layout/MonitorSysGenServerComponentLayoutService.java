@@ -19,7 +19,7 @@ public interface MonitorSysGenServerComponentLayoutService extends IService<Moni
     /**
      * 查询指定服务器的全部组件布局列表，按排序值排序。
      *
-     * @param serverId 服务器ID
+     * @param serverId 服务器标识
      * @return 组件布局列表
      */
     ReturnResult<List<MonitorSysGenServerComponentLayout>> listByServer(Integer serverId);
@@ -27,7 +27,7 @@ public interface MonitorSysGenServerComponentLayoutService extends IService<Moni
     /**
      * 查询指定服务器已启用的组件布局列表。
      *
-     * @param serverId 服务器ID
+     * @param serverId 服务器标识
      * @return 启用状态的组件布局列表
      */
     ReturnResult<List<MonitorSysGenServerComponentLayout>> listEnabledByServer(Integer serverId);
@@ -35,8 +35,8 @@ public interface MonitorSysGenServerComponentLayoutService extends IService<Moni
     /**
      * 查询指定服务器下指定组件的布局记录。
      *
-     * @param serverId    服务器ID
-     * @param componentId 组件ID
+     * @param serverId    服务器标识
+     * @param componentId 组件标识
      * @return 组件布局记录，不存在时返回失败结果
      */
     ReturnResult<MonitorSysGenServerComponentLayout> getByComponent(Integer serverId, Integer componentId);
@@ -50,9 +50,9 @@ public interface MonitorSysGenServerComponentLayoutService extends IService<Moni
     ReturnResult<MonitorSysGenServerComponentLayout> saveComponentLayout(MonitorSysGenServerComponentLayout layout);
 
     /**
-     * 批量更新组件位置（x/y/w/h/zIndex）。
+      * 批量更新组件位置（x/y/w/h/z索引）。
      *
-     * @param layouts 组件布局集合，每项必须包含组件布局ID
+     * @param layouts 组件布局集合，每项必须包含组件布局标识
      * @return 更新成功的数量
      */
     ReturnResult<Integer> batchUpdatePosition(List<MonitorSysGenServerComponentLayout> layouts);
@@ -60,7 +60,7 @@ public interface MonitorSysGenServerComponentLayoutService extends IService<Moni
     /**
      * 更新单个组件的位置与尺寸。
      *
-     * @param layoutId 组件布局ID
+     * @param layoutId 组件布局标识
      * @param layout   携带位置信息的实体
      * @return 是否更新成功
      */
@@ -69,7 +69,7 @@ public interface MonitorSysGenServerComponentLayoutService extends IService<Moni
     /**
      * 启用或禁用组件布局。
      *
-     * @param layoutId 组件布局ID
+     * @param layoutId 组件布局标识
      * @param status   状态值，1-启用，0-禁用
      * @return 是否更新成功
      */
@@ -78,16 +78,16 @@ public interface MonitorSysGenServerComponentLayoutService extends IService<Moni
     /**
      * 统计指定服务器的组件布局情况（总数、启用数、禁用数）。
      *
-     * @param serverId 服务器ID
-     * @return 统计结果 Map，包含 total/enabled/disabled 三个键
+     * @param serverId 服务器标识
+     * @return 统计结果 映射，包含 total/已启用/已禁用 三个键
      */
     ReturnResult<Map<String, Object>> statistics(Integer serverId);
 
     /**
      * 复制源服务器的全部组件布局到目标服务器，目标服务器原有布局将先被清空。
      *
-     * @param sourceServerId 源服务器ID
-     * @param targetServerId 目标服务器ID
+     * @param sourceServerId 源服务器标识
+     * @param targetServerId 目标服务器标识
      * @return 复制的组件布局数量
      */
     ReturnResult<Integer> copyToServer(Integer sourceServerId, Integer targetServerId);
@@ -95,7 +95,7 @@ public interface MonitorSysGenServerComponentLayoutService extends IService<Moni
     /**
      * 重置服务器的组件布局：删除全部现有布局记录，恢复为空白状态。
      *
-     * @param serverId 服务器ID
+     * @param serverId 服务器标识
      * @return 删除的记录数量
      */
     ReturnResult<Integer> resetServer(Integer serverId);
@@ -103,7 +103,7 @@ public interface MonitorSysGenServerComponentLayoutService extends IService<Moni
     /**
      * 按组件删除布局记录。
      *
-     * @param componentId 组件ID
+     * @param componentId 组件标识
      * @return 是否删除成功
      */
     ReturnResult<Boolean> deleteByComponent(Integer componentId);
@@ -111,7 +111,7 @@ public interface MonitorSysGenServerComponentLayoutService extends IService<Moni
     /**
      * 按服务器删除全部组件布局记录。
      *
-     * @param serverId 服务器ID
+     * @param serverId 服务器标识
      * @return 是否删除成功
      */
     ReturnResult<Boolean> deleteByServer(Integer serverId);
@@ -119,8 +119,8 @@ public interface MonitorSysGenServerComponentLayoutService extends IService<Moni
     /**
      * 保存指定组件的图表配置 JSON，不存在布局记录时自动创建。
      *
-     * @param serverId    服务器ID
-     * @param componentId 组件ID
+     * @param serverId    服务器标识
+     * @param componentId 组件标识
      * @param chartConfig 图表配置 JSON 字符串
      * @return 是否保存成功
      */
@@ -129,9 +129,9 @@ public interface MonitorSysGenServerComponentLayoutService extends IService<Moni
     /**
      * 获取指定组件的图表配置 JSON。
      *
-     * @param serverId    服务器ID
-     * @param componentId 组件ID
-     * @return 图表配置 JSON 字符串，未配置时返回 null
+     * @param serverId    服务器标识
+     * @param componentId 组件标识
+     * @return 图表配置 JSON 字符串，未配置时返回 空
      */
     ReturnResult<String> getChartConfig(Integer serverId, Integer componentId);
 }

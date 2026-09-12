@@ -12,7 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * ACME 账户信息，保存 ACME CA（Let's Encrypt / ZeroSSL 等）账户的邮箱、服务端点、私钥与 EAB 扩展。
+   * ACME 账户信息，保存 ACME CA（Let's Encrypt / zerossl 等）账户的邮箱、服务端点、私钥与 EAB 扩展。
  *
  * @since 2025-10-17
  * @author CH
@@ -24,11 +24,11 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "ACME 账户信息")
 public class MonitorAcmeAccount extends SysBase {
 
-    /** 主键ID */
+    /** 主键标识 */
     @TableId(value = "acme_account_id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    /** AcmeaccountID */
+    /** acmeaccountid */
     private Integer acmeAccountId;
 
     /** 帐号邮箱 */
@@ -45,7 +45,7 @@ public class MonitorAcmeAccount extends SysBase {
     /** Acmeaccount服务器 */
     private String acmeAccountServer;
 
-    /** 证书服务商类型（acme=ACME协议，cas=阿里云CAS） */
+    /** 证书服务商类型（acme=ACME协议，CAS=阿里云CAS） */
     @TableField("acme_account_provider_type")
     @ApiModelProperty("证书服务商类型(acme/cas)")
     @Schema(description = "证书服务商类型(acme=ACME协议，cas=阿里云CAS)")
@@ -73,17 +73,17 @@ public class MonitorAcmeAccount extends SysBase {
     /** Acmeaccountremark */
     private String acmeAccountRemark;
 
-    /** EAB Key ID (ZeroSSL 等需要 External Account Binding 的 CA) */
+    /** EAB 键 标识 (zerossl 等需要 外部 账户 Binding 的 CA) */
     @TableField("acme_account_eab_kid")
     @ApiModelProperty("EAB Key ID")
     @Schema(description = "EAB Key ID (ZeroSSL 等需要)")
-    /** AcmeaccountEABKID */
+    /** acmeaccounteabkid */
     private String acmeAccountEabKid;
 
-    /** EAB HMAC Key (Base64 编码) */
+    /** EAB HMAC 键 (基础64 编码) */
     @TableField("acme_account_eab_hmac_key")
     @ApiModelProperty("EAB HMAC Key")
     @Schema(description = "EAB HMAC Key (Base64 编码)")
-    /** AcmeaccountEABhmac密钥 */
+    /** acmeaccounteabhmac密钥 */
     private String acmeAccountEabHmacKey;
 }

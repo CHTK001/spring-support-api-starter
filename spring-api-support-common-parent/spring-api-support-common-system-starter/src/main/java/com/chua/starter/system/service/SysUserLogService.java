@@ -36,9 +36,9 @@ public interface SysUserLogService extends IService<SysUserLog> {
 
     /**
      * 删除指定的用户日志
-     * 此方法通过日志的ID进行删除操作，返回一个表示操作结果的对象
+      * 此方法通过日志的标识进行删除操作，返回一个表示操作结果的对象
      *
-     * @param userLogId 用户日志的ID
+     * @param userLogId 用户日志的标识
      * @return 返回一个包含操作结果的对象，对象中的数据字段表示操作是否成功
      */
     ReturnResult<Boolean> delete(Long userLogId);
@@ -47,7 +47,7 @@ public interface SysUserLogService extends IService<SysUserLog> {
      * 按条件批量清理登录日志
      *
      * @param sysUserLogQuery     查询条件
-     * @param sysUserId           当前用户ID
+     * @param sysUserId           当前用户标识
      * @param roles               当前用户角色
      * @param managedDeptTreeIds  当前用户负责的部门树
      * @return 删除数量
@@ -63,7 +63,7 @@ public interface SysUserLogService extends IService<SysUserLog> {
      *
      * @param query      查询对象，用于分页和排序设置
      * @param sysUserLogQuery 查询条件对象，用于筛选日志
-     * @param sysUserId  账号ID
+     * @param sysUserId  账号标识
      * @param roles      用户角色集合，用于根据角色筛选日志
      * @return 返回包含当前用户日志的分页数据对象
      */

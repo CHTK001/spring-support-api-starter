@@ -23,7 +23,7 @@ import java.security.PublicKey;
 /**
  * JWT 认证处理器
  * <p>
- * 处理 JWT Token 的验证和解析，支持：
+   * 处理 JWT 令牌 的验证和解析，支持：
  * <ul>
  *     <li>HS256/HS384/HS512 对称加密算法</li>
  *     <li>RS256/RS384/RS512 RSA 非对称加密算法</li>
@@ -31,7 +31,7 @@ import java.security.PublicKey;
  * </ul>
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-12-18
  * @author CH
  */
@@ -40,17 +40,17 @@ import java.security.PublicKey;
 public class JwtAuthorizationHandler implements AuthorizationHandler {
 
     /**
-     * JWT Token 前缀
+      * JWT 令牌 前缀
      */
     private static final String BEARER_PREFIX = "Bearer ";
 
     @Override
     /**
      * Authenticate
-     * @param authInformation authInformation
-     * @param token token
-     * @param cookie cookie
-     * @param userCode userCode
+     * @param authInformation 认证信息
+     * @param token 令牌
+     * @param cookie Cookie
+     * @param userCode 用户编码
      */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation,
                                             String token,
@@ -73,7 +73,7 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
         }
 
         try {
-            // 检查 Token 是否在黑名单中（无论是否启用Redis存储，都需要检查黑名单）
+ // 检查 令牌 是否在黑名单中（无论是否启用Redis存储，都需要检查黑名单）
             if (isTokenBlacklisted(authInformation, jwtToken)) {
                 log.warn("JWT Token 已被撤销");
                 return ReturnResult.error("Token 已被撤销");
@@ -82,7 +82,7 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
             // 解析并验证 JWT
             Claims claims = parseAndValidateJwt(jwtToken, jwtConfig);
 
-            // 验证 Token 类型
+ // 验证 令牌 类型
             String tokenType = claims.get("type", String.class);
             if (!"access".equals(tokenType)) {
                 log.warn("JWT Token 类型错误: {}", tokenType);
@@ -111,7 +111,9 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
     }
 
     /**
-     * 提取 Token（移除 Bearer 前缀）
+      * 提取 令牌（移除 Bearer 前缀）
+     * @param token 令牌
+     * @return extract令牌的结果
      */
     private String extractToken(String token) {
         if (StringUtils.isBlank(token)) {
@@ -125,11 +127,14 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
 
     /**
      * 解析并验证 JWT
+     * @param jwtToken jwt令牌
+     * @param jwtConfig jwt配置
+     * @return 解析和校验jwt的结果
      */
     private Claims parseAndValidateJwt(String jwtToken, AuthServerProperties.JwtConfig jwtConfig) {
         String algorithm = jwtConfig.getAlgorithm().toUpperCase();
 
-        // 获取 JwtTokenGeneration 来获取密钥
+ // 获取 jwt令牌generation 来获取密钥
         JwtTokenGeneration jwtTokenGeneration = (JwtTokenGeneration) ServiceProvider.of(TokenGeneration.class)
                 .getExtension("jwt");
 
@@ -167,6 +172,9 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
 
     /**
      * 构建用户信息
+     * @param claims claims
+     * @param token 令牌
+     * @return 构建用户resume的结果
      */
     private UserResume buildUserResume(Claims claims, String token) {
         UserResume userResume = new UserResume();
@@ -186,7 +194,7 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
             userResume.setDeptId(claims.get("deptId", String.class));
         }
         
-        // 添加appId支持
+ // 添加appid支持
         if (claims.containsKey("appId")) {
             userResume.setAppId(claims.get("appId", String.class));
         }
@@ -201,11 +209,14 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
     }
 
     /**
-     * 检查 Token 是否在黑名单中
+      * 检查 令牌 是否在黑名单中
+     * @param authInformation 认证信息
+     * @param token 令牌
+     * @return 是否令牌blacklisted的结果
      */
     private boolean isTokenBlacklisted(OauthAuthInformation authInformation, String token) {
         try {
-            // 使用TokenBlacklistService检查黑名单
+ // 使用令牌blacklist服务检查黑名单
             com.chua.starter.oauth.sso.support.token.TokenBlacklistService tokenBlacklistService = 
                     authInformation.getApplicationContext()
                     .getBean(com.chua.starter.oauth.sso.support.token.TokenBlacklistService.class);
@@ -222,12 +233,12 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
-    /** Supports */
+    /** 支持 */
     public boolean supports(String subProtocol, String token, String userCode) {
         // JWT 认证条件：
         // 1. subProtocol 为 "jwt"
         // 2. 或者 token 以 "Bearer " 开头
-        // 3. 或者 token 是 JWT 格式（三段式，以 . 分隔）
+ // 3. 或者 令牌 是 JWT 格式（三段式，以 . 分隔）
         if ("jwt".equalsIgnoreCase(subProtocol)) {
             return true;
         }

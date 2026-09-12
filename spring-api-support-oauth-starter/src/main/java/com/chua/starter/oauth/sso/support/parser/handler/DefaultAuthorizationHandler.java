@@ -14,12 +14,12 @@ import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 默认认证处理器（Token认证）
+   * 默认认证处理器（令牌认证）
  * <p>
- * 处理基于Token的标准认证请求，返回用户信息（包含指纹）由客户端决定是否验证
+   * 处理基于令牌的标准认证请求，返回用户信息（包含指纹）由客户端决定是否验证
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/11
  * @author CH
  */
@@ -31,10 +31,10 @@ public class DefaultAuthorizationHandler implements AuthorizationHandler {
     @Override
     /**
      * Authenticate
-     * @param authInformation authInformation
-     * @param token token
-     * @param cookie cookie
-     * @param userCode userCode
+     * @param authInformation 认证信息
+     * @param token 令牌
+     * @param cookie Cookie
+     * @param userCode 用户编码
      */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation,
                                             String token,
@@ -62,7 +62,7 @@ public class DefaultAuthorizationHandler implements AuthorizationHandler {
 
         UserResume userResult = resolve.getData();
         
-        // 添加appId支持：从请求中提取appId并设置到UserResume
+ // 添加appid支持：从请求中提取appid并设置到用户resume
         String appId = MapUtils.getString(authInformation.getBodyData(), "x-oauth-app-id");
         if (StringUtils.isBlank(appId)) {
             appId = authInformation.getRequestHeaderValue("x-oauth-app-id");
@@ -81,7 +81,9 @@ public class DefaultAuthorizationHandler implements AuthorizationHandler {
     }
     
     /**
-     * 脱敏AppId
+      * 脱敏appid
+     * @param appId appId
+     * @return maskAppId的结果
      */
     private String maskAppId(String appId) {
         if (appId == null || appId.length() < 8) {
@@ -91,9 +93,9 @@ public class DefaultAuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
-    /** Supports */
+    /** 支持 */
     public boolean supports(String subProtocol, String token, String userCode) {
-        // Token认证：有token参数，无userCode参数
+ // 令牌认证：有令牌参数，无用户编码参数
         return StringUtils.isNotBlank(token) && StringUtils.isBlank(userCode);
     }
 }

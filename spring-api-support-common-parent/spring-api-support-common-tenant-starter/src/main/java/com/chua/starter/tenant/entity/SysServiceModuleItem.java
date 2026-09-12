@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
  * 服务与模块关联实体
  * 用于管理服务与模块的多对多关系
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/07
  * @author CH
  */
@@ -24,38 +24,38 @@ import lombok.EqualsAndHashCode;
 public class SysServiceModuleItem extends SysBase {
 
     /**
-     * 关联ID
+      * 关联标识
      */
     @TableId(value = "sys_service_module_item_id", type = IdType.AUTO)
     @ApiModelProperty(value = "关联ID")
     @Schema(description = "关联ID")
-    /** SYS服务moduleitemID */
+    /** SYS服务moduleitemid */
     private Integer sysServiceModuleItemId;
 
     /**
-     * 服务ID
+      * 服务标识
      */
     @TableField(value = "sys_service_id")
     @ApiModelProperty(value = "服务ID")
     @Schema(description = "服务ID")
-    /** SYS服务ID */
+    /** SYS服务标识 */
     private Integer sysServiceId;
 
     /**
-     * 服务模块ID
+      * 服务模块标识
      */
     @TableField(value = "sys_service_module_id")
     @ApiModelProperty(value = "服务模块ID")
     @Schema(description = "服务模块ID")
-    /** SYS服务moduleID */
+    /** SYS服务moduleid */
     private Integer sysServiceModuleId;
 
     /**
-     * 菜单ID
+      * 菜单标识
      */
     @TableField(value = "sys_menu_id")
     @ApiModelProperty(value = "菜单ID")
     @Schema(description = "菜单ID")
-    /** SYSmenuID */
+    /** sysmenuid */
     private Integer sysMenuId;
 }

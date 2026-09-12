@@ -48,7 +48,7 @@ import java.util.Map;
  * </p>
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/18
  */
 @Slf4j
@@ -58,13 +58,13 @@ import java.util.Map;
 @Tag(name = "OAuth2 第三方登录", description = "提供多平台第三方 OAuth2 登录功能")
 public class OAuth2LoginController {
 
-    private final ThirdPartyLoginProperties thirdPartyLoginProperties;
-    private final AuthServerProperties authServerProperties;
-    private final LoginCheck loginCheck;
-    private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
+    private final ThirdPartyLoginProperties thirdPartyLoginProperties; // thirdpartylogin属性
+    private final AuthServerProperties authServerProperties; // 认证服务端属性
+    private final LoginCheck loginCheck; // login检查
+    private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE; // 认证状态缓存
 
     @Value("${plugin.auth.server.context-path:}")
-    private String contextPath;
+    private String contextPath; // 上下文路径
 
     /**
      * 获取支持的第三方登录平台列表
@@ -102,7 +102,7 @@ public class OAuth2LoginController {
      *     "google": true
      *   }
      * }
-     * }</pre>
+     * }</pre>     * }</pre>
      *
      * @return 平台列表，key为平台标识，value为是否启用
      */
@@ -228,9 +228,9 @@ public class OAuth2LoginController {
      *   "code": 200,
      *   "data": "https://gitee.com/oauth/authorize?client_id=xxx&redirect_uri=xxx&state=xxx"
      * }
-     * }</pre>
+     * }</pre></pre>
      *
-     * @param platform 平台标识（gitee、github、wechat_open等）
+     * @param platform 平台标识（gitee、GitHub、wechat_打开等）
      * @param callback 登录成功后的回调地址（可选），默认为 "/"
      * @return 授权 URL，前端应跳转到此URL
      * @see ThirdPartyLoginProperties 配置类
@@ -372,7 +372,7 @@ public class OAuth2LoginController {
      * </ul>
      *
      * @param platform 平台标识
-     * @param authCallback 回调参数（包含 code、state 等）
+     * @param authCallback 回调参数（包含 编码、状态 等）
      * @param request HTTP 请求对象
      * @param response HTTP 响应对象
      * @return 重定向视图，跳转到系统回调地址
@@ -446,7 +446,7 @@ public class OAuth2LoginController {
 
             AuthUser authUser = authResponse.getData();
             
-            // 调用登录检查，创建 Token
+ // 调用登录检查，创建 令牌
             ReturnResult<LoginResult> loginResultRet = loginCheck.doLogin(
                     RequestUtils.getIpAddress(request),
                     authUser.getUuid(),
@@ -504,7 +504,7 @@ public class OAuth2LoginController {
      * 
      * <p>
      * 处理微信小程序的登录请求。微信小程序登录流程与其他 OAuth2 平台不同，
-     * 小程序通过 wx.login() 获取 code，然后直接调用此接口完成登录。
+      * 小程序通过 wx.login() 获取 编码，然后直接调用此接口完成登录。
      * </p>
      * 
      * <h3>登录流程</h3>
@@ -525,6 +525,7 @@ public class OAuth2LoginController {
      * &secret=SECRET
      * &js_code=CODE
      * &grant_type=authorization_code
+     * }</pre>de
      * }</pre>
      * 
      * <p>微信返回：</p>
@@ -534,7 +535,7 @@ public class OAuth2LoginController {
      *   "session_key": "会话密钥",
      *   "unionid": "用户在开放平台的唯一标识（可选）"
      * }
-     * }</pre>
+     * }</pre> }</pre>
      * 
      * <h3>请求参数</h3>
      * <ul>
@@ -555,6 +556,9 @@ public class OAuth2LoginController {
      *     "expireTime": 1640000000000
      *   }
      * }
+     * }</pre>00
+     *   }
+     * }
      * }</pre>
      * 
      * <p>失败时返回：</p>
@@ -564,7 +568,7 @@ public class OAuth2LoginController {
      *   "msg": "登录失败: code 已使用",
      *   "data": null
      * }
-     * }</pre>
+     * }</pre>   * }</pre>
      * 
      * <h3>错误处理</h3>
      * <ul>
@@ -586,6 +590,7 @@ public class OAuth2LoginController {
      *           enabled: true
      *           client-id: wx1234567890abcdef  # 小程序 AppID
      *           client-secret: 1234567890abcdef1234567890abcdef  # 小程序 AppSecret
+     * }</pre>abcdef  # 小程序 AppSecret
      * }</pre>
      * 
      * <h3>小程序端示例</h3>
@@ -601,6 +606,10 @@ public class OAuth2LoginController {
      *           wx.setStorageSync('token', response.data.data.token);
      *         }
      *       });
+     *     }
+     *   }
+     * });
+     * }</pre>;
      *     }
      *   }
      * });
@@ -624,7 +633,7 @@ public class OAuth2LoginController {
      *
      * @param code 临时登录凭证，由 wx.login() 获取
      * @param request HTTP 请求对象
-     * @return 登录结果，包含 Token 和 openid 等信息
+     * @return 登录结果，包含 令牌 和 openid 等信息
      */
     @PostMapping("/login/wechat_mini")
     @Operation(summary = "微信小程序登录", description = "处理微信小程序的登录请求")
@@ -649,7 +658,7 @@ public class OAuth2LoginController {
                         "解决方法：请联系系统管理员检查配置文件中的 client-id（小程序AppID）和 client-secret（小程序AppSecret）是否已正确配置");
             }
 
-            // 调用微信接口换取 session_key 和 openid
+ // 调用微信接口换取 会话_键 和 openid
             String url = String.format(
                     "https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code",
                     appId, appSecret, code
@@ -716,8 +725,8 @@ public class OAuth2LoginController {
                             "解决方法：请稍后重试，如问题持续存在请联系系统管理员");
                 }
                 
-                // 缓存 session_key 用于后续解密手机号等加密数据
-                // session_key 有效期为 3 天，这里设置缓存时间为 3 天（259200 秒）
+ // 缓存 会话_键 用于后续解密手机号等加密数据
+ // 会话_键 有效期为 3 天，这里设置缓存时间为 3 天（259200 秒）
                 if (StringUtils.isNotBlank(sessionKey)) {
                     authStateCache.cache("wechat_mini_session_" + openid, sessionKey, 259200000L);
                     log.debug("缓存 session_key: openid={}", openid);
@@ -725,14 +734,14 @@ public class OAuth2LoginController {
                 
                 log.info("微信小程序登录成功: openid={}", openid);
                 
-                // 构造AuthUser对象
+ // 构造认证用户对象
                 AuthUser authUser = AuthUser.builder()
                         .uuid(openid)
                         .username(openid)
                         .source("wechat_mini")
                         .build();
                 
-                // 调用登录检查，生成Token
+ // 调用登录检查，生成令牌
                 LoginResult loginResult = loginCheck.check(authUser, request);
                 
                 if (loginResult == null) {
@@ -767,8 +776,8 @@ public class OAuth2LoginController {
      * 微信小程序手机号授权接口
      *
      * <p>
-     * 处理微信小程序的手机号授权请求。小程序通过 button 组件的 open-type="getPhoneNumber"
-     * 获取用户手机号，微信会返回加密数据，需要后端使用 session_key 进行解密。
+      * 处理微信小程序的手机号授权请求。小程序通过 button 组件的 打开-类型="获取phone数字"
+      * 获取用户手机号，微信会返回加密数据，需要后端使用 会话_键 进行解密。
      * </p>
      *
      * <h3>授权流程</h3>
@@ -802,6 +811,10 @@ public class OAuth2LoginController {
      *     });
      *   }
      * }
+     * }</pre>    }
+     *     });
+     *   }
+     * }
      * }</pre>
      *
      * <h3>请求参数</h3>
@@ -822,6 +835,8 @@ public class OAuth2LoginController {
      *     "purePhoneNumber": "13800138000",
      *     "countryCode": "86"
      *   }
+     * }
+     * }</pre>  *   }
      * }
      * }</pre>
      *
@@ -888,7 +903,7 @@ public class OAuth2LoginController {
                 return ReturnResult.error("微信小程序配置不完整。请检查 client-id 是否已配置");
             }
 
-            // 从缓存中获取 session_key（需要先登录）
+ // 从缓存中获取 会话_键（需要先登录）
             String sessionKey = authStateCache.get("wechat_mini_session_" + openid);
 
             if (StringUtils.isBlank(sessionKey)) {
@@ -923,8 +938,8 @@ public class OAuth2LoginController {
      * 微信小程序用户信息授权接口
      * 
      * <p>
-     * 处理微信小程序的用户信息授权请求。小程序通过 button 组件的 open-type="getUserInfo" 
-     * 或调用 wx.getUserProfile() 获取用户信息，微信会返回加密数据，需要后端使用 session_key 进行解密。
+      * 处理微信小程序的用户信息授权请求。小程序通过 button 组件的 打开-类型="获取用户信息"
+      * 或调用 wx.获取用户配置文件() 获取用户信息，微信会返回加密数据，需要后端使用 会话_键 进行解密。
      * </p>
      * 
      * <h3>授权流程</h3>
@@ -961,6 +976,9 @@ public class OAuth2LoginController {
      * <button open-type="getUserInfo" bindgetuserinfo="getUserInfo">
      *   授权用户信息
      * </button>
+     * }</pre>fo="getUserInfo">
+     *   授权用户信息
+     * </button>
      * }</pre>
      * 
      * <h3>请求参数</h3>
@@ -986,6 +1004,7 @@ public class OAuth2LoginController {
      *     "language": "zh_CN"
      *   }
      * }
+     * }</pre>  * }
      * }</pre>
      * 
      * <h3>解密算法说明</h3>
@@ -1052,7 +1071,7 @@ public class OAuth2LoginController {
                 return ReturnResult.error("微信小程序配置不完整。请检查 client-id 是否已配置");
             }
 
-            // 从缓存中获取 session_key（需要先登录）
+ // 从缓存中获取 会话_键（需要先登录）
             String sessionKey = authStateCache.get("wechat_mini_session_" + openid);
 
             if (StringUtils.isBlank(sessionKey)) {
@@ -1088,7 +1107,7 @@ public class OAuth2LoginController {
      * 
      * <p>
      * 使用 AES-128-CBC 算法解密微信返回的用户信息加密数据。
-     * 微信使用 session_key 作为密钥，iv 作为初始向量。
+      * 微信使用 会话_键 作为密钥，iv 作为初始向量。
      * </p>
      * 
      * <h3>解密步骤</h3>
@@ -1102,16 +1121,16 @@ public class OAuth2LoginController {
      *   <li>验证 appId 是否一致</li>
      * </ol>
      * 
-     * @param encryptedData 加密数据（Base64 编码）
-     * @param sessionKey 会话密钥（Base64 编码）
-     * @param iv 初始向量（Base64 编码）
-     * @param appId 小程序 AppID，用于验证数据来源
-     * @return 解密后的数据，包含 nickName、avatarUrl、gender、country、province、city、language 等字段
+     * @param encryptedData 加密数据（基础64 编码）
+     * @param sessionKey 会话密钥（基础64 编码）
+     * @param iv 初始向量（基础64 编码）
+     * @param appId 小程序 appid，用于验证数据来源
+     * @return 解密后的数据，包含 nick名称、avatarurl、gender、country、province、city、language 等字段
      * @throws Exception 解密失败时抛出异常
      */
     private Map<String, String> decryptWechatUserInfo(String encryptedData, String sessionKey, String iv, String appId) throws Exception {
         try {
-            // Base64 解码
+ // 基础64 解码
             byte[] encryptedBytes = java.util.Base64.getDecoder().decode(encryptedData);
             byte[] keyBytes = java.util.Base64.getDecoder().decode(sessionKey);
             byte[] ivBytes = java.util.Base64.getDecoder().decode(iv);
@@ -1132,7 +1151,7 @@ public class OAuth2LoginController {
             // 解析 JSON（简单实现）
             Map<String, String> result = new HashMap<>();
 
-            // 验证 appId
+ // 验证 appid
             String dataAppId = extractJsonValue(decryptedData, "watermark", "appid");
             if (!appId.equals(dataAppId)) {
                 log.error("appId 验证失败: expected={}, actual={}", appId, dataAppId);
@@ -1169,7 +1188,7 @@ public class OAuth2LoginController {
      *
      * <p>
      * 使用 AES-128-CBC 算法解密微信返回的加密数据。
-     * 微信使用 session_key 作为密钥，iv 作为初始向量。
+      * 微信使用 会话_键 作为密钥，iv 作为初始向量。
      * </p>
      *
      * <h3>解密步骤</h3>
@@ -1183,16 +1202,16 @@ public class OAuth2LoginController {
      *   <li>验证 appId 是否一致</li>
      * </ol>
      *
-     * @param encryptedData 加密数据（Base64 编码）
-     * @param sessionKey 会话密钥（Base64 编码）
-     * @param iv 初始向量（Base64 编码）
-     * @param appId 小程序 AppID，用于验证数据来源
-     * @return 解密后的数据，包含 phoneNumber、purePhoneNumber、countryCode 等字段
+     * @param encryptedData 加密数据（基础64 编码）
+     * @param sessionKey 会话密钥（基础64 编码）
+     * @param iv 初始向量（基础64 编码）
+     * @param appId 小程序 appid，用于验证数据来源
+     * @return 解密后的数据，包含 phone数字、purephone数字、country编码 等字段
      * @throws Exception 解密失败时抛出异常
      */
     private Map<String, String> decryptWechatData(String encryptedData, String sessionKey, String iv, String appId) throws Exception {
         try {
-            // Base64 解码
+ // 基础64 解码
             byte[] encryptedBytes = java.util.Base64.getDecoder().decode(encryptedData);
             byte[] keyBytes = java.util.Base64.getDecoder().decode(sessionKey);
             byte[] ivBytes = java.util.Base64.getDecoder().decode(iv);
@@ -1213,7 +1232,7 @@ public class OAuth2LoginController {
             // 解析 JSON（简单实现）
             Map<String, String> result = new HashMap<>();
 
-            // 验证 appId
+ // 验证 appid
             String dataAppId = extractJsonValue(decryptedData, "watermark", "appid");
             if (!appId.equals(dataAppId)) {
                 log.error("appId 验证失败: expected={}, actual={}", appId, dataAppId);
@@ -1273,7 +1292,7 @@ public class OAuth2LoginController {
 
             char firstChar = current.charAt(valueStart);
 
-            // 如果是最后一个 key，提取值
+ // 如果是最后一个 键，提取值
             if (i == keys.length - 1) {
                 int valueEnd;
 
@@ -1300,7 +1319,7 @@ public class OAuth2LoginController {
                     return current.substring(valueStart, valueEnd).trim();
                 }
             } else {
-                // 如果不是最后一个 key，需要进入嵌套对象
+ // 如果不是最后一个 键，需要进入嵌套对象
                 if (firstChar == '{') {
                     // 找到对应的右括号
                     int braceCount = 1;
@@ -1327,8 +1346,8 @@ public class OAuth2LoginController {
      * 微信小程序手机号授权接口
      * 
      * <p>
-     * 处理微信小程序的手机号授权请求。小程序通过 button 组件的 open-type="getPhoneNumber" 
-     * 获取用户手机号，微信会返回加密数据，需要后端使用 session_key 进行解密。
+      * 处理微信小程序的手机号授权请求。小程序通过 button 组件的 打开-类型="获取phone数字"
+      * 获取用户手机号，微信会返回加密数据，需要后端使用 会话_键 进行解密。
      * </p>
      * 
      * <h3>授权流程</h3>
@@ -1362,6 +1381,10 @@ public class OAuth2LoginController {
      *     });
      *   }
      * }
+     * }</pre>    }
+     *     });
+     *   }
+     * }
      * }</pre>
      * 
      * <h3>请求参数</h3>
@@ -1382,6 +1405,8 @@ public class OAuth2LoginController {
      *     "purePhoneNumber": "13800138000",
      *     "countryCode": "86"
      *   }
+     * }
+     * }</pre>  *   }
      * }
      * }</pre>
      * 
@@ -1471,6 +1496,9 @@ public class OAuth2LoginController {
      *     "expireTime": 1640000000000
      *   }
      * }
+     * }</pre>00
+     *   }
+     * }
      * }</pre>
      * 
      * <p>失败时返回：</p>
@@ -1480,7 +1508,7 @@ public class OAuth2LoginController {
      *   "msg": "授权失败: redirect_uri_mismatch",
      *   "data": null
      * }
-     * }</pre>
+     * }</pre>* }</pre>
      * 
      * <h3>错误处理</h3>
      * <ul>
@@ -1504,13 +1532,13 @@ public class OAuth2LoginController {
      * Content-Type: application/x-www-form-urlencoded
      * 
      * code=abc123&state=xyz789
-     * }</pre>
+     * }</pre>* }</pre>
      *
      * @param platform 平台标识
      * @param code 授权码，由第三方平台返回
      * @param state 状态码，用于验证请求来源
      * @param request HTTP 请求对象
-     * @return 登录结果，包含 Token 等信息
+     * @return 登录结果，包含 令牌 等信息
      */
     @PostMapping("/callback/{platform}")
     @Operation(summary = "API授权回调", description = "以API方式处理第三方平台的授权回调，返回JSON")
@@ -1616,11 +1644,11 @@ public class OAuth2LoginController {
      * 
      * <p>
      * 根据平台标识获取对应的配置信息。
-     * 支持平台标识的多种写法（如 wechat 和 wechat_open 都映射到微信开放平台）。
+      * 支持平台标识的多种写法（如 wechat 和 wechat_打开 都映射到微信开放平台）。
      * </p>
      * 
      * @param platform 平台标识（不区分大小写）
-     * @return 平台配置，如果平台不存在则返回 null
+     * @return 平台配置，如果平台不存在则返回 空
      */
     private ThirdPartyLoginProperties.Base getPlatformConfig(String platform) {
         return switch (platform.toLowerCase()) {
@@ -1646,7 +1674,7 @@ public class OAuth2LoginController {
      * 
      * <p>
      * 当登录失败时，将错误信息写入 Cookie，前端可以从 Cookie 中读取错误信息并显示给用户。
-     * Cookie 名称为 "Access-Message"，有效期为 60 秒。
+      * Cookie 名称为 "Access-消息"，有效期为 60 秒。
      * </p>
      * 
      * <h3>Cookie 设置</h3>
@@ -1670,6 +1698,11 @@ public class OAuth2LoginController {
      *     }
      *   }
      *   return null;
+     * }
+     * }</pre>nt(value));
+     *     }
+     *   }
+      * 返回 空;
      * }
      * }</pre>
      * 

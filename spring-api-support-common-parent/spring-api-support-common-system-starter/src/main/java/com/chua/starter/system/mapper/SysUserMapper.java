@@ -16,9 +16,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 系统用户 Mapper接口
+   * 系统用户 映射器接口
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/12
  * @author CH
  */
@@ -29,7 +29,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * 查询用户权限
      * <p>不需要数据权限过滤</p>
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 权限列表
      */
     @DataScope(enabled = false)
@@ -39,7 +39,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * 查询登录授权画像
      * <p>聚合角色、权限、部门数据权限，减少登录/升级链路的数据库往返次数</p>
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 授权画像行
      */
     @DataScope(enabled = false)
@@ -49,7 +49,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * 查询用户认证版本签名
      * <p>用于 VERSION 升级前快速判断用户态是否发生变化</p>
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 认证版本签名
      */
     @DataScope(enabled = false)
@@ -82,7 +82,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * <p>登录时使用，不需要数据权限过滤</p>
      *
      * @param username 用户名
-     * @param tenantId 租户ID
+     * @param tenantId 租户标识
      * @return 用户信息
      */
     @DataScope(enabled = false)
@@ -129,10 +129,10 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
     String selectLatestTenantCodeByUsername(@Param("username") String username);
 
     /**
-     * 检查用户是否拥有管理员角色（通过 sys_user_role + sys_role JOIN）
+      * 检查用户是否拥有管理员角色（通过 sys_用户_角色 + sys_角色 连接）
      *
-     * @param userId      用户ID
-     * @param adminRoleIds 管理员角色ID列表
+     * @param userId      用户标识
+     * @param adminRoleIds 管理员角色标识列表
      * @return true 表示拥有管理员角色
      */
     @DataScope(enabled = false)

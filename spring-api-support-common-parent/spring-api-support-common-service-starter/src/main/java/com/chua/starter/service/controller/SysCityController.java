@@ -33,7 +33,7 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 @RequiredArgsConstructor
 public class SysCityController {
 
-    final SysCityService sysCityService;
+    final SysCityService sysCityService; // syscity服务
 
 
     /**

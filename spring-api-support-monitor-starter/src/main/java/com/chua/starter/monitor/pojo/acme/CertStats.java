@@ -8,7 +8,7 @@ import lombok.Data;
 /**
  * 证书统计信息
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-12-06
  * @author CH
  */
@@ -22,7 +22,7 @@ public class CertStats {
      */
     @ApiModelProperty("账户总数")
     @Schema(description = "账户总数")
-    /** Account数量 */
+    /** 账户数量 */
     private Long accountCount;
 
     /**
@@ -78,6 +78,6 @@ public class CertStats {
      */
     @ApiModelProperty("失败证书数")
     @Schema(description = "失败证书数")
-    /** Failed数量 */
+    /** 失败数量 */
     private Long failedCount;
 }

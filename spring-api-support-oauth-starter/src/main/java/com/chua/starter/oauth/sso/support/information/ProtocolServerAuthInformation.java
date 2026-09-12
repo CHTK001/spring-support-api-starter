@@ -18,36 +18,42 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * ProtocolServer 协议认证信息适配器
+   * 协议服务端 协议认证信息适配器
  * <p>
- * 提供 ProtocolServer 协议的请求/响应适配，使其能够复用现有的认证逻辑
+   * 提供 协议服务端 协议的请求/响应适配，使其能够复用现有的认证逻辑
  * </p>
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-12-15
  */
 public class ProtocolServerAuthInformation {
 
     /**
-     * ProtocolServer 请求适配器
+      * 协议服务端 请求适配器
      * <p>实现 HttpServletRequest 接口，用于适配 ProtocolServer 请求</p>
+     * @author CH
+     * @since 4.0.0
      */
     public static class ProtocolServerRequest implements HttpServletRequest {
-        private final ServletRequest protocolRequest;
-        private final Map<String, String> headers = new ConcurrentHashMap<>();
-        private final Map<String, Object> attributes = new ConcurrentHashMap<>();
-        private String remoteAddr;
-        private int remotePort;
+        private final ServletRequest protocolRequest; // 协议请求
+        private final Map<String, String> headers = new ConcurrentHashMap<>(); // 头部
+        private final Map<String, Object> attributes = new ConcurrentHashMap<>(); // attributes
+        private String remoteAddr; // 远程addr
+        private int remotePort; // 远程端口
 
+        /**
+         * 协议服务端请求。
+         * @param protocolRequest 协议请求
+         */
         public ProtocolServerRequest(ServletRequest protocolRequest) {
             this.protocolRequest = protocolRequest;
-            // 从 ProtocolServer 的 ServletRequest 获取客户端地址
+ // 从 协议服务端 的 servlet请求 获取客户端地址
             if (protocolRequest != null) {
                 this.remoteAddr = protocolRequest.getRemoteAddr();
                 this.remotePort = protocolRequest.getRemotePort();
-                // 从 ProtocolServer 的 ServletRequest 获取 headers（统一转小写，HTTP headers 大小写不敏感）
-                // 优先使用 RequestHeaders.forEach，同时也通过 getHeaderNames 枚举兜底
+ // 从 协议服务端 的 servlet请求 获取 头部（统一转小写，HTTP 头部 大小写不敏感）
+ // 优先使用 请求头部.foreach，同时也通过 获取头部名称 枚举兜底
                 var requestHeaders = protocolRequest.getHeaders();
                 if (requestHeaders != null) {
                     try {
@@ -57,10 +63,10 @@ public class ProtocolServerAuthInformation {
                             }
                         });
                     } catch (Exception ignored) {
-                        // forEach 失败时通过 getHeaderNames 枚举
+ // foreach 失败时通过 获取头部名称 枚举
                     }
                 }
-                // 兜底：通过 getHeaderNames 枚举（防止 forEach 未覆盖所有 header）
+ // 兜底：通过 获取头部名称 枚举（防止 foreach 未覆盖所有 头部）
                 var headerNames = protocolRequest.getHeaderNames();
                 if (headerNames != null) {
                     while (headerNames.hasMoreElements()) {
@@ -76,13 +82,18 @@ public class ProtocolServerAuthInformation {
             }
         }
 
+        /**
+         * 设置头部。
+         * @param name 名称
+         * @param value 值
+         */
         public void setHeader(String name, String value) {
             headers.put(name != null ? name.toLowerCase() : name, value);
         }
 
         @Override
         public String getHeader(String name) {
-            // 统一转小写查找，HTTP headers 大小写不敏感
+ // 统一转小写查找，HTTP 头部 大小写不敏感
             return name != null ? headers.get(name.toLowerCase()) : null;
         }
 
@@ -170,6 +181,10 @@ public class ProtocolServerAuthInformation {
         }
         
         // 解析查询参数
+        /**
+         * 解析查询参数。
+         * @return 解析查询参数的结果
+         */
         private Map<String, String> parseQueryParams() {
             Map<String, String> params = new HashMap<>();
             String queryString = getQueryString();
@@ -239,25 +254,47 @@ public class ProtocolServerAuthInformation {
     }
 
     /**
-     * ProtocolServer 响应适配器
+      * 协议服务端 响应适配器
      * <p>实现 HttpServletResponse 接口，用于适配 ProtocolServer 响应</p>
+     * @author CH
+     * @since 4.0.0
+     * @return 获取全部头部的结果
+     * @param name 名称
+     * @param value 值
      */
     public static class ProtocolServerResponse implements HttpServletResponse {
-        private final ServletResponse protocolResponse;
-        private final Map<String, String> headers = new ConcurrentHashMap<>();
+        private final ServletResponse protocolResponse; // 协议响应
+        private final Map<String, String> headers = new ConcurrentHashMap<>(); // 头部
+        /**
+         * 协议服务端响应。
+         * @param protocolResponse 协议响应
+         */
         private int status = 200;
-        private String bodyString;
+        private String bodyString; // 主体字符串
         
         public ProtocolServerResponse(ServletResponse protocolResponse) {
+            /**
+             * 设置主体字符串。
+             * @param body 主体
+             */
             this.protocolResponse = protocolResponse;
         }
         
         public void setBodyString(String body) {
+            /**
+             * 获取主体字符串。
+             * @return 获取主体字符串的结果
+             */
             this.bodyString = body;
         }
         
         public String getBodyString() {
             return bodyString;
+        /**
+         * 设置头部。
+         * @param name 名称
+         * @param value 值
+         */
         }
 
         @Override
@@ -314,7 +351,7 @@ public class ProtocolServerAuthInformation {
 
         // 以下为必需但未实现的方法
         @Override public void addCookie(Cookie cookie) {
-            // ProtocolServer 的 ServletResponse 可能不支持 Cookie
+ // 协议服务端 的 servlet响应 可能不支持 Cookie
         }
         @Override public boolean containsHeader(String name) { return headers.containsKey(name); }
         @Override public String encodeURL(String url) { return url; }
@@ -353,13 +390,13 @@ public class ProtocolServerAuthInformation {
             return null; 
         }
         @Override public void setCharacterEncoding(String charset) {
-            // ProtocolServer 的 ServletResponse 可能不支持设置字符编码
+ // 协议服务端 的 servlet响应 可能不支持设置字符编码
         }
         @Override public void setContentLength(int len) {
-            // ProtocolServer 的 ServletResponse 可能不支持设置内容长度
+ // 协议服务端 的 servlet响应 可能不支持设置内容长度
         }
         @Override public void setContentLengthLong(long len) {
-            // ProtocolServer 的 ServletResponse 可能不支持设置内容长度
+ // 协议服务端 的 servlet响应 可能不支持设置内容长度
         }
         @Override public void setContentType(String type) {
             headers.put("Content-Type", type);
@@ -368,23 +405,23 @@ public class ProtocolServerAuthInformation {
             }
         }
         @Override public void setBufferSize(int size) {
-            // ProtocolServer 的 ServletResponse 可能不支持设置缓冲区大小
+ // 协议服务端 的 servlet响应 可能不支持设置缓冲区大小
         }
         @Override public int getBufferSize() { return 0; }
         @Override public void flushBuffer() throws IOException {
-            // ProtocolServer 的 ServletResponse 可能不支持刷新缓冲区
+ // 协议服务端 的 servlet响应 可能不支持刷新缓冲区
         }
         @Override public void resetBuffer() {
-            // ProtocolServer 的 ServletResponse 可能不支持重置缓冲区
+ // 协议服务端 的 servlet响应 可能不支持重置缓冲区
         }
         @Override public boolean isCommitted() { 
             return false; 
         }
         @Override public void reset() {
-            // ProtocolServer 的 ServletResponse 可能不支持重置
+ // 协议服务端 的 servlet响应 可能不支持重置
         }
         @Override public void setLocale(Locale loc) {
-            // ProtocolServer 的 ServletResponse 可能不支持设置 Locale
+ // 协议服务端 的 servlet响应 可能不支持设置 区域
         }
         @Override public Locale getLocale() { return Locale.getDefault(); }
     }

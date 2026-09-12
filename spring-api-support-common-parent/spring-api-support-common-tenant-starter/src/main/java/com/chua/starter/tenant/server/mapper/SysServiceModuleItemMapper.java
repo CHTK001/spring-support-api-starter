@@ -6,9 +6,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
- * 服务模块关联 Mapper 接口
+   * 服务模块关联 映射器 接口
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/07
  * @author CH
  */
@@ -16,10 +16,10 @@ import org.apache.ibatis.annotations.Param;
 public interface SysServiceModuleItemMapper extends BaseMapper<SysServiceModuleItem> {
 
     /**
-     * 按租户ID删除服务模块项记录
+      * 按租户标识删除服务模块项记录
      *
-     * @param tenantId 租户ID
-     * @param tenantIdColumn 租户ID列名
+     * @param tenantId 租户标识
+     * @param tenantIdColumn 租户标识列名
      * @return 删除行数
      */
     int deleteByTenantId(@Param("tenantId") String tenantId, @Param("tenantIdColumn") String tenantIdColumn);

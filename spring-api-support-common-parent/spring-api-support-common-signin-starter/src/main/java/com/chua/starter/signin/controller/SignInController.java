@@ -45,7 +45,7 @@ public class SignInController {
      *
      * <p>包含防抖机制：同一用户同一日期重复请求将被拦截。</p>
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 签到结果
      */
     @Operation(summary = "用户签到")
@@ -57,7 +57,7 @@ public class SignInController {
     /**
      * 查询今日是否已签到。
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 签到状态
      */
     @Operation(summary = "查询今日签到状态")
@@ -70,7 +70,7 @@ public class SignInController {
     /**
      * 查询月度签到日历。
      *
-     * @param userId    用户ID
+     * @param userId    用户标识
      * @param yearMonth 年月，格式 yyyy-MM，默认当月
      * @return 已签到日期列表
      */
@@ -88,7 +88,7 @@ public class SignInController {
     /**
      * 查询用户签到统计。
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 签到统计
      */
     @Operation(summary = "查询用户签到统计")

@@ -59,6 +59,7 @@ public class SysUserController {
      * @param sysUserQuery 查询条件
      * @param roles        当前用户角色集合
      * @return 用户分页结果
+     * @param true true
      */
     @Operation(summary = "用户分页列表")
     @GetMapping("/page")
@@ -71,7 +72,7 @@ public class SysUserController {
     /**
      * 获取当前用户的布局配置。
      *
-     * @param userId 当前用户ID
+     * @param userId 当前用户标识
      * @param roles  当前用户角色集合
      * @return 用户布局信息
      */
@@ -85,7 +86,7 @@ public class SysUserController {
     /**
      * 保存当前用户的布局配置。
      *
-     * @param userId      当前用户ID
+     * @param userId      当前用户标识
      * @param userLayout  布局信息
      * @return 更新后的用户布局
      */
@@ -99,7 +100,7 @@ public class SysUserController {
     /**
      * 获取当前用户的偏好配置。
      *
-     * @param userId 当前用户ID
+     * @param userId 当前用户标识
      * @param roles  当前用户角色集合
      * @return 偏好配置 JSON 字符串
      */
@@ -115,7 +116,7 @@ public class SysUserController {
     /**
      * 保存当前用户的偏好配置。
      *
-     * @param userId     当前用户ID
+     * @param userId     当前用户标识
      * @param preference 偏好配置 JSON 字符串
      * @return 保存结果
      */
@@ -128,7 +129,7 @@ public class SysUserController {
         if (userLayout == null) {
             userLayout = new UserLayout();
         }
-        // 如果 preference 为 null，设置为空字符串
+ // 如果 preference 为 空，设置为空字符串
         userLayout.setPreference(preference != null ? preference : "{}");
         sysUserService.saveUserLayout(userId, userLayout);
         return ReturnResult.ok(true);
@@ -136,7 +137,7 @@ public class SysUserController {
     /**
      * 删除用户（逻辑删除）。
      *
-     * @param sysUserId 用户ID
+     * @param sysUserId 用户标识
      * @return 删除结果
      * @throws Exception 删除失败时抛出异常
      */
@@ -157,8 +158,9 @@ public class SysUserController {
     /**
      * 重置当前用户自身密码。
      *
-     * @param userId 当前用户ID
+     * @param userId 当前用户标识
      * @return 重置后的用户信息
+     * @param true true
      */
     @Operation(summary = "重置当前账号密码")
     @GetMapping("/resetOwner")
@@ -175,7 +177,7 @@ public class SysUserController {
     /**
      * 管理员重置指定用户密码。
      *
-     * @param userId 目标用户ID
+     * @param userId 目标用户标识
      * @return 重置结果提示
      */
     @Operation(summary = "重置用户密码")
@@ -195,7 +197,7 @@ public class SysUserController {
      * 更新当前用户自身密码。
      *
      * @param roles                 当前用户角色集合
-     * @param userId                当前用户ID
+     * @param userId                当前用户标识
      * @param sysUserPasswordUpdate 密码更新参数（含原密码和新密码）
      * @param bindingResult         校验结果
      * @return 更新后的用户信息
@@ -218,7 +220,7 @@ public class SysUserController {
      * 管理员更新指定用户信息。
      *
      * @param roles       当前用户角色集合
-     * @param userId      当前管理员用户ID
+     * @param userId      当前管理员用户标识
      * @param sysUser     用户更新参数
      * @param bindingResult 校验结果
      * @return 更新后的用户信息
@@ -245,6 +247,7 @@ public class SysUserController {
      * @param bindingResult 校验结果
      * @param request       HTTP请求对象
      * @return 新增后的用户信息
+     * @param @Validated(AddGroup.class @Validated(AddGroup.class
      */
     @Operation(summary = "新增用户")
     @PostMapping("/save")
@@ -291,6 +294,7 @@ public class SysUserController {
      *
      * @param file CSV文件
      * @return 导入结果
+     * @param @RequestParam("file" @RequestParam("file"
      */
     @Operation(summary = "导入用户")
     @PostMapping("/import")

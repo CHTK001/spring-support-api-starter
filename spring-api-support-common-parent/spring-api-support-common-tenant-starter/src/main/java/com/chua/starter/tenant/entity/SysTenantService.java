@@ -18,7 +18,7 @@ import java.time.LocalDate;
 /**
  * 租户 - 服务关联表
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/06
  * @author CH
  */
@@ -30,30 +30,30 @@ import java.time.LocalDate;
 public class SysTenantService extends SysBase {
 
     /**
-     * 主键ID
+      * 主键标识
      */
     @TableId(value = "sys_tenant_service_id", type = IdType.AUTO)
     @ApiModelProperty(value = "主键ID")
     @Schema(description = "主键ID")
-    /** SYStenant服务ID */
+    /** systenant服务标识 */
     private Integer sysTenantServiceId;
 
     /**
-     * 租户ID
+      * 租户标识
      */
     @TableField(value = "sys_tenant_id")
     @ApiModelProperty(value = "租户ID")
     @Schema(description = "租户ID")
-    /** SYStenantID */
+    /** systenantid */
     private String sysTenantId;
 
     /**
-     * 服务ID
+      * 服务标识
      */
     @TableField(value = "sys_service_id")
     @ApiModelProperty(value = "服务ID")
     @Schema(description = "服务ID")
-    /** SYS服务ID */
+    /** SYS服务标识 */
     private Integer sysServiceId;
 
     /**
@@ -65,6 +65,6 @@ public class SysTenantService extends SysBase {
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd")
-    /** SYStenant服务是否有效时间 */
+    /** systenant服务是否有效时间 */
     private LocalDate sysTenantServiceValidTime;
 }

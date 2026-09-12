@@ -28,7 +28,7 @@ public class SysSettingVO {
     @Schema(description = "")
     @NotNull(message = "配置ID不能为null", groups = {UpdateGroup.class})
     @ApiFieldIgnore(IgnoreGroup.class)
-    /** SYS设置ID */
+    /** SYS设置标识 */
     private Integer sysSettingId;
     /**
      * 配置参数
@@ -56,7 +56,7 @@ public class SysSettingVO {
     @ApiModelProperty(value = "配置备注")
     @Schema(description = "配置备注")
     @Size(max = 255, message = "配置备注最大长度要小于 255")
-    /** SYS设置remark */
+    /** SYS设置评论 */
     private String sysSettingRemark;
     /**
      * 配置类型; 用于前端组件判断; e.g.BOOL：布尔
@@ -117,7 +117,7 @@ public class SysSettingVO {
     @TableField(value = "sys_setting_in_system")
     @ApiModelProperty(value = "是否系统配置")
     @Schema(description = "是否系统配置")
-    /** SYS设置INsystem */
+    /** SYS设置insystem */
     private Integer sysSettingInSystem;
 
     /**
@@ -126,13 +126,13 @@ public class SysSettingVO {
     @TableField(value = "sys_setting_sort")
     @ApiModelProperty(value = "排序优先级")
     @Schema(description = "排序优先级")
-    /** SYS设置sort */
+    /** SYS设置排序 */
     private Integer sysSettingSort;
 
     /**
-     * 选项配置（Dict/Select 类型用，JSON 字符串）
+      * 选项配置（Dict/选择 类型用，JSON 字符串）
      */
     @Schema(description = "选项配置")
-    /** SYS设置options */
+    /** SYS设置期权 */
     private String sysSettingOptions;
 }

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 为部门负责人补齐负责人范围缓存，避免 oauth-client 直接依赖业务模块。
+   * 为部门负责人补齐负责人范围缓存，避免 OAuth-客户端 直接依赖业务模块。
  *
  * @since 2025/8/1
  * @author CH
@@ -36,12 +36,12 @@ public class ManagedDeptAwareAuthServiceBeanPostProcessor implements BeanPostPro
     private static final String DEPT_LEADER = "DEPT_LEADER";
 
     /**
-     * 负责部门ID集合扩展键
+      * 负责部门标识集合扩展键
      */
     private static final String MANAGED_DEPT_IDS = "managedDeptIds";
 
     /**
-     * 负责部门树ID集合扩展键
+      * 负责部门树标识集合扩展键
      */
     private static final String MANAGED_DEPT_TREE_IDS = "managedDeptTreeIds";
 
@@ -131,10 +131,10 @@ public class ManagedDeptAwareAuthServiceBeanPostProcessor implements BeanPostPro
     }
 
     /**
-     * 将用户 ID 字符串解析为整数。
+      * 将用户 标识 字符串解析为整数。
      *
-     * @param userId 用户 ID
-     * @return 解析后的整数，解析失败时为 null
+     * @param userId 用户 标识
+     * @return 解析后的整数，解析失败时为 空
      */
     private Integer parseUserId(String userId) {
         if (userId == null || userId.isBlank()) {

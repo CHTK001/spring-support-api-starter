@@ -26,7 +26,7 @@ import java.util.Set;
 public class UserPreferenceRequestTraceAnalyzer implements RequestTraceAnalyzer {
 
     @Override
-    /** Analyze */
+    /** 分析 */
     public Collection<RequestTraceSignal> analyze(RequestTraceAnalysisContext context) {
         RequestTraceEvent currentEvent = context.currentEvent();
         if (!Boolean.TRUE.equals(context.config().getUserPreferenceDriftEnabled())) {
@@ -68,8 +68,8 @@ public class UserPreferenceRequestTraceAnalyzer implements RequestTraceAnalyzer 
 
     /**
      * Dominant
-     * @param history history
-     * @param valueExtractor valueExtractor
+     * @param history 历史
+     * @param valueExtractor 值extractor
      */
     private DominantValue dominant(
             List<RequestTraceEvent> history,
@@ -90,7 +90,13 @@ public class UserPreferenceRequestTraceAnalyzer implements RequestTraceAnalyzer 
                 .orElse(null);
     }
 
-    /** DominantValue */
+    /**
+     * dominant值
+     *
+     * @param value 值
+     * @param count 数量
+     * @return dominant值的结果
+     */
     private record DominantValue(String value, int count) {
     }
 }

@@ -16,11 +16,11 @@ import java.time.LocalDateTime;
 public class OnlineUserVO {
 
     @Schema(description = "用户ID")
-    /** 用户ID */
+    /** 用户标识 */
     private String userId;
 
     @Schema(description = "用户名")
-    /** Username */
+    /** 用户名 */
     private String username;
 
     @Schema(description = "昵称")
@@ -32,7 +32,7 @@ public class OnlineUserVO {
     private String deptName;
 
     @Schema(description = "登录IP")
-    /** LoginIP */
+    /** loginip */
     private String loginIp;
 
     @Schema(description = "登录地址")

@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * </ul>
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/12
  * @author CH
  */
@@ -42,48 +42,54 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
-    /** Op_create */
+    /** Op_创建 */
     private static final String OP_CREATE = TenantSyncMessageSupport.OP_CREATE;
-    /** Op_update */
+    /** Op_更新 */
     private static final String OP_UPDATE = TenantSyncMessageSupport.OP_UPDATE;
-    /** Op_delete */
+    /** Op_删除 */
     private static final String OP_DELETE = TenantSyncMessageSupport.OP_DELETE;
 
     /** JDBC模板 */
     private final JdbcTemplate jdbcTemplate;
     /** Tenant属性 */
     private final TenantProperties tenantProperties;
-    /** 服务 Mapper */
+    /** 服务 映射器 */
     private final SysServiceMapper sysServiceMapper;
-    /** 服务模块 Mapper */
+    /** 服务模块 映射器 */
     private final SysServiceModuleMapper sysServiceModuleMapper;
-    /** 服务模块项 Mapper */
+    /** 服务模块项 映射器 */
     private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
-    /** 租户服务绑定 Mapper */
+    /** 租户服务绑定 映射器 */
     private final SysTenantServiceMapper sysTenantServiceMapper;
-    /** 租户服务删除 Mapper */
+    /** 租户服务删除 映射器 */
     private final TenantServiceMapper tenantServiceMapper;
 
-    /** 合法的租户 ID 列名白名单，用于防止 SQL 注入 */
+    /** 合法的租户 标识 列名白名单，用于防止 SQL 注入 */
     private static final java.util.Set<String> ALLOWED_TENANT_COLUMNS = java.util.Set.of(
             "sys_tenant_id", "tenant_id", "tenant_code", "org_id", "dept_id"
     );
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return "default";
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return Integer.MAX_VALUE;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** SyncTenantUser */
+    /**
+     * 同步tenant用户
+     *
+     * @param tenant tenant
+     * @param operation operation
+     * @return 同步tenant用户的结果
+     */
     public SysUser syncTenantUser(SysTenant tenant, String operation) {
         if (tenant == null || tenant.getSysTenantId() == null) {
             log.warn("[租户同步] 租户信息不完整，无法同步用户");
@@ -112,7 +118,13 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         }
     }
 
-    /** 创建TenantUser */
+    /**
+     * 创建tenant用户
+     *
+     * @param tenant tenant
+     * @param tenantIdColumn tenantIdColumn
+     * @return 创建tenant用户的结果
+     */
     private SysUser createTenantUser(SysTenant tenant, String tenantIdColumn) {
         String checkSql = String.format("SELECT COUNT(*) FROM sys_user WHERE %s = ?", tenantIdColumn);
         Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, tenant.getSysTenantId());
@@ -145,7 +157,13 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         return toSysUser(tenant);
     }
 
-    /** 更新TenantUser */
+    /**
+     * 更新tenant用户
+     *
+     * @param tenant tenant
+     * @param tenantIdColumn tenantIdColumn
+     * @return 更新tenant用户的结果
+     */
     private SysUser updateTenantUser(SysTenant tenant, String tenantIdColumn) {
         StringBuilder updateSql = new StringBuilder("""
                 UPDATE sys_user SET
@@ -180,14 +198,24 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         return toSysUser(tenant);
     }
 
-    /** 删除TenantUser */
+    /**
+     * 删除tenant用户
+     *
+     * @param tenantId tenantId
+     * @param tenantIdColumn tenantIdColumn
+     */
     private void deleteTenantUser(String tenantId, String tenantIdColumn) {
         String deleteSql = String.format("DELETE FROM sys_user WHERE %s = ?", tenantIdColumn);
         int rows = jdbcTemplate.update(deleteSql, tenantId);
         log.info("[租户同步] 删除租户用户: tenantId={}, rows={}", tenantId, rows);
     }
 
-    /** ToSysUser */
+    /**
+     * 转为sys用户
+     *
+     * @param tenant tenant
+     * @return 转为sys用户的结果
+     */
     private SysUser toSysUser(SysTenant tenant) {
         SysUser user = new SysUser();
         user.setSysUserNickname(tenant.getSysTenantName());
@@ -197,7 +225,13 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** SyncTenantMenu */
+    /**
+     * 同步tenantmenu
+     *
+     * @param tenantId tenantId
+     * @param menuIds menu标识
+     * @return 同步tenantmenu的结果
+     */
     public boolean syncTenantMenu(String tenantId, List<Integer> menuIds) {
         if (!TenantSyncMessageSupport.hasText(tenantId)) {
             log.warn("[租户同步] 租户ID为空，无法同步菜单");
@@ -237,7 +271,14 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** SyncMenuData */
+    /**
+     * 同步menu数据
+     *
+     * @param tenantId tenantId
+     * @param menus menus
+     * @param operation operation
+     * @return 同步menu数据的结果
+     */
     public boolean syncMenuData(String tenantId, List<Map<String, Object>> menus, String operation) {
         if (!TenantSyncMessageSupport.hasText(tenantId)) {
             log.warn("[租户同步] 租户ID为空，无法同步菜单数据");
@@ -347,6 +388,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
     /**
      * 写入租户自身记录(不存在时插入)
+     * @param tenant tenant
      */
     private void upsertTenantRow(SysTenant tenant) {
         String insertSql = """
@@ -365,6 +407,8 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
     /**
      * 写入租户-服务绑定关系
+     * @param tenantId tenantId
+     * @param serviceId 服务id
      */
     private void upsertTenantServiceRow(String tenantId, Integer serviceId) {
         String insertSql = """
@@ -377,6 +421,9 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
     /**
      * 写入服务记录
+     * @param tenantId tenantId
+     * @param service 服务
+     * @param tenantIdColumn tenantIdColumn
      */
     private void upsertServiceRow(String tenantId, Map<String, Object> service, String tenantIdColumn) {
         String insertSql = String.format("""
@@ -408,6 +455,9 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
     /**
      * 写入服务模块记录
+     * @param tenantId tenantId
+     * @param module module
+     * @param tenantIdColumn tenantIdColumn
      */
     private void upsertModuleRow(String tenantId, Map<String, Object> module, String tenantIdColumn) {
         String insertSql = String.format("""
@@ -444,6 +494,9 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
     /**
      * 写入服务模块项记录
+     * @param tenantId tenantId
+     * @param item item
+     * @param tenantIdColumn tenantIdColumn
      */
     private void upsertItemRow(String tenantId, Map<String, Object> item, String tenantIdColumn) {
         String insertSql = String.format("""
@@ -466,7 +519,13 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
                 tenantId);
     }
 
-    /** ReplaceMenus */
+    /**
+     * 替换menus
+     *
+     * @param tenantId tenantId
+     * @param menus menus
+     * @param tenantIdColumn tenantIdColumn
+     */
     private void replaceMenus(String tenantId, List<Map<String, Object>> menus, String tenantIdColumn) {
         List<Integer> keepIds = new ArrayList<>();
         for (Map<String, Object> menu : menus) {
@@ -497,7 +556,13 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         jdbcTemplate.update(deleteSql, params);
     }
 
-    /** UpsertMenu */
+    /**
+     * upsertmenu
+     *
+     * @param tenantId tenantId
+     * @param menu menu
+     * @param tenantIdColumn tenantIdColumn
+     */
     private void upsertMenu(String tenantId, Map<String, Object> menu, String tenantIdColumn) {
         SysMenu sysMenu = toSysMenu(menu);
         if (sysMenu.getSysMenuId() == null) {
@@ -515,7 +580,13 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         insertMenu(tenantId, sysMenu, tenantIdColumn);
     }
 
-    /** 更新Menu */
+    /**
+     * 更新Menu
+     *
+     * @param tenantId tenantId
+     * @param menu menu
+     * @param tenantIdColumn tenantIdColumn
+     */
     private void updateMenu(String tenantId, SysMenu menu, String tenantIdColumn) {
         String updateSql = String.format("""
                 UPDATE sys_menu SET
@@ -542,7 +613,13 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
                 menu.getSysMenuId());
     }
 
-    /** 插入Menu */
+    /**
+     * 插入Menu
+     *
+     * @param tenantId tenantId
+     * @param menu menu
+     * @param tenantIdColumn tenantIdColumn
+     */
     private void insertMenu(String tenantId, SysMenu menu, String tenantIdColumn) {
         String insertSql = String.format("""
                 INSERT INTO sys_menu (
@@ -566,7 +643,13 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
                 menu.getSysMenuEngine(), tenantId);
     }
 
-    /** 删除Menu */
+    /**
+     * 删除Menu
+     *
+     * @param tenantId tenantId
+     * @param menu menu
+     * @param tenantIdColumn tenantIdColumn
+     */
     private void deleteMenu(String tenantId, Map<String, Object> menu, String tenantIdColumn) {
         Integer menuId = MapUtils.getInteger(menu, "sysMenuId", 0);
         if (menuId == 0) {
@@ -576,7 +659,12 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         jdbcTemplate.update(deleteSql, menuId, tenantId);
     }
 
-    /** ToSysMenu */
+    /**
+     * 转为sysmenu
+     *
+     * @param menu menu
+     * @return 转为sysmenu的结果
+     */
     private SysMenu toSysMenu(Map<String, Object> menu) {
         SysMenu sysMenu = new SysMenu();
         if (menu == null) {
@@ -612,7 +700,12 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         return sysMenu;
     }
 
-    /** NormalizeOperation */
+    /**
+     * normalizeoperation
+     *
+     * @param operation operation
+     * @return normalizeOperation的结果
+     */
     private String normalizeOperation(String operation) {
         if (!TenantSyncMessageSupport.hasText(operation)) {
             return OP_UPDATE;
@@ -621,7 +714,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
     }
 
     /**
-     * 校验租户 ID 列名是否合法，防止 SQL 注入。
+      * 校验租户 标识 列名是否合法，防止 SQL 注入。
      *
      * @param column 列名
      * @return 合法的列名

@@ -18,11 +18,11 @@ import java.util.Map;
 public class SystemVersionArgumentResolver implements VersionArgumentResolver {
 
     @Override
-    /** Version */
+    /** 版本 */
     public String version() {
         var setting = GlobalSettingFactory.getInstance().get("config", VersionSetting.class);
         if (setting != null) {
-            // 使用 BeanUtils 获取字段值
+ // 使用 Bean工具 获取字段值
             var map = BeanUtils.objectToMap(setting);
             return map != null ? (String) map.get("version") : null;
         }

@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
  * 服务端模式下，用于向客户端推送租户数据变更
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/06
  * @author CH
  */
@@ -65,51 +65,51 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
      * 租户同步主题
      */
     public static final String TOPIC_TENANT_UPDATE = TenantSyncMessageSupport.TOPIC_TENANT_UPDATE;
-    /** Topic_tenant_delete */
+    /** Topic_tenant_删除 */
     public static final String TOPIC_TENANT_DELETE = TenantSyncMessageSupport.TOPIC_TENANT_DELETE;
-    /** Topic_tenant_service */
+    /** Topic_tenant_服务 */
     public static final String TOPIC_TENANT_SERVICE = TenantSyncMessageSupport.TOPIC_TENANT_SERVICE;
     /** Topic_tenant_menu */
     public static final String TOPIC_TENANT_MENU = TenantSyncMessageSupport.TOPIC_TENANT_MENU;
 
-    /** Reason_register */
+    /** ReasonML_注册 */
     private static final String REASON_REGISTER = "client-register";
-    /** Reason_scheduled */
+    /** ReasonML_调度 */
     private static final String REASON_SCHEDULED = "scheduled-reconcile";
-    /** Reason_tenant_update */
+    /** ReasonML_tenant_更新 */
     private static final String REASON_TENANT_UPDATE = "tenant-update";
-    /** Reason_tenant_delete */
+    /** ReasonML_tenant_删除 */
     private static final String REASON_TENANT_DELETE = "tenant-delete";
-    /** Reason_service_update */
+    /** ReasonML_服务_更新 */
     private static final String REASON_SERVICE_UPDATE = "service-update";
-    /** Reason_menu_update */
+    /** ReasonML_menu_更新 */
     private static final String REASON_MENU_UPDATE = "menu-update";
 
     /** Tenant属性 */
     private final TenantProperties tenantProperties;
     /** 同步服务器提供者 */
     private final ObjectProvider<SyncServer> syncServerProvider;
-    /** SYStenantmapper */
+    /** systenantmapper */
     private final SysTenantMapper sysTenantMapper;
-    /** SYStenant服务mapper */
+    /** systenant服务映射器 */
     private final SysTenantServiceMapper sysTenantServiceMapper;
-    /** SYSmenumapper */
+    /** sysmenumapper */
     private final SysMenuMapper sysMenuMapper;
-    /** SYS服务mapper */
+    /** SYS服务映射器 */
     private final SysServiceMapper sysServiceMapper;
     /** SYS服务modulemapper */
     private final SysServiceModuleMapper sysServiceModuleMapper;
     /** SYS服务moduleitemmapper */
     private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
-    /** 同步ACKtracker */
+    /** 同步acktracker */
     private final TenantSyncAckTracker syncAckTracker;
 
-    private volatile SyncServer syncServer;
-    private volatile ScheduledExecutorService fullPushScheduler;
-    private final ConcurrentMap<String, String> fullSyncFingerprints = new ConcurrentHashMap<>();
+    private volatile SyncServer syncServer; // 同步服务端
+    private volatile ScheduledExecutorService fullPushScheduler; // 完整push调度器
+    private final ConcurrentMap<String, String> fullSyncFingerprints = new ConcurrentHashMap<>(); // 完整同步fingerprints
 
     @Override
-    /** AfterProperties设置 */
+    /** 之后属性设置 */
     public void afterPropertiesSet() {
         syncServer = syncServerProvider.getIfAvailable();
         if (!isSyncEnabled() || syncServer == null) {
@@ -185,7 +185,7 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
     /**
      * 发布租户删除
      *
-     * @param tenantId 租户ID
+     * @param tenantId 租户标识
      */
     public void publishTenantDelete(String tenantId) {
         if (!canPublish() || !TenantSyncMessageSupport.hasText(tenantId)) {
@@ -208,8 +208,8 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
     /**
      * 发布服务/菜单更新
      *
-     * @param tenantId 租户ID
-     * @param menuIds  菜单ID列表
+     * @param tenantId 租户标识
+     * @param menuIds  菜单标识列表
      */
     public void publishServiceUpdate(String tenantId, List<Integer> menuIds) {
         if (!canPublish() || !TenantSyncMessageSupport.hasText(tenantId)) {
@@ -235,8 +235,8 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
      * 不执行全量清空重录
      * </p>
      *
-     * @param menuId    菜单ID
-     * @param operation 操作类型: create, update, delete
+     * @param menuId    菜单标识
+     * @param operation 操作类型: 创建, 更新, 删除
      */
     public void publishMenuChange(Integer menuId, String operation) {
         if (!canPublish() || menuId == null) {
@@ -273,9 +273,9 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
     /**
      * 推送菜单数据更新
      *
-     * @param tenantId  租户ID
+     * @param tenantId  租户标识
      * @param menus     菜单数据列表
-     * @param operation 操作类型: create, update, delete
+     * @param operation 操作类型: 创建, 更新, 删除
      */
     public void publishMenuUpdate(String tenantId, List<Map<String, Object>> menus, String operation) {
         if (!canPublish() || !TenantSyncMessageSupport.hasText(tenantId)) {
@@ -302,8 +302,8 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
     /**
      * 向指定客户端会话补发全量同步。
      *
-     * @param sessionId 会话ID
-     * @param tenantId  租户ID
+     * @param sessionId 会话标识
+     * @param tenantId  租户标识
      * @param reason    原因
      * @return 是否发送成功
      */
@@ -317,6 +317,7 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
 
     /**
      * 检查是否可以发布
+     * @return 能否发布的结果
      */
     private boolean canPublish() {
         if (syncServer == null || !isSyncEnabled()) {
@@ -326,12 +327,21 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return true;
     }
 
-    /** 是否SyncEnabled */
+    /**
+     * 是否同步已启用
+     *
+     * @return 是否同步已启用的结果
+     */
     private boolean isSyncEnabled() {
         return tenantProperties.isServerMode() && tenantProperties.getServer().isSyncEnable();
     }
 
-    /** 处理TenantClient注册 */
+    /**
+     * 处理tenant客户端注册
+     *
+     * @param sessionId 会话id
+     * @param clientInfo 客户端信息
+     */
     private void handleTenantClientRegister(String sessionId, ClientInfo clientInfo) {
         try {
             if (!isTenantClient(clientInfo)) {
@@ -350,7 +360,7 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         }
     }
 
-    /** 发布ConnectedTenantsFullSyncSafely */
+    /** 发布连接tenants完整同步safely */
     private void publishConnectedTenantsFullSyncSafely() {
         try {
             publishConnectedTenantsFullSync();
@@ -359,7 +369,7 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         }
     }
 
-    /** 校验PendingAcksSafely */
+    /** 校验pendingACKsafely */
     private void checkPendingAcksSafely() {
         try {
             checkPendingAcks();
@@ -368,7 +378,7 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         }
     }
 
-    /** 发布ConnectedTenantsFullSync */
+    /** 发布连接tenants完整同步 */
     private void publishConnectedTenantsFullSync() {
         if (!canPublish()) {
             return;
@@ -391,7 +401,14 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         }
     }
 
-    /** 发布FullSyncForTenant */
+    /**
+     * 发布完整同步fortenant
+     *
+     * @param tenantId tenantId
+     * @param reason ReasonML
+     * @param sessionId 会话id
+     * @return 发布完整同步fortenant的结果
+     */
     private int publishFullSyncForTenant(String tenantId, String reason, String sessionId) {
         if (!TenantSyncMessageSupport.hasText(tenantId)) {
             return 0;
@@ -445,24 +462,41 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return Math.max(sent, serviceSent);
     }
 
-    /** 发布Service更新Internal */
+    /**
+     * 发布服务更新内部
+     *
+     * @param tenantId tenantId
+     * @param menuIds menu标识
+     * @param syncMode 同步mode
+     * @param reason ReasonML
+     * @return 发布服务更新内部的结果
+     */
     private int publishServiceUpdateInternal(String tenantId, List<Integer> menuIds, String syncMode, String reason) {
         return publishServiceUpdateInternal(tenantId, menuIds, syncMode, reason, null);
     }
 
-    /** 发布Service更新Internal */
+    /**
+     * 发布服务更新内部
+     *
+     * @param tenantId tenantId
+     * @param menuIds menu标识
+     * @param syncMode 同步mode
+     * @param reason ReasonML
+     * @param sessionId 会话id
+     * @return 发布服务更新内部的结果
+     */
     private int publishServiceUpdateInternal(String tenantId, List<Integer> menuIds, String syncMode, String reason, String sessionId) {
         return publishServiceUpdateInternal(tenantId, menuIds, null, syncMode, reason, sessionId);
     }
 
     /**
-     * 发布Service更新Internal
-     * @param tenantId tenantId
-     * @param menuIds menuIds
-     * @param preloadedMenus preloadedMenus
-     * @param syncMode syncMode
-     * @param reason reason
-     * @param sessionId sessionId
+      * 发布服务更新内部
+     * @param tenantId tenantid
+     * @param menuIds menu标识
+     * @param preloadedMenus preloadedmenus
+     * @param syncMode 同步mode
+     * @param reason ReasonML
+     * @param sessionId 会话id
      */
     private int publishServiceUpdateInternal(String tenantId,
                                              List<Integer> menuIds,
@@ -492,7 +526,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return sent;
     }
 
-    /** 加载TenantServiceIds */
+    /**
+     * 加载tenant服务标识
+     *
+     * @param tenantId tenantId
+     * @return 加载tenant服务标识的结果
+     */
     private List<Integer> loadTenantServiceIds(String tenantId) {
         List<SysTenantService> binds = sysTenantServiceMapper.selectList(Wrappers.lambdaQuery(SysTenantService.class)
                 .eq(SysTenantService::getSysTenantId, tenantId));
@@ -506,7 +545,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
                 .toList();
     }
 
-    /** 加载TenantServices */
+    /**
+     * 加载tenant服务
+     *
+     * @param serviceIds 服务标识
+     * @return 加载tenant服务的结果
+     */
     private List<Map<String, Object>> loadTenantServices(List<Integer> serviceIds) {
         if (serviceIds == null || serviceIds.isEmpty()) {
             return List.of();
@@ -518,7 +562,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return services.stream().map(this::convertServiceToMap).toList();
     }
 
-    /** 加载TenantModules */
+    /**
+     * 加载tenantmodules
+     *
+     * @param serviceIds 服务标识
+     * @return 加载tenantmodules的结果
+     */
     private List<Map<String, Object>> loadTenantModules(List<Integer> serviceIds) {
         if (serviceIds == null || serviceIds.isEmpty()) {
             return List.of();
@@ -543,7 +592,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return modules.stream().map(this::convertModuleToMap).toList();
     }
 
-    /** 加载TenantServiceItems */
+    /**
+     * 加载tenant服务items
+     *
+     * @param serviceIds 服务标识
+     * @return 加载tenant服务items的结果
+     */
     private List<Map<String, Object>> loadTenantServiceItems(List<Integer> serviceIds) {
         if (serviceIds == null || serviceIds.isEmpty()) {
             return List.of();
@@ -556,7 +610,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return items.stream().map(this::convertItemToMap).toList();
     }
 
-    /** 转换ServiceToMap */
+    /**
+     * 转换服务转为映射
+     *
+     * @param service 服务
+     * @return 转换服务转为映射的结果
+     */
     private Map<String, Object> convertServiceToMap(SysService service) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("sysServiceId", service.getSysServiceId());
@@ -569,7 +628,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return result;
     }
 
-    /** 转换ModuleToMap */
+    /**
+     * 转换module转为映射
+     *
+     * @param module module
+     * @return 转换module转为映射的结果
+     */
     private Map<String, Object> convertModuleToMap(SysServiceModule module) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("sysServiceModuleId", module.getSysServiceModuleId());
@@ -584,7 +648,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return result;
     }
 
-    /** 转换ItemToMap */
+    /**
+     * 转换item转为映射
+     *
+     * @param item item
+     * @return 转换item转为映射的结果
+     */
     private Map<String, Object> convertItemToMap(SysServiceModuleItem item) {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("sysServiceModuleItemId", item.getSysServiceModuleItemId());
@@ -594,7 +663,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return result;
     }
 
-    /** 加载TenantMenuIds */
+    /**
+     * 加载tenantmenu标识
+     *
+     * @param tenantId tenantId
+     * @return 加载tenantmenu标识的结果
+     */
     private List<Integer> loadTenantMenuIds(String tenantId) {
         List<Integer> menuIds = sysTenantServiceMapper.getMenuByTenantId(tenantId);
         if (menuIds == null || menuIds.isEmpty()) {
@@ -603,7 +677,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return menuIds.stream().filter(Objects::nonNull).distinct().toList();
     }
 
-    /** 加载TenantMenus */
+    /**
+     * 加载tenantmenus
+     *
+     * @param menuIds menu标识
+     * @return 加载tenantmenus的结果
+     */
     private List<Map<String, Object>> loadTenantMenus(List<Integer> menuIds) {
         if (menuIds == null || menuIds.isEmpty()) {
             return List.of();
@@ -619,7 +698,14 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return menus.stream().map(this::convertMenuToMap).toList();
     }
 
-    /** 发布ToTenantClients */
+    /**
+     * 发布转为tenant客户端
+     *
+     * @param tenantId tenantId
+     * @param topic topic
+     * @param data 数据
+     * @return 发布转为tenant客户端的结果
+     */
     private int publishToTenantClients(String tenantId, String topic, Map<String, Object> data) {
         Map<String, Object> payload = prepareOutboundMessage(data);
         List<String> sessionIds = findTenantClientSessionIds(tenantId);
@@ -639,7 +725,15 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return sessionIds.size();
     }
 
-    /** 发布ToTarget */
+    /**
+     * 发布转为Target
+     *
+     * @param sessionId 会话id
+     * @param tenantId tenantId
+     * @param topic topic
+     * @param data 数据
+     * @return 发布转为Target的结果
+     */
     private int publishToTarget(String sessionId, String tenantId, String topic, Map<String, Object> data) {
         Map<String, Object> payload = prepareOutboundMessage(data);
         if (TenantSyncMessageSupport.hasText(sessionId)) {
@@ -655,7 +749,14 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return publishToTenantClients(tenantId, topic, payload);
     }
 
-    /** 发送Tracked */
+    /**
+     * 发送Tracked
+     *
+     * @param sessionId 会话id
+     * @param tenantId tenantId
+     * @param topic topic
+     * @param payload payload
+     */
     private void sendTracked(String sessionId, String tenantId, String topic, Map<String, Object> payload) {
         syncServer.send(sessionId, topic, payload);
         ClientInfo clientInfo = syncServer.getAllClientsRaw().get(sessionId);
@@ -664,7 +765,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         }
     }
 
-    /** 查找TenantClientSessionIds */
+    /**
+     * 查找tenant客户端会话标识
+     *
+     * @param tenantId tenantId
+     * @return findtenant客户端会话标识的结果
+     */
     private List<String> findTenantClientSessionIds(String tenantId) {
         List<String> sessionIds = new ArrayList<>();
         for (Map.Entry<String, ClientInfo> entry : syncServer.getAllClientsRaw().entrySet()) {
@@ -675,12 +781,23 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return sessionIds;
     }
 
-    /** 是否TenantClient */
+    /**
+     * 是否tenant客户端
+     *
+     * @param clientInfo 客户端信息
+     * @return 是否tenant客户端的结果
+     */
     private boolean isTenantClient(ClientInfo clientInfo) {
         return isTenantClient(clientInfo, null);
     }
 
-    /** 是否TenantClient */
+    /**
+     * 是否tenant客户端
+     *
+     * @param clientInfo 客户端信息
+     * @param tenantId tenantId
+     * @return 是否tenant客户端的结果
+     */
     private boolean isTenantClient(ClientInfo clientInfo, String tenantId) {
         if (clientInfo == null || clientInfo.getClientMetadata() == null) {
             return false;
@@ -700,7 +817,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return Objects.equals(boundTenantId, tenantId);
     }
 
-    /** 解析TenantId */
+    /**
+     * 解析tenantid
+     *
+     * @param clientInfo 客户端信息
+     * @return resolveTenantId的结果
+     */
     private String resolveTenantId(ClientInfo clientInfo) {
         if (clientInfo == null || clientInfo.getClientMetadata() == null) {
             return null;
@@ -709,7 +831,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return TenantSyncMessageSupport.resolveTenantId(clientInfo);
     }
 
-    /** SupportsAck */
+    /**
+     * 支持ACK
+     *
+     * @param clientInfo 客户端信息
+     * @return 支持ACK的结果
+     */
     private boolean supportsAck(ClientInfo clientInfo) {
         if (!tenantProperties.isServerSyncAckEnabled() || clientInfo == null) {
             return false;
@@ -733,7 +860,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return false;
     }
 
-    /** PrepareOutboundMessage */
+    /**
+     * prepareoutbound消息
+     *
+     * @param data 数据
+     * @return prepareoutbound消息的结果
+     */
     private Map<String, Object> prepareOutboundMessage(Map<String, Object> data) {
         if (data == null || data.isEmpty()) {
             return data;
@@ -744,7 +876,15 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return data;
     }
 
-    /** 是否应该跳过UnchangedFullSync */
+    /**
+     * 是否应该跳过unchanged完整同步
+     *
+     * @param tenantId tenantId
+     * @param reason ReasonML
+     * @param sessionId 会话id
+     * @param fingerprint fingerprint
+     * @return should跳过unchanged完整同步的结果
+     */
     private boolean shouldSkipUnchangedFullSync(String tenantId, String reason, String sessionId, String fingerprint) {
         if (!tenantProperties.getServer().isSyncSkipUnchangedFullPush()
                 || !tenantProperties.getServer().isSyncFullPushOnRegister()
@@ -761,7 +901,7 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return unchanged;
     }
 
-    /** 校验PendingAcks */
+    /** 校验pendingACK */
     private void checkPendingAcks() {
         if (!canPublish() || !tenantProperties.isServerSyncAckEnabled()) {
             return;
@@ -791,10 +931,10 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
     }
 
     /**
-     * 构建TenantSnapshotFingerprint
-     * @param tenantId tenantId
+      * 构建tenantsnapshotfingerprint
+     * @param tenantId tenantid
      * @param tenant tenant
-     * @param menuIds menuIds
+     * @param menuIds menu标识
      * @param menus menus
      */
     private String buildTenantSnapshotFingerprint(String tenantId,
@@ -810,7 +950,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return TenantSyncMessageSupport.payloadFingerprint(snapshot);
     }
 
-    /** 构建DeletedTenantFingerprint */
+    /**
+     * 构建删除tenantfingerprint
+     *
+     * @param tenantId tenantId
+     * @return 构建删除tenantfingerprint的结果
+     */
     private String buildDeletedTenantFingerprint(String tenantId) {
         Map<String, Object> snapshot = new LinkedHashMap<>();
         snapshot.put(TenantSyncMessageSupport.TARGET_TENANT_ID, tenantId);
@@ -819,7 +964,9 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
     }
 
     /**
-     * 转换租户为 Map
+      * 转换租户为 映射
+     * @param tenant tenant
+     * @return 转换tenant转为映射的结果
      */
     private Map<String, Object> convertTenantToMap(SysTenant tenant) {
         Map<String, Object> map = new HashMap<>();
@@ -842,7 +989,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return map;
     }
 
-    /** 转换MenuToMap */
+    /**
+     * 转换menu转为映射
+     *
+     * @param menu menu
+     * @return 转换menu转为映射的结果
+     */
     private Map<String, Object> convertMenuToMap(SysMenu menu) {
         Map<String, Object> map = new HashMap<>();
         map.put("sysMenuId", menu.getSysMenuId());

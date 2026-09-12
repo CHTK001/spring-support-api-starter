@@ -23,6 +23,8 @@ public class OAuthTraceConfiguration {
 
     /**
      * 注册OAuth追踪过滤器
+     * @param traceLogService 追踪日志服务
+     * @return oauth追踪过滤器registration的结果
      */
     @Bean
     public FilterRegistrationBean<OAuthTraceFilter> oauthTraceFilterRegistration(OAuthTraceLogService traceLogService) {

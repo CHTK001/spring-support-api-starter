@@ -32,7 +32,7 @@ import java.util.List;
 /**
  * 服务模块管理接口
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/15
  * @author CH
  */
@@ -82,8 +82,9 @@ public class SysServiceModuleController {
     /**
      * 获取服务模块详情
      *
-     * @param sysServiceModuleId 服务模块ID
+     * @param sysServiceModuleId 服务模块标识
      * @return 服务模块详情
+     * @param "服务模块ID" "服务模块ID"
      */
     @GetMapping("get")
     @Operation(summary = "获取服务模块详情")
@@ -141,8 +142,9 @@ public class SysServiceModuleController {
     /**
      * 删除服务模块
      *
-     * @param sysServiceModuleId 服务模块ID
+     * @param sysServiceModuleId 服务模块标识
      * @return 删除结果
+     * @param "服务模块ID" "服务模块ID"
      */
     @DeleteMapping("delete")
     @Operation(summary = "删除服务模块")
@@ -166,7 +168,7 @@ public class SysServiceModuleController {
     /**
      * 更新服务模块状态
      *
-     * @param sysServiceModuleId 服务模块ID
+     * @param sysServiceModuleId 服务模块标识
      * @param status             状态值 (0-启用, 1-禁用)
      * @return 更新结果
      */
@@ -217,6 +219,8 @@ public class SysServiceModuleController {
 
     /**
      * 创建查询条件
+     * @param sysServiceModule sys服务module
+     * @return 创建包装器的结果
      */
     private LambdaQueryWrapper<SysServiceModule> createWrapper(SysServiceModule sysServiceModule) {
         LambdaQueryWrapper<SysServiceModule> wrapper = Wrappers.lambdaQuery();
@@ -237,6 +241,9 @@ public class SysServiceModuleController {
 
     /**
      * 检查编码是否存在
+     * @param code 编码
+     * @param excludeId excludeId
+     * @return 是否编码exists的结果
      */
     private boolean isCodeExists(String code, Integer excludeId) {
         if (StringUtils.isBlank(code)) {

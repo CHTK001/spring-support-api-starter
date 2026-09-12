@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 服务器布局配置实体，保存服务器监控大屏的整体布局信息，
- * 布局内容以 JSON 形式存储（nodes / edges / version / generatedAt 等结构），前端可直接回显。
+   * 布局内容以 JSON 形式存储（节点 / edges / 版本 / generatedat 等结构），前端可直接回显。
  *
  * @since 2026-07-28
  * @author CH
@@ -26,21 +26,21 @@ import lombok.EqualsAndHashCode;
 public class MonitorSysGenServerLayout extends SysBase {
 
     /**
-     * 布局主键ID，自增
+      * 布局主键标识，自增
      */
     @TableId(value = "monitor_sys_gen_server_layout_id", type = IdType.AUTO)
     @ApiModelProperty("布局ID")
     @Schema(description = "布局ID")
-    /** MonitorSYSGEN服务器layoutID */
+    /** 监控sysgen服务器layoutid */
     private Integer monitorSysGenServerLayoutId;
 
     /**
-     * 关联的服务器ID，标识该布局属于哪台服务器
+      * 关联的服务器标识，标识该布局属于哪台服务器
      */
     @TableField("monitor_sys_gen_server_id")
     @ApiModelProperty("关联服务器ID")
     @Schema(description = "关联服务器ID")
-    /** MonitorSYSGEN服务器ID */
+    /** 监控sysgen服务器标识 */
     private Integer monitorSysGenServerId;
 
     /**
@@ -49,25 +49,25 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_name")
     @ApiModelProperty("布局名称")
     @Schema(description = "布局名称")
-    /** MonitorSYSGEN服务器layout名称 */
+    /** 监控sysgen服务器layout名称 */
     private String monitorSysGenServerLayoutName;
 
     /**
-     * 布局配置 JSON，包含 nodes / edges / version / generatedAt 等结构
+      * 布局配置 JSON，包含 节点 / edges / 版本 / generatedat 等结构
      */
     @TableField("monitor_sys_gen_server_layout_config")
     @ApiModelProperty("布局配置 JSON")
     @Schema(description = "布局配置 JSON")
-    /** MonitorSYSGEN服务器layout配置 */
+    /** 监控sysgen服务器layout配置 */
     private String monitorSysGenServerLayoutConfig;
 
     /**
-     * 布局类型，取值范围：default（默认）/generated（生成）/copied（复制）/custom（自定义）
+      * 布局类型，取值范围：默认（默认）/generated（生成）/copied（复制）/习俗（自定义）
      */
     @TableField("monitor_sys_gen_server_layout_type")
     @ApiModelProperty("布局类型（default/generated/copied/custom）")
     @Schema(description = "布局类型（default/generated/copied/custom）")
-    /** MonitorSYSGEN服务器layout类型 */
+    /** 监控sysgen服务器layout类型 */
     private String monitorSysGenServerLayoutType;
 
     /**
@@ -76,7 +76,7 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_default")
     @ApiModelProperty("是否默认布局（0/1）")
     @Schema(description = "是否默认布局（0/1）")
-    /** MonitorSYSGEN服务器layout默认 */
+    /** 监控sysgen服务器layout默认 */
     private Integer monitorSysGenServerLayoutDefault;
 
     /**
@@ -85,7 +85,7 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_status")
     @ApiModelProperty("布局状态（0禁用/1启用）")
     @Schema(description = "布局状态（0禁用/1启用）")
-    /** MonitorSYSGEN服务器layout状态 */
+    /** 监控sysgen服务器layout状态 */
     private Integer monitorSysGenServerLayoutStatus;
 
     /**
@@ -94,7 +94,7 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_description")
     @ApiModelProperty("布局描述")
     @Schema(description = "布局描述")
-    /** MonitorSYSGEN服务器layout描述 */
+    /** 监控sysgen服务器layout描述 */
     private String monitorSysGenServerLayoutDescription;
 
     /**
@@ -103,7 +103,7 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_version")
     @ApiModelProperty("布局版本号")
     @Schema(description = "布局版本号")
-    /** MonitorSYSGEN服务器layout版本 */
+    /** 监控sysgen服务器layout版本 */
     private Integer monitorSysGenServerLayoutVersion;
 
     /**
@@ -112,6 +112,6 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_sort")
     @ApiModelProperty("布局排序")
     @Schema(description = "布局排序")
-    /** MonitorSYSGEN服务器layoutsort */
+    /** 监控sysgen服务器layoutsort */
     private Integer monitorSysGenServerLayoutSort;
 }

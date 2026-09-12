@@ -6,6 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
  * 鉴权信息
  *
  * @author CH
+ * @since 4.0.0
  */
 public interface Authorization {
     /**

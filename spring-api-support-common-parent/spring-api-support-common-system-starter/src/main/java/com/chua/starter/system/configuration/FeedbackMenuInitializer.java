@@ -60,13 +60,13 @@ public class FeedbackMenuInitializer implements ApplicationRunner {
      */
     private static final String MENU_NAME = "feedback";
 
-    /** SYSmenumapper */
+    /** sysmenumapper */
     private final SysMenuMapper sysMenuMapper;
-    /** SYSrolemapper */
+    /** sysrolemapper */
     private final SysRoleMapper sysRoleMapper;
-    /** SYSrolemenumapper */
+    /** sysrolemenumapper */
     private final SysRoleMenuMapper sysRoleMenuMapper;
-    private final Map<String, CacheManager> cacheManagers;
+    private final Map<String, CacheManager> cacheManagers; // 缓存管理器
 
     /**
      * 应用启动后执行反馈菜单初始化。
@@ -159,7 +159,7 @@ public class FeedbackMenuInitializer implements ApplicationRunner {
     /**
      * 确保管理员与超管角色已关联反馈菜单。
      *
-     * @param menuId 菜单ID
+     * @param menuId 菜单标识
      * @return true 表示发生了新增关联
      */
     private boolean ensureRoleMenus(Integer menuId) {
@@ -188,10 +188,10 @@ public class FeedbackMenuInitializer implements ApplicationRunner {
     }
 
     /**
-     * 构建菜单树ID。
+      * 构建菜单树标识。
      *
      * @param parentMenu 父级菜单
-     * @param menuId     菜单ID
+     * @param menuId     菜单标识
      * @return 树ID字符串
      */
     private String buildTreeId(SysMenu parentMenu, Integer menuId) {

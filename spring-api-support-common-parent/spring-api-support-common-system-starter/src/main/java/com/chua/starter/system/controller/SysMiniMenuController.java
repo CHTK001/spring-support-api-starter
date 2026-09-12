@@ -54,7 +54,7 @@ public class SysMiniMenuController {
     /**
      * 删除小程序菜单。
      *
-     * @param sysMiniMenuId 菜单ID
+     * @param sysMiniMenuId 菜单标识
      * @return 删除结果
      */
     @Operation(summary = "删除小程序菜单")

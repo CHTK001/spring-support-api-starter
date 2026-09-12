@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Ignore
 public class SysErrorLogController {
 
-    final SysErrorLogService sysErrorLogService;
+    final SysErrorLogService sysErrorLogService; // sys错误日志服务
 
     /**
      * 前端异常上报

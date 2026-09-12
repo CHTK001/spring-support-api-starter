@@ -14,7 +14,7 @@ import lombok.Data;
 public class SignInStatsDTO {
 
     /**
-     * 用户ID
+      * 用户标识
      */
     private Long userId;
 

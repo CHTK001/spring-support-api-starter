@@ -371,7 +371,7 @@ public class SystemAdminController {
      * 获取指定日志的有效级别。
      *
      * @param loggerName 日志名称
-     * @return 日志级别名称, 不可用时返回 UNKNOWN 或 UNAVAILABLE
+     * @return 日志级别名称, 不可用时返回 UNKNOWN 或 不可用
      */
     private String getLogLevel(String loggerName) {
         if (loggingSystem == null) {

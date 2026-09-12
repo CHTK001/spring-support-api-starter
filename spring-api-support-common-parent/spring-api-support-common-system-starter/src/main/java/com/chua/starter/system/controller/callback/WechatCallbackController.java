@@ -59,22 +59,22 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WechatCallbackController {
 
-    /** Third_party_type */
+    /** Third_party_类型 */
     private static final String THIRD_PARTY_TYPE = "wechat";
-    /** Sso_group */
+    /** 单点登录_群体 */
     private static final String SSO_GROUP = "sso";
-    /** Sso_name */
+    /** 单点登录_名称 */
     private static final String SSO_NAME = "Wechat";
 
     @Autowired(required = false)
-    /** SYSlogincallback服务 */
+    /** syslogincallback服务 */
     private SysLoginCallbackService sysLoginCallbackService;
-    final SysUserThirdPartyService sysUserThirdPartyService;
-    final SysLoginService sysLoginService;
-    final SysSettingService sysSettingService;
-    final AuthClientProperties authProperties;
-    final SystemSecurityProperties securityProperties;
-    final SysWechatUserMapper sysWechatUserMapper;
+    final SysUserThirdPartyService sysUserThirdPartyService; // sys用户thirdparty服务
+    final SysLoginService sysLoginService; // syslogin服务
+    final SysSettingService sysSettingService; // syssetting服务
+    final AuthClientProperties authProperties; // 认证属性
+    final SystemSecurityProperties securityProperties; // 安全性属性
+    final SysWechatUserMapper sysWechatUserMapper; // syswechat用户映射器
 
     /**
      * 微信账号绑定回调
@@ -255,7 +255,7 @@ public class WechatCallbackController {
     /**
      * 保存或更新微信用户信息
      *
-     * @param sysUserId 系统用户ID
+     * @param sysUserId 系统用户标识
      * @param authUser  微信返回的用户信息
      */
     private void saveOrUpdateWechatUser(Integer sysUserId, AuthUser authUser) {

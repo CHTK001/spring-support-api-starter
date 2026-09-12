@@ -25,7 +25,7 @@ public class RedisRequestTraceConfigStorage implements RequestTraceConfigStorage
     private static final Duration EXPIRE = Duration.ofDays(30);
 
     @Override
-    /** Type */
+    /** 类型 */
     public String type() {
         return "redis";
     }
@@ -65,7 +65,11 @@ public class RedisRequestTraceConfigStorage implements RequestTraceConfigStorage
         return normalized.copy();
     }
 
-    /** RedisTemplate */
+    /**
+     * redistemplate
+     *
+     * @return redisTemplate的结果
+     */
     private StringRedisTemplate redisTemplate() {
         try {
             return SpringBeanUtils.getBean(StringRedisTemplate.class);
@@ -74,7 +78,12 @@ public class RedisRequestTraceConfigStorage implements RequestTraceConfigStorage
         }
     }
 
-    /** Key */
+    /**
+     * 键
+     *
+     * @param groupCode 群体编码
+     * @return 键的结果
+     */
     private String key(String groupCode) {
         return "request:trace:config:" + groupCode;
     }

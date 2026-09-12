@@ -30,13 +30,13 @@ public class TenantSyncAckTracker {
     private final boolean enabled;
     /** 最大值pending */
     private final int maxPending;
-    private final ConcurrentMap<String, PendingAck> pendingAcks = new ConcurrentHashMap<>();
-    private final ConcurrentMap<String, AckRecord> lastAckRecords = new ConcurrentHashMap<>();
-    private final ConcurrentMap<String, Long> compensationTimes = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, PendingAck> pendingAcks = new ConcurrentHashMap<>(); // pendingACK
+    private final ConcurrentMap<String, AckRecord> lastAckRecords = new ConcurrentHashMap<>(); // 最后一个ACKrecords
+    private final ConcurrentMap<String, Long> compensationTimes = new ConcurrentHashMap<>(); // 报酬时间
 
     /**
-     * 创建 TenantSyncAckTracker 实例
-     * @param tenantProperties tenantProperties
+      * 创建 tenant同步ACKtracker 实例
+     * @param tenantProperties tenant属性
      */
     public TenantSyncAckTracker(TenantProperties tenantProperties) {
         TenantProperties.ServerConfig serverConfig = tenantProperties == null ? new TenantProperties.ServerConfig() : tenantProperties.getServer();
@@ -44,12 +44,23 @@ public class TenantSyncAckTracker {
         this.maxPending = serverConfig.getSyncAckMaxPending();
     }
 
-    /** 是否Enabled */
+    /**
+     * 是否已启用
+     *
+     * @return 是否已启用的结果
+     */
     public boolean isEnabled() {
         return enabled;
     }
 
-    /** Track */
+    /**
+     * Track
+     *
+     * @param sessionId 会话id
+     * @param tenantId tenantId
+     * @param topic topic
+     * @param payload payload
+     */
     public void track(String sessionId, String tenantId, String topic, Map<String, Object> payload) {
         if (!isEnabled()
                 || !TenantSyncMessageSupport.hasText(sessionId)
@@ -82,7 +93,13 @@ public class TenantSyncAckTracker {
         evictOverflow();
     }
 
-    /** Acknowledge */
+    /**
+     * Acknowledge
+     *
+     * @param sessionId 会话id
+     * @param payload payload
+     * @return acknowledge的结果
+     */
     public AckRecord acknowledge(String sessionId, Map<String, Object> payload) {
         if (!TenantSyncMessageSupport.hasText(sessionId) || payload == null || payload.isEmpty()) {
             return null;
@@ -108,7 +125,12 @@ public class TenantSyncAckTracker {
         return record;
     }
 
-    /** DrainExpired */
+    /**
+     * drainexpired
+     *
+     * @param timeoutMillis 超时millis
+     * @return drainExpired的结果
+     */
     public List<PendingAck> drainExpired(long timeoutMillis) {
         if (!isEnabled() || timeoutMillis <= 0 || pendingAcks.isEmpty()) {
             return List.of();
@@ -131,7 +153,14 @@ public class TenantSyncAckTracker {
         return expired;
     }
 
-    /** Try标记Compensation */
+    /**
+     * 尝试标记报酬
+     *
+     * @param sessionId 会话id
+     * @param tenantId tenantId
+     * @param cooldownMillis cooldownMillis
+     * @return 尝试mark报酬的结果
+     */
     public boolean tryMarkCompensation(String sessionId, String tenantId, long cooldownMillis) {
         if (!TenantSyncMessageSupport.hasText(sessionId) || !TenantSyncMessageSupport.hasText(tenantId)) {
             return false;
@@ -150,7 +179,11 @@ public class TenantSyncAckTracker {
         return true;
     }
 
-    /** ClearSession */
+    /**
+     * clear会话
+     *
+     * @param sessionId 会话id
+     */
     public void clearSession(String sessionId) {
         if (!TenantSyncMessageSupport.hasText(sessionId)) {
             return;
@@ -161,7 +194,7 @@ public class TenantSyncAckTracker {
         compensationTimes.keySet().removeIf(key -> key.startsWith(sessionId + "|"));
     }
 
-    /** EvictOverflow */
+    /** evictoverflow */
     private void evictOverflow() {
         if (maxPending <= 0) {
             return;
@@ -172,7 +205,14 @@ public class TenantSyncAckTracker {
         trimOldest(compensationTimes, maxPending, Long::longValue);
     }
 
-    /** 去空格Oldest */
+    /**
+     * 去空格Oldest
+     *
+     * @param values 值
+     * @param maxSize 最大大小
+     * @param sorter 排序
+     * @return 修剪旧的结果
+     */
     private <T> void trimOldest(ConcurrentMap<String, T> values, int maxSize, java.util.function.ToLongFunction<T> sorter) {
         if (values.size() <= maxSize) {
             return;
@@ -186,48 +226,72 @@ public class TenantSyncAckTracker {
                 .forEach(values::remove);
     }
 
-    /** CleanupCompensations */
+    /**
+     * cleanup报酬
+     *
+     * @param expireBefore expire之前
+     */
     private void cleanupCompensations(long expireBefore) {
         compensationTimes.entrySet().removeIf(entry -> entry.getValue() < expireBefore);
     }
 
-    /** 构建PendingKey */
+    /**
+     * 构建pending键
+     *
+     * @param sessionId 会话id
+     * @param messageId 消息id
+     * @return 构建pending键的结果
+     */
     private String buildPendingKey(String sessionId, String messageId) {
         return sessionId + "|" + messageId;
     }
 
-    /** 构建AckKey */
+    /**
+     * 构建ACK键
+     *
+     * @param sessionId 会话id
+     * @param tenantId tenantId
+     * @param topic topic
+     * @return 构建ACK键的结果
+     */
     private String buildAckKey(String sessionId, String tenantId, String topic) {
         return sessionId + "|" + tenantId + "|" + topic;
     }
 
-    /** 构建CompensationKey */
+    /**
+     * 构建报酬键
+     *
+     * @param sessionId 会话id
+     * @param tenantId tenantId
+     * @return 构建报酬键的结果
+     */
     private String buildCompensationKey(String sessionId, String tenantId) {
         return sessionId + "|" + tenantId;
     }
 
     public static final class PendingAck {
-        /** 会话ID */
+        /** 会话标识 */
         private final String sessionId;
-        /** TenantID */
+        /** tenantid */
         private final String tenantId;
         /** Topic */
         private final String topic;
-        /** 消息ID */
+        /** 消息标识 */
         private final String messageId;
-        /** SentAT */
+        /** sentat */
         private final long sentAt;
-        /** Reason */
+        /** ReasonML */
         private final String reason;
 
         /**
-         * 创建 PendingAck 实例
-         * @param sessionId sessionId
-         * @param tenantId tenantId
+          * 创建 pendingACK 实例
+         * @param sessionId 会话id
+         * @param tenantId tenantid
          * @param topic topic
-         * @param messageId messageId
-         * @param sentAt sentAt
-         * @param reason reason
+         * @param messageId 消息id
+         * @param sentAt sentat
+         * @param reason ReasonML
+         * @return pendingACK的结果
          */
         public PendingAck(String sessionId, String tenantId, String topic, String messageId, long sentAt, String reason) {
             this.sessionId = sessionId;
@@ -238,47 +302,71 @@ public class TenantSyncAckTracker {
             this.reason = reason;
         }
 
-        /** 获取SessionId */
+        /**
+         * 获取会话id
+         *
+         * @return 获取会话id的结果
+         */
         public String getSessionId() {
             return sessionId;
         }
 
-        /** 获取TenantId */
+        /**
+         * 获取tenantid
+         *
+         * @return 获取tenantid的结果
+         */
         public String getTenantId() {
             return tenantId;
         }
 
-        /** 获取Topic */
+        /**
+         * 获取Topic
+         *
+         * @return 获取topic的结果
+         */
         public String getTopic() {
             return topic;
         }
 
-        /** 获取MessageId */
+        /**
+         * 获取消息id
+         *
+         * @return 获取消息id的结果
+         */
         public String getMessageId() {
             return messageId;
         }
 
-        /** 获取SentAt */
+        /**
+         * 获取sentat
+         *
+         * @return 获取sentat的结果
+         */
         public long getSentAt() {
             return sentAt;
         }
 
-        /** 获取Reason */
+        /**
+         * 获取ReasonML
+         *
+         * @return 获取ReasonML的结果
+         */
         public String getReason() {
             return reason;
         }
     }
 
     public static final class AckRecord {
-        /** 会话ID */
+        /** 会话标识 */
         private final String sessionId;
-        /** TenantID */
+        /** tenantid */
         private final String tenantId;
         /** Topic */
         private final String topic;
-        /** 来源消息ID */
+        /** 来源消息标识 */
         private final String sourceMessageId;
-        /** Success */
+        /** 成功 */
         private final boolean success;
         /** 状态 */
         private final String status;
@@ -288,15 +376,16 @@ public class TenantSyncAckTracker {
         private final long ackAt;
 
         /**
-         * 创建 AckRecord 实例
-         * @param sessionId sessionId
-         * @param tenantId tenantId
+          * 创建 ACKrecord 实例
+         * @param sessionId 会话id
+         * @param tenantId tenantid
          * @param topic topic
-         * @param sourceMessageId sourceMessageId
-         * @param success success
-         * @param status status
-         * @param message message
-         * @param ackAt ackAt
+         * @param sourceMessageId 源消息id
+         * @param success 成功
+         * @param status 状态
+         * @param message 消息
+         * @param ackAt ACKat
+         * @return ACKrecord的结果
          */
         public AckRecord(String sessionId, String tenantId, String topic, String sourceMessageId, boolean success, String status, String message, long ackAt) {
             this.sessionId = sessionId;
@@ -309,42 +398,74 @@ public class TenantSyncAckTracker {
             this.ackAt = ackAt;
         }
 
-        /** 获取SessionId */
+        /**
+         * 获取会话id
+         *
+         * @return 获取会话id的结果
+         */
         public String getSessionId() {
             return sessionId;
         }
 
-        /** 获取TenantId */
+        /**
+         * 获取tenantid
+         *
+         * @return 获取tenantid的结果
+         */
         public String getTenantId() {
             return tenantId;
         }
 
-        /** 获取Topic */
+        /**
+         * 获取Topic
+         *
+         * @return 获取topic的结果
+         */
         public String getTopic() {
             return topic;
         }
 
-        /** 获取SourceMessageId */
+        /**
+         * 获取源消息id
+         *
+         * @return 获取源消息id的结果
+         */
         public String getSourceMessageId() {
             return sourceMessageId;
         }
 
-        /** 是否Success */
+        /**
+         * 是否成功
+         *
+         * @return 是否成功的结果
+         */
         public boolean isSuccess() {
             return success;
         }
 
-        /** 获取Status */
+        /**
+         * 获取状态
+         *
+         * @return 获取状态的结果
+         */
         public String getStatus() {
             return status;
         }
 
-        /** 获取Message */
+        /**
+         * 获取消息
+         *
+         * @return 获取消息的结果
+         */
         public String getMessage() {
             return message;
         }
 
-        /** 获取AckAt */
+        /**
+         * 获取ACKat
+         *
+         * @return 获取ACKat的结果
+         */
         public long getAckAt() {
             return ackAt;
         }

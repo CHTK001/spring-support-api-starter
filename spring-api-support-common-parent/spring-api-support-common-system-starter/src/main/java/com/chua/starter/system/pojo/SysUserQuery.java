@@ -39,9 +39,9 @@ public class SysUserQuery extends Query<SysUser> {
     private Integer sysUserStatus;
 
     /**
-     * 部门ID
+      * 部门标识
      */
     @Schema(description = "部门ID")
-    /** SYSdeptID */
+    /** sysdeptid */
     private Long sysDeptId;
 }

@@ -93,6 +93,7 @@ public class TreeUtils {
      * @param node  父节点
      * @param nodes 全部节点
      * @param <T>   扩展对象类型
+     * @return collectChildren的结果
      */
     private static <T> void collectChildren(TreeNode<T> node, List<TreeNode<T>> nodes) {
         List<T> children = new ArrayList<>();

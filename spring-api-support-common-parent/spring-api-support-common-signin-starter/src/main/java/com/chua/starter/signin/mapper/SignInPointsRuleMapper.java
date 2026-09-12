@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 /**
- * 签到积分规则 Mapper
+   * 签到积分规则 映射器
  *
  * <p>基于 MyBatis-Plus {@link BaseMapper} 提供积分规则的基础 CRUD，
  * 并通过 XML 提供按状态查询启用的规则列表。</p>

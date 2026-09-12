@@ -20,19 +20,19 @@ import java.time.LocalDateTime;
 public class UserAchievement {
 
     /**
-     * 主键ID
+      * 主键标识
      */
     @TableId(type = IdType.AUTO)
-    /** ID */
+    /** 标识 */
     private Long id;
 
     /**
-     * 用户ID
+      * 用户标识
      */
     private Long userId;
 
     /**
-     * 分组标识，与 achievement_tier.type 对应
+      * 分组标识，与 achievement_tier.类型 对应
      */
     private String type;
 

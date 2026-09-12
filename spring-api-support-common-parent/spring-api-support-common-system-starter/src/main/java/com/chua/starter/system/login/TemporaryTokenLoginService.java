@@ -105,9 +105,9 @@ public class TemporaryTokenLoginService implements UserInfoService, Constant {
      * </p>
      *
      * @param principal  用户现有的有效令牌
-     * @param credential 不使用，可为null
+     * @param credential 不使用，可为空
      * @param address    客户端地址
-     * @param ext        扩展参数，可指定: expireTime(过期时间秒), allowedUrls(允许的URL列表)
+     * @param ext        扩展参数，可指定: expire时间(过期时间秒), allowedurls(允许的URL列表)
      * @return 临时用户令牌信息，若令牌无效则message字段包含错误信息
      */
     @Override
@@ -165,7 +165,7 @@ public class TemporaryTokenLoginService implements UserInfoService, Constant {
     /**
      * 解析过期时间
      *
-     * @param extMap 扩展参数Map
+     * @param extMap 扩展参数映射
      * @return 过期时间(秒)
      */
     private long parseExpireTime(Map<String, Object> extMap) {
@@ -189,7 +189,7 @@ public class TemporaryTokenLoginService implements UserInfoService, Constant {
     /**
      * 解析允许访问的URL列表
      *
-     * @param extMap 扩展参数Map
+     * @param extMap 扩展参数映射
      * @return URL集合，空集合表示允许所有URL
      */
     @SuppressWarnings("unchecked")
@@ -234,7 +234,7 @@ public class TemporaryTokenLoginService implements UserInfoService, Constant {
      * 检查URL是否被允许访问
      * <p>用于验证临时令牌是否可以访问指定的URL</p>
      *
-     * @param userResume 用户信息（包含allowedUrls配置）
+     * @param userResume 用户信息（包含allowedurls配置）
      * @param requestUrl 请求的URL
      * @return true表示允许访问，false表示拒绝访问
      */

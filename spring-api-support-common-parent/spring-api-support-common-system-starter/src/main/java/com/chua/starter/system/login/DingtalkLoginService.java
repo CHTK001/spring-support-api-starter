@@ -37,13 +37,13 @@ public class DingtalkLoginService extends AbstractUserLoginService {
     private SysUserThirdPartyMapper sysUserThirdPartyMapper;
 
     @Override
-    /** 获取LoginTypePrefix */
+    /** 获取login类型前缀 */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
-    /** GenerateUserIds */
+    /** generate用户标识 */
     protected String[] generateUserIds(SysUser user) {
         String baseId = user.getSysUserId() + "DINGTALK";
         return new String[]{
@@ -55,10 +55,10 @@ public class DingtalkLoginService extends AbstractUserLoginService {
     /**
      * 钉钉用户登录验证
      *
-     * @param dingtalkId 钉钉用户唯一标识（unionId或openId）
-     * @param password   不使用，可为null
+     * @param dingtalkId 钉钉用户唯一标识（unionid或打开id）
+     * @param password   不使用，可为空
      * @param address    客户端IP地址
-     * @param ext        扩展参数，可为null
+     * @param ext        扩展参数，可为空
      * @return 用户信息，若验证失败则message字段包含错误信息
      */
     @Override

@@ -21,13 +21,14 @@ import java.util.Map;
 @Slf4j
 public class UpdateController {
 
-    private static final String CURRENT_VERSION = "4.0.0";
+    private static final String CURRENT_VERSION = "4.0.0"; // 当前版本
 
     /**
      * 获取最新版本信息（Web 版返回当前版本作为无更新）。
      *
      * @param prerelease 是否包含预发布版本
      * @return 版本信息
+     * @param "false" "false"
      */
     @GetMapping("/info")
     @Operation(summary = "获取更新信息")
@@ -45,7 +46,7 @@ public class UpdateController {
     /**
      * 下载安装更新（Web 版不支持）。
      *
-     * @param body 请求参数（url, version）
+     * @param body 请求参数（url, 版本）
      * @return 操作结果
      */
     @PostMapping("/install")

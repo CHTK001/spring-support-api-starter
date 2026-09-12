@@ -39,7 +39,7 @@ import java.util.Map;
  *
  * @author CH
  * @since 2024/12/4
- * @version 1.0.0
+   * @版本 1.0.0
  */
 @RestController
 @Slf4j
@@ -49,9 +49,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SysFileSystemController {
 
-    private final SysFileSystemService sysFileSystemService;
-    private final SysFileSystemSettingService sysFileSystemSettingService;
-    private final SysFileSystemGroupService sysFileSystemGroupService;
+    private final SysFileSystemService sysFileSystemService; // sys文件系统服务
+    private final SysFileSystemSettingService sysFileSystemSettingService; // sys文件系统setting服务
+    private final SysFileSystemGroupService sysFileSystemGroupService; // sys文件系统群体服务
 
     /**
      * 上传文件
@@ -135,7 +135,7 @@ public class SysFileSystemController {
     /**
      * 获取上传任务信息（断点续传）
      *
-     * @param taskId 任务ID
+     * @param taskId 任务标识
      * @return 任务信息
      */
     @Operation(summary = "获取上传任务信息（断点续传）")
@@ -295,7 +295,7 @@ public class SysFileSystemController {
      *
      * @param page     页码
      * @param size     每页数量
-     * @param groupId  分组ID
+     * @param groupId  分组标识
      * @param status   状态
      * @param keyword  关键词
      * @return 文件列表
@@ -325,7 +325,7 @@ public class SysFileSystemController {
     /**
      * 手动合并文件
      *
-     * @param fileId 文件ID
+     * @param fileId 文件标识
      * @return 操作结果
      */
     @Operation(summary = "手动合并文件")
@@ -348,7 +348,7 @@ public class SysFileSystemController {
     /**
      * 删除文件
      *
-     * @param fileId 文件ID
+     * @param fileId 文件标识
      * @return 操作结果
      */
     @Operation(summary = "删除文件")
@@ -421,7 +421,7 @@ public class SysFileSystemController {
     /**
      * 删除分组
      *
-     * @param groupId 分组ID
+     * @param groupId 分组标识
      * @return 操作结果
      */
     @Operation(summary = "删除分组")

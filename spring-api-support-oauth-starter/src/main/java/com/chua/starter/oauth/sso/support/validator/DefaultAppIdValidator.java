@@ -8,12 +8,12 @@ import com.chua.starter.system.service.SysAppIdService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 默认 AppId 验证器
+   * 默认 appid 验证器
  * <p>
- * 默认实现：从app_id表查询appId并比较是否匹配
+   * 默认实现：从app_标识表查询appid并比较是否匹配
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-01-05
  * @author CH
  */
@@ -22,17 +22,17 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultAppIdValidator implements AppIdValidator {
 
     /**
-     * AppId 服务
+      * appid 服务
      */
     @AutoInject
     /** SYSAPPID服务 */
     private SysAppIdService sysAppIdService;
 
     /**
-     * 验证 AppId, 从 app_id 表查询并校验状态与过期时间。
+      * 验证 appid, 从 app_标识 表查询并校验状态与过期时间。
      *
-     * @param processedAppId 客户端算法处理后的 AppId
-     * @param appKey         数据库中的 AppKey 信息
+     * @param processedAppId 客户端算法处理后的 appid
+     * @param appKey         数据库中的 app键 信息
      * @return 验证结果
      */
     @Override
@@ -41,16 +41,16 @@ public class DefaultAppIdValidator implements AppIdValidator {
             return ValidationResult.failure("AppKey 不存在");
         }
 
-        // 从app_id表查询appId
+ // 从app_标识表查询appid
         SysAppId sysAppId = sysAppIdService.getByAppIdValue(processedAppId);
         if (sysAppId == null) {
             log.warn("AppId 不存在: processedAppId={}", maskAppId(processedAppId));
             return ValidationResult.failure("AppId 不存在");
         }
 
-        // appKey和appId是并列关系，不需要验证关联关系
+ // app键和appid是并列关系，不需要验证关联关系
 
-        // 检查appId状态
+ // 检查appid状态
         if (sysAppId.getAppIdStatus() == null || sysAppId.getAppIdStatus() != 1) {
             log.warn("AppId 已禁用: processedAppId={}", maskAppId(processedAppId));
             return ValidationResult.failure("AppId 已禁用");
@@ -70,7 +70,9 @@ public class DefaultAppIdValidator implements AppIdValidator {
     }
 
     /**
-     * 脱敏 AppId
+      * 脱敏 appid
+     * @param appId appId
+     * @return maskAppId的结果
      */
     private String maskAppId(String appId) {
         if (appId == null || appId.length() < 8) {

@@ -20,7 +20,7 @@ public class SysUserQuery extends Query<SysUser> {
      * 用户名
      */
     @Schema(description = "用户名")
-    /** Username */
+    /** 用户名 */
     private String username;
 
     /**
@@ -51,9 +51,9 @@ public class SysUserQuery extends Query<SysUser> {
     /** 状态 */
     private Integer status;
     /**
-     * 部门id
+      * 部门标识
      */
     @Schema(description = "部门id")
-    /** SYSdeptID */
+    /** sysdeptid */
     private Integer sysDeptId;
 }

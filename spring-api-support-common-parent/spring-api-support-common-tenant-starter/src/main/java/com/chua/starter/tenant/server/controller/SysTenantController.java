@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * 租户管理接口
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/06
  * @author CH
  */
@@ -40,7 +40,7 @@ import java.util.List;
 @SuppressWarnings("ALL")
 public class SysTenantController {
 
-    /** SYStenant服务 */
+    /** systenant服务 */
     private final SysTenantService sysTenantService;
 
     /**
@@ -73,8 +73,9 @@ public class SysTenantController {
     /**
      * 获取租户详情
      *
-     * @param sysTenantId 租户ID
+     * @param sysTenantId 租户标识
      * @return 租户详情
+     * @param "租户ID" "租户ID"
      */
     @GetMapping("get")
     @Operation(summary = "获取租户详情")
@@ -122,8 +123,9 @@ public class SysTenantController {
     /**
      * 删除租户
      *
-     * @param sysTenantId 租户ID
+     * @param sysTenantId 租户标识
      * @return 删除结果
+     * @param "租户ID" "租户ID"
      */
     @DeleteMapping("delete")
     @Operation(summary = "删除租户")
@@ -148,7 +150,7 @@ public class SysTenantController {
     /**
      * 更新租户状态
      *
-     * @param sysTenantId 租户ID
+     * @param sysTenantId 租户标识
      * @param status      状态值 (0-启用, 1-禁用)
      * @return 更新结果
      */
@@ -175,7 +177,7 @@ public class SysTenantController {
     /**
      * 重置租户密码（推送给租户端）
      *
-     * @param sysTenantId       租户ID
+     * @param sysTenantId       租户标识
      * @param sysTenantPassword 新密码
      * @return 重置结果
      */
@@ -191,7 +193,7 @@ public class SysTenantController {
     /**
      * 重置租户菜单（按订阅重新计算并推送给租户端）
      *
-     * @param sysTenantId 租户ID
+     * @param sysTenantId 租户标识
      * @return 重置结果
      */
     @PutMapping("reset-menu")

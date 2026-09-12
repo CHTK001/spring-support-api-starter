@@ -5,6 +5,8 @@ import com.chua.common.support.lang.code.ReturnResult;
 /**
  * 无效鉴权信息
  *
+ * @author CH
+ * @since 4.0.0
  */
 public final class InvalidAuthorization implements Authorization {
 
@@ -12,7 +14,7 @@ public final class InvalidAuthorization implements Authorization {
     public static final InvalidAuthorization INSTANCE = new InvalidAuthorization();
 
     @Override
-    /** Authentication */
+    /** 认证 */
     public ReturnResult<String> authentication() {
         return ReturnResult.error("未认证");
     }

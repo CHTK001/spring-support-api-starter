@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * 防抖机制使用 Redis 分布式锁 + 数据库唯一索引双层保障。</p>
  *
  * <p>签到成功后通过 {@link KvEngine} 写入成就上下文数据（持续天数、累计积分、最高连续），
- * 供成就模块的 CircuitBreaker 规则判定使用，随后发布签到事件触发成就判定。</p>
+   * 供成就模块的 熔断中断 规则判定使用，随后发布签到事件触发成就判定。</p>
  *
  * @since 4.0.0.42
  * @author CH
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 public class SignInService {
 
     /**
-     * 分布式锁 key 前缀，格式：lock:signin:{userId}:{date}
+      * 分布式锁 键 前缀，格式：锁:signin:{用户id}:{日期}
      */
     private static final String LOCK_KEY_PREFIX = "signin:lock:";
 
@@ -57,7 +57,7 @@ public class SignInService {
     private static final long LOCK_LEASE_SECONDS = 10L;
 
     /**
-     * 签到记录 Mapper
+      * 签到记录 映射器
      */
     private final SignInRecordMapper recordMapper;
 
@@ -72,7 +72,7 @@ public class SignInService {
     private final SignInPushService pushService;
 
     /**
-     * 分布式锁模板（Redis Redisson 实现，由 spring-support-redis-starter 自动装配）
+      * 分布式锁模板（Redis Redisson 实现，由 spring-支持-Redis-启动 自动装配）
      */
     private final LockTemplate lockTemplate;
 
@@ -82,7 +82,7 @@ public class SignInService {
     private final ApplicationEventPublisher eventPublisher;
 
     /**
-     * 统一 KV 引擎，写入成就上下文数据（由 spring-support-redis-starter 注册）
+      * 统一 KV 引擎，写入成就上下文数据（由 spring-支持-Redis-启动 注册）
      */
     private final KvEngine kvEngine;
 
@@ -101,7 +101,7 @@ public class SignInService {
      *   <li>推送签到成功消息到前端</li>
      * </ol>
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 签到结果
      */
     @Transactional(rollbackFor = Exception.class)
@@ -171,7 +171,7 @@ public class SignInService {
             result.setTotalDays(allRecords.size());
             result.setPointsBreakdown(pointsBreakdown);
 
-            // 写入成就上下文数据（前缀与成就模块一致，CircuitBreaker 规则可引用）
+ // 写入成就上下文数据（前缀与成就模块一致，熔断中断 规则可引用）
             writeAchievementContext(userId, streak, totalPoints != null ? totalPoints : 0);
 
             // 发布签到事件给成就模块
@@ -202,7 +202,7 @@ public class SignInService {
     /**
      * 查询今日是否已签到。
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return true 已签到，false 未签到
      */
     public boolean isSignedToday(Long userId) {
@@ -212,7 +212,7 @@ public class SignInService {
     /**
      * 查询指定月份的签到日历数据。
      *
-     * @param userId    用户ID
+     * @param userId    用户标识
      * @param yearMonth 年月，格式 yyyy-MM
      * @return 日历项列表
      */
@@ -232,7 +232,7 @@ public class SignInService {
     /**
      * 查询用户签到统计。
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 签到统计
      */
     public SignInStatsDTO getStats(Long userId) {
@@ -275,10 +275,10 @@ public class SignInService {
     }
 
     /**
-     * 写入签到成就上下文数据到 KvEngine。
+      * 写入签到成就上下文数据到 kvengine。
      *
      * <p>写入的键（前缀 {@code achievement:{userId}:}）与成就模块一致，
-     * 成就模块的 CircuitBreaker 规则可直接引用：</p>
+      * 成就模块的 熔断中断 规则可直接引用：</p>
      * <ul>
      *   <li>{@code signInStreak}：当前连续签到天数</li>
      *   <li>{@code signInMaxStreak}：历史最高连续签到天数</li>
@@ -286,7 +286,7 @@ public class SignInService {
      *   <li>{@code signInCount}：累计签到次数（由成就事件异步累加）</li>
      * </ul>
      *
-     * @param userId      用户ID
+     * @param userId      用户标识
      * @param streak      当前连续签到天数
      * @param totalPoints 累计签到积分
      */

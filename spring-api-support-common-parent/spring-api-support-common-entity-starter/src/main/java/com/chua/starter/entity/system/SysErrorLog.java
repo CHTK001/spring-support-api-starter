@@ -25,15 +25,15 @@ import lombok.EqualsAndHashCode;
 public class SysErrorLog extends SysBase {
 
     /**
-     * 异常日志ID
+      * 异常日志标识
      */
     @TableId(value = "sys_error_log_id", type = IdType.AUTO)
     @Schema(description = "异常日志ID")
-    /** SYS错误日志ID */
+    /** SYS错误日志标识 */
     private Long sysErrorLogId;
 
     /**
-     * 去重指纹(message + source + 行列号归一化)
+      * 去重指纹(消息 + 源 + 行列号归一化)
      */
     @TableField(value = "sys_error_key")
     @Schema(description = "去重指纹")
@@ -69,7 +69,7 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_filename")
     @Schema(description = "出错文件URL")
-    /** SYS错误filename */
+    /** SYS错误文件名 */
     private String sysErrorFilename;
 
     /**
@@ -93,11 +93,11 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_resource_url")
     @Schema(description = "资源加载失败的目标URL")
-    /** SYS错误resourceURL */
+    /** SYS错误resourceurl */
     private String sysErrorResourceUrl;
 
     /**
-     * 资源元素标签(仅资源类异常, 如IMG/SCRIPT/LINK)
+      * 资源元素标签(仅资源类异常, 如IMG/script/链接)
      */
     @TableField(value = "sys_error_tag_name")
     @Schema(description = "资源元素标签")

@@ -22,14 +22,14 @@ public class SysUserLogQuery extends DateQuery {
      */
     @Schema(description = "账号")
     @Size(max = 255, message = "账号最大长度需小于255")
-    /** SYS日志username */
+    /** SYS日志用户名 */
     private String sysLogUsername;
 
     /**
      * 请求模块
      */
     @Schema(description = "请求模块")
-    /** SYS日志from */
+    /** SYS日志从 */
     private String sysLogFrom;
 
     /**

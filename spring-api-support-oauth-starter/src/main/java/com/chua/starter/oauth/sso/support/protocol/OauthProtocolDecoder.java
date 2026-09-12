@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  * <p>从 common-starter 协议无关的请求头/报文体中解析并(可选)解密 OAuth 认证参数。
  * 逻辑与原 {@code BaseAuthInformation.decodeData()} 保持一致:根据
  * {@code x-oauth-encode} 头判断是否加密,加密时用 {@code x-oauth-uuid}/{@code x-oauth-serial}
- * 解出对称密钥再解密 body;可选 AK/SK 二次解密;带 30s 解密缓存与 MD5 签名校验。</p>
+   * 解出对称密钥再解密 主体;可选 AK/SK 二次解密;带 30s 解密缓存与 MD5 签名校验。</p>
  *
  * @since 4.0.0.42
  * @author CH
@@ -31,40 +31,40 @@ import java.util.concurrent.TimeUnit;
 public class OauthProtocolDecoder {
 
     /**
-     * 解密结果缓存(与 BaseAuthInformation 一致的 30s 短期缓存)
+      * 解密结果缓存(与 base认证信息 一致的 30s 短期缓存)
      */
     private static final Cache<String, Map<String, Object>> DECRYPT_CACHE = CacheBuilder.newBuilder()
             .maximumSize(10000)
             .expireAfterWrite(30, TimeUnit.SECONDS)
             .build();
 
-    /** Auth服务器属性 */
+    /** 认证服务器属性 */
     private final AuthServerProperties authServerProperties;
     /** UUID */
     private final String uuid;
-    /** Serial */
+    /** 串行 */
     private final String serial;
-    /** Sign */
+    /** 标志 */
     private final String sign;
     /** Access密钥 */
     private final String accessKey;
-    /** ISencode */
+    /** isencode */
     private final boolean isEncode;
     /** 加密 */
     private final String encryption;
-    private final Map<String, Object> bodyData = new LinkedHashMap<>();
-    /** Success */
+    private final Map<String, Object> bodyData = new LinkedHashMap<>(); // 主体数据
+    /** 成功 */
     private boolean success = false;
 
     /**
-     * 创建 OauthProtocolDecoder 实例
-     * @param authServerProperties authServerProperties
-     * @param data data
+      * 创建 oauth协议解码器 实例
+     * @param authServerProperties 认证服务端属性
+     * @param data 数据
      * @param uuid uuid
-     * @param serial serial
-     * @param sign sign
-     * @param accessKey accessKey
-     * @param encodeHeader encodeHeader
+     * @param serial 串行
+     * @param sign 标志
+     * @param accessKey 访问密钥
+     * @param encodeHeader encode头部
      */
     public OauthProtocolDecoder(AuthServerProperties authServerProperties,
                                 String data,
@@ -84,7 +84,8 @@ public class OauthProtocolDecoder {
     }
 
     /**
-     * 解密报文体(与 BaseAuthInformation.decodeData 逻辑一致)
+      * 解密报文体(与 base认证信息.decode数据 逻辑一致)
+     * @param data 数据
      */
     private void decodeData(String data) {
         var startTime = System.currentTimeMillis();
@@ -146,7 +147,11 @@ public class OauthProtocolDecoder {
         log.debug("[OauthProtocolDecoder] 解析耗时: {}ms, 结果: {}", System.currentTimeMillis() - startTime, success ? "成功" : "失败");
     }
 
-    /** 构建DecryptCacheKey */
+    /**
+     * 构建decrypt缓存键
+     *
+     * @return 构建decrypt缓存键的结果
+     */
     private String buildDecryptCacheKey() {
         if (sign == null || sign.isBlank() || uuid == null || uuid.isBlank()) {
             return null;
@@ -156,13 +161,15 @@ public class OauthProtocolDecoder {
 
     /**
      * 是否成功解析
+     * @return 是否成功的结果
      */
     public boolean isSuccessful() {
         return success;
     }
 
     /**
-     * 是否加密协议(客户端 x-oauth-encode=true 时响应也需加密)
+      * 是否加密协议(客户端 x-OAuth-encode=true 时响应也需加密)
+     * @return 是否encode的结果
      */
     public boolean isEncode() {
         return isEncode;
@@ -170,6 +177,7 @@ public class OauthProtocolDecoder {
 
     /**
      * 加密算法
+     * @return 加密的结果
      */
     public String encryption() {
         return encryption;
@@ -177,6 +185,7 @@ public class OauthProtocolDecoder {
 
     /**
      * 是否通过签名校验
+     * @return 是否标志valid的结果
      */
     public boolean isSignValid() {
         if (!success) {
@@ -190,6 +199,7 @@ public class OauthProtocolDecoder {
 
     /**
      * 获取解析后的业务参数
+     * @return 获取主体数据的结果
      */
     public Map<String, Object> getBodyData() {
         return bodyData;
@@ -197,6 +207,8 @@ public class OauthProtocolDecoder {
 
     /**
      * 读取业务参数
+     * @param name 名称
+     * @return 获取字符串的结果
      */
     public String getString(String name) {
         Object value = bodyData.get(name);
@@ -204,7 +216,9 @@ public class OauthProtocolDecoder {
     }
 
     /**
-     * 读取客户端地址(从请求头 x-oauth-param-address,无则 null)
+      * 读取客户端地址(从请求头 x-OAuth-参数-地址,无则 空)
+     * @param headerAddress 头部地址
+     * @return resolve客户端地址的结果
      */
     public String resolveClientAddress(String headerAddress) {
         if (headerAddress != null && !headerAddress.isBlank()) {

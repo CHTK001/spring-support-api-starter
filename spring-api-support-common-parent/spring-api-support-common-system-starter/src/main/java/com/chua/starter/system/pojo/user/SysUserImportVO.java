@@ -34,7 +34,7 @@ public class SysUserImportVO {
     private Integer sysUserGender;
 
     @Schema(description = "部门ID", example = "1")
-    /** SYS用户deptID */
+    /** SYS用户deptid */
     private Long sysUserDeptId;
 
     @Schema(description = "角色编码(多个用逗号分隔)", example = "admin,user")
@@ -46,6 +46,6 @@ public class SysUserImportVO {
     private Integer sysUserStatus;
 
     @Schema(description = "备注", example = "备注信息")
-    /** SYS用户remark */
+    /** SYS用户评论 */
     private String sysUserRemark;
 }

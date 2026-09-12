@@ -32,29 +32,42 @@ public record RequestTraceAnalyticsSnapshot(
         recentSuspiciousEvents = recentSuspiciousEvents == null ? List.of() : List.copyOf(recentSuspiciousEvents);
     }
 
-    /** SignalBucket */
+    /**
+     * 标志bucket
+     *
+     * @param code 编码
+     * @param description description
+     * @param count 数量
+     * @return 标志bucket的结果
+     */
     public record SignalBucket(String code, String description, long count) {
     }
 
-    /** MetricBucket */
+    /**
+     * 指标bucket
+     *
+     * @param key 键
+     * @param count 数量
+     * @return 指标bucket的结果
+     */
     public record MetricBucket(String key, long count) {
     }
 
     /**
-     * SuspiciousTrace
-     * @param timestamp timestamp
-     * @param traceId traceId
+      * suspicious追踪
+     * @param timestamp 时间戳
+     * @param traceId 追踪id
      * @param route route
-     * @param status status
-     * @param durationMs durationMs
-     * @param clientIp clientIp
-     * @param userId userId
-     * @param username username
+     * @param status 状态
+     * @param durationMs 持续时间ms
+     * @param clientIp 客户端ip
+     * @param userId 用户id
+     * @param username 用户名
      * @param fingerprint fingerprint
-     * @param riskLevel riskLevel
+     * @param riskLevel risk级别
      * @param summary summary
-     * @param aiSummary aiSummary
-     * @param aiAnalysis aiAnalysis
+     * @param aiSummary AIsummary
+     * @param aiAnalysis AIanalysis
      * @param signals signals
      */
     public record SuspiciousTrace(

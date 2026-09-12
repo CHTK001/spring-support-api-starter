@@ -22,7 +22,7 @@ public interface SysAccountService extends IService<SysAccount> {
      *
      * @param accountType 账号类型(wechat/alipay/dingtalk...)
      * @param openid      第三方 openid
-     * @return SysAccount 或 null
+     * @return SysAccount 或 空
      */
     SysAccount getByOpenid(String accountType, String openid);
 
@@ -38,7 +38,7 @@ public interface SysAccountService extends IService<SysAccount> {
     /**
      * 绑定第三方账号到本地用户。
      *
-     * @param account 待绑定账号信息(不含 sysAccountId)
+     * @param account 待绑定账号信息(不含 sys账户id)
      * @return 绑定结果(成功返回保存后的账号)
      */
     ReturnResult<SysAccount> bindAccount(SysAccount account);

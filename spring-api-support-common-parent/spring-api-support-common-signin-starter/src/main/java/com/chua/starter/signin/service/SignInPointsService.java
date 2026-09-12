@@ -64,12 +64,12 @@ public class SignInPointsService {
     private static final int STREAK_THRESHOLD_30 = 30;
 
     /**
-     * 积分规则 Mapper
+      * 积分规则 映射器
      */
     private final SignInPointsRuleMapper ruleMapper;
 
     /**
-     * 积分流水 Mapper
+      * 积分流水 映射器
      */
     private final SignInPointsRecordMapper pointsRecordMapper;
 
@@ -82,9 +82,9 @@ public class SignInPointsService {
      *   <li>连续签到里程碑奖励，仅当连续天数恰好等于阈值时发放</li>
      * </ul>
      *
-     * @param userId         用户ID
+     * @param userId         用户标识
      * @param streak         当前连续签到天数
-     * @param signInRecordId 关联签到记录ID
+     * @param signInRecordId 关联签到记录标识
      * @return 积分明细列表
      */
     public List<SignInPointDTO> calculatePoints(Long userId, int streak, Long signInRecordId) {
@@ -117,8 +117,8 @@ public class SignInPointsService {
      * @param ruleType        规则类型
      * @param threshold       里程碑天数阈值
      * @param streak          当前连续签到天数
-     * @param userId          用户ID
-     * @param signInRecordId  关联签到记录ID
+     * @param userId          用户标识
+     * @param signInRecordId  关联签到记录标识
      */
     private void addStreakBonusIfMatch(List<SignInPointDTO> result, Map<String, SignInPointsRule> ruleMap,
                                         String ruleType, int threshold, int streak, Long userId, Long signInRecordId) {
@@ -132,9 +132,9 @@ public class SignInPointsService {
     /**
      * 保存单条积分流水记录。
      *
-     * @param userId         用户ID
-     * @param signInRecordId 签到记录ID
-     * @param ruleId         规则ID
+     * @param userId         用户标识
+     * @param signInRecordId 签到记录标识
+     * @param ruleId         规则标识
      * @param points         积分值
      */
     private void savePointsRecord(Long userId, Long signInRecordId, Long ruleId, Integer points) {

@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 /**
- * 成就段位定义 Mapper
+   * 成就段位定义 映射器
  *
  * @since 2026-08-07
  * @author CH

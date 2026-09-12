@@ -21,19 +21,19 @@ import lombok.EqualsAndHashCode;
 @TableName(value = "sys_device_org")
 public class SysDeviceOrg extends SysBase {
     /**
-     * 组织主键ID
+      * 组织主键标识
      */
     @TableId(value = "sys_device_org_id", type = IdType.INPUT)
     @Schema(description = "")
-    /** SYSdeviceORGID */
+    /** sysdeviceorgid */
     private String sysDeviceOrgId;
 
     /**
-     * 产品id
+      * 产品标识
      */
     @TableField(value = "sys_project_id")
     @Schema(description = "产品id")
-    /** SYSprojectID */
+    /** sysprojectid */
     private Integer sysProjectId;
 
     /**
@@ -41,7 +41,7 @@ public class SysDeviceOrg extends SysBase {
      */
     @TableField(value = "sys_device_org_name")
     @Schema(description = "组织名称")
-    /** SYSdeviceORG名称 */
+    /** sysdeviceorg名称 */
     private String sysDeviceOrgName;
 
     /**
@@ -49,7 +49,7 @@ public class SysDeviceOrg extends SysBase {
      */
     @TableField(value = "sys_device_org_pid")
     @Schema(description = "上级组织")
-    /** SYSdeviceORGPID */
+    /** sysdeviceorgpid */
     private String sysDeviceOrgPid;
 
     /**
@@ -57,6 +57,6 @@ public class SysDeviceOrg extends SysBase {
      */
     @TableField(value = "sys_device_org_tree_path")
     @Schema(description = "路径")
-    /** SYSdeviceORGtree路径 */
+    /** sysdevice或gtree路径 */
     private String sysDeviceOrgTreePath;
 }

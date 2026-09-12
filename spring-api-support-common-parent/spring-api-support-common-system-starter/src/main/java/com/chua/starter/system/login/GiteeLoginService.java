@@ -33,13 +33,13 @@ public class GiteeLoginService extends AbstractUserLoginService {
     private SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
 
     @Override
-    /** 获取LoginTypePrefix */
+    /** 获取login类型前缀 */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
-    /** GenerateUserIds */
+    /** generate用户标识 */
     protected String[] generateUserIds(SysUser user) {
         String baseId = user.getSysUserId() + "GITEE";
         return new String[]{

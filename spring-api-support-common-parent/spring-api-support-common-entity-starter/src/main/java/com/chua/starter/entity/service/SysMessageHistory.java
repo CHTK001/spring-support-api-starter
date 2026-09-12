@@ -25,21 +25,21 @@ import java.time.LocalDateTime;
 @TableName(value = "sys_message_history")
 public class SysMessageHistory extends SysBase implements Serializable {
 
-static final long serialVersionUID = 1L;
+static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-     * 历史记录ID
+      * 历史记录标识
      */
     @TableId(value = "sys_message_history_id", type = IdType.AUTO)
     @Schema(description = "历史记录ID")
-Integer sysMessageHistoryId;
+Integer sysMessageHistoryId; // sys消息历史id
 
     /**
-     * 原消息ID
+      * 原消息标识
      */
     @TableField(value = "sys_message_history_message_id")
     @Schema(description = "原消息ID")
-Integer sysMessageHistoryMessageId;
+Integer sysMessageHistoryMessageId; // sys消息历史消息id
 
     /**
      * 消息标题
@@ -47,14 +47,14 @@ Integer sysMessageHistoryMessageId;
     @TableField(value = "sys_message_history_title")
     @Schema(description = "消息标题")
     @Size(max = 255, message = "消息标题最大长度需小于255")
-String sysMessageHistoryTitle;
+String sysMessageHistoryTitle; // sys消息历史title
 
     /**
      * 消息内容
      */
     @TableField(value = "sys_message_history_content")
     @Schema(description = "消息内容")
-String sysMessageHistoryContent;
+String sysMessageHistoryContent; // sys消息历史内容
 
     /**
      * 消息类型
@@ -62,7 +62,7 @@ String sysMessageHistoryContent;
     @TableField(value = "sys_message_history_type")
     @Schema(description = "消息类型")
     @Size(max = 50, message = "消息类型最大长度需小于50")
-String sysMessageHistoryType;
+String sysMessageHistoryType; // sys消息历史类型
 
     /**
      * 消息级别
@@ -70,14 +70,14 @@ String sysMessageHistoryType;
     @TableField(value = "sys_message_history_level")
     @Schema(description = "消息级别")
     @Size(max = 20, message = "消息级别最大长度需小于20")
-String sysMessageHistoryLevel;
+String sysMessageHistoryLevel; // sys消息历史级别
 
     /**
-     * 发送者ID
+      * 发送者标识
      */
     @TableField(value = "sys_message_history_sender_id")
     @Schema(description = "发送者ID")
-Integer sysMessageHistorySenderId;
+Integer sysMessageHistorySenderId; // sys消息历史发送id
 
     /**
      * 发送者名称
@@ -85,14 +85,14 @@ Integer sysMessageHistorySenderId;
     @TableField(value = "sys_message_history_sender_name")
     @Schema(description = "发送者名称")
     @Size(max = 100, message = "发送者名称最大长度需小于100")
-String sysMessageHistorySenderName;
+String sysMessageHistorySenderName; // sys消息历史发送名称
 
     /**
-     * 接收者ID
+      * 接收者标识
      */
     @TableField(value = "sys_message_history_receiver_id")
     @Schema(description = "接收者ID")
-Integer sysMessageHistoryReceiverId;
+Integer sysMessageHistoryReceiverId; // sys消息历史receiverid
 
     /**
      * 接收者名称
@@ -100,21 +100,21 @@ Integer sysMessageHistoryReceiverId;
     @TableField(value = "sys_message_history_receiver_name")
     @Schema(description = "接收者名称")
     @Size(max = 100, message = "接收者名称最大长度需小于100")
-String sysMessageHistoryReceiverName;
+String sysMessageHistoryReceiverName; // sys消息历史receiver名称
 
     /**
      * 发送时间
      */
     @TableField(value = "sys_message_history_send_time")
     @Schema(description = "发送时间")
-LocalDateTime sysMessageHistorySendTime;
+LocalDateTime sysMessageHistorySendTime; // sys消息历史发送时间
 
     /**
      * 阅读时间
      */
     @TableField(value = "sys_message_history_read_time")
     @Schema(description = "阅读时间")
-LocalDateTime sysMessageHistoryReadTime;
+LocalDateTime sysMessageHistoryReadTime; // sys消息历史读取时间
 
     /**
      * 业务类型
@@ -122,15 +122,15 @@ LocalDateTime sysMessageHistoryReadTime;
     @TableField(value = "sys_message_history_biz_type")
     @Schema(description = "业务类型")
     @Size(max = 50, message = "业务类型最大长度需小于50")
-String sysMessageHistoryBizType;
+String sysMessageHistoryBizType; // sys消息历史biz类型
 
     /**
-     * 业务ID
+      * 业务标识
      */
     @TableField(value = "sys_message_history_biz_id")
     @Schema(description = "业务ID")
     @Size(max = 100, message = "业务ID最大长度需小于100")
-String sysMessageHistoryBizId;
+String sysMessageHistoryBizId; // sys消息历史bizid
 
     /**
      * 跳转链接
@@ -138,17 +138,17 @@ String sysMessageHistoryBizId;
     @TableField(value = "sys_message_history_url")
     @Schema(description = "跳转链接")
     @Size(max = 500, message = "跳转链接最大长度需小于500")
-String sysMessageHistoryUrl;
+String sysMessageHistoryUrl; // sys消息历史url
 
     /**
      * 扩展数据(JSON格式)
      */
     @TableField(value = "sys_message_history_extra")
     @Schema(description = "扩展数据(JSON格式)")
-String sysMessageHistoryExtra;
+String sysMessageHistoryExtra; // sys消息历史extra
 
     /**
-     * 从SysMessage转换为历史记录
+      * 从sys消息转换为历史记录
      *
      * @param message 消息对象
      * @return 历史记录对象

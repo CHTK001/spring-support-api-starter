@@ -3,6 +3,12 @@ package com.chua.starter.rpc.test.service;
 import com.chua.common.support.network.rpc.RpcService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+/**
+ * echo服务impl类。
+ *
+ * @author CH
+ * @since 4.0.0
+ */
 
 @Slf4j
 @Component

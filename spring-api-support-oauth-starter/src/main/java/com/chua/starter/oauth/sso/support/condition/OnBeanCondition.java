@@ -24,6 +24,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  * @see ConditionalOnMissingBean
  * @see ConditionalOnSingleCandidate
  * @author CH
+ * @since 4.0.0
  */
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class OnBeanCondition implements Condition {

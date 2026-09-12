@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * 
  * <p>
  * 提供统一的第三方平台 OAuth2 登录配置管理，支持多种主流平台的快速集成。
- * 基于 <a href="https://justauth.wiki">JustAuth</a> 实现，简化第三方登录接入流程。
+   * 基于 <a href="https://justauth.wiki">just认证</a> 实现，简化第三方登录接入流程。
  * </p>
  * 
  * <h3>支持的平台（13个）</h3>
@@ -45,6 +45,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *           client-id: your_client_id
  *           client-secret: your_client_secret
  *           redirect-uri: http://your-domain/oauth2/callback/github
+ * }</pre>secret
+ *           redirect-uri: http://your-domain/oauth2/callback/github
  * }</pre>
  * 
  * <h3>使用流程</h3>
@@ -71,7 +73,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *   <li>各平台申请指南请参考 docs/third-party-login/ 目录</li>
  * </ul>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/01/01
  * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
  * @author CH
@@ -97,7 +99,7 @@ public class ThirdPartyLoginProperties {
     private Gitee gitee = new Gitee();
 
     /**
-     * Github 配置
+      * GitHub 配置
      */
     private Github github = new Github();
 
@@ -217,7 +219,7 @@ public class ThirdPartyLoginProperties {
      *   <li><b>redirect_uri_mismatch</b>：回调地址不匹配<br>
      *       解决方案：检查配置的 redirect-uri 是否与 Gitee 应用配置一致</li>
      *   <li><b>invalid_client</b>：Client ID 或 Client Secret 错误<br>
-     *       解决方案：检查配置的 client-id 和 client-secret 是否正确</li>
+      * 解决方案：检查配置的 客户端-标识 和 客户端-secret 是否正确</li>
      *   <li><b>access_denied</b>：用户拒绝授权<br>
      *       解决方案：用户需要同意授权才能完成登录</li>
      * </ul>
@@ -234,6 +236,8 @@ public class ThirdPartyLoginProperties {
      *           client-secret: 158ced91fe30cfa06798c638d2b477d54e57b623a7e869c42d34d3125e88f1b7
      *           redirect-uri: http://127.0.0.1:19180/oauth2/callback/gitee
      *           scope: user_info
+     * }</pre>itee
+     *           scope: user_info
      * }</pre>
      * 
      * <h3>参考文档</h3>
@@ -244,13 +248,14 @@ public class ThirdPartyLoginProperties {
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Gitee extends Base {
 
         /**
-         * 默认构造器, 内置演示用 ClientId/ClientSecret/回调地址。
+          * 默认构造器, 内置演示用 客户端id/客户端secret/回调地址。
          */
         public Gitee() {
             this.setClientId("f0d999a2e91e9a4edcec329fe7e6b3f1fa8b7063f8a618c3c7a2e0d0a13d5943");
@@ -260,7 +265,7 @@ public class ThirdPartyLoginProperties {
     }
 
     /**
-     * Github OAuth2 登录配置
+      * GitHub OAuth2 登录配置
      * 
      * <h3>申请流程</h3>
      * <ol>
@@ -313,9 +318,9 @@ public class ThirdPartyLoginProperties {
      * <h3>常见问题</h3>
      * <ul>
      *   <li><b>redirect_uri_mismatch</b>：回调地址不匹配<br>
-     *       解决方案：检查配置的 redirect-uri 是否与 Github 应用配置一致</li>
+      * 解决方案：检查配置的 redirect-uri 是否与 GitHub 应用配置一致</li>
      *   <li><b>incorrect_client_credentials</b>：Client ID 或 Client Secret 错误<br>
-     *       解决方案：检查配置的 client-id 和 client-secret 是否正确</li>
+      * 解决方案：检查配置的 客户端-标识 和 客户端-secret 是否正确</li>
      * </ul>
      * 
      * <h3>配置示例</h3>
@@ -330,6 +335,8 @@ public class ThirdPartyLoginProperties {
      *           client-secret: 3d7a6d8c4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b
      *           redirect-uri: http://127.0.0.1:19180/oauth2/callback/github
      *           scope: user
+     * }</pre>lback/github
+     *           scope: user
      * }</pre>
      * 
      * <h3>参考文档</h3>
@@ -340,6 +347,7 @@ public class ThirdPartyLoginProperties {
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -400,7 +408,7 @@ public class ThirdPartyLoginProperties {
      *   <li><b>redirect_uri 参数错误</b>：回调地址域名不匹配<br>
      *       解决方案：检查回调地址的域名是否与开放平台配置的授权回调域一致</li>
      *   <li><b>appid 参数错误</b>：AppID 配置错误<br>
-     *       解决方案：检查配置的 client-id 是否正确</li>
+      * 解决方案：检查配置的 客户端-标识 是否正确</li>
      * </ul>
      * 
      * <h3>配置示例</h3>
@@ -414,6 +422,7 @@ public class ThirdPartyLoginProperties {
      *           client-id: wx1234567890abcdef
      *           client-secret: 1234567890abcdef1234567890abcdef
      *           redirect-uri: http://your-domain.com/oauth2/callback/wechat-open
+     * }</pre>.com/oauth2/callback/wechat-open
      * }</pre>
      * 
      * <h3>参考文档</h3>
@@ -424,6 +433,7 @@ public class ThirdPartyLoginProperties {
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -478,7 +488,7 @@ public class ThirdPartyLoginProperties {
      *   <li><b>redirect_uri 参数错误</b>：回调地址域名不匹配<br>
      *       解决方案：检查回调地址的域名是否与公众号配置的网页授权域名一致</li>
      *   <li><b>scope 参数错误</b>：权限范围配置错误<br>
-     *       解决方案：检查 scope 是否为 snsapi_base 或 snsapi_userinfo</li>
+      * 解决方案：检查 scope 是否为 snsapi_基础 或 snsapi_userinfo</li>
      * </ul>
      * 
      * <h3>配置示例</h3>
@@ -493,6 +503,7 @@ public class ThirdPartyLoginProperties {
      *           client-secret: 1234567890abcdef1234567890abcdef
      *           redirect-uri: http://your-domain.com/oauth2/callback/wechat-mp
      *           scope: snsapi_userinfo
+     * }</pre> scope: snsapi_userinfo
      * }</pre>
      * 
      * <h3>参考文档</h3>
@@ -503,6 +514,7 @@ public class ThirdPartyLoginProperties {
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -555,9 +567,9 @@ public class ThirdPartyLoginProperties {
      * <h3>常见问题</h3>
      * <ul>
      *   <li><b>code 已使用</b>：code 只能使用一次<br>
-     *       解决方案：重新调用 wx.login() 获取新的 code</li>
+      * 解决方案：重新调用 wx.login() 获取新的 编码</li>
      *   <li><b>appid 不匹配</b>：AppID 配置错误<br>
-     *       解决方案：检查配置的 client-id 是否正确</li>
+      * 解决方案：检查配置的 客户端-标识 是否正确</li>
      * </ul>
      * 
      * <h3>配置示例</h3>
@@ -570,6 +582,7 @@ public class ThirdPartyLoginProperties {
      *           enabled: true
      *           client-id: wx1234567890abcdef
      *           client-secret: 1234567890abcdef1234567890abcdef
+     * }</pre>0abcdef1234567890abcdef
      * }</pre>
      * 
      * <h3>参考文档</h3>
@@ -580,6 +593,7 @@ public class ThirdPartyLoginProperties {
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -590,12 +604,13 @@ public class ThirdPartyLoginProperties {
      * QQ 互联登录配置。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class Qq extends Base {
         /**
-         * 是否需要获取 unionId
+          * 是否需要获取 unionid
          */
         private boolean unionId = false;
     }
@@ -604,6 +619,7 @@ public class ThirdPartyLoginProperties {
      * 支付宝登录配置。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -618,6 +634,7 @@ public class ThirdPartyLoginProperties {
      * 钉钉登录配置。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -628,12 +645,13 @@ public class ThirdPartyLoginProperties {
      * 企业微信登录配置。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class WechatEnterprise extends Base {
         /**
-         * 企业微信应用 agentId
+          * 企业微信应用 智能体id
          */
         private String agentId;
     }
@@ -642,6 +660,7 @@ public class ThirdPartyLoginProperties {
      * 新浪微博登录配置。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -652,6 +671,7 @@ public class ThirdPartyLoginProperties {
      * 百度登录配置。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -718,7 +738,7 @@ public class ThirdPartyLoginProperties {
      *   <li><b>redirect_uri_mismatch</b>：回调地址不匹配<br>
      *       解决方案：检查配置的 redirect-uri 是否与 Google 应用配置一致</li>
      *   <li><b>invalid_client</b>：客户端 ID 或密钥错误<br>
-     *       解决方案：检查配置的 client-id 和 client-secret 是否正确</li>
+      * 解决方案：检查配置的 客户端-标识 和 客户端-secret 是否正确</li>
      *   <li><b>access_denied</b>：用户拒绝授权<br>
      *       解决方案：用户需要同意授权才能完成登录</li>
      * </ul>
@@ -734,6 +754,7 @@ public class ThirdPartyLoginProperties {
      *           client-id: 123456789012-abcdefghijklmnopqrstuvwxyz123456.apps.googleusercontent.com
      *           client-secret: GOCSPX-abcdefghijklmnopqrstuvwxyz
      *           redirect-uri: http://127.0.0.1:19180/oauth2/callback/google
+     * }</pre>/oauth2/callback/google
      * }</pre>
      * 
      * <h3>参考文档</h3>
@@ -744,6 +765,7 @@ public class ThirdPartyLoginProperties {
      * 
      * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -754,6 +776,7 @@ public class ThirdPartyLoginProperties {
      * Microsoft 登录配置。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @EqualsAndHashCode(callSuper = true)
     @Data
@@ -766,6 +789,7 @@ public class ThirdPartyLoginProperties {
      * 平台基础配置。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @Data
     public static class Base {
@@ -776,12 +800,12 @@ public class ThirdPartyLoginProperties {
         private boolean enabled = false;
 
         /**
-         * 客户端ID (appKey/appId)
+          * 客户端标识 (app键/appid)
          */
         private String clientId;
 
         /**
-         * 客户端密钥 (appSecret)
+          * 客户端密钥 (appsecret)
          */
         private String clientSecret;
 

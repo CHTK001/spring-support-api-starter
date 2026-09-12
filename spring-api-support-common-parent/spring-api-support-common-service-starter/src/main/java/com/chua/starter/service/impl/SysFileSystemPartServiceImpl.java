@@ -25,7 +25,7 @@ import java.util.List;
 public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartMapper, SysFileSystemPart> implements SysFileSystemPartService {
 
     @Override
-    /** ListByFileId */
+    /** 列表by文件id */
     public List<SysFileSystemPart> listByFileId(Integer fileId) {
         if (fileId == null) {
             return List.of();
@@ -36,7 +36,7 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
     }
 
     @Override
-    /** ListByFileIdAndVersion */
+    /** 列表by文件id和版本 */
     public List<SysFileSystemPart> listByFileIdAndVersion(Integer fileId, Integer version) {
         if (fileId == null || version == null) {
             return List.of();
@@ -49,7 +49,12 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 删除ByFileId */
+    /**
+     * 删除by文件id
+     *
+     * @param fileId 文件id
+     * @return 删除by文件id的结果
+     */
     public int deleteByFileId(Integer fileId) {
         if (fileId == null) {
             return 0;
@@ -59,7 +64,7 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
     }
 
     @Override
-    /** 计算数量CompletedByFileId */
+    /** 计算数量完成by文件id */
     public long countCompletedByFileId(Integer fileId) {
         if (fileId == null) {
             return 0L;
@@ -71,7 +76,12 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 重置FailedToPending */
+    /**
+     * 重置失败转为pending
+     *
+     * @param fileId 文件id
+     * @return reset失败转为pending的结果
+     */
     public int resetFailedToPending(Integer fileId) {
         if (fileId == null) {
             return 0;
@@ -85,7 +95,12 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 标记Processing */
+    /**
+     * 标记处理
+     *
+     * @param fileId 文件id
+     * @return mark处理的结果
+     */
     public int markProcessing(Integer fileId) {
         if (fileId == null) {
             return 0;
@@ -97,7 +112,7 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
     }
 
     @Override
-    /** 验证Integrity */
+    /** 验证完整性 */
     public ReturnResult<Boolean> verifyIntegrity(Integer fileId, int expectedChunks) {
         if (fileId == null || expectedChunks <= 0) {
             return ReturnResult.error("参数无效");

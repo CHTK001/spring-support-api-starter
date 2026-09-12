@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 部门负责人关系 Mapper
+   * 部门负责人关系 映射器
  *
  * @since 2026/4/5
  * @author CH

@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * Gitee第三方登录服务实现
  * <p>处理Gitee账号与系统账号的绑定逻辑</p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/01/29
  * @author CH
  */
@@ -59,7 +59,7 @@ public class GiteeServiceImpl implements GiteeService {
      *
      * @param data       Gitee认证用户信息
      * @param userResume 系统用户信息
-     * @param userId     用户ID
+     * @param userId     用户标识
      */
     private void createNewBind(AuthUser data, UserResume userResume, String userId) {
         SysUserTripartiteBind bind = new SysUserTripartiteBind();
@@ -83,7 +83,7 @@ public class GiteeServiceImpl implements GiteeService {
      * @param existingBind 已有绑定记录
      * @param data         Gitee认证用户信息
      * @param userResume   系统用户信息
-     * @param userId       用户ID
+     * @param userId       用户标识
      */
     private void updateExistingBind(SysUserTripartiteBind existingBind, AuthUser data,
                                     UserResume userResume, String userId) {

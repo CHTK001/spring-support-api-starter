@@ -29,16 +29,16 @@ import java.time.LocalDateTime;
 @TableName(value = "sys_announcement")
 public class SysAnnouncement extends SysBase implements Serializable {
 
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 公告ID
+      * 公告标识
      */
     @TableId(value = "sys_announcement_id", type = IdType.AUTO)
     @Schema(description = "公告ID")
     @NotNull(message = "公告ID不能为空", groups = {UpdateGroup.class})
-    /** SYSannouncementID */
+    /** sysannouncementid */
     private Integer sysAnnouncementId;
 
     /**
@@ -48,7 +48,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     @Schema(description = "公告标题")
     @NotBlank(message = "公告标题不能为空", groups = {AddGroup.class})
     @Size(max = 200, message = "公告标题最大长度需小于200")
-    /** SYSannouncement标题 */
+    /** sysannouncement标题 */
     private String sysAnnouncementTitle;
 
     /**
@@ -56,43 +56,43 @@ public class SysAnnouncement extends SysBase implements Serializable {
      */
     @TableField(value = "sys_announcement_content")
     @Schema(description = "公告内容(HTML)")
-    /** SYSannouncement内容 */
+    /** sysannouncement内容 */
     private String sysAnnouncementContent;
 
     /**
-     * 级别: info-信息 warning-警告 important-重要 emergency-紧急
+      * 级别: 信息-信息 警告-警告 important-重要 emergency-紧急
      */
     @TableField(value = "sys_announcement_level")
     @Schema(description = "级别: info-信息 warning-警告 important-重要 emergency-紧急")
     @Size(max = 20)
-    /** SYSannouncement级别 */
+    /** sysannouncement级别 */
     private String sysAnnouncementLevel;
 
     /**
-     * 展示位置: default-默认(Tabs下方) fixed-top-固定顶部
+      * 展示位置: 默认-默认(Tabs下方) fixed-top-固定顶部
      */
     @TableField(value = "sys_announcement_position")
     @Schema(description = "展示位置: default-默认(Tabs下方) fixed-top-固定顶部")
     @Size(max = 20)
-    /** SYSannouncement位置 */
+    /** sysannouncement位置 */
     private String sysAnnouncementPosition;
 
     /**
-     * 类型: global-全局 role-指定角色
+      * 类型: 全局-全局 角色-指定角色
      */
     @TableField(value = "sys_announcement_type")
     @Schema(description = "类型: global-全局 role-指定角色")
     @Size(max = 20)
-    /** SYSannouncement类型 */
+    /** sysannouncement类型 */
     private String sysAnnouncementType;
 
     /**
-     * 目标角色ID列表(JSON数组)
+      * 目标角色标识列表(JSON数组)
      */
     @TableField(value = "sys_announcement_target_roles")
     @Schema(description = "目标角色ID列表(JSON数组)")
     @Size(max = 1000)
-    /** SYSannouncement目标roles */
+    /** sysannouncement目标角色 */
     private String sysAnnouncementTargetRoles;
 
     /**
@@ -100,7 +100,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
      */
     @TableField(value = "sys_announcement_status")
     @Schema(description = "状态: 0-草稿 1-已发布 2-已下架")
-    /** SYSannouncement状态 */
+    /** sysannouncement状态 */
     private Integer sysAnnouncementStatus;
 
     /**
@@ -108,7 +108,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
      */
     @TableField(value = "sys_announcement_sort")
     @Schema(description = "排序权重")
-    /** SYSannouncementsort */
+    /** sysannouncementsort */
     private Integer sysAnnouncementSort;
 
     /**
@@ -116,7 +116,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
      */
     @TableField(value = "sys_announcement_publish_time")
     @Schema(description = "发布时间")
-    /** SYSannouncementpublish时间 */
+    /** sysannouncementpublish时间 */
     private LocalDateTime sysAnnouncementPublishTime;
 
     /**
@@ -124,7 +124,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
      */
     @TableField(value = "sys_announcement_expire_time")
     @Schema(description = "过期时间(空=永不过期)")
-    /** SYSannouncementexpire时间 */
+    /** sysannouncementexpire时间 */
     private LocalDateTime sysAnnouncementExpireTime;
 
     /**
@@ -133,7 +133,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     @TableField(value = "sys_announcement_target_url")
     @Schema(description = "跳转链接")
     @Size(max = 500)
-    /** SYSannouncement目标URL */
+    /** sysannouncement目标URL */
     private String sysAnnouncementTargetUrl;
 
     /**
@@ -142,7 +142,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     @TableField(value = "sys_announcement_publisher_name")
     @Schema(description = "发布人")
     @Size(max = 100)
-    /** SYSannouncementpublisher名称 */
+    /** sysannouncementpublisher名称 */
     private String sysAnnouncementPublisherName;
 
     /**

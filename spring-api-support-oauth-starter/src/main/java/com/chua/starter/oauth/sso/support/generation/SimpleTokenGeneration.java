@@ -7,6 +7,7 @@ import org.apache.commons.codec.digest.DigestUtils;
  * 令牌生成器
  *
  * @author CH
+ * @since 4.0.0
  */
 @Spi("simple")
 public class SimpleTokenGeneration implements TokenGeneration {

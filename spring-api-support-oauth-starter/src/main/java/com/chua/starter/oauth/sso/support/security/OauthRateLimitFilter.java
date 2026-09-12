@@ -33,19 +33,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OauthRateLimitFilter implements Filter, Ordered {
 
-    /** Rate_limit_prefix */
+    /** Rate_限制_前缀 */
     private static final String RATE_LIMIT_PREFIX = "oauth:security:rate:";
 
-    /** Security属性 */
+    /** 安全性属性 */
     private final OauthSecurityProperties securityProperties;
-    /** 字符串redis模板 */
+    /** 字符串Redis模板 */
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
     /**
-     * Do过滤
-     * @param servletRequest servletRequest
-     * @param servletResponse servletResponse
+      * 执行过滤
+     * @param servletRequest servlet请求
+     * @param servletResponse servlet响应
      */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
@@ -84,7 +84,12 @@ public class OauthRateLimitFilter implements Filter, Ordered {
         chain.doFilter(request, response);
     }
 
-    /** 是否应该Limit */
+    /**
+     * 是否应该限制
+     *
+     * @param request 请求
+     * @return should限制的结果
+     */
     private boolean shouldLimit(HttpServletRequest request) {
         String uri = request.getRequestURI();
         OauthSecurityProperties.RateLimit rateLimit = securityProperties.getRateLimit();
@@ -100,7 +105,13 @@ public class OauthRateLimitFilter implements Filter, Ordered {
         return matchesAny(uri, paths);
     }
 
-    /** MatchesAny */
+    /**
+     * 匹配任意
+     *
+     * @param uri uri
+     * @param patterns 模式
+     * @return 匹配任意的结果
+     */
     private boolean matchesAny(String uri, List<String> patterns) {
         if (patterns == null || patterns.isEmpty()) {
             return false;
@@ -116,7 +127,12 @@ public class OauthRateLimitFilter implements Filter, Ordered {
         return false;
     }
 
-    /** 解析ClientIp */
+    /**
+     * 解析客户端ip
+     *
+     * @param request 请求
+     * @return resolve客户端ip的结果
+     */
     private String resolveClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         if (!StringUtils.hasText(ip) || "unknown".equalsIgnoreCase(ip)) {
@@ -141,8 +157,8 @@ public class OauthRateLimitFilter implements Filter, Ordered {
     }
 
     /**
-     * 写入TooManyRequests
-     * @param response response
+      * 写入toomanyRequests
+     * @param response 响应
      */
     private void writeTooManyRequests(HttpServletResponse response, OauthSecurityProperties.RateLimit rateLimit)
             throws IOException {
@@ -155,7 +171,7 @@ public class OauthRateLimitFilter implements Filter, Ordered {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 5;
     }

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 
 /**
- * 应用密钥 Service 实现
+   * 应用密钥 服务 实现
  *
  * @since 2025/10/23
  * @author CH
@@ -23,7 +23,7 @@ import java.util.Arrays;
 public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey> implements SysAppKeyService {
 
     /**
-     * AppKey启用状态（1=启用，0=禁用）
+      * app键启用状态（1=启用，0=禁用）
      */
     private static final int STATUS_ENABLED = 1;
 
@@ -54,7 +54,12 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
 
     @Override
     @Cacheable(value = "appKey:secret", key = "#appKey", unless = "#result == null")
-    /** 获取ByAppKey */
+    /**
+     * 获取byapp键
+     *
+     * @param appKey app键
+     * @return 获取byapp键的结果
+     */
     public SysAppKey getByAppKey(String appKey) {
         if (StringUtils.isBlank(appKey)) {
             return null;
@@ -86,7 +91,7 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
             return false;
         }
 
-        // 验证密钥（appKey和secret应该相同，或者secret是appKey对应的密钥）
+ // 验证密钥（app键和secret应该相同，或者secret是app键对应的密钥）
         boolean valid = appKey.equals(dbAppKey.getSysAppKeySecret()) || secret.equals(dbAppKey.getSysAppKeySecret());
         if (!valid) {
             log.warn("AppKey密钥验证失败: appKey={}", maskAppKey(appKey));
@@ -119,7 +124,7 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
             return false;
         }
 
-        // 验证密钥（appKey和secret应该相同，或者secret是appKey对应的密钥）
+ // 验证密钥（app键和secret应该相同，或者secret是app键对应的密钥）
         if (!appKey.equals(dbAppKey.getSysAppKeySecret()) && !secret.equals(dbAppKey.getSysAppKeySecret())) {
             log.warn("AppKey密钥验证失败: appKey={}", maskAppKey(appKey));
             return false;
@@ -144,7 +149,11 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
 
     @Override
     @Async("taskExecutor")
-    /** 更新UseInfoByAppKey */
+    /**
+     * 更新use信息byapp键
+     *
+     * @param appKey app键
+     */
     public void updateUseInfoByAppKey(String appKey) {
         try {
             long currentTime = System.currentTimeMillis() / MILLIS_PER_SECOND;
@@ -167,7 +176,7 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     }
 
     @Override
-    /** 解析ExpireTime */
+    /** 解析expire时间 */
     public Long resolveExpireTime(SysAppKey appKey) {
         if (appKey == null) {
             return null;
@@ -195,7 +204,9 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     }
 
     /**
-     * 脱敏AppKey
+      * 脱敏app键
+     * @param appKey app键
+     * @return maskapp键的结果
      */
     private String maskAppKey(String appKey) {
         if (appKey == null || appKey.length() < 8) {

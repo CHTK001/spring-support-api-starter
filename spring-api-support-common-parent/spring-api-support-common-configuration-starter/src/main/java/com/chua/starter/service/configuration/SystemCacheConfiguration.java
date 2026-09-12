@@ -31,6 +31,8 @@ public class SystemCacheConfiguration {
     /**
      * 缓存配置
      * @return CacheManager
+     * @param factory 工厂
+     * @param cacheProperties 缓存属性
      */
     @Bean({SystemConstant.CACHE_WITH_REDIS, "cacheWithRedis"})
     @Primary

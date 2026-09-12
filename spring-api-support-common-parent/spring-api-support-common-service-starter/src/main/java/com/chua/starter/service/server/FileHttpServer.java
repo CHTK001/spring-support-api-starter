@@ -39,21 +39,21 @@ public class FileHttpServer {
     private final ServerSetting setting;
     /** 服务器 */
     private final JdkHttpServer server;
-    /** SYS文件system服务 */
+    /** SYS文件系统服务 */
     private final SysFileSystemService sysFileSystemService;
-    /** SYS文件system设置服务 */
+    /** SYS文件系统设置服务 */
     private final SysFileSystemSettingService sysFileSystemSettingService;
     /** Temp路径 */
     private final String tempPath;
     @Getter
-    private volatile boolean running;
+    private volatile boolean running; // running
 
     /**
-     * 创建 FileHttpServer 实例
-     * @param sysFileSystemService sysFileSystemService
-     * @param sysFileSystemSettingService sysFileSystemSettingService
+      * 创建 文件http服务端 实例
+     * @param sysFileSystemService sys文件系统服务
+     * @param sysFileSystemSettingService sys文件系统setting服务
      * @param setting setting
-     * @param tempPath tempPath
+     * @param tempPath temp路径
      */
     public FileHttpServer(SysFileSystemService sysFileSystemService,
                           SysFileSystemSettingService sysFileSystemSettingService,
@@ -131,7 +131,12 @@ public class FileHttpServer {
         log.info("FileHttpServer stopped on {}:{}", setting.getHost(), setting.getPort());
     }
 
-    /** ServeFileById */
+    /**
+     * serve文件byid
+     *
+     * @param fileId 文件id
+     * @param res R
+     */
     private void serveFileById(Integer fileId, com.chua.common.support.network.server.response.ServerResponse res) {
         SysFileSystem file = sysFileSystemService.getById(fileId);
         if (file == null) {
@@ -162,7 +167,12 @@ public class FileHttpServer {
         writeFile(res, localPath, file.getSysFileSystemOriginalName());
     }
 
-    /** ServeRawPath */
+    /**
+     * serveraw路径
+     *
+     * @param decoded decoded
+     * @param res R
+     */
     private void serveRawPath(String decoded, com.chua.common.support.network.server.response.ServerResponse res) {
         if (decoded.contains("..")) {
             res.setStatus(400);
@@ -187,7 +197,12 @@ public class FileHttpServer {
         writeFile(res, target, target.getFileName().toString());
     }
 
-    /** 解析LocalPath */
+    /**
+     * 解析本地路径
+     *
+     * @param file 文件
+     * @return resolve本地路径的结果
+     */
     private Path resolveLocalPath(SysFileSystem file) {
         String local = file.getSysFileSystemLocalPath();
         if (local == null || local.isEmpty()) {
@@ -199,7 +214,11 @@ public class FileHttpServer {
         return Paths.get(local);
     }
 
-    /** 获取CurrentDownloadEnabled */
+    /**
+     * 获取当前download已启用
+     *
+     * @return 获取当前download已启用的结果
+     */
     private Boolean getCurrentDownloadEnabled() {
         try {
             SysFileSystemSetting enabled = sysFileSystemSettingService.getEnabledSettingForFileSystem();
@@ -210,7 +229,13 @@ public class FileHttpServer {
         }
     }
 
-    /** 写入File */
+    /**
+     * 写入文件
+     *
+     * @param res R
+     * @param file 文件
+     * @param name 名称
+     */
     private void writeFile(com.chua.common.support.network.server.response.ServerResponse res, Path file, String name) {
         try {
             long len = Files.size(file);
@@ -229,21 +254,47 @@ public class FileHttpServer {
         }
     }
 
-    /** GuessContentType */
+    /**
+     * guess内容类型
+     *
+     * @param name 名称
+     * @return guess内容类型的结果
+     */
     private static String guessContentType(String name) {
         String lower = name.toLowerCase();
-        if (lower.endsWith(".html") || lower.endsWith(".htm")) return "text/html;charset=UTF-8";
-        if (lower.endsWith(".json")) return "application/json;charset=UTF-8";
-        if (lower.endsWith(".pdf")) return "application/pdf";
-        if (lower.endsWith(".png")) return "image/png";
-        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
-        if (lower.endsWith(".gif")) return "image/gif";
-        if (lower.endsWith(".txt")) return "text/plain;charset=UTF-8";
-        if (lower.endsWith(".zip")) return "application/zip";
+        if (lower.endsWith(".html") || lower.endsWith(".htm")) {
+            return "text/html;charset=UTF-8";
+        }
+        if (lower.endsWith(".json")) {
+            return "application/json;charset=UTF-8";
+        }
+        if (lower.endsWith(".pdf")) {
+            return "application/pdf";
+        }
+        if (lower.endsWith(".png")) {
+            return "image/png";
+        }
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
+            return "image/jpeg";
+        }
+        if (lower.endsWith(".gif")) {
+            return "image/gif";
+        }
+        if (lower.endsWith(".txt")) {
+            return "text/plain;charset=UTF-8";
+        }
+        if (lower.endsWith(".zip")) {
+            return "application/zip";
+        }
         return "application/octet-stream";
     }
 
-    /** 编码 */
+    /**
+     * 编码
+     *
+     * @param name 名称
+     * @return encode的结果
+     */
     private static String encode(String name) {
         StringBuilder sb = new StringBuilder();
         for (char c : name.toCharArray()) {
@@ -259,7 +310,11 @@ public class FileHttpServer {
     }
 
     /**
-     * 创建默认 server 设置。
+      * 创建默认 服务端 设置。
+     * @param host 主机
+     * @param port 端口
+     * @param contextPath 上下文路径
+     * @return 默认setting的结果
      */
     public static ServerSetting defaultSetting(String host, int port, String contextPath) {
         return ServerSetting.builder()

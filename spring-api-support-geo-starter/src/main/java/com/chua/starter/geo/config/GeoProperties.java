@@ -24,7 +24,7 @@ public class GeoProperties {
     /** 代理配置 */
     private ProxyCfg proxy = new ProxyCfg();
 
-    /** 天地图 Token */
+    /** 天地图 令牌 */
     private String tiandituToken;
 
     /** 是否允许无效 HTTPS 证书（安全风险，生产环境应禁用） */
@@ -54,7 +54,7 @@ public class GeoProperties {
     /** 导出配置 */
     @Data
     public static class ExportCfg {
-        /** TIFF 压缩方式：none/lzw/deflate */
+        /** TIFF 压缩方式：无/lzw/deflate */
         private String compression = "lzw";
         /** 是否构建影像金字塔 */
         private boolean buildPyramid = true;

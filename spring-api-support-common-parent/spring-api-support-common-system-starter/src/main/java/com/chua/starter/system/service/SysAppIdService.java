@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.starter.entity.system.SysAppId;
 
 /**
- * AppId应用标识 Service
+   * appid应用标识 服务
  *
  * @since 2025/01/05
  * @author CH
@@ -12,9 +12,9 @@ import com.chua.starter.entity.system.SysAppId;
 public interface SysAppIdService extends IService<SysAppId> {
 
     /**
-     * 根据 appId值 查询AppId
+      * 根据 appid值 查询appid
      *
-     * @param appIdValue AppId值
+     * @param appIdValue appid值
      * @return AppId
      */
     SysAppId getByAppIdValue(String appIdValue);
@@ -22,7 +22,7 @@ public interface SysAppIdService extends IService<SysAppId> {
     /**
      * 更新使用次数和最后使用时间
      *
-     * @param appIdValue AppId值
+     * @param appIdValue appid值
      */
     void updateUseInfo(String appIdValue);
 }

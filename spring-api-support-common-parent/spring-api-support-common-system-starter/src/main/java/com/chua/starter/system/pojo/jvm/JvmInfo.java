@@ -16,7 +16,7 @@ import java.util.List;
 @Schema(description = "JVM 信息")
 public class JvmInfo implements Serializable {
 
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "JVM 名称")
@@ -28,7 +28,7 @@ public class JvmInfo implements Serializable {
     private String jvmVersion;
 
     @Schema(description = "JVM 供应商")
-    /** JVMvendor */
+    /** jvmvendor */
     private String jvmVendor;
 
     @Schema(description = "Java 版本")
@@ -48,7 +48,7 @@ public class JvmInfo implements Serializable {
     private Long uptime;
 
     @Schema(description = "JVM 输入参数")
-    /** 输入arguments */
+    /** 输入参数 */
     private List<String> inputArguments;
 
     @Schema(description = "堆内存信息")
@@ -56,7 +56,7 @@ public class JvmInfo implements Serializable {
     private MemoryInfo heapMemory;
 
     @Schema(description = "非堆内存信息")
-    /** NONheapmemory */
+    /** nonheapmemory */
     private MemoryInfo nonHeapMemory;
 
     @Schema(description = "内存池信息列表")
@@ -68,7 +68,7 @@ public class JvmInfo implements Serializable {
     private ThreadInfo threadInfo;
 
     @Schema(description = "线程详情列表(按CPU占用排序)")
-    /** 顶部CPUthreads */
+    /** 顶部cputhreads */
     private List<ThreadDetail> topCpuThreads;
 
     @Schema(description = "类加载信息")
@@ -96,7 +96,7 @@ public class JvmInfo implements Serializable {
     private RuntimeInfo runtimeInfo;
 
     @Schema(description = "缓冲池信息")
-    /** 缓冲区pools */
+    /** 缓冲区游泳池 */
     private List<BufferPoolInfo> bufferPools;
 
     @Schema(description = "文件描述符信息")
@@ -108,7 +108,7 @@ public class JvmInfo implements Serializable {
     private ThreadStateDistribution threadStateDistribution;
 
     @Schema(description = "JIT编译统计")
-    /** JITcompilation统计 */
+    /** jitcompilation统计 */
     private JitCompilationStats jitCompilationStats;
 
     @Schema(description = "代码缓存信息")
@@ -136,20 +136,22 @@ public class JvmInfo implements Serializable {
     private ClassLoadingDetail classLoadingDetail;
 
     @Schema(description = "安全管理器信息")
-    /** Security信息 */
+    /** 安全性信息 */
     private SecurityInfo securityInfo;
 
     /**
      * 内存信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "内存信息")
     public static class MemoryInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "初始内存(字节)")
-        /** Init */
+        /** 初始化 */
         private Long init;
 
         @Schema(description = "已使用内存(字节)")
@@ -171,11 +173,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 内存池信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "内存池信息")
     public static class MemoryPoolInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "内存池名称")
@@ -197,11 +201,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 线程信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "线程信息")
     public static class ThreadInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "当前线程数")
@@ -217,7 +223,7 @@ public class JvmInfo implements Serializable {
         private Integer daemonThreadCount;
 
         @Schema(description = "总启动线程数")
-        /** 总数started线程数量 */
+        /** 总数启动线程数量 */
         private Long totalStartedThreadCount;
 
         @Schema(description = "死锁线程数")
@@ -227,15 +233,17 @@ public class JvmInfo implements Serializable {
 
     /**
      * 线程详情
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "线程详情")
     public static class ThreadDetail implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "线程ID")
-        /** 线程ID */
+        /** 线程标识 */
         private Long threadId;
 
         @Schema(description = "线程名称")
@@ -255,7 +263,7 @@ public class JvmInfo implements Serializable {
         private Long userTime;
 
         @Schema(description = "CPU 使用率(%)")
-        /** CPUusage */
+        /** cpuusage */
         private Double cpuUsage;
 
         @Schema(description = "是否守护线程")
@@ -287,7 +295,7 @@ public class JvmInfo implements Serializable {
         private String lockName;
 
         @Schema(description = "锁拥有者ID")
-        /** 锁ownerID */
+        /** 锁ownerid */
         private Long lockOwnerId;
 
         @Schema(description = "锁拥有者名称")
@@ -301,19 +309,21 @@ public class JvmInfo implements Serializable {
 
     /**
      * CPU 热点代码信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "CPU 热点代码信息")
     public static class CpuHotspot implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "类名")
-        /** Class名称 */
+        /** 类名称 */
         private String className;
 
         @Schema(description = "方法名")
-        /** Method名称 */
+        /** 方法名称 */
         private String methodName;
 
         @Schema(description = "文件名")
@@ -321,7 +331,7 @@ public class JvmInfo implements Serializable {
         private String fileName;
 
         @Schema(description = "行号")
-        /** Line数字 */
+        /** 线数字 */
         private Integer lineNumber;
 
         @Schema(description = "采样命中次数")
@@ -343,11 +353,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * CPU 热点分析结果
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "CPU 热点分析结果")
     public static class CpuHotspotAnalysis implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "采样次数")
@@ -381,15 +393,17 @@ public class JvmInfo implements Serializable {
 
     /**
      * 类级别热点
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "类级别热点")
     public static class ClassHotspot implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "类名")
-        /** Class名称 */
+        /** 类名称 */
         private String className;
 
         @Schema(description = "采样命中次数")
@@ -401,21 +415,23 @@ public class JvmInfo implements Serializable {
         private Double percentage;
 
         @Schema(description = "方法数")
-        /** Method数量 */
+        /** 方法数量 */
         private Integer methodCount;
     }
 
     /**
      * 包级别热点
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "包级别热点")
     public static class PackageHotspot implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "包名")
-        /** Package名称 */
+        /** 包名称 */
         private String packageName;
 
         @Schema(description = "采样命中次数")
@@ -427,17 +443,19 @@ public class JvmInfo implements Serializable {
         private Double percentage;
 
         @Schema(description = "类数")
-        /** Class数量 */
+        /** 类数量 */
         private Integer classCount;
     }
 
     /**
      * 类加载信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "类加载信息")
     public static class ClassLoadingInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "已加载类数量")
@@ -455,11 +473,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 垃圾收集器信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "垃圾收集器信息")
     public static class GarbageCollectorInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "收集器名称")
@@ -467,25 +487,27 @@ public class JvmInfo implements Serializable {
         private String name;
 
         @Schema(description = "收集次数")
-        /** Collection数量 */
+        /** 集合数量 */
         private Long collectionCount;
 
         @Schema(description = "收集时间(毫秒)")
-        /** Collection时间 */
+        /** 集合时间 */
         private Long collectionTime;
 
         @Schema(description = "内存池名称")
-        /** Memory池names */
+        /** 内存池名称 */
         private String[] memoryPoolNames;
     }
 
     /**
      * 操作系统信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "操作系统信息")
     public static class OsInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "操作系统名称")
@@ -497,11 +519,11 @@ public class JvmInfo implements Serializable {
         private String version;
 
         @Schema(description = "操作系统架构")
-        /** Arch */
+        /** Arch Linux */
         private String arch;
 
         @Schema(description = "可用处理器数量")
-        /** 可用processors */
+        /** 可用处理器 */
         private Integer availableProcessors;
 
         @Schema(description = "系统负载平均值")
@@ -527,33 +549,37 @@ public class JvmInfo implements Serializable {
 
     /**
      * CPU 信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "CPU 信息")
     public static class CpuInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "进程 CPU 使用率(%)")
-        /** ProcessCPUload */
+        /** 处理cpuload */
         private Double processCpuLoad;
 
         @Schema(description = "系统 CPU 使用率(%)")
-        /** SystemCPUload */
+        /** 系统cpuload */
         private Double systemCpuLoad;
 
         @Schema(description = "进程 CPU 时间(纳秒)")
-        /** ProcessCPU时间 */
+        /** 处理cpu时间 */
         private Long processCpuTime;
     }
 
     /**
      * 编译器信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "编译器信息")
     public static class CompilationInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "编译器名称")
@@ -571,11 +597,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 运行时信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "运行时信息")
     public static class RuntimeInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "进程ID")
@@ -587,11 +615,11 @@ public class JvmInfo implements Serializable {
         private String bootClassPath;
 
         @Schema(description = "类路径")
-        /** Class路径 */
+        /** 类路径 */
         private String classPath;
 
         @Schema(description = "库路径")
-        /** Library路径 */
+        /** 图书馆路径 */
         private String libraryPath;
 
         @Schema(description = "管理规范版本")
@@ -603,7 +631,7 @@ public class JvmInfo implements Serializable {
         private String specName;
 
         @Schema(description = "规范供应商")
-        /** 规范vendor */
+        /** 规范供应商 */
         private String specVendor;
 
         @Schema(description = "规范版本")
@@ -613,11 +641,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 缓冲池信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "缓冲池信息")
     public static class BufferPoolInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "缓冲池名称")
@@ -639,15 +669,17 @@ public class JvmInfo implements Serializable {
 
     /**
      * 文件描述符信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "文件描述符信息")
     public static class FileDescriptorInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "已打开的文件描述符数")
-        /** Open文件descriptor数量 */
+        /** 打开文件descriptor数量 */
         private Long openFileDescriptorCount;
 
         @Schema(description = "最大文件描述符数")
@@ -661,15 +693,17 @@ public class JvmInfo implements Serializable {
 
     /**
      * 内存对象信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "内存对象信息")
     public static class HeapObjectInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "类名")
-        /** Class名称 */
+        /** 类名称 */
         private String className;
 
         @Schema(description = "实例数量")
@@ -691,11 +725,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 内存分析结果
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "内存分析结果")
     public static class HeapAnalysis implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "分析时间")
@@ -707,7 +743,7 @@ public class JvmInfo implements Serializable {
         private MemoryInfo heapUsage;
 
         @Schema(description = "对象总数")
-        /** 总数objects */
+        /** 总数对象 */
         private Long totalObjects;
 
         @Schema(description = "占用内存总量(字节)")
@@ -715,11 +751,11 @@ public class JvmInfo implements Serializable {
         private Long totalBytes;
 
         @Schema(description = "类数量")
-        /** Class数量 */
+        /** 类数量 */
         private Integer classCount;
 
         @Schema(description = "对象列表(按内存排序)")
-        /** 顶部BYbytes */
+        /** 顶部bybytes */
         private List<HeapObjectInfo> topByBytes;
 
         @Schema(description = "对象列表(按数量排序)")
@@ -733,15 +769,17 @@ public class JvmInfo implements Serializable {
 
     /**
      * 包级别内存统计
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "包级别内存统计")
     public static class PackageMemory implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "包名")
-        /** Package名称 */
+        /** 包名称 */
         private String packageName;
 
         @Schema(description = "占用内存(字节)")
@@ -757,17 +795,19 @@ public class JvmInfo implements Serializable {
         private Long instanceCount;
 
         @Schema(description = "类数量")
-        /** Class数量 */
+        /** 类数量 */
         private Integer classCount;
     }
 
     /**
      * 业务代码归因分析结果
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "业务代码归因分析结果")
     public static class BusinessCodeAnalysis implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "分析时间")
@@ -787,7 +827,7 @@ public class JvmInfo implements Serializable {
         private String businessPackage;
 
         @Schema(description = "CPU相关业务代码")
-        /** CPUimpacts */
+        /** cpuimpacts */
         private List<BusinessCodeImpact> cpuImpacts;
 
         @Schema(description = "内存相关业务代码")
@@ -805,11 +845,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 业务代码影响
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "业务代码影响")
     public static class BusinessCodeImpact implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "业务方法")
@@ -817,11 +859,11 @@ public class JvmInfo implements Serializable {
         private String businessMethod;
 
         @Schema(description = "类名")
-        /** Class名称 */
+        /** 类名称 */
         private String className;
 
         @Schema(description = "方法名")
-        /** Method名称 */
+        /** 方法名称 */
         private String methodName;
 
         @Schema(description = "文件名")
@@ -829,7 +871,7 @@ public class JvmInfo implements Serializable {
         private String fileName;
 
         @Schema(description = "行号")
-        /** Line数字 */
+        /** 线数字 */
         private Integer lineNumber;
 
         @Schema(description = "影响分数")
@@ -859,11 +901,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 调用链分析
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "调用链分析")
     public static class CallChainAnalysis implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "热点方法")
@@ -889,11 +933,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 业务入口点
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "业务入口点")
     public static class BusinessEntryPoint implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "入口方法")
@@ -901,11 +947,11 @@ public class JvmInfo implements Serializable {
         private String entryMethod;
 
         @Schema(description = "类名")
-        /** Class名称 */
+        /** 类名称 */
         private String className;
 
         @Schema(description = "方法名")
-        /** Method名称 */
+        /** 方法名称 */
         private String methodName;
 
         @Schema(description = "入口类型: Controller/Service/Scheduler/MessageListener等")
@@ -921,7 +967,7 @@ public class JvmInfo implements Serializable {
         private Integer relatedHotspotCount;
 
         @Schema(description = "CPU影响分数")
-        /** CPUimpact分数 */
+        /** cpuimpact分数 */
         private Integer cpuImpactScore;
 
         @Schema(description = "描述")
@@ -931,11 +977,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * JVM 优化建议
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "JVM 优化建议")
     public static class JvmOptimizationAdvice implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "分析时间")
@@ -951,7 +999,7 @@ public class JvmInfo implements Serializable {
         private List<JvmParameter> recommendedParams;
 
         @Schema(description = "GC收集器建议")
-        /** GCadvice */
+        /** gcadvice */
         private GcAdvice gcAdvice;
 
         @Schema(description = "内存建议")
@@ -967,11 +1015,11 @@ public class JvmInfo implements Serializable {
         private List<PerformanceAdvice> performanceAdvices;
 
         @Schema(description = "完整启动命令")
-        /** Full命令 */
+        /** 完整命令 */
         private String fullCommand;
 
         @Schema(description = "健康评分(0-100)")
-        /** Health分数 */
+        /** 健康分数 */
         private Integer healthScore;
 
         @Schema(description = "诊断信息")
@@ -981,11 +1029,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * JVM 参数
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "JVM 参数")
     public static class JvmParameter implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "参数名")
@@ -1013,17 +1063,19 @@ public class JvmInfo implements Serializable {
         private String description;
 
         @Schema(description = "推荐原因")
-        /** Reason */
+        /** ReasonML */
         private String reason;
     }
 
     /**
      * GC 收集器建议
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "GC 收集器建议")
     public static class GcAdvice implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "当前GC收集器")
@@ -1031,7 +1083,7 @@ public class JvmInfo implements Serializable {
         private String currentGc;
 
         @Schema(description = "推荐GC收集器")
-        /** RecommendedGC */
+        /** recommendedgc */
         private String recommendedGc;
 
         @Schema(description = "GC参数列表")
@@ -1039,25 +1091,27 @@ public class JvmInfo implements Serializable {
         private List<JvmParameter> gcParams;
 
         @Schema(description = "推荐原因")
-        /** Reason */
+        /** ReasonML */
         private String reason;
 
         @Schema(description = "GC频率评估")
-        /** GCfrequencyassessment */
+        /** gcfrequencyassessment */
         private String gcFrequencyAssessment;
 
         @Schema(description = "GC停顿时间评估")
-        /** GCpauseassessment */
+        /** gcpauseassessment */
         private String gcPauseAssessment;
     }
 
     /**
      * 内存建议
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "内存建议")
     public static class MemoryAdvice implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "推荐堆内存大小")
@@ -1069,7 +1123,7 @@ public class JvmInfo implements Serializable {
         private String recommendedInitialHeap;
 
         @Schema(description = "推荐新生代大小")
-        /** RecommendedNEWGEN尺寸 */
+        /** recommendednewgen尺寸 */
         private String recommendedNewGenSize;
 
         @Schema(description = "推荐元空间大小")
@@ -1077,7 +1131,7 @@ public class JvmInfo implements Serializable {
         private String recommendedMetaspaceSize;
 
         @Schema(description = "内存参数列表")
-        /** Memory参数 */
+        /** 内存参数 */
         private List<JvmParameter> memoryParams;
 
         @Schema(description = "当前堆使用率")
@@ -1095,11 +1149,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 线程建议
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "线程建议")
     public static class ThreadAdvice implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "推荐线程栈大小")
@@ -1125,11 +1181,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 性能建议
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "性能建议")
     public static class PerformanceAdvice implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "类别: GC/MEMORY/THREAD/COMPILER/OTHER")
@@ -1159,11 +1217,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 线程Dump信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "线程Dump信息")
     public static class ThreadDump implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "生成时间")
@@ -1187,7 +1247,7 @@ public class JvmInfo implements Serializable {
         private Integer deadlockedCount;
 
         @Schema(description = "死锁线程ID")
-        /** Deadlocked线程IDS */
+        /** Deadlocked线程标识 */
         private List<Long> deadlockedThreadIds;
 
         @Schema(description = "线程Dump内容")
@@ -1201,15 +1261,17 @@ public class JvmInfo implements Serializable {
 
     /**
      * 线程Dump详情
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "线程Dump详情")
     public static class ThreadDumpDetail implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "线程ID")
-        /** 线程ID */
+        /** 线程标识 */
         private Long threadId;
 
         @Schema(description = "线程名称")
@@ -1251,11 +1313,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 内存泄漏检测结果
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "内存泄漏检测结果")
     public static class MemoryLeakAnalysis implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "第一次快照时间")
@@ -1309,15 +1373,17 @@ public class JvmInfo implements Serializable {
 
     /**
      * 对象增长信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "对象增长信息")
     public static class ObjectGrowth implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "类名")
-        /** Class名称 */
+        /** 类名称 */
         private String className;
 
         @Schema(description = "简化类名")
@@ -1333,11 +1399,11 @@ public class JvmInfo implements Serializable {
         private Long secondCount;
 
         @Schema(description = "实例数增长")
-        /** 数量growth */
+        /** 数量增长 */
         private Long countGrowth;
 
         @Schema(description = "增长率(%)")
-        /** Growth百分比 */
+        /** 增长百分比 */
         private Double growthPercent;
 
         @Schema(description = "第一次内存(bytes)")
@@ -1359,11 +1425,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * JVM诊断信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "JVM诊断信息")
     public static class JvmDiagnostic implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "诊断时间")
@@ -1371,31 +1439,33 @@ public class JvmInfo implements Serializable {
         private Long timestamp;
 
         @Schema(description = "VM Flags")
-        /** VMflags */
+        /** vmflags */
         private List<VmFlag> vmFlags;
 
         @Schema(description = "系统属性")
-        private java.util.Map<String, String> systemProperties;
+        private java.util.Map<String, String> systemProperties; // 系统属性
 
         @Schema(description = "环境变量")
-        private java.util.Map<String, String> environmentVariables;
+        private java.util.Map<String, String> environmentVariables; // 环境变量
 
         @Schema(description = "类加载器信息")
         /** Classloaders */
         private List<ClassLoaderInfo> classLoaders;
 
         @Schema(description = "内存池详情")
-        /** Memory池details */
+        /** 内存池details */
         private List<MemoryPoolDetail> memoryPoolDetails;
     }
 
     /**
      * VM Flag
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "VM Flag")
     public static class VmFlag implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "参数名")
@@ -1417,11 +1487,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 类加载器信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "类加载器信息")
     public static class ClassLoaderInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "类加载器名称")
@@ -1443,11 +1515,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 内存池详情
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "内存池详情")
     public static class MemoryPoolDetail implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "内存池名称")
@@ -1485,15 +1559,17 @@ public class JvmInfo implements Serializable {
 
     /**
      * 线程状态分布
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "线程状态分布")
     public static class ThreadStateDistribution implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "NEW状态线程数")
-        /** NEW数量 */
+        /** 新数量 */
         private Integer newCount;
 
         @Schema(description = "RUNNABLE状态线程数")
@@ -1523,11 +1599,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * JIT编译统计
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "JIT编译统计")
     public static class JitCompilationStats implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "编译器名称")
@@ -1547,17 +1625,19 @@ public class JvmInfo implements Serializable {
         private Long compiledMethodCount;
 
         @Schema(description = "平均编译时间(毫秒)")
-        /** AVGcompilation时间 */
+        /** avgcompilation时间 */
         private Double avgCompilationTime;
     }
 
     /**
      * 代码缓存信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "代码缓存信息")
     public static class CodeCacheInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "代码缓存名称")
@@ -1587,23 +1667,25 @@ public class JvmInfo implements Serializable {
 
     /**
      * GC统计信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "GC统计信息")
     public static class GcStats implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "总收集次数")
-        /** 总数collection数量 */
+        /** 总数集合数量 */
         private Long totalCollectionCount;
 
         @Schema(description = "总收集时间(毫秒)")
-        /** 总数collection时间 */
+        /** 总数集合时间 */
         private Long totalCollectionTime;
 
         @Schema(description = "平均收集时间(毫秒)")
-        /** AVGcollection时间 */
+        /** avgcollection时间 */
         private Double avgCollectionTime;
 
         @Schema(description = "最近一次GC名称")
@@ -1611,7 +1693,7 @@ public class JvmInfo implements Serializable {
         private String lastGcName;
 
         @Schema(description = "每分钟GC次数")
-        /** GCPERminute */
+        /** gcperminute */
         private Double gcPerMinute;
 
         @Schema(description = "GC时间占比(%)")
@@ -1619,11 +1701,11 @@ public class JvmInfo implements Serializable {
         private Double gcTimePercent;
 
         @Schema(description = "Young GC次数")
-        /** YoungGC数量 */
+        /** younggc数量 */
         private Long youngGcCount;
 
         @Schema(description = "Young GC时间(毫秒)")
-        /** YoungGC时间 */
+        /** younggc时间 */
         private Long youngGcTime;
 
         @Schema(description = "Old GC次数")
@@ -1637,11 +1719,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 元空间信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "元空间信息")
     public static class MetaspaceInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "已使用(字节)")
@@ -1679,11 +1763,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 直接内存信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "直接内存信息")
     public static class DirectMemoryInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "已使用(字节)")
@@ -1721,11 +1807,13 @@ public class JvmInfo implements Serializable {
 
     /**
      * 内存分配速率
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "内存分配速率")
     public static class MemoryAllocationRate implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "Eden区当前使用(字节)")
@@ -1749,41 +1837,43 @@ public class JvmInfo implements Serializable {
         private Long survivorMax;
 
         @Schema(description = "Old区当前使用(字节)")
-        /** OLDused */
+        /** oldused */
         private Long oldUsed;
 
         @Schema(description = "Old区最大(字节)")
-        /** OLD最大值 */
+        /** 旧最大值 */
         private Long oldMax;
 
         @Schema(description = "Old区使用率(%)")
-        /** OLDusage百分比 */
+        /** oldusage百分比 */
         private Double oldUsagePercent;
 
         @Schema(description = "估计分配速率(字节/秒)")
-        /** Allocation比率PERsecond */
+        /** Allocation比率persecond */
         private Long allocationRatePerSecond;
 
         @Schema(description = "估计晒升速率(字节/秒)")
-        /** Promotion比率PERsecond */
+        /** 晋升比率persecond */
         private Long promotionRatePerSecond;
     }
 
     /**
      * 类加载详情
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "类加载详情")
     public static class ClassLoadingDetail implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "当前加载类数")
-        /** 当前loaded数量 */
+        /** 当前加载数量 */
         private Integer currentLoadedCount;
 
         @Schema(description = "总加载类数")
-        /** 总数loaded数量 */
+        /** 总数加载数量 */
         private Long totalLoadedCount;
 
         @Schema(description = "卸载类数")
@@ -1791,11 +1881,11 @@ public class JvmInfo implements Serializable {
         private Long unloadedCount;
 
         @Schema(description = "每分钟加载类数")
-        /** Load比率PERminute */
+        /** 加载比率perminute */
         private Double loadRatePerMinute;
 
         @Schema(description = "每分钟卸载类数")
-        /** Unload比率PERminute */
+        /** Unload比率perminute */
         private Double unloadRatePerMinute;
 
         @Schema(description = "是否启用详细输出")
@@ -1805,19 +1895,21 @@ public class JvmInfo implements Serializable {
 
     /**
      * 安全管理器信息
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "安全管理器信息")
     public static class SecurityInfo implements Serializable {
-        /** Serial版本UID */
+        /** 串行版本UID */
         private static final long serialVersionUID = 1L;
 
         @Schema(description = "是否启用安全管理器")
-        /** Security管理器是否启用 */
+        /** 安全性管理器是否启用 */
         private Boolean securityManagerEnabled;
 
         @Schema(description = "安全管理器类名")
-        /** Security管理器class */
+        /** 安全性管理器类 */
         private String securityManagerClass;
 
         @Schema(description = "安全策略文件")

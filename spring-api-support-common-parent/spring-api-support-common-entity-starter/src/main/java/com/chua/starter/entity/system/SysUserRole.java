@@ -20,31 +20,31 @@ import java.io.Serializable;
 @Data
 @TableName(value = "sys_user_role")
 public class SysUserRole implements Serializable {
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键ID
+      * 主键标识
      */
     @TableId(value = "sys_user_role_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     @NotNull(message = "主键ID不能为空")
-    /** SYS用户roleID */
+    /** SYS用户角色id */
     private Integer sysUserRoleId;
 
     /**
-     * 用户ID
+      * 用户标识
      */
     @TableField(value = "sys_user_id")
     @Schema(description = "用户ID")
-    /** SYS用户ID */
+    /** SYS用户标识 */
     private Integer sysUserId;
 
     /**
-     * 角色ID
+      * 角色标识
      */
     @TableField(value = "sys_role_id")
     @Schema(description = "角色ID")
-    /** SYSroleID */
+    /** sysroleid */
     private Integer sysRoleId;
 }

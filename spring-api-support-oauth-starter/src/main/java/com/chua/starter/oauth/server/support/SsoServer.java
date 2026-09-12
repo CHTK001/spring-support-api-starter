@@ -5,7 +5,7 @@ package com.chua.starter.oauth.server.support;
  *
  * <p>仅作为标记存在，用于让 oauth-client-starter 的 {@code AuthFilter} 自动配置
  * （通过 {@code @ConditionalOnMissingClass("com.chua.starter.oauth.server.support.SsoServer")} 判断）
- * 在认证服务器应用上不注册，避免认证协议入口（/login、/verify、/upgrade 等）被客户端认证过滤器二次拦截。</p>
+   * 在认证服务器应用上不注册，避免认证协议入口（/login、/验证、/upgrade 等）被客户端认证过滤器二次拦截。</p>
  *
  * @since 4.0.0.42
  * @author CH

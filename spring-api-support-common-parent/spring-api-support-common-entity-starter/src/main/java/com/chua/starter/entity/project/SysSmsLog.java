@@ -16,6 +16,8 @@ import java.math.BigDecimal;
 
 /**
  * 短信下发日志表
+ * @author CH
+ * @since 4.0.0
  */
 @Schema(description = "短信下发日志表")
 @Data
@@ -23,18 +25,18 @@ import java.math.BigDecimal;
 @TableName(value = "sys_sms_log")
 public class SysSmsLog extends SysBase implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
     @TableId(value = "sys_sms_log_id", type = IdType.AUTO)
     @Schema(description = "")
     @NotNull(message = "不能为null")
-    /** SYSSMS日志ID */
+    /** SYSSMS日志标识 */
     private Integer sysSmsLogId;
     /**
-     * 项目ID
+      * 项目标识
      */
     @TableField(value = "sys_project_id")
     @Schema(description = "项目ID")
-    /** SYSprojectID */
+    /** sysprojectid */
     private Integer sysProjectId;
     /**
      * 接收人
@@ -46,12 +48,12 @@ public class SysSmsLog extends SysBase implements Serializable {
     private String sysSmsLogTarget;
 
     /**
-     * 模板ID
+      * 模板标识
      */
     @TableField(value = "sys_sms_log_template_id")
     @Schema(description = "模板ID")
     @Size(max = 255, message = "模板ID最大长度要小于 255")
-    /** SYSSMS日志模板ID */
+    /** SYSSMS日志模板标识 */
     private String sysSmsLogTemplateId;
 
     /**
@@ -76,7 +78,7 @@ public class SysSmsLog extends SysBase implements Serializable {
      */
     @TableField(value = "sys_sms_cost")
     @Schema(description = "耗时时间")
-    /** SYSSMScost */
+    /** syssmscost */
     private BigDecimal sysSmsCost;
 
     /**
@@ -121,6 +123,6 @@ public class SysSmsLog extends SysBase implements Serializable {
     @TableField(value = "sys_sms_app_sign")
     @Schema(description = "签名")
     @Size(max = 255, message = "签名最大长度要小于 255")
-    /** SYSSMSAPPsign */
+    /** syssmsappsign */
     private String sysSmsAppSign;
 }

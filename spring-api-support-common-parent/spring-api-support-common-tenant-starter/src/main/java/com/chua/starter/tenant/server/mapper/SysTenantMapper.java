@@ -5,9 +5,9 @@ import com.chua.starter.tenant.entity.SysTenant;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 租户 Mapper 接口
+   * 租户 映射器 接口
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/06
  * @author CH
  */

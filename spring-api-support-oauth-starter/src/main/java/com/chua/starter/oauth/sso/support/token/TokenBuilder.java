@@ -4,9 +4,9 @@ import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.IdUtils;
 
 /**
- * Token 生成工具
+   * 令牌 生成工具
  * <p>
- * 统一生成 AccessToken 和 RefreshToken，确保格式一致
+   * 统一生成 access令牌 和 refresh令牌，确保格式一致
  * </p>
  *
  * <h3>Token 格式：</h3>
@@ -19,65 +19,66 @@ import com.chua.common.support.utils.IdUtils;
  * 总长度：2 + 32 + 32 + 16 = 82位
  * </pre>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-12-07
+ * @author CH
  */
 public final class TokenBuilder {
 
     /**
-     * AccessToken 前缀
+      * access令牌 前缀
      */
     public static final String ACCESS_TOKEN_PREFIX = "AT";
 
     /**
-     * RefreshToken 前缀
+      * refresh令牌 前缀
      */
     public static final String REFRESH_TOKEN_PREFIX = "RT";
 
     /**
-     * userIdHash 在 Token 中的起始位置（跳过前缀）
+      * 用户id哈希 在 令牌 中的起始位置（跳过前缀）
      */
     public static final int USER_ID_HASH_START = 2;
 
     /**
-     * userIdHash 长度
+      * 用户id哈希 长度
      */
     public static final int USER_ID_HASH_LENGTH = 32;
 
     /**
-     * uidHash 在 Token 中的起始位置
+      * uid哈希 在 令牌 中的起始位置
      */
     public static final int UID_HASH_START = USER_ID_HASH_START + USER_ID_HASH_LENGTH;
 
     /**
-     * uidHash 长度
+      * uid哈希 长度
      */
     public static final int UID_HASH_LENGTH = 32;
 
     /**
-     * randomHex 在 Token 中的起始位置
+      * 随机hex 在 令牌 中的起始位置
      */
     public static final int RANDOM_START = UID_HASH_START + UID_HASH_LENGTH;
 
     /**
-     * randomHex 长度
+      * 随机hex 长度
      */
     public static final int RANDOM_LENGTH = 16;
 
     /**
-     * Token 总长度
+      * 令牌 总长度
      */
     public static final int TOKEN_LENGTH = 2 + USER_ID_HASH_LENGTH + UID_HASH_LENGTH + RANDOM_LENGTH;
 
-    /** 创建 TokenBuilder 实例 */
+    /** 创建 令牌构建器 实例 */
     private TokenBuilder() {
         // 工具类禁止实例化
     }
 
     /**
-     * 生成 AccessToken
+      * 生成 access令牌
      *
-     * @param userId  用户ID（数据库主键）
+     * @param userId  用户标识（数据库主键）
      * @param uidHash uid生成值（标识登录方式）
      * @return AccessToken
      */
@@ -86,9 +87,9 @@ public final class TokenBuilder {
     }
 
     /**
-     * 生成 RefreshToken
+      * 生成 refresh令牌
      *
-     * @param userId  用户ID（数据库主键）
+     * @param userId  用户标识（数据库主键）
      * @param uidHash uid生成值（标识登录方式）
      * @return RefreshToken
      */
@@ -97,10 +98,10 @@ public final class TokenBuilder {
     }
 
     /**
-     * 生成 Token
+      * 生成 令牌
      *
      * @param prefix  前缀（AT/RT）
-     * @param userId  用户ID
+     * @param userId  用户标识
      * @param uidHash uid生成值
      * @return Token
      */
@@ -111,10 +112,10 @@ public final class TokenBuilder {
     }
 
     /**
-     * 从 Token 中提取 userIdHash
+      * 从 令牌 中提取 用户id哈希
      * <p>用于按用户统计在线数量</p>
      *
-     * @param token Token
+     * @param token 令牌
      * @return userIdHash（32位）
      */
     public static String extractUserIdHash(String token) {
@@ -125,10 +126,10 @@ public final class TokenBuilder {
     }
 
     /**
-     * 从 Token 中提取 uidHash
+      * 从 令牌 中提取 uid哈希
      * <p>用于标识登录方式</p>
      *
-     * @param token Token
+     * @param token 令牌
      * @return uidHash（32位）
      */
     public static String extractUidHash(String token) {
@@ -139,9 +140,9 @@ public final class TokenBuilder {
     }
 
     /**
-     * 判断是否为 AccessToken
+      * 判断是否为 access令牌
      *
-     * @param token Token
+     * @param token 令牌
      * @return true-是AccessToken
      */
     public static boolean isAccessToken(String token) {
@@ -149,9 +150,9 @@ public final class TokenBuilder {
     }
 
     /**
-     * 判断是否为 RefreshToken
+      * 判断是否为 refresh令牌
      *
-     * @param token Token
+     * @param token 令牌
      * @return true-是RefreshToken
      */
     public static boolean isRefreshToken(String token) {
@@ -159,10 +160,10 @@ public final class TokenBuilder {
     }
 
     /**
-     * 根据 userId 生成查询模式
+      * 根据 用户id 生成查询模式
      * <p>用于查询该用户的所有 Token</p>
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 查询模式，如：AT{userIdHash}*
      */
     public static String buildAccessTokenPattern(String userId) {
@@ -170,9 +171,9 @@ public final class TokenBuilder {
     }
 
     /**
-     * 根据 userId 生成 RefreshToken 查询模式
+      * 根据 用户id 生成 refresh令牌 查询模式
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 查询模式，如：RT{userIdHash}*
      */
     public static String buildRefreshTokenPattern(String userId) {
@@ -180,9 +181,9 @@ public final class TokenBuilder {
     }
 
     /**
-     * 根据 userIdHash 生成查询模式（已有hash值时使用）
+      * 根据 用户id哈希 生成查询模式（已有哈希值时使用）
      *
-     * @param userIdHash userIdHash
+     * @param userIdHash 用户id哈希
      * @return 查询模式
      */
     public static String buildAccessTokenPatternByHash(String userIdHash) {
@@ -190,9 +191,9 @@ public final class TokenBuilder {
     }
 
     /**
-     * 根据 userIdHash 生成 RefreshToken 查询模式
+      * 根据 用户id哈希 生成 refresh令牌 查询模式
      *
-     * @param userIdHash userIdHash
+     * @param userIdHash 用户id哈希
      * @return 查询模式
      */
     public static String buildRefreshTokenPatternByHash(String userIdHash) {

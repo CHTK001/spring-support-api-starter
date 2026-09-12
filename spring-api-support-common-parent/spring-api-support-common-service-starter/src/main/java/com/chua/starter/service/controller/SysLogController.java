@@ -38,6 +38,8 @@ public class SysLogController {
      *
      * @param sysLog 条件
      * @return 系统日志分页列表
+     * @param query 查询
+     * @param true true
      */
     @Operation(summary = "系统日志分页列表")
     @GetMapping("/page")

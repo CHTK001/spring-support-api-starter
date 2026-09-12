@@ -47,7 +47,12 @@ public record RequestTraceEvent(
         signals = signals == null || signals.isEmpty() ? Set.of() : Set.copyOf(signals);
     }
 
-    /** WithSignals */
+    /**
+     * withsignals
+     *
+     * @param newSignals 新signals
+     * @return withSignals的结果
+     */
     public RequestTraceEvent withSignals(Set<RequestTraceSignal> newSignals) {
         return new RequestTraceEvent(
                 timestamp,
@@ -71,12 +76,20 @@ public record RequestTraceEvent(
         );
     }
 
-    /** Suspicious */
+    /**
+     * Suspicious
+     *
+     * @return suspicious的结果
+     */
     public boolean suspicious() {
         return !signals.isEmpty();
     }
 
-    /** RouteKey */
+    /**
+     * route键
+     *
+     * @return route键的结果
+     */
     public String routeKey() {
         if (method == null && path == null) {
             return "UNKNOWN";
@@ -91,7 +104,11 @@ public record RequestTraceEvent(
         return method + " " + route;
     }
 
-    /** RequestUrl */
+    /**
+     * 请求url
+     *
+     * @return 请求url的结果
+     */
     public String requestUrl() {
         if (path == null) {
             return null;
@@ -102,12 +119,20 @@ public record RequestTraceEvent(
         return path + "?" + query;
     }
 
-    /** ActorKey */
+    /**
+     * actor键
+     *
+     * @return actor键的结果
+     */
     public String actorKey() {
         return RequestTraceSupport.firstNonBlank(userId, fingerprint, clientIp);
     }
 
-    /** PrincipalKey */
+    /**
+     * principal键
+     *
+     * @return principal键的结果
+     */
     public String principalKey() {
         return RequestTraceSupport.firstNonBlank(userId, tokenHash, fingerprint, clientIp);
     }

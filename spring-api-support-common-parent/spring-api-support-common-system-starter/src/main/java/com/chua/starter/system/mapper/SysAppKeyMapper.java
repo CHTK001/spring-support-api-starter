@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
- * 应用密钥 Mapper
+   * 应用密钥 映射器
  *
  * @since 2025/10/23
  * @author CH
@@ -15,7 +15,7 @@ import org.apache.ibatis.annotations.Param;
 public interface SysAppKeyMapper extends BaseMapper<SysAppKey> {
 
     /**
-     * 根据 appKey(密钥) 查询应用密钥
+      * 根据 app键(密钥) 查询应用密钥
      *
      * @param appKey 应用密钥
      * @return 应用密钥
@@ -23,9 +23,9 @@ public interface SysAppKeyMapper extends BaseMapper<SysAppKey> {
     SysAppKey selectByAppKey(@Param("appKey") String appKey);
 
     /**
-     * 更新使用次数和最后使用时间（通过appKey值）
+      * 更新使用次数和最后使用时间（通过app键值）
      *
-     * @param appKey       应用密钥（sys_app_key_secret）
+     * @param appKey       应用密钥（sys_app_键_secret）
      * @param lastUsedTime 最后使用时间
      */
     void updateUseInfoByAppKey(@Param("appKey") String appKey, @Param("lastUsedTime") Long lastUsedTime);

@@ -18,7 +18,7 @@ public class RequestTraceStrategyConfig {
 
     /** RAW存储类型 */
     private String rawStorageType = "file";
-    /** Behavior存储类型 */
+    /** 行为存储类型 */
     private String behaviorStorageType = "database";
     /** 文件存储路径 */
     private String fileStoragePath = "logs/request-trace";
@@ -31,16 +31,16 @@ public class RequestTraceStrategyConfig {
     private String aiModel;
     /** AI比率限制是否启用 */
     private Boolean aiRateLimitEnabled = Boolean.TRUE;
-    /** AI比率限制window秒 */
+    /** AI比率限制窗口秒 */
     private Integer aiRateLimitWindowSeconds = 60;
-    /** AI比率限制最大值requests */
+    /** AI比率限制最大值Requests */
     private Integer aiRateLimitMaxRequests = 30;
     /** AI超时MS */
     private Long aiTimeoutMs = 1500L;
 
     /** Retentionminutes */
     private Integer retentionMinutes = 30;
-    /** 最大值events */
+    /** 最大值事件 */
     private Integer maxEvents = 3000;
     /** 默认windowminutes */
     private Integer defaultWindowMinutes = 10;
@@ -72,11 +72,11 @@ public class RequestTraceStrategyConfig {
     /** Spam阈值 */
     private Integer spamThreshold = 12;
 
-    /** Crawler是否启用 */
+    /** 爬虫是否启用 */
     private Boolean crawlerEnabled = Boolean.TRUE;
     /** Crawlerwindowminutes */
     private Integer crawlerWindowMinutes = 5;
-    /** Crawler请求阈值 */
+    /** 爬虫请求阈值 */
     private Integer crawlerRequestThreshold = 30;
     /** Crawlerdistinct路径阈值 */
     private Integer crawlerDistinctPathThreshold = 20;
@@ -97,14 +97,14 @@ public class RequestTraceStrategyConfig {
     private Boolean tokenReuseEnabled = Boolean.TRUE;
     /** 令牌reusewindowminutes */
     private Integer tokenReuseWindowMinutes = 10;
-    /** 令牌reuse最小值events */
+    /** 令牌reuse最小值事件 */
     private Integer tokenReuseMinEvents = 3;
 
     /** Fingerprintdrift是否启用 */
     private Boolean fingerprintDriftEnabled = Boolean.TRUE;
     /** Fingerprintdriftwindowminutes */
     private Integer fingerprintDriftWindowMinutes = 30;
-    /** Fingerprintdrift最小值events */
+    /** Fingerprintdrift最小值事件 */
     private Integer fingerprintDriftMinEvents = 3;
 
     /** 用户preferencedrift是否启用 */
@@ -116,7 +116,11 @@ public class RequestTraceStrategyConfig {
     /** 用户preferencedominant数量 */
     private Integer userPreferenceDominantCount = 4;
 
-    /** 复制 */
+    /**
+     * 复制
+     *
+     * @return 副本的结果
+     */
     public RequestTraceStrategyConfig copy() {
         RequestTraceStrategyConfig target = new RequestTraceStrategyConfig();
         target.enabled = enabled;
@@ -166,7 +170,11 @@ public class RequestTraceStrategyConfig {
         return target;
     }
 
-    /** Normalize */
+    /**
+     * Normalize
+     *
+     * @return normalize的结果
+     */
     public RequestTraceStrategyConfig normalize() {
         enabled = defaultBoolean(enabled, true);
         rawStorageType = lowerCaseText(defaultText(rawStorageType, "file"));
@@ -225,28 +233,57 @@ public class RequestTraceStrategyConfig {
         return this;
     }
 
-    /** DefaultBoolean */
+    /**
+     * 默认布尔值
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return 默认布尔值的结果
+     */
     private Boolean defaultBoolean(Boolean value, boolean defaultValue) {
         return value == null ? defaultValue : value;
     }
 
-    /** Positive */
+    /**
+     * Positive
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return positive的结果
+     */
     private Integer positive(Integer value, int defaultValue) {
         return value == null || value <= 0 ? defaultValue : value;
     }
 
-    /** Positive */
+    /**
+     * Positive
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return positive的结果
+     */
     private Long positive(Long value, long defaultValue) {
         return value == null || value <= 0 ? defaultValue : value;
     }
 
-    /** DefaultText */
+    /**
+     * 默认文本
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return 默认文本的结果
+     */
     private String defaultText(String value, String defaultValue) {
         String normalized = normalizeText(value);
         return normalized == null ? defaultValue : normalized;
     }
 
-    /** NormalizeText */
+    /**
+     * normalize文本
+     *
+     * @param value 值
+     * @return normalize文本的结果
+     */
     private String normalizeText(String value) {
         if (value == null) {
             return null;
@@ -255,7 +292,12 @@ public class RequestTraceStrategyConfig {
         return text.isEmpty() ? null : text;
     }
 
-    /** LowerCaseText */
+    /**
+     * 降低大小写文本
+     *
+     * @param value 值
+     * @return 降低大小写文本的结果
+     */
     private String lowerCaseText(String value) {
         String text = normalizeText(value);
         return text == null ? null : text.toLowerCase(Locale.ROOT);

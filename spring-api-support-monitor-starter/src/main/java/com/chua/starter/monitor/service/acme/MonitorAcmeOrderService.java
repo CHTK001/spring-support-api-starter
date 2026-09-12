@@ -40,10 +40,10 @@ public interface MonitorAcmeOrderService extends IService<MonitorAcmeOrder> {
     List<MonitorAcmeOrder> listByStatus(String status);
 
     /**
-     * 按 ACME Order URL 查找订单(去重/幂等)。
+      * 按 ACME 订单 URL 查找订单(去重/幂等)。
      *
-     * @param orderUrl ACME 服务下发的 order URL
-     * @return 订单或 null
+     * @param orderUrl ACME 服务下发的 订单 URL
+     * @return 订单或 空
      */
     MonitorAcmeOrder getByOrderUrl(String orderUrl);
 

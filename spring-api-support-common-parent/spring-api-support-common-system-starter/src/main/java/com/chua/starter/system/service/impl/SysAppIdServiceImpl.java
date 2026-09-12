@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
- * AppId应用标识 Service 实现
+   * appid应用标识 服务 实现
  *
  * @since 2025/01/05
  * @author CH
@@ -22,7 +22,12 @@ public class SysAppIdServiceImpl extends ServiceImpl<SysAppIdMapper, SysAppId> i
 
     @Override
     @Cacheable(value = "appId:info", key = "#appIdValue", unless = "#result == null")
-    /** 获取ByAppIdValue */
+    /**
+     * 获取byappid值
+     *
+     * @param appIdValue appid值
+     * @return 获取byappid值的结果
+     */
     public SysAppId getByAppIdValue(String appIdValue) {
         if (StringUtils.isBlank(appIdValue)) {
             return null;
@@ -32,7 +37,11 @@ public class SysAppIdServiceImpl extends ServiceImpl<SysAppIdMapper, SysAppId> i
 
     @Override
     @Async("taskExecutor")
-    /** 更新UseInfo */
+    /**
+     * 更新use信息
+     *
+     * @param appIdValue appid值
+     */
     public void updateUseInfo(String appIdValue) {
         try {
             long currentTime = System.currentTimeMillis();

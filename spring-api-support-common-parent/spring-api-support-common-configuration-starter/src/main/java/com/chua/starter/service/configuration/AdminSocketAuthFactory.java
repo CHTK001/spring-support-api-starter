@@ -25,7 +25,7 @@ public class AdminSocketAuthFactory implements SocketAuthFactory {
 
 
     /**
-     * 校验握手数据是否携带有效的 OAuth Token。
+      * 校验握手数据是否携带有效的 OAuth 令牌。
      *
      * @param handshakeData 握手数据
      * @return true 表示已授权
@@ -43,7 +43,7 @@ public class AdminSocketAuthFactory implements SocketAuthFactory {
      * 根据握手数据构建套接字用户。
      *
      * @param handshakeData 握手数据
-     * @return 套接字用户，未携带 Token 时为 null
+     * @return 套接字用户，未携带 令牌 时为 空
      */
     @Override
     public SocketUser getUser(Map<String, Object> handshakeData) {

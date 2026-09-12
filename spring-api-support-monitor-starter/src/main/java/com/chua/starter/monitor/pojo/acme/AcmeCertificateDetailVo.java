@@ -14,7 +14,7 @@ import java.util.List;
  * ACME 证书详情 VO
  * 包含证书信息、关联账户信息和订单信息
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-12-06
  * @author CH
  */
@@ -36,7 +36,7 @@ public class AcmeCertificateDetailVo {
      */
     @ApiModelProperty("关联账户信息")
     @Schema(description = "关联账户信息")
-    /** Account */
+    /** 账户 */
     private MonitorAcmeAccount account;
 
     /**
@@ -44,7 +44,7 @@ public class AcmeCertificateDetailVo {
      */
     @ApiModelProperty("关联订单列表")
     @Schema(description = "关联订单列表")
-    /** Orders */
+    /** 订单 */
     private List<MonitorAcmeOrder> orders;
 
     /**
@@ -64,7 +64,7 @@ public class AcmeCertificateDetailVo {
     private Boolean soonExpiring;
 
     /**
-     * curl 自检命令列表（用于验证HTTP-01挑战是否可访问）
+      * cURL 自检命令列表（用于验证HTTP-01挑战是否可访问）
      */
     @ApiModelProperty("curl 自检命令列表")
     @Schema(description = "curl 自检命令列表，用于验证HTTP-01挑战是否可从外网访问")
@@ -75,7 +75,7 @@ public class AcmeCertificateDetailVo {
      * 当前步骤（用于前端展示申请流程）
      * 1 - 提交申请（pending）
      * 2 - 等待验证（validating）
-     * 3 - 签发完成（valid）或失败/吐销（failed/revoked/expired）
+      * 3 - 签发完成（valid）或失败/吐销（失败/revoked/expired）
      */
     @ApiModelProperty("当前步骤: 1-提交申请, 2-等待验证, 3-签发完成")
     @Schema(description = "当前步骤: 1-提交申请, 2-等待验证, 3-签发完成")

@@ -23,12 +23,12 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_request_trace_behavior")
 public class SysRequestTraceBehavior extends SysBase implements Serializable {
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "sys_request_trace_behavior_id", type = IdType.AUTO)
     @Schema(description = "行为记录ID")
-    /** SYS请求跟踪behaviorID */
+    /** SYS请求跟踪行为id */
     private Long sysRequestTraceBehaviorId;
 
     @TableField(value = "sys_request_trace_request_time")
@@ -38,12 +38,12 @@ public class SysRequestTraceBehavior extends SysBase implements Serializable {
 
     @TableField(value = "sys_request_trace_analyzed_at")
     @Schema(description = "分析时间")
-    /** SYS请求跟踪analyzedAT */
+    /** SYS请求跟踪分析at */
     private LocalDateTime sysRequestTraceAnalyzedAt;
 
     @TableField(value = "sys_request_trace_trace_id")
     @Schema(description = "追踪ID")
-    /** SYS请求跟踪跟踪ID */
+    /** SYS请求跟踪跟踪标识 */
     private String sysRequestTraceTraceId;
 
     @TableField(value = "sys_request_trace_strategy_code")
@@ -83,12 +83,12 @@ public class SysRequestTraceBehavior extends SysBase implements Serializable {
 
     @TableField(value = "sys_request_trace_user_id")
     @Schema(description = "用户ID")
-    /** SYS请求跟踪用户ID */
+    /** SYS请求跟踪用户标识 */
     private String sysRequestTraceUserId;
 
     @TableField(value = "sys_request_trace_username")
     @Schema(description = "用户名")
-    /** SYS请求跟踪username */
+    /** SYS请求跟踪用户名 */
     private String sysRequestTraceUsername;
 
     @TableField(value = "sys_request_trace_fingerprint")
@@ -98,7 +98,7 @@ public class SysRequestTraceBehavior extends SysBase implements Serializable {
 
     @TableField(value = "sys_request_trace_user_agent")
     @Schema(description = "浏览器标识")
-    /** SYS请求跟踪用户agent */
+    /** SYS请求跟踪用户智能体 */
     private String sysRequestTraceUserAgent;
 
     @TableField(value = "sys_request_trace_signals")
@@ -113,7 +113,7 @@ public class SysRequestTraceBehavior extends SysBase implements Serializable {
 
     @TableField(value = "sys_request_trace_distinct_path_count")
     @Schema(description = "扫描路径数量")
-    /** SYS请求跟踪distinct路径数量 */
+    /** SYS请求跟踪去重路径数量 */
     private Long sysRequestTraceDistinctPathCount;
 
     @TableField(value = "sys_request_trace_risk_level")
@@ -128,7 +128,7 @@ public class SysRequestTraceBehavior extends SysBase implements Serializable {
 
     @TableField(value = "sys_request_trace_ai_summary")
     @Schema(description = "AI摘要")
-    /** SYS请求跟踪AIsummary */
+    /** SYS请求跟踪aisummary */
     private String sysRequestTraceAiSummary;
 
     @TableField(value = "sys_request_trace_extra")

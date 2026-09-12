@@ -13,7 +13,7 @@ import java.util.Set;
 
 /**
  * 系统菜单服务接口，定义了与系统菜单相关的业务操作
- * 继承了通用的服务接口IService<SysMenu>，提供了更具体的菜单操作方法
+   * 继承了通用的服务接口i服务<SysMenu>，提供了更具体的菜单操作方法
  *
  * @since 2024/8/7
  * @author CH
@@ -51,7 +51,7 @@ public interface SysMenuService extends IService<SysMenu> {
     /**
      * 删除指定的系统菜单
      *
-     * @param menuId 要删除的系统菜单的ID
+     * @param menuId 要删除的系统菜单的标识
      * @return 返回删除操作的结果，包括是否成功和相关消息
      */
     ReturnResult<Boolean> delete(Long menuId);

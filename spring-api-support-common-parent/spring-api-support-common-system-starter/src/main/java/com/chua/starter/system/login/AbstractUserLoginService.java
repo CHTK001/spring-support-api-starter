@@ -43,32 +43,33 @@ import static com.chua.starter.common.support.constant.DataFilterTypeEnum.ALL;
  * </ul>
  *
  * @since 1.0.0
+ * @author CH
  */
 @Slf4j
 public abstract class AbstractUserLoginService implements UserInfoService, Constant {
     /** Dept_leader */
     private static final String DEPT_LEADER = "DEPT_LEADER";
-    /** Auth_version */
+    /** 认证_版本 */
     private static final String AUTH_VERSION = "authVersion";
 
     @Autowired
-    /** Security属性 */
+    /** 安全性属性 */
     protected SystemSecurityProperties securityProperties;
 
     @Autowired
-    /** 字符串redis模板 */
+    /** 字符串Redis模板 */
     protected StringRedisTemplate stringRedisTemplate;
 
     @Autowired
-    /** SYS用户mapper */
+    /** SYS用户映射器 */
     protected SysUserMapper sysUserMapper;
 
     @Autowired
-    /** SYSdeptmapper */
+    /** sysdeptmapper */
     protected SysDeptMapper sysDeptMapper;
 
     @Autowired
-    /** SYSdeptprincipalREL服务 */
+    /** sysdeptprincipalrel服务 */
     protected SysDeptPrincipalRelService sysDeptPrincipalRelService;
 
     /**
@@ -80,7 +81,7 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
      *
      * @param accessKey 访问标识（用户名或其他登录标识）
      * @param user      用户实体对象
-     * @param address   客户端IP地址，可为null表示不更新登录信息
+     * @param address   客户端IP地址，可为空表示不更新登录信息
      * @return 完整的用户结果对象
      */
     protected UserResume loginInfo(String accessKey, SysUser user, String address) {
@@ -90,7 +91,7 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         Long count = valueOps.increment(countKey);
 
         // 更新用户登录信息:异步写库(虚拟线程),不打认证链路同步耗时;
-        // 上次 updateById 的结果在此线程 setUpdateTime,避免频繁重复写
+ // 上次 更新byid 的结果在此线程 设置更新时间,避免频繁重复写
         if (null != address && count != null) {
             user.setSysUserLastIp(address);
             user.setSysUserLongCount(Converter.convertIfNecessary(count, Integer.class));
@@ -170,7 +171,12 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         return result;
     }
 
-    /** AuthVersion */
+    /**
+     * 认证版本
+     *
+     * @param userResult 用户结果
+     * @return 认证版本的结果
+     */
     public String authVersion(UserResult userResult) {
         if (userResult == null || StringUtils.isEmpty(userResult.getUserId())) {
             return null;
@@ -178,12 +184,22 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         return authVersion(Converter.convertIfNecessary(userResult.getUserId(), Integer.class));
     }
 
-    /** AuthVersion */
+    /**
+     * 认证版本
+     *
+     * @param user 用户
+     * @return 认证版本的结果
+     */
     protected String authVersion(SysUser user) {
         return user == null ? null : authVersion(user.getSysUserId());
     }
 
-    /** AuthVersion */
+    /**
+     * 认证版本
+     *
+     * @param userId 用户id
+     * @return 认证版本的结果
+     */
     protected String authVersion(Integer userId) {
         if (userId == null) {
             return null;
@@ -206,7 +222,12 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         }
     }
 
-    /** 解析AuthProfile */
+    /**
+     * 解析认证配置文件
+     *
+     * @param user 用户
+     * @return resolve认证配置文件的结果
+     */
     private LoginAuthProfile resolveAuthProfile(SysUser user) {
         if (user == null || user.getSysUserId() == null) {
             return new LoginAuthProfile();
@@ -231,7 +252,12 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         return profile;
     }
 
-    /** 串行缓存字段 */
+    /**
+     * 串行缓存字段
+     *
+     * @param p p
+     * @return 配置文件转为缓存json的结果
+     */
     private String profileToCacheJson(LoginAuthProfile p) {
         return String.join("|",
                 String.join(",", p.roleCodes),
@@ -240,24 +266,40 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
                 p.dataPermissionRule == null ? "" : p.dataPermissionRule);
     }
 
-    /** 反序列化缓存 */
+    /**
+     * 反序列化缓存
+     *
+     * @param cache 缓存
+     * @return rebuild配置文件从缓存的结果
+     */
     private LoginAuthProfile rebuildProfileFromCache(String cache) {
         LoginAuthProfile p = new LoginAuthProfile();
         String[] parts = cache.split("\\|", 4);
         if (parts.length >= 1 && !parts[0].isEmpty()) {
-            for (String s : parts[0].split(",")) p.roleCodes.add(s);
+            for (String s : parts[0].split(",")) {
+                p.roleCodes.add(s);
+            }
         }
         if (parts.length >= 2 && !parts[1].isEmpty()) {
-            for (String s : parts[1].split(",")) p.permissions.add(s);
+            for (String s : parts[1].split(",")) {
+                p.permissions.add(s);
+            }
         }
         if (parts.length >= 3 && !parts[2].isEmpty()) {
             try { p.dataPermission = DataFilterTypeEnum.valueOf(parts[2]); } catch (Exception ignored) {}
         }
-        if (parts.length >= 4) p.dataPermissionRule = parts[3];
+        if (parts.length >= 4) {
+            p.dataPermissionRule = parts[3];
+        }
         return p;
     }
 
-    /** 实际查询DB解析权限 */
+    /**
+     * 实际查询DB解析权限
+     *
+     * @param user 用户
+     * @return 执行resolve配置文件的结果
+     */
     private LoginAuthProfile doResolveProfile(SysUser user) {
         LoginAuthProfile profile = new LoginAuthProfile();
         List<Map<String, Object>> authRows = sysUserMapper.selectAuthRows(user.getSysUserId());
@@ -295,11 +337,11 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
     }
 
     /**
-     * 生成用户唯一标识（OpenId和UnionId）
+      * 生成用户唯一标识（打开id和unionid）
      * <p>子类可覆盖此方法实现不同的ID生成策略</p>
      *
      * @param user 用户实体
-     * @return String数组，[0]=OpenId, [1]=UnionId
+     * @return String数组，[0]=OpenId, [1]=unionid
      */
     protected abstract String[] generateUserIds(SysUser user);
 
@@ -333,7 +375,13 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         return item;
     }
 
-    /** ToRoleInfo */
+    /**
+     * 转为角色信息
+     *
+     * @param authRow 认证row
+     * @param roleCode 角色编码
+     * @return 转为角色信息的结果
+     */
     private RoleInfo toRoleInfo(Map<String, Object> authRow, String roleCode) {
         RoleInfo item = new RoleInfo();
         item.setRoleCode(roleCode);
@@ -390,7 +438,9 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
             }
             Set<String> permissions = new java.util.LinkedHashSet<>();
             for (Map<String, Object> row : authRows) {
-                if (row == null) continue;
+                if (row == null) {
+                    continue;
+                }
                 String perm = Converter.convertIfNecessary(row.get("sys_menu_perm"), String.class);
                 if (StringUtils.isNotEmpty(perm)) {
                     permissions.add(perm);
@@ -408,9 +458,9 @@ public abstract class AbstractUserLoginService implements UserInfoService, Const
         private final LinkedHashSet<String> roleCodes = new LinkedHashSet<>();
         /** Roleinfos */
         private final LinkedHashSet<RoleInfo> roleInfos = new LinkedHashSet<>();
-        /** Permissions */
+        /** 权限 */
         private final LinkedHashSet<String> permissions = new LinkedHashSet<>();
-        /** 数据permission */
+        /** 数据权限 */
         private DataFilterTypeEnum dataPermission = ALL;
         /** 数据permissionrule */
         private String dataPermissionRule = "";

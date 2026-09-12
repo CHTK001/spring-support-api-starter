@@ -34,18 +34,25 @@ public class TenantServerSyncAckHandler implements SyncMessageHandler {
     private final TenantProperties tenantProperties;
     /** 同步服务器 */
     private final SyncServer syncServer;
-    /** ACKtracker */
+    /** acktracker */
     private final TenantSyncAckTracker ackTracker;
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return "tenant-server-sync-ack";
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 处理 */
+    /**
+     * 处理
+     *
+     * @param topic topic
+     * @param sessionId 会话id
+     * @param data 数据
+     * @return 处理的结果
+     */
     public Object handle(String topic, String sessionId, Map<String, Object> data) {
         if (data == null) {
             data = new java.util.HashMap<>();
@@ -94,7 +101,12 @@ public class TenantServerSyncAckHandler implements SyncMessageHandler {
         return null;
     }
 
-    /** 验证Signature */
+    /**
+     * 验证签名
+     *
+     * @param data 数据
+     * @return 验证签名的结果
+     */
     private TenantSyncMessageSupport.VerificationResult verifySignature(Map<String, Object> data) {
         if (!tenantProperties.isServerSyncSignEnabled()) {
             return TenantSyncMessageSupport.VerificationResult.skip("server sign 未启用");

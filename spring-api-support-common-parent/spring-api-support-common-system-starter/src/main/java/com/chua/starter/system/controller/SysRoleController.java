@@ -41,7 +41,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysRoleController {
 
-    /** SYSrole服务 */
+    /** sysrole服务 */
     private final SysRoleService sysRoleService;
 
 
@@ -50,6 +50,8 @@ public class SysRoleController {
      *
      * @param sysRole 条件
      * @return 角色分页列表
+     * @param query 查询
+     * @param true true
      */
     @Operation(summary = "角色分页列表")
     @GetMapping("/page")
@@ -74,6 +76,7 @@ public class SysRoleController {
      * 删除角色
      *
      * @return 更新角色
+     * @param roleId 角色id
      */
     @Operation(summary = "删除角色")
     @DeleteMapping("/delete")
@@ -113,9 +116,9 @@ public class SysRoleController {
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     /**
      * 获取Menu
-     * @param roles roles
-     * @param roleMenuUpdate roleMenuUpdate
-     * @param bindingResult bindingResult
+     * @param roles 角色
+     * @param roleMenuUpdate 角色menu更新
+     * @param bindingResult binding结果
      */
     public ReturnResult<Set<Integer>> getMenu(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -151,6 +154,7 @@ public class SysRoleController {
      * 新增角色
      *
      * @return 新增角色
+     * @param @Validated(AddGroup.class @Validated(AddGroup.class
      */
     @Operation(summary = "新增角色")
     @PostMapping("/save")

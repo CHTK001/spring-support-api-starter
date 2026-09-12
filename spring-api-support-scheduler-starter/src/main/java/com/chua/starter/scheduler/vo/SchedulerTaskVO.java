@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class SchedulerTaskVO {
 
     /**
-     * 任务 ID
+      * 任务 标识
      */
     private Long jobId;
 
@@ -37,7 +37,7 @@ public class SchedulerTaskVO {
     private String taskName;
 
     /**
-     * 调度类型, 如 CRON / FIXED / NONE
+      * 调度类型, 如 CRON / FIXED / 无
      */
     private String scheduleType;
 

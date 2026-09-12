@@ -24,7 +24,7 @@ import java.util.List;
 public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAccount> implements SysAccountService {
 
     @Override
-    /** 获取ByOpenid */
+    /** 获取byopenid */
     public SysAccount getByOpenid(String accountType, String openid) {
         if (accountType == null || openid == null) {
             return null;
@@ -36,7 +36,7 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     }
 
     @Override
-    /** ListByUnionid */
+    /** 列表byunionid */
     public List<SysAccount> listByUnionid(String accountType, String unionid) {
         if (accountType == null || unionid == null) {
             return List.of();
@@ -48,7 +48,12 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 绑定Account */
+    /**
+     * 绑定账户
+     *
+     * @param account 账户
+     * @return bind账户的结果
+     */
     public ReturnResult<SysAccount> bindAccount(SysAccount account) {
         if (account == null || account.getSysAccountOpenid() == null || account.getSysAccountType() == null) {
             return ReturnResult.error("账号信息不完整");
@@ -77,7 +82,12 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 解绑Account */
+    /**
+     * 解绑账户
+     *
+     * @param accountId 账户id
+     * @return unbind账户的结果
+     */
     public ReturnResult<Boolean> unbindAccount(Integer accountId) {
         if (accountId == null) {
             return ReturnResult.error("accountId 不能为空");
@@ -88,7 +98,12 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 解绑ByUserId */
+    /**
+     * 解绑by用户id
+     *
+     * @param userId 用户id
+     * @return unbindby用户id的结果
+     */
     public int unbindByUserId(Integer userId) {
         if (userId == null) {
             return 0;
@@ -98,7 +113,7 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     }
 
     @Override
-    /** ListByUserId */
+    /** 列表by用户id */
     public List<SysAccount> listByUserId(Integer userId) {
         if (userId == null) {
             return List.of();
@@ -108,7 +123,7 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     }
 
     @Override
-    /** 更新LoginInfo */
+    /** 更新login信息 */
     public boolean updateLoginInfo(Integer accountId, String ip, String ipAddress) {
         if (accountId == null) {
             return false;

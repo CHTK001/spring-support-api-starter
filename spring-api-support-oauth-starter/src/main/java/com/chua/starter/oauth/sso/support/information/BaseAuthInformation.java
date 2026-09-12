@@ -25,14 +25,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * 协议无关的认证信息抽象基类
  * 
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public abstract class BaseAuthInformation implements AuthInformation {
 
     /**
      * 解密结果缓存
-     * key: sign + uuid (签名包含请求内容hash)
-     * value: 解密后的bodyData
+      * 键: 标志 + uuid (签名包含请求内容哈希)
+      * 值: 解密后的主体数据
      * 过期时间: 30秒 (短期缓存，防止相同请求重复解密)
      */
     private static final Cache<String, Map<String, Object>> DECRYPT_CACHE = CacheBuilder.newBuilder()
@@ -41,7 +43,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
             .recordStats()
             .build();
 
-    /** Auth服务器属性 */
+    /** 认证服务器属性 */
     protected final AuthServerProperties authServerProperties;
     /** 数据 */
     private final String data;
@@ -57,18 +59,18 @@ public abstract class BaseAuthInformation implements AuthInformation {
     private final String protocol;
     /** UUID */
     protected final String uuid;
-    /** Serial */
+    /** 串行 */
     private final String serial;
-    /** Sign */
+    /** 标志 */
     private final String sign;
     /** Access密钥 */
     private final String accessKey;
-    /** ISencode */
+    /** isencode */
     protected final boolean isEncode;
-    protected final Map<String, Object> bodyData = new LinkedHashMap<>();
+    protected final Map<String, Object> bodyData = new LinkedHashMap<>(); // 主体数据
     /** 加密 */
     private final String encryption;
-    /** Success */
+    /** 成功 */
     private AtomicBoolean success = new AtomicBoolean(false);
 
     /**
@@ -104,30 +106,44 @@ public abstract class BaseAuthInformation implements AuthInformation {
     /**
      * 抽象方法：获取请求头信息
      * 不同协议需要实现自己的头信息获取逻辑
+     * @param request 请求
+     * @param headerName 头部名称
+     * @return 获取请求头部的结果
      */
     protected abstract String getRequestHeader(Object request, String headerName);
 
     /**
      * 抽象方法：设置响应头信息
      * 不同协议需要实现自己的头信息设置逻辑
+     * @param response 响应
+     * @param headerName 头部名称
+     * @param headerValue 头部值
      */
     protected abstract void setResponseHeader(Object response, String headerName, String headerValue);
 
     /**
      * 抽象方法：获取远程地址
      * 不同协议需要实现自己的地址获取逻辑
+     * @param request 请求
+     * @return 获取远程地址的结果
      */
     protected abstract String getRemoteAddress(Object request);
 
     /**
      * 抽象方法：获取请求属性
      * 不同协议需要实现自己的属性获取逻辑
+     * @param request 请求
+     * @param attributeName attribute名称
+     * @return 获取请求attribute的结果
      */
     protected abstract Object getRequestAttribute(Object request, String attributeName);
 
     /**
      * 抽象方法：设置请求属性
      * 不同协议需要实现自己的属性设置逻辑
+     * @param request 请求
+     * @param attributeName attribute名称
+     * @param attributeValue attribute值
      */
     protected abstract void setRequestAttribute(Object request, String attributeName, Object attributeValue);
 
@@ -234,8 +250,9 @@ public abstract class BaseAuthInformation implements AuthInformation {
     }
 
     /**
-     * 构建解密缓存key
+      * 构建解密缓存键
      * 基于签名和uuid，因为签名是根据请求内容计算的
+     * @return 构建decrypt缓存键的结果
      */
     private String buildDecryptCacheKey() {
         if (StringUtils.isBlank(sign) || StringUtils.isBlank(uuid)) {
@@ -246,6 +263,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
     
     /**
      * 获取解密缓存统计信息
+     * @return 获取decrypt缓存stats的结果
      */
     public static String getDecryptCacheStats() {
         return DECRYPT_CACHE.stats().toString();
@@ -260,6 +278,8 @@ public abstract class BaseAuthInformation implements AuthInformation {
 
     /**
      * 记录请求完成信息
+     * @param startTime 启动时间
+     * @param clientIp 客户端ip
      */
     private void logRequestCompletion(long startTime, String clientIp) {
         long cost = System.currentTimeMillis() - startTime;
@@ -268,6 +288,8 @@ public abstract class BaseAuthInformation implements AuthInformation {
 
     /**
      * 脱敏密钥
+     * @param key 键
+     * @return mask键的结果
      */
     private String maskKey(String key) {
         if (key == null || key.length() < 8) {
@@ -277,7 +299,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
     }
 
     @Override
-    /** 记录错误Message */
+    /** 记录错误消息 */
     public String errorMessage() {
         if (!success.get()) {
             return "解析失败!";
@@ -298,7 +320,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
     }
 
     @Override
-    /** 获取AuthServerProperties */
+    /** 获取认证服务端属性 */
     public AuthServerProperties getAuthServerProperties() {
         return authServerProperties;
     }
@@ -322,6 +344,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
 
     /**
      * 获取响应对象
+     * @return 获取响应的结果
      */
     protected Object getResponse() {
         return response;
@@ -329,57 +352,88 @@ public abstract class BaseAuthInformation implements AuthInformation {
 
     /**
      * 获取请求对象
+     * @return 获取请求的结果
      */
     protected Object getRequest() {
         return request;
     }
 
     /**
-     * 获取登录检测服务（供认证处理器解析 TokenResolver 使用）
+      * 获取登录检测服务（供认证处理器解析 令牌解析器 使用）
+     * @return 获取login检查的结果
      */
     public LoginCheck getLoginCheck() {
         return loginCheck;
     }
 
     /**
-     * 获取 Spring 应用上下文（供认证处理器解析 TokenResolver 使用）
+      * 获取 Spring 应用上下文（供认证处理器解析 令牌解析器 使用）
+     * @return 获取application上下文的结果
      */
     public ApplicationContext getApplicationContext() {
         return applicationContext;
     }
 
     // Getter方法
-    /** 获取Uuid */
+    /**
+     * 获取Uuid
+     *
+     * @return 获取uuid的结果
+     */
     public String getUuid() {
         return uuid;
     }
 
-    /** 获取Serial */
+    /**
+     * 获取串行
+     *
+     * @return 获取串行的结果
+     */
     public String getSerial() {
         return serial;
     }
 
-    /** 获取Protocol */
+    /**
+     * 获取协议
+     *
+     * @return 获取协议的结果
+     */
     public String getProtocol() {
         return protocol;
     }
 
-    /** 获取Sign */
+    /**
+     * 获取标志
+     *
+     * @return 获取标志的结果
+     */
     public String getSign() {
         return sign;
     }
 
-    /** 是否编码 */
+    /**
+     * 是否编码
+     *
+     * @return 是否encode的结果
+     */
     public boolean isEncode() {
         return isEncode;
     }
 
-    /** 获取BodyData */
+    /**
+     * 获取主体数据
+     *
+     * @return 获取主体数据的结果
+     */
     public Map<String, Object> getBodyData() {
         return bodyData;
     }
 
-    /** 获取Encryption */
+    /**
+     * 获取加密
+     *
+     * @return 获取加密的结果
+     */
     public String getEncryption() {
         return encryption;
     }

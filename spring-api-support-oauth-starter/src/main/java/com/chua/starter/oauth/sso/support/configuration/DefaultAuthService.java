@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.stereotype.Component;
 
 /**
- * AuthService 默认实现(返回空用户,0 值)
+   * 认证服务 默认实现(返回空用户,0 值)
  * <p>当无其他模块提供 AuthService 实现时,以此兜底,避免依赖方 NPE。</p>
  *
  * @author CH

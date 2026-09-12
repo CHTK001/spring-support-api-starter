@@ -14,23 +14,23 @@ import lombok.Data;
 public class FeedbackIssueV1Request {
 
     /**
-     * 反馈ID
+      * 反馈标识
      */
     @Schema(description = "反馈ID")
-    /** SYSfeedbackID */
+    /** sysfeedbackid */
     private Integer sysFeedbackId;
 
     /**
      * 回复内容
      */
     @Schema(description = "回复内容")
-    /** SYSfeedbackrecover内容 */
+    /** sysfeedbackrecover内容 */
     private String sysFeedbackRecoverContent;
 
     /**
      * 回复图片
      */
     @Schema(description = "回复图片")
-    /** SYSfeedbackrecoverimages */
+    /** sysfeedbackrecoverimages */
     private String sysFeedbackRecoverImages;
 }

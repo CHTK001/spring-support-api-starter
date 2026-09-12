@@ -51,15 +51,15 @@ import java.util.Base64;
  * OAuth 2.0 标准协议服务端实现
  * <p>
  * 提供符合 RFC 6749 规范的 OAuth 2.0 认证服务端点，包括：
- * - Token端点：支持 client_credentials、password、refresh_token 授权模式
+   * - 令牌端点：支持 客户端_凭证、密码、refresh_令牌 授权模式
  * - Revoke端点：撤销令牌 (RFC 7009)
  * - Introspect端点：令牌内省 (RFC 7662)
- * - UserInfo端点：获取用户信息
+   * - 用户信息端点：获取用户信息
  * - 服务发现端点：OAuth服务器元数据
  * </p>
  *
  * @author CH
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-12-15
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc6749">RFC 6749 - OAuth 2.0</a>
  */
@@ -71,28 +71,28 @@ import java.util.Base64;
 @Tag(name = "OAuth 2.0认证服务", description = "提供符合RFC 6749规范的OAuth 2.0认证服务接口")
 public class Oauth2Protocol implements OauthProtocol, InitializingBean {
 
-    private final AuthServerProperties authServerProperties;
-    private final LoginCheck loginCheck;
-    private final ApplicationContext applicationContext;
-    private final SysAppKeyService sysAppKeyService;
-    private final SysAppIdService sysAppIdService;
-    private final OAuth2CoreService oAuth2CoreService;
-    private final TokenBlacklistService tokenBlacklistService;
+    private final AuthServerProperties authServerProperties; // 认证服务端属性
+    private final LoginCheck loginCheck; // login检查
+    private final ApplicationContext applicationContext; // application上下文
+    private final SysAppKeyService sysAppKeyService; // sysapp键服务
+    private final SysAppIdService sysAppIdService; // sysappid服务
+    private final OAuth2CoreService oAuth2CoreService; // oauth2核心服务
+    private final TokenBlacklistService tokenBlacklistService; // 令牌blacklist服务
 
     @Value("${server.servlet.context-path:}")
-    private String contextPath;
+    private String contextPath; // 上下文路径
     
-    private ProtocolServer protocolServer;
+    private ProtocolServer protocolServer; // 协议服务端
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        // 检查是否启用 oauth2 协议
+ // 检查是否启用 OAuth2 协议
         if (!authServerProperties.getProtocols().contains("oauth2")) {
             log.info("[OAuth][OAuth2] OAuth2 协议未启用，跳过 ProtocolServer 启动");
             return;
         }
 
-        // 当 HTTP 协议已启用时，OAuth2 路由复用同一个 ProtocolServer，避免重复占用端口。
+ // 当 HTTP 协议已启用时，OAuth2 路由复用同一个 协议服务端，避免重复占用端口。
         if (authServerProperties.getProtocols().contains("http")) {
             log.info("[OAuth][OAuth2] 复用 HTTP ProtocolServer 注册 OAuth2 路由");
             return;
@@ -106,7 +106,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
                     .options(Options.of("contextPath", contextPath))
                     .build();
 
-            // 获取 Protocol 实例
+ // 获取 协议 实例
             var protocol = ServiceProvider.of(Protocol.class).getNewExtension("http", protocolSetting);
             if (protocol == null) {
                 protocol = ServiceProvider.of(Protocol.class).getNewExtension("armeria", protocolSetting);
@@ -116,7 +116,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
                 return;
             }
 
-            // 创建并启动 ProtocolServer
+ // 创建并启动 协议服务端
             protocolServer = protocol.createServer(protocolSetting);
             registerProtocolServerRoutes(protocolServer);
             protocolServer.start();
@@ -128,9 +128,9 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     }
     
     /**
-     * 注册 ProtocolServer 路由
+      * 注册 协议服务端 路由
      *
-     * @param server ProtocolServer 实例
+     * @param server 协议服务端 实例
      */
     public void registerProtocolServerRoutes(ProtocolServer server) {
         // OAuth2 授权端点 (GET)
@@ -150,7 +150,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
                 
                 log.info("[OAuth][OAuth2] 授权请求: clientId={}, responseType={}, scope={}", clientId, responseType, scope);
 
-        // 验证 response_type
+ // 验证 响应_类型
         if (!"code".equals(responseType)) {
             sendAuthorizeError(response, redirectUri, state, "unsupported_response_type", "只支持 response_type=code");
             return;
@@ -170,7 +170,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
             return;
         }
 
-        // 验证 grant_type
+ // 验证 grant_类型
         if (!oAuth2CoreService.isGrantTypeAllowed(clientId, "authorization_code")) {
             sendAuthorizeError(response, redirectUri, state, "unauthorized_client", "客户端未授权使用 authorization_code 模式");
             return;
@@ -246,7 +246,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
                 
                 log.info("[OAuth][OAuth2] Token请求 - grant_type: {}, client_id: {}", grantType, clientId);
 
-        // 从 Authorization头解析Basic认证
+ // 从 授权头解析基础认证
         if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
                     String[] credentials = extractBasicCredentials(protocolRequest);
             if (credentials != null) {
@@ -262,7 +262,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
                     return;
         }
 
-        // authorization_code 模式不需要验证 client_secret（如果使用 PKCE）
+ // 授权_编码 模式不需要验证 客户端_secret（如果使用 PKCE）
         if (!"authorization_code".equalsIgnoreCase(grantType)) {
             // 验证客户端凭据
             if (!validateClientCredentials(clientId, clientSecret)) {
@@ -282,7 +282,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
             }
         }
 
-        // 根据 grant_type处理不同的授权模式
+ // 根据 grant_类型处理不同的授权模式
                 Map<String, Object> result = switch (grantType.toLowerCase()) {
                     case "authorization_code" -> handleAuthorizationCode(code, redirectUri, codeVerifier, clientId, clientSecret, scope, protocolResponse);
                     case "client_credentials" -> handleClientCredentials(clientId, scope, protocolResponse);
@@ -496,7 +496,9 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     }
     
     /**
-     * 从 ServletRequest 提取请求体
+      * 从 servlet请求 提取请求体
+     * @param request 请求
+     * @return extract主体的结果
      */
     private String extractBody(ServletRequest request) {
         try {
@@ -513,6 +515,8 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     
     /**
      * 解析 form-urlencoded 格式的请求体
+     * @param body 主体
+     * @return 解析formurlencoded的结果
      */
     private Map<String, String> parseFormUrlEncoded(String body) {
         Map<String, String> params = new HashMap<>();
@@ -535,6 +539,8 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     
     /**
      * 写入 JSON 响应
+     * @param response 响应
+     * @param data 数据
      */
     private void writeJsonResponse(ServletResponse response, Object data) {
         try {
@@ -565,7 +571,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
                     .queryParamIfPresent("state", Optional.ofNullable(state))
                     .build().toUriString();
             
-            // 创建 ProtocolServerResponse 包装器以使用 sendRedirect 方法
+ // 创建 协议服务端响应 包装器以使用 发送redirect 方法
             var protocolResponse = new ProtocolServerAuthInformation.ProtocolServerResponse(response);
             protocolResponse.sendRedirect(redirectUrl);
         } catch (Exception e) {
@@ -604,13 +610,13 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
             return buildErrorResponse("invalid_grant", "授权码无效或已过期");
         }
 
-        // 如果没有使用 PKCE，需要验证 client_secret
+ // 如果没有使用 PKCE，需要验证 客户端_secret
         if (StringUtils.isBlank(codeVerifier) && !validateClientCredentials(clientId, clientSecret)) {
             response.setStatus(401);
             return buildErrorResponse("invalid_client", "客户端认证失败");
         }
 
-        // 为用户创建 Token
+ // 为用户创建 令牌
         TokenResolver tokenResolver = getTokenResolver();
         if (tokenResolver == null) {
             response.setStatus(500);
@@ -640,6 +646,10 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
 
     /**
      * 处理客户端凭据模式
+     * @param clientId 客户端id
+     * @param scope scope
+     * @param response 响应
+     * @return 处理客户端凭证的结果
      */
     private Map<String, Object> handleClientCredentials(String clientId, String scope, HttpServletResponse response) {
         log.debug("处理client_credentials授权 - clientId: {}", clientId);
@@ -650,7 +660,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
             return buildErrorResponse("server_error", "Token管理器不可用");
         }
 
-        // 为客户端创建Token
+ // 为客户端创建令牌
         UserResult userResult = new UserResult();
         userResult.setUserId("client:" + clientId);
         userResult.setUsername(clientId);
@@ -690,7 +700,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
         ext.put("address", clientAddress);
         ext.put("loginType", "PASSWORD");
 
-        // 使用LoginCheck进行登录验证
+ // 使用login检查进行登录验证
         ReturnResult<LoginResult> result = loginCheck.doLogin(clientAddress, username, password, "PASSWORD", ext);
 
         if (!result.isOk()) {
@@ -703,6 +713,10 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
 
     /**
      * 处理刷新令牌模式
+     * @param refreshToken refresh令牌
+     * @param scope scope
+     * @param response 响应
+     * @return 处理refresh令牌的结果
      */
     private Map<String, Object> handleRefreshToken(String refreshToken, String scope, HttpServletResponse response) {
         log.debug("处理refresh_token授权");
@@ -727,7 +741,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
         UserResume userResume = result.getData();
 
         Map<String, Object> tokenResponse = new LinkedHashMap<>();
-        // UserResult extends UserResume，包含token字段
+ // 用户结果 extends 用户resume，包含令牌字段
         if (userResume instanceof UserResult userResult) {
             tokenResponse.put("access_token", userResult.getToken());
             tokenResponse.put("token_type", "Bearer");
@@ -749,6 +763,10 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
 
     // ==================== 辅助方法 ====================
 
+    /**
+     * 获取令牌解析器。
+     * @return 获取令牌解析器的结果
+     */
     private TokenResolver getTokenResolver() {
         return ServiceProvider.of(TokenResolver.class)
                 .getExtension(authServerProperties.getTokenManagement());
@@ -757,10 +775,10 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     /**
      * 验证客户端凭据
      * <p>
-     * 先尝试通过 AppId 验证，如果不存在，再尝试通过 AppKey 验证
+      * 先尝试通过 appid 验证，如果不存在，再尝试通过 app键 验证
      * </p>
      *
-     * @param clientId     客户端ID (可能是 appId 或 appKey)
+     * @param clientId     客户端标识 (可能是 appid 或 app键)
      * @param clientSecret 客户端密钥
      * @return 是否验证通过
      */
@@ -770,10 +788,10 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
         }
         
         try {
-            // 先尝试通过 AppId 验证
+ // 先尝试通过 appid 验证
             SysAppId appId = getAppIdSafely(clientId);
             if (appId != null) {
-                // 验证 AppId 状态和过期时间
+ // 验证 appid 状态和过期时间
                 if (appId.getAppIdStatus() != null && appId.getAppIdStatus() != 1) {
                     log.warn("AppId已禁用: clientId={}", clientId);
                     return false;
@@ -789,13 +807,13 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
                     log.warn("AppId关联用户在黑名单中或黑名单服务不可用: clientId={}, userId={}", clientId, appId.getUserId());
                     return false;
                 }
-                // AppId 验证通过，更新使用信息
+ // appid 验证通过，更新使用信息
                 sysAppIdService.updateUseInfo(clientId);
                 log.debug("OAuth2客户端验证通过（AppId）: clientId={}", clientId);
                 return true;
             }
             
-            // 如果 AppId 不存在，尝试通过 AppKey 验证
+ // 如果 appid 不存在，尝试通过 app键 验证
             SysAppKey appKey = sysAppKeyService.getByAppKey(clientId);
             if (appKey != null && (tokenBlacklistService == null
                     || tokenBlacklistService.isUserBlacklisted(String.valueOf(appKey.getSysUserId())))) {
@@ -818,8 +836,15 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-     * 安全查询 AppId。
+      * 安全查询 appid。
      * <p>当前部分环境只保留 AppKey 体系，没有 app_id 表；此时应继续回退到 AppKey 校验。</p>
+     * @param request 请求
+     /**
+      * 获取appidsafely。
+      * @param clientId 客户端id
+      * @return 获取appidsafely的结果
+      */
+     * @return 获取baseurl的结果
      */
     private SysAppId getAppIdSafely(String clientId) {
         try {
@@ -848,6 +873,12 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
             log.debug("解析Basic认证头失败", e);
         }
         return null;
+    /**
+     * 构建令牌响应。
+     * @param loginResult login结果
+     * @param scope scope
+     * @return 构建令牌响应的结果
+     */
     }
 
     private Map<String, Object> buildTokenResponse(LoginResult loginResult, String scope) {
@@ -871,6 +902,12 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
         }
 
         return response;
+    /**
+     * 构建错误响应。
+     * @param error 错误
+     * @param description description
+     * @return 构建错误响应的结果
+     */
     }
 
     private Map<String, Object> buildErrorResponse(String error, String description) {

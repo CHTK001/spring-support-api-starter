@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
- * 自动向 SyncServer 注册租户同步服务端处理器。
+   * 自动向 同步服务端 注册租户同步服务端处理器。
  *
  * @since 2026/03/25
  * @author CH
@@ -33,7 +33,7 @@ public class TenantSyncServerRegistrar implements InitializingBean {
     private final TenantServerSyncAckHandler tenantServerSyncAckHandler;
 
     @Override
-    /** AfterProperties设置 */
+    /** 之后属性设置 */
     public void afterPropertiesSet() {
         if (!tenantProperties.isServerMode() || !tenantProperties.getServer().isSyncEnable()) {
             return;

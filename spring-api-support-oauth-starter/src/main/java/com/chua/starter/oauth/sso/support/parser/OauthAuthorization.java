@@ -13,6 +13,8 @@ import org.springframework.context.ApplicationContext;
 /**
  * 鉴权信息
  *
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public final class OauthAuthorization implements Authorization {
@@ -24,20 +26,20 @@ public final class OauthAuthorization implements Authorization {
     private final String subProtocol;
     /** 用户代码 */
     private final String userCode;
-    final ApplicationContext applicationContext;
-    final LoginCheck loginCheck;
+    final ApplicationContext applicationContext; // application上下文
+    final LoginCheck loginCheck; // login检查
     /** Authinformation */
     private final OauthAuthInformation authInformation;
 
     /**
-     * 创建 OauthAuthorization 实例
-     * @param authInformation authInformation
-     * @param token token
-     * @param cookie cookie
-     * @param subProtocol subProtocol
-     * @param userCode userCode
-     * @param applicationContext applicationContext
-     * @param loginCheck loginCheck
+      * 创建 oauth授权 实例
+     * @param authInformation 认证信息
+     * @param token 令牌
+     * @param cookie Cookie
+     * @param subProtocol sub协议
+     * @param userCode 用户编码
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public OauthAuthorization(OauthAuthInformation authInformation,
                               String token,
@@ -56,7 +58,7 @@ public final class OauthAuthorization implements Authorization {
     }
 
     @Override
-    /** Authentication */
+    /** 认证 */
     public ReturnResult<String> authentication() {
         log.info("开始认证: subProtocol={}, hasToken={}, hasUserCode={}", 
                 subProtocol, StringUtils.isNotBlank(token), StringUtils.isNotBlank(userCode));
@@ -64,7 +66,7 @@ public final class OauthAuthorization implements Authorization {
         // 获取追踪上下文
         ServerTraceContext traceContext = ServerTraceContext.current();
         
-        // Span: 验证Token
+ // Span: 验证令牌
         if (traceContext != null) {
             traceContext.startSpan("server_validate_token");
         }
@@ -90,15 +92,15 @@ public final class OauthAuthorization implements Authorization {
      * 选择认证处理器
      * <p>
      * 优先级：
-     * 1. 根据subProtocol精确匹配
-     * 2. 根据参数类型自动选择（userCode→AppKey, token→JWT）
+      * 1. 根据sub协议精确匹配
+      * 2. 根据参数类型自动选择（用户编码→app键, 令牌→JWT）
      * 3. 使用默认处理器
      * </p>
      *
      * @return 认证处理器
      */
     private AuthorizationHandler selectAuthorizationHandler() {
-        // 1. 如果指定了subProtocol，尝试精确匹配
+ // 1. 如果指定了sub协议，尝试精确匹配
         if (StringUtils.isNotBlank(subProtocol)) {
             AuthorizationHandler handler = ServiceProvider.of(AuthorizationHandler.class)
                     .getExtension(subProtocol);

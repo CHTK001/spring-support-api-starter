@@ -28,7 +28,7 @@ public class SysBankBinsServiceImpl extends ServiceImpl<SysBankBinsMapper, SysBa
 
     @Lazy
     @Autowired
-    /** SYSbankbins服务 */
+    /** sysbankbins服务 */
     private SysBankBinsService sysBankBinsService;
 
     /**

@@ -7,15 +7,16 @@ package com.chua.starter.oauth.sso.support.protocol;
  * 避免在 {@link OauthProtocolServerManager} 与 {@link OauthProtocolHandler} 中散落硬编码值。</p>
  *
  * @since 4.0.0.42
+ * @author CH
  */
 public final class OauthProtocolConstants {
 
-    /** 创建 OauthProtocolConstants 实例 */
+    /** 创建 oauth协议常量 实例 */
     private OauthProtocolConstants() {
     }
 
     /**
-     * 默认 HTTP Server 类型(对应 common network.Server 的 SPI 键)
+      * 默认 HTTP 服务端 类型(对应 通用 network.服务端 的 SPI 键)
      */
     public static final String DEFAULT_TYPE = "jdk";
 
@@ -50,7 +51,7 @@ public final class OauthProtocolConstants {
     public static final String CONTENT_TYPE_JSON = "application/json";
 
     /**
-     * client address 的 /oauth 兼容前缀
+      * 客户端 地址 的 /OAuth 兼容前缀
      */
     public static final String OAUTH_PREFIX = "/oauth";
 
@@ -80,7 +81,7 @@ public final class OauthProtocolConstants {
     public static final String PATH_VERIFY = "/verify";
 
     /**
-     * 兼容鉴权路径(/oauth)
+      * 兼容鉴权路径(/OAuth)
      */
     public static final String PATH_OAUTH = "/oauth";
 
@@ -107,7 +108,7 @@ public final class OauthProtocolConstants {
     public static final String HEADER_SIGN = "x-oauth-sign";
 
     /**
-     * 认证请求 AccessKey 头
+      * 认证请求 访问密钥 头
      */
     public static final String HEADER_ACCESS_KEY = "x-oauth-ak";
 
@@ -127,12 +128,12 @@ public final class OauthProtocolConstants {
     public static final String HEADER_RESPONSE_SERIAL = "x-oauth-response-serial";
 
     /**
-     * 授权头(用于解析 Bearer Token)
+      * 授权头(用于解析 Bearer 令牌)
      */
     public static final String HEADER_AUTHORIZATION = "Authorization";
 
     /**
-     * Bearer Token 前缀
+      * Bearer 令牌 前缀
      */
     public static final String AUTH_SCHEME_BEARER = "Bearer ";
 
@@ -162,7 +163,7 @@ public final class OauthProtocolConstants {
     public static final String FIELD_EXT = "x-oauth-ext";
 
     /**
-     * Token 值
+      * 令牌 值
      */
     public static final String FIELD_TOKEN = "x-oauth-token";
 
@@ -182,7 +183,7 @@ public final class OauthProtocolConstants {
     public static final String FIELD_REFRESH_TOKEN = "x-oauth-refresh-token";
 
     /**
-     * 升级类型(TIMESTAMP / VERSION / REFRESH)
+      * 升级类型(时间戳 / 版本 / REFRESH)
      */
     public static final String FIELD_UPGRADE_TYPE = "x-oauth-upgrade-type";
 

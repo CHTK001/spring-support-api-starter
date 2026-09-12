@@ -23,46 +23,46 @@ public class SysAvatarFrame extends SysBase {
 
     @TableId(value = "sys_avatar_frame_id", type = IdType.AUTO)
     @Schema(description = "头像框ID")
-    /** SYSavatarframeID */
+    /** sysavatarframeid */
     private Integer sysAvatarFrameId;
 
     @TableField(value = "sys_avatar_frame_name")
     @Schema(description = "头像框名称")
-    /** SYSavatarframe名称 */
+    /** sysavatarframe名称 */
     private String sysAvatarFrameName;
 
     @TableField(value = "sys_avatar_frame_type")
     @Schema(description = "类型: base-基础 birthday-生日 event-活动")
-    /** SYSavatarframe类型 */
+    /** sysavatarframe类型 */
     private String sysAvatarFrameType;
 
     @TableField(value = "sys_avatar_frame_image")
     @Schema(description = "头像框图片URL")
-    /** SYSavatarframe图片 */
+    /** sysavatarframe图片 */
     private String sysAvatarFrameImage;
 
     @TableField(value = "sys_avatar_frame_color")
     @Schema(description = "渐变背景色(css)")
-    /** SYSavatarframe颜色 */
+    /** sysavatarframe颜色 */
     private String sysAvatarFrameColor;
 
     @TableField(value = "sys_avatar_frame_desc")
     @Schema(description = "描述")
-    /** SYSavatarframedesc */
+    /** sysavatarframedesc */
     private String sysAvatarFrameDesc;
 
     @TableField(value = "sys_avatar_frame_acquire")
     @Schema(description = "获取途径: default-默认 birthday-生日 achievement-成就")
-    /** SYSavatarframeacquire */
+    /** sysavatarframeacquire */
     private String sysAvatarFrameAcquire;
 
     @TableField(value = "sys_avatar_frame_sort")
     @Schema(description = "排序")
-    /** SYSavatarframesort */
+    /** sysavatarframesort */
     private Integer sysAvatarFrameSort;
 
     @TableField(value = "sys_avatar_frame_status")
     @Schema(description = "状态: 0-禁用 1-启用")
-    /** SYSavatarframe状态 */
+    /** sysavatarframe状态 */
     private Integer sysAvatarFrameStatus;
 }

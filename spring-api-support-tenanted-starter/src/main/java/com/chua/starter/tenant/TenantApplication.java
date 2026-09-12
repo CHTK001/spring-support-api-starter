@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * 多租户 SaaS 平台启动入口。
+   * 多租户 saas 平台启动入口。
  *
  * <p>依赖以下 starter:</p>
  * <ul>
@@ -53,7 +53,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         }
 )
 /**
- * public class TenantApplication extends SpringBootServletInitializer {
+   * 公共 类 tenantapplication extends springbootservletinitializer {
  *
  * @author CH
  * @since 4.0.0.42

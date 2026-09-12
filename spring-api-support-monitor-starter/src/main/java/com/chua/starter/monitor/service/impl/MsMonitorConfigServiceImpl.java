@@ -24,9 +24,9 @@ public class MsMonitorConfigServiceImpl extends ServiceImpl<MsMonitorConfigMappe
         implements MsMonitorConfigService {
 
     /**
-     * 读取全部配置项，返回键值对映射；相同 key 时后面的值覆盖前面的值。
+      * 读取全部配置项，返回键值对映射；相同 键 时后面的值覆盖前面的值。
      *
-     * @return 配置键值对 Map
+     * @return 配置键值对 映射
      */
     @Override
     public Map<String, String> getAllConfigMap() {

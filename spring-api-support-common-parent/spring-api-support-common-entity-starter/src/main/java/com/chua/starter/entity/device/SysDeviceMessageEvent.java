@@ -23,11 +23,11 @@ import java.time.LocalDateTime;
 @TableName(value = "sys_device_message_event")
 public class SysDeviceMessageEvent extends SysBase {
     /**
-     * 事件主键ID
+      * 事件主键标识
      */
     @TableId(value = "sys_device_message_event_id", type = IdType.AUTO)
     @Schema(description = "")
-    /** SYSdevice消息事件ID */
+    /** sysdevice消息事件标识 */
     private Integer sysDeviceMessageEventId;
 
     /**
@@ -35,15 +35,15 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_type")
     @Schema(description = "事件类型")
-    /** SYSdevice消息事件类型 */
+    /** sysdevice消息事件类型 */
     private String sysDeviceMessageEventType;
 
     /**
-     * 事件ID
+      * 事件标识
      */
     @TableField(value = "sys_device_message_event_event_id")
     @Schema(description = "事件ID")
-    /** SYSdevice消息事件事件ID */
+    /** sysdevice消息事件事件标识 */
     private String sysDeviceMessageEventEventId;
 
     /**
@@ -51,15 +51,15 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_data_time")
     @Schema(description = "事件时间")
-    /** SYSdevice消息事件数据时间 */
+    /** sysdevice消息事件数据时间 */
     private LocalDateTime sysDeviceMessageEventDataTime;
 
     /**
-     * 人员ID
+      * 人员标识
      */
     @TableField(value = "sys_device_message_event_employee_no")
     @Schema(description = "人员ID")
-    /** SYSdevice消息事件employeeNO */
+    /** sysdevice消息事件员工no */
     private String sysDeviceMessageEventEmployeeNo;
 
     /**
@@ -67,7 +67,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_employee_name")
     @Schema(description = "姓名")
-    /** SYSdevice消息事件employee名称 */
+    /** sysdevice消息事件员工名称 */
     private String sysDeviceMessageEventEmployeeName;
 
     /**
@@ -75,7 +75,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_card_no")
     @Schema(description = "卡号")
-    /** SYSdevice消息事件cardNO */
+    /** sysdevice消息事件卡片no */
     private String sysDeviceMessageEventCardNo;
 
     /**
@@ -83,7 +83,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_serial_number")
     @Schema(description = "设备序列号")
-    /** SYSdeviceserial数字 */
+    /** sysdeviceserial数字 */
     private String sysDeviceSerialNumber;
 
     /**
@@ -91,7 +91,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_name")
     @Schema(description = "设备名称")
-    /** SYSdevice名称 */
+    /** sysdevice名称 */
     private String sysDeviceName;
 
     /**
@@ -99,7 +99,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_channel_no")
     @Schema(description = "触发报警的设备通道号")
-    /** SYSdevice消息事件通道NO */
+    /** sysdevice消息事件通道NO */
     private String sysDeviceMessageEventChannelNo;
 
     /**
@@ -107,7 +107,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_location")
     @Schema(description = "触发设备通道位置")
-    /** SYSdevice消息事件location */
+    /** sysdevice消息事件位置 */
     private String sysDeviceMessageEventLocation;
 
     /**
@@ -115,7 +115,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_channel_name")
     @Schema(description = "触发报警的设备通道名称")
-    /** SYSdevice消息事件通道名称 */
+    /** sysdevice消息事件通道名称 */
     private String sysDeviceMessageEventChannelName;
 
     /**
@@ -123,7 +123,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_card_reader_kind")
     @Schema(description = "读卡器类型：1-IC读卡器，2-身份证读卡器，3-二维码读卡器")
-    /** SYSdevice消息事件card读取器kind */
+    /** sysdevice消息事件卡片读取器种类 */
     private String sysDeviceMessageEventCardReaderKind;
 
     /**
@@ -131,7 +131,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_card_reader_no")
     @Schema(description = "读卡器编号")
-    /** SYSdevice消息事件card读取器NO */
+    /** sysdevice消息事件卡片读取器NO */
     private Integer sysDeviceMessageEventCardReaderNo;
 
     /**
@@ -139,7 +139,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_door_no")
     @Schema(description = "门编号")
-    /** SYSdevice消息事件doorNO */
+    /** sysdevice消息事件门no */
     private String sysDeviceMessageEventDoorNo;
 
     /**
@@ -147,7 +147,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_event_type")
     @Schema(description = "事件消息类型")
-    /** SYSdevice消息事件事件类型 */
+    /** sysdevice消息事件事件类型 */
     private String sysDeviceMessageEventEventType;
 
     /**
@@ -155,7 +155,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_event_type_name")
     @Schema(description = "事件类型名称")
-    /** SYSdevice消息事件事件类型名称 */
+    /** sysdevice消息事件事件类型名称 */
     private String sysDeviceMessageEventEventTypeName;
 
     /**
@@ -163,7 +163,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_event_code")
     @Schema(description = "事件码")
-    /** SYSdevice消息事件事件代码 */
+    /** sysdevice消息事件事件代码 */
     private String sysDeviceMessageEventEventCode;
 
     /**
@@ -171,7 +171,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_event_description")
     @Schema(description = "事件描述")
-    /** SYSdevice消息事件事件描述 */
+    /** sysdevice消息事件事件描述 */
     private String sysDeviceMessageEventEventDescription;
 
     /**
@@ -179,7 +179,7 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_event_source")
     @Schema(description = "事件来源(目前暂未使用)")
-    /** SYSdevice消息事件事件来源 */
+    /** sysdevice消息事件事件来源 */
     private String sysDeviceMessageEventEventSource;
 
     /**
@@ -187,6 +187,6 @@ public class SysDeviceMessageEvent extends SysBase {
      */
     @TableField(value = "sys_device_message_event_event_picture_url")
     @Schema(description = "图片URL")
-    /** SYSdevice消息事件事件pictureURL */
+    /** sysdevice消息事件事件pictureurl */
     private String sysDeviceMessageEventEventPictureUrl;
 }

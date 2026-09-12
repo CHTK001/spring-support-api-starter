@@ -55,19 +55,19 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
-    final AuthClientProperties authProperties;
-    final TransactionTemplate transactionTemplate;
-    final SysRoleMapper sysRoleMapper;
-    final SysUserRoleService sysUserRoleService;
-    final RestTemplate restTemplate;
-    final RedisTemplate redisTemplate;
-    final SysMenuService sysMenuService;
-    final SysMiniMenuService sysMiniMenuService;
-    final IptablesService iptablesService;
-    final SysUserLayoutMapper sysUserLayoutMapper;
-    final SysUserLogMapper sysUserLogMapper;
-    final SystemSecurityProperties securityProperties;
-    private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
+    final AuthClientProperties authProperties; // 认证属性
+    final TransactionTemplate transactionTemplate; // transactionTemplate
+    final SysRoleMapper sysRoleMapper; // sys角色映射器
+    final SysUserRoleService sysUserRoleService; // sys用户角色服务
+    final RestTemplate restTemplate; // restTemplate
+    final RedisTemplate redisTemplate; // redisTemplate
+    final SysMenuService sysMenuService; // sysmenu服务
+    final SysMiniMenuService sysMiniMenuService; // sysminimenu服务
+    final IptablesService iptablesService; // iptables服务
+    final SysUserLayoutMapper sysUserLayoutMapper; // sys用户layout映射器
+    final SysUserLogMapper sysUserLogMapper; // sys用户日志映射器
+    final SystemSecurityProperties securityProperties; // 安全性属性
+    private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance(); // 全局setting工厂
 
     @Override
     public IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles) {
@@ -235,6 +235,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return sysMiniMenuService.listUserMenus(roles);
     }
 
+    /**
+     * resolvegeo地址。
+     * @param rawIp rawIp
+     * @return resolvegeo地址的结果
+     */
     private String resolveGeoAddress(String rawIp) {
         String ip = normalizeClientIp(rawIp);
         if (org.apache.commons.lang3.StringUtils.isBlank(ip)) {
@@ -256,6 +261,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
     }
 
+    /**
+     * normalize客户端ip。
+     * @param rawIp rawIp
+     * @return normalize客户端ip的结果
+     */
     private String normalizeClientIp(String rawIp) {
         if (org.apache.commons.lang3.StringUtils.isBlank(rawIp)) {
             return null;
@@ -267,6 +277,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .orElse(null);
     }
 
+    /**
+     * normalize最后一个login状态。
+     * @param source 源
+     * @param target Target
+     */
     private void normalizeLastLoginState(SysUser source, SysUserVO target) {
         if (null == source || null == target) {
             return;
@@ -279,6 +294,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         target.setSysUserLastAddress(null);
     }
 
+    /**
+     * enrich最后一个login信息。
+     * @param records records
+     */
     private void enrichLastLoginInfo(List<SysUserVO> records) {
         if (CollectionUtils.isEmpty(records)) {
             return;
@@ -397,7 +416,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             response.setHeader("Content-Disposition", "attachment;filename=users_" + System.currentTimeMillis() + ".csv");
             response.setCharacterEncoding("UTF-8");
             var outputStream = response.getOutputStream();
-            // 统一走 OutputStream，避免 getOutputStream/getWriter 混用触发 IllegalStateException
+ // 统一走 输出流，避免 获取输出流/获取writer 混用触发 illegal状态异常
             outputStream.write(new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF});
             java.io.PrintWriter writer = new java.io.PrintWriter(
                     new java.io.OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8),
@@ -564,6 +583,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     /**
      * CSV字段转义
+     * @param value 值
+     * @return escapeCsv的结果
      */
     private String escapeCsv(String value) {
         if (value == null) {
@@ -577,6 +598,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     /**
      * 解析CSV行
+     * @param line 线
+     * @return 解析csv线的结果
      */
     private String[] parseCsvLine(String line) {
         java.util.List<String> result = new java.util.ArrayList<>();

@@ -17,16 +17,16 @@ import java.util.List;
 public class DictItemPropertyV1Request {
 
     /**
-     * 字典子项ID
+      * 字典子项标识
      */
     @Schema(description = "字典子项ID")
-    /** SYSdictitemID */
+    /** sysdictitemid */
     private Integer sysDictItemId;
 
     /**
      * 字典子项属性
      */
     @Schema(description = "字典子项属性")
-    /** Property */
+    /** 财产 */
     private List<SysDictItemProperty> property;
 }

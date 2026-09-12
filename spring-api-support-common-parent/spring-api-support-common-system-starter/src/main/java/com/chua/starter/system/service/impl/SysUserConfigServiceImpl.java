@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, SysUserConfig> implements SysUserConfigService {
 
     @Override
-    /** 获取ByConfigId */
+    /** 获取by配置id */
     public SysUserConfig getByConfigId(Integer configId) {
         if (configId == null) {
             return null;
@@ -29,7 +29,7 @@ public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, S
     }
 
     @Override
-    /** 获取ByWxUnionid */
+    /** 获取bywxunionid */
     public SysUserConfig getByWxUnionid(String unionid) {
         if (unionid == null || unionid.isEmpty()) {
             return null;
@@ -40,7 +40,7 @@ public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, S
     }
 
     @Override
-    /** 获取ByWxOpenid */
+    /** 获取bywxopenid */
     public SysUserConfig getByWxOpenid(String openid) {
         if (openid == null || openid.isEmpty()) {
             return null;
@@ -52,7 +52,12 @@ public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, S
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 保存Or更新Config */
+    /**
+     * 保存或更新配置
+     *
+     * @param config 配置
+     * @return 保存或更新配置的结果
+     */
     public SysUserConfig saveOrUpdateConfig(SysUserConfig config) {
         if (config == null) {
             return null;
@@ -70,7 +75,12 @@ public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, S
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 解绑Wx */
+    /**
+     * 解绑Wx
+     *
+     * @param configId 配置id
+     * @return unbindWx的结果
+     */
     public boolean unbindWx(Integer configId) {
         if (configId == null) {
             return false;

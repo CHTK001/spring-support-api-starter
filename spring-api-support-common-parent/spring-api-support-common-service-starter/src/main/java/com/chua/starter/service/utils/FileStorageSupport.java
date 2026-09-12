@@ -13,23 +13,33 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 
 /**
- * FileStorage 统一增强入口。
+   * 文件storage 统一增强入口。
+ * @author CH
+ * @since 4.0.0
+ * @param bucket bucket
+ * @return normalizeBucket的结果
  */
 @Component
 public class FileStorageSupport {
 
-    private static final String DEFAULT_LOCAL_ACCESS_KEY = "__local__";
-    private static final String DEFAULT_LOCAL_ACCESS_SECRET = "__local__";
-    private static final String DEFAULT_STORAGE_TYPE = "FILESYSTEM";
-    private static final String DEFAULT_LOCAL_ROOT = "oss/system";
+    private static final String DEFAULT_LOCAL_ACCESS_KEY = "__local__"; // 默认本地access键
+    private static final String DEFAULT_LOCAL_ACCESS_SECRET = "__local__"; // 默认本地accesssecret
+    private static final String DEFAULT_STORAGE_TYPE = "FILESYSTEM"; // 默认storage类型
+    private static final String DEFAULT_LOCAL_ROOT = "oss/system"; // 默认本地根
 
-    private final Environment environment;
-    private final ObjectProvider<SysFileSystemSettingService> sysFileSystemSettingServiceProvider;
+    private final Environment environment; // 环境
+    private final ObjectProvider<SysFileSystemSettingService> sysFileSystemSettingServiceProvider; // sys文件系统setting服务提供者
 
     public FileStorageSupport(Environment environment,
                               ObjectProvider<SysFileSystemSettingService> sysFileSystemSettingServiceProvider) {
         this.environment = environment;
         this.sysFileSystemSettingServiceProvider = sysFileSystemSettingServiceProvider;
+    /**
+     * 创建storage。
+     * @param storageType storage类型
+     * @param bucketSetting bucketSetting
+     * @return 创建storage的结果
+     */
     }
 
     public com.chua.common.support.storage.FileStorage createStorage(String storageType, BucketSetting bucketSetting) {
@@ -41,6 +51,14 @@ public class FileStorageSupport {
             }
         }
         return com.chua.common.support.storage.FileStorage.createStorage(resolvedType, resolvedSetting);
+    /**
+     * 创建uploadbucketsetting。
+     * @param storageType storage类型
+     * @param bucket bucket
+     * @param originalFilename 原始文件名
+     * @param preferredFileName preferred文件名称
+     * @return 创建uploadbucketsetting的结果
+     */
     }
 
     public BucketSetting createUploadBucketSetting(String storageType, String bucket, String originalFilename, String preferredFileName) {
@@ -60,6 +78,12 @@ public class FileStorageSupport {
             builder.region(environment.getProperty(prefix + "region"));
         }
         return builder.build();
+    /**
+     * 创建本地bucketsetting。
+     * @param bucket bucket
+     * @param rootPath 根路径
+     * @return 创建本地bucketsetting的结果
+     */
     }
 
     public BucketSetting createLocalBucketSetting(String bucket, String rootPath) {
@@ -69,6 +93,11 @@ public class FileStorageSupport {
                 .accessKeyId(DEFAULT_LOCAL_ACCESS_KEY)
                 .accessKeySecret(DEFAULT_LOCAL_ACCESS_SECRET)
                 .build();
+    /**
+     * resolvestorage类型。
+     * @param storageType storage类型
+     * @return resolvestorage类型的结果
+     */
     }
 
     public String resolveStorageType(String storageType) {
@@ -80,11 +109,22 @@ public class FileStorageSupport {
             return setting.getSysFileSystemSettingDefaultStorageType();
         }
         return DEFAULT_STORAGE_TYPE;
+    /**
+     * 是否本地storage类型。
+     * @param storageType storage类型
+     * @return 是否本地storage类型的结果
+     */
     }
 
     public boolean isLocalStorageType(String storageType) {
         String text = (storageType == null ? "" : storageType).toLowerCase();
         return text.contains("filesystem") || text.contains("file_system") || text.contains("local");
+    /**
+     * enrichSetting。
+     * @param storageType storage类型
+     * @param setting setting
+     * @return enrichSetting的结果
+     */
     }
 
     private BucketSetting enrichSetting(String storageType, BucketSetting setting) {
@@ -105,6 +145,11 @@ public class FileStorageSupport {
                 .connectionTimeoutMills(setting.getConnectionTimeoutMills())
                 .sessionTimeoutMills(setting.getSessionTimeoutMills())
                 .build();
+    /**
+     * resolve端点。
+     * @param storageType storage类型
+     * @return resolve端点的结果
+     */
     }
 
     private String resolveEndpoint(String storageType) {
@@ -113,6 +158,10 @@ public class FileStorageSupport {
         }
         String prefix = "plugin.sso." + storageType.toLowerCase() + ".";
         return environment.getProperty(prefix + "endpoint", DEFAULT_LOCAL_ROOT);
+    /**
+     * resolve本地根路径。
+     * @return resolve本地根路径的结果
+     */
     }
 
     private String resolveLocalRootPath() {
@@ -121,6 +170,10 @@ public class FileStorageSupport {
             return setting.getSysFileSystemSettingStorageRootPath();
         }
         return DEFAULT_LOCAL_ROOT;
+    /**
+     * safe获取setting。
+     * @return safe获取setting的结果
+     */
     }
 
     private SysFileSystemSetting safeGetSetting() {

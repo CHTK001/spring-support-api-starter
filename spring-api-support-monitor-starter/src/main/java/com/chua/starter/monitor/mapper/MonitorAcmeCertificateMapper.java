@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * ACME 证书 Mapper，提供 monitor_acme_certificate 表的基础增删改查能力。
+   * ACME 证书 映射器，提供 监控_acme_证书 表的基础增删改查能力。
  *
  * @since 2025-10-17
  * @author CH

@@ -26,12 +26,12 @@ import lombok.EqualsAndHashCode;
 public class MsMonitorTask extends SysBase {
 
     /**
-     * 采集任务主键ID，自增
+      * 采集任务主键标识，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    /** ID */
+    /** 标识 */
     private Long id;
 
     /**
@@ -44,16 +44,16 @@ public class MsMonitorTask extends SysBase {
     private String taskName;
 
     /**
-     * 关联的监控资产ID
+      * 关联的监控资产标识
      */
     @TableField("monitor_id")
     @ApiModelProperty("监控资产ID")
     @Schema(description = "监控资产ID")
-    /** MonitorID */
+    /** 监控id */
     private Long monitorId;
 
     /**
-     * 任务类型，取值 HEALTH/COLLECT/ALERT/CUSTOM
+      * 任务类型，取值 健康/COLLECT/ALERT/习俗
      */
     @TableField("task_type")
     @ApiModelProperty("任务类型（HEALTH/COLLECT/ALERT/CUSTOM）")
@@ -89,7 +89,7 @@ public class MsMonitorTask extends SysBase {
     private String taskConfig;
 
     /**
-     * 任务运行状态，取值 RUNNING/STOPPED/ERROR
+      * 任务运行状态，取值 RUNNING/STOPPED/错误
      */
     @TableField("task_status")
     @ApiModelProperty("运行状态（RUNNING/STOPPED/ERROR）")

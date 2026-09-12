@@ -14,9 +14,9 @@ import java.util.Map;
 public interface TileMergerService {
 
     /**
-     * 将瓦片字节 Map 拼接为完整 RGB 图像。
+      * 将瓦片字节 映射 拼接为完整 RGB 图像。
      *
-     * @param tileData 瓦片数据 Map，key 格式 "{z}_{x}_{y}"，value 为瓦片原始字节
+     * @param tileData 瓦片数据 映射，键 格式 "{z}_{x}_{y}"，值 为瓦片原始字节
      * @param bounds   地理边界
      * @param zoom     缩放级别
      * @return 拼接后的完整图像

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * 成就段位定义实体
  *
  * <p>定义各成就类型的段位等级、判定规则及展示信息。
- * 规则字段 {@code rule} 使用 utils-support-common-starter 的 CircuitBreaker 表达式语法。</p>
+   * 规则字段 {@code rule} 使用 utils-support-common-starter 的 熔断中断 表达式语法。</p>
  *
  * @since 2026-08-07
  * @author CH
@@ -21,14 +21,14 @@ import java.time.LocalDateTime;
 public class AchievementTier {
 
     /**
-     * 主键ID
+      * 主键标识
      */
     @TableId(type = IdType.AUTO)
-    /** ID */
+    /** 标识 */
     private Long id;
 
     /**
-     * 分组标识，如 login/sign/menu/message/frame
+      * 分组标识，如 login/标志/menu/消息/帧
      */
     private String type;
 
@@ -53,7 +53,7 @@ public class AchievementTier {
     private String description;
 
     /**
-     * CircuitBreaker 规则表达式
+      * 熔断中断 规则表达式
      */
     private String rule;
 

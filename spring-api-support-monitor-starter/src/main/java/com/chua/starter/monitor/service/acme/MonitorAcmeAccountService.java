@@ -33,7 +33,7 @@ public interface MonitorAcmeAccountService extends IService<MonitorAcmeAccount> 
     List<MonitorAcmeAccount> listByStatus(String status);
 
     /**
-     * 按服务器地址查找账户(例 acme-v02.api.letsencrypt.org/directory)。
+      * 按服务器地址查找账户(例 acme-v02.api.letsencrypt.org/目录)。
      *
      * @param server ACME 服务 URL
      * @return 账户列表

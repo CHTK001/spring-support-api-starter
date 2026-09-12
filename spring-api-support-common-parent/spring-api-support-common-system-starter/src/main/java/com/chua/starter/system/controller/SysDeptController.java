@@ -37,7 +37,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysDeptController {
 
-    /** SYSdept服务 */
+    /** sysdept服务 */
     private final SysDeptService sysDeptService;
 
 
@@ -52,7 +52,13 @@ public class SysDeptController {
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
             key = "'sys:dept:list:' + #userId + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDept.sysDeptName,'')",
             unless = "#result == null || #result.data == null || #result.data.isEmpty()")
-    /** List */
+    /**
+     * 列表
+     *
+     * @param sysDept sysDept
+     * @param true true
+     * @return 列表的结果
+     */
     public ReturnResult<List<SysDeptVO>> list(@ParameterObject SysDept sysDept, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         return ReturnResult.ok(sysDeptService.list(sysDept, roles));
     }
@@ -61,6 +67,7 @@ public class SysDeptController {
      * 删除组织机构
      *
      * @return 更新组织机构
+     * @param deptId deptId
      */
     @Operation(summary = "删除组织机构")
     @DeleteMapping("/delete")
