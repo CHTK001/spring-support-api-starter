@@ -38,8 +38,8 @@ public class ArmeriaAuthInformation {
         private final Map<String, Object> attributes = new ConcurrentHashMap<>(); // attributes
 
         /**
-          * 创建 armeria请求 实例
-         * @param clientAddress 客户端地址
+        * 创建 armeria请求 实例
+        * @param clientAddress 客户端地址
          */
         public ArmeriaRequest(InetSocketAddress clientAddress) {
             this.clientAddress = clientAddress;
@@ -207,9 +207,9 @@ public class ArmeriaAuthInformation {
         }
 
         /**
-         * 获取全部头部
-         *
-         * @return 获取全部头部的结果
+        * 获取全部头部
+        *
+        * @return 获取全部头部的结果
          */
         public Map<String, String> getAllHeaders() {
             return new HashMap<>(headers);

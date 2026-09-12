@@ -47,12 +47,12 @@ public class AuthProtocolController {
     private final LoginCheck loginCheck;
 
     /**
-     * 统一认证入口
-     *
-     * @param body     请求体（含 数据 字段）
-     * @param request  HTTP 请求
-     * @param response HTTP 响应
-     * @return 认证结果
+    * 统一认证入口
+    *
+    * @param body     请求体（含 数据 字段）
+    * @param request  HTTP 请求
+    * @param response HTTP 响应
+    * @return 认证结果
      */
     @PostMapping(value = {"/login", "/logout", "/upgrade", "/temporary-token", "/verify", "/oauth"})
     public ReturnResult<String> handle(@RequestBody(required = false) Map<String, Object> body,

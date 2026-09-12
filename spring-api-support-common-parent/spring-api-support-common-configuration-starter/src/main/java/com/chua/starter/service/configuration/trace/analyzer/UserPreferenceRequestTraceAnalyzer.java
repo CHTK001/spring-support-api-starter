@@ -67,9 +67,9 @@ public class UserPreferenceRequestTraceAnalyzer implements RequestTraceAnalyzer 
     }
 
     /**
-     * Dominant
-     * @param history 历史
-     * @param valueExtractor 值extractor
+    * Dominant
+    * @param history 历史
+    * @param valueExtractor 值extractor
      */
     private DominantValue dominant(
             List<RequestTraceEvent> history,

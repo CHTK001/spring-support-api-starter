@@ -50,16 +50,16 @@ public class GeoTiffExporterImpl implements GeoTiffExporter {
         """;
 
     /**
-     * 导出图像到指定路径。
-     *
-     * @param image          源图像
-     * @param format         输出格式
-     * @param outputPath     输出路径（不含扩展名）
-     * @param compression    TIFF 压缩方式（无/lzw/deflate，仅 GEOTIFF 有效）
-     * @param buildPyramid   是否构建影像金字塔
-     * @param generateSidecars 是否生成 .prj 侧面文件
-     * @return 最终输出文件路径
-     * @throws Exception 导出失败时抛出异常
+    * 导出图像到指定路径。
+    *
+    * @param image          源图像
+    * @param format         输出格式
+    * @param outputPath     输出路径（不含扩展名）
+    * @param compression    TIFF 压缩方式（无/lzw/deflate，仅 GEOTIFF 有效）
+    * @param buildPyramid   是否构建影像金字塔
+    * @param generateSidecars 是否生成 .prj 侧面文件
+    * @return 最终输出文件路径
+    * @throws Exception 导出失败时抛出异常
      */
     @Override
     public String export(BufferedImage image, OutputFormat format, String outputPath,

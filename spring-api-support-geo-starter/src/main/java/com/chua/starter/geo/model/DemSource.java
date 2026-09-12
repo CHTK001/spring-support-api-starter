@@ -15,9 +15,9 @@ public enum DemSource {
     /** 显示名称 */
     private final String displayName;
     /**
-     * 最大支持缩放级别
-     *
-     * @return 获取id的结果
+    * 最大支持缩放级别
+    *
+    * @return 获取id的结果
      */
     private final int maxZoom;
 

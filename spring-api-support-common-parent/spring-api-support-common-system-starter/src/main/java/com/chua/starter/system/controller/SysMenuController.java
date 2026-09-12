@@ -43,11 +43,11 @@ public class SysMenuController {
     /** sysmenu服务 */
     private final SysMenuService sysMenuService;
     /**
-     * 菜单列表
-     *
-     * @param sysMenu 条件
-     * @return 菜单分页列表
-     * @param true true
+    * 菜单列表
+    *
+    * @param sysMenu 条件
+    * @return 菜单分页列表
+    * @param true true
      */
     @Operation(summary = "菜单列表")
     @GetMapping("/all")

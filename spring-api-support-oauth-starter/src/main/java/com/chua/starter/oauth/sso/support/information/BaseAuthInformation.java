@@ -74,7 +74,7 @@ public abstract class BaseAuthInformation implements AuthInformation {
     private AtomicBoolean success = new AtomicBoolean(false);
 
     /**
-     * 构造函数 - 接受协议无关的请求/响应对象
+    * 构造函数 - 接受协议无关的请求/响应对象
      */
     public BaseAuthInformation(AuthServerProperties authServerProperties,
                               String data,
@@ -326,10 +326,10 @@ public abstract class BaseAuthInformation implements AuthInformation {
     }
 
     /**
-     * 16进制编码
-     *
-     * @param data 数据
-     * @return 编码后的数据
+    * 16进制编码
+    *
+    * @param data 数据
+    * @return 编码后的数据
      */
     @Override
     public String encodeHex(String data) {

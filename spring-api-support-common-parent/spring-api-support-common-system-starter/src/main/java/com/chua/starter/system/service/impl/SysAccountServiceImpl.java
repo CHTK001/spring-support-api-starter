@@ -49,10 +49,10 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * 绑定账户
-     *
-     * @param account 账户
-     * @return bind账户的结果
+    * 绑定账户
+    *
+    * @param account 账户
+    * @return bind账户的结果
      */
     public ReturnResult<SysAccount> bindAccount(SysAccount account) {
         if (account == null || account.getSysAccountOpenid() == null || account.getSysAccountType() == null) {

@@ -44,7 +44,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
     private static final Logger log = LoggerFactory.getLogger(TenantClientSyncHandler.class);
 
     /**
-     * 租户同步主题
+    * 租户同步主题
      */
     public static final String TOPIC_TENANT = "tenant";
     /** Topic_tenant_更新 */
@@ -69,7 +69,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
     private ObjectProvider<SyncClient> syncClientProvider;
 
     /**
-     * 已处理消息缓存
+    * 已处理消息缓存
      */
     private final ConcurrentMap<String, Long> processedMessages = new ConcurrentHashMap<>();
 
@@ -92,12 +92,12 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 处理
-     *
-     * @param topic topic
-     * @param sourceClientId 源客户端id
-     * @param data 数据
-     * @return 处理的结果
+    * 处理
+    *
+    * @param topic topic
+    * @param sourceClientId 源客户端id
+    * @param data 数据
+    * @return 处理的结果
      */
     public Object handle(String topic, String sourceClientId, Map<String, Object> data) {
         if (data == null) {
@@ -487,10 +487,10 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
     }
 
     /**
-     * 是否应该track订单
-     *
-     * @param topic topic
-     * @return shouldtrack订单的结果
+    * 是否应该track订单
+    *
+    * @param topic topic
+    * @return shouldtrack订单的结果
      */
     private boolean shouldTrackOrdering(String topic) {
         return TOPIC_TENANT_UPDATE.equals(topic)
@@ -658,10 +658,10 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
 
     @SuppressWarnings("unchecked")
     /**
-     * 转为integer列表
-     *
-     * @param rawValue raw值
-     * @return 转为integer列表的结果
+    * 转为integer列表
+    *
+    * @param rawValue raw值
+    * @return 转为integer列表的结果
      */
     private List<Integer> toIntegerList(Object rawValue) {
         if (!(rawValue instanceof List<?> values) || values.isEmpty()) {

@@ -15,8 +15,8 @@ public class FileSystemProperties {
     public static final String PRE = "plugin.filesystem";
 
     /**
-     * 合并任务线程池大小
-     * 默认10
+    * 合并任务线程池大小
+    * 默认10
      */
     private int mergeTaskPoolSize = 10;
 

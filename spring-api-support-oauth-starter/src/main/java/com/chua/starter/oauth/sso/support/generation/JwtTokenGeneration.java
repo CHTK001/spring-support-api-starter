@@ -54,12 +54,12 @@ public class JwtTokenGeneration implements TokenGeneration {
     }
 
     /**
-      * 生成 JWT Access 令牌
-     *
-     * @param userId   用户标识
-     * @param username 用户名
-     * @param claims   自定义声明
-     * @return JWT 令牌
+    * 生成 JWT Access 令牌
+    *
+    * @param userId   用户标识
+    * @param username 用户名
+    * @param claims   自定义声明
+    * @return JWT 令牌
      */
     public String generateAccessToken(String userId, String username, Map<String, Object> claims) {
         ensureInitialized();

@@ -29,7 +29,7 @@ public class SysDict extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-      * 字典标识
+    * 字典标识
      */
     @TableId(value = "sys_dict_id", type = IdType.AUTO)
     @Schema(description = "字典ID")
@@ -38,7 +38,7 @@ public class SysDict extends SysBase implements Serializable {
     private Integer sysDictId;
 
     /**
-      * 父级标识
+    * 父级标识
      */
     @TableField(value = "sys_dict_pid")
     @Schema(description = "父级ID")
@@ -47,7 +47,7 @@ public class SysDict extends SysBase implements Serializable {
     private Integer sysDictPid;
 
     /**
-     * 排序
+    * 排序
      */
     @TableField(value = "sys_dict_sort")
     @Schema(description = "排序")
@@ -55,7 +55,7 @@ public class SysDict extends SysBase implements Serializable {
     private Integer sysDictSort;
 
     /**
-     * 字典名称
+    * 字典名称
      */
     @TableField(value = "sys_dict_name")
     @Schema(description = "字典名称")
@@ -64,7 +64,7 @@ public class SysDict extends SysBase implements Serializable {
     private String sysDictName;
 
     /**
-     * 状态: 0:隐藏 1:显示
+    * 状态: 0:隐藏 1:显示
      */
     @TableField(value = "sys_dict_status")
     @Schema(description = "状态: 0:隐藏 1:显示")
@@ -72,7 +72,7 @@ public class SysDict extends SysBase implements Serializable {
     private Integer sysDictStatus;
 
     /**
-     * 是否内置: 0:非内置 1:内置
+    * 是否内置: 0:非内置 1:内置
      */
     @Schema(description = "是否内置: 0:非内置 1:内置")
     @TableField(value = "sys_dict_in_system")
@@ -80,7 +80,7 @@ public class SysDict extends SysBase implements Serializable {
     private Integer sysDictInSystem;
 
     /**
-     * 字典编码(唯一)
+    * 字典编码(唯一)
      */
     @TableField(value = "sys_dict_code")
     @Schema(description = "字典编码(唯一)")
@@ -89,7 +89,7 @@ public class SysDict extends SysBase implements Serializable {
     private String sysDictCode;
 
     /**
-      * 字典国际化键
+    * 字典国际化键
      */
     @TableField(value = "sys_dict_i18n")
     @Schema(description = "字典国际化key")
@@ -98,7 +98,7 @@ public class SysDict extends SysBase implements Serializable {
     private String sysDictI18n;
 
     /**
-     * 描述
+    * 描述
      */
     @TableField(value = "sys_dict_remark")
     @Schema(description = "描述")
@@ -107,7 +107,7 @@ public class SysDict extends SysBase implements Serializable {
     private String sysDictRemark;
 
     /**
-     * 子级字典(非数据库字段)
+    * 子级字典(非数据库字段)
      */
     @TableField(exist = false)
     /** Children */

@@ -25,8 +25,8 @@ public class SmsCodeRequest {
     private String phone;
 
     /**
-     * 业务类型
-     * <p>login-登录, register-注册, reset-重置密码</p>
+    * 业务类型
+    * <p>login-登录, register-注册, reset-重置密码</p>
      */
     @NotBlank(message = "业务类型不能为空")
     @Schema(description = "业务类型(login/register/reset)", example = "login")

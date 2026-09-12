@@ -21,14 +21,14 @@ public class SysUserPasswordUpdate {
     private String oldPassword;
 
     /**
-     * 新密码
+    * 新密码
      */
     @Schema(description = "新密码")
     /** 新密码 */
     private String newPassword;
 
     /**
-     * 确认密码
+    * 确认密码
      */
     @Schema(description = "确认密码")
     /** Confirm密码 */

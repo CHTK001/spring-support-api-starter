@@ -16,10 +16,10 @@ public final class RequestTraceStrategyConfigCodec {
     }
 
     /**
-     * 转为映射
-     *
-     * @param config 配置
-     * @return 转为映射的结果
+    * 转为映射
+    *
+    * @param config 配置
+    * @return 转为映射的结果
      */
     public static Map<String, String> toMap(RequestTraceStrategyConfig config) {
         RequestTraceStrategyConfig normalized = normalize(config);

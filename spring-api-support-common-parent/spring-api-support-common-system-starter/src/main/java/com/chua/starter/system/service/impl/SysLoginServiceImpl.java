@@ -116,7 +116,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     private static final Pattern BIRTHDAY_PATTERN = Pattern.compile("(\\d{4})[-/.](\\d{1,2})[-/.](\\d{1,2})");
 
     /**
-     * 用户布局查询缓存，避免每次登录重复查询数据库
+    * 用户布局查询缓存，避免每次登录重复查询数据库
      */
     private static final Map<Long, CachedValue> USER_LAYOUT_CACHE = new ConcurrentHashMap<>();
 
@@ -142,9 +142,9 @@ public class SysLoginServiceImpl implements SysLoginService {
         private final long expireAt;
 
         /**
-          * 创建 缓存值 实例
-         * @param value 值
-         * @param expireAt expireat
+        * 创建 缓存值 实例
+        * @param value 值
+        * @param expireAt expireat
          */
         private CachedValue(Object value, long expireAt) {
             this.value = value;
@@ -189,11 +189,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * 本地认证登录，绕过OAuth服务器
-     *
-     * @param loginData  登录数据
-     * @param request    HTTP请求
-     * @return 登录认证结果
+    * 本地认证登录，绕过OAuth服务器
+    *
+    * @param loginData  登录数据
+    * @param request    HTTP请求
+    * @return 登录认证结果
      */
     public LoginAuthResult authenticateLocal(LoginData loginData) {
         // 远程 OAuth 认证(http / http-lite)：登录由 oauth 服务器(172.16.0.40)验证并签发 token
@@ -479,11 +479,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * 判断指定生日字符串是否处于生日窗口内（忽略年份比较月/日）
-     * <p>窗口为生日前 {@link #BIRTHDAY_WINDOW_DAYS} 天；生日为空或格式不合法时返回 false</p>
-     *
-     * @param birthday 生日字符串（yyyy-MM-dd 等）
-     * @return 是否处于生日窗口
+    * 判断指定生日字符串是否处于生日窗口内（忽略年份比较月/日）
+    * <p>窗口为生日前 {@link #BIRTHDAY_WINDOW_DAYS} 天；生日为空或格式不合法时返回 false</p>
+    *
+    * @param birthday 生日字符串（yyyy-MM-dd 等）
+    * @return 是否处于生日窗口
      */
     private boolean isBirthdayWindow(String birthday) {
         if (StringUtils.isBlank(birthday)) {

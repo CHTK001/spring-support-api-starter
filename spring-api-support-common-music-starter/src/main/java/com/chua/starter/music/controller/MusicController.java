@@ -45,9 +45,9 @@ public class MusicController {
     @GetMapping("/sources")
     @Operation(summary = "获取音源列表")
     /**
-     * 列表源
-     *
-     * @return 列表源的结果
+* 列表源
+*
+* @return 列表源的结果
      */
     public ReturnResult<List<MusicSourceOption>> listSources() {
         return ReturnResult.ok(musicFacadeService.listSources());

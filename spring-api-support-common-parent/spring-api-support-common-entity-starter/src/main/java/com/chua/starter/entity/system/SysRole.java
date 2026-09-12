@@ -31,7 +31,7 @@ public class SysRole extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-      * 角色标识
+    * 角色标识
      */
     @TableId(value = "sys_role_id", type = IdType.AUTO)
     @Schema(description = "角色ID")
@@ -40,7 +40,7 @@ public class SysRole extends SysBase implements Serializable {
     private Integer sysRoleId;
 
     /**
-     * 角色名称
+    * 角色名称
      */
     @TableField(value = "sys_role_name")
     @Schema(description = "角色名称")
@@ -49,7 +49,7 @@ public class SysRole extends SysBase implements Serializable {
     private String sysRoleName;
 
     /**
-     * 角色编码，唯一
+    * 角色编码，唯一
      */
     @TableField(value = "sys_role_code")
     @Schema(description = "角色编码，唯一")
@@ -59,7 +59,7 @@ public class SysRole extends SysBase implements Serializable {
     private String sysRoleCode;
 
     /**
-     * 是否启用; 0:不启用
+    * 是否启用; 0:不启用
      */
     @TableField(value = "sys_role_status")
     @Schema(description = "是否启用; 0:不启用")
@@ -67,7 +67,7 @@ public class SysRole extends SysBase implements Serializable {
     private Integer sysRoleStatus;
 
     /**
-     * 优先级
+    * 优先级
      */
     @TableField(value = "sys_role_sort")
     @Schema(description = "优先级")
@@ -75,7 +75,7 @@ public class SysRole extends SysBase implements Serializable {
     private Integer sysRoleSort;
 
     /**
-     * 是否系统角色; 0:非系统角色
+    * 是否系统角色; 0:非系统角色
      */
     @TableField(value = "sys_role_in_system")
     @Schema(description = "是否系统角色; 0:非系统角色")
@@ -83,7 +83,7 @@ public class SysRole extends SysBase implements Serializable {
     private Integer sysRoleInSystem;
 
     /**
-     * 备注
+    * 备注
      */
     @TableField(value = "sys_role_remark")
     @Schema(description = "备注")
@@ -92,7 +92,7 @@ public class SysRole extends SysBase implements Serializable {
     private String sysRoleRemark;
 
     /**
-     * 角色是否可读
+    * 角色是否可读
      */
     @TableField(value = "sys_role_readable")
     @Schema(description = "角色是否可读")
@@ -100,7 +100,7 @@ public class SysRole extends SysBase implements Serializable {
     private Integer sysRoleReadable = 0x0000_0001;
 
     /**
-     * 角色是否可写
+    * 角色是否可写
      */
     @TableField(value = "sys_role_writeable")
     @Schema(description = "角色是否可写")
@@ -108,7 +108,7 @@ public class SysRole extends SysBase implements Serializable {
     private Integer sysRoleWriteable;
 
     /**
-     * 角色是否可执行
+    * 角色是否可执行
      */
     @TableField(value = "sys_role_executable")
     @Schema(description = "角色是否可执行")
@@ -116,7 +116,7 @@ public class SysRole extends SysBase implements Serializable {
     private Integer sysRoleExecutable;
 
     /**
-     * 角色看板类型
+    * 角色看板类型
      */
     @TableField(value = "sys_role_board_card")
     @Schema(description = "角色看板类型")
@@ -124,7 +124,7 @@ public class SysRole extends SysBase implements Serializable {
     private Integer sysRoleBoardCard;
 
     /**
-      * 用户标识
+    * 用户标识
      */
     @Schema(description = "用户ID")
     @TableField(exist = false)

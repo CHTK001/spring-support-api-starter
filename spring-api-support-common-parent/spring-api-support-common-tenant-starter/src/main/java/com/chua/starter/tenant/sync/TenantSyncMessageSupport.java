@@ -111,12 +111,12 @@ public final class TenantSyncMessageSupport {
     }
 
     /**
-     * 创建Envelope
-     *
-     * @param tenantId tenantId
-     * @param syncMode 同步mode
-     * @param reason ReasonML
-     * @return 创建envelope的结果
+    * 创建Envelope
+    *
+    * @param tenantId tenantId
+    * @param syncMode 同步mode
+    * @param reason ReasonML
+    * @return 创建envelope的结果
      */
     public static Map<String, Object> createEnvelope(String tenantId, String syncMode, String reason) {
         Map<String, Object> message = new HashMap<>();
@@ -423,11 +423,11 @@ public final class TenantSyncMessageSupport {
         private final String message;
 
         /**
-          * 创建 verification结果 实例
-         * @param valid valid
-         * @param skipped skipped
-         * @param message 消息
-         * @return verification结果的结果
+        * 创建 verification结果 实例
+        * @param valid valid
+        * @param skipped skipped
+        * @param message 消息
+        * @return verification结果的结果
          */
         private VerificationResult(boolean valid, boolean skipped, String message) {
             this.valid = valid;

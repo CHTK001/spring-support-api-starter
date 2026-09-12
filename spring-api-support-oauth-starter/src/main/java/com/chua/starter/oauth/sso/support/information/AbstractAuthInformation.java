@@ -56,13 +56,13 @@ public abstract class AbstractAuthInformation implements AuthInformation{
     private AtomicBoolean success = new AtomicBoolean(false);
 
     /**
-      * 创建 抽象认证信息 实例
-     * @param authServerProperties 认证服务端属性
-     * @param data 数据
-     * @param request 请求
-     * @param response 响应
-     * @param applicationContext application上下文
-     * @param loginCheck login检查
+    * 创建 抽象认证信息 实例
+    * @param authServerProperties 认证服务端属性
+    * @param data 数据
+    * @param request 请求
+    * @param response 响应
+    * @param applicationContext application上下文
+    * @param loginCheck login检查
      */
     public AbstractAuthInformation(AuthServerProperties authServerProperties,
                                    String data,
@@ -124,10 +124,10 @@ public abstract class AbstractAuthInformation implements AuthInformation{
     }
 
     /**
-     * 16进制编码
-     *
-     * @param data
-     * @return data
+    * 16进制编码
+    *
+    * @param data
+    * @return data
      */
     @Override
     public String encodeHex(String data) {

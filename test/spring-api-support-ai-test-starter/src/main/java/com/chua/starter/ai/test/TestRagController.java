@@ -136,9 +136,9 @@ public class TestRagController {
     @Operation(summary = "上传文档", description = "上传文件并自动索引，启用 GraphRAG 时自动抽取实体")
     @PostMapping(value = "/document/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     /**
-      * upload文档
-     * @param file 文件
-     * @param libraryId 图书馆id
+    * upload文档
+    * @param file 文件
+    * @param libraryId 图书馆id
      */
     public ReturnResult<Map<String, Object>> uploadDocument(
             @RequestParam("file") MultipartFile file,

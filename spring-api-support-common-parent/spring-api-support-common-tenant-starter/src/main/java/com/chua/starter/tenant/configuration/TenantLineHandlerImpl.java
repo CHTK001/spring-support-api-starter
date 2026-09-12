@@ -18,7 +18,7 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
     private final TenantProperties tenantProperties;
     
     /**
-     * 是否为客户端模式
+    * 是否为客户端模式
      */
     private final boolean clientMode;
 

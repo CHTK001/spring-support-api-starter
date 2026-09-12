@@ -32,14 +32,14 @@ public final class OauthAuthorization implements Authorization {
     private final OauthAuthInformation authInformation;
 
     /**
-      * 创建 oauth授权 实例
-     * @param authInformation 认证信息
-     * @param token 令牌
-     * @param cookie Cookie
-     * @param subProtocol sub协议
-     * @param userCode 用户编码
-     * @param applicationContext application上下文
-     * @param loginCheck login检查
+    * 创建 oauth授权 实例
+    * @param authInformation 认证信息
+    * @param token 令牌
+    * @param cookie Cookie
+    * @param subProtocol sub协议
+    * @param userCode 用户编码
+    * @param applicationContext application上下文
+    * @param loginCheck login检查
      */
     public OauthAuthorization(OauthAuthInformation authInformation,
                               String token,
@@ -89,15 +89,15 @@ public final class OauthAuthorization implements Authorization {
     }
     
     /**
-     * 选择认证处理器
-     * <p>
-     * 优先级：
-      * 1. 根据sub协议精确匹配
-      * 2. 根据参数类型自动选择（用户编码→app键, 令牌→JWT）
-     * 3. 使用默认处理器
-     * </p>
-     *
-     * @return 认证处理器
+    * 选择认证处理器
+    * <p>
+    * 优先级：
+    * 1. 根据sub协议精确匹配
+    * 2. 根据参数类型自动选择（用户编码→app键, 令牌→JWT）
+    * 3. 使用默认处理器
+    * </p>
+    *
+    * @return 认证处理器
      */
     private AuthorizationHandler selectAuthorizationHandler() {
  // 1. 如果指定了sub协议，尝试精确匹配

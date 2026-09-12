@@ -58,7 +58,7 @@ public class LoginAttemptService {
     private final StringRedisTemplate stringRedisTemplate;
 
     /**
-     * 安全配置（可选，用于覆盖默认锁定参数）
+    * 安全配置（可选，用于覆盖默认锁定参数）
      */
     private OauthSecurityProperties securityProperties;
 

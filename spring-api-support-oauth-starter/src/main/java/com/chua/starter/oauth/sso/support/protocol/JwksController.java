@@ -44,12 +44,12 @@ public class JwksController {
     private final AuthServerProperties authServerProperties;
 
     /**
-      * 获取 JWKS (JSON Web 键 设置)
-     * <p>
-     * 返回服务器的公钥集合，供客户端验证 JWT 签名。
-     * </p>
-     *
-     * @return JWKS JSON 对象
+    * 获取 JWKS (JSON Web 键 设置)
+    * <p>
+    * 返回服务器的公钥集合，供客户端验证 JWT 签名。
+    * </p>
+    *
+    * @return JWKS JSON 对象
      */
     @GetMapping(value = "/.well-known/jwks.json", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "获取 JWKS", description = "返回 JWT 公钥集合，用于验证 JWT 签名")

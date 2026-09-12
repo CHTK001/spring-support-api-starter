@@ -31,10 +31,10 @@ public final class TemporaryTokenAuthorization implements Authorization {
     private final ApplicationContext applicationContext;
 
     /**
-     * 构造函数
-     *
-     * @param authInformation    认证信息
-     * @param applicationContext Spring应用上下文
+    * 构造函数
+    *
+    * @param authInformation    认证信息
+    * @param applicationContext Spring应用上下文
      */
     public TemporaryTokenAuthorization(TemporaryTokenAuthInformation authInformation,
                                        ApplicationContext applicationContext) {

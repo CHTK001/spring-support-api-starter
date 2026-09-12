@@ -71,7 +71,7 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     private SocketSessionTemplate socketSessionTemplate;
 
     /**
-     * 反馈类型名称映射
+    * 反馈类型名称映射
      */
     private static final Map<String, String> TYPE_NAME_MAP = new HashMap<>();
     static {
@@ -114,11 +114,11 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * Issue
-     *
-     * @param request 请求
-     * @param userResume 用户resume
-     * @return issue的结果
+    * Issue
+    *
+    * @param request 请求
+    * @param userResume 用户resume
+    * @return issue的结果
      */
     public ReturnResult<Boolean> issue(FeedbackIssueV1Request request, UserResume userResume) {
         if (request == null || request.getSysFeedbackId() == null) {
@@ -224,10 +224,10 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     }
 
     /**
-      * 推送反馈处理结果站内通知（通过 套接字 推送给反馈提交人）
-     *
-     * @param sysFeedback 反馈信息
-     * @param userResume  当前处理人信息
+    * 推送反馈处理结果站内通知（通过 套接字 推送给反馈提交人）
+    *
+    * @param sysFeedback 反馈信息
+    * @param userResume  当前处理人信息
      */
     private void pushFeedbackResultMessage(SysFeedback sysFeedback, UserResume userResume) {
         Integer receiverId = parseUserId(sysFeedback.getCreateBy());

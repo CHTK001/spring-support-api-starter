@@ -57,14 +57,14 @@ public class OauthProtocolDecoder {
     private boolean success = false;
 
     /**
-      * 创建 oauth协议解码器 实例
-     * @param authServerProperties 认证服务端属性
-     * @param data 数据
-     * @param uuid uuid
-     * @param serial 串行
-     * @param sign 标志
-     * @param accessKey 访问密钥
-     * @param encodeHeader encode头部
+    * 创建 oauth协议解码器 实例
+    * @param authServerProperties 认证服务端属性
+    * @param data 数据
+    * @param uuid uuid
+    * @param serial 串行
+    * @param sign 标志
+    * @param accessKey 访问密钥
+    * @param encodeHeader encode头部
      */
     public OauthProtocolDecoder(AuthServerProperties authServerProperties,
                                 String data,

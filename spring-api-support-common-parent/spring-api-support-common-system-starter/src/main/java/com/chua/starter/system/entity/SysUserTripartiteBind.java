@@ -34,7 +34,7 @@ public class SysUserTripartiteBind extends SysTenantBase implements Serializable
     private static final long serialVersionUID = 1L;
 
     /**
-      * 用户标识
+    * 用户标识
      */
     @TableId(value = "user_id", type = IdType.AUTO)
     @ApiModelProperty(value = "用户ID")
@@ -44,7 +44,7 @@ public class SysUserTripartiteBind extends SysTenantBase implements Serializable
     private Integer userId;
 
     /**
-     * 登录类型
+    * 登录类型
      */
     @TableField(value = "login_code_type")
     @ApiModelProperty(value = "登录类型")
@@ -54,7 +54,7 @@ public class SysUserTripartiteBind extends SysTenantBase implements Serializable
     private String loginCodeType;
 
     /**
-     * 登录用户名
+    * 登录用户名
      */
     @TableField(value = "login_username")
     @ApiModelProperty(value = "登录用户名")
@@ -64,7 +64,7 @@ public class SysUserTripartiteBind extends SysTenantBase implements Serializable
     private String loginUsername;
 
     /**
-     * 登录UUID
+    * 登录UUID
      */
     @TableField(value = "login_uuid")
     @ApiModelProperty(value = "登录UUID")
@@ -74,7 +74,7 @@ public class SysUserTripartiteBind extends SysTenantBase implements Serializable
     private String loginUuid;
 
     /**
-     * 登录头像
+    * 登录头像
      */
     @TableField(value = "login_avatar")
     @ApiModelProperty(value = "登录头像")
@@ -84,7 +84,7 @@ public class SysUserTripartiteBind extends SysTenantBase implements Serializable
     private String loginAvatar;
 
     /**
-     * 登录名称
+    * 登录名称
      */
     @TableField(value = "login_name")
     @ApiModelProperty(value = "登录名称")

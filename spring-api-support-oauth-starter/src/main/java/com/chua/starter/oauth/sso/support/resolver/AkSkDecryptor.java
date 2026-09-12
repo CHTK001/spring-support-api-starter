@@ -22,15 +22,15 @@ public class AkSkDecryptor {
     private static final String DEFAULT_ENCRYPTION = "aes";
 
     /**
-     * 解密数据
-     * <p>
-     * 根据 AK 查询 SK，使用 SK 解密数据
-     * </p>
-     *
-     * @param accessKey  访问密钥
-     * @param data       加密的数据
-     * @param encryption 加密算法
-     * @return 解密后的数据，失败返回 空
+    * 解密数据
+    * <p>
+    * 根据 AK 查询 SK，使用 SK 解密数据
+    * </p>
+    *
+    * @param accessKey  访问密钥
+    * @param data       加密的数据
+    * @param encryption 加密算法
+    * @return 解密后的数据，失败返回 空
      */
     public static String decrypt(String accessKey, String data, String encryption) {
         if (StringUtils.isBlank(accessKey) || StringUtils.isBlank(data)) {

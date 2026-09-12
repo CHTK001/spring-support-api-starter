@@ -16,12 +16,12 @@ public final class ProtocolClientSupport {
     }
 
     /**
-     * 创建
-     *
-     * @param clientId 客户端id
-     * @param type 类型
-     * @param setting setting
-     * @return 创建的结果
+    * 创建
+    *
+    * @param clientId 客户端id
+    * @param type 类型
+    * @param setting setting
+    * @return 创建的结果
      */
     public static <T extends BaseProtocolClient> T create(Object clientId, Class<T> type, ClientSetting setting) {
         return ProtocolClientFactory.create(clientId, type, setting);

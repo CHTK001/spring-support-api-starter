@@ -28,7 +28,7 @@ public class SysUser extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-      * 用户标识
+    * 用户标识
      */
     @TableId(value = "sys_user_id", type = IdType.AUTO)
     @Schema(description = "用户ID")
@@ -37,7 +37,7 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysUserId;
 
     /**
-     * 账号
+    * 账号
      */
     @TableField(value = "sys_user_username")
     @Schema(description = "账号")
@@ -47,7 +47,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserUsername;
 
     /**
-     * 名称
+    * 名称
      */
     @TableField(value = "sys_user_nickname")
     @Schema(description = "名称")
@@ -56,7 +56,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserNickname;
 
     /**
-     * 居住地址
+    * 居住地址
      */
     @TableField(value = "sys_user_full_address")
     @Schema(description = "居住地址")
@@ -65,7 +65,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserFullAddress;
 
     /**
-     * 密码
+    * 密码
      */
     @TableField(value = "sys_user_password")
     @Schema(description = "密码")
@@ -75,7 +75,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserPassword;
 
     /**
-     * 头像
+    * 头像
      */
     @TableField(value = "sys_user_avatar")
     @Schema(description = "头像")
@@ -84,7 +84,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserAvatar;
 
     /**
-     * 盐
+    * 盐
      */
     @TableField(value = "sys_user_salt")
     @Schema(description = "盐")
@@ -93,7 +93,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserSalt;
 
     /**
-     * TOTP
+    * TOTP
      */
     @TableField(value = "sys_user_totp_code")
     @Schema(description = "TOTP")
@@ -101,7 +101,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserTotpCode;
 
     /**
-     * 是否删除; 0: 未删除
+    * 是否删除; 0: 未删除
      */
     @TableField(value = "sys_user_delete")
     @Schema(description = "是否删除; 0: 未删除")
@@ -110,7 +110,7 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysUserDelete;
 
     /**
-      * 部门标识
+    * 部门标识
      */
     @TableField(value = "sys_dept_id")
     @Schema(description = "部门ID")
@@ -118,7 +118,7 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysDeptId;
 
     /**
-     * 是否启用; 0:禁用
+    * 是否启用; 0:禁用
      */
     @TableField(value = "sys_user_status")
     @Schema(description = "是否启用; 0:禁用")
@@ -126,7 +126,7 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysUserStatus;
 
     /**
-     * 手机号
+    * 手机号
      */
     @TableField(value = "sys_user_phone")
     @Schema(description = "手机号")
@@ -135,7 +135,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserPhone;
 
     /**
-     * 邮箱
+    * 邮箱
      */
     @TableField(value = "sys_user_email")
     @Schema(description = "邮箱")
@@ -144,7 +144,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserEmail;
 
     /**
-     * 性别; 0:男 1:女 2:其他
+    * 性别; 0:男 1:女 2:其他
      */
     @TableField(value = "sys_user_sex")
     @Schema(description = "性别; 0:男 1:女 2:其他")
@@ -152,7 +152,7 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysUserSex;
 
     /**
-     * 登录次数
+    * 登录次数
      */
     @TableField(value = "sys_user_login_count")
     @Schema(description = "登录次数")
@@ -160,7 +160,7 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysUserLongCount;
 
     /**
-     * 是否系统账号; 0: 非系统账号
+    * 是否系统账号; 0: 非系统账号
      */
     @TableField(value = "sys_user_in_system")
     @Schema(description = "是否系统账号; 0: 非系统账号")
@@ -168,7 +168,7 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysUserInSystem;
 
     /**
-     * 身份证
+    * 身份证
      */
     @TableField(value = "sys_user_card")
     @Schema(description = "身份证")
@@ -177,7 +177,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserCard;
 
     /**
-     * 备注
+    * 备注
      */
     @TableField(value = "sys_user_remark")
     @Schema(description = "备注")
@@ -186,7 +186,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserRemark;
 
     /**
-     * 最后一次登录地点
+    * 最后一次登录地点
      */
     @TableField(value = "sys_user_last_address")
     @Schema(description = "最后一次登录地点")
@@ -195,7 +195,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserLastAddress;
 
     /**
-     * 注册地点
+    * 注册地点
      */
     @TableField(value = "sys_user_register_address")
     @Schema(description = "注册地点")
@@ -203,7 +203,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserRegisterAddress;
 
     /**
-     * 最后一次登录IP
+    * 最后一次登录IP
      */
     @TableField(value = "sys_user_last_ip")
     @Schema(description = "最后一次登录IP")
@@ -212,7 +212,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserLastIp;
 
     /**
-     * 注册IP
+    * 注册IP
      */
     @TableField(value = "sys_user_register_ip")
     @Schema(description = "注册IP")
@@ -221,7 +221,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserRegisterIp;
 
     /**
-      * 客户端标识
+    * 客户端标识
      */
     @TableField(value = "sys_client_id")
     @Schema(description = "客户端ID")
@@ -229,7 +229,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysClientId;
 
     /**
-     * 生日
+    * 生日
      */
     @TableField(value = "sys_user_birthday")
     @Schema(description = "生日")
@@ -237,7 +237,7 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserBirthday;
 
     /**
-      * 头像框标识
+    * 头像框标识
      */
     @TableField(value = "sys_user_avatar_frame")
     @Schema(description = "头像框ID")
@@ -245,7 +245,7 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysUserAvatarFrame;
 
     /**
-     * 是否显示头像框; 0:不显示 1:显示
+    * 是否显示头像框; 0:不显示 1:显示
      */
     @TableField(value = "sys_user_avatar_frame_show")
     @Schema(description = "是否显示头像框; 0:不显示 1:显示")
@@ -253,7 +253,7 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysUserAvatarFrameShow;
 
     /**
-     * 角色列表(系统生成)
+    * 角色列表(系统生成)
      */
     @Schema(description = "角色列表(系统生成)")
     @TableField(exist = false)
@@ -261,7 +261,7 @@ public class SysUser extends SysBase implements Serializable {
     private List<SysRole> userRoles;
 
     /**
-      * 租户标识
+    * 租户标识
      */
     @TableField(exist = false)
     /** systenantid */

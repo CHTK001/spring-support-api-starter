@@ -150,9 +150,9 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     @Override
     @Async("taskExecutor")
     /**
-     * 更新use信息byapp键
-     *
-     * @param appKey app键
+    * 更新use信息byapp键
+    *
+    * @param appKey app键
      */
     public void updateUseInfoByAppKey(String appKey) {
         try {
@@ -204,9 +204,9 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     }
 
     /**
-      * 脱敏app键
-     * @param appKey app键
-     * @return maskapp键的结果
+    * 脱敏app键
+    * @param appKey app键
+    * @return maskapp键的结果
      */
     private String maskAppKey(String appKey) {
         if (appKey == null || appKey.length() < 8) {

@@ -40,9 +40,9 @@ public class IpcAuthInformation {
         private final int remotePort;
 
         /**
-          * 创建 ipc请求 实例
-         * @param remoteAddr 远程addr
-         * @param remotePort 远程端口
+        * 创建 ipc请求 实例
+        * @param remoteAddr 远程addr
+        * @param remotePort 远程端口
          */
         public IpcRequest(String remoteAddr, int remotePort) {
             this.remoteAddr = remoteAddr;
@@ -230,9 +230,9 @@ public class IpcAuthInformation {
         }
 
         /**
-         * 获取全部头部
-         *
-         * @return 获取全部头部的结果
+        * 获取全部头部
+        *
+        * @return 获取全部头部的结果
          */
         public Map<String, String> getAllHeaders() {
             return new HashMap<>(headers);

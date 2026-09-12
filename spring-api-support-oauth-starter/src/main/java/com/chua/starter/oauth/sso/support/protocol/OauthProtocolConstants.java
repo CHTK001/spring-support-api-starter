@@ -16,7 +16,7 @@ public final class OauthProtocolConstants {
     }
 
     /**
-      * 默认 HTTP 服务端 类型(对应 通用 network.服务端 的 SPI 键)
+    * 默认 HTTP 服务端 类型(对应 通用 network.服务端 的 SPI 键)
      */
     public static final String DEFAULT_TYPE = "jdk";
 

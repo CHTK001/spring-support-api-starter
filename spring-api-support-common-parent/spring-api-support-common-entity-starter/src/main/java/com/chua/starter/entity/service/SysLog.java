@@ -28,7 +28,7 @@ public class SysLog extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-      * 日志标识
+    * 日志标识
      */
     @TableId(value = "sys_log_id", type = IdType.AUTO)
     @Schema(description = "日志ID")
@@ -37,7 +37,7 @@ public class SysLog extends SysBase implements Serializable {
     private Integer sysLogId;
 
     /**
-     * 账号
+    * 账号
      */
     @TableField(value = "sys_log_username")
     @Schema(description = "账号")
@@ -46,7 +46,7 @@ public class SysLog extends SysBase implements Serializable {
     private String sysLogUsername;
 
     /**
-     * 请求耗时(毫秒)
+    * 请求耗时(毫秒)
      */
     @TableField(value = "sys_log_cost")
     @Schema(description = "请求耗时(毫秒)")
@@ -54,7 +54,7 @@ public class SysLog extends SysBase implements Serializable {
     private Long sysLogCost;
 
     /**
-     * 请求IP地址
+    * 请求IP地址
      */
     @TableField(value = "sys_log_address")
     @Schema(description = "请求IP地址")
@@ -63,7 +63,7 @@ public class SysLog extends SysBase implements Serializable {
     private String sysLogAddress;
 
     /**
-     * 请求URL
+    * 请求URL
      */
     @TableField(value = "sys_log_url")
     @Schema(description = "请求URL")
@@ -72,7 +72,7 @@ public class SysLog extends SysBase implements Serializable {
     private String sysLogUrl;
 
     /**
-     * 浏览器信息
+    * 浏览器信息
      */
     @TableField(value = "sys_log_browser")
     @Schema(description = "浏览器信息")
@@ -80,7 +80,7 @@ public class SysLog extends SysBase implements Serializable {
     private String sysLogBrowser;
 
     /**
-     * 请求描述
+    * 请求描述
      */
     @TableField(value = "sys_log_content")
     @Schema(description = "请求描述")
@@ -88,7 +88,7 @@ public class SysLog extends SysBase implements Serializable {
     private String sysLogContent;
 
     /**
-     * 请求参数
+    * 请求参数
      */
     @TableField(value = "sys_log_param")
     @Schema(description = "请求参数")
@@ -97,7 +97,7 @@ public class SysLog extends SysBase implements Serializable {
     private String sysLogParam;
 
     /**
-     * 请求模块
+    * 请求模块
      */
     @TableField(value = "sys_log_from")
     @Schema(description = "请求模块")
@@ -106,7 +106,7 @@ public class SysLog extends SysBase implements Serializable {
     private String sysLogFrom;
 
     /**
-     * 请求状态: 0:失败 1:成功
+    * 请求状态: 0:失败 1:成功
      */
     @TableField(value = "sys_log_status")
     @Schema(description = "请求状态: 0:失败 1:成功")

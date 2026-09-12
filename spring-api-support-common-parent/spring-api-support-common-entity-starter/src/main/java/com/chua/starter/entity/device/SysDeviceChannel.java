@@ -29,7 +29,7 @@ public class SysDeviceChannel extends SysBase {
     private Integer sysDeviceChannelId;
 
     /**
-     * 通道名称
+    * 通道名称
      */
     @TableField(value = "sys_device_channel_name")
     @Schema(description = "通道名称")
@@ -37,7 +37,7 @@ public class SysDeviceChannel extends SysBase {
     private String sysDeviceChannelName;
 
     /**
-     * 通道号
+    * 通道号
      */
     @TableField(value = "sys_device_channel_no")
     @Schema(description = "通道号")
@@ -45,7 +45,7 @@ public class SysDeviceChannel extends SysBase {
     private Integer sysDeviceChannelNo;
 
     /**
-     * 设备序列号
+    * 设备序列号
      */
     @TableField(value = "sys_device_serial_number")
     @Schema(description = "设备序列号")
@@ -53,7 +53,7 @@ public class SysDeviceChannel extends SysBase {
     private String sysDeviceSerialNumber;
 
     /**
-     * 管道类型
+    * 管道类型
      */
     @TableField(value = "sys_device_channel_type")
     @Schema(description = "管道类型")
@@ -61,7 +61,7 @@ public class SysDeviceChannel extends SysBase {
     private String sysDeviceChannelType;
 
     /**
-     * 通道状态，0：离线，1：在线，-1：设备未上报
+    * 通道状态，0：离线，1：在线，-1：设备未上报
      */
     @TableField(value = "sys_device_channel_status")
     @Schema(description = "通道状态，0：离线，1：在线，-1：设备未上报; 2:未知")
@@ -69,7 +69,7 @@ public class SysDeviceChannel extends SysBase {
     private Integer sysDeviceChannelStatus;
 
     /**
-     * 通道启用状态：0-禁用；1-启用
+    * 通道启用状态：0-禁用；1-启用
      */
     @TableField(value = "sys_device_channel_use")
     @Schema(description = "通道启用状态：0-禁用；1-启用")

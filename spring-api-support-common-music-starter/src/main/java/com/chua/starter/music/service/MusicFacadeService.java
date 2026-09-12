@@ -32,9 +32,9 @@ public class MusicFacadeService {
     private final MusicSourceRegistry musicSourceRegistry;
 
     /**
-     * 列表源
-     *
-     * @return 列表源的结果
+* 列表源
+*
+* @return 列表源的结果
      */
     public List<MusicSourceOption> listSources() {
         return musicSourceRegistry.listSources();

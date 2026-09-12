@@ -22,10 +22,10 @@ public class SettingGroupUtils {
     private final SysSettingGroupService sysSettingGroupService;
 
     /**
-     * 检查指定编码的配置组是否使用项目接口
-     *
-     * @param groupCode 配置组编码
-     * @return true: 使用项目接口, false: 不使用项目接口
+    * 检查指定编码的配置组是否使用项目接口
+    *
+    * @param groupCode 配置组编码
+    * @return true: 使用项目接口, false: 不使用项目接口
      */
     public boolean isUseProjectInterface(String groupCode) {
         if (groupCode == null || groupCode.isEmpty()) {

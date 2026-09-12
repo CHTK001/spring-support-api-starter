@@ -45,9 +45,9 @@ public class SmsSetting implements Upgrade<SmsSetting> {
     }
 
     /**
-     * 是否有效
-     *
-     * @return boolean
+    * 是否有效
+    *
+    * @return boolean
      */
     public boolean isValid() {
         return !StringUtils.isEmpty(appId) && !StringUtils.isEmpty(appSecret);

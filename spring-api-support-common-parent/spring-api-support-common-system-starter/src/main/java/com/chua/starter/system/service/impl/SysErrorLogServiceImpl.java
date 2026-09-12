@@ -110,11 +110,11 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
     }
 
     /**
-     * 将单条上报记录转换为实体对象
-     *
-     * @param item      上报记录
-     * @param reportTime 客户端上报时间
-     * @return 实体对象
+    * 将单条上报记录转换为实体对象
+    *
+    * @param item      上报记录
+    * @param reportTime 客户端上报时间
+    * @return 实体对象
      */
     private SysErrorLog buildEntity(ErrorReportV1Item item, Long reportTime) {
         SysErrorLog entity = new SysErrorLog();

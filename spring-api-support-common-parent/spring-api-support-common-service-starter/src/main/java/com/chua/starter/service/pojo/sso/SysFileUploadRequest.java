@@ -22,7 +22,7 @@ public class SysFileUploadRequest {
     /** 文件存储桶 */
     private String fileBucket;
     /**
-     * 文件名
+    * 文件名
      */
     @Schema(description = "文件名")
     /** 文件名称 */
@@ -30,7 +30,7 @@ public class SysFileUploadRequest {
 
 
     /**
-      * 对象存储类型
+    * 对象存储类型
      */
     @Schema(description = "OSS类型; 本地(FILESYSTEM: 默认), 七牛(QINIU)")
     /** 对象存储类型 */

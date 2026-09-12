@@ -76,11 +76,11 @@ public final class TokenBuilder {
     }
 
     /**
-      * 生成 access令牌
-     *
-     * @param userId  用户标识（数据库主键）
-     * @param uidHash uid生成值（标识登录方式）
-     * @return AccessToken
+    * 生成 access令牌
+    *
+    * @param userId  用户标识（数据库主键）
+    * @param uidHash uid生成值（标识登录方式）
+    * @return AccessToken
      */
     public static String generateAccessToken(String userId, String uidHash) {
         return generateToken(ACCESS_TOKEN_PREFIX, userId, uidHash);

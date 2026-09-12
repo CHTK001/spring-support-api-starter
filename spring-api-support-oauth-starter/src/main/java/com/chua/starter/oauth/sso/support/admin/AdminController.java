@@ -34,9 +34,9 @@ public class AdminController {
     private final RateLimitManager rateLimitManager;
 
     /**
-     * 管理控制台首页（内嵌 HTML）
-     *
-     * @return 索引的结果
+    * 管理控制台首页（内嵌 HTML）
+    *
+    * @return 索引的结果
      */
     @GetMapping(produces = "text/html;charset=UTF-8")
     public String index() {
@@ -114,10 +114,10 @@ public class AdminController {
     }
 
     /**
-     * 热更新限流配置
-     *
-     * @param config 配置
-     * @return 配置rate限制的结果
+    * 热更新限流配置
+    *
+    * @param config 配置
+    * @return 配置rate限制的结果
      */
     @PostMapping("/rate-limit")
     @Operation(summary = "配置限流")
@@ -174,9 +174,9 @@ public class AdminController {
 
     // ---- 内嵌 HTML 控制台 ----
     /**
-     * 构建HTML
-     *
-     * @return 构建html的结果
+    * 构建HTML
+    *
+    * @return 构建html的结果
      */
     private String buildHtml() {
         return """

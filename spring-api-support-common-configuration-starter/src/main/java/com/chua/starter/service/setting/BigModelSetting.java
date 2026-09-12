@@ -53,9 +53,9 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
     private BigModelClient bigModelClient;
 
     /**
-     * 获取big模型客户端
-     *
-     * @return 获取big模型客户端的结果
+    * 获取big模型客户端
+    *
+    * @return 获取big模型客户端的结果
      */
     public BigModelClient getBigModelClient() {
         if(null == bigModelClient) {

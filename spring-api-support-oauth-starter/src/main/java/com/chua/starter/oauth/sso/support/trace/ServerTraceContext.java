@@ -22,7 +22,7 @@ public class ServerTraceContext {
     private static final ThreadLocal<ServerTraceContext> CONTEXT_HOLDER = new ThreadLocal<>();
 
     /**
-      * 追踪标识
+    * 追踪标识
      */
     private final String traceId;
 
@@ -200,8 +200,8 @@ public class ServerTraceContext {
         private long costMs;
 
         /**
-          * 创建 追踪span 实例
-         * @param spanName span名称
+        * 创建 追踪span 实例
+        * @param spanName span名称
          */
         public TraceSpan(String spanName) {
             this.spanName = spanName;
