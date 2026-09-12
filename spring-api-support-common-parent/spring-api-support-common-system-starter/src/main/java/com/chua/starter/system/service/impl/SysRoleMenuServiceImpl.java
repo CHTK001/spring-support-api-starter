@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRoleMenu> implements SysRoleMenuService {
 
     @Override
-    /** ListMenuIdsByRoleId */
+    /** 列表menu标识by角色id */
     public List<Integer> listMenuIdsByRoleId(Integer roleId) {
         if (roleId == null) {
             return Collections.emptyList();
@@ -38,7 +38,7 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
     }
 
     @Override
-    /** ListRoleIdsByMenuId */
+    /** 列表角色标识bymenuid */
     public List<Integer> listRoleIdsByMenuId(Integer menuId) {
         if (menuId == null) {
             return Collections.emptyList();
@@ -51,12 +51,12 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
     }
 
     @Override
-    /** ListMenuIdsByUserId */
+    /** 列表menu标识by用户id */
     public List<Integer> listMenuIdsByUserId(Integer userId) {
         if (userId == null) {
             return Collections.emptyList();
         }
-        // 1. 查出用户的所有角色 ID
+ // 1. 查出用户的所有角色 标识
         List<Integer> roleIds = baseMapper.selectList(Wrappers.<SysRoleMenu>lambdaQuery())
                 .stream()
                 .map(SysRoleMenu::getSysRoleId)
@@ -76,7 +76,13 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** AssignMenusToRole */
+    /**
+     * assignmenus转为角色
+     *
+     * @param roleId 角色id
+     * @param menuIds menu标识
+     * @return assignmenus转为角色的结果
+     */
     public boolean assignMenusToRole(Integer roleId, List<Integer> menuIds) {
         if (roleId == null) {
             return false;
@@ -90,7 +96,13 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 添加MenusToRole */
+    /**
+     * 添加menus转为角色
+     *
+     * @param roleId 角色id
+     * @param menuIds menu标识
+     * @return 添加menus转为角色的结果
+     */
     public int addMenusToRole(Integer roleId, List<Integer> menuIds) {
         if (roleId == null || menuIds == null || menuIds.isEmpty()) {
             return 0;
@@ -114,7 +126,13 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 移除RoleMenu */
+    /**
+     * 移除角色menu
+     *
+     * @param roleId 角色id
+     * @param menuId menuId
+     * @return 移除角色menu的结果
+     */
     public boolean removeRoleMenu(Integer roleId, Integer menuId) {
         if (roleId == null || menuId == null) {
             return false;
@@ -126,7 +144,12 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 移除AllMenusOfRole */
+    /**
+     * 移除全部menus的角色
+     *
+     * @param roleId 角色id
+     * @return 移除全部menus的角色的结果
+     */
     public int removeAllMenusOfRole(Integer roleId) {
         if (roleId == null) {
             return 0;
@@ -137,7 +160,12 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 移除AllRolesOfMenu */
+    /**
+     * 移除全部角色的menu
+     *
+     * @param menuId menuId
+     * @return 移除全部角色的menu的结果
+     */
     public int removeAllRolesOfMenu(Integer menuId) {
         if (menuId == null) {
             return 0;

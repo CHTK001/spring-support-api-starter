@@ -58,19 +58,19 @@ import java.util.Map;
 public class GiteeCallbackController {
 
 
-    /** Third_party_type */
+    /** Third_party_类型 */
     private static final String THIRD_PARTY_TYPE = "gitee";
-    /** Sso_group */
+    /** 单点登录_群体 */
     private static final String SSO_GROUP = "sso";
 
     @Autowired(required = false)
-    /** SYSlogincallback服务 */
+    /** syslogincallback服务 */
     private SysLoginCallbackService sysLoginCallbackService;
-    final SysUserThirdPartyService sysUserThirdPartyService;
-    final SysLoginService sysLoginService;
-    final SysSettingService sysSettingService;
-    final AuthClientProperties authProperties;
-    final SystemSecurityProperties securityProperties;
+    final SysUserThirdPartyService sysUserThirdPartyService; // sys用户thirdparty服务
+    final SysLoginService sysLoginService; // syslogin服务
+    final SysSettingService sysSettingService; // syssetting服务
+    final AuthClientProperties authProperties; // 认证属性
+    final SystemSecurityProperties securityProperties; // 安全性属性
 
     /**
      * Gitee账号绑定回调

@@ -33,17 +33,17 @@ import java.util.List;
 @Data
 @Schema(description = "用户视图对象")
 public class SysUserVO extends SysBase implements Serializable {
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 用户ID
+      * 用户标识
      */
     @TableId(value = "sys_user_id", type = IdType.AUTO)
     @ApiModelProperty(value = "用户ID")
     @Schema(description = "用户ID")
     @NotNull(message = "用户ID不能为空")
-    /** SYS用户ID */
+    /** SYS用户标识 */
     private Integer sysUserId;
 
     /**
@@ -54,7 +54,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @Schema(description = "账号")
     @Size(max = 255, message = "账号最大长度需小于255")
     @NotEmpty(message = "账号不能为空", groups = {AddGroup.class})
-    /** SYS用户username */
+    /** SYS用户用户名 */
     private String sysUserUsername;
 
     /**
@@ -74,7 +74,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "居住地址")
     @Schema(description = "居住地址")
     @Size(max = 400, message = "居住地址最大长度需小于400")
-    /** SYS用户full地址 */
+    /** SYS用户完整地址 */
     private String sysUserFullAddress;
 
     /**
@@ -88,12 +88,12 @@ public class SysUserVO extends SysBase implements Serializable {
     private String sysUserAvatar;
 
     /**
-     * 部门ID
+      * 部门标识
      */
     @TableField(value = "sys_dept_id")
     @ApiModelProperty(value = "部门ID")
     @Schema(description = "部门ID")
-    /** SYSdeptID */
+    /** sysdeptid */
     private Integer sysDeptId;
 
     /**
@@ -140,7 +140,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @TableField(value = "sys_user_in_system")
     @ApiModelProperty(value = "是否系统账号: 0:非系统账号")
     @Schema(description = "是否系统账号: 0:非系统账号")
-    /** SYS用户INsystem */
+    /** SYS用户insystem */
     private Integer sysUserInSystem;
 
     /**
@@ -150,7 +150,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "身份证")
     @Schema(description = "身份证")
     @Size(max = 255, message = "身份证最大长度需小于255")
-    /** SYS用户card */
+    /** SYS用户卡片 */
     private String sysUserCard;
 
     /**
@@ -160,7 +160,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "备注")
     @Schema(description = "备注")
     @Size(max = 255, message = "备注最大长度需小于255")
-    /** SYS用户remark */
+    /** SYS用户评论 */
     private String sysUserRemark;
 
     /**
@@ -190,7 +190,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "注册IP")
     @Schema(description = "注册IP")
     @Size(max = 255, message = "注册IP最大长度需小于255")
-    /** SYS用户registerIP */
+    /** SYS用户注册ip */
     private String sysUserRegisterIp;
 
     /**
@@ -200,7 +200,7 @@ public class SysUserVO extends SysBase implements Serializable {
     @ApiModelProperty(value = "注册地点")
     @Schema(description = "注册地点")
     @Size(max = 255, message = "注册地点最大长度需小于255")
-    /** SYS用户register地址 */
+    /** SYS用户注册地址 */
     private String sysUserRegisterAddress;
 
     /**
@@ -220,7 +220,7 @@ public class SysUserVO extends SysBase implements Serializable {
      */
     @Schema(description = "角色列表(系统生成)")
     @TableField(exist = false)
-    /** 用户roles */
+    /** 用户角色 */
     private List<SysRole> userRoles;
 
     /**
@@ -233,7 +233,7 @@ public class SysUserVO extends SysBase implements Serializable {
     private String sysUserBirthday;
 
     /**
-     * 头像框ID
+      * 头像框标识
      */
     @TableField(value = "sys_user_avatar_frame")
     @ApiModelProperty(value = "头像框ID")

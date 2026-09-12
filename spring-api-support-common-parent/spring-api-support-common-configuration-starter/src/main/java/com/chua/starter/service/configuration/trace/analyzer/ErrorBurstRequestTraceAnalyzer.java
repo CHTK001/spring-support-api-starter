@@ -23,7 +23,7 @@ import java.util.Set;
 public class ErrorBurstRequestTraceAnalyzer implements RequestTraceAnalyzer {
 
     @Override
-    /** Analyze */
+    /** 分析 */
     public Collection<RequestTraceSignal> analyze(RequestTraceAnalysisContext context) {
         if (!Boolean.TRUE.equals(context.config().getErrorBurstEnabled())) {
             return Set.of();

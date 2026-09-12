@@ -48,6 +48,7 @@ import java.nio.charset.StandardCharsets;
  * gitee绑定账号
  *
  * @author CH
+ * @since 4.0.0
  */
 @Controller
 @Conditional(OnBeanCondition.class)
@@ -56,15 +57,15 @@ import java.nio.charset.StandardCharsets;
 @Tag(name = "Gitee账号绑定", description = "提供将Gitee账号与系统账号绑定的功能")
 public class GiteeBinderProvider implements InitializingBean, ApplicationContextAware {
 
-    final CasProperties casProperties;
-    final ThirdPartyBinderProperties thirdPartyBinderProperties;
-    final LoginCheck loginCheck;
-    final AuthServerProperties authServerProperties;
-    /** Auth状态缓存 */
+    final CasProperties casProperties; // cas属性
+    final ThirdPartyBinderProperties thirdPartyBinderProperties; // thirdpartybinder属性
+    final LoginCheck loginCheck; // login检查
+    final AuthServerProperties authServerProperties; // 认证服务端属性
+    /** 认证状态缓存 */
     private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
     /** Gitee服务 */
     private GiteeService giteeService;
-    /** Auth请求 */
+    /** 认证请求 */
     private AuthGiteeRequest authRequest;
     @Value("${plugin.auth.server.context-path:}")
     /** 上下文路径 */
@@ -84,11 +85,11 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
             }
     )
     /**
-     * ThirdIndex
-     * @param authCallback authCallback
+      * third索引
+     * @param authCallback 认证callback
      * @param attributes attributes
-     * @param request request
-     * @param response response
+     * @param request 请求
+     * @param response 响应
      */
     public RedirectView thirdIndex(
             @Parameter(description = "Gitee授权回调参数") AuthCallback authCallback,
@@ -124,6 +125,7 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
      * gitee页面
      *
      * @return 登录页
+     * @param @RequestParam("loginCode" @RequestParam("loginCode"
      */
     @ResponseBody
     @GetMapping("loginCodeType")
@@ -135,7 +137,7 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
     }
 
     @Override
-    /** AfterProperties设置 */
+    /** 之后属性设置 */
     public void afterPropertiesSet() throws Exception {
         this.authRequest = new AuthGiteeRequest(AuthConfig.builder()
                 .clientId(thirdPartyBinderProperties.getGitee().getClientId())
@@ -145,7 +147,7 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
     }
 
     @Override
-    /** 设置ApplicationContext */
+    /** 设置application上下文 */
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         try {
             giteeService = applicationContext.getBean(GiteeService.class);

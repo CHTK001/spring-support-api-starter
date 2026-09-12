@@ -37,15 +37,15 @@ import java.util.stream.Collectors;
 public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMapper, SysAnnouncement>
         implements SysAnnouncementService {
 
-    /** SYSrolemapper */
+    /** sysrolemapper */
     private final SysRoleMapper sysRoleMapper;
 
     @Override
     /**
-     * 分页ForManage
-     * @param query query
-     * @param sysAnnouncement sysAnnouncement
-     * @param roles roles
+      * 分页formanage
+     * @param query 查询
+     * @param sysAnnouncement sysannouncement
+     * @param roles 角色
      */
     public IPage<SysAnnouncement> pageForManage(Query<SysAnnouncement> query, SysAnnouncement sysAnnouncement,
                                                  Set<String> roles) {
@@ -72,9 +72,9 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     @Transactional(rollbackFor = Exception.class)
     /**
      * 保存Announcement
-     * @param sysAnnouncement sysAnnouncement
-     * @param roles roles
-     * @param userId userId
+     * @param sysAnnouncement sysannouncement
+     * @param roles 角色
+     * @param userId 用户id
      */
     public ReturnResult<SysAnnouncement> saveAnnouncement(SysAnnouncement sysAnnouncement, Set<String> roles,
                                                            Integer userId) {
@@ -92,7 +92,13 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     @Override
     @SysLog
     @Transactional(rollbackFor = Exception.class)
-    /** 更新Announcement */
+    /**
+     * 更新Announcement
+     *
+     * @param sysAnnouncement sysAnnouncement
+     * @param roles 角色
+     * @return 更新announcement的结果
+     */
     public ReturnResult<Boolean> updateAnnouncement(SysAnnouncement sysAnnouncement, Set<String> roles) {
         if (sysAnnouncement.getSysAnnouncementId() == null) {
             return ReturnResult.illegal("公告ID不能为空");
@@ -110,7 +116,13 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     @Override
     @SysLog
     @Transactional(rollbackFor = Exception.class)
-    /** 删除Announcement */
+    /**
+     * 删除Announcement
+     *
+     * @param announcementId announcementId
+     * @param roles 角色
+     * @return 删除announcement的结果
+     */
     public ReturnResult<Boolean> deleteAnnouncement(Integer announcementId, Set<String> roles) {
         if (announcementId == null) {
             return ReturnResult.illegal("公告ID不能为空");
@@ -122,6 +134,10 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
 
     /**
      * 发布公告并清除缓存
+     * @param announcementId announcementId
+     * @param roles 角色
+     * @param userId 用户id
+     * @return 发布announcement的结果
      */
     @CacheEvict(value = "announcement:active", allEntries = true)
     @Override
@@ -144,6 +160,9 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
 
     /**
      * 下架公告并清除缓存
+     * @param announcementId announcementId
+     * @param roles 角色
+     * @return unpublishAnnouncement的结果
      */
     @CacheEvict(value = "announcement:active", allEntries = true)
     @Override
@@ -182,7 +201,7 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
             return Collections.emptyList();
         }
 
-        // 查询当前用户角色ID列表，用于角色过滤
+ // 查询当前用户角色标识列表，用于角色过滤
         Set<Integer> userRoleIds = sysRoleMapper.listByUserId(Collections.singleton(userId))
                 .stream()
                 .map(SysRole::getSysRoleId)

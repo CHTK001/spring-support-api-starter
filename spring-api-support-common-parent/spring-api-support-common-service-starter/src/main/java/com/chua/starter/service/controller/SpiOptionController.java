@@ -65,6 +65,7 @@ public class SpiOptionController {
      * @param type 类型
      * @param name 名称过滤（可选）
      * @return 选项列表
+     * @param false false
      */
     @Operation(summary = "获取已经加载选项")
     @GetMapping("objects/get")
@@ -138,6 +139,7 @@ public class SpiOptionController {
      * @param type 类型
      * @param name 名称过滤（可选）
      * @return 选项列表
+     * @param false false
      */
     @Operation(summary = "获取选项")
     @GetMapping("get")
@@ -177,6 +179,7 @@ public class SpiOptionController {
      * @param type 类型，逗号分隔
      * @param name 名称过滤（可选）
      * @return 类型到选项列表的映射
+     * @param false false
      */
     @Operation(summary = "获取选项")
     @GetMapping("list")

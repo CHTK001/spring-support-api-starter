@@ -3,8 +3,9 @@ package com.chua.starter.tenant.constant;
 /**
  * 租户数据库常量
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025/12/12
+ * @author CH
  */
 public final class TenantDbConstants {
 
@@ -13,7 +14,7 @@ public final class TenantDbConstants {
      */
     public static final String TENANT_ID_COLUMN = "sys_tenant_id";
 
-    /** 创建 TenantDbConstants 实例 */
+    /** 创建 tenantdb常量 实例 */
     private TenantDbConstants() {
     }
 }

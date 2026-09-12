@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 支持热更新：无需重启即可调整限流参数。
  * </p>
  * @author CH
+ * @since 4.0.0
  */
 @Component
 @Slf4j
@@ -26,8 +27,8 @@ public class RateLimitManager {
     private final AtomicInteger qps = new AtomicInteger(100);
     /** Burst尺寸 */
     private final AtomicInteger burstSize = new AtomicInteger(200);
-    private volatile String dimension = "global";
-    private volatile RateLimiter rateLimiter = RateLimiter.create(100);
+    private volatile String dimension = "global"; // 维度
+    private volatile RateLimiter rateLimiter = RateLimiter.create(100); // rate限制
 
     /**
      * 尝试获取令牌（非阻塞）
@@ -43,6 +44,7 @@ public class RateLimitManager {
 
     /**
      * 热更新限流配置
+     * @param config 配置
      */
     public void update(RateLimitConfig config) {
         this.enabled.set(config.isEnabled());
@@ -57,6 +59,7 @@ public class RateLimitManager {
 
     /**
      * 获取当前限流状态
+     * @return 获取状态的结果
      */
     public Map<String, Object> getStatus() {
         Map<String, Object> status = new LinkedHashMap<>();
@@ -67,7 +70,11 @@ public class RateLimitManager {
         return status;
     }
 
-    /** 是否Enabled */
+    /**
+     * 是否已启用
+     *
+     * @return 是否已启用的结果
+     */
     public boolean isEnabled() {
         return enabled.get();
     }

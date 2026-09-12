@@ -15,17 +15,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * HMAC-SHA256 AppId 验证器
+   * HMAC-SHA256 appid 验证器
  * <p>
  * 实现基于 HMAC-SHA256 的签名验证算法：
- * 1. 从 Header 获取 x-time、x-random、x-sign、appKey
- * 2. 根据请求方法计算 x-body（POST: body的MD5，GET: 参数排序后的MD5）
- * 3. 拼接字符串：x-body&x-random&x-time（如果没有body或参数，则不拼接x-body）
- * 4. 使用 HMAC-SHA256 和 appSecret 对拼接字符串加密得到签名
+   * 1. 从 头部 获取 x-时间、x-随机、x-标志、app键
+   * 2. 根据请求方法计算 x-主体（POST: 主体的MD5，获取: 参数排序后的MD5）
+   * 3. 拼接字符串：x-主体&x-随机&x-时间（如果没有主体或参数，则不拼接x-主体）
+   * 4. 使用 HMAC-SHA256 和 appsecret 对拼接字符串加密得到签名
  * 5. 验证签名是否匹配
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-01-05
  * @author CH
  */
@@ -49,7 +49,7 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     private static final String HEADER_X_SIGN = "x-sign";
 
     /**
-     * 请求头参数名: AppKey
+      * 请求头参数名: app键
      */
     private static final String HEADER_APP_KEY = "appKey";
 
@@ -64,10 +64,10 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     private static final String SIGN_JOINER = "&";
 
     /**
-     * 验证签名（从 OauthAuthInformation 中获取签名参数）
+      * 验证签名（从 oauth认证信息 中获取签名参数）
      *
      * @param authInformation 认证信息
-     * @param appKey          AppKey 信息
+     * @param appKey          app键 信息
      * @return 验证结果
      */
     @Override
@@ -77,7 +77,7 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
         }
 
         try {
-            // 1. 从 Header 获取签名参数
+ // 1. 从 头部 获取签名参数
             String xTime = authInformation.getRequestHeaderValue(HEADER_X_TIME);
             String xRandom = authInformation.getRequestHeaderValue(HEADER_X_RANDOM);
             String xSign = authInformation.getRequestHeaderValue(HEADER_X_SIGN);
@@ -90,21 +90,21 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
                 return ValidationResult.failure("签名参数不完整");
             }
 
-            // 验证 appKey 是否匹配
+ // 验证 app键 是否匹配
             String dbAppKey = appKey.getSysAppKeyAppKey();
             if (StringUtils.isNotBlank(appKeyFromHeader) && !appKeyFromHeader.equals(dbAppKey)) {
                 log.warn("AppKey 不匹配: header={}, db={}", maskAppKey(appKeyFromHeader), maskAppKey(dbAppKey));
                 return ValidationResult.failure("AppKey 不匹配");
             }
 
-            // 2. 获取 appSecret
+ // 2. 获取 appsecret
             String appSecret = appKey.getSysAppKeySecret();
             if (StringUtils.isBlank(appSecret)) {
                 log.warn("AppSecret 为空");
                 return ValidationResult.failure("AppSecret 不存在");
             }
 
-            // 3. 计算 x-body
+ // 3. 计算 x-主体
             String xBody = calculateXBody(authInformation);
             log.debug("计算 x-body: {}", maskValue(xBody));
 
@@ -143,9 +143,11 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     }
 
     /**
-     * 计算 x-body
-     * POST 请求：对 body 进行 MD5 加密并转16进制
-     * GET 请求：将参数按 key 降序排列，拼接后用 MD5 加密并转16进制
+      * 计算 x-主体
+      * POST 请求：对 主体 进行 MD5 加密并转16进制
+      * 获取 请求：将参数按 键 降序排列，拼接后用 MD5 加密并转16进制
+     * @param authInformation 认证信息
+     * @return calculatex主体的结果
      */
     private String calculateXBody(OauthAuthInformation authInformation) {
         Object requestObj = authInformation.getRequest();
@@ -160,17 +162,17 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
 
         try {
             if ("POST".equalsIgnoreCase(method)) {
-                // POST 请求：对 body 进行 MD5
+ // POST 请求：对 主体 进行 MD5
                 String body = getRequestBody(authInformation);
                 if (StringUtils.isBlank(body)) {
-                    return null; // 没有 body，返回 null（不拼接 x-body）
+                    return null; // 没有 主体，返回 空（不拼接 x-主体）
                 }
                 return md5Hex(body);
             } else if ("GET".equalsIgnoreCase(method)) {
-                // GET 请求：参数按 key 降序排列，拼接后 MD5
+ // 获取 请求：参数按 键 降序排列，拼接后 MD5
                 String queryString = httpRequest.getQueryString();
                 if (StringUtils.isBlank(queryString)) {
-                    return null; // 没有参数，返回 null（不拼接 x-body）
+                    return null; // 没有参数，返回 空（不拼接 x-主体）
                 }
                 
                 // 解析查询参数
@@ -179,7 +181,7 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
                     return null;
                 }
                 
-                // 按 key 降序排列并拼接
+ // 按 键 降序排列并拼接
                 String sortedParams = params.entrySet().stream()
                         .sorted(Map.Entry.<String, String>comparingByKey().reversed())
                         .map(entry -> entry.getKey() + "=" + entry.getValue())
@@ -197,14 +199,16 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     /**
      * 获取请求体
      * <p>
-     * 对于 POST 请求，body 应该是原始的请求体字符串（JSON格式）
-     * 在我们的系统中，data 字段可能包含加密后的数据，需要尝试获取原始 body
+      * 对于 POST 请求，主体 应该是原始的请求体字符串（JSON格式）
+      * 在我们的系统中，数据 字段可能包含加密后的数据，需要尝试获取原始 主体
      * </p>
+     * @param authInformation 认证信息
+     * @return 获取请求主体的结果
      */
     private String getRequestBody(OauthAuthInformation authInformation) {
         Object requestObj = authInformation.getRequest();
         
-        // 尝试从 request 对象的 attribute 中获取原始 body
+ // 尝试从 请求 对象的 attribute 中获取原始 主体
         if (requestObj instanceof HttpServletRequest) {
             Object body = authInformation.getRequestAttributeValue("requestBody");
             if (body instanceof String) {
@@ -212,7 +216,7 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
             }
         }
         
-        // 尝试从 RsocketRequest 获取 body
+ // 尝试从 rsocket请求 获取 主体
         if (requestObj instanceof com.chua.starter.oauth.sso.support.information.RsocketAuthInformation.RsocketRequest) {
             com.chua.starter.oauth.sso.support.information.RsocketAuthInformation.RsocketRequest rsocketRequest = 
                     (com.chua.starter.oauth.sso.support.information.RsocketAuthInformation.RsocketRequest) requestObj;
@@ -222,15 +226,15 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
             }
         }
         
-        // 尝试从 ArmeriaRequest 获取 body（如果有）
+ // 尝试从 armeria请求 获取 主体（如果有）
         if (requestObj instanceof com.chua.starter.oauth.sso.support.information.ArmeriaAuthInformation.ArmeriaRequest) {
-            // ArmeriaRequest 可能需要特殊处理
+ // armeria请求 可能需要特殊处理
         }
         
-        // 最后尝试从 data 字段获取（可能是原始 body 或加密后的数据）
+ // 最后尝试从 数据 字段获取（可能是原始 主体 或加密后的数据）
         String data = authInformation.getData();
         if (StringUtils.isNotBlank(data)) {
-            // 如果 data 看起来像 JSON（以 { 或 [ 开头），可能是原始 body
+ // 如果 数据 看起来像 JSON（以 { 或 [ 开头），可能是原始 主体
             String trimmed = data.trim();
             if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
                 return data;
@@ -242,6 +246,8 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
 
     /**
      * 解析查询字符串
+     * @param queryString 查询字符串
+     * @return 解析查询字符串的结果
      */
     private Map<String, String> parseQueryString(String queryString) {
         Map<String, String> params = new LinkedHashMap<>();
@@ -264,21 +270,28 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
 
     /**
      * 构建签名字符串
-     * 格式：x-body&x-random&x-time（如果没有 x-body，则为 x-random&x-time）
-     * 注意：根据算法描述，拼接顺序是 x-body、x-random、x-time
+      * 格式：x-主体&x-随机&x-时间（如果没有 x-主体，则为 x-随机&x-时间）
+      * 注意：根据算法描述，拼接顺序是 x-主体、x-随机、x-时间
+     * @param xBody x主体
+     * @param xRandom x随机
+     * @param xTime x时间
+     * @return 构建标志字符串的结果
      */
     private String buildSignString(String xBody, String xRandom, String xTime) {
         if (StringUtils.isNotBlank(xBody)) {
-            // 有 x-body：x-body&x-random&x-time
+ // 有 x-主体：x-主体&x-随机&x-时间
             return xBody + SIGN_JOINER + xRandom + SIGN_JOINER + xTime;
         } else {
-            // 没有 x-body：x-random&x-time
+ // 没有 x-主体：x-随机&x-时间
             return xRandom + SIGN_JOINER + xTime;
         }
     }
 
     /**
      * 计算 HMAC-SHA256 签名
+     * @param data 数据
+     * @param secret secret
+     * @return calculateHmacSha256的结果
      */
     private String calculateHmacSha256(String data, String secret) {
         try {
@@ -294,6 +307,8 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
 
     /**
      * MD5 加密并转16进制
+     * @param data 数据
+     * @return md5Hex的结果
      */
     private String md5Hex(String data) {
         try {
@@ -307,6 +322,8 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
 
     /**
      * 字节数组转16进制字符串
+     * @param bytes bytes
+     * @return bytes转为hex的结果
      */
     private String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
@@ -318,6 +335,8 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
 
     /**
      * 脱敏值
+     * @param value 值
+     * @return mask值的结果
      */
     private String maskValue(String value) {
         if (value == null || value.length() < 8) {
@@ -327,21 +346,23 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     }
 
     /**
-     * 脱敏 AppKey
+      * 脱敏 app键
+     * @param appKey app键
+     * @return maskapp键的结果
      */
     private String maskAppKey(String appKey) {
         return maskValue(appKey);
     }
 
     /**
-     * 判断当前验证器是否支持该 AppId 签名方式。
+      * 判断当前验证器是否支持该 appid 签名方式。
      *
-     * @param appId 原始 AppId
+     * @param appId 原始 appid
      * @return 默认返回 true, 实际验证时会检查参数是否存在
      */
     @Override
     public boolean supports(String appId) {
-        // 检查 Header 中是否有签名参数，如果有则支持
+ // 检查 头部 中是否有签名参数，如果有则支持
         return true; // 默认支持，实际验证时会检查参数是否存在
     }
 }

@@ -9,8 +9,8 @@ import com.chua.starter.entity.system.SysUser;
  */
 public interface SysLoginCallbackService {
     /**
-     * 鏍规嵁用户id获取用户信息
-     * @param userId 用户id
+      * 鏍规嵁用户标识获取用户信息
+     * @param userId 用户标识
      * @return 用户信息
      */
     SysUser getById(String userId);

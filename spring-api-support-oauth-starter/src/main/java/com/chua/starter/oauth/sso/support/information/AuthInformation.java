@@ -17,6 +17,7 @@ import java.util.Map;
  * 鉴权信息
  *
  * @author CH
+ * @since 4.0.0
  */
 public interface AuthInformation {
 

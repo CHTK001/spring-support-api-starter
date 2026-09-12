@@ -37,6 +37,7 @@ import java.nio.charset.StandardCharsets;
  * http
  *
  * @author CH
+ * @since 4.0.0
  */
 @Component
 @Extension("http")
@@ -47,19 +48,19 @@ import java.nio.charset.StandardCharsets;
 @Tag(name = "认证服务", description = "提供HTTP协议的认证服务接口")
 public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
 
-    final AuthServerProperties authServerProperties;
+    final AuthServerProperties authServerProperties; // 认证服务端属性
 
-    final LoginCheck loginCheck;
+    final LoginCheck loginCheck; // login检查
 
-    final ApplicationContext applicationContext;
+    final ApplicationContext applicationContext; // application上下文
 
     @Value("${server.servlet.context-path:}")
-    private String contextPath;
+    private String contextPath; // 上下文路径
 
     @Autowired(required = false)
-    private Oauth2Protocol oauth2Protocol;
+    private Oauth2Protocol oauth2Protocol; // oauth2协议
     
-    private ProtocolServer protocolServer;
+    private ProtocolServer protocolServer; // 协议服务端
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -68,16 +69,16 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
             log.info("HTTP 协议未启用，跳过 ProtocolServer 启动");
             return;
         }
-        // 创建 ProtocolSetting
+ // 创建 协议setting
         var protocolSetting = ProtocolSetting.builder()
                 .port(authServerProperties.getArmeriaPort() != null ?
                         authServerProperties.getArmeriaPort() : 8080)
                 .protocol("http")
-                // 统一由底层 HTTP ProtocolServer 的 contextPath 处理路由前缀，避免业务侧手工拼接 path
+ // 统一由底层 HTTP 协议服务端 的 上下文路径 处理路由前缀，避免业务侧手工拼接 路径
                 .options(Options.of("contextPath", contextPath))
                 .build();
         try {
-            // 获取 Protocol 实例
+ // 获取 协议 实例
             var protocol = ServiceProvider.of(Protocol.class).getNewExtension("http", protocolSetting);
             if (protocol == null) {
                 log.warn("未找到 HTTP Protocol 实现，跳过 ProtocolServer 启动");
@@ -85,7 +86,7 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
             }
             
 
-            // 创建并启动 ProtocolServer
+ // 创建并启动 协议服务端
             protocolServer = protocol.createServer(protocolSetting);
             registerProtocolServerRoutes(protocolServer);
             protocolServer.start();
@@ -97,9 +98,9 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
     }
     
     /**
-     * 注册 ProtocolServer 路由
+      * 注册 协议服务端 路由
      *
-     * @param server ProtocolServer 实例
+     * @param server 协议服务端 实例
      */
     private void registerProtocolServerRoutes(ProtocolServer server) {
         // 登录端点
@@ -348,7 +349,9 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-     * 从 ServletRequest 提取请求体
+      * 从 servlet请求 提取请求体
+     * @param request 请求
+     * @return extract主体的结果
      */
     private String extractBody(ServletRequest request) {
         try {
@@ -365,6 +368,8 @@ public class HttpOauthProtocol implements OauthProtocol, InitializingBean {
     
     /**
      * 写入响应
+     * @param response 响应
+     * @param result 结果
      */
     private void writeResponse(ServletResponse response, ReturnResult<?> result) {
         try {

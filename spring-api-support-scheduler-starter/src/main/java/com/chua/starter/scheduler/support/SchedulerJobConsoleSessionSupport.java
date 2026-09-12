@@ -7,9 +7,10 @@ import jakarta.servlet.http.HttpSession;
  * 控制台登录会话工具。
  *
  * <p>提供控制台登录状态的写入、读取与清理能力,
- * 会话信息保存在 Servlet 标准 HttpSession 中。</p>
+   * 会话信息保存在 Servlet 标准 http会话 中。</p>
  *
  * @since 4.0.0.42
+ * @author CH
  */
 public final class SchedulerJobConsoleSessionSupport {
 
@@ -81,7 +82,7 @@ public final class SchedulerJobConsoleSessionSupport {
      * 获取会话中的登录用户名。
      *
      * @param session HTTP 会话
-     * @return 登录用户名, 未登录或会话为空时返回 null
+     * @return 登录用户名, 未登录或会话为空时返回 空
      */
     public static String username(HttpSession session) {
         if (session == null) {

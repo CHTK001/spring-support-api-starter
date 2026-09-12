@@ -52,7 +52,7 @@ public interface SysMiniMenuService extends IService<SysMiniMenu> {
     /**
      * 删除小程序菜单。
      *
-     * @param sysMiniMenuId 菜单ID
+     * @param sysMiniMenuId 菜单标识
      * @return 删除结果
      */
     ReturnResult<Boolean> deleteMenu(Long sysMiniMenuId);

@@ -17,12 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 
 /**
- * AppKey认证处理器
+   * app键认证处理器
  * <p>
- * 类似大模型的认证方式，只验证AppKey合法性，返回关联用户信息
+   * 类似大模型的认证方式，只验证app键合法性，返回关联用户信息
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/11
  * @author CH
  */
@@ -33,10 +33,10 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
     @Override
     /**
      * Authenticate
-     * @param authInformation authInformation
-     * @param token token
-     * @param cookie cookie
-     * @param userCode userCode
+     * @param authInformation 认证信息
+     * @param token 令牌
+     * @param cookie Cookie
+     * @param userCode 用户编码
      */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation, 
                                             String token, 
@@ -47,7 +47,7 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
         ApplicationContext applicationContext = authInformation.getApplicationContext();
         
         try {
-            // userCode 即为 appKey
+ // 用户编码 即为 app键
             String appKey = userCode;
             if (StringUtils.isBlank(appKey)) {
                 return ReturnResult.error("AppKey不能为空");
@@ -55,7 +55,7 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
             
             log.info("AppKey认证开始: appKey={}", maskAppKey(appKey));
 
-            // 查询AppKey是否有效（从数据库获取）
+ // 查询app键是否有效（从数据库获取）
             SysAppKeyService appKeyService = applicationContext.getBean(SysAppKeyService.class);
             SysAppKey dbAppKey = appKeyService.getByAppKey(appKey);
             if (dbAppKey == null) {
@@ -99,14 +99,14 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
 
             // 更新使用统计
             try {
-                // 更新AppKey使用信息（通过appKey值）
+ // 更新app键使用信息（通过app键值）
                 appKeyService.updateUseInfoByAppKey(appKey);
             } catch (Exception e) {
                 log.warn("更新AppKey使用信息失败", e);
             }
             
-            // 参考默认实现，通过 UserInfoService 获取完整用户信息
-            // appId认证必须要有code（用户唯一编码），否则返回用户信息不存在
+ // 参考默认实现，通过 用户信息服务 获取完整用户信息
+ // appid认证必须要有编码（用户唯一编码），否则返回用户信息不存在
             String code = MapUtils.getString(authInformation.getBodyData(), "code");
             if (StringUtils.isBlank(code)) {
                 // 如果请求体中没有，尝试从请求头获取
@@ -117,21 +117,21 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
                 return ReturnResult.error("用户信息不存在: code参数（用户唯一编码）不能为空");
             }
             
-            // 创建 UserResult 对象，设置基本信息
+ // 创建 用户结果 对象，设置基本信息
             UserResult userResult = new UserResult();
             userResult.setUserId(String.valueOf(dbAppKey.getSysUserId()));
             userResult.setUsername(dbAppKey.getSysAppKeyName());
-            // 使用 WEB 登录类型，通过 UserLoginService 获取完整用户信息（包括角色、权限、部门等）
+ // 使用 WEB 登录类型，通过 用户login服务 获取完整用户信息（包括角色、权限、部门等）
             userResult.setLoginType("WEB");
             
-            // 将 code 设置到 UserResult 的 ext 中，以便传递给用户信息获取逻辑
+ // 将 编码 设置到 用户结果 的 ext 中，以便传递给用户信息获取逻辑
             if (userResult.getExt() == null) {
                 userResult.setExt(new java.util.HashMap<>());
             }
             userResult.getExt().put("code", code);
             log.debug("从请求中获取到 code 参数: code={}", code);
             
-            // 通过 LoginCheck 获取完整的用户信息（包括角色、权限、部门等）
+ // 通过 login检查 获取完整的用户信息（包括角色、权限、部门等）
             LoginCheck loginCheck = authInformation.getLoginCheck();
             UserResume userResume = loginCheck.getUserInfo(userResult);
             
@@ -140,7 +140,7 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
                 return ReturnResult.error("获取用户信息失败");
             }
             
-            // 将 appKey 存储到 ext 中
+ // 将 app键 存储到 ext 中
             if (userResume.getExt() == null) {
                 userResume.setExt(new java.util.HashMap<>());
             }
@@ -158,7 +158,9 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
     }
     
     /**
-     * 脱敏AppKey
+      * 脱敏app键
+     * @param appKey app键
+     * @return maskapp键的结果
      */
     private String maskAppKey(String appKey) {
         if (appKey == null || appKey.length() < 8) {
@@ -168,9 +170,9 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
-    /** Supports */
+    /** 支持 */
     public boolean supports(String subProtocol, String token, String userCode) {
-        // AppKey认证：有userCode参数
+ // app键认证：有用户编码参数
         return StringUtils.isNotBlank(userCode);
     }
 }

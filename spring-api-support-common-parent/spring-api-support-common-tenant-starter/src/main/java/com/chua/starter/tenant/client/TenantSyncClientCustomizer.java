@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 租户客户端同步定制器。
  * <p>
- * 在 SyncClient 建立底层连接前预注册主题和处理器，
+   * 在 同步客户端 建立底层连接前预注册主题和处理器，
  * 避免首次注册后立刻收到全量同步时处理器尚未挂载。
  * </p>
  *
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".client", name = "enable", havingValue = "true")
 public class TenantSyncClientCustomizer implements SyncClientCustomizer, DisposableBean {
 
-    /** Reason_client_connect */
+    /** ReasonML_客户端_连接 */
     private static final String REASON_CLIENT_CONNECT = "client-connect";
 
     /** Tenant属性 */
@@ -47,7 +47,7 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
     });
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return -100;
     }
@@ -69,13 +69,13 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
 
         syncClient.addListener(new SyncFlowListener() {
             @Override
-            /** OnClientConnected */
+            /** on客户端连接 */
             public void onClientConnected(String clientId) {
                 scheduleFullSyncRequest(syncClient);
             }
         });
 
-        // 发起底层连接（幂等），等待平台端 sync-server 接受后触发全量同步
+ // 发起底层连接（幂等），等待平台端 同步-服务端 接受后触发全量同步
         syncClient.connect();
     }
 
@@ -89,7 +89,11 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
         syncClient.registerHandler(topic, tenantClientSyncHandler);
     }
 
-    /** ScheduleFullSyncRequest */
+    /**
+     * 调度完整同步请求
+     *
+     * @param syncClient 同步客户端
+     */
     private void scheduleFullSyncRequest(SyncClient syncClient) {
         if (!tenantProperties.getClient().isSyncRequestFullPushOnConnect()) {
             return;
@@ -104,7 +108,13 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
         );
     }
 
-    /** RequestFullSyncIfNecessary */
+    /**
+     * 请求完整同步ifnecessary
+     *
+     * @param syncClient 同步客户端
+     * @param connectedAt 连接at
+     * @param reason ReasonML
+     */
     private void requestFullSyncIfNecessary(SyncClient syncClient, long connectedAt, String reason) {
         if (!syncClient.isConnected()) {
             return;
@@ -118,7 +128,12 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
         requestFullSync(syncClient, reason);
     }
 
-    /** RequestFullSync */
+    /**
+     * 请求完整同步
+     *
+     * @param syncClient 同步客户端
+     * @param reason ReasonML
+     */
     private void requestFullSync(SyncClient syncClient, String reason) {
         String tenantId = tenantProperties.getClient().getTenantId();
         if (!TenantSyncMessageSupport.hasText(tenantId)) {

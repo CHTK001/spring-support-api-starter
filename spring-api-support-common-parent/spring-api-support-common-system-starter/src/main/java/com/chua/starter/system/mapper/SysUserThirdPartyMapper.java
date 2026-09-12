@@ -5,9 +5,9 @@ import com.chua.starter.entity.system.SysUserThirdParty;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 用户第三方绑定信息 Mapper
+   * 用户第三方绑定信息 映射器
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/11
  * @author CH
  */

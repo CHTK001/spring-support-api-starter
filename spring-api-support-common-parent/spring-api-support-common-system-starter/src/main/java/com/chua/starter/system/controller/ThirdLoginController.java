@@ -40,13 +40,13 @@ public class ThirdLoginController {
     /** 用户登录服务，处理第三方授权登录逻辑 */
     final SysLoginService sysLoginService;
     /**
-     * 第三方授权登录，将授权码换取用户身份并写入 Token。
+      * 第三方授权登录，将授权码换取用户身份并写入 令牌。
      *
-     * @param loginData     第三方登录凭证（包含 provider 与 code）
+     * @param loginData     第三方登录凭证（包含 提供者 与 编码）
      * @param request       HTTP请求
      * @param response      HTTP响应
      * @param bindingResult 参数校验结果
-     * @return 登录结果，包含 accessToken 等信息
+     * @return 登录结果，包含 access令牌 等信息
      */
     @Operation(summary = "第三方登录码")
     @PostMapping("/third/login/code")
@@ -85,8 +85,9 @@ public class ThirdLoginController {
     /**
      * 查询当前用户的第三方账号绑定情况。
      *
-     * @param userId 当前登录用户 ID
+     * @param userId 当前登录用户 标识
      * @return 已绑定的第三方平台列表
+     * @param @UserValue("userId" @UserValue("userId"
      */
     @Operation(summary = "第三方绑定情况")
     @PostMapping("/third/bind/info")
@@ -96,9 +97,10 @@ public class ThirdLoginController {
     /**
      * 解绑指定第三方账号。
      *
-     * @param userId                  当前登录用户 ID
-     * @param thirdPartyUnbindRequest 解绑请求，包含目标 provider 标识
+     * @param userId                  当前登录用户 标识
+     * @param thirdPartyUnbindRequest 解绑请求，包含目标 提供者 标识
      * @return 是否解绑成功
+     * @param @UserValue("userId" @UserValue("userId"
      */
     @Operation(summary = "第三方绑定解绑")
     @PostMapping("/third/unbind")

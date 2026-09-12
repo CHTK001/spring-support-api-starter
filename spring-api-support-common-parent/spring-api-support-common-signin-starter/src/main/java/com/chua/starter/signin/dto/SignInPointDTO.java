@@ -14,7 +14,7 @@ import lombok.Data;
 public class SignInPointDTO {
 
     /**
-     * 规则类型：DAILY_SIGN / STREAK_BONUS_3 / STREAK_BONUS_7 / STREAK_BONUS_30
+      * 规则类型：DAILY_标志 / STREAK_奖金_3 / STREAK_奖金_7 / STREAK_奖金_30
      */
     private String ruleType;
 

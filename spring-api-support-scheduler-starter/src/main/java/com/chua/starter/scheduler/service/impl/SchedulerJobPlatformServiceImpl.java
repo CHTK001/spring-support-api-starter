@@ -38,7 +38,7 @@ import java.util.UUID;
  * <p>平台基于 job-starter 新架构 (SCHEDULER 角色) 提供统一任务管理能力,
  * 通过 MyBatis-Plus 的 {@link JobMapper} / {@link JobLogMapper} 直接读写
  * {@code sys_job / sys_job_log} 表。任务扫描与远程派发由 job-starter 的
- * Leader 循环 + 长链 Sync 完成, 平台不再维护自研轮询/HTTP 派发。</p>
+   * 铅 循环 + 长链 同步 完成, 平台不再维护自研轮询/HTTP 派发。</p>
  *
  * @since 4.0.0.42
  * @author CH
@@ -70,7 +70,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     private static final String DEFAULT_SCHEDULE_TYPE = "CRON";
 
     /**
-     * 默认 Glue 类型
+      * 默认 胶水 类型
      */
     private static final String DEFAULT_GLUE_TYPE = "BEAN";
 
@@ -80,12 +80,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     private static final String DEFAULT_MISFIRE_STRATEGY = "DO_NOTHING";
 
     /**
-     * 任务 Mapper
+      * 任务 映射器
      */
     private final JobMapper jobMapper;
 
     /**
-     * 日志 Mapper
+      * 日志 映射器
      */
     private final JobLogMapper jobLogMapper;
 
@@ -95,7 +95,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     private final JobProperties jobProperties;
 
     /**
-     * 调度任务 Mapper
+      * 调度任务 映射器
      */
     private final SchedulerJobMapper schedulerJobMapper;
 
@@ -130,7 +130,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     /**
      * 查询任务详情。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 任务实体
      */
     @Override
@@ -188,7 +188,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     /**
      * 更新任务, 按传入字段进行局部合并。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @param job   任务实体
      * @return 是否更新成功
      */
@@ -233,7 +233,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     /**
      * 删除任务 (逻辑删除), 先停止任务再置删除标记。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 是否删除成功
      */
     @Override
@@ -265,7 +265,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     /**
      * 恢复已删除任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 是否恢复成功
      */
     @Override
@@ -295,7 +295,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     /**
      * 启动任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 是否启动成功
      */
     @Override
@@ -327,7 +327,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     /**
      * 停止任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @return 是否停止成功
      */
     @Override
@@ -355,7 +355,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     /**
      * 立即执行任务。
      *
-     * @param jobId 任务 ID
+     * @param jobId 任务 标识
      * @param param 执行参数
      * @return 是否触发成功
      */
@@ -454,7 +454,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
      *
      * @param pageNum      页码
      * @param pageSize     每页大小
-     * @param beanName     handler 名称模糊查询
+     * @param beanName     处理器 名称模糊查询
      * @param executeCode  执行状态码
      * @param group        任务分组
      * @return 日志分页结果
@@ -602,7 +602,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
      * 查找任务最近一次执行日志。
      *
      * @param job 任务实体
-     * @return 最近一次执行日志, 不存在返回 null
+     * @return 最近一次执行日志, 不存在返回 空
      */
     private JobLogEntity findLatestLog(JobEntity job) {
         if (StringUtils.hasText(trimToNull(job.getSysJobNo()))) {
@@ -625,7 +625,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
      * 按任务编号查找最近一次执行日志。
      *
      * @param jobNo 任务编号
-     * @return 最近一次执行日志, 不存在返回 null
+     * @return 最近一次执行日志, 不存在返回 空
      */
     private JobLogEntity findLatestLogByNo(String jobNo) {
         return jobLogMapper.selectOne(Wrappers.<JobLogEntity>lambdaQuery()
@@ -639,7 +639,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
      * 按执行 Bean 名称查找最近一次执行日志。
      *
      * @param triggerBean 执行 Bean 名称
-     * @return 最近一次执行日志, 不存在返回 null
+     * @return 最近一次执行日志, 不存在返回 空
      */
     private JobLogEntity findLatestLogByBean(String triggerBean) {
         return jobLogMapper.selectOne(Wrappers.<JobLogEntity>lambdaQuery()
@@ -653,7 +653,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
      * 按任务编号查找未删除的任务。
      *
      * @param jobNo 任务编号
-     * @return 任务实体, 不存在返回 null
+     * @return 任务实体, 不存在返回 空
      */
     private JobEntity findByNo(String jobNo) {
         return jobMapper.selectOne(Wrappers.<JobEntity>lambdaQuery()
@@ -864,7 +864,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 规范化调度类型, 支持 CRON / FIXED / FIXED_MS / DELAY / AT / NONE。
+      * 规范化调度类型, 支持 CRON / FIXED / FIXED_MS / 延迟 / AT / 无。
      *
      * @param scheduleType 原始调度类型
      * @return 规范化后的调度类型
@@ -999,7 +999,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
      * 时间戳毫秒数转换为本地时间。
      *
      * @param time 毫秒时间戳
-     * @return 本地时间, 空值或非正数返回 null
+     * @return 本地时间, 空值或非正数返回 空
      */
     private LocalDateTime toLocalDateTime(Long time) {
         if (time == null || time <= 0) {
@@ -1012,7 +1012,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
      * 日期转换为本地时间。
      *
      * @param date 日期
-     * @return 本地时间, 空值返回 null
+     * @return 本地时间, 空值返回 空
      */
     private LocalDateTime toLocalDateTime(Date date) {
         if (date == null) {
@@ -1026,7 +1026,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
      *
      * @param date 日期
      * @param cost 耗时毫秒数
-     * @return 本地时间, 空值返回 null
+     * @return 本地时间, 空值返回 空
      */
     private LocalDateTime toLocalDateTime(Date date, java.math.BigDecimal cost) {
         if (date == null) {
@@ -1058,10 +1058,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 校验任务 ID 合法性。
+      * 校验任务 标识 合法性。
      *
-     * @param jobId 任务 ID
-     * @return 合法任务 ID
+     * @param jobId 任务 标识
+     * @return 合法任务 标识
      */
     private Long requireJobId(Long jobId) {
         if (jobId == null || jobId <= 0) {
@@ -1086,10 +1086,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 去除空白, 空白文本转换为 null。
+      * 去除空白, 空白文本转换为 空。
      *
      * @param value 文本值
-     * @return 去除空白后的文本, 空白返回 null
+     * @return 去除空白后的文本, 空白返回 空
      */
     private String trimToNull(String value) {
         if (!StringUtils.hasText(value)) {

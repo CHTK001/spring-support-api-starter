@@ -38,7 +38,7 @@ import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants
 import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.LOCALHOST;
 
 /**
- * OAuth 认证服务多协议 Server 管理器
+   * OAuth 认证服务多协议 服务端 管理器
  *
  * <p>根据 {@code plugin.oauth.protocol-server.protocols[]} 配置启动多个基于 common-starter
  * {@code network.Server} 的协议 Server(HTTP/KCP/WS/UDP 等,可插拔扩展),
@@ -51,22 +51,22 @@ import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants
 public class OauthProtocolServerManager implements AutoCloseable {
 
     /**
-     * 已启动的 Server 映射(name -> Server)
+      * 已启动的 服务端 映射(名称 -> 服务端)
      */
     private final Map<String, Server> serverMap = new ConcurrentHashMap<>();
 
     /** 属性 */
     private final OauthProtocolServersProperties properties;
-    /** Auth服务器属性 */
+    /** 认证服务器属性 */
     private final AuthServerProperties authServerProperties;
     /** Logincheck */
     private final LoginCheck loginCheck;
 
     /**
-     * 创建 OauthProtocolServerManager 实例
-     * @param properties properties
-     * @param authServerProperties authServerProperties
-     * @param loginCheck loginCheck
+      * 创建 oauth协议服务端管理器 实例
+     * @param properties 属性
+     * @param authServerProperties 认证服务端属性
+     * @param loginCheck login检查
      */
     public OauthProtocolServerManager(OauthProtocolServersProperties properties,
                                       AuthServerProperties authServerProperties,
@@ -80,7 +80,7 @@ public class OauthProtocolServerManager implements AutoCloseable {
     }
 
     /**
-     * 启动所有启用的协议 Server
+      * 启动所有启用的协议 服务端
      */
     public void startAll() {
         var protocols = properties.getProtocols();
@@ -102,7 +102,8 @@ public class OauthProtocolServerManager implements AutoCloseable {
     }
 
     /**
-     * 启动单个协议 Server
+      * 启动单个协议 服务端
+     * @param config 配置
      */
     private void startServer(OauthProtocolServersProperties.ProtocolServer config) throws Exception {
         var setting = ServerSetting.defaults();
@@ -112,7 +113,7 @@ public class OauthProtocolServerManager implements AutoCloseable {
         setting.setHost(config.getHost());
         setting.setPort(config.getPort());
         setting.setProtocol(config.getProtocol());
-        // 强制使用阻塞式过滤链:响应式链中 UrlMappingServerFilter 异步执行 handler,
+ // 强制使用阻塞式过滤链:响应式链中 urlmapping服务端过滤器 异步执行 处理器,
         // 存在响应竞态(响应体未写入时响应已返回)。阻塞式链同步执行,保证响应完整。
         setting.setReactor(false);
         // contextPath 使用根路径,路由注册完整路径(/login 等),避免 JDK HttpServer context 前缀不匹配
@@ -122,7 +123,7 @@ public class OauthProtocolServerManager implements AutoCloseable {
         // 注册 OAuth 认证路由(独立 UrlMappingServerFilter,避免依赖 Server 内部 urlMappingFilter 的初始化顺序)
         var handler = new OauthProtocolHandler(authServerProperties, loginCheck);
         // TCP 帧协议(TcpServer 接口):帧格式为 topic:body(如 login:{...} 或 verify:{...}),
-        // 无 topic 前缀时默认 login,兼容旧版纯 body 帧
+ // 无 topic 前缀时默认 login,兼容旧版纯 主体 帧
         if (server instanceof com.chua.common.support.network.tcp.TcpServer tcpServer) {
             tcpServer.setHandler(request -> {
                 String frame = new String(request, StandardCharsets.UTF_8);
@@ -174,7 +175,7 @@ public class OauthProtocolServerManager implements AutoCloseable {
                 ? config.getAuthRoutes() : Arrays.asList(AUTH_ROUTES);
         for (var p : routes) {
             urlMappingFilter.route(p, HttpMethod.POST, handler);
-            // 兼容 client address 含 /oauth 前缀的调用
+ // 兼容 客户端 地址 含 /OAuth 前缀的调用
             urlMappingFilter.route("/oauth" + p, HttpMethod.POST, handler);
         }
         server.addFilter(urlMappingFilter);
@@ -199,7 +200,7 @@ public class OauthProtocolServerManager implements AutoCloseable {
     private void startKcpServer(KcpServer kcpServer, OauthProtocolHandler handler, List<String> routes) {
         kcpServer.addListener(new SyncServerListener() {
             @Override
-            /** OnMessage */
+            /** on消息 */
             public void onMessage(String clientId, String topic, Object message) {
                 if (message == null) {
                     return;
@@ -236,7 +237,7 @@ public class OauthProtocolServerManager implements AutoCloseable {
                 if (response.getBody() != null && clientId != null) {
                     var respTopic = rawTopic.startsWith("/") ? rawTopic.substring(1) : rawTopic;
                     var responseText = new String(response.getBody(), StandardCharsets.UTF_8);
-                    // 请求-响应协议回传 reqId|body,普通消息直接回传 body
+ // 请求-响应协议回传 reqid|主体,普通消息直接回传 主体
                     kcpServer.send(clientId,
                             KCP_RESP_PREFIX + respTopic,
                             requestId.isEmpty() ? responseText : requestId + KCP_SEPARATOR + responseText);
@@ -247,12 +248,12 @@ public class OauthProtocolServerManager implements AutoCloseable {
     }
 
     /**
-     * 启动 RSocket 认证适配(消息型协议)
+      * 启动 r套接字 认证适配(消息型协议)
      *
      * <p>RSocket 使用 request-response 模型,topic 对应认证路径(login/logout/verify 等),
      * payload 为 {@code {"data":"认证参数JSON或密文"}},认证结果作为响应体返回。</p>
      *
-     * @param rsocketServer RSocket 服务器
+     * @param rsocketServer r套接字 服务器
      * @param handler       OAuth 认证处理器
      * @param routes        认证路由(topic)列表,为空时使用默认路由
      */
@@ -276,7 +277,10 @@ public class OauthProtocolServerManager implements AutoCloseable {
     }
 
     /**
-     * 创建 Server 实例(支持 SPI type 与默认 jdk)
+      * 创建 服务端 实例(支持 SPI 类型 与默认 jdk)
+     * @param type 类型
+     * @param setting setting
+     * @return 创建服务端的结果
      */
     private Server createServer(String type, ServerSetting setting) {
         var serverType = (type == null || type.isEmpty()) ? DEFAULT_TYPE : type;
@@ -289,7 +293,8 @@ public class OauthProtocolServerManager implements AutoCloseable {
     }
 
     /**
-     * 默认 HTTP Server 配置
+      * 默认 HTTP 服务端 配置
+     * @return 默认http服务端的结果
      */
     private OauthProtocolServersProperties.ProtocolServer defaultHttpServer() {
         var config = new OauthProtocolServersProperties.ProtocolServer();
@@ -304,7 +309,7 @@ public class OauthProtocolServerManager implements AutoCloseable {
     }
 
     /**
-     * 停止所有 Server
+      * 停止所有 服务端
      */
     @Override
     public void close() {
@@ -327,6 +332,7 @@ public class OauthProtocolServerManager implements AutoCloseable {
      * 使 {@link OauthProtocolHandler} 无需感知底层传输协议。</p>
      *
      * @since 4.0.0.42
+     * @author CH
      */
     private static class MessageServerRequest extends AbstractServerRequest {
 
@@ -341,19 +347,19 @@ public class OauthProtocolServerManager implements AutoCloseable {
         }
 
         @Override
-        /** 读取Body */
+        /** 读取主体 */
         protected byte[] readBody() {
             return body;
         }
 
         @Override
-        /** 获取Headers */
+        /** 获取头部 */
         public HttpHeader getHeaders() {
             return HttpHeader.create();
         }
 
         @Override
-        /** 获取Header */
+        /** 获取头部 */
         public String getHeader(String name) {
             return null;
         }
@@ -365,25 +371,25 @@ public class OauthProtocolServerManager implements AutoCloseable {
         }
 
         @Override
-        /** 获取Path */
+        /** 获取路径 */
         public String getPath() {
             return "/" + topic;
         }
 
         @Override
-        /** 获取Method */
+        /** 获取方法 */
         public HttpMethod getMethod() {
             return HttpMethod.POST;
         }
 
         @Override
-        /** 获取RemoteAddress */
+        /** 获取远程地址 */
         public String getRemoteAddress() {
             return LOCALHOST;
         }
 
         @Override
-        /** 获取RemotePort */
+        /** 获取远程端口 */
         public int getRemotePort() {
             return 0;
         }
@@ -396,11 +402,12 @@ public class OauthProtocolServerManager implements AutoCloseable {
      * 捕获 {@link OauthProtocolHandler} 写入的响应体,由 KCP 适配层回传客户端。</p>
      *
      * @since 4.0.0.42
+     * @author CH
      */
     private static class MessageServerResponse extends AbstractServerResponse {
 
         @Override
-        /** 获取OutputStream */
+        /** 获取输出流 */
         public OutputStream getOutputStream() {
             return new ByteArrayOutputStream();
         }

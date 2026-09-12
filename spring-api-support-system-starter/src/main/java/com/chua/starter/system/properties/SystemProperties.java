@@ -32,6 +32,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *       cache:
  *         enable: true
  *         expire: 3600
+ * }</pre> 3600
  * }</pre>
  *
  * @since 2024/12/11
@@ -72,6 +73,7 @@ public class SystemProperties {
      * 缓存配置类
      *
      * @since 2024/12/11
+     * @author CH
      */
     @Data
     public static class CacheConfig {
@@ -96,6 +98,7 @@ public class SystemProperties {
      * 日志配置类
      *
      * @since 2024/12/11
+     * @author CH
      */
     @Data
     public static class LogConfig {

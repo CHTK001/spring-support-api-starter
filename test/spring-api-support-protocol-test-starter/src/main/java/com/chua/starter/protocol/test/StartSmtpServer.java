@@ -6,9 +6,14 @@ import com.chua.protocol.support.network.protocol.server.ProtocolServer;
 /**
  * 启动 SMTP 服务器供外部客户端连接测试
  * @author CH
+ * @since 4.0.0
  */
 public class StartSmtpServer {
-    /** Main */
+    /**
+     * Main
+     *
+     * @param args 参数
+     */
     public static void main(String[] args) throws Exception {
         int port = args.length > 0 ? Integer.parseInt(args[0]) : 2525;
         String host = args.length > 1 ? args[1] : "0.0.0.0";

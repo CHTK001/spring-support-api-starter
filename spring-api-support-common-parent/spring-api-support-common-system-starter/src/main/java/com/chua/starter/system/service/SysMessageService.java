@@ -21,7 +21,7 @@ public interface SysMessageService extends IService<SysMessage> {
      *
      * <p>查询条件：接收者为当前用户或广播消息（receiverId=0），按发送时间倒序。</p>
      *
-     * @param sysUserId 当前用户ID
+     * @param sysUserId 当前用户标识
      * @param page      页码（从1开始）
      * @param pageSize  每页条数
      * @return 消息分页对象
@@ -31,7 +31,7 @@ public interface SysMessageService extends IService<SysMessage> {
     /**
      * 统计当前用户未读消息数
      *
-     * @param sysUserId 当前用户ID
+     * @param sysUserId 当前用户标识
      * @return 未读数量
      */
     long countUnread(Integer sysUserId);
@@ -41,8 +41,8 @@ public interface SysMessageService extends IService<SysMessage> {
      *
      * <p>lastId 为空时标记全部已读；否则标记 id &lt;= lastId 的消息已读。</p>
      *
-     * @param sysUserId 当前用户ID
-     * @param lastId    已读到的最大消息ID（可为null）
+     * @param sysUserId 当前用户标识
+     * @param lastId    已读到的最大消息标识（可为空）
      * @return 处理结果
      */
     ReturnResult<Boolean> markRead(Integer sysUserId, Long lastId);

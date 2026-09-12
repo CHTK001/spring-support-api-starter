@@ -26,10 +26,10 @@ import java.util.UUID;
 /**
  * JWT 令牌生成器
  * <p>
- * 支持多种签名算法：HS256/HS384/HS512、RS256/RS384/RS512、ES256/ES384/ES512
+   * 支持多种签名算法：HS256/HS384/HS512、R256/R384/R512、ES256/ES384/ES512
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-12-18
  * @author CH
  */
@@ -38,28 +38,28 @@ import java.util.UUID;
 public class JwtTokenGeneration implements TokenGeneration {
 
     @AutoInject
-    /** Auth服务器属性 */
+    /** 认证服务器属性 */
     private AuthServerProperties authServerProperties;
 
-    private volatile SecretKey hmacKey;
-    private volatile PrivateKey privateKey;
-    private volatile PublicKey publicKey;
-    private volatile boolean initialized = false;
+    private volatile SecretKey hmacKey; // hmac键
+    private volatile PrivateKey privateKey; // 私募键
+    private volatile PublicKey publicKey; // 公共键
+    private volatile boolean initialized = false; // 初始化
 
     @Override
     /** Generation */
     public String generation(String key) {
-        // 简单生成模式，返回 JWT ID
+ // 简单生成模式，返回 JWT 标识
         return UUID.randomUUID().toString().replace("-", "");
     }
 
     /**
-     * 生成 JWT Access Token
+      * 生成 JWT Access 令牌
      *
-     * @param userId   用户ID
+     * @param userId   用户标识
      * @param username 用户名
      * @param claims   自定义声明
-     * @return JWT Token
+     * @return JWT 令牌
      */
     public String generateAccessToken(String userId, String username, Map<String, Object> claims) {
         ensureInitialized();
@@ -93,11 +93,11 @@ public class JwtTokenGeneration implements TokenGeneration {
     }
 
     /**
-     * 生成 JWT Refresh Token
+      * 生成 JWT Refresh 令牌
      *
-     * @param userId   用户ID
+     * @param userId   用户标识
      * @param username 用户名
-     * @return JWT Refresh Token
+     * @return JWT Refresh 令牌
      */
     public String generateRefreshToken(String userId, String username) {
         ensureInitialized();
@@ -120,7 +120,10 @@ public class JwtTokenGeneration implements TokenGeneration {
     }
 
     /**
-     * 根据算法签名 Token
+      * 根据算法签名 令牌
+     * @param builder 构建器
+     * @param algorithm algorithm
+     * @return 标志令牌的结果
      */
     private String signToken(io.jsonwebtoken.JwtBuilder builder, String algorithm) {
         String alg = algorithm.toUpperCase();
@@ -141,6 +144,8 @@ public class JwtTokenGeneration implements TokenGeneration {
 
     /**
      * 获取 HMAC 算法
+     * @param alg alg
+     * @return 获取hmacalgorithm的结果
      */
     private io.jsonwebtoken.security.SecureDigestAlgorithm<SecretKey, SecretKey> getHmacAlgorithm(String alg) {
         return switch (alg) {
@@ -153,6 +158,8 @@ public class JwtTokenGeneration implements TokenGeneration {
 
     /**
      * 获取非对称算法
+     * @param alg alg
+     * @return 获取asymmetricalgorithm的结果
      */
     private io.jsonwebtoken.security.SignatureAlgorithm getAsymmetricAlgorithm(String alg) {
         return switch (alg) {
@@ -168,6 +175,7 @@ public class JwtTokenGeneration implements TokenGeneration {
 
     /**
      * 获取公钥（用于 JWKS 端点）
+     * @return 获取公共键的结果
      */
     public PublicKey getPublicKey() {
         ensureInitialized();
@@ -176,6 +184,7 @@ public class JwtTokenGeneration implements TokenGeneration {
 
     /**
      * 获取 HMAC 密钥（用于验证）
+     * @return 获取hmac键的结果
      */
     public SecretKey getHmacKey() {
         ensureInitialized();
@@ -184,6 +193,7 @@ public class JwtTokenGeneration implements TokenGeneration {
 
     /**
      * 获取签名算法
+     * @return 获取algorithm的结果
      */
     public String getAlgorithm() {
         return authServerProperties.getJwt().getAlgorithm();
@@ -238,6 +248,7 @@ public class JwtTokenGeneration implements TokenGeneration {
 
     /**
      * 加载 RSA 密钥对
+     * @param jwtConfig jwt配置
      */
     private void loadRsaKeys(AuthServerProperties.JwtConfig jwtConfig) throws Exception {
         String publicKeyPath = jwtConfig.getPublicKeyPath();
@@ -262,6 +273,7 @@ public class JwtTokenGeneration implements TokenGeneration {
 
     /**
      * 加载 ECDSA 密钥对
+     * @param jwtConfig jwt配置
      */
     private void loadEcdsaKeys(AuthServerProperties.JwtConfig jwtConfig) throws Exception {
         String publicKeyPath = jwtConfig.getPublicKeyPath();
@@ -286,6 +298,8 @@ public class JwtTokenGeneration implements TokenGeneration {
 
     /**
      * 加载密钥文件
+     * @param path 路径
+     * @return 加载键文件的结果
      */
     private byte[] loadKeyFile(String path) throws Exception {
         InputStream inputStream;

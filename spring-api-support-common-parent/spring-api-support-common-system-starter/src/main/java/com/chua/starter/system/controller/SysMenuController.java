@@ -40,13 +40,14 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 @RequiredArgsConstructor
 public class SysMenuController {
 
-    /** SYSmenu服务 */
+    /** sysmenu服务 */
     private final SysMenuService sysMenuService;
     /**
      * 菜单列表
      *
      * @param sysMenu 条件
      * @return 菜单分页列表
+     * @param true true
      */
     @Operation(summary = "菜单列表")
     @GetMapping("/all")
@@ -59,6 +60,7 @@ public class SysMenuController {
      *
      * @param sysMenu 条件
      * @return 菜单分页列表
+     * @param true true
      */
     @Operation(summary = "菜单列表")
     @GetMapping("/list")
@@ -71,6 +73,8 @@ public class SysMenuController {
      *
      * @param sysMenu 条件
      * @return 菜单分页列表
+     * @param query 查询
+     * @param true true
      */
     @Operation(summary = "菜单分页列表")
     @GetMapping("/page")
@@ -82,6 +86,7 @@ public class SysMenuController {
      * 删除菜单
      *
      * @return 更新菜单
+     * @param sysMenuId sysMenuId
      */
     @Operation(summary = "删除菜单")
     @DeleteMapping("/delete")

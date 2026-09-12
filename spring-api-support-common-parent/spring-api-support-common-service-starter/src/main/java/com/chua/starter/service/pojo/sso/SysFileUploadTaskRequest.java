@@ -51,10 +51,10 @@ public class SysFileUploadTaskRequest {
     /** 文件存储桶 */
     private String fileBucket;
     /**
-     * sso类型
+      * 单点登录类型
      */
     @Schema(description = "OSS类型; 本地(FILESYSTEM: 默认), 七牛(QINIU)")
-    /** SSO类型 */
+    /** 单点登录类型 */
     private String ssoType = "FILESYSTEM";
     /**
      * 文件大小

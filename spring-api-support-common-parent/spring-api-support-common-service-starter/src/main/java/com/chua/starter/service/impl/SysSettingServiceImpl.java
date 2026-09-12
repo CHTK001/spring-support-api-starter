@@ -65,105 +65,105 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 @Service
 @Lazy(false)
 public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean, ApplicationListener<ApplicationReadyEvent> {
-    private static final String SETTING_LIST_CACHE_KEY_LEGACY_PREFIX = "sys:setting:";
-    private static final String SETTING_LIST_CACHE_KEY_PREFIX = "sys:setting:v2:";
+    private static final String SETTING_LIST_CACHE_KEY_LEGACY_PREFIX = "sys:setting:"; // setting列表缓存键legacy前缀
+    private static final String SETTING_LIST_CACHE_KEY_PREFIX = "sys:setting:v2:"; // setting列表缓存键前缀
 
     @Autowired
     @Lazy
-    private SysSettingService sysSettingService;
+    private SysSettingService sysSettingService; // syssetting服务
     
     @Autowired
     @Lazy
-    private SysSettingHistoryService sysSettingHistoryService;
+    private SysSettingHistoryService sysSettingHistoryService; // syssetting历史服务
 
     /**
-     * Socket服务是否启用
+      * 套接字服务是否启用
      */
     @Value("${plugin.socket.enable:false}")
-    private boolean socketEnable;
+    private boolean socketEnable; // 套接字enable
 
     /**
-     * Socket服务主机地址
+      * 套接字服务主机地址
      */
     @Value("${plugin.socket.host:localhost}")
-    private String socketHost;
+    private String socketHost; // 套接字主机
 
     /**
-     * Socket服务路径
+      * 套接字服务路径
      */
     @Value("${plugin.socket.room[0].context-path:${plugin.socket.path:/socket.io}}")
-    private String socketPath;
+    private String socketPath; // 套接字路径
 
     /**
-     * Socket服务默认端口
+      * 套接字服务默认端口
      */
     @Value("${plugin.socket.room[0].port:29181}")
-    private int socketPort;
+    private int socketPort; // 套接字端口
 
     /**
-     * Socket 对外发布主机地址
+      * 套接字 对外发布主机地址
      */
     @Value("${plugin.socket.publish-host:}")
-    private String socketPublishHost;
+    private String socketPublishHost; // 套接字发布主机
 
     /**
-     * Socket 对外发布端口
+      * 套接字 对外发布端口
      */
     @Value("${plugin.socket.publish-port:-1}")
-    private int socketPublishPort;
+    private int socketPublishPort; // 套接字发布端口
 
     /**
-     * Socket服务协议类型
+      * 套接字服务协议类型
      */
     @Value("${plugin.socket.protocol:socketio}")
-    private String socketProtocol;
+    private String socketProtocol; // 套接字协议
     
-    static final String[] APP_KEY = new String[]{"appKey", "clientId"};
-    static final String[] APP_SECRET = new String[]{"appSecret", "clientSecret"};
-    static final String[] APP_REDIRECT_URI = new String[]{"redirectUri"};
+    static final String[] APP_KEY = new String[]{"appKey", "clientId"}; // app键
+    static final String[] APP_SECRET = new String[]{"appSecret", "clientSecret"}; // APP_SECRET
+    static final String[] APP_REDIRECT_URI = new String[]{"redirectUri"}; // APP_REDIRECT_URI
 
     /**
-     * Socket 配置项名称：SocketUrl
+      * 套接字 配置项名称：套接字url
      */
     private static final String SOCKET_SETTING_URL = "SocketUrl";
 
     /**
-     * Socket 配置项名称：SocketOpen
+      * 套接字 配置项名称：套接字打开
      */
     private static final String SOCKET_SETTING_OPEN = "SocketOpen";
 
     /**
-     * Socket 配置项名称：SocketPath
+      * 套接字 配置项名称：套接字路径
      */
     private static final String SOCKET_SETTING_PATH = "SocketPath";
 
     /**
-     * Socket 配置项名称：SocketProtocol
+      * 套接字 配置项名称：套接字协议
      */
     private static final String SOCKET_SETTING_PROTOCOL = "SocketProtocol";
 
     /**
-     * Socket 配置项分组：config
+      * 套接字 配置项分组：配置
      */
     private static final String SOCKET_SETTING_GROUP = "config";
 
     /**
-     * SocketUrl 配置备注
+      * 套接字url 配置备注
      */
     private static final String SOCKET_REMARK_URL = "socket.io服务器地址";
 
     /**
-     * SocketOpen 配置备注
+      * 套接字打开 配置备注
      */
     private static final String SOCKET_REMARK_OPEN = "socket.io是否开启";
 
     /**
-     * SocketPath 配置备注
+      * 套接字路径 配置备注
      */
     private static final String SOCKET_REMARK_PATH = "socket.io路径";
 
     /**
-     * SocketProtocol 配置备注
+      * 套接字协议 配置备注
      */
     private static final String SOCKET_REMARK_PROTOCOL = "socket.io协议类型";
 
@@ -390,11 +390,15 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         authStateCache.cache(state + "_clientSecret", authConfig.getClientSecret());
         authStateCache.cache(state + "_callback", authConfig.getRedirectUri());
         authStateCache.cache(state + "_system_callback", loginData.callback());
-        // TODO: 迁移到 ServiceProvider（第三方 JustAuth OAuth 实现需先建立 SPI 扩展点）
+ // TODO: 迁移到 服务提供者（第三方 just认证 OAuth 实现需先建立 SPI 扩展点）
         AuthRequest authRequest = AuthRequestFactory.createAuthRequest(loginType, authConfig, authStateCache);
         return authRequest == null ? null : new SysSettingThirdPartyRequest<>(authRequest, authStateCache, state);
     }
 
+    /**
+     * upgrade版本。
+     * @param version 版本
+     */
     private void upgradeVersion(SysSetting version) {
         GlobalSettingFactory.getInstance().set("config", "version", version.getSysSettingVersion());
     }
@@ -453,7 +457,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                                 .eq(SysSetting::getSysSettingStatus, 1)
                         );
                         register(globalSettingFactory, list);
-                        // 同步Socket配置
+ // 同步套接字配置
                         syncSocketConfig();
                         log.info("[系统配置][初始化] 系统配置加载完成，共 {} 条配置", list.size());
                         return null;
@@ -464,12 +468,12 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     /**
-     * 同步Socket配置到数据库
-     * 将YAML中的socket配置同步到sys_setting表，确保前端获取的配置与后端一致
+      * 同步套接字配置到数据库
+      * 将YAML中的套接字配置同步到sys_setting表，确保前端获取的配置与后端一致
      */
     private void syncSocketConfig() {
         try {
-            // 构建Socket URL
+ // 构建套接字 URL
             var publishHost = resolveSocketPublishHost();
             var publishPort = resolveSocketPublishPort();
             var socketUrl = String.format("http://%s:%d", publishHost, publishPort);
@@ -480,7 +484,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             desired.put(SOCKET_SETTING_PATH, new SysSettingDesiredValue(socketPath, SOCKET_REMARK_PATH));
             desired.put(SOCKET_SETTING_PROTOCOL, new SysSettingDesiredValue(socketProtocol, SOCKET_REMARK_PROTOCOL));
 
-            // 只查询一次，拿到 Socket 相关配置后统一对比并更新/新增
+ // 只查询一次，拿到 套接字 相关配置后统一对比并更新/新增
             var existList = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
                     .eq(SysSetting::getSysSettingGroup, SOCKET_SETTING_GROUP)
                     .in(SysSetting::getSysSettingName, desired.keySet()));
@@ -531,6 +535,10 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
     }
 
+    /**
+     * resolve套接字发布主机。
+     * @return resolve套接字发布主机的结果
+     */
     private String resolveSocketPublishHost() {
         if (StringUtils.isNotBlank(socketPublishHost)) {
             return socketPublishHost.trim();
@@ -548,6 +556,11 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         return socketHost;
     }
 
+    /**
+     * 是否套接字本地发布主机。
+     * @param host 主机
+     * @return 是否套接字本地发布主机的结果
+     */
     private boolean isSocketLocalPublishHost(String host) {
         if (StringUtils.isBlank(host)) {
             return true;
@@ -566,6 +579,10 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
     }
 
+    /**
+     * resolvepreferred套接字发布主机。
+     * @return resolvepreferred套接字发布主机的结果
+     */
     private String resolvePreferredSocketPublishHost() {
         try {
             List<String> candidates = new ArrayList<>();
@@ -617,10 +634,21 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         return null;
     }
 
+    /**
+     * compare套接字发布主机。
+     * @param left left
+     * @param right right
+     * @return compare套接字发布主机的结果
+     */
     private int compareSocketPublishHost(String left, String right) {
         return Integer.compare(scoreSocketPublishHost(right), scoreSocketPublishHost(left));
     }
 
+    /**
+     * score套接字发布主机。
+     * @param host 主机
+     * @return score套接字发布主机的结果
+     */
     private int scoreSocketPublishHost(String host) {
         if (StringUtils.isBlank(host)) {
             return Integer.MIN_VALUE;
@@ -641,6 +669,11 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         return 100;
     }
 
+    /**
+     * 是否sitelocal172地址。
+     * @param host 主机
+     * @return 是否sitelocal172地址的结果
+     */
     private boolean isSiteLocal172Address(String host) {
         if (!host.startsWith("172.")) {
             return false;
@@ -659,6 +692,12 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
     }
 
+    /**
+     * 是否dockerlike接口。
+     * @param name 名称
+     * @param displayName display名称
+     * @return 是否dockerlike接口的结果
+     */
     private boolean isDockerLikeInterface(String name, String displayName) {
         return name.startsWith("docker")
                 || name.startsWith("br-")
@@ -669,6 +708,11 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 || displayName.contains("virtual");
     }
 
+    /**
+     * 是否dockerlike地址。
+     * @param host 主机
+     * @return 是否dockerlike地址的结果
+     */
     private boolean isDockerLikeAddress(String host) {
         return host.startsWith("172.17.")
                 || host.startsWith("172.18.")
@@ -687,15 +731,20 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 || host.startsWith("172.31.");
     }
 
+    /**
+     * resolve套接字发布端口。
+     * @return resolve套接字发布端口的结果
+     */
     private int resolveSocketPublishPort() {
         return socketPublishPort > 0 ? socketPublishPort : socketPort;
     }
 
     /**
-     * Socket 配置期望值
+      * 套接字 配置期望值
      *
      * @param value  配置值
      * @param remark 配置备注
+     * @return syssettingdesired值的结果
      */
     private record SysSettingDesiredValue(String value, String remark) {
     }
@@ -765,7 +814,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             return ReturnResult.error("没有可导出的配置");
         }
 
-        // 转换为导出格式，去除ID等内部字段
+ // 转换为导出格式，去除标识等内部字段
         List<Map<String, Object>> exportList = new ArrayList<>();
         for (SysSetting setting : settings) {
             Map<String, Object> item = new LinkedHashMap<>();
@@ -786,6 +835,13 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    /**
+     * 导入settings。
+     * @param json json
+     * @param overwrite overwrite
+     * @param roles 角色
+     * @return 导入settings的结果
+     */
     public ReturnResult<String> importSettings(String json, boolean overwrite, Set<String> roles) {
         if (StringUtils.isBlank(json)) {
             return ReturnResult.error("导入内容不能为空");

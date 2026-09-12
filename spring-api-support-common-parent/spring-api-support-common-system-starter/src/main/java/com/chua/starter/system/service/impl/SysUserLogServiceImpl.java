@@ -38,7 +38,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUserLog> implements SysUserLogService, ApplicationListener<UserLoggerInfo> {
 
-    final IptablesService iptablesService;
+    final IptablesService iptablesService; // iptables服务
 
     @Override
     public void onApplicationEvent(UserLoggerInfo userLoggerInfo) {
@@ -54,6 +54,13 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
      *
      * @param userLoggerInfo 日志
      * @return 日志
+     * @param value 值
+     /**
+      * 创建sys用户日志。
+      * @param userLoggerInfo 用户日志记录器信息
+      * @return 创建sys用户日志的结果
+      */
+     * @param source 源
      */
     private SysUserLog createSysUserLog(UserLoggerInfo userLoggerInfo) {
         SysUserLog sysUserLog = new SysUserLog();

@@ -22,7 +22,7 @@ import java.util.Set;
 public class SlowRequestTraceAnalyzer implements RequestTraceAnalyzer {
 
     @Override
-    /** Analyze */
+    /** 分析 */
     public Collection<RequestTraceSignal> analyze(RequestTraceAnalysisContext context) {
         if (!Boolean.TRUE.equals(context.config().getSlowRequestEnabled())) {
             return Set.of();

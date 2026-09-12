@@ -19,7 +19,7 @@ public interface SystemConstant {
      */
     String LOG_NAME = "log";
     /**
-     * sql日志名称
+      * SQL日志名称
      */
     String SQL_NAME = "sql";
     /**

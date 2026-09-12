@@ -84,7 +84,7 @@ import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERRO
 /**
  * 登录服务实现
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/9/12
  * @author CH
  */
@@ -93,20 +93,20 @@ import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERRO
 @RequiredArgsConstructor
 public class SysLoginServiceImpl implements SysLoginService {
 
-    /** Global_setting_factory */
+    /** 全局_setting_工厂 */
     public static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
-    /** User_agreement_group */
+    /** 用户_agreement_群体 */
     private static final String USER_AGREEMENT_GROUP = "userAgreement";
-    /** Default_agreement_version */
+    /** 默认_agreement_版本 */
     private static final String DEFAULT_AGREEMENT_VERSION = "2026.04";
-    /** Default_agreement_updated_at */
+    /** 默认_agreement_更新_at */
     private static final String DEFAULT_AGREEMENT_UPDATED_AT = "2026-04-09";
-    /** Agreement_accepted_version_key */
+    /** Agreement_accepted_版本_键 */
     private static final String AGREEMENT_ACCEPTED_VERSION_KEY = "agreementAcceptedVersion";
-    /** Agreement_accepted_at_key */
+    /** Agreement_accepted_at_键 */
     private static final String AGREEMENT_ACCEPTED_AT_KEY = "agreementAcceptedAt";
 
-    /** 生日框记录ID（与 sys_avatar_frame 种子 id=100 一致） */
+    /** 生日框记录标识（与 sys_avatar_帧 种子 标识=100 一致） */
     private static final Integer BIRTHDAY_FRAME_ID = 100;
 
     /** 生日窗口：前 3 天共 7 天 */
@@ -121,7 +121,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     private static final Map<Long, CachedValue> USER_LAYOUT_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * 用户角色编码缓存（key = "role:userId"），避免每次登录重复查询数据库
+      * 用户角色编码缓存（键 = "角色:用户id"），避免每次登录重复查询数据库
      */
     private static final Map<String, CachedValue> USER_ROLE_CACHE = new ConcurrentHashMap<>();
 
@@ -132,6 +132,8 @@ public class SysLoginServiceImpl implements SysLoginService {
 
     /**
      * 缓存条目
+     * @author CH
+     * @since 4.0.0
      */
     private static class CachedValue {
         /** 缓存值 */
@@ -140,9 +142,9 @@ public class SysLoginServiceImpl implements SysLoginService {
         private final long expireAt;
 
         /**
-         * 创建 CachedValue 实例
-         * @param value value
-         * @param expireAt expireAt
+          * 创建 缓存值 实例
+         * @param value 值
+         * @param expireAt expireat
          */
         private CachedValue(Object value, long expireAt) {
             this.value = value;
@@ -155,25 +157,25 @@ public class SysLoginServiceImpl implements SysLoginService {
      */
     private static final String THIRD_PARTY_TYPE_WECHAT = "wechat";
 
-    /** Auth属性 */
+    /** 认证属性 */
     private final AuthClientProperties authProperties;
     /** SYS用户thirdpartymapper */
     private final SysUserThirdPartyMapper sysUserThirdPartyMapper;
-    /** SYSwechat用户mapper */
+    /** syswechat用户映射器 */
     private final SysWechatUserMapper sysWechatUserMapper;
     /** Redis模板 */
     private final RedisTemplate redisTemplate;
     /** SYS设置服务 */
     private final SysSettingService sysSettingService;
-    /** SimpleSYS用户服务 */
+    /** 简单sys用户服务 */
     private final SimpleSysUserService simpleSysUserService;
     /** SYS用户服务 */
     private final SysUserService sysUserService;
     /** SYS用户rolemapper */
     private final SysUserRoleMapper sysUserRoleMapper;
-    /** SYSrolemapper */
+    /** sysrolemapper */
     private final SysRoleMapper sysRoleMapper;
-    /** SYSdeptmapper */
+    /** sysdeptmapper */
     private final SysDeptMapper sysDeptMapper;
     /** Objectmapper */
     private final ObjectMapper objectMapper;
@@ -216,7 +218,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         }
         log.info("本地登录成功(跳过密码校验): user={}", loginData.getUsername());
 
-        // 一次 JOIN 查询用户全部角色编码（带缓存），替代原来的两次 selectList
+ // 一次 连接 查询用户全部角色编码（带缓存），替代原来的两次 选择列表
         var roleCodes = getCachedRoleCodes(user.getSysUserId());
 
         var userResult = new UserResult();
@@ -245,7 +247,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         ext.put("sysUserSex", user.getSysUserSex());
         userResult.setExt(ext);
 
-        // 数据权限：从用户所属部门读取数据权限配置（DEPT/SELF/DEPT_AND_SUB 等）
+ // 数据权限：从用户所属部门读取数据权限配置（DEPT/SELF/DEPT_和_SUB 等）
         var dataPermission = DataFilterTypeEnum.ALL;
         var dataPermissionRule = "";
         var deptId = user.getSysDeptId();
@@ -307,7 +309,13 @@ public class SysLoginServiceImpl implements SysLoginService {
         return ReturnResult.error(RESOURCE_CAPTCHA_ERROR.getCode(), "请重新刷新校验码");
     }
 
-    /** 校验Environment */
+    /**
+     * 校验环境
+     *
+     * @param loginData login数据
+     * @param request 请求
+     * @return 检查环境的结果
+     */
     public ReturnResult<LoginResult> checkEnvironment(LoginData loginData, HttpServletRequest request) {
         var code = loginData.getVerifyCodeKey();
         var totpRequired = requiresTotp(loginData.getUsername());
@@ -343,13 +351,24 @@ public class SysLoginServiceImpl implements SysLoginService {
         return null;
     }
 
-    /** 是否拥有CaptchaContext */
+    /**
+     * 是否拥有captcha上下文
+     *
+     * @param loginData login数据
+     * @param request 请求
+     * @return 是否包含captcha上下文的结果
+     */
     private boolean hasCaptchaContext(LoginData loginData, HttpServletRequest request) {
         var sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse("").toString();
         return StringUtils.isNotBlank(sessionKey) || StringUtils.isNotBlank(loginData.getVerifyCodeUlid());
     }
 
-    /** RequiresTotp */
+    /**
+     * requirestotp
+     *
+     * @param username 用户名
+     * @return requiresTotp的结果
+     */
     private boolean requiresTotp(String username) {
         if (!isTotpLoginEnabled() || StringUtils.isBlank(username)) {
             return false;
@@ -362,29 +381,33 @@ public class SysLoginServiceImpl implements SysLoginService {
         return null != sysUser && StringUtils.isNotBlank(sysUser.getSysUserTotpCode());
     }
 
-    /** 是否TotpLoginEnabled */
+    /**
+     * 是否totplogin已启用
+     *
+     * @return 是否totplogin已启用的结果
+     */
     private boolean isTotpLoginEnabled() {
         GuestDefaultSetting gs = GLOBAL_SETTING_FACTORY.get("default", GuestDefaultSetting.class);
         return null != gs && gs.isCheckTotpCodeOpen();
     }
 
     @Override
-    /** 获取UserLoginInfo */
+    /** 获取用户login信息 */
     public UserInfoVO getUserLoginInfo() {
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         return buildUserInfo(userLoginInfo);
     }
 
     @Override
-    /** 获取UserLoginInfo */
+    /** 获取用户login信息 */
     public UserInfoVO getUserLoginInfo(String token) {
         if (StringUtils.isBlank(token)) {
             return new UserInfoVO();
         }
-        // 直接用 token 去鉴权服务器获取用户信息，不依赖 request header
+ // 直接用 令牌 去鉴权服务器获取用户信息，不依赖 请求 头部
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult(token);
         if (userLoginInfo == null || userLoginInfo.getExt() == null || userLoginInfo.getExt().isEmpty()) {
-            // fallback: 通过 request attribute 设置 token 再获取
+ // 降级: 通过 请求 attribute 设置 令牌 再获取
             RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
             if (requestAttributes != null) {
                 ServletRequestAttributes attributes = (ServletRequestAttributes) requestAttributes;
@@ -398,7 +421,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
-    /** 构建UserInfo */
+    /** 构建用户信息 */
     public UserInfoVO buildUserInfo(UserResume userLoginInfo) {
         UserInfoVO userInfoVO = new UserInfoVO();
         if (userLoginInfo == null) {
@@ -477,7 +500,11 @@ public class SysLoginServiceImpl implements SysLoginService {
         return diff <= BIRTHDAY_WINDOW_DAYS;
     }
 
-    /** EnrichAgreementStatus */
+    /**
+     * enrichagreement状态
+     *
+     * @param userInfoVO 用户信息vo
+     */
     private void enrichAgreementStatus(UserInfoVO userInfoVO) {
         UserAgreementSetting agreement = GLOBAL_SETTING_FACTORY.get(USER_AGREEMENT_GROUP, UserAgreementSetting.class);
         String agreementVersion = StringUtils.isNotBlank(agreement.getVersion()) ? agreement.getVersion() : DEFAULT_AGREEMENT_VERSION;
@@ -511,7 +538,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     /**
      * 读取用户布局（带 60 秒缓存）
      *
-     * @param userId 用户 ID
+     * @param userId 用户 标识
      * @return 用户布局
      */
     private UserLayout getCachedUserLayout(Long userId) {
@@ -525,9 +552,9 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-     * 读取用户角色编码（带 60 秒缓存，一次 JOIN 查询）
+      * 读取用户角色编码（带 60 秒缓存，一次 连接 查询）
      *
-     * @param userId 用户 ID
+     * @param userId 用户 标识
      * @return 角色编码集合
      */
     private Set<String> getCachedRoleCodes(Integer userId) {
@@ -547,7 +574,13 @@ public class SysLoginServiceImpl implements SysLoginService {
         return roleCodes;
     }
 
-    /** 解析PreferenceValue */
+    /**
+     * 解析preference值
+     *
+     * @param preference preference
+     * @param key 键
+     * @return resolvepreference值的结果
+     */
     private String resolvePreferenceValue(String preference, String key) {
         if (StringUtils.isBlank(preference) || StringUtils.isBlank(key)) {
             return "";
@@ -581,7 +614,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
-    /** ThirdLoginCode */
+    /** thirdlogin编码 */
     public ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         log.debug("第三方登录请求: loginType={}, thirdType={}", loginData.loginType(), loginData.thirdType());
         
@@ -601,13 +634,13 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
-    /** Third绑定Code */
+    /** Third绑定编码 */
     public ReturnResult<String> thirdBindCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         return thirdLoginCode(loginData, request, response);
     }
 
     @Override
-    /** Third绑定Info */
+    /** Third绑定信息 */
     public ReturnResult<List<String>> thirdBindInfo(String userId) {
         List<SysUserThirdParty> sysUserThirdParties = sysUserThirdPartyMapper.selectList(
                 Wrappers.<SysUserThirdParty>lambdaQuery()

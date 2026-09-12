@@ -26,16 +26,16 @@ import lombok.EqualsAndHashCode;
 public class MsMonitorConfig extends SysBase {
 
     /**
-     * 配置主键ID，自增
+      * 配置主键标识，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    /** ID */
+    /** 标识 */
     private Long id;
 
     /**
-     * 配置键，例如 monitor.scan.interval
+      * 配置键，例如 监控.扫描.间隔
      */
     @TableField("config_key")
     @ApiModelProperty("配置键")
@@ -53,7 +53,7 @@ public class MsMonitorConfig extends SysBase {
     private String configValue;
 
     /**
-     * 配置类型，例如 STRING/NUMBER/BOOLEAN
+      * 配置类型，例如 字符串/数字/布尔值
      */
     @TableField("config_type")
     @ApiModelProperty("配置类型")
@@ -62,7 +62,7 @@ public class MsMonitorConfig extends SysBase {
     private String configType;
 
     /**
-     * 配置分组，例如 SCAN/ALERT/NETWORK
+      * 配置分组，例如 扫描/ALERT/NETWORK
      */
     @TableField("config_group")
     @ApiModelProperty("配置分组")

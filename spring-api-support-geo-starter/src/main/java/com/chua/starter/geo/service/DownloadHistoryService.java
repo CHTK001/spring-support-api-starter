@@ -44,7 +44,7 @@ public interface DownloadHistoryService {
     /**
      * 删除指定记录。
      *
-     * @param id 记录 ID
+     * @param id 记录 标识
      * @return 是否删除成功
      */
     boolean delete(String id);

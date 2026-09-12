@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
 /**
- * 数据中台自动装配 — 使用 DatalakeServerBuilder 构建完整服务器
+   * 数据中台自动装配 — 使用 数据湖服务端构建器 构建完整服务器
  *
  * @since 2025/6/2
  * @author CH
@@ -21,11 +21,15 @@ import org.springframework.context.annotation.Bean;
 @ConditionalOnProperty(name = "datalake.enabled", havingValue = "true", matchIfMissing = false)
 public class DatalakeAutoConfiguration {
 
-    /** Datalake服务器 */
+    /** 数据湖服务器 */
     private DatalakeServer datalakeServer;
 
     @Bean
-    /** DatalakeServer */
+    /**
+     * 数据湖服务端
+     *
+     * @return 数据湖服务端的结果
+     */
     public DatalakeServer datalakeServer() {
         this.datalakeServer = DatalakeServerBuilder.builder()
                 .build();

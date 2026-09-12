@@ -47,7 +47,7 @@ import java.util.List;
  *
  * @author CH
  * @since 2024/12/10
- * @version 1.0.0
+   * @版本 1.0.0
  */
 @Slf4j
 @Service
@@ -57,15 +57,16 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
      * 默认分片大小：100MB
      */
     private static final long DEFAULT_CHUNK_SIZE = 1024 * 1024 * 100L;
-    private final TransactionTemplate transactionTemplate;
-    private final SysFileSystemPartService sysFileSystemPartService;
-    private final SysFileSystemSettingService sysFileSystemSettingService;
-    private final FileSystemProperties fileSystemProperties;
-    private final SysFileSystemMergeTaskRegistration mergeTaskRegistration;
-    private final FileStorageSupport fileStorageSupport;
+    private final TransactionTemplate transactionTemplate; // transactionTemplate
+    private final SysFileSystemPartService sysFileSystemPartService; // sys文件系统part服务
+    private final SysFileSystemSettingService sysFileSystemSettingService; // sys文件系统setting服务
+    private final FileSystemProperties fileSystemProperties; // 文件系统属性
+    private final SysFileSystemMergeTaskRegistration mergeTaskRegistration; // 合并任务registration
+    private final FileStorageSupport fileStorageSupport; // 文件storage支持
 
     /**
      * 上传进度推送服务（可选依赖）
+     * @param progressPushService 进步push服务
      */
     private FileUploadProgressPushService progressPushService;
 

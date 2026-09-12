@@ -7,7 +7,7 @@ import lombok.Data;
 /**
  * 登录响应对象
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/8/15
  * @author CH
  */
@@ -17,21 +17,21 @@ import lombok.Data;
 public class LoginResult {
 
     /**
-     * 访问token
+      * 访问令牌
      */
     @Schema(description = "访问token")
     /** Access令牌 */
     private String accessToken;
 
     /**
-     * token 类型
+      * 令牌 类型
      */
     @Schema(description = "token 类型", example = "Bearer")
     /** 令牌类型 */
     private String tokenType;
 
     /**
-     * 刷新token
+      * 刷新令牌
      */
     @Schema(description = "刷新token")
     /** Refresh令牌 */

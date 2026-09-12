@@ -18,21 +18,21 @@ import java.time.LocalDateTime;
 @Schema(description = "站内消息视图")
 public class SysMessageVO implements Serializable {
 
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 消息ID
+      * 消息标识
      */
     @Schema(description = "消息ID")
-    /** ID */
+    /** 标识 */
     private Long id;
 
     /**
      * 消息主题
      */
     @Schema(description = "消息主题")
-    /** Subject */
+    /** 主题 */
     private String subject;
 
     /**
@@ -46,18 +46,18 @@ public class SysMessageVO implements Serializable {
      * 发送时间（yyyy-MM-dd HH:mm:ss）
      */
     @Schema(description = "发送时间")
-    /** Send时间 */
+    /** 发送时间 */
     private LocalDateTime sendTime;
 
     /**
      * 已读状态：0-未读 / 1-已读
      */
     @Schema(description = "已读状态：0-未读 1-已读")
-    /** Read状态 */
+    /** 读取状态 */
     private Integer readStatus;
 
     /**
-     * 消息类型：system-系统通知 notice-公告 message-私信 warning-警告 info-信息
+      * 消息类型：系统-系统通知 notice-公告 消息-私信 警告-警告 信息-信息
      */
     @Schema(description = "消息类型")
     /** 类型 */

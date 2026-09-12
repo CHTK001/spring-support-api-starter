@@ -89,7 +89,7 @@ public class MonitorServerController {
     }
 
     /**
-     * 获取服务器下拉选项（ID 与名称）。
+      * 获取服务器下拉选项（标识 与名称）。
      *
      * @return 服务器选项列表
      */
@@ -102,8 +102,9 @@ public class MonitorServerController {
     /**
      * 获取服务器详情。
      *
-     * @param serverId 服务器ID
+     * @param serverId 服务器标识
      * @return 服务器详情
+     * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
      */
     @GetMapping("/detail/{serverId}")
     @Operation(summary = "获取服务器详情")
@@ -130,7 +131,7 @@ public class MonitorServerController {
     /**
      * 更新服务器信息。
      *
-     * @param server 服务器实体（必须包含服务器ID）
+     * @param server 服务器实体（必须包含服务器标识）
      * @return 是否更新成功
      */
     @PutMapping("/update")
@@ -145,8 +146,9 @@ public class MonitorServerController {
     /**
      * 删除服务器信息。
      *
-     * @param serverId 服务器ID
+     * @param serverId 服务器标识
      * @return 是否删除成功
+     * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
      */
     @DeleteMapping("/remove/{serverId}")
     @Operation(summary = "删除服务器")

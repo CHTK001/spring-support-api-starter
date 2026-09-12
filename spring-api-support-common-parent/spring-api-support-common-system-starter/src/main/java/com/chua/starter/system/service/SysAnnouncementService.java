@@ -32,7 +32,7 @@ public interface SysAnnouncementService extends IService<SysAnnouncement> {
      *
      * @param sysAnnouncement 公告数据
      * @param roles          当前用户角色
-     * @param userId         当前用户ID
+     * @param userId         当前用户标识
      * @return 操作结果
      */
     ReturnResult<SysAnnouncement> saveAnnouncement(SysAnnouncement sysAnnouncement, Set<String> roles, Integer userId);
@@ -49,7 +49,7 @@ public interface SysAnnouncementService extends IService<SysAnnouncement> {
     /**
      * 删除公告
      *
-     * @param announcementId 公告ID
+     * @param announcementId 公告标识
      * @param roles          当前用户角色
      * @return 操作结果
      */
@@ -58,9 +58,9 @@ public interface SysAnnouncementService extends IService<SysAnnouncement> {
     /**
      * 发布公告
      *
-     * @param announcementId 公告ID
+     * @param announcementId 公告标识
      * @param roles          当前用户角色
-     * @param userId         当前用户ID
+     * @param userId         当前用户标识
      * @return 操作结果
      */
     ReturnResult<Boolean> publishAnnouncement(Integer announcementId, Set<String> roles, Integer userId);
@@ -68,7 +68,7 @@ public interface SysAnnouncementService extends IService<SysAnnouncement> {
     /**
      * 下架公告
      *
-     * @param announcementId 公告ID
+     * @param announcementId 公告标识
      * @param roles          当前用户角色
      * @return 操作结果
      */
@@ -77,7 +77,7 @@ public interface SysAnnouncementService extends IService<SysAnnouncement> {
     /**
      * 获取当前用户可见的活跃公告列表
      *
-     * @param userId 当前用户ID
+     * @param userId 当前用户标识
      * @param roles  当前用户角色
      * @return 活跃公告列表
      */

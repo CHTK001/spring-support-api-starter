@@ -13,14 +13,15 @@ import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Bearer Token 认证处理器
+   * Bearer 令牌 认证处理器
  * <p>
- * 处理标准的 Authorization: Bearer &lt;token&gt; 认证请求。
- * 通过 SPI 机制由 subProtocol="bearer" 匹配选择，
- * 从请求头或 bodyData 中提取 Token 后调用 TokenResolver 验证。
+   * 处理标准的 授权: Bearer &lt;令牌&gt; 认证请求。
+   * 通过 SPI 机制由 sub协议="bearer" 匹配选择，
+   * 从请求头或 主体数据 中提取 令牌 后调用 令牌解析器 验证。
  * </p>
  *
  * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 @Spi("bearer")
@@ -29,10 +30,10 @@ public class BearerAuthorizationHandler implements AuthorizationHandler {
     @Override
     /**
      * Authenticate
-     * @param authInformation authInformation
-     * @param token token
-     * @param cookie cookie
-     * @param userCode userCode
+     * @param authInformation 认证信息
+     * @param token 令牌
+     * @param cookie Cookie
+     * @param userCode 用户编码
      */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation,
                                             String token,
@@ -40,7 +41,7 @@ public class BearerAuthorizationHandler implements AuthorizationHandler {
                                             String userCode) {
         log.info("使用 Bearer Token 认证方式");
 
-        // 从 authInformation 提取 Bearer Token（兜底：从请求头取）
+ // 从 认证信息 提取 Bearer 令牌（兜底：从请求头取）
         String bearerToken = token;
         if (StringUtils.isBlank(bearerToken)) {
             bearerToken = extractBearerToken(authInformation);
@@ -70,7 +71,7 @@ public class BearerAuthorizationHandler implements AuthorizationHandler {
 
         UserResume userResult = resolve.getData();
 
-        // 添加appId支持
+ // 添加appid支持
         String appId = MapUtils.getString(authInformation.getBodyData(), "x-oauth-app-id");
         if (StringUtils.isBlank(appId)) {
             appId = authInformation.getRequestHeaderValue("x-oauth-app-id");
@@ -85,7 +86,9 @@ public class BearerAuthorizationHandler implements AuthorizationHandler {
     }
 
     /**
-     * 从请求头 Authorization: Bearer 提取 token
+      * 从请求头 授权: Bearer 提取 令牌
+     * @param authInformation 认证信息
+     * @return extractbearer令牌的结果
      */
     private String extractBearerToken(OauthAuthInformation authInformation) {
         String authHeader = authInformation.getRequestHeaderValue("Authorization");
@@ -96,7 +99,7 @@ public class BearerAuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
-    /** Supports */
+    /** 支持 */
     public boolean supports(String subProtocol, String token, String userCode) {
         // 1. subProtocol 明确为 "bearer"
         if ("bearer".equalsIgnoreCase(subProtocol)) {

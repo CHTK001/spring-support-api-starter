@@ -8,7 +8,7 @@ import lombok.Data;
 /**
  * 服务模块统计信息
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/20
  * @author CH
  */
@@ -38,7 +38,7 @@ public class SysServiceModuleStats {
      */
     @ApiModelProperty(value = "禁用数")
     @Schema(description = "禁用数")
-    /** Disabled */
+    /** 已禁用 */
     private Long disabled;
 
     /**

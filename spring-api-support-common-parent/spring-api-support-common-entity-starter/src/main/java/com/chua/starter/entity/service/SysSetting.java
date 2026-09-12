@@ -23,16 +23,16 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_setting")
 public class SysSetting extends SysBase implements Serializable {
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 配置ID
+      * 配置标识
      */
     @TableId(value = "sys_setting_id", type = IdType.AUTO)
     @Schema(description = "配置ID")
     @NotNull(message = "配置ID不能为空", groups = {UpdateGroup.class})
-    /** SYS设置ID */
+    /** SYS设置标识 */
     private Integer sysSettingId;
 
     /**
@@ -78,7 +78,7 @@ public class SysSetting extends SysBase implements Serializable {
     @TableField(value = "sys_setting_remark")
     @Schema(description = "配置备注")
     @Size(max = 255, message = "配置备注最大长度需小于255")
-    /** SYS设置remark */
+    /** SYS设置评论 */
     private String sysSettingRemark;
 
     /**
@@ -86,7 +86,7 @@ public class SysSetting extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_sort")
     @Schema(description = "排序优先级")
-    /** SYS设置sort */
+    /** SYS设置排序 */
     private Integer sysSettingSort;
 
     /**
@@ -115,7 +115,7 @@ public class SysSetting extends SysBase implements Serializable {
     private Integer sysSettingAdmin;
 
     /**
-     * 配置值类型(前端组件判断用): BOOL-布尔 TEXT-文本 等
+      * 配置值类型(前端组件判断用): BOOL-布尔 文本-文本 等
      */
     @TableField(value = "sys_setting_value_type")
     @Schema(description = "配置值类型(前端组件判断用): BOOL-布尔 TEXT-文本 等")
@@ -146,7 +146,7 @@ public class SysSetting extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_in_system")
     @Schema(description = "是否系统配置: 0:否 1:是")
-    /** SYS设置INsystem */
+    /** SYS设置insystem */
     private Integer sysSettingInSystem;
 
     /**
@@ -154,6 +154,6 @@ public class SysSetting extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_app_inner")
     @Schema(description = "是否作用于系统启动: 0:否 1:是")
-    /** SYS设置APPinner */
+    /** SYS设置appinner */
     private Integer sysSettingAppInner;
 }

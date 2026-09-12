@@ -10,7 +10,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * 配置中心服务（Monitor 模块启动入口），启用缓存、定时任务、MyBatis Mapper 扫描与 ACME 配置。
+   * 配置中心服务（监控 模块启动入口），启用缓存、定时任务、MyBatis 映射器 扫描与 ACME 配置。
  *
  * @since 4.0.0.42
  * @author CH

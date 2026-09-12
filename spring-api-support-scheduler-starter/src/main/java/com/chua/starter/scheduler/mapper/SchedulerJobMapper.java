@@ -6,9 +6,9 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 调度任务 Mapper 接口
+   * 调度任务 映射器 接口
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025/1/1
  * @author CH
  */

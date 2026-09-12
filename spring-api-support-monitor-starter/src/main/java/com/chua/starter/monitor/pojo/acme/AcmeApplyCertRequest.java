@@ -19,11 +19,11 @@ import java.util.List;
 public class AcmeApplyCertRequest {
 
     /**
-     * ACME 账户 ID，关联已保存的 ACME 账户
+      * ACME 账户 标识，关联已保存的 ACME 账户
      */
     @ApiModelProperty("ACME账户ID")
     @Schema(description = "ACME账户ID")
-    /** AcmeaccountID */
+    /** acmeaccountid */
     private Integer acmeAccountId;
 
     /**
@@ -53,7 +53,7 @@ public class AcmeApplyCertRequest {
      */
     @ApiModelProperty(value = "备用域名列表(SAN)", notes = "可选，用于一张证书保护多个域名，如 www.example.com, api.example.com")
     @Schema(description = "备用域名列表(SAN)，可选。用于一张证书保护多个域名，如 [\"www.example.com\", \"api.example.com\"]")
-    /** SANdomains */
+    /** sandomains */
     private List<String> sanDomains;
 
     /**
@@ -65,7 +65,7 @@ public class AcmeApplyCertRequest {
     private String challengeType;
 
     /**
-     * 部署模式，取值 local（本机）/ssh（远程）/manual（手动），默认 manual
+      * 部署模式，取值 本地（本机）/ssh（远程）/manual（手动），默认 manual
      */
     @ApiModelProperty("部署模式: local(本机)/ssh(远程)/manual(手动)，默认manual")
     @Schema(description = "部署模式: local(本机)/ssh(远程)/manual(手动)，默认manual")
@@ -73,7 +73,7 @@ public class AcmeApplyCertRequest {
     private String deployMode;
 
     /**
-     * webroot 验证路径，如 /var/www/html，本机/SSH 模式时使用
+      * webroot 验证路径，如 /var/www/HTML，本机/SSH 模式时使用
      */
     @ApiModelProperty("webroot路径，如 /var/www/html（ssh模式使用）")
     @Schema(description = "webroot路径，如 /var/www/html（ssh模式使用）")
@@ -101,7 +101,7 @@ public class AcmeApplyCertRequest {
      */
     @ApiModelProperty("SSH用户名")
     @Schema(description = "SSH用户名")
-    /** SSHusername */
+    /** sshusername */
     private String sshUsername;
 
     /**

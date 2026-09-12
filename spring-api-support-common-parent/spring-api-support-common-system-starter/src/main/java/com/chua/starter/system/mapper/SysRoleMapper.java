@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 角色 Mapper接口
+   * 角色 映射器接口
  *
  * @since 2024/8/7
  * @author CH
@@ -18,29 +18,29 @@ import java.util.Set;
 @Mapper
 public interface SysRoleMapper extends BaseMapper<SysRole> {
     /**
-     * 根据用户ID查询角色
+      * 根据用户标识查询角色
      * <p>登录时使用，不需要数据权限过滤</p>
      *
-     * @param userIds 用户ID集合
+     * @param userIds 用户标识集合
      * @return 角色列表
      */
     @DataScope(enabled = false)
     List<SysRole> listByUserId(@Param("userIds") Set<Integer> userIds);
 
     /**
-     * 鏍规嵁绉熸埛id查询绠＄悊鍛樿鑹?
+      * 鏍规嵁绉熸埛标识查询绠＄悊鍛樿鑹?
      *
-     * @param sysTenantId 绉熸埛id
+     * @param sysTenantId 绉熸埛标识
      * @param sysRoleCode 角色编码
      * @return 角色
      */
     SysRole selectOneByTenant(@Param("sysTenantId") Integer sysTenantId, @Param("sysRoleCode") String sysRoleCode);
 
     /**
-     * 鏍规嵁绉熸埛id查询绠＄悊鍛樿鑹"
+      * 鏍规嵁绉熸埛标识查询绠＄悊鍛樿鑹"
      *
-     * @param sysTenantId 绉熸埛id
-     * @param sysTenantId 绉熸埛ID
+     * @param sysTenantId 绉熸埛标识
+     * @param sysTenantId 绉熸埛标识
      */
     void insertWithTenant(@Param("sysRole") SysRole sysRole, @Param("sysTenantId") Integer sysTenantId);
 }

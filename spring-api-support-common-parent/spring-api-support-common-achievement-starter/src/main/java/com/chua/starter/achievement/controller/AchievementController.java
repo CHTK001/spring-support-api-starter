@@ -44,12 +44,12 @@ public class AchievementController {
     private final AchievementService achievementService;
 
     /**
-     * 成就段位定义 Mapper
+      * 成就段位定义 映射器
      */
     private final AchievementTierMapper tierMapper;
 
     /**
-     * 用户成就记录 Mapper
+      * 用户成就记录 映射器
      */
     private final UserAchievementMapper userAchievementMapper;
 
@@ -107,7 +107,7 @@ public class AchievementController {
     /**
      * 删除成就段位定义（管理员端）。
      *
-     * @param id 段位定义ID
+     * @param id 段位定义标识
      * @return 是否删除成功
      */
     @Operation(summary = "Delete achievement tier")
@@ -134,7 +134,7 @@ public class AchievementController {
     /**
      * 分页查询指定用户的成就记录（管理员端）。
      *
-     * @param userId   用户ID
+     * @param userId   用户标识
      * @param page     页码，默认 1
      * @param pageSize 每页条数，默认 10
      * @param type     分组标识（可选）
@@ -160,7 +160,7 @@ public class AchievementController {
     // ================== User side ==================
 
     /**
-     * 用户ID必填提示
+      * 用户标识必填提示
      */
     private static final String ERROR_USER_ID_REQUIRED = "userId is required";
 
@@ -184,7 +184,7 @@ public class AchievementController {
     /**
      * 查询用户已解锁的成就列表。
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 已解锁成就列表
      */
     @Operation(summary = "Get user unlocked achievements")
@@ -196,7 +196,7 @@ public class AchievementController {
     /**
      * 查询用户成就统计概览。
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 成就统计概览
      */
     @Operation(summary = "Get user achievement stats")
@@ -235,7 +235,7 @@ public class AchievementController {
     /**
      * 查询用户在指定分组下尚未解锁的段位列表。
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @param type   分组标识
      * @return 未解锁段位列表
      */

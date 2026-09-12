@@ -26,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthServerConfigValidator {
 
-    /** Auth服务器属性 */
+    /** 认证服务器属性 */
     private final AuthServerProperties authServerProperties;
     /** 环境 */
     private final Environment environment;
@@ -36,7 +36,7 @@ public class AuthServerConfigValidator {
      */
     private static final List<String> DANGEROUS_KEYS = List.of(
             "D518E462DF7B36828FA68CCD69FC6140",
-            "1234567890oOlIi0",  // AuthServerProperties默认值
+            "1234567890oOlIi0", // 认证服务端属性默认值
             "your-256-bit-secret-key-here-32b",  // JWT默认密钥
             "123456",
             "password",
@@ -70,7 +70,7 @@ public class AuthServerConfigValidator {
         // 1. 校验服务密钥
         validateServiceKey(errors, warnings, isProduction);
         
-        // 2. 校验Token过期时间
+ // 2. 校验令牌过期时间
         validateTokenExpire(errors, warnings);
         
         // 3. 校验协议配置
@@ -99,6 +99,9 @@ public class AuthServerConfigValidator {
 
     /**
      * 校验服务密钥
+     * @param errors 错误
+     * @param warnings 警告
+     * @param isProduction 是否production
      */
     private void validateServiceKey(List<String> errors, List<String> warnings, boolean isProduction) {
         String serviceKey = authServerProperties.getServiceKey();
@@ -130,7 +133,9 @@ public class AuthServerConfigValidator {
     }
 
     /**
-     * 校验Token过期时间
+      * 校验令牌过期时间
+     * @param errors 错误
+     * @param warnings 警告
      */
     private void validateTokenExpire(List<String> errors, List<String> warnings) {
         long expire = authServerProperties.getExpire();
@@ -151,6 +156,8 @@ public class AuthServerConfigValidator {
 
     /**
      * 校验协议配置
+     * @param errors 错误
+     * @param warnings 警告
      */
     private void validateProtocols(List<String> errors, List<String> warnings) {
         List<String> protocols = authServerProperties.getProtocols();
@@ -165,6 +172,8 @@ public class AuthServerConfigValidator {
 
     /**
      * 校验加密配置
+     * @param errors 错误
+     * @param warnings 警告
      */
     private void validateEncryption(List<String> errors, List<String> warnings) {
         String encryption = authServerProperties.getEncryption();
@@ -178,6 +187,8 @@ public class AuthServerConfigValidator {
 
     /**
      * 判断是否为生产环境
+     * @param activeProfiles 活跃配置文件
+     * @return 是否production环境的结果
      */
     private boolean isProductionEnvironment(String[] activeProfiles) {
         for (String profile : activeProfiles) {

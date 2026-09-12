@@ -43,7 +43,7 @@ public class SystemSecurityProperties {
     private int saltLength = 14;
 
     /**
-     * 用户导入时的默认密码，由配置文件 plugin.system.security.default-import-password 覆盖。
+      * 用户导入时的默认密码，由配置文件 plugin.系统.安全性.默认-导入-密码 覆盖。
      * <p>建议部署时显式配置，不在此处硬编码。</p>
      */
     private String defaultImportPassword = "";

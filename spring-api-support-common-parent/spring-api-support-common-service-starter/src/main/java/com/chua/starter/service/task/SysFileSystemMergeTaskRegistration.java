@@ -34,18 +34,18 @@ import java.util.concurrent.TimeUnit;
  *
  * @author CH
  * @since 2024/12/10
- * @version 1.0.0
+   * @版本 1.0.0
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class SysFileSystemMergeTaskRegistration {
 
-    private final SysFileSystemPartService sysFileSystemPartService;
-    private final FileSystemProperties fileSystemProperties;
-    private final FileStorageSupport fileStorageSupport;
+    private final SysFileSystemPartService sysFileSystemPartService; // sys文件系统part服务
+    private final FileSystemProperties fileSystemProperties; // 文件系统属性
+    private final FileStorageSupport fileStorageSupport; // 文件storage支持
 
-    private ThreadPoolExecutor executor;
+    private ThreadPoolExecutor executor; // 执行器
 
     @PostConstruct
     public void init() {
@@ -112,7 +112,7 @@ public class SysFileSystemMergeTaskRegistration {
             // 更新状态为完成
             sysFileSystem.setSysFileSystemStatus(SysFileSystem.Status.COMPLETED);
             sysFileSystem.setSysFileSystemPath(result.getUrl());
-            // 构建HTTP访问URL，通过 /file-storage/file 端点提供浏览器预览
+ // 构建HTTP访问URL，通过 /文件-storage/文件 端点提供浏览器预览
             String bucketName = sysFileSystem.getSysFileSystemBucket();
             if (StringUtils.isEmpty(bucketName)) {
                 bucketName = "default";
@@ -180,7 +180,7 @@ public class SysFileSystemMergeTaskRegistration {
      * 清理临时文件
      *
      * @param parts  分片列表
-     * @param taskId 任务ID
+     * @param taskId 任务标识
      */
     private void cleanTempFiles(List<SysFileSystemPart> parts, String taskId) {
         try {

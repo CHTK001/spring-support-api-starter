@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 /**
  * 命名空间远程分发轮询器。
  * <p>
- * 这是调度中心真正承担“类似 XXL-Job admin”的部分：定时扫描已配置远程执行器
+   * 这是调度中心真正承担“类似 XXL-作业 admin”的部分：定时扫描已配置远程执行器
  * 的命名空间任务表，命中后先推进下一次触发时间，再把本次触发推送到远程业务服务。
  * </p>
  * <p>
@@ -44,6 +44,8 @@ import java.util.regex.Pattern;
  * {@code job_trigger_status + job_trigger_next_time} 的 CAS 更新抢占同一条任务，
  * 避免多节点重复下发。
  * </p>
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 @Component
@@ -51,22 +53,22 @@ import java.util.regex.Pattern;
 @ConditionalOnProperty(prefix = "plugin.scheduler.job-platform", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class SchedulerNamespaceRemoteDispatchScheduler {
 
-    private static final int STATUS_STOP = 0;
-    private static final int STATUS_RUNNING = 1;
+    private static final int STATUS_STOP = 0; // 状态停止
+    private static final int STATUS_RUNNING = 1; // 状态running
 
-    private final SchedulerJobPlatformProperties platformProperties;
-    private final SchedulerNamespaceTableResolver namespaceTableResolver;
-    private final SchedulerRemoteExecutorDispatcher remoteExecutorDispatcher;
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    private final ListableBeanFactory beanFactory;
-    private final BeanPropertyRowMapper<SysJob> jobRowMapper = BeanPropertyRowMapper.newInstance(SysJob.class);
-    private final Map<String, ReentrantLock> namespaceLocks = new ConcurrentHashMap<>();
-    private final Map<String, Long> discoveryNextTriggerTimes = new ConcurrentHashMap<>();
-    private final Map<String, IdleState> namespaceIdleStates = new ConcurrentHashMap<>();
+    private final SchedulerJobPlatformProperties platformProperties; // platform属性
+    private final SchedulerNamespaceTableResolver namespaceTableResolver; // namespacetable解析器
+    private final SchedulerRemoteExecutorDispatcher remoteExecutorDispatcher; // 远程执行器dispatcher
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate; // 名称参数jdbctemplate
+    private final ListableBeanFactory beanFactory; // Bean工厂
+    private final BeanPropertyRowMapper<SysJob> jobRowMapper = BeanPropertyRowMapper.newInstance(SysJob.class); // 作业row映射器
+    private final Map<String, ReentrantLock> namespaceLocks = new ConcurrentHashMap<>(); // namespace锁
+    private final Map<String, Long> discoveryNextTriggerTimes = new ConcurrentHashMap<>(); // discovery下一个trigger时间
+    private final Map<String, IdleState> namespaceIdleStates = new ConcurrentHashMap<>(); // namespace空闲状态
 
-    private static final String DISCOVERY_SERVICE_CLASS = "com.chua.starter.discovery.support.service.DiscoveryService";
+    private static final String DISCOVERY_SERVICE_CLASS = "com.chua.starter.discovery.support.service.DiscoveryService"; // discovery服务类
 
-    private static final Pattern SAFE_SQL_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_.]+$");
+    private static final Pattern SAFE_SQL_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_.]+$"); // SAFE_SQL_IDENTIFIER
 
     @Scheduled(fixedDelayString = "${plugin.scheduler.job-platform.dispatch-interval-ms:1000}")
     public void dispatchDueJobs() {
@@ -87,6 +89,8 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     /**
      * 空闲回退：连续多次空轮询后跳过部分调度周期，降低无任务时的 DB 压力。
+     * @param namespace namespace
+     * @return should跳过due转为空闲的结果
      */
     private boolean shouldSkipDueToIdle(String namespace) {
         IdleState state = namespaceIdleStates.get(namespace.toLowerCase());
@@ -109,9 +113,11 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     /**
      * 判断指定命名空间是否处于集群模式。
      * <p>
-     * 集群模式下，调度中心统一拾取所有到期任务（包括 LOCAL 和 REMOTE），
-     * 推送到远程执行器执行，本地 job-starter 不再自行触发。
+      * 集群模式下，调度中心统一拾取所有到期任务（包括 本地 和 远程），
+      * 推送到远程执行器执行，本地 作业-启动 不再自行触发。
      * </p>
+     * @param namespace namespace
+     * @return 是否clustermode的结果
      */
     public boolean isClusterMode(String namespace) {
         if (!StringUtils.hasText(namespace) || platformProperties.getNamespaces() == null) {
@@ -130,6 +136,8 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     /**
      * 列出指定命名空间下发现服务中的任务（仅用于展示，不入库）。
+     * @param namespace namespace
+     * @return 列表discovery任务的结果
      */
     public List<SysJob> listDiscoveryTasks(String namespace) {
         Object discoveryService = resolveDiscoveryService();
@@ -157,27 +165,35 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             return List.of();
         }
 
-        // 加载已禁用的发现服务 handler
+ // 加载已禁用的发现服务 处理器
         Set<String> disabledHandlers = loadDiscoveryDisabledHandlers(namespace);
 
         List<SysJob> result = new ArrayList<>();
         for (Discovery discovery : discoveries) {
-            if (discovery == null) continue;
+            if (discovery == null) {
+                continue;
+            }
 
             Map<String, String> metadata = discovery.getMetadata();
-            if (metadata == null || !metadata.containsKey("jobs")) continue;
+            if (metadata == null || !metadata.containsKey("jobs")) {
+                continue;
+            }
 
             String jobsValue = metadata.get("jobs");
-            if (!StringUtils.hasText(jobsValue)) continue;
+            if (!StringUtils.hasText(jobsValue)) {
+                continue;
+            }
 
             String[] handlerNames = jobsValue.split(",");
             Map<String, Map<String, String>> jobConfigs = parseJobConfigs(metadata.get("job_configs"));
 
             for (String handlerName : handlerNames) {
                 handlerName = handlerName.trim();
-                if (!StringUtils.hasText(handlerName)) continue;
+                if (!StringUtils.hasText(handlerName)) {
+                    continue;
+                }
 
-                // 跳过已禁用的 handler
+ // 跳过已禁用的 处理器
                 if (disabledHandlers.contains(handlerName)) {
                     continue;
                 }
@@ -191,7 +207,9 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     /**
      * 禁用发现服务任务。
-     * 在命名空间的任务表中插入/更新一条控制记录，标记该 handler 为禁用状态。
+      * 在命名空间的任务表中插入/更新一条控制记录，标记该 处理器 为禁用状态。
+     * @param namespace namespace
+     * @param handlerName 处理器名称
      */
     @Transactional(rollbackFor = Exception.class)
     public void disableDiscoveryTask(String namespace, String handlerName) {
@@ -201,6 +219,8 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     /**
      * 启用发现服务任务。
+     * @param namespace namespace
+     * @param handlerName 处理器名称
      */
     @Transactional(rollbackFor = Exception.class)
     public void enableDiscoveryTask(String namespace, String handlerName) {
@@ -210,6 +230,8 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     /**
      * 删除发现服务任务（逻辑删除）。
+     * @param namespace namespace
+     * @param handlerName 处理器名称
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteDiscoveryTask(String namespace, String handlerName) {
@@ -219,6 +241,8 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     /**
      * 恢复已删除的发现服务任务。
+     * @param namespace namespace
+     * @param handlerName 处理器名称
      */
     @Transactional(rollbackFor = Exception.class)
     public void restoreDiscoveryTask(String namespace, String handlerName) {
@@ -228,7 +252,15 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     /**
      * 查询发现服务任务在 DB 中的控制记录状态。
-     * 返回 null 表示没有控制记录（默认启用）。
+      * 返回 空 表示没有控制记录（默认启用）。
+     * @param handlerName 处理器名称
+     /**
+      * findDiscoveryControlRecord。
+      * @param namespace namespace
+      * @param handlerName 处理器名称
+      * @return findDiscoveryControlRecord的结果
+      */
+     * @return discovery作业no的结果
      */
     public SysJob findDiscoveryControlRecord(String namespace, String handlerName) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
@@ -248,7 +280,9 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-     * 加载命名空间中已被禁用的发现服务 handler 名称集合。
+      * 加载命名空间中已被禁用的发现服务 处理器 名称集合。
+     * @param namespace namespace
+     * @return 加载discovery已禁用处理器的结果
      */
     private Set<String> loadDiscoveryDisabledHandlers(String namespace) {
         try {
@@ -281,6 +315,10 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
      * 记录以 {@code job_no = "disc:" + handlerName} 为唯一标识存入命名空间的任务表，
      * 调度中心通过该记录判断发现服务任务是否被禁用/删除。
      * </p>
+     * @param namespace namespace
+     * @param handlerName 处理器名称
+     * @param status 状态
+     * @param deleted 删除
      */
     private void upsertDiscoveryControlRecord(String namespace, String handlerName, int status, int deleted) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
@@ -340,6 +378,10 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         }
     }
 
+    /**
+     * dispatchNamespace。
+     * @param namespace namespace
+     */
     private void dispatchNamespace(String namespace) {
         ReentrantLock lock = namespaceLocks.computeIfAbsent(namespace.toLowerCase(), key -> new ReentrantLock());
         if (!lock.tryLock()) {
@@ -388,7 +430,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
         String sql;
         if (clusterMode) {
-            // 集群模式：拾取所有到期任务（包括 LOCAL 和 REMOTE）
+ // 集群模式：拾取所有到期任务（包括 本地 和 远程）
             sql = "SELECT * FROM " + table
                     + " WHERE job_trigger_status = :status"
                     + " AND job_trigger_next_time > 0"
@@ -396,7 +438,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
                     + groupFilter
                     + " ORDER BY job_trigger_next_time ASC, job_id ASC LIMIT :limit";
         } else {
-            // 单机模式：仅拾取 REMOTE 类型任务
+ // 单机模式：仅拾取 远程 类型任务
             parameters.addValue("dispatchMode", JobDispatchModeEnum.REMOTE.name());
             sql = "SELECT * FROM " + table
                     + " WHERE job_trigger_status = :status"
@@ -409,6 +451,11 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         return namedParameterJdbcTemplate.query(sql, parameters, jobRowMapper);
     }
 
+    /**
+     * resolve群体。
+     * @param nsProps nsProps
+     * @return resolve群体的结果
+     */
     private String resolveGroup(SchedulerJobPlatformProperties.Namespace nsProps) {
         if (nsProps == null) {
             return null;
@@ -452,6 +499,11 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         }
     }
 
+    /**
+     * 构建plan。
+     * @param job 作业
+     * @return 构建plan的结果
+     */
     private DispatchPlan buildPlan(SysJob job) throws Exception {
         long now = System.currentTimeMillis();
         long currentNextTime = safeLong(job.getJobTriggerNextTime());
@@ -478,6 +530,13 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         );
     }
 
+    /**
+     * claim作业。
+     * @param tableName table名称
+     * @param job 作业
+     * @param plan plan
+     * @return claim作业的结果
+     */
     private boolean claimJob(String tableName, SysJob job, DispatchPlan plan) {
         String table = safeIdentifier(tableName);
         MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -500,6 +559,12 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         return updated > 0;
     }
 
+    /**
+     * rollbackClaim。
+     * @param tableName table名称
+     * @param job 作业
+     * @param plan plan
+     */
     private void rollbackClaim(String tableName, SysJob job, DispatchPlan plan) {
         String table = safeIdentifier(tableName);
         MapSqlParameterSource parameters = new MapSqlParameterSource();
@@ -523,6 +588,12 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         );
     }
 
+    /**
+     * 能否dispatch。
+     * @param job 作业
+     * @param clusterMode clusterMode
+     * @return 能否dispatch的结果
+     */
     private boolean canDispatch(SysJob job, boolean clusterMode) {
         if (job == null || !StringUtils.hasText(job.getJobExecuteBean())) {
             return false;
@@ -534,10 +605,15 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             // 集群模式：所有任务都可以远程下发
             return true;
         }
-        // 单机模式：仅 REMOTE 类型任务
+ // 单机模式：仅 远程 类型任务
         return JobDispatchModeEnum.REMOTE == JobDispatchModeEnum.match(job.getJobDispatchMode());
     }
 
+    /**
+     * safeLong。
+     * @param value 值
+     * @return safeLong的结果
+     */
     private long safeLong(Long value) {
         return value == null ? 0L : value;
     }
@@ -548,6 +624,8 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
      * 命名空间表名等标识符来自配置，拼接进 SQL 前必须通过白名单校验，
      * 仅允许字母、数字、下划线和点，防止被注入 SQL 元字符。
      * </p>
+     * @param identifier identifier
+     * @return safeIdentifier的结果
      */
     private String safeIdentifier(String identifier) {
         if (identifier == null || !SAFE_SQL_IDENTIFIER.matcher(identifier).matches()) {
@@ -561,10 +639,11 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     /**
      * 从发现服务中获取任务元数据并调度到期任务。
      * <p>
-     * 通过反射访问 DiscoveryService（避免编译期强依赖），读取各注册客户端的
+      * 通过反射访问 discovery服务（避免编译期强依赖），读取各注册客户端的
      * {@code jobs} 和 {@code job_configs} 元数据，在内存中跟踪每个 handler
      * 的下次触发时间，到期后通过远程执行器分发器下发。
      * </p>
+     * @param namespace namespace
      */
     private void dispatchDiscoveryTasks(String namespace) {
         if (!platformProperties.isRemoteDispatchEnabled()) {
@@ -598,26 +677,34 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
         long now = System.currentTimeMillis();
 
-        // 加载已禁用的发现服务 handler
+ // 加载已禁用的发现服务 处理器
         Set<String> disabledHandlers = loadDiscoveryDisabledHandlers(namespace);
 
         for (Discovery discovery : discoveries) {
-            if (discovery == null) continue;
+            if (discovery == null) {
+                continue;
+            }
 
             Map<String, String> metadata = discovery.getMetadata();
-            if (metadata == null || !metadata.containsKey("jobs")) continue;
+            if (metadata == null || !metadata.containsKey("jobs")) {
+                continue;
+            }
 
             String jobsValue = metadata.get("jobs");
-            if (!StringUtils.hasText(jobsValue)) continue;
+            if (!StringUtils.hasText(jobsValue)) {
+                continue;
+            }
 
             String[] handlerNames = jobsValue.split(",");
             Map<String, Map<String, String>> jobConfigs = parseJobConfigs(metadata.get("job_configs"));
 
             for (String handlerName : handlerNames) {
                 handlerName = handlerName.trim();
-                if (!StringUtils.hasText(handlerName)) continue;
+                if (!StringUtils.hasText(handlerName)) {
+                    continue;
+                }
 
-                // 跳过已禁用的 handler
+ // 跳过已禁用的 处理器
                 if (disabledHandlers.contains(handlerName)) {
                     discoveryNextTriggerTimes.remove(discoveryCacheKey(namespace, handlerName));
                     continue;
@@ -625,7 +712,9 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
                 String cacheKey = discoveryCacheKey(namespace, handlerName);
                 Long scheduledTime = discoveryNextTriggerTimes.get(cacheKey);
-                if (scheduledTime != null && now < scheduledTime) continue;
+                if (scheduledTime != null && now < scheduledTime) {
+                    continue;
+                }
 
                 // 到期，执行调度
                 Map<String, String> config = (jobConfigs != null) ? jobConfigs.get(handlerName) : null;
@@ -644,12 +733,19 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         }
     }
 
+    /**
+     * discovery缓存键。
+     * @param namespace namespace
+     * @param handlerName 处理器名称
+     * @return discovery缓存键的结果
+     */
     private static String discoveryCacheKey(String namespace, String handlerName) {
         return namespace + ":" + handlerName;
     }
 
     /**
-     * 通过反射获取 DiscoveryService Bean。
+      * 通过反射获取 discovery服务 Bean。
+     * @return resolvediscovery服务的结果
      */
     private Object resolveDiscoveryService() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -673,7 +769,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     /**
      * 通过反射加载 Discovery 实例列表。
-     * 使用反射是因为 DiscoveryService 来自外部模块，此处仅调用公共方法，无标准替代方案。
+      * 使用反射是因为 discovery服务 来自外部模块，此处仅调用公共方法，无标准替代方案。
      */
     @SuppressWarnings({"unchecked", "java:S1186"})
     private Set<Discovery> loadDiscoveryInstances(Object discoveryService,
@@ -705,6 +801,8 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     /**
      * 解析命名空间配置。
+     * @param namespace namespace
+     * @return resolvenamespace属性的结果
      */
     private SchedulerJobPlatformProperties.Namespace resolveNamespaceProperties(String namespace) {
         if (!StringUtils.hasText(namespace) || platformProperties.getNamespaces() == null) {
@@ -718,7 +816,9 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-     * 解析 job_configs 元数据 JSON 为 Map。
+      * 解析 作业_配置 元数据 JSON 为 映射。
+     * @param jobConfigsJson 作业配置json
+     * @return 解析作业配置的结果
      */
     @SuppressWarnings("unchecked")
     private Map<String, Map<String, String>> parseJobConfigs(String jobConfigsJson) {
@@ -753,6 +853,10 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     /**
      * 计算发现服务任务的下次触发时间。
+     * @param handlerName 处理器名称
+     * @param config 配置
+     * @param now now
+     * @return computediscovery下一个时间的结果
      */
     private long computeDiscoveryNextTime(String handlerName, Map<String, String> config, long now) {
         if (config == null) {
@@ -785,11 +889,19 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-     * 为发现服务来源的任务创建临时 SysJob 对象。
+      * 为发现服务来源的任务创建临时 sys作业 对象。
      * <p>
-     * 该对象仅用于传递 handler 名称和执行配置到远程执行器分发器，
+      * 该对象仅用于传递 处理器 名称和执行配置到远程执行器分发器，
      * 不会持久化到数据库。
      * </p>
+     * @param value 值
+     /**
+      * 创建discovery作业。
+      * @param handlerName 处理器名称
+      * @param config 配置
+      * @return 创建discovery作业的结果
+      */
+     * @return 修剪转为空的结果
      */
     private SysJob createDiscoveryJob(String handlerName, Map<String, String> config) {
         SysJob job = new SysJob();
@@ -839,9 +951,11 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
     /**
      * 命名空间空闲状态，用于控制空轮询时的调度频率。
+     * @author CH
+     * @since 4.0.0
      */
     private static class IdleState {
-        int consecutiveEmptyCycles;
-        int totalCycles;
+        int consecutiveEmptyCycles; // consecutive空循环
+        int totalCycles; // total循环
     }
 }

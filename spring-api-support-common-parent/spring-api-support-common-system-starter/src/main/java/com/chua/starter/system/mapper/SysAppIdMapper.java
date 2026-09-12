@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
- * AppId应用标识 Mapper
+   * appid应用标识 映射器
  *
  * @since 2025/01/05
  * @author CH
@@ -15,9 +15,9 @@ import org.apache.ibatis.annotations.Param;
 public interface SysAppIdMapper extends BaseMapper<SysAppId> {
 
     /**
-     * 根据 appId值 查询AppId
+      * 根据 appid值 查询appid
      *
-     * @param appIdValue AppId值
+     * @param appIdValue appid值
      * @return AppId
      */
     SysAppId selectByAppIdValue(@Param("appIdValue") String appIdValue);
@@ -25,7 +25,7 @@ public interface SysAppIdMapper extends BaseMapper<SysAppId> {
     /**
      * 更新使用次数和最后使用时间
      *
-     * @param appIdValue   AppId值
+     * @param appIdValue   appid值
      * @param lastUseTime 最后使用时间
      */
     void updateUseInfo(@Param("appIdValue") String appIdValue, @Param("lastUseTime") Long lastUseTime);

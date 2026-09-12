@@ -14,19 +14,20 @@ import org.springframework.context.ApplicationContext;
  * OAuth认证信息 - 支持多协议
  *
  * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public class OauthAuthInformation extends BaseAuthInformation {
 
     // HTTP协议构造函数
     /**
-     * 创建 OauthAuthInformation 实例
-     * @param authServerProperties authServerProperties
-     * @param data data
-     * @param request request
-     * @param response response
-     * @param applicationContext applicationContext
-     * @param loginCheck loginCheck
+      * 创建 oauth认证信息 实例
+     * @param authServerProperties 认证服务端属性
+     * @param data 数据
+     * @param request 请求
+     * @param response 响应
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public OauthAuthInformation(AuthServerProperties authServerProperties,
                                String data,
@@ -39,13 +40,13 @@ public class OauthAuthInformation extends BaseAuthInformation {
 
     // Armeria协议构造函数
     /**
-     * 创建 OauthAuthInformation 实例
-     * @param authServerProperties authServerProperties
-     * @param data data
-     * @param request request
-     * @param response response
-     * @param applicationContext applicationContext
-     * @param loginCheck loginCheck
+      * 创建 oauth认证信息 实例
+     * @param authServerProperties 认证服务端属性
+     * @param data 数据
+     * @param request 请求
+     * @param response 响应
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public OauthAuthInformation(AuthServerProperties authServerProperties,
                                String data,
@@ -56,15 +57,15 @@ public class OauthAuthInformation extends BaseAuthInformation {
         super(authServerProperties, data, request, response, applicationContext, loginCheck);
     }
 
-    // RSocket协议构造函数
+ // r套接字协议构造函数
     /**
-     * 创建 OauthAuthInformation 实例
-     * @param authServerProperties authServerProperties
-     * @param data data
-     * @param request request
-     * @param response response
-     * @param applicationContext applicationContext
-     * @param loginCheck loginCheck
+      * 创建 oauth认证信息 实例
+     * @param authServerProperties 认证服务端属性
+     * @param data 数据
+     * @param request 请求
+     * @param response 响应
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public OauthAuthInformation(AuthServerProperties authServerProperties,
                                String data,
@@ -76,7 +77,7 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RequestHeader */
+    /** 获取请求头部 */
     public String getRequestHeader(Object request, String headerName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getHeader(headerName);
@@ -89,7 +90,7 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置ResponseHeader */
+    /** 设置响应头部 */
     protected void setResponseHeader(Object response, String headerName, String headerValue) {
         if (response instanceof HttpServletResponse) {
             ((HttpServletResponse) response).setHeader(headerName, headerValue);
@@ -101,7 +102,7 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RemoteAddress */
+    /** 获取远程地址 */
     protected String getRemoteAddress(Object request) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getRemoteAddr();
@@ -114,7 +115,7 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取RequestAttribute */
+    /** 获取请求attribute */
     protected Object getRequestAttribute(Object request, String attributeName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getAttribute(attributeName);
@@ -127,7 +128,7 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置RequestAttribute */
+    /** 设置请求attribute */
     protected void setRequestAttribute(Object request, String attributeName, Object attributeValue) {
         if (request instanceof HttpServletRequest) {
             ((HttpServletRequest) request).setAttribute(attributeName, attributeValue);
@@ -139,7 +140,7 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     /**
-     * 获取ApplicationContext
+      * 获取application上下文
      * @return ApplicationContext
      */
     public ApplicationContext getApplicationContext() {
@@ -147,7 +148,7 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     /**
-     * 获取LoginCheck
+      * 获取login检查
      * @return LoginCheck
      */
     public LoginCheck getLoginCheck() {
@@ -194,10 +195,10 @@ public class OauthAuthInformation extends BaseAuthInformation {
      */
     @Override
     public OauthAuthorization authorization() {
-        // 从Header读取认证类型（x-oauth-type）
+ // 从头部读取认证类型（x-OAuth-类型）
         String authType = getRequestHeader(request, "x-oauth-type");
 
-        // 从 bodyData 提取 token（客户端加密协议携带的 x-oauth-token）
+ // 从 主体数据 提取 令牌（客户端加密协议携带的 x-OAuth-令牌）
         String token = MapUtils.getString(this.getBodyData(), "x-oauth-token");
 
         return new OauthAuthorization(this,

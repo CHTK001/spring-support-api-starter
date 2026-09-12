@@ -21,7 +21,7 @@ import java.io.File;
  *
  * @author CH
  * @since 2024/12/10
- * @version 1.0.0
+   * @版本 1.0.0
  */
 public interface SysFileSystemService extends IService<SysFileSystem> {
 
@@ -83,7 +83,7 @@ public interface SysFileSystemService extends IService<SysFileSystem> {
      * 获取上传任务信息（用于断点续传）
      * 返回任务详情和已上传的分片列表
      *
-     * @param taskId 任务ID
+     * @param taskId 任务标识
      * @return 任务信息
      */
     ReturnResult<SysFileTaskInfoResponse> getTaskInfoForFileSystem(String taskId);

@@ -22,23 +22,23 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_setting_history")
 public class SysSettingHistory extends SysBase implements Serializable {
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 历史记录ID
+      * 历史记录标识
      */
     @TableId(value = "sys_setting_history_id", type = IdType.AUTO)
     @Schema(description = "历史记录ID")
-    /** SYS设置historyID */
+    /** SYS设置历史id */
     private Long sysSettingHistoryId;
 
     /**
-     * 关联的配置ID
+      * 关联的配置标识
      */
     @TableField(value = "sys_setting_id")
     @Schema(description = "关联的配置ID")
-    /** SYS设置ID */
+    /** SYS设置标识 */
     private Integer sysSettingId;
 
     /**
@@ -62,7 +62,7 @@ public class SysSettingHistory extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_old_value")
     @Schema(description = "变更前的值")
-    /** SYS设置OLD值 */
+    /** SYS设置旧值 */
     private String sysSettingOldValue;
 
     /**
@@ -70,11 +70,11 @@ public class SysSettingHistory extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_new_value")
     @Schema(description = "变更后的值")
-    /** SYS设置NEW值 */
+    /** SYS设置新值 */
     private String sysSettingNewValue;
 
     /**
-     * 操作类型: CREATE-新增 UPDATE-更新 DELETE-删除 IMPORT-导入 ROLLBACK-回滚
+      * 操作类型: 创建-新增 更新-更新 删除-删除 导入-导入 ROLLBACK-回滚
      */
     @TableField(value = "sys_setting_operation")
     @Schema(description = "操作类型: CREATE-新增 UPDATE-更新 DELETE-删除 IMPORT-导入 ROLLBACK-回滚")
@@ -82,11 +82,11 @@ public class SysSettingHistory extends SysBase implements Serializable {
     private String sysSettingOperation;
 
     /**
-     * 操作人ID
+      * 操作人标识
      */
     @TableField(value = "sys_setting_operator_id")
     @Schema(description = "操作人ID")
-    /** SYS设置operatorID */
+    /** SYS设置操作符id */
     private String sysSettingOperatorId;
 
     /**
@@ -94,7 +94,7 @@ public class SysSettingHistory extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_operator_name")
     @Schema(description = "操作人名称")
-    /** SYS设置operator名称 */
+    /** SYS设置操作符名称 */
     private String sysSettingOperatorName;
 
     /**
@@ -102,7 +102,7 @@ public class SysSettingHistory extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_remark")
     @Schema(description = "变更备注")
-    /** SYS设置remark */
+    /** SYS设置评论 */
     private String sysSettingRemark;
 
     /**
@@ -110,6 +110,6 @@ public class SysSettingHistory extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_batch_no")
     @Schema(description = "批次号（用于批量操作和回滚）")
-    /** SYS设置batchNO */
+    /** SYS设置batchno */
     private String sysSettingBatchNo;
 }

@@ -19,7 +19,7 @@ public class GeoTileSources {
     /** 天地图域名前缀常量 */
     private static final String TIANDITU_HOST = "tianditu";
 
-    /** 图源缓存，key 为图源 ID，value 为图源配置 */
+    /** 图源缓存，键 为图源 标识，值 为图源配置 */
     private final Map<String, TileSource> builtInSources = new LinkedHashMap<>();
 
     /**
@@ -63,10 +63,10 @@ public class GeoTileSources {
     }
 
     /**
-     * 获取所有可用图源（含天地图，需传入 Token）。
+      * 获取所有可用图源（含天地图，需传入 令牌）。
      *
-     * @param tiandituToken 天地图 Token（可为 null，使用 GeoProperties 中配置的默认值）
-     * @return 图源 Map
+     * @param tiandituToken 天地图 令牌（可为 空，使用 geo属性 中配置的默认值）
+     * @return 图源 映射
      */
     public Map<String, TileSource> getAllSources(String tiandituToken) {
         Map<String, TileSource> result = new LinkedHashMap<>(builtInSources);
@@ -81,11 +81,11 @@ public class GeoTileSources {
     }
 
     /**
-     * 根据 ID 获取单个图源。
+      * 根据 标识 获取单个图源。
      *
      * @param id             图源标识
-     * @param tiandituToken  天地图 Token（可为 null）
-     * @return 图源配置，不存在返回 null
+     * @param tiandituToken  天地图 令牌（可为 空）
+     * @return 图源配置，不存在返回 空
      */
     public TileSource getByName(String id, String tiandituToken) {
         return getAllSources(tiandituToken).get(id);
@@ -116,7 +116,7 @@ public class GeoTileSources {
     /**
      * 创建天地图图源配置。
      *
-     * @param token   天地图访问 Token
+     * @param token   天地图访问 令牌
      * @param layer   图层名称（img/cia/vec/cva）
      * @param name    显示名称
      * @param maxZoom 最大缩放级别

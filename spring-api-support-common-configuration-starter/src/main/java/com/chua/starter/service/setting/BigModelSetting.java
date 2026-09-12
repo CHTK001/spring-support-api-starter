@@ -24,7 +24,7 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
     private String appType;
 
     /**
-     * 应用ID，唯一标识一个大模型应用
+      * 应用标识，唯一标识一个大模型应用
      */
     private String appId;
 
@@ -39,12 +39,12 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
     private String appKey;
 
     /**
-     * API Host 地址（如 https://api.agnes-ai.com）
+      * API 主机 地址（如 https://api.agnes-ai.com）
      */
     private String host;
 
     /**
-     * API Base URL（如 https://api.agnes-ai.com/v1/chat/completions）
+      * API 基础 URL（如 https://api.agnes-ai.com/v1/chat/completions）
      */
     private String baseUrl;
 
@@ -52,7 +52,11 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
     /** BIG模型客户端 */
     private BigModelClient bigModelClient;
 
-    /** 获取BigModelClient */
+    /**
+     * 获取big模型客户端
+     *
+     * @return 获取big模型客户端的结果
+     */
     public BigModelClient getBigModelClient() {
         if(null == bigModelClient) {
             throw new RuntimeException(StringUtils.format("暂不支持{}, 请重新设置!", appType));
@@ -81,7 +85,7 @@ public class BigModelSetting implements Upgrade<BigModelSetting> {
                      .baseUrl(baseUrl)
                      .provider(appType)
                      .build();
-             // 优先使用 openai（嵌入式兼容），其次用配置的 appType，最后回退默认
+ // 优先使用 openai（嵌入式兼容），其次用配置的 app类型，最后回退默认
              ServiceProvider<BigModelClient> provider = ServiceProvider.of(BigModelClient.class);
              this.bigModelClient = provider.getFirstAvailable(new Object[]{bms}, "openai", bigModelSetting.appType);
               if(null == bigModelClient) {

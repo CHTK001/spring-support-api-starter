@@ -29,13 +29,13 @@ import java.util.Map;
 @Tag(name = "指纹查询", description = "通过指纹/IP反查用户身份")
 public class FingerprintController {
 
-    private final FingerprintStorageService fingerprintStorageService;
+    private final FingerprintStorageService fingerprintStorageService; // fingerprintstorage服务
 
     /**
      * 根据指纹查询对应用户信息，用于安全审计和异常登录排查。
      *
      * @param fingerprint 浏览器指纹，不能为空
-     * @return 用户信息（含 userId、username、ip、browser、os 等），未找到返回 found=false
+     * @return 用户信息（含 用户id、用户名、ip、browser、os 等），未找到返回 found=false
      */
     @GetMapping("/by-fingerprint")
     @Operation(summary = "根据指纹查询用户")

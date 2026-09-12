@@ -14,114 +14,114 @@ import lombok.Data;
 public class SysMiniMenuVO {
 
     /**
-     * 小程序菜单ID
+      * 小程序菜单标识
      */
     @Schema(description = "小程序菜单ID")
-    /** SYSminimenuID */
+    /** sysminimenuid */
     private Integer sysMiniMenuId;
 
     /**
      * 卡片标题
      */
     @Schema(description = "卡片标题")
-    /** SYSminimenu标题 */
+    /** sysminimenu标题 */
     private String sysMiniMenuTitle;
 
     /**
      * 卡片副标题
      */
     @Schema(description = "卡片副标题")
-    /** SYSminimenusubtitle */
+    /** sysminimenusubtitle */
     private String sysMiniMenuSubtitle;
 
     /**
      * 卡片分组
      */
     @Schema(description = "卡片分组")
-    /** SYSminimenu分类 */
+    /** sysminimenu分类 */
     private String sysMiniMenuCategory;
 
     /**
      * 页面路径
      */
     @Schema(description = "页面路径")
-    /** SYSminimenu路径 */
+    /** sysminimenu路径 */
     private String sysMiniMenuPath;
 
     /**
      * 跳转模式
      */
     @Schema(description = "跳转模式")
-    /** SYSminimenujump模式 */
+    /** sysminimenujump模式 */
     private Integer sysMiniMenuJumpMode;
 
     /**
      * 图标
      */
     @Schema(description = "图标")
-    /** SYSminimenuicon */
+    /** sysminimenuicon */
     private String sysMiniMenuIcon;
 
     /**
      * 封面
      */
     @Schema(description = "封面")
-    /** SYSminimenucover */
+    /** sysminimenucover */
     private String sysMiniMenuCover;
 
     /**
      * 角标
      */
     @Schema(description = "角标")
-    /** SYSminimenubadge */
+    /** sysminimenubadge */
     private String sysMiniMenuBadge;
 
     /**
      * 角标样式
      */
     @Schema(description = "角标样式")
-    /** SYSminimenubadge类型 */
+    /** sysminimenubadge类型 */
     private String sysMiniMenuBadgeType;
 
     /**
      * 权限标识
      */
     @Schema(description = "权限标识")
-    /** SYSminimenuperm */
+    /** sysminimenuperm */
     private String sysMiniMenuPerm;
 
     /**
      * 角色编码
      */
     @Schema(description = "角色编码")
-    /** SYSminimenurole */
+    /** sysminimenurole */
     private String sysMiniMenuRole;
 
     /**
      * 排序
      */
     @Schema(description = "排序")
-    /** SYSminimenusort */
+    /** sysminimenusort */
     private Integer sysMiniMenuSort;
 
     /**
      * 是否缓存
      */
     @Schema(description = "是否缓存")
-    /** SYSminimenukeepalive */
+    /** sysminimenukeepalive */
     private Integer sysMiniMenuKeepAlive;
 
     /**
      * 是否隐藏
      */
     @Schema(description = "是否隐藏")
-    /** SYSminimenuhidden */
+    /** sysminimenuhidden */
     private Integer sysMiniMenuHidden;
 
     /**
      * 说明
      */
     @Schema(description = "说明")
-    /** SYSminimenu描述 */
+    /** sysminimenu描述 */
     private String sysMiniMenuDescription;
 }

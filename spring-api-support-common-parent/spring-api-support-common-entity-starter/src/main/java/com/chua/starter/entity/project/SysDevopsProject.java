@@ -31,7 +31,7 @@ public class SysDevopsProject extends SysBase {
     @TableId(value = "project_id", type = IdType.AUTO)
     @Schema(description = "主键")
     @NotNull(message = "id不能为空", groups = {UpdateGroup.class})
-    /** ProjectID */
+    /** projectid */
     private Long projectId;
 
     /**
@@ -72,7 +72,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "sort_order")
     @Schema(description = "排序")
-    /** Sort排序 */
+    /** 排序排序 */
     private Integer sortOrder;
 
     /**
@@ -114,7 +114,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "server_username")
     @Schema(description = "用户名（加密）")
-    /** 服务器username */
+    /** 服务器用户名 */
     private String serverUsername;
 
     /**
@@ -138,7 +138,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "server_connect_timeout")
     @Schema(description = "连接超时（秒）")
-    /** 服务器connect超时 */
+    /** 服务器连接超时 */
     private Integer serverConnectTimeout;
 
     /**
@@ -154,7 +154,7 @@ public class SysDevopsProject extends SysBase {
      */
     @TableField(value = "server_activated_at")
     @Schema(description = "最近激活时间")
-    /** 服务器activatedAT */
+    /** 服务器activatedat */
     private java.time.LocalDateTime serverActivatedAt;
 
     // ── 路径配置 ──

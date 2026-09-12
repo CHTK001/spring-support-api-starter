@@ -15,9 +15,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  *
  * <p>平台基于 job-starter 新架构以 SCHEDULER 角色运行, 通过
  * {@link JobAutoConfiguration} 自动装配 Leader 扫描 + 长链 Sync,
- * 业务执行器侧配置 job-starter 的 EXECUTOR 角色接入。</p>
+   * 业务执行器侧配置 作业-启动 的 执行器 角色接入。</p>
  *
  * @since 4.0.0.42
+ * @author CH
  */
 @EnableCaching
 @EnableScheduling

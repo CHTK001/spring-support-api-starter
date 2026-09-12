@@ -38,12 +38,12 @@ import java.util.Map;
 public class ServerComponentLayoutController {
 
     /**
-     * 请求体键：源服务器ID
+      * 请求体键：源服务器标识
      */
     private static final String PARAM_SOURCE_SERVER_ID = "sourceServerId";
 
     /**
-     * 请求体键：目标服务器ID
+      * 请求体键：目标服务器标识
      */
     private static final String PARAM_TARGET_SERVER_ID = "targetServerId";
 
@@ -55,7 +55,7 @@ public class ServerComponentLayoutController {
     /**
      * 获取服务器组件布局列表。
      *
-     * @param serverId 服务器ID
+     * @param serverId 服务器标识
      * @return 组件布局列表
      */
     @GetMapping("/server/{serverId}")
@@ -68,7 +68,7 @@ public class ServerComponentLayoutController {
     /**
      * 获取启用的组件布局列表。
      *
-     * @param serverId 服务器ID
+     * @param serverId 服务器标识
      * @return 启用状态的组件布局列表
      */
     @GetMapping("/server/{serverId}/enabled")
@@ -81,8 +81,8 @@ public class ServerComponentLayoutController {
     /**
      * 获取指定组件布局。
      *
-     * @param serverId    服务器ID
-     * @param componentId 组件ID
+     * @param serverId    服务器标识
+     * @param componentId 组件标识
      * @return 组件布局记录
      */
     @GetMapping("/server/{serverId}/component/{componentId}")
@@ -108,7 +108,7 @@ public class ServerComponentLayoutController {
     /**
      * 更新组件布局配置。
      *
-     * @param layout 组件布局实体（必须包含组件布局ID）
+     * @param layout 组件布局实体（必须包含组件布局标识）
      * @return 更新后的组件布局
      */
     @PutMapping
@@ -124,8 +124,9 @@ public class ServerComponentLayoutController {
     /**
      * 删除组件布局配置。
      *
-     * @param layoutId 组件布局ID
+     * @param layoutId 组件布局标识
      * @return 是否删除成功
+     * @param @ApiParam("组件布局ID" @ApiParam("组件布局ID"
      */
     @DeleteMapping("/{layoutId}")
     @Operation(summary = "删除组件布局配置")
@@ -136,8 +137,9 @@ public class ServerComponentLayoutController {
     /**
      * 按组件删除布局。
      *
-     * @param componentId 组件ID
+     * @param componentId 组件标识
      * @return 是否删除成功
+     * @param @ApiParam("组件ID" @ApiParam("组件ID"
      */
     @DeleteMapping("/component/{componentId}")
     @Operation(summary = "按组件删除布局")
@@ -148,8 +150,9 @@ public class ServerComponentLayoutController {
     /**
      * 按服务器删除全部布局。
      *
-     * @param serverId 服务器ID
+     * @param serverId 服务器标识
      * @return 是否删除成功
+     * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
      */
     @DeleteMapping("/server/{serverId}")
     @Operation(summary = "按服务器删除全部布局")
@@ -160,7 +163,7 @@ public class ServerComponentLayoutController {
     /**
      * 批量更新组件位置。
      *
-     * @param layouts 组件布局集合，每项必须包含组件布局ID
+     * @param layouts 组件布局集合，每项必须包含组件布局标识
      * @return 更新成功的数量
      */
     @PostMapping("/batch/position")
@@ -184,7 +187,7 @@ public class ServerComponentLayoutController {
     /**
      * 更新组件位置。
      *
-     * @param layoutId 组件布局ID
+     * @param layoutId 组件布局标识
      * @param layout   携带位置信息的实体
      * @return 是否更新成功
      */
@@ -199,7 +202,7 @@ public class ServerComponentLayoutController {
     /**
      * 启用/禁用布局。
      *
-     * @param layoutId 组件布局ID
+     * @param layoutId 组件布局标识
      * @param status   状态值，1-启用，0-禁用
      * @return 是否更新成功
      */
@@ -214,8 +217,9 @@ public class ServerComponentLayoutController {
     /**
      * 获取布局统计。
      *
-     * @param serverId 服务器ID
-     * @return 统计结果，包含 total/enabled/disabled
+     * @param serverId 服务器标识
+     * @return 统计结果，包含 total/已启用/已禁用
+     * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
      */
     @GetMapping("/server/{serverId}/statistics")
     @Operation(summary = "获取布局统计")
@@ -224,9 +228,9 @@ public class ServerComponentLayoutController {
     }
 
     /**
-     * 复制布局到其他服务器。请求体格式：{"sourceServerId": 1, "targetServerId": 2}。
+      * 复制布局到其他服务器。请求体格式：{"源服务端id": 1, "Target服务端id": 2}。
      *
-     * @param body 请求体，包含源服务器ID与目标服务器ID
+     * @param body 请求体，包含源服务器标识与目标服务器标识
      * @return 复制的组件布局数量
      */
     @PostMapping("/copy")
@@ -240,8 +244,9 @@ public class ServerComponentLayoutController {
     /**
      * 重置服务器布局。
      *
-     * @param serverId 服务器ID
+     * @param serverId 服务器标识
      * @return 删除的记录数量
+     * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
      */
     @PostMapping("/server/{serverId}/reset")
     @Operation(summary = "重置服务器布局")

@@ -4,25 +4,25 @@ import com.chua.starter.entity.system.SysAppKey;
 import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
 
 /**
- * AppId 验证器接口
+   * appid 验证器接口
  * <p>
- * 用于验证客户端提供的 appId 是否合法，支持算法验证
+   * 用于验证客户端提供的 appid 是否合法，支持算法验证
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-01-05
  * @author CH
  */
 public interface AppIdValidator {
 
     /**
-     * 验证 AppId
+      * 验证 appid
      * <p>
-     * 客户端会使用算法处理 appId 后发送给服务端，服务端需要验证处理后的值是否正确
+      * 客户端会使用算法处理 appid 后发送给服务端，服务端需要验证处理后的值是否正确
      * </p>
      *
-     * @param processedAppId 客户端算法处理后的 appId
-     * @param appKey         数据库中的 AppKey 信息
+     * @param processedAppId 客户端算法处理后的 appid
+     * @param appKey         数据库中的 app键 信息
      * @return 验证结果
      */
     default ValidationResult validate(String processedAppId, SysAppKey appKey) {
@@ -30,13 +30,13 @@ public interface AppIdValidator {
     }
 
     /**
-     * 验证 AppId（从认证信息中获取签名参数）
+      * 验证 appid（从认证信息中获取签名参数）
      * <p>
-     * 支持从 Header 中获取签名参数进行验证
+      * 支持从 头部 中获取签名参数进行验证
      * </p>
      *
      * @param authInformation 认证信息
-     * @param appKey         数据库中的 AppKey 信息
+     * @param appKey         数据库中的 app键 信息
      * @return 验证结果
      */
     default ValidationResult validate(OauthAuthInformation authInformation, SysAppKey appKey) {
@@ -48,7 +48,7 @@ public interface AppIdValidator {
     /**
      * 是否支持当前验证方式
      *
-     * @param appId 原始 appId
+     * @param appId 原始 appid
      * @return 是否支持
      */
     default boolean supports(String appId) {
@@ -57,6 +57,8 @@ public interface AppIdValidator {
 
     /**
  * 验证结果
+     * @author CH
+     * @since 4.0.0
  */
 class ValidationResult {
 

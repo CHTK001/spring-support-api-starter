@@ -25,25 +25,25 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_dict")
 public class SysDict extends SysBase implements Serializable {
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 字典ID
+      * 字典标识
      */
     @TableId(value = "sys_dict_id", type = IdType.AUTO)
     @Schema(description = "字典ID")
     @NotNull(message = "字典ID不能为空")
-    /** SYSdictID */
+    /** sysdictid */
     private Integer sysDictId;
 
     /**
-     * 父级ID
+      * 父级标识
      */
     @TableField(value = "sys_dict_pid")
     @Schema(description = "父级ID")
     @NotNull(message = "父级ID不能为空")
-    /** SYSdictPID */
+    /** sysdictpid */
     private Integer sysDictPid;
 
     /**
@@ -51,7 +51,7 @@ public class SysDict extends SysBase implements Serializable {
      */
     @TableField(value = "sys_dict_sort")
     @Schema(description = "排序")
-    /** SYSdictsort */
+    /** sysdictsort */
     private Integer sysDictSort;
 
     /**
@@ -60,7 +60,7 @@ public class SysDict extends SysBase implements Serializable {
     @TableField(value = "sys_dict_name")
     @Schema(description = "字典名称")
     @Size(max = 255, message = "字典名称最大长度需小于255")
-    /** SYSdict名称 */
+    /** sysdict名称 */
     private String sysDictName;
 
     /**
@@ -68,7 +68,7 @@ public class SysDict extends SysBase implements Serializable {
      */
     @TableField(value = "sys_dict_status")
     @Schema(description = "状态: 0:隐藏 1:显示")
-    /** SYSdict状态 */
+    /** sysdict状态 */
     private Integer sysDictStatus;
 
     /**
@@ -76,7 +76,7 @@ public class SysDict extends SysBase implements Serializable {
      */
     @Schema(description = "是否内置: 0:非内置 1:内置")
     @TableField(value = "sys_dict_in_system")
-    /** SYSdictINsystem */
+    /** sysdictinsystem */
     private Integer sysDictInSystem;
 
     /**
@@ -85,16 +85,16 @@ public class SysDict extends SysBase implements Serializable {
     @TableField(value = "sys_dict_code")
     @Schema(description = "字典编码(唯一)")
     @Size(max = 255, message = "字典编码最大长度需小于255")
-    /** SYSdict代码 */
+    /** sysdict代码 */
     private String sysDictCode;
 
     /**
-     * 字典国际化key
+      * 字典国际化键
      */
     @TableField(value = "sys_dict_i18n")
     @Schema(description = "字典国际化key")
     @Size(max = 255, message = "字典国际化key最大长度需小于255")
-    /** SYSdicti18n */
+    /** sysdicti18n */
     private String sysDictI18n;
 
     /**
@@ -103,7 +103,7 @@ public class SysDict extends SysBase implements Serializable {
     @TableField(value = "sys_dict_remark")
     @Schema(description = "描述")
     @Size(max = 255, message = "描述最大长度需小于255")
-    /** SYSdictremark */
+    /** sysdictremark */
     private String sysDictRemark;
 
     /**

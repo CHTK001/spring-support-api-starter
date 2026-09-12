@@ -22,10 +22,10 @@ public interface SysUserLayoutService extends IService<SysUserLayout> {
     List<SysUserLayout> listByUserId(Integer userId);
 
     /**
-     * 查询用户指定 key 的偏好(layout/grid/component/preference)。
+      * 查询用户指定 键 的偏好(layout/grid/组件/preference)。
      *
      * @param userId 用户主键
-     * @param layoutKey 布局 key
+     * @param layoutKey 布局 键
      * @return 偏好实体
      */
     SysUserLayout getByUserIdAndKey(Integer userId, String layoutKey);

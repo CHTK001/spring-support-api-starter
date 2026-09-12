@@ -38,7 +38,7 @@ import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_
 import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_STATUS_FINISH;
 
 /**
- * 云影（YunY）资源提供器
+   * 云影（yuny）资源提供器
  *
  * <p>负责：</p>
  * <ul>
@@ -53,21 +53,21 @@ import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_
 @Slf4j
 @Spi("yuny")
 public class YunYResourceProvider extends AbstractResourceProvider implements SyncProvider {
-    static final String URL = "https://www.yuny.tv/videoSearch?key=%s";
-    static final String HOME = "https://www.yuny.tv%s";
+    static final String URL = "https://www.yuny.tv/videoSearch?key=%s"; // URL
+    static final String HOME = "https://www.yuny.tv%s"; // Home
     /**
      * 封面存储路径
      */
     File file = null;
     @AutoInject
-    /** 视频来源mapper */
+    /** 视频来源映射器 */
     private VideoSourceMapper videoSourceMapper;
     @AutoInject
-    /** 视频同步配置mapper */
+    /** 视频同步配置映射器 */
     private VideoSyncConfigMapper videoSyncConfigMapper;
     /**
-     * 创建 YunYResourceProvider 实例
-     * @param videoSource videoSource
+      * 创建 yunyresource提供者 实例
+     * @param videoSource 视频源
      */
     public YunYResourceProvider(VideoSource videoSource) {
         super(videoSource);
@@ -75,6 +75,7 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
 
     /**
      * 简单本地调试入口
+     * @param args 参数
      */
     public static void main(String[] args) {
         VideoSearch videoSearch = new VideoSearch();
@@ -132,6 +133,7 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
 
     /**
      * 解析详情页 JSON 数据并补充视频基础信息及播放线路
+     * @param videoInfoResult 视频信息结果
      */
     private void registerDetail(VideoInfoResult videoInfoResult) {
         String downloadUrls = videoInfoResult.getDownloadUrls();
@@ -163,6 +165,9 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
 
     /**
      * 解析在线资源列表并注册到 {@link VideoInfoResult}
+     * @param videoInfoResult 视频信息结果
+     * @param onlineVideoResources online视频resources
+     * @param jsonArray jsonArray
      */
     private void registerVideoResources(VideoInfoResult videoInfoResult, JsonArray onlineVideoResources, JsonArray jsonArray) {
         List<VideoPlayAddress> playAddressesList = new ArrayList<>();
@@ -175,6 +180,10 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
 
     /**
      * 根据单条线路配置构建播放地址及频道列表
+     * @param videoInfoResult 视频信息结果
+     * @param detail detail
+     * @param jsonArray jsonArray
+     * @param playAddressesList play地址列表
      */
     private void registerVideoResources(VideoInfoResult videoInfoResult, JsonObject detail, JsonArray jsonArray, List<VideoPlayAddress> playAddressesList) {
         int lineSourceNameLine = detail.getIntValue("lineSourceName", 0);
@@ -191,6 +200,9 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
 
     /**
      * 创建某条线路下的所有频道
+     * @param selectsLine 选择线
+     * @param jsonArray jsonArray
+     * @return 创建通道的结果
      */
     private List<VideoPlayAddressChannel> createChannel(int selectsLine, JsonArray jsonArray) {
         List<VideoPlayAddressChannel> videoPlayAddressChannels = new ArrayList<>();
@@ -300,7 +312,12 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
         }
     }
 
-    /** 创建VideoInfoResults */
+    /**
+     * 创建视频信息结果
+     *
+     * @param videoInfoResults 视频信息结果
+     * @param videoInfoResult 视频信息结果
+     */
     private void createVideoInfoResults(List<VideoInfoResult> videoInfoResults, List<VideoInfoResult> videoInfoResult) {
         for (VideoInfoResult infoResult : videoInfoResult) {
             registerDetail(infoResult);
@@ -338,6 +355,8 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
      *                                                                                                                                                                                                                                        JsonObject offset = new JsonObject();
      *                                                                                                                                                                                                                                        offset.put("videoType", "TV");
      *                                                                                                                                                                                                                                        String[] types = provider.createMvType(offset);
+     *                                                                                                                                                                                                                                        }</pre>                                                                                                                                                                          offset.put("videoType", "TV");
+     *                                                                                                                                                                                                                                        String[] types = provider.createMvType(offset);
      *                                                                                                                                                                                                                                        }</pre>
      * @return 返回根据当前视频类型确定的后续需要处理的视频类型数组
      * @since 2025/9/18 14:30
@@ -366,7 +385,7 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
     /**
      * 根据视频类型获取对应的分类 API 地址
      *
-     * @param videoSearch 视频搜索条件（仅使用其中的 videoType 字段）
+     * @param videoSearch 视频搜索条件（仅使用其中的 视频类型 字段）
      * @return 分类 API 地址，未知类型时返回 {@code null}
      */
     private String getApiUrl(VideoSearch videoSearch) {

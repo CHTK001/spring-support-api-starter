@@ -14,8 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * 图像导出服务实现，支持 GeoTIFF/PNG/JPEG 格式。
- * 生成 GeoTIFF 时同步创建 .prj 投影文件。
+   * 图像导出服务实现，支持 geotiff/PNG/JPEG 格式。
+   * 生成 geotiff 时同步创建 .prj 投影文件。
  *
  * @author CH
  * @since 1.0.0
@@ -55,7 +55,7 @@ public class GeoTiffExporterImpl implements GeoTiffExporter {
      * @param image          源图像
      * @param format         输出格式
      * @param outputPath     输出路径（不含扩展名）
-     * @param compression    TIFF 压缩方式（none/lzw/deflate，仅 GEOTIFF 有效）
+     * @param compression    TIFF 压缩方式（无/lzw/deflate，仅 GEOTIFF 有效）
      * @param buildPyramid   是否构建影像金字塔
      * @param generateSidecars 是否生成 .prj 侧面文件
      * @return 最终输出文件路径

@@ -49,28 +49,29 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.TOKEN_
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.TOKEN_REFRESH_PRE;
 
 /**
- * redis token管理器
+   * Redis 令牌管理器
  *
  * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 @com.chua.common.support.spi.annotations.Spi("redis")
 @SuppressWarnings("ALL")
 @Service
 public class RedisTokenResolver implements TokenResolver {
-    /** Auth_version */
+    /** 认证_版本 */
     private static final String AUTH_VERSION = "authVersion";
 
     /**
-     * 默认Token过期时间（秒），1天
+      * 默认令牌过期时间（秒），1天
      */
     private static final long DEFAULT_EXPIRE_SECONDS = 86400L;
 
     /**
-     * Token 解析结果本地缓存（Guava Cache）
+      * 令牌 解析结果本地缓存（Guava 缓存）
      * <p>
-     * 用于减少高并发场景下对 Redis 的重复查询，缓存热点 Token 的解析结果。
-     * TTL 固定为 15 秒，并发场景下同一 Token 在 15 秒内只会查一次 Redis。
+      * 用于减少高并发场景下对 Redis 的重复查询，缓存热点 令牌 的解析结果。
+      * TTL 固定为 15 秒，并发场景下同一 令牌 在 15 秒内只会查一次 Redis。
      * </p>
      */
     private static final Cache<String, ReturnResult<UserResume>> TOKEN_RESOLVE_CACHE =
@@ -80,7 +81,7 @@ public class RedisTokenResolver implements TokenResolver {
                     .build();
 
     /**
-     * Redis SCAN 每次扫描返回的数量
+      * Redis 扫描 每次扫描返回的数量
      */
     private static final int SCAN_COUNT = 1000;
 
@@ -90,10 +91,10 @@ public class RedisTokenResolver implements TokenResolver {
     private static final String DEFAULT_LOGIN_TYPE = "WEB";
 
     @Autowired
-    private RedisTemplate<String, Object> stringRedisTemplate;
+    private RedisTemplate<String, Object> stringRedisTemplate; // 字符串redistemplate
 
     @Autowired
-    /** Auth服务器属性 */
+    /** 认证服务器属性 */
     private AuthServerProperties authServerProperties;
     @Autowired
     /** Logincheck */
@@ -109,22 +110,22 @@ public class RedisTokenResolver implements TokenResolver {
     private com.chua.starter.oauth.sso.support.service.FingerprintStorageService fingerprintStorageService;
 
     @Override
-    /** 创建Token */
+    /** 创建令牌 */
     public ReturnResult<LoginResult> createToken(String address, UserResult userResult, String authType) {
         String userId = userResult.getUserId();
         
-        // 检查在线上限（基于 userId，不区分登录方式）
+ // 检查在线上限（基于 用户id，不区分登录方式）
         ReturnResult<Void> checkResult = checkOnlineLimit(userResult);
         if (!checkResult.isOk()) {
             return ReturnResult.error(checkResult.getMsg());
         }
 
-        // 根据authType选择TokenGeneration：jwt走jwtTokenGeneration，其他走配置的TokenGeneration
+ // 根据认证类型选择令牌generation：JWT走jwt令牌generation，其他走配置的令牌generation
         TokenGeneration tokenGeneration;
         if ("jwt".equalsIgnoreCase(authType) || "JWT".equalsIgnoreCase(authType)) {
             tokenGeneration = ServiceProvider.of(TokenGeneration.class).getExtension("jwt");
         } else {
-            // 配置为空时回退到默认实现（simple），避免空指针导致登录直接失败
+ // 配置为空时回退到默认实现（简单），避免空指针导致登录直接失败
             String generationName = "simple";
             if (null != authServerProperties && StringUtils.isNotBlank(authServerProperties.getTokenGeneration())) {
                 generationName = authServerProperties.getTokenGeneration();
@@ -141,7 +142,7 @@ public class RedisTokenResolver implements TokenResolver {
         userResult.setAddress(address);
         String uid = userResult.getUid();
 
-        // 使用 TokenBuilder 生成 Token 和 RefreshToken
+ // 使用 令牌构建器 生成 令牌 和 refresh令牌
         String uidHash = tokenGeneration.generation(uid);
         String token = TokenBuilder.generateAccessToken(userId, uidHash);
         String refreshToken = TokenBuilder.generateRefreshToken(userId, uidHash);
@@ -149,7 +150,7 @@ public class RedisTokenResolver implements TokenResolver {
         String redisKey = TOKEN_PRE + token;
         String redisRefreshKey = TOKEN_REFRESH_PRE + refreshToken;
 
-        // 处理在线控制（SINGLE模式踢掉旧设备）
+ // 处理在线控制（单个模式踢掉旧设备）
         handleOnlineControl(userResult, token);
 
         // 计算过期时间（用户配置 > 全局配置）
@@ -213,7 +214,7 @@ public class RedisTokenResolver implements TokenResolver {
     /**
      * 将登录时的指纹+IP+用户信息写入 MySQL + Redis 缓存，供反查接口使用
      *
-     * @param userResult 已包含 fingerprint/address/ext 信息的用户结果
+     * @param userResult 已包含 fingerprint/地址/ext 信息的用户结果
      * @param address    客户端 IP 地址
      */
     private void saveFingerprintRecord(UserResult userResult, String address) {
@@ -256,17 +257,17 @@ public class RedisTokenResolver implements TokenResolver {
     private ReturnResult<Void> checkOnlineLimit(UserResult userResult) {
         AuthServerProperties.Online onlineMode = getOnlineMode(userResult);
 
-        // MULTIPLE 模式不限制
+ // 多个 模式不限制
         if (onlineMode == AuthServerProperties.Online.MULTIPLE) {
             return ReturnResult.ok();
         }
 
-        // SINGLE 模式允许登录（会踢掉旧设备）
+ // 单个 模式允许登录（会踢掉旧设备）
         if (onlineMode == AuthServerProperties.Online.SINGLE) {
             return ReturnResult.ok();
         }
 
-        // LIMIT 模式检查上限
+ // 限制 模式检查上限
         if (onlineMode == AuthServerProperties.Online.LIMIT) {
             int maxOnline = getMaxOnlineCount(userResult);
             int currentOnline = countUserOnlineTokens(userResult.getUserId());
@@ -280,6 +281,8 @@ public class RedisTokenResolver implements TokenResolver {
 
     /**
      * 获取在线模式（用户配置 > 全局配置）
+     * @param userResult 用户结果
+     * @return 获取onlinemode的结果
      */
     private AuthServerProperties.Online getOnlineMode(UserResult userResult) {
         String userOnlineMode = String.valueOf(userResult.getOption("onlineMode"));
@@ -299,6 +302,8 @@ public class RedisTokenResolver implements TokenResolver {
 
     /**
      * 获取最大在线数（用户配置 > 全局配置）
+     * @param userResult 用户结果
+     * @return 获取最大online数量的结果
      */
     private int getMaxOnlineCount(UserResult userResult) {
         String maxOnlineCount = String.valueOf(userResult.getOption("maxOnlineCount"));
@@ -311,7 +316,7 @@ public class RedisTokenResolver implements TokenResolver {
             } catch (Exception ignored) {
             }
         }
-        // 未注入配置时，回退到默认的在线数量限制（与 AuthServerProperties 默认值保持一致）
+ // 未注入配置时，回退到默认的在线数量限制（与 认证服务端属性 默认值保持一致）
         if (null == authServerProperties) {
             return 3;
         }
@@ -319,10 +324,10 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     /**
-     * 统计用户当前在线Token数量
+      * 统计用户当前在线令牌数量
      * <p>基于 userId 统计，不区分登录方式</p>
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 在线Token数量
      */
     private int countUserOnlineTokens(String userId) {
@@ -339,20 +344,20 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     /**
-     * 删除用户所有Token（基于 userIdHash，不依赖 userId，即使 token 已从 Redis 删除也能工作）
+      * 删除用户所有令牌（基于 用户id哈希，不依赖 用户id，即使 令牌 已从 Redis 删除也能工作）
      *
-     * @param userIdHash userIdHash（从 token 中提取的32位 MD5）
+     * @param userIdHash 用户id哈希（从 令牌 中提取的32位 MD5）
      */
     private void deleteUserAllTokensByHash(String userIdHash) {
         if (StringUtils.isBlank(userIdHash)) {
             return;
         }
-        // 删除所有 AccessToken
+ // 删除所有 access令牌
         Set<String> tokenKeys = scanKeys(TOKEN_PRE + TokenBuilder.buildAccessTokenPatternByHash(userIdHash));
         if (!tokenKeys.isEmpty()) {
             stringRedisTemplate.delete(tokenKeys);
         }
-        // 删除所有 RefreshToken
+ // 删除所有 refresh令牌
         Set<String> refreshKeys = scanKeys(TOKEN_REFRESH_PRE + TokenBuilder.buildRefreshTokenPatternByHash(userIdHash));
         if (!refreshKeys.isEmpty()) {
             stringRedisTemplate.delete(refreshKeys);
@@ -360,20 +365,20 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     /**
-     * 删除用户所有Token（基于 userId，不区分登录方式）
+      * 删除用户所有令牌（基于 用户id，不区分登录方式）
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      */
     private void deleteUserAllTokens(String userId) {
         if (StringUtils.isBlank(userId)) {
             return;
         }
-        // 删除所有 AccessToken
+ // 删除所有 access令牌
         Set<String> tokenKeys = scanKeys(TOKEN_PRE + TokenBuilder.buildAccessTokenPattern(userId));
         if (!tokenKeys.isEmpty()) {
             stringRedisTemplate.delete(tokenKeys);
         }
-        // 删除所有 RefreshToken
+ // 删除所有 refresh令牌
         Set<String> refreshKeys = scanKeys(TOKEN_REFRESH_PRE + TokenBuilder.buildRefreshTokenPattern(userId));
         if (!refreshKeys.isEmpty()) {
             stringRedisTemplate.delete(refreshKeys);
@@ -381,7 +386,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     /**
-     * 计算 Token 过期时间
+      * 计算 令牌 过期时间
      * <p>优先级：用户配置 > 全局配置</p>
      *
      * @param userResult 用户信息
@@ -409,7 +414,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     /**
-     * 计算 RefreshToken 过期时间
+      * 计算 refresh令牌 过期时间
      * <p>优先级：用户配置 > 全局配置</p>
      *
      * @param userResult 用户信息
@@ -434,7 +439,7 @@ public class RedisTokenResolver implements TokenResolver {
     /**
      * 清理 ext 中不可序列化的值
      * <p>
-     * 将 LocalDateTime、LocalDate 等类型转换为字符串格式，确保 Redis 序列化正常
+      * 将 本地日期时间、本地日期 等类型转换为字符串格式，确保 Redis 序列化正常
      * </p>
      *
      * @param userResult 用户信息
@@ -454,7 +459,12 @@ public class RedisTokenResolver implements TokenResolver {
         userResult.setExt(sanitized);
     }
 
-    /** SanitizeExtValue */
+    /**
+     * sanitizeext值
+     *
+     * @param value 值
+     * @return sanitizeext值的结果
+     */
     private Object sanitizeExtValue(Object value) {
         if (value == null) {
             return null;
@@ -511,7 +521,7 @@ public class RedisTokenResolver implements TokenResolver {
      * <p>仅 SINGLE 模式需要踢掉旧设备，LIMIT 模式在 checkOnlineLimit 已拒绝</p>
      *
      * @param userResult 用户信息
-     * @param newToken   新Token
+     * @param newToken   新令牌
      */
     private void handleOnlineControl(UserResult userResult, String newToken) {
         AuthServerProperties.Online onlineMode = getOnlineMode(userResult);
@@ -531,8 +541,8 @@ public class RedisTokenResolver implements TokenResolver {
                 }
             });
         }
-        // LIMIT 模式：在 checkOnlineLimit 已检查，达到上限直接拒绝，不踢旧设备
-        // MULTIPLE 模式：不限制
+ // 限制 模式：在 检查online限制 已检查，达到上限直接拒绝，不踢旧设备
+ // 多个 模式：不限制
     }
 
     /**
@@ -546,7 +556,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     /**
-     * 删除用户的所有 Token 和 RefreshToken
+      * 删除用户的所有 令牌 和 refresh令牌
      * <p>Token格式：oauth:token:AT{uid}{randomHex}</p>
      * <p>RefreshToken格式：oauth:refresh:RT{uid}{randomHex}</p>
      *
@@ -554,7 +564,7 @@ public class RedisTokenResolver implements TokenResolver {
      */
     @SuppressWarnings("ALL")
     private void unRegisterUid(String uid) {
-        // 删除所有 Token（格式：oauth:token:AT{uid}*）
+ // 删除所有 令牌（格式：OAuth:令牌:AT{uid}*）
         Set<String> tokenKeys = scanKeys(TOKEN_PRE + "AT" + uid + "*");
         if (!tokenKeys.isEmpty()) {
             try {
@@ -563,7 +573,7 @@ public class RedisTokenResolver implements TokenResolver {
             }
         }
         
-        // 删除所有 RefreshToken（格式：oauth:refresh:RT{uid}*）
+ // 删除所有 refresh令牌（格式：OAuth:refresh:RT{uid}*）
         Set<String> refreshKeys = scanKeys(TOKEN_REFRESH_PRE + "RT" + uid + "*");
         if (!refreshKeys.isEmpty()) {
             try {
@@ -589,14 +599,22 @@ public class RedisTokenResolver implements TokenResolver {
         }
     }
 
-    /** LogoutRefresh */
+    /**
+     * logoutrefresh
+     *
+     * @param token 令牌
+     */
     private void logoutRefresh(String token) {
         stringRedisTemplate.delete(TOKEN_REFRESH_PRE + token);
     }
 
     @Override
     @SuppressWarnings("ALL")
-    /** Logout */
+    /**
+     * Logout
+     *
+     * @param token 令牌
+     */
     public void logout(String token) {
         long startTime = System.currentTimeMillis();
         // 清除本地缓存
@@ -614,7 +632,7 @@ public class RedisTokenResolver implements TokenResolver {
             userResult = BeanUtils.copyProperties(s, UserResult.class);
         }
 
-        // 无论 userResult 是否为 null，都删除 token（防止僵尸 token）
+ // 无论 用户结果 是否为 空，都删除 令牌（防止僵尸 令牌）
         stringRedisTemplate.delete(tokenRedisKey);
 
         if (null != userResult) {
@@ -645,14 +663,19 @@ public class RedisTokenResolver implements TokenResolver {
 
     @Override
     @SuppressWarnings("ALL")
-    /** Logout */
+    /**
+     * Logout
+     *
+     * @param uid uid
+     * @param type 类型
+     */
     public void logout(String uid, LogoutType type) {
         if (type == LogoutType.UN_REGISTER || type == LogoutType.LOGOUT_ALL) {
-            // uid 实际上是 token，优先从 token 结构中提取 userIdHash（即使 token 已从 Redis 删除也能工作）
+ // uid 实际上是 令牌，优先从 令牌 结构中提取 用户id哈希（即使 令牌 已从 Redis 删除也能工作）
             String userIdHash = TokenBuilder.extractUserIdHash(uid);
             String realUserId = uid;
 
-            // 尝试从 Redis 获取真实 userId（用于日志记录）
+ // 尝试从 Redis 获取真实 用户id（用于日志记录）
             Object s = stringRedisTemplate.opsForValue().get(TOKEN_PRE + uid);
             if (s != null) {
                 UserResult ur = null;
@@ -669,7 +692,7 @@ public class RedisTokenResolver implements TokenResolver {
             }
             recordLogoutLogByUid(realUserId, DEFAULT_LOGIN_TYPE, type);
 
-            // 优先用 userIdHash 直接删除（不依赖 Redis 中的 token 是否存在）
+ // 优先用 用户id哈希 直接删除（不依赖 Redis 中的 令牌 是否存在）
             if (userIdHash != null) {
                 deleteUserAllTokensByHash(userIdHash);
             } else {
@@ -679,13 +702,13 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         if (type == LogoutType.LOGOUT) {
-            // 单个登出：uid 实际上是 token
+ // 单个登出：uid 实际上是 令牌
             logout(uid);
             return;
         }
         
         if (type == LogoutType.KICK) {
-            // 踢下线：uid 实际上是 token
+ // 踢下线：uid 实际上是 令牌
             kickByToken(uid);
         }
     }
@@ -712,7 +735,7 @@ public class RedisTokenResolver implements TokenResolver {
             userResult = BeanUtils.copyProperties(s, UserResult.class);
         }
         
-        // 无论 userResult 是否为 null，都删除 token
+ // 无论 用户结果 是否为 空，都删除 令牌
         stringRedisTemplate.delete(tokenRedisKey);
         
         if (null != userResult) {
@@ -720,14 +743,14 @@ public class RedisTokenResolver implements TokenResolver {
             String loginType = StringUtils.isNotBlank(userResult.getLoginType()) ? userResult.getLoginType() : DEFAULT_LOGIN_TYPE;
             recordLogoutLog(userResult, loginType, LogoutType.KICK);
 
-            // 将 Token 加入黑名单
+ // 将 令牌 加入黑名单
             if (tokenBlacklistService != null) {
                 long expire = userResult.getExpireTime() != null ? userResult.getExpireTime() : DEFAULT_EXPIRE_SECONDS;
                 tokenBlacklistService.addToBlacklist(token, TokenBlacklistService.BlacklistReason.KICKED, 
                         expire, userResult.getUserId(), userResult.getUsername());
             }
             
-            // 删除 RefreshToken
+ // 删除 refresh令牌
             String refreshToken = userResult.getRefreshToken();
             if (StringUtils.isNotEmpty(refreshToken)) {
                 logoutRefresh(refreshToken);
@@ -736,7 +759,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     /**
-     * 根据 Token 登出当前设备
+      * 根据 令牌 登出当前设备
      * <p>删除指定的 Token 和对应的 RefreshToken</p>
      *
      * @param token 访问令牌
@@ -786,7 +809,7 @@ public class RedisTokenResolver implements TokenResolver {
             return ReturnResult.error("黑名单服务不可用");
         }
 
-        // 检查 Token 是否在黑名单中
+ // 检查 令牌 是否在黑名单中
         if (tokenBlacklistService.isBlacklisted(cv)) {
             return ReturnResult.error("Token已失效");
         }
@@ -800,7 +823,7 @@ public class RedisTokenResolver implements TokenResolver {
         if (s instanceof UserResult ur) {
             userResult = ur;
         } else if (s instanceof Map map) {
-            // 兼容旧格式:部分 Redis 序列化配置可能反序列化为 Map
+ // 兼容旧格式:部分 Redis 序列化配置可能反序列化为 映射
             userResult = BeanUtils.copyProperties((Object) map, UserResult.class);
         } else {
             log.warn("Token数据格式异常: key={}, type={}", redisKey, s.getClass().getName());
@@ -824,7 +847,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    /** UpgradeForTimestamp */
+    /** upgradefor时间戳 */
     public ReturnResult<UserResume> upgradeForTimestamp(String token, String refreshToken) {
         // 清除本地缓存，强制下次 resolve 从 Redis 重新读取
         if (token != null) {
@@ -837,7 +860,7 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
-        // TIMESTAMP 升级：无条件重置过期时间（续期），不刷新用户信息
+ // 时间戳 升级：无条件重置过期时间（续期），不刷新用户信息
         long expire = calculateExpireTime(userResult);
         userResult.setExpireTime(expire);
         stringRedisTemplate.opsForValue().set(redisKey, userResult);
@@ -850,7 +873,7 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    /** UpgradeForVersion */
+    /** upgradefor版本 */
     public ReturnResult<UserResume> upgradeForVersion(String token, String refreshToken) {
         // 清除本地缓存，强制下次 resolve 从 Redis 重新读取
         if (token != null) {
@@ -880,24 +903,24 @@ public class RedisTokenResolver implements TokenResolver {
 
         UserResume newUserResult = loginCheck.getUserInfo(userResult);
         if (null == newUserResult || null == newUserResult.getUserId()) {
-            // 无法获取新用户信息时，返回原有 userResult（保持 token 不变）
+ // 无法获取新用户信息时，返回原有 用户结果（保持 令牌 不变）
             userResult.setToken(token);
             userResult.setRefreshToken(refreshToken);
             return ReturnResult.ok(userResult);
         }
 
-        // 确保 token 字段被设置（无论 newUserResult 是 UserResult 还是 UserResume 子类）
+ // 确保 令牌 字段被设置（无论 新用户结果 是 用户结果 还是 用户resume 子类）
         if (newUserResult instanceof UserResult userResult1) {
             userResult1.setToken(token);
-            // 保留原有 refreshToken（不使用传入的参数，因为调用方可能传的是 AT）
+ // 保留原有 refresh令牌（不使用传入的参数，因为调用方可能传的是 AT）
             if (StringUtils.isBlank(userResult1.getRefreshToken())) {
                 userResult1.setRefreshToken(userResult.getRefreshToken());
             }
         } else {
-            // 非 UserResult 类型：将新用户信息合并到原 userResult 中，保留 token
+ // 非 用户结果 类型：将新用户信息合并到原 用户结果 中，保留 令牌
             org.springframework.beans.BeanUtils.copyProperties(newUserResult, userResult);
             userResult.setToken(token);
-            // 保留原有 refreshToken
+ // 保留原有 refresh令牌
             newUserResult = userResult;
         }
 
@@ -923,7 +946,12 @@ public class RedisTokenResolver implements TokenResolver {
         return ReturnResult.ok(newUserResult);
     }
 
-    /** 解析AuthVersion */
+    /**
+     * 解析认证版本
+     *
+     * @param userResume 用户resume
+     * @return resolve认证版本的结果
+     */
     private String resolveAuthVersion(UserResume userResume) {
         if (userResume == null || userResume.getExt() == null) {
             return null;
@@ -933,13 +961,13 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    /** UpgradeForRefresh */
+    /** upgradeforrefresh */
     public ReturnResult<UserResume> upgradeForRefresh(String token, String refreshToken) {
         // 清除本地缓存（新旧两个都应失效）
         if (token != null) {
             TOKEN_RESOLVE_CACHE.invalidate(token);
         }
-        // 验证 RefreshToken
+ // 验证 refresh令牌
         String redisRefreshKey = TOKEN_REFRESH_PRE + refreshToken;
         Object s = stringRedisTemplate.opsForValue().get(redisRefreshKey);
         if (null == s) {
@@ -958,7 +986,7 @@ public class RedisTokenResolver implements TokenResolver {
             return ReturnResult.error("未认证");
         }
 
-        // 使用 TokenBuilder 生成新的 AccessToken（保持相同的 uidHash）
+ // 使用 令牌构建器 生成新的 access令牌（保持相同的 uid哈希）
         String userIdHash = TokenBuilder.extractUserIdHash(refreshToken);
         String uidHash = TokenBuilder.extractUidHash(refreshToken);
         if (userIdHash == null || uidHash == null) {
@@ -967,8 +995,8 @@ public class RedisTokenResolver implements TokenResolver {
         
         String newToken = TokenBuilder.generateAccessToken(oldUserResult.getUserId(), uidHash);
 
-        // 将旧 AccessToken 加入黑名单并删除
-        // token 参数可能为 null（客户端 refresh 接口不传旧 AT），此时从 refreshToken 存储的 userResult 中获取
+ // 将旧 access令牌 加入黑名单并删除
+ // 令牌 参数可能为 空（客户端 refresh 接口不传旧 AT），此时从 refresh令牌 存储的 用户结果 中获取
         String oldToken = StringUtils.isNotBlank(token) ? token : oldUserResult.getToken();
         if (StringUtils.isNotBlank(oldToken)) {
             if (tokenBlacklistService != null) {
@@ -982,18 +1010,18 @@ public class RedisTokenResolver implements TokenResolver {
         long expire = calculateExpireTime(oldUserResult);
         long refreshExpire = calculateRefreshExpireTime(oldUserResult);
 
-        // 判断是否轮换 refreshToken
+ // 判断是否轮换 refresh令牌
         boolean rotation = authServerProperties != null && authServerProperties.isRefreshTokenRotation();
         String finalRefreshToken;
         if (rotation) {
-            // 轮换：生成新 refreshToken，旧的加入黑名单并删除
+ // 轮换：生成新 refresh令牌，旧的加入黑名单并删除
             String newRefreshToken = TokenBuilder.generateRefreshToken(oldUserResult.getUserId(), uidHash);
             if (tokenBlacklistService != null) {
                 tokenBlacklistService.addToBlacklist(refreshToken, TokenBlacklistService.BlacklistReason.REVOKED);
             }
             stringRedisTemplate.delete(redisRefreshKey);
             finalRefreshToken = newRefreshToken;
-            // 存储新 RefreshToken
+ // 存储新 refresh令牌
             String newRefreshRedisKey = TOKEN_REFRESH_PRE + newRefreshToken;
             oldUserResult.setRefreshToken(newRefreshToken);
             oldUserResult.setRefreshExpireTime(refreshExpire);
@@ -1003,17 +1031,17 @@ public class RedisTokenResolver implements TokenResolver {
             }
             log.debug("[OAuth] refreshToken 轮换，旧={}, 新={}", refreshToken, newRefreshToken);
         } else {
-            // 不轮换：旧 refreshToken 继续有效，只更新其中存储的 token 引用
+ // 不轮换：旧 refresh令牌 继续有效，只更新其中存储的 令牌 引用
             finalRefreshToken = refreshToken;
             oldUserResult.setRefreshToken(refreshToken);
             oldUserResult.setRefreshExpireTime(refreshExpire);
-            // 更新 refreshToken 对应的用户信息（token 字段指向新 accessToken）
+ // 更新 refresh令牌 对应的用户信息（令牌 字段指向新 access令牌）
             stringRedisTemplate.opsForValue().set(redisRefreshKey, oldUserResult);
-            // refreshToken 过期时间不变（不重置）
+ // refresh令牌 过期时间不变（不重置）
             log.debug("[OAuth] refreshToken 不轮换，refreshToken={} 继续有效", refreshToken);
         }
 
-        // 更新用户信息并存储新 AccessToken
+ // 更新用户信息并存储新 access令牌
         oldUserResult.setToken(newToken);
         oldUserResult.setExpireTime(expire);
 
@@ -1044,13 +1072,13 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    /** 解析UserCode */
+    /** 解析用户编码 */
     public ReturnResult<UserResume> resolveUserCode(String userCode) {
         if (StringUtils.isBlank(userCode)) {
             return ReturnResult.error("用户代码不能为空");
         }
 
-        // 新格式：{uid}:{加密的userId}
+ // 新格式：{uid}:{加密的用户id}
         String[] split = userCode.split(":");
         if (split.length < 2) {
             return ReturnResult.error("用户代码格式无效");
@@ -1078,10 +1106,10 @@ public class RedisTokenResolver implements TokenResolver {
 
 
     /**
-     * token续费
+      * 令牌续费
      *
-     * @param userResume token信息
-     * @param token      token
+     * @param userResume 令牌信息
+     * @param token      令牌
      */
     @SuppressWarnings("unchecked")
     private void resetExpire(UserResume userResume, String token) {
@@ -1170,16 +1198,19 @@ public class RedisTokenResolver implements TokenResolver {
 
     /**
      * 记录登出日志（不含耗时，兼容旧调用）
+     * @param userResult 用户结果
+     * @param loginType login类型
+     * @param logoutType logout类型
      */
     private void recordLogoutLog(UserResult userResult, String loginType, LogoutType logoutType) {
         recordLogoutLog(userResult, loginType, logoutType, -1);
     }
 
     /**
-     * 根据用户ID记录登出日志（LOGOUT_ALL / UN_REGISTER 场景）
+      * 根据用户标识记录登出日志（LOGOUT_全部 / UN_注册 场景）
      * <p>uid 此时是真实的 userId（已在调用方从 token 解析出来）</p>
      *
-     * @param uid        用户ID（数据库主键）
+     * @param uid        用户标识（数据库主键）
      * @param loginType  登录类型
      * @param logoutType 登出类型
      */
@@ -1189,7 +1220,7 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         try {
-            // 尝试从 Redis 中找到该用户的任意一个 token，获取真实 username
+ // 尝试从 Redis 中找到该用户的任意一个 令牌，获取真实 用户名
             String username = null;
             String address = null;
             Map<String, Object> ext = null;
@@ -1263,7 +1294,7 @@ public class RedisTokenResolver implements TokenResolver {
      * 查询用户在线状态
      * <p>注意：参数是 userId（数据库主键），不是 uid</p>
      *
-     * @param userId 用户ID（数据库主键）
+     * @param userId 用户标识（数据库主键）
      * @return 在线状态信息
      */
     @Override
@@ -1272,7 +1303,7 @@ public class RedisTokenResolver implements TokenResolver {
             return new OnlineStatus();
         }
 
-        // 查询当前在线数量（基于 userId）
+ // 查询当前在线数量（基于 用户id）
         int onlineCount = countUserOnlineTokens(userId);
 
         // 获取全局配置的在线模式和最大数量
@@ -1311,7 +1342,7 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         try {
-            // 使用SCAN扫描所有Token（避免KEYS命令阻塞Redis）
+ // 使用扫描扫描所有令牌（避免键命令阻塞Redis）
             Set<String> allTokenKeys = scanKeys(TOKEN_PRE + "*");
             if (allTokenKeys.isEmpty()) {
                 return OnlineUserResult.empty();
@@ -1367,14 +1398,14 @@ public class RedisTokenResolver implements TokenResolver {
                         }
                     }
                     
-                    // 从Token key中提取token
+ // 从令牌 键中提取令牌
                     String token = tokenKey.substring(TOKEN_PRE.length());
                     info.setToken(token);
                     info.setLoginType(userResult.getLoginType());
 
                     allUsers.add(info);
                 } catch (Exception e) {
-                    // 忽略单个token解析失败
+ // 忽略单个令牌解析失败
                 }
             }
 
@@ -1401,7 +1432,7 @@ public class RedisTokenResolver implements TokenResolver {
     /**
      * 强制踢出用户
      *
-     * @param token 用户token
+     * @param token 用户令牌
      * @return 是否成功
      */
     @Override
@@ -1419,17 +1450,17 @@ public class RedisTokenResolver implements TokenResolver {
 
             UserResult userResult = BeanUtils.copyProperties(value, UserResult.class);
             if (userResult != null) {
-                // 将Token加入黑名单
+ // 将令牌加入黑名单
                 if (tokenBlacklistService != null) {
                     long expire = userResult.getExpireTime() != null ? userResult.getExpireTime() : DEFAULT_EXPIRE_SECONDS;
                     tokenBlacklistService.addToBlacklist(token, TokenBlacklistService.BlacklistReason.KICKED,
                             expire, userResult.getUserId(), userResult.getUsername());
                 }
 
-                // 删除Token
+ // 删除令牌
                 stringRedisTemplate.delete(tokenRedisKey);
 
-                // 删除RefreshToken
+ // 删除refresh令牌
                 String refreshToken = userResult.getRefreshToken();
                 if (StringUtils.isNotEmpty(refreshToken)) {
                     stringRedisTemplate.delete(TOKEN_REFRESH_PRE + refreshToken);
@@ -1447,7 +1478,13 @@ public class RedisTokenResolver implements TokenResolver {
         return false;
     }
 
-    /** 获取StringFromMap */
+    /**
+     * 获取字符串从映射
+     *
+     * @param map 映射
+     * @param key 键
+     * @return 获取字符串从映射的结果
+     */
     private String getStringFromMap(Map<String, Object> map, String key) {
         if (map == null) {
             return null;
@@ -1457,9 +1494,9 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     /**
-     * 使用 SCAN 命令扫描 Redis 键
+      * 使用 扫描 命令扫描 Redis 键
      * <p>
-     * SCAN 命令是渐进式迭代，不会像 KEYS 命令一样阻塞 Redis 服务器
+      * 扫描 命令是渐进式迭代，不会像 键 命令一样阻塞 Redis 服务器
      * </p>
      *
      * @param pattern 匹配模式，支持通配符 * 和 ?

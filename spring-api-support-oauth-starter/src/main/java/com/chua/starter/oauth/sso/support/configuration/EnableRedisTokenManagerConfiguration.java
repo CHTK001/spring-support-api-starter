@@ -15,9 +15,10 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
- * redis令牌管理
+   * Redis令牌管理
  *
  * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 @ConditionalOnProperty(prefix = "plugin.oauth.server", name = {"tokenManagement", "token-management"}, havingValue = "redis", matchIfMissing = false)
@@ -25,7 +26,7 @@ public class EnableRedisTokenManagerConfiguration {
 
 
     /**
-     * redisTemplate
+      * redistemplate
      *
      * @param redisConnectionFactory 连接工厂
      * @return redisTemplate
@@ -64,10 +65,12 @@ public class EnableRedisTokenManagerConfiguration {
     }
 
     /**
-     * StringRedisTemplate
+      * 字符串redistemplate
      *
      * @param redisConnectionFactory 连接工厂
      * @return StringRedisTemplate
+     * @author CH
+     * @since 4.0.0
      */
     @Bean
     @ConditionalOnMissingBean(StringRedisTemplate.class)
@@ -81,7 +84,7 @@ public class EnableRedisTokenManagerConfiguration {
 
     public static class RedisKeyExpirationListener extends KeyExpirationEventMessageListener {
         /**
-         * Creates new {@link MessageListener} for {@code __keyevent@*__:expired} messages.
+          * 创建 新 {@link MessageListener} for {@code __keyevent@*__:expired} 消息.
          *
          * @param listenerContainer must not be {@literal null}.
          */
@@ -90,9 +93,9 @@ public class EnableRedisTokenManagerConfiguration {
         }
 
         @Override
-        /** OnMessage */
+        /** on消息 */
         public void onMessage(Message message, byte[] pattern) {
-            //获取过期的key
+ // 获取过期的键
             String expireKey = message.toString();
             //信息打印
             log.info("key : {} 失效", expireKey);

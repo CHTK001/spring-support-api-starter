@@ -17,26 +17,26 @@ import java.util.List;
 public interface SysRoleMenuService extends IService<SysRoleMenu> {
 
     /**
-     * 查询指定角色的所有菜单 ID。
+      * 查询指定角色的所有菜单 标识。
      *
      * @param roleId 角色主键
-     * @return 菜单 ID 列表
+     * @return 菜单 标识 列表
      */
     List<Integer> listMenuIdsByRoleId(Integer roleId);
 
     /**
-     * 查询拥有指定菜单的角色 ID 列表。
+      * 查询拥有指定菜单的角色 标识 列表。
      *
      * @param menuId 菜单主键
-     * @return 角色 ID 列表
+     * @return 角色 标识 列表
      */
     List<Integer> listRoleIdsByMenuId(Integer menuId);
 
     /**
-     * 查询指定用户的全部菜单 ID(经由角色关联)。
+      * 查询指定用户的全部菜单 标识(经由角色关联)。
      *
      * @param userId 用户主键
-     * @return 菜单 ID 列表
+     * @return 菜单 标识 列表
      */
     List<Integer> listMenuIdsByUserId(Integer userId);
 
@@ -44,7 +44,7 @@ public interface SysRoleMenuService extends IService<SysRoleMenu> {
      * 为角色分配菜单(全量替换)。
      *
      * @param roleId  角色主键
-     * @param menuIds 新的菜单 ID 集合
+     * @param menuIds 新的菜单 标识 集合
      * @return 分配结果
      */
     boolean assignMenusToRole(Integer roleId, List<Integer> menuIds);
@@ -53,7 +53,7 @@ public interface SysRoleMenuService extends IService<SysRoleMenu> {
      * 为单个角色批量新增菜单关联。
      *
      * @param roleId  角色主键
-     * @param menuIds 菜单 ID 列表
+     * @param menuIds 菜单 标识 列表
      * @return 新增关联数量
      */
     int addMenusToRole(Integer roleId, List<Integer> menuIds);

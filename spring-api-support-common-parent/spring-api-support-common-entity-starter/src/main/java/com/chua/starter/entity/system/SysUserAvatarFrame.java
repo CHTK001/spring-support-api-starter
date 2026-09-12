@@ -25,17 +25,17 @@ public class SysUserAvatarFrame extends SysBase {
 
     @TableId(value = "sys_user_avatar_frame_id", type = IdType.AUTO)
     @Schema(description = "用户头像框ID")
-    /** SYS用户avatarframeID */
+    /** SYS用户avatarframeid */
     private Integer sysUserAvatarFrameId;
 
     @TableField(value = "sys_user_id")
     @Schema(description = "用户ID")
-    /** SYS用户ID */
+    /** SYS用户标识 */
     private Integer sysUserId;
 
     @TableField(value = "sys_avatar_frame_id")
     @Schema(description = "头像框ID")
-    /** SYSavatarframeID */
+    /** sysavatarframeid */
     private Integer sysAvatarFrameId;
 
     @TableField(value = "acquire_time")

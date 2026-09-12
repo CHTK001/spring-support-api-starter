@@ -4,7 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * cas配置
+   * CAS配置
  *
  * @since 4.0.0.42
  * @author CH

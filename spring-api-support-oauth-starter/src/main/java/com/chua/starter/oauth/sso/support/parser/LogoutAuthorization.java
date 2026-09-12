@@ -14,6 +14,8 @@ import org.springframework.context.ApplicationContext;
 /**
  * 鉴权信息
  *
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public final class LogoutAuthorization implements Authorization {
@@ -27,24 +29,24 @@ public final class LogoutAuthorization implements Authorization {
     private final String logoutType;
     /** 响应 */
     private final HttpServletResponse response;
-    /** Auth服务器属性 */
+    /** 认证服务器属性 */
     private final AuthServerProperties authServerProperties;
-    final ApplicationContext applicationContext;
-    final LoginCheck loginCheck;
+    final ApplicationContext applicationContext; // application上下文
+    final LoginCheck loginCheck; // login检查
     /** Authinformation */
     private final LogoutAuthInformation authInformation;
 
     /**
-     * 创建 LogoutAuthorization 实例
-     * @param authInformation authInformation
-     * @param token token
-     * @param cookie cookie
+      * 创建 logout授权 实例
+     * @param authInformation 认证信息
+     * @param token 令牌
+     * @param cookie Cookie
      * @param uid uid
-     * @param logoutType logoutType
-     * @param response response
-     * @param authServerProperties authServerProperties
-     * @param applicationContext applicationContext
-     * @param loginCheck loginCheck
+     * @param logoutType logout类型
+     * @param response 响应
+     * @param authServerProperties 认证服务端属性
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public LogoutAuthorization(LogoutAuthInformation authInformation,
                                String token,
@@ -67,7 +69,7 @@ public final class LogoutAuthorization implements Authorization {
     }
 
     @Override
-    /** Authentication */
+    /** 认证 */
     public ReturnResult<String> authentication() {
         long startTime = System.currentTimeMillis();
         String traceId = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16);
@@ -90,22 +92,22 @@ public final class LogoutAuthorization implements Authorization {
             type = LogoutType.LOGOUT;
         }
 
-        // 如果 uid 为空但 token 不为空，尝试从 token 中提取 uid
+ // 如果 uid 为空但 令牌 不为空，尝试从 令牌 中提取 uid
         String actualUid = uid;
         if (actualUid == null && token != null && token.length() > 0) {
             try {
-                // 尝试从 JWT token 中提取 uid
+ // 尝试从 JWT 令牌 中提取 uid
                 if (isJwtToken(token)) {
                     actualUid = extractUidFromJwt(token);
                     log.info("[LOGOUT][traceId={}] 从 JWT token 中提取 uid={}", traceId, actualUid);
                 } else {
-                    // 对于普通 token，使用 token 本身作为 uid
+ // 对于普通 令牌，使用 令牌 本身作为 uid
                     actualUid = token;
                     log.info("[LOGOUT][traceId={}] 使用 token 作为 uid", traceId);
                 }
             } catch (Exception e) {
                 log.warn("[LOGOUT][traceId={}] 从 token 提取 uid 失败: {}", traceId, e.getMessage());
-                // 如果提取失败，使用 token 本身
+ // 如果提取失败，使用 令牌 本身
                 actualUid = token;
             }
         }
@@ -125,7 +127,9 @@ public final class LogoutAuthorization implements Authorization {
     }
 
     /**
-     * 判断是否为 JWT token（三段式，以 . 分隔）
+      * 判断是否为 JWT 令牌（三段式，以 . 分隔）
+     * @param token 令牌
+     * @return 是否jwt令牌的结果
      */
     private boolean isJwtToken(String token) {
         if (token == null || token.isEmpty()) {
@@ -138,22 +142,24 @@ public final class LogoutAuthorization implements Authorization {
     }
 
     /**
-     * 从 JWT token 中提取 uid（sub 字段）
+      * 从 JWT 令牌 中提取 uid（sub 字段）
+     * @param token 令牌
+     * @return extractuid从jwt的结果
      */
     private String extractUidFromJwt(String token) {
         try {
             // 移除 Bearer 前缀
             String actualToken = token.startsWith("Bearer ") ? token.substring(7) : token;
             
-            // JWT 格式: header.payload.signature
+ // JWT 格式: 头部.payload.签名
             String[] parts = actualToken.split("\\.");
             if (parts.length != 3) {
                 throw new IllegalArgumentException("Invalid JWT format");
             }
 
-            // 解码 payload（Base64URL）
+ // 解码 payload（基础64URL）
             String payload = parts[1];
-            // Base64URL 解码
+ // 基础64URL 解码
             byte[] decodedBytes = java.util.Base64.getUrlDecoder().decode(payload);
             String payloadJson = new String(decodedBytes, java.nio.charset.StandardCharsets.UTF_8);
 

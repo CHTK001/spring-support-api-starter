@@ -14,7 +14,7 @@ import lombok.Data;
 public class ErrorReportV1Item {
 
     /**
-     * 去重指纹(message + source + 行列号归一化)
+      * 去重指纹(消息 + 源 + 行列号归一化)
      */
     @Schema(description = "去重指纹")
     /** 密钥 */
@@ -45,7 +45,7 @@ public class ErrorReportV1Item {
      * 出错文件URL
      */
     @Schema(description = "出错文件URL")
-    /** Filename */
+    /** 文件名 */
     private String filename;
 
     /**
@@ -66,11 +66,11 @@ public class ErrorReportV1Item {
      * 资源加载失败的目标URL(仅资源类异常)
      */
     @Schema(description = "资源加载失败的目标URL")
-    /** ResourceURL */
+    /** resourceurl */
     private String resourceUrl;
 
     /**
-     * 资源元素标签(仅资源类异常, 如IMG/SCRIPT/LINK)
+      * 资源元素标签(仅资源类异常, 如IMG/script/链接)
      */
     @Schema(description = "资源元素标签")
     /** 标签名称 */

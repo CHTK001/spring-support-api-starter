@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 被监控服务器主机实体，记录服务器的基础信息（名称、IP、主机名、操作系统、分组等），
- * 服务器布局、组件布局等均以 serverId 作为关联维度。
+   * 服务器布局、组件布局等均以 服务端id 作为关联维度。
  *
  * @since 2026-07-28
  * @author CH
@@ -26,12 +26,12 @@ import lombok.EqualsAndHashCode;
 public class MonitorServer extends SysBase {
 
     /**
-     * 服务器主键ID，自增
+      * 服务器主键标识，自增
      */
     @TableId(value = "server_id", type = IdType.AUTO)
     @ApiModelProperty("服务器ID")
     @Schema(description = "服务器ID")
-    /** 服务器ID */
+    /** 服务器标识 */
     private Integer serverId;
 
     /**
@@ -71,7 +71,7 @@ public class MonitorServer extends SysBase {
     private Integer serverPort;
 
     /**
-     * 操作系统，例如 Linux / Windows / macOS
+      * 操作系统，例如 Linux / 窗口 / macOS
      */
     @TableField("server_os")
     @ApiModelProperty("操作系统")
@@ -94,7 +94,7 @@ public class MonitorServer extends SysBase {
     @TableField("server_account")
     @ApiModelProperty("登录账号")
     @Schema(description = "登录账号")
-    /** 服务器account */
+    /** 服务器账户 */
     private String serverAccount;
 
     /**
@@ -112,6 +112,6 @@ public class MonitorServer extends SysBase {
     @TableField("server_remark")
     @ApiModelProperty("备注")
     @Schema(description = "备注")
-    /** 服务器remark */
+    /** 服务器评论 */
     private String serverRemark;
 }

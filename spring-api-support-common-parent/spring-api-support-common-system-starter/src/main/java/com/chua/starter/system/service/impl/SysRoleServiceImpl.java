@@ -35,11 +35,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> implements SysRoleService{
 
-    final TransactionTemplate transactionTemplate;
-    final SysRoleMenuService sysRoleMenuService;
+    final TransactionTemplate transactionTemplate; // transactionTemplate
+    final SysRoleMenuService sysRoleMenuService; // sys角色menu服务
 
     @Override
-    /** PageForRole */
+    /** pagefor角色 */
     public IPage<SysRole> pageForRole(Query<SysRole> query, SysRole sysRole, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysRole>lambdaQuery()
                 .like(StringUtils.isNotBlank(sysRole.getSysRoleCode()), SysRole::getSysRoleCode, sysRole.getSysRoleCode())
@@ -71,7 +71,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     }
 
     @Override
-    /** 更新Role */
+    /** 更新角色 */
     public ReturnResult<Boolean> updateRole(Set<String> roles, SysRole sysRole) {
         SysRole sysRole2 = baseMapper.selectById(sysRole.getSysRoleId());
         Integer sysRoleInSystem = sysRole2.getSysRoleInSystem();
@@ -94,7 +94,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     }
 
     @Override
-    /** 保存Role */
+    /** 保存角色 */
     public ReturnResult<SysRole> saveRole(SysRole sysRole) {
         sysRole.setSysRoleInSystem(SystemConstant.IN_SYSTEM_NO);
         String sysRoleCode = sysRole.getSysRoleCode();

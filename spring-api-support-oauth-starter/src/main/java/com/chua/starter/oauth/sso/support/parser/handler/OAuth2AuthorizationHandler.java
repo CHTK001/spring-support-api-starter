@@ -31,7 +31,7 @@ import org.springframework.context.ApplicationContext;
  * </ul>
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/18
  * @author CH
  */
@@ -39,16 +39,16 @@ import org.springframework.context.ApplicationContext;
 @Spi("oauth2")
 public class OAuth2AuthorizationHandler implements AuthorizationHandler {
 
-    /** Auth状态缓存 */
+    /** 认证状态缓存 */
     private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
 
     @Override
     /**
      * Authenticate
-     * @param authInformation authInformation
-     * @param token token
-     * @param cookie cookie
-     * @param userCode userCode
+     * @param authInformation 认证信息
+     * @param token 令牌
+     * @param cookie Cookie
+     * @param userCode 用户编码
      */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation,
                                             String token,
@@ -57,8 +57,8 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
         log.info("使用 OAuth2 第三方登录认证方式");
 
         try {
-            // 从 token 中解析 OAuth2 回调参数
-            // 格式: {platform}:{code}:{state} 或通过 AuthCallback 传递
+ // 从 令牌 中解析 OAuth2 回调参数
+ // 格式: {platform}:{编码}:{状态} 或通过 认证callback 传递
             String[] parts = token.split(":", 3);
             if (parts.length < 3) {
                 return ReturnResult.error("OAuth2 回调参数格式错误");
@@ -83,7 +83,7 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
                     .redirectUri(redirectUri)
                     .build();
 
-            // 创建对应平台的 AuthRequest
+ // 创建对应平台的 认证请求
             AuthRequest authRequest = AuthRequestFactory.createAuthRequest(platform, authConfig, authStateCache);
             if (authRequest == null) {
                 return ReturnResult.error("不支持的 OAuth2 平台: " + platform);
@@ -106,7 +106,7 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
             // 构建用户信息
             UserResume userResume = buildUserResume(authUser, platform);
             
-            // 添加appId支持：从请求中提取appId并设置到UserResume
+ // 添加appid支持：从请求中提取appid并设置到用户resume
             String appId = com.chua.common.support.utils.MapUtils.getString(authInformation.getBodyData(), "x-oauth-app-id");
             if (StringUtils.isBlank(appId)) {
                 appId = authInformation.getRequestHeaderValue("x-oauth-app-id");
@@ -131,6 +131,9 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
 
     /**
      * 构建用户信息
+     * @param authUser 认证用户
+     * @param platform platform
+     * @return 构建用户resume的结果
      */
     private UserResume buildUserResume(AuthUser authUser, String platform) {
         UserResume userResume = new UserResume();
@@ -149,7 +152,7 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
-    /** Supports */
+    /** 支持 */
     public boolean supports(String subProtocol, String token, String userCode) {
         // OAuth2 认证条件：
         // 1. subProtocol 为 "oauth2"
@@ -171,6 +174,8 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
 
     /**
      * 检查是否支持该平台
+     * @param platform platform
+     * @return 是否支持platform的结果
      */
     private boolean isSupportedPlatform(String platform) {
         return switch (platform.toLowerCase()) {
@@ -182,7 +187,9 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
     }
     
     /**
-     * 脱敏AppId
+      * 脱敏appid
+     * @param appId appId
+     * @return maskAppId的结果
      */
     private String maskAppId(String appId) {
         if (appId == null || appId.length() < 8) {

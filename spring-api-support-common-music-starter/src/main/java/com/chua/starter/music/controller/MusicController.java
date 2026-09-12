@@ -28,7 +28,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-/** @author CH */
+/** @作者 CH */
 
 @RestController
 @RequiredArgsConstructor
@@ -39,19 +39,28 @@ public class MusicController {
 
     /** Musicfacade服务 */
     private final MusicFacadeService musicFacadeService;
-    /** Music流proxy服务 */
+    /** Music流代理服务 */
     private final MusicStreamProxyService musicStreamProxyService;
 
     @GetMapping("/sources")
     @Operation(summary = "获取音源列表")
-    /** ListSources */
+    /**
+     * 列表源
+     *
+     * @return 列表源的结果
+     */
     public ReturnResult<List<MusicSourceOption>> listSources() {
         return ReturnResult.ok(musicFacadeService.listSources());
     }
 
     @GetMapping("/overview")
     @Operation(summary = "获取音乐首页概览")
-    /** Overview */
+    /**
+     * Overview
+     *
+     * @param false false
+     * @return overview的结果
+     */
     public ReturnResult<MusicOverview> overview(@RequestParam(required = false) String source) {
         return ReturnResult.ok(musicFacadeService.getOverview(source));
     }
@@ -60,10 +69,10 @@ public class MusicController {
     @Operation(summary = "搜索歌曲")
     /**
      * 搜索
-     * @param source source
+     * @param source 源
      * @param keyword keyword
      * @param page page
-     * @param pageSize pageSize
+     * @param pageSize page大小
      */
     public ReturnResult<MusicSearchResult> search(
             @RequestParam(required = false) String source,
@@ -77,10 +86,10 @@ public class MusicController {
     @Operation(summary = "搜索歌单")
     /**
      * 搜索Playlists
-     * @param source source
+     * @param source 源
      * @param keyword keyword
      * @param page page
-     * @param pageSize pageSize
+     * @param pageSize page大小
      */
     public ReturnResult<MusicPlaylistSearchResult> searchPlaylists(
             @RequestParam(required = false) String source,
@@ -93,8 +102,8 @@ public class MusicController {
     @GetMapping("/playlist/categories")
     @Operation(summary = "获取歌单分类")
     /**
-     * PlaylistCategories
-     * @param source source
+      * playlist分类
+     * @param source 源
      */
     public ReturnResult<MusicPlaylistCategoryCatalog> playlistCategories(
             @RequestParam(required = false) String source) {
@@ -104,11 +113,11 @@ public class MusicController {
     @GetMapping("/playlist/category")
     @Operation(summary = "按分类获取歌单")
     /**
-     * CategoryPlaylists
-     * @param source source
-     * @param tagId tagId
+      * 分类playlists
+     * @param source 源
+     * @param tagId 标签id
      * @param page page
-     * @param pageSize pageSize
+     * @param pageSize page大小
      */
     public ReturnResult<MusicPlaylistCategoryResult> categoryPlaylists(
             @RequestParam(required = false) String source,
@@ -122,8 +131,8 @@ public class MusicController {
     @Operation(summary = "获取歌单详情")
     /**
      * Playlist详情
-     * @param source source
-     * @param playlistId playlistId
+     * @param source 源
+     * @param playlistId playlistid
      */
     public ReturnResult<MusicPlaylistDetail> playlistDetail(
             @PathVariable String source,
@@ -135,8 +144,8 @@ public class MusicController {
     @Operation(summary = "获取歌曲详情")
     /**
      * Track详情
-     * @param source source
-     * @param trackId trackId
+     * @param source 源
+     * @param trackId trackid
      */
     public ReturnResult<MusicTrackDetail> trackDetail(
             @PathVariable String source,
@@ -148,9 +157,9 @@ public class MusicController {
     @Operation(summary = "代理歌曲音频流")
     /**
      * 流式输出Track
-     * @param source source
-     * @param trackId trackId
-     * @param rangeHeader rangeHeader
+     * @param source 源
+     * @param trackId trackid
+     * @param rangeHeader 范围头部
      */
     public ResponseEntity<StreamingResponseBody> streamTrack(
             @PathVariable String source,
@@ -160,7 +169,12 @@ public class MusicController {
         return musicStreamProxyService.proxy(trackDetail, rangeHeader);
     }
 
-    /** RewriteTrackStreamUrl */
+    /**
+     * rewritetrack流url
+     *
+     * @param trackDetail trackDetail
+     * @return rewritetrack流url的结果
+     */
     private MusicTrackDetail rewriteTrackStreamUrl(MusicTrackDetail trackDetail) {
         String streamUrl = trackDetail.getStreamUrl();
         if (StringUtils.hasText(streamUrl)) {

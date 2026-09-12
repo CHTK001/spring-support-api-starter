@@ -25,13 +25,13 @@ import java.util.Set;
 public class UserInfoVO {
 
     /**
-     * 用户ID
+      * 用户标识
      */
     @TableId(value = "sys_user_id", type = IdType.AUTO)
     @ApiModelProperty(value = "用户ID")
     @Schema(description = "用户ID")
     @NotNull(message = "不能为null")
-    /** SYS用户ID */
+    /** SYS用户标识 */
     private Integer sysUserId;
 
     /**
@@ -42,7 +42,7 @@ public class UserInfoVO {
     @Schema(description = "账号")
     @Size(max = 255, message = "账号最大长度要小于 255")
     @NotEmpty(message = "账号不能为空", groups = {AddGroup.class})
-    /** SYS用户username */
+    /** SYS用户用户名 */
     private String sysUserUsername;
 
     /**
@@ -90,7 +90,7 @@ public class UserInfoVO {
     private Integer sysUserSex;
 
     /**
-     * 头像框ID
+      * 头像框标识
      */
     @Schema(description = "头像框ID")
     /** SYS用户avatarframe */
@@ -111,34 +111,34 @@ public class UserInfoVO {
     private String sysUserBirthday;
 
     /**
-     * 租户ID
+      * 租户标识
      */
     /**
-     * 租户ID
+      * 租户标识
      */
     @Schema(description = "租户ID")
-    /** TenantID */
+    /** tenantid */
     private String tenantId;
 
     /**
-     * 主部门ID
+      * 主部门标识
      */
     @Schema(description = "主部门ID")
-    /** SYSdeptID */
+    /** sysdeptid */
     private Integer sysDeptId;
 
     /**
-     * 负责部门ID集合
+      * 负责部门标识集合
      */
     @Schema(description = "负责部门ID集合")
-    /** ManageddeptIDS */
+    /** manageddept标识 */
     private List<Integer> managedDeptIds;
 
     /**
      * 用户角色编码集合
      */
     @Schema(description = "用户角色编码集合")
-    /** Roles */
+    /** 角色 */
     private Set<String> roles;
 
     /**
@@ -173,7 +173,7 @@ public class UserInfoVO {
      * 用户确认协议时间
      */
     @Schema(description = "用户确认协议时间")
-    /** AgreementacceptedAT */
+    /** agreementacceptedat */
     private String agreementAcceptedAt;
 
     /**

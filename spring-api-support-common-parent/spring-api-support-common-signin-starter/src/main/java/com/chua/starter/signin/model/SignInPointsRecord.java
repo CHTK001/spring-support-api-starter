@@ -21,24 +21,24 @@ import java.time.LocalDateTime;
 public class SignInPointsRecord {
 
     /**
-     * 主键ID
+      * 主键标识
      */
     @TableId(type = IdType.AUTO)
-    /** ID */
+    /** 标识 */
     private Long id;
 
     /**
-     * 用户ID
+      * 用户标识
      */
     private Long userId;
 
     /**
-     * 关联签到记录ID
+      * 关联签到记录标识
      */
     private Long signInRecordId;
 
     /**
-     * 关联积分规则ID
+      * 关联积分规则标识
      */
     private Long ruleId;
 

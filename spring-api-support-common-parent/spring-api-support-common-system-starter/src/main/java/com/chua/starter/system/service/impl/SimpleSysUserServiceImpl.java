@@ -24,7 +24,7 @@ import java.security.SecureRandom;
  * 主要用于登录回调、2FA(TOTP) 等轻量能力。
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025/12/13
  * @author CH
  */
@@ -47,7 +47,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     /**
      * 绑定 2FA 密钥
      *
-     * @param sysUserId 用户ID
+     * @param sysUserId 用户标识
      * @return 绑定结果
      */
     @Override
@@ -69,7 +69,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     /**
      * 解绑 2FA 密钥
      *
-     * @param sysUserId 用户ID
+     * @param sysUserId 用户标识
      * @return 解绑结果
      */
     @Override
@@ -90,7 +90,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     /**
      * 查询 2FA 绑定状态。
      *
-     * @param sysUserId 用户ID
+     * @param sysUserId 用户标识
      * @return 绑定状态结果（true 表示已绑定）
      */
     @Override
@@ -110,7 +110,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
      * 当前实现返回密钥原文的 UTF-8 字节，便于前端自行生成二维码。
      * </p>
      *
-     * @param sysUserId 用户ID
+     * @param sysUserId 用户标识
      * @return 密钥内容
      */
     @Override
@@ -165,7 +165,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
             return ReturnResult.ok(true);
         }
 
-        // 使用 TotpGenerator 进行验证（支持时间窗口容差）
+ // 使用 totp生成器 进行验证（支持时间窗口容差）
         boolean verified = verifyWithTolerance(secret, code);
         log.info("[SimpleSysUserService] TOTP验证完成，username={}, verified={}", username, verified);
 
@@ -178,7 +178,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     /**
      * 带时间窗口容差的 TOTP 验证
      *
-     * @param secret Base32 编码的密钥
+     * @param secret 基础32 编码的密钥
      * @param code   用户输入的验证码
      * @return 验证是否通过
      */
@@ -222,7 +222,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
      * 使用标准 otpauth:// URI 格式，兼容 Google Authenticator、Microsoft Authenticator 等应用。
      * </p>
      *
-     * @param sysUserId 用户ID
+     * @param sysUserId 用户标识
      * @return URI
      */
     @Override
@@ -242,7 +242,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
         }
 
         try {
-            // 使用 TotpGenerator 生成标准 URI
+ // 使用 totp生成器 生成标准 URI
             byte[] secretBytes = Base32.decode(secret);
             TotpGenerator totp = new DefaultTotpGenerator(secretBytes);
             String account = StringUtils.isEmpty(sysUser.getSysUserUsername())
@@ -259,7 +259,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     /**
      * 生成标准 TOTP 密钥
      * <p>
-     * 使用 SecureRandom 生成随机字节，然后进行 Base32 编码。
+      * 使用 secure随机 生成随机字节，然后进行 基础32 编码。
      * </p>
      *
      * @return Base32 编码的密钥

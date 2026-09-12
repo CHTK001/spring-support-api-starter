@@ -13,7 +13,7 @@ import java.util.Map;
  * 使用 SPI 机制，允许不同实现处理租户数据同步
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/12
  * @author CH
  */
@@ -42,8 +42,8 @@ public interface TenantDataSyncProvider {
      * </p>
      *
      * @param tenant    租户信息
-     * @param operation 操作类型: create, update, delete
-     * @return 创建的用户信息，删除时返回 null
+     * @param operation 操作类型: 创建, 更新, 删除
+     * @return 创建的用户信息，删除时返回 空
      */
     SysUser syncTenantUser(SysTenant tenant, String operation);
 
@@ -53,8 +53,8 @@ public interface TenantDataSyncProvider {
      * 接收到服务数据后，更新租户可访问的菜单
      * </p>
      *
-     * @param tenantId 租户ID
-     * @param menuIds  菜单ID列表
+     * @param tenantId 租户标识
+     * @param menuIds  菜单标识列表
      * @return 同步结果
      */
     boolean syncTenantMenu(String tenantId, List<Integer> menuIds);
@@ -65,9 +65,9 @@ public interface TenantDataSyncProvider {
      * 接收到菜单数据后，创建/更新/删除对应的菜单
      * </p>
      *
-     * @param tenantId  租户ID
+     * @param tenantId  租户标识
      * @param menus     菜单数据列表
-     * @param operation 操作类型: create, update, delete
+     * @param operation 操作类型: 创建, 更新, 删除
      * @return 同步结果
      */
     boolean syncMenuData(String tenantId, List<Map<String, Object>> menus, String operation);
@@ -82,7 +82,7 @@ public interface TenantDataSyncProvider {
      * @param services 服务列表
      * @param modules  服务模块列表
      * @param items    服务模块项列表
-     * @param operation 操作类型: create, update, delete, replace
+     * @param operation 操作类型: 创建, 更新, 删除, 替换
      * @return 同步结果
      */
     default boolean syncServiceData(SysTenant tenant,

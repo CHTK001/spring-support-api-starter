@@ -32,7 +32,7 @@ public interface SysSettingService extends IService<SysSetting> {
     /**
      * 删除指定的系统设置
      *
-     * @param settingId 需要删除的系统设置的ID
+     * @param settingId 需要删除的系统设置的标识
      * @return 删除结果，包含成功与否的标志和消息
      */
     ReturnResult<Boolean> delete(Long settingId);

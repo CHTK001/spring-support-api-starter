@@ -5,6 +5,7 @@ import lombok.Data;
 /**
  * 限流配置
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class RateLimitConfig {
@@ -14,7 +15,7 @@ public class RateLimitConfig {
     private int qps = 100;
     /** 突发容量（令牌桶最大积累量） */
     private int burstSize = 200;
-    /** 限流维度：global / ip / user */
+    /** 限流维度：全局 / ip / 用户 */
     private String dimension = "global";
 }
 

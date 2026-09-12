@@ -22,7 +22,7 @@ import java.util.Map;
  * 文件系统分组服务实现类
  *
  * @since 2024/12/10
- * @version 1.0.0
+   * @版本 1.0.0
  * @author CH
  */
 @Slf4j
@@ -47,7 +47,7 @@ public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGrou
     }
 
     @Override
-    /** 获取TreeForFileSystem */
+    /** 获取树for文件系统 */
     public List<SysFileSystemGroup> getTreeForFileSystem() {
         List<SysFileSystemGroup> allGroups = list(Wrappers.<SysFileSystemGroup>lambdaQuery()
                 .eq(SysFileSystemGroup::getSysFileSystemGroupStatus, SysFileSystemGroup.Status.ENABLED)
@@ -57,7 +57,7 @@ public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGrou
     }
 
     @Override
-    /** 获取Default分组ForFileSystem */
+    /** 获取默认分组for文件系统 */
     public SysFileSystemGroup getDefaultGroupForFileSystem() {
         return getOne(Wrappers.<SysFileSystemGroup>lambdaQuery()
                 .eq(SysFileSystemGroup::getSysFileSystemGroupIsDefault, true)
@@ -67,7 +67,11 @@ public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGrou
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 初始化DefaultGroupsForFileSystem */
+    /**
+     * 初始化默认群体for文件系统
+     *
+     * @return 初始化默认群体for文件系统的结果
+     */
     public ReturnResult<Boolean> initDefaultGroupsForFileSystem() {
         log.info("初始化默认分组");
 
@@ -110,7 +114,7 @@ public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGrou
      *
      * @param path       路径
      * @param name       名称
-     * @param parentId   父ID
+     * @param parentId   父标识
      * @param sort       排序
      * @param isDefault  是否默认
      * @return 分组对象

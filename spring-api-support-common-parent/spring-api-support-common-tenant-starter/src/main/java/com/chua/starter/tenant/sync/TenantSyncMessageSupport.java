@@ -19,48 +19,49 @@ import java.util.UUID;
  * 租户同步消息辅助类。
  *
  * @since 2026/03/24
+ * @author CH
  */
 public final class TenantSyncMessageSupport {
 
-    /** Metadata_tenant_id */
+    /** Metadata_tenant_标识 */
     public static final String METADATA_TENANT_ID = "tenantId";
-    /** Metadata_sync_role */
+    /** Metadata_同步_角色 */
     public static final String METADATA_SYNC_ROLE = "syncRole";
-    /** Role_tenant_client */
+    /** 角色_tenant_客户端 */
     public static final String ROLE_TENANT_CLIENT = "tenant-client";
-    /** Message_id */
+    /** 消息_标识 */
     public static final String MESSAGE_ID = "messageId";
-    /** Target_tenant_id */
+    /** Target_tenant_标识 */
     public static final String TARGET_TENANT_ID = "targetTenantId";
-    /** Sync_mode */
+    /** 同步_mode */
     public static final String SYNC_MODE = "syncMode";
-    /** Sync_reason */
+    /** 同步_ReasonML */
     public static final String SYNC_REASON = "syncReason";
     /** 时间戳 */
     public static final String TIMESTAMP = "timestamp";
-    /** Sign */
+    /** 标志 */
     public static final String SIGN = "sign";
-    /** Sign_algorithm */
+    /** 标志_algorithm */
     public static final String SIGN_ALGORITHM = "signAlgorithm";
-    /** Sign_version */
+    /** 标志_版本 */
     public static final String SIGN_VERSION = "signVersion";
-    /** Source_message_id */
+    /** 源_消息_标识 */
     public static final String SOURCE_MESSAGE_ID = "sourceMessageId";
-    /** Source_topic */
+    /** 源_topic */
     public static final String SOURCE_TOPIC = "sourceTopic";
-    /** Ack_success */
+    /** ACK_成功 */
     public static final String ACK_SUCCESS = "ackSuccess";
-    /** Ack_status */
+    /** ACK_状态 */
     public static final String ACK_STATUS = "ackStatus";
-    /** Ack_error_message */
+    /** ACK_错误_消息 */
     public static final String ACK_ERROR_MESSAGE = "ackErrorMessage";
     /** Tenant */
     public static final String TENANT = "tenant";
     /** Menus */
     public static final String MENUS = "menus";
-    /** Menu_ids */
+    /** Menu_标识 */
     public static final String MENU_IDS = "menuIds";
-    /** Services */
+    /** 服务 */
     public static final String SERVICES = "services";
     /** Modules */
     public static final String MODULES = "modules";
@@ -68,48 +69,55 @@ public final class TenantSyncMessageSupport {
     public static final String ITEMS = "items";
     /** Operation */
     public static final String OPERATION = "operation";
-    /** Topic_tenant_update */
+    /** Topic_tenant_更新 */
     public static final String TOPIC_TENANT_UPDATE = "tenant/update";
-    /** Topic_tenant_delete */
+    /** Topic_tenant_删除 */
     public static final String TOPIC_TENANT_DELETE = "tenant/delete";
-    /** Topic_tenant_service */
+    /** Topic_tenant_服务 */
     public static final String TOPIC_TENANT_SERVICE = "tenant/service";
     /** Topic_tenant_menu */
     public static final String TOPIC_TENANT_MENU = "tenant/menu";
-    /** Topic_tenant_sync_request */
+    /** Topic_tenant_同步_请求 */
     public static final String TOPIC_TENANT_SYNC_REQUEST = "tenant/sync/request";
-    /** Topic_tenant_sync_ack */
+    /** Topic_tenant_同步_ACK */
     public static final String TOPIC_TENANT_SYNC_ACK = "tenant/sync/ack";
-    /** Mode_full */
+    /** Mode_完整 */
     public static final String MODE_FULL = "full";
     /** Mode_incremental */
     public static final String MODE_INCREMENTAL = "incremental";
-    /** Op_replace */
+    /** Op_替换 */
     public static final String OP_REPLACE = "replace";
-    /** Op_create */
+    /** Op_创建 */
     public static final String OP_CREATE = "create";
-    /** Op_update */
+    /** Op_更新 */
     public static final String OP_UPDATE = "update";
-    /** Op_delete */
+    /** Op_删除 */
     public static final String OP_DELETE = "delete";
     /** Hmac_sha256 */
     public static final String HMAC_SHA256 = "HmacSHA256";
-    /** Sign_version_v1 */
+    /** 标志_版本_v1 */
     public static final String SIGN_VERSION_V1 = "v1";
-    /** Ack_status_applied */
+    /** ACK_状态_applied */
     public static final String ACK_STATUS_APPLIED = "applied";
-    /** Ack_status_duplicate */
+    /** ACK_状态_重复 */
     public static final String ACK_STATUS_DUPLICATE = "duplicate";
-    /** Ack_status_out_of_order */
+    /** ACK_状态_出_的_订单 */
     public static final String ACK_STATUS_OUT_OF_ORDER = "out-of-order";
-    /** Ack_status_failed */
+    /** ACK_状态_失败 */
     public static final String ACK_STATUS_FAILED = "failed";
 
-    /** 创建 TenantSyncMessageSupport 实例 */
+    /** 创建 tenant同步消息支持 实例 */
     private TenantSyncMessageSupport() {
     }
 
-    /** 创建Envelope */
+    /**
+     * 创建Envelope
+     *
+     * @param tenantId tenantId
+     * @param syncMode 同步mode
+     * @param reason ReasonML
+     * @return 创建envelope的结果
+     */
     public static Map<String, Object> createEnvelope(String tenantId, String syncMode, String reason) {
         Map<String, Object> message = new HashMap<>();
         message.put(MESSAGE_ID, UUID.randomUUID().toString());
@@ -121,13 +129,13 @@ public final class TenantSyncMessageSupport {
     }
 
     /**
-     * 创建Ack
-     * @param tenantId tenantId
-     * @param sourceTopic sourceTopic
-     * @param sourceData sourceData
-     * @param success success
-     * @param status status
-     * @param errorMessage errorMessage
+      * 创建ACK
+     * @param tenantId tenantid
+     * @param sourceTopic 源topic
+     * @param sourceData 源数据
+     * @param success 成功
+     * @param status 状态
+     * @param errorMessage 错误消息
      */
     public static Map<String, Object> createAck(String tenantId,
                                                 String sourceTopic,
@@ -257,7 +265,12 @@ public final class TenantSyncMessageSupport {
     }
 
     @SuppressWarnings("unchecked")
-    /** 解析TargetTenantId */
+    /**
+     * 解析Targettenantid
+     *
+     * @param data 数据
+     * @return resolveTargettenantid的结果
+     */
     public static String resolveTargetTenantId(Map<String, Object> data) {
         if (data == null || data.isEmpty()) {
             return null;
@@ -285,7 +298,12 @@ public final class TenantSyncMessageSupport {
         return null;
     }
 
-    /** 解析MessageId */
+    /**
+     * 解析消息id
+     *
+     * @param data 数据
+     * @return resolve消息id的结果
+     */
     public static String resolveMessageId(Map<String, Object> data) {
         if (data == null || data.isEmpty()) {
             return null;
@@ -298,7 +316,12 @@ public final class TenantSyncMessageSupport {
         return MapUtils.getString(data, "requestId");
     }
 
-    /** 解析Timestamp */
+    /**
+     * 解析时间戳
+     *
+     * @param data 数据
+     * @return resolve时间戳的结果
+     */
     public static long resolveTimestamp(Map<String, Object> data) {
         if (data == null || data.isEmpty()) {
             return 0L;
@@ -307,7 +330,12 @@ public final class TenantSyncMessageSupport {
     }
 
     @SuppressWarnings("unchecked")
-    /** 解析TenantPayload */
+    /**
+     * 解析tenantpayload
+     *
+     * @param data 数据
+     * @return resolveTenantPayload的结果
+     */
     public static Map<String, Object> resolveTenantPayload(Map<String, Object> data) {
         if (data == null) {
             return null;
@@ -319,7 +347,12 @@ public final class TenantSyncMessageSupport {
         return data;
     }
 
-    /** 解析TenantId */
+    /**
+     * 解析tenantid
+     *
+     * @param clientInfo 客户端信息
+     * @return resolveTenantId的结果
+     */
     public static String resolveTenantId(ClientInfo clientInfo) {
         if (clientInfo == null || clientInfo.getClientMetadata() == null) {
             return null;
@@ -328,12 +361,22 @@ public final class TenantSyncMessageSupport {
         return tenantId == null ? null : String.valueOf(tenantId);
     }
 
-    /** 是否拥有Text */
+    /**
+     * 是否拥有文本
+     *
+     * @param value 值
+     * @return 是否包含文本的结果
+     */
     public static boolean hasText(String value) {
         return value != null && !value.isBlank();
     }
 
-    /** NormalizeForSign */
+    /**
+     * normalizefor标志
+     *
+     * @param value 值
+     * @return normalizefor标志的结果
+     */
     private static Object normalizeForSign(Object value) {
         if (value == null) {
             return null;
@@ -380,10 +423,11 @@ public final class TenantSyncMessageSupport {
         private final String message;
 
         /**
-         * 创建 VerificationResult 实例
+          * 创建 verification结果 实例
          * @param valid valid
          * @param skipped skipped
-         * @param message message
+         * @param message 消息
+         * @return verification结果的结果
          */
         private VerificationResult(boolean valid, boolean skipped, String message) {
             this.valid = valid;
@@ -391,32 +435,58 @@ public final class TenantSyncMessageSupport {
             this.message = message;
         }
 
-        /** Valid */
+        /**
+         * Valid
+         *
+         * @return valid的结果
+         */
         public static VerificationResult valid() {
             return VALID;
         }
 
-        /** 跳过 */
+        /**
+         * 跳过
+         *
+         * @param message 消息
+         * @return 跳过的结果
+         */
         public static VerificationResult skip(String message) {
             return new VerificationResult(true, true, message);
         }
 
-        /** Invalid */
+        /**
+         * Invalid
+         *
+         * @param message 消息
+         * @return invalid的结果
+         */
         public static VerificationResult invalid(String message) {
             return new VerificationResult(false, false, message);
         }
 
-        /** 是否Valid */
+        /**
+         * 是否Valid
+         *
+         * @return 是否valid的结果
+         */
         public boolean isValid() {
             return valid;
         }
 
-        /** 是否Skipped */
+        /**
+         * 是否Skipped
+         *
+         * @return 是否skipped的结果
+         */
         public boolean isSkipped() {
             return skipped;
         }
 
-        /** 获取Message */
+        /**
+         * 获取消息
+         *
+         * @return 获取消息的结果
+         */
         public String getMessage() {
             return message;
         }

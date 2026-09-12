@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
  * advice
  *
  * @author CH
+ * @since 4.0.0
  */
 @Data
 @Accessors(chain = true)
@@ -27,5 +28,5 @@ public class AdviceView<T> {
      * 请求
      */
     @JsonIgnore
-    private volatile transient HttpServletRequest request;
+    private volatile transient HttpServletRequest request; // 请求
 }

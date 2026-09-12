@@ -8,8 +8,9 @@ import org.springframework.context.annotation.Import;
 /**
  * 租户自动配置
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/06
+ * @author CH
  */
 @Configuration
 @EnableConfigurationProperties(TenantProperties.class)

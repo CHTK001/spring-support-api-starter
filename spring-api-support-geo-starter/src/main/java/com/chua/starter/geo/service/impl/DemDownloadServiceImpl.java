@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * DEM 下载服务实现，支持 Terrarium 高程瓦片下载与 GeoTIFF 导出。
+   * DEM 下载服务实现，支持 Terrarium 高程瓦片下载与 geotiff 导出。
  *
  * @author CH
  * @since 1.0.0
@@ -38,7 +38,7 @@ public class DemDownloadServiceImpl implements DemDownloadService {
     private final TileDownloaderService downloaderService;
     /** 瓦片拼接服务 */
     private final TileMergerService mergerService;
-    /** GeoTIFF 导出服务（保留字段，实际由内部逻辑处理） */
+    /** geotiff 导出服务（保留字段，实际由内部逻辑处理） */
     private final GeoTiffExporter exporter;
     /** 瓦片缓存服务 */
     private final TileCacheService cacheService;
@@ -52,12 +52,12 @@ public class DemDownloadServiceImpl implements DemDownloadService {
     }
 
     /**
-     * 下载并拼接 DEM 瓦片，导出为 GeoTIFF。
+      * 下载并拼接 DEM 瓦片，导出为 geotiff。
      *
      * @param source           DEM 数据源
      * @param bounds           地理边界
      * @param zoom             缩放级别
-     * @param proxy            代理地址（可为 null）
+     * @param proxy            代理地址（可为 空）
      * @param outputPath       输出路径
      * @param generateSidecars 是否生成 .prj
      * @return 输出文件路径
@@ -96,11 +96,11 @@ public class DemDownloadServiceImpl implements DemDownloadService {
         // 拼接瓦片（Terrarium PNG 本身是 RGB 图像，直接拼接即可）
         BufferedImage merged = mergerService.mergeTiles(result.tiles(), bounds, zoom);
 
-        // 导出为 GeoTIFF（DEM 无压缩，保留浮点精度需转换为带地理信息的 TIFF）
+ // 导出为 geotiff（DEM 无压缩，保留浮点精度需转换为带地理信息的 TIFF）
         String fileName = "dem_" + source.getId() + "_z" + zoom;
         String finalPath = outputPath + "/" + fileName;
 
-        // 写入带有高程信息的 GeoTIFF
+ // 写入带有高程信息的 geotiff
         String tiffPath = exportElevationTiff(merged, bounds, zoom, finalPath, generateSidecars);
 
         log.info("[DEM] 导出完成: {}", tiffPath);
@@ -111,7 +111,7 @@ public class DemDownloadServiceImpl implements DemDownloadService {
      * 构建 DEM 瓦片图源配置。
      *
      * @param source DEM 数据源
-     * @param zoom   缩放级别（用于 maxZoom 校验）
+     * @param zoom   缩放级别（用于 最大zoom 校验）
      * @return TileSource 配置
      */
     private TileSource buildDemTileSource(DemSource source, int zoom) {
@@ -126,7 +126,7 @@ public class DemDownloadServiceImpl implements DemDownloadService {
     }
 
     /**
-     * 将拼接后的 DEM 图像导出为带地理坐标的 GeoTIFF。
+      * 将拼接后的 DEM 图像导出为带地理坐标的 geotiff。
      * 使用双字节无符号整数存储高程值（偏移32768），兼容 GDAL 读取。
      *
      * @param image          拼接后的 DEM 图像（RGB，高程值已编码在颜色通道中）
@@ -142,7 +142,7 @@ public class DemDownloadServiceImpl implements DemDownloadService {
         File file = new File(filePath);
         file.getParentFile().mkdirs();
 
-        // 将 DEM 图像转换为 16-bit 灰度（高程值转像素值）
+ // 将 DEM 图像转换为 16-钻头 灰度（高程值转像素值）
         // 高程范围 -32768~32767 → 像素值 0~65535，偏移 32768
         int width = image.getWidth();
         int height = image.getHeight();

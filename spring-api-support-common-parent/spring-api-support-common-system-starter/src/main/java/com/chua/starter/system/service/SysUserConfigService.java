@@ -17,7 +17,7 @@ public interface SysUserConfigService extends IService<SysUserConfig> {
      * 根据主键查询用户配置(快速访问)。
      *
      * @param configId 配置主键
-     * @return 用户配置,不存在返回 null
+     * @return 用户配置,不存在返回 空
      */
     SysUserConfig getByConfigId(Integer configId);
 

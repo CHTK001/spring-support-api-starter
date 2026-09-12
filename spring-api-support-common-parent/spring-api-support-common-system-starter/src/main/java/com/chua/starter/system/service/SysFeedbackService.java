@@ -14,6 +14,7 @@ import com.chua.starter.system.pojo.feedback.FeedbackV1Request;
  *
  * @author Administrator
  * @author CH
+ * @since 4.0.0
  */
 public interface SysFeedbackService extends IService<SysFeedback> {
 

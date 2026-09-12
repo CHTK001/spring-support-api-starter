@@ -34,8 +34,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 /**
- * 3D Tiles 下载服务实现。
- * 支持 Cesium Ion API 和直接 URL 两种方式。
+   * 3D 瓷砖 下载服务实现。
+   * 支持 铯 Ion API 和直接 URL 两种方式。
  * 递归解析子 tileset，完整下载多层级 LOD。
  *
  * @author CH
@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class Tiles3dServiceImpl implements Tiles3dService {
 
-    /** Cesium Ion API 基础地址 */
+    /** 铯 Ion API 基础地址 */
     private static final String CESIUM_ION_API = "https://api.cesium.com";
 
     /** tileset.json 文件名 */
@@ -55,13 +55,13 @@ public class Tiles3dServiceImpl implements Tiles3dService {
     /** 内容文件扩展名模式 */
     private static final Pattern CONTENT_EXT = Pattern.compile("\\.(b3dm|gltf|glb|geojson|json)$", Pattern.CASE_INSENSITIVE);
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper(); // 对象映射器
 
     /**
      * 解析 tileset.json 并返回摘要信息。
      *
      * @param source 数据源配置
-     * @param proxy  代理地址（可为 null）
+     * @param proxy  代理地址（可为 空）
      * @return tileset 摘要
      * @throws Exception 解析失败
      */
@@ -75,11 +75,11 @@ public class Tiles3dServiceImpl implements Tiles3dService {
     }
 
     /**
-     * 下载 3D Tiles 资产到指定目录。
+      * 下载 3D 瓷砖 资产到指定目录。
      *
      * @param source    数据源配置
-     * @param polygon   选区多边形（可为 null）
-     * @param proxy     代理地址（可为 null）
+     * @param polygon   选区多边形（可为 空）
+     * @param proxy     代理地址（可为 空）
      * @param savePath  保存根目录
      * @return 下载结果
      * @throws Exception 下载失败
@@ -164,9 +164,9 @@ public class Tiles3dServiceImpl implements Tiles3dService {
     }
 
     /**
-     * 调用 Cesium Ion API 获取资产端点。
+      * 调用 铯 Ion API 获取资产端点。
      *
-     * @param source 数据源（cesium_ion 类型）
+     * @param source 数据源（铯_ion 类型）
      * @param proxy  代理
      * @return tileset.json URL
      * @throws Exception API 请求失败
@@ -191,7 +191,7 @@ public class Tiles3dServiceImpl implements Tiles3dService {
      * 递归收集所有内容 URI。
      *
      * @param tilesetNode  tileset JSON 节点
-     * @param baseUrl       base URL（用于解析相对路径）
+     * @param baseUrl       基础 URL（用于解析相对路径）
      * @param uriCollector  URI 收集器
      */
     private void collectContentUris(JsonNode tilesetNode, String baseUrl, Set<String> uriCollector) {
@@ -223,12 +223,12 @@ public class Tiles3dServiceImpl implements Tiles3dService {
      * 递归下载 tileset 内容及子 tileset。
      *
      * @param tilesetNode  tileset JSON 节点
-     * @param baseUrl       base URL
+     * @param baseUrl       基础 URL
      * @param rootDir       根保存目录
      * @param allUris       所有待下载 URI
      * @param visited       已访问的 URL（防止循环）
      * @param proxy         代理
-     * @param source        原始数据源（用于 Ion token 传递）
+     * @param source        原始数据源（用于 Ion 令牌 传递）
      * @throws Exception 下载失败
      */
     private void downloadTilesetContent(JsonNode tilesetNode, String baseUrl, Path rootDir,
@@ -285,7 +285,7 @@ public class Tiles3dServiceImpl implements Tiles3dService {
      * 下载单个内容文件。
      *
      * @param uri     内容 URI
-     * @param baseUrl base URL
+     * @param baseUrl 基础 URL
      * @param rootDir 根目录
      * @param proxy   代理
      */
@@ -301,7 +301,7 @@ public class Tiles3dServiceImpl implements Tiles3dService {
             }
             String body = doHttpGet(absoluteUrl, proxy, null);
             byte[] data = body.getBytes(StandardCharsets.UTF_8);
-            // 检测是否为二进制文件（b3dm/glTF/GLB）
+ // 检测是否为二进制文件（b3dm/gltf/GLB）
             if (isBinaryExtension(fileName)) {
                 Files.write(savePath, data);
             } else {
@@ -328,22 +328,22 @@ public class Tiles3dServiceImpl implements Tiles3dService {
      * 将 tileset JSON 中的 URI 本地化。
      *
      * @param json      原始 JSON 字符串
-     * @param baseUrl   base URL
+     * @param baseUrl   基础 URL
      * @param rootDir   根目录
      * @return 本地化后的 JSON 字符串
      */
     private String localizeUris(String json, String baseUrl, Path rootDir) {
         // 简化实现：将绝对 URL 替换为相对路径
-        // 生产环境应使用 Jackson Tree 遍历替换所有 URI 字段
+ // 生产环境应使用 Jackson 树 遍历替换所有 URI 字段
         return json;
     }
 
     /**
      * 解析 URI 字段。
      *
-     * @param contentNode content 节点
-     * @param baseUrl     base URL
-     * @return 绝对 URI，无法解析返回 null
+     * @param contentNode 内容 节点
+     * @param baseUrl     基础 URL
+     * @return 绝对 URI，无法解析返回 空
      */
     private String resolveUri(JsonNode contentNode, String baseUrl) {
         String uri = contentNode.path("uri").asText(null);
@@ -360,7 +360,7 @@ public class Tiles3dServiceImpl implements Tiles3dService {
      * 解析绝对 URL。
      *
      * @param uri     相对或绝对 URI
-     * @param baseUrl base URL
+     * @param baseUrl 基础 URL
      * @return 绝对 URL
      */
     private String resolveAbsoluteUrl(String uri, String baseUrl) {
@@ -375,7 +375,7 @@ public class Tiles3dServiceImpl implements Tiles3dService {
     }
 
     /**
-     * 执行 HTTP GET 请求。
+      * 执行 HTTP 获取 请求。
      *
      * @param url          目标 URL
      * @param proxy        代理地址
@@ -454,9 +454,9 @@ public class Tiles3dServiceImpl implements Tiles3dService {
     }
 
     /**
-     * 递归遍历 tile 树统计节点数。
+      * 递归遍历 瓷砖 树统计节点数。
      *
-     * @param tile      当前 tile 节点
+     * @param tile      当前 瓷砖 节点
      * @param depth     当前深度
      * @param total     总节点计数器
      * @param content   有内容的节点计数器
@@ -481,9 +481,9 @@ public class Tiles3dServiceImpl implements Tiles3dService {
     }
 
     /**
-     * 统计 tile 节点总数。
+      * 统计 瓷砖 节点总数。
      *
-     * @param tileNode tile JSON 节点
+     * @param tileNode 瓷砖 JSON 节点
      * @return 节点总数
      */
     private int countTiles(JsonNode tileNode) {

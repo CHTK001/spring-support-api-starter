@@ -24,44 +24,44 @@ import java.time.LocalDateTime;
 public class MsOperationLog {
 
     /**
-     * 主键ID，自增
+      * 主键标识，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    private Long id;
+    private Long id; // id
 
     /**
-     * 操作用户ID
+      * 操作用户标识
      */
     @TableField("operator")
     @ApiModelProperty("操作用户")
     @Schema(description = "操作用户")
-    private String operator;
+    private String operator; // 操作符
 
     /**
-     * 操作类型（CREATE/UPDATE/DELETE/ENABLE/DISABLE/MOVE/SET/DELETE）
+      * 操作类型（创建/更新/删除/ENABLE/DISABLE/Move.com/设置/删除）
      */
     @TableField("operation")
     @ApiModelProperty("操作类型")
     @Schema(description = "操作类型（CREATE/UPDATE/DELETE/ENABLE/DISABLE/MOVE/SET/DEL）")
-    private String operation;
+    private String operation; // operation
 
     /**
-     * 目标模块（HOST/TASK/REDIS/CONFIG）
+      * 目标模块（主机/任务/Redis/配置）
      */
     @TableField("target_module")
     @ApiModelProperty("目标模块")
     @Schema(description = "目标模块（HOST/TASK/REDIS/CONFIG）")
-    private String targetModule;
+    private String targetModule; // Targetmodule
 
     /**
-     * 目标对象ID
+      * 目标对象标识
      */
     @TableField("target_id")
     @ApiModelProperty("目标对象ID")
     @Schema(description = "目标对象ID")
-    private String targetId;
+    private String targetId; // Targetid
 
     /**
      * 操作描述
@@ -69,7 +69,7 @@ public class MsOperationLog {
     @TableField("description")
     @ApiModelProperty("操作描述")
     @Schema(description = "操作描述")
-    private String description;
+    private String description; // description
 
     /**
      * 创建时间
@@ -77,5 +77,5 @@ public class MsOperationLog {
     @TableField("create_time")
     @ApiModelProperty("创建时间")
     @Schema(description = "创建时间")
-    private LocalDateTime createTime;
+    private LocalDateTime createTime; // 创建时间
 }

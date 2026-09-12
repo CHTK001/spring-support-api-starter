@@ -25,15 +25,15 @@ import java.io.Serializable;
 @TableName(value = "sys_user_layout")
 public class SysUserLayout extends SysBase implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-     * 布局ID
+      * 布局标识
      */
     @TableId(value = "sys_layout_id", type = IdType.AUTO)
     @Schema(description = "布局ID")
     @NotNull(message = "布局ID不能为空")
-    /** SYSlayoutID */
+    /** syslayoutid */
     private Integer sysLayoutId;
 
     /**
@@ -42,7 +42,7 @@ public class SysUserLayout extends SysBase implements Serializable {
     @TableField(value = "sys_layout_layout")
     @Schema(description = "布局类型")
     @Size(max = 255, message = "布局类型最大长度需小于255")
-    /** SYSlayoutlayout */
+    /** syslayoutlayout */
     private String sysLayoutLayout;
 
     /**
@@ -51,7 +51,7 @@ public class SysUserLayout extends SysBase implements Serializable {
     @TableField(value = "sys_layout_grid")
     @Schema(description = "布局网格配置")
     @Size(max = 255, message = "布局网格配置最大长度需小于255")
-    /** SYSlayoutgrid */
+    /** syslayoutgrid */
     private String sysLayoutGrid;
 
     /**
@@ -60,15 +60,15 @@ public class SysUserLayout extends SysBase implements Serializable {
     @TableField(value = "sys_layout_component")
     @Schema(description = "组件配置")
     @Size(max = 255, message = "组件配置最大长度需小于255")
-    /** SYSlayoutcomponent */
+    /** syslayoutcomponent */
     private String sysLayoutComponent;
 
     /**
-     * 所属用户ID
+      * 所属用户标识
      */
     @TableField(value = "sys_layout_user_id")
     @Schema(description = "所属用户ID")
-    /** SYSlayout用户ID */
+    /** syslayout用户标识 */
     private Integer sysLayoutUserId;
 
     /**
@@ -76,6 +76,6 @@ public class SysUserLayout extends SysBase implements Serializable {
      */
     @TableField(value = "sys_layout_preference")
     @Schema(description = "用户偏好配置")
-    /** SYSlayoutpreference */
+    /** syslayoutpreference */
     private String sysLayoutPreference;
 }

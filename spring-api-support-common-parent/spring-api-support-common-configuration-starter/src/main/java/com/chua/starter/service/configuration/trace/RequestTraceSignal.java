@@ -28,12 +28,20 @@ public enum RequestTraceSignal {
         this.description = description;
     }
 
-    /** 获取Code */
+    /**
+     * 获取编码
+     *
+     * @return 获取编码的结果
+     */
     public String getCode() {
         return code;
     }
 
-    /** 获取Description */
+    /**
+     * 获取Description
+     *
+     * @return 获取description的结果
+     */
     public String getDescription() {
         return description;
     }

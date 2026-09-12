@@ -14,8 +14,8 @@ import java.util.Set;
 /**
  * 系统用户角色解析器
  * <p>
- * 为 oauth 客户端（http / http-lite 协议）补充用户角色编码，
- * 解决 oauth 服务端 /verify 返回 roles 为空导致的权限不足问题。
+   * 为 OAuth 客户端（http / http-lite 协议）补充用户角色编码，
+   * 解决 OAuth 服务端 /验证 返回 角色 为空导致的权限不足问题。
  * </p>
  *
  * @since 4.0.0.42

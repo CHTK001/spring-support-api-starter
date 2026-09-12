@@ -8,7 +8,7 @@ import com.chua.starter.entity.service.SysFileSystemSetting;
  * 文件系统配置服务接口
  *
  * @since 2024/12/10
- * @version 1.0.0
+   * @版本 1.0.0
  * @author CH
  */
 public interface SysFileSystemSettingService extends IService<SysFileSystemSetting> {
@@ -23,7 +23,7 @@ public interface SysFileSystemSettingService extends IService<SysFileSystemSetti
     /**
      * 启用指定配置（会禁用其他配置）
      *
-     * @param settingId 配置ID
+     * @param settingId 配置标识
      * @return 操作结果
      */
     ReturnResult<Boolean> enableSettingForFileSystem(Integer settingId);

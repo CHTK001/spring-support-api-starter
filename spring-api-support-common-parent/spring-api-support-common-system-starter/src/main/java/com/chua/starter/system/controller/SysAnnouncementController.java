@@ -37,7 +37,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysAnnouncementController {
 
-    /** SYSannouncement服务 */
+    /** sysannouncement服务 */
     private final SysAnnouncementService sysAnnouncementService;
 
     /**
@@ -60,7 +60,7 @@ public class SysAnnouncementController {
     /**
      * 获取公告详情
      *
-     * @param sysAnnouncementId 公告ID
+     * @param sysAnnouncementId 公告标识
      * @return 公告详情
      */
     @Operation(summary = "获取公告详情")
@@ -82,7 +82,7 @@ public class SysAnnouncementController {
      * @param sysAnnouncement 公告数据
      * @param bindingResult   校验结果
      * @param roles           当前用户角色
-     * @param userId          当前用户ID
+     * @param userId          当前用户标识
      * @return 操作结果
      */
     @Operation(summary = "新增公告")
@@ -121,7 +121,7 @@ public class SysAnnouncementController {
     /**
      * 删除公告
      *
-     * @param sysAnnouncementId 公告ID
+     * @param sysAnnouncementId 公告标识
      * @param roles             当前用户角色
      * @return 操作结果
      */
@@ -137,9 +137,9 @@ public class SysAnnouncementController {
     /**
      * 发布公告
      *
-     * @param sysAnnouncement 公告数据（含ID）
+     * @param sysAnnouncement 公告数据（含标识）
      * @param roles           当前用户角色
-     * @param userId          当前用户ID
+     * @param userId          当前用户标识
      * @return 操作结果
      */
     @Operation(summary = "发布公告")
@@ -155,7 +155,7 @@ public class SysAnnouncementController {
     /**
      * 下架公告
      *
-     * @param sysAnnouncement 公告数据（含ID）
+     * @param sysAnnouncement 公告数据（含标识）
      * @param roles           当前用户角色
      * @return 操作结果
      */
@@ -171,7 +171,7 @@ public class SysAnnouncementController {
     /**
      * 获取当前用户可见的活跃公告列表（前端调用，无权限限制）
      *
-     * @param userId 当前用户ID
+     * @param userId 当前用户标识
      * @param roles  当前用户角色
      * @return 活跃公告列表
      */

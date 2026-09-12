@@ -16,18 +16,18 @@ public class OverpassQueryRequest {
     /** 地理边界 */
     @Valid
     @NotNull(message = "bounds不能为空")
-    private Bounds bounds;
+    private Bounds bounds; // bounds
 
     /**
      * Overpass QL 查询语句。
-     * 示例："[out:json];(node['amenity'='restaurant'](bbox);way['amenity'='restaurant'](bbox);relation['amenity'='restaurant'](bbox););out body;"
+      * 示例："[出:json];(节点['amenity'='restaurant'](bbox);way['amenity'='restaurant'](bbox);relation['amenity'='restaurant'](bbox););出 主体;"
      */
     @NotBlank(message = "query不能为空")
-    private String query;
+    private String query; // 查询
 
     /** 输出格式：json / xml / gpkg */
     @NotBlank(message = "format不能为空")
-    private String format;
+    private String format; // 格式化
 
     /** 代理地址 */
     private String proxy;

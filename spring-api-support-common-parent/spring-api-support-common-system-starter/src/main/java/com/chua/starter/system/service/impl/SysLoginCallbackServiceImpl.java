@@ -15,17 +15,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SysLoginCallbackServiceImpl implements SysLoginCallbackService {
 
-    final SimpleSysUserService sysUserService;
+    final SimpleSysUserService sysUserService; // sys用户服务
 
 
     @Override
-    /** 获取ById */
+    /** 获取byid */
     public SysUser getById(String userId) {
         return sysUserService.getById(userId);
     }
 
     @Override
-    /** 更新ById */
+    /** 更新byid */
     public void updateById(SysUser sysUser) {
         sysUserService.updateById(sysUser);
     }

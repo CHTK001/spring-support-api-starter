@@ -49,10 +49,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService{
 
-    final SysRoleMenuService sysRoleMenuService;
-    final ApplicationEventPublisher eventPublisher;
+    final SysRoleMenuService sysRoleMenuService; // sys角色menu服务
+    final ApplicationEventPublisher eventPublisher; // 事件发布
     @Override
-    /** ListMenu */
+    /** 列表menu */
     public ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles) {
         List<SysRoleMenu> list;
         if(!roles.isEmpty()) {
@@ -88,7 +88,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    /** All */
+    /** 全部 */
     public ReturnResult<List<SysMenu>> all(SysMenu sysMenu, Set<String> roles) {
         return ReturnResult.ok(filterMenusByEngine(
                 listAll(),
@@ -96,7 +96,12 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         ));
     }
 
-    /** 构建MenuSettingTree */
+    /**
+     * 构建menusetting树
+     *
+     * @param menus menus
+     * @return 构建menusetting树的结果
+     */
     private List<SysMenuSettingVO> buildMenuSettingTree(List<SysMenu> menus) {
         if (CollectionUtils.isEmpty(menus)) {
             return Collections.emptyList();
@@ -128,7 +133,12 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         return roots;
     }
 
-    /** 排序MenuSettingTree */
+    /**
+     * 排序menusetting树
+     *
+     * @param nodes 节点
+     * @param comparator comparator
+     */
     private void sortMenuSettingTree(List<SysMenuSettingVO> nodes, Comparator<SysMenuSettingVO> comparator) {
         if (CollectionUtils.isEmpty(nodes)) {
             return;
@@ -144,7 +154,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    /** List */
+    /** 列表 */
     public ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles, int ignoreType) {
         List<SysRoleMenu> list = CollectionUtils.isEmpty(roles) ? Collections.emptyList() : sysRoleMenuService.list(
                 MPJWrappers.<SysRoleMenu>lambdaJoin()
@@ -210,7 +220,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                     sysMenuVO.setSysMenuIcon(sysMenu1.getSysMenuIcon());
                     sysMenuVO.setSysMenuName(sysMenu1.getSysMenuName());
 
-                    // koi 前端契约字段：扁平 + parentId 关联
+ // koi 前端契约字段：扁平 + 父id 关联
                     sysMenuVO.setParentId(sysMenu1.getSysMenuPid());
                     sysMenuVO.setMenuId(sysMenu1.getSysMenuId());
                     sysMenuVO.setMenuName(sysMenu1.getSysMenuTitle());
@@ -228,7 +238,11 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
-    /** ListAll */
+    /**
+     * 列表全部
+     *
+     * @return 列表全部的结果
+     */
     public List<SysMenu> listAll() {
         return baseMapper.selectList(Wrappers.<SysMenu>lambdaQuery()
                 .orderByAsc(SysMenu::getSysMenuSort));
@@ -236,7 +250,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
 
     @Override
-    /** PageForMenu */
+    /** pageformenu */
     public IPage<SysMenu> pageForMenu(Query<SysMenu> query, SysMenu sysMenu, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysMenu>lambdaQuery()
                 .like(StringUtils.isNotBlank(sysMenu.getSysMenuName()), SysMenu::getSysMenuName, sysMenu.getSysMenuName())
@@ -244,7 +258,13 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         );
     }
 
-    /** 过滤MenusByEngine */
+    /**
+     * 过滤menusbyengine
+     *
+     * @param sysMenus sysMenus
+     * @param sysMenuEngine sysMenuEngine
+     * @return 过滤器menusbyengine的结果
+     */
     private List<SysMenu> filterMenusByEngine(List<SysMenu> sysMenus, Integer sysMenuEngine) {
         if (CollectionUtils.isEmpty(sysMenus)) {
             return Collections.emptyList();
@@ -259,7 +279,12 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
-    /** 删除 */
+    /**
+     * 删除
+     *
+     * @param menuId menuId
+     * @return 删除的结果
+     */
     public ReturnResult<Boolean> delete(Long menuId) {
         boolean deleted = baseMapper.deleteById(menuId) > 0;
         if (deleted) {
@@ -271,7 +296,13 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
     @Transactional(rollbackFor = Exception.class)
-    /** 更新 */
+    /**
+     * 更新
+     *
+     * @param roles 角色
+     * @param sysMenu sysMenu
+     * @return 更新的结果
+     */
     public ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu) {
         if (null == sysMenu) {
             return ReturnResult.error("菜单不存在");
@@ -299,7 +330,13 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
     @Transactional(rollbackFor = Exception.class)
-    /** 保存 */
+    /**
+     * 保存
+     *
+     * @param sysMenu sysMenu
+     * @param roles 角色
+     * @return 保存的结果
+     */
     public ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles) {
         if (null == sysMenu) {
             return ReturnResult.error("菜单不存在");
@@ -327,7 +364,14 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         return ReturnResult.of(saved);
     }
 
-    /** 解析MenuTreeId */
+    /**
+     * 解析menu树id
+     *
+     * @param menuId menuId
+     * @param parentMenuId 父menuid
+     * @param validateSelfReference 校验self引用
+     * @return resolvemenu树id的结果
+     */
     private String resolveMenuTreeId(Integer menuId, Integer parentMenuId, boolean validateSelfReference) {
         if (null == parentMenuId || parentMenuId == SystemConstant.ROOT_NODE_ID) {
             return Joiner.on(",").join(SystemConstant.ROOT_NODE_ID, menuId);

@@ -16,10 +16,10 @@ import java.util.List;
 public class SysMenuVO {
 
     /**
-     * 菜单ID
+      * 菜单标识
      */
     @Schema(description = "菜单ID")
-    /** SYSmenuID */
+    /** sysmenuid */
     private Integer sysMenuId;
 
     /**
@@ -40,7 +40,7 @@ public class SysMenuVO {
      * 菜单组件
      */
     @Schema(description = "菜单组件")
-    /** Component */
+    /** 组件 */
     private String component;
 
     /**
@@ -72,17 +72,17 @@ public class SysMenuVO {
     private Meta meta;
 
     /**
-     * 父菜单ID（koi 前端契约字段）
+      * 父菜单标识（koi 前端契约字段）
      */
     @Schema(description = "父菜单ID")
-    /** 父级ID */
+    /** 父级标识 */
     private Integer parentId;
 
     /**
-     * 菜单ID（koi 前端契约字段）
+      * 菜单标识（koi 前端契约字段）
      */
     @Schema(description = "菜单ID")
-    /** MenuID */
+    /** menuid */
     private Integer menuId;
 
     /**
@@ -103,14 +103,14 @@ public class SysMenuVO {
      * 是否显示（koi 前端契约字段）; 1:显示 0:隐藏
      */
     @Schema(description = "是否显示; 1:显示 0:隐藏")
-    /** ISvisible */
+    /** isvisible */
     private String isVisible;
 
     /**
      * 是否缓存（koi 前端契约字段）; 1:缓存 0:不缓存
      */
     @Schema(description = "是否缓存; 1:缓存 0:不缓存")
-    /** ISkeepalive */
+    /** iskeepalive */
     private String isKeepAlive;
 
     /**
@@ -124,88 +124,88 @@ public class SysMenuVO {
      * 菜单名称（旧字段）
      */
     @Schema(description = "菜单名称")
-    /** SYSmenu名称 */
+    /** sysmenu名称 */
     private String sysMenuName;
 
     /**
      * 菜单标题
      */
     @Schema(description = "菜单标题")
-    /** SYSmenu标题 */
+    /** sysmenu标题 */
     private String sysMenuTitle;
 
     /**
-     * 父菜单ID
+      * 父菜单标识
      */
     @Schema(description = "父菜单ID")
-    /** SYSmenuPID */
+    /** sysmenupid */
     private Integer sysMenuPid;
 
     /**
      * 菜单图标
      */
     @Schema(description = "菜单图标")
-    /** SYSmenuicon */
+    /** sysmenuicon */
     private String sysMenuIcon;
 
     /**
      * 右侧图标
      */
     @Schema(description = "右侧图标")
-    /** SYSmenuextraicon */
+    /** sysmenuextraicon */
     private String sysMenuExtraIcon;
 
     /**
      * 菜单类型; 0:菜单; 1:iframe; 2:外链; 3:按钮
      */
     @Schema(description = "菜单类型; 0:菜单; 1:iframe; 2:外链; 3:按钮")
-    /** SYSmenu类型 */
+    /** sysmenu类型 */
     private Integer sysMenuType;
 
     /**
      * 优先级别
      */
     @Schema(description = "优先级别")
-    /** SYSmenusort */
+    /** sysmenusort */
     private Integer sysMenuSort;
 
     /**
      * 菜单链路
      */
     @Schema(description = "菜单链路")
-    /** SYSmenutreeID */
+    /** sysmenutreeid */
     private String sysMenuTreeId;
 
     /**
      * 权限标识
      */
     @Schema(description = "权限标识")
-    /** SYSmenuperm */
+    /** sysmenuperm */
     private String sysMenuPerm;
 
     /**
      * 是否隐藏; 0:显示
      */
     @Schema(description = "是否隐藏; 0:显示")
-    /** SYSmenuhidden */
+    /** sysmenuhidden */
     private Integer sysMenuHidden;
 
     /**
      * 是否缓存; 0:否
      */
     @Schema(description = "是否缓存; 0:否")
-    /** SYSmenukeepalive */
+    /** sysmenukeepalive */
     private Integer sysMenuKeepAlive;
 
     /**
      * 重定向地址
      */
     @Schema(description = "重定向地址")
-    /** SYSmenuredirect */
+    /** sysmenuredirect */
     private String sysMenuRedirect;
 
     @Schema(description = "菜单端类型; 0:PC 1:小程序")
-    /** SYSmenu引擎 */
+    /** sysmenu引擎 */
     private Integer sysMenuEngine;
 
     /**
@@ -217,6 +217,8 @@ public class SysMenuVO {
 
     /**
      * 元数据内部类
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "菜单元数据")
@@ -243,7 +245,7 @@ public class SysMenuVO {
         private String extraIcon;
 
         /**
-         * 国际化key
+          * 国际化键
          */
         @Schema(description = "国际化key")
         /** I18n密钥 */
@@ -253,7 +255,7 @@ public class SysMenuVO {
          * iframe地址
          */
         @Schema(description = "iframe地址")
-        /** FrameSRC */
+        /** 帧src */
         private String frameSrc;
 
         /**
@@ -267,7 +269,7 @@ public class SysMenuVO {
          * 权限列表
          */
         @Schema(description = "权限列表")
-        /** Auths */
+        /** 认证 */
         private Iterable<String> auths;
 
         /**
@@ -323,11 +325,13 @@ public class SysMenuVO {
          * 过渡动画
          */
         @Schema(description = "过渡动画")
-        /** Transition */
+        /** 过渡 */
         private Transition transition;
 
         /**
          * 过渡动画内部类
+         * @author CH
+         * @since 4.0.0
          */
         @Data
         @Schema(description = "过渡动画")

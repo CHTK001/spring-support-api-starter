@@ -38,6 +38,7 @@ import java.nio.charset.StandardCharsets;
  * Armeria 协议
  *
  * @author CH
+ * @since 4.0.0
  */
 @Component
 @Extension("armeria")
@@ -48,18 +49,18 @@ import java.nio.charset.StandardCharsets;
 @Tag(name = "认证服务", description = "提供Armeria协议的认证服务接口")
 public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
 
-    final AuthServerProperties authServerProperties;
+    final AuthServerProperties authServerProperties; // 认证服务端属性
 
-    final LoginCheck loginCheck;
+    final LoginCheck loginCheck; // login检查
 
-    final RateLimitManager rateLimitManager;
+    final RateLimitManager rateLimitManager; // rate限制管理器
 
-    final ApplicationContext applicationContext;
+    final ApplicationContext applicationContext; // application上下文
 
     @Value("${server.servlet.context-path:}")
-    private String contextPath;
+    private String contextPath; // 上下文路径
 
-    private ProtocolServer protocolServer;
+    private ProtocolServer protocolServer; // 协议服务端
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -71,7 +72,7 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
         var protocolSetting = ProtocolSetting.builder()
                 .protocol("armeria")
                 .port(authServerProperties.getArmeriaPort() != null ? authServerProperties.getArmeriaPort() : 19180)
-                // 统一由 Armeria 底层根据 contextPath 处理路由前缀，业务侧仅注册相对路径
+ // 统一由 Armeria 底层根据 上下文路径 处理路由前缀，业务侧仅注册相对路径
                 .options(Options.of("contextPath", contextPath))
                 .build();
         try {
@@ -93,9 +94,9 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-     * 注册 ProtocolServer 路由
+      * 注册 协议服务端 路由
      *
-     * @param server ProtocolServer 实例
+     * @param server 协议服务端 实例
      */
     private void registerProtocolServerRoutes(ProtocolServer server) {
         // 登录端点
@@ -164,7 +165,7 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
             }
         });
 
-        // 鉴权端点，兼容历史 /oauth 客户端
+ // 鉴权端点，兼容历史 /OAuth 客户端
         server.post("/verify", this::handleVerifyRequest);
         server.post("/oauth", this::handleVerifyRequest);
 
@@ -201,7 +202,7 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
             }
         });
 
-        // 管理控制台 - GET 返回 HTML
+ // 管理控制台 - 获取 返回 HTML
         server.get("/admin", (request, response) -> {
             try {
                 response.setContentType("text/html;charset=UTF-8");
@@ -237,7 +238,7 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
             try {
                 String body = extractBody(request);
                 boolean enabled = body.contains("true");
-                // 也支持 query param
+ // 也支持 查询 参数
                 String query = request.getQueryString();
                 if (query != null && query.contains("enabled=")) {
                     enabled = query.contains("enabled=true");
@@ -259,8 +260,12 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
                 int maxCount = 3;
                 if (query != null) {
                     for (String param : query.split("&")) {
-                        if (param.startsWith("mode=")) mode = param.substring(5);
-                        if (param.startsWith("maxCount=")) maxCount = Integer.parseInt(param.substring(9));
+                        if (param.startsWith("mode=")) {
+                            mode = param.substring(5);
+                        }
+                        if (param.startsWith("maxCount=")) {
+                            maxCount = Integer.parseInt(param.substring(9));
+                        }
                     }
                 }
                 com.chua.starter.oauth.sso.support.properties.AuthServerProperties.Online onlineMode =
@@ -281,7 +286,9 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
             try {
                 String body = extractBody(request);
                 RateLimitConfig config = Json.fromJson(body, RateLimitConfig.class);
-                if (config == null) config = new RateLimitConfig();
+                if (config == null) {
+                    config = new RateLimitConfig();
+                }
                 rateLimitManager.update(config);
                 log.info("[Admin] 限流配置已更新: enabled={}, qps={}", config.isEnabled(), config.getQps());
                 writeResponse(response, ReturnResult.ok("限流配置已更新"));
@@ -303,7 +310,7 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
             }
         });
 
-        // 管理控制台 - 切换 refreshToken 轮换
+ // 管理控制台 - 切换 refresh令牌 轮换
         server.post("/admin/refresh-token-rotation", (request, response) -> {
             try {
                 String query = request.getQueryString();
@@ -323,13 +330,19 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
                 long expire = 0, refreshExpire = 0;
                 if (query != null) {
                     for (String param : query.split("&")) {
-                        if (param.startsWith("expire=")) expire = Long.parseLong(param.substring(7));
-                        if (param.startsWith("refreshExpire=")) refreshExpire = Long.parseLong(param.substring(14));
+                        if (param.startsWith("expire=")) {
+                            expire = Long.parseLong(param.substring(7));
+                        }
+                        if (param.startsWith("refreshExpire=")) {
+                            refreshExpire = Long.parseLong(param.substring(14));
+                        }
                     }
                 }
                 if (expire <= 0) { writeResponse(response, ReturnResult.illegal("过期时间必须大于 0")); return; }
                 authServerProperties.setExpire(expire);
-                if (refreshExpire > 0) authServerProperties.setRefreshExpire(refreshExpire);
+                if (refreshExpire > 0) {
+                    authServerProperties.setRefreshExpire(refreshExpire);
+                }
                 log.info("[Admin] Token 过期时间已更新: expire={}s", expire);
                 writeResponse(response, ReturnResult.ok("Token 过期时间已更新: " + expire + "s"));
             } catch (Exception e) {
@@ -371,6 +384,11 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
         });
     }
 
+    /**
+     * 处理验证请求。
+     * @param request 请求
+     * @param response 响应
+     */
     private void handleVerifyRequest(ServletRequest request, ServletResponse response) {
         try {
             String body = extractBody(request);
@@ -404,7 +422,9 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-     * 从 ServletRequest 提取请求体
+      * 从 servlet请求 提取请求体
+     * @param request 请求
+     * @return extract主体的结果
      */
     private String extractBody(ServletRequest request) {
         try {
@@ -421,6 +441,8 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
 
     /**
      * 写入响应
+     * @param response 响应
+     * @param result 结果
      */
     private void writeResponse(ServletResponse response, ReturnResult<?> result) {
         try {
@@ -434,6 +456,7 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
 
     /**
      * 构建管理控制台 HTML
+     * @return 构建adminhtml的结果
      */
     private String buildAdminHtml() {
         return """
@@ -444,7 +467,7 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OAuth 管理控制台</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
   .header { background: #1a1a2e; color: #fff; padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
   .header h1 { font-size: 20px; font-weight: 600; }

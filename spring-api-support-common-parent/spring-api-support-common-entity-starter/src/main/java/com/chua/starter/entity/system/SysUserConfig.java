@@ -25,32 +25,32 @@ import java.io.Serializable;
 @TableName(value = "sys_user_config")
 public class SysUserConfig extends SysBase implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-     * 配置ID
+      * 配置标识
      */
     @TableId(value = "sys_user_config_id", type = IdType.AUTO)
     @Schema(description = "配置ID")
     @NotNull(message = "配置ID不能为空")
-    /** SYS用户配置ID */
+    /** SYS用户配置标识 */
     private Integer sysUserConfigId;
 
     /**
-     * 微信OpenID
+      * 微信打开id
      */
     @TableField(value = "sys_user_config_wx_openid")
     @Schema(description = "微信OpenID")
     @Size(max = 255, message = "微信OpenID最大长度需小于255")
-    /** SYS用户配置WXopenid */
+    /** SYS用户配置wxopenid */
     private String sysUserConfigWxOpenid;
 
     /**
-     * 微信UnionID
+      * 微信unionid
      */
     @TableField(value = "sys_user_config_wx_unionid")
     @Schema(description = "微信UnionID")
     @Size(max = 255, message = "微信UnionID最大长度需小于255")
-    /** SYS用户配置WXunionid */
+    /** SYS用户配置wxunionid */
     private String sysUserConfigWxUnionid;
 }

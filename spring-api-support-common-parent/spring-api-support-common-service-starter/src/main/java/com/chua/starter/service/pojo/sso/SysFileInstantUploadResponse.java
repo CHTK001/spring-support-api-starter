@@ -21,10 +21,10 @@ public class SysFileInstantUploadResponse {
     private Boolean instantUpload;
 
     /**
-     * 已存在的文件ID
+      * 已存在的文件标识
      */
     @Schema(description = "已存在的文件ID")
-    /** Existing文件ID */
+    /** Existing文件标识 */
     private Integer existingFileId;
 
     /**
@@ -62,7 +62,7 @@ public class SysFileInstantUploadResponse {
     /**
      * 创建支持秒传的响应
      *
-     * @param fileId      文件ID
+     * @param fileId      文件标识
      * @param fileUrl     文件URL
      * @param fileHttpUrl 文件HTTP URL
      * @param fileName    文件名

@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.*;
 @Ignore
 public class SysFeedbackController {
 
-    final SysFeedbackService sysFeedbackService;
+    final SysFeedbackService sysFeedbackService; // sys反馈服务
 
     /**
      * 反馈分页列表

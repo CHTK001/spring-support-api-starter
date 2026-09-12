@@ -24,16 +24,16 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_log")
 public class SysLog extends SysBase implements Serializable {
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 日志ID
+      * 日志标识
      */
     @TableId(value = "sys_log_id", type = IdType.AUTO)
     @Schema(description = "日志ID")
     @NotNull(message = "日志ID不能为空")
-    /** SYS日志ID */
+    /** SYS日志标识 */
     private Integer sysLogId;
 
     /**
@@ -42,7 +42,7 @@ public class SysLog extends SysBase implements Serializable {
     @TableField(value = "sys_log_username")
     @Schema(description = "账号")
     @Size(max = 255, message = "账号最大长度需小于255")
-    /** SYS日志username */
+    /** SYS日志用户名 */
     private String sysLogUsername;
 
     /**
@@ -102,7 +102,7 @@ public class SysLog extends SysBase implements Serializable {
     @TableField(value = "sys_log_from")
     @Schema(description = "请求模块")
     @Size(max = 255, message = "请求模块最大长度需小于255")
-    /** SYS日志from */
+    /** SYS日志从 */
     private String sysLogFrom;
 
     /**

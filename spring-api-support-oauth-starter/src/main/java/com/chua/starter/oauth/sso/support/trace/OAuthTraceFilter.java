@@ -36,9 +36,9 @@ public class OAuthTraceFilter implements Filter, Ordered {
 
     @Override
     /**
-     * Do过滤
-     * @param servletRequest servletRequest
-     * @param servletResponse servletResponse
+      * 执行过滤
+     * @param servletRequest servlet请求
+     * @param servletResponse servlet响应
      */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
@@ -69,9 +69,11 @@ public class OAuthTraceFilter implements Filter, Ordered {
 
         // 创建追踪上下文
         ServerTraceContext traceContext = ServerTraceContext.create(traceId, traceTimestamp, clientAppName, clientIp);
-        // 设置 MDC 日志上下文,使日志输出自动包含 traceId
+ // 设置 MDC 日志上下文,使日志输出自动包含 追踪id
         MDC.put("traceId", traceContext.getTraceId());
-        if (clientAppName != null) MDC.put("appName", clientAppName);
+        if (clientAppName != null) {
+            MDC.put("appName", clientAppName);
+        }
         
         // 开始接收请求的Span
         traceContext.startSpan("server_receive");
@@ -87,13 +89,13 @@ public class OAuthTraceFilter implements Filter, Ordered {
                     requestUri
             );
             
-            // 记录AccessKey
+ // 记录访问密钥
             String accessKey = request.getHeader("x-oauth-ak");
             if (accessKey != null && !accessKey.isEmpty()) {
                 traceLog.setSysAccessKey(accessKey);
             }
 
-            traceContext.endSpan(); // 结束 server_receive span
+            traceContext.endSpan(); // 结束 服务端_接收 span
             
             // 执行后续过滤器链
             chain.doFilter(request, response);
@@ -136,6 +138,8 @@ public class OAuthTraceFilter implements Filter, Ordered {
 
     /**
      * 根据请求URI确定操作类型
+     * @param uri uri
+     * @return determineoperation类型的结果
      */
     private String determineOperationType(String uri) {
         if (uri.endsWith("/login")) {
@@ -154,6 +158,8 @@ public class OAuthTraceFilter implements Filter, Ordered {
 
     /**
      * 获取客户端真实IP
+     * @param request 请求
+     * @return 获取客户端ip的结果
      */
     private String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
@@ -180,7 +186,7 @@ public class OAuthTraceFilter implements Filter, Ordered {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 10;
     }

@@ -76,7 +76,7 @@ public class MonitorAcmeAccountServiceImpl
      * 保存账户：无主键时新增（默认状态 valid），有主键时更新。
      *
      * @param account 账户
-     * @return 保存后的对象，参数为空或更新失败时返回 null
+     * @return 保存后的对象，参数为空或更新失败时返回 空
      */
     @Override
     @Transactional(rollbackFor = Exception.class)

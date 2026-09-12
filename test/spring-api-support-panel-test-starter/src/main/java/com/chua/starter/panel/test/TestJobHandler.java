@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 public class TestJobHandler {
 
-    private final AtomicLong counter = new AtomicLong(0);
+    private final AtomicLong counter = new AtomicLong(0); // 数量
 
     @Scheduled("0 0/1 * * * ?")
     public void execute() {

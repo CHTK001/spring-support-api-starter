@@ -27,10 +27,10 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * 租户客户端同步处理器
  * <p>
- * 实现 SyncMessageHandler 接口，监听服务端推送的租户数据并通过 SPI 分发处理
+   * 实现 同步消息处理器 接口，监听服务端推送的租户数据并通过 SPI 分发处理
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/06
  * @author CH
  */
@@ -47,11 +47,11 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
      * 租户同步主题
      */
     public static final String TOPIC_TENANT = "tenant";
-    /** Topic_tenant_update */
+    /** Topic_tenant_更新 */
     public static final String TOPIC_TENANT_UPDATE = TenantSyncMessageSupport.TOPIC_TENANT_UPDATE;
-    /** Topic_tenant_delete */
+    /** Topic_tenant_删除 */
     public static final String TOPIC_TENANT_DELETE = TenantSyncMessageSupport.TOPIC_TENANT_DELETE;
-    /** Topic_tenant_service */
+    /** Topic_tenant_服务 */
     public static final String TOPIC_TENANT_SERVICE = TenantSyncMessageSupport.TOPIC_TENANT_SERVICE;
     /** Topic_tenant_menu */
     public static final String TOPIC_TENANT_MENU = TenantSyncMessageSupport.TOPIC_TENANT_MENU;
@@ -61,7 +61,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
     private TenantProperties tenantProperties;
 
     @Autowired(required = false)
-    /** 同步providers */
+    /** 同步提供者 */
     private List<TenantDataSyncProvider> syncProviders;
 
     @Autowired
@@ -84,14 +84,21 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
     private final AtomicLong lastReceivedSyncMessageTime = new AtomicLong(0L);
 
     @Override
-    /** 获取Name */
+    /** 获取名称 */
     public String getName() {
         return "tenant-client";
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    /** 处理 */
+    /**
+     * 处理
+     *
+     * @param topic topic
+     * @param sourceClientId 源客户端id
+     * @param data 数据
+     * @return 处理的结果
+     */
     public Object handle(String topic, String sourceClientId, Map<String, Object> data) {
         if (data == null) {
             data = new HashMap<>();
@@ -148,7 +155,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
      * 校验同步消息目标租户是否为当前租户实例自身
      * <p>防止平台广播兜底或消息错投时，将其他租户的数据写入本租户库</p>
      *
-     * @param tenantId 消息目标租户ID
+     * @param tenantId 消息目标租户标识
      * @return true=匹配或未配置自身租户ID(向后兼容)；false=不匹配
      */
     private boolean isSelfTenant(String tenantId) {
@@ -159,7 +166,11 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         return !TenantSyncMessageSupport.hasText(selfTenantId) || selfTenantId.equals(tenantId);
     }
 
-    /** 获取Provider */
+    /**
+     * 获取提供者
+     *
+     * @return 获取提供者的结果
+     */
     private TenantDataSyncProvider getProvider() {
         if (syncProviders == null || syncProviders.isEmpty()) {
             log.warn("[租户客户端] 未找到 TenantDataSyncProvider 实现");
@@ -172,6 +183,8 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
 
     /**
      * 处理租户更新
+     * @param data 数据
+     * @return 处理tenant更新的结果
      */
     private Object handleTenantUpdate(Map<String, Object> data) {
         TenantDataSyncProvider provider = getProvider();
@@ -201,6 +214,8 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
 
     /**
      * 处理租户删除
+     * @param data 数据
+     * @return 处理tenant删除的结果
      */
     private Object handleTenantDelete(Map<String, Object> data) {
         TenantDataSyncProvider provider = getProvider();
@@ -233,6 +248,8 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
 
     /**
      * 处理服务/菜单更新
+     * @param data 数据
+     * @return 处理服务更新的结果
      */
     @SuppressWarnings("unchecked")
     private Object handleServiceUpdate(Map<String, Object> data) {
@@ -277,7 +294,9 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
     }
 
     /**
-     * 构建租户对象(仅租户ID)
+      * 构建租户对象(仅租户标识)
+     * @param tenantId tenantId
+     * @return 构建tenant的结果
      */
     private SysTenant buildTenant(String tenantId) {
         SysTenant tenant = new SysTenant();
@@ -287,6 +306,8 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
 
     /**
      * 处理菜单数据更新
+     * @param data 数据
+     * @return 处理menu更新的结果
      */
     @SuppressWarnings("unchecked")
     private Object handleMenuUpdate(Map<String, Object> data) {
@@ -320,6 +341,9 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
 
     /**
      * 处理自定义主题
+     * @param topic topic
+     * @param data 数据
+     * @return 处理习俗topic的结果
      */
     private Object handleCustomTopic(String topic, Map<String, Object> data) {
         TenantDataSyncProvider provider = getProvider();
@@ -331,6 +355,8 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
 
     /**
      * 是否忽略该消息
+     * @param data 数据
+     * @return shouldignore消息的结果
      */
     private boolean shouldIgnoreMessage(Map<String, Object> data) {
         String localTenantId = tenantProperties.getClient().getTenantId();
@@ -346,7 +372,12 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         return TenantSyncMessageSupport.hasText(targetTenantId) && !localTenantId.equals(targetTenantId);
     }
 
-    /** 验证Signature */
+    /**
+     * 验证签名
+     *
+     * @param data 数据
+     * @return 验证签名的结果
+     */
     private TenantSyncMessageSupport.VerificationResult verifySignature(Map<String, Object> data) {
         if (!tenantProperties.isClientSyncSignEnabled()) {
             return TenantSyncMessageSupport.VerificationResult.skip("client sign 未启用");
@@ -362,6 +393,8 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
 
     /**
      * 是否重复消息
+     * @param data 数据
+     * @return 是否重复消息的结果
      */
     private boolean isDuplicateMessage(Map<String, Object> data) {
         if (!tenantProperties.getClient().isSyncDeduplicateMessages()) {
@@ -383,6 +416,9 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
 
     /**
      * 是否为乱序旧消息。
+     * @param topic topic
+     * @param data 数据
+     * @return 是否出的订单消息的结果
      */
     private boolean isOutOfOrderMessage(String topic, Map<String, Object> data) {
         if (!tenantProperties.getClient().isSyncIgnoreOutOfOrderMessages() || !shouldTrackOrdering(topic)) {
@@ -405,7 +441,13 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         return true;
     }
 
-    /** 标记AppliedMessage */
+    /**
+     * 标记applied消息
+     *
+     * @param topic topic
+     * @param data 数据
+     * @param result 结果
+     */
     private void markAppliedMessage(String topic, Map<String, Object> data, Object result) {
         if (!tenantProperties.getClient().isSyncIgnoreOutOfOrderMessages()
                 || !shouldTrackOrdering(topic)
@@ -423,7 +465,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         latestAppliedTimestamps.merge(buildOrderingKey(topic, data), timestamp, Math::max);
     }
 
-    /** CleanupAppliedTimestamps */
+    /** cleanupapplied时间戳 */
     private void cleanupAppliedTimestamps() {
         if (latestAppliedTimestamps.isEmpty()) {
             return;
@@ -444,7 +486,12 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         }
     }
 
-    /** 是否应该TrackOrdering */
+    /**
+     * 是否应该track订单
+     *
+     * @param topic topic
+     * @return shouldtrack订单的结果
+     */
     private boolean shouldTrackOrdering(String topic) {
         return TOPIC_TENANT_UPDATE.equals(topic)
                 || TOPIC_TENANT_DELETE.equals(topic)
@@ -452,7 +499,13 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
                 || TOPIC_TENANT_MENU.equals(topic);
     }
 
-    /** 构建OrderingKey */
+    /**
+     * 构建订单键
+     *
+     * @param topic topic
+     * @param data 数据
+     * @return 构建订单键的结果
+     */
     private String buildOrderingKey(String topic, Map<String, Object> data) {
         String tenantId = TenantSyncMessageSupport.resolveTargetTenantId(data);
         if (!TenantSyncMessageSupport.hasText(tenantId)) {
@@ -464,7 +517,12 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         return topic + ":" + tenantId;
     }
 
-    /** 是否SuccessfulResult */
+    /**
+     * 是否成功结果
+     *
+     * @param result 结果
+     * @return 是否成功结果的结果
+     */
     private boolean isSuccessfulResult(Object result) {
         if (!(result instanceof Map<?, ?> resultMap)) {
             return true;
@@ -474,7 +532,13 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         return !Boolean.FALSE.equals(success);
     }
 
-    /** 发送Ack */
+    /**
+     * 发送ACK
+     *
+     * @param topic topic
+     * @param data 数据
+     * @param result 结果
+     */
     private void sendAck(String topic, Map<String, Object> data, Object result) {
         if (!tenantProperties.isClientSyncAckEnabled() || !shouldTrackOrdering(topic) || data == null || data.isEmpty()) {
             return;
@@ -516,7 +580,12 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
                 tenantId, topic, sourceMessageId, success, status);
     }
 
-    /** 解析AckStatus */
+    /**
+     * 解析ACK状态
+     *
+     * @param result 结果
+     * @return resolveACK状态的结果
+     */
     private String resolveAckStatus(Object result) {
         if (!(result instanceof Map<?, ?> resultMap)) {
             return TenantSyncMessageSupport.ACK_STATUS_APPLIED;
@@ -534,7 +603,13 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         return TenantSyncMessageSupport.ACK_STATUS_APPLIED;
     }
 
-    /** 解析Ack记录错误Message */
+    /**
+     * 解析ACK记录错误消息
+     *
+     * @param result 结果
+     * @param success 成功
+     * @return resolveACK错误消息的结果
+     */
     private String resolveAckErrorMessage(Object result, boolean success) {
         if (success || !(result instanceof Map<?, ?> resultMap)) {
             return null;
@@ -566,18 +641,28 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         }
     }
 
-    /** 是否拥有ReceivedSyncMessageSince */
+    /**
+     * 是否拥有接收同步消息自
+     *
+     * @param timestamp 时间戳
+     * @return 是否包含接收同步消息自的结果
+     */
     public boolean hasReceivedSyncMessageSince(long timestamp) {
         return lastReceivedSyncMessageTime.get() >= timestamp;
     }
 
-    /** 标记SyncMessageReceived */
+    /** 标记同步消息接收 */
     private void markSyncMessageReceived() {
         lastReceivedSyncMessageTime.set(System.currentTimeMillis());
     }
 
     @SuppressWarnings("unchecked")
-    /** ToIntegerList */
+    /**
+     * 转为integer列表
+     *
+     * @param rawValue raw值
+     * @return 转为integer列表的结果
+     */
     private List<Integer> toIntegerList(Object rawValue) {
         if (!(rawValue instanceof List<?> values) || values.isEmpty()) {
             return List.of();
@@ -598,6 +683,8 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
 
     /**
      * 转换为租户对象
+     * @param data 数据
+     * @return 转换转为tenant的结果
      */
     private SysTenant convertToTenant(Map<String, Object> data) {
         if (data == null) {

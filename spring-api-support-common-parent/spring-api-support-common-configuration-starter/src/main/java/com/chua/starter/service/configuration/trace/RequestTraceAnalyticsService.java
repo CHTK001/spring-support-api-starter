@@ -42,15 +42,15 @@ public class RequestTraceAnalyticsService {
     private final RequestTraceStrategyConfigService requestTraceStrategyConfigService;
     /** 请求跟踪存储router */
     private final RequestTraceStorageRouter requestTraceStorageRouter;
-    /** 请求跟踪AIsummary服务 */
+    /** 请求跟踪aisummary服务 */
     private final RequestTraceAiSummaryService requestTraceAiSummaryService;
 
     /**
-     * 创建 RequestTraceAnalyticsService 实例
+      * 创建 请求追踪analytics服务 实例
      * @param analyzers analyzers
-     * @param requestTraceStrategyConfigService requestTraceStrategyConfigService
-     * @param requestTraceStorageRouter requestTraceStorageRouter
-     * @param requestTraceAiSummaryService requestTraceAiSummaryService
+     * @param requestTraceStrategyConfigService 请求追踪strategy配置服务
+     * @param requestTraceStorageRouter 请求追踪storagerouter
+     * @param requestTraceAiSummaryService 请求追踪AIsummary服务
      */
     public RequestTraceAnalyticsService(
             List<RequestTraceAnalyzer> analyzers,
@@ -66,7 +66,12 @@ public class RequestTraceAnalyticsService {
         this.requestTraceAiSummaryService = requestTraceAiSummaryService;
     }
 
-    /** Record */
+    /**
+     * Record
+     *
+     * @param event 事件
+     * @return record的结果
+     */
     public RequestTraceEvent record(RequestTraceEvent event) {
         if (event == null) {
             return null;
@@ -121,7 +126,12 @@ public class RequestTraceAnalyticsService {
         return stored;
     }
 
-    /** Snapshot */
+    /**
+     * Snapshot
+     *
+     * @param requestedWindowMinutes 请求窗口minutes
+     * @return snapshot的结果
+     */
     public RequestTraceAnalyticsSnapshot snapshot(Integer requestedWindowMinutes) {
         RequestTraceStrategyConfig config = requestTraceStrategyConfigService.currentConfig();
         int windowMinutes = normalizeWindowMinutes(requestedWindowMinutes, config);
@@ -220,7 +230,11 @@ public class RequestTraceAnalyticsService {
         }
     }
 
-    /** RecentEvents */
+    /**
+     * recent事件
+     *
+     * @return recent事件的结果
+     */
     public List<RequestTraceEvent> recentEvents() {
         RequestTraceStrategyConfig config = requestTraceStrategyConfigService.currentConfig();
         lock.lock();
@@ -233,10 +247,10 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * 构建BehaviorRecord
-     * @param event event
-     * @param history history
-     * @param config config
+      * 构建行为record
+     * @param event 事件
+     * @param history 历史
+     * @param config 配置
      */
     private RequestTraceBehaviorRecord buildBehaviorRecord(
             RequestTraceEvent event,
@@ -302,10 +316,10 @@ public class RequestTraceAnalyticsService {
 
     /**
      * 构建Summary
-     * @param event event
-     * @param relatedRequestCount relatedRequestCount
-     * @param distinctPathCount distinctPathCount
-     * @param riskLevel riskLevel
+     * @param event 事件
+     * @param relatedRequestCount related请求数量
+     * @param distinctPathCount 去重路径数量
+     * @param riskLevel risk级别
      */
     private String buildSummary(
             RequestTraceEvent event,
@@ -326,7 +340,12 @@ public class RequestTraceAnalyticsService {
         return String.join("；", parts);
     }
 
-    /** StoreRawEvent */
+    /**
+     * 存储raw事件
+     *
+     * @param event 事件
+     * @param config 配置
+     */
     private void storeRawEvent(RequestTraceEvent event, RequestTraceStrategyConfig config) {
         try {
             requestTraceStorageRouter.rawStorage(config.getRawStorageType()).store(event, config);
@@ -335,7 +354,12 @@ public class RequestTraceAnalyticsService {
         }
     }
 
-    /** StoreBehaviorRecord */
+    /**
+     * 存储行为record
+     *
+     * @param record record
+     * @param config 配置
+     */
     private void storeBehaviorRecord(RequestTraceBehaviorRecord record, RequestTraceStrategyConfig config) {
         try {
             requestTraceStorageRouter.behaviorStorage(config.getBehaviorStorageType()).store(record, config);
@@ -344,7 +368,11 @@ public class RequestTraceAnalyticsService {
         }
     }
 
-    /** 去空格Overflow */
+    /**
+     * 去空格Overflow
+     *
+     * @param config 配置
+     */
     private void trimOverflow(RequestTraceStrategyConfig config) {
         while (recentEvents.size() > config.getMaxEvents()) {
             recentEvents.pollFirst();
@@ -354,7 +382,12 @@ public class RequestTraceAnalyticsService {
         }
     }
 
-    /** PruneExpired */
+    /**
+     * pruneexpired
+     *
+     * @param now now
+     * @param config 配置
+     */
     private void pruneExpired(long now, RequestTraceStrategyConfig config) {
         long cutoff = now - Duration.ofMinutes(config.getRetentionMinutes()).toMillis();
         while (!recentEvents.isEmpty()) {
@@ -373,7 +406,13 @@ public class RequestTraceAnalyticsService {
         }
     }
 
-    /** NormalizeWindowMinutes */
+    /**
+     * normalize窗口minutes
+     *
+     * @param requestedWindowMinutes 请求窗口minutes
+     * @param config 配置
+     * @return normalize窗口minutes的结果
+     */
     private int normalizeWindowMinutes(Integer requestedWindowMinutes, RequestTraceStrategyConfig config) {
         if (requestedWindowMinutes == null || requestedWindowMinutes <= 0) {
             return config.getDefaultWindowMinutes();
@@ -382,10 +421,10 @@ public class RequestTraceAnalyticsService {
     }
 
     /**
-     * ToMetricBuckets
-     * @param events events
-     * @param keyFunction keyFunction
-     * @param limit limit
+      * 转为指标buckets
+     * @param events 事件
+     * @param keyFunction 键function
+     * @param limit 限制
      */
     private List<RequestTraceAnalyticsSnapshot.MetricBucket> toMetricBuckets(
             List<RequestTraceEvent> events,
@@ -407,7 +446,13 @@ public class RequestTraceAnalyticsService {
                 .toList();
     }
 
-    /** FirstNonBlank */
+    /**
+     * 第一个nonblank
+     *
+     * @param first 第一个
+     * @param second second
+     * @return 第一个nonblank的结果
+     */
     private String firstNonBlank(String first, String second) {
         if (first != null && !first.isBlank()) {
             return first;
@@ -415,7 +460,12 @@ public class RequestTraceAnalyticsService {
         return second;
     }
 
-    /** RememberBehaviorRecord */
+    /**
+     * remember行为record
+     *
+     * @param record record
+     * @param config 配置
+     */
     private void rememberBehaviorRecord(RequestTraceBehaviorRecord record, RequestTraceStrategyConfig config) {
         if (record == null) {
             return;
@@ -430,22 +480,43 @@ public class RequestTraceAnalyticsService {
         }
     }
 
-    /** AiAnalysisOf */
+    /**
+     * AIanalysis的
+     *
+     * @param record record
+     * @return AIanalysis的的结果
+     */
     private RequestTraceAiAnalysisResult aiAnalysisOf(RequestTraceBehaviorRecord record) {
         return record == null ? null : record.aiAnalysis();
     }
 
-    /** AiSummaryOf */
+    /**
+     * AIsummary的
+     *
+     * @param record record
+     * @return AIsummary的的结果
+     */
     private String aiSummaryOf(RequestTraceBehaviorRecord record) {
         return record == null ? null : record.aiSummary();
     }
 
-    /** SummaryOf */
+    /**
+     * summary的
+     *
+     * @param record record
+     * @return summary的的结果
+     */
     private String summaryOf(RequestTraceBehaviorRecord record) {
         return record == null ? null : record.summary();
     }
 
-    /** RiskLevelOf */
+    /**
+     * risk级别的
+     *
+     * @param record record
+     * @param event 事件
+     * @return risk级别的的结果
+     */
     private String riskLevelOf(RequestTraceBehaviorRecord record, RequestTraceEvent event) {
         if (record != null && record.riskLevel() != null) {
             return record.riskLevel();
@@ -453,7 +524,12 @@ public class RequestTraceAnalyticsService {
         return event == null ? null : RequestTraceSupport.resolveRiskLevel(event.signals());
     }
 
-    /** ToAiMap */
+    /**
+     * 转为AI映射
+     *
+     * @param aiAnalysis AIanalysis
+     * @return 转为AI映射的结果
+     */
     private Map<String, Object> toAiMap(RequestTraceAiAnalysisResult aiAnalysis) {
         if (aiAnalysis == null) {
             return Map.of();

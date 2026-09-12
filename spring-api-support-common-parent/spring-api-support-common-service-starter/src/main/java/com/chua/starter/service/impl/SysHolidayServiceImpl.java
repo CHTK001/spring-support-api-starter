@@ -18,13 +18,13 @@ import java.util.List;
 public class SysHolidayServiceImpl extends ServiceImpl<SysHolidayMapper, SysHoliday> implements SysHolidayService {
 
     @Override
-    /** Sync */
+    /** 同步 */
     public Boolean sync() {
         return false;
     }
 
     @Override
-    /** 获取Holidays */
+    /** 获取假日 */
     public List<SysHoliday> getHolidays(Integer year) {
         int newYear = year == null ? java.time.LocalDate.now().getYear() : year;
         return this.list(Wrappers.<SysHoliday>lambdaQuery().eq(SysHoliday::getSysHolidayYear, newYear));

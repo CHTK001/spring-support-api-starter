@@ -26,12 +26,12 @@ import lombok.EqualsAndHashCode;
 public class MsMonitorMetricConfig extends SysBase {
 
     /**
-     * 解析规则主键ID，自增
+      * 解析规则主键标识，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    /** ID */
+    /** 标识 */
     private Long id;
 
     /**
@@ -44,16 +44,16 @@ public class MsMonitorMetricConfig extends SysBase {
     private String metricName;
 
     /**
-     * 关联的采集任务ID
+      * 关联的采集任务标识
      */
     @TableField("task_id")
     @ApiModelProperty("任务ID")
     @Schema(description = "任务ID")
-    /** 任务ID */
+    /** 任务标识 */
     private Long taskId;
 
     /**
-     * 指标类型，例如 CPU/MEMORY/DISK
+      * 指标类型，例如 CPU/内存/DISK
      */
     @TableField("metric_type")
     @ApiModelProperty("指标类型")
@@ -67,7 +67,7 @@ public class MsMonitorMetricConfig extends SysBase {
     @TableField("match_pattern")
     @ApiModelProperty("匹配模式")
     @Schema(description = "匹配模式")
-    /** Match模式 */
+    /** 匹配模式 */
     private String matchPattern;
 
     /**

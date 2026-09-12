@@ -30,9 +30,9 @@ public class SysFileUploadRequest {
 
 
     /**
-     * OSS类型
+      * 对象存储类型
      */
     @Schema(description = "OSS类型; 本地(FILESYSTEM: 默认), 七牛(QINIU)")
-    /** OSS类型 */
+    /** 对象存储类型 */
     private String ossType = "FILESYSTEM";
 }

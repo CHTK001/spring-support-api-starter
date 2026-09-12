@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * 租户配置属性
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/06
  * @author CH
  */
@@ -36,32 +36,56 @@ public class TenantProperties {
      */
     private ClientConfig client = new ClientConfig();
 
-    /** 获取IgnoreTable */
+    /**
+     * 获取ignoretable
+     *
+     * @return 获取ignoretable的结果
+     */
     public Set<String> getIgnoreTable() {
         return new HashSet<>(ignoreTable);
     }
 
-    /** 设置IgnoreTable */
+    /**
+     * 设置ignoretable
+     *
+     * @param ignoreTable ignoreTable
+     */
     public void setIgnoreTable(Set<String> ignoreTable) {
         this.ignoreTable = ignoreTable == null ? new HashSet<>() : new HashSet<>(ignoreTable);
     }
 
-    /** 获取Server */
+    /**
+     * 获取服务端
+     *
+     * @return 获取服务端的结果
+     */
     public ServerConfig getServer() {
         return server == null ? new ServerConfig() : server.copy();
     }
 
-    /** 设置Server */
+    /**
+     * 设置服务端
+     *
+     * @param server 服务端
+     */
     public void setServer(ServerConfig server) {
         this.server = server == null ? new ServerConfig() : server.copy();
     }
 
-    /** 获取Client */
+    /**
+     * 获取客户端
+     *
+     * @return 获取客户端的结果
+     */
     public ClientConfig getClient() {
         return client == null ? new ClientConfig() : client.copy();
     }
 
-    /** 设置Client */
+    /**
+     * 设置客户端
+     *
+     * @param client 客户端
+     */
     public void setClient(ClientConfig client) {
         this.client = client == null ? new ClientConfig() : client.copy();
     }
@@ -121,7 +145,7 @@ public class TenantProperties {
     }
 
     /**
-     * 获取租户ID字段名
+      * 获取租户标识字段名
      *
      * @return 租户ID字段名
      */
@@ -146,13 +170,20 @@ public class TenantProperties {
         return result;
     }
 
-    /** 是否拥有Text */
+    /**
+     * 是否拥有文本
+     *
+     * @param value 值
+     * @return 是否包含文本的结果
+     */
     private static boolean hasText(String value) {
         return value != null && !value.isBlank();
     }
 
     /**
      * 服务端配置
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     public static class ServerConfig {
@@ -234,7 +265,7 @@ public class TenantProperties {
         private Set<String> ignoreTable = new HashSet<>();
 
         /**
-         * 通信协议: rsocket, websocket
+          * 通信协议: rsocket, WebSocket
          */
         private String protocol = "rsocket-sync";
 
@@ -248,92 +279,164 @@ public class TenantProperties {
          */
         private int port = 19380;
 
-        /** 是否启用 */
+        /**
+         * 是否启用
+         *
+         * @return 是否enable的结果
+         */
         public boolean isEnable() {
             return enable;
         }
 
-        /** 是否Sync启用 */
+        /**
+         * 是否同步启用
+         *
+         * @return 是否同步enable的结果
+         */
         public boolean isSyncEnable() {
             return syncEnable;
         }
 
-        /** 是否SyncFull推送On注册 */
+        /**
+         * 是否同步完整推送On注册
+         *
+         * @return 是否同步完整pushon注册的结果
+         */
         public boolean isSyncFullPushOnRegister() {
             return syncFullPushOnRegister;
         }
 
-        /** 获取SyncFull推送IntervalSeconds */
+        /**
+         * 获取同步完整推送间隔seconds
+         *
+         * @return 获取同步完整push间隔seconds的结果
+         */
         public long getSyncFullPushIntervalSeconds() {
             return syncFullPushIntervalSeconds;
         }
 
-        /** 是否SyncBroadcastFallback */
+        /**
+         * 是否同步broadcast降级
+         *
+         * @return 是否同步broadcast降级的结果
+         */
         public boolean isSyncBroadcastFallback() {
             return syncBroadcastFallback;
         }
 
-        /** 是否Sync跳过UnchangedFull推送 */
+        /**
+         * 是否同步跳过unchanged完整推送
+         *
+         * @return 是否同步跳过unchanged完整push的结果
+         */
         public boolean isSyncSkipUnchangedFullPush() {
             return syncSkipUnchangedFullPush;
         }
 
-        /** 获取SyncSignSecret */
+        /**
+         * 获取同步标志secret
+         *
+         * @return 获取同步标志secret的结果
+         */
         public String getSyncSignSecret() {
             return syncSignSecret;
         }
 
-        /** 获取SyncSignAllowedClockSkewSeconds */
+        /**
+         * 获取同步标志allowedclockskewseconds
+         *
+         * @return 获取同步标志allowedclockskewseconds的结果
+         */
         public long getSyncSignAllowedClockSkewSeconds() {
             return syncSignAllowedClockSkewSeconds;
         }
 
-        /** 是否SyncAckEnabled */
+        /**
+         * 是否同步ACK已启用
+         *
+         * @return 是否同步ACK已启用的结果
+         */
         public boolean isSyncAckEnabled() {
             return syncAckEnabled;
         }
 
-        /** 获取SyncAckTimeoutSeconds */
+        /**
+         * 获取同步ACK超时seconds
+         *
+         * @return 获取同步ACK超时seconds的结果
+         */
         public long getSyncAckTimeoutSeconds() {
             return syncAckTimeoutSeconds;
         }
 
-        /** 获取SyncAck校验IntervalSeconds */
+        /**
+         * 获取同步ACK校验间隔seconds
+         *
+         * @return 获取同步ACK检查间隔seconds的结果
+         */
         public long getSyncAckCheckIntervalSeconds() {
             return syncAckCheckIntervalSeconds;
         }
 
-        /** 获取SyncAckCompensationCooldownSeconds */
+        /**
+         * 获取同步ACK报酬cooldownseconds
+         *
+         * @return 获取同步ACK报酬cooldownseconds的结果
+         */
         public long getSyncAckCompensationCooldownSeconds() {
             return syncAckCompensationCooldownSeconds;
         }
 
-        /** 获取SyncAck最大值Pending */
+        /**
+         * 获取同步ACK最大值Pending
+         *
+         * @return 获取同步ACK最大pending的结果
+         */
         public int getSyncAckMaxPending() {
             return syncAckMaxPending;
         }
 
-        /** 获取IgnoreTable */
+        /**
+         * 获取ignoretable
+         *
+         * @return 获取ignoretable的结果
+         */
         public Set<String> getIgnoreTable() {
             return ignoreTable;
         }
 
-        /** 获取Protocol */
+        /**
+         * 获取协议
+         *
+         * @return 获取协议的结果
+         */
         public String getProtocol() {
             return protocol;
         }
 
-        /** 获取Host */
+        /**
+         * 获取主机
+         *
+         * @return 获取主机的结果
+         */
         public String getHost() {
             return host;
         }
 
-        /** 获取Port */
+        /**
+         * 获取端口
+         *
+         * @return 获取端口的结果
+         */
         public int getPort() {
             return port;
         }
 
-        /** 复制 */
+        /**
+         * 复制
+         *
+         * @return 副本的结果
+         */
         public ServerConfig copy() {
             ServerConfig copy = new ServerConfig();
             copy.enable = this.enable;
@@ -359,6 +462,8 @@ public class TenantProperties {
 
     /**
      * 客户端配置
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     public static class ClientConfig {
@@ -374,7 +479,7 @@ public class TenantProperties {
         private boolean syncEnable = false;
 
         /**
-         * 当前租户ID
+          * 当前租户标识
          */
         private String tenantId;
 
@@ -412,7 +517,7 @@ public class TenantProperties {
         private int syncDeduplicateMaxSize = 4096;
 
         /**
-         * 是否自动向 SyncClient 注册租户同步主题
+          * 是否自动向 同步客户端 注册租户同步主题
          */
         private boolean syncAutoSubscribeTopics = true;
 
@@ -449,7 +554,7 @@ public class TenantProperties {
         private boolean autoAddColumn = false;
 
         /**
-         * 通信协议: rsocket, websocket
+          * 通信协议: rsocket, WebSocket
          */
         private String protocol = "rsocket-sync";
 
@@ -463,97 +568,173 @@ public class TenantProperties {
          */
         private int serverPort = 19380;
 
-        /** 是否启用 */
+        /**
+         * 是否启用
+         *
+         * @return 是否enable的结果
+         */
         public boolean isEnable() {
             return enable;
         }
 
-        /** 是否Sync启用 */
+        /**
+         * 是否同步启用
+         *
+         * @return 是否同步enable的结果
+         */
         public boolean isSyncEnable() {
             return syncEnable;
         }
 
-        /** 获取TenantId */
+        /**
+         * 获取tenantid
+         *
+         * @return 获取tenantid的结果
+         */
         public String getTenantId() {
             return tenantId;
         }
 
-        /** 获取SyncSignSecret */
+        /**
+         * 获取同步标志secret
+         *
+         * @return 获取同步标志secret的结果
+         */
         public String getSyncSignSecret() {
             return syncSignSecret;
         }
 
-        /** 获取SyncSignAllowedClockSkewSeconds */
+        /**
+         * 获取同步标志allowedclockskewseconds
+         *
+         * @return 获取同步标志allowedclockskewseconds的结果
+         */
         public long getSyncSignAllowedClockSkewSeconds() {
             return syncSignAllowedClockSkewSeconds;
         }
 
-        /** 是否SyncAckEnabled */
+        /**
+         * 是否同步ACK已启用
+         *
+         * @return 是否同步ACK已启用的结果
+         */
         public boolean isSyncAckEnabled() {
             return syncAckEnabled;
         }
 
-        /** 是否SyncDeduplicateMessages */
+        /**
+         * 是否同步deduplicate消息
+         *
+         * @return 是否同步deduplicate消息的结果
+         */
         public boolean isSyncDeduplicateMessages() {
             return syncDeduplicateMessages;
         }
 
-        /** 获取SyncDeduplicateWindowSeconds */
+        /**
+         * 获取同步deduplicate窗口seconds
+         *
+         * @return 获取同步deduplicate窗口seconds的结果
+         */
         public long getSyncDeduplicateWindowSeconds() {
             return syncDeduplicateWindowSeconds;
         }
 
-        /** 获取SyncDeduplicate最大值获取大小 */
+        /**
+         * 获取同步deduplicate最大值获取大小
+         *
+         * @return 获取同步deduplicate最大大小的结果
+         */
         public int getSyncDeduplicateMaxSize() {
             return syncDeduplicateMaxSize;
         }
 
-        /** 是否SyncAuto订阅Topics */
+        /**
+         * 是否同步auto订阅Topics
+         *
+         * @return 是否同步auto订阅topics的结果
+         */
         public boolean isSyncAutoSubscribeTopics() {
             return syncAutoSubscribeTopics;
         }
 
-        /** 是否SyncRequestFull推送On连接 */
+        /**
+         * 是否同步请求完整推送On连接
+         *
+         * @return 是否同步请求完整pushon连接的结果
+         */
         public boolean isSyncRequestFullPushOnConnect() {
             return syncRequestFullPushOnConnect;
         }
 
-        /** 获取SyncRequestFull推送DelayMillis */
+        /**
+         * 获取同步请求完整推送延迟millis
+         *
+         * @return 获取同步请求完整push延迟millis的结果
+         */
         public long getSyncRequestFullPushDelayMillis() {
             return syncRequestFullPushDelayMillis;
         }
 
-        /** 是否SyncIgnoreOutOfOrderMessages */
+        /**
+         * 是否同步ignore出的订单消息
+         *
+         * @return 是否同步ignore出的订单消息的结果
+         */
         public boolean isSyncIgnoreOutOfOrderMessages() {
             return syncIgnoreOutOfOrderMessages;
         }
 
-        /** 获取IgnoreTable */
+        /**
+         * 获取ignoretable
+         *
+         * @return 获取ignoretable的结果
+         */
         public Set<String> getIgnoreTable() {
             return ignoreTable;
         }
 
-        /** 是否Auto添加Column */
+        /**
+         * 是否Auto添加Column
+         *
+         * @return 是否auto添加column的结果
+         */
         public boolean isAutoAddColumn() {
             return autoAddColumn;
         }
 
-        /** 获取Protocol */
+        /**
+         * 获取协议
+         *
+         * @return 获取协议的结果
+         */
         public String getProtocol() {
             return protocol;
         }
 
-        /** 获取ServerHost */
+        /**
+         * 获取服务端主机
+         *
+         * @return 获取服务端主机的结果
+         */
         public String getServerHost() {
             return serverHost;
         }
 
-        /** 获取ServerPort */
+        /**
+         * 获取服务端端口
+         *
+         * @return 获取服务端端口的结果
+         */
         public int getServerPort() {
             return serverPort;
         }
 
-        /** 复制 */
+        /**
+         * 复制
+         *
+         * @return 副本的结果
+         */
         public ClientConfig copy() {
             ClientConfig copy = new ClientConfig();
             copy.enable = this.enable;

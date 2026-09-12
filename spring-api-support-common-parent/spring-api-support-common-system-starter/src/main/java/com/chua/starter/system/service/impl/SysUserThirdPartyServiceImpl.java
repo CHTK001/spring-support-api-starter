@@ -22,7 +22,7 @@ import java.util.List;
 public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyMapper, SysUserThirdParty> implements SysUserThirdPartyService {
 
     @Override
-    /** ListByUserId */
+    /** 列表by用户id */
     public List<SysUserThirdParty> listByUserId(Integer userId) {
         if (userId == null) {
             return Collections.emptyList();
@@ -32,7 +32,7 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
     }
 
     @Override
-    /** ListByUserIdAndType */
+    /** 列表by用户id和类型 */
     public List<SysUserThirdParty> listByUserIdAndType(Integer userId, String type) {
         if (userId == null || type == null) {
             return Collections.emptyList();
@@ -43,7 +43,7 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
     }
 
     @Override
-    /** 获取ByThirdPartyUid */
+    /** 获取bythirdpartyuid */
     public SysUserThirdParty getByThirdPartyUid(String type, String uid) {
         if (type == null || uid == null) {
             return null;
@@ -56,7 +56,12 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 绑定 */
+    /**
+     * 绑定
+     *
+     * @param record record
+     * @return bind的结果
+     */
     public SysUserThirdParty bind(SysUserThirdParty record) {
         if (record == null || record.getSysUserThirdPartyType() == null
                 || record.getSysUserThirdPartyUid() == null) {
@@ -82,7 +87,12 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 解绑 */
+    /**
+     * 解绑
+     *
+     * @param id id
+     * @return unbind的结果
+     */
     public boolean unbind(Integer id) {
         if (id == null) {
             return false;
@@ -92,7 +102,12 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 解绑All */
+    /**
+     * 解绑全部
+     *
+     * @param userId 用户id
+     * @return unbind全部的结果
+     */
     public int unbindAll(Integer userId) {
         if (userId == null) {
             return 0;
@@ -103,7 +118,13 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 更新Value */
+    /**
+     * 更新值
+     *
+     * @param id id
+     * @param newValue 新值
+     * @return 更新值的结果
+     */
     public boolean updateValue(Integer id, String newValue) {
         if (id == null) {
             return false;

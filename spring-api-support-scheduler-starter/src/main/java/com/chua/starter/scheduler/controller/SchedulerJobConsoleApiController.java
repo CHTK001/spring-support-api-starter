@@ -19,8 +19,8 @@ import java.util.Map;
 /**
  * 轻量控制台专用 API。
  * <p>
- * 这一层复用平台服务能力，但通过控制台 Session 做访问保护，
- * 让内置静态页不必再额外依赖 OAuth Token 才能完成常见管理操作。
+   * 这一层复用平台服务能力，但通过控制台 会话 做访问保护，
+   * 让内置静态页不必再额外依赖 OAuth 令牌 才能完成常见管理操作。
  * </p>
  *
  * <p>平台基于 job-starter 新架构, 命名空间参数仅作为任务分组 ({@code sys_job_group})
@@ -195,7 +195,7 @@ public class SchedulerJobConsoleApiController {
      * @param namespace   命名空间
      * @param pageNum     页码
      * @param pageSize    每页大小
-     * @param beanName    handler 名称模糊查询
+     * @param beanName    处理器 名称模糊查询
      * @param executeCode 执行状态码
      * @return 日志分页结果
      */
@@ -255,7 +255,7 @@ public class SchedulerJobConsoleApiController {
      * 组装分页结果载体。
      *
      * @param page 分页结果
-     * @return 分页数据 Map
+     * @return 分页数据 映射
      */
     private Map<String, Object> pagePayload(Page<?> page) {
         Map<String, Object> payload = new LinkedHashMap<>();
@@ -268,7 +268,7 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-     * 命名空间转换为任务分组, 默认命名空间对应 null。
+      * 命名空间转换为任务分组, 默认命名空间对应 空。
      *
      * @param namespace 命名空间
      * @return 任务分组

@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * OAuth Session Fixation 防护过滤器
+   * OAuth 会话 Fixation 防护过滤器
  *
  * <p>登录成功（POST 登录路径且响应 2xx）后调用 {@link HttpServletRequest#changeSessionId()}，
  * 防止攻击者固定会话标识。</p>
@@ -29,14 +29,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OauthSessionFixationFilter implements Filter, Ordered {
 
-    /** Security属性 */
+    /** 安全性属性 */
     private final OauthSecurityProperties securityProperties;
 
     @Override
     /**
-     * Do过滤
-     * @param servletRequest servletRequest
-     * @param servletResponse servletResponse
+      * 执行过滤
+     * @param servletRequest servlet请求
+     * @param servletResponse servlet响应
      */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {
@@ -68,7 +68,12 @@ public class OauthSessionFixationFilter implements Filter, Ordered {
         }
     }
 
-    /** 是否LoginPost */
+    /**
+     * 是否loginpost
+     *
+     * @param request 请求
+     * @return 是否loginpost的结果
+     */
     private boolean isLoginPost(HttpServletRequest request) {
         if (!"POST".equalsIgnoreCase(request.getMethod())) {
             return false;
@@ -90,7 +95,7 @@ public class OauthSessionFixationFilter implements Filter, Ordered {
     }
 
     @Override
-    /** 获取Order */
+    /** 获取订单 */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 20;
     }

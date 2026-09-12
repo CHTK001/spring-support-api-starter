@@ -44,7 +44,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         )
 )
 /**
- * public class SystemApplication {
+   * 公共 类 系统application {
  *
  * @author CH
  * @since 4.0.0.42

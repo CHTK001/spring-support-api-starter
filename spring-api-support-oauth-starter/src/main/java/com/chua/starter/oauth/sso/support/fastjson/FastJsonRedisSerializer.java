@@ -1,4 +1,4 @@
-package com.chua.starter.oauth.sso.support.fastjson;//package com.chua.starter.oauth.server.support.fastjson;
+package com.chua.starter.oauth.sso.support.fastjson; // 包 com.chua.启动.OAuth.服务端.支持.fastjson;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONReader;
@@ -10,33 +10,39 @@ import org.springframework.data.redis.serializer.SerializationException;
 
 /**
  * @author CH
+ * @since 4.0.0
  */
 @Data
 public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
     /** 类型 */
     private Class<T> type;
-    /** Features */
+    /** 特征 */
     private JSONReader.Feature[] features;
 
     /** Writefeatures */
     private JSONWriter.Feature[] writeFeatures;
 
-    /** Filters */
+    /** 过滤器 */
     private Filter[] filters;
 
     /** 格式 */
     private String format = "yyyy-MM-dd HH:mm:ss";
 
     /**
-     * 创建 FastJsonRedisSerializer 实例
-     * @param type type
+      * 创建 fastjsonredis序列化器 实例
+     * @param type 类型
      */
     public FastJsonRedisSerializer(Class<T> type) {
         this.type = type;
     }
 
 
-    /** 序列化 */
+    /**
+     * 序列化
+     *
+     * @param t t
+     * @return serialize的结果
+     */
     public byte[] serialize(T t) throws SerializationException {
         if (t == null) {
             return new byte[0];
@@ -49,7 +55,12 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
         }
     }
 
-    /** 反序列化 */
+    /**
+     * 反序列化
+     *
+     * @param bytes bytes
+     * @return deserialize的结果
+     */
     public T deserialize(byte[] bytes) throws SerializationException {
         if (bytes != null && bytes.length != 0) {
             try {

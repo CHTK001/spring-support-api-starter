@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * 登录服务接口
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/9/12
  * @author CH
  */
@@ -43,7 +43,7 @@ public interface SysLoginService {
     /**
      * 获取当前登录用户信息
      *
-     * @param token token
+     * @param token 令牌
      * @return 用户信息
      */
     UserInfoVO getUserLoginInfo(String token);
@@ -57,9 +57,9 @@ public interface SysLoginService {
     UserInfoVO buildUserInfo(UserResume userResume);
 
     /**
-     * 刷新token
+      * 刷新令牌
      *
-     * @param refreshToken 刷新token
+     * @param refreshToken 刷新令牌
      * @param request      请求
      * @param response     响应
      * @return 登录结果
@@ -89,7 +89,7 @@ public interface SysLoginService {
     /**
      * 获取第三方绑定信息
      *
-     * @param userId 用户ID
+     * @param userId 用户标识
      * @return 绑定信息
      */
     ReturnResult<List<String>> thirdBindInfo(String userId);
@@ -97,7 +97,7 @@ public interface SysLoginService {
     /**
      * 第三方解绑
      *
-     * @param userId                    用户ID
+     * @param userId                    用户标识
      * @param thirdPartyUnbindRequest   解绑请求
      * @return 解绑结果
      */

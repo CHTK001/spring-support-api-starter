@@ -25,12 +25,12 @@ import lombok.EqualsAndHashCode;
 public class SysBankBins extends SysBase {
 
     /**
-     * 主键ID
+      * 主键标识
      */
     @TableId(value = "sys_blank_bin_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     @NotNull(message = "主键ID不能为空")
-    /** SYSblankBINID */
+    /** sysblankbinid */
     private Integer sysBlankBinId;
 
     /**
@@ -40,7 +40,7 @@ public class SysBankBins extends SysBase {
     @Schema(description = "银行名称")
     @Size(max = 20, message = "银行名称最大长度需小于20")
     @NotBlank(message = "银行名称不能为空")
-    /** SYSblankBINbank名称 */
+    /** sysblankbinbank名称 */
     private String sysBlankBinBankName;
 
     /**
@@ -49,7 +49,7 @@ public class SysBankBins extends SysBase {
     @TableField(value = "sys_blank_bin_bank_name_en")
     @Schema(description = "银行英文名称")
     @Size(max = 20, message = "银行英文名称最大长度需小于20")
-    /** SYSblankBINbank名称EN */
+    /** sysblankbinbank名称EN */
     private String sysBlankBinBankNameEn;
 
     /**
@@ -58,7 +58,7 @@ public class SysBankBins extends SysBase {
     @TableField(value = "sys_blank_bin_card_name")
     @Schema(description = "卡名称")
     @Size(max = 20, message = "卡名称最大长度需小于20")
-    /** SYSblankBINcard名称 */
+    /** sysblankbincard名称 */
     private String sysBlankBinCardName;
 
     /**
@@ -67,7 +67,7 @@ public class SysBankBins extends SysBase {
     @TableField(value = "sys_blank_bin_card_type")
     @Schema(description = "卡类型")
     @Size(max = 20, message = "卡类型最大长度需小于20")
-    /** SYSblankBINcard类型 */
+    /** sysblankbincard类型 */
     private String sysBlankBinCardType;
 
     /**
@@ -77,7 +77,7 @@ public class SysBankBins extends SysBase {
     @Schema(description = "BIN码")
     @Size(max = 20, message = "BIN码最大长度需小于20")
     @NotBlank(message = "BIN码不能为空")
-    /** SYSblankBINBIN */
+    /** sysblankbinbin */
     private String sysBlankBinBin;
 
     /**
@@ -85,7 +85,7 @@ public class SysBankBins extends SysBase {
      */
     @TableField(value = "sys_blank_bin_n_length")
     @Schema(description = "卡号长度")
-    /** SYSblankBINnlength */
+    /** sysblankbinnlength */
     private Byte sysBlankBinNLength;
 
     /**
@@ -93,14 +93,14 @@ public class SysBankBins extends SysBase {
      */
     @TableField(value = "sys_blank_bin_bin_length")
     @Schema(description = "BIN长度")
-    /** SYSblankBINBIN长度 */
+    /** sysblankbinbin长度 */
     private Boolean sysBlankBinBinLength;
 
     /**
-     * 发卡机构ID
+      * 发卡机构标识
      */
     @TableField(value = "sys_blank_bin_issue_id")
     @Schema(description = "发卡机构ID")
-    /** SYSblankBINissueID */
+    /** sysblankbinissueid */
     private Integer sysBlankBinIssueId;
 }

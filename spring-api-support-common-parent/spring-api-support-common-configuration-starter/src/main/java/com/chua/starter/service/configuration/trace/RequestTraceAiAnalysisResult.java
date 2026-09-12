@@ -21,14 +21,14 @@ public record RequestTraceAiAnalysisResult(
         long latencyMs
 ) {
 
-    /** Status_heuristic_fallback */
+    /** 状态_heuristic_降级 */
     public static final String STATUS_HEURISTIC_FALLBACK = "heuristic_fallback";
-    /** Status_rate_limited */
+    /** 状态_rate_限制 */
     public static final String STATUS_RATE_LIMITED = "rate_limited";
-    /** Status_disabled */
+    /** 状态_已禁用 */
     public static final String STATUS_DISABLED = "disabled";
 
-    /** Source_heuristic */
+    /** 源_heuristic */
     public static final String SOURCE_HEURISTIC = "heuristic";
 
     public RequestTraceAiAnalysisResult {
@@ -43,7 +43,11 @@ public record RequestTraceAiAnalysisResult(
         latencyMs = Math.max(latencyMs, 0L);
     }
 
-    /** FinalSummary */
+    /**
+     * 最终summary
+     *
+     * @return 最终summary的结果
+     */
     public String finalSummary() {
         return RequestTraceSupport.firstNonBlank(summary, heuristicSummary);
     }

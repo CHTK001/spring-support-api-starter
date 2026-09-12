@@ -23,7 +23,7 @@ import java.util.Map;
  * - 服务配置状态
  * </p>
  * <p>
- * 访问路径: /actuator/health/system
+   * 访问路径: /actuator/健康/系统
  * </p>
  *
  * @since 2024/12/11
@@ -50,7 +50,7 @@ public class SystemServerHealthIndicator implements HealthIndicator {
     private final SystemProperties systemProperties;
 
     /**
-     * Redis健康检查Key
+      * Redis健康检查键
      */
     private static final String HEALTH_CHECK_KEY = "system:health:check";
 
@@ -124,6 +124,7 @@ public class SystemServerHealthIndicator implements HealthIndicator {
 
     /**
      * 检查Redis连接
+     * @param details details
      */
     private void checkRedisConnection(Map<String, Object> details) {
         long startTime = System.currentTimeMillis();
@@ -154,6 +155,7 @@ public class SystemServerHealthIndicator implements HealthIndicator {
 
     /**
      * 检查数据库连接
+     * @param details details
      */
     private void checkDatabaseConnection(Map<String, Object> details) {
         long startTime = System.currentTimeMillis();
@@ -179,6 +181,7 @@ public class SystemServerHealthIndicator implements HealthIndicator {
 
     /**
      * 添加服务配置信息
+     * @param details details
      */
     private void addServiceInfo(Map<String, Object> details) {
         Map<String, Object> serviceInfo = new HashMap<>();

@@ -57,8 +57,8 @@ import static com.chua.starter.common.support.logger.AbstractLoggerPointcutAdvis
 @RequiredArgsConstructor
 public class LoginController {
 
-    final SysLoginService sysLoginService;
-    final SysUserService sysUserService;
+    final SysLoginService sysLoginService; // syslogin服务
+    final SysUserService sysUserService; // sys用户服务
 
     /**
      * 登录
@@ -116,14 +116,14 @@ public class LoginController {
         if (StringUtils.isEmpty(uid)) {
             uid = request.getHeader("x-oauth-token");
         }
-        // fallback 到 Authorization header
+ // 降级 到 授权 头部
         if (StringUtils.isEmpty(uid)) {
             String authHeader = request.getHeader("Authorization");
             if (StringUtils.isNotBlank(authHeader) && authHeader.startsWith("Bearer ")) {
                 uid = authHeader.substring(7).trim();
             }
         }
-        // fallback 到 cookie
+ // 降级 到 Cookie
         if (StringUtils.isEmpty(uid)) {
             uid = CookieUtil.getValue(request, "x-oauth-cookie");
         }
@@ -131,7 +131,7 @@ public class LoginController {
             return ReturnResult.ok("注销成功");
         }
 
-        // 支持通过 x-oauth-logout-type 头指定登出类型（默认单设备登出）
+ // 支持通过 x-OAuth-logout-类型 头指定登出类型（默认单设备登出）
         LogoutType logoutType = LogoutType.LOGOUT;
         if (StringUtils.isNotBlank(logoutTypeHeader)) {
             try {
@@ -150,7 +150,7 @@ public class LoginController {
             return ReturnResult.error(accessToken.getMessage());
         }
 
-        // 清除本地 Guava 缓存，防止登出后旧 token 仍命中缓存
+ // 清除本地 Guava 缓存，防止登出后旧 令牌 仍命中缓存
         AbstractProtocol.invalidateCache(uid);
         if (logoutType == LogoutType.LOGOUT_ALL) {
             AbstractProtocol.invalidateAllCache();
@@ -177,7 +177,7 @@ public class LoginController {
      * @return 菜单列表
      * @author CH
      * @since 2024/12/10
-     * @version 1.0
+      * @版本 1.0
      */
     @Operation(summary = "获取当前登录用户菜单")
     @GetMapping("/menu")
@@ -197,7 +197,7 @@ public class LoginController {
     /**
      * 创建临时令牌
      *
-     * @param body 请求体，可包含 expireTime（秒，默认10，最大3600）和 allowedUrls（逗号分隔的URL列表）
+     * @param body 请求体，可包含 expire时间（秒，默认10，最大3600）和 allowedurls（逗号分隔的URL列表）
      * @return 临时令牌
      */
     @Operation(summary = "创建临时令牌")
@@ -235,11 +235,11 @@ public class LoginController {
     }
 
     /**
-     * Token 升级（VERSION 刷新用户信息 / TIMESTAMP 续期）
+      * 令牌 升级（版本 刷新用户信息 / 时间戳 续期）
      *
-     * @param upgradeType 升级类型：VERSION（刷新用户信息）/ TIMESTAMP（续期）
-     * @param token       当前 accessToken（从 Header 获取）
-     * @return 升级结果，包含新 token 信息
+     * @param upgradeType 升级类型：版本（刷新用户信息）/ 时间戳（续期）
+     * @param token       当前 access令牌（从 头部 获取）
+     * @return 升级结果，包含新 令牌 信息
      */
     @Operation(summary = "Token升级（VERSION刷新用户信息/TIMESTAMP续期）")
     @PostMapping("/upgrade")

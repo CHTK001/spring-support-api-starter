@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * 服务器布局配置服务实现，负责布局的增删改查、默认布局管理、
  * 从组件生成布局、应用布局到组件以及跨服务器复制布局。
- * 布局配置以 JSON 形式存储，结构包含 nodes / edges / version / generatedAt。
+   * 布局配置以 JSON 形式存储，结构包含 节点 / edges / 版本 / generatedat。
  *
  * @since 2026-07-28
  * @author CH
@@ -125,7 +125,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     private static final DateTimeFormatter GENERATED_AT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
-    /** ListByServerId */
+    /** 列表by服务端id */
     public ReturnResult<List<MonitorSysGenServerLayout>> listByServerId(Integer serverId) {
         if (serverId == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -137,7 +137,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     @Override
-    /** 获取DefaultLayout */
+    /** 获取默认layout */
     public ReturnResult<MonitorSysGenServerLayout> getDefaultLayout(Integer serverId) {
         if (serverId == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -203,7 +203,13 @@ public class MonitorSysGenServerLayoutServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 设置DefaultLayout */
+    /**
+     * 设置默认layout
+     *
+     * @param serverId 服务端id
+     * @param layoutId layoutId
+     * @return 设置默认layout的结果
+     */
     public ReturnResult<Boolean> setDefaultLayout(Integer serverId, Integer layoutId) {
         if (serverId == null || layoutId == null) {
             return ReturnResult.illegal("服务器ID和布局ID不能为空");
@@ -226,7 +232,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     @Override
-    /** GenerateFromComponents */
+    /** generate从组件 */
     public ReturnResult<MonitorSysGenServerLayout> generateFromComponents(Integer serverId, String layoutName) {
         if (serverId == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -267,7 +273,13 @@ public class MonitorSysGenServerLayoutServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 应用ToComponents */
+    /**
+     * 应用转为组件
+     *
+     * @param serverId 服务端id
+     * @param layoutId layoutId
+     * @return apply转为组件的结果
+     */
     public ReturnResult<Integer> applyToComponents(Integer serverId, Integer layoutId) {
         if (serverId == null || layoutId == null) {
             return ReturnResult.illegal("服务器ID和布局ID不能为空");
@@ -344,7 +356,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     @Override
-    /** ListByType */
+    /** 列表by类型 */
     public ReturnResult<List<MonitorSysGenServerLayout>> listByType(String layoutType) {
         if (StringUtils.isEmpty(layoutType)) {
             return ReturnResult.illegal("布局类型不能为空");
@@ -356,7 +368,12 @@ public class MonitorSysGenServerLayoutServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 创建DefaultLayout */
+    /**
+     * 创建默认layout
+     *
+     * @param serverId 服务端id
+     * @return 创建默认layout的结果
+     */
     public ReturnResult<MonitorSysGenServerLayout> createDefaultLayout(Integer serverId) {
         if (serverId == null) {
             return ReturnResult.illegal("服务器ID不能为空");
@@ -382,7 +399,7 @@ public class MonitorSysGenServerLayoutServiceImpl
         layout.setMonitorSysGenServerLayoutDefault(DEFAULT_YES);
         layout.setMonitorSysGenServerLayoutDescription("系统自动创建的默认布局，包含 CPU、内存、磁盘、网络、系统信息基础节点");
         applyDefaults(layout);
-        // 保证默认标记不被 applyDefaults 覆盖
+ // 保证默认标记不被 apply默认 覆盖
         layout.setMonitorSysGenServerLayoutDefault(DEFAULT_YES);
         save(layout);
         log.info("[LAYOUT] 创建默认布局: serverId={}, layoutId={}", serverId, layout.getMonitorSysGenServerLayoutId());
@@ -390,7 +407,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     /**
-     * 构建布局配置 JSON 字符串，结构包含 nodes / edges / version / generatedAt。
+      * 构建布局配置 JSON 字符串，结构包含 节点 / edges / 版本 / generatedat。
      *
      * @param nodes 布局节点列表
      * @return 布局配置 JSON 字符串
@@ -405,7 +422,7 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     /**
-     * 为布局实体填充默认值：非默认布局、启用状态、版本 1、排序 0、类型 custom。
+      * 为布局实体填充默认值：非默认布局、启用状态、版本 1、排序 0、类型 习俗。
      *
      * @param layout 布局实体
      */
@@ -428,10 +445,10 @@ public class MonitorSysGenServerLayoutServiceImpl
     }
 
     /**
-     * 将任意对象安全地转换为 Integer，无法转换时返回 null。
+      * 将任意对象安全地转换为 Integer，无法转换时返回 空。
      *
      * @param value 待转换对象
-     * @return Integer 值或 null
+     * @return Integer 值或 空
      */
     private Integer toInteger(Object value) {
         if (value == null) {

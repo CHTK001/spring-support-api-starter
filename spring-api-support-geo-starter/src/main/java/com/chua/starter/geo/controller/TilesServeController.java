@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * 本地 3D Tiles 静态文件服务控制器。
+   * 本地 3D 瓷砖 静态文件服务控制器。
  * Web 版为 no-op，仅作占位。
  *
  * @author CH
@@ -24,7 +24,7 @@ public class TilesServeController {
     /**
      * 启动本地瓦片服务（Web 版为 no-op）。
      *
-     * @param body 请求参数（dirPath）
+     * @param body 请求参数（dir路径）
      * @return 服务地址
      */
     @PostMapping("/serve")

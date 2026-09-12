@@ -37,9 +37,9 @@ import java.util.regex.Pattern;
 @Ignore
 public class SysAvatarFrameController {
 
-    final SysAvatarFrameMapper sysAvatarFrameMapper;
-    final SysUserAvatarFrameMapper sysUserAvatarFrameMapper;
-    final SysUserMapper sysUserMapper;
+    final SysAvatarFrameMapper sysAvatarFrameMapper; // sysavatar帧映射器
+    final SysUserAvatarFrameMapper sysUserAvatarFrameMapper; // sys用户avatar帧映射器
+    final SysUserMapper sysUserMapper; // sys用户映射器
 
     /** 生日窗口：前后 3 天共 7 天 */
     private static final int BIRTHDAY_WINDOW_DAYS = 3;
@@ -49,7 +49,12 @@ public class SysAvatarFrameController {
 
     @GetMapping("/list")
     @Operation(summary = "头像框列表")
-    /** List */
+    /**
+     * 列表
+     *
+     * @param @UserValue("sysUserId" @UserValue("sysUserId"
+     * @return 列表的结果
+     */
     public ReturnResult<List<SysAvatarFrame>> list(@UserValue("sysUserId") Long userId) {
         // 查询全部启用的头像框（含生日框记录）
         List<SysAvatarFrame> frames = sysAvatarFrameMapper.selectList(
@@ -74,7 +79,7 @@ public class SysAvatarFrameController {
      * 判断当前用户是否处于生日窗口内
      * <p>按用户生日的月/日（忽略年份）与今天差值不超过 {@link #BIRTHDAY_WINDOW_DAYS} 天</p>
      *
-     * @param userId 当前用户ID（未登录时为 null）
+     * @param userId 当前用户标识（未登录时为 空）
      * @return 是否处于生日窗口
      */
     private boolean isBirthdayWindow(Long userId) {
@@ -99,8 +104,8 @@ public class SysAvatarFrameController {
     @GetMapping("/user")
     @Operation(summary = "用户已获取的头像框")
     /**
-     * UserFrames
-     * @param userId userId
+      * 用户帧
+     * @param userId 用户id
      */
     public ReturnResult<List<SysUserAvatarFrame>> userFrames(
             @UserValue("sysUserId") Long userId) {
@@ -114,8 +119,8 @@ public class SysAvatarFrameController {
     @Operation(summary = "获取头像框")
     /**
      * 获取
-     * @param userId userId
-     * @param frameId frameId
+     * @param userId 用户id
+     * @param frameId 帧id
      */
     public ReturnResult<Boolean> acquire(
             @UserValue("sysUserId") Long userId,

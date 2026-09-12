@@ -74,7 +74,12 @@ public class SysUserLogController {
         ));
     }
 
-    /** NormalizeDeptTreeIdToken */
+    /**
+     * normalizedept树id令牌
+     *
+     * @param value 值
+     * @return normalizedept树id令牌的结果
+     */
     private String normalizeDeptTreeIdToken(Object value) {
         if (value == null) {
             return null;
@@ -92,7 +97,12 @@ public class SysUserLogController {
         return normalized.isBlank() ? null : normalized;
     }
 
-    /** NormalizeManagedDeptTreeIds */
+    /**
+     * normalizemanageddept树标识
+     *
+     * @param managedDeptTreeIds manageddept树标识
+     * @return normalizemanageddept树标识的结果
+     */
     private List<String> normalizeManagedDeptTreeIds(Object managedDeptTreeIds) {
         if (managedDeptTreeIds == null) {
             return Collections.emptyList();

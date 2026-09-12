@@ -39,15 +39,17 @@ import java.util.Set;
  * 该初始化器会复用 {@code plugin.job.table-init-mode} 的策略，把调度平台里显式
  * 配置的业务命名空间表按前缀解析后创建/更新出来，避免联调前还要手工补表。
  * </p>
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
 
-    private final JobProperties jobProperties;
-    private final SchedulerNamespaceTableResolver namespaceTableResolver;
-    private final ObjectProvider<DataSource> dataSourceProvider;
+    private final JobProperties jobProperties; // 作业属性
+    private final SchedulerNamespaceTableResolver namespaceTableResolver; // namespacetable解析器
+    private final ObjectProvider<DataSource> dataSourceProvider; // 数据源提供者
 
     @Override
     public void afterPropertiesSet() {
@@ -149,9 +151,15 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
     /**
      * 调度平台浏览器模式默认使用 H2 内存库。
      * <p>
-     * H2 在兼容 MySQL 模式时，JdbcEngine 对 identity 列的 DROP/UPDATE 仍然不稳定，
+      * H2 在兼容 MySQL 模式时，jdbcengine 对 identity 列的 掉落/更新 仍然不稳定，
      * 所以命名空间表初始化需要复用一套确定性的 DDL，保证 browser 模式可直接启动。
      * </p>
+     * @param dataSource 数据源
+     * @param tableName table名称
+     * @param namespace namespace
+     * @return 读取existingcolumns的结果
+     * @param result 结果
+     * @param entityType 实体类型
      */
     private void initializeForH2(DataSource dataSource,
                                  Class<?> entityType,
@@ -335,6 +343,11 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         }
         String normalized = message.toLowerCase(Locale.ROOT);
         return normalized.contains("already exists")
+                /**
+                 * 是否tablemissing。
+                 * @param result 结果
+                 * @return 是否tablemissing的结果
+                 */
                 || normalized.contains("已存在")
                 || normalized.contains("duplicate");
     }
@@ -349,6 +362,12 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
                 || normalized.contains("does not exist")
                 || normalized.contains("not exist")
                 || normalized.contains("unknown table")
+                /**
+                 * 校验existingtable。
+                 * @param dataSource 数据源
+                 * @param metadata metadata
+                 * @param namespace namespace
+                 */
                 || normalized.contains("不存在")
                 || normalized.contains("not found");
     }
@@ -435,6 +454,17 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
      * 远程调度中心创建或启动任务时会直接写毫秒时间戳，旧列类型如果没升级为 bigint，
      * 就会在这里出现溢出。平台启动时顺带修正这两个历史列，避免联调卡在旧库结构上。
      * </p>
+     * @param databaseProductName databaseproduct名称
+     /**
+      * upgradelegacycolumn类型。
+      * @param dataSource 数据源
+      * @param tableName table名称
+      * @param namespace namespace
+      */
+     * @return 是否h2database的结果
+     * @param metaData meta数据
+     * @param catalog catalog
+     * @param tableName table名称
      */
     private void upgradeLegacyColumnTypes(DataSource dataSource, String tableName, String namespace) {
         Map<String, String> columnTypes = readExistingColumnTypes(dataSource, tableName, namespace);
@@ -476,6 +506,13 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
                                          String columnName,
                                          String sql) {
         if (columnTypes.containsKey(normalizeColumnName(columnName))) {
+            /**
+             * 读取existingcolumn类型。
+             * @param dataSource 数据源
+             * @param tableName table名称
+             * @param namespace namespace
+             * @return 读取existingcolumn类型的结果
+             */
             return;
         }
         upgradeSql.add(sql);
@@ -508,6 +545,13 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
             }
         }
         return columns;
+    /**
+     * 读取column类型。
+     * @param metaData meta数据
+     * @param catalog catalog
+     * @param tableName table名称
+     * @return 读取column类型的结果
+     */
     }
 
     private Map<String, String> readColumnTypes(DatabaseMetaData metaData, String catalog, String tableName) throws SQLException {
@@ -519,14 +563,29 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
             }
         }
         return columnTypes;
+    /**
+     * normalizecolumn名称。
+     * @param columnName column名称
+     * @return normalizecolumn名称的结果
+     */
     }
 
     private String normalizeColumnName(String columnName) {
         return columnName == null ? null : columnName.trim().toLowerCase(Locale.ROOT);
+    /**
+     * normalizecolumn类型。
+     * @param columnType column类型
+     * @return normalizecolumn类型的结果
+     */
     }
 
     private String normalizeColumnType(String columnType) {
         return columnType == null ? null : columnType.trim().toLowerCase(Locale.ROOT);
+    /**
+     * detectdatabaseproduct名称。
+     * @param dataSource 数据源
+     * @return detectdatabaseproduct名称的结果
+     */
     }
 
     private String detectDatabaseProductName(DataSource dataSource) {
@@ -545,8 +604,10 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
     }
 
     /**
-     * 通过反射获取 JobProperties 的表初始化模式。
-     * 使用反射是因为 JobProperties 来自外部模块，此处仅读取属性，无标准替代方案。
+      * 通过反射获取 作业属性 的表初始化模式。
+      * 使用反射是因为 作业属性 来自外部模块，此处仅读取属性，无标准替代方案。
+     * @param properties 属性
+     * @return resolve动作类型的结果
      */
     @SuppressWarnings("java:S1186")
     private ActionType resolveActionType(JobProperties properties) {

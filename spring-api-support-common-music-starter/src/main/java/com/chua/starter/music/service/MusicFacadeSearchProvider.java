@@ -22,6 +22,7 @@ import java.util.List;
  * Spring 启动时自动注册到 SPI 系统，供 {@code DefaultMusicWebSearch} 聚合。
  *
  * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 @Component
@@ -49,7 +50,9 @@ public class MusicFacadeSearchProvider implements MusicWebSearchProvider {
 
             List<String> entries = new ArrayList<>();
             for (MusicTrackSummary track : result.getTracks()) {
-                if (track == null) continue;
+                if (track == null) {
+                    continue;
+                }
                 StringBuilder sb = new StringBuilder();
                 sb.append(SearchResultFormatter.formatField("Title", track.getTitle()));
                 sb.append(", ");

@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * ACME 证书管理接口，提供证书申请、续签、吊销、下载、重新验证等完整的证书生命周期管理功能。
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2025-10-17
  * @author CH
  */
@@ -71,12 +71,12 @@ public class AcmeCertificateController {
     private static final String FILE_TYPE_CERT = "cert";
 
     /**
-     * 证书下载响应的 Content-Type：二进制流
+      * 证书下载响应的 内容-类型：二进制流
      */
     private static final String CONTENT_TYPE_OCTET_STREAM = "application/octet-stream";
 
     /**
-     * 证书下载响应的 Content-Disposition 响应头名称
+      * 证书下载响应的 内容-Disposition 响应头名称
      */
     private static final String HEADER_CONTENT_DISPOSITION = "Content-Disposition";
 
@@ -103,7 +103,7 @@ public class AcmeCertificateController {
     // ======================== 账户管理 ========================
 
     /**
-     * 分页查询 ACME 账户列表 ForCert
+      * 分页查询 ACME 账户列表 forcert
      *
      * @param page   分页参数
      * @param entity 查询条件
@@ -120,7 +120,7 @@ public class AcmeCertificateController {
     }
 
     /**
-     * 查询所有 ACME 账户列表 ForCert
+      * 查询所有 ACME 账户列表 forcert
      *
      * @return 账户列表
      */
@@ -133,7 +133,7 @@ public class AcmeCertificateController {
     }
 
     /**
-     * 保存/更新 ACME 账户 ForCert
+      * 保存/更新 ACME 账户 forcert
      *
      * @param account 账户
      * @return 账户ID
@@ -145,10 +145,11 @@ public class AcmeCertificateController {
     }
 
     /**
-     * 获取 ACME 账户详情 ForCert
+      * 获取 ACME 账户详情 forcert
      *
-     * @param accountId 账户ID
+     * @param accountId 账户标识
      * @return 账户详情
+     * @param @ApiParam("账户ID" @ApiParam("账户ID"
      */
     @GetMapping("/account/{accountId}")
     @Operation(summary = "获取ACME账户详情 ForCert")
@@ -157,10 +158,11 @@ public class AcmeCertificateController {
     }
 
     /**
-     * 删除 ACME 账户 ForCert
+      * 删除 ACME 账户 forcert
      *
-     * @param accountId 账户ID
+     * @param accountId 账户标识
      * @return 是否成功
+     * @param @ApiParam("账户ID" @ApiParam("账户ID"
      */
     @DeleteMapping("/account/{accountId}")
     @Operation(summary = "删除ACME账户 ForCert")
@@ -179,7 +181,7 @@ public class AcmeCertificateController {
     // ======================== 证书管理 ========================
 
     /**
-     * 分页查询证书列表 ForCert
+      * 分页查询证书列表 forcert
      *
      * @param page   分页参数
      * @param entity 查询条件
@@ -198,7 +200,7 @@ public class AcmeCertificateController {
     }
 
     /**
-     * 申请证书 ForCert
+      * 申请证书 forcert
      *
      * @param request 请求参数
      * @return 证书ID
@@ -210,10 +212,11 @@ public class AcmeCertificateController {
     }
 
     /**
-     * 续签证书 ForCert
+      * 续签证书 forcert
      *
-     * @param certId 证书ID
+     * @param certId 证书标识
      * @return 是否成功
+     * @param @ApiParam("证书ID" @ApiParam("证书ID"
      */
     @PostMapping("/{certId}/renew")
     @ApiOperation("续签证书 ForCert")
@@ -222,10 +225,11 @@ public class AcmeCertificateController {
     }
 
     /**
-     * 吊销证书 ForCert
+      * 吊销证书 forcert
      *
-     * @param certId 证书ID
+     * @param certId 证书标识
      * @return 是否成功
+     * @param @ApiParam("证书ID" @ApiParam("证书ID"
      */
     @PostMapping("/{certId}/revoke")
     @ApiOperation("吊销证书 ForCert")
@@ -234,10 +238,11 @@ public class AcmeCertificateController {
     }
 
     /**
-     * 获取证书详情 ForCert
+      * 获取证书详情 forcert
      *
-     * @param certId 证书ID
+     * @param certId 证书标识
      * @return 证书详情（含账户信息和订单信息）
+     * @param @ApiParam("证书ID" @ApiParam("证书ID"
      */
     @GetMapping("/{certId}")
     @ApiOperation("获取证书详情 ForCert")
@@ -246,10 +251,11 @@ public class AcmeCertificateController {
     }
 
     /**
-     * 删除证书 ForCert
+      * 删除证书 forcert
      *
-     * @param certId 证书ID
+     * @param certId 证书标识
      * @return 是否成功
+     * @param @ApiParam("证书ID" @ApiParam("证书ID"
      */
     @DeleteMapping("/{certId}")
     @Operation(summary = "删除证书 ForCert")
@@ -262,10 +268,10 @@ public class AcmeCertificateController {
     }
 
     /**
-     * 下载证书文件 ForCert
+      * 下载证书文件 forcert
      *
-     * @param certId   证书ID
-     * @param fileType 文件类型（cert/key/chain）
+     * @param certId   证书标识
+     * @param fileType 文件类型（cert/键/chain）
      * @param response HTTP响应
      */
     @GetMapping("/{certId}/download")
@@ -325,10 +331,11 @@ public class AcmeCertificateController {
     }
 
     /**
-     * 重新验证证书 ForCert（用户手动部署完成后调用）
+      * 重新验证证书 forcert（用户手动部署完成后调用）
      *
-     * @param certId 证书ID
+     * @param certId 证书标识
      * @return 是否提交成功
+     * @param @ApiParam("证书ID" @ApiParam("证书ID"
      */
     @PostMapping("/{certId}/retry-validation")
     @Operation(summary = "重新验证证书 ForCert")
@@ -337,7 +344,7 @@ public class AcmeCertificateController {
     }
 
     /**
-     * 手动触发续签检查 ForCert
+      * 手动触发续签检查 forcert
      *
      * @return 续签结果
      */
@@ -352,10 +359,11 @@ public class AcmeCertificateController {
     // ======================== 订单管理 ========================
 
     /**
-     * 查询证书关联的订单列表 ForCert
+      * 查询证书关联的订单列表 forcert
      *
-     * @param certId 证书ID
+     * @param certId 证书标识
      * @return 订单列表
+     * @param @ApiParam("证书ID" @ApiParam("证书ID"
      */
     @GetMapping("/{certId}/orders")
     @Operation(summary = "查询证书关联的订单列表 ForCert")
@@ -367,7 +375,7 @@ public class AcmeCertificateController {
     }
 
     /**
-     * 获取证书统计信息 ForCert
+      * 获取证书统计信息 forcert
      *
      * @return 统计信息
      */

@@ -50,6 +50,7 @@ import java.nio.charset.StandardCharsets;
  * gitee绑定账号
  *
  * @author CH
+ * @since 4.0.0
  */
 @Controller
 @Conditional(OnBeanCondition.class)
@@ -58,15 +59,15 @@ import java.nio.charset.StandardCharsets;
 @Tag(name = "Gitee登录", description = "提供Gitee第三方账号登录功能")
 public class GiteeLoginProvider implements InitializingBean, ApplicationContextAware {
 
-    final CasProperties casProperties;
-    final ThirdPartyLoginProperties thirdPartyLoginProperties;
-    final LoginCheck loginCheck;
-    final AuthServerProperties authServerProperties;
-    private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
-    private GiteeService giteeService;
-    private AuthGiteeRequest authRequest;
+    final CasProperties casProperties; // cas属性
+    final ThirdPartyLoginProperties thirdPartyLoginProperties; // thirdpartylogin属性
+    final LoginCheck loginCheck; // login检查
+    final AuthServerProperties authServerProperties; // 认证服务端属性
+    private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE; // 认证状态缓存
+    private GiteeService giteeService; // gitee服务
+    private AuthGiteeRequest authRequest; // 认证请求
     @Value("${plugin.auth.server.context-path:}")
-    private String contextPath;
+    private String contextPath; // 上下文路径
 
     /**
      * gitee页面

@@ -108,7 +108,7 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
     /**
      * 删除小程序菜单。
      *
-     * @param sysMiniMenuId 菜单ID
+     * @param sysMiniMenuId 菜单标识
      * @return 删除结果
      */
     @Override
@@ -121,7 +121,7 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
     }
 
     /**
-     * 查询全部已缓存的小程序菜单（按排序字段和ID升序）。
+      * 查询全部已缓存的小程序菜单（按排序字段和标识升序）。
      *
      * @return 小程序菜单列表
      */

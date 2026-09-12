@@ -23,29 +23,29 @@ import java.util.Date;
 public class SysOAuthTraceLog implements Serializable {
 
     @Serial
-    /** Serial版本UID */
+    /** 串行版本UID */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 日志ID
+      * 日志标识
      */
     @TableId(type = IdType.AUTO)
     @Schema(description = "日志ID")
-    /** SYS跟踪日志ID */
+    /** SYS跟踪日志标识 */
     private Long sysTraceLogId;
 
     /**
-     * 追踪ID - 贯穿客户端和服务端的唯一标识
+      * 追踪标识 - 贯穿客户端和服务端的唯一标识
      */
     @Schema(description = "追踪ID")
-    /** SYS跟踪ID */
+    /** SYS跟踪标识 */
     private String sysTraceId;
 
     /**
-     * 操作类型 - AUTH:认证, LOGIN:登录, LOGOUT:登出, REFRESH:刷新令牌, UPGRADE:升级令牌
+      * 操作类型 - 认证:认证, LOGIN:登录, LOGOUT:登出, REFRESH:刷新令牌, UPGRADE:升级令牌
      */
     @Schema(description = "操作类型")
-    /** SYSoperation类型 */
+    /** sysoperation类型 */
     private String sysOperationType;
 
     /**
@@ -63,17 +63,17 @@ public class SysOAuthTraceLog implements Serializable {
     private String sysClientIp;
 
     /**
-     * 用户ID
+      * 用户标识
      */
     @Schema(description = "用户ID")
-    /** SYS用户ID */
+    /** SYS用户标识 */
     private String sysUserId;
 
     /**
      * 用户名
      */
     @Schema(description = "用户名")
-    /** SYSusername */
+    /** sysusername */
     private String sysUsername;
 
     /**
@@ -94,21 +94,21 @@ public class SysOAuthTraceLog implements Serializable {
      * 是否成功
      */
     @Schema(description = "是否成功")
-    /** SYSsuccess */
+    /** syssuccess */
     private Boolean sysSuccess;
 
     /**
      * 总耗时(毫秒)
      */
     @Schema(description = "总耗时(毫秒)")
-    /** SYS总数costMS */
+    /** SYS总数costms */
     private Long sysTotalCostMs;
 
     /**
      * Span详情 - JSON数组
      */
     @Schema(description = "Span详情")
-    /** SYSspansdetail */
+    /** sysspansdetail */
     private String sysSpansDetail;
 
     /**
@@ -126,16 +126,16 @@ public class SysOAuthTraceLog implements Serializable {
     private String sysRequestUri;
 
     /**
-     * AccessKey(已脱敏)
+      * 访问密钥(已脱敏)
      */
     @Schema(description = "AccessKey(已脱敏)")
-    /** SYSaccess密钥 */
+    /** sysaccess密钥 */
     private String sysAccessKey;
 
     /**
      * 创建时间
      */
     @Schema(description = "创建时间")
-    /** Create时间 */
+    /** 创建时间 */
     private Date createTime;
 }

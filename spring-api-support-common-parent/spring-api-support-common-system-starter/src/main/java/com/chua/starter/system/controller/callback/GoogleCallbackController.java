@@ -76,7 +76,7 @@ public class GoogleCallbackController {
      * 登录回调服务（允许缺省）
      */
     @Autowired(required = false)
-    /** SYSlogincallback服务 */
+    /** syslogincallback服务 */
     private SysLoginCallbackService sysLoginCallbackService;
 
     /**
@@ -106,7 +106,15 @@ public class GoogleCallbackController {
 
     @Ignore
     @GetMapping("binder")
-    /** Binder */
+    /**
+     * Binder
+     *
+     * @param authCallback 认证callback
+     * @param attributes attributes
+     * @param request 请求
+     * @param response 响应
+     * @return binder的结果
+     */
     public RedirectView binder(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
         String userId = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_userId");
         RedirectView view = new RedirectView();
@@ -164,7 +172,15 @@ public class GoogleCallbackController {
 
     @Ignore
     @GetMapping("callback")
-    /** Callback */
+    /**
+     * Callback
+     *
+     * @param authCallback 认证callback
+     * @param attributes attributes
+     * @param request 请求
+     * @param response 响应
+     * @return callback的结果
+     */
     public RedirectView callback(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
         RedirectView errorView = new RedirectView();
@@ -220,7 +236,12 @@ public class GoogleCallbackController {
         return view;
     }
 
-    /** DoAuthLogin */
+    /**
+     * 执行认证login
+     *
+     * @param authCallback 认证callback
+     * @return 执行认证login的结果
+     */
     private AuthUser doAuthLogin(AuthCallback authCallback) {
         String clientSecret = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_clientSecret");
         String clientId = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_clientId");
@@ -239,7 +260,11 @@ public class GoogleCallbackController {
         return (AuthUser) login.getData();
     }
 
-    /** 是否ThirdPartyEnabled */
+    /**
+     * 是否thirdparty已启用
+     *
+     * @return 是否thirdparty已启用的结果
+     */
     private boolean isThirdPartyEnabled() {
         try {
             SysSetting setting = sysSettingService.getOne(

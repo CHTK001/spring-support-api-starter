@@ -23,7 +23,7 @@ import java.util.Map;
  * 控制台轻量登录接口。
  *
  * <p>提供控制台登录状态的查询、登录与退出能力,
- * 账号密码校验通过后写入 Session。</p>
+   * 账号密码校验通过后写入 会话。</p>
  *
  * @since 4.0.0.42
  * @author CH
@@ -101,7 +101,7 @@ public class SchedulerJobConsoleAuthController {
      * 组装登录状态信息。
      *
      * @param request HTTP 请求
-     * @return 登录状态 Map
+     * @return 登录状态 映射
      */
     private Map<String, Object> statusPayload(HttpServletRequest request) {
         Map<String, Object> payload = new LinkedHashMap<>();
@@ -113,7 +113,7 @@ public class SchedulerJobConsoleAuthController {
     }
 
     /**
-     * 去除空白, 空白文本转换为 null。
+      * 去除空白, 空白文本转换为 空。
      *
      * @param value 文本值
      * @return 去除空白后的文本
@@ -129,6 +129,7 @@ public class SchedulerJobConsoleAuthController {
      * 控制台登录请求。
      *
      * @since 4.0.0.42
+     * @author CH
      */
     @Data
     public static class ConsoleLoginRequest {

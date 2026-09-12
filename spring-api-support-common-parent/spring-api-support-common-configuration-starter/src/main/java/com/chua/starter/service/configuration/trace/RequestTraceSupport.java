@@ -7,14 +7,20 @@ import java.util.stream.Collectors;
  * 请求追踪工具方法。
  *
  * @since 2026/03/25
+ * @author CH
  */
 public final class RequestTraceSupport {
 
-    /** 创建 RequestTraceSupport 实例 */
+    /** 创建 请求追踪支持 实例 */
     private RequestTraceSupport() {
     }
 
-    /** Normalize */
+    /**
+     * Normalize
+     *
+     * @param value 值
+     * @return normalize的结果
+     */
     public static String normalize(String value) {
         if (value == null) {
             return null;
@@ -23,7 +29,12 @@ public final class RequestTraceSupport {
         return trimmed.isEmpty() ? null : trimmed;
     }
 
-    /** FirstNonBlank */
+    /**
+     * 第一个nonblank
+     *
+     * @param values 值
+     * @return 第一个nonblank的结果
+     */
     public static String firstNonBlank(String... values) {
         if (values == null) {
             return null;
@@ -37,7 +48,12 @@ public final class RequestTraceSupport {
         return null;
     }
 
-    /** SignalCodes */
+    /**
+     * 标志编码
+     *
+     * @param signals signals
+     * @return 标志编码的结果
+     */
     public static String signalCodes(Set<RequestTraceSignal> signals) {
         if (signals == null || signals.isEmpty()) {
             return null;
@@ -48,7 +64,12 @@ public final class RequestTraceSupport {
                 .collect(Collectors.joining(","));
     }
 
-    /** 是否CrawlerUserAgent */
+    /**
+     * 是否爬虫用户智能体
+     *
+     * @param userAgent 用户智能体
+     * @return 是否爬虫用户智能体的结果
+     */
     public static boolean isCrawlerUserAgent(String userAgent) {
         String normalized = normalize(userAgent);
         if (normalized == null) {
@@ -63,7 +84,12 @@ public final class RequestTraceSupport {
                 || lower.contains("curl");
     }
 
-    /** 解析Browser */
+    /**
+     * 解析Browser
+     *
+     * @param userAgent 用户智能体
+     * @return resolveBrowser的结果
+     */
     public static String resolveBrowser(String userAgent) {
         String normalized = normalize(userAgent);
         if (normalized == null) {
@@ -103,7 +129,12 @@ public final class RequestTraceSupport {
         return "Other";
     }
 
-    /** 解析RiskLevel */
+    /**
+     * 解析risk级别
+     *
+     * @param signals signals
+     * @return resolverisk级别的结果
+     */
     public static String resolveRiskLevel(Set<RequestTraceSignal> signals) {
         if (signals == null || signals.isEmpty()) {
             return "normal";

@@ -37,7 +37,7 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
     final TransactionTemplate transactionTemplate;
 
     /**
-     * 字典项Mapper，用于操作字典项数据
+      * 字典项映射器，用于操作字典项数据
      */
     final SysDictItemMapper sysDictItemMapper;
 
@@ -48,31 +48,31 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
      * @param query   分页查询对象，包含分页信息和排序规则
      *                示例: {
      *                "page": 1,
-     *                "pageSize": 10,
-     *                "order": "createTime desc"
+      * "page大小": 10,
+      * "订单": "创建时间 desc"
      *                }
      * @param sysDict 系统字典查询条件对象
      *                示例: {
-     *                "sysDictCode": "USER_TYPE",
-     *                "sysDictName": "用户类型",
-     *                "sysDictRemark": "用户类型字典"
+      * "sysdict编码": "用户_类型",
+      * "sysdict名称": "用户类型",
+      * "sysdict评论": "用户类型字典"
      *                }
      * @param roles   用户角色集合，用于权限控制
-     *                示例: ["ADMIN", "USER"]
+      * 示例: ["ADMIN", "用户"]
      * @return 分页查询结果，包含查询到的系统字典信息及子级
      * 示例: {
      * "records": [
      * {
-     * "sysDictId": 1,
-     * "sysDictPid": 0,
-     * "sysDictName": "用户类型",
-     * "sysDictCode": "USER_TYPE",
+      * "sysdictid": 1,
+      * "sysdictpid": 0,
+      * "sysdict名称": "用户类型",
+      * "sysdict编码": "用户_类型",
      * "children": [
      * {
-     * "sysDictId": 2,
-     * "sysDictPid": 1,
-     * "sysDictName": "普通用户",
-     * "sysDictCode": "NORMAL_USER"
+      * "sysdictid": 2,
+      * "sysdictpid": 1,
+      * "sysdict名称": "普通用户",
+      * "sysdict编码": "NORMAL_用户"
      * }
      * ]
      * }
@@ -107,13 +107,13 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
      * 删除指定的系统字典
      * 同时删除该字典下的所有字典项
      *
-     * @param dictId 字典ID，唯一标识要删除的字典
+     * @param dictId 字典标识，唯一标识要删除的字典
      *               示例: 1
      * @return 删除操作的结果，包含成功与否的标志
      * 示例: {
-     * "code": 200,
-     * "data": true,
-     * "message": "success"
+      * "编码": 200,
+      * "数据": true,
+      * "消息": "成功"
      * }
      */
     @Override
@@ -148,16 +148,16 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
      *                示例: ["ADMIN"]
      * @param sysDict 待更新的系统字典对象
      *                示例: {
-     *                "sysDictId": 1,
-     *                "sysDictName": "更新后的用户类型",
-     *                "sysDictCode": "USER_TYPE",
-     *                "sysDictPid": 0
+      * "sysdictid": 1,
+      * "sysdict名称": "更新后的用户类型",
+      * "sysdict编码": "用户_类型",
+      * "sysdictpid": 0
      *                }
      * @return 更新操作的结果，包含成功与否的标志
      * 示例: {
-     * "code": 200,
-     * "data": true,
-     * "message": "success"
+      * "编码": 200,
+      * "数据": true,
+      * "消息": "成功"
      * }
      */
     @Override
@@ -203,25 +203,25 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
      *
      * @param sysDict 待保存的系统字典对象
      *                示例: {
-     *                "sysDictName": "新字典",
-     *                "sysDictCode": "NEW_DICT",
-     *                "sysDictPid": 0,
-     *                "sysDictRemark": "这是一个新字典"
+      * "sysdict名称": "新字典",
+      * "sysdict编码": "新_DICT",
+      * "sysdictpid": 0,
+      * "sysdict评论": "这是一个新字典"
      *                }
      * @param roles   用户角色集合，用于权限控制（当前版本未使用）
      *                示例: ["ADMIN"]
      * @return 保存操作的结果，包含成功与否的标志以及保存的字典信息
      *         示例: {
-     *         "code": 200,
-     *         "data": {
-     *         "sysDictId": 3,
-     *         "sysDictName": "新字典",
-     *         "sysDictCode": "NEW_DICT",
-     *         "sysDictPid": 0,
-     *         "sysDictStatus": 1,
-     *         "sysDictInSystem": 0
+      * "编码": 200,
+      * "数据": {
+      * "sysdictid": 3,
+      * "sysdict名称": "新字典",
+      * "sysdict编码": "新_DICT",
+      * "sysdictpid": 0,
+      * "sysdict状态": 1,
+      * "sysdict入系统": 0
      *         },
-     *         "message": "success"
+      * "消息": "成功"
      *         }
      */
     @Override

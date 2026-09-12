@@ -21,11 +21,11 @@ import lombok.EqualsAndHashCode;
 @TableName(value = "sys_device_channel")
 public class SysDeviceChannel extends SysBase {
     /**
-     * 通道主键ID
+      * 通道主键标识
      */
     @TableId(value = "sys_device_channel_id", type = IdType.AUTO)
     @Schema(description = "")
-    /** SYSdevice通道ID */
+    /** sysdevice通道标识 */
     private Integer sysDeviceChannelId;
 
     /**
@@ -33,7 +33,7 @@ public class SysDeviceChannel extends SysBase {
      */
     @TableField(value = "sys_device_channel_name")
     @Schema(description = "通道名称")
-    /** SYSdevice通道名称 */
+    /** sysdevice通道名称 */
     private String sysDeviceChannelName;
 
     /**
@@ -41,7 +41,7 @@ public class SysDeviceChannel extends SysBase {
      */
     @TableField(value = "sys_device_channel_no")
     @Schema(description = "通道号")
-    /** SYSdevice通道NO */
+    /** sysdevice通道NO */
     private Integer sysDeviceChannelNo;
 
     /**
@@ -49,7 +49,7 @@ public class SysDeviceChannel extends SysBase {
      */
     @TableField(value = "sys_device_serial_number")
     @Schema(description = "设备序列号")
-    /** SYSdeviceserial数字 */
+    /** sysdeviceserial数字 */
     private String sysDeviceSerialNumber;
 
     /**
@@ -57,7 +57,7 @@ public class SysDeviceChannel extends SysBase {
      */
     @TableField(value = "sys_device_channel_type")
     @Schema(description = "管道类型")
-    /** SYSdevice通道类型 */
+    /** sysdevice通道类型 */
     private String sysDeviceChannelType;
 
     /**
@@ -65,7 +65,7 @@ public class SysDeviceChannel extends SysBase {
      */
     @TableField(value = "sys_device_channel_status")
     @Schema(description = "通道状态，0：离线，1：在线，-1：设备未上报; 2:未知")
-    /** SYSdevice通道状态 */
+    /** sysdevice通道状态 */
     private Integer sysDeviceChannelStatus;
 
     /**
@@ -73,6 +73,6 @@ public class SysDeviceChannel extends SysBase {
      */
     @TableField(value = "sys_device_channel_use")
     @Schema(description = "通道启用状态：0-禁用；1-启用")
-    /** SYSdevice通道USE */
+    /** sysdevice通道USE */
     private Integer sysDeviceChannelUse;
 }

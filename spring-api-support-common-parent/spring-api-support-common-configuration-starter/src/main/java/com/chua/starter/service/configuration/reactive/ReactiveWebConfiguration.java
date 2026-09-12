@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import reactor.core.publisher.Mono;
 
 /**
- * Reactor 响应式返回值自动配置 — Spring MVC 下支持 Controller 返回 Mono/Flux。
+   * Reactor 响应式返回值自动配置 — Spring MVC 下支持 控制器 返回 Mono/Flux。
  *
  * <p>classpath 存在 reactor-core 时 Spring MVC 经 {@code ReactiveTypeHandler}
  * 自动处理响应式返回值（无需 WebFlux）；本配置仅补充异步超时等保护性默认值。</p>

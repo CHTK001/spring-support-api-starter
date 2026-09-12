@@ -25,15 +25,15 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = false)
 public class SysUserLog extends SysBase implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-     * 日志ID
+      * 日志标识
      */
     @TableId(value = "sys_log_id", type = IdType.AUTO)
     @Schema(description = "日志ID")
     @NotNull(message = "日志ID不能为空")
-    /** SYS日志ID */
+    /** SYS日志标识 */
     private Integer sysLogId;
 
     /**
@@ -42,7 +42,7 @@ public class SysUserLog extends SysBase implements Serializable {
     @TableField(value = "sys_log_username")
     @Schema(description = "操作账号")
     @Size(max = 255, message = "操作账号最大长度需小于255")
-    /** SYS日志username */
+    /** SYS日志用户名 */
     private String sysLogUsername;
 
     /**
@@ -85,7 +85,7 @@ public class SysUserLog extends SysBase implements Serializable {
     @TableField(value = "sys_log_system")
     @Schema(description = "操作系统")
     @Size(max = 255, message = "操作系统最大长度需小于255")
-    /** SYS日志system */
+    /** SYS日志系统 */
     private String sysLogSystem;
 
     /**
@@ -144,7 +144,7 @@ public class SysUserLog extends SysBase implements Serializable {
     @TableField(value = "sys_log_from")
     @Schema(description = "请求模块")
     @Size(max = 255, message = "请求模块最大长度需小于255")
-    /** SYS日志from */
+    /** SYS日志从 */
     private String sysLogFrom;
 
     /**
@@ -172,11 +172,11 @@ public class SysUserLog extends SysBase implements Serializable {
     private BigDecimal sysLogCost;
 
     /**
-     * 部门ID
+      * 部门标识
      */
     @TableField(value = "sys_dept_id")
     @Schema(description = "部门ID")
-    /** SYSdeptID */
+    /** sysdeptid */
     private Integer sysDeptId;
 
     /**
@@ -184,7 +184,7 @@ public class SysUserLog extends SysBase implements Serializable {
      */
     @TableField(exist = false)
     @Schema(description = "机构名称(非数据库字段)")
-    /** SYSdept名称 */
+    /** sysdept名称 */
     private String sysDeptName;
 
     /**

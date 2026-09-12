@@ -111,17 +111,17 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     private ApplicationContext applicationContext;
 
     /**
-     * 多协议 Server 管理器(注入,启动 HTTP/KCP/RSocket/TCP 等认证服务器)
+      * 多协议 服务端 管理器(注入,启动 HTTP/KCP/r套接字/TCP 等认证服务器)
      */
     @org.springframework.beans.factory.annotation.Autowired
     private OauthProtocolServerManager oauthProtocolServerManager;
 
     /**
-     * 创建多协议 Server 管理器。
+      * 创建多协议 服务端 管理器。
      *
      * @param oauthProtocolServersProperties 协议服务器配置
      * @param loginCheck      登录检查服务
-     * @return 多协议 Server 管理器
+     * @return 多协议 服务端 管理器
      */
     @Bean
     public OauthProtocolServerManager oauthProtocolServerManager(
@@ -154,20 +154,20 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
 
 
     @Override
-    /** Post处理BeanDefinitionRegistry */
+    /** Post处理Beandefinitionregistry */
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeLoginProvider.class);
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeBinderProvider.class);
     }
 
     @Override
-    /** Post处理BeanFactory */
+    /** Post处理Bean工厂 */
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
     }
 
     @Override
-    /** Post处理Environment */
+    /** Post处理环境 */
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         Properties properties = new Properties();
         properties.setProperty("spring.freemarker.templateLoaderPath", "classpath:/templates/");
@@ -190,7 +190,7 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
 
 
     @Override
-    /** 设置ApplicationContext */
+    /** 设置application上下文 */
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
         if (null != authServerProperties) {
@@ -204,7 +204,7 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     }
 
     @Override
-    /** 添加ReturnValueHandlers */
+    /** 添加返回值处理器 */
     public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> handlers) {
         handlers.add(0, new ResponseAdviceMethodProcessor(messageConverters));
     }
@@ -219,7 +219,7 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
                 null);
         registry.registerFlag("auth-server-aksk-check", "鉴权服务",
                 authServerProperties.isOpenCheckAkSk(), "AK/SK 密钥校验", null);
-        // 启动多协议认证 Server
+ // 启动多协议认证 服务端
         OauthProtocolServerManager manager = oauthProtocolServerManager;
         if (manager == null && applicationContext != null) {
             manager = applicationContext.getBean(OauthProtocolServerManager.class);

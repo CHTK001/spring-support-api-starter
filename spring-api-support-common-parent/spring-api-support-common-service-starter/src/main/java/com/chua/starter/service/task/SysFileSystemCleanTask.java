@@ -32,15 +32,15 @@ public class SysFileSystemCleanTask {
     /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(SysFileSystemCleanTask.class);
 
-    /** SYS文件system服务 */
+    /** SYS文件系统服务 */
     private final SysFileSystemService sysFileSystemService;
     /** SYS文件systempart服务 */
     private final SysFileSystemPartService sysFileSystemPartService;
-    /** SYS文件system设置服务 */
+    /** SYS文件系统设置服务 */
     private final SysFileSystemSettingService sysFileSystemSettingService;
 
     @Scheduled(cron = "0 0 4 * * ?")
-    /** CleanExpiredFiles */
+    /** cleanexpired文件 */
     public void cleanExpiredFiles() {
         log.info("开始执行过期文件清理定时任务");
         try {
@@ -86,7 +86,7 @@ public class SysFileSystemCleanTask {
     }
 
     @Scheduled(cron = "0 30 4 * * ?")
-    /** CleanFailedTasks */
+    /** clean失败任务 */
     public void cleanFailedTasks() {
         log.info("开始执行失败任务清理定时任务");
         try {
@@ -134,7 +134,7 @@ public class SysFileSystemCleanTask {
     }
 
     @Scheduled(cron = "0 0 5 * * ?")
-    /** CleanPending合并Tasks */
+    /** cleanpending合并任务 */
     public void cleanPendingMergeTasks() {
         log.info("开始执行待合并超时任务清理");
         try {
@@ -163,7 +163,11 @@ public class SysFileSystemCleanTask {
         }
     }
 
-    /** 删除PhysicalFile */
+    /**
+     * 删除physical文件
+     *
+     * @param file 文件
+     */
     private void deletePhysicalFile(SysFileSystem file) {
         try {
             String path = file.getSysFileSystemPath();
@@ -180,7 +184,11 @@ public class SysFileSystemCleanTask {
         }
     }
 
-    /** 删除DirectoryQuietly */
+    /**
+     * 删除目录quietly
+     *
+     * @param file 文件
+     */
     private void deleteDirectoryQuietly(File file) {
         if (null == file || !file.exists()) {
             return;
@@ -198,7 +206,12 @@ public class SysFileSystemCleanTask {
         }
     }
 
-    /** ManualCleanExpiredFiles */
+    /**
+     * manualcleanexpired文件
+     *
+     * @param days days
+     * @return manualcleanexpired文件的结果
+     */
     public int manualCleanExpiredFiles(Integer days) {
         log.info("手动触发过期文件清理任务");
         try {

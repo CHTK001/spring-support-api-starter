@@ -12,22 +12,22 @@ import java.util.Map;
 /**
  * 租户环境配置后处理器
  * <p>
- * 根据租户模块的配置自动设置 sync 模块的配置，实现配置串联。
+   * 根据租户模块的配置自动设置 同步 模块的配置，实现配置串联。
  * </p>
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/06
  * @author CH
  */
 public class TenantEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
-    /** Tenant_prefix */
+    /** Tenant_前缀 */
     private static final String TENANT_PREFIX = "plugin.mybatis-plus.tenant.";
-    /** Sync_prefix */
+    /** 同步_前缀 */
     private static final String SYNC_PREFIX = "plugin.sync.";
 
     @Override
-    /** Post处理Environment */
+    /** Post处理环境 */
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         // 检查服务端同步是否启用
         boolean serverEnabled = "true".equalsIgnoreCase(environment.getProperty(TENANT_PREFIX + "server.enable", "false"));
@@ -37,7 +37,7 @@ public class TenantEnvironmentPostProcessor implements EnvironmentPostProcessor 
         boolean clientEnabled = "true".equalsIgnoreCase(environment.getProperty(TENANT_PREFIX + "client.enable", "false"));
         boolean clientSyncEnabled = "true".equalsIgnoreCase(environment.getProperty(TENANT_PREFIX + "client.sync-enable", "false"));
 
-        // 准备要设置的 sync 配置
+ // 准备要设置的 同步 配置
         Map<String, Object> syncProperties = new HashMap<>();
 
         // 服务端模式
@@ -71,6 +71,8 @@ public class TenantEnvironmentPostProcessor implements EnvironmentPostProcessor 
 
     /**
      * 串联服务端配置
+     * @param environment 环境
+     * @param syncProperties 同步属性
      */
     private void linkServerConfig(ConfigurableEnvironment environment, Map<String, Object> syncProperties) {
         String host = environment.getProperty(TENANT_PREFIX + "server.host", "0.0.0.0");
@@ -90,6 +92,8 @@ public class TenantEnvironmentPostProcessor implements EnvironmentPostProcessor 
 
     /**
      * 串联客户端配置
+     * @param environment 环境
+     * @param syncProperties 同步属性
      */
     private void linkClientConfig(ConfigurableEnvironment environment, Map<String, Object> syncProperties) {
         String serverHost = environment.getProperty(TENANT_PREFIX + "client.server-host", "localhost");

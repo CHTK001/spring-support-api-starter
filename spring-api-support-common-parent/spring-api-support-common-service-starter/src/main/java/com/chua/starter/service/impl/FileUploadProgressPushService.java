@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 文件上传进度Socket推送服务
+   * 文件上传进度套接字推送服务
  * 通过WebSocket实时推送上传进度到前端
  *
  * @since 2024/12/20
@@ -30,20 +30,20 @@ public class FileUploadProgressPushService {
     /** 日志 */
     private static final Logger log = LoggerFactory.getLogger(FileUploadProgressPushService.class);
 
-    /** Socket会话模板 */
+    /** 套接字会话模板 */
     private final SocketSessionTemplate socketSessionTemplate;
 
-    /** Topic_upload_progress */
+    /** Topic_upload_进步 */
     private static final String TOPIC_UPLOAD_PROGRESS = "service:file:upload:progress";
 
     /**
-     * 推送Progress
-     * @param taskId taskId
-     * @param userId userId
-     * @param totalChunks totalChunks
-     * @param uploadedChunks uploadedChunks
-     * @param currentChunk currentChunk
-     * @param status status
+      * 推送进步
+     * @param taskId 任务id
+     * @param userId 用户id
+     * @param totalChunks totalchunks
+     * @param uploadedChunks uploadedchunks
+     * @param currentChunk 当前chunk
+     * @param status 状态
      */
     public void pushProgress(String taskId, Long userId, int totalChunks, int uploadedChunks,
                             int currentChunk, String status) {
@@ -66,7 +66,14 @@ public class FileUploadProgressPushService {
         }
     }
 
-    /** 推送Completed */
+    /**
+     * 推送Completed
+     *
+     * @param taskId 任务id
+     * @param userId 用户id
+     * @param fileUrl 文件url
+     * @param fileName 文件名称
+     */
     public void pushCompleted(String taskId, Long userId, String fileUrl, String fileName) {
         try {
             Map<String, Object> data = new HashMap<>(8);
@@ -86,7 +93,13 @@ public class FileUploadProgressPushService {
         }
     }
 
-    /** 推送记录错误 */
+    /**
+     * 推送记录错误
+     *
+     * @param taskId 任务id
+     * @param userId 用户id
+     * @param message 消息
+     */
     public void pushError(String taskId, Long userId, String message) {
         try {
             Map<String, Object> data = new HashMap<>(6);
@@ -104,7 +117,13 @@ public class FileUploadProgressPushService {
         }
     }
 
-    /** 推送合并Status */
+    /**
+     * 推送合并状态
+     *
+     * @param taskId 任务id
+     * @param userId 用户id
+     * @param status 状态
+     */
     public void pushMergeStatus(String taskId, Long userId, String status) {
         try {
             Map<String, Object> data = new HashMap<>(5);

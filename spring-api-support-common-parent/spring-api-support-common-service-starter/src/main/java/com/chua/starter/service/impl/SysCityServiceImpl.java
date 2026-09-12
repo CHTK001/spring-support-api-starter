@@ -30,7 +30,7 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
     }
 
     @Override
-    /** ChildrenAll */
+    /** children全部 */
     public ReturnResult<List<SysCity>> childrenAll(SysCityQuery query) {
         List<SysCity> sysCities = baseMapper.childrenAll(query);
         if ("LIST".equals(query.getReturnType())) {
@@ -39,7 +39,12 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
         return ReturnResult.ok(buildTree(sysCities));
     }
 
-    /** 构建Tree */
+    /**
+     * 构建树
+     *
+     * @param all 全部
+     * @return 构建树的结果
+     */
     private List<SysCity> buildTree(List<SysCity> all) {
         if (all == null || all.isEmpty()) {
             return Collections.emptyList();

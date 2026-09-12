@@ -8,7 +8,7 @@ import net.sf.jsqlparser.expression.StringValue;
 /**
  * 租户行处理器实现
  *
- * @version 1.0.0
+   * @版本 1.0.0
  * @since 2024/12/06
  * @author CH
  */
@@ -23,7 +23,7 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
     private final boolean clientMode;
 
     /**
-     * 当前租户ID（线程本地变量）
+      * 当前租户标识（线程本地变量）
      */
     private static final ThreadLocal<String> CURRENT_TENANT_ID = new ThreadLocal<>();
 
@@ -39,16 +39,16 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
     }
 
     /**
-     * 设置当前租户ID
+      * 设置当前租户标识
      *
-     * @param tenantId 租户ID
+     * @param tenantId 租户标识
      */
     public static void setTenantId(String tenantId) {
         CURRENT_TENANT_ID.set(tenantId);
     }
 
     /**
-     * 获取当前租户ID
+      * 获取当前租户标识
      *
      * @return 租户ID
      */
@@ -57,18 +57,18 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
     }
 
     /**
-     * 清除当前租户ID
+      * 清除当前租户标识
      */
     public static void clear() {
         CURRENT_TENANT_ID.remove();
     }
 
     @Override
-    /** 获取TenantId */
+    /** 获取tenantid */
     public Expression getTenantId() {
         String tenantId = CURRENT_TENANT_ID.get();
         if (tenantId == null && clientMode) {
-            // 客户端模式从配置获取默认租户ID（租户编码，字符串）
+ // 客户端模式从配置获取默认租户标识（租户编码，字符串）
             String defaultTenantId = tenantProperties.getClient().getTenantId();
             if (defaultTenantId != null && !defaultTenantId.isEmpty()) {
                 tenantId = defaultTenantId;
@@ -78,13 +78,13 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
     }
 
     @Override
-    /** 获取TenantIdColumn */
+    /** 获取tenantidcolumn */
     public String getTenantIdColumn() {
         return tenantProperties.getEffectiveTenantIdColumn();
     }
 
     @Override
-    /** IgnoreTable */
+    /** ignoretable */
     public boolean ignoreTable(String tableName) {
         return tenantProperties.getEffectiveIgnoreTable().contains(tableName);
     }

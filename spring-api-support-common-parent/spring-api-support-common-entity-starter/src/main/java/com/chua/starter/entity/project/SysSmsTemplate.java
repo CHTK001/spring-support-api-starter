@@ -26,22 +26,22 @@ import java.io.Serializable;
 @TableName(value = "sys_sms_template")
 public class SysSmsTemplate extends SysBase implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L; // 串行版本uid
     /**
-     * 模板主键ID
+      * 模板主键标识
      */
     @TableId(value = "sys_sms_template_id", type = IdType.AUTO)
     @Schema(description="")
-    /** SYSSMS模板ID */
+    /** SYSSMS模板标识 */
     private Integer sysSmsTemplateId;
 
     /**
-     * 项目ID
+      * 项目标识
      */
     @TableField(value = "sys_project_id")
     @Schema(description="项目ID")
     @NotNull(message = "项目ID不能为空", groups = {SelectGroup.class, AddGroup.class})
-    /** SYSprojectID */
+    /** sysprojectid */
     private Integer sysProjectId;
 
     /**
@@ -50,7 +50,7 @@ public class SysSmsTemplate extends SysBase implements Serializable {
     @TableField(value = "sys_project_type")
     @Schema(description="类别(前端固定值)")
     @NotNull(message = "类别不能为空", groups = {AddGroup.class})
-    /** SYSproject类型 */
+    /** sysproject类型 */
     private Integer sysProjectType;
 
     /**
@@ -58,7 +58,7 @@ public class SysSmsTemplate extends SysBase implements Serializable {
      */
     @TableField(value = "sys_sms_template_sort")
     @Schema(description="模板优先级")
-    /** SYSSMS模板sort */
+    /** SYSSMS模板排序 */
     private Integer sysSmsTemplateSort;
     /**
      * 模板类别
@@ -98,7 +98,7 @@ public class SysSmsTemplate extends SysBase implements Serializable {
      */
     @TableField(value = "sys_sms_template_delete")
     @Schema(description="是否删除0:未删除")
-    /** SYSSMS模板delete */
+    /** SYSSMS模板删除 */
     private Integer sysSmsTemplateDelete;
 
     /**
@@ -146,7 +146,7 @@ public class SysSmsTemplate extends SysBase implements Serializable {
      */
     @TableField(value = "sys_sms_template_approve_create_by")
     @Schema(description="审批人")
-    /** SYSSMS模板approvecreateBY */
+    /** SYSSMS模板approvecreateby */
     private Integer sysSmsTemplateApproveCreateBy;
 
     /**
@@ -154,7 +154,7 @@ public class SysSmsTemplate extends SysBase implements Serializable {
      */
     @TableField(value = "sys_sms_template_disabled")
     @Schema(description="模板编辑状态;0:可编辑; 1: 不可编辑;")
-    /** SYSSMS模板disabled */
+    /** SYSSMS模板已禁用 */
     private Integer sysSmsTemplateDisabled;
 
     /**
@@ -170,6 +170,6 @@ public class SysSmsTemplate extends SysBase implements Serializable {
      */
     @TableField(value = "sys_sms_template_origin_uuid")
     @Schema(description="来源uuid")
-    /** SYSSMS模板originUUID */
+    /** SYSSMS模板originuuid */
     private String sysSmsTemplateOriginUuid;
 }

@@ -47,24 +47,45 @@ public class CaptchaController {
     private CaptchaProperties captchaProperties;
 
     @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private RedisTemplate<String, String> redisTemplate; // redisTemplate
 
-    /** Producer */
+    /**
+     * Producer
+     *
+     * @return producer的结果
+     */
     public Captcha producer() {
         return createCaptcha(captchaProperties.getType(), captchaProperties.getLength());
     }
 
-    /** Producer */
+    /**
+     * Producer
+     *
+     * @param typeEnum 类型enum
+     * @return producer的结果
+     */
     public Captcha producer(CaptchaTypeEnum typeEnum) {
         return createCaptcha(typeEnum, captchaProperties.getLength());
     }
 
-    /** Producer */
+    /**
+     * Producer
+     *
+     * @param typeEnum 类型enum
+     * @param length 长度
+     * @return producer的结果
+     */
     public Captcha producer(CaptchaTypeEnum typeEnum, int length) {
         return createCaptcha(typeEnum, length);
     }
 
-    /** 创建Captcha */
+    /**
+     * 创建Captcha
+     *
+     * @param type 类型
+     * @param length 长度
+     * @return 创建captcha的结果
+     */
     private Captcha createCaptcha(CaptchaTypeEnum type, int length) {
         Captcha captcha;
         int width = captchaProperties.getWidth();
@@ -101,7 +122,11 @@ public class CaptchaController {
     }
 
 
-    /** 创建Captcha */
+    /**
+     * 创建Captcha
+     *
+     * @return 创建captcha的结果
+     */
     public Captcha createCaptcha() {
         int randomInt = RandomUtils.randomInt(2, 3);
         CaptchaTypeEnum typeEnum = captchaProperties.getType();
@@ -121,6 +146,8 @@ public class CaptchaController {
      * 校验码
      *
      * @param request 请求
+     * @param response 响应
+     * @return captchaBase64的结果
      */
     @ApiOperation("获取验证码")
     @Operation(summary = "获取验证码")
@@ -154,7 +181,7 @@ public class CaptchaController {
     public static class CaptchaResult {
 
         /**
-         * 验证码图片Base64编码
+          * 验证码图片基础64编码
          */
         private String verifyCodeBase64;
 
