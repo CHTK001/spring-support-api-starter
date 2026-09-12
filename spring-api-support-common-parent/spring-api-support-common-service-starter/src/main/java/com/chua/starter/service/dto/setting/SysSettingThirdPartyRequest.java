@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * 第三方配置
- * @since 2024/9/5
- * @author CH
+* 第三方配置
+* @since 2024/9/5
+* @author CH
  */
 @Data
 @AllArgsConstructor

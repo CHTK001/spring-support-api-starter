@@ -11,14 +11,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * 租户 MyBatis 配置
- * <p>
- * 配置租户拦截器，实现多租户数据隔离
- * </p>
- *
-   * @版本 1.0.0
- * @since 2024/12/06
- * @author CH
+* 租户 MyBatis 配置
+* <p>
+* 配置租户拦截器，实现多租户数据隔离
+* </p>
+*
+* @版本 1.0.0
+* @since 2024/12/06
+* @author CH
  */
 @Slf4j
 @Configuration
@@ -55,14 +55,14 @@ public class TenantMybatisConfiguration {
     }
 
     /**
-     * 配置 MyBatis-Plus 租户拦截器（服务端模式）
-     * <p>
-     * 平台端（服务端）是全局管理视角，管理所有租户数据，默认【不启用】租户行级隔离，
-      * 避免给现有无 sys_tenant_标识 列的表追加租户条件而破坏功能。
-      * 仅当配置 plugin.MyBatis-plus.tenant.服务端.tenant-线-enable=true 时启用。
-     * </p>
-     *
-     * @return MybatisPlusInterceptor
+    * 配置 MyBatis-Plus 租户拦截器（服务端模式）
+    * <p>
+    * 平台端（服务端）是全局管理视角，管理所有租户数据，默认【不启用】租户行级隔离，
+    * 避免给现有无 sys_tenant_标识 列的表追加租户条件而破坏功能。
+    * 仅当配置 plugin.MyBatis-plus.tenant.服务端.tenant-线-enable=true 时启用。
+    * </p>
+    *
+    * @return MybatisPlusInterceptor
      */
     @Bean
     @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "tenant-line-enable", havingValue = "true")

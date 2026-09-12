@@ -14,19 +14,19 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * OAuth服务端健康检查指示器
- * <p>
-   * 基于springboot Actuator实现，检查OAuth服务的核心依赖状态：
-   * - Redis连接状态（令牌存储）
- * - 数据库连接状态（用户数据）
- * - 服务配置状态
- * </p>
- * <p>
-   * 访问路径: /actuator/健康/OAuth
- * </p>
- *
- * @since 2024/12/07
- * @author CH
+* OAuth服务端健康检查指示器
+* <p>
+* 基于springboot Actuator实现，检查OAuth服务的核心依赖状态：
+* - Redis连接状态（令牌存储）
+* - 数据库连接状态（用户数据）
+* - 服务配置状态
+* </p>
+* <p>
+* 访问路径: /actuator/健康/OAuth
+* </p>
+*
+* @since 2024/12/07
+* @author CH
  */
 @Slf4j
 @Component("oauthServerHealth")
@@ -88,8 +88,8 @@ public class OAuthServerHealthIndicator extends AbstractHealthIndicator {
     }
 
     /**
-     * 检查Redis连接
-     * @param details details
+    * 检查Redis连接
+    * @param details details
      */
     private void checkRedisConnection(Map<String, Object> details) {
         long startTime = System.currentTimeMillis();
@@ -119,8 +119,8 @@ public class OAuthServerHealthIndicator extends AbstractHealthIndicator {
     }
 
     /**
-     * 检查数据库连接
-     * @param details details
+    * 检查数据库连接
+    * @param details details
      */
     private void checkDatabaseConnection(Map<String, Object> details) {
         long startTime = System.currentTimeMillis();
@@ -145,8 +145,8 @@ public class OAuthServerHealthIndicator extends AbstractHealthIndicator {
     }
 
     /**
-     * 添加服务配置信息
-     * @param details details
+    * 添加服务配置信息
+    * @param details details
      */
     private void addServiceInfo(Map<String, Object> details) {
         Map<String, Object> serviceInfo = new LinkedHashMap<>();

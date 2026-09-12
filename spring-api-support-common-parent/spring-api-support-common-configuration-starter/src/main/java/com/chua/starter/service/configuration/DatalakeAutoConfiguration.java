@@ -10,10 +10,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
 /**
-   * 数据中台自动装配 — 使用 数据湖服务端构建器 构建完整服务器
- *
- * @since 2025/6/2
- * @author CH
+* 数据中台自动装配 — 使用 数据湖服务端构建器 构建完整服务器
+*
+* @since 2025/6/2
+* @author CH
  */
 @Slf4j
 @AutoConfiguration

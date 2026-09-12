@@ -44,10 +44,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-   * 第三方登录回调(GitHub)
- *
- * @since 2026/08/03
- * @author CH
+* 第三方登录回调(GitHub)
+*
+* @since 2026/08/03
+* @author CH
  */
 @Controller
 @Slf4j
@@ -58,22 +58,22 @@ import java.util.Map;
 public class GithubCallbackController {
 
     /**
-     * 第三方登录类型标识
+    * 第三方登录类型标识
      */
     private static final String THIRD_PARTY_TYPE = "github";
 
     /**
-     * 登录开关配置组编码
+    * 登录开关配置组编码
      */
     private static final String SSO_GROUP = "sso";
 
     /**
-     * 登录开关配置名
+    * 登录开关配置名
      */
     private static final String SSO_NAME = "Github";
 
     /**
-     * 登录回调服务（允许缺省）
+    * 登录回调服务（允许缺省）
      */
     @Autowired(required = false)
     /** syslogincallback服务 */
@@ -85,35 +85,35 @@ public class GithubCallbackController {
     final SysUserThirdPartyService sysUserThirdPartyService;
 
     /**
-     * 登录服务
+    * 登录服务
      */
     final SysLoginService sysLoginService;
 
     /**
-     * 系统设置服务
+    * 系统设置服务
      */
     final SysSettingService sysSettingService;
 
     /**
-     * 认证客户端配置
+    * 认证客户端配置
      */
     final AuthClientProperties authProperties;
 
     /**
-     * 系统安全配置
+    * 系统安全配置
      */
     final SystemSecurityProperties securityProperties;
 
     @Ignore
     @GetMapping("binder")
     /**
-     * Binder
-     *
-     * @param authCallback 认证callback
-     * @param attributes attributes
-     * @param request 请求
-     * @param response 响应
-     * @return binder的结果
+    * Binder
+    *
+    * @param authCallback 认证callback
+    * @param attributes attributes
+    * @param request 请求
+    * @param response 响应
+    * @return binder的结果
      */
     public RedirectView binder(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
         String userId = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_userId");
@@ -173,13 +173,13 @@ public class GithubCallbackController {
     @Ignore
     @GetMapping("callback")
     /**
-     * Callback
-     *
-     * @param authCallback 认证callback
-     * @param attributes attributes
-     * @param request 请求
-     * @param response 响应
-     * @return callback的结果
+    * Callback
+    *
+    * @param authCallback 认证callback
+    * @param attributes attributes
+    * @param request 请求
+    * @param response 响应
+    * @return callback的结果
      */
     public RedirectView callback(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
@@ -237,10 +237,10 @@ public class GithubCallbackController {
     }
 
     /**
-     * 执行认证login
-     *
-     * @param authCallback 认证callback
-     * @return 执行认证login的结果
+    * 执行认证login
+    *
+    * @param authCallback 认证callback
+    * @return 执行认证login的结果
      */
     private AuthUser doAuthLogin(AuthCallback authCallback) {
         String clientSecret = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_clientSecret");
@@ -261,9 +261,9 @@ public class GithubCallbackController {
     }
 
     /**
-     * 是否thirdparty已启用
-     *
-     * @return 是否thirdparty已启用的结果
+    * 是否thirdparty已启用
+    *
+    * @return 是否thirdparty已启用的结果
      */
     private boolean isThirdPartyEnabled() {
         try {

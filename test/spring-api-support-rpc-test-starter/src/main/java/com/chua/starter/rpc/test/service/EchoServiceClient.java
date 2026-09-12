@@ -4,13 +4,13 @@ import com.chua.common.support.network.rpc.RpcResource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 /**
- * echo服务客户端类。
- *
- * @author CH
- * @since 4.0.0
- * @param name 名称
- * @return callHello的结果
- * @param message 消息
+* echo服务客户端类。
+*
+* @author CH
+* @since 4.0.0
+* @param name 名称
+* @return callHello的结果
+* @param message 消息
  */
 
 @Slf4j
@@ -23,10 +23,10 @@ public class EchoServiceClient {
     public String callEcho(String message) {
         return echoService.echo(message);
     /**
-     * call添加。
-     * @param a a
-     * @param b b
-     * @return call添加的结果
+    * call添加。
+    * @param a a
+    * @param b b
+    * @return call添加的结果
      */
     }
 

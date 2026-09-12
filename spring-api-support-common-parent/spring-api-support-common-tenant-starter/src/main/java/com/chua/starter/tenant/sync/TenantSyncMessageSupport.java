@@ -16,10 +16,10 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 /**
- * 租户同步消息辅助类。
- *
- * @since 2026/03/24
- * @author CH
+* 租户同步消息辅助类。
+*
+* @since 2026/03/24
+* @author CH
  */
 public final class TenantSyncMessageSupport {
 
@@ -129,13 +129,13 @@ public final class TenantSyncMessageSupport {
     }
 
     /**
-      * 创建ACK
-     * @param tenantId tenantid
-     * @param sourceTopic 源topic
-     * @param sourceData 源数据
-     * @param success 成功
-     * @param status 状态
-     * @param errorMessage 错误消息
+    * 创建ACK
+    * @param tenantId tenantid
+    * @param sourceTopic 源topic
+    * @param sourceData 源数据
+    * @param success 成功
+    * @param status 状态
+    * @param errorMessage 错误消息
      */
     public static Map<String, Object> createAck(String tenantId,
                                                 String sourceTopic,
@@ -159,10 +159,10 @@ public final class TenantSyncMessageSupport {
     }
 
     /**
-     * 为租户同步消息添加签名。
-     *
-     * @param data   消息体
-     * @param secret 共享密钥
+    * 为租户同步消息添加签名。
+    *
+    * @param data   消息体
+    * @param secret 共享密钥
      */
     public static void sign(Map<String, Object> data, String secret) {
         if (data == null || data.isEmpty() || !hasText(secret)) {
@@ -183,12 +183,12 @@ public final class TenantSyncMessageSupport {
     }
 
     /**
-     * 校验租户同步消息签名和时间窗。
-     *
-     * @param data                   消息体
-     * @param secret                 共享密钥
-     * @param allowedClockSkewMillis 允许时钟偏移毫秒数
-     * @return 校验结果
+    * 校验租户同步消息签名和时间窗。
+    *
+    * @param data                   消息体
+    * @param secret                 共享密钥
+    * @param allowedClockSkewMillis 允许时钟偏移毫秒数
+    * @return 校验结果
      */
     public static VerificationResult verifySignature(Map<String, Object> data, String secret, long allowedClockSkewMillis) {
         if (!hasText(secret)) {
@@ -228,11 +228,11 @@ public final class TenantSyncMessageSupport {
     }
 
     /**
-     * 计算消息签名。
-     *
-     * @param data   消息体
-     * @param secret 共享密钥
-     * @return HMAC-SHA256 十六进制摘要
+    * 计算消息签名。
+    *
+    * @param data   消息体
+    * @param secret 共享密钥
+    * @return HMAC-SHA256 十六进制摘要
      */
     public static String calculateSignature(Map<String, Object> data, String secret) {
         if (data == null || data.isEmpty() || !hasText(secret)) {
@@ -242,20 +242,20 @@ public final class TenantSyncMessageSupport {
     }
 
     /**
-     * 生成稳定序列化后的 payload，用于签名和指纹计算。
-     *
-     * @param data 消息体
-     * @return 稳定 JSON 字符串
+    * 生成稳定序列化后的 payload，用于签名和指纹计算。
+    *
+    * @param data 消息体
+    * @return 稳定 JSON 字符串
      */
     public static String canonicalPayload(Map<String, Object> data) {
         return Json.toJson(normalizeForSign(data));
     }
 
     /**
-     * 计算消息内容指纹。
-     *
-     * @param data 消息体
-     * @return 指纹
+    * 计算消息内容指纹。
+    *
+    * @param data 消息体
+    * @return 指纹
      */
     public static String payloadFingerprint(Map<String, Object> data) {
         if (data == null || data.isEmpty()) {
@@ -266,10 +266,10 @@ public final class TenantSyncMessageSupport {
 
     @SuppressWarnings("unchecked")
     /**
-     * 解析Targettenantid
-     *
-     * @param data 数据
-     * @return resolveTargettenantid的结果
+    * 解析Targettenantid
+    *
+    * @param data 数据
+    * @return resolveTargettenantid的结果
      */
     public static String resolveTargetTenantId(Map<String, Object> data) {
         if (data == null || data.isEmpty()) {
@@ -299,10 +299,10 @@ public final class TenantSyncMessageSupport {
     }
 
     /**
-     * 解析消息id
-     *
-     * @param data 数据
-     * @return resolve消息id的结果
+    * 解析消息id
+    *
+    * @param data 数据
+    * @return resolve消息id的结果
      */
     public static String resolveMessageId(Map<String, Object> data) {
         if (data == null || data.isEmpty()) {
@@ -317,10 +317,10 @@ public final class TenantSyncMessageSupport {
     }
 
     /**
-     * 解析时间戳
-     *
-     * @param data 数据
-     * @return resolve时间戳的结果
+    * 解析时间戳
+    *
+    * @param data 数据
+    * @return resolve时间戳的结果
      */
     public static long resolveTimestamp(Map<String, Object> data) {
         if (data == null || data.isEmpty()) {
@@ -331,10 +331,10 @@ public final class TenantSyncMessageSupport {
 
     @SuppressWarnings("unchecked")
     /**
-     * 解析tenantpayload
-     *
-     * @param data 数据
-     * @return resolveTenantPayload的结果
+    * 解析tenantpayload
+    *
+    * @param data 数据
+    * @return resolveTenantPayload的结果
      */
     public static Map<String, Object> resolveTenantPayload(Map<String, Object> data) {
         if (data == null) {
@@ -348,10 +348,10 @@ public final class TenantSyncMessageSupport {
     }
 
     /**
-     * 解析tenantid
-     *
-     * @param clientInfo 客户端信息
-     * @return resolveTenantId的结果
+    * 解析tenantid
+    *
+    * @param clientInfo 客户端信息
+    * @return resolveTenantId的结果
      */
     public static String resolveTenantId(ClientInfo clientInfo) {
         if (clientInfo == null || clientInfo.getClientMetadata() == null) {
@@ -362,20 +362,20 @@ public final class TenantSyncMessageSupport {
     }
 
     /**
-     * 是否拥有文本
-     *
-     * @param value 值
-     * @return 是否包含文本的结果
+    * 是否拥有文本
+    *
+    * @param value 值
+    * @return 是否包含文本的结果
      */
     public static boolean hasText(String value) {
         return value != null && !value.isBlank();
     }
 
     /**
-     * normalizefor标志
-     *
-     * @param value 值
-     * @return normalizefor标志的结果
+    * normalizefor标志
+    *
+    * @param value 值
+    * @return normalizefor标志的结果
      */
     private static Object normalizeForSign(Object value) {
         if (value == null) {
@@ -436,56 +436,56 @@ public final class TenantSyncMessageSupport {
         }
 
         /**
-         * Valid
-         *
-         * @return valid的结果
+        * Valid
+        *
+        * @return valid的结果
          */
         public static VerificationResult valid() {
             return VALID;
         }
 
         /**
-         * 跳过
-         *
-         * @param message 消息
-         * @return 跳过的结果
+        * 跳过
+        *
+        * @param message 消息
+        * @return 跳过的结果
          */
         public static VerificationResult skip(String message) {
             return new VerificationResult(true, true, message);
         }
 
         /**
-         * Invalid
-         *
-         * @param message 消息
-         * @return invalid的结果
+        * Invalid
+        *
+        * @param message 消息
+        * @return invalid的结果
          */
         public static VerificationResult invalid(String message) {
             return new VerificationResult(false, false, message);
         }
 
         /**
-         * 是否Valid
-         *
-         * @return 是否valid的结果
+        * 是否Valid
+        *
+        * @return 是否valid的结果
          */
         public boolean isValid() {
             return valid;
         }
 
         /**
-         * 是否Skipped
-         *
-         * @return 是否skipped的结果
+        * 是否Skipped
+        *
+        * @return 是否skipped的结果
          */
         public boolean isSkipped() {
             return skipped;
         }
 
         /**
-         * 获取消息
-         *
-         * @return 获取消息的结果
+        * 获取消息
+        *
+        * @return 获取消息的结果
          */
         public String getMessage() {
             return message;

@@ -5,46 +5,46 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 解锁成就响应 DTO
- *
- * @since 2026-08-07
- * @author CH
+* 解锁成就响应 DTO
+*
+* @since 2026-08-07
+* @author CH
  */
 @Data
 public class UnlockedAchievementDTO {
 
     /**
-      * 段位定义标识（对应 achievement_tier.标识）
+    * 段位定义标识（对应 achievement_tier.标识）
      */
     private Long id;
 
     /**
-     * 成就名称
+    * 成就名称
      */
     private String name;
 
     /**
-     * 徽章
+    * 徽章
      */
     private String badge;
 
     /**
-     * 成就描述
+    * 成就描述
      */
     private String description;
 
     /**
-     * 分组标识
+    * 分组标识
      */
     private String type;
 
     /**
-     * 段位等级
+    * 段位等级
      */
     private Integer level;
 
     /**
-     * 解锁时间
+    * 解锁时间
      */
     private LocalDateTime unlockedAt;
 }

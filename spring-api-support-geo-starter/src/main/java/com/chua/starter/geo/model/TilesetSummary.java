@@ -4,10 +4,10 @@ import lombok.Data;
 import java.util.List;
 
 /**
-   * 3D 瓷砖 tileset 解析摘要，用于前端预览和下载前确认。
- *
- * @author CH
- * @since 1.0.0
+* 3D 瓷砖 tileset 解析摘要，用于前端预览和下载前确认。
+*
+* @author CH
+* @since 1.0.0
  */
 @Data
 public class TilesetSummary {

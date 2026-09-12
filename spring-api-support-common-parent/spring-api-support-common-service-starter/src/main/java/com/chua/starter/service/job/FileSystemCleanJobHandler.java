@@ -6,10 +6,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.stereotype.Component;
 
 /**
- * 文件系统清理任务处理器（接口桩）
- *
- * @since 2024/12/20
- * @author CH
+* 文件系统清理任务处理器（接口桩）
+*
+* @since 2024/12/20
+* @author CH
  */
 @Component("fileSystemCleanJobHandler")
 @ConditionalOnClass(name = "com.chua.starter.job.support.handler.JobHandler")

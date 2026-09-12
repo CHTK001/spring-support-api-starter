@@ -12,10 +12,10 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDate;
 
 /**
- * 节假日表
- *
- * @since 2025/9/11
- * @author CH
+* 节假日表
+*
+* @since 2025/9/11
+* @author CH
  */
 @Schema(description = "节假日表")
 @Data
@@ -24,7 +24,7 @@ import java.time.LocalDate;
 public class SysHoliday extends SysBase {
 
     /**
-      * 节假日标识
+    * 节假日标识
      */
     @TableId(value = "sys_holiday_id", type = IdType.AUTO)
     @Schema(description = "节假日ID")

@@ -7,10 +7,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.ApplicationContext;
 
 /**
- * HTTP协议认证信息实现类
- * 
- * @author CH
- * @since 4.0.0
+* HTTP协议认证信息实现类
+* 
+* @author CH
+* @since 4.0.0
  */
 public abstract class HttpAuthInformation extends BaseAuthInformation {
 
@@ -105,9 +105,9 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     /**
-     * 获取http响应
-     *
-     * @return 获取http响应的结果
+    * 获取http响应
+    *
+    * @return 获取http响应的结果
      */
     public HttpServletResponse getHttpResponse() {
         return response;

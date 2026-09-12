@@ -7,10 +7,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 用户日志查询
- *
- * @since 2024/8/23
- * @author CH
+* 用户日志查询
+*
+* @since 2024/8/23
+* @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
 public class SysUserLogQuery extends DateQuery {
 
     /**
-     * 账号
+    * 账号
      */
     @Schema(description = "账号")
     @Size(max = 255, message = "账号最大长度需小于255")

@@ -14,11 +14,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
-   * 图像导出服务实现，支持 geotiff/PNG/JPEG 格式。
-   * 生成 geotiff 时同步创建 .prj 投影文件。
- *
- * @author CH
- * @since 1.0.0
+* 图像导出服务实现，支持 geotiff/PNG/JPEG 格式。
+* 生成 geotiff 时同步创建 .prj 投影文件。
+*
+* @author CH
+* @since 1.0.0
  */
 @Service
 @Slf4j
@@ -112,9 +112,9 @@ public class GeoTiffExporterImpl implements GeoTiffExporter {
     }
 
     /**
-     * 写入 PRJ 投影文件。
-     *
-     * @param prjPath PRJ 文件路径
+    * 写入 PRJ 投影文件。
+    *
+    * @param prjPath PRJ 文件路径
      */
     private void writePrjFile(String prjPath) {
         try {

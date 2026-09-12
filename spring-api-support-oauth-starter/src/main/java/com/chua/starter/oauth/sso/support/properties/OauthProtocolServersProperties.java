@@ -8,43 +8,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-   * OAuth 认证服务多协议 服务端 配置
- *
- * <p>通过 {@code plugin.oauth.protocol-server.protocols[]} 配置启动多个协议 Server,
-   * 基于 common-starter 的 {@code network.Server} 承载 OAuth 认证协议入口
-   * (HTTP/KCP/WS/UDP 等,可插拔扩展)。每个协议一个 服务端 实例。</p>
- *
- * <p>配置示例:</p>
- * <pre>{@code
- * plugin:
- *   oauth:
- *     protocol-server:
- *       protocols:
- *         - name: http
- *           type: jdk
- *           protocol: http
- *           host: 0.0.0.0
- *           port: 19182
- *           enable: true
- *           context-path: /
- *           auth-routes:
- *             - /login
- *             - /verify
- *         - name: kcp
- *           type: kcp
- *           protocol: kcp
- *           port: 19183
- *           enable: false
- * }</pre>         - /verify
- *         - name: kcp
- *           type: kcp
- *           protocol: kcp
- *           port: 19183
- *           enable: false
- * }</pre>
- *
- * @since 4.0.0.42
- * @author CH
+* OAuth 认证服务多协议 服务端 配置
+*
+* <p>通过 {@code plugin.oauth.protocol-server.protocols[]} 配置启动多个协议 Server,
+* 基于 common-starter 的 {@code network.Server} 承载 OAuth 认证协议入口
+* (HTTP/KCP/WS/UDP 等,可插拔扩展)。每个协议一个 服务端 实例。</p>
+*
+* <p>配置示例:</p>
+* <pre>{@code
+* plugin:
+*   oauth:
+*     protocol-server:
+*       protocols:
+*         - name: http
+*           type: jdk
+*           protocol: http
+*           host: 0.0.0.0
+*           port: 19182
+*           enable: true
+*           context-path: /
+*           auth-routes:
+*             - /login
+*             - /verify
+*         - name: kcp
+*           type: kcp
+*           protocol: kcp
+*           port: 19183
+*           enable: false
+* }</pre>         - /verify
+*         - name: kcp
+*           type: kcp
+*           protocol: kcp
+*           port: 19183
+*           enable: false
+* }</pre>
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Data
 @Component
@@ -52,61 +52,61 @@ import java.util.List;
 public class OauthProtocolServersProperties {
 
     /**
-     * 配置前缀
+    * 配置前缀
      */
     public static final String PRE = "plugin.oauth.protocol-server";
 
     /**
-      * 协议 服务端 配置列表
+    * 协议 服务端 配置列表
      */
     private List<ProtocolServer> protocols = new ArrayList<>();
 
     /**
-      * 单个协议 服务端 配置
-     *
-     * @since 4.0.0.42
-     * @author CH
+    * 单个协议 服务端 配置
+    *
+    * @since 4.0.0.42
+    * @author CH
      */
     @Data
     public static class ProtocolServer {
 
         /**
-          * 服务端 名称(唯一标识,用于日志/管理)
+        * 服务端 名称(唯一标识,用于日志/管理)
          */
         private String name = "http";
 
         /**
-          * 服务端 实现类型(对应 network.服务端 的 SPI 键,如 jdk / nio)
+        * 服务端 实现类型(对应 network.服务端 的 SPI 键,如 jdk / nio)
          */
         private String type = "jdk";
 
         /**
-          * 协议类型(对应 network.协议类型: http / tcp / udp / kcp / ws 等)
+        * 协议类型(对应 network.协议类型: http / tcp / udp / kcp / ws 等)
          */
         private String protocol = "http";
 
         /**
-         * 监听主机
+        * 监听主机
          */
         private String host = "0.0.0.0";
 
         /**
-         * 监听端口
+        * 监听端口
          */
         private int port = 19180;
 
         /**
-         * 是否启用
+        * 是否启用
          */
         private boolean enable = true;
 
         /**
-         * 上下文路径(HTTP 协议有效,默认 /)
+        * 上下文路径(HTTP 协议有效,默认 /)
          */
         private String contextPath = "/";
 
         /**
-          * 认证路由路径列表(为空时使用默认路径 /login /验证 等)
+        * 认证路由路径列表(为空时使用默认路径 /login /验证 等)
          */
         private List<String> authRoutes = new ArrayList<>();
     }

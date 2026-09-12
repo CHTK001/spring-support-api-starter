@@ -17,20 +17,20 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 import java.util.Optional;
 
 /**
- * 将外部音频资源统一转成当前服务的 HTTP 流。
- * @author CH
- * @since 4.0.0
+* 将外部音频资源统一转成当前服务的 HTTP 流。
+* @author CH
+* @since 4.0.0
  */
 @Slf4j
 @Service
 public class MusicStreamProxyService {
 
     /**
-     * 代理
-     *
-     * @param trackDetail trackDetail
-     * @param rangeHeader 范围头部
-     * @return 代理的结果
+    * 代理
+    *
+    * @param trackDetail trackDetail
+    * @param rangeHeader 范围头部
+    * @return 代理的结果
      */
     public ResponseEntity<StreamingResponseBody> proxy(MusicTrackDetail trackDetail, String rangeHeader) {
         if (trackDetail == null || !StringUtils.hasText(trackDetail.getStreamUrl())) {
@@ -97,11 +97,11 @@ public class MusicStreamProxyService {
     }
 
     /**
-     * 复制头部
-     *
-     * @param response 响应
-     * @param headers 头部
-     * @param headerName 头部名称
+    * 复制头部
+    *
+    * @param response 响应
+    * @param headers 头部
+    * @param headerName 头部名称
      */
     private void copyHeader(HttpResponse response, HttpHeaders headers, String headerName) {
         String headerValue = response.header(headerName);
@@ -111,10 +111,10 @@ public class MusicStreamProxyService {
     }
 
     /**
-     * 解析内容获取长度
-     *
-     * @param contentLength 内容长度
-     * @return 解析内容长度的结果
+    * 解析内容获取长度
+    *
+    * @param contentLength 内容长度
+    * @return 解析内容长度的结果
      */
     private long parseContentLength(Optional<String> contentLength) {
         if (contentLength.isEmpty() || !StringUtils.hasText(contentLength.get())) {
@@ -128,10 +128,10 @@ public class MusicStreamProxyService {
     }
 
     /**
-     * 解析media类型
-     *
-     * @param contentType 内容类型
-     * @return 解析media类型的结果
+    * 解析media类型
+    *
+    * @param contentType 内容类型
+    * @return 解析media类型的结果
      */
     private MediaType parseMediaType(String contentType) {
         if (!StringUtils.hasText(contentType)) {

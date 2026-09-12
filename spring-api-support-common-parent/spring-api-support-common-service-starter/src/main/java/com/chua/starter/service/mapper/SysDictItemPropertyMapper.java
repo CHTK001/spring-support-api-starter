@@ -5,10 +5,10 @@ import com.chua.starter.entity.service.SysDictItemProperty;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
-   * 字典项属性 映射器 接口
- *
- * @since 2023-07-01
- * @author CH
+* 字典项属性 映射器 接口
+*
+* @since 2023-07-01
+* @author CH
  */
 @Mapper
 public interface SysDictItemPropertyMapper extends BaseMapper<SysDictItemProperty> {

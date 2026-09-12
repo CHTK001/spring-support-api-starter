@@ -21,36 +21,36 @@ import javax.crypto.SecretKey;
 import java.security.PublicKey;
 
 /**
- * JWT 认证处理器
- * <p>
-   * 处理 JWT 令牌 的验证和解析，支持：
- * <ul>
- *     <li>HS256/HS384/HS512 对称加密算法</li>
- *     <li>RS256/RS384/RS512 RSA 非对称加密算法</li>
- *     <li>ES256/ES384/ES512 ECDSA 非对称加密算法</li>
- * </ul>
- * </p>
- *
-   * @版本 1.0.0
- * @since 2025-12-18
- * @author CH
+* JWT 认证处理器
+* <p>
+* 处理 JWT 令牌 的验证和解析，支持：
+* <ul>
+*     <li>HS256/HS384/HS512 对称加密算法</li>
+*     <li>RS256/RS384/RS512 RSA 非对称加密算法</li>
+*     <li>ES256/ES384/ES512 ECDSA 非对称加密算法</li>
+* </ul>
+* </p>
+*
+* @版本 1.0.0
+* @since 2025-12-18
+* @author CH
  */
 @Slf4j
 @Spi("jwt")
 public class JwtAuthorizationHandler implements AuthorizationHandler {
 
     /**
-      * JWT 令牌 前缀
+    * JWT 令牌 前缀
      */
     private static final String BEARER_PREFIX = "Bearer ";
 
     @Override
     /**
-     * Authenticate
-     * @param authInformation 认证信息
-     * @param token 令牌
-     * @param cookie Cookie
-     * @param userCode 用户编码
+    * Authenticate
+    * @param authInformation 认证信息
+    * @param token 令牌
+    * @param cookie Cookie
+    * @param userCode 用户编码
      */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation,
                                             String token,
@@ -111,9 +111,9 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
     }
 
     /**
-      * 提取 令牌（移除 Bearer 前缀）
-     * @param token 令牌
-     * @return extract令牌的结果
+    * 提取 令牌（移除 Bearer 前缀）
+    * @param token 令牌
+    * @return extract令牌的结果
      */
     private String extractToken(String token) {
         if (StringUtils.isBlank(token)) {
@@ -126,10 +126,10 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
     }
 
     /**
-     * 解析并验证 JWT
-     * @param jwtToken jwt令牌
-     * @param jwtConfig jwt配置
-     * @return 解析和校验jwt的结果
+    * 解析并验证 JWT
+    * @param jwtToken jwt令牌
+    * @param jwtConfig jwt配置
+    * @return 解析和校验jwt的结果
      */
     private Claims parseAndValidateJwt(String jwtToken, AuthServerProperties.JwtConfig jwtConfig) {
         String algorithm = jwtConfig.getAlgorithm().toUpperCase();
@@ -171,10 +171,10 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
     }
 
     /**
-     * 构建用户信息
-     * @param claims claims
-     * @param token 令牌
-     * @return 构建用户resume的结果
+    * 构建用户信息
+    * @param claims claims
+    * @param token 令牌
+    * @return 构建用户resume的结果
      */
     private UserResume buildUserResume(Claims claims, String token) {
         UserResume userResume = new UserResume();
@@ -209,10 +209,10 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
     }
 
     /**
-      * 检查 令牌 是否在黑名单中
-     * @param authInformation 认证信息
-     * @param token 令牌
-     * @return 是否令牌blacklisted的结果
+    * 检查 令牌 是否在黑名单中
+    * @param authInformation 认证信息
+    * @param token 令牌
+    * @return 是否令牌blacklisted的结果
      */
     private boolean isTokenBlacklisted(OauthAuthInformation authInformation, String token) {
         try {

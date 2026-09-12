@@ -13,52 +13,52 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 
 /**
-   * 应用密钥 服务 实现
- *
- * @since 2025/10/23
- * @author CH
+* 应用密钥 服务 实现
+*
+* @since 2025/10/23
+* @author CH
  */
 @Slf4j
 @Service
 public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey> implements SysAppKeyService {
 
     /**
-      * app键启用状态（1=启用，0=禁用）
+    * app键启用状态（1=启用，0=禁用）
      */
     private static final int STATUS_ENABLED = 1;
 
     /**
-     * 毫秒转秒的除数
+    * 毫秒转秒的除数
      */
     private static final long MILLIS_PER_SECOND = 1000L;
 
     /**
-     * 一天的秒数
+    * 一天的秒数
      */
     private static final long SECONDS_PER_DAY = 24L * 60L * 60L;
 
     /**
-     * 默认有效天数
+    * 默认有效天数
      */
     private static final int DEFAULT_VALID_DAYS = 30;
 
     /**
-     * IP白名单分隔符
+    * IP白名单分隔符
      */
     private static final String IP_WHITELIST_SEPARATOR = ",";
 
     /**
-     * IP白名单通配符
+    * IP白名单通配符
      */
     private static final String IP_WILDCARD = "*";
 
     @Override
     @Cacheable(value = "appKey:secret", key = "#appKey", unless = "#result == null")
     /**
-     * 获取byapp键
-     *
-     * @param appKey app键
-     * @return 获取byapp键的结果
+    * 获取byapp键
+    *
+    * @param appKey app键
+    * @return 获取byapp键的结果
      */
     public SysAppKey getByAppKey(String appKey) {
         if (StringUtils.isBlank(appKey)) {

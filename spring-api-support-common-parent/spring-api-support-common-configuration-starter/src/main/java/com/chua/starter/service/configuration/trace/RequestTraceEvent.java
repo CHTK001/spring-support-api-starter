@@ -3,10 +3,10 @@ package com.chua.starter.service.configuration.trace;
 import java.util.Set;
 
 /**
- * 请求追踪事件
- *
- * @since 2026/03/25
- * @author CH
+* 请求追踪事件
+*
+* @since 2026/03/25
+* @author CH
  */
 public record RequestTraceEvent(
         long timestamp,
@@ -48,10 +48,10 @@ public record RequestTraceEvent(
     }
 
     /**
-     * withsignals
-     *
-     * @param newSignals 新signals
-     * @return withSignals的结果
+    * withsignals
+    *
+    * @param newSignals 新signals
+    * @return withSignals的结果
      */
     public RequestTraceEvent withSignals(Set<RequestTraceSignal> newSignals) {
         return new RequestTraceEvent(
@@ -77,18 +77,18 @@ public record RequestTraceEvent(
     }
 
     /**
-     * Suspicious
-     *
-     * @return suspicious的结果
+    * Suspicious
+    *
+    * @return suspicious的结果
      */
     public boolean suspicious() {
         return !signals.isEmpty();
     }
 
     /**
-     * route键
-     *
-     * @return route键的结果
+    * route键
+    *
+    * @return route键的结果
      */
     public String routeKey() {
         if (method == null && path == null) {
@@ -105,9 +105,9 @@ public record RequestTraceEvent(
     }
 
     /**
-     * 请求url
-     *
-     * @return 请求url的结果
+    * 请求url
+    *
+    * @return 请求url的结果
      */
     public String requestUrl() {
         if (path == null) {
@@ -120,18 +120,18 @@ public record RequestTraceEvent(
     }
 
     /**
-     * actor键
-     *
-     * @return actor键的结果
+    * actor键
+    *
+    * @return actor键的结果
      */
     public String actorKey() {
         return RequestTraceSupport.firstNonBlank(userId, fingerprint, clientIp);
     }
 
     /**
-     * principal键
-     *
-     * @return principal键的结果
+    * principal键
+    *
+    * @return principal键的结果
      */
     public String principalKey() {
         return RequestTraceSupport.firstNonBlank(userId, tokenHash, fingerprint, clientIp);

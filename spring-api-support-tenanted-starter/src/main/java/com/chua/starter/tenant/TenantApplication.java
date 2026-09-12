@@ -15,20 +15,20 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
-   * 多租户 saas 平台启动入口。
- *
- * <p>依赖以下 starter:</p>
- * <ul>
- *   <li>{@code spring-api-support-common-tenant-starter} - 多租户核心能力</li>
- *   <li>{@code spring-api-support-common-system-starter} - 系统管理(用户/角色/菜单)</li>
- *   <li>{@code spring-api-support-common-service-starter} - 文件系统/字典/通用业务</li>
- * </ul>
- *
- * <p>提供多租户切换、独立数据库、租户级权限分配、SaaS 服务编排等能力。
- * 可独立部署或被嵌入到其他业务系统。</p>
- *
- * @author CH
- * @since 4.0.0.42
+* 多租户 saas 平台启动入口。
+*
+* <p>依赖以下 starter:</p>
+* <ul>
+*   <li>{@code spring-api-support-common-tenant-starter} - 多租户核心能力</li>
+*   <li>{@code spring-api-support-common-system-starter} - 系统管理(用户/角色/菜单)</li>
+*   <li>{@code spring-api-support-common-service-starter} - 文件系统/字典/通用业务</li>
+* </ul>
+*
+* <p>提供多租户切换、独立数据库、租户级权限分配、SaaS 服务编排等能力。
+* 可独立部署或被嵌入到其他业务系统。</p>
+*
+* @author CH
+* @since 4.0.0.42
  */
 @EnableAsync
 @EnableScheduling
@@ -53,17 +53,17 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         }
 )
 /**
-   * 公共 类 tenantapplication extends springbootservletinitializer {
- *
- * @author CH
- * @since 4.0.0.42
+* 公共 类 tenantapplication extends springbootservletinitializer {
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class TenantApplication extends SpringBootServletInitializer {
 
     /**
-     * 应用启动入口。
-     *
-     * @param args 启动参数
+    * 应用启动入口。
+    *
+    * @param args 启动参数
      */
     public static void main(String[] args) {
         SpringApplication app = new SpringApplicationBuilder()
@@ -74,10 +74,10 @@ public class TenantApplication extends SpringBootServletInitializer {
     }
 
     /**
-     * 配置 Servlet 容器。
-     *
-     * @param builder Spring 应用构建器
-     * @return 配置后的构建器
+    * 配置 Servlet 容器。
+    *
+    * @param builder Spring 应用构建器
+    * @return 配置后的构建器
      */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {

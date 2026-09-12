@@ -12,10 +12,10 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
-   * appid应用标识实体类
- *
- * @since 2025/01/05
- * @author CH
+* appid应用标识实体类
+*
+* @since 2025/01/05
+* @author CH
  */
 @Data
 @TableName("app_id")

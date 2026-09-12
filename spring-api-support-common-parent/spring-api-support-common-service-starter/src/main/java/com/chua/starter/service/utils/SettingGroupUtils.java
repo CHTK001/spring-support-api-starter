@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * 配置组工具类
- *
- * @since 2025/9/28
- * @author CH
+* 配置组工具类
+*
+* @since 2025/9/28
+* @author CH
  */
 @Component
 @RequiredArgsConstructor
@@ -46,18 +46,18 @@ public class SettingGroupUtils {
     }
 
     /**
-     * 检查email配置组是否使用项目接口
-     *
-     * @return true: 使用项目接口, false: 不使用项目接口
+    * 检查email配置组是否使用项目接口
+    *
+    * @return true: 使用项目接口, false: 不使用项目接口
      */
     public boolean isEmailUseProjectInterface() {
         return isUseProjectInterface("email");
     }
 
     /**
-     * 检查sms配置组是否使用项目接口
-     *
-     * @return true: 使用项目接口, false: 不使用项目接口
+    * 检查sms配置组是否使用项目接口
+    *
+    * @return true: 使用项目接口, false: 不使用项目接口
      */
     public boolean isSmsUseProjectInterface() {
         return isUseProjectInterface("sms");

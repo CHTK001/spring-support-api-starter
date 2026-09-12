@@ -6,10 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
- * Overpass OSM 矢量下载请求体。
- *
- * @author CH
- * @since 1.0.0
+* Overpass OSM 矢量下载请求体。
+*
+* @author CH
+* @since 1.0.0
  */
 @Data
 public class OverpassQueryRequest {

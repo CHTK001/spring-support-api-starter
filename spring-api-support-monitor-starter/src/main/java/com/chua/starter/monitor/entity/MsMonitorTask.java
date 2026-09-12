@@ -13,10 +13,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 采集任务实体，定义针对监控资产的定时采集任务，包括健康检查、指标采集、告警等。
- *
- * @since 2026-08-11
- * @author CH
+* 采集任务实体，定义针对监控资产的定时采集任务，包括健康检查、指标采集、告警等。
+*
+* @since 2026-08-11
+* @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
 public class MsMonitorTask extends SysBase {
 
     /**
-      * 采集任务主键标识，自增
+    * 采集任务主键标识，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")

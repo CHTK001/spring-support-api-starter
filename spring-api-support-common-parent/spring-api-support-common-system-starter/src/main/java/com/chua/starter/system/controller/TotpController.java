@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 2fa密钥管理
- * @since 2024/12/10
- * @author CH
+* 2fa密钥管理
+* @since 2024/12/10
+* @author CH
  */
 @RestController
 @Slf4j
@@ -30,10 +30,10 @@ public class TotpController {
 
     final SimpleSysUserService simpleSysUserService; // 简单sys用户服务
     /**
-     * 绑定
-     * @param sysUserId sys用户id
-     * @return ReturnResult
-     * @param true true
+    * 绑定
+    * @param sysUserId sys用户id
+    * @return ReturnResult
+    * @param true true
      */
     @Operation(summary = "绑定2fa密钥")
     @PutMapping("/bind")
@@ -43,10 +43,10 @@ public class TotpController {
 
 
     /**
-     * 解绑
-     * @param sysUserId sys用户id
-     * @return ReturnResult
-     * @param true true
+    * 解绑
+    * @param sysUserId sys用户id
+    * @return ReturnResult
+    * @param true true
      */
     @Operation(summary = "解绑2fa密钥")
     @PutMapping("/unbind")
@@ -55,10 +55,10 @@ public class TotpController {
     }
 
     /**
-     * 查询当前用户 2FA 状态
-     * @param sysUserId sys用户id
-     * @return ReturnResult
-     * @param true true
+    * 查询当前用户 2FA 状态
+    * @param sysUserId sys用户id
+    * @return ReturnResult
+    * @param true true
      */
     @Operation(summary = "查询2fa状态")
     @GetMapping("/status")
@@ -67,10 +67,10 @@ public class TotpController {
     }
 
     /**
-     * 生成
-     * @param sysUserId sys用户id
-     * @return ReturnResult
-     * @param true true
+    * 生成
+    * @param sysUserId sys用户id
+    * @return ReturnResult
+    * @param true true
      */
     @Operation(summary = "生成2fa密钥")
     @GetMapping("/generate")
@@ -78,10 +78,10 @@ public class TotpController {
         return simpleSysUserService.generate(sysUserId);
     }
     /**
-     * 生成
-     * @param sysUserId sys用户id
-     * @return ReturnResult
-     * @param true true
+    * 生成
+    * @param sysUserId sys用户id
+    * @return ReturnResult
+    * @param true true
      */
     @Operation(summary = "生成2fa密钥URI")
     @GetMapping("/generateUri")
@@ -90,10 +90,10 @@ public class TotpController {
     }
 
     /**
-     * 验证 TOTP 验证码
-     * @param code 验证码（6位数字）
-     * @param username 用户名
-     * @return ReturnResult
+    * 验证 TOTP 验证码
+    * @param code 验证码（6位数字）
+    * @param username 用户名
+    * @return ReturnResult
      */
     @Operation(summary = "验证2fa验证码")
     @GetMapping("/verify")

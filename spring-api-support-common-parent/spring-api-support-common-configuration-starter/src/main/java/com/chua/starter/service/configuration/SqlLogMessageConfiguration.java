@@ -4,25 +4,25 @@ import com.p6spy.engine.spy.appender.MessageFormattingStrategy;
 import org.slf4j.MDC;
 
 /**
-   * SQL日志
- *
- * @since 2024/9/6
- * @author CH
+* SQL日志
+*
+* @since 2024/9/6
+* @author CH
  */
 public class SqlLogMessageConfiguration implements MessageFormattingStrategy {
 
     /**
-     * 日志格式化方式（打印SQL日志会进入此方法，耗时操作，生产环境不建议使用）
-     *
-     * @param connectionId 连接标识
-     * @param now          当前时间
-     * @param elapsed      花费时间
-     * @param category     类别
-     * @param prepared     预编译SQL
-     * @param sql          最终执行的SQL
-     * @param url          数据库连接地址
-     * @return 格式化日志结果
-     * @since 1.0.0
+    * 日志格式化方式（打印SQL日志会进入此方法，耗时操作，生产环境不建议使用）
+    *
+    * @param connectionId 连接标识
+    * @param now          当前时间
+    * @param elapsed      花费时间
+    * @param category     类别
+    * @param prepared     预编译SQL
+    * @param sql          最终执行的SQL
+    * @param url          数据库连接地址
+    * @return 格式化日志结果
+    * @since 1.0.0
      */
     @Override
     public String formatMessage(int connectionId, String now, long elapsed, String category, String prepared, String sql, String url) {

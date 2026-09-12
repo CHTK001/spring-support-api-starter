@@ -8,10 +8,10 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 申请证书请求，包含账户、域名（主域名与 SAN）、挑战类型、部署模式及 SSH 远程部署信息。
- *
- * @since 2025-10-17
- * @author CH
+* 申请证书请求，包含账户、域名（主域名与 SAN）、挑战类型、部署模式及 SSH 远程部署信息。
+*
+* @since 2025-10-17
+* @author CH
  */
 @Data
 @ApiModel(description = "申请证书请求")
@@ -19,7 +19,7 @@ import java.util.List;
 public class AcmeApplyCertRequest {
 
     /**
-      * ACME 账户 标识，关联已保存的 ACME 账户
+    * ACME 账户 标识，关联已保存的 ACME 账户
      */
     @ApiModelProperty("ACME账户ID")
     @Schema(description = "ACME账户ID")

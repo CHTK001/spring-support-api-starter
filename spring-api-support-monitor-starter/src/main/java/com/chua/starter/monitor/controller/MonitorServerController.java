@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 被监控服务器主机管理接口，提供服务器分页查询、列表查询、详情、保存、更新与删除能力。
- *
- * @since 2026-07-28
- * @author CH
+* 被监控服务器主机管理接口，提供服务器分页查询、列表查询、详情、保存、更新与删除能力。
+*
+* @since 2026-07-28
+* @author CH
  */
 @Slf4j
 @RestController
@@ -41,21 +41,21 @@ import java.util.Map;
 public class MonitorServerController {
 
     /**
-     * 服务器状态：启用
+    * 服务器状态：启用
      */
     private static final int STATUS_ENABLED = 1;
 
     /**
-     * 服务器主机服务
+    * 服务器主机服务
      */
     private final MonitorServerService serverService;
 
     /**
-     * 服务器分页查询。
-     *
-     * @param page   分页参数
-     * @param entity 查询条件（名称/IP/分组/状态）
-     * @return 服务器分页列表
+    * 服务器分页查询。
+    *
+    * @param page   分页参数
+    * @param entity 查询条件（名称/IP/分组/状态）
+    * @return 服务器分页列表
      */
     @GetMapping("/page")
     @Operation(summary = "服务器分页查询")
@@ -78,9 +78,9 @@ public class MonitorServerController {
     }
 
     /**
-     * 服务器列表查询（全部）。
-     *
-     * @return 服务器列表
+    * 服务器列表查询（全部）。
+    *
+    * @return 服务器列表
      */
     @GetMapping("/list")
     @Operation(summary = "服务器列表查询")
@@ -89,9 +89,9 @@ public class MonitorServerController {
     }
 
     /**
-      * 获取服务器下拉选项（标识 与名称）。
-     *
-     * @return 服务器选项列表
+    * 获取服务器下拉选项（标识 与名称）。
+    *
+    * @return 服务器选项列表
      */
     @GetMapping("/options")
     @Operation(summary = "获取服务器下拉选项")
@@ -100,11 +100,11 @@ public class MonitorServerController {
     }
 
     /**
-     * 获取服务器详情。
-     *
-     * @param serverId 服务器标识
-     * @return 服务器详情
-     * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
+    * 获取服务器详情。
+    *
+    * @param serverId 服务器标识
+    * @return 服务器详情
+    * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
      */
     @GetMapping("/detail/{serverId}")
     @Operation(summary = "获取服务器详情")
@@ -113,10 +113,10 @@ public class MonitorServerController {
     }
 
     /**
-     * 保存服务器信息，新服务器默认状态为启用。
-     *
-     * @param server 服务器实体
-     * @return 保存后的服务器
+    * 保存服务器信息，新服务器默认状态为启用。
+    *
+    * @param server 服务器实体
+    * @return 保存后的服务器
      */
     @PostMapping("/save")
     @Operation(summary = "保存服务器")
@@ -129,10 +129,10 @@ public class MonitorServerController {
     }
 
     /**
-     * 更新服务器信息。
-     *
-     * @param server 服务器实体（必须包含服务器标识）
-     * @return 是否更新成功
+    * 更新服务器信息。
+    *
+    * @param server 服务器实体（必须包含服务器标识）
+    * @return 是否更新成功
      */
     @PutMapping("/update")
     @Operation(summary = "更新服务器")
@@ -144,11 +144,11 @@ public class MonitorServerController {
     }
 
     /**
-     * 删除服务器信息。
-     *
-     * @param serverId 服务器标识
-     * @return 是否删除成功
-     * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
+    * 删除服务器信息。
+    *
+    * @param serverId 服务器标识
+    * @return 是否删除成功
+    * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
      */
     @DeleteMapping("/remove/{serverId}")
     @Operation(summary = "删除服务器")

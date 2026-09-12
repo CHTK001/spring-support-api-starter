@@ -35,10 +35,10 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Armeria 协议
- *
- * @author CH
- * @since 4.0.0
+* Armeria 协议
+*
+* @author CH
+* @since 4.0.0
  */
 @Component
 @Extension("armeria")
@@ -94,9 +94,9 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-      * 注册 协议服务端 路由
-     *
-     * @param server 协议服务端 实例
+    * 注册 协议服务端 路由
+    *
+    * @param server 协议服务端 实例
      */
     private void registerProtocolServerRoutes(ProtocolServer server) {
         // 登录端点
@@ -385,9 +385,9 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-     * 处理验证请求。
-     * @param request 请求
-     * @param response 响应
+    * 处理验证请求。
+    * @param request 请求
+    * @param response 响应
      */
     private void handleVerifyRequest(ServletRequest request, ServletResponse response) {
         try {
@@ -422,9 +422,9 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-      * 从 servlet请求 提取请求体
-     * @param request 请求
-     * @return extract主体的结果
+    * 从 servlet请求 提取请求体
+    * @param request 请求
+    * @return extract主体的结果
      */
     private String extractBody(ServletRequest request) {
         try {
@@ -440,9 +440,9 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-     * 写入响应
-     * @param response 响应
-     * @param result 结果
+    * 写入响应
+    * @param response 响应
+    * @param result 结果
      */
     private void writeResponse(ServletResponse response, ReturnResult<?> result) {
         try {
@@ -455,8 +455,8 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-     * 构建管理控制台 HTML
-     * @return 构建adminhtml的结果
+    * 构建管理控制台 HTML
+    * @return 构建adminhtml的结果
      */
     private String buildAdminHtml() {
         return """

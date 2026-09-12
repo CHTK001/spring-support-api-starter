@@ -10,10 +10,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 头像框定义表
- *
- * @since 2024/8/7
- * @author CH
+* 头像框定义表
+*
+* @since 2024/8/7
+* @author CH
  */
 @Schema(description = "头像框定义表")
 @Data

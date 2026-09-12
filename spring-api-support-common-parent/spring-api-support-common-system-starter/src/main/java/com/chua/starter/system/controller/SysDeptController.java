@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 组织机构接口
- *
- * @since 2024/8/7
- * @author CH
+* 组织机构接口
+*
+* @since 2024/8/7
+* @author CH
  */
 @Tag(name = "组织机构接口")
 @RestController
@@ -53,21 +53,21 @@ public class SysDeptController {
             key = "'sys:dept:list:' + #userId + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDept.sysDeptName,'')",
             unless = "#result == null || #result.data == null || #result.data.isEmpty()")
     /**
-     * 列表
-     *
-     * @param sysDept sysDept
-     * @param true true
-     * @return 列表的结果
+    * 列表
+    *
+    * @param sysDept sysDept
+    * @param true true
+    * @return 列表的结果
      */
     public ReturnResult<List<SysDeptVO>> list(@ParameterObject SysDept sysDept, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         return ReturnResult.ok(sysDeptService.list(sysDept, roles));
     }
 
     /**
-     * 删除组织机构
-     *
-     * @return 更新组织机构
-     * @param deptId deptId
+    * 删除组织机构
+    *
+    * @return 更新组织机构
+    * @param deptId deptId
      */
     @Operation(summary = "删除组织机构")
     @DeleteMapping("/delete")
@@ -84,9 +84,9 @@ public class SysDeptController {
 
 
     /**
-     * 更新组织机构
-     *
-     * @return 更新组织机构
+    * 更新组织机构
+    *
+    * @return 更新组织机构
      */
     @Operation(summary = "更新组织机构")
     @PutMapping("/update")
@@ -104,9 +104,9 @@ public class SysDeptController {
     }
 
     /**
-     * 新增组织机构
-     *
-     * @return 新增组织机构
+    * 新增组织机构
+    *
+    * @return 新增组织机构
      */
     @Operation(summary = "新增组织机构")
     @PostMapping("/save")

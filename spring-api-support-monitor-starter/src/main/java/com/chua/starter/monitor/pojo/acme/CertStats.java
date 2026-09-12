@@ -6,11 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 证书统计信息
- *
-   * @版本 1.0.0
- * @since 2025-12-06
- * @author CH
+* 证书统计信息
+*
+* @版本 1.0.0
+* @since 2025-12-06
+* @author CH
  */
 @Data
 @ApiModel(description = "证书统计信息")
@@ -18,7 +18,7 @@ import lombok.Data;
 public class CertStats {
 
     /**
-     * 账户总数
+    * 账户总数
      */
     @ApiModelProperty("账户总数")
     @Schema(description = "账户总数")

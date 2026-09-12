@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * 用户协议视图对象
- *
- * @since 2026/08/03
- * @author CH
+* 用户协议视图对象
+*
+* @since 2026/08/03
+* @author CH
  */
 @Data
 @NoArgsConstructor
@@ -20,7 +20,7 @@ import java.util.List;
 public class UserAgreementVO {
 
     /**
-     * 协议标题
+    * 协议标题
      */
     @Schema(description = "协议标题")
     /** 标题 */
@@ -80,7 +80,7 @@ public class UserAgreementVO {
     @Schema(description = "协议章节")
     public static class Section {
         /**
-         * 章节标题
+        * 章节标题
          */
         @Schema(description = "章节标题")
         /** 标题 */

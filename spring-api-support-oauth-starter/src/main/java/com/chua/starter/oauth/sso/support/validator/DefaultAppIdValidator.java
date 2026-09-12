@@ -8,21 +8,21 @@ import com.chua.starter.system.service.SysAppIdService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-   * 默认 appid 验证器
- * <p>
-   * 默认实现：从app_标识表查询appid并比较是否匹配
- * </p>
- *
-   * @版本 1.0.0
- * @since 2025-01-05
- * @author CH
+* 默认 appid 验证器
+* <p>
+* 默认实现：从app_标识表查询appid并比较是否匹配
+* </p>
+*
+* @版本 1.0.0
+* @since 2025-01-05
+* @author CH
  */
 @Slf4j
 @SpiDefault
 public class DefaultAppIdValidator implements AppIdValidator {
 
     /**
-      * appid 服务
+    * appid 服务
      */
     @AutoInject
     /** SYSAPPID服务 */
@@ -70,9 +70,9 @@ public class DefaultAppIdValidator implements AppIdValidator {
     }
 
     /**
-      * 脱敏 appid
-     * @param appId appId
-     * @return maskAppId的结果
+    * 脱敏 appid
+    * @param appId appId
+    * @return maskAppId的结果
      */
     private String maskAppId(String appId) {
         if (appId == null || appId.length() < 8) {

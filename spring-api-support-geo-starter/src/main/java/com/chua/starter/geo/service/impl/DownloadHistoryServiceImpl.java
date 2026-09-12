@@ -17,11 +17,11 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * 下载历史记录服务实现，使用 JSON 文件持久化。
-   * 文件路径默认 ~/.geo-downloader/历史.json，可通过配置覆盖。
- *
- * @author CH
- * @since 1.0.0
+* 下载历史记录服务实现，使用 JSON 文件持久化。
+* 文件路径默认 ~/.geo-downloader/历史.json，可通过配置覆盖。
+*
+* @author CH
+* @since 1.0.0
  */
 @Service
 @Slf4j
@@ -52,7 +52,7 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
     }
 
     /**
-     * 应用启动时初始化文件。
+    * 应用启动时初始化文件。
      */
     @PostConstruct
     public void init() {
@@ -68,9 +68,9 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
     }
 
     /**
-     * 保存下载成功记录。
-     *
-     * @param record 下载结果记录
+    * 保存下载成功记录。
+    *
+    * @param record 下载结果记录
      */
     @Override
     public void save(DownloadHistoryRecord record) {
@@ -83,9 +83,9 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
     }
 
     /**
-     * 保存下载失败记录。
-     *
-     * @param record 失败结果记录
+    * 保存下载失败记录。
+    *
+    * @param record 失败结果记录
      */
     @Override
     public void saveFailed(DownloadHistoryRecord record) {
@@ -98,9 +98,9 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
     }
 
     /**
-     * 获取所有历史记录（按创建时间倒序）。
-     *
-     * @return 历史记录列表
+    * 获取所有历史记录（按创建时间倒序）。
+    *
+    * @return 历史记录列表
      */
     @Override
     public List<DownloadHistoryRecord> listAll() {
@@ -108,11 +108,11 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
     }
 
     /**
-     * 分页查询历史记录。
-     *
-     * @param page     页码（从 1 开始）
-     * @param pageSize 每页大小
-     * @return 分页结果
+    * 分页查询历史记录。
+    *
+    * @param page     页码（从 1 开始）
+    * @param pageSize 每页大小
+    * @return 分页结果
      */
     @Override
     public PageResult listPage(int page, int pageSize) {
@@ -124,10 +124,10 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
     }
 
     /**
-     * 删除指定记录。
-     *
-     * @param id 记录 标识
-     * @return 是否删除成功
+    * 删除指定记录。
+    *
+    * @param id 记录 标识
+    * @return 是否删除成功
      */
     @Override
     public boolean delete(String id) {
@@ -140,7 +140,7 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
     }
 
     /**
-     * 清空所有历史记录。
+    * 清空所有历史记录。
      */
     @Override
     public void clear() {
@@ -149,9 +149,9 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
     }
 
     /**
-     * 读取所有历史记录。
-     *
-     * @return 历史记录列表
+    * 读取所有历史记录。
+    *
+    * @return 历史记录列表
      */
     private List<DownloadHistoryRecord> readAll() {
         try {
@@ -170,9 +170,9 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
     }
 
     /**
-     * 写入所有历史记录。
-     *
-     * @param records 历史记录列表
+    * 写入所有历史记录。
+    *
+    * @param records 历史记录列表
      */
     private void writeAll(List<DownloadHistoryRecord> records) {
         try {

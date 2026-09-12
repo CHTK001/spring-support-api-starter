@@ -14,10 +14,10 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
- * 单点登录
- *
- * @author CH
- * @since 2022/7/25 10:59
+* 单点登录
+*
+* @author CH
+* @since 2022/7/25 10:59
  */
 @EnableCaching
 @EnableAsync
@@ -36,16 +36,16 @@ import org.springframework.scheduling.annotation.EnableAsync;
         )
 )
 /**
-   * 公共 类 认证application {
- *
- * @author CH
- * @since 4.0.0.42
+* 公共 类 认证application {
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class AuthApplication {
 
     /**
-     * main。
-     * @param args 参数
+    * main。
+    * @param args 参数
      */
     public static void main(String[] args) {
         SpringApplication.run(AuthApplication.class);

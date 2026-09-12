@@ -12,10 +12,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * ACME 证书服务实现，提供证书按账户/域名查询、过期监测、保存、状态更新与删除能力。
- *
- * @since 4.0.0.42
- * @author CH
+* ACME 证书服务实现，提供证书按账户/域名查询、过期监测、保存、状态更新与删除能力。
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Service
 public class MonitorAcmeCertificateServiceImpl
@@ -23,15 +23,15 @@ public class MonitorAcmeCertificateServiceImpl
         implements MonitorAcmeCertificateService {
 
     /**
-     * 证书状态：已签发
+    * 证书状态：已签发
      */
     private static final String STATUS_ISSUED = "issued";
 
     /**
-     * 查询某账户下的所有证书。
-     *
-     * @param accountId 账户主键
-     * @return 证书列表，账户为空时返回空列表
+    * 查询某账户下的所有证书。
+    *
+    * @param accountId 账户主键
+    * @return 证书列表，账户为空时返回空列表
      */
     @Override
     public List<MonitorAcmeCertificate> listByAccountId(Integer accountId) {
@@ -44,10 +44,10 @@ public class MonitorAcmeCertificateServiceImpl
     }
 
     /**
-     * 查询某主域名的所有证书（含 SAN 匹配）。
-     *
-     * @param domain 主域名
-     * @return 证书列表，域名为空时返回空列表
+    * 查询某主域名的所有证书（含 SAN 匹配）。
+    *
+    * @param domain 主域名
+    * @return 证书列表，域名为空时返回空列表
      */
     @Override
     public List<MonitorAcmeCertificate> listByDomain(String domain) {
@@ -60,11 +60,11 @@ public class MonitorAcmeCertificateServiceImpl
     }
 
     /**
-     * 查询在指定时间窗口内即将过期的证书。
-     *
-     * @param now             当前时间（毫秒）
-     * @param expireWindowMs  过期窗口（毫秒）
-     * @return 即将过期证书列表
+    * 查询在指定时间窗口内即将过期的证书。
+    *
+    * @param now             当前时间（毫秒）
+    * @param expireWindowMs  过期窗口（毫秒）
+    * @return 即将过期证书列表
      */
     @Override
     public List<MonitorAcmeCertificate> listExpiring(long now, long expireWindowMs) {
@@ -76,10 +76,10 @@ public class MonitorAcmeCertificateServiceImpl
     }
 
     /**
-     * 保存证书：无主键时新增（回填创建/更新时间），有主键时更新。
-     *
-     * @param cert 证书
-     * @return 保存后的对象，参数为空或更新失败时返回 空
+    * 保存证书：无主键时新增（回填创建/更新时间），有主键时更新。
+    *
+    * @param cert 证书
+    * @return 保存后的对象，参数为空或更新失败时返回 空
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -99,11 +99,11 @@ public class MonitorAcmeCertificateServiceImpl
     }
 
     /**
-     * 更新证书状态。
-     *
-     * @param certId    证书主键
-     * @param newStatus 新状态
-     * @return 是否成功，参数为空时返回 false
+    * 更新证书状态。
+    *
+    * @param certId    证书主键
+    * @param newStatus 新状态
+    * @return 是否成功，参数为空时返回 false
      */
     @Override
     public boolean updateStatus(Integer certId, String newStatus) {
@@ -118,10 +118,10 @@ public class MonitorAcmeCertificateServiceImpl
     }
 
     /**
-     * 删除证书。
-     *
-     * @param certId 证书主键
-     * @return 是否成功，参数为空时返回 false
+    * 删除证书。
+    *
+    * @param certId 证书主键
+    * @return 是否成功，参数为空时返回 false
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -133,9 +133,9 @@ public class MonitorAcmeCertificateServiceImpl
     }
 
     /**
-     * 统计证书总数。
-     *
-     * @return 证书数量
+    * 统计证书总数。
+    *
+    * @return 证书数量
      */
     @Override
     public long countCerts() {

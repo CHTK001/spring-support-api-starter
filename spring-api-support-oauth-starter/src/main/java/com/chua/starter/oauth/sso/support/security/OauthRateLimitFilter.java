@@ -21,13 +21,13 @@ import java.time.Duration;
 import java.util.List;
 
 /**
- * OAuth IP 级请求限流过滤器
- *
- * <p>基于 Redis 计数器按客户端 IP 限制单位时间窗口内的请求次数，防止接口被刷。</p>
- * <p>与 {@link LoginAttemptService} 互补：本过滤器按 IP 限流，登录锁定按用户名限流。</p>
- *
- * @since 2025/01/01
- * @author CH
+* OAuth IP 级请求限流过滤器
+*
+* <p>基于 Redis 计数器按客户端 IP 限制单位时间窗口内的请求次数，防止接口被刷。</p>
+* <p>与 {@link LoginAttemptService} 互补：本过滤器按 IP 限流，登录锁定按用户名限流。</p>
+*
+* @since 2025/01/01
+* @author CH
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -85,10 +85,10 @@ public class OauthRateLimitFilter implements Filter, Ordered {
     }
 
     /**
-     * 是否应该限制
-     *
-     * @param request 请求
-     * @return should限制的结果
+    * 是否应该限制
+    *
+    * @param request 请求
+    * @return should限制的结果
      */
     private boolean shouldLimit(HttpServletRequest request) {
         String uri = request.getRequestURI();
@@ -106,11 +106,11 @@ public class OauthRateLimitFilter implements Filter, Ordered {
     }
 
     /**
-     * 匹配任意
-     *
-     * @param uri uri
-     * @param patterns 模式
-     * @return 匹配任意的结果
+    * 匹配任意
+    *
+    * @param uri uri
+    * @param patterns 模式
+    * @return 匹配任意的结果
      */
     private boolean matchesAny(String uri, List<String> patterns) {
         if (patterns == null || patterns.isEmpty()) {
@@ -128,10 +128,10 @@ public class OauthRateLimitFilter implements Filter, Ordered {
     }
 
     /**
-     * 解析客户端ip
-     *
-     * @param request 请求
-     * @return resolve客户端ip的结果
+    * 解析客户端ip
+    *
+    * @param request 请求
+    * @return resolve客户端ip的结果
      */
     private String resolveClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
@@ -157,8 +157,8 @@ public class OauthRateLimitFilter implements Filter, Ordered {
     }
 
     /**
-      * 写入toomanyRequests
-     * @param response 响应
+    * 写入toomanyRequests
+    * @param response 响应
      */
     private void writeTooManyRequests(HttpServletResponse response, OauthSecurityProperties.RateLimit rateLimit)
             throws IOException {

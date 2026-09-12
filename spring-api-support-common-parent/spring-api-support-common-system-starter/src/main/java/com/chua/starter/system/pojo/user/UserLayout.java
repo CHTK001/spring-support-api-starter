@@ -4,17 +4,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 用户布局
- *
- * @since 2024/8/29
- * @author CH
+* 用户布局
+*
+* @since 2024/8/29
+* @author CH
  */
 @Data
 @Schema(description = "用户布局")
 public class UserLayout {
 
     /**
-     * 布局网格
+    * 布局网格
      */
     @Schema(description = "布局网格")
     /** Grid */

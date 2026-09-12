@@ -9,11 +9,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * 租户绑定服务请求
- *
-   * @版本 1.0.0
- * @since 2024/12/06
- * @author CH
+* 租户绑定服务请求
+*
+* @版本 1.0.0
+* @since 2024/12/06
+* @author CH
  */
 @Data
 @ApiModel(description = "租户绑定服务请求")
@@ -21,7 +21,7 @@ import java.util.List;
 public class SysTenantBindServiceV1Request {
 
     /**
-      * 租户标识
+    * 租户标识
      */
     @ApiModelProperty(value = "租户ID", required = true)
     @Schema(description = "租户ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -47,7 +47,7 @@ public class SysTenantBindServiceV1Request {
     public static class ServiceBindItem {
 
         /**
-          * 服务标识
+        * 服务标识
          */
         @ApiModelProperty(value = "服务ID", required = true)
         @Schema(description = "服务ID", requiredMode = Schema.RequiredMode.REQUIRED)

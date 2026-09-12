@@ -10,23 +10,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 
 /**
- * 登出认证信息 - 支持多协议
- *
- * @author CH
- * @since 4.0.0
+* 登出认证信息 - 支持多协议
+*
+* @author CH
+* @since 4.0.0
  */
 @Slf4j
 public class LogoutAuthInformation extends BaseAuthInformation {
 
     // HTTP协议构造函数
     /**
-      * 创建 logout认证信息 实例
-     * @param authServerProperties 认证服务端属性
-     * @param data 数据
-     * @param request 请求
-     * @param response 响应
-     * @param applicationContext application上下文
-     * @param loginCheck login检查
+    * 创建 logout认证信息 实例
+    * @param authServerProperties 认证服务端属性
+    * @param data 数据
+    * @param request 请求
+    * @param response 响应
+    * @param applicationContext application上下文
+    * @param loginCheck login检查
      */
     public LogoutAuthInformation(AuthServerProperties authServerProperties,
                                  String data,
@@ -39,13 +39,13 @@ public class LogoutAuthInformation extends BaseAuthInformation {
 
     // Armeria协议构造函数
     /**
-      * 创建 logout认证信息 实例
-     * @param authServerProperties 认证服务端属性
-     * @param data 数据
-     * @param request 请求
-     * @param response 响应
-     * @param applicationContext application上下文
-     * @param loginCheck login检查
+    * 创建 logout认证信息 实例
+    * @param authServerProperties 认证服务端属性
+    * @param data 数据
+    * @param request 请求
+    * @param response 响应
+    * @param applicationContext application上下文
+    * @param loginCheck login检查
      */
     public LogoutAuthInformation(AuthServerProperties authServerProperties,
                                  String data,

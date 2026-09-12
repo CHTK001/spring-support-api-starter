@@ -18,21 +18,21 @@ import java.time.Duration;
 import java.util.*;
 
 /**
- * OAuth2 核心服务
- * <p>
- * 提供 OAuth2 协议所需的核心功能：
- * <ul>
- *   <li>授权码（Authorization Code）的生成、存储和验证</li>
- *   <li>PKCE（Proof Key for Code Exchange）支持</li>
- *   <li>Scope 权限验证</li>
- *   <li>Grant Type 授权类型验证</li>
- *   <li>Redirect URI 回调地址验证</li>
- * </ul>
- * </p>
- *
-   * @版本 1.0.0
- * @since 2025-12-28
- * @author CH
+* OAuth2 核心服务
+* <p>
+* 提供 OAuth2 协议所需的核心功能：
+* <ul>
+*   <li>授权码（Authorization Code）的生成、存储和验证</li>
+*   <li>PKCE（Proof Key for Code Exchange）支持</li>
+*   <li>Scope 权限验证</li>
+*   <li>Grant Type 授权类型验证</li>
+*   <li>Redirect URI 回调地址验证</li>
+* </ul>
+* </p>
+*
+* @版本 1.0.0
+* @since 2025-12-28
+* @author CH
  */
 @Slf4j
 @Service
@@ -50,32 +50,32 @@ public class OAuth2CoreService {
     private static final String AUTH_CODE_PREFIX = "oauth:code:";
 
     /**
-     * 授权码有效期（秒）
+    * 授权码有效期（秒）
      */
     private static final int AUTH_CODE_EXPIRE_SECONDS = 300;
 
     /**
-     * 授权码长度
+    * 授权码长度
      */
     private static final int AUTH_CODE_LENGTH = 32;
 
     /**
-     * PKCE S256 方法
+    * PKCE S256 方法
      */
     private static final String PKCE_METHOD_S256 = "S256";
 
     /**
-     * PKCE plain 方法
+    * PKCE plain 方法
      */
     private static final String PKCE_METHOD_PLAIN = "plain";
 
     /**
-     * 默认允许的所有 scope
+    * 默认允许的所有 scope
      */
     private static final Set<String> DEFAULT_SCOPES = Set.of("read", "write", "admin", "openid", "profile", "email");
 
     /**
-      * 默认允许的所有 grant_类型
+    * 默认允许的所有 grant_类型
      */
     private static final Set<String> DEFAULT_GRANT_TYPES = Set.of(
             "client_credentials", "password", "authorization_code", "refresh_token"
@@ -135,13 +135,13 @@ public class OAuth2CoreService {
     }
 
     /**
-     * 验证并消费授权码
-     *
-     * @param code         授权码
-     * @param clientId     客户端标识
-     * @param redirectUri  回调地址
-     * @param codeVerifier PKCE 编码_verifier
-     * @return 授权码数据，验证失败返回 空
+    * 验证并消费授权码
+    *
+    * @param code         授权码
+    * @param clientId     客户端标识
+    * @param redirectUri  回调地址
+    * @param codeVerifier PKCE 编码_verifier
+    * @return 授权码数据，验证失败返回 空
      */
     public AuthorizationCodeData validateAndConsumeCode(String code, String clientId, 
                                                         String redirectUri, String codeVerifier) {
@@ -201,12 +201,12 @@ public class OAuth2CoreService {
     // ==================== PKCE 验证 ====================
 
     /**
-     * 验证 PKCE
-     *
-     * @param codeVerifier  编码_verifier
-     * @param codeChallenge 编码_challenge
-     * @param method        验证方法（S256 或 plain）
-     * @return 是否验证通过
+    * 验证 PKCE
+    *
+    * @param codeVerifier  编码_verifier
+    * @param codeChallenge 编码_challenge
+    * @param method        验证方法（S256 或 plain）
+    * @return 是否验证通过
      */
     public boolean verifyPkce(String codeVerifier, String codeChallenge, String method) {
         if (StringUtils.isBlank(codeVerifier) || StringUtils.isBlank(codeChallenge)) {
@@ -227,9 +227,9 @@ public class OAuth2CoreService {
     }
 
     /**
-      * 计算 S256 编码_challenge
-     * @param codeVerifier 编码verifier
-     * @return computeS256Challenge的结果
+    * 计算 S256 编码_challenge
+    * @param codeVerifier 编码verifier
+    * @return computeS256Challenge的结果
      */
     private String computeS256Challenge(String codeVerifier) {
         try {
@@ -244,11 +244,11 @@ public class OAuth2CoreService {
     // ==================== Scope 验证 ====================
 
     /**
-     * 验证客户端请求的 scope
-     *
-     * @param clientId       客户端标识
-     * @param requestedScope 请求的 scope
-     * @return 验证结果
+    * 验证客户端请求的 scope
+    *
+    * @param clientId       客户端标识
+    * @param requestedScope 请求的 scope
+    * @return 验证结果
      */
     public ScopeValidationResult validateScope(String clientId, String requestedScope) {
  // 先尝试通过 appid 查询
@@ -293,11 +293,11 @@ public class OAuth2CoreService {
     }
 
     /**
-     * 验证客户端是否允许指定的授权类型
-     *
-     * @param clientId  客户端标识
-     * @param grantType 授权类型
-     * @return 是否允许
+    * 验证客户端是否允许指定的授权类型
+    *
+    * @param clientId  客户端标识
+    * @param grantType 授权类型
+    * @return 是否允许
      */
     public boolean isGrantTypeAllowed(String clientId, String grantType) {
  // 先尝试通过 appid 查询
@@ -323,11 +323,11 @@ public class OAuth2CoreService {
     }
 
     /**
-     * 验证回调地址
-     *
-     * @param clientId    客户端标识
-     * @param redirectUri 回调地址
-     * @return 是否有效
+    * 验证回调地址
+    *
+    * @param clientId    客户端标识
+    * @param redirectUri 回调地址
+    * @return 是否有效
      */
     public boolean isRedirectUriValid(String clientId, String redirectUri) {
         if (StringUtils.isBlank(redirectUri)) {
@@ -366,8 +366,8 @@ public class OAuth2CoreService {
     // ==================== 辅助方法 ====================
 
     /**
-     * 生成随机授权码
-     * @return generate随机编码的结果
+    * 生成随机授权码
+    * @return generate随机编码的结果
      */
     private String generateRandomCode() {
         byte[] bytes = new byte[AUTH_CODE_LENGTH];
@@ -376,9 +376,9 @@ public class OAuth2CoreService {
     }
 
     /**
-     * 解析 scope 字符串（逗号或空格分隔）
-     * @param scopeStr scopeStr
-     * @return 解析scopes的结果
+    * 解析 scope 字符串（逗号或空格分隔）
+    * @param scopeStr scopeStr
+    * @return 解析scopes的结果
      */
     private Set<String> parseScopes(String scopeStr) {
         if (StringUtils.isBlank(scopeStr)) {
@@ -396,10 +396,10 @@ public class OAuth2CoreService {
     }
 
     /**
-      * 安全查询 appid。
-     * <p>部分部署仅启用 AppKey，数据库中不存在 app_id 表时应回退到 AppKey 流程，而不是直接抛 500。</p>
-     * @param clientId 客户端id
-     * @return 获取appidsafely的结果
+    * 安全查询 appid。
+    * <p>部分部署仅启用 AppKey，数据库中不存在 app_id 表时应回退到 AppKey 流程，而不是直接抛 500。</p>
+    * @param clientId 客户端id
+    * @return 获取appidsafely的结果
      */
     private SysAppId getAppIdSafely(String clientId) {
         try {
@@ -411,9 +411,9 @@ public class OAuth2CoreService {
     }
 
     /**
-     * 遮蔽授权码（用于日志）
-     * @param code 编码
-     * @return mask编码的结果
+    * 遮蔽授权码（用于日志）
+    * @param code 编码
+    * @return mask编码的结果
      */
     private String maskCode(String code) {
         if (code == null || code.length() <= 8) {
@@ -425,7 +425,7 @@ public class OAuth2CoreService {
     // ==================== 内部类 ====================
 
     /**
-     * 授权码数据
+    * 授权码数据
      */
     public record AuthorizationCodeData(
             String userId,
@@ -435,7 +435,7 @@ public class OAuth2CoreService {
     ) {}
 
     /**
-     * Scope 验证结果
+    * Scope 验证结果
      */
     public record ScopeValidationResult(
             boolean valid,
@@ -443,20 +443,20 @@ public class OAuth2CoreService {
             Set<String> grantedScopes
     ) {
         /**
-         * 成功
-         *
-         * @param scopes scopes
-         * @return 成功的结果
+        * 成功
+        *
+        * @param scopes scopes
+        * @return 成功的结果
          */
         public static ScopeValidationResult success(Set<String> scopes) {
             return new ScopeValidationResult(true, null, scopes);
         }
 
         /**
-         * 失败
-         *
-         * @param message 消息
-         * @return 失败的结果
+        * 失败
+        *
+        * @param message 消息
+        * @return 失败的结果
          */
         public static ScopeValidationResult failure(String message) {
             return new ScopeValidationResult(false, message, Collections.emptySet());

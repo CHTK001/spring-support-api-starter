@@ -48,8 +48,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author CH
- * @since 2024/8/7
+* @author CH
+* @since 2024/8/7
  */
 @Service
 @Slf4j
@@ -236,9 +236,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
-     * resolvegeo地址。
-     * @param rawIp rawIp
-     * @return resolvegeo地址的结果
+    * resolvegeo地址。
+    * @param rawIp rawIp
+    * @return resolvegeo地址的结果
      */
     private String resolveGeoAddress(String rawIp) {
         String ip = normalizeClientIp(rawIp);
@@ -262,9 +262,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
-     * normalize客户端ip。
-     * @param rawIp rawIp
-     * @return normalize客户端ip的结果
+    * normalize客户端ip。
+    * @param rawIp rawIp
+    * @return normalize客户端ip的结果
      */
     private String normalizeClientIp(String rawIp) {
         if (org.apache.commons.lang3.StringUtils.isBlank(rawIp)) {
@@ -278,9 +278,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
-     * normalize最后一个login状态。
-     * @param source 源
-     * @param target Target
+    * normalize最后一个login状态。
+    * @param source 源
+    * @param target Target
      */
     private void normalizeLastLoginState(SysUser source, SysUserVO target) {
         if (null == source || null == target) {
@@ -295,8 +295,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
-     * enrich最后一个login信息。
-     * @param records records
+    * enrich最后一个login信息。
+    * @param records records
      */
     private void enrichLastLoginInfo(List<SysUserVO> records) {
         if (CollectionUtils.isEmpty(records)) {
@@ -582,9 +582,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
-     * CSV字段转义
-     * @param value 值
-     * @return escapeCsv的结果
+    * CSV字段转义
+    * @param value 值
+    * @return escapeCsv的结果
      */
     private String escapeCsv(String value) {
         if (value == null) {
@@ -597,9 +597,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
-     * 解析CSV行
-     * @param line 线
-     * @return 解析csv线的结果
+    * 解析CSV行
+    * @param line 线
+    * @return 解析csv线的结果
      */
     private String[] parseCsvLine(String line) {
         java.util.List<String> result = new java.util.ArrayList<>();

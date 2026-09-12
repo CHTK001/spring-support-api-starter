@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 系统公告接口
- *
- * @since 4.0.0.42
- * @author CH
+* 系统公告接口
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Tag(name = "系统公告接口")
 @RestController
@@ -58,10 +58,10 @@ public class SysAnnouncementController {
     }
 
     /**
-     * 获取公告详情
-     *
-     * @param sysAnnouncementId 公告标识
-     * @return 公告详情
+    * 获取公告详情
+    *
+    * @param sysAnnouncementId 公告标识
+    * @return 公告详情
      */
     @Operation(summary = "获取公告详情")
     @GetMapping("/get")
@@ -77,13 +77,13 @@ public class SysAnnouncementController {
     }
 
     /**
-     * 新增公告
-     *
-     * @param sysAnnouncement 公告数据
-     * @param bindingResult   校验结果
-     * @param roles           当前用户角色
-     * @param userId          当前用户标识
-     * @return 操作结果
+    * 新增公告
+    *
+    * @param sysAnnouncement 公告数据
+    * @param bindingResult   校验结果
+    * @param roles           当前用户角色
+    * @param userId          当前用户标识
+    * @return 操作结果
      */
     @Operation(summary = "新增公告")
     @PostMapping("/save")
@@ -99,12 +99,12 @@ public class SysAnnouncementController {
     }
 
     /**
-     * 更新公告
-     *
-     * @param sysAnnouncement 公告数据
-     * @param bindingResult   校验结果
-     * @param roles           当前用户角色
-     * @return 操作结果
+    * 更新公告
+    *
+    * @param sysAnnouncement 公告数据
+    * @param bindingResult   校验结果
+    * @param roles           当前用户角色
+    * @return 操作结果
      */
     @Operation(summary = "更新公告")
     @PutMapping("/update")
@@ -119,11 +119,11 @@ public class SysAnnouncementController {
     }
 
     /**
-     * 删除公告
-     *
-     * @param sysAnnouncementId 公告标识
-     * @param roles             当前用户角色
-     * @return 操作结果
+    * 删除公告
+    *
+    * @param sysAnnouncementId 公告标识
+    * @param roles             当前用户角色
+    * @return 操作结果
      */
     @Operation(summary = "删除公告")
     @DeleteMapping("/delete")
@@ -135,12 +135,12 @@ public class SysAnnouncementController {
     }
 
     /**
-     * 发布公告
-     *
-     * @param sysAnnouncement 公告数据（含标识）
-     * @param roles           当前用户角色
-     * @param userId          当前用户标识
-     * @return 操作结果
+    * 发布公告
+    *
+    * @param sysAnnouncement 公告数据（含标识）
+    * @param roles           当前用户角色
+    * @param userId          当前用户标识
+    * @return 操作结果
      */
     @Operation(summary = "发布公告")
     @PutMapping("/publish")
@@ -153,11 +153,11 @@ public class SysAnnouncementController {
     }
 
     /**
-     * 下架公告
-     *
-     * @param sysAnnouncement 公告数据（含标识）
-     * @param roles           当前用户角色
-     * @return 操作结果
+    * 下架公告
+    *
+    * @param sysAnnouncement 公告数据（含标识）
+    * @param roles           当前用户角色
+    * @return 操作结果
      */
     @Operation(summary = "下架公告")
     @PutMapping("/unpublish")
@@ -169,11 +169,11 @@ public class SysAnnouncementController {
     }
 
     /**
-     * 获取当前用户可见的活跃公告列表（前端调用，无权限限制）
-     *
-     * @param userId 当前用户标识
-     * @param roles  当前用户角色
-     * @return 活跃公告列表
+    * 获取当前用户可见的活跃公告列表（前端调用，无权限限制）
+    *
+    * @param userId 当前用户标识
+    * @param roles  当前用户角色
+    * @return 活跃公告列表
      */
     @Operation(summary = "获取活跃公告列表")
     @GetMapping("/active")

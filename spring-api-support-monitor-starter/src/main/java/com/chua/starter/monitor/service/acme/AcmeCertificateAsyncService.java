@@ -39,11 +39,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
- * ACME 证书异步申请服务
-   * 通过 @异步 在后台线程执行证书申请，并通过 WebSocket 推送结果到消息中心
- *
- * @author CH
- * @since 2025-12-23
+* ACME 证书异步申请服务
+* 通过 @异步 在后台线程执行证书申请，并通过 WebSocket 推送结果到消息中心
+*
+* @author CH
+* @since 2025-12-23
  */
 @Slf4j
 @Service
@@ -61,12 +61,12 @@ public class AcmeCertificateAsyncService {
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); // 日期
 
     /**
-     * 异步申请证书
-     * 立即返回，实际申请在后台线程执行，完成后通过消息推送通知用户
-     *
-     * @param certId  预创建的证书标识
-     * @param request 申请请求
-     * @param userId  用户标识（用于消息推送）
+    * 异步申请证书
+    * 立即返回，实际申请在后台线程执行，完成后通过消息推送通知用户
+    *
+    * @param certId  预创建的证书标识
+    * @param request 申请请求
+    * @param userId  用户标识（用于消息推送）
      */
     @Transactional(rollbackFor = Exception.class)
     public void applyCertificateAsync(Integer certId, AcmeApplyCertRequest request, Integer userId) {
@@ -235,13 +235,13 @@ public class AcmeCertificateAsyncService {
     }
 
     /**
-     * 推送消息到用户的消息中心
-     * @param userId 用户id
-     * @param title title
-     * @param content 内容
-     * @param level 级别
-     * @param certId certId
-     * @param domain domain
+    * 推送消息到用户的消息中心
+    * @param userId 用户id
+    * @param title title
+    * @param content 内容
+    * @param level 级别
+    * @param certId certId
+    * @param domain domain
      */
     private void pushMessage(Integer userId, String title, String content, String level, Integer certId, String domain) {
         try {
@@ -268,10 +268,10 @@ public class AcmeCertificateAsyncService {
     }
 
     /**
-     * 更新证书状态
-     * @param cert cert
-     * @param status 状态
-     * @param error 错误
+    * 更新证书状态
+    * @param cert cert
+    * @param status 状态
+    * @param error 错误
      */
     private void updateCertStatus(MonitorAcmeCertificate cert, String status, String error) {
         cert.setAcmeCertStatus(status);
@@ -280,9 +280,9 @@ public class AcmeCertificateAsyncService {
     }
 
     /**
-     * 成功签发后回填证书信息
-     * @param target Target
-     * @param src src
+    * 成功签发后回填证书信息
+    * @param target Target
+    * @param src src
      */
     private void fillCertificateSuccess(MonitorAcmeCertificate target, AcmeCertificateResult src) {
         target.setAcmeCertStatus("valid");
@@ -300,9 +300,9 @@ public class AcmeCertificateAsyncService {
     }
 
     /**
-     * 提取简短异常信息
-     * @param e e
-     * @return shortMsg的结果
+    * 提取简短异常信息
+    * @param e e
+    * @return shortMsg的结果
      */
     private String shortMsg(Exception e) {
         String msg = e.getMessage();
@@ -313,11 +313,11 @@ public class AcmeCertificateAsyncService {
     }
 
     /**
-     * 本机模式下自动部署 HTTP-01 验证文件
-     *
-     * @param webrootPath     webroot 路径
-     * @param validationInfos 验证信息列表
-     * @return 是否部署成功
+    * 本机模式下自动部署 HTTP-01 验证文件
+    *
+    * @param webrootPath     webroot 路径
+    * @param validationInfos 验证信息列表
+    * @return 是否部署成功
      */
     private boolean deployHttpChallengeFiles(String webrootPath, List<AcmeValidationInfo> validationInfos) {
         if (StringUtils.isEmpty(webrootPath)) {
@@ -342,11 +342,11 @@ public class AcmeCertificateAsyncService {
     }
 
     /**
-     * SSH远程模式下通过SSH部署 HTTP-01 验证文件
-     *
-     * @param request         申请请求（含 SSH 连接信息）
-     * @param validationInfos 验证信息列表
-     * @return 是否部署成功
+    * SSH远程模式下通过SSH部署 HTTP-01 验证文件
+    *
+    * @param request         申请请求（含 SSH 连接信息）
+    * @param validationInfos 验证信息列表
+    * @return 是否部署成功
      */
     private boolean deploySshChallengeFiles(AcmeApplyCertRequest request, List<AcmeValidationInfo> validationInfos) {
         if (StringUtils.isEmpty(request.getSshHost()) || StringUtils.isEmpty(request.getSshUsername())) {
@@ -403,10 +403,10 @@ public class AcmeCertificateAsyncService {
     }
 
     /**
-     * 重新验证证书（用户手动部署完成后调用）
-     *
-     * @param certId 证书标识
-     * @param userId 用户标识
+    * 重新验证证书（用户手动部署完成后调用）
+    *
+    * @param certId 证书标识
+    * @param userId 用户标识
      */
     public void retryValidationAsync(Integer certId, Integer userId) {
         ThreadUtils.ofVirtual()

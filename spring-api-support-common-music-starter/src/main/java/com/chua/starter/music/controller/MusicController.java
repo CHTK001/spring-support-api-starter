@@ -45,9 +45,9 @@ public class MusicController {
     @GetMapping("/sources")
     @Operation(summary = "获取音源列表")
     /**
-* 列表源
-*
-* @return 列表源的结果
+    * 列表源
+    *
+    * @return 列表源的结果
      */
     public ReturnResult<List<MusicSourceOption>> listSources() {
         return ReturnResult.ok(musicFacadeService.listSources());
@@ -56,10 +56,10 @@ public class MusicController {
     @GetMapping("/overview")
     @Operation(summary = "获取音乐首页概览")
     /**
-     * Overview
-     *
-     * @param false false
-     * @return overview的结果
+    * Overview
+    *
+    * @param false false
+    * @return overview的结果
      */
     public ReturnResult<MusicOverview> overview(@RequestParam(required = false) String source) {
         return ReturnResult.ok(musicFacadeService.getOverview(source));
@@ -68,11 +68,11 @@ public class MusicController {
     @GetMapping("/search")
     @Operation(summary = "搜索歌曲")
     /**
-     * 搜索
-     * @param source 源
-     * @param keyword keyword
-     * @param page page
-     * @param pageSize page大小
+    * 搜索
+    * @param source 源
+    * @param keyword keyword
+    * @param page page
+    * @param pageSize page大小
      */
     public ReturnResult<MusicSearchResult> search(
             @RequestParam(required = false) String source,
@@ -85,11 +85,11 @@ public class MusicController {
     @GetMapping("/search/playlists")
     @Operation(summary = "搜索歌单")
     /**
-     * 搜索Playlists
-     * @param source 源
-     * @param keyword keyword
-     * @param page page
-     * @param pageSize page大小
+    * 搜索Playlists
+    * @param source 源
+    * @param keyword keyword
+    * @param page page
+    * @param pageSize page大小
      */
     public ReturnResult<MusicPlaylistSearchResult> searchPlaylists(
             @RequestParam(required = false) String source,
@@ -102,8 +102,8 @@ public class MusicController {
     @GetMapping("/playlist/categories")
     @Operation(summary = "获取歌单分类")
     /**
-      * playlist分类
-     * @param source 源
+    * playlist分类
+    * @param source 源
      */
     public ReturnResult<MusicPlaylistCategoryCatalog> playlistCategories(
             @RequestParam(required = false) String source) {
@@ -113,11 +113,11 @@ public class MusicController {
     @GetMapping("/playlist/category")
     @Operation(summary = "按分类获取歌单")
     /**
-      * 分类playlists
-     * @param source 源
-     * @param tagId 标签id
-     * @param page page
-     * @param pageSize page大小
+    * 分类playlists
+    * @param source 源
+    * @param tagId 标签id
+    * @param page page
+    * @param pageSize page大小
      */
     public ReturnResult<MusicPlaylistCategoryResult> categoryPlaylists(
             @RequestParam(required = false) String source,
@@ -130,9 +130,9 @@ public class MusicController {
     @GetMapping("/playlist/{source}/{playlistId}")
     @Operation(summary = "获取歌单详情")
     /**
-     * Playlist详情
-     * @param source 源
-     * @param playlistId playlistid
+    * Playlist详情
+    * @param source 源
+    * @param playlistId playlistid
      */
     public ReturnResult<MusicPlaylistDetail> playlistDetail(
             @PathVariable String source,
@@ -143,9 +143,9 @@ public class MusicController {
     @GetMapping("/track/{source}/{trackId}")
     @Operation(summary = "获取歌曲详情")
     /**
-     * Track详情
-     * @param source 源
-     * @param trackId trackid
+    * Track详情
+    * @param source 源
+    * @param trackId trackid
      */
     public ReturnResult<MusicTrackDetail> trackDetail(
             @PathVariable String source,
@@ -156,10 +156,10 @@ public class MusicController {
     @GetMapping("/track/{source}/{trackId}/stream")
     @Operation(summary = "代理歌曲音频流")
     /**
-     * 流式输出Track
-     * @param source 源
-     * @param trackId trackid
-     * @param rangeHeader 范围头部
+    * 流式输出Track
+    * @param source 源
+    * @param trackId trackid
+    * @param rangeHeader 范围头部
      */
     public ResponseEntity<StreamingResponseBody> streamTrack(
             @PathVariable String source,
@@ -170,10 +170,10 @@ public class MusicController {
     }
 
     /**
-     * rewritetrack流url
-     *
-     * @param trackDetail trackDetail
-     * @return rewritetrack流url的结果
+    * rewritetrack流url
+    *
+    * @param trackDetail trackDetail
+    * @return rewritetrack流url的结果
      */
     private MusicTrackDetail rewriteTrackStreamUrl(MusicTrackDetail trackDetail) {
         String streamUrl = trackDetail.getStreamUrl();

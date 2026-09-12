@@ -16,34 +16,34 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * 字典配置项服务实现类
- *
- * @since 2024-08-07
- * @author CH
+* 字典配置项服务实现类
+*
+* @since 2024-08-07
+* @author CH
  */
 @Service
 @RequiredArgsConstructor
 public class SysDictItemPropertyServiceImpl extends ServiceImpl<SysDictItemPropertyMapper, SysDictItemProperty> implements SysDictItemPropertyService {
 
     /**
-     * 字典项服务接口，用于获取和操作字典项数据
+    * 字典项服务接口，用于获取和操作字典项数据
      */
     final SysDictItemService sysDictItemService;
 
     /**
-     * 保存或更新字典子项的属性配置
-     *
-     * @param request 字典子项属性请求对象，包含要保存或更新的属性列表和关联的字典子项标识
-     *                示例: {
-      * "sysdictitemid": 1,
-      * "财产": [
-     *                {
-      * "sysdictitem财产名称": "color",
-      * "sysdictitem财产值": "R"
-     *                }
-     *                ]
-     *                }
-     * @return 操作结果，成功返回true，失败返回错误信息
+    * 保存或更新字典子项的属性配置
+    *
+    * @param request 字典子项属性请求对象，包含要保存或更新的属性列表和关联的字典子项标识
+    *                示例: {
+    * "sysdictitemid": 1,
+    * "财产": [
+    *                {
+    * "sysdictitem财产名称": "color",
+    * "sysdictitem财产值": "R"
+    *                }
+    *                ]
+    *                }
+    * @return 操作结果，成功返回true，失败返回错误信息
      */
     @Override
     public ReturnResult<Boolean> saveOrUpdate(DictItemPropertyV1Request request) {

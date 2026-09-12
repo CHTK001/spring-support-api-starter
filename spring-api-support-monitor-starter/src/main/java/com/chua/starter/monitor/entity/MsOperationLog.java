@@ -12,10 +12,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 操作日志实体，记录系统关键操作的审计信息。
- *
- * @since 2026-08-11
- * @author CH
+* 操作日志实体，记录系统关键操作的审计信息。
+*
+* @since 2026-08-11
+* @author CH
  */
 @Data
 @TableName("ms_operation_log")
@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 public class MsOperationLog {
 
     /**
-      * 主键标识，自增
+    * 主键标识，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
@@ -32,7 +32,7 @@ public class MsOperationLog {
     private Long id; // id
 
     /**
-      * 操作用户标识
+    * 操作用户标识
      */
     @TableField("operator")
     @ApiModelProperty("操作用户")
@@ -40,7 +40,7 @@ public class MsOperationLog {
     private String operator; // 操作符
 
     /**
-      * 操作类型（创建/更新/删除/ENABLE/DISABLE/Move.com/设置/删除）
+    * 操作类型（创建/更新/删除/ENABLE/DISABLE/Move.com/设置/删除）
      */
     @TableField("operation")
     @ApiModelProperty("操作类型")
@@ -48,7 +48,7 @@ public class MsOperationLog {
     private String operation; // operation
 
     /**
-      * 目标模块（主机/任务/Redis/配置）
+    * 目标模块（主机/任务/Redis/配置）
      */
     @TableField("target_module")
     @ApiModelProperty("目标模块")
@@ -56,7 +56,7 @@ public class MsOperationLog {
     private String targetModule; // Targetmodule
 
     /**
-      * 目标对象标识
+    * 目标对象标识
      */
     @TableField("target_id")
     @ApiModelProperty("目标对象ID")
@@ -64,7 +64,7 @@ public class MsOperationLog {
     private String targetId; // Targetid
 
     /**
-     * 操作描述
+    * 操作描述
      */
     @TableField("description")
     @ApiModelProperty("操作描述")
@@ -72,7 +72,7 @@ public class MsOperationLog {
     private String description; // description
 
     /**
-     * 创建时间
+    * 创建时间
      */
     @TableField("create_time")
     @ApiModelProperty("创建时间")

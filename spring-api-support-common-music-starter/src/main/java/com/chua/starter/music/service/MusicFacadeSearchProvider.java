@@ -14,15 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 音乐搜索 SPI 提供者。
- * <p>
- * 实现 {@link MusicWebSearchProvider}，委托 {@link MusicFacadeService} 执行搜索，
- * 将结构化的 {@link MusicSearchResult} 格式化为文本条目。
- * <p>
- * Spring 启动时自动注册到 SPI 系统，供 {@code DefaultMusicWebSearch} 聚合。
- *
- * @author CH
- * @since 4.0.0
+* 音乐搜索 SPI 提供者。
+* <p>
+* 实现 {@link MusicWebSearchProvider}，委托 {@link MusicFacadeService} 执行搜索，
+* 将结构化的 {@link MusicSearchResult} 格式化为文本条目。
+* <p>
+* Spring 启动时自动注册到 SPI 系统，供 {@code DefaultMusicWebSearch} 聚合。
+*
+* @author CH
+* @since 4.0.0
  */
 @Slf4j
 @Component

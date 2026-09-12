@@ -11,20 +11,20 @@ import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 启动 HTTP 文件存储 - 基于 {@code ProtocolServer.create("http", ...)} + 内置 {@code FileStorageServletFilter}
- * <p>
- * 验证项目自带的 {@code FileStorageServletFilter} SPI 实现与 {@code FileSystemFileStorage} 配合使用。
- * </p>
- *
- * @author CH
- * @since 4.0.0
+* 启动 HTTP 文件存储 - 基于 {@code ProtocolServer.create("http", ...)} + 内置 {@code FileStorageServletFilter}
+* <p>
+* 验证项目自带的 {@code FileStorageServletFilter} SPI 实现与 {@code FileSystemFileStorage} 配合使用。
+* </p>
+*
+* @author CH
+* @since 4.0.0
  */
 public class StartHttpProtocolFileServer {
 
     /**
-     * Main
-     *
-     * @param args 参数
+    * Main
+    *
+    * @param args 参数
      */
     public static void main(String[] args) throws Exception {
         int port = args.length > 0 ? Integer.parseInt(args[0]) : 8080;

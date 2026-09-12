@@ -11,46 +11,46 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 登录尝试服务
- * <p>
- * 用于跟踪用户登录尝试，防止暴力破解攻击。
- * 当用户连续登录失败超过阈值时，账户将被临时锁定。
- * </p>
- * <p>
- * 锁定阈值与时长优先读取 {@link OauthSecurityProperties#getLoginLock()}，
- * 未配置时回退到默认值（5 次 / 15 分钟）。
- * </p>
- *
-   * @版本 1.0.0
- * @since 2025-12-28
- * @author CH
+* 登录尝试服务
+* <p>
+* 用于跟踪用户登录尝试，防止暴力破解攻击。
+* 当用户连续登录失败超过阈值时，账户将被临时锁定。
+* </p>
+* <p>
+* 锁定阈值与时长优先读取 {@link OauthSecurityProperties#getLoginLock()}，
+* 未配置时回退到默认值（5 次 / 15 分钟）。
+* </p>
+*
+* @版本 1.0.0
+* @since 2025-12-28
+* @author CH
  */
 @Slf4j
 @Service
 public class LoginAttemptService {
 
     /**
-     * Redis 键前缀 - 登录失败次数
+    * Redis 键前缀 - 登录失败次数
      */
     private static final String LOGIN_ATTEMPT_PREFIX = "oauth:login:attempt:";
 
     /**
-     * Redis 键前缀 - 账户锁定
+    * Redis 键前缀 - 账户锁定
      */
     private static final String ACCOUNT_LOCKED_PREFIX = "oauth:login:locked:";
 
     /**
-     * 默认最大失败次数
+    * 默认最大失败次数
      */
     private static final int DEFAULT_MAX_ATTEMPTS = 5;
 
     /**
-     * 默认锁定时间（分钟）
+    * 默认锁定时间（分钟）
      */
     private static final int DEFAULT_LOCK_DURATION_MINUTES = 15;
 
     /**
-     * 失败记录过期时间（分钟）
+    * 失败记录过期时间（分钟）
      */
     private static final int ATTEMPT_EXPIRE_MINUTES = 30;
 
@@ -63,17 +63,17 @@ public class LoginAttemptService {
     private OauthSecurityProperties securityProperties;
 
     /**
-      * 创建 login尝试服务 实例
-     * @param stringRedisTemplate 字符串redistemplate
+    * 创建 login尝试服务 实例
+    * @param stringRedisTemplate 字符串redistemplate
      */
     public LoginAttemptService(StringRedisTemplate stringRedisTemplate) {
         this.stringRedisTemplate = stringRedisTemplate;
     }
 
     /**
-     * 注入安全配置（可选）
-     *
-     * @param securityProperties 安全配置
+    * 注入安全配置（可选）
+    *
+    * @param securityProperties 安全配置
      */
     @Autowired(required = false)
     public void setSecurityProperties(OauthSecurityProperties securityProperties) {
@@ -81,22 +81,22 @@ public class LoginAttemptService {
     }
 
     /**
-     * 记录登录失败
-     *
-     * @param username 用户名
-     * @return 剩余尝试次数，0表示已锁定
+    * 记录登录失败
+    *
+    * @param username 用户名
+    * @return 剩余尝试次数，0表示已锁定
      */
     public int recordFailedAttempt(String username) {
         return recordFailedAttempt(username, resolveMaxAttempts(), resolveLockDurationMinutes());
     }
 
     /**
-     * 记录登录失败
-     *
-     * @param username            用户名
-     * @param maxAttempts         最大尝试次数
-     * @param lockDurationMinutes 锁定时长（分钟）
-     * @return 剩余尝试次数，0表示已锁定
+    * 记录登录失败
+    *
+    * @param username            用户名
+    * @param maxAttempts         最大尝试次数
+    * @param lockDurationMinutes 锁定时长（分钟）
+    * @return 剩余尝试次数，0表示已锁定
      */
     public int recordFailedAttempt(String username, int maxAttempts, int lockDurationMinutes) {
         if (StringUtils.isBlank(username)) {
@@ -136,10 +136,10 @@ public class LoginAttemptService {
     }
 
     /**
-     * 检查账户是否被锁定
-     *
-     * @param username 用户名
-     * @return true-已锁定，false-未锁定
+    * 检查账户是否被锁定
+    *
+    * @param username 用户名
+    * @return true-已锁定，false-未锁定
      */
     public boolean isAccountLocked(String username) {
         if (StringUtils.isBlank(username)) {
@@ -157,10 +157,10 @@ public class LoginAttemptService {
     }
 
     /**
-     * 获取账户锁定剩余时间（秒）
-     *
-     * @param username 用户名
-     * @return 剩余锁定时间（秒），-1表示未锁定
+    * 获取账户锁定剩余时间（秒）
+    *
+    * @param username 用户名
+    * @return 剩余锁定时间（秒），-1表示未锁定
      */
     public long getLockRemainingSeconds(String username) {
         if (StringUtils.isBlank(username)) {
@@ -178,9 +178,9 @@ public class LoginAttemptService {
     }
 
     /**
-     * 登录成功后清除失败记录
-     *
-     * @param username 用户名
+    * 登录成功后清除失败记录
+    *
+    * @param username 用户名
      */
     public void clearFailedAttempts(String username) {
         if (StringUtils.isBlank(username)) {
@@ -197,10 +197,10 @@ public class LoginAttemptService {
     }
 
     /**
-     * 手动解锁账户
-     *
-     * @param username 用户名
-     * @return 是否解锁成功
+    * 手动解锁账户
+    *
+    * @param username 用户名
+    * @return 是否解锁成功
      */
     public boolean unlockAccount(String username) {
         if (StringUtils.isBlank(username)) {
@@ -221,10 +221,10 @@ public class LoginAttemptService {
     }
 
     /**
-     * 获取当前失败次数
-     *
-     * @param username 用户名
-     * @return 失败次数
+    * 获取当前失败次数
+    *
+    * @param username 用户名
+    * @return 失败次数
      */
     public int getFailedAttempts(String username) {
         if (StringUtils.isBlank(username)) {
@@ -242,10 +242,10 @@ public class LoginAttemptService {
     }
 
     /**
-     * 获取锁定信息
-     *
-     * @param username 用户名
-     * @return 锁定信息
+    * 获取锁定信息
+    *
+    * @param username 用户名
+    * @return 锁定信息
      */
     public LockInfo getLockInfo(String username) {
         boolean locked = isAccountLocked(username);
@@ -255,9 +255,9 @@ public class LoginAttemptService {
     }
 
     /**
-     * 解析最大值尝试
-     *
-     * @return resolve最大尝试的结果
+    * 解析最大值尝试
+    *
+    * @return resolve最大尝试的结果
      */
     private int resolveMaxAttempts() {
         if (securityProperties != null && securityProperties.getLoginLock() != null) {
@@ -267,9 +267,9 @@ public class LoginAttemptService {
     }
 
     /**
-     * 解析锁持续时间minutes
-     *
-     * @return resolve锁持续时间minutes的结果
+    * 解析锁持续时间minutes
+    *
+    * @return resolve锁持续时间minutes的结果
      */
     private int resolveLockDurationMinutes() {
         if (securityProperties != null && securityProperties.getLoginLock() != null) {
@@ -279,9 +279,9 @@ public class LoginAttemptService {
     }
 
     /**
-     * 解析尝试expireminutes
-     *
-     * @return resolve尝试expireminutes的结果
+    * 解析尝试expireminutes
+    *
+    * @return resolve尝试expireminutes的结果
      */
     private int resolveAttemptExpireMinutes() {
         if (securityProperties != null && securityProperties.getLoginLock() != null) {
@@ -291,7 +291,7 @@ public class LoginAttemptService {
     }
 
     /**
-     * 锁定信息
+    * 锁定信息
      */
     public record LockInfo(
             boolean locked,
@@ -300,16 +300,16 @@ public class LoginAttemptService {
             int maxAttempts
     ) {
         /**
-         * 获取剩余尝试次数
-         * @return remaining尝试的结果
+        * 获取剩余尝试次数
+        * @return remaining尝试的结果
          */
         public int remainingAttempts() {
             return Math.max(0, maxAttempts - failedAttempts);
         }
 
         /**
-         * 获取格式化的锁定剩余时间
-         * @return formattedremaining时间的结果
+        * 获取格式化的锁定剩余时间
+        * @return formattedremaining时间的结果
          */
         public String formattedRemainingTime() {
             if (remainingSeconds <= 0) {

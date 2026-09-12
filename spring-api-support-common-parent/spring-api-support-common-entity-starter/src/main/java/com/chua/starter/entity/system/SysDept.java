@@ -18,10 +18,10 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 组织机构/部门表
- *
- * @since 2024/8/7
- * @author CH
+* 组织机构/部门表
+*
+* @since 2024/8/7
+* @author CH
  */
 @Schema(description = "组织机构/部门表")
 @Data

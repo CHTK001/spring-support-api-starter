@@ -7,16 +7,16 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
- * 城市查询
- * @since 2024/12/2
- * @author CH
+* 城市查询
+* @since 2024/12/2
+* @author CH
  */
 @Data
 @Schema(description = "城市查询")
 public class SysCityQuery {
 
     /**
-     * 父级代码
+    * 父级代码
      */
     @ApiModelProperty("父级代码")
     @Schema(description = "父级代码")

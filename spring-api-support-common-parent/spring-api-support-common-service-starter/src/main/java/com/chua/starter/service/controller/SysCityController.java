@@ -21,9 +21,9 @@ import java.util.List;
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 /**
- * 事件接口
- * @since 2024/9/7
- * @author CH
+* 事件接口
+* @since 2024/9/7
+* @author CH
  */
 @RestController
 @Slf4j
@@ -37,10 +37,10 @@ public class SysCityController {
 
 
     /**
-     * 获取下级行政区划信息
-     *
-     * @param query 包含父级行政区划代码的查询对象
-     * @return 返回下级行政区划列表
+    * 获取下级行政区划信息
+    *
+    * @param query 包含父级行政区划代码的查询对象
+    * @return 返回下级行政区划列表
      */
     @ApiOperation("获取下级行政区划")
     @Operation(summary = "获取下级行政区划")
@@ -51,10 +51,10 @@ public class SysCityController {
     }
 
     /**
-     * 获取下级以及所有子集行政区划信息
-     *
-     * @param query 包含父级行政区划代码的查询对象
-     * @return 返回下级以及子集行政区划列表
+    * 获取下级以及所有子集行政区划信息
+    *
+    * @param query 包含父级行政区划代码的查询对象
+    * @return 返回下级以及子集行政区划列表
      */
     @ApiOperation("获取下级以及子集行政区划")
     @Operation(summary = "获取下级以及子集行政区划")

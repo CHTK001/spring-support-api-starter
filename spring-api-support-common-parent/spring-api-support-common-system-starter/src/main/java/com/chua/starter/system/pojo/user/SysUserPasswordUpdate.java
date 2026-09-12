@@ -4,17 +4,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 用户密码修改
- *
- * @since 2024/8/20
- * @author CH
+* 用户密码修改
+*
+* @since 2024/8/20
+* @author CH
  */
 @Data
 @Schema(description = "用户密码修改")
 public class SysUserPasswordUpdate {
 
     /**
-     * 旧密码
+    * 旧密码
      */
     @Schema(description = "旧密码")
     /** 旧密码 */

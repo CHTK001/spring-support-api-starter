@@ -27,9 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
 /**
- * 字典接口
- * @since 2024/8/7
- * @author CH
+* 字典接口
+* @since 2024/8/7
+* @author CH
  */
 @Tag(name = "字典接口")
 @RestController
@@ -53,22 +53,22 @@ public class SysDictController {
             key = "'sys:dict:page:' + #userId + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDict.sysDictCode,'') + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDict.sysDictName,'') + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#query.page,1) + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#query.pageSize,10)",
             unless = "#result == null || #result.data == null || #result.data.data == null || #result.data.data.isEmpty()")
     /**
-     * pagefor角色
-     *
-     * @param query 查询
-     * @param sysDict sysDict
-     * @param true true
-     * @return pagefor角色的结果
+    * pagefor角色
+    *
+    * @param query 查询
+    * @param sysDict sysDict
+    * @param true true
+    * @return pagefor角色的结果
      */
     public ReturnPageResult<SysDict> pageForRole(@ParameterObject Query<SysDict> query, @ParameterObject SysDict sysDict, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         return PageResultUtils.ok(sysDictService.pageForDict(query, sysDict, roles));
     }
 
     /**
-     * 删除字典
-     *
-     * @return 更新字典
-     * @param sysDictId sysDictId
+    * 删除字典
+    *
+    * @return 更新字典
+    * @param sysDictId sysDictId
      */
     @Operation(summary = "删除字典")
     @DeleteMapping("/delete")
@@ -85,9 +85,9 @@ public class SysDictController {
 
 
     /**
-     * 更新字典
-     *
-     * @return 更新字典
+    * 更新字典
+    *
+    * @return 更新字典
      */
     @Operation(summary = "更新字典")
     @PutMapping("/update")
@@ -105,9 +105,9 @@ public class SysDictController {
     }
 
     /**
-     * 新增字典
-     *
-     * @return 新增字典
+    * 新增字典
+    *
+    * @return 新增字典
      */
     @Operation(summary = "新增字典")
     @PostMapping("/save")

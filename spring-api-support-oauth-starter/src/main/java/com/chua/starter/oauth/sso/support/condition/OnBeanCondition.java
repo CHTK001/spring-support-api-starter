@@ -13,18 +13,18 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
- * {@link Condition} that checks for the presence or absence of specific beans.
- *
- * @author Phillip Webb
- * @author Dave Syer
- * @author Jakub Kubrynski
- * @author Stephane Nicoll
- * @author Andy Wilkinson
- * @see ConditionalOnBean
- * @see ConditionalOnMissingBean
- * @see ConditionalOnSingleCandidate
- * @author CH
- * @since 4.0.0
+* {@link Condition} that checks for the presence or absence of specific beans.
+*
+* @author Phillip Webb
+* @author Dave Syer
+* @author Jakub Kubrynski
+* @author Stephane Nicoll
+* @author Andy Wilkinson
+* @see ConditionalOnBean
+* @see ConditionalOnMissingBean
+* @see ConditionalOnSingleCandidate
+* @author CH
+* @since 4.0.0
  */
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class OnBeanCondition implements Condition {

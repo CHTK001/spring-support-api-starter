@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 前端异常上报接口
- *
- * @since 2026/8/8
- * @author CH
+* 前端异常上报接口
+*
+* @since 2026/8/8
+* @author CH
  */
 @Tag(name = "前端异常上报接口")
 @RestController
@@ -37,7 +37,7 @@ public class SysErrorLogController {
     final SysErrorLogService sysErrorLogService; // sys错误日志服务
 
     /**
-     * 前端异常上报
+    * 前端异常上报
      */
     @PostMapping("/report")
     @Operation(summary = "前端异常上报")
@@ -50,7 +50,7 @@ public class SysErrorLogController {
     }
 
     /**
-     * 异常日志分页列表
+    * 异常日志分页列表
      */
     @Operation(summary = "异常日志分页列表")
     @GetMapping("/error-page")

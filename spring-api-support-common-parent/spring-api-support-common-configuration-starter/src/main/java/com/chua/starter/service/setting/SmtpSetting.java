@@ -6,34 +6,34 @@ import lombok.Data;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 
 /**
- * smtp设置
- * @since 2024/9/4
- * @author CH
+* smtp设置
+* @since 2024/9/4
+* @author CH
  */
 @Data
 @GlobalSettingGroup("smtp")
 @ConditionalOnClass(name = {"org.springframework.mail.javamail.JavaMailSenderImpl"})
 public class SmtpSetting implements Upgrade<SmtpSetting> {
     /**
-     * 发送人
+    * 发送人
      */
     private String from;
     /**
-     * 主机
+    * 主机
      */
     private String host = "smtp.qq.com";
     /**
-     * 授权码
+    * 授权码
      */
     private String password;
 
     /**
-     * smtp端口
+    * smtp端口
      */
     private int port = 25;
 
     /**
-     * 是否加载
+    * 是否加载
      */
     private volatile boolean isLoaded;
 

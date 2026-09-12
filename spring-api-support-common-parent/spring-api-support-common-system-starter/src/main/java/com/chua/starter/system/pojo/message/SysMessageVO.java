@@ -7,12 +7,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 站内消息视图对象
- *
- * <p>前端站内消息中心使用的消息结构，字段名与前端约定一致。</p>
- *
- * @since 4.0.0.42
- * @author CH
+* 站内消息视图对象
+*
+* <p>前端站内消息中心使用的消息结构，字段名与前端约定一致。</p>
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Data
 @Schema(description = "站内消息视图")

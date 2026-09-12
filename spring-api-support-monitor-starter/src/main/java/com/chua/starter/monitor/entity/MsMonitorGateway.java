@@ -13,10 +13,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 监控网关实体，定义采集器访问监控资产的中转网关信息。
- *
- * @since 2026-08-11
- * @author CH
+* 监控网关实体，定义采集器访问监控资产的中转网关信息。
+*
+* @since 2026-08-11
+* @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
 public class MsMonitorGateway extends SysBase {
 
     /**
-      * 网关主键标识，自增
+    * 网关主键标识，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")

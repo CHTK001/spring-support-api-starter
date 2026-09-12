@@ -1,10 +1,10 @@
 package com.chua.starter.geo.model;
 
 /**
- * DEM 高程数据源枚举。
- *
- * @author CH
- * @since 1.0.0
+* DEM 高程数据源枚举。
+*
+* @author CH
+* @since 1.0.0
  */
 public enum DemSource {
     /** AWS Terrain 瓷砖 - Terrarium 编码 PNG 瓦片，全球，最大 z15 */
@@ -29,21 +29,21 @@ public enum DemSource {
 
     public String getId() { return id; }
     /**
-     * 获取display名称。
-     * @return 获取display名称的结果
+    * 获取display名称。
+    * @return 获取display名称的结果
      */
     public String getDisplayName() { return displayName; }
     /**
-     * 获取最大zoom。
-     * @return 获取最大zoom的结果
+    * 获取最大zoom。
+    * @return 获取最大zoom的结果
      */
     public int getMaxZoom() { return maxZoom; }
 
     /**
-     * 从字符串解析数据源。
-     *
-     * @param s 字符串标识
-     * @return 对应的 dem源，无法识别返回 空
+    * 从字符串解析数据源。
+    *
+    * @param s 字符串标识
+    * @return 对应的 dem源，无法识别返回 空
      */
     public static DemSource fromString(String s) {
         for (DemSource ds : values()) {
@@ -55,10 +55,10 @@ public enum DemSource {
     }
 
     /**
-      * 判断字符串是否为有效的 DEM 数据源 标识。
-     *
-     * @param s 待检查的字符串
-     * @return true 如果是有效 DEM 源
+    * 判断字符串是否为有效的 DEM 数据源 标识。
+    *
+    * @param s 待检查的字符串
+    * @return true 如果是有效 DEM 源
      */
     public static boolean isDemSource(String s) {
         return fromString(s) != null;

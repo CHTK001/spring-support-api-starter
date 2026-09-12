@@ -23,12 +23,12 @@ import org.springframework.util.StringUtils;
 import java.util.function.Supplier;
 
 /**
- * 系统统一认证自动配置
- * <p>自动扫描认证相关的组件和Mapper</p>
- *
-   * @版本 1.0.0
- * @since 2024/12/11
- * @author CH
+* 系统统一认证自动配置
+* <p>自动扫描认证相关的组件和Mapper</p>
+*
+* @版本 1.0.0
+* @since 2024/12/11
+* @author CH
  */
 @Slf4j
 @Configuration
@@ -40,8 +40,8 @@ import java.util.function.Supplier;
 public class SystemAutoConfiguration {
 
     /**
-     * 构造方法
-     * @param environment 环境
+    * 构造方法
+    * @param environment 环境
      /**
       * 系统auto配置。
       */
@@ -99,9 +99,9 @@ public class SystemAutoConfiguration {
                     authClientProperties.getLoginAddress(),
                     authClientProperties.getProtocol());
         /**
-         * 第一个nonblank。
-         * @param values 值
-         * @return 第一个nonblank的结果
+        * 第一个nonblank。
+        * @param values 值
+        * @return 第一个nonblank的结果
          */
         };
     }
@@ -123,9 +123,9 @@ public class SystemAutoConfiguration {
     }
 
     /**
-     * 注册系统认证模块服务信息。
-     *
-     * @return 服务信息贡献器
+    * 注册系统认证模块服务信息。
+    *
+    * @return 服务信息贡献器
      */
     @Bean
     public ServiceInfoContributor systemServiceInfoContributor() {

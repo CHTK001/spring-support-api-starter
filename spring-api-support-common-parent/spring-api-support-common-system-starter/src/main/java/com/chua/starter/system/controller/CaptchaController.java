@@ -29,10 +29,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 图形校验码接口，提供滑动/点选/算术等多种验证码生成与校验能力。
- *
- * @author CH
- * @since 4.0.0.50
+* 图形校验码接口，提供滑动/点选/算术等多种验证码生成与校验能力。
+*
+* @author CH
+* @since 4.0.0.50
  */
 @RestController
 @Slf4j
@@ -59,32 +59,32 @@ public class CaptchaController {
     }
 
     /**
-     * Producer
-     *
-     * @param typeEnum 类型enum
-     * @return producer的结果
+    * Producer
+    *
+    * @param typeEnum 类型enum
+    * @return producer的结果
      */
     public Captcha producer(CaptchaTypeEnum typeEnum) {
         return createCaptcha(typeEnum, captchaProperties.getLength());
     }
 
     /**
-     * Producer
-     *
-     * @param typeEnum 类型enum
-     * @param length 长度
-     * @return producer的结果
+    * Producer
+    *
+    * @param typeEnum 类型enum
+    * @param length 长度
+    * @return producer的结果
      */
     public Captcha producer(CaptchaTypeEnum typeEnum, int length) {
         return createCaptcha(typeEnum, length);
     }
 
     /**
-     * 创建Captcha
-     *
-     * @param type 类型
-     * @param length 长度
-     * @return 创建captcha的结果
+    * 创建Captcha
+    *
+    * @param type 类型
+    * @param length 长度
+    * @return 创建captcha的结果
      */
     private Captcha createCaptcha(CaptchaTypeEnum type, int length) {
         Captcha captcha;
@@ -123,9 +123,9 @@ public class CaptchaController {
 
 
     /**
-     * 创建Captcha
-     *
-     * @return 创建captcha的结果
+    * 创建Captcha
+    *
+    * @return 创建captcha的结果
      */
     public Captcha createCaptcha() {
         int randomInt = RandomUtils.randomInt(2, 3);
@@ -143,11 +143,11 @@ public class CaptchaController {
     }
 
     /**
-     * 校验码
-     *
-     * @param request 请求
-     * @param response 响应
-     * @return captchaBase64的结果
+    * 校验码
+    *
+    * @param request 请求
+    * @param response 响应
+    * @return captchaBase64的结果
      */
     @ApiOperation("获取验证码")
     @Operation(summary = "获取验证码")
@@ -171,22 +171,22 @@ public class CaptchaController {
 
 
     /**
-     * 验证码响应对象
-     *
-     * @author haoxr
-     * @since 2023/03/24
+    * 验证码响应对象
+    *
+    * @author haoxr
+    * @since 2023/03/24
      */
     @Builder
     @Data
     public static class CaptchaResult {
 
         /**
-          * 验证码图片基础64编码
+        * 验证码图片基础64编码
          */
         private String verifyCodeBase64;
 
         /**
-         * 验证码唯一标识，用于后端校验
+        * 验证码唯一标识，用于后端校验
          */
         private String verifyCodeUlid;
 

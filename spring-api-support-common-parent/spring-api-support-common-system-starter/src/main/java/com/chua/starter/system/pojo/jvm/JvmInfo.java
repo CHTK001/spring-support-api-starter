@@ -7,10 +7,10 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * JVM 信息
- *
- * @since 2024/12/18
- * @author CH
+* JVM 信息
+*
+* @since 2024/12/18
+* @author CH
  */
 @Data
 @Schema(description = "JVM 信息")
@@ -172,9 +172,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 内存池信息
-     * @author CH
-     * @since 4.0.0
+    * 内存池信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "内存池信息")
@@ -200,9 +200,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 线程信息
-     * @author CH
-     * @since 4.0.0
+    * 线程信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "线程信息")
@@ -232,9 +232,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 线程详情
-     * @author CH
-     * @since 4.0.0
+    * 线程详情
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "线程详情")
@@ -308,9 +308,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * CPU 热点代码信息
-     * @author CH
-     * @since 4.0.0
+    * CPU 热点代码信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "CPU 热点代码信息")
@@ -352,9 +352,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * CPU 热点分析结果
-     * @author CH
-     * @since 4.0.0
+    * CPU 热点分析结果
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "CPU 热点分析结果")
@@ -392,9 +392,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 类级别热点
-     * @author CH
-     * @since 4.0.0
+    * 类级别热点
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "类级别热点")
@@ -420,9 +420,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 包级别热点
-     * @author CH
-     * @since 4.0.0
+    * 包级别热点
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "包级别热点")
@@ -448,9 +448,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 类加载信息
-     * @author CH
-     * @since 4.0.0
+    * 类加载信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "类加载信息")
@@ -472,9 +472,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 垃圾收集器信息
-     * @author CH
-     * @since 4.0.0
+    * 垃圾收集器信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "垃圾收集器信息")
@@ -500,9 +500,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 操作系统信息
-     * @author CH
-     * @since 4.0.0
+    * 操作系统信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "操作系统信息")
@@ -548,9 +548,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * CPU 信息
-     * @author CH
-     * @since 4.0.0
+    * CPU 信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "CPU 信息")
@@ -572,9 +572,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 编译器信息
-     * @author CH
-     * @since 4.0.0
+    * 编译器信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "编译器信息")
@@ -596,9 +596,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 运行时信息
-     * @author CH
-     * @since 4.0.0
+    * 运行时信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "运行时信息")
@@ -640,9 +640,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 缓冲池信息
-     * @author CH
-     * @since 4.0.0
+    * 缓冲池信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "缓冲池信息")
@@ -668,9 +668,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 文件描述符信息
-     * @author CH
-     * @since 4.0.0
+    * 文件描述符信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "文件描述符信息")
@@ -692,9 +692,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 内存对象信息
-     * @author CH
-     * @since 4.0.0
+    * 内存对象信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "内存对象信息")
@@ -724,9 +724,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 内存分析结果
-     * @author CH
-     * @since 4.0.0
+    * 内存分析结果
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "内存分析结果")
@@ -768,9 +768,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 包级别内存统计
-     * @author CH
-     * @since 4.0.0
+    * 包级别内存统计
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "包级别内存统计")
@@ -800,9 +800,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 业务代码归因分析结果
-     * @author CH
-     * @since 4.0.0
+    * 业务代码归因分析结果
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "业务代码归因分析结果")
@@ -844,9 +844,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 业务代码影响
-     * @author CH
-     * @since 4.0.0
+    * 业务代码影响
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "业务代码影响")
@@ -900,9 +900,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 调用链分析
-     * @author CH
-     * @since 4.0.0
+    * 调用链分析
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "调用链分析")
@@ -932,9 +932,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 业务入口点
-     * @author CH
-     * @since 4.0.0
+    * 业务入口点
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "业务入口点")
@@ -976,9 +976,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * JVM 优化建议
-     * @author CH
-     * @since 4.0.0
+    * JVM 优化建议
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "JVM 优化建议")
@@ -1028,9 +1028,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * JVM 参数
-     * @author CH
-     * @since 4.0.0
+    * JVM 参数
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "JVM 参数")
@@ -1068,9 +1068,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * GC 收集器建议
-     * @author CH
-     * @since 4.0.0
+    * GC 收集器建议
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "GC 收集器建议")
@@ -1104,9 +1104,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 内存建议
-     * @author CH
-     * @since 4.0.0
+    * 内存建议
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "内存建议")
@@ -1148,9 +1148,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 线程建议
-     * @author CH
-     * @since 4.0.0
+    * 线程建议
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "线程建议")
@@ -1180,9 +1180,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 性能建议
-     * @author CH
-     * @since 4.0.0
+    * 性能建议
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "性能建议")
@@ -1216,9 +1216,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 线程Dump信息
-     * @author CH
-     * @since 4.0.0
+    * 线程Dump信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "线程Dump信息")
@@ -1260,9 +1260,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 线程Dump详情
-     * @author CH
-     * @since 4.0.0
+    * 线程Dump详情
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "线程Dump详情")
@@ -1312,9 +1312,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 内存泄漏检测结果
-     * @author CH
-     * @since 4.0.0
+    * 内存泄漏检测结果
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "内存泄漏检测结果")
@@ -1372,9 +1372,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 对象增长信息
-     * @author CH
-     * @since 4.0.0
+    * 对象增长信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "对象增长信息")
@@ -1424,9 +1424,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * JVM诊断信息
-     * @author CH
-     * @since 4.0.0
+    * JVM诊断信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "JVM诊断信息")
@@ -1458,9 +1458,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * VM Flag
-     * @author CH
-     * @since 4.0.0
+    * VM Flag
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "VM Flag")
@@ -1486,9 +1486,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 类加载器信息
-     * @author CH
-     * @since 4.0.0
+    * 类加载器信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "类加载器信息")
@@ -1514,9 +1514,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 内存池详情
-     * @author CH
-     * @since 4.0.0
+    * 内存池详情
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "内存池详情")
@@ -1558,9 +1558,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 线程状态分布
-     * @author CH
-     * @since 4.0.0
+    * 线程状态分布
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "线程状态分布")
@@ -1598,9 +1598,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * JIT编译统计
-     * @author CH
-     * @since 4.0.0
+    * JIT编译统计
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "JIT编译统计")
@@ -1630,9 +1630,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 代码缓存信息
-     * @author CH
-     * @since 4.0.0
+    * 代码缓存信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "代码缓存信息")
@@ -1666,9 +1666,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * GC统计信息
-     * @author CH
-     * @since 4.0.0
+    * GC统计信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "GC统计信息")
@@ -1718,9 +1718,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 元空间信息
-     * @author CH
-     * @since 4.0.0
+    * 元空间信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "元空间信息")
@@ -1762,9 +1762,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 直接内存信息
-     * @author CH
-     * @since 4.0.0
+    * 直接内存信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "直接内存信息")
@@ -1806,9 +1806,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 内存分配速率
-     * @author CH
-     * @since 4.0.0
+    * 内存分配速率
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "内存分配速率")
@@ -1858,9 +1858,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 类加载详情
-     * @author CH
-     * @since 4.0.0
+    * 类加载详情
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "类加载详情")
@@ -1894,9 +1894,9 @@ public class JvmInfo implements Serializable {
     }
 
     /**
-     * 安全管理器信息
-     * @author CH
-     * @since 4.0.0
+    * 安全管理器信息
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @Schema(description = "安全管理器信息")

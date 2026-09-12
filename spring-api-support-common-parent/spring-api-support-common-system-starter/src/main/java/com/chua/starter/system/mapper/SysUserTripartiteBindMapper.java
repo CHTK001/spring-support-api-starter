@@ -7,20 +7,20 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
-   * 用户三方绑定 映射器
- *
- * @since 1.0.0
- * @author CH
+* 用户三方绑定 映射器
+*
+* @since 1.0.0
+* @author CH
  */
 @Mapper
 public interface SysUserTripartiteBindMapper extends BaseMapper<SysUserTripartiteBind> {
     
     /**
-     * 获取系统用户
-     *
-     * @param uuid      uuid
-     * @param loginType 登录类型
-     * @return 系统用户
+    * 获取系统用户
+    *
+    * @param uuid      uuid
+    * @param loginType 登录类型
+    * @return 系统用户
      */
     SysUser getSysUser(@Param("uuid") String uuid, @Param("loginType") String loginType);
 }

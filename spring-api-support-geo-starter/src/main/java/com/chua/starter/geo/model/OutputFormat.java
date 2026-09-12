@@ -1,10 +1,10 @@
 package com.chua.starter.geo.model;
 
 /**
- * 输出格式枚举，定义瓦片下载后的导出格式。
- *
- * @author CH
- * @since 1.0.0
+* 输出格式枚举，定义瓦片下载后的导出格式。
+*
+* @author CH
+* @since 1.0.0
  */
 public enum OutputFormat {
     /** geotiff 格式（带地理坐标信息） */
@@ -37,21 +37,21 @@ public enum OutputFormat {
 
     public String getLabel() { return label; }
     /**
-     * 获取延伸。
-     * @return 获取延伸的结果
+    * 获取延伸。
+    * @return 获取延伸的结果
      */
     public String getExtension() { return extension; }
     /**
-     * 获取mime类型。
-     * @return 获取mime类型的结果
+    * 获取mime类型。
+    * @return 获取mime类型的结果
      */
     public String getMimeType() { return mimeType; }
 
     /**
-     * 从字符串解析输出格式。
-     *
-     * @param value 格式字符串（如 "geotiff"、"png"）
-     * @return 对应的 输出格式化 枚举值，无法识别返回 空
+    * 从字符串解析输出格式。
+    *
+    * @param value 格式字符串（如 "geotiff"、"png"）
+    * @return 对应的 输出格式化 枚举值，无法识别返回 空
      */
     public static OutputFormat fromString(String value) {
         if (value == null) {

@@ -18,10 +18,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * JVM 信息控制器
- *
- * @since 2024/12/18
- * @author CH
+* JVM 信息控制器
+*
+* @since 2024/12/18
+* @author CH
  */
 @Slf4j
 @RestController
@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
 public class SysJvmController {
 
     /**
-     * 获取 JVM 信息
-     *
-     * @return JVM 信息
+    * 获取 JVM 信息
+    *
+    * @return JVM 信息
      */
     @GetMapping("/info")
     @Operation(summary = "获取 JVM 信息")
@@ -430,9 +430,9 @@ public class SysJvmController {
     }
 
     /**
-     * 手动执行 GC
-     *
-     * @return 执行结果
+    * 手动执行 GC
+    *
+    * @return 执行结果
      */
     @PostMapping("/gc")
     @Operation(summary = "手动执行 GC")
@@ -448,10 +448,10 @@ public class SysJvmController {
     }
 
     /**
-     * 获取线程详情列表
-     *
-     * @param topN 返回前 N 个线程
-     * @return 线程详情列表
+    * 获取线程详情列表
+    *
+    * @param topN 返回前 N 个线程
+    * @return 线程详情列表
      */
     @GetMapping("/threads")
     @Operation(summary = "获取线程详情列表")
@@ -487,11 +487,11 @@ public class SysJvmController {
     }
 
     /**
-     * 获取单个线程详细信息(包含堆栈)
-     *
-     * @param threadId 线程标识
-     * @return 线程详情
-     * @param @RequestParam("threadId" @RequestParam("threadId"
+    * 获取单个线程详细信息(包含堆栈)
+    *
+    * @param threadId 线程标识
+    * @return 线程详情
+    * @param @RequestParam("threadId" @RequestParam("threadId"
      */
     @GetMapping("/thread")
     @Operation(summary = "获取单个线程详细信息")
@@ -539,12 +539,12 @@ public class SysJvmController {
     }
 
     /**
-     * CPU 热点分析 - 通过采样堆栈分析哪些代码占用 CPU 最多
-     *
-     * @param sampleCount 采样次数
-     * @param interval 采样间隔(毫秒)
-     * @param topN 返回前 N 个热点
-     * @return CPU 热点分析结果
+    * CPU 热点分析 - 通过采样堆栈分析哪些代码占用 CPU 最多
+    *
+    * @param sampleCount 采样次数
+    * @param interval 采样间隔(毫秒)
+    * @param topN 返回前 N 个热点
+    * @return CPU 热点分析结果
      */
     @GetMapping("/hotspots")
     @Operation(summary = "CPU 热点分析")
@@ -738,11 +738,11 @@ public class SysJvmController {
     }
     
     /**
-     * 堆内存分析 - 分析哪些类占用内存最多
-     *
-     * @param topN 返回前 N 个
-     * @param packageFilter 包名过滤
-     * @return 堆内存分析结果
+    * 堆内存分析 - 分析哪些类占用内存最多
+    *
+    * @param topN 返回前 N 个
+    * @param packageFilter 包名过滤
+    * @return 堆内存分析结果
      */
     @GetMapping("/heap")
     @Operation(summary = "堆内存分析")
@@ -783,11 +783,11 @@ public class SysJvmController {
     }
     
     /**
-     * 解析堆直方图输出
-     * @param analysis analysis
-     * @param histogram histogram
-     * @param topN topN
-     * @param packageFilter 包过滤器
+    * 解析堆直方图输出
+    * @param analysis analysis
+    * @param histogram histogram
+    * @param topN topN
+    * @param packageFilter 包过滤器
      */
     private void parseHistogram(JvmInfo.HeapAnalysis analysis, String histogram, int topN, String packageFilter) {
         List<HeapHistogramEntry> entries = new ArrayList<>();
@@ -918,9 +918,9 @@ public class SysJvmController {
     }
     
     /**
-     * 规范化类名 (处理数组类型等)
-     * @param className 类名称
-     * @return normalize类名称的结果
+    * 规范化类名 (处理数组类型等)
+    * @param className 类名称
+    * @return normalize类名称的结果
      */
     private String normalizeClassName(String className) {
         if (className == null) {
@@ -966,9 +966,9 @@ public class SysJvmController {
     }
     
     /**
-     * 堆直方图条目
-     * @author CH
-     * @since 4.0.0
+    * 堆直方图条目
+    * @author CH
+    * @since 4.0.0
      */
     private static class HeapHistogramEntry {
         String className; // 类名称
@@ -977,9 +977,9 @@ public class SysJvmController {
     }
     
     /**
-     * 包统计信息
-     * @author CH
-     * @since 4.0.0
+    * 包统计信息
+    * @author CH
+    * @since 4.0.0
      */
     private static class PackageStats {
         long bytes; // bytes
@@ -988,9 +988,9 @@ public class SysJvmController {
     }
     
     /**
-     * 方法命中信息
-     * @author CH
-     * @since 4.0.0
+    * 方法命中信息
+    * @author CH
+    * @since 4.0.0
      */
     private static class MethodHitInfo {
         String className; // 类名称
@@ -1003,9 +1003,9 @@ public class SysJvmController {
     }
     
     /**
-     * 判断是否为空闲线程
-     * @param info 信息
-     * @return 是否空闲thread的结果
+    * 判断是否为空闲线程
+    * @param info 信息
+    * @return 是否空闲thread的结果
      */
     private boolean isIdleThread(java.lang.management.ThreadInfo info) {
         Thread.State state = info.getThreadState();
@@ -1028,9 +1028,9 @@ public class SysJvmController {
     }
     
     /**
-     * 获取包名
-     * @param className 类名称
-     * @return 获取包名称的结果
+    * 获取包名
+    * @param className 类名称
+    * @return 获取包名称的结果
      */
     private String getPackageName(String className) {
         int lastDot = className.lastIndexOf('.');
@@ -1038,10 +1038,10 @@ public class SysJvmController {
     }
 
     /**
-     * 获取 CPU 占用最高的线程列表
-     * @param threadMXBean threadmxBean
-     * @param topN topN
-     * @return 获取topcputhreads的结果
+    * 获取 CPU 占用最高的线程列表
+    * @param threadMXBean threadmxBean
+    * @param topN topN
+    * @return 获取topcputhreads的结果
      */
     private List<JvmInfo.ThreadDetail> getTopCpuThreads(ThreadMXBean threadMXBean, int topN) {
         List<JvmInfo.ThreadDetail> threadDetails = new ArrayList<>();
@@ -1120,8 +1120,8 @@ public class SysJvmController {
     }
     
     /**
-      * 获取所有线程的 映射
-     * @return 获取thread映射的结果
+    * 获取所有线程的 映射
+    * @return 获取thread映射的结果
      */
     private Map<Long, Thread> getThreadMap() {
         Map<Long, Thread> threadMap = new HashMap<>();
@@ -1138,22 +1138,22 @@ public class SysJvmController {
     }
     
     /**
-      * 根据 标识 查找线程
-     * @param threadId threadId
-     * @return findThreadById的结果
+    * 根据 标识 查找线程
+    * @param threadId threadId
+    * @return findThreadById的结果
      */
     private Thread findThreadById(long threadId) {
         return getThreadMap().get(threadId);
     }
 
     /**
-     * 业务代码归因分析 - 分析哪些业务代码导致了CPU/内存问题
-     *
-     * @param businessPackage 业务包前缀(如 com.chua)
-     * @param sampleCount 采样次数
-     * @param interval 采样间隔(毫秒)
-     * @param topN 返回前N个结果
-     * @return 业务代码归因分析结果
+    * 业务代码归因分析 - 分析哪些业务代码导致了CPU/内存问题
+    *
+    * @param businessPackage 业务包前缀(如 com.chua)
+    * @param sampleCount 采样次数
+    * @param interval 采样间隔(毫秒)
+    * @param topN 返回前N个结果
+    * @return 业务代码归因分析结果
      */
     @GetMapping("/business-analysis")
     @Operation(summary = "业务代码归因分析")
@@ -1325,7 +1325,7 @@ public class SysJvmController {
     }
     
     /**
-     * 分析单个调用栈
+    * 分析单个调用栈
      */
     private void analyzeStackTrace(StackTraceElement[] stackTrace, String businessPackage,
             Map<String, BusinessMethodStats> businessMethodStats,
@@ -1432,10 +1432,10 @@ public class SysJvmController {
     }
     
     /**
-     * 检测入口类型
-     * @param className 类名称
-     * @param methodName 方法名称
-     * @return detectentry类型的结果
+    * 检测入口类型
+    * @param className 类名称
+    * @param methodName 方法名称
+    * @return detectentry类型的结果
      */
     private String detectEntryType(String className, String methodName) {
         String lowerClassName = className.toLowerCase();
@@ -1465,7 +1465,7 @@ public class SysJvmController {
     }
     
     /**
-     * 检测可能的内存分配操作
+    * 检测可能的内存分配操作
      */
     private void detectMemoryAllocation(StackTraceElement[] stackTrace, int businessMethodIndex,
             BusinessMethodStats stats) {
@@ -1522,10 +1522,10 @@ public class SysJvmController {
     }
     
     /**
-     * 构建简化的调用链
-     * @param stackTrace stack追踪
-     * @param businessPackage 业务包
-     * @return 构建simplifiedcallchain的结果
+    * 构建简化的调用链
+    * @param stackTrace stack追踪
+    * @param businessPackage 业务包
+    * @return 构建simplifiedcallchain的结果
      */
     private List<String> buildSimplifiedCallChain(StackTraceElement[] stackTrace, String businessPackage) {
         List<String> chain = new ArrayList<>();
@@ -1566,9 +1566,9 @@ public class SysJvmController {
     }
     
     /**
-     * 获取简化类名
-     * @param fullClassName 完整类名称
-     * @return 获取简单类名称的结果
+    * 获取简化类名
+    * @param fullClassName 完整类名称
+    * @return 获取简单类名称的结果
      */
     private String getSimpleClassName(String fullClassName) {
         int lastDot = fullClassName.lastIndexOf('.');
@@ -1576,10 +1576,10 @@ public class SysJvmController {
     }
     
     /**
-     * 生成影响描述
-     * @param stats stats
-     * @param type 类型
-     * @return generateImpactDescription的结果
+    * 生成影响描述
+    * @param stats stats
+    * @param type 类型
+    * @return generateImpactDescription的结果
      */
     private String generateImpactDescription(BusinessMethodStats stats, String type) {
         StringBuilder desc = new StringBuilder();
@@ -1614,9 +1614,9 @@ public class SysJvmController {
     }
     
     /**
-     * 生成入口点描述
-     * @param stats stats
-     * @return generateEntryPointDescription的结果
+    * 生成入口点描述
+    * @param stats stats
+    * @return generateEntryPointDescription的结果
      */
     private String generateEntryPointDescription(EntryPointStats stats) {
         StringBuilder desc = new StringBuilder();
@@ -1628,9 +1628,9 @@ public class SysJvmController {
     }
     
     /**
-     * 业务方法统计
-     * @author CH
-     * @since 4.0.0
+    * 业务方法统计
+    * @author CH
+    * @since 4.0.0
      */
     private static class BusinessMethodStats {
         String className; // 类名称
@@ -1645,9 +1645,9 @@ public class SysJvmController {
     }
     
     /**
-     * 调用链统计
-     * @author CH
-     * @since 4.0.0
+    * 调用链统计
+    * @author CH
+    * @since 4.0.0
      */
     private static class CallChainStats {
         String businessEntry; // 业务entry
@@ -1657,9 +1657,9 @@ public class SysJvmController {
     }
     
     /**
-     * 入口点统计
-     * @author CH
-     * @since 4.0.0
+    * 入口点统计
+    * @author CH
+    * @since 4.0.0
      */
     private static class EntryPointStats {
         String className; // 类名称
@@ -1671,11 +1671,11 @@ public class SysJvmController {
     }
 
     /**
-     * JVM 优化建议 - 根据当前状态给出最优JVM参数建议
-     *
-     * @param targetLatency 目标响应时间(ms)，用于选择GC策略
-     * @param targetThroughput 目标吞吐量(%)
-     * @return JVM 优化建议
+    * JVM 优化建议 - 根据当前状态给出最优JVM参数建议
+    *
+    * @param targetLatency 目标响应时间(ms)，用于选择GC策略
+    * @param targetThroughput 目标吞吐量(%)
+    * @return JVM 优化建议
      */
     @GetMapping("/optimization")
     @Operation(summary = "JVM 优化建议")
@@ -2077,9 +2077,9 @@ public class SysJvmController {
     }
     
     /**
-     * 格式化字节数为紧凑格式
-     * @param bytes bytes
-     * @return 格式化bytescompact的结果
+    * 格式化字节数为紧凑格式
+    * @param bytes bytes
+    * @return 格式化bytescompact的结果
      */
     private String formatBytesCompact(long bytes) {
         if (bytes < 1024) {
@@ -2095,11 +2095,11 @@ public class SysJvmController {
     }
     
     /**
-     * 生成内存建议文本
-     * @param heapUsagePercent heapUsagePercent
-     * @param currentMax 当前最大
-     * @param recommendedMax recommended最大
-     * @return generate内存advice文本的结果
+    * 生成内存建议文本
+    * @param heapUsagePercent heapUsagePercent
+    * @param currentMax 当前最大
+    * @param recommendedMax recommended最大
+    * @return generate内存advice文本的结果
      */
     private String generateMemoryAdviceText(double heapUsagePercent, long currentMax, long recommendedMax) {
         StringBuilder sb = new StringBuilder();
@@ -2116,10 +2116,10 @@ public class SysJvmController {
     }
     
     /**
-     * 生成线程建议文本
-     * @param threadCount thread数量
-     * @param processors 处理器
-     * @return generatethreadadvice文本的结果
+    * 生成线程建议文本
+    * @param threadCount thread数量
+    * @param processors 处理器
+    * @return generatethreadadvice文本的结果
      */
     private String generateThreadAdviceText(int threadCount, int processors) {
         StringBuilder sb = new StringBuilder();
@@ -2135,10 +2135,10 @@ public class SysJvmController {
     }
     
     /**
-     * 生成完整启动命令
-     * @param params 参数
-     * @param gc gc
-     * @return generate完整命令的结果
+    * 生成完整启动命令
+    * @param params 参数
+    * @param gc gc
+    * @return generate完整命令的结果
      */
     private String generateFullCommand(List<JvmInfo.JvmParameter> params, String gc) {
         StringBuilder cmd = new StringBuilder("java");
@@ -2183,10 +2183,10 @@ public class SysJvmController {
     }
 
     /**
-     * 获取线程Dump
-     *
-     * @param format 输出格式: json/文本
-     * @return 线程Dump信息
+    * 获取线程Dump
+    *
+    * @param format 输出格式: json/文本
+    * @return 线程Dump信息
      */
     @GetMapping("/thread-dump")
     @Operation(summary = "获取线程Dump")
@@ -2320,11 +2320,11 @@ public class SysJvmController {
     private static volatile long lastSnapshotTime = 0;
     
     /**
-     * 内存泄漏检测 - 对比两次堆快照
-     *
-     * @param intervalSeconds 两次快照间隔(秒)
-     * @param topN 返回前N个增长的对象
-     * @return 内存泄漏分析结果
+    * 内存泄漏检测 - 对比两次堆快照
+    *
+    * @param intervalSeconds 两次快照间隔(秒)
+    * @param topN 返回前N个增长的对象
+    * @return 内存泄漏分析结果
      */
     @GetMapping("/memory-leak")
     @Operation(summary = "内存泄漏检测")
@@ -2448,8 +2448,8 @@ public class SysJvmController {
     }
     
     /**
-     * 获取堆直方图快照
-     * @return 获取heaphistogramsnapshot的结果
+    * 获取堆直方图快照
+    * @return 获取heaphistogramsnapshot的结果
      */
     private Map<String, Long[]> getHeapHistogramSnapshot() {
         Map<String, Long[]> snapshot = new HashMap<>();
@@ -2499,10 +2499,10 @@ public class SysJvmController {
     }
     
     /**
-     * JVM诊断信息
-     *
-     * @param includeEnv 是否包含环境变量
-     * @return JVM诊断信息
+    * JVM诊断信息
+    *
+    * @param includeEnv 是否包含环境变量
+    * @return JVM诊断信息
      */
     @GetMapping("/diagnostic")
     @Operation(summary = "JVM诊断信息")
@@ -2638,10 +2638,10 @@ public class SysJvmController {
     }
     
     /**
-     * 执行VM诊断命令
-     *
-     * @param command 命令名称
-     * @return 命令输出
+    * 执行VM诊断命令
+    *
+    * @param command 命令名称
+    * @return 命令输出
      */
     @GetMapping("/vm-command")
     @Operation(summary = "执行VM诊断命令")
@@ -2675,9 +2675,9 @@ public class SysJvmController {
     }
 
     /**
-     * 转换内存使用信息
-     * @param memoryUsage 内存usage
-     * @return 转换内存usage的结果
+    * 转换内存使用信息
+    * @param memoryUsage 内存usage
+    * @return 转换内存usage的结果
      */
     private JvmInfo.MemoryInfo convertMemoryUsage(MemoryUsage memoryUsage) {
         if (memoryUsage == null) {

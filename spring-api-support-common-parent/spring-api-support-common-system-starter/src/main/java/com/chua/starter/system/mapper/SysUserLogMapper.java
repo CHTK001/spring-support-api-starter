@@ -9,9 +9,9 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- *
- * @since 2024/8/8
- * @author CH
+*
+* @since 2024/8/8
+* @author CH
  */
 @Mapper
 public interface SysUserLogMapper extends BaseMapper<SysUserLog> {

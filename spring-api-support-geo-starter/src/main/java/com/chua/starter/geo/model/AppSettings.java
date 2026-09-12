@@ -4,10 +4,10 @@ import lombok.Data;
 import java.util.List;
 
 /**
-   * 全局应用设置，对应 geo属性 的运行时快照。
- *
- * @author CH
- * @since 1.0.0
+* 全局应用设置，对应 geo属性 的运行时快照。
+*
+* @author CH
+* @since 1.0.0
  */
 @Data
 public class AppSettings {

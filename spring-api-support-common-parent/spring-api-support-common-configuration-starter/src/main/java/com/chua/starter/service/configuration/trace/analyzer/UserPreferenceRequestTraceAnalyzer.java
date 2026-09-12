@@ -16,10 +16,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 用户近期访问偏好分析器
- *
- * @since 2026/03/25
- * @author CH
+* 用户近期访问偏好分析器
+*
+* @since 2026/03/25
+* @author CH
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 30)
@@ -91,11 +91,11 @@ public class UserPreferenceRequestTraceAnalyzer implements RequestTraceAnalyzer 
     }
 
     /**
-     * dominant值
-     *
-     * @param value 值
-     * @param count 数量
-     * @return dominant值的结果
+    * dominant值
+    *
+    * @param value 值
+    * @param count 数量
+    * @return dominant值的结果
      */
     private record DominantValue(String value, int count) {
     }
