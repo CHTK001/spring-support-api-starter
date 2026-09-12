@@ -26,14 +26,15 @@ public class AcmeChallengeService {
     private final Map<String, ChallengeInfo> challengeCache = new ConcurrentHashMap<>();
 
     /**
-    * 定时清理过期的验证信息（默认 10 分钟过期）
-     */
+    * 定时清理过期的验证信息
+    */
     private final ScheduledExecutorService cleaner = Executors.newSingleThreadScheduledExecutor();
 
     /**
-    * 验证信息过期时长（分钟）
-     */
-    private static final long EXPIRE_MINUTES = 10;
+    * 验证信息过期时长（分钟）。
+    * 多 SAN 域名的挑战按顺序触发，单个挑战最长轮询 90 秒，需覆盖整批验证窗口
+    */
+    private static final long EXPIRE_MINUTES = 30;
 
     /**
     * 清理任务执行间隔（分钟）
@@ -41,8 +42,8 @@ public class AcmeChallengeService {
     private static final long CLEAN_INTERVAL_MINUTES = 1;
 
     /**
-    * 构造器：启动后台定时清理任务，每分钟清理一次过期的验证信息。
-     */
+    * 构造器：启动后台定时清理任务，每分钟清理一次过期的验证信息（默认保留 30 分钟）。
+    */
     public AcmeChallengeService() {
         cleaner.scheduleAtFixedRate(this::cleanExpired, CLEAN_INTERVAL_MINUTES, CLEAN_INTERVAL_MINUTES, TimeUnit.MINUTES);
     }
@@ -80,8 +81,8 @@ public class AcmeChallengeService {
     }
 
     /**
-    * 清理过期的验证信息（默认 10 分钟过期）。
-     */
+    * 清理过期的验证信息（默认 30 分钟过期）。
+    */
     private void cleanExpired() {
         long now = System.currentTimeMillis();
         long expireTime = EXPIRE_MINUTES * 60 * 1000;
