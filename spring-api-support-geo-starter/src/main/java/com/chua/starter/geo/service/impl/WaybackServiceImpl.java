@@ -35,9 +35,9 @@ public class WaybackServiceImpl implements WaybackService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
-     * 获取所有历史影像版本列表。
-     *
-     * @return 版本列表，获取失败返回空列表
+    * 获取所有历史影像版本列表。
+    *
+    * @return 版本列表，获取失败返回空列表
      */
     @Override
     public List<WaybackVersion> getVersions() {

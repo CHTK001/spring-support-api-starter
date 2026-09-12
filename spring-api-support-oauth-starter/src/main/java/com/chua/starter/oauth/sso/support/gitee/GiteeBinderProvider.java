@@ -72,9 +72,9 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
     private String contextPath;
 
     /**
-     * gitee页面
-     *
-     * @return 登录页
+    * gitee页面
+    *
+    * @return 登录页
      */
     @GetMapping("/callback")
     @Operation(

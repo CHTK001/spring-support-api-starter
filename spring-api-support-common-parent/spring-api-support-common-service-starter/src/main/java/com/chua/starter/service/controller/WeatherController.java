@@ -43,9 +43,9 @@ public class WeatherController {
     @Operation(summary = "根据 IP 定位获取当前天气")
     @GetMapping("address")
     /**
-     * 获取天气
-     *
-     * @return 获取天气的结果
+    * 获取天气
+    *
+    * @return 获取天气的结果
      */
     public ReturnResult<Map<String, Object>> getWeather() {
         return ReturnResult.ok(fetchWeather("beijing", null));

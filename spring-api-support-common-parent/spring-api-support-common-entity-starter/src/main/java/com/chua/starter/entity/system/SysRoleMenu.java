@@ -24,7 +24,7 @@ public class SysRoleMenu implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-      * 主键标识
+    * 主键标识
      */
     @TableId(value = "sys_role_menu_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
@@ -33,7 +33,7 @@ public class SysRoleMenu implements Serializable {
     private Integer sysRoleMenuId;
 
     /**
-      * 角色标识
+    * 角色标识
      */
     @TableField(value = "sys_role_id")
     @Schema(description = "角色ID")
@@ -41,7 +41,7 @@ public class SysRoleMenu implements Serializable {
     private Integer sysRoleId;
 
     /**
-      * 菜单标识
+    * 菜单标识
      */
     @TableField(value = "sys_menu_id")
     @Schema(description = "菜单ID")

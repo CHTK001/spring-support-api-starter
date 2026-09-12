@@ -33,9 +33,9 @@ public class SysOnlineController {
     private final SysOnlineService sysOnlineService;
 
     /**
-     * 获取在线用户列表
-     *
-     * @return 在线用户列表
+    * 获取在线用户列表
+    *
+    * @return 在线用户列表
      */
     @Operation(summary = "获取在线用户列表")
     @GetMapping("/list")

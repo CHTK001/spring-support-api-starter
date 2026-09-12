@@ -54,12 +54,12 @@ public class SysUserController {
     private final SysUserService sysUserService;
 
     /**
-     * 用户分页列表查询。
-     *
-     * @param sysUserQuery 查询条件
-     * @param roles        当前用户角色集合
-     * @return 用户分页结果
-     * @param true true
+    * 用户分页列表查询。
+    *
+    * @param sysUserQuery 查询条件
+    * @param roles        当前用户角色集合
+    * @return 用户分页结果
+    * @param true true
      */
     @Operation(summary = "用户分页列表")
     @GetMapping("/page")

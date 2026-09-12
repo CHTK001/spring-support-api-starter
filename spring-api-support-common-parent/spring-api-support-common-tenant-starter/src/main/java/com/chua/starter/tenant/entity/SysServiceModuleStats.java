@@ -26,7 +26,7 @@ public class SysServiceModuleStats {
     private Long total;
 
     /**
-     * 启用数
+    * 启用数
      */
     @ApiModelProperty(value = "启用数")
     @Schema(description = "启用数")
@@ -34,7 +34,7 @@ public class SysServiceModuleStats {
     private Long enabled;
 
     /**
-     * 禁用数
+    * 禁用数
      */
     @ApiModelProperty(value = "禁用数")
     @Schema(description = "禁用数")
@@ -42,7 +42,7 @@ public class SysServiceModuleStats {
     private Long disabled;
 
     /**
-     * API类型模块数
+    * API类型模块数
      */
     @ApiModelProperty(value = "API类型模块数")
     @Schema(description = "API类型模块数")
@@ -50,7 +50,7 @@ public class SysServiceModuleStats {
     private Long apiCount;
 
     /**
-     * 服务类型模块数
+    * 服务类型模块数
      */
     @ApiModelProperty(value = "服务类型模块数")
     @Schema(description = "服务类型模块数")

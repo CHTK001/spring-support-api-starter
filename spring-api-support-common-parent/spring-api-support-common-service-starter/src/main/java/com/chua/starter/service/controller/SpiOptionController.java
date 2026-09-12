@@ -51,9 +51,9 @@ public class SpiOptionController {
     private final ApiProperties apiProperties;
 
     /**
-     * 构造函数
-     *
-     * @param apiProperties API 配置
+    * 构造函数
+    *
+    * @param apiProperties API 配置
      */
     public SpiOptionController(ApiProperties apiProperties) {
         this.apiProperties = apiProperties;

@@ -43,12 +43,12 @@ public class TenantServerSyncRequestHandler implements SyncMessageHandler {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 处理
-     *
-     * @param topic topic
-     * @param sessionId 会话id
-     * @param data 数据
-     * @return 处理的结果
+    * 处理
+    *
+    * @param topic topic
+    * @param sessionId 会话id
+    * @param data 数据
+    * @return 处理的结果
      */
     public Object handle(String topic, String sessionId, Map<String, Object> data) {
         if (data == null) {

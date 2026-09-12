@@ -29,10 +29,10 @@ public class OverpassController {
     private final OverpassService overpassService;
 
     /**
-     * 执行 Overpass 查询并返回结果统计。
-     *
-     * @param request 查询请求
-     * @return 查询结果统计
+    * 执行 Overpass 查询并返回结果统计。
+    *
+    * @param request 查询请求
+    * @return 查询结果统计
      */
     @PostMapping("/query")
     @Operation(summary = "执行Overpass查询")

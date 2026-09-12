@@ -66,8 +66,8 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
     /** 视频同步配置映射器 */
     private VideoSyncConfigMapper videoSyncConfigMapper;
     /**
-      * 创建 yunyresource提供者 实例
-     * @param videoSource 视频源
+    * 创建 yunyresource提供者 实例
+    * @param videoSource 视频源
      */
     public YunYResourceProvider(VideoSource videoSource) {
         super(videoSource);

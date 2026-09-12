@@ -63,10 +63,10 @@ public class OauthProtocolServerManager implements AutoCloseable {
     private final LoginCheck loginCheck;
 
     /**
-      * 创建 oauth协议服务端管理器 实例
-     * @param properties 属性
-     * @param authServerProperties 认证服务端属性
-     * @param loginCheck login检查
+    * 创建 oauth协议服务端管理器 实例
+    * @param properties 属性
+    * @param authServerProperties 认证服务端属性
+    * @param loginCheck login检查
      */
     public OauthProtocolServerManager(OauthProtocolServersProperties properties,
                                       AuthServerProperties authServerProperties,

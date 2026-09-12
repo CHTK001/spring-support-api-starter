@@ -26,28 +26,28 @@ public class SysUserLogQuery extends DateQuery {
     private String sysLogUsername;
 
     /**
-     * 请求模块
+    * 请求模块
      */
     @Schema(description = "请求模块")
     /** SYS日志从 */
     private String sysLogFrom;
 
     /**
-     * 请求地址
+    * 请求地址
      */
     @Schema(description = "请求地址")
     /** SYS日志地址 */
     private String sysLogAddress;
 
     /**
-     * 请求IP
+    * 请求IP
      */
     @Schema(description = "请求IP")
     /** SYS日志IP */
     private String sysLogIp;
 
     /**
-     * 请求状态: 0:失败 1:成功
+    * 请求状态: 0:失败 1:成功
      */
     @Schema(description = "请求状态: 0:失败 1:成功")
     /** SYS日志状态 */

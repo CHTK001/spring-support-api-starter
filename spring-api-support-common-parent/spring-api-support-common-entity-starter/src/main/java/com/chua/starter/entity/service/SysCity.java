@@ -32,7 +32,7 @@ public class SysCity implements Serializable {
     private String sysCityCode;
 
     /**
-     * 地区区号
+    * 地区区号
      */
     @TableField("sys_city_area_code")
     @Schema(description = "地区区号")
@@ -40,7 +40,7 @@ public class SysCity implements Serializable {
     private String sysCityAreaCode;
 
     /**
-     * 区划名称
+    * 区划名称
      */
     @TableField("sys_city_name")
     @Schema(description = "区划名称")
@@ -48,7 +48,7 @@ public class SysCity implements Serializable {
     private String sysCityName;
 
     /**
-     * 区划级别: 1省(直辖市) 2地级市(市辖区) 3县级市(区) 4乡镇(街道) 5村(社区、居委会)
+    * 区划级别: 1省(直辖市) 2地级市(市辖区) 3县级市(区) 4乡镇(街道) 5村(社区、居委会)
      */
     @TableField("sys_city_level")
     @Schema(description = "区划级别: 1省(直辖市) 2地级市(市辖区) 3县级市(区) 4乡镇(街道) 5村(社区、居委会)")
@@ -56,7 +56,7 @@ public class SysCity implements Serializable {
     private Integer sysCityLevel;
 
     /**
-     * 父级区划代码
+    * 父级区划代码
      */
     @TableField("sys_city_parent_code")
     @Schema(description = "父级区划代码")
@@ -64,7 +64,7 @@ public class SysCity implements Serializable {
     private String sysCityParentCode;
 
     /**
-     * 树路径
+    * 树路径
      */
     @TableField("sys_city_tree_path")
     @Schema(description = "树路径")
@@ -72,7 +72,7 @@ public class SysCity implements Serializable {
     private String sysCityTreePath;
 
     /**
-     * 简称
+    * 简称
      */
     @TableField("sys_city_short_name")
     @Schema(description = "简称")
@@ -80,7 +80,7 @@ public class SysCity implements Serializable {
     private String sysCityShortName;
 
     /**
-     * 全称
+    * 全称
      */
     @TableField("sys_city_merger_name")
     @Schema(description = "全称")
@@ -88,7 +88,7 @@ public class SysCity implements Serializable {
     private String sysCityMergerName;
 
     /**
-     * 拼音
+    * 拼音
      */
     @TableField("sys_city_pinyin")
     @Schema(description = "拼音")
@@ -96,7 +96,7 @@ public class SysCity implements Serializable {
     private String sysCityPinyin;
 
     /**
-     * 经度
+    * 经度
      */
     @TableField("sys_city_lng")
     @Schema(description = "经度")
@@ -104,7 +104,7 @@ public class SysCity implements Serializable {
     private Double sysCityLng;
 
     /**
-     * 纬度
+    * 纬度
      */
     @TableField("sys_city_lat")
     @Schema(description = "纬度")
@@ -112,7 +112,7 @@ public class SysCity implements Serializable {
     private Double sysCityLat;
 
     /**
-     * 排序
+    * 排序
      */
     @TableField("sys_city_sort")
     @Schema(description = "排序")
@@ -120,7 +120,7 @@ public class SysCity implements Serializable {
     private Integer sysCitySort;
 
     /**
-     * 车牌前缀
+    * 车牌前缀
      */
     @TableField("sys_city_car_plate")
     @Schema(description = "车牌前缀")
@@ -128,7 +128,7 @@ public class SysCity implements Serializable {
     private String sysCityCarPlate;
 
     /**
-     * 车牌号
+    * 车牌号
      */
     @TableField("sys_city_car_plate_no")
     @Schema(description = "车牌号")
@@ -136,7 +136,7 @@ public class SysCity implements Serializable {
     private String sysCityCarPlateNo;
 
     /**
-     * 子级区划(非数据库字段)
+    * 子级区划(非数据库字段)
      */
     @TableField(exist = false)
     /** Children */

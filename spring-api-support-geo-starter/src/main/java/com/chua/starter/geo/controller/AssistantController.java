@@ -34,8 +34,8 @@ public class AssistantController {
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     /**
-     * 获取助手状态。
-     * @return 状态的结果
+    * 获取助手状态。
+    * @return 状态的结果
      */
     @GetMapping("/status")
     @Operation(summary = "获取助手状态")

@@ -27,7 +27,7 @@ public class SysDictItemProperty {
     private Integer sysDictItemPropertyId;
 
     /**
-      * 字典子项标识
+    * 字典子项标识
      */
     @TableField(value = "sys_dict_item_id")
     @Schema(description = "字典子项ID")
@@ -35,7 +35,7 @@ public class SysDictItemProperty {
     private Integer sysDictItemId;
 
     /**
-     * 配置项分组
+    * 配置项分组
      */
     @TableField(value = "sys_dict_item_property_group")
     @Schema(description = "配置项分组")
@@ -43,7 +43,7 @@ public class SysDictItemProperty {
     private String sysDictItemPropertyGroup;
 
     /**
-     * 配置项名称
+    * 配置项名称
      */
     @TableField(value = "sys_dict_item_property_name")
     @Schema(description = "配置项名称")
@@ -51,7 +51,7 @@ public class SysDictItemProperty {
     private String sysDictItemPropertyName;
 
     /**
-     * 配置项值
+    * 配置项值
      */
     @TableField(value = "sys_dict_item_property_value")
     @Schema(description = "配置项值")
@@ -59,7 +59,7 @@ public class SysDictItemProperty {
     private String sysDictItemPropertyValue;
 
     /**
-     * 选中类型
+    * 选中类型
      */
     @TableField(value = "sys_dict_item_property_selected_type")
     @Schema(description = "选中类型")

@@ -69,10 +69,10 @@ public class TileDownloadController {
     }
 
     /**
-     * 估算指定区域的瓦片数量与大小。
-     *
-     * @param request 下载请求参数
-     * @return 估算结果
+    * 估算指定区域的瓦片数量与大小。
+    *
+    * @param request 下载请求参数
+    * @return 估算结果
      */
     @PostMapping("/estimate")
     @Operation(summary = "估算瓦片数量与大小")

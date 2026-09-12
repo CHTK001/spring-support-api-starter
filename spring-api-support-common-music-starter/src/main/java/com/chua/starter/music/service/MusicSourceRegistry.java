@@ -35,9 +35,9 @@ public class MusicSourceRegistry {
     private final ObjectProvider<MusicSourceAvailabilityService> musicSourceAvailabilityService;
 
     /**
-     * 列表源
-     *
-     * @return 列表源的结果
+    * 列表源
+    *
+    * @return 列表源的结果
      */
     public List<MusicSourceOption> listSources() {
         List<MusicSourceOption> result = new ArrayList<>();

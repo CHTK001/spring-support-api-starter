@@ -63,7 +63,7 @@ public class RedisTokenResolver implements TokenResolver {
     private static final String AUTH_VERSION = "authVersion";
 
     /**
-      * 默认令牌过期时间（秒），1天
+    * 默认令牌过期时间（秒），1天
      */
     private static final long DEFAULT_EXPIRE_SECONDS = 86400L;
 
@@ -194,10 +194,10 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     /**
-     * 从 ext 中提取并设置浏览器指纹
-     * <p>从用户的 ext 参数中获取 fingerprint 并存储到 UserResult</p>
-     *
-     * @param userResult 用户信息
+    * 从 ext 中提取并设置浏览器指纹
+    * <p>从用户的 ext 参数中获取 fingerprint 并存储到 UserResult</p>
+    *
+    * @param userResult 用户信息
      */
     private void extractAndSetFingerprint(UserResult userResult) {
         Map<String, Object> ext = userResult.getExt();
@@ -947,10 +947,10 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     /**
-     * 解析认证版本
-     *
-     * @param userResume 用户resume
-     * @return resolve认证版本的结果
+    * 解析认证版本
+    *
+    * @param userResume 用户resume
+    * @return resolve认证版本的结果
      */
     private String resolveAuthVersion(UserResume userResume) {
         if (userResume == null || userResume.getExt() == null) {
@@ -1106,10 +1106,10 @@ public class RedisTokenResolver implements TokenResolver {
 
 
     /**
-      * 令牌续费
-     *
-     * @param userResume 令牌信息
-     * @param token      令牌
+    * 令牌续费
+    *
+    * @param userResume 令牌信息
+    * @param token      令牌
      */
     @SuppressWarnings("unchecked")
     private void resetExpire(UserResume userResume, String token) {

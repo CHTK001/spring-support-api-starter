@@ -29,9 +29,9 @@ public enum RequestTraceSignal {
     }
 
     /**
-     * 获取编码
-     *
-     * @return 获取编码的结果
+    * 获取编码
+    *
+    * @return 获取编码的结果
      */
     public String getCode() {
         return code;

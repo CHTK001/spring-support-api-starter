@@ -36,10 +36,10 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
     private Path historyFile;
 
     /**
-     * 构造方法，支持通过配置覆盖历史文件路径。
-     *
-     * @param historyDir 历史数据存储目录（可选，默认 ~/.geo-downloader）
-     * @param @Value("${geo.history.dir:}" @Value("${geo.history.dir:}"
+    * 构造方法，支持通过配置覆盖历史文件路径。
+    *
+    * @param historyDir 历史数据存储目录（可选，默认 ~/.geo-downloader）
+    * @param @Value("${geo.history.dir:}" @Value("${geo.history.dir:}"
      */
     public DownloadHistoryServiceImpl(@Value("${geo.history.dir:}") String historyDir) {
         objectMapper.registerModule(new JavaTimeModule());

@@ -29,8 +29,8 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
     private String format = "yyyy-MM-dd HH:mm:ss";
 
     /**
-      * 创建 fastjsonredis序列化器 实例
-     * @param type 类型
+    * 创建 fastjsonredis序列化器 实例
+    * @param type 类型
      */
     public FastJsonRedisSerializer(Class<T> type) {
         this.type = type;

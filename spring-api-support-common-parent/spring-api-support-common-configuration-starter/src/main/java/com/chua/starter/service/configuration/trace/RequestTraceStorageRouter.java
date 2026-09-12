@@ -27,10 +27,10 @@ public class RequestTraceStorageRouter {
             "com.chua.starter.service.trace.storage.DatabaseRequestTraceBehaviorStorage";
 
     /**
-     * 配置storage
-     *
-     * @param type 类型
-     * @return 配置storage的结果
+    * 配置storage
+    *
+    * @param type 类型
+    * @return 配置storage的结果
      */
     public RequestTraceConfigStorage configStorage(String type) {
         RequestTraceConfigStorage storage = ServiceProvider.of(RequestTraceConfigStorage.class)

@@ -60,11 +60,11 @@ public class TokenReuseRequestTraceAnalyzer implements RequestTraceAnalyzer {
     }
 
     /**
-      * collect上下文
-     * @param event 事件
-     * @param ips ips
-     * @param fingerprints fingerprints
-     * @param users 用户
+    * collect上下文
+    * @param event 事件
+    * @param ips ips
+    * @param fingerprints fingerprints
+    * @param users 用户
      */
     private void collectContext(
             RequestTraceEvent event,

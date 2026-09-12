@@ -74,13 +74,13 @@ public class TenantUserLoginService extends AbstractUserLoginService {
     @Override
     @SuppressWarnings("unchecked")
     /**
-     * 校验Login
-     *
-     * @param principal principal
-     * @param credential credential
-     * @param address 地址
-     * @param ext ext
-     * @return 检查login的结果
+    * 校验Login
+    *
+    * @param principal principal
+    * @param credential credential
+    * @param address 地址
+    * @param ext ext
+    * @return 检查login的结果
      */
     public UserResume checkLogin(String principal, String credential, String address, Object ext) {
         String redisKey = LOGIN_TYPE_PREFIX + ":login_error:" + principal;
@@ -161,10 +161,10 @@ public class TenantUserLoginService extends AbstractUserLoginService {
     }
 
     /**
-     * 获取用户上次登录的租户编码
-     *
-     * @param username 用户名
-     * @return 租户编码
+    * 获取用户上次登录的租户编码
+    *
+    * @param username 用户名
+    * @return 租户编码
      */
     private String getLastTenantCode(String username) {
         try {

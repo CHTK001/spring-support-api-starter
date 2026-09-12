@@ -35,7 +35,7 @@ public class UserInfoVO {
     private Integer sysUserId;
 
     /**
-     * 账号
+    * 账号
      */
     @TableField(value = "sys_user_username")
     @ApiModelProperty(value = "账号")
@@ -46,7 +46,7 @@ public class UserInfoVO {
     private String sysUserUsername;
 
     /**
-     * 名称
+    * 名称
      */
     @TableField(value = "sys_user_nickname")
     @ApiModelProperty(value = "名称")
@@ -56,7 +56,7 @@ public class UserInfoVO {
     private String sysUserNickname;
 
     /**
-     * 手机号
+    * 手机号
      */
     @TableField(value = "sys_user_phone")
     @ApiModelProperty(value = "手机号")
@@ -66,7 +66,7 @@ public class UserInfoVO {
     private String sysUserPhone;
 
     /**
-     * 邮箱
+    * 邮箱
      */
     @TableField(value = "sys_user_email")
     @ApiModelProperty(value = "邮箱")
@@ -76,42 +76,42 @@ public class UserInfoVO {
     private String sysUserEmail;
 
     /**
-     * 头像地址
+    * 头像地址
      */
     @Schema(description = "头像地址")
     /** Avatar */
     private String avatar;
 
     /**
-     * 性别（0:未知/男, 1:女, 2:保密）
+    * 性别（0:未知/男, 1:女, 2:保密）
      */
     @Schema(description = "性别")
     /** SYS用户SEX */
     private Integer sysUserSex;
 
     /**
-      * 头像框标识
+    * 头像框标识
      */
     @Schema(description = "头像框ID")
     /** SYS用户avatarframe */
     private Integer sysUserAvatarFrame;
 
     /**
-     * 是否显示头像框
+    * 是否显示头像框
      */
     @Schema(description = "是否显示头像框")
     /** SYS用户avatarframeshow */
     private Integer sysUserAvatarFrameShow;
 
     /**
-     * 生日
+    * 生日
      */
     @Schema(description = "生日")
     /** SYS用户birthday */
     private String sysUserBirthday;
 
     /**
-      * 租户标识
+    * 租户标识
      */
     /**
       * 租户标识
@@ -121,63 +121,63 @@ public class UserInfoVO {
     private String tenantId;
 
     /**
-      * 主部门标识
+    * 主部门标识
      */
     @Schema(description = "主部门ID")
     /** sysdeptid */
     private Integer sysDeptId;
 
     /**
-      * 负责部门标识集合
+    * 负责部门标识集合
      */
     @Schema(description = "负责部门ID集合")
     /** manageddept标识 */
     private List<Integer> managedDeptIds;
 
     /**
-     * 用户角色编码集合
+    * 用户角色编码集合
      */
     @Schema(description = "用户角色编码集合")
     /** 角色 */
     private Set<String> roles;
 
     /**
-     * 用户权限标识集合
+    * 用户权限标识集合
      */
     @Schema(description = "用户权限标识集合")
     /** Perms */
     private Set<String> perms;
 
     /**
-     * 当前用户协议版本
+    * 当前用户协议版本
      */
     @Schema(description = "当前用户协议版本")
     /** Agreement版本 */
     private String agreementVersion;
 
     /**
-     * 当前用户协议更新时间
+    * 当前用户协议更新时间
      */
     @Schema(description = "当前用户协议更新时间")
     /** Agreement更新时间AT */
     private String agreementUpdatedAt;
 
     /**
-     * 用户已确认的协议版本
+    * 用户已确认的协议版本
      */
     @Schema(description = "用户已确认的协议版本")
     /** Agreementaccepted版本 */
     private String agreementAcceptedVersion;
 
     /**
-     * 用户确认协议时间
+    * 用户确认协议时间
      */
     @Schema(description = "用户确认协议时间")
     /** agreementacceptedat */
     private String agreementAcceptedAt;
 
     /**
-     * 是否需要确认最新协议
+    * 是否需要确认最新协议
      */
     @Schema(description = "是否需要确认最新协议")
     /** Agreementneedconfirm */

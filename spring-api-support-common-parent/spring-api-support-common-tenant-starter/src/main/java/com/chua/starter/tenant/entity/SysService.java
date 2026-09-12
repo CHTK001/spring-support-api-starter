@@ -40,7 +40,7 @@ public class SysService extends SysBase {
     private Integer sysServiceId;
 
     /**
-     * 服务名称
+    * 服务名称
      */
     @TableField(value = "sys_service_name")
     @ApiModelProperty(value = "服务名称")
@@ -50,7 +50,7 @@ public class SysService extends SysBase {
     private String sysServiceName;
 
     /**
-     * 服务编码
+    * 服务编码
      */
     @TableField(value = "sys_service_code")
     @ApiModelProperty(value = "服务编码")
@@ -60,7 +60,7 @@ public class SysService extends SysBase {
     private String sysServiceCode;
 
     /**
-     * 服务描述
+    * 服务描述
      */
     @TableField(value = "sys_service_desc")
     @ApiModelProperty(value = "服务描述")
@@ -69,7 +69,7 @@ public class SysService extends SysBase {
     private String sysServiceDesc;
 
     /**
-     * 服务排序
+    * 服务排序
      */
     @TableField(value = "sys_service_sort")
     @ApiModelProperty(value = "服务排序")
@@ -78,8 +78,8 @@ public class SysService extends SysBase {
     private Integer sysServiceSort;
 
     /**
-     * 删除标记
-     * 0: 未删除, 1: 已删除
+    * 删除标记
+    * 0: 未删除, 1: 已删除
      */
     @TableField(value = "sys_service_delete")
     @ApiModelProperty(value = "删除标记")
@@ -89,8 +89,8 @@ public class SysService extends SysBase {
     private Integer sysServiceDelete;
 
     /**
-     * 服务状态
-     * 0: 启用, 1: 禁用
+    * 服务状态
+    * 0: 启用, 1: 禁用
      */
     @TableField(value = "sys_service_status")
     @ApiModelProperty(value = "服务状态")
@@ -99,8 +99,8 @@ public class SysService extends SysBase {
     private Integer sysServiceStatus;
 
     /**
-      * 关联的服务模块标识列表
-     * 非数据库字段，用于前端展示
+    * 关联的服务模块标识列表
+    * 非数据库字段，用于前端展示
      */
     @TableField(exist = false)
     @ApiModelProperty(value = "关联的服务模块ID列表")

@@ -39,7 +39,7 @@ public class LoginCheck {
     private final AuthServerProperties authServerProperties;
 
     /**
-      * 应用上下文，用于从 Spring 容器加载 用户信息服务（实现为 @服务，依赖 Spring 注入）
+    * 应用上下文，用于从 Spring 容器加载 用户信息服务（实现为 @服务，依赖 Spring 注入）
      */
     private final ApplicationContext applicationContext;
 
@@ -51,8 +51,8 @@ public class LoginCheck {
     private LoginAttemptService loginAttemptService;
 
     /**
-      * 创建 login检查 实例
-     * @param authServerProperties 认证服务端属性
+    * 创建 login检查 实例
+    * @param authServerProperties 认证服务端属性
      */
     public LoginCheck(AuthServerProperties authServerProperties) {
         this(authServerProperties, null);

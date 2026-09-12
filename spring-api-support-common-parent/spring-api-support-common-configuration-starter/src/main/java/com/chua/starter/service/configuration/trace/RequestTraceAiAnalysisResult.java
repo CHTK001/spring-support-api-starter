@@ -44,9 +44,9 @@ public record RequestTraceAiAnalysisResult(
     }
 
     /**
-     * 最终summary
-     *
-     * @return 最终summary的结果
+    * 最终summary
+    *
+    * @return 最终summary的结果
      */
     public String finalSummary() {
         return RequestTraceSupport.firstNonBlank(summary, heuristicSummary);

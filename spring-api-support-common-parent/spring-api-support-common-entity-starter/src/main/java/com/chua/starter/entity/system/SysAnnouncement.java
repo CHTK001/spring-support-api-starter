@@ -33,7 +33,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-      * 公告标识
+    * 公告标识
      */
     @TableId(value = "sys_announcement_id", type = IdType.AUTO)
     @Schema(description = "公告ID")
@@ -42,7 +42,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private Integer sysAnnouncementId;
 
     /**
-     * 公告标题
+    * 公告标题
      */
     @TableField(value = "sys_announcement_title")
     @Schema(description = "公告标题")
@@ -52,7 +52,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private String sysAnnouncementTitle;
 
     /**
-     * 公告内容(HTML)
+    * 公告内容(HTML)
      */
     @TableField(value = "sys_announcement_content")
     @Schema(description = "公告内容(HTML)")
@@ -60,7 +60,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private String sysAnnouncementContent;
 
     /**
-      * 级别: 信息-信息 警告-警告 important-重要 emergency-紧急
+    * 级别: 信息-信息 警告-警告 important-重要 emergency-紧急
      */
     @TableField(value = "sys_announcement_level")
     @Schema(description = "级别: info-信息 warning-警告 important-重要 emergency-紧急")
@@ -69,7 +69,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private String sysAnnouncementLevel;
 
     /**
-      * 展示位置: 默认-默认(Tabs下方) fixed-top-固定顶部
+    * 展示位置: 默认-默认(Tabs下方) fixed-top-固定顶部
      */
     @TableField(value = "sys_announcement_position")
     @Schema(description = "展示位置: default-默认(Tabs下方) fixed-top-固定顶部")
@@ -78,7 +78,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private String sysAnnouncementPosition;
 
     /**
-      * 类型: 全局-全局 角色-指定角色
+    * 类型: 全局-全局 角色-指定角色
      */
     @TableField(value = "sys_announcement_type")
     @Schema(description = "类型: global-全局 role-指定角色")
@@ -87,7 +87,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private String sysAnnouncementType;
 
     /**
-      * 目标角色标识列表(JSON数组)
+    * 目标角色标识列表(JSON数组)
      */
     @TableField(value = "sys_announcement_target_roles")
     @Schema(description = "目标角色ID列表(JSON数组)")
@@ -96,7 +96,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private String sysAnnouncementTargetRoles;
 
     /**
-     * 状态: 0-草稿 1-已发布 2-已下架
+    * 状态: 0-草稿 1-已发布 2-已下架
      */
     @TableField(value = "sys_announcement_status")
     @Schema(description = "状态: 0-草稿 1-已发布 2-已下架")
@@ -104,7 +104,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private Integer sysAnnouncementStatus;
 
     /**
-     * 排序权重
+    * 排序权重
      */
     @TableField(value = "sys_announcement_sort")
     @Schema(description = "排序权重")
@@ -112,7 +112,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private Integer sysAnnouncementSort;
 
     /**
-     * 发布时间
+    * 发布时间
      */
     @TableField(value = "sys_announcement_publish_time")
     @Schema(description = "发布时间")
@@ -120,7 +120,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private LocalDateTime sysAnnouncementPublishTime;
 
     /**
-     * 过期时间(空=永不过期)
+    * 过期时间(空=永不过期)
      */
     @TableField(value = "sys_announcement_expire_time")
     @Schema(description = "过期时间(空=永不过期)")
@@ -128,7 +128,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private LocalDateTime sysAnnouncementExpireTime;
 
     /**
-     * 跳转链接
+    * 跳转链接
      */
     @TableField(value = "sys_announcement_target_url")
     @Schema(description = "跳转链接")
@@ -137,7 +137,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private String sysAnnouncementTargetUrl;
 
     /**
-     * 发布人
+    * 发布人
      */
     @TableField(value = "sys_announcement_publisher_name")
     @Schema(description = "发布人")
@@ -146,7 +146,7 @@ public class SysAnnouncement extends SysBase implements Serializable {
     private String sysAnnouncementPublisherName;
 
     /**
-     * 级别：信息
+    * 级别：信息
      */
     public static final String LEVEL_INFO = "info";
 

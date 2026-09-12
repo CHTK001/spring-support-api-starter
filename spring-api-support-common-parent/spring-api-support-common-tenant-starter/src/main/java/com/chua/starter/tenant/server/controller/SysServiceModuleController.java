@@ -50,11 +50,11 @@ public class SysServiceModuleController {
     private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
 
     /**
-     * 分页查询服务模块
-     *
-     * @param query           分页查询对象
-     * @param sysServiceModule 服务模块查询条件
-     * @return 分页结果
+    * 分页查询服务模块
+    *
+    * @param query           分页查询对象
+    * @param sysServiceModule 服务模块查询条件
+    * @return 分页结果
      */
     @GetMapping("page")
     @Operation(summary = "分页查询服务模块")

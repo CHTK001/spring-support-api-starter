@@ -24,7 +24,7 @@ public class RequestTraceStrategyConfig {
     private String fileStoragePath = "logs/request-trace";
 
     /**
-     * AI 分析开关与执行参数。
+    * AI 分析开关与执行参数。
      */
     private Boolean aiSummaryEnabled = Boolean.TRUE;
     /** AI模型 */
@@ -117,9 +117,9 @@ public class RequestTraceStrategyConfig {
     private Integer userPreferenceDominantCount = 4;
 
     /**
-     * 复制
-     *
-     * @return 副本的结果
+    * 复制
+    *
+    * @return 副本的结果
      */
     public RequestTraceStrategyConfig copy() {
         RequestTraceStrategyConfig target = new RequestTraceStrategyConfig();

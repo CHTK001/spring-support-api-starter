@@ -66,9 +66,9 @@ public class RedisRequestTraceConfigStorage implements RequestTraceConfigStorage
     }
 
     /**
-     * redistemplate
-     *
-     * @return redisTemplate的结果
+    * redistemplate
+    *
+    * @return redisTemplate的结果
      */
     private StringRedisTemplate redisTemplate() {
         try {

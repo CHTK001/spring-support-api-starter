@@ -36,7 +36,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     /** Issuer */
     private static final String ISSUER = "SpringAPI";
     /**
-     * TOTP 时间窗口容差（前后各允许多少个时间窗口）
+    * TOTP 时间窗口容差（前后各允许多少个时间窗口）
      */
     private static final int TIME_WINDOW_TOLERANCE = 1;
     /**

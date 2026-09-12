@@ -38,10 +38,10 @@ public class SysUserLogController {
     /** SYS用户日志服务 */
     private final SysUserLogService sysUserLogService;
     /**
-     * 操作日志分页列表
-     *
-     * @param sysUserLogQuery 条件
-     * @return 操作日志分页列表
+    * 操作日志分页列表
+    *
+    * @param sysUserLogQuery 条件
+    * @return 操作日志分页列表
      */
     @Operation(summary = "操作日志分页列表")
     @GetMapping("/mine-logs")

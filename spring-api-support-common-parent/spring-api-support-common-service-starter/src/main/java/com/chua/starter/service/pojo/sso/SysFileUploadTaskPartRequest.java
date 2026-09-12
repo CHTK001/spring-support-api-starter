@@ -23,21 +23,21 @@ public class SysFileUploadTaskPartRequest {
     /** 任务标识 */
     private String taskId;
     /**
-     * 文件md5
+    * 文件md5
      */
     @Schema(description = "文件md5")
     /** 文件MD5 */
     private String fileMd5;
 
     /**
-     * 任务摘要
+    * 任务摘要
      */
     @Schema(description = "任务编号")
     @NotNull(message = "任务编号不能为空", groups = {UploadGroup.class})
     /** 任务SEQ */
     private Integer taskSeq;
     /**
-     * 文件大小
+    * 文件大小
      */
     @Schema(description = "文件大小")
     @NotNull(message = "文件大小不能为空", groups = {UploadGroup.class})

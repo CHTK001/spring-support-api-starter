@@ -29,11 +29,11 @@ public class DefaultAppIdValidator implements AppIdValidator {
     private SysAppIdService sysAppIdService;
 
     /**
-      * 验证 appid, 从 app_标识 表查询并校验状态与过期时间。
-     *
-     * @param processedAppId 客户端算法处理后的 appid
-     * @param appKey         数据库中的 app键 信息
-     * @return 验证结果
+    * 验证 appid, 从 app_标识 表查询并校验状态与过期时间。
+    *
+    * @param processedAppId 客户端算法处理后的 appid
+    * @param appKey         数据库中的 app键 信息
+    * @return 验证结果
      */
     @Override
     public ValidationResult validate(String processedAppId, SysAppKey appKey) {

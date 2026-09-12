@@ -32,7 +32,7 @@ public class SysHoliday extends SysBase {
     private Integer sysHolidayId;
 
     /**
-     * 节假日年份
+    * 节假日年份
      */
     @TableField(value = "sys_holiday_year")
     @Schema(description = "节假日年份")
@@ -40,7 +40,7 @@ public class SysHoliday extends SysBase {
     private Integer sysHolidayYear;
 
     /**
-     * 节假日日期
+    * 节假日日期
      */
     @TableField(value = "sys_holiday_date")
     @Schema(description = "节假日日期")
@@ -48,7 +48,7 @@ public class SysHoliday extends SysBase {
     private LocalDate sysHolidayDate;
 
     /**
-     * 节假日名称
+    * 节假日名称
      */
     @TableField(value = "sys_holiday_name")
     @Schema(description = "节假日名称")
@@ -56,7 +56,7 @@ public class SysHoliday extends SysBase {
     private String sysHolidayName;
 
     /**
-     * 是否节假日
+    * 是否节假日
      */
     @TableField(value = "sys_holiday_is_holiday")
     @Schema(description = "是否节假日")

@@ -35,7 +35,7 @@ public class MsMonitorGateway extends SysBase {
     private Long id;
 
     /**
-     * 网关名称，用于前端展示
+    * 网关名称，用于前端展示
      */
     @TableField("gateway_name")
     @ApiModelProperty("网关名称")
@@ -44,7 +44,7 @@ public class MsMonitorGateway extends SysBase {
     private String gatewayName;
 
     /**
-      * 关联的监控资产标识
+    * 关联的监控资产标识
      */
     @TableField("monitor_id")
     @ApiModelProperty("监控资产ID")
@@ -53,7 +53,7 @@ public class MsMonitorGateway extends SysBase {
     private Long monitorId;
 
     /**
-     * 网关主机地址，例如 192.168.1.20
+    * 网关主机地址，例如 192.168.1.20
      */
     @TableField("gateway_host")
     @ApiModelProperty("网关主机")
@@ -62,7 +62,7 @@ public class MsMonitorGateway extends SysBase {
     private String gatewayHost;
 
     /**
-     * 网关端口，例如 2222
+    * 网关端口，例如 2222
      */
     @TableField("gateway_port")
     @ApiModelProperty("网关端口")
@@ -71,7 +71,7 @@ public class MsMonitorGateway extends SysBase {
     private Integer gatewayPort;
 
     /**
-     * 网关协议，例如 SSH/HTTPS
+    * 网关协议，例如 SSH/HTTPS
      */
     @TableField("protocol")
     @ApiModelProperty("协议")
@@ -80,7 +80,7 @@ public class MsMonitorGateway extends SysBase {
     private String protocol;
 
     /**
-     * 鉴权启用状态，1=启用，0=禁用
+    * 鉴权启用状态，1=启用，0=禁用
      */
     @TableField("auth_enabled")
     @ApiModelProperty("鉴权启用（0禁用/1启用）")
@@ -89,7 +89,7 @@ public class MsMonitorGateway extends SysBase {
     private Integer authEnabled;
 
     /**
-      * 网关运行状态，取值 活跃/STANDBY/错误
+    * 网关运行状态，取值 活跃/STANDBY/错误
      */
     @TableField("gateway_status")
     @ApiModelProperty("网关状态（ACTIVE/STANDBY/ERROR）")
@@ -98,7 +98,7 @@ public class MsMonitorGateway extends SysBase {
     private String gatewayStatus;
 
     /**
-     * 逻辑删除标记，0=未删除，1=已删除
+    * 逻辑删除标记，0=未删除，1=已删除
      */
     @TableField("deleted")
     @TableLogic

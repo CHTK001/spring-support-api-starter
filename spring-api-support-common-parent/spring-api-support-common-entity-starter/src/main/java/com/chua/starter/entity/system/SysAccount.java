@@ -30,7 +30,7 @@ public class SysAccount extends SysBase {
     private Integer sysAccountId;
 
     /**
-     * 账号类型，如: wechat、alipay
+    * 账号类型，如: wechat、alipay
      */
     @TableField(value = "sys_account_type")
     @Schema(description = "账号类型，如: wechat、alipay")
@@ -38,7 +38,7 @@ public class SysAccount extends SysBase {
     private String sysAccountType;
 
     /**
-      * 第三方打开id
+    * 第三方打开id
      */
     @TableField(value = "sys_account_openid")
     @Schema(description = "第三方OpenID")
@@ -46,7 +46,7 @@ public class SysAccount extends SysBase {
     private String sysAccountOpenid;
 
     /**
-      * 第三方unionid
+    * 第三方unionid
      */
     @TableField(value = "sys_account_unionid")
     @Schema(description = "第三方UnionID")
@@ -54,7 +54,7 @@ public class SysAccount extends SysBase {
     private String sysAccountUnionid;
 
     /**
-     * 账号名称/昵称
+    * 账号名称/昵称
      */
     @TableField(value = "sys_account_name")
     @Schema(description = "账号名称/昵称")
@@ -62,7 +62,7 @@ public class SysAccount extends SysBase {
     private String sysAccountName;
 
     /**
-     * 头像URL
+    * 头像URL
      */
     @TableField(value = "sys_account_avatar")
     @Schema(description = "头像URL")
@@ -70,7 +70,7 @@ public class SysAccount extends SysBase {
     private String sysAccountAvatar;
 
     /**
-     * 手机号
+    * 手机号
      */
     @TableField(value = "sys_account_phone")
     @Schema(description = "手机号")
@@ -78,7 +78,7 @@ public class SysAccount extends SysBase {
     private String sysAccountPhone;
 
     /**
-     * 邮箱
+    * 邮箱
      */
     @TableField(value = "sys_account_email")
     @Schema(description = "邮箱")
@@ -86,7 +86,7 @@ public class SysAccount extends SysBase {
     private String sysAccountEmail;
 
     /**
-     * 是否禁用: true=禁用
+    * 是否禁用: true=禁用
      */
     @TableField(value = "sys_account_forbidden")
     @Schema(description = "是否禁用: true=禁用")
@@ -94,7 +94,7 @@ public class SysAccount extends SysBase {
     private Boolean sysAccountForbidden;
 
     /**
-     * 登录次数
+    * 登录次数
      */
     @TableField(value = "sys_account_login_count")
     @Schema(description = "登录次数")
@@ -102,7 +102,7 @@ public class SysAccount extends SysBase {
     private Integer sysAccountLoginCount;
 
     /**
-     * 最后登录IP
+    * 最后登录IP
      */
     @TableField(value = "sys_account_last_ip")
     @Schema(description = "最后登录IP")
@@ -110,7 +110,7 @@ public class SysAccount extends SysBase {
     private String sysAccountLastIp;
 
     /**
-     * 最后登录地址
+    * 最后登录地址
      */
     @TableField(value = "sys_account_last_ip_address")
     @Schema(description = "最后登录地址")
@@ -118,7 +118,7 @@ public class SysAccount extends SysBase {
     private String sysAccountLastIpAddress;
 
     /**
-      * 绑定的本地用户 标识(0 或 空 表示未绑定)
+    * 绑定的本地用户 标识(0 或 空 表示未绑定)
      */
     @TableField(value = "sys_account_user_id")
     @Schema(description = "绑定的本地用户 ID")

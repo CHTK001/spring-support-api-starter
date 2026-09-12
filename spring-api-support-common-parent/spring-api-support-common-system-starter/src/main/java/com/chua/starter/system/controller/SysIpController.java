@@ -28,10 +28,10 @@ public class SysIpController {
     private final IptablesService iptablesService;
 
     /**
-     * 查询 IP 地址的地理位置和运营商信息
-     *
-     * @param ip IP 地址
-     * @return 地理位置信息（国家/省份/城市/ISP 等）
+    * 查询 IP 地址的地理位置和运营商信息
+    *
+    * @param ip IP 地址
+    * @return 地理位置信息（国家/省份/城市/ISP 等）
      */
     @Operation(summary = "IP 地址归属地查询")
     @GetMapping("/lookup")

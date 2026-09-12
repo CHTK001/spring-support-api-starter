@@ -85,11 +85,11 @@ public class DefaultLoginHandler implements LoginHandler {
     }
 
     /**
-     * 检查环境（验证码等）
-     * @param sysLoginService 登录服务
-     * @param loginData       登录数据
-     * @param request         请求
-     * @return 检查结果
+    * 检查环境（验证码等）
+    * @param sysLoginService 登录服务
+    * @param loginData       登录数据
+    * @param request         请求
+    * @return 检查结果
      */
     protected ReturnResult<LoginResult> checkEnvironment(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request) {
         ReturnResult<LoginResult> result = sysLoginService.checkEnvironment(loginData, request);

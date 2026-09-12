@@ -70,9 +70,9 @@ public class TenantEnvironmentPostProcessor implements EnvironmentPostProcessor 
     }
 
     /**
-     * 串联服务端配置
-     * @param environment 环境
-     * @param syncProperties 同步属性
+    * 串联服务端配置
+    * @param environment 环境
+    * @param syncProperties 同步属性
      */
     private void linkServerConfig(ConfigurableEnvironment environment, Map<String, Object> syncProperties) {
         String host = environment.getProperty(TENANT_PREFIX + "server.host", "0.0.0.0");

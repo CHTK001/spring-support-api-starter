@@ -84,11 +84,11 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * 同步tenant用户
-     *
-     * @param tenant tenant
-     * @param operation operation
-     * @return 同步tenant用户的结果
+    * 同步tenant用户
+    *
+    * @param tenant tenant
+    * @param operation operation
+    * @return 同步tenant用户的结果
      */
     public SysUser syncTenantUser(SysTenant tenant, String operation) {
         if (tenant == null || tenant.getSysTenantId() == null) {

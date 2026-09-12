@@ -30,7 +30,7 @@ public class SysMessage extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-      * 消息标识
+    * 消息标识
      */
     @TableId(value = "sys_message_id", type = IdType.AUTO)
     @Schema(description = "消息ID")
@@ -107,7 +107,7 @@ public class SysMessage extends SysBase implements Serializable {
     private Integer sysMessageRead;
 
     /**
-     * 阅读时间
+    * 阅读时间
      */
     @TableField(value = "sys_message_read_time")
     @Schema(description = "阅读时间")
@@ -115,7 +115,7 @@ public class SysMessage extends SysBase implements Serializable {
     private LocalDateTime sysMessageReadTime;
 
     /**
-     * 发送时间
+    * 发送时间
      */
     @TableField(value = "sys_message_send_time")
     @Schema(description = "发送时间")
@@ -130,7 +130,7 @@ public class SysMessage extends SysBase implements Serializable {
     private LocalDateTime sysMessageExpireTime;
 
     /**
-     * 业务类型
+    * 业务类型
      */
     @TableField(value = "sys_message_biz_type")
     @Schema(description = "业务类型")
@@ -169,9 +169,9 @@ public class SysMessage extends SysBase implements Serializable {
     private Integer sysMessageStatus;
 
     /**
-     * 消息类型常量
-     * @author CH
-     * @since 4.0.0
+    * 消息类型常量
+    * @author CH
+    * @since 4.0.0
      */
     public static class Type {
         /** 系统 */

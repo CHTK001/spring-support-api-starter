@@ -50,10 +50,10 @@ public class SysAvatarFrameController {
     @GetMapping("/list")
     @Operation(summary = "头像框列表")
     /**
-     * 列表
-     *
-     * @param @UserValue("sysUserId" @UserValue("sysUserId"
-     * @return 列表的结果
+    * 列表
+    *
+    * @param @UserValue("sysUserId" @UserValue("sysUserId"
+    * @return 列表的结果
      */
     public ReturnResult<List<SysAvatarFrame>> list(@UserValue("sysUserId") Long userId) {
         // 查询全部启用的头像框（含生日框记录）

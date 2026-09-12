@@ -77,11 +77,11 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * assignmenus转为角色
-     *
-     * @param roleId 角色id
-     * @param menuIds menu标识
-     * @return assignmenus转为角色的结果
+    * assignmenus转为角色
+    *
+    * @param roleId 角色id
+    * @param menuIds menu标识
+    * @return assignmenus转为角色的结果
      */
     public boolean assignMenusToRole(Integer roleId, List<Integer> menuIds) {
         if (roleId == null) {

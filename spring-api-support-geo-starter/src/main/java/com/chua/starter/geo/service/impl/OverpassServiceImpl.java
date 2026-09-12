@@ -36,10 +36,10 @@ public class OverpassServiceImpl implements OverpassService {
     private final ObjectMapper objectMapper = new ObjectMapper(); // 对象映射器
 
     /**
-     * 执行 Overpass API 查询并返回结果统计。
-     *
-     * @param request 查询请求
-     * @return 查询结果统计
+    * 执行 Overpass API 查询并返回结果统计。
+    *
+    * @param request 查询请求
+    * @return 查询结果统计
      */
     @Override
     public OverpassQueryResult query(OverpassQueryRequest request) {

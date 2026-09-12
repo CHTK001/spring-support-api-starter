@@ -97,10 +97,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     /**
-     * 构建menusetting树
-     *
-     * @param menus menus
-     * @return 构建menusetting树的结果
+    * 构建menusetting树
+    *
+    * @param menus menus
+    * @return 构建menusetting树的结果
      */
     private List<SysMenuSettingVO> buildMenuSettingTree(List<SysMenu> menus) {
         if (CollectionUtils.isEmpty(menus)) {
@@ -239,9 +239,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
     /**
-     * 列表全部
-     *
-     * @return 列表全部的结果
+    * 列表全部
+    *
+    * @return 列表全部的结果
      */
     public List<SysMenu> listAll() {
         return baseMapper.selectList(Wrappers.<SysMenu>lambdaQuery()
@@ -259,11 +259,11 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     /**
-     * 过滤menusbyengine
-     *
-     * @param sysMenus sysMenus
-     * @param sysMenuEngine sysMenuEngine
-     * @return 过滤器menusbyengine的结果
+    * 过滤menusbyengine
+    *
+    * @param sysMenus sysMenus
+    * @param sysMenuEngine sysMenuEngine
+    * @return 过滤器menusbyengine的结果
      */
     private List<SysMenu> filterMenusByEngine(List<SysMenu> sysMenus, Integer sysMenuEngine) {
         if (CollectionUtils.isEmpty(sysMenus)) {

@@ -11,9 +11,9 @@ public class GeoException extends RuntimeException {
     private final String code;
 
     /**
-     * 构造业务异常。
-     *
-     * @param message 错误信息
+    * 构造业务异常。
+    *
+    * @param message 错误信息
      */
     public GeoException(String message) {
         super(message);

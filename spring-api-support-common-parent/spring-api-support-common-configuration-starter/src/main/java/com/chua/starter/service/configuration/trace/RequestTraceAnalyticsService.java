@@ -46,11 +46,11 @@ public class RequestTraceAnalyticsService {
     private final RequestTraceAiSummaryService requestTraceAiSummaryService;
 
     /**
-      * 创建 请求追踪analytics服务 实例
-     * @param analyzers analyzers
-     * @param requestTraceStrategyConfigService 请求追踪strategy配置服务
-     * @param requestTraceStorageRouter 请求追踪storagerouter
-     * @param requestTraceAiSummaryService 请求追踪AIsummary服务
+    * 创建 请求追踪analytics服务 实例
+    * @param analyzers analyzers
+    * @param requestTraceStrategyConfigService 请求追踪strategy配置服务
+    * @param requestTraceStorageRouter 请求追踪storagerouter
+    * @param requestTraceAiSummaryService 请求追踪AIsummary服务
      */
     public RequestTraceAnalyticsService(
             List<RequestTraceAnalyzer> analyzers,

@@ -48,8 +48,8 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
     private final TenantProperties tenantProperties;
 
     /**
-     * 数据库方言（懒加载）
-     * <p>Dialect / TableMetadata / ColumnMetadata 已移除，改用 JDBC DatabaseMetaData API 直接操作。</p>
+    * 数据库方言（懒加载）
+    * <p>Dialect / TableMetadata / ColumnMetadata 已移除，改用 JDBC DatabaseMetaData API 直接操作。</p>
      */
  // 私募 Dialect dialect;
 

@@ -28,7 +28,7 @@ public class ErrorReportV1Request {
     private List<ErrorReportV1Item> records;
 
     /**
-     * 客户端上报时间(毫秒时间戳)
+    * 客户端上报时间(毫秒时间戳)
      */
     @Schema(description = "客户端上报时间(毫秒时间戳)")
     @NotNull(message = "上报时间不能为空")

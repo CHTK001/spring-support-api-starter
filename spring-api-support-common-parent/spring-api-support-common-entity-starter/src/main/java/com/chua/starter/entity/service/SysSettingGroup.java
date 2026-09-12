@@ -30,7 +30,7 @@ public class SysSettingGroup extends SysBase {
     private Integer sysSettingGroupId;
 
     /**
-     * 配置组名称
+    * 配置组名称
      */
     @TableField(value = "sys_setting_group_name")
     @Schema(description = "配置组名称")
@@ -38,7 +38,7 @@ public class SysSettingGroup extends SysBase {
     private String sysSettingGroupName;
 
     /**
-     * 配置组唯一编码
+    * 配置组唯一编码
      */
     @TableField(value = "sys_setting_group_code")
     @Schema(description = "配置组唯一编码")
@@ -46,7 +46,7 @@ public class SysSettingGroup extends SysBase {
     private String sysSettingGroupCode;
 
     /**
-     * 配置组图标
+    * 配置组图标
      */
     @TableField(value = "sys_setting_group_icon")
     @Schema(description = "配置组图标")
@@ -54,7 +54,7 @@ public class SysSettingGroup extends SysBase {
     private String sysSettingGroupIcon;
 
     /**
-     * 是否启用
+    * 是否启用
      */
     @TableField(value = "sys_setting_group_enable")
     @Schema(description = "是否启用")
@@ -62,7 +62,7 @@ public class SysSettingGroup extends SysBase {
     private Boolean sysSettingGroupEnable;
 
     /**
-     * 配置组描述
+    * 配置组描述
      */
     @TableField(value = "sys_setting_group_remark")
     @Schema(description = "配置组描述")
@@ -70,7 +70,7 @@ public class SysSettingGroup extends SysBase {
     private String sysSettingGroupRemark;
 
     /**
-     * 排序
+    * 排序
      */
     @TableField(value = "sys_setting_group_sort")
     @Schema(description = "排序")
@@ -78,7 +78,7 @@ public class SysSettingGroup extends SysBase {
     private Integer sysSettingGroupSort;
 
     /**
-     * 是否使用项目组接口
+    * 是否使用项目组接口
      */
     @TableField(value = "sys_setting_group_use_project_interface")
     @Schema(description = "是否使用项目组接口")

@@ -50,9 +50,9 @@ public class CaptchaController {
     private RedisTemplate<String, String> redisTemplate; // redisTemplate
 
     /**
-     * Producer
-     *
-     * @return producer的结果
+    * Producer
+    *
+    * @return producer的结果
      */
     public Captcha producer() {
         return createCaptcha(captchaProperties.getType(), captchaProperties.getLength());

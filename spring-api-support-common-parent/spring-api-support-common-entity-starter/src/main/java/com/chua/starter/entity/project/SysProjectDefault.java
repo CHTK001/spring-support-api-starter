@@ -26,7 +26,7 @@ public class SysProjectDefault {
     private Integer sysProjectDefaultId;
 
     /**
-     * 类型； 字典表6;
+    * 类型； 字典表6;
      */
     @TableField(value = "sys_project_default_type")
     @Schema(description = "类型； 字典表6;")
@@ -34,7 +34,7 @@ public class SysProjectDefault {
     private String sysProjectDefaultType;
 
     /**
-      * 项目标识
+    * 项目标识
      */
     @TableField(value = "sys_project_id")
     @Schema(description = "项目ID")

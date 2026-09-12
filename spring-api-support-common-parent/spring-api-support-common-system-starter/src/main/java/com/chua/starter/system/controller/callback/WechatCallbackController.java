@@ -77,14 +77,14 @@ public class WechatCallbackController {
     final SysWechatUserMapper sysWechatUserMapper; // syswechat用户映射器
 
     /**
-     * 微信账号绑定回调
-     * <p>用户授权后回调此接口，将微信账号与系统用户绑定</p>
-     *
-     * @param authCallback 微信回调参数
-     * @param attributes   重定向属性
-     * @param request      请求
-     * @param response     响应
-     * @return 重定向视图
+    * 微信账号绑定回调
+    * <p>用户授权后回调此接口，将微信账号与系统用户绑定</p>
+    *
+    * @param authCallback 微信回调参数
+    * @param attributes   重定向属性
+    * @param request      请求
+    * @param response     响应
+    * @return 重定向视图
      */
     @Ignore
     @GetMapping("binder")

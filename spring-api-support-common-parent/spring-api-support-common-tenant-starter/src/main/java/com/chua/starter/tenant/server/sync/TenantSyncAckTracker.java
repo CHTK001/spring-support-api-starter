@@ -35,8 +35,8 @@ public class TenantSyncAckTracker {
     private final ConcurrentMap<String, Long> compensationTimes = new ConcurrentHashMap<>(); // 报酬时间
 
     /**
-      * 创建 tenant同步ACKtracker 实例
-     * @param tenantProperties tenant属性
+    * 创建 tenant同步ACKtracker 实例
+    * @param tenantProperties tenant属性
      */
     public TenantSyncAckTracker(TenantProperties tenantProperties) {
         TenantProperties.ServerConfig serverConfig = tenantProperties == null ? new TenantProperties.ServerConfig() : tenantProperties.getServer();
@@ -206,12 +206,12 @@ public class TenantSyncAckTracker {
     }
 
     /**
-     * 去空格Oldest
-     *
-     * @param values 值
-     * @param maxSize 最大大小
-     * @param sorter 排序
-     * @return 修剪旧的结果
+    * 去空格Oldest
+    *
+    * @param values 值
+    * @param maxSize 最大大小
+    * @param sorter 排序
+    * @return 修剪旧的结果
      */
     private <T> void trimOldest(ConcurrentMap<String, T> values, int maxSize, java.util.function.ToLongFunction<T> sorter) {
         if (values.size() <= maxSize) {
@@ -284,14 +284,14 @@ public class TenantSyncAckTracker {
         private final String reason;
 
         /**
-          * 创建 pendingACK 实例
-         * @param sessionId 会话id
-         * @param tenantId tenantid
-         * @param topic topic
-         * @param messageId 消息id
-         * @param sentAt sentat
-         * @param reason ReasonML
-         * @return pendingACK的结果
+        * 创建 pendingACK 实例
+        * @param sessionId 会话id
+        * @param tenantId tenantid
+        * @param topic topic
+        * @param messageId 消息id
+        * @param sentAt sentat
+        * @param reason ReasonML
+        * @return pendingACK的结果
          */
         public PendingAck(String sessionId, String tenantId, String topic, String messageId, long sentAt, String reason) {
             this.sessionId = sessionId;
@@ -376,16 +376,16 @@ public class TenantSyncAckTracker {
         private final long ackAt;
 
         /**
-          * 创建 ACKrecord 实例
-         * @param sessionId 会话id
-         * @param tenantId tenantid
-         * @param topic topic
-         * @param sourceMessageId 源消息id
-         * @param success 成功
-         * @param status 状态
-         * @param message 消息
-         * @param ackAt ACKat
-         * @return ACKrecord的结果
+        * 创建 ACKrecord 实例
+        * @param sessionId 会话id
+        * @param tenantId tenantid
+        * @param topic topic
+        * @param sourceMessageId 源消息id
+        * @param success 成功
+        * @param status 状态
+        * @param message 消息
+        * @param ackAt ACKat
+        * @return ACKrecord的结果
          */
         public AckRecord(String sessionId, String tenantId, String topic, String sourceMessageId, boolean success, String status, String message, long ackAt) {
             this.sessionId = sessionId;

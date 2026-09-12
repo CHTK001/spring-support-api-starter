@@ -133,11 +133,11 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
     }
 
     /**
-     * 过滤树by名称
-     *
-     * @param source 源
-     * @param keyword keyword
-     * @return 过滤器树by名称的结果
+    * 过滤树by名称
+    *
+    * @param source 源
+    * @param keyword keyword
+    * @return 过滤器树by名称的结果
      */
     private List<SysDeptVO> filterTreeByName(List<SysDeptVO> source, String keyword) {
         if (null == source || source.isEmpty()) {
