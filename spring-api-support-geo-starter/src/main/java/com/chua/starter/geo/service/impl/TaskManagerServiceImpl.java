@@ -27,16 +27,16 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     private final Map<String, TaskInfo> tasks = new ConcurrentHashMap<>();
 
     /**
-     * 创建下载任务。
-     *
-     * @param name       任务名称
-     * @param source     图源 标识
-     * @param sourceName 图源显示名称
-     * @param zoom       缩放级别
-     * @param format     输出格式
-     * @param savePath   保存路径
-     * @param total      总瓦片数
-     * @return 任务 标识
+    * 创建下载任务。
+    *
+    * @param name       任务名称
+    * @param source     图源 标识
+    * @param sourceName 图源显示名称
+    * @param zoom       缩放级别
+    * @param format     输出格式
+    * @param savePath   保存路径
+    * @param total      总瓦片数
+    * @return 任务 标识
      */
     @Override
     public String createTask(String name, String source, String sourceName, int zoom,

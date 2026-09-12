@@ -31,7 +31,7 @@ public class SysSettingVO {
     /** SYS设置标识 */
     private Integer sysSettingId;
     /**
-     * 配置参数
+    * 配置参数
      */
     @TableField(value = "sys_setting_config")
     @ApiModelProperty(value = "配置参数")
@@ -40,7 +40,7 @@ public class SysSettingVO {
     /** SYS设置配置 */
     private String sysSettingConfig;
     /**
-     * 是否启用; 0:不启用
+    * 是否启用; 0:不启用
      */
     @TableField(value = "sys_setting_version")
     @ApiModelProperty(value = "版本")
@@ -50,7 +50,7 @@ public class SysSettingVO {
     /** SYS设置版本 */
     private Integer sysSettingVersion;
     /**
-     * 配置备注
+    * 配置备注
      */
     @TableField(value = "sys_setting_remark")
     @ApiModelProperty(value = "配置备注")
@@ -59,7 +59,7 @@ public class SysSettingVO {
     /** SYS设置评论 */
     private String sysSettingRemark;
     /**
-     * 配置类型; 用于前端组件判断; e.g.BOOL：布尔
+    * 配置类型; 用于前端组件判断; e.g.BOOL：布尔
      */
     @TableField(value = "sys_setting_value_type")
     @ApiModelProperty(value = "配置类型; 用于前端组件判断; e.g.BOOL：布尔")
@@ -69,7 +69,7 @@ public class SysSettingVO {
     /** SYS设置值类型 */
     private String sysSettingValueType;
     /**
-     * 配置名称
+    * 配置名称
      */
     @TableField(value = "sys_setting_name")
     @ApiModelProperty(value = "配置名称")
@@ -80,7 +80,7 @@ public class SysSettingVO {
     private String sysSettingName;
 
     /**
-     * 配置编码（唯一标识码，如 login.title）
+    * 配置编码（唯一标识码，如 login.title）
      */
     @TableField(value = "sys_setting_code")
     @ApiModelProperty(value = "配置编码")
@@ -90,7 +90,7 @@ public class SysSettingVO {
     private String sysSettingCode;
 
     /**
-     * 配置值
+    * 配置值
      */
     @TableField(value = "sys_setting_value")
     @ApiModelProperty(value = "配置值")
@@ -100,7 +100,7 @@ public class SysSettingVO {
     private String sysSettingValue;
 
     /**
-     * 配置所属分组
+    * 配置所属分组
      */
     @TableField(value = "sys_setting_group")
     @ApiModelProperty(value = "配置所属分组")
@@ -112,7 +112,7 @@ public class SysSettingVO {
     private String sysSettingGroup;
 
     /**
-     * 是否系统配置
+    * 是否系统配置
      */
     @TableField(value = "sys_setting_in_system")
     @ApiModelProperty(value = "是否系统配置")
@@ -121,7 +121,7 @@ public class SysSettingVO {
     private Integer sysSettingInSystem;
 
     /**
-     * 排序优先级
+    * 排序优先级
      */
     @TableField(value = "sys_setting_sort")
     @ApiModelProperty(value = "排序优先级")
@@ -130,7 +130,7 @@ public class SysSettingVO {
     private Integer sysSettingSort;
 
     /**
-      * 选项配置（Dict/选择 类型用，JSON 字符串）
+    * 选项配置（Dict/选择 类型用，JSON 字符串）
      */
     @Schema(description = "选项配置")
     /** SYS设置期权 */

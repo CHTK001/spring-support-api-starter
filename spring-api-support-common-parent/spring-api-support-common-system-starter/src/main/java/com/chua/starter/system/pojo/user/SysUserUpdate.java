@@ -26,7 +26,7 @@ public class SysUserUpdate extends SysUser {
     private List<String> roleIds;
 
     /**
-     * 是否更新角色
+    * 是否更新角色
      */
     @Schema(description = "是否更新角色")
     /** Updaterole */

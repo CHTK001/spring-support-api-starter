@@ -35,7 +35,7 @@ public class MonitorSysGenServerLayout extends SysBase {
     private Integer monitorSysGenServerLayoutId;
 
     /**
-      * 关联的服务器标识，标识该布局属于哪台服务器
+    * 关联的服务器标识，标识该布局属于哪台服务器
      */
     @TableField("monitor_sys_gen_server_id")
     @ApiModelProperty("关联服务器ID")
@@ -44,7 +44,7 @@ public class MonitorSysGenServerLayout extends SysBase {
     private Integer monitorSysGenServerId;
 
     /**
-     * 布局名称，用于前端展示与区分多套布局
+    * 布局名称，用于前端展示与区分多套布局
      */
     @TableField("monitor_sys_gen_server_layout_name")
     @ApiModelProperty("布局名称")
@@ -53,7 +53,7 @@ public class MonitorSysGenServerLayout extends SysBase {
     private String monitorSysGenServerLayoutName;
 
     /**
-      * 布局配置 JSON，包含 节点 / edges / 版本 / generatedat 等结构
+    * 布局配置 JSON，包含 节点 / edges / 版本 / generatedat 等结构
      */
     @TableField("monitor_sys_gen_server_layout_config")
     @ApiModelProperty("布局配置 JSON")
@@ -62,7 +62,7 @@ public class MonitorSysGenServerLayout extends SysBase {
     private String monitorSysGenServerLayoutConfig;
 
     /**
-      * 布局类型，取值范围：默认（默认）/generated（生成）/copied（复制）/习俗（自定义）
+    * 布局类型，取值范围：默认（默认）/generated（生成）/copied（复制）/习俗（自定义）
      */
     @TableField("monitor_sys_gen_server_layout_type")
     @ApiModelProperty("布局类型（default/generated/copied/custom）")
@@ -71,7 +71,7 @@ public class MonitorSysGenServerLayout extends SysBase {
     private String monitorSysGenServerLayoutType;
 
     /**
-     * 是否默认布局，1-默认布局，0-非默认，同一服务器仅允许一个默认布局
+    * 是否默认布局，1-默认布局，0-非默认，同一服务器仅允许一个默认布局
      */
     @TableField("monitor_sys_gen_server_layout_default")
     @ApiModelProperty("是否默认布局（0/1）")
@@ -80,7 +80,7 @@ public class MonitorSysGenServerLayout extends SysBase {
     private Integer monitorSysGenServerLayoutDefault;
 
     /**
-     * 布局状态，1-启用，0-禁用
+    * 布局状态，1-启用，0-禁用
      */
     @TableField("monitor_sys_gen_server_layout_status")
     @ApiModelProperty("布局状态（0禁用/1启用）")
@@ -89,7 +89,7 @@ public class MonitorSysGenServerLayout extends SysBase {
     private Integer monitorSysGenServerLayoutStatus;
 
     /**
-     * 布局描述，说明布局用途或来源，可为空
+    * 布局描述，说明布局用途或来源，可为空
      */
     @TableField("monitor_sys_gen_server_layout_description")
     @ApiModelProperty("布局描述")
@@ -98,7 +98,7 @@ public class MonitorSysGenServerLayout extends SysBase {
     private String monitorSysGenServerLayoutDescription;
 
     /**
-     * 布局版本号，每次更新配置时递增，用于前端缓存失效判断
+    * 布局版本号，每次更新配置时递增，用于前端缓存失效判断
      */
     @TableField("monitor_sys_gen_server_layout_version")
     @ApiModelProperty("布局版本号")
@@ -107,7 +107,7 @@ public class MonitorSysGenServerLayout extends SysBase {
     private Integer monitorSysGenServerLayoutVersion;
 
     /**
-     * 布局排序值，数值越小越靠前
+    * 布局排序值，数值越小越靠前
      */
     @TableField("monitor_sys_gen_server_layout_sort")
     @ApiModelProperty("布局排序")

@@ -28,9 +28,9 @@ public class TileCacheService {
     private final GeoProperties properties;
 
     /**
-     * 构造函数。
-     *
-     * @param properties Geo 配置属性
+    * 构造函数。
+    *
+    * @param properties Geo 配置属性
      */
     public TileCacheService(GeoProperties properties) {
         this.properties = properties;

@@ -123,7 +123,7 @@ public class MonitorAcmeCertificate extends SysBase {
     private String acmeCertWebrootPath;
 
     /**
-     * 证书状态：待验证
+    * 证书状态：待验证
      */
     private static final String STATUS_PENDING = "pending";
 

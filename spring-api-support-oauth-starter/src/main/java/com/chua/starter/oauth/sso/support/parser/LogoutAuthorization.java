@@ -37,16 +37,16 @@ public final class LogoutAuthorization implements Authorization {
     private final LogoutAuthInformation authInformation;
 
     /**
-      * 创建 logout授权 实例
-     * @param authInformation 认证信息
-     * @param token 令牌
-     * @param cookie Cookie
-     * @param uid uid
-     * @param logoutType logout类型
-     * @param response 响应
-     * @param authServerProperties 认证服务端属性
-     * @param applicationContext application上下文
-     * @param loginCheck login检查
+    * 创建 logout授权 实例
+    * @param authInformation 认证信息
+    * @param token 令牌
+    * @param cookie Cookie
+    * @param uid uid
+    * @param logoutType logout类型
+    * @param response 响应
+    * @param authServerProperties 认证服务端属性
+    * @param applicationContext application上下文
+    * @param loginCheck login检查
      */
     public LogoutAuthorization(LogoutAuthInformation authInformation,
                                String token,
@@ -127,9 +127,9 @@ public final class LogoutAuthorization implements Authorization {
     }
 
     /**
-      * 判断是否为 JWT 令牌（三段式，以 . 分隔）
-     * @param token 令牌
-     * @return 是否jwt令牌的结果
+    * 判断是否为 JWT 令牌（三段式，以 . 分隔）
+    * @param token 令牌
+    * @return 是否jwt令牌的结果
      */
     private boolean isJwtToken(String token) {
         if (token == null || token.isEmpty()) {

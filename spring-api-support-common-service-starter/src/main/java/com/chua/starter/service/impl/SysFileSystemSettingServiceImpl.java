@@ -61,10 +61,10 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * 启用settingfor文件系统
-     *
-     * @param settingId settingId
-     * @return enablesettingfor文件系统的结果
+    * 启用settingfor文件系统
+    *
+    * @param settingId settingId
+    * @return enablesettingfor文件系统的结果
      */
     public ReturnResult<Boolean> enableSettingForFileSystem(Integer settingId) {
         log.info("启用配置: settingId={}", settingId);
@@ -222,10 +222,10 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     /**
-     * 创建文件服务器实例
-     *
-     * @param setting 配置
-     * @return 服务器实例
+    * 创建文件服务器实例
+    *
+    * @param setting 配置
+    * @return 服务器实例
      */
     private ProtocolServer createFileServerInstance(SysFileSystemSetting setting) {
         try {

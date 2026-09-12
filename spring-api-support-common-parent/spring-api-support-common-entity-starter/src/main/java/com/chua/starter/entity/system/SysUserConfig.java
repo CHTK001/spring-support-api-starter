@@ -37,7 +37,7 @@ public class SysUserConfig extends SysBase implements Serializable {
     private Integer sysUserConfigId;
 
     /**
-      * 微信打开id
+    * 微信打开id
      */
     @TableField(value = "sys_user_config_wx_openid")
     @Schema(description = "微信OpenID")
@@ -46,7 +46,7 @@ public class SysUserConfig extends SysBase implements Serializable {
     private String sysUserConfigWxOpenid;
 
     /**
-      * 微信unionid
+    * 微信unionid
      */
     @TableField(value = "sys_user_config_wx_unionid")
     @Schema(description = "微信UnionID")

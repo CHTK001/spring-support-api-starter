@@ -29,7 +29,7 @@ public class SysDictItem extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-      * 字典项标识
+    * 字典项标识
      */
     @TableId(value = "sys_dict_item_id", type = IdType.AUTO)
     @Schema(description = "字典项ID")
@@ -38,7 +38,7 @@ public class SysDictItem extends SysBase implements Serializable {
     private Integer sysDictItemId;
 
     /**
-      * 字典标识
+    * 字典标识
      */
     @TableField(value = "sys_dict_id")
     @Schema(description = "字典ID")
@@ -47,7 +47,7 @@ public class SysDictItem extends SysBase implements Serializable {
     private Integer sysDictId;
 
     /**
-     * 字典编码(非数据库字段)
+    * 字典编码(非数据库字段)
      */
     @TableField(exist = false)
     @Schema(description = "字典编码")
@@ -55,7 +55,7 @@ public class SysDictItem extends SysBase implements Serializable {
     private String sysDictCode;
 
     /**
-     * 字典子项名称
+    * 字典子项名称
      */
     @TableField(value = "sys_dict_item_name")
     @Schema(description = "字典子项名称")
@@ -64,7 +64,7 @@ public class SysDictItem extends SysBase implements Serializable {
     private String sysDictItemName;
 
     /**
-     * 字典子项图标
+    * 字典子项图标
      */
     @TableField(value = "sys_dict_item_icon")
     @Schema(description = "字典子项图标")
@@ -72,7 +72,7 @@ public class SysDictItem extends SysBase implements Serializable {
     private String sysDictItemIcon;
 
     /**
-      * 字典项国际化键
+    * 字典项国际化键
      */
     @TableField(value = "sys_dict_item_i18n")
     @Schema(description = "字典项国际化key")
@@ -81,7 +81,7 @@ public class SysDictItem extends SysBase implements Serializable {
     private String sysDictItemI18n;
 
     /**
-     * 字典子项编码
+    * 字典子项编码
      */
     @TableField(value = "sys_dict_item_code")
     @Schema(description = "字典子项编码")
@@ -91,7 +91,7 @@ public class SysDictItem extends SysBase implements Serializable {
     private String sysDictItemCode;
 
     /**
-     * 描述
+    * 描述
      */
     @TableField(value = "sys_dict_item_remark")
     @Schema(description = "描述")
@@ -100,7 +100,7 @@ public class SysDictItem extends SysBase implements Serializable {
     private String sysDictItemRemark;
 
     /**
-     * 状态: 0:隐藏 1:显示
+    * 状态: 0:隐藏 1:显示
      */
     @TableField(value = "sys_dict_item_status")
     @Schema(description = "状态: 0:隐藏 1:显示")
@@ -108,7 +108,7 @@ public class SysDictItem extends SysBase implements Serializable {
     private Integer sysDictItemStatus;
 
     /**
-     * 是否删除: 0:未删除 1:已删除
+    * 是否删除: 0:未删除 1:已删除
      */
     @TableField(value = "sys_dict_item_delete")
     @Schema(description = "是否删除: 0:未删除 1:已删除")
@@ -117,7 +117,7 @@ public class SysDictItem extends SysBase implements Serializable {
     private Integer sysDictItemDelete;
 
     /**
-     * 排序优先级
+    * 排序优先级
      */
     @TableField(value = "sys_dict_item_sort")
     @Schema(description = "排序优先级")
@@ -125,7 +125,7 @@ public class SysDictItem extends SysBase implements Serializable {
     private Integer sysDictItemSort;
 
     /**
-     * 可配置项(非数据库字段)
+    * 可配置项(非数据库字段)
      */
     @TableField(exist = false)
     @Schema(description = "可配置项")

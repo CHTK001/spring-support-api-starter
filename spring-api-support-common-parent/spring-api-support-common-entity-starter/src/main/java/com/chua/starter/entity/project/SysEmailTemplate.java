@@ -33,7 +33,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysEmailTemplateId;
 
     /**
-      * 项目标识
+    * 项目标识
      */
     @TableField(value = "sys_project_id")
     @Schema(description="项目ID")
@@ -41,7 +41,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysProjectId;
 
     /**
-     * 类别
+    * 类别
      */
     @TableField(value = "sys_project_type")
     @Schema(description="类别(前端固定值)")
@@ -49,7 +49,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysProjectType;
 
     /**
-     * 模板优先级
+    * 模板优先级
      */
     @TableField(value = "sys_email_template_sort")
     @Schema(description="模板优先级")
@@ -57,7 +57,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysEmailTemplateSort;
 
     /**
-     * 子类型
+    * 子类型
      */
     @TableField(value = "sys_email_template_category")
     @Schema(description="子类型(前端固定值)")
@@ -65,7 +65,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysEmailTemplateCategory;
 
     /**
-     * 名称
+    * 名称
      */
     @TableField(value = "sys_email_template_name")
     @Schema(description="名称")
@@ -74,7 +74,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
 
 
     /**
-     * 回调地址
+    * 回调地址
      */
     @TableField(value = "sys_email_template_callback_url")
     @Schema(description="回调地址")
@@ -82,7 +82,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private String sysEmailTemplateCallbackUrl;
 
     /**
-     * 唯一编码
+    * 唯一编码
      */
     @TableField(value = "sys_email_template_code")
     @Schema(description="唯一编码")
@@ -90,7 +90,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private String sysEmailTemplateCode;
 
     /**
-     * 模板内容
+    * 模板内容
      */
     @TableField(value = "sys_email_template_content")
     @Schema(description="模板内容")
@@ -98,7 +98,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private String sysEmailTemplateContent;
 
     /**
-     * 是否删除0:未删除
+    * 是否删除0:未删除
      */
     @TableField(value = "sys_email_template_delete")
     @Schema(description="是否删除0:未删除")
@@ -106,7 +106,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysEmailTemplateDelete;
 
     /**
-     * 是否启用:0:未启用
+    * 是否启用:0:未启用
      */
     @TableField(value = "sys_email_template_status")
     @Schema(description="是否启用:0:未启用")
@@ -114,7 +114,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysEmailTemplateStatus;
 
     /**
-     * 模板类型;0:系统;1:用户;2:其它
+    * 模板类型;0:系统;1:用户;2:其它
      */
     @TableField(value = "sys_email_template_type")
     @Schema(description="模板类型;0:系统;1:用户;2:其它")
@@ -122,7 +122,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysEmailTemplateType;
 
     /**
-     * 是否默认:0:未启用
+    * 是否默认:0:未启用
      */
     @TableField(value = "sys_email_template_default")
     @Schema(description="是否默认:0:未启用")
@@ -130,7 +130,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysEmailTemplateDefault;
 
     /**
-     * 审批状态;0:未审批; 1: 审批中; 2:已通过; 3: 未通过
+    * 审批状态;0:未审批; 1: 审批中; 2:已通过; 3: 未通过
      */
     @TableField(value = "sys_email_template_approve")
     @Schema(description="审批状态;0:未审批; 1: 审批中; 2:已通过; 3: 未通过")
@@ -138,7 +138,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysEmailTemplateApprove;
 
     /**
-     * 拒绝原因
+    * 拒绝原因
      */
     @TableField(value = "sys_email_template_approve_reject")
     @Schema(description="拒绝原因")
@@ -146,7 +146,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private String sysEmailTemplateApproveReject;
 
     /**
-     * 审批人
+    * 审批人
      */
     @TableField(value = "sys_email_template_approve_create_by")
     @Schema(description="审批人")
@@ -154,7 +154,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysEmailTemplateApproveCreateBy;
 
     /**
-     * 模板编辑状态;0:可编辑; 1: 不可编辑;
+    * 模板编辑状态;0:可编辑; 1: 不可编辑;
      */
     @TableField(value = "sys_email_template_disabled")
     @Schema(description="模板编辑状态;0:可编辑; 1: 不可编辑;")
@@ -162,7 +162,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private Integer sysEmailTemplateDisabled;
 
     /**
-     * 来源
+    * 来源
      */
     @TableField(value = "sys_email_template_origin")
     @Schema(description="来源")
@@ -170,7 +170,7 @@ public class SysEmailTemplate extends SysBase implements Serializable {
     private String sysEmailTemplateOrigin;
 
     /**
-     * 来源uuid
+    * 来源uuid
      */
     @TableField(value = "sys_email_template_origin_uuid")
     @Schema(description="来源uuid")

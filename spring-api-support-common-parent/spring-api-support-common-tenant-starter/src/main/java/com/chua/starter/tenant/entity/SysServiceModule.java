@@ -38,7 +38,7 @@ public class SysServiceModule extends SysBase {
     private Integer sysServiceModuleId;
 
     /**
-     * 服务模块名称
+    * 服务模块名称
      */
     @TableField(value = "sys_service_module_name")
     @ApiModelProperty(value = "服务模块名称")
@@ -48,7 +48,7 @@ public class SysServiceModule extends SysBase {
     private String sysServiceModuleName;
 
     /**
-     * 服务模块编码
+    * 服务模块编码
      */
     @TableField(value = "sys_service_module_code")
     @ApiModelProperty(value = "服务模块编码")
@@ -58,7 +58,7 @@ public class SysServiceModule extends SysBase {
     private String sysServiceModuleCode;
 
     /**
-     * 服务模块描述
+    * 服务模块描述
      */
     @TableField(value = "sys_service_module_desc")
     @ApiModelProperty(value = "服务模块描述")
@@ -67,7 +67,7 @@ public class SysServiceModule extends SysBase {
     private String sysServiceModuleDesc;
 
     /**
-     * 服务模块排序
+    * 服务模块排序
      */
     @TableField(value = "sys_service_module_sort")
     @ApiModelProperty(value = "服务模块排序")
@@ -76,8 +76,8 @@ public class SysServiceModule extends SysBase {
     private Integer sysServiceModuleSort;
 
     /**
-     * 删除标记
-     * 0: 未删除, 1: 已删除
+    * 删除标记
+    * 0: 未删除, 1: 已删除
      */
     @TableField(value = "sys_service_module_delete")
     @ApiModelProperty(value = "删除标记")
@@ -87,8 +87,8 @@ public class SysServiceModule extends SysBase {
     private Integer sysServiceModuleDelete;
 
     /**
-     * 服务模块状态
-     * 0: 启用, 1: 禁用
+    * 服务模块状态
+    * 0: 启用, 1: 禁用
      */
     @TableField(value = "sys_service_module_status")
     @ApiModelProperty(value = "服务模块状态")
@@ -97,8 +97,8 @@ public class SysServiceModule extends SysBase {
     private Integer sysServiceModuleStatus;
 
     /**
-     * 服务模块类型
-      * API: API接口模块, 服务: 服务模块, FUNCTION: 功能模块
+    * 服务模块类型
+    * API: API接口模块, 服务: 服务模块, FUNCTION: 功能模块
      */
     @TableField(value = "sys_service_module_type")
     @ApiModelProperty(value = "服务模块类型")
@@ -107,8 +107,8 @@ public class SysServiceModule extends SysBase {
     private String sysServiceModuleType;
 
     /**
-      * 关联菜单标识
-     * <p>功能模块(FUNCTION)映射到平台菜单，租户菜单推送时据此计算</p>
+    * 关联菜单标识
+    * <p>功能模块(FUNCTION)映射到平台菜单，租户菜单推送时据此计算</p>
      */
     @TableField(value = "sys_menu_id")
     @ApiModelProperty(value = "关联菜单ID")

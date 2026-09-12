@@ -69,9 +69,9 @@ public class FeedbackMenuInitializer implements ApplicationRunner {
     private final Map<String, CacheManager> cacheManagers; // 缓存管理器
 
     /**
-     * 应用启动后执行反馈菜单初始化。
-     *
-     * @param args 启动参数
+    * 应用启动后执行反馈菜单初始化。
+    *
+    * @param args 启动参数
      */
     @Override
     public void run(ApplicationArguments args) {

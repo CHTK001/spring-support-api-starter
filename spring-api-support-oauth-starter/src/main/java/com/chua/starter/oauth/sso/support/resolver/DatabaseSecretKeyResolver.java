@@ -38,10 +38,10 @@ public class DatabaseSecretKeyResolver implements SecretKeyResolver {
     @Override
     @Cacheable(value = "aksk:secret", key = "#accessKey", unless = "#result == null")
     /**
-     * 获取密钥
-     *
-     * @param accessKey access键
-     * @return 获取secret键的结果
+    * 获取密钥
+    *
+    * @param accessKey access键
+    * @return 获取secret键的结果
      */
     public String getSecretKey(String accessKey) {
         if (accessKey == null || accessKey.isEmpty()) {

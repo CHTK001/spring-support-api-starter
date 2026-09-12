@@ -52,15 +52,15 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
     private TransactionTemplate transactionTemplate;
 
     /**
-     * 分页查询字典项
-     *
-     * @param query     查询条件对象，用于封装分页及排序等信息
-      * 例如：新 查询<SysDictItem>().设置page(1).设置page大小(10)
-     * @param sysDictId 字典标识，用于过滤查询结果
-     *                  例如：1
-     * @param roles     用户角色集合，用于进行权限控制
-      * 例如：设置.的("admin", "login")
-     * @return 分页查询结果，包含字典项列表和分页信息
+    * 分页查询字典项
+    *
+    * @param query     查询条件对象，用于封装分页及排序等信息
+    * 例如：新 查询<SysDictItem>().设置page(1).设置page大小(10)
+    * @param sysDictId 字典标识，用于过滤查询结果
+    *                  例如：1
+    * @param roles     用户角色集合，用于进行权限控制
+    * 例如：设置.的("admin", "login")
+    * @return 分页查询结果，包含字典项列表和分页信息
      */
     @Override
     public IPage<SysDictItem> pageForItem(Query<SysDictItem> query, Integer sysDictId, Set<String> roles) {

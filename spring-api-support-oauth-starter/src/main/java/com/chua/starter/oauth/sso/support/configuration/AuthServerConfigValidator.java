@@ -32,7 +32,7 @@ public class AuthServerConfigValidator {
     private final Environment environment;
 
     /**
-     * 危险的默认密钥列表（不允许在生产环境使用）
+    * 危险的默认密钥列表（不允许在生产环境使用）
      */
     private static final List<String> DANGEROUS_KEYS = List.of(
             "D518E462DF7B36828FA68CCD69FC6140",

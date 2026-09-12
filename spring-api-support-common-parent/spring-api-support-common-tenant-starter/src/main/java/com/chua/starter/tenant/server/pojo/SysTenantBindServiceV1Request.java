@@ -29,7 +29,7 @@ public class SysTenantBindServiceV1Request {
     private String sysTenantId;
 
     /**
-     * 服务绑定项列表
+    * 服务绑定项列表
      */
     @ApiModelProperty(value = "服务绑定项列表")
     @Schema(description = "服务绑定项列表")
@@ -37,9 +37,9 @@ public class SysTenantBindServiceV1Request {
     private List<ServiceBindItem> serviceBindItems;
 
     /**
-     * 服务绑定项
-     * @author CH
-     * @since 4.0.0
+    * 服务绑定项
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     @ApiModel(description = "服务绑定项")
@@ -55,7 +55,7 @@ public class SysTenantBindServiceV1Request {
         private Integer sysServiceId;
 
         /**
-         * 到期时间
+        * 到期时间
          */
         @ApiModelProperty(value = "到期时间")
         @Schema(description = "到期时间")

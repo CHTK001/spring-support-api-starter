@@ -28,7 +28,7 @@ public class AchievementTier {
     private Long id;
 
     /**
-      * 分组标识，如 login/标志/menu/消息/帧
+    * 分组标识，如 login/标志/menu/消息/帧
      */
     private String type;
 

@@ -81,20 +81,20 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
     private VideoSyncConfigMapper videoSyncConfigMapper;
 
     /**
-     * 构造方法
-     *
-     * @param videoSource 视频源配置信息
-     *                    <pre>
-     *                                                                                                                                      {@code
-     *                                                                                                                                      VideoSource videoSource = new VideoSource();
-     *                                                                                                                                      videoSource.setVideoSourcePlatform("GUANYING");
-     *                                                                                                                                      videoSource.setVideoSourceToken("your_token_here");
-     *                                                                                                                                      GuanYingResourceProvider provider = new GuanYingResourceProvider(videoSource);
-     *                                                                                                                                      }
-     *                                                                                                                                      </pre>                                                            videoSource.setVideoSourceToken("your_token_here");
-     *                                                                                                                                      GuanYingResourceProvider provider = new GuanYingResourceProvider(videoSource);
-     *                                                                                                                                      }
-     *                                                                                                                                      </pre>
+    * 构造方法
+    *
+    * @param videoSource 视频源配置信息
+    *                    <pre>
+    *                                                                                                                                      {@code
+    *                                                                                                                                      VideoSource videoSource = new VideoSource();
+    *                                                                                                                                      videoSource.setVideoSourcePlatform("GUANYING");
+    *                                                                                                                                      videoSource.setVideoSourceToken("your_token_here");
+    *                                                                                                                                      GuanYingResourceProvider provider = new GuanYingResourceProvider(videoSource);
+    *                                                                                                                                      }
+    *                                                                                                                                      </pre>                                                            videoSource.setVideoSourceToken("your_token_here");
+    *                                                                                                                                      GuanYingResourceProvider provider = new GuanYingResourceProvider(videoSource);
+    *                                                                                                                                      }
+    *                                                                                                                                      </pre>
      */
     public GuanYingResourceProvider(VideoSource videoSource) {
         super(videoSource);
@@ -906,48 +906,48 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
         private Integer code;
 
         /**
-         * 磁力链接下载列表数据传输对象
-         *
-         * @see #getDownlist()
-         * @see #setDownlist(DownlistDTO)
-         * <pre>{@code
-         * EmbeddedDownload download = new EmbeddedDownload();
-         * DownlistDTO downlist = new DownlistDTO();
-         * download.setDownlist(downlist);
-         * }</pre>e>
-         * @since 2025/9/19 14:20
+        * 磁力链接下载列表数据传输对象
+        *
+        * @see #getDownlist()
+        * @see #setDownlist(DownlistDTO)
+        * <pre>{@code
+        * EmbeddedDownload download = new EmbeddedDownload();
+        * DownlistDTO downlist = new DownlistDTO();
+        * download.setDownlist(downlist);
+        * }</pre>e>
+        * @since 2025/9/19 14:20
          */
         @SerializedName("downlist")
         /** Downlist */
         private DownlistDTO downlist;
 
         /**
-         * 播放列表数据传输对象集合
-         *
-         * @see #getPlaylist()
-         * @see #setPlaylist(List)
-         * <pre>{@code
-         * EmbeddedDownload download = new EmbeddedDownload();
-         * List<PlaylistDTO> playlist = new ArrayList<>();
-         * download.setPlaylist(playlist);
-         * }</pre></pre>
-         * @since 2025/9/19 14:20
+        * 播放列表数据传输对象集合
+        *
+        * @see #getPlaylist()
+        * @see #setPlaylist(List)
+        * <pre>{@code
+        * EmbeddedDownload download = new EmbeddedDownload();
+        * List<PlaylistDTO> playlist = new ArrayList<>();
+        * download.setPlaylist(playlist);
+        * }</pre></pre>
+        * @since 2025/9/19 14:20
          */
         @SerializedName("playlist")
         /** Playlist */
         private List<PlaylistDTO> playlist;
 
         /**
-         * 网盘资源列表数据传输对象
-         *
-         * @see #getPanlist()
-         * @see #setPanlist(PanlistDTO)
-         * <pre>{@code
-         * EmbeddedDownload download = new EmbeddedDownload();
-         * PanlistDTO panlist = new PanlistDTO();
-         * download.setPanlist(panlist);
-         * }</pre>e>
-         * @since 2025/9/19 14:20
+        * 网盘资源列表数据传输对象
+        *
+        * @see #getPanlist()
+        * @see #setPanlist(PanlistDTO)
+        * <pre>{@code
+        * EmbeddedDownload download = new EmbeddedDownload();
+        * PanlistDTO panlist = new PanlistDTO();
+        * download.setPanlist(panlist);
+        * }</pre>e>
+        * @since 2025/9/19 14:20
          */
         @SerializedName("panlist")
         /** Panlist */
@@ -1014,10 +1014,10 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
         }
 
         /**
-         * 网盘列表数据传输对象
-         *
-         * @since 2025/9/19 14:20
-         * @author CH
+        * 网盘列表数据传输对象
+        *
+        * @since 2025/9/19 14:20
+        * @author CH
          */
         @NoArgsConstructor
         @Data
@@ -1034,88 +1034,88 @@ public class GuanYingResourceProvider extends AbstractResourceProvider implement
             private List<String> id;
 
             /**
-             * 网盘资源名称列表
-             * <pre>{@code
-             * List<String> names = Arrays.asList("资源1", "资源2");
-             * panlistDTO.setName(names);
-             * }</pre>  * }</pre>
+            * 网盘资源名称列表
+            * <pre>{@code
+            * List<String> names = Arrays.asList("资源1", "资源2");
+            * panlistDTO.setName(names);
+            * }</pre>  * }</pre>
              */
             @SerializedName("name")
             /** 名称 */
             private List<String> name;
 
             /**
-             * 网盘资源路径列表
-             * <pre>{@code
-             * List<String> paths = Arrays.asList("/path1", "/path2");
-             * panlistDTO.setP(paths);
-             * }</pre>    * }</pre>
+            * 网盘资源路径列表
+            * <pre>{@code
+            * List<String> paths = Arrays.asList("/path1", "/path2");
+            * panlistDTO.setP(paths);
+            * }</pre>    * }</pre>
              */
             @SerializedName("p")
             /** P */
             private List<String> p;
 
             /**
-             * 网盘资源链接列表
-             * <pre>{@code
-             * List<String> urls = Arrays.asList("http://example.com/1", "http://example.com/2");
-             * panlistDTO.setUrl(urls);
-             * }</pre>re>
+            * 网盘资源链接列表
+            * <pre>{@code
+            * List<String> urls = Arrays.asList("http://example.com/1", "http://example.com/2");
+            * panlistDTO.setUrl(urls);
+            * }</pre>re>
              */
             @SerializedName("url")
             /** URL */
             private List<String> url;
 
             /**
-             * 网盘资源类型列表（对应tname的索引）
-             * <pre>{@code
-             * List<Integer> types = Arrays.asList(0, 1);
-             * panlistDTO.setType(types);
-             * }</pre>  * }</pre>
+            * 网盘资源类型列表（对应tname的索引）
+            * <pre>{@code
+            * List<Integer> types = Arrays.asList(0, 1);
+            * panlistDTO.setType(types);
+            * }</pre>  * }</pre>
              */
             @SerializedName("type")
             /** 类型 */
             private List<Integer> type;
 
             /**
-             * 网盘资源分享用户列表
-             * <pre>{@code
-             * List<String> users = Arrays.asList("user1", "user2");
-             * panlistDTO.setUser(users);
-             * }</pre>      * }</pre>
+            * 网盘资源分享用户列表
+            * <pre>{@code
+            * List<String> users = Arrays.asList("user1", "user2");
+            * panlistDTO.setUser(users);
+            * }</pre>      * }</pre>
              */
             @SerializedName("user")
             /** 用户 */
             private List<String> user;
 
             /**
-             * 网盘资源分享时间列表
-             * <pre>{@code
-             * List<String> times = Arrays.asList("2025-01-01", "2025-01-02");
-             * panlistDTO.setTime(times);
-             * }</pre>  * }</pre>
+            * 网盘资源分享时间列表
+            * <pre>{@code
+            * List<String> times = Arrays.asList("2025-01-01", "2025-01-02");
+            * panlistDTO.setTime(times);
+            * }</pre>  * }</pre>
              */
             @SerializedName("time")
             /** 时间 */
             private List<String> time;
 
             /**
-             * 网盘资源扩展信息列表
-             * <pre>{@code
-             * List<Integer> extras = Arrays.asList(1, 2);
-             * panlistDTO.setE(extras);
-             * }</pre>re>
+            * 网盘资源扩展信息列表
+            * <pre>{@code
+            * List<Integer> extras = Arrays.asList(1, 2);
+            * panlistDTO.setE(extras);
+            * }</pre>re>
              */
             @SerializedName("e")
             /** E */
             private List<Integer> e;
 
             /**
-             * 网盘资源类型名称列表
-             * <pre>{@code
-             * List<String> typeNames = Arrays.asList("百度网盘", "阿里云盘");
-             * panlistDTO.setTname(typeNames);
-             * }</pre>    * }</pre>
+            * 网盘资源类型名称列表
+            * <pre>{@code
+            * List<String> typeNames = Arrays.asList("百度网盘", "阿里云盘");
+            * panlistDTO.setTname(typeNames);
+            * }</pre>    * }</pre>
              */
             @SerializedName("tname")
             /** Tname */

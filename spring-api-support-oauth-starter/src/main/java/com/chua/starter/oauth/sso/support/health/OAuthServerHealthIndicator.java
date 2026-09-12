@@ -40,7 +40,7 @@ public class OAuthServerHealthIndicator extends AbstractHealthIndicator {
     private final AuthServerProperties authServerProperties;
 
     /**
-      * Redis健康检查键
+    * Redis健康检查键
      */
     private static final String HEALTH_CHECK_KEY = "oauth:health:check";
 

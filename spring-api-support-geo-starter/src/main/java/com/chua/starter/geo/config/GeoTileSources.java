@@ -23,7 +23,7 @@ public class GeoTileSources {
     private final Map<String, TileSource> builtInSources = new LinkedHashMap<>();
 
     /**
-     * 构造方法，初始化内置图源列表。
+    * 构造方法，初始化内置图源列表。
      */
     public GeoTileSources() {
         initBuiltInSources();

@@ -36,7 +36,7 @@ public class MsMonitor extends SysBase {
     private Long id;
 
     /**
-     * 监控资产名称，用于前端展示，例如 生产Web-01
+    * 监控资产名称，用于前端展示，例如 生产Web-01
      */
     @TableField("monitor_name")
     @ApiModelProperty("监控名称")
@@ -45,7 +45,7 @@ public class MsMonitor extends SysBase {
     private String monitorName;
 
     /**
-      * 监控资产主机地址，例如 192.168.1.10 或 Redis.example.com
+    * 监控资产主机地址，例如 192.168.1.10 或 Redis.example.com
      */
     @TableField("monitor_host")
     @ApiModelProperty("主机地址")
@@ -54,7 +54,7 @@ public class MsMonitor extends SysBase {
     private String monitorHost;
 
     /**
-     * 监控资产端口，例如 6379
+    * 监控资产端口，例如 6379
      */
     @TableField("monitor_port")
     @ApiModelProperty("端口")
@@ -63,7 +63,7 @@ public class MsMonitor extends SysBase {
     private Integer monitorPort;
 
     /**
-      * 服务类型，取值 服务端/Redis/MySQL/PG/ORACLE/MSSQL
+    * 服务类型，取值 服务端/Redis/MySQL/PG/ORACLE/MSSQL
      */
     @TableField("service_type")
     @ApiModelProperty("服务类型（SERVER/REDIS/MYSQL/PG/ORACLE/MSSQL）")
@@ -72,7 +72,7 @@ public class MsMonitor extends SysBase {
     private String serviceType;
 
     /**
-      * 服务器操作系统类型，取值 Linux/窗口/macOS
+    * 服务器操作系统类型，取值 Linux/窗口/macOS
      */
     @TableField("server_type")
     @ApiModelProperty("服务器类型（LINUX/WINDOWS/MACOS）")
@@ -81,7 +81,7 @@ public class MsMonitor extends SysBase {
     private String serverType;
 
     /**
-     * 监控资产分组，用于归类，例如 生产环境/测试环境
+    * 监控资产分组，用于归类，例如 生产环境/测试环境
      */
     @TableField("monitor_group")
     @ApiModelProperty("监控分组")
@@ -90,7 +90,7 @@ public class MsMonitor extends SysBase {
     private String monitorGroup;
 
     /**
-     * 监控资产启用状态，1=启用，0=禁用
+    * 监控资产启用状态，1=启用，0=禁用
      */
     @TableField("monitor_enabled")
     @ApiModelProperty("启用状态（0禁用/1启用）")
@@ -99,7 +99,7 @@ public class MsMonitor extends SysBase {
     private Integer monitorEnabled;
 
     /**
-     * 监控资产描述信息，可为空
+    * 监控资产描述信息，可为空
      */
     @TableField("monitor_description")
     @ApiModelProperty("描述")
@@ -108,7 +108,7 @@ public class MsMonitor extends SysBase {
     private String monitorDescription;
 
     /**
-     * 逻辑删除标记，0=未删除，1=已删除
+    * 逻辑删除标记，0=未删除，1=已删除
      */
     @TableField("deleted")
     @TableLogic
@@ -118,7 +118,7 @@ public class MsMonitor extends SysBase {
     private Integer deleted;
 
     /**
-      * 关联服务器主机 标识（ms_服务端_主机.标识，用于联动服务器台账配置）
+    * 关联服务器主机 标识（ms_服务端_主机.标识，用于联动服务器台账配置）
      */
     @TableField("ms_server_host_id")
     @ApiModelProperty("关联服务器主机ID")

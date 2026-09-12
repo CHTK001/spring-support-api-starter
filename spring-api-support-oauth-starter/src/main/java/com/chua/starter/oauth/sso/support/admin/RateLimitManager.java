@@ -31,9 +31,9 @@ public class RateLimitManager {
     private volatile RateLimiter rateLimiter = RateLimiter.create(100); // rate限制
 
     /**
-     * 尝试获取令牌（非阻塞）
-     *
-     * @return true=允许通过，false=被限流
+    * 尝试获取令牌（非阻塞）
+    *
+    * @return true=允许通过，false=被限流
      */
     public boolean tryAcquire() {
         if (!enabled.get()) {

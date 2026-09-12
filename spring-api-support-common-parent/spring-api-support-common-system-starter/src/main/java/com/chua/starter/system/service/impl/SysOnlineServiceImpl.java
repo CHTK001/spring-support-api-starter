@@ -118,9 +118,9 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     /**
-      * 将协议中的用户信息转换为VO对象
-     * @param info 信息
-     * @return 转换转为online用户vo的结果
+    * 将协议中的用户信息转换为VO对象
+    * @param info 信息
+    * @return 转换转为online用户vo的结果
      */
     private OnlineUserVO convertToOnlineUserVO(Protocol.OnlineUserInfo info) {
         OnlineUserVO vo = new OnlineUserVO();

@@ -31,13 +31,13 @@ public class TileEstimate {
     private String message;
 
     /**
-     * 单级别瓦片估算明细。
-     *
-     * @param zoom          缩放级别
-     * @param tileCount     该级别瓦片数量
-     * @param estimatedSizeMb 该级别预估大小（MB）
-     * @author CH
-     * @since 4.0.0
+    * 单级别瓦片估算明细。
+    *
+    * @param zoom          缩放级别
+    * @param tileCount     该级别瓦片数量
+    * @param estimatedSizeMb 该级别预估大小（MB）
+    * @author CH
+    * @since 4.0.0
      */
     @Data
     public static class LevelEstimate {

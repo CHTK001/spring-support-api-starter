@@ -80,7 +80,7 @@ public class GoogleCallbackController {
     private SysLoginCallbackService sysLoginCallbackService;
 
     /**
-     * 三方用户绑定服务
+    * 三方用户绑定服务
      */
     final SysUserThirdPartyService sysUserThirdPartyService;
 

@@ -68,9 +68,9 @@ public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGrou
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * 初始化默认群体for文件系统
-     *
-     * @return 初始化默认群体for文件系统的结果
+    * 初始化默认群体for文件系统
+    *
+    * @return 初始化默认群体for文件系统的结果
      */
     public ReturnResult<Boolean> initDefaultGroupsForFileSystem() {
         log.info("初始化默认分组");

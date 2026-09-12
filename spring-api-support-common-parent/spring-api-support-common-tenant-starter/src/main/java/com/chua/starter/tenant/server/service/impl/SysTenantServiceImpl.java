@@ -95,10 +95,10 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     @Override
     @SuppressWarnings("deprecation")
     /**
-     * 保存forsystenant
-     *
-     * @param sysTenant sysTenant
-     * @return 保存forsystenant的结果
+    * 保存forsystenant
+    *
+    * @param sysTenant sysTenant
+    * @return 保存forsystenant的结果
      */
     public ReturnResult<SysTenant> saveForSysTenant(SysTenant sysTenant) {
         log.debug("保存租户: {}", sysTenant);
@@ -341,9 +341,9 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     /**
-     * 填充租户的关联服务信息
-     *
-     * @param records 租户列表
+    * 填充租户的关联服务信息
+    *
+    * @param records 租户列表
      */
     private void fillTenantServices(List<SysTenant> records) {
         List<String> tenantIds = records.stream()

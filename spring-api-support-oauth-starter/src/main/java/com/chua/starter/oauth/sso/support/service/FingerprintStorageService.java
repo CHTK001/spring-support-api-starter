@@ -46,10 +46,10 @@ public class FingerprintStorageService {
     private StringRedisTemplate stringRedisTemplate; // 字符串redistemplate
 
     /**
-     * 保存或更新指纹映射
-     * <p>同时写入 MySQL 和 Redis 缓存</p>
-     *
-     * @param req 指纹记录参数对象
+    * 保存或更新指纹映射
+    * <p>同时写入 MySQL 和 Redis 缓存</p>
+    *
+    * @param req 指纹记录参数对象
      */
     public void saveFingerprint(FingerprintRecord req) {
         if (req == null || StringUtils.isBlank(req.fingerprint()) || StringUtils.isBlank(req.userId())) {

@@ -54,11 +54,11 @@ public class SysServiceController {
     private final SysServiceModuleMapper sysServiceModuleMapper;
 
     /**
-     * 分页查询服务
-     *
-     * @param query      分页查询对象
-     * @param sysService 服务查询条件
-     * @return 分页结果
+    * 分页查询服务
+    *
+    * @param query      分页查询对象
+    * @param sysService 服务查询条件
+    * @return 分页结果
      */
     @GetMapping("page")
     @Operation(summary = "分页查询服务")

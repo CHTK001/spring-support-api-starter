@@ -33,7 +33,7 @@ public class SysWechatUser extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-      * 主键标识
+    * 主键标识
      */
     @TableId(value = "sys_wechat_user_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
@@ -42,7 +42,7 @@ public class SysWechatUser extends SysBase implements Serializable {
     private Integer sysWechatUserId;
 
     /**
-     * 微信 openid
+    * 微信 openid
      */
     @TableField(value = "sys_wechat_open_id")
     @Schema(description = "微信 openid")
@@ -51,7 +51,7 @@ public class SysWechatUser extends SysBase implements Serializable {
     private String sysWechatOpenId;
 
     /**
-     * 微信 unionid
+    * 微信 unionid
      */
     @TableField(value = "sys_wechat_union_id")
     @Schema(description = "微信 unionid")
@@ -60,7 +60,7 @@ public class SysWechatUser extends SysBase implements Serializable {
     private String sysWechatUnionId;
 
     /**
-     * 昵称
+    * 昵称
      */
     @TableField(value = "sys_wechat_nickname")
     @Schema(description = "昵称")
@@ -69,7 +69,7 @@ public class SysWechatUser extends SysBase implements Serializable {
     private String sysWechatNickname;
 
     /**
-     * 头像
+    * 头像
      */
     @TableField(value = "sys_wechat_avatar")
     @Schema(description = "头像")
@@ -78,7 +78,7 @@ public class SysWechatUser extends SysBase implements Serializable {
     private String sysWechatAvatar;
 
     /**
-      * 绑定的系统用户标识
+    * 绑定的系统用户标识
      */
     @TableField(value = "sys_user_id")
     @Schema(description = "绑定的系统用户ID")

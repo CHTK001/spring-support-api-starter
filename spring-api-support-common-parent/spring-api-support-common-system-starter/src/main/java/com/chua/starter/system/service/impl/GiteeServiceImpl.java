@@ -55,11 +55,11 @@ public class GiteeServiceImpl implements GiteeService {
     }
 
     /**
-     * 创建新的绑定记录
-     *
-     * @param data       Gitee认证用户信息
-     * @param userResume 系统用户信息
-     * @param userId     用户标识
+    * 创建新的绑定记录
+    *
+    * @param data       Gitee认证用户信息
+    * @param userResume 系统用户信息
+    * @param userId     用户标识
      */
     private void createNewBind(AuthUser data, UserResume userResume, String userId) {
         SysUserTripartiteBind bind = new SysUserTripartiteBind();

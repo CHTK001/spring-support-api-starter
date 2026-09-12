@@ -35,11 +35,11 @@ public class Tiles3dController {
     private final Tiles3dService tiles3dService;
 
     /**
-     * 分析 tileset 结构，返回摘要信息。
-     *
-     * @param request 数据源配置
-     * @param proxy   代理地址（可为 空）
-     * @return tileset 摘要
+    * 分析 tileset 结构，返回摘要信息。
+    *
+    * @param request 数据源配置
+    * @param proxy   代理地址（可为 空）
+    * @return tileset 摘要
      */
     @PostMapping("/analyze")
     @Operation(summary = "分析3D Tiles结构")

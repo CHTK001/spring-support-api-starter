@@ -24,7 +24,7 @@ public class SysUserRole implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-      * 主键标识
+    * 主键标识
      */
     @TableId(value = "sys_user_role_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
@@ -33,7 +33,7 @@ public class SysUserRole implements Serializable {
     private Integer sysUserRoleId;
 
     /**
-      * 用户标识
+    * 用户标识
      */
     @TableField(value = "sys_user_id")
     @Schema(description = "用户ID")
@@ -41,7 +41,7 @@ public class SysUserRole implements Serializable {
     private Integer sysUserId;
 
     /**
-      * 角色标识
+    * 角色标识
      */
     @TableField(value = "sys_role_id")
     @Schema(description = "角色ID")

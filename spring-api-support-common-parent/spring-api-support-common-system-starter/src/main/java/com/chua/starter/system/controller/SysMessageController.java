@@ -37,12 +37,12 @@ public class SysMessageController {
     private final SysMessageService sysMessageService;
 
     /**
-     * 分页查询当前用户消息
-     *
-     * @param sysUserId 当前用户标识（自动注入）
-     * @param page      页码
-     * @param pageSize  每页条数
-     * @return 消息分页结果（data 为消息列表，total 为总数）
+    * 分页查询当前用户消息
+    *
+    * @param sysUserId 当前用户标识（自动注入）
+    * @param page      页码
+    * @param pageSize  每页条数
+    * @return 消息分页结果（data 为消息列表，total 为总数）
      */
     @Operation(summary = "站内消息分页列表")
     @GetMapping("/page")

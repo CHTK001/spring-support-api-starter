@@ -29,14 +29,14 @@ public class TenantMybatisConfiguration {
     private final TenantProperties tenantProperties;
 
     /**
-     * 配置 MyBatis-Plus 租户拦截器（客户端模式）
-     * <p>
-     * 租户端采用单租户独立数据库，数据已按租户物理隔离，默认【不启用】行级拦截器，
-      * 避免给无 sys_tenant_标识 列的表追加租户条件。
-      * 仅当配置 plugin.MyBatis-plus.tenant.客户端.tenant-线-enable=true 时启用。
-     * </p>
-     *
-     * @return MybatisPlusInterceptor
+    * 配置 MyBatis-Plus 租户拦截器（客户端模式）
+    * <p>
+    * 租户端采用单租户独立数据库，数据已按租户物理隔离，默认【不启用】行级拦截器，
+    * 避免给无 sys_tenant_标识 列的表追加租户条件。
+    * 仅当配置 plugin.MyBatis-plus.tenant.客户端.tenant-线-enable=true 时启用。
+    * </p>
+    *
+    * @return MybatisPlusInterceptor
      */
     @Bean
     @ConditionalOnProperty(prefix = TenantProperties.PRE + ".client", name = "tenant-line-enable", havingValue = "true")

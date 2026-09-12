@@ -20,13 +20,13 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     private final HttpServletResponse response;
 
     /**
-      * 创建 http认证信息 实例
-     * @param authServerProperties 认证服务端属性
-     * @param data 数据
-     * @param request 请求
-     * @param response 响应
-     * @param applicationContext application上下文
-     * @param loginCheck login检查
+    * 创建 http认证信息 实例
+    * @param authServerProperties 认证服务端属性
+    * @param data 数据
+    * @param request 请求
+    * @param response 响应
+    * @param applicationContext application上下文
+    * @param loginCheck login检查
      */
     public HttpAuthInformation(AuthServerProperties authServerProperties,
                               String data,
@@ -96,9 +96,9 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
 
     // 提供类型安全的访问方法
     /**
-     * 获取http请求
-     *
-     * @return 获取http请求的结果
+    * 获取http请求
+    *
+    * @return 获取http请求的结果
      */
     public HttpServletRequest getHttpRequest() {
         return request;

@@ -37,9 +37,9 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
     private AuthClientProperties authProperties;
 
     /**
-     * 新增填充创建时间
-     *
-     * @param metaObject meta对象
+    * 新增填充创建时间
+    *
+    * @param metaObject meta对象
      */
     @Override
     public void insertFill(MetaObject metaObject) {

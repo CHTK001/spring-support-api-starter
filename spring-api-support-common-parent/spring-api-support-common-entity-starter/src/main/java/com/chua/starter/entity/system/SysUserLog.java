@@ -37,7 +37,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private Integer sysLogId;
 
     /**
-     * 操作账号
+    * 操作账号
      */
     @TableField(value = "sys_log_username")
     @Schema(description = "操作账号")
@@ -46,7 +46,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogUsername;
 
     /**
-     * 登录方式
+    * 登录方式
      */
     @TableField(value = "sys_log_login_type")
     @Schema(description = "登录方式")
@@ -55,7 +55,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogLoginType;
 
     /**
-     * 浏览器UA
+    * 浏览器UA
      */
     @TableField(value = "sys_log_ua")
     @Schema(description = "浏览器UA")
@@ -63,7 +63,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogUa;
 
     /**
-     * 浏览器指纹
+    * 浏览器指纹
      */
     @TableField(value = "sys_log_fingerprint")
     @Schema(description = "浏览器指纹")
@@ -71,7 +71,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogFingerprint;
 
     /**
-     * 浏览器名称
+    * 浏览器名称
      */
     @TableField(value = "sys_log_browser")
     @Schema(description = "浏览器名称")
@@ -80,7 +80,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogBrowser;
 
     /**
-     * 操作系统
+    * 操作系统
      */
     @TableField(value = "sys_log_system")
     @Schema(description = "操作系统")
@@ -89,7 +89,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogSystem;
 
     /**
-     * 请求IP地址
+    * 请求IP地址
      */
     @TableField(value = "sys_log_ip")
     @Schema(description = "请求IP地址")
@@ -98,7 +98,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogIp;
 
     /**
-     * 请求地理位置
+    * 请求地理位置
      */
     @TableField(value = "sys_log_address")
     @Schema(description = "请求地理位置")
@@ -106,7 +106,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogAddress;
 
     /**
-     * 网络运营商
+    * 网络运营商
      */
     @TableField(value = "sys_log_isp")
     @Schema(description = "网络运营商")
@@ -115,7 +115,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogIsp;
 
     /**
-     * 请求URL
+    * 请求URL
      */
     @TableField(value = "sys_log_url")
     @Schema(description = "请求URL")
@@ -123,7 +123,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogUrl;
 
     /**
-     * 应用名称
+    * 应用名称
      */
     @TableField(value = "sys_log_app_name")
     @Schema(description = "应用名称")
@@ -131,7 +131,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogAppName;
 
     /**
-     * 请求参数
+    * 请求参数
      */
     @TableField(value = "sys_log_param")
     @Schema(description = "请求参数")
@@ -139,7 +139,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogParam;
 
     /**
-     * 请求模块
+    * 请求模块
      */
     @TableField(value = "sys_log_from")
     @Schema(description = "请求模块")
@@ -148,7 +148,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogFrom;
 
     /**
-     * 请求状态: 0:失败 1:成功
+    * 请求状态: 0:失败 1:成功
      */
     @TableField(value = "sys_log_status")
     @Schema(description = "请求状态: 0:失败 1:成功")
@@ -156,7 +156,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private Integer sysLogStatus;
 
     /**
-     * 响应消息
+    * 响应消息
      */
     @TableField(value = "sys_log_message")
     @Schema(description = "响应消息")
@@ -164,7 +164,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogMessage;
 
     /**
-     * 请求耗时(毫秒)
+    * 请求耗时(毫秒)
      */
     @TableField(value = "sys_log_cost")
     @Schema(description = "请求耗时(毫秒)")
@@ -172,7 +172,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private BigDecimal sysLogCost;
 
     /**
-      * 部门标识
+    * 部门标识
      */
     @TableField(value = "sys_dept_id")
     @Schema(description = "部门ID")
@@ -180,7 +180,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private Integer sysDeptId;
 
     /**
-     * 机构名称(非数据库字段)
+    * 机构名称(非数据库字段)
      */
     @TableField(exist = false)
     @Schema(description = "机构名称(非数据库字段)")
@@ -188,7 +188,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysDeptName;
 
     /**
-     * 账号角色编码列表(非数据库字段)
+    * 账号角色编码列表(非数据库字段)
      */
     @TableField(exist = false)
     @Schema(description = "账号角色编码列表(非数据库字段)")
@@ -196,7 +196,7 @@ public class SysUserLog extends SysBase implements Serializable {
     private String sysLogRoleCodes;
 
     /**
-     * 账号角色名称列表(非数据库字段)
+    * 账号角色名称列表(非数据库字段)
      */
     @TableField(exist = false)
     @Schema(description = "账号角色名称列表(非数据库字段)")

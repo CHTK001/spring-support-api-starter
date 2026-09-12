@@ -25,14 +25,14 @@ public class FeedbackV1Request extends Query<SysFeedback> {
     private String sysFeedbackType;
 
     /**
-     * 反馈内容
+    * 反馈内容
      */
     @Schema(description = "反馈内容")
     /** sysfeedback内容 */
     private String sysFeedbackContent;
 
     /**
-     * 反馈图片
+    * 反馈图片
      */
     @Schema(description = "反馈图片")
     /** sysfeedbackimages */

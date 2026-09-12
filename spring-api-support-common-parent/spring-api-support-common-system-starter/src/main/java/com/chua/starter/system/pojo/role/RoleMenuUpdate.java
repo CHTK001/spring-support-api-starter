@@ -25,7 +25,7 @@ public class RoleMenuUpdate {
     private Integer roleId;
 
     /**
-      * 菜单标识
+    * 菜单标识
      */
     @NotNull(message = "菜单ID不能为空", groups = {UpdateGroup.class})
     @Schema(description = "菜单ID")

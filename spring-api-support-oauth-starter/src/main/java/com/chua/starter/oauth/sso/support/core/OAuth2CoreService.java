@@ -45,7 +45,7 @@ public class OAuth2CoreService {
     private final SysAppIdService sysAppIdService;
 
     /**
-     * Redis 键前缀 - 授权码
+    * Redis 键前缀 - 授权码
      */
     private static final String AUTH_CODE_PREFIX = "oauth:code:";
 
@@ -89,17 +89,17 @@ public class OAuth2CoreService {
     // ==================== 授权码管理 ====================
 
     /**
-     * 生成授权码
-     *
-     * @param clientId            客户端标识
-     * @param redirectUri         回调地址
-     * @param scope               请求的权限范围
-     * @param state               状态码
-     * @param codeChallenge       PKCE 编码_challenge
-     * @param codeChallengeMethod PKCE 方法（S256 或 plain）
-     * @param userId              用户标识
-     * @param username            用户名
-     * @return 授权码
+    * 生成授权码
+    *
+    * @param clientId            客户端标识
+    * @param redirectUri         回调地址
+    * @param scope               请求的权限范围
+    * @param state               状态码
+    * @param codeChallenge       PKCE 编码_challenge
+    * @param codeChallengeMethod PKCE 方法（S256 或 plain）
+    * @param userId              用户标识
+    * @param username            用户名
+    * @return 授权码
      */
     public String generateAuthorizationCode(String clientId, String redirectUri, String scope,
                                             String state, String codeChallenge, String codeChallengeMethod,

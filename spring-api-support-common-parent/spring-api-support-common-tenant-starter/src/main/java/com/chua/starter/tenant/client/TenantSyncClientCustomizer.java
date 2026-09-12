@@ -80,10 +80,10 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
     }
 
     /**
-     * 订阅指定主题
-     *
-     * @param syncClient 同步客户端
-     * @param topic      主题
+    * 订阅指定主题
+    *
+    * @param syncClient 同步客户端
+    * @param topic      主题
      */
     private void subscribe(SyncClient syncClient, String topic) {
         syncClient.registerHandler(topic, tenantClientSyncHandler);

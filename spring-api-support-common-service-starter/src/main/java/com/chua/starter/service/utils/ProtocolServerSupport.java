@@ -16,11 +16,11 @@ public final class ProtocolServerSupport {
     }
 
     /**
-     * 创建
-     *
-     * @param type 类型
-     * @param setting setting
-     * @return 创建的结果
+    * 创建
+    *
+    * @param type 类型
+    * @param setting setting
+    * @return 创建的结果
      */
     public static ProtocolServer create(String type, ServerSetting setting) {
         if (setting == null) {

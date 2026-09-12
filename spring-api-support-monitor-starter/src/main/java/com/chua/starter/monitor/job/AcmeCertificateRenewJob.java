@@ -28,8 +28,8 @@ public class AcmeCertificateRenewJob {
     private final AcmeProperties acmeProperties;
 
     /**
-     * 定时检查并续签即将到期的证书
-     * 默认每天凌晨 2 点执行
+    * 定时检查并续签即将到期的证书
+    * 默认每天凌晨 2 点执行
      */
     @Scheduled(cron = "${monitor.acme.renew-cron:0 0 2 * * ?}")
     public void renewExpiringSoonCertificates() {

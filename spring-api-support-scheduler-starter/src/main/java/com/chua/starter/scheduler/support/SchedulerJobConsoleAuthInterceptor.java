@@ -72,11 +72,11 @@ public class SchedulerJobConsoleAuthInterceptor implements HandlerInterceptor {
     }
 
     /**
-     * 将请求重定向到控制台登录页。
-     *
-     * @param request  HTTP 请求
-     * @param response HTTP 响应
-     * @throws IOException 写入重定向失败时抛出
+    * 将请求重定向到控制台登录页。
+    *
+    * @param request  HTTP 请求
+    * @param response HTTP 响应
+    * @throws IOException 写入重定向失败时抛出
      */
     private void redirectToLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String contextPath = request.getContextPath();

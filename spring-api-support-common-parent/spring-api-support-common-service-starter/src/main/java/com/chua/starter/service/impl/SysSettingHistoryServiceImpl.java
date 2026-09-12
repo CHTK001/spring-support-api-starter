@@ -46,7 +46,7 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     private SysSettingService sysSettingService;
 
     /**
-     * 操作类型常量
+    * 操作类型常量
      */
     private static final String OP_CREATE = "CREATE";
     /** Op_更新 */
@@ -181,12 +181,12 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * 回滚转为batch
-     *
-     * @param batchNo batchNo
-     * @param operatorId 操作符id
-     * @param operatorName 操作符名称
-     * @return rollback转为batch的结果
+    * 回滚转为batch
+    *
+    * @param batchNo batchNo
+    * @param operatorId 操作符id
+    * @param operatorName 操作符名称
+    * @return rollback转为batch的结果
      */
     public ReturnResult<Boolean> rollbackToBatch(String batchNo, String operatorId, String operatorName) {
         List<SysSettingHistory> histories = listByBatchNo(batchNo);

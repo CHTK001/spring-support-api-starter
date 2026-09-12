@@ -26,13 +26,13 @@ public class LoginAuthInformation extends BaseAuthInformation {
 
     // HTTP协议构造函数
     /**
-      * 创建 login认证信息 实例
-     * @param authServerProperties 认证服务端属性
-     * @param data 数据
-     * @param request 请求
-     * @param response 响应
-     * @param applicationContext application上下文
-     * @param loginCheck login检查
+    * 创建 login认证信息 实例
+    * @param authServerProperties 认证服务端属性
+    * @param data 数据
+    * @param request 请求
+    * @param response 响应
+    * @param applicationContext application上下文
+    * @param loginCheck login检查
      */
     public LoginAuthInformation(AuthServerProperties authServerProperties,
                                 String data,
@@ -120,8 +120,8 @@ public class LoginAuthInformation extends BaseAuthInformation {
 
 
     /**
-     * 获取授权信息
-     * @return 授权信息
+    * 获取授权信息
+    * @return 授权信息
      */
     @SuppressWarnings("unchecked")
     @Override

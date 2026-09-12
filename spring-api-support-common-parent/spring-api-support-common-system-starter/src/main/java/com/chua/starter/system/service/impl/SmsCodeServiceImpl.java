@@ -234,12 +234,12 @@ public class SmsCodeServiceImpl implements SmsCodeService {
     }
 
     /**
-      * 保存sms日志
-     * @param phone phone
-     * @param code 编码
-     * @param bizType biz类型
-     * @param smsSetting smssetting
-     * @param result 结果
+    * 保存sms日志
+    * @param phone phone
+    * @param code 编码
+    * @param bizType biz类型
+    * @param smsSetting smssetting
+    * @param result 结果
      */
     private void saveSmsLog(String phone,
                             String code,

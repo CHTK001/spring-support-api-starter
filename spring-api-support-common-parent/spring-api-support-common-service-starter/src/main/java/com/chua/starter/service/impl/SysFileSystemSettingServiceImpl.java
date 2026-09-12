@@ -45,10 +45,10 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * 启用settingfor文件系统
-     *
-     * @param settingId settingId
-     * @return enablesettingfor文件系统的结果
+    * 启用settingfor文件系统
+    *
+    * @param settingId settingId
+    * @return enablesettingfor文件系统的结果
      */
     public ReturnResult<Boolean> enableSettingForFileSystem(Integer settingId) {
         log.info("启用配置: settingId={}", settingId);
@@ -155,7 +155,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     /**
-     * Spring 关闭时停止内嵌 HTTP 文件服务器。
+    * Spring 关闭时停止内嵌 HTTP 文件服务器。
      */
     @PreDestroy
     public void onShutdown() {

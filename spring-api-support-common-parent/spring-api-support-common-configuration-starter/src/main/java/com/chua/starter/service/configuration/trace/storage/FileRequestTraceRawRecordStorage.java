@@ -64,10 +64,10 @@ public class FileRequestTraceRawRecordStorage implements RequestTraceRawRecordSt
     }
 
     /**
-     * 转为映射
-     *
-     * @param event 事件
-     * @return 转为映射的结果
+    * 转为映射
+    *
+    * @param event 事件
+    * @return 转为映射的结果
      */
     private Map<String, Object> toMap(RequestTraceEvent event) {
         Map<String, Object> values = new LinkedHashMap<>();
