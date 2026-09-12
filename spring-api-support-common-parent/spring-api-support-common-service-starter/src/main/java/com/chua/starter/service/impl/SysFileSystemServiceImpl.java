@@ -43,18 +43,18 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 文件系统服务实现类
- *
- * @author CH
- * @since 2024/12/10
-   * @版本 1.0.0
+* 文件系统服务实现类
+*
+* @author CH
+* @since 2024/12/10
+* @版本 1.0.0
  */
 @Slf4j
 @Service
 public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, SysFileSystem> implements SysFileSystemService {
 
     /**
-     * 默认分片大小：100MB
+    * 默认分片大小：100MB
      */
     private static final long DEFAULT_CHUNK_SIZE = 1024 * 1024 * 100L;
     private final TransactionTemplate transactionTemplate; // transactionTemplate
@@ -65,8 +65,8 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     private final FileStorageSupport fileStorageSupport; // 文件storage支持
 
     /**
-     * 上传进度推送服务（可选依赖）
-     * @param progressPushService 进步push服务
+    * 上传进度推送服务（可选依赖）
+    * @param progressPushService 进步push服务
      */
     private FileUploadProgressPushService progressPushService;
 
@@ -138,11 +138,11 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     }
 
     /**
-     * 创建存储设置
-     *
-     * @param request          请求参数
-     * @param originalFilename 原始文件名
-     * @return 存储设置
+    * 创建存储设置
+    *
+    * @param request          请求参数
+    * @param originalFilename 原始文件名
+    * @return 存储设置
      */
     private BucketSetting createSetting(SysFileUploadRequest request, String originalFilename) {
         return fileStorageSupport.createUploadBucketSetting(
@@ -205,9 +205,9 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     }
 
     /**
-     * 从配置获取分片大小
-     *
-     * @return 分片大小（字节）
+    * 从配置获取分片大小
+    *
+    * @return 分片大小（字节）
      */
     private long getChunkSizeFromSetting() {
         SysFileSystemSetting setting = sysFileSystemSettingService.getEnabledSettingForFileSystem();
@@ -294,9 +294,9 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     }
 
     /**
-     * 检查是否所有分片都已上传完成，如果是则触发合并
-     *
-     * @param sysFileSystem 文件系统记录
+    * 检查是否所有分片都已上传完成，如果是则触发合并
+    *
+    * @param sysFileSystem 文件系统记录
      */
     private void checkAndMerge(SysFileSystem sysFileSystem) {
         List<SysFileSystemPart> completedParts = sysFileSystemPartService.list(Wrappers.<SysFileSystemPart>lambdaQuery()
@@ -411,10 +411,10 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     }
 
     /**
-     * 构建任务信息响应
-     *
-     * @param sysFileSystem 文件系统记录
-     * @return 任务信息响应
+    * 构建任务信息响应
+    *
+    * @param sysFileSystem 文件系统记录
+    * @return 任务信息响应
      */
     private SysFileTaskInfoResponse buildTaskInfoResponse(SysFileSystem sysFileSystem) {
         SysFileTaskInfoResponse response = new SysFileTaskInfoResponse();

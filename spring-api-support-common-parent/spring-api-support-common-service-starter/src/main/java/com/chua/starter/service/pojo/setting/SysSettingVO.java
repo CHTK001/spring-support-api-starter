@@ -15,10 +15,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * 系统设置
- *
- * @since 2024/8/7
- * @author CH
+* 系统设置
+*
+* @since 2024/8/7
+* @author CH
  */
 @Schema(description = "系统设置")
 @Data

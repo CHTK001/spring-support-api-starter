@@ -17,11 +17,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
-   * Esri Wayback 历史影像服务实现，调用 Esri Wayback 配置 API 获取真实版本列表。
- *
- * @see <a href="https://opendata.arcgis.com/">Esri Open Data</a>
- * @author CH
- * @since 1.0.0
+* Esri Wayback 历史影像服务实现，调用 Esri Wayback 配置 API 获取真实版本列表。
+*
+* @see <a href="https://opendata.arcgis.com/">Esri Open Data</a>
+* @author CH
+* @since 1.0.0
  */
 @Service
 @Slf4j
@@ -82,10 +82,10 @@ public class WaybackServiceImpl implements WaybackService {
     }
 
     /**
-     * 从标题中提取日期（如 "World Imagery (Wayback 2026-08-05)" → "2026-08-05"）。
-     *
-     * @param title 版本标题
-     * @return 日期字符串，提取失败返回空串
+    * 从标题中提取日期（如 "World Imagery (Wayback 2026-08-05)" → "2026-08-05"）。
+    *
+    * @param title 版本标题
+    * @return 日期字符串，提取失败返回空串
      */
     private String extractDate(String title) {
         if (title == null) {

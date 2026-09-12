@@ -25,10 +25,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 头像框接口
- *
- * @since 2024/8/7
- * @author CH
+* 头像框接口
+*
+* @since 2024/8/7
+* @author CH
  */
 @Tag(name = "头像框接口")
 @RestController
@@ -76,11 +76,11 @@ public class SysAvatarFrameController {
     }
 
     /**
-     * 判断当前用户是否处于生日窗口内
-     * <p>按用户生日的月/日（忽略年份）与今天差值不超过 {@link #BIRTHDAY_WINDOW_DAYS} 天</p>
-     *
-     * @param userId 当前用户标识（未登录时为 空）
-     * @return 是否处于生日窗口
+    * 判断当前用户是否处于生日窗口内
+    * <p>按用户生日的月/日（忽略年份）与今天差值不超过 {@link #BIRTHDAY_WINDOW_DAYS} 天</p>
+    *
+    * @param userId 当前用户标识（未登录时为 空）
+    * @return 是否处于生日窗口
      */
     private boolean isBirthdayWindow(Long userId) {
         if (null == userId) {
@@ -104,8 +104,8 @@ public class SysAvatarFrameController {
     @GetMapping("/user")
     @Operation(summary = "用户已获取的头像框")
     /**
-      * 用户帧
-     * @param userId 用户id
+    * 用户帧
+    * @param userId 用户id
      */
     public ReturnResult<List<SysUserAvatarFrame>> userFrames(
             @UserValue("sysUserId") Long userId) {
@@ -118,9 +118,9 @@ public class SysAvatarFrameController {
     @PostMapping("/acquire")
     @Operation(summary = "获取头像框")
     /**
-     * 获取
-     * @param userId 用户id
-     * @param frameId 帧id
+    * 获取
+    * @param userId 用户id
+    * @param frameId 帧id
      */
     public ReturnResult<Boolean> acquire(
             @UserValue("sysUserId") Long userId,

@@ -14,22 +14,22 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Armeria 协议认证信息适配器
- * <p>
- * 提供 Armeria 协议的请求/响应适配，使其能够复用现有的认证逻辑
- * </p>
- *
-   * @版本 1.0.0
- * @since 2025-12-07
- * @author CH
+* Armeria 协议认证信息适配器
+* <p>
+* 提供 Armeria 协议的请求/响应适配，使其能够复用现有的认证逻辑
+* </p>
+*
+* @版本 1.0.0
+* @since 2025-12-07
+* @author CH
  */
 public class ArmeriaAuthInformation {
 
     /**
-     * Armeria 请求适配器
-     * <p>实现 HttpServletRequest 接口，用于适配 Armeria 请求</p>
-     * @author CH
-     * @since 4.0.0
+    * Armeria 请求适配器
+    * <p>实现 HttpServletRequest 接口，用于适配 Armeria 请求</p>
+    * @author CH
+    * @since 4.0.0
      */
     public static class ArmeriaRequest implements HttpServletRequest {
         /** 客户端地址 */
@@ -46,10 +46,10 @@ public class ArmeriaAuthInformation {
         }
 
         /**
-         * 设置头部
-         *
-         * @param name 名称
-         * @param value 值
+        * 设置头部
+        *
+        * @param name 名称
+        * @param value 值
          */
         public void setHeader(String name, String value) {
             headers.put(name, value);
@@ -165,10 +165,10 @@ public class ArmeriaAuthInformation {
     }
 
     /**
-     * Armeria 响应适配器
-     * <p>实现 HttpServletResponse 接口，用于适配 Armeria 响应</p>
-     * @author CH
-     * @since 4.0.0
+    * Armeria 响应适配器
+    * <p>实现 HttpServletResponse 接口，用于适配 Armeria 响应</p>
+    * @author CH
+    * @since 4.0.0
      */
     public static class ArmeriaResponse implements HttpServletResponse {
         private final Map<String, String> headers = new ConcurrentHashMap<>(); // 头部

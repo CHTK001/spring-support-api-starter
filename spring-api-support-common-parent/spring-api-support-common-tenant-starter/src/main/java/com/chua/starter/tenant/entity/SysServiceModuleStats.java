@@ -6,11 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
- * 服务模块统计信息
- *
-   * @版本 1.0.0
- * @since 2024/12/20
- * @author CH
+* 服务模块统计信息
+*
+* @版本 1.0.0
+* @since 2024/12/20
+* @author CH
  */
 @ApiModel(description = "服务模块统计信息")
 @Schema(description = "服务模块统计信息")
@@ -18,7 +18,7 @@ import lombok.Data;
 public class SysServiceModuleStats {
 
     /**
-     * 总数
+    * 总数
      */
     @ApiModelProperty(value = "总数")
     @Schema(description = "总数")

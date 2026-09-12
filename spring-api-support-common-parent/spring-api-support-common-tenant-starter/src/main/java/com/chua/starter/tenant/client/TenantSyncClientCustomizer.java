@@ -17,14 +17,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 租户客户端同步定制器。
- * <p>
-   * 在 同步客户端 建立底层连接前预注册主题和处理器，
- * 避免首次注册后立刻收到全量同步时处理器尚未挂载。
- * </p>
- *
- * @since 2026/03/25
- * @author CH
+* 租户客户端同步定制器。
+* <p>
+* 在 同步客户端 建立底层连接前预注册主题和处理器，
+* 避免首次注册后立刻收到全量同步时处理器尚未挂载。
+* </p>
+*
+* @since 2026/03/25
+* @author CH
  */
 @Slf4j
 @Component
@@ -90,9 +90,9 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
     }
 
     /**
-     * 调度完整同步请求
-     *
-     * @param syncClient 同步客户端
+    * 调度完整同步请求
+    *
+    * @param syncClient 同步客户端
      */
     private void scheduleFullSyncRequest(SyncClient syncClient) {
         if (!tenantProperties.getClient().isSyncRequestFullPushOnConnect()) {
@@ -109,11 +109,11 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
     }
 
     /**
-     * 请求完整同步ifnecessary
-     *
-     * @param syncClient 同步客户端
-     * @param connectedAt 连接at
-     * @param reason ReasonML
+    * 请求完整同步ifnecessary
+    *
+    * @param syncClient 同步客户端
+    * @param connectedAt 连接at
+    * @param reason ReasonML
      */
     private void requestFullSyncIfNecessary(SyncClient syncClient, long connectedAt, String reason) {
         if (!syncClient.isConnected()) {
@@ -129,10 +129,10 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
     }
 
     /**
-     * 请求完整同步
-     *
-     * @param syncClient 同步客户端
-     * @param reason ReasonML
+    * 请求完整同步
+    *
+    * @param syncClient 同步客户端
+    * @param reason ReasonML
      */
     private void requestFullSync(SyncClient syncClient, String reason) {
         String tenantId = tenantProperties.getClient().getTenantId();

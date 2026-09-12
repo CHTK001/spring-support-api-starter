@@ -13,10 +13,10 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * 设备管理
- *
- * @since 2026/08/03
- * @author CH
+* 设备管理
+*
+* @since 2026/08/03
+* @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "设备管理")
@@ -24,7 +24,7 @@ import java.util.List;
 @TableName(value = "sys_device")
 public class SysDevice extends SysBase {
     /**
-      * 设备主键标识
+    * 设备主键标识
      */
     @TableId(value = "sys_device_id", type = IdType.AUTO)
     @Schema(description = "")

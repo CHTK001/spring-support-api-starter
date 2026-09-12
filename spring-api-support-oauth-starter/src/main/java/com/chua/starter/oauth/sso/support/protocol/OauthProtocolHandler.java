@@ -52,24 +52,24 @@ import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants
 import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.PATH_VERIFY;
 
 /**
- * OAuth 认证协议处理器
- *
- * <p>实现 common-starter 的 {@link ServerHandler},承载 OAuth 认证协议入口
- * (通过 {@code network.Server} 以 HTTP/KCP/WS/UDP 等多协议暴露)。把协议无关的
- * {@link ServerRequest} 解码后路由到下层认证逻辑(LoginCheck/TokenResolver),
- * 下层业务逻辑完全不变。</p>
- *
- * <p>支持路径:</p>
- * <ul>
- *     <li>/login           - 登录</li>
- *     <li>/verify /oauth   - 令牌鉴权</li>
- *     <li>/upgrade         - 令牌升级</li>
- *     <li>/logout          - 登出</li>
- *     <li>/temporary-token - 临时令牌</li>
- * </ul>
- *
- * @since 4.0.0.42
- * @author CH
+* OAuth 认证协议处理器
+*
+* <p>实现 common-starter 的 {@link ServerHandler},承载 OAuth 认证协议入口
+* (通过 {@code network.Server} 以 HTTP/KCP/WS/UDP 等多协议暴露)。把协议无关的
+* {@link ServerRequest} 解码后路由到下层认证逻辑(LoginCheck/TokenResolver),
+* 下层业务逻辑完全不变。</p>
+*
+* <p>支持路径:</p>
+* <ul>
+*     <li>/login           - 登录</li>
+*     <li>/verify /oauth   - 令牌鉴权</li>
+*     <li>/upgrade         - 令牌升级</li>
+*     <li>/logout          - 登出</li>
+*     <li>/temporary-token - 临时令牌</li>
+* </ul>
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -126,10 +126,10 @@ public class OauthProtocolHandler implements ServerHandler {
     // ==================== 登录 ====================
 
     /**
-     * 处理Login
-     *
-     * @param request 请求
-     * @param response 响应
+    * 处理Login
+    *
+    * @param request 请求
+    * @param response 响应
      */
     private void handleLogin(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
@@ -159,10 +159,10 @@ public class OauthProtocolHandler implements ServerHandler {
     // ==================== 鉴权 ====================
 
     /**
-     * 处理验证
-     *
-     * @param request 请求
-     * @param response 响应
+    * 处理验证
+    *
+    * @param request 请求
+    * @param response 响应
      */
     private void handleVerify(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
@@ -177,10 +177,10 @@ public class OauthProtocolHandler implements ServerHandler {
     // ==================== 升级 ====================
 
     /**
-     * 处理Upgrade
-     *
-     * @param request 请求
-     * @param response 响应
+    * 处理Upgrade
+    *
+    * @param request 请求
+    * @param response 响应
      */
     private void handleUpgrade(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
@@ -202,10 +202,10 @@ public class OauthProtocolHandler implements ServerHandler {
     // ==================== 登出 ====================
 
     /**
-     * 处理Logout
-     *
-     * @param request 请求
-     * @param response 响应
+    * 处理Logout
+    *
+    * @param request 请求
+    * @param response 响应
      */
     private void handleLogout(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
@@ -229,10 +229,10 @@ public class OauthProtocolHandler implements ServerHandler {
     // ==================== 临时令牌 ====================
 
     /**
-     * 处理temporary令牌
-     *
-     * @param request 请求
-     * @param response 响应
+    * 处理temporary令牌
+    *
+    * @param request 请求
+    * @param response 响应
      */
     private void handleTemporaryToken(ServerRequest request, ServerResponse response) {
         var decoder = decode(request);
@@ -256,9 +256,9 @@ public class OauthProtocolHandler implements ServerHandler {
     // ==================== 工具方法 ====================
 
     /**
-      * 解码报文体(取外层 数据 字段,再解析/解密认证参数)
-     * @param request 请求
-     * @return decode的结果
+    * 解码报文体(取外层 数据 字段,再解析/解密认证参数)
+    * @param request 请求
+    * @return decode的结果
      */
     private OauthProtocolDecoder decode(ServerRequest request) {
         var headers = request.getHeaders();
@@ -279,10 +279,10 @@ public class OauthProtocolHandler implements ServerHandler {
     }
 
     /**
-      * 大小写不敏感读取请求头(通用 HTTP客户端 可能首字母大写,如 X-OAuth-uuid)
-     * @param headers 头部
-     * @param name 名称
-     * @return 头部的结果
+    * 大小写不敏感读取请求头(通用 HTTP客户端 可能首字母大写,如 X-OAuth-uuid)
+    * @param headers 头部
+    * @param name 名称
+    * @return 头部的结果
      */
     private String header(HttpHeader headers, String name) {
         if (headers == null) {
@@ -299,10 +299,10 @@ public class OauthProtocolHandler implements ServerHandler {
     }
 
     /**
-      * 从请求体/请求头解析 令牌
-     * @param request 请求
-     * @param decoder 解码器
-     * @return resolve令牌的结果
+    * 从请求体/请求头解析 令牌
+    * @param request 请求
+    * @param decoder 解码器
+    * @return resolve令牌的结果
      */
     private String resolveToken(ServerRequest request, OauthProtocolDecoder decoder) {
         var token = decoder.getString(FIELD_TOKEN);
@@ -315,10 +315,10 @@ public class OauthProtocolHandler implements ServerHandler {
     }
 
     /**
-      * 解析客户端地址(优先请求头 x-OAuth-参数-地址)
-     * @param request 请求
-     * @param decoder 解码器
-     * @return resolve地址的结果
+    * 解析客户端地址(优先请求头 x-OAuth-参数-地址)
+    * @param request 请求
+    * @param decoder 解码器
+    * @return resolve地址的结果
      */
     private String resolveAddress(ServerRequest request, OauthProtocolDecoder decoder) {
         var address = header(request.getHeaders(), HEADER_ADDRESS);
@@ -326,19 +326,19 @@ public class OauthProtocolHandler implements ServerHandler {
     }
 
     /**
-      * 解析 令牌解析器(与 login检查 一致)
-     * @return resolve令牌解析器的结果
+    * 解析 令牌解析器(与 login检查 一致)
+    * @return resolve令牌解析器的结果
      */
     private TokenResolver resolveTokenResolver() {
         return loginCheck.resolveTokenResolver(authServerProperties.getTokenManagement());
     }
 
     /**
-      * 写入结果(加密/明文由请求 x-OAuth-encode 决定)
-     * <p>与原 LoginAuthorization 一致:外层 ReturnResult JSON 明文,data 字段加密。</p>
-     * @param response 响应
-     * @param decoder 解码器
-     * @param result 结果
+    * 写入结果(加密/明文由请求 x-OAuth-encode 决定)
+    * <p>与原 LoginAuthorization 一致:外层 ReturnResult JSON 明文,data 字段加密。</p>
+    * @param response 响应
+    * @param decoder 解码器
+    * @param result 结果
      */
     private void writeResult(ServerResponse response, OauthProtocolDecoder decoder, ReturnResult<?> result) {
         response.setContentType(CONTENT_TYPE_JSON);
@@ -363,9 +363,9 @@ public class OauthProtocolHandler implements ServerHandler {
     }
 
     /**
-     * 写入失败结果
-     * @param response 响应
-     * @param message 消息
+    * 写入失败结果
+    * @param response 响应
+    * @param message 消息
      */
     private void writeError(ServerResponse response, String message) {
         writeResult(response, null, ReturnResult.error(message));

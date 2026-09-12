@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 操作日志接口
- * @since 2024/8/7
- * @author CH
+* 操作日志接口
+* @since 2024/8/7
+* @author CH
  */
 @Tag(name = "操作日志接口")
 @RestController
@@ -53,10 +53,10 @@ public class SysUserLogController {
     }
 
     /**
-     * 操作日志分页列表
-     *
-     * @param sysUserLogQuery 条件
-     * @return 操作日志分页列表
+    * 操作日志分页列表
+    *
+    * @param sysUserLogQuery 条件
+    * @return 操作日志分页列表
      */
     @Operation(summary = "操作日志分页列表")
     @GetMapping("/page")
@@ -75,10 +75,10 @@ public class SysUserLogController {
     }
 
     /**
-     * normalizedept树id令牌
-     *
-     * @param value 值
-     * @return normalizedept树id令牌的结果
+    * normalizedept树id令牌
+    *
+    * @param value 值
+    * @return normalizedept树id令牌的结果
      */
     private String normalizeDeptTreeIdToken(Object value) {
         if (value == null) {
@@ -98,10 +98,10 @@ public class SysUserLogController {
     }
 
     /**
-     * normalizemanageddept树标识
-     *
-     * @param managedDeptTreeIds manageddept树标识
-     * @return normalizemanageddept树标识的结果
+    * normalizemanageddept树标识
+    *
+    * @param managedDeptTreeIds manageddept树标识
+    * @return normalizemanageddept树标识的结果
      */
     private List<String> normalizeManagedDeptTreeIds(Object managedDeptTreeIds) {
         if (managedDeptTreeIds == null) {

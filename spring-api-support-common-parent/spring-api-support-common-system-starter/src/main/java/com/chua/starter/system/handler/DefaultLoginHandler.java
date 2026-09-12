@@ -23,10 +23,10 @@ import static com.chua.common.support.lang.code.ReturnCode.USERNAME_OR_PASSWORD_
 import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 
 /**
- * 默认登录处理器
-   * @版本 1.0.0
- * @since 2024/12/2
- * @author CH
+* 默认登录处理器
+* @版本 1.0.0
+* @since 2024/12/2
+* @author CH
  */
 @SpiDefault
 @Slf4j
@@ -34,7 +34,7 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 public class DefaultLoginHandler implements LoginHandler {
 
     /**
-     * 账号锁定错误码
+    * 账号锁定错误码
      */
     private static final String ACCOUNT_LOCKED_CODE = "A0402";
 

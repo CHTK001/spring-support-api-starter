@@ -14,10 +14,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 运维项目管理（含服务器连接信息）
- *
- * @since 2026/08/03
- * @author CH
+* 运维项目管理（含服务器连接信息）
+*
+* @since 2026/08/03
+* @author CH
  */
 @Schema(description = "运维项目管理")
 @Data
@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
 public class SysDevopsProject extends SysBase {
 
     /**
-     * 主键
+    * 主键
      */
     @TableId(value = "project_id", type = IdType.AUTO)
     @Schema(description = "主键")

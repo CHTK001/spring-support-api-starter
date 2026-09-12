@@ -6,24 +6,24 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * 文件系统包装类
- * 用于任务处理时传递文件系统对象和服务
- *
- * @since 2024/12/10
-   * @版本 1.0.0
- * @author CH
+* 文件系统包装类
+* 用于任务处理时传递文件系统对象和服务
+*
+* @since 2024/12/10
+* @版本 1.0.0
+* @author CH
  */
 @Data
 @AllArgsConstructor
 public class SysFileSystemWrapper {
 
     /**
-     * 文件系统对象
+    * 文件系统对象
      */
     private SysFileSystem sysFileSystem;
 
     /**
-     * 文件系统服务
+    * 文件系统服务
      */
     private SysFileSystemService sysFileSystemService;
 }

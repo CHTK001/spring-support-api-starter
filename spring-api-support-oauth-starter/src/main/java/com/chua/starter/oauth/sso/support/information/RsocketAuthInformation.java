@@ -14,22 +14,22 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-   * r套接字 协议认证信息适配器
- * <p>
-   * 提供 r套接字 协议的请求/响应适配，使其能够复用现有的认证逻辑
- * </p>
- *
-   * @版本 1.0.0
- * @since 2025-01-05
- * @author CH
+* r套接字 协议认证信息适配器
+* <p>
+* 提供 r套接字 协议的请求/响应适配，使其能够复用现有的认证逻辑
+* </p>
+*
+* @版本 1.0.0
+* @since 2025-01-05
+* @author CH
  */
 public class RsocketAuthInformation {
 
     /**
-      * r套接字 请求适配器
-     * <p>实现 HttpServletRequest 接口，用于适配 RSocket 请求</p>
-     * @author CH
-     * @since 4.0.0
+    * r套接字 请求适配器
+    * <p>实现 HttpServletRequest 接口，用于适配 RSocket 请求</p>
+    * @author CH
+    * @since 4.0.0
      */
     public static class RsocketRequest implements HttpServletRequest {
         /** 客户端地址 */
@@ -48,28 +48,28 @@ public class RsocketAuthInformation {
         }
 
         /**
-         * 设置头部
-         *
-         * @param name 名称
-         * @param value 值
+        * 设置头部
+        *
+        * @param name 名称
+        * @param value 值
          */
         public void setHeader(String name, String value) {
             headers.put(name, value);
         }
 
         /**
-         * 设置主体
-         *
-         * @param body 主体
+        * 设置主体
+        *
+        * @param body 主体
          */
         public void setBody(String body) {
             this.body = body;
         }
 
         /**
-         * 获取主体
-         *
-         * @return 获取主体的结果
+        * 获取主体
+        *
+        * @return 获取主体的结果
          */
         public String getBody() {
             return body;
@@ -185,10 +185,10 @@ public class RsocketAuthInformation {
     }
 
     /**
-      * r套接字 响应适配器
-     * <p>实现 HttpServletResponse 接口，用于适配 RSocket 响应</p>
-     * @author CH
-     * @since 4.0.0
+    * r套接字 响应适配器
+    * <p>实现 HttpServletResponse 接口，用于适配 RSocket 响应</p>
+    * @author CH
+    * @since 4.0.0
      */
     public static class RsocketResponse implements HttpServletResponse {
         private final Map<String, String> headers = new ConcurrentHashMap<>(); // 头部
@@ -238,18 +238,18 @@ public class RsocketAuthInformation {
         }
 
         /**
-         * 获取主体
-         *
-         * @return 获取主体的结果
+        * 获取主体
+        *
+        * @return 获取主体的结果
          */
         public String getBody() {
             return body;
         }
 
         /**
-         * 设置主体
-         *
-         * @param body 主体
+        * 设置主体
+        *
+        * @param body 主体
          */
         public void setBody(String body) {
             this.body = body;

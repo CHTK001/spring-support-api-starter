@@ -25,16 +25,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 签到核心服务
- *
- * <p>提供每日签到、防抖、连续天数计算、积分发放、成就联动等完整签到业务逻辑。
- * 防抖机制使用 Redis 分布式锁 + 数据库唯一索引双层保障。</p>
- *
- * <p>签到成功后通过 {@link KvEngine} 写入成就上下文数据（持续天数、累计积分、最高连续），
-   * 供成就模块的 熔断中断 规则判定使用，随后发布签到事件触发成就判定。</p>
- *
- * @since 4.0.0.42
- * @author CH
+* 签到核心服务
+*
+* <p>提供每日签到、防抖、连续天数计算、积分发放、成就联动等完整签到业务逻辑。
+* 防抖机制使用 Redis 分布式锁 + 数据库唯一索引双层保障。</p>
+*
+* <p>签到成功后通过 {@link KvEngine} 写入成就上下文数据（持续天数、累计积分、最高连续），
+* 供成就模块的 熔断中断 规则判定使用，随后发布签到事件触发成就判定。</p>
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Slf4j
 @Service
@@ -42,67 +42,67 @@ import java.util.stream.Collectors;
 public class SignInService {
 
     /**
-      * 分布式锁 键 前缀，格式：锁:signin:{用户id}:{日期}
+    * 分布式锁 键 前缀，格式：锁:signin:{用户id}:{日期}
      */
     private static final String LOCK_KEY_PREFIX = "signin:lock:";
 
     /**
-     * 防抖锁等待时间（毫秒），0 表示非阻塞，获取不到立即返回失败
+    * 防抖锁等待时间（毫秒），0 表示非阻塞，获取不到立即返回失败
      */
     private static final long LOCK_WAIT_MILLIS = 0L;
 
     /**
-     * 防抖锁持有时间（秒），防止锁未释放导致死锁
+    * 防抖锁持有时间（秒），防止锁未释放导致死锁
      */
     private static final long LOCK_LEASE_SECONDS = 10L;
 
     /**
-      * 签到记录 映射器
+    * 签到记录 映射器
      */
     private final SignInRecordMapper recordMapper;
 
     /**
-     * 积分计算服务
+    * 积分计算服务
      */
     private final SignInPointsService pointsService;
 
     /**
-     * 签到推送服务
+    * 签到推送服务
      */
     private final SignInPushService pushService;
 
     /**
-      * 分布式锁模板（Redis Redisson 实现，由 spring-支持-Redis-启动 自动装配）
+    * 分布式锁模板（Redis Redisson 实现，由 spring-支持-Redis-启动 自动装配）
      */
     private final LockTemplate lockTemplate;
 
     /**
-     * 事件发布器，用于发布签到事件给成就模块
+    * 事件发布器，用于发布签到事件给成就模块
      */
     private final ApplicationEventPublisher eventPublisher;
 
     /**
-      * 统一 KV 引擎，写入成就上下文数据（由 spring-支持-Redis-启动 注册）
+    * 统一 KV 引擎，写入成就上下文数据（由 spring-支持-Redis-启动 注册）
      */
     private final KvEngine kvEngine;
 
     /**
-     * 用户签到操作。
-     *
-     * <p>流程：</p>
-     * <ol>
-     *   <li>分布式锁防抖（同一用户同一日期的请求串行执行）</li>
-     *   <li>校验今日是否已签到（数据库查询）</li>
-     *   <li>计算连续天数（检查昨日签到记录）</li>
-     *   <li>插入签到记录</li>
-     *   <li>计算积分并写入积分流水</li>
-     *   <li>更新签到记录的积分字段</li>
-     *   <li>发布签到事件给成就模块（触发 signInCount 累计）</li>
-     *   <li>推送签到成功消息到前端</li>
-     * </ol>
-     *
-     * @param userId 用户标识
-     * @return 签到结果
+    * 用户签到操作。
+    *
+    * <p>流程：</p>
+    * <ol>
+    *   <li>分布式锁防抖（同一用户同一日期的请求串行执行）</li>
+    *   <li>校验今日是否已签到（数据库查询）</li>
+    *   <li>计算连续天数（检查昨日签到记录）</li>
+    *   <li>插入签到记录</li>
+    *   <li>计算积分并写入积分流水</li>
+    *   <li>更新签到记录的积分字段</li>
+    *   <li>发布签到事件给成就模块（触发 signInCount 累计）</li>
+    *   <li>推送签到成功消息到前端</li>
+    * </ol>
+    *
+    * @param userId 用户标识
+    * @return 签到结果
      */
     @Transactional(rollbackFor = Exception.class)
     public SignInResultDTO signIn(Long userId) {
@@ -200,21 +200,21 @@ public class SignInService {
     }
 
     /**
-     * 查询今日是否已签到。
-     *
-     * @param userId 用户标识
-     * @return true 已签到，false 未签到
+    * 查询今日是否已签到。
+    *
+    * @param userId 用户标识
+    * @return true 已签到，false 未签到
      */
     public boolean isSignedToday(Long userId) {
         return recordMapper.selectByUserIdAndDate(userId, LocalDate.now()) != null;
     }
 
     /**
-     * 查询指定月份的签到日历数据。
-     *
-     * @param userId    用户标识
-     * @param yearMonth 年月，格式 yyyy-MM
-     * @return 日历项列表
+    * 查询指定月份的签到日历数据。
+    *
+    * @param userId    用户标识
+    * @param yearMonth 年月，格式 yyyy-MM
+    * @return 日历项列表
      */
     public List<SignInDayDTO> getCalendar(Long userId, String yearMonth) {
         List<LocalDate> signedDates = recordMapper.selectDatesByUserIdAndMonth(userId, yearMonth);
@@ -230,10 +230,10 @@ public class SignInService {
     }
 
     /**
-     * 查询用户签到统计。
-     *
-     * @param userId 用户标识
-     * @return 签到统计
+    * 查询用户签到统计。
+    *
+    * @param userId 用户标识
+    * @return 签到统计
      */
     public SignInStatsDTO getStats(Long userId) {
         List<SignInRecord> allRecords = recordMapper.selectByUserIdOrderByDateDesc(userId);
@@ -253,11 +253,11 @@ public class SignInService {
     }
 
     /**
-     * 分页查询用户签到汇总（管理员端）。
-     *
-     * @param page     页码
-     * @param pageSize 每页条数
-     * @return 用户签到汇总列表
+    * 分页查询用户签到汇总（管理员端）。
+    *
+    * @param page     页码
+    * @param pageSize 每页条数
+    * @return 用户签到汇总列表
      */
     public List<UserSignInSummaryDTO> getUserSummaryPage(int page, int pageSize) {
         long offset = (long) (page - 1) * pageSize;
@@ -265,9 +265,9 @@ public class SignInService {
     }
 
     /**
-     * 查询参与签到的用户总数（管理员端）。
-     *
-     * @return 用户总数
+    * 查询参与签到的用户总数（管理员端）。
+    *
+    * @return 用户总数
      */
     public long countUserSummary() {
         Long count = recordMapper.countUserSummary();
@@ -275,20 +275,20 @@ public class SignInService {
     }
 
     /**
-      * 写入签到成就上下文数据到 kvengine。
-     *
-     * <p>写入的键（前缀 {@code achievement:{userId}:}）与成就模块一致，
-      * 成就模块的 熔断中断 规则可直接引用：</p>
-     * <ul>
-     *   <li>{@code signInStreak}：当前连续签到天数</li>
-     *   <li>{@code signInMaxStreak}：历史最高连续签到天数</li>
-     *   <li>{@code signInTotalPoints}：累计签到积分</li>
-     *   <li>{@code signInCount}：累计签到次数（由成就事件异步累加）</li>
-     * </ul>
-     *
-     * @param userId      用户标识
-     * @param streak      当前连续签到天数
-     * @param totalPoints 累计签到积分
+    * 写入签到成就上下文数据到 kvengine。
+    *
+    * <p>写入的键（前缀 {@code achievement:{userId}:}）与成就模块一致，
+    * 成就模块的 熔断中断 规则可直接引用：</p>
+    * <ul>
+    *   <li>{@code signInStreak}：当前连续签到天数</li>
+    *   <li>{@code signInMaxStreak}：历史最高连续签到天数</li>
+    *   <li>{@code signInTotalPoints}：累计签到积分</li>
+    *   <li>{@code signInCount}：累计签到次数（由成就事件异步累加）</li>
+    * </ul>
+    *
+    * @param userId      用户标识
+    * @param streak      当前连续签到天数
+    * @param totalPoints 累计签到积分
      */
     private void writeAchievementContext(Long userId, int streak, int totalPoints) {
         String prefix = AchievementContextConstants.KEY_PREFIX + userId + ":";

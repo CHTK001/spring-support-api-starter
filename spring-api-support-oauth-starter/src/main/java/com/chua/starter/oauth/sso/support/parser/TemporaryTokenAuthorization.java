@@ -15,12 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 临时令牌授权处理器
- * <p>负责验证源令牌并创建临时令牌</p>
- *
-   * @版本 1.0.0
- * @since 2025-12-11
- * @author CH
+* 临时令牌授权处理器
+* <p>负责验证源令牌并创建临时令牌</p>
+*
+* @版本 1.0.0
+* @since 2025-12-11
+* @author CH
  */
 @Slf4j
 public final class TemporaryTokenAuthorization implements Authorization {
@@ -43,9 +43,9 @@ public final class TemporaryTokenAuthorization implements Authorization {
     }
 
     /**
-     * 执行临时令牌创建认证
-     *
-     * @return 创建结果，成功返回临时令牌
+    * 执行临时令牌创建认证
+    *
+    * @return 创建结果，成功返回临时令牌
      */
     @Override
     public ReturnResult<String> authentication() {
@@ -124,12 +124,12 @@ public final class TemporaryTokenAuthorization implements Authorization {
     }
 
     /**
-     * 构建临时用户信息
-     *
-     * @param sourceUserResume 源用户信息
-     * @param expireTime       过期时间（秒）
-     * @param allowedUrls      允许访问的URL
-     * @return 临时用户信息
+    * 构建临时用户信息
+    *
+    * @param sourceUserResume 源用户信息
+    * @param expireTime       过期时间（秒）
+    * @param allowedUrls      允许访问的URL
+    * @return 临时用户信息
      */
     private UserResult buildTemporaryUser(UserResume sourceUserResume, long expireTime, String allowedUrls) {
         UserResult temporaryUser = new UserResult();

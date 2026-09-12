@@ -1,10 +1,10 @@
 package com.chua.starter.service.configuration.trace;
 
 /**
- * 请求追踪常量。
- *
- * @since 2026/03/25
- * @author CH
+* 请求追踪常量。
+*
+* @since 2026/03/25
+* @author CH
  */
 public final class RequestTraceConstants {
 

@@ -15,12 +15,12 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 
 /**
- * 服务实体
- * 用于管理系统中的服务定义
- *
-   * @版本 1.0.0
- * @since 2024/12/07
- * @author CH
+* 服务实体
+* 用于管理系统中的服务定义
+*
+* @版本 1.0.0
+* @since 2024/12/07
+* @author CH
  */
 @ApiModel(description = "服务")
 @Schema(description = "服务")
@@ -30,7 +30,7 @@ import java.util.List;
 public class SysService extends SysBase {
 
     /**
-      * 服务标识
+    * 服务标识
      */
     @TableId(value = "sys_service_id", type = IdType.AUTO)
     @ApiModelProperty(value = "服务ID")

@@ -7,10 +7,10 @@ import lombok.experimental.Accessors;
 
 
 /**
- * advice
- *
- * @author CH
- * @since 4.0.0
+* advice
+*
+* @author CH
+* @since 4.0.0
  */
 @Data
 @Accessors(chain = true)
@@ -19,7 +19,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 public class AdviceView<T> {
     /**
-     * 数据
+    * 数据
      */
     @NonNull
     /** 数据 */

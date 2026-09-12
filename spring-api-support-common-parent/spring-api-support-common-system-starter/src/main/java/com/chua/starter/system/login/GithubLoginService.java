@@ -15,11 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
-   * GitHub 登录服务
- * <p>处理 Github 用户的登录验证与授权</p>
- *
- * @since 2024/12/28
- * @author CH
+* GitHub 登录服务
+* <p>处理 Github 用户的登录验证与授权</p>
+*
+* @since 2024/12/28
+* @author CH
  */
 @Slf4j
 @Service
@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 public class GithubLoginService extends AbstractUserLoginService {
 
     /**
-     * 登录类型前缀
+    * 登录类型前缀
      */
     private static final String LOGIN_TYPE_PREFIX = "github";
 

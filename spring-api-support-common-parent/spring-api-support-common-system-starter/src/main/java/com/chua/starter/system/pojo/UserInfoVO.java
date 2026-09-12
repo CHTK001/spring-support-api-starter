@@ -15,17 +15,17 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 用户登录视图对象
- *
- * @since 2024/8/7
- * @author CH
+* 用户登录视图对象
+*
+* @since 2024/8/7
+* @author CH
  */
 @Schema(description = "当前登录用户视图对象")
 @Data
 public class UserInfoVO {
 
     /**
-      * 用户标识
+    * 用户标识
      */
     @TableId(value = "sys_user_id", type = IdType.AUTO)
     @ApiModelProperty(value = "用户ID")
@@ -114,7 +114,7 @@ public class UserInfoVO {
     * 租户标识
      */
     /**
-      * 租户标识
+    * 租户标识
      */
     @Schema(description = "租户ID")
     /** tenantid */

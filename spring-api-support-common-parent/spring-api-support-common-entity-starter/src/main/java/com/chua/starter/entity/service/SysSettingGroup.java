@@ -10,10 +10,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 配置组表
- *
- * @since 2025/9/10
- * @author CH
+* 配置组表
+*
+* @since 2025/9/10
+* @author CH
  */
 @Schema(description = "配置组表")
 @Data
@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
 public class SysSettingGroup extends SysBase {
 
     /**
-      * 配置组标识
+    * 配置组标识
      */
     @TableId(value = "sys_setting_group_id", type = IdType.AUTO)
     @Schema(description = "配置组ID")

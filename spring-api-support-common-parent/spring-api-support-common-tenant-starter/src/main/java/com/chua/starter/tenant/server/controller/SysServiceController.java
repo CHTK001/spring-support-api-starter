@@ -32,11 +32,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 服务管理接口
- *
-   * @版本 1.0.0
- * @since 2024/12/15
- * @author CH
+* 服务管理接口
+*
+* @版本 1.0.0
+* @since 2024/12/15
+* @author CH
  */
 @RestController
 @Slf4j
@@ -72,10 +72,10 @@ public class SysServiceController {
     }
 
     /**
-     * 查询服务列表
-     *
-     * @param sysService 服务查询条件
-     * @return 服务列表
+    * 查询服务列表
+    *
+    * @param sysService 服务查询条件
+    * @return 服务列表
      */
     @GetMapping("list")
     @Operation(summary = "查询服务列表")
@@ -88,11 +88,11 @@ public class SysServiceController {
     }
 
     /**
-     * 获取服务详情
-     *
-     * @param sysServiceId 服务标识
-     * @return 服务详情
-     * @param "服务ID" "服务ID"
+    * 获取服务详情
+    *
+    * @param sysServiceId 服务标识
+    * @return 服务详情
+    * @param "服务ID" "服务ID"
      */
     @GetMapping("get")
     @Operation(summary = "获取服务详情")
@@ -108,11 +108,11 @@ public class SysServiceController {
     }
 
     /**
-     * 保存服务
-     *
-     * @param sysService    服务对象
-     * @param bindingResult 校验结果
-     * @return 保存结果
+    * 保存服务
+    *
+    * @param sysService    服务对象
+    * @param bindingResult 校验结果
+    * @return 保存结果
      */
     @PostMapping("save")
     @Operation(summary = "保存服务")
@@ -133,11 +133,11 @@ public class SysServiceController {
     }
 
     /**
-     * 更新服务
-     *
-     * @param sysService    服务对象
-     * @param bindingResult 校验结果
-     * @return 更新结果
+    * 更新服务
+    *
+    * @param sysService    服务对象
+    * @param bindingResult 校验结果
+    * @return 更新结果
      */
     @PutMapping("update")
     @Operation(summary = "更新服务")
@@ -158,11 +158,11 @@ public class SysServiceController {
     }
 
     /**
-     * 删除服务
-     *
-     * @param sysServiceId 服务标识
-     * @return 删除结果
-     * @param "服务ID" "服务ID"
+    * 删除服务
+    *
+    * @param sysServiceId 服务标识
+    * @return 删除结果
+    * @param "服务ID" "服务ID"
      */
     @DeleteMapping("delete")
     @Operation(summary = "删除服务")
@@ -181,10 +181,10 @@ public class SysServiceController {
     }
 
     /**
-     * 绑定服务与模块
-     *
-     * @param sysService 包含服务标识和模块标识列表
-     * @return 绑定结果
+    * 绑定服务与模块
+    *
+    * @param sysService 包含服务标识和模块标识列表
+    * @return 绑定结果
      */
     @PutMapping("bind")
     @Operation(summary = "绑定服务与模块")
@@ -198,11 +198,11 @@ public class SysServiceController {
     }
 
     /**
-     * 更新服务状态
-     *
-     * @param sysServiceId 服务标识
-     * @param status       状态值 (0-启用, 1-禁用)
-     * @return 更新结果
+    * 更新服务状态
+    *
+    * @param sysServiceId 服务标识
+    * @param status       状态值 (0-启用, 1-禁用)
+    * @return 更新结果
      */
     @PutMapping("status")
     @Operation(summary = "更新服务状态")
@@ -220,9 +220,9 @@ public class SysServiceController {
     }
 
     /**
-     * 获取服务统计数据
-     *
-     * @return 统计数据（总数、启用数、禁用数）
+    * 获取服务统计数据
+    *
+    * @return 统计数据（总数、启用数、禁用数）
      */
     @GetMapping("stats")
     @Operation(summary = "获取服务统计数据")
@@ -245,9 +245,9 @@ public class SysServiceController {
     }
 
     /**
-     * 创建查询条件
-     * @param sysService sys服务
-     * @return 创建包装器的结果
+    * 创建查询条件
+    * @param sysService sys服务
+    * @return 创建包装器的结果
      */
     private LambdaQueryWrapper<SysService> createWrapper(SysService sysService) {
         LambdaQueryWrapper<SysService> wrapper = Wrappers.lambdaQuery();
@@ -267,10 +267,10 @@ public class SysServiceController {
     }
 
     /**
-     * 检查编码是否存在
-     * @param code 编码
-     * @param excludeId excludeId
-     * @return 是否编码exists的结果
+    * 检查编码是否存在
+    * @param code 编码
+    * @param excludeId excludeId
+    * @return 是否编码exists的结果
      */
     private boolean isCodeExists(String code, Integer excludeId) {
         if (StringUtils.isBlank(code)) {
@@ -285,8 +285,8 @@ public class SysServiceController {
     }
 
     /**
-      * 填充服务关联的模块标识列表
-     * @param services 服务
+    * 填充服务关联的模块标识列表
+    * @param services 服务
      */
     private void fillServiceTags(List<SysService> services) {
         if (services == null || services.isEmpty()) {
@@ -308,8 +308,8 @@ public class SysServiceController {
     }
 
     /**
-     * 保存服务与模块的关联关系
-     * @param sysService sys服务
+    * 保存服务与模块的关联关系
+    * @param sysService sys服务
      */
     private void saveServiceModuleItems(SysService sysService) {
         if (sysService.getSysServiceId() == null) {

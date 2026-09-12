@@ -45,10 +45,10 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 /**
- * gitee绑定账号
- *
- * @author CH
- * @since 4.0.0
+* gitee绑定账号
+*
+* @author CH
+* @since 4.0.0
  */
 @Controller
 @Conditional(OnBeanCondition.class)
@@ -85,11 +85,11 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
             }
     )
     /**
-      * third索引
-     * @param authCallback 认证callback
-     * @param attributes attributes
-     * @param request 请求
-     * @param response 响应
+    * third索引
+    * @param authCallback 认证callback
+    * @param attributes attributes
+    * @param request 请求
+    * @param response 响应
      */
     public RedirectView thirdIndex(
             @Parameter(description = "Gitee授权回调参数") AuthCallback authCallback,
@@ -122,10 +122,10 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
     }
 
     /**
-     * gitee页面
-     *
-     * @return 登录页
-     * @param @RequestParam("loginCode" @RequestParam("loginCode"
+    * gitee页面
+    *
+    * @return 登录页
+    * @param @RequestParam("loginCode" @RequestParam("loginCode"
      */
     @ResponseBody
     @GetMapping("loginCodeType")

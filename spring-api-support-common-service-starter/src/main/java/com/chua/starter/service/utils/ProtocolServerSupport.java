@@ -5,9 +5,9 @@ import com.chua.protocol.support.network.protocol.server.ProtocolServer;
 import com.chua.common.support.core.utils.StringUtils;
 
 /**
-   * 协议服务端 统一增强封装。
- * @author CH
- * @since 4.0.0
+* 协议服务端 统一增强封装。
+* @author CH
+* @since 4.0.0
  */
 public final class ProtocolServerSupport {
 
@@ -31,10 +31,10 @@ public final class ProtocolServerSupport {
     }
 
     /**
-     * 开始ifnecessary
-     *
-     * @param server 服务端
-     * @return 启动ifnecessary的结果
+    * 开始ifnecessary
+    *
+    * @param server 服务端
+    * @return 启动ifnecessary的结果
      */
     public static ProtocolServer startIfNecessary(ProtocolServer server) throws Exception {
         if (server == null) {
@@ -47,9 +47,9 @@ public final class ProtocolServerSupport {
     }
 
     /**
-     * 停止Quietly
-     *
-     * @param server 服务端
+    * 停止Quietly
+    *
+    * @param server 服务端
      */
     public static void stopQuietly(ProtocolServer server) {
         if (server == null) {

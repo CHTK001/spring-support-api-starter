@@ -10,14 +10,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 
 /**
-   * 基于数据库的 密钥 解析器
- * <p>
-   * 从 sys_app_键 表查询 SK，带缓存
- * </p>
- *
-   * @版本 1.0.0
- * @since 2024/12/17
- * @author CH
+* 基于数据库的 密钥 解析器
+* <p>
+* 从 sys_app_键 表查询 SK，带缓存
+* </p>
+*
+* @版本 1.0.0
+* @since 2024/12/17
+* @author CH
  */
 @Slf4j
 @Extension("database")
@@ -86,9 +86,9 @@ public class DatabaseSecretKeyResolver implements SecretKeyResolver {
     }
     
     /**
-     * 脱敏密钥
-     * @param key 键
-     * @return mask键的结果
+    * 脱敏密钥
+    * @param key 键
+    * @return mask键的结果
      */
     private String maskKey(String key) {
         if (key == null || key.length() < 8) {

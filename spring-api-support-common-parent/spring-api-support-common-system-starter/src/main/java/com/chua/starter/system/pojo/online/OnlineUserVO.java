@@ -6,10 +6,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 在线用户视图对象
- *
- * @since 2024/12/15
- * @author CH
+* 在线用户视图对象
+*
+* @since 2024/12/15
+* @author CH
  */
 @Data
 @Schema(description = "在线用户信息")

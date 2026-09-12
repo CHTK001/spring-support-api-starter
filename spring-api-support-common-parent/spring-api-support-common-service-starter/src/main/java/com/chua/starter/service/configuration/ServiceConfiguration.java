@@ -8,8 +8,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan;
 
 /**
- * @since 2025/9/3 8:42
- * @author CH
+* @since 2025/9/3 8:42
+* @author CH
  */
 @AutoConfiguration
 @MapperScan("com.chua.starter.service.mapper")

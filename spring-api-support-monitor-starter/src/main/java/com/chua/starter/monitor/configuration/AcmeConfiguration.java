@@ -12,11 +12,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import com.chua.starter.monitor.service.impl.AcmeCertificateServiceImpl;
 
 /**
- * ACME 自动装配与调度配置，按属性 {@code monitor.acme.enabled} 控制是否启用，
- * 注册监控模块服务信息，并调度证书自动续签任务。
- *
- * @since 2025-10-17
- * @author CH
+* ACME 自动装配与调度配置，按属性 {@code monitor.acme.enabled} 控制是否启用，
+* 注册监控模块服务信息，并调度证书自动续签任务。
+*
+* @since 2025-10-17
+* @author CH
  */
 @Configuration
 @EnableScheduling
@@ -26,17 +26,17 @@ import com.chua.starter.monitor.service.impl.AcmeCertificateServiceImpl;
 public class AcmeConfiguration {
 
     /**
-     * 自动续签调度 Cron 表达式：每天凌晨 3 点执行
+    * 自动续签调度 Cron 表达式：每天凌晨 3 点执行
      */
     private static final String AUTO_RENEW_CRON = "0 0 3 * * ?";
 
     /**
-     * ACME 证书服务实现，用于驱动自动续签调度
+    * ACME 证书服务实现，用于驱动自动续签调度
      */
     private final AcmeCertificateServiceImpl acmeCertificateService;
 
     /**
-     * 每天凌晨 3 点检查到期证书并自动续签。
+    * 每天凌晨 3 点检查到期证书并自动续签。
      */
     @Scheduled(cron = AUTO_RENEW_CRON)
     public void scheduleAutoRenew() {
@@ -44,9 +44,9 @@ public class AcmeConfiguration {
     }
 
     /**
-     * 注册监控模块服务信息。
-     *
-     * @return 服务信息贡献器
+    * 注册监控模块服务信息。
+    *
+    * @return 服务信息贡献器
      */
     @Bean
     public ServiceInfoContributor monitorServiceInfoContributor() {

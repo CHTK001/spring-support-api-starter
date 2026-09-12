@@ -11,10 +11,10 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 角色-菜单关系表
- *
- * @since 2024/8/7
- * @author CH
+* 角色-菜单关系表
+*
+* @since 2024/8/7
+* @author CH
  */
 @Schema(description = "角色-菜单关系表")
 @Data

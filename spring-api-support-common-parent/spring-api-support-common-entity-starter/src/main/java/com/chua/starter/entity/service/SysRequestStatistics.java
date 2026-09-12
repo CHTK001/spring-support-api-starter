@@ -13,10 +13,10 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 请求统计记录表
- *
- * @since 2026/08/03
- * @author CH
+* 请求统计记录表
+*
+* @since 2026/08/03
+* @author CH
  */
 @Schema(description = "请求统计记录表")
 @Data
@@ -24,12 +24,12 @@ import java.time.LocalDateTime;
 @TableName(value = "sys_request_statistics")
 public class SysRequestStatistics extends SysBase implements Serializable {
     /**
-     * 序列化版本号
+    * 序列化版本号
      */
     private static final long serialVersionUID = 1L;
 
     /**
-      * 统计标识
+    * 统计标识
      */
     @TableId(value = "sys_request_statistics_id", type = IdType.AUTO)
     @Schema(description = "统计ID")

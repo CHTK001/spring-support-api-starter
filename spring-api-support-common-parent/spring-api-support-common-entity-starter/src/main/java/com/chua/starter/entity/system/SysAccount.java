@@ -10,10 +10,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 用户账号管理表
- *
- * @since 2024/8/7
- * @author CH
+* 用户账号管理表
+*
+* @since 2024/8/7
+* @author CH
  */
 @Schema(description = "用户账号管理表")
 @Data
@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
 public class SysAccount extends SysBase {
 
     /**
-      * 账号标识
+    * 账号标识
      */
     @TableId(value = "sys_account_id", type = IdType.AUTO)
     @Schema(description = "账号ID")

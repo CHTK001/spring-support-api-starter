@@ -5,15 +5,15 @@ import com.chua.protocol.support.network.protocol.server.ProtocolServer;
 import java.io.File;
 
 /**
- * 启动 FTP 文件服务器
- * @author CH
- * @since 4.0.0
+* 启动 FTP 文件服务器
+* @author CH
+* @since 4.0.0
  */
 public class StartFtpServer {
     /**
-     * Main
-     *
-     * @param args 参数
+    * Main
+    *
+    * @param args 参数
      */
     public static void main(String[] args) throws Exception {
         int port = 2121;

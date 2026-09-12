@@ -17,24 +17,24 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 
 /**
- * 系统日志服务实现类，提供系统日志的分页查询、删除和监听日志事件功能
- *
- * @since 2024/8/7
- * @author CH
+* 系统日志服务实现类，提供系统日志的分页查询、删除和监听日志事件功能
+*
+* @since 2024/8/7
+* @author CH
  */
 @Service
 public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> implements SysLogService, ApplicationListener<SysLoggerInfo> {
 
     /**
-     * 分页查询系统日志信息
-     *
-     * @param query  分页查询对象，用于指定分页参数和查询条件
-      * 例如：新 查询<SysLog>().设置page(1).设置page大小(10)
-     * @param sysLog 日志实体对象，用于设置查询条件
-      * 例如：新 sys日志().设置sys日志用户名("admin").设置sys日志状态(1)
-     * @param roles  用户角色集合，用于权限控制或查询特定角色的日志
-      * 例如：设置.的("角色_ADMIN", "角色_用户")
-     * @return 返回分页查询结果，包含日志列表和分页信息
+    * 分页查询系统日志信息
+    *
+    * @param query  分页查询对象，用于指定分页参数和查询条件
+    * 例如：新 查询<SysLog>().设置page(1).设置page大小(10)
+    * @param sysLog 日志实体对象，用于设置查询条件
+    * 例如：新 sys日志().设置sys日志用户名("admin").设置sys日志状态(1)
+    * @param roles  用户角色集合，用于权限控制或查询特定角色的日志
+    * 例如：设置.的("角色_ADMIN", "角色_用户")
+    * @return 返回分页查询结果，包含日志列表和分页信息
      */
     @Override
     public IPage<SysLog> pageForLog(Query<SysLog> query, SysLog sysLog, Set<String> roles) {
@@ -48,11 +48,11 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
     }
 
     /**
-     * 删除指定的日志记录
-     *
-     * @param logId 日志记录的唯一标识
-     *              例如：1L
-     * @return 返回删除操作的结果，包含成功与否的标志和可能的错误信息
+    * 删除指定的日志记录
+    *
+    * @param logId 日志记录的唯一标识
+    *              例如：1L
+    * @return 返回删除操作的结果，包含成功与否的标志和可能的错误信息
      */
     @Override
     public ReturnResult<Boolean> delete(Long logId) {
@@ -63,10 +63,10 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
     }
 
     /**
-     * 监听系统日志事件，并将日志信息保存到数据库中
-     *
-     * @param event 系统日志事件对象，包含日志的相关信息
-      * 例如：sys日志记录器信息.构建器().创建名称("admin").日志module("用户管理").日志cost(100L).构建()
+    * 监听系统日志事件，并将日志信息保存到数据库中
+    *
+    * @param event 系统日志事件对象，包含日志的相关信息
+    * 例如：sys日志记录器信息.构建器().创建名称("admin").日志module("用户管理").日志cost(100L).构建()
      */
     @Override
     public void onApplicationEvent(SysLoggerInfo event) {

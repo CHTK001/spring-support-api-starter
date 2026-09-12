@@ -18,14 +18,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 天气接口。
- *
- * <p>基于公开 wttr.in 服务实现（无需 API key）。
- * 命中后本地缓存 10 分钟，避免重复外网请求。
- * 离线 / 超时时返回 {@code cached=false} + 兜底数据。</p>
- *
- * @since 4.0.0.42
- * @author CH
+* 天气接口。
+*
+* <p>基于公开 wttr.in 服务实现（无需 API key）。
+* 命中后本地缓存 10 分钟，避免重复外网请求。
+* 离线 / 超时时返回 {@code cached=false} + 兜底数据。</p>
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Tag(name = "天气接口")
 @RestController
@@ -54,8 +54,8 @@ public class WeatherController {
     @Operation(summary = "根据城市获取天气")
     @GetMapping("city")
     /**
-      * 获取天气bycity
-     * @param city city
+    * 获取天气bycity
+    * @param city city
      */
     public ReturnResult<Map<String, Object>> getWeatherByCity(
             @RequestParam(value = "city", required = false) String city) {
@@ -66,11 +66,11 @@ public class WeatherController {
     }
 
     /**
-      * 调用 wttr.入 拉取天气，命中本地缓存。
-     *
-     * @param city  城市名(拼音或英文,wttr.入 支持)
-     * @param extra 预留扩展
-     * @return 天气数据 {city, temperaturec, humidity, wind, description, observedat, 缓存}
+    * 调用 wttr.入 拉取天气，命中本地缓存。
+    *
+    * @param city  城市名(拼音或英文,wttr.入 支持)
+    * @param extra 预留扩展
+    * @return 天气数据 {city, temperaturec, humidity, wind, description, observedat, 缓存}
      */
     private Map<String, Object> fetchWeather(String city, Object extra) {
         String key = city.toLowerCase();
@@ -107,11 +107,11 @@ public class WeatherController {
 
     @SuppressWarnings("unchecked")
     /**
-     * 解析wttrjson
-     *
-     * @param json json
-     * @param city city
-     * @return 解析wttrjson的结果
+    * 解析wttrjson
+    *
+    * @param json json
+    * @param city city
+    * @return 解析wttrjson的结果
      */
     private Map<String, Object> parseWttrJson(String json, String city) {
         Map<String, Object> out = new HashMap<>();
@@ -142,11 +142,11 @@ public class WeatherController {
     }
 
     /**
-     * 降级
-     *
-     * @param city city
-     * @param reason ReasonML
-     * @return 降级的结果
+    * 降级
+    *
+    * @param city city
+    * @param reason ReasonML
+    * @return 降级的结果
      */
     private Map<String, Object> fallback(String city, String reason) {
         Map<String, Object> out = new HashMap<>();

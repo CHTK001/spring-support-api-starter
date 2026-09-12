@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 签到控制器
- *
- * <p>提供签到系统的用户端接口（签到、日历、统计）和管理员端接口（用户签到汇总）。</p>
- *
- * @since 4.0.0.42
- * @author CH
+* 签到控制器
+*
+* <p>提供签到系统的用户端接口（签到、日历、统计）和管理员端接口（用户签到汇总）。</p>
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Slf4j
 @RestController
@@ -36,17 +36,17 @@ import java.util.Map;
 public class SignInController {
 
     /**
-     * 签到核心服务
+    * 签到核心服务
      */
     private final SignInService signInService;
 
     /**
-     * 用户签到。
-     *
-     * <p>包含防抖机制：同一用户同一日期重复请求将被拦截。</p>
-     *
-     * @param userId 用户标识
-     * @return 签到结果
+    * 用户签到。
+    *
+    * <p>包含防抖机制：同一用户同一日期重复请求将被拦截。</p>
+    *
+    * @param userId 用户标识
+    * @return 签到结果
      */
     @Operation(summary = "用户签到")
     @PostMapping("/do")
@@ -55,10 +55,10 @@ public class SignInController {
     }
 
     /**
-     * 查询今日是否已签到。
-     *
-     * @param userId 用户标识
-     * @return 签到状态
+    * 查询今日是否已签到。
+    *
+    * @param userId 用户标识
+    * @return 签到状态
      */
     @Operation(summary = "查询今日签到状态")
     @GetMapping("/today/{userId}")
@@ -68,11 +68,11 @@ public class SignInController {
     }
 
     /**
-     * 查询月度签到日历。
-     *
-     * @param userId    用户标识
-     * @param yearMonth 年月，格式 yyyy-MM，默认当月
-     * @return 已签到日期列表
+    * 查询月度签到日历。
+    *
+    * @param userId    用户标识
+    * @param yearMonth 年月，格式 yyyy-MM，默认当月
+    * @return 已签到日期列表
      */
     @Operation(summary = "查询月度签到日历")
     @GetMapping("/calendar/{userId}")
@@ -86,10 +86,10 @@ public class SignInController {
     }
 
     /**
-     * 查询用户签到统计。
-     *
-     * @param userId 用户标识
-     * @return 签到统计
+    * 查询用户签到统计。
+    *
+    * @param userId 用户标识
+    * @return 签到统计
      */
     @Operation(summary = "查询用户签到统计")
     @GetMapping("/stats/{userId}")
@@ -98,13 +98,13 @@ public class SignInController {
     }
 
     /**
-     * 分页查询用户签到汇总（管理员端）。
-     *
-     * <p>按用户聚合签到天数和总积分，按积分降序排列。</p>
-     *
-     * @param page     页码，默认 1
-     * @param pageSize 每页条数，默认 10
-     * @return 用户签到汇总列表
+    * 分页查询用户签到汇总（管理员端）。
+    *
+    * <p>按用户聚合签到天数和总积分，按积分降序排列。</p>
+    *
+    * @param page     页码，默认 1
+    * @param pageSize 每页条数，默认 10
+    * @return 用户签到汇总列表
      */
     @Operation(summary = "管理员：用户签到汇总分页")
     @GetMapping("/users/page")

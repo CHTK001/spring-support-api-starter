@@ -6,10 +6,10 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * ACME 配置项，前缀为 {@code monitor.acme}。
- *
- * @since 2025-10-17
- * @author CH
+* ACME 配置项，前缀为 {@code monitor.acme}。
+*
+* @since 2025-10-17
+* @author CH
  */
 @Data
 @ConfigurationProperties(prefix = "monitor.acme")

@@ -14,10 +14,10 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 用户表
- *
- * @since 2024/8/7
- * @author CH
+* 用户表
+*
+* @since 2024/8/7
+* @author CH
  */
 @Schema(description = "用户表")
 @Data

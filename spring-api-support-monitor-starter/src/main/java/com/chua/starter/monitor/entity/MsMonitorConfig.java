@@ -13,10 +13,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 全局配置实体，记录监控模块的键值对配置项。
- *
- * @since 2026-08-11
- * @author CH
+* 全局配置实体，记录监控模块的键值对配置项。
+*
+* @since 2026-08-11
+* @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
 public class MsMonitorConfig extends SysBase {
 
     /**
-      * 配置主键标识，自增
+    * 配置主键标识，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")

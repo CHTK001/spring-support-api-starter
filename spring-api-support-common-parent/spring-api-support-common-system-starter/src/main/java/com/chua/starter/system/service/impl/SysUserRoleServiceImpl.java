@@ -6,9 +6,9 @@ import com.chua.starter.system.mapper.SysUserRoleMapper;
 import com.chua.starter.system.service.SysUserRoleService;
 import org.springframework.stereotype.Service;
 /**
- *
- * @since 2024/8/7
- * @author CH
+*
+* @since 2024/8/7
+* @author CH
  */
 @Service
 public class SysUserRoleServiceImpl extends ServiceImpl<SysUserRoleMapper, SysUserRole> implements SysUserRoleService{

@@ -19,10 +19,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 鉴权信息
- *
- * @author CH
- * @since 4.0.0
+* 鉴权信息
+*
+* @author CH
+* @since 4.0.0
  */
 @Slf4j
 public abstract class AbstractAuthInformation implements AuthInformation{
@@ -86,7 +86,7 @@ public abstract class AbstractAuthInformation implements AuthInformation{
     }
 
     /**
-     * 注册数据
+    * 注册数据
      */
     private void decodeData() {
         if(!isEncode) {

@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 短信验证码登录控制器
- * <p>提供短信验证码发送和登录接口</p>
- *
- * @since 2024/12/11
- * @author CH
+* 短信验证码登录控制器
+* <p>提供短信验证码发送和登录接口</p>
+*
+* @since 2024/12/11
+* @author CH
  */
 @Slf4j
 @RestController
@@ -54,12 +54,12 @@ public class SmsLoginController {
     }
 
     /**
-     * 短信验证码登录
-     *
-     * @param request     登录请求
-     * @param httpRequest HTTP请求
-     * @param response    HTTP响应
-     * @return 登录结果
+    * 短信验证码登录
+    *
+    * @param request     登录请求
+    * @param httpRequest HTTP请求
+    * @param response    HTTP响应
+    * @return 登录结果
      */
     @Ignore
     @PostMapping("/login")

@@ -15,11 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-   * 文件上传进度套接字推送服务
- * 通过WebSocket实时推送上传进度到前端
- *
- * @since 2024/12/20
- * @author CH
+* 文件上传进度套接字推送服务
+* 通过WebSocket实时推送上传进度到前端
+*
+* @since 2024/12/20
+* @author CH
  */
 @Service
 @RequiredArgsConstructor
@@ -67,12 +67,12 @@ public class FileUploadProgressPushService {
     }
 
     /**
-     * 推送Completed
-     *
-     * @param taskId 任务id
-     * @param userId 用户id
-     * @param fileUrl 文件url
-     * @param fileName 文件名称
+    * 推送Completed
+    *
+    * @param taskId 任务id
+    * @param userId 用户id
+    * @param fileUrl 文件url
+    * @param fileName 文件名称
      */
     public void pushCompleted(String taskId, Long userId, String fileUrl, String fileName) {
         try {
@@ -94,11 +94,11 @@ public class FileUploadProgressPushService {
     }
 
     /**
-     * 推送记录错误
-     *
-     * @param taskId 任务id
-     * @param userId 用户id
-     * @param message 消息
+    * 推送记录错误
+    *
+    * @param taskId 任务id
+    * @param userId 用户id
+    * @param message 消息
      */
     public void pushError(String taskId, Long userId, String message) {
         try {
@@ -118,11 +118,11 @@ public class FileUploadProgressPushService {
     }
 
     /**
-     * 推送合并状态
-     *
-     * @param taskId 任务id
-     * @param userId 用户id
-     * @param status 状态
+    * 推送合并状态
+    *
+    * @param taskId 任务id
+    * @param userId 用户id
+    * @param status 状态
      */
     public void pushMergeStatus(String taskId, Long userId, String status) {
         try {

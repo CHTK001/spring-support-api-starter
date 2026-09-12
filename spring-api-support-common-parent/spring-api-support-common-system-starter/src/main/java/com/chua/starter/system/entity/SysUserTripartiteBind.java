@@ -17,10 +17,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 用户三方绑定信息表
- *
- * @since 1.0.0
- * @author CH
+* 用户三方绑定信息表
+*
+* @since 1.0.0
+* @author CH
  */
 @ApiModel(description = "用户三方绑定信息表")
 @Schema(description = "用户三方绑定信息表")

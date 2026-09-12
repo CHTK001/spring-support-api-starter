@@ -29,38 +29,38 @@ import static com.chua.common.support.lang.code.ReturnCode.USERNAME_OR_PASSWORD_
 import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 
 /**
- * 微信小程序登录处理器
- * <p>
- * 微信小程序登录流程：
-   * 1. 前端调用 wx.login() 获取 编码
-   * 2. 前端调用 wx.获取phone数字() 获取手机号加密数据（或直接传 phone编码）
-   * 3. 后端通过 编码 换取 会话_键 与 openid
-   * 4. 后端通过 phone编码 获取手机号
- * 5. 使用手机号作为用户名进行登录认证
-   * 6. 更新或创建 sys用户thirdparty 记录，保存 openid
- * </p>
- *
-   * @版本 1.0.0
- * @since 2024/12/11
- * @author CH
+* 微信小程序登录处理器
+* <p>
+* 微信小程序登录流程：
+* 1. 前端调用 wx.login() 获取 编码
+* 2. 前端调用 wx.获取phone数字() 获取手机号加密数据（或直接传 phone编码）
+* 3. 后端通过 编码 换取 会话_键 与 openid
+* 4. 后端通过 phone编码 获取手机号
+* 5. 使用手机号作为用户名进行登录认证
+* 6. 更新或创建 sys用户thirdparty 记录，保存 openid
+* </p>
+*
+* @版本 1.0.0
+* @since 2024/12/11
+* @author CH
  */
 @Slf4j
 @Spi("WECHAT")
 public class WeixinMiniLoginHandler implements LoginHandler {
 
     /**
-     * 第三方类型标识
+    * 第三方类型标识
      */
     private static final String THIRD_PARTY_TYPE = "wx_mini_app";
 
     @Override
     /**
-     * Login
-     * @param sysLoginService syslogin服务
-     * @param loginData login数据
-     * @param request 请求
-     * @param response 响应
-     * @param fingerprint fingerprint
+    * Login
+    * @param sysLoginService syslogin服务
+    * @param loginData login数据
+    * @param request 请求
+    * @param response 响应
+    * @param fingerprint fingerprint
      */
     public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData,
                                            HttpServletRequest request, HttpServletResponse response,
@@ -161,12 +161,12 @@ public class WeixinMiniLoginHandler implements LoginHandler {
     }
 
     /**
-     * 获取手机号
-     *
-     * @param tencentMaHandler 微信小程序处理器
-     * @param phoneCode        手机号授权码
-     * @param loginData        登录数据
-     * @return 手机号
+    * 获取手机号
+    *
+    * @param tencentMaHandler 微信小程序处理器
+    * @param phoneCode        手机号授权码
+    * @param loginData        登录数据
+    * @return 手机号
      */
     private String getPhoneNumber(Object tencentMaHandler, String phoneCode, LoginData loginData) {
  // 优先使用 phone编码 获取手机号（新版微信接口）
@@ -197,12 +197,12 @@ public class WeixinMiniLoginHandler implements LoginHandler {
     }
 
     /**
-     * 反射调用方法
-     *
-     * @param target     目标对象
-     * @param methodName 方法名
-     * @param args       参数
-     * @return 方法返回值
+    * 反射调用方法
+    *
+    * @param target     目标对象
+    * @param methodName 方法名
+    * @param args       参数
+    * @return 方法返回值
      */
     private Object invokeMethod(Object target, String methodName, Object... args) {
         try {
@@ -214,11 +214,11 @@ public class WeixinMiniLoginHandler implements LoginHandler {
     }
 
     /**
-     * 反射获取对象属性值
-     *
-     * @param target       目标对象
-     * @param propertyName 属性名
-     * @return 属性值
+    * 反射获取对象属性值
+    *
+    * @param target       目标对象
+    * @param propertyName 属性名
+    * @return 属性值
      */
     private String getPropertyValue(Object target, String propertyName) {
         if (target == null) {
@@ -236,11 +236,11 @@ public class WeixinMiniLoginHandler implements LoginHandler {
     }
 
     /**
-     * 更新或创建第三方绑定信息
-     *
-     * @param sysLoginService 登录服务
-     * @param phoneNumber     手机号
-     * @param openid          微信 openid
+    * 更新或创建第三方绑定信息
+    *
+    * @param sysLoginService 登录服务
+    * @param phoneNumber     手机号
+    * @param openid          微信 openid
      */
     private void updateThirdPartyBinding(SysLoginServiceImpl sysLoginService, String phoneNumber, String openid) {
         try {
@@ -291,9 +291,9 @@ public class WeixinMiniLoginHandler implements LoginHandler {
     }
 
     /**
-     * 获取微信小程序处理器
-     *
-     * @return TencentMaHandler 实例，未配置时返回 空
+    * 获取微信小程序处理器
+    *
+    * @return TencentMaHandler 实例，未配置时返回 空
      */
     private Object getTencentMaHandler() {
         try {

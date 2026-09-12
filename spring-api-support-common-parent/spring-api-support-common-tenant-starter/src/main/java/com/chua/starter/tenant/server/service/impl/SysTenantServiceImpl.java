@@ -26,11 +26,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 租户服务实现类
- *
-   * @版本 1.0.0
- * @since 2024/12/06
- * @author CH
+* 租户服务实现类
+*
+* @版本 1.0.0
+* @since 2024/12/06
+* @author CH
  */
 @Slf4j
 @Service
@@ -145,10 +145,10 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     @Override
     @SuppressWarnings("deprecation")
     /**
-     * 更新forsystenant
-     *
-     * @param sysTenant sysTenant
-     * @return 更新forsystenant的结果
+    * 更新forsystenant
+    *
+    * @param sysTenant sysTenant
+    * @return 更新forsystenant的结果
      */
     public ReturnResult<Boolean> updateForSysTenant(SysTenant sysTenant) {
         log.debug("更新租户: {}", sysTenant);

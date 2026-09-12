@@ -12,10 +12,10 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
 
 /**
- * 用户头像框关联表
- *
- * @since 2024/8/7
- * @author CH
+* 用户头像框关联表
+*
+* @since 2024/8/7
+* @author CH
  */
 @Schema(description = "用户头像框关联表")
 @Data

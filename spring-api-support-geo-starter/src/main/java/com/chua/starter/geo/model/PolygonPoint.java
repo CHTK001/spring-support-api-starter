@@ -5,10 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 多边形顶点坐标（WGS-84 经纬度）。
- *
- * @author CH
- * @since 1.0.0
+* 多边形顶点坐标（WGS-84 经纬度）。
+*
+* @author CH
+* @since 1.0.0
  */
 @Data
 @NoArgsConstructor

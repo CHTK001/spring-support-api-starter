@@ -33,15 +33,15 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * 调度平台任务服务实现。
- *
- * <p>平台基于 job-starter 新架构 (SCHEDULER 角色) 提供统一任务管理能力,
- * 通过 MyBatis-Plus 的 {@link JobMapper} / {@link JobLogMapper} 直接读写
- * {@code sys_job / sys_job_log} 表。任务扫描与远程派发由 job-starter 的
-   * 铅 循环 + 长链 同步 完成, 平台不再维护自研轮询/HTTP 派发。</p>
- *
- * @since 4.0.0.42
- * @author CH
+* 调度平台任务服务实现。
+*
+* <p>平台基于 job-starter 新架构 (SCHEDULER 角色) 提供统一任务管理能力,
+* 通过 MyBatis-Plus 的 {@link JobMapper} / {@link JobLogMapper} 直接读写
+* {@code sys_job / sys_job_log} 表。任务扫描与远程派发由 job-starter 的
+* 铅 循环 + 长链 同步 完成, 平台不再维护自研轮询/HTTP 派发。</p>
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Service
 @RequiredArgsConstructor
@@ -50,64 +50,64 @@ import java.util.UUID;
 public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformService, SchedulingConfigurer {
 
     /**
-     * 最大分页大小
+    * 最大分页大小
      */
     private static final int MAX_PAGE_SIZE = 200;
 
     /**
-     * 停止状态
+    * 停止状态
      */
     private static final int STATUS_STOP = 0;
 
     /**
-     * 运行状态
+    * 运行状态
      */
     private static final int STATUS_RUNNING = 1;
 
     /**
-     * 默认调度类型
+    * 默认调度类型
      */
     private static final String DEFAULT_SCHEDULE_TYPE = "CRON";
 
     /**
-      * 默认 胶水 类型
+    * 默认 胶水 类型
      */
     private static final String DEFAULT_GLUE_TYPE = "BEAN";
 
     /**
-     * 默认错失触发策略
+    * 默认错失触发策略
      */
     private static final String DEFAULT_MISFIRE_STRATEGY = "DO_NOTHING";
 
     /**
-      * 任务 映射器
+    * 任务 映射器
      */
     private final JobMapper jobMapper;
 
     /**
-      * 日志 映射器
+    * 日志 映射器
      */
     private final JobLogMapper jobLogMapper;
 
     /**
-     * 任务配置
+    * 任务配置
      */
     private final JobProperties jobProperties;
 
     /**
-      * 调度任务 映射器
+    * 调度任务 映射器
      */
     private final SchedulerJobMapper schedulerJobMapper;
 
     /**
-     * 分页查询任务。
-     *
-     * @param pageNum       页码
-     * @param pageSize      每页大小
-     * @param jobName       任务名模糊查询
-     * @param triggerStatus 启用状态
-     * @param group         任务分组
-     * @return 任务分页结果
+    * 分页查询任务。
+    *
+    * @param pageNum       页码
+    * @param pageSize      每页大小
+    * @param jobName       任务名模糊查询
+    * @param triggerStatus 启用状态
+    * @param group         任务分组
+    * @return 任务分页结果
      */
     @Override
     public Page<JobEntity> pageJobs(int pageNum, int pageSize, String jobName, Integer triggerStatus, String group) {
@@ -128,10 +128,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 查询任务详情。
-     *
-     * @param jobId 任务 标识
-     * @return 任务实体
+    * 查询任务详情。
+    *
+    * @param jobId 任务 标识
+    * @return 任务实体
      */
     @Override
     public JobEntity getJob(Long jobId) {
@@ -143,10 +143,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 按任务编号查询任务详情。
-     *
-     * @param jobNo 任务编号
-     * @return 任务实体
+    * 按任务编号查询任务详情。
+    *
+    * @param jobNo 任务编号
+    * @return 任务实体
      */
     @Override
     public JobEntity getJobByNo(String jobNo) {
@@ -158,10 +158,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 创建任务, 自动补齐默认值并做校验。
-     *
-     * @param job 任务实体
-     * @return 创建后的任务实体
+    * 创建任务, 自动补齐默认值并做校验。
+    *
+    * @param job 任务实体
+    * @return 创建后的任务实体
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -186,11 +186,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 更新任务, 按传入字段进行局部合并。
-     *
-     * @param jobId 任务 标识
-     * @param job   任务实体
-     * @return 是否更新成功
+    * 更新任务, 按传入字段进行局部合并。
+    *
+    * @param jobId 任务 标识
+    * @param job   任务实体
+    * @return 是否更新成功
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -209,11 +209,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 按任务编号更新任务。
-     *
-     * @param jobNo 任务编号
-     * @param job   任务实体
-     * @return 是否更新成功
+    * 按任务编号更新任务。
+    *
+    * @param jobNo 任务编号
+    * @param job   任务实体
+    * @return 是否更新成功
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -231,10 +231,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 删除任务 (逻辑删除), 先停止任务再置删除标记。
-     *
-     * @param jobId 任务 标识
-     * @return 是否删除成功
+    * 删除任务 (逻辑删除), 先停止任务再置删除标记。
+    *
+    * @param jobId 任务 标识
+    * @return 是否删除成功
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -247,10 +247,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 按任务编号删除任务 (逻辑删除)。
-     *
-     * @param jobNo 任务编号
-     * @return 是否删除成功
+    * 按任务编号删除任务 (逻辑删除)。
+    *
+    * @param jobNo 任务编号
+    * @return 是否删除成功
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -263,10 +263,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 恢复已删除任务。
-     *
-     * @param jobId 任务 标识
-     * @return 是否恢复成功
+    * 恢复已删除任务。
+    *
+    * @param jobId 任务 标识
+    * @return 是否恢复成功
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -278,10 +278,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 按任务编号恢复已删除任务。
-     *
-     * @param jobNo 任务编号
-     * @return 是否恢复成功
+    * 按任务编号恢复已删除任务。
+    *
+    * @param jobNo 任务编号
+    * @return 是否恢复成功
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -293,10 +293,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 启动任务。
-     *
-     * @param jobId 任务 标识
-     * @return 是否启动成功
+    * 启动任务。
+    *
+    * @param jobId 任务 标识
+    * @return 是否启动成功
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -309,10 +309,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 按任务编号启动任务。
-     *
-     * @param jobNo 任务编号
-     * @return 是否启动成功
+    * 按任务编号启动任务。
+    *
+    * @param jobNo 任务编号
+    * @return 是否启动成功
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -325,10 +325,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 停止任务。
-     *
-     * @param jobId 任务 标识
-     * @return 是否停止成功
+    * 停止任务。
+    *
+    * @param jobId 任务 标识
+    * @return 是否停止成功
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -339,10 +339,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 按任务编号停止任务。
-     *
-     * @param jobNo 任务编号
-     * @return 是否停止成功
+    * 按任务编号停止任务。
+    *
+    * @param jobNo 任务编号
+    * @return 是否停止成功
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -353,11 +353,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 立即执行任务。
-     *
-     * @param jobId 任务 标识
-     * @param param 执行参数
-     * @return 是否触发成功
+    * 立即执行任务。
+    *
+    * @param jobId 任务 标识
+    * @param param 执行参数
+    * @return 是否触发成功
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -367,11 +367,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 按任务编号立即执行任务。
-     *
-     * @param jobNo 任务编号
-     * @param param 执行参数
-     * @return 是否触发成功
+    * 按任务编号立即执行任务。
+    *
+    * @param jobNo 任务编号
+    * @param param 执行参数
+    * @return 是否触发成功
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -381,21 +381,21 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 清理指定天数前的日志记录和对应的日志文件。
-     *
-     * @param retentionDays 保留天数
-     * @return 清理的日志记录数
+    * 清理指定天数前的日志记录和对应的日志文件。
+    *
+    * @param retentionDays 保留天数
+    * @return 清理的日志记录数
      */
     /**
-     * 一天的毫秒数
+    * 一天的毫秒数
      */
     private static final long MILLIS_PER_DAY = 86400000L;
 
     /**
-     * 清理指定天数前的日志记录和对应的日志文件。
-     *
-     * @param retentionDays 保留天数
-     * @return 清理的日志记录数
+    * 清理指定天数前的日志记录和对应的日志文件。
+    *
+    * @param retentionDays 保留天数
+    * @return 清理的日志记录数
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -450,14 +450,14 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 分页查询任务日志。
-     *
-     * @param pageNum      页码
-     * @param pageSize     每页大小
-     * @param beanName     处理器 名称模糊查询
-     * @param executeCode  执行状态码
-     * @param group        任务分组
-     * @return 日志分页结果
+    * 分页查询任务日志。
+    *
+    * @param pageNum      页码
+    * @param pageSize     每页大小
+    * @param beanName     处理器 名称模糊查询
+    * @param executeCode  执行状态码
+    * @param group        任务分组
+    * @return 日志分页结果
      */
     @Override
     public Page<JobLogEntity> pageLogs(int pageNum, int pageSize, String beanName, String executeCode, String group) {
@@ -482,11 +482,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 查询平台任务视图列表。
-     *
-     * @param group          任务分组
-     * @param includeDeleted 是否包含已删除
-     * @return 任务视图列表
+    * 查询平台任务视图列表。
+    *
+    * @param group          任务分组
+    * @param includeDeleted 是否包含已删除
+    * @return 任务视图列表
      */
     @Override
     public List<SchedulerTaskVO> listTasks(String group, boolean includeDeleted) {
@@ -502,11 +502,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 更新平台任务。
-     *
-     * @param taskKey 任务标识 (编号/执行 Bean/名称)
-     * @param request 更新请求
-     * @return 更新后的任务视图
+    * 更新平台任务。
+    *
+    * @param taskKey 任务标识 (编号/执行 Bean/名称)
+    * @param request 更新请求
+    * @return 更新后的任务视图
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -532,10 +532,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 触发平台任务。
-     *
-     * @param taskKey 任务标识 (编号/执行 Bean/名称)
-     * @return 触发后的任务视图
+    * 触发平台任务。
+    *
+    * @param taskKey 任务标识 (编号/执行 Bean/名称)
+    * @return 触发后的任务视图
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -546,11 +546,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 触发任务, 将下次执行时间置为当前时间以便立即调度。
-     *
-     * @param job   任务实体
-     * @param param 执行参数
-     * @return 是否触发成功
+    * 触发任务, 将下次执行时间置为当前时间以便立即调度。
+    *
+    * @param job   任务实体
+    * @param param 执行参数
+    * @return 是否触发成功
      */
     private boolean trigger(JobEntity job, String param) {
         if (param != null) {
@@ -564,10 +564,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 将任务实体转换为平台任务视图。
-     *
-     * @param job 任务实体
-     * @return 任务视图
+    * 将任务实体转换为平台任务视图。
+    *
+    * @param job 任务实体
+    * @return 任务视图
      */
     private SchedulerTaskVO toTaskVO(JobEntity job) {
         SchedulerTaskVO vo = new SchedulerTaskVO();
@@ -599,10 +599,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 查找任务最近一次执行日志。
-     *
-     * @param job 任务实体
-     * @return 最近一次执行日志, 不存在返回 空
+    * 查找任务最近一次执行日志。
+    *
+    * @param job 任务实体
+    * @return 最近一次执行日志, 不存在返回 空
      */
     private JobLogEntity findLatestLog(JobEntity job) {
         if (StringUtils.hasText(trimToNull(job.getSysJobNo()))) {
@@ -622,10 +622,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 按任务编号查找最近一次执行日志。
-     *
-     * @param jobNo 任务编号
-     * @return 最近一次执行日志, 不存在返回 空
+    * 按任务编号查找最近一次执行日志。
+    *
+    * @param jobNo 任务编号
+    * @return 最近一次执行日志, 不存在返回 空
      */
     private JobLogEntity findLatestLogByNo(String jobNo) {
         return jobLogMapper.selectOne(Wrappers.<JobLogEntity>lambdaQuery()
@@ -636,10 +636,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 按执行 Bean 名称查找最近一次执行日志。
-     *
-     * @param triggerBean 执行 Bean 名称
-     * @return 最近一次执行日志, 不存在返回 空
+    * 按执行 Bean 名称查找最近一次执行日志。
+    *
+    * @param triggerBean 执行 Bean 名称
+    * @return 最近一次执行日志, 不存在返回 空
      */
     private JobLogEntity findLatestLogByBean(String triggerBean) {
         return jobLogMapper.selectOne(Wrappers.<JobLogEntity>lambdaQuery()
@@ -650,10 +650,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 按任务编号查找未删除的任务。
-     *
-     * @param jobNo 任务编号
-     * @return 任务实体, 不存在返回 空
+    * 按任务编号查找未删除的任务。
+    *
+    * @param jobNo 任务编号
+    * @return 任务实体, 不存在返回 空
      */
     private JobEntity findByNo(String jobNo) {
         return jobMapper.selectOne(Wrappers.<JobEntity>lambdaQuery()
@@ -663,10 +663,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 按任务标识 (编号/执行 Bean/名称) 解析任务。
-     *
-     * @param taskKey 任务标识
-     * @return 已存在的任务实体
+    * 按任务标识 (编号/执行 Bean/名称) 解析任务。
+    *
+    * @param taskKey 任务标识
+    * @return 已存在的任务实体
      */
     private JobEntity requireTask(String taskKey) {
         String normalizedTaskKey = requireText(taskKey, "任务标识不能为空");
@@ -701,10 +701,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 将补丁字段局部合并到目标任务。
-     *
-     * @param target 目标任务实体
-     * @param patch  补丁任务实体
+    * 将补丁字段局部合并到目标任务。
+    *
+    * @param target 目标任务实体
+    * @param patch  补丁任务实体
      */
     private void mergeJobPatch(JobEntity target, JobEntity patch) {
         if (patch.getSysJobName() != null) {
@@ -776,9 +776,9 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 为任务补齐默认值。
-     *
-     * @param job 任务实体
+    * 为任务补齐默认值。
+    *
+    * @param job 任务实体
      */
     private void applyDefaults(JobEntity job) {
         if (!StringUtils.hasText(job.getSysJobNo())) {
@@ -823,9 +823,9 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 校验任务关键字段合法性。
-     *
-     * @param job 任务实体
+    * 校验任务关键字段合法性。
+    *
+    * @param job 任务实体
      */
     private void validateJob(JobEntity job) {
         requireText(job.getSysJobNo(), "任务编号不能为空");
@@ -839,9 +839,9 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 规范化任务字段, 去除空白并统一枚举字符串。
-     *
-     * @param job 任务实体
+    * 规范化任务字段, 去除空白并统一枚举字符串。
+    *
+    * @param job 任务实体
      */
     private void normalizeJob(JobEntity job) {
         applyDefaults(job);
@@ -864,10 +864,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-      * 规范化调度类型, 支持 CRON / FIXED / FIXED_MS / 延迟 / AT / 无。
-     *
-     * @param scheduleType 原始调度类型
-     * @return 规范化后的调度类型
+    * 规范化调度类型, 支持 CRON / FIXED / FIXED_MS / 延迟 / AT / 无。
+    *
+    * @param scheduleType 原始调度类型
+    * @return 规范化后的调度类型
      */
     private String normalizeScheduleType(String scheduleType) {
         if (!StringUtils.hasText(scheduleType)) {
@@ -881,10 +881,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 规范化分发模式。
-     *
-     * @param dispatchMode 原始分发模式
-     * @return 规范化后的分发模式
+    * 规范化分发模式。
+    *
+    * @param dispatchMode 原始分发模式
+    * @return 规范化后的分发模式
      */
     private String normalizeDispatchMode(String dispatchMode) {
         String upper = trimToNull(dispatchMode);
@@ -899,10 +899,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 规范化日志存储模式。
-     *
-     * @param storageMode 原始存储模式
-     * @return 规范化后的存储模式
+    * 规范化日志存储模式。
+    *
+    * @param storageMode 原始存储模式
+    * @return 规范化后的存储模式
      */
     private String normalizeStorageMode(String storageMode) {
         String upper = trimToNull(storageMode);
@@ -917,10 +917,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 应用触发器状态, 运行状态下计算下次触发时间。
-     *
-     * @param job     任务实体
-     * @param running 是否运行
+    * 应用触发器状态, 运行状态下计算下次触发时间。
+    *
+    * @param job     任务实体
+    * @param running 是否运行
      */
     private void applyTriggerState(JobEntity job, boolean running) {
         String scheduleType = normalizeScheduleType(job.getSysJobScheduleType());
@@ -943,11 +943,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 计算下次触发时间。
-     *
-     * @param scheduleType 调度类型
-     * @param scheduleTime 调度配置
-     * @return 下次触发时间戳
+    * 计算下次触发时间。
+    *
+    * @param scheduleType 调度类型
+    * @param scheduleTime 调度配置
+    * @return 下次触发时间戳
      */
     private long calculateNextTriggerTime(String scheduleType, String scheduleTime) {
         try {
@@ -968,10 +968,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 解析调度间隔 (毫秒)。
-     *
-     * @param scheduleTime 调度间隔配置
-     * @return 调度间隔毫秒数
+    * 解析调度间隔 (毫秒)。
+    *
+    * @param scheduleTime 调度间隔配置
+    * @return 调度间隔毫秒数
      */
     private long parseInterval(String scheduleTime) {
         if (!StringUtils.hasText(scheduleTime)) {
@@ -985,9 +985,9 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 生成唯一任务编号。
-     *
-     * @return 任务编号
+    * 生成唯一任务编号。
+    *
+    * @return 任务编号
      */
     private String nextJobNo() {
         String ts = Long.toString(System.currentTimeMillis());
@@ -996,10 +996,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 时间戳毫秒数转换为本地时间。
-     *
-     * @param time 毫秒时间戳
-     * @return 本地时间, 空值或非正数返回 空
+    * 时间戳毫秒数转换为本地时间。
+    *
+    * @param time 毫秒时间戳
+    * @return 本地时间, 空值或非正数返回 空
      */
     private LocalDateTime toLocalDateTime(Long time) {
         if (time == null || time <= 0) {
@@ -1009,10 +1009,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 日期转换为本地时间。
-     *
-     * @param date 日期
-     * @return 本地时间, 空值返回 空
+    * 日期转换为本地时间。
+    *
+    * @param date 日期
+    * @return 本地时间, 空值返回 空
      */
     private LocalDateTime toLocalDateTime(Date date) {
         if (date == null) {
@@ -1022,11 +1022,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 日期加耗时转换为本地时间。
-     *
-     * @param date 日期
-     * @param cost 耗时毫秒数
-     * @return 本地时间, 空值返回 空
+    * 日期加耗时转换为本地时间。
+    *
+    * @param date 日期
+    * @param cost 耗时毫秒数
+    * @return 本地时间, 空值返回 空
      */
     private LocalDateTime toLocalDateTime(Date date, java.math.BigDecimal cost) {
         if (date == null) {
@@ -1037,20 +1037,20 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 规范化页码, 最小为 1。
-     *
-     * @param pageNum 页码
-     * @return 规范化后的页码
+    * 规范化页码, 最小为 1。
+    *
+    * @param pageNum 页码
+    * @return 规范化后的页码
      */
     private int normalizePageNum(int pageNum) {
         return Math.max(pageNum, 1);
     }
 
     /**
-     * 规范化每页大小, 限制在 1 到最大分页大小之间。
-     *
-     * @param pageSize 每页大小
-     * @return 规范化后的每页大小
+    * 规范化每页大小, 限制在 1 到最大分页大小之间。
+    *
+    * @param pageSize 每页大小
+    * @return 规范化后的每页大小
      */
     private int normalizePageSize(int pageSize) {
         int normalized = Math.max(pageSize, 1);
@@ -1058,10 +1058,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-      * 校验任务 标识 合法性。
-     *
-     * @param jobId 任务 标识
-     * @return 合法任务 标识
+    * 校验任务 标识 合法性。
+    *
+    * @param jobId 任务 标识
+    * @return 合法任务 标识
      */
     private Long requireJobId(Long jobId) {
         if (jobId == null || jobId <= 0) {
@@ -1071,11 +1071,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 校验文本参数非空。
-     *
-     * @param value   文本值
-     * @param message 空值时的异常消息
-     * @return 去除空白后的文本
+    * 校验文本参数非空。
+    *
+    * @param value   文本值
+    * @param message 空值时的异常消息
+    * @return 去除空白后的文本
      */
     private String requireText(String value, String message) {
         String normalized = trimToNull(value);
@@ -1086,10 +1086,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-      * 去除空白, 空白文本转换为 空。
-     *
-     * @param value 文本值
-     * @return 去除空白后的文本, 空白返回 空
+    * 去除空白, 空白文本转换为 空。
+    *
+    * @param value 文本值
+    * @return 去除空白后的文本, 空白返回 空
      */
     private String trimToNull(String value) {
         if (!StringUtils.hasText(value)) {
@@ -1099,20 +1099,20 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 空值状态转换为停止状态。
-     *
-     * @param triggerStatus 触发器状态
-     * @return 非空状态值, 空值返回停止状态
+    * 空值状态转换为停止状态。
+    *
+    * @param triggerStatus 触发器状态
+    * @return 非空状态值, 空值返回停止状态
      */
     private int safeStatus(Integer triggerStatus) {
         return triggerStatus == null ? STATUS_STOP : triggerStatus;
     }
 
     /**
-     * 注册定时清理任务 (动态按 {@code plugin.job.log.cleanup-cron} 调度)。
-     *
-     * <p>不使用 {@code @Scheduled} 注解, 因为本模块的 {@code ScheduledAnnotationScanner}
-     * 不解析 Spring 占位符, 会按字面量解析 cron 导致启动失败。</p>
+    * 注册定时清理任务 (动态按 {@code plugin.job.log.cleanup-cron} 调度)。
+    *
+    * <p>不使用 {@code @Scheduled} 注解, 因为本模块的 {@code ScheduledAnnotationScanner}
+    * 不解析 Spring 占位符, 会按字面量解析 cron 导致启动失败。</p>
      */
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
@@ -1124,7 +1124,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 按配置执行清理 (仅 {@code cleanupEnabled=true} 时生效)。
+    * 按配置执行清理 (仅 {@code cleanupEnabled=true} 时生效)。
      */
     private void cleanupIfEnabled() {
         if (!jobProperties.getLog().isCleanupEnabled()) {
@@ -1141,10 +1141,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 转义 SQL 单引号, 防止 SQL 注入。
-     *
-     * @param value 原始字符串
-     * @return 转义后的字符串
+    * 转义 SQL 单引号, 防止 SQL 注入。
+    *
+    * @param value 原始字符串
+    * @return 转义后的字符串
      */
     private String escape(String value) {
         if (value == null) {

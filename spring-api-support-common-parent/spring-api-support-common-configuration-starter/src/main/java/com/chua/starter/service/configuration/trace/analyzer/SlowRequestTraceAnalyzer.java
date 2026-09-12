@@ -12,10 +12,10 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * 慢请求分析器。
- *
- * @since 2026/03/25
- * @author CH
+* 慢请求分析器。
+*
+* @since 2026/03/25
+* @author CH
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 4)

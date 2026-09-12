@@ -15,10 +15,10 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
-   * Redis令牌管理
- *
- * @author CH
- * @since 4.0.0
+* Redis令牌管理
+*
+* @author CH
+* @since 4.0.0
  */
 @Slf4j
 @ConditionalOnProperty(prefix = "plugin.oauth.server", name = {"tokenManagement", "token-management"}, havingValue = "redis", matchIfMissing = false)
@@ -26,10 +26,10 @@ public class EnableRedisTokenManagerConfiguration {
 
 
     /**
-      * redistemplate
-     *
-     * @param redisConnectionFactory 连接工厂
-     * @return redisTemplate
+    * redistemplate
+    *
+    * @param redisConnectionFactory 连接工厂
+    * @return redisTemplate
      */
     @Bean
     @ConditionalOnMissingBean(name = "redisTemplate")
@@ -56,7 +56,7 @@ public class EnableRedisTokenManagerConfiguration {
     }
 
     /**
-     * 注册Redis键过期监听器
+    * 注册Redis键过期监听器
      */
     @Bean
     @ConditionalOnMissingBean(StringRedisTemplate.class)
@@ -65,12 +65,12 @@ public class EnableRedisTokenManagerConfiguration {
     }
 
     /**
-      * 字符串redistemplate
-     *
-     * @param redisConnectionFactory 连接工厂
-     * @return StringRedisTemplate
-     * @author CH
-     * @since 4.0.0
+    * 字符串redistemplate
+    *
+    * @param redisConnectionFactory 连接工厂
+    * @return StringRedisTemplate
+    * @author CH
+    * @since 4.0.0
      */
     @Bean
     @ConditionalOnMissingBean(StringRedisTemplate.class)
@@ -84,9 +84,9 @@ public class EnableRedisTokenManagerConfiguration {
 
     public static class RedisKeyExpirationListener extends KeyExpirationEventMessageListener {
         /**
-          * 创建 新 {@link MessageListener} for {@code __keyevent@*__:expired} 消息.
-         *
-         * @param listenerContainer must not be {@literal null}.
+        * 创建 新 {@link MessageListener} for {@code __keyevent@*__:expired} 消息.
+        *
+        * @param listenerContainer must not be {@literal null}.
          */
         public RedisKeyExpirationListener(RedisMessageListenerContainer listenerContainer) {
             super(listenerContainer);

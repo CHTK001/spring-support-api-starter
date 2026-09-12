@@ -31,9 +31,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 角色接口
- * @since 2024/8/7
- * @author CH
+* 角色接口
+* @since 2024/8/7
+* @author CH
  */
 @Tag(name = "角色接口")
 @RestController
@@ -59,8 +59,8 @@ public class SysRoleController {
         return PageResultUtils.ok(sysRoleService.pageForRole(query, sysRole, roles));
     }
     /**
-     * 角色列表
-     * @return 角色列表
+    * 角色列表
+    * @return 角色列表
      */
     @Operation(summary = "角色列表")
     @GetMapping("list")
@@ -73,10 +73,10 @@ public class SysRoleController {
         ));
     }
     /**
-     * 删除角色
-     *
-     * @return 更新角色
-     * @param roleId 角色id
+    * 删除角色
+    *
+    * @return 更新角色
+    * @param roleId 角色id
      */
     @Operation(summary = "删除角色")
     @DeleteMapping("/delete")
@@ -93,9 +93,9 @@ public class SysRoleController {
 
 
     /**
-     * 给角色添加菜单
-     *
-     * @return 更新角色
+    * 给角色添加菜单
+    *
+    * @return 更新角色
      */
     @Operation(summary = "给角色添加菜单")
     @PutMapping("/update_menu")
@@ -115,10 +115,10 @@ public class SysRoleController {
     @GetMapping("/get_menu")
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     /**
-     * 获取Menu
-     * @param roles 角色
-     * @param roleMenuUpdate 角色menu更新
-     * @param bindingResult binding结果
+    * 获取Menu
+    * @param roles 角色
+    * @param roleMenuUpdate 角色menu更新
+    * @param bindingResult binding结果
      */
     public ReturnResult<Set<Integer>> getMenu(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -131,9 +131,9 @@ public class SysRoleController {
         return sysRoleService.getMenu(roleMenuUpdate);
     }
     /**
-     * 更新角色
-     *
-     * @return 更新角色
+    * 更新角色
+    *
+    * @return 更新角色
      */
     @Operation(summary = "更新角色")
     @PutMapping("/update")
@@ -151,10 +151,10 @@ public class SysRoleController {
     }
 
     /**
-     * 新增角色
-     *
-     * @return 新增角色
-     * @param @Validated(AddGroup.class @Validated(AddGroup.class
+    * 新增角色
+    *
+    * @return 新增角色
+    * @param @Validated(AddGroup.class @Validated(AddGroup.class
      */
     @Operation(summary = "新增角色")
     @PostMapping("/save")

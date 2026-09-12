@@ -4,10 +4,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 下载历史记录，持久化到 JSON 文件。
- *
- * @author CH
- * @since 1.0.0
+* 下载历史记录，持久化到 JSON 文件。
+*
+* @author CH
+* @since 1.0.0
  */
 @Data
 public class DownloadHistoryRecord {

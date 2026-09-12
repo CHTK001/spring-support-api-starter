@@ -11,10 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 /**
- * 用户个性化配置服务实现
- *
- * @since 4.0.0.42
- * @author CH
+* 用户个性化配置服务实现
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Service
 public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, SysUserConfig> implements SysUserConfigService {
@@ -76,10 +76,10 @@ public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, S
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * 解绑Wx
-     *
-     * @param configId 配置id
-     * @return unbindWx的结果
+    * 解绑Wx
+    *
+    * @param configId 配置id
+    * @return unbindWx的结果
      */
     public boolean unbindWx(Integer configId) {
         if (configId == null) {

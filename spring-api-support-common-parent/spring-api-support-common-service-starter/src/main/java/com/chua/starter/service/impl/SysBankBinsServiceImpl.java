@@ -17,10 +17,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * 银行卡BIN服务实现类
- *
- * @since 2024/12/6
- * @author CH
+* 银行卡BIN服务实现类
+*
+* @since 2024/12/6
+* @author CH
  */
 @Service
 @RequiredArgsConstructor
@@ -47,9 +47,9 @@ public class SysBankBinsServiceImpl extends ServiceImpl<SysBankBinsMapper, SysBa
     }
 
     /**
-     * 获取所有银行BIN信息，并进行缓存
-     *
-     * @return 所有银行BIN信息列表
+    * 获取所有银行BIN信息，并进行缓存
+    *
+    * @return 所有银行BIN信息列表
      */
     @Override
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:bank:bin:all'")

@@ -38,17 +38,17 @@ import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_
 import static com.chua.starter.video.service.impl.VideoSyncTaskServiceImpl.SYNC_STATUS_FINISH;
 
 /**
-   * 云影（yuny）资源提供器
- *
- * <p>负责：</p>
- * <ul>
- *     <li>根据关键字从云影站点搜索资源</li>
- *     <li>解析详情页面和 JSON 数据，构建播放地址及频道信息</li>
- *     <li>根据同步配置批量拉取不同类型（MV/TV/AC 等）的视频资源</li>
- * </ul>
- *
- * @since 2025/10/12 16:30
- * @author CH
+* 云影（yuny）资源提供器
+*
+* <p>负责：</p>
+* <ul>
+*     <li>根据关键字从云影站点搜索资源</li>
+*     <li>解析详情页面和 JSON 数据，构建播放地址及频道信息</li>
+*     <li>根据同步配置批量拉取不同类型（MV/TV/AC 等）的视频资源</li>
+* </ul>
+*
+* @since 2025/10/12 16:30
+* @author CH
  */
 @Slf4j
 @Spi("yuny")
@@ -56,7 +56,7 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
     static final String URL = "https://www.yuny.tv/videoSearch?key=%s"; // URL
     static final String HOME = "https://www.yuny.tv%s"; // Home
     /**
-     * 封面存储路径
+    * 封面存储路径
      */
     File file = null;
     @AutoInject
@@ -74,8 +74,8 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
     }
 
     /**
-     * 简单本地调试入口
-     * @param args 参数
+    * 简单本地调试入口
+    * @param args 参数
      */
     public static void main(String[] args) {
         VideoSearch videoSearch = new VideoSearch();
@@ -86,10 +86,10 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
     }
 
     /**
-     * 根据关键字搜索云影资源
-     *
-     * @param videoSearch 搜索条件
-     * @return 分页结果
+    * 根据关键字搜索云影资源
+    *
+    * @param videoSearch 搜索条件
+    * @return 分页结果
      */
     @Override
     public ReturnPageResult<VideoInfoResult> searchResource(VideoSearch videoSearch) {
@@ -132,8 +132,8 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
     }
 
     /**
-     * 解析详情页 JSON 数据并补充视频基础信息及播放线路
-     * @param videoInfoResult 视频信息结果
+    * 解析详情页 JSON 数据并补充视频基础信息及播放线路
+    * @param videoInfoResult 视频信息结果
      */
     private void registerDetail(VideoInfoResult videoInfoResult) {
         String downloadUrls = videoInfoResult.getDownloadUrls();
@@ -164,10 +164,10 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
     }
 
     /**
-     * 解析在线资源列表并注册到 {@link VideoInfoResult}
-     * @param videoInfoResult 视频信息结果
-     * @param onlineVideoResources online视频resources
-     * @param jsonArray jsonArray
+    * 解析在线资源列表并注册到 {@link VideoInfoResult}
+    * @param videoInfoResult 视频信息结果
+    * @param onlineVideoResources online视频resources
+    * @param jsonArray jsonArray
      */
     private void registerVideoResources(VideoInfoResult videoInfoResult, JsonArray onlineVideoResources, JsonArray jsonArray) {
         List<VideoPlayAddress> playAddressesList = new ArrayList<>();
@@ -179,11 +179,11 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
     }
 
     /**
-     * 根据单条线路配置构建播放地址及频道列表
-     * @param videoInfoResult 视频信息结果
-     * @param detail detail
-     * @param jsonArray jsonArray
-     * @param playAddressesList play地址列表
+    * 根据单条线路配置构建播放地址及频道列表
+    * @param videoInfoResult 视频信息结果
+    * @param detail detail
+    * @param jsonArray jsonArray
+    * @param playAddressesList play地址列表
      */
     private void registerVideoResources(VideoInfoResult videoInfoResult, JsonObject detail, JsonArray jsonArray, List<VideoPlayAddress> playAddressesList) {
         int lineSourceNameLine = detail.getIntValue("lineSourceName", 0);
@@ -199,10 +199,10 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
     }
 
     /**
-     * 创建某条线路下的所有频道
-     * @param selectsLine 选择线
-     * @param jsonArray jsonArray
-     * @return 创建通道的结果
+    * 创建某条线路下的所有频道
+    * @param selectsLine 选择线
+    * @param jsonArray jsonArray
+    * @return 创建通道的结果
      */
     private List<VideoPlayAddressChannel> createChannel(int selectsLine, JsonArray jsonArray) {
         List<VideoPlayAddressChannel> videoPlayAddressChannels = new ArrayList<>();
@@ -223,10 +223,10 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
     }
 
     /**
-     * 按照同步配置批量抓取视频数据
-     *
-     * <p>根据偏移量信息，依次抓取多个视频类型（MV/TV/AC 等）的分页数据，
-     * 并通过回调 {@link BiConsumer} 将结果交给上层处理。</p>
+    * 按照同步配置批量抓取视频数据
+    *
+    * <p>根据偏移量信息，依次抓取多个视频类型（MV/TV/AC 等）的分页数据，
+    * 并通过回调 {@link BiConsumer} 将结果交给上层处理。</p>
      */
     @Override
     public void fetchVideos(VideoSyncConfig config, BiConsumer<VideoInfoResult, VideoSyncProcessConfig> consumer) {
@@ -313,10 +313,10 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
     }
 
     /**
-     * 创建视频信息结果
-     *
-     * @param videoInfoResults 视频信息结果
-     * @param videoInfoResult 视频信息结果
+    * 创建视频信息结果
+    *
+    * @param videoInfoResults 视频信息结果
+    * @param videoInfoResult 视频信息结果
      */
     private void createVideoInfoResults(List<VideoInfoResult> videoInfoResults, List<VideoInfoResult> videoInfoResult) {
         for (VideoInfoResult infoResult : videoInfoResult) {
@@ -327,39 +327,39 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
 
 
     /**
-     * 根据指定的视频类型从JSON对象中获取对应的页码计数，如果不存在则返回默认值1。
-     *
-     * @param jsonObject 包含视频同步偏移量信息的JSON对象，用于记录不同视频类型的同步进度
-     *                   <pre><code>
-     *                                                                                                                               JsonObject offset = new JsonObject();
-     *                                                                                                                               offset.put("MV", 3);
-     *                                                                                                                               int count = provider.createCount(offset, "MV"); // 返回3
-     *                                                                                                                               </code></pre>
-     * @param videoType  视频类型字符串，例如"MV"、"TV"或"AC"，表示当前正在处理的视频类别
-     *                   <pre><code>
-     *                                                                                                                               String videoType = "TV";
-     *                                                                                                                               int count = provider.createCount(offset, videoType);
-     *                                                                                                                               </code></pre>
-     * @return 返回对应视频类型的页码计数，若未找到则返回默认值1
-     * @since 2025/9/18 22:15
+    * 根据指定的视频类型从JSON对象中获取对应的页码计数，如果不存在则返回默认值1。
+    *
+    * @param jsonObject 包含视频同步偏移量信息的JSON对象，用于记录不同视频类型的同步进度
+    *                   <pre><code>
+    *                                                                                                                               JsonObject offset = new JsonObject();
+    *                                                                                                                               offset.put("MV", 3);
+    *                                                                                                                               int count = provider.createCount(offset, "MV"); // 返回3
+    *                                                                                                                               </code></pre>
+    * @param videoType  视频类型字符串，例如"MV"、"TV"或"AC"，表示当前正在处理的视频类别
+    *                   <pre><code>
+    *                                                                                                                               String videoType = "TV";
+    *                                                                                                                               int count = provider.createCount(offset, videoType);
+    *                                                                                                                               </code></pre>
+    * @return 返回对应视频类型的页码计数，若未找到则返回默认值1
+    * @since 2025/9/18 22:15
      */
     private int createCount(JsonObject jsonObject, String videoType) {
         return jsonObject.getIntValue(videoType + "_page", 1);
     }
 
     /**
-     * 根据视频同步配置中的偏移量信息创建视频类型数组
-     *
-     * @param videoSyncConfigLastOffset 视频同步配置的最后偏移量信息，用于确定当前处理的视频类型及位置
-     *                                  <pre>{@code
-     *                                                                                                                                                                                                                                        JsonObject offset = new JsonObject();
-     *                                                                                                                                                                                                                                        offset.put("videoType", "TV");
-     *                                                                                                                                                                                                                                        String[] types = provider.createMvType(offset);
-     *                                                                                                                                                                                                                                        }</pre>                                                                                                                                                                          offset.put("videoType", "TV");
-     *                                                                                                                                                                                                                                        String[] types = provider.createMvType(offset);
-     *                                                                                                                                                                                                                                        }</pre>
-     * @return 返回根据当前视频类型确定的后续需要处理的视频类型数组
-     * @since 2025/9/18 14:30
+    * 根据视频同步配置中的偏移量信息创建视频类型数组
+    *
+    * @param videoSyncConfigLastOffset 视频同步配置的最后偏移量信息，用于确定当前处理的视频类型及位置
+    *                                  <pre>{@code
+    *                                                                                                                                                                                                                                        JsonObject offset = new JsonObject();
+    *                                                                                                                                                                                                                                        offset.put("videoType", "TV");
+    *                                                                                                                                                                                                                                        String[] types = provider.createMvType(offset);
+    *                                                                                                                                                                                                                                        }</pre>                                                                                                                                                                          offset.put("videoType", "TV");
+    *                                                                                                                                                                                                                                        String[] types = provider.createMvType(offset);
+    *                                                                                                                                                                                                                                        }</pre>
+    * @return 返回根据当前视频类型确定的后续需要处理的视频类型数组
+    * @since 2025/9/18 14:30
      */
     private String[] createMvType(JsonObject videoSyncConfigLastOffset) {
         String videoType = videoSyncConfigLastOffset.getString("videoType");
@@ -377,16 +377,16 @@ public class YunYResourceProvider extends AbstractResourceProvider implements Sy
 
 
     /**
-     * 获取API URL
-     *
-     * @param videoSearch 视频搜索条件
-     * @return API URL
+    * 获取API URL
+    *
+    * @param videoSearch 视频搜索条件
+    * @return API URL
      */
     /**
-     * 根据视频类型获取对应的分类 API 地址
-     *
-     * @param videoSearch 视频搜索条件（仅使用其中的 视频类型 字段）
-     * @return 分类 API 地址，未知类型时返回 {@code null}
+    * 根据视频类型获取对应的分类 API 地址
+    *
+    * @param videoSearch 视频搜索条件（仅使用其中的 视频类型 字段）
+    * @return 分类 API 地址，未知类型时返回 {@code null}
      */
     private String getApiUrl(VideoSearch videoSearch) {
         String videoType = videoSearch.getVideoType();

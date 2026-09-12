@@ -4,16 +4,16 @@ import com.chua.common.support.setting.GlobalSettingGroup;
 import lombok.Data;
 
 /**
- * 版本设置
- * @since 2024/8/26
- * @author CH
+* 版本设置
+* @since 2024/8/26
+* @author CH
  */
 @Data
 @GlobalSettingGroup("config")
 public class VersionSetting {
 
     /**
-     * 版本
+    * 版本
      */
     private String version;
 }

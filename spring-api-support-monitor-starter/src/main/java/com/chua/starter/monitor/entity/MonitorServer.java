@@ -12,11 +12,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 被监控服务器主机实体，记录服务器的基础信息（名称、IP、主机名、操作系统、分组等），
-   * 服务器布局、组件布局等均以 服务端id 作为关联维度。
- *
- * @since 2026-07-28
- * @author CH
+* 被监控服务器主机实体，记录服务器的基础信息（名称、IP、主机名、操作系统、分组等），
+* 服务器布局、组件布局等均以 服务端id 作为关联维度。
+*
+* @since 2026-07-28
+* @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
 public class MonitorServer extends SysBase {
 
     /**
-      * 服务器主键标识，自增
+    * 服务器主键标识，自增
      */
     @TableId(value = "server_id", type = IdType.AUTO)
     @ApiModelProperty("服务器ID")

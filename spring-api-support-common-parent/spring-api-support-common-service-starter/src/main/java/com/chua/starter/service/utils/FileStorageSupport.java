@@ -13,11 +13,11 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 
 /**
-   * 文件storage 统一增强入口。
- * @author CH
- * @since 4.0.0
- * @param bucket bucket
- * @return normalizeBucket的结果
+* 文件storage 统一增强入口。
+* @author CH
+* @since 4.0.0
+* @param bucket bucket
+* @return normalizeBucket的结果
  */
 @Component
 public class FileStorageSupport {
@@ -35,10 +35,10 @@ public class FileStorageSupport {
         this.environment = environment;
         this.sysFileSystemSettingServiceProvider = sysFileSystemSettingServiceProvider;
     /**
-     * 创建storage。
-     * @param storageType storage类型
-     * @param bucketSetting bucketSetting
-     * @return 创建storage的结果
+    * 创建storage。
+    * @param storageType storage类型
+    * @param bucketSetting bucketSetting
+    * @return 创建storage的结果
      */
     }
 
@@ -52,12 +52,12 @@ public class FileStorageSupport {
         }
         return com.chua.common.support.storage.FileStorage.createStorage(resolvedType, resolvedSetting);
     /**
-     * 创建uploadbucketsetting。
-     * @param storageType storage类型
-     * @param bucket bucket
-     * @param originalFilename 原始文件名
-     * @param preferredFileName preferred文件名称
-     * @return 创建uploadbucketsetting的结果
+    * 创建uploadbucketsetting。
+    * @param storageType storage类型
+    * @param bucket bucket
+    * @param originalFilename 原始文件名
+    * @param preferredFileName preferred文件名称
+    * @return 创建uploadbucketsetting的结果
      */
     }
 
@@ -79,10 +79,10 @@ public class FileStorageSupport {
         }
         return builder.build();
     /**
-     * 创建本地bucketsetting。
-     * @param bucket bucket
-     * @param rootPath 根路径
-     * @return 创建本地bucketsetting的结果
+    * 创建本地bucketsetting。
+    * @param bucket bucket
+    * @param rootPath 根路径
+    * @return 创建本地bucketsetting的结果
      */
     }
 
@@ -94,9 +94,9 @@ public class FileStorageSupport {
                 .accessKeySecret(DEFAULT_LOCAL_ACCESS_SECRET)
                 .build();
     /**
-     * resolvestorage类型。
-     * @param storageType storage类型
-     * @return resolvestorage类型的结果
+    * resolvestorage类型。
+    * @param storageType storage类型
+    * @return resolvestorage类型的结果
      */
     }
 
@@ -110,9 +110,9 @@ public class FileStorageSupport {
         }
         return DEFAULT_STORAGE_TYPE;
     /**
-     * 是否本地storage类型。
-     * @param storageType storage类型
-     * @return 是否本地storage类型的结果
+    * 是否本地storage类型。
+    * @param storageType storage类型
+    * @return 是否本地storage类型的结果
      */
     }
 
@@ -120,10 +120,10 @@ public class FileStorageSupport {
         String text = (storageType == null ? "" : storageType).toLowerCase();
         return text.contains("filesystem") || text.contains("file_system") || text.contains("local");
     /**
-     * enrichSetting。
-     * @param storageType storage类型
-     * @param setting setting
-     * @return enrichSetting的结果
+    * enrichSetting。
+    * @param storageType storage类型
+    * @param setting setting
+    * @return enrichSetting的结果
      */
     }
 
@@ -146,9 +146,9 @@ public class FileStorageSupport {
                 .sessionTimeoutMills(setting.getSessionTimeoutMills())
                 .build();
     /**
-     * resolve端点。
-     * @param storageType storage类型
-     * @return resolve端点的结果
+    * resolve端点。
+    * @param storageType storage类型
+    * @return resolve端点的结果
      */
     }
 
@@ -159,8 +159,8 @@ public class FileStorageSupport {
         String prefix = "plugin.sso." + storageType.toLowerCase() + ".";
         return environment.getProperty(prefix + "endpoint", DEFAULT_LOCAL_ROOT);
     /**
-     * resolve本地根路径。
-     * @return resolve本地根路径的结果
+    * resolve本地根路径。
+    * @return resolve本地根路径的结果
      */
     }
 
@@ -171,8 +171,8 @@ public class FileStorageSupport {
         }
         return DEFAULT_LOCAL_ROOT;
     /**
-     * safe获取setting。
-     * @return safe获取setting的结果
+    * safe获取setting。
+    * @return safe获取setting的结果
      */
     }
 

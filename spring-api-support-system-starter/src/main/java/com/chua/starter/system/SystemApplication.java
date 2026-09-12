@@ -13,14 +13,14 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * 系统管理服务启动类
- *
- * <p>
- * 提供完整的系统管理功能，包括用户管理、角色管理、菜单管理、部门管理等基础系统服务。
- * </p>
- *
- * @author CH
- * @since 2024/12/11
+* 系统管理服务启动类
+*
+* <p>
+* 提供完整的系统管理功能，包括用户管理、角色管理、菜单管理、部门管理等基础系统服务。
+* </p>
+*
+* @author CH
+* @since 2024/12/11
  */
 @EnableCaching
 @EnableScheduling
@@ -44,16 +44,16 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         )
 )
 /**
-   * 公共 类 系统application {
- *
- * @author CH
- * @since 4.0.0.42
+* 公共 类 系统application {
+*
+* @author CH
+* @since 4.0.0.42
  */
 public class SystemApplication {
     /**
-     * 应用启动入口, 启动前补全 MyBatis-Plus 加密器配置。
-     *
-     * @param args 启动参数
+    * 应用启动入口, 启动前补全 MyBatis-Plus 加密器配置。
+    *
+    * @param args 启动参数
      */
     public static void main(String[] args) {
         if (System.getProperty("mybatis-plus.encryptor.mode") == null) {

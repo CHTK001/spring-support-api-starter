@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Set;
 
 /**
- * 系统日志接口
- * @since 2024/8/7
- * @author CH
+* 系统日志接口
+* @since 2024/8/7
+* @author CH
  */
 @Tag(name = "系统日志接口")
 @RestController

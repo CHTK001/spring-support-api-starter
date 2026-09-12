@@ -13,10 +13,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 用户第三方账号绑定服务实现
- *
- * @since 4.0.0.42
- * @author CH
+* 用户第三方账号绑定服务实现
+*
+* @since 4.0.0.42
+* @author CH
  */
 @Service
 public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyMapper, SysUserThirdParty> implements SysUserThirdPartyService {
@@ -88,10 +88,10 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * 解绑
-     *
-     * @param id id
-     * @return unbind的结果
+    * 解绑
+    *
+    * @param id id
+    * @return unbind的结果
      */
     public boolean unbind(Integer id) {
         if (id == null) {
@@ -103,10 +103,10 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * 解绑全部
-     *
-     * @param userId 用户id
-     * @return unbind全部的结果
+    * 解绑全部
+    *
+    * @param userId 用户id
+    * @return unbind全部的结果
      */
     public int unbindAll(Integer userId) {
         if (userId == null) {
@@ -119,11 +119,11 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-     * 更新值
-     *
-     * @param id id
-     * @param newValue 新值
-     * @return 更新值的结果
+    * 更新值
+    *
+    * @param id id
+    * @param newValue 新值
+    * @return 更新值的结果
      */
     public boolean updateValue(Integer id, String newValue) {
         if (id == null) {

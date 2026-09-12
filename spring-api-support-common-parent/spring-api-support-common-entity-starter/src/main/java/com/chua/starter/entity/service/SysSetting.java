@@ -13,10 +13,10 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
- * 系统设置表
- *
- * @since 2024/8/9
- * @author CH
+* 系统设置表
+*
+* @since 2024/8/9
+* @author CH
  */
 @Schema(description = "系统设置表")
 @Data
