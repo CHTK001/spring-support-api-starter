@@ -169,13 +169,16 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public List<SysSetting> list(SysSettingUpdate sysSettingUpdate, Set<String> roles) {
-        String group = sysSettingUpdate.getSysSettingGroup();
+        String group = (sysSettingUpdate != null) ? sysSettingUpdate.getSysSettingGroup() : null;
+        Set<String> groupSet = null;
+        if (StringUtils.isNotBlank(group)) {
+            groupSet = Arrays.stream(group.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toUnmodifiableSet());
+        }
         return baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
-                .in(StringUtils.isNotBlank(group), SysSetting::getSysSettingGroup,
-                        StringUtils.isNotBlank(group) ? Arrays.stream(group.split(","))
-                                .map(String::trim)
-                                .filter(s -> !s.isEmpty())
-                                .collect(Collectors.toUnmodifiableSet()) : null)
+                .in(groupSet != null && !groupSet.isEmpty(), SysSetting::getSysSettingGroup, groupSet)
                 .orderByAsc(SysSetting::getSysSettingSort)
                 .orderByDesc(SysSetting::getCreateTime)
         );
