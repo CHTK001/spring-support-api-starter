@@ -18,9 +18,11 @@ public interface SysOnlineService {
     *
     * @param username 用户名（可选，模糊匹配）
     * @param ip       IP地址（可选，模糊匹配）
+    * @param roleCode 角色编码（可选，按角色过滤）
+    * @param deptId   部门ID（可选，按部门过滤）
     * @return 在线用户列表
      */
-    List<OnlineUserVO> getOnlineUsers(String username, String ip);
+    List<OnlineUserVO> getOnlineUsers(String username, String ip, String roleCode, Integer deptId);
 
     /**
     * 获取在线用户数量

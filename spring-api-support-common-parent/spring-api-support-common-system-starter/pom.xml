@@ -68,20 +68,19 @@
       <artifactId>jakarta.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
-          <dependency>
+        <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-protocol-starter</artifactId>
             <version>${utils.version}</version>
         </dependency>
         <dependency>
             <groupId>com.chua</groupId>
-            <artifactId>utils-support-task-starter</artifactId>
-            <version>${utils.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.chua</groupId>
             <artifactId>utils-support-geoip2-starter</artifactId>
             <version>${utils.version}</version>
+        </dependency>
+            <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>spring-support-socket-starter</artifactId>
         </dependency>
     </dependencies>
   <build>

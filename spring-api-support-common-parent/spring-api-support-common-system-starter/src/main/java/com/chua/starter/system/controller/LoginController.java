@@ -1,8 +1,8 @@
 package com.chua.starter.system.controller;
 
-import com.chua.common.support.core.constant.Action;
-import com.chua.task.support.task.debounce.Debounce;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.enums.Action;
+import com.chua.starter.system.support.debounce.Debounce;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.annotations.UserLog;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -84,7 +84,7 @@ public class LoginController {
                                            @RequestHeader(name = X_REQ_FINGERPRINT, required = false) String fingerprint,
                                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.error(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.error(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysLoginService.login(loginData, request, response, fingerprint);
@@ -99,7 +99,7 @@ public class LoginController {
                                                   HttpServletResponse response,
                                                   BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return ReturnResult.error(REQUEST_PARAM_ERROR, bindingResult.getAllErrors().getFirst().getDefaultMessage());
+            return ReturnResult.error(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
         return sysLoginService.refresh(refreshToken, request, response);

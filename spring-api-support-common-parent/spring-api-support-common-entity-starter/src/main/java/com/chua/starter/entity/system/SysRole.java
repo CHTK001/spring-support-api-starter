@@ -92,6 +92,22 @@ public class SysRole extends SysBase implements Serializable {
     private String sysRoleRemark;
 
     /**
+    * 数据权限范围: 1-全部数据 2-本部门数据 3-本部门及以下 4-仅本人数据 5-自定义部门数据
+     */
+    @TableField(value = "sys_role_data_scope")
+    @Schema(description = "数据权限范围: 1-全部数据 2-本部门数据 3-本部门及以下 4-仅本人数据 5-自定义部门数据")
+    /** sysroledatascope */
+    private Integer sysRoleDataScope = 1;
+
+    /**
+    * 自定义数据权限部门ID列表(逗号分隔), data_scope=5时生效
+     */
+    @TableField(value = "sys_role_data_scope_dept_ids")
+    @Schema(description = "自定义数据权限部门ID列表(逗号分隔)")
+    /** sysroledatascopedeptids */
+    private String sysRoleDataScopeDeptIds;
+
+    /**
     * 角色是否可读
      */
     @TableField(value = "sys_role_readable")
@@ -122,6 +138,14 @@ public class SysRole extends SysBase implements Serializable {
     @Schema(description = "角色看板类型")
     /** sysroleboardcard */
     private Integer sysRoleBoardCard;
+
+    /**
+    * 是否只读角色: 0-否 1-是
+     */
+    @TableField(value = "sys_role_readonly")
+    @Schema(description = "是否只读角色: 0-否 1-是")
+    /** sysrolereadonly */
+    private Integer sysRoleReadonly = 0;
 
     /**
     * 用户标识

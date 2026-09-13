@@ -1,7 +1,7 @@
 package com.chua.starter.system.pojo.jvm;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
+import lombok.Getter;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 * @since 2024/12/18
 * @author CH
  */
-@Data
+@Getter
 @Schema(description = "JVM 信息")
 public class JvmInfo implements Serializable {
 
@@ -144,7 +144,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "内存信息")
     public static class MemoryInfo implements Serializable {
         /** 串行版本UID */
@@ -169,6 +169,13 @@ public class JvmInfo implements Serializable {
         @Schema(description = "使用率(%)")
         /** Usage百分比 */
         private Double usagePercent;
+
+    // === Manually generated setters ===
+    public void setInit(Long init) { this.init = init; }
+    public void setUsed(Long used) { this.used = used; }
+    public void setCommitted(Long committed) { this.committed = committed; }
+    public void setMax(Long max) { this.max = max; }
+    public void setUsagePercent(Double usagePercent) { this.usagePercent = usagePercent; }
     }
 
     /**
@@ -176,7 +183,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "内存池信息")
     public static class MemoryPoolInfo implements Serializable {
         /** 串行版本UID */
@@ -197,6 +204,12 @@ public class JvmInfo implements Serializable {
         @Schema(description = "内存池峰值使用")
         /** Peakusage */
         private MemoryInfo peakUsage;
+
+    // === Manually generated setters ===
+    public void setName(String name) { this.name = name; }
+    public void setType(String type) { this.type = type; }
+    public void setUsage(MemoryInfo usage) { this.usage = usage; }
+    public void setPeakUsage(MemoryInfo peakUsage) { this.peakUsage = peakUsage; }
     }
 
     /**
@@ -204,7 +217,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "线程信息")
     public static class ThreadInfo implements Serializable {
         /** 串行版本UID */
@@ -229,6 +242,13 @@ public class JvmInfo implements Serializable {
         @Schema(description = "死锁线程数")
         /** Deadlocked线程数量 */
         private Integer deadlockedThreadCount;
+
+    // === Manually generated setters ===
+    public void setThreadCount(Integer threadCount) { this.threadCount = threadCount; }
+    public void setPeakThreadCount(Integer peakThreadCount) { this.peakThreadCount = peakThreadCount; }
+    public void setDaemonThreadCount(Integer daemonThreadCount) { this.daemonThreadCount = daemonThreadCount; }
+    public void setTotalStartedThreadCount(Long totalStartedThreadCount) { this.totalStartedThreadCount = totalStartedThreadCount; }
+    public void setDeadlockedThreadCount(Integer deadlockedThreadCount) { this.deadlockedThreadCount = deadlockedThreadCount; }
     }
 
     /**
@@ -236,7 +256,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "线程详情")
     public static class ThreadDetail implements Serializable {
         /** 串行版本UID */
@@ -305,6 +325,24 @@ public class JvmInfo implements Serializable {
         @Schema(description = "堆栈跟踪")
         /** 栈跟踪 */
         private String[] stackTrace;
+
+    // === Manually generated setters ===
+    public void setThreadId(Long threadId) { this.threadId = threadId; }
+    public void setThreadName(String threadName) { this.threadName = threadName; }
+    public void setState(String state) { this.state = state; }
+    public void setCpuTime(Long cpuTime) { this.cpuTime = cpuTime; }
+    public void setUserTime(Long userTime) { this.userTime = userTime; }
+    public void setCpuUsage(Double cpuUsage) { this.cpuUsage = cpuUsage; }
+    public void setDaemon(Boolean daemon) { this.daemon = daemon; }
+    public void setPriority(Integer priority) { this.priority = priority; }
+    public void setBlockedCount(Long blockedCount) { this.blockedCount = blockedCount; }
+    public void setBlockedTime(Long blockedTime) { this.blockedTime = blockedTime; }
+    public void setWaitedCount(Long waitedCount) { this.waitedCount = waitedCount; }
+    public void setWaitedTime(Long waitedTime) { this.waitedTime = waitedTime; }
+    public void setLockName(String lockName) { this.lockName = lockName; }
+    public void setLockOwnerId(Long lockOwnerId) { this.lockOwnerId = lockOwnerId; }
+    public void setLockOwnerName(String lockOwnerName) { this.lockOwnerName = lockOwnerName; }
+    public void setStackTrace(String[] stackTrace) { this.stackTrace = stackTrace; }
     }
 
     /**
@@ -312,7 +350,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "CPU 热点代码信息")
     public static class CpuHotspot implements Serializable {
         /** 串行版本UID */
@@ -349,6 +387,16 @@ public class JvmInfo implements Serializable {
         @Schema(description = "调用者列表")
         /** Callers */
         private List<String> callers;
+
+    // === Manually generated setters ===
+    public void setClassName(String className) { this.className = className; }
+    public void setMethodName(String methodName) { this.methodName = methodName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
+    public void setLineNumber(Integer lineNumber) { this.lineNumber = lineNumber; }
+    public void setHitCount(Integer hitCount) { this.hitCount = hitCount; }
+    public void setPercentage(Double percentage) { this.percentage = percentage; }
+    public void setFullMethod(String fullMethod) { this.fullMethod = fullMethod; }
+    public void setCallers(List<String> callers) { this.callers = callers; }
     }
 
     /**
@@ -356,7 +404,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "CPU 热点分析结果")
     public static class CpuHotspotAnalysis implements Serializable {
         /** 串行版本UID */
@@ -389,6 +437,15 @@ public class JvmInfo implements Serializable {
         @Schema(description = "热点包统计")
         /** Packagehotspots */
         private List<PackageHotspot> packageHotspots;
+
+    // === Manually generated setters ===
+    public void setSampleCount(Integer sampleCount) { this.sampleCount = sampleCount; }
+    public void setSampleDuration(Long sampleDuration) { this.sampleDuration = sampleDuration; }
+    public void setSampleInterval(Integer sampleInterval) { this.sampleInterval = sampleInterval; }
+    public void setThreadCount(Integer threadCount) { this.threadCount = threadCount; }
+    public void setHotspots(List<CpuHotspot> hotspots) { this.hotspots = hotspots; }
+    public void setClassHotspots(List<ClassHotspot> classHotspots) { this.classHotspots = classHotspots; }
+    public void setPackageHotspots(List<PackageHotspot> packageHotspots) { this.packageHotspots = packageHotspots; }
     }
 
     /**
@@ -396,7 +453,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "类级别热点")
     public static class ClassHotspot implements Serializable {
         /** 串行版本UID */
@@ -417,6 +474,12 @@ public class JvmInfo implements Serializable {
         @Schema(description = "方法数")
         /** 方法数量 */
         private Integer methodCount;
+
+    // === Manually generated setters ===
+    public void setClassName(String className) { this.className = className; }
+    public void setHitCount(Integer hitCount) { this.hitCount = hitCount; }
+    public void setPercentage(Double percentage) { this.percentage = percentage; }
+    public void setMethodCount(Integer methodCount) { this.methodCount = methodCount; }
     }
 
     /**
@@ -424,7 +487,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "包级别热点")
     public static class PackageHotspot implements Serializable {
         /** 串行版本UID */
@@ -445,6 +508,12 @@ public class JvmInfo implements Serializable {
         @Schema(description = "类数")
         /** 类数量 */
         private Integer classCount;
+
+    // === Manually generated setters ===
+    public void setPackageName(String packageName) { this.packageName = packageName; }
+    public void setHitCount(Integer hitCount) { this.hitCount = hitCount; }
+    public void setPercentage(Double percentage) { this.percentage = percentage; }
+    public void setClassCount(Integer classCount) { this.classCount = classCount; }
     }
 
     /**
@@ -452,7 +521,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "类加载信息")
     public static class ClassLoadingInfo implements Serializable {
         /** 串行版本UID */
@@ -469,6 +538,11 @@ public class JvmInfo implements Serializable {
         @Schema(description = "已卸载类数量")
         /** Unloadedclass数量 */
         private Long unloadedClassCount;
+
+    // === Manually generated setters ===
+    public void setLoadedClassCount(Integer loadedClassCount) { this.loadedClassCount = loadedClassCount; }
+    public void setTotalLoadedClassCount(Long totalLoadedClassCount) { this.totalLoadedClassCount = totalLoadedClassCount; }
+    public void setUnloadedClassCount(Long unloadedClassCount) { this.unloadedClassCount = unloadedClassCount; }
     }
 
     /**
@@ -476,7 +550,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "垃圾收集器信息")
     public static class GarbageCollectorInfo implements Serializable {
         /** 串行版本UID */
@@ -497,6 +571,12 @@ public class JvmInfo implements Serializable {
         @Schema(description = "内存池名称")
         /** 内存池名称 */
         private String[] memoryPoolNames;
+
+    // === Manually generated setters ===
+    public void setName(String name) { this.name = name; }
+    public void setCollectionCount(Long collectionCount) { this.collectionCount = collectionCount; }
+    public void setCollectionTime(Long collectionTime) { this.collectionTime = collectionTime; }
+    public void setMemoryPoolNames(String[] memoryPoolNames) { this.memoryPoolNames = memoryPoolNames; }
     }
 
     /**
@@ -504,7 +584,8 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @lombok.Getter
+    @lombok.Setter
     @Schema(description = "操作系统信息")
     public static class OsInfo implements Serializable {
         /** 串行版本UID */
@@ -545,6 +626,17 @@ public class JvmInfo implements Serializable {
         @Schema(description = "空闲交换空间(字节)")
         /** Freeswapspace */
         private Long freeSwapSpace;
+
+    // === Manually generated setters ===
+    public void setName(String name) { this.name = name; }
+    public void setVersion(String version) { this.version = version; }
+    public void setArch(String arch) { this.arch = arch; }
+    public void setAvailableProcessors(Integer availableProcessors) { this.availableProcessors = availableProcessors; }
+    public void setSystemLoadAverage(Double systemLoadAverage) { this.systemLoadAverage = systemLoadAverage; }
+    public void setTotalPhysicalMemory(Long totalPhysicalMemory) { this.totalPhysicalMemory = totalPhysicalMemory; }
+    public void setFreePhysicalMemory(Long freePhysicalMemory) { this.freePhysicalMemory = freePhysicalMemory; }
+    public void setTotalSwapSpace(Long totalSwapSpace) { this.totalSwapSpace = totalSwapSpace; }
+    public void setFreeSwapSpace(Long freeSwapSpace) { this.freeSwapSpace = freeSwapSpace; }
     }
 
     /**
@@ -552,7 +644,8 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @lombok.Getter
+    @lombok.Setter
     @Schema(description = "CPU 信息")
     public static class CpuInfo implements Serializable {
         /** 串行版本UID */
@@ -569,6 +662,11 @@ public class JvmInfo implements Serializable {
         @Schema(description = "进程 CPU 时间(纳秒)")
         /** 处理cpu时间 */
         private Long processCpuTime;
+
+    // === Manually generated setters ===
+    public void setProcessCpuLoad(Double processCpuLoad) { this.processCpuLoad = processCpuLoad; }
+    public void setSystemCpuLoad(Double systemCpuLoad) { this.systemCpuLoad = systemCpuLoad; }
+    public void setProcessCpuTime(Long processCpuTime) { this.processCpuTime = processCpuTime; }
     }
 
     /**
@@ -576,7 +674,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "编译器信息")
     public static class CompilationInfo implements Serializable {
         /** 串行版本UID */
@@ -593,6 +691,11 @@ public class JvmInfo implements Serializable {
         @Schema(description = "是否支持编译时间监控")
         /** Compilation时间monitoringsupported */
         private Boolean compilationTimeMonitoringSupported;
+
+    // === Manually generated setters ===
+    public void setName(String name) { this.name = name; }
+    public void setTotalCompilationTime(Long totalCompilationTime) { this.totalCompilationTime = totalCompilationTime; }
+    public void setCompilationTimeMonitoringSupported(Boolean compilationTimeMonitoringSupported) { this.compilationTimeMonitoringSupported = compilationTimeMonitoringSupported; }
     }
 
     /**
@@ -600,7 +703,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "运行时信息")
     public static class RuntimeInfo implements Serializable {
         /** 串行版本UID */
@@ -637,6 +740,16 @@ public class JvmInfo implements Serializable {
         @Schema(description = "规范版本")
         /** 规范版本 */
         private String specVersion;
+
+    // === Manually generated setters ===
+    public void setPid(String pid) { this.pid = pid; }
+    public void setBootClassPath(String bootClassPath) { this.bootClassPath = bootClassPath; }
+    public void setClassPath(String classPath) { this.classPath = classPath; }
+    public void setLibraryPath(String libraryPath) { this.libraryPath = libraryPath; }
+    public void setManagementSpecVersion(String managementSpecVersion) { this.managementSpecVersion = managementSpecVersion; }
+    public void setSpecName(String specName) { this.specName = specName; }
+    public void setSpecVendor(String specVendor) { this.specVendor = specVendor; }
+    public void setSpecVersion(String specVersion) { this.specVersion = specVersion; }
     }
 
     /**
@@ -644,7 +757,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "缓冲池信息")
     public static class BufferPoolInfo implements Serializable {
         /** 串行版本UID */
@@ -665,6 +778,12 @@ public class JvmInfo implements Serializable {
         @Schema(description = "总容量(字节)")
         /** 总数容量 */
         private Long totalCapacity;
+
+    // === Manually generated setters ===
+    public void setName(String name) { this.name = name; }
+    public void setCount(Long count) { this.count = count; }
+    public void setMemoryUsed(Long memoryUsed) { this.memoryUsed = memoryUsed; }
+    public void setTotalCapacity(Long totalCapacity) { this.totalCapacity = totalCapacity; }
     }
 
     /**
@@ -672,7 +791,8 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @lombok.Getter
+    @lombok.Setter
     @Schema(description = "文件描述符信息")
     public static class FileDescriptorInfo implements Serializable {
         /** 串行版本UID */
@@ -689,6 +809,11 @@ public class JvmInfo implements Serializable {
         @Schema(description = "使用率(%)")
         /** Usage百分比 */
         private Double usagePercent;
+
+    // === Manually generated setters ===
+    public void setOpenFileDescriptorCount(Long openFileDescriptorCount) { this.openFileDescriptorCount = openFileDescriptorCount; }
+    public void setMaxFileDescriptorCount(Long maxFileDescriptorCount) { this.maxFileDescriptorCount = maxFileDescriptorCount; }
+    public void setUsagePercent(Double usagePercent) { this.usagePercent = usagePercent; }
     }
 
     /**
@@ -696,7 +821,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "内存对象信息")
     public static class HeapObjectInfo implements Serializable {
         /** 串行版本UID */
@@ -721,6 +846,13 @@ public class JvmInfo implements Serializable {
         @Schema(description = "简化类名")
         /** Simpleclass名称 */
         private String simpleClassName;
+
+    // === Manually generated setters ===
+    public void setClassName(String className) { this.className = className; }
+    public void setInstanceCount(Long instanceCount) { this.instanceCount = instanceCount; }
+    public void setBytes(Long bytes) { this.bytes = bytes; }
+    public void setPercentage(Double percentage) { this.percentage = percentage; }
+    public void setSimpleClassName(String simpleClassName) { this.simpleClassName = simpleClassName; }
     }
 
     /**
@@ -728,7 +860,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "内存分析结果")
     public static class HeapAnalysis implements Serializable {
         /** 串行版本UID */
@@ -765,6 +897,16 @@ public class JvmInfo implements Serializable {
         @Schema(description = "包级别内存统计")
         /** Packagememory */
         private List<PackageMemory> packageMemory;
+
+    // === Manually generated setters ===
+    public void setAnalysisTime(Long analysisTime) { this.analysisTime = analysisTime; }
+    public void setHeapUsage(MemoryInfo heapUsage) { this.heapUsage = heapUsage; }
+    public void setTotalObjects(Long totalObjects) { this.totalObjects = totalObjects; }
+    public void setTotalBytes(Long totalBytes) { this.totalBytes = totalBytes; }
+    public void setClassCount(Integer classCount) { this.classCount = classCount; }
+    public void setTopByBytes(List<HeapObjectInfo> topByBytes) { this.topByBytes = topByBytes; }
+    public void setTopByCount(List<HeapObjectInfo> topByCount) { this.topByCount = topByCount; }
+    public void setPackageMemory(List<PackageMemory> packageMemory) { this.packageMemory = packageMemory; }
     }
 
     /**
@@ -772,7 +914,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "包级别内存统计")
     public static class PackageMemory implements Serializable {
         /** 串行版本UID */
@@ -797,6 +939,13 @@ public class JvmInfo implements Serializable {
         @Schema(description = "类数量")
         /** 类数量 */
         private Integer classCount;
+
+    // === Manually generated setters ===
+    public void setPackageName(String packageName) { this.packageName = packageName; }
+    public void setBytes(Long bytes) { this.bytes = bytes; }
+    public void setPercentage(Double percentage) { this.percentage = percentage; }
+    public void setInstanceCount(Long instanceCount) { this.instanceCount = instanceCount; }
+    public void setClassCount(Integer classCount) { this.classCount = classCount; }
     }
 
     /**
@@ -804,7 +953,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "业务代码归因分析结果")
     public static class BusinessCodeAnalysis implements Serializable {
         /** 串行版本UID */
@@ -841,6 +990,16 @@ public class JvmInfo implements Serializable {
         @Schema(description = "业务入口点")
         /** Entrypoints */
         private List<BusinessEntryPoint> entryPoints;
+
+    // === Manually generated setters ===
+    public void setAnalysisTime(Long analysisTime) { this.analysisTime = analysisTime; }
+    public void setSampleCount(Integer sampleCount) { this.sampleCount = sampleCount; }
+    public void setSampleInterval(Integer sampleInterval) { this.sampleInterval = sampleInterval; }
+    public void setBusinessPackage(String businessPackage) { this.businessPackage = businessPackage; }
+    public void setCpuImpacts(List<BusinessCodeImpact> cpuImpacts) { this.cpuImpacts = cpuImpacts; }
+    public void setMemoryImpacts(List<BusinessCodeImpact> memoryImpacts) { this.memoryImpacts = memoryImpacts; }
+    public void setCallChains(List<CallChainAnalysis> callChains) { this.callChains = callChains; }
+    public void setEntryPoints(List<BusinessEntryPoint> entryPoints) { this.entryPoints = entryPoints; }
     }
 
     /**
@@ -848,7 +1007,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "业务代码影响")
     public static class BusinessCodeImpact implements Serializable {
         /** 串行版本UID */
@@ -897,6 +1056,19 @@ public class JvmInfo implements Serializable {
         @Schema(description = "描述")
         /** 描述 */
         private String description;
+
+    // === Manually generated setters ===
+    public void setBusinessMethod(String businessMethod) { this.businessMethod = businessMethod; }
+    public void setClassName(String className) { this.className = className; }
+    public void setMethodName(String methodName) { this.methodName = methodName; }
+    public void setFileName(String fileName) { this.fileName = fileName; }
+    public void setLineNumber(Integer lineNumber) { this.lineNumber = lineNumber; }
+    public void setImpactScore(Integer impactScore) { this.impactScore = impactScore; }
+    public void setImpactPercentage(Double impactPercentage) { this.impactPercentage = impactPercentage; }
+    public void setRelatedHotspots(List<String> relatedHotspots) { this.relatedHotspots = relatedHotspots; }
+    public void setCallCount(Integer callCount) { this.callCount = callCount; }
+    public void setImpactType(String impactType) { this.impactType = impactType; }
+    public void setDescription(String description) { this.description = description; }
     }
 
     /**
@@ -904,7 +1076,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "调用链分析")
     public static class CallChainAnalysis implements Serializable {
         /** 串行版本UID */
@@ -929,6 +1101,13 @@ public class JvmInfo implements Serializable {
         @Schema(description = "占比(%)")
         /** Percentage */
         private Double percentage;
+
+    // === Manually generated setters ===
+    public void setHotspotMethod(String hotspotMethod) { this.hotspotMethod = hotspotMethod; }
+    public void setBusinessEntry(String businessEntry) { this.businessEntry = businessEntry; }
+    public void setCallChain(List<String> callChain) { this.callChain = callChain; }
+    public void setOccurrenceCount(Integer occurrenceCount) { this.occurrenceCount = occurrenceCount; }
+    public void setPercentage(Double percentage) { this.percentage = percentage; }
     }
 
     /**
@@ -936,7 +1115,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "业务入口点")
     public static class BusinessEntryPoint implements Serializable {
         /** 串行版本UID */
@@ -973,6 +1152,16 @@ public class JvmInfo implements Serializable {
         @Schema(description = "描述")
         /** 描述 */
         private String description;
+
+    // === Manually generated setters ===
+    public void setEntryMethod(String entryMethod) { this.entryMethod = entryMethod; }
+    public void setClassName(String className) { this.className = className; }
+    public void setMethodName(String methodName) { this.methodName = methodName; }
+    public void setEntryType(String entryType) { this.entryType = entryType; }
+    public void setTriggerCount(Integer triggerCount) { this.triggerCount = triggerCount; }
+    public void setRelatedHotspotCount(Integer relatedHotspotCount) { this.relatedHotspotCount = relatedHotspotCount; }
+    public void setCpuImpactScore(Integer cpuImpactScore) { this.cpuImpactScore = cpuImpactScore; }
+    public void setDescription(String description) { this.description = description; }
     }
 
     /**
@@ -980,7 +1169,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "JVM 优化建议")
     public static class JvmOptimizationAdvice implements Serializable {
         /** 串行版本UID */
@@ -1025,6 +1214,18 @@ public class JvmInfo implements Serializable {
         @Schema(description = "诊断信息")
         /** Diagnostics */
         private List<String> diagnostics;
+
+    // === Manually generated setters ===
+    public void setAnalysisTime(Long analysisTime) { this.analysisTime = analysisTime; }
+    public void setCurrentArgs(List<String> currentArgs) { this.currentArgs = currentArgs; }
+    public void setRecommendedParams(List<JvmParameter> recommendedParams) { this.recommendedParams = recommendedParams; }
+    public void setGcAdvice(GcAdvice gcAdvice) { this.gcAdvice = gcAdvice; }
+    public void setMemoryAdvice(MemoryAdvice memoryAdvice) { this.memoryAdvice = memoryAdvice; }
+    public void setThreadAdvice(ThreadAdvice threadAdvice) { this.threadAdvice = threadAdvice; }
+    public void setPerformanceAdvices(List<PerformanceAdvice> performanceAdvices) { this.performanceAdvices = performanceAdvices; }
+    public void setFullCommand(String fullCommand) { this.fullCommand = fullCommand; }
+    public void setHealthScore(Integer healthScore) { this.healthScore = healthScore; }
+    public void setDiagnostics(List<String> diagnostics) { this.diagnostics = diagnostics; }
     }
 
     /**
@@ -1032,7 +1233,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "JVM 参数")
     public static class JvmParameter implements Serializable {
         /** 串行版本UID */
@@ -1065,6 +1266,15 @@ public class JvmInfo implements Serializable {
         @Schema(description = "推荐原因")
         /** ReasonML */
         private String reason;
+
+    // === Manually generated setters ===
+    public void setName(String name) { this.name = name; }
+    public void setCurrentValue(String currentValue) { this.currentValue = currentValue; }
+    public void setRecommendedValue(String recommendedValue) { this.recommendedValue = recommendedValue; }
+    public void setType(String type) { this.type = type; }
+    public void setPriority(String priority) { this.priority = priority; }
+    public void setDescription(String description) { this.description = description; }
+    public void setReason(String reason) { this.reason = reason; }
     }
 
     /**
@@ -1072,7 +1282,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "GC 收集器建议")
     public static class GcAdvice implements Serializable {
         /** 串行版本UID */
@@ -1101,6 +1311,14 @@ public class JvmInfo implements Serializable {
         @Schema(description = "GC停顿时间评估")
         /** gcpauseassessment */
         private String gcPauseAssessment;
+
+    // === Manually generated setters ===
+    public void setCurrentGc(String currentGc) { this.currentGc = currentGc; }
+    public void setRecommendedGc(String recommendedGc) { this.recommendedGc = recommendedGc; }
+    public void setGcParams(List<JvmParameter> gcParams) { this.gcParams = gcParams; }
+    public void setReason(String reason) { this.reason = reason; }
+    public void setGcFrequencyAssessment(String gcFrequencyAssessment) { this.gcFrequencyAssessment = gcFrequencyAssessment; }
+    public void setGcPauseAssessment(String gcPauseAssessment) { this.gcPauseAssessment = gcPauseAssessment; }
     }
 
     /**
@@ -1108,7 +1326,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "内存建议")
     public static class MemoryAdvice implements Serializable {
         /** 串行版本UID */
@@ -1145,6 +1363,16 @@ public class JvmInfo implements Serializable {
         @Schema(description = "建议说明")
         /** Advice */
         private String advice;
+
+    // === Manually generated setters ===
+    public void setRecommendedHeapSize(String recommendedHeapSize) { this.recommendedHeapSize = recommendedHeapSize; }
+    public void setRecommendedInitialHeap(String recommendedInitialHeap) { this.recommendedInitialHeap = recommendedInitialHeap; }
+    public void setRecommendedNewGenSize(String recommendedNewGenSize) { this.recommendedNewGenSize = recommendedNewGenSize; }
+    public void setRecommendedMetaspaceSize(String recommendedMetaspaceSize) { this.recommendedMetaspaceSize = recommendedMetaspaceSize; }
+    public void setMemoryParams(List<JvmParameter> memoryParams) { this.memoryParams = memoryParams; }
+    public void setCurrentHeapUsage(Double currentHeapUsage) { this.currentHeapUsage = currentHeapUsage; }
+    public void setMemoryPressureAssessment(String memoryPressureAssessment) { this.memoryPressureAssessment = memoryPressureAssessment; }
+    public void setAdvice(String advice) { this.advice = advice; }
     }
 
     /**
@@ -1152,7 +1380,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "线程建议")
     public static class ThreadAdvice implements Serializable {
         /** 串行版本UID */
@@ -1177,6 +1405,13 @@ public class JvmInfo implements Serializable {
         @Schema(description = "建议说明")
         /** Advice */
         private String advice;
+
+    // === Manually generated setters ===
+    public void setRecommendedStackSize(String recommendedStackSize) { this.recommendedStackSize = recommendedStackSize; }
+    public void setCurrentThreadCount(Integer currentThreadCount) { this.currentThreadCount = currentThreadCount; }
+    public void setThreadCountAssessment(String threadCountAssessment) { this.threadCountAssessment = threadCountAssessment; }
+    public void setThreadParams(List<JvmParameter> threadParams) { this.threadParams = threadParams; }
+    public void setAdvice(String advice) { this.advice = advice; }
     }
 
     /**
@@ -1184,7 +1419,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "性能建议")
     public static class PerformanceAdvice implements Serializable {
         /** 串行版本UID */
@@ -1213,6 +1448,14 @@ public class JvmInfo implements Serializable {
         @Schema(description = "影响")
         /** Impact */
         private String impact;
+
+    // === Manually generated setters ===
+    public void setCategory(String category) { this.category = category; }
+    public void setLevel(String level) { this.level = level; }
+    public void setTitle(String title) { this.title = title; }
+    public void setDescription(String description) { this.description = description; }
+    public void setAction(String action) { this.action = action; }
+    public void setImpact(String impact) { this.impact = impact; }
     }
 
     /**
@@ -1220,7 +1463,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "线程Dump信息")
     public static class ThreadDump implements Serializable {
         /** 串行版本UID */
@@ -1257,6 +1500,16 @@ public class JvmInfo implements Serializable {
         @Schema(description = "线程详情列表")
         /** Threads */
         private List<ThreadDumpDetail> threads;
+
+    // === Manually generated setters ===
+    public void setTimestamp(Long timestamp) { this.timestamp = timestamp; }
+    public void setJvmName(String jvmName) { this.jvmName = jvmName; }
+    public void setJvmVersion(String jvmVersion) { this.jvmVersion = jvmVersion; }
+    public void setThreadCount(Integer threadCount) { this.threadCount = threadCount; }
+    public void setDeadlockedCount(Integer deadlockedCount) { this.deadlockedCount = deadlockedCount; }
+    public void setDeadlockedThreadIds(List<Long> deadlockedThreadIds) { this.deadlockedThreadIds = deadlockedThreadIds; }
+    public void setDumpContent(String dumpContent) { this.dumpContent = dumpContent; }
+    public void setThreads(List<ThreadDumpDetail> threads) { this.threads = threads; }
     }
 
     /**
@@ -1264,7 +1517,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "线程Dump详情")
     public static class ThreadDumpDetail implements Serializable {
         /** 串行版本UID */
@@ -1309,6 +1562,18 @@ public class JvmInfo implements Serializable {
         @Schema(description = "持有的同步器")
         /** Lockedsynchronizers */
         private List<String> lockedSynchronizers;
+
+    // === Manually generated setters ===
+    public void setThreadId(Long threadId) { this.threadId = threadId; }
+    public void setThreadName(String threadName) { this.threadName = threadName; }
+    public void setState(String state) { this.state = state; }
+    public void setDaemon(Boolean daemon) { this.daemon = daemon; }
+    public void setPriority(Integer priority) { this.priority = priority; }
+    public void setLockInfo(String lockInfo) { this.lockInfo = lockInfo; }
+    public void setLockOwner(String lockOwner) { this.lockOwner = lockOwner; }
+    public void setStackTrace(List<String> stackTrace) { this.stackTrace = stackTrace; }
+    public void setLockedMonitors(List<String> lockedMonitors) { this.lockedMonitors = lockedMonitors; }
+    public void setLockedSynchronizers(List<String> lockedSynchronizers) { this.lockedSynchronizers = lockedSynchronizers; }
     }
 
     /**
@@ -1316,7 +1581,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "内存泄漏检测结果")
     public static class MemoryLeakAnalysis implements Serializable {
         /** 串行版本UID */
@@ -1369,6 +1634,20 @@ public class JvmInfo implements Serializable {
         @Schema(description = "建议")
         /** Suggestions */
         private List<String> suggestions;
+
+    // === Manually generated setters ===
+    public void setFirstSnapshotTime(Long firstSnapshotTime) { this.firstSnapshotTime = firstSnapshotTime; }
+    public void setSecondSnapshotTime(Long secondSnapshotTime) { this.secondSnapshotTime = secondSnapshotTime; }
+    public void setIntervalMs(Long intervalMs) { this.intervalMs = intervalMs; }
+    public void setFirstHeapUsed(Long firstHeapUsed) { this.firstHeapUsed = firstHeapUsed; }
+    public void setSecondHeapUsed(Long secondHeapUsed) { this.secondHeapUsed = secondHeapUsed; }
+    public void setHeapGrowth(Long heapGrowth) { this.heapGrowth = heapGrowth; }
+    public void setHeapGrowthPercent(Double heapGrowthPercent) { this.heapGrowthPercent = heapGrowthPercent; }
+    public void setPossibleLeak(Boolean possibleLeak) { this.possibleLeak = possibleLeak; }
+    public void setLeakRiskLevel(String leakRiskLevel) { this.leakRiskLevel = leakRiskLevel; }
+    public void setGrowingObjects(List<ObjectGrowth> growingObjects) { this.growingObjects = growingObjects; }
+    public void setConclusion(String conclusion) { this.conclusion = conclusion; }
+    public void setSuggestions(List<String> suggestions) { this.suggestions = suggestions; }
     }
 
     /**
@@ -1376,7 +1655,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "对象增长信息")
     public static class ObjectGrowth implements Serializable {
         /** 串行版本UID */
@@ -1421,6 +1700,18 @@ public class JvmInfo implements Serializable {
         @Schema(description = "内存增长率(%)")
         /** Bytesgrowth百分比 */
         private Double bytesGrowthPercent;
+
+    // === Manually generated setters ===
+    public void setClassName(String className) { this.className = className; }
+    public void setSimpleClassName(String simpleClassName) { this.simpleClassName = simpleClassName; }
+    public void setFirstCount(Long firstCount) { this.firstCount = firstCount; }
+    public void setSecondCount(Long secondCount) { this.secondCount = secondCount; }
+    public void setCountGrowth(Long countGrowth) { this.countGrowth = countGrowth; }
+    public void setGrowthPercent(Double growthPercent) { this.growthPercent = growthPercent; }
+    public void setFirstBytes(Long firstBytes) { this.firstBytes = firstBytes; }
+    public void setSecondBytes(Long secondBytes) { this.secondBytes = secondBytes; }
+    public void setBytesGrowth(Long bytesGrowth) { this.bytesGrowth = bytesGrowth; }
+    public void setBytesGrowthPercent(Double bytesGrowthPercent) { this.bytesGrowthPercent = bytesGrowthPercent; }
     }
 
     /**
@@ -1428,7 +1719,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "JVM诊断信息")
     public static class JvmDiagnostic implements Serializable {
         /** 串行版本UID */
@@ -1455,6 +1746,14 @@ public class JvmInfo implements Serializable {
         @Schema(description = "内存池详情")
         /** 内存池details */
         private List<MemoryPoolDetail> memoryPoolDetails;
+
+    // === Manually generated setters ===
+    public void setTimestamp(Long timestamp) { this.timestamp = timestamp; }
+    public void setVmFlags(List<VmFlag> vmFlags) { this.vmFlags = vmFlags; }
+    public void setClassLoaders(List<ClassLoaderInfo> classLoaders) { this.classLoaders = classLoaders; }
+    public void setMemoryPoolDetails(List<MemoryPoolDetail> memoryPoolDetails) { this.memoryPoolDetails = memoryPoolDetails; }
+    public void setSystemProperties(java.util.Map<String, String> systemProperties) { this.systemProperties = systemProperties; }
+    public void setEnvironmentVariables(java.util.Map<String, String> environmentVariables) { this.environmentVariables = environmentVariables; }
     }
 
     /**
@@ -1462,7 +1761,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "VM Flag")
     public static class VmFlag implements Serializable {
         /** 串行版本UID */
@@ -1483,6 +1782,12 @@ public class JvmInfo implements Serializable {
         @Schema(description = "类型")
         /** 类型 */
         private String type;
+
+    // === Manually generated setters ===
+    public void setName(String name) { this.name = name; }
+    public void setValue(String value) { this.value = value; }
+    public void setOrigin(String origin) { this.origin = origin; }
+    public void setType(String type) { this.type = type; }
     }
 
     /**
@@ -1490,7 +1795,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "类加载器信息")
     public static class ClassLoaderInfo implements Serializable {
         /** 串行版本UID */
@@ -1511,6 +1816,12 @@ public class JvmInfo implements Serializable {
         @Schema(description = "父加载器")
         /** 父级 */
         private String parent;
+
+    // === Manually generated setters ===
+    public void setName(String name) { this.name = name; }
+    public void setType(String type) { this.type = type; }
+    public void setLoadedClassCount(Integer loadedClassCount) { this.loadedClassCount = loadedClassCount; }
+    public void setParent(String parent) { this.parent = parent; }
     }
 
     /**
@@ -1518,7 +1829,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "内存池详情")
     public static class MemoryPoolDetail implements Serializable {
         /** 串行版本UID */
@@ -1555,6 +1866,16 @@ public class JvmInfo implements Serializable {
         @Schema(description = "超过阈值次数")
         /** Usage阈值数量 */
         private Long usageThresholdCount;
+
+    // === Manually generated setters ===
+    public void setName(String name) { this.name = name; }
+    public void setType(String type) { this.type = type; }
+    public void setUsage(MemoryInfo usage) { this.usage = usage; }
+    public void setPeakUsage(MemoryInfo peakUsage) { this.peakUsage = peakUsage; }
+    public void setCollectionUsage(MemoryInfo collectionUsage) { this.collectionUsage = collectionUsage; }
+    public void setUsageThreshold(Double usageThreshold) { this.usageThreshold = usageThreshold; }
+    public void setUsageThresholdExceeded(Boolean usageThresholdExceeded) { this.usageThresholdExceeded = usageThresholdExceeded; }
+    public void setUsageThresholdCount(Long usageThresholdCount) { this.usageThresholdCount = usageThresholdCount; }
     }
 
     /**
@@ -1562,7 +1883,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "线程状态分布")
     public static class ThreadStateDistribution implements Serializable {
         /** 串行版本UID */
@@ -1595,6 +1916,15 @@ public class JvmInfo implements Serializable {
         @Schema(description = "总线程数")
         /** 总数数量 */
         private Integer totalCount;
+
+    // === Manually generated setters ===
+    public void setNewCount(Integer newCount) { this.newCount = newCount; }
+    public void setRunnableCount(Integer runnableCount) { this.runnableCount = runnableCount; }
+    public void setBlockedCount(Integer blockedCount) { this.blockedCount = blockedCount; }
+    public void setWaitingCount(Integer waitingCount) { this.waitingCount = waitingCount; }
+    public void setTimedWaitingCount(Integer timedWaitingCount) { this.timedWaitingCount = timedWaitingCount; }
+    public void setTerminatedCount(Integer terminatedCount) { this.terminatedCount = terminatedCount; }
+    public void setTotalCount(Integer totalCount) { this.totalCount = totalCount; }
     }
 
     /**
@@ -1602,7 +1932,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "JIT编译统计")
     public static class JitCompilationStats implements Serializable {
         /** 串行版本UID */
@@ -1627,6 +1957,13 @@ public class JvmInfo implements Serializable {
         @Schema(description = "平均编译时间(毫秒)")
         /** avgcompilation时间 */
         private Double avgCompilationTime;
+
+    // === Manually generated setters ===
+    public void setCompilerName(String compilerName) { this.compilerName = compilerName; }
+    public void setTotalCompilationTime(Long totalCompilationTime) { this.totalCompilationTime = totalCompilationTime; }
+    public void setCompilationTimeMonitoringSupported(Boolean compilationTimeMonitoringSupported) { this.compilationTimeMonitoringSupported = compilationTimeMonitoringSupported; }
+    public void setCompiledMethodCount(Long compiledMethodCount) { this.compiledMethodCount = compiledMethodCount; }
+    public void setAvgCompilationTime(Double avgCompilationTime) { this.avgCompilationTime = avgCompilationTime; }
     }
 
     /**
@@ -1634,7 +1971,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "代码缓存信息")
     public static class CodeCacheInfo implements Serializable {
         /** 串行版本UID */
@@ -1663,6 +2000,14 @@ public class JvmInfo implements Serializable {
         @Schema(description = "是否接近满")
         /** Nearfull */
         private Boolean nearFull;
+
+    // === Manually generated setters ===
+    public void setName(String name) { this.name = name; }
+    public void setUsed(Long used) { this.used = used; }
+    public void setCommitted(Long committed) { this.committed = committed; }
+    public void setMax(Long max) { this.max = max; }
+    public void setUsagePercent(Double usagePercent) { this.usagePercent = usagePercent; }
+    public void setNearFull(Boolean nearFull) { this.nearFull = nearFull; }
     }
 
     /**
@@ -1670,7 +2015,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "GC统计信息")
     public static class GcStats implements Serializable {
         /** 串行版本UID */
@@ -1715,6 +2060,18 @@ public class JvmInfo implements Serializable {
         @Schema(description = "Old GC时间(毫秒)")
         /** OLDGC时间 */
         private Long oldGcTime;
+
+    // === Manually generated setters ===
+    public void setTotalCollectionCount(Long totalCollectionCount) { this.totalCollectionCount = totalCollectionCount; }
+    public void setTotalCollectionTime(Long totalCollectionTime) { this.totalCollectionTime = totalCollectionTime; }
+    public void setAvgCollectionTime(Double avgCollectionTime) { this.avgCollectionTime = avgCollectionTime; }
+    public void setLastGcName(String lastGcName) { this.lastGcName = lastGcName; }
+    public void setGcPerMinute(Double gcPerMinute) { this.gcPerMinute = gcPerMinute; }
+    public void setGcTimePercent(Double gcTimePercent) { this.gcTimePercent = gcTimePercent; }
+    public void setYoungGcCount(Long youngGcCount) { this.youngGcCount = youngGcCount; }
+    public void setYoungGcTime(Long youngGcTime) { this.youngGcTime = youngGcTime; }
+    public void setOldGcCount(Long oldGcCount) { this.oldGcCount = oldGcCount; }
+    public void setOldGcTime(Long oldGcTime) { this.oldGcTime = oldGcTime; }
     }
 
     /**
@@ -1722,7 +2079,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "元空间信息")
     public static class MetaspaceInfo implements Serializable {
         /** 串行版本UID */
@@ -1759,6 +2116,16 @@ public class JvmInfo implements Serializable {
         @Schema(description = "压缩类空间使用率(%)")
         /** Compressedclassspaceusage百分比 */
         private Double compressedClassSpaceUsagePercent;
+
+    // === Manually generated setters ===
+    public void setUsed(Long used) { this.used = used; }
+    public void setCommitted(Long committed) { this.committed = committed; }
+    public void setMax(Long max) { this.max = max; }
+    public void setUsagePercent(Double usagePercent) { this.usagePercent = usagePercent; }
+    public void setCompressedClassSpaceUsed(Long compressedClassSpaceUsed) { this.compressedClassSpaceUsed = compressedClassSpaceUsed; }
+    public void setCompressedClassSpaceCommitted(Long compressedClassSpaceCommitted) { this.compressedClassSpaceCommitted = compressedClassSpaceCommitted; }
+    public void setCompressedClassSpaceMax(Long compressedClassSpaceMax) { this.compressedClassSpaceMax = compressedClassSpaceMax; }
+    public void setCompressedClassSpaceUsagePercent(Double compressedClassSpaceUsagePercent) { this.compressedClassSpaceUsagePercent = compressedClassSpaceUsagePercent; }
     }
 
     /**
@@ -1766,7 +2133,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "直接内存信息")
     public static class DirectMemoryInfo implements Serializable {
         /** 串行版本UID */
@@ -1803,6 +2170,16 @@ public class JvmInfo implements Serializable {
         @Schema(description = "使用率(%)")
         /** Usage百分比 */
         private Double usagePercent;
+
+    // === Manually generated setters ===
+    public void setUsed(Long used) { this.used = used; }
+    public void setTotalCapacity(Long totalCapacity) { this.totalCapacity = totalCapacity; }
+    public void setCount(Long count) { this.count = count; }
+    public void setMappedUsed(Long mappedUsed) { this.mappedUsed = mappedUsed; }
+    public void setMappedCapacity(Long mappedCapacity) { this.mappedCapacity = mappedCapacity; }
+    public void setMappedCount(Long mappedCount) { this.mappedCount = mappedCount; }
+    public void setMaxDirectMemory(Long maxDirectMemory) { this.maxDirectMemory = maxDirectMemory; }
+    public void setUsagePercent(Double usagePercent) { this.usagePercent = usagePercent; }
     }
 
     /**
@@ -1810,7 +2187,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "内存分配速率")
     public static class MemoryAllocationRate implements Serializable {
         /** 串行版本UID */
@@ -1855,6 +2232,18 @@ public class JvmInfo implements Serializable {
         @Schema(description = "估计晒升速率(字节/秒)")
         /** 晋升比率persecond */
         private Long promotionRatePerSecond;
+
+    // === Manually generated setters ===
+    public void setEdenUsed(Long edenUsed) { this.edenUsed = edenUsed; }
+    public void setEdenMax(Long edenMax) { this.edenMax = edenMax; }
+    public void setEdenUsagePercent(Double edenUsagePercent) { this.edenUsagePercent = edenUsagePercent; }
+    public void setSurvivorUsed(Long survivorUsed) { this.survivorUsed = survivorUsed; }
+    public void setSurvivorMax(Long survivorMax) { this.survivorMax = survivorMax; }
+    public void setOldUsed(Long oldUsed) { this.oldUsed = oldUsed; }
+    public void setOldMax(Long oldMax) { this.oldMax = oldMax; }
+    public void setOldUsagePercent(Double oldUsagePercent) { this.oldUsagePercent = oldUsagePercent; }
+    public void setAllocationRatePerSecond(Long allocationRatePerSecond) { this.allocationRatePerSecond = allocationRatePerSecond; }
+    public void setPromotionRatePerSecond(Long promotionRatePerSecond) { this.promotionRatePerSecond = promotionRatePerSecond; }
     }
 
     /**
@@ -1862,7 +2251,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "类加载详情")
     public static class ClassLoadingDetail implements Serializable {
         /** 串行版本UID */
@@ -1891,6 +2280,14 @@ public class JvmInfo implements Serializable {
         @Schema(description = "是否启用详细输出")
         /** Verbose */
         private Boolean verbose;
+
+    // === Manually generated setters ===
+    public void setCurrentLoadedCount(Integer currentLoadedCount) { this.currentLoadedCount = currentLoadedCount; }
+    public void setTotalLoadedCount(Long totalLoadedCount) { this.totalLoadedCount = totalLoadedCount; }
+    public void setUnloadedCount(Long unloadedCount) { this.unloadedCount = unloadedCount; }
+    public void setLoadRatePerMinute(Double loadRatePerMinute) { this.loadRatePerMinute = loadRatePerMinute; }
+    public void setUnloadRatePerMinute(Double unloadRatePerMinute) { this.unloadRatePerMinute = unloadRatePerMinute; }
+    public void setVerbose(Boolean verbose) { this.verbose = verbose; }
     }
 
     /**
@@ -1898,7 +2295,7 @@ public class JvmInfo implements Serializable {
     * @author CH
     * @since 4.0.0
      */
-    @Data
+    @Getter
     @Schema(description = "安全管理器信息")
     public static class SecurityInfo implements Serializable {
         /** 串行版本UID */
@@ -1915,5 +2312,43 @@ public class JvmInfo implements Serializable {
         @Schema(description = "安全策略文件")
         /** Policy文件 */
         private String policyFile;
+
+    // === Manually generated setters ===
+    public void setSecurityManagerEnabled(Boolean securityManagerEnabled) { this.securityManagerEnabled = securityManagerEnabled; }
+    public void setSecurityManagerClass(String securityManagerClass) { this.securityManagerClass = securityManagerClass; }
+    public void setPolicyFile(String policyFile) { this.policyFile = policyFile; }
     }
+
+    // === Manually generated setters ===
+    public void setJvmName(String jvmName) { this.jvmName = jvmName; }
+    public void setJvmVersion(String jvmVersion) { this.jvmVersion = jvmVersion; }
+    public void setJvmVendor(String jvmVendor) { this.jvmVendor = jvmVendor; }
+    public void setJavaVersion(String javaVersion) { this.javaVersion = javaVersion; }
+    public void setJavaHome(String javaHome) { this.javaHome = javaHome; }
+    public void setStartTime(Long startTime) { this.startTime = startTime; }
+    public void setUptime(Long uptime) { this.uptime = uptime; }
+    public void setInputArguments(List<String> inputArguments) { this.inputArguments = inputArguments; }
+    public void setHeapMemory(MemoryInfo heapMemory) { this.heapMemory = heapMemory; }
+    public void setNonHeapMemory(MemoryInfo nonHeapMemory) { this.nonHeapMemory = nonHeapMemory; }
+    public void setMemoryPools(List<MemoryPoolInfo> memoryPools) { this.memoryPools = memoryPools; }
+    public void setThreadInfo(ThreadInfo threadInfo) { this.threadInfo = threadInfo; }
+    public void setTopCpuThreads(List<ThreadDetail> topCpuThreads) { this.topCpuThreads = topCpuThreads; }
+    public void setClassLoadingInfo(ClassLoadingInfo classLoadingInfo) { this.classLoadingInfo = classLoadingInfo; }
+    public void setGarbageCollectors(List<GarbageCollectorInfo> garbageCollectors) { this.garbageCollectors = garbageCollectors; }
+    public void setOsInfo(OsInfo osInfo) { this.osInfo = osInfo; }
+    public void setCpuInfo(CpuInfo cpuInfo) { this.cpuInfo = cpuInfo; }
+    public void setCompilationInfo(CompilationInfo compilationInfo) { this.compilationInfo = compilationInfo; }
+    public void setRuntimeInfo(RuntimeInfo runtimeInfo) { this.runtimeInfo = runtimeInfo; }
+    public void setBufferPools(List<BufferPoolInfo> bufferPools) { this.bufferPools = bufferPools; }
+    public void setFileDescriptorInfo(FileDescriptorInfo fileDescriptorInfo) { this.fileDescriptorInfo = fileDescriptorInfo; }
+    public void setThreadStateDistribution(ThreadStateDistribution threadStateDistribution) { this.threadStateDistribution = threadStateDistribution; }
+    public void setJitCompilationStats(JitCompilationStats jitCompilationStats) { this.jitCompilationStats = jitCompilationStats; }
+    public void setCodeCacheInfo(CodeCacheInfo codeCacheInfo) { this.codeCacheInfo = codeCacheInfo; }
+    public void setGcStats(GcStats gcStats) { this.gcStats = gcStats; }
+    public void setMetaspaceInfo(MetaspaceInfo metaspaceInfo) { this.metaspaceInfo = metaspaceInfo; }
+    public void setDirectMemoryInfo(DirectMemoryInfo directMemoryInfo) { this.directMemoryInfo = directMemoryInfo; }
+    public void setMemoryAllocationRate(MemoryAllocationRate memoryAllocationRate) { this.memoryAllocationRate = memoryAllocationRate; }
+    public void setClassLoadingDetail(ClassLoadingDetail classLoadingDetail) { this.classLoadingDetail = classLoadingDetail; }
+    public void setSecurityInfo(SecurityInfo securityInfo) { this.securityInfo = securityInfo; }
 }
+

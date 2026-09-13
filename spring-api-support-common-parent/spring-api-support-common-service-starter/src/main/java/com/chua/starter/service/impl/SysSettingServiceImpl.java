@@ -169,12 +169,13 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public List<SysSetting> list(SysSettingUpdate sysSettingUpdate, Set<String> roles) {
+        String group = sysSettingUpdate.getSysSettingGroup();
         return baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
-                .in(StringUtils.isNotBlank(sysSettingUpdate.getSysSettingGroup()), SysSetting::getSysSettingGroup,
-                        Arrays.stream(sysSettingUpdate.getSysSettingGroup().split(","))
+                .in(StringUtils.isNotBlank(group), SysSetting::getSysSettingGroup,
+                        StringUtils.isNotBlank(group) ? Arrays.stream(group.split(","))
                                 .map(String::trim)
                                 .filter(s -> !s.isEmpty())
-                                .collect(Collectors.toUnmodifiableSet()))
+                                .collect(Collectors.toUnmodifiableSet()) : null)
                 .orderByAsc(SysSetting::getSysSettingSort)
                 .orderByDesc(SysSetting::getCreateTime)
         );
@@ -239,6 +240,13 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 return ReturnResult.error("配置编码已存在");
             }
         }
+        // 校验配置值是否满足正则规则（掩码值视为未修改，跳过）
+        String validateRule = StringUtils.isNotBlank(sysSetting.getSysSettingValidate())
+                ? sysSetting.getSysSettingValidate() : sysSetting1.getSysSettingValidate();
+        String validateError = validateSettingValue(sysSetting.getSysSettingValue(), validateRule);
+        if (null != validateError) {
+            return ReturnResult.error(validateError);
+        }
         SysSetting version = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSysSettingName, "version"));
         List<SysSetting> sysSettings = new LinkedList<>();
         sysSettings.add(sysSetting);
@@ -276,6 +284,11 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
         if(null == sysSetting.getSysSettingStatus()) {
             sysSetting.setSysSettingStatus(1);
+        }
+        // 校验配置值是否满足正则规则
+        String validateError = validateSettingValue(sysSetting.getSysSettingValue(), sysSetting.getSysSettingValidate());
+        if (null != validateError) {
+            return ReturnResult.error(validateError);
         }
         SysSetting setting = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery()
                 .eq(SysSetting::getSysSettingName, sysSetting.getSysSettingName())
@@ -325,6 +338,16 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         if (null == sysSettings || sysSettings.isEmpty()) {
             return ReturnResult.error("配置不能为空");
         }
+        // 更新前批量查询旧值，用于记录变更历史
+        List<Integer> updateIds = sysSettings.stream()
+                .map(SysSetting::getSysSettingId)
+                .filter(Objects::nonNull)
+                .toList();
+        Map<Integer, SysSetting> oldValueMap = updateIds.isEmpty()
+                ? Collections.emptyMap()
+                : baseMapper.selectBatchIds(updateIds).stream()
+                        .collect(Collectors.toMap(SysSetting::getSysSettingId, it -> it, (a, b) -> a));
+
         SysSetting version = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSysSettingName, "version"));
         if (null != version) {
             version.setSysSettingConfig(UUID.randomUUID().toString());
@@ -335,6 +358,28 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             sysSettingService.clearCache(setting);
         }
         register(GlobalSettingFactory.getInstance(), sysSettings);
+
+        // 记录批量更新历史：同一次批量更新的多条历史共享一个批次号
+        try {
+            String operatorId = RequestUtils.getUserId();
+            String operatorName = RequestUtils.getUsername();
+            String batchNo = UUID.randomUUID().toString().replace("-", "");
+            for (SysSetting setting : sysSettings) {
+                if (null == setting.getSysSettingId()) {
+                    continue;
+                }
+                // 内部 version 配置仅用于刷新版本号，不纳入业务变更历史
+                if ("version".equals(setting.getSysSettingName())) {
+                    continue;
+                }
+                SysSetting oldSetting = oldValueMap.get(setting.getSysSettingId());
+                if (null != oldSetting) {
+                    sysSettingHistoryService.recordUpdate(oldSetting, setting, operatorId, operatorName, batchNo);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("记录配置批量更新历史失败: {}", e.getMessage());
+        }
         return ReturnResult.of(true);
     }
 
@@ -943,5 +988,42 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
         log.info("配置导入完成: batchNo={}, count={}", batchNo, allImportedSettings.size());
         return ReturnResult.ok(batchNo);
+    }
+
+    /** 敏感配置在列表/详情中展示的掩码值 */
+    public static final String SENSITIVE_MASK = "******";
+
+    /**
+     * 校验配置值是否满足正则规则。规则为空、值为空或为掩码占位时不校验。
+     *
+     * @param value 配置值
+     * @param rule  正则规则
+     * @return 校验失败返回错误信息，通过返回null
+     */
+    private String validateSettingValue(String value, String rule) {
+        if (StringUtils.isBlank(rule) || StringUtils.isBlank(value) || SENSITIVE_MASK.equals(value)) {
+            return null;
+        }
+        try {
+            if (!value.matches(rule)) {
+                return "配置值不满足校验规则: " + rule;
+            }
+        } catch (Exception e) {
+            // 正则本身非法不阻断业务，仅记录
+            log.warn("配置值校验规则非法，跳过校验: rule={}, error={}", rule, e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public ReturnResult<String> getPlainValue(Integer settingId) {
+        if (null == settingId) {
+            return ReturnResult.error("配置ID不能为空");
+        }
+        SysSetting sysSetting = baseMapper.selectById(settingId);
+        if (null == sysSetting) {
+            return ReturnResult.error("配置不存在, 请刷新后重试!");
+        }
+        return ReturnResult.ok(sysSetting.getSysSettingValue());
     }
 }

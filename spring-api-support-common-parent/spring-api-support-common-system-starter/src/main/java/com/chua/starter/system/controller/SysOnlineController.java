@@ -42,8 +42,10 @@ public class SysOnlineController {
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<List<OnlineUserVO>> getOnlineUsers(
             @Parameter(description = "用户名") @RequestParam(required = false) String username,
-            @Parameter(description = "IP地址") @RequestParam(required = false) String ip) {
-        return ReturnResult.ok(sysOnlineService.getOnlineUsers(username, ip));
+            @Parameter(description = "IP地址") @RequestParam(required = false) String ip,
+            @Parameter(description = "角色编码") @RequestParam(required = false) String roleCode,
+            @Parameter(description = "部门ID") @RequestParam(required = false) Integer deptId) {
+        return ReturnResult.ok(sysOnlineService.getOnlineUsers(username, ip, roleCode, deptId));
     }
 
     /**

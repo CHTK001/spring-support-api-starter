@@ -35,7 +35,7 @@ public interface SysUserService extends IService<SysUser> {
     * @param roles 用户角色集合，用于筛选用户
     * @return 分页查询结果，包含用户信息列表和分页数据
      */
-    IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles);
+    IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles, Integer currentUserId, Integer currentDeptId);
 
     /**
     * 删除指定用户
@@ -141,5 +141,31 @@ public interface SysUserService extends IService<SysUser> {
     * @return 导入结果
      */
     ReturnResult<String> importUsers(MultipartFile file);
+
+    /**
+    * 批量删除用户
+    *
+    * @param userIds 用户ID列表
+    * @return 操作结果
+     */
+    ReturnResult<Boolean> deleteBatch(List<Long> userIds);
+
+    /**
+    * 批量更新用户状态
+    *
+    * @param userIds 用户ID列表
+    * @param status  状态 0:禁用 1:启用
+    * @return 操作结果
+     */
+    ReturnResult<Boolean> updateStatusBatch(List<Long> userIds, Integer status);
+
+    /**
+    * 锁定/解锁用户
+    *
+    * @param userId 用户ID
+    * @param lock   锁定状态: 0-正常 1-锁定
+    * @return 操作结果
+     */
+    ReturnResult<Boolean> lockUser(Long userId, Integer lock);
 
 }

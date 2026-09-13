@@ -5,7 +5,6 @@ import com.chua.common.support.utils.BeanUtils;
 import com.chua.common.support.converter.Converter;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.common.support.constant.DataFilterTypeEnum;
 import com.chua.starter.oauth.client.support.user.RoleInfo;
 import com.chua.starter.oauth.client.support.user.UserResult;
@@ -46,7 +45,7 @@ import static com.chua.starter.common.support.constant.DataFilterTypeEnum.ALL;
 * @author CH
  */
 @Slf4j
-public abstract class AbstractUserLoginService implements UserInfoService, Constant {
+public abstract class AbstractUserLoginService implements UserInfoService {
     /** Dept_leader */
     private static final String DEPT_LEADER = "DEPT_LEADER";
     /** 认证_版本 */

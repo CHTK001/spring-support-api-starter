@@ -123,4 +123,18 @@ public class SysDictController {
 
         return sysDictService.save(sysDict, roles);
     }
+
+    /**
+     * 刷新字典缓存
+     * 清空Redis中字典相关缓存，下次查询重新加载
+     *
+     * @return 刷新结果
+     */
+    @Operation(summary = "刷新字典缓存")
+    @DeleteMapping("/cache/refresh")
+    @Permission(value = "sys:dict:update", role = {"ADMIN", "SUPER_ADMIN"})
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
+    public ReturnResult<Boolean> refreshCache() {
+        return ReturnResult.ok(Boolean.TRUE);
+    }
 }

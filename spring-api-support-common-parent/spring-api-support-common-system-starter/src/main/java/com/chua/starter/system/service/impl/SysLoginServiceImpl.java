@@ -19,6 +19,7 @@ import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
+import com.chua.starter.oauth.client.support.ratelimit.RateLimitService;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.oauth.client.support.execute.AuthSessionUtils;
 import com.chua.starter.oauth.client.support.user.UserResume;
@@ -37,6 +38,7 @@ import com.chua.starter.entity.system.SysUserRole;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.handler.LoginHandler;
 import com.chua.starter.system.constant.SystemConstant;
+import com.chua.starter.system.properties.SystemSecurityProperties;
 import com.chua.starter.system.service.SysLoginService;
 import com.chua.starter.system.service.SysUserService;
 import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
@@ -66,6 +68,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -179,6 +182,8 @@ public class SysLoginServiceImpl implements SysLoginService {
     private final SysDeptMapper sysDeptMapper;
     /** Objectmapper */
     private final ObjectMapper objectMapper;
+    /** 系统安全配置(失败次数/锁定时长) */
+    private final SystemSecurityProperties securityProperties;
 
     @Override
     /** Login */
@@ -216,6 +221,11 @@ public class SysLoginServiceImpl implements SysLoginService {
             log.warn("本地登录失败: 账户已禁用 - {}", loginData.getUsername());
             return new LoginAuthResult(403, "账号已被禁用");
         }
+        // 账号锁定校验: sysUserLock=1 时判断锁定期是否已过, 过期自动解锁, 未过拒绝登录
+        LoginAuthResult lockCheck = checkAndAutoUnlock(user, loginData.getUsername());
+        if (null != lockCheck) {
+            return lockCheck;
+        }
         log.info("本地登录成功(跳过密码校验): user={}", loginData.getUsername());
 
  // 一次 连接 查询用户全部角色编码（带缓存），替代原来的两次 选择列表
@@ -227,6 +237,8 @@ public class SysLoginServiceImpl implements SysLoginService {
         userResult.setUserId(String.valueOf(user.getSysUserId()));
         userResult.setPhone(user.getSysUserPhone());
         userResult.setRoles(roleCodes);
+        // 只读账号：用户任一角色 sysRoleReadonly=1 则整账号只读
+        userResult.setReadonly(resolveUserReadonly(user.getSysUserId()));
         userResult.setUid(DigestUtils.sha1(String.valueOf(user.getSysUserId())));
         userResult.setOpenId(userResult.getUid());
         userResult.setUnionId(userResult.getUid());
@@ -245,6 +257,8 @@ public class SysLoginServiceImpl implements SysLoginService {
         ext.put("sysUserAvatar", user.getSysUserAvatar());
         ext.put("sysDeptId", user.getSysDeptId());
         ext.put("sysUserSex", user.getSysUserSex());
+        // 强制修改密码标记透出到登录响应(经 UserInfoVO.mustChangePassword)
+        ext.put("sysUserMustChangePassword", user.getSysUserMustChangePassword());
         userResult.setExt(ext);
 
  // 数据权限：从用户所属部门读取数据权限配置（DEPT/SELF/DEPT_和_SUB 等）
@@ -275,6 +289,70 @@ public class SysLoginServiceImpl implements SysLoginService {
         AuthSessionUtils.setUserInfo(resume);
         log.info("本地登录成功: user={}", loginData.getUsername());
         return result;
+    }
+
+    /**
+    * 账号锁定校验: 若用户 sysUserLock=1, 距 sysUserLockTime 未超过锁定时长则拒绝登录,
+    * 超过则自动解锁(sysUserLock=0)后放行。
+    *
+    * @param user     已查询到的用户
+    * @param username 登录账号(日志用)
+    * @return null 表示放行; 非 null 表示锁定错误结果
+     */
+    private LoginAuthResult checkAndAutoUnlock(SysUser user, String username) {
+        if (null == user.getSysUserLock() || user.getSysUserLock() != 1) {
+            return null;
+        }
+        int lockMinutes = securityProperties.getLockoutDurationMinutes();
+        LocalDateTime lockTime = user.getSysUserLockTime();
+        long lockedMinutes = (null == lockTime) ? lockMinutes : ChronoUnit.MINUTES.between(lockTime, LocalDateTime.now());
+        if (null == lockTime || lockedMinutes >= lockMinutes) {
+            // 锁定期已过, 自动解锁
+            SysUser unlock = new SysUser();
+            unlock.setSysUserId(user.getSysUserId());
+            unlock.setSysUserLock(0);
+            unlock.setSysUserLockTime(null);
+            simpleSysUserService.updateById(unlock);
+            user.setSysUserLock(0);
+            user.setSysUserLockTime(null);
+            log.info("账号锁定已到期, 自动解锁: {}", username);
+            return null;
+        }
+        long remain = lockMinutes - lockedMinutes;
+        log.warn("本地登录失败: 账号已锁定, 剩余{}分钟 - {}", remain, username);
+        return new LoginAuthResult(423, "账号已锁定，请" + remain + "分钟后再试");
+    }
+
+    /**
+    * 登录失败计数达到阈值后, 将 Redis 侧锁定镜像到数据库(sysUserLock=1, sysUserLockTime=now)。
+    * <p>由 DefaultLoginHandler 在 recordLoginFailure 后调用, 失败计数与 Redis 锁定仍由 RateLimitService 负责,
+    * 此处仅做 DB 持久化, 便于后台展示与登录时校验。</p>
+    *
+    * @param username 登录账号
+     */
+    public void syncDbLoginLock(String username) {
+        try {
+            if (StringUtils.isBlank(username)) {
+                return;
+            }
+            if (!RateLimitService.getInstance().isAccountLocked(username)) {
+                return;
+            }
+            SysUser user = simpleSysUserService.lambdaQuery()
+                    .eq(SysUser::getSysUserUsername, username)
+                    .one();
+            if (null == user || Integer.valueOf(1).equals(user.getSysUserLock())) {
+                return;
+            }
+            SysUser lock = new SysUser();
+            lock.setSysUserId(user.getSysUserId());
+            lock.setSysUserLock(1);
+            lock.setSysUserLockTime(LocalDateTime.now());
+            simpleSysUserService.updateById(lock);
+            log.warn("登录失败次数达阈值, 账号已锁定(DB): {}", username);
+        } catch (Exception e) {
+            log.warn("同步账号锁定状态失败: {}, {}", username, e.getMessage());
+        }
     }
 
     /**
@@ -474,6 +552,18 @@ public class SysLoginServiceImpl implements SysLoginService {
         userInfoVO.setTenantId(userLoginInfo.getTenantId());
         userInfoVO.setRoles(userLoginInfo.getRoles());
         userInfoVO.setPerms(userLoginInfo.getPermission());
+        // 强制修改密码标记透出
+        if (null == userInfoVO.getMustChangePassword()) {
+            Object mustChange = userLoginInfo.getOption("sysUserMustChangePassword");
+            if (mustChange instanceof Number) {
+                userInfoVO.setMustChangePassword(((Number) mustChange).intValue());
+            } else if (null != mustChange) {
+                try {
+                    userInfoVO.setMustChangePassword(Integer.valueOf(String.valueOf(mustChange)));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
         enrichAgreementStatus(userInfoVO);
         return userInfoVO;
     }
@@ -572,6 +662,22 @@ public class SysLoginServiceImpl implements SysLoginService {
         }
         USER_ROLE_CACHE.put(key, new CachedValue(roleCodes, System.currentTimeMillis() + CACHE_TTL_MILLIS));
         return roleCodes;
+    }
+
+    /**
+    * 判断用户是否只读账号(任一角色 sysRoleReadonly=1 即只读)
+    *
+    * @param userId 用户ID
+    * @return 是否只读
+     */
+    private boolean resolveUserReadonly(Integer userId) {
+        try {
+            return sysRoleMapper.listByUserId(java.util.Collections.singleton(userId)).stream()
+                    .anyMatch(r -> r.getSysRoleReadonly() != null && r.getSysRoleReadonly() == 1);
+        } catch (Exception e) {
+            log.warn("判断用户只读标记失败: userId={}, {}", userId, e.getMessage());
+            return false;
+        }
     }
 
     /**

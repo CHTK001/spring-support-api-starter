@@ -1,6 +1,7 @@
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,8 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
 * 前端异常上报日志服务实现
@@ -109,6 +115,93 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
         return baseMapper.selectPage(query.createPage(), wrapper);
     }
 
+    @Override
+    /** 统计 */
+    public Map<String, Object> statistic() {
+        Map<String, Object> result = new HashMap<>(8);
+
+        // 总数
+        long total = count();
+        result.put("total", total);
+
+        // 今日新增
+        LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+        long todayCount = count(Wrappers.<SysErrorLog>lambdaQuery()
+                .ge(SysErrorLog::getCreateTime, todayStart));
+        result.put("todayCount", todayCount);
+
+        // 按处理状态统计: 0未处理 1已处理 2已忽略
+        long pendingCount = count(Wrappers.<SysErrorLog>lambdaQuery().eq(SysErrorLog::getSysErrorStatus, 0));
+        long handledCount = count(Wrappers.<SysErrorLog>lambdaQuery().eq(SysErrorLog::getSysErrorStatus, 1));
+        long ignoredCount = count(Wrappers.<SysErrorLog>lambdaQuery().eq(SysErrorLog::getSysErrorStatus, 2));
+        result.put("pendingCount", pendingCount);
+        result.put("handledCount", handledCount);
+        result.put("ignoredCount", ignoredCount);
+        // 处理率 = (已处理 + 已忽略) / 总数
+        double handleRate = total > 0 ? Math.round((handledCount + ignoredCount) * 10000.0 / total) / 100.0 : 0.0;
+        result.put("handleRate", handleRate);
+
+        // 按来源分组统计
+        List<Map<String, Object>> sourceStats = new ArrayList<>();
+        List<Map<String, Object>> sourceRows = baseMapper.selectMaps(
+                new QueryWrapper<SysErrorLog>()
+                        .select("sys_error_source AS source, COUNT(*) AS count")
+                        .groupBy("sys_error_source"));
+        for (Map<String, Object> row : sourceRows) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("source", row.get("source"));
+            item.put("count", ((Number) row.get("count")).longValue());
+            sourceStats.add(item);
+        }
+        result.put("sourceStats", sourceStats);
+
+        // 按错误Key分组取Top5
+        List<Map<String, Object>> topErrors = new ArrayList<>();
+        List<Map<String, Object>> topRows = baseMapper.selectMaps(
+                new QueryWrapper<SysErrorLog>()
+                        .select("sys_error_key AS errorKey, sys_error_message AS message, sys_error_source AS source, COUNT(*) AS count")
+                        .groupBy("sys_error_key")
+                        .orderByDesc("count")
+                        .last("LIMIT 5"));
+        for (Map<String, Object> row : topRows) {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("errorKey", row.get("errorKey"));
+            item.put("message", row.get("message"));
+            item.put("source", row.get("source"));
+            item.put("count", ((Number) row.get("count")).longValue());
+            topErrors.add(item);
+        }
+        result.put("topErrors", topErrors);
+
+        return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    /** 按ID批量删除 */
+    public ReturnResult<Boolean> deleteByIds(List<Long> sysErrorLogIds) {
+        if (sysErrorLogIds == null || sysErrorLogIds.isEmpty()) {
+            return ReturnResult.illegal("异常日志ID不能为空");
+        }
+        return ReturnResult.of(baseMapper.deleteBatchIds(sysErrorLogIds) > 0);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    /** 更新处理状态 */
+    public ReturnResult<Boolean> updateStatus(Long sysErrorLogId, Integer status) {
+        if (null == sysErrorLogId) {
+            return ReturnResult.illegal("异常日志ID不能为空");
+        }
+        if (null == status || (status < 0 || status > 2)) {
+            return ReturnResult.illegal("状态值不合法");
+        }
+        SysErrorLog update = new SysErrorLog();
+        update.setSysErrorLogId(sysErrorLogId);
+        update.setSysErrorStatus(status);
+        return ReturnResult.of(baseMapper.updateById(update) > 0);
+    }
+
     /**
     * 将单条上报记录转换为实体对象
     *
@@ -144,5 +237,52 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
             return null;
         }
         return value.length() > MAX_MESSAGE_LENGTH ? value.substring(0, MAX_MESSAGE_LENGTH) : value;
+    }
+
+    @Override
+    /** 查询详情 */
+    public SysErrorLog getDetail(Long sysErrorLogId) {
+        if (null == sysErrorLogId) {
+            return null;
+        }
+        return getById(sysErrorLogId);
+    }
+
+    @Override
+    /** 按来源统计 */
+    public List<java.util.Map<String, Object>> statisticBySource(Long startTime, Long endTime) {
+        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<SysErrorLog> wrapper =
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+        if (null != startTime) {
+            wrapper.ge(SysErrorLog::getSysErrorReportTime, startTime);
+        }
+        if (null != endTime) {
+            wrapper.le(SysErrorLog::getSysErrorReportTime, endTime);
+        }
+        wrapper.select(SysErrorLog::getSysErrorSource);
+        List<SysErrorLog> list = list(wrapper);
+        java.util.Map<String, Long> counter = new java.util.LinkedHashMap<>();
+        for (SysErrorLog item : list) {
+            String source = item.getSysErrorSource() == null ? "unknown" : item.getSysErrorSource();
+            counter.merge(source, 1L, Long::sum);
+        }
+        java.util.List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
+        counter.forEach((type, count) -> {
+            java.util.Map<String, Object> row = new java.util.LinkedHashMap<>();
+            row.put("type", type);
+            row.put("count", count);
+            result.add(row);
+        });
+        return result;
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
+    /** 清理 */
+    public int cleanBefore(int days) {
+        long threshold = System.currentTimeMillis() - Math.max(days, 0) * 24L * 3600L * 1000L;
+        boolean removed = remove(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<SysErrorLog>()
+                .lt(SysErrorLog::getSysErrorReportTime, threshold));
+        return removed ? 1 : 0;
     }
 }
