@@ -81,6 +81,10 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
         sysRole.setSysRoleInSystem(null);
         String sysRoleCode = sysRole.getSysRoleCode();
+        // 系统内置角色不允许变更角色编码(只允许改名称/备注/排序/状态/数据权限/只读标记)
+        if(null != sysRole2.getSysRoleInSystem() && sysRole2.getSysRoleInSystem() == SystemConstant.IN_SYSTEM_YES) {
+            sysRole.setSysRoleCode(null);
+        }
         if(StringUtils.isNotBlank(sysRoleCode)) {
             SysRole sysRole1 = baseMapper.selectOne(Wrappers.<SysRole>lambdaQuery()
                     .eq(SysRole::getSysRoleCode, sysRoleCode.toUpperCase())

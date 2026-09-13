@@ -14,6 +14,9 @@ import com.chua.starter.entity.service.SysLog;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -60,6 +63,71 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
             return ReturnResult.<Boolean>ok(Boolean.TRUE);
         }
         return ReturnResult.<Boolean>ok(Boolean.FALSE);
+    }
+
+    /** CSV 导出时间格式化 */
+    private static final DateTimeFormatter EXPORT_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    @Override
+    public byte[] exportLogs(SysLog sysLog, String startDate, String endDate) {
+        List<SysLog> records = baseMapper.selectList(Wrappers.<SysLog>lambdaQuery()
+                .like(StringUtils.isNotBlank(sysLog.getSysLogUsername()), SysLog::getSysLogUsername, sysLog.getSysLogUsername())
+                .like(StringUtils.isNotBlank(sysLog.getSysLogFrom()), SysLog::getSysLogFrom, sysLog.getSysLogFrom())
+                .like(StringUtils.isNotBlank(sysLog.getSysLogAddress()), SysLog::getSysLogAddress, sysLog.getSysLogAddress())
+                .eq(ObjectUtils.isNotEmpty(sysLog.getSysLogStatus()), SysLog::getSysLogStatus, sysLog.getSysLogStatus())
+                .ge(StringUtils.isNotBlank(startDate), SysLog::getCreateTime, startDate)
+                .le(StringUtils.isNotBlank(endDate), SysLog::getCreateTime, endDate)
+                .orderByDesc(SysLog::getCreateTime)
+        );
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("日志ID,账号,请求模块,请求IP,请求URL,浏览器,请求描述,请求参数,耗时(毫秒),状态,操作时间\r\n");
+        for (SysLog log : records) {
+            sb.append(csv(log.getSysLogId())).append(',')
+                    .append(csv(log.getSysLogUsername())).append(',')
+                    .append(csv(log.getSysLogFrom())).append(',')
+                    .append(csv(log.getSysLogAddress())).append(',')
+                    .append(csv(log.getSysLogUrl())).append(',')
+                    .append(csv(log.getSysLogBrowser())).append(',')
+                    .append(csv(log.getSysLogContent())).append(',')
+                    .append(csv(log.getSysLogParam())).append(',')
+                    .append(null == log.getSysLogCost() ? "" : log.getSysLogCost()).append(',')
+                    .append(log.getSysLogStatus() == null ? "" : (log.getSysLogStatus() == 1 ? "成功" : "失败")).append(',')
+                    .append(null == log.getCreateTime() ? "" : log.getCreateTime().format(EXPORT_TIME_FORMATTER)).append("\r\n");
+        }
+        return withUtf8Bom(sb.toString());
+    }
+
+    /**
+     * CSV字段转义：含逗号/引号/换行时用双引号包裹并转义内部双引号
+     *
+     * @param value 原始值
+     * @return 转义后的CSV字段
+     */
+    private String csv(Object value) {
+        if (null == value) {
+            return "";
+        }
+        String text = String.valueOf(value);
+        if (text.contains(",") || text.contains("\"") || text.contains("\n") || text.contains("\r")) {
+            return "\"" + text.replace("\"", "\"\"") + "\"";
+        }
+        return text;
+    }
+
+    /**
+     * 给CSV内容前置UTF-8 BOM，便于Excel正确识别中文
+     *
+     * @param content CSV文本
+     * @return 带BOM的字节数组
+     */
+    private byte[] withUtf8Bom(String content) {
+        byte[] body = content.getBytes(StandardCharsets.UTF_8);
+        byte[] bom = new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
+        byte[] result = new byte[bom.length + body.length];
+        System.arraycopy(bom, 0, result, 0, bom.length);
+        System.arraycopy(body, 0, result, bom.length, body.length);
+        return result;
     }
 
     /**

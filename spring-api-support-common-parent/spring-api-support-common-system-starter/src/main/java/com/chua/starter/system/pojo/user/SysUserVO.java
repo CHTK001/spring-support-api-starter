@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.chua.starter.entity.system.SysPost;
 import com.chua.starter.entity.system.SysRole;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -222,6 +223,14 @@ public class SysUserVO extends SysBase implements Serializable {
     @TableField(exist = false)
     /** 用户角色 */
     private List<SysRole> userRoles;
+
+    /**
+    * 岗位列表(系统生成)
+     */
+    @Schema(description = "岗位列表(系统生成)")
+    @TableField(exist = false)
+    /** 用户岗位 */
+    private List<SysPost> userPosts;
 
     /**
     * 生日

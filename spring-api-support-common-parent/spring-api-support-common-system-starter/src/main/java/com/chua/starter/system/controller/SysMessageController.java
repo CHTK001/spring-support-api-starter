@@ -2,9 +2,13 @@ package com.chua.starter.system.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.common.support.annotations.Permission;
+import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.lang.ReturnPageResult;
+import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.entity.service.SysMessage;
 import com.chua.starter.system.pojo.message.SysMessageVO;
 import com.chua.starter.system.service.SysMessageService;
@@ -12,11 +16,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
 * 站内消息接口
@@ -35,6 +40,9 @@ public class SysMessageController {
 
     /** SYS消息服务 */
     private final SysMessageService sysMessageService;
+
+    /** 消息模板服务 */
+    private final com.chua.starter.system.service.SysMessageTemplateService sysMessageTemplateService;
 
     /**
     * 分页查询当前用户消息
@@ -81,6 +89,93 @@ public class SysMessageController {
             @Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId,
             @RequestParam(required = false) Long lastId) {
         return sysMessageService.markRead(sysUserId == null ? 0 : sysUserId, lastId);
+    }
+
+    /**
+    * 管理员分页查询全部消息
+    *
+    * @param query     分页参数
+    * @param condition 查询条件(标题/类型/状态/接收者)
+    * @return 消息分页结果
+     */
+    @Operation(summary = "管理员-消息分页列表")
+    @GetMapping("/admin/page")
+    @Permission(value = "sys:message:page", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnPageResult<SysMessage> adminPage(@ParameterObject Query<SysMessage> query,
+                                                  @ParameterObject SysMessage condition) {
+        return PageResultUtils.ok(sysMessageService.pageForAdmin(query, condition));
+    }
+
+    /**
+    * 管理员发送消息
+    *
+    * @param sysUserId 当前管理员用户标识(自动注入)
+    * @param message   消息体(标题/内容/类型/级别/接收者/跳转链接)
+    * @return 发送后的消息
+     */
+    @Operation(summary = "管理员-发送消息")
+    @PostMapping("/admin/send")
+    @SysLog
+    @Transactional(rollbackFor = Exception.class)
+    @Permission(value = "sys:message:send", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<SysMessage> adminSend(
+            @Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId,
+            @RequestParam(required = false) String templateCode,
+            @RequestBody SysMessage message) {
+        message.setSysMessageSenderId(sysUserId);
+        // 若指定模板编码, 从模板渲染标题/内容并替换变量
+        if (null != templateCode && !templateCode.trim().isEmpty()) {
+            java.util.Map<String, String> variables = new java.util.HashMap<>();
+            variables.put("username", message.getSysMessageReceiverName() == null ? "" : message.getSysMessageReceiverName());
+            variables.put("date", java.time.LocalDate.now().toString());
+            String[] rendered = sysMessageTemplateService.renderByCode(templateCode.trim(), variables);
+            if (null != rendered) {
+                if (null == message.getSysMessageTitle()) {
+                    message.setSysMessageTitle(rendered[0]);
+                }
+                if (null == message.getSysMessageContent()) {
+                    message.setSysMessageContent(rendered[1]);
+                }
+            }
+        }
+        return sysMessageService.sendMessage(message);
+    }
+
+    /**
+    * 管理员撤回消息
+    *
+    * @param sysMessageId 消息ID
+    * @return 撤回结果
+     */
+    @Operation(summary = "管理员-撤回消息")
+    @PutMapping("/admin/recall")
+    @SysLog
+    @Permission(value = "sys:message:recall", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Boolean> adminRecall(@RequestParam Long sysMessageId) {
+        return sysMessageService.recallMessage(sysMessageId);
+    }
+
+    /**
+    * 管理员删除消息(支持批量, 多个ID用逗号分隔)
+    *
+    * @param sysMessageId 消息ID, 支持 "1,2,3" 逗号分隔
+    * @return 删除结果
+     */
+    @Operation(summary = "管理员-删除消息")
+    @DeleteMapping("/admin/delete")
+    @SysLog
+    @Transactional(rollbackFor = Exception.class)
+    @Permission(value = "sys:message:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Boolean> adminDelete(@RequestParam String sysMessageId) {
+        if (null == sysMessageId || sysMessageId.trim().isEmpty()) {
+            return ReturnResult.illegal("消息ID不能为空");
+        }
+        List<Long> ids = Arrays.stream(sysMessageId.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(Long::valueOf)
+                .toList();
+        return sysMessageService.deleteMessage(ids);
     }
 
     /**

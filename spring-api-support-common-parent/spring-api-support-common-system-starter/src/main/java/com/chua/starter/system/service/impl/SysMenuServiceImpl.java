@@ -386,4 +386,65 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         return Joiner.on(",").join(parentSysMenu.getSysMenuTreeId(), menuId);
     }
 
+    @Override
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
+    public ReturnResult<Boolean> refreshCache() {
+        return ReturnResult.ok(true);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
+    /** 批量保存按钮 */
+    public ReturnResult<Boolean> batchSaveButtons(List<SysMenu> menus) {
+        if (CollectionUtils.isEmpty(menus)) {
+            return ReturnResult.illegal("按钮列表不能为空");
+        }
+        for (SysMenu menu : menus) {
+            // 按钮类型固定为 3(button), 权限标识为空时自动生成
+            if (null == menu.getSysMenuType()) {
+                menu.setSysMenuType(3);
+            }
+            if (StringUtils.isBlank(menu.getSysMenuPerm())) {
+                menu.setSysMenuPerm(generatePerm(menu));
+            }
+            if (null == menu.getSysMenuId()) {
+                baseMapper.insert(menu);
+            } else {
+                baseMapper.updateById(menu);
+            }
+        }
+        return ReturnResult.ok(true);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
+    /** 批量删除按钮 */
+    public ReturnResult<Boolean> batchDeleteButtons(List<Integer> menuIds) {
+        if (CollectionUtils.isEmpty(menuIds)) {
+            return ReturnResult.illegal("按钮ID不能为空");
+        }
+        return ReturnResult.of(baseMapper.deleteBatchIds(menuIds) > 0);
+    }
+
+    /**
+    * 根据父菜单 path + 菜单名称自动生成权限标识, 如 system:user:add
+     */
+    private String generatePerm(SysMenu menu) {
+        String base = "";
+        if (null != menu.getSysMenuPid() && menu.getSysMenuPid() > 0) {
+            SysMenu parent = baseMapper.selectById(menu.getSysMenuPid());
+            if (null != parent && StringUtils.isNotBlank(parent.getSysMenuPath())) {
+                base = parent.getSysMenuPath().replaceAll("^/+", "").replace('/', ':');
+            }
+        }
+        String name = StringUtils.isNotBlank(menu.getSysMenuName()) ? menu.getSysMenuName()
+                : (StringUtils.isNotBlank(menu.getSysMenuTitle()) ? menu.getSysMenuTitle() : "");
+        if (StringUtils.isBlank(base)) {
+            return name;
+        }
+        return base + ":" + name;
+    }
+
 }

@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.geo.support.geo.GeoCity;
+import com.chua.common.support.network.ip.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.time.date.DateUtils;
-import com.chua.common.support.core.utils.ObjectUtils;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.DateUtils;
+import com.chua.common.support.utils.ObjectUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.common.support.logger.UserLoggerInfo;
 import com.chua.starter.common.support.service.IptablesService;
@@ -23,6 +23,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 
@@ -50,17 +52,11 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     /**
-    * 鍒涘缓日志
-    *
-    * @param userLoggerInfo 日志
-    * @return 日志
-    * @param value 值
-     /**
-      * 创建sys用户日志。
-      * @param userLoggerInfo 用户日志记录器信息
-      * @return 创建sys用户日志的结果
-      */
-     * @param source 源
+    /**
+     * 创建用户登录日志
+     *
+     * @param userLoggerInfo 日志信息
+     * @return 日志实体
      */
     private SysUserLog createSysUserLog(UserLoggerInfo userLoggerInfo) {
         SysUserLog sysUserLog = new SysUserLog();
@@ -158,7 +154,7 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
 
     @Override
     public ReturnResult<Boolean> delete(Long userLogId) {
-        return baseMapper.deleteById(userLogId) > 0 ? ReturnResult.ok() : ReturnResult.error();
+        return baseMapper.deleteById(userLogId) > 0 ? ReturnResult.ok() : ReturnResult.error("删除失败");
     }
 
     @Override
@@ -225,5 +221,84 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
                         sysUserLog.getSysLogFrom(), sysUserLog.getSysLogUsername(), e.getMessage());
             }
         });
+    }
+
+    /** 单次导出最大行数，避免超大结果集拖垮服务 */
+    private static final long EXPORT_MAX_ROWS = 50000L;
+    /** CSV 导出时间格式化 */
+    private static final DateTimeFormatter EXPORT_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    @Override
+    public byte[] exportUserLogs(SysUserLogQuery sysUserLogQuery,
+                                 Integer sysUserId,
+                                 Set<String> roles,
+                                 List<String> managedDeptTreeIds) {
+        SysUserLogQuery normalizedQuery = normalizeUserLogQuery(sysUserLogQuery);
+        boolean isSuperAdmin = roles != null && roles.contains(AuthConstant.SUPER_ADMIN);
+        boolean isAdmin = !isSuperAdmin && roles != null && roles.contains(AuthConstant.ADMIN);
+        boolean isDeptLeader = !isSuperAdmin && !isAdmin && roles != null && roles.contains("DEPT_LEADER");
+
+        // 复用分页查询的权限与筛选逻辑，拉取全量（上限 EXPORT_MAX_ROWS）
+        List<SysUserLog> records = baseMapper.listForUserLog(
+                normalizedQuery,
+                sysUserId,
+                isSuperAdmin,
+                isAdmin,
+                isDeptLeader,
+                managedDeptTreeIds,
+                0L,
+                EXPORT_MAX_ROWS
+        );
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("日志ID,操作账号,登录方式,请求模块,请求IP,地理位置,运营商,操作系统,浏览器,请求URL,状态,耗时(毫秒),操作时间\r\n");
+        for (SysUserLog log : records) {
+            sb.append(csv(log.getSysLogId())).append(',')
+                    .append(csv(log.getSysLogUsername())).append(',')
+                    .append(csv(log.getSysLogLoginType())).append(',')
+                    .append(csv(log.getSysLogFrom())).append(',')
+                    .append(csv(log.getSysLogIp())).append(',')
+                    .append(csv(log.getSysLogAddress())).append(',')
+                    .append(csv(log.getSysLogIsp())).append(',')
+                    .append(csv(log.getSysLogSystem())).append(',')
+                    .append(csv(log.getSysLogBrowser())).append(',')
+                    .append(csv(log.getSysLogUrl())).append(',')
+                    .append(log.getSysLogStatus() == null ? "" : (log.getSysLogStatus() == 1 ? "成功" : "失败")).append(',')
+                    .append(null == log.getSysLogCost() ? "" : log.getSysLogCost()).append(',')
+                    .append(null == log.getCreateTime() ? "" : log.getCreateTime().format(EXPORT_TIME_FORMATTER)).append("\r\n");
+        }
+        return withUtf8Bom(sb.toString());
+    }
+
+    /**
+     * CSV字段转义：含逗号/引号/换行时用双引号包裹并转义内部双引号
+     *
+     * @param value 原始值
+     * @return 转义后的CSV字段
+     */
+    private String csv(Object value) {
+        if (null == value) {
+            return "";
+        }
+        String text = String.valueOf(value);
+        if (text.contains(",") || text.contains("\"") || text.contains("\n") || text.contains("\r")) {
+            return "\"" + text.replace("\"", "\"\"") + "\"";
+        }
+        return text;
+    }
+
+    /**
+     * 给CSV内容前置UTF-8 BOM，便于Excel正确识别中文
+     *
+     * @param content CSV文本
+     * @return 带BOM的字节数组
+     */
+    private byte[] withUtf8Bom(String content) {
+        byte[] body = content.getBytes(StandardCharsets.UTF_8);
+        byte[] bom = new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
+        byte[] result = new byte[bom.length + body.length];
+        System.arraycopy(bom, 0, result, 0, bom.length);
+        System.arraycopy(body, 0, result, bom.length, body.length);
+        return result;
     }
 }

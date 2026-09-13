@@ -52,6 +52,13 @@ public class FeedbackStatisticV1Response {
     private Long resolved;
 
     /**
+    * 今日新增数
+     */
+    @Schema(description = "今日新增数")
+    /** Today */
+    private Long todayCount;
+
+    /**
     * 类型统计
     * @author CH
     * @since 4.0.0

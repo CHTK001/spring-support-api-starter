@@ -13,11 +13,19 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Array;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -72,6 +80,35 @@ public class SysUserLogController {
                 roles,
                 normalizeManagedDeptTreeIds(managedDeptTreeIds)
         ));
+    }
+
+    /**
+     * 导出登录/操作日志
+     *
+     * @param sysUserLogQuery       筛选条件
+     * @param sysUserId             当前用户标识（隐藏）
+     * @param roles                 当前用户角色（隐藏）
+     * @param managedDeptTreeIds    当前用户负责部门树（隐藏）
+     * @return CSV文件下载
+     */
+    @Operation(summary = "导出登录日志")
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> export(@ParameterObject SysUserLogQuery sysUserLogQuery,
+                                        @Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId,
+                                        @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+                                        @Parameter(hidden = true) @UserValue("managedDeptTreeIds") Object managedDeptTreeIds) {
+        byte[] data = sysUserLogService.exportUserLogs(
+                sysUserLogQuery,
+                sysUserId,
+                roles,
+                normalizeManagedDeptTreeIds(managedDeptTreeIds)
+        );
+        String filename = "sys_user_log_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + ".csv";
+        String encoded = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20");
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encoded + "\"; filename*=UTF-8''" + encoded)
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(data);
     }
 
     /**

@@ -34,4 +34,14 @@ public interface SysLogService extends IService<SysLog> {
     * @return 返回删除操作的结果，包含成功与否的标志和可能的错误信息
      */
     ReturnResult<Boolean> delete(Long logId);
+
+    /**
+    * 按条件导出操作日志为CSV内容（UTF-8 BOM）
+    *
+    * @param sysLog    日志查询条件（账号/模块/地址/状态）
+    * @param startDate 开始日期（可选，按创建时间过滤）
+    * @param endDate   结束日期（可选，按创建时间过滤）
+    * @return CSV文件字节数组
+     */
+    byte[] exportLogs(SysLog sysLog, String startDate, String endDate);
 }

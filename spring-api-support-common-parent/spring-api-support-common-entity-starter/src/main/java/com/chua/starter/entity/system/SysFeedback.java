@@ -118,4 +118,12 @@ public class SysFeedback extends SysBase {
     @Schema(description = "平台类型(预留，多平台支持)")
     /** sysfeedbackplatform */
     private String sysFeedbackPlatform;
+
+    /**
+    * 优先级: 0-低 1-中 2-高 3-紧急
+     */
+    @TableField(value = "sys_feedback_priority")
+    @Schema(description = "优先级: 0-低 1-中 2-高 3-紧急")
+    /** sysfeedback优先级 */
+    private Integer sysFeedbackPriority = 1;
 }

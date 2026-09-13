@@ -60,11 +60,14 @@ public class DefaultLoginHandler implements LoginHandler {
         if (null == accessToken) {
             // 登录失败，记录失败次数（达到阈值触发账号锁定）
             rateLimitService.recordLoginFailure(loginData.getUsername());
+            // 失败计数达阈值时, 将锁定状态镜像到数据库 sys_user_lock
+            sysLoginService.syncDbLoginLock(loginData.getUsername());
             return ReturnResult.error(USERNAME_OR_PASSWORD_ERROR.getCode(), "账号或者密码不正确");
         }
 
         if (accessToken.getCode() != SystemConstant.HTTP_STATUS_OK) {
             rateLimitService.recordLoginFailure(loginData.getUsername());
+            sysLoginService.syncDbLoginLock(loginData.getUsername());
             return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), accessToken.getMessage());
         }
 

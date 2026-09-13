@@ -1,11 +1,16 @@
 package com.chua.starter.system.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.entity.system.SysUser;
+import com.chua.starter.entity.system.SysUserRole;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.protocol.Protocol;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.system.constant.SystemConstant;
+import com.chua.starter.system.mapper.SysUserMapper;
+import com.chua.starter.system.mapper.SysUserRoleMapper;
 import com.chua.starter.system.pojo.online.OnlineUserVO;
 import com.chua.starter.system.service.SysOnlineService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +23,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
 * 在线用户服务实现
@@ -31,16 +37,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 public class SysOnlineServiceImpl implements SysOnlineService {
 
+    /** SYS用户 Mapper(用于按部门/角色过滤在线用户) */
+    private final SysUserMapper sysUserMapper;
+
+    /** SYS用户角色 Mapper */
+    private final SysUserRoleMapper sysUserRoleMapper;
+
     @Override
     /** 获取online用户 */
-    public List<OnlineUserVO> getOnlineUsers(String username, String ip) {
+    public List<OnlineUserVO> getOnlineUsers(String username, String ip, String roleCode, Integer deptId) {
         List<OnlineUserVO> onlineUsers = new ArrayList<>();
 
         try {
             // 通过OAuth客户端获取在线用户列表
             Protocol.OnlineUserResult result = AuthClientExecute.getInstance()
                     .getOnlineUsers(username, ip, 1, 1000);
-            
+
             if (result != null && result.getUsers() != null) {
                 for (Protocol.OnlineUserInfo info : result.getUsers()) {
                     onlineUsers.add(convertToOnlineUserVO(info));
@@ -48,6 +60,19 @@ public class SysOnlineServiceImpl implements SysOnlineService {
             }
         } catch (Exception e) {
             log.error("获取在线用户列表失败", e);
+        }
+
+        // 按角色编码过滤
+        if (null != roleCode && !roleCode.trim().isEmpty()) {
+            onlineUsers = onlineUsers.stream()
+                    .filter(vo -> matchRole(vo.getUserId(), roleCode.trim()))
+                    .collect(Collectors.toList());
+        }
+        // 按部门过滤
+        if (null != deptId) {
+            onlineUsers = onlineUsers.stream()
+                    .filter(vo -> matchDept(vo.getUserId(), deptId))
+                    .collect(Collectors.toList());
         }
 
         // 按登录时间倒序排列
@@ -62,6 +87,41 @@ public class SysOnlineServiceImpl implements SysOnlineService {
         });
 
         return onlineUsers;
+    }
+
+    /**
+    * 判断用户是否拥有指定角色编码
+     */
+    private boolean matchRole(String userId, String roleCode) {
+        Integer uid = parseUserId(userId);
+        if (null == uid) {
+            return false;
+        }
+        List<String> roleCodes = sysUserRoleMapper.selectRoleCodesByUserId(uid);
+        return roleCodes != null && roleCodes.contains(roleCode);
+    }
+
+    /**
+    * 判断用户是否属于指定部门
+     */
+    private boolean matchDept(String userId, Integer deptId) {
+        Integer uid = parseUserId(userId);
+        if (null == uid) {
+            return false;
+        }
+        SysUser user = sysUserMapper.selectById(uid);
+        return user != null && deptId.equals(user.getSysDeptId());
+    }
+
+    /**
+    * 解析用户ID
+     */
+    private Integer parseUserId(String userId) {
+        try {
+            return Integer.parseInt(userId);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override

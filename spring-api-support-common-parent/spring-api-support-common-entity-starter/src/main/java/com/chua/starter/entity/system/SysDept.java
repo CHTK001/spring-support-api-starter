@@ -149,4 +149,12 @@ public class SysDept extends SysBase implements Serializable {
     /** sysdept数据permissiondeptid */
     private String sysDeptDataPermissionDeptId;
 
+    /**
+    * 自定义数据权限可见的部门ID列表(JSON数组)
+     */
+    @TableField(value = "sys_dept_data_permission_dept_ids")
+    @Schema(description = "自定义数据权限可见的部门ID列表(JSON数组)")
+    /** sysdept数据permissiondeptids */
+    private String sysDeptDataPermissionDeptIds;
+
 }
