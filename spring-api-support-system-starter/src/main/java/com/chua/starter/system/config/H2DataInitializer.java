@@ -150,8 +150,9 @@ public class H2DataInitializer implements ApplicationRunner {
                 "sys_dict_name VARCHAR(100), sys_dict_code VARCHAR(100), " +
                 "sys_dict_status INT DEFAULT 1, sys_dict_remark VARCHAR(500), " +
                 "sys_dict_in_system INT DEFAULT 0, sys_dict_pid BIGINT DEFAULT 0, " +
-                "create_by INT, create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                "update_by INT, update_time TIMESTAMP)");
+                "sys_dict_sort INT DEFAULT 0, sys_dict_i18n VARCHAR(255), " +
+                "create_name VARCHAR(100), create_by INT, create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "update_name VARCHAR(100), update_by INT, update_time TIMESTAMP)");
 
             // 字典项表
             jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS sys_dict_item (" +
@@ -206,8 +207,8 @@ public class H2DataInitializer implements ApplicationRunner {
                 "sys_post_name VARCHAR(100), sys_post_code VARCHAR(100), " +
                 "sys_post_status INT DEFAULT 1, sys_post_sort INT DEFAULT 0, " +
                 "sys_post_remark VARCHAR(500), " +
-                "create_by INT, create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                "update_by INT, update_time TIMESTAMP)");
+                "create_name VARCHAR(100), create_by INT, create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "update_name VARCHAR(100), update_by INT, update_time TIMESTAMP)");
 
             // 用户岗位关联表
             jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS sys_user_post (" +
@@ -238,10 +239,14 @@ public class H2DataInitializer implements ApplicationRunner {
                 "sys_announcement_id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
                 "sys_announcement_title VARCHAR(255), sys_announcement_content CLOB, " +
                 "sys_announcement_type VARCHAR(50), sys_announcement_status INT DEFAULT 0, " +
+                "sys_announcement_level INT DEFAULT 0, sys_announcement_position VARCHAR(50), " +
+                "sys_announcement_target_roles VARCHAR(500), sys_announcement_sort INT DEFAULT 0, " +
                 "sys_announcement_publish_time TIMESTAMP, " +
                 "sys_announcement_expire_time TIMESTAMP, " +
-                "create_by INT, create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                "update_by INT, update_time TIMESTAMP)");
+                "sys_announcement_target_url VARCHAR(500), " +
+                "sys_announcement_publisher_name VARCHAR(100), " +
+                "create_name VARCHAR(100), create_by INT, create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "update_name VARCHAR(100), update_by INT, update_time TIMESTAMP)");
 
             // 反馈表
             jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS sys_feedback (" +
@@ -265,7 +270,7 @@ public class H2DataInitializer implements ApplicationRunner {
 
             // 部门负责人关联表
             jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS sys_dept_principal_rel (" +
-                "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                "sys_dept_principal_rel_id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
                 "sys_dept_id BIGINT, sys_user_id BIGINT)");
 
             log.info("[H2初始化] 表结构创建完成");

@@ -57,4 +57,12 @@ public void register(String key, Object value, boolean override) {
 public void set(String key, Object value) {
         settings.put(key, value);
     }
+
+    public void set(String key, Map<String, Object> value) {
+        settings.put(key, value);
+    }
+
+    public void set(String group, String name, Object value) {
+        settings.put(group + "." + name, value);
+    }
 }
