@@ -91,4 +91,27 @@ public interface SysMenuService extends IService<SysMenu> {
     * @return 返回所有系统菜单的列表
      */
     ReturnResult<List<SysMenu>> all(SysMenu sysMenu, Set<String> roles);
+
+    /**
+    * 刷新菜单缓存
+    *
+    * @return 操作结果
+     */
+    ReturnResult<Boolean> refreshCache();
+
+    /**
+    * 批量保存按钮(权限)
+    *
+    * @param menus 按钮列表
+    * @return 操作结果
+     */
+    ReturnResult<Boolean> batchSaveButtons(List<SysMenu> menus);
+
+    /**
+    * 批量删除按钮
+    *
+    * @param menuIds 菜单ID集合
+    * @return 操作结果
+     */
+    ReturnResult<Boolean> batchDeleteButtons(List<Integer> menuIds);
 }

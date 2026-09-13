@@ -156,4 +156,21 @@ public class SysSetting extends SysBase implements Serializable {
     @Schema(description = "是否作用于系统启动: 0:否 1:是")
     /** SYS设置appinner */
     private Integer sysSettingAppInner;
+
+    /**
+    * 是否敏感配置: 0:否 1:是（列表/详情返回时掩码，明文需通过解密接口获取）
+     */
+    @TableField(value = "sys_setting_is_sensitive")
+    @Schema(description = "是否敏感配置: 0:否 1:是")
+    /** SYS设置issensitive */
+    private Integer sysSettingIsSensitive;
+
+    /**
+    * 校验规则（正则表达式，可为空）。配置值非空时，更新/新增需匹配该正则
+     */
+    @TableField(value = "sys_setting_validate")
+    @Schema(description = "校验规则(正则表达式，可为空)")
+    @Size(max = 512, message = "校验规则最大长度需小于512")
+    /** SYS设置校验 */
+    private String sysSettingValidate;
 }

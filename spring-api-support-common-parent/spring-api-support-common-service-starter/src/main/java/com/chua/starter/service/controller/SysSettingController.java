@@ -18,6 +18,8 @@ import com.chua.starter.entity.service.SysSetting;
 import com.chua.starter.entity.service.SysSettingHistory;
 import com.chua.starter.service.pojo.setting.SysSettingUpdate;
 import com.chua.starter.service.pojo.setting.SysSettingVO;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.chua.starter.service.impl.SysSettingServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -81,7 +83,10 @@ public class SysSettingController {
         if (null != sysSettingInSystem) {
             sysSetting.setSysSettingInSystem(sysSettingInSystem);
         }
-        return PageResultUtils.ok(sysSettingService.pageForSetting(query, sysSetting, roles));
+        IPage<SysSetting> page = sysSettingService.pageForSetting(query, sysSetting, roles);
+        // 敏感配置掩码
+        page.getRecords().forEach(this::maskSensitive);
+        return PageResultUtils.ok(page);
     }
     /**
     * 设置分页列表
@@ -93,6 +98,7 @@ public class SysSettingController {
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:default'")
     public ReturnResult<List<SysSettingVO>> listForDefault() {
         List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default,sso,default-1", null), Collections.emptySet());
+        aDefault.forEach(this::maskSensitive);
         return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));
     }
 
@@ -120,6 +126,8 @@ public class SysSettingController {
                     })
                     .toList();
         }
+        // 敏感配置掩码
+        list.forEach(this::maskSensitive);
         return ReturnResult.ok(BeanUtils.copyPropertiesList(list, SysSettingVO.class));
     }
 
@@ -297,5 +305,30 @@ public class SysSettingController {
             @Parameter(hidden = true) @UserValue("userId") String operatorId,
             @Parameter(hidden = true) @UserValue("username") String operatorName) {
         return sysSettingHistoryService.rollbackToHistory(historyId, operatorId, operatorName);
+    }
+
+    /**
+     * 获取敏感配置明文（用于"显示明文"按钮，需专属权限）
+     *
+     * @param settingId 配置标识
+     * @return 明文配置值
+     */
+    @Operation(summary = "查看敏感配置明文")
+    @GetMapping("/decrypt")
+    @ApiPlatform("system")
+    @Permission(value = "sys:setting:decrypt", role = {SUPER_ADMIN})
+    public ReturnResult<String> decrypt(@RequestParam Integer settingId) {
+        return sysSettingService.getPlainValue(settingId);
+    }
+
+    /**
+     * 敏感配置掩码：sysSettingIsSensitive=1 时将配置值替换为掩码占位符
+     *
+     * @param setting 配置
+     */
+    private void maskSensitive(SysSetting setting) {
+        if (null != setting && null != setting.getSysSettingIsSensitive() && setting.getSysSettingIsSensitive() == 1) {
+            setting.setSysSettingValue(SysSettingServiceImpl.SENSITIVE_MASK);
+        }
     }
 }

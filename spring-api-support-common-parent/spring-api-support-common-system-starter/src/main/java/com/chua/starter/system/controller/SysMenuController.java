@@ -5,6 +5,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.system.validator.group.AddGroup;
 import com.chua.starter.system.validator.group.UpdateGroup;
 import com.chua.starter.common.support.annotations.Permission;
+import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.common.support.api.annotations.ApiPlatform;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
@@ -140,5 +141,41 @@ public class SysMenuController {
         }
 
         return sysMenuService.save(sysMenu, roles);
+    }
+
+    @Operation(summary = "刷新菜单缓存")
+    @DeleteMapping("/cache/refresh")
+    @SysLog
+    @Permission(value = "sys:menu:edit", role = {SUPER_ADMIN, ADMIN})
+    public ReturnResult<Boolean> refreshCache() {
+        return sysMenuService.refreshCache();
+    }
+
+    /**
+    * 批量保存按钮(权限)
+    *
+    * @param menus 按钮列表
+    * @return 操作结果
+     */
+    @Operation(summary = "批量保存按钮")
+    @PostMapping("/button/batch-save")
+    @SysLog
+    @Permission(value = "sys:menu:button:add", role = {SUPER_ADMIN, ADMIN})
+    public ReturnResult<Boolean> batchSaveButtons(@RequestBody List<SysMenu> menus) {
+        return sysMenuService.batchSaveButtons(menus);
+    }
+
+    /**
+    * 批量删除按钮
+    *
+    * @param menuIds 按钮ID列表
+    * @return 操作结果
+     */
+    @Operation(summary = "批量删除按钮")
+    @DeleteMapping("/button/batch-delete")
+    @SysLog
+    @Permission(value = "sys:menu:button:delete", role = {SUPER_ADMIN, ADMIN})
+    public ReturnResult<Boolean> batchDeleteButtons(@RequestBody List<Integer> menuIds) {
+        return sysMenuService.batchDeleteButtons(menuIds);
     }
 }

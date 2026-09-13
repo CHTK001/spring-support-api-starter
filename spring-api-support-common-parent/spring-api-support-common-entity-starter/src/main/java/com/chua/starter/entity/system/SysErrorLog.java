@@ -127,4 +127,12 @@ public class SysErrorLog extends SysBase {
     @Schema(description = "客户端上报时间(毫秒时间戳)")
     /** SYS错误report时间 */
     private Long sysErrorReportTime;
+
+    /**
+    * 处理状态: 0-未处理 1-已处理 2-已忽略
+     */
+    @TableField(value = "sys_error_status")
+    @Schema(description = "处理状态: 0-未处理 1-已处理 2-已忽略")
+    /** SYS错误状态 */
+    private Integer sysErrorStatus = 0;
 }

@@ -139,6 +139,33 @@
             (SELECT sys_dept_tree_id FROM sys_dept WHERE sys_dept_id = #{query.sysDeptId}), '%'))
       </if>
 
+      <!-- 数据权限：本部门 -->
+      <if test="query.dataScope != null and query.dataScope == 2 and query.currentDeptId != null">
+        AND su.sys_dept_id = #{query.currentDeptId}
+      </if>
+      <!-- 数据权限：本部门及以下 -->
+      <if test="query.dataScope != null and query.dataScope == 3 and query.currentDeptTreeId != null and query.currentDeptTreeId != ''">
+        AND su.sys_dept_id IN (SELECT sys_dept_id FROM sys_dept WHERE sys_dept_tree_id LIKE CONCAT(#{query.currentDeptTreeId}, '%'))
+      </if>
+      <!-- 数据权限：仅本人 -->
+      <if test="query.dataScope != null and query.dataScope == 4 and query.currentUserId != null">
+        AND su.sys_user_id = #{query.currentUserId}
+      </if>
+      <!-- 数据权限：自定义部门 -->
+      <if test="query.dataScope != null and query.dataScope == 5 and query.dataScopeDeptIds != null and query.dataScopeDeptIds.size() > 0">
+        AND su.sys_dept_id IN (
+            SELECT d.sys_dept_id FROM sys_dept d
+            WHERE d.sys_dept_id IN
+            <foreach collection="query.dataScopeDeptIds" item="deptId" open="(" separator="," close=")">#{deptId}</foreach>
+            OR EXISTS (
+                SELECT 1 FROM sys_dept parent
+                WHERE parent.sys_dept_id IN
+                <foreach collection="query.dataScopeDeptIds" item="deptId" open="(" separator="," close=")">#{deptId}</foreach>
+                AND d.sys_dept_tree_id LIKE CONCAT(parent.sys_dept_tree_id, '%')
+            )
+        )
+      </if>
+
       ORDER BY su.create_time DESC
     </where>
 

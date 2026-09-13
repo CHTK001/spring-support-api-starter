@@ -40,13 +40,7 @@ import java.util.function.Supplier;
 public class SystemAutoConfiguration {
 
     /**
-    * 构造方法
-    * @param environment 环境
-     /**
-      * 系统auto配置。
-      */
-     * @param value 值
-     * @return resolve的结果
+     * 系统自动配置构造方法
      */
     public SystemAutoConfiguration() {
         log.info("系统统一认证模块已启用");

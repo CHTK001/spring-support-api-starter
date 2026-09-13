@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
@@ -64,8 +65,11 @@ public class SysUserController {
     @Operation(summary = "用户分页列表")
     @GetMapping("/page")
     @Permission(role = {ADMIN})
-    public ReturnPageResult<SysUserVO> pageForUser(@ParameterObject SysUserQuery sysUserQuery, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return PageResultUtils.ok(sysUserService.pageForUser(sysUserQuery, roles));
+    public ReturnPageResult<SysUserVO> pageForUser(@ParameterObject SysUserQuery sysUserQuery,
+                                                    @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+                                                    @Parameter(hidden = true) @UserValue("sysUserId") Integer currentUserId,
+                                                    @Parameter(hidden = true) @UserValue("sysDeptId") Integer currentDeptId) {
+        return PageResultUtils.ok(sysUserService.pageForUser(sysUserQuery, roles, currentUserId, currentDeptId));
     }
 
 
@@ -153,6 +157,28 @@ public class SysUserController {
         }
 
         return sysUserService.delete(sysUserId);
+    }
+
+    @Operation(summary = "批量删除用户")
+    @DeleteMapping("/delete/batch")
+    @SysLog
+    @UserLog
+    @Transactional(rollbackFor = Exception.class)
+    @Permission("sys:login:delete")
+    public ReturnResult<Boolean> deleteBatch(@RequestBody List<Long> sysUserIds) {
+        return sysUserService.deleteBatch(sysUserIds);
+    }
+
+    @Operation(summary = "批量更新用户状态")
+    @PutMapping("/status/batch")
+    @SysLog
+    @UserLog
+    @Permission("sys:login:update")
+    public ReturnResult<Boolean> updateStatusBatch(@RequestBody Map<String, Object> body) {
+        @SuppressWarnings("unchecked")
+        List<Long> userIds = ((List<?>) body.get("sysUserIds")).stream().map(String::valueOf).map(Long::valueOf).toList();
+        Integer status = Integer.valueOf(String.valueOf(body.get("sysUserStatus")));
+        return sysUserService.updateStatusBatch(userIds, status);
     }
 
     /**
@@ -302,5 +328,23 @@ public class SysUserController {
     @Permission(value = "sys:login:import", role = {ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<String> importUsers(@RequestParam("file") MultipartFile file) {
         return sysUserService.importUsers(file);
+    }
+
+    /**
+    * 锁定/解锁用户
+    *
+    * @param sysUserId 用户ID
+    * @param lock      锁定状态: 0-正常 1-锁定
+    * @return 操作结果
+     */
+    @Operation(summary = "锁定/解锁用户")
+    @PutMapping("/lock")
+    @SysLog
+    @Permission(value = "sys:user:lock", role = {ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Boolean> lock(@RequestParam Long sysUserId, @RequestParam Integer lock) {
+        if (null == sysUserId) {
+            return ReturnResult.illegal("用户ID不能为空");
+        }
+        return sysUserService.lockUser(sysUserId, lock);
     }
 }

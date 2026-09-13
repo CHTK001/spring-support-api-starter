@@ -105,6 +105,11 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
                                         SysFeedback::getSysFeedbackImages,
                                         request.getSysFeedbackImages()
                                 )
+                                .eq(
+                                        null != request.getSysFeedbackPriority(),
+                                        SysFeedback::getSysFeedbackPriority,
+                                        request.getSysFeedbackPriority()
+                                )
                                 .orderByDesc(SysFeedback::getCreateTime)
                                 .orderByDesc(SysFeedback::getSysFeedbackId)
                 )
@@ -180,6 +185,12 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
                     .filter(f -> f.getSysFeedbackStatus() != null && f.getSysFeedbackStatus() == 1)
                     .count());
 
+            // 今日新增统计
+            LocalDate today = LocalDate.now();
+            response.setTodayCount(allFeedbacks.stream()
+                    .filter(f -> f.getCreateTime() != null && f.getCreateTime().toLocalDate().equals(today))
+                    .count());
+
             // 类型统计（饼图数据）
             Map<String, Long> typeCountMap = allFeedbacks.stream()
                     .collect(Collectors.groupingBy(
@@ -197,7 +208,6 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
             response.setTypeStatistics(typeStatistics);
 
             // 趋势统计（最近30天，曲线图数据）
-            LocalDate today = LocalDate.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd");
             List<FeedbackStatisticV1Response.TrendStatistic> trendStatistics = new ArrayList<>();
             for (int i = 29; i >= 0; i--) {

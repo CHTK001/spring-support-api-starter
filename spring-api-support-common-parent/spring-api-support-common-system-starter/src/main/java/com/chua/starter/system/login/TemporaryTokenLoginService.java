@@ -4,7 +4,6 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.constant.Constant;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserInfoService;
 import com.chua.starter.oauth.client.support.user.UserResult;
@@ -50,7 +49,7 @@ import java.util.*;
 @Service
 @LoginType("TEMPORARY")
 @Tag(name = "临时令牌", description = "生成临时访问令牌，支持URL限制")
-public class TemporaryTokenLoginService implements UserInfoService, Constant {
+public class TemporaryTokenLoginService implements UserInfoService {
 
     /**
     * 默认临时令牌有效期(秒)

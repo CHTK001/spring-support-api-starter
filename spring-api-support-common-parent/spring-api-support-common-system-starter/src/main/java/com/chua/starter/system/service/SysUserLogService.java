@@ -75,4 +75,18 @@ public interface SysUserLogService extends IService<SysUserLog> {
     * @param sysUserLog 用户日志对象
      */
     void asyncSaveUserLog(SysUserLog sysUserLog);
+
+    /**
+    * 按条件导出登录/操作日志为CSV（UTF-8 BOM），权限范围与分页查询一致
+    *
+    * @param sysUserLogQuery     查询条件
+    * @param sysUserId           当前用户标识
+    * @param roles               当前用户角色
+    * @param managedDeptTreeIds  当前用户负责的部门树
+    * @return CSV文件字节数组
+     */
+    byte[] exportUserLogs(SysUserLogQuery sysUserLogQuery,
+                          Integer sysUserId,
+                          Set<String> roles,
+                          List<String> managedDeptTreeIds);
 }

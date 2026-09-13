@@ -4,13 +4,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.chua.common.support.base.bean.BeanUtils;
-import com.chua.geo.support.geo.GeoCity;
+import com.chua.common.support.utils.BeanUtils;
+import com.chua.common.support.network.ip.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.core.utils.CollectionUtils;
-import com.chua.common.support.core.utils.DigestUtils;
-import com.chua.common.support.core.utils.RandomUtils;
-import com.chua.common.support.core.utils.StringUtils;
+import com.chua.common.support.utils.CollectionUtils;
+import com.chua.common.support.utils.DigestUtils;
+import com.chua.common.support.utils.RandomUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.service.IptablesService;
 import com.chua.starter.common.support.utils.RequestUtils;
@@ -20,6 +20,9 @@ import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.system.mapper.SysUserMapper;
 import com.chua.starter.system.mapper.SysUserLogMapper;
+import com.chua.starter.system.mapper.SysUserPostMapper;
+import com.chua.starter.system.mapper.SysPostMapper;
+import com.chua.starter.system.mapper.SysDeptMapper;
 import com.chua.starter.system.model.user.SysUserQuery;
 import com.chua.starter.entity.system.*;
 import com.chua.starter.system.mapper.SysRoleMapper;
@@ -66,11 +69,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     final IptablesService iptablesService; // iptables服务
     final SysUserLayoutMapper sysUserLayoutMapper; // sys用户layout映射器
     final SysUserLogMapper sysUserLogMapper; // sys用户日志映射器
+    final SysDeptMapper sysDeptMapper; // sys部门映射器
+    final SysUserPostMapper sysUserPostMapper; // sys用户岗位映射器
+    final SysPostMapper sysPostMapper; // syspost映射器
     final SystemSecurityProperties securityProperties; // 安全性属性
     private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance(); // 全局setting工厂
 
     @Override
-    public IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles) {
+    public IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles, Integer currentUserId, Integer currentDeptId) {
+        // 数据权限过滤（超级管理员不过滤）
+        applyDataScope(sysUserQuery, roles, currentUserId, currentDeptId);
+
         IPage<SysUser> sysUserPage = baseMapper.selectPageUser(sysUserQuery.createPage(), sysUserQuery);
 
         List<SysUser> records1 = sysUserPage.getRecords();
@@ -95,7 +104,98 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         for (SysUserVO sysUser : records) {
             sysUser.setUserRoles(collect.getOrDefault(sysUser.getSysUserId(), Collections.emptyList()));
         }
+        // 填充用户岗位列表
+        List<SysUserPost> userPosts = sysUserPostMapper.selectList(
+                Wrappers.<SysUserPost>lambdaQuery().in(SysUserPost::getSysUserId, userIds));
+        if (!CollectionUtils.isEmpty(userPosts)) {
+            Set<Long> postIds = userPosts.stream().map(SysUserPost::getSysPostId).collect(Collectors.toSet());
+            Map<Long, SysPost> postMap = sysPostMapper.selectBatchIds(postIds).stream()
+                    .collect(Collectors.toMap(SysPost::getSysPostId, p -> p, (a, b) -> a));
+            Map<Integer, List<SysPost>> postByUser = userPosts.stream()
+                    .collect(Collectors.groupingBy(SysUserPost::getSysUserId,
+                            Collectors.mapping(up -> postMap.get(up.getSysPostId()),
+                                    Collectors.filtering(Objects::nonNull, Collectors.toList()))));
+            for (SysUserVO sysUser : records) {
+                sysUser.setUserPosts(postByUser.getOrDefault(sysUser.getSysUserId(), Collections.emptyList()));
+            }
+        }
         return result;
+    }
+
+    /**
+     * 应用数据权限过滤
+     *
+     * @param sysUserQuery  用户查询
+     * @param roles         当前用户角色编码集合
+     * @param currentUserId 当前用户ID
+     * @param currentDeptId 当前用户部门ID
+     */
+    private void applyDataScope(SysUserQuery sysUserQuery, Set<String> roles, Integer currentUserId, Integer currentDeptId) {
+        // 超级管理员不受数据权限限制
+        if (roles != null && (roles.contains("ADMIN") || roles.contains("SUPER_ADMIN") || roles.contains("admin"))) {
+            return;
+        }
+        if (currentUserId == null) {
+            return;
+        }
+
+        // 查询当前用户的所有角色，取最宽松的数据权限（dataScope 最小的）
+        List<SysRole> userRoles = sysRoleMapper.listByUserId(Collections.singleton(currentUserId));
+        if (CollectionUtils.isEmpty(userRoles)) {
+            // 无角色默认仅本人
+            sysUserQuery.setDataScope(4);
+            sysUserQuery.setCurrentUserId(currentUserId);
+            return;
+        }
+
+        Integer minDataScope = userRoles.stream()
+                .map(SysRole::getSysRoleDataScope)
+                .filter(Objects::nonNull)
+                .min(Integer::compareTo)
+                .orElse(1);
+
+        sysUserQuery.setDataScope(minDataScope);
+
+        switch (minDataScope) {
+            case 1 -> {
+                // 全部数据，不过滤
+            }
+            case 2 -> {
+                // 本部门数据
+                sysUserQuery.setCurrentDeptId(currentDeptId);
+            }
+            case 3 -> {
+                // 本部门及以下数据
+                if (currentDeptId != null) {
+                    SysDept dept = sysDeptMapper.selectById(currentDeptId);
+                    if (dept != null && dept.getSysDeptTreeId() != null) {
+                        sysUserQuery.setCurrentDeptTreeId(dept.getSysDeptTreeId());
+                    } else {
+                        sysUserQuery.setCurrentDeptId(currentDeptId);
+                    }
+                }
+            }
+            case 4 -> {
+                // 仅本人数据
+                sysUserQuery.setCurrentUserId(currentUserId);
+            }
+            case 5 -> {
+                // 自定义部门数据
+                List<Integer> customDeptIds = userRoles.stream()
+                        .map(SysRole::getSysRoleDataScopeDeptIds)
+                        .filter(StringUtils::isNotBlank)
+                        .flatMap(ids -> Arrays.stream(ids.split(",")))
+                        .map(String::trim)
+                        .filter(StringUtils::isNotBlank)
+                        .map(Integer::valueOf)
+                        .distinct()
+                        .collect(Collectors.toList());
+                sysUserQuery.setDataScopeDeptIds(customDeptIds);
+            }
+            default -> {
+                // 默认全部数据
+            }
+        }
     }
 
     @Override
@@ -119,8 +219,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ReturnResult.illegal("用户信息不存在");
         }
 
-        String newPassword = RandomUtils.randomString(8);
-        sysUser1.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+        String newPassword = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        sysUser1.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
         sysUser1.setSysUserPassword(DigestUtils.md5Hex(newPassword + sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
@@ -134,8 +234,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ReturnResult.illegal("用户信息不存在");
         }
 
-        String password = RandomUtils.randomString(8);
-        sysUser1.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+        String password = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        sysUser1.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
         sysUser1.setSysUserPassword(DigestUtils.md5Hex(password + sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
@@ -151,7 +251,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             sysUser1 = getById(userId);
         } else {
             //更新其他账号
-            if (!AuthConstant.hasAdmin(roles)) {
+            if (!AuthConstant.isAdmin(roles)) {
                 return ReturnResult.illegal("没有权限操作");
             }
             sysUser1 = getById(sysUserId);
@@ -160,7 +260,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         BeanUtils.copyProperties(sysUser, sysUser1);
 
         if (StringUtils.isNotBlank(sysUser.getSysUserPassword())) {
-            sysUser1.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+            sysUser1.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
             sysUser1.setSysUserPassword(DigestUtils.md5Hex(sysUser.getSysUserPassword() + sysUser1.getSysUserSalt()));
         }
         sysUser1.setSysUserUsername(null);
@@ -184,6 +284,22 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                         }
                     }).filter(Objects::nonNull).collect(Collectors.toList()));
                 }
+                // 同步用户岗位关联: 先删后插
+                if (null != sysUser.getPostIds()) {
+                    sysUserPostMapper.delete(Wrappers.<SysUserPost>lambdaQuery()
+                            .eq(SysUserPost::getSysUserId, sysUser1.getSysUserId()));
+                    if (CollectionUtils.isNotEmpty(sysUser.getPostIds())) {
+                        List<SysUserPost> userPostList = sysUser.getPostIds().stream()
+                                .filter(Objects::nonNull)
+                                .map(postId -> {
+                                    SysUserPost up = new SysUserPost();
+                                    up.setSysUserId(sysUser1.getSysUserId());
+                                    up.setSysPostId(postId.longValue());
+                                    return up;
+                                }).collect(Collectors.toList());
+                                    userPostList.forEach(sysUserPostMapper::insert);
+                    }
+                }
                 return sysUser1;
             }));
         } finally {
@@ -197,7 +313,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         ) > 0L) {
             return ReturnResult.illegal("账号已存在");
         }
-        sysUserUpdate.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+        sysUserUpdate.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
         sysUserUpdate.setSysUserPassword(DigestUtils.md5Hex(sysUserUpdate.getSysUserPassword() + sysUserUpdate.getSysUserSalt()));
         sysUserUpdate.setSysUserInSystem(SystemConstant.IN_SYSTEM_NO);
         sysUserUpdate.setSysUserDelete(SystemConstant.NOT_DELETED);
@@ -218,6 +334,18 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                         return null;
                     }
                 }).filter(Objects::nonNull).collect(Collectors.toList()));
+            }
+            // 保存用户岗位关联
+            if (CollectionUtils.isNotEmpty(sysUserUpdate.getPostIds())) {
+                for (Integer postId : sysUserUpdate.getPostIds()) {
+                    if (null == postId) {
+                        continue;
+                    }
+                    SysUserPost up = new SysUserPost();
+                    up.setSysUserId(sysUserUpdate.getSysUserId());
+                    up.setSysPostId(postId.longValue());
+                    sysUserPostMapper.insert(up);
+                }
             }
             return sysUserUpdate;
         }));
@@ -359,7 +487,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         if (StringUtils.isNotBlank(sysUserPasswordUpdate.getNewPassword())) {
-            sysUser.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+            sysUser.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
             sysUser.setSysUserPassword(DigestUtils.md5Hex(sysUserPasswordUpdate.getNewPassword() + sysUser.getSysUserSalt()));
         } else {
             return ReturnResult.illegal("新密码不能为空！");
@@ -427,7 +555,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             
             // 查询数据
             query.setPageSize(securityProperties.getMaxExportCount()); // 限制最大导出数量
-            IPage<SysUserVO> page = pageForUser(query, roles);
+            IPage<SysUserVO> page = pageForUser(query, roles, null, null);
             
             for (SysUserVO user : page.getRecords()) {
                 StringBuilder line = new StringBuilder();
@@ -541,7 +669,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     sysUser.setSysUserRemark(fields.length > 8 ? fields[8].trim() : null);
                     
                     // 设置默认密码
-                    sysUser.setSysUserSalt(RandomUtils.randomString(securityProperties.getSaltLength()));
+                    sysUser.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
                     sysUser.setSysUserPassword(DigestUtils.md5Hex(securityProperties.getDefaultImportPassword() + sysUser.getSysUserSalt()));
                     sysUser.setSysUserInSystem(SystemConstant.IN_SYSTEM_NO);
                     sysUser.setSysUserDelete(SystemConstant.NOT_DELETED);
@@ -625,5 +753,53 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         result.add(current.toString());
         
         return result.toArray(new String[0]);
+    }
+
+    @Override
+    public ReturnResult<Boolean> deleteBatch(List<Long> userIds) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return ReturnResult.illegal("请选择要删除的用户");
+        }
+        // 不允许删除超级管理员
+        List<SysUser> users = listByIds(userIds);
+        for (SysUser user : users) {
+            if ("admin".equalsIgnoreCase(user.getSysUserUsername())) {
+                return ReturnResult.illegal("不允许删除超级管理员账号");
+            }
+        }
+        boolean success = removeByIds(userIds);
+        return success ? ReturnResult.ok(true) : ReturnResult.error("删除失败");
+    }
+
+    @Override
+    public ReturnResult<Boolean> updateStatusBatch(List<Long> userIds, Integer status) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return ReturnResult.illegal("请选择要操作的用户");
+        }
+        if (status == null || (status != 0 && status != 1)) {
+            return ReturnResult.illegal("状态值不合法");
+        }
+        boolean success = update(Wrappers.<SysUser>lambdaUpdate()
+                .set(SysUser::getSysUserStatus, status)
+                .in(SysUser::getSysUserId, userIds));
+        return success ? ReturnResult.ok(true) : ReturnResult.error("更新失败");
+    }
+
+    @Override
+    /** 锁定用户 */
+    public ReturnResult<Boolean> lockUser(Long userId, Integer lock) {
+        if (null == userId) {
+            return ReturnResult.illegal("用户ID不能为空");
+        }
+        int lockValue = (null == lock || lock != 1) ? 0 : 1;
+        SysUser update = new SysUser();
+        update.setSysUserId(userId.intValue());
+        update.setSysUserLock(lockValue);
+        if (lockValue == 1) {
+            update.setSysUserLockTime(java.time.LocalDateTime.now());
+        } else {
+            update.setSysUserLockTime(null);
+        }
+        return updateById(update) ? ReturnResult.ok(true) : ReturnResult.error("操作失败");
     }
 }

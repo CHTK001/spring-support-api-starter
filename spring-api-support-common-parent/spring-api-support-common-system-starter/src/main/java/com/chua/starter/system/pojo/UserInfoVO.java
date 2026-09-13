@@ -182,4 +182,11 @@ public class UserInfoVO {
     @Schema(description = "是否需要确认最新协议")
     /** Agreementneedconfirm */
     private Boolean agreementNeedConfirm;
+
+    /**
+    * 是否强制修改密码: 0-否 1-是
+     */
+    @Schema(description = "是否强制修改密码: 0-否 1-是")
+    /** Mustchangepassword */
+    private Integer mustChangePassword;
 }

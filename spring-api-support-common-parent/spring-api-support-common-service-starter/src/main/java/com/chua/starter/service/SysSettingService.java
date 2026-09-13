@@ -105,4 +105,12 @@ public interface SysSettingService extends IService<SysSetting> {
     * @return 导入结果，返回批次号用于回滚
      */
     ReturnResult<String> importSettings(String json, boolean overwrite, Set<String> roles);
+
+    /**
+    * 获取敏感配置的明文值（需专属权限）
+    *
+    * @param settingId 配置标识
+    * @return 明文配置值
+     */
+    ReturnResult<String> getPlainValue(Integer settingId);
 }

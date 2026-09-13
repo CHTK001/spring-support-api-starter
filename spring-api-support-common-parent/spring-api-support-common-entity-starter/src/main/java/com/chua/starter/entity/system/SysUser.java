@@ -245,6 +245,46 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysUserAvatarFrame;
 
     /**
+    * 账号锁定: 0-正常 1-锁定
+     */
+    @TableField(value = "sys_user_lock")
+    @Schema(description = "账号锁定: 0-正常 1-锁定")
+    /** SYS用户锁 */
+    private Integer sysUserLock = 0;
+
+    /**
+    * 锁定时间
+     */
+    @TableField(value = "sys_user_lock_time")
+    @Schema(description = "锁定时间")
+    /** SYS用户锁时间 */
+    private java.time.LocalDateTime sysUserLockTime;
+
+    /**
+    * 最后登录时间
+     */
+    @TableField(value = "sys_user_last_login_time")
+    @Schema(description = "最后登录时间")
+    /** SYS用户最后登录时间 */
+    private java.time.LocalDateTime sysUserLastLoginTime;
+
+    /**
+    * 密码修改时间
+     */
+    @TableField(value = "sys_user_password_update_time")
+    @Schema(description = "密码修改时间")
+    /** SYS用户密码更新时间 */
+    private java.time.LocalDateTime sysUserPasswordUpdateTime;
+
+    /**
+    * 是否强制修改密码: 0-否 1-是
+     */
+    @TableField(value = "sys_user_must_change_password")
+    @Schema(description = "是否强制修改密码: 0-否 1-是")
+    /** SYS用户必须更改密码 */
+    private Integer sysUserMustChangePassword = 0;
+
+    /**
     * 是否显示头像框; 0:不显示 1:显示
      */
     @TableField(value = "sys_user_avatar_frame_show")
@@ -259,6 +299,22 @@ public class SysUser extends SysBase implements Serializable {
     @TableField(exist = false)
     /** 用户角色 */
     private List<SysRole> userRoles;
+
+    /**
+    * 岗位列表(系统生成)
+     */
+    @Schema(description = "岗位列表(系统生成)")
+    @TableField(exist = false)
+    /** 用户岗位 */
+    private List<SysPost> userPosts;
+
+    /**
+    * 岗位标识列表(保存/更新时传入)
+     */
+    @Schema(description = "岗位ID列表(保存/更新时传入)")
+    @TableField(exist = false)
+    /** 岗位标识 */
+    private List<Integer> postIds;
 
     /**
     * 租户标识

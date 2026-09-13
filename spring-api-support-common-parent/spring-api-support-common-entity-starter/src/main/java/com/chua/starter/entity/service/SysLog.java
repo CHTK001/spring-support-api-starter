@@ -112,4 +112,12 @@ public class SysLog extends SysBase implements Serializable {
     @Schema(description = "请求状态: 0:失败 1:成功")
     /** SYS日志状态 */
     private Integer sysLogStatus;
+
+    /**
+    * 异常信息/堆栈（仅失败时存储）
+     */
+    @TableField(value = "sys_log_error")
+    @Schema(description = "异常信息/堆栈（仅失败时存储）")
+    /** SYS日志错误 */
+    private String sysLogError;
 }
