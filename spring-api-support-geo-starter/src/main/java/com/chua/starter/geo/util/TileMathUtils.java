@@ -17,13 +17,8 @@ public class TileMathUtils {
     /** 最大支持缩放级别 */
     private static final int MAX_ZOOM = 24;
 
-     /**
-     * 瓷砖math工具。
-      */
+    /**
      * 私有构造函数，防止实例化
-     *
-     * @param zoom zoom
-     * @return clampZoom的结果
      */
     private TileMathUtils() {
     }

@@ -22,7 +22,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @MapperScan({
         "com.chua.starter.system.mapper",
         "com.chua.starter.service.mapper",
-        "com.chua.starter.system.achievement.mapper"
+        "com.chua.starter.system.achievement.mapper",
+        "com.chua.starter.job.support.store"
 })
 @ConditionalOnProperty(prefix = "plugin.system.server", name = "enable", havingValue = "true", matchIfMissing = true)
 @SpringBootApplication(scanBasePackages = {"com.chua.starter.system", "com.chua.starter.service"})
@@ -44,3 +45,4 @@ public class SystemApplication {
         SpringApplication.run(SystemApplication.class, args);
     }
 }
+

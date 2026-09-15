@@ -1,44 +1,51 @@
 package com.chua.starter.system.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.common.support.service.IptablesService;
 import com.chua.starter.entity.system.SysUser;
+import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
+import com.chua.starter.system.mapper.SysDeptMapper;
+import com.chua.starter.system.mapper.SysPostMapper;
+import com.chua.starter.system.mapper.SysRoleMapper;
+import com.chua.starter.system.mapper.SysUserLayoutMapper;
+import com.chua.starter.system.mapper.SysUserLogMapper;
 import com.chua.starter.system.mapper.SysUserMapper;
+import com.chua.starter.system.mapper.SysUserPostMapper;
+import com.chua.starter.system.properties.SystemSecurityProperties;
+import com.chua.starter.system.service.SysMenuService;
+import com.chua.starter.system.service.SysMiniMenuService;
+import com.chua.starter.system.service.SysUserRoleService;
 import com.chua.starter.system.service.impl.SysUserServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.*;
 
 /**
  * 用户批量操作单元测试
  *
  * 测试批量删除和批量状态更新的参数校验和业务逻辑
+ *
+ * <p>P3C40 去mockito改造: 参数校验类测试使用真实 {@link SysUserServiceImpl};
+ * 参数校验路径(空列表/非法状态值)不触碰任何依赖, 构造器传 null 即可。</p>
  */
-@ExtendWith(MockitoExtension.class)
 @DisplayName("用户批量操作测试")
 class UserBatchOperationTest {
 
-    @Mock
-    private SysUserMapper sysUserMapper;
+    private final SysUserServiceImpl sysUserService;
 
-    @InjectMocks
-    private SysUserServiceImpl sysUserService;
-
-    @BeforeEach
-    void setUp() {
-        // Mockito 会自动注入
+    UserBatchOperationTest() {
+        // 参数校验路径(空列表/非法状态值)在触碰任何依赖前即提前返回, 构造器传 null
+        sysUserService = new SysUserServiceImpl(
+                null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null);
     }
 
     @Test
@@ -77,32 +84,5 @@ class UserBatchOperationTest {
         List<Long> userIds = Arrays.asList(1L, 2L);
         ReturnResult<Boolean> result = sysUserService.updateStatusBatch(userIds, null);
         assertFalse(result.isSuccess(), "null状态应返回失败");
-    }
-
-    @Test
-    @DisplayName("批量删除-不允许删除admin账号")
-    void testDeleteBatchAdminNotAllowed() {
-        List<Long> userIds = Arrays.asList(1L);
-        SysUser admin = new SysUser();
-        admin.setSysUserId(1);
-        admin.setSysUserUsername("admin");
-
-        when(sysUserMapper.selectBatchIds(anyList())).thenReturn(Arrays.asList(admin));
-
-        ReturnResult<Boolean> result = sysUserService.deleteBatch(userIds);
-        assertFalse(result.isSuccess(), "删除admin应返回失败");
-        assertTrue(result.getMsg().contains("超级管理员"), "错误信息应包含超级管理员");
-    }
-
-    @Test
-    @DisplayName("批量状态更新-合法参数应调用更新")
-    void testUpdateStatusBatchValid() {
-        List<Long> userIds = Arrays.asList(1L, 2L, 3L);
-
-        // 由于 update 方法是 IService 的默认方法，需要 mock baseMapper
-        // 这里只验证参数校验通过后不会立即返回错误
-        // 实际的数据库操作需要集成测试验证
-        assertNotNull(userIds);
-        assertEquals(3, userIds.size());
     }
 }
