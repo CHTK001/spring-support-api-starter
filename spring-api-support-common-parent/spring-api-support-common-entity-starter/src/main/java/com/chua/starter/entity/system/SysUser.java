@@ -34,7 +34,7 @@ public class SysUser extends SysBase implements Serializable {
     @Schema(description = "用户ID")
     @NotNull(message = "用户ID不能为空")
     /** SYS用户标识 */
-    private Integer sysUserId;
+    private Long sysUserId;
 
     /**
     * 账号
