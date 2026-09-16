@@ -64,6 +64,15 @@ public class SysMessageTemplateServiceImpl extends ServiceImpl<SysMessageTemplat
         if (null == template.getSysMessageTemplateId()) {
             return ReturnResult.error("模板ID不能为空");
         }
+        // 模板编码唯一性校验 (排除自身)
+        if (StringUtils.isNotBlank(template.getSysMessageTemplateCode())) {
+            SysMessageTemplate exist = getOne(Wrappers.<SysMessageTemplate>lambdaQuery()
+                    .eq(SysMessageTemplate::getSysMessageTemplateCode, template.getSysMessageTemplateCode())
+                    .ne(SysMessageTemplate::getSysMessageTemplateId, template.getSysMessageTemplateId()));
+            if (null != exist) {
+                return ReturnResult.error("模板编码已存在");
+            }
+        }
         return ReturnResult.of(baseMapper.updateById(template) > 0);
     }
 

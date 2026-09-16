@@ -126,7 +126,7 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         if (StringUtils.isNotBlank(sysDictItemCode)) {
             SysDictItem sysDictItem1 = baseMapper.selectOne(Wrappers.<SysDictItem>lambdaQuery()
                     .eq(SysDictItem::getSysDictItemCode, sysDictItemCode)
-                    .ne(SysDictItem::getSysDictId, sysDictItem.getSysDictId()));
+                    .ne(SysDictItem::getSysDictItemId, sysDictItem.getSysDictItemId()));
             if (null != sysDictItem1) {
                 return ReturnResult.error("字典编码已存在");
             }
