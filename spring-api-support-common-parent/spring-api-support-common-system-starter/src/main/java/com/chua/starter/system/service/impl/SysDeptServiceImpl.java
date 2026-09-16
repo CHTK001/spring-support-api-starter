@@ -98,11 +98,45 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
             String menuTreeId = Joiner.on(",").join(parentSysDept.getSysDeptTreeId(), sysDept.getSysDeptId());
             sysDept.setSysDeptTreeId(menuTreeId);
         }
+
+        // 唯一性校验: 机构编码全局唯一, 同级部门名称唯一 (排除自身)
+        if (StringUtils.isNotBlank(sysDept.getSysDeptCode())
+                && count(Wrappers.<SysDept>lambdaQuery()
+                .eq(SysDept::getSysDeptCode, sysDept.getSysDeptCode())
+                .ne(SysDept::getSysDeptId, sysDept.getSysDeptId())) > 0) {
+            return ReturnResult.illegal("机构编码已存在");
+        }
+        Integer deptPid = resolvePidForUniqueness(sysDept);
+        String deptName = sysDept.getSysDeptName();
+        if (StringUtils.isNotBlank(deptName)
+                && count(Wrappers.<SysDept>lambdaQuery()
+                .eq(SysDept::getSysDeptPid, deptPid)
+                .eq(SysDept::getSysDeptName, deptName)
+                .ne(SysDept::getSysDeptId, sysDept.getSysDeptId())) > 0) {
+            return ReturnResult.illegal("同级部门名称已存在");
+        }
+
         boolean updated = baseMapper.updateById(sysDept) > 0;
         if (updated) {
             sysDeptPrincipalRelService.syncDeptPrincipals(sysDept.getSysDeptId(), sysDept.getPrincipalUserIds());
         }
         return ReturnResult.of(updated);
+    }
+
+    /**
+     * 解析唯一性校验使用的父级部门ID:
+     * 更新请求未携带 sysDeptPid 时, 回退到数据库中的当前父级, 避免误判同名。
+     *
+     * @param sysDept 部门信息
+     * @return 父级部门ID (根节点返回 ROOT_NODE_ID)
+     */
+    private Integer resolvePidForUniqueness(SysDept sysDept) {
+        if (null != sysDept.getSysDeptPid()) {
+            return sysDept.getSysDeptPid();
+        }
+        SysDept current = baseMapper.selectById(sysDept.getSysDeptId());
+        return (null != current && null != current.getSysDeptPid())
+                ? current.getSysDeptPid() : SystemConstant.ROOT_NODE_ID;
     }
 
     @Override
@@ -125,6 +159,21 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
 
             parentTreeId = parentSysDept.getSysDeptTreeId();
         }
+
+        // 唯一性校验: 机构编码全局唯一, 同级部门名称唯一
+        if (StringUtils.isNotBlank(sysDept.getSysDeptCode())
+                && count(Wrappers.<SysDept>lambdaQuery()
+                .eq(SysDept::getSysDeptCode, sysDept.getSysDeptCode())) > 0) {
+            return ReturnResult.illegal("机构编码已存在");
+        }
+        String deptName = sysDept.getSysDeptName();
+        if (StringUtils.isNotBlank(deptName)
+                && count(Wrappers.<SysDept>lambdaQuery()
+                .eq(SysDept::getSysDeptPid, sysDept.getSysDeptPid())
+                .eq(SysDept::getSysDeptName, deptName)) > 0) {
+            return ReturnResult.illegal("同级部门名称已存在");
+        }
+
         baseMapper.insert(sysDept);
         sysDept.setSysDeptTreeId(Joiner.on(",").join(parentTreeId, sysDept.getSysDeptId()));
         baseMapper.updateById(sysDept);
