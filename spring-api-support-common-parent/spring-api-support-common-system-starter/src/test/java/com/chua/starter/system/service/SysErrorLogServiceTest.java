@@ -27,6 +27,12 @@ class SysErrorLogServiceTest {
 
     private final SysErrorLogServiceImpl sysErrorLogService = new SysErrorLogServiceImpl();
 
+    /**
+     * log。
+     *
+     * @param source 来源，不允许为 null
+     * @return SysErrorLog 对象
+     */
     private SysErrorLog log(String source) {
         SysErrorLog e = new SysErrorLog();
         e.setSysErrorLogId(1L);
@@ -34,12 +40,18 @@ class SysErrorLogServiceTest {
         return e;
     }
 
+    /**
+     * 测试：获取DetailNull。
+     */
     @Test
     @DisplayName("详情查询-ID为空返回null")
     void testGetDetailNull() {
         assertNull(sysErrorLogService.getDetail(null));
     }
 
+    /**
+     * 测试：获取Detail。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("详情查询-合法ID返回记录")
@@ -49,6 +61,9 @@ class SysErrorLogServiceTest {
         assertEquals("js", detail.getSysErrorSource());
     }
 
+    /**
+     * 测试：StatisticBy来源。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("按来源统计-分组聚合正确")
@@ -63,6 +78,9 @@ class SysErrorLogServiceTest {
         assertTrue(hasUnknown);
     }
 
+    /**
+     * 测试：StatisticBy来源Empty。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("按来源统计-空列表返回空")
@@ -71,6 +89,9 @@ class SysErrorLogServiceTest {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * 测试：CleanBefore。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("清理-保留最近N天返回删除数量")
@@ -79,6 +100,9 @@ class SysErrorLogServiceTest {
         assertEquals(15, deleted);
     }
 
+    /**
+     * 测试：删除ByIdsEmpty。
+     */
     @Test
     @DisplayName("批量删除-ID集合为空返回非法参数")
     void testDeleteByIdsEmpty() {
@@ -86,6 +110,9 @@ class SysErrorLogServiceTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：删除ByIdsValid。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("批量删除-合法ID调用批量删除")
@@ -94,6 +121,9 @@ class SysErrorLogServiceTest {
         assertTrue(result.isSuccess());
     }
 
+    /**
+     * 测试：更新状态NullID。
+     */
     @Test
     @DisplayName("更新状态-ID为空返回非法参数")
     void testUpdateStatusNullId() {
@@ -101,6 +131,9 @@ class SysErrorLogServiceTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：更新状态Invalid。
+     */
     @Test
     @DisplayName("更新状态-非法状态值返回非法参数")
     void testUpdateStatusInvalid() {
@@ -108,6 +141,9 @@ class SysErrorLogServiceTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：更新状态Valid。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("更新状态-合法参数调用updateById")
@@ -116,6 +152,9 @@ class SysErrorLogServiceTest {
         assertTrue(result.isSuccess());
     }
 
+    /**
+     * 测试：页ErrorLogs。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("分页查询异常日志-委托mapper分页并按来源/消息过滤")
@@ -129,6 +168,9 @@ class SysErrorLogServiceTest {
         assertEquals("js", result.getRecords().get(0).getSysErrorSource());
     }
 
+    /**
+     * 测试：ReturnStatisticKeys。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("统计接口-返回total/todayCount/pendingCount/handledCount/handleRate")
@@ -144,6 +186,9 @@ class SysErrorLogServiceTest {
         assertNotNull(stat.get("topErrors"));
     }
 
+    /**
+     * 测试：处理速率ZeroWhen编号总数。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("统计接口-总数为0时处理率兜底为0")

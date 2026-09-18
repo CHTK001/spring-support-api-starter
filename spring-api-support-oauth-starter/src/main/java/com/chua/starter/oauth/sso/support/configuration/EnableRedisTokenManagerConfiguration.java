@@ -46,6 +46,12 @@ public class EnableRedisTokenManagerConfiguration {
 
     }
 
+    /**
+     * 监听器Container。
+     *
+     * @param connectionFactory 连接工厂，不允许为 null
+     * @return Redis消息监听器Container 对象
+     */
     @Bean
     @SuppressWarnings("all")
     @ConditionalOnMissingBean(StringRedisTemplate.class)
@@ -57,6 +63,8 @@ public class EnableRedisTokenManagerConfiguration {
 
     /**
     * 注册Redis键过期监听器
+    * @param listenerContainer 监听器Container，不允许为 null
+    * @return 键ExpirationEvent消息监听器 对象
      */
     @Bean
     @ConditionalOnMissingBean(StringRedisTemplate.class)

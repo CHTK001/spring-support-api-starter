@@ -76,6 +76,16 @@ public class UserInfoVO {
     private String sysUserEmail;
 
     /**
+    * 身份证
+     */
+    @TableField(value = "sys_user_card")
+    @ApiModelProperty(value = "身份证")
+    @Schema(description = "身份证")
+    @Size(max = 255, message = "身份证最大长度要小于 255")
+    /** SYS用户card */
+    private String sysUserCard;
+
+    /**
     * 头像地址
      */
     @Schema(description = "头像地址")

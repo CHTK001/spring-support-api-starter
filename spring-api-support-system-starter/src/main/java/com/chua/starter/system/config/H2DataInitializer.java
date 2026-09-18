@@ -8,6 +8,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -17,15 +18,18 @@ import javax.sql.DataSource;
  * 1) 清理旧表；2) 执行项目自带完整 DDL data-h2.sql（列与实体对齐）；
  * 3) 补建 data-h2.sql 未覆盖的扩展表；4) 写入演示种子数据。
  */
+@Profile("h2")
 @Component
 public class H2DataInitializer implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(H2DataInitializer.class);
 
     @Autowired
+    /** jdbc模板 */
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
+    /** 数据来源 */
     private DataSource dataSource;
 
     @Override
@@ -42,6 +46,9 @@ public class H2DataInitializer implements ApplicationRunner {
         }
     }
 
+    /**
+     * 删除全部。
+     */
     private void dropAll() {
         String[] tables = {
             "sys_user_post", "sys_role_menu", "sys_user_role", "sys_user_avatar_frame",
@@ -52,7 +59,10 @@ public class H2DataInitializer implements ApplicationRunner {
             "sys_role", "sys_mini_menu", "sys_menu", "sys_user"
         };
         for (String t : tables) {
-            try { jdbcTemplate.execute("DROP TABLE IF EXISTS " + t); } catch (Exception ignore) {}
+            try {
+                jdbcTemplate.execute("DROP TABLE IF EXISTS " + t);
+            } catch (Exception ignore) {
+            }
         }
     }
 
@@ -117,22 +127,69 @@ public class H2DataInitializer implements ApplicationRunner {
             "create_name VARCHAR(255), create_by INT, create_time datetime, update_time datetime," +
             "update_name VARCHAR(255), update_by INT)");
         // 反馈扩展列（data-h2.sql 的 sys_feedback 可能缺这些，补齐）
-        try { jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_images VARCHAR(1000)"); } catch (Exception ignore) {}
-        try { jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_deal_by INT"); } catch (Exception ignore) {}
-        try { jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_deal_name VARCHAR(100)"); } catch (Exception ignore) {}
-        try { jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_recover_content TEXT"); } catch (Exception ignore) {}
-        try { jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_recover_time datetime"); } catch (Exception ignore) {}
-        try { jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_recover_images VARCHAR(1000)"); } catch (Exception ignore) {}
-        try { jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_user_agent VARCHAR(500)"); } catch (Exception ignore) {}
-        try { jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_platform VARCHAR(100)"); } catch (Exception ignore) {}
-        try { jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_priority INT DEFAULT 1"); } catch (Exception ignore) {}
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_images VARCHAR(1000)");
+        } catch (Exception ignore) {
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_deal_by INT");
+        } catch (Exception ignore) {
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_deal_name VARCHAR(100)");
+        } catch (Exception ignore) {
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_recover_content TEXT");
+        } catch (Exception ignore) {
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_recover_time datetime");
+        } catch (Exception ignore) {
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_recover_images VARCHAR(1000)");
+        } catch (Exception ignore) {
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_user_agent VARCHAR(500)");
+        } catch (Exception ignore) {
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_platform VARCHAR(100)");
+        } catch (Exception ignore) {
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_priority INT DEFAULT 1");
+        } catch (Exception ignore) {
+        }
         // sys_user 补列
-        try { jdbcTemplate.execute("ALTER TABLE sys_user ADD COLUMN IF NOT EXISTS sys_user_lock INT DEFAULT 0"); } catch (Exception ignore) {}
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_user ADD COLUMN IF NOT EXISTS sys_user_lock INT DEFAULT 0");
+        } catch (Exception ignore) {
+        }
         // sys_setting 补列
-        try { jdbcTemplate.execute("ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_config VARCHAR(255)"); } catch (Exception ignore) {}
-        try { jdbcTemplate.execute("ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_collect INT DEFAULT 0"); } catch (Exception ignore) {}
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_config VARCHAR(255)");
+        } catch (Exception ignore) {
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_collect INT DEFAULT 0");
+        } catch (Exception ignore) {
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_is_sensitive INT DEFAULT 0");
+        } catch (Exception ignore) {
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_validate VARCHAR(255)");
+        } catch (Exception ignore) {
+        }
         // sys_announcement 补列
-        try { jdbcTemplate.execute("ALTER TABLE sys_announcement ADD COLUMN IF NOT EXISTS sys_announcement_expire_time datetime"); } catch (Exception ignore) {}
+        try {
+            jdbcTemplate.execute("ALTER TABLE sys_announcement ADD COLUMN IF NOT EXISTS sys_announcement_expire_time datetime");
+        } catch (Exception ignore) {
+        }
         // 趣味模块配置表
         jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS edu_fun_config (" +
             "config_id INT AUTO_INCREMENT PRIMARY KEY," +
@@ -172,6 +229,9 @@ public class H2DataInitializer implements ApplicationRunner {
         log.info("[H2初始化] 扩展表与补列完成");
     }
 
+    /**
+     * 插入Seed数据。
+     */
     private void insertSeedData() {
         String adminPwd = "'$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2'";
 

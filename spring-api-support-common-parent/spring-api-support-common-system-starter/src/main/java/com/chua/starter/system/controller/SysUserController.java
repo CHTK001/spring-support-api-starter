@@ -1,5 +1,6 @@
 package com.chua.starter.system.controller;
 
+import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.system.validator.group.AddGroup;
@@ -10,6 +11,8 @@ import com.chua.starter.common.support.annotations.UserLog;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
+import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
+import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.system.model.user.SysUserQuery;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
@@ -159,6 +162,12 @@ public class SysUserController {
         return sysUserService.delete(sysUserId);
     }
 
+    /**
+     * 删除批次。
+     *
+     * @param sysUserIds sys用户Ids，不允许为 null
+     * @return Return结果 对象
+     */
     @Operation(summary = "批量删除用户")
     @DeleteMapping("/delete/batch")
     @SysLog
@@ -169,6 +178,12 @@ public class SysUserController {
         return sysUserService.deleteBatch(sysUserIds);
     }
 
+    /**
+     * 更新状态批次。
+     *
+     * @param body 请求体，不允许为 null
+     * @return Return结果 对象
+     */
     @Operation(summary = "批量更新用户状态")
     @PutMapping("/status/batch")
     @SysLog
@@ -207,15 +222,20 @@ public class SysUserController {
     * @return 重置结果提示
      */
     @Operation(summary = "重置用户密码")
-    @GetMapping("/reset")
+    @PostMapping("/reset")
     @SysLog
     @Permission(value = "sys:login:reset", role = {ADMIN, AuthConstant.SUPER_ADMIN})
     @Transactional(rollbackFor = Exception.class)
-    public ReturnResult<String> reset(@RequestParam Long userId) {
+    public ReturnResult<String> reset(@RequestParam Long userId,
+                                      @RequestParam(required = false) String password) {
         if (null == userId) {
             return ReturnResult.illegal("用户信息不存在");
         }
 
+        // 如果传入了自定义密码，就用自定义密码；否则自动生成
+        if (StringUtils.isNotBlank(password)) {
+            return sysUserService.resetWithPassword(userId, password);
+        }
         return sysUserService.reset(userId);
     }
 
@@ -234,13 +254,22 @@ public class SysUserController {
     public ReturnResult<SysUser> updateOwner(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
+            @Parameter(hidden = true) @UserValue("token") String token,
             @Validated(UpdateGroup.class) @RequestBody SysUserPasswordUpdate sysUserPasswordUpdate,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
-        return sysUserService.updateOwner(roles, userId, sysUserPasswordUpdate);
+        ReturnResult<SysUser> result = sysUserService.updateOwner(roles, userId, sysUserPasswordUpdate);
+        // 更新成功后，通知 oauth 刷新用户信息缓存
+        if (result.isSuccess() && StringUtils.isNotBlank(token)) {
+            try {
+                AuthClientExecute.getInstance().upgrade(token, UpgradeType.VERSION);
+            } catch (Exception ignored) {
+            }
+        }
+        return result;
     }
     /**
     * 管理员更新指定用户信息。
@@ -257,13 +286,50 @@ public class SysUserController {
     public ReturnResult<SysUser> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
+            @Parameter(hidden = true) @UserValue("token") String token,
             @Validated(UpdateGroup.class) @RequestBody SysUserUpdate sysUser,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
-        return sysUserService.updateUser(roles, userId, sysUser);
+        ReturnResult<SysUser> result = sysUserService.updateUser(roles, userId, sysUser);
+        // 更新成功后，通知 oauth 刷新用户信息缓存
+        if (result.isSuccess() && StringUtils.isNotBlank(token)) {
+            try {
+                AuthClientExecute.getInstance().upgrade(token, UpgradeType.VERSION);
+            } catch (Exception ignored) {
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 个人中心更新自己的基本资料
+     *
+     * @param userId      当前登录用户标识
+     * @param token       当前token
+     * @param sysUser     用户更新参数（不需要传sysUserId）
+     * @return 更新后的用户信息
+     */
+    @Operation(summary = "个人中心更新自己的基本资料")
+    @PutMapping("/updateProfile")
+    @SysLog
+    public ReturnResult<SysUser> updateProfile(
+            @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
+            @Parameter(hidden = true) @UserValue("token") String token,
+            @RequestBody SysUserUpdate sysUser) {
+        // 强制设置为当前用户，不允许修改别人
+        sysUser.setSysUserId(userId.intValue());
+        ReturnResult<SysUser> result = sysUserService.updateUser(null, userId, sysUser);
+        // 更新成功后，通知 oauth 刷新用户信息缓存
+        if (result.isSuccess() && StringUtils.isNotBlank(token)) {
+            try {
+                AuthClientExecute.getInstance().upgrade(token, UpgradeType.VERSION);
+            } catch (Exception ignored) {
+            }
+        }
+        return result;
     }
 
     /**

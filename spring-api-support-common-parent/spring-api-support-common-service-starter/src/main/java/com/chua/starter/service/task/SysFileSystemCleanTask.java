@@ -25,7 +25,13 @@ import java.util.List;
 * @since 2024/12/20
 * @author CH
  */
-@SpringBootConfiguration
+// @SpringBootConfiguration
+/**
+ * Sys文件SystemCleanTask类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 @RequiredArgsConstructor
 public class SysFileSystemCleanTask {
 

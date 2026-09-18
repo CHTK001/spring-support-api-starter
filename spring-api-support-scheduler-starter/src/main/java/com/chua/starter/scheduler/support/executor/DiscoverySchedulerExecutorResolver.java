@@ -1,8 +1,9 @@
 package com.chua.starter.scheduler.support.executor;
 
-import com.chua.common.support.core.annotation.Spi;
-import com.chua.common.support.core.annotation.SpiCondition;
-import com.chua.protocol.support.network.discovery.Discovery;
+import com.chua.common.support.network.discovery.Discovery;
+import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.common.support.spi.annotations.Spi;
+import com.chua.common.support.spi.annotations.SpiCondition;
 import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -10,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,6 +93,12 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         }
     }
 
+    /**
+     * discovery服务。
+     *
+     * @param beanFactory bean工厂，不允许为 null
+     * @return 对象 对象
+     */
     private Object discoveryService(ListableBeanFactory beanFactory) {
         if (beanFactory == null) {
             return null;
@@ -129,13 +135,19 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
                                            String discoveryNamespace) {
         try {
             String discoveryProtocol = discoveryProperties == null ? null : trimToNull(discoveryProperties.getProtocol());
+ // 服务实例来自外部模块，方法调用统一经 ReflectUtils（getDiscoveryAll 返回 Set<Discovery>）
+            Object result;
             if (StringUtils.hasText(discoveryProtocol)) {
-                Method method = discoveryService.getClass().getMethod("getDiscoveryAll", String.class, String.class);
-                return (Set<Discovery>) method.invoke(discoveryService, discoveryProtocol, discoveryNamespace);
+                result = ReflectUtils.invoke(discoveryService, "getDiscoveryAll", Set.class,
+                        new Class<?>[]{String.class, String.class}, discoveryProtocol, discoveryNamespace);
+            } else {
+                result = ReflectUtils.invoke(discoveryService, "getDiscoveryAll", Set.class,
+                        new Class<?>[]{String.class}, discoveryNamespace);
             }
-
-            Method method = discoveryService.getClass().getMethod("getDiscoveryAll", String.class);
-            return (Set<Discovery>) method.invoke(discoveryService, discoveryNamespace);
+            if (result == null) {
+                return Set.of();
+            }
+            return (Set<Discovery>) result;
         } catch (Exception e) {
             return Set.of();
         }
@@ -158,6 +170,12 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
      */
     }
 
+    /**
+     * 解析DiscoveryExecutor名称。
+     *
+     * @param discovery 方法入参 discovery
+     * @return 结果字符串
+     */
     private String resolveDiscoveryExecutorName(Discovery discovery) {
         if (discovery == null) {
             return null;
@@ -237,6 +255,12 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
      */
     }
 
+    /**
+     * 是否含有UsableBaseURL。
+     *
+     * @param executor 方法入参 executor
+     * @return 是否成功（true 表示成功）
+     */
     private boolean hasUsableBaseUrl(SchedulerJobPlatformProperties.Executor executor) {
         return executor != null
                 && executor.getBaseUrl() != null
@@ -248,6 +272,12 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
      */
     }
 
+    /**
+     * normalize路径。
+     *
+     * @param path 路径，不允许为 null
+     * @return 结果字符串
+     */
     private String normalizePath(String path) {
         String value = trimToNull(path);
         if (!StringUtils.hasText(value)) {
@@ -256,6 +286,12 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         return value.startsWith("/") ? value : "/" + value;
     }
 
+    /**
+     * trim转为Null。
+     *
+     * @param value 值，不允许为 null
+     * @return 结果字符串
+     */
     private String trimToNull(String value) {
         if (!StringUtils.hasText(value)) {
             return null;

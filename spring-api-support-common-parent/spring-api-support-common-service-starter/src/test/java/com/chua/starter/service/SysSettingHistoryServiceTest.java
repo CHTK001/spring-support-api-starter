@@ -27,6 +27,13 @@ class SysSettingHistoryServiceTest {
 
     private final SysSettingHistoryServiceImpl sysSettingHistoryService = new SysSettingHistoryServiceImpl();
 
+    /**
+     * setting。
+     *
+     * @param id ID，不允许为 null
+     * @param value 值，不允许为 null
+     * @return SysSetting 对象
+     */
     private SysSetting setting(Integer id, String value) {
         SysSetting s = new SysSetting();
         s.setSysSettingId(id);
@@ -36,6 +43,9 @@ class SysSettingHistoryServiceTest {
         return s;
     }
 
+    /**
+     * 测试：记录HistoryWhen值Changed。
+     */
     @Disabled("[P3C40] 原 ArgumentCaptor 断言改为 @Disabled：真实回查需要 DB 环境")
     @Test
     @DisplayName("保存历史记录-值变化时入库并携带批次号")
@@ -46,6 +56,9 @@ class SysSettingHistoryServiceTest {
         // 原 captor 断言: 旧值=old, 新值=new, 操作=UPDATE, 批次号=bath-001
     }
 
+    /**
+     * 测试：Skip记录When值Unchanged。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("保存历史记录-值未变化时不入库")
@@ -57,6 +70,9 @@ class SysSettingHistoryServiceTest {
         // 原断言: 不调用 insert
     }
 
+    /**
+     * 测试：页HistoryBySettingID。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("按设置ID分页查询历史")
@@ -68,6 +84,9 @@ class SysSettingHistoryServiceTest {
         assertEquals(1, result.getTotal());
     }
 
+    /**
+     * 测试：列出HistoryBy批次编号。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("按批次号查询历史")
@@ -77,6 +96,9 @@ class SysSettingHistoryServiceTest {
         assertEquals(2, list.size());
     }
 
+    /**
+     * 测试：RollbackSingleHistorySuccessfully。
+     */
     @Disabled("[P3C40] 原 ArgumentCaptor 断言改为 @Disabled：真实回查需要 DB 环境")
     @Test
     @DisplayName("单条回滚成功-旧值写回设置表并生成新历史")
@@ -93,6 +115,9 @@ class SysSettingHistoryServiceTest {
         // 原 captor 断言: 旧值写回设置表, 回滚本身产生一条新历史(ROLLBACK)
     }
 
+    /**
+     * 测试：ThrowWhenHistoryNotFound。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("单条回滚-历史不存在返回错误")
@@ -103,6 +128,9 @@ class SysSettingHistoryServiceTest {
         assertTrue(result.getMsg().contains("历史记录不存在"));
     }
 
+    /**
+     * 测试：Rollback批次Successfully。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("批次回滚成功-遍历批次内所有历史逐条回滚")
@@ -125,6 +153,9 @@ class SysSettingHistoryServiceTest {
         // 原断言: 两条历史各回滚一次, 各产生一条 ROLLBACK 历史
     }
 
+    /**
+     * 测试：ThrowWhen批次Empty。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("批次回滚-空批次返回错误")

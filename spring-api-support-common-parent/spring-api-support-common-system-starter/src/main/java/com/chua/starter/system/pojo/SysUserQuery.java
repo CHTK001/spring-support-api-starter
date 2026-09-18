@@ -44,4 +44,11 @@ public class SysUserQuery extends Query<SysUser> {
     @Schema(description = "部门ID")
     /** sysdeptid */
     private Long sysDeptId;
+
+    /**
+     * 是否排除sa用户（非sa角色的用户看不到sa）
+     */
+    @Schema(description = "是否排除sa用户")
+    private Boolean excludeSaUser = false;
 }
+

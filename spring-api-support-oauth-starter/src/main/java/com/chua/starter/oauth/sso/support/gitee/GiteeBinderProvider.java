@@ -126,6 +126,8 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
     *
     * @return 登录页
     * @param @RequestParam("loginCode" @RequestParam("loginCode"
+    * @param loginCode login编码，不允许为 null
+    * @param callback 回调，不允许为 null
      */
     @ResponseBody
     @GetMapping("loginCodeType")

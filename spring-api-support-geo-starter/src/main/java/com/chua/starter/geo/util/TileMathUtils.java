@@ -23,6 +23,12 @@ public class TileMathUtils {
     private TileMathUtils() {
     }
 
+    /**
+     * clampZoom。
+     *
+     * @param zoom 方法入参 zoom
+     * @return 结果数值
+     */
     public static int clampZoom(int zoom) {
         return Math.min(zoom, MAX_ZOOM);
     }

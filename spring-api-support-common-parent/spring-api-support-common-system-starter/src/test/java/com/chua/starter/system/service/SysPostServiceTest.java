@@ -26,8 +26,20 @@ class SysPostServiceTest {
 
     /** SysPostServiceImpl 构造器需 2 个 mapper, 参数校验路径不触碰 mapper, 传 null 即可 */
     private final SysPostServiceImpl sysPostService =
+            /**
+             * SysPost服务Impl。
+             *
+             * @param null 方法入参 null
+             * @param null 方法入参 null
+             * @return 结果值
+             */
             new SysPostServiceImpl(null, null);
 
+    /**
+     * 构建Post。
+     *
+     * @return SysPost 对象
+     */
     private SysPost buildPost() {
         SysPost post = new SysPost();
         post.setSysPostName("工程师");
@@ -35,6 +47,9 @@ class SysPostServiceTest {
         return post;
     }
 
+    /**
+     * 测试：保存Success。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("新增岗位-编码不存在时保存成功并补默认值")
@@ -48,6 +63,9 @@ class SysPostServiceTest {
         assertEquals(Integer.valueOf(0), result.getData().getSysPostSort(), "排序为空时应默认0");
     }
 
+    /**
+     * 测试：保存Duplicate编码。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("新增岗位-编码重复时返回非法参数")
@@ -58,6 +76,9 @@ class SysPostServiceTest {
         assertTrue(result.getMsg().contains("岗位编码已存在"));
     }
 
+    /**
+     * 测试：更新NullID。
+     */
     @Test
     @DisplayName("更新岗位-ID为空返回非法参数")
     void testUpdateNullId() {
@@ -67,6 +88,9 @@ class SysPostServiceTest {
         assertTrue(result.getMsg().contains("岗位信息不存在"));
     }
 
+    /**
+     * 测试：更新NotExists。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("更新岗位-记录不存在返回非法参数")
@@ -79,6 +103,9 @@ class SysPostServiceTest {
         assertTrue(result.getMsg().contains("岗位信息不存在"));
     }
 
+    /**
+     * 测试：更新编码Conflict。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("更新岗位-改编码后与他人重复返回非法参数")
@@ -92,6 +119,9 @@ class SysPostServiceTest {
         assertTrue(result.getMsg().contains("岗位编码已存在"));
     }
 
+    /**
+     * 测试：更新Success。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("更新岗位-合法更新调用updateById")
@@ -103,6 +133,9 @@ class SysPostServiceTest {
         assertTrue(result.isSuccess());
     }
 
+    /**
+     * 测试：删除NullID。
+     */
     @Test
     @DisplayName("删除岗位-ID为空返回非法参数")
     void testDeleteNullId() {
@@ -111,6 +144,9 @@ class SysPostServiceTest {
         assertTrue(result.getMsg().contains("岗位信息不存在"));
     }
 
+    /**
+     * 测试：删除是否含有Users。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("删除岗位-存在关联用户时拒绝")
@@ -120,6 +156,9 @@ class SysPostServiceTest {
         assertTrue(result.getMsg().contains("关联用户"));
     }
 
+    /**
+     * 测试：删除编号Users。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("删除岗位-无关联用户时删除成功")
@@ -128,6 +167,9 @@ class SysPostServiceTest {
         assertTrue(result.isSuccess());
     }
 
+    /**
+     * 测试：列出。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("岗位列表-返回查询结果")
@@ -136,6 +178,9 @@ class SysPostServiceTest {
         assertEquals(1, list.size());
     }
 
+    /**
+     * 测试：页。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("岗位分页-调用分页查询不抛异常")
@@ -146,6 +191,9 @@ class SysPostServiceTest {
         assertNotNull(page);
     }
 
+    /**
+     * 测试：获取UsersNullID。
+     */
     @Test
     @DisplayName("查询岗位下用户-ID为空返回空列表")
     void testGetUsersNullId() {
@@ -154,6 +202,9 @@ class SysPostServiceTest {
         assertTrue(users.isEmpty());
     }
 
+    /**
+     * 测试：获取Users编号Rel。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("查询岗位下用户-无关联返回空列表")
@@ -162,6 +213,9 @@ class SysPostServiceTest {
         assertTrue(users.isEmpty());
     }
 
+    /**
+     * 测试：过滤By状态WhenListing。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("列表查询-传入启用状态时按状态过滤")
@@ -175,6 +229,9 @@ class SysPostServiceTest {
         // 状态条件已进入wrapper(由 lambdaQuery.eq 拼接), 此处仅验证不抛异常且返回数据
     }
 
+    /**
+     * 测试：Fill用户数量响应页。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("分页查询-返回结构含关联用户数填充")

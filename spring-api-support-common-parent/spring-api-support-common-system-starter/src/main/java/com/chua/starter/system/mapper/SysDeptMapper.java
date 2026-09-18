@@ -13,5 +13,10 @@ import java.util.Map;
  */
 @Mapper
 public interface SysDeptMapper extends BaseMapper<SysDept> {
+    /**
+     * selectMemberCounts。
+     *
+     * @return 结果列表，无数据时为空列表
+     */
     List<Map<String, Object>> selectMemberCounts();
 }

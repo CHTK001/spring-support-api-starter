@@ -24,11 +24,17 @@ class DataScopeTest {
 
     private SysUserQuery query;
 
+    /**
+     * 设置Up。
+     */
     @BeforeEach
     void setUp() {
         query = new SysUserQuery();
     }
 
+    /**
+     * 测试：AdminRole编号数据Scope。
+     */
     @Test
     @DisplayName("超级管理员不受数据权限限制")
     void testAdminRoleNoDataScope() {
@@ -38,6 +44,9 @@ class DataScopeTest {
         assertTrue(isAdmin, "ADMIN 角色应被识别为超级管理员");
     }
 
+    /**
+     * 测试：全部数据Scope。
+     */
     @Test
     @DisplayName("全部数据权限不过滤")
     void testAllDataScope() {
@@ -49,6 +58,9 @@ class DataScopeTest {
         assertNull(query.getDataScopeDeptIds());
     }
 
+    /**
+     * 测试：Dept数据Scope。
+     */
     @Test
     @DisplayName("本部门数据权限注入部门ID")
     void testDeptDataScope() {
@@ -58,6 +70,9 @@ class DataScopeTest {
         assertEquals(100, query.getCurrentDeptId());
     }
 
+    /**
+     * 测试：DeptAndChildren数据Scope。
+     */
     @Test
     @DisplayName("本部门及以下数据权限注入部门树路径")
     void testDeptAndChildrenDataScope() {
@@ -67,6 +82,9 @@ class DataScopeTest {
         assertEquals("0,1,100", query.getCurrentDeptTreeId());
     }
 
+    /**
+     * 测试：Self数据Scope。
+     */
     @Test
     @DisplayName("仅本人数据权限注入用户ID")
     void testSelfDataScope() {
@@ -76,6 +94,9 @@ class DataScopeTest {
         assertEquals(999, query.getCurrentUserId());
     }
 
+    /**
+     * 测试：CustomDept数据Scope。
+     */
     @Test
     @DisplayName("自定义部门数据权限注入部门ID列表")
     void testCustomDeptDataScope() {
@@ -87,6 +108,9 @@ class DataScopeTest {
         assertTrue(query.getDataScopeDeptIds().contains(10));
     }
 
+    /**
+     * 测试：SysRoleDefault数据Scope。
+     */
     @Test
     @DisplayName("角色实体数据权限字段默认值为全部")
     void testSysRoleDefaultDataScope() {
@@ -95,6 +119,9 @@ class DataScopeTest {
         assertNull(role.getSysRoleDataScopeDeptIds());
     }
 
+    /**
+     * 测试：SysRoleCustomDeptIds。
+     */
     @Test
     @DisplayName("角色实体自定义部门ID序列化")
     void testSysRoleCustomDeptIds() {
@@ -107,6 +134,9 @@ class DataScopeTest {
         assertEquals(3, ids.length);
     }
 
+    /**
+     * 测试：MultipleRolesTakeMostPermissive。
+     */
     @Test
     @DisplayName("多角色取最宽松数据权限")
     void testMultipleRolesTakeMostPermissive() {
@@ -117,6 +147,9 @@ class DataScopeTest {
         assertEquals(2, minScope, "多角色应取最宽松(最小)的数据权限");
     }
 
+    /**
+     * 测试：编号RoleDefaultSelf。
+     */
     @Test
     @DisplayName("无角色用户默认仅本人")
     void testNoRoleDefaultSelf() {

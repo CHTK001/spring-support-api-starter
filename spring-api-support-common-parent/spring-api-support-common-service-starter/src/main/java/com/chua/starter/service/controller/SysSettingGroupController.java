@@ -45,6 +45,7 @@ public class SysSettingGroupController {
     * @param sysSettingGroup 条件
     * @return 设置分页列表
     * @param true true
+    * @param roles 方法入参 roles
      */
     @Operation(summary = "设置分页列表")
     @GetMapping("/list")
@@ -82,6 +83,9 @@ public class SysSettingGroupController {
     *
     * @return 新增设置
     * @param true true
+    * @param roles 方法入参 roles
+    * @param sysSettingGroup sysSetting分组，不允许为 null
+    * @param bindingResult binding结果，不允许为 null
      */
     @Operation(summary = "更新设置")
     @PostMapping("/saveOrUpdate")
@@ -101,6 +105,9 @@ public class SysSettingGroupController {
     *
     * @return 新增设置
     * @param true true
+    * @param roles 方法入参 roles
+    * @param sysSettingGroups 方法入参 sysSettingGroups
+    * @param bindingResult binding结果，不允许为 null
      */
     @Operation(summary = "更新设置")
     @PostMapping("/batchUpdate")

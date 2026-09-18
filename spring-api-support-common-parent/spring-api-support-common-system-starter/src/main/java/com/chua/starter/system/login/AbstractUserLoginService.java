@@ -94,6 +94,7 @@ public abstract class AbstractUserLoginService implements UserInfoService {
         if (null != address && count != null) {
             user.setSysUserLastIp(address);
             user.setSysUserLongCount(Converter.convertIfNecessary(count, Integer.class));
+            user.setSysUserLastLoginTime(java.time.LocalDateTime.now());
             final SysUser loginUser = user;
             Thread.ofVirtual().start(() -> {
                 try {
@@ -285,7 +286,10 @@ public abstract class AbstractUserLoginService implements UserInfoService {
             }
         }
         if (parts.length >= 3 && !parts[2].isEmpty()) {
-            try { p.dataPermission = DataFilterTypeEnum.valueOf(parts[2]); } catch (Exception ignored) {}
+            try {
+                p.dataPermission = DataFilterTypeEnum.valueOf(parts[2]);
+            } catch (Exception ignored) {
+            }
         }
         if (parts.length >= 4) {
             p.dataPermissionRule = parts[3];

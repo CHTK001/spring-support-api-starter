@@ -32,6 +32,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "com.chua.starter.service.task",
         "com.chua.starter.service.configuration"
 })
+/**
+ * SchedulerApplication类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 public class SchedulerApplication {
 
     /**

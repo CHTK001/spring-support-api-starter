@@ -23,6 +23,12 @@ public interface SysUserLogMapper extends BaseMapper<SysUserLog> {
                          @Param("managedDeptTreeIds") List<String> managedDeptTreeIds);
 
     List<SysUserLog> listForUserLog(@Param("query") SysUserLogQuery query,
+    /**
+     * 列出LatestLoginLogsByUsernames。
+     *
+     * @param usernames 方法入参 usernames
+     * @return 结果列表，无数据时为空列表
+     */
                                     @Param("sysUserId") Integer sysUserId,
                                     @Param("isSuperAdmin") boolean isSuperAdmin,
                                     @Param("isAdmin") boolean isAdmin,

@@ -461,6 +461,12 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_LEGACY_PREFIX + "' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator"),
             @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_PREFIX + "' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator")
     })
+    /**
+     * 清空缓存。
+     *
+     * @param sysSetting 方法入参 sysSetting
+     * @return SysSetting 对象
+     */
     public SysSetting clearCache(SysSetting sysSetting) {
         return sysSetting;
     }
@@ -490,6 +496,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         upgrade();
     }
 
+    /**
+     * upgrade。
+     */
     private void upgrade() {
         GlobalSettingFactory globalSettingFactory = GlobalSettingFactory.getInstance();
         try {

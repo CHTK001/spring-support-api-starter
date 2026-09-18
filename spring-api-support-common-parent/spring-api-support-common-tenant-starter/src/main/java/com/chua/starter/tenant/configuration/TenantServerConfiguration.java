@@ -25,5 +25,11 @@ import org.springframework.context.annotation.Configuration;
         "com.chua.starter.tenant.server.service",
         "com.chua.starter.tenant.server.sync"
 })
+/**
+ * Tenant服务端配置类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 public class TenantServerConfiguration {
 }

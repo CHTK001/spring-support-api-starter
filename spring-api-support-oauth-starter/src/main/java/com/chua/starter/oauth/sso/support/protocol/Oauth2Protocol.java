@@ -836,15 +836,10 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-    * 安全查询 appid。
-    * <p>当前部分环境只保留 AppKey 体系，没有 app_id 表；此时应继续回退到 AppKey 校验。</p>
-    * @param request 请求
-     /**
-      * 获取appidsafely。
-      * @param clientId 客户端id
-      * @return 获取appidsafely的结果
-      */
-     * @return 获取baseurl的结果
+     * 安全查询 appid。
+     * <p>当前部分环境只保留 AppKey 体系，没有 app_id 表；此时应继续回退到 AppKey 校验。</p>
+     * @param clientId 客户端id
+     * @return 获取appidsafely的结果
      */
     private SysAppId getAppIdSafely(String clientId) {
         try {
@@ -855,6 +850,12 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
         }
     }
 
+    /**
+     * extractBasicCredentials。
+     *
+     * @param request 请求，不允许为 null
+     * @return 字符串 对象
+     */
     private String[] extractBasicCredentials(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (StringUtils.isBlank(authHeader) || !authHeader.startsWith("Basic ")) {
@@ -881,6 +882,13 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
      */
     }
 
+    /**
+     * 构建令牌响应。
+     *
+     * @param loginResult login结果，不允许为 null
+     * @param scope 方法入参 scope
+     * @return 结果映射，无数据时为空映射
+     */
     private Map<String, Object> buildTokenResponse(LoginResult loginResult, String scope) {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("access_token", loginResult.getToken());
@@ -910,6 +918,13 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
      */
     }
 
+    /**
+     * 构建Error响应。
+     *
+     * @param error 方法入参 error
+     * @param description 描述，不允许为 null
+     * @return 结果映射，无数据时为空映射
+     */
     private Map<String, Object> buildErrorResponse(String error, String description) {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("error", error);
@@ -917,6 +932,12 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
         return response;
     }
 
+    /**
+     * 获取BaseURL。
+     *
+     * @param request 请求，不允许为 null
+     * @return 结果字符串
+     */
     private String getBaseUrl(HttpServletRequest request) {
         String scheme = request.getScheme();
         String serverName = request.getServerName();

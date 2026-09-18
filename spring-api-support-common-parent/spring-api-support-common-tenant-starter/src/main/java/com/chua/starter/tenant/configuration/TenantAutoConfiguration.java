@@ -19,5 +19,11 @@ import org.springframework.context.annotation.Import;
         TenantServerConfiguration.class,
         TenantClientConfiguration.class
 })
+/**
+ * TenantAuto配置类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 public class TenantAutoConfiguration {
 }

@@ -17,5 +17,11 @@ import java.util.List;
 @Mapper
 public interface SysDeptPrincipalRelMapper extends BaseMapper<SysDeptPrincipalRel> {
 
+    /**
+     * selectManagedDeptScopesBy用户ID。
+     *
+     * @param userId 用户ID，不允许为 null
+     * @return 结果列表，无数据时为空列表
+     */
     List<SysDept> selectManagedDeptScopesByUserId(@Param("userId") Integer userId);
 }

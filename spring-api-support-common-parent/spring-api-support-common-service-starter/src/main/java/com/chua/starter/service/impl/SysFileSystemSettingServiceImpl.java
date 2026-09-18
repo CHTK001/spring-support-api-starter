@@ -25,7 +25,13 @@ import java.net.ServerSocket;
 * @author CH
  */
 @Slf4j
-@Service
+// @Service
+/**
+ * Sys文件SystemSetting服务Impl类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSettingMapper, SysFileSystemSetting> implements SysFileSystemSettingService {
 
     private volatile FileHttpServer fileHttpServer; // 文件http服务端

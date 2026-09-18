@@ -81,6 +81,8 @@ public class SysMessageTemplateController {
 
     /**
     * 删除模板(支持批量)
+    * @param ids 方法入参 ids
+    * @return Return结果 对象
      */
     @Operation(summary = "删除消息模板")
     @DeleteMapping("/delete")

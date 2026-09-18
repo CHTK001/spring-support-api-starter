@@ -91,6 +91,9 @@ public class SysOnlineServiceImpl implements SysOnlineService {
 
     /**
     * 判断用户是否拥有指定角色编码
+    * @param userId 用户ID，不允许为 null
+    * @param roleCode role编码，不允许为 null
+    * @return 是否成功（true 表示成功）
      */
     private boolean matchRole(String userId, String roleCode) {
         Integer uid = parseUserId(userId);
@@ -103,6 +106,9 @@ public class SysOnlineServiceImpl implements SysOnlineService {
 
     /**
     * 判断用户是否属于指定部门
+    * @param userId 用户ID，不允许为 null
+    * @param deptId deptID，不允许为 null
+    * @return 是否成功（true 表示成功）
      */
     private boolean matchDept(String userId, Integer deptId) {
         Integer uid = parseUserId(userId);
@@ -115,6 +121,8 @@ public class SysOnlineServiceImpl implements SysOnlineService {
 
     /**
     * 解析用户ID
+    * @param userId 用户ID，不允许为 null
+    * @return Integer 对象
      */
     private Integer parseUserId(String userId) {
         try {

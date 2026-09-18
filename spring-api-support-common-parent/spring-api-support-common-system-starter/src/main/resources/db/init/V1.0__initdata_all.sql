@@ -1,0 +1,4 @@
+-- =====================================================================
+-- V1.0__initdata_all.sql - spring-api-support-common-system-starter 全量种子（合并自 initdata 文件 + init 内嵌种子）
+-- 通道: INITDATA 虚拟线程异步；全部幂等（INSERT IGNORE / WHERE NOT EXISTS）。
+-- =====================================================================
