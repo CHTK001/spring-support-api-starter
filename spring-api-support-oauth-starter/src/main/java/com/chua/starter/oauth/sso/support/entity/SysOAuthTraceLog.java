@@ -11,11 +11,11 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
-* OAuth追踪日志实体类
-* 记录认证请求的完整链路追踪信息
-*
-* @since 2025/01/01
-* @author CH
+ * OAuth追踪日志实体类
+ * 记录认证请求的完整链路追踪信息
+ *
+ * @since 2025/01/01
+ * @author CH
  */
 @Data
 @TableName("sys_oauth_trace_log")

@@ -6,10 +6,10 @@ import lombok.Data;
 import java.util.List;
 
 /**
-* 管理员发送消息请求
-*
-* @since 4.0.0.43
-* @author CH
+ * 管理员发送消息请求
+ *
+ * @since 4.0.0.43
+ * @author CH
  */
 @Data
 @Schema(description = "管理员发送消息请求")

@@ -13,10 +13,10 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
-* 公告已读记录表
-*
-* @since 4.0.0.50
-* @author CH
+ * 公告已读记录表
+ *
+ * @since 4.0.0.50
+ * @author CH
  */
 @Schema(description = "公告已读记录表")
 @Data

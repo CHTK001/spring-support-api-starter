@@ -4,10 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* 请求追踪策略配置编解码。
-*
-* @since 2026/03/25
-* @author CH
+ * 请求追踪策略配置编解码。
+ *
+ * @since 2026/03/25
+ * @author CH
  */
 public final class RequestTraceStrategyConfigCodec {
 
@@ -73,10 +73,10 @@ public final class RequestTraceStrategyConfigCodec {
     }
 
     /**
-    * 从映射
-    *
-    * @param values 值
-    * @return 从映射的结果
+     * 从映射
+     *
+     * @param values 值
+     * @return 从映射的结果
      */
     public static RequestTraceStrategyConfig fromMap(Map<String, String> values) {
         RequestTraceStrategyConfig config = new RequestTraceStrategyConfig();
@@ -131,32 +131,32 @@ public final class RequestTraceStrategyConfigCodec {
     }
 
     /**
-    * Normalize
-    *
-    * @param config 配置
-    * @return normalize的结果
+     * Normalize
+     *
+     * @param config 配置
+     * @return normalize的结果
      */
     public static RequestTraceStrategyConfig normalize(RequestTraceStrategyConfig config) {
         return config == null ? new RequestTraceStrategyConfig().normalize() : config.copy().normalize();
     }
 
     /**
-    * 解析布尔值
-    *
-    * @param value 值
-    * @param defaultValue 默认值
-    * @return 解析布尔值的结果
+     * 解析布尔值
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return 解析布尔值的结果
      */
     private static Boolean parseBoolean(String value, Boolean defaultValue) {
         return value == null ? defaultValue : Boolean.parseBoolean(value);
     }
 
     /**
-    * 解析Integer
-    *
-    * @param value 值
-    * @param defaultValue 默认值
-    * @return 解析integer的结果
+     * 解析Integer
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return 解析integer的结果
      */
     private static Integer parseInteger(String value, Integer defaultValue) {
         try {
@@ -167,11 +167,11 @@ public final class RequestTraceStrategyConfigCodec {
     }
 
     /**
-    * 解析Long
-    *
-    * @param value 值
-    * @param defaultValue 默认值
-    * @return 解析long的结果
+     * 解析Long
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return 解析long的结果
      */
     private static Long parseLong(String value, Long defaultValue) {
         try {

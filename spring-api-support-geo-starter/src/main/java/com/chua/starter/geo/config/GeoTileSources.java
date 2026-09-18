@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 瓦片图源配置服务，管理内置图源及天地图图源。
-*
-* @author CH
-* @since 1.0.0
+ * 瓦片图源配置服务，管理内置图源及天地图图源。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Component
 public class GeoTileSources {
@@ -23,14 +23,14 @@ public class GeoTileSources {
     private final Map<String, TileSource> builtInSources = new LinkedHashMap<>();
 
     /**
-    * 构造方法，初始化内置图源列表。
+     * 构造方法，初始化内置图源列表。
      */
     public GeoTileSources() {
         initBuiltInSources();
     }
 
     /**
-    * 初始化内置图源列表。
+     * 初始化内置图源列表。
      */
     private void initBuiltInSources() {
         builtInSources.put("google_satellite", make("google_satellite", "Google 卫星",
@@ -63,10 +63,10 @@ public class GeoTileSources {
     }
 
     /**
-    * 获取所有可用图源（含天地图，需传入 令牌）。
-    *
-    * @param tiandituToken 天地图 令牌（可为 空，使用 geo属性 中配置的默认值）
-    * @return 图源 映射
+     * 获取所有可用图源（含天地图，需传入 令牌）。
+     *
+     * @param tiandituToken 天地图 令牌（可为 空，使用 geo属性 中配置的默认值）
+     * @return 图源 映射
      */
     public Map<String, TileSource> getAllSources(String tiandituToken) {
         Map<String, TileSource> result = new LinkedHashMap<>(builtInSources);
@@ -81,26 +81,26 @@ public class GeoTileSources {
     }
 
     /**
-    * 根据 标识 获取单个图源。
-    *
-    * @param id             图源标识
-    * @param tiandituToken  天地图 令牌（可为 空）
-    * @return 图源配置，不存在返回 空
+     * 根据 标识 获取单个图源。
+     *
+     * @param id             图源标识
+     * @param tiandituToken  天地图 令牌（可为 空）
+     * @return 图源配置，不存在返回 空
      */
     public TileSource getByName(String id, String tiandituToken) {
         return getAllSources(tiandituToken).get(id);
     }
 
     /**
-    * 创建图源配置对象。
-    *
-    * @param id           图源唯一标识
-    * @param name         图源显示名称
-    * @param url          瓦片 URL 模板
-    * @param subdomains   子域名列表
-    * @param maxZoom      最大缩放级别
-    * @param attribution  版权署名
-    * @return 图源配置对象
+     * 创建图源配置对象。
+     *
+     * @param id           图源唯一标识
+     * @param name         图源显示名称
+     * @param url          瓦片 URL 模板
+     * @param subdomains   子域名列表
+     * @param maxZoom      最大缩放级别
+     * @param attribution  版权署名
+     * @return 图源配置对象
      */
     private TileSource make(String id, String name, String url, List<String> subdomains, int maxZoom, String attribution) {
         TileSource s = new TileSource();
@@ -114,13 +114,13 @@ public class GeoTileSources {
     }
 
     /**
-    * 创建天地图图源配置。
-    *
-    * @param token   天地图访问 令牌
-    * @param layer   图层名称（img/cia/vec/cva）
-    * @param name    显示名称
-    * @param maxZoom 最大缩放级别
-    * @return 天地图图源配置
+     * 创建天地图图源配置。
+     *
+     * @param token   天地图访问 令牌
+     * @param layer   图层名称（img/cia/vec/cva）
+     * @param name    显示名称
+     * @param maxZoom 最大缩放级别
+     * @return 天地图图源配置
      */
     private TileSource makeTianditu(String token, String layer, String name, int maxZoom) {
         String firstChar = layer.substring(0, 1).toLowerCase();

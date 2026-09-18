@@ -17,13 +17,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
-* 缓存管理接口
-*
-* <p>提供缓存模块查看、key 查询、单 key/模块前缀/全量缓存清理能力,
-* 供运维管理后台使用。</p>
-*
-* @since 4.0.0.43
-* @author CH
+ * 缓存管理接口
+ *
+ * <p>提供缓存模块查看、key 查询、单 key/模块前缀/全量缓存清理能力,
+ * 供运维管理后台使用。</p>
+ *
+ * @since 4.0.0.43
+ * @author CH
  */
 @Tag(name = "缓存管理接口")
 @RestController
@@ -39,7 +39,7 @@ public class CacheController {
     private final StringRedisTemplate stringRedisTemplate;
 
     /**
-    * 预定义缓存模块: key -> [模块名, key前缀, 描述]
+     * 预定义缓存模块: key -> [模块名, key前缀, 描述]
      */
     private static final Map<String, String[]> MODULES = new LinkedHashMap<>();
 
@@ -55,9 +55,9 @@ public class CacheController {
     }
 
     /**
-    * 缓存模块列表
-    *
-    * @return 模块列表, 含 key 数量
+     * 缓存模块列表
+     *
+     * @return 模块列表, 含 key 数量
      */
     @Operation(summary = "缓存模块列表")
     @GetMapping("/modules")
@@ -78,11 +78,11 @@ public class CacheController {
     }
 
     /**
-    * 按模块返回实际 key 列表(最多 200 个)
-    *
-    * @param module  模块标识
-    * @param pattern 自定义 pattern(非空时优先于模块前缀)
-    * @return key 列表
+     * 按模块返回实际 key 列表(最多 200 个)
+     *
+     * @param module  模块标识
+     * @param pattern 自定义 pattern(非空时优先于模块前缀)
+     * @return key 列表
      */
     @Operation(summary = "缓存key列表")
     @GetMapping("/keys")
@@ -108,10 +108,10 @@ public class CacheController {
     }
 
     /**
-    * 删除指定 key
-    *
-    * @param key key
-    * @return 删除结果
+     * 删除指定 key
+     *
+     * @param key key
+     * @return 删除结果
      */
     @Operation(summary = "删除指定缓存key")
     @DeleteMapping("/key")
@@ -125,10 +125,10 @@ public class CacheController {
     }
 
     /**
-    * 按模块前缀批量删除
-    *
-    * @param module 模块标识
-    * @return 删除数量
+     * 按模块前缀批量删除
+     *
+     * @param module 模块标识
+     * @return 删除数量
      */
     @Operation(summary = "按模块批量删除缓存")
     @DeleteMapping("/module")
@@ -147,9 +147,9 @@ public class CacheController {
     }
 
     /**
-    * 清空所有缓存(需二次确认)
-    *
-    * @return 删除数量
+     * 清空所有缓存(需二次确认)
+     *
+     * @return 删除数量
      */
     @Operation(summary = "清空所有缓存")
     @DeleteMapping("/all")
@@ -165,10 +165,10 @@ public class CacheController {
     }
 
     /**
-    * 统计 pattern 命中的 key 数量
-    *
-    * @param pattern pattern
-    * @return key 数量
+     * 统计 pattern 命中的 key 数量
+     *
+     * @param pattern pattern
+     * @return key 数量
      */
     private Long countKeys(String pattern) {
         try {

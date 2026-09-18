@@ -5,11 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 地理边界框（Web Mercator 坐标系）。
-* 表示一个矩形区域，通常由地图当前可视范围决定。
-*
-* @author CH
-* @since 1.0.0
+ * 地理边界框（Web Mercator 坐标系）。
+ * 表示一个矩形区域，通常由地图当前可视范围决定。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Data
 @NoArgsConstructor

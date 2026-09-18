@@ -17,17 +17,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 轻量控制台专用 API。
-* <p>
-* 这一层复用平台服务能力，但通过控制台 会话 做访问保护，
-* 让内置静态页不必再额外依赖 OAuth 令牌 才能完成常见管理操作。
-* </p>
-*
-* <p>平台基于 job-starter 新架构, 命名空间参数仅作为任务分组 ({@code sys_job_group})
-* 参与过滤, 任务统一存放在 {@code sys_job / sys_job_log} 单表中。</p>
-*
-* @since 4.0.0.42
-* @author CH
+ * 轻量控制台专用 API。
+ * <p>
+ * 这一层复用平台服务能力，但通过控制台 会话 做访问保护，
+ * 让内置静态页不必再额外依赖 OAuth 令牌 才能完成常见管理操作。
+ * </p>
+ *
+ * <p>平台基于 job-starter 新架构, 命名空间参数仅作为任务分组 ({@code sys_job_group})
+ * 参与过滤, 任务统一存放在 {@code sys_job / sys_job_log} 单表中。</p>
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @RestController
 @Ignore
@@ -37,14 +37,14 @@ import java.util.Map;
 public class SchedulerJobConsoleApiController {
 
     /**
-    * 调度平台任务服务
+     * 调度平台任务服务
      */
     private final SchedulerJobPlatformService schedulerJobPlatformService;
 
     /**
-    * 查询可用命名空间。
-    *
-    * @return 命名空间列表
+     * 查询可用命名空间。
+     *
+     * @return 命名空间列表
      */
     @GetMapping("/namespaces")
     public ReturnResult<Object> namespaces() {
@@ -52,14 +52,14 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 分页查询任务。
-    *
-    * @param namespace     命名空间
-    * @param pageNum       页码
-    * @param pageSize      每页大小
-    * @param jobName       任务名模糊查询
-    * @param triggerStatus 启用状态
-    * @return 任务分页结果
+     * 分页查询任务。
+     *
+     * @param namespace     命名空间
+     * @param pageNum       页码
+     * @param pageSize      每页大小
+     * @param jobName       任务名模糊查询
+     * @param triggerStatus 启用状态
+     * @return 任务分页结果
      */
     @GetMapping("/{namespace}/job/page")
     public ReturnResult<Object> pageJobs(@PathVariable String namespace,
@@ -73,11 +73,11 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 按任务编号查询任务详情。
-    *
-    * @param namespace 命名空间
-    * @param jobNo     任务编号
-    * @return 任务详情
+     * 按任务编号查询任务详情。
+     *
+     * @param namespace 命名空间
+     * @param jobNo     任务编号
+     * @return 任务详情
      */
     @GetMapping("/{namespace}/job/no/{jobNo}")
     public ReturnResult<Object> getJobByNo(@PathVariable String namespace, @PathVariable String jobNo) {
@@ -85,11 +85,11 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 创建任务。
-    *
-    * @param namespace 命名空间
-    * @param job       任务实体
-    * @return 创建后的任务
+     * 创建任务。
+     *
+     * @param namespace 命名空间
+     * @param job       任务实体
+     * @return 创建后的任务
      */
     @PostMapping("/{namespace}/job")
     public ReturnResult<Object> createJob(@PathVariable String namespace, @RequestBody JobEntity job) {
@@ -98,12 +98,12 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 按任务编号更新任务。
-    *
-    * @param namespace 命名空间
-    * @param jobNo     任务编号
-    * @param job       任务实体
-    * @return 是否更新成功
+     * 按任务编号更新任务。
+     *
+     * @param namespace 命名空间
+     * @param jobNo     任务编号
+     * @param job       任务实体
+     * @return 是否更新成功
      */
     @PutMapping("/{namespace}/job/no/{jobNo}")
     public ReturnResult<Object> updateJobByNo(@PathVariable String namespace,
@@ -113,11 +113,11 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 按任务编号删除任务。
-    *
-    * @param namespace 命名空间
-    * @param jobNo     任务编号
-    * @return 是否删除成功
+     * 按任务编号删除任务。
+     *
+     * @param namespace 命名空间
+     * @param jobNo     任务编号
+     * @return 是否删除成功
      */
     @DeleteMapping("/{namespace}/job/no/{jobNo}")
     public ReturnResult<Object> deleteJobByNo(@PathVariable String namespace, @PathVariable String jobNo) {
@@ -125,11 +125,11 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 按任务编号恢复已删除任务。
-    *
-    * @param namespace 命名空间
-    * @param jobNo     任务编号
-    * @return 是否恢复成功
+     * 按任务编号恢复已删除任务。
+     *
+     * @param namespace 命名空间
+     * @param jobNo     任务编号
+     * @return 是否恢复成功
      */
     @PostMapping("/{namespace}/job/no/{jobNo}/restore")
     public ReturnResult<Object> restoreJobByNo(@PathVariable String namespace, @PathVariable String jobNo) {
@@ -137,11 +137,11 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 按任务编号启动任务。
-    *
-    * @param namespace 命名空间
-    * @param jobNo     任务编号
-    * @return 是否启动成功
+     * 按任务编号启动任务。
+     *
+     * @param namespace 命名空间
+     * @param jobNo     任务编号
+     * @return 是否启动成功
      */
     @PostMapping("/{namespace}/job/no/{jobNo}/start")
     public ReturnResult<Object> startJobByNo(@PathVariable String namespace, @PathVariable String jobNo) {
@@ -149,11 +149,11 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 按任务编号停止任务。
-    *
-    * @param namespace 命名空间
-    * @param jobNo     任务编号
-    * @return 是否停止成功
+     * 按任务编号停止任务。
+     *
+     * @param namespace 命名空间
+     * @param jobNo     任务编号
+     * @return 是否停止成功
      */
     @PostMapping("/{namespace}/job/no/{jobNo}/stop")
     public ReturnResult<Object> stopJobByNo(@PathVariable String namespace, @PathVariable String jobNo) {
@@ -161,12 +161,12 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 按任务编号立即执行任务。
-    *
-    * @param namespace 命名空间
-    * @param jobNo     任务编号
-    * @param param     执行参数
-    * @return 是否触发成功
+     * 按任务编号立即执行任务。
+     *
+     * @param namespace 命名空间
+     * @param jobNo     任务编号
+     * @param param     执行参数
+     * @return 是否触发成功
      */
     @PostMapping("/{namespace}/job/no/{jobNo}/trigger")
     public ReturnResult<Object> triggerJobByNo(@PathVariable String namespace,
@@ -176,11 +176,11 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 清理过期日志。
-    *
-    * @param namespace     命名空间
-    * @param retentionDays 保留天数
-    * @return 清理结果提示
+     * 清理过期日志。
+     *
+     * @param namespace     命名空间
+     * @param retentionDays 保留天数
+     * @return 清理结果提示
      */
     @PostMapping("/{namespace}/job-log/cleanup")
     public ReturnResult<Object> cleanupLogs(@PathVariable String namespace,
@@ -190,14 +190,14 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 分页查询任务日志。
-    *
-    * @param namespace   命名空间
-    * @param pageNum     页码
-    * @param pageSize    每页大小
-    * @param beanName    处理器 名称模糊查询
-    * @param executeCode 执行状态码
-    * @return 日志分页结果
+     * 分页查询任务日志。
+     *
+     * @param namespace   命名空间
+     * @param pageNum     页码
+     * @param pageSize    每页大小
+     * @param beanName    处理器 名称模糊查询
+     * @param executeCode 执行状态码
+     * @return 日志分页结果
      */
     @GetMapping("/{namespace}/job-log/page")
     public ReturnResult<Object> pageLogs(@PathVariable String namespace,
@@ -211,11 +211,11 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 查询平台任务视图。
-    *
-    * @param namespace      命名空间
-    * @param includeDeleted 是否包含已删除
-    * @return 任务视图列表
+     * 查询平台任务视图。
+     *
+     * @param namespace      命名空间
+     * @param includeDeleted 是否包含已删除
+     * @return 任务视图列表
      */
     @GetMapping("/{namespace}/task/list")
     public ReturnResult<Object> listTasks(@PathVariable String namespace,
@@ -224,12 +224,12 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 更新平台任务。
-    *
-    * @param namespace 命名空间
-    * @param taskKey   任务标识
-    * @param request   更新请求
-    * @return 更新后的任务视图
+     * 更新平台任务。
+     *
+     * @param namespace 命名空间
+     * @param taskKey   任务标识
+     * @param request   更新请求
+     * @return 更新后的任务视图
      */
     @PutMapping("/{namespace}/task/{taskKey}")
     public ReturnResult<SchedulerTaskVO> updateTask(@PathVariable String namespace,
@@ -239,11 +239,11 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 触发平台任务。
-    *
-    * @param namespace 命名空间
-    * @param taskKey   任务标识
-    * @return 触发后的任务视图
+     * 触发平台任务。
+     *
+     * @param namespace 命名空间
+     * @param taskKey   任务标识
+     * @return 触发后的任务视图
      */
     @PostMapping("/{namespace}/task/{taskKey}/trigger")
     public ReturnResult<SchedulerTaskVO> triggerTask(@PathVariable String namespace,
@@ -252,10 +252,10 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 组装分页结果载体。
-    *
-    * @param page 分页结果
-    * @return 分页数据 映射
+     * 组装分页结果载体。
+     *
+     * @param page 分页结果
+     * @return 分页数据 映射
      */
     private Map<String, Object> pagePayload(Page<?> page) {
         Map<String, Object> payload = new LinkedHashMap<>();
@@ -268,10 +268,10 @@ public class SchedulerJobConsoleApiController {
     }
 
     /**
-    * 命名空间转换为任务分组, 默认命名空间对应 空。
-    *
-    * @param namespace 命名空间
-    * @return 任务分组
+     * 命名空间转换为任务分组, 默认命名空间对应 空。
+     *
+     * @param namespace 命名空间
+     * @return 任务分组
      */
     private String namespaceToGroup(String namespace) {
         if (namespace == null || "default".equalsIgnoreCase(namespace) || "undefined".equalsIgnoreCase(namespace)) {

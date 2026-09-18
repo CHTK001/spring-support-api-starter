@@ -14,10 +14,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
-* 运维项目管理（含服务器连接信息）
-*
-* @since 2026/08/03
-* @author CH
+ * 运维项目管理（含服务器连接信息）
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @Schema(description = "运维项目管理")
 @Data
@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
 public class SysDevopsProject extends SysBase {
 
     /**
-    * 主键
+     * 主键
      */
     @TableId(value = "project_id", type = IdType.AUTO)
     @Schema(description = "主键")
@@ -86,7 +86,7 @@ public class SysDevopsProject extends SysBase {
     // ── 服务器连接信息（AES加密存储） ──
 
     /**
-    * 连接类型
+     * 连接类型
      */
     @TableField(value = "server_type")
     @Schema(description = "连接类型：SSH/WINRM/LOCAL")
@@ -160,7 +160,7 @@ public class SysDevopsProject extends SysBase {
     // ── 路径配置 ──
 
     /**
-    * 日志路径
+     * 日志路径
      */
     @TableField(value = "log_path")
     @Schema(description = "日志路径")
@@ -194,7 +194,7 @@ public class SysDevopsProject extends SysBase {
     // ── 操作脚本 ──
 
     /**
-    * 启动脚本
+     * 启动脚本
      */
     @TableField(value = "start_script")
     @Schema(description = "启动脚本")
@@ -220,7 +220,7 @@ public class SysDevopsProject extends SysBase {
     // ── 运行时状态（不存库，动态查询） ──
 
     /**
-    * 运行时状态
+     * 运行时状态
      */
     @TableField(exist = false)
     @Schema(description = "运行时状态：running/stopped/unknown")

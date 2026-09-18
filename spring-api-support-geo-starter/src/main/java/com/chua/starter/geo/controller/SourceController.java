@@ -13,10 +13,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* 图源管理控制器，提供图源查询和 URL 分析接口。
-*
-* @author CH
-* @since 1.0.0
+ * 图源管理控制器，提供图源查询和 URL 分析接口。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @RestController
 @RequestMapping("/v1/geo/source")
@@ -51,10 +51,10 @@ public class SourceController {
     }
 
     /**
-    * 分析瓦片 URL 模板，提取占位符信息。
-    *
-    * @param req 包含 url 字段的请求体
-    * @return 分析结果
+     * 分析瓦片 URL 模板，提取占位符信息。
+     *
+     * @param req 包含 url 字段的请求体
+     * @return 分析结果
      */
     @PostMapping("/analyze")
     @Operation(summary = "分析URL模板")
@@ -70,10 +70,10 @@ public class SourceController {
     }
 
     /**
-    * 添加自定义图源。
-    *
-    * @param custom 自定义图源配置
-    * @return 操作结果
+     * 添加自定义图源。
+     *
+     * @param custom 自定义图源配置
+     * @return 操作结果
      */
     @PostMapping("/custom")
     @Operation(summary = "添加自定义图源")

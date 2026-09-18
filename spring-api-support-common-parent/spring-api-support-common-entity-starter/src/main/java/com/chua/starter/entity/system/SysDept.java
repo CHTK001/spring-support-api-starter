@@ -18,10 +18,10 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
-* 组织机构/部门表
-*
-* @since 2024/8/7
-* @author CH
+ * 组织机构/部门表
+ *
+ * @since 2024/8/7
+ * @author CH
  */
 @Schema(description = "组织机构/部门表")
 @Data
@@ -74,7 +74,7 @@ public class SysDept extends SysBase implements Serializable {
     private Integer memberCount;
 
     /**
-    * 负责人联系方式
+     * 负责人联系方式
      */
     @TableField(value = "sys_dept_contact")
     @Schema(description = "负责人联系方式")

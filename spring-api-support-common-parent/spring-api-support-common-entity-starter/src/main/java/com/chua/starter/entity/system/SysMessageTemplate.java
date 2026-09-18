@@ -17,10 +17,10 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
-* 消息模板表
-*
-* @since 4.0.0.50
-* @author CH
+ * 消息模板表
+ *
+ * @since 4.0.0.50
+ * @author CH
  */
 @Schema(description = "消息模板表")
 @Data

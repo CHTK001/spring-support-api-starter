@@ -15,12 +15,12 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 
 /**
-* OAuth安全响应头过滤器
-*
-* <p>为所有响应追加安全相关 HTTP 头，降低点击劫持、MIME 嗅探、XSS 等风险。</p>
-*
-* @since 2025/01/01
-* @author CH
+ * OAuth安全响应头过滤器
+ *
+ * <p>为所有响应追加安全相关 HTTP 头，降低点击劫持、MIME 嗅探、XSS 等风险。</p>
+ *
+ * @since 2025/01/01
+ * @author CH
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -57,11 +57,11 @@ public class OauthSecurityHeadersFilter implements Filter, Ordered {
     }
 
     /**
-    * 设置头部ifpresent
-    *
-    * @param response 响应
-    * @param name 名称
-    * @param value 值
+     * 设置头部ifpresent
+     *
+     * @param response 响应
+     * @param name 名称
+     * @param value 值
      */
     private void setHeaderIfPresent(HttpServletResponse response, String name, String value) {
         if (StringUtils.hasText(value)) {

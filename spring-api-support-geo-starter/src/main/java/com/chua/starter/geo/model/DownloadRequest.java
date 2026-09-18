@@ -6,10 +6,10 @@ import lombok.Data;
 import java.util.List;
 
 /**
-* 瓦片下载请求体，描述一次下载任务的完整参数。
-*
-* @author CH
-* @since 1.0.0
+ * 瓦片下载请求体，描述一次下载任务的完整参数。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Data
 public class DownloadRequest {

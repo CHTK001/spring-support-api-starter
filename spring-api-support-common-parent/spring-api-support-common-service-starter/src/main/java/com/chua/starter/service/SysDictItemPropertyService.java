@@ -6,19 +6,19 @@ import com.chua.starter.entity.service.SysDictItemProperty;
 import com.chua.starter.service.pojo.dict.DictItemPropertyV1Request;
 
 /**
-* 字典配置项
-*
-* @since 2025/9/28
-* @author CH
+ * 字典配置项
+ *
+ * @since 2025/9/28
+ * @author CH
  */
 public interface SysDictItemPropertyService extends IService<SysDictItemProperty> {
 
 
     /**
-    * 保存或更新
-    *
-    * @param request 请求
-    * @return 结果
+     * 保存或更新
+     *
+     * @param request 请求
+     * @return 结果
      */
     ReturnResult<Boolean> saveOrUpdate(DictItemPropertyV1Request request);
 }

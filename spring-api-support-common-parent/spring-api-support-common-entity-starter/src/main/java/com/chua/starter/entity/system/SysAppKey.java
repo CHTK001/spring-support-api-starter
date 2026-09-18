@@ -12,10 +12,10 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
-* 应用密钥实体类
-*
-* @since 2024/8/7
-* @author CH
+ * 应用密钥实体类
+ *
+ * @since 2024/8/7
+ * @author CH
  */
 @Data
 @TableName("sys_app_key")

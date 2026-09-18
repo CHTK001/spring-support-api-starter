@@ -12,11 +12,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
-* 服务器组件布局实体，保存单个监控组件（如 CPU、内存、磁盘卡片）在大屏栅格中的
-* 位置（x/y）、尺寸（w/h）、层级与交互能力（是否可移动/可缩放）以及图表配置 JSON。
-*
-* @since 2026-07-28
-* @author CH
+ * 服务器组件布局实体，保存单个监控组件（如 CPU、内存、磁盘卡片）在大屏栅格中的
+ * 位置（x/y）、尺寸（w/h）、层级与交互能力（是否可移动/可缩放）以及图表配置 JSON。
+ *
+ * @since 2026-07-28
+ * @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
 public class MonitorSysGenServerComponentLayout extends SysBase {
 
     /**
-    * 组件布局主键标识，自增
+     * 组件布局主键标识，自增
      */
     @TableId(value = "monitor_sys_gen_server_component_layout_id", type = IdType.AUTO)
     @ApiModelProperty("组件布局ID")

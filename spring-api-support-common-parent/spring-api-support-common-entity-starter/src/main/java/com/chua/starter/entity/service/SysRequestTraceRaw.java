@@ -13,10 +13,10 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
-* 请求追踪原始记录表。
-*
-* @since 2026/03/25
-* @author CH
+ * 请求追踪原始记录表。
+ *
+ * @since 2026/03/25
+ * @author CH
  */
 @Schema(description = "请求追踪原始记录表")
 @Data

@@ -7,10 +7,10 @@ import lombok.Data;
 import java.util.List;
 
 /**
-* 3D 瓷砖 下载请求体。
-*
-* @author CH
-* @since 1.0.0
+ * 3D 瓷砖 下载请求体。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Data
 public class Tiles3dTaskRequest {

@@ -5,10 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 瓦片坐标，表示一个瓦片的唯一位置。
-*
-* @author CH
-* @since 1.0.0
+ * 瓦片坐标，表示一个瓦片的唯一位置。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Data
 @NoArgsConstructor

@@ -4,17 +4,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
-* 小程序菜单卡片 VO
-*
-* @since 2026/08/03
-* @author CH
+ * 小程序菜单卡片 VO
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @Data
 @Schema(description = "小程序菜单卡片VO")
 public class SysMiniMenuVO {
 
     /**
-    * 小程序菜单标识
+     * 小程序菜单标识
      */
     @Schema(description = "小程序菜单ID")
     /** sysminimenuid */

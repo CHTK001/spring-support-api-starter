@@ -39,11 +39,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
-* 菜单服务实现类
-* <p>提供菜单的增删改查及树形结构转换功能</p>
-*
-* @since 2024/8/7
-* @author CH
+ * 菜单服务实现类
+ * <p>提供菜单的增删改查及树形结构转换功能</p>
+ *
+ * @since 2024/8/7
+ * @author CH
  */
 @Service
 @RequiredArgsConstructor
@@ -97,10 +97,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     /**
-    * 构建menusetting树
-    *
-    * @param menus menus
-    * @return 构建menusetting树的结果
+     * 构建menusetting树
+     *
+     * @param menus menus
+     * @return 构建menusetting树的结果
      */
     private List<SysMenuSettingVO> buildMenuSettingTree(List<SysMenu> menus) {
         if (CollectionUtils.isEmpty(menus)) {
@@ -134,10 +134,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     /**
-    * 排序menusetting树
-    *
-    * @param nodes 节点
-    * @param comparator comparator
+     * 排序menusetting树
+     *
+     * @param nodes 节点
+     * @param comparator comparator
      */
     private void sortMenuSettingTree(List<SysMenuSettingVO> nodes, Comparator<SysMenuSettingVO> comparator) {
         if (CollectionUtils.isEmpty(nodes)) {
@@ -239,9 +239,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
     /**
-    * 列表全部
-    *
-    * @return 列表全部的结果
+     * 列表全部
+     *
+     * @return 列表全部的结果
      */
     public List<SysMenu> listAll() {
         return baseMapper.selectList(Wrappers.<SysMenu>lambdaQuery()
@@ -280,10 +280,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
     /**
-    * 删除
-    *
-    * @param menuId menuId
-    * @return 删除的结果
+     * 删除
+     *
+     * @param menuId menuId
+     * @return 删除的结果
      */
     public ReturnResult<Boolean> delete(Long menuId) {
         boolean deleted = baseMapper.deleteById(menuId) > 0;
@@ -297,11 +297,11 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 更新
-    *
-    * @param roles 角色
-    * @param sysMenu sysMenu
-    * @return 更新的结果
+     * 更新
+     *
+     * @param roles 角色
+     * @param sysMenu sysMenu
+     * @return 更新的结果
      */
     public ReturnResult<Boolean> update(Set<String> roles, SysMenu sysMenu) {
         if (null == sysMenu) {
@@ -331,11 +331,11 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 保存
-    *
-    * @param sysMenu sysMenu
-    * @param roles 角色
-    * @return 保存的结果
+     * 保存
+     *
+     * @param sysMenu sysMenu
+     * @param roles 角色
+     * @return 保存的结果
      */
     public ReturnResult<SysMenu> save(SysMenu sysMenu, Set<String> roles) {
         if (null == sysMenu) {
@@ -365,12 +365,12 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     /**
-    * 解析menu树id
-    *
-    * @param menuId menuId
-    * @param parentMenuId 父menuid
-    * @param validateSelfReference 校验self引用
-    * @return resolvemenu树id的结果
+     * 解析menu树id
+     *
+     * @param menuId menuId
+     * @param parentMenuId 父menuid
+     * @param validateSelfReference 校验self引用
+     * @return resolvemenu树id的结果
      */
     private String resolveMenuTreeId(Integer menuId, Integer parentMenuId, boolean validateSelfReference) {
         if (null == parentMenuId || parentMenuId == SystemConstant.ROOT_NODE_ID) {

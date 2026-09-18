@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 服务器布局管理接口，提供布局列表、默认布局、保存/更新/删除、
-* 从组件生成布局、应用布局、复制布局以及组件图表配置的管理能力。
-*
-* @since 2026-07-28
-* @author CH
+ * 服务器布局管理接口，提供布局列表、默认布局、保存/更新/删除、
+ * 从组件生成布局、应用布局、复制布局以及组件图表配置的管理能力。
+ *
+ * @since 2026-07-28
+ * @author CH
  */
 @Slf4j
 @RestController
@@ -39,31 +39,31 @@ import java.util.Map;
 public class ServerLayoutController {
 
     /**
-    * 请求体键：组件标识
+     * 请求体键：组件标识
      */
     private static final String PARAM_COMPONENT_ID = "componentId";
 
     /**
-    * 请求体键：图表配置 JSON
+     * 请求体键：图表配置 JSON
      */
     private static final String PARAM_CHART_CONFIG = "chartConfig";
 
     /**
-    * 服务器布局配置服务
+     * 服务器布局配置服务
      */
     private final MonitorSysGenServerLayoutService layoutService;
 
     /**
-    * 服务器组件布局服务，用于应用布局与读写组件图表配置
+     * 服务器组件布局服务，用于应用布局与读写组件图表配置
      */
     private final MonitorSysGenServerComponentLayoutService componentLayoutService;
 
     /**
-    * 获取服务器布局列表。
-    *
-    * @param serverId 服务器标识
-    * @return 布局列表
-    * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
+     * 获取服务器布局列表。
+     *
+     * @param serverId 服务器标识
+     * @return 布局列表
+     * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
      */
     @GetMapping("/list/{serverId}")
     @Operation(summary = "获取服务器布局列表")
@@ -72,11 +72,11 @@ public class ServerLayoutController {
     }
 
     /**
-    * 获取服务器默认布局，不存在时自动创建。
-    *
-    * @param serverId 服务器标识
-    * @return 默认布局
-    * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
+     * 获取服务器默认布局，不存在时自动创建。
+     *
+     * @param serverId 服务器标识
+     * @return 默认布局
+     * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
      */
     @GetMapping("/default/{serverId}")
     @Operation(summary = "获取服务器默认布局")
@@ -85,10 +85,10 @@ public class ServerLayoutController {
     }
 
     /**
-    * 保存服务器布局配置。
-    *
-    * @param layout 布局实体
-    * @return 保存后的布局
+     * 保存服务器布局配置。
+     *
+     * @param layout 布局实体
+     * @return 保存后的布局
      */
     @PostMapping("/save")
     @Operation(summary = "保存服务器布局配置")
@@ -97,10 +97,10 @@ public class ServerLayoutController {
     }
 
     /**
-    * 更新服务器布局配置，版本号自动递增。
-    *
-    * @param layout 布局实体（必须包含布局标识）
-    * @return 更新后的布局
+     * 更新服务器布局配置，版本号自动递增。
+     *
+     * @param layout 布局实体（必须包含布局标识）
+     * @return 更新后的布局
      */
     @PutMapping("/update")
     @Operation(summary = "更新服务器布局配置")
@@ -109,11 +109,11 @@ public class ServerLayoutController {
     }
 
     /**
-    * 删除服务器布局配置，默认布局不允许删除。
-    *
-    * @param layoutId 布局标识
-    * @return 是否删除成功
-    * @param @ApiParam("布局ID" @ApiParam("布局ID"
+     * 删除服务器布局配置，默认布局不允许删除。
+     *
+     * @param layoutId 布局标识
+     * @return 是否删除成功
+     * @param @ApiParam("布局ID" @ApiParam("布局ID"
      */
     @DeleteMapping("/delete/{layoutId}")
     @Operation(summary = "删除服务器布局配置")
@@ -122,11 +122,11 @@ public class ServerLayoutController {
     }
 
     /**
-    * 设置默认布局。
-    *
-    * @param serverId 服务器标识
-    * @param layoutId 布局标识
-    * @return 是否设置成功
+     * 设置默认布局。
+     *
+     * @param serverId 服务器标识
+     * @param layoutId 布局标识
+     * @return 是否设置成功
      */
     @PutMapping("/default/{serverId}/{layoutId}")
     @Operation(summary = "设置默认布局")
@@ -137,11 +137,11 @@ public class ServerLayoutController {
     }
 
     /**
-    * 从组件配置生成布局。
-    *
-    * @param serverId   服务器标识
-    * @param layoutName 布局名称，可为空
-    * @return 生成的布局
+     * 从组件配置生成布局。
+     *
+     * @param serverId   服务器标识
+     * @param layoutName 布局名称，可为空
+     * @return 生成的布局
      */
     @PostMapping("/generate/{serverId}")
     @Operation(summary = "从组件配置生成布局")
@@ -152,11 +152,11 @@ public class ServerLayoutController {
     }
 
     /**
-    * 应用布局到服务器组件。
-    *
-    * @param serverId 服务器标识
-    * @param layoutId 布局标识
-    * @return 应用成功的组件数量
+     * 应用布局到服务器组件。
+     *
+     * @param serverId 服务器标识
+     * @param layoutId 布局标识
+     * @return 应用成功的组件数量
      */
     @PostMapping("/apply/{serverId}/{layoutId}")
     @Operation(summary = "应用布局到服务器组件")
@@ -167,12 +167,12 @@ public class ServerLayoutController {
     }
 
     /**
-    * 复制布局到其他服务器。
-    *
-    * @param sourceLayoutId 源布局标识
-    * @param targetServerId 目标服务器标识
-    * @param layoutName     新布局名称，可为空
-    * @return 复制生成的新布局
+     * 复制布局到其他服务器。
+     *
+     * @param sourceLayoutId 源布局标识
+     * @param targetServerId 目标服务器标识
+     * @param layoutName     新布局名称，可为空
+     * @return 复制生成的新布局
      */
     @PostMapping("/copy/{sourceLayoutId}/{targetServerId}")
     @Operation(summary = "复制布局到其他服务器")
@@ -184,11 +184,11 @@ public class ServerLayoutController {
     }
 
     /**
-    * 获取布局详情。
-    *
-    * @param layoutId 布局标识
-    * @return 布局详情
-    * @param @ApiParam("布局ID" @ApiParam("布局ID"
+     * 获取布局详情。
+     *
+     * @param layoutId 布局标识
+     * @return 布局详情
+     * @param @ApiParam("布局ID" @ApiParam("布局ID"
      */
     @GetMapping("/detail/{layoutId}")
     @Operation(summary = "获取布局详情")
@@ -197,11 +197,11 @@ public class ServerLayoutController {
     }
 
     /**
-    * 根据类型获取布局列表。
-    *
-    * @param layoutType 布局类型（默认/generated/copied/习俗）
-    * @return 布局列表
-    * @param @ApiParam("布局类型" @ApiParam("布局类型"
+     * 根据类型获取布局列表。
+     *
+     * @param layoutType 布局类型（默认/generated/copied/习俗）
+     * @return 布局列表
+     * @param @ApiParam("布局类型" @ApiParam("布局类型"
      */
     @GetMapping("/type/{layoutType}")
     @Operation(summary = "根据类型获取布局列表")
@@ -210,11 +210,11 @@ public class ServerLayoutController {
     }
 
     /**
-    * 创建默认布局。
-    *
-    * @param serverId 服务器标识
-    * @return 创建的默认布局
-    * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
+     * 创建默认布局。
+     *
+     * @param serverId 服务器标识
+     * @return 创建的默认布局
+     * @param @ApiParam("服务器ID" @ApiParam("服务器ID"
      */
     @PostMapping("/create-default/{serverId}")
     @Operation(summary = "创建默认布局")
@@ -223,11 +223,11 @@ public class ServerLayoutController {
     }
 
     /**
-    * 保存组件图表配置。请求体格式：{"组件id": 1, "chart配置": "{...}"}。
-    *
-    * @param serverId 服务器标识
-    * @param body     请求体，包含 组件id 与 chart配置
-    * @return 是否保存成功
+     * 保存组件图表配置。请求体格式：{"组件id": 1, "chart配置": "{...}"}。
+     *
+     * @param serverId 服务器标识
+     * @param body     请求体，包含 组件id 与 chart配置
+     * @return 是否保存成功
      */
     @PostMapping("/component/config/{serverId}")
     @Operation(summary = "保存组件图表配置")
@@ -246,11 +246,11 @@ public class ServerLayoutController {
     }
 
     /**
-    * 获取组件图表配置。
-    *
-    * @param serverId    服务器标识
-    * @param componentId 组件标识
-    * @return 图表配置 JSON 字符串
+     * 获取组件图表配置。
+     *
+     * @param serverId    服务器标识
+     * @param componentId 组件标识
+     * @return 图表配置 JSON 字符串
      */
     @GetMapping("/component/config/{serverId}/{componentId}")
     @Operation(summary = "获取组件图表配置")
@@ -261,11 +261,11 @@ public class ServerLayoutController {
     }
 
     /**
-    * 批量保存组件图表配置。请求体为数组：[{"组件id": 1, "chart配置": "{...}"}, ...]。
-    *
-    * @param serverId 服务器标识
-    * @param configs  配置列表
-    * @return 保存成功的数量
+     * 批量保存组件图表配置。请求体为数组：[{"组件id": 1, "chart配置": "{...}"}, ...]。
+     *
+     * @param serverId 服务器标识
+     * @param configs  配置列表
+     * @return 保存成功的数量
      */
     @PostMapping("/component/config/batch/{serverId}")
     @Operation(summary = "批量保存组件图表配置")

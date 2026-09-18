@@ -9,12 +9,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
-* ACME 证书自动续签定时任务
-* 每天凌晨 2 点检查即将到期的证书并自动续签
-*
-* @版本 1.0.0
-* @since 2025-12-06
-* @author CH
+ * ACME 证书自动续签定时任务
+ * 每天凌晨 2 点检查即将到期的证书并自动续签
+ *
+ * @版本 1.0.0
+ * @since 2025-12-06
+ * @author CH
  */
 @Slf4j
 @Component
@@ -28,8 +28,8 @@ public class AcmeCertificateRenewJob {
     private final AcmeProperties acmeProperties;
 
     /**
-    * 定时检查并续签即将到期的证书
-    * 默认每天凌晨 2 点执行
+     * 定时检查并续签即将到期的证书
+     * 默认每天凌晨 2 点执行
      */
     @Scheduled(cron = "${monitor.acme.renew-cron:0 0 2 * * ?}")
     public void renewExpiringSoonCertificates() {

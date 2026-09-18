@@ -12,10 +12,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
-* ACME 账户信息，保存 ACME CA（Let's Encrypt / zerossl 等）账户的邮箱、服务端点、私钥与 EAB 扩展。
-*
-* @since 2025-10-17
-* @author CH
+ * ACME 账户信息，保存 ACME CA（Let's Encrypt / zerossl 等）账户的邮箱、服务端点、私钥与 EAB 扩展。
+ *
+ * @since 2025-10-17
+ * @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

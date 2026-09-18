@@ -11,17 +11,17 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
-* 邮件下发日志表
-*
-* @since 2026/08/03
-* @author CH
+ * 邮件下发日志表
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @Schema(description = "邮件下发日志表")
 @Data
 @TableName(value = "sys_email_log")
 public class SysEmailLog {
     /**
-    * 日志主键标识
+     * 日志主键标识
      */
     @TableId(value = "sys_email_log_id", type = IdType.AUTO)
     @Schema(description = "")

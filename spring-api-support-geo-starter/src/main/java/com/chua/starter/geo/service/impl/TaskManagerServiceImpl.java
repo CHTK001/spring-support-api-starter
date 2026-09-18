@@ -14,10 +14,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 下载任务管理实现，基于内存存储任务状态。
-*
-* @author CH
-* @since 1.0.0
+ * 下载任务管理实现，基于内存存储任务状态。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Service
 @Slf4j
@@ -59,10 +59,10 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     /**
-    * 获取任务信息。
-    *
-    * @param taskId 任务 标识
-    * @return 任务信息，不存在返回 空
+     * 获取任务信息。
+     *
+     * @param taskId 任务 标识
+     * @return 任务信息，不存在返回 空
      */
     @Override
     public TaskInfo getTask(String taskId) {
@@ -70,9 +70,9 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     /**
-    * 列出所有任务。
-    *
-    * @return 任务列表
+     * 列出所有任务。
+     *
+     * @return 任务列表
      */
     @Override
     public List<TaskInfo> listTasks() {
@@ -80,13 +80,13 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     /**
-    * 更新任务进度。
-    *
-    * @param taskId   任务 标识
-    * @param completed 已完成数
-    * @param failed   失败数
-    * @param progress 进度百分比
-    * @param message  状态消息
+     * 更新任务进度。
+     *
+     * @param taskId   任务 标识
+     * @param completed 已完成数
+     * @param failed   失败数
+     * @param progress 进度百分比
+     * @param message  状态消息
      */
     @Override
     public void updateProgress(String taskId, int completed, int failed, double progress, String message) {
@@ -101,10 +101,10 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     /**
-    * 设置任务状态。
-    *
-    * @param taskId 任务 标识
-    * @param status 目标状态
+     * 设置任务状态。
+     *
+     * @param taskId 任务 标识
+     * @param status 目标状态
      */
     @Override
     public void setStatus(String taskId, TaskStatus status) {
@@ -116,9 +116,9 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     /**
-    * 取消任务。
-    *
-    * @param taskId 任务 标识
+     * 取消任务。
+     *
+     * @param taskId 任务 标识
      */
     @Override
     public void cancelTask(String taskId) {
@@ -133,9 +133,9 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     }
 
     /**
-    * 删除任务记录。
-    *
-    * @param taskId 任务 标识
+     * 删除任务记录。
+     *
+     * @param taskId 任务 标识
      */
     @Override
     public void removeTask(String taskId) {

@@ -4,22 +4,22 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
-* CAS配置
-*
-* @since 4.0.0.42
-* @author CH
+ * CAS配置
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @Data
 @ConfigurationProperties(prefix = "plugin.oauth.third.url")
 public class CasProperties {
 
     /**
-    * 登录地址
+     * 登录地址
      */
     private String newLoginUrl;
 
     /**
-    * 主页地址
+     * 主页地址
      */
     private String newIndexUrl;
 }

@@ -32,17 +32,17 @@ import java.util.stream.Collectors;
 import static com.chua.starter.common.support.constant.DataFilterTypeEnum.ALL;
 
 /**
-* 用户登录服务抽象基类
-* <p>提供用户登录验证的公共功能，包括角色权限获取、登录信息构建、错误处理等</p>
-*
-* <h2>子类实现</h2>
-* <ul>
-*   <li>{@link UserLoginService} - 标准Web登录</li>
-*   <li>{@link TenantUserLoginService} - 多租户登录</li>
-* </ul>
-*
-* @since 1.0.0
-* @author CH
+ * 用户登录服务抽象基类
+ * <p>提供用户登录验证的公共功能，包括角色权限获取、登录信息构建、错误处理等</p>
+ *
+ * <h2>子类实现</h2>
+ * <ul>
+ *   <li>{@link UserLoginService} - 标准Web登录</li>
+ *   <li>{@link TenantUserLoginService} - 多租户登录</li>
+ * </ul>
+ *
+ * @since 1.0.0
+ * @author CH
  */
 @Slf4j
 public abstract class AbstractUserLoginService implements UserInfoService {
@@ -172,10 +172,10 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 认证版本
-    *
-    * @param userResult 用户结果
-    * @return 认证版本的结果
+     * 认证版本
+     *
+     * @param userResult 用户结果
+     * @return 认证版本的结果
      */
     public String authVersion(UserResult userResult) {
         if (userResult == null || StringUtils.isEmpty(userResult.getUserId())) {
@@ -185,20 +185,20 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 认证版本
-    *
-    * @param user 用户
-    * @return 认证版本的结果
+     * 认证版本
+     *
+     * @param user 用户
+     * @return 认证版本的结果
      */
     protected String authVersion(SysUser user) {
         return user == null ? null : authVersion(user.getSysUserId());
     }
 
     /**
-    * 认证版本
-    *
-    * @param userId 用户id
-    * @return 认证版本的结果
+     * 认证版本
+     *
+     * @param userId 用户id
+     * @return 认证版本的结果
      */
     protected String authVersion(Integer userId) {
         if (userId == null) {
@@ -223,10 +223,10 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 解析认证配置文件
-    *
-    * @param user 用户
-    * @return resolve认证配置文件的结果
+     * 解析认证配置文件
+     *
+     * @param user 用户
+     * @return resolve认证配置文件的结果
      */
     private LoginAuthProfile resolveAuthProfile(SysUser user) {
         if (user == null || user.getSysUserId() == null) {
@@ -253,10 +253,10 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 串行缓存字段
-    *
-    * @param p p
-    * @return 配置文件转为缓存json的结果
+     * 串行缓存字段
+     *
+     * @param p p
+     * @return 配置文件转为缓存json的结果
      */
     private String profileToCacheJson(LoginAuthProfile p) {
         return String.join("|",
@@ -267,10 +267,10 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 反序列化缓存
-    *
-    * @param cache 缓存
-    * @return rebuild配置文件从缓存的结果
+     * 反序列化缓存
+     *
+     * @param cache 缓存
+     * @return rebuild配置文件从缓存的结果
      */
     private LoginAuthProfile rebuildProfileFromCache(String cache) {
         LoginAuthProfile p = new LoginAuthProfile();
@@ -298,10 +298,10 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 实际查询DB解析权限
-    *
-    * @param user 用户
-    * @return 执行resolve配置文件的结果
+     * 实际查询DB解析权限
+     *
+     * @param user 用户
+     * @return 执行resolve配置文件的结果
      */
     private LoginAuthProfile doResolveProfile(SysUser user) {
         LoginAuthProfile profile = new LoginAuthProfile();
@@ -340,30 +340,30 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 生成用户唯一标识（打开id和unionid）
-    * <p>子类可覆盖此方法实现不同的ID生成策略</p>
-    *
-    * @param user 用户实体
-    * @return String数组，[0]=OpenId, [1]=unionid
+     * 生成用户唯一标识（打开id和unionid）
+     * <p>子类可覆盖此方法实现不同的ID生成策略</p>
+     *
+     * @param user 用户实体
+     * @return String数组，[0]=OpenId, [1]=unionid
      */
     protected abstract String[] generateUserIds(SysUser user);
 
     /**
-    * 自定义用户结果扩展点
-    * <p>子类可覆盖此方法添加额外的用户信息</p>
-    *
-    * @param result 用户结果对象
-    * @param user   用户实体
+     * 自定义用户结果扩展点
+     * <p>子类可覆盖此方法添加额外的用户信息</p>
+     *
+     * @param result 用户结果对象
+     * @param user   用户实体
      */
     protected void customizeUserResult(UserResume result, SysUser user) {
         // 默认空实现，子类可覆盖
     }
 
     /**
-    * 将角色实体转换为角色信息对象
-    *
-    * @param role 角色实体
-    * @return 角色信息对象
+     * 将角色实体转换为角色信息对象
+     *
+     * @param role 角色实体
+     * @return 角色信息对象
      */
     private RoleInfo convertToRoleInfo(SysRole role) {
         RoleInfo item = new RoleInfo();
@@ -379,11 +379,11 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 转为角色信息
-    *
-    * @param authRow 认证row
-    * @param roleCode 角色编码
-    * @return 转为角色信息的结果
+     * 转为角色信息
+     *
+     * @param authRow 认证row
+     * @param roleCode 角色编码
+     * @return 转为角色信息的结果
      */
     private RoleInfo toRoleInfo(Map<String, Object> authRow, String roleCode) {
         RoleInfo item = new RoleInfo();
@@ -400,10 +400,10 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 获取用户角色列表
-    *
-    * @param user 用户实体对象
-    * @return 用户角色列表
+     * 获取用户角色列表
+     *
+     * @param user 用户实体对象
+     * @return 用户角色列表
      */
     protected List<SysRole> getRole(SysUser user) {
         try {
@@ -427,10 +427,10 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 获取用户权限集合
-    *
-    * @param user 用户实体对象
-    * @return 用户权限集合
+     * 获取用户权限集合
+     *
+     * @param user 用户实体对象
+     * @return 用户权限集合
      */
     protected Set<String> getPermission(SysUser user) {
         try {
@@ -501,10 +501,10 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 根据错误次数生成相应的错误信息
-    *
-    * @param errorCount 当前错误次数
-    * @return 包含错误信息的用户结果
+     * 根据错误次数生成相应的错误信息
+     *
+     * @param errorCount 当前错误次数
+     * @return 包含错误信息的用户结果
      */
     protected UserResume buildLoginErrorResult(int errorCount) {
         int maxAttempts = securityProperties.getMaxLoginAttempts();
@@ -518,10 +518,10 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 检查账户是否已被锁定
-    *
-    * @param redisKey Redis键名
-    * @return 如果被锁定返回错误结果，否则返回null
+     * 检查账户是否已被锁定
+     *
+     * @param redisKey Redis键名
+     * @return 如果被锁定返回错误结果，否则返回null
      */
     protected UserResume checkAccountLocked(String redisKey) {
         String errorCountStr = stringRedisTemplate.opsForValue().get(redisKey);
@@ -536,19 +536,19 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 清除登录错误计数
-    *
-    * @param redisKey Redis键名
+     * 清除登录错误计数
+     *
+     * @param redisKey Redis键名
      */
     protected void clearLoginErrorCount(String redisKey) {
         stringRedisTemplate.delete(redisKey);
     }
 
     /**
-    * 获取登录类型前缀
-    * <p>用于构建Redis键名，子类应返回不同的前缀以区分不同登录类型</p>
-    *
-    * @return 登录类型前缀
+     * 获取登录类型前缀
+     * <p>用于构建Redis键名，子类应返回不同的前缀以区分不同登录类型</p>
+     *
+     * @return 登录类型前缀
      */
     protected abstract String getLoginTypePrefix();
 }

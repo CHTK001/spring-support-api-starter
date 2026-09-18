@@ -23,10 +23,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
-* 岗位接口
-*
-* @since 4.0.0.43
-* @author CH
+ * 岗位接口
+ *
+ * @since 4.0.0.43
+ * @author CH
  */
 @Tag(name = "岗位接口")
 @RestController
@@ -50,11 +50,11 @@ public class SysPostController {
     }
 
     /**
-    * 岗位分页列表
-    *
-    * @param query   分页参数
-    * @param sysPost 条件
-    * @return 岗位分页列表
+     * 岗位分页列表
+     *
+     * @param query   分页参数
+     * @param sysPost 条件
+     * @return 岗位分页列表
      */
     @Operation(summary = "岗位分页列表")
     @GetMapping("/page")
@@ -63,11 +63,11 @@ public class SysPostController {
     }
 
     /**
-    * 新增岗位
-    *
-    * @param sysPost 岗位
-    * @return 新增后的岗位
-    * @param bindingResult binding结果，不允许为 null
+     * 新增岗位
+     *
+     * @param sysPost 岗位
+     * @return 新增后的岗位
+     * @param bindingResult binding结果，不允许为 null
      */
     @Operation(summary = "新增岗位")
     @PostMapping("/save")
@@ -81,11 +81,11 @@ public class SysPostController {
     }
 
     /**
-    * 更新岗位
-    *
-    * @param sysPost 岗位
-    * @return 更新结果
-    * @param bindingResult binding结果，不允许为 null
+     * 更新岗位
+     *
+     * @param sysPost 岗位
+     * @return 更新结果
+     * @param bindingResult binding结果，不允许为 null
      */
     @Operation(summary = "更新岗位")
     @PutMapping("/update")
@@ -99,10 +99,10 @@ public class SysPostController {
     }
 
     /**
-    * 删除岗位
-    *
-    * @param postId 岗位ID
-    * @return 删除结果
+     * 删除岗位
+     *
+     * @param postId 岗位ID
+     * @return 删除结果
      */
     @Operation(summary = "删除岗位")
     @DeleteMapping("/delete")
@@ -116,10 +116,10 @@ public class SysPostController {
     }
 
     /**
-    * 查询岗位下的用户列表
-    *
-    * @param postId 岗位ID
-    * @return 用户列表
+     * 查询岗位下的用户列表
+     *
+     * @param postId 岗位ID
+     * @return 用户列表
      */
     @Operation(summary = "查询岗位下的用户")
     @GetMapping("/users")

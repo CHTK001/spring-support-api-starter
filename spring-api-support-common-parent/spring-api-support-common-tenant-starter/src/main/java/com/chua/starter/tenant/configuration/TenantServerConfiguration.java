@@ -11,11 +11,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
-* 租户服务端配置
-*
-* @版本 1.0.0
-* @since 2024/12/06
-* @author CH
+ * 租户服务端配置
+ *
+ * @版本 1.0.0
+ * @since 2024/12/06
+ * @author CH
  */
 @Configuration
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")

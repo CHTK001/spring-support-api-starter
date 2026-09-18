@@ -5,10 +5,10 @@ import com.chua.starter.entity.service.SysLog;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
-* 系统日志映射接口
-*
-* @since 2024/8/7
-* @author CH
+ * 系统日志映射接口
+ *
+ * @since 2024/8/7
+ * @author CH
  */
 @Mapper
 public interface SysLogMapper extends BaseMapper<SysLog> {

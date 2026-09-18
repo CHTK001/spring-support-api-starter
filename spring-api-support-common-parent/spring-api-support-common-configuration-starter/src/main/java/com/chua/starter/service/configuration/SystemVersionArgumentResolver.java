@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Map;
 
 /**
-* 版本参数解析器
-* @since 2024/8/26
-* @author CH
+ * 版本参数解析器
+ * @since 2024/8/26
+ * @author CH
  */
 @Configuration
 public class SystemVersionArgumentResolver implements VersionArgumentResolver {

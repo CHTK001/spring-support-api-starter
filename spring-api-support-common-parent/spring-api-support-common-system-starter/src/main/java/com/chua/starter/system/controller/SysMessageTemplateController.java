@@ -24,10 +24,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
-* 消息模板接口
-*
-* @since 4.0.0.50
-* @author CH
+ * 消息模板接口
+ *
+ * @since 4.0.0.50
+ * @author CH
  */
 @Tag(name = "消息模板接口")
 @RestController
@@ -50,7 +50,7 @@ public class SysMessageTemplateController {
     }
 
     /**
-    * 新增模板
+     * 新增模板
      */
     @Operation(summary = "新增消息模板")
     @PostMapping("/save")
@@ -65,7 +65,7 @@ public class SysMessageTemplateController {
     }
 
     /**
-    * 修改模板
+     * 修改模板
      */
     @Operation(summary = "修改消息模板")
     @PutMapping("/update")
@@ -80,9 +80,9 @@ public class SysMessageTemplateController {
     }
 
     /**
-    * 删除模板(支持批量)
-    * @param ids 方法入参 ids
-    * @return Return结果 对象
+     * 删除模板(支持批量)
+     * @param ids 方法入参 ids
+     * @return Return结果 对象
      */
     @Operation(summary = "删除消息模板")
     @DeleteMapping("/delete")

@@ -16,10 +16,10 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
-* 小程序菜单卡片配置
-*
-* @since 2026/08/03
-* @author CH
+ * 小程序菜单卡片配置
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -27,12 +27,12 @@ import java.io.Serializable;
 @Schema(description = "小程序菜单卡片配置")
 public class SysMiniMenu extends SysBase implements Serializable {
     /**
-    * 序列化版本号
+     * 序列化版本号
      */
     private static final long serialVersionUID = 1L;
 
     /**
-    * 小程序菜单标识
+     * 小程序菜单标识
      */
     @TableId(value = "sys_mini_menu_id", type = IdType.AUTO)
     @Schema(description = "小程序菜单ID")

@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.UUID;
 
 /**
-* 系统配置变更历史服务实现类
-*
-* @since 2024/12/20
-* @author CH
+ * 系统配置变更历史服务实现类
+ *
+ * @since 2024/12/20
+ * @author CH
  */
 @Service
 public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryMapper, SysSettingHistory>
@@ -207,12 +207,12 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 回滚转为历史
-    *
-    * @param historyId 历史id
-    * @param operatorId 操作符id
-    * @param operatorName 操作符名称
-    * @return rollback转为历史的结果
+     * 回滚转为历史
+     *
+     * @param historyId 历史id
+     * @param operatorId 操作符id
+     * @param operatorName 操作符名称
+     * @return rollback转为历史的结果
      */
     public ReturnResult<Boolean> rollbackToHistory(Long historyId, String operatorId, String operatorName) {
         SysSettingHistory history = baseMapper.selectById(historyId);
@@ -228,11 +228,11 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     /**
-    * 回滚单条历史记录
-    * @param history 历史
-    * @param operatorId 操作符id
-    * @param operatorName 操作符名称
-    * @param rollbackBatchNo rollbackBatchNo
+     * 回滚单条历史记录
+     * @param history 历史
+     * @param operatorId 操作符id
+     * @param operatorName 操作符名称
+     * @param rollbackBatchNo rollbackBatchNo
      */
     private void rollbackSingleHistory(SysSettingHistory history, String operatorId, String operatorName, String rollbackBatchNo) {
         String operation = history.getSysSettingOperation();
@@ -275,13 +275,13 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     /**
-    * 记录回滚历史
-    * @param setting setting
-    * @param oldValue 旧值
-    * @param operatorId 操作符id
-    * @param operatorName 操作符名称
-    * @param batchNo batchNo
-    * @param remark 评论
+     * 记录回滚历史
+     * @param setting setting
+     * @param oldValue 旧值
+     * @param operatorId 操作符id
+     * @param operatorName 操作符名称
+     * @param batchNo batchNo
+     * @param remark 评论
      */
     private void recordRollback(SysSetting setting, String oldValue, String operatorId, String operatorName, String batchNo, String remark) {
         SysSettingHistory history = new SysSettingHistory();

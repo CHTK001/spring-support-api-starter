@@ -23,12 +23,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
-* IP 地址查询接口
-*
-* <p>提供 IP 地址的地理位置和运营商信息查询, 以及 IP 黑白名单管理能力。</p>
-*
-* @since 4.0.0.42
-* @author CH
+ * IP 地址查询接口
+ *
+ * <p>提供 IP 地址的地理位置和运营商信息查询, 以及 IP 黑白名单管理能力。</p>
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @Tag(name = "IP 地址查询接口")
 @RestController
@@ -43,10 +43,10 @@ public class SysIpController {
     private final SysIpBlackwhiteService sysIpBlackwhiteService;
 
     /**
-    * 查询 IP 地址的地理位置和运营商信息
-    *
-    * @param ip IP 地址
-    * @return 地理位置信息(国家/省份/城市/ISP 等)
+     * 查询 IP 地址的地理位置和运营商信息
+     *
+     * @param ip IP 地址
+     * @return 地理位置信息(国家/省份/城市/ISP 等)
      */
     @Operation(summary = "IP 地址归属地查询")
     @GetMapping("/lookup")
@@ -55,11 +55,11 @@ public class SysIpController {
     }
 
     /**
-    * IP黑白名单分页
-    *
-    * @param query  分页参数
-    * @param entity 查询条件
-    * @return 分页结果
+     * IP黑白名单分页
+     *
+     * @param query  分页参数
+     * @param entity 查询条件
+     * @return 分页结果
      */
     @Operation(summary = "IP黑白名单分页")
     @GetMapping("/page")
@@ -70,10 +70,10 @@ public class SysIpController {
     }
 
     /**
-    * 新增IP黑白名单
-    *
-    * @param entity 实体
-    * @return 新增结果
+     * 新增IP黑白名单
+     *
+     * @param entity 实体
+     * @return 新增结果
      */
     @Operation(summary = "新增IP黑白名单")
     @PostMapping("/save")
@@ -83,10 +83,10 @@ public class SysIpController {
     }
 
     /**
-    * 更新IP黑白名单
-    *
-    * @param entity 实体
-    * @return 更新结果
+     * 更新IP黑白名单
+     *
+     * @param entity 实体
+     * @return 更新结果
      */
     @Operation(summary = "更新IP黑白名单")
     @PutMapping("/update")
@@ -96,10 +96,10 @@ public class SysIpController {
     }
 
     /**
-    * 删除IP黑白名单
-    *
-    * @param sysIpId 主键
-    * @return 删除结果
+     * 删除IP黑白名单
+     *
+     * @param sysIpId 主键
+     * @return 删除结果
      */
     @Operation(summary = "删除IP黑白名单")
     @DeleteMapping("/delete")

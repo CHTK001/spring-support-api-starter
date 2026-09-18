@@ -16,25 +16,25 @@ import java.util.Map;
 import java.util.Set;
 
 /**
-* 缓存管理服务实现
-*
-* <p>基于 StringRedisTemplate 按 Key 前缀清除 Redis 中各类业务缓存。</p>
-*
-* @since 4.0.0.50
-* @author CH
+ * 缓存管理服务实现
+ *
+ * <p>基于 StringRedisTemplate 按 Key 前缀清除 Redis 中各类业务缓存。</p>
+ *
+ * @since 4.0.0.50
+ * @author CH
  */
 @Slf4j
 @Service
 public class SysCacheServiceImpl implements SysCacheService {
 
     /**
-    * Redis操作模板(未接入Redis时为空, 不影响其他主流程)
+     * Redis操作模板(未接入Redis时为空, 不影响其他主流程)
      */
     @Autowired(required = false)
     private StringRedisTemplate stringRedisTemplate;
 
     /**
-    * 缓存定义: cacheName -> (cacheKey描述, Redis Key匹配模式)
+     * 缓存定义: cacheName -> (cacheKey描述, Redis Key匹配模式)
      */
     private static final Map<String, SysCacheInfo> CACHE_MAP = new LinkedHashMap<>();
 
@@ -88,10 +88,10 @@ public class SysCacheServiceImpl implements SysCacheService {
     }
 
     /**
-    * 按模式删除Redis Key
+     * 按模式删除Redis Key
      *
-    * @param pattern Key匹配模式
-    * @return 删除的Key数量
+     * @param pattern Key匹配模式
+     * @return 删除的Key数量
      */
     private int deleteByPattern(String pattern) {
         if (null == stringRedisTemplate) {

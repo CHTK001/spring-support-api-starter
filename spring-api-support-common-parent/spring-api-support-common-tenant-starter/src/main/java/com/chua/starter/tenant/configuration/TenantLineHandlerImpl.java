@@ -6,11 +6,11 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.StringValue;
 
 /**
-* 租户行处理器实现
-*
-* @版本 1.0.0
-* @since 2024/12/06
-* @author CH
+ * 租户行处理器实现
+ *
+ * @版本 1.0.0
+ * @since 2024/12/06
+ * @author CH
  */
 public class TenantLineHandlerImpl implements TenantLineHandler {
 
@@ -23,15 +23,15 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
     private final boolean clientMode;
 
     /**
-    * 当前租户标识（线程本地变量）
+     * 当前租户标识（线程本地变量）
      */
     private static final ThreadLocal<String> CURRENT_TENANT_ID = new ThreadLocal<>();
 
     /**
-    * 构造函数
-    *
-    * @param tenantProperties 租户配置
-    * @param clientMode       是否为客户端模式
+     * 构造函数
+     *
+     * @param tenantProperties 租户配置
+     * @param clientMode       是否为客户端模式
      */
     public TenantLineHandlerImpl(TenantProperties tenantProperties, boolean clientMode) {
         this.tenantProperties = tenantProperties;
@@ -39,25 +39,25 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
     }
 
     /**
-    * 设置当前租户标识
-    *
-    * @param tenantId 租户标识
+     * 设置当前租户标识
+     *
+     * @param tenantId 租户标识
      */
     public static void setTenantId(String tenantId) {
         CURRENT_TENANT_ID.set(tenantId);
     }
 
     /**
-    * 获取当前租户标识
-    *
-    * @return 租户ID
+     * 获取当前租户标识
+     *
+     * @return 租户ID
      */
     public static String getCurrentTenantIdValue() {
         return CURRENT_TENANT_ID.get();
     }
 
     /**
-    * 清除当前租户标识
+     * 清除当前租户标识
      */
     public static void clear() {
         CURRENT_TENANT_ID.remove();

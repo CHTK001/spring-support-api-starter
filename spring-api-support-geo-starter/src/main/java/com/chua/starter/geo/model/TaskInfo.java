@@ -4,10 +4,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
-* 下载任务信息，描述一个瓦片下载任务的当前状态。
-*
-* @author CH
-* @since 1.0.0
+ * 下载任务信息，描述一个瓦片下载任务的当前状态。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Data
 public class TaskInfo {

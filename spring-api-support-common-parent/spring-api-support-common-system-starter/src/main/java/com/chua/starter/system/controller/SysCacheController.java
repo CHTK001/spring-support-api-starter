@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
-* 缓存管理接口
-*
-* <p>提供系统各类缓存的列举与手动刷新能力，供运维人员在配置变更后主动刷新缓存。</p>
-*
-* @since 4.0.0.50
-* @author CH
+ * 缓存管理接口
+ *
+ * <p>提供系统各类缓存的列举与手动刷新能力，供运维人员在配置变更后主动刷新缓存。</p>
+ *
+ * @since 4.0.0.50
+ * @author CH
  */
 @Tag(name = "缓存管理接口")
 @RestController
@@ -43,10 +43,10 @@ public class SysCacheController {
     }
 
     /**
-    * 刷新指定缓存
-    *
-    * @param cacheName 缓存名称
-    * @return 刷新结果
+     * 刷新指定缓存
+     *
+     * @param cacheName 缓存名称
+     * @return 刷新结果
      */
     @Operation(summary = "刷新指定缓存")
     @DeleteMapping("/refresh")
@@ -57,9 +57,9 @@ public class SysCacheController {
     }
 
     /**
-    * 刷新全部缓存
-    *
-    * @return 刷新结果
+     * 刷新全部缓存
+     *
+     * @return 刷新结果
      */
     @Operation(summary = "刷新全部缓存")
     @DeleteMapping("/refresh/all")

@@ -15,13 +15,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
-* 签到积分服务
-*
-* <p>根据启用的积分规则计算签到积分，包含每日基础积分和连续天数里程碑奖励。
-* 积分规则由 {@code sign_in_points_rule} 表驱动，支持动态调整。</p>
-*
-* @since 4.0.0.42
-* @author CH
+ * 签到积分服务
+ *
+ * <p>根据启用的积分规则计算签到积分，包含每日基础积分和连续天数里程碑奖励。
+ * 积分规则由 {@code sign_in_points_rule} 表驱动，支持动态调整。</p>
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @Service
@@ -29,63 +29,63 @@ import java.util.stream.Collectors;
 public class SignInPointsService {
 
     /**
-    * 规则类型：每日签到基础积分
+     * 规则类型：每日签到基础积分
      */
     private static final String RULE_DAILY_SIGN = "DAILY_SIGN";
 
     /**
-    * 规则类型：连续签到 3 天奖励
+     * 规则类型：连续签到 3 天奖励
      */
     private static final String RULE_STREAK_BONUS_3 = "STREAK_BONUS_3";
 
     /**
-    * 规则类型：连续签到 7 天奖励
+     * 规则类型：连续签到 7 天奖励
      */
     private static final String RULE_STREAK_BONUS_7 = "STREAK_BONUS_7";
 
     /**
-    * 规则类型：连续签到 30 天奖励
+     * 规则类型：连续签到 30 天奖励
      */
     private static final String RULE_STREAK_BONUS_30 = "STREAK_BONUS_30";
 
     /**
-    * 连续签到 3 天的里程碑阈值
+     * 连续签到 3 天的里程碑阈值
      */
     private static final int STREAK_THRESHOLD_3 = 3;
 
     /**
-    * 连续签到 7 天的里程碑阈值
+     * 连续签到 7 天的里程碑阈值
      */
     private static final int STREAK_THRESHOLD_7 = 7;
 
     /**
-    * 连续签到 30 天的里程碑阈值
+     * 连续签到 30 天的里程碑阈值
      */
     private static final int STREAK_THRESHOLD_30 = 30;
 
     /**
-    * 积分规则 映射器
+     * 积分规则 映射器
      */
     private final SignInPointsRuleMapper ruleMapper;
 
     /**
-    * 积分流水 映射器
+     * 积分流水 映射器
      */
     private final SignInPointsRecordMapper pointsRecordMapper;
 
     /**
-    * 计算本次签到应获得的积分，并写入积分流水。
-    *
-    * <p>计算逻辑：</p>
-    * <ul>
-    *   <li>每日签到基础积分（DAILY_SIGN）</li>
-    *   <li>连续签到里程碑奖励，仅当连续天数恰好等于阈值时发放</li>
-    * </ul>
-    *
-    * @param userId         用户标识
-    * @param streak         当前连续签到天数
-    * @param signInRecordId 关联签到记录标识
-    * @return 积分明细列表
+     * 计算本次签到应获得的积分，并写入积分流水。
+     *
+     * <p>计算逻辑：</p>
+     * <ul>
+     *   <li>每日签到基础积分（DAILY_SIGN）</li>
+     *   <li>连续签到里程碑奖励，仅当连续天数恰好等于阈值时发放</li>
+     * </ul>
+     *
+     * @param userId         用户标识
+     * @param streak         当前连续签到天数
+     * @param signInRecordId 关联签到记录标识
+     * @return 积分明细列表
      */
     public List<SignInPointDTO> calculatePoints(Long userId, int streak, Long signInRecordId) {
         List<SignInPointsRule> rules = ruleMapper.selectByStatus(1);
@@ -110,15 +110,15 @@ public class SignInPointsService {
     }
 
     /**
-    * 如果连续天数达到里程碑阈值，发放连续签到奖励积分。
-    *
-    * @param result          积分明细结果列表
-    * @param ruleMap         规则映射
-    * @param ruleType        规则类型
-    * @param threshold       里程碑天数阈值
-    * @param streak          当前连续签到天数
-    * @param userId          用户标识
-    * @param signInRecordId  关联签到记录标识
+     * 如果连续天数达到里程碑阈值，发放连续签到奖励积分。
+     *
+     * @param result          积分明细结果列表
+     * @param ruleMap         规则映射
+     * @param ruleType        规则类型
+     * @param threshold       里程碑天数阈值
+     * @param streak          当前连续签到天数
+     * @param userId          用户标识
+     * @param signInRecordId  关联签到记录标识
      */
     private void addStreakBonusIfMatch(List<SignInPointDTO> result, Map<String, SignInPointsRule> ruleMap,
                                         String ruleType, int threshold, int streak, Long userId, Long signInRecordId) {
@@ -130,12 +130,12 @@ public class SignInPointsService {
     }
 
     /**
-    * 保存单条积分流水记录。
-    *
-    * @param userId         用户标识
-    * @param signInRecordId 签到记录标识
-    * @param ruleId         规则标识
-    * @param points         积分值
+     * 保存单条积分流水记录。
+     *
+     * @param userId         用户标识
+     * @param signInRecordId 签到记录标识
+     * @param ruleId         规则标识
+     * @param points         积分值
      */
     private void savePointsRecord(Long userId, Long signInRecordId, Long ruleId, Integer points) {
         SignInPointsRecord record = new SignInPointsRecord();
@@ -147,10 +147,10 @@ public class SignInPointsService {
     }
 
     /**
-    * 计算积分明细列表的总和。
-    *
-    * @param points 积分明细列表
-    * @return 积分总和
+     * 计算积分明细列表的总和。
+     *
+     * @param points 积分明细列表
+     * @return 积分总和
      */
     public int sumPoints(List<SignInPointDTO> points) {
         return points.stream().mapToInt(SignInPointDTO::getPoints).sum();

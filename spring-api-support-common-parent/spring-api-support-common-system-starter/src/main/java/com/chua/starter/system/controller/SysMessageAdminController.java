@@ -26,12 +26,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 站内消息管理端接口
-*
-* <p>管理员查询、发送(广播/定向)、删除消息及消息统计。</p>
-*
-* @since 4.0.0.43
-* @author CH
+ * 站内消息管理端接口
+ *
+ * <p>管理员查询、发送(广播/定向)、删除消息及消息统计。</p>
+ *
+ * @since 4.0.0.43
+ * @author CH
  */
 @Tag(name = "站内消息管理接口")
 @RestController
@@ -58,10 +58,10 @@ public class SysMessageAdminController {
     }
 
     /**
-    * 管理员创建并广播/定向发送消息
-    *
-    * @param request 请求体
-    * @return 创建的消息数量
+     * 管理员创建并广播/定向发送消息
+     *
+     * @param request 请求体
+     * @return 创建的消息数量
      */
     @Operation(summary = "发送消息(管理端)")
     @PostMapping("/save")
@@ -79,10 +79,10 @@ public class SysMessageAdminController {
     }
 
     /**
-    * 删除消息
-    *
-    * @param sysMessageId 消息ID
-    * @return 删除结果
+     * 删除消息
+     *
+     * @param sysMessageId 消息ID
+     * @return 删除结果
      */
     @Operation(summary = "删除消息(管理端)")
     @DeleteMapping("/delete")
@@ -95,9 +95,9 @@ public class SysMessageAdminController {
     }
 
     /**
-    * 消息统计
-    *
-    * @return 统计结果(总数/已读/未读)
+     * 消息统计
+     *
+     * @return 统计结果(总数/已读/未读)
      */
     @Operation(summary = "消息统计(管理端)")
     @GetMapping("/statistic")

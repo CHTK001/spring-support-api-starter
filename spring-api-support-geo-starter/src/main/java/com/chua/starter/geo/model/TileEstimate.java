@@ -4,10 +4,10 @@ import lombok.Data;
 import java.util.List;
 
 /**
-* 瓦片下载估算结果，包含瓦片数量和预估文件大小。
-*
-* @author CH
-* @since 1.0.0
+ * 瓦片下载估算结果，包含瓦片数量和预估文件大小。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Data
 public class TileEstimate {

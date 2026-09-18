@@ -11,22 +11,22 @@ import java.util.List;
 import java.util.Set;
 
 /**
-* 系统用户日志服务接口
-* 该接口定义了与系统用户日志相关的操作，包括查询用户日志分页数据和删除指定的日志
-*
-* @since 2024/8/8
-* @author CH
+ * 系统用户日志服务接口
+ * 该接口定义了与系统用户日志相关的操作，包括查询用户日志分页数据和删除指定的日志
+ *
+ * @since 2024/8/8
+ * @author CH
  */
 public interface SysUserLogService extends IService<SysUserLog> {
 
     /**
-    * 根据查询条件分页获取用户日志
-    * 此方法允许根据不同的查询条件和角色筛选，返回用户日志的分页数据
-    *
-    * @param query 查询对象，用于分页和排序设置
-    * @param sysUserLogQuery 查询条件对象，用于筛选日志
-    * @param roles 用户角色集合，用于根据角色筛选日志
-    * @return 返回包含用户日志的分页数据对象
+     * 根据查询条件分页获取用户日志
+     * 此方法允许根据不同的查询条件和角色筛选，返回用户日志的分页数据
+     *
+     * @param query 查询对象，用于分页和排序设置
+     * @param sysUserLogQuery 查询条件对象，用于筛选日志
+     * @param roles 用户角色集合，用于根据角色筛选日志
+     * @return 返回包含用户日志的分页数据对象
      */
     IPage<SysUserLog> pageForUserLog(Query<SysUserLog> query,
                                      SysUserLogQuery sysUserLogQuery,
@@ -35,22 +35,22 @@ public interface SysUserLogService extends IService<SysUserLog> {
                                      List<String> managedDeptTreeIds);
 
     /**
-    * 删除指定的用户日志
-    * 此方法通过日志的标识进行删除操作，返回一个表示操作结果的对象
-    *
-    * @param userLogId 用户日志的标识
-    * @return 返回一个包含操作结果的对象，对象中的数据字段表示操作是否成功
+     * 删除指定的用户日志
+     * 此方法通过日志的标识进行删除操作，返回一个表示操作结果的对象
+     *
+     * @param userLogId 用户日志的标识
+     * @return 返回一个包含操作结果的对象，对象中的数据字段表示操作是否成功
      */
     ReturnResult<Boolean> delete(Long userLogId);
 
     /**
-    * 按条件批量清理登录日志
-    *
-    * @param sysUserLogQuery     查询条件
-    * @param sysUserId           当前用户标识
-    * @param roles               当前用户角色
-    * @param managedDeptTreeIds  当前用户负责的部门树
-    * @return 删除数量
+     * 按条件批量清理登录日志
+     *
+     * @param sysUserLogQuery     查询条件
+     * @param sysUserId           当前用户标识
+     * @param roles               当前用户角色
+     * @param managedDeptTreeIds  当前用户负责的部门树
+     * @return 删除数量
      */
     ReturnResult<Integer> cleanup(SysUserLogQuery sysUserLogQuery,
                                   Integer sysUserId,
@@ -58,32 +58,32 @@ public interface SysUserLogService extends IService<SysUserLog> {
                                   List<String> managedDeptTreeIds);
 
     /**
-    * 获取当前用户的日志
-    * 此方法根据用户的角色和查询条件获取当前用户的日志，返回一个包含日志的分页数据对象
-    *
-    * @param query      查询对象，用于分页和排序设置
-    * @param sysUserLogQuery 查询条件对象，用于筛选日志
-    * @param sysUserId  账号标识
-    * @param roles      用户角色集合，用于根据角色筛选日志
-    * @return 返回包含当前用户日志的分页数据对象
+     * 获取当前用户的日志
+     * 此方法根据用户的角色和查询条件获取当前用户的日志，返回一个包含日志的分页数据对象
+     *
+     * @param query      查询对象，用于分页和排序设置
+     * @param sysUserLogQuery 查询条件对象，用于筛选日志
+     * @param sysUserId  账号标识
+     * @param roles      用户角色集合，用于根据角色筛选日志
+     * @return 返回包含当前用户日志的分页数据对象
      */
     IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Integer sysUserId, Set<String> roles);
 
     /**
-    * 异步保存用户日志
-    *
-    * @param sysUserLog 用户日志对象
+     * 异步保存用户日志
+     *
+     * @param sysUserLog 用户日志对象
      */
     void asyncSaveUserLog(SysUserLog sysUserLog);
 
     /**
-    * 按条件导出登录/操作日志为CSV（UTF-8 BOM），权限范围与分页查询一致
-    *
-    * @param sysUserLogQuery     查询条件
-    * @param sysUserId           当前用户标识
-    * @param roles               当前用户角色
-    * @param managedDeptTreeIds  当前用户负责的部门树
-    * @return CSV文件字节数组
+     * 按条件导出登录/操作日志为CSV（UTF-8 BOM），权限范围与分页查询一致
+     *
+     * @param sysUserLogQuery     查询条件
+     * @param sysUserId           当前用户标识
+     * @param roles               当前用户角色
+     * @param managedDeptTreeIds  当前用户负责的部门树
+     * @return CSV文件字节数组
      */
     byte[] exportUserLogs(SysUserLogQuery sysUserLogQuery,
                           Integer sysUserId,

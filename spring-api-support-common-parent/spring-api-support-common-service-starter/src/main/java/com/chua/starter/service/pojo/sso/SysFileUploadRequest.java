@@ -6,16 +6,16 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
-* 文件上传请求
-* @since 2024/12/4
-* @author CH
+ * 文件上传请求
+ * @since 2024/12/4
+ * @author CH
  */
 @Data
 @Schema(description = "文件上传请求")
 public class SysFileUploadRequest {
 
     /**
-    * 文件类型
+     * 文件类型
      */
     @Schema(description = "文件bucket")
     @NotNull(message = "文件bucket不能为空", groups = {UploadGroup.class})

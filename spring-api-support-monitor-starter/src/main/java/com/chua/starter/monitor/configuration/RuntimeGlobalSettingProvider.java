@@ -6,13 +6,13 @@ import com.chua.common.support.spi.annotations.Spi;
 import java.util.List;
 
 /**
-* 运行时 (runtime) 全局设置提供者 SPI。
-* <p>
-* 注册 AI 端口开关等运行时配置项到 sys_AI_全局_setting 表。
-* </p>
-*
-* @author CH
-* @since 4.0.0
+ * 运行时 (runtime) 全局设置提供者 SPI。
+ * <p>
+ * 注册 AI 端口开关等运行时配置项到 sys_AI_全局_setting 表。
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Spi("runtime")
 public class RuntimeGlobalSettingProvider implements GlobalSettingProvider {

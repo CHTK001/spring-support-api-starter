@@ -12,10 +12,10 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
 
 /**
-* 系统反馈表
-*
-* @since 2024/8/7
-* @author CH
+ * 系统反馈表
+ *
+ * @since 2024/8/7
+ * @author CH
  */
 @Schema(description = "系统反馈表")
 @Data
@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 public class SysFeedback extends SysBase {
 
     /**
-    * 反馈标识
+     * 反馈标识
      */
     @TableId(value = "sys_feedback_id", type = IdType.AUTO)
     @Schema(description = "反馈ID")

@@ -8,10 +8,10 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 
 /**
-* 用户更新
-*
-* @since 2024/8/8
-* @author CH
+ * 用户更新
+ *
+ * @since 2024/8/8
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -19,7 +19,7 @@ import java.util.List;
 public class SysUserUpdate extends SysUser {
 
     /**
-    * 角色标识列表
+     * 角色标识列表
      */
     @Schema(description = "角色ID列表")
     /** 角色标识 */

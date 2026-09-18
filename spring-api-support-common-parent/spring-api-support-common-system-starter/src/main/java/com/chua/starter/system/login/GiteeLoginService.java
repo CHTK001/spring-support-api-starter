@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
-* Gitee 第三方登录服务
-* <p>处理 Gitee 用户的登录验证与授权</p>
-*
-* @since 2024/01/30
-* @author CH
+ * Gitee 第三方登录服务
+ * <p>处理 Gitee 用户的登录验证与授权</p>
+ *
+ * @since 2024/01/30
+ * @author CH
  */
 @Slf4j
 @Service
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 public class GiteeLoginService extends AbstractUserLoginService {
 
     /**
-    * 登录类型前缀
+     * 登录类型前缀
      */
     private static final String LOGIN_TYPE_PREFIX = "gitee";
 

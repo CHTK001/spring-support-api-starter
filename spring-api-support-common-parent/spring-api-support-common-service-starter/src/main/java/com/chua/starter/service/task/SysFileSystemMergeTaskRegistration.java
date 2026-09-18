@@ -29,12 +29,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 文件系统合并任务注册器
-* 用于管理文件分片合并任务
-*
-* @author CH
-* @since 2024/12/10
-* @版本 1.0.0
+ * 文件系统合并任务注册器
+ * 用于管理文件分片合并任务
+ *
+ * @author CH
+ * @since 2024/12/10
+ * @版本 1.0.0
  */
 @Slf4j
 @Component
@@ -66,9 +66,9 @@ public class SysFileSystemMergeTaskRegistration {
     }
 
     /**
-    * 注册合并任务
-    *
-    * @param wrapper 文件系统包装对象
+     * 注册合并任务
+     *
+     * @param wrapper 文件系统包装对象
      */
     public void register(SysFileSystemWrapper wrapper) {
         log.info("注册合并任务: taskId={}", wrapper.getSysFileSystem().getSysFileSystemTid());
@@ -76,9 +76,9 @@ public class SysFileSystemMergeTaskRegistration {
     }
 
     /**
-    * 执行合并操作
-    *
-    * @param wrapper 文件系统包装对象
+     * 执行合并操作
+     *
+     * @param wrapper 文件系统包装对象
      */
     private void executeMerge(SysFileSystemWrapper wrapper) {
         SysFileSystem sysFileSystem = wrapper.getSysFileSystem();
@@ -135,10 +135,10 @@ public class SysFileSystemMergeTaskRegistration {
     }
 
     /**
-    * 合并分片数据
-    *
-    * @param parts 分片列表
-    * @return 合并后的字节数组
+     * 合并分片数据
+     *
+     * @param parts 分片列表
+     * @return 合并后的字节数组
      */
     private byte[] mergeChunks(List<SysFileSystemPart> parts) throws IOException {
         // 按序号排序
@@ -154,11 +154,11 @@ public class SysFileSystemMergeTaskRegistration {
     }
 
     /**
-    * 上传到存储
-    *
-    * @param sysFileSystem 文件系统对象
-    * @param data          文件数据
-    * @return 上传结果
+     * 上传到存储
+     *
+     * @param sysFileSystem 文件系统对象
+     * @param data          文件数据
+     * @return 上传结果
      */
     private PutObjectResult uploadToStorage(SysFileSystem sysFileSystem, byte[] data) {
         BucketSetting bucketSetting = fileStorageSupport.createUploadBucketSetting(
@@ -180,10 +180,10 @@ public class SysFileSystemMergeTaskRegistration {
     }
 
     /**
-    * 清理临时文件
-    *
-    * @param parts  分片列表
-    * @param taskId 任务标识
+     * 清理临时文件
+     *
+     * @param parts  分片列表
+     * @param taskId 任务标识
      */
     private void cleanTempFiles(List<SysFileSystemPart> parts, String taskId) {
         try {

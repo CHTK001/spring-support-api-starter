@@ -22,16 +22,16 @@ import java.security.spec.ECPoint;
 import java.util.*;
 
 /**
-* JWKS (JSON Web 键 设置) 端点
-* <p>
-* 提供公钥分发服务，供客户端验证 JWT 签名。
-* 符合 RFC 7517 (JSON Web 键) 规范。
-* </p>
-*
-* @版本 1.0.0
-* @since 2025-12-18
-* @see <a href="https://datatracker.ietf.org/doc/html/rfc7517">RFC 7517 - JSON Web Key (JWK)</a>
-* @author CH
+ * JWKS (JSON Web 键 设置) 端点
+ * <p>
+ * 提供公钥分发服务，供客户端验证 JWT 签名。
+ * 符合 RFC 7517 (JSON Web 键) 规范。
+ * </p>
+ *
+ * @版本 1.0.0
+ * @since 2025-12-18
+ * @see <a href="https://datatracker.ietf.org/doc/html/rfc7517">RFC 7517 - JSON Web Key (JWK)</a>
+ * @author CH
  */
 @RestController
 @Slf4j
@@ -93,10 +93,10 @@ public class JwksController {
     }
 
     /**
-    * 构建 JWK (JSON Web 键)
-    * @param publicKey 公共键
-    * @param algorithm algorithm
-    * @return 构建jwk的结果
+     * 构建 JWK (JSON Web 键)
+     * @param publicKey 公共键
+     * @param algorithm algorithm
+     * @return 构建jwk的结果
      */
     private Map<String, Object> buildJwk(PublicKey publicKey, String algorithm) {
         Map<String, Object> jwk = new LinkedHashMap<>();
@@ -137,9 +137,9 @@ public class JwksController {
     }
 
     /**
-    * 生成 键 标识
-    * @param publicKey 公共键
-    * @return generate键id的结果
+     * 生成 键 标识
+     * @param publicKey 公共键
+     * @return generate键id的结果
      */
     private String generateKeyId(PublicKey publicKey) {
         try {
@@ -153,9 +153,9 @@ public class JwksController {
     }
 
     /**
-    * 基础64 URL 编码 biginteger
-    * @param value 值
-    * @return base64UrlEncode的结果
+     * 基础64 URL 编码 biginteger
+     * @param value 值
+     * @return base64UrlEncode的结果
      */
     private String base64UrlEncode(BigInteger value) {
         byte[] bytes = value.toByteArray();
@@ -167,9 +167,9 @@ public class JwksController {
     }
 
     /**
-    * 获取椭圆曲线名称
-    * @param algorithm algorithm
-    * @return 获取curve的结果
+     * 获取椭圆曲线名称
+     * @param algorithm algorithm
+     * @return 获取curve的结果
      */
     private String getCurve(String algorithm) {
         return switch (algorithm) {

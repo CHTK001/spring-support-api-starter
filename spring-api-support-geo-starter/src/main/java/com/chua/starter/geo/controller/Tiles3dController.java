@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
-* 3D 瓷砖 下载控制器，提供 铯 Ion 和自定义 URL 的 3D 瓷砖 下载接口。
-*
-* @author CH
-* @since 1.0.0
+ * 3D 瓷砖 下载控制器，提供 铯 Ion 和自定义 URL 的 3D 瓷砖 下载接口。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @RestController
 @RequestMapping("/v1/geo/3dtiles")
@@ -57,10 +57,10 @@ public class Tiles3dController {
     }
 
     /**
-    * 创建 3D 瓷砖 下载任务。
-    *
-    * @param request 下载请求
-    * @return 任务结果
+     * 创建 3D 瓷砖 下载任务。
+     *
+     * @param request 下载请求
+     * @return 任务结果
      */
     @PostMapping("/download")
     @Operation(summary = "下载3D Tiles资产")
@@ -83,10 +83,10 @@ public class Tiles3dController {
     }
 
     /**
-    * 从 映射 构建 瓷砖3d源（供 分析 接口使用）。
-    *
-    * @param map 请求参数字典
-    * @return Tiles3dSource
+     * 从 映射 构建 瓷砖3d源（供 分析 接口使用）。
+     *
+     * @param map 请求参数字典
+     * @return Tiles3dSource
      */
     private Tiles3dSource buildSourceFromMap(Map<String, Object> map) {
         Tiles3dSource source = new Tiles3dSource();

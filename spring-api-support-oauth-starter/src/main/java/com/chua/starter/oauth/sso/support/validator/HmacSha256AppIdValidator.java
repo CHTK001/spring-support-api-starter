@@ -15,60 +15,60 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
-* HMAC-SHA256 appid 验证器
-* <p>
-* 实现基于 HMAC-SHA256 的签名验证算法：
-* 1. 从 头部 获取 x-时间、x-随机、x-标志、app键
-* 2. 根据请求方法计算 x-主体（POST: 主体的MD5，获取: 参数排序后的MD5）
-* 3. 拼接字符串：x-主体&x-随机&x-时间（如果没有主体或参数，则不拼接x-主体）
-* 4. 使用 HMAC-SHA256 和 appsecret 对拼接字符串加密得到签名
-* 5. 验证签名是否匹配
-* </p>
-*
-* @版本 1.0.0
-* @since 2025-01-05
-* @author CH
+ * HMAC-SHA256 appid 验证器
+ * <p>
+ * 实现基于 HMAC-SHA256 的签名验证算法：
+ * 1. 从 头部 获取 x-时间、x-随机、x-标志、app键
+ * 2. 根据请求方法计算 x-主体（POST: 主体的MD5，获取: 参数排序后的MD5）
+ * 3. 拼接字符串：x-主体&x-随机&x-时间（如果没有主体或参数，则不拼接x-主体）
+ * 4. 使用 HMAC-SHA256 和 appsecret 对拼接字符串加密得到签名
+ * 5. 验证签名是否匹配
+ * </p>
+ *
+ * @版本 1.0.0
+ * @since 2025-01-05
+ * @author CH
  */
 @Slf4j
 @Spi("hmac-sha256")
 public class HmacSha256AppIdValidator implements AppIdValidator {
 
     /**
-    * 请求头参数名: 时间戳
+     * 请求头参数名: 时间戳
      */
     private static final String HEADER_X_TIME = "x-time";
 
     /**
-    * 请求头参数名: 随机数
+     * 请求头参数名: 随机数
      */
     private static final String HEADER_X_RANDOM = "x-random";
 
     /**
-    * 请求头参数名: 签名
+     * 请求头参数名: 签名
      */
     private static final String HEADER_X_SIGN = "x-sign";
 
     /**
-    * 请求头参数名: app键
+     * 请求头参数名: app键
      */
     private static final String HEADER_APP_KEY = "appKey";
 
     /**
-    * 允许的时间戳最大偏差 (毫秒), 5 分钟
+     * 允许的时间戳最大偏差 (毫秒), 5 分钟
      */
     private static final long MAX_TIME_DIFF_MILLIS = 5L * 60 * 1000;
 
     /**
-    * 签名拼接连接符
+     * 签名拼接连接符
      */
     private static final String SIGN_JOINER = "&";
 
     /**
-    * 验证签名（从 oauth认证信息 中获取签名参数）
-    *
-    * @param authInformation 认证信息
-    * @param appKey          app键 信息
-    * @return 验证结果
+     * 验证签名（从 oauth认证信息 中获取签名参数）
+     *
+     * @param authInformation 认证信息
+     * @param appKey          app键 信息
+     * @return 验证结果
      */
     @Override
     public ValidationResult validate(OauthAuthInformation authInformation, SysAppKey appKey) {
@@ -143,11 +143,11 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     }
 
     /**
-    * 计算 x-主体
-    * POST 请求：对 主体 进行 MD5 加密并转16进制
-    * 获取 请求：将参数按 键 降序排列，拼接后用 MD5 加密并转16进制
-    * @param authInformation 认证信息
-    * @return calculatex主体的结果
+     * 计算 x-主体
+     * POST 请求：对 主体 进行 MD5 加密并转16进制
+     * 获取 请求：将参数按 键 降序排列，拼接后用 MD5 加密并转16进制
+     * @param authInformation 认证信息
+     * @return calculatex主体的结果
      */
     private String calculateXBody(OauthAuthInformation authInformation) {
         Object requestObj = authInformation.getRequest();
@@ -197,13 +197,13 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     }
 
     /**
-    * 获取请求体
-    * <p>
-    * 对于 POST 请求，主体 应该是原始的请求体字符串（JSON格式）
-    * 在我们的系统中，数据 字段可能包含加密后的数据，需要尝试获取原始 主体
-    * </p>
-    * @param authInformation 认证信息
-    * @return 获取请求主体的结果
+     * 获取请求体
+     * <p>
+     * 对于 POST 请求，主体 应该是原始的请求体字符串（JSON格式）
+     * 在我们的系统中，数据 字段可能包含加密后的数据，需要尝试获取原始 主体
+     * </p>
+     * @param authInformation 认证信息
+     * @return 获取请求主体的结果
      */
     private String getRequestBody(OauthAuthInformation authInformation) {
         Object requestObj = authInformation.getRequest();
@@ -245,9 +245,9 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     }
 
     /**
-    * 解析查询字符串
-    * @param queryString 查询字符串
-    * @return 解析查询字符串的结果
+     * 解析查询字符串
+     * @param queryString 查询字符串
+     * @return 解析查询字符串的结果
      */
     private Map<String, String> parseQueryString(String queryString) {
         Map<String, String> params = new LinkedHashMap<>();
@@ -269,13 +269,13 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     }
 
     /**
-    * 构建签名字符串
-    * 格式：x-主体&x-随机&x-时间（如果没有 x-主体，则为 x-随机&x-时间）
-    * 注意：根据算法描述，拼接顺序是 x-主体、x-随机、x-时间
-    * @param xBody x主体
-    * @param xRandom x随机
-    * @param xTime x时间
-    * @return 构建标志字符串的结果
+     * 构建签名字符串
+     * 格式：x-主体&x-随机&x-时间（如果没有 x-主体，则为 x-随机&x-时间）
+     * 注意：根据算法描述，拼接顺序是 x-主体、x-随机、x-时间
+     * @param xBody x主体
+     * @param xRandom x随机
+     * @param xTime x时间
+     * @return 构建标志字符串的结果
      */
     private String buildSignString(String xBody, String xRandom, String xTime) {
         if (StringUtils.isNotBlank(xBody)) {
@@ -288,10 +288,10 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     }
 
     /**
-    * 计算 HMAC-SHA256 签名
-    * @param data 数据
-    * @param secret secret
-    * @return calculateHmacSha256的结果
+     * 计算 HMAC-SHA256 签名
+     * @param data 数据
+     * @param secret secret
+     * @return calculateHmacSha256的结果
      */
     private String calculateHmacSha256(String data, String secret) {
         try {
@@ -306,9 +306,9 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     }
 
     /**
-    * MD5 加密并转16进制
-    * @param data 数据
-    * @return md5Hex的结果
+     * MD5 加密并转16进制
+     * @param data 数据
+     * @return md5Hex的结果
      */
     private String md5Hex(String data) {
         try {
@@ -321,9 +321,9 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     }
 
     /**
-    * 字节数组转16进制字符串
-    * @param bytes bytes
-    * @return bytes转为hex的结果
+     * 字节数组转16进制字符串
+     * @param bytes bytes
+     * @return bytes转为hex的结果
      */
     private String bytesToHex(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
@@ -334,9 +334,9 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     }
 
     /**
-    * 脱敏值
-    * @param value 值
-    * @return mask值的结果
+     * 脱敏值
+     * @param value 值
+     * @return mask值的结果
      */
     private String maskValue(String value) {
         if (value == null || value.length() < 8) {
@@ -346,19 +346,19 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
     }
 
     /**
-    * 脱敏 app键
-    * @param appKey app键
-    * @return maskapp键的结果
+     * 脱敏 app键
+     * @param appKey app键
+     * @return maskapp键的结果
      */
     private String maskAppKey(String appKey) {
         return maskValue(appKey);
     }
 
     /**
-    * 判断当前验证器是否支持该 appid 签名方式。
-    *
-    * @param appId 原始 appid
-    * @return 默认返回 true, 实际验证时会检查参数是否存在
+     * 判断当前验证器是否支持该 appid 签名方式。
+     *
+     * @param appId 原始 appid
+     * @return 默认返回 true, 实际验证时会检查参数是否存在
      */
     @Override
     public boolean supports(String appId) {

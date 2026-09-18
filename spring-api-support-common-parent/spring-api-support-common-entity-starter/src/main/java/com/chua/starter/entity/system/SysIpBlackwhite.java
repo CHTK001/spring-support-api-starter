@@ -17,10 +17,10 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
-* IP黑白名单表
-*
-* @since 4.0.0.43
-* @author CH
+ * IP黑白名单表
+ *
+ * @since 4.0.0.43
+ * @author CH
  */
 @Schema(description = "IP黑白名单表")
 @Data

@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 前端异常上报日志服务实现
-*
-* @since 2026/8/8
-* @author CH
+ * 前端异常上报日志服务实现
+ *
+ * @since 2026/8/8
+ * @author CH
  */
 @Service
 @Slf4j
@@ -36,22 +36,22 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
         implements SysErrorLogService {
 
     /**
-    * 单次批量上报允许的最大异常条数, 防止超长请求
+     * 单次批量上报允许的最大异常条数, 防止超长请求
      */
     private static final int MAX_BATCH_SIZE = 200;
 
     /**
-    * 单条异常消息允许的最大长度
+     * 单条异常消息允许的最大长度
      */
     private static final int MAX_MESSAGE_LENGTH = 2000;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 保存Report
-    *
-    * @param request 请求
-    * @return 保存report的结果
+     * 保存Report
+     *
+     * @param request 请求
+     * @return 保存report的结果
      */
     public ReturnResult<Boolean> saveReport(ErrorReportV1Request request) {
         if (request == null || request.getRecords() == null || request.getRecords().isEmpty()) {
@@ -203,11 +203,11 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
     }
 
     /**
-    * 将单条上报记录转换为实体对象
-    *
-    * @param item      上报记录
-    * @param reportTime 客户端上报时间
-    * @return 实体对象
+     * 将单条上报记录转换为实体对象
+     *
+     * @param item      上报记录
+     * @param reportTime 客户端上报时间
+     * @return 实体对象
      */
     private SysErrorLog buildEntity(ErrorReportV1Item item, Long reportTime) {
         SysErrorLog entity = new SysErrorLog();
@@ -227,10 +227,10 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
     }
 
     /**
-    * 截断超长字符串, 避免超过数据库字段长度
-    *
-    * @param value 原始字符串
-    * @return 截断后的字符串
+     * 截断超长字符串, 避免超过数据库字段长度
+     *
+     * @param value 原始字符串
+     * @return 截断后的字符串
      */
     private String truncate(String value) {
         if (value == null) {

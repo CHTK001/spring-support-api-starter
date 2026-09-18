@@ -21,10 +21,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* 文件版原始记录存储。
-*
-* @since 2026/03/25
-* @author CH
+ * 文件版原始记录存储。
+ *
+ * @since 2026/03/25
+ * @author CH
  */
 @Spi("file")
 @SpiDefault
@@ -64,10 +64,10 @@ public class FileRequestTraceRawRecordStorage implements RequestTraceRawRecordSt
     }
 
     /**
-    * 转为映射
-    *
-    * @param event 事件
-    * @return 转为映射的结果
+     * 转为映射
+     *
+     * @param event 事件
+     * @return 转为映射的结果
      */
     private Map<String, Object> toMap(RequestTraceEvent event) {
         Map<String, Object> values = new LinkedHashMap<>();

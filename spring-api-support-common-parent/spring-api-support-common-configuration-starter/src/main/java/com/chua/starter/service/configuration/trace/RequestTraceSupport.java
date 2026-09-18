@@ -4,10 +4,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
-* 请求追踪工具方法。
-*
-* @since 2026/03/25
-* @author CH
+ * 请求追踪工具方法。
+ *
+ * @since 2026/03/25
+ * @author CH
  */
 public final class RequestTraceSupport {
 
@@ -30,10 +30,10 @@ public final class RequestTraceSupport {
     }
 
     /**
-    * 第一个nonblank
-    *
-    * @param values 值
-    * @return 第一个nonblank的结果
+     * 第一个nonblank
+     *
+     * @param values 值
+     * @return 第一个nonblank的结果
      */
     public static String firstNonBlank(String... values) {
         if (values == null) {
@@ -49,10 +49,10 @@ public final class RequestTraceSupport {
     }
 
     /**
-    * 标志编码
-    *
-    * @param signals signals
-    * @return 标志编码的结果
+     * 标志编码
+     *
+     * @param signals signals
+     * @return 标志编码的结果
      */
     public static String signalCodes(Set<RequestTraceSignal> signals) {
         if (signals == null || signals.isEmpty()) {
@@ -65,10 +65,10 @@ public final class RequestTraceSupport {
     }
 
     /**
-    * 是否爬虫用户智能体
-    *
-    * @param userAgent 用户智能体
-    * @return 是否爬虫用户智能体的结果
+     * 是否爬虫用户智能体
+     *
+     * @param userAgent 用户智能体
+     * @return 是否爬虫用户智能体的结果
      */
     public static boolean isCrawlerUserAgent(String userAgent) {
         String normalized = normalize(userAgent);
@@ -85,10 +85,10 @@ public final class RequestTraceSupport {
     }
 
     /**
-    * 解析Browser
-    *
-    * @param userAgent 用户智能体
-    * @return resolveBrowser的结果
+     * 解析Browser
+     *
+     * @param userAgent 用户智能体
+     * @return resolveBrowser的结果
      */
     public static String resolveBrowser(String userAgent) {
         String normalized = normalize(userAgent);
@@ -130,10 +130,10 @@ public final class RequestTraceSupport {
     }
 
     /**
-    * 解析risk级别
-    *
-    * @param signals signals
-    * @return resolverisk级别的结果
+     * 解析risk级别
+     *
+     * @param signals signals
+     * @return resolverisk级别的结果
      */
     public static String resolveRiskLevel(Set<RequestTraceSignal> signals) {
         if (signals == null || signals.isEmpty()) {

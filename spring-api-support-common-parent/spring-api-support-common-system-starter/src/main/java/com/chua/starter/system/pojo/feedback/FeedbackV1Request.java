@@ -7,10 +7,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
-* 反馈请求
-*
-* @since 2024/8/20
-* @author CH
+ * 反馈请求
+ *
+ * @since 2024/8/20
+ * @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
 public class FeedbackV1Request extends Query<SysFeedback> {
 
     /**
-    * 反馈类型
+     * 反馈类型
      */
     @Schema(description = "反馈类型")
     /** sysfeedback类型 */

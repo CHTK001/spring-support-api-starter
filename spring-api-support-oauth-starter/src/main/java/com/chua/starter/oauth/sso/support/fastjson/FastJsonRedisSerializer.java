@@ -9,8 +9,8 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
 /**
-* @author CH
-* @since 4.0.0
+ * @author CH
+ * @since 4.0.0
  */
 @Data
 public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
@@ -38,10 +38,10 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
 
 
     /**
-    * 序列化
-    *
-    * @param t t
-    * @return serialize的结果
+     * 序列化
+     *
+     * @param t t
+     * @return serialize的结果
      */
     public byte[] serialize(T t) throws SerializationException {
         if (t == null) {
@@ -56,10 +56,10 @@ public class FastJsonRedisSerializer<T> implements RedisSerializer<T> {
     }
 
     /**
-    * 反序列化
-    *
-    * @param bytes bytes
-    * @return deserialize的结果
+     * 反序列化
+     *
+     * @param bytes bytes
+     * @return deserialize的结果
      */
     public T deserialize(byte[] bytes) throws SerializationException {
         if (bytes != null && bytes.length != 0) {

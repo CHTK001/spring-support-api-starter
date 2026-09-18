@@ -13,10 +13,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
-* 指标解析规则实体，定义采集任务返回数据的匹配与提取规则。
-*
-* @since 2026-08-11
-* @author CH
+ * 指标解析规则实体，定义采集任务返回数据的匹配与提取规则。
+ *
+ * @since 2026-08-11
+ * @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
 public class MsMonitorMetricConfig extends SysBase {
 
     /**
-    * 解析规则主键标识，自增
+     * 解析规则主键标识，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")

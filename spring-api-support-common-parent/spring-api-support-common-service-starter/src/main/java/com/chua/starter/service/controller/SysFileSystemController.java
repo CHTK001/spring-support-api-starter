@@ -34,12 +34,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 文件系统管理接口
-* 提供文件上传、分片上传、配置管理、分组管理等功能
-*
-* @author CH
-* @since 2024/12/4
-* @版本 1.0.0
+ * 文件系统管理接口
+ * 提供文件上传、分片上传、配置管理、分组管理等功能
+ *
+ * @author CH
+ * @since 2024/12/4
+ * @版本 1.0.0
  */
 // @RestController
 // @Slf4j
@@ -60,10 +60,10 @@ public class SysFileSystemController {
     // private final SysFileSystemGroupService sysFileSystemGroupService; // sys文件系统群体服务
 
     /**
-    * 上传文件
-    * @param request 请求
-    * @param file 文件
-    * @return 结果
+     * 上传文件
+     * @param request 请求
+     * @param file 文件
+     * @return 结果
      */
     // @Operation(summary = "上传文件")
     // @PutMapping("/upload")
@@ -84,11 +84,11 @@ public class SysFileSystemController {
 
 
     /**
-    * 秒传检查
-    * 上传前检查文件是否已存在，如果存在则直接返回文件URL
-    *
-    * @param request 秒传检查请求
-    * @return 秒传检查结果
+     * 秒传检查
+     * 上传前检查文件是否已存在，如果存在则直接返回文件URL
+     *
+     * @param request 秒传检查请求
+     * @return 秒传检查结果
      */
     // @Operation(summary = "秒传检查")
     // @PostMapping("/instant-check")
@@ -102,9 +102,9 @@ public class SysFileSystemController {
     }
 
     /**
-    * 创建分片任务
-    * @param request 请求
-    * @return 结果
+     * 创建分片任务
+     * @param request 请求
+     * @return 结果
      */
     // @Operation(summary = "创建分片任务")
     // @PostMapping("/task/create")
@@ -118,9 +118,9 @@ public class SysFileSystemController {
         return null; // sysFileSystemService.createTaskForFileSystem(request);
     }
     /**
-    * 上传分片
-    * @param request 请求
-    * @return 结果
+     * 上传分片
+     * @param request 请求
+     * @return 结果
      */
     // @Operation(summary = "上传分片任务")
     // @PostMapping("/task/upload")
@@ -139,10 +139,10 @@ public class SysFileSystemController {
     }
 
     /**
-    * 获取上传任务信息（断点续传）
-    *
-    * @param taskId 任务标识
-    * @return 任务信息
+     * 获取上传任务信息（断点续传）
+     *
+     * @param taskId 任务标识
+     * @return 任务信息
      */
     // @Operation(summary = "获取上传任务信息（断点续传）")
     // @GetMapping("/task/info/{taskId}")
@@ -157,11 +157,11 @@ public class SysFileSystemController {
     }
 
     /**
-    * 根据MD5查找未完成的上传任务（断点续传）
-    *
-    * @param fileMd5  文件MD5
-    * @param fileSize 文件大小
-    * @return 任务信息
+     * 根据MD5查找未完成的上传任务（断点续传）
+     *
+     * @param fileMd5  文件MD5
+     * @param fileSize 文件大小
+     * @return 任务信息
      */
     // @Operation(summary = "根据MD5查找未完成的上传任务（断点续传）")
     // @GetMapping("/task/resume")
@@ -174,9 +174,9 @@ public class SysFileSystemController {
     // ==================== 配置管理接口 ====================
 
     /**
-    * 获取文件系统配置
-    *
-    * @return 当前启用的配置
+     * 获取文件系统配置
+     *
+     * @return 当前启用的配置
      */
     // @Operation(summary = "获取文件系统配置")
     // @GetMapping("/setting")
@@ -196,10 +196,10 @@ public class SysFileSystemController {
     }
 
     /**
-    * 更新文件系统配置
-    *
-    * @param setting 配置信息
-    * @return 更新结果
+     * 更新文件系统配置
+     *
+     * @param setting 配置信息
+     * @return 更新结果
      */
     // @Operation(summary = "更新文件系统配置")
     // @PutMapping("/setting")
@@ -223,9 +223,9 @@ public class SysFileSystemController {
     }
 
     /**
-    * 启动文件服务器
-    *
-    * @return 操作结果
+     * 启动文件服务器
+     *
+     * @return 操作结果
      */
     // @Operation(summary = "启动文件服务器")
     // @PostMapping("/server/start")
@@ -242,9 +242,9 @@ public class SysFileSystemController {
     }
 
     /**
-    * 停止文件服务器
-    *
-    * @return 操作结果
+     * 停止文件服务器
+     *
+     * @return 操作结果
      */
     // @Operation(summary = "停止文件服务器")
     // @PostMapping("/server/stop")
@@ -261,9 +261,9 @@ public class SysFileSystemController {
     }
 
     /**
-    * 获取文件服务器状态
-    *
-    * @return 服务器状态（running/stopped）
+     * 获取文件服务器状态
+     *
+     * @return 服务器状态（running/stopped）
      */
     // @Operation(summary = "获取文件服务器状态")
     // @GetMapping("/server/status")
@@ -278,10 +278,10 @@ public class SysFileSystemController {
     }
 
     /**
-    * 检查端口是否可用
-    *
-    * @param port 端口号
-    * @return 是否可用
+     * 检查端口是否可用
+     *
+     * @param port 端口号
+     * @return 是否可用
      */
     // @Operation(summary = "检查端口是否可用")
     // @GetMapping("/server/check-port")
@@ -299,9 +299,9 @@ public class SysFileSystemController {
     // ==================== 统计接口 ====================
 
     /**
-    * 获取文件统计信息
-    *
-    * @return 统计数据
+     * 获取文件统计信息
+     *
+     * @return 统计数据
      */
     // @Operation(summary = "获取文件统计信息")
     // @GetMapping("/stats")
@@ -346,14 +346,14 @@ public class SysFileSystemController {
     // ==================== 文件列表接口 ====================
 
     /**
-    * 分页查询文件列表
-    *
-    * @param page     页码
-    * @param size     每页数量
-    * @param groupId  分组标识
-    * @param status   状态
-    * @param keyword  关键词
-    * @return 文件列表
+     * 分页查询文件列表
+     *
+     * @param page     页码
+     * @param size     每页数量
+     * @param groupId  分组标识
+     * @param status   状态
+     * @param keyword  关键词
+     * @return 文件列表
      */
     // @Operation(summary = "分页查询文件列表")
     // @GetMapping("/list")
@@ -379,10 +379,10 @@ public class SysFileSystemController {
     }
 
     /**
-    * 手动合并文件
-    *
-    * @param fileId 文件标识
-    * @return 操作结果
+     * 手动合并文件
+     *
+     * @param fileId 文件标识
+     * @return 操作结果
      */
     // @Operation(summary = "手动合并文件")
     // @PostMapping("/merge/{fileId}")
@@ -409,10 +409,10 @@ public class SysFileSystemController {
     }
 
     /**
-    * 删除文件
-    *
-    * @param fileId 文件标识
-    * @return 操作结果
+     * 删除文件
+     *
+     * @param fileId 文件标识
+     * @return 操作结果
      */
     // @Operation(summary = "删除文件")
     // @DeleteMapping("/{fileId}")
@@ -432,9 +432,9 @@ public class SysFileSystemController {
     // ==================== 分组管理接口 ====================
 
     /**
-    * 获取分组树
-    *
-    * @return 分组树列表
+     * 获取分组树
+     *
+     * @return 分组树列表
      */
     // @Operation(summary = "获取分组树")
     // @GetMapping("/group/tree")
@@ -450,9 +450,9 @@ public class SysFileSystemController {
     }
 
     /**
-    * 获取分组列表
-    *
-    * @return 分组列表
+     * 获取分组列表
+     *
+     * @return 分组列表
      */
     // @Operation(summary = "获取分组列表")
     // @GetMapping("/group/list")
@@ -471,10 +471,10 @@ public class SysFileSystemController {
     }
 
     /**
-    * 新增分组
-    *
-    * @param group 分组信息
-    * @return 操作结果
+     * 新增分组
+     *
+     * @param group 分组信息
+     * @return 操作结果
      */
     // @Operation(summary = "新增分组")
     // @PostMapping("/group")
@@ -487,10 +487,10 @@ public class SysFileSystemController {
     }
 
     /**
-    * 更新分组
-    *
-    * @param group 分组信息
-    * @return 操作结果
+     * 更新分组
+     *
+     * @param group 分组信息
+     * @return 操作结果
      */
     // @Operation(summary = "更新分组")
     // @PutMapping("/group")
@@ -503,10 +503,10 @@ public class SysFileSystemController {
     }
 
     /**
-    * 删除分组
-    *
-    * @param groupId 分组标识
-    * @return 操作结果
+     * 删除分组
+     *
+     * @param groupId 分组标识
+     * @return 操作结果
      */
     // @Operation(summary = "删除分组")
     // @DeleteMapping("/group/{groupId}")
@@ -530,9 +530,9 @@ public class SysFileSystemController {
     }
 
     /**
-    * 初始化默认分组
-    *
-    * @return 操作结果
+     * 初始化默认分组
+     *
+     * @return 操作结果
      */
     // @Operation(summary = "初始化默认分组")
     // @PostMapping("/group/init")

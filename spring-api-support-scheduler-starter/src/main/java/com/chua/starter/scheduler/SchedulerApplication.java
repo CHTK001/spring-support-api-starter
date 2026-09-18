@@ -11,14 +11,14 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
-* 定时任务启动器。
-*
-* <p>平台基于 job-starter 新架构以 SCHEDULER 角色运行, 通过
-* {@link JobAutoConfiguration} 自动装配 Leader 扫描 + 长链 Sync,
-* 业务执行器侧配置 作业-启动 的 执行器 角色接入。</p>
-*
-* @since 4.0.0.42
-* @author CH
+ * 定时任务启动器。
+ *
+ * <p>平台基于 job-starter 新架构以 SCHEDULER 角色运行, 通过
+ * {@link JobAutoConfiguration} 自动装配 Leader 扫描 + 长链 Sync,
+ * 业务执行器侧配置 作业-启动 的 执行器 角色接入。</p>
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @EnableCaching
 @EnableScheduling
@@ -41,9 +41,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class SchedulerApplication {
 
     /**
-    * 应用启动入口。
-    *
-    * @param args 启动参数
+     * 应用启动入口。
+     *
+     * @param args 启动参数
      */
     public static void main(String[] args) {
         SpringApplication.run(SchedulerApplication.class, args);

@@ -8,17 +8,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
-* 默认功能 <---->对象的项目; e.g. 短信默认采用那个项目配置
-*
-* @since 2026/08/03
-* @author CH
+ * 默认功能 <---->对象的项目; e.g. 短信默认采用那个项目配置
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @Schema(description = "默认功能 <---->对象的项目; e.g. 短信默认采用那个项目配置")
 @Data
 @TableName(value = "sys_project_default")
 public class SysProjectDefault {
     /**
-    * 默认功能主键标识
+     * 默认功能主键标识
      */
     @TableId(value = "sys_project_default_id", type = IdType.AUTO)
     @Schema(description = "")

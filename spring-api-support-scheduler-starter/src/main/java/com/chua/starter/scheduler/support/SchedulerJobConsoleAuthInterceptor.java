@@ -13,34 +13,34 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 /**
-* 轻量控制台登录拦截器。
-* <p>
-* 这里只保护内置控制台页面资源，不干预平台 API 的现有调用方。
-* </p>
-*
-* @since 4.0.0.42
-* @author CH
+ * 轻量控制台登录拦截器。
+ * <p>
+ * 这里只保护内置控制台页面资源，不干预平台 API 的现有调用方。
+ * </p>
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @RequiredArgsConstructor
 public class SchedulerJobConsoleAuthInterceptor implements HandlerInterceptor {
 
     /**
-    * 调度平台配置
+     * 调度平台配置
      */
     private final SchedulerJobPlatformProperties properties;
 
     /**
-    * 登录页路径前缀
+     * 登录页路径前缀
      */
     private static final String LOGIN_PATH_PREFIX = "/job-console/login.html?redirect=";
 
     /**
-    * 控制台 API 路径前缀
+     * 控制台 API 路径前缀
      */
     private static final String CONSOLE_API_PREFIX = "/job-console/api/";
 
     /**
-    * 未登录 JSON 响应内容
+     * 未登录 JSON 响应内容
      */
     private static final String UNAUTHORIZED_JSON = "{\"code\":\"401\",\"msg\":\"请先登录控制台\"}";
 
@@ -92,10 +92,10 @@ public class SchedulerJobConsoleAuthInterceptor implements HandlerInterceptor {
     }
 
     /**
-    * 判断请求是否属于控制台 API。
-    *
-    * @param request HTTP 请求
-    * @return 控制台 API 请求返回 true, 否则返回 false
+     * 判断请求是否属于控制台 API。
+     *
+     * @param request HTTP 请求
+     * @return 控制台 API 请求返回 true, 否则返回 false
      */
     private boolean isConsoleApi(HttpServletRequest request) {
         String uri = request.getRequestURI();
@@ -107,10 +107,10 @@ public class SchedulerJobConsoleAuthInterceptor implements HandlerInterceptor {
     }
 
     /**
-    * 输出未登录的统一 JSON 响应。
-    *
-    * @param response HTTP 响应
-    * @throws IOException 写入响应失败时抛出
+     * 输出未登录的统一 JSON 响应。
+     *
+     * @param response HTTP 响应
+     * @throws IOException 写入响应失败时抛出
      */
     private void writeUnauthorizedJson(HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

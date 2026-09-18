@@ -20,12 +20,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
-* 文件系统分片表
-* 用于管理文件分片上传的详细信息
-*
-* @since 2024/12/10
-* @版本 1.0.0
-* @author CH
+ * 文件系统分片表
+ * 用于管理文件分片上传的详细信息
+ *
+ * @since 2024/12/10
+ * @版本 1.0.0
+ * @author CH
  */
 @Schema(description = "文件系统分片表")
 @Data
@@ -155,35 +155,35 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     }
 
     /**
-    * 拷贝文件字节数组
-    *
-    * @return 文件字节数组
-    * @throws IOException 读取异常
+     * 拷贝文件字节数组
+     *
+     * @return 文件字节数组
+     * @throws IOException 读取异常
      */
     public byte[] copyByteArray() throws IOException {
         return Files.toByteArray(new File(sysFileSystemPartLocalPath));
     }
 
     /**
-    * 分片状态枚举
-    * @author CH
-    * @since 4.0.0
+     * 分片状态枚举
+     * @author CH
+     * @since 4.0.0
      */
     public static class Status {
         /**
-        * 待上传
+         * 待上传
          */
         public static final int PENDING = 0;
         /**
-        * 上传中
+         * 上传中
          */
         public static final int UPLOADING = 1;
         /**
-        * 已完成
+         * 已完成
          */
         public static final int COMPLETED = 2;
         /**
-        * 处理异常
+         * 处理异常
          */
         public static final int ERROR = -1;
     }

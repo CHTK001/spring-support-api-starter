@@ -17,10 +17,10 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
-* 岗位表
-*
-* @since 4.0.0.50
-* @author CH
+ * 岗位表
+ *
+ * @since 4.0.0.50
+ * @author CH
  */
 @Schema(description = "岗位表")
 @Data

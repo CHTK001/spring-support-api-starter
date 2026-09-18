@@ -30,11 +30,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
-* 服务模块管理接口
-*
-* @版本 1.0.0
-* @since 2024/12/15
-* @author CH
+ * 服务模块管理接口
+ *
+ * @版本 1.0.0
+ * @since 2024/12/15
+ * @author CH
  */
 @RestController
 @Slf4j
@@ -50,11 +50,11 @@ public class SysServiceModuleController {
     private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
 
     /**
-    * 分页查询服务模块
-    *
-    * @param query           分页查询对象
-    * @param sysServiceModule 服务模块查询条件
-    * @return 分页结果
+     * 分页查询服务模块
+     *
+     * @param query           分页查询对象
+     * @param sysServiceModule 服务模块查询条件
+     * @return 分页结果
      */
     @GetMapping("page")
     @Operation(summary = "分页查询服务模块")
@@ -66,10 +66,10 @@ public class SysServiceModuleController {
     }
 
     /**
-    * 查询服务模块列表
-    *
-    * @param sysServiceModule 服务模块查询条件
-    * @return 服务模块列表
+     * 查询服务模块列表
+     *
+     * @param sysServiceModule 服务模块查询条件
+     * @return 服务模块列表
      */
     @GetMapping("list")
     @Operation(summary = "查询服务模块列表")
@@ -80,11 +80,11 @@ public class SysServiceModuleController {
     }
 
     /**
-    * 获取服务模块详情
-    *
-    * @param sysServiceModuleId 服务模块标识
-    * @return 服务模块详情
-    * @param "服务模块ID" "服务模块ID"
+     * 获取服务模块详情
+     *
+     * @param sysServiceModuleId 服务模块标识
+     * @return 服务模块详情
+     * @param "服务模块ID" "服务模块ID"
      */
     @GetMapping("get")
     @Operation(summary = "获取服务模块详情")
@@ -96,11 +96,11 @@ public class SysServiceModuleController {
     }
 
     /**
-    * 保存服务模块
-    *
-    * @param sysServiceModule 服务模块对象
-    * @param bindingResult    校验结果
-    * @return 保存结果
+     * 保存服务模块
+     *
+     * @param sysServiceModule 服务模块对象
+     * @param bindingResult    校验结果
+     * @return 保存结果
      */
     @PostMapping("save")
     @Operation(summary = "保存服务模块")
@@ -118,11 +118,11 @@ public class SysServiceModuleController {
     }
 
     /**
-    * 更新服务模块
-    *
-    * @param sysServiceModule 服务模块对象
-    * @param bindingResult    校验结果
-    * @return 更新结果
+     * 更新服务模块
+     *
+     * @param sysServiceModule 服务模块对象
+     * @param bindingResult    校验结果
+     * @return 更新结果
      */
     @PutMapping("update")
     @Operation(summary = "更新服务模块")
@@ -140,11 +140,11 @@ public class SysServiceModuleController {
     }
 
     /**
-    * 删除服务模块
-    *
-    * @param sysServiceModuleId 服务模块标识
-    * @return 删除结果
-    * @param "服务模块ID" "服务模块ID"
+     * 删除服务模块
+     *
+     * @param sysServiceModuleId 服务模块标识
+     * @return 删除结果
+     * @param "服务模块ID" "服务模块ID"
      */
     @DeleteMapping("delete")
     @Operation(summary = "删除服务模块")
@@ -166,11 +166,11 @@ public class SysServiceModuleController {
     }
 
     /**
-    * 更新服务模块状态
-    *
-    * @param sysServiceModuleId 服务模块标识
-    * @param status             状态值 (0-启用, 1-禁用)
-    * @return 更新结果
+     * 更新服务模块状态
+     *
+     * @param sysServiceModuleId 服务模块标识
+     * @param status             状态值 (0-启用, 1-禁用)
+     * @return 更新结果
      */
     @PutMapping("status")
     @Operation(summary = "更新服务模块状态")
@@ -188,9 +188,9 @@ public class SysServiceModuleController {
     }
 
     /**
-    * 获取服务模块统计数据
-    *
-    * @return 统计数据（总数、启用数、禁用数、API模块数、服务模块数）
+     * 获取服务模块统计数据
+     *
+     * @return 统计数据（总数、启用数、禁用数、API模块数、服务模块数）
      */
     @GetMapping("stats")
     @Operation(summary = "获取服务模块统计数据")
@@ -218,9 +218,9 @@ public class SysServiceModuleController {
     }
 
     /**
-    * 创建查询条件
-    * @param sysServiceModule sys服务module
-    * @return 创建包装器的结果
+     * 创建查询条件
+     * @param sysServiceModule sys服务module
+     * @return 创建包装器的结果
      */
     private LambdaQueryWrapper<SysServiceModule> createWrapper(SysServiceModule sysServiceModule) {
         LambdaQueryWrapper<SysServiceModule> wrapper = Wrappers.lambdaQuery();
@@ -240,10 +240,10 @@ public class SysServiceModuleController {
     }
 
     /**
-    * 检查编码是否存在
-    * @param code 编码
-    * @param excludeId excludeId
-    * @return 是否编码exists的结果
+     * 检查编码是否存在
+     * @param code 编码
+     * @param excludeId excludeId
+     * @return 是否编码exists的结果
      */
     private boolean isCodeExists(String code, Integer excludeId) {
         if (StringUtils.isBlank(code)) {

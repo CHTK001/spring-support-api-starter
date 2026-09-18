@@ -14,10 +14,10 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
-* 用户布局配置表
-*
-* @since 2024/8/30
-* @author CH
+ * 用户布局配置表
+ *
+ * @since 2024/8/30
+ * @author CH
  */
 @Schema(description = "用户布局配置表")
 @Data
@@ -28,7 +28,7 @@ public class SysUserLayout extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-    * 布局标识
+     * 布局标识
      */
     @TableId(value = "sys_layout_id", type = IdType.AUTO)
     @Schema(description = "布局ID")
