@@ -4,15 +4,11 @@
 spring:
   main:
     allow-circular-references: true          # 允许循环引用（历史遗留的 ServiceImpl 自注入模式）
+    allow-bean-definition-overriding: true   # 允许 bean 定义覆盖
+  autoconfigure:
+    exclude: []
   application:
     name: system                            # 应用名称（系统服务）
-  autoconfigure:
-    exclude:
-      - com.chua.starter.ai.support.configuration.AiConfiguration
-      - com.chua.starter.ai.support.configuration.AiCacheKeyGeneratorAliasConfiguration
-      - com.chua.starter.ai.support.configuration.AiCacheManagerFallbackConfiguration
-      - com.chua.starter.ai.support.configuration.AiNewApiServerConfiguration
-      - com.chua.starter.ai.support.configuration.RagAutoConfiguration
   profiles:
     active: dev
     group:

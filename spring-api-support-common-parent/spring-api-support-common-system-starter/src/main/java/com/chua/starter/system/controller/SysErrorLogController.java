@@ -65,6 +65,8 @@ public class SysErrorLogController {
 
     /**
     * 异常日志详情(含完整堆栈)
+    * @param sysErrorLogId sysErrorLogID，不允许为 null
+    * @return Return结果 对象
      */
     @Operation(summary = "异常日志详情")
     @GetMapping("/error-detail")
@@ -78,6 +80,7 @@ public class SysErrorLogController {
 
     /**
     * 异常日志综合统计(总数/今日/来源分布/Top5/处理率)
+    * @return Return结果 对象
      */
     @Operation(summary = "异常日志统计")
     @GetMapping("/error-statistic")
@@ -99,6 +102,8 @@ public class SysErrorLogController {
 
     /**
     * 清理指定天数前的错误日志
+    * @param days 方法入参 days
+    * @return Return结果 对象
      */
     @Operation(summary = "清理错误日志")
     @DeleteMapping("/error/clean")
@@ -109,6 +114,8 @@ public class SysErrorLogController {
 
     /**
     * 删除异常日志(支持批量, 多个ID用逗号分隔)
+    * @param sysErrorLogId sysErrorLogID，不允许为 null
+    * @return Return结果 对象
      */
     @Operation(summary = "删除异常日志")
     @DeleteMapping("/error/delete")
@@ -132,6 +139,7 @@ public class SysErrorLogController {
     *
     * @param sysErrorLogId 异常日志ID
     * @param status        状态: 0-未处理 1-已处理 2-已忽略
+    * @return Return结果 对象
      */
     @Operation(summary = "更新异常日志处理状态")
     @PutMapping("/error/status")

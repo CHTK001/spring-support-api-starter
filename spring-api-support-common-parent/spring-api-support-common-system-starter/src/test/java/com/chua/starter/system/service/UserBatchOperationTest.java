@@ -41,6 +41,9 @@ class UserBatchOperationTest {
 
     private final SysUserServiceImpl sysUserService;
 
+    /**
+     * 构造方法，创建 用户批次Operation测试 实例。
+     */
     UserBatchOperationTest() {
         // 参数校验路径(空列表/非法状态值)在触碰任何依赖前即提前返回, 构造器传 null
         sysUserService = new SysUserServiceImpl(
@@ -48,6 +51,9 @@ class UserBatchOperationTest {
                 null, null, null, null, null, null, null);
     }
 
+    /**
+     * 测试：删除批次Empty列出。
+     */
     @Test
     @DisplayName("批量删除-空列表应返回非法参数")
     void testDeleteBatchEmptyList() {
@@ -56,6 +62,9 @@ class UserBatchOperationTest {
         assertNotNull(result.getMsg());
     }
 
+    /**
+     * 测试：删除批次Null列出。
+     */
     @Test
     @DisplayName("批量删除-null列表应返回非法参数")
     void testDeleteBatchNullList() {
@@ -63,6 +72,9 @@ class UserBatchOperationTest {
         assertFalse(result.isSuccess(), "null列表应返回失败");
     }
 
+    /**
+     * 测试：更新状态批次Empty列出。
+     */
     @Test
     @DisplayName("批量状态更新-空列表应返回非法参数")
     void testUpdateStatusBatchEmptyList() {
@@ -70,6 +82,9 @@ class UserBatchOperationTest {
         assertFalse(result.isSuccess(), "空列表应返回失败");
     }
 
+    /**
+     * 测试：更新状态批次Invalid状态。
+     */
     @Test
     @DisplayName("批量状态更新-非法状态值应返回失败")
     void testUpdateStatusBatchInvalidStatus() {
@@ -78,6 +93,9 @@ class UserBatchOperationTest {
         assertFalse(result.isSuccess(), "非法状态值应返回失败");
     }
 
+    /**
+     * 测试：更新状态批次Null状态。
+     */
     @Test
     @DisplayName("批量状态更新-状态为null应返回失败")
     void testUpdateStatusBatchNullStatus() {

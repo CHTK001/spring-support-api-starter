@@ -16,6 +16,9 @@ public enum RequestTraceSignal {
     ERROR_BURST("error_burst", "同一主体在短时间内连续触发异常状态"),
     TOKEN_REUSE("token_reuse", "同一令牌在多个终端上下文中复用"),
     FINGERPRINT_DRIFT("fingerprint_drift", "同一主体在短时间内切换指纹"),
+    /**
+     * 构造方法，创建 用户PREFERENCEDRIFT 实例。
+     */
     USER_PREFERENCE_DRIFT("user_preference_drift", "当前访问行为偏离近期常用模式");
 
     /** 代码 */
@@ -23,6 +26,12 @@ public enum RequestTraceSignal {
     /** 描述 */
     private final String description;
 
+    /**
+     * 构造方法，创建 请求TraceSignal 实例。
+     *
+     * @param code 编码，不允许为 null
+     * @param description 描述，不允许为 null
+     */
     RequestTraceSignal(String code, String description) {
         this.code = code;
         this.description = description;

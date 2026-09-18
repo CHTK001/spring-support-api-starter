@@ -1,32 +1,24 @@
 package com.chua.starter.scheduler.support;
 
-import com.chua.datasource.support.data.datasource.meta.TableMetadata;
-import com.chua.datasource.support.data.query.JdbcEngine;
-import com.chua.datasource.support.data.query.ddl.ActionType;
-import com.chua.datasource.support.data.query.ddl.JdbcTableExecutor;
-import com.chua.common.support.lang.code.ErrorResult;
-import com.chua.starter.job.support.JobProperties;
-import com.chua.starter.job.support.entity.SysJob;
-import com.chua.starter.job.support.entity.SysJobLog;
-import com.chua.starter.job.support.entity.SysJobLogBackup;
-import com.chua.starter.job.support.entity.SysJobLogDetail;
+import com.chua.common.support.lang.datasource.dialect.Dialect;
+import com.chua.common.support.lang.datasource.dialect.meta.ColumnMetadata;
+import com.chua.common.support.lang.datasource.dialect.meta.TableMetadata;
+import com.chua.starter.job.support.store.JobEntity;
+import com.chua.starter.job.support.store.JobLogEntity;
+import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -34,560 +26,208 @@ import java.util.Map;
 import java.util.Set;
 
 /**
-* 调度平台命名空间表初始化器。
-* <p>
-* 该初始化器会复用 {@code plugin.job.table-init-mode} 的策略，把调度平台里显式
-* 配置的业务命名空间表按前缀解析后创建/更新出来，避免联调前还要手工补表。
-* </p>
-* @author CH
-* @since 4.0.0
+ * 调度平台命名空间表初始化器。
+ * <p>
+ * 平台基于 job-starter 新架构，任务统一存储在 {@code sys_job / sys_job_log} 单表，
+ * 不再维护多命名空间物理表。本初始化器基于新数据源 DDL 方言，对配置中
+ * 显式启用的命名空间表做创建/更新，避免联调前手工补表。
+ * </p>
+ *
+ * @since 4.0.0
+ * @author CH
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
 
-    private final JobProperties jobProperties; // 作业属性
-    private final SchedulerNamespaceTableResolver namespaceTableResolver; // namespacetable解析器
-    private final ObjectProvider<DataSource> dataSourceProvider; // 数据源提供者
+    /**
+     * 默认任务表名
+     */
+    private static final String DEFAULT_JOB_TABLE = "sys_job";
+
+    /**
+     * 默认日志表名
+     */
+    private static final String DEFAULT_LOG_TABLE = "sys_job_log";
+
+    /**
+     * 调度平台属性
+     */
+    private final SchedulerJobPlatformProperties platformProperties;
+
+    /**
+     * 数据源提供者
+     */
+    private final ObjectProvider<DataSource> dataSourceProvider;
 
     @Override
     public void afterPropertiesSet() {
-        ActionType actionType = resolveActionType(jobProperties);
-        if (actionType == null) {
+        DataSource dataSource = dataSourceProvider.getIfAvailable();
+        if (dataSource == null) {
+            log.info("[Scheduler] 命名空间表初始化跳过: 未找到可用的数据源");
             return;
         }
 
-        DataSource dataSource = dataSourceProvider.getIfAvailable();
-        if (dataSource == null) {
-            throw new IllegalStateException("Scheduler 命名空间表初始化失败: 未找到可用的数据源");
+        Map<String, SchedulerJobPlatformProperties.Namespace> namespaces = platformProperties.getNamespaces();
+        if (namespaces == null || namespaces.isEmpty()) {
+            return;
         }
 
         String databaseProductName = detectDatabaseProductName(dataSource);
-        JdbcTableExecutor executor = new JdbcEngine()
-                .setDataSource(dataSource)
-                .createTable();
+        Dialect dialect = Dialect.getExtension(resolveDialectProtocol(databaseProductName));
+        JdbcTableExecutor executor = new JdbcTableExecutor(dataSource, dialect);
 
         Set<String> initializedTables = new HashSet<>();
-        for (String namespace : namespaceTableResolver.namespaces()) {
-            if ("default".equalsIgnoreCase(namespace)) {
+        for (Map.Entry<String, SchedulerJobPlatformProperties.Namespace> entry : namespaces.entrySet()) {
+            if ("default".equalsIgnoreCase(entry.getKey())) {
                 continue;
             }
-            SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
-            initialize(executor, dataSource, initializedTables, SysJob.class, tables.jobTable(), actionType, namespace, databaseProductName);
-            initialize(executor, dataSource, initializedTables, SysJobLog.class, tables.logTable(), actionType, namespace, databaseProductName);
-            initialize(executor, dataSource, initializedTables, SysJobLogDetail.class, tables.logDetailTable(), actionType, namespace, databaseProductName);
-            initialize(executor, dataSource, initializedTables, SysJobLogBackup.class, tables.logBackupTable(), actionType, namespace, databaseProductName);
+            String namespace = entry.getKey();
+            String jobTable = resolveJobTable(namespace);
+            String logTable = resolveLogTable(namespace);
+            initialize(executor, initializedTables, JobEntity.class, jobTable, namespace, databaseProductName);
+            initialize(executor, initializedTables, JobLogEntity.class, logTable, namespace, databaseProductName);
         }
     }
 
+    /**
+     * 初始化单张命名空间表。
+     *
+     * @param executor          表结构执行器
+     * @param initializedTables 已初始化表名集合
+     * @param entityType        实体类型
+     * @param tableName         表名
+     * @param namespace         命名空间
+     * @param databaseProductName 数据库产品名
+     */
     private void initialize(JdbcTableExecutor executor,
-                            DataSource dataSource,
                             Set<String> initializedTables,
                             Class<?> entityType,
                             String tableName,
-                            ActionType actionType,
                             String namespace,
                             String databaseProductName) {
         if (!initializedTables.add(tableName)) {
             return;
         }
-        TableMetadata metadata = new TableMetadata();
-        BeanUtils.copyProperties(TableMetadata.of(entityType), metadata);
-        metadata.setName(tableName);
+
+        TableMetadata metadata = new TableMetadata()
+                .setName(tableName)
+                .setColumns(readExistingOrDefaultColumns(executor, tableName, namespace, entityType));
 
         if (isH2Database(databaseProductName)) {
-            initializeForH2(dataSource, entityType, tableName, actionType, namespace);
-            return;
-        }
-        if (actionType == ActionType.CREATE) {
-            createOrSkip(executor, dataSource, metadata, entityType, namespace, tableName, actionType);
-            return;
-        }
-        if (actionType == ActionType.DROP_CREATE) {
-            execute(executor, metadata, ActionType.DROP_CREATE, namespace);
-            upgradeLegacySchema(dataSource, entityType, tableName, namespace);
-            log.info("[Scheduler] 命名空间表初始化完成: namespace={}, table={}, mode={}", namespace, tableName, actionType);
+            initializeForH2(executor, metadata, namespace);
             return;
         }
 
-        updateOrCreate(executor, dataSource, metadata, entityType, namespace, tableName, actionType);
-    }
-
-    private void execute(JdbcTableExecutor executor,
-                         TableMetadata metadata,
-                         ActionType actionType,
-                         String namespace) {
-        ErrorResult<String> result = executor.doIt(metadata, actionType);
-        if (result != null && result.hasError()) {
-            throw new IllegalStateException("Scheduler 命名空间表初始化失败: namespace="
-                    + namespace + ", table=" + metadata.getName() + ", error=" + result.getFirstError());
-        }
-    }
-
-    private void createOrSkip(JdbcTableExecutor executor,
-                              DataSource dataSource,
-                              TableMetadata metadata,
-                              Class<?> entityType,
-                              String namespace,
-                              String tableName,
-                              ActionType actionType) {
-        ErrorResult<String> result = executor.doIt(metadata, ActionType.CREATE);
-        if (result == null || !result.hasError()) {
-            upgradeLegacySchema(dataSource, entityType, tableName, namespace);
-            log.info("[Scheduler] 命名空间表初始化完成: namespace={}, table={}, mode={}", namespace, tableName, actionType);
-            return;
-        }
-        if (isAlreadyExists(result)) {
-            upgradeLegacySchema(dataSource, entityType, tableName, namespace);
-            validateExistingTable(dataSource, metadata, namespace);
-            log.info("[Scheduler] 命名空间表已存在，跳过创建: namespace={}, table={}, mode={}", namespace, tableName, actionType);
+        List<String> errors = executor.doIt(metadata, JdbcTableExecutor.ActionType.CREATE);
+        if (errors.isEmpty() || isAlreadyExists(errors)) {
+            validateExistingTable(executor, metadata, namespace);
+            log.info("[Scheduler] 命名空间表初始化完成: namespace={}, table={}", namespace, tableName);
             return;
         }
         throw new IllegalStateException("Scheduler 命名空间表初始化失败: namespace="
-                + namespace + ", table=" + tableName + ", error=" + result.getFirstError());
+                + namespace + ", table=" + tableName + ", error=" + String.join("; ", errors));
     }
 
     /**
-    * 调度平台浏览器模式默认使用 H2 内存库。
-    * <p>
-    * H2 在兼容 MySQL 模式时，jdbcengine 对 identity 列的 掉落/更新 仍然不稳定，
-    * 所以命名空间表初始化需要复用一套确定性的 DDL，保证 browser 模式可直接启动。
-    * </p>
-    * @param dataSource 数据源
-    * @param tableName table名称
-    * @param namespace namespace
-    * @return 读取existingcolumns的结果
-    * @param result 结果
-    * @param entityType 实体类型
+     * 读取现有列，缺失时使用实体默认列。
+     *
+     * @param executor  执行器
+     * @param tableName 表名
+     * @param namespace 命名空间
+     * @param entityType 实体类型
+     * @return 列元数据列表
      */
-    private void initializeForH2(DataSource dataSource,
-                                 Class<?> entityType,
-                                 String tableName,
-                                 ActionType actionType,
-                                 String namespace) {
-        List<String> ddl = h2SchemaSql(entityType, tableName);
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-            if (actionType == ActionType.DROP_CREATE) {
-                statement.execute("DROP TABLE IF EXISTS " + tableName);
-            }
-            for (String sql : ddl) {
-                statement.execute(sql);
-            }
-            log.info("[Scheduler] H2 命名空间表初始化完成: namespace={}, table={}, mode={}", namespace, tableName, actionType);
-        } catch (SQLException e) {
-            throw new IllegalStateException("Scheduler H2 命名空间表初始化失败: namespace="
-                    + namespace + ", table=" + tableName, e);
+    private List<ColumnMetadata> readExistingOrDefaultColumns(JdbcTableExecutor executor,
+                                                              String tableName,
+                                                              String namespace,
+                                                              Class<?> entityType) {
+        Set<String> existing = readExistingColumns(executor, tableName, namespace);
+        if (existing.isEmpty()) {
+            return SchedulerNamespaceTableResolver.defaultColumns(entityType);
         }
-    }
-
-    private List<String> h2SchemaSql(Class<?> entityType, String tableName) {
-        if (SysJob.class == entityType) {
-            return List.of(
-                    "CREATE TABLE IF NOT EXISTS " + tableName + " ("
-                            + "job_id INT AUTO_INCREMENT PRIMARY KEY,"
-                            + "job_no VARCHAR(64) NOT NULL,"
-                            + "job_name VARCHAR(255),"
-                            + "job_schedule_type VARCHAR(50) DEFAULT 'CRON',"
-                            + "job_schedule_time VARCHAR(255),"
-                            + "job_author VARCHAR(100),"
-                            + "job_alarm_email VARCHAR(255),"
-                            + "job_trigger_status TINYINT DEFAULT 0,"
-                            + "job_desc VARCHAR(500),"
-                            + "job_glue_updatetime TIMESTAMP NULL,"
-                            + "job_glue_source CLOB,"
-                            + "job_glue_type VARCHAR(50) DEFAULT 'BEAN',"
-                            + "job_dispatch_mode VARCHAR(20) DEFAULT 'LOCAL',"
-                            + "job_remote_executor_address VARCHAR(500),"
-                            + "job_storage_mode VARCHAR(20) DEFAULT 'DATABASE',"
-                            + "job_fail_retry INT DEFAULT 3,"
-                            + "job_retry_interval INT DEFAULT 0,"
-                            + "job_execute_timeout INT DEFAULT 0,"
-                            + "job_execute_bean VARCHAR(255),"
-                            + "job_execute_param VARCHAR(512),"
-                            + "job_exception_callback_bean VARCHAR(255),"
-                            + "job_retry_callback_bean VARCHAR(255),"
-                            + "job_execute_misfire_strategy VARCHAR(50) DEFAULT 'DO_NOTHING',"
-                            + "job_trigger_last_time BIGINT DEFAULT 0,"
-                            + "job_trigger_next_time BIGINT DEFAULT 0,"
-                            + "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-                            + "update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-                            + "create_by VARCHAR(50),"
-                            + "update_by VARCHAR(50)"
-                            + ")",
-                    "CREATE UNIQUE INDEX IF NOT EXISTS uk_job_no ON " + tableName + " (job_no)",
-                    "CREATE INDEX IF NOT EXISTS idx_trigger_status ON " + tableName + " (job_trigger_status)",
-                    "CREATE INDEX IF NOT EXISTS idx_trigger_next_time ON " + tableName + " (job_trigger_next_time)",
-                    "CREATE INDEX IF NOT EXISTS idx_job_dispatch_mode ON " + tableName + " (job_dispatch_mode)"
-            );
-        }
-        if (SysJobLog.class == entityType) {
-            return List.of(
-                    "CREATE TABLE IF NOT EXISTS " + tableName + " ("
-                            + "job_log_id INT AUTO_INCREMENT PRIMARY KEY,"
-                            + "job_log_no VARCHAR(64) NOT NULL,"
-                            + "job_id INT,"
-                            + "job_no VARCHAR(64),"
-                            + "job_log_app VARCHAR(255),"
-                            + "job_log_trigger_bean VARCHAR(255),"
-                            + "job_log_trigger_type VARCHAR(50),"
-                            + "job_log_profile VARCHAR(50),"
-                            + "job_log_trigger_time TIMESTAMP NULL,"
-                            + "job_log_trigger_date DATE,"
-                            + "job_log_trigger_code VARCHAR(20),"
-                            + "job_log_execute_code VARCHAR(20) DEFAULT 'PADDING',"
-                            + "job_log_cost DECIMAL(10,2),"
-                            + "job_log_trigger_msg CLOB,"
-                            + "job_log_trigger_param VARCHAR(512),"
-                            + "job_log_trigger_address VARCHAR(255),"
-                            + "job_log_file_path VARCHAR(500),"
-                            + "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-                            + "update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-                            + "create_by VARCHAR(50),"
-                            + "update_by VARCHAR(50)"
-                            + ")",
-                    "CREATE UNIQUE INDEX IF NOT EXISTS uk_job_log_no ON " + tableName + " (job_log_no)",
-                    "CREATE INDEX IF NOT EXISTS idx_trigger_date ON " + tableName + " (job_log_trigger_date)",
-                    "CREATE INDEX IF NOT EXISTS idx_trigger_bean ON " + tableName + " (job_log_trigger_bean)",
-                    "CREATE INDEX IF NOT EXISTS idx_job_no ON " + tableName + " (job_no)"
-            );
-        }
-        if (SysJobLogDetail.class == entityType) {
-            return List.of(
-                    "CREATE TABLE IF NOT EXISTS " + tableName + " ("
-                            + "job_log_detail_id BIGINT AUTO_INCREMENT PRIMARY KEY,"
-                            + "job_log_id INT,"
-                            + "job_log_no VARCHAR(64),"
-                            + "job_id INT,"
-                            + "job_no VARCHAR(64),"
-                            + "job_log_detail_level VARCHAR(20) DEFAULT 'INFO',"
-                            + "job_log_detail_content CLOB,"
-                            + "job_log_detail_time TIMESTAMP NULL,"
-                            + "job_log_detail_phase VARCHAR(50),"
-                            + "job_log_detail_progress INT,"
-                            + "job_log_detail_file_path VARCHAR(500),"
-                            + "job_log_detail_handler VARCHAR(255),"
-                            + "job_log_detail_profile VARCHAR(100),"
-                            + "job_log_detail_address VARCHAR(255),"
-                            + "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
-                            + ")",
-                    "CREATE INDEX IF NOT EXISTS idx_job_log_id ON " + tableName + " (job_log_id)",
-                    "CREATE INDEX IF NOT EXISTS idx_job_id ON " + tableName + " (job_id)",
-                    "CREATE INDEX IF NOT EXISTS idx_job_no ON " + tableName + " (job_no)",
-                    "CREATE INDEX IF NOT EXISTS idx_detail_time ON " + tableName + " (job_log_detail_time)",
-                    "CREATE INDEX IF NOT EXISTS idx_level ON " + tableName + " (job_log_detail_level)"
-            );
-        }
-        if (SysJobLogBackup.class == entityType) {
-            return List.of(
-                    "CREATE TABLE IF NOT EXISTS " + tableName + " ("
-                            + "job_log_backup_id BIGINT AUTO_INCREMENT PRIMARY KEY,"
-                            + "job_log_backup_file_name VARCHAR(255),"
-                            + "job_log_backup_file_path VARCHAR(500),"
-                            + "job_log_backup_file_size BIGINT,"
-                            + "job_log_backup_count BIGINT,"
-                            + "job_log_backup_start_date DATE,"
-                            + "job_log_backup_end_date DATE,"
-                            + "job_log_backup_status VARCHAR(20) DEFAULT 'RUNNING',"
-                            + "job_log_backup_type VARCHAR(20) DEFAULT 'MANUAL',"
-                            + "job_log_backup_start_time TIMESTAMP NULL,"
-                            + "job_log_backup_end_time TIMESTAMP NULL,"
-                            + "job_log_backup_cost BIGINT,"
-                            + "job_log_backup_message VARCHAR(1000),"
-                            + "job_log_backup_compress_type VARCHAR(20) DEFAULT 'ZIP',"
-                            + "job_log_backup_cleaned TINYINT DEFAULT 0,"
-                            + "create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
-                            + ")",
-                    "CREATE INDEX IF NOT EXISTS idx_backup_status ON " + tableName + " (job_log_backup_status)",
-                    "CREATE INDEX IF NOT EXISTS idx_backup_type ON " + tableName + " (job_log_backup_type)",
-                    "CREATE INDEX IF NOT EXISTS idx_backup_start_time ON " + tableName + " (job_log_backup_start_time)"
-            );
-        }
-        throw new IllegalArgumentException("不支持的 Scheduler Job 实体类型: " + entityType.getName());
-    }
-
-    private void updateOrCreate(JdbcTableExecutor executor,
-                                DataSource dataSource,
-                                TableMetadata metadata,
-                                Class<?> entityType,
-                                String namespace,
-                                String tableName,
-                                ActionType actionType) {
-        ErrorResult<String> result = executor.doIt(metadata, ActionType.UPDATE);
-        if (result == null || !result.hasError()) {
-            upgradeLegacySchema(dataSource, entityType, tableName, namespace);
-            log.info("[Scheduler] 命名空间表初始化完成: namespace={}, table={}, mode={}", namespace, tableName, actionType);
-            return;
-        }
-        if (isAlreadyExists(result)) {
-            upgradeLegacySchema(dataSource, entityType, tableName, namespace);
-            validateExistingTable(dataSource, metadata, namespace);
-            log.info("[Scheduler] 命名空间表已存在，JdbcEngine UPDATE 已退化为结构校验通过: namespace={}, table={}, mode={}", namespace, tableName, actionType);
-            return;
-        }
-        if (isTableMissing(result)) {
-            execute(executor, metadata, ActionType.CREATE, namespace);
-            upgradeLegacySchema(dataSource, entityType, tableName, namespace);
-            log.info("[Scheduler] 命名空间表初始化完成: namespace={}, table={}, mode={}", namespace, tableName, actionType);
-            return;
-        }
-        throw new IllegalStateException("Scheduler 命名空间表初始化失败: namespace="
-                + namespace + ", table=" + tableName + ", error=" + result.getFirstError());
-    }
-
-    private boolean isAlreadyExists(ErrorResult<String> result) {
-        String message = result == null ? null : result.getFirstError();
-        if (message == null) {
-            return false;
-        }
-        String normalized = message.toLowerCase(Locale.ROOT);
-        return normalized.contains("already exists")
-                /**
-                * 是否tablemissing。
-                * @param result 结果
-                * @return 是否tablemissing的结果
-                 */
-                || normalized.contains("已存在")
-                || normalized.contains("duplicate");
-    }
-
-    private boolean isTableMissing(ErrorResult<String> result) {
-        String message = result == null ? null : result.getFirstError();
-        if (message == null) {
-            return false;
-        }
-        String normalized = message.toLowerCase(Locale.ROOT);
-        return normalized.contains("doesn't exist")
-                || normalized.contains("does not exist")
-                || normalized.contains("not exist")
-                || normalized.contains("unknown table")
-                /**
-                * 校验existingtable。
-                * @param dataSource 数据源
-                * @param metadata metadata
-                * @param namespace namespace
-                 */
-                || normalized.contains("不存在")
-                || normalized.contains("not found");
-    }
-
-    private void validateExistingTable(DataSource dataSource, TableMetadata metadata, String namespace) {
-        Set<String> existingColumns = readExistingColumns(dataSource, metadata.getName(), namespace);
-        List<String> missingColumns = metadata.getColumnMetadata().stream()
-                .map(column -> normalizeColumnName(column.getColumnName()))
-                .filter(columnName -> !existingColumns.contains(columnName))
-                .toList();
-        if (!missingColumns.isEmpty()) {
-            throw new IllegalStateException("Scheduler 命名空间表初始化失败: namespace="
-                    + namespace + ", table=" + metadata.getName() + ", 缺少字段=" + missingColumns);
-        }
-        upgradeLegacyColumnTypes(dataSource, metadata.getName(), namespace);
-    }
-
-    private void upgradeLegacySchema(DataSource dataSource,
-                                     Class<?> entityType,
-                                     String tableName,
-                                     String namespace) {
-        Map<String, String> columnTypes = readExistingColumnTypes(dataSource, tableName, namespace);
-        List<String> upgradeSql = new ArrayList<>();
-        if (SysJob.class == entityType) {
-            collectBigintUpgradeSql(upgradeSql, tableName, columnTypes, "job_trigger_last_time");
-            collectBigintUpgradeSql(upgradeSql, tableName, columnTypes, "job_trigger_next_time");
-        }
-        if (SysJobLog.class == entityType) {
-            collectMissingColumnSql(upgradeSql, tableName, columnTypes,
-                    "job_log_profile",
-                    "ALTER TABLE `" + tableName + "` ADD COLUMN `job_log_profile` VARCHAR(50) NULL DEFAULT NULL COMMENT '环境' AFTER `job_log_trigger_type`");
-            collectMissingColumnSql(upgradeSql, tableName, columnTypes,
-                    "job_log_trigger_address",
-                    "ALTER TABLE `" + tableName + "` ADD COLUMN `job_log_trigger_address` VARCHAR(255) NULL DEFAULT NULL COMMENT '触发地址' AFTER `job_log_trigger_param`");
-        }
-        if (SysJobLogDetail.class == entityType) {
-            collectMissingColumnSql(upgradeSql, tableName, columnTypes,
-                    "job_log_detail_profile",
-                    "ALTER TABLE `" + tableName + "` ADD COLUMN `job_log_detail_profile` VARCHAR(100) NULL DEFAULT NULL COMMENT '执行环境/Profile' AFTER `job_log_detail_handler`");
-            collectMissingColumnSql(upgradeSql, tableName, columnTypes,
-                    "job_log_detail_address",
-                    "ALTER TABLE `" + tableName + "` ADD COLUMN `job_log_detail_address` VARCHAR(255) NULL DEFAULT NULL COMMENT '执行地址' AFTER `job_log_detail_profile`");
-        }
-        if (upgradeSql.isEmpty()) {
-            return;
-        }
-
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-            for (String sql : upgradeSql) {
-                statement.execute(sql);
-            }
-        } catch (SQLException e) {
-            throw new IllegalStateException("Scheduler 命名空间表初始化失败: namespace="
-                    + namespace + ", table=" + tableName + ", 升级历史表结构失败", e);
-        }
-
-        log.info("[Scheduler] 命名空间表历史结构已升级: namespace={}, table={}, sqlCount={}",
-                namespace, tableName, upgradeSql.size());
-    }
-
-    private Set<String> readExistingColumns(DataSource dataSource, String tableName, String namespace) {
-        try (Connection connection = dataSource.getConnection()) {
-            DatabaseMetaData metaData = connection.getMetaData();
-            Set<String> columns = new LinkedHashSet<>(readColumns(metaData, connection.getCatalog(), tableName));
-            if (!columns.isEmpty()) {
-                return columns;
-            }
-            columns.addAll(readColumns(metaData, null, tableName));
-            if (!columns.isEmpty()) {
-                return columns;
-            }
-            throw new IllegalStateException("Scheduler 命名空间表初始化失败: namespace="
-                    + namespace + ", table=" + tableName + ", 读取现有表结构为空");
-        } catch (SQLException e) {
-            throw new IllegalStateException("Scheduler 命名空间表初始化失败: namespace="
-                    + namespace + ", table=" + tableName + ", 无法读取现有表结构", e);
-        }
-    }
-
-    /**
-    * 兼容旧命名空间任务表中仍然是 int 的时间戳列。
-    * <p>
-    * 远程调度中心创建或启动任务时会直接写毫秒时间戳，旧列类型如果没升级为 bigint，
-    * 就会在这里出现溢出。平台启动时顺带修正这两个历史列，避免联调卡在旧库结构上。
-    * </p>
-    * @param databaseProductName databaseproduct名称
-     /**
-      * upgradelegacycolumn类型。
-      * @param dataSource 数据源
-      * @param tableName table名称
-      * @param namespace namespace
-      */
-     * @return 是否h2database的结果
-     * @param metaData meta数据
-     * @param catalog catalog
-     * @param tableName table名称
-     */
-    private void upgradeLegacyColumnTypes(DataSource dataSource, String tableName, String namespace) {
-        Map<String, String> columnTypes = readExistingColumnTypes(dataSource, tableName, namespace);
-        List<String> upgradeSql = new ArrayList<>();
-        collectBigintUpgradeSql(upgradeSql, tableName, columnTypes, "job_trigger_last_time");
-        collectBigintUpgradeSql(upgradeSql, tableName, columnTypes, "job_trigger_next_time");
-        if (upgradeSql.isEmpty()) {
-            return;
-        }
-
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-            for (String sql : upgradeSql) {
-                statement.execute(sql);
-            }
-        } catch (SQLException e) {
-            throw new IllegalStateException("Scheduler 命名空间表初始化失败: namespace="
-                    + namespace + ", table=" + tableName + ", 升级字段类型失败", e);
-        }
-
-        log.info("[Scheduler] 命名空间表字段类型已升级: namespace={}, table={}, columns={}",
-                namespace, tableName, List.of("job_trigger_last_time", "job_trigger_next_time"));
-    }
-
-    private void collectBigintUpgradeSql(List<String> upgradeSql,
-                                         String tableName,
-                                         Map<String, String> columnTypes,
-                                         String columnName) {
-        String type = columnTypes.get(normalizeColumnName(columnName));
-        if (type == null || type.isBlank() || type.contains("bigint")) {
-            return;
-        }
-        upgradeSql.add("ALTER TABLE `" + tableName + "` MODIFY COLUMN `" + columnName + "` BIGINT NULL DEFAULT 0");
-    }
-
-    private void collectMissingColumnSql(List<String> upgradeSql,
-                                         String tableName,
-                                         Map<String, String> columnTypes,
-                                         String columnName,
-                                         String sql) {
-        if (columnTypes.containsKey(normalizeColumnName(columnName))) {
-            /**
-            * 读取existingcolumn类型。
-            * @param dataSource 数据源
-            * @param tableName table名称
-            * @param namespace namespace
-            * @return 读取existingcolumn类型的结果
-             */
-            return;
-        }
-        upgradeSql.add(sql);
-    }
-
-    private Map<String, String> readExistingColumnTypes(DataSource dataSource, String tableName, String namespace) {
-        try (Connection connection = dataSource.getConnection()) {
-            DatabaseMetaData metaData = connection.getMetaData();
-            Map<String, String> columnTypes = new LinkedHashMap<>(readColumnTypes(metaData, connection.getCatalog(), tableName));
-            if (!columnTypes.isEmpty()) {
-                return columnTypes;
-            }
-            columnTypes.putAll(readColumnTypes(metaData, null, tableName));
-            if (!columnTypes.isEmpty()) {
-                return columnTypes;
-            }
-            throw new IllegalStateException("Scheduler 命名空间表初始化失败: namespace="
-                    + namespace + ", table=" + tableName + ", 读取现有字段类型为空");
-        } catch (SQLException e) {
-            throw new IllegalStateException("Scheduler 命名空间表初始化失败: namespace="
-                    + namespace + ", table=" + tableName + ", 无法读取现有字段类型", e);
-        }
-    }
-
-    private Set<String> readColumns(DatabaseMetaData metaData, String catalog, String tableName) throws SQLException {
-        Set<String> columns = new LinkedHashSet<>();
-        try (ResultSet resultSet = metaData.getColumns(catalog, null, tableName, null)) {
-            while (resultSet.next()) {
-                columns.add(normalizeColumnName(resultSet.getString("COLUMN_NAME")));
-            }
+        List<ColumnMetadata> columns = new ArrayList<>();
+        for (String column : existing) {
+            columns.add(new ColumnMetadata().setColumnName(column));
         }
         return columns;
-    /**
-    * 读取column类型。
-    * @param metaData meta数据
-    * @param catalog catalog
-    * @param tableName table名称
-    * @return 读取column类型的结果
-     */
     }
 
-    private Map<String, String> readColumnTypes(DatabaseMetaData metaData, String catalog, String tableName) throws SQLException {
-        Map<String, String> columnTypes = new LinkedHashMap<>();
-        try (ResultSet resultSet = metaData.getColumns(catalog, null, tableName, null)) {
-            while (resultSet.next()) {
-                columnTypes.put(normalizeColumnName(resultSet.getString("COLUMN_NAME")),
-                        normalizeColumnType(resultSet.getString("TYPE_NAME")));
-            }
+    /**
+     * H2 初始化：直接执行创建 DDL。
+     *
+     * @param executor  执行器
+     * @param metadata  表元数据
+     * @param namespace 命名空间
+     */
+    private void initializeForH2(JdbcTableExecutor executor,
+                                  TableMetadata metadata,
+                                  String namespace) {
+        List<String> errors = executor.doIt(metadata, JdbcTableExecutor.ActionType.CREATE);
+        if (!errors.isEmpty()) {
+            throw new IllegalStateException("Scheduler H2 命名空间表初始化失败: namespace="
+                    + namespace + ", table=" + metadata.getName() + ", error=" + String.join("; ", errors));
         }
-        return columnTypes;
-    /**
-    * normalizecolumn名称。
-    * @param columnName column名称
-    * @return normalizecolumn名称的结果
-     */
+        log.info("[Scheduler] H2 命名空间表初始化完成: namespace={}, table={}", namespace, metadata.getName());
     }
 
-    private String normalizeColumnName(String columnName) {
-        return columnName == null ? null : columnName.trim().toLowerCase(Locale.ROOT);
     /**
-    * normalizecolumn类型。
-    * @param columnType column类型
-    * @return normalizecolumn类型的结果
+     * 校验现有表结构。
+     *
+     * @param executor  执行器
+     * @param metadata  表元数据
+     * @param namespace 命名空间
      */
+    private void validateExistingTable(JdbcTableExecutor executor,
+                                       TableMetadata metadata,
+                                       String namespace) {
+        Set<String> existingColumns = readExistingColumns(executor, metadata.getName(), namespace);
+        if (existingColumns.isEmpty()) {
+            log.warn("[Scheduler] 命名空间表已存在但未读取到列信息: namespace={}, table={}",
+                    namespace, metadata.getName());
+            return;
+        }
+        log.info("[Scheduler] 命名空间表结构校验完成: namespace={}, table={}, columnCount={}",
+                namespace, metadata.getName(), existingColumns.size());
     }
 
-    private String normalizeColumnType(String columnType) {
-        return columnType == null ? null : columnType.trim().toLowerCase(Locale.ROOT);
     /**
-    * detectdatabaseproduct名称。
-    * @param dataSource 数据源
-    * @return detectdatabaseproduct名称的结果
+     * 解析命名空间任务表名。
+     *
+     * @param namespace 命名空间
+     * @return 任务表名
      */
+    private String resolveJobTable(String namespace) {
+        return DEFAULT_JOB_TABLE + "_" + normalize(namespace);
     }
 
+    /**
+     * 解析命名空间日志表名。
+     *
+     * @param namespace 命名空间
+     * @return 日志表名
+     */
+    private String resolveLogTable(String namespace) {
+        return DEFAULT_LOG_TABLE + "_" + normalize(namespace);
+    }
+
+    /**
+     * 归一化命名空间表名后缀。
+     *
+     * @param namespace 命名空间
+     * @return 归一化后缀
+     */
+    private String normalize(String namespace) {
+        return namespace.trim().toLowerCase(Locale.ROOT).replace(' ', '_');
+    }
+
+    /**
+     * 检测数据库产品名。
+     *
+     * @param dataSource 数据源
+     * @return 数据库产品名
+     */
     private String detectDatabaseProductName(DataSource dataSource) {
         try (Connection connection = dataSource.getConnection()) {
             return connection.getMetaData().getDatabaseProductName();
@@ -596,6 +236,47 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
         }
     }
 
+    /**
+     * 根据产品名解析方言协议。
+     *
+     * @param databaseProductName 数据库产品名
+     * @return 方言协议名
+     */
+    private String resolveDialectProtocol(String databaseProductName) {
+        if (databaseProductName == null) {
+            return "mysql";
+        }
+        String name = databaseProductName.trim().toLowerCase(Locale.ROOT);
+        if (name.contains("mysql") || name.contains("mariadb")) {
+            return "mysql";
+        }
+        if (name.contains("postgresql")) {
+            return "postgresql";
+        }
+        if (name.contains("oracle")) {
+            return "oracle";
+        }
+        if (name.contains("h2")) {
+            return "h2";
+        }
+        if (name.contains("sqlserver") || name.contains("mssql")) {
+            return "sqlserver";
+        }
+        if (name.contains("sqlite")) {
+            return "sqlite";
+        }
+        if (name.contains("derby")) {
+            return "derby";
+        }
+        return "mysql";
+    }
+
+    /**
+     * 判断是否为 H2 数据库。
+     *
+     * @param databaseProductName 数据库产品名
+     * @return H2 返回 true
+     */
     private boolean isH2Database(String databaseProductName) {
         if (databaseProductName == null) {
             return false;
@@ -604,32 +285,48 @@ public class SchedulerNamespaceSchemaInitializer implements InitializingBean {
     }
 
     /**
-    * 通过反射获取 作业属性 的表初始化模式。
-    * 使用反射是因为 作业属性 来自外部模块，此处仅读取属性，无标准替代方案。
-    * @param properties 属性
-    * @return resolve动作类型的结果
+     * 判断错误消息是否表示表已存在。
+     *
+     * @param errors 错误消息列表
+     * @return 已存在返回 true
      */
-    @SuppressWarnings("java:S1186")
-    private ActionType resolveActionType(JobProperties properties) {
-        if (properties == null) {
-            return null;
+    private boolean isAlreadyExists(List<String> errors) {
+        if (errors == null || errors.isEmpty()) {
+            return false;
         }
-        try {
-            Method getter = properties.getClass().getMethod("getTableInitMode");
-            Object initMode = getter.invoke(properties);
-            if (initMode == null) {
-                return null;
+        String normalized = String.join(" ", errors).toLowerCase(Locale.ROOT);
+        return normalized.contains("already exists")
+                || normalized.contains("已存在")
+                || normalized.contains("duplicate");
+    }
+
+    /**
+     * 读取现有列名。
+     *
+     * @param executor  执行器
+     * @param tableName 表名
+     * @param namespace 命名空间
+     * @return 列名集合
+     */
+    private Set<String> readExistingColumns(JdbcTableExecutor executor,
+                                            String tableName,
+                                            String namespace) {
+        try (Connection connection = executor.dataSource().getConnection()) {
+            DatabaseMetaData metaData = connection.getMetaData();
+            Set<String> columns = new LinkedHashSet<>();
+            try (ResultSet resultSet = metaData.getColumns(connection.getCatalog(), null, tableName, null)) {
+                while (resultSet.next()) {
+                    String columnName = resultSet.getString("COLUMN_NAME");
+                    if (columnName != null) {
+                        columns.add(columnName.trim().toLowerCase(Locale.ROOT));
+                    }
+                }
             }
-            Method enabledMethod = initMode.getClass().getMethod("isEnabled");
-            Object enabled = enabledMethod.invoke(initMode);
-            if (!(enabled instanceof Boolean flag) || !flag) {
-                return null;
-            }
-            Method actionMethod = initMode.getClass().getMethod("toActionType");
-            Object action = actionMethod.invoke(initMode);
-            return action instanceof ActionType actionType ? actionType : null;
-        } catch (ReflectiveOperationException ignored) {
-            return null;
+            return columns;
+        } catch (SQLException e) {
+            log.warn("[Scheduler] 读取现有表结构失败: namespace={}, table={}, error={}",
+                    namespace, tableName, e.getMessage());
+            return Set.of();
         }
     }
 }

@@ -3,9 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.chua</groupId>
-    <artifactId>spring-api-support-business-parent</artifactId>
+    <artifactId>spring-support-api-parent</artifactId>
     <version>4.0.0.42</version>
-    <relativePath>../spring-api-support-business-parent/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>spring-api-support-tenanted-starter</artifactId>
   <description>租户端</description>

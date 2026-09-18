@@ -22,6 +22,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("缓存管理接口测试")
 class CacheControllerTest {
 
+    /**
+     * 测试：Modules。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需真实 Redis 连接")
     @Test
     @DisplayName("模块列表-返回预定义模块并统计key数")
@@ -33,6 +36,9 @@ class CacheControllerTest {
         assertEquals(8, result.getData().size());
     }
 
+    /**
+     * 测试：KeysBy模式。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需真实 Redis 连接")
     @Test
     @DisplayName("key列表-自定义pattern优先于模块前缀")
@@ -44,6 +50,9 @@ class CacheControllerTest {
         assertEquals(2, result.getData().size());
     }
 
+    /**
+     * 测试：KeysByModule。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需真实 Redis 连接")
     @Test
     @DisplayName("key列表-按模块查询使用模块前缀")
@@ -55,6 +64,9 @@ class CacheControllerTest {
         assertTrue(result.getData().isEmpty());
     }
 
+    /**
+     * 测试：删除键Blank。
+     */
     @Test
     @DisplayName("删除key-key为空返回非法参数")
     void testDeleteKeyBlank() {
@@ -63,6 +75,9 @@ class CacheControllerTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：删除键Ok。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需真实 Redis 连接")
     @Test
     @DisplayName("删除key-合法key调用redis删除")
@@ -73,6 +88,9 @@ class CacheControllerTest {
         assertTrue(result.isSuccess());
     }
 
+    /**
+     * 测试：删除ModuleUnknown。
+     */
     @Test
     @DisplayName("删除模块-未知模块返回非法参数")
     void testDeleteModuleUnknown() {
@@ -82,6 +100,9 @@ class CacheControllerTest {
         assertTrue(result.getMsg().contains("模块不存在"));
     }
 
+    /**
+     * 测试：删除ModuleOk。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需真实 Redis 连接")
     @Test
     @DisplayName("删除模块-命中前缀批量删除")
@@ -93,6 +114,9 @@ class CacheControllerTest {
         assertEquals(2L, result.getData());
     }
 
+    /**
+     * 测试：清空全部Empty。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需真实 Redis 连接")
     @Test
     @DisplayName("清空全部-无key时返回0")
@@ -104,6 +128,9 @@ class CacheControllerTest {
         assertEquals(0L, result.getData());
     }
 
+    /**
+     * 测试：清空全部Ok。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需真实 Redis 连接")
     @Test
     @DisplayName("清空全部-返回删除数量")

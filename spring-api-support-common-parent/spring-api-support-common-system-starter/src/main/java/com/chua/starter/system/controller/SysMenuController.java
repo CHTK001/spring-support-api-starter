@@ -49,6 +49,7 @@ public class SysMenuController {
     * @param sysMenu 条件
     * @return 菜单分页列表
     * @param true true
+    * @param roles 方法入参 roles
      */
     @Operation(summary = "菜单列表")
     @GetMapping("/all")
@@ -62,6 +63,7 @@ public class SysMenuController {
     * @param sysMenu 条件
     * @return 菜单分页列表
     * @param true true
+    * @param roles 方法入参 roles
      */
     @Operation(summary = "菜单列表")
     @GetMapping("/list")
@@ -76,6 +78,7 @@ public class SysMenuController {
     * @return 菜单分页列表
     * @param query 查询
     * @param true true
+    * @param roles 方法入参 roles
      */
     @Operation(summary = "菜单分页列表")
     @GetMapping("/page")
@@ -143,6 +146,11 @@ public class SysMenuController {
         return sysMenuService.save(sysMenu, roles);
     }
 
+    /**
+     * refresh缓存。
+     *
+     * @return Return结果 对象
+     */
     @Operation(summary = "刷新菜单缓存")
     @DeleteMapping("/cache/refresh")
     @SysLog

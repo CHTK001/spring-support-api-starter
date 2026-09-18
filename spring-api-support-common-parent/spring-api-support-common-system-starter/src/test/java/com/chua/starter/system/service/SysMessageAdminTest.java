@@ -28,6 +28,12 @@ class SysMessageAdminTest {
 
     private final SysMessageServiceImpl sysMessageService = new SysMessageServiceImpl();
 
+    /**
+     * 消息。
+     *
+     * @param title 标题，不允许为 null
+     * @return Sys消息 对象
+     */
     private SysMessage message(String title) {
         SysMessage m = new SysMessage();
         m.setSysMessageTitle(title);
@@ -35,6 +41,9 @@ class SysMessageAdminTest {
         return m;
     }
 
+    /**
+     * 测试：BroadcastNull消息。
+     */
     @Test
     @DisplayName("广播-消息为空返回非法参数")
     void testBroadcastNullMessage() {
@@ -43,6 +52,9 @@ class SysMessageAdminTest {
         assertTrue(result.getMsg().contains("标题"));
     }
 
+    /**
+     * 测试：BroadcastBlank标题。
+     */
     @Test
     @DisplayName("广播-标题为空返回非法参数")
     void testBroadcastBlankTitle() {
@@ -50,6 +62,9 @@ class SysMessageAdminTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：BroadcastGlobal。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("广播-目标用户为空时全局广播(receiverId=0)")
@@ -60,6 +75,9 @@ class SysMessageAdminTest {
         assertEquals(1, result.getData());
     }
 
+    /**
+     * 测试：BroadcastTargeted。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("广播-指定用户逐个创建定向消息")
@@ -71,6 +89,9 @@ class SysMessageAdminTest {
         assertEquals(3, result.getData());
     }
 
+    /**
+     * 测试：Broadcast全部Null用户Ids。
+     */
     @Test
     @DisplayName("广播-目标列表全为null时发送失败")
     void testBroadcastAllNullUserIds() {
@@ -79,6 +100,9 @@ class SysMessageAdminTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：Statistic。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("统计-返回总数/已读/未读")
@@ -89,6 +113,9 @@ class SysMessageAdminTest {
         assertEquals(60L, stat.get("unread"));
     }
 
+    /**
+     * 测试：页ForAdmin。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("管理端分页-调用分页查询")
@@ -100,6 +127,9 @@ class SysMessageAdminTest {
         assertNotNull(page);
     }
 
+    /**
+     * 测试：删除Empty。
+     */
     @Test
     @DisplayName("删除消息-空ID集合返回非法参数")
     void testDeleteEmpty() {
@@ -107,6 +137,9 @@ class SysMessageAdminTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：删除Valid。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("删除消息-合法ID集合调用批量删除")
@@ -115,6 +148,9 @@ class SysMessageAdminTest {
         assertTrue(result.isSuccess());
     }
 
+    /**
+     * 测试：发送Blank标题。
+     */
     @Test
     @DisplayName("发送消息-标题为空返回非法参数")
     void testSendBlankTitle() {

@@ -131,8 +131,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      * @param currentDeptId 当前用户部门ID
      */
     private void applyDataScope(SysUserQuery sysUserQuery, Set<String> roles, Integer currentUserId, Integer currentDeptId) {
-        // 超级管理员不受数据权限限制
-        if (roles != null && (roles.contains("ADMIN") || roles.contains("SUPER_ADMIN") || roles.contains("admin"))) {
+        // 判断当前用户是否是 sa
+        boolean isSa = roles != null && (roles.contains("SA") || roles.contains("sa"));
+        
+        // 非 sa 用户看不到 sa 用户
+        if (!isSa) {
+            sysUserQuery.setExcludeSaUser(true);
+        }
+        
+        // 超级管理员不受数据权限限制（sa > admin，sa 可以看到所有人）
+        if (roles != null && (isSa || roles.contains("ADMIN") || roles.contains("SUPER_ADMIN") || roles.contains("admin"))) {
             return;
         }
         if (currentUserId == null) {
@@ -243,6 +251,26 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
+    public ReturnResult<String> resetWithPassword(Long userId, String password) {
+        SysUser sysUser1 = getById(userId);
+        if (null == sysUser1) {
+            return ReturnResult.illegal("用户信息不存在");
+        }
+        if (StringUtils.isBlank(password)) {
+            return ReturnResult.illegal("密码不能为空");
+        }
+        if (password.length() < 6) {
+            return ReturnResult.illegal("密码长度不能少于6位");
+        }
+
+        sysUser1.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
+        sysUser1.setSysUserPassword(DigestUtils.md5Hex(password + sysUser1.getSysUserSalt()));
+
+        updateById(sysUser1);
+        return ReturnResult.ok("密码重置成功");
+    }
+
+    @Override
     public ReturnResult<SysUser> updateUser(Set<String> roles, Long userId, SysUserUpdate sysUser) {
         Integer sysUserId = sysUser.getSysUserId();
         SysUser sysUser1;
@@ -303,12 +331,26 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 return sysUser1;
             }));
         } finally {
-            AuthClientExecute.getInstance().upgrade(null, UpgradeType.TIMESTAMP);
+            AuthClientExecute.getInstance().upgrade(null, UpgradeType.VERSION);
         }
     }
 
     @Override
     public ReturnResult<SysUser> saveUser(SysUserUpdate sysUserUpdate, HttpServletRequest request) {
+        // 账号校验：不允许特殊字符和保留字
+        String username = sysUserUpdate.getSysUserUsername() == null ? "" : sysUserUpdate.getSysUserUsername().trim();
+        if (!username.matches("^[a-zA-Z0-9_]+$")) {
+            return ReturnResult.illegal("账号只能使用字母、数字和下划线，不允许特殊字符");
+        }
+        // 不允许保留字作为账号
+        String[] reservedUsernames = {"null", "void", "undefined", "admin", "sa", "root", "test", "guest", "anonymous"};
+        for (String reserved : reservedUsernames) {
+            if (reserved.equalsIgnoreCase(username)) {
+                return ReturnResult.illegal("该名称为系统保留字，不允许作为账号");
+            }
+        }
+        sysUserUpdate.setSysUserUsername(username);
+        
         if(baseMapper.selectCount(Wrappers.<SysUser>lambdaQuery().eq(SysUser::getSysUserUsername, sysUserUpdate.getSysUserUsername())
         ) > 0L) {
             return ReturnResult.illegal("账号已存在");
@@ -498,7 +540,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ReturnResult.ok(sysUser);
         } finally {
             // 刷新OAuth用户会话信息
-            AuthClientExecute.getInstance().upgrade(null, UpgradeType.TIMESTAMP);
+            AuthClientExecute.getInstance().upgrade(null, UpgradeType.VERSION);
         }
     }
 
@@ -803,3 +845,5 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return updateById(update) ? ReturnResult.ok(true) : ReturnResult.error("操作失败");
     }
 }
+
+

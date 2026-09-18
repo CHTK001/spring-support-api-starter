@@ -7,7 +7,10 @@ package com.chua.starter.geo.model;
 * @since 1.0.0
  */
 public enum DemSource {
-    /** AWS Terrain 瓷砖 - Terrarium 编码 PNG 瓦片，全球，最大 z15 */
+    /**
+     * AWS Terrain 瓷砖 - Terrarium 编码 PNG 瓦片，全球，最大 z15
+     * @param 15 方法入参 15
+     */
     TERRARIUM("terrarium", "AWS Terrain (Terrarium)", 15);
 
     /** 数据源唯一标识 */
@@ -21,6 +24,13 @@ public enum DemSource {
      */
     private final int maxZoom;
 
+    /**
+     * 构造方法，创建 Dem来源 实例。
+     *
+     * @param id ID，不允许为 null
+     * @param displayName display名称，不允许为 null
+     * @param maxZoom 最大值Zoom，不允许为 null
+     */
     DemSource(String id, String displayName, int maxZoom) {
         this.id = id;
         this.displayName = displayName;

@@ -2,6 +2,7 @@ package com.chua.starter.oauth.sso.support;
 
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
+import com.chua.starter.service.configuration.ServiceConfiguration;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.info.License;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -19,9 +21,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 * @author CH
 * @since 2022/7/25 10:59
  */
-@EnableCaching
+// @EnableCaching
 @EnableAsync
-@SpringBootApplication(scanBasePackages = {"com.chua.starter.oauth.sso", "com.chua.starter.service"})
+@SpringBootApplication(scanBasePackages = {"com.chua.starter.oauth.sso"}, exclude = {ServiceConfiguration.class})
 @EnableConfigurationProperties({AuthServerProperties.class, AuthClientProperties.class})
 @MapperScan({
         "com.chua.starter.oauth.sso",

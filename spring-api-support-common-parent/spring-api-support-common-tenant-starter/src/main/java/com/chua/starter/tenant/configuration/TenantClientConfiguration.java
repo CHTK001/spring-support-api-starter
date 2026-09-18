@@ -18,5 +18,11 @@ import org.springframework.context.annotation.Configuration;
         "com.chua.starter.tenant.client",
         "com.chua.starter.tenant.spi"
 })
+/**
+ * Tenant客户端配置类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 public class TenantClientConfiguration {
 }

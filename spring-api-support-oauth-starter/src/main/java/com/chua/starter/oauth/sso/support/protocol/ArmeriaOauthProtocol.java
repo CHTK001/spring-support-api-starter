@@ -338,7 +338,10 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
                         }
                     }
                 }
-                if (expire <= 0) { writeResponse(response, ReturnResult.illegal("过期时间必须大于 0")); return; }
+                if (expire <= 0) {
+                    writeResponse(response, ReturnResult.illegal("过期时间必须大于 0"));
+                    return;
+                }
                 authServerProperties.setExpire(expire);
                 if (refreshExpire > 0) {
                     authServerProperties.setRefreshExpire(refreshExpire);
@@ -537,7 +540,9 @@ public class ArmeriaOauthProtocol implements OauthProtocol, InitializingBean {
 <script>
 async function api(method, path, body) {
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
-  if (body) opts.body = JSON.stringify(body);
+  if (body) {
+      opts.body = JSON.stringify(body);
+  }
   const r = await fetch('/admin' + path, opts);
   return r.json();
 }
@@ -564,9 +569,18 @@ async function loadStatus() {
 function showStatus(msg) { document.getElementById('statusBar').textContent = new Date().toLocaleTimeString() + '  ' + msg; }
 function toggleMaxCountRow(mode) { document.getElementById('maxCountRow').style.display = mode === 'LIMIT' ? 'flex' : 'none'; }
 document.getElementById('onlineMode').addEventListener('change', e => toggleMaxCountRow(e.target.value));
-async function toggleSignVerify(v) { const r = await api('POST', '/sign-verify?enabled=' + v); showStatus(r.data || r.msg); }
-async function toggleRenew(v) { const r = await api('POST', '/renew?enabled=' + v); showStatus(r.data || r.msg); }
-async function toggleRtRotation(v) { const r = await api('POST', '/refresh-token-rotation?enabled=' + v); showStatus(r.data || r.msg); }
+async function toggleSignVerify(v) {
+    const r = await api('POST', '/sign-verify?enabled=' + v);
+    showStatus(r.data || r.msg);
+}
+async function toggleRenew(v) {
+    const r = await api('POST', '/renew?enabled=' + v);
+    showStatus(r.data || r.msg);
+}
+async function toggleRtRotation(v) {
+    const r = await api('POST', '/refresh-token-rotation?enabled=' + v);
+    showStatus(r.data || r.msg);
+}
 async function updateExpire() {
   const expire = document.getElementById('expire').value;
   const refreshExpire = document.getElementById('refreshExpire').value;

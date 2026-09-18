@@ -24,6 +24,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("角色只读测试")
 class SysRoleReadonlyTest {
 
+    /**
+     * 测试：PersistReadonly标志响应保存。
+     */
     @Disabled("[P3C40] 原 ArgumentCaptor 断言改为 @Disabled：真实回查需要 DB 环境")
     @Test
     @DisplayName("保存角色-只读标记=1随insert持久化")
@@ -36,6 +39,9 @@ class SysRoleReadonlyTest {
         // 原 captor 断言: insert 实体 sysRoleReadonly=1
     }
 
+    /**
+     * 测试：DefaultNonReadonlyWhenNot设置。
+     */
     @Test
     @DisplayName("保存角色-未设置只读标记时默认非只读")
     void shouldDefaultNonReadonlyWhenNotSet() {
@@ -47,6 +53,9 @@ class SysRoleReadonlyTest {
         assertEquals(0, role.getSysRoleReadonly());
     }
 
+    /**
+     * 测试：更新Readonly标志。
+     */
     @Disabled("[P3C40] 原 ArgumentCaptor 断言改为 @Disabled：真实回查需要 DB 环境")
     @Test
     @DisplayName("更新角色-只读标记可被修改并updateById")
@@ -59,6 +68,9 @@ class SysRoleReadonlyTest {
         // 原 captor 断言: updateById 实体 sysRoleReadonly=1
     }
 
+    /**
+     * 测试：解析ReadonlyWhen用户是否含有ReadonlyRole。
+     */
     @Test
     @DisplayName("用户拥有只读角色-应解析为只读(任一角色sysRoleReadonly=1即只读)")
     void shouldResolveReadonlyWhenUserHasReadonlyRole() {
@@ -73,6 +85,9 @@ class SysRoleReadonlyTest {
         assertTrue(anyReadonly, "用户任一角色只读则整账号只读 -> UserResume.readonly=true");
     }
 
+    /**
+     * 测试：解析NonReadonlyWhen编号ReadonlyRole。
+     */
     @Test
     @DisplayName("用户无只读角色-应解析为非只读")
     void shouldResolveNonReadonlyWhenNoReadonlyRole() {

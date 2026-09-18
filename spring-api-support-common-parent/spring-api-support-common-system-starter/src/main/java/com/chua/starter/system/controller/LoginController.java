@@ -15,6 +15,7 @@ import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.protocol.AbstractProtocol;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
+import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.system.pojo.RefreshToken;
 import com.chua.starter.system.pojo.LoginResult;
 import com.chua.starter.system.pojo.UserInfoVO;
@@ -77,7 +78,7 @@ public class LoginController {
             action = Action.LOGIN,
             loginType = "WEB",
             content = "#{#now} #{#args[0].username} 登录系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
-    @Debounce(key = "#loginData.username #loginData.loginType")
+//    @Debounce(key = "#loginData.username #loginData.loginType")
     public ReturnResult<LoginResult> login(@Valid @RequestBody LoginData loginData,
                                            HttpServletRequest request,
                                            HttpServletResponse response,
@@ -161,13 +162,40 @@ public class LoginController {
 
     /**
     * 获取当前登录用户信息
+    * 直接从数据库查询最新信息，不使用 oauth 缓存
     *
     * @return 获取当前登录用户信息
-     */
+    */
     @Operation(summary = "获取当前登录用户信息")
     @GetMapping("/me")
-    public ReturnResult<UserInfoVO> getUserLoginInfo() {
-        return ReturnResult.ok(sysLoginService.getUserLoginInfo());
+    public ReturnResult<UserInfoVO> getUserLoginInfo(
+            @Parameter(hidden = true) @UserValue("userId") String userId) {
+        // 直接从数据库查询最新用户信息，不走 oauth 缓存
+        UserInfoVO userInfoVO = new UserInfoVO();
+        if (StringUtils.isNotBlank(userId)) {
+            try {
+                SysUser sysUser = sysUserService.getById(Integer.parseInt(userId));
+                if (sysUser != null) {
+                    userInfoVO.setSysUserId(sysUser.getSysUserId());
+                    userInfoVO.setSysUserUsername(sysUser.getSysUserUsername());
+                    userInfoVO.setSysUserNickname(sysUser.getSysUserNickname());
+                    userInfoVO.setSysUserPhone(sysUser.getSysUserPhone());
+                    userInfoVO.setSysUserEmail(sysUser.getSysUserEmail());
+                    userInfoVO.setSysUserSex(sysUser.getSysUserSex());
+                    userInfoVO.setSysUserBirthday(sysUser.getSysUserBirthday());
+                    userInfoVO.setAvatar(sysUser.getSysUserAvatar());
+                    userInfoVO.setSysUserCard(sysUser.getSysUserCard());
+                }
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        // 角色信息从 oauth 上下文获取（角色不常变，保留缓存）
+        try {
+            Set<String> roles = AuthClientExecute.getInstance().getUserResult().getRoles();
+            userInfoVO.setRoles(roles);
+        } catch (Exception ignored) {
+        }
+        return ReturnResult.ok(userInfoVO);
     }
 
     /**
@@ -213,7 +241,11 @@ public class LoginController {
             if (expireObj instanceof Number n) {
                 expireTime = n.intValue();
             } else if (expireObj instanceof String s) {
-                try { expireTime = Integer.parseInt(s); } catch (NumberFormatException ignored) {}
+                try {
+                    expireTime = Integer.parseInt(s);
+                } catch (NumberFormatException ignored) {
+                    // 解析失败时保留默认过期时间
+                }
             }
             Object urlsObj = body.get("allowedUrls");
             if (urlsObj instanceof List<?> list) {

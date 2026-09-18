@@ -1,11 +1,9 @@
 package com.chua.starter.scheduler.support;
 
-import com.chua.protocol.support.network.discovery.Discovery;
-import com.chua.common.support.text.json.Json;
-import com.chua.starter.job.support.entity.SysJob;
-import com.chua.starter.job.support.scheduler.JobDispatchModeEnum;
-import com.chua.starter.job.support.scheduler.JobHelper;
-import com.chua.starter.job.support.scheduler.MisfireStrategyEnum;
+import com.chua.common.support.lang.json.Json;
+import com.chua.common.support.network.discovery.Discovery;
+import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.starter.job.support.store.JobEntity;
 import com.chua.starter.scheduler.properties.SchedulerJobPlatformProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,12 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -34,18 +32,19 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 
 /**
-* 命名空间远程分发轮询器。
-* <p>
-* 这是调度中心真正承担“类似 XXL-作业 admin”的部分：定时扫描已配置远程执行器
-* 的命名空间任务表，命中后先推进下一次触发时间，再把本次触发推送到远程业务服务。
-* </p>
-* <p>
-* 当前实现使用单节点本地锁避免同一实例内重入；跨实例则依赖
-* {@code job_trigger_status + job_trigger_next_time} 的 CAS 更新抢占同一条任务，
-* 避免多节点重复下发。
-* </p>
-* @author CH
-* @since 4.0.0
+ * 命名空间远程分发轮询器。
+ * <p>
+ * 这是调度中心真正承担“类似 XXL-作业 admin”的部分：定时扫描已配置远程执行器
+ * 的命名空间任务表，命中后先推进下一次触发时间，再把本次触发推送到远程业务服务。
+ * </p>
+ * <p>
+ * 当前实现使用单节点本地锁避免同一实例内重入；跨实例则依赖
+ * {@code sys_job_trigger_status + sys_job_trigger_next_time} 的 CAS 更新抢占同一条任务，
+ * 避免多节点重复下发。
+ * </p>
+ *
+ * @since 4.0.0
+ * @author CH
  */
 @Slf4j
 @Component
@@ -53,23 +52,84 @@ import java.util.regex.Pattern;
 @ConditionalOnProperty(prefix = "plugin.scheduler.job-platform", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class SchedulerNamespaceRemoteDispatchScheduler {
 
-    private static final int STATUS_STOP = 0; // 状态停止
-    private static final int STATUS_RUNNING = 1; // 状态running
+    /**
+     * 状态：停止
+     */
+    private static final int STATUS_STOP = 0;
 
-    private final SchedulerJobPlatformProperties platformProperties; // platform属性
-    private final SchedulerNamespaceTableResolver namespaceTableResolver; // namespacetable解析器
-    private final SchedulerRemoteExecutorDispatcher remoteExecutorDispatcher; // 远程执行器dispatcher
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate; // 名称参数jdbctemplate
-    private final ListableBeanFactory beanFactory; // Bean工厂
-    private final BeanPropertyRowMapper<SysJob> jobRowMapper = BeanPropertyRowMapper.newInstance(SysJob.class); // 作业row映射器
-    private final Map<String, ReentrantLock> namespaceLocks = new ConcurrentHashMap<>(); // namespace锁
-    private final Map<String, Long> discoveryNextTriggerTimes = new ConcurrentHashMap<>(); // discovery下一个trigger时间
-    private final Map<String, IdleState> namespaceIdleStates = new ConcurrentHashMap<>(); // namespace空闲状态
+    /**
+     * 状态：运行
+     */
+    private static final int STATUS_RUNNING = 1;
 
-    private static final String DISCOVERY_SERVICE_CLASS = "com.chua.starter.discovery.support.service.DiscoveryService"; // discovery服务类
+    /**
+     * 预读时间窗（毫秒），对齐 JobProperties.ClusterConfig.DEFAULT_PRE_READ_MS
+     */
+    private static final long PRE_READ_MS = 5000L;
 
-    private static final Pattern SAFE_SQL_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_.]+$"); // SAFE_SQL_IDENTIFIER
+    /**
+     * 发现服务任务缺省间隔（毫秒）
+     */
+    private static final long DISCOVERY_DEFAULT_INTERVAL_MS = 30000L;
 
+    /**
+     * 调度平台属性
+     */
+    private final SchedulerJobPlatformProperties platformProperties;
+
+    /**
+     * 命名空间表解析器
+     */
+    private final SchedulerNamespaceTableResolver namespaceTableResolver;
+
+    /**
+     * 远程执行器分发器
+     */
+    private final SchedulerRemoteExecutorDispatcher remoteExecutorDispatcher;
+
+    /**
+     * 名称参数 JDBC 模板
+     */
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    /**
+     * Bean 工厂
+     */
+    private final ListableBeanFactory beanFactory;
+
+    /**
+     * 作业 row 映射器
+     */
+    private final BeanPropertyRowMapper<JobEntity> jobRowMapper = BeanPropertyRowMapper.newInstance(JobEntity.class);
+
+    /**
+     * 命名空间锁
+     */
+    private final Map<String, ReentrantLock> namespaceLocks = new ConcurrentHashMap<>();
+
+    /**
+     * 发现服务下一个触发时间
+     */
+    private final Map<String, Long> discoveryNextTriggerTimes = new ConcurrentHashMap<>();
+
+    /**
+     * 命名空间空闲状态
+     */
+    private final Map<String, IdleState> namespaceIdleStates = new ConcurrentHashMap<>();
+
+    /**
+     * 发现服务类
+     */
+    private static final String DISCOVERY_SERVICE_CLASS = "com.chua.starter.discovery.support.service.DiscoveryService";
+
+    /**
+     * SQL 安全标识符
+     */
+    private static final Pattern SAFE_SQL_IDENTIFIER = Pattern.compile("^[a-zA-Z0-9_.]+$");
+
+    /**
+     * 分发到期任务
+     */
     @Scheduled(fixedDelayString = "${plugin.scheduler.job-platform.dispatch-interval-ms:1000}")
     public void dispatchDueJobs() {
         if (!platformProperties.isRemoteDispatchEnabled() || platformProperties.getNamespaces() == null) {
@@ -88,36 +148,34 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * 空闲回退：连续多次空轮询后跳过部分调度周期，降低无任务时的 DB 压力。
-    * @param namespace namespace
-    * @return should跳过due转为空闲的结果
+     * 空闲回退：连续多次空轮询后跳过部分调度周期，降低无任务时的 DB 压力。
+     *
+     * @param namespace 命名空间
+     * @return 应跳过则返回 true
      */
     private boolean shouldSkipDueToIdle(String namespace) {
-        IdleState state = namespaceIdleStates.get(namespace.toLowerCase());
+        IdleState state = namespaceIdleStates.get(namespace.toLowerCase(Locale.ROOT));
         if (state == null || state.consecutiveEmptyCycles < 3) {
             return false;
         }
         int cycles = state.consecutiveEmptyCycles;
         if (cycles >= 30) {
-            // 连续30次空 → 每10次只执行1次
+            // 连续 30 次空 → 每 10 次只执行 1 次
             return (state.totalCycles % 10) != 0;
         }
         if (cycles >= 10) {
-            // 连续10次空 → 每5次只执行1次
+            // 连续 10 次空 → 每 5 次只执行 1 次
             return (state.totalCycles % 5) != 0;
         }
-        // 连续3次空 → 每2次只执行1次
+        // 连续 3 次空 → 每 2 次只执行 1 次
         return (state.totalCycles % 2) != 0;
     }
 
     /**
-    * 判断指定命名空间是否处于集群模式。
-    * <p>
-    * 集群模式下，调度中心统一拾取所有到期任务（包括 本地 和 远程），
-    * 推送到远程执行器执行，本地 作业-启动 不再自行触发。
-    * </p>
-    * @param namespace namespace
-    * @return 是否clustermode的结果
+     * 判断指定命名空间是否处于集群模式。
+     *
+     * @param namespace 命名空间
+     * @return 集群模式返回 true
      */
     public boolean isClusterMode(String namespace) {
         if (!StringUtils.hasText(namespace) || platformProperties.getNamespaces() == null) {
@@ -135,11 +193,12 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * 列出指定命名空间下发现服务中的任务（仅用于展示，不入库）。
-    * @param namespace namespace
-    * @return 列表discovery任务的结果
+     * 列出指定命名空间下发现服务中的任务（仅用于展示，不入库）。
+     *
+     * @param namespace 命名空间
+     * @return 发现任务列表
      */
-    public List<SysJob> listDiscoveryTasks(String namespace) {
+    public List<JobEntity> listDiscoveryTasks(String namespace) {
         Object discoveryService = resolveDiscoveryService();
         if (discoveryService == null) {
             return List.of();
@@ -165,10 +224,10 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             return List.of();
         }
 
- // 加载已禁用的发现服务 处理器
+        // 加载已禁用的发现服务处理器
         Set<String> disabledHandlers = loadDiscoveryDisabledHandlers(namespace);
 
-        List<SysJob> result = new ArrayList<>();
+        List<JobEntity> result = new ArrayList<>();
         for (Discovery discovery : discoveries) {
             if (discovery == null) {
                 continue;
@@ -193,7 +252,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
                     continue;
                 }
 
- // 跳过已禁用的 处理器
+                // 跳过已禁用的处理器
                 if (disabledHandlers.contains(handlerName)) {
                     continue;
                 }
@@ -206,10 +265,10 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * 禁用发现服务任务。
-    * 在命名空间的任务表中插入/更新一条控制记录，标记该 处理器 为禁用状态。
-    * @param namespace namespace
-    * @param handlerName 处理器名称
+     * 禁用发现服务任务。
+     *
+     * @param namespace   命名空间
+     * @param handlerName 处理器名称
      */
     @Transactional(rollbackFor = Exception.class)
     public void disableDiscoveryTask(String namespace, String handlerName) {
@@ -218,9 +277,10 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * 启用发现服务任务。
-    * @param namespace namespace
-    * @param handlerName 处理器名称
+     * 启用发现服务任务。
+     *
+     * @param namespace   命名空间
+     * @param handlerName 处理器名称
      */
     @Transactional(rollbackFor = Exception.class)
     public void enableDiscoveryTask(String namespace, String handlerName) {
@@ -229,9 +289,10 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * 删除发现服务任务（逻辑删除）。
-    * @param namespace namespace
-    * @param handlerName 处理器名称
+     * 删除发现服务任务（逻辑删除）。
+     *
+     * @param namespace   命名空间
+     * @param handlerName 处理器名称
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteDiscoveryTask(String namespace, String handlerName) {
@@ -240,9 +301,10 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * 恢复已删除的发现服务任务。
-    * @param namespace namespace
-    * @param handlerName 处理器名称
+     * 恢复已删除的发现服务任务。
+     *
+     * @param namespace   命名空间
+     * @param handlerName 处理器名称
      */
     @Transactional(rollbackFor = Exception.class)
     public void restoreDiscoveryTask(String namespace, String handlerName) {
@@ -251,38 +313,41 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * 查询发现服务任务在 DB 中的控制记录状态。
-    * 返回 空 表示没有控制记录（默认启用）。
-    * @param handlerName 处理器名称
-     /**
-      * findDiscoveryControlRecord。
-      * @param namespace namespace
-      * @param handlerName 处理器名称
-      * @return findDiscoveryControlRecord的结果
-      */
-     * @return discovery作业no的结果
+     * 查询发现服务任务在 DB 中的控制记录状态。
+     * 返回空表示没有控制记录（默认启用）。
+     *
+     * @param namespace   命名空间
+     * @param handlerName 处理器名称
+     * @return 发现作业控制记录
      */
-    public SysJob findDiscoveryControlRecord(String namespace, String handlerName) {
+    public JobEntity findDiscoveryControlRecord(String namespace, String handlerName) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
         String table = safeIdentifier(tables.jobTable());
         String discJobNo = discoveryJobNo(handlerName);
         MapSqlParameterSource params = new MapSqlParameterSource("jobNo", discJobNo);
-        List<SysJob> records = namedParameterJdbcTemplate.query(
-                "SELECT * FROM " + table + " WHERE job_no = :jobNo LIMIT 1",
+        List<JobEntity> records = namedParameterJdbcTemplate.query(
+                "SELECT * FROM " + table + " WHERE sys_job_no = :jobNo LIMIT 1",
                 params,
                 jobRowMapper
         );
         return records.isEmpty() ? null : records.get(0);
     }
 
+    /**
+     * 生成发现服务任务编号。
+     *
+     * @param handlerName 处理器名称
+     * @return 任务编号
+     */
     private static String discoveryJobNo(String handlerName) {
         return "disc:" + handlerName;
     }
 
     /**
-    * 加载命名空间中已被禁用的发现服务 处理器 名称集合。
-    * @param namespace namespace
-    * @return 加载discovery已禁用处理器的结果
+     * 加载命名空间中已被禁用的发现服务处理器名称集合。
+     *
+     * @param namespace 命名空间
+     * @return 已禁用处理器集合
      */
     private Set<String> loadDiscoveryDisabledHandlers(String namespace) {
         try {
@@ -290,11 +355,11 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             String table = safeIdentifier(tables.jobTable());
             MapSqlParameterSource params = new MapSqlParameterSource();
             List<String> handlers = namedParameterJdbcTemplate.query(
-                    "SELECT job_execute_bean FROM " + table
-                            + " WHERE job_no LIKE 'disc:%'"
-                            + " AND (job_trigger_status = 0 OR is_deleted = 1)",
+                    "SELECT sys_job_execute_bean FROM " + table
+                            + " WHERE sys_job_no LIKE 'disc:%'"
+                            + " AND (sys_job_trigger_status = 0 OR sys_job_is_deleted = 1)",
                     params,
-                    (rs, rowNum) -> rs.getString("job_execute_bean")
+                    (rs, rowNum) -> rs.getString("sys_job_execute_bean")
             );
             Set<String> result = new HashSet<>();
             for (String h : handlers) {
@@ -310,15 +375,12 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * 插入或更新发现服务任务的控制记录。
-    * <p>
-    * 记录以 {@code job_no = "disc:" + handlerName} 为唯一标识存入命名空间的任务表，
-    * 调度中心通过该记录判断发现服务任务是否被禁用/删除。
-    * </p>
-    * @param namespace namespace
-    * @param handlerName 处理器名称
-    * @param status 状态
-    * @param deleted 删除
+     * 插入或更新发现服务任务的控制记录。
+     *
+     * @param namespace   命名空间
+     * @param handlerName 处理器名称
+     * @param status      状态
+     * @param deleted     删除标记
      */
     private void upsertDiscoveryControlRecord(String namespace, String handlerName, int status, int deleted) {
         SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
@@ -328,7 +390,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         // 先检查是否已有记录
         MapSqlParameterSource checkParams = new MapSqlParameterSource("jobNo", discJobNo);
         Integer exists = namedParameterJdbcTemplate.query(
-                "SELECT COUNT(1) FROM " + table + " WHERE job_no = :jobNo",
+                "SELECT COUNT(1) FROM " + table + " WHERE sys_job_no = :jobNo",
                 checkParams,
                 (rs) -> rs.next() ? rs.getInt(1) : 0
         );
@@ -341,14 +403,13 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             updateParams.addValue("deleted", deleted);
             namedParameterJdbcTemplate.update(
                     "UPDATE " + table
-                            + " SET job_trigger_status = :status, is_deleted = :deleted"
-                            + " WHERE job_no = :jobNo",
+                            + " SET sys_job_trigger_status = :status, sys_job_is_deleted = :deleted"
+                            + " WHERE sys_job_no = :jobNo",
                     updateParams
             );
         } else {
             // 插入新记录
-            int jobId = Objects.hash("disc", handlerName) & 0x7FFFFFFF;
-            long now = System.currentTimeMillis();
+            long jobId = Objects.hash("disc", handlerName) & 0x7FFFFFFF;
             MapSqlParameterSource insertParams = new MapSqlParameterSource();
             insertParams.addValue("jobId", jobId);
             insertParams.addValue("jobNo", discJobNo);
@@ -356,7 +417,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             insertParams.addValue("jobScheduleType", "CRON");
             insertParams.addValue("jobScheduleTime", "");
             insertParams.addValue("jobGlueType", "BEAN");
-            insertParams.addValue("jobDispatchMode", JobDispatchModeEnum.REMOTE.name());
+            insertParams.addValue("jobDispatchMode", "REMOTE");
             insertParams.addValue("jobExecuteBean", handlerName);
             insertParams.addValue("jobTriggerStatus", status);
             insertParams.addValue("isDeleted", deleted);
@@ -365,9 +426,9 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
             namedParameterJdbcTemplate.update(
                     "INSERT INTO " + table + " ("
-                            + "job_id, job_no, job_name, job_schedule_type, job_schedule_time,"
-                            + "job_glue_type, job_dispatch_mode, job_execute_bean,"
-                            + "job_trigger_status, is_deleted, job_trigger_next_time, job_trigger_last_time"
+                            + "sys_job_id, sys_job_no, sys_job_name, sys_job_schedule_type, sys_job_schedule_time,"
+                            + "sys_job_glue_type, sys_job_dispatch_mode, sys_job_execute_bean,"
+                            + "sys_job_trigger_status, sys_job_is_deleted, sys_job_trigger_next_time, sys_job_trigger_last_time"
                             + ") VALUES ("
                             + ":jobId, :jobNo, :jobName, :jobScheduleType, :jobScheduleTime,"
                             + ":jobGlueType, :jobDispatchMode, :jobExecuteBean,"
@@ -379,20 +440,21 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * dispatchNamespace。
-    * @param namespace namespace
+     * 分发命名空间任务。
+     *
+     * @param namespace 命名空间
      */
     private void dispatchNamespace(String namespace) {
-        ReentrantLock lock = namespaceLocks.computeIfAbsent(namespace.toLowerCase(), key -> new ReentrantLock());
+        ReentrantLock lock = namespaceLocks.computeIfAbsent(namespace.toLowerCase(Locale.ROOT), key -> new ReentrantLock());
         if (!lock.tryLock()) {
             return;
         }
         boolean clusterMode = isClusterMode(namespace);
-        String nsKey = namespace.toLowerCase();
+        String nsKey = namespace.toLowerCase(Locale.ROOT);
         try {
             SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables = namespaceTableResolver.resolve(namespace);
             SchedulerJobPlatformProperties.Namespace nsProps = resolveNamespaceProperties(namespace);
-            List<SysJob> dueJobs = loadDueJobs(tables, clusterMode, nsProps);
+            List<JobEntity> dueJobs = loadDueJobs(tables, clusterMode, nsProps);
             IdleState state = namespaceIdleStates.computeIfAbsent(nsKey, k -> new IdleState());
             if (dueJobs.isEmpty()) {
                 state.consecutiveEmptyCycles++;
@@ -401,7 +463,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
                 state.consecutiveEmptyCycles = 0;
                 state.totalCycles = 0;
             }
-            for (SysJob job : dueJobs) {
+            for (JobEntity job : dueJobs) {
                 processJob(namespace, tables, job, clusterMode);
             }
         } finally {
@@ -412,9 +474,17 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         dispatchDiscoveryTasks(namespace);
     }
 
-    private List<SysJob> loadDueJobs(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables,
-                                     boolean clusterMode,
-                                      SchedulerJobPlatformProperties.Namespace nsProps) {
+    /**
+     * 加载到期任务。
+     *
+     * @param tables      命名空间表
+     * @param clusterMode 是否集群模式
+     * @param nsProps     命名空间配置
+     * @return 到期任务列表
+     */
+    private List<JobEntity> loadDueJobs(SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables,
+                                         boolean clusterMode,
+                                         SchedulerJobPlatformProperties.Namespace nsProps) {
         String table = safeIdentifier(tables.jobTable());
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("status", STATUS_RUNNING);
@@ -425,36 +495,37 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         String groupFilter = "";
         if (StringUtils.hasText(group)) {
             parameters.addValue("group", group);
-            groupFilter = " AND (job_group IS NULL OR job_group = :group)";
+            groupFilter = " AND (sys_job_group IS NULL OR sys_job_group = :group)";
         }
 
         String sql;
         if (clusterMode) {
- // 集群模式：拾取所有到期任务（包括 本地 和 远程）
+            // 集群模式：拾取所有到期任务（包括本地和远程）
             sql = "SELECT * FROM " + table
-                    + " WHERE job_trigger_status = :status"
-                    + " AND job_trigger_next_time > 0"
-                    + " AND job_trigger_next_time <= :now"
+                    + " WHERE sys_job_trigger_status = :status"
+                    + " AND sys_job_trigger_next_time > 0"
+                    + " AND sys_job_trigger_next_time <= :now"
                     + groupFilter
-                    + " ORDER BY job_trigger_next_time ASC, job_id ASC LIMIT :limit";
+                    + " ORDER BY sys_job_trigger_next_time ASC, sys_job_id ASC LIMIT :limit";
         } else {
- // 单机模式：仅拾取 远程 类型任务
-            parameters.addValue("dispatchMode", JobDispatchModeEnum.REMOTE.name());
+            // 单机模式：仅拾取远程类型任务
+            parameters.addValue("dispatchMode", "REMOTE");
             sql = "SELECT * FROM " + table
-                    + " WHERE job_trigger_status = :status"
-                    + " AND job_dispatch_mode = :dispatchMode"
-                    + " AND job_trigger_next_time > 0"
-                    + " AND job_trigger_next_time <= :now"
+                    + " WHERE sys_job_trigger_status = :status"
+                    + " AND sys_job_dispatch_mode = :dispatchMode"
+                    + " AND sys_job_trigger_next_time > 0"
+                    + " AND sys_job_trigger_next_time <= :now"
                     + groupFilter
-                    + " ORDER BY job_trigger_next_time ASC, job_id ASC LIMIT :limit";
+                    + " ORDER BY sys_job_trigger_next_time ASC, sys_job_id ASC LIMIT :limit";
         }
         return namedParameterJdbcTemplate.query(sql, parameters, jobRowMapper);
     }
 
     /**
-    * resolve群体。
-    * @param nsProps nsProps
-    * @return resolve群体的结果
+     * 解析命名空间分组。
+     *
+     * @param nsProps 命名空间配置
+     * @return 分组值，未配置返回 空
      */
     private String resolveGroup(SchedulerJobPlatformProperties.Namespace nsProps) {
         if (nsProps == null) {
@@ -463,13 +534,21 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         return StringUtils.hasText(nsProps.getGroup()) ? nsProps.getGroup().trim() : null;
     }
 
+    /**
+     * 处理单个任务。
+     *
+     * @param namespace 命名空间
+     * @param tables    命名空间表
+     * @param job       任务
+     * @param clusterMode 是否集群模式
+     */
     private void processJob(String namespace,
                             SchedulerNamespaceTableResolver.ResolvedNamespaceTables tables,
-                            SysJob job,
+                            JobEntity job,
                             boolean clusterMode) {
         if (!canDispatch(job, clusterMode)) {
             log.warn("[Scheduler] 跳过远程分发，任务不满足远程执行条件: namespace={}, jobNo={}, jobId={}, dispatchMode={}, glueType={}, handler={}",
-                    namespace, job.getJobNo(), job.getJobId(), job.getJobDispatchMode(), job.getJobGlueType(), job.getJobExecuteBean());
+                    namespace, job.getSysJobNo(), job.getSysJobId(), job.getSysJobDispatchMode(), job.getSysJobGlueType(), job.getSysJobExecuteBean());
             return;
         }
 
@@ -478,7 +557,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             plan = buildPlan(job);
         } catch (Exception e) {
             log.error("[Scheduler] 计算远程任务下次触发时间失败: namespace={}, jobNo={}, jobId={}, error={}",
-                    namespace, job.getJobNo(), job.getJobId(), e.getMessage(), e);
+                    namespace, job.getSysJobNo(), job.getSysJobId(), e.getMessage(), e);
             return;
         }
 
@@ -491,31 +570,29 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         }
 
         try {
-            remoteExecutorDispatcher.dispatch(namespace, job, job.getJobExecuteParam(), clusterMode);
+            remoteExecutorDispatcher.dispatch(namespace, job, job.getSysJobExecuteParam(), clusterMode);
         } catch (Exception e) {
             rollbackClaim(tables.jobTable(), job, plan);
             log.error("[Scheduler] 远程任务下发失败，已回滚触发时间: namespace={}, jobNo={}, jobId={}, error={}",
-                    namespace, job.getJobNo(), job.getJobId(), e.getMessage(), e);
+                    namespace, job.getSysJobNo(), job.getSysJobId(), e.getMessage(), e);
         }
     }
 
     /**
-    * 构建plan。
-    * @param job 作业
-    * @return 构建plan的结果
+     * 构建分发计划。
+     *
+     * @param job 任务
+     * @return 分发计划
      */
-    private DispatchPlan buildPlan(SysJob job) throws Exception {
+    private DispatchPlan buildPlan(JobEntity job) {
         long now = System.currentTimeMillis();
-        long currentNextTime = safeLong(job.getJobTriggerNextTime());
-        long currentLastTime = safeLong(job.getJobTriggerLastTime());
-        boolean misfire = currentNextTime > 0 && now > currentNextTime + JobHelper.PRE_READ_MS;
-        MisfireStrategyEnum misfireStrategy = MisfireStrategyEnum.match(
-                job.getJobExecuteMisfireStrategy(),
-                MisfireStrategyEnum.DO_NOTHING
-        );
-        boolean shouldDispatch = !misfire || MisfireStrategyEnum.FIRE_ONCE_NOW == misfireStrategy;
+        long currentNextTime = safeLong(job.getSysJobTriggerNextTime());
+        long currentLastTime = safeLong(job.getSysJobTriggerLastTime());
+        boolean misfire = currentNextTime > 0 && now > currentNextTime + PRE_READ_MS;
+        String misfireStrategy = matchMisfireStrategy(job.getSysJobExecuteMisfireStrategy(), "DO_NOTHING");
+        boolean shouldDispatch = !misfire || "FIRE_ONCE_NOW".equals(misfireStrategy);
 
-        Date nextValidTime = JobHelper.generateNextValidTime(job, new Date());
+        Date nextValidTime = SchedulerNamespaceTableResolver.generateNextValidTime(job, new Date());
         if (nextValidTime == null) {
             return new DispatchPlan(currentLastTime, currentNextTime, STATUS_RUNNING, 0L, 0L, STATUS_STOP, shouldDispatch);
         }
@@ -531,16 +608,35 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * claim作业。
-    * @param tableName table名称
-    * @param job 作业
-    * @param plan plan
-    * @return claim作业的结果
+     * 匹配错失触发策略。
+     *
+     * @param value     策略值
+     * @param fallback  缺省策略
+     * @return 匹配后的策略
      */
-    private boolean claimJob(String tableName, SysJob job, DispatchPlan plan) {
+    private static String matchMisfireStrategy(String value, String fallback) {
+        if (!StringUtils.hasText(value)) {
+            return fallback;
+        }
+        String normalized = value.trim().toUpperCase(Locale.ROOT);
+        if ("DO_NOTHING".equals(normalized) || "FIRE_ONCE_NOW".equals(normalized)) {
+            return normalized;
+        }
+        return fallback;
+    }
+
+    /**
+     * 抢占任务。
+     *
+     * @param tableName 表名
+     * @param job       任务
+     * @param plan      分发计划
+     * @return 抢占成功返回 true
+     */
+    private boolean claimJob(String tableName, JobEntity job, DispatchPlan plan) {
         String table = safeIdentifier(tableName);
         MapSqlParameterSource parameters = new MapSqlParameterSource();
-        parameters.addValue("jobId", job.getJobId());
+        parameters.addValue("jobId", job.getSysJobId());
         parameters.addValue("expectedStatus", plan.previousStatus());
         parameters.addValue("expectedNextTime", plan.previousNextTime());
         parameters.addValue("nextStatus", plan.nextStatus());
@@ -548,27 +644,28 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         parameters.addValue("nextNextTime", plan.nextNextTime());
         int updated = namedParameterJdbcTemplate.update(
                 "UPDATE " + table
-                        + " SET job_trigger_status = :nextStatus,"
-                        + " job_trigger_last_time = :nextLastTime,"
-                        + " job_trigger_next_time = :nextNextTime"
-                        + " WHERE job_id = :jobId"
-                        + " AND job_trigger_status = :expectedStatus"
-                        + " AND job_trigger_next_time = :expectedNextTime",
+                        + " SET sys_job_trigger_status = :nextStatus,"
+                        + " sys_job_trigger_last_time = :nextLastTime,"
+                        + " sys_job_trigger_next_time = :nextNextTime"
+                        + " WHERE sys_job_id = :jobId"
+                        + " AND sys_job_trigger_status = :expectedStatus"
+                        + " AND sys_job_trigger_next_time = :expectedNextTime",
                 parameters
         );
         return updated > 0;
     }
 
     /**
-    * rollbackClaim。
-    * @param tableName table名称
-    * @param job 作业
-    * @param plan plan
+     * 回滚抢占。
+     *
+     * @param tableName 表名
+     * @param job       任务
+     * @param plan      分发计划
      */
-    private void rollbackClaim(String tableName, SysJob job, DispatchPlan plan) {
+    private void rollbackClaim(String tableName, JobEntity job, DispatchPlan plan) {
         String table = safeIdentifier(tableName);
         MapSqlParameterSource parameters = new MapSqlParameterSource();
-        parameters.addValue("jobId", job.getJobId());
+        parameters.addValue("jobId", job.getSysJobId());
         parameters.addValue("currentStatus", plan.nextStatus());
         parameters.addValue("currentLastTime", plan.nextLastTime());
         parameters.addValue("currentNextTime", plan.nextNextTime());
@@ -577,55 +674,54 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
         parameters.addValue("rollbackNextTime", plan.previousNextTime());
         namedParameterJdbcTemplate.update(
                 "UPDATE " + table
-                        + " SET job_trigger_status = :rollbackStatus,"
-                        + " job_trigger_last_time = :rollbackLastTime,"
-                        + " job_trigger_next_time = :rollbackNextTime"
-                        + " WHERE job_id = :jobId"
-                        + " AND job_trigger_status = :currentStatus"
-                        + " AND job_trigger_last_time = :currentLastTime"
-                        + " AND job_trigger_next_time = :currentNextTime",
+                        + " SET sys_job_trigger_status = :rollbackStatus,"
+                        + " sys_job_trigger_last_time = :rollbackLastTime,"
+                        + " sys_job_trigger_next_time = :rollbackNextTime"
+                        + " WHERE sys_job_id = :jobId"
+                        + " AND sys_job_trigger_status = :currentStatus"
+                        + " AND sys_job_trigger_last_time = :currentLastTime"
+                        + " AND sys_job_trigger_next_time = :currentNextTime",
                 parameters
         );
     }
 
     /**
-    * 能否dispatch。
-    * @param job 作业
-    * @param clusterMode clusterMode
-    * @return 能否dispatch的结果
+     * 判断任务能否分发。
+     *
+     * @param job         任务
+     * @param clusterMode 是否集群模式
+     * @return 可分发返回 true
      */
-    private boolean canDispatch(SysJob job, boolean clusterMode) {
-        if (job == null || !StringUtils.hasText(job.getJobExecuteBean())) {
+    private boolean canDispatch(JobEntity job, boolean clusterMode) {
+        if (job == null || !StringUtils.hasText(job.getSysJobExecuteBean())) {
             return false;
         }
-        if (StringUtils.hasText(job.getJobGlueType()) && !"BEAN".equalsIgnoreCase(job.getJobGlueType())) {
+        if (StringUtils.hasText(job.getSysJobGlueType()) && !"BEAN".equalsIgnoreCase(job.getSysJobGlueType())) {
             return false;
         }
         if (clusterMode) {
             // 集群模式：所有任务都可以远程下发
             return true;
         }
- // 单机模式：仅 远程 类型任务
-        return JobDispatchModeEnum.REMOTE == JobDispatchModeEnum.match(job.getJobDispatchMode());
+        // 单机模式：仅远程类型任务
+        return "REMOTE".equalsIgnoreCase(job.getSysJobDispatchMode());
     }
 
     /**
-    * safeLong。
-    * @param value 值
-    * @return safeLong的结果
+     * 安全转换长整型。
+     *
+     * @param value 值
+     * @return 非空值，空值返回 0
      */
     private long safeLong(Long value) {
         return value == null ? 0L : value;
     }
 
     /**
-    * 校验并返回可用于 SQL 拼接的标识符（表名/列名）。
-    * <p>
-    * 命名空间表名等标识符来自配置，拼接进 SQL 前必须通过白名单校验，
-    * 仅允许字母、数字、下划线和点，防止被注入 SQL 元字符。
-    * </p>
-    * @param identifier identifier
-    * @return safeIdentifier的结果
+     * 校验并返回可用于 SQL 拼接的标识符（表名/列名）。
+     *
+     * @param identifier 标识符
+     * @return 合法的 SQL 标识符
      */
     private String safeIdentifier(String identifier) {
         if (identifier == null || !SAFE_SQL_IDENTIFIER.matcher(identifier).matches()) {
@@ -637,13 +733,9 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     // ==================== 发现服务任务调度 ====================
 
     /**
-    * 从发现服务中获取任务元数据并调度到期任务。
-    * <p>
-    * 通过反射访问 discovery服务（避免编译期强依赖），读取各注册客户端的
-    * {@code jobs} 和 {@code job_configs} 元数据，在内存中跟踪每个 handler
-    * 的下次触发时间，到期后通过远程执行器分发器下发。
-    * </p>
-    * @param namespace namespace
+     * 从发现服务中获取任务元数据并调度到期任务。
+     *
+     * @param namespace 命名空间
      */
     private void dispatchDiscoveryTasks(String namespace) {
         if (!platformProperties.isRemoteDispatchEnabled()) {
@@ -677,7 +769,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
 
         long now = System.currentTimeMillis();
 
- // 加载已禁用的发现服务 处理器
+        // 加载已禁用的发现服务处理器
         Set<String> disabledHandlers = loadDiscoveryDisabledHandlers(namespace);
 
         for (Discovery discovery : discoveries) {
@@ -704,7 +796,7 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
                     continue;
                 }
 
- // 跳过已禁用的 处理器
+                // 跳过已禁用的处理器
                 if (disabledHandlers.contains(handlerName)) {
                     discoveryNextTriggerTimes.remove(discoveryCacheKey(namespace, handlerName));
                     continue;
@@ -720,8 +812,8 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
                 Map<String, String> config = (jobConfigs != null) ? jobConfigs.get(handlerName) : null;
 
                 try {
-                    SysJob transientJob = createDiscoveryJob(handlerName, config);
-                    remoteExecutorDispatcher.dispatch(namespace, transientJob, transientJob.getJobExecuteParam());
+                    JobEntity transientJob = createDiscoveryJob(handlerName, config);
+                    remoteExecutorDispatcher.dispatch(namespace, transientJob, transientJob.getSysJobExecuteParam());
                 } catch (Exception e) {
                     log.warn("[Scheduler] 发现服务任务下发失败: namespace={}, handler={}", namespace, handlerName, e);
                 }
@@ -734,18 +826,20 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * discovery缓存键。
-    * @param namespace namespace
-    * @param handlerName 处理器名称
-    * @return discovery缓存键的结果
+     * 生成发现服务缓存键。
+     *
+     * @param namespace   命名空间
+     * @param handlerName 处理器名称
+     * @return 缓存键
      */
     private static String discoveryCacheKey(String namespace, String handlerName) {
         return namespace + ":" + handlerName;
     }
 
     /**
-    * 通过反射获取 discovery服务 Bean。
-    * @return resolvediscovery服务的结果
+     * 通过反射获取发现服务 Bean。
+     *
+     * @return 发现服务实例，不存在返回 空
      */
     private Object resolveDiscoveryService() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -768,28 +862,43 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * 通过反射加载 Discovery 实例列表。
-    * 使用反射是因为 discovery服务 来自外部模块，此处仅调用公共方法，无标准替代方案。
+     * 通过反射加载发现服务实例列表。
+     *
+     * @param discoveryService 发现服务
+     * @param discoveryProps   发现配置
+     * @param discoveryNamespace 发现命名空间
+     * @return 发现实例集合
      */
     @SuppressWarnings({"unchecked", "java:S1186"})
     private Set<Discovery> loadDiscoveryInstances(Object discoveryService,
-                                                   SchedulerJobPlatformProperties.Discovery discoveryProps,
-                                                   String discoveryNamespace) {
+                                                    SchedulerJobPlatformProperties.Discovery discoveryProps,
+                                                    String discoveryNamespace) {
         try {
             String discoveryProtocol = (discoveryProps == null) ? null : trimToNull(discoveryProps.getProtocol());
+ // 服务实例来自外部模块，方法调用统一经 ReflectUtils（getDiscoveryAll 返回 Set<Discovery>）
+            Object result;
             if (StringUtils.hasText(discoveryProtocol)) {
-                Method method = discoveryService.getClass().getMethod("getDiscoveryAll", String.class, String.class);
-                return (Set<Discovery>) method.invoke(discoveryService, discoveryProtocol, discoveryNamespace);
+                result = ReflectUtils.invoke(discoveryService, "getDiscoveryAll", Set.class,
+                        new Class<?>[]{String.class, String.class}, discoveryProtocol, discoveryNamespace);
+            } else {
+                result = ReflectUtils.invoke(discoveryService, "getDiscoveryAll", Set.class,
+                        new Class<?>[]{String.class}, discoveryNamespace);
             }
-            Method method = discoveryService.getClass().getMethod("getDiscoveryAll", String.class);
-            return (Set<Discovery>) method.invoke(discoveryService, discoveryNamespace);
+            if (result == null) {
+                return Set.of();
+            }
+            return (Set<Discovery>) result;
         } catch (Exception e) {
             return Set.of();
         }
     }
 
     /**
-    * 解析发现命名空间路径。
+     * 解析发现命名空间路径。
+     *
+     * @param namespace      命名空间
+     * @param discoveryProps 发现配置
+     * @return 发现命名空间路径
      */
     private String resolveDiscoveryNamespacePath(String namespace,
                                                   SchedulerJobPlatformProperties.Discovery discoveryProps) {
@@ -800,9 +909,10 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * 解析命名空间配置。
-    * @param namespace namespace
-    * @return resolvenamespace属性的结果
+     * 解析命名空间配置。
+     *
+     * @param namespace 命名空间
+     * @return 命名空间配置，未配置返回 空
      */
     private SchedulerJobPlatformProperties.Namespace resolveNamespaceProperties(String namespace) {
         if (!StringUtils.hasText(namespace) || platformProperties.getNamespaces() == null) {
@@ -816,9 +926,10 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * 解析 作业_配置 元数据 JSON 为 映射。
-    * @param jobConfigsJson 作业配置json
-    * @return 解析作业配置的结果
+     * 解析作业配置元数据 JSON 为映射。
+     *
+     * @param jobConfigsJson 作业配置 JSON
+     * @return 作业配置映射
      */
     @SuppressWarnings("unchecked")
     private Map<String, Map<String, String>> parseJobConfigs(String jobConfigsJson) {
@@ -852,32 +963,33 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * 计算发现服务任务的下次触发时间。
-    * @param handlerName 处理器名称
-    * @param config 配置
-    * @param now now
-    * @return computediscovery下一个时间的结果
+     * 计算发现服务任务的下次触发时间。
+     *
+     * @param handlerName 处理器名称
+     * @param config      配置
+     * @param now         当前时间
+     * @return 下次触发时间
      */
     private long computeDiscoveryNextTime(String handlerName, Map<String, String> config, long now) {
         if (config == null) {
-            return now + 30000L;
+            return now + DISCOVERY_DEFAULT_INTERVAL_MS;
         }
 
         String scheduleType = config.getOrDefault("scheduleType", "cron");
         String scheduleTime = config.get("scheduleTime");
 
         if (!StringUtils.hasText(scheduleTime)) {
-            return now + 30000L;
+            return now + DISCOVERY_DEFAULT_INTERVAL_MS;
         }
 
         try {
-            SysJob template = new SysJob();
-            template.setJobScheduleType(scheduleType);
-            template.setJobScheduleTime(scheduleTime);
-            template.setJobTriggerLastTime(now);
-            template.setJobTriggerNextTime(now);
+            JobEntity template = new JobEntity();
+            template.setSysJobScheduleType(scheduleType);
+            template.setSysJobScheduleTime(scheduleTime);
+            template.setSysJobTriggerLastTime(now);
+            template.setSysJobTriggerNextTime(now);
 
-            Date next = JobHelper.generateNextValidTime(template, new Date(now));
+            Date next = SchedulerNamespaceTableResolver.generateNextValidTime(template, new Date(now));
             if (next != null) {
                 return next.getTime();
             }
@@ -885,60 +997,62 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
             log.debug("[Scheduler] 计算发现任务下次触发时间失败: handler={}, type={}, time={}",
                     handlerName, scheduleType, scheduleTime);
         }
-        return now + 30000L;
+        return now + DISCOVERY_DEFAULT_INTERVAL_MS;
     }
 
     /**
-    * 为发现服务来源的任务创建临时 sys作业 对象。
-    * <p>
-    * 该对象仅用于传递 处理器 名称和执行配置到远程执行器分发器，
-    * 不会持久化到数据库。
-    * </p>
-    * @param value 值
-     /**
-      * 创建discovery作业。
-      * @param handlerName 处理器名称
-      * @param config 配置
-      * @return 创建discovery作业的结果
-      */
-     * @return 修剪转为空的结果
+     * 为发现服务来源的任务创建临时任务对象。
+     *
+     * @param handlerName 处理器名称
+     * @param config      执行配置
+     * @return 发现任务对象
      */
-    private SysJob createDiscoveryJob(String handlerName, Map<String, String> config) {
-        SysJob job = new SysJob();
-        job.setJobId(Objects.hash("disc", handlerName) & 0x7FFFFFFF);
-        job.setJobNo("disc:" + handlerName);
-        job.setJobName(handlerName);
-        job.setJobExecuteBean(handlerName);
-        job.setJobGlueType("BEAN");
-        job.setJobDispatchMode(JobDispatchModeEnum.REMOTE.name());
-        job.setJobTriggerStatus(1);
-        job.setJobTriggerNextTime(System.currentTimeMillis());
+    private JobEntity createDiscoveryJob(String handlerName, Map<String, String> config) {
+        JobEntity job = new JobEntity();
+        job.setSysJobId((long) (Objects.hash("disc", handlerName) & 0x7FFFFFFF));
+        job.setSysJobNo("disc:" + handlerName);
+        job.setSysJobName(handlerName);
+        job.setSysJobExecuteBean(handlerName);
+        job.setSysJobGlueType("BEAN");
+        job.setSysJobDispatchMode("REMOTE");
+        job.setSysJobTriggerStatus(STATUS_RUNNING);
+        job.setSysJobTriggerNextTime(System.currentTimeMillis());
 
         if (config != null) {
-            job.setJobScheduleType(config.getOrDefault("scheduleType", "cron"));
-            job.setJobScheduleTime(config.get("scheduleTime"));
+            job.setSysJobScheduleType(config.getOrDefault("scheduleType", "cron"));
+            job.setSysJobScheduleTime(config.get("scheduleTime"));
 
             if (config.containsKey("executeTimeout")) {
                 try {
-                    job.setJobExecuteTimeout(Integer.parseInt(config.get("executeTimeout")));
+                    job.setSysJobExecuteTimeout(Integer.parseInt(config.get("executeTimeout")));
                 } catch (NumberFormatException ignored) {
+                    // 忽略无效超时配置
                 }
             }
             if (config.containsKey("param")) {
-                job.setJobExecuteParam(config.get("param"));
+                job.setSysJobExecuteParam(config.get("param"));
             }
-            job.setJobExecuteMisfireStrategy(config.getOrDefault("misfireStrategy", "DO_NOTHING"));
+            job.setSysJobExecuteMisfireStrategy(config.getOrDefault("misfireStrategy", "DO_NOTHING"));
         }
 
         return job;
     }
 
+    /**
+     * 去除空白，空白文本转换为 空。
+     *
+     * @param value 文本值
+     * @return 去除空白后的文本，空白返回 空
+     */
     private String trimToNull(String value) {
         return (value != null && !value.trim().isEmpty()) ? value.trim() : null;
     }
 
     /**
-    * 一次触发推进前后的状态快照。
+     * 一次触发推进前后的状态快照。
+     *
+     * @since 4.0.0
+     * @author CH
      */
     private record DispatchPlan(long previousLastTime,
                                 long previousNextTime,
@@ -950,12 +1064,20 @@ public class SchedulerNamespaceRemoteDispatchScheduler {
     }
 
     /**
-    * 命名空间空闲状态，用于控制空轮询时的调度频率。
-    * @author CH
-    * @since 4.0.0
+     * 命名空间空闲状态，用于控制空轮询时的调度频率。
+     *
+     * @since 4.0.0
+     * @author CH
      */
     private static class IdleState {
-        int consecutiveEmptyCycles; // consecutive空循环
-        int totalCycles; // total循环
+        /**
+         * 连续空循环计数
+         */
+        int consecutiveEmptyCycles;
+
+        /**
+         * 总循环计数
+         */
+        int totalCycles;
     }
 }

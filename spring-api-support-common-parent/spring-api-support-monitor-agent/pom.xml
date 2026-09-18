@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.chua</groupId>
+        <artifactId>spring-api-support-common-parent</artifactId>
+        <version>4.0.0.42</version>
+        <relativePath>../spring-api-support-common-parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>spring-api-support-monitor-agent</artifactId>
+    <packaging>jar</packaging>
+    <description>监控 Agent - 部署到目标机，OSHI 采集 + HTTP 服务 + TCP 长连接指标推送</description>
+
+    <dependencies>
+        <!-- OSHI 系统信息采集（CPU/内存/磁盘/进程） -->
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>6.8.0</version>
+        </dependency>
+        <!-- utils-support-common-starter（TcpSyncClient 长连接 + Json 工具 + ServerBuilder） -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-common-starter</artifactId>
+            <version>4.0.0.42</version>
+            <exclusions>
+                <!-- 排除根 pom 传递的不需要的依赖 -->
+                <exclusion>
+                    <groupId>com.chua</groupId>
+                    <artifactId>utils-support-geoip2-starter</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.chua</groupId>
+                    <artifactId>utils-support-datasearch-starter</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>monitor-agent</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.chua.agent.AgentMain</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals><goal>copy-dependencies</goal></goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <!-- 排除不需要的依赖（agent 轻量化） -->
+                            <excludeArtifactIds>
+                                utils-support-geoip2-starter,
+                                utils-support-datasearch-starter,
+                                utils-support-sqlite-starter,
+                                utils-support-native-sqlite,
+                                sqlite-jdbc,
+                                HikariCP,
+                                jsoup,
+                                r2dbc-spi,
+                                maxmind-db,
+                                geoip2,
+                                lombok
+                            </excludeArtifactIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

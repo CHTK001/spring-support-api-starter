@@ -58,6 +58,8 @@ public class SysDeptController {
     * @param sysDept sysDept
     * @param true true
     * @return 列表的结果
+    * @param roles 方法入参 roles
+    * @param userId 用户ID，不允许为 null
      */
     public ReturnResult<List<SysDeptVO>> list(@ParameterObject SysDept sysDept, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         return ReturnResult.ok(sysDeptService.list(sysDept, roles));

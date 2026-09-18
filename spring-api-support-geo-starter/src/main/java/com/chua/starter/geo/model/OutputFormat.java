@@ -29,6 +29,13 @@ public enum OutputFormat {
      */
     private final String mimeType;
 
+    /**
+     * 构造方法，创建 Output格式化 实例。
+     *
+     * @param label 标签，不允许为 null
+     * @param extension 方法入参 extension
+     * @param mimeType mime类型，不允许为 null
+     */
     OutputFormat(String label, String extension, String mimeType) {
         this.label = label;
         this.extension = extension;

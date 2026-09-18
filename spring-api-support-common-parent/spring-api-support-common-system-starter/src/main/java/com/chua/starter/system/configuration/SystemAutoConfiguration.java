@@ -35,6 +35,12 @@ import java.util.function.Supplier;
 @ComponentScan(basePackages = {
         "com.chua.starter.system"
 })
+/**
+ * SystemAuto配置类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 @MapperScan(basePackages = "com.chua.starter.system.mapper")
 @EnableConfigurationProperties(SystemSecurityProperties.class)
 public class SystemAutoConfiguration {
@@ -100,6 +106,12 @@ public class SystemAutoConfiguration {
         };
     }
 
+    /**
+     * 首个NonBlank。
+     *
+     * @param values 方法入参 values
+     * @return 结果字符串
+     */
     private static String firstNonBlank(String... values) {
         for (String value : values) {
             if (StringUtils.hasText(value)) {
@@ -109,6 +121,13 @@ public class SystemAutoConfiguration {
         return null;
     }
 
+    /**
+     * 解析。
+     *
+     * @param environment 方法入参 environment
+     * @param value 值，不允许为 null
+     * @return 结果字符串
+     */
     private static String resolve(Environment environment, String value) {
         if (!StringUtils.hasText(value)) {
             return value;

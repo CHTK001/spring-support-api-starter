@@ -24,6 +24,13 @@ class SysIpBlackwhiteServiceTest {
 
     private final SysIpBlackwhiteServiceImpl sysIpBlackwhiteService = new SysIpBlackwhiteServiceImpl();
 
+    /**
+     * 条目。
+     *
+     * @param type 类型，不允许为 null
+     * @param ip IP，不允许为 null
+     * @return SysIPBlackwhite 对象
+     */
     private SysIpBlackwhite entry(int type, String ip) {
         SysIpBlackwhite e = new SysIpBlackwhite();
         e.setSysIpType(type);
@@ -32,6 +39,9 @@ class SysIpBlackwhiteServiceTest {
         return e;
     }
 
+    /**
+     * 测试：校验BlankIP。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("checkIp-空IP直接放行")
@@ -40,6 +50,9 @@ class SysIpBlackwhiteServiceTest {
         assertTrue(sysIpBlackwhiteService.checkIp(null));
     }
 
+    /**
+     * 测试：校验BlackExact。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("checkIp-黑名单精确命中则拒绝")
@@ -47,6 +60,9 @@ class SysIpBlackwhiteServiceTest {
         assertFalse(sysIpBlackwhiteService.checkIp("1.2.3.4"));
     }
 
+    /**
+     * 测试：校验BlackCidr。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("checkIp-黑名单CIDR段命中则拒绝")
@@ -55,6 +71,9 @@ class SysIpBlackwhiteServiceTest {
         assertTrue(sysIpBlackwhiteService.checkIp("9.9.9.9"));
     }
 
+    /**
+     * 测试：校验WhiteMatched。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("checkIp-存在白名单且命中则放行")
@@ -62,6 +81,9 @@ class SysIpBlackwhiteServiceTest {
         assertTrue(sysIpBlackwhiteService.checkIp("192.168.1.5"));
     }
 
+    /**
+     * 测试：校验WhiteNotMatched。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("checkIp-存在白名单但未命中则拒绝")
@@ -69,6 +91,9 @@ class SysIpBlackwhiteServiceTest {
         assertFalse(sysIpBlackwhiteService.checkIp("192.168.1.9"));
     }
 
+    /**
+     * 测试：校验编号White列出。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("checkIp-无白名单时黑名单未命中即放行")
@@ -76,6 +101,9 @@ class SysIpBlackwhiteServiceTest {
         assertTrue(sysIpBlackwhiteService.checkIp("1.1.1.1"));
     }
 
+    /**
+     * 测试：校验MultiIP请求头。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("checkIp-多IP头取第一个有效IP")
@@ -83,6 +111,9 @@ class SysIpBlackwhiteServiceTest {
         assertFalse(sysIpBlackwhiteService.checkIp("10.0.0.5, 1.1.1.1"));
     }
 
+    /**
+     * 测试：保存Success。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("新增IP-状态为空默认启用并保存成功")
@@ -94,6 +125,9 @@ class SysIpBlackwhiteServiceTest {
         assertEquals(0, result.getData().getSysIpStatus());
     }
 
+    /**
+     * 测试：更新NullID。
+     */
     @Test
     @DisplayName("更新IP-ID为空返回非法参数")
     void testUpdateNullId() {
@@ -102,6 +136,9 @@ class SysIpBlackwhiteServiceTest {
         assertTrue(result.getMsg().contains("记录不存在"));
     }
 
+    /**
+     * 测试：删除NullID。
+     */
     @Test
     @DisplayName("删除IP-ID为空返回非法参数")
     void testDeleteNullId() {
@@ -110,6 +147,9 @@ class SysIpBlackwhiteServiceTest {
         assertTrue(result.getMsg().contains("记录不存在"));
     }
 
+    /**
+     * 测试：删除Success。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("删除IP-合法ID调用removeById")
@@ -118,6 +158,9 @@ class SysIpBlackwhiteServiceTest {
         assertTrue(result.isSuccess());
     }
 
+    /**
+     * 测试：页By类型。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("分页-按type筛选调用分页查询")
@@ -129,6 +172,9 @@ class SysIpBlackwhiteServiceTest {
         assertNotNull(page);
     }
 
+    /**
+     * 测试：列出。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("列表-返回数据")

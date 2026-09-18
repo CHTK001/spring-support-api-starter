@@ -81,6 +81,19 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
         sysRole.setSysRoleInSystem(null);
         String sysRoleCode = sysRole.getSysRoleCode();
+        
+        // 角色编码校验：去除空格、\\t等符号，只能用字母
+        if (StringUtils.isNotBlank(sysRoleCode)) {
+            String cleanedCode = sysRoleCode.replaceAll("[\\s\\t\\r\\n]+", "");
+            if (!cleanedCode.equals(sysRoleCode)) {
+                return ReturnResult.error("角色编码不允许包含空格或制表符");
+            }
+            if (!cleanedCode.matches("^[a-zA-Z]+$")) {
+                return ReturnResult.error("角色编码只能使用字母（大小写都支持），不允许数字和特殊字符");
+            }
+            sysRole.setSysRoleCode(cleanedCode.toUpperCase());
+        }
+        
         // 系统内置角色不允许变更角色编码(只允许改名称/备注/排序/状态/数据权限/只读标记)
         if(null != sysRole2.getSysRoleInSystem() && sysRole2.getSysRoleInSystem() == SystemConstant.IN_SYSTEM_YES) {
             sysRole.setSysRoleCode(null);
@@ -102,8 +115,22 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     public ReturnResult<SysRole> saveRole(SysRole sysRole) {
         sysRole.setSysRoleInSystem(SystemConstant.IN_SYSTEM_NO);
         String sysRoleCode = sysRole.getSysRoleCode();
+        
+        // 角色编码校验：去除空格、\\t等符号，只能用字母
+        if (StringUtils.isNotBlank(sysRoleCode)) {
+            String cleanedCode = sysRoleCode.replaceAll("[\\s\\t\\r\\n]+", "");
+            if (!cleanedCode.equals(sysRoleCode)) {
+                return ReturnResult.error("角色编码不允许包含空格或制表符");
+            }
+            if (!cleanedCode.matches("^[a-zA-Z]+$")) {
+                return ReturnResult.error("角色编码只能使用字母（大小写都支持），不允许数字和特殊字符");
+            }
+            sysRole.setSysRoleCode(cleanedCode.toUpperCase());
+        }
+        
         if(AuthConstant.ADMIN.equalsIgnoreCase(sysRoleCode) ||
                 AuthConstant.SUPER_ADMIN.equalsIgnoreCase(sysRoleCode) ||
+                "SA".equalsIgnoreCase(sysRoleCode) ||
                 "OPS".equalsIgnoreCase(sysRoleCode)
         ) {
             return ReturnResult.error("不允许添加系统角色");
@@ -145,3 +172,5 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         return ReturnResult.ok(list.stream().map(SysRoleMenu::getSysMenuId).collect(Collectors.toUnmodifiableSet()));
     }
 }
+
+

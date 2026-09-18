@@ -54,6 +54,7 @@ public class SysAvatarFrameController {
     *
     * @param @UserValue("sysUserId" @UserValue("sysUserId"
     * @return 列表的结果
+    * @param userId 用户ID，不允许为 null
      */
     public ReturnResult<List<SysAvatarFrame>> list(@UserValue("sysUserId") Long userId) {
         // 查询全部启用的头像框（含生日框记录）

@@ -140,6 +140,14 @@ public class TileDownloaderServiceImpl implements TileDownloaderService {
         return new DownloadResult(results, total, completed.get(), failed.get());
     }
 
+    /**
+     * doDownload。
+     *
+     * @param url URL，不允许为 null
+     * @param source 来源，不允许为 null
+     * @param proxy 方法入参 proxy
+     * @return 结果值
+     */
     private byte[] doDownload(String url, TileSource source, String proxy) {
         try {
             HttpClient.Builder builder = HttpClient.newBuilder()
@@ -155,12 +163,6 @@ public class TileDownloaderServiceImpl implements TileDownloaderService {
                 builder.proxy(new ProxySelector() {
                     @Override
                     public List<Proxy> select(URI uri) {
-                        /**
-                        * 连接失败。
-                        * @param uri uri
-                        * @param sa sa
-                        * @param ie ie
-                         */
                         return List.of(new Proxy(Proxy.Type.HTTP,
                                 new InetSocketAddress(proxyUri.getHost(), proxyUri.getPort())));
                     }
@@ -190,6 +192,15 @@ public class TileDownloaderServiceImpl implements TileDownloaderService {
         }
     }
 
+    /**
+     * 构建TileURL。
+     *
+     * @param source 来源，不允许为 null
+     * @param x 方法入参 x
+     * @param y 方法入参 y
+     * @param z 方法入参 z
+     * @return 结果字符串
+     */
     private String buildTileUrl(TileSource source, int x, int y, int z) {
         String url = source.getUrl();
         if (source.getSubdomains() != null && !source.getSubdomains().isEmpty()) {

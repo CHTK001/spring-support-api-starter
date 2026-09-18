@@ -105,6 +105,9 @@ public class SysMessageTemplateServiceImpl extends ServiceImpl<SysMessageTemplat
 
     /**
     * 简单变量替换: {key} -> variables[key]
+    * @param text 文本，不允许为 null
+    * @param variables 方法入参 variables
+    * @return 结果字符串
      */
     private String render(String text, Map<String, String> variables) {
         if (StringUtils.isBlank(text)) {

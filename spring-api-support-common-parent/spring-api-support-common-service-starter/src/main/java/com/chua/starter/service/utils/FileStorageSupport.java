@@ -42,6 +42,13 @@ public class FileStorageSupport {
      */
     }
 
+    /**
+     * 创建Storage。
+     *
+     * @param storageType storage类型，不允许为 null
+     * @param bucketSetting 方法入参 bucketSetting
+     * @return 结果值
+     */
     public com.chua.common.support.storage.FileStorage createStorage(String storageType, BucketSetting bucketSetting) {
         String resolvedType = resolveStorageType(storageType);
         BucketSetting resolvedSetting = enrichSetting(resolvedType, bucketSetting);
@@ -61,6 +68,15 @@ public class FileStorageSupport {
      */
     }
 
+    /**
+     * 创建UploadBucketSetting。
+     *
+     * @param storageType storage类型，不允许为 null
+     * @param bucket 方法入参 bucket
+     * @param originalFilename 方法入参 originalFilename
+     * @param preferredFileName preferred文件名称，不允许为 null
+     * @return BucketSetting 对象
+     */
     public BucketSetting createUploadBucketSetting(String storageType, String bucket, String originalFilename, String preferredFileName) {
         String resolvedType = resolveStorageType(storageType);
         String finalBucket = normalizeBucket(bucket);
@@ -86,6 +102,13 @@ public class FileStorageSupport {
      */
     }
 
+    /**
+     * 创建LocalBucketSetting。
+     *
+     * @param bucket 方法入参 bucket
+     * @param rootPath 根节点路径，不允许为 null
+     * @return BucketSetting 对象
+     */
     public BucketSetting createLocalBucketSetting(String bucket, String rootPath) {
         return BucketSetting.builder()
                 .bucket(normalizeBucket(bucket))
@@ -100,6 +123,12 @@ public class FileStorageSupport {
      */
     }
 
+    /**
+     * 解析Storage类型。
+     *
+     * @param storageType storage类型，不允许为 null
+     * @return 结果字符串
+     */
     public String resolveStorageType(String storageType) {
         if (StringUtils.isNotBlank(storageType)) {
             return storageType;
@@ -116,6 +145,12 @@ public class FileStorageSupport {
      */
     }
 
+    /**
+     * 是否LocalStorage类型。
+     *
+     * @param storageType storage类型，不允许为 null
+     * @return 是否成功（true 表示成功）
+     */
     public boolean isLocalStorageType(String storageType) {
         String text = (storageType == null ? "" : storageType).toLowerCase();
         return text.contains("filesystem") || text.contains("file_system") || text.contains("local");
@@ -127,6 +162,13 @@ public class FileStorageSupport {
      */
     }
 
+    /**
+     * enrichSetting。
+     *
+     * @param storageType storage类型，不允许为 null
+     * @param setting 方法入参 setting
+     * @return BucketSetting 对象
+     */
     private BucketSetting enrichSetting(String storageType, BucketSetting setting) {
         if (setting == null) {
             return isLocalStorageType(storageType)
@@ -152,6 +194,12 @@ public class FileStorageSupport {
      */
     }
 
+    /**
+     * 解析Endpoint。
+     *
+     * @param storageType storage类型，不允许为 null
+     * @return 结果字符串
+     */
     private String resolveEndpoint(String storageType) {
         if (isLocalStorageType(storageType)) {
             return resolveLocalRootPath();
@@ -164,6 +212,11 @@ public class FileStorageSupport {
      */
     }
 
+    /**
+     * 解析Local根节点路径。
+     *
+     * @return 结果字符串
+     */
     private String resolveLocalRootPath() {
         SysFileSystemSetting setting = safeGetSetting();
         if (setting != null && StringUtils.isNotBlank(setting.getSysFileSystemSettingStorageRootPath())) {
@@ -176,6 +229,11 @@ public class FileStorageSupport {
      */
     }
 
+    /**
+     * safe获取Setting。
+     *
+     * @return Sys文件SystemSetting 对象
+     */
     private SysFileSystemSetting safeGetSetting() {
         try {
             SysFileSystemSettingService service = sysFileSystemSettingServiceProvider.getIfAvailable();
@@ -185,6 +243,12 @@ public class FileStorageSupport {
         }
     }
 
+    /**
+     * normalizeBucket。
+     *
+     * @param bucket 方法入参 bucket
+     * @return 结果字符串
+     */
     private String normalizeBucket(String bucket) {
         if (StringUtils.isBlank(bucket)) {
             return "default";
