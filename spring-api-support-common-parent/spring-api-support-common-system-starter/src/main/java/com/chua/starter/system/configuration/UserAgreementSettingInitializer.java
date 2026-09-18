@@ -18,10 +18,10 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
-* 用户协议配置初始化
-*
-* @since 2026/08/03
-* @author CH
+ * 用户协议配置初始化
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @Slf4j
 @Component
@@ -30,7 +30,7 @@ import java.util.Map;
 public class UserAgreementSettingInitializer implements ApplicationRunner {
 
     /**
-    * 配置组编码
+     * 配置组编码
      */
     private static final String GROUP_CODE = "userAgreement";
 
@@ -41,9 +41,9 @@ public class UserAgreementSettingInitializer implements ApplicationRunner {
     private final Map<String, CacheManager> cacheManagers; // 缓存管理器
 
     /**
-    * 应用启动后执行用户协议配置初始化。
-    *
-    * @param args 启动参数
+     * 应用启动后执行用户协议配置初始化。
+     *
+     * @param args 启动参数
      */
     @Override
     public void run(ApplicationArguments args) {
@@ -65,9 +65,9 @@ public class UserAgreementSettingInitializer implements ApplicationRunner {
     }
 
     /**
-    * 确保用户协议配置组存在。
-    *
-    * @return true 表示新建了配置组
+     * 确保用户协议配置组存在。
+     *
+     * @return true 表示新建了配置组
      */
     private boolean ensureGroup() {
         SysSettingGroup existed = sysSettingGroupMapper.selectOne(
@@ -93,14 +93,14 @@ public class UserAgreementSettingInitializer implements ApplicationRunner {
     }
 
     /**
-    * 确保指定配置项存在。
-    *
-    * @param name      配置名
-    * @param value     配置值
-    * @param remark    配置备注
-    * @param valueType 值类型
-    * @param sort      排序
-    * @return true 表示新建了配置项
+     * 确保指定配置项存在。
+     *
+     * @param name      配置名
+     * @param value     配置值
+     * @param remark    配置备注
+     * @param valueType 值类型
+     * @param sort      排序
+     * @return true 表示新建了配置项
      */
     private boolean ensureSetting(String name, String value, String remark, String valueType, int sort) {
         SysSetting existed = sysSettingMapper.selectOne(
@@ -130,7 +130,7 @@ public class UserAgreementSettingInitializer implements ApplicationRunner {
     }
 
     /**
-    * 清空所有缓存管理器下的缓存。
+     * 清空所有缓存管理器下的缓存。
      */
     private void clearCache() {
         cacheManagers.forEach((cacheName, manager) -> {

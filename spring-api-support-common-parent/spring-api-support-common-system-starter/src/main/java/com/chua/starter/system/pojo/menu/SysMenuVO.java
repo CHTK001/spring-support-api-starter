@@ -6,17 +6,17 @@ import lombok.Data;
 import java.util.List;
 
 /**
-* 菜单VO
-*
-* @since 2024/8/20
-* @author CH
+ * 菜单VO
+ *
+ * @since 2024/8/20
+ * @author CH
  */
 @Data
 @Schema(description = "菜单VO")
 public class SysMenuVO {
 
     /**
-    * 菜单标识
+     * 菜单标识
      */
     @Schema(description = "菜单ID")
     /** sysmenuid */
@@ -209,7 +209,7 @@ public class SysMenuVO {
     private Integer sysMenuEngine;
 
     /**
-    * 子菜单
+     * 子菜单
      */
     @Schema(description = "子菜单")
     /** Children */
@@ -224,7 +224,7 @@ public class SysMenuVO {
     @Schema(description = "菜单元数据")
     public static class Meta {
         /**
-        * 标题
+         * 标题
          */
         @Schema(description = "标题")
         /** 标题 */
@@ -337,7 +337,7 @@ public class SysMenuVO {
         @Schema(description = "过渡动画")
         public static class Transition {
             /**
-            * 离开过渡
+             * 离开过渡
              */
             @Schema(description = "离开过渡")
             /** Leavetransition */

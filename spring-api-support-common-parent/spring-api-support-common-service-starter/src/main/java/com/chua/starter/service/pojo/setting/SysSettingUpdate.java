@@ -6,9 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
-* 系统设置
-* @since 2024/8/9
-* @author CH
+ * 系统设置
+ * @since 2024/8/9
+ * @author CH
  */
 @Data
 @NoArgsConstructor
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class SysSettingUpdate {
 
     /**
-    * 系统设置分组
+     * 系统设置分组
      */
     @Schema(description = "系统设置分组")
     /** SYS设置分组 */

@@ -26,10 +26,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
-* 瓦片下载控制器，提供图源查询、下载估算、任务创建与状态管理接口。
-*
-* @author CH
-* @since 1.0.0
+ * 瓦片下载控制器，提供图源查询、下载估算、任务创建与状态管理接口。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @RestController
 @RequestMapping("/v1/geo/tile")
@@ -75,10 +75,10 @@ public class TileDownloadController {
     }
 
     /**
-    * 估算指定区域的瓦片数量与大小。
-    *
-    * @param request 下载请求参数
-    * @return 估算结果
+     * 估算指定区域的瓦片数量与大小。
+     *
+     * @param request 下载请求参数
+     * @return 估算结果
      */
     @PostMapping("/estimate")
     @Operation(summary = "估算瓦片数量与大小")
@@ -105,10 +105,10 @@ public class TileDownloadController {
     }
 
     /**
-    * 创建瓦片下载任务并异步启动下载流程。
-    *
-    * @param request 下载请求参数
-    * @return 包含 任务id 和 瓷砖数量 的结果
+     * 创建瓦片下载任务并异步启动下载流程。
+     *
+     * @param request 下载请求参数
+     * @return 包含 任务id 和 瓷砖数量 的结果
      */
     @PostMapping("/download")
     @Operation(summary = "创建瓦片下载任务")
@@ -139,11 +139,11 @@ public class TileDownloadController {
     }
 
     /**
-    * 异步执行完整的下载→拼接→导出流程。
-    *
-    * @param taskId  任务 标识
-    * @param request 下载请求
-    * @param source  图源配置
+     * 异步执行完整的下载→拼接→导出流程。
+     *
+     * @param taskId  任务 标识
+     * @param request 下载请求
+     * @param source  图源配置
      */
     private void runDownload(String taskId, DownloadRequest request, TileSource source) {
         try {
@@ -183,11 +183,11 @@ public class TileDownloadController {
     }
 
     /**
-    * 获取所有可用图源列表。
-    *
-    * @param tiandituToken 天地图 令牌（可为 空）
-    * @return 图源详情 映射
-    * @param false false
+     * 获取所有可用图源列表。
+     *
+     * @param tiandituToken 天地图 令牌（可为 空）
+     * @return 图源详情 映射
+     * @param false false
      */
     @GetMapping("/sources")
     @Operation(summary = "获取可用图源列表")
@@ -204,10 +204,10 @@ public class TileDownloadController {
     }
 
     /**
-    * 查询单个任务状态。
-    *
-    * @param taskId 任务 标识
-    * @return 任务信息
+     * 查询单个任务状态。
+     *
+     * @param taskId 任务 标识
+     * @return 任务信息
      */
     @GetMapping("/task/{taskId}")
     @Operation(summary = "查询任务状态")
@@ -217,9 +217,9 @@ public class TileDownloadController {
     }
 
     /**
-    * 列出所有任务。
-    *
-    * @return 任务列表
+     * 列出所有任务。
+     *
+     * @return 任务列表
      */
     @GetMapping("/tasks")
     @Operation(summary = "列出所有任务")
@@ -228,10 +228,10 @@ public class TileDownloadController {
     }
 
     /**
-    * 取消任务。
-    *
-    * @param taskId 任务 标识
-    * @return 操作结果
+     * 取消任务。
+     *
+     * @param taskId 任务 标识
+     * @return 操作结果
      */
     @PostMapping("/task/{taskId}/cancel")
     @Operation(summary = "取消任务")
@@ -241,10 +241,10 @@ public class TileDownloadController {
     }
 
     /**
-    * 删除任务记录。
-    *
-    * @param taskId 任务 标识
-    * @return 操作结果
+     * 删除任务记录。
+     *
+     * @param taskId 任务 标识
+     * @return 操作结果
      */
     @DeleteMapping("/task/{taskId}")
     @Operation(summary = "删除任务记录")
@@ -254,10 +254,10 @@ public class TileDownloadController {
     }
 
     /**
-    * 导出部分下载结果（Web 版为 no-op）。
-    *
-    * @param taskId 任务 标识
-    * @return 操作结果
+     * 导出部分下载结果（Web 版为 no-op）。
+     *
+     * @param taskId 任务 标识
+     * @return 操作结果
      */
     @PostMapping("/task/{taskId}/export")
     @Operation(summary = "导出部分下载结果")

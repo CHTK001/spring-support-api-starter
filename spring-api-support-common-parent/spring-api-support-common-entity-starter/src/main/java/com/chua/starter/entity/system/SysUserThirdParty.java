@@ -14,10 +14,10 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
-* 用户第三方绑定表
-*
-* @since 2024/9/6
-* @author CH
+ * 用户第三方绑定表
+ *
+ * @since 2024/9/6
+ * @author CH
  */
 @Schema(description = "用户第三方绑定表")
 @Data
@@ -28,7 +28,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-    * 主键标识
+     * 主键标识
      */
     @TableId(value = "sys_user_third_party_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
@@ -87,31 +87,31 @@ public class SysUserThirdParty extends SysBase implements Serializable {
      */
     public enum Type {
         /**
-        * Gitee
+         * Gitee
          */
         GITEE,
         /**
-        * GitHub
+         * GitHub
          */
         GITHUB,
         /**
-        * Google
+         * Google
          */
         GOOGLE,
         /**
-        * 微信小程序
+         * 微信小程序
          */
         WX_MINI_APP,
         /**
-        * 微信开放平台
+         * 微信开放平台
          */
         WECHAT_OPEN,
         /**
-        * 钉钉
+         * 钉钉
          */
         DINGTALK,
         /**
-        * 企业微信
+         * 企业微信
          */
         WECHAT_ENTERPRISE
     }

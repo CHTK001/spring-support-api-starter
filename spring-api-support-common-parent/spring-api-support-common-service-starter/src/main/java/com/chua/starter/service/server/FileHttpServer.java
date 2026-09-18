@@ -17,19 +17,19 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 /**
-* 文件下载服务器 — 基于 {@link JdkHttpServer} 的轻量内嵌 HTTP 服务。
-*
-* <p>启动后对外提供：</p>
-* <ul>
-*   <li>{@code GET /file/{id}} — 通过数据库主键查找文件并下载</li>
-*   <li>{@code GET /raw/{path}} — 按相对路径(相对 tempPath)读取本地文件</li>
-*   <li>{@code GET /health} — 健康检查</li>
-* </ul>
-*
-* <p>使用 JDK 内置 HTTP Server + 虚拟线程池,零外部依赖。生命周期由 Service 显式管理。</p>
-*
-* @since 4.0.0.42
-* @author CH
+ * 文件下载服务器 — 基于 {@link JdkHttpServer} 的轻量内嵌 HTTP 服务。
+ *
+ * <p>启动后对外提供：</p>
+ * <ul>
+ *   <li>{@code GET /file/{id}} — 通过数据库主键查找文件并下载</li>
+ *   <li>{@code GET /raw/{path}} — 按相对路径(相对 tempPath)读取本地文件</li>
+ *   <li>{@code GET /health} — 健康检查</li>
+ * </ul>
+ *
+ * <p>使用 JDK 内置 HTTP Server + 虚拟线程池,零外部依赖。生命周期由 Service 显式管理。</p>
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 public class FileHttpServer {
@@ -99,7 +99,7 @@ public class FileHttpServer {
     }
 
     /**
-    * 启动 HTTP 服务器。
+     * 启动 HTTP 服务器。
      */
     public synchronized void start() {
         if (running) {
@@ -116,7 +116,7 @@ public class FileHttpServer {
     }
 
     /**
-    * 关闭 HTTP 服务器。
+     * 关闭 HTTP 服务器。
      */
     public synchronized void stop() {
         if (!running) {
@@ -132,10 +132,10 @@ public class FileHttpServer {
     }
 
     /**
-    * serve文件byid
-    *
-    * @param fileId 文件id
-    * @param res R
+     * serve文件byid
+     *
+     * @param fileId 文件id
+     * @param res R
      */
     private void serveFileById(Integer fileId, com.chua.common.support.network.server.response.ServerResponse res) {
         SysFileSystem file = sysFileSystemService.getById(fileId);
@@ -168,10 +168,10 @@ public class FileHttpServer {
     }
 
     /**
-    * serveraw路径
-    *
-    * @param decoded decoded
-    * @param res R
+     * serveraw路径
+     *
+     * @param decoded decoded
+     * @param res R
      */
     private void serveRawPath(String decoded, com.chua.common.support.network.server.response.ServerResponse res) {
         if (decoded.contains("..")) {
@@ -198,10 +198,10 @@ public class FileHttpServer {
     }
 
     /**
-    * 解析本地路径
-    *
-    * @param file 文件
-    * @return resolve本地路径的结果
+     * 解析本地路径
+     *
+     * @param file 文件
+     * @return resolve本地路径的结果
      */
     private Path resolveLocalPath(SysFileSystem file) {
         String local = file.getSysFileSystemLocalPath();
@@ -215,9 +215,9 @@ public class FileHttpServer {
     }
 
     /**
-    * 获取当前download已启用
-    *
-    * @return 获取当前download已启用的结果
+     * 获取当前download已启用
+     *
+     * @return 获取当前download已启用的结果
      */
     private Boolean getCurrentDownloadEnabled() {
         try {
@@ -230,11 +230,11 @@ public class FileHttpServer {
     }
 
     /**
-    * 写入文件
-    *
-    * @param res R
-    * @param file 文件
-    * @param name 名称
+     * 写入文件
+     *
+     * @param res R
+     * @param file 文件
+     * @param name 名称
      */
     private void writeFile(com.chua.common.support.network.server.response.ServerResponse res, Path file, String name) {
         try {
@@ -255,10 +255,10 @@ public class FileHttpServer {
     }
 
     /**
-    * guess内容类型
-    *
-    * @param name 名称
-    * @return guess内容类型的结果
+     * guess内容类型
+     *
+     * @param name 名称
+     * @return guess内容类型的结果
      */
     private static String guessContentType(String name) {
         String lower = name.toLowerCase();
@@ -290,10 +290,10 @@ public class FileHttpServer {
     }
 
     /**
-    * 编码
-    *
-    * @param name 名称
-    * @return encode的结果
+     * 编码
+     *
+     * @param name 名称
+     * @return encode的结果
      */
     private static String encode(String name) {
         StringBuilder sb = new StringBuilder();
@@ -310,11 +310,11 @@ public class FileHttpServer {
     }
 
     /**
-    * 创建默认 服务端 设置。
-    * @param host 主机
-    * @param port 端口
-    * @param contextPath 上下文路径
-    * @return 默认setting的结果
+     * 创建默认 服务端 设置。
+     * @param host 主机
+     * @param port 端口
+     * @param contextPath 上下文路径
+     * @return 默认setting的结果
      */
     public static ServerSetting defaultSetting(String host, int port, String contextPath) {
         return ServerSetting.builder()

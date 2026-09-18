@@ -39,12 +39,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* ACME 证书服务实现，提供账户保存、证书申请（异步）、续签、吊销、详情、统计、
-* 到期自动续签与重新验证等完整的证书生命周期管理能力。
-*
-* @版本 1.0.0
-* @since 2025-10-17
-* @author CH
+ * ACME 证书服务实现，提供账户保存、证书申请（异步）、续签、吊销、详情、统计、
+ * 到期自动续签与重新验证等完整的证书生命周期管理能力。
+ *
+ * @版本 1.0.0
+ * @since 2025-10-17
+ * @author CH
  */
 @Slf4j
 @Service
@@ -52,100 +52,100 @@ import java.util.Map;
 public class AcmeCertificateServiceImpl implements AcmeCertificateService {
 
     /**
-    * 挑战类型：HTTP-01
+     * 挑战类型：HTTP-01
      */
     private static final String CHALLENGE_HTTP_01 = "HTTP-01";
 
     /**
-    * 部署模式：手动
+     * 部署模式：手动
      */
     private static final String DEPLOY_MODE_MANUAL = "manual";
 
     /**
-    * 证书状态：已提交待签发
+     * 证书状态：已提交待签发
      */
     private static final String STATUS_PENDING = "pending";
 
     /**
-    * 证书状态：待验证
+     * 证书状态：待验证
      */
     private static final String STATUS_VALIDATING = "validating";
 
     /**
-    * 证书状态：已签发
+     * 证书状态：已签发
      */
     private static final String STATUS_VALID = "valid";
 
     /**
-    * 证书状态：已吊销
+     * 证书状态：已吊销
      */
     private static final String STATUS_REVOKED = "revoked";
 
     /**
-    * 证书状态：签发失败
+     * 证书状态：签发失败
      */
     private static final String STATUS_FAILED = "failed";
 
     /**
-    * 证书状态：已过期
+     * 证书状态：已过期
      */
     private static final String STATUS_EXPIRED = "expired";
 
     /**
-    * 自动续签窗口下限天数，防止配置值过小导致高频无效续签
+     * 自动续签窗口下限天数，防止配置值过小导致高频无效续签
      */
     private static final int MIN_RENEW_DAYS = 7;
 
     /**
-    * 即将到期判定窗口天数
+     * 即将到期判定窗口天数
      */
     private static final int SOON_EXPIRING_DAYS = 30;
 
     /**
-    * 时间格式化器，与证书表时间字段格式保持一致
+     * 时间格式化器，与证书表时间字段格式保持一致
      */
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
-    * ACME 账户 映射器，用于账户查询与持久化
+     * ACME 账户 映射器，用于账户查询与持久化
      */
     private final MonitorAcmeAccountMapper accountMapper;
 
     /**
-    * ACME 证书 映射器，用于证书查询与持久化
+     * ACME 证书 映射器，用于证书查询与持久化
      */
     private final MonitorAcmeCertificateMapper certificateMapper;
 
     /**
-    * ACME 订单 映射器，用于订单查询与持久化
+     * ACME 订单 映射器，用于订单查询与持久化
      */
     private final MonitorAcmeOrderMapper orderMapper;
 
     /**
-    * ACME 配置，读取续签提前天数等参数
+     * ACME 配置，读取续签提前天数等参数
      */
     private final AcmeProperties acmeProperties;
 
     /**
-    * 认证服务，用于获取当前登录用户信息以便消息推送
+     * 认证服务，用于获取当前登录用户信息以便消息推送
      */
     private final AuthService authService;
 
     /**
-    * 异步证书服务，负责后台执行证书申请与重新验证
-    */
+     * 异步证书服务，负责后台执行证书申请与重新验证
+     */
     private final AcmeCertificateAsyncService asyncService;
 
     /**
-    * 本机 HTTP-01 验证缓存服务
-    */
+     * 本机 HTTP-01 验证缓存服务
+     */
     private final AcmeChallengeService challengeService;
 
     /**
-    * 保存/更新 ACME 账户 forcert
-    *
-    * @param account 账户
-    * @return 结果（账户ID）
+     * 保存/更新 ACME 账户 forcert
+     *
+     * @param account 账户
+     * @return 结果（账户ID）
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -170,13 +170,13 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-    * 申请证书 forcert（异步执行，立即返回）
-    *
-    * <p>不使用事务：证书记录插入后需立即提交，异步虚拟线程才能读取到该记录。</p>
-    *
-    * @param request 请求
-    * @return 证书ID
-    */
+     * 申请证书 forcert（异步执行，立即返回）
+     *
+     * <p>不使用事务：证书记录插入后需立即提交，异步虚拟线程才能读取到该记录。</p>
+     *
+     * @param request 请求
+     * @return 证书ID
+     */
     @Override
     public ReturnResult<Integer> applyCertificateForCert(AcmeApplyCertRequest request) {
         if (request == null || request.getAcmeAccountId() == null || StringUtils.isNullOrEmpty(request.getPrimaryDomain())) {
@@ -225,19 +225,19 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-    * 续签证书 forcert
-    *
-    * <p>续签即基于同一账户重新走完整 ACME 流程：创建续签订单 → 获取验证信息 →
-    * 按部署模式完成 HTTP-01 验证部署 → 触发验证并下载新证书。
-    * 本机模式（local）自动完成验证；SSH/手动/DNS-01 模式无法自动部署时，
-    * 订单与验证信息入库、证书转入待验证状态，用户部署后点击重新验证即可完成续签。</p>
-    *
-    * <p>不使用事务：方法包含最长可达分钟级的 CA 轮询网络调用，
-    * 每次数据库写入均为单条语句，由 MyBatis 自动提交。</p>
-    *
-    * @param certId 证书标识
-    * @return 是否成功
-    */
+     * 续签证书 forcert
+     *
+     * <p>续签即基于同一账户重新走完整 ACME 流程：创建续签订单 → 获取验证信息 →
+     * 按部署模式完成 HTTP-01 验证部署 → 触发验证并下载新证书。
+     * 本机模式（local）自动完成验证；SSH/手动/DNS-01 模式无法自动部署时，
+     * 订单与验证信息入库、证书转入待验证状态，用户部署后点击重新验证即可完成续签。</p>
+     *
+     * <p>不使用事务：方法包含最长可达分钟级的 CA 轮询网络调用，
+     * 每次数据库写入均为单条语句，由 MyBatis 自动提交。</p>
+     *
+     * @param certId 证书标识
+     * @return 是否成功
+     */
     @Override
     public ReturnResult<Boolean> renewCertificateForCert(Integer certId) {
         MonitorAcmeCertificate cert = certificateMapper.selectById(certId);
@@ -335,12 +335,12 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-    * 根据部署模式与挑战类型生成待验证提示信息。
-    *
-    * @param deployMode    部署模式
-    * @param challengeType 挑战类型
-    * @return 提示信息
-    */
+     * 根据部署模式与挑战类型生成待验证提示信息。
+     *
+     * @param deployMode    部署模式
+     * @param challengeType 挑战类型
+     * @return 提示信息
+     */
     private String buildDeployPendingMessage(String deployMode, String challengeType) {
         if (AcmeCertificateSupport.DEPLOY_MODE_SSH.equals(deployMode)) {
             return "自动续签无法完成 SSH 远程验证（证书未保存 SSH 凭据），请手动部署验证文件后重新验证";
@@ -352,13 +352,13 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-    * 吊销证书 forcert
-    *
-    * <p>不使用事务：吊销包含 CA 网络调用，吊销成功后的状态更新为单条语句自动提交。</p>
-    *
-    * @param certId 证书标识
-    * @return 是否成功
-    */
+     * 吊销证书 forcert
+     *
+     * <p>不使用事务：吊销包含 CA 网络调用，吊销成功后的状态更新为单条语句自动提交。</p>
+     *
+     * @param certId 证书标识
+     * @return 是否成功
+     */
     @Override
     public ReturnResult<Boolean> revokeCertificateForCert(Integer certId) {
         MonitorAcmeCertificate cert = certificateMapper.selectById(certId);
@@ -413,10 +413,10 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-    * 获取证书详情 forcert（含账户和订单信息）
-    *
-    * @param certId 证书标识
-    * @return 证书详情VO
+     * 获取证书详情 forcert（含账户和订单信息）
+     *
+     * @param certId 证书标识
+     * @return 证书详情VO
      */
     @Override
     public ReturnResult<AcmeCertificateDetailVo> getCertificateDetailForCert(Integer certId) {
@@ -505,9 +505,9 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-    * 获取证书统计信息 forcert
-    *
-    * @return 统计信息
+     * 获取证书统计信息 forcert
+     *
+     * @return 统计信息
      */
     @Override
     public ReturnResult<CertStats> getCertStatsForCert() {
@@ -546,10 +546,10 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-    * 检查并续签到期前 N 天的证书（调度）
-    *
-    * <p>不使用事务：续签为逐证书独立的网络密集型操作，单证书失败不影响其它证书，
-    * 数据库写入由各 Mapper 单条自动提交。</p>
+     * 检查并续签到期前 N 天的证书（调度）
+     *
+     * <p>不使用事务：续签为逐证书独立的网络密集型操作，单证书失败不影响其它证书，
+     * 数据库写入由各 Mapper 单条自动提交。</p>
      */
     @Override
     public void checkAndRenewSoonExpired() {
@@ -570,10 +570,10 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-    * 重新验证证书 forcert（用户手动部署完成后调用）
-    *
-    * @param certId 证书标识
-    * @return 是否提交成功
+     * 重新验证证书 forcert（用户手动部署完成后调用）
+     *
+     * @param certId 证书标识
+     * @return 是否提交成功
      */
     @Override
     public ReturnResult<Boolean> retryValidationForCert(Integer certId) {
@@ -602,10 +602,10 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
     }
 
     /**
-    * 成功签发/续签后回填证书信息到实体
-    *
-    * @param target 目标证书实体
-    * @param src    证书申请结果
+     * 成功签发/续签后回填证书信息到实体
+     *
+     * @param target 目标证书实体
+     * @param src    证书申请结果
      */
     private void fillCertificateSuccess(MonitorAcmeCertificate target, AcmeCertificateResult src) {
         AcmeCertificateSupport.fillCertificateSuccess(target, src, acmeProperties.getRenewDaysBefore());

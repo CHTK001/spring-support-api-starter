@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
-* 处理租户客户端上报的同步 ACK。
-*
-* @since 2026/03/25
-* @author CH
+ * 处理租户客户端上报的同步 ACK。
+ *
+ * @since 2026/03/25
+ * @author CH
  */
 @Component
 @RequiredArgsConstructor
@@ -102,10 +102,10 @@ public class TenantServerSyncAckHandler implements SyncMessageHandler {
     }
 
     /**
-    * 验证签名
-    *
-    * @param data 数据
-    * @return 验证签名的结果
+     * 验证签名
+     *
+     * @param data 数据
+     * @return 验证签名的结果
      */
     private TenantSyncMessageSupport.VerificationResult verifySignature(Map<String, Object> data) {
         if (!tenantProperties.isServerSyncSignEnabled()) {

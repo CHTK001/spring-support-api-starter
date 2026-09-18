@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
-* ACME HTTP-01 验证响应控制器
-* 用于本机部署模式，响应 ACME 服务器的验证请求
-*
-* @since 2025-12-28
-* @author CH
+ * ACME HTTP-01 验证响应控制器
+ * 用于本机部署模式，响应 ACME 服务器的验证请求
+ *
+ * @since 2025-12-28
+ * @author CH
  */
 @Slf4j
 @RestController

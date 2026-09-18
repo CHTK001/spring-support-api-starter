@@ -25,10 +25,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
-* 用户视图对象
-*
-* @since 2024/8/20
-* @author CH
+ * 用户视图对象
+ *
+ * @since 2024/8/20
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @Data

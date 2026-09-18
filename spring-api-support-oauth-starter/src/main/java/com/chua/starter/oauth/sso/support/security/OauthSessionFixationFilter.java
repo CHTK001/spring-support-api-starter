@@ -17,13 +17,13 @@ import java.io.IOException;
 import java.util.List;
 
 /**
-* OAuth 会话 Fixation 防护过滤器
-*
-* <p>登录成功（POST 登录路径且响应 2xx）后调用 {@link HttpServletRequest#changeSessionId()}，
-* 防止攻击者固定会话标识。</p>
-*
-* @since 2025/01/01
-* @author CH
+ * OAuth 会话 Fixation 防护过滤器
+ *
+ * <p>登录成功（POST 登录路径且响应 2xx）后调用 {@link HttpServletRequest#changeSessionId()}，
+ * 防止攻击者固定会话标识。</p>
+ *
+ * @since 2025/01/01
+ * @author CH
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -69,10 +69,10 @@ public class OauthSessionFixationFilter implements Filter, Ordered {
     }
 
     /**
-    * 是否loginpost
-    *
-    * @param request 请求
-    * @return 是否loginpost的结果
+     * 是否loginpost
+     *
+     * @param request 请求
+     * @return 是否loginpost的结果
      */
     private boolean isLoginPost(HttpServletRequest request) {
         if (!"POST".equalsIgnoreCase(request.getMethod())) {

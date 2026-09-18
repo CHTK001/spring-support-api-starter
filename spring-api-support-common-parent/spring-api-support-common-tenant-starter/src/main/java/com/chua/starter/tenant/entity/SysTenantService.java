@@ -16,11 +16,11 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDate;
 
 /**
-* 租户 - 服务关联表
-*
-* @版本 1.0.0
-* @since 2024/12/06
-* @author CH
+ * 租户 - 服务关联表
+ *
+ * @版本 1.0.0
+ * @since 2024/12/06
+ * @author CH
  */
 @ApiModel(description = "租户 - 服务")
 @Schema(description = "租户 - 服务")
@@ -30,7 +30,7 @@ import java.time.LocalDate;
 public class SysTenantService extends SysBase {
 
     /**
-    * 主键标识
+     * 主键标识
      */
     @TableId(value = "sys_tenant_service_id", type = IdType.AUTO)
     @ApiModelProperty(value = "主键ID")

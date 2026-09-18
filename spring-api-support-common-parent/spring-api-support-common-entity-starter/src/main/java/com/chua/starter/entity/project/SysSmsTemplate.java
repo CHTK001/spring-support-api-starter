@@ -15,10 +15,10 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
-* 模板管理
-*
-* @since 2026/08/03
-* @author CH
+ * 模板管理
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @Schema(description="模板管理")
 @Data
@@ -28,7 +28,7 @@ public class SysSmsTemplate extends SysBase implements Serializable {
 
     private static final long serialVersionUID = 1L; // 串行版本uid
     /**
-    * 模板主键标识
+     * 模板主键标识
      */
     @TableId(value = "sys_sms_template_id", type = IdType.AUTO)
     @Schema(description="")

@@ -5,11 +5,11 @@ import com.chua.starter.tenant.entity.SysTenant;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
-* 租户 映射器 接口
-*
-* @版本 1.0.0
-* @since 2024/12/06
-* @author CH
+ * 租户 映射器 接口
+ *
+ * @版本 1.0.0
+ * @since 2024/12/06
+ * @author CH
  */
 @Mapper
 public interface SysTenantMapper extends BaseMapper<SysTenant> {

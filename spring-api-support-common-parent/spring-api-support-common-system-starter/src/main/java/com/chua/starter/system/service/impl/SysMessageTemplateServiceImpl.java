@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 消息模板服务实现
-*
-* @since 4.0.0.50
-* @author CH
+ * 消息模板服务实现
+ *
+ * @since 4.0.0.50
+ * @author CH
  */
 @Service
 @RequiredArgsConstructor
@@ -104,10 +104,10 @@ public class SysMessageTemplateServiceImpl extends ServiceImpl<SysMessageTemplat
     }
 
     /**
-    * 简单变量替换: {key} -> variables[key]
-    * @param text 文本，不允许为 null
-    * @param variables 方法入参 variables
-    * @return 结果字符串
+     * 简单变量替换: {key} -> variables[key]
+     * @param text 文本，不允许为 null
+     * @param variables 方法入参 variables
+     * @return 结果字符串
      */
     private String render(String text, Map<String, String> variables) {
         if (StringUtils.isBlank(text)) {

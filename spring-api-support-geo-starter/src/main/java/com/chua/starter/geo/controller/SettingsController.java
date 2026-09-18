@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
-* 全局设置控制器，提供应用配置读写接口。
-*
-* @author CH
-* @since 1.0.0
+ * 全局设置控制器，提供应用配置读写接口。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @RestController
 @RequestMapping("/v1/geo/settings")
@@ -48,10 +48,10 @@ public class SettingsController {
     }
 
     /**
-    * 保存全局设置。
-    *
-    * @param settings 新配置
-    * @return 操作结果
+     * 保存全局设置。
+     *
+     * @param settings 新配置
+     * @return 操作结果
      */
     @PostMapping
     @Operation(summary = "保存全局设置")

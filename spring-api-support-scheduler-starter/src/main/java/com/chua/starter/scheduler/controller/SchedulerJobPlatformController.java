@@ -17,13 +17,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* 调度平台任务管理接口。
-*
-* <p>平台基于 job-starter 新架构 (SCHEDULER 角色) 提供统一任务管理能力,
-* 任务统一存储在 {@code sys_job / sys_job_log} 单表中, 命名空间参数作为任务分组过滤。</p>
-*
-* @since 4.0.0.42
-* @author CH
+ * 调度平台任务管理接口。
+ *
+ * <p>平台基于 job-starter 新架构 (SCHEDULER 角色) 提供统一任务管理能力,
+ * 任务统一存储在 {@code sys_job / sys_job_log} 单表中, 命名空间参数作为任务分组过滤。</p>
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @RestController
 @RequestMapping("/v1/job-platform")
@@ -33,19 +33,19 @@ import java.util.Map;
 public class SchedulerJobPlatformController {
 
     /**
-    * 调度平台任务服务
+     * 调度平台任务服务
      */
     private final SchedulerJobPlatformService schedulerJobPlatformService;
 
     /**
-    * 分页查询任务。
-    *
-    * @param pageNum       页码
-    * @param pageSize      每页大小
-    * @param jobName       任务名模糊查询
-    * @param triggerStatus 启用状态
-    * @param group         任务分组
-    * @return 任务分页结果
+     * 分页查询任务。
+     *
+     * @param pageNum       页码
+     * @param pageSize      每页大小
+     * @param jobName       任务名模糊查询
+     * @param triggerStatus 启用状态
+     * @param group         任务分组
+     * @return 任务分页结果
      */
     @GetMapping("/job/page")
     @Operation(summary = "分页查询任务")
@@ -59,10 +59,10 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 查询任务详情。
-    *
-    * @param jobId 任务 标识
-    * @return 任务详情
+     * 查询任务详情。
+     *
+     * @param jobId 任务 标识
+     * @return 任务详情
      */
     @GetMapping("/job/{jobId}")
     @Operation(summary = "查询任务详情")
@@ -71,10 +71,10 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 按任务编号查询任务详情。
-    *
-    * @param jobNo 任务编号
-    * @return 任务详情
+     * 按任务编号查询任务详情。
+     *
+     * @param jobNo 任务编号
+     * @return 任务详情
      */
     @GetMapping("/job/no/{jobNo}")
     @Operation(summary = "按任务编号查询任务详情")
@@ -83,10 +83,10 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 创建任务。
-    *
-    * @param job 任务实体
-    * @return 创建后的任务
+     * 创建任务。
+     *
+     * @param job 任务实体
+     * @return 创建后的任务
      */
     @PostMapping("/job")
     @Operation(summary = "创建任务")
@@ -95,11 +95,11 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 更新任务。
-    *
-    * @param jobId 任务 标识
-    * @param job   任务实体
-    * @return 是否更新成功
+     * 更新任务。
+     *
+     * @param jobId 任务 标识
+     * @param job   任务实体
+     * @return 是否更新成功
      */
     @PutMapping("/job/{jobId}")
     @Operation(summary = "更新任务")
@@ -108,11 +108,11 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 按任务编号更新任务。
-    *
-    * @param jobNo 任务编号
-    * @param job   任务实体
-    * @return 是否更新成功
+     * 按任务编号更新任务。
+     *
+     * @param jobNo 任务编号
+     * @param job   任务实体
+     * @return 是否更新成功
      */
     @PutMapping("/job/no/{jobNo}")
     @Operation(summary = "按任务编号更新任务")
@@ -121,10 +121,10 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 删除任务。
-    *
-    * @param jobId 任务 标识
-    * @return 是否删除成功
+     * 删除任务。
+     *
+     * @param jobId 任务 标识
+     * @return 是否删除成功
      */
     @DeleteMapping("/job/{jobId}")
     @Operation(summary = "删除任务")
@@ -133,10 +133,10 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 按任务编号删除任务。
-    *
-    * @param jobNo 任务编号
-    * @return 是否删除成功
+     * 按任务编号删除任务。
+     *
+     * @param jobNo 任务编号
+     * @return 是否删除成功
      */
     @DeleteMapping("/job/no/{jobNo}")
     @Operation(summary = "按任务编号删除任务")
@@ -145,10 +145,10 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 恢复已删除任务。
-    *
-    * @param jobId 任务 标识
-    * @return 是否恢复成功
+     * 恢复已删除任务。
+     *
+     * @param jobId 任务 标识
+     * @return 是否恢复成功
      */
     @PostMapping("/job/{jobId}/restore")
     @Operation(summary = "恢复已删除任务")
@@ -157,10 +157,10 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 按任务编号恢复已删除任务。
-    *
-    * @param jobNo 任务编号
-    * @return 是否恢复成功
+     * 按任务编号恢复已删除任务。
+     *
+     * @param jobNo 任务编号
+     * @return 是否恢复成功
      */
     @PostMapping("/job/no/{jobNo}/restore")
     @Operation(summary = "按任务编号恢复已删除任务")
@@ -169,10 +169,10 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 启动任务。
-    *
-    * @param jobId 任务 标识
-    * @return 是否启动成功
+     * 启动任务。
+     *
+     * @param jobId 任务 标识
+     * @return 是否启动成功
      */
     @PostMapping("/job/{jobId}/start")
     @Operation(summary = "启动任务")
@@ -181,10 +181,10 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 按任务编号启动任务。
-    *
-    * @param jobNo 任务编号
-    * @return 是否启动成功
+     * 按任务编号启动任务。
+     *
+     * @param jobNo 任务编号
+     * @return 是否启动成功
      */
     @PostMapping("/job/no/{jobNo}/start")
     @Operation(summary = "按任务编号启动任务")
@@ -193,10 +193,10 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 停止任务。
-    *
-    * @param jobId 任务 标识
-    * @return 是否停止成功
+     * 停止任务。
+     *
+     * @param jobId 任务 标识
+     * @return 是否停止成功
      */
     @PostMapping("/job/{jobId}/stop")
     @Operation(summary = "停止任务")
@@ -205,10 +205,10 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 按任务编号停止任务。
-    *
-    * @param jobNo 任务编号
-    * @return 是否停止成功
+     * 按任务编号停止任务。
+     *
+     * @param jobNo 任务编号
+     * @return 是否停止成功
      */
     @PostMapping("/job/no/{jobNo}/stop")
     @Operation(summary = "按任务编号停止任务")
@@ -217,11 +217,11 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 立即执行任务。
-    *
-    * @param jobId 任务 标识
-    * @param param 执行参数
-    * @return 是否触发成功
+     * 立即执行任务。
+     *
+     * @param jobId 任务 标识
+     * @param param 执行参数
+     * @return 是否触发成功
      */
     @PostMapping("/job/{jobId}/trigger")
     @Operation(summary = "立即执行任务")
@@ -231,11 +231,11 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 按任务编号立即执行任务。
-    *
-    * @param jobNo 任务编号
-    * @param param 执行参数
-    * @return 是否触发成功
+     * 按任务编号立即执行任务。
+     *
+     * @param jobNo 任务编号
+     * @param param 执行参数
+     * @return 是否触发成功
      */
     @PostMapping("/job/no/{jobNo}/trigger")
     @Operation(summary = "按任务编号立即执行任务")
@@ -245,14 +245,14 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 分页查询任务日志。
-    *
-    * @param pageNum     页码
-    * @param pageSize    每页大小
-    * @param beanName    处理器 名称模糊查询
-    * @param executeCode 执行状态码
-    * @param group       任务分组
-    * @return 日志分页结果
+     * 分页查询任务日志。
+     *
+     * @param pageNum     页码
+     * @param pageSize    每页大小
+     * @param beanName    处理器 名称模糊查询
+     * @param executeCode 执行状态码
+     * @param group       任务分组
+     * @return 日志分页结果
      */
     @GetMapping("/job-log/page")
     @Operation(summary = "分页查询任务日志")
@@ -266,11 +266,11 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 查询平台任务视图。
-    *
-    * @param includeDeleted 是否包含已删除
-    * @param group          任务分组
-    * @return 任务视图列表
+     * 查询平台任务视图。
+     *
+     * @param includeDeleted 是否包含已删除
+     * @param group          任务分组
+     * @return 任务视图列表
      */
     @GetMapping("/task/list")
     @Operation(summary = "查询平台任务视图")
@@ -280,11 +280,11 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 更新平台任务。
-    *
-    * @param taskKey 任务标识
-    * @param request 更新请求
-    * @return 更新后的任务视图
+     * 更新平台任务。
+     *
+     * @param taskKey 任务标识
+     * @param request 更新请求
+     * @return 更新后的任务视图
      */
     @PutMapping("/task/{taskKey}")
     @Operation(summary = "更新平台任务")
@@ -294,10 +294,10 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 触发平台任务。
-    *
-    * @param taskKey 任务标识
-    * @return 触发后的任务视图
+     * 触发平台任务。
+     *
+     * @param taskKey 任务标识
+     * @return 触发后的任务视图
      */
     @PostMapping("/task/{taskKey}/trigger")
     @Operation(summary = "触发平台任务")
@@ -306,10 +306,10 @@ public class SchedulerJobPlatformController {
     }
 
     /**
-    * 组装分页结果载体。
-    *
-    * @param page 分页结果
-    * @return 分页数据 映射
+     * 组装分页结果载体。
+     *
+     * @param page 分页结果
+     * @return 分页数据 映射
      */
     private Map<String, Object> pagePayload(Page<?> page) {
         Map<String, Object> payload = new LinkedHashMap<>();

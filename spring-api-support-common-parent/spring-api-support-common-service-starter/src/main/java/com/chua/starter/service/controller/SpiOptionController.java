@@ -29,14 +29,14 @@ import static com.chua.starter.common.support.constant.CacheConstant.CACHE_MANAG
 import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE_ALWAYS;
 
 /**
-* SPI 选项查询接口
-* <p>
-* 前端传入 SPI 类型（类名或 {@code plugin.api.spi.mapping} 配置的别名），
-* 返回该 SPI 的全部实现选项，供下拉选择使用。
-* </p>
-*
-* @since 2026/08/03
-* @author CH
+ * SPI 选项查询接口
+ * <p>
+ * 前端传入 SPI 类型（类名或 {@code plugin.api.spi.mapping} 配置的别名），
+ * 返回该 SPI 的全部实现选项，供下拉选择使用。
+ * </p>
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @RestController
 @RequestMapping("/v1/option")
@@ -51,21 +51,21 @@ public class SpiOptionController {
     private final ApiProperties apiProperties;
 
     /**
-    * 构造函数
-    *
-    * @param apiProperties API 配置
+     * 构造函数
+     *
+     * @param apiProperties API 配置
      */
     public SpiOptionController(ApiProperties apiProperties) {
         this.apiProperties = apiProperties;
     }
 
     /**
-    * 获取已经加载的选项
-    *
-    * @param type 类型
-    * @param name 名称过滤（可选）
-    * @return 选项列表
-    * @param false false
+     * 获取已经加载的选项
+     *
+     * @param type 类型
+     * @param name 名称过滤（可选）
+     * @return 选项列表
+     * @param false false
      */
     @Operation(summary = "获取已经加载选项")
     @GetMapping("objects/get")
@@ -99,10 +99,10 @@ public class SpiOptionController {
     }
 
     /**
-    * 获取选项（多类型展开）
-    *
-    * @param type 类型
-    * @return 类型数组
+     * 获取选项（多类型展开）
+     *
+     * @param type 类型
+     * @return 类型数组
      */
     private String[] getTypes(String type) {
         ApiProperties.SpiConfig spi = apiProperties.getSpi();
@@ -120,10 +120,10 @@ public class SpiOptionController {
     }
 
     /**
-    * 获取类型映射后的真实 SPI 类型
-    *
-    * @param type 前端传入类型
-    * @return 真实 SPI 类型
+     * 获取类型映射后的真实 SPI 类型
+     *
+     * @param type 前端传入类型
+     * @return 真实 SPI 类型
      */
     private String getType(String type) {
         ApiProperties.SpiConfig spi = apiProperties.getSpi();
@@ -134,12 +134,12 @@ public class SpiOptionController {
     }
 
     /**
-    * 获取选项
-    *
-    * @param type 类型
-    * @param name 名称过滤（可选）
-    * @return 选项列表
-    * @param false false
+     * 获取选项
+     *
+     * @param type 类型
+     * @param name 名称过滤（可选）
+     * @return 选项列表
+     * @param false false
      */
     @Operation(summary = "获取选项")
     @GetMapping("get")
@@ -174,12 +174,12 @@ public class SpiOptionController {
     }
 
     /**
-    * 获取选项（多类型分组）
-    *
-    * @param type 类型，逗号分隔
-    * @param name 名称过滤（可选）
-    * @return 类型到选项列表的映射
-    * @param false false
+     * 获取选项（多类型分组）
+     *
+     * @param type 类型，逗号分隔
+     * @param name 名称过滤（可选）
+     * @return 类型到选项列表的映射
+     * @param false false
      */
     @Operation(summary = "获取选项")
     @GetMapping("list")

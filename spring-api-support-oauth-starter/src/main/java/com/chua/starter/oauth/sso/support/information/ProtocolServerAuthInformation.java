@@ -18,22 +18,22 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* 协议服务端 协议认证信息适配器
-* <p>
-* 提供 协议服务端 协议的请求/响应适配，使其能够复用现有的认证逻辑
-* </p>
-*
-* @author CH
-* @版本 1.0.0
-* @since 2025-12-15
+ * 协议服务端 协议认证信息适配器
+ * <p>
+ * 提供 协议服务端 协议的请求/响应适配，使其能够复用现有的认证逻辑
+ * </p>
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2025-12-15
  */
 public class ProtocolServerAuthInformation {
 
     /**
-    * 协议服务端 请求适配器
-    * <p>实现 HttpServletRequest 接口，用于适配 ProtocolServer 请求</p>
-    * @author CH
-    * @since 4.0.0
+     * 协议服务端 请求适配器
+     * <p>实现 HttpServletRequest 接口，用于适配 ProtocolServer 请求</p>
+     * @author CH
+     * @since 4.0.0
      */
     public static class ProtocolServerRequest implements HttpServletRequest {
         private final ServletRequest protocolRequest; // 协议请求
@@ -43,8 +43,8 @@ public class ProtocolServerAuthInformation {
         private int remotePort; // 远程端口
 
         /**
-        * 协议服务端请求。
-        * @param protocolRequest 协议请求
+         * 协议服务端请求。
+         * @param protocolRequest 协议请求
          */
         public ProtocolServerRequest(ServletRequest protocolRequest) {
             this.protocolRequest = protocolRequest;
@@ -83,9 +83,9 @@ public class ProtocolServerAuthInformation {
         }
 
         /**
-        * 设置头部。
-        * @param name 名称
-        * @param value 值
+         * 设置头部。
+         * @param name 名称
+         * @param value 值
          */
         public void setHeader(String name, String value) {
             headers.put(name != null ? name.toLowerCase() : name, value);
@@ -182,8 +182,8 @@ public class ProtocolServerAuthInformation {
         
         // 解析查询参数
         /**
-        * 解析查询参数。
-        * @return 解析查询参数的结果
+         * 解析查询参数。
+         * @return 解析查询参数的结果
          */
         private Map<String, String> parseQueryParams() {
             Map<String, String> params = new HashMap<>();
@@ -254,36 +254,36 @@ public class ProtocolServerAuthInformation {
     }
 
     /**
-    * 协议服务端 响应适配器
-    * <p>实现 HttpServletResponse 接口，用于适配 ProtocolServer 响应</p>
-    * @author CH
-    * @since 4.0.0
-    * @return 获取全部头部的结果
-    * @param name 名称
-    * @param value 值
+     * 协议服务端 响应适配器
+     * <p>实现 HttpServletResponse 接口，用于适配 ProtocolServer 响应</p>
+     * @author CH
+     * @since 4.0.0
+     * @return 获取全部头部的结果
+     * @param name 名称
+     * @param value 值
      */
     public static class ProtocolServerResponse implements HttpServletResponse {
         private final ServletResponse protocolResponse; // 协议响应
         private final Map<String, String> headers = new ConcurrentHashMap<>(); // 头部
         /**
-        * 协议服务端响应。
-        * @param protocolResponse 协议响应
+         * 协议服务端响应。
+         * @param protocolResponse 协议响应
          */
         private int status = 200;
         private String bodyString; // 主体字符串
         
         public ProtocolServerResponse(ServletResponse protocolResponse) {
             /**
-            * 设置主体字符串。
-            * @param body 主体
+             * 设置主体字符串。
+             * @param body 主体
              */
             this.protocolResponse = protocolResponse;
         }
         
         public void setBodyString(String body) {
             /**
-            * 获取主体字符串。
-            * @return 获取主体字符串的结果
+             * 获取主体字符串。
+             * @return 获取主体字符串的结果
              */
             this.bodyString = body;
         }
@@ -291,9 +291,9 @@ public class ProtocolServerAuthInformation {
         public String getBodyString() {
             return bodyString;
         /**
-        * 设置头部。
-        * @param name 名称
-        * @param value 值
+         * 设置头部。
+         * @param name 名称
+         * @param value 值
          */
         }
 

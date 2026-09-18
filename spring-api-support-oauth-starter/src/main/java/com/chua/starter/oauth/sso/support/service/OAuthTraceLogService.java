@@ -13,11 +13,11 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
-* OAuth追踪日志服务
-* 提供异步保存和敏感字段脱敏功能
-*
-* @since 2025/01/01
-* @author CH
+ * OAuth追踪日志服务
+ * 提供异步保存和敏感字段脱敏功能
+ *
+ * @since 2025/01/01
+ * @author CH
  */
 @Slf4j
 @Service
@@ -35,7 +35,7 @@ public class OAuthTraceLogService {
     );
 
     /**
-    * 需要部分隐藏的字段名（保留首尾4字符）
+     * 需要部分隐藏的字段名（保留首尾4字符）
      */
     private static final Set<String> PARTIAL_MASK_FIELDS = Set.of(
             "token", "accessKey", "x-oauth-access-key", "x-oauth-token", "x-oauth-cookie",
@@ -43,16 +43,16 @@ public class OAuthTraceLogService {
     );
 
     /**
-    * 需要部分隐藏的字段名（保留首8字符）
+     * 需要部分隐藏的字段名（保留首8字符）
      */
     private static final Set<String> SHORT_MASK_FIELDS = Set.of(
             "fingerprint", "x-oauth-fingerprint"
     );
 
     /**
-    * 异步保存追踪日志
-    *
-    * @param traceLog 追踪日志
+     * 异步保存追踪日志
+     *
+     * @param traceLog 追踪日志
      */
     @Async
     public void saveAsync(SysOAuthTraceLog traceLog) {
@@ -75,14 +75,14 @@ public class OAuthTraceLogService {
     }
 
     /**
-    * 构建追踪日志对象
-    *
-    * @param traceId       追踪标识
-    * @param operationType 操作类型
-    * @param clientAppName 客户端应用名
-    * @param clientIp      客户端IP
-    * @param requestUri    请求URI
-    * @return 追踪日志对象
+     * 构建追踪日志对象
+     *
+     * @param traceId       追踪标识
+     * @param operationType 操作类型
+     * @param clientAppName 客户端应用名
+     * @param clientIp      客户端IP
+     * @param requestUri    请求URI
+     * @return 追踪日志对象
      */
     public SysOAuthTraceLog buildTraceLog(String traceId, String operationType,
                                           String clientAppName, String clientIp,
@@ -98,10 +98,10 @@ public class OAuthTraceLogService {
     }
 
     /**
-    * 对JSON字符串中的敏感数据进行脱敏
-    *
-    * @param jsonStr JSON字符串
-    * @return 脱敏后的JSON字符串
+     * 对JSON字符串中的敏感数据进行脱敏
+     *
+     * @param jsonStr JSON字符串
+     * @return 脱敏后的JSON字符串
      */
     public String maskSensitiveData(String jsonStr) {
         if (jsonStr == null || jsonStr.isBlank()) {
@@ -118,8 +118,8 @@ public class OAuthTraceLogService {
     }
 
     /**
-    * 递归处理JSON对象中的敏感字段
-    * @param json json
+     * 递归处理JSON对象中的敏感字段
+     * @param json json
      */
     private void maskJsonObject(JSONObject json) {
         if (json == null) {
@@ -149,9 +149,9 @@ public class OAuthTraceLogService {
     }
 
     /**
-    * 部分脱敏 - 保留首尾4字符
-    * @param value 值
-    * @return mask部分的结果
+     * 部分脱敏 - 保留首尾4字符
+     * @param value 值
+     * @return mask部分的结果
      */
     private String maskPartial(String value) {
         if (value == null || value.length() <= 8) {
@@ -161,9 +161,9 @@ public class OAuthTraceLogService {
     }
 
     /**
-    * 短脱敏 - 保留首8字符
-    * @param value 值
-    * @return maskShort的结果
+     * 短脱敏 - 保留首8字符
+     * @param value 值
+     * @return maskShort的结果
      */
     private String maskShort(String value) {
         if (value == null || value.length() <= 8) {
@@ -173,9 +173,9 @@ public class OAuthTraceLogService {
     }
 
     /**
-    * 将映射转换为脱敏后的JSON字符串
-    * @param params 参数
-    * @return 映射转为maskedjson的结果
+     * 将映射转换为脱敏后的JSON字符串
+     * @param params 参数
+     * @return 映射转为maskedjson的结果
      */
     public String mapToMaskedJson(Map<String, Object> params) {
         if (params == null || params.isEmpty()) {

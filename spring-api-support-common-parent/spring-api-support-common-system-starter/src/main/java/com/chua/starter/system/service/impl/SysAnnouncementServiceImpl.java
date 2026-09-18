@@ -26,10 +26,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
-* 系统公告服务实现
-*
-* @since 4.0.0.42
-* @author CH
+ * 系统公告服务实现
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @Service
@@ -71,10 +71,10 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     @SysLog
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 保存Announcement
-    * @param sysAnnouncement sysannouncement
-    * @param roles 角色
-    * @param userId 用户id
+     * 保存Announcement
+     * @param sysAnnouncement sysannouncement
+     * @param roles 角色
+     * @param userId 用户id
      */
     public ReturnResult<SysAnnouncement> saveAnnouncement(SysAnnouncement sysAnnouncement, Set<String> roles,
                                                            Integer userId) {
@@ -93,11 +93,11 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     @SysLog
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 更新Announcement
-    *
-    * @param sysAnnouncement sysAnnouncement
-    * @param roles 角色
-    * @return 更新announcement的结果
+     * 更新Announcement
+     *
+     * @param sysAnnouncement sysAnnouncement
+     * @param roles 角色
+     * @return 更新announcement的结果
      */
     public ReturnResult<Boolean> updateAnnouncement(SysAnnouncement sysAnnouncement, Set<String> roles) {
         if (sysAnnouncement.getSysAnnouncementId() == null) {
@@ -117,11 +117,11 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     @SysLog
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 删除Announcement
-    *
-    * @param announcementId announcementId
-    * @param roles 角色
-    * @return 删除announcement的结果
+     * 删除Announcement
+     *
+     * @param announcementId announcementId
+     * @param roles 角色
+     * @return 删除announcement的结果
      */
     public ReturnResult<Boolean> deleteAnnouncement(Integer announcementId, Set<String> roles) {
         if (announcementId == null) {
@@ -133,11 +133,11 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     }
 
     /**
-    * 发布公告并清除缓存
-    * @param announcementId announcementId
-    * @param roles 角色
-    * @param userId 用户id
-    * @return 发布announcement的结果
+     * 发布公告并清除缓存
+     * @param announcementId announcementId
+     * @param roles 角色
+     * @param userId 用户id
+     * @return 发布announcement的结果
      */
     @CacheEvict(value = "announcement:active", allEntries = true)
     @Override
@@ -159,10 +159,10 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     }
 
     /**
-    * 下架公告并清除缓存
-    * @param announcementId announcementId
-    * @param roles 角色
-    * @return unpublishAnnouncement的结果
+     * 下架公告并清除缓存
+     * @param announcementId announcementId
+     * @param roles 角色
+     * @return unpublishAnnouncement的结果
      */
     @CacheEvict(value = "announcement:active", allEntries = true)
     @Override
@@ -183,7 +183,7 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     }
 
     /**
-    * 获取当前用户可见的活跃公告列表（缓存30秒）
+     * 获取当前用户可见的活跃公告列表（缓存30秒）
      */
     @Cacheable(value = "announcement:active", key = "#userId")
     @Override

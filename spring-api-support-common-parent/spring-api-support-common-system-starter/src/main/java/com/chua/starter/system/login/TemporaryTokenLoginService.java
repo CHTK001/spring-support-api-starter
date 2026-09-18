@@ -15,35 +15,35 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
-* 临时令牌服务
-* <p>基于已有令牌生成短期临时访问令牌，用于特定场景下的短期授权</p>
-*
-* <h2>使用场景</h2>
-* <ul>
-*   <li>需要将当前用户权限临时授予第三方系统访问</li>
-*   <li>执行敏感操作时，要求再次验证身份并使用短期令牌</li>
-*   <li>API网关需要在有限时间内转发身份信息到多个微服务</li>
-*   <li>单次授权访问，令牌使用后立即失效</li>
-*   <li>限制临时令牌只能访问特定URL</li>
-* </ul>
-*
-* <h2>实现原理</h2>
-* <ol>
-*   <li>接收已登录用户的有效令牌作为凭证</li>
-*   <li>验证令牌的有效性，获取关联的用户信息</li>
-*   <li>创建一个继承原令牌权限但有效期更短的临时令牌</li>
-*   <li>默认有效期为10秒，可通过ext参数自定义</li>
-*   <li>可指定允许访问的URL列表，默认允许所有URL</li>
-* </ol>
-*
-* <h2>扩展参数说明</h2>
-* <ul>
-*   <li>expireTime: 过期时间(秒)，默认10秒，最大3600秒</li>
-*   <li>allowedUrls: 允许访问的URL列表，默认为空表示允许所有URL</li>
-* </ul>
-*
-* @since 1.0.0
-* @author CH
+ * 临时令牌服务
+ * <p>基于已有令牌生成短期临时访问令牌，用于特定场景下的短期授权</p>
+ *
+ * <h2>使用场景</h2>
+ * <ul>
+ *   <li>需要将当前用户权限临时授予第三方系统访问</li>
+ *   <li>执行敏感操作时，要求再次验证身份并使用短期令牌</li>
+ *   <li>API网关需要在有限时间内转发身份信息到多个微服务</li>
+ *   <li>单次授权访问，令牌使用后立即失效</li>
+ *   <li>限制临时令牌只能访问特定URL</li>
+ * </ul>
+ *
+ * <h2>实现原理</h2>
+ * <ol>
+ *   <li>接收已登录用户的有效令牌作为凭证</li>
+ *   <li>验证令牌的有效性，获取关联的用户信息</li>
+ *   <li>创建一个继承原令牌权限但有效期更短的临时令牌</li>
+ *   <li>默认有效期为10秒，可通过ext参数自定义</li>
+ *   <li>可指定允许访问的URL列表，默认允许所有URL</li>
+ * </ol>
+ *
+ * <h2>扩展参数说明</h2>
+ * <ul>
+ *   <li>expireTime: 过期时间(秒)，默认10秒，最大3600秒</li>
+ *   <li>allowedUrls: 允许访问的URL列表，默认为空表示允许所有URL</li>
+ * </ul>
+ *
+ * @since 1.0.0
+ * @author CH
  */
 @Slf4j
 @Service
@@ -52,62 +52,62 @@ import java.util.*;
 public class TemporaryTokenLoginService implements UserInfoService {
 
     /**
-    * 默认临时令牌有效期(秒)
+     * 默认临时令牌有效期(秒)
      */
     private static final long DEFAULT_EXPIRE_TIME = 10L;
 
     /**
-    * 最大允许的临时令牌有效期(秒)
+     * 最大允许的临时令牌有效期(秒)
      */
     private static final long MAX_EXPIRE_TIME = 3600L;
 
     /**
-    * 允许访问的URL配置键
+     * 允许访问的URL配置键
      */
     private static final String KEY_ALLOWED_URLS = "allowedUrls";
 
     /**
-    * 过期时间配置键
+     * 过期时间配置键
      */
     private static final String KEY_EXPIRE_TIME = "expireTime";
 
     /**
-    * 默认允许所有URL的标识
+     * 默认允许所有URL的标识
      */
     private static final String ALL_URLS = "*";
 
     /**
-    * 令牌服务未找到错误信息
+     * 令牌服务未找到错误信息
      */
     private static final String ERROR_TOKEN_SERVICE_UNAVAILABLE = "令牌服务不可用";
 
     /**
-    * 令牌无效错误信息
+     * 令牌无效错误信息
      */
     private static final String ERROR_INVALID_TOKEN = "无效的令牌";
 
     /**
-    * 用户信息无效错误信息
+     * 用户信息无效错误信息
      */
     private static final String ERROR_INVALID_USER = "用户信息无效";
 
     /**
-    * 缺少令牌参数错误信息
+     * 缺少令牌参数错误信息
      */
     private static final String ERROR_MISSING_TOKEN = "缺少令牌参数";
 
     /**
-    * 验证现有令牌并创建临时令牌
-    * <p>
-    * 本方法接收用户当前的有效令牌作为principal参数，验证其有效性后，
-    * 创建一个短期临时令牌。临时令牌具有与原令牌相同的权限，但有效期更短。
-    * </p>
-    *
-    * @param principal  用户现有的有效令牌
-    * @param credential 不使用，可为空
-    * @param address    客户端地址
-    * @param ext        扩展参数，可指定: expire时间(过期时间秒), allowedurls(允许的URL列表)
-    * @return 临时用户令牌信息，若令牌无效则message字段包含错误信息
+     * 验证现有令牌并创建临时令牌
+     * <p>
+     * 本方法接收用户当前的有效令牌作为principal参数，验证其有效性后，
+     * 创建一个短期临时令牌。临时令牌具有与原令牌相同的权限，但有效期更短。
+     * </p>
+     *
+     * @param principal  用户现有的有效令牌
+     * @param credential 不使用，可为空
+     * @param address    客户端地址
+     * @param ext        扩展参数，可指定: expire时间(过期时间秒), allowedurls(允许的URL列表)
+     * @return 临时用户令牌信息，若令牌无效则message字段包含错误信息
      */
     @Override
     public UserResume checkLogin(String principal, String credential, String address, Object ext) {
@@ -162,10 +162,10 @@ public class TemporaryTokenLoginService implements UserInfoService {
     }
 
     /**
-    * 解析过期时间
-    *
-    * @param extMap 扩展参数映射
-    * @return 过期时间(秒)
+     * 解析过期时间
+     *
+     * @param extMap 扩展参数映射
+     * @return 过期时间(秒)
      */
     private long parseExpireTime(Map<String, Object> extMap) {
         long expireTime = MapUtils.getLong(extMap, KEY_EXPIRE_TIME, DEFAULT_EXPIRE_TIME);
@@ -186,10 +186,10 @@ public class TemporaryTokenLoginService implements UserInfoService {
     }
 
     /**
-    * 解析允许访问的URL列表
-    *
-    * @param extMap 扩展参数映射
-    * @return URL集合，空集合表示允许所有URL
+     * 解析允许访问的URL列表
+     *
+     * @param extMap 扩展参数映射
+     * @return URL集合，空集合表示允许所有URL
      */
     @SuppressWarnings("unchecked")
     private Set<String> parseAllowedUrls(Map<String, Object> extMap) {
@@ -230,12 +230,12 @@ public class TemporaryTokenLoginService implements UserInfoService {
     }
 
     /**
-    * 检查URL是否被允许访问
-    * <p>用于验证临时令牌是否可以访问指定的URL</p>
-    *
-    * @param userResume 用户信息（包含allowedurls配置）
-    * @param requestUrl 请求的URL
-    * @return true表示允许访问，false表示拒绝访问
+     * 检查URL是否被允许访问
+     * <p>用于验证临时令牌是否可以访问指定的URL</p>
+     *
+     * @param userResume 用户信息（包含allowedurls配置）
+     * @param requestUrl 请求的URL
+     * @return true表示允许访问，false表示拒绝访问
      */
     public static boolean isUrlAllowed(UserResume userResume, String requestUrl) {
         if (userResume == null || StringUtils.isEmpty(requestUrl)) {
@@ -274,11 +274,11 @@ public class TemporaryTokenLoginService implements UserInfoService {
     }
 
     /**
-    * 升级/刷新临时令牌信息
-    * <p>临时令牌设计为短期使用，不支持升级/刷新操作</p>
-    *
-    * @param userResult 已有的用户信息
-    * @return 原始用户信息，不做任何修改
+     * 升级/刷新临时令牌信息
+     * <p>临时令牌设计为短期使用，不支持升级/刷新操作</p>
+     *
+     * @param userResult 已有的用户信息
+     * @return 原始用户信息，不做任何修改
      */
     @Override
     public UserResume upgrade(UserResult userResult) {

@@ -8,10 +8,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
-* 字典配置项表
-*
-* @since 2024/8/7
-* @author CH
+ * 字典配置项表
+ *
+ * @since 2024/8/7
+ * @author CH
  */
 @Schema(description = "字典配置项表")
 @Data
@@ -19,7 +19,7 @@ import lombok.Data;
 public class SysDictItemProperty {
 
     /**
-    * 配置项标识
+     * 配置项标识
      */
     @TableId(value = "sys_dict_item_property_id", type = IdType.AUTO)
     @Schema(description = "配置项ID")

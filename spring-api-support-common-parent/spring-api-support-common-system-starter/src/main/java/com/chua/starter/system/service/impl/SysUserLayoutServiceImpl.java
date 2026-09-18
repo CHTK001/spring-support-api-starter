@@ -13,10 +13,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
-* 用户布局偏好服务实现
-*
-* @since 4.0.0.42
-* @author CH
+ * 用户布局偏好服务实现
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @Service
 public class SysUserLayoutServiceImpl extends ServiceImpl<SysUserLayoutMapper, SysUserLayout> implements SysUserLayoutService {
@@ -46,10 +46,10 @@ public class SysUserLayoutServiceImpl extends ServiceImpl<SysUserLayoutMapper, S
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 保存或更新Layout
-    *
-    * @param layout layout
-    * @return 保存或更新layout的结果
+     * 保存或更新Layout
+     *
+     * @param layout layout
+     * @return 保存或更新layout的结果
      */
     public SysUserLayout saveOrUpdateLayout(SysUserLayout layout) {
         if (layout == null) {
@@ -76,10 +76,10 @@ public class SysUserLayoutServiceImpl extends ServiceImpl<SysUserLayoutMapper, S
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 删除by用户id
-    *
-    * @param userId 用户id
-    * @return 删除by用户id的结果
+     * 删除by用户id
+     *
+     * @param userId 用户id
+     * @return 删除by用户id的结果
      */
     public int deleteByUserId(Integer userId) {
         if (userId == null) {

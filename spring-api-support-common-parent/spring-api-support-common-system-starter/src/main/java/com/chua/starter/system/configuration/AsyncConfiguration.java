@@ -10,13 +10,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
-* 异步任务配置
-* <p>
-* 提供通用的异步任务线程池，用于app键使用统计更新等异步操作
-* </p>
-*
-* @since 2024/12/28
-* @author CH
+ * 异步任务配置
+ * <p>
+ * 提供通用的异步任务线程池，用于app键使用统计更新等异步操作
+ * </p>
+ *
+ * @since 2024/12/28
+ * @author CH
  */
 @Slf4j
 @Configuration
@@ -24,48 +24,48 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class AsyncConfiguration {
 
     /**
-    * 核心线程数
+     * 核心线程数
      */
     private static final int CORE_POOL_SIZE = 4;
 
     /**
-    * 最大线程数
+     * 最大线程数
      */
     private static final int MAX_POOL_SIZE = 16;
 
     /**
-    * 队列容量
+     * 队列容量
      */
     private static final int QUEUE_CAPACITY = 500;
 
     /**
-    * 线程存活时间（秒）
+     * 线程存活时间（秒）
      */
     private static final int KEEP_ALIVE_SECONDS = 60;
 
     /**
-    * 关闭等待时间（秒）
+     * 关闭等待时间（秒）
      */
     private static final int AWAIT_TERMINATION_SECONDS = 60;
 
     /**
-    * 线程名前缀
+     * 线程名前缀
      */
     private static final String THREAD_NAME_PREFIX = "async-task-";
 
     /**
-    * 任务执行器线程池
-    * <p>
-    * 核心配置：
-    * <ul>
-    *     <li>核心线程数：{@value #CORE_POOL_SIZE}</li>
-    *     <li>最大线程数：{@value #MAX_POOL_SIZE}</li>
-    *     <li>队列容量：{@value #QUEUE_CAPACITY}</li>
-    *     <li>拒绝策略：CallerRunsPolicy（调用者线程执行）</li>
-    * </ul>
-    * </p>
-    *
-    * @return 线程池执行器
+     * 任务执行器线程池
+     * <p>
+     * 核心配置：
+     * <ul>
+     *     <li>核心线程数：{@value #CORE_POOL_SIZE}</li>
+     *     <li>最大线程数：{@value #MAX_POOL_SIZE}</li>
+     *     <li>队列容量：{@value #QUEUE_CAPACITY}</li>
+     *     <li>拒绝策略：CallerRunsPolicy（调用者线程执行）</li>
+     * </ul>
+     * </p>
+     *
+     * @return 线程池执行器
      */
     @Bean("taskExecutor")
     public Executor taskExecutor() {

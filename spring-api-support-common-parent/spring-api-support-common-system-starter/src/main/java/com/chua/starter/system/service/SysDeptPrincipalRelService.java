@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 部门负责人关系服务
-*
-* @since 2026/4/5
-* @author CH
+ * 部门负责人关系服务
+ *
+ * @since 2026/4/5
+ * @author CH
  */
 public interface SysDeptPrincipalRelService extends IService<SysDeptPrincipalRel> {
 

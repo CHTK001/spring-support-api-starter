@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 前端异常上报接口
-*
-* @since 2026/8/8
-* @author CH
+ * 前端异常上报接口
+ *
+ * @since 2026/8/8
+ * @author CH
  */
 @Tag(name = "前端异常上报接口")
 @RestController
@@ -39,7 +39,7 @@ public class SysErrorLogController {
     final SysErrorLogService sysErrorLogService; // sys错误日志服务
 
     /**
-    * 前端异常上报
+     * 前端异常上报
      */
     @Ignore
     @PostMapping("/report")
@@ -53,7 +53,7 @@ public class SysErrorLogController {
     }
 
     /**
-    * 异常日志分页列表
+     * 异常日志分页列表
      */
     @Operation(summary = "异常日志分页列表")
     @GetMapping("/error-page")
@@ -64,9 +64,9 @@ public class SysErrorLogController {
     }
 
     /**
-    * 异常日志详情(含完整堆栈)
-    * @param sysErrorLogId sysErrorLogID，不允许为 null
-    * @return Return结果 对象
+     * 异常日志详情(含完整堆栈)
+     * @param sysErrorLogId sysErrorLogID，不允许为 null
+     * @return Return结果 对象
      */
     @Operation(summary = "异常日志详情")
     @GetMapping("/error-detail")
@@ -79,8 +79,8 @@ public class SysErrorLogController {
     }
 
     /**
-    * 异常日志综合统计(总数/今日/来源分布/Top5/处理率)
-    * @return Return结果 对象
+     * 异常日志综合统计(总数/今日/来源分布/Top5/处理率)
+     * @return Return结果 对象
      */
     @Operation(summary = "异常日志统计")
     @GetMapping("/error-statistic")
@@ -90,7 +90,7 @@ public class SysErrorLogController {
     }
 
     /**
-    * 按异常类型统计数量(时间范围)
+     * 按异常类型统计数量(时间范围)
      */
     @Operation(summary = "按异常类型统计")
     @GetMapping("/error-source-statistic")
@@ -101,9 +101,9 @@ public class SysErrorLogController {
     }
 
     /**
-    * 清理指定天数前的错误日志
-    * @param days 方法入参 days
-    * @return Return结果 对象
+     * 清理指定天数前的错误日志
+     * @param days 方法入参 days
+     * @return Return结果 对象
      */
     @Operation(summary = "清理错误日志")
     @DeleteMapping("/error/clean")
@@ -113,9 +113,9 @@ public class SysErrorLogController {
     }
 
     /**
-    * 删除异常日志(支持批量, 多个ID用逗号分隔)
-    * @param sysErrorLogId sysErrorLogID，不允许为 null
-    * @return Return结果 对象
+     * 删除异常日志(支持批量, 多个ID用逗号分隔)
+     * @param sysErrorLogId sysErrorLogID，不允许为 null
+     * @return Return结果 对象
      */
     @Operation(summary = "删除异常日志")
     @DeleteMapping("/error/delete")
@@ -135,11 +135,11 @@ public class SysErrorLogController {
     }
 
     /**
-    * 更新异常日志处理状态
-    *
-    * @param sysErrorLogId 异常日志ID
-    * @param status        状态: 0-未处理 1-已处理 2-已忽略
-    * @return Return结果 对象
+     * 更新异常日志处理状态
+     *
+     * @param sysErrorLogId 异常日志ID
+     * @param status        状态: 0-未处理 1-已处理 2-已忽略
+     * @return Return结果 对象
      */
     @Operation(summary = "更新异常日志处理状态")
     @PutMapping("/error/status")

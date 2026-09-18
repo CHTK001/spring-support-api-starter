@@ -13,21 +13,21 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
-* IPC 协议认证信息适配器
-* <p>
-* 提供基于 Unix Domain 套接字 的 IPC 请求/响应适配，使其能够复用现有的认证逻辑
-* </p>
-*
-* @author CH
-* @since 4.0.0
+ * IPC 协议认证信息适配器
+ * <p>
+ * 提供基于 Unix Domain 套接字 的 IPC 请求/响应适配，使其能够复用现有的认证逻辑
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0
  */
 public class IpcAuthInformation {
 
     /**
-    * IPC 请求适配器
-    * <p>实现 HttpServletRequest 接口，用于适配 IPC 请求</p>
-    * @author CH
-    * @since 4.0.0
+     * IPC 请求适配器
+     * <p>实现 HttpServletRequest 接口，用于适配 IPC 请求</p>
+     * @author CH
+     * @since 4.0.0
      */
     public static class IpcRequest implements HttpServletRequest {
         private final Map<String, String> headers = new ConcurrentHashMap<>(); // 头部
@@ -50,28 +50,28 @@ public class IpcAuthInformation {
         }
 
         /**
-        * 设置头部
-        *
-        * @param name 名称
-        * @param value 值
+         * 设置头部
+         *
+         * @param name 名称
+         * @param value 值
          */
         public void setHeader(String name, String value) {
             headers.put(name, value);
         }
 
         /**
-        * 设置主体
-        *
-        * @param body 主体
+         * 设置主体
+         *
+         * @param body 主体
          */
         public void setBody(String body) {
             this.body = body;
         }
 
         /**
-        * 获取主体
-        *
-        * @return 获取主体的结果
+         * 获取主体
+         *
+         * @return 获取主体的结果
          */
         public String getBody() {
             return body;
@@ -239,18 +239,18 @@ public class IpcAuthInformation {
         }
 
         /**
-        * 获取主体
-        *
-        * @return 获取主体的结果
+         * 获取主体
+         *
+         * @return 获取主体的结果
          */
         public String getBody() {
             return body;
         }
 
         /**
-        * 设置主体
-        *
-        * @param body 主体
+         * 设置主体
+         *
+         * @param body 主体
          */
         public void setBody(String body) {
             this.body = body;

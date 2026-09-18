@@ -17,14 +17,14 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
-* Discovery 执行器解析器。
-* <p>
-* 这里不直接依赖 discovery-starter 类型签名，避免缺少该模块时影响调度中心启动。
-* </p>
-* @author CH
-* @since 4.0.0
-* @param beanFactory Bean工厂
-* @return discovery服务的结果
+ * Discovery 执行器解析器。
+ * <p>
+ * 这里不直接依赖 discovery-starter 类型签名，避免缺少该模块时影响调度中心启动。
+ * </p>
+ * @author CH
+ * @since 4.0.0
+ * @param beanFactory Bean工厂
+ * @return discovery服务的结果
  */
 @Slf4j
 @Spi({"DISCOVERY", "discovery"})
@@ -41,9 +41,9 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
                     .expireAfterWrite(DISCOVERY_CACHE_TTL_SECONDS, TimeUnit.SECONDS)
                     .build();
 /**
-* resolve。
-* @param context 上下文
-* @return resolve的结果
+ * resolve。
+ * @param context 上下文
+ * @return resolve的结果
  */
 
     @Override
@@ -124,10 +124,10 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
     }
 
     /**
-    * 通过反射加载 Discovery 实例列表。
-    * 使用反射是因为 discovery服务 来自外部模块，此处仅调用公共方法，无标准替代方案。
-    * @param value 值
-    * @return 修剪转为空的结果
+     * 通过反射加载 Discovery 实例列表。
+     * 使用反射是因为 discovery服务 来自外部模块，此处仅调用公共方法，无标准替代方案。
+     * @param value 值
+     * @return 修剪转为空的结果
      */
     @SuppressWarnings({"unchecked", "java:S1186"})
     private Set<Discovery> loadDiscoveries(Object discoveryService,
@@ -164,9 +164,9 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         executor.setReadTimeoutMs(discoveryProperties == null ? DEFAULT_READ_TIMEOUT_MS : discoveryProperties.getReadTimeoutMs());
         return executor;
     /**
-    * resolvediscovery执行器名称。
-    * @param discovery discovery
-    * @return resolvediscovery执行器名称的结果
+     * resolvediscovery执行器名称。
+     * @param discovery discovery
+     * @return resolvediscovery执行器名称的结果
      */
     }
 
@@ -249,9 +249,9 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
         }
         return StringUtils.hasText(namespace) ? "/job-executor/" + namespace.trim() : null;
     /**
-    * 是否包含usablebaseurl。
-    * @param executor 执行器
-    * @return 是否包含usablebaseurl的结果
+     * 是否包含usablebaseurl。
+     * @param executor 执行器
+     * @return 是否包含usablebaseurl的结果
      */
     }
 
@@ -266,9 +266,9 @@ public class DiscoverySchedulerExecutorResolver implements SchedulerExecutorReso
                 && executor.getBaseUrl() != null
                 && !executor.getBaseUrl().trim().isEmpty();
     /**
-    * normalize路径。
-    * @param path 路径
-    * @return normalize路径的结果
+     * normalize路径。
+     * @param path 路径
+     * @return normalize路径的结果
      */
     }
 

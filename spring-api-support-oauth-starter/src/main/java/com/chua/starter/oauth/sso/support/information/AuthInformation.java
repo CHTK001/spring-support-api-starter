@@ -14,45 +14,45 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* 鉴权信息
-*
-* @author CH
-* @since 4.0.0
+ * 鉴权信息
+ *
+ * @author CH
+ * @since 4.0.0
  */
 public interface AuthInformation {
 
     /**
-    * 鉴权信息
-    *
-    * @return 鉴权信息
+     * 鉴权信息
+     *
+     * @return 鉴权信息
      */
     Authorization authorization();
 
 
     /**
-    * 错误信息
-    *
-    * @return 错误信息
+     * 错误信息
+     *
+     * @return 错误信息
      */
     String errorMessage();
     /**
-    * 是否成功
-    *
-    * @return 是否成功
+     * 是否成功
+     *
+     * @return 是否成功
      */
     boolean isSuccessful();
 
     /**
-    * 获取认证信息
-    *
-    * @param data 数据
-    * @return 认证信息
+     * 获取认证信息
+     *
+     * @param data 数据
+     * @return 认证信息
      */
     String encodeHex(String data);
     /**
-    * 获取认证信息
-    *
-    * @return 认证信息
+     * 获取认证信息
+     *
+     * @return 认证信息
      */
     AuthServerProperties getAuthServerProperties();
 }

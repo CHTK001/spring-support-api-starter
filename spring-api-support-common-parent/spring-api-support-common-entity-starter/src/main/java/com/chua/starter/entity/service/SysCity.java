@@ -11,10 +11,10 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
-* 行政区划表
-*
-* @since 2024/8/7
-* @author CH
+ * 行政区划表
+ *
+ * @since 2024/8/7
+ * @author CH
  */
 @TableName(value = "sys_city")
 @Schema(description = "行政区划表")
@@ -24,7 +24,7 @@ public class SysCity implements Serializable {
     private static final long serialVersionUID = 1L; // 串行版本uid
 
     /**
-    * 区划代码
+     * 区划代码
      */
     @TableId(value = "sys_city_code", type = IdType.INPUT)
     @Schema(description = "区划代码")

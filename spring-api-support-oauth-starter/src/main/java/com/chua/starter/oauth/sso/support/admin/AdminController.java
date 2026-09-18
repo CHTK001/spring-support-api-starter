@@ -13,13 +13,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* OAuth 服务端热控制管理页面，提供运行时配置查看与动态更新能力。
-* <p>
-* 访问地址：/OAuth/admin（获取 返回 HTML 控制台，POST 接口热更新配置）
-* </p>
-*
-* @author CH
-* @since 4.0.0.50
+ * OAuth 服务端热控制管理页面，提供运行时配置查看与动态更新能力。
+ * <p>
+ * 访问地址：/OAuth/admin（获取 返回 HTML 控制台，POST 接口热更新配置）
+ * </p>
+ *
+ * @author CH
+ * @since 4.0.0.50
  */
 @RestController
 @RequestMapping("/admin")
@@ -34,9 +34,9 @@ public class AdminController {
     private final RateLimitManager rateLimitManager;
 
     /**
-    * 管理控制台首页（内嵌 HTML）
-    *
-    * @return 索引的结果
+     * 管理控制台首页（内嵌 HTML）
+     *
+     * @return 索引的结果
      */
     @GetMapping(produces = "text/html;charset=UTF-8")
     public String index() {
@@ -44,9 +44,9 @@ public class AdminController {
     }
 
     /**
-    * 获取当前配置状态
-    *
-    * @return 获取状态的结果
+     * 获取当前配置状态
+     *
+     * @return 获取状态的结果
      */
     @GetMapping("/status")
     @Operation(summary = "获取当前配置状态")
@@ -65,9 +65,9 @@ public class AdminController {
     }
 
     /**
-    * 获取请求统计
-    *
-    * @return 获取指标的结果
+     * 获取请求统计
+     *
+     * @return 获取指标的结果
      */
     @GetMapping("/metrics")
     @Operation(summary = "获取请求统计")
@@ -82,10 +82,10 @@ public class AdminController {
     }
 
     /**
-    * 热切换签名校验
-    *
-    * @param enabled 已启用
-    * @return toggle标志验证的结果
+     * 热切换签名校验
+     *
+     * @param enabled 已启用
+     * @return toggle标志验证的结果
      */
     @PostMapping("/sign-verify")
     @Operation(summary = "切换签名校验开关")
@@ -128,10 +128,10 @@ public class AdminController {
     }
 
     /**
-    * 热切换 令牌 自动续期
-    *
-    * @param enabled 已启用
-    * @return toggleRenew的结果
+     * 热切换 令牌 自动续期
+     *
+     * @param enabled 已启用
+     * @return toggleRenew的结果
      */
     @PostMapping("/renew")
     @Operation(summary = "切换 token 自动续期")
@@ -142,10 +142,10 @@ public class AdminController {
     }
 
     /**
-    * 热切换 refresh令牌 轮换
-    *
-    * @param enabled 已启用
-    * @return togglerefresh令牌rotation的结果
+     * 热切换 refresh令牌 轮换
+     *
+     * @param enabled 已启用
+     * @return togglerefresh令牌rotation的结果
      */
     @PostMapping("/refresh-token-rotation")
     @Operation(summary = "切换 refreshToken 轮换")
@@ -174,9 +174,9 @@ public class AdminController {
 
     // ---- 内嵌 HTML 控制台 ----
     /**
-    * 构建HTML
-    *
-    * @return 构建html的结果
+     * 构建HTML
+     *
+     * @return 构建html的结果
      */
     private String buildHtml() {
         return """

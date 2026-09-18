@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
-* Esri Wayback 历史影像控制器，提供历史版本查询与下载接口。
-*
-* @author CH
-* @since 1.0.0
+ * Esri Wayback 历史影像控制器，提供历史版本查询与下载接口。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @RestController
 @RequestMapping("/v1/geo/wayback")
@@ -39,10 +39,10 @@ public class WaybackController {
     }
 
     /**
-    * 创建 Wayback 下载任务（Web 版返回模拟 任务id）。
-    *
-    * @param body 请求参数
-    * @return 任务信息
+     * 创建 Wayback 下载任务（Web 版返回模拟 任务id）。
+     *
+     * @param body 请求参数
+     * @return 任务信息
      */
     @PostMapping("/download")
     @Operation(summary = "创建Wayback下载任务")
@@ -53,10 +53,10 @@ public class WaybackController {
     }
 
     /**
-    * 探测 Wayback 最大可用缩放级别（Web 版返回默认值 18）。
-    *
-    * @param body 请求参数（版本id, lat, lng）
-    * @return 最大缩放级别
+     * 探测 Wayback 最大可用缩放级别（Web 版返回默认值 18）。
+     *
+     * @param body 请求参数（版本id, lat, lng）
+     * @return 最大缩放级别
      */
     @PostMapping("/probe")
     @Operation(summary = "探测最大缩放级别")
@@ -65,10 +65,10 @@ public class WaybackController {
     }
 
     /**
-    * 扫描 Wayback 元数据（Web 版返回空结果）。
-    *
-    * @param body 扫描请求参数
-    * @return 扫描结果
+     * 扫描 Wayback 元数据（Web 版返回空结果）。
+     *
+     * @param body 扫描请求参数
+     * @return 扫描结果
      */
     @PostMapping("/scan")
     @Operation(summary = "扫描Wayback元数据")

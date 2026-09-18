@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
-* 跨域过滤器，允许前端开发服务器访问后端 API。
-*
-* @author CH
-* @since 1.0.0
+ * 跨域过滤器，允许前端开发服务器访问后端 API。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Component
 @Order(1)

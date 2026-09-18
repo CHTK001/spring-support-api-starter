@@ -21,10 +21,10 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 /**
-* 鉴权信息
-*
-* @author CH
-* @since 4.0.0
+ * 鉴权信息
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public final class LoginAuthorization implements Authorization {
@@ -111,13 +111,13 @@ public final class LoginAuthorization implements Authorization {
     }
 
     /**
-    * 创建登录日志对象
-    * <p>根据登录结果和请求信息构建完整的用户登录日志记录</p>
-    *
-    * @param returnResult 登录结果对象，包含登录成功/失败状态及详细信息
-    * @param loginAuthorization 当前登录授权对象，用于获取上下文信息
-    * @param cost 耗时，单位毫秒，记录登录过程耗时
-    * @return 构建好的SysUserLog日志实体对象
+     * 创建登录日志对象
+     * <p>根据登录结果和请求信息构建完整的用户登录日志记录</p>
+     *
+     * @param returnResult 登录结果对象，包含登录成功/失败状态及详细信息
+     * @param loginAuthorization 当前登录授权对象，用于获取上下文信息
+     * @param cost 耗时，单位毫秒，记录登录过程耗时
+     * @return 构建好的SysUserLog日志实体对象
      */
     private SysUserLog createLoginLog(ReturnResult<LoginResult> returnResult, LoginAuthorization loginAuthorization, long cost) {
         Map<String, String> stringMap = this.ext;

@@ -24,18 +24,18 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
-* 系统管理接口
-*
-* <p>提供系统级的运维管理能力,涵盖:</p>
-* <ul>
-*   <li>调试模式开关</li>
-*   <li>运行状态查看(JVM/内存/CPU)</li>
-*   <li>系统信息(版本/启动时间/环境)</li>
-*   <li>日志级别动态调整</li>
-* </ul>
-*
-* @since 4.0.0.42
-* @author CH
+ * 系统管理接口
+ *
+ * <p>提供系统级的运维管理能力,涵盖:</p>
+ * <ul>
+ *   <li>调试模式开关</li>
+ *   <li>运行状态查看(JVM/内存/CPU)</li>
+ *   <li>系统信息(版本/启动时间/环境)</li>
+ *   <li>日志级别动态调整</li>
+ * </ul>
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @RestController
 @RequestMapping("/system/admin")
@@ -45,51 +45,51 @@ import java.util.Properties;
 public class SystemAdminController {
 
     /**
-    * 系统服务配置属性
+     * 系统服务配置属性
      */
     private final SystemProperties systemProperties;
 
     /**
-    * 日志系统
+     * 日志系统
      */
     private final LoggingSystem loggingSystem;
 
     /**
-    * 调试模式开关状态
+     * 调试模式开关状态
      */
     private static volatile boolean debugMode = false;
 
     /**
-    * 服务启动时间
+     * 服务启动时间
      */
     private static final LocalDateTime START_TIME = LocalDateTime.now();
 
     /**
-    * 系统默认日志包名
+     * 系统默认日志包名
      */
     private static final String SYSTEM_LOG_PACKAGE = "com.chua.starter.system";
 
     /**
-    * 调试模式提示信息
+     * 调试模式提示信息
      */
     private static final String MSG_DEBUG_ENABLED = "调试模式已启用";
 
     /**
-    * 关闭调试模式提示信息
+     * 关闭调试模式提示信息
      */
     private static final String MSG_DEBUG_DISABLED = "调试模式已关闭";
 
     /**
-    * 敏感信息掩码
+     * 敏感信息掩码
      */
     private static final String SENSITIVE_MASK = "***";
 
     // ==================== 调试模式 ====================
 
     /**
-    * 获取调试模式状态。
-    *
-    * @return 调试模式状态信息
+     * 获取调试模式状态。
+     *
+     * @return 调试模式状态信息
      */
     @GetMapping("/debug/status")
     @Operation(summary = "获取调试模式状态")
@@ -101,9 +101,9 @@ public class SystemAdminController {
     }
 
     /**
-    * 启用调试模式。
-    *
-    * @return 启用成功提示
+     * 启用调试模式。
+     *
+     * @return 启用成功提示
      */
     @PostMapping("/debug/enable")
     @Operation(summary = "启用调试模式")
@@ -115,9 +115,9 @@ public class SystemAdminController {
     }
 
     /**
-    * 关闭调试模式。
-    *
-    * @return 关闭成功提示
+     * 关闭调试模式。
+     *
+     * @return 关闭成功提示
      */
     @PostMapping("/debug/disable")
     @Operation(summary = "关闭调试模式")
@@ -131,9 +131,9 @@ public class SystemAdminController {
     // ==================== 服务器状态 ====================
 
     /**
-    * 获取服务器运行状态。
-    *
-    * @return 服务器状态信息
+     * 获取服务器运行状态。
+     *
+     * @return 服务器状态信息
      */
     @GetMapping("/status")
     @Operation(summary = "获取服务器状态")
@@ -152,9 +152,9 @@ public class SystemAdminController {
     // ==================== 系统信息 ====================
 
     /**
-    * 获取系统信息 (版本/启动时间/Java 运行时)。
-    *
-    * @return 系统信息
+     * 获取系统信息 (版本/启动时间/Java 运行时)。
+     *
+     * @return 系统信息
      */
     @GetMapping("/info")
     @Operation(summary = "获取系统信息(版本/启动时间/Java 运行时)")
@@ -178,9 +178,9 @@ public class SystemAdminController {
     // ==================== JVM 指标 ====================
 
     /**
-    * 获取 JVM 运行时指标 (堆/非堆/线程/CPU)。
-    *
-    * @return JVM 指标信息
+     * 获取 JVM 运行时指标 (堆/非堆/线程/CPU)。
+     *
+     * @return JVM 指标信息
      */
     @GetMapping("/metrics/jvm")
     @Operation(summary = "获取 JVM 运行时指标(堆/非堆/线程/CPU)")
@@ -220,10 +220,10 @@ public class SystemAdminController {
     // ==================== 系统属性 ====================
 
     /**
-    * 获取系统属性, 支持按前缀过滤并掩码敏感字段。
-    *
-    * @param prefix 属性前缀, 逗号分隔
-    * @return 过滤后的系统属性
+     * 获取系统属性, 支持按前缀过滤并掩码敏感字段。
+     *
+     * @param prefix 属性前缀, 逗号分隔
+     * @return 过滤后的系统属性
      */
     @GetMapping("/properties")
     @Operation(summary = "获取系统属性(过滤敏感字段)")
@@ -245,11 +245,11 @@ public class SystemAdminController {
     }
 
     /**
-    * 对敏感属性值进行掩码处理。
-    *
-    * @param key   属性名
-    * @param value 属性值
-    * @return 掩码后的属性值, 敏感字段返回 "***"
+     * 对敏感属性值进行掩码处理。
+     *
+     * @param key   属性名
+     * @param value 属性值
+     * @return 掩码后的属性值, 敏感字段返回 "***"
      */
     private static String maskIfSensitive(String key, String value) {
         if (value == null) {
@@ -266,9 +266,9 @@ public class SystemAdminController {
     // ==================== GC 触发 ====================
 
     /**
-    * 建议 JVM 进行垃圾回收, 并返回回收前后堆内存变化。
-    *
-    * @return GC 前后堆内存信息
+     * 建议 JVM 进行垃圾回收, 并返回回收前后堆内存变化。
+     *
+     * @return GC 前后堆内存信息
      */
     @PostMapping("/gc")
     @Operation(summary = "建议 JVM 进行 GC")
@@ -287,11 +287,11 @@ public class SystemAdminController {
     // ==================== 临时文件清理 ====================
 
     /**
-    * 清理临时文件目录中超过指定天数的文件。
-    *
-    * @param path          临时文件目录, 为空时使用系统临时目录
-    * @param olderThanDays 超过的天数
-    * @return 清理结果信息
+     * 清理临时文件目录中超过指定天数的文件。
+     *
+     * @param path          临时文件目录, 为空时使用系统临时目录
+     * @param olderThanDays 超过的天数
+     * @return 清理结果信息
      */
     @PostMapping("/temp/clear")
     @Operation(summary = "清理临时文件目录(默认 java.io.tmpdir)")
@@ -327,11 +327,11 @@ public class SystemAdminController {
     // ==================== 日志级别 ====================
 
     /**
-    * 动态设置日志级别。
-    *
-    * @param level  日志级别
-    * @param logger 目标日志
-    * @return 设置结果提示
+     * 动态设置日志级别。
+     *
+     * @param level  日志级别
+     * @param logger 目标日志
+     * @return 设置结果提示
      */
     @PostMapping("/log/{level}")
     @Operation(summary = "动态设置日志级别(DEBUG/INFO/WARN/ERROR)")
@@ -350,10 +350,10 @@ public class SystemAdminController {
     }
 
     /**
-    * 设置指定日志的日志级别。
-    *
-    * @param loggerName 日志名称
-    * @param level      日志级别
+     * 设置指定日志的日志级别。
+     *
+     * @param loggerName 日志名称
+     * @param level      日志级别
      */
     private void setLogLevel(String loggerName, LogLevel level) {
         if (loggingSystem == null) {
@@ -368,10 +368,10 @@ public class SystemAdminController {
     }
 
     /**
-    * 获取指定日志的有效级别。
-    *
-    * @param loggerName 日志名称
-    * @return 日志级别名称, 不可用时返回 UNKNOWN 或 不可用
+     * 获取指定日志的有效级别。
+     *
+     * @param loggerName 日志名称
+     * @return 日志级别名称, 不可用时返回 UNKNOWN 或 不可用
      */
     private String getLogLevel(String loggerName) {
         if (loggingSystem == null) {

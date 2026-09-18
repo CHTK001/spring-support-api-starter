@@ -17,10 +17,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
-* DEM 高程模型下载控制器，提供 Terrarium 等 DEM 源的下载与导出接口。
-*
-* @author CH
-* @since 1.0.0
+ * DEM 高程模型下载控制器，提供 Terrarium 等 DEM 源的下载与导出接口。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @RestController
 @RequestMapping("/v1/geo/dem")
@@ -51,10 +51,10 @@ public class DemController {
     }
 
     /**
-    * 创建 DEM 下载任务。
-    *
-    * @param request DEM 下载请求
-    * @return 包含 任务id 和 瓷砖数量 的结果
+     * 创建 DEM 下载任务。
+     *
+     * @param request DEM 下载请求
+     * @return 包含 任务id 和 瓷砖数量 的结果
      */
     @PostMapping("/download")
     @Operation(summary = "创建DEM下载任务")
@@ -79,9 +79,9 @@ public class DemController {
     }
 
     /**
-    * 获取所有可用的 DEM 数据源。
-    *
-    * @return DEM 源列表
+     * 获取所有可用的 DEM 数据源。
+     *
+     * @return DEM 源列表
      */
     @GetMapping("/sources")
     @Operation(summary = "获取可用DEM数据源")
@@ -97,7 +97,7 @@ public class DemController {
     }
 
     /**
-    * DEM 估算请求体。
+     * DEM 估算请求体。
      */
     public record DemEstimateRequest(
             /** 地理边界 */

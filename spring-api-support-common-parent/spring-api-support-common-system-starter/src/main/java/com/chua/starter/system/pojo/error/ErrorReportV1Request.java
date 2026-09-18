@@ -9,17 +9,17 @@ import lombok.Data;
 import java.util.List;
 
 /**
-* 前端异常上报请求
-*
-* @since 2026/8/8
-* @author CH
+ * 前端异常上报请求
+ *
+ * @since 2026/8/8
+ * @author CH
  */
 @Data
 @Schema(description = "前端异常上报请求")
 public class ErrorReportV1Request {
 
     /**
-    * 异常记录列表
+     * 异常记录列表
      */
     @Schema(description = "异常记录列表")
     @NotEmpty(message = "异常记录列表不能为空")

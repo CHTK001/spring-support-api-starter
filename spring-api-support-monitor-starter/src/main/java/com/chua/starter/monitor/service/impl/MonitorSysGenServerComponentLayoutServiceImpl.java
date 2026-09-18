@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 服务器组件布局服务实现，基于 MyBatis-Plus 提供组件布局的
-* 查询、位置更新、批量保存、启用禁用、统计、复制与重置等能力。
-*
-* @since 2026-07-28
-* @author CH
+ * 服务器组件布局服务实现，基于 MyBatis-Plus 提供组件布局的
+ * 查询、位置更新、批量保存、启用禁用、统计、复制与重置等能力。
+ *
+ * @since 2026-07-28
+ * @author CH
  */
 @Slf4j
 @Service
@@ -28,42 +28,42 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
         implements MonitorSysGenServerComponentLayoutService {
 
     /**
-    * 布局状态：启用
+     * 布局状态：启用
      */
     private static final int STATUS_ENABLED = 1;
 
     /**
-    * 布局状态：禁用
+     * 布局状态：禁用
      */
     private static final int STATUS_DISABLED = 0;
 
     /**
-    * 组件布局默认 X 坐标
+     * 组件布局默认 X 坐标
      */
     private static final int DEFAULT_X = 0;
 
     /**
-    * 组件布局默认 Y 坐标
+     * 组件布局默认 Y 坐标
      */
     private static final int DEFAULT_Y = 0;
 
     /**
-    * 组件布局默认宽度（栅格列数）
+     * 组件布局默认宽度（栅格列数）
      */
     private static final int DEFAULT_WIDTH = 4;
 
     /**
-    * 组件布局默认高度（栅格行数）
+     * 组件布局默认高度（栅格行数）
      */
     private static final int DEFAULT_HEIGHT = 3;
 
     /**
-    * 组件布局默认层级
+     * 组件布局默认层级
      */
     private static final int DEFAULT_Z_INDEX = 1;
 
     /**
-    * 组件布局默认排序值
+     * 组件布局默认排序值
      */
     private static final int DEFAULT_SORT_ORDER = 0;
 
@@ -131,10 +131,10 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 批量更新位置
-    *
-    * @param layouts layouts
-    * @return batch更新位置的结果
+     * 批量更新位置
+     *
+     * @param layouts layouts
+     * @return batch更新位置的结果
      */
     public ReturnResult<Integer> batchUpdatePosition(List<MonitorSysGenServerComponentLayout> layouts) {
         if (layouts == null || layouts.isEmpty()) {
@@ -244,10 +244,10 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 重置服务端
-    *
-    * @param serverId 服务端id
-    * @return reset服务端的结果
+     * 重置服务端
+     *
+     * @param serverId 服务端id
+     * @return reset服务端的结果
      */
     public ReturnResult<Integer> resetServer(Integer serverId) {
         if (serverId == null) {

@@ -18,10 +18,10 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
-* 系统公告表
-*
-* @since 4.0.0.42
-* @author CH
+ * 系统公告表
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @Schema(description = "系统公告表")
 @Data
@@ -151,52 +151,52 @@ public class SysAnnouncement extends SysBase implements Serializable {
     public static final String LEVEL_INFO = "info";
 
     /**
-    * 级别：警告
+     * 级别：警告
      */
     public static final String LEVEL_WARNING = "warning";
 
     /**
-    * 级别：重要
+     * 级别：重要
      */
     public static final String LEVEL_IMPORTANT = "important";
 
     /**
-    * 级别：紧急
+     * 级别：紧急
      */
     public static final String LEVEL_EMERGENCY = "emergency";
 
     /**
-    * 位置：默认（Tabs下方）
+     * 位置：默认（Tabs下方）
      */
     public static final String POSITION_DEFAULT = "default";
 
     /**
-    * 位置：固定顶部
+     * 位置：固定顶部
      */
     public static final String POSITION_FIXED_TOP = "fixed-top";
 
     /**
-    * 类型：全局
+     * 类型：全局
      */
     public static final String TYPE_GLOBAL = "global";
 
     /**
-    * 类型：指定角色
+     * 类型：指定角色
      */
     public static final String TYPE_ROLE = "role";
 
     /**
-    * 状态：草稿
+     * 状态：草稿
      */
     public static final int STATUS_DRAFT = 0;
 
     /**
-    * 状态：已发布
+     * 状态：已发布
      */
     public static final int STATUS_PUBLISHED = 1;
 
     /**
-    * 状态：已下架
+     * 状态：已下架
      */
     public static final int STATUS_UNPUBLISHED = 2;
 }

@@ -11,10 +11,10 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
-* 浏览器指纹与用户映射实体
-*
-* @since 4.0.0.42
-* @author CH
+ * 浏览器指纹与用户映射实体
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @Data
 @TableName("sys_fingerprint")

@@ -13,8 +13,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
-* 系统管理服务启动类
-*/
+ * 系统管理服务启动类
+ */
 @EnableCaching
 @EnableScheduling
 @EnableAsync

@@ -10,10 +10,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
-* 设备组织
-*
-* @since 2026/08/03
-* @author CH
+ * 设备组织
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "设备组织")
@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
 @TableName(value = "sys_device_org")
 public class SysDeviceOrg extends SysBase {
     /**
-    * 组织主键标识
+     * 组织主键标识
      */
     @TableId(value = "sys_device_org_id", type = IdType.INPUT)
     @Schema(description = "")

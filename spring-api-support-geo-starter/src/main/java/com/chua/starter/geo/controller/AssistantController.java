@@ -15,11 +15,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
-* AI 助手控制器，提供聊天流式接口。
-* Web 版使用外部 LLM API（需配置）或返回模拟响应。
-*
-* @author CH
-* @since 1.0.0
+ * AI 助手控制器，提供聊天流式接口。
+ * Web 版使用外部 LLM API（需配置）或返回模拟响应。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @RestController
 @RequestMapping("/v1/geo/assistant")
@@ -34,8 +34,8 @@ public class AssistantController {
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     /**
-    * 获取助手状态。
-    * @return 状态的结果
+     * 获取助手状态。
+     * @return 状态的结果
      */
     @GetMapping("/status")
     @Operation(summary = "获取助手状态")
@@ -50,11 +50,11 @@ public class AssistantController {
     }
 
     /**
-    * 流式聊天（SSE）。
-    * 请求体包含 消息 数组和可选的 diagnostic上下文。
-    * 返回 SSE 流，每行格式：数据: {"类型":"delta","内容":"..."}
-    * @param body 主体
-    * @return 对话的结果
+     * 流式聊天（SSE）。
+     * 请求体包含 消息 数组和可选的 diagnostic上下文。
+     * 返回 SSE 流，每行格式：数据: {"类型":"delta","内容":"..."}
+     * @param body 主体
+     * @return 对话的结果
      */
     @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(summary = "流式聊天")
@@ -88,9 +88,9 @@ public class AssistantController {
     }
 
     /**
-    * 取消聊天（Web 版无操作）。
-    * @param body 主体
-    * @return cancel的结果
+     * 取消聊天（Web 版无操作）。
+     * @param body 主体
+     * @return cancel的结果
      */
     @PostMapping("/cancel")
     @Operation(summary = "取消聊天")
@@ -99,10 +99,10 @@ public class AssistantController {
     }
 
     /**
-    * 使用 Jackson 转义 JSON 字符串。
-    *
-    * @param s 待转义字符串，可为 空
-    * @return 转义后的 JSON 字符串（不含引号）
+     * 使用 Jackson 转义 JSON 字符串。
+     *
+     * @param s 待转义字符串，可为 空
+     * @return 转义后的 JSON 字符串（不含引号）
      */
     private String escapeJson(String s) {
         if (s == null) {

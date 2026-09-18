@@ -9,12 +9,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
-* 服务与模块关联实体
-* 用于管理服务与模块的多对多关系
-*
-* @版本 1.0.0
-* @since 2024/12/07
-* @author CH
+ * 服务与模块关联实体
+ * 用于管理服务与模块的多对多关系
+ *
+ * @版本 1.0.0
+ * @since 2024/12/07
+ * @author CH
  */
 @ApiModel(description = "服务模块关联")
 @Schema(description = "服务模块关联")
@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 public class SysServiceModuleItem extends SysBase {
 
     /**
-    * 关联标识
+     * 关联标识
      */
     @TableId(value = "sys_service_module_item_id", type = IdType.AUTO)
     @ApiModelProperty(value = "关联ID")

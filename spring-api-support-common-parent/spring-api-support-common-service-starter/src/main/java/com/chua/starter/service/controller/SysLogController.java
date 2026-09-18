@@ -28,9 +28,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 /**
-* 系统日志接口
-* @since 2024/8/7
-* @author CH
+ * 系统日志接口
+ * @since 2024/8/7
+ * @author CH
  */
 @Tag(name = "系统日志接口")
 @RestController
@@ -58,12 +58,12 @@ public class SysLogController {
     }
 
     /**
-    * 导出操作日志
-    *
-    * @param sysLog    筛选条件（账号/模块/地址/状态）
-    * @param startDate 开始日期（可选）
-    * @param endDate   结束日期（可选）
-    * @return CSV文件下载
+     * 导出操作日志
+     *
+     * @param sysLog    筛选条件（账号/模块/地址/状态）
+     * @param startDate 开始日期（可选）
+     * @param endDate   结束日期（可选）
+     * @return CSV文件下载
      */
     @Operation(summary = "导出操作日志")
     @GetMapping("/export")

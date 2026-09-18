@@ -14,10 +14,10 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
-* 系统日志表
-*
-* @since 2024/8/7
-* @author CH
+ * 系统日志表
+ *
+ * @since 2024/8/7
+ * @author CH
  */
 @Schema(description = "系统日志表")
 @Data

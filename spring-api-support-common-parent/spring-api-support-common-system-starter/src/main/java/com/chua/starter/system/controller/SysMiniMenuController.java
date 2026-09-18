@@ -24,10 +24,10 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
-* 小程序菜单接口
-*
-* @since 2026/08/03
-* @author CH
+ * 小程序菜单接口
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @Tag(name = "小程序菜单接口")
 @RestController
@@ -36,14 +36,14 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 public class SysMiniMenuController {
 
     /**
-    * 小程序菜单服务
+     * 小程序菜单服务
      */
     private final SysMiniMenuService sysMiniMenuService;
 
     /**
-    * 查询后端管理用的小程序菜单列表。
-    *
-    * @return 菜单列表结果
+     * 查询后端管理用的小程序菜单列表。
+     *
+     * @return 菜单列表结果
      */
     @Operation(summary = "小程序菜单列表")
     @GetMapping("/list")
@@ -52,10 +52,10 @@ public class SysMiniMenuController {
     }
 
     /**
-    * 删除小程序菜单。
-    *
-    * @param sysMiniMenuId 菜单标识
-    * @return 删除结果
+     * 删除小程序菜单。
+     *
+     * @param sysMiniMenuId 菜单标识
+     * @return 删除结果
      */
     @Operation(summary = "删除小程序菜单")
     @DeleteMapping("/delete")
@@ -67,12 +67,12 @@ public class SysMiniMenuController {
     }
 
     /**
-    * 更新小程序菜单。
-    *
-    * @param roles         用户角色集合
-    * @param sysMiniMenu   小程序菜单实体
-    * @param bindingResult 参数校验结果
-    * @return 更新结果
+     * 更新小程序菜单。
+     *
+     * @param roles         用户角色集合
+     * @param sysMiniMenu   小程序菜单实体
+     * @param bindingResult 参数校验结果
+     * @return 更新结果
      */
     @Operation(summary = "更新小程序菜单")
     @PutMapping("/update")
@@ -89,12 +89,12 @@ public class SysMiniMenuController {
     }
 
     /**
-    * 新增小程序菜单。
-    *
-    * @param roles         用户角色集合
-    * @param sysMiniMenu   小程序菜单实体
-    * @param bindingResult 参数校验结果
-    * @return 保存结果
+     * 新增小程序菜单。
+     *
+     * @param roles         用户角色集合
+     * @param sysMiniMenu   小程序菜单实体
+     * @param bindingResult 参数校验结果
+     * @return 保存结果
      */
     @Operation(summary = "新增小程序菜单")
     @PostMapping("/save")

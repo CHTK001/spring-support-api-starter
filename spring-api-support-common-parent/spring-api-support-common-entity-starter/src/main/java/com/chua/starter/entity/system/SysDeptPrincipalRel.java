@@ -10,10 +10,10 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
-* 部门负责人关系表
-*
-* @since 2026/4/5
-* @author CH
+ * 部门负责人关系表
+ *
+ * @since 2026/4/5
+ * @author CH
  */
 @Data
 @Schema(description = "部门负责人关系表")

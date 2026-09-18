@@ -13,11 +13,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
-* 监控资产实体，记录需监控的目标（服务器、Redis、MySQL等），
-* 是采集任务与网关的关联核心维度。
-*
-* @since 2026-08-11
-* @author CH
+ * 监控资产实体，记录需监控的目标（服务器、Redis、MySQL等），
+ * 是采集任务与网关的关联核心维度。
+ *
+ * @since 2026-08-11
+ * @author CH
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -27,7 +27,7 @@ import lombok.EqualsAndHashCode;
 public class MsMonitor extends SysBase {
 
     /**
-    * 监控资产主键标识，自增
+     * 监控资产主键标识，自增
      */
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")

@@ -20,11 +20,11 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.TimeUnit;
 
 /**
-* 微信小程序登录服务
-* <p>处理微信小程序用户的登录验证与授权</p>
-*
-* @since 2024/12/2
-* @author CH
+ * 微信小程序登录服务
+ * <p>处理微信小程序用户的登录验证与授权</p>
+ *
+ * @since 2024/12/2
+ * @author CH
  */
 @Slf4j
 @Service
@@ -33,17 +33,17 @@ import java.util.concurrent.TimeUnit;
 public class WeixinMiniLoginService extends AbstractUserLoginService {
 
     /**
-    * 登录类型前缀
+     * 登录类型前缀
      */
     private static final String LOGIN_TYPE_PREFIX = "wechat";
 
     /**
-    * 打开id映射缓存过期时间（分钟）
+     * 打开id映射缓存过期时间（分钟）
      */
     private static final long OPENID_CACHE_EXPIRE = 60L;
 
     /**
-    * 打开id映射缓存键前缀
+     * 打开id映射缓存键前缀
      */
     private static final String OPENID_CACHE_PREFIX = "miniapp:openid:";
 

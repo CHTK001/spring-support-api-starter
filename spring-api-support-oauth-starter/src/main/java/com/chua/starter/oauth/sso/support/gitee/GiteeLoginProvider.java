@@ -47,10 +47,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 /**
-* gitee绑定账号
-*
-* @author CH
-* @since 4.0.0
+ * gitee绑定账号
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Controller
 @Conditional(OnBeanCondition.class)
@@ -70,9 +70,9 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
     private String contextPath; // 上下文路径
 
     /**
-    * gitee页面
-    *
-    * @return 登录页
+     * gitee页面
+     *
+     * @return 登录页
      */
     @GetMapping("/callback")
     @Operation(
@@ -124,9 +124,9 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
     }
 
     /**
-    * gitee页面
-    *
-    * @return 登录页
+     * gitee页面
+     *
+     * @return 登录页
      */
     @ResponseBody
     @GetMapping("loginCodeType")
