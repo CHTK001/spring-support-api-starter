@@ -8,10 +8,10 @@ import com.chua.starter.service.configuration.trace.RequestTraceStrategyConfigCo
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
-* 内存版配置存储。
-*
-* @since 2026/03/25
-* @author CH
+ * 内存版配置存储。
+ *
+ * @since 2026/03/25
+ * @author CH
  */
 @Spi("memory")
 public class InMemoryRequestTraceConfigStorage implements RequestTraceConfigStorage {

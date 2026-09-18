@@ -5,9 +5,9 @@ import com.chua.starter.entity.system.SysUserConfig;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
-*
-* @since 2024/8/28
-* @author CH
+ *
+ * @since 2024/8/28
+ * @author CH
  */
 @Mapper
 public interface SysUserConfigMapper extends BaseMapper<SysUserConfig> {

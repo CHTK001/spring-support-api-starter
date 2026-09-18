@@ -13,10 +13,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 下载历史记录控制器，提供记录查询、删除、清空接口。
-*
-* @author CH
-* @since 1.0.0
+ * 下载历史记录控制器，提供记录查询、删除、清空接口。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @RestController
 @RequestMapping("/v1/geo/history")
@@ -40,11 +40,11 @@ public class HistoryController {
     }
 
     /**
-    * 分页获取历史记录。
-    *
-    * @param page     页码（从 1 开始，默认 1）
-    * @param pageSize 每页大小（默认 20，最大 100）
-    * @return 分页结果
+     * 分页获取历史记录。
+     *
+     * @param page     页码（从 1 开始，默认 1）
+     * @param pageSize 每页大小（默认 20，最大 100）
+     * @return 分页结果
      */
     @GetMapping("/page")
     @Operation(summary = "分页获取历史记录")
@@ -61,10 +61,10 @@ public class HistoryController {
     }
 
     /**
-    * 添加一条下载记录。
-    *
-    * @param record 下载记录
-    * @return 操作结果
+     * 添加一条下载记录。
+     *
+     * @param record 下载记录
+     * @return 操作结果
      */
     @PostMapping
     @Operation(summary = "添加下载记录")
@@ -78,10 +78,10 @@ public class HistoryController {
     }
 
     /**
-    * 删除指定历史记录。
-    *
-    * @param id 记录 标识
-    * @return 操作结果
+     * 删除指定历史记录。
+     *
+     * @param id 记录 标识
+     * @return 操作结果
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "删除历史记录")
@@ -92,10 +92,10 @@ public class HistoryController {
     }
 
     /**
-    * 构建影像金字塔（Web 版为 no-op）。
-    *
-    * @param id 记录 标识
-    * @return 操作结果
+     * 构建影像金字塔（Web 版为 no-op）。
+     *
+     * @param id 记录 标识
+     * @return 操作结果
      */
     @PostMapping("/{id}/pyramid")
     @Operation(summary = "构建影像金字塔")
@@ -105,9 +105,9 @@ public class HistoryController {
     }
 
     /**
-    * 清空所有历史记录。
-    *
-    * @return 操作结果
+     * 清空所有历史记录。
+     *
+     * @return 操作结果
      */
     @DeleteMapping("/clear")
     @Operation(summary = "清空所有历史记录")

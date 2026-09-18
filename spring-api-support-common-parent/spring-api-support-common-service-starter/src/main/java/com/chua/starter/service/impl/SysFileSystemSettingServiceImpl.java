@@ -19,10 +19,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 /**
-* 文件系统配置服务实现类
-*
-* @since 4.0.0.42
-* @author CH
+ * 文件系统配置服务实现类
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 // @Service
@@ -51,10 +51,10 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 启用settingfor文件系统
-    *
-    * @param settingId settingId
-    * @return enablesettingfor文件系统的结果
+     * 启用settingfor文件系统
+     *
+     * @param settingId settingId
+     * @return enablesettingfor文件系统的结果
      */
     public ReturnResult<Boolean> enableSettingForFileSystem(Integer settingId) {
         log.info("启用配置: settingId={}", settingId);
@@ -69,9 +69,9 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 初始化默认settingfor文件系统
-    *
-    * @return 初始化默认settingfor文件系统的结果
+     * 初始化默认settingfor文件系统
+     *
+     * @return 初始化默认settingfor文件系统的结果
      */
     public ReturnResult<Boolean> initDefaultSettingForFileSystem() {
         log.info("初始化默认配置");
@@ -161,7 +161,7 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
     }
 
     /**
-    * Spring 关闭时停止内嵌 HTTP 文件服务器。
+     * Spring 关闭时停止内嵌 HTTP 文件服务器。
      */
     @PreDestroy
     public void onShutdown() {

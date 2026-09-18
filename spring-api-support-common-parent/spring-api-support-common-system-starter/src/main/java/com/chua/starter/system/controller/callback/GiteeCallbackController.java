@@ -44,10 +44,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* gitee接口
-*
-* @since 2024/9/4
-* @author CH
+ * gitee接口
+ *
+ * @since 2024/9/4
+ * @author CH
  */
 @Controller
 @Slf4j
@@ -143,14 +143,14 @@ public class GiteeCallbackController {
         return view;
     }
     /**
-    * Gitee登录回调
-    * <p>用户授权后回调此接口进行登录，需要先绑定账号</p>
-    *
-    * @param authCallback Gitee回调参数
-    * @param attributes   重定向属性
-    * @param request      请求
-    * @param response     响应
-    * @return 重定向视图
+     * Gitee登录回调
+     * <p>用户授权后回调此接口进行登录，需要先绑定账号</p>
+     *
+     * @param authCallback Gitee回调参数
+     * @param attributes   重定向属性
+     * @param request      请求
+     * @param response     响应
+     * @return 重定向视图
      */
     @Ignore
     @GetMapping("callback")
@@ -214,10 +214,10 @@ public class GiteeCallbackController {
     }
 
     /**
-    * 检查第三方登录是否开启
-    * <p>从sys_setting表中查询sso组下Gitee配置是否为true</p>
-    *
-    * @return true-开启，false-未开启
+     * 检查第三方登录是否开启
+     * <p>从sys_setting表中查询sso组下Gitee配置是否为true</p>
+     *
+     * @return true-开启，false-未开启
      */
     private boolean isThirdPartyEnabled() {
         try {

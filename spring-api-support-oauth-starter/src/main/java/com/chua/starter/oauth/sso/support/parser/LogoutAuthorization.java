@@ -12,10 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 
 /**
-* 鉴权信息
-*
-* @author CH
-* @since 4.0.0
+ * 鉴权信息
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public final class LogoutAuthorization implements Authorization {
@@ -127,9 +127,9 @@ public final class LogoutAuthorization implements Authorization {
     }
 
     /**
-    * 判断是否为 JWT 令牌（三段式，以 . 分隔）
-    * @param token 令牌
-    * @return 是否jwt令牌的结果
+     * 判断是否为 JWT 令牌（三段式，以 . 分隔）
+     * @param token 令牌
+     * @return 是否jwt令牌的结果
      */
     private boolean isJwtToken(String token) {
         if (token == null || token.isEmpty()) {
@@ -142,9 +142,9 @@ public final class LogoutAuthorization implements Authorization {
     }
 
     /**
-    * 从 JWT 令牌 中提取 uid（sub 字段）
-    * @param token 令牌
-    * @return extractuid从jwt的结果
+     * 从 JWT 令牌 中提取 uid（sub 字段）
+     * @param token 令牌
+     * @return extractuid从jwt的结果
      */
     private String extractUidFromJwt(String token) {
         try {

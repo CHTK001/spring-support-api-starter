@@ -13,12 +13,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
-* 服务模块实体
-* 用于管理服务下的功能模块
-*
-* @版本 1.0.0
-* @since 2024/12/07
-* @author CH
+ * 服务模块实体
+ * 用于管理服务下的功能模块
+ *
+ * @版本 1.0.0
+ * @since 2024/12/07
+ * @author CH
  */
 @ApiModel(description = "服务模块")
 @Schema(description = "服务模块")
@@ -28,7 +28,7 @@ import lombok.EqualsAndHashCode;
 public class SysServiceModule extends SysBase {
 
     /**
-    * 服务模块标识
+     * 服务模块标识
      */
     @TableId(value = "sys_service_module_id", type = IdType.AUTO)
     @ApiModelProperty(value = "服务模块ID")

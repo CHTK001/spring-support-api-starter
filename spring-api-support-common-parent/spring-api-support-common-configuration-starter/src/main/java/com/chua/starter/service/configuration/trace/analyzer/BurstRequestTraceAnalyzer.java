@@ -13,10 +13,10 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
-* 高频请求分析器
-*
-* @since 2026/03/25
-* @author CH
+ * 高频请求分析器
+ *
+ * @since 2026/03/25
+ * @author CH
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)

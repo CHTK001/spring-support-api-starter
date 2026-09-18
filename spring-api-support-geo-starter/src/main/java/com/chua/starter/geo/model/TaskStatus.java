@@ -1,10 +1,10 @@
 package com.chua.starter.geo.model;
 
 /**
-* 下载任务状态枚举。
-*
-* @author CH
-* @since 1.0.0
+ * 下载任务状态枚举。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 public enum TaskStatus {
     /** 待处理 */

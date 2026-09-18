@@ -24,10 +24,10 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
-* DEM 下载服务实现，支持 Terrarium 高程瓦片下载与 geotiff 导出。
-*
-* @author CH
-* @since 1.0.0
+ * DEM 下载服务实现，支持 Terrarium 高程瓦片下载与 geotiff 导出。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Service
 @RequiredArgsConstructor
@@ -108,11 +108,11 @@ public class DemDownloadServiceImpl implements DemDownloadService {
     }
 
     /**
-    * 构建 DEM 瓦片图源配置。
-    *
-    * @param source DEM 数据源
-    * @param zoom   缩放级别（用于 最大zoom 校验）
-    * @return TileSource 配置
+     * 构建 DEM 瓦片图源配置。
+     *
+     * @param source DEM 数据源
+     * @param zoom   缩放级别（用于 最大zoom 校验）
+     * @return TileSource 配置
      */
     private TileSource buildDemTileSource(DemSource source, int zoom) {
         TileSource ts = new TileSource();
@@ -126,15 +126,15 @@ public class DemDownloadServiceImpl implements DemDownloadService {
     }
 
     /**
-    * 将拼接后的 DEM 图像导出为带地理坐标的 geotiff。
-    * 使用双字节无符号整数存储高程值（偏移32768），兼容 GDAL 读取。
-    *
-    * @param image          拼接后的 DEM 图像（RGB，高程值已编码在颜色通道中）
-    * @param bounds         地理边界
-    * @param zoom           缩放级别
-    * @param outputPath     输出路径（不含扩展名）
-    * @param generateSidecars 是否生成 .prj
-    * @return 最终输出文件路径
+     * 将拼接后的 DEM 图像导出为带地理坐标的 geotiff。
+     * 使用双字节无符号整数存储高程值（偏移32768），兼容 GDAL 读取。
+     *
+     * @param image          拼接后的 DEM 图像（RGB，高程值已编码在颜色通道中）
+     * @param bounds         地理边界
+     * @param zoom           缩放级别
+     * @param outputPath     输出路径（不含扩展名）
+     * @param generateSidecars 是否生成 .prj
+     * @return 最终输出文件路径
      */
     private String exportElevationTiff(BufferedImage image, Bounds bounds, int zoom,
                                         String outputPath, boolean generateSidecars) throws Exception {
@@ -176,9 +176,9 @@ public class DemDownloadServiceImpl implements DemDownloadService {
     }
 
     /**
-    * 写入 PRJ 投影文件（Web Mercator / EPSG:3857）。
-    *
-    * @param prjPath PRJ 文件路径
+     * 写入 PRJ 投影文件（Web Mercator / EPSG:3857）。
+     *
+     * @param prjPath PRJ 文件路径
      */
     private void writePrjFile(String prjPath) {
         try {

@@ -19,11 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
-* 文件系统分组服务实现类
-*
-* @since 2024/12/10
-* @版本 1.0.0
-* @author CH
+ * 文件系统分组服务实现类
+ *
+ * @since 2024/12/10
+ * @版本 1.0.0
+ * @author CH
  */
 @Slf4j
 @Service
@@ -31,7 +31,7 @@ import java.util.Map;
 public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGroupMapper, SysFileSystemGroup> implements SysFileSystemGroupService {
 
     /**
-    * 应用启动完成后自动初始化默认分组
+     * 应用启动完成后自动初始化默认分组
      */
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
@@ -68,9 +68,9 @@ public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGrou
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 初始化默认群体for文件系统
-    *
-    * @return 初始化默认群体for文件系统的结果
+     * 初始化默认群体for文件系统
+     *
+     * @return 初始化默认群体for文件系统的结果
      */
     public ReturnResult<Boolean> initDefaultGroupsForFileSystem() {
         log.info("初始化默认分组");
@@ -110,14 +110,14 @@ public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGrou
     }
 
     /**
-    * 创建分组
-    *
-    * @param path       路径
-    * @param name       名称
-    * @param parentId   父标识
-    * @param sort       排序
-    * @param isDefault  是否默认
-    * @return 分组对象
+     * 创建分组
+     *
+     * @param path       路径
+     * @param name       名称
+     * @param parentId   父标识
+     * @param sort       排序
+     * @param isDefault  是否默认
+     * @return 分组对象
      */
     private SysFileSystemGroup createGroup(String path, String name, Integer parentId, Integer sort, boolean isDefault) {
         SysFileSystemGroup group = new SysFileSystemGroup();
@@ -134,10 +134,10 @@ public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGrou
     }
 
     /**
-    * 构建树形结构
-    *
-    * @param allGroups 所有分组列表
-    * @return 树形结构列表
+     * 构建树形结构
+     *
+     * @param allGroups 所有分组列表
+     * @return 树形结构列表
      */
     private List<SysFileSystemGroup> buildTree(List<SysFileSystemGroup> allGroups) {
         List<SysFileSystemGroup> roots = new ArrayList<>();

@@ -14,10 +14,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
-* 项目管理
-*
-* @since 2026/08/03
-* @author CH
+ * 项目管理
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @Schema(description="项目管理")
 @Data
@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 @TableName(value = "sys_project")
 public class SysProject extends SysBase {
     /**
-    * 项目主键标识
+     * 项目主键标识
      */
     @TableId(value = "sys_project_id", type = IdType.AUTO)
     @Schema(description = "")

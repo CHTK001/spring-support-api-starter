@@ -16,10 +16,10 @@ import java.io.IOException;
 import java.util.List;
 
 /**
-* 响应加载器
-*
-* @author CH
-* @since 4.0.0
+ * 响应加载器
+ *
+ * @author CH
+ * @since 4.0.0
  */
 public class ResponseAdviceMethodProcessor extends RequestResponseBodyMethodProcessor {
 
@@ -80,13 +80,13 @@ public class ResponseAdviceMethodProcessor extends RequestResponseBodyMethodProc
 
 
     /**
-    * Whether the given view 名称 是否 a redirect view 引用.
-    * The 默认 implementation 检查 the configured redirect 模式 和
-    * also if the view 名称 启动 with the "redirect:" 前缀.
-    *
-    * @param viewName the view 名称 转为 检查, 从不 {@code null}
-    * @return "true" if the given view 名称 是否 recognized as a redirect view
-    * 引用; "false" otherwise.
+     * Whether the given view 名称 是否 a redirect view 引用.
+     * The 默认 implementation 检查 the configured redirect 模式 和
+     * also if the view 名称 启动 with the "redirect:" 前缀.
+     *
+     * @param viewName the view 名称 转为 检查, 从不 {@code null}
+     * @return "true" if the given view 名称 是否 recognized as a redirect view
+     * 引用; "false" otherwise.
      */
     protected boolean isRedirectViewName(String viewName) {
         return (PatternMatchUtils.simpleMatch(this.redirectPatterns, viewName) || viewName.startsWith("redirect:"));

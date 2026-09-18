@@ -25,10 +25,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
-* 部门负责人关系服务实现
-*
-* @since 2026/4/5
-* @author CH
+ * 部门负责人关系服务实现
+ *
+ * @since 2026/4/5
+ * @author CH
  */
 @Service
 @RequiredArgsConstructor
@@ -173,20 +173,20 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     /**
-    * 解析principal名称
-    *
-    * @param userIds 用户标识
-    * @return resolveprincipal名称的结果
+     * 解析principal名称
+     *
+     * @param userIds 用户标识
+     * @return resolveprincipal名称的结果
      */
     private List<String> resolvePrincipalNames(Collection<Integer> userIds) {
         return resolvePrincipalNameMap(userIds).values().stream().toList();
     }
 
     /**
-    * 解析principal名称映射
-    *
-    * @param userIds 用户标识
-    * @return resolveprincipal名称映射的结果
+     * 解析principal名称映射
+     *
+     * @param userIds 用户标识
+     * @return resolveprincipal名称映射的结果
      */
     private Map<Integer, String> resolvePrincipalNameMap(Collection<Integer> userIds) {
         if (CollectionUtils.isEmpty(userIds)) {

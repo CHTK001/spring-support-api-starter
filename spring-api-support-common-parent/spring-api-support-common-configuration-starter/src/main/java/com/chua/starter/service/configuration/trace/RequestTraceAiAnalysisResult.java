@@ -1,12 +1,12 @@
 package com.chua.starter.service.configuration.trace;
 
 /**
-* 请求追踪 AI 分析结果。
-*
-* <p>用于保留模型调用状态、最终摘要来源、回退原因与提示词摘要等过程信息，方便前端展示与落库扩展。</p>
-*
-* @since 2026/03/26
-* @author CH
+ * 请求追踪 AI 分析结果。
+ *
+ * <p>用于保留模型调用状态、最终摘要来源、回退原因与提示词摘要等过程信息，方便前端展示与落库扩展。</p>
+ *
+ * @since 2026/03/26
+ * @author CH
  */
 public record RequestTraceAiAnalysisResult(
         long analyzedAt,
@@ -44,9 +44,9 @@ public record RequestTraceAiAnalysisResult(
     }
 
     /**
-    * 最终summary
-    *
-    * @return 最终summary的结果
+     * 最终summary
+     *
+     * @return 最终summary的结果
      */
     public String finalSummary() {
         return RequestTraceSupport.firstNonBlank(summary, heuristicSummary);

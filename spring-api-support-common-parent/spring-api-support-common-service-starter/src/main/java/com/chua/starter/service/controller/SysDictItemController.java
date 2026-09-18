@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
-* 字典子项接口(缓存)
-* @since 2024/8/7
-* @author CH
+ * 字典子项接口(缓存)
+ * @since 2024/8/7
+ * @author CH
  */
 @Tag(name = "字典子项接口")
 @RestController
@@ -61,13 +61,13 @@ public class SysDictItemController {
     }
 
     /**
-    * 字典子项列表
-    *
-    * @return 字典子项列表
-    * @param query 查询
-    * @param sysDictCode sysdict编码
-    * @param true true
-    * @param roles 方法入参 roles
+     * 字典子项列表
+     *
+     * @return 字典子项列表
+     * @param query 查询
+     * @param sysDictCode sysdict编码
+     * @param true true
+     * @param roles 方法入参 roles
      */
     @Operation(summary = "字典子项列表(code码查询)")
     @GetMapping("/code")
@@ -81,13 +81,13 @@ public class SysDictItemController {
 
 
     /**
-    * 字典子项列表
-    *
-    * @return 字典子项列表
-    * @param query 查询
-    * @param sysDictId sysDictId
-    * @param true true
-    * @param roles 方法入参 roles
+     * 字典子项列表
+     *
+     * @return 字典子项列表
+     * @param query 查询
+     * @param sysDictId sysDictId
+     * @param true true
+     * @param roles 方法入参 roles
      */
     @Operation(summary = "字典子项列表(父ID)")
     @GetMapping("/pList")
@@ -100,13 +100,13 @@ public class SysDictItemController {
     }
 
     /**
-    * 字典子项列表
-    *
-    * @return 字典子项列表
-    * @param query 查询
-    * @param sysDictId sysDictId
-    * @param true true
-    * @param roles 方法入参 roles
+     * 字典子项列表
+     *
+     * @return 字典子项列表
+     * @param query 查询
+     * @param sysDictId sysDictId
+     * @param true true
+     * @param roles 方法入参 roles
      */
     @Operation(summary = "字典子项列表")
     @GetMapping("/list")
@@ -118,13 +118,13 @@ public class SysDictItemController {
         return ReturnResult.ok(sysDictItemService.listForItemId(query, sysDictId, roles));
     }
     /**
-    * 字典子项分页列表
-    *
-    * @return 字典子项分页列表
-    * @param query 查询
-    * @param sysDictId sysDictId
-    * @param true true
-    * @param roles 方法入参 roles
+     * 字典子项分页列表
+     *
+     * @return 字典子项分页列表
+     * @param query 查询
+     * @param sysDictId sysDictId
+     * @param true true
+     * @param roles 方法入参 roles
      */
     @Operation(summary = "字典子项分页")
     @GetMapping("/page")
@@ -136,10 +136,10 @@ public class SysDictItemController {
     }
 
     /**
-    * 删除字典子项
-    *
-    * @return 更新字典子项
-    * @param sysDictItemId sysDictItemId
+     * 删除字典子项
+     *
+     * @return 更新字典子项
+     * @param sysDictItemId sysDictItemId
      */
     @Operation(summary = "删除字典子项")
     @DeleteMapping("/delete")
@@ -155,9 +155,9 @@ public class SysDictItemController {
 
 
     /**
-    * 更新字典子项
-    *
-    * @return 更新字典子项
+     * 更新字典子项
+     *
+     * @return 更新字典子项
      */
     @Operation(summary = "更新字典子项")
     @PutMapping("/update")
@@ -174,9 +174,9 @@ public class SysDictItemController {
     }
 
     /**
-    * 新增字典子项
-    *
-    * @return 新增字典子项
+     * 新增字典子项
+     *
+     * @return 新增字典子项
      */
     @Operation(summary = "新增字典子项")
     @PostMapping("/save")

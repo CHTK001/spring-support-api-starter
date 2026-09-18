@@ -12,12 +12,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
-* 文件系统管理表
-* 用于管理分片上传的文件信息
-*
-* @since 2024/12/10
-* @版本 1.0.0
-* @author CH
+ * 文件系统管理表
+ * 用于管理分片上传的文件信息
+ *
+ * @since 2024/12/10
+ * @版本 1.0.0
+ * @author CH
  */
 @Schema(description = "文件系统管理表")
 @Data
@@ -240,27 +240,27 @@ public class SysFileSystem extends SysBase implements Serializable {
      */
     public static class Status {
         /**
-        * 待上传
+         * 待上传
          */
         public static final int PENDING = 0;
         /**
-        * 上传中
+         * 上传中
          */
         public static final int UPLOADING = 1;
         /**
-        * 待合并
+         * 待合并
          */
         public static final int PENDING_MERGE = 2;
         /**
-        * 合并中
+         * 合并中
          */
         public static final int MERGING = 3;
         /**
-        * 已完成
+         * 已完成
          */
         public static final int COMPLETED = 4;
         /**
-        * 处理异常
+         * 处理异常
          */
         public static final int ERROR = -1;
     }

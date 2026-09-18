@@ -3,12 +3,12 @@ package com.chua.starter.geo.util;
 import com.chua.starter.geo.model.Bounds;
 
 /**
-* Terrarium 高程编码解码工具。
-* Terrarium 编码：elevation_m = (R * 256 + G + B / 256) - 32768
-* 范围：-32768.0 ～ +32767.996 m，理论精度 1/256 m。
-*
-* @author CH
-* @since 1.0.0
+ * Terrarium 高程编码解码工具。
+ * Terrarium 编码：elevation_m = (R * 256 + G + B / 256) - 32768
+ * 范围：-32768.0 ～ +32767.996 m，理论精度 1/256 m。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 public class TerrariumDecoder {
 
@@ -28,13 +28,13 @@ public class TerrariumDecoder {
     }
 
     /**
-    * 将 RGBA 像素数组解码为高程 float 数组。
-    * 输入为 缓冲镜像.获取raster().获取数据elements() 返回的 int[]。
-    *
-    * @param pixels RGBA 像素数组（每元素为一个 int，包含 R/G/B/A）
-    * @param width  图像宽度
-    * @param height 图像高度
-    * @return 一维 float 数组，长度 width * height，行主序
+     * 将 RGBA 像素数组解码为高程 float 数组。
+     * 输入为 缓冲镜像.获取raster().获取数据elements() 返回的 int[]。
+     *
+     * @param pixels RGBA 像素数组（每元素为一个 int，包含 R/G/B/A）
+     * @param width  图像宽度
+     * @param height 图像高度
+     * @return 一维 float 数组，长度 width * height，行主序
      */
     public static float[] decodeToElevation(int[] pixels, int width, int height) {
         float[] elevation = new float[width * height];
@@ -49,12 +49,12 @@ public class TerrariumDecoder {
     }
 
     /**
-    * 将 byte 数组（BGRA 格式）解码为高程 float 数组。
-    *
-    * @param bytes  原始像素字节（BGRA，每像素4字节）
-    * @param width  图像宽度
-    * @param height 图像高度
-    * @return 高程 float 数组
+     * 将 byte 数组（BGRA 格式）解码为高程 float 数组。
+     *
+     * @param bytes  原始像素字节（BGRA，每像素4字节）
+     * @param width  图像宽度
+     * @param height 图像高度
+     * @return 高程 float 数组
      */
     public static float[] decodeFromBytes(byte[] bytes, int width, int height) {
         float[] elevation = new float[width * height];
@@ -69,11 +69,11 @@ public class TerrariumDecoder {
     }
 
     /**
-    * 估算 DEM 瓦片数量。
-    *
-    * @param bounds 地理边界
-    * @param zoom   缩放级别
-    * @return 瓦片数量
+     * 估算 DEM 瓦片数量。
+     *
+     * @param bounds 地理边界
+     * @param zoom   缩放级别
+     * @return 瓦片数量
      */
     public static long estimateTileCount(Bounds bounds, int zoom) {
         return TileMathUtils.estimateTileCount(bounds, zoom);

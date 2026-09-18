@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
-* 请求追踪分析上下文
-*
-* @since 2026/03/25
-* @author CH
+ * 请求追踪分析上下文
+ *
+ * @since 2026/03/25
+ * @author CH
  */
 public record RequestTraceAnalysisContext(
         RequestTraceEvent currentEvent,
@@ -25,21 +25,21 @@ public record RequestTraceAnalysisContext(
     }
 
     /**
-    * 历史within
-    *
-    * @param duration 持续时间
-    * @return 历史within的结果
+     * 历史within
+     *
+     * @param duration 持续时间
+     * @return 历史within的结果
      */
     public List<RequestTraceEvent> historyWithin(Duration duration) {
         return historyWithin(duration, event -> true);
     }
 
     /**
-    * 历史within
-    *
-    * @param duration 持续时间
-    * @param predicate predicate
-    * @return 历史within的结果
+     * 历史within
+     *
+     * @param duration 持续时间
+     * @param predicate predicate
+     * @return 历史within的结果
      */
     public List<RequestTraceEvent> historyWithin(Duration duration, Predicate<RequestTraceEvent> predicate) {
         long cutoff = now.minus(duration).toEpochMilli();

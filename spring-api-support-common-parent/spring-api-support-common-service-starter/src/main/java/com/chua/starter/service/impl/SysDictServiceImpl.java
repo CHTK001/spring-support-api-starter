@@ -22,63 +22,63 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
-* 系统字典服务实现类
-*
-* @since 2024/8/7
-* @author CH
+ * 系统字典服务实现类
+ *
+ * @since 2024/8/7
+ * @author CH
  */
 @Service
 @RequiredArgsConstructor
 public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> implements SysDictService {
 
     /**
-    * 事务模板，用于执行事务操作
+     * 事务模板，用于执行事务操作
      */
     final TransactionTemplate transactionTemplate;
 
     /**
-    * 字典项映射器，用于操作字典项数据
+     * 字典项映射器，用于操作字典项数据
      */
     final SysDictItemMapper sysDictItemMapper;
 
     /**
-    * 分页查询系统字典信息
-    * 根据查询条件和用户角色进行筛选，只查询一级字典及其子级
-    *
-    * @param query   分页查询对象，包含分页信息和排序规则
-    *                示例: {
-    *                "page": 1,
-    * "page大小": 10,
-    * "订单": "创建时间 desc"
-    *                }
-    * @param sysDict 系统字典查询条件对象
-    *                示例: {
-    * "sysdict编码": "用户_类型",
-    * "sysdict名称": "用户类型",
-    * "sysdict评论": "用户类型字典"
-    *                }
-    * @param roles   用户角色集合，用于权限控制
-    * 示例: ["ADMIN", "用户"]
-    * @return 分页查询结果，包含查询到的系统字典信息及子级
-    * 示例: {
-    * "records": [
-    * {
-    * "sysdictid": 1,
-    * "sysdictpid": 0,
-    * "sysdict名称": "用户类型",
-    * "sysdict编码": "用户_类型",
-    * "children": [
-    * {
-    * "sysdictid": 2,
-    * "sysdictpid": 1,
-    * "sysdict名称": "普通用户",
-    * "sysdict编码": "NORMAL_用户"
-    * }
-    * ]
-    * }
-    * ],
-    * "total": 1
-    * }
+     * 分页查询系统字典信息
+     * 根据查询条件和用户角色进行筛选，只查询一级字典及其子级
+     *
+     * @param query   分页查询对象，包含分页信息和排序规则
+     *                示例: {
+     *                "page": 1,
+     * "page大小": 10,
+     * "订单": "创建时间 desc"
+     *                }
+     * @param sysDict 系统字典查询条件对象
+     *                示例: {
+     * "sysdict编码": "用户_类型",
+     * "sysdict名称": "用户类型",
+     * "sysdict评论": "用户类型字典"
+     *                }
+     * @param roles   用户角色集合，用于权限控制
+     * 示例: ["ADMIN", "用户"]
+     * @return 分页查询结果，包含查询到的系统字典信息及子级
+     * 示例: {
+     * "records": [
+     * {
+     * "sysdictid": 1,
+     * "sysdictpid": 0,
+     * "sysdict名称": "用户类型",
+     * "sysdict编码": "用户_类型",
+     * "children": [
+     * {
+     * "sysdictid": 2,
+     * "sysdictpid": 1,
+     * "sysdict名称": "普通用户",
+     * "sysdict编码": "NORMAL_用户"
+     * }
+     * ]
+     * }
+     * ],
+     * "total": 1
+     * }
      */
     @Override
     public IPage<SysDict> pageForDict(Query<SysDict> query, SysDict sysDict, Set<String> roles) {
@@ -104,17 +104,17 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
     }
 
     /**
-    * 删除指定的系统字典
-    * 同时删除该字典下的所有字典项
-    *
-    * @param dictId 字典标识，唯一标识要删除的字典
-    *               示例: 1
-    * @return 删除操作的结果，包含成功与否的标志
-    * 示例: {
-    * "编码": 200,
-    * "数据": true,
-    * "消息": "成功"
-    * }
+     * 删除指定的系统字典
+     * 同时删除该字典下的所有字典项
+     *
+     * @param dictId 字典标识，唯一标识要删除的字典
+     *               示例: 1
+     * @return 删除操作的结果，包含成功与否的标志
+     * 示例: {
+     * "编码": 200,
+     * "数据": true,
+     * "消息": "成功"
+     * }
      */
     @Override
     public ReturnResult<Boolean> delete(Long dictId) {
@@ -141,24 +141,24 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
     }
 
     /**
-    * 更新系统字典信息
-    * 管理员可以修改所有字典，非管理员不能修改内置字典且不能修改是否内置字段
-    *
-    * @param roles   用户角色集合，用于权限控制
-    *                示例: ["ADMIN"]
-    * @param sysDict 待更新的系统字典对象
-    *                示例: {
-    * "sysdictid": 1,
-    * "sysdict名称": "更新后的用户类型",
-    * "sysdict编码": "用户_类型",
-    * "sysdictpid": 0
-    *                }
-    * @return 更新操作的结果，包含成功与否的标志
-    * 示例: {
-    * "编码": 200,
-    * "数据": true,
-    * "消息": "成功"
-    * }
+     * 更新系统字典信息
+     * 管理员可以修改所有字典，非管理员不能修改内置字典且不能修改是否内置字段
+     *
+     * @param roles   用户角色集合，用于权限控制
+     *                示例: ["ADMIN"]
+     * @param sysDict 待更新的系统字典对象
+     *                示例: {
+     * "sysdictid": 1,
+     * "sysdict名称": "更新后的用户类型",
+     * "sysdict编码": "用户_类型",
+     * "sysdictpid": 0
+     *                }
+     * @return 更新操作的结果，包含成功与否的标志
+     * 示例: {
+     * "编码": 200,
+     * "数据": true,
+     * "消息": "成功"
+     * }
      */
     @Override
     public ReturnResult<Boolean> update(Set<String> roles, SysDict sysDict) {
@@ -198,31 +198,31 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
     }
 
     /**
-    * 保存新的系统字典信息
-    * 新增的字典默认为非内置状态且状态为显示
-    *
-    * @param sysDict 待保存的系统字典对象
-    *                示例: {
-    * "sysdict名称": "新字典",
-    * "sysdict编码": "新_DICT",
-    * "sysdictpid": 0,
-    * "sysdict评论": "这是一个新字典"
-    *                }
-    * @param roles   用户角色集合，用于权限控制（当前版本未使用）
-    *                示例: ["ADMIN"]
-    * @return 保存操作的结果，包含成功与否的标志以及保存的字典信息
-    *         示例: {
-    * "编码": 200,
-    * "数据": {
-    * "sysdictid": 3,
-    * "sysdict名称": "新字典",
-    * "sysdict编码": "新_DICT",
-    * "sysdictpid": 0,
-    * "sysdict状态": 1,
-    * "sysdict入系统": 0
-    *         },
-    * "消息": "成功"
-    *         }
+     * 保存新的系统字典信息
+     * 新增的字典默认为非内置状态且状态为显示
+     *
+     * @param sysDict 待保存的系统字典对象
+     *                示例: {
+     * "sysdict名称": "新字典",
+     * "sysdict编码": "新_DICT",
+     * "sysdictpid": 0,
+     * "sysdict评论": "这是一个新字典"
+     *                }
+     * @param roles   用户角色集合，用于权限控制（当前版本未使用）
+     *                示例: ["ADMIN"]
+     * @return 保存操作的结果，包含成功与否的标志以及保存的字典信息
+     *         示例: {
+     * "编码": 200,
+     * "数据": {
+     * "sysdictid": 3,
+     * "sysdict名称": "新字典",
+     * "sysdict编码": "新_DICT",
+     * "sysdictpid": 0,
+     * "sysdict状态": 1,
+     * "sysdict入系统": 0
+     *         },
+     * "消息": "成功"
+     *         }
      */
     @Override
     public ReturnResult<SysDict> save(SysDict sysDict, Set<String> roles) {

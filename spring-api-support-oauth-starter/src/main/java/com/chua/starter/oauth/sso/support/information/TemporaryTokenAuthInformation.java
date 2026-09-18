@@ -12,25 +12,25 @@ import org.springframework.context.ApplicationContext;
 import java.util.Map;
 
 /**
-* 临时令牌认证信息 - 支持多协议
-* <p>用于解析临时令牌创建请求</p>
-*
-* @版本 1.0.0
-* @since 2025-12-11
-* @author CH
+ * 临时令牌认证信息 - 支持多协议
+ * <p>用于解析临时令牌创建请求</p>
+ *
+ * @版本 1.0.0
+ * @since 2025-12-11
+ * @author CH
  */
 @Slf4j
 public class TemporaryTokenAuthInformation extends BaseAuthInformation {
 
     /**
-    * HTTP协议构造函数
-    *
-    * @param authServerProperties 认证服务器配置
-    * @param data                 请求数据
-    * @param request              HTTP请求
-    * @param response             HTTP响应
-    * @param applicationContext   Spring应用上下文
-    * @param loginCheck           登录检查器
+     * HTTP协议构造函数
+     *
+     * @param authServerProperties 认证服务器配置
+     * @param data                 请求数据
+     * @param request              HTTP请求
+     * @param response             HTTP响应
+     * @param applicationContext   Spring应用上下文
+     * @param loginCheck           登录检查器
      */
     public TemporaryTokenAuthInformation(AuthServerProperties authServerProperties,
                                          String data,
@@ -42,14 +42,14 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     }
 
     /**
-    * Armeria协议构造函数
-    *
-    * @param authServerProperties 认证服务器配置
-    * @param data                 请求数据
-    * @param request              Armeria请求
-    * @param response             Armeria响应
-    * @param applicationContext   Spring应用上下文
-    * @param loginCheck           登录检查器
+     * Armeria协议构造函数
+     *
+     * @param authServerProperties 认证服务器配置
+     * @param data                 请求数据
+     * @param request              Armeria请求
+     * @param response             Armeria响应
+     * @param applicationContext   Spring应用上下文
+     * @param loginCheck           登录检查器
      */
     public TemporaryTokenAuthInformation(AuthServerProperties authServerProperties,
                                          String data,
@@ -123,45 +123,45 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     }
 
     /**
-    * 获取login检查
-    *
-    * @return LoginCheck
+     * 获取login检查
+     *
+     * @return LoginCheck
      */
     public LoginCheck getLoginCheck() {
         return loginCheck;
     }
 
     /**
-    * 获取客户端IP地址
-    *
-    * @return 客户端IP地址
+     * 获取客户端IP地址
+     *
+     * @return 客户端IP地址
      */
     public String getClientIp() {
         return getRemoteAddress(getRequest());
     }
 
     /**
-    * 获取源令牌
-    *
-    * @return 源令牌
+     * 获取源令牌
+     *
+     * @return 源令牌
      */
     public String getSourceToken() {
         return MapUtils.getString(this.getBodyData(), "x-oauth-source-token");
     }
 
     /**
-    * 获取扩展参数
-    *
-    * @return 扩展参数Map
+     * 获取扩展参数
+     *
+     * @return 扩展参数Map
      */
     public Map<String, Object> getExtParams() {
         return MapUtils.getMap(this.getBodyData(), "x-oauth-ext");
     }
 
     /**
-    * 获取过期时间（秒）
-    *
-    * @return 过期时间，默认10秒，范围1-3600秒
+     * 获取过期时间（秒）
+     *
+     * @return 过期时间，默认10秒，范围1-3600秒
      */
     public long getExpireTime() {
         Map<String, Object> ext = getExtParams();
@@ -170,9 +170,9 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     }
 
     /**
-    * 获取允许访问的URL列表
-    *
-    * @return 允许访问的URL列表，为空表示允许所有
+     * 获取允许访问的URL列表
+     *
+     * @return 允许访问的URL列表，为空表示允许所有
      */
     public String getAllowedUrls() {
         Map<String, Object> ext = getExtParams();
@@ -180,9 +180,9 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     }
 
     /**
-    * 获取授权处理器
-    *
-    * @return 临时令牌授权处理器
+     * 获取授权处理器
+     *
+     * @return 临时令牌授权处理器
      */
     @Override
     public TemporaryTokenAuthorization authorization() {

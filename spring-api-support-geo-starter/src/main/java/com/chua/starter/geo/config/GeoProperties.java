@@ -5,10 +5,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
-* Geo 服务全局配置属性，绑定 application.yml 中 geo.* 前缀的配置项。
-*
-* @author CH
-* @since 1.0.0
+ * Geo 服务全局配置属性，绑定 application.yml 中 geo.* 前缀的配置项。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Data
 @Component

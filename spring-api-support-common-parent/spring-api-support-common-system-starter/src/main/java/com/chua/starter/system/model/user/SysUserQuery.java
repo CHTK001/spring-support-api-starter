@@ -7,9 +7,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
-* 用户查询
-* @since 2024/8/7
-* @author CH
+ * 用户查询
+ * @since 2024/8/7
+ * @author CH
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
 public class SysUserQuery extends Query<SysUser> {
 
     /**
-    * 用户名
+     * 用户名
      */
     @Schema(description = "用户名")
     /** 用户名 */
@@ -60,37 +60,37 @@ public class SysUserQuery extends Query<SysUser> {
     /* ================== 数据权限过滤参数（由Service层注入，前端不传） ================== */
 
     /**
-    * 当前用户ID（数据权限=仅本人时使用）
+     * 当前用户ID（数据权限=仅本人时使用）
      */
     @Schema(hidden = true)
     private Integer currentUserId;
 
     /**
-    * 当前用户部门ID（数据权限=本部门时使用）
+     * 当前用户部门ID（数据权限=本部门时使用）
      */
     @Schema(hidden = true)
     private Integer currentDeptId;
 
     /**
-    * 当前用户部门树路径（数据权限=本部门及以下时使用）
+     * 当前用户部门树路径（数据权限=本部门及以下时使用）
      */
     @Schema(hidden = true)
     private String currentDeptTreeId;
 
     /**
-    * 自定义数据权限部门ID列表（数据权限=自定义时使用）
+     * 自定义数据权限部门ID列表（数据权限=自定义时使用）
      */
     @Schema(hidden = true)
     private java.util.List<Integer> dataScopeDeptIds;
 
     /**
-    * 数据权限类型: 1-全部 2-本部门 3-本部门及以下 4-仅本人 5-自定义
+     * 数据权限类型: 1-全部 2-本部门 3-本部门及以下 4-仅本人 5-自定义
      */
     @Schema(hidden = true)
     private Integer dataScope;
 
     /**
-    * 是否排除 sa 角色用户（非 sa 用户看不到 sa 用户）
+     * 是否排除 sa 角色用户（非 sa 用户看不到 sa 用户）
      */
     @Schema(hidden = true)
     private Boolean excludeSaUser;

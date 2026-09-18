@@ -14,14 +14,14 @@ import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* 默认认证处理器（令牌认证）
-* <p>
-* 处理基于令牌的标准认证请求，返回用户信息（包含指纹）由客户端决定是否验证
-* </p>
-*
-* @版本 1.0.0
-* @since 2024/12/11
-* @author CH
+ * 默认认证处理器（令牌认证）
+ * <p>
+ * 处理基于令牌的标准认证请求，返回用户信息（包含指纹）由客户端决定是否验证
+ * </p>
+ *
+ * @版本 1.0.0
+ * @since 2024/12/11
+ * @author CH
  */
 @Slf4j
 @Spi("default")
@@ -30,11 +30,11 @@ public class DefaultAuthorizationHandler implements AuthorizationHandler {
 
     @Override
     /**
-    * Authenticate
-    * @param authInformation 认证信息
-    * @param token 令牌
-    * @param cookie Cookie
-    * @param userCode 用户编码
+     * Authenticate
+     * @param authInformation 认证信息
+     * @param token 令牌
+     * @param cookie Cookie
+     * @param userCode 用户编码
      */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation,
                                             String token,
@@ -81,9 +81,9 @@ public class DefaultAuthorizationHandler implements AuthorizationHandler {
     }
     
     /**
-    * 脱敏appid
-    * @param appId appId
-    * @return maskAppId的结果
+     * 脱敏appid
+     * @param appId appId
+     * @return maskAppId的结果
      */
     private String maskAppId(String appId) {
         if (appId == null || appId.length() < 8) {

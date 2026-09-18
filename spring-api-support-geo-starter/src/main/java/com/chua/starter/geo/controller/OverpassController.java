@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
-* Overpass OSM 矢量数据查询控制器。
-*
-* @author CH
-* @since 1.0.0
+ * Overpass OSM 矢量数据查询控制器。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @RestController
 @RequestMapping("/v1/geo/osm")
@@ -46,10 +46,10 @@ public class OverpassController {
     }
 
     /**
-    * 创建 OSM 矢量下载任务（简化版：仅查询统计，实际导出待后续实现）。
-    *
-    * @param request 查询请求
-    * @return 任务信息
+     * 创建 OSM 矢量下载任务（简化版：仅查询统计，实际导出待后续实现）。
+     *
+     * @param request 查询请求
+     * @return 任务信息
      */
     @PostMapping("/download")
     @Operation(summary = "创建OSM下载任务")

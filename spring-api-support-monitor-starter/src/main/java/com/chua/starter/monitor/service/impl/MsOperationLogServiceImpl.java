@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 /**
-* 操作日志服务实现。
-*
-* @since 2026-08-11
-* @author CH
+ * 操作日志服务实现。
+ *
+ * @since 2026-08-11
+ * @author CH
  */
 @Slf4j
 @Service
@@ -21,7 +21,7 @@ public class MsOperationLogServiceImpl extends ServiceImpl<MsOperationLogMapper,
         implements MsOperationLogService {
 
     /**
-    * 记录一条操作日志；失败时仅打日志，不影响主流程。
+     * 记录一条操作日志；失败时仅打日志，不影响主流程。
      */
     @Override
     public void log(String operator, String operation, String targetModule, String targetId, String description) {

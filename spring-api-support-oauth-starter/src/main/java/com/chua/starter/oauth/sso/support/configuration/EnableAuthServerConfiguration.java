@@ -46,39 +46,39 @@ import java.util.List;
 import java.util.Properties;
 
 /**
-* OAuth认证服务器自动配置类
-*
-* <p>这是OAuth认证服务器的核心配置类，负责初始化和配置认证服务器的各个组件。</p>
-*
-* <h3>主要功能：</h3>
-* <ul>
-*   <li>自动注册认证相关的Bean定义</li>
-*   <li>配置OAuth协议处理器</li>
-*   <li>初始化第三方登录提供者（如Gitee）</li>
-*   <li>设置用户信息解析器</li>
-*   <li>配置响应处理器和消息转换器</li>
-* </ul>
-*
-* <h3>支持的协议：</h3>
-* <ul>
-*   <li>HTTP协议 - 标准HTTP认证</li>
-*   <li>Custom协议 - 自定义认证协议</li>
-*   <li>JWT协议 - JSON Web Token认证</li>
-*   <li>JWT-RSA协议 - 基于RSA签名的JWT认证</li>
-* </ul>
-*
-* <h3>集成的第三方登录：</h3>
-* <ul>
-*   <li>Gitee登录和账号绑定</li>
-*   <li>支持扩展其他第三方登录提供者</li>
-* </ul>
-*
-* <p>该配置类实现了多个Spring接口，确保在应用启动的不同阶段正确初始化各个组件。</p>
-*
-* @author CH
-* @since 2022/7/23 8:51
-* @see AuthServerProperties 认证服务器配置属性
-* @see LoginCheck 登录检查服务
+ * OAuth认证服务器自动配置类
+ *
+ * <p>这是OAuth认证服务器的核心配置类，负责初始化和配置认证服务器的各个组件。</p>
+ *
+ * <h3>主要功能：</h3>
+ * <ul>
+ *   <li>自动注册认证相关的Bean定义</li>
+ *   <li>配置OAuth协议处理器</li>
+ *   <li>初始化第三方登录提供者（如Gitee）</li>
+ *   <li>设置用户信息解析器</li>
+ *   <li>配置响应处理器和消息转换器</li>
+ * </ul>
+ *
+ * <h3>支持的协议：</h3>
+ * <ul>
+ *   <li>HTTP协议 - 标准HTTP认证</li>
+ *   <li>Custom协议 - 自定义认证协议</li>
+ *   <li>JWT协议 - JSON Web Token认证</li>
+ *   <li>JWT-RSA协议 - 基于RSA签名的JWT认证</li>
+ * </ul>
+ *
+ * <h3>集成的第三方登录：</h3>
+ * <ul>
+ *   <li>Gitee登录和账号绑定</li>
+ *   <li>支持扩展其他第三方登录提供者</li>
+ * </ul>
+ *
+ * <p>该配置类实现了多个Spring接口，确保在应用启动的不同阶段正确初始化各个组件。</p>
+ *
+ * @author CH
+ * @since 2022/7/23 8:51
+ * @see AuthServerProperties 认证服务器配置属性
+ * @see LoginCheck 登录检查服务
  */
 @Slf4j
 @Configuration
@@ -92,13 +92,13 @@ import java.util.Properties;
         OauthSecurityProperties.class
 })
 /**
-* OAuth 认证服务器自动配置，负责整合登录、CAS、第三方登录等能力。
-*
-* <p>实现 {@link BeanDefinitionRegistryPostProcessor} 以动态注册认证相关 Bean，
-* 同时作为 {@link WebMvcConfigurer} 注册全局拦截器。</p>
-*
-* @author CH
-* @since 4.0.0.42
+ * OAuth 认证服务器自动配置，负责整合登录、CAS、第三方登录等能力。
+ *
+ * <p>实现 {@link BeanDefinitionRegistryPostProcessor} 以动态注册认证相关 Bean，
+ * 同时作为 {@link WebMvcConfigurer} 注册全局拦截器。</p>
+ *
+ * @author CH
+ * @since 4.0.0.42
  */
 public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPostProcessor,
         EnvironmentPostProcessor,
@@ -113,17 +113,17 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     private ApplicationContext applicationContext;
 
     /**
-    * 多协议 服务端 管理器(注入,启动 HTTP/KCP/r套接字/TCP 等认证服务器)
+     * 多协议 服务端 管理器(注入,启动 HTTP/KCP/r套接字/TCP 等认证服务器)
      */
     @org.springframework.beans.factory.annotation.Autowired
     private OauthProtocolServerManager oauthProtocolServerManager;
 
     /**
-    * 创建多协议 服务端 管理器。
-    *
-    * @param oauthProtocolServersProperties 协议服务器配置
-    * @param loginCheck      登录检查服务
-    * @return 多协议 服务端 管理器
+     * 创建多协议 服务端 管理器。
+     *
+     * @param oauthProtocolServersProperties 协议服务器配置
+     * @param loginCheck      登录检查服务
+     * @return 多协议 服务端 管理器
      */
     @Bean
     public OauthProtocolServerManager oauthProtocolServerManager(
@@ -133,11 +133,11 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     }
 
     /**
-    * 登录检查服务Bean
-    * <p>核心认证服务，负责处理登录验证逻辑，通过 Spring 容器获取 UserInfoService 实现</p>
-    *
-    * @param applicationContext Spring 应用上下文
-    * @return 登录检查服务实例
+     * 登录检查服务Bean
+     * <p>核心认证服务，负责处理登录验证逻辑，通过 Spring 容器获取 UserInfoService 实现</p>
+     *
+     * @param applicationContext Spring 应用上下文
+     * @return 登录检查服务实例
      */
     @Bean
     public LoginCheck loginCheck(ApplicationContext applicationContext) {
@@ -145,9 +145,9 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     }
 
     /**
-    * 注册 OAuth 认证服务器模块服务信息。
-    *
-    * @return 服务信息贡献器
+     * 注册 OAuth 认证服务器模块服务信息。
+     *
+     * @return 服务信息贡献器
      */
     @Bean
     public com.chua.starter.common.support.serviceinfo.ServiceInfoContributor authServerServiceInfoContributor() {

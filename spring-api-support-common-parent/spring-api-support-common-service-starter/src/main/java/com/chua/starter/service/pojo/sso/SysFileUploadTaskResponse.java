@@ -5,16 +5,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 /**
-* 任务创建响应
-* @since 2024/12/4
-* @author CH
+ * 任务创建响应
+ * @since 2024/12/4
+ * @author CH
  */
 @Data
 @Schema(description = "任务创建响应")
 public class SysFileUploadTaskResponse {
 
     /**
-    * 任务标识
+     * 任务标识
      */
     @Schema(description = "任务ID")
     /** 任务标识 */

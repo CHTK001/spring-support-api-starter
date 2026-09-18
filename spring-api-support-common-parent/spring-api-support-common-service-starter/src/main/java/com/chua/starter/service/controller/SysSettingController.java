@@ -39,9 +39,9 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_ADMIN;
 
 /**
-* 系统设置接口(缓存)
-* @since 2024/8/7
-* @author CH
+ * 系统设置接口(缓存)
+ * @since 2024/8/7
+ * @author CH
  */
 @Tag(name = "系统全局设置接口")
 @RestController
@@ -89,9 +89,9 @@ public class SysSettingController {
         return PageResultUtils.ok(page);
     }
     /**
-    * 设置分页列表
-    *
-    * @return 设置分页列表
+     * 设置分页列表
+     *
+     * @return 设置分页列表
      */
     @Operation(summary = "默认设置列表")
     @GetMapping("/default")
@@ -103,12 +103,12 @@ public class SysSettingController {
     }
 
     /**
-    * 设置分页列表
-    *
-    * @param sysSettingUpdate 条件
-    * @return 设置分页列表
-    * @param true true
-    * @param roles 方法入参 roles
+     * 设置分页列表
+     *
+     * @param sysSettingUpdate 条件
+     * @return 设置分页列表
+     * @param true true
+     * @param roles 方法入参 roles
      */
     @Operation(summary = "设置列表")
     @GetMapping("/list")
@@ -133,12 +133,12 @@ public class SysSettingController {
     }
 
     /**
-    * 删除设置
-    *
-    * @return 更新设置
-    * @param true true
-    * @param roles 方法入参 roles
-    * @param sysSettingId sysSettingID，不允许为 null
+     * 删除设置
+     *
+     * @return 更新设置
+     * @param true true
+     * @param roles 方法入参 roles
+     * @param sysSettingId sysSettingID，不允许为 null
      */
     @Operation(summary = "删除设置")
     @DeleteMapping("/delete")
@@ -153,9 +153,9 @@ public class SysSettingController {
     }
 
     /**
-    * 更新设置
-    *
-    * @return 更新设置
+     * 更新设置
+     *
+     * @return 更新设置
      */
     @Operation(summary = "更新设置")
     @PutMapping("/updateBatch")
@@ -173,9 +173,9 @@ public class SysSettingController {
     }
 
     /**
-    * 更新设置
-    *
-    * @return 更新设置
+     * 更新设置
+     *
+     * @return 更新设置
      */
     @Operation(summary = "更新设置")
     @PutMapping("/update")
@@ -193,13 +193,13 @@ public class SysSettingController {
     }
 
     /**
-    * 新增设置
-    *
-    * @return 新增设置
-    * @param true true
-    * @param roles 方法入参 roles
-    * @param sysSetting 方法入参 sysSetting
-    * @param bindingResult binding结果，不允许为 null
+     * 新增设置
+     *
+     * @return 新增设置
+     * @param true true
+     * @param roles 方法入参 roles
+     * @param sysSetting 方法入参 sysSetting
+     * @param bindingResult binding结果，不允许为 null
      */
     @Operation(summary = "新增设置")
     @PostMapping("/save")
@@ -214,11 +214,11 @@ public class SysSettingController {
     }
 
     /**
-    * 导出配置
-    *
-    * @param group 配置分组（可选）
-    * @return JSON配置字符串
-    * @param false false
+     * 导出配置
+     *
+     * @param group 配置分组（可选）
+     * @return JSON配置字符串
+     * @param false false
      */
     @Operation(summary = "导出配置")
     @GetMapping("/export")
@@ -229,11 +229,11 @@ public class SysSettingController {
     }
 
     /**
-    * 导入配置
-    *
-    * @param json 配置JSON字符串
-    * @param overwrite 是否覆盖已存在的配置
-    * @return 导入结果，返回批次号
+     * 导入配置
+     *
+     * @param json 配置JSON字符串
+     * @param overwrite 是否覆盖已存在的配置
+     * @return 导入结果，返回批次号
      */
     @Operation(summary = "导入配置")
     @PostMapping("/import")
@@ -247,12 +247,12 @@ public class SysSettingController {
     }
 
     /**
-    * 查询配置变更历史
-    *
-    * @param query 分页参数
-    * @param settingId 配置标识（可选）
-    * @param group 配置分组（可选）
-    * @return 变更历史分页列表
+     * 查询配置变更历史
+     *
+     * @param query 分页参数
+     * @param settingId 配置标识（可选）
+     * @param group 配置分组（可选）
+     * @return 变更历史分页列表
      */
     @Operation(summary = "查询配置变更历史")
     @GetMapping("/history/page")
@@ -266,10 +266,10 @@ public class SysSettingController {
     }
 
     /**
-    * 根据批次号查询变更历史
-    *
-    * @param batchNo 批次号
-    * @return 变更历史列表
+     * 根据批次号查询变更历史
+     *
+     * @param batchNo 批次号
+     * @return 变更历史列表
      */
     @Operation(summary = "根据批次号查询变更历史")
     @GetMapping("/history/batch")
@@ -280,10 +280,10 @@ public class SysSettingController {
     }
 
     /**
-    * 回滚到指定批次
-    *
-    * @param batchNo 批次号
-    * @return 回滚结果
+     * 回滚到指定批次
+     *
+     * @param batchNo 批次号
+     * @return 回滚结果
      */
     @Operation(summary = "回滚到指定批次")
     @PostMapping("/history/rollback/batch")
@@ -297,10 +297,10 @@ public class SysSettingController {
     }
 
     /**
-    * 回滚到指定历史记录
-    *
-    * @param historyId 历史记录标识
-    * @return 回滚结果
+     * 回滚到指定历史记录
+     *
+     * @param historyId 历史记录标识
+     * @return 回滚结果
      */
     @Operation(summary = "回滚单条配置到指定历史记录")
     @PostMapping("/history/rollback/single")

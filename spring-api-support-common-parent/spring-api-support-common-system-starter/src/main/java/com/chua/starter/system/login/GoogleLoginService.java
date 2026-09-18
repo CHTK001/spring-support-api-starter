@@ -15,10 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
-* Google 登录服务
-*
-* @since 2026/03/22
-* @author CH
+ * Google 登录服务
+ *
+ * @since 2026/03/22
+ * @author CH
  */
 @Slf4j
 @Service

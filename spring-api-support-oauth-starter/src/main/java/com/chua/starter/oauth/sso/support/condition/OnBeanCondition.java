@@ -13,18 +13,18 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
-* 用于检查特定 bean 是否存在或缺失的 {@link Condition}。
-*
-* @author Phillip Webb
-* @author Dave Syer
-* @author Jakub Kubrynski
-* @author Stephane Nicoll
-* @author Andy Wilkinson
-* @see ConditionalOnBean
-* @see ConditionalOnMissingBean
-* @see ConditionalOnSingleCandidate
-* @author CH
-* @since 4.0.0
+ * 用于检查特定 bean 是否存在或缺失的 {@link Condition}。
+ *
+ * @author Phillip Webb
+ * @author Dave Syer
+ * @author Jakub Kubrynski
+ * @author Stephane Nicoll
+ * @author Andy Wilkinson
+ * @see ConditionalOnBean
+ * @see ConditionalOnMissingBean
+ * @see ConditionalOnSingleCandidate
+ * @author CH
+ * @since 4.0.0
  */
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class OnBeanCondition implements Condition {

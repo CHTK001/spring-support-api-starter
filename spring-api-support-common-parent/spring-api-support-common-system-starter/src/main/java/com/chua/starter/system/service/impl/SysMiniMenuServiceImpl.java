@@ -25,18 +25,18 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
-* 小程序菜单服务实现类
-*
-* @since 2026/08/03
-* @author CH
+ * 小程序菜单服务实现类
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @Service
 public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMiniMenu> implements SysMiniMenuService {
 
     /**
-    * 查询后端管理用的小程序菜单列表。
-    *
-    * @return 菜单列表结果
+     * 查询后端管理用的小程序菜单列表。
+     *
+     * @return 菜单列表结果
      */
     @Override
     public ReturnResult<List<SysMiniMenu>> listManageMenus() {
@@ -44,10 +44,10 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
     }
 
     /**
-    * 查询当前用户可见的小程序菜单列表。
-    *
-    * @param roles 用户角色集合
-    * @return 菜单列表结果
+     * 查询当前用户可见的小程序菜单列表。
+     *
+     * @param roles 用户角色集合
+     * @return 菜单列表结果
      */
     @Override
     public ReturnResult<List<SysMiniMenuVO>> listUserMenus(Set<String> roles) {
@@ -66,11 +66,11 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
     }
 
     /**
-    * 保存小程序菜单。
-    *
-    * @param sysMiniMenu 小程序菜单实体
-    * @param roles       用户角色集合
-    * @return 保存结果
+     * 保存小程序菜单。
+     *
+     * @param sysMiniMenu 小程序菜单实体
+     * @param roles       用户角色集合
+     * @return 保存结果
      */
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all'")
@@ -88,11 +88,11 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
     }
 
     /**
-    * 更新小程序菜单。
-    *
-    * @param roles       用户角色集合
-    * @param sysMiniMenu 小程序菜单实体
-    * @return 更新结果
+     * 更新小程序菜单。
+     *
+     * @param roles       用户角色集合
+     * @param sysMiniMenu 小程序菜单实体
+     * @return 更新结果
      */
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all'")
@@ -106,10 +106,10 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
     }
 
     /**
-    * 删除小程序菜单。
-    *
-    * @param sysMiniMenuId 菜单标识
-    * @return 删除结果
+     * 删除小程序菜单。
+     *
+     * @param sysMiniMenuId 菜单标识
+     * @return 删除结果
      */
     @Override
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all'")
@@ -121,9 +121,9 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
     }
 
     /**
-    * 查询全部已缓存的小程序菜单（按排序字段和标识升序）。
-    *
-    * @return 小程序菜单列表
+     * 查询全部已缓存的小程序菜单（按排序字段和标识升序）。
+     *
+     * @return 小程序菜单列表
      */
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all'")
     public List<SysMiniMenu> listAllCached() {
@@ -135,11 +135,11 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
     }
 
     /**
-    * 判断菜单是否对指定角色可见。
-    *
-    * @param menu  小程序菜单
-    * @param roles 用户角色集合
-    * @return true 表示可见
+     * 判断菜单是否对指定角色可见。
+     *
+     * @param menu  小程序菜单
+     * @param roles 用户角色集合
+     * @return true 表示可见
      */
     private boolean matchesRoles(SysMiniMenu menu, Set<String> roles) {
         if (AuthConstant.isSuperAdmin(roles) || AuthConstant.isAdmin(roles)) {
@@ -157,9 +157,9 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
     }
 
     /**
-    * 规范化菜单字段的缺省值。
-    *
-    * @param sysMiniMenu 小程序菜单实体
+     * 规范化菜单字段的缺省值。
+     *
+     * @param sysMiniMenu 小程序菜单实体
      */
     private void normalize(SysMiniMenu sysMiniMenu) {
         sysMiniMenu.setSysMiniMenuSort(ObjectUtils.defaultIfNull(sysMiniMenu.getSysMiniMenuSort(), 1));

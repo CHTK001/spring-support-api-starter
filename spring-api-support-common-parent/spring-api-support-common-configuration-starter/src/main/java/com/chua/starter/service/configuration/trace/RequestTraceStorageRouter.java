@@ -8,10 +8,10 @@ import com.chua.starter.service.configuration.trace.storage.MemoryRequestTraceBe
 import org.springframework.stereotype.Component;
 
 /**
-* 请求追踪 SPI 路由器。
-*
-* @since 2026/03/25
-* @author CH
+ * 请求追踪 SPI 路由器。
+ *
+ * @since 2026/03/25
+ * @author CH
  */
 @Component
 public class RequestTraceStorageRouter {
@@ -55,10 +55,10 @@ public class RequestTraceStorageRouter {
     }
 
     /**
-    * rawstorage
-    *
-    * @param type 类型
-    * @return rawStorage的结果
+     * rawstorage
+     *
+     * @param type 类型
+     * @return rawStorage的结果
      */
     public RequestTraceRawRecordStorage rawStorage(String type) {
         RequestTraceRawRecordStorage storage = ServiceProvider.of(RequestTraceRawRecordStorage.class)
@@ -77,10 +77,10 @@ public class RequestTraceStorageRouter {
     }
 
     /**
-    * 行为storage
-    *
-    * @param type 类型
-    * @return 行为storage的结果
+     * 行为storage
+     *
+     * @param type 类型
+     * @return 行为storage的结果
      */
     public RequestTraceBehaviorStorage behaviorStorage(String type) {
         RequestTraceBehaviorStorage storage = ServiceProvider.of(RequestTraceBehaviorStorage.class)
@@ -101,11 +101,11 @@ public class RequestTraceStorageRouter {
     }
 
     /**
-    * Instantiate
-    *
-    * @param className 类名称
-    * @param type 类型
-    * @return instantiate的结果
+     * Instantiate
+     *
+     * @param className 类名称
+     * @param type 类型
+     * @return instantiate的结果
      */
     private <T> T instantiate(String className, Class<T> type) {
         T instance = ReflectUtils.instantiate(className);

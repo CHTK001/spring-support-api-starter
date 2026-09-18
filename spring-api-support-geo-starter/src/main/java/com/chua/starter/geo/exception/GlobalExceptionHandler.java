@@ -8,20 +8,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Map;
 
 /**
-* 全局异常处理器，统一处理 Geo 服务中的各类异常。
-*
-* @author CH
-* @since 1.0.0
+ * 全局异常处理器，统一处理 Geo 服务中的各类异常。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
     /**
-    * 处理 geo异常 业务异常。
-    *
-    * @param e 业务异常
-    * @return 错误响应 映射
+     * 处理 geo异常 业务异常。
+     *
+     * @param e 业务异常
+     * @return 错误响应 映射
      */
     @ExceptionHandler(GeoException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -30,10 +30,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-    * 处理通用异常。
-    *
-    * @param e 异常对象
-    * @return 错误响应 映射
+     * 处理通用异常。
+     *
+     * @param e 异常对象
+     * @return 错误响应 映射
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

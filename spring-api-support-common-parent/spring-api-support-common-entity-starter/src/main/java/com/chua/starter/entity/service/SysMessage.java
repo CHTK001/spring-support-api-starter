@@ -15,10 +15,10 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
-* 系统消息表
-*
-* @since 2024/12/04
-* @author CH
+ * 系统消息表
+ *
+ * @since 2024/12/04
+ * @author CH
  */
 @Schema(description = "系统消息表")
 @Data
@@ -37,7 +37,7 @@ public class SysMessage extends SysBase implements Serializable {
     Integer sysMessageId; // sys消息id
 
     /**
-    * 消息标题
+     * 消息标题
      */
     @TableField(value = "sys_message_title")
     @Schema(description = "消息标题")
@@ -46,14 +46,14 @@ public class SysMessage extends SysBase implements Serializable {
     String sysMessageTitle; // sys消息title
 
     /**
-    * 消息内容
+     * 消息内容
      */
     @TableField(value = "sys_message_content")
     @Schema(description = "消息内容")
     String sysMessageContent; // sys消息内容
 
     /**
-    * 消息类型: 系统-系统通知 notice-公告 消息-私信 警告-警告 信息-信息
+     * 消息类型: 系统-系统通知 notice-公告 消息-私信 警告-警告 信息-信息
      */
     @TableField(value = "sys_message_type")
     @Schema(description = "消息类型: system-系统通知 notice-公告 message-私信 warning-警告 info-信息")
@@ -61,7 +61,7 @@ public class SysMessage extends SysBase implements Serializable {
     String sysMessageType; // sys消息类型
 
     /**
-    * 消息级别: low-低 normal-普通 high-高 urgent-紧急
+     * 消息级别: low-低 normal-普通 high-高 urgent-紧急
      */
     @TableField(value = "sys_message_level")
     @Schema(description = "消息级别: low-低 normal-普通 high-高 urgent-紧急")
@@ -69,14 +69,14 @@ public class SysMessage extends SysBase implements Serializable {
     String sysMessageLevel; // sys消息级别
 
     /**
-    * 发送者标识(0表示系统发送)
+     * 发送者标识(0表示系统发送)
      */
     @TableField(value = "sys_message_sender_id")
     @Schema(description = "发送者ID(0表示系统发送)")
     Integer sysMessageSenderId; // sys消息发送id
 
     /**
-    * 发送者名称
+     * 发送者名称
      */
     @TableField(value = "sys_message_sender_name")
     @Schema(description = "发送者名称")
@@ -84,14 +84,14 @@ public class SysMessage extends SysBase implements Serializable {
     String sysMessageSenderName; // sys消息发送名称
 
     /**
-    * 接收者标识(0表示广播消息)
+     * 接收者标识(0表示广播消息)
      */
     @TableField(value = "sys_message_receiver_id")
     @Schema(description = "接收者ID(0表示广播消息)")
     Integer sysMessageReceiverId; // sys消息receiverid
 
     /**
-    * 接收者名称
+     * 接收者名称
      */
     @TableField(value = "sys_message_receiver_name")
     @Schema(description = "接收者名称")
@@ -99,7 +99,7 @@ public class SysMessage extends SysBase implements Serializable {
     String sysMessageReceiverName; // sys消息receiver名称
 
     /**
-    * 是否已读: 0-未读 1-已读
+     * 是否已读: 0-未读 1-已读
      */
     @TableField(value = "sys_message_read")
     @Schema(description = "是否已读: 0-未读 1-已读")
@@ -122,7 +122,7 @@ public class SysMessage extends SysBase implements Serializable {
     LocalDateTime sysMessageSendTime; // sys消息发送时间
 
     /**
-    * 过期时间(为空表示永不过期)
+     * 过期时间(为空表示永不过期)
      */
     @TableField(value = "sys_message_expire_time")
     @Schema(description = "过期时间(为空表示永不过期)")
@@ -138,7 +138,7 @@ public class SysMessage extends SysBase implements Serializable {
     String sysMessageBizType; // sys消息biz类型
 
     /**
-    * 业务标识
+     * 业务标识
      */
     @TableField(value = "sys_message_biz_id")
     @Schema(description = "业务ID")
@@ -146,7 +146,7 @@ public class SysMessage extends SysBase implements Serializable {
     String sysMessageBizId; // sys消息bizid
 
     /**
-    * 跳转链接
+     * 跳转链接
      */
     @TableField(value = "sys_message_url")
     @Schema(description = "跳转链接")
@@ -154,14 +154,14 @@ public class SysMessage extends SysBase implements Serializable {
     String sysMessageUrl; // sys消息url
 
     /**
-    * 扩展数据(JSON格式)
+     * 扩展数据(JSON格式)
      */
     @TableField(value = "sys_message_extra")
     @Schema(description = "扩展数据(JSON格式)")
     String sysMessageExtra; // sys消息extra
 
     /**
-    * 状态: 0-草稿 1-已发送 2-已撤回
+     * 状态: 0-草稿 1-已发送 2-已撤回
      */
     @TableField(value = "sys_message_status")
     @Schema(description = "状态: 0-草稿 1-已发送 2-已撤回")
@@ -203,9 +203,9 @@ public class SysMessage extends SysBase implements Serializable {
     }
 
     /**
-    * 状态常量
-    * @author CH
-    * @since 4.0.0
+     * 状态常量
+     * @author CH
+     * @since 4.0.0
      */
     public static class Status {
         /** Draft */

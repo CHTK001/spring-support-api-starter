@@ -5,10 +5,10 @@ import lombok.Data;
 import java.util.Locale;
 
 /**
-* 请求追踪策略配置。
-*
-* @since 2026/03/25
-* @author CH
+ * 请求追踪策略配置。
+ *
+ * @since 2026/03/25
+ * @author CH
  */
 @Data
 public class RequestTraceStrategyConfig {
@@ -24,7 +24,7 @@ public class RequestTraceStrategyConfig {
     private String fileStoragePath = "logs/request-trace";
 
     /**
-    * AI 分析开关与执行参数。
+     * AI 分析开关与执行参数。
      */
     private Boolean aiSummaryEnabled = Boolean.TRUE;
     /** AI模型 */
@@ -171,9 +171,9 @@ public class RequestTraceStrategyConfig {
     }
 
     /**
-    * Normalize
-    *
-    * @return normalize的结果
+     * Normalize
+     *
+     * @return normalize的结果
      */
     public RequestTraceStrategyConfig normalize() {
         enabled = defaultBoolean(enabled, true);
@@ -234,44 +234,44 @@ public class RequestTraceStrategyConfig {
     }
 
     /**
-    * 默认布尔值
-    *
-    * @param value 值
-    * @param defaultValue 默认值
-    * @return 默认布尔值的结果
+     * 默认布尔值
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return 默认布尔值的结果
      */
     private Boolean defaultBoolean(Boolean value, boolean defaultValue) {
         return value == null ? defaultValue : value;
     }
 
     /**
-    * Positive
-    *
-    * @param value 值
-    * @param defaultValue 默认值
-    * @return positive的结果
+     * Positive
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return positive的结果
      */
     private Integer positive(Integer value, int defaultValue) {
         return value == null || value <= 0 ? defaultValue : value;
     }
 
     /**
-    * Positive
-    *
-    * @param value 值
-    * @param defaultValue 默认值
-    * @return positive的结果
+     * Positive
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return positive的结果
      */
     private Long positive(Long value, long defaultValue) {
         return value == null || value <= 0 ? defaultValue : value;
     }
 
     /**
-    * 默认文本
-    *
-    * @param value 值
-    * @param defaultValue 默认值
-    * @return 默认文本的结果
+     * 默认文本
+     *
+     * @param value 值
+     * @param defaultValue 默认值
+     * @return 默认文本的结果
      */
     private String defaultText(String value, String defaultValue) {
         String normalized = normalizeText(value);
@@ -279,10 +279,10 @@ public class RequestTraceStrategyConfig {
     }
 
     /**
-    * normalize文本
-    *
-    * @param value 值
-    * @return normalize文本的结果
+     * normalize文本
+     *
+     * @param value 值
+     * @return normalize文本的结果
      */
     private String normalizeText(String value) {
         if (value == null) {
@@ -293,10 +293,10 @@ public class RequestTraceStrategyConfig {
     }
 
     /**
-    * 降低大小写文本
-    *
-    * @param value 值
-    * @return 降低大小写文本的结果
+     * 降低大小写文本
+     *
+     * @param value 值
+     * @return 降低大小写文本的结果
      */
     private String lowerCaseText(String value) {
         String text = normalizeText(value);

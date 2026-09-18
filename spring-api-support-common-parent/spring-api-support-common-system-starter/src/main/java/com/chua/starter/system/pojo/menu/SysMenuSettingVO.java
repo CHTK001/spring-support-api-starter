@@ -6,12 +6,12 @@ import lombok.Data;
 import java.util.List;
 
 /**
-* 菜单设置 VO
-*
-* <p>菜单管理页的列表和编辑回填共用该对象，必须覆盖表单会用到的字段。</p>
-*
-* @since 2024/8/20
-* @author CH
+ * 菜单设置 VO
+ *
+ * <p>菜单管理页的列表和编辑回填共用该对象，必须覆盖表单会用到的字段。</p>
+ *
+ * @since 2024/8/20
+ * @author CH
  */
 @Data
 @Schema(description = "菜单设置VO")

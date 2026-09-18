@@ -15,19 +15,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* 系统服务健康检查指示器
-* <p>
-* 基于SpringBoot Actuator实现，检查系统服务的核心依赖状态：
-* - Redis连接状态（缓存存储）
-* - 数据库连接状态（系统数据）
-* - 服务配置状态
-* </p>
-* <p>
-* 访问路径: /actuator/健康/系统
-* </p>
-*
-* @since 2024/12/11
-* @author CH
+ * 系统服务健康检查指示器
+ * <p>
+ * 基于SpringBoot Actuator实现，检查系统服务的核心依赖状态：
+ * - Redis连接状态（缓存存储）
+ * - 数据库连接状态（系统数据）
+ * - 服务配置状态
+ * </p>
+ * <p>
+ * 访问路径: /actuator/健康/系统
+ * </p>
+ *
+ * @since 2024/12/11
+ * @author CH
  */
 @Slf4j
 @Component("systemServerHealth")
@@ -35,54 +35,54 @@ import java.util.Map;
 public class SystemServerHealthIndicator implements HealthIndicator {
 
     /**
-    * Redis 模板
+     * Redis 模板
      */
     private final StringRedisTemplate stringRedisTemplate;
 
     /**
-    * 数据源
+     * 数据源
      */
     private final DataSource dataSource;
 
     /**
-    * 系统服务配置属性
+     * 系统服务配置属性
      */
     private final SystemProperties systemProperties;
 
     /**
-    * Redis健康检查键
+     * Redis健康检查键
      */
     private static final String HEALTH_CHECK_KEY = "system:health:check";
 
     /**
-    * 健康检查明细项: Redis
+     * 健康检查明细项: Redis
      */
     private static final String KEY_REDIS = "redis";
 
     /**
-    * 健康检查明细项: 数据库
+     * 健康检查明细项: 数据库
      */
     private static final String KEY_DATABASE = "database";
 
     /**
-    * 健康检查明细项: 服务配置
+     * 健康检查明细项: 服务配置
      */
     private static final String KEY_SERVICE = "service";
 
     /**
-    * 运行状态
+     * 运行状态
      */
     private static final String STATUS_UP = "UP";
 
     /**
-    * 故障状态描述前缀
+     * 故障状态描述前缀
      */
     private static final String STATUS_DOWN_PREFIX = "DOWN - ";
 
     /**
-    * 执行健康检查, 汇总 Redis / 数据库 / 服务配置状态。
-    *
-    * @return 健康检查结果
+     * 执行健康检查, 汇总 Redis / 数据库 / 服务配置状态。
+     *
+     * @return 健康检查结果
      */
     @Override
     public Health health() {
@@ -123,8 +123,8 @@ public class SystemServerHealthIndicator implements HealthIndicator {
     }
 
     /**
-    * 检查Redis连接
-    * @param details details
+     * 检查Redis连接
+     * @param details details
      */
     private void checkRedisConnection(Map<String, Object> details) {
         long startTime = System.currentTimeMillis();
@@ -154,8 +154,8 @@ public class SystemServerHealthIndicator implements HealthIndicator {
     }
 
     /**
-    * 检查数据库连接
-    * @param details details
+     * 检查数据库连接
+     * @param details details
      */
     private void checkDatabaseConnection(Map<String, Object> details) {
         long startTime = System.currentTimeMillis();
@@ -180,8 +180,8 @@ public class SystemServerHealthIndicator implements HealthIndicator {
     }
 
     /**
-    * 添加服务配置信息
-    * @param details details
+     * 添加服务配置信息
+     * @param details details
      */
     private void addServiceInfo(Map<String, Object> details) {
         Map<String, Object> serviceInfo = new HashMap<>();

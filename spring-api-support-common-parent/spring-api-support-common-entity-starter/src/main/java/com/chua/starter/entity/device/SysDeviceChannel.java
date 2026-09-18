@@ -10,10 +10,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
-* 设备通道信息
-*
-* @since 2026/08/03
-* @author CH
+ * 设备通道信息
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @Schema
 @Data
@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
 @TableName(value = "sys_device_channel")
 public class SysDeviceChannel extends SysBase {
     /**
-    * 通道主键标识
+     * 通道主键标识
      */
     @TableId(value = "sys_device_channel_id", type = IdType.AUTO)
     @Schema(description = "")

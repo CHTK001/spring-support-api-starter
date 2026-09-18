@@ -17,11 +17,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 /**
-* Overpass API 查询实现。
-*
-* @see <a href="https://dev.overpass-api.de/">Overpass API Documentation</a>
-* @author CH
-* @since 1.0.0
+ * Overpass API 查询实现。
+ *
+ * @see <a href="https://dev.overpass-api.de/">Overpass API Documentation</a>
+ * @author CH
+ * @since 1.0.0
  */
 @Service
 @Slf4j
@@ -36,10 +36,10 @@ public class OverpassServiceImpl implements OverpassService {
     private final ObjectMapper objectMapper = new ObjectMapper(); // 对象映射器
 
     /**
-    * 执行 Overpass API 查询并返回结果统计。
-    *
-    * @param request 查询请求
-    * @return 查询结果统计
+     * 执行 Overpass API 查询并返回结果统计。
+     *
+     * @param request 查询请求
+     * @return 查询结果统计
      */
     @Override
     public OverpassQueryResult query(OverpassQueryRequest request) {
@@ -81,11 +81,11 @@ public class OverpassServiceImpl implements OverpassService {
     }
 
     /**
-    * 构建带 bbox 的 Overpass QL 查询。
-    *
-    * @param baseQuery 基础查询语句（不含 bbox）
-    * @param bounds    地理边界
-    * @return 完整的 Overpass QL
+     * 构建带 bbox 的 Overpass QL 查询。
+     *
+     * @param baseQuery 基础查询语句（不含 bbox）
+     * @param bounds    地理边界
+     * @return 完整的 Overpass QL
      */
     private String buildQuery(String baseQuery, Bounds bounds) {
         if (baseQuery.contains("(bbox")) {
@@ -101,10 +101,10 @@ public class OverpassServiceImpl implements OverpassService {
     }
 
     /**
-    * 估算查询结果元素数量。
-    *
-    * @param ql Overpass QL 查询
-    * @return 估算数量
+     * 估算查询结果元素数量。
+     *
+     * @param ql Overpass QL 查询
+     * @return 估算数量
      */
     private long estimateElementCount(String ql) {
         return ql.length() / 10;

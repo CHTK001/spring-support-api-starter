@@ -7,17 +7,17 @@ import lombok.Data;
 import java.util.List;
 
 /**
-* 字典子项属性
-*
-* @since 2025/9/28
-* @author CH
+ * 字典子项属性
+ *
+ * @since 2025/9/28
+ * @author CH
  */
 @Data
 @Schema(description = "字典子项属性")
 public class DictItemPropertyV1Request {
 
     /**
-    * 字典子项标识
+     * 字典子项标识
      */
     @Schema(description = "字典子项ID")
     /** sysdictitemid */

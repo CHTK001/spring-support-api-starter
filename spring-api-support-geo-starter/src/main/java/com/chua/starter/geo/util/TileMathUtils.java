@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Web Mercator (EPSG:3857) 瓦片坐标计算工具类。
-* 提供经纬度与瓦片坐标之间的转换、瓦片数量估算等核心数学运算。
-* 本类为纯静态工具类，禁止实例化。
-*
-* @author CH
-* @since 1.0.0
+ * Web Mercator (EPSG:3857) 瓦片坐标计算工具类。
+ * 提供经纬度与瓦片坐标之间的转换、瓦片数量估算等核心数学运算。
+ * 本类为纯静态工具类，禁止实例化。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 public class TileMathUtils {
     /** 最大支持缩放级别 */
@@ -34,12 +34,12 @@ public class TileMathUtils {
     }
 
     /**
-    * 经纬度转瓦片坐标
-    *
-    * @param lat lat
-    * @param lng lng
-    * @param zoom zoom
-    * @return 转为瓷砖的结果
+     * 经纬度转瓦片坐标
+     *
+     * @param lat lat
+     * @param lng lng
+     * @param zoom zoom
+     * @return 转为瓷砖的结果
      */
     public static int[] toTile(double lat, double lng, int zoom) {
         zoom = clampZoom(zoom);
@@ -54,12 +54,12 @@ public class TileMathUtils {
     }
 
     /**
-    * 瓦片坐标转地理边界 [north, south, east, west]
-    *
-    * @param x x
-    * @param y y
-    * @param zoom zoom
-    * @return 瓷砖转为bounds的结果
+     * 瓦片坐标转地理边界 [north, south, east, west]
+     *
+     * @param x x
+     * @param y y
+     * @param zoom zoom
+     * @return 瓷砖转为bounds的结果
      */
     public static double[] tileToBounds(int x, int y, int zoom) {
         zoom = clampZoom(zoom);
@@ -72,11 +72,11 @@ public class TileMathUtils {
     }
 
     /**
-    * 获取边界内所有瓦片坐标
-    *
-    * @param bounds bounds
-    * @param zoom zoom
-    * @return 获取瓷砖入bounds的结果
+     * 获取边界内所有瓦片坐标
+     *
+     * @param bounds bounds
+     * @param zoom zoom
+     * @return 获取瓷砖入bounds的结果
      */
     public static TileCoord[] getTilesInBounds(Bounds bounds, int zoom) {
         zoom = clampZoom(zoom);
@@ -92,11 +92,11 @@ public class TileMathUtils {
     }
 
     /**
-    * 估算瓦片数量
-    *
-    * @param bounds bounds
-    * @param zoom zoom
-    * @return estimate瓷砖数量的结果
+     * 估算瓦片数量
+     *
+     * @param bounds bounds
+     * @param zoom zoom
+     * @return estimate瓷砖数量的结果
      */
     public static long estimateTileCount(Bounds bounds, int zoom) {
         zoom = clampZoom(zoom);
@@ -108,14 +108,14 @@ public class TileMathUtils {
     }
 
     /**
-    * 计算拼接后的地理边界 [north, south, east, west]
-    *
-    * @param xMin x最小
-    * @param yMin y最小
-    * @param xMax x最大
-    * @param yMax y最大
-    * @param zoom zoom
-    * @return 获取合并bounds的结果
+     * 计算拼接后的地理边界 [north, south, east, west]
+     *
+     * @param xMin x最小
+     * @param yMin y最小
+     * @param xMax x最大
+     * @param yMax y最大
+     * @param zoom zoom
+     * @return 获取合并bounds的结果
      */
     public static double[] getMergedBounds(int xMin, int yMin, int xMax, int yMax, int zoom) {
         double[] nw = tileToBounds(xMin, yMin, zoom);
@@ -124,11 +124,11 @@ public class TileMathUtils {
     }
 
     /**
-    * WGS-84 经纬度 → Web Mercator 米坐标
-    *
-    * @param lat lat
-    * @param lng lng
-    * @return latlng转为mercator的结果
+     * WGS-84 经纬度 → Web Mercator 米坐标
+     *
+     * @param lat lat
+     * @param lng lng
+     * @return latlng转为mercator的结果
      */
     public static double[] latLngToMercator(double lat, double lng) {
         double R = 6378137.0;
@@ -138,11 +138,11 @@ public class TileMathUtils {
     }
 
     /**
-    * 计算每像素米数（中纬度）
-    *
-    * @param lat lat
-    * @param zoom zoom
-    * @return 节拍perpixel的结果
+     * 计算每像素米数（中纬度）
+     *
+     * @param lat lat
+     * @param zoom zoom
+     * @return 节拍perpixel的结果
      */
     public static double metersPerPixel(double lat, int zoom) {
         return 40075016.686 * Math.cos(Math.toRadians(lat)) / (256.0 * Math.pow(2, zoom));

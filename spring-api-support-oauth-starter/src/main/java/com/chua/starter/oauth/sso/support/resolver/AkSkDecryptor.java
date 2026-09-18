@@ -6,14 +6,14 @@ import com.chua.common.support.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
-* AK/SK 解密工具
-* <p>
-* 用于解密客户端使用 SK 加密的数据
-* </p>
-*
-* @版本 1.0.0
-* @since 2024/12/17
-* @author CH
+ * AK/SK 解密工具
+ * <p>
+ * 用于解密客户端使用 SK 加密的数据
+ * </p>
+ *
+ * @版本 1.0.0
+ * @since 2024/12/17
+ * @author CH
  */
 @Slf4j
 public class AkSkDecryptor {
@@ -60,15 +60,15 @@ public class AkSkDecryptor {
     }
 
     /**
-    * 加密数据
-    * <p>
-    * 根据 AK 查询 SK，使用 SK 加密数据
-    * </p>
-    *
-    * @param accessKey  访问密钥
-    * @param data       原始数据
-    * @param encryption 加密算法
-    * @return 加密后的数据，失败返回 空
+     * 加密数据
+     * <p>
+     * 根据 AK 查询 SK，使用 SK 加密数据
+     * </p>
+     *
+     * @param accessKey  访问密钥
+     * @param data       原始数据
+     * @param encryption 加密算法
+     * @return 加密后的数据，失败返回 空
      */
     public static String encrypt(String accessKey, String data, String encryption) {
         if (StringUtils.isBlank(accessKey) || StringUtils.isBlank(data)) {
@@ -97,9 +97,9 @@ public class AkSkDecryptor {
     }
 
     /**
-    * 脱敏密钥
-    * @param key 键
-    * @return mask键的结果
+     * 脱敏密钥
+     * @param key 键
+     * @return mask键的结果
      */
     private static String maskKey(String key) {
         if (key == null || key.length() < 8) {

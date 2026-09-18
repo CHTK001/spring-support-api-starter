@@ -3,10 +3,10 @@ package com.chua.starter.geo.model;
 import lombok.Data;
 
 /**
-* 自定义瓦片图源配置。
-*
-* @author CH
-* @since 1.0.0
+ * 自定义瓦片图源配置。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Data
 public class CustomTileSource {

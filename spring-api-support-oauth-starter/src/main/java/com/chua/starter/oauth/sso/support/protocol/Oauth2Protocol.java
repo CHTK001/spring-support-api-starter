@@ -48,20 +48,20 @@ import java.util.*;
 import java.util.Base64;
 
 /**
-* OAuth 2.0 标准协议服务端实现
-* <p>
-* 提供符合 RFC 6749 规范的 OAuth 2.0 认证服务端点，包括：
-* - 令牌端点：支持 客户端_凭证、密码、refresh_令牌 授权模式
-* - Revoke端点：撤销令牌 (RFC 7009)
-* - Introspect端点：令牌内省 (RFC 7662)
-* - 用户信息端点：获取用户信息
-* - 服务发现端点：OAuth服务器元数据
-* </p>
-*
-* @author CH
-* @版本 1.0.0
-* @since 2025-12-15
-* @see <a href="https://datatracker.ietf.org/doc/html/rfc6749">RFC 6749 - OAuth 2.0</a>
+ * OAuth 2.0 标准协议服务端实现
+ * <p>
+ * 提供符合 RFC 6749 规范的 OAuth 2.0 认证服务端点，包括：
+ * - 令牌端点：支持 客户端_凭证、密码、refresh_令牌 授权模式
+ * - Revoke端点：撤销令牌 (RFC 7009)
+ * - Introspect端点：令牌内省 (RFC 7662)
+ * - 用户信息端点：获取用户信息
+ * - 服务发现端点：OAuth服务器元数据
+ * </p>
+ *
+ * @author CH
+ * @版本 1.0.0
+ * @since 2025-12-15
+ * @see <a href="https://datatracker.ietf.org/doc/html/rfc6749">RFC 6749 - OAuth 2.0</a>
  */
 @Component
 @Extension("oauth2")
@@ -128,9 +128,9 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     }
     
     /**
-    * 注册 协议服务端 路由
-    *
-    * @param server 协议服务端 实例
+     * 注册 协议服务端 路由
+     *
+     * @param server 协议服务端 实例
      */
     public void registerProtocolServerRoutes(ProtocolServer server) {
         // OAuth2 授权端点 (GET)
@@ -496,9 +496,9 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     }
     
     /**
-    * 从 servlet请求 提取请求体
-    * @param request 请求
-    * @return extract主体的结果
+     * 从 servlet请求 提取请求体
+     * @param request 请求
+     * @return extract主体的结果
      */
     private String extractBody(ServletRequest request) {
         try {
@@ -514,9 +514,9 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     }
     
     /**
-    * 解析 form-urlencoded 格式的请求体
-    * @param body 主体
-    * @return 解析formurlencoded的结果
+     * 解析 form-urlencoded 格式的请求体
+     * @param body 主体
+     * @return 解析formurlencoded的结果
      */
     private Map<String, String> parseFormUrlEncoded(String body) {
         Map<String, String> params = new HashMap<>();
@@ -538,9 +538,9 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     }
     
     /**
-    * 写入 JSON 响应
-    * @param response 响应
-    * @param data 数据
+     * 写入 JSON 响应
+     * @param response 响应
+     * @param data 数据
      */
     private void writeJsonResponse(ServletResponse response, Object data) {
         try {
@@ -553,7 +553,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     }
     
     /**
-    * 发送授权错误重定向
+     * 发送授权错误重定向
      */
     private void sendAuthorizeError(ServletResponse response, String redirectUri,
                                     String state, String error, String description) {
@@ -584,7 +584,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     // ==================== 辅助方法 ====================
 
     /**
-    * 处理授权码模式
+     * 处理授权码模式
      */
     private Map<String, Object> handleAuthorizationCode(String code, String redirectUri, String codeVerifier,
                                                         String clientId, String clientSecret, String scope,
@@ -645,11 +645,11 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-    * 处理客户端凭据模式
-    * @param clientId 客户端id
-    * @param scope scope
-    * @param response 响应
-    * @return 处理客户端凭证的结果
+     * 处理客户端凭据模式
+     * @param clientId 客户端id
+     * @param scope scope
+     * @param response 响应
+     * @return 处理客户端凭证的结果
      */
     private Map<String, Object> handleClientCredentials(String clientId, String scope, HttpServletResponse response) {
         log.debug("处理client_credentials授权 - clientId: {}", clientId);
@@ -683,7 +683,7 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-    * 处理资源所有者密码凭据模式
+     * 处理资源所有者密码凭据模式
      */
     private Map<String, Object> handlePasswordGrant(String username, String password,
                                                     String scope, HttpServletRequest request,
@@ -712,11 +712,11 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-    * 处理刷新令牌模式
-    * @param refreshToken refresh令牌
-    * @param scope scope
-    * @param response 响应
-    * @return 处理refresh令牌的结果
+     * 处理刷新令牌模式
+     * @param refreshToken refresh令牌
+     * @param scope scope
+     * @param response 响应
+     * @return 处理refresh令牌的结果
      */
     private Map<String, Object> handleRefreshToken(String refreshToken, String scope, HttpServletResponse response) {
         log.debug("处理refresh_token授权");
@@ -764,8 +764,8 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     // ==================== 辅助方法 ====================
 
     /**
-    * 获取令牌解析器。
-    * @return 获取令牌解析器的结果
+     * 获取令牌解析器。
+     * @return 获取令牌解析器的结果
      */
     private TokenResolver getTokenResolver() {
         return ServiceProvider.of(TokenResolver.class)
@@ -773,14 +773,14 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
     }
 
     /**
-    * 验证客户端凭据
-    * <p>
-    * 先尝试通过 appid 验证，如果不存在，再尝试通过 app键 验证
-    * </p>
-    *
-    * @param clientId     客户端标识 (可能是 appid 或 app键)
-    * @param clientSecret 客户端密钥
-    * @return 是否验证通过
+     * 验证客户端凭据
+     * <p>
+     * 先尝试通过 appid 验证，如果不存在，再尝试通过 app键 验证
+     * </p>
+     *
+     * @param clientId     客户端标识 (可能是 appid 或 app键)
+     * @param clientSecret 客户端密钥
+     * @return 是否验证通过
      */
     private boolean validateClientCredentials(String clientId, String clientSecret) {
         if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
@@ -875,10 +875,10 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
         }
         return null;
     /**
-    * 构建令牌响应。
-    * @param loginResult login结果
-    * @param scope scope
-    * @return 构建令牌响应的结果
+     * 构建令牌响应。
+     * @param loginResult login结果
+     * @param scope scope
+     * @return 构建令牌响应的结果
      */
     }
 
@@ -911,10 +911,10 @@ public class Oauth2Protocol implements OauthProtocol, InitializingBean {
 
         return response;
     /**
-    * 构建错误响应。
-    * @param error 错误
-    * @param description description
-    * @return 构建错误响应的结果
+     * 构建错误响应。
+     * @param error 错误
+     * @param description description
+     * @return 构建错误响应的结果
      */
     }
 

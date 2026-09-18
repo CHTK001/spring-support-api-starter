@@ -12,10 +12,10 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
-* 系统配置变更历史表
-*
-* @since 2024/12/20
-* @author CH
+ * 系统配置变更历史表
+ *
+ * @since 2024/12/20
+ * @author CH
  */
 @Schema(description = "系统配置变更历史表")
 @Data

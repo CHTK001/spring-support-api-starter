@@ -13,20 +13,20 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
-* 租户数据库
-*
-* @author CH
-* @since 4.0.0
+ * 租户数据库
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Configuration
 public class SsoRedisConfiguration {
     @Bean
     @Primary
     /**
-    * ssoredistemplate
-    *
-    * @param factory 工厂
-    * @return ssoRedisTemplate的结果
+     * ssoredistemplate
+     *
+     * @param factory 工厂
+     * @return ssoRedisTemplate的结果
      */
     public RedisTemplate<String, Object> ssoRedisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();

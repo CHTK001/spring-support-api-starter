@@ -24,74 +24,74 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
-* 高权账号可见性处理器
-*
-* @since 2025/5/1
-* @author CH
+ * 高权账号可见性处理器
+ *
+ * @since 2025/5/1
+ * @author CH
  */
 @Slf4j
 public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermissionHandler {
     /**
-    * 超级管理员角色编码
+     * 超级管理员角色编码
      */
     private static final String SUPER_ADMIN = AuthConstant.SUPER_ADMIN;
 
     /**
-    * 管理员角色编码
+     * 管理员角色编码
      */
     private static final String ADMIN = AuthConstant.ADMIN;
 
     /**
-    * 超级管理员用户名
+     * 超级管理员用户名
      */
     private static final String SA_USERNAME = "sa";
 
     /**
-    * 注解信息缓存
+     * 注解信息缓存
      */
     private static final Map<String, PrivilegedVisibilityInfo> CACHE = new ConcurrentReferenceHashMap<>(256);
 
     /**
-    * 鉴权服务提供者
+     * 鉴权服务提供者
      */
     private final Supplier<AuthService> authServiceSupplier;
 
     /**
-    * 用户 映射器（用于查询管理员角色信息）
+     * 用户 映射器（用于查询管理员角色信息）
      */
     @Autowired(required = false)
     private SysUserMapper sysUserMapper; // sys用户映射器
 
     /**
-    * 用户角色 映射器（用于查询管理员角色标识列表）
+     * 用户角色 映射器（用于查询管理员角色标识列表）
      */
     @Autowired(required = false)
     private SysUserRoleMapper sysUserRoleMapper; // sys用户角色映射器
 
     /**
-    * 空构造器，鉴权服务提供者为空。
+     * 空构造器，鉴权服务提供者为空。
      */
     public PrivilegedVisibilityDataPermissionHandler() {
         this(() -> null);
     }
 
     /**
-    * 带鉴权服务提供者的构造器。
-    *
-    * @param authServiceSupplier 鉴权服务提供者
+     * 带鉴权服务提供者的构造器。
+     *
+     * @param authServiceSupplier 鉴权服务提供者
      */
     public PrivilegedVisibilityDataPermissionHandler(Supplier<AuthService> authServiceSupplier) {
         this.authServiceSupplier = authServiceSupplier;
     }
 
     /**
-    * 根据当前用户与应用注解生成数据权限 SQL 片段。
-    *
-    * @param table            数据表
-    * @param where            原有查询条件
-    * @param mappedStatementId 映射器 方法标识
-    * @return 数据权限 SQL 表达式，无需限制时为 空
-    * @throws RuntimeException 解析 SQL 失败时抛出
+     * 根据当前用户与应用注解生成数据权限 SQL 片段。
+     *
+     * @param table            数据表
+     * @param where            原有查询条件
+     * @param mappedStatementId 映射器 方法标识
+     * @return 数据权限 SQL 表达式，无需限制时为 空
+     * @throws RuntimeException 解析 SQL 失败时抛出
      */
     @Override
     public Expression getSqlSegment(Table table, Expression where, String mappedStatementId) {
@@ -118,20 +118,20 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
     }
 
     /**
-    * 从缓存获取或解析注解信息。
-    *
-    * @param mappedStatementId 映射器 方法标识
-    * @return 注解信息，无注解时为 空
+     * 从缓存获取或解析注解信息。
+     *
+     * @param mappedStatementId 映射器 方法标识
+     * @return 注解信息，无注解时为 空
      */
     private PrivilegedVisibilityInfo getInfo(String mappedStatementId) {
         return CACHE.computeIfAbsent(mappedStatementId, this::parseInfo);
     }
 
     /**
-    * 解析 映射器 方法与类上的注解信息。
-    *
-    * @param mappedStatementId 映射器 方法标识
-    * @return 注解信息，无法解析时为 空
+     * 解析 映射器 方法与类上的注解信息。
+     *
+     * @param mappedStatementId 映射器 方法标识
+     * @return 注解信息，无法解析时为 空
      */
     private PrivilegedVisibilityInfo parseInfo(String mappedStatementId) {
         try {
@@ -159,10 +159,10 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
     }
 
     /**
-    * 规范化 映射器 方法名（去掉 MyBatis 自动生成的后缀）。
-    *
-    * @param methodName 原始方法名
-    * @return 规范化后的方法名
+     * 规范化 映射器 方法名（去掉 MyBatis 自动生成的后缀）。
+     *
+     * @param methodName 原始方法名
+     * @return 规范化后的方法名
      */
     private String normalizeMethodName(String methodName) {
         if (methodName == null || methodName.isBlank()) {
@@ -181,11 +181,11 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
     }
 
     /**
-    * 在 映射器 类中查找携带高权账号注解的方法。
-    *
-    * @param clazz     映射器 类
-    * @param methodName 方法名
-    * @return 方法上的注解，无注解时为 空
+     * 在 映射器 类中查找携带高权账号注解的方法。
+     *
+     * @param clazz     映射器 类
+     * @param methodName 方法名
+     * @return 方法上的注解，无注解时为 空
      */
     private PrivilegedVisibility findMethodAnnotation(Class<?> clazz, String methodName) {
         for (Method method : clazz.getMethods()) {
@@ -201,13 +201,13 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
     }
 
     /**
-    * 根据注解配置与当前用户构建条件 SQL。
-    *
-    * @param table       数据表
-    * @param info        注解信息
-    * @param currentUser 当前用户
-    * @return 条件 SQL 字符串，不适用时为 空
-    * @throws JSQLParserException SQL 解析异常
+     * 根据注解配置与当前用户构建条件 SQL。
+     *
+     * @param table       数据表
+     * @param info        注解信息
+     * @param currentUser 当前用户
+     * @return 条件 SQL 字符串，不适用时为 空
+     * @throws JSQLParserException SQL 解析异常
      */
     private String buildConditionSql(Table table, PrivilegedVisibilityInfo info, CurrentUser currentUser) throws JSQLParserException {
         String currentAlias = currentTableAlias(table);
@@ -230,11 +230,11 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
     }
 
     /**
-    * 为用户表别名构建高权账号过滤 SQL。
-    *
-    * @param userAlias   用户表别名
-    * @param currentUser 当前用户
-    * @return 条件 SQL 字符串
+     * 为用户表别名构建高权账号过滤 SQL。
+     *
+     * @param userAlias   用户表别名
+     * @param currentUser 当前用户
+     * @return 条件 SQL 字符串
      */
     private String buildForUserAlias(String userAlias, CurrentUser currentUser) {
         String usernameColumn = userAlias + ".sys_user_username";
@@ -255,11 +255,11 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
     }
 
     /**
-    * 为用户名列表达式构建高权账号过滤 SQL。
-    *
-    * @param usernameColumn 用户名列表达式
-    * @param currentUser    当前用户
-    * @return 条件 SQL 字符串
+     * 为用户名列表达式构建高权账号过滤 SQL。
+     *
+     * @param usernameColumn 用户名列表达式
+     * @param currentUser    当前用户
+     * @return 条件 SQL 字符串
      */
     private String buildForUsernameColumn(String usernameColumn, CurrentUser currentUser) {
         if (isAdmin(currentUser)) {
@@ -280,9 +280,9 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
     }
 
     /**
-    * 获取管理员角色标识列表。
-    *
-    * @return 管理员角色ID列表
+     * 获取管理员角色标识列表。
+     *
+     * @return 管理员角色ID列表
      */
     private List<Integer> getAdminRoleIds() {
         if (sysUserRoleMapper == null) {
@@ -292,40 +292,40 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
     }
 
     /**
-    * 将整数列表格式化为 SQL 入 子句的值列表。
-    *
-    * @param ids 整数标识列表
-    * @return 格式化后的字符串，如 "1,2,3"
+     * 将整数列表格式化为 SQL 入 子句的值列表。
+     *
+     * @param ids 整数标识列表
+     * @return 格式化后的字符串，如 "1,2,3"
      */
     private String formatIdList(List<Integer> ids) {
         return ids.stream().map(Object::toString).collect(Collectors.joining(","));
     }
 
     /**
-    * 判断当前用户是否为超级管理员。
-    *
-    * @param currentUser 当前用户
-    * @return true 表示为超级管理员
+     * 判断当前用户是否为超级管理员。
+     *
+     * @param currentUser 当前用户
+     * @return true 表示为超级管理员
      */
     private boolean isSuperAdmin(CurrentUser currentUser) {
         return currentUser.hasRole(SUPER_ADMIN) || SA_USERNAME.equalsIgnoreCase(currentUser.getUsername());
     }
 
     /**
-    * 判断当前用户是否为管理员（非超级管理员）。
-    *
-    * @param currentUser 当前用户
-    * @return true 表示为管理员
+     * 判断当前用户是否为管理员（非超级管理员）。
+     *
+     * @param currentUser 当前用户
+     * @return true 表示为管理员
      */
     private boolean isAdmin(CurrentUser currentUser) {
         return currentUser.hasRole(ADMIN) && !isSuperAdmin(currentUser);
     }
 
     /**
-    * 获取表别名，无别名时返回表名。
-    *
-    * @param table 数据表
-    * @return 表别名或表名
+     * 获取表别名，无别名时返回表名。
+     *
+     * @param table 数据表
+     * @return 表别名或表名
      */
     private String currentTableAlias(Table table) {
         if (table.getAlias() != null && table.getAlias().getName() != null) {
@@ -335,21 +335,21 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
     }
 
     /**
-    * 判断别名是否匹配（忽略大小写）。
-    *
-    * @param currentAlias 当前别名
-    * @param expectedAlias 期望别名
-    * @return true 表示匹配
+     * 判断别名是否匹配（忽略大小写）。
+     *
+     * @param currentAlias 当前别名
+     * @param expectedAlias 期望别名
+     * @return true 表示匹配
      */
     private boolean matchesAlias(String currentAlias, String expectedAlias) {
         return currentAlias != null && expectedAlias != null && currentAlias.equalsIgnoreCase(expectedAlias);
     }
 
     /**
-    * 提取列表达式中的表别名。
-    *
-    * @param columnExpression 列表达式
-    * @return 表别名，无别名时为 空
+     * 提取列表达式中的表别名。
+     *
+     * @param columnExpression 列表达式
+     * @return 表别名，无别名时为 空
      */
     private String columnAlias(String columnExpression) {
         int dotIndex = columnExpression.indexOf('.');
@@ -357,9 +357,9 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
     }
 
     /**
-    * 获取当前登录用户。
-    *
-    * @return 当前用户，无鉴权服务时为 空
+     * 获取当前登录用户。
+     *
+     * @return 当前用户，无鉴权服务时为 空
      */
     private CurrentUser getCurrentUser() {
         if (authServiceSupplier == null) {
@@ -370,30 +370,30 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
     }
 
     /**
-    * 高权账号可见性注解信息容器。
-    * @author CH
-    * @since 4.0.0
+     * 高权账号可见性注解信息容器。
+     * @author CH
+     * @since 4.0.0
      */
     private static class PrivilegedVisibilityInfo {
         /**
-        * 是否启用
+         * 是否启用
          */
         final boolean enabled;
 
         /**
-        * 目标用户表别名
+         * 目标用户表别名
          */
         final String userAlias;
 
         /**
-        * 目标用户名列表达式
+         * 目标用户名列表达式
          */
         final String usernameColumn;
 
         /**
-        * 由注解构建容器。
-        *
-        * @param annotation 高权账号可见性注解
+         * 由注解构建容器。
+         *
+         * @param annotation 高权账号可见性注解
          */
         private PrivilegedVisibilityInfo(PrivilegedVisibility annotation) {
             this.enabled = annotation.enabled();

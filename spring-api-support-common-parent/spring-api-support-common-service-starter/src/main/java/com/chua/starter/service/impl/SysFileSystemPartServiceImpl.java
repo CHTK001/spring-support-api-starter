@@ -14,10 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
-* 文件系统分片服务实现类
-*
-* @since 4.0.0.42
-* @author CH
+ * 文件系统分片服务实现类
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @Service
@@ -50,10 +50,10 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 删除by文件id
-    *
-    * @param fileId 文件id
-    * @return 删除by文件id的结果
+     * 删除by文件id
+     *
+     * @param fileId 文件id
+     * @return 删除by文件id的结果
      */
     public int deleteByFileId(Integer fileId) {
         if (fileId == null) {
@@ -96,10 +96,10 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 标记处理
-    *
-    * @param fileId 文件id
-    * @return mark处理的结果
+     * 标记处理
+     *
+     * @param fileId 文件id
+     * @return mark处理的结果
      */
     public int markProcessing(Integer fileId) {
         if (fileId == null) {

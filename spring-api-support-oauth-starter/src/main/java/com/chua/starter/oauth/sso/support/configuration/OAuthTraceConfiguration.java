@@ -10,11 +10,11 @@ import org.springframework.core.Ordered;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
-* OAuth追踪配置
-* 配置追踪过滤器和异步支持
-*
-* @since 2025/01/01
-* @author CH
+ * OAuth追踪配置
+ * 配置追踪过滤器和异步支持
+ *
+ * @since 2025/01/01
+ * @author CH
  */
 @Configuration
 @EnableAsync
@@ -22,9 +22,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 public class OAuthTraceConfiguration {
 
     /**
-    * 注册OAuth追踪过滤器
-    * @param traceLogService 追踪日志服务
-    * @return oauth追踪过滤器registration的结果
+     * 注册OAuth追踪过滤器
+     * @param traceLogService 追踪日志服务
+     * @return oauth追踪过滤器registration的结果
      */
     @Bean
     public FilterRegistrationBean<OAuthTraceFilter> oauthTraceFilterRegistration(OAuthTraceLogService traceLogService) {

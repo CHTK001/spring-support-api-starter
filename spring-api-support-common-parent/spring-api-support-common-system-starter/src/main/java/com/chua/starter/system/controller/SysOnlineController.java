@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
-* 在线用户管理接口
-*
-* @since 2024/12/15
-* @author CH
+ * 在线用户管理接口
+ *
+ * @since 2024/12/15
+ * @author CH
  */
 @Tag(name = "在线用户管理接口")
 @RestController
@@ -49,9 +49,9 @@ public class SysOnlineController {
     }
 
     /**
-    * 获取在线用户数量
-    *
-    * @return 在线用户数量
+     * 获取在线用户数量
+     *
+     * @return 在线用户数量
      */
     @Operation(summary = "获取在线用户数量")
     @GetMapping("/count")
@@ -61,10 +61,10 @@ public class SysOnlineController {
     }
 
     /**
-    * 获取用户在线状态
-    *
-    * @param userId 用户标识
-    * @return 在线状态
+     * 获取用户在线状态
+     *
+     * @param userId 用户标识
+     * @return 在线状态
      */
     @Operation(summary = "获取用户在线状态")
     @GetMapping("/status/{userId}")
@@ -75,10 +75,10 @@ public class SysOnlineController {
     }
 
     /**
-    * 强制下线指定用户
-    *
-    * @param userId 用户标识
-    * @return 操作结果
+     * 强制下线指定用户
+     *
+     * @param userId 用户标识
+     * @return 操作结果
      */
     @Operation(summary = "强制下线用户")
     @DeleteMapping("/kick/{userId}")
@@ -89,10 +89,10 @@ public class SysOnlineController {
     }
 
     /**
-    * 批量强制下线用户
-    *
-    * @param userIds 用户标识列表
-    * @return 操作结果
+     * 批量强制下线用户
+     *
+     * @param userIds 用户标识列表
+     * @return 操作结果
      */
     @Operation(summary = "批量强制下线用户")
     @DeleteMapping("/kick/batch")

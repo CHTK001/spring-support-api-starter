@@ -17,10 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
-* IP黑白名单服务实现
-*
-* @since 4.0.0.43
-* @author CH
+ * IP黑白名单服务实现
+ *
+ * @since 4.0.0.43
+ * @author CH
  */
 @Service
 @Slf4j
@@ -108,11 +108,11 @@ public class SysIpBlackwhiteServiceImpl extends ServiceImpl<SysIpBlackwhiteMappe
     }
 
     /**
-    * 判断 IP 是否匹配单个条目(支持精确 IP 或 IPv4 CIDR 段)
-    *
-    * @param clientIp 客户端 IP
-    * @param entry    条目(IP 或 CIDR)
-    * @return 是否匹配
+     * 判断 IP 是否匹配单个条目(支持精确 IP 或 IPv4 CIDR 段)
+     *
+     * @param clientIp 客户端 IP
+     * @param entry    条目(IP 或 CIDR)
+     * @return 是否匹配
      */
     private boolean matches(String clientIp, String entry) {
         if (StringUtils.isBlank(entry)) {
@@ -129,11 +129,11 @@ public class SysIpBlackwhiteServiceImpl extends ServiceImpl<SysIpBlackwhiteMappe
     }
 
     /**
-    * IPv4 CIDR 匹配
-    *
-    * @param ip   客户端 IP
-    * @param cidr CIDR 段
-    * @return 是否在段内
+     * IPv4 CIDR 匹配
+     *
+     * @param ip   客户端 IP
+     * @param cidr CIDR 段
+     * @return 是否在段内
      */
     private boolean inCidr(String ip, String cidr) {
         try {
@@ -153,10 +153,10 @@ public class SysIpBlackwhiteServiceImpl extends ServiceImpl<SysIpBlackwhiteMappe
     }
 
     /**
-    * IPv4 转 long
-    *
-    * @param ip ip
-    * @return long 值, 非法返回 -1
+     * IPv4 转 long
+     *
+     * @param ip ip
+     * @return long 值, 非法返回 -1
      */
     private long ipv4ToLong(String ip) {
         try {

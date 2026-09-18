@@ -25,9 +25,9 @@ import java.util.List;
 import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 
 /**
-* 第三方登录
-* @since 2024/9/12
-* @author CH
+ * 第三方登录
+ * @since 2024/9/12
+ * @author CH
  */
 @RestController
 @Slf4j
@@ -62,13 +62,13 @@ public class ThirdLoginController {
         return sysLoginService.thirdLoginCode(loginData, request, response);
     }
     /**
-    * 将第三方账号绑定到当前登录用户。
-    *
-    * @param loginData     第三方授权凭证
-    * @param request       HTTP请求
-    * @param response      HTTP响应
-    * @param bindingResult 参数校验结果
-    * @return 绑定操作结果
+     * 将第三方账号绑定到当前登录用户。
+     *
+     * @param loginData     第三方授权凭证
+     * @param request       HTTP请求
+     * @param response      HTTP响应
+     * @param bindingResult 参数校验结果
+     * @return 绑定操作结果
      */
     @Operation(summary = "第三方绑定码")
     @PostMapping("/third/bind/code")
@@ -83,11 +83,11 @@ public class ThirdLoginController {
         return sysLoginService.thirdBindCode(loginData, request, response);
     }
     /**
-    * 查询当前用户的第三方账号绑定情况。
-    *
-    * @param userId 当前登录用户 标识
-    * @return 已绑定的第三方平台列表
-    * @param @UserValue("userId" @UserValue("userId"
+     * 查询当前用户的第三方账号绑定情况。
+     *
+     * @param userId 当前登录用户 标识
+     * @return 已绑定的第三方平台列表
+     * @param @UserValue("userId" @UserValue("userId"
      */
     @Operation(summary = "第三方绑定情况")
     @PostMapping("/third/bind/info")
@@ -95,12 +95,12 @@ public class ThirdLoginController {
         return sysLoginService.thirdBindInfo(userId);
     }
     /**
-    * 解绑指定第三方账号。
-    *
-    * @param userId                  当前登录用户 标识
-    * @param thirdPartyUnbindRequest 解绑请求，包含目标 提供者 标识
-    * @return 是否解绑成功
-    * @param @UserValue("userId" @UserValue("userId"
+     * 解绑指定第三方账号。
+     *
+     * @param userId                  当前登录用户 标识
+     * @param thirdPartyUnbindRequest 解绑请求，包含目标 提供者 标识
+     * @return 是否解绑成功
+     * @param @UserValue("userId" @UserValue("userId"
      */
     @Operation(summary = "第三方绑定解绑")
     @PostMapping("/third/unbind")

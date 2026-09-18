@@ -18,25 +18,25 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
-* 系统消息服务实现
-*
-* <p>查询接收者为当前用户或广播消息（receiverId=0）的站内消息，
-* 支持分页、未读统计与批量已读标记。</p>
-*
-* @since 4.0.0.42
-* @author CH
+ * 系统消息服务实现
+ *
+ * <p>查询接收者为当前用户或广播消息（receiverId=0）的站内消息，
+ * 支持分页、未读统计与批量已读标记。</p>
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @Slf4j
 @Service
 public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMessage> implements SysMessageService {
 
     /**
-    * 广播消息接收者标识（表示发送给所有用户）
+     * 广播消息接收者标识（表示发送给所有用户）
      */
     private static final int BROADCAST_RECEIVER_ID = 0;
 
     /**
-    * 消息状态：已发送
+     * 消息状态：已发送
      */
     private static final int STATUS_SENT = 1;
 

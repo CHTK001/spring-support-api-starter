@@ -12,10 +12,10 @@ import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
 
 /**
-* 门禁事件
-*
-* @since 2026/08/03
-* @author CH
+ * 门禁事件
+ *
+ * @since 2026/08/03
+ * @author CH
  */
 @Schema(description = "门禁事件")
 @Data
@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @TableName(value = "sys_device_card_event")
 public class SysDeviceCardEvent extends SysBase {
     /**
-    * 门禁事件主键标识
+     * 门禁事件主键标识
      */
     @TableId(value = "sys_device_card_event_id", type = IdType.AUTO)
     @Schema(description = "")

@@ -4,10 +4,10 @@ import lombok.Data;
 import java.util.Map;
 
 /**
-* 3D 瓷砖 数据源配置，支持 铯 Ion 资产和自定义 URL。
-*
-* @author CH
-* @since 1.0.0
+ * 3D 瓷砖 数据源配置，支持 铯 Ion 资产和自定义 URL。
+ *
+ * @author CH
+ * @since 1.0.0
  */
 @Data
 public class Tiles3dSource {

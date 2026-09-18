@@ -18,53 +18,53 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
-* 成就服务核心业务逻辑
-*
-* <p>使用上游统一 {@link KvEngine}（由 spring-support-redis-starter 注册）存储用户统计数据。
-* 使用 {@link CircuitBreaker} + {@link com.chua.common.support.concurrent.circuit.BreakerJudge}（由 utils-support-common-starter 提供）
-* 对段位规则进行判定，通过 SPI 自动加载默认判断器，无需自建规则引擎。</p>
-*
-* <h3>数据流</h3>
-* <pre>
-* 1. KvEngine.findAllByPrefix("achievement:{userId}:") → Map&lt;statKey, value&gt;
-* 2. CircuitBreaker.evaluate(expression, context) → boolean
-* 3. 条件通过则解锁对应段位，写入 user_achievement 表
-* </pre>
-*
-* @since 2026-08-07
-* @author CH
+ * 成就服务核心业务逻辑
+ *
+ * <p>使用上游统一 {@link KvEngine}（由 spring-support-redis-starter 注册）存储用户统计数据。
+ * 使用 {@link CircuitBreaker} + {@link com.chua.common.support.concurrent.circuit.BreakerJudge}（由 utils-support-common-starter 提供）
+ * 对段位规则进行判定，通过 SPI 自动加载默认判断器，无需自建规则引擎。</p>
+ *
+ * <h3>数据流</h3>
+ * <pre>
+ * 1. KvEngine.findAllByPrefix("achievement:{userId}:") → Map&lt;statKey, value&gt;
+ * 2. CircuitBreaker.evaluate(expression, context) → boolean
+ * 3. 条件通过则解锁对应段位，写入 user_achievement 表
+ * </pre>
+ *
+ * @since 2026-08-07
+ * @author CH
  */
 @Slf4j
 @RequiredArgsConstructor
 public class AchievementService {
 
     /**
-    * 统一 KV 引擎，由 spring-支持-Redis-启动 注册
+     * 统一 KV 引擎，由 spring-支持-Redis-启动 注册
      */
     private final KvEngine kvEngine;
 
     /**
-    * 成就段位定义 映射器
+     * 成就段位定义 映射器
      */
     private final AchievementTierMapper tierMapper;
 
     /**
-    * 用户成就记录 映射器
+     * 用户成就记录 映射器
      */
     private final UserAchievementMapper userAchievementMapper;
 
     /**
-    * 成就推送服务
+     * 成就推送服务
      */
     private final AchievementPushService pushService;
 
     /**
-    * 处理用户行为事件：更新统计数据 + 判定成就。
-    *
-    * @param userId  用户标识
-    * @param statKey 统计字段名
-    * @param delta   增量值
-    * @return 新解锁的成就列表
+     * 处理用户行为事件：更新统计数据 + 判定成就。
+     *
+     * @param userId  用户标识
+     * @param statKey 统计字段名
+     * @param delta   增量值
+     * @return 新解锁的成就列表
      */
     public List<UnlockedAchievementDTO> onUserAction(Long userId, String statKey, long delta) {
         String key = AchievementContextConstants.KEY_PREFIX + userId + ":" + statKey;
@@ -85,12 +85,12 @@ public class AchievementService {
     }
 
     /**
-    * 设置统计值（非增量）并判定成就。
-    *
-    * @param userId  用户标识
-    * @param statKey 统计字段名
-    * @param value   统计值
-    * @return 新解锁的成就列表
+     * 设置统计值（非增量）并判定成就。
+     *
+     * @param userId  用户标识
+     * @param statKey 统计字段名
+     * @param value   统计值
+     * @return 新解锁的成就列表
      */
     public List<UnlockedAchievementDTO> setStatAndJudge(Long userId, String statKey, String value) {
         String key = AchievementContextConstants.KEY_PREFIX + userId + ":" + statKey;
@@ -100,14 +100,14 @@ public class AchievementService {
     }
 
     /**
-    * 批量上报统计值并判定成就（刷新接口）。
-    *
-    * <p>前端将自身掌握但后端无法感知的行为数据（如菜单点击次数、消息发送次数等）
-    * 通过此接口批量上报，写入 kvengine 后统一判定成就解锁。</p>
-    *
-    * @param userId 用户标识
-    * @param stats  统计值映射，键 为统计字段名（如 menuvisited数量），值 为数值
-    * @return 新解锁的成就列表
+     * 批量上报统计值并判定成就（刷新接口）。
+     *
+     * <p>前端将自身掌握但后端无法感知的行为数据（如菜单点击次数、消息发送次数等）
+     * 通过此接口批量上报，写入 kvengine 后统一判定成就解锁。</p>
+     *
+     * @param userId 用户标识
+     * @param stats  统计值映射，键 为统计字段名（如 menuvisited数量），值 为数值
+     * @return 新解锁的成就列表
      */
     public List<UnlockedAchievementDTO> reportStats(Long userId, Map<String, Object> stats) {
         if (stats == null || stats.isEmpty()) {
@@ -125,14 +125,14 @@ public class AchievementService {
     }
 
     /**
-    * 拉取用户上下文并判定所有未解锁段位。
-    *
-    * <p>使用 {@link CircuitBreaker} 对每个段位的规则表达式进行判定，
-    * 通过 {@link BreakerJudge} SPI 自动选择默认判断器。</p>
-    *
-    * @param userId  用户标识
-    * @param context 用户统计数据上下文，键 为统计字段名（如 login数量），值 为当前值
-    * @return 新解锁的成就列表
+     * 拉取用户上下文并判定所有未解锁段位。
+     *
+     * <p>使用 {@link CircuitBreaker} 对每个段位的规则表达式进行判定，
+     * 通过 {@link BreakerJudge} SPI 自动选择默认判断器。</p>
+     *
+     * @param userId  用户标识
+     * @param context 用户统计数据上下文，键 为统计字段名（如 login数量），值 为当前值
+     * @return 新解锁的成就列表
      */
     public List<UnlockedAchievementDTO> judgeAll(Long userId, Map<String, String> context) {
         List<UnlockedAchievementDTO> unlockedList = new ArrayList<>();
@@ -197,10 +197,10 @@ public class AchievementService {
     }
 
     /**
-    * 查询用户已解锁的成就概览。
-    *
-    * @param userId 用户标识
-    * @return 已解锁成就列表
+     * 查询用户已解锁的成就概览。
+     *
+     * @param userId 用户标识
+     * @return 已解锁成就列表
      */
     public List<UnlockedAchievementDTO> getUnlocked(Long userId) {
         Map<String, Integer> unlockedMap = userAchievementMapper.selectMaxLevelByUserId(userId);
@@ -219,11 +219,11 @@ public class AchievementService {
     }
 
     /**
-    * 查询用户在指定分组下尚未解锁的段位。
-    *
-    * @param userId 用户标识
-    * @param type   分组标识
-    * @return 未解锁段位列表
+     * 查询用户在指定分组下尚未解锁的段位。
+     *
+     * @param userId 用户标识
+     * @param type   分组标识
+     * @return 未解锁段位列表
      */
     public List<AchievementTier> getUncompleted(Long userId, String type) {
         UserAchievement record = userAchievementMapper.selectByUserIdAndType(userId, type);
@@ -234,24 +234,24 @@ public class AchievementService {
     }
 
     /**
-    * 查询指定分组下的所有段位定义。
-    *
-    * @param type 分组标识
-    * @return 段位定义列表
+     * 查询指定分组下的所有段位定义。
+     *
+     * @param type 分组标识
+     * @return 段位定义列表
      */
     public List<AchievementTier> getTierListByType(String type) {
         return tierMapper.selectByTypeOrderBySortAndLevel(type);
     }
 
     /**
-    * 将 kvengine 的 字符串 上下文转换为 熔断中断 需要的 对象 上下文。
-    *
-    * <p>KvEngine 以 String 存储所有值，CircuitBreaker 需要 Number 类型才能正确执行数值比较。
-    * 同时去除键前缀 {@code achievement:{userId}:}，保留纯统计字段名（如 {@code loginCount}）。</p>
-    *
-    * @param userId  用户标识，用于构建待去除的前缀
-    * @param context kvengine 上下文
-    * @return 数值类型已转换的断路器上下文
+     * 将 kvengine 的 字符串 上下文转换为 熔断中断 需要的 对象 上下文。
+     *
+     * <p>KvEngine 以 String 存储所有值，CircuitBreaker 需要 Number 类型才能正确执行数值比较。
+     * 同时去除键前缀 {@code achievement:{userId}:}，保留纯统计字段名（如 {@code loginCount}）。</p>
+     *
+     * @param userId  用户标识，用于构建待去除的前缀
+     * @param context kvengine 上下文
+     * @return 数值类型已转换的断路器上下文
      */
     private Map<String, Object> convertToBreakerContext(Long userId, Map<String, String> context) {
         String prefixToRemove = AchievementContextConstants.KEY_PREFIX + userId + ":";
@@ -288,10 +288,10 @@ public class AchievementService {
     }
 
     /**
-    * 保存解锁记录到数据库。
-    *
-    * @param userId 用户标识
-    * @param tier   段位定义
+     * 保存解锁记录到数据库。
+     *
+     * @param userId 用户标识
+     * @param tier   段位定义
      */
     private void saveUnlocked(Long userId, AchievementTier tier) {
         UserAchievement existing = userAchievementMapper.selectByUserIdAndType(userId, tier.getType());
@@ -310,20 +310,20 @@ public class AchievementService {
     }
 
     /**
-    * 统计所有有效段位的总数（全部分组）。
-    *
-    * @return 段位总数
+     * 统计所有有效段位的总数（全部分组）。
+     *
+     * @return 段位总数
      */
     public long countAllTiers() {
         return tierMapper.selectCount(null);
     }
 
     /**
-    * 段位定义转解锁成就 DTO。
-    *
-    * @param tier   段位定义
-    * @param userId 用户标识
-    * @return 解锁成就 DTO
+     * 段位定义转解锁成就 DTO。
+     *
+     * @param tier   段位定义
+     * @param userId 用户标识
+     * @return 解锁成就 DTO
      */
     private UnlockedAchievementDTO toDTO(AchievementTier tier, Long userId) {
         UserAchievement record = userAchievementMapper.selectByUserIdAndType(userId, tier.getType());

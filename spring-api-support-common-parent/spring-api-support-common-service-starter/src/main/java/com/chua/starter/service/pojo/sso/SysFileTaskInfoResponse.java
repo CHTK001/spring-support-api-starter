@@ -6,17 +6,17 @@ import lombok.Data;
 import java.util.List;
 
 /**
-* 分片上传任务信息响应（用于断点续传）
-*
-* @since 2024/12/20
-* @author CH
+ * 分片上传任务信息响应（用于断点续传）
+ *
+ * @since 2024/12/20
+ * @author CH
  */
 @Data
 @Schema(description = "分片上传任务信息响应")
 public class SysFileTaskInfoResponse {
 
     /**
-    * 任务标识
+     * 任务标识
      */
     @Schema(description = "任务ID")
     /** 任务标识 */

@@ -11,23 +11,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 
 /**
-* OAuth认证信息 - 支持多协议
-*
-* @author CH
-* @since 4.0.0
+ * OAuth认证信息 - 支持多协议
+ *
+ * @author CH
+ * @since 4.0.0
  */
 @Slf4j
 public class OauthAuthInformation extends BaseAuthInformation {
 
     // HTTP协议构造函数
     /**
-    * 创建 oauth认证信息 实例
-    * @param authServerProperties 认证服务端属性
-    * @param data 数据
-    * @param request 请求
-    * @param response 响应
-    * @param applicationContext application上下文
-    * @param loginCheck login检查
+     * 创建 oauth认证信息 实例
+     * @param authServerProperties 认证服务端属性
+     * @param data 数据
+     * @param request 请求
+     * @param response 响应
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public OauthAuthInformation(AuthServerProperties authServerProperties,
                                String data,
@@ -40,13 +40,13 @@ public class OauthAuthInformation extends BaseAuthInformation {
 
     // Armeria协议构造函数
     /**
-    * 创建 oauth认证信息 实例
-    * @param authServerProperties 认证服务端属性
-    * @param data 数据
-    * @param request 请求
-    * @param response 响应
-    * @param applicationContext application上下文
-    * @param loginCheck login检查
+     * 创建 oauth认证信息 实例
+     * @param authServerProperties 认证服务端属性
+     * @param data 数据
+     * @param request 请求
+     * @param response 响应
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public OauthAuthInformation(AuthServerProperties authServerProperties,
                                String data,
@@ -59,13 +59,13 @@ public class OauthAuthInformation extends BaseAuthInformation {
 
  // r套接字协议构造函数
     /**
-    * 创建 oauth认证信息 实例
-    * @param authServerProperties 认证服务端属性
-    * @param data 数据
-    * @param request 请求
-    * @param response 响应
-    * @param applicationContext application上下文
-    * @param loginCheck login检查
+     * 创建 oauth认证信息 实例
+     * @param authServerProperties 认证服务端属性
+     * @param data 数据
+     * @param request 请求
+     * @param response 响应
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public OauthAuthInformation(AuthServerProperties authServerProperties,
                                String data,
@@ -148,50 +148,50 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     /**
-    * 获取login检查
-    * @return LoginCheck
+     * 获取login检查
+     * @return LoginCheck
      */
     public LoginCheck getLoginCheck() {
         return loginCheck;
     }
 
     /**
-    * 获取请求对象（供验证器使用）
-    * @return 请求对象
+     * 获取请求对象（供验证器使用）
+     * @return 请求对象
      */
     public Object getRequest() {
         return request;
     }
 
     /**
-    * 获取请求头（供验证器使用）
-    * @param headerName 头名称
-    * @return 头值
+     * 获取请求头（供验证器使用）
+     * @param headerName 头名称
+     * @return 头值
      */
     public String getRequestHeaderValue(String headerName) {
         return getRequestHeader(request, headerName);
     }
 
     /**
-    * 获取请求属性（供验证器使用）
-    * @param attributeName 属性名称
-    * @return 属性值
+     * 获取请求属性（供验证器使用）
+     * @param attributeName 属性名称
+     * @return 属性值
      */
     public Object getRequestAttributeValue(String attributeName) {
         return getRequestAttribute(request, attributeName);
     }
 
     /**
-    * 获取原始数据（供验证器使用）
-    * @return 原始数据
+     * 获取原始数据（供验证器使用）
+     * @return 原始数据
      */
     public String getData() {
         return super.getData();
     }
 
     /**
-    * 获取授权信息
-    * @return 授权信息
+     * 获取授权信息
+     * @return 授权信息
      */
     @Override
     public OauthAuthorization authorization() {

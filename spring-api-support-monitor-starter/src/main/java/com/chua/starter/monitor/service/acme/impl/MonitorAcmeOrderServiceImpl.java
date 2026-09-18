@@ -12,10 +12,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
-* ACME 订单服务实现，提供订单按账户/证书/状态查询、幂等获取、保存、状态更新、证书绑定与删除能力。
-*
-* @since 4.0.0.42
-* @author CH
+ * ACME 订单服务实现，提供订单按账户/证书/状态查询、幂等获取、保存、状态更新、证书绑定与删除能力。
+ *
+ * @since 4.0.0.42
+ * @author CH
  */
 @Service
 public class MonitorAcmeOrderServiceImpl
@@ -23,10 +23,10 @@ public class MonitorAcmeOrderServiceImpl
         implements MonitorAcmeOrderService {
 
     /**
-    * 查询账户的所有订单。
-    *
-    * @param accountId 账户主键
-    * @return 订单列表，账户为空时返回空列表
+     * 查询账户的所有订单。
+     *
+     * @param accountId 账户主键
+     * @return 订单列表，账户为空时返回空列表
      */
     @Override
     public List<MonitorAcmeOrder> listByAccountId(Integer accountId) {
@@ -39,10 +39,10 @@ public class MonitorAcmeOrderServiceImpl
     }
 
     /**
-    * 查询关联到某证书的所有订单。
-    *
-    * @param certId 证书主键
-    * @return 订单列表，证书为空时返回空列表
+     * 查询关联到某证书的所有订单。
+     *
+     * @param certId 证书主键
+     * @return 订单列表，证书为空时返回空列表
      */
     @Override
     public List<MonitorAcmeOrder> listByCertId(Integer certId) {
@@ -54,10 +54,10 @@ public class MonitorAcmeOrderServiceImpl
     }
 
     /**
-    * 按状态查询订单。
-    *
-    * @param status 订单状态
-    * @return 订单列表，状态为空时返回空列表
+     * 按状态查询订单。
+     *
+     * @param status 订单状态
+     * @return 订单列表，状态为空时返回空列表
      */
     @Override
     public List<MonitorAcmeOrder> listByStatus(String status) {
@@ -69,10 +69,10 @@ public class MonitorAcmeOrderServiceImpl
     }
 
     /**
-    * 按 ACME 订单 URL 查找订单（去重/幂等）。订单 URL 为空时返回 空。
-    *
-    * @param orderUrl ACME 服务下发的 订单 URL
-    * @return 订单或 空
+     * 按 ACME 订单 URL 查找订单（去重/幂等）。订单 URL 为空时返回 空。
+     *
+     * @param orderUrl ACME 服务下发的 订单 URL
+     * @return 订单或 空
      */
     @Override
     public MonitorAcmeOrder getByOrderUrl(String orderUrl) {
@@ -85,10 +85,10 @@ public class MonitorAcmeOrderServiceImpl
     }
 
     /**
-    * 保存订单：无主键时新增（回填创建/更新时间），有主键时更新。
-    *
-    * @param order 订单
-    * @return 保存后的对象，参数为空或更新失败时返回 空
+     * 保存订单：无主键时新增（回填创建/更新时间），有主键时更新。
+     *
+     * @param order 订单
+     * @return 保存后的对象，参数为空或更新失败时返回 空
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -108,11 +108,11 @@ public class MonitorAcmeOrderServiceImpl
     }
 
     /**
-    * 更新订单状态。
-    *
-    * @param orderId   订单主键
-    * @param newStatus 新状态
-    * @return 是否成功，参数为空时返回 false
+     * 更新订单状态。
+     *
+     * @param orderId   订单主键
+     * @param newStatus 新状态
+     * @return 是否成功，参数为空时返回 false
      */
     @Override
     public boolean updateStatus(Integer orderId, String newStatus) {
@@ -127,11 +127,11 @@ public class MonitorAcmeOrderServiceImpl
     }
 
     /**
-    * 绑定订单到已签发的证书。
-    *
-    * @param orderId 订单主键
-    * @param certId  证书主键
-    * @return 是否成功，参数为空时返回 false
+     * 绑定订单到已签发的证书。
+     *
+     * @param orderId 订单主键
+     * @param certId  证书主键
+     * @return 是否成功，参数为空时返回 false
      */
     @Override
     public boolean bindCert(Integer orderId, Integer certId) {
@@ -146,10 +146,10 @@ public class MonitorAcmeOrderServiceImpl
     }
 
     /**
-    * 删除订单。
-    *
-    * @param orderId 订单主键
-    * @return 是否成功，参数为空时返回 false
+     * 删除订单。
+     *
+     * @param orderId 订单主键
+     * @return 是否成功，参数为空时返回 false
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -161,9 +161,9 @@ public class MonitorAcmeOrderServiceImpl
     }
 
     /**
-    * 统计订单总数。
-    *
-    * @return 订单数量
+     * 统计订单总数。
+     *
+     * @return 订单数量
      */
     @Override
     public long countOrders() {

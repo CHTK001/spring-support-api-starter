@@ -15,14 +15,14 @@ import org.springframework.core.Ordered;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
-* OAuth认证服务器安全配置
-*
-* <p>注册安全响应头、IP 限流、CSRF、Session Fixation 等过滤器。</p>
-* <p>配置前缀：{@code plugin.oauth.server.security}</p>
-*
-* @since 2025/01/01
-* @see OauthSecurityProperties
-* @author CH
+ * OAuth认证服务器安全配置
+ *
+ * <p>注册安全响应头、IP 限流、CSRF、Session Fixation 等过滤器。</p>
+ * <p>配置前缀：{@code plugin.oauth.server.security}</p>
+ *
+ * @since 2025/01/01
+ * @see OauthSecurityProperties
+ * @author CH
  */
 @Slf4j
 @Configuration
@@ -31,17 +31,17 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 public class OauthSecurityConfiguration {
 
     /**
-    * 注册安全响应头过滤器
-    *
-    * @param securityProperties 安全配置
-    * @return 过滤器注册 Bean
+     * 注册安全响应头过滤器
+     *
+     * @param securityProperties 安全配置
+     * @return 过滤器注册 Bean
      */
     @Bean
     @ConditionalOnProperty(prefix = OauthSecurityProperties.PRE + ".headers", name = "enabled",
             havingValue = "true", matchIfMissing = true)
     /**
-    * oauth安全性头部过滤Registration
-    * @param securityProperties 安全性属性
+     * oauth安全性头部过滤Registration
+     * @param securityProperties 安全性属性
      */
     public FilterRegistrationBean<OauthSecurityHeadersFilter> oauthSecurityHeadersFilterRegistration(
             OauthSecurityProperties securityProperties) {
@@ -55,19 +55,19 @@ public class OauthSecurityConfiguration {
     }
 
     /**
-    * 注册 IP 级限流过滤器
-    *
-    * @param securityProperties   安全配置
-    * @param stringRedisTemplate  Redis 模板
-    * @return 过滤器注册 Bean
+     * 注册 IP 级限流过滤器
+     *
+     * @param securityProperties   安全配置
+     * @param stringRedisTemplate  Redis 模板
+     * @return 过滤器注册 Bean
      */
     @Bean
     @ConditionalOnProperty(prefix = OauthSecurityProperties.PRE + ".rate-limit", name = "enabled",
             havingValue = "true", matchIfMissing = true)
     /**
-    * oauthrate限制过滤Registration
-    * @param securityProperties 安全性属性
-    * @param stringRedisTemplate 字符串redistemplate
+     * oauthrate限制过滤Registration
+     * @param securityProperties 安全性属性
+     * @param stringRedisTemplate 字符串redistemplate
      */
     public FilterRegistrationBean<OauthRateLimitFilter> oauthRateLimitFilterRegistration(
             OauthSecurityProperties securityProperties,
@@ -84,19 +84,19 @@ public class OauthSecurityConfiguration {
     }
 
     /**
-    * 注册 CSRF 防护过滤器
-    *
-    * @param securityProperties   安全配置
-    * @param stringRedisTemplate  Redis 模板
-    * @return 过滤器注册 Bean
+     * 注册 CSRF 防护过滤器
+     *
+     * @param securityProperties   安全配置
+     * @param stringRedisTemplate  Redis 模板
+     * @return 过滤器注册 Bean
      */
     @Bean
     @ConditionalOnProperty(prefix = OauthSecurityProperties.PRE + ".csrf", name = "enabled",
             havingValue = "true", matchIfMissing = true)
     /**
-    * oauthcsrf过滤Registration
-    * @param securityProperties 安全性属性
-    * @param stringRedisTemplate 字符串redistemplate
+     * oauthcsrf过滤Registration
+     * @param securityProperties 安全性属性
+     * @param stringRedisTemplate 字符串redistemplate
      */
     public FilterRegistrationBean<OauthCsrfFilter> oauthCsrfFilterRegistration(
             OauthSecurityProperties securityProperties,
@@ -111,17 +111,17 @@ public class OauthSecurityConfiguration {
     }
 
     /**
-    * 注册 会话 Fixation 防护过滤器
-    *
-    * @param securityProperties 安全配置
-    * @return 过滤器注册 Bean
+     * 注册 会话 Fixation 防护过滤器
+     *
+     * @param securityProperties 安全配置
+     * @return 过滤器注册 Bean
      */
     @Bean
     @ConditionalOnProperty(prefix = OauthSecurityProperties.PRE + ".session-fixation", name = "enabled",
             havingValue = "true", matchIfMissing = true)
     /**
-    * oauth会话fixation过滤Registration
-    * @param securityProperties 安全性属性
+     * oauth会话fixation过滤Registration
+     * @param securityProperties 安全性属性
      */
     public FilterRegistrationBean<OauthSessionFixationFilter> oauthSessionFixationFilterRegistration(
             OauthSecurityProperties securityProperties) {

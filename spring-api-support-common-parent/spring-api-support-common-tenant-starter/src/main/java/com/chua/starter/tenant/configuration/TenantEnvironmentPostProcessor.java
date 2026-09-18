@@ -10,14 +10,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-* 租户环境配置后处理器
-* <p>
-* 根据租户模块的配置自动设置 同步 模块的配置，实现配置串联。
-* </p>
-*
-* @版本 1.0.0
-* @since 2024/12/06
-* @author CH
+ * 租户环境配置后处理器
+ * <p>
+ * 根据租户模块的配置自动设置 同步 模块的配置，实现配置串联。
+ * </p>
+ *
+ * @版本 1.0.0
+ * @since 2024/12/06
+ * @author CH
  */
 public class TenantEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
@@ -70,9 +70,9 @@ public class TenantEnvironmentPostProcessor implements EnvironmentPostProcessor 
     }
 
     /**
-    * 串联服务端配置
-    * @param environment 环境
-    * @param syncProperties 同步属性
+     * 串联服务端配置
+     * @param environment 环境
+     * @param syncProperties 同步属性
      */
     private void linkServerConfig(ConfigurableEnvironment environment, Map<String, Object> syncProperties) {
         String host = environment.getProperty(TENANT_PREFIX + "server.host", "0.0.0.0");
@@ -91,9 +91,9 @@ public class TenantEnvironmentPostProcessor implements EnvironmentPostProcessor 
     }
 
     /**
-    * 串联客户端配置
-    * @param environment 环境
-    * @param syncProperties 同步属性
+     * 串联客户端配置
+     * @param environment 环境
+     * @param syncProperties 同步属性
      */
     private void linkClientConfig(ConfigurableEnvironment environment, Map<String, Object> syncProperties) {
         String serverHost = environment.getProperty(TENANT_PREFIX + "client.server-host", "localhost");

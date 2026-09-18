@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
-* 令牌复用分析器
-*
-* @since 2026/03/25
-* @author CH
+ * 令牌复用分析器
+ *
+ * @since 2026/03/25
+ * @author CH
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)

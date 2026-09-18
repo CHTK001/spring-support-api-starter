@@ -6,9 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
-* 任务创建响应
-* @since 2024/12/4
-* @author CH
+ * 任务创建响应
+ * @since 2024/12/4
+ * @author CH
  */
 @Data
 @Schema(description = "任务创建请求")
@@ -16,7 +16,7 @@ public class SysFileUploadTaskRequest {
 
 
     /**
-    * 文件名称
+     * 文件名称
      */
     @Schema(description = "文件名称")
     /** 文件名称 */
