@@ -47,6 +47,9 @@ public class SysFileSystemMergeTaskRegistration {
 
     private ThreadPoolExecutor executor; // 执行器
 
+    /**
+     * 初始化。
+     */
     @PostConstruct
     public void init() {
         int corePoolSize = fileSystemProperties.getMergeTaskPoolSize();

@@ -41,6 +41,7 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
     *
     * @param sysTenantId 绉熸埛标识
     * @param sysTenantId 绉熸埛标识
+    * @param sysRole 方法入参 sysRole
      */
     void insertWithTenant(@Param("sysRole") SysRole sysRole, @Param("sysTenantId") Integer sysTenantId);
 }

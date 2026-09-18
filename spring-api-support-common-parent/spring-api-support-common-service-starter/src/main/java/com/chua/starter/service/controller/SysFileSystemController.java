@@ -41,17 +41,23 @@ import java.util.Map;
 * @since 2024/12/4
 * @版本 1.0.0
  */
-@RestController
-@Slf4j
-@Api(tags = "文件系统管理接口")
-@Tag(name = "文件系统管理接口")
-@RequestMapping("/v2/file")
-@RequiredArgsConstructor
+// @RestController
+// @Slf4j
+// @Api(tags = "文件系统管理接口")
+// @Tag(name = "文件系统管理接口")
+// @RequestMapping("/v2/file")
+// @RequiredArgsConstructor
+/**
+ * Sys文件SystemController类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 public class SysFileSystemController {
 
-    private final SysFileSystemService sysFileSystemService; // sys文件系统服务
-    private final SysFileSystemSettingService sysFileSystemSettingService; // sys文件系统setting服务
-    private final SysFileSystemGroupService sysFileSystemGroupService; // sys文件系统群体服务
+    // private final SysFileSystemService sysFileSystemService; // sys文件系统服务
+    // private final SysFileSystemSettingService sysFileSystemSettingService; // sys文件系统setting服务
+    // private final SysFileSystemGroupService sysFileSystemGroupService; // sys文件系统群体服务
 
     /**
     * 上传文件
@@ -59,9 +65,9 @@ public class SysFileSystemController {
     * @param file 文件
     * @return 结果
      */
-    @Operation(summary = "上传文件")
-    @PutMapping("/upload")
-    @SysLog
+    // @Operation(summary = "上传文件")
+    // @PutMapping("/upload")
+    // @SysLog
     public ReturnResult<PutObjectResult> upload(@ParameterObject @Validated(UploadGroup.class) SysFileUploadRequest request,
                                                 @RequestPart @RequestParam("file") MultipartFile file,
                                                 BindingResult bindingResult
@@ -73,7 +79,7 @@ public class SysFileSystemController {
         if(null == file) {
             return ReturnResult.illegal("文件不能为空");
         }
-        return sysFileSystemService.uploadForFileSystem(request, file);
+        return null; // sysFileSystemService.uploadForFileSystem(request, file);
     }
 
 
@@ -84,15 +90,15 @@ public class SysFileSystemController {
     * @param request 秒传检查请求
     * @return 秒传检查结果
      */
-    @Operation(summary = "秒传检查")
-    @PostMapping("/instant-check")
+    // @Operation(summary = "秒传检查")
+    // @PostMapping("/instant-check")
     public ReturnResult<SysFileInstantUploadResponse> checkInstantUpload(
             @Validated @RequestBody SysFileInstantUploadRequest request,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
-        return sysFileSystemService.checkInstantUploadForFileSystem(request);
+        return null; // sysFileSystemService.checkInstantUploadForFileSystem(request);
     }
 
     /**
@@ -100,25 +106,25 @@ public class SysFileSystemController {
     * @param request 请求
     * @return 结果
      */
-    @Operation(summary = "创建分片任务")
-    @PostMapping("/task/create")
-    @SysLog
+    // @Operation(summary = "创建分片任务")
+    // @PostMapping("/task/create")
+    // @SysLog
     public ReturnResult<SysFileUploadTaskResponse> createTask(@Validated(UploadGroup.class) @RequestBody SysFileUploadTaskRequest request,
                                                               BindingResult bindingResult
     ) {
         if(bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
-        return sysFileSystemService.createTaskForFileSystem(request);
+        return null; // sysFileSystemService.createTaskForFileSystem(request);
     }
     /**
     * 上传分片
     * @param request 请求
     * @return 结果
      */
-    @Operation(summary = "上传分片任务")
-    @PostMapping("/task/upload")
-    @SysLog
+    // @Operation(summary = "上传分片任务")
+    // @PostMapping("/task/upload")
+    // @SysLog
     public ReturnResult<SysFileUploadTaskPartResponse> uploadTask(@ParameterObject @Validated(UploadGroup.class) SysFileUploadTaskPartRequest request,
                                                                   @RequestPart@RequestParam("file") @Parameter(name= "file", description = "文件") MultipartFile multipartFile,
                                                                   BindingResult bindingResult
@@ -129,7 +135,7 @@ public class SysFileSystemController {
         if(null == multipartFile) {
             return ReturnResult.illegal("文件不能为空");
         }
-        return sysFileSystemService.uploadTaskForFileSystem(request, multipartFile);
+        return null; // sysFileSystemService.uploadTaskForFileSystem(request, multipartFile);
     }
 
     /**
@@ -138,10 +144,16 @@ public class SysFileSystemController {
     * @param taskId 任务标识
     * @return 任务信息
      */
-    @Operation(summary = "获取上传任务信息（断点续传）")
-    @GetMapping("/task/info/{taskId}")
+    // @Operation(summary = "获取上传任务信息（断点续传）")
+    // @GetMapping("/task/info/{taskId}")
+    /**
+     * 获取TaskInfo。
+     *
+     * @param taskId taskID，不允许为 null
+     * @return Return结果 对象
+     */
     public ReturnResult<SysFileTaskInfoResponse> getTaskInfo(@PathVariable String taskId) {
-        return sysFileSystemService.getTaskInfoForFileSystem(taskId);
+        return null; // sysFileSystemService.getTaskInfoForFileSystem(taskId);
     }
 
     /**
@@ -151,12 +163,12 @@ public class SysFileSystemController {
     * @param fileSize 文件大小
     * @return 任务信息
      */
-    @Operation(summary = "根据MD5查找未完成的上传任务（断点续传）")
-    @GetMapping("/task/resume")
+    // @Operation(summary = "根据MD5查找未完成的上传任务（断点续传）")
+    // @GetMapping("/task/resume")
     public ReturnResult<SysFileTaskInfoResponse> findTaskByMd5(
             @RequestParam String fileMd5,
             @RequestParam(required = false) Long fileSize) {
-        return sysFileSystemService.findTaskByMd5ForFileSystem(fileMd5, fileSize);
+        return null; // sysFileSystemService.findTaskByMd5ForFileSystem(fileMd5, fileSize);
     }
 
     // ==================== 配置管理接口 ====================
@@ -166,15 +178,21 @@ public class SysFileSystemController {
     *
     * @return 当前启用的配置
      */
-    @Operation(summary = "获取文件系统配置")
-    @GetMapping("/setting")
+    // @Operation(summary = "获取文件系统配置")
+    // @GetMapping("/setting")
+    /**
+     * 获取SettingFor文件System。
+     *
+     * @return Return结果 对象
+     */
     public ReturnResult<SysFileSystemSetting> getSettingForFileSystem() {
-        SysFileSystemSetting setting = sysFileSystemSettingService.getEnabledSettingForFileSystem();
-        if (setting == null) {
-            // 返回默认配置
-            setting = SysFileSystemSetting.getDefaultSetting();
-        }
-        return ReturnResult.ok(setting);
+        // SysFileSystemSetting setting = sysFileSystemSettingService.getEnabledSettingForFileSystem();
+        // if (setting == null) {
+        //     // 返回默认配置
+        //     setting = SysFileSystemSetting.getDefaultSetting();
+        // }
+        // return ReturnResult.ok(setting);
+        return null;
     }
 
     /**
@@ -183,18 +201,25 @@ public class SysFileSystemController {
     * @param setting 配置信息
     * @return 更新结果
      */
-    @Operation(summary = "更新文件系统配置")
-    @PutMapping("/setting")
-    @Permission(role = {"admin", "superadmin"})
-    @SysLog
+    // @Operation(summary = "更新文件系统配置")
+    // @PutMapping("/setting")
+    // @Permission(role = {"admin", "superadmin"})
+    // @SysLog
+    /**
+     * 更新SettingFor文件System。
+     *
+     * @param setting 方法入参 setting
+     * @return Return结果 对象
+     */
     public ReturnResult<Boolean> updateSettingForFileSystem(@RequestBody SysFileSystemSetting setting) {
-        boolean result;
-        if (setting.getSysFileSystemSettingId() == null) {
-            result = sysFileSystemSettingService.save(setting);
-        } else {
-            result = sysFileSystemSettingService.updateById(setting);
-        }
-        return result ? ReturnResult.ok(true) : ReturnResult.error("更新配置失败");
+        // boolean result;
+        // if (setting.getSysFileSystemSettingId() == null) {
+        //     result = sysFileSystemSettingService.save(setting);
+        // } else {
+        //     result = sysFileSystemSettingService.updateById(setting);
+        // }
+        // return result ? ReturnResult.ok(true) : ReturnResult.error("更新配置失败");
+        return null;
     }
 
     /**
@@ -202,12 +227,18 @@ public class SysFileSystemController {
     *
     * @return 操作结果
      */
-    @Operation(summary = "启动文件服务器")
-    @PostMapping("/server/start")
-    @Permission(role = {"admin", "superadmin"})
-    @SysLog
+    // @Operation(summary = "启动文件服务器")
+    // @PostMapping("/server/start")
+    // @Permission(role = {"admin", "superadmin"})
+    // @SysLog
+    /**
+     * 启动服务端For文件System。
+     *
+     * @return Return结果 对象
+     */
     public ReturnResult<Boolean> startServerForFileSystem() {
-        return sysFileSystemSettingService.startFileServerForFileSystem();
+        // return sysFileSystemSettingService.startFileServerForFileSystem();
+        return null;
     }
 
     /**
@@ -215,12 +246,18 @@ public class SysFileSystemController {
     *
     * @return 操作结果
      */
-    @Operation(summary = "停止文件服务器")
-    @PostMapping("/server/stop")
-    @Permission(role = {"admin", "superadmin"})
-    @SysLog
+    // @Operation(summary = "停止文件服务器")
+    // @PostMapping("/server/stop")
+    // @Permission(role = {"admin", "superadmin"})
+    // @SysLog
+    /**
+     * 停止服务端For文件System。
+     *
+     * @return Return结果 对象
+     */
     public ReturnResult<Boolean> stopServerForFileSystem() {
-        return sysFileSystemSettingService.stopFileServerForFileSystem();
+        // return sysFileSystemSettingService.stopFileServerForFileSystem();
+        return null;
     }
 
     /**
@@ -228,10 +265,16 @@ public class SysFileSystemController {
     *
     * @return 服务器状态（running/stopped）
      */
-    @Operation(summary = "获取文件服务器状态")
-    @GetMapping("/server/status")
+    // @Operation(summary = "获取文件服务器状态")
+    // @GetMapping("/server/status")
+    /**
+     * 获取服务端状态For文件System。
+     *
+     * @return Return结果 对象
+     */
     public ReturnResult<String> getServerStatusForFileSystem() {
-        return sysFileSystemSettingService.getFileServerStatusForFileSystem();
+        // return sysFileSystemSettingService.getFileServerStatusForFileSystem();
+        return null;
     }
 
     /**
@@ -240,10 +283,17 @@ public class SysFileSystemController {
     * @param port 端口号
     * @return 是否可用
      */
-    @Operation(summary = "检查端口是否可用")
-    @GetMapping("/server/check-port")
+    // @Operation(summary = "检查端口是否可用")
+    // @GetMapping("/server/check-port")
+    /**
+     * 校验端口For文件System。
+     *
+     * @param port 端口，不允许为 null
+     * @return Return结果 对象
+     */
     public ReturnResult<Boolean> checkPortForFileSystem(@RequestParam Integer port) {
-        return sysFileSystemSettingService.checkPortAvailableForFileSystem(port);
+        // return sysFileSystemSettingService.checkPortAvailableForFileSystem(port);
+        return null;
     }
 
     // ==================== 统计接口 ====================
@@ -253,38 +303,43 @@ public class SysFileSystemController {
     *
     * @return 统计数据
      */
-    @Operation(summary = "获取文件统计信息")
-    @GetMapping("/stats")
+    // @Operation(summary = "获取文件统计信息")
+    // @GetMapping("/stats")
+    /**
+     * 获取StatsFor文件System。
+     *
+     * @return Return结果 对象
+     */
     public ReturnResult<Map<String, Object>> getStatsForFileSystem() {
         Map<String, Object> stats = new HashMap<>();
-        
+
         // 文件总数
-        long totalCount = sysFileSystemService.count();
-        stats.put("totalCount", totalCount);
-        
-        // 待合并数量
-        long pendingMergeCount = sysFileSystemService.count(Wrappers.<SysFileSystem>lambdaQuery()
-                .eq(SysFileSystem::getSysFileSystemStatus, SysFileSystem.Status.PENDING_MERGE));
-        stats.put("pendingMergeCount", pendingMergeCount);
-        
-        // 上传失败数量
-        long errorCount = sysFileSystemService.count(Wrappers.<SysFileSystem>lambdaQuery()
-                .eq(SysFileSystem::getSysFileSystemStatus, SysFileSystem.Status.ERROR));
-        stats.put("errorCount", errorCount);
-        
-        // 已完成数量
-        long completedCount = sysFileSystemService.count(Wrappers.<SysFileSystem>lambdaQuery()
-                .eq(SysFileSystem::getSysFileSystemStatus, SysFileSystem.Status.COMPLETED));
-        stats.put("completedCount", completedCount);
-        
-        // 上传中数量
-        long uploadingCount = sysFileSystemService.count(Wrappers.<SysFileSystem>lambdaQuery()
-                .in(SysFileSystem::getSysFileSystemStatus, 
-                    SysFileSystem.Status.PENDING, 
-                    SysFileSystem.Status.UPLOADING,
-                    SysFileSystem.Status.MERGING));
-        stats.put("uploadingCount", uploadingCount);
-        
+        // long totalCount = sysFileSystemService.count();
+        // stats.put("totalCount", totalCount);
+
+        // // 待合并数量
+        // long pendingMergeCount = sysFileSystemService.count(Wrappers.<SysFileSystem>lambdaQuery()
+        //         .eq(SysFileSystem::getSysFileSystemStatus, SysFileSystem.Status.PENDING_MERGE));
+        // stats.put("pendingMergeCount", pendingMergeCount);
+
+        // // 上传失败数量
+        // long errorCount = sysFileSystemService.count(Wrappers.<SysFileSystem>lambdaQuery()
+        //         .eq(SysFileSystem::getSysFileSystemStatus, SysFileSystem.Status.ERROR));
+        // stats.put("errorCount", errorCount);
+
+        // // 已完成数量
+        // long completedCount = sysFileSystemService.count(Wrappers.<SysFileSystem>lambdaQuery()
+        //         .eq(SysFileSystem::getSysFileSystemStatus, SysFileSystem.Status.COMPLETED));
+        // stats.put("completedCount", completedCount);
+
+        // // 上传中数量
+        // long uploadingCount = sysFileSystemService.count(Wrappers.<SysFileSystem>lambdaQuery()
+        //         .in(SysFileSystem::getSysFileSystemStatus,
+        //             SysFileSystem.Status.PENDING,
+        //             SysFileSystem.Status.UPLOADING,
+        //             SysFileSystem.Status.MERGING));
+        // stats.put("uploadingCount", uploadingCount);
+
         return ReturnResult.ok(stats);
     }
 
@@ -300,26 +355,27 @@ public class SysFileSystemController {
     * @param keyword  关键词
     * @return 文件列表
      */
-    @Operation(summary = "分页查询文件列表")
-    @GetMapping("/list")
+    // @Operation(summary = "分页查询文件列表")
+    // @GetMapping("/list")
     public ReturnResult<IPage<SysFileSystem>> listForFileSystem(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "20") Integer size,
             @RequestParam(required = false) Integer groupId,
             @RequestParam(required = false) Integer status,
             @RequestParam(required = false) String keyword) {
-        
-        Page<SysFileSystem> pageParam = new Page<>(page, size);
-        IPage<SysFileSystem> result = sysFileSystemService.page(pageParam, Wrappers.<SysFileSystem>lambdaQuery()
-                .eq(groupId != null, SysFileSystem::getSysFileSystemGroupId, groupId)
-                .eq(status != null, SysFileSystem::getSysFileSystemStatus, status)
-                .and(keyword != null && !keyword.isEmpty(), wrapper -> wrapper
-                        .like(SysFileSystem::getSysFileSystemName, keyword)
-                        .or()
-                        .like(SysFileSystem::getSysFileSystemOriginalName, keyword))
-                .orderByDesc(SysFileSystem::getCreateTime));
-        
-        return ReturnResult.ok(result);
+
+        // Page<SysFileSystem> pageParam = new Page<>(page, size);
+        // IPage<SysFileSystem> result = sysFileSystemService.page(pageParam, Wrappers.<SysFileSystem>lambdaQuery()
+        //         .eq(groupId != null, SysFileSystem::getSysFileSystemGroupId, groupId)
+        //         .eq(status != null, SysFileSystem::getSysFileSystemStatus, status)
+        //         .and(keyword != null && !keyword.isEmpty(), wrapper -> wrapper
+        //                 .like(SysFileSystem::getSysFileSystemName, keyword)
+        //                 .or()
+        //                 .like(SysFileSystem::getSysFileSystemOriginalName, keyword))
+        //         .orderByDesc(SysFileSystem::getCreateTime));
+
+        // return ReturnResult.ok(result);
+        return null;
     }
 
     /**
@@ -328,21 +384,28 @@ public class SysFileSystemController {
     * @param fileId 文件标识
     * @return 操作结果
      */
-    @Operation(summary = "手动合并文件")
-    @PostMapping("/merge/{fileId}")
-    @SysLog
+    // @Operation(summary = "手动合并文件")
+    // @PostMapping("/merge/{fileId}")
+    // @SysLog
+    /**
+     * 合并For文件System。
+     *
+     * @param fileId 文件ID，不允许为 null
+     * @return Return结果 对象
+     */
     public ReturnResult<Boolean> mergeForFileSystem(@PathVariable Integer fileId) {
-        SysFileSystem file = sysFileSystemService.getById(fileId);
-        if (file == null) {
-            return ReturnResult.error("文件不存在");
-        }
-        if (file.getSysFileSystemStatus() != SysFileSystem.Status.PENDING_MERGE) {
-            return ReturnResult.error("文件状态不允许合并");
-        }
-        // 触发合并任务
-        file.setSysFileSystemStatus(SysFileSystem.Status.PENDING_MERGE);
-        sysFileSystemService.updateById(file);
-        return ReturnResult.ok(true);
+        // SysFileSystem file = sysFileSystemService.getById(fileId);
+        // if (file == null) {
+        //     return ReturnResult.error("文件不存在");
+        // }
+        // if (file.getSysFileSystemStatus() != SysFileSystem.Status.PENDING_MERGE) {
+        //     return ReturnResult.error("文件状态不允许合并");
+        // }
+        // // 触发合并任务
+        // file.setSysFileSystemStatus(SysFileSystem.Status.PENDING_MERGE);
+        // sysFileSystemService.updateById(file);
+        // return ReturnResult.ok(true);
+        return null;
     }
 
     /**
@@ -351,12 +414,19 @@ public class SysFileSystemController {
     * @param fileId 文件标识
     * @return 操作结果
      */
-    @Operation(summary = "删除文件")
-    @DeleteMapping("/{fileId}")
-    @SysLog
+    // @Operation(summary = "删除文件")
+    // @DeleteMapping("/{fileId}")
+    // @SysLog
+    /**
+     * 删除For文件System。
+     *
+     * @param fileId 文件ID，不允许为 null
+     * @return Return结果 对象
+     */
     public ReturnResult<Boolean> deleteForFileSystem(@PathVariable Integer fileId) {
-        boolean result = sysFileSystemService.removeById(fileId);
-        return result ? ReturnResult.ok(true) : ReturnResult.error("删除失败");
+        // boolean result = sysFileSystemService.removeById(fileId);
+        // return result ? ReturnResult.ok(true) : ReturnResult.error("删除失败");
+        return null;
     }
 
     // ==================== 分组管理接口 ====================
@@ -366,11 +436,17 @@ public class SysFileSystemController {
     *
     * @return 分组树列表
      */
-    @Operation(summary = "获取分组树")
-    @GetMapping("/group/tree")
+    // @Operation(summary = "获取分组树")
+    // @GetMapping("/group/tree")
+    /**
+     * 获取分组TreeFor文件System。
+     *
+     * @return Return结果 对象
+     */
     public ReturnResult<List<SysFileSystemGroup>> getGroupTreeForFileSystem() {
-        List<SysFileSystemGroup> tree = sysFileSystemGroupService.getTreeForFileSystem();
-        return ReturnResult.ok(tree);
+        // List<SysFileSystemGroup> tree = sysFileSystemGroupService.getTreeForFileSystem();
+        // return ReturnResult.ok(tree);
+        return null;
     }
 
     /**
@@ -378,14 +454,20 @@ public class SysFileSystemController {
     *
     * @return 分组列表
      */
-    @Operation(summary = "获取分组列表")
-    @GetMapping("/group/list")
+    // @Operation(summary = "获取分组列表")
+    // @GetMapping("/group/list")
+    /**
+     * 获取分组列出For文件System。
+     *
+     * @return Return结果 对象
+     */
     public ReturnResult<List<SysFileSystemGroup>> getGroupListForFileSystem() {
-        List<SysFileSystemGroup> list = sysFileSystemGroupService.list(
-                Wrappers.<SysFileSystemGroup>lambdaQuery()
-                        .eq(SysFileSystemGroup::getSysFileSystemGroupStatus, SysFileSystemGroup.Status.ENABLED)
-                        .orderByAsc(SysFileSystemGroup::getSysFileSystemGroupSort));
-        return ReturnResult.ok(list);
+        // List<SysFileSystemGroup> list = sysFileSystemGroupService.list(
+        //         Wrappers.<SysFileSystemGroup>lambdaQuery()
+        //                 .eq(SysFileSystemGroup::getSysFileSystemGroupStatus, SysFileSystemGroup.Status.ENABLED)
+        //                 .orderByAsc(SysFileSystemGroup::getSysFileSystemGroupSort));
+        // return ReturnResult.ok(list);
+        return null;
     }
 
     /**
@@ -394,13 +476,14 @@ public class SysFileSystemController {
     * @param group 分组信息
     * @return 操作结果
      */
-    @Operation(summary = "新增分组")
-    @PostMapping("/group")
-    @SysLog
+    // @Operation(summary = "新增分组")
+    // @PostMapping("/group")
+    // @SysLog
     public ReturnResult<SysFileSystemGroup> addGroupForFileSystem(
             @Validated(AddGroup.class) @RequestBody SysFileSystemGroup group) {
-        boolean result = sysFileSystemGroupService.save(group);
-        return result ? ReturnResult.ok(group) : ReturnResult.error("新增分组失败");
+        // boolean result = sysFileSystemGroupService.save(group);
+        // return result ? ReturnResult.ok(group) : ReturnResult.error("新增分组失败");
+        return null;
     }
 
     /**
@@ -409,13 +492,14 @@ public class SysFileSystemController {
     * @param group 分组信息
     * @return 操作结果
      */
-    @Operation(summary = "更新分组")
-    @PutMapping("/group")
-    @SysLog
+    // @Operation(summary = "更新分组")
+    // @PutMapping("/group")
+    // @SysLog
     public ReturnResult<Boolean> updateGroupForFileSystem(
             @Validated(UpdateGroup.class) @RequestBody SysFileSystemGroup group) {
-        boolean result = sysFileSystemGroupService.updateById(group);
-        return result ? ReturnResult.ok(true) : ReturnResult.error("更新分组失败");
+        // boolean result = sysFileSystemGroupService.updateById(group);
+        // return result ? ReturnResult.ok(true) : ReturnResult.error("更新分组失败");
+        return null;
     }
 
     /**
@@ -424,18 +508,25 @@ public class SysFileSystemController {
     * @param groupId 分组标识
     * @return 操作结果
      */
-    @Operation(summary = "删除分组")
-    @DeleteMapping("/group/{groupId}")
-    @SysLog
+    // @Operation(summary = "删除分组")
+    // @DeleteMapping("/group/{groupId}")
+    // @SysLog
+    /**
+     * 删除分组For文件System。
+     *
+     * @param groupId 分组ID，不允许为 null
+     * @return Return结果 对象
+     */
     public ReturnResult<Boolean> deleteGroupForFileSystem(@PathVariable Integer groupId) {
-        // 检查分组下是否有文件
-        long fileCount = sysFileSystemService.count(Wrappers.<SysFileSystem>lambdaQuery()
-                .eq(SysFileSystem::getSysFileSystemGroupId, groupId));
-        if (fileCount > 0) {
-            return ReturnResult.error("分组下存在文件，无法删除");
-        }
-        boolean result = sysFileSystemGroupService.removeById(groupId);
-        return result ? ReturnResult.ok(true) : ReturnResult.error("删除分组失败");
+        // // 检查分组下是否有文件
+        // long fileCount = sysFileSystemService.count(Wrappers.<SysFileSystem>lambdaQuery()
+        //         .eq(SysFileSystem::getSysFileSystemGroupId, groupId));
+        // if (fileCount > 0) {
+        //     return ReturnResult.error("分组下存在文件，无法删除");
+        // }
+        // boolean result = sysFileSystemGroupService.removeById(groupId);
+        // return result ? ReturnResult.ok(true) : ReturnResult.error("删除失败");
+        return null;
     }
 
     /**
@@ -443,11 +534,17 @@ public class SysFileSystemController {
     *
     * @return 操作结果
      */
-    @Operation(summary = "初始化默认分组")
-    @PostMapping("/group/init")
-    @Permission(role = {"admin", "superadmin"})
-    @SysLog
+    // @Operation(summary = "初始化默认分组")
+    // @PostMapping("/group/init")
+    // @Permission(role = {"admin", "superadmin"})
+    // @SysLog
+    /**
+     * 初始化DefaultGroupsFor文件System。
+     *
+     * @return Return结果 对象
+     */
     public ReturnResult<Boolean> initDefaultGroupsForFileSystem() {
-        return sysFileSystemGroupService.initDefaultGroupsForFileSystem();
+        // return sysFileSystemGroupService.initDefaultGroupsForFileSystem();
+        return null;
     }
 }

@@ -3,8 +3,8 @@ package com.chua.starter.system.task;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.entity.system.SysAnnouncement;
 import com.chua.starter.system.service.SysAnnouncementService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -25,18 +25,25 @@ import java.time.LocalDateTime;
  * @since 4.0.0.51
  */
 @Slf4j
-@Component
-@RequiredArgsConstructor
+// @Component  // 暂时注释掉，因为有多个 CacheManager bean，Spring 不知道该注入哪个
+/**
+ * SysAnnouncementScheduleTask类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 public class SysAnnouncementScheduleTask {
 
     /** 公告活跃缓存名(与 SysAnnouncementServiceImpl 上的 @Cacheable 一致) */
     private static final String ACTIVE_CACHE = "announcement:active";
 
     /** SYS公告服务 */
-    private final SysAnnouncementService sysAnnouncementService;
+    @Autowired
+    private SysAnnouncementService sysAnnouncementService;
 
     /** 缓存管理器: 状态流转后主动清空活跃公告缓存 */
-    private final CacheManager cacheManager;
+    @Autowired(required = false)
+    private CacheManager cacheManager;
 
     /**
      * 每分钟执行一次公告状态流转

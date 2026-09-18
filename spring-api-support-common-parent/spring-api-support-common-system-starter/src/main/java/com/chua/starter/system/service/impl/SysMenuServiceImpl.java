@@ -430,6 +430,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     /**
     * 根据父菜单 path + 菜单名称自动生成权限标识, 如 system:user:add
+    * @param menu 方法入参 menu
+    * @return 结果字符串
      */
     private String generatePerm(SysMenu menu) {
         String base = "";

@@ -88,4 +88,10 @@ public class SysUserQuery extends Query<SysUser> {
      */
     @Schema(hidden = true)
     private Integer dataScope;
+
+    /**
+    * 是否排除 sa 角色用户（非 sa 用户看不到 sa 用户）
+     */
+    @Schema(hidden = true)
+    private Boolean excludeSaUser;
 }

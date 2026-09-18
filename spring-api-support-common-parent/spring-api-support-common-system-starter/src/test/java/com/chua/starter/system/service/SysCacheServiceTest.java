@@ -23,6 +23,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("缓存管理服务测试")
 class SysCacheServiceTest {
 
+    /**
+     * 测试：ReturnFixedSixCaches。
+     */
     @Test
     @DisplayName("获取缓存列表-固定返回6项")
     void shouldReturnFixedSixCaches() {
@@ -36,6 +39,9 @@ class SysCacheServiceTest {
         assertEquals("user", list.get(5).getCacheName());
     }
 
+    /**
+     * 测试：RefreshSingle缓存Successfully。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需真实 Redis 连接")
     @Test
     @DisplayName("刷新单个缓存-合法名称按模式删除key并返回成功")
@@ -46,6 +52,9 @@ class SysCacheServiceTest {
         assertTrue(result.isSuccess());
     }
 
+    /**
+     * 测试：ThrowWhen缓存名称Blank。
+     */
     @Test
     @DisplayName("刷新单个缓存-名称为空返回非法参数")
     void shouldThrowWhenCacheNameBlank() {
@@ -56,6 +65,9 @@ class SysCacheServiceTest {
         assertTrue(result.getMsg().contains("缓存名称不能为空"));
     }
 
+    /**
+     * 测试：ThrowWhen缓存名称Unknown。
+     */
     @Test
     @DisplayName("刷新单个缓存-未知名称返回非法参数")
     void shouldThrowWhenCacheNameUnknown() {
@@ -66,6 +78,9 @@ class SysCacheServiceTest {
         assertTrue(result.getMsg().contains("不支持的缓存名称"));
     }
 
+    /**
+     * 测试：SwallowRedisException响应Refresh。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需真实 Redis 连接")
     @Test
     @DisplayName("刷新单个缓存-Redis异常时兜底返回成功(吞异常)")
@@ -76,6 +91,9 @@ class SysCacheServiceTest {
         assertTrue(result.isSuccess(), "清理失败不应向上抛出, 仅记录日志");
     }
 
+    /**
+     * 测试：Refresh全部CachesSuccessfully。
+     */
     @Test
     @DisplayName("刷新全部缓存-遍历6个缓存分别清理")
     void shouldRefreshAllCachesSuccessfully() {

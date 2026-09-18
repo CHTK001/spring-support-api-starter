@@ -28,12 +28,18 @@ class SysUserLockTest {
     /** SysUserServiceImpl 构造器需 15 个参数, 参数校验路径不触碰依赖, 全传 null */
     private final SysUserServiceImpl sysUserService;
 
+    /**
+     * 构造方法，创建 Sys用户Lock测试 实例。
+     */
     SysUserLockTest() {
         sysUserService = new SysUserServiceImpl(
                 null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null);
     }
 
+    /**
+     * 测试：Lock用户Successfully。
+     */
     @Disabled("[P3C40] 原 ArgumentCaptor 断言改为 @Disabled：真实回查需要 DB 环境")
     @Test
     @DisplayName("锁定用户成功-sysUserLock置1并写入锁定时间")
@@ -44,6 +50,9 @@ class SysUserLockTest {
         // 原 captor 断言: sysUserId=5, sysUserLock=1, 锁定时间已写入
     }
 
+    /**
+     * 测试：Unlock用户Successfully。
+     */
     @Disabled("[P3C40] 原 ArgumentCaptor 断言改为 @Disabled：真实回查需要 DB 环境")
     @Test
     @DisplayName("解锁用户成功-sysUserLock置0并清空锁定时间")
@@ -54,6 +63,9 @@ class SysUserLockTest {
         // 原 captor 断言: sysUserLock=0, 锁定时间已清空
     }
 
+    /**
+     * 测试：TreatNonOneLockAsUnlock。
+     */
     @Disabled("[P3C40] 原 ArgumentCaptor 断言改为 @Disabled：真实回查需要 DB 环境")
     @Test
     @DisplayName("锁定用户-lock为其他值时按解锁处理(归零)")
@@ -64,6 +76,9 @@ class SysUserLockTest {
         // 原 captor 断言: lock!=1 一律按解锁处理
     }
 
+    /**
+     * 测试：ThrowWhen用户IDNull。
+     */
     @Test
     @DisplayName("锁定用户-用户ID为空返回非法参数")
     void shouldThrowWhenUserIdNull() {
@@ -73,6 +88,9 @@ class SysUserLockTest {
         assertTrue(result.getMsg().contains("用户ID不能为空"));
     }
 
+    /**
+     * 测试：RejectLoginWhenLockedAndNotExpired。
+     */
     @Test
     @DisplayName("登录时用户已锁定且未过期-应拒绝登录(423)")
     void shouldRejectLoginWhenLockedAndNotExpired() {
@@ -90,6 +108,9 @@ class SysUserLockTest {
         // 需在完整环境验证(见 SysLoginServiceImpl#checkAndAutoUnlock)。
     }
 
+    /**
+     * 测试：AutoUnlockWhenLockExpired。
+     */
     @Test
     @DisplayName("登录时用户已锁定但已过期-自动解锁后放行")
     void shouldAutoUnlockWhenLockExpired() {

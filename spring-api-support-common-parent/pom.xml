@@ -25,6 +25,7 @@
     <description>API 通用模块聚合，统一管理 common-* 系列模块</description>
 
     <modules>
+        <module>spring-api-support-monitor-agent</module>
         <module>spring-api-support-common-configuration-starter</module>
         <module>spring-api-support-common-entity-starter</module>
         <module>spring-api-support-common-service-starter</module>

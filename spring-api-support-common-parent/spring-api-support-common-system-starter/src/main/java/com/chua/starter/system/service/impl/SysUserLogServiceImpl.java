@@ -134,6 +134,12 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         return page;
     }
 
+    /**
+     * normalize用户Log查询。
+     *
+     * @param source 来源，不允许为 null
+     * @return Sys用户Log查询 对象
+     */
     private SysUserLogQuery normalizeUserLogQuery(SysUserLogQuery source) {
         SysUserLogQuery target = null == source ? new SysUserLogQuery() : source;
         target.setSysLogUsername(normalizeNullableString(target.getSysLogUsername()));
@@ -145,6 +151,12 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         return target;
     }
 
+    /**
+     * normalizeNullable字符串。
+     *
+     * @param value 值，不允许为 null
+     * @return 结果字符串
+     */
     private String normalizeNullableString(String value) {
         if (StringUtils.isBlank(value)) {
             return null;

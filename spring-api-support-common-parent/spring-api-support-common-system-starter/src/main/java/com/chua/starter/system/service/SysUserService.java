@@ -34,6 +34,8 @@ public interface SysUserService extends IService<SysUser> {
     * @param sysUserQuery 用户查询条件对象，包含查询的各类参数
     * @param roles 用户角色集合，用于筛选用户
     * @return 分页查询结果，包含用户信息列表和分页数据
+    * @param currentUserId 当前用户ID，不允许为 null
+    * @param currentDeptId 当前DeptID，不允许为 null
      */
     IPage<SysUserVO> pageForUser(SysUserQuery sysUserQuery, Set<String> roles, Integer currentUserId, Integer currentDeptId);
 
@@ -62,6 +64,15 @@ public interface SysUserService extends IService<SysUser> {
     ReturnResult<String> reset(Long userId);
 
     /**
+     * 重置用户密码（使用自定义密码）
+     *
+     * @param userId 用户标识
+     * @param password 自定义密码
+     * @return 操作结果对象，包含操作是否成功和相关提示信息
+     */
+    ReturnResult<String> resetWithPassword(Long userId, String password);
+
+    /**
     * 更新用户信息，包括角色等
     *
     * @param roles 用户的新角色集合
@@ -85,9 +96,16 @@ public interface SysUserService extends IService<SysUser> {
     *
     * @param roles 用户的角色集合，用于筛选菜单
     * @return 菜单列表对象，包含当前登录用户可以访问的菜单信息
+    * @param sysMenuEngine sysMenu引擎，不允许为 null
      */
     ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles, Integer sysMenuEngine);
 
+    /**
+     * 获取用户MiniMenu。
+     *
+     * @param roles 方法入参 roles
+     * @return Return结果 对象
+     */
     ReturnResult<List<SysMiniMenuVO>> getUserMiniMenu(Set<String> roles);
 
     /**

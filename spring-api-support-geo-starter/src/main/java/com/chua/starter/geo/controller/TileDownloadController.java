@@ -56,11 +56,17 @@ public class TileDownloadController {
     /** 异步任务执行线程池（虚拟 Thread） */
     private ExecutorService executor;
 
+    /**
+     * 初始化。
+     */
     @PostConstruct
     public void init() {
         this.executor = Executors.newVirtualThreadPerTaskExecutor();
     }
 
+    /**
+     * destroy。
+     */
     @PreDestroy
     public void destroy() {
         if (executor != null) {

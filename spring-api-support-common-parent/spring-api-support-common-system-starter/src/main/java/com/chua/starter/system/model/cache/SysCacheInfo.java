@@ -33,6 +33,9 @@ public class SysCacheInfo {
 
     /**
     * 构造缓存信息项
+    * @param cacheName 缓存名称，不允许为 null
+    * @param cacheKey 缓存键，不允许为 null
+    * @param description 描述，不允许为 null
      */
     public SysCacheInfo(String cacheName, String cacheKey, String description) {
         this.cacheName = cacheName;

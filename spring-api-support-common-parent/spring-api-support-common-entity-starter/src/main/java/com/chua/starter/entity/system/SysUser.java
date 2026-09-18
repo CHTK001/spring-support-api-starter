@@ -34,7 +34,7 @@ public class SysUser extends SysBase implements Serializable {
     @Schema(description = "用户ID")
     @NotNull(message = "用户ID不能为空")
     /** SYS用户标识 */
-    private Long sysUserId;
+    private Integer sysUserId;
 
     /**
     * 账号
@@ -267,6 +267,14 @@ public class SysUser extends SysBase implements Serializable {
     @Schema(description = "最后登录时间")
     /** SYS用户最后登录时间 */
     private java.time.LocalDateTime sysUserLastLoginTime;
+
+    /**
+    * 最后登录IP
+     */
+    @TableField(value = "sys_user_last_ip")
+    @Schema(description = "最后登录IP")
+    /** SYS用户最后登录IP */
+    private String sysUserLastLoginIp;
 
     /**
     * 密码修改时间

@@ -1,0 +1,22 @@
+﻿spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3333/db_verify_mysql?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=false
+    username: root
+    password: root
+    hikari:
+      maximum-pool-size: 10
+plugin:
+  datasource:
+    script:
+      scan-mode: ONCE
+      data-scan-mode: ONCE
+      migration-scan-mode: ALWAYS
+      continue-on-error: true
+      verbose: true
+  system:
+    server:
+      enable: true
+  oauth:
+    address: http://localhost:19180/oauth
+    protocol: http-lite

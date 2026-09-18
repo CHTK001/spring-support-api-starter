@@ -107,7 +107,9 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
         DisposableBean, WebMvcConfigurer {
 
     AuthServerProperties authServerProperties;
+    /** 消息Converters */
     private List<HttpMessageConverter<?>> messageConverters;
+    /** application上下文 */
     private ApplicationContext applicationContext;
 
     /**

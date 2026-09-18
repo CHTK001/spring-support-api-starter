@@ -211,6 +211,9 @@ CREATE TABLE IF NOT EXISTS `sys_ai_knowledge_graph_entity_attribute` (
 
 -- ============================================================
 -- 种子数据：全局 AI 设置
+-- 例外说明：本文件属 H2 本地联调目录（db/init/h2/），该目录不走
+-- initdata 异步执行器（initdata_* 扫描仅针对 db/init/ 根目录），
+-- 故种子内嵌于此；每条 INSERT 均带 WHERE NOT EXISTS 幂等防护，重复执行安全
 -- ============================================================
 INSERT INTO sys_ai_global_setting (sys_ai_global_setting_group, sys_ai_global_setting_field, sys_ai_global_setting_value, sys_ai_global_setting_value_type, sys_ai_global_setting_description, sys_ai_global_setting_sort, sys_ai_global_setting_status)
 SELECT 'runtime', 'provider', 'zhipu', 'STRING', 'LLM提供商', 1, 1 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM sys_ai_global_setting WHERE sys_ai_global_setting_group='runtime' AND sys_ai_global_setting_field='provider');

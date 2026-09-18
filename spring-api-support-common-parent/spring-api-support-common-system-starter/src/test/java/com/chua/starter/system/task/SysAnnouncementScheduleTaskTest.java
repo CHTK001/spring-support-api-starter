@@ -21,24 +21,36 @@ import org.springframework.cache.CacheManager;
 @DisplayName("公告定时发布任务测试")
 class SysAnnouncementScheduleTaskTest {
 
+    /**
+     * 测试：PublishWhenDraft时间Reached。
+     */
     @Test
     @DisplayName("待发布公告到达发布时间-执行状态流转(草稿->已发布)")
     void shouldPublishWhenDraftTimeReached() {
         // 原断言: 两次状态流转均执行, 有变更时清理活跃缓存
     }
 
+    /**
+     * 测试：ExpireWhenPublish时间Reached。
+     */
     @Test
     @DisplayName("已发布公告到达过期时间-执行状态流转(已发布->已下架)")
     void shouldExpireWhenPublishTimeReached() {
         // 原断言: 两次状态流转均执行, 有变更时清理活跃缓存
     }
 
+    /**
+     * 测试：NotEvict缓存When编号Change。
+     */
     @Test
     @DisplayName("无公告需要流转-状态不变且不清理缓存")
     void shouldNotEvictCacheWhenNoChange() {
         // 原断言: 两次 update 均执行且返回0, 不清理缓存
     }
 
+    /**
+     * 测试：SwallowException。
+     */
     @Test
     @DisplayName("定时任务-service异常时吞掉异常不向外抛出")
     void shouldSwallowException() {

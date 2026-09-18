@@ -108,6 +108,7 @@ public class SysSettingController {
     * @param sysSettingUpdate 条件
     * @return 设置分页列表
     * @param true true
+    * @param roles 方法入参 roles
      */
     @Operation(summary = "设置列表")
     @GetMapping("/list")
@@ -136,6 +137,8 @@ public class SysSettingController {
     *
     * @return 更新设置
     * @param true true
+    * @param roles 方法入参 roles
+    * @param sysSettingId sysSettingID，不允许为 null
      */
     @Operation(summary = "删除设置")
     @DeleteMapping("/delete")
@@ -194,6 +197,9 @@ public class SysSettingController {
     *
     * @return 新增设置
     * @param true true
+    * @param roles 方法入参 roles
+    * @param sysSetting 方法入参 sysSetting
+    * @param bindingResult binding结果，不允许为 null
      */
     @Operation(summary = "新增设置")
     @PostMapping("/save")

@@ -34,7 +34,18 @@ import org.springframework.scheduling.annotation.EnableScheduling;
                 description = "提供用户管理、角色管理、菜单管理、部门管理、成就系统等系统管理功能"
         )
 )
+/**
+ * SystemApplication类，提供相关能力。
+ *
+ * @author CH
+ * @since 1.0.0
+ */
 public class SystemApplication {
+    /**
+     * 程序入口，运行示例自检。
+     *
+     * @param args 参数，不允许为 null
+     */
     public static void main(String[] args) {
         if (System.getProperty("mybatis-plus.encryptor.mode") == null) {
             System.setProperty("mybatis-plus.encryptor.mode", "PLAIN");

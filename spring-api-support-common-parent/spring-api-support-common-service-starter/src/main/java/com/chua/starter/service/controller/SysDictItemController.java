@@ -48,6 +48,7 @@ public class SysDictItemController {
     * @param query 查询
     * @param sysDictCode sysdict编码
     * @param true true
+    * @param roles 方法入参 roles
      */
     @Operation(summary = "字典子项列表(父code码查询)")
     @GetMapping("/pCode")
@@ -66,6 +67,7 @@ public class SysDictItemController {
     * @param query 查询
     * @param sysDictCode sysdict编码
     * @param true true
+    * @param roles 方法入参 roles
      */
     @Operation(summary = "字典子项列表(code码查询)")
     @GetMapping("/code")
@@ -85,6 +87,7 @@ public class SysDictItemController {
     * @param query 查询
     * @param sysDictId sysDictId
     * @param true true
+    * @param roles 方法入参 roles
      */
     @Operation(summary = "字典子项列表(父ID)")
     @GetMapping("/pList")
@@ -103,6 +106,7 @@ public class SysDictItemController {
     * @param query 查询
     * @param sysDictId sysDictId
     * @param true true
+    * @param roles 方法入参 roles
      */
     @Operation(summary = "字典子项列表")
     @GetMapping("/list")
@@ -120,6 +124,7 @@ public class SysDictItemController {
     * @param query 查询
     * @param sysDictId sysDictId
     * @param true true
+    * @param roles 方法入参 roles
      */
     @Operation(summary = "字典子项分页")
     @GetMapping("/page")

@@ -52,6 +52,7 @@ public class SysRoleController {
     * @return 角色分页列表
     * @param query 查询
     * @param true true
+    * @param roles 方法入参 roles
      */
     @Operation(summary = "角色分页列表")
     @GetMapping("/page")
@@ -155,6 +156,8 @@ public class SysRoleController {
     *
     * @return 新增角色
     * @param @Validated(AddGroup.class @Validated(AddGroup.class
+    * @param sysRole 方法入参 sysRole
+    * @param bindingResult binding结果，不允许为 null
      */
     @Operation(summary = "新增角色")
     @PostMapping("/save")

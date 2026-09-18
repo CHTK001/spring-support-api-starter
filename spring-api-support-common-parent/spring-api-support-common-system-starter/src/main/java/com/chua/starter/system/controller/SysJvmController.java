@@ -1,6 +1,7 @@
 package com.chua.starter.system.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.starter.system.pojo.jvm.JvmInfo;
 import com.sun.management.OperatingSystemMXBean;
 import io.swagger.v3.oas.annotations.Operation;
@@ -200,12 +201,24 @@ public class SysJvmController {
         for (java.lang.management.ThreadInfo ti : allThreadInfos) {
             if (ti != null) {
                 switch (ti.getThreadState()) {
-                    case NEW: newCount++; break;
-                    case RUNNABLE: runnableCount++; break;
-                    case BLOCKED: blockedCount++; break;
-                    case WAITING: waitingCount++; break;
-                    case TIMED_WAITING: timedWaitingCount++; break;
-                    case TERMINATED: terminatedCount++; break;
+                    case NEW:
+                        newCount++;
+                        break;
+                    case RUNNABLE:
+                        runnableCount++;
+                        break;
+                    case BLOCKED:
+                        blockedCount++;
+                        break;
+                    case WAITING:
+                        waitingCount++;
+                        break;
+                    case TIMED_WAITING:
+                        timedWaitingCount++;
+                        break;
+                    case TERMINATED:
+                        terminatedCount++;
+                        break;
                 }
             }
         }
@@ -352,13 +365,16 @@ public class SysJvmController {
             }
  // 尝试获取最大direct内存大小
             try {
- // sun.misc.VM 是 JDK 内部类，无标准 API 可获取 最大direct内存，使用反射访问其公开方法
-                Class<?> vmClass = Class.forName("sun.misc.VM");
-                java.lang.reflect.Method method = vmClass.getDeclaredMethod("maxDirectMemory");
-                long maxDirect = (Long) method.invoke(null);
-                directMemoryInfo.setMaxDirectMemory(maxDirect);
-                if (maxDirect > 0 && directMemoryInfo.getUsed() != null) {
-                    directMemoryInfo.setUsagePercent((double) directMemoryInfo.getUsed() / maxDirect * 100);
+ // sun.misc.VM 是 JDK 内部类，无标准 API 可获取最大直接内存；加载与方法调用统一经 ReflectUtils
+                Object maxDirectValue = ReflectUtils.invokeStatic("sun.misc.VM", "maxDirectMemory", long.class);
+                if (maxDirectValue == null) {
+                    log.debug("当前 JDK 未提供 sun.misc.VM.maxDirectMemory，跳过最大直接内存");
+                } else {
+                    long maxDirect = ((Number) maxDirectValue).longValue();
+                    directMemoryInfo.setMaxDirectMemory(maxDirect);
+                    if (maxDirect > 0 && directMemoryInfo.getUsed() != null) {
+                        directMemoryInfo.setUsagePercent((double) directMemoryInfo.getUsed() / maxDirect * 100);
+                    }
                 }
             } catch (Exception e) {
                 log.debug("获取最大直接内存失败: {}", e.getMessage());

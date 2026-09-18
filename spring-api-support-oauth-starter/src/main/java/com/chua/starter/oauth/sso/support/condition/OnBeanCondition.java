@@ -13,7 +13,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
-* {@link Condition} that checks for the presence or absence of specific beans.
+* 用于检查特定 bean 是否存在或缺失的 {@link Condition}。
 *
 * @author Phillip Webb
 * @author Dave Syer
@@ -30,7 +30,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 public class OnBeanCondition implements Condition {
 
     @Override
-    /** Matches */
+    /** 条件是否匹配 */
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
         return !ArrayUtils.isEmpty(context.getBeanFactory().getBeanNamesForType(ClassUtils.forName(metadata.toString())));
     }

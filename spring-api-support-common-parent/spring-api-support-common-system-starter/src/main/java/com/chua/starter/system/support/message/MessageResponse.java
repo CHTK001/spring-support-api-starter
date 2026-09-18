@@ -28,6 +28,8 @@ public class MessageResponse {
 
     /**
      * 构造成功响应
+     * @param messageId 消息ID，不允许为 null
+     * @return 消息响应 对象
      */
     public static MessageResponse ok(String messageId) {
         return MessageResponse.builder()
@@ -38,6 +40,8 @@ public class MessageResponse {
 
     /**
      * 构造失败响应
+     * @param errorMessage error消息，不允许为 null
+     * @return 消息响应 对象
      */
     public static MessageResponse fail(String errorMessage) {
         return MessageResponse.builder()

@@ -288,6 +288,18 @@ public class SysLoginServiceImpl implements SysLoginService {
 
         AuthSessionUtils.setUserInfo(resume);
         log.info("本地登录成功: user={}", loginData.getUsername());
+
+        // 更新最后登录时间和IP
+        try {
+            SysUser updateUser = new SysUser();
+            updateUser.setSysUserId(user.getSysUserId());
+            updateUser.setSysUserLastLoginTime(LocalDateTime.now());
+            updateUser.setSysUserLastLoginIp("127.0.0.1");
+            simpleSysUserService.updateById(updateUser);
+        } catch (Exception e) {
+            log.warn("更新最后登录信息失败: {}", e.getMessage());
+        }
+
         return result;
     }
 
@@ -521,6 +533,37 @@ public class SysLoginServiceImpl implements SysLoginService {
             try {
                 userInfoVO.setSysUserId(Integer.parseInt(userLoginInfo.getUserId()));
             } catch (NumberFormatException ignored) {
+            }
+        }
+
+        // 从数据库查询用户详细信息，补充手机号、邮箱、身份证等字段
+        // 注意：OAuth 服务返回的 userId 是远程数据库的 userId，需要根据 username 查询本地数据库
+        if (StringUtils.isNotBlank(userInfoVO.getSysUserUsername())) {
+            try {
+                SysUser sysUser = sysUserService.lambdaQuery()
+                        .eq(SysUser::getSysUserUsername, userInfoVO.getSysUserUsername())
+                        .one();
+                if (sysUser != null) {
+                    if (StringUtils.isBlank(userInfoVO.getSysUserPhone())) {
+                        userInfoVO.setSysUserPhone(sysUser.getSysUserPhone());
+                    }
+                    if (StringUtils.isBlank(userInfoVO.getSysUserEmail())) {
+                        userInfoVO.setSysUserEmail(sysUser.getSysUserEmail());
+                    }
+                    if (StringUtils.isBlank(userInfoVO.getSysUserCard())) {
+                        userInfoVO.setSysUserCard(sysUser.getSysUserCard());
+                    }
+                    if (userInfoVO.getSysUserSex() == null) {
+                        userInfoVO.setSysUserSex(sysUser.getSysUserSex());
+                    }
+                    if (StringUtils.isBlank(userInfoVO.getSysUserBirthday())) {
+                        userInfoVO.setSysUserBirthday(sysUser.getSysUserBirthday());
+                    }
+                    // 更新本地 userId
+                    userInfoVO.setSysUserId(sysUser.getSysUserId());
+                }
+            } catch (Exception e) {
+                log.warn("从数据库查询用户信息失败", e);
             }
         }
         if (StringUtils.isBlank(userInfoVO.getAvatar())) {
@@ -791,5 +834,31 @@ public class SysLoginServiceImpl implements SysLoginService {
             return ReturnResult.ok();
         }
         return ReturnResult.error("解绑失败");
+    }
+
+    /**
+     * 获取客户端IP地址
+     * @param request 请求，不允许为 null
+     * @return 结果字符串
+     */
+    private String getClientIp(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (StringUtils.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("X-Real-IP");
+        }
+        if (StringUtils.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (StringUtils.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (StringUtils.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        // 多个代理时取第一个IP
+        if (ip != null && ip.contains(",")) {
+            ip = ip.split(",")[0].trim();
+        }
+        return ip;
     }
 }

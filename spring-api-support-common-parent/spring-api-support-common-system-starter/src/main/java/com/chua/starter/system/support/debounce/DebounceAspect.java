@@ -40,6 +40,14 @@ public class DebounceAspect {
 
     private final SpelExpressionParser parser = new SpelExpressionParser();
 
+    /**
+     * around。
+     *
+     * @param joinPoint 方法入参 joinPoint
+     * @param debounce 方法入参 debounce
+     * @return 对象 对象
+     * @throws Throwable 当执行过程不满足前置条件时
+     */
     @Around("@annotation(debounce)")
     public Object around(ProceedingJoinPoint joinPoint, Debounce debounce) throws Throwable {
         String key = resolveKey(joinPoint, debounce);
@@ -66,6 +74,9 @@ public class DebounceAspect {
 
     /**
      * 解析防抖 key：支持 SpEL 表达式引用方法参数
+     * @param joinPoint 方法入参 joinPoint
+     * @param debounce 方法入参 debounce
+     * @return 结果字符串
      */
     private String resolveKey(ProceedingJoinPoint joinPoint, Debounce debounce) {
         String expression = debounce.key();

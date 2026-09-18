@@ -67,6 +67,7 @@ public class SysPostController {
     *
     * @param sysPost 岗位
     * @return 新增后的岗位
+    * @param bindingResult binding结果，不允许为 null
      */
     @Operation(summary = "新增岗位")
     @PostMapping("/save")
@@ -84,6 +85,7 @@ public class SysPostController {
     *
     * @param sysPost 岗位
     * @return 更新结果
+    * @param bindingResult binding结果，不允许为 null
      */
     @Operation(summary = "更新岗位")
     @PutMapping("/update")

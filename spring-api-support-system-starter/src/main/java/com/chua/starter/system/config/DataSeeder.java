@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
  * 补充演示数据。监听 ApplicationReadyEvent 确保一定在所有 Runner 之后执行。
  * 每条 SQL 独立 try/catch，失败不阻断启动与登录。
  */
+@Profile("h2")
 @Component
 public class DataSeeder implements ApplicationListener<ApplicationReadyEvent> {
     private static final Logger log = LoggerFactory.getLogger(DataSeeder.class);
@@ -156,16 +158,32 @@ public class DataSeeder implements ApplicationListener<ApplicationReadyEvent> {
         log.info("[DataSeeder] 演示数据补充完成");
     }
 
+    /**
+     * safe。
+     *
+     * @param sql SQL，不允许为 null
+     */
     private void safe(String sql) {
         try { jdbc.update(sql); }
         catch (Exception e) { log.warn("[DataSeeder] 跳过: {} | {}", sql.substring(0, Math.min(60, sql.length())), e.getMessage()); }
     }
 
+    /**
+     * alter。
+     *
+     * @param sql SQL，不允许为 null
+     */
     private void alter(String sql) {
         try { jdbc.execute(sql); }
         catch (Exception e) { log.warn("[DataSeeder] 补列失败: {} | {}", sql.substring(0, Math.min(60, sql.length())), e.getMessage()); }
     }
 
+    /**
+     * 查询ForInt。
+     *
+     * @param sql SQL，不允许为 null
+     * @return Integer 对象
+     */
     private Integer queryForInt(String sql) {
         try { return jdbc.queryForObject(sql, Integer.class); }
         catch (Exception e) { return null; }

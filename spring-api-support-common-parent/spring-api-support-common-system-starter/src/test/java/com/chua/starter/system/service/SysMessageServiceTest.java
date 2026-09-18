@@ -27,6 +27,11 @@ class SysMessageServiceTest {
 
     private final SysMessageServiceImpl sysMessageService = new SysMessageServiceImpl();
 
+    /**
+     * 构建消息。
+     *
+     * @return Sys消息 对象
+     */
     private SysMessage buildMessage() {
         SysMessage message = new SysMessage();
         message.setSysMessageTitle("系统维护通知");
@@ -34,6 +39,9 @@ class SysMessageServiceTest {
         return message;
     }
 
+    /**
+     * 测试：页MessagesForAdmin。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("管理员分页查询-委托mapper分页并返回结构")
@@ -45,6 +53,9 @@ class SysMessageServiceTest {
         assertEquals("系统维护通知", result.getRecords().get(0).getSysMessageTitle());
     }
 
+    /**
+     * 测试：发送消息Successfully。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("发送消息成功-自动设置发送时间、状态为已发送、接收者默认广播")
@@ -61,6 +72,9 @@ class SysMessageServiceTest {
         assertNull(saved.getSysMessageId(), "发送前应清空主键");
     }
 
+    /**
+     * 测试：ThrowWhen消息标题Empty。
+     */
     @Test
     @DisplayName("发送消息-标题为空返回非法参数")
     void shouldThrowWhenMessageTitleEmpty() {
@@ -72,6 +86,9 @@ class SysMessageServiceTest {
         assertTrue(result.getMsg().contains("消息标题不能为空"));
     }
 
+    /**
+     * 测试：Broadcast转为全部When编号Targets。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("发送广播消息-接收者为空时receiverId置为0并插入一条")
@@ -82,6 +99,9 @@ class SysMessageServiceTest {
         assertEquals(1, result.getData(), "全局广播只插入一条");
     }
 
+    /**
+     * 测试：Broadcast转为目标Users。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("定向广播-为每个目标用户复制并插入")
@@ -92,6 +112,9 @@ class SysMessageServiceTest {
         assertEquals(2, result.getData(), "定向发送应为每个用户插入一条");
     }
 
+    /**
+     * 测试：Recall消息Successfully。
+     */
     @Disabled("[P3C40] 原 ArgumentCaptor 断言改为 @Disabled：真实回查需要 DB 环境")
     @Test
     @DisplayName("撤回消息成功-状态改为已撤回(2)")
@@ -102,6 +125,9 @@ class SysMessageServiceTest {
         // 原 captor 断言: 更新体状态为 RECALLED(2)
     }
 
+    /**
+     * 测试：ThrowWhenRecallIDNull。
+     */
     @Test
     @DisplayName("撤回消息-ID为空返回非法参数")
     void shouldThrowWhenRecallIdNull() {
@@ -109,6 +135,9 @@ class SysMessageServiceTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：删除MessagesSuccessfully。
+     */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
     @DisplayName("删除消息成功-批量删除")
@@ -118,6 +147,9 @@ class SysMessageServiceTest {
         assertTrue(result.isSuccess());
     }
 
+    /**
+     * 测试：ThrowWhen删除IdsEmpty。
+     */
     @Test
     @DisplayName("删除消息-ID集合为空返回非法参数")
     void shouldThrowWhenDeleteIdsEmpty() {
@@ -125,6 +157,9 @@ class SysMessageServiceTest {
         assertFalse(result.isSuccess());
     }
 
+    /**
+     * 测试：复制模板ForReceiver。
+     */
     @Disabled("[P3C40] 原 ArgumentCaptor 断言改为 @Disabled：真实回查需要 DB 环境")
     @Test
     @DisplayName("模板发送变量替换-copyForReceiver保留发送者并设置指定接收者")

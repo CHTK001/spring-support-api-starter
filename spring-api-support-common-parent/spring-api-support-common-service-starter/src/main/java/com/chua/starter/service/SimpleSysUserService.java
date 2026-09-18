@@ -40,6 +40,7 @@ public interface SimpleSysUserService extends IService<SysUser> {
     * 生成一个返回结果，具体结构和内容由 返回主体结果 定义
     *
     * @return 返回一个 返回主体结果 对象，包含生成的结果信息
+    * @param sysUserId sys用户ID，不允许为 null
      */
     ReturnResult<byte[]> generate(Integer sysUserId);
 
