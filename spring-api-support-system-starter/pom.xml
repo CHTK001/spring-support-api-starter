@@ -3,16 +3,41 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.chua</groupId>
-    <artifactId>spring-api-support-business-parent</artifactId>
+    <artifactId>spring-support-api-parent</artifactId>
     <version>4.0.0.42</version>
-    <relativePath>../spring-api-support-business-parent/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>spring-api-support-system-starter</artifactId>
   <description>平台端</description>
   <dependencies>
+    <!-- datasearch 在顶层 pom 直接依赖，此处显式重声明以排除其传递的 sqlite 链 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-datasearch-starter</artifactId>
+      <version>${utils.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.xerial</groupId>
+          <artifactId>sqlite-jdbc</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>utils-support-sqlite-starter</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>utils-support-native-sqlite</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.whvcse</groupId>
+      <artifactId>easy-captcha</artifactId>
+      <version>1.6.2</version>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
@@ -30,6 +55,34 @@
           <groupId>it.ozimov</groupId>
           <artifactId>embedded-redis</artifactId>
         </exclusion>
+        <!-- Armeria OAuth 协议：默认已改 tcp，无需 armeria + netty-all (~30MB) -->
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>utils-support-armeria-starter</artifactId>
+        </exclusion>
+        <!-- sqlite：eduai 用 MySQL/H2，不需要嵌入式 sqlite (~11.4MB) -->
+        <exclusion>
+          <groupId>org.xerial</groupId>
+          <artifactId>sqlite-jdbc</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>utils-support-sqlite-starter</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>utils-support-native-sqlite</artifactId>
+        </exclusion>
+        <!-- datasearch 链：utils-support-datasource-starter 也带 sqlite -->
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>utils-support-datasource-starter</artifactId>
+        </exclusion>
+        <!-- datasearch 链也带 sqlite -->
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>utils-support-datasearch-starter</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -40,11 +93,13 @@
       <groupId>com.chua</groupId>
       <artifactId>utils-support-common-starter</artifactId>
     </dependency>
+    <!-- 注释掉 eduai-starter，因为它需要 MessageTemplate bean，但我们不需要这个功能
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-support-eduai-starter</artifactId>
       <version>${project.version}</version>
     </dependency>
+    -->
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-tenant-starter</artifactId>
@@ -60,10 +115,48 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-support-datasource-starter</artifactId>
+      <exclusions>
+        <!-- sqlite：eduai 用 MySQL/H2，排除嵌入式 sqlite 链 (~11.4MB) -->
+        <exclusion>
+          <groupId>org.xerial</groupId>
+          <artifactId>sqlite-jdbc</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>utils-support-sqlite-starter</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>utils-support-native-sqlite</artifactId>
+        </exclusion>
+        <!-- armeria 兜底（datasource 不引 armeria，仅保险） -->
+        <exclusion>
+          <groupId>com.chua</groupId>
+          <artifactId>utils-support-armeria-starter</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-redis-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.redisson</groupId>
+      <artifactId>redisson</artifactId>
+      <version>3.32.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-core</artifactId>
+      <version>3.6.0</version>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
