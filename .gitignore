@@ -117,3 +117,10 @@ hs_err_pid*.log
 replay_pid*.log
 spy.log
 *.log.gz
+
+# 崩溃/回放/JVM dump 残留
+replay_pid*
+hs_err*
+thread-dump*
+__pycache__/
+*.orig

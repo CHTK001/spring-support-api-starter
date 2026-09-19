@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
  * 用于管理文件分片上传的详细信息
  *
  * @since 2024/12/10
- * @版本 1.0.0
  * @author CH
  */
 @Schema(description = "文件系统分片表")

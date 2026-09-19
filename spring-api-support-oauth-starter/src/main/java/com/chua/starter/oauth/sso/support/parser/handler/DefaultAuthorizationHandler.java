@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
  * 处理基于令牌的标准认证请求，返回用户信息（包含指纹）由客户端决定是否验证
  * </p>
  *
- * @版本 1.0.0
  * @since 2024/12/11
  * @author CH
  */

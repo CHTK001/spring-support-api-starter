@@ -32,7 +32,6 @@ import java.util.List;
 /**
  * 服务模块管理接口
  *
- * @版本 1.0.0
  * @since 2024/12/15
  * @author CH
  */

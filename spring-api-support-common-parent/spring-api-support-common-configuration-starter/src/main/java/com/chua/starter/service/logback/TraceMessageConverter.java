@@ -12,7 +12,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
  * </p>
  *
  * @since 2025/12/05
- * @版本 1.0.0
  * @author CH
  */
 @ConditionalOnClass(name = "ch.qos.logback.classic.pattern.ClassicConverter")

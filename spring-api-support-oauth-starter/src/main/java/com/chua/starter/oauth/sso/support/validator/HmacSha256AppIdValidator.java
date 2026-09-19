@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
  * 5. 验证签名是否匹配
  * </p>
  *
- * @版本 1.0.0
  * @since 2025-01-05
  * @author CH
  */

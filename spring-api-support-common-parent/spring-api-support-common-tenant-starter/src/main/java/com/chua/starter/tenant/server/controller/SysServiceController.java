@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 /**
  * 服务管理接口
  *
- * @版本 1.0.0
  * @since 2024/12/15
  * @author CH
  */

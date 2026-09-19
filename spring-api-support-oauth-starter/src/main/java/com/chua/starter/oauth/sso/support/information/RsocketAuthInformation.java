@@ -19,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 提供 r套接字 协议的请求/响应适配，使其能够复用现有的认证逻辑
  * </p>
  *
- * @版本 1.0.0
  * @since 2025-01-05
  * @author CH
  */

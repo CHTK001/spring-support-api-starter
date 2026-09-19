@@ -12,7 +12,6 @@ import lombok.EqualsAndHashCode;
  * 服务与模块关联实体
  * 用于管理服务与模块的多对多关系
  *
- * @版本 1.0.0
  * @since 2024/12/07
  * @author CH
  */

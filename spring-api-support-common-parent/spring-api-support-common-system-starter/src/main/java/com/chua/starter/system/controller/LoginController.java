@@ -23,6 +23,7 @@ import com.chua.starter.system.pojo.menu.SysMiniMenuVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.service.SysLoginService;
 import com.chua.starter.system.service.SysUserService;
+import com.chua.starter.system.util.BirthdayFramePolicy;
 
 import java.util.List;
 import java.util.Map;
@@ -185,8 +186,11 @@ public class LoginController {
                     userInfoVO.setSysUserBirthday(sysUser.getSysUserBirthday());
                     userInfoVO.setAvatar(sysUser.getSysUserAvatar());
                     userInfoVO.setSysUserCard(sysUser.getSysUserCard());
-                    userInfoVO.setSysUserAvatarFrame(sysUser.getSysUserAvatarFrame());
-                    userInfoVO.setSysUserAvatarFrameShow(sysUser.getSysUserAvatarFrameShow());
+                    // 生日框只在生日前后 7 天内生效，窗口外回落为不佩戴（库中仍存 100，次年自动恢复）
+                    Integer[] effectiveFrame = BirthdayFramePolicy.resolveEffective(sysUser.getSysUserAvatarFrame(),
+                            sysUser.getSysUserBirthday(), sysUser.getSysUserAvatarFrameShow());
+                    userInfoVO.setSysUserAvatarFrame(effectiveFrame[0]);
+                    userInfoVO.setSysUserAvatarFrameShow(effectiveFrame[1]);
                 }
             } catch (NumberFormatException ignored) {
             }
@@ -207,7 +211,6 @@ public class LoginController {
      * @return 菜单列表
      * @author CH
      * @since 2024/12/10
-     * @版本 1.0
      */
     @Operation(summary = "获取当前登录用户菜单")
     @GetMapping("/menu")

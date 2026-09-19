@@ -9,7 +9,6 @@ import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
  * 定义不同认证协议的处理逻辑，通过SPI机制支持扩展
  * </p>
  *
- * @版本 1.0.0
  * @since 2024/12/11
  * @author CH
  */

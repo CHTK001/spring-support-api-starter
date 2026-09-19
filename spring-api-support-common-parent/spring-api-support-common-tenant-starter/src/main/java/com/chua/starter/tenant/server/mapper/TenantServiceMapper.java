@@ -6,7 +6,6 @@ import org.apache.ibatis.annotations.Param;
 /**
  * 租户服务删除 映射器 接口
  *
- * @版本 1.0.0
  * @since 2025/1/1
  * @author CH
  */

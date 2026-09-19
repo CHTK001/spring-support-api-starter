@@ -10,7 +10,6 @@ import lombok.Data;
  * 用于任务处理时传递文件系统对象和服务
  *
  * @since 2024/12/10
- * @版本 1.0.0
  * @author CH
  */
 @Data

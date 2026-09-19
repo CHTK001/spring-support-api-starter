@@ -43,6 +43,7 @@ import com.chua.starter.system.service.SysLoginService;
 import com.chua.starter.system.service.SysUserService;
 import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.system.mapper.SysWechatUserMapper;
+import com.chua.starter.system.util.BirthdayFramePolicy;
 import com.chua.starter.system.util.PasswordUtils;
 import com.chua.starter.system.pojo.user.UserLayout;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -68,7 +69,6 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashSet;
@@ -88,7 +88,6 @@ import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERRO
 /**
  * 登录服务实现
  *
- * @版本 1.0.0
  * @since 2024/9/12
  * @author CH
  */
@@ -109,15 +108,6 @@ public class SysLoginServiceImpl implements SysLoginService {
     private static final String AGREEMENT_ACCEPTED_VERSION_KEY = "agreementAcceptedVersion";
     /** Agreement_accepted_at_键 */
     private static final String AGREEMENT_ACCEPTED_AT_KEY = "agreementAcceptedAt";
-
-    /** 生日框记录标识（与 sys_avatar_帧 种子 标识=100 一致） */
-    private static final Integer BIRTHDAY_FRAME_ID = 100;
-
-    /** 生日窗口：前 3 天共 7 天 */
-    private static final int BIRTHDAY_WINDOW_DAYS = 3;
-
-    /** 生日日期解析：yyyy-MM-dd / yyyy/MM/dd / yyyy.MM.dd */
-    private static final Pattern BIRTHDAY_PATTERN = Pattern.compile("(\\d{4})[-/.](\\d{1,2})[-/.](\\d{1,2})");
 
     /**
      * 用户布局查询缓存，避免每次登录重复查询数据库
@@ -600,12 +590,11 @@ public class SysLoginServiceImpl implements SysLoginService {
         if (StringUtils.isBlank(userInfoVO.getSysUserBirthday())) {
             userInfoVO.setSysUserBirthday(StringUtils.toString(userLoginInfo.getOption("sysUserBirthday")));
         }
-        // 生日框仅在生日窗口内展示：窗口外（含未设置生日）强制不渲染已佩戴的生日框
-        if (BIRTHDAY_FRAME_ID.equals(userInfoVO.getSysUserAvatarFrame())
-                && !isBirthdayWindow(userInfoVO.getSysUserBirthday())) {
-            userInfoVO.setSysUserAvatarFrame(0);
-            userInfoVO.setSysUserAvatarFrameShow(0);
-        }
+        // 生日框仅在生日前后 7 天展示：窗口外（含未设置生日）强制不渲染已佩戴的生日框
+        Integer[] effective = BirthdayFramePolicy.resolveEffective(userInfoVO.getSysUserAvatarFrame(),
+                userInfoVO.getSysUserBirthday(), userInfoVO.getSysUserAvatarFrameShow());
+        userInfoVO.setSysUserAvatarFrame(effective[0]);
+        userInfoVO.setSysUserAvatarFrameShow(effective[1]);
         userInfoVO.setTenantId(userLoginInfo.getTenantId());
         userInfoVO.setRoles(userLoginInfo.getRoles());
         userInfoVO.setPerms(userLoginInfo.getPermission());
@@ -623,28 +612,6 @@ public class SysLoginServiceImpl implements SysLoginService {
         }
         enrichAgreementStatus(userInfoVO);
         return userInfoVO;
-    }
-
-    /**
-     * 判断指定生日字符串是否处于生日窗口内（忽略年份比较月/日）
-     * <p>窗口为生日前 {@link #BIRTHDAY_WINDOW_DAYS} 天；生日为空或格式不合法时返回 false</p>
-     *
-     * @param birthday 生日字符串（yyyy-MM-dd 等）
-     * @return 是否处于生日窗口
-     */
-    private boolean isBirthdayWindow(String birthday) {
-        if (StringUtils.isBlank(birthday)) {
-            return false;
-        }
-        Matcher matcher = BIRTHDAY_PATTERN.matcher(birthday);
-        if (!matcher.matches()) {
-            return false;
-        }
-        LocalDate birth = LocalDate.of(2000, Integer.parseInt(matcher.group(2)), Integer.parseInt(matcher.group(3)));
-        LocalDate now = LocalDate.now();
-        LocalDate today = LocalDate.of(2000, now.getMonthValue(), now.getDayOfMonth());
-        long diff = Math.abs(ChronoUnit.DAYS.between(birth, today));
-        return diff <= BIRTHDAY_WINDOW_DAYS;
     }
 
     /**

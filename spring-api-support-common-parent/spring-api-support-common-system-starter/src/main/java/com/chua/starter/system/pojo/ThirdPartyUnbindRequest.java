@@ -6,7 +6,6 @@ import lombok.Data;
 /**
  * 第三方解绑请求
  *
- * @版本 1.0.0
  * @since 2024/9/6
  * @author CH
  */

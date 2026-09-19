@@ -28,7 +28,6 @@ import java.util.*;
  * 符合 RFC 7517 (JSON Web 键) 规范。
  * </p>
  *
- * @版本 1.0.0
  * @since 2025-12-18
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc7517">RFC 7517 - JSON Web Key (JWK)</a>
  * @author CH

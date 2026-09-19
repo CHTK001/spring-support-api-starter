@@ -111,10 +111,19 @@ INSERT IGNORE INTO `sys_dept` (`sys_dept_id`, `sys_dept_name`, `sys_dept_pid`, `
 (1, '总部', 0, '0,1', 'ROOT', 1, 0);
 
 -- =====================================================
--- 6. 头像框种子（生肖 201-212、神兽 221-226、生日 100）
+-- 6. 头像框种子（常规 2-7、生肖 201-212、神兽 221-226、生日 100）
 -- =====================================================
 INSERT IGNORE INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_name`, `sys_avatar_frame_type`, `sys_avatar_frame_color`, `sys_avatar_frame_desc`, `sys_avatar_frame_acquire`, `sys_avatar_frame_sort`) VALUES
 (1, '经典', 'base', 'transparent', '默认无边框', 'default', 0);
+
+-- 常规框：只有渐变色，前端按「渐变 + 径向遮罩挖孔」画素环
+INSERT IGNORE INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_name`, `sys_avatar_frame_type`, `sys_avatar_frame_color`, `sys_avatar_frame_desc`, `sys_avatar_frame_acquire`, `sys_avatar_frame_sort`) VALUES
+(2, '素环', 'regular', 'linear-gradient(135deg, #f2f5f8 0%, #b9c2cc 35%, #ffffff 55%, #8e97a1 100%)', '常规款·银白素环', 'default', 20),
+(3, '墨玉', 'regular', 'linear-gradient(135deg, #3a3f47 0%, #6b7480 35%, #1b1e23 60%, #59616c 100%)', '常规款·墨玉深灰', 'default', 21),
+(4, '鎏金', 'regular', 'linear-gradient(135deg, #fff3c4 0%, #d4a531 30%, #a9772a 55%, #f7e59b 100%)', '常规款·鎏金暖阳', 'default', 22),
+(5, '青瓷', 'regular', 'linear-gradient(135deg, #e2f5ee 0%, #6fbfa9 35%, #38796d 65%, #bfe6d8 100%)', '常规款·青瓷淡翠', 'default', 23),
+(6, '绛朱', 'regular', 'linear-gradient(135deg, #ffd9c9 0%, #d9534a 35%, #9b241c 65%, #ffb3a0 100%)', '常规款·绛朱丹霞', 'default', 24),
+(7, '星辉', 'regular', 'linear-gradient(135deg, #dfe4ff 0%, #7c6ff0 30%, #34296e 60%, #a8b6ff 100%)', '常规款·星辉蓝紫', 'default', 25);
 
 INSERT IGNORE INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_name`, `sys_avatar_frame_type`, `sys_avatar_frame_image`, `sys_avatar_frame_desc`, `sys_avatar_frame_acquire`, `sys_avatar_frame_sort`) VALUES
 (201, '子鼠', 'zodiac', '/assets/avatar-frames/zodiac-rat.svg', '暗珐琅描金·生肖鼠', 'default', 1),

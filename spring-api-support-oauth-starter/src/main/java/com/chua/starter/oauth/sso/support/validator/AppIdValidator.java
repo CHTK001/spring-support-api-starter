@@ -9,7 +9,6 @@ import com.chua.starter.oauth.sso.support.information.OauthAuthInformation;
  * 用于验证客户端提供的 appid 是否合法，支持算法验证
  * </p>
  *
- * @版本 1.0.0
  * @since 2025-01-05
  * @author CH
  */

@@ -24,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * </p>
  *
  * @author CH
- * @版本 1.0.0
  * @since 2025-12-15
  */
 public class ProtocolServerAuthInformation {

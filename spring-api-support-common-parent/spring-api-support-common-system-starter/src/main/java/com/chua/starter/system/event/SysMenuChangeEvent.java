@@ -8,7 +8,6 @@ import org.springframework.context.ApplicationEvent;
  * 平台端菜单新增/修改/删除后发布，供租户端菜单同步等场景监听处理
  * </p>
  *
- * @版本 1.0.0
  * @since 4.0.0.42
  * @author CH
  */
