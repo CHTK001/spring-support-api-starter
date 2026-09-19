@@ -13,36 +13,53 @@
 
     <artifactId>spring-api-support-monitor-agent</artifactId>
     <packaging>jar</packaging>
-    <description>监控 Agent - 部署到目标机，OSHI 采集 + HTTP 服务 + TCP 长连接指标推送</description>
+    <description>监控 Agent - 单文件可执行 jar，部署到目标主机后仅靠内置 HTTP 服务对外提供系统信息</description>
+
+    <properties>
+        <!-- 被监控主机的 JDK 无法保证：生产上大量机器只有 JRE 8。字节码钉在 8，
+             Agent 源码因此不得使用 Java 9+ API（ProcessHandle / Map.of / InputStream#readAllBytes 等） -->
+        <agent.compiler.release>8</agent.compiler.release>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+        <oshi.version>6.8.0</oshi.version>
+        <jackson.agent.version>2.19.4</jackson.agent.version>
+    </properties>
 
     <dependencies>
-        <!-- OSHI 系统信息采集（CPU/内存/磁盘/进程） -->
+        <!-- OSHI 系统信息采集（CPU/内存/磁盘/进程/端口） -->
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
-            <version>6.8.0</version>
+            <version>${oshi.version}</version>
         </dependency>
-        <!-- utils-support-common-starter（TcpSyncClient 长连接 + Json 工具 + ServerBuilder） -->
+        <!-- JSON 序列化：原先经 utils-support-common-starter 传递引入，
+             该 starter 会带进 sqlite/HikariCP/reactor/geoip 等一堆 Agent 用不到的东西，改为直接声明 -->
         <dependency>
-            <groupId>com.chua</groupId>
-            <artifactId>utils-support-common-starter</artifactId>
-            <version>4.0.0.42</version>
-            <exclusions>
-                <!-- 排除根 pom 传递的不需要的依赖 -->
-                <exclusion>
-                    <groupId>com.chua</groupId>
-                    <artifactId>utils-support-geoip2-starter</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.chua</groupId>
-                    <artifactId>utils-support-datasearch-starter</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.agent.version}</version>
         </dependency>
     </dependencies>
 
     <build>
         <finalName>monitor-agent</finalName>
+        <resources>
+            <!-- spring-boot-starter-parent 已注册一条「不过滤」的资源项，子模块只写 filtering=true
+                 会被那条覆盖回原文，故这里显式拆成两条：版本文件走过滤，其余保持不过滤 -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>agent.properties</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>agent.properties</exclude>
+                </excludes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -57,27 +74,63 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${agent.compiler.release}</source>
+                    <target>${agent.compiler.release}</target>
+                    <release>${agent.compiler.release}</release>
+                    <fork>false</fork>
+                    <annotationProcessorPaths/>
+                </configuration>
+            </plugin>
+            <!-- 单文件 fat jar：平台侧「自动部署 Agent」只上传一个 agent.jar，
+                 靠 -cp lib/* 起不来的方案在远程主机上一推就炸 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
-                        <goals><goal>copy-dependencies</goal></goals>
+                        <goals><goal>shade</goal></goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <!-- 排除不需要的依赖（agent 轻量化） -->
-                            <excludeArtifactIds>
-                                utils-support-geoip2-starter,
-                                utils-support-datasearch-starter,
-                                utils-support-sqlite-starter,
-                                utils-support-native-sqlite,
-                                sqlite-jdbc,
-                                HikariCP,
-                                jsoup,
-                                r2dbc-spi,
-                                maxmind-db,
-                                geoip2,
-                                lombok
-                            </excludeArtifactIds>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <minimizeJar>false</minimizeJar>
+                            <!-- 父 pom 注入了平台公共 starter，shade 默认全量打包会让 agent 膨胀到 30MB，
+                                 每次升级都要重传整包。Agent 只用 oshi + jackson + jna，其余一律剔掉 -->
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>com.chua:utils-support-*</exclude>
+                                    <exclude>com.google.guava:*</exclude>
+                                    <exclude>com.google.errorprone:*</exclude>
+                                    <exclude>com.google.j2objc:*</exclude>
+                                    <exclude>org.checkerframework:*</exclude>
+                                    <exclude>com.github.jsqlparser:*</exclude>
+                                    <exclude>io.projectreactor:*</exclude>
+                                    <exclude>org.reactivestreams:*</exclude>
+                                    <exclude>org.jsoup:*</exclude>
+                                    <exclude>org.xerial:*</exclude>
+                                    <exclude>com.zaxxer:*</exclude>
+                                    <exclude>com.maxmind.geoip2:*</exclude>
+                                    <exclude>com.maxmind.db:*</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <!-- 不配 <transformers>：本机可用的 shade 版本解析它一律抛
+                                 「Cannot find 'resource' in ...ResourceTransformer」。
+                                 jackson 基础 ObjectMapper 不依赖 META-INF/services 发现，去掉不影响运行；
+                                 主类改由启动方以 `-cp agent.jar com.chua.agent.AgentMain` 显式指定 -->
                         </configuration>
                     </execution>
                 </executions>
