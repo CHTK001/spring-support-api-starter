@@ -15,13 +15,17 @@ import com.chua.starter.service.configuration.trace.RequestTraceStrategyConfig;
 public class MemoryRequestTraceBehaviorStorage implements RequestTraceBehaviorStorage {
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public String type() {
         return "memory";
     }
 
     @Override
-    /** 存储 */
+    /**
+     * 存储
+    */
     public void store(RequestTraceBehaviorRecord record, RequestTraceStrategyConfig config) {
     }
 }

@@ -24,7 +24,9 @@ import org.slf4j.MDC;
 @RequiredArgsConstructor
 public class OAuthTraceFilter implements Filter, Ordered {
 
-    /** 跟踪日志服务 */
+    /**
+     * 跟踪日志服务
+    */
     private final OAuthTraceLogService traceLogService;
 
     /**
@@ -186,7 +188,9 @@ public class OAuthTraceFilter implements Filter, Ordered {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 10;
     }

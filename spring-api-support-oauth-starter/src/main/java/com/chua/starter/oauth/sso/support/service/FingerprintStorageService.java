@@ -32,9 +32,13 @@ import java.util.stream.Collectors;
 @Service
 public class FingerprintStorageService {
 
-    /** Redis 键 前缀 - 按指纹查询 */
+    /**
+     * Redis 键 前缀 - 按指纹查询
+    */
     private static final String FP_CACHE_PREFIX = "oauth:fingerprint:";
-    /** Redis 键 前缀 - 按IP查询 */
+    /**
+     * Redis 键 前缀 - 按IP查询
+    */
     private static final String IP_CACHE_PREFIX = "oauth:ip:";
     /** 缓存过期时间（秒）*/
     private static final int CACHE_TTL_SECONDS = 86_400 * 30;

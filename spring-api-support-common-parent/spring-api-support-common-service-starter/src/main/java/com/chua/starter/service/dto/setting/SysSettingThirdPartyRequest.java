@@ -12,13 +12,19 @@ import lombok.Data;
 @AllArgsConstructor
 public class SysSettingThirdPartyRequest<T, StateCache> {
 
-    /** 请求 */
+    /**
+     * 请求
+    */
     private T request;
 
-    /** 状态缓存 */
+    /**
+     * 状态缓存
+    */
     private StateCache stateCache;
 
-    /** 状态 */
+    /**
+     * 状态
+    */
     private String state;
 
 }

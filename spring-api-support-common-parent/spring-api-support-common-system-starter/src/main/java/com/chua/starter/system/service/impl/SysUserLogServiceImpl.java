@@ -235,9 +235,13 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
         });
     }
 
-    /** 单次导出最大行数，避免超大结果集拖垮服务 */
+    /**
+     * 单次导出最大行数，避免超大结果集拖垮服务
+    */
     private static final long EXPORT_MAX_ROWS = 50000L;
-    /** CSV 导出时间格式化 */
+    /**
+     * CSV 导出时间格式化
+    */
     private static final DateTimeFormatter EXPORT_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override

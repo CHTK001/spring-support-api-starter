@@ -44,10 +44,14 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 @Tag(name = "选项")
 public class SpiOptionController {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(SpiOptionController.class);
 
-    /** API属性 */
+    /**
+     * API属性
+    */
     private final ApiProperties apiProperties;
 
     /**

@@ -36,7 +36,9 @@ public class SmsSetting implements Upgrade<SmsSetting> {
     private String appSign;
 
     @Override
-    /** Upgrade */
+    /**
+     * Upgrade
+    */
     public void upgrade(SmsSetting smsSetting) {
         this.appType = smsSetting.appType;
         this.appId = smsSetting.appId;

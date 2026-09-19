@@ -41,7 +41,9 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysRoleController {
 
-    /** sysrole服务 */
+    /**
+     * sysrole服务
+    */
     private final SysRoleService sysRoleService;
 
 

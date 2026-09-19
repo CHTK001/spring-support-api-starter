@@ -18,17 +18,27 @@ import org.springframework.context.ApplicationContext;
  */
 @Slf4j
 public final class UpgradeAuthorization implements Authorization {
-    /** 令牌 */
+    /**
+     * 令牌
+    */
     private final String token;
-    /** Cookie */
+    /**
+     * Cookie
+    */
     private final String cookie;
-    /** Refresh令牌 */
+    /**
+     * Refresh令牌
+    */
     private final String refreshToken;
-    /** Upgrade类型 */
+    /**
+     * Upgrade类型
+    */
     private final String upgradeType;
     final ApplicationContext applicationContext; // application上下文
     final LoginCheck loginCheck; // login检查
-    /** Authinformation */
+    /**
+     * Authinformation
+    */
     private final UpgradeAuthInformation authInformation;
 
     /**
@@ -58,7 +68,9 @@ public final class UpgradeAuthorization implements Authorization {
     }
 
     @Override
-    /** 认证 */
+    /**
+     * 认证
+    */
     public ReturnResult<String> authentication() {
         long startTime = System.currentTimeMillis();
         String tokenManagement = authInformation.getAuthServerProperties().getTokenManagement();

@@ -23,7 +23,9 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_setting")
 public class SysSetting extends SysBase implements Serializable {
-    /** 串行版本UID */
+    /**
+     * 串行版本UID
+    */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -32,7 +34,9 @@ public class SysSetting extends SysBase implements Serializable {
     @TableId(value = "sys_setting_id", type = IdType.AUTO)
     @Schema(description = "配置ID")
     @NotNull(message = "配置ID不能为空", groups = {UpdateGroup.class})
-    /** SYS设置标识 */
+    /**
+     * SYS设置标识
+    */
     private Integer sysSettingId;
 
     /**
@@ -42,7 +46,9 @@ public class SysSetting extends SysBase implements Serializable {
     @Schema(description = "配置名称")
     @Size(max = 255, message = "配置名称最大长度需小于255")
     @NotNull(message = "配置名称不能为空", groups = {AddGroup.class})
-    /** SYS设置名称 */
+    /**
+     * SYS设置名称
+    */
     private String sysSettingName;
 
     /**
@@ -51,7 +57,9 @@ public class SysSetting extends SysBase implements Serializable {
     @TableField(value = "sys_setting_code")
     @Schema(description = "配置编码")
     @Size(max = 255, message = "配置编码最大长度需小于255")
-    /** SYS设置代码 */
+    /**
+     * SYS设置代码
+    */
     private String sysSettingCode;
 
     /**
@@ -60,7 +68,9 @@ public class SysSetting extends SysBase implements Serializable {
     @TableField(value = "sys_setting_value")
     @Schema(description = "配置值")
     @Size(max = 255, message = "配置值最大长度需小于255")
-    /** SYS设置值 */
+    /**
+     * SYS设置值
+    */
     private String sysSettingValue;
 
     /**
@@ -69,7 +79,9 @@ public class SysSetting extends SysBase implements Serializable {
     @TableField(value = "sys_setting_config")
     @Schema(description = "配置参数")
     @Size(max = 255, message = "配置参数最大长度需小于255")
-    /** SYS设置配置 */
+    /**
+     * SYS设置配置
+    */
     private String sysSettingConfig;
 
     /**
@@ -78,7 +90,9 @@ public class SysSetting extends SysBase implements Serializable {
     @TableField(value = "sys_setting_remark")
     @Schema(description = "配置备注")
     @Size(max = 255, message = "配置备注最大长度需小于255")
-    /** SYS设置评论 */
+    /**
+     * SYS设置评论
+    */
     private String sysSettingRemark;
 
     /**
@@ -86,7 +100,9 @@ public class SysSetting extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_sort")
     @Schema(description = "排序优先级")
-    /** SYS设置排序 */
+    /**
+     * SYS设置排序
+    */
     private Integer sysSettingSort;
 
     /**
@@ -95,7 +111,9 @@ public class SysSetting extends SysBase implements Serializable {
     @TableField(value = "sys_setting_version")
     @Schema(description = "版本号")
     @Version
-    /** SYS设置版本 */
+    /**
+     * SYS设置版本
+    */
     private Integer sysSettingVersion;
 
     /**
@@ -103,7 +121,9 @@ public class SysSetting extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_status")
     @Schema(description = "是否启用: 0:不启用 1:启用")
-    /** SYS设置状态 */
+    /**
+     * SYS设置状态
+    */
     private Integer sysSettingStatus;
 
     /**
@@ -111,7 +131,9 @@ public class SysSetting extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_admin")
     @Schema(description = "是否仅管理员生效: 0:否 1:是")
-    /** SYS设置admin */
+    /**
+     * SYS设置admin
+    */
     private Integer sysSettingAdmin;
 
     /**
@@ -120,7 +142,9 @@ public class SysSetting extends SysBase implements Serializable {
     @TableField(value = "sys_setting_value_type")
     @Schema(description = "配置值类型(前端组件判断用): BOOL-布尔 TEXT-文本 等")
     @Size(max = 255, message = "配置值类型最大长度需小于255")
-    /** SYS设置值类型 */
+    /**
+     * SYS设置值类型
+    */
     private String sysSettingValueType;
 
     /**
@@ -130,7 +154,9 @@ public class SysSetting extends SysBase implements Serializable {
     @Schema(description = "配置所属分组")
     @Size(max = 255, message = "配置所属分组最大长度需小于255")
     @NotNull(message = "配置所属分组不能为空", groups = {AddGroup.class})
-    /** SYS设置分组 */
+    /**
+     * SYS设置分组
+    */
     private String sysSettingGroup;
 
     /**
@@ -138,7 +164,9 @@ public class SysSetting extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_collect")
     @Schema(description = "是否是配置集合: 0:单个 1:集合")
-    /** SYS设置collect */
+    /**
+     * SYS设置collect
+    */
     private Integer sysSettingCollect;
 
     /**
@@ -146,7 +174,9 @@ public class SysSetting extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_in_system")
     @Schema(description = "是否系统配置: 0:否 1:是")
-    /** SYS设置insystem */
+    /**
+     * SYS设置insystem
+    */
     private Integer sysSettingInSystem;
 
     /**
@@ -154,7 +184,9 @@ public class SysSetting extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_app_inner")
     @Schema(description = "是否作用于系统启动: 0:否 1:是")
-    /** SYS设置appinner */
+    /**
+     * SYS设置appinner
+    */
     private Integer sysSettingAppInner;
 
     /**
@@ -162,7 +194,9 @@ public class SysSetting extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_is_sensitive")
     @Schema(description = "是否敏感配置: 0:否 1:是")
-    /** SYS设置issensitive */
+    /**
+     * SYS设置issensitive
+    */
     private Integer sysSettingIsSensitive;
 
     /**
@@ -171,6 +205,8 @@ public class SysSetting extends SysBase implements Serializable {
     @TableField(value = "sys_setting_validate")
     @Schema(description = "校验规则(正则表达式，可为空)")
     @Size(max = 512, message = "校验规则最大长度需小于512")
-    /** SYS设置校验 */
+    /**
+     * SYS设置校验
+    */
     private String sysSettingValidate;
 }

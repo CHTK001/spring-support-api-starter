@@ -7,7 +7,9 @@ package com.chua.starter.geo.exception;
  * @since 1.0.0
  */
 public class GeoException extends RuntimeException {
-    /** 业务错误码 */
+    /**
+     * 业务错误码
+    */
     private final String code;
 
     /**

@@ -16,10 +16,14 @@ import java.util.Map;
 @Component
 public class GeoTileSources {
 
-    /** 天地图域名前缀常量 */
+    /**
+     * 天地图域名前缀常量
+    */
     private static final String TIANDITU_HOST = "tianditu";
 
-    /** 图源缓存，键 为图源 标识，值 为图源配置 */
+    /**
+     * 图源缓存，键 为图源 标识，值 为图源配置
+    */
     private final Map<String, TileSource> builtInSources = new LinkedHashMap<>();
 
     /**

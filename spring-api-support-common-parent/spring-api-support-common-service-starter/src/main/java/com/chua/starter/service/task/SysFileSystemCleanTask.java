@@ -35,18 +35,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysFileSystemCleanTask {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(SysFileSystemCleanTask.class);
 
-    /** SYS文件系统服务 */
+    /**
+     * SYS文件系统服务
+    */
     private final SysFileSystemService sysFileSystemService;
-    /** SYS文件systempart服务 */
+    /**
+     * SYS文件systempart服务
+    */
     private final SysFileSystemPartService sysFileSystemPartService;
-    /** SYS文件系统设置服务 */
+    /**
+     * SYS文件系统设置服务
+    */
     private final SysFileSystemSettingService sysFileSystemSettingService;
 
     @Scheduled(cron = "0 0 4 * * ?")
-    /** cleanexpired文件 */
+    /**
+     * cleanexpired文件
+    */
     public void cleanExpiredFiles() {
         log.info("开始执行过期文件清理定时任务");
         try {
@@ -92,7 +102,9 @@ public class SysFileSystemCleanTask {
     }
 
     @Scheduled(cron = "0 30 4 * * ?")
-    /** clean失败任务 */
+    /**
+     * clean失败任务
+    */
     public void cleanFailedTasks() {
         log.info("开始执行失败任务清理定时任务");
         try {
@@ -140,7 +152,9 @@ public class SysFileSystemCleanTask {
     }
 
     @Scheduled(cron = "0 0 5 * * ?")
-    /** cleanpending合并任务 */
+    /**
+     * cleanpending合并任务
+    */
     public void cleanPendingMergeTasks() {
         log.info("开始执行待合并超时任务清理");
         try {

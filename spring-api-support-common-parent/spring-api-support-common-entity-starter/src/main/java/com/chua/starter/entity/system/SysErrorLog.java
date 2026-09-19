@@ -29,7 +29,9 @@ public class SysErrorLog extends SysBase {
      */
     @TableId(value = "sys_error_log_id", type = IdType.AUTO)
     @Schema(description = "异常日志ID")
-    /** SYS错误日志标识 */
+    /**
+     * SYS错误日志标识
+    */
     private Long sysErrorLogId;
 
     /**
@@ -37,7 +39,9 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_key")
     @Schema(description = "去重指纹")
-    /** SYS错误密钥 */
+    /**
+     * SYS错误密钥
+    */
     private String sysErrorKey;
 
     /**
@@ -45,7 +49,9 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_source")
     @Schema(description = "异常来源")
-    /** SYS错误来源 */
+    /**
+     * SYS错误来源
+    */
     private String sysErrorSource;
 
     /**
@@ -53,7 +59,9 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_message")
     @Schema(description = "异常消息")
-    /** SYS错误消息 */
+    /**
+     * SYS错误消息
+    */
     private String sysErrorMessage;
 
     /**
@@ -61,7 +69,9 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_stack")
     @Schema(description = "异常堆栈")
-    /** SYS错误栈 */
+    /**
+     * SYS错误栈
+    */
     private String sysErrorStack;
 
     /**
@@ -69,7 +79,9 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_filename")
     @Schema(description = "出错文件URL")
-    /** SYS错误文件名 */
+    /**
+     * SYS错误文件名
+    */
     private String sysErrorFilename;
 
     /**
@@ -77,7 +89,9 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_lineno")
     @Schema(description = "出错行号")
-    /** SYS错误lineno */
+    /**
+     * SYS错误lineno
+    */
     private Integer sysErrorLineno;
 
     /**
@@ -85,7 +99,9 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_colno")
     @Schema(description = "出错列号")
-    /** SYS错误colno */
+    /**
+     * SYS错误colno
+    */
     private Integer sysErrorColno;
 
     /**
@@ -93,7 +109,9 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_resource_url")
     @Schema(description = "资源加载失败的目标URL")
-    /** SYS错误resourceurl */
+    /**
+     * SYS错误resourceurl
+    */
     private String sysErrorResourceUrl;
 
     /**
@@ -101,7 +119,9 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_tag_name")
     @Schema(description = "资源元素标签")
-    /** SYS错误标签名称 */
+    /**
+     * SYS错误标签名称
+    */
     private String sysErrorTagName;
 
     /**
@@ -109,7 +129,9 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_first_at")
     @Schema(description = "首次发生时间(毫秒时间戳)")
-    /** SYS错误首个AT */
+    /**
+     * SYS错误首个AT
+    */
     private Long sysErrorFirstAt;
 
     /**
@@ -117,7 +139,9 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_count")
     @Schema(description = "去重窗口内累计发生次数")
-    /** SYS错误数量 */
+    /**
+     * SYS错误数量
+    */
     private Integer sysErrorCount;
 
     /**
@@ -125,7 +149,9 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_report_time")
     @Schema(description = "客户端上报时间(毫秒时间戳)")
-    /** SYS错误report时间 */
+    /**
+     * SYS错误report时间
+    */
     private Long sysErrorReportTime;
 
     /**
@@ -133,6 +159,8 @@ public class SysErrorLog extends SysBase {
      */
     @TableField(value = "sys_error_status")
     @Schema(description = "处理状态: 0-未处理 1-已处理 2-已忽略")
-    /** SYS错误状态 */
+    /**
+     * SYS错误状态
+    */
     private Integer sysErrorStatus = 0;
 }

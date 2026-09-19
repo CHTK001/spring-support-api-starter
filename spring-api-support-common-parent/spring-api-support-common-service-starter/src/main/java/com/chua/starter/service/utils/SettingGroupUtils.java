@@ -18,7 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SettingGroupUtils {
 
-    /** SYS设置分组服务 */
+    /**
+     * SYS设置分组服务
+    */
     private final SysSettingGroupService sysSettingGroupService;
 
     /**

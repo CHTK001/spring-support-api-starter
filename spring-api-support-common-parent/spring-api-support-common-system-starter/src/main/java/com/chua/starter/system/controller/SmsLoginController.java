@@ -35,7 +35,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SmsLoginController {
 
-    /** SMS代码服务 */
+    /**
+     * SMS代码服务
+    */
     private final SmsCodeService smsCodeService;
 
     /**

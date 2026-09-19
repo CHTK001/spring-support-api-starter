@@ -11,7 +11,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = FileSystemProperties.PRE, ignoreInvalidFields = true)
 public class FileSystemProperties {
 
-    /** PRE */
+    /**
+     * PRE
+    */
     public static final String PRE = "plugin.filesystem";
 
     /**

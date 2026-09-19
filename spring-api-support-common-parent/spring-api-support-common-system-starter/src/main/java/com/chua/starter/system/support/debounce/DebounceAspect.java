@@ -33,7 +33,9 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class DebounceAspect {
 
-    /** Redis key 前缀 */
+    /**
+     * Redis key 前缀
+    */
     private static final String DEBOUNCE_PREFIX = "debounce:";
 
     private final StringRedisTemplate stringRedisTemplate;

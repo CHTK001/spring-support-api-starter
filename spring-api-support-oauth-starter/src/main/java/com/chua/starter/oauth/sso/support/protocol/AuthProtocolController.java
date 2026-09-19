@@ -39,11 +39,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthProtocolController {
 
-    /** 认证服务器属性 */
+    /**
+     * 认证服务器属性
+    */
     private final AuthServerProperties authServerProperties;
-    /** Application上下文 */
+    /**
+     * Application上下文
+    */
     private final ApplicationContext applicationContext;
-    /** Logincheck */
+    /**
+     * Logincheck
+    */
     private final LoginCheck loginCheck;
 
     /**

@@ -19,34 +19,44 @@ public class LoginResult {
      * 访问令牌
      */
     @Schema(description = "访问token")
-    /** Access令牌 */
+    /**
+     * Access令牌
+    */
     private String accessToken;
 
     /**
      * 令牌 类型
      */
     @Schema(description = "token 类型", example = "Bearer")
-    /** 令牌类型 */
+    /**
+     * 令牌类型
+    */
     private String tokenType;
 
     /**
      * 刷新令牌
      */
     @Schema(description = "刷新token")
-    /** Refresh令牌 */
+    /**
+     * Refresh令牌
+    */
     private String refreshToken;
 
     /**
      * 用户信息
      */
     @Schema(description = "用户信息")
-    /** 用户信息 */
+    /**
+     * 用户信息
+    */
     private UserInfoVO userInfo;
 
     /**
      * 过期时间(单位：毫秒)
      */
     @Schema(description = "过期时间(单位：毫秒)")
-    /** Expires */
+    /**
+     * Expires
+    */
     private Long expires;
 }

@@ -31,7 +31,9 @@ import java.util.Map;
 @Slf4j
 public class Tiles3dController {
 
-    /** 3D 瓷砖 下载服务 */
+    /**
+     * 3D 瓷砖 下载服务
+    */
     private final Tiles3dService tiles3dService;
 
     /**

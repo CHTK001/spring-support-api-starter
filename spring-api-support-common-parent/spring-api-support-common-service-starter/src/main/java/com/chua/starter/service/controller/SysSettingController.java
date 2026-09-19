@@ -48,16 +48,26 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 @RequestMapping("/v2/setting")
 @RequiredArgsConstructor
 public class SysSettingController {
-    /** Setting_列表_缓存_键_前缀 */
+    /**
+     * Setting_列表_缓存_键_前缀
+    */
     public static final String SETTING_LIST_CACHE_KEY_PREFIX = "sys:setting:v2:";
-    /** Runtime_公共_codec_请求_键 */
+    /**
+     * Runtime_公共_codec_请求_键
+    */
     private static final String RUNTIME_PUBLIC_CODEC_REQUEST_KEY = "CodecRequestKey";
-    /** Admin */
+    /**
+     * Admin
+    */
     private static final String ADMIN = "ADMIN";
 
-    /** SYS设置服务 */
+    /**
+     * SYS设置服务
+    */
     private final SysSettingService sysSettingService;
-    /** SYS设置历史服务 */
+    /**
+     * SYS设置历史服务
+    */
     private final SysSettingHistoryService sysSettingHistoryService;
 
 

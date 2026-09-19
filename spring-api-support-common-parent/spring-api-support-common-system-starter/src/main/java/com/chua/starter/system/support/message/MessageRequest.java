@@ -14,21 +14,33 @@ import lombok.Data;
 @Builder
 public class MessageRequest {
 
-    /** 接收方（手机号/邮箱等） */
+    /**
+     * 接收方（手机号/邮箱等）
+    */
     private String to;
 
-    /** 消息内容 */
+    /**
+     * 消息内容
+    */
     private String content;
 
-    /** 消息模板ID（可选） */
+    /**
+     * 消息模板ID（可选）
+    */
     private String templateId;
 
-    /** 模板参数（JSON 字符串，可选） */
+    /**
+     * 模板参数（JSON 字符串，可选）
+    */
     private String templateParams;
 
-    /** 签名（可选） */
+    /**
+     * 签名（可选）
+    */
     private String sign;
 
-    /** 扩展字段 */
+    /**
+     * 扩展字段
+    */
     private String ext;
 }

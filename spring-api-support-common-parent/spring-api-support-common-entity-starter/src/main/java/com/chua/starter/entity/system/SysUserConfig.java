@@ -33,7 +33,9 @@ public class SysUserConfig extends SysBase implements Serializable {
     @TableId(value = "sys_user_config_id", type = IdType.AUTO)
     @Schema(description = "配置ID")
     @NotNull(message = "配置ID不能为空")
-    /** SYS用户配置标识 */
+    /**
+     * SYS用户配置标识
+    */
     private Integer sysUserConfigId;
 
     /**
@@ -42,7 +44,9 @@ public class SysUserConfig extends SysBase implements Serializable {
     @TableField(value = "sys_user_config_wx_openid")
     @Schema(description = "微信OpenID")
     @Size(max = 255, message = "微信OpenID最大长度需小于255")
-    /** SYS用户配置wxopenid */
+    /**
+     * SYS用户配置wxopenid
+    */
     private String sysUserConfigWxOpenid;
 
     /**
@@ -51,6 +55,8 @@ public class SysUserConfig extends SysBase implements Serializable {
     @TableField(value = "sys_user_config_wx_unionid")
     @Schema(description = "微信UnionID")
     @Size(max = 255, message = "微信UnionID最大长度需小于255")
-    /** SYS用户配置wxunionid */
+    /**
+     * SYS用户配置wxunionid
+    */
     private String sysUserConfigWxUnionid;
 }

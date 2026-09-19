@@ -27,11 +27,15 @@ import java.util.List;
 @Slf4j
 public class WaybackServiceImpl implements WaybackService {
 
-    /** Wayback 配置 API 地址 */
+    /**
+     * Wayback 配置 API 地址
+    */
     private static final String WAYBACK_CONFIG_URL =
             "https://s3-us-west-2.amazonaws.com/config.maptiles.arcgis.com/waybackconfig.json";
 
-    /** JSON 解析器 */
+    /**
+     * JSON 解析器
+    */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**

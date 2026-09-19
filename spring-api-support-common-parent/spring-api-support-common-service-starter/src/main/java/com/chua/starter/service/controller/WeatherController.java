@@ -33,9 +33,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class WeatherController {
 
-    /** Wttr_基础 */
+    /**
+     * Wttr_基础
+    */
     private static final String WTTR_BASE = "https://wttr.in/";
-    /** 缓存_ttl_ms */
+    /**
+     * 缓存_ttl_ms
+    */
     private static final long CACHE_TTL_MS = 10L * 60 * 1000;
 
     private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>(); // 缓存

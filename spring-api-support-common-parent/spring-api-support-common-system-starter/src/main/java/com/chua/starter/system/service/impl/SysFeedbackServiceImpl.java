@@ -67,7 +67,9 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
      * 套接字 会话操作模板（未接入 套接字 时为 空，不影响反馈处理主流程）
      */
     @Autowired(required = false)
-    /** 套接字会话模板 */
+    /**
+     * 套接字会话模板
+    */
     private SocketSessionTemplate socketSessionTemplate;
 
     /**
@@ -81,7 +83,9 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     }
 
     @Override
-    /** pagefor */
+    /**
+     * pagefor
+    */
     public ReturnPageResult<SysFeedback> pageFor(FeedbackV1Request feedbackV1Request) {
         FeedbackV1Request request =
                 feedbackV1Request == null ? new FeedbackV1Request() : feedbackV1Request;
@@ -167,7 +171,9 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     }
 
     @Override
-    /** Statistic */
+    /**
+     * Statistic
+    */
     public ReturnResult<FeedbackStatisticV1Response> statistic() {
         log.debug("开始获取反馈统计数据");
         FeedbackStatisticV1Response response = new FeedbackStatisticV1Response();

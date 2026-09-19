@@ -23,7 +23,9 @@ import java.util.Map;
 @Slf4j
 public class SettingsController {
 
-    /** Geo 配置属性 */
+    /**
+     * Geo 配置属性
+    */
     private final GeoProperties geoProperties;
 
     /**

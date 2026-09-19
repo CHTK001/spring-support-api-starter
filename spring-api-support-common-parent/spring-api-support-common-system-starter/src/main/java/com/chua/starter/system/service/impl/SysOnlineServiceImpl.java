@@ -37,14 +37,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SysOnlineServiceImpl implements SysOnlineService {
 
-    /** SYS用户 Mapper(用于按部门/角色过滤在线用户) */
+    /**
+     * SYS用户 Mapper(用于按部门/角色过滤在线用户)
+    */
     private final SysUserMapper sysUserMapper;
 
-    /** SYS用户角色 Mapper */
+    /**
+     * SYS用户角色 Mapper
+    */
     private final SysUserRoleMapper sysUserRoleMapper;
 
     @Override
-    /** 获取online用户 */
+    /**
+     * 获取online用户
+    */
     public List<OnlineUserVO> getOnlineUsers(String username, String ip, String roleCode, Integer deptId) {
         List<OnlineUserVO> onlineUsers = new ArrayList<>();
 
@@ -133,7 +139,9 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     @Override
-    /** 获取Online计算数量 */
+    /**
+     * 获取Online计算数量
+    */
     public Integer getOnlineCount() {
         try {
             // 通过OAuth客户端获取在线用户数量
@@ -147,7 +155,9 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     @Override
-    /** kick用户 */
+    /**
+     * kick用户
+    */
     public ReturnResult<Boolean> kickUser(String userId) {
         try {
             // 通过OAuth客户端强制下线用户
@@ -164,7 +174,9 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     @Override
-    /** kick用户 */
+    /**
+     * kick用户
+    */
     public ReturnResult<Integer> kickUsers(List<String> userIds) {
         if (userIds == null || userIds.isEmpty()) {
             return ReturnResult.ok(0);

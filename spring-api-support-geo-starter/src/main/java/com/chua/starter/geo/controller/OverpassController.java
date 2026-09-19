@@ -25,7 +25,9 @@ import java.util.Map;
 @Slf4j
 public class OverpassController {
 
-    /** Overpass 查询服务 */
+    /**
+     * Overpass 查询服务
+    */
     private final OverpassService overpassService;
 
     /**

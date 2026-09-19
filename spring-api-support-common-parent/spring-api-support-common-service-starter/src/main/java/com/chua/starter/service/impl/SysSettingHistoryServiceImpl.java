@@ -33,33 +33,49 @@ import java.util.UUID;
 public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryMapper, SysSettingHistory>
         implements SysSettingHistoryService {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(SysSettingHistoryServiceImpl.class);
 
     @Autowired
-    /** SYS设置映射器 */
+    /**
+     * SYS设置映射器
+    */
     private SysSettingMapper sysSettingMapper;
 
     @Autowired
     @Lazy
-    /** SYS设置服务 */
+    /**
+     * SYS设置服务
+    */
     private SysSettingService sysSettingService;
 
     /**
      * 操作类型常量
      */
     private static final String OP_CREATE = "CREATE";
-    /** Op_更新 */
+    /**
+     * Op_更新
+    */
     private static final String OP_UPDATE = "UPDATE";
-    /** Op_删除 */
+    /**
+     * Op_删除
+    */
     private static final String OP_DELETE = "DELETE";
-    /** Op_导入 */
+    /**
+     * Op_导入
+    */
     private static final String OP_IMPORT = "IMPORT";
-    /** Op_rollback */
+    /**
+     * Op_rollback
+    */
     private static final String OP_ROLLBACK = "ROLLBACK";
 
     @Override
-    /** Record创建 */
+    /**
+     * Record创建
+    */
     public void recordCreate(SysSetting sysSetting, String operatorId, String operatorName, String batchNo) {
         SysSettingHistory history = new SysSettingHistory();
         history.setSysSettingId(sysSetting.getSysSettingId());
@@ -77,7 +93,9 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     @Override
-    /** Record更新 */
+    /**
+     * Record更新
+    */
     public void recordUpdate(SysSetting oldSetting, SysSetting newSetting, String operatorId, String operatorName, String batchNo) {
         // 只有值变化时才记录
         if (StringUtils.equals(oldSetting.getSysSettingValue(), newSetting.getSysSettingValue())) {
@@ -102,7 +120,9 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     @Override
-    /** Record删除 */
+    /**
+     * Record删除
+    */
     public void recordDelete(SysSetting sysSetting, String operatorId, String operatorName, String batchNo) {
         SysSettingHistory history = new SysSettingHistory();
         history.setSysSettingId(sysSetting.getSysSettingId());
@@ -120,7 +140,9 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     @Override
-    /** record导入 */
+    /**
+     * record导入
+    */
     public void recordImport(List<SysSetting> settings, String operatorId, String operatorName, String batchNo) {
         for (SysSetting setting : settings) {
             SysSettingHistory history = new SysSettingHistory();
@@ -140,7 +162,9 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     @Override
-    /** record导入更新 */
+    /**
+     * record导入更新
+    */
     public void recordImportUpdate(SysSetting oldSetting, SysSetting newSetting, String operatorId, String operatorName, String batchNo) {
         SysSettingHistory history = new SysSettingHistory();
         history.setSysSettingId(newSetting.getSysSettingId());
@@ -160,7 +184,9 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     @Override
-    /** page历史 */
+    /**
+     * page历史
+    */
     public IPage<SysSettingHistory> pageHistory(Query<SysSettingHistory> query, Integer settingId, String group) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysSettingHistory>lambdaQuery()
                 .eq(settingId != null, SysSettingHistory::getSysSettingId, settingId)
@@ -170,7 +196,9 @@ public class SysSettingHistoryServiceImpl extends ServiceImpl<SysSettingHistoryM
     }
 
     @Override
-    /** 列表bybatchno */
+    /**
+     * 列表bybatchno
+    */
     public List<SysSettingHistory> listByBatchNo(String batchNo) {
         return baseMapper.selectList(Wrappers.<SysSettingHistory>lambdaQuery()
                 .eq(SysSettingHistory::getSysSettingBatchNo, batchNo)

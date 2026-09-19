@@ -29,7 +29,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OauthSessionFixationFilter implements Filter, Ordered {
 
-    /** 安全性属性 */
+    /**
+     * 安全性属性
+    */
     private final OauthSecurityProperties securityProperties;
 
     @Override
@@ -95,7 +97,9 @@ public class OauthSessionFixationFilter implements Filter, Ordered {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 20;
     }

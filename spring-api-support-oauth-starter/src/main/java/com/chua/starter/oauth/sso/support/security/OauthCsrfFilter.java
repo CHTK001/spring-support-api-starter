@@ -35,12 +35,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OauthCsrfFilter implements Filter, Ordered {
 
-    /** CSRF_前缀 */
+    /**
+     * CSRF_前缀
+    */
     private static final String CSRF_PREFIX = "oauth:security:csrf:";
 
-    /** 安全性属性 */
+    /**
+     * 安全性属性
+    */
     private final OauthSecurityProperties securityProperties;
-    /** 字符串Redis模板 */
+    /**
+     * 字符串Redis模板
+    */
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
@@ -240,7 +246,9 @@ public class OauthCsrfFilter implements Filter, Ordered {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 15;
     }

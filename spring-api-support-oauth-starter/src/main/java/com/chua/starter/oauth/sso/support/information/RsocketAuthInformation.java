@@ -31,11 +31,15 @@ public class RsocketAuthInformation {
      * @since 4.0.0
      */
     public static class RsocketRequest implements HttpServletRequest {
-        /** 客户端地址 */
+        /**
+         * 客户端地址
+        */
         private final InetSocketAddress clientAddress;
         private final Map<String, String> headers = new ConcurrentHashMap<>(); // 头部
         private final Map<String, Object> attributes = new ConcurrentHashMap<>(); // attributes
-        /** 请求体 */
+        /**
+         * 请求体
+        */
         private String body;
 
         /**
@@ -75,43 +79,57 @@ public class RsocketAuthInformation {
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
         @Override
-        /** 获取远程addr */
+        /**
+         * 获取远程addr
+        */
         public String getRemoteAddr() {
             return clientAddress != null ? clientAddress.getAddress().getHostAddress() : "unknown";
         }
 
         @Override
-        /** 获取远程端口 */
+        /**
+         * 获取远程端口
+        */
         public int getRemotePort() {
             return clientAddress != null ? clientAddress.getPort() : 0;
         }
 
         @Override
-        /** 获取Attribute */
+        /**
+         * 获取Attribute
+        */
         public Object getAttribute(String name) {
             return attributes.get(name);
         }
 
         @Override
-        /** 设置Attribute */
+        /**
+         * 设置Attribute
+        */
         public void setAttribute(String name, Object value) {
             attributes.put(name, value);
         }
 
         @Override
-        /** 获取头部名称 */
+        /**
+         * 获取头部名称
+        */
         public Enumeration<String> getHeaderNames() {
             return Collections.enumeration(headers.keySet());
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public Enumeration<String> getHeaders(String name) {
             String value = headers.get(name);
             return value != null ? Collections.enumeration(Collections.singletonList(value)) : Collections.emptyEnumeration();
@@ -191,38 +209,52 @@ public class RsocketAuthInformation {
      */
     public static class RsocketResponse implements HttpServletResponse {
         private final Map<String, String> headers = new ConcurrentHashMap<>(); // 头部
-        /** 状态 */
+        /**
+         * 状态
+        */
         private int status = 200;
-        /** 请求体 */
+        /**
+         * 请求体
+        */
         private String body;
 
         @Override
-        /** 设置头部 */
+        /**
+         * 设置头部
+        */
         public void setHeader(String name, String value) {
             headers.put(name, value);
         }
 
         @Override
-        /** 添加头部 */
+        /**
+         * 添加头部
+        */
         public void addHeader(String name, String value) {
             headers.put(name, value);
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public String getHeader(String name) {
             return headers.get(name);
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public Collection<String> getHeaders(String name) {
             String value = headers.get(name);
             return value != null ? Collections.singletonList(value) : Collections.emptyList();
         }
 
         @Override
-        /** 获取头部名称 */
+        /**
+         * 获取头部名称
+        */
         public Collection<String> getHeaderNames() {
             return headers.keySet();
         }
@@ -255,13 +287,17 @@ public class RsocketAuthInformation {
         }
 
         @Override
-        /** 设置状态 */
+        /**
+         * 设置状态
+        */
         public void setStatus(int sc) {
             this.status = sc;
         }
 
         @Override
-        /** 获取状态 */
+        /**
+         * 获取状态
+        */
         public int getStatus() {
             return status;
         }

@@ -13,7 +13,9 @@ import net.sf.jsqlparser.expression.StringValue;
  */
 public class TenantLineHandlerImpl implements TenantLineHandler {
 
-    /** Tenant属性 */
+    /**
+     * Tenant属性
+    */
     private final TenantProperties tenantProperties;
     
     /**
@@ -63,7 +65,9 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
     }
 
     @Override
-    /** 获取tenantid */
+    /**
+     * 获取tenantid
+    */
     public Expression getTenantId() {
         String tenantId = CURRENT_TENANT_ID.get();
         if (tenantId == null && clientMode) {
@@ -77,13 +81,17 @@ public class TenantLineHandlerImpl implements TenantLineHandler {
     }
 
     @Override
-    /** 获取tenantidcolumn */
+    /**
+     * 获取tenantidcolumn
+    */
     public String getTenantIdColumn() {
         return tenantProperties.getEffectiveTenantIdColumn();
     }
 
     @Override
-    /** ignoretable */
+    /**
+     * ignoretable
+    */
     public boolean ignoreTable(String tableName) {
         return tenantProperties.getEffectiveIgnoreTable().contains(tableName);
     }

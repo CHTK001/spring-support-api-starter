@@ -30,7 +30,9 @@ public class SysProject extends SysBase {
     @TableId(value = "sys_project_id", type = IdType.AUTO)
     @Schema(description = "")
     @NotNull(message = "id不能为空", groups = {UpdateGroup.class})
-    /** sysprojectid */
+    /**
+     * sysprojectid
+    */
     private Integer sysProjectId;
 
     /**
@@ -39,7 +41,9 @@ public class SysProject extends SysBase {
     @TableField(value = "sys_project_name")
     @Schema(description = "项目名称")
     @NotBlank(message = "名称不能为空", groups = {AddGroup.class})
-    /** sysproject名称 */
+    /**
+     * sysproject名称
+    */
     private String sysProjectName;
 
     /**
@@ -47,7 +51,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_icon")
     @Schema(description="图标")
-    /** sysprojecticon */
+    /**
+     * sysprojecticon
+    */
     private String sysProjectIcon;
 
     /**
@@ -55,7 +61,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_group")
     @Schema(description="分组")
-    /** sysproject分组 */
+    /**
+     * sysproject分组
+    */
     private String sysProjectGroup;
 
     /**
@@ -63,7 +71,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_code")
     @Schema(description="编码, 可自行作为唯一标识")
-    /** sysproject代码 */
+    /**
+     * sysproject代码
+    */
     private String sysProjectCode;
 
     /**
@@ -71,7 +81,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_app_id")
     @Schema(description="appid")
-    /** sysprojectappid */
+    /**
+     * sysprojectappid
+    */
     private String sysProjectAppId;
 
     /**
@@ -79,7 +91,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_app_secret")
     @Schema(description="appsecret")
-    /** sysprojectappsecret */
+    /**
+     * sysprojectappsecret
+    */
     private String sysProjectAppSecret;
 
     /**
@@ -87,14 +101,18 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_sign")
     @Schema(description = "签名/项目标识")
-    /** sysprojectsign */
+    /**
+     * sysprojectsign
+    */
     private String sysProjectSign;
     /**
      * 密钥
      */
     @TableField(value = "sys_project_app_key")
     @Schema(description = "密钥")
-    /** sysprojectapp密钥 */
+    /**
+     * sysprojectapp密钥
+    */
     private String sysProjectAppKey;
 
     /**
@@ -102,7 +120,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_sign_code")
     @Schema(description = "签名编码/项目标识编码")
-    /** sysprojectsign代码 */
+    /**
+     * sysprojectsign代码
+    */
     private String sysProjectSignCode;
 
     /**
@@ -110,7 +130,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_delete")
     @Schema(description="是否删除0:未删除")
-    /** sysprojectdelete */
+    /**
+     * sysprojectdelete
+    */
     private Integer sysProjectDelete;
 
     /**
@@ -118,7 +140,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_status")
     @Schema(description="是否启用0:未启用")
-    /** sysproject状态 */
+    /**
+     * sysproject状态
+    */
     private Integer sysProjectStatus;
 
     /**
@@ -126,7 +150,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_cdn")
     @Schema(description="cdn")
-    /** sysprojectcdn */
+    /**
+     * sysprojectcdn
+    */
     private String sysProjectCdn;
 
     /**
@@ -134,14 +160,18 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_endpoint")
     @Schema(description="端点")
-    /** sysprojectendpoint */
+    /**
+     * sysprojectendpoint
+    */
     private String sysProjectEndpoint;
     /**
      * 本地路径
      */
     @TableField(value = "sys_project_local_path")
     @Schema(description = "本地路径")
-    /** sysproject本地路径 */
+    /**
+     * sysproject本地路径
+    */
     private String sysProjectLocalPath;
 
     /**
@@ -149,21 +179,27 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_api_address")
     @Schema(description="api地址")
-    /** sysprojectapi地址 */
+    /**
+     * sysprojectapi地址
+    */
     private String sysProjectApiAddress;
     /**
      * 临时文件路径
      */
     @TableField(value = "sys_project_location_temp_path")
     @Schema(description = "临时文件路径")
-    /** sysprojectlocationtemp路径 */
+    /**
+     * sysprojectlocationtemp路径
+    */
     private String sysProjectLocationTempPath;
     /**
      * 对象存储地址
      */
     @TableField(value = "sys_project_location_oss_address")
     @Schema(description = "oss地址")
-    /** sysprojectlocationoss地址 */
+    /**
+     * sysprojectlocationoss地址
+    */
     private String sysProjectLocationOssAddress;
 
     /**
@@ -171,14 +207,18 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_vender")
     @Schema(description="厂家编码(前端固定值)")
-    /** sysprojectvender */
+    /**
+     * sysprojectvender
+    */
     private String sysProjectVender;
     /**
      * 排序
      */
     @TableField(value = "sys_project_sort")
     @Schema(description = "排序")
-    /** sysprojectsort */
+    /**
+     * sysprojectsort
+    */
     private Integer sysProjectSort;
 
     /**
@@ -186,7 +226,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_remark")
     @Schema(description="描述")
-    /** sysprojectremark */
+    /**
+     * sysprojectremark
+    */
     private String sysProjectRemark;
 
     /**
@@ -194,7 +236,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_function")
     @Schema(description="功能; 前端固定值")
-    /** sysprojectfunction */
+    /**
+     * sysprojectfunction
+    */
     private String sysProjectFunction;
 
     /**
@@ -202,7 +246,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_smtp_host")
     @Schema(description="smtp主机")
-    /** sysprojectsmtp主机 */
+    /**
+     * sysprojectsmtp主机
+    */
     private String sysProjectSmtpHost;
 
     /**
@@ -210,7 +256,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_smtp_port")
     @Schema(description="smtp端口")
-    /** sysprojectsmtp端口 */
+    /**
+     * sysprojectsmtp端口
+    */
     private Integer sysProjectSmtpPort;
 
     /**
@@ -218,7 +266,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_smtp_password")
     @Schema(description="smtp密码")
-    /** sysprojectsmtp密码 */
+    /**
+     * sysprojectsmtp密码
+    */
     private String sysProjectSmtpPassword;
 
     /**
@@ -226,7 +276,9 @@ public class SysProject extends SysBase {
      */
     @TableField(value = "sys_project_smtp_from")
     @Schema(description="smtp主题账号")
-    /** sysprojectsmtpfrom */
+    /**
+     * sysprojectsmtpfrom
+    */
     private String sysProjectSmtpFrom;
 
     /**
@@ -234,14 +286,18 @@ public class SysProject extends SysBase {
      */
     @TableField(exist = false)
     @Schema(description = "默认功能")
-    /** sysprojectfunction默认标签 */
+    /**
+     * sysprojectfunction默认标签
+    */
     private String sysProjectFunctionDefaultLabel;
     /**
      * 默认功能
      */
     @TableField(exist = false)
     @Schema(description = "默认功能")
-    /** sysprojectfunction默认标识 */
+    /**
+     * sysprojectfunction默认标识
+    */
     private String sysProjectFunctionDefaultIds;
 
     /**
@@ -249,6 +305,8 @@ public class SysProject extends SysBase {
      */
     @TableField(exist = false)
     @Schema(description = "是否默认")
-    /** sysprojectfunction默认 */
+    /**
+     * sysprojectfunction默认
+    */
     private Integer sysProjectFunctionDefault;
 }

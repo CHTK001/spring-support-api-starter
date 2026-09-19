@@ -18,7 +18,9 @@ import java.util.UUID;
 @Getter
 public class ServerTraceContext {
 
-    /** 上下文_holder */
+    /**
+     * 上下文_holder
+    */
     private static final ThreadLocal<ServerTraceContext> CONTEXT_HOLDER = new ThreadLocal<>();
 
     /**
@@ -190,13 +192,21 @@ public class ServerTraceContext {
      */
     @Getter
     public static class TraceSpan {
-        /** Span名称 */
+        /**
+         * Span名称
+        */
         private final String spanName;
-        /** 开始时间 */
+        /**
+         * 开始时间
+        */
         private final long startTime;
-        /** 结束时间 */
+        /**
+         * 结束时间
+        */
         private long endTime;
-        /** costms */
+        /**
+         * costms
+        */
         private long costMs;
 
         /**
@@ -208,7 +218,9 @@ public class ServerTraceContext {
             this.startTime = System.currentTimeMillis();
         }
 
-        /** 结束 */
+        /**
+         * 结束
+        */
         public void end() {
             this.endTime = System.currentTimeMillis();
             this.costMs = endTime - startTime;

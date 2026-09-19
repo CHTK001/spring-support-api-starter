@@ -43,7 +43,9 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysUserLogController {
 
-    /** SYS用户日志服务 */
+    /**
+     * SYS用户日志服务
+    */
     private final SysUserLogService sysUserLogService;
     /**
      * 操作日志分页列表

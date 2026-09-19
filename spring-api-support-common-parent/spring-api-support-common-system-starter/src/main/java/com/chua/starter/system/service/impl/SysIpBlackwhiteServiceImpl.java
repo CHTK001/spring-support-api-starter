@@ -28,15 +28,23 @@ import java.util.List;
 public class SysIpBlackwhiteServiceImpl extends ServiceImpl<SysIpBlackwhiteMapper, SysIpBlackwhite>
         implements SysIpBlackwhiteService {
 
-    /** 类型: 白名单 */
+    /**
+     * 类型: 白名单
+    */
     private static final int TYPE_WHITE = 0;
-    /** 类型: 黑名单 */
+    /**
+     * 类型: 黑名单
+    */
     private static final int TYPE_BLACK = 1;
-    /** 状态: 启用 */
+    /**
+     * 状态: 启用
+    */
     private static final int STATUS_ENABLED = 0;
 
     @Override
-    /** 分页 */
+    /**
+     * 分页
+    */
     public IPage<SysIpBlackwhite> page(Query<SysIpBlackwhite> query, SysIpBlackwhite entity) {
         return page(query.createPage(), Wrappers.<SysIpBlackwhite>lambdaQuery()
                 .eq(null != entity.getSysIpType(), SysIpBlackwhite::getSysIpType, entity.getSysIpType())
@@ -47,7 +55,9 @@ public class SysIpBlackwhiteServiceImpl extends ServiceImpl<SysIpBlackwhiteMappe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 保存 */
+    /**
+     * 保存
+    */
     public ReturnResult<SysIpBlackwhite> saveIp(SysIpBlackwhite entity) {
         if (null == entity.getSysIpStatus()) {
             entity.setSysIpStatus(STATUS_ENABLED);
@@ -58,7 +68,9 @@ public class SysIpBlackwhiteServiceImpl extends ServiceImpl<SysIpBlackwhiteMappe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 更新 */
+    /**
+     * 更新
+    */
     public ReturnResult<Boolean> updateIp(SysIpBlackwhite entity) {
         if (null == entity.getSysIpId()) {
             return ReturnResult.illegal("记录不存在");
@@ -68,7 +80,9 @@ public class SysIpBlackwhiteServiceImpl extends ServiceImpl<SysIpBlackwhiteMappe
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 删除 */
+    /**
+     * 删除
+    */
     public ReturnResult<Boolean> deleteIp(Integer ipId) {
         if (null == ipId) {
             return ReturnResult.illegal("记录不存在");
@@ -77,7 +91,9 @@ public class SysIpBlackwhiteServiceImpl extends ServiceImpl<SysIpBlackwhiteMappe
     }
 
     @Override
-    /** 校验IP */
+    /**
+     * 校验IP
+    */
     public boolean checkIp(String ip) {
         if (StringUtils.isBlank(ip)) {
             return true;

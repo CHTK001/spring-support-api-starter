@@ -29,7 +29,9 @@ import java.util.Map;
 @Slf4j
 public class DemController {
 
-    /** DEM 下载服务 */
+    /**
+     * DEM 下载服务
+    */
     private final DemDownloadService demDownloadService;
 
     /**
@@ -100,11 +102,17 @@ public class DemController {
      * DEM 估算请求体。
      */
     public record DemEstimateRequest(
-            /** 地理边界 */
+            /**
+             * 地理边界
+            */
             @NotNull Bounds bounds,
-            /** 缩放级别 */
+            /**
+             * 缩放级别
+            */
             @NotNull @Min(1) Integer zoom,
-            /** DEM 数据源 标识 */
+            /**
+             * DEM 数据源 标识
+            */
             @NotNull String source
     ) {}
 
@@ -112,17 +120,29 @@ public class DemController {
      * DEM 下载请求体。
      */
     public record DemDownloadRequest(
-            /** 地理边界 */
+            /**
+             * 地理边界
+            */
             @NotNull Bounds bounds,
-            /** 缩放级别 */
+            /**
+             * 缩放级别
+            */
             @NotNull @Min(1) Integer zoom,
-            /** DEM 数据源 标识 */
+            /**
+             * DEM 数据源 标识
+            */
             @NotNull String source,
-            /** 保存路径 */
+            /**
+             * 保存路径
+            */
             String savePath,
-            /** 代理地址 */
+            /**
+             * 代理地址
+            */
             String proxy,
-            /** 是否生成侧面文件 */
+            /**
+             * 是否生成侧面文件
+            */
             Boolean generateSidecars
     ) {}
 }

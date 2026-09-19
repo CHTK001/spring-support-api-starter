@@ -20,41 +20,53 @@ public class SysUserQuery extends Query<SysUser> {
      * 用户名
      */
     @Schema(description = "用户名")
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private String username;
 
     /**
      * 昵称
      */
     @Schema(description = "昵称")
-    /** Nickname */
+    /**
+     * Nickname
+    */
     private String nickname;
 
     /**
      * 手机号
      */
     @Schema(description = "手机号")
-    /** Phone */
+    /**
+     * Phone
+    */
     private String phone;
 
     /**
      * 性别; 0:女;1:男; 2:其他
      */
     @Schema(description = "性别; 0:女;1:男; 2:其他")
-    /** SEX */
+    /**
+     * SEX
+    */
     private Integer sex;
 
     /**
      * 是否启用；0：禁用
      */
     @Schema(description = "是否启用；0：禁用")
-    /** 状态 */
+    /**
+     * 状态
+    */
     private Integer status;
     /**
      * 部门标识
      */
     @Schema(description = "部门id")
-    /** sysdeptid */
+    /**
+     * sysdeptid
+    */
     private Integer sysDeptId;
 
     /* ================== 数据权限过滤参数（由Service层注入，前端不传） ================== */

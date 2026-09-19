@@ -26,9 +26,13 @@ import java.util.concurrent.ConcurrentMap;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")
 public class TenantSyncAckTracker {
 
-    /** 是否启用 */
+    /**
+     * 是否启用
+    */
     private final boolean enabled;
-    /** 最大值pending */
+    /**
+     * 最大值pending
+    */
     private final int maxPending;
     private final ConcurrentMap<String, PendingAck> pendingAcks = new ConcurrentHashMap<>(); // pendingACK
     private final ConcurrentMap<String, AckRecord> lastAckRecords = new ConcurrentHashMap<>(); // 最后一个ACKrecords
@@ -194,7 +198,9 @@ public class TenantSyncAckTracker {
         compensationTimes.keySet().removeIf(key -> key.startsWith(sessionId + "|"));
     }
 
-    /** evictoverflow */
+    /**
+     * evictoverflow
+    */
     private void evictOverflow() {
         if (maxPending <= 0) {
             return;
@@ -270,17 +276,29 @@ public class TenantSyncAckTracker {
     }
 
     public static final class PendingAck {
-        /** 会话标识 */
+        /**
+         * 会话标识
+        */
         private final String sessionId;
-        /** tenantid */
+        /**
+         * tenantid
+        */
         private final String tenantId;
-        /** Topic */
+        /**
+         * Topic
+        */
         private final String topic;
-        /** 消息标识 */
+        /**
+         * 消息标识
+        */
         private final String messageId;
-        /** sentat */
+        /**
+         * sentat
+        */
         private final long sentAt;
-        /** ReasonML */
+        /**
+         * ReasonML
+        */
         private final String reason;
 
         /**
@@ -358,21 +376,37 @@ public class TenantSyncAckTracker {
     }
 
     public static final class AckRecord {
-        /** 会话标识 */
+        /**
+         * 会话标识
+        */
         private final String sessionId;
-        /** tenantid */
+        /**
+         * tenantid
+        */
         private final String tenantId;
-        /** Topic */
+        /**
+         * Topic
+        */
         private final String topic;
-        /** 来源消息标识 */
+        /**
+         * 来源消息标识
+        */
         private final String sourceMessageId;
-        /** 成功 */
+        /**
+         * 成功
+        */
         private final boolean success;
-        /** 状态 */
+        /**
+         * 状态
+        */
         private final String status;
-        /** 消息 */
+        /**
+         * 消息
+        */
         private final String message;
-        /** ACKAT */
+        /**
+         * ACKAT
+        */
         private final long ackAt;
 
         /**

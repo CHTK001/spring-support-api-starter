@@ -39,7 +39,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SysMessageAdminController {
 
-    /** SYS消息服务 */
+    /**
+     * SYS消息服务
+    */
     private final SysMessageService sysMessageService;
 
     /**

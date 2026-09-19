@@ -35,13 +35,19 @@ import java.util.stream.Collectors;
 public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipalRelMapper, SysDeptPrincipalRel>
         implements SysDeptPrincipalRelService {
 
-    /** SYS用户映射器 */
+    /**
+     * SYS用户映射器
+    */
     private final SysUserMapper sysUserMapper;
-    /** sysdeptmapper */
+    /**
+     * sysdeptmapper
+    */
     private final SysDeptMapper sysDeptMapper;
 
     @Override
-    /** 同步deptprincipals */
+    /**
+     * 同步deptprincipals
+    */
     public void syncDeptPrincipals(Integer deptId, Collection<Integer> userIds) {
         if (deptId == null) {
             return;
@@ -66,7 +72,9 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     @Override
-    /** 列表manageddeptscopes */
+    /**
+     * 列表manageddeptscopes
+    */
     public List<SysDept> listManagedDeptScopes(Integer userId) {
         if (userId == null) {
             return Collections.emptyList();
@@ -75,7 +83,9 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     @Override
-    /** 列表manageddept标识 */
+    /**
+     * 列表manageddept标识
+    */
     public List<Integer> listManagedDeptIds(Integer userId) {
         return listManagedDeptScopes(userId).stream()
                 .map(SysDept::getSysDeptId)
@@ -85,7 +95,9 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     @Override
-    /** 列表manageddept树标识 */
+    /**
+     * 列表manageddept树标识
+    */
     public List<String> listManagedDeptTreeIds(Integer userId) {
         return listManagedDeptScopes(userId).stream()
                 .map(SysDept::getSysDeptTreeId)
@@ -95,7 +107,9 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     @Override
-    /** 列表manageddept树标识 */
+    /**
+     * 列表manageddept树标识
+    */
     public List<String> listManagedDeptTreeIds(Collection<Integer> deptIds) {
         if (CollectionUtils.isEmpty(deptIds)) {
             return Collections.emptyList();
@@ -108,7 +122,9 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     @Override
-    /** fillprincipal信息 */
+    /**
+     * fillprincipal信息
+    */
     public void fillPrincipalInfo(List<? extends SysDept> departments) {
         if (CollectionUtils.isEmpty(departments)) {
             return;
@@ -139,7 +155,9 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     @Override
-    /** 映射principal用户标识 */
+    /**
+     * 映射principal用户标识
+    */
     public Map<Integer, List<Integer>> mapPrincipalUserIds(Collection<Integer> deptIds) {
         if (CollectionUtils.isEmpty(deptIds)) {
             return Collections.emptyMap();

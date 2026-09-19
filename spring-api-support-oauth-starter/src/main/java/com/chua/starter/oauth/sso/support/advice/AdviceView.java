@@ -22,7 +22,9 @@ public class AdviceView<T> {
      * 数据
      */
     @NonNull
-    /** 数据 */
+    /**
+     * 数据
+    */
     private T data;
     /**
      * 请求

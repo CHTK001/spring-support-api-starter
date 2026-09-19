@@ -27,7 +27,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysCacheController {
 
-    /** sys缓存服务 */
+    /**
+     * sys缓存服务
+    */
     private final SysCacheService sysCacheService;
 
     /**

@@ -9,7 +9,9 @@ package com.chua.starter.system.constant;
  */
 public final class SystemConstant {
 
-    /** 创建 系统常量 实例 */
+    /**
+     * 创建 系统常量 实例
+    */
     private SystemConstant() {
     }
 

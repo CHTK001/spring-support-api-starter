@@ -14,8 +14,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PolygonPoint {
-    /** 纬度 */
+    /**
+     * 纬度
+    */
     private double lat;
-    /** 经度 */
+    /**
+     * 经度
+    */
     private double lng;
 }

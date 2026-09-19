@@ -23,7 +23,9 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_announcement_read")
 public class SysAnnouncementRead extends SysBase implements Serializable {
-    /** 串行版本UID */
+    /**
+     * 串行版本UID
+    */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -31,7 +33,9 @@ public class SysAnnouncementRead extends SysBase implements Serializable {
      */
     @TableId(value = "sys_announcement_read_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
-    /** sysannouncementreadid */
+    /**
+     * sysannouncementreadid
+    */
     private Long sysAnnouncementReadId;
 
     /**
@@ -39,7 +43,9 @@ public class SysAnnouncementRead extends SysBase implements Serializable {
      */
     @TableField(value = "sys_announcement_id")
     @Schema(description = "公告ID")
-    /** sysannouncementid */
+    /**
+     * sysannouncementid
+    */
     private Integer sysAnnouncementId;
 
     /**
@@ -47,7 +53,9 @@ public class SysAnnouncementRead extends SysBase implements Serializable {
      */
     @TableField(value = "sys_user_id")
     @Schema(description = "用户ID")
-    /** SYS用户标识 */
+    /**
+     * SYS用户标识
+    */
     private Integer sysUserId;
 
     /**
@@ -55,6 +63,8 @@ public class SysAnnouncementRead extends SysBase implements Serializable {
      */
     @TableField(value = "read_time")
     @Schema(description = "阅读时间")
-    /** read时间 */
+    /**
+     * read时间
+    */
     private LocalDateTime readTime;
 }

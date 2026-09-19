@@ -27,7 +27,9 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_ip_blackwhite")
 public class SysIpBlackwhite extends SysBase implements Serializable {
-    /** 串行版本UID */
+    /**
+     * 串行版本UID
+    */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -36,7 +38,9 @@ public class SysIpBlackwhite extends SysBase implements Serializable {
     @TableId(value = "sys_ip_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     @NotNull(message = "主键ID不能为空", groups = {UpdateGroup.class})
-    /** sysipid */
+    /**
+     * sysipid
+    */
     private Integer sysIpId;
 
     /**
@@ -45,7 +49,9 @@ public class SysIpBlackwhite extends SysBase implements Serializable {
     @TableField(value = "sys_ip_type")
     @Schema(description = "类型: 0白名单 1黑名单")
     @NotNull(message = "类型不能为空", groups = {AddGroup.class})
-    /** sysip类型 */
+    /**
+     * sysip类型
+    */
     private Integer sysIpType;
 
     /**
@@ -55,7 +61,9 @@ public class SysIpBlackwhite extends SysBase implements Serializable {
     @Schema(description = "IP地址或CIDR段")
     @Size(max = 255, message = "IP地址最大长度需小于255")
     @NotBlank(message = "IP地址不能为空", groups = {AddGroup.class})
-    /** sysip */
+    /**
+     * sysip
+    */
     private String sysIpIp;
 
     /**
@@ -63,7 +71,9 @@ public class SysIpBlackwhite extends SysBase implements Serializable {
      */
     @TableField(value = "sys_ip_status")
     @Schema(description = "状态: 0启用 1禁用")
-    /** sysip状态 */
+    /**
+     * sysip状态
+    */
     private Integer sysIpStatus;
 
     /**
@@ -72,6 +82,8 @@ public class SysIpBlackwhite extends SysBase implements Serializable {
     @TableField(value = "sys_ip_remark")
     @Schema(description = "备注")
     @Size(max = 255, message = "备注最大长度需小于255")
-    /** sysipremark */
+    /**
+     * sysipremark
+    */
     private String sysIpRemark;
 }

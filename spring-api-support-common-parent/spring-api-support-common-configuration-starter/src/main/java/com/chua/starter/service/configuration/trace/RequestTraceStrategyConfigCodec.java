@@ -11,7 +11,9 @@ import java.util.Map;
  */
 public final class RequestTraceStrategyConfigCodec {
 
-    /** 创建 请求追踪strategy配置codec 实例 */
+    /**
+     * 创建 请求追踪strategy配置codec 实例
+    */
     private RequestTraceStrategyConfigCodec() {
     }
 

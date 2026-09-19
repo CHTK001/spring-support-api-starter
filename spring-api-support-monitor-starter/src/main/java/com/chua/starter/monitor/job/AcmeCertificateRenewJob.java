@@ -21,9 +21,13 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = "monitor.acme", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class AcmeCertificateRenewJob {
 
-    /** Acme证书服务 */
+    /**
+     * Acme证书服务
+    */
     private final AcmeCertificateService acmeCertificateService;
-    /** Acme属性 */
+    /**
+     * Acme属性
+    */
     private final AcmeProperties acmeProperties;
 
     /**

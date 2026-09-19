@@ -60,11 +60,17 @@ public class FeedbackMenuInitializer implements ApplicationRunner {
      */
     private static final String MENU_NAME = "feedback";
 
-    /** sysmenumapper */
+    /**
+     * sysmenumapper
+    */
     private final SysMenuMapper sysMenuMapper;
-    /** sysrolemapper */
+    /**
+     * sysrolemapper
+    */
     private final SysRoleMapper sysRoleMapper;
-    /** sysrolemenumapper */
+    /**
+     * sysrolemenumapper
+    */
     private final SysRoleMenuMapper sysRoleMenuMapper;
     private final Map<String, CacheManager> cacheManagers; // 缓存管理器
 

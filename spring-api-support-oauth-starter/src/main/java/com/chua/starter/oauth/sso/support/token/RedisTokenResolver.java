@@ -59,7 +59,9 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.TOKEN_
 @SuppressWarnings("ALL")
 @Service
 public class RedisTokenResolver implements TokenResolver {
-    /** 认证_版本 */
+    /**
+     * 认证_版本
+    */
     private static final String AUTH_VERSION = "authVersion";
 
     /**
@@ -94,23 +96,35 @@ public class RedisTokenResolver implements TokenResolver {
     private RedisTemplate<String, Object> stringRedisTemplate; // 字符串redistemplate
 
     @Autowired
-    /** 认证服务器属性 */
+    /**
+     * 认证服务器属性
+    */
     private AuthServerProperties authServerProperties;
     @Autowired
-    /** Logincheck */
+    /**
+     * Logincheck
+    */
     private LoginCheck loginCheck;
     @Autowired
-    /** SYS用户日志服务 */
+    /**
+     * SYS用户日志服务
+    */
     private SysUserLogService sysUserLogService;
     @Autowired
-    /** 令牌blacklist服务 */
+    /**
+     * 令牌blacklist服务
+    */
     private TokenBlacklistService tokenBlacklistService;
     @Autowired(required = false)
-    /** 指纹存储服务 */
+    /**
+     * 指纹存储服务
+    */
     private com.chua.starter.oauth.sso.support.service.FingerprintStorageService fingerprintStorageService;
 
     @Override
-    /** 创建令牌 */
+    /**
+     * 创建令牌
+    */
     public ReturnResult<LoginResult> createToken(String address, UserResult userResult, String authType) {
         String userId = userResult.getUserId();
         
@@ -786,7 +800,9 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public ReturnResult<UserResume> resolve(String cookie, String token) {
         String cv = token;
         if (StringUtils.isEmpty(cv)) {
@@ -847,7 +863,9 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    /** upgradefor时间戳 */
+    /**
+     * upgradefor时间戳
+    */
     public ReturnResult<UserResume> upgradeForTimestamp(String token, String refreshToken) {
         // 清除本地缓存，强制下次 resolve 从 Redis 重新读取
         if (token != null) {
@@ -873,7 +891,9 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    /** upgradefor版本 */
+    /**
+     * upgradefor版本
+    */
     public ReturnResult<UserResume> upgradeForVersion(String token, String refreshToken) {
         // 清除本地缓存，强制下次 resolve 从 Redis 重新读取
         if (token != null) {
@@ -961,7 +981,9 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    /** upgradeforrefresh */
+    /**
+     * upgradeforrefresh
+    */
     public ReturnResult<UserResume> upgradeForRefresh(String token, String refreshToken) {
         // 清除本地缓存（新旧两个都应失效）
         if (token != null) {
@@ -1055,7 +1077,9 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    /** Logout */
+    /**
+     * Logout
+    */
     public void logout(Cookie[] cookies, String token, String refreshToken, String cookieName) {
         Cookie cookie = CookieUtil.getCookie(cookies, cookieName);
         if (null != cookie) {
@@ -1072,7 +1096,9 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     @Override
-    /** 解析用户编码 */
+    /**
+     * 解析用户编码
+    */
     public ReturnResult<UserResume> resolveUserCode(String userCode) {
         if (StringUtils.isBlank(userCode)) {
             return ReturnResult.error("用户代码不能为空");

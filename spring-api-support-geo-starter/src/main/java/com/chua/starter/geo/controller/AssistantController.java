@@ -27,10 +27,14 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class AssistantController {
 
-    /** JSON 序列化器，用于转义 SSE 事件中的字符串 */
+    /**
+     * JSON 序列化器，用于转义 SSE 事件中的字符串
+    */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    /** 虚拟线程执行器 */
+    /**
+     * 虚拟线程执行器
+    */
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     /**

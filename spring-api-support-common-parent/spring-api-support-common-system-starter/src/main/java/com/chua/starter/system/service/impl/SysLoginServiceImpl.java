@@ -96,17 +96,29 @@ import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERRO
 @RequiredArgsConstructor
 public class SysLoginServiceImpl implements SysLoginService {
 
-    /** 全局_setting_工厂 */
+    /**
+     * 全局_setting_工厂
+    */
     public static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance();
-    /** 用户_agreement_群体 */
+    /**
+     * 用户_agreement_群体
+    */
     private static final String USER_AGREEMENT_GROUP = "userAgreement";
-    /** 默认_agreement_版本 */
+    /**
+     * 默认_agreement_版本
+    */
     private static final String DEFAULT_AGREEMENT_VERSION = "2026.04";
-    /** 默认_agreement_更新_at */
+    /**
+     * 默认_agreement_更新_at
+    */
     private static final String DEFAULT_AGREEMENT_UPDATED_AT = "2026-04-09";
-    /** Agreement_accepted_版本_键 */
+    /**
+     * Agreement_accepted_版本_键
+    */
     private static final String AGREEMENT_ACCEPTED_VERSION_KEY = "agreementAcceptedVersion";
-    /** Agreement_accepted_at_键 */
+    /**
+     * Agreement_accepted_at_键
+    */
     private static final String AGREEMENT_ACCEPTED_AT_KEY = "agreementAcceptedAt";
 
     /**
@@ -130,9 +142,13 @@ public class SysLoginServiceImpl implements SysLoginService {
      * @since 4.0.0
      */
     private static class CachedValue {
-        /** 缓存值 */
+        /**
+         * 缓存值
+        */
         private final Object value;
-        /** 过期时间 */
+        /**
+         * 过期时间
+        */
         private final long expireAt;
 
         /**
@@ -151,33 +167,59 @@ public class SysLoginServiceImpl implements SysLoginService {
      */
     private static final String THIRD_PARTY_TYPE_WECHAT = "wechat";
 
-    /** 认证属性 */
+    /**
+     * 认证属性
+    */
     private final AuthClientProperties authProperties;
-    /** SYS用户thirdpartymapper */
+    /**
+     * SYS用户thirdpartymapper
+    */
     private final SysUserThirdPartyMapper sysUserThirdPartyMapper;
-    /** syswechat用户映射器 */
+    /**
+     * syswechat用户映射器
+    */
     private final SysWechatUserMapper sysWechatUserMapper;
-    /** Redis模板 */
+    /**
+     * Redis模板
+    */
     private final RedisTemplate redisTemplate;
-    /** SYS设置服务 */
+    /**
+     * SYS设置服务
+    */
     private final SysSettingService sysSettingService;
-    /** 简单sys用户服务 */
+    /**
+     * 简单sys用户服务
+    */
     private final SimpleSysUserService simpleSysUserService;
-    /** SYS用户服务 */
+    /**
+     * SYS用户服务
+    */
     private final SysUserService sysUserService;
-    /** SYS用户rolemapper */
+    /**
+     * SYS用户rolemapper
+    */
     private final SysUserRoleMapper sysUserRoleMapper;
-    /** sysrolemapper */
+    /**
+     * sysrolemapper
+    */
     private final SysRoleMapper sysRoleMapper;
-    /** sysdeptmapper */
+    /**
+     * sysdeptmapper
+    */
     private final SysDeptMapper sysDeptMapper;
-    /** Objectmapper */
+    /**
+     * Objectmapper
+    */
     private final ObjectMapper objectMapper;
-    /** 系统安全配置(失败次数/锁定时长) */
+    /**
+     * 系统安全配置(失败次数/锁定时长)
+    */
     private final SystemSecurityProperties securityProperties;
 
     @Override
-    /** Login */
+    /**
+     * Login
+    */
     public ReturnResult<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
         log.info("\n登录信息包含 \n登录账号 -> {}\n登陆方式 -> {}", loginData.getUsername(), loginData.getLoginType());
         return ServiceProvider.of(LoginHandler.class).getNewExtension(Joiner.on("-").skipNulls().join(loginData.getLoginType(), loginData.getAccountType()))
@@ -486,14 +528,18 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
-    /** 获取用户login信息 */
+    /**
+     * 获取用户login信息
+    */
     public UserInfoVO getUserLoginInfo() {
         UserResult userLoginInfo = AuthClientExecute.getInstance().getUserResult();
         return buildUserInfo(userLoginInfo);
     }
 
     @Override
-    /** 获取用户login信息 */
+    /**
+     * 获取用户login信息
+    */
     public UserInfoVO getUserLoginInfo(String token) {
         if (StringUtils.isBlank(token)) {
             return new UserInfoVO();
@@ -515,7 +561,9 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
-    /** 构建用户信息 */
+    /**
+     * 构建用户信息
+    */
     public UserInfoVO buildUserInfo(UserResume userLoginInfo) {
         UserInfoVO userInfoVO = new UserInfoVO();
         if (userLoginInfo == null) {
@@ -725,7 +773,9 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
-    /** Refresh */
+    /**
+     * Refresh
+    */
     public ReturnResult<LoginResult> refresh(RefreshToken refreshToken, HttpServletRequest request, HttpServletResponse response) {
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
         com.chua.starter.oauth.client.support.user.LoginResult upgrade = clientExecute.upgrade(refreshToken.getRefreshToken(), UpgradeType.REFRESH);
@@ -744,7 +794,9 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
-    /** thirdlogin编码 */
+    /**
+     * thirdlogin编码
+    */
     public ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         log.debug("第三方登录请求: loginType={}, thirdType={}", loginData.loginType(), loginData.thirdType());
         
@@ -764,13 +816,17 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
-    /** Third绑定编码 */
+    /**
+     * Third绑定编码
+    */
     public ReturnResult<String> thirdBindCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         return thirdLoginCode(loginData, request, response);
     }
 
     @Override
-    /** Third绑定信息 */
+    /**
+     * Third绑定信息
+    */
     public ReturnResult<List<String>> thirdBindInfo(String userId) {
         List<SysUserThirdParty> sysUserThirdParties = sysUserThirdPartyMapper.selectList(
                 Wrappers.<SysUserThirdParty>lambdaQuery()
@@ -794,7 +850,9 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     @Override
-    /** Third解绑 */
+    /**
+     * Third解绑
+    */
     public ReturnResult<Boolean> thirdUnbind(String userId, ThirdPartyUnbindRequest thirdPartyUnbindRequest) {
         if (StringUtils.isBlank(thirdPartyUnbindRequest.getLoginType())) {
             return ReturnResult.error("登录类型不能为空");

@@ -57,50 +57,88 @@ import java.util.concurrent.TimeUnit;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")
 public class TenantServerSyncPublisher implements InitializingBean, DisposableBean {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(TenantServerSyncPublisher.class);
 
     /**
      * 租户同步主题
      */
     public static final String TOPIC_TENANT_UPDATE = TenantSyncMessageSupport.TOPIC_TENANT_UPDATE;
-    /** Topic_tenant_删除 */
+    /**
+     * Topic_tenant_删除
+    */
     public static final String TOPIC_TENANT_DELETE = TenantSyncMessageSupport.TOPIC_TENANT_DELETE;
-    /** Topic_tenant_服务 */
+    /**
+     * Topic_tenant_服务
+    */
     public static final String TOPIC_TENANT_SERVICE = TenantSyncMessageSupport.TOPIC_TENANT_SERVICE;
-    /** Topic_tenant_menu */
+    /**
+     * Topic_tenant_menu
+    */
     public static final String TOPIC_TENANT_MENU = TenantSyncMessageSupport.TOPIC_TENANT_MENU;
 
-    /** ReasonML_注册 */
+    /**
+     * ReasonML_注册
+    */
     private static final String REASON_REGISTER = "client-register";
-    /** ReasonML_调度 */
+    /**
+     * ReasonML_调度
+    */
     private static final String REASON_SCHEDULED = "scheduled-reconcile";
-    /** ReasonML_tenant_更新 */
+    /**
+     * ReasonML_tenant_更新
+    */
     private static final String REASON_TENANT_UPDATE = "tenant-update";
-    /** ReasonML_tenant_删除 */
+    /**
+     * ReasonML_tenant_删除
+    */
     private static final String REASON_TENANT_DELETE = "tenant-delete";
-    /** ReasonML_服务_更新 */
+    /**
+     * ReasonML_服务_更新
+    */
     private static final String REASON_SERVICE_UPDATE = "service-update";
-    /** ReasonML_menu_更新 */
+    /**
+     * ReasonML_menu_更新
+    */
     private static final String REASON_MENU_UPDATE = "menu-update";
 
-    /** Tenant属性 */
+    /**
+     * Tenant属性
+    */
     private final TenantProperties tenantProperties;
-    /** 同步服务器提供者 */
+    /**
+     * 同步服务器提供者
+    */
     private final ObjectProvider<SyncServer> syncServerProvider;
-    /** systenantmapper */
+    /**
+     * systenantmapper
+    */
     private final SysTenantMapper sysTenantMapper;
-    /** systenant服务映射器 */
+    /**
+     * systenant服务映射器
+    */
     private final SysTenantServiceMapper sysTenantServiceMapper;
-    /** sysmenumapper */
+    /**
+     * sysmenumapper
+    */
     private final SysMenuMapper sysMenuMapper;
-    /** SYS服务映射器 */
+    /**
+     * SYS服务映射器
+    */
     private final SysServiceMapper sysServiceMapper;
-    /** SYS服务modulemapper */
+    /**
+     * SYS服务modulemapper
+    */
     private final SysServiceModuleMapper sysServiceModuleMapper;
-    /** SYS服务moduleitemmapper */
+    /**
+     * SYS服务moduleitemmapper
+    */
     private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
-    /** 同步acktracker */
+    /**
+     * 同步acktracker
+    */
     private final TenantSyncAckTracker syncAckTracker;
 
     private volatile SyncServer syncServer; // 同步服务端
@@ -108,7 +146,9 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
     private final ConcurrentMap<String, String> fullSyncFingerprints = new ConcurrentHashMap<>(); // 完整同步fingerprints
 
     @Override
-    /** 之后属性设置 */
+    /**
+     * 之后属性设置
+    */
     public void afterPropertiesSet() {
         syncServer = syncServerProvider.getIfAvailable();
         if (!isSyncEnabled() || syncServer == null) {
@@ -150,7 +190,9 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
     }
 
     @Override
-    /** 销毁 */
+    /**
+     * 销毁
+    */
     public void destroy() {
         if (fullPushScheduler != null) {
             fullPushScheduler.shutdownNow();
@@ -359,7 +401,9 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         }
     }
 
-    /** 发布连接tenants完整同步safely */
+    /**
+     * 发布连接tenants完整同步safely
+    */
     private void publishConnectedTenantsFullSyncSafely() {
         try {
             publishConnectedTenantsFullSync();
@@ -368,7 +412,9 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         }
     }
 
-    /** 校验pendingACKsafely */
+    /**
+     * 校验pendingACKsafely
+    */
     private void checkPendingAcksSafely() {
         try {
             checkPendingAcks();
@@ -377,7 +423,9 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         }
     }
 
-    /** 发布连接tenants完整同步 */
+    /**
+     * 发布连接tenants完整同步
+    */
     private void publishConnectedTenantsFullSync() {
         if (!canPublish()) {
             return;
@@ -900,7 +948,9 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         return unchanged;
     }
 
-    /** 校验pendingACK */
+    /**
+     * 校验pendingACK
+    */
     private void checkPendingAcks() {
         if (!canPublish() || !tenantProperties.isServerSyncAckEnabled()) {
             return;

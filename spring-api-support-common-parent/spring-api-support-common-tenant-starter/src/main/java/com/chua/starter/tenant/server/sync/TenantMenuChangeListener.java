@@ -26,7 +26,9 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")
 public class TenantMenuChangeListener {
 
-    /** 同步publisher提供者 */
+    /**
+     * 同步publisher提供者
+    */
     private final ObjectProvider<TenantServerSyncPublisher> syncPublisherProvider;
 
     /**

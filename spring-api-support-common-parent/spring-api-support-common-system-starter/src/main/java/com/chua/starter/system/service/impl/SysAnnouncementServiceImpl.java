@@ -37,7 +37,9 @@ import java.util.stream.Collectors;
 public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMapper, SysAnnouncement>
         implements SysAnnouncementService {
 
-    /** sysrolemapper */
+    /**
+     * sysrolemapper
+    */
     private final SysRoleMapper sysRoleMapper;
 
     @Override

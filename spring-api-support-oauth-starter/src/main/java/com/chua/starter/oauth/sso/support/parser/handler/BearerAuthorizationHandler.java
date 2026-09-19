@@ -99,7 +99,9 @@ public class BearerAuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
-    /** 支持 */
+    /**
+     * 支持
+    */
     public boolean supports(String subProtocol, String token, String userCode) {
         // 1. subProtocol 明确为 "bearer"
         if ("bearer".equalsIgnoreCase(subProtocol)) {

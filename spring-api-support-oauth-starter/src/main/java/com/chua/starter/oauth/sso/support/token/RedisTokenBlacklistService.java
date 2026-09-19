@@ -248,18 +248,30 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     @lombok.NoArgsConstructor
     @lombok.AllArgsConstructor
     private static class BlacklistEntry implements java.io.Serializable {
-        /** 串行版本UID */
+        /**
+         * 串行版本UID
+        */
         private static final long serialVersionUID = 1L;
         
-        /** 令牌 */
+        /**
+         * 令牌
+        */
         private String token;
-        /** ReasonML */
+        /**
+         * ReasonML
+        */
         private String reason;
-        /** 用户标识 */
+        /**
+         * 用户标识
+        */
         private String userId;
-        /** 用户名 */
+        /**
+         * 用户名
+        */
         private String username;
-        /** 时间戳 */
+        /**
+         * 时间戳
+        */
         private Long timestamp;
     }
 
@@ -272,14 +284,22 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
     @lombok.NoArgsConstructor
     @lombok.AllArgsConstructor
     private static class UserBlacklistEntry implements java.io.Serializable {
-        /** 串行版本UID */
+        /**
+         * 串行版本UID
+        */
         private static final long serialVersionUID = 1L;
         
-        /** 用户标识 */
+        /**
+         * 用户标识
+        */
         private String userId;
-        /** ReasonML */
+        /**
+         * ReasonML
+        */
         private String reason;
-        /** 时间戳 */
+        /**
+         * 时间戳
+        */
         private Long timestamp;
     }
 }

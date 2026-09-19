@@ -17,6 +17,8 @@ public class RefreshToken {
      * 刷新令牌
      */
     @Schema(description = "刷新token")
-    /** Refresh令牌 */
+    /**
+     * Refresh令牌
+    */
     private String refreshToken;
 }

@@ -17,7 +17,9 @@ import java.util.List;
 @ConfigurationProperties(prefix = SysFileUploadProperties.PRE, ignoreInvalidFields = true)
 public class SysFileUploadProperties {
 
-    /** PRE */
+    /**
+     * PRE
+    */
     public static final String PRE = "plugin.filesystem.upload";
 
     /**

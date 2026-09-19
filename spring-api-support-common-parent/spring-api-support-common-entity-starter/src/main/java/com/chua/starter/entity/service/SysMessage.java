@@ -26,7 +26,9 @@ import java.time.LocalDateTime;
 @TableName(value = "sys_message")
 public class SysMessage extends SysBase implements Serializable {
 
-    /** 串行版本UID */
+    /**
+     * 串行版本UID
+    */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -103,7 +105,9 @@ public class SysMessage extends SysBase implements Serializable {
      */
     @TableField(value = "sys_message_read")
     @Schema(description = "是否已读: 0-未读 1-已读")
-    /** SYS消息读取 */
+    /**
+     * SYS消息读取
+    */
     private Integer sysMessageRead;
 
     /**
@@ -111,7 +115,9 @@ public class SysMessage extends SysBase implements Serializable {
      */
     @TableField(value = "sys_message_read_time")
     @Schema(description = "阅读时间")
-    /** SYS消息读取时间 */
+    /**
+     * SYS消息读取时间
+    */
     private LocalDateTime sysMessageReadTime;
 
     /**
@@ -126,7 +132,9 @@ public class SysMessage extends SysBase implements Serializable {
      */
     @TableField(value = "sys_message_expire_time")
     @Schema(description = "过期时间(为空表示永不过期)")
-    /** SYS消息expire时间 */
+    /**
+     * SYS消息expire时间
+    */
     private LocalDateTime sysMessageExpireTime;
 
     /**
@@ -165,7 +173,9 @@ public class SysMessage extends SysBase implements Serializable {
      */
     @TableField(value = "sys_message_status")
     @Schema(description = "状态: 0-草稿 1-已发送 2-已撤回")
-    /** SYS消息状态 */
+    /**
+     * SYS消息状态
+    */
     private Integer sysMessageStatus;
 
     /**
@@ -174,15 +184,25 @@ public class SysMessage extends SysBase implements Serializable {
      * @since 4.0.0
      */
     public static class Type {
-        /** 系统 */
+        /**
+         * 系统
+        */
         public static final String SYSTEM = "system";
-        /** Notice */
+        /**
+         * Notice
+        */
         public static final String NOTICE = "notice";
-        /** 消息 */
+        /**
+         * 消息
+        */
         public static final String MESSAGE = "message";
-        /** 警告 */
+        /**
+         * 警告
+        */
         public static final String WARNING = "warning";
-        /** 信息 */
+        /**
+         * 信息
+        */
         public static final String INFO = "info";
     }
 
@@ -192,13 +212,21 @@ public class SysMessage extends SysBase implements Serializable {
      * @since 4.0.0
      */
     public static class Level {
-        /** LOW */
+        /**
+         * LOW
+        */
         public static final String LOW = "low";
-        /** Normal */
+        /**
+         * Normal
+        */
         public static final String NORMAL = "normal";
-        /** High */
+        /**
+         * High
+        */
         public static final String HIGH = "high";
-        /** Urgent */
+        /**
+         * Urgent
+        */
         public static final String URGENT = "urgent";
     }
 
@@ -208,11 +236,17 @@ public class SysMessage extends SysBase implements Serializable {
      * @since 4.0.0
      */
     public static class Status {
-        /** Draft */
+        /**
+         * Draft
+        */
         public static final int DRAFT = 0;
-        /** Sent */
+        /**
+         * Sent
+        */
         public static final int SENT = 1;
-        /** Recalled */
+        /**
+         * Recalled
+        */
         public static final int RECALLED = 2;
     }
 }

@@ -23,7 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class TaskManagerServiceImpl implements TaskManagerService {
 
-    /** 任务存储：任务id -> 任务信息 */
+    /**
+     * 任务存储：任务id -> 任务信息
+    */
     private final Map<String, TaskInfo> tasks = new ConcurrentHashMap<>();
 
     /**

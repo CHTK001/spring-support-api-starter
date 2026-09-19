@@ -28,9 +28,13 @@ import java.util.Map;
 @Tag(name = "OAuth 管理控制台", description = "运行时热控制 OAuth 服务端配置")
 public class AdminController {
 
-    /** 认证服务器属性 */
+    /**
+     * 认证服务器属性
+    */
     private final AuthServerProperties authServerProperties;
-    /** 比率限制管理器 */
+    /**
+     * 比率限制管理器
+    */
     private final RateLimitManager rateLimitManager;
 
     /**
@@ -95,7 +99,9 @@ public class AdminController {
         return ReturnResult.ok(enabled ? "签名校验已开启" : "签名校验已关闭");
     }
 
-    /** 热切换在线模式 */
+    /**
+     * 热切换在线模式
+    */
     @PostMapping("/online-mode")
     @Operation(summary = "切换在线模式")
     public ReturnResult<String> setOnlineMode(@RequestParam String mode,
@@ -155,7 +161,9 @@ public class AdminController {
         return ReturnResult.ok(enabled ? "RefreshToken 轮换已开启" : "RefreshToken 轮换已关闭");
     }
 
-    /** 修改 令牌 过期时间 */
+    /**
+     * 修改 令牌 过期时间
+    */
     @PostMapping("/expire")
     @Operation(summary = "修改 token 过期时间（秒）")
     public ReturnResult<String> setExpire(@RequestParam long expire,

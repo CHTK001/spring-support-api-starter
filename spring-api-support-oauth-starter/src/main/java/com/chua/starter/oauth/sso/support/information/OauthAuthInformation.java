@@ -77,7 +77,9 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取请求头部 */
+    /**
+     * 获取请求头部
+    */
     public String getRequestHeader(Object request, String headerName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getHeader(headerName);
@@ -90,7 +92,9 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置响应头部 */
+    /**
+     * 设置响应头部
+    */
     protected void setResponseHeader(Object response, String headerName, String headerValue) {
         if (response instanceof HttpServletResponse) {
             ((HttpServletResponse) response).setHeader(headerName, headerValue);
@@ -102,7 +106,9 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取远程地址 */
+    /**
+     * 获取远程地址
+    */
     protected String getRemoteAddress(Object request) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getRemoteAddr();
@@ -115,7 +121,9 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取请求attribute */
+    /**
+     * 获取请求attribute
+    */
     protected Object getRequestAttribute(Object request, String attributeName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getAttribute(attributeName);
@@ -128,7 +136,9 @@ public class OauthAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置请求attribute */
+    /**
+     * 设置请求attribute
+    */
     protected void setRequestAttribute(Object request, String attributeName, Object attributeValue) {
         if (request instanceof HttpServletRequest) {
             ((HttpServletRequest) request).setAttribute(attributeName, attributeValue);

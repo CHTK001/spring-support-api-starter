@@ -33,12 +33,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OauthRateLimitFilter implements Filter, Ordered {
 
-    /** Rate_限制_前缀 */
+    /**
+     * Rate_限制_前缀
+    */
     private static final String RATE_LIMIT_PREFIX = "oauth:security:rate:";
 
-    /** 安全性属性 */
+    /**
+     * 安全性属性
+    */
     private final OauthSecurityProperties securityProperties;
-    /** 字符串Redis模板 */
+    /**
+     * 字符串Redis模板
+    */
     private final StringRedisTemplate stringRedisTemplate;
 
     @Override
@@ -171,7 +177,9 @@ public class OauthRateLimitFilter implements Filter, Ordered {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 5;
     }

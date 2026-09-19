@@ -24,7 +24,9 @@ import java.nio.file.Path;
 @Slf4j
 public class GeoTiffExporterImpl implements GeoTiffExporter {
 
-    /** EPSG:3857 WKT 投影定义 */
+    /**
+     * EPSG:3857 WKT 投影定义
+    */
     private static final String EPSG3857_WKT = """
         PROJCS["WGS_84_Pseudo_Mercator",
             GEOGCS["WGS 84",

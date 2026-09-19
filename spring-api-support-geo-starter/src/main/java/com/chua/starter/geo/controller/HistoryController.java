@@ -25,7 +25,9 @@ import java.util.Map;
 @Slf4j
 public class HistoryController {
 
-    /** 历史记录服务 */
+    /**
+     * 历史记录服务
+    */
     private final DownloadHistoryService historyService;
 
     /**

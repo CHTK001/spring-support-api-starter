@@ -21,14 +21,22 @@ public record RequestTraceAiAnalysisResult(
         long latencyMs
 ) {
 
-    /** 状态_heuristic_降级 */
+    /**
+     * 状态_heuristic_降级
+    */
     public static final String STATUS_HEURISTIC_FALLBACK = "heuristic_fallback";
-    /** 状态_rate_限制 */
+    /**
+     * 状态_rate_限制
+    */
     public static final String STATUS_RATE_LIMITED = "rate_limited";
-    /** 状态_已禁用 */
+    /**
+     * 状态_已禁用
+    */
     public static final String STATUS_DISABLED = "disabled";
 
-    /** 源_heuristic */
+    /**
+     * 源_heuristic
+    */
     public static final String SOURCE_HEURISTIC = "heuristic";
 
     public RequestTraceAiAnalysisResult {

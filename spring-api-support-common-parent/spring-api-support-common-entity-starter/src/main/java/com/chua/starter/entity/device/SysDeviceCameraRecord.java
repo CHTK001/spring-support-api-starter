@@ -24,6 +24,8 @@ public class SysDeviceCameraRecord extends SysBase {
      */
     @TableId(value = "sys_device_camera_record_id", type = IdType.AUTO)
     @Schema(description = "")
-    /** sysdevicerecordid */
+    /**
+     * sysdevicerecordid
+    */
     private Integer sysDeviceRecordId;
 }

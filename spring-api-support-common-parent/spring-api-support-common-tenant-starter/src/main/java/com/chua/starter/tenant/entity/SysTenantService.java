@@ -34,7 +34,9 @@ public class SysTenantService extends SysBase {
     @TableId(value = "sys_tenant_service_id", type = IdType.AUTO)
     @ApiModelProperty(value = "主键ID")
     @Schema(description = "主键ID")
-    /** systenant服务标识 */
+    /**
+     * systenant服务标识
+    */
     private Integer sysTenantServiceId;
 
     /**
@@ -43,7 +45,9 @@ public class SysTenantService extends SysBase {
     @TableField(value = "sys_tenant_id")
     @ApiModelProperty(value = "租户ID")
     @Schema(description = "租户ID")
-    /** systenantid */
+    /**
+     * systenantid
+    */
     private String sysTenantId;
 
     /**
@@ -52,7 +56,9 @@ public class SysTenantService extends SysBase {
     @TableField(value = "sys_service_id")
     @ApiModelProperty(value = "服务ID")
     @Schema(description = "服务ID")
-    /** SYS服务标识 */
+    /**
+     * SYS服务标识
+    */
     private Integer sysServiceId;
 
     /**
@@ -64,6 +70,8 @@ public class SysTenantService extends SysBase {
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonFormat(pattern = "yyyy-MM-dd")
-    /** systenant服务是否有效时间 */
+    /**
+     * systenant服务是否有效时间
+    */
     private LocalDate sysTenantServiceValidTime;
 }

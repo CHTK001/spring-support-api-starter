@@ -41,41 +41,67 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
-    /** Op_创建 */
+    /**
+     * Op_创建
+    */
     private static final String OP_CREATE = TenantSyncMessageSupport.OP_CREATE;
-    /** Op_更新 */
+    /**
+     * Op_更新
+    */
     private static final String OP_UPDATE = TenantSyncMessageSupport.OP_UPDATE;
-    /** Op_删除 */
+    /**
+     * Op_删除
+    */
     private static final String OP_DELETE = TenantSyncMessageSupport.OP_DELETE;
 
-    /** JDBC模板 */
+    /**
+     * JDBC模板
+    */
     private final JdbcTemplate jdbcTemplate;
-    /** Tenant属性 */
+    /**
+     * Tenant属性
+    */
     private final TenantProperties tenantProperties;
-    /** 服务 映射器 */
+    /**
+     * 服务 映射器
+    */
     private final SysServiceMapper sysServiceMapper;
-    /** 服务模块 映射器 */
+    /**
+     * 服务模块 映射器
+    */
     private final SysServiceModuleMapper sysServiceModuleMapper;
-    /** 服务模块项 映射器 */
+    /**
+     * 服务模块项 映射器
+    */
     private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
-    /** 租户服务绑定 映射器 */
+    /**
+     * 租户服务绑定 映射器
+    */
     private final SysTenantServiceMapper sysTenantServiceMapper;
-    /** 租户服务删除 映射器 */
+    /**
+     * 租户服务删除 映射器
+    */
     private final TenantServiceMapper tenantServiceMapper;
 
-    /** 合法的租户 标识 列名白名单，用于防止 SQL 注入 */
+    /**
+     * 合法的租户 标识 列名白名单，用于防止 SQL 注入
+    */
     private static final java.util.Set<String> ALLOWED_TENANT_COLUMNS = java.util.Set.of(
             "sys_tenant_id", "tenant_id", "tenant_code", "org_id", "dept_id"
     );
 
     @Override
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     public String getName() {
         return "default";
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return Integer.MAX_VALUE;
     }

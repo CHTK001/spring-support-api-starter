@@ -11,32 +11,60 @@ import java.time.LocalDateTime;
  */
 @Data
 public class DownloadHistoryRecord {
-    /** 记录唯一 标识 */
+    /**
+     * 记录唯一 标识
+    */
     private String id;
-    /** 任务名称 */
+    /**
+     * 任务名称
+    */
     private String name;
-    /** 图源 标识 */
+    /**
+     * 图源 标识
+    */
     private String source;
-    /** 图源显示名称 */
+    /**
+     * 图源显示名称
+    */
     private String sourceName;
-    /** 缩放级别 */
+    /**
+     * 缩放级别
+    */
     private int zoom;
-    /** 输出格式 */
+    /**
+     * 输出格式
+    */
     private String format;
-    /** 输出文件路径 */
+    /**
+     * 输出文件路径
+    */
     private String filePath;
-    /** 文件大小（字节） */
+    /**
+     * 文件大小（字节）
+    */
     private long fileSize;
-    /** 总瓦片数 */
+    /**
+     * 总瓦片数
+    */
     private int tileCount;
-    /** 失败瓦片数 */
+    /**
+     * 失败瓦片数
+    */
     private int failedCount;
-    /** 任务状态：完成 / 失败 */
+    /**
+     * 任务状态：完成 / 失败
+    */
     private String status;
-    /** 创建时间 */
+    /**
+     * 创建时间
+    */
     private LocalDateTime createdAt;
-    /** 耗时（秒） */
+    /**
+     * 耗时（秒）
+    */
     private Long durationSecs;
-    /** 日志文件路径 */
+    /**
+     * 日志文件路径
+    */
     private String logFile;
 }

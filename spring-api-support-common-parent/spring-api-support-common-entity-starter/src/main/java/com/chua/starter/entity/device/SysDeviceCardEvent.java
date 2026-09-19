@@ -27,7 +27,9 @@ public class SysDeviceCardEvent extends SysBase {
      */
     @TableId(value = "sys_device_card_event_id", type = IdType.AUTO)
     @Schema(description = "")
-    /** sysdevicecard事件标识 */
+    /**
+     * sysdevicecard事件标识
+    */
     private Integer sysDeviceCardEventId;
 
     /**
@@ -35,7 +37,9 @@ public class SysDeviceCardEvent extends SysBase {
      */
     @TableField(value = "sys_device_card_event_time")
     @Schema(description = "时间")
-    /** sysdevicecard事件时间 */
+    /**
+     * sysdevicecard事件时间
+    */
     private LocalDateTime sysDeviceCardEventTime;
 
     /**
@@ -43,7 +47,9 @@ public class SysDeviceCardEvent extends SysBase {
      */
     @TableField(value = "sys_device_serial_number")
     @Schema(description = "序列号")
-    /** sysdeviceserial数字 */
+    /**
+     * sysdeviceserial数字
+    */
     private String sysDeviceSerialNumber;
 
     /**
@@ -51,7 +57,9 @@ public class SysDeviceCardEvent extends SysBase {
      */
     @TableField(value = "sys_device_card_event_person_involved")
     @Schema(description = "涉事人ID")
-    /** sysdevicecard事件personinvolved */
+    /**
+     * sysdevicecard事件personinvolved
+    */
     private String sysDeviceCardEventPersonInvolved;
 
     /**
@@ -59,7 +67,9 @@ public class SysDeviceCardEvent extends SysBase {
      */
     @TableField(value = "sys_device_card_event_person_involved_name")
     @Schema(description = "涉事人姓名")
-    /** sysdevicecard事件personinvolved名称 */
+    /**
+     * sysdevicecard事件personinvolved名称
+    */
     private String sysDeviceCardEventPersonInvolvedName;
 
     /**
@@ -67,7 +77,9 @@ public class SysDeviceCardEvent extends SysBase {
      */
     @TableField(value = "sys_device_card_event_major_name")
     @Schema(description = "主事件类型")
-    /** sysdevicecard事件major名称 */
+    /**
+     * sysdevicecard事件major名称
+    */
     private String sysDeviceCardEventMajorName;
 
     /**
@@ -75,7 +87,9 @@ public class SysDeviceCardEvent extends SysBase {
      */
     @TableField(value = "sys_device_card_event_minor_name")
     @Schema(description = "次事件类型")
-    /** sysdevicecard事件minor名称 */
+    /**
+     * sysdevicecard事件minor名称
+    */
     private String sysDeviceCardEventMinorName;
 
     /**
@@ -83,6 +97,8 @@ public class SysDeviceCardEvent extends SysBase {
      */
     @TableField(value = "sys_device_card_event_message_id")
     @Schema(description = "消息ID")
-    /** sysdevicecard事件消息标识 */
+    /**
+     * sysdevicecard事件消息标识
+    */
     private String sysDeviceCardEventMessageId;
 }

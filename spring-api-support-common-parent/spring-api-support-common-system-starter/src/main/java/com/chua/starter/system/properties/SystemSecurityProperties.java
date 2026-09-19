@@ -16,7 +16,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = SystemSecurityProperties.PRE)
 public class SystemSecurityProperties {
 
-    /** PRE */
+    /**
+     * PRE
+    */
     public static final String PRE = "plugin.system.security";
 
     /**
