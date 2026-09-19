@@ -31,7 +31,6 @@ INSERT IGNORE INTO `sys_role` (`sys_role_id`, `sys_role_name`, `sys_role_code`, 
 -- 2. 系统基础菜单与权限
 -- 仅保留当前 system 应用实际依赖的 system/common-service 基线能力
 -- =====================================================
--- 菜单与角色菜单绑定：与线上 system_db 逐行对齐（含任务派发/调度中心/消息渠道/发送日志入口）
 INSERT IGNORE INTO `sys_menu` (
     `sys_menu_id`,
     `sys_menu_name`,
@@ -87,15 +86,18 @@ INSERT IGNORE INTO `sys_menu` (
 (36, 'errorlog', '/manage/errorlog', NULL, '错误日志', NULL, 1, '0,1,36', 'system/errorlog/index', 'ep:warning', 0, 13, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (37, 'message', '/manage/message', NULL, '站内消息', NULL, 1, '0,1,37', 'system/message/index', 'ep:message', 0, 14, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (38, 'monitor', '/manage/monitor', NULL, '服务监控', NULL, 1, '0,1,38', 'system/monitor/index', 'ep:odometer', 0, 15, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(39, 'file', '/manage/file', NULL, '文件管理', NULL, 1, '0,1,39', 'filesystem/list/index', 'ep:folder', 0, 20, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(40, 'filegroup', '/manage/filegroup', NULL, '文件分组', NULL, 1, '0,1,40', 'filesystem/group/index', 'ep:files', 0, 21, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(41, 'filestorage', '/manage/filestorage', NULL, '存储配置', NULL, 1, '0,1,41', 'filesystem/filestorage/index', 'ep:box', 0, 22, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(42, 'filesetting', '/manage/filesetting', NULL, '文件设置', NULL, 1, '0,1,42', 'filesystem/setting/index', 'ep:setting', 0, 23, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(43, 'msgtemplate', '/manage/msgtemplate', NULL, '消息模板', NULL, 1, '0,1,43', 'message/template/index', 'ep:document', 0, 24, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(44, 'taskdispatch', '/manage/taskdispatch', '', '任务派发', '', 1, '0,1,44', 'task/dispatch/index', 'ep:promotion', 0, 25, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(45, 'scheduler', '/manage/scheduler', '', '调度中心', '', 1, '0,1,45', 'task/scheduler/index', 'ep:timer', 0, 26, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(46, 'msgprovider', '/manage/msgprovider', '', '消息渠道', '', 1, '0,1,46', 'message/provider/index', 'ep:connection', 0, 27, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(47, 'msglog', '/manage/msglog', '', '发送日志', '', 1, '0,1,47', 'message/log/index', 'ep:tickets', 0, 28, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL);
+(50, 'filesystem', '/filesystem', NULL, '文件系统', NULL, 0, '0,50', '/filesystem', 'ep:folder', 0, 20, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
+(51, 'msgcenter', '/message', NULL, '消息中心', NULL, 0, '0,51', '/message', 'ep:chat-dot-square', 0, 24, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
+(52, 'taskcenter', '/task', NULL, '任务调度', NULL, 0, '0,52', '/task', 'ep:timer', 0, 25, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
+(39, 'file', '/manage/file', NULL, '文件管理', NULL, 50, '0,50,39', 'filesystem/list/index', 'ep:folder', 0, 20, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(40, 'filegroup', '/manage/filegroup', NULL, '文件分组', NULL, 50, '0,50,40', 'filesystem/group/index', 'ep:files', 0, 21, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(41, 'filestorage', '/manage/filestorage', NULL, '存储配置', NULL, 50, '0,50,41', 'filesystem/filestorage/index', 'ep:box', 0, 22, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(42, 'filesetting', '/manage/filesetting', NULL, '文件设置', NULL, 50, '0,50,42', 'filesystem/setting/index', 'ep:setting', 0, 23, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(43, 'msgtemplate', '/manage/msgtemplate', NULL, '消息模板', NULL, 51, '0,51,43', 'message/template/index', 'ep:document', 0, 24, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(44, 'taskdispatch', '/manage/taskdispatch', '', '任务派发', '', 52, '0,52,44', 'task/dispatch/index', 'ep:promotion', 0, 25, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(45, 'scheduler', '/manage/scheduler', '', '调度中心', '', 52, '0,52,45', 'task/scheduler/index', 'ep:timer', 0, 26, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(46, 'msgprovider', '/manage/msgprovider', '', '消息渠道', NULL, 51, '0,51,46', 'message/provider/index', 'ep:connection', 0, 27, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(47, 'msglog', '/manage/msglog', '', '发送日志', NULL, 51, '0,51,47', 'message/log/index', 'ep:tickets', 0, 28, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL);
 
 INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu_id`) VALUES
 (82, 2, 4),
@@ -144,7 +146,10 @@ INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu
 (177, 2, 44),
 (178, 2, 45),
 (179, 2, 46),
-(180, 2, 47);
+(180, 2, 47),
+(181, 2, 50),
+(182, 2, 51),
+(183, 2, 52);
 
 -- =====================================================
 -- 3. 默认系统账号
@@ -207,4 +212,5 @@ INSERT IGNORE INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_
 
 INSERT IGNORE INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_name`, `sys_avatar_frame_type`, `sys_avatar_frame_image`, `sys_avatar_frame_desc`, `sys_avatar_frame_acquire`, `sys_avatar_frame_sort`, `sys_avatar_frame_status`) VALUES
 (100, '生日快乐', 'birthday', '/assets/avatar-frames/birthday.svg', '生日专属限定头像框', 'birthday', 99, 1);
+
 
