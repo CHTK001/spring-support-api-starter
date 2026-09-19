@@ -335,8 +335,9 @@ CREATE TABLE IF NOT EXISTS `monitor_server` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='被监控服务器主机表';
 
 -- ============================================================================
--- 老库幂等补列段：monitor_acme_account.provider_type（并入自 V1.2__add_acme_account_provider_type.sql）
--- 新库全量 DDL 已含该列；老库缺列时此处补齐（ADD COLUMN IF NOT EXISTS 为 MySQL/H2 通用写法）
+-- monitor_acme_account.provider_type（并入自 V1.2__add_acme_account_provider_type.sql）
+-- 该列已内联进上方建表本体，不再保留老库补列 ALTER：MySQL 8 不支持
+-- ADD COLUMN IF NOT EXISTS（仅 MariaDB 支持），无条件 ALTER 重复执行会报 1060。
 -- ============================================================================
 -- 操作日志表（并入自 V1.3__add_operation_log.sql）
 CREATE TABLE IF NOT EXISTS ms_operation_log (
