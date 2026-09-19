@@ -89,18 +89,37 @@ public class SysDictServiceImpl extends ServiceImpl<SysDictMapper, SysDict> impl
                 .like(StringUtils.isNotBlank(sysDict.getSysDictRemark()), SysDict::getSysDictRemark, sysDict.getSysDictRemark())
                 .orderByDesc(SysDict::getCreateTime)
         );
+        attachChildren(sysDictPage.getRecords());
+        return sysDictPage;
+    }
 
-        List<SysDict> records = sysDictPage.getRecords();
-        List<Integer> ids = records.stream().map(SysDict::getSysDictId).toList();
-        if (CollectionUtils.isEmpty(ids)) {
-            return sysDictPage;
+    @Override
+    public List<SysDict> listForDict(SysDict sysDict) {
+        List<SysDict> records = baseMapper.selectList(Wrappers.<SysDict>lambdaQuery()
+                .eq(SysDict::getSysDictPid, 0)
+                .like(StringUtils.isNotBlank(sysDict.getSysDictCode()), SysDict::getSysDictCode, sysDict.getSysDictCode())
+                .like(StringUtils.isNotBlank(sysDict.getSysDictName()), SysDict::getSysDictName, sysDict.getSysDictName())
+                .orderByDesc(SysDict::getCreateTime)
+        );
+        attachChildren(records);
+        return records;
+    }
+
+    /**
+     * 为一级字典批量挂载子级
+     *
+     * @param records 一级字典列表，方法内直接写回 children
+     */
+    private void attachChildren(List<SysDict> records) {
+        if (CollectionUtils.isEmpty(records)) {
+            return;
         }
+        List<Integer> ids = records.stream().map(SysDict::getSysDictId).toList();
         List<SysDict> sysDicts = baseMapper.selectList(Wrappers.<SysDict>lambdaQuery().in(SysDict::getSysDictPid, ids));
         Map<Integer, List<SysDict>> sysDictMap = sysDicts.stream().collect(Collectors.groupingBy(SysDict::getSysDictPid));
         for (SysDict record : records) {
             record.setChildren(Optional.ofNullable(sysDictMap.get(record.getSysDictId())).orElse(Collections.emptyList()));
         }
-        return sysDictPage;
     }
 
     /**

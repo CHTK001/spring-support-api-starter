@@ -24,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -66,6 +67,18 @@ public class SysDictController {
      */
     public ReturnPageResult<SysDict> pageForRole(@ParameterObject Query<SysDict> query, @ParameterObject SysDict sysDict, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         return PageResultUtils.ok(sysDictService.pageForDict(query, sysDict, roles));
+    }
+
+    /**
+     * 字典列表（不分页，带子级）
+     *
+     * @param sysDict 条件
+     * @return 字典列表的结果
+     */
+    @Operation(summary = "字典列表")
+    @GetMapping("/list")
+    public ReturnResult<List<SysDict>> list(@ParameterObject SysDict sysDict) {
+        return ReturnResult.ok(sysDictService.listForDict(sysDict));
     }
 
     /**
