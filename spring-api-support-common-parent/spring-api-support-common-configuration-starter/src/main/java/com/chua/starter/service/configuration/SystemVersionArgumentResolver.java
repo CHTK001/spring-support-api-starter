@@ -18,7 +18,9 @@ import java.util.Map;
 public class SystemVersionArgumentResolver implements VersionArgumentResolver {
 
     @Override
-    /** 版本 */
+    /**
+     * 版本
+    */
     public String version() {
         var setting = GlobalSettingFactory.getInstance().get("config", VersionSetting.class);
         if (setting != null) {

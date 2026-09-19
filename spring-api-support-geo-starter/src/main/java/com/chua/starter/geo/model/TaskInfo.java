@@ -11,38 +11,72 @@ import java.time.LocalDateTime;
  */
 @Data
 public class TaskInfo {
-    /** 任务唯一标识 */
+    /**
+     * 任务唯一标识
+    */
     private String id;
-    /** 任务名称 */
+    /**
+     * 任务名称
+    */
     private String name;
-    /** 图源 标识 */
+    /**
+     * 图源 标识
+    */
     private String source;
-    /** 图源显示名称 */
+    /**
+     * 图源显示名称
+    */
     private String sourceName;
-    /** 缩放级别 */
+    /**
+     * 缩放级别
+    */
     private int zoom;
-    /** 输出格式 */
+    /**
+     * 输出格式
+    */
     private String format;
-    /** 保存路径 */
+    /**
+     * 保存路径
+    */
     private String savePath;
-    /** 当前任务状态 */
+    /**
+     * 当前任务状态
+    */
     private TaskStatus status;
-    /** 进度百分比（0-100） */
+    /**
+     * 进度百分比（0-100）
+    */
     private double progress;
-    /** 已完成的瓦片数 */
+    /**
+     * 已完成的瓦片数
+    */
     private int completed;
-    /** 总瓦片数 */
+    /**
+     * 总瓦片数
+    */
     private int total;
-    /** 失败的瓦片数 */
+    /**
+     * 失败的瓦片数
+    */
     private int failedCount;
-    /** 成功的瓦片数（= 完成 - 失败数量） */
+    /**
+     * 成功的瓦片数（= 完成 - 失败数量）
+    */
     private int successCount;
-    /** 输出文件大小（字节） */
+    /**
+     * 输出文件大小（字节）
+    */
     private long fileSize;
-    /** 状态消息 */
+    /**
+     * 状态消息
+    */
     private String message;
-    /** 错误信息（失败时） */
+    /**
+     * 错误信息（失败时）
+    */
     private String error;
-    /** 任务创建时间 */
+    /**
+     * 任务创建时间
+    */
     private LocalDateTime createdAt;
 }

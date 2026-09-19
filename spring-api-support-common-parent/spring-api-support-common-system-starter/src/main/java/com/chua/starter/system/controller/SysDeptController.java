@@ -37,7 +37,9 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysDeptController {
 
-    /** sysdept服务 */
+    /**
+     * sysdept服务
+    */
     private final SysDeptService sysDeptService;
 
 

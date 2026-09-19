@@ -38,22 +38,34 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class TileDownloadController {
 
-    /** 瓦片下载服务 */
+    /**
+     * 瓦片下载服务
+    */
     private final TileDownloaderService downloaderService;
 
-    /** 瓦片拼接服务 */
+    /**
+     * 瓦片拼接服务
+    */
     private final TileMergerService mergerService;
 
-    /** 图像导出服务 */
+    /**
+     * 图像导出服务
+    */
     private final GeoTiffExporter exporter;
 
-    /** 任务管理服务 */
+    /**
+     * 任务管理服务
+    */
     private final TaskManagerService taskManager;
 
-    /** 图源配置服务 */
+    /**
+     * 图源配置服务
+    */
     private final GeoTileSources tileSources;
 
-    /** 异步任务执行线程池（虚拟 Thread） */
+    /**
+     * 异步任务执行线程池（虚拟 Thread）
+    */
     private ExecutorService executor;
 
     /**

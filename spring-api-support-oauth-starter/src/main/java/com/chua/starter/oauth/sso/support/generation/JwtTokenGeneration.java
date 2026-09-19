@@ -37,7 +37,9 @@ import java.util.UUID;
 public class JwtTokenGeneration implements TokenGeneration {
 
     @AutoInject
-    /** 认证服务器属性 */
+    /**
+     * 认证服务器属性
+    */
     private AuthServerProperties authServerProperties;
 
     private volatile SecretKey hmacKey; // hmac键
@@ -46,7 +48,9 @@ public class JwtTokenGeneration implements TokenGeneration {
     private volatile boolean initialized = false; // 初始化
 
     @Override
-    /** Generation */
+    /**
+     * Generation
+    */
     public String generation(String key) {
  // 简单生成模式，返回 JWT 标识
         return UUID.randomUUID().toString().replace("-", "");

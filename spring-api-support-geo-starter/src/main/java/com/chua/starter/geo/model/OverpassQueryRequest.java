@@ -13,7 +13,9 @@ import lombok.Data;
  */
 @Data
 public class OverpassQueryRequest {
-    /** 地理边界 */
+    /**
+     * 地理边界
+    */
     @Valid
     @NotNull(message = "bounds不能为空")
     private Bounds bounds; // bounds
@@ -25,16 +27,24 @@ public class OverpassQueryRequest {
     @NotBlank(message = "query不能为空")
     private String query; // 查询
 
-    /** 输出格式：json / xml / gpkg */
+    /**
+     * 输出格式：json / xml / gpkg
+    */
     @NotBlank(message = "format不能为空")
     private String format; // 格式化
 
-    /** 代理地址 */
+    /**
+     * 代理地址
+    */
     private String proxy;
 
-    /** 保存路径 */
+    /**
+     * 保存路径
+    */
     private String savePath;
 
-    /** 任务名称 */
+    /**
+     * 任务名称
+    */
     private String taskName;
 }

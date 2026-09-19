@@ -46,13 +46,19 @@ import java.util.regex.Pattern;
 @Slf4j
 public class Tiles3dServiceImpl implements Tiles3dService {
 
-    /** 铯 Ion API 基础地址 */
+    /**
+     * 铯 Ion API 基础地址
+    */
     private static final String CESIUM_ION_API = "https://api.cesium.com";
 
-    /** tileset.json 文件名 */
+    /**
+     * tileset.json 文件名
+    */
     private static final String TILESET_JSON = "tileset.json";
 
-    /** 内容文件扩展名模式 */
+    /**
+     * 内容文件扩展名模式
+    */
     private static final Pattern CONTENT_EXT = Pattern.compile("\\.(b3dm|gltf|glb|geojson|json)$", Pattern.CASE_INSENSITIVE);
 
     private final ObjectMapper objectMapper = new ObjectMapper(); // 对象映射器

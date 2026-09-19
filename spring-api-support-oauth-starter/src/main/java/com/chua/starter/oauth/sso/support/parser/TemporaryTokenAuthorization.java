@@ -24,9 +24,13 @@ import java.util.Map;
 @Slf4j
 public final class TemporaryTokenAuthorization implements Authorization {
 
-    /** Authinformation */
+    /**
+     * Authinformation
+    */
     private final TemporaryTokenAuthInformation authInformation;
-    /** Application上下文 */
+    /**
+     * Application上下文
+    */
     private final ApplicationContext applicationContext;
 
     /**

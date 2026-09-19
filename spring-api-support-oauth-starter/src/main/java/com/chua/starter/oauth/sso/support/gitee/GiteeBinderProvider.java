@@ -61,14 +61,22 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
     final ThirdPartyBinderProperties thirdPartyBinderProperties; // thirdpartybinder属性
     final LoginCheck loginCheck; // login检查
     final AuthServerProperties authServerProperties; // 认证服务端属性
-    /** 认证状态缓存 */
+    /**
+     * 认证状态缓存
+    */
     private final AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
-    /** Gitee服务 */
+    /**
+     * Gitee服务
+    */
     private GiteeService giteeService;
-    /** 认证请求 */
+    /**
+     * 认证请求
+    */
     private AuthGiteeRequest authRequest;
     @Value("${plugin.auth.server.context-path:}")
-    /** 上下文路径 */
+    /**
+     * 上下文路径
+    */
     private String contextPath;
 
     /**
@@ -139,7 +147,9 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
     }
 
     @Override
-    /** 之后属性设置 */
+    /**
+     * 之后属性设置
+    */
     public void afterPropertiesSet() throws Exception {
         this.authRequest = new AuthGiteeRequest(AuthConfig.builder()
                 .clientId(thirdPartyBinderProperties.getGitee().getClientId())
@@ -149,7 +159,9 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
     }
 
     @Override
-    /** 设置application上下文 */
+    /**
+     * 设置application上下文
+    */
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         try {
             giteeService = applicationContext.getBean(GiteeService.class);

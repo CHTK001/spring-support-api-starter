@@ -58,13 +58,19 @@ import java.util.Map;
 public class GiteeCallbackController {
 
 
-    /** Third_party_类型 */
+    /**
+     * Third_party_类型
+    */
     private static final String THIRD_PARTY_TYPE = "gitee";
-    /** 单点登录_群体 */
+    /**
+     * 单点登录_群体
+    */
     private static final String SSO_GROUP = "sso";
 
     @Autowired(required = false)
-    /** syslogincallback服务 */
+    /**
+     * syslogincallback服务
+    */
     private SysLoginCallbackService sysLoginCallbackService;
     final SysUserThirdPartyService sysUserThirdPartyService; // sys用户thirdparty服务
     final SysLoginService sysLoginService; // syslogin服务

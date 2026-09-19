@@ -21,10 +21,14 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class TileCacheService {
 
-    /** Caffeine 缓存实例 */
+    /**
+     * Caffeine 缓存实例
+    */
     private Cache<String, byte[]> cache;
 
-    /** Geo 配置属性 */
+    /**
+     * Geo 配置属性
+    */
     private final GeoProperties properties;
 
     /**

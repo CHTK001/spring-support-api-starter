@@ -44,13 +44,19 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysAnnouncementController {
 
-    /** sysannouncement服务 */
+    /**
+     * sysannouncement服务
+    */
     private final SysAnnouncementService sysAnnouncementService;
 
-    /** 公告已读记录 Mapper */
+    /**
+     * 公告已读记录 Mapper
+    */
     private final SysAnnouncementReadMapper sysAnnouncementReadMapper;
 
-    /** SYS用户 Mapper(用于统计总用户数与已读用户) */
+    /**
+     * SYS用户 Mapper(用于统计总用户数与已读用户)
+    */
     private final SysUserMapper sysUserMapper;
 
     /**

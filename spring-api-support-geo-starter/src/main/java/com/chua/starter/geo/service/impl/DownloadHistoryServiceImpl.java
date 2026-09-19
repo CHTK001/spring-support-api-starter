@@ -29,10 +29,14 @@ public class DownloadHistoryServiceImpl implements DownloadHistoryService {
 
     private static final String DEFAULT_HISTORY_FILE = "history.json"; // 默认历史文件
 
-    /** JSON 序列化器 */
+    /**
+     * JSON 序列化器
+    */
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    /** 历史记录文件路径 */
+    /**
+     * 历史记录文件路径
+    */
     private Path historyFile;
 
     /**

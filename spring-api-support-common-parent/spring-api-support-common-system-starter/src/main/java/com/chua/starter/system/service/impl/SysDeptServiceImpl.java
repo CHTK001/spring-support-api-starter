@@ -35,11 +35,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> implements SysDeptService {
 
-    /** sysdeptprincipalrel服务 */
+    /**
+     * sysdeptprincipalrel服务
+    */
     private final SysDeptPrincipalRelService sysDeptPrincipalRelService;
 
     @Override
-    /** 列表 */
+    /**
+     * 列表
+    */
     public List<SysDeptVO> list(SysDept sysDept, Set<String> roles) {
         List<SysDept> sysDepts = baseMapper.selectList(
                 Wrappers.<SysDept>lambdaQuery()
@@ -64,7 +68,9 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
             treeNode.setExt(sysDeptVO);
             treeNode.setChildrenConsumer(new SafeConsumer<List<SysDeptVO>>() {
                 @Override
-                /** safeaccept */
+                /**
+                 * safeaccept
+                */
                 public void safeAccept(List<SysDeptVO> sysDeptVOS) throws Throwable {
                     sysDeptVO.setChildren(sysDeptVOS);
                 }
@@ -78,13 +84,17 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
     }
 
     @Override
-    /** 删除 */
+    /**
+     * 删除
+    */
     public ReturnResult<Boolean> delete(Long deptId) {
         return ReturnResult.of(baseMapper.deleteById(deptId) > 0);
     }
 
     @Override
-    /** 更新 */
+    /**
+     * 更新
+    */
     public ReturnResult<Boolean> update(Set<String> roles, SysDept sysDept) {
         if (null != sysDept.getSysDeptPid() && sysDept.getSysDeptPid() != SystemConstant.ROOT_NODE_ID) {
             SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
@@ -140,7 +150,9 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
     }
 
     @Override
-    /** 保存 */
+    /**
+     * 保存
+    */
     public ReturnResult<SysDept> save(SysDept sysDept, Set<String> roles) {
         String menuTreeId = "";
         String parentTreeId = "";

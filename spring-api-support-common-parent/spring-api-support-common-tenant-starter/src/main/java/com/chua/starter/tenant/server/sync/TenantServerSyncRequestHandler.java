@@ -27,15 +27,23 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")
 public class TenantServerSyncRequestHandler implements SyncMessageHandler {
 
-    /** Tenant属性 */
+    /**
+     * Tenant属性
+    */
     private final TenantProperties tenantProperties;
-    /** 同步服务器 */
+    /**
+     * 同步服务器
+    */
     private final SyncServer syncServer;
-    /** 同步publisher */
+    /**
+     * 同步publisher
+    */
     private final TenantServerSyncPublisher syncPublisher;
 
     @Override
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     public String getName() {
         return "tenant-server-sync-request";
     }

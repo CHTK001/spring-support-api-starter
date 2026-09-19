@@ -32,14 +32,22 @@ import java.util.concurrent.TimeUnit;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".client", name = "enable", havingValue = "true")
 public class TenantSyncClientCustomizer implements SyncClientCustomizer, DisposableBean {
 
-    /** ReasonML_客户端_连接 */
+    /**
+     * ReasonML_客户端_连接
+    */
     private static final String REASON_CLIENT_CONNECT = "client-connect";
 
-    /** Tenant属性 */
+    /**
+     * Tenant属性
+    */
     private final TenantProperties tenantProperties;
-    /** Tenant客户端同步处理器 */
+    /**
+     * Tenant客户端同步处理器
+    */
     private final TenantClientSyncHandler tenantClientSyncHandler;
-    /** 调度器 */
+    /**
+     * 调度器
+    */
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
         Thread thread = new Thread(runnable, "tenant-sync-client-customizer");
         thread.setDaemon(true);
@@ -47,13 +55,17 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
     });
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return -100;
     }
 
     @Override
-    /** Customize */
+    /**
+     * Customize
+    */
     public void customize(SyncClient syncClient) {
         if (!tenantProperties.isClientMode() || !tenantProperties.getClient().isSyncEnable()) {
             return;
@@ -69,7 +81,9 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
 
         syncClient.addListener(new SyncFlowListener() {
             @Override
-            /** on客户端连接 */
+            /**
+             * on客户端连接
+            */
             public void onClientConnected(String clientId) {
                 scheduleFullSyncRequest(syncClient);
             }
@@ -154,7 +168,9 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
     }
 
     @Override
-    /** 销毁 */
+    /**
+     * 销毁
+    */
     public void destroy() {
         scheduler.shutdownNow();
     }

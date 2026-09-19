@@ -34,14 +34,20 @@ import java.time.LocalDateTime;
  */
 public class SysAnnouncementScheduleTask {
 
-    /** 公告活跃缓存名(与 SysAnnouncementServiceImpl 上的 @Cacheable 一致) */
+    /**
+     * 公告活跃缓存名(与 SysAnnouncementServiceImpl 上的 @Cacheable 一致)
+    */
     private static final String ACTIVE_CACHE = "announcement:active";
 
-    /** SYS公告服务 */
+    /**
+     * SYS公告服务
+    */
     @Autowired
     private SysAnnouncementService sysAnnouncementService;
 
-    /** 缓存管理器: 状态流转后主动清空活跃公告缓存 */
+    /**
+     * 缓存管理器: 状态流转后主动清空活跃公告缓存
+    */
     @Autowired(required = false)
     private CacheManager cacheManager;
 

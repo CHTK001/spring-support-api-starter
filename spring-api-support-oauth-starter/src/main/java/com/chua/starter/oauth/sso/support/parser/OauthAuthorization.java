@@ -18,17 +18,27 @@ import org.springframework.context.ApplicationContext;
  */
 @Slf4j
 public final class OauthAuthorization implements Authorization {
-    /** 令牌 */
+    /**
+     * 令牌
+    */
     private final String token;
-    /** Cookie */
+    /**
+     * Cookie
+    */
     private final String cookie;
-    /** SUB协议 */
+    /**
+     * SUB协议
+    */
     private final String subProtocol;
-    /** 用户代码 */
+    /**
+     * 用户代码
+    */
     private final String userCode;
     final ApplicationContext applicationContext; // application上下文
     final LoginCheck loginCheck; // login检查
-    /** Authinformation */
+    /**
+     * Authinformation
+    */
     private final OauthAuthInformation authInformation;
 
     /**
@@ -58,7 +68,9 @@ public final class OauthAuthorization implements Authorization {
     }
 
     @Override
-    /** 认证 */
+    /**
+     * 认证
+    */
     public ReturnResult<String> authentication() {
         log.info("开始认证: subProtocol={}, hasToken={}, hasUserCode={}", 
                 subProtocol, StringUtils.isNotBlank(token), StringUtils.isNotBlank(userCode));

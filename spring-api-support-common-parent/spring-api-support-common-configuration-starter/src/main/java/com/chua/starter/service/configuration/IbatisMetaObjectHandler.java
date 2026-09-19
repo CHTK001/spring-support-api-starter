@@ -33,7 +33,9 @@ import static com.chua.common.support.enums.Action.UPDATE;
 public class IbatisMetaObjectHandler implements MetaObjectHandler {
 
     @Autowired(required = false)
-    /** 认证属性 */
+    /**
+     * 认证属性
+    */
     private AuthClientProperties authProperties;
 
     /**

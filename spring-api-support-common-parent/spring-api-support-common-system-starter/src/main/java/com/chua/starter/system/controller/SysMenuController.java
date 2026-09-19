@@ -41,7 +41,9 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 @RequiredArgsConstructor
 public class SysMenuController {
 
-    /** sysmenu服务 */
+    /**
+     * sysmenu服务
+    */
     private final SysMenuService sysMenuService;
     /**
      * 菜单列表

@@ -26,7 +26,9 @@ public class H2TableEnsure {
     private static final Logger log = LoggerFactory.getLogger(H2TableEnsure.class);
 
     @Autowired
-    /** 数据Sources */
+    /**
+     * 数据Sources
+    */
     private Map<String, DataSource> dataSources;
 
     /**

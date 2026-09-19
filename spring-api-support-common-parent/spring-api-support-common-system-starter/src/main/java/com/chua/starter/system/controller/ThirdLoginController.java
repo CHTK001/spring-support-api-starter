@@ -37,7 +37,9 @@ import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 @RequiredArgsConstructor
 public class ThirdLoginController {
 
-    /** 用户登录服务，处理第三方授权登录逻辑 */
+    /**
+     * 用户登录服务，处理第三方授权登录逻辑
+    */
     final SysLoginService sysLoginService;
     /**
      * 第三方授权登录，将授权码换取用户身份并写入 令牌。

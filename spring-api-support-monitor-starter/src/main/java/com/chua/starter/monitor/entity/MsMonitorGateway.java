@@ -31,7 +31,9 @@ public class MsMonitorGateway extends SysBase {
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    /** 标识 */
+    /**
+     * 标识
+    */
     private Long id;
 
     /**
@@ -40,7 +42,9 @@ public class MsMonitorGateway extends SysBase {
     @TableField("gateway_name")
     @ApiModelProperty("网关名称")
     @Schema(description = "网关名称")
-    /** Gateway名称 */
+    /**
+     * Gateway名称
+    */
     private String gatewayName;
 
     /**
@@ -49,7 +53,9 @@ public class MsMonitorGateway extends SysBase {
     @TableField("monitor_id")
     @ApiModelProperty("监控资产ID")
     @Schema(description = "监控资产ID")
-    /** 监控id */
+    /**
+     * 监控id
+    */
     private Long monitorId;
 
     /**
@@ -58,7 +64,9 @@ public class MsMonitorGateway extends SysBase {
     @TableField("gateway_host")
     @ApiModelProperty("网关主机")
     @Schema(description = "网关主机")
-    /** Gateway主机 */
+    /**
+     * Gateway主机
+    */
     private String gatewayHost;
 
     /**
@@ -67,7 +75,9 @@ public class MsMonitorGateway extends SysBase {
     @TableField("gateway_port")
     @ApiModelProperty("网关端口")
     @Schema(description = "网关端口")
-    /** Gateway端口 */
+    /**
+     * Gateway端口
+    */
     private Integer gatewayPort;
 
     /**
@@ -76,7 +86,9 @@ public class MsMonitorGateway extends SysBase {
     @TableField("protocol")
     @ApiModelProperty("协议")
     @Schema(description = "协议")
-    /** 协议 */
+    /**
+     * 协议
+    */
     private String protocol;
 
     /**
@@ -85,7 +97,9 @@ public class MsMonitorGateway extends SysBase {
     @TableField("auth_enabled")
     @ApiModelProperty("鉴权启用（0禁用/1启用）")
     @Schema(description = "鉴权启用（0禁用/1启用）")
-    /** 认证是否启用 */
+    /**
+     * 认证是否启用
+    */
     private Integer authEnabled;
 
     /**
@@ -94,7 +108,9 @@ public class MsMonitorGateway extends SysBase {
     @TableField("gateway_status")
     @ApiModelProperty("网关状态（ACTIVE/STANDBY/ERROR）")
     @Schema(description = "网关状态")
-    /** Gateway状态 */
+    /**
+     * Gateway状态
+    */
     private String gatewayStatus;
 
     /**
@@ -104,6 +120,8 @@ public class MsMonitorGateway extends SysBase {
     @TableLogic
     @ApiModelProperty("逻辑删除")
     @Schema(description = "逻辑删除")
-    /** 删除标记 */
+    /**
+     * 删除标记
+    */
     private Integer deleted;
 }

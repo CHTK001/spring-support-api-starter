@@ -32,7 +32,9 @@ import java.security.SecureRandom;
 @RequiredArgsConstructor
 public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SimpleSysUserService {
 
-    /** Issuer */
+    /**
+     * Issuer
+    */
     private static final String ISSUER = "SpringAPI";
     /**
      * TOTP 时间窗口容差（前后各允许多少个时间窗口）

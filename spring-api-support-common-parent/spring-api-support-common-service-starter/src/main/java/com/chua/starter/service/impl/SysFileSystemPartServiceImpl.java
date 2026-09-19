@@ -25,7 +25,9 @@ import java.util.List;
 public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartMapper, SysFileSystemPart> implements SysFileSystemPartService {
 
     @Override
-    /** 列表by文件id */
+    /**
+     * 列表by文件id
+    */
     public List<SysFileSystemPart> listByFileId(Integer fileId) {
         if (fileId == null) {
             return List.of();
@@ -36,7 +38,9 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
     }
 
     @Override
-    /** 列表by文件id和版本 */
+    /**
+     * 列表by文件id和版本
+    */
     public List<SysFileSystemPart> listByFileIdAndVersion(Integer fileId, Integer version) {
         if (fileId == null || version == null) {
             return List.of();
@@ -64,7 +68,9 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
     }
 
     @Override
-    /** 计算数量完成by文件id */
+    /**
+     * 计算数量完成by文件id
+    */
     public long countCompletedByFileId(Integer fileId) {
         if (fileId == null) {
             return 0L;
@@ -112,7 +118,9 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
     }
 
     @Override
-    /** 验证完整性 */
+    /**
+     * 验证完整性
+    */
     public ReturnResult<Boolean> verifyIntegrity(Integer fileId, int expectedChunks) {
         if (fileId == null || expectedChunks <= 0) {
             return ReturnResult.error("参数无效");

@@ -19,13 +19,17 @@ public class SysFileUploadRequest {
      */
     @Schema(description = "文件bucket")
     @NotNull(message = "文件bucket不能为空", groups = {UploadGroup.class})
-    /** 文件存储桶 */
+    /**
+     * 文件存储桶
+    */
     private String fileBucket;
     /**
      * 文件名
      */
     @Schema(description = "文件名")
-    /** 文件名称 */
+    /**
+     * 文件名称
+    */
     private String fileName;
 
 
@@ -33,6 +37,8 @@ public class SysFileUploadRequest {
      * 对象存储类型
      */
     @Schema(description = "OSS类型; 本地(FILESYSTEM: 默认), 七牛(QINIU)")
-    /** 对象存储类型 */
+    /**
+     * 对象存储类型
+    */
     private String ossType = "FILESYSTEM";
 }

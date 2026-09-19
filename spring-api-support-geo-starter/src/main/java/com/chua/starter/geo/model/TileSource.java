@@ -11,16 +11,28 @@ import java.util.List;
  */
 @Data
 public class TileSource {
-    /** 图源唯一标识，如 "google_satellite" */
+    /**
+     * 图源唯一标识，如 "google_satellite"
+    */
     private String id;
-    /** 图源显示名称 */
+    /**
+     * 图源显示名称
+    */
     private String name;
-    /** 瓦片 URL 模板，支持 {x}/{y}/{z}/{s} 占位符 */
+    /**
+     * 瓦片 URL 模板，支持 {x}/{y}/{z}/{s} 占位符
+    */
     private String url;
-    /** 子域名列表，用于负载均衡 */
+    /**
+     * 子域名列表，用于负载均衡
+    */
     private List<String> subdomains;
-    /** 最大支持缩放级别 */
+    /**
+     * 最大支持缩放级别
+    */
     private int maxZoom;
-    /** 版权署名信息 */
+    /**
+     * 版权署名信息
+    */
     private String attribution;
 }

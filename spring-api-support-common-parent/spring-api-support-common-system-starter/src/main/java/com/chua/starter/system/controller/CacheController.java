@@ -32,10 +32,14 @@ import java.util.Set;
 @Slf4j
 public class CacheController {
 
-    /** 单次返回 key 的最大数量, 防止 keys 返回过大 */
+    /**
+     * 单次返回 key 的最大数量, 防止 keys 返回过大
+    */
     private static final int MAX_KEYS_RETURN = 200;
 
-    /** stringRedisTemplate */
+    /**
+     * stringRedisTemplate
+    */
     private final StringRedisTemplate stringRedisTemplate;
 
     /**

@@ -21,7 +21,9 @@ public class RoleMenuUpdate {
      */
     @NotNull(message = "角色ID不能为空", groups = {UpdateGroup.class, SelectGroup.class})
     @Schema(description = "角色ID")
-    /** 角色id */
+    /**
+     * 角色id
+    */
     private Integer roleId;
 
     /**
@@ -29,6 +31,8 @@ public class RoleMenuUpdate {
      */
     @NotNull(message = "菜单ID不能为空", groups = {UpdateGroup.class})
     @Schema(description = "菜单ID")
-    /** menuid */
+    /**
+     * menuid
+    */
     private List<Integer> menuId;
 }

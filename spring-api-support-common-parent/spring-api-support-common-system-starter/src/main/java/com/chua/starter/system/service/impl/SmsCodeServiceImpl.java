@@ -68,22 +68,36 @@ public class SmsCodeServiceImpl implements SmsCodeService {
      */
     private static final int SEND_INTERVAL_SECONDS = 60;
 
-    /** 日志_消息_最大_长度 */
+    /**
+     * 日志_消息_最大_长度
+    */
     private static final int LOG_MESSAGE_MAX_LENGTH = 255;
-    /** 日志_参数_最大_长度 */
+    /**
+     * 日志_参数_最大_长度
+    */
     private static final int LOG_PARAM_MAX_LENGTH = 255;
 
-    /** 字符串Redis模板 */
+    /**
+     * 字符串Redis模板
+    */
     private final StringRedisTemplate stringRedisTemplate;
-    /** SYS用户映射器 */
+    /**
+     * SYS用户映射器
+    */
     private final SysUserMapper sysUserMapper;
-    /** syslogin服务 */
+    /**
+     * syslogin服务
+    */
     private final SysLoginService sysLoginService;
-    /** SYSSMS日志映射器 */
+    /**
+     * SYSSMS日志映射器
+    */
     private final SysSmsLogMapper sysSmsLogMapper;
 
     @Override
-    /** 发送编码 */
+    /**
+     * 发送编码
+    */
     public ReturnResult<Boolean> sendCode(SmsCodeRequest request) {
         String phone = request.getPhone();
         String bizType = request.getBizType();
@@ -151,7 +165,9 @@ public class SmsCodeServiceImpl implements SmsCodeService {
     }
 
     @Override
-    /** 验证编码 */
+    /**
+     * 验证编码
+    */
     public boolean verifyCode(String phone, String code, String bizType) {
         if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(code)) {
             return false;
@@ -179,7 +195,9 @@ public class SmsCodeServiceImpl implements SmsCodeService {
     }
 
     @Override
-    /** Login */
+    /**
+     * Login
+    */
     public ReturnResult<LoginResult> login(SmsLoginRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
         String phone = request.getPhone();
         String code = request.getCode();

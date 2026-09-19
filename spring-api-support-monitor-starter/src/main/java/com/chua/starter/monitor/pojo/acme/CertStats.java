@@ -21,7 +21,9 @@ public class CertStats {
      */
     @ApiModelProperty("账户总数")
     @Schema(description = "账户总数")
-    /** 账户数量 */
+    /**
+     * 账户数量
+    */
     private Long accountCount;
 
     /**
@@ -29,7 +31,9 @@ public class CertStats {
      */
     @ApiModelProperty("证书总数")
     @Schema(description = "证书总数")
-    /** 证书数量 */
+    /**
+     * 证书数量
+    */
     private Long certCount;
 
     /**
@@ -37,7 +41,9 @@ public class CertStats {
      */
     @ApiModelProperty("有效证书数")
     @Schema(description = "有效证书数")
-    /** 是否有效数量 */
+    /**
+     * 是否有效数量
+    */
     private Long validCount;
 
     /**
@@ -45,7 +51,9 @@ public class CertStats {
      */
     @ApiModelProperty("待验证证书数")
     @Schema(description = "待验证证书数")
-    /** Pending数量 */
+    /**
+     * Pending数量
+    */
     private Long pendingCount;
 
     /**
@@ -53,7 +61,9 @@ public class CertStats {
      */
     @ApiModelProperty("即将到期证书数")
     @Schema(description = "即将到期证书数")
-    /** Expiring数量 */
+    /**
+     * Expiring数量
+    */
     private Long expiringCount;
 
     /**
@@ -61,7 +71,9 @@ public class CertStats {
      */
     @ApiModelProperty("已过期证书数")
     @Schema(description = "已过期证书数")
-    /** Expired数量 */
+    /**
+     * Expired数量
+    */
     private Long expiredCount;
 
     /**
@@ -69,7 +81,9 @@ public class CertStats {
      */
     @ApiModelProperty("已吊销证书数")
     @Schema(description = "已吊销证书数")
-    /** Revoked数量 */
+    /**
+     * Revoked数量
+    */
     private Long revokedCount;
 
     /**
@@ -77,6 +91,8 @@ public class CertStats {
      */
     @ApiModelProperty("失败证书数")
     @Schema(description = "失败证书数")
-    /** 失败数量 */
+    /**
+     * 失败数量
+    */
     private Long failedCount;
 }

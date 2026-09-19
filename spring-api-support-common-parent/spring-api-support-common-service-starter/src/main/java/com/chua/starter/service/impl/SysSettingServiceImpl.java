@@ -1002,7 +1002,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         return ReturnResult.ok(batchNo);
     }
 
-    /** 敏感配置在列表/详情中展示的掩码值 */
+    /**
+     * 敏感配置在列表/详情中展示的掩码值
+    */
     public static final String SENSITIVE_MASK = "******";
 
     /**

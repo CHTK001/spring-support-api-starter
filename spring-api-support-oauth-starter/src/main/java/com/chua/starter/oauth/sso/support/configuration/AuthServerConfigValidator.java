@@ -26,9 +26,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthServerConfigValidator {
 
-    /** 认证服务器属性 */
+    /**
+     * 认证服务器属性
+    */
     private final AuthServerProperties authServerProperties;
-    /** 环境 */
+    /**
+     * 环境
+    */
     private final Environment environment;
 
     /**

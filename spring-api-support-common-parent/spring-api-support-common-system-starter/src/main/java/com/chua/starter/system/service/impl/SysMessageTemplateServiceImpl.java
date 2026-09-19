@@ -29,7 +29,9 @@ public class SysMessageTemplateServiceImpl extends ServiceImpl<SysMessageTemplat
         implements SysMessageTemplateService {
 
     @Override
-    /** 分页模板 */
+    /**
+     * 分页模板
+    */
     public IPage<SysMessageTemplate> pageForTemplate(Query<SysMessageTemplate> query, SysMessageTemplate template) {
         SysMessageTemplate c = template == null ? new SysMessageTemplate() : template;
         return page(query.createPage(), Wrappers.<SysMessageTemplate>lambdaQuery()
@@ -41,7 +43,9 @@ public class SysMessageTemplateServiceImpl extends ServiceImpl<SysMessageTemplat
     }
 
     @Override
-    /** 保存模板 */
+    /**
+     * 保存模板
+    */
     public ReturnResult<SysMessageTemplate> saveTemplate(SysMessageTemplate template) {
         SysMessageTemplate exist = getOne(Wrappers.<SysMessageTemplate>lambdaQuery()
                 .eq(SysMessageTemplate::getSysMessageTemplateCode, template.getSysMessageTemplateCode()));
@@ -59,7 +63,9 @@ public class SysMessageTemplateServiceImpl extends ServiceImpl<SysMessageTemplat
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 更新模板 */
+    /**
+     * 更新模板
+    */
     public ReturnResult<Boolean> updateTemplate(SysMessageTemplate template) {
         if (null == template.getSysMessageTemplateId()) {
             return ReturnResult.error("模板ID不能为空");
@@ -78,7 +84,9 @@ public class SysMessageTemplateServiceImpl extends ServiceImpl<SysMessageTemplat
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 删除模板 */
+    /**
+     * 删除模板
+    */
     public ReturnResult<Boolean> deleteTemplate(List<Long> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             return ReturnResult.illegal("模板ID不能为空");
@@ -87,7 +95,9 @@ public class SysMessageTemplateServiceImpl extends ServiceImpl<SysMessageTemplat
     }
 
     @Override
-    /** 渲染模板 */
+    /**
+     * 渲染模板
+    */
     public String[] renderByCode(String templateCode, Map<String, String> variables) {
         if (StringUtils.isBlank(templateCode)) {
             return null;

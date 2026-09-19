@@ -14,7 +14,9 @@ import java.util.List;
  */
 @Data
 public class Tiles3dTaskRequest {
-    /** 数据源配置 */
+    /**
+     * 数据源配置
+    */
     @Valid
     @NotNull(message = "source不能为空")
     private Tiles3dSource source; // 源
@@ -25,13 +27,19 @@ public class Tiles3dTaskRequest {
      */
     private List<List<Double>> polygon;
 
-    /** 保存路径 */
+    /**
+     * 保存路径
+    */
     @NotBlank(message = "savePath不能为空")
     private String savePath; // 保存路径
 
-    /** 并发数 */
+    /**
+     * 并发数
+    */
     private Integer concurrency;
 
-    /** 代理地址 */
+    /**
+     * 代理地址
+    */
     private String proxy;
 }

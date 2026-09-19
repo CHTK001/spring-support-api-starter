@@ -32,7 +32,9 @@ public class MsMonitor extends SysBase {
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    /** 标识 */
+    /**
+     * 标识
+    */
     private Long id;
 
     /**
@@ -41,7 +43,9 @@ public class MsMonitor extends SysBase {
     @TableField("monitor_name")
     @ApiModelProperty("监控名称")
     @Schema(description = "监控名称")
-    /** 监控名称 */
+    /**
+     * 监控名称
+    */
     private String monitorName;
 
     /**
@@ -50,7 +54,9 @@ public class MsMonitor extends SysBase {
     @TableField("monitor_host")
     @ApiModelProperty("主机地址")
     @Schema(description = "主机地址")
-    /** 监控主机 */
+    /**
+     * 监控主机
+    */
     private String monitorHost;
 
     /**
@@ -59,7 +65,9 @@ public class MsMonitor extends SysBase {
     @TableField("monitor_port")
     @ApiModelProperty("端口")
     @Schema(description = "端口")
-    /** 监控端口 */
+    /**
+     * 监控端口
+    */
     private Integer monitorPort;
 
     /**
@@ -68,7 +76,9 @@ public class MsMonitor extends SysBase {
     @TableField("service_type")
     @ApiModelProperty("服务类型（SERVER/REDIS/MYSQL/PG/ORACLE/MSSQL）")
     @Schema(description = "服务类型")
-    /** 服务类型 */
+    /**
+     * 服务类型
+    */
     private String serviceType;
 
     /**
@@ -77,7 +87,9 @@ public class MsMonitor extends SysBase {
     @TableField("server_type")
     @ApiModelProperty("服务器类型（LINUX/WINDOWS/MACOS）")
     @Schema(description = "服务器类型")
-    /** 服务器类型 */
+    /**
+     * 服务器类型
+    */
     private String serverType;
 
     /**
@@ -86,7 +98,9 @@ public class MsMonitor extends SysBase {
     @TableField("monitor_group")
     @ApiModelProperty("监控分组")
     @Schema(description = "监控分组")
-    /** 监控分组 */
+    /**
+     * 监控分组
+    */
     private String monitorGroup;
 
     /**
@@ -95,7 +109,9 @@ public class MsMonitor extends SysBase {
     @TableField("monitor_enabled")
     @ApiModelProperty("启用状态（0禁用/1启用）")
     @Schema(description = "启用状态（0禁用/1启用）")
-    /** 监控是否启用 */
+    /**
+     * 监控是否启用
+    */
     private Integer monitorEnabled;
 
     /**
@@ -104,7 +120,9 @@ public class MsMonitor extends SysBase {
     @TableField("monitor_description")
     @ApiModelProperty("描述")
     @Schema(description = "描述")
-    /** 监控描述 */
+    /**
+     * 监控描述
+    */
     private String monitorDescription;
 
     /**
@@ -114,7 +132,9 @@ public class MsMonitor extends SysBase {
     @TableLogic
     @ApiModelProperty("逻辑删除")
     @Schema(description = "逻辑删除")
-    /** 删除标记 */
+    /**
+     * 删除标记
+    */
     private Integer deleted;
 
     /**
@@ -123,6 +143,8 @@ public class MsMonitor extends SysBase {
     @TableField("ms_server_host_id")
     @ApiModelProperty("关联服务器主机ID")
     @Schema(description = "关联服务器主机ID")
-    /** 关联服务器主机标识 */
+    /**
+     * 关联服务器主机标识
+    */
     private Long msServerHostId;
 }

@@ -33,7 +33,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableId(value = "sys_request_statistics_id", type = IdType.AUTO)
     @Schema(description = "统计ID")
-    /** SYS请求统计标识 */
+    /**
+     * SYS请求统计标识
+    */
     private Long sysRequestStatisticsId;
 
     /**
@@ -41,7 +43,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_time")
     @Schema(description = "统计时间")
-    /** SYS请求统计时间 */
+    /**
+     * SYS请求统计时间
+    */
     private LocalDateTime sysRequestStatisticsTime;
 
     /**
@@ -49,7 +53,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_trace_id")
     @Schema(description = "链路追踪ID")
-    /** SYS请求统计跟踪标识 */
+    /**
+     * SYS请求统计跟踪标识
+    */
     private String sysRequestStatisticsTraceId;
 
     /**
@@ -57,7 +63,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_route")
     @Schema(description = "路由信息")
-    /** SYS请求统计route */
+    /**
+     * SYS请求统计route
+    */
     private String sysRequestStatisticsRoute;
 
     /**
@@ -65,7 +73,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_method")
     @Schema(description = "请求方式")
-    /** SYS请求统计方法 */
+    /**
+     * SYS请求统计方法
+    */
     private String sysRequestStatisticsMethod;
 
     /**
@@ -73,7 +83,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_path")
     @Schema(description = "请求路径")
-    /** SYS请求统计路径 */
+    /**
+     * SYS请求统计路径
+    */
     private String sysRequestStatisticsPath;
 
     /**
@@ -81,7 +93,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_status")
     @Schema(description = "请求状态")
-    /** SYS请求统计状态 */
+    /**
+     * SYS请求统计状态
+    */
     private Integer sysRequestStatisticsStatus;
 
     /**
@@ -89,7 +103,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_duration_ms")
     @Schema(description = "请求耗时（毫秒）")
-    /** SYS请求统计持续时间MS */
+    /**
+     * SYS请求统计持续时间MS
+    */
     private Long sysRequestStatisticsDurationMs;
 
     /**
@@ -97,7 +113,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_client_ip")
     @Schema(description = "客户端IP")
-    /** SYS请求统计客户端IP */
+    /**
+     * SYS请求统计客户端IP
+    */
     private String sysRequestStatisticsClientIp;
 
     /**
@@ -105,7 +123,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_user_id")
     @Schema(description = "用户ID")
-    /** SYS请求统计用户标识 */
+    /**
+     * SYS请求统计用户标识
+    */
     private String sysRequestStatisticsUserId;
 
     /**
@@ -113,7 +133,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_username")
     @Schema(description = "用户名")
-    /** SYS请求统计用户名 */
+    /**
+     * SYS请求统计用户名
+    */
     private String sysRequestStatisticsUsername;
 
     /**
@@ -121,7 +143,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_fingerprint")
     @Schema(description = "设备指纹")
-    /** SYS请求统计fingerprint */
+    /**
+     * SYS请求统计fingerprint
+    */
     private String sysRequestStatisticsFingerprint;
 
     /**
@@ -129,7 +153,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_token_hash")
     @Schema(description = "Token 哈希")
-    /** SYS请求统计令牌哈希 */
+    /**
+     * SYS请求统计令牌哈希
+    */
     private String sysRequestStatisticsTokenHash;
 
     /**
@@ -137,7 +163,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_browser")
     @Schema(description = "浏览器信息")
-    /** SYS请求统计browser */
+    /**
+     * SYS请求统计browser
+    */
     private String sysRequestStatisticsBrowser;
 
     /**
@@ -145,7 +173,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_app_name")
     @Schema(description = "应用名称")
-    /** SYS请求统计APP名称 */
+    /**
+     * SYS请求统计APP名称
+    */
     private String sysRequestStatisticsAppName;
 
     /**
@@ -153,7 +183,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_request_url")
     @Schema(description = "请求完整 URL")
-    /** SYS请求统计请求URL */
+    /**
+     * SYS请求统计请求URL
+    */
     private String sysRequestStatisticsRequestUrl;
 
     /**
@@ -161,7 +193,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_request_query")
     @Schema(description = "请求查询参数")
-    /** SYS请求统计请求查询 */
+    /**
+     * SYS请求统计请求查询
+    */
     private String sysRequestStatisticsRequestQuery;
 
     /**
@@ -169,7 +203,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_request_body_hash")
     @Schema(description = "请求体哈希")
-    /** SYS请求统计请求请求体哈希 */
+    /**
+     * SYS请求统计请求请求体哈希
+    */
     private String sysRequestStatisticsRequestBodyHash;
 
     /**
@@ -177,7 +213,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_response_body_hash")
     @Schema(description = "响应体哈希")
-    /** SYS请求统计响应请求体哈希 */
+    /**
+     * SYS请求统计响应请求体哈希
+    */
     private String sysRequestStatisticsResponseBodyHash;
 
     /**
@@ -185,7 +223,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_input_tokens")
     @Schema(description = "输入 Token 数")
-    /** SYS请求统计输入令牌 */
+    /**
+     * SYS请求统计输入令牌
+    */
     private Long sysRequestStatisticsInputTokens;
 
     /**
@@ -193,7 +233,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_output_tokens")
     @Schema(description = "输出 Token 数")
-    /** SYS请求统计输出令牌 */
+    /**
+     * SYS请求统计输出令牌
+    */
     private Long sysRequestStatisticsOutputTokens;
 
     /**
@@ -201,7 +243,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_cached_tokens")
     @Schema(description = "缓存 Token 数")
-    /** SYS请求统计cachedtokens */
+    /**
+     * SYS请求统计cachedtokens
+    */
     private Long sysRequestStatisticsCachedTokens;
 
     /**
@@ -209,7 +253,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_total_tokens")
     @Schema(description = "Token 总数")
-    /** SYS请求统计总数令牌 */
+    /**
+     * SYS请求统计总数令牌
+    */
     private Long sysRequestStatisticsTotalTokens;
 
     /**
@@ -217,7 +263,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_prompt_characters")
     @Schema(description = "提示字符数")
-    /** SYS请求统计promptcharacters */
+    /**
+     * SYS请求统计promptcharacters
+    */
     private Long sysRequestStatisticsPromptCharacters;
 
     /**
@@ -225,7 +273,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_completion_characters")
     @Schema(description = "回复字符数")
-    /** SYS请求统计completioncharacters */
+    /**
+     * SYS请求统计completioncharacters
+    */
     private Long sysRequestStatisticsCompletionCharacters;
 
     /**
@@ -233,7 +283,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_cache_hits")
     @Schema(description = "缓存命中次数")
-    /** SYS请求统计缓存hits */
+    /**
+     * SYS请求统计缓存hits
+    */
     private Long sysRequestStatisticsCacheHits;
 
     /**
@@ -241,7 +293,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_cache_misses")
     @Schema(description = "缓存未命中次数")
-    /** SYS请求统计缓存misses */
+    /**
+     * SYS请求统计缓存misses
+    */
     private Long sysRequestStatisticsCacheMisses;
 
     /**
@@ -249,7 +303,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_cost_cents")
     @Schema(description = "消费金额（分）")
-    /** SYS请求统计costcents */
+    /**
+     * SYS请求统计costcents
+    */
     private Long sysRequestStatisticsCostCents;
 
     /**
@@ -257,7 +313,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_cost_currency")
     @Schema(description = "消费货币")
-    /** SYS请求统计costcurrency */
+    /**
+     * SYS请求统计costcurrency
+    */
     private String sysRequestStatisticsCostCurrency;
 
     /**
@@ -265,7 +323,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_model")
     @Schema(description = "模型名称")
-    /** SYS请求统计模型 */
+    /**
+     * SYS请求统计模型
+    */
     private String sysRequestStatisticsModel;
 
     /**
@@ -273,7 +333,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_provider")
     @Schema(description = "服务提供商")
-    /** SYS请求统计提供者 */
+    /**
+     * SYS请求统计提供者
+    */
     private String sysRequestStatisticsProvider;
 
     /**
@@ -281,7 +343,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_channel")
     @Schema(description = "请求通道")
-    /** SYS请求统计通道 */
+    /**
+     * SYS请求统计通道
+    */
     private String sysRequestStatisticsChannel;
 
     /**
@@ -289,7 +353,9 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_status_text")
     @Schema(description = "状态描述")
-    /** SYS请求统计状态文本 */
+    /**
+     * SYS请求统计状态文本
+    */
     private String sysRequestStatisticsStatusText;
 
     /**
@@ -297,6 +363,8 @@ public class SysRequestStatistics extends SysBase implements Serializable {
      */
     @TableField(value = "sys_request_statistics_extra")
     @Schema(description = "扩展信息")
-    /** SYS请求统计extra */
+    /**
+     * SYS请求统计extra
+    */
     private String sysRequestStatisticsExtra;
 }

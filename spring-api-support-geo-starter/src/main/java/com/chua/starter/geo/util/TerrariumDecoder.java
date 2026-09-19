@@ -12,7 +12,9 @@ import com.chua.starter.geo.model.Bounds;
  */
 public class TerrariumDecoder {
 
-    /** 私有构造函数，防止实例化 */
+    /**
+     * 私有构造函数，防止实例化
+    */
     private TerrariumDecoder() { }
 
     /**

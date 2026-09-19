@@ -46,29 +46,43 @@ import static com.chua.starter.common.support.constant.DataFilterTypeEnum.ALL;
  */
 @Slf4j
 public abstract class AbstractUserLoginService implements UserInfoService {
-    /** Dept_leader */
+    /**
+     * Dept_leader
+    */
     private static final String DEPT_LEADER = "DEPT_LEADER";
-    /** 认证_版本 */
+    /**
+     * 认证_版本
+    */
     private static final String AUTH_VERSION = "authVersion";
 
     @Autowired
-    /** 安全性属性 */
+    /**
+     * 安全性属性
+    */
     protected SystemSecurityProperties securityProperties;
 
     @Autowired
-    /** 字符串Redis模板 */
+    /**
+     * 字符串Redis模板
+    */
     protected StringRedisTemplate stringRedisTemplate;
 
     @Autowired
-    /** SYS用户映射器 */
+    /**
+     * SYS用户映射器
+    */
     protected SysUserMapper sysUserMapper;
 
     @Autowired
-    /** sysdeptmapper */
+    /**
+     * sysdeptmapper
+    */
     protected SysDeptMapper sysDeptMapper;
 
     @Autowired
-    /** sysdeptprincipalrel服务 */
+    /**
+     * sysdeptprincipalrel服务
+    */
     protected SysDeptPrincipalRelService sysDeptPrincipalRelService;
 
     /**
@@ -457,15 +471,25 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     private static final class LoginAuthProfile {
-        /** Rolecodes */
+        /**
+         * Rolecodes
+        */
         private final LinkedHashSet<String> roleCodes = new LinkedHashSet<>();
-        /** Roleinfos */
+        /**
+         * Roleinfos
+        */
         private final LinkedHashSet<RoleInfo> roleInfos = new LinkedHashSet<>();
-        /** 权限 */
+        /**
+         * 权限
+        */
         private final LinkedHashSet<String> permissions = new LinkedHashSet<>();
-        /** 数据权限 */
+        /**
+         * 数据权限
+        */
         private DataFilterTypeEnum dataPermission = ALL;
-        /** 数据permissionrule */
+        /**
+         * 数据permissionrule
+        */
         private String dataPermissionRule = "";
     }
 

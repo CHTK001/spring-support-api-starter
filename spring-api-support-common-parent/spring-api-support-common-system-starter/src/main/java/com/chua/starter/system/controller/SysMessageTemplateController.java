@@ -35,7 +35,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysMessageTemplateController {
 
-    /** 消息模板服务 */
+    /**
+     * 消息模板服务
+    */
     private final SysMessageTemplateService sysMessageTemplateService;
 
     /**

@@ -24,7 +24,9 @@ public class SysTenantBindServiceV1Request {
      */
     @ApiModelProperty(value = "租户ID", required = true)
     @Schema(description = "租户ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    /** systenantid */
+    /**
+     * systenantid
+    */
     private String sysTenantId;
 
     /**
@@ -32,7 +34,9 @@ public class SysTenantBindServiceV1Request {
      */
     @ApiModelProperty(value = "服务绑定项列表")
     @Schema(description = "服务绑定项列表")
-    /** 服务binditems */
+    /**
+     * 服务binditems
+    */
     private List<ServiceBindItem> serviceBindItems;
 
     /**
@@ -50,7 +54,9 @@ public class SysTenantBindServiceV1Request {
          */
         @ApiModelProperty(value = "服务ID", required = true)
         @Schema(description = "服务ID", requiredMode = Schema.RequiredMode.REQUIRED)
-        /** SYS服务标识 */
+        /**
+         * SYS服务标识
+        */
         private Integer sysServiceId;
 
         /**
@@ -58,7 +64,9 @@ public class SysTenantBindServiceV1Request {
          */
         @ApiModelProperty(value = "到期时间")
         @Schema(description = "到期时间")
-        /** 是否有效时间 */
+        /**
+         * 是否有效时间
+        */
         private LocalDate validTime;
     }
 }

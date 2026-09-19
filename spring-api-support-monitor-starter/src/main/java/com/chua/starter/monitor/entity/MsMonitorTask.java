@@ -31,7 +31,9 @@ public class MsMonitorTask extends SysBase {
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    /** 标识 */
+    /**
+     * 标识
+    */
     private Long id;
 
     /**
@@ -40,7 +42,9 @@ public class MsMonitorTask extends SysBase {
     @TableField("task_name")
     @ApiModelProperty("任务名称")
     @Schema(description = "任务名称")
-    /** 任务名称 */
+    /**
+     * 任务名称
+    */
     private String taskName;
 
     /**
@@ -49,7 +53,9 @@ public class MsMonitorTask extends SysBase {
     @TableField("monitor_id")
     @ApiModelProperty("监控资产ID")
     @Schema(description = "监控资产ID")
-    /** 监控id */
+    /**
+     * 监控id
+    */
     private Long monitorId;
 
     /**
@@ -58,7 +64,9 @@ public class MsMonitorTask extends SysBase {
     @TableField("task_type")
     @ApiModelProperty("任务类型（HEALTH/COLLECT/ALERT/CUSTOM）")
     @Schema(description = "任务类型")
-    /** 任务类型 */
+    /**
+     * 任务类型
+    */
     private String taskType;
 
     /**
@@ -67,7 +75,9 @@ public class MsMonitorTask extends SysBase {
     @TableField("task_cron")
     @ApiModelProperty("Cron表达式")
     @Schema(description = "Cron表达式")
-    /** 任务cron */
+    /**
+     * 任务cron
+    */
     private String taskCron;
 
     /**
@@ -76,7 +86,9 @@ public class MsMonitorTask extends SysBase {
     @TableField("task_enabled")
     @ApiModelProperty("启用状态（0禁用/1启用）")
     @Schema(description = "启用状态（0禁用/1启用）")
-    /** 任务是否启用 */
+    /**
+     * 任务是否启用
+    */
     private Integer taskEnabled;
 
     /**
@@ -85,7 +97,9 @@ public class MsMonitorTask extends SysBase {
     @TableField("task_config")
     @ApiModelProperty("任务配置JSON")
     @Schema(description = "任务配置JSON")
-    /** 任务配置 */
+    /**
+     * 任务配置
+    */
     private String taskConfig;
 
     /**
@@ -94,7 +108,9 @@ public class MsMonitorTask extends SysBase {
     @TableField("task_status")
     @ApiModelProperty("运行状态（RUNNING/STOPPED/ERROR）")
     @Schema(description = "运行状态")
-    /** 任务状态 */
+    /**
+     * 任务状态
+    */
     private String taskStatus;
 
     /**
@@ -103,7 +119,9 @@ public class MsMonitorTask extends SysBase {
     @TableField("task_description")
     @ApiModelProperty("描述")
     @Schema(description = "描述")
-    /** 任务描述 */
+    /**
+     * 任务描述
+    */
     private String taskDescription;
 
     /**
@@ -113,6 +131,8 @@ public class MsMonitorTask extends SysBase {
     @TableLogic
     @ApiModelProperty("逻辑删除")
     @Schema(description = "逻辑删除")
-    /** 删除标记 */
+    /**
+     * 删除标记
+    */
     private Integer deleted;
 }

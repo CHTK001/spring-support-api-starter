@@ -28,13 +28,19 @@ import java.util.concurrent.Executors;
  */
 public class AgentMain {
 
-    /** HTTP 默认端口 */
+    /**
+     * HTTP 默认端口
+    */
     private static final int DEFAULT_PORT = 19876;
 
-    /** 默认监听地址 */
+    /**
+     * 默认监听地址
+    */
     private static final String DEFAULT_BIND = "0.0.0.0";
 
-    /** HTTP 线程数：主机画像一次刷新会并发拉 /info、/metrics、/ports 等多个端点 */
+    /**
+     * HTTP 线程数：主机画像一次刷新会并发拉 /info、/metrics、/ports 等多个端点
+    */
     private static final int HTTP_THREADS = 4;
 
     /**

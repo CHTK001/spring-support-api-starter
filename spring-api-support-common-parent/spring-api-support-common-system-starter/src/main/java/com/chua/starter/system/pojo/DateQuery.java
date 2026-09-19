@@ -17,13 +17,17 @@ public class DateQuery {
      * 开始日期
      */
     @Schema(description = "开始日期")
-    /** 开始日期 */
+    /**
+     * 开始日期
+    */
     private String startDate;
 
     /**
      * 结束日期
      */
     @Schema(description = "结束日期")
-    /** 结束日期 */
+    /**
+     * 结束日期
+    */
     private String endDate;
 }

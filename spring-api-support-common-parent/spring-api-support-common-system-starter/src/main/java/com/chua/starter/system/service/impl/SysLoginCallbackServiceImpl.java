@@ -19,13 +19,17 @@ public class SysLoginCallbackServiceImpl implements SysLoginCallbackService {
 
 
     @Override
-    /** 获取byid */
+    /**
+     * 获取byid
+    */
     public SysUser getById(String userId) {
         return sysUserService.getById(userId);
     }
 
     @Override
-    /** 更新byid */
+    /**
+     * 更新byid
+    */
     public void updateById(SysUser sysUser) {
         sysUserService.updateById(sysUser);
     }

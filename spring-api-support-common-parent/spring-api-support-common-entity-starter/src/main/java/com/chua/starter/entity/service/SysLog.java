@@ -24,7 +24,9 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_log")
 public class SysLog extends SysBase implements Serializable {
-    /** 串行版本UID */
+    /**
+     * 串行版本UID
+    */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -33,7 +35,9 @@ public class SysLog extends SysBase implements Serializable {
     @TableId(value = "sys_log_id", type = IdType.AUTO)
     @Schema(description = "日志ID")
     @NotNull(message = "日志ID不能为空")
-    /** SYS日志标识 */
+    /**
+     * SYS日志标识
+    */
     private Integer sysLogId;
 
     /**
@@ -42,7 +46,9 @@ public class SysLog extends SysBase implements Serializable {
     @TableField(value = "sys_log_username")
     @Schema(description = "账号")
     @Size(max = 255, message = "账号最大长度需小于255")
-    /** SYS日志用户名 */
+    /**
+     * SYS日志用户名
+    */
     private String sysLogUsername;
 
     /**
@@ -50,7 +56,9 @@ public class SysLog extends SysBase implements Serializable {
      */
     @TableField(value = "sys_log_cost")
     @Schema(description = "请求耗时(毫秒)")
-    /** SYS日志cost */
+    /**
+     * SYS日志cost
+    */
     private Long sysLogCost;
 
     /**
@@ -59,7 +67,9 @@ public class SysLog extends SysBase implements Serializable {
     @TableField(value = "sys_log_address")
     @Schema(description = "请求IP地址")
     @Size(max = 255, message = "请求IP地址最大长度需小于255")
-    /** SYS日志地址 */
+    /**
+     * SYS日志地址
+    */
     private String sysLogAddress;
 
     /**
@@ -68,7 +78,9 @@ public class SysLog extends SysBase implements Serializable {
     @TableField(value = "sys_log_url")
     @Schema(description = "请求URL")
     @Size(max = 255, message = "请求URL最大长度需小于255")
-    /** SYS日志URL */
+    /**
+     * SYS日志URL
+    */
     private String sysLogUrl;
 
     /**
@@ -76,7 +88,9 @@ public class SysLog extends SysBase implements Serializable {
      */
     @TableField(value = "sys_log_browser")
     @Schema(description = "浏览器信息")
-    /** SYS日志browser */
+    /**
+     * SYS日志browser
+    */
     private String sysLogBrowser;
 
     /**
@@ -84,7 +98,9 @@ public class SysLog extends SysBase implements Serializable {
      */
     @TableField(value = "sys_log_content")
     @Schema(description = "请求描述")
-    /** SYS日志内容 */
+    /**
+     * SYS日志内容
+    */
     private String sysLogContent;
 
     /**
@@ -93,7 +109,9 @@ public class SysLog extends SysBase implements Serializable {
     @TableField(value = "sys_log_param")
     @Schema(description = "请求参数")
     @Size(max = 255, message = "请求参数最大长度需小于255")
-    /** SYS日志参数 */
+    /**
+     * SYS日志参数
+    */
     private String sysLogParam;
 
     /**
@@ -102,7 +120,9 @@ public class SysLog extends SysBase implements Serializable {
     @TableField(value = "sys_log_from")
     @Schema(description = "请求模块")
     @Size(max = 255, message = "请求模块最大长度需小于255")
-    /** SYS日志从 */
+    /**
+     * SYS日志从
+    */
     private String sysLogFrom;
 
     /**
@@ -110,7 +130,9 @@ public class SysLog extends SysBase implements Serializable {
      */
     @TableField(value = "sys_log_status")
     @Schema(description = "请求状态: 0:失败 1:成功")
-    /** SYS日志状态 */
+    /**
+     * SYS日志状态
+    */
     private Integer sysLogStatus;
 
     /**
@@ -118,6 +140,8 @@ public class SysLog extends SysBase implements Serializable {
      */
     @TableField(value = "sys_log_error")
     @Schema(description = "异常信息/堆栈（仅失败时存储）")
-    /** SYS日志错误 */
+    /**
+     * SYS日志错误
+    */
     private String sysLogError;
 }

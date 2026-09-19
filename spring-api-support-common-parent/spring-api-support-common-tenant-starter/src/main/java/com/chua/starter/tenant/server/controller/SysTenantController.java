@@ -39,7 +39,9 @@ import java.util.List;
 @SuppressWarnings("ALL")
 public class SysTenantController {
 
-    /** systenant服务 */
+    /**
+     * systenant服务
+    */
     private final SysTenantService sysTenantService;
 
     /**

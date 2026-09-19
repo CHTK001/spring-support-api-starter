@@ -17,7 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AkSkDecryptor {
 
-    /** 默认_加密 */
+    /**
+     * 默认_加密
+    */
     private static final String DEFAULT_ENCRYPTION = "aes";
 
     /**

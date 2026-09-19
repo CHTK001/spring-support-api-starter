@@ -65,7 +65,9 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
         return ReturnResult.<Boolean>ok(Boolean.FALSE);
     }
 
-    /** CSV 导出时间格式化 */
+    /**
+     * CSV 导出时间格式化
+    */
     private static final DateTimeFormatter EXPORT_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override

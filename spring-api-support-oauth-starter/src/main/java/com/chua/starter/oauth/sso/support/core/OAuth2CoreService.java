@@ -38,9 +38,13 @@ import java.util.*;
 @RequiredArgsConstructor
 public class OAuth2CoreService {
 
-    /** SYSAPP密钥服务 */
+    /**
+     * SYSAPP密钥服务
+    */
     private final SysAppKeyService sysAppKeyService;
-    /** SYSAPPID服务 */
+    /**
+     * SYSAPPID服务
+    */
     private final SysAppIdService sysAppIdService;
 
     /**
@@ -80,9 +84,13 @@ public class OAuth2CoreService {
             "client_credentials", "password", "authorization_code", "refresh_token"
     );
 
-    /** 字符串Redis模板 */
+    /**
+     * 字符串Redis模板
+    */
     private final StringRedisTemplate stringRedisTemplate;
-    /** Securerandom */
+    /**
+     * Securerandom
+    */
     private final SecureRandom secureRandom = new SecureRandom();
 
     // ==================== 授权码管理 ====================

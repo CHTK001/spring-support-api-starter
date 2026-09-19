@@ -26,7 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AcmeChallengeController {
 
-    /** Challenge服务 */
+    /**
+     * Challenge服务
+    */
     private final AcmeChallengeService challengeService;
 
     /**

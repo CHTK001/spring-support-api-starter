@@ -21,28 +21,36 @@ public class SysUserQuery extends Query<SysUser> {
      * 用户名
      */
     @Schema(description = "用户名")
-    /** SYS用户名称 */
+    /**
+     * SYS用户名称
+    */
     private String sysUserName;
 
     /**
      * 手机号
      */
     @Schema(description = "手机号")
-    /** SYS用户phone */
+    /**
+     * SYS用户phone
+    */
     private String sysUserPhone;
 
     /**
      * 状态
      */
     @Schema(description = "状态")
-    /** SYS用户状态 */
+    /**
+     * SYS用户状态
+    */
     private Integer sysUserStatus;
 
     /**
      * 部门标识
      */
     @Schema(description = "部门ID")
-    /** sysdeptid */
+    /**
+     * sysdeptid
+    */
     private Long sysDeptId;
 
     /**

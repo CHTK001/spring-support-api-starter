@@ -29,17 +29,23 @@ public class GiteeLoginService extends AbstractUserLoginService {
     private static final String LOGIN_TYPE_PREFIX = "gitee";
 
     @Autowired
-    /** SYS用户tripartitebindmapper */
+    /**
+     * SYS用户tripartitebindmapper
+    */
     private SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
 
     @Override
-    /** 获取login类型前缀 */
+    /**
+     * 获取login类型前缀
+    */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
-    /** generate用户标识 */
+    /**
+     * generate用户标识
+    */
     protected String[] generateUserIds(SysUser user) {
         String baseId = user.getSysUserId() + "GITEE";
         return new String[]{
@@ -49,7 +55,9 @@ public class GiteeLoginService extends AbstractUserLoginService {
     }
 
     @Override
-    /** 校验Login */
+    /**
+     * 校验Login
+    */
     public UserResume checkLogin(String username, String password, String address, Object ext) {
         log.debug("Gitee登录请求: username={}, IP={}", username, address);
 
@@ -69,7 +77,9 @@ public class GiteeLoginService extends AbstractUserLoginService {
     }
 
     @Override
-    /** Upgrade */
+    /**
+     * Upgrade
+    */
     public UserResume upgrade(UserResult userResult) {
         SysUser user = sysUserMapper.selectById(userResult.getUserId());
         if (null == user) {

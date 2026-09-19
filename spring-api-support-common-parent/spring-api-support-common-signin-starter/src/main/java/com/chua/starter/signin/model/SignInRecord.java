@@ -25,7 +25,9 @@ public class SignInRecord {
      * 主键标识
      */
     @TableId(type = IdType.AUTO)
-    /** 标识 */
+    /**
+     * 标识
+    */
     private Long id;
 
     /**

@@ -183,7 +183,9 @@ public class AppIdAuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
-    /** 支持 */
+    /**
+     * 支持
+    */
     public boolean supports(String subProtocol, String token, String userCode) {
  // appid认证：没有用户编码（app键），且没有令牌（避免与默认授权处理器冲突）
  // 注意：实际的appid验证在authenticate方法中进行

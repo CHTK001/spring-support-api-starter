@@ -24,7 +24,9 @@ import java.util.List;
 public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAccount> implements SysAccountService {
 
     @Override
-    /** 获取byopenid */
+    /**
+     * 获取byopenid
+    */
     public SysAccount getByOpenid(String accountType, String openid) {
         if (accountType == null || openid == null) {
             return null;
@@ -36,7 +38,9 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     }
 
     @Override
-    /** 列表byunionid */
+    /**
+     * 列表byunionid
+    */
     public List<SysAccount> listByUnionid(String accountType, String unionid) {
         if (accountType == null || unionid == null) {
             return List.of();
@@ -113,7 +117,9 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     }
 
     @Override
-    /** 列表by用户id */
+    /**
+     * 列表by用户id
+    */
     public List<SysAccount> listByUserId(Integer userId) {
         if (userId == null) {
             return List.of();
@@ -123,7 +129,9 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     }
 
     @Override
-    /** 更新login信息 */
+    /**
+     * 更新login信息
+    */
     public boolean updateLoginInfo(Integer accountId, String ip, String ipAddress) {
         if (accountId == null) {
             return false;
@@ -140,7 +148,9 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     }
 
     @Override
-    /** 设置Forbidden */
+    /**
+     * 设置Forbidden
+    */
     public boolean setForbidden(Integer accountId, boolean forbidden) {
         if (accountId == null) {
             return false;

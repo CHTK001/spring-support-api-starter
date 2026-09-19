@@ -29,7 +29,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysOnlineController {
 
-    /** sysonline服务 */
+    /**
+     * sysonline服务
+    */
     private final SysOnlineService sysOnlineService;
 
     /**

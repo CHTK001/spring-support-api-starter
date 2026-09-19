@@ -828,7 +828,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    /** 锁定用户 */
+    /**
+     * 锁定用户
+    */
     public ReturnResult<Boolean> lockUser(Long userId, Integer lock) {
         if (null == userId) {
             return ReturnResult.illegal("用户ID不能为空");

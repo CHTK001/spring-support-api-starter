@@ -19,7 +19,9 @@ import java.io.Serializable;
 @Data
 @TableName(value = "sys_user_post")
 public class SysUserPost implements Serializable {
-    /** 串行版本UID */
+    /**
+     * 串行版本UID
+    */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -27,7 +29,9 @@ public class SysUserPost implements Serializable {
      */
     @TableId(value = "sys_user_post_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
-    /** SYS用户岗位id */
+    /**
+     * SYS用户岗位id
+    */
     private Long sysUserPostId;
 
     /**
@@ -35,7 +39,9 @@ public class SysUserPost implements Serializable {
      */
     @TableField(value = "sys_user_id")
     @Schema(description = "用户ID")
-    /** SYS用户标识 */
+    /**
+     * SYS用户标识
+    */
     private Integer sysUserId;
 
     /**
@@ -43,6 +49,8 @@ public class SysUserPost implements Serializable {
      */
     @TableField(value = "sys_post_id")
     @Schema(description = "岗位ID")
-    /** syspostid */
+    /**
+     * syspostid
+    */
     private Long sysPostId;
 }

@@ -38,7 +38,9 @@ public class DefaultLoginHandler implements LoginHandler {
     private static final String ACCOUNT_LOCKED_CODE = "A0402";
 
     @Override
-    /** Login */
+    /**
+     * Login
+    */
     public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
         // OAuth 限流能力：登录前检查账号是否已被锁定
         RateLimitService rateLimitService = RateLimitService.getInstance();

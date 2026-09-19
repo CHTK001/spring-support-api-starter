@@ -39,32 +39,48 @@ import java.util.concurrent.ConcurrentMap;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".client", name = "enable", havingValue = "true")
 public class TenantClientSyncHandler implements SyncMessageHandler {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(TenantClientSyncHandler.class);
 
     /**
      * 租户同步主题
      */
     public static final String TOPIC_TENANT = "tenant";
-    /** Topic_tenant_更新 */
+    /**
+     * Topic_tenant_更新
+    */
     public static final String TOPIC_TENANT_UPDATE = TenantSyncMessageSupport.TOPIC_TENANT_UPDATE;
-    /** Topic_tenant_删除 */
+    /**
+     * Topic_tenant_删除
+    */
     public static final String TOPIC_TENANT_DELETE = TenantSyncMessageSupport.TOPIC_TENANT_DELETE;
-    /** Topic_tenant_服务 */
+    /**
+     * Topic_tenant_服务
+    */
     public static final String TOPIC_TENANT_SERVICE = TenantSyncMessageSupport.TOPIC_TENANT_SERVICE;
-    /** Topic_tenant_menu */
+    /**
+     * Topic_tenant_menu
+    */
     public static final String TOPIC_TENANT_MENU = TenantSyncMessageSupport.TOPIC_TENANT_MENU;
 
     @Autowired
-    /** Tenant属性 */
+    /**
+     * Tenant属性
+    */
     private TenantProperties tenantProperties;
 
     @Autowired(required = false)
-    /** 同步提供者 */
+    /**
+     * 同步提供者
+    */
     private List<TenantDataSyncProvider> syncProviders;
 
     @Autowired
-    /** 同步客户端提供者 */
+    /**
+     * 同步客户端提供者
+    */
     private ObjectProvider<SyncClient> syncClientProvider;
 
     /**
@@ -83,7 +99,9 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
     private final AtomicLong lastReceivedSyncMessageTime = new AtomicLong(0L);
 
     @Override
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     public String getName() {
         return "tenant-client";
     }
@@ -464,7 +482,9 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         latestAppliedTimestamps.merge(buildOrderingKey(topic, data), timestamp, Math::max);
     }
 
-    /** cleanupapplied时间戳 */
+    /**
+     * cleanupapplied时间戳
+    */
     private void cleanupAppliedTimestamps() {
         if (latestAppliedTimestamps.isEmpty()) {
             return;
@@ -650,7 +670,9 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         return lastReceivedSyncMessageTime.get() >= timestamp;
     }
 
-    /** 标记同步消息接收 */
+    /**
+     * 标记同步消息接收
+    */
     private void markSyncMessageReceived() {
         lastReceivedSyncMessageTime.set(System.currentTimeMillis());
     }

@@ -38,10 +38,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysMessageController {
 
-    /** SYS消息服务 */
+    /**
+     * SYS消息服务
+    */
     private final SysMessageService sysMessageService;
 
-    /** 消息模板服务 */
+    /**
+     * 消息模板服务
+    */
     private final com.chua.starter.system.service.SysMessageTemplateService sysMessageTemplateService;
 
     /**

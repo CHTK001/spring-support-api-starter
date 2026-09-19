@@ -20,13 +20,17 @@ public class DictItemPropertyV1Request {
      * 字典子项标识
      */
     @Schema(description = "字典子项ID")
-    /** sysdictitemid */
+    /**
+     * sysdictitemid
+    */
     private Integer sysDictItemId;
 
     /**
      * 字典子项属性
      */
     @Schema(description = "字典子项属性")
-    /** 财产 */
+    /**
+     * 财产
+    */
     private List<SysDictItemProperty> property;
 }

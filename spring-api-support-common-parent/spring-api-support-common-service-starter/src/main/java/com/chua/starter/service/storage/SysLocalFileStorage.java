@@ -28,7 +28,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SysLocalFileStorage {
 
-    /** 缺省桶名 */
+    /**
+     * 缺省桶名
+    */
     private static final String DEFAULT_BUCKET = "default"; // 默认桶
 
     private final SysFileUploadProperties sysFileUploadProperties; // sys文件上传属性

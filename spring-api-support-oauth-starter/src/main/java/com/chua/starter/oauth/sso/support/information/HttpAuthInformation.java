@@ -14,9 +14,13 @@ import org.springframework.context.ApplicationContext;
  */
 public abstract class HttpAuthInformation extends BaseAuthInformation {
 
-    /** 请求 */
+    /**
+     * 请求
+    */
     private final HttpServletRequest request;
-    /** 响应 */
+    /**
+     * 响应
+    */
     private final HttpServletResponse response;
 
     /**
@@ -40,7 +44,9 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取请求头部 */
+    /**
+     * 获取请求头部
+    */
     protected String getRequestHeader(Object request, String headerName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getHeader(headerName);
@@ -49,7 +55,9 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置响应头部 */
+    /**
+     * 设置响应头部
+    */
     protected void setResponseHeader(Object response, String headerName, String headerValue) {
         if (response instanceof HttpServletResponse) {
             ((HttpServletResponse) response).setHeader(headerName, headerValue);
@@ -57,7 +65,9 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取远程地址 */
+    /**
+     * 获取远程地址
+    */
     protected String getRemoteAddress(Object request) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getRemoteAddr();
@@ -66,7 +76,9 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取请求attribute */
+    /**
+     * 获取请求attribute
+    */
     protected Object getRequestAttribute(Object request, String attributeName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getAttribute(attributeName);
@@ -75,7 +87,9 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 设置请求attribute */
+    /**
+     * 设置请求attribute
+    */
     protected void setRequestAttribute(Object request, String attributeName, Object attributeValue) {
         if (request instanceof HttpServletRequest) {
             ((HttpServletRequest) request).setAttribute(attributeName, attributeValue);
@@ -83,13 +97,17 @@ public abstract class HttpAuthInformation extends BaseAuthInformation {
     }
 
     @Override
-    /** 获取响应 */
+    /**
+     * 获取响应
+    */
     protected Object getResponse() {
         return response;
     }
 
     @Override
-    /** 获取请求 */
+    /**
+     * 获取请求
+    */
     protected Object getRequest() {
         return request;
     }

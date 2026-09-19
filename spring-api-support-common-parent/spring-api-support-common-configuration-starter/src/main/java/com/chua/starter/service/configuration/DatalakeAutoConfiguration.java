@@ -21,7 +21,9 @@ import org.springframework.context.annotation.Bean;
 @ConditionalOnProperty(name = "datalake.enabled", havingValue = "true", matchIfMissing = false)
 public class DatalakeAutoConfiguration {
 
-    /** 数据湖服务器 */
+    /**
+     * 数据湖服务器
+    */
     private DatalakeServer datalakeServer;
 
     @Bean
@@ -45,7 +47,9 @@ public class DatalakeAutoConfiguration {
     }
 
     @PreDestroy
-    /** 销毁 */
+    /**
+     * 销毁
+    */
     public void destroy() {
         if (datalakeServer != null) {
             datalakeServer.stop();

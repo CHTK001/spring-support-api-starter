@@ -25,7 +25,9 @@ public class SysEmailLog {
      */
     @TableId(value = "sys_email_log_id", type = IdType.AUTO)
     @Schema(description = "")
-    /** sysemail日志标识 */
+    /**
+     * sysemail日志标识
+    */
     private Integer sysEmailLogId;
 
     /**
@@ -33,7 +35,9 @@ public class SysEmailLog {
      */
     @TableField(value = "sys_email_log_target")
     @Schema(description = "接收人")
-    /** sysemail日志目标 */
+    /**
+     * sysemail日志目标
+    */
     private String sysEmailLogTarget;
 
     /**
@@ -41,7 +45,9 @@ public class SysEmailLog {
      */
     @TableField(value = "sys_email_log_template_id")
     @Schema(description = "模板ID")
-    /** sysemail日志模板标识 */
+    /**
+     * sysemail日志模板标识
+    */
     private String sysEmailLogTemplateId;
 
     /**
@@ -49,7 +55,9 @@ public class SysEmailLog {
      */
     @TableField(value = "sys_email_log_param")
     @Schema(description = "参数")
-    /** sysemail日志参数 */
+    /**
+     * sysemail日志参数
+    */
     private String sysEmailLogParam;
 
     /**
@@ -57,7 +65,9 @@ public class SysEmailLog {
      */
     @TableField(value = "sys_email_cost")
     @Schema(description = "耗时时间")
-    /** sysemailcost */
+    /**
+     * sysemailcost
+    */
     private BigDecimal sysEmailCost;
 
     /**
@@ -65,7 +75,9 @@ public class SysEmailLog {
      */
     @TableField(value = "sys_email_code")
     @Schema(description = "错误码")
-    /** sysemail代码 */
+    /**
+     * sysemail代码
+    */
     private String sysEmailCode;
 
     /**
@@ -73,7 +85,9 @@ public class SysEmailLog {
      */
     @TableField(value = "sys_email_message")
     @Schema(description = "错误信息")
-    /** sysemail消息 */
+    /**
+     * sysemail消息
+    */
     private String sysEmailMessage;
 
     /**
@@ -81,7 +95,9 @@ public class SysEmailLog {
      */
     @TableField(value = "sys_email_log_content")
     @Schema(description = "邮件内容")
-    /** sysemail日志内容 */
+    /**
+     * sysemail日志内容
+    */
     private String sysEmailLogContent;
 
     /**
@@ -89,7 +105,9 @@ public class SysEmailLog {
      */
     @TableField(value = "sys_email_app_type")
     @Schema(description = "邮件厂家")
-    /** sysemailapp类型 */
+    /**
+     * sysemailapp类型
+    */
     private String sysEmailAppType;
 
     /**
@@ -97,7 +115,9 @@ public class SysEmailLog {
      */
     @TableField(value = "sys_email_app_id")
     @Schema(description = "邮件密钥")
-    /** sysemailappid */
+    /**
+     * sysemailappid
+    */
     private String sysEmailAppId;
 
     /**
@@ -105,7 +125,9 @@ public class SysEmailLog {
      */
     @TableField(value = "sys_email_app_sign")
     @Schema(description = "签名")
-    /** sysemailappsign */
+    /**
+     * sysemailappsign
+    */
     private String sysEmailAppSign;
 
     /**
@@ -113,7 +135,9 @@ public class SysEmailLog {
      */
     @TableField(value = "sys_project_id")
     @Schema(description = "项目ID")
-    /** sysprojectid */
+    /**
+     * sysprojectid
+    */
     private Integer sysProjectId;
 
     /**
@@ -121,7 +145,9 @@ public class SysEmailLog {
      */
     @TableField(value = "sys_email_read")
     @Schema(description = "是否已读;0:未读")
-    /** sysemailread */
+    /**
+     * sysemailread
+    */
     private Integer sysEmailRead;
 
     /**
@@ -129,7 +155,9 @@ public class SysEmailLog {
      */
     @TableField(value = "create_name")
     @Schema(description = "创建人姓名")
-    /** 创建名称 */
+    /**
+     * 创建名称
+    */
     private String createName;
 
     /**
@@ -137,7 +165,9 @@ public class SysEmailLog {
      */
     @TableField(value = "create_by")
     @Schema(description = "创建人")
-    /** 创建by */
+    /**
+     * 创建by
+    */
     private Integer createBy;
 
     /**
@@ -145,7 +175,9 @@ public class SysEmailLog {
      */
     @TableField(value = "create_time")
     @Schema(description = "创建时间")
-    /** 创建时间 */
+    /**
+     * 创建时间
+    */
     private LocalDateTime createTime;
 
     /**
@@ -153,7 +185,9 @@ public class SysEmailLog {
      */
     @TableField(value = "update_time")
     @Schema(description = "更新时间")
-    /** 更新时间 */
+    /**
+     * 更新时间
+    */
     private LocalDateTime updateTime;
 
     /**
@@ -161,7 +195,9 @@ public class SysEmailLog {
      */
     @TableField(value = "update_name")
     @Schema(description = "更新人姓名")
-    /** 更新名称 */
+    /**
+     * 更新名称
+    */
     private String updateName;
 
     /**
@@ -169,6 +205,8 @@ public class SysEmailLog {
      */
     @TableField(value = "update_by")
     @Schema(description = "更新人")
-    /** 更新by */
+    /**
+     * 更新by
+    */
     private Integer updateBy;
 }

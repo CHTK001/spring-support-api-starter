@@ -76,7 +76,9 @@ public class GithubCallbackController {
      * 登录回调服务（允许缺省）
      */
     @Autowired(required = false)
-    /** syslogincallback服务 */
+    /**
+     * syslogincallback服务
+    */
     private SysLoginCallbackService sysLoginCallbackService;
 
     /**

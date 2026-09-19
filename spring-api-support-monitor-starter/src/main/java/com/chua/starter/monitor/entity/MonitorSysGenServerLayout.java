@@ -31,7 +31,9 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableId(value = "monitor_sys_gen_server_layout_id", type = IdType.AUTO)
     @ApiModelProperty("布局ID")
     @Schema(description = "布局ID")
-    /** 监控sysgen服务器layoutid */
+    /**
+     * 监控sysgen服务器layoutid
+    */
     private Integer monitorSysGenServerLayoutId;
 
     /**
@@ -40,7 +42,9 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_id")
     @ApiModelProperty("关联服务器ID")
     @Schema(description = "关联服务器ID")
-    /** 监控sysgen服务器标识 */
+    /**
+     * 监控sysgen服务器标识
+    */
     private Integer monitorSysGenServerId;
 
     /**
@@ -49,7 +53,9 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_name")
     @ApiModelProperty("布局名称")
     @Schema(description = "布局名称")
-    /** 监控sysgen服务器layout名称 */
+    /**
+     * 监控sysgen服务器layout名称
+    */
     private String monitorSysGenServerLayoutName;
 
     /**
@@ -58,7 +64,9 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_config")
     @ApiModelProperty("布局配置 JSON")
     @Schema(description = "布局配置 JSON")
-    /** 监控sysgen服务器layout配置 */
+    /**
+     * 监控sysgen服务器layout配置
+    */
     private String monitorSysGenServerLayoutConfig;
 
     /**
@@ -67,7 +75,9 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_type")
     @ApiModelProperty("布局类型（default/generated/copied/custom）")
     @Schema(description = "布局类型（default/generated/copied/custom）")
-    /** 监控sysgen服务器layout类型 */
+    /**
+     * 监控sysgen服务器layout类型
+    */
     private String monitorSysGenServerLayoutType;
 
     /**
@@ -76,7 +86,9 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_default")
     @ApiModelProperty("是否默认布局（0/1）")
     @Schema(description = "是否默认布局（0/1）")
-    /** 监控sysgen服务器layout默认 */
+    /**
+     * 监控sysgen服务器layout默认
+    */
     private Integer monitorSysGenServerLayoutDefault;
 
     /**
@@ -85,7 +97,9 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_status")
     @ApiModelProperty("布局状态（0禁用/1启用）")
     @Schema(description = "布局状态（0禁用/1启用）")
-    /** 监控sysgen服务器layout状态 */
+    /**
+     * 监控sysgen服务器layout状态
+    */
     private Integer monitorSysGenServerLayoutStatus;
 
     /**
@@ -94,7 +108,9 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_description")
     @ApiModelProperty("布局描述")
     @Schema(description = "布局描述")
-    /** 监控sysgen服务器layout描述 */
+    /**
+     * 监控sysgen服务器layout描述
+    */
     private String monitorSysGenServerLayoutDescription;
 
     /**
@@ -103,7 +119,9 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_version")
     @ApiModelProperty("布局版本号")
     @Schema(description = "布局版本号")
-    /** 监控sysgen服务器layout版本 */
+    /**
+     * 监控sysgen服务器layout版本
+    */
     private Integer monitorSysGenServerLayoutVersion;
 
     /**
@@ -112,6 +130,8 @@ public class MonitorSysGenServerLayout extends SysBase {
     @TableField("monitor_sys_gen_server_layout_sort")
     @ApiModelProperty("布局排序")
     @Schema(description = "布局排序")
-    /** 监控sysgen服务器layoutsort */
+    /**
+     * 监控sysgen服务器layoutsort
+    */
     private Integer monitorSysGenServerLayoutSort;
 }

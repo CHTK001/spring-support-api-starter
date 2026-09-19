@@ -25,7 +25,9 @@ import java.util.stream.Collectors;
 public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRoleMenu> implements SysRoleMenuService {
 
     @Override
-    /** 列表menu标识by角色id */
+    /**
+     * 列表menu标识by角色id
+    */
     public List<Integer> listMenuIdsByRoleId(Integer roleId) {
         if (roleId == null) {
             return Collections.emptyList();
@@ -38,7 +40,9 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
     }
 
     @Override
-    /** 列表角色标识bymenuid */
+    /**
+     * 列表角色标识bymenuid
+    */
     public List<Integer> listRoleIdsByMenuId(Integer menuId) {
         if (menuId == null) {
             return Collections.emptyList();
@@ -51,7 +55,9 @@ public class SysRoleMenuServiceImpl extends ServiceImpl<SysRoleMenuMapper, SysRo
     }
 
     @Override
-    /** 列表menu标识by用户id */
+    /**
+     * 列表menu标识by用户id
+    */
     public List<Integer> listMenuIdsByUserId(Integer userId) {
         if (userId == null) {
             return Collections.emptyList();

@@ -54,7 +54,9 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 @RequiredArgsConstructor
 public class SysUserController {
 
-    /** SYS用户服务 */
+    /**
+     * SYS用户服务
+    */
     private final SysUserService sysUserService;
 
     /**

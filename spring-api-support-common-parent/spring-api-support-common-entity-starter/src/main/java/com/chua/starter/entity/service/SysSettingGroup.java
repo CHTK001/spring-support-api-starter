@@ -26,7 +26,9 @@ public class SysSettingGroup extends SysBase {
      */
     @TableId(value = "sys_setting_group_id", type = IdType.AUTO)
     @Schema(description = "配置组ID")
-    /** SYS设置分组标识 */
+    /**
+     * SYS设置分组标识
+    */
     private Integer sysSettingGroupId;
 
     /**
@@ -34,7 +36,9 @@ public class SysSettingGroup extends SysBase {
      */
     @TableField(value = "sys_setting_group_name")
     @Schema(description = "配置组名称")
-    /** SYS设置分组名称 */
+    /**
+     * SYS设置分组名称
+    */
     private String sysSettingGroupName;
 
     /**
@@ -42,7 +46,9 @@ public class SysSettingGroup extends SysBase {
      */
     @TableField(value = "sys_setting_group_code")
     @Schema(description = "配置组唯一编码")
-    /** SYS设置分组代码 */
+    /**
+     * SYS设置分组代码
+    */
     private String sysSettingGroupCode;
 
     /**
@@ -50,7 +56,9 @@ public class SysSettingGroup extends SysBase {
      */
     @TableField(value = "sys_setting_group_icon")
     @Schema(description = "配置组图标")
-    /** SYS设置分组icon */
+    /**
+     * SYS设置分组icon
+    */
     private String sysSettingGroupIcon;
 
     /**
@@ -58,7 +66,9 @@ public class SysSettingGroup extends SysBase {
      */
     @TableField(value = "sys_setting_group_enable")
     @Schema(description = "是否启用")
-    /** SYS设置分组enable */
+    /**
+     * SYS设置分组enable
+    */
     private Boolean sysSettingGroupEnable;
 
     /**
@@ -66,7 +76,9 @@ public class SysSettingGroup extends SysBase {
      */
     @TableField(value = "sys_setting_group_remark")
     @Schema(description = "配置组描述")
-    /** SYS设置分组评论 */
+    /**
+     * SYS设置分组评论
+    */
     private String sysSettingGroupRemark;
 
     /**
@@ -74,7 +86,9 @@ public class SysSettingGroup extends SysBase {
      */
     @TableField(value = "sys_setting_group_sort")
     @Schema(description = "排序")
-    /** SYS设置分组排序 */
+    /**
+     * SYS设置分组排序
+    */
     private Integer sysSettingGroupSort;
 
     /**
@@ -82,6 +96,8 @@ public class SysSettingGroup extends SysBase {
      */
     @TableField(value = "sys_setting_group_use_project_interface")
     @Schema(description = "是否使用项目组接口")
-    /** SYS设置分组useproject接口 */
+    /**
+     * SYS设置分组useproject接口
+    */
     private Boolean sysSettingGroupUseProjectInterface;
 }

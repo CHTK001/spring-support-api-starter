@@ -26,7 +26,9 @@ import java.util.Set;
 public class UserPreferenceRequestTraceAnalyzer implements RequestTraceAnalyzer {
 
     @Override
-    /** 分析 */
+    /**
+     * 分析
+    */
     public Collection<RequestTraceSignal> analyze(RequestTraceAnalysisContext context) {
         RequestTraceEvent currentEvent = context.currentEvent();
         if (!Boolean.TRUE.equals(context.config().getUserPreferenceDriftEnabled())) {

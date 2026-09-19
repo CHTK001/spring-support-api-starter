@@ -28,7 +28,9 @@ public class SysFeedback extends SysBase {
      */
     @TableId(value = "sys_feedback_id", type = IdType.AUTO)
     @Schema(description = "反馈ID")
-    /** sysfeedbackid */
+    /**
+     * sysfeedbackid
+    */
     private Integer sysFeedbackId;
 
     /**
@@ -36,7 +38,9 @@ public class SysFeedback extends SysBase {
      */
     @TableField(value = "sys_feedback_type")
     @Schema(description = "反馈类型")
-    /** sysfeedback类型 */
+    /**
+     * sysfeedback类型
+    */
     private String sysFeedbackType;
 
     /**
@@ -44,7 +48,9 @@ public class SysFeedback extends SysBase {
      */
     @TableField(value = "sys_feedback_images")
     @Schema(description = "反馈图片(多个逗号分隔)")
-    /** sysfeedbackimages */
+    /**
+     * sysfeedbackimages
+    */
     private String sysFeedbackImages;
 
     /**
@@ -52,7 +58,9 @@ public class SysFeedback extends SysBase {
      */
     @TableField(value = "sys_feedback_content")
     @Schema(description = "反馈内容")
-    /** sysfeedback内容 */
+    /**
+     * sysfeedback内容
+    */
     private String sysFeedbackContent;
 
     /**
@@ -60,7 +68,9 @@ public class SysFeedback extends SysBase {
      */
     @TableField(value = "sys_feedback_status")
     @Schema(description = "反馈状态: 0:未处理 1:已处理")
-    /** sysfeedback状态 */
+    /**
+     * sysfeedback状态
+    */
     private Integer sysFeedbackStatus;
 
     /**
@@ -68,7 +78,9 @@ public class SysFeedback extends SysBase {
      */
     @TableField(value = "sys_feedback_deal_by")
     @Schema(description = "处理人ID")
-    /** sysfeedbackdealby */
+    /**
+     * sysfeedbackdealby
+    */
     private Integer sysFeedbackDealBy;
 
     /**
@@ -76,7 +88,9 @@ public class SysFeedback extends SysBase {
      */
     @TableField(value = "sys_feedback_deal_name")
     @Schema(description = "处理人名称")
-    /** sysfeedbackdeal名称 */
+    /**
+     * sysfeedbackdeal名称
+    */
     private String sysFeedbackDealName;
 
     /**
@@ -84,7 +98,9 @@ public class SysFeedback extends SysBase {
      */
     @TableField(value = "sys_feedback_recover_content")
     @Schema(description = "回复内容")
-    /** sysfeedbackrecover内容 */
+    /**
+     * sysfeedbackrecover内容
+    */
     private String sysFeedbackRecoverContent;
 
     /**
@@ -92,7 +108,9 @@ public class SysFeedback extends SysBase {
      */
     @TableField(value = "sys_feedback_recover_time")
     @Schema(description = "回复时间")
-    /** sysfeedbackrecover时间 */
+    /**
+     * sysfeedbackrecover时间
+    */
     private LocalDateTime sysFeedbackRecoverTime;
 
     /**
@@ -100,7 +118,9 @@ public class SysFeedback extends SysBase {
      */
     @TableField(value = "sys_feedback_recover_images")
     @Schema(description = "回复图片(多个逗号分隔)")
-    /** sysfeedbackrecoverimages */
+    /**
+     * sysfeedbackrecoverimages
+    */
     private String sysFeedbackRecoverImages;
 
     /**
@@ -108,7 +128,9 @@ public class SysFeedback extends SysBase {
      */
     @TableField(value = "sys_feedback_user_agent")
     @Schema(description = "客户端类型(UserAgent)")
-    /** sysfeedback用户智能体 */
+    /**
+     * sysfeedback用户智能体
+    */
     private String sysFeedbackUserAgent;
 
     /**
@@ -116,7 +138,9 @@ public class SysFeedback extends SysBase {
      */
     @TableField(value = "sys_feedback_platform")
     @Schema(description = "平台类型(预留，多平台支持)")
-    /** sysfeedbackplatform */
+    /**
+     * sysfeedbackplatform
+    */
     private String sysFeedbackPlatform;
 
     /**
@@ -124,6 +148,8 @@ public class SysFeedback extends SysBase {
      */
     @TableField(value = "sys_feedback_priority")
     @Schema(description = "优先级: 0-低 1-中 2-高 3-紧急")
-    /** sysfeedback优先级 */
+    /**
+     * sysfeedback优先级
+    */
     private Integer sysFeedbackPriority = 1;
 }

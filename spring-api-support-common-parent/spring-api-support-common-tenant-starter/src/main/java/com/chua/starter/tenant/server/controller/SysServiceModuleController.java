@@ -43,9 +43,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysServiceModuleController {
 
-    /** SYS服务modulemapper */
+    /**
+     * SYS服务modulemapper
+    */
     private final SysServiceModuleMapper sysServiceModuleMapper;
-    /** SYS服务moduleitemmapper */
+    /**
+     * SYS服务moduleitemmapper
+    */
     private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
 
     /**

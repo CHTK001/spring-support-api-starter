@@ -23,7 +23,9 @@ import java.util.List;
  */
 public class ResponseAdviceMethodProcessor extends RequestResponseBodyMethodProcessor {
 
-    /** Redirectpatterns */
+    /**
+     * Redirectpatterns
+    */
     private String redirectPatterns;
 
     /**
@@ -35,21 +37,27 @@ public class ResponseAdviceMethodProcessor extends RequestResponseBodyMethodProc
     }
 
     @Override
-    /** 支持参数 */
+    /**
+     * 支持参数
+    */
     public boolean supportsParameter(MethodParameter returnType) {
         Class<?> paramType = returnType.getParameterType();
         return AdviceView.class.isAssignableFrom(paramType);
     }
 
     @Override
-    /** 支持返回类型 */
+    /**
+     * 支持返回类型
+    */
     public boolean supportsReturnType(MethodParameter returnType) {
         Class<?> paramType = returnType.getParameterType();
         return AdviceView.class.isAssignableFrom(paramType);
     }
 
     @Override
-    /** 处理返回值 */
+    /**
+     * 处理返回值
+    */
     public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
         AdviceView adviceView = (AdviceView) returnValue;
         Object data = adviceView.getData();

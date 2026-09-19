@@ -21,9 +21,13 @@ public enum RequestTraceSignal {
      */
     USER_PREFERENCE_DRIFT("user_preference_drift", "当前访问行为偏离近期常用模式");
 
-    /** 代码 */
+    /**
+     * 代码
+    */
     private final String code;
-    /** 描述 */
+    /**
+     * 描述
+    */
     private final String description;
 
     /**

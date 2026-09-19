@@ -31,7 +31,9 @@ public class MsMonitorConfig extends SysBase {
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    /** 标识 */
+    /**
+     * 标识
+    */
     private Long id;
 
     /**
@@ -40,7 +42,9 @@ public class MsMonitorConfig extends SysBase {
     @TableField("config_key")
     @ApiModelProperty("配置键")
     @Schema(description = "配置键")
-    /** 配置密钥 */
+    /**
+     * 配置密钥
+    */
     private String configKey;
 
     /**
@@ -49,7 +53,9 @@ public class MsMonitorConfig extends SysBase {
     @TableField("config_value")
     @ApiModelProperty("配置值")
     @Schema(description = "配置值")
-    /** 配置值 */
+    /**
+     * 配置值
+    */
     private String configValue;
 
     /**
@@ -58,7 +64,9 @@ public class MsMonitorConfig extends SysBase {
     @TableField("config_type")
     @ApiModelProperty("配置类型")
     @Schema(description = "配置类型")
-    /** 配置类型 */
+    /**
+     * 配置类型
+    */
     private String configType;
 
     /**
@@ -67,7 +75,9 @@ public class MsMonitorConfig extends SysBase {
     @TableField("config_group")
     @ApiModelProperty("配置分组")
     @Schema(description = "配置分组")
-    /** 配置分组 */
+    /**
+     * 配置分组
+    */
     private String configGroup;
 
     /**
@@ -77,6 +87,8 @@ public class MsMonitorConfig extends SysBase {
     @TableLogic
     @ApiModelProperty("逻辑删除")
     @Schema(description = "逻辑删除")
-    /** 删除标记 */
+    /**
+     * 删除标记
+    */
     private Integer deleted;
 }

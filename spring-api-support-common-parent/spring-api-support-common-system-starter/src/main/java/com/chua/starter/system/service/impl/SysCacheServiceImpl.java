@@ -48,13 +48,17 @@ public class SysCacheServiceImpl implements SysCacheService {
     }
 
     @Override
-    /** 列表 */
+    /**
+     * 列表
+    */
     public List<SysCacheInfo> list() {
         return new ArrayList<>(CACHE_MAP.values());
     }
 
     @Override
-    /** 刷新 */
+    /**
+     * 刷新
+    */
     public ReturnResult<Boolean> refresh(String cacheName) {
         if (StringUtils.isBlank(cacheName)) {
             return ReturnResult.illegal("缓存名称不能为空");
@@ -69,7 +73,9 @@ public class SysCacheServiceImpl implements SysCacheService {
     }
 
     @Override
-    /** 刷新全部 */
+    /**
+     * 刷新全部
+    */
     public ReturnResult<Boolean> refreshAll() {
         for (SysCacheInfo info : CACHE_MAP.values()) {
             int cleared = deleteByPattern(toPattern(info.getCacheKey()));

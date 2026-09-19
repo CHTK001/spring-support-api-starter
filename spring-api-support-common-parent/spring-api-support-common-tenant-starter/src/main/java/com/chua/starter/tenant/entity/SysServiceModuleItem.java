@@ -28,7 +28,9 @@ public class SysServiceModuleItem extends SysBase {
     @TableId(value = "sys_service_module_item_id", type = IdType.AUTO)
     @ApiModelProperty(value = "关联ID")
     @Schema(description = "关联ID")
-    /** SYS服务moduleitemid */
+    /**
+     * SYS服务moduleitemid
+    */
     private Integer sysServiceModuleItemId;
 
     /**
@@ -37,7 +39,9 @@ public class SysServiceModuleItem extends SysBase {
     @TableField(value = "sys_service_id")
     @ApiModelProperty(value = "服务ID")
     @Schema(description = "服务ID")
-    /** SYS服务标识 */
+    /**
+     * SYS服务标识
+    */
     private Integer sysServiceId;
 
     /**
@@ -46,7 +50,9 @@ public class SysServiceModuleItem extends SysBase {
     @TableField(value = "sys_service_module_id")
     @ApiModelProperty(value = "服务模块ID")
     @Schema(description = "服务模块ID")
-    /** SYS服务moduleid */
+    /**
+     * SYS服务moduleid
+    */
     private Integer sysServiceModuleId;
 
     /**
@@ -55,6 +61,8 @@ public class SysServiceModuleItem extends SysBase {
     @TableField(value = "sys_menu_id")
     @ApiModelProperty(value = "菜单ID")
     @Schema(description = "菜单ID")
-    /** sysmenuid */
+    /**
+     * sysmenuid
+    */
     private Integer sysMenuId;
 }

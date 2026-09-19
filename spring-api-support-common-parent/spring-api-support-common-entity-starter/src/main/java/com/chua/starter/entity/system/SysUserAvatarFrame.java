@@ -25,26 +25,36 @@ public class SysUserAvatarFrame extends SysBase {
 
     @TableId(value = "sys_user_avatar_frame_id", type = IdType.AUTO)
     @Schema(description = "用户头像框ID")
-    /** SYS用户avatarframeid */
+    /**
+     * SYS用户avatarframeid
+    */
     private Integer sysUserAvatarFrameId;
 
     @TableField(value = "sys_user_id")
     @Schema(description = "用户ID")
-    /** SYS用户标识 */
+    /**
+     * SYS用户标识
+    */
     private Integer sysUserId;
 
     @TableField(value = "sys_avatar_frame_id")
     @Schema(description = "头像框ID")
-    /** sysavatarframeid */
+    /**
+     * sysavatarframeid
+    */
     private Integer sysAvatarFrameId;
 
     @TableField(value = "acquire_time")
     @Schema(description = "获取时间")
-    /** Acquire时间 */
+    /**
+     * Acquire时间
+    */
     private LocalDateTime acquireTime;
 
     @TableField(value = "expire_time")
     @Schema(description = "过期时间(NULL=永久)")
-    /** Expire时间 */
+    /**
+     * Expire时间
+    */
     private LocalDateTime expireTime;
 }

@@ -35,15 +35,25 @@ import java.util.Map;
 public class FileHttpServer {
 
     @Getter
-    /** 设置 */
+    /**
+     * 设置
+    */
     private final ServerSetting setting;
-    /** 服务器 */
+    /**
+     * 服务器
+    */
     private final JdkHttpServer server;
-    /** SYS文件系统服务 */
+    /**
+     * SYS文件系统服务
+    */
     private final SysFileSystemService sysFileSystemService;
-    /** SYS文件系统设置服务 */
+    /**
+     * SYS文件系统设置服务
+    */
     private final SysFileSystemSettingService sysFileSystemSettingService;
-    /** Temp路径 */
+    /**
+     * Temp路径
+    */
     private final String tempPath;
     @Getter
     private volatile boolean running; // running
@@ -67,7 +77,9 @@ public class FileHttpServer {
         registerRoutes();
     }
 
-    /** 注册Routes */
+    /**
+     * 注册Routes
+    */
     private void registerRoutes() {
         // 解析 body 中的二进制流(由 JdkHttpServer 内部已 wrap 成 ServerResponse)
         this.server.registerMapping("/health", (req, res) -> {

@@ -26,7 +26,9 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OauthSecurityHeadersFilter implements Filter, Ordered {
 
-    /** 安全性属性 */
+    /**
+     * 安全性属性
+    */
     private final OauthSecurityProperties securityProperties;
 
     @Override
@@ -70,7 +72,9 @@ public class OauthSecurityHeadersFilter implements Filter, Ordered {
     }
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 1;
     }

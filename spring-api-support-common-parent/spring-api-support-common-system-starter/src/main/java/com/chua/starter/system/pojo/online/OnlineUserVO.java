@@ -17,52 +17,76 @@ import java.time.LocalDateTime;
 public class OnlineUserVO {
 
     @Schema(description = "用户ID")
-    /** 用户标识 */
+    /**
+     * 用户标识
+    */
     private String userId;
 
     @Schema(description = "用户名")
-    /** 用户名 */
+    /**
+     * 用户名
+    */
     private String username;
 
     @Schema(description = "昵称")
-    /** Nickname */
+    /**
+     * Nickname
+    */
     private String nickname;
 
     @Schema(description = "部门名称")
-    /** Dept名称 */
+    /**
+     * Dept名称
+    */
     private String deptName;
 
     @Schema(description = "登录IP")
     @JsonProperty("ip")
-    /** loginip */
+    /**
+     * loginip
+    */
     private String loginIp;
 
     @Schema(description = "登录地址")
     @JsonProperty("address")
-    /** Login地址 */
+    /**
+     * Login地址
+    */
     private String loginAddress;
 
     @Schema(description = "浏览器")
-    /** Browser */
+    /**
+     * Browser
+    */
     private String browser;
 
     @Schema(description = "操作系统")
-    /** OS */
+    /**
+     * OS
+    */
     private String os;
 
     @Schema(description = "登录时间")
-    /** Login时间 */
+    /**
+     * Login时间
+    */
     private LocalDateTime loginTime;
 
     @Schema(description = "最后访问时间")
-    /** last访问时间 */
+    /**
+     * last访问时间
+    */
     private LocalDateTime lastAccessTime;
 
     @Schema(description = "Token")
-    /** 令牌 */
+    /**
+     * 令牌
+    */
     private String token;
 
     @Schema(description = "登录类型")
-    /** Login类型 */
+    /**
+     * Login类型
+    */
     private String loginType;
 }

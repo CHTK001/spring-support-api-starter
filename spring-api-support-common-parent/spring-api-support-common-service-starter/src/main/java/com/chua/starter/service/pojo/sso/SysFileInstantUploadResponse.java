@@ -17,35 +17,45 @@ public class SysFileInstantUploadResponse {
      * 是否可以秒传
      */
     @Schema(description = "是否可以秒传")
-    /** Instant上传 */
+    /**
+     * Instant上传
+    */
     private Boolean instantUpload;
 
     /**
      * 已存在的文件标识
      */
     @Schema(description = "已存在的文件ID")
-    /** Existing文件标识 */
+    /**
+     * Existing文件标识
+    */
     private Integer existingFileId;
 
     /**
      * 已存在的文件访问URL
      */
     @Schema(description = "已存在的文件访问URL")
-    /** Existing文件URL */
+    /**
+     * Existing文件URL
+    */
     private String existingFileUrl;
 
     /**
      * 已存在的文件HTTP访问URL
      */
     @Schema(description = "已存在的文件HTTP访问URL")
-    /** Existing文件HTTPURL */
+    /**
+     * Existing文件HTTPURL
+    */
     private String existingFileHttpUrl;
 
     /**
      * 已存在的文件名
      */
     @Schema(description = "已存在的文件名")
-    /** Existing文件名称 */
+    /**
+     * Existing文件名称
+    */
     private String existingFileName;
 
     /**

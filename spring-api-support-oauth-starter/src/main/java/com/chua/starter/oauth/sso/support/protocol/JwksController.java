@@ -39,7 +39,9 @@ import java.util.*;
 @ConditionalOnProperty(name = "plugin.oauth.server.jwt.jwks-enabled", havingValue = "true")
 public class JwksController {
 
-    /** 认证服务器属性 */
+    /**
+     * 认证服务器属性
+    */
     private final AuthServerProperties authServerProperties;
 
     /**

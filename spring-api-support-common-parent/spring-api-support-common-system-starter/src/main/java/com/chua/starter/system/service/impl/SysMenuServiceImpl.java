@@ -52,7 +52,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     final SysRoleMenuService sysRoleMenuService; // sys角色menu服务
     final ApplicationEventPublisher eventPublisher; // 事件发布
     @Override
-    /** 列表menu */
+    /**
+     * 列表menu
+    */
     public ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles) {
         List<SysRoleMenu> list;
         if(!roles.isEmpty()) {
@@ -88,7 +90,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    /** 全部 */
+    /**
+     * 全部
+    */
     public ReturnResult<List<SysMenu>> all(SysMenu sysMenu, Set<String> roles) {
         return ReturnResult.ok(filterMenusByEngine(
                 listAll(),
@@ -154,7 +158,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    /** 列表 */
+    /**
+     * 列表
+    */
     public ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles, int ignoreType) {
         List<SysRoleMenu> list = CollectionUtils.isEmpty(roles) ? Collections.emptyList() : sysRoleMenuService.list(
                 MPJWrappers.<SysRoleMenu>lambdaJoin()
@@ -250,7 +256,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
 
     @Override
-    /** pageformenu */
+    /**
+     * pageformenu
+    */
     public IPage<SysMenu> pageForMenu(Query<SysMenu> query, SysMenu sysMenu, Set<String> roles) {
         return baseMapper.selectPage(query.createPage(), Wrappers.<SysMenu>lambdaQuery()
                 .like(StringUtils.isNotBlank(sysMenu.getSysMenuName()), SysMenu::getSysMenuName, sysMenu.getSysMenuName())
@@ -395,7 +403,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
-    /** 批量保存按钮 */
+    /**
+     * 批量保存按钮
+    */
     public ReturnResult<Boolean> batchSaveButtons(List<SysMenu> menus) {
         if (CollectionUtils.isEmpty(menus)) {
             return ReturnResult.illegal("按钮列表不能为空");
@@ -420,7 +430,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
-    /** 批量删除按钮 */
+    /**
+     * 批量删除按钮
+    */
     public ReturnResult<Boolean> batchDeleteButtons(List<Integer> menuIds) {
         if (CollectionUtils.isEmpty(menuIds)) {
             return ReturnResult.illegal("按钮ID不能为空");

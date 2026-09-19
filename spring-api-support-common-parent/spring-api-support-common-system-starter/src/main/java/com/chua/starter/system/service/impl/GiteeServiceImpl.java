@@ -24,11 +24,15 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class GiteeServiceImpl implements GiteeService {
 
-    /** SYS用户tripartitebindmapper */
+    /**
+     * SYS用户tripartitebindmapper
+    */
     private final SysUserTripartiteBindMapper sysUserTripartiteBindMapper;
 
     @Override
-    /** Binder */
+    /**
+     * Binder
+    */
     public void binder(AuthUser data, UserResume userResume) {
         String userId = userResume.getUserId();
         if (userId == null) {

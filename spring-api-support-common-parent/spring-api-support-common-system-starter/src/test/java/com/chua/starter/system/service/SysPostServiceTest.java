@@ -24,7 +24,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("岗位服务测试")
 class SysPostServiceTest {
 
-    /** SysPostServiceImpl 构造器需 2 个 mapper, 参数校验路径不触碰 mapper, 传 null 即可 */
+    /**
+     * SysPostServiceImpl 构造器需 2 个 mapper, 参数校验路径不触碰 mapper, 传 null 即可
+    */
     private final SysPostServiceImpl sysPostService =
             /**
              * SysPost服务Impl。

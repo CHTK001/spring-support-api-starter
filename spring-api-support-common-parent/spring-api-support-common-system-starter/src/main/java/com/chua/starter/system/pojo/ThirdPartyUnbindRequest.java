@@ -17,6 +17,8 @@ public class ThirdPartyUnbindRequest {
      * 解绑类型
      */
     @Schema(description = "解绑类型")
-    /** Login类型 */
+    /**
+     * Login类型
+    */
     private String loginType;
 }
