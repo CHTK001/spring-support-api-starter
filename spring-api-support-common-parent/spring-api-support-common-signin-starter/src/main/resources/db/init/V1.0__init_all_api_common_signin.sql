@@ -1,5 +1,5 @@
 -- =====================================================================
--- V1.0__init_all.sql - spring-api-support-common-signin-starter 全量 DDL（合并自 1 个文件）
+-- V1.0__init_all_api_common_signin.sql - spring-api-support-common-signin-starter 全量 DDL（合并自 1 个文件）
 -- 通道: INIT 同步建表；老库缺列/缺表由 information_schema + PREPARE 段幂等补齐。
 -- 种子数据见 V1.0__initdata_all.sql（虚拟线程异步，不阻塞启动）。
 -- =====================================================================
@@ -11,9 +11,8 @@ SET NAMES utf8;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS `sign_in_record`;
 
-CREATE TABLE `sign_in_record` (
+CREATE TABLE IF NOT EXISTS `sign_in_record` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `user_id` BIGINT NOT NULL COMMENT '用户ID',
     `sign_date` DATE NOT NULL COMMENT '签到日期',
@@ -22,14 +21,13 @@ CREATE TABLE `sign_in_record` (
     `create_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `uk_user_sign_date` (`user_id`, `sign_date`),
-    INDEX `idx_user_id` (`user_id`),
-    INDEX `idx_sign_date` (`sign_date`)
+    UNIQUE INDEX `sign_in_record_uk_user_sign_date` (`user_id`, `sign_date`),
+    INDEX `sign_in_record_idx_user_id` (`user_id`),
+    INDEX `sign_in_record_idx_sign_date` (`sign_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='签到记录表';
 
-DROP TABLE IF EXISTS `sign_in_points_rule`;
 
-CREATE TABLE `sign_in_points_rule` (
+CREATE TABLE IF NOT EXISTS `sign_in_points_rule` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `type` VARCHAR(64) NOT NULL COMMENT '规则类型：DAILY_SIGN / STREAK_BONUS_3 / STREAK_BONUS_7 / STREAK_BONUS_30',
     `points` INT NOT NULL COMMENT '奖励积分',
@@ -38,12 +36,11 @@ CREATE TABLE `sign_in_points_rule` (
     `create_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `uk_type` (`type`)
+    UNIQUE INDEX `sign_in_points_rule_uk_type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='签到积分规则表';
 
-DROP TABLE IF EXISTS `sign_in_points_record`;
 
-CREATE TABLE `sign_in_points_record` (
+CREATE TABLE IF NOT EXISTS `sign_in_points_record` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `user_id` BIGINT NOT NULL COMMENT '用户ID',
     `sign_in_record_id` BIGINT NOT NULL COMMENT '关联签到记录ID',
@@ -51,8 +48,8 @@ CREATE TABLE `sign_in_points_record` (
     `points` INT NOT NULL COMMENT '本次积分',
     `create_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`),
-    INDEX `idx_user_id` (`user_id`),
-    INDEX `idx_sign_in_record_id` (`sign_in_record_id`)
+    INDEX `sign_in_points_record_idx_user_id` (`user_id`),
+    INDEX `sign_in_points_record_idx_sign_in_record_id` (`sign_in_record_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='签到积分流水表';
 
 -- 默认积分规则种子数据已拆分至 V1.0__initdata_signin.sql（异步执行，不阻塞启动）
