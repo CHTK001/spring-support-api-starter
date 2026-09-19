@@ -31,7 +31,6 @@ import java.security.PublicKey;
  * </ul>
  * </p>
  *
- * @版本 1.0.0
  * @since 2025-12-18
  * @author CH
  */

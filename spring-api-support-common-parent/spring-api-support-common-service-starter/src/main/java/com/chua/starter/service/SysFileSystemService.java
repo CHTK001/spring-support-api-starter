@@ -21,7 +21,6 @@ import java.io.File;
  *
  * @author CH
  * @since 2024/12/10
- * @版本 1.0.0
  */
 public interface SysFileSystemService extends IService<SysFileSystem> {
 

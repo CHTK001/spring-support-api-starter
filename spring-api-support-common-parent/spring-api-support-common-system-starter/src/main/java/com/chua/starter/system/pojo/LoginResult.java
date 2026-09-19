@@ -7,7 +7,6 @@ import lombok.Data;
 /**
  * 登录响应对象
  *
- * @版本 1.0.0
  * @since 2024/8/15
  * @author CH
  */

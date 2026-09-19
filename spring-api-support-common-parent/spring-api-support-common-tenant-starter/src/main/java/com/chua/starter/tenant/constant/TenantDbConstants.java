@@ -3,7 +3,6 @@ package com.chua.starter.tenant.constant;
 /**
  * 租户数据库常量
  *
- * @版本 1.0.0
  * @since 2025/12/12
  * @author CH
  */

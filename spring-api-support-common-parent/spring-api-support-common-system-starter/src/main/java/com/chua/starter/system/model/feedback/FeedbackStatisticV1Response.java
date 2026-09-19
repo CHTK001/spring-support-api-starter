@@ -9,7 +9,6 @@ import java.util.List;
  * 统计反馈信息响应
  *
  * @since 2024/12/10
- * @版本 1.0
  * @author CH
  */
 @Data

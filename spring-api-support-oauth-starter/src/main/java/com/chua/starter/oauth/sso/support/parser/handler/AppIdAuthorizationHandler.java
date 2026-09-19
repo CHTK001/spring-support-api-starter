@@ -24,7 +24,6 @@ import org.springframework.context.ApplicationContext;
  * appid和app键是并列关系，各自独立处理
  * </p>
  *
- * @版本 1.0.0
  * @since 2025/01/05
  * @author CH
  */

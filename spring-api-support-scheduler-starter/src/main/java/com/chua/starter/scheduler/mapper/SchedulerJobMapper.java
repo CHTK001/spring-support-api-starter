@@ -8,7 +8,6 @@ import java.util.List;
 /**
  * 调度任务 映射器 接口
  *
- * @版本 1.0.0
  * @since 2025/1/1
  * @author CH
  */

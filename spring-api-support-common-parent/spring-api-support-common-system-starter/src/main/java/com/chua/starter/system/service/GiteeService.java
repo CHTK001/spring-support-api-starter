@@ -7,7 +7,6 @@ import me.zhyd.oauth.model.AuthUser;
  * Gitee第三方登录服务
  * <p>处理Gitee账号与系统账号的绑定</p>
  *
- * @版本 1.0.0
  * @since 2024/01/29
  * @author CH
  */

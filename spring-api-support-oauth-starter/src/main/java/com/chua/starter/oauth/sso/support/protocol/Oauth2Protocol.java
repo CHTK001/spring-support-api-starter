@@ -59,7 +59,6 @@ import java.util.Base64;
  * </p>
  *
  * @author CH
- * @版本 1.0.0
  * @since 2025-12-15
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc6749">RFC 6749 - OAuth 2.0</a>
  */

@@ -32,7 +32,6 @@ import java.util.Set;
  * 使用 工具-通用 的 tabledefinition 工具生成 DDL 语句。
  * </p>
  *
- * @版本 1.0.0
  * @since 2025/12/12
  * @author CH
  */

@@ -8,7 +8,6 @@ import org.apache.ibatis.annotations.Param;
 /**
  * 服务 映射器 接口
  *
- * @版本 1.0.0
  * @since 2024/12/07
  * @author CH
  */

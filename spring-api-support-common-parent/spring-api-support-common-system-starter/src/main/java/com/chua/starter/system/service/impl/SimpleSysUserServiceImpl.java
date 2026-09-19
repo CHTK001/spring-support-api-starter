@@ -24,7 +24,6 @@ import java.security.SecureRandom;
  * 主要用于登录回调、2FA(TOTP) 等轻量能力。
  * </p>
  *
- * @版本 1.0.0
  * @since 2025/12/13
  * @author CH
  */
