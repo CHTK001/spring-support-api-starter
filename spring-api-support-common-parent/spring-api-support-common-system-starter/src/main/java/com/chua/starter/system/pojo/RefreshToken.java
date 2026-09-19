@@ -6,7 +6,6 @@ import lombok.Data;
 /**
  * 刷新令牌请求
  *
- * @版本 1.0.0
  * @since 2024/8/15
  * @author CH
  */

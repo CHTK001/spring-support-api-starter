@@ -30,7 +30,6 @@ import java.util.*;
  * </ul>
  * </p>
  *
- * @版本 1.0.0
  * @since 2025-12-28
  * @author CH
  */

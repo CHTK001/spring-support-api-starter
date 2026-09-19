@@ -18,7 +18,6 @@ import java.util.Set;
 /**
  * 系统用户 映射器接口
  *
- * @版本 1.0.0
  * @since 2024/12/12
  * @author CH
  */

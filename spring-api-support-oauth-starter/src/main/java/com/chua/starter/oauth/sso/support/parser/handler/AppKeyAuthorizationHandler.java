@@ -22,7 +22,6 @@ import org.springframework.context.ApplicationContext;
  * 类似大模型的认证方式，只验证app键合法性，返回关联用户信息
  * </p>
  *
- * @版本 1.0.0
  * @since 2024/12/11
  * @author CH
  */

@@ -48,7 +48,6 @@ import java.util.concurrent.TimeUnit;
  * 服务端模式下，用于向客户端推送租户数据变更
  * </p>
  *
- * @版本 1.0.0
  * @since 2024/12/06
  * @author CH
  */

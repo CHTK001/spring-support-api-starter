@@ -13,7 +13,6 @@ import java.util.Map;
  * 使用 SPI 机制，允许不同实现处理租户数据同步
  * </p>
  *
- * @版本 1.0.0
  * @since 2024/12/12
  * @author CH
  */

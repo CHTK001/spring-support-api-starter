@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit;
  *
  * @author CH
  * @since 2024/12/10
- * @版本 1.0.0
  */
 @Slf4j
 @Component

@@ -29,7 +29,6 @@ import java.util.UUID;
  * 支持多种签名算法：HS256/HS384/HS512、R256/R384/R512、ES256/ES384/ES512
  * </p>
  *
- * @版本 1.0.0
  * @since 2025-12-18
  * @author CH
  */

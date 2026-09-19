@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
  * Gitee第三方登录服务实现
  * <p>处理Gitee账号与系统账号的绑定逻辑</p>
  *
- * @版本 1.0.0
  * @since 2024/01/29
  * @author CH
  */

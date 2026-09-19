@@ -73,7 +73,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *   <li>各平台申请指南请参考 docs/third-party-login/ 目录</li>
  * </ul>
  *
- * @版本 1.0.0
  * @since 2024/01/01
  * @see com.chua.starter.oauth.sso.support.protocol.OAuth2LoginController
  * @author CH

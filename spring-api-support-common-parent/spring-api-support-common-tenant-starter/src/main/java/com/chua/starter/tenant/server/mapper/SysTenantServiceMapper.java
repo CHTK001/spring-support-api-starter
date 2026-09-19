@@ -10,7 +10,6 @@ import java.util.List;
 /**
  * 租户服务关联 映射器 接口
  *
- * @版本 1.0.0
  * @since 2024/12/06
  * @author CH
  */

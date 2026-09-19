@@ -24,7 +24,6 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 
 /**
  * 默认登录处理器
- * @版本 1.0.0
  * @since 2024/12/2
  * @author CH
  */

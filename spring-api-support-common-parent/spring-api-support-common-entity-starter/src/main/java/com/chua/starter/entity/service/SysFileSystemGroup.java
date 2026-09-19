@@ -19,7 +19,6 @@ import java.util.List;
  * 用于管理文件分组，支持树形结构
  *
  * @since 2024/12/10
- * @版本 1.0.0
  * @author CH
  */
 @Schema(description = "文件系统分组表")

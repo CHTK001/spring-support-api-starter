@@ -18,7 +18,6 @@ import java.util.List;
  * 服务实体
  * 用于管理系统中的服务定义
  *
- * @版本 1.0.0
  * @since 2024/12/07
  * @author CH
  */

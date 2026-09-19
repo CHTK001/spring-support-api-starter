@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Configuration;
  * 配置租户拦截器，实现多租户数据隔离
  * </p>
  *
- * @版本 1.0.0
  * @since 2024/12/06
  * @author CH
  */

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
  * 而非全量清空重录，从而保留租户端菜单记录与关联数据
  * </p>
  *
- * @版本 1.0.0
  * @since 4.0.0.42
  * @author CH
  */

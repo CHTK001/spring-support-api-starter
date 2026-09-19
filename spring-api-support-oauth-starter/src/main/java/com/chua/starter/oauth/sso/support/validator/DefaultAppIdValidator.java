@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
  * 默认实现：从app_标识表查询appid并比较是否匹配
  * </p>
  *
- * @版本 1.0.0
  * @since 2025-01-05
  * @author CH
  */

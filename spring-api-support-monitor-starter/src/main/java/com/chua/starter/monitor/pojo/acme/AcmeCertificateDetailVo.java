@@ -14,7 +14,6 @@ import java.util.List;
  * ACME 证书详情 VO
  * 包含证书信息、关联账户信息和订单信息
  *
- * @版本 1.0.0
  * @since 2025-12-06
  * @author CH
  */

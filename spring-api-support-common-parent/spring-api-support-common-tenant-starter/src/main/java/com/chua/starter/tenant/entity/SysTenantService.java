@@ -18,7 +18,6 @@ import java.time.LocalDate;
 /**
  * 租户 - 服务关联表
  *
- * @版本 1.0.0
  * @since 2024/12/06
  * @author CH
  */

@@ -7,7 +7,6 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * 用户第三方绑定信息 映射器
  *
- * @版本 1.0.0
  * @since 2024/12/11
  * @author CH
  */

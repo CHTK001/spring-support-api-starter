@@ -15,7 +15,6 @@ import org.springframework.cache.annotation.Cacheable;
  * 从 sys_app_键 表查询 SK，带缓存
  * </p>
  *
- * @版本 1.0.0
  * @since 2024/12/17
  * @author CH
  */

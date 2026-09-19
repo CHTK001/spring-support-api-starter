@@ -26,7 +26,6 @@ import java.util.function.Supplier;
  * 系统统一认证自动配置
  * <p>自动扫描认证相关的组件和Mapper</p>
  *
- * @版本 1.0.0
  * @since 2024/12/11
  * @author CH
  */

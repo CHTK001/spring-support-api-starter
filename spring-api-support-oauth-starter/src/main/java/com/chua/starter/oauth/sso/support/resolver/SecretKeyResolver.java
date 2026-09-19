@@ -6,7 +6,6 @@ package com.chua.starter.oauth.sso.support.resolver;
  * 根据 访问密钥 查询 密钥，用于 AK/SK 加密验证
  * </p>
  *
- * @版本 1.0.0
  * @since 2024/12/17
  * @author CH
  */

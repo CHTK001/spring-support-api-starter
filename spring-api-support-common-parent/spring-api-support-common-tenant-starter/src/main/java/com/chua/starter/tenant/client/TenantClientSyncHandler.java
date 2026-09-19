@@ -30,7 +30,6 @@ import java.util.concurrent.ConcurrentMap;
  * 实现 同步消息处理器 接口，监听服务端推送的租户数据并通过 SPI 分发处理
  * </p>
  *
- * @版本 1.0.0
  * @since 2024/12/06
  * @author CH
  */

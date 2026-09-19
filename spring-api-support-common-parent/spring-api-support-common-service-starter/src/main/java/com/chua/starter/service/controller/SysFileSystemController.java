@@ -39,7 +39,6 @@ import java.util.Map;
  *
  * @author CH
  * @since 2024/12/4
- * @版本 1.0.0
  */
 // @RestController
 // @Slf4j
