@@ -1,5 +1,5 @@
 -- =====================================================================
--- V1.0__init_all.sql - spring-api-support-common-achievement-starter 全量 DDL（合并自 1 个文件）
+-- V1.0__init_all_api_common_achievement.sql - spring-api-support-common-achievement-starter 全量 DDL（合并自 1 个文件）
 -- 通道: INIT 同步建表；老库缺列/缺表由 information_schema + PREPARE 段幂等补齐。
 -- 种子数据见 V1.0__initdata_all.sql（虚拟线程异步，不阻塞启动）。
 -- =====================================================================
@@ -27,9 +27,8 @@ SET NAMES utf8;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS `achievement_tier`;
 
-CREATE TABLE `achievement_tier` (
+CREATE TABLE IF NOT EXISTS `achievement_tier` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `type` VARCHAR(64) NOT NULL COMMENT '分组标识',
     `level` INT NOT NULL COMMENT '段位等级',
@@ -41,12 +40,11 @@ CREATE TABLE `achievement_tier` (
     `create_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `uk_type_level` (`type`, `level`)
+    UNIQUE INDEX `achievement_tier_uk_type_level` (`type`, `level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='成就段位定义表';
 
-DROP TABLE IF EXISTS `user_achievement`;
 
-CREATE TABLE `user_achievement` (
+CREATE TABLE IF NOT EXISTS `user_achievement` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `user_id` BIGINT NOT NULL COMMENT '用户ID',
     `type` VARCHAR(64) NOT NULL COMMENT '分组标识',
@@ -55,8 +53,8 @@ CREATE TABLE `user_achievement` (
     `create_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `uk_user_type` (`user_id`, `type`),
-    INDEX `idx_user_id` (`user_id`)
+    UNIQUE INDEX `user_achievement_uk_user_type` (`user_id`, `type`),
+    INDEX `user_achievement_idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户成就记录表';
 
 -- 成就段位种子数据已拆分至 V1.0__initdata_achievement.sql（异步执行，不阻塞启动）

@@ -1,5 +1,5 @@
 -- =====================================================================
--- V1.0__initdata_all.sql - spring-api-support-system-starter 全量种子（合并自 initdata 文件 + init 内嵌种子）
+-- V1.0__initdata_all_api_system.sql - spring-api-support-system-starter 全量种子（合并自 initdata 文件 + init 内嵌种子）
 -- 通道: INITDATA 虚拟线程异步；全部幂等（INSERT IGNORE / WHERE NOT EXISTS）。
 -- =====================================================================
 
@@ -89,12 +89,12 @@ INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu
 -- =====================================================
 -- 3. 默认系统账号
 -- 账号: sa / admin / ops
--- 密码: 123456 (前端先 MD5，再由后端执行 MD5(md5(password)+salt))
+-- 密码: 123456 (统一算法 md5(明文 + salt)，见 PasswordUtils)
 -- =====================================================
 INSERT IGNORE INTO `sys_user` (`sys_user_id`, `sys_user_username`, `sys_user_nickname`, `sys_user_password`, `sys_user_salt`, `sys_user_delete`, `sys_user_status`, `sys_user_in_system`) VALUES
-(1, 'sa', '超级管理员', '5f1d7a84db00d2fce00b31a7fc73224f', '123456', 0, 1, 1),
-(2, 'admin', '管理员', '5f1d7a84db00d2fce00b31a7fc73224f', '123456', 0, 1, 1),
-(3, 'ops', '运维', '5f1d7a84db00d2fce00b31a7fc73224f', '123456', 0, 1, 1);
+(1, 'sa', '超级管理员', 'ea48576f30be1669971699c09ad05c94', '123456', 0, 1, 1),
+(2, 'admin', '管理员', 'ea48576f30be1669971699c09ad05c94', '123456', 0, 1, 1),
+(3, 'ops', '运维', 'ea48576f30be1669971699c09ad05c94', '123456', 0, 1, 1);
 
 -- =====================================================
 -- 4. 默认账号角色关联
@@ -111,41 +111,31 @@ INSERT IGNORE INTO `sys_dept` (`sys_dept_id`, `sys_dept_name`, `sys_dept_pid`, `
 (1, '总部', 0, '0,1', 'ROOT', 1, 0);
 
 -- =====================================================
--- 6. 头像框种子（渐变 1-22、图片 23-29、生日 100）
+-- 6. 头像框种子（生肖 201-212、神兽 221-226、生日 100）
 -- =====================================================
 INSERT IGNORE INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_name`, `sys_avatar_frame_type`, `sys_avatar_frame_color`, `sys_avatar_frame_desc`, `sys_avatar_frame_acquire`, `sys_avatar_frame_sort`) VALUES
-(1, '经典', 'base', 'transparent', '默认无边框', 'default', 0),
-(2, '金色', 'base', 'linear-gradient(135deg, #f6d365, #fda085)', '温暖金色渐变', 'default', 1),
-(3, '蓝色', 'base', 'linear-gradient(135deg, #667eea, #764ba2)', '深邃蓝紫渐变', 'default', 2),
-(4, '红色', 'base', 'linear-gradient(135deg, #f093fb, #f5576c)', '热情红粉渐变', 'default', 3),
-(5, '绿色', 'base', 'linear-gradient(135deg, #4facfe, #00f2fe)', '清新蓝绿渐变', 'default', 4),
-(6, '紫色', 'base', 'linear-gradient(135deg, #a18cd1, #fbc2eb)', '梦幻紫粉渐变', 'default', 5),
-(7, '橙色', 'base', 'linear-gradient(135deg, #fa709a, #fee140)', '活力橙黄渐变', 'default', 6),
-(8, '暗夜', 'base', 'linear-gradient(135deg, #2c3e50, #3498db)', '沉稳暗夜渐变', 'default', 7),
-(9, '糖果', 'base', 'linear-gradient(135deg, #f6d365, #fda085)', '甜美糖果渐变', 'default', 8),
-(10, '樱粉', 'base', 'linear-gradient(135deg, #ff9a9e, #fecfef)', '浪漫樱粉渐变', 'default', 9),
-(11, '薄荷', 'base', 'linear-gradient(135deg, #a1c4fd, #c2e9fb)', '清爽薄荷渐变', 'default', 10),
-(12, '暮霭', 'base', 'linear-gradient(135deg, #d4a4fc, #ff9a9e)', '温柔暮霭渐变', 'default', 11),
-(13, '柠檬', 'base', 'linear-gradient(135deg, #ffdfba, #feedb0)', '明快柠檬渐变', 'default', 12),
-(14, '星空', 'base', 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)', '深邃星空渐变', 'default', 13),
-(15, '森林', 'base', 'linear-gradient(135deg, #134e5e, #71b280)', '自然森林渐变', 'default', 14),
-(16, '熔岩', 'base', 'linear-gradient(135deg, #ff512f, #dd2476)', '炽热熔岩渐变', 'default', 15),
-(17, '极光', 'base', 'linear-gradient(135deg, #00c9ff, #92fe9d)', '缥缈极光渐变', 'default', 16),
-(18, '红枫', 'base', 'linear-gradient(135deg, #b31217, #e52d27)', '热烈红枫渐变', 'default', 17),
-(19, '海洋', 'base', 'linear-gradient(135deg, #2193b0, #6dd5ed)', '蔚蓝海洋渐变', 'default', 18),
-(20, '祖母绿', 'base', 'linear-gradient(135deg, #11998e, #38ef7d)', '剔透祖母绿渐变', 'default', 19),
-(21, '晚霞', 'base', 'linear-gradient(135deg, #ff9966, #ff5e62)', '绚烂晚霞渐变', 'default', 20),
-(22, '阿凡达', 'base', 'linear-gradient(135deg, #1488cc, #2b32b2)', '科幻阿凡达渐变', 'default', 21);
+(1, '经典', 'base', 'transparent', '默认无边框', 'default', 0);
 
 INSERT IGNORE INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_name`, `sys_avatar_frame_type`, `sys_avatar_frame_image`, `sys_avatar_frame_desc`, `sys_avatar_frame_acquire`, `sys_avatar_frame_sort`) VALUES
-(23, '鎏金', 'base', '/assets/avatar-frames/frame-gold.png', '金色图腾环', 'default', 22),
-(24, '皇室蓝', 'base', '/assets/avatar-frames/frame-royal.png', '经典皇室蓝环', 'default', 23),
-(25, '玫瑰金', 'base', '/assets/avatar-frames/frame-rose.png', '优雅玫瑰金环', 'default', 24),
-(26, '焰光', 'base', '/assets/avatar-frames/frame-flame.apng', '火焰呼吸动画(APNG)', 'default', 25),
-(27, '晶蓝', 'base', '/assets/avatar-frames/frame-azure.apng', '晶蓝呼吸动画(APNG)', 'default', 26),
-(28, '玄黑', 'base', '/assets/avatar-frames/frame-onyx.png', '幽黑玄金环', 'default', 27),
-(29, '像素风', 'base', '/assets/avatar-frames/frame-pixel.png', '复古像素风边框', 'default', 28);
+(201, '子鼠', 'zodiac', '/assets/avatar-frames/zodiac-rat.svg', '暗珐琅描金·生肖鼠', 'default', 1),
+(202, '丑牛', 'zodiac', '/assets/avatar-frames/zodiac-ox.svg', '暗珐琅描金·生肖牛', 'default', 2),
+(203, '寅虎', 'zodiac', '/assets/avatar-frames/zodiac-tiger.svg', '暗珐琅描金·生肖虎', 'default', 3),
+(204, '卯兔', 'zodiac', '/assets/avatar-frames/zodiac-rabbit.svg', '暗珐琅描金·生肖兔', 'default', 4),
+(205, '辰龙', 'zodiac', '/assets/avatar-frames/zodiac-dragon.svg', '暗珐琅描金·生肖龙', 'default', 5),
+(206, '巳蛇', 'zodiac', '/assets/avatar-frames/zodiac-snake.svg', '暗珐琅描金·生肖蛇', 'default', 6),
+(207, '午马', 'zodiac', '/assets/avatar-frames/zodiac-horse.svg', '暗珐琅描金·生肖马', 'default', 7),
+(208, '未羊', 'zodiac', '/assets/avatar-frames/zodiac-goat.svg', '暗珐琅描金·生肖羊', 'default', 8),
+(209, '申猴', 'zodiac', '/assets/avatar-frames/zodiac-monkey.svg', '暗珐琅描金·生肖猴', 'default', 9),
+(210, '酉鸡', 'zodiac', '/assets/avatar-frames/zodiac-rooster.svg', '暗珐琅描金·生肖鸡', 'default', 10),
+(211, '戌狗', 'zodiac', '/assets/avatar-frames/zodiac-dog.svg', '暗珐琅描金·生肖狗', 'default', 11),
+(212, '亥猪', 'zodiac', '/assets/avatar-frames/zodiac-pig.svg', '暗珐琅描金·生肖猪', 'default', 12),
+(221, '狮鹫', 'beast', '/assets/avatar-frames/beast-griffin.svg', '暗珐琅描金·西方神兽狮鹫', 'limit', 13),
+(222, '独角兽', 'beast', '/assets/avatar-frames/beast-unicorn.svg', '暗珐琅描金·西方神兽独角兽', 'limit', 14),
+(223, '凤凰', 'beast', '/assets/avatar-frames/beast-phoenix.svg', '暗珐琅描金·神兽凤凰', 'limit', 15),
+(224, '麒麟', 'beast', '/assets/avatar-frames/beast-qilin.svg', '暗珐琅描金·神兽麒麟', 'limit', 16),
+(225, '九尾狐', 'beast', '/assets/avatar-frames/beast-fox.svg', '暗珐琅描金·神兽九尾狐', 'limit', 17),
+(226, '天马', 'beast', '/assets/avatar-frames/beast-pegasus.svg', '暗珐琅描金·西方神兽天马', 'limit', 18);
 
 INSERT IGNORE INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_name`, `sys_avatar_frame_type`, `sys_avatar_frame_image`, `sys_avatar_frame_desc`, `sys_avatar_frame_acquire`, `sys_avatar_frame_sort`, `sys_avatar_frame_status`) VALUES
-(100, '生日快乐', 'birthday', '/assets/avatar-frames/birthday.png', '生日专属限定头像框', 'birthday', 99, 1);
+(100, '生日快乐', 'birthday', '/assets/avatar-frames/birthday.svg', '生日专属限定头像框', 'birthday', 99, 1);
 
