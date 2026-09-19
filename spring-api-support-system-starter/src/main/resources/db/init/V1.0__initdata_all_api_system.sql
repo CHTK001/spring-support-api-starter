@@ -82,13 +82,14 @@ INSERT IGNORE INTO `sys_menu` (
 (32, 'announcement', '/manage/announcement', NULL, '通知公告', NULL, 1, '0,1,32', 'system/announcement/index', 'ep:bell', 0, 9, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (33, 'feedback', '/manage/feedback', NULL, '意见反馈', NULL, 1, '0,1,33', 'system/feedback/index', 'ep:chat-dot-round', 0, 10, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (34, 'ip', '/manage/ip', NULL, 'IP 黑白名单', NULL, 1, '0,1,34', 'system/ip/index', 'ep:position', 0, 11, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(35, 'cache', '/manage/cache', NULL, '缓存监控', NULL, 1, '0,1,35', 'system/cache/index', 'ep:coin', 0, 12, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(35, 'cache', '/manage/cache', NULL, '缓存监控', NULL, 53, '0,53,35', 'system/cache/index', 'ep:coin', 0, 12, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (36, 'errorlog', '/manage/errorlog', NULL, '错误日志', NULL, 1, '0,1,36', 'system/errorlog/index', 'ep:warning', 0, 13, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(37, 'message', '/manage/message', NULL, '站内消息', NULL, 1, '0,1,37', 'system/message/index', 'ep:message', 0, 14, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(38, 'monitor', '/manage/monitor', NULL, '服务监控', NULL, 1, '0,1,38', 'system/monitor/index', 'ep:odometer', 0, 15, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(37, 'message', '/manage/message', NULL, '站内消息', NULL, 51, '0,51,37', 'system/message/index', 'ep:message', 0, 14, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(38, 'monitor', '/manage/monitor', NULL, '服务监控', NULL, 53, '0,53,38', 'system/monitor/index', 'ep:odometer', 0, 15, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (50, 'filesystem', '/filesystem', NULL, '文件系统', NULL, 0, '0,50', '/filesystem', 'ep:folder', 0, 20, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
 (51, 'msgcenter', '/message', NULL, '消息中心', NULL, 0, '0,51', '/message', 'ep:chat-dot-square', 0, 24, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
 (52, 'taskcenter', '/task', NULL, '任务调度', NULL, 0, '0,52', '/task', 'ep:timer', 0, 25, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
+(53, 'monitorcenter', '/monitor', NULL, '运维监控', NULL, 0, '0,53', '/monitor', 'ep:odometer', 0, 12, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
 (39, 'file', '/manage/file', NULL, '文件管理', NULL, 50, '0,50,39', 'filesystem/list/index', 'ep:folder', 0, 20, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (40, 'filegroup', '/manage/filegroup', NULL, '文件分组', NULL, 50, '0,50,40', 'filesystem/group/index', 'ep:files', 0, 21, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (41, 'filestorage', '/manage/filestorage', NULL, '存储配置', NULL, 50, '0,50,41', 'filesystem/filestorage/index', 'ep:box', 0, 22, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
@@ -149,7 +150,8 @@ INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu
 (180, 2, 47),
 (181, 2, 50),
 (182, 2, 51),
-(183, 2, 52);
+(183, 2, 52),
+(184, 2, 53);
 
 -- =====================================================
 -- 3. 默认系统账号
