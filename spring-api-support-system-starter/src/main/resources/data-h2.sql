@@ -660,6 +660,7 @@ sys_menu_fixed_tag int NULL DEFAULT NULL COMMENT '閺勵垰鎯侀崶鍝勭暰閺
     sys_menu_role varchar(255)  NULL DEFAULT NULL COMMENT '閹碘偓鐏炵偠顫楅懝鑼椽閻?- 閸欘垵顔栭梻顔款嚉閼挎粌宕熼惃鍕潡閼硅尙绱惍渚婄礉闁褰块崚鍡涙',
     sys_menu_home int NULL DEFAULT NULL COMMENT '閺勵垰鎯侀崣顏呮▔缁€鍝勬躬娑撳銆?- 0:閸? 1:閺?,
     sys_menu_engine int NULL DEFAULT NULL COMMENT '閺勵垰鎯乪ngine鐢啫鐪稉濠氥€?- 0:閸? 1:閺?,
+    sys_menu_remind int NULL DEFAULT 0 COMMENT 'detach from menu processing: 0=as menu, 1=route only',
     create_name varchar(255)  NULL DEFAULT NULL COMMENT '閸掓稑缂撴禍鍝勵潣閸?,
     create_by int NULL DEFAULT NULL COMMENT '閸掓稑缂撴禍绡扗',
     create_time datetime NULL DEFAULT NULL COMMENT '閸掓稑缂撻弮鍫曟？',
@@ -1105,15 +1106,18 @@ INSERT INTO sys_menu (
 (36, 'errorlog', '/manage/errorlog', NULL, '错误日志', NULL, 1, '0,1,36', 'system/errorlog/index', 'ep:warning', 0, 13, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (37, 'message', '/manage/message', NULL, '站内消息', NULL, 1, '0,1,37', 'system/message/index', 'ep:message', 0, 14, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (38, 'monitor', '/manage/monitor', NULL, '服务监控', NULL, 1, '0,1,38', 'system/monitor/index', 'ep:odometer', 0, 15, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(39, 'file', '/manage/file', NULL, '文件管理', NULL, 1, '0,1,39', 'filesystem/list/index', 'ep:folder', 0, 20, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(40, 'filegroup', '/manage/filegroup', NULL, '文件分组', NULL, 1, '0,1,40', 'filesystem/group/index', 'ep:files', 0, 21, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(41, 'filestorage', '/manage/filestorage', NULL, '存储配置', NULL, 1, '0,1,41', 'filesystem/filestorage/index', 'ep:box', 0, 22, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(42, 'filesetting', '/manage/filesetting', NULL, '文件设置', NULL, 1, '0,1,42', 'filesystem/setting/index', 'ep:setting', 0, 23, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(43, 'msgtemplate', '/manage/msgtemplate', NULL, '消息模板', NULL, 1, '0,1,43', 'message/template/index', 'ep:document', 0, 24, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(44, 'taskdispatch', '/manage/taskdispatch', '', '任务派发', '', 1, '0,1,44', 'task/dispatch/index', 'ep:promotion', 0, 25, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(45, 'scheduler', '/manage/scheduler', '', '调度中心', '', 1, '0,1,45', 'task/scheduler/index', 'ep:timer', 0, 26, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(46, 'msgprovider', '/manage/msgprovider', '', '消息渠道', '', 1, '0,1,46', 'message/provider/index', 'ep:connection', 0, 27, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(47, 'msglog', '/manage/msglog', '', '发送日志', '', 1, '0,1,47', 'message/log/index', 'ep:tickets', 0, 28, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL);
+(50, 'filesystem', '/filesystem', NULL, '文件系统', NULL, 0, '0,50', '/filesystem', 'ep:folder', 0, 20, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
+(51, 'msgcenter', '/message', NULL, '消息中心', NULL, 0, '0,51', '/message', 'ep:chat-dot-square', 0, 24, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
+(52, 'taskcenter', '/task', NULL, '任务调度', NULL, 0, '0,52', '/task', 'ep:timer', 0, 25, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, '', NULL, NULL),
+(39, 'file', '/manage/file', NULL, '文件管理', NULL, 50, '0,50,39', 'filesystem/list/index', 'ep:folder', 0, 20, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(40, 'filegroup', '/manage/filegroup', NULL, '文件分组', NULL, 50, '0,50,40', 'filesystem/group/index', 'ep:files', 0, 21, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(41, 'filestorage', '/manage/filestorage', NULL, '存储配置', NULL, 50, '0,50,41', 'filesystem/filestorage/index', 'ep:box', 0, 22, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(42, 'filesetting', '/manage/filesetting', NULL, '文件设置', NULL, 50, '0,50,42', 'filesystem/setting/index', 'ep:setting', 0, 23, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(43, 'msgtemplate', '/manage/msgtemplate', NULL, '消息模板', NULL, 51, '0,51,43', 'message/template/index', 'ep:document', 0, 24, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(44, 'taskdispatch', '/manage/taskdispatch', '', '任务派发', '', 52, '0,52,44', 'task/dispatch/index', 'ep:promotion', 0, 25, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(45, 'scheduler', '/manage/scheduler', '', '调度中心', '', 52, '0,52,45', 'task/scheduler/index', 'ep:timer', 0, 26, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(46, 'msgprovider', '/manage/msgprovider', '', '消息渠道', '', 51, '0,51,46', 'message/provider/index', 'ep:connection', 0, 27, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(47, 'msglog', '/manage/msglog', '', '发送日志', '', 51, '0,51,47', 'message/log/index', 'ep:tickets', 0, 28, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL);
 
 INSERT INTO sys_role_menu (sys_role_menu_id, sys_role_id, sys_menu_id) VALUES
 (82, 2, 4),
@@ -1162,7 +1166,10 @@ INSERT INTO sys_role_menu (sys_role_menu_id, sys_role_id, sys_menu_id) VALUES
 (177, 2, 44),
 (178, 2, 45),
 (179, 2, 46),
-(180, 2, 47);
+(180, 2, 47),
+(181, 2, 50),
+(182, 2, 51),
+(183, 2, 52);
 
 -- =====================================================
 -- 閸掓繂顫愰弫鐗堝祦 - 姒涙顓荤化鑽ょ埠鐠愶箑褰?-- 鐠愶箑褰? sa / admin / ops
@@ -1356,6 +1363,8 @@ INSERT INTO sys_setting VALUES (35, 'ImageUrl', 'login.imageUrl', '/assets/login
 INSERT INTO sys_setting VALUES (36, 'AvatarUrl', 'login.avatarUrl', '', 'String', 'default', 1, 10, 0, 1, 0, NULL, 15, NULL, '姒涙顓绘径鏉戝剼', NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO sys_setting VALUES (37, 'BeiAnHao', 'login.beiAnHao', '', 'String', 'default', 1, 11, 0, 1, 0, NULL, 15, NULL, '婢跺洦顢嶉崣?, NULL, NULL, NULL, NOW(), 'sa', 1);
 INSERT INTO sys_setting VALUES (38, 'FeatureTags', 'login.featureTags', '[{"icon":"DataAnalysis","text":"妤傛ɑ鏅ョ粻锛勬倞"},{"icon":"Brush","text":"閻滈鍞拋鎹愵吀"},{"icon":"Lock","text":"鐎瑰鍙忛崣顖炴浆"}]', 'String', 'default', 1, 12, 0, 1, 0, NULL, 15, NULL, '閸旂喕鍏橀悧瑙勨偓褎鐖ｇ粵?, NULL, NULL, NULL, NOW(), 'sa', 1);
+INSERT INTO sys_setting (`sys_setting_id`, `sys_setting_name`, `sys_setting_code`, `sys_setting_value`, `sys_setting_value_type`, `sys_setting_group`, `sys_setting_status`, `sys_setting_sort`, `sys_setting_collect`, `sys_setting_in_system`, `sys_setting_app_inner`, `sys_setting_admin`, `sys_setting_version`, `sys_setting_remark`, `create_name`, `create_time`) VALUES (39, 'AvatarFrameOpen', 'other.avatarFrame.enable', 'true', 'Boolean', 'default', 1, 13, 0, 1, 0, NULL, 15, '头像框能力开关', 'sa', NOW());
+INSERT INTO sys_setting (`sys_setting_id`, `sys_setting_name`, `sys_setting_code`, `sys_setting_value`, `sys_setting_value_type`, `sys_setting_group`, `sys_setting_status`, `sys_setting_sort`, `sys_setting_collect`, `sys_setting_in_system`, `sys_setting_app_inner`, `sys_setting_admin`, `sys_setting_version`, `sys_setting_remark`, `create_name`, `create_time`) VALUES (40, 'PersonalConfigOpen', 'other.personalConfig.enable', 'true', 'Boolean', 'default', 1, 14, 0, 1, 0, NULL, 15, '个性配置能力开关', 'sa', NOW());
 INSERT INTO sys_setting VALUES (5, 'CodecResponseOpen', '', 'false', 'Boolean', 'config', 1, 10, 0, 1, 0, NULL, 26, NULL, '鏉╂柨娲栭崝鐘茬槕', 'sa', NULL, NOW(), NOW(), 'sa', 1);
 INSERT INTO sys_setting VALUES (6, 'WatermarkOpen', '', 'false', 'Boolean', 'config', 1, 5, 0, 1, 0, NULL, 26, NULL, '濮樻潙宓?, 'sa', NULL, NOW(), NOW(), 'sa', 1);
 INSERT INTO sys_setting VALUES (8, 'Version', '', '1', 'Number', 'config', 1, 4, 0, 1, 0, NULL, 123, 'fe7db08a-1001-4e7b-95ab-776a569a85c0', '缁崵绮洪悧鍫熸拱', NULL, NULL, NULL, NOW(), 'sa', 1);
