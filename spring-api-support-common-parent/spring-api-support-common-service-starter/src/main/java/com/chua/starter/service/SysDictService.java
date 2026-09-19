@@ -6,6 +6,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.entity.service.SysDict;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -28,6 +29,14 @@ public interface SysDictService extends IService<SysDict> {
      * @return 分页查询结果，包含查询到的系统字典信息
      */
     IPage<SysDict> pageForDict(Query<SysDict> query, SysDict sysDict, Set<String> roles);
+
+    /**
+     * 查询全量一级字典（带子级），用于字典管理页左侧列表
+     *
+     * @param sysDict 查询条件，可按编码/名称模糊过滤
+     * @return 一级字典列表，children 已挂载
+     */
+    List<SysDict> listForDict(SysDict sysDict);
 
     /**
      * 删除指定的系统字典
