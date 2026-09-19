@@ -1,5 +1,5 @@
 -- =====================================================================
--- V1.0__init_all.sql - spring-api-support-common-tenant-starter 全量 DDL（合并自 1 个文件）
+-- V1.0__init_all_api_common_tenant.sql - spring-api-support-common-tenant-starter 全量 DDL（合并自 1 个文件）
 -- 通道: INIT 同步建表；老库缺列/缺表由 information_schema + PREPARE 段幂等补齐。
 -- 种子数据见 V1.0__initdata_all.sql（虚拟线程异步，不阻塞启动）。
 -- =====================================================================
@@ -22,9 +22,8 @@
 -- @since 2026-08-07
 -- =============================================
 
-DROP TABLE IF EXISTS `sys_tenant`;
 
-CREATE TABLE `sys_tenant` (
+CREATE TABLE IF NOT EXISTS `sys_tenant` (
     `sys_tenant_id` varchar(64) NOT NULL COMMENT '租户ID - 雪花ID即租户唯一编码',
     `sys_tenant_name` varchar(255) NULL DEFAULT NULL COMMENT '租户名称',
     `sys_tenant_username` varchar(255) NULL DEFAULT NULL COMMENT '租户登录账号',
@@ -50,9 +49,8 @@ CREATE TABLE `sys_tenant` (
     PRIMARY KEY (`sys_tenant_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 ;
 
-DROP TABLE IF EXISTS `sys_service`;
 
-CREATE TABLE `sys_service` (
+CREATE TABLE IF NOT EXISTS `sys_service` (
     `sys_service_id` int NOT NULL AUTO_INCREMENT,
     `sys_service_name` varchar(255) NULL DEFAULT NULL COMMENT '服务名称',
     `sys_service_code` varchar(100) NULL DEFAULT NULL COMMENT '服务编码',
@@ -69,9 +67,8 @@ CREATE TABLE `sys_service` (
     PRIMARY KEY (`sys_service_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 ;
 
-DROP TABLE IF EXISTS `sys_service_module`;
 
-CREATE TABLE `sys_service_module` (
+CREATE TABLE IF NOT EXISTS `sys_service_module` (
     `sys_service_module_id` int NOT NULL AUTO_INCREMENT,
     `sys_service_module_name` varchar(255) NULL DEFAULT NULL COMMENT '模块名称',
     `sys_service_module_code` varchar(100) NULL DEFAULT NULL COMMENT '模块编码',
@@ -90,9 +87,8 @@ CREATE TABLE `sys_service_module` (
     PRIMARY KEY (`sys_service_module_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 ;
 
-DROP TABLE IF EXISTS `sys_service_module_item`;
 
-CREATE TABLE `sys_service_module_item` (
+CREATE TABLE IF NOT EXISTS `sys_service_module_item` (
     `sys_service_module_item_id` int NOT NULL AUTO_INCREMENT,
     `sys_service_id` int NOT NULL COMMENT '服务ID',
     `sys_service_module_id` int NOT NULL COMMENT '模块ID',
@@ -106,9 +102,8 @@ CREATE TABLE `sys_service_module_item` (
     PRIMARY KEY (`sys_service_module_item_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 ;
 
-DROP TABLE IF EXISTS `sys_tenant_service`;
 
-CREATE TABLE `sys_tenant_service` (
+CREATE TABLE IF NOT EXISTS `sys_tenant_service` (
     `sys_tenant_service_id` int NOT NULL AUTO_INCREMENT,
     `sys_tenant_id` varchar(64) NOT NULL COMMENT '租户ID',
     `sys_service_id` int NOT NULL COMMENT '服务ID',
