@@ -24,7 +24,7 @@ public class DictItemPropertyV1Request {
     private Integer sysDictItemId;
 
     /**
-    * 字典子项属性
+     * 字典子项属性
      */
     @Schema(description = "字典子项属性")
     /** 财产 */

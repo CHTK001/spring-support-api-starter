@@ -49,11 +49,11 @@ public class FileHttpServer {
     private volatile boolean running; // running
 
     /**
-    * 创建 文件http服务端 实例
-    * @param sysFileSystemService sys文件系统服务
-    * @param sysFileSystemSettingService sys文件系统setting服务
-    * @param setting setting
-    * @param tempPath temp路径
+     * 创建 文件http服务端 实例
+     * @param sysFileSystemService sys文件系统服务
+     * @param sysFileSystemSettingService sys文件系统setting服务
+     * @param setting setting
+     * @param tempPath temp路径
      */
     public FileHttpServer(SysFileSystemService sysFileSystemService,
                           SysFileSystemSettingService sysFileSystemSettingService,

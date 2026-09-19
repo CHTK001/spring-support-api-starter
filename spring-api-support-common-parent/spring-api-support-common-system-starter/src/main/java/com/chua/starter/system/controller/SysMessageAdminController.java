@@ -43,11 +43,11 @@ public class SysMessageAdminController {
     private final SysMessageService sysMessageService;
 
     /**
-    * 管理员分页查询全部消息
-    *
-    * @param query     分页参数
-    * @param condition 查询条件
-    * @return 消息分页
+     * 管理员分页查询全部消息
+     *
+     * @param query     分页参数
+     * @param condition 查询条件
+     * @return 消息分页
      */
     @Operation(summary = "消息分页列表(管理端)")
     @GetMapping("/page")

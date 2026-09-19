@@ -32,14 +32,14 @@ public final class OauthAuthorization implements Authorization {
     private final OauthAuthInformation authInformation;
 
     /**
-    * 创建 oauth授权 实例
-    * @param authInformation 认证信息
-    * @param token 令牌
-    * @param cookie Cookie
-    * @param subProtocol sub协议
-    * @param userCode 用户编码
-    * @param applicationContext application上下文
-    * @param loginCheck login检查
+     * 创建 oauth授权 实例
+     * @param authInformation 认证信息
+     * @param token 令牌
+     * @param cookie Cookie
+     * @param subProtocol sub协议
+     * @param userCode 用户编码
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public OauthAuthorization(OauthAuthInformation authInformation,
                               String token,

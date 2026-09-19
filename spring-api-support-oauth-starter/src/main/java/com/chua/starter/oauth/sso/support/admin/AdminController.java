@@ -114,10 +114,10 @@ public class AdminController {
     }
 
     /**
-    * 热更新限流配置
-    *
-    * @param config 配置
-    * @return 配置rate限制的结果
+     * 热更新限流配置
+     *
+     * @param config 配置
+     * @return 配置rate限制的结果
      */
     @PostMapping("/rate-limit")
     @Operation(summary = "配置限流")

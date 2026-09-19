@@ -112,9 +112,9 @@ public class OauthProtocolHandler implements ServerHandler {
     }
 
     /**
-    * 归一化认证路径(兼容 客户端 地址 含 /OAuth 前缀的调用)
-    * @param path 路径
-    * @return normalize的结果
+     * 归一化认证路径(兼容 客户端 地址 含 /OAuth 前缀的调用)
+     * @param path 路径
+     * @return normalize的结果
      */
     private String normalize(String path) {
         if (path != null && path.startsWith(OAUTH_PREFIX + "/")) {

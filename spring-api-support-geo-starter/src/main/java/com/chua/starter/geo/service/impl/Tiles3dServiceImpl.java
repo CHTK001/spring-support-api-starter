@@ -58,12 +58,12 @@ public class Tiles3dServiceImpl implements Tiles3dService {
     private final ObjectMapper objectMapper = new ObjectMapper(); // 对象映射器
 
     /**
-    * 解析 tileset.json 并返回摘要信息。
-    *
-    * @param source 数据源配置
-    * @param proxy  代理地址（可为 空）
-    * @return tileset 摘要
-    * @throws Exception 解析失败
+     * 解析 tileset.json 并返回摘要信息。
+     *
+     * @param source 数据源配置
+     * @param proxy  代理地址（可为 空）
+     * @return tileset 摘要
+     * @throws Exception 解析失败
      */
     @Override
     public TilesetSummary analyze(Tiles3dSource source, String proxy) throws Exception {

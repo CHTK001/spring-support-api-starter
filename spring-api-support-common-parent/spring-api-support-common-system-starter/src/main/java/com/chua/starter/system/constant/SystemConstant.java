@@ -14,7 +14,7 @@ public final class SystemConstant {
     }
 
     /**
-    * Redis缓存管理器名称
+     * Redis缓存管理器名称
      */
     public static final String CACHE_WITH_REDIS = "cacheWithRedis";
 

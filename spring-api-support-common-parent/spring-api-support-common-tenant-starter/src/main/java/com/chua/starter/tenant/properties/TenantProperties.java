@@ -22,7 +22,7 @@ public class TenantProperties {
     public static final String PRE = "plugin.mybatis-plus.tenant";
 
     /**
-    * 忽略的表（不添加租户条件，通用配置）
+     * 忽略的表（不添加租户条件，通用配置）
      */
     private Set<String> ignoreTable = new HashSet<>();
 

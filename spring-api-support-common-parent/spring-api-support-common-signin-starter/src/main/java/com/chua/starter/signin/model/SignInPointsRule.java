@@ -28,7 +28,7 @@ public class SignInPointsRule {
     private Long id;
 
     /**
-    * 规则类型标识：DAILY_标志 / STREAK_奖金_3 / STREAK_奖金_7 / STREAK_奖金_30
+     * 规则类型标识：DAILY_标志 / STREAK_奖金_3 / STREAK_奖金_7 / STREAK_奖金_30
      */
     private String type;
 

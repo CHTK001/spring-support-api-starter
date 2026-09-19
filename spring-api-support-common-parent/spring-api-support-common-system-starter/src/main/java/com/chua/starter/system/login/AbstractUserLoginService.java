@@ -72,16 +72,16 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     protected SysDeptPrincipalRelService sysDeptPrincipalRelService;
 
     /**
-    * 构建用户登录信息
-    * <p>
-    * 根据数据库中的用户信息构建完整的用户结果对象，包括：
-    * 用户基本信息、角色权限、部门信息、数据权限规则等。
-    * </p>
-    *
-    * @param accessKey 访问标识（用户名或其他登录标识）
-    * @param user      用户实体对象
-    * @param address   客户端IP地址，可为空表示不更新登录信息
-    * @return 完整的用户结果对象
+     * 构建用户登录信息
+     * <p>
+     * 根据数据库中的用户信息构建完整的用户结果对象，包括：
+     * 用户基本信息、角色权限、部门信息、数据权限规则等。
+     * </p>
+     *
+     * @param accessKey 访问标识（用户名或其他登录标识）
+     * @param user      用户实体对象
+     * @param address   客户端IP地址，可为空表示不更新登录信息
+     * @return 完整的用户结果对象
      */
     protected UserResume loginInfo(String accessKey, SysUser user, String address) {
         // 增加用户登录计数
@@ -470,11 +470,11 @@ public abstract class AbstractUserLoginService implements UserInfoService {
     }
 
     /**
-    * 处理登录失败，增加错误计数（原子操作）
-    *
-    * @param redisKey Redis键名
-    * @param keyExists 键是否已存在
-    * @return 包含错误信息的用户结果
+     * 处理登录失败，增加错误计数（原子操作）
+     *
+     * @param redisKey Redis键名
+     * @param keyExists 键是否已存在
+     * @return 包含错误信息的用户结果
      */
     protected UserResume handleLoginFailure(String redisKey, Boolean keyExists) {
         // 使用原子操作增加错误计数

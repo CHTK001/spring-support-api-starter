@@ -22,7 +22,7 @@ public class ServerTraceContext {
     private static final ThreadLocal<ServerTraceContext> CONTEXT_HOLDER = new ThreadLocal<>();
 
     /**
-    * 追踪标识
+     * 追踪标识
      */
     private final String traceId;
 

@@ -33,7 +33,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-    * 分组标识
+     * 分组标识
      */
     @TableId(value = "sys_file_system_group_id", type = IdType.AUTO)
     @Schema(description = "分组ID")
@@ -41,7 +41,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private Integer sysFileSystemGroupId;
 
     /**
-    * 分组名称
+     * 分组名称
      */
     @TableField(value = "sys_file_system_group_name")
     @Schema(description = "分组名称")
@@ -50,7 +50,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private String sysFileSystemGroupName;
 
     /**
-    * 父分组标识
+     * 父分组标识
      */
     @TableField(value = "sys_file_system_group_parent_id")
     @Schema(description = "父分组ID，顶级分组为0")
@@ -58,7 +58,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private Integer sysFileSystemGroupParentId;
 
     /**
-    * 分组路径
+     * 分组路径
      */
     @TableField(value = "sys_file_system_group_path")
     @Schema(description = "分组路径")
@@ -67,7 +67,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private String sysFileSystemGroupPath;
 
     /**
-    * 分组完整路径
+     * 分组完整路径
      */
     @TableField(value = "sys_file_system_group_full_path")
     @Schema(description = "分组完整路径")
@@ -76,7 +76,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private String sysFileSystemGroupFullPath;
 
     /**
-    * 分组层级
+     * 分组层级
      */
     @TableField(value = "sys_file_system_group_level")
     @Schema(description = "分组层级，从1开始")
@@ -84,7 +84,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private Integer sysFileSystemGroupLevel;
 
     /**
-    * 分组树路径（标识链路，用于快速查询）
+     * 分组树路径（标识链路，用于快速查询）
      */
     @TableField(value = "sys_file_system_group_tree_path")
     @Schema(description = "分组树路径（ID链路，如：1/2/3）")
@@ -93,7 +93,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private String sysFileSystemGroupTreePath;
 
     /**
-    * 分组描述
+     * 分组描述
      */
     @TableField(value = "sys_file_system_group_description")
     @Schema(description = "分组描述")
@@ -102,7 +102,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private String sysFileSystemGroupDescription;
 
     /**
-    * 是否默认分组
+     * 是否默认分组
      */
     @TableField(value = "sys_file_system_group_is_default")
     @Schema(description = "是否默认分组")
@@ -110,7 +110,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private Boolean sysFileSystemGroupIsDefault;
 
     /**
-    * 分组排序
+     * 分组排序
      */
     @TableField(value = "sys_file_system_group_sort")
     @Schema(description = "分组排序，数字越小越靠前")
@@ -118,7 +118,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private Integer sysFileSystemGroupSort;
 
     /**
-    * 分组状态: 0-禁用, 1-启用
+     * 分组状态: 0-禁用, 1-启用
      */
     @TableField(value = "sys_file_system_group_status")
     @Schema(description = "分组状态: 0-禁用, 1-启用")
@@ -126,7 +126,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private Integer sysFileSystemGroupStatus;
 
     /**
-    * 分组图标
+     * 分组图标
      */
     @TableField(value = "sys_file_system_group_icon")
     @Schema(description = "分组图标")
@@ -135,7 +135,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private String sysFileSystemGroupIcon;
 
     /**
-    * 分组颜色
+     * 分组颜色
      */
     @TableField(value = "sys_file_system_group_color")
     @Schema(description = "分组颜色")
@@ -144,7 +144,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private String sysFileSystemGroupColor;
 
     /**
-    * 子分组列表（非数据库字段）
+     * 子分组列表（非数据库字段）
      */
     @TableField(exist = false)
     @Schema(description = "子分组列表")
@@ -152,7 +152,7 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private List<SysFileSystemGroup> children;
 
     /**
-    * 文件数量（非数据库字段）
+     * 文件数量（非数据库字段）
      */
     @TableField(exist = false)
     @Schema(description = "文件数量")
@@ -160,9 +160,9 @@ public class SysFileSystemGroup extends SysBase implements Serializable {
     private Long fileCount;
 
     /**
-    * 分组状态枚举
-    * @author CH
-    * @since 4.0.0
+     * 分组状态枚举
+     * @author CH
+     * @since 4.0.0
      */
     public static class Status {
         /**

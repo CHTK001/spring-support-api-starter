@@ -146,10 +146,10 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
     }
 
     /**
-    * 保存或更新微信用户信息
-    *
-    * @param sysUserId 系统用户标识
-    * @param openId    微信打开id
+     * 保存或更新微信用户信息
+     *
+     * @param sysUserId 系统用户标识
+     * @param openId    微信打开id
      */
     private void saveOrUpdateWechatUser(Integer sysUserId, String openId) {
         if (sysUserId == null || openId == null || openId.isEmpty()) {

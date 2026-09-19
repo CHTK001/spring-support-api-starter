@@ -117,9 +117,9 @@ public class RequestTraceStrategyConfig {
     private Integer userPreferenceDominantCount = 4;
 
     /**
-    * 复制
-    *
-    * @return 副本的结果
+     * 复制
+     *
+     * @return 副本的结果
      */
     public RequestTraceStrategyConfig copy() {
         RequestTraceStrategyConfig target = new RequestTraceStrategyConfig();

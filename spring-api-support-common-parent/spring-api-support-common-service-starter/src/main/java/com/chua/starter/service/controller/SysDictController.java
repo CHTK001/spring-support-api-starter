@@ -42,10 +42,10 @@ public class SysDictController {
 
 
     /**
-    * 字典分页列表
-    *
-    * @param sysDict 条件
-    * @return 字典分页列表
+     * 字典分页列表
+     *
+     * @param sysDict 条件
+     * @return 字典分页列表
      */
     @Operation(summary = "字典分页列表")
     @GetMapping("/page")

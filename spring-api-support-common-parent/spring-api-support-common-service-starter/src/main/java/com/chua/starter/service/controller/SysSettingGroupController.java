@@ -40,12 +40,12 @@ public class SysSettingGroupController {
 
 
     /**
-    * 设置分页列表
-    *
-    * @param sysSettingGroup 条件
-    * @return 设置分页列表
-    * @param true true
-    * @param roles 方法入参 roles
+     * 设置分页列表
+     *
+     * @param sysSettingGroup 条件
+     * @return 设置分页列表
+     * @param true true
+     * @param roles 方法入参 roles
      */
     @Operation(summary = "设置分页列表")
     @GetMapping("/list")

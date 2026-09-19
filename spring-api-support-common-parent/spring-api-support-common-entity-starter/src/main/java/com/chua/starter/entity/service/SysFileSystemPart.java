@@ -38,7 +38,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-    * 分片标识
+     * 分片标识
      */
     @TableId(value = "sys_file_system_part_id", type = IdType.AUTO)
     @Schema(description = "分片ID")
@@ -46,7 +46,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     private Integer sysFileSystemPartId;
 
     /**
-    * 文件标识
+     * 文件标识
      */
     @TableField(value = "sys_file_system_part_file_id")
     @Schema(description = "文件ID")
@@ -55,7 +55,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     private Integer sysFileSystemPartFileId;
 
     /**
-    * 分片序号(从1开始)
+     * 分片序号(从1开始)
      */
     @TableField(value = "sys_file_system_part_seq")
     @Schema(description = "分片序号(从1开始)")
@@ -64,7 +64,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     private Integer sysFileSystemPartSeq;
 
     /**
-    * 分片大小(字节)
+     * 分片大小(字节)
      */
     @TableField(value = "sys_file_system_part_size")
     @Schema(description = "分片大小(字节)")
@@ -72,7 +72,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     private Long sysFileSystemPartSize;
 
     /**
-    * 分片MD5值
+     * 分片MD5值
      */
     @TableField(value = "sys_file_system_part_md5")
     @Schema(description = "分片MD5值")
@@ -81,7 +81,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     private String sysFileSystemPartMd5;
 
     /**
-    * 分片本地存储路径
+     * 分片本地存储路径
      */
     @TableField(value = "sys_file_system_part_local_path")
     @Schema(description = "分片本地存储路径")
@@ -90,7 +90,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     private String sysFileSystemPartLocalPath;
 
     /**
-    * 版本号(乐观锁)
+     * 版本号(乐观锁)
      */
     @TableField(value = "sys_file_system_part_version")
     @Schema(description = "版本号(乐观锁)")
@@ -99,7 +99,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     private Integer sysFileSystemPartVersion;
 
     /**
-    * 状态: 0-待上传, 1-上传中, 2-已完成, -1-处理异常
+     * 状态: 0-待上传, 1-上传中, 2-已完成, -1-处理异常
      */
     @TableField(value = "sys_file_system_part_status")
     @Schema(description = "状态: 0-待上传, 1-上传中, 2-已完成, -1-处理异常")
@@ -107,7 +107,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     private Integer sysFileSystemPartStatus;
 
     /**
-    * 上传时间
+     * 上传时间
      */
     @TableField(value = "sys_file_system_part_upload_time")
     @Schema(description = "上传时间")
@@ -115,7 +115,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     private LocalDateTime sysFileSystemPartUploadTime;
 
     /**
-    * 处理时间
+     * 处理时间
      */
     @TableField(value = "sys_file_system_part_process_time")
     @Schema(description = "处理时间")
@@ -123,7 +123,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     private LocalDateTime sysFileSystemPartProcessTime;
 
     /**
-    * 错误信息
+     * 错误信息
      */
     @TableField(value = "sys_file_system_part_error_message")
     @Schema(description = "错误信息")
@@ -132,7 +132,7 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     private String sysFileSystemPartErrorMessage;
 
     /**
-    * 重试次数
+     * 重试次数
      */
     @TableField(value = "sys_file_system_part_retry_count")
     @Schema(description = "重试次数")
@@ -140,10 +140,10 @@ public class SysFileSystemPart extends SysBase implements Serializable {
     private Integer sysFileSystemPartRetryCount;
 
     /**
-    * 从上传文件传输到本地路径
-    *
-    * @param multipartFile 上传文件
-    * @throws Exception 传输异常
+     * 从上传文件传输到本地路径
+     *
+     * @param multipartFile 上传文件
+     * @throws Exception 传输异常
      */
     public void transferFrom(MultipartFile multipartFile) throws Exception {
         File file = new File(sysFileSystemPartLocalPath);

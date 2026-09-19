@@ -62,10 +62,10 @@ public class SysSettingController {
 
 
     /**
-    * 设置分页列表
-    *
-    * @param sysSetting 条件
-    * @return 设置分页列表
+     * 设置分页列表
+     *
+     * @param sysSetting 条件
+     * @return 设置分页列表
      */
     @Operation(summary = "设置分页列表")
     @GetMapping("/page")

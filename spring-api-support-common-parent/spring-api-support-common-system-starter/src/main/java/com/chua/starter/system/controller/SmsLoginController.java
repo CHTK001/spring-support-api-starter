@@ -39,10 +39,10 @@ public class SmsLoginController {
     private final SmsCodeService smsCodeService;
 
     /**
-    * 发送短信验证码
-    *
-    * @param request 发送请求
-    * @return 发送结果
+     * 发送短信验证码
+     *
+     * @param request 发送请求
+     * @return 发送结果
      */
     @Ignore
     @PostMapping("/send")

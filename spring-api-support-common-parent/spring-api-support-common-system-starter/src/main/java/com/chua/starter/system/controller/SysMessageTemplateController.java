@@ -39,7 +39,7 @@ public class SysMessageTemplateController {
     private final SysMessageTemplateService sysMessageTemplateService;
 
     /**
-    * 模板分页列表
+     * 模板分页列表
      */
     @Operation(summary = "消息模板分页列表")
     @GetMapping("/page")

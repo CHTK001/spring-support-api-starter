@@ -77,10 +77,10 @@ public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartM
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 重置失败转为pending
-    *
-    * @param fileId 文件id
-    * @return reset失败转为pending的结果
+     * 重置失败转为pending
+     *
+     * @param fileId 文件id
+     * @return reset失败转为pending的结果
      */
     public int resetFailedToPending(Integer fileId) {
         if (fileId == null) {

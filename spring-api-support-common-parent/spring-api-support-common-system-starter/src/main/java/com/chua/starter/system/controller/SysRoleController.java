@@ -46,13 +46,13 @@ public class SysRoleController {
 
 
     /**
-    * 角色分页列表
-    *
-    * @param sysRole 条件
-    * @return 角色分页列表
-    * @param query 查询
-    * @param true true
-    * @param roles 方法入参 roles
+     * 角色分页列表
+     *
+     * @param sysRole 条件
+     * @return 角色分页列表
+     * @param query 查询
+     * @param true true
+     * @param roles 方法入参 roles
      */
     @Operation(summary = "角色分页列表")
     @GetMapping("/page")

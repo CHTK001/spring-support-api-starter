@@ -197,11 +197,11 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
     }
 
     /**
-    * 复制消息体并设置指定接收者
-    *
-    * @param source 源消息
-    * @param receiverId 接收者ID
-    * @return 新消息行
+     * 复制消息体并设置指定接收者
+     *
+     * @param source 源消息
+     * @param receiverId 接收者ID
+     * @return 新消息行
      */
     private SysMessage copyForReceiver(SysMessage source, Integer receiverId) {
         SysMessage row = new SysMessage();

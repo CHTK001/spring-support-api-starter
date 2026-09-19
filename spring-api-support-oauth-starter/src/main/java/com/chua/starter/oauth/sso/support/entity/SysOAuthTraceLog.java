@@ -27,7 +27,7 @@ public class SysOAuthTraceLog implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-    * 日志标识
+     * 日志标识
      */
     @TableId(type = IdType.AUTO)
     @Schema(description = "日志ID")
@@ -35,105 +35,105 @@ public class SysOAuthTraceLog implements Serializable {
     private Long sysTraceLogId;
 
     /**
-    * 追踪标识 - 贯穿客户端和服务端的唯一标识
+     * 追踪标识 - 贯穿客户端和服务端的唯一标识
      */
     @Schema(description = "追踪ID")
     /** SYS跟踪标识 */
     private String sysTraceId;
 
     /**
-    * 操作类型 - 认证:认证, LOGIN:登录, LOGOUT:登出, REFRESH:刷新令牌, UPGRADE:升级令牌
+     * 操作类型 - 认证:认证, LOGIN:登录, LOGOUT:登出, REFRESH:刷新令牌, UPGRADE:升级令牌
      */
     @Schema(description = "操作类型")
     /** sysoperation类型 */
     private String sysOperationType;
 
     /**
-    * 客户端应用名
+     * 客户端应用名
      */
     @Schema(description = "客户端应用名")
     /** SYS客户端APP名称 */
     private String sysClientAppName;
 
     /**
-    * 客户端IP
+     * 客户端IP
      */
     @Schema(description = "客户端IP")
     /** SYS客户端IP */
     private String sysClientIp;
 
     /**
-    * 用户标识
+     * 用户标识
      */
     @Schema(description = "用户ID")
     /** SYS用户标识 */
     private String sysUserId;
 
     /**
-    * 用户名
+     * 用户名
      */
     @Schema(description = "用户名")
     /** sysusername */
     private String sysUsername;
 
     /**
-    * 请求参数 - JSON格式，敏感字段已脱敏
+     * 请求参数 - JSON格式，敏感字段已脱敏
      */
     @Schema(description = "请求参数(已脱敏)")
     /** SYS请求参数 */
     private String sysRequestParams;
 
     /**
-    * 响应码
+     * 响应码
      */
     @Schema(description = "响应码")
     /** SYS响应代码 */
     private Integer sysResponseCode;
 
     /**
-    * 是否成功
+     * 是否成功
      */
     @Schema(description = "是否成功")
     /** syssuccess */
     private Boolean sysSuccess;
 
     /**
-    * 总耗时(毫秒)
+     * 总耗时(毫秒)
      */
     @Schema(description = "总耗时(毫秒)")
     /** SYS总数costms */
     private Long sysTotalCostMs;
 
     /**
-    * Span详情 - JSON数组
+     * Span详情 - JSON数组
      */
     @Schema(description = "Span详情")
     /** sysspansdetail */
     private String sysSpansDetail;
 
     /**
-    * 错误信息
+     * 错误信息
      */
     @Schema(description = "错误信息")
     /** SYS错误消息 */
     private String sysErrorMessage;
 
     /**
-    * 请求URI
+     * 请求URI
      */
     @Schema(description = "请求URI")
     /** SYS请求URI */
     private String sysRequestUri;
 
     /**
-    * 访问密钥(已脱敏)
+     * 访问密钥(已脱敏)
      */
     @Schema(description = "AccessKey(已脱敏)")
     /** sysaccess密钥 */
     private String sysAccessKey;
 
     /**
-    * 创建时间
+     * 创建时间
      */
     @Schema(description = "创建时间")
     /** 创建时间 */

@@ -32,7 +32,7 @@ public class SysFeedback extends SysBase {
     private Integer sysFeedbackId;
 
     /**
-    * 反馈类型
+     * 反馈类型
      */
     @TableField(value = "sys_feedback_type")
     @Schema(description = "反馈类型")
@@ -40,7 +40,7 @@ public class SysFeedback extends SysBase {
     private String sysFeedbackType;
 
     /**
-    * 反馈图片(多个逗号分隔)
+     * 反馈图片(多个逗号分隔)
      */
     @TableField(value = "sys_feedback_images")
     @Schema(description = "反馈图片(多个逗号分隔)")
@@ -48,7 +48,7 @@ public class SysFeedback extends SysBase {
     private String sysFeedbackImages;
 
     /**
-    * 反馈内容
+     * 反馈内容
      */
     @TableField(value = "sys_feedback_content")
     @Schema(description = "反馈内容")
@@ -56,7 +56,7 @@ public class SysFeedback extends SysBase {
     private String sysFeedbackContent;
 
     /**
-    * 反馈状态: 0:未处理 1:已处理
+     * 反馈状态: 0:未处理 1:已处理
      */
     @TableField(value = "sys_feedback_status")
     @Schema(description = "反馈状态: 0:未处理 1:已处理")
@@ -64,7 +64,7 @@ public class SysFeedback extends SysBase {
     private Integer sysFeedbackStatus;
 
     /**
-    * 处理人标识
+     * 处理人标识
      */
     @TableField(value = "sys_feedback_deal_by")
     @Schema(description = "处理人ID")
@@ -72,7 +72,7 @@ public class SysFeedback extends SysBase {
     private Integer sysFeedbackDealBy;
 
     /**
-    * 处理人名称
+     * 处理人名称
      */
     @TableField(value = "sys_feedback_deal_name")
     @Schema(description = "处理人名称")
@@ -80,7 +80,7 @@ public class SysFeedback extends SysBase {
     private String sysFeedbackDealName;
 
     /**
-    * 回复内容
+     * 回复内容
      */
     @TableField(value = "sys_feedback_recover_content")
     @Schema(description = "回复内容")
@@ -88,7 +88,7 @@ public class SysFeedback extends SysBase {
     private String sysFeedbackRecoverContent;
 
     /**
-    * 回复时间
+     * 回复时间
      */
     @TableField(value = "sys_feedback_recover_time")
     @Schema(description = "回复时间")
@@ -96,7 +96,7 @@ public class SysFeedback extends SysBase {
     private LocalDateTime sysFeedbackRecoverTime;
 
     /**
-    * 回复图片(多个逗号分隔)
+     * 回复图片(多个逗号分隔)
      */
     @TableField(value = "sys_feedback_recover_images")
     @Schema(description = "回复图片(多个逗号分隔)")
@@ -104,7 +104,7 @@ public class SysFeedback extends SysBase {
     private String sysFeedbackRecoverImages;
 
     /**
-    * 客户端类型(用户智能体)
+     * 客户端类型(用户智能体)
      */
     @TableField(value = "sys_feedback_user_agent")
     @Schema(description = "客户端类型(UserAgent)")
@@ -112,7 +112,7 @@ public class SysFeedback extends SysBase {
     private String sysFeedbackUserAgent;
 
     /**
-    * 平台类型(预留，多平台支持)
+     * 平台类型(预留，多平台支持)
      */
     @TableField(value = "sys_feedback_platform")
     @Schema(description = "平台类型(预留，多平台支持)")
@@ -120,7 +120,7 @@ public class SysFeedback extends SysBase {
     private String sysFeedbackPlatform;
 
     /**
-    * 优先级: 0-低 1-中 2-高 3-紧急
+     * 优先级: 0-低 1-中 2-高 3-紧急
      */
     @TableField(value = "sys_feedback_priority")
     @Schema(description = "优先级: 0-低 1-中 2-高 3-紧急")

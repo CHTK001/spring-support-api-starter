@@ -23,14 +23,14 @@ public class SysFileInstantUploadRequest {
     private String fileMd5;
 
     /**
-    * 文件大小（字节）
+     * 文件大小（字节）
      */
     @Schema(description = "文件大小（字节）")
     /** 文件尺寸 */
     private Long fileSize;
 
     /**
-    * 原始文件名
+     * 原始文件名
      */
     @Schema(description = "原始文件名")
     /** 文件名称 */

@@ -21,37 +21,37 @@ public class SysFileInstantUploadResponse {
     private Boolean instantUpload;
 
     /**
-    * 已存在的文件标识
+     * 已存在的文件标识
      */
     @Schema(description = "已存在的文件ID")
     /** Existing文件标识 */
     private Integer existingFileId;
 
     /**
-    * 已存在的文件访问URL
+     * 已存在的文件访问URL
      */
     @Schema(description = "已存在的文件访问URL")
     /** Existing文件URL */
     private String existingFileUrl;
 
     /**
-    * 已存在的文件HTTP访问URL
+     * 已存在的文件HTTP访问URL
      */
     @Schema(description = "已存在的文件HTTP访问URL")
     /** Existing文件HTTPURL */
     private String existingFileHttpUrl;
 
     /**
-    * 已存在的文件名
+     * 已存在的文件名
      */
     @Schema(description = "已存在的文件名")
     /** Existing文件名称 */
     private String existingFileName;
 
     /**
-    * 创建不支持秒传的响应
-    *
-    * @return 响应对象
+     * 创建不支持秒传的响应
+     *
+     * @return 响应对象
      */
     public static SysFileInstantUploadResponse notSupport() {
         SysFileInstantUploadResponse response = new SysFileInstantUploadResponse();

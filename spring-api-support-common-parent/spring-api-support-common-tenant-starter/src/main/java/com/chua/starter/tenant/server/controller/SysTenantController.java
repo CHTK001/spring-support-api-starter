@@ -44,10 +44,10 @@ public class SysTenantController {
     private final SysTenantService sysTenantService;
 
     /**
-    * 查询租户列表
-    *
-    * @param sysTenant 租户查询条件
-    * @return 租户列表
+     * 查询租户列表
+     *
+     * @param sysTenant 租户查询条件
+     * @return 租户列表
      */
     @GetMapping("list")
     @Operation(summary = "查询租户列表")

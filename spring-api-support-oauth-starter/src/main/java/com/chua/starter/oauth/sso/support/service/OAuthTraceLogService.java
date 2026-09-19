@@ -28,7 +28,7 @@ public class OAuthTraceLogService {
     private final SysOAuthTraceLogMapper traceLogMapper;
 
     /**
-    * 需要完全隐藏的字段名
+     * 需要完全隐藏的字段名
      */
     private static final Set<String> FULL_MASK_FIELDS = Set.of(
             "password", "passwd", "pwd", "secret", "secretKey", "x-oauth-secret-key"

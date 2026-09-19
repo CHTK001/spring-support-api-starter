@@ -57,10 +57,10 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 绑定
-    *
-    * @param record record
-    * @return bind的结果
+     * 绑定
+     *
+     * @param record record
+     * @return bind的结果
      */
     public SysUserThirdParty bind(SysUserThirdParty record) {
         if (record == null || record.getSysUserThirdPartyType() == null

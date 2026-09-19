@@ -110,8 +110,8 @@ public class UpgradeAuthInformation extends BaseAuthInformation {
     }
 
     /**
-    * 获取授权信息
-    * @return 授权信息
+     * 获取授权信息
+     * @return 授权信息
      */
     @Override
     public UpgradeAuthorization authorization() {

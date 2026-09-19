@@ -157,10 +157,10 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
     }
 
     /**
-    * normalize标识
-    *
-    * @param userIds 用户标识
-    * @return normalize标识的结果
+     * normalize标识
+     *
+     * @param userIds 用户标识
+     * @return normalize标识的结果
      */
     private List<Integer> normalizeIds(Collection<Integer> userIds) {
         if (CollectionUtils.isEmpty(userIds)) {
