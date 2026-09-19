@@ -26,11 +26,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
-* 在线用户服务实现
-* <p>通过OAuth客户端获取在线用户信息，避免直接操作Redis</p>
-*
-* @since 2024/12/15
-* @author CH
+ * 在线用户服务实现
+ * <p>通过OAuth客户端获取在线用户信息，避免直接操作Redis</p>
+ *
+ * @since 2024/12/15
+ * @author CH
  */
 @Slf4j
 @Service
@@ -90,10 +90,10 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     /**
-    * 判断用户是否拥有指定角色编码
-    * @param userId 用户ID，不允许为 null
-    * @param roleCode role编码，不允许为 null
-    * @return 是否成功（true 表示成功）
+     * 判断用户是否拥有指定角色编码
+     * @param userId 用户ID，不允许为 null
+     * @param roleCode role编码，不允许为 null
+     * @return 是否成功（true 表示成功）
      */
     private boolean matchRole(String userId, String roleCode) {
         Integer uid = parseUserId(userId);
@@ -105,10 +105,10 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     /**
-    * 判断用户是否属于指定部门
-    * @param userId 用户ID，不允许为 null
-    * @param deptId deptID，不允许为 null
-    * @return 是否成功（true 表示成功）
+     * 判断用户是否属于指定部门
+     * @param userId 用户ID，不允许为 null
+     * @param deptId deptID，不允许为 null
+     * @return 是否成功（true 表示成功）
      */
     private boolean matchDept(String userId, Integer deptId) {
         Integer uid = parseUserId(userId);
@@ -120,9 +120,9 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     /**
-    * 解析用户ID
-    * @param userId 用户ID，不允许为 null
-    * @return Integer 对象
+     * 解析用户ID
+     * @param userId 用户ID，不允许为 null
+     * @return Integer 对象
      */
     private Integer parseUserId(String userId) {
         try {
@@ -186,9 +186,9 @@ public class SysOnlineServiceImpl implements SysOnlineService {
     }
 
     /**
-    * 将协议中的用户信息转换为VO对象
-    * @param info 信息
-    * @return 转换转为online用户vo的结果
+     * 将协议中的用户信息转换为VO对象
+     * @param info 信息
+     * @return 转换转为online用户vo的结果
      */
     private OnlineUserVO convertToOnlineUserVO(Protocol.OnlineUserInfo info) {
         OnlineUserVO vo = new OnlineUserVO();
@@ -206,6 +206,13 @@ public class SysOnlineServiceImpl implements SysOnlineService {
         if (info.getLoginTime() != null) {
             vo.setLoginTime(LocalDateTime.ofInstant(
                     Instant.ofEpochMilli(info.getLoginTime()),
+                    ZoneId.systemDefault()));
+        }
+
+        // 解析最后访问时间
+        if (info.getLastAccessTime() != null) {
+            vo.setLastAccessTime(LocalDateTime.ofInstant(
+                    Instant.ofEpochMilli(info.getLastAccessTime()),
                     ZoneId.systemDefault()));
         }
 

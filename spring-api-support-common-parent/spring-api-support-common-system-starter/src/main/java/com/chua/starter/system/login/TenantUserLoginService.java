@@ -7,6 +7,7 @@ import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.system.constant.SystemConstant;
+import com.chua.starter.system.util.PasswordUtils;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.common.support.spi.annotations.Spi;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,11 +19,11 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
-* 租户用户登录服务
-* <p>支持多租户环境下的用户登录验证与授权</p>
-*
-* @since 1.0.0
-* @author CH
+ * 租户用户登录服务
+ * <p>支持多租户环境下的用户登录验证与授权</p>
+ *
+ * @since 1.0.0
+ * @author CH
  */
 @Slf4j
 @Service
@@ -32,17 +33,17 @@ import java.util.concurrent.TimeUnit;
 public class TenantUserLoginService extends AbstractUserLoginService {
 
     /**
-    * 登录类型前缀
+     * 登录类型前缀
      */
     private static final String LOGIN_TYPE_PREFIX = "tenant";
 
     /**
-    * 用户上次登录租户编码缓存前缀
+     * 用户上次登录租户编码缓存前缀
      */
     private static final String LAST_TENANT_CODE_KEY = "user:last_tenant_code:";
 
     /**
-    * 上次登录租户缓存过期时间（天）
+     * 上次登录租户缓存过期时间（天）
      */
     private static final long LAST_TENANT_EXPIRE_DAYS = 30;
 
@@ -74,13 +75,13 @@ public class TenantUserLoginService extends AbstractUserLoginService {
     @Override
     @SuppressWarnings("unchecked")
     /**
-    * 校验Login
-    *
-    * @param principal principal
-    * @param credential credential
-    * @param address 地址
-    * @param ext ext
-    * @return 检查login的结果
+     * 校验Login
+     *
+     * @param principal principal
+     * @param credential credential
+     * @param address 地址
+     * @param ext ext
+     * @return 检查login的结果
      */
     public UserResume checkLogin(String principal, String credential, String address, Object ext) {
         String redisKey = LOGIN_TYPE_PREFIX + ":login_error:" + principal;
@@ -124,9 +125,7 @@ public class TenantUserLoginService extends AbstractUserLoginService {
             return new UserResume("账号已被禁用");
         }
 
-        String salt = user.getSysUserSalt();
-        String md5String = DigestUtils.md5Hex(credential + salt);
-        if (!StringUtils.safeEquals(md5String, user.getSysUserPassword())) {
+        if (!PasswordUtils.matches(credential, user.getSysUserSalt(), user.getSysUserPassword())) {
             log.warn("租户登录失败: 密码错误 用户={}, 租户编码={}", principal, tenantCode);
             return handleLoginFailure(redisKey, true);
         }
@@ -161,10 +160,10 @@ public class TenantUserLoginService extends AbstractUserLoginService {
     }
 
     /**
-    * 获取用户上次登录的租户编码
-    *
-    * @param username 用户名
-    * @return 租户编码
+     * 获取用户上次登录的租户编码
+     *
+     * @param username 用户名
+     * @return 租户编码
      */
     private String getLastTenantCode(String username) {
         try {
@@ -191,10 +190,10 @@ public class TenantUserLoginService extends AbstractUserLoginService {
     }
 
     /**
-    * 保存用户上次登录的租户编码
-    *
-    * @param username   用户名
-    * @param tenantCode 租户编码
+     * 保存用户上次登录的租户编码
+     *
+     * @param username   用户名
+     * @param tenantCode 租户编码
      */
     private void saveLastTenantCode(String username, String tenantCode) {
         try {

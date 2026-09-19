@@ -19,14 +19,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
 /**
-* 简单用户服务实现类
-* <p>
-* 主要用于登录回调、2FA(TOTP) 等轻量能力。
-* </p>
-*
-* @版本 1.0.0
-* @since 2025/12/13
-* @author CH
+ * 简单用户服务实现类
+ * <p>
+ * 主要用于登录回调、2FA(TOTP) 等轻量能力。
+ * </p>
+ *
+ * @版本 1.0.0
+ * @since 2025/12/13
+ * @author CH
  */
 @Slf4j
 @Service
@@ -36,19 +36,19 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     /** Issuer */
     private static final String ISSUER = "SpringAPI";
     /**
-    * TOTP 时间窗口容差（前后各允许多少个时间窗口）
+     * TOTP 时间窗口容差（前后各允许多少个时间窗口）
      */
     private static final int TIME_WINDOW_TOLERANCE = 1;
     /**
-    * 密钥长度（字节）
+     * 密钥长度（字节）
      */
     private static final int SECRET_LENGTH = 20;
 
     /**
-    * 绑定 2FA 密钥
-    *
-    * @param sysUserId 用户标识
-    * @return 绑定结果
+     * 绑定 2FA 密钥
+     *
+     * @param sysUserId 用户标识
+     * @return 绑定结果
      */
     @Override
     public ReturnResult<Boolean> bind(Integer sysUserId) {
@@ -67,10 +67,10 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     }
 
     /**
-    * 解绑 2FA 密钥
-    *
-    * @param sysUserId 用户标识
-    * @return 解绑结果
+     * 解绑 2FA 密钥
+     *
+     * @param sysUserId 用户标识
+     * @return 解绑结果
      */
     @Override
     public ReturnResult<Boolean> unbind(Integer sysUserId) {
@@ -80,18 +80,21 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
             return ReturnResult.illegal("用户信息不存在");
         }
 
-        sysUser.setSysUserTotpCode(null);
-        boolean updated = updateById(sysUser);
+        // updateById 会跳过 null 字段，必须显式 set null 才能真正清掉密钥
+        boolean updated = lambdaUpdate()
+                .eq(SysUser::getSysUserId, sysUserId)
+                .set(SysUser::getSysUserTotpCode, null)
+                .update();
 
         log.info("[SimpleSysUserService] 解绑2FA完成，sysUserId={}, updated={}", sysUserId, updated);
         return ReturnResult.of(updated);
     }
 
     /**
-    * 查询 2FA 绑定状态。
-    *
-    * @param sysUserId 用户标识
-    * @return 绑定状态结果（true 表示已绑定）
+     * 查询 2FA 绑定状态。
+     *
+     * @param sysUserId 用户标识
+     * @return 绑定状态结果（true 表示已绑定）
      */
     @Override
     public ReturnResult<Boolean> status(Integer sysUserId) {
@@ -105,13 +108,13 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     }
 
     /**
-    * 生成 2FA 密钥内容
-    * <p>
-    * 当前实现返回密钥原文的 UTF-8 字节，便于前端自行生成二维码。
-    * </p>
-    *
-    * @param sysUserId 用户标识
-    * @return 密钥内容
+     * 生成 2FA 密钥内容
+     * <p>
+     * 当前实现返回密钥原文的 UTF-8 字节，便于前端自行生成二维码。
+     * </p>
+     *
+     * @param sysUserId 用户标识
+     * @return 密钥内容
      */
     @Override
     public ReturnResult<byte[]> generate(Integer sysUserId) {
@@ -133,14 +136,14 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     }
 
     /**
-    * 校验 TOTP 验证码
-    * <p>
-    * 使用标准 TOTP 算法进行校验，支持时间窗口容差。
-    * </p>
-    *
-    * @param code     验证码（6位数字）
-    * @param username 用户名
-    * @return 校验结果
+     * 校验 TOTP 验证码
+     * <p>
+     * 使用标准 TOTP 算法进行校验，支持时间窗口容差。
+     * </p>
+     *
+     * @param code     验证码（6位数字）
+     * @param username 用户名
+     * @return 校验结果
      */
     @Override
     public ReturnResult<Boolean> verify(String code, String username) {
@@ -176,11 +179,11 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     }
 
     /**
-    * 带时间窗口容差的 TOTP 验证
-    *
-    * @param secret 基础32 编码的密钥
-    * @param code   用户输入的验证码
-    * @return 验证是否通过
+     * 带时间窗口容差的 TOTP 验证
+     *
+     * @param secret 基础32 编码的密钥
+     * @param code   用户输入的验证码
+     * @return 验证是否通过
      */
     private boolean verifyWithTolerance(String secret, String code) {
         try {
@@ -217,13 +220,13 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     }
 
     /**
-    * 生成 2FA URI
-    * <p>
-    * 使用标准 otpauth:// URI 格式，兼容 Google Authenticator、Microsoft Authenticator 等应用。
-    * </p>
-    *
-    * @param sysUserId 用户标识
-    * @return URI
+     * 生成 2FA URI
+     * <p>
+     * 使用标准 otpauth:// URI 格式，兼容 Google Authenticator、Microsoft Authenticator 等应用。
+     * </p>
+     *
+     * @param sysUserId 用户标识
+     * @return URI
      */
     @Override
     public ReturnResult<String> generateUri(Integer sysUserId) {
@@ -257,12 +260,12 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     }
 
     /**
-    * 生成标准 TOTP 密钥
-    * <p>
-    * 使用 secure随机 生成随机字节，然后进行 基础32 编码。
-    * </p>
-    *
-    * @return Base32 编码的密钥
+     * 生成标准 TOTP 密钥
+     * <p>
+     * 使用 secure随机 生成随机字节，然后进行 基础32 编码。
+     * </p>
+     *
+     * @return Base32 编码的密钥
      */
     private String generateSecret() {
         SecureRandom random = new SecureRandom();
@@ -272,10 +275,10 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     }
 
     /**
-    * 检查用户是否已绑定 TOTP
-    *
-    * @param username 用户名
-    * @return true 表示已绑定，false 表示未绑定
+     * 检查用户是否已绑定 TOTP
+     *
+     * @param username 用户名
+     * @return true 表示已绑定，false 表示未绑定
      */
     public boolean isTotpEnabled(String username) {
         if (StringUtils.isEmpty(username)) {

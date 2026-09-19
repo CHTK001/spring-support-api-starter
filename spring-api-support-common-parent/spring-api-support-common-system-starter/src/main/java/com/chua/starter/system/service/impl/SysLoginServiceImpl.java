@@ -43,6 +43,7 @@ import com.chua.starter.system.service.SysLoginService;
 import com.chua.starter.system.service.SysUserService;
 import com.chua.starter.system.mapper.SysUserThirdPartyMapper;
 import com.chua.starter.system.mapper.SysWechatUserMapper;
+import com.chua.starter.system.util.PasswordUtils;
 import com.chua.starter.system.pojo.user.UserLayout;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -85,11 +86,11 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.CAPTCH
 import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERROR;
 
 /**
-* 登录服务实现
-*
-* @版本 1.0.0
-* @since 2024/9/12
-* @author CH
+ * 登录服务实现
+ *
+ * @版本 1.0.0
+ * @since 2024/9/12
+ * @author CH
  */
 @Slf4j
 @Service
@@ -119,24 +120,24 @@ public class SysLoginServiceImpl implements SysLoginService {
     private static final Pattern BIRTHDAY_PATTERN = Pattern.compile("(\\d{4})[-/.](\\d{1,2})[-/.](\\d{1,2})");
 
     /**
-    * 用户布局查询缓存，避免每次登录重复查询数据库
+     * 用户布局查询缓存，避免每次登录重复查询数据库
      */
     private static final Map<Long, CachedValue> USER_LAYOUT_CACHE = new ConcurrentHashMap<>();
 
     /**
-    * 用户角色编码缓存（键 = "角色:用户id"），避免每次登录重复查询数据库
+     * 用户角色编码缓存（键 = "角色:用户id"），避免每次登录重复查询数据库
      */
     private static final Map<String, CachedValue> USER_ROLE_CACHE = new ConcurrentHashMap<>();
 
     /**
-    * 查询缓存有效期（毫秒）
+     * 查询缓存有效期（毫秒）
      */
     private static final long CACHE_TTL_MILLIS = 60_000L;
 
     /**
-    * 缓存条目
-    * @author CH
-    * @since 4.0.0
+     * 缓存条目
+     * @author CH
+     * @since 4.0.0
      */
     private static class CachedValue {
         /** 缓存值 */
@@ -145,9 +146,9 @@ public class SysLoginServiceImpl implements SysLoginService {
         private final long expireAt;
 
         /**
-        * 创建 缓存值 实例
-        * @param value 值
-        * @param expireAt expireat
+         * 创建 缓存值 实例
+         * @param value 值
+         * @param expireAt expireat
          */
         private CachedValue(Object value, long expireAt) {
             this.value = value;
@@ -156,7 +157,7 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * 微信第三方类型
+     * 微信第三方类型
      */
     private static final String THIRD_PARTY_TYPE_WECHAT = "wechat";
 
@@ -194,11 +195,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * 本地认证登录，绕过OAuth服务器
-    *
-    * @param loginData  登录数据
-    * @param request    HTTP请求
-    * @return 登录认证结果
+     * 本地认证登录，绕过OAuth服务器
+     *
+     * @param loginData  登录数据
+     * @param request    HTTP请求
+     * @return 登录认证结果
      */
     public LoginAuthResult authenticateLocal(LoginData loginData) {
         // 远程 OAuth 认证(http / http-lite)：登录由 oauth 服务器(172.16.0.40)验证并签发 token
@@ -226,7 +227,11 @@ public class SysLoginServiceImpl implements SysLoginService {
         if (null != lockCheck) {
             return lockCheck;
         }
-        log.info("本地登录成功(跳过密码校验): user={}", loginData.getUsername());
+        // 口令校验: 与 updateOwner/reset 写入端共用 PasswordUtils, 算法不一致会导致改密后无法登录
+        if (!PasswordUtils.matches(loginData.getPassword(), user.getSysUserSalt(), user.getSysUserPassword())) {
+            log.info("本地登录失败: 密码错误 - {}", loginData.getUsername());
+            return null;
+        }
 
  // 一次 连接 查询用户全部角色编码（带缓存），替代原来的两次 选择列表
         var roleCodes = getCachedRoleCodes(user.getSysUserId());
@@ -304,12 +309,12 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * 账号锁定校验: 若用户 sysUserLock=1, 距 sysUserLockTime 未超过锁定时长则拒绝登录,
-    * 超过则自动解锁(sysUserLock=0)后放行。
-    *
-    * @param user     已查询到的用户
-    * @param username 登录账号(日志用)
-    * @return null 表示放行; 非 null 表示锁定错误结果
+     * 账号锁定校验: 若用户 sysUserLock=1, 距 sysUserLockTime 未超过锁定时长则拒绝登录,
+     * 超过则自动解锁(sysUserLock=0)后放行。
+     *
+     * @param user     已查询到的用户
+     * @param username 登录账号(日志用)
+     * @return null 表示放行; 非 null 表示锁定错误结果
      */
     private LoginAuthResult checkAndAutoUnlock(SysUser user, String username) {
         if (null == user.getSysUserLock() || user.getSysUserLock() != 1) {
@@ -336,11 +341,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * 登录失败计数达到阈值后, 将 Redis 侧锁定镜像到数据库(sysUserLock=1, sysUserLockTime=now)。
-    * <p>由 DefaultLoginHandler 在 recordLoginFailure 后调用, 失败计数与 Redis 锁定仍由 RateLimitService 负责,
-    * 此处仅做 DB 持久化, 便于后台展示与登录时校验。</p>
-    *
-    * @param username 登录账号
+     * 登录失败计数达到阈值后, 将 Redis 侧锁定镜像到数据库(sysUserLock=1, sysUserLockTime=now)。
+     * <p>由 DefaultLoginHandler 在 recordLoginFailure 后调用, 失败计数与 Redis 锁定仍由 RateLimitService 负责,
+     * 此处仅做 DB 持久化, 便于后台展示与登录时校验。</p>
+     *
+     * @param username 登录账号
      */
     public void syncDbLoginLock(String username) {
         try {
@@ -368,11 +373,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * 检查验证码
-    *
-    * @param loginData 登录数据
-    * @param request   请求
-    * @return 检查结果
+     * 检查验证码
+     *
+     * @param loginData 登录数据
+     * @param request   请求
+     * @return 检查结果
      */
     @SuppressWarnings("ALL")
     public ReturnResult<LoginResult> checkVerifyCode(LoginData loginData, HttpServletRequest request) {
@@ -400,11 +405,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * 校验环境
-    *
-    * @param loginData login数据
-    * @param request 请求
-    * @return 检查环境的结果
+     * 校验环境
+     *
+     * @param loginData login数据
+     * @param request 请求
+     * @return 检查环境的结果
      */
     public ReturnResult<LoginResult> checkEnvironment(LoginData loginData, HttpServletRequest request) {
         var code = loginData.getVerifyCodeKey();
@@ -412,7 +417,8 @@ public class SysLoginServiceImpl implements SysLoginService {
         var hasCaptchaContext = hasCaptchaContext(loginData, request);
 
         if (totpRequired) {
-            if (StringUtils.isBlank(code)) {
+            var otp = loginData.getOtpCode();
+            if (StringUtils.isBlank(otp)) {
                 return ReturnResult.error(RESOURCE_CAPTCHA_ERROR.getCode(), "请输入动态验证码");
             }
 
@@ -420,7 +426,7 @@ public class SysLoginServiceImpl implements SysLoginService {
                 return checkVerifyCode(loginData, request);
             }
 
-            var verifyResult = simpleSysUserService.verify(code, loginData.getUsername());
+            var verifyResult = simpleSysUserService.verify(otp, loginData.getUsername());
             if (verifyResult == null || !Boolean.TRUE.equals(verifyResult.getData())) {
                 return ReturnResult.error(
                         RESOURCE_CAPTCHA_ERROR.getCode(),
@@ -442,11 +448,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * 是否拥有captcha上下文
-    *
-    * @param loginData login数据
-    * @param request 请求
-    * @return 是否包含captcha上下文的结果
+     * 是否拥有captcha上下文
+     *
+     * @param loginData login数据
+     * @param request 请求
+     * @return 是否包含captcha上下文的结果
      */
     private boolean hasCaptchaContext(LoginData loginData, HttpServletRequest request) {
         var sessionKey = Optional.ofNullable(request.getSession().getAttribute(CAPTCHA_SESSION_KEY)).orElse("").toString();
@@ -454,13 +460,13 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * requirestotp
-    *
-    * @param username 用户名
-    * @return requiresTotp的结果
+     * requirestotp
+     *
+     * @param username 用户名
+     * @return requiresTotp的结果
      */
     private boolean requiresTotp(String username) {
-        if (!isTotpLoginEnabled() || StringUtils.isBlank(username)) {
+        if (StringUtils.isBlank(username)) {
             return false;
         }
 
@@ -468,13 +474,21 @@ public class SysLoginServiceImpl implements SysLoginService {
                 .eq(SysUser::getSysUserUsername, username)
                 .select(SysUser::getSysUserId, SysUser::getSysUserTotpCode)
                 .one();
-        return null != sysUser && StringUtils.isNotBlank(sysUser.getSysUserTotpCode());
+        if (null == sysUser) {
+            return false;
+        }
+        // 用户自行开启过两步验证则必须校验，与全局开关无关
+        if (StringUtils.isNotBlank(sysUser.getSysUserTotpCode())) {
+            return true;
+        }
+        // 全局强制开启时，未绑定用户同样进入挑战（服务端对未绑定校验恒通过，引导其去个人中心开通）
+        return isTotpLoginEnabled();
     }
 
     /**
-    * 是否totplogin已启用
-    *
-    * @return 是否totplogin已启用的结果
+     * 是否totplogin已启用
+     *
+     * @return 是否totplogin已启用的结果
      */
     private boolean isTotpLoginEnabled() {
         GuestDefaultSetting gs = GLOBAL_SETTING_FACTORY.get("default", GuestDefaultSetting.class);
@@ -612,11 +626,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * 判断指定生日字符串是否处于生日窗口内（忽略年份比较月/日）
-    * <p>窗口为生日前 {@link #BIRTHDAY_WINDOW_DAYS} 天；生日为空或格式不合法时返回 false</p>
-    *
-    * @param birthday 生日字符串（yyyy-MM-dd 等）
-    * @return 是否处于生日窗口
+     * 判断指定生日字符串是否处于生日窗口内（忽略年份比较月/日）
+     * <p>窗口为生日前 {@link #BIRTHDAY_WINDOW_DAYS} 天；生日为空或格式不合法时返回 false</p>
+     *
+     * @param birthday 生日字符串（yyyy-MM-dd 等）
+     * @return 是否处于生日窗口
      */
     private boolean isBirthdayWindow(String birthday) {
         if (StringUtils.isBlank(birthday)) {
@@ -634,9 +648,9 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * enrichagreement状态
-    *
-    * @param userInfoVO 用户信息vo
+     * enrichagreement状态
+     *
+     * @param userInfoVO 用户信息vo
      */
     private void enrichAgreementStatus(UserInfoVO userInfoVO) {
         UserAgreementSetting agreement = GLOBAL_SETTING_FACTORY.get(USER_AGREEMENT_GROUP, UserAgreementSetting.class);
@@ -669,10 +683,10 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * 读取用户布局（带 60 秒缓存）
-    *
-    * @param userId 用户 标识
-    * @return 用户布局
+     * 读取用户布局（带 60 秒缓存）
+     *
+     * @param userId 用户 标识
+     * @return 用户布局
      */
     private UserLayout getCachedUserLayout(Long userId) {
         CachedValue cached = USER_LAYOUT_CACHE.get(userId);
@@ -685,10 +699,10 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * 读取用户角色编码（带 60 秒缓存，一次 连接 查询）
-    *
-    * @param userId 用户 标识
-    * @return 角色编码集合
+     * 读取用户角色编码（带 60 秒缓存，一次 连接 查询）
+     *
+     * @param userId 用户 标识
+     * @return 角色编码集合
      */
     private Set<String> getCachedRoleCodes(Integer userId) {
         String key = "role:" + userId;
@@ -708,10 +722,10 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * 判断用户是否只读账号(任一角色 sysRoleReadonly=1 即只读)
-    *
-    * @param userId 用户ID
-    * @return 是否只读
+     * 判断用户是否只读账号(任一角色 sysRoleReadonly=1 即只读)
+     *
+     * @param userId 用户ID
+     * @return 是否只读
      */
     private boolean resolveUserReadonly(Integer userId) {
         try {
@@ -724,11 +738,11 @@ public class SysLoginServiceImpl implements SysLoginService {
     }
 
     /**
-    * 解析preference值
-    *
-    * @param preference preference
-    * @param key 键
-    * @return resolvepreference值的结果
+     * 解析preference值
+     *
+     * @param preference preference
+     * @param key 键
+     * @return resolvepreference值的结果
      */
     private String resolvePreferenceValue(String preference, String key) {
         if (StringUtils.isBlank(preference) || StringUtils.isBlank(key)) {

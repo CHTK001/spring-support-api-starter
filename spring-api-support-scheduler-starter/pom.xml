@@ -34,6 +34,10 @@
       <artifactId>spring-support-job-starter</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-datasource-starter</artifactId>
+    </dependency>
+    <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-quartz-starter</artifactId>
             <version>${utils.version}</version>

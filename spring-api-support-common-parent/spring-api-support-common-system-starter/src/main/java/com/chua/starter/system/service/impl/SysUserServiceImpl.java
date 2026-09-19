@@ -8,10 +8,10 @@ import com.chua.common.support.utils.BeanUtils;
 import com.chua.common.support.network.ip.GeoCity;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
-import com.chua.common.support.utils.DigestUtils;
+import com.chua.starter.system.util.PasswordUtils;
 import com.chua.common.support.utils.RandomUtils;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.starter.common.support.application.GlobalSettingFactory;
+import com.chua.common.support.application.GlobalSettingFactory;
 import com.chua.starter.common.support.service.IptablesService;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
@@ -51,8 +51,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
-* @author CH
-* @since 2024/8/7
+ * @author CH
+ * @since 2024/8/7
  */
 @Service
 @Slf4j
@@ -229,7 +229,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         String newPassword = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
         sysUser1.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
-        sysUser1.setSysUserPassword(DigestUtils.md5Hex(newPassword + sysUser1.getSysUserSalt()));
+        sysUser1.setSysUserPassword(PasswordUtils.encrypt(newPassword, sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
         return ReturnResult.ok();
@@ -244,7 +244,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         String password = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
         sysUser1.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
-        sysUser1.setSysUserPassword(DigestUtils.md5Hex(password + sysUser1.getSysUserSalt()));
+        sysUser1.setSysUserPassword(PasswordUtils.encrypt(password, sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
         return ReturnResult.ok(password);
@@ -264,7 +264,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         sysUser1.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
-        sysUser1.setSysUserPassword(DigestUtils.md5Hex(password + sysUser1.getSysUserSalt()));
+        sysUser1.setSysUserPassword(PasswordUtils.encrypt(password, sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
         return ReturnResult.ok("密码重置成功");
@@ -289,7 +289,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         if (StringUtils.isNotBlank(sysUser.getSysUserPassword())) {
             sysUser1.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
-            sysUser1.setSysUserPassword(DigestUtils.md5Hex(sysUser.getSysUserPassword() + sysUser1.getSysUserSalt()));
+            sysUser1.setSysUserPassword(PasswordUtils.encrypt(sysUser.getSysUserPassword(), sysUser1.getSysUserSalt()));
         }
         sysUser1.setSysUserUsername(null);
         sysUser1.setSysUserInSystem(null);
@@ -356,7 +356,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ReturnResult.illegal("账号已存在");
         }
         sysUserUpdate.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
-        sysUserUpdate.setSysUserPassword(DigestUtils.md5Hex(sysUserUpdate.getSysUserPassword() + sysUserUpdate.getSysUserSalt()));
+        sysUserUpdate.setSysUserPassword(PasswordUtils.encrypt(sysUserUpdate.getSysUserPassword(), sysUserUpdate.getSysUserSalt()));
         sysUserUpdate.setSysUserInSystem(SystemConstant.IN_SYSTEM_NO);
         sysUserUpdate.setSysUserDelete(SystemConstant.NOT_DELETED);
         sysUserUpdate.setSysUserStatus(SystemConstant.USER_STATUS_ENABLED);
@@ -406,9 +406,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
-    * resolvegeo地址。
-    * @param rawIp rawIp
-    * @return resolvegeo地址的结果
+     * resolvegeo地址。
+     * @param rawIp rawIp
+     * @return resolvegeo地址的结果
      */
     private String resolveGeoAddress(String rawIp) {
         String ip = normalizeClientIp(rawIp);
@@ -432,9 +432,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
-    * normalize客户端ip。
-    * @param rawIp rawIp
-    * @return normalize客户端ip的结果
+     * normalize客户端ip。
+     * @param rawIp rawIp
+     * @return normalize客户端ip的结果
      */
     private String normalizeClientIp(String rawIp) {
         if (org.apache.commons.lang3.StringUtils.isBlank(rawIp)) {
@@ -448,9 +448,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
-    * normalize最后一个login状态。
-    * @param source 源
-    * @param target Target
+     * normalize最后一个login状态。
+     * @param source 源
+     * @param target Target
      */
     private void normalizeLastLoginState(SysUser source, SysUserVO target) {
         if (null == source || null == target) {
@@ -465,8 +465,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
-    * enrich最后一个login信息。
-    * @param records records
+     * enrich最后一个login信息。
+     * @param records records
      */
     private void enrichLastLoginInfo(List<SysUserVO> records) {
         if (CollectionUtils.isEmpty(records)) {
@@ -521,16 +521,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         String oldPassword = sysUserPasswordUpdate.getOldPassword();
         if (StringUtils.isNotBlank(oldPassword)) {
-            if (!DigestUtils.md5Hex(oldPassword + sysUser.getSysUserSalt()).equals(sysUser.getSysUserPassword())) {
+            if (!PasswordUtils.matches(oldPassword, sysUser.getSysUserSalt(), sysUser.getSysUserPassword())) {
                 return ReturnResult.illegal("当前密码错误！");
             }
         } else {
-            return ReturnResult.illegal("新密码不能为空！");
+            return ReturnResult.illegal("当前密码不能为空！");
         }
 
         if (StringUtils.isNotBlank(sysUserPasswordUpdate.getNewPassword())) {
             sysUser.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
-            sysUser.setSysUserPassword(DigestUtils.md5Hex(sysUserPasswordUpdate.getNewPassword() + sysUser.getSysUserSalt()));
+            sysUser.setSysUserPassword(PasswordUtils.encrypt(sysUserPasswordUpdate.getNewPassword(), sysUser.getSysUserSalt()));
         } else {
             return ReturnResult.illegal("新密码不能为空！");
         }
@@ -712,7 +712,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     
                     // 设置默认密码
                     sysUser.setSysUserSalt(java.util.UUID.randomUUID().toString().replace("-", "").substring(0, securityProperties.getSaltLength()));
-                    sysUser.setSysUserPassword(DigestUtils.md5Hex(securityProperties.getDefaultImportPassword() + sysUser.getSysUserSalt()));
+                    sysUser.setSysUserPassword(PasswordUtils.encrypt(securityProperties.getDefaultImportPassword(), sysUser.getSysUserSalt()));
                     sysUser.setSysUserInSystem(SystemConstant.IN_SYSTEM_NO);
                     sysUser.setSysUserDelete(SystemConstant.NOT_DELETED);
                     
@@ -752,9 +752,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
-    * CSV字段转义
-    * @param value 值
-    * @return escapeCsv的结果
+     * CSV字段转义
+     * @param value 值
+     * @return escapeCsv的结果
      */
     private String escapeCsv(String value) {
         if (value == null) {
@@ -767,9 +767,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
-    * 解析CSV行
-    * @param line 线
-    * @return 解析csv线的结果
+     * 解析CSV行
+     * @param line 线
+     * @return 解析csv线的结果
      */
     private String[] parseCsvLine(String line) {
         java.util.List<String> result = new java.util.ArrayList<>();

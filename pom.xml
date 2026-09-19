@@ -41,7 +41,7 @@
         <spring-support-webrtc.version>4.0.0.41</spring-support-webrtc.version>
         <netty.version>4.2.9.Final</netty.version>
         <mysql.connector.version>8.0.33</mysql.connector.version>
-        <jedis.version>5.1.0</jedis.version>
+        <jedis.version>7.4.1</jedis.version>
         <justauth.version>1.16.6</justauth.version>
         <jjwt.version>0.12.5</jjwt.version>
         <guava.version>33.2.1-jre</guava.version>

@@ -1,15 +1,16 @@
 package com.chua.starter.system.pojo.online;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 /**
-* 在线用户视图对象
-*
-* @since 2024/12/15
-* @author CH
+ * 在线用户视图对象
+ *
+ * @since 2024/12/15
+ * @author CH
  */
 @Data
 @Schema(description = "在线用户信息")
@@ -32,10 +33,12 @@ public class OnlineUserVO {
     private String deptName;
 
     @Schema(description = "登录IP")
+    @JsonProperty("ip")
     /** loginip */
     private String loginIp;
 
     @Schema(description = "登录地址")
+    @JsonProperty("address")
     /** Login地址 */
     private String loginAddress;
 
@@ -50,6 +53,10 @@ public class OnlineUserVO {
     @Schema(description = "登录时间")
     /** Login时间 */
     private LocalDateTime loginTime;
+
+    @Schema(description = "最后访问时间")
+    /** last访问时间 */
+    private LocalDateTime lastAccessTime;
 
     @Schema(description = "Token")
     /** 令牌 */

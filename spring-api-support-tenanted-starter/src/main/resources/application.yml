@@ -18,6 +18,9 @@ server:
 plugin:
   cors:
     enable: true
+  # 本模块只引入 socket-io starter，而协议默认值为 sse，不改写会因缺少 sse SPI 实现启动失败
+  socket:
+    protocol: socketio
   log:
     enable: true
   captcha:

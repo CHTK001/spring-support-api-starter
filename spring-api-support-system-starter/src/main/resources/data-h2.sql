@@ -1109,9 +1109,9 @@ INSERT INTO sys_role_menu (sys_role_menu_id, sys_role_id, sys_menu_id) VALUES
 -- 鐎靛棛鐖? 123456 (閸撳秶顏崗?MD5閿涘苯鍟€閻㈠崬鎮楃粩顖涘⒔鐞?MD5(md5(password)+salt))
 -- =====================================================
 INSERT INTO sys_user (sys_user_id, sys_user_username, sys_user_nickname, sys_user_password, sys_user_salt, sys_user_delete, sys_user_status, sys_user_in_system) VALUES
-(1, 'sa', '鐡掑懐楠囩粻锛勬倞閸?, '5f1d7a84db00d2fce00b31a7fc73224f', '123456', 0, 1, 1),
-(2, 'admin', '缁狅紕鎮婇崨?, '5f1d7a84db00d2fce00b31a7fc73224f', '123456', 0, 1, 1),
-(3, 'ops', '鏉╂劗娣?, '5f1d7a84db00d2fce00b31a7fc73224f', '123456', 0, 1, 1);
+(1, 'sa', '鐡掑懐楠囩粻锛勬倞閸?, 'ea48576f30be1669971699c09ad05c94', '123456', 0, 1, 1),
+(2, 'admin', '缁狅紕鎮婇崨?, 'ea48576f30be1669971699c09ad05c94', '123456', 0, 1, 1),
+(3, 'ops', '鏉╂劗娣?, 'ea48576f30be1669971699c09ad05c94', '123456', 0, 1, 1);
 
 -- =====================================================
 -- 閸掓繂顫愰弫鐗堝祦 - 姒涙顓荤拹锕€褰跨憴鎺曞閸忓疇浠?-- =====================================================
@@ -1205,43 +1205,42 @@ CREATE TABLE sys_user_avatar_frame (
 ) ;
 
 -- =====================================================
--- 閸掓繂顫愰弫鐗堝祦 - 婢舵潙鍎氬鍡欘潚鐎涙劧绱欏〒鎰綁 1-22閵嗕礁娴橀悧?23-28閵嗕胶鏁撻弮?100閿?
+-- 头像框种子 - 「不佩戴」(1)、常规 (2-7)、生肖 (201-212)、神兽 (221-226)、生日框 (100)
 -- =====================================================
 INSERT INTO sys_avatar_frame (sys_avatar_frame_id, sys_avatar_frame_name, sys_avatar_frame_type, sys_avatar_frame_color, sys_avatar_frame_desc, sys_avatar_frame_acquire, sys_avatar_frame_sort) VALUES
-(1, '缂佸繐鍚€', 'base', 'transparent', '姒涙顓婚弮鐘虹珶濡?, 'default', 0),
-(2, '闁叉垼澹?, 'base', 'linear-gradient(135deg, #f6d365, #fda085)', '濞撯晜娈╅柌鎴ｅ濞撴劕褰?, 'default', 1),
-(3, '閽冩繆澹?, 'base', 'linear-gradient(135deg, #667eea, #764ba2)', '濞ｉ亶鍊戦拑婵堜紶濞撴劕褰?, 'default', 2),
-(4, '缁俱垼澹?, 'base', 'linear-gradient(135deg, #f093fb, #f5576c)', '閻戭厽鍎忕痪銏㈢焽濞撴劕褰?, 'default', 3),
-(5, '缂佽儻澹?, 'base', 'linear-gradient(135deg, #4facfe, #00f2fe)', '濞撳懏鏌婇拑婵堣雹濞撴劕褰?, 'default', 4),
-(6, '缁鳖偉澹?, 'base', 'linear-gradient(135deg, #a18cd1, #fbc2eb)', '濮婏箑澶熺槐顐ょ焽濞撴劕褰?, 'default', 5),
-(7, '濮楁瑨澹?, 'base', 'linear-gradient(135deg, #fa709a, #fee140)', '濞茶濮忓娆撶矋濞撴劕褰?, 'default', 6),
-(8, '閺嗘顧?, 'base', 'linear-gradient(135deg, #2c3e50, #3498db)', '濞屽菙閺嗘顧佸〒鎰綁', 'default', 7),
-(9, '缁牗鐏?, 'base', 'linear-gradient(135deg, #f6d365, #fda085)', '閻㈡粎绶ㄧ化鏍ㄧ亯濞撴劕褰?, 'default', 8),
-(10, '濡京鐭?, 'base', 'linear-gradient(135deg, #ff9a9e, #fecfef)', '濞搭亝鏋佸Ο杈╃焽濞撴劕褰?, 'default', 9),
-(11, '閽栧嫯宓?, 'base', 'linear-gradient(135deg, #a1c4fd, #c2e9fb)', '濞撳懐鍩ラ挅鍕祹濞撴劕褰?, 'default', 10),
-(12, '閺嗩噣婀?, 'base', 'linear-gradient(135deg, #d4a4fc, #ff9a9e)', '濞撯晜鐓嶉弳顕€婀卞〒鎰綁', 'default', 11),
-(13, '閺岀姵顎?, 'base', 'linear-gradient(135deg, #ffdfba, #feedb0)', '閺勫骸鎻╅弻鐘愁€嬪〒鎰綁', 'default', 12),
-(14, '閺勭喓鈹?, 'base', 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)', '濞ｉ亶鍊戦弰鐔衡敄濞撴劕褰?, 'default', 13),
-(15, '濡喗鐏?, 'base', 'linear-gradient(135deg, #134e5e, #71b280)', '閼奉亞鍔уΛ顔界亜濞撴劕褰?, 'default', 14),
-(16, '閻旀柨鍗?, 'base', 'linear-gradient(135deg, #ff512f, #dd2476)', '閻愮晫鍎归悢鏂垮崥濞撴劕褰?, 'default', 15),
-(17, '閺嬩礁鍘?, 'base', 'linear-gradient(135deg, #00c9ff, #92fe9d)', '缂傘儳绱欓弸浣稿帨濞撴劕褰?, 'default', 16),
-(18, '缁俱垺鐏?, 'base', 'linear-gradient(135deg, #b31217, #e52d27)', '閻戭厾鍎撶痪銏＄仛濞撴劕褰?, 'default', 17),
-(19, '濞撮攱纾?, 'base', 'linear-gradient(135deg, #2193b0, #6dd5ed)', '閽勬俺鎽戝ù閿嬬１濞撴劕褰?, 'default', 18),
-(20, '缁佹牗鐦濈紒?, 'base', 'linear-gradient(135deg, #11998e, #38ef7d)', '閸撴棃鈧繒顨涘В宥囪雹濞撴劕褰?, 'default', 19),
-(21, '閺呮岸婀?, 'base', 'linear-gradient(135deg, #ff9966, #ff5e62)', '缂佹氨鍎岄弲姘舵範濞撴劕褰?, 'default', 20),
-(22, '闂冨灝鍤掓潏?, 'base', 'linear-gradient(135deg, #1488cc, #2b32b2)', '缁夋垵澶熼梼鍨殥鏉堢偓绗庨崣?, 'default', 21);
+(1, '经典', 'base', 'transparent', '默认无边框', 'default', 0);
+
+-- 常规框：只有渐变色，前端按「渐变 + 径向遮罩挖孔」画素环
+INSERT INTO sys_avatar_frame (sys_avatar_frame_id, sys_avatar_frame_name, sys_avatar_frame_type, sys_avatar_frame_color, sys_avatar_frame_desc, sys_avatar_frame_acquire, sys_avatar_frame_sort) VALUES
+(2, '素环', 'regular', 'linear-gradient(135deg, #f2f5f8 0%, #b9c2cc 35%, #ffffff 55%, #8e97a1 100%)', '常规款·银白素环', 'default', 20),
+(3, '墨玉', 'regular', 'linear-gradient(135deg, #3a3f47 0%, #6b7480 35%, #1b1e23 60%, #59616c 100%)', '常规款·墨玉深灰', 'default', 21),
+(4, '鎏金', 'regular', 'linear-gradient(135deg, #fff3c4 0%, #d4a531 30%, #a9772a 55%, #f7e59b 100%)', '常规款·鎏金暖阳', 'default', 22),
+(5, '青瓷', 'regular', 'linear-gradient(135deg, #e2f5ee 0%, #6fbfa9 35%, #38796d 65%, #bfe6d8 100%)', '常规款·青瓷淡翠', 'default', 23),
+(6, '绛朱', 'regular', 'linear-gradient(135deg, #ffd9c9 0%, #d9534a 35%, #9b241c 65%, #ffb3a0 100%)', '常规款·绛朱丹霞', 'default', 24),
+(7, '星辉', 'regular', 'linear-gradient(135deg, #dfe4ff 0%, #7c6ff0 30%, #34296e 60%, #a8b6ff 100%)', '常规款·星辉蓝紫', 'default', 25);
 
 INSERT INTO sys_avatar_frame (sys_avatar_frame_id, sys_avatar_frame_name, sys_avatar_frame_type, sys_avatar_frame_image, sys_avatar_frame_desc, sys_avatar_frame_acquire, sys_avatar_frame_sort) VALUES
-(23, '闁瑰繘鍣?, 'base', '/assets/avatar-frames/frame-gold.png', '闁叉垼澹婇崶鎹愬悩閻?, 'default', 22),
-(24, '閻ㄥ洤顓婚拑?, 'base', '/assets/avatar-frames/frame-royal.png', '缂佸繐鍚€閻ㄥ洤顓婚拑婵堝箚', 'default', 23),
-(25, '閻滎偆鎳撻柌?, 'base', '/assets/avatar-frames/frame-rose.png', '娴兼﹢娉ら悳顐ゆ嚀闁叉垹骞?, 'default', 24),
-(26, '閻掓澘鍘?, 'base', '/assets/avatar-frames/frame-flame.apng', '閻忣偆鍔欓崨鐓庢儧閸斻劎鏁?APNG)', 'default', 25),
-(27, '閺呮儼鎽?, 'base', '/assets/avatar-frames/frame-azure.apng', '閺呮儼鎽戦崨鐓庢儧閸斻劎鏁?APNG)', 'default', 26),
-(28, '閻滃嫰绮?, 'base', '/assets/avatar-frames/frame-onyx.png', '楠炰粙绮﹂悳鍕櫨閻?, 'default', 27),
-(29, '閸嶅繒绀屾?, 'base', '/assets/avatar-frames/frame-pixel.png', '婢跺秴褰滈崓蹇曠妞嬪氦绔熷?, 'default', 28);
+(201, '子鼠', 'zodiac', '/assets/avatar-frames/zodiac-rat.svg', '暗珐琅描金·生肖鼠', 'default', 1),
+(202, '丑牛', 'zodiac', '/assets/avatar-frames/zodiac-ox.svg', '暗珐琅描金·生肖牛', 'default', 2),
+(203, '寅虎', 'zodiac', '/assets/avatar-frames/zodiac-tiger.svg', '暗珐琅描金·生肖虎', 'default', 3),
+(204, '卯兔', 'zodiac', '/assets/avatar-frames/zodiac-rabbit.svg', '暗珐琅描金·生肖兔', 'default', 4),
+(205, '辰龙', 'zodiac', '/assets/avatar-frames/zodiac-dragon.svg', '暗珐琅描金·生肖龙', 'default', 5),
+(206, '巳蛇', 'zodiac', '/assets/avatar-frames/zodiac-snake.svg', '暗珐琅描金·生肖蛇', 'default', 6),
+(207, '午马', 'zodiac', '/assets/avatar-frames/zodiac-horse.svg', '暗珐琅描金·生肖马', 'default', 7),
+(208, '未羊', 'zodiac', '/assets/avatar-frames/zodiac-goat.svg', '暗珐琅描金·生肖羊', 'default', 8),
+(209, '申猴', 'zodiac', '/assets/avatar-frames/zodiac-monkey.svg', '暗珐琅描金·生肖猴', 'default', 9),
+(210, '酉鸡', 'zodiac', '/assets/avatar-frames/zodiac-rooster.svg', '暗珐琅描金·生肖鸡', 'default', 10),
+(211, '戌狗', 'zodiac', '/assets/avatar-frames/zodiac-dog.svg', '暗珐琅描金·生肖狗', 'default', 11),
+(212, '亥猪', 'zodiac', '/assets/avatar-frames/zodiac-pig.svg', '暗珐琅描金·生肖猪', 'default', 12),
+(221, '狮鹫', 'beast', '/assets/avatar-frames/beast-griffin.svg', '暗珐琅描金·西方神兽狮鹫', 'limit', 13),
+(222, '独角兽', 'beast', '/assets/avatar-frames/beast-unicorn.svg', '暗珐琅描金·西方神兽独角兽', 'limit', 14),
+(223, '凤凰', 'beast', '/assets/avatar-frames/beast-phoenix.svg', '暗珐琅描金·神兽凤凰', 'limit', 15),
+(224, '麒麟', 'beast', '/assets/avatar-frames/beast-qilin.svg', '暗珐琅描金·神兽麒麟', 'limit', 16),
+(225, '九尾狐', 'beast', '/assets/avatar-frames/beast-fox.svg', '暗珐琅描金·神兽九尾狐', 'limit', 17),
+(226, '天马', 'beast', '/assets/avatar-frames/beast-pegasus.svg', '暗珐琅描金·西方神兽天马', 'limit', 18);
 
 INSERT INTO sys_avatar_frame (sys_avatar_frame_id, sys_avatar_frame_name, sys_avatar_frame_type, sys_avatar_frame_image, sys_avatar_frame_desc, sys_avatar_frame_acquire, sys_avatar_frame_sort, sys_avatar_frame_status) VALUES
-(100, '閻㈢喐妫╄箛顐＄', 'birthday', '/assets/avatar-frames/birthday.png', '閻㈢喐妫╂稉鎾崇潣闂勬劕鐣炬径鏉戝剼濡?, 'birthday', 99, 1);
+(100, '生日快乐', 'birthday', '/assets/avatar-frames/birthday.svg', '生日专属限定头像框', 'birthday', 99, 1);
 
 
 -- =====================================================
