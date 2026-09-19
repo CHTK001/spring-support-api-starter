@@ -107,9 +107,13 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
         DisposableBean, WebMvcConfigurer {
 
     AuthServerProperties authServerProperties;
-    /** 消息Converters */
+    /**
+     * 消息Converters
+    */
     private List<HttpMessageConverter<?>> messageConverters;
-    /** application上下文 */
+    /**
+     * application上下文
+    */
     private ApplicationContext applicationContext;
 
     /**
@@ -156,20 +160,26 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
 
 
     @Override
-    /** Post处理Beandefinitionregistry */
+    /**
+     * Post处理Beandefinitionregistry
+    */
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeLoginProvider.class);
         BeanDefinitionRegistryUtils.registerBeanDefinition(registry, GiteeBinderProvider.class);
     }
 
     @Override
-    /** Post处理Bean工厂 */
+    /**
+     * Post处理Bean工厂
+    */
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
     }
 
     @Override
-    /** Post处理环境 */
+    /**
+     * Post处理环境
+    */
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         Properties properties = new Properties();
         properties.setProperty("spring.freemarker.templateLoaderPath", "classpath:/templates/");
@@ -186,13 +196,17 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     }
 
     @Override
-    /** 销毁 */
+    /**
+     * 销毁
+    */
     public void destroy() throws Exception {
     }
 
 
     @Override
-    /** 设置application上下文 */
+    /**
+     * 设置application上下文
+    */
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
         if (null != authServerProperties) {
@@ -206,13 +220,17 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     }
 
     @Override
-    /** 添加返回值处理器 */
+    /**
+     * 添加返回值处理器
+    */
     public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> handlers) {
         handlers.add(0, new ResponseAdviceMethodProcessor(messageConverters));
     }
 
     @Override
-    /** 运行 */
+    /**
+     * 运行
+    */
     public void run(String... args) throws Exception {
         ServiceInfoRegistry registry = ServiceInfoRegistry.getInstance();
         registry.registerFlag("auth-server", "鉴权服务",

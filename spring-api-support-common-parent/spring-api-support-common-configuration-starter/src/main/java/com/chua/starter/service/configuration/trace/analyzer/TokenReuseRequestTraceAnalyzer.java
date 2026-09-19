@@ -25,7 +25,9 @@ import java.util.Set;
 public class TokenReuseRequestTraceAnalyzer implements RequestTraceAnalyzer {
 
     @Override
-    /** 分析 */
+    /**
+     * 分析
+    */
     public Collection<RequestTraceSignal> analyze(RequestTraceAnalysisContext context) {
         RequestTraceEvent currentEvent = context.currentEvent();
         if (!Boolean.TRUE.equals(context.config().getTokenReuseEnabled())) {

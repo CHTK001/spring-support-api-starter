@@ -16,25 +16,39 @@ import java.util.Properties;
  */
 public final class AgentConfig {
 
-    /** 版本号缺省值（资源缺失时不至于显示 null） */
+    /**
+     * 版本号缺省值（资源缺失时不至于显示 null）
+    */
     private static final String UNKNOWN_VERSION = "unknown";
 
-    /** 构建期产物 */
+    /**
+     * 构建期产物
+    */
     private final Properties buildInfo;
 
-    /** 运行期配置 */
+    /**
+     * 运行期配置
+    */
     private final Properties runtime;
 
-    /** 监听端口 */
+    /**
+     * 监听端口
+    */
     private final int port;
 
-    /** 监听地址 */
+    /**
+     * 监听地址
+    */
     private final String bind;
 
-    /** 主机注册密钥（平台下发，用于回写平台时标识主机） */
+    /**
+     * 主机注册密钥（平台下发，用于回写平台时标识主机）
+    */
     private final String agentKey;
 
-    /** 接口访问令牌；为空表示不校验 */
+    /**
+     * 接口访问令牌；为空表示不校验
+    */
     private final String token;
 
     /**

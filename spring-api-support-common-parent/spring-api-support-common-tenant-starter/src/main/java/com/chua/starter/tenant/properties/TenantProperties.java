@@ -17,7 +17,9 @@ import java.util.Set;
 @ConfigurationProperties(prefix = TenantProperties.PRE, ignoreInvalidFields = true)
 public class TenantProperties {
 
-    /** PRE */
+    /**
+     * PRE
+    */
     public static final String PRE = "plugin.mybatis-plus.tenant";
 
     /**

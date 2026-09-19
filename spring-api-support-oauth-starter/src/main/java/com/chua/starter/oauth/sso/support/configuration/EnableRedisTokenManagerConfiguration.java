@@ -101,7 +101,9 @@ public class EnableRedisTokenManagerConfiguration {
         }
 
         @Override
-        /** on消息 */
+        /**
+         * on消息
+        */
         public void onMessage(Message message, byte[] pattern) {
  // 获取过期的键
             String expireKey = message.toString();

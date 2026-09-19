@@ -55,11 +55,17 @@ public class OauthProtocolServerManager implements AutoCloseable {
      */
     private final Map<String, Server> serverMap = new ConcurrentHashMap<>();
 
-    /** 属性 */
+    /**
+     * 属性
+    */
     private final OauthProtocolServersProperties properties;
-    /** 认证服务器属性 */
+    /**
+     * 认证服务器属性
+    */
     private final AuthServerProperties authServerProperties;
-    /** Logincheck */
+    /**
+     * Logincheck
+    */
     private final LoginCheck loginCheck;
 
     /**
@@ -200,7 +206,9 @@ public class OauthProtocolServerManager implements AutoCloseable {
     private void startKcpServer(KcpServer kcpServer, OauthProtocolHandler handler, List<String> routes) {
         kcpServer.addListener(new SyncServerListener() {
             @Override
-            /** on消息 */
+            /**
+             * on消息
+            */
             public void onMessage(String clientId, String topic, Object message) {
                 if (message == null) {
                     return;
@@ -336,9 +344,13 @@ public class OauthProtocolServerManager implements AutoCloseable {
      */
     private static class MessageServerRequest extends AbstractServerRequest {
 
-        /** Topic */
+        /**
+         * Topic
+        */
         private final String topic;
-        /** 请求体 */
+        /**
+         * 请求体
+        */
         private final byte[] body;
 
         MessageServerRequest(String topic, String body) {
@@ -347,49 +359,65 @@ public class OauthProtocolServerManager implements AutoCloseable {
         }
 
         @Override
-        /** 读取主体 */
+        /**
+         * 读取主体
+        */
         protected byte[] readBody() {
             return body;
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public HttpHeader getHeaders() {
             return HttpHeader.create();
         }
 
         @Override
-        /** 获取头部 */
+        /**
+         * 获取头部
+        */
         public String getHeader(String name) {
             return null;
         }
 
         @Override
-        /** 获取Uri */
+        /**
+         * 获取Uri
+        */
         public String getUri() {
             return "/" + topic;
         }
 
         @Override
-        /** 获取路径 */
+        /**
+         * 获取路径
+        */
         public String getPath() {
             return "/" + topic;
         }
 
         @Override
-        /** 获取方法 */
+        /**
+         * 获取方法
+        */
         public HttpMethod getMethod() {
             return HttpMethod.POST;
         }
 
         @Override
-        /** 获取远程地址 */
+        /**
+         * 获取远程地址
+        */
         public String getRemoteAddress() {
             return LOCALHOST;
         }
 
         @Override
-        /** 获取远程端口 */
+        /**
+         * 获取远程端口
+        */
         public int getRemotePort() {
             return 0;
         }
@@ -407,13 +435,17 @@ public class OauthProtocolServerManager implements AutoCloseable {
     private static class MessageServerResponse extends AbstractServerResponse {
 
         @Override
-        /** 获取输出流 */
+        /**
+         * 获取输出流
+        */
         public OutputStream getOutputStream() {
             return new ByteArrayOutputStream();
         }
 
         @Override
-        /** 写入Raw */
+        /**
+         * 写入Raw
+        */
         public void writeRaw(byte[] bytes) {
             this.body = bytes;
         }

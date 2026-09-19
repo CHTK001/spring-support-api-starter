@@ -75,13 +75,19 @@ import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants
 @RequiredArgsConstructor
 public class OauthProtocolHandler implements ServerHandler {
 
-    /** 认证服务器属性 */
+    /**
+     * 认证服务器属性
+    */
     private final AuthServerProperties authServerProperties;
-    /** Logincheck */
+    /**
+     * Logincheck
+    */
     private final LoginCheck loginCheck;
 
     @Override
-    /** 处理 */
+    /**
+     * 处理
+    */
     public void handle(ServerRequest request, ServerResponse response) throws Exception {
         var path = normalize(request.getPath());
         try {

@@ -41,7 +41,9 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
     private static final int STATUS_SENT = 1;
 
     @Override
-    /** pagefor用户 */
+    /**
+     * pagefor用户
+    */
     public IPage<SysMessage> pageForUser(Integer sysUserId, long page, long pageSize) {
         Page<SysMessage> pager = new Page<>(Math.max(page, 1), Math.max(pageSize, 1));
         return page(pager, Wrappers.<SysMessage>lambdaQuery()
@@ -54,7 +56,9 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
     }
 
     @Override
-    /** 计算数量Unread */
+    /**
+     * 计算数量Unread
+    */
     public long countUnread(Integer sysUserId) {
         return count(Wrappers.<SysMessage>lambdaQuery()
                 .and(w -> w.eq(SysMessage::getSysMessageReceiverId, sysUserId)
@@ -65,7 +69,9 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
     }
 
     @Override
-    /** 标记读取 */
+    /**
+     * 标记读取
+    */
     public ReturnResult<Boolean> markRead(Integer sysUserId, Long lastId) {
         SysMessage update = new SysMessage();
         update.setSysMessageRead(1);
@@ -88,7 +94,9 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
     }
 
     @Override
-    /** 管理员分页 */
+    /**
+     * 管理员分页
+    */
     public IPage<SysMessage> pageForAdmin(Query<SysMessage> query, SysMessage condition) {
         SysMessage c = condition == null ? new SysMessage() : condition;
         return page(query.createPage(), Wrappers.<SysMessage>lambdaQuery()
@@ -102,7 +110,9 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 发送消息 */
+    /**
+     * 发送消息
+    */
     public ReturnResult<SysMessage> sendMessage(SysMessage message) {
         if (message == null || StringUtils.isBlank(message.getSysMessageTitle())) {
             return ReturnResult.illegal("消息标题不能为空");
@@ -126,7 +136,9 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 撤回消息 */
+    /**
+     * 撤回消息
+    */
     public ReturnResult<Boolean> recallMessage(Long sysMessageId) {
         if (null == sysMessageId) {
             return ReturnResult.illegal("消息ID不能为空");
@@ -139,7 +151,9 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 删除消息 */
+    /**
+     * 删除消息
+    */
     public ReturnResult<Boolean> deleteMessage(List<Long> sysMessageIds) {
         if (sysMessageIds == null || sysMessageIds.isEmpty()) {
             return ReturnResult.illegal("消息ID不能为空");
@@ -149,7 +163,9 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 广播消息 */
+    /**
+     * 广播消息
+    */
     public ReturnResult<Integer> broadcast(SysMessage message, List<Integer> targetUserIds) {
         if (message == null || StringUtils.isBlank(message.getSysMessageTitle())) {
             return ReturnResult.illegal("消息标题不能为空");
@@ -184,7 +200,9 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
     }
 
     @Override
-    /** 消息统计 */
+    /**
+     * 消息统计
+    */
     public java.util.Map<String, Object> statistic() {
         java.util.Map<String, Object> result = new java.util.LinkedHashMap<>();
         long total = count();

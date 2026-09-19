@@ -14,10 +14,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TileCoord {
-    /** X 轴瓦片索引 */
+    /**
+     * X 轴瓦片索引
+    */
     private int x;
-    /** Y 轴瓦片索引 */
+    /**
+     * Y 轴瓦片索引
+    */
     private int y;
-    /** 缩放级别 */
+    /**
+     * 缩放级别
+    */
     private int z;
 }

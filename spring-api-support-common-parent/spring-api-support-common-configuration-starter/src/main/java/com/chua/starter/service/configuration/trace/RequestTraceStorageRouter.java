@@ -16,13 +16,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class RequestTraceStorageRouter {
 
-    /** Database_配置_storage */
+    /**
+     * Database_配置_storage
+    */
     private static final String DATABASE_CONFIG_STORAGE =
             "com.chua.starter.service.trace.storage.DatabaseRequestTraceConfigStorage";
-    /** Database_raw_storage */
+    /**
+     * Database_raw_storage
+    */
     private static final String DATABASE_RAW_STORAGE =
             "com.chua.starter.service.trace.storage.DatabaseRequestTraceRawRecordStorage";
-    /** Database_行为_storage */
+    /**
+     * Database_行为_storage
+    */
     private static final String DATABASE_BEHAVIOR_STORAGE =
             "com.chua.starter.service.trace.storage.DatabaseRequestTraceBehaviorStorage";
 

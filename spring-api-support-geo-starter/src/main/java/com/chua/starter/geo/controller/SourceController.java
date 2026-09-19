@@ -25,7 +25,9 @@ import java.util.Map;
 @Slf4j
 public class SourceController {
 
-    /** 图源配置服务 */
+    /**
+     * 图源配置服务
+    */
     private final GeoTileSources tileSources;
 
     /**

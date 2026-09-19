@@ -24,102 +24,158 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "ACME 证书信息")
 public class MonitorAcmeCertificate extends SysBase {
 
-    /** 主键标识 */
+    /**
+     * 主键标识
+    */
     @TableId(value = "acme_cert_id", type = IdType.AUTO)
     @ApiModelProperty("主键ID")
     @Schema(description = "主键ID")
-    /** Acme证书标识 */
+    /**
+     * Acme证书标识
+    */
     private Integer acmeCertId;
 
-    /** 账户标识 */
+    /**
+     * 账户标识
+    */
     @TableField("acme_account_id")
     @ApiModelProperty("账户ID")
     @Schema(description = "账户ID")
-    /** acmeaccountid */
+    /**
+     * acmeaccountid
+    */
     private Integer acmeAccountId;
 
-    /** 主域名 */
+    /**
+     * 主域名
+    */
     @TableField("acme_cert_primary_domain")
     @ApiModelProperty("主域名")
     @Schema(description = "主域名")
-    /** Acme证书primarydomain */
+    /**
+     * Acme证书primarydomain
+    */
     private String acmeCertPrimaryDomain;
 
-    /** 备用域名(SAN)，逗号分隔 */
+    /**
+     * 备用域名(SAN)，逗号分隔
+    */
     @TableField("acme_cert_san")
     @ApiModelProperty("备用域名(SAN)，逗号分隔")
     @Schema(description = "备用域名(SAN)，逗号分隔")
-    /** Acme证书SAN */
+    /**
+     * Acme证书SAN
+    */
     private String acmeCertSan;
 
-    /** 挑战类型（HTTP-01/DNS-01） */
+    /**
+     * 挑战类型（HTTP-01/DNS-01）
+    */
     @TableField("acme_cert_challenge_type")
     @ApiModelProperty("挑战类型（HTTP-01/DNS-01）")
     @Schema(description = "挑战类型（HTTP-01/DNS-01）")
-    /** Acme证书challenge类型 */
+    /**
+     * Acme证书challenge类型
+    */
     private String acmeCertChallengeType;
 
-    /** 证书状态（pending, valid, expired, revoked, 失败） */
+    /**
+     * 证书状态（pending, valid, expired, revoked, 失败）
+    */
     @TableField("acme_cert_status")
     @ApiModelProperty("证书状态")
     @Schema(description = "证书状态")
-    /** Acme证书状态 */
+    /**
+     * Acme证书状态
+    */
     private String acmeCertStatus;
 
-    /** 有效期起 */
+    /**
+     * 有效期起
+    */
     @TableField("acme_cert_not_before")
     @ApiModelProperty("有效期起")
     @Schema(description = "有效期起")
-    /** Acme证书notbefore */
+    /**
+     * Acme证书notbefore
+    */
     private String acmeCertNotBefore;
 
-    /** 有效期止 */
+    /**
+     * 有效期止
+    */
     @TableField("acme_cert_not_after")
     @ApiModelProperty("有效期止")
     @Schema(description = "有效期止")
-    /** Acme证书notafter */
+    /**
+     * Acme证书notafter
+    */
     private String acmeCertNotAfter;
 
-    /** 计划续签日期（到期前N天） */
+    /**
+     * 计划续签日期（到期前N天）
+    */
     @TableField("acme_cert_renew_at")
     @ApiModelProperty("计划续签日期")
     @Schema(description = "计划续签日期")
-    /** Acme证书renewat */
+    /**
+     * Acme证书renewat
+    */
     private String acmeCertRenewAt;
 
-    /** 证书PEM（含链） */
+    /**
+     * 证书PEM（含链）
+    */
     @TableField("acme_cert_chain_pem")
     @ApiModelProperty("证书PEM（含链）")
     @Schema(description = "证书PEM（含链）")
-    /** Acme证书chainpem */
+    /**
+     * Acme证书chainpem
+    */
     private String acmeCertChainPem;
 
-    /** 私钥PEM */
+    /**
+     * 私钥PEM
+    */
     @TableField("acme_cert_key_pem")
     @ApiModelProperty("私钥PEM")
     @Schema(description = "私钥PEM")
-    /** Acme证书密钥PEM */
+    /**
+     * Acme证书密钥PEM
+    */
     private String acmeCertKeyPem;
 
-    /** 最近错误 */
+    /**
+     * 最近错误
+    */
     @TableField("acme_cert_last_error")
     @ApiModelProperty("最近错误")
     @Schema(description = "最近错误")
-    /** Acme证书最后错误 */
+    /**
+     * Acme证书最后错误
+    */
     private String acmeCertLastError;
 
-    /** 部署模式：本地(本机自动)/manual(手动) */
+    /**
+     * 部署模式：本地(本机自动)/manual(手动)
+    */
     @TableField("acme_cert_deploy_mode")
     @ApiModelProperty("部署模式: local(本机自动)/manual(手动)")
     @Schema(description = "部署模式: local(本机自动)/manual(手动)")
-    /** Acme证书deploy模式 */
+    /**
+     * Acme证书deploy模式
+    */
     private String acmeCertDeployMode;
 
-    /** 本机模式 webroot 路径 */
+    /**
+     * 本机模式 webroot 路径
+    */
     @TableField("acme_cert_webroot_path")
     @ApiModelProperty("本机模式webroot路径")
     @Schema(description = "本机模式webroot路径")
-    /** Acme证书webroot路径 */
+    /**
+     * Acme证书webroot路径
+    */
     private String acmeCertWebrootPath;
 
     /**

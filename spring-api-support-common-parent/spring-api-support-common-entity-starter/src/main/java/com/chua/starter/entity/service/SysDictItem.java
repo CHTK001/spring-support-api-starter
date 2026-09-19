@@ -25,7 +25,9 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_dict_item")
 public class SysDictItem extends SysBase implements Serializable {
-    /** 串行版本UID */
+    /**
+     * 串行版本UID
+    */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -34,7 +36,9 @@ public class SysDictItem extends SysBase implements Serializable {
     @TableId(value = "sys_dict_item_id", type = IdType.AUTO)
     @Schema(description = "字典项ID")
     @NotNull(message = "字典项ID不能为空")
-    /** sysdictitemid */
+    /**
+     * sysdictitemid
+    */
     private Integer sysDictItemId;
 
     /**
@@ -43,7 +47,9 @@ public class SysDictItem extends SysBase implements Serializable {
     @TableField(value = "sys_dict_id")
     @Schema(description = "字典ID")
     @NotNull(message = "字典ID不能为空", groups = {UpdateGroup.class, AddGroup.class, SelectGroup.class})
-    /** sysdictid */
+    /**
+     * sysdictid
+    */
     private Integer sysDictId;
 
     /**
@@ -51,7 +57,9 @@ public class SysDictItem extends SysBase implements Serializable {
      */
     @TableField(exist = false)
     @Schema(description = "字典编码")
-    /** sysdict代码 */
+    /**
+     * sysdict代码
+    */
     private String sysDictCode;
 
     /**
@@ -60,7 +68,9 @@ public class SysDictItem extends SysBase implements Serializable {
     @TableField(value = "sys_dict_item_name")
     @Schema(description = "字典子项名称")
     @Size(max = 255, message = "字典子项名称最大长度需小于255")
-    /** sysdictitem名称 */
+    /**
+     * sysdictitem名称
+    */
     private String sysDictItemName;
 
     /**
@@ -68,7 +78,9 @@ public class SysDictItem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_dict_item_icon")
     @Schema(description = "字典子项图标")
-    /** sysdictitemicon */
+    /**
+     * sysdictitemicon
+    */
     private String sysDictItemIcon;
 
     /**
@@ -77,7 +89,9 @@ public class SysDictItem extends SysBase implements Serializable {
     @TableField(value = "sys_dict_item_i18n")
     @Schema(description = "字典项国际化key")
     @Size(max = 255, message = "字典项国际化key最大长度需小于255")
-    /** sysdictitemi18n */
+    /**
+     * sysdictitemi18n
+    */
     private String sysDictItemI18n;
 
     /**
@@ -87,7 +101,9 @@ public class SysDictItem extends SysBase implements Serializable {
     @Schema(description = "字典子项编码")
     @NotNull(message = "字典子项编码不能为空", groups = {AddGroup.class})
     @Size(max = 255, message = "字典子项编码最大长度需小于255")
-    /** sysdictitem代码 */
+    /**
+     * sysdictitem代码
+    */
     private String sysDictItemCode;
 
     /**
@@ -96,7 +112,9 @@ public class SysDictItem extends SysBase implements Serializable {
     @TableField(value = "sys_dict_item_remark")
     @Schema(description = "描述")
     @Size(max = 255, message = "描述最大长度需小于255")
-    /** sysdictitemremark */
+    /**
+     * sysdictitemremark
+    */
     private String sysDictItemRemark;
 
     /**
@@ -104,7 +122,9 @@ public class SysDictItem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_dict_item_status")
     @Schema(description = "状态: 0:隐藏 1:显示")
-    /** sysdictitem状态 */
+    /**
+     * sysdictitem状态
+    */
     private Integer sysDictItemStatus;
 
     /**
@@ -113,7 +133,9 @@ public class SysDictItem extends SysBase implements Serializable {
     @TableField(value = "sys_dict_item_delete")
     @Schema(description = "是否删除: 0:未删除 1:已删除")
     @TableLogic(value = "0", delval = "1")
-    /** sysdictitemdelete */
+    /**
+     * sysdictitemdelete
+    */
     private Integer sysDictItemDelete;
 
     /**
@@ -121,7 +143,9 @@ public class SysDictItem extends SysBase implements Serializable {
      */
     @TableField(value = "sys_dict_item_sort")
     @Schema(description = "排序优先级")
-    /** sysdictitemsort */
+    /**
+     * sysdictitemsort
+    */
     private Integer sysDictItemSort;
 
     /**
@@ -129,6 +153,8 @@ public class SysDictItem extends SysBase implements Serializable {
      */
     @TableField(exist = false)
     @Schema(description = "可配置项")
-    /** 财产 */
+    /**
+     * 财产
+    */
     private List<SysDictItemProperty> property;
 }

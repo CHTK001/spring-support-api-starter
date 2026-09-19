@@ -24,7 +24,9 @@ public class EarlyH2DdlRunner implements BeanPostProcessor, ApplicationContextAw
 
     private static final Logger log = LoggerFactory.getLogger(EarlyH2DdlRunner.class);
     private final AtomicBoolean done = new AtomicBoolean(false);
-    /** application上下文 */
+    /**
+     * application上下文
+    */
     private ApplicationContext applicationContext;
 
     private static final String[] AI_TABLES = {

@@ -12,7 +12,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 @Spi("simple")
 public class SimpleTokenGeneration implements TokenGeneration {
     @Override
-    /** Generation */
+    /**
+     * Generation
+    */
     public String generation(String key) {
         if (key == null) {
             key = java.util.UUID.randomUUID().toString();

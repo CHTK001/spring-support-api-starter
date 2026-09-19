@@ -34,16 +34,26 @@ import java.util.List;
 @Slf4j
 public class DemDownloadServiceImpl implements DemDownloadService {
 
-    /** 瓦片下载服务 */
+    /**
+     * 瓦片下载服务
+    */
     private final TileDownloaderService downloaderService;
-    /** 瓦片拼接服务 */
+    /**
+     * 瓦片拼接服务
+    */
     private final TileMergerService mergerService;
-    /** geotiff 导出服务（保留字段，实际由内部逻辑处理） */
+    /**
+     * geotiff 导出服务（保留字段，实际由内部逻辑处理）
+    */
     private final GeoTiffExporter exporter;
-    /** 瓦片缓存服务 */
+    /**
+     * 瓦片缓存服务
+    */
     private final TileCacheService cacheService;
 
-    /** 标准瓦片大小（像素） */
+    /**
+     * 标准瓦片大小（像素）
+    */
     private static final int TILE_SIZE = 256;
 
     @Override

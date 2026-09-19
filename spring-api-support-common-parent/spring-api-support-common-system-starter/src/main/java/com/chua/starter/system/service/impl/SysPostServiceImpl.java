@@ -35,17 +35,25 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SysPostServiceImpl extends ServiceImpl<SysPostMapper, SysPost> implements SysPostService {
 
-    /** 岗位状态: 启用 */
+    /**
+     * 岗位状态: 启用
+    */
     private static final int POST_STATUS_ENABLED = 0;
 
-    /** SYS用户岗位映射器 */
+    /**
+     * SYS用户岗位映射器
+    */
     private final SysUserPostMapper sysUserPostMapper;
 
-    /** SYS用户映射器 */
+    /**
+     * SYS用户映射器
+    */
     private final SysUserMapper sysUserMapper;
 
     @Override
-    /** 列表 */
+    /**
+     * 列表
+    */
     public List<SysPost> list(SysPost sysPost) {
         return list(Wrappers.<SysPost>lambdaQuery()
                 .eq(null != sysPost && null != sysPost.getSysPostStatus(), SysPost::getSysPostStatus,
@@ -57,7 +65,9 @@ public class SysPostServiceImpl extends ServiceImpl<SysPostMapper, SysPost> impl
     }
 
     @Override
-    /** 分页 */
+    /**
+     * 分页
+    */
     public IPage<SysPost> page(Query<SysPost> query, SysPost sysPost) {
         IPage<SysPost> result = page(query.createPage(), Wrappers.<SysPost>lambdaQuery()
                 .eq(null != sysPost.getSysPostStatus(), SysPost::getSysPostStatus, sysPost.getSysPostStatus())
@@ -91,7 +101,9 @@ public class SysPostServiceImpl extends ServiceImpl<SysPostMapper, SysPost> impl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 保存岗位 */
+    /**
+     * 保存岗位
+    */
     public ReturnResult<SysPost> savePost(SysPost sysPost) {
         if (count(Wrappers.<SysPost>lambdaQuery().eq(SysPost::getSysPostCode, sysPost.getSysPostCode())) > 0) {
             return ReturnResult.illegal("岗位编码已存在");
@@ -108,7 +120,9 @@ public class SysPostServiceImpl extends ServiceImpl<SysPostMapper, SysPost> impl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 更新岗位 */
+    /**
+     * 更新岗位
+    */
     public ReturnResult<Boolean> updatePost(SysPost sysPost) {
         if (null == sysPost.getSysPostId()) {
             return ReturnResult.illegal("岗位信息不存在");
@@ -128,7 +142,9 @@ public class SysPostServiceImpl extends ServiceImpl<SysPostMapper, SysPost> impl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 删除岗位 */
+    /**
+     * 删除岗位
+    */
     public ReturnResult<Boolean> deletePost(Integer postId) {
         if (null == postId) {
             return ReturnResult.illegal("岗位信息不存在");
@@ -142,7 +158,9 @@ public class SysPostServiceImpl extends ServiceImpl<SysPostMapper, SysPost> impl
     }
 
     @Override
-    /** 获取岗位下的用户 */
+    /**
+     * 获取岗位下的用户
+    */
     public List<SysUser> getUsersByPostId(Integer postId) {
         if (null == postId) {
             return Collections.emptyList();

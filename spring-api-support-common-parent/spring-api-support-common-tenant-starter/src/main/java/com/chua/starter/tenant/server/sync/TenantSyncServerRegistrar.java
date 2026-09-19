@@ -23,17 +23,27 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")
 public class TenantSyncServerRegistrar implements InitializingBean {
 
-    /** Tenant属性 */
+    /**
+     * Tenant属性
+    */
     private final TenantProperties tenantProperties;
-    /** 同步服务器 */
+    /**
+     * 同步服务器
+    */
     private final SyncServer syncServer;
-    /** Tenant服务器同步请求处理器 */
+    /**
+     * Tenant服务器同步请求处理器
+    */
     private final TenantServerSyncRequestHandler tenantServerSyncRequestHandler;
-    /** Tenant服务器同步ACK处理器 */
+    /**
+     * Tenant服务器同步ACK处理器
+    */
     private final TenantServerSyncAckHandler tenantServerSyncAckHandler;
 
     @Override
-    /** 之后属性设置 */
+    /**
+     * 之后属性设置
+    */
     public void afterPropertiesSet() {
         if (!tenantProperties.isServerMode() || !tenantProperties.getServer().isSyncEnable()) {
             return;

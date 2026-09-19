@@ -27,18 +27,28 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".server", name = "enable", havingValue = "true")
 public class TenantServerSyncAckHandler implements SyncMessageHandler {
 
-    /** 日志 */
+    /**
+     * 日志
+    */
     private static final Logger log = LoggerFactory.getLogger(TenantServerSyncAckHandler.class);
 
-    /** Tenant属性 */
+    /**
+     * Tenant属性
+    */
     private final TenantProperties tenantProperties;
-    /** 同步服务器 */
+    /**
+     * 同步服务器
+    */
     private final SyncServer syncServer;
-    /** acktracker */
+    /**
+     * acktracker
+    */
     private final TenantSyncAckTracker ackTracker;
 
     @Override
-    /** 获取名称 */
+    /**
+     * 获取名称
+    */
     public String getName() {
         return "tenant-server-sync-ack";
     }

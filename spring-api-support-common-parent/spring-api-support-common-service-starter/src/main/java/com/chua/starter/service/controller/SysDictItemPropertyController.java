@@ -24,7 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SysDictItemPropertyController {
 
-    /** sysdictitemproperty服务 */
+    /**
+     * sysdictitemproperty服务
+    */
     private final SysDictItemPropertyService sysDictItemPropertyService;
 
     /**

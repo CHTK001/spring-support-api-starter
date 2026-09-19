@@ -20,13 +20,19 @@ import java.util.Map;
  */
 public class TenantEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
-    /** Tenant_前缀 */
+    /**
+     * Tenant_前缀
+    */
     private static final String TENANT_PREFIX = "plugin.mybatis-plus.tenant.";
-    /** 同步_前缀 */
+    /**
+     * 同步_前缀
+    */
     private static final String SYNC_PREFIX = "plugin.sync.";
 
     @Override
-    /** Post处理环境 */
+    /**
+     * Post处理环境
+    */
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         // 检查服务端同步是否启用
         boolean serverEnabled = "true".equalsIgnoreCase(environment.getProperty(TENANT_PREFIX + "server.enable", "false"));

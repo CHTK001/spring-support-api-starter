@@ -41,9 +41,13 @@ import java.util.Set;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".client", name = "auto-add-column", havingValue = "true")
 public class TenantAutoAddColumnInitializer implements ApplicationRunner {
 
-    /** JDBC模板 */
+    /**
+     * JDBC模板
+    */
     private final JdbcTemplate jdbcTemplate;
-    /** Tenant属性 */
+    /**
+     * Tenant属性
+    */
     private final TenantProperties tenantProperties;
 
     /**

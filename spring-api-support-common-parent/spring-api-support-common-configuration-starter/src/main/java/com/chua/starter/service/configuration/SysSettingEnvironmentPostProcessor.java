@@ -13,7 +13,9 @@ import org.springframework.core.env.ConfigurableEnvironment;
 @SpringBootConfiguration
 public class SysSettingEnvironmentPostProcessor implements EnvironmentPostProcessor {
     @Override
-    /** Post处理环境 */
+    /**
+     * Post处理环境
+    */
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
     }
 }

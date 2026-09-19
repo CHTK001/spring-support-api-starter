@@ -17,9 +17,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Schema(description = "ACME 配置")
 public class AcmeProperties {
 
-    /** 是否启用 */
+    /**
+     * 是否启用
+    */
     private boolean enabled = true;
 
-    /** 到期前多少天触发续签 */
+    /**
+     * 到期前多少天触发续签
+    */
     private int renewDaysBefore = 30;
 }

@@ -13,9 +13,13 @@ public enum DemSource {
      */
     TERRARIUM("terrarium", "AWS Terrain (Terrarium)", 15);
 
-    /** 数据源唯一标识 */
+    /**
+     * 数据源唯一标识
+    */
     private final String id;
-    /** 显示名称 */
+    /**
+     * 显示名称
+    */
     private final String displayName;
     /**
      * 最大支持缩放级别

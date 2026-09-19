@@ -11,7 +11,9 @@ import java.util.stream.Collectors;
  */
 public final class RequestTraceSupport {
 
-    /** 创建 请求追踪支持 实例 */
+    /**
+     * 创建 请求追踪支持 实例
+    */
     private RequestTraceSupport() {
     }
 

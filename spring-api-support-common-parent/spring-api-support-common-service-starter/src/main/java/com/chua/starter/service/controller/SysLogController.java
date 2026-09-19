@@ -38,7 +38,9 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysLogController {
 
-    /** SYS日志服务 */
+    /**
+     * SYS日志服务
+    */
     private final SysLogService sysLogService;
 
     /**

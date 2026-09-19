@@ -41,7 +41,9 @@ import java.nio.file.Path;
 @Tag(name = "本地文件上传接口")
 public class SysFileUploadController {
 
-    /** 回显路径前缀，与 view 映射保持一致 */
+    /**
+     * 回显路径前缀，与 view 映射保持一致
+    */
     private static final String VIEW_PATH = "/v2/file/view/"; // 查看路径
 
     private final SysLocalFileStorage sysLocalFileStorage; // sys本地文件存储

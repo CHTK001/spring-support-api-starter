@@ -19,21 +19,35 @@ import org.springframework.context.ApplicationContext;
  */
 @Slf4j
 public final class LogoutAuthorization implements Authorization {
-    /** 令牌 */
+    /**
+     * 令牌
+    */
     private final String token;
-    /** Cookie */
+    /**
+     * Cookie
+    */
     private final String cookie;
-    /** UID */
+    /**
+     * UID
+    */
     private final String uid;
-    /** Logout类型 */
+    /**
+     * Logout类型
+    */
     private final String logoutType;
-    /** 响应 */
+    /**
+     * 响应
+    */
     private final HttpServletResponse response;
-    /** 认证服务器属性 */
+    /**
+     * 认证服务器属性
+    */
     private final AuthServerProperties authServerProperties;
     final ApplicationContext applicationContext; // application上下文
     final LoginCheck loginCheck; // login检查
-    /** Authinformation */
+    /**
+     * Authinformation
+    */
     private final LogoutAuthInformation authInformation;
 
     /**
@@ -69,7 +83,9 @@ public final class LogoutAuthorization implements Authorization {
     }
 
     @Override
-    /** 认证 */
+    /**
+     * 认证
+    */
     public ReturnResult<String> authentication() {
         long startTime = System.currentTimeMillis();
         String traceId = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16);

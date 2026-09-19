@@ -32,11 +32,17 @@ import java.util.Map;
 @Component("oauthServerHealth")
 public class OAuthServerHealthIndicator extends AbstractHealthIndicator {
 
-    /** 字符串Redis模板 */
+    /**
+     * 字符串Redis模板
+    */
     private final StringRedisTemplate stringRedisTemplate;
-    /** 数据来源 */
+    /**
+     * 数据来源
+    */
     private final DataSource dataSource;
-    /** 认证服务器属性 */
+    /**
+     * 认证服务器属性
+    */
     private final AuthServerProperties authServerProperties;
 
     /**

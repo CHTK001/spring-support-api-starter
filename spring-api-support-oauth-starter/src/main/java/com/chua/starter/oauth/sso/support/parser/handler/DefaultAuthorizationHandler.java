@@ -92,7 +92,9 @@ public class DefaultAuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
-    /** 支持 */
+    /**
+     * 支持
+    */
     public boolean supports(String subProtocol, String token, String userCode) {
  // 令牌认证：有令牌参数，无用户编码参数
         return StringUtils.isNotBlank(token) && StringUtils.isBlank(userCode);

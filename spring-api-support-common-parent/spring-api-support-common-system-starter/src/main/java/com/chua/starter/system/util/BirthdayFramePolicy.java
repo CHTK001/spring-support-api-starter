@@ -26,16 +26,24 @@ public class BirthdayFramePolicy {
     private BirthdayFramePolicy() {
     }
 
-    /** 生日框种子标识（sys_avatar_frame.sys_avatar_frame_id） */
+    /**
+     * 生日框种子标识（sys_avatar_frame.sys_avatar_frame_id）
+    */
     public static final Integer BIRTHDAY_FRAME_ID = 100;
 
-    /** 不佩戴 */
+    /**
+     * 不佩戴
+    */
     public static final Integer NOT_WORN_FRAME_ID = 0;
 
-    /** 生日窗口：生日前后各 7 天 */
+    /**
+     * 生日窗口：生日前后各 7 天
+    */
     public static final int BIRTHDAY_WINDOW_DAYS = 7;
 
-    /** 生日日期解析：yyyy-MM-dd / yyyy/MM/dd / yyyy.MM.dd */
+    /**
+     * 生日日期解析：yyyy-MM-dd / yyyy/MM/dd / yyyy.MM.dd
+    */
     private static final Pattern BIRTHDAY_PATTERN = Pattern.compile("(\\d{4})[-/.](\\d{1,2})[-/.](\\d{1,2})");
 
     /**

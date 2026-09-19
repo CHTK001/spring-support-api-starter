@@ -53,7 +53,9 @@ public class LoginAttemptService {
      */
     private static final int ATTEMPT_EXPIRE_MINUTES = 30;
 
-    /** 字符串Redis模板 */
+    /**
+     * 字符串Redis模板
+    */
     private final StringRedisTemplate stringRedisTemplate;
 
     /**

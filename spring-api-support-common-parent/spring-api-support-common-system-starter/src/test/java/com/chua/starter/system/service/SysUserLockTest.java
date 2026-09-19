@@ -25,7 +25,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("用户锁定测试")
 class SysUserLockTest {
 
-    /** SysUserServiceImpl 构造器需 15 个参数, 参数校验路径不触碰依赖, 全传 null */
+    /**
+     * SysUserServiceImpl 构造器需 15 个参数, 参数校验路径不触碰依赖, 全传 null
+    */
     private final SysUserServiceImpl sysUserService;
 
     /**

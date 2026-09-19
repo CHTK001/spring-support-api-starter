@@ -29,7 +29,9 @@ import java.io.Serializable;
 public class SysWechatUser extends SysBase implements Serializable {
 
     @Serial
-    /** 串行版本UID */
+    /**
+     * 串行版本UID
+    */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -38,7 +40,9 @@ public class SysWechatUser extends SysBase implements Serializable {
     @TableId(value = "sys_wechat_user_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     @NotNull(message = "主键ID不能为空")
-    /** syswechat用户标识 */
+    /**
+     * syswechat用户标识
+    */
     private Integer sysWechatUserId;
 
     /**
@@ -47,7 +51,9 @@ public class SysWechatUser extends SysBase implements Serializable {
     @TableField(value = "sys_wechat_open_id")
     @Schema(description = "微信 openid")
     @Size(max = 255, message = "微信 openid 最大长度需小于255")
-    /** syswechatopenid */
+    /**
+     * syswechatopenid
+    */
     private String sysWechatOpenId;
 
     /**
@@ -56,7 +62,9 @@ public class SysWechatUser extends SysBase implements Serializable {
     @TableField(value = "sys_wechat_union_id")
     @Schema(description = "微信 unionid")
     @Size(max = 255, message = "微信 unionid 最大长度需小于255")
-    /** syswechatunionid */
+    /**
+     * syswechatunionid
+    */
     private String sysWechatUnionId;
 
     /**
@@ -65,7 +73,9 @@ public class SysWechatUser extends SysBase implements Serializable {
     @TableField(value = "sys_wechat_nickname")
     @Schema(description = "昵称")
     @Size(max = 255, message = "昵称最大长度需小于255")
-    /** syswechatnickname */
+    /**
+     * syswechatnickname
+    */
     private String sysWechatNickname;
 
     /**
@@ -74,7 +84,9 @@ public class SysWechatUser extends SysBase implements Serializable {
     @TableField(value = "sys_wechat_avatar")
     @Schema(description = "头像")
     @Size(max = 4000, message = "头像最大长度需小于4000")
-    /** syswechatavatar */
+    /**
+     * syswechatavatar
+    */
     private String sysWechatAvatar;
 
     /**
@@ -82,7 +94,9 @@ public class SysWechatUser extends SysBase implements Serializable {
      */
     @TableField(value = "sys_user_id")
     @Schema(description = "绑定的系统用户ID")
-    /** SYS用户标识 */
+    /**
+     * SYS用户标识
+    */
     private Integer sysUserId;
 }
 

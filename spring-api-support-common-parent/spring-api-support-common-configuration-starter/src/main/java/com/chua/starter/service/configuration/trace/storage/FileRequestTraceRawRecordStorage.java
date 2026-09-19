@@ -32,13 +32,17 @@ import java.util.Map;
 public class FileRequestTraceRawRecordStorage implements RequestTraceRawRecordStorage {
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public String type() {
         return "file";
     }
 
     @Override
-    /** 存储 */
+    /**
+     * 存储
+    */
     public void store(RequestTraceEvent event, RequestTraceStrategyConfig config) {
         if (event == null || config == null) {
             return;

@@ -43,34 +43,62 @@ public abstract class BaseAuthInformation implements AuthInformation {
             .recordStats()
             .build();
 
-    /** 认证服务器属性 */
+    /**
+     * 认证服务器属性
+    */
     protected final AuthServerProperties authServerProperties;
-    /** 数据 */
+    /**
+     * 数据
+    */
     private final String data;
-    /** 请求 */
+    /**
+     * 请求
+    */
     protected final Object request;
-    /** 响应 */
+    /**
+     * 响应
+    */
     protected final Object response;
-    /** Application上下文 */
+    /**
+     * Application上下文
+    */
     protected final ApplicationContext applicationContext;
-    /** Logincheck */
+    /**
+     * Logincheck
+    */
     protected final LoginCheck loginCheck;
-    /** 协议 */
+    /**
+     * 协议
+    */
     private final String protocol;
-    /** UUID */
+    /**
+     * UUID
+    */
     protected final String uuid;
-    /** 串行 */
+    /**
+     * 串行
+    */
     private final String serial;
-    /** 标志 */
+    /**
+     * 标志
+    */
     private final String sign;
-    /** Access密钥 */
+    /**
+     * Access密钥
+    */
     private final String accessKey;
-    /** isencode */
+    /**
+     * isencode
+    */
     protected final boolean isEncode;
     protected final Map<String, Object> bodyData = new LinkedHashMap<>(); // 主体数据
-    /** 加密 */
+    /**
+     * 加密
+    */
     private final String encryption;
-    /** 成功 */
+    /**
+     * 成功
+    */
     private AtomicBoolean success = new AtomicBoolean(false);
 
     /**
@@ -299,7 +327,9 @@ public abstract class BaseAuthInformation implements AuthInformation {
     }
 
     @Override
-    /** 记录错误消息 */
+    /**
+     * 记录错误消息
+    */
     public String errorMessage() {
         if (!success.get()) {
             return "解析失败!";
@@ -308,7 +338,9 @@ public abstract class BaseAuthInformation implements AuthInformation {
     }
 
     @Override
-    /** 是否Successful */
+    /**
+     * 是否Successful
+    */
     public boolean isSuccessful() {
         if (!success.get()) {
             return false;
@@ -320,7 +352,9 @@ public abstract class BaseAuthInformation implements AuthInformation {
     }
 
     @Override
-    /** 获取认证服务端属性 */
+    /**
+     * 获取认证服务端属性
+    */
     public AuthServerProperties getAuthServerProperties() {
         return authServerProperties;
     }

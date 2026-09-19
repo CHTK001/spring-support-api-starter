@@ -26,11 +26,15 @@ import java.util.Set;
 public class SystemUserRoleResolver implements UserRoleResolver {
 
     @Autowired
-    /** SYS用户rolemapper */
+    /**
+     * SYS用户rolemapper
+    */
     private SysUserRoleMapper sysUserRoleMapper;
 
     @Override
-    /** 解析 */
+    /**
+     * 解析
+    */
     public Set<String> resolve(String userId, String username) {
         if (!StringUtils.hasText(userId)) {
             return null;

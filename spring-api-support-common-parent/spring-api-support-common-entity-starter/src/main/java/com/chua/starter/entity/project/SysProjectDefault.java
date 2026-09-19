@@ -22,7 +22,9 @@ public class SysProjectDefault {
      */
     @TableId(value = "sys_project_default_id", type = IdType.AUTO)
     @Schema(description = "")
-    /** sysproject默认标识 */
+    /**
+     * sysproject默认标识
+    */
     private Integer sysProjectDefaultId;
 
     /**
@@ -30,7 +32,9 @@ public class SysProjectDefault {
      */
     @TableField(value = "sys_project_default_type")
     @Schema(description = "类型； 字典表6;")
-    /** sysproject默认类型 */
+    /**
+     * sysproject默认类型
+    */
     private String sysProjectDefaultType;
 
     /**
@@ -38,6 +42,8 @@ public class SysProjectDefault {
      */
     @TableField(value = "sys_project_id")
     @Schema(description = "项目ID")
-    /** sysprojectid */
+    /**
+     * sysprojectid
+    */
     private Integer sysProjectId;
 }

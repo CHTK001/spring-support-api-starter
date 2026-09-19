@@ -17,8 +17,12 @@ public enum MessagePushEnum {
 
     ;
 
-    /** 代码 */
+    /**
+     * 代码
+    */
     private final int code;
-    /** Desc */
+    /**
+     * Desc
+    */
     private final String desc;
 }

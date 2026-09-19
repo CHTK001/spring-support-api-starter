@@ -25,11 +25,15 @@ public class H2DataInitializer implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(H2DataInitializer.class);
 
     @Autowired
-    /** jdbc模板 */
+    /**
+     * jdbc模板
+    */
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    /** 数据来源 */
+    /**
+     * 数据来源
+    */
     private DataSource dataSource;
 
     @Override
@@ -66,7 +70,9 @@ public class H2DataInitializer implements ApplicationRunner {
         }
     }
 
-    /** 执行项目自带完整建表脚本（continueOnError 跳过 H2 不兼容的个别 MySQL 语法） */
+    /**
+     * 执行项目自带完整建表脚本（continueOnError 跳过 H2 不兼容的个别 MySQL 语法）
+    */
     private void runSchema() {
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(new ClassPathResource("data-h2.sql"));
@@ -77,7 +83,9 @@ public class H2DataInitializer implements ApplicationRunner {
         log.info("[H2初始化] data-h2.sql 执行完成(容错)");
     }
 
-    /** 补建 data-h2.sql 未覆盖的扩展表 */
+    /**
+     * 补建 data-h2.sql 未覆盖的扩展表
+    */
     private void createExtensionTables() {
         // 岗位（备注列名为裸 remark）
         jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS sys_post (" +

@@ -85,7 +85,9 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
     }
 
     @Override
-    /** 列表recent */
+    /**
+     * 列表recent
+    */
     public List<SysErrorLog> listRecent(String source, int limit) {
         return list(
                 Wrappers.<SysErrorLog>lambdaQuery()
@@ -100,7 +102,9 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
     }
 
     @Override
-    /** pagefor记录日志 */
+    /**
+     * pagefor记录日志
+    */
     public IPage<SysErrorLog> pageForLog(Query<SysErrorLog> query, SysErrorLog sysErrorLog) {
         LambdaQueryWrapper<SysErrorLog> wrapper = new LambdaQueryWrapper<>();
         if (sysErrorLog != null) {
@@ -116,7 +120,9 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
     }
 
     @Override
-    /** 统计 */
+    /**
+     * 统计
+    */
     public Map<String, Object> statistic() {
         Map<String, Object> result = new HashMap<>(8);
 
@@ -178,7 +184,9 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 按ID批量删除 */
+    /**
+     * 按ID批量删除
+    */
     public ReturnResult<Boolean> deleteByIds(List<Long> sysErrorLogIds) {
         if (sysErrorLogIds == null || sysErrorLogIds.isEmpty()) {
             return ReturnResult.illegal("异常日志ID不能为空");
@@ -188,7 +196,9 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    /** 更新处理状态 */
+    /**
+     * 更新处理状态
+    */
     public ReturnResult<Boolean> updateStatus(Long sysErrorLogId, Integer status) {
         if (null == sysErrorLogId) {
             return ReturnResult.illegal("异常日志ID不能为空");
@@ -240,7 +250,9 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
     }
 
     @Override
-    /** 查询详情 */
+    /**
+     * 查询详情
+    */
     public SysErrorLog getDetail(Long sysErrorLogId) {
         if (null == sysErrorLogId) {
             return null;
@@ -249,7 +261,9 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
     }
 
     @Override
-    /** 按来源统计 */
+    /**
+     * 按来源统计
+    */
     public List<java.util.Map<String, Object>> statisticBySource(Long startTime, Long endTime) {
         com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<SysErrorLog> wrapper =
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
@@ -278,7 +292,9 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
 
     @Override
     @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
-    /** 清理 */
+    /**
+     * 清理
+    */
     public int cleanBefore(int days) {
         long threshold = System.currentTimeMillis() - Math.max(days, 0) * 24L * 3600L * 1000L;
         boolean removed = remove(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<SysErrorLog>()

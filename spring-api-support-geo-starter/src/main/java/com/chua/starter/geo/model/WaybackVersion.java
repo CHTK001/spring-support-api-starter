@@ -10,12 +10,20 @@ import lombok.Data;
  */
 @Data
 public class WaybackVersion {
-    /** 版本内部标识（itemtitle） */
+    /**
+     * 版本内部标识（itemtitle）
+    */
     private String id;
-    /** 显示日期或标题 */
+    /**
+     * 显示日期或标题
+    */
     private String date;
-    /** 完整标题 */
+    /**
+     * 完整标题
+    */
     private String title;
-    /** 层标识符（layeridentifier） */
+    /**
+     * 层标识符（layeridentifier）
+    */
     private String layerId;
 }

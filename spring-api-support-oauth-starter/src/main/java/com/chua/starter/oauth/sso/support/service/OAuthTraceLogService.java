@@ -24,7 +24,9 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class OAuthTraceLogService {
 
-    /** 跟踪日志映射器 */
+    /**
+     * 跟踪日志映射器
+    */
     private final SysOAuthTraceLogMapper traceLogMapper;
 
     /**

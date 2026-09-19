@@ -23,7 +23,9 @@ public class SysDictItemProperty {
      */
     @TableId(value = "sys_dict_item_property_id", type = IdType.AUTO)
     @Schema(description = "配置项ID")
-    /** sysdictitempropertyid */
+    /**
+     * sysdictitempropertyid
+    */
     private Integer sysDictItemPropertyId;
 
     /**
@@ -31,7 +33,9 @@ public class SysDictItemProperty {
      */
     @TableField(value = "sys_dict_item_id")
     @Schema(description = "字典子项ID")
-    /** sysdictitemid */
+    /**
+     * sysdictitemid
+    */
     private Integer sysDictItemId;
 
     /**
@@ -39,7 +43,9 @@ public class SysDictItemProperty {
      */
     @TableField(value = "sys_dict_item_property_group")
     @Schema(description = "配置项分组")
-    /** sysdictitemproperty分组 */
+    /**
+     * sysdictitemproperty分组
+    */
     private String sysDictItemPropertyGroup;
 
     /**
@@ -47,7 +53,9 @@ public class SysDictItemProperty {
      */
     @TableField(value = "sys_dict_item_property_name")
     @Schema(description = "配置项名称")
-    /** sysdictitemproperty名称 */
+    /**
+     * sysdictitemproperty名称
+    */
     private String sysDictItemPropertyName;
 
     /**
@@ -55,7 +63,9 @@ public class SysDictItemProperty {
      */
     @TableField(value = "sys_dict_item_property_value")
     @Schema(description = "配置项值")
-    /** sysdictitemproperty值 */
+    /**
+     * sysdictitemproperty值
+    */
     private String sysDictItemPropertyValue;
 
     /**
@@ -63,6 +73,8 @@ public class SysDictItemProperty {
      */
     @TableField(value = "sys_dict_item_property_selected_type")
     @Schema(description = "选中类型")
-    /** sysdictitempropertyselected类型 */
+    /**
+     * sysdictitempropertyselected类型
+    */
     private String sysDictItemPropertySelectedType;
 }

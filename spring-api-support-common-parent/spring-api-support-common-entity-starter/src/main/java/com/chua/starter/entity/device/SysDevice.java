@@ -28,7 +28,9 @@ public class SysDevice extends SysBase {
      */
     @TableId(value = "sys_device_id", type = IdType.AUTO)
     @Schema(description = "")
-    /** sysdeviceid */
+    /**
+     * sysdeviceid
+    */
     private Integer sysDeviceId;
 
     /**
@@ -36,7 +38,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_project_id")
     @Schema(description = "项目id")
-    /** sysprojectid */
+    /**
+     * sysprojectid
+    */
     private Integer sysProjectId;
 
     /**
@@ -44,7 +48,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_dept_id")
     @Schema(description = "部门id")
-    /** sysdeptid */
+    /**
+     * sysdeptid
+    */
     private Integer sysDeptId;
 
     /**
@@ -52,7 +58,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_name")
     @Schema(description = "名称")
-    /** sysdevice名称 */
+    /**
+     * sysdevice名称
+    */
     private String sysDeviceName;
 
     /**
@@ -60,7 +68,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_serial_number")
     @Schema(description = "序列号")
-    /** sysdeviceserial数字 */
+    /**
+     * sysdeviceserial数字
+    */
     private String sysDeviceSerialNumber;
 
     /**
@@ -68,7 +78,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_org_code")
     @Schema(description = "组织编码")
-    /** sysdeviceorg代码 */
+    /**
+     * sysdeviceorg代码
+    */
     private String sysDeviceOrgCode;
 
     /**
@@ -76,7 +88,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_org_name")
     @Schema(description = "组织名称")
-    /** sysdeviceorg名称 */
+    /**
+     * sysdeviceorg名称
+    */
     private String sysDeviceOrgName;
 
     /**
@@ -84,14 +98,18 @@ public class SysDevice extends SysBase {
      */
     @TableField(exist = false)
     @Schema(description = "管道数量")
-    /** sysdevice通道数量 */
+    /**
+     * sysdevice通道数量
+    */
     private Integer sysDeviceChannelCount;
 
     /**
      * 管道信息
      */
     @TableField(exist = false)
-    /** 通道列表 */
+    /**
+     * 通道列表
+    */
     private List<SysDeviceChannel> channelList;
 
     /**
@@ -99,7 +117,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_channels")
     @Schema(description = "管道信息, 多个以逗号分隔")
-    /** sysdevicechannels */
+    /**
+     * sysdevicechannels
+    */
     private String sysDeviceChannels;
 
     /**
@@ -107,7 +127,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_main_subtype")
     @Schema(description = "主码流编码")
-    /** sysdevicemainsubtype */
+    /**
+     * sysdevicemainsubtype
+    */
     private String sysDeviceMainSubtype;
 
     /**
@@ -115,7 +137,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_sub_subtype")
     @Schema(description = "子码流编码")
-    /** sysdevicesubsubtype */
+    /**
+     * sysdevicesubsubtype
+    */
     private String sysDeviceSubSubtype;
 
     /**
@@ -123,7 +147,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_status")
     @Schema(description = "是否禁用; 0: 禁用")
-    /** sysdevice状态 */
+    /**
+     * sysdevice状态
+    */
     private Integer sysDeviceStatus;
 
     /**
@@ -131,7 +157,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_online")
     @Schema(description = "是否在线; 0: 离线； 1:在线")
-    /** sysdeviceonline */
+    /**
+     * sysdeviceonline
+    */
     private Integer sysDeviceOnline;
 
     /**
@@ -139,7 +167,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_position")
     @Schema(description = "位置")
-    /** sysdevice位置 */
+    /**
+     * sysdevice位置
+    */
     private String sysDevicePosition;
 
     /**
@@ -147,7 +177,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_resource_type")
     @Schema(description = "资源类型")
-    /** sysdeviceresource类型 */
+    /**
+     * sysdeviceresource类型
+    */
     private String sysDeviceResourceType;
 
     /**
@@ -155,7 +187,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_description")
     @Schema(description = "描述")
-    /** sysdevice描述 */
+    /**
+     * sysdevice描述
+    */
     private String sysDeviceDescription;
 
     /**
@@ -163,7 +197,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_version")
     @Schema(description = "版本")
-    /** sysdevice版本 */
+    /**
+     * sysdevice版本
+    */
     private String sysDeviceVersion;
 
     /**
@@ -171,7 +207,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_validate_code")
     @Schema(description = "验证码")
-    /** sysdevicevalidate代码 */
+    /**
+     * sysdevicevalidate代码
+    */
     private String sysDeviceValidateCode;
 
     /**
@@ -179,7 +217,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_type")
     @Schema(description = "设备类型")
-    /** sysdevice类型 */
+    /**
+     * sysdevice类型
+    */
     private String sysDeviceType;
 
     /**
@@ -187,7 +227,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_account")
     @Schema(description = "账号")
-    /** sysdeviceaccount */
+    /**
+     * sysdeviceaccount
+    */
     private String sysDeviceAccount;
 
     /**
@@ -195,7 +237,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_password")
     @Schema(description = "密码")
-    /** sysdevice密码 */
+    /**
+     * sysdevice密码
+    */
     private String sysDevicePassword;
 
     /**
@@ -203,7 +247,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_rtsp")
     @Schema(description = "推流地址; 存在则使用该地址播放视像头")
-    /** sysdevicertsp */
+    /**
+     * sysdevicertsp
+    */
     private String sysDeviceRtsp;
 
     /**
@@ -211,7 +257,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_rtsp_webrtc")
     @Schema(description = "rtsp推理webrtc地址; 采用webrtc解析rtsp")
-    /** sysdevicertspwebrtc */
+    /**
+     * sysdevicertspwebrtc
+    */
     private String sysDeviceRtspWebrtc;
 
     /**
@@ -219,7 +267,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_net_address")
     @Schema(description = "网络地址")
-    /** sysdevicenet地址 */
+    /**
+     * sysdevicenet地址
+    */
     private String sysDeviceNetAddress;
 
     /**
@@ -227,7 +277,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_net_physical_address")
     @Schema(description = "网络地址物理地址")
-    /** sysdevicenetphysical地址 */
+    /**
+     * sysdevicenetphysical地址
+    */
     private String sysDeviceNetPhysicalAddress;
 
     /**
@@ -235,7 +287,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_latitude")
     @Schema(description = "纬度")
-    /** sysdevicelatitude */
+    /**
+     * sysdevicelatitude
+    */
     private BigDecimal sysDeviceLatitude;
 
     /**
@@ -243,7 +297,9 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_longitude")
     @Schema(description = "经度")
-    /** sysdevicelongitude */
+    /**
+     * sysdevicelongitude
+    */
     private BigDecimal sysDeviceLongitude;
 
     /**
@@ -251,6 +307,8 @@ public class SysDevice extends SysBase {
      */
     @TableField(value = "sys_device_owner")
     @Schema(description = "所属者唯一编码")
-    /** sysdeviceowner */
+    /**
+     * sysdeviceowner
+    */
     private String sysDeviceOwner;
 }

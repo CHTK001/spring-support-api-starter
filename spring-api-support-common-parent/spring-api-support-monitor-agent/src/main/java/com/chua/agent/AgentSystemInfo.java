@@ -18,13 +18,21 @@ import java.util.*;
  */
 public class AgentSystemInfo {
 
-    /** OSHI 入口 */
+    /**
+     * OSHI 入口
+    */
     private final SystemInfo si = new SystemInfo();
-    /** 操作系统信息 */
+    /**
+     * 操作系统信息
+    */
     private final OperatingSystem os = si.getOperatingSystem();
-    /** 硬件抽象层 */
+    /**
+     * 硬件抽象层
+    */
     private final HardwareAbstractionLayer hal = si.getHardware();
-    /** JSON 序列化器 */
+    /**
+     * JSON 序列化器
+    */
     private final ObjectMapper json = new ObjectMapper();
 
     /**

@@ -16,25 +16,33 @@ import java.util.concurrent.atomic.AtomicReference;
 @Spi("memory")
 public class InMemoryRequestTraceConfigStorage implements RequestTraceConfigStorage {
 
-    /** 缓存 */
+    /**
+     * 缓存
+    */
     private static final AtomicReference<RequestTraceStrategyConfig> CACHE =
             new AtomicReference<>();
 
     @Override
-    /** 类型 */
+    /**
+     * 类型
+    */
     public String type() {
         return "memory";
     }
 
     @Override
-    /** 加载 */
+    /**
+     * 加载
+    */
     public RequestTraceStrategyConfig load(String groupCode) {
         RequestTraceStrategyConfig config = CACHE.get();
         return config == null ? null : config.copy();
     }
 
     @Override
-    /** 保存 */
+    /**
+     * 保存
+    */
     public RequestTraceStrategyConfig save(String groupCode, RequestTraceStrategyConfig config) {
         RequestTraceStrategyConfig normalized = RequestTraceStrategyConfigCodec.normalize(config);
         CACHE.set(normalized);

@@ -34,7 +34,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysPostController {
 
-    /** syspost服务 */
+    /**
+     * syspost服务
+    */
     private final SysPostService sysPostService;
 
     /**

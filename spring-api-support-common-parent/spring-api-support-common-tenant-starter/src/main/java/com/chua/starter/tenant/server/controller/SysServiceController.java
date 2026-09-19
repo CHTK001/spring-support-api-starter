@@ -45,11 +45,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SysServiceController {
 
-    /** SYS服务映射器 */
+    /**
+     * SYS服务映射器
+    */
     private final SysServiceMapper sysServiceMapper;
-    /** SYS服务moduleitemmapper */
+    /**
+     * SYS服务moduleitemmapper
+    */
     private final SysServiceModuleItemMapper sysServiceModuleItemMapper;
-    /** SYS服务modulemapper */
+    /**
+     * SYS服务modulemapper
+    */
     private final SysServiceModuleMapper sysServiceModuleMapper;
 
     /**

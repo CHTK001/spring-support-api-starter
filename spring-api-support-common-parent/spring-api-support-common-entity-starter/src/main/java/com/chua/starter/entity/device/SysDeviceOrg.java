@@ -25,7 +25,9 @@ public class SysDeviceOrg extends SysBase {
      */
     @TableId(value = "sys_device_org_id", type = IdType.INPUT)
     @Schema(description = "")
-    /** sysdeviceorgid */
+    /**
+     * sysdeviceorgid
+    */
     private String sysDeviceOrgId;
 
     /**
@@ -33,7 +35,9 @@ public class SysDeviceOrg extends SysBase {
      */
     @TableField(value = "sys_project_id")
     @Schema(description = "产品id")
-    /** sysprojectid */
+    /**
+     * sysprojectid
+    */
     private Integer sysProjectId;
 
     /**
@@ -41,7 +45,9 @@ public class SysDeviceOrg extends SysBase {
      */
     @TableField(value = "sys_device_org_name")
     @Schema(description = "组织名称")
-    /** sysdeviceorg名称 */
+    /**
+     * sysdeviceorg名称
+    */
     private String sysDeviceOrgName;
 
     /**
@@ -49,7 +55,9 @@ public class SysDeviceOrg extends SysBase {
      */
     @TableField(value = "sys_device_org_pid")
     @Schema(description = "上级组织")
-    /** sysdeviceorgpid */
+    /**
+     * sysdeviceorgpid
+    */
     private String sysDeviceOrgPid;
 
     /**
@@ -57,6 +65,8 @@ public class SysDeviceOrg extends SysBase {
      */
     @TableField(value = "sys_device_org_tree_path")
     @Schema(description = "路径")
-    /** sysdevice或gtree路径 */
+    /**
+     * sysdevice或gtree路径
+    */
     private String sysDeviceOrgTreePath;
 }

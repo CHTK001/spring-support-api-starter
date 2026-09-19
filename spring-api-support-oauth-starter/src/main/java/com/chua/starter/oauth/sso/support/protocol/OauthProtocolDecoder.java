@@ -38,22 +38,38 @@ public class OauthProtocolDecoder {
             .expireAfterWrite(30, TimeUnit.SECONDS)
             .build();
 
-    /** 认证服务器属性 */
+    /**
+     * 认证服务器属性
+    */
     private final AuthServerProperties authServerProperties;
-    /** UUID */
+    /**
+     * UUID
+    */
     private final String uuid;
-    /** 串行 */
+    /**
+     * 串行
+    */
     private final String serial;
-    /** 标志 */
+    /**
+     * 标志
+    */
     private final String sign;
-    /** Access密钥 */
+    /**
+     * Access密钥
+    */
     private final String accessKey;
-    /** isencode */
+    /**
+     * isencode
+    */
     private final boolean isEncode;
-    /** 加密 */
+    /**
+     * 加密
+    */
     private final String encryption;
     private final Map<String, Object> bodyData = new LinkedHashMap<>(); // 主体数据
-    /** 成功 */
+    /**
+     * 成功
+    */
     private boolean success = false;
 
     /**

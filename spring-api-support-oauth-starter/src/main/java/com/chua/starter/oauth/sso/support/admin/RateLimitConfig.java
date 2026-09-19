@@ -9,13 +9,21 @@ import lombok.Data;
  */
 @Data
 public class RateLimitConfig {
-    /** 是否启用限流 */
+    /**
+     * 是否启用限流
+    */
     private boolean enabled = false;
-    /** 每秒允许的请求数（QPS） */
+    /**
+     * 每秒允许的请求数（QPS）
+    */
     private int qps = 100;
-    /** 突发容量（令牌桶最大积累量） */
+    /**
+     * 突发容量（令牌桶最大积累量）
+    */
     private int burstSize = 200;
-    /** 限流维度：全局 / ip / 用户 */
+    /**
+     * 限流维度：全局 / ip / 用户
+    */
     private String dimension = "global";
 }
 

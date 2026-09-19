@@ -37,7 +37,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
     @TableId(value = "sys_mini_menu_id", type = IdType.AUTO)
     @Schema(description = "小程序菜单ID")
     @NotNull(message = "小程序菜单ID不能为空", groups = UpdateGroup.class)
-    /** sysminimenuid */
+    /**
+     * sysminimenuid
+    */
     private Integer sysMiniMenuId;
 
     /**
@@ -47,7 +49,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
     @Schema(description = "卡片标题")
     @NotBlank(message = "卡片标题不能为空")
     @Size(max = 255, message = "卡片标题最大长度需小于255")
-    /** sysminimenu标题 */
+    /**
+     * sysminimenu标题
+    */
     private String sysMiniMenuTitle;
 
     /**
@@ -56,7 +60,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
     @TableField("sys_mini_menu_subtitle")
     @Schema(description = "卡片副标题")
     @Size(max = 255, message = "卡片副标题最大长度需小于255")
-    /** sysminimenusubtitle */
+    /**
+     * sysminimenusubtitle
+    */
     private String sysMiniMenuSubtitle;
 
     /**
@@ -65,7 +71,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
     @TableField("sys_mini_menu_category")
     @Schema(description = "卡片分组")
     @Size(max = 128, message = "卡片分组最大长度需小于128")
-    /** sysminimenu分类 */
+    /**
+     * sysminimenu分类
+    */
     private String sysMiniMenuCategory;
 
     /**
@@ -75,7 +83,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
     @Schema(description = "小程序页面路径")
     @NotBlank(message = "页面路径不能为空")
     @Size(max = 255, message = "页面路径最大长度需小于255")
-    /** sysminimenu路径 */
+    /**
+     * sysminimenu路径
+    */
     private String sysMiniMenuPath;
 
     /**
@@ -83,7 +93,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
      */
     @TableField("sys_mini_menu_jump_mode")
     @Schema(description = "跳转模式; 0:普通页面 1:tabBar页面 2:webview")
-    /** sysminimenujump模式 */
+    /**
+     * sysminimenujump模式
+    */
     private Integer sysMiniMenuJumpMode;
 
     /**
@@ -92,7 +104,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
     @TableField("sys_mini_menu_icon")
     @Schema(description = "卡片图标")
     @Size(max = 255, message = "卡片图标最大长度需小于255")
-    /** sysminimenuicon */
+    /**
+     * sysminimenuicon
+    */
     private String sysMiniMenuIcon;
 
     /**
@@ -101,7 +115,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
     @TableField("sys_mini_menu_cover")
     @Schema(description = "卡片封面/背景")
     @Size(max = 255, message = "卡片封面最大长度需小于255")
-    /** sysminimenucover */
+    /**
+     * sysminimenucover
+    */
     private String sysMiniMenuCover;
 
     /**
@@ -110,7 +126,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
     @TableField("sys_mini_menu_badge")
     @Schema(description = "角标文案")
     @Size(max = 64, message = "角标文案最大长度需小于64")
-    /** sysminimenubadge */
+    /**
+     * sysminimenubadge
+    */
     private String sysMiniMenuBadge;
 
     /**
@@ -119,7 +137,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
     @TableField("sys_mini_menu_badge_type")
     @Schema(description = "角标样式")
     @Size(max = 64, message = "角标样式最大长度需小于64")
-    /** sysminimenubadge类型 */
+    /**
+     * sysminimenubadge类型
+    */
     private String sysMiniMenuBadgeType;
 
     /**
@@ -128,7 +148,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
     @TableField("sys_mini_menu_perm")
     @Schema(description = "权限标识")
     @Size(max = 255, message = "权限标识最大长度需小于255")
-    /** sysminimenuperm */
+    /**
+     * sysminimenuperm
+    */
     private String sysMiniMenuPerm;
 
     /**
@@ -137,7 +159,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
     @TableField("sys_mini_menu_role")
     @Schema(description = "允许访问角色编码，逗号分隔")
     @Size(max = 255, message = "角色编码最大长度需小于255")
-    /** sysminimenurole */
+    /**
+     * sysminimenurole
+    */
     private String sysMiniMenuRole;
 
     /**
@@ -145,7 +169,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
      */
     @TableField("sys_mini_menu_sort")
     @Schema(description = "排序")
-    /** sysminimenusort */
+    /**
+     * sysminimenusort
+    */
     private Integer sysMiniMenuSort;
 
     /**
@@ -153,7 +179,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
      */
     @TableField("sys_mini_menu_keep_alive")
     @Schema(description = "是否缓存; 0:否 1:是")
-    /** sysminimenukeepalive */
+    /**
+     * sysminimenukeepalive
+    */
     private Integer sysMiniMenuKeepAlive;
 
     /**
@@ -161,7 +189,9 @@ public class SysMiniMenu extends SysBase implements Serializable {
      */
     @TableField("sys_mini_menu_hidden")
     @Schema(description = "是否隐藏; 0:显示 1:隐藏")
-    /** sysminimenuhidden */
+    /**
+     * sysminimenuhidden
+    */
     private Integer sysMiniMenuHidden;
 
     /**
@@ -170,6 +200,8 @@ public class SysMiniMenu extends SysBase implements Serializable {
     @TableField("sys_mini_menu_description")
     @Schema(description = "卡片说明")
     @Size(max = 255, message = "卡片说明最大长度需小于255")
-    /** sysminimenu描述 */
+    /**
+     * sysminimenu描述
+    */
     private String sysMiniMenuDescription;
 }

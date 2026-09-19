@@ -10,11 +10,15 @@ import com.chua.common.support.lang.code.ReturnResult;
  */
 public final class InvalidAuthorization implements Authorization {
 
-    /** 实例 */
+    /**
+     * 实例
+    */
     public static final InvalidAuthorization INSTANCE = new InvalidAuthorization();
 
     @Override
-    /** 认证 */
+    /**
+     * 认证
+    */
     public ReturnResult<String> authentication() {
         return ReturnResult.error("未认证");
     }

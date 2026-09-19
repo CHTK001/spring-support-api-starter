@@ -20,7 +20,9 @@ import java.io.Serializable;
 @Data
 @TableName(value = "sys_role_menu")
 public class SysRoleMenu implements Serializable {
-    /** 串行版本UID */
+    /**
+     * 串行版本UID
+    */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -29,7 +31,9 @@ public class SysRoleMenu implements Serializable {
     @TableId(value = "sys_role_menu_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     @NotNull(message = "主键ID不能为空")
-    /** sysrolemenuid */
+    /**
+     * sysrolemenuid
+    */
     private Integer sysRoleMenuId;
 
     /**
@@ -37,7 +41,9 @@ public class SysRoleMenu implements Serializable {
      */
     @TableField(value = "sys_role_id")
     @Schema(description = "角色ID")
-    /** sysroleid */
+    /**
+     * sysroleid
+    */
     private Integer sysRoleId;
 
     /**
@@ -45,6 +51,8 @@ public class SysRoleMenu implements Serializable {
      */
     @TableField(value = "sys_menu_id")
     @Schema(description = "菜单ID")
-    /** sysmenuid */
+    /**
+     * sysmenuid
+    */
     private Integer sysMenuId;
 }

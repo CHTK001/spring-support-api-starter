@@ -14,16 +14,24 @@ import lombok.Data;
 @Builder
 public class MessageResponse {
 
-    /** 是否成功 */
+    /**
+     * 是否成功
+    */
     private boolean success;
 
-    /** 错误消息（失败时） */
+    /**
+     * 错误消息（失败时）
+    */
     private String errorMessage;
 
-    /** 服务商返回的原始消息ID */
+    /**
+     * 服务商返回的原始消息ID
+    */
     private String messageId;
 
-    /** 服务商返回的原始响应（JSON） */
+    /**
+     * 服务商返回的原始响应（JSON）
+    */
     private String rawResponse;
 
     /**

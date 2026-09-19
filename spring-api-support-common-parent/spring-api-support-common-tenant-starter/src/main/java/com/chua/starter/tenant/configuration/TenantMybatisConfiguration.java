@@ -24,7 +24,9 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class TenantMybatisConfiguration {
 
-    /** Tenant属性 */
+    /**
+     * Tenant属性
+    */
     private final TenantProperties tenantProperties;
 
     /**

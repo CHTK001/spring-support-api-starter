@@ -13,107 +13,193 @@ import java.util.Locale;
 @Data
 public class RequestTraceStrategyConfig {
 
-    /** 是否启用 */
+    /**
+     * 是否启用
+    */
     private Boolean enabled = Boolean.TRUE;
 
-    /** RAW存储类型 */
+    /**
+     * RAW存储类型
+    */
     private String rawStorageType = "file";
-    /** 行为存储类型 */
+    /**
+     * 行为存储类型
+    */
     private String behaviorStorageType = "database";
-    /** 文件存储路径 */
+    /**
+     * 文件存储路径
+    */
     private String fileStoragePath = "logs/request-trace";
 
     /**
      * AI 分析开关与执行参数。
      */
     private Boolean aiSummaryEnabled = Boolean.TRUE;
-    /** AI模型 */
+    /**
+     * AI模型
+    */
     private String aiModel;
-    /** AI比率限制是否启用 */
+    /**
+     * AI比率限制是否启用
+    */
     private Boolean aiRateLimitEnabled = Boolean.TRUE;
-    /** AI比率限制窗口秒 */
+    /**
+     * AI比率限制窗口秒
+    */
     private Integer aiRateLimitWindowSeconds = 60;
-    /** AI比率限制最大值Requests */
+    /**
+     * AI比率限制最大值Requests
+    */
     private Integer aiRateLimitMaxRequests = 30;
-    /** AI超时MS */
+    /**
+     * AI超时MS
+    */
     private Long aiTimeoutMs = 1500L;
 
-    /** Retentionminutes */
+    /**
+     * Retentionminutes
+    */
     private Integer retentionMinutes = 30;
-    /** 最大值事件 */
+    /**
+     * 最大值事件
+    */
     private Integer maxEvents = 3000;
-    /** 默认windowminutes */
+    /**
+     * 默认windowminutes
+    */
     private Integer defaultWindowMinutes = 10;
-    /** 最大值windowminutes */
+    /**
+     * 最大值windowminutes
+    */
     private Integer maxWindowMinutes = 60;
-    /** 最大值顶部buckets */
+    /**
+     * 最大值顶部buckets
+    */
     private Integer maxTopBuckets = 10;
-    /** 最大值suspiciousevents */
+    /**
+     * 最大值suspiciousevents
+    */
     private Integer maxSuspiciousEvents = 20;
 
-    /** Burst是否启用 */
+    /**
+     * Burst是否启用
+    */
     private Boolean burstEnabled = Boolean.TRUE;
-    /** Burstwindow秒 */
+    /**
+     * Burstwindow秒
+    */
     private Integer burstWindowSeconds = 60;
-    /** Burst阈值 */
+    /**
+     * Burst阈值
+    */
     private Integer burstThreshold = 25;
 
-    /** Hotspot是否启用 */
+    /**
+     * Hotspot是否启用
+    */
     private Boolean hotspotEnabled = Boolean.TRUE;
-    /** Hotspotwindowminutes */
+    /**
+     * Hotspotwindowminutes
+    */
     private Integer hotspotWindowMinutes = 5;
-    /** Hotspot阈值 */
+    /**
+     * Hotspot阈值
+    */
     private Integer hotspotThreshold = 50;
 
-    /** Spam是否启用 */
+    /**
+     * Spam是否启用
+    */
     private Boolean spamEnabled = Boolean.TRUE;
-    /** Spamwindow秒 */
+    /**
+     * Spamwindow秒
+    */
     private Integer spamWindowSeconds = 30;
-    /** Spam阈值 */
+    /**
+     * Spam阈值
+    */
     private Integer spamThreshold = 12;
 
-    /** 爬虫是否启用 */
+    /**
+     * 爬虫是否启用
+    */
     private Boolean crawlerEnabled = Boolean.TRUE;
-    /** Crawlerwindowminutes */
+    /**
+     * Crawlerwindowminutes
+    */
     private Integer crawlerWindowMinutes = 5;
-    /** 爬虫请求阈值 */
+    /**
+     * 爬虫请求阈值
+    */
     private Integer crawlerRequestThreshold = 30;
-    /** Crawlerdistinct路径阈值 */
+    /**
+     * Crawlerdistinct路径阈值
+    */
     private Integer crawlerDistinctPathThreshold = 20;
 
-    /** Slow请求是否启用 */
+    /**
+     * Slow请求是否启用
+    */
     private Boolean slowRequestEnabled = Boolean.TRUE;
-    /** Slow请求阈值MS */
+    /**
+     * Slow请求阈值MS
+    */
     private Long slowRequestThresholdMs = 1500L;
 
-    /** 错误burst是否启用 */
+    /**
+     * 错误burst是否启用
+    */
     private Boolean errorBurstEnabled = Boolean.TRUE;
-    /** 错误burstwindow秒 */
+    /**
+     * 错误burstwindow秒
+    */
     private Integer errorBurstWindowSeconds = 60;
-    /** 错误burst阈值 */
+    /**
+     * 错误burst阈值
+    */
     private Integer errorBurstThreshold = 6;
 
-    /** 令牌reuse是否启用 */
+    /**
+     * 令牌reuse是否启用
+    */
     private Boolean tokenReuseEnabled = Boolean.TRUE;
-    /** 令牌reusewindowminutes */
+    /**
+     * 令牌reusewindowminutes
+    */
     private Integer tokenReuseWindowMinutes = 10;
-    /** 令牌reuse最小值事件 */
+    /**
+     * 令牌reuse最小值事件
+    */
     private Integer tokenReuseMinEvents = 3;
 
-    /** Fingerprintdrift是否启用 */
+    /**
+     * Fingerprintdrift是否启用
+    */
     private Boolean fingerprintDriftEnabled = Boolean.TRUE;
-    /** Fingerprintdriftwindowminutes */
+    /**
+     * Fingerprintdriftwindowminutes
+    */
     private Integer fingerprintDriftWindowMinutes = 30;
-    /** Fingerprintdrift最小值事件 */
+    /**
+     * Fingerprintdrift最小值事件
+    */
     private Integer fingerprintDriftMinEvents = 3;
 
-    /** 用户preferencedrift是否启用 */
+    /**
+     * 用户preferencedrift是否启用
+    */
     private Boolean userPreferenceDriftEnabled = Boolean.TRUE;
-    /** 用户preferencewindowminutes */
+    /**
+     * 用户preferencewindowminutes
+    */
     private Integer userPreferenceWindowMinutes = 30;
-    /** 用户preferencebaseline数量 */
+    /**
+     * 用户preferencebaseline数量
+    */
     private Integer userPreferenceBaselineCount = 5;
-    /** 用户preferencedominant数量 */
+    /**
+     * 用户preferencedominant数量
+    */
     private Integer userPreferenceDominantCount = 4;
 
     /**

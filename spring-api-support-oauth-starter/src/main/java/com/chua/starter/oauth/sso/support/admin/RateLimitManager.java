@@ -21,11 +21,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class RateLimitManager {
 
-    /** 是否启用 */
+    /**
+     * 是否启用
+    */
     private final AtomicBoolean enabled = new AtomicBoolean(false);
-    /** QPS */
+    /**
+     * QPS
+    */
     private final AtomicInteger qps = new AtomicInteger(100);
-    /** Burst尺寸 */
+    /**
+     * Burst尺寸
+    */
     private final AtomicInteger burstSize = new AtomicInteger(200);
     private volatile String dimension = "global"; // 维度
     private volatile RateLimiter rateLimiter = RateLimiter.create(100); // rate限制

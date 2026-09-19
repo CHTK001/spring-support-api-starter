@@ -23,15 +23,21 @@ import org.springframework.cache.annotation.Cacheable;
 @SpiDefault
 public class DatabaseSecretKeyResolver implements SecretKeyResolver {
 
-    /** 状态_已启用 */
+    /**
+     * 状态_已启用
+    */
     private static final int STATUS_ENABLED = 1;
 
     @AutoInject
-    /** SYSAPP密钥服务 */
+    /**
+     * SYSAPP密钥服务
+    */
     private SysAppKeyService sysAppKeyService;
 
     @AutoInject
-    /** 令牌blacklist服务 */
+    /**
+     * 令牌blacklist服务
+    */
     private TokenBlacklistService tokenBlacklistService;
 
     @Override

@@ -35,7 +35,9 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 @RequiredArgsConstructor
 public class SysSettingGroupController {
 
-    /** SYS设置分组服务 */
+    /**
+     * SYS设置分组服务
+    */
     private final SysSettingGroupService sysSettingGroupService;
 
 

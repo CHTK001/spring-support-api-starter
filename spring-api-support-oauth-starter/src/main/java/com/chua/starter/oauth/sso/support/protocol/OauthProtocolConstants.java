@@ -11,7 +11,9 @@ package com.chua.starter.oauth.sso.support.protocol;
  */
 public final class OauthProtocolConstants {
 
-    /** 创建 oauth协议常量 实例 */
+    /**
+     * 创建 oauth协议常量 实例
+    */
     private OauthProtocolConstants() {
     }
 

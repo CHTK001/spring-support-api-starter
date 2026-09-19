@@ -15,12 +15,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Bounds {
-    /** 北边界（纬度最大值） */
+    /**
+     * 北边界（纬度最大值）
+    */
     private double north;
-    /** 南边界（纬度最小值） */
+    /**
+     * 南边界（纬度最小值）
+    */
     private double south;
-    /** 东边界（经度最大值） */
+    /**
+     * 东边界（经度最大值）
+    */
     private double east;
-    /** 西边界（经度最小值） */
+    /**
+     * 西边界（经度最小值）
+    */
     private double west;
 }

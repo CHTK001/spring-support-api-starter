@@ -28,7 +28,9 @@ public class SysHoliday extends SysBase {
      */
     @TableId(value = "sys_holiday_id", type = IdType.AUTO)
     @Schema(description = "节假日ID")
-    /** sysholidayid */
+    /**
+     * sysholidayid
+    */
     private Integer sysHolidayId;
 
     /**
@@ -36,7 +38,9 @@ public class SysHoliday extends SysBase {
      */
     @TableField(value = "sys_holiday_year")
     @Schema(description = "节假日年份")
-    /** sysholidayyear */
+    /**
+     * sysholidayyear
+    */
     private Integer sysHolidayYear;
 
     /**
@@ -44,7 +48,9 @@ public class SysHoliday extends SysBase {
      */
     @TableField(value = "sys_holiday_date")
     @Schema(description = "节假日日期")
-    /** sysholiday日期 */
+    /**
+     * sysholiday日期
+    */
     private LocalDate sysHolidayDate;
 
     /**
@@ -52,7 +58,9 @@ public class SysHoliday extends SysBase {
      */
     @TableField(value = "sys_holiday_name")
     @Schema(description = "节假日名称")
-    /** sysholiday名称 */
+    /**
+     * sysholiday名称
+    */
     private String sysHolidayName;
 
     /**
@@ -60,6 +68,8 @@ public class SysHoliday extends SysBase {
      */
     @TableField(value = "sys_holiday_is_holiday")
     @Schema(description = "是否节假日")
-    /** sysholidayisholiday */
+    /**
+     * sysholidayisholiday
+    */
     private Boolean sysHolidayIsHoliday;
 }

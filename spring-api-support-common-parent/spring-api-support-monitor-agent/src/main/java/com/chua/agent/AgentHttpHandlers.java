@@ -31,19 +31,29 @@ import java.util.concurrent.TimeUnit;
  */
 public class AgentHttpHandlers {
 
-    /** JSON 序列化器（错误信息也走它，避免异常文本里的引号把响应体打断） */
+    /**
+     * JSON 序列化器（错误信息也走它，避免异常文本里的引号把响应体打断）
+    */
     private static final ObjectMapper JSON = new ObjectMapper();
 
-    /** 分页默认条数 */
+    /**
+     * 分页默认条数
+    */
     private static final int DEFAULT_PAGE_SIZE = 50;
 
-    /** 分页上限：防止前端传 pageSize=999999 把整台机器的进程表拖出来 */
+    /**
+     * 分页上限：防止前端传 pageSize=999999 把整台机器的进程表拖出来
+    */
     private static final int MAX_PAGE_SIZE = 1000;
 
-    /** /exec 默认超时（秒） */
+    /**
+     * /exec 默认超时（秒）
+    */
     private static final int EXEC_TIMEOUT_SECONDS = 30;
 
-    /** 流复制缓冲区大小 */
+    /**
+     * 流复制缓冲区大小
+    */
     private static final int COPY_BUFFER_BYTES = 8192;
 
     /**

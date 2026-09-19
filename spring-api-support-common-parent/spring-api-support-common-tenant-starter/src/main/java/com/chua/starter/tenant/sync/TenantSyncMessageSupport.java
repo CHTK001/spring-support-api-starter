@@ -23,90 +23,174 @@ import java.util.UUID;
  */
 public final class TenantSyncMessageSupport {
 
-    /** Metadata_tenant_标识 */
+    /**
+     * Metadata_tenant_标识
+    */
     public static final String METADATA_TENANT_ID = "tenantId";
-    /** Metadata_同步_角色 */
+    /**
+     * Metadata_同步_角色
+    */
     public static final String METADATA_SYNC_ROLE = "syncRole";
-    /** 角色_tenant_客户端 */
+    /**
+     * 角色_tenant_客户端
+    */
     public static final String ROLE_TENANT_CLIENT = "tenant-client";
-    /** 消息_标识 */
+    /**
+     * 消息_标识
+    */
     public static final String MESSAGE_ID = "messageId";
-    /** Target_tenant_标识 */
+    /**
+     * Target_tenant_标识
+    */
     public static final String TARGET_TENANT_ID = "targetTenantId";
-    /** 同步_mode */
+    /**
+     * 同步_mode
+    */
     public static final String SYNC_MODE = "syncMode";
-    /** 同步_ReasonML */
+    /**
+     * 同步_ReasonML
+    */
     public static final String SYNC_REASON = "syncReason";
-    /** 时间戳 */
+    /**
+     * 时间戳
+    */
     public static final String TIMESTAMP = "timestamp";
-    /** 标志 */
+    /**
+     * 标志
+    */
     public static final String SIGN = "sign";
-    /** 标志_algorithm */
+    /**
+     * 标志_algorithm
+    */
     public static final String SIGN_ALGORITHM = "signAlgorithm";
-    /** 标志_版本 */
+    /**
+     * 标志_版本
+    */
     public static final String SIGN_VERSION = "signVersion";
-    /** 源_消息_标识 */
+    /**
+     * 源_消息_标识
+    */
     public static final String SOURCE_MESSAGE_ID = "sourceMessageId";
-    /** 源_topic */
+    /**
+     * 源_topic
+    */
     public static final String SOURCE_TOPIC = "sourceTopic";
-    /** ACK_成功 */
+    /**
+     * ACK_成功
+    */
     public static final String ACK_SUCCESS = "ackSuccess";
-    /** ACK_状态 */
+    /**
+     * ACK_状态
+    */
     public static final String ACK_STATUS = "ackStatus";
-    /** ACK_错误_消息 */
+    /**
+     * ACK_错误_消息
+    */
     public static final String ACK_ERROR_MESSAGE = "ackErrorMessage";
-    /** Tenant */
+    /**
+     * Tenant
+    */
     public static final String TENANT = "tenant";
-    /** Menus */
+    /**
+     * Menus
+    */
     public static final String MENUS = "menus";
-    /** Menu_标识 */
+    /**
+     * Menu_标识
+    */
     public static final String MENU_IDS = "menuIds";
-    /** 服务 */
+    /**
+     * 服务
+    */
     public static final String SERVICES = "services";
-    /** Modules */
+    /**
+     * Modules
+    */
     public static final String MODULES = "modules";
-    /** Items */
+    /**
+     * Items
+    */
     public static final String ITEMS = "items";
-    /** Operation */
+    /**
+     * Operation
+    */
     public static final String OPERATION = "operation";
-    /** Topic_tenant_更新 */
+    /**
+     * Topic_tenant_更新
+    */
     public static final String TOPIC_TENANT_UPDATE = "tenant/update";
-    /** Topic_tenant_删除 */
+    /**
+     * Topic_tenant_删除
+    */
     public static final String TOPIC_TENANT_DELETE = "tenant/delete";
-    /** Topic_tenant_服务 */
+    /**
+     * Topic_tenant_服务
+    */
     public static final String TOPIC_TENANT_SERVICE = "tenant/service";
-    /** Topic_tenant_menu */
+    /**
+     * Topic_tenant_menu
+    */
     public static final String TOPIC_TENANT_MENU = "tenant/menu";
-    /** Topic_tenant_同步_请求 */
+    /**
+     * Topic_tenant_同步_请求
+    */
     public static final String TOPIC_TENANT_SYNC_REQUEST = "tenant/sync/request";
-    /** Topic_tenant_同步_ACK */
+    /**
+     * Topic_tenant_同步_ACK
+    */
     public static final String TOPIC_TENANT_SYNC_ACK = "tenant/sync/ack";
-    /** Mode_完整 */
+    /**
+     * Mode_完整
+    */
     public static final String MODE_FULL = "full";
-    /** Mode_incremental */
+    /**
+     * Mode_incremental
+    */
     public static final String MODE_INCREMENTAL = "incremental";
-    /** Op_替换 */
+    /**
+     * Op_替换
+    */
     public static final String OP_REPLACE = "replace";
-    /** Op_创建 */
+    /**
+     * Op_创建
+    */
     public static final String OP_CREATE = "create";
-    /** Op_更新 */
+    /**
+     * Op_更新
+    */
     public static final String OP_UPDATE = "update";
-    /** Op_删除 */
+    /**
+     * Op_删除
+    */
     public static final String OP_DELETE = "delete";
-    /** Hmac_sha256 */
+    /**
+     * Hmac_sha256
+    */
     public static final String HMAC_SHA256 = "HmacSHA256";
-    /** 标志_版本_v1 */
+    /**
+     * 标志_版本_v1
+    */
     public static final String SIGN_VERSION_V1 = "v1";
-    /** ACK_状态_applied */
+    /**
+     * ACK_状态_applied
+    */
     public static final String ACK_STATUS_APPLIED = "applied";
-    /** ACK_状态_重复 */
+    /**
+     * ACK_状态_重复
+    */
     public static final String ACK_STATUS_DUPLICATE = "duplicate";
-    /** ACK_状态_出_的_订单 */
+    /**
+     * ACK_状态_出_的_订单
+    */
     public static final String ACK_STATUS_OUT_OF_ORDER = "out-of-order";
-    /** ACK_状态_失败 */
+    /**
+     * ACK_状态_失败
+    */
     public static final String ACK_STATUS_FAILED = "failed";
 
-    /** 创建 tenant同步消息支持 实例 */
+    /**
+     * 创建 tenant同步消息支持 实例
+    */
     private TenantSyncMessageSupport() {
     }
 
@@ -412,14 +496,22 @@ public final class TenantSyncMessageSupport {
 
     public static final class VerificationResult {
 
-        /** 是否有效 */
+        /**
+         * 是否有效
+        */
         private static final VerificationResult VALID = new VerificationResult(true, false, null);
 
-        /** 是否有效 */
+        /**
+         * 是否有效
+        */
         private final boolean valid;
-        /** Skipped */
+        /**
+         * Skipped
+        */
         private final boolean skipped;
-        /** 消息 */
+        /**
+         * 消息
+        */
         private final String message;
 
         /**

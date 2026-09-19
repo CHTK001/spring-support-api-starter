@@ -33,17 +33,23 @@ public class WechatEnterpriseLoginService extends AbstractUserLoginService {
     private static final String LOGIN_TYPE_PREFIX = "wechat_enterprise";
 
     @Autowired
-    /** SYS用户thirdpartymapper */
+    /**
+     * SYS用户thirdpartymapper
+    */
     private SysUserThirdPartyMapper sysUserThirdPartyMapper;
 
     @Override
-    /** 获取login类型前缀 */
+    /**
+     * 获取login类型前缀
+    */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
-    /** generate用户标识 */
+    /**
+     * generate用户标识
+    */
     protected String[] generateUserIds(SysUser user) {
         String baseId = user.getSysUserId() + "WECHAT_ENTERPRISE";
         return new String[]{
@@ -95,7 +101,9 @@ public class WechatEnterpriseLoginService extends AbstractUserLoginService {
     }
 
     @Override
-    /** Upgrade */
+    /**
+     * Upgrade
+    */
     public UserResume upgrade(UserResult userResult) {
         SysUser user = sysUserMapper.selectById(userResult.getUserId());
         if (null == user) {

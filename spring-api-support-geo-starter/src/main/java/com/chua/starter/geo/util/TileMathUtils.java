@@ -14,7 +14,9 @@ import java.util.List;
  * @since 1.0.0
  */
 public class TileMathUtils {
-    /** 最大支持缩放级别 */
+    /**
+     * 最大支持缩放级别
+    */
     private static final int MAX_ZOOM = 24;
 
     /**

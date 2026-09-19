@@ -17,20 +17,26 @@ public class SysUserPasswordUpdate {
      * 旧密码
      */
     @Schema(description = "旧密码")
-    /** 旧密码 */
+    /**
+     * 旧密码
+    */
     private String oldPassword;
 
     /**
      * 新密码
      */
     @Schema(description = "新密码")
-    /** 新密码 */
+    /**
+     * 新密码
+    */
     private String newPassword;
 
     /**
      * 确认密码
      */
     @Schema(description = "确认密码")
-    /** Confirm密码 */
+    /**
+     * Confirm密码
+    */
     private String confirmPassword;
 }

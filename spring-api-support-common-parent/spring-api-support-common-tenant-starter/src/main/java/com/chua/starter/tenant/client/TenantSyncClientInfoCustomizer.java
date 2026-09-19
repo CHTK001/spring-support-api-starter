@@ -23,17 +23,23 @@ import java.util.Map;
 @ConditionalOnProperty(prefix = TenantProperties.PRE + ".client", name = "enable", havingValue = "true")
 public class TenantSyncClientInfoCustomizer implements SyncClientInfoCustomizer {
 
-    /** Tenant属性 */
+    /**
+     * Tenant属性
+    */
     private final TenantProperties tenantProperties;
 
     @Override
-    /** 获取订单 */
+    /**
+     * 获取订单
+    */
     public int getOrder() {
         return -100;
     }
 
     @Override
-    /** Customize */
+    /**
+     * Customize
+    */
     public void customize(ClientInfo clientInfo) {
         if (clientInfo == null) {
             return;

@@ -169,7 +169,9 @@ public class AppKeyAuthorizationHandler implements AuthorizationHandler {
     }
 
     @Override
-    /** 支持 */
+    /**
+     * 支持
+    */
     public boolean supports(String subProtocol, String token, String userCode) {
  // app键认证：有用户编码参数
         return StringUtils.isNotBlank(userCode);

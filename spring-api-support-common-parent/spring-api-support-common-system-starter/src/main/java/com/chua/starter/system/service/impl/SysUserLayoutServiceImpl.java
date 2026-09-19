@@ -22,7 +22,9 @@ import java.util.List;
 public class SysUserLayoutServiceImpl extends ServiceImpl<SysUserLayoutMapper, SysUserLayout> implements SysUserLayoutService {
 
     @Override
-    /** 列表by用户id */
+    /**
+     * 列表by用户id
+    */
     public List<SysUserLayout> listByUserId(Integer userId) {
         if (userId == null) {
             return Collections.emptyList();
@@ -32,7 +34,9 @@ public class SysUserLayoutServiceImpl extends ServiceImpl<SysUserLayoutMapper, S
     }
 
     @Override
-    /** 获取by用户id和键 */
+    /**
+     * 获取by用户id和键
+    */
     public SysUserLayout getByUserIdAndKey(Integer userId, String layoutKey) {
         if (userId == null || layoutKey == null) {
             return null;

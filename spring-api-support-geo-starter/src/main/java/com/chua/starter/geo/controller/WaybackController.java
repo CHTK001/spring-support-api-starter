@@ -23,7 +23,9 @@ import java.util.Map;
 @Slf4j
 public class WaybackController {
 
-    /** Wayback 服务 */
+    /**
+     * Wayback 服务
+    */
     private final WaybackService waybackService;
 
     /**

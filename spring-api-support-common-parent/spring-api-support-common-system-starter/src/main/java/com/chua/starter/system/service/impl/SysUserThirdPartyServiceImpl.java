@@ -22,7 +22,9 @@ import java.util.List;
 public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyMapper, SysUserThirdParty> implements SysUserThirdPartyService {
 
     @Override
-    /** 列表by用户id */
+    /**
+     * 列表by用户id
+    */
     public List<SysUserThirdParty> listByUserId(Integer userId) {
         if (userId == null) {
             return Collections.emptyList();
@@ -32,7 +34,9 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
     }
 
     @Override
-    /** 列表by用户id和类型 */
+    /**
+     * 列表by用户id和类型
+    */
     public List<SysUserThirdParty> listByUserIdAndType(Integer userId, String type) {
         if (userId == null || type == null) {
             return Collections.emptyList();
@@ -43,7 +47,9 @@ public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyM
     }
 
     @Override
-    /** 获取bythirdpartyuid */
+    /**
+     * 获取bythirdpartyuid
+    */
     public SysUserThirdParty getByThirdPartyUid(String type, String uid) {
         if (type == null || uid == null) {
             return null;

@@ -27,7 +27,9 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_message_template")
 public class SysMessageTemplate extends SysBase implements Serializable {
-    /** 串行版本UID */
+    /**
+     * 串行版本UID
+    */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -36,7 +38,9 @@ public class SysMessageTemplate extends SysBase implements Serializable {
     @TableId(value = "sys_message_template_id", type = IdType.AUTO)
     @Schema(description = "模板ID")
     @NotNull(message = "模板ID不能为空", groups = {UpdateGroup.class})
-    /** sysmessagetemplateid */
+    /**
+     * sysmessagetemplateid
+    */
     private Long sysMessageTemplateId;
 
     /**
@@ -46,7 +50,9 @@ public class SysMessageTemplate extends SysBase implements Serializable {
     @Schema(description = "模板编码")
     @Size(max = 100, message = "模板编码最大长度需小于100")
     @NotEmpty(message = "模板编码不能为空", groups = {AddGroup.class})
-    /** sysmessagetemplate代码 */
+    /**
+     * sysmessagetemplate代码
+    */
     private String sysMessageTemplateCode;
 
     /**
@@ -55,7 +61,9 @@ public class SysMessageTemplate extends SysBase implements Serializable {
     @TableField(value = "sys_message_template_name")
     @Schema(description = "模板名称")
     @Size(max = 100, message = "模板名称最大长度需小于100")
-    /** sysmessagetemplatename */
+    /**
+     * sysmessagetemplatename
+    */
     private String sysMessageTemplateName;
 
     /**
@@ -64,7 +72,9 @@ public class SysMessageTemplate extends SysBase implements Serializable {
     @TableField(value = "sys_message_template_title")
     @Schema(description = "模板标题(支持变量)")
     @Size(max = 255, message = "模板标题最大长度需小于255")
-    /** sysmessagetemplatetitle */
+    /**
+     * sysmessagetemplatetitle
+    */
     private String sysMessageTemplateTitle;
 
     /**
@@ -72,7 +82,9 @@ public class SysMessageTemplate extends SysBase implements Serializable {
      */
     @TableField(value = "sys_message_template_content")
     @Schema(description = "模板内容(支持变量)")
-    /** sysmessagetemplatecontent */
+    /**
+     * sysmessagetemplatecontent
+    */
     private String sysMessageTemplateContent;
 
     /**
@@ -80,6 +92,8 @@ public class SysMessageTemplate extends SysBase implements Serializable {
      */
     @TableField(value = "sys_message_template_status")
     @Schema(description = "状态: 0-禁用 1-启用")
-    /** sysmessagetemplatestatus */
+    /**
+     * sysmessagetemplatestatus
+    */
     private Integer sysMessageTemplateStatus = 1;
 }

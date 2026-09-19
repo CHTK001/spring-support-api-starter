@@ -15,13 +15,21 @@ public interface TokenBlacklistService {
      * @since 4.0.0
      */
     enum BlacklistReason {
-        /** 用户主动登出 */
+        /**
+         * 用户主动登出
+        */
         LOGOUT,
-        /** 令牌 被撤销（如 refresh 后旧 令牌 失效） */
+        /**
+         * 令牌 被撤销（如 refresh 后旧 令牌 失效）
+        */
         REVOKED,
-        /** 用户被踢下线 */
+        /**
+         * 用户被踢下线
+        */
         KICKED,
-        /** 用户被全局禁用 */
+        /**
+         * 用户被全局禁用
+        */
         USER_DISABLED
     }
 

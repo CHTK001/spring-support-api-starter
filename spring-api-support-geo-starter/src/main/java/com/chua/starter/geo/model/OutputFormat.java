@@ -7,20 +7,34 @@ package com.chua.starter.geo.model;
  * @since 1.0.0
  */
 public enum OutputFormat {
-    /** geotiff 格式（带地理坐标信息） */
+    /**
+     * geotiff 格式（带地理坐标信息）
+    */
     GEOTIFF("geotiff", ".tif", "image/tiff"),
-    /** PNG 格式（无损，支持透明） */
+    /**
+     * PNG 格式（无损，支持透明）
+    */
     PNG("png", ".png", "image/png"),
-    /** JPEG 格式（有损压缩） */
+    /**
+     * JPEG 格式（有损压缩）
+    */
     JPEG("jpeg", ".jpg", "image/jpeg"),
-    /** 原始瓦片目录（不做拼接） */
+    /**
+     * 原始瓦片目录（不做拼接）
+    */
     TILES("tiles", "", "application/octet-stream"),
-    /** 矢量瓦片 PBF 格式 */
+    /**
+     * 矢量瓦片 PBF 格式
+    */
     PBF("pbf", ".pbf", "application/x-protobuf");
 
-    /** 字符串标识 */
+    /**
+     * 字符串标识
+    */
     private final String label;
-    /** 文件扩展名 */
+    /**
+     * 文件扩展名
+    */
     private final String extension;
     /**
      * MIME 类型

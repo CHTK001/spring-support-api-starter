@@ -27,7 +27,9 @@ public class AcmeCertificateDetailVo {
      */
     @ApiModelProperty("证书信息")
     @Schema(description = "证书信息")
-    /** 证书 */
+    /**
+     * 证书
+    */
     private MonitorAcmeCertificate certificate;
 
     /**
@@ -35,7 +37,9 @@ public class AcmeCertificateDetailVo {
      */
     @ApiModelProperty("关联账户信息")
     @Schema(description = "关联账户信息")
-    /** 账户 */
+    /**
+     * 账户
+    */
     private MonitorAcmeAccount account;
 
     /**
@@ -43,7 +47,9 @@ public class AcmeCertificateDetailVo {
      */
     @ApiModelProperty("关联订单列表")
     @Schema(description = "关联订单列表")
-    /** 订单 */
+    /**
+     * 订单
+    */
     private List<MonitorAcmeOrder> orders;
 
     /**
@@ -51,7 +57,9 @@ public class AcmeCertificateDetailVo {
      */
     @ApiModelProperty("距离到期天数")
     @Schema(description = "距离到期天数")
-    /** Daysuntilexpiry */
+    /**
+     * Daysuntilexpiry
+    */
     private Long daysUntilExpiry;
 
     /**
@@ -59,7 +67,9 @@ public class AcmeCertificateDetailVo {
      */
     @ApiModelProperty("是否即将到期")
     @Schema(description = "是否即将到期")
-    /** Soonexpiring */
+    /**
+     * Soonexpiring
+    */
     private Boolean soonExpiring;
 
     /**
@@ -67,7 +77,9 @@ public class AcmeCertificateDetailVo {
      */
     @ApiModelProperty("curl 自检命令列表")
     @Schema(description = "curl 自检命令列表，用于验证HTTP-01挑战是否可从外网访问")
-    /** Curlcommands */
+    /**
+     * Curlcommands
+    */
     private java.util.List<String> curlCommands;
 
     /**
@@ -78,7 +90,9 @@ public class AcmeCertificateDetailVo {
      */
     @ApiModelProperty("当前步骤: 1-提交申请, 2-等待验证, 3-签发完成")
     @Schema(description = "当前步骤: 1-提交申请, 2-等待验证, 3-签发完成")
-    /** 当前step */
+    /**
+     * 当前step
+    */
     private Integer currentStep;
 
     /**
@@ -86,6 +100,8 @@ public class AcmeCertificateDetailVo {
      */
     @ApiModelProperty("步骤描述")
     @Schema(description = "当前步骤的中文描述")
-    /** Step描述 */
+    /**
+     * Step描述
+    */
     private String stepDescription;
 }

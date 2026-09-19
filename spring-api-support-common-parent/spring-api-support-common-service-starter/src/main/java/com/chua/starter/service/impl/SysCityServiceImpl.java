@@ -20,7 +20,9 @@ import java.util.*;
 public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> implements SysCityService {
 
     @Override
-    /** 查询City */
+    /**
+     * 查询City
+    */
     public ReturnResult<List<SysCity>> queryCity(SysCityQuery query) {
         List<SysCity> sysCities = baseMapper.cascadeList(query);
         if ("LIST".equals(query.getReturnType())) {
@@ -30,7 +32,9 @@ public class SysCityServiceImpl extends ServiceImpl<SysCityMapper, SysCity> impl
     }
 
     @Override
-    /** children全部 */
+    /**
+     * children全部
+    */
     public ReturnResult<List<SysCity>> childrenAll(SysCityQuery query) {
         List<SysCity> sysCities = baseMapper.childrenAll(query);
         if ("LIST".equals(query.getReturnType())) {

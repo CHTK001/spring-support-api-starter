@@ -14,7 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class ProtocolClientSupport {
 
-    /** 缓存已创建的客户端，用于 销毁 */
+    /**
+     * 缓存已创建的客户端，用于 销毁
+    */
     private static final Map<String, Object> CLIENTS = new ConcurrentHashMap<>();
 
     /**

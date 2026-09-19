@@ -37,7 +37,9 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class SysDictItemController {
 
-    /** sysdictitem服务 */
+    /**
+     * sysdictitem服务
+    */
     private final SysDictItemService sysDictItemService;
 
 

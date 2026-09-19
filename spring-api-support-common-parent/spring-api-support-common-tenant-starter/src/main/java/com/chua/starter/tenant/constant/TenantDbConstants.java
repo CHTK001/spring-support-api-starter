@@ -13,7 +13,9 @@ public final class TenantDbConstants {
      */
     public static final String TENANT_ID_COLUMN = "sys_tenant_id";
 
-    /** 创建 tenantdb常量 实例 */
+    /**
+     * 创建 tenantdb常量 实例
+    */
     private TenantDbConstants() {
     }
 }

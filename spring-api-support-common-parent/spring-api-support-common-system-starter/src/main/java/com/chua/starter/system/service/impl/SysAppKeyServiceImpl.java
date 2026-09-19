@@ -68,7 +68,9 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     }
 
     @Override
-    /** 验证 */
+    /**
+     * 验证
+    */
     public boolean verify(String appKey, String secret) {
         SysAppKey dbAppKey = getByAppKey(appKey);
         if (dbAppKey == null) {
@@ -101,7 +103,9 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     }
 
     @Override
-    /** 验证 */
+    /**
+     * 验证
+    */
     public boolean verify(String appKey, String secret, String ip) {
         SysAppKey dbAppKey = getByAppKey(appKey);
         if (dbAppKey == null) {
@@ -165,7 +169,9 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     }
 
     @Override
-    /** 是否Expired */
+    /**
+     * 是否Expired
+    */
     public boolean isExpired(SysAppKey appKey) {
         Long expireTime = resolveExpireTime(appKey);
         if (expireTime == null) {
@@ -176,7 +182,9 @@ public class SysAppKeyServiceImpl extends ServiceImpl<SysAppKeyMapper, SysAppKey
     }
 
     @Override
-    /** 解析expire时间 */
+    /**
+     * 解析expire时间
+    */
     public Long resolveExpireTime(SysAppKey appKey) {
         if (appKey == null) {
             return null;

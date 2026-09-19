@@ -48,21 +48,29 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
     private static final String OPENID_CACHE_PREFIX = "miniapp:openid:";
 
     @Autowired
-    /** SYS用户thirdpartymapper */
+    /**
+     * SYS用户thirdpartymapper
+    */
     private SysUserThirdPartyMapper sysUserThirdPartyMapper;
 
     @Autowired
-    /** syswechat用户映射器 */
+    /**
+     * syswechat用户映射器
+    */
     private SysWechatUserMapper sysWechatUserMapper;
 
     @Override
-    /** 获取login类型前缀 */
+    /**
+     * 获取login类型前缀
+    */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
-    /** generate用户标识 */
+    /**
+     * generate用户标识
+    */
     protected String[] generateUserIds(SysUser user) {
         String baseId = user.getSysUserId() + "WECHAT";
         return new String[]{
@@ -72,7 +80,9 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
     }
 
     @Override
-    /** 校验Login */
+    /**
+     * 校验Login
+    */
     public UserResume checkLogin(String openId, String password, String address, Object ext) {
         log.debug("微信小程序登录请求: OpenID={}, IP={}", openId, address);
 
@@ -131,7 +141,9 @@ public class WeixinMiniLoginService extends AbstractUserLoginService {
     }
 
     @Override
-    /** Upgrade */
+    /**
+     * Upgrade
+    */
     public UserResume upgrade(UserResult userResult) {
         SysUser user = sysUserMapper.selectById(userResult.getUserId());
         if (null == user) {

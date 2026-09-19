@@ -24,7 +24,9 @@ public class DefaultAppIdValidator implements AppIdValidator {
      * appid 服务
      */
     @AutoInject
-    /** SYSAPPID服务 */
+    /**
+     * SYSAPPID服务
+    */
     private SysAppIdService sysAppIdService;
 
     /**

@@ -42,13 +42,17 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
 
     @Autowired
     @Lazy
-    /** sysdictitem服务 */
+    /**
+     * sysdictitem服务
+    */
     private SysDictItemService sysDictItemService;
 
     final SysDictItemPropertyMapper sysDictItemPropertyMapper; // sysdictitem财产映射器
     final SysDictMapper sysDictMapper; // sysdict映射器
     @Autowired
-    /** Transaction模板 */
+    /**
+     * Transaction模板
+    */
     private TransactionTemplate transactionTemplate;
 
     /**

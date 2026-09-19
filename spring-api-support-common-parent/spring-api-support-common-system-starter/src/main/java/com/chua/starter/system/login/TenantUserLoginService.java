@@ -48,13 +48,17 @@ public class TenantUserLoginService extends AbstractUserLoginService {
     private static final long LAST_TENANT_EXPIRE_DAYS = 30;
 
     @Override
-    /** 获取login类型前缀 */
+    /**
+     * 获取login类型前缀
+    */
     protected String getLoginTypePrefix() {
         return LOGIN_TYPE_PREFIX;
     }
 
     @Override
-    /** generate用户标识 */
+    /**
+     * generate用户标识
+    */
     protected String[] generateUserIds(SysUser user) {
         String baseId = user.getSysUserId() + String.valueOf(user.getSysClientId());
         return new String[]{
@@ -64,7 +68,9 @@ public class TenantUserLoginService extends AbstractUserLoginService {
     }
 
     @Override
-    /** customize用户结果 */
+    /**
+     * customize用户结果
+    */
     protected void customizeUserResult(UserResume result, SysUser user) {
  // 设置租户标识
         if (user.getSysTenantId() != null) {
@@ -143,7 +149,9 @@ public class TenantUserLoginService extends AbstractUserLoginService {
     }
 
     @Override
-    /** Upgrade */
+    /**
+     * Upgrade
+    */
     public UserResume upgrade(UserResult userResult) {
         SysUser user = sysUserMapper.selectById(userResult.getUserId());
         if (null == user) {

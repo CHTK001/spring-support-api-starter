@@ -19,16 +19,26 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class RequestTraceStrategyConfigService {
 
-    /** 配置_storage_默认 */
+    /**
+     * 配置_storage_默认
+    */
     private static final List<String> CONFIG_STORAGE_DEFAULTS = List.of("database", "redis", "memory");
-    /** Raw_storage_默认 */
+    /**
+     * Raw_storage_默认
+    */
     private static final List<String> RAW_STORAGE_DEFAULTS = List.of("file", "database");
-    /** 行为_storage_默认 */
+    /**
+     * 行为_storage_默认
+    */
     private static final List<String> BEHAVIOR_STORAGE_DEFAULTS = List.of("database", "memory");
 
-    /** Runtime属性 */
+    /**
+     * Runtime属性
+    */
     private final RequestTraceStrategyRuntimeProperties runtimeProperties;
-    /** 存储router */
+    /**
+     * 存储router
+    */
     private final RequestTraceStorageRouter storageRouter;
 
     private volatile RequestTraceStrategyConfig cachedConfig; // 缓存配置

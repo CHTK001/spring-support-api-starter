@@ -23,7 +23,9 @@ import java.util.Set;
 public class HotspotRequestTraceAnalyzer implements RequestTraceAnalyzer {
 
     @Override
-    /** 分析 */
+    /**
+     * 分析
+    */
     public Collection<RequestTraceSignal> analyze(RequestTraceAnalysisContext context) {
         if (!Boolean.TRUE.equals(context.config().getHotspotEnabled())) {
             return Set.of();

@@ -27,7 +27,9 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "sys_post")
 public class SysPost extends SysBase implements Serializable {
-    /** 串行版本UID */
+    /**
+     * 串行版本UID
+    */
     private static final long serialVersionUID = 1L;
 
     /**
@@ -36,7 +38,9 @@ public class SysPost extends SysBase implements Serializable {
     @TableId(value = "sys_post_id", type = IdType.AUTO)
     @Schema(description = "岗位ID")
     @NotNull(message = "岗位ID不能为空", groups = {UpdateGroup.class})
-    /** syspostid */
+    /**
+     * syspostid
+    */
     private Long sysPostId;
 
     /**
@@ -46,7 +50,9 @@ public class SysPost extends SysBase implements Serializable {
     @Schema(description = "岗位名称")
     @Size(max = 100, message = "岗位名称最大长度需小于100")
     @NotEmpty(message = "岗位名称不能为空", groups = {AddGroup.class})
-    /** syspost名称 */
+    /**
+     * syspost名称
+    */
     private String sysPostName;
 
     /**
@@ -56,7 +62,9 @@ public class SysPost extends SysBase implements Serializable {
     @Schema(description = "岗位编码")
     @Size(max = 100, message = "岗位编码最大长度需小于100")
     @NotEmpty(message = "岗位编码不能为空", groups = {AddGroup.class})
-    /** syspost代码 */
+    /**
+     * syspost代码
+    */
     private String sysPostCode;
 
     /**
@@ -64,7 +72,9 @@ public class SysPost extends SysBase implements Serializable {
      */
     @TableField(value = "sys_post_sort")
     @Schema(description = "排序")
-    /** syspostsort */
+    /**
+     * syspostsort
+    */
     private Integer sysPostSort;
 
     /**
@@ -72,7 +82,9 @@ public class SysPost extends SysBase implements Serializable {
      */
     @TableField(value = "sys_post_status")
     @Schema(description = "状态: 0-启用 1-禁用")
-    /** syspost状态 */
+    /**
+     * syspost状态
+    */
     private Integer sysPostStatus;
 
     /**
@@ -81,7 +93,9 @@ public class SysPost extends SysBase implements Serializable {
     @TableField(value = "remark")
     @Schema(description = "备注")
     @Size(max = 500, message = "备注最大长度需小于500")
-    /** syspost备注 */
+    /**
+     * syspost备注
+    */
     private String remark;
 
     /**
@@ -89,6 +103,8 @@ public class SysPost extends SysBase implements Serializable {
      */
     @TableField(exist = false)
     @Schema(description = "关联用户数")
-    /** syspost用户数量 */
+    /**
+     * syspost用户数量
+    */
     private Integer userCount;
 }

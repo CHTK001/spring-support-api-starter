@@ -38,7 +38,9 @@ public class SmtpSetting implements Upgrade<SmtpSetting> {
     private volatile boolean isLoaded;
 
     @Override
-    /** Upgrade */
+    /**
+     * Upgrade
+    */
     public void upgrade(SmtpSetting smtpSetting) {
         this.host = smtpSetting.host;
         this.password = smtpSetting.password;
