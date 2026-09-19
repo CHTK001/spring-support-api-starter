@@ -27,9 +27,9 @@ public class WaybackController {
     private final WaybackService waybackService;
 
     /**
-    * 获取历史影像版本列表。
-    *
-    * @return 版本列表及总数
+     * 获取历史影像版本列表。
+     *
+     * @return 版本列表及总数
      */
     @GetMapping("/versions")
     @Operation(summary = "获取历史影像版本列表")

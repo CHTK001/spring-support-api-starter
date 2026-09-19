@@ -32,14 +32,14 @@ public final class UpgradeAuthorization implements Authorization {
     private final UpgradeAuthInformation authInformation;
 
     /**
-    * 创建 upgrade授权 实例
-    * @param authInformation 认证信息
-    * @param token 令牌
-    * @param cookie Cookie
-    * @param refreshToken refresh令牌
-    * @param upgradeType upgrade类型
-    * @param applicationContext application上下文
-    * @param loginCheck login检查
+     * 创建 upgrade授权 实例
+     * @param authInformation 认证信息
+     * @param token 令牌
+     * @param cookie Cookie
+     * @param refreshToken refresh令牌
+     * @param upgradeType upgrade类型
+     * @param applicationContext application上下文
+     * @param loginCheck login检查
      */
     public UpgradeAuthorization(UpgradeAuthInformation authInformation,
                                 String token,

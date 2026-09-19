@@ -21,14 +21,14 @@ public class FeedbackIssueV1Request {
     private Integer sysFeedbackId;
 
     /**
-    * 回复内容
+     * 回复内容
      */
     @Schema(description = "回复内容")
     /** sysfeedbackrecover内容 */
     private String sysFeedbackRecoverContent;
 
     /**
-    * 回复图片
+     * 回复图片
      */
     @Schema(description = "回复图片")
     /** sysfeedbackrecoverimages */

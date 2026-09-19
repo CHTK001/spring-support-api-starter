@@ -35,7 +35,7 @@ public class MsMonitorMetricConfig extends SysBase {
     private Long id;
 
     /**
-    * 指标名称，例如 cpu_usage
+     * 指标名称，例如 cpu_usage
      */
     @TableField("metric_name")
     @ApiModelProperty("指标名称")
@@ -44,7 +44,7 @@ public class MsMonitorMetricConfig extends SysBase {
     private String metricName;
 
     /**
-    * 关联的采集任务标识
+     * 关联的采集任务标识
      */
     @TableField("task_id")
     @ApiModelProperty("任务ID")
@@ -53,7 +53,7 @@ public class MsMonitorMetricConfig extends SysBase {
     private Long taskId;
 
     /**
-    * 指标类型，例如 CPU/内存/DISK
+     * 指标类型，例如 CPU/内存/DISK
      */
     @TableField("metric_type")
     @ApiModelProperty("指标类型")
@@ -62,7 +62,7 @@ public class MsMonitorMetricConfig extends SysBase {
     private String metricType;
 
     /**
-    * 匹配模式，用于定位指标数据
+     * 匹配模式，用于定位指标数据
      */
     @TableField("match_pattern")
     @ApiModelProperty("匹配模式")
@@ -71,7 +71,7 @@ public class MsMonitorMetricConfig extends SysBase {
     private String matchPattern;
 
     /**
-    * 提取规则，定义如何从原始数据中提取指标值
+     * 提取规则，定义如何从原始数据中提取指标值
      */
     @TableField("extract_rule")
     @ApiModelProperty("提取规则")
@@ -80,7 +80,7 @@ public class MsMonitorMetricConfig extends SysBase {
     private String extractRule;
 
     /**
-    * 指标单位，例如 %/MB/s
+     * 指标单位，例如 %/MB/s
      */
     @TableField("unit")
     @ApiModelProperty("单位")
@@ -89,7 +89,7 @@ public class MsMonitorMetricConfig extends SysBase {
     private String unit;
 
     /**
-    * 逻辑删除标记，0=未删除，1=已删除
+     * 逻辑删除标记，0=未删除，1=已删除
      */
     @TableField("deleted")
     @TableLogic

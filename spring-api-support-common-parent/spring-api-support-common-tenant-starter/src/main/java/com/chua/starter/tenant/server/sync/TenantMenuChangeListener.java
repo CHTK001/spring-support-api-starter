@@ -31,9 +31,9 @@ public class TenantMenuChangeListener {
     private final ObjectProvider<TenantServerSyncPublisher> syncPublisherProvider;
 
     /**
-    * 监听菜单变更事件，触发关联租户菜单增量推送
-    *
-    * @param event 菜单变更事件
+     * 监听菜单变更事件，触发关联租户菜单增量推送
+     *
+     * @param event 菜单变更事件
      */
     @EventListener
     public void onMenuChange(SysMenuChangeEvent event) {

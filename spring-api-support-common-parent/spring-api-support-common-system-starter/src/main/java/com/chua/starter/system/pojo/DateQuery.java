@@ -21,7 +21,7 @@ public class DateQuery {
     private String startDate;
 
     /**
-    * 结束日期
+     * 结束日期
      */
     @Schema(description = "结束日期")
     /** 结束日期 */

@@ -19,8 +19,8 @@ public class OverpassQueryRequest {
     private Bounds bounds; // bounds
 
     /**
-    * Overpass QL 查询语句。
-    * 示例："[出:json];(节点['amenity'='restaurant'](bbox);way['amenity'='restaurant'](bbox);relation['amenity'='restaurant'](bbox););出 主体;"
+     * Overpass QL 查询语句。
+     * 示例："[出:json];(节点['amenity'='restaurant'](bbox);way['amenity'='restaurant'](bbox);relation['amenity'='restaurant'](bbox););出 主体;"
      */
     @NotBlank(message = "query不能为空")
     private String query; // 查询

@@ -204,11 +204,11 @@ public class MonitorSysGenServerLayoutServiceImpl
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 设置默认layout
-    *
-    * @param serverId 服务端id
-    * @param layoutId layoutId
-    * @return 设置默认layout的结果
+     * 设置默认layout
+     *
+     * @param serverId 服务端id
+     * @param layoutId layoutId
+     * @return 设置默认layout的结果
      */
     public ReturnResult<Boolean> setDefaultLayout(Integer serverId, Integer layoutId) {
         if (serverId == null || layoutId == null) {
@@ -369,10 +369,10 @@ public class MonitorSysGenServerLayoutServiceImpl
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 创建默认layout
-    *
-    * @param serverId 服务端id
-    * @return 创建默认layout的结果
+     * 创建默认layout
+     *
+     * @param serverId 服务端id
+     * @return 创建默认layout的结果
      */
     public ReturnResult<MonitorSysGenServerLayout> createDefaultLayout(Integer serverId) {
         if (serverId == null) {

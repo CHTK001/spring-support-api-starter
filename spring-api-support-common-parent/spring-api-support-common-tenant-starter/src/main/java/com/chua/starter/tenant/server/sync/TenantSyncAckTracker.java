@@ -206,12 +206,12 @@ public class TenantSyncAckTracker {
     }
 
     /**
-    * 去空格Oldest
-    *
-    * @param values 值
-    * @param maxSize 最大大小
-    * @param sorter 排序
-    * @return 修剪旧的结果
+     * 去空格Oldest
+     *
+     * @param values 值
+     * @param maxSize 最大大小
+     * @param sorter 排序
+     * @return 修剪旧的结果
      */
     private <T> void trimOldest(ConcurrentMap<String, T> values, int maxSize, java.util.function.ToLongFunction<T> sorter) {
         if (values.size() <= maxSize) {

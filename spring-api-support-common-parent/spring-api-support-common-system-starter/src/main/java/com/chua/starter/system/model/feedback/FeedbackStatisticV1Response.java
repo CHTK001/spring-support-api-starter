@@ -24,44 +24,44 @@ public class FeedbackStatisticV1Response {
     private List<TypeStatistic> typeStatistics;
 
     /**
-    * 反馈趋势统计（用于曲线图）
+     * 反馈趋势统计（用于曲线图）
      */
     @Schema(description = "反馈趋势统计")
     /** Trend统计 */
     private List<TrendStatistic> trendStatistics;
 
     /**
-    * 总反馈数
+     * 总反馈数
      */
     @Schema(description = "总反馈数")
     /** 总数 */
     private Long total;
 
     /**
-    * 待处理数
+     * 待处理数
      */
     @Schema(description = "待处理数")
     /** Pending */
     private Long pending;
 
     /**
-    * 已处理数
+     * 已处理数
      */
     @Schema(description = "已处理数")
     /** Resolved */
     private Long resolved;
 
     /**
-    * 今日新增数
+     * 今日新增数
      */
     @Schema(description = "今日新增数")
     /** Today */
     private Long todayCount;
 
     /**
-    * 类型统计
-    * @author CH
-    * @since 4.0.0
+     * 类型统计
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "类型统计")
@@ -74,14 +74,14 @@ public class FeedbackStatisticV1Response {
         private String name;
 
         /**
-        * 类型编码
+         * 类型编码
          */
         @Schema(description = "类型编码")
         /** 类型 */
         private String type;
 
         /**
-        * 数量
+         * 数量
          */
         @Schema(description = "数量")
         /** 值 */
@@ -89,9 +89,9 @@ public class FeedbackStatisticV1Response {
     }
 
     /**
-    * 趋势统计
-    * @author CH
-    * @since 4.0.0
+     * 趋势统计
+     * @author CH
+     * @since 4.0.0
      */
     @Data
     @Schema(description = "趋势统计")
@@ -104,7 +104,7 @@ public class FeedbackStatisticV1Response {
         private String date;
 
         /**
-        * 数量
+         * 数量
          */
         @Schema(description = "数量")
         /** 数量 */

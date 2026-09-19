@@ -28,7 +28,7 @@ public class SignInPointsRecord {
     private Long id;
 
     /**
-    * 用户标识
+     * 用户标识
      */
     private Long userId;
 

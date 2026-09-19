@@ -23,35 +23,35 @@ public class SysDeptVO {
     private Integer sysDeptId;
 
     /**
-    * 部门名称
+     * 部门名称
      */
     @Schema(description = "部门名称")
     /** sysdept名称 */
     private String sysDeptName;
 
     /**
-    * 部门编码
+     * 部门编码
      */
     @Schema(description = "部门编码")
     /** sysdept代码 */
     private String sysDeptCode;
 
     /**
-    * 鐖堕儴闂↖D
+     * 鐖堕儴闂↖D
      */
     @Schema(description = "鐖堕儴闂↖D")
     /** sysdeptpid */
     private Integer sysDeptPid;
 
     /**
-    * 部门閾捐矾
+     * 部门閾捐矾
      */
     @Schema(description = "部门閾捐矾")
     /** sysdepttreeid */
     private String sysDeptTreeId;
 
     /**
-    * 状态?     */
+     * 状态?     */
     @Schema(description = "状态")
     /** sysdept状态 */
     private Integer sysDeptStatus;
@@ -73,7 +73,7 @@ public class SysDeptVO {
     private Integer memberCount;
 
     /**
-    * 瀛愰儴闂"     */
+     * 瀛愰儴闂"     */
     @Schema(description = "瀛愰儴闂")
     /** Children */
     private List<SysDeptVO> children;

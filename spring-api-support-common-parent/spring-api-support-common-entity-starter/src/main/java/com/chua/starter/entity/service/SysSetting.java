@@ -27,7 +27,7 @@ public class SysSetting extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-    * 配置标识
+     * 配置标识
      */
     @TableId(value = "sys_setting_id", type = IdType.AUTO)
     @Schema(description = "配置ID")
@@ -36,7 +36,7 @@ public class SysSetting extends SysBase implements Serializable {
     private Integer sysSettingId;
 
     /**
-    * 配置名称
+     * 配置名称
      */
     @TableField(value = "sys_setting_name")
     @Schema(description = "配置名称")
@@ -46,7 +46,7 @@ public class SysSetting extends SysBase implements Serializable {
     private String sysSettingName;
 
     /**
-    * 配置编码（唯一标识码，如 login.title）
+     * 配置编码（唯一标识码，如 login.title）
      */
     @TableField(value = "sys_setting_code")
     @Schema(description = "配置编码")
@@ -55,7 +55,7 @@ public class SysSetting extends SysBase implements Serializable {
     private String sysSettingCode;
 
     /**
-    * 配置值
+     * 配置值
      */
     @TableField(value = "sys_setting_value")
     @Schema(description = "配置值")
@@ -64,7 +64,7 @@ public class SysSetting extends SysBase implements Serializable {
     private String sysSettingValue;
 
     /**
-    * 配置参数
+     * 配置参数
      */
     @TableField(value = "sys_setting_config")
     @Schema(description = "配置参数")
@@ -73,7 +73,7 @@ public class SysSetting extends SysBase implements Serializable {
     private String sysSettingConfig;
 
     /**
-    * 配置备注
+     * 配置备注
      */
     @TableField(value = "sys_setting_remark")
     @Schema(description = "配置备注")
@@ -82,7 +82,7 @@ public class SysSetting extends SysBase implements Serializable {
     private String sysSettingRemark;
 
     /**
-    * 排序优先级
+     * 排序优先级
      */
     @TableField(value = "sys_setting_sort")
     @Schema(description = "排序优先级")
@@ -90,7 +90,7 @@ public class SysSetting extends SysBase implements Serializable {
     private Integer sysSettingSort;
 
     /**
-    * 版本号(乐观锁)
+     * 版本号(乐观锁)
      */
     @TableField(value = "sys_setting_version")
     @Schema(description = "版本号")
@@ -99,7 +99,7 @@ public class SysSetting extends SysBase implements Serializable {
     private Integer sysSettingVersion;
 
     /**
-    * 是否启用: 0:不启用 1:启用
+     * 是否启用: 0:不启用 1:启用
      */
     @TableField(value = "sys_setting_status")
     @Schema(description = "是否启用: 0:不启用 1:启用")
@@ -107,7 +107,7 @@ public class SysSetting extends SysBase implements Serializable {
     private Integer sysSettingStatus;
 
     /**
-    * 是否仅管理员生效: 0:否 1:是
+     * 是否仅管理员生效: 0:否 1:是
      */
     @TableField(value = "sys_setting_admin")
     @Schema(description = "是否仅管理员生效: 0:否 1:是")
@@ -115,7 +115,7 @@ public class SysSetting extends SysBase implements Serializable {
     private Integer sysSettingAdmin;
 
     /**
-    * 配置值类型(前端组件判断用): BOOL-布尔 文本-文本 等
+     * 配置值类型(前端组件判断用): BOOL-布尔 文本-文本 等
      */
     @TableField(value = "sys_setting_value_type")
     @Schema(description = "配置值类型(前端组件判断用): BOOL-布尔 TEXT-文本 等")
@@ -124,7 +124,7 @@ public class SysSetting extends SysBase implements Serializable {
     private String sysSettingValueType;
 
     /**
-    * 配置所属分组
+     * 配置所属分组
      */
     @TableField(value = "sys_setting_group")
     @Schema(description = "配置所属分组")
@@ -134,7 +134,7 @@ public class SysSetting extends SysBase implements Serializable {
     private String sysSettingGroup;
 
     /**
-    * 是否是配置集合: 0:单个 1:集合
+     * 是否是配置集合: 0:单个 1:集合
      */
     @TableField(value = "sys_setting_collect")
     @Schema(description = "是否是配置集合: 0:单个 1:集合")
@@ -142,7 +142,7 @@ public class SysSetting extends SysBase implements Serializable {
     private Integer sysSettingCollect;
 
     /**
-    * 是否系统配置: 0:否 1:是
+     * 是否系统配置: 0:否 1:是
      */
     @TableField(value = "sys_setting_in_system")
     @Schema(description = "是否系统配置: 0:否 1:是")
@@ -150,7 +150,7 @@ public class SysSetting extends SysBase implements Serializable {
     private Integer sysSettingInSystem;
 
     /**
-    * 是否作用于系统启动: 0:否 1:是
+     * 是否作用于系统启动: 0:否 1:是
      */
     @TableField(value = "sys_setting_app_inner")
     @Schema(description = "是否作用于系统启动: 0:否 1:是")
@@ -158,7 +158,7 @@ public class SysSetting extends SysBase implements Serializable {
     private Integer sysSettingAppInner;
 
     /**
-    * 是否敏感配置: 0:否 1:是（列表/详情返回时掩码，明文需通过解密接口获取）
+     * 是否敏感配置: 0:否 1:是（列表/详情返回时掩码，明文需通过解密接口获取）
      */
     @TableField(value = "sys_setting_is_sensitive")
     @Schema(description = "是否敏感配置: 0:否 1:是")
@@ -166,7 +166,7 @@ public class SysSetting extends SysBase implements Serializable {
     private Integer sysSettingIsSensitive;
 
     /**
-    * 校验规则（正则表达式，可为空）。配置值非空时，更新/新增需匹配该正则
+     * 校验规则（正则表达式，可为空）。配置值非空时，更新/新增需匹配该正则
      */
     @TableField(value = "sys_setting_validate")
     @Schema(description = "校验规则(正则表达式，可为空)")

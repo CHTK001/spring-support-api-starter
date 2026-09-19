@@ -31,9 +31,9 @@ public class SysCacheController {
     private final SysCacheService sysCacheService;
 
     /**
-    * 缓存列表
-    *
-    * @return 缓存信息列表
+     * 缓存列表
+     *
+     * @return 缓存信息列表
      */
     @Operation(summary = "缓存列表")
     @GetMapping("/list")

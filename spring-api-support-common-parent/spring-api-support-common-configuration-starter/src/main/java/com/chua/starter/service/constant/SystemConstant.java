@@ -13,7 +13,7 @@ public final class SystemConstant {
     }
 
     /**
-    * 默认缓存
+     * 默认缓存
      */
     public static final String CACHE_WITH_REDIS = "redis";
 

@@ -114,9 +114,9 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     }
 
     /**
-    * 获取application上下文
-    *
-    * @return ApplicationContext
+     * 获取application上下文
+     *
+     * @return ApplicationContext
      */
     public ApplicationContext getApplicationContext() {
         return applicationContext;

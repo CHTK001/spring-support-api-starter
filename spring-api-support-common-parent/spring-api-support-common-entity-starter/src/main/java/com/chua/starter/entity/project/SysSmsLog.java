@@ -32,14 +32,14 @@ public class SysSmsLog extends SysBase implements Serializable {
     /** SYSSMS日志标识 */
     private Integer sysSmsLogId;
     /**
-    * 项目标识
+     * 项目标识
      */
     @TableField(value = "sys_project_id")
     @Schema(description = "项目ID")
     /** sysprojectid */
     private Integer sysProjectId;
     /**
-    * 接收人
+     * 接收人
      */
     @TableField(value = "sys_sms_log_target")
     @Schema(description = "接收人")
@@ -48,7 +48,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     private String sysSmsLogTarget;
 
     /**
-    * 模板标识
+     * 模板标识
      */
     @TableField(value = "sys_sms_log_template_id")
     @Schema(description = "模板ID")
@@ -57,7 +57,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     private String sysSmsLogTemplateId;
 
     /**
-    * 短信内容
+     * 短信内容
      */
     @TableField(value = "sys_sms_log_content")
     @Schema(description = "短信内容")
@@ -65,7 +65,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     private String sysSmsLogContent;
 
     /**
-    * 参数
+     * 参数
      */
     @TableField(value = "sys_sms_log_param")
     @Schema(description = "参数")
@@ -74,7 +74,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     private String sysSmsLogParam;
 
     /**
-    * 耗时时间
+     * 耗时时间
      */
     @TableField(value = "sys_sms_cost")
     @Schema(description = "耗时时间")
@@ -82,7 +82,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     private BigDecimal sysSmsCost;
 
     /**
-    * 错误码
+     * 错误码
      */
     @TableField(value = "sys_sms_code")
     @Schema(description = "错误码")
@@ -91,7 +91,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     private String sysSmsCode;
 
     /**
-    * 错误信息
+     * 错误信息
      */
     @TableField(value = "sys_sms_message")
     @Schema(description = "错误信息")
@@ -100,7 +100,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     private String sysSmsMessage;
 
     /**
-    * 短信厂家
+     * 短信厂家
      */
     @TableField(value = "sys_sms_app_type")
     @Schema(description = "短信厂家")
@@ -109,7 +109,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     private String sysSmsAppType;
 
     /**
-    * 短信密钥
+     * 短信密钥
      */
     @TableField(value = "sys_sms_app_id")
     @Schema(description = "短信密钥")
@@ -118,7 +118,7 @@ public class SysSmsLog extends SysBase implements Serializable {
     private String sysSmsAppId;
 
     /**
-    * 签名
+     * 签名
      */
     @TableField(value = "sys_sms_app_sign")
     @Schema(description = "签名")

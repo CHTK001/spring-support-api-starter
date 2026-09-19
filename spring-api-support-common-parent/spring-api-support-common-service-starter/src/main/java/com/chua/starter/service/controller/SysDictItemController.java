@@ -42,13 +42,13 @@ public class SysDictItemController {
 
 
     /**
-    * 字典子项列表
-    *
-    * @return 字典子项列表
-    * @param query 查询
-    * @param sysDictCode sysdict编码
-    * @param true true
-    * @param roles 方法入参 roles
+     * 字典子项列表
+     *
+     * @return 字典子项列表
+     * @param query 查询
+     * @param sysDictCode sysdict编码
+     * @param true true
+     * @param roles 方法入参 roles
      */
     @Operation(summary = "字典子项列表(父code码查询)")
     @GetMapping("/pCode")

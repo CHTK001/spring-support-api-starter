@@ -24,34 +24,34 @@ public class SysUserQuery extends Query<SysUser> {
     private String username;
 
     /**
-    * 昵称
+     * 昵称
      */
     @Schema(description = "昵称")
     /** Nickname */
     private String nickname;
 
     /**
-    * 手机号
+     * 手机号
      */
     @Schema(description = "手机号")
     /** Phone */
     private String phone;
 
     /**
-    * 性别; 0:女;1:男; 2:其他
+     * 性别; 0:女;1:男; 2:其他
      */
     @Schema(description = "性别; 0:女;1:男; 2:其他")
     /** SEX */
     private Integer sex;
 
     /**
-    * 是否启用；0：禁用
+     * 是否启用；0：禁用
      */
     @Schema(description = "是否启用；0：禁用")
     /** 状态 */
     private Integer status;
     /**
-    * 部门标识
+     * 部门标识
      */
     @Schema(description = "部门id")
     /** sysdeptid */

@@ -32,10 +32,10 @@ public class SysBankBinsServiceImpl extends ServiceImpl<SysBankBinsMapper, SysBa
     private SysBankBinsService sysBankBinsService;
 
     /**
-    * 根据银行卡号前缀查询对应的银行BIN信息
-    *
-    * @param bankBin 银行卡号前缀，例如："622202"
-    * @return 匹配的银行BIN列表结果
+     * 根据银行卡号前缀查询对应的银行BIN信息
+     *
+     * @param bankBin 银行卡号前缀，例如："622202"
+     * @return 匹配的银行BIN列表结果
      */
     @Override
     public ReturnResult<List<SysBankBins>> bin(String bankBin) {

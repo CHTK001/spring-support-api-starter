@@ -62,7 +62,7 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
     private static final Logger log = LoggerFactory.getLogger(TenantServerSyncPublisher.class);
 
     /**
-    * 租户同步主题
+     * 租户同步主题
      */
     public static final String TOPIC_TENANT_UPDATE = TenantSyncMessageSupport.TOPIC_TENANT_UPDATE;
     /** Topic_tenant_删除 */
@@ -402,12 +402,12 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
     }
 
     /**
-    * 发布完整同步fortenant
-    *
-    * @param tenantId tenantId
-    * @param reason ReasonML
-    * @param sessionId 会话id
-    * @return 发布完整同步fortenant的结果
+     * 发布完整同步fortenant
+     *
+     * @param tenantId tenantId
+     * @param reason ReasonML
+     * @param sessionId 会话id
+     * @return 发布完整同步fortenant的结果
      */
     private int publishFullSyncForTenant(String tenantId, String reason, String sessionId) {
         if (!TenantSyncMessageSupport.hasText(tenantId)) {
@@ -931,11 +931,11 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
     }
 
     /**
-    * 构建tenantsnapshotfingerprint
-    * @param tenantId tenantid
-    * @param tenant tenant
-    * @param menuIds menu标识
-    * @param menus menus
+     * 构建tenantsnapshotfingerprint
+     * @param tenantId tenantid
+     * @param tenant tenant
+     * @param menuIds menu标识
+     * @param menus menus
      */
     private String buildTenantSnapshotFingerprint(String tenantId,
                                                   SysTenant tenant,

@@ -25,7 +25,7 @@ public class SmsLoginRequest {
     private String phone;
 
     /**
-    * 验证码
+     * 验证码
      */
     @NotBlank(message = "验证码不能为空")
     @Pattern(regexp = "^\\d{4,6}$", message = "验证码格式不正确")

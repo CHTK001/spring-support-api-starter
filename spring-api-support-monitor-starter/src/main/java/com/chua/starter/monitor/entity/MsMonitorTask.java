@@ -35,7 +35,7 @@ public class MsMonitorTask extends SysBase {
     private Long id;
 
     /**
-    * 采集任务名称，用于前端展示
+     * 采集任务名称，用于前端展示
      */
     @TableField("task_name")
     @ApiModelProperty("任务名称")
@@ -44,7 +44,7 @@ public class MsMonitorTask extends SysBase {
     private String taskName;
 
     /**
-    * 关联的监控资产标识
+     * 关联的监控资产标识
      */
     @TableField("monitor_id")
     @ApiModelProperty("监控资产ID")
@@ -53,7 +53,7 @@ public class MsMonitorTask extends SysBase {
     private Long monitorId;
 
     /**
-    * 任务类型，取值 健康/COLLECT/ALERT/习俗
+     * 任务类型，取值 健康/COLLECT/ALERT/习俗
      */
     @TableField("task_type")
     @ApiModelProperty("任务类型（HEALTH/COLLECT/ALERT/CUSTOM）")
@@ -62,7 +62,7 @@ public class MsMonitorTask extends SysBase {
     private String taskType;
 
     /**
-    * 任务Cron表达式，例如 0/30 * * * * ?
+     * 任务Cron表达式，例如 0/30 * * * * ?
      */
     @TableField("task_cron")
     @ApiModelProperty("Cron表达式")
@@ -71,7 +71,7 @@ public class MsMonitorTask extends SysBase {
     private String taskCron;
 
     /**
-    * 任务启用状态，1=启用，0=禁用
+     * 任务启用状态，1=启用，0=禁用
      */
     @TableField("task_enabled")
     @ApiModelProperty("启用状态（0禁用/1启用）")
@@ -80,7 +80,7 @@ public class MsMonitorTask extends SysBase {
     private Integer taskEnabled;
 
     /**
-    * 任务配置JSON，记录任务参数
+     * 任务配置JSON，记录任务参数
      */
     @TableField("task_config")
     @ApiModelProperty("任务配置JSON")
@@ -89,7 +89,7 @@ public class MsMonitorTask extends SysBase {
     private String taskConfig;
 
     /**
-    * 任务运行状态，取值 RUNNING/STOPPED/错误
+     * 任务运行状态，取值 RUNNING/STOPPED/错误
      */
     @TableField("task_status")
     @ApiModelProperty("运行状态（RUNNING/STOPPED/ERROR）")
@@ -98,7 +98,7 @@ public class MsMonitorTask extends SysBase {
     private String taskStatus;
 
     /**
-    * 任务描述信息，可为空
+     * 任务描述信息，可为空
      */
     @TableField("task_description")
     @ApiModelProperty("描述")
@@ -107,7 +107,7 @@ public class MsMonitorTask extends SysBase {
     private String taskDescription;
 
     /**
-    * 逻辑删除标记，0=未删除，1=已删除
+     * 逻辑删除标记，0=未删除，1=已删除
      */
     @TableField("deleted")
     @TableLogic

@@ -35,7 +35,7 @@ public class SysDevopsProject extends SysBase {
     private Long projectId;
 
     /**
-    * 项目名称
+     * 项目名称
      */
     @TableField(value = "project_name")
     @Schema(description = "项目名称")
@@ -44,7 +44,7 @@ public class SysDevopsProject extends SysBase {
     private String projectName;
 
     /**
-    * 项目描述
+     * 项目描述
      */
     @TableField(value = "project_description")
     @Schema(description = "项目描述")
@@ -52,7 +52,7 @@ public class SysDevopsProject extends SysBase {
     private String projectDescription;
 
     /**
-    * 项目图标URL
+     * 项目图标URL
      */
     @TableField(value = "project_icon")
     @Schema(description = "项目图标URL")
@@ -60,7 +60,7 @@ public class SysDevopsProject extends SysBase {
     private String projectIcon;
 
     /**
-    * 服务器OS类型
+     * 服务器OS类型
      */
     @TableField(value = "server_os")
     @Schema(description = "服务器OS类型：linux/windows/macos/unknown")
@@ -68,7 +68,7 @@ public class SysDevopsProject extends SysBase {
     private String serverOs;
 
     /**
-    * 排序
+     * 排序
      */
     @TableField(value = "sort_order")
     @Schema(description = "排序")
@@ -76,7 +76,7 @@ public class SysDevopsProject extends SysBase {
     private Integer sortOrder;
 
     /**
-    * 状态
+     * 状态
      */
     @TableField(value = "status")
     @Schema(description = "状态：1启用 0禁用")
@@ -94,7 +94,7 @@ public class SysDevopsProject extends SysBase {
     private String serverType;
 
     /**
-    * 主机地址（加密）
+     * 主机地址（加密）
      */
     @TableField(value = "server_host")
     @Schema(description = "主机地址（加密）")
@@ -102,7 +102,7 @@ public class SysDevopsProject extends SysBase {
     private String serverHost;
 
     /**
-    * 端口号
+     * 端口号
      */
     @TableField(value = "server_port")
     @Schema(description = "端口号")
@@ -110,7 +110,7 @@ public class SysDevopsProject extends SysBase {
     private Integer serverPort;
 
     /**
-    * 用户名（加密）
+     * 用户名（加密）
      */
     @TableField(value = "server_username")
     @Schema(description = "用户名（加密）")
@@ -118,7 +118,7 @@ public class SysDevopsProject extends SysBase {
     private String serverUsername;
 
     /**
-    * 密码（加密）
+     * 密码（加密）
      */
     @TableField(value = "server_password")
     @Schema(description = "密码（加密）")
@@ -126,7 +126,7 @@ public class SysDevopsProject extends SysBase {
     private String serverPassword;
 
     /**
-    * SSH私钥（加密）
+     * SSH私钥（加密）
      */
     @TableField(value = "server_private_key")
     @Schema(description = "SSH私钥（加密）")
@@ -134,7 +134,7 @@ public class SysDevopsProject extends SysBase {
     private String serverPrivateKey;
 
     /**
-    * 连接超时（秒）
+     * 连接超时（秒）
      */
     @TableField(value = "server_connect_timeout")
     @Schema(description = "连接超时（秒）")
@@ -142,7 +142,7 @@ public class SysDevopsProject extends SysBase {
     private Integer serverConnectTimeout;
 
     /**
-    * 服务器信息是否激活
+     * 服务器信息是否激活
      */
     @TableField(value = "server_enabled")
     @Schema(description = "服务器信息是否激活：1是 0否")
@@ -150,7 +150,7 @@ public class SysDevopsProject extends SysBase {
     private Integer serverEnabled;
 
     /**
-    * 最近激活时间
+     * 最近激活时间
      */
     @TableField(value = "server_activated_at")
     @Schema(description = "最近激活时间")
@@ -168,7 +168,7 @@ public class SysDevopsProject extends SysBase {
     private String logPath;
 
     /**
-    * 配置文件路径
+     * 配置文件路径
      */
     @TableField(value = "config_path")
     @Schema(description = "配置文件路径")
@@ -176,7 +176,7 @@ public class SysDevopsProject extends SysBase {
     private String configPath;
 
     /**
-    * 依赖目录路径
+     * 依赖目录路径
      */
     @TableField(value = "lib_path")
     @Schema(description = "依赖目录路径")
@@ -184,7 +184,7 @@ public class SysDevopsProject extends SysBase {
     private String libPath;
 
     /**
-    * 项目根目录
+     * 项目根目录
      */
     @TableField(value = "root_path")
     @Schema(description = "项目根目录")
@@ -202,7 +202,7 @@ public class SysDevopsProject extends SysBase {
     private String startScript;
 
     /**
-    * 停止脚本
+     * 停止脚本
      */
     @TableField(value = "stop_script")
     @Schema(description = "停止脚本")
@@ -210,7 +210,7 @@ public class SysDevopsProject extends SysBase {
     private String stopScript;
 
     /**
-    * 重启脚本
+     * 重启脚本
      */
     @TableField(value = "restart_script")
     @Schema(description = "重启脚本")
@@ -228,7 +228,7 @@ public class SysDevopsProject extends SysBase {
     private String runtimeStatus;
 
     /**
-    * 关联密钥数量
+     * 关联密钥数量
      */
     @TableField(exist = false)
     @Schema(description = "关联密钥数量")

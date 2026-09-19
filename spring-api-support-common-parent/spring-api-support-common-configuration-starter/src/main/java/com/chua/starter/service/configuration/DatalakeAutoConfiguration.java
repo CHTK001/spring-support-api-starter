@@ -26,9 +26,9 @@ public class DatalakeAutoConfiguration {
 
     @Bean
     /**
-    * 数据湖服务端
-    *
-    * @return 数据湖服务端的结果
+     * 数据湖服务端
+     *
+     * @return 数据湖服务端的结果
      */
     public DatalakeServer datalakeServer() {
         this.datalakeServer = DatalakeServerBuilder.builder()

@@ -54,12 +54,12 @@ public class SysAnnouncementController {
     private final SysUserMapper sysUserMapper;
 
     /**
-    * 公告分页列表（管理端）
-    *
-    * @param query           分页参数
-    * @param sysAnnouncement 查询条件
-    * @param roles           当前用户角色
-    * @return 公告分页结果
+     * 公告分页列表（管理端）
+     *
+     * @param query           分页参数
+     * @param sysAnnouncement 查询条件
+     * @param roles           当前用户角色
+     * @return 公告分页结果
      */
     @Operation(summary = "公告分页列表")
     @GetMapping("/page")

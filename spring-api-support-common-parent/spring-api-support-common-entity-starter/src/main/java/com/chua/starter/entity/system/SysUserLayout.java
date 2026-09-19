@@ -37,7 +37,7 @@ public class SysUserLayout extends SysBase implements Serializable {
     private Integer sysLayoutId;
 
     /**
-    * 布局类型
+     * 布局类型
      */
     @TableField(value = "sys_layout_layout")
     @Schema(description = "布局类型")
@@ -46,7 +46,7 @@ public class SysUserLayout extends SysBase implements Serializable {
     private String sysLayoutLayout;
 
     /**
-    * 布局网格配置
+     * 布局网格配置
      */
     @TableField(value = "sys_layout_grid")
     @Schema(description = "布局网格配置")
@@ -55,7 +55,7 @@ public class SysUserLayout extends SysBase implements Serializable {
     private String sysLayoutGrid;
 
     /**
-    * 组件配置
+     * 组件配置
      */
     @TableField(value = "sys_layout_component")
     @Schema(description = "组件配置")
@@ -64,7 +64,7 @@ public class SysUserLayout extends SysBase implements Serializable {
     private String sysLayoutComponent;
 
     /**
-    * 所属用户标识
+     * 所属用户标识
      */
     @TableField(value = "sys_layout_user_id")
     @Schema(description = "所属用户ID")
@@ -72,7 +72,7 @@ public class SysUserLayout extends SysBase implements Serializable {
     private Integer sysLayoutUserId;
 
     /**
-    * 用户偏好配置（lay-setting 配置，JSON格式）
+     * 用户偏好配置（lay-setting 配置，JSON格式）
      */
     @TableField(value = "sys_layout_preference")
     @Schema(description = "用户偏好配置")

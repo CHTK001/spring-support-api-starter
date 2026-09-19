@@ -79,9 +79,9 @@ public class SysCacheServiceImpl implements SysCacheService {
     }
 
     /**
-    * 将缓存Key描述转换为Redis匹配模式(前后加通配符)
-    * @param cacheKey 缓存键，不允许为 null
-    * @return 结果字符串
+     * 将缓存Key描述转换为Redis匹配模式(前后加通配符)
+     * @param cacheKey 缓存键，不允许为 null
+     * @return 结果字符串
      */
     private String toPattern(String cacheKey) {
         return "*" + cacheKey + "*";

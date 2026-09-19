@@ -209,11 +209,11 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 复制转为服务端
-    *
-    * @param sourceServerId 源服务端id
-    * @param targetServerId Target服务端id
-    * @return 副本转为服务端的结果
+     * 复制转为服务端
+     *
+     * @param sourceServerId 源服务端id
+     * @param targetServerId Target服务端id
+     * @return 副本转为服务端的结果
      */
     public ReturnResult<Integer> copyToServer(Integer sourceServerId, Integer targetServerId) {
         if (sourceServerId == null || targetServerId == null) {
@@ -319,10 +319,10 @@ public class MonitorSysGenServerComponentLayoutServiceImpl
     }
 
     /**
-    * 为组件布局填充默认值：位置默认 (0,0)，尺寸默认 4x3，
-    * 层级默认 1，可移动可缩放，状态默认启用，排序默认 0。
-    *
-    * @param layout 组件布局实体
+     * 为组件布局填充默认值：位置默认 (0,0)，尺寸默认 4x3，
+     * 层级默认 1，可移动可缩放，状态默认启用，排序默认 0。
+     *
+     * @param layout 组件布局实体
      */
     private void applyDefaults(MonitorSysGenServerComponentLayout layout) {
         if (layout.getMonitorSysGenServerComponentLayoutX() == null) {

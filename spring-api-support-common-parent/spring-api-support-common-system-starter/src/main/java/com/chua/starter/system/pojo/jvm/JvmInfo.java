@@ -140,9 +140,9 @@ public class JvmInfo implements Serializable {
     private SecurityInfo securityInfo;
 
     /**
-    * 内存信息
-    * @author CH
-    * @since 4.0.0
+     * 内存信息
+     * @author CH
+     * @since 4.0.0
      */
     @Getter
     @Schema(description = "内存信息")

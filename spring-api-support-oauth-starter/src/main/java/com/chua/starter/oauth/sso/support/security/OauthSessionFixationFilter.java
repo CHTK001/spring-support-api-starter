@@ -34,9 +34,9 @@ public class OauthSessionFixationFilter implements Filter, Ordered {
 
     @Override
     /**
-    * 执行过滤
-    * @param servletRequest servlet请求
-    * @param servletResponse servlet响应
+     * 执行过滤
+     * @param servletRequest servlet请求
+     * @param servletResponse servlet响应
      */
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
             throws IOException, ServletException {

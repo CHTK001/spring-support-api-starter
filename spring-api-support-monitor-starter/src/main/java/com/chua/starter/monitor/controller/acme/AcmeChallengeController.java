@@ -30,11 +30,11 @@ public class AcmeChallengeController {
     private final AcmeChallengeService challengeService;
 
     /**
-    * 响应 ACME HTTP-01 验证请求
-    * ACME 服务器会访问 http://域名/.well-known/acme-challenge/{token}
-    *
-    * @param token 验证 令牌
-    * @return keyAuthorization 内容
+     * 响应 ACME HTTP-01 验证请求
+     * ACME 服务器会访问 http://域名/.well-known/acme-challenge/{token}
+     *
+     * @param token 验证 令牌
+     * @return keyAuthorization 内容
      */
     @GetMapping(value = "/.well-known/acme-challenge/{token}", produces = MediaType.TEXT_PLAIN_VALUE)
     @Operation(summary = "响应ACME HTTP-01验证请求")

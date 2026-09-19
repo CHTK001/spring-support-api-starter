@@ -16,10 +16,10 @@ public final class RequestTraceSupport {
     }
 
     /**
-    * Normalize
-    *
-    * @param value 值
-    * @return normalize的结果
+     * Normalize
+     *
+     * @param value 值
+     * @return normalize的结果
      */
     public static String normalize(String value) {
         if (value == null) {

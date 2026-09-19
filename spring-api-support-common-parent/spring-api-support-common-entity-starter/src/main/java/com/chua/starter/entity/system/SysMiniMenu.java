@@ -41,7 +41,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private Integer sysMiniMenuId;
 
     /**
-    * 卡片标题
+     * 卡片标题
      */
     @TableField("sys_mini_menu_title")
     @Schema(description = "卡片标题")
@@ -51,7 +51,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private String sysMiniMenuTitle;
 
     /**
-    * 卡片副标题
+     * 卡片副标题
      */
     @TableField("sys_mini_menu_subtitle")
     @Schema(description = "卡片副标题")
@@ -60,7 +60,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private String sysMiniMenuSubtitle;
 
     /**
-    * 卡片分组
+     * 卡片分组
      */
     @TableField("sys_mini_menu_category")
     @Schema(description = "卡片分组")
@@ -69,7 +69,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private String sysMiniMenuCategory;
 
     /**
-    * 小程序页面路径
+     * 小程序页面路径
      */
     @TableField("sys_mini_menu_path")
     @Schema(description = "小程序页面路径")
@@ -79,7 +79,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private String sysMiniMenuPath;
 
     /**
-    * 跳转模式; 0:普通页面 1:tabbar页面 2:webview
+     * 跳转模式; 0:普通页面 1:tabbar页面 2:webview
      */
     @TableField("sys_mini_menu_jump_mode")
     @Schema(description = "跳转模式; 0:普通页面 1:tabBar页面 2:webview")
@@ -87,7 +87,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private Integer sysMiniMenuJumpMode;
 
     /**
-    * 卡片图标
+     * 卡片图标
      */
     @TableField("sys_mini_menu_icon")
     @Schema(description = "卡片图标")
@@ -96,7 +96,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private String sysMiniMenuIcon;
 
     /**
-    * 卡片封面/背景
+     * 卡片封面/背景
      */
     @TableField("sys_mini_menu_cover")
     @Schema(description = "卡片封面/背景")
@@ -105,7 +105,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private String sysMiniMenuCover;
 
     /**
-    * 角标文案
+     * 角标文案
      */
     @TableField("sys_mini_menu_badge")
     @Schema(description = "角标文案")
@@ -114,7 +114,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private String sysMiniMenuBadge;
 
     /**
-    * 角标样式
+     * 角标样式
      */
     @TableField("sys_mini_menu_badge_type")
     @Schema(description = "角标样式")
@@ -123,7 +123,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private String sysMiniMenuBadgeType;
 
     /**
-    * 权限标识
+     * 权限标识
      */
     @TableField("sys_mini_menu_perm")
     @Schema(description = "权限标识")
@@ -132,7 +132,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private String sysMiniMenuPerm;
 
     /**
-    * 允许访问角色编码，逗号分隔
+     * 允许访问角色编码，逗号分隔
      */
     @TableField("sys_mini_menu_role")
     @Schema(description = "允许访问角色编码，逗号分隔")
@@ -141,7 +141,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private String sysMiniMenuRole;
 
     /**
-    * 排序
+     * 排序
      */
     @TableField("sys_mini_menu_sort")
     @Schema(description = "排序")
@@ -149,7 +149,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private Integer sysMiniMenuSort;
 
     /**
-    * 是否缓存; 0:否 1:是
+     * 是否缓存; 0:否 1:是
      */
     @TableField("sys_mini_menu_keep_alive")
     @Schema(description = "是否缓存; 0:否 1:是")
@@ -157,7 +157,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private Integer sysMiniMenuKeepAlive;
 
     /**
-    * 是否隐藏; 0:显示 1:隐藏
+     * 是否隐藏; 0:显示 1:隐藏
      */
     @TableField("sys_mini_menu_hidden")
     @Schema(description = "是否隐藏; 0:显示 1:隐藏")
@@ -165,7 +165,7 @@ public class SysMiniMenu extends SysBase implements Serializable {
     private Integer sysMiniMenuHidden;
 
     /**
-    * 卡片说明
+     * 卡片说明
      */
     @TableField("sys_mini_menu_description")
     @Schema(description = "卡片说明")

@@ -28,10 +28,10 @@ public class SysDictItemPropertyController {
     private final SysDictItemPropertyService sysDictItemPropertyService;
 
     /**
-    * 保存或更新
-    *
-    * @param request 配置
-    * @return 结果
+     * 保存或更新
+     *
+     * @param request 配置
+     * @return 结果
      */
     @PutMapping("/saveOrUpdate")
     @Operation(summary = "保存或更新")

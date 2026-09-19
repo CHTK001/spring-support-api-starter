@@ -40,9 +40,9 @@ public class IpcAuthInformation {
         private final int remotePort;
 
         /**
-        * 创建 ipc请求 实例
-        * @param remoteAddr 远程addr
-        * @param remotePort 远程端口
+         * 创建 ipc请求 实例
+         * @param remoteAddr 远程addr
+         * @param remotePort 远程端口
          */
         public IpcRequest(String remoteAddr, int remotePort) {
             this.remoteAddr = remoteAddr;
@@ -186,10 +186,10 @@ public class IpcAuthInformation {
     }
 
     /**
-    * IPC 响应适配器
-    * <p>实现 HttpServletResponse 接口，用于适配 IPC 响应</p>
-    * @author CH
-    * @since 4.0.0
+     * IPC 响应适配器
+     * <p>实现 HttpServletResponse 接口，用于适配 IPC 响应</p>
+     * @author CH
+     * @since 4.0.0
      */
     public static class IpcResponse implements HttpServletResponse {
         private final Map<String, String> headers = new ConcurrentHashMap<>(); // 头部
@@ -230,9 +230,9 @@ public class IpcAuthInformation {
         }
 
         /**
-        * 获取全部头部
-        *
-        * @return 获取全部头部的结果
+         * 获取全部头部
+         *
+         * @return 获取全部头部的结果
          */
         public Map<String, String> getAllHeaders() {
             return new HashMap<>(headers);
