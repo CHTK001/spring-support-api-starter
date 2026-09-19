@@ -1,8 +1,8 @@
 package com.chua.starter.system.login;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.chua.common.support.utils.DigestUtils;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.starter.system.util.PasswordUtils;
 import com.chua.starter.oauth.client.support.annotation.LoginType;
 import com.chua.starter.oauth.client.support.user.OpenIdGenerator;
 import com.chua.starter.oauth.client.support.user.UserResult;
@@ -16,11 +16,11 @@ import org.springframework.stereotype.Service;
 
 
 /**
-* 用户信息鉴权服务
-* <p>基于用户名/密码的标准Web登录验证服务</p>
-*
-* @since 1.0.0
-* @author CH
+ * 用户信息鉴权服务
+ * <p>基于用户名/密码的标准Web登录验证服务</p>
+ *
+ * @since 1.0.0
+ * @author CH
  */
 @Slf4j
 @Service
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 public class UserLoginService extends AbstractUserLoginService {
 
     /**
-    * 登录类型前缀
+     * 登录类型前缀
      */
     private static final String LOGIN_TYPE_PREFIX = "system";
 
@@ -85,9 +85,7 @@ public class UserLoginService extends AbstractUserLoginService {
         }
 
         // 验证密码
-        String salt = user.getSysUserSalt();
-        String md5String = DigestUtils.md5Hex(credential + salt);
-        if (!StringUtils.safeEquals(md5String, user.getSysUserPassword())) {
+        if (!PasswordUtils.matches(credential, user.getSysUserSalt(), user.getSysUserPassword())) {
             log.info("登录失败: 密码错误 {}, IP: {}", principal, address);
             return handleLoginFailure(redisKey, true);
         }

@@ -44,10 +44,10 @@ import static com.chua.common.support.lang.code.ReturnCode.REQUEST_PARAM_ERROR;
 import static com.chua.starter.common.support.logger.AbstractLoggerPointcutAdvisor.X_REQ_FINGERPRINT;
 
 /**
-* 登录
-*
-* @author CH
-* @since 2024/9/12
+ * 登录
+ *
+ * @author CH
+ * @since 2024/9/12
  */
 @RestController
 @Slf4j
@@ -62,13 +62,13 @@ public class LoginController {
     final SysUserService sysUserService; // sys用户服务
 
     /**
-    * 登录
-    *
-    * @param loginData     登录信息
-    * @param request       请求
-    * @param response      响应
-    * @param bindingResult 参数处理
-    * @return 结果
+     * 登录
+     *
+     * @param loginData     登录信息
+     * @param request       请求
+     * @param response      响应
+     * @param bindingResult 参数处理
+     * @return 结果
      */
     @Operation(summary = "登录")
     @PostMapping("/login")
@@ -161,11 +161,11 @@ public class LoginController {
     }
 
     /**
-    * 获取当前登录用户信息
-    * 直接从数据库查询最新信息，不使用 oauth 缓存
-    *
-    * @return 获取当前登录用户信息
-    */
+     * 获取当前登录用户信息
+     * 直接从数据库查询最新信息，不使用 oauth 缓存
+     *
+     * @return 获取当前登录用户信息
+     */
     @Operation(summary = "获取当前登录用户信息")
     @GetMapping("/me")
     public ReturnResult<UserInfoVO> getUserLoginInfo(
@@ -185,6 +185,8 @@ public class LoginController {
                     userInfoVO.setSysUserBirthday(sysUser.getSysUserBirthday());
                     userInfoVO.setAvatar(sysUser.getSysUserAvatar());
                     userInfoVO.setSysUserCard(sysUser.getSysUserCard());
+                    userInfoVO.setSysUserAvatarFrame(sysUser.getSysUserAvatarFrame());
+                    userInfoVO.setSysUserAvatarFrameShow(sysUser.getSysUserAvatarFrameShow());
                 }
             } catch (NumberFormatException ignored) {
             }
@@ -199,13 +201,13 @@ public class LoginController {
     }
 
     /**
-    * 获取当前登录用户菜单
-    *
-    * @param roles 用户角色集合
-    * @return 菜单列表
-    * @author CH
-    * @since 2024/12/10
-    * @版本 1.0
+     * 获取当前登录用户菜单
+     *
+     * @param roles 用户角色集合
+     * @return 菜单列表
+     * @author CH
+     * @since 2024/12/10
+     * @版本 1.0
      */
     @Operation(summary = "获取当前登录用户菜单")
     @GetMapping("/menu")
@@ -223,10 +225,10 @@ public class LoginController {
     }
 
     /**
-    * 创建临时令牌
-    *
-    * @param body 请求体，可包含 expire时间（秒，默认10，最大3600）和 allowedurls（逗号分隔的URL列表）
-    * @return 临时令牌
+     * 创建临时令牌
+     *
+     * @param body 请求体，可包含 expire时间（秒，默认10，最大3600）和 allowedurls（逗号分隔的URL列表）
+     * @return 临时令牌
      */
     @Operation(summary = "创建临时令牌")
     @PostMapping("/temporary-token")
@@ -267,11 +269,11 @@ public class LoginController {
     }
 
     /**
-    * 令牌 升级（版本 刷新用户信息 / 时间戳 续期）
-    *
-    * @param upgradeType 升级类型：版本（刷新用户信息）/ 时间戳（续期）
-    * @param token       当前 access令牌（从 头部 获取）
-    * @return 升级结果，包含新 令牌 信息
+     * 令牌 升级（版本 刷新用户信息 / 时间戳 续期）
+     *
+     * @param upgradeType 升级类型：版本（刷新用户信息）/ 时间戳（续期）
+     * @param token       当前 access令牌（从 头部 获取）
+     * @return 升级结果，包含新 令牌 信息
      */
     @Operation(summary = "Token升级（VERSION刷新用户信息/TIMESTAMP续期）")
     @PostMapping("/upgrade")
