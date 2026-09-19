@@ -35,7 +35,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     private Integer monitorSysGenServerComponentLayoutId;
 
     /**
-    * 关联的服务器标识，标识该组件布局属于哪台服务器
+     * 关联的服务器标识，标识该组件布局属于哪台服务器
      */
     @TableField("monitor_sys_gen_server_id")
     @ApiModelProperty("关联服务器ID")
@@ -44,7 +44,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     private Integer monitorSysGenServerId;
 
     /**
-    * 关联的组件标识，用于区分 CPU、内存、磁盘等不同监控组件
+     * 关联的组件标识，用于区分 CPU、内存、磁盘等不同监控组件
      */
     @TableField("monitor_sys_gen_server_component_id")
     @ApiModelProperty("关联组件ID")
@@ -53,7 +53,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     private Integer monitorSysGenServerComponentId;
 
     /**
-    * 组件在栅格布局中的 X 坐标（列位置），从 0 开始
+     * 组件在栅格布局中的 X 坐标（列位置），从 0 开始
      */
     @TableField("monitor_sys_gen_server_component_layout_x")
     @ApiModelProperty("X 坐标")
@@ -62,7 +62,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     private Integer monitorSysGenServerComponentLayoutX;
 
     /**
-    * 组件在栅格布局中的 Y 坐标（行位置），从 0 开始
+     * 组件在栅格布局中的 Y 坐标（行位置），从 0 开始
      */
     @TableField("monitor_sys_gen_server_component_layout_y")
     @ApiModelProperty("Y 坐标")
@@ -71,7 +71,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     private Integer monitorSysGenServerComponentLayoutY;
 
     /**
-    * 组件宽度（占用栅格列数）
+     * 组件宽度（占用栅格列数）
      */
     @TableField("monitor_sys_gen_server_component_layout_w")
     @ApiModelProperty("宽度")
@@ -80,7 +80,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     private Integer monitorSysGenServerComponentLayoutW;
 
     /**
-    * 组件高度（占用栅格行数）
+     * 组件高度（占用栅格行数）
      */
     @TableField("monitor_sys_gen_server_component_layout_h")
     @ApiModelProperty("高度")
@@ -89,7 +89,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     private Integer monitorSysGenServerComponentLayoutH;
 
     /**
-    * 组件层级，数值越大越靠上，用于组件重叠时的显示顺序
+     * 组件层级，数值越大越靠上，用于组件重叠时的显示顺序
      */
     @TableField("monitor_sys_gen_server_component_layout_z_index")
     @ApiModelProperty("层级")
@@ -98,7 +98,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     private Integer monitorSysGenServerComponentLayoutZIndex;
 
     /**
-    * 是否可移动，1-可移动，0-固定位置
+     * 是否可移动，1-可移动，0-固定位置
      */
     @TableField("monitor_sys_gen_server_component_layout_movable")
     @ApiModelProperty("是否可移动（0/1）")
@@ -107,7 +107,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     private Integer monitorSysGenServerComponentLayoutMovable;
 
     /**
-    * 是否可调整大小，1-可调整，0-固定尺寸
+     * 是否可调整大小，1-可调整，0-固定尺寸
      */
     @TableField("monitor_sys_gen_server_component_layout_resizable")
     @ApiModelProperty("是否可调整大小（0/1）")
@@ -116,7 +116,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     private Integer monitorSysGenServerComponentLayoutResizable;
 
     /**
-    * 布局状态，1-启用（在大屏中展示），0-禁用（隐藏）
+     * 布局状态，1-启用（在大屏中展示），0-禁用（隐藏）
      */
     @TableField("monitor_sys_gen_server_component_layout_status")
     @ApiModelProperty("布局状态（0禁用/1启用）")
@@ -125,7 +125,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     private Integer monitorSysGenServerComponentLayoutStatus;
 
     /**
-    * 排序顺序，数值越小越靠前，用于组件列表展示排序
+     * 排序顺序，数值越小越靠前，用于组件列表展示排序
      */
     @TableField("monitor_sys_gen_server_component_layout_sort_order")
     @ApiModelProperty("排序顺序")
@@ -134,7 +134,7 @@ public class MonitorSysGenServerComponentLayout extends SysBase {
     private Integer monitorSysGenServerComponentLayoutSortOrder;
 
     /**
-    * 组件图表配置 JSON，保存图表类型、颜色、阈值等个性化配置，可为空
+     * 组件图表配置 JSON，保存图表类型、颜色、阈值等个性化配置，可为空
      */
     @TableField("monitor_sys_gen_server_component_layout_chart_config")
     @ApiModelProperty("组件图表配置 JSON")

@@ -35,7 +35,7 @@ public class MsMonitorConfig extends SysBase {
     private Long id;
 
     /**
-    * 配置键，例如 监控.扫描.间隔
+     * 配置键，例如 监控.扫描.间隔
      */
     @TableField("config_key")
     @ApiModelProperty("配置键")
@@ -44,7 +44,7 @@ public class MsMonitorConfig extends SysBase {
     private String configKey;
 
     /**
-    * 配置值
+     * 配置值
      */
     @TableField("config_value")
     @ApiModelProperty("配置值")
@@ -53,7 +53,7 @@ public class MsMonitorConfig extends SysBase {
     private String configValue;
 
     /**
-    * 配置类型，例如 字符串/数字/布尔值
+     * 配置类型，例如 字符串/数字/布尔值
      */
     @TableField("config_type")
     @ApiModelProperty("配置类型")
@@ -62,7 +62,7 @@ public class MsMonitorConfig extends SysBase {
     private String configType;
 
     /**
-    * 配置分组，例如 扫描/ALERT/NETWORK
+     * 配置分组，例如 扫描/ALERT/NETWORK
      */
     @TableField("config_group")
     @ApiModelProperty("配置分组")
@@ -71,7 +71,7 @@ public class MsMonitorConfig extends SysBase {
     private String configGroup;
 
     /**
-    * 逻辑删除标记，0=未删除，1=已删除
+     * 逻辑删除标记，0=未删除，1=已删除
      */
     @TableField("deleted")
     @TableLogic

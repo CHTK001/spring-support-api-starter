@@ -44,11 +44,11 @@ public class OAuth2AuthorizationHandler implements AuthorizationHandler {
 
     @Override
     /**
-    * Authenticate
-    * @param authInformation 认证信息
-    * @param token 令牌
-    * @param cookie Cookie
-    * @param userCode 用户编码
+     * Authenticate
+     * @param authInformation 认证信息
+     * @param token 令牌
+     * @param cookie Cookie
+     * @param userCode 用户编码
      */
     public ReturnResult<String> authenticate(OauthAuthInformation authInformation,
                                             String token,

@@ -53,10 +53,10 @@ public class SysUserConfigServiceImpl extends ServiceImpl<SysUserConfigMapper, S
     @Override
     @Transactional(rollbackFor = Exception.class)
     /**
-    * 保存或更新配置
-    *
-    * @param config 配置
-    * @return 保存或更新配置的结果
+     * 保存或更新配置
+     *
+     * @param config 配置
+     * @return 保存或更新配置的结果
      */
     public SysUserConfig saveOrUpdateConfig(SysUserConfig config) {
         if (config == null) {

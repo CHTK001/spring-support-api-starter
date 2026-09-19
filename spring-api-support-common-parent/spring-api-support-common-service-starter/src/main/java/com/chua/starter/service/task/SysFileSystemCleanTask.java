@@ -170,9 +170,9 @@ public class SysFileSystemCleanTask {
     }
 
     /**
-    * 删除physical文件
-    *
-    * @param file 文件
+     * 删除physical文件
+     *
+     * @param file 文件
      */
     private void deletePhysicalFile(SysFileSystem file) {
         try {

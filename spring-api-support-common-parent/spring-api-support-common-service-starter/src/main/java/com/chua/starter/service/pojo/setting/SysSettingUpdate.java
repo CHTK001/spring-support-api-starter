@@ -24,7 +24,7 @@ public class SysSettingUpdate {
     private String sysSettingGroup;
 
     /**
-    * 配置编码（查询条件）
+     * 配置编码（查询条件）
      */
     @Schema(description = "配置编码")
     /** SYS设置代码 */

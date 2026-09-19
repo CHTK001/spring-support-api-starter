@@ -53,13 +53,13 @@ public class WechatEnterpriseLoginService extends AbstractUserLoginService {
     }
 
     /**
-    * 企业微信用户登录验证
-    *
-    * @param userId   企业微信用户唯一标识（企业内用户标识）
-    * @param password 不使用，可为空
-    * @param address  客户端IP地址
-    * @param ext      扩展参数，可为空
-    * @return 用户信息，若验证失败则message字段包含错误信息
+     * 企业微信用户登录验证
+     *
+     * @param userId   企业微信用户唯一标识（企业内用户标识）
+     * @param password 不使用，可为空
+     * @param address  客户端IP地址
+     * @param ext      扩展参数，可为空
+     * @return 用户信息，若验证失败则message字段包含错误信息
      */
     @Override
     public UserResume checkLogin(String userId, String password, String address, Object ext) {

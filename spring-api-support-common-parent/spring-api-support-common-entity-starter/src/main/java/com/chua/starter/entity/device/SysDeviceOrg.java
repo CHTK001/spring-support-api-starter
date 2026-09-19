@@ -29,7 +29,7 @@ public class SysDeviceOrg extends SysBase {
     private String sysDeviceOrgId;
 
     /**
-    * 产品标识
+     * 产品标识
      */
     @TableField(value = "sys_project_id")
     @Schema(description = "产品id")
@@ -37,7 +37,7 @@ public class SysDeviceOrg extends SysBase {
     private Integer sysProjectId;
 
     /**
-    * 组织名称
+     * 组织名称
      */
     @TableField(value = "sys_device_org_name")
     @Schema(description = "组织名称")
@@ -45,7 +45,7 @@ public class SysDeviceOrg extends SysBase {
     private String sysDeviceOrgName;
 
     /**
-    * 上级组织
+     * 上级组织
      */
     @TableField(value = "sys_device_org_pid")
     @Schema(description = "上级组织")
@@ -53,7 +53,7 @@ public class SysDeviceOrg extends SysBase {
     private String sysDeviceOrgPid;
 
     /**
-    * 路径
+     * 路径
      */
     @TableField(value = "sys_device_org_tree_path")
     @Schema(description = "路径")

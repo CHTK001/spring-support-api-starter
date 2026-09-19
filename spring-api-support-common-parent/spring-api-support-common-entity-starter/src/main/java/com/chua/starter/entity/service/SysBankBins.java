@@ -34,7 +34,7 @@ public class SysBankBins extends SysBase {
     private Integer sysBlankBinId;
 
     /**
-    * 银行名称
+     * 银行名称
      */
     @TableField(value = "sys_blank_bin_bank_name")
     @Schema(description = "银行名称")
@@ -44,7 +44,7 @@ public class SysBankBins extends SysBase {
     private String sysBlankBinBankName;
 
     /**
-    * 银行英文名称
+     * 银行英文名称
      */
     @TableField(value = "sys_blank_bin_bank_name_en")
     @Schema(description = "银行英文名称")
@@ -53,7 +53,7 @@ public class SysBankBins extends SysBase {
     private String sysBlankBinBankNameEn;
 
     /**
-    * 卡名称
+     * 卡名称
      */
     @TableField(value = "sys_blank_bin_card_name")
     @Schema(description = "卡名称")
@@ -62,7 +62,7 @@ public class SysBankBins extends SysBase {
     private String sysBlankBinCardName;
 
     /**
-    * 卡类型
+     * 卡类型
      */
     @TableField(value = "sys_blank_bin_card_type")
     @Schema(description = "卡类型")
@@ -71,7 +71,7 @@ public class SysBankBins extends SysBase {
     private String sysBlankBinCardType;
 
     /**
-    * BIN码
+     * BIN码
      */
     @TableField(value = "sys_blank_bin_bin")
     @Schema(description = "BIN码")
@@ -81,7 +81,7 @@ public class SysBankBins extends SysBase {
     private String sysBlankBinBin;
 
     /**
-    * 卡号长度
+     * 卡号长度
      */
     @TableField(value = "sys_blank_bin_n_length")
     @Schema(description = "卡号长度")
@@ -89,7 +89,7 @@ public class SysBankBins extends SysBase {
     private Byte sysBlankBinNLength;
 
     /**
-    * BIN长度
+     * BIN长度
      */
     @TableField(value = "sys_blank_bin_bin_length")
     @Schema(description = "BIN长度")
@@ -97,7 +97,7 @@ public class SysBankBins extends SysBase {
     private Boolean sysBlankBinBinLength;
 
     /**
-    * 发卡机构标识
+     * 发卡机构标识
      */
     @TableField(value = "sys_blank_bin_issue_id")
     @Schema(description = "发卡机构ID")

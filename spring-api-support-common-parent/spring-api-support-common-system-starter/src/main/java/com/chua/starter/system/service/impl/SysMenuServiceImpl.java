@@ -259,11 +259,11 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     /**
-    * 过滤menusbyengine
-    *
-    * @param sysMenus sysMenus
-    * @param sysMenuEngine sysMenuEngine
-    * @return 过滤器menusbyengine的结果
+     * 过滤menusbyengine
+     *
+     * @param sysMenus sysMenus
+     * @param sysMenuEngine sysMenuEngine
+     * @return 过滤器menusbyengine的结果
      */
     private List<SysMenu> filterMenusByEngine(List<SysMenu> sysMenus, Integer sysMenuEngine) {
         if (CollectionUtils.isEmpty(sysMenus)) {
@@ -429,9 +429,9 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     /**
-    * 根据父菜单 path + 菜单名称自动生成权限标识, 如 system:user:add
-    * @param menu 方法入参 menu
-    * @return 结果字符串
+     * 根据父菜单 path + 菜单名称自动生成权限标识, 如 system:user:add
+     * @param menu 方法入参 menu
+     * @return 结果字符串
      */
     private String generatePerm(SysMenu menu) {
         String base = "";

@@ -326,10 +326,10 @@ public abstract class BaseAuthInformation implements AuthInformation {
     }
 
     /**
-    * 16进制编码
-    *
-    * @param data 数据
-    * @return 编码后的数据
+     * 16进制编码
+     *
+     * @param data 数据
+     * @return 编码后的数据
      */
     @Override
     public String encodeHex(String data) {

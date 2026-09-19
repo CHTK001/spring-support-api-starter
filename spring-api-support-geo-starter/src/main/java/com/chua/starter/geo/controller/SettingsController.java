@@ -27,9 +27,9 @@ public class SettingsController {
     private final GeoProperties geoProperties;
 
     /**
-    * 获取全局设置。
-    *
-    * @return 当前配置快照
+     * 获取全局设置。
+     *
+     * @return 当前配置快照
      */
     @GetMapping
     @Operation(summary = "获取全局设置")

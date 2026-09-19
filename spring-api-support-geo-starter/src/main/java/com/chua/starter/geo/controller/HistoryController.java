@@ -29,9 +29,9 @@ public class HistoryController {
     private final DownloadHistoryService historyService;
 
     /**
-    * 获取所有历史记录。
-    *
-    * @return 历史记录列表
+     * 获取所有历史记录。
+     *
+     * @return 历史记录列表
      */
     @GetMapping
     @Operation(summary = "获取所有历史记录")

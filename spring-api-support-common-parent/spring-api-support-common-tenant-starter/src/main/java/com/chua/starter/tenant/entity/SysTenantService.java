@@ -39,7 +39,7 @@ public class SysTenantService extends SysBase {
     private Integer sysTenantServiceId;
 
     /**
-    * 租户标识
+     * 租户标识
      */
     @TableField(value = "sys_tenant_id")
     @ApiModelProperty(value = "租户ID")
@@ -48,7 +48,7 @@ public class SysTenantService extends SysBase {
     private String sysTenantId;
 
     /**
-    * 服务标识
+     * 服务标识
      */
     @TableField(value = "sys_service_id")
     @ApiModelProperty(value = "服务ID")
@@ -57,7 +57,7 @@ public class SysTenantService extends SysBase {
     private Integer sysServiceId;
 
     /**
-    * 到期时间
+     * 到期时间
      */
     @TableField(value = "sys_tenant_service_valid_time")
     @ApiModelProperty(value = "到期时间")

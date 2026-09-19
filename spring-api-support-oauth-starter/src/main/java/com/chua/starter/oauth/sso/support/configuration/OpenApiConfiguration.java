@@ -29,9 +29,9 @@ public class OpenApiConfiguration {
 
     @Bean
     /**
-    * 习俗打开API
-    *
-    * @return 习俗打开api的结果
+     * 习俗打开API
+     *
+     * @return 习俗打开api的结果
      */
     public OpenAPI customOpenAPI() {
         return new OpenAPI()

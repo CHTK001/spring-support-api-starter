@@ -40,13 +40,13 @@ public class ThirdLoginController {
     /** 用户登录服务，处理第三方授权登录逻辑 */
     final SysLoginService sysLoginService;
     /**
-    * 第三方授权登录，将授权码换取用户身份并写入 令牌。
-    *
-    * @param loginData     第三方登录凭证（包含 提供者 与 编码）
-    * @param request       HTTP请求
-    * @param response      HTTP响应
-    * @param bindingResult 参数校验结果
-    * @return 登录结果，包含 access令牌 等信息
+     * 第三方授权登录，将授权码换取用户身份并写入 令牌。
+     *
+     * @param loginData     第三方登录凭证（包含 提供者 与 编码）
+     * @param request       HTTP请求
+     * @param response      HTTP响应
+     * @param bindingResult 参数校验结果
+     * @return 登录结果，包含 access令牌 等信息
      */
     @Operation(summary = "第三方登录码")
     @PostMapping("/third/login/code")

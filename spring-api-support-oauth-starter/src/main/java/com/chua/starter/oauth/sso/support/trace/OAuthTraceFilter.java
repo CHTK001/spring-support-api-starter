@@ -28,7 +28,7 @@ public class OAuthTraceFilter implements Filter, Ordered {
     private final OAuthTraceLogService traceLogService;
 
     /**
-    * 需要追踪的路径
+     * 需要追踪的路径
      */
     private static final Set<String> TRACE_PATHS = Set.of(
             "/login", "/logout", "/oauth", "/upgrade", "/temporary-token"

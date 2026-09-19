@@ -23,9 +23,9 @@ public enum OutputFormat {
     /** 文件扩展名 */
     private final String extension;
     /**
-    * MIME 类型
-    *
-    * @return 获取标签的结果
+     * MIME 类型
+     *
+     * @return 获取标签的结果
      */
     private final String mimeType;
 

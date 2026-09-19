@@ -42,13 +42,13 @@ public class SysLogController {
     private final SysLogService sysLogService;
 
     /**
-    * 系统日志分页列表
-    *
-    * @param sysLog 条件
-    * @return 系统日志分页列表
-    * @param query 查询
-    * @param true true
-    * @param roles 方法入参 roles
+     * 系统日志分页列表
+     *
+     * @param sysLog 条件
+     * @return 系统日志分页列表
+     * @param query 查询
+     * @param true true
+     * @param roles 方法入参 roles
      */
     @Operation(summary = "系统日志分页列表")
     @GetMapping("/page")

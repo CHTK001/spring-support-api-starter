@@ -229,9 +229,9 @@ public class RsocketAuthInformation {
         }
 
         /**
-        * 获取全部头部
-        *
-        * @return 获取全部头部的结果
+         * 获取全部头部
+         *
+         * @return 获取全部头部的结果
          */
         public Map<String, String> getAllHeaders() {
             return new HashMap<>(headers);

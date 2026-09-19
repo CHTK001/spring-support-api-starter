@@ -35,7 +35,7 @@ public class MonitorServer extends SysBase {
     private Integer serverId;
 
     /**
-    * 服务器名称，用于前端展示，例如 生产Web-01
+     * 服务器名称，用于前端展示，例如 生产Web-01
      */
     @TableField("server_name")
     @ApiModelProperty("服务器名称")
@@ -44,7 +44,7 @@ public class MonitorServer extends SysBase {
     private String serverName;
 
     /**
-    * 服务器IP地址，例如 192.168.1.10
+     * 服务器IP地址，例如 192.168.1.10
      */
     @TableField("server_ip")
     @ApiModelProperty("服务器IP")
@@ -53,7 +53,7 @@ public class MonitorServer extends SysBase {
     private String serverIp;
 
     /**
-    * 服务器主机名，例如 web-prod-01
+     * 服务器主机名，例如 web-prod-01
      */
     @TableField("server_host")
     @ApiModelProperty("主机名")
@@ -62,7 +62,7 @@ public class MonitorServer extends SysBase {
     private String serverHost;
 
     /**
-    * 服务器端口，可为空
+     * 服务器端口，可为空
      */
     @TableField("server_port")
     @ApiModelProperty("端口")
@@ -71,7 +71,7 @@ public class MonitorServer extends SysBase {
     private Integer serverPort;
 
     /**
-    * 操作系统，例如 Linux / 窗口 / macOS
+     * 操作系统，例如 Linux / 窗口 / macOS
      */
     @TableField("server_os")
     @ApiModelProperty("操作系统")
@@ -80,7 +80,7 @@ public class MonitorServer extends SysBase {
     private String serverOs;
 
     /**
-    * 服务器分组，用于归类，例如 生产环境 / 测试环境
+     * 服务器分组，用于归类，例如 生产环境 / 测试环境
      */
     @TableField("server_group")
     @ApiModelProperty("分组")
@@ -89,7 +89,7 @@ public class MonitorServer extends SysBase {
     private String serverGroup;
 
     /**
-    * 登录账号，可为空
+     * 登录账号，可为空
      */
     @TableField("server_account")
     @ApiModelProperty("登录账号")
@@ -98,7 +98,7 @@ public class MonitorServer extends SysBase {
     private String serverAccount;
 
     /**
-    * 服务器状态，1-启用，0-禁用
+     * 服务器状态，1-启用，0-禁用
      */
     @TableField("server_status")
     @ApiModelProperty("状态（0禁用/1启用）")
@@ -107,7 +107,7 @@ public class MonitorServer extends SysBase {
     private Integer serverStatus;
 
     /**
-    * 备注信息，可为空
+     * 备注信息，可为空
      */
     @TableField("server_remark")
     @ApiModelProperty("备注")

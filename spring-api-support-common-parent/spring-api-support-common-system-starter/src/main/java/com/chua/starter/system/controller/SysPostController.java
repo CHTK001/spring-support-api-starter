@@ -38,10 +38,10 @@ public class SysPostController {
     private final SysPostService sysPostService;
 
     /**
-    * 岗位列表
-    *
-    * @param sysPost 条件
-    * @return 岗位列表
+     * 岗位列表
+     *
+     * @param sysPost 条件
+     * @return 岗位列表
      */
     @Operation(summary = "岗位列表")
     @GetMapping("/list")

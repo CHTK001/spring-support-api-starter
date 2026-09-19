@@ -42,10 +42,10 @@ public class SysDeptController {
 
 
     /**
-    * 组织机构列表
-    *
-    * @param sysDept 条件
-    * @return 组织机构分页列表
+     * 组织机构列表
+     *
+     * @param sysDept 条件
+     * @return 组织机构分页列表
      */
     @Operation(summary = "组织机构列表")
     @GetMapping("/list")

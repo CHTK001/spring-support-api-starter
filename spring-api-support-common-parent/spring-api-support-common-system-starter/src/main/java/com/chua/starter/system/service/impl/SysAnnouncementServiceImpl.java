@@ -42,10 +42,10 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
 
     @Override
     /**
-    * 分页formanage
-    * @param query 查询
-    * @param sysAnnouncement sysannouncement
-    * @param roles 角色
+     * 分页formanage
+     * @param query 查询
+     * @param sysAnnouncement sysannouncement
+     * @param roles 角色
      */
     public IPage<SysAnnouncement> pageForManage(Query<SysAnnouncement> query, SysAnnouncement sysAnnouncement,
                                                  Set<String> roles) {

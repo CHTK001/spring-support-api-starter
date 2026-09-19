@@ -37,7 +37,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     private Integer sysUserThirdPartyId;
 
     /**
-    * 第三方类型，如: gitee、wx_mini_app
+     * 第三方类型，如: gitee、wx_mini_app
      */
     @TableField(value = "sys_user_third_party_type")
     @Schema(description = "第三方类型，如: gitee、wx_mini_app")
@@ -46,7 +46,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     private String sysUserThirdPartyType;
 
     /**
-    * 第三方信息名称
+     * 第三方信息名称
      */
     @TableField(value = "sys_user_third_party_name")
     @Schema(description = "第三方信息名称")
@@ -55,7 +55,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     private String sysUserThirdPartyName;
 
     /**
-    * 第三方信息值
+     * 第三方信息值
      */
     @TableField(value = "sys_user_third_party_value")
     @Schema(description = "第三方信息值")
@@ -64,7 +64,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     private String sysUserThirdPartyValue;
 
     /**
-    * 当前系统用户标识
+     * 当前系统用户标识
      */
     @TableField(value = "sys_user_id")
     @Schema(description = "当前系统用户ID")
@@ -72,7 +72,7 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     private Integer sysUserId;
 
     /**
-    * 第三方用户标识
+     * 第三方用户标识
      */
     @TableField(value = "sys_user_third_party_uid")
     @Schema(description = "第三方用户ID")
@@ -81,9 +81,9 @@ public class SysUserThirdParty extends SysBase implements Serializable {
     private String sysUserThirdPartyUid;
 
     /**
-    * 第三方类型枚举
-    * @author CH
-    * @since 4.0.0
+     * 第三方类型枚举
+     * @author CH
+     * @since 4.0.0
      */
     public enum Type {
         /**

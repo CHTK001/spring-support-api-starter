@@ -31,7 +31,7 @@ public class SysPost extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-    * 岗位标识
+     * 岗位标识
      */
     @TableId(value = "sys_post_id", type = IdType.AUTO)
     @Schema(description = "岗位ID")
@@ -40,7 +40,7 @@ public class SysPost extends SysBase implements Serializable {
     private Long sysPostId;
 
     /**
-    * 岗位名称
+     * 岗位名称
      */
     @TableField(value = "sys_post_name")
     @Schema(description = "岗位名称")
@@ -50,7 +50,7 @@ public class SysPost extends SysBase implements Serializable {
     private String sysPostName;
 
     /**
-    * 岗位编码
+     * 岗位编码
      */
     @TableField(value = "sys_post_code")
     @Schema(description = "岗位编码")
@@ -60,7 +60,7 @@ public class SysPost extends SysBase implements Serializable {
     private String sysPostCode;
 
     /**
-    * 排序
+     * 排序
      */
     @TableField(value = "sys_post_sort")
     @Schema(description = "排序")
@@ -68,7 +68,7 @@ public class SysPost extends SysBase implements Serializable {
     private Integer sysPostSort;
 
     /**
-    * 状态: 0-启用 1-禁用
+     * 状态: 0-启用 1-禁用
      */
     @TableField(value = "sys_post_status")
     @Schema(description = "状态: 0-启用 1-禁用")
@@ -76,7 +76,7 @@ public class SysPost extends SysBase implements Serializable {
     private Integer sysPostStatus;
 
     /**
-    * 备注
+     * 备注
      */
     @TableField(value = "remark")
     @Schema(description = "备注")
@@ -85,7 +85,7 @@ public class SysPost extends SysBase implements Serializable {
     private String remark;
 
     /**
-    * 关联用户数(非数据库字段, 分页列表展示用)
+     * 关联用户数(非数据库字段, 分页列表展示用)
      */
     @TableField(exist = false)
     @Schema(description = "关联用户数")

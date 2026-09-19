@@ -63,7 +63,7 @@ public class RedisTokenResolver implements TokenResolver {
     private static final String AUTH_VERSION = "authVersion";
 
     /**
-    * 默认令牌过期时间（秒），1天
+     * 默认令牌过期时间（秒），1天
      */
     private static final long DEFAULT_EXPIRE_SECONDS = 86400L;
 

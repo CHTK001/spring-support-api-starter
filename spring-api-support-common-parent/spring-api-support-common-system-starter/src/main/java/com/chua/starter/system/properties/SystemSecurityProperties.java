@@ -20,8 +20,8 @@ public class SystemSecurityProperties {
     public static final String PRE = "plugin.system.security";
 
     /**
-    * 登录失败最大尝试次数
-    * <p>超过此次数后账户将被锁定</p>
+     * 登录失败最大尝试次数
+     * <p>超过此次数后账户将被锁定</p>
      */
     private int maxLoginAttempts = 6;
 

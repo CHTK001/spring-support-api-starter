@@ -31,7 +31,7 @@ public class SysMessageTemplate extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-    * 模板标识
+     * 模板标识
      */
     @TableId(value = "sys_message_template_id", type = IdType.AUTO)
     @Schema(description = "模板ID")
@@ -40,7 +40,7 @@ public class SysMessageTemplate extends SysBase implements Serializable {
     private Long sysMessageTemplateId;
 
     /**
-    * 模板编码
+     * 模板编码
      */
     @TableField(value = "sys_message_template_code")
     @Schema(description = "模板编码")
@@ -50,7 +50,7 @@ public class SysMessageTemplate extends SysBase implements Serializable {
     private String sysMessageTemplateCode;
 
     /**
-    * 模板名称
+     * 模板名称
      */
     @TableField(value = "sys_message_template_name")
     @Schema(description = "模板名称")
@@ -59,7 +59,7 @@ public class SysMessageTemplate extends SysBase implements Serializable {
     private String sysMessageTemplateName;
 
     /**
-    * 模板标题(支持变量)
+     * 模板标题(支持变量)
      */
     @TableField(value = "sys_message_template_title")
     @Schema(description = "模板标题(支持变量)")
@@ -68,7 +68,7 @@ public class SysMessageTemplate extends SysBase implements Serializable {
     private String sysMessageTemplateTitle;
 
     /**
-    * 模板内容(支持变量)
+     * 模板内容(支持变量)
      */
     @TableField(value = "sys_message_template_content")
     @Schema(description = "模板内容(支持变量)")
@@ -76,7 +76,7 @@ public class SysMessageTemplate extends SysBase implements Serializable {
     private String sysMessageTemplateContent;
 
     /**
-    * 状态: 0-禁用 1-启用
+     * 状态: 0-禁用 1-启用
      */
     @TableField(value = "sys_message_template_status")
     @Schema(description = "状态: 0-禁用 1-启用")

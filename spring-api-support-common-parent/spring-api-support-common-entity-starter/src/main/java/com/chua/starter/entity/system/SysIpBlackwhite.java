@@ -31,7 +31,7 @@ public class SysIpBlackwhite extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-    * 主键标识
+     * 主键标识
      */
     @TableId(value = "sys_ip_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
@@ -40,7 +40,7 @@ public class SysIpBlackwhite extends SysBase implements Serializable {
     private Integer sysIpId;
 
     /**
-    * 类型: 0白名单 1黑名单
+     * 类型: 0白名单 1黑名单
      */
     @TableField(value = "sys_ip_type")
     @Schema(description = "类型: 0白名单 1黑名单")
@@ -49,7 +49,7 @@ public class SysIpBlackwhite extends SysBase implements Serializable {
     private Integer sysIpType;
 
     /**
-    * IP地址或CIDR段
+     * IP地址或CIDR段
      */
     @TableField(value = "sys_ip_ip")
     @Schema(description = "IP地址或CIDR段")
@@ -59,7 +59,7 @@ public class SysIpBlackwhite extends SysBase implements Serializable {
     private String sysIpIp;
 
     /**
-    * 状态: 0启用 1禁用
+     * 状态: 0启用 1禁用
      */
     @TableField(value = "sys_ip_status")
     @Schema(description = "状态: 0启用 1禁用")
@@ -67,7 +67,7 @@ public class SysIpBlackwhite extends SysBase implements Serializable {
     private Integer sysIpStatus;
 
     /**
-    * 备注
+     * 备注
      */
     @TableField(value = "sys_ip_remark")
     @Schema(description = "备注")

@@ -34,9 +34,9 @@ public class RequestTraceStrategyConfigService {
     private volatile RequestTraceStrategyConfig cachedConfig; // 缓存配置
 
     /**
-    * 当前配置
-    *
-    * @return 当前配置的结果
+     * 当前配置
+     *
+     * @return 当前配置的结果
      */
     public RequestTraceStrategyConfig currentConfig() {
         RequestTraceStrategyConfig local = cachedConfig;

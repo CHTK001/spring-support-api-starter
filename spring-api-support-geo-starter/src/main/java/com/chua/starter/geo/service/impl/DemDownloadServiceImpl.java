@@ -52,16 +52,16 @@ public class DemDownloadServiceImpl implements DemDownloadService {
     }
 
     /**
-    * 下载并拼接 DEM 瓦片，导出为 geotiff。
-    *
-    * @param source           DEM 数据源
-    * @param bounds           地理边界
-    * @param zoom             缩放级别
-    * @param proxy            代理地址（可为 空）
-    * @param outputPath       输出路径
-    * @param generateSidecars 是否生成 .prj
-    * @return 输出文件路径
-    * @throws Exception 下载或导出失败
+     * 下载并拼接 DEM 瓦片，导出为 geotiff。
+     *
+     * @param source           DEM 数据源
+     * @param bounds           地理边界
+     * @param zoom             缩放级别
+     * @param proxy            代理地址（可为 空）
+     * @param outputPath       输出路径
+     * @param generateSidecars 是否生成 .prj
+     * @return 输出文件路径
+     * @throws Exception 下载或导出失败
      */
     @Override
     public String downloadAndExport(DemSource source, Bounds bounds, int zoom,

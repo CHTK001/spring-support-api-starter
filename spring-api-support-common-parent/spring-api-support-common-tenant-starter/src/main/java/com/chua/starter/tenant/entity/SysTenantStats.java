@@ -26,7 +26,7 @@ public class SysTenantStats {
     private Long total;
 
     /**
-    * 启用数
+     * 启用数
      */
     @ApiModelProperty(value = "启用数")
     @Schema(description = "启用数")
@@ -34,7 +34,7 @@ public class SysTenantStats {
     private Long enabled;
 
     /**
-    * 禁用数
+     * 禁用数
      */
     @ApiModelProperty(value = "禁用数")
     @Schema(description = "禁用数")
@@ -42,7 +42,7 @@ public class SysTenantStats {
     private Long disabled;
 
     /**
-    * 已订阅服务的租户数
+     * 已订阅服务的租户数
      */
     @ApiModelProperty(value = "已订阅服务的租户数")
     @Schema(description = "已订阅服务的租户数")

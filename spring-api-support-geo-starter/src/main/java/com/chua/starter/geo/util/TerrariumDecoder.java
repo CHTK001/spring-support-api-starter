@@ -16,12 +16,12 @@ public class TerrariumDecoder {
     private TerrariumDecoder() { }
 
     /**
-    * 解码单个像素 RGB → 高程值（米）。
-    *
-    * @param r 红色通道值（0-255）
-    * @param g 绿色通道值（0-255）
-    * @param b 蓝色通道值（0-255）
-    * @return 高程值（米）
+     * 解码单个像素 RGB → 高程值（米）。
+     *
+     * @param r 红色通道值（0-255）
+     * @param g 绿色通道值（0-255）
+     * @param b 蓝色通道值（0-255）
+     * @return 高程值（米）
      */
     public static float decodePixel(int r, int g, int b) {
         return (float) (r * 256.0 + g + b / 256.0) - 32768.0f;
