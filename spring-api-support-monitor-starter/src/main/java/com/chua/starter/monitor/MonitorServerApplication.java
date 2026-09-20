@@ -29,7 +29,7 @@ public class MonitorServerApplication {
      * @param args 启动参数
      */
     public static void main(String[] args) {
-        SpringApplication.run(MonitorServerApplication.class);
+        SpringApplication.run(MonitorServerApplication.class, args);
     }
 
 }
