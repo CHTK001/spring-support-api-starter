@@ -25,7 +25,7 @@ import java.net.ServerSocket;
  * @author CH
  */
 @Slf4j
-// @Service
+@Service
 /**
  * Sys文件SystemSetting服务Impl类，提供相关能力。
  *
