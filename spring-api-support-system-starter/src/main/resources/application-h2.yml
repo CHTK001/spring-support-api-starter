@@ -25,8 +25,15 @@ plugin:
   job:
     enable: false
   sync:
+    # 单机本地库不需要跨服务同步通道，两端都关掉避免无谓的注册与报错
+    server:
+      enable: false
     client:
       enable: false
+  oauth:
+    # 登录页在拿到令牌之前就要读取品牌与验证方式开关，只放行这一个只读分组
+    whitelist:
+      - /v2/setting/default
   user-agreement:
     enable: false
   system:

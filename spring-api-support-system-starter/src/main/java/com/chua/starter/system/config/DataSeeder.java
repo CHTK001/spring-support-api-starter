@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import com.chua.starter.system.util.PasswordUtils;
+
 /**
  * 在原始 H2DataInitializer（ApplicationRunner）建表并插入基础数据之后，
  * 补充演示数据。监听 ApplicationReadyEvent 确保一定在所有 Runner 之后执行。
@@ -17,12 +19,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataSeeder implements ApplicationListener<ApplicationReadyEvent> {
     private static final Logger log = LoggerFactory.getLogger(DataSeeder.class);
+    /**
+     * 演示账号统一口令与盐值，写库时按校验端算法生成摘要
+     */
+    private static final String DEMO_PASSWORD = "admin123";
+    private static final String DEMO_SALT = "123456";
     private final JdbcTemplate jdbc;
     public DataSeeder(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        String adminPwd = "'$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2'";
+        // 摘要算法必须与登录校验端一致，否则演示账号写入口令后无法登录
+        String adminPwd = "'" + PasswordUtils.encrypt(DEMO_PASSWORD, DEMO_SALT) + "'";
         log.info("[DataSeeder] 开始补充演示数据（ApplicationReady）");
 
         // 补齐当前实体引用但旧建表 DDL 缺失的列
@@ -84,11 +92,11 @@ public class DataSeeder implements ApplicationListener<ApplicationReadyEvent> {
         safe("INSERT INTO sys_role (sys_role_name, sys_role_code, sys_role_status, sys_role_in_system, sys_role_sort, sys_role_data_scope, sys_role_remark) VALUES ('运营管理员','OPERATOR',1,0,2,2,'日常运营')");
         safe("INSERT INTO sys_role (sys_role_name, sys_role_code, sys_role_status, sys_role_in_system, sys_role_sort, sys_role_data_scope, sys_role_readonly, sys_role_remark) VALUES ('只读用户','READ_ONLY',1,0,3,1,1,'只读权限')");
 
-        // 用户（admin 密码兜底 + 三个演示用户）
-        safe("UPDATE sys_user SET sys_user_password=" + adminPwd + ", sys_user_status=1 WHERE sys_user_username='admin'");
-        safe("INSERT INTO sys_user (sys_user_username, sys_user_password, sys_user_nickname, sys_user_status, sys_dept_id, sys_user_email, sys_user_phone) VALUES ('zhangsan'," + adminPwd + ",'张三',1,2,'zhangsan@example.com','13800000001')");
-        safe("INSERT INTO sys_user (sys_user_username, sys_user_password, sys_user_nickname, sys_user_status, sys_dept_id, sys_user_email, sys_user_phone) VALUES ('lisi'," + adminPwd + ",'李四',1,2,'lisi@example.com','13800000002')");
-        safe("INSERT INTO sys_user (sys_user_username, sys_user_password, sys_user_nickname, sys_user_status, sys_dept_id, sys_user_email, sys_user_phone) VALUES ('wangwu'," + adminPwd + ",'王五',1,3,'wangwu@example.com','13800000003')");
+        // 用户（admin 口令兜底 + 三个演示用户，盐值需与摘要配对）
+        safe("UPDATE sys_user SET sys_user_password=" + adminPwd + ", sys_user_salt='" + DEMO_SALT + "', sys_user_status=1 WHERE sys_user_username='admin'");
+        safe("INSERT INTO sys_user (sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id, sys_user_email, sys_user_phone) VALUES ('zhangsan'," + adminPwd + ",'" + DEMO_SALT + "','张三',1,2,'zhangsan@example.com','13800000001')");
+        safe("INSERT INTO sys_user (sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id, sys_user_email, sys_user_phone) VALUES ('lisi'," + adminPwd + ",'" + DEMO_SALT + "','李四',1,2,'lisi@example.com','13800000002')");
+        safe("INSERT INTO sys_user (sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id, sys_user_email, sys_user_phone) VALUES ('wangwu'," + adminPwd + ",'" + DEMO_SALT + "','王五',1,3,'wangwu@example.com','13800000003')");
         safe("INSERT INTO sys_user_role (sys_user_id, sys_role_id) VALUES (1,1),(2,2),(3,3),(4,2)");
 
         // 部门（id=1 已是 Root Dept，补 2/3）
@@ -100,7 +108,9 @@ public class DataSeeder implements ApplicationListener<ApplicationReadyEvent> {
         safe("INSERT INTO sys_user_post (sys_user_id, sys_post_id) VALUES (2,2),(3,3),(4,1)");
 
         // 字典项
-        safe("INSERT INTO sys_dict_item (sys_dict_id, sys_dict_item_label, sys_dict_item_value, sys_dict_item_sort, sys_dict_item_status) VALUES (1,'高','high',1,1),(1,'中','medium',2,1),(1,'低','low',3,1)");
+        // 字典（列名以建表脚本为准：名称/编码，不是 label/value）
+        safe("INSERT INTO sys_dict (sys_dict_id, sys_dict_name, sys_dict_code, sys_dict_status, sys_dict_sort, sys_dict_remark) VALUES (1,'优先级','priority',1,1,'任务优先级')");
+        safe("INSERT INTO sys_dict_item (sys_dict_id, sys_dict_item_name, sys_dict_item_code, sys_dict_item_sort, sys_dict_item_status) VALUES (1,'高','high',1,1),(1,'中','medium',2,1),(1,'低','low',3,1)");
 
         // 公告
         safe("INSERT INTO sys_announcement (sys_announcement_title, sys_announcement_content, sys_announcement_type, sys_announcement_status, sys_announcement_level, sys_announcement_sort, sys_announcement_publish_time, sys_announcement_publisher_name) VALUES ('安全提醒','请妥善保管账号密码。','global',1,2,1,CURRENT_TIMESTAMP,'admin'),('V2.0发布','系统已升级。','global',1,1,2,CURRENT_TIMESTAMP,'admin')");
