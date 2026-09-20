@@ -12,6 +12,7 @@ import com.chua.starter.service.server.FileHttpServer;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,10 +37,12 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
 
     private volatile FileHttpServer fileHttpServer; // 文件http服务端
 
-    @Autowired
     /**
      * SYS文件系统服务
-    */
+     * 仅 startFileServer 运行期使用；构造期依赖会与本服务成环，故延迟注入
+     */
+    @Lazy
+    @Autowired
     private SysFileSystemService sysFileSystemService;
 
     @Override

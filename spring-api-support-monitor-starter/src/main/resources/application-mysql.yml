@@ -2,6 +2,8 @@ spring:
   autoconfigure:
     exclude:
       - com.chua.starter.oauth.client.support.configuration.AuthClientConfiguration
+      # profile 里的 exclude 是整体覆盖而非合并，故基础配置中的排除项要在此重复
+      - com.chua.starter.oauth.sso.support.configuration.EnableAuthServerConfiguration
       - com.chua.starter.system.configuration.SystemAutoConfiguration
       - com.chua.starter.server.support.config.ServerManagementConfiguration
   datasource:

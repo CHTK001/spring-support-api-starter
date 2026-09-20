@@ -13,8 +13,12 @@ spring:
   main:
     # 允许Bean定义覆盖，解决Bean名称冲突问题
     allow-bean-definition-overriding: true
-    # 兼容 common-service-starter 既有循环依赖（SysFileSystemServiceImpl ↔ SysFileSystemSettingServiceImpl）
-    allow-circular-references: true
+  autoconfigure:
+    exclude:
+      # 本应用是资源服务器不是认证服务器：EnableAuthServerConfiguration 依赖的
+      # OauthProtocolServersProperties 只有 oauth 应用自己的包扫描才会注册，这里必然缺 bean；
+      # 且它在 protocols 为空时会退回默认端口起一个 HTTP 认证服务端
+      - com.chua.starter.oauth.sso.support.configuration.EnableAuthServerConfiguration
 
 # ===========================================
 # 服务器配置
