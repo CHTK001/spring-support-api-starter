@@ -13,6 +13,8 @@ spring:
   main:
     # 允许Bean定义覆盖，解决Bean名称冲突问题
     allow-bean-definition-overriding: true
+    # 兼容 common-service-starter 既有循环依赖（SysFileSystemServiceImpl ↔ SysFileSystemSettingServiceImpl）
+    allow-circular-references: true
 
 # ===========================================
 # 服务器配置
