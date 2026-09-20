@@ -1,5 +1,6 @@
 package com.chua.starter.system.config;
 
+import com.chua.starter.system.util.PasswordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +41,31 @@ public class H2DataInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         try {
             log.info("[H2初始化] 开始...");
-            dropAll();
-            runSchema();
+            // 建表脚本已经负责库结构与种子数据，重建会把它们灌好的数据删光
+            boolean scripted = hasBaseSchema();
+            if (!scripted) {
+                dropAll();
+                runSchema();
+            }
             createExtensionTables();
-            insertSeedData();
-            log.info("[H2初始化] 完成（完整DDL + 演示数据）");
+            if (!scripted) {
+                insertSeedData();
+            }
+            log.info("[H2初始化] 完成（{}）", scripted ? "沿用建表脚本的结构与数据" : "重建库结构 + 演示数据");
         } catch (Exception e) {
             log.error("[H2初始化] 初始化失败: {}", e.getMessage(), e);
         }
+    }
+
+    /**
+     * 基础表是否已由建表脚本创建。
+     */
+    private boolean hasBaseSchema() {
+        Integer total = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES"
+                        + " WHERE UPPER(TABLE_NAME) IN ('SYS_USER','SYS_ROLE','SYS_MENU')",
+                Integer.class);
+        return total != null && total >= 3;
     }
 
     /**
@@ -132,6 +150,61 @@ public class H2DataInitializer implements ApplicationRunner {
             "sys_tenant_email VARCHAR(200), sys_tenant_code VARCHAR(100)," +
             "sys_tenant_gid VARCHAR(100), sys_tenant_home_url VARCHAR(500)," +
             "sys_tenant_remark VARCHAR(500)," +
+            "create_name VARCHAR(255), create_by INT, create_time datetime, update_time datetime," +
+            "update_name VARCHAR(255), update_by INT)");
+        // 建表脚本按 MySQL 语法写的这几张表在本库解析不过（DEFAULT 必须写在可空约束之前），在此按本库语法补齐
+        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS sys_setting (" +
+            "sys_setting_id INT AUTO_INCREMENT PRIMARY KEY," +
+            "sys_setting_name VARCHAR(255), sys_setting_code VARCHAR(255), sys_setting_value VARCHAR(255)," +
+            "sys_setting_value_type VARCHAR(255), sys_setting_group VARCHAR(255)," +
+            "sys_setting_status INT DEFAULT 1, sys_setting_sort INT DEFAULT 0," +
+            "sys_setting_collect INT DEFAULT 0, sys_setting_in_system INT DEFAULT 0," +
+            "sys_setting_app_inner INT DEFAULT 0, sys_setting_admin INT DEFAULT 0," +
+            "sys_setting_version INT DEFAULT 1, sys_setting_config VARCHAR(255)," +
+            "sys_setting_remark VARCHAR(255), sys_setting_is_sensitive INT DEFAULT 0," +
+            "sys_setting_validate VARCHAR(512)," +
+            "create_name VARCHAR(255), create_by INT, create_time datetime, update_time datetime," +
+            "update_name VARCHAR(255), update_by INT," +
+            "CONSTRAINT uk_setting_name_group UNIQUE (sys_setting_name, sys_setting_group))");
+        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS sys_setting_group (" +
+            "sys_setting_group_id INT AUTO_INCREMENT PRIMARY KEY," +
+            "sys_setting_group_name VARCHAR(255), sys_setting_group_code VARCHAR(255)," +
+            "sys_setting_group_icon VARCHAR(255), sys_setting_group_enable INT DEFAULT 1," +
+            "sys_setting_group_remark VARCHAR(255), sys_setting_group_sort INT DEFAULT 0," +
+            "sys_setting_group_use_project_interface INT DEFAULT 0," +
+            "create_name VARCHAR(255), create_by INT, create_time datetime, update_time datetime," +
+            "update_name VARCHAR(255), update_by INT," +
+            "CONSTRAINT uk_group_code UNIQUE (sys_setting_group_code))");
+        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS sys_dict (" +
+            "sys_dict_id INT AUTO_INCREMENT PRIMARY KEY," +
+            "sys_dict_name VARCHAR(255), sys_dict_code VARCHAR(255), sys_dict_pid INT DEFAULT 0," +
+            "sys_dict_status INT DEFAULT 1, sys_dict_in_system INT DEFAULT 0," +
+            "sys_dict_i18n VARCHAR(255), sys_dict_sort INT DEFAULT 0, sys_dict_remark VARCHAR(255)," +
+            "create_name VARCHAR(255), create_by INT, create_time datetime, update_time datetime," +
+            "update_name VARCHAR(255), update_by INT," +
+            "CONSTRAINT uk_dict_code UNIQUE (sys_dict_code))");
+        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS sys_dict_item (" +
+            "sys_dict_item_id INT AUTO_INCREMENT PRIMARY KEY," +
+            "sys_dict_id INT, sys_dict_item_name VARCHAR(255), sys_dict_item_code VARCHAR(255)," +
+            "sys_dict_item_icon VARCHAR(255), sys_dict_item_status INT DEFAULT 1," +
+            "sys_dict_item_sort INT DEFAULT 0, sys_dict_item_i18n VARCHAR(255)," +
+            "sys_dict_item_delete INT DEFAULT 0, sys_dict_item_property VARCHAR(255)," +
+            "sys_dict_item_remark VARCHAR(255)," +
+            "create_name VARCHAR(255), create_by INT, create_time datetime, update_time datetime," +
+            "update_name VARCHAR(255), update_by INT)");
+        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS sys_dict_item_property (" +
+            "sys_dict_item_property_id INT AUTO_INCREMENT PRIMARY KEY," +
+            "sys_dict_item_id INT, sys_dict_item_property_group VARCHAR(20)," +
+            "sys_dict_item_property_name VARCHAR(255), sys_dict_item_property_value VARCHAR(255)," +
+            "sys_dict_item_property_selected_type VARCHAR(255)," +
+            "create_name VARCHAR(255), create_by INT, create_time datetime, update_time datetime," +
+            "update_name VARCHAR(255), update_by INT)");
+        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS sys_log (" +
+            "sys_log_id INT AUTO_INCREMENT PRIMARY KEY," +
+            "sys_log_username VARCHAR(255), sys_log_address VARCHAR(255), sys_log_url VARCHAR(255)," +
+            "sys_log_param VARCHAR(255), sys_log_from VARCHAR(255), sys_log_browser VARCHAR(255)," +
+            "sys_log_content VARCHAR(2000), sys_log_error TEXT," +
+            "sys_log_status INT, sys_log_cost INT," +
             "create_name VARCHAR(255), create_by INT, create_time datetime, update_time datetime," +
             "update_name VARCHAR(255), update_by INT)");
         // 反馈扩展列（data-h2.sql 的 sys_feedback 可能缺这些，补齐）
@@ -241,7 +314,9 @@ public class H2DataInitializer implements ApplicationRunner {
      * 插入Seed数据。
      */
     private void insertSeedData() {
-        String adminPwd = "'$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2'";
+        // 摘要算法必须与登录校验端一致，盐值需与摘要配对写入
+        String salt = "123456";
+        String adminPwd = "'" + PasswordUtils.encrypt("admin123", salt) + "'";
 
         // 角色（data-h2.sql 可能已建 SUPER_ADMIN，这里补两个业务角色）
         jdbcTemplate.update("DELETE FROM sys_role WHERE sys_role_code IN ('OPERATOR','READ_ONLY')");
@@ -250,15 +325,15 @@ public class H2DataInitializer implements ApplicationRunner {
         jdbcTemplate.update("INSERT INTO sys_role (sys_role_id, sys_role_name, sys_role_code, sys_role_status, sys_role_in_system, sys_role_sort, sys_role_data_scope, sys_role_readonly, sys_role_remark) " +
             "VALUES (3,'只读用户','READ_ONLY',1,0,3,1,1,'只读权限')");
 
-        // 用户（admin 用 bcrypt 覆盖，确保 admin123 可登录）
-        jdbcTemplate.update("UPDATE sys_user SET sys_user_password=" + adminPwd + ", sys_user_status=1 WHERE sys_user_username='admin'");
+        // 用户（覆盖口令，确保 admin123 可登录）
+        jdbcTemplate.update("UPDATE sys_user SET sys_user_password=" + adminPwd + ", sys_user_salt='" + salt + "', sys_user_status=1 WHERE sys_user_username='admin'");
         jdbcTemplate.update("DELETE FROM sys_user WHERE sys_user_username IN ('zhangsan','lisi','wangwu')");
-        jdbcTemplate.update("INSERT INTO sys_user (sys_user_id, sys_user_username, sys_user_password, sys_user_nickname, sys_user_status, sys_dept_id) " +
-            "VALUES (2,'zhangsan'," + adminPwd + ",'张三',1,2)");
-        jdbcTemplate.update("INSERT INTO sys_user (sys_user_id, sys_user_username, sys_user_password, sys_user_nickname, sys_user_status, sys_dept_id) " +
-            "VALUES (3,'lisi'," + adminPwd + ",'李四',1,2)");
-        jdbcTemplate.update("INSERT INTO sys_user (sys_user_id, sys_user_username, sys_user_password, sys_user_nickname, sys_user_status, sys_dept_id) " +
-            "VALUES (4,'wangwu'," + adminPwd + ",'王五',1,3)");
+        jdbcTemplate.update("INSERT INTO sys_user (sys_user_id, sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id) " +
+            "VALUES (2,'zhangsan'," + adminPwd + ",'" + salt + "','张三',1,2)");
+        jdbcTemplate.update("INSERT INTO sys_user (sys_user_id, sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id) " +
+            "VALUES (3,'lisi'," + adminPwd + ",'" + salt + "','李四',1,2)");
+        jdbcTemplate.update("INSERT INTO sys_user (sys_user_id, sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id) " +
+            "VALUES (4,'wangwu'," + adminPwd + ",'" + salt + "','王五',1,3)");
         // 用户-角色
         jdbcTemplate.update("DELETE FROM sys_user_role");
         jdbcTemplate.update("INSERT INTO sys_user_role (sys_user_id, sys_role_id) VALUES (1,1),(2,2),(3,3),(4,2)");
@@ -277,9 +352,12 @@ public class H2DataInitializer implements ApplicationRunner {
         jdbcTemplate.update("DELETE FROM sys_user_post");
         jdbcTemplate.update("INSERT INTO sys_user_post (sys_user_id, sys_post_id) VALUES (2,2),(3,3),(4,1)");
 
-        // 字典项
+        // 字典（列名以建表脚本为准：名称/编码，不是 label/value）
         jdbcTemplate.update("DELETE FROM sys_dict_item");
-        jdbcTemplate.update("INSERT INTO sys_dict_item (sys_dict_id, sys_dict_item_label, sys_dict_item_value, sys_dict_item_sort, sys_dict_item_status) VALUES " +
+        jdbcTemplate.update("DELETE FROM sys_dict");
+        jdbcTemplate.update("INSERT INTO sys_dict (sys_dict_id, sys_dict_name, sys_dict_code, sys_dict_status, sys_dict_sort, sys_dict_remark) VALUES " +
+            "(1,'优先级','priority',1,1,'任务优先级'),(2,'状态','status',1,2,'通用启用状态')");
+        jdbcTemplate.update("INSERT INTO sys_dict_item (sys_dict_id, sys_dict_item_name, sys_dict_item_code, sys_dict_item_sort, sys_dict_item_status) VALUES " +
             "(1,'高','high',1,1),(1,'中','medium',2,1),(1,'低','low',3,1)," +
             "(2,'启用','enabled',1,1),(2,'禁用','disabled',2,1)");
 
@@ -288,7 +366,7 @@ public class H2DataInitializer implements ApplicationRunner {
         jdbcTemplate.update("INSERT INTO sys_announcement (sys_announcement_title, sys_announcement_content, sys_announcement_type, sys_announcement_status, sys_announcement_level, sys_announcement_position, sys_announcement_sort, sys_announcement_publish_time, sys_announcement_publisher_name) VALUES " +
             "('安全提醒','请妥善保管账号密码，不要在公共设备登录。','global',1,2,'default',1,CURRENT_TIMESTAMP,'admin')," +
             "('V2.0版本发布','系统已升级至 V2.0，新增岗位、消息、缓存管理等模块。','global',1,1,'fixed-top',2,CURRENT_TIMESTAMP,'admin')," +
-            "('系统维护通知','本周日凌晨 2:00-4:00 进行系统维护。','global',0,0,'default',3,'admin')");
+            "('系统维护通知','本周日凌晨 2:00-4:00 进行系统维护。','global',0,0,'default',3,CURRENT_TIMESTAMP,'admin')");
 
         // 反馈
         jdbcTemplate.update("DELETE FROM sys_feedback");
