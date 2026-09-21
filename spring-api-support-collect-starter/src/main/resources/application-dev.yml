@@ -1,0 +1,26 @@
+# ===========================================
+# 开发环境：本地 MySQL
+# ===========================================
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/serverdb?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 2
+      connection-timeout: 5000
+  sql:
+    init:
+      mode: never
+
+plugin:
+  datasource:
+    script:
+      enable: true
+      scan-mode: ONCE                          # 空库建表，已有库不再动结构
+      data-scan-mode: ONCE
+  redis:
+    server:
+      enable: true
