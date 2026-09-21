@@ -48,7 +48,7 @@ public class SysDictItemPropertyServiceImpl extends ServiceImpl<SysDictItemPrope
     @Override
     public ReturnResult<Boolean> saveOrUpdate(DictItemPropertyV1Request request) {
  // 获取请求中的字典子项标识
-        Integer sysDictItemId = request.getSysDictItemId();
+        Integer sysDictItemId = request.sysDictItemId();
  // 检查字典子项标识是否为空
         if (null == sysDictItemId) {
             return ReturnResult.error("字典子项ID不能为空");
@@ -65,7 +65,7 @@ public class SysDictItemPropertyServiceImpl extends ServiceImpl<SysDictItemPrope
         sysDictItemService.deleteCachePid(sysDictItem);
         sysDictItemService.deleteCachePcode(sysDictItem);
         // 获取请求中的属性列表
-        List<SysDictItemProperty> property = request.getProperty();
+        List<SysDictItemProperty> property = request.property();
         // 删除该字典子项下所有已存在的属性配置
         this.remove(Wrappers.<SysDictItemProperty>lambdaQuery()
                 .eq(SysDictItemProperty::getSysDictItemId, sysDictItemId));

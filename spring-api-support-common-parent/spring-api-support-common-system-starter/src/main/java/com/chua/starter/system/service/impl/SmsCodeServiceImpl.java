@@ -99,8 +99,8 @@ public class SmsCodeServiceImpl implements SmsCodeService {
      * 发送编码
     */
     public ReturnResult<Boolean> sendCode(SmsCodeRequest request) {
-        String phone = request.getPhone();
-        String bizType = request.getBizType();
+        String phone = request.phone();
+        String bizType = request.bizType();
         log.debug("发送短信验证码: phone={}, bizType={}", phone, bizType);
 
         // 检查发送频率
@@ -199,8 +199,8 @@ public class SmsCodeServiceImpl implements SmsCodeService {
      * Login
     */
     public ReturnResult<LoginResult> login(SmsLoginRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
-        String phone = request.getPhone();
-        String code = request.getCode();
+        String phone = request.phone();
+        String code = request.code();
         log.debug("短信验证码登录: phone={}", phone);
 
         // 验证验证码

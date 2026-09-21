@@ -175,10 +175,10 @@ public class AchievementController {
     @Operation(summary = "Report user stats and refresh achievements")
     @PostMapping("/report")
     public ReturnResult<List<UnlockedAchievementDTO>> reportStats(@RequestBody ReportStatsDTO dto) {
-        if (dto == null || dto.getUserId() == null) {
+        if (dto == null || dto.userId() == null) {
             return ReturnResult.error(ERROR_USER_ID_REQUIRED);
         }
-        return ReturnResult.ok(achievementService.reportStats(dto.getUserId(), dto.getStats()));
+        return ReturnResult.ok(achievementService.reportStats(dto.userId(), dto.stats()));
     }
 
     /**
