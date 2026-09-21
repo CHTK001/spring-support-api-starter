@@ -43,7 +43,7 @@ public class OverpassController {
         Map<String, Object> resp = new java.util.LinkedHashMap<>();
         resp.put("elementCount", result.elementCount());
         resp.put("estimateSizeMb", String.format("%.2f", result.estimateSizeMb()));
-        resp.put("format", request.getFormat());
+        resp.put("format", request.format());
         return ResponseEntity.ok(resp);
     }
 

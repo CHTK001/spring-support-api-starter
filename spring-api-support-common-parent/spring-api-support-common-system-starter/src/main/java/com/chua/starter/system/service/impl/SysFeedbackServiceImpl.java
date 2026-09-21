@@ -130,22 +130,22 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
      * @return issue的结果
      */
     public ReturnResult<Boolean> issue(FeedbackIssueV1Request request, UserResume userResume) {
-        if (request == null || request.getSysFeedbackId() == null) {
+        if (request == null || request.sysFeedbackId() == null) {
             return ReturnResult.illegal("反馈ID不能为空");
         }
 
-        SysFeedback sysFeedback = getById(request.getSysFeedbackId());
+        SysFeedback sysFeedback = getById(request.sysFeedbackId());
         if (sysFeedback == null) {
             return ReturnResult.illegal("反馈不存在");
         }
 
-        if (StringUtils.isBlank(request.getSysFeedbackRecoverContent())) {
+        if (StringUtils.isBlank(request.sysFeedbackRecoverContent())) {
             return ReturnResult.illegal("回复内容不能为空");
         }
 
         sysFeedback.setSysFeedbackStatus(1);
-        sysFeedback.setSysFeedbackRecoverContent(request.getSysFeedbackRecoverContent());
-        sysFeedback.setSysFeedbackRecoverImages(request.getSysFeedbackRecoverImages());
+        sysFeedback.setSysFeedbackRecoverContent(request.sysFeedbackRecoverContent());
+        sysFeedback.setSysFeedbackRecoverImages(request.sysFeedbackRecoverImages());
         sysFeedback.setSysFeedbackRecoverTime(LocalDateTime.now());
 
         if (userResume != null) {

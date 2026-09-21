@@ -516,12 +516,12 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         }
 
         JobEntity job = requireTask(taskKey);
-        if (StringUtils.hasText(request.getCronExpression())) {
+        if (StringUtils.hasText(request.cronExpression())) {
             job.setSysJobScheduleType(DEFAULT_SCHEDULE_TYPE);
-            job.setSysJobScheduleTime(request.getCronExpression().trim());
+            job.setSysJobScheduleTime(request.cronExpression().trim());
         }
-        if (request.getEnabled() != null) {
-            job.setSysJobTriggerStatus(Boolean.TRUE.equals(request.getEnabled()) ? STATUS_RUNNING : STATUS_STOP);
+        if (request.enabled() != null) {
+            job.setSysJobTriggerStatus(Boolean.TRUE.equals(request.enabled()) ? STATUS_RUNNING : STATUS_STOP);
         }
 
         normalizeJob(job);

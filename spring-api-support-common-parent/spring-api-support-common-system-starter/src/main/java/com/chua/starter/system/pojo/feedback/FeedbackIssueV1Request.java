@@ -1,42 +1,21 @@
 package com.chua.starter.system.pojo.feedback;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
 
 /**
  * 反馈问题请求
  *
+ * @param sysFeedbackId sysfeedbackid
+ * @param sysFeedbackRecoverContent sysfeedbackrecover内容
+ * @param sysFeedbackRecoverImages sysfeedbackrecoverimages
+ *
  * @since 2024/8/20
  * @author CH
  */
-@Data
 @Schema(description = "反馈问题请求")
-public class FeedbackIssueV1Request {
-
-    /**
-     * 反馈标识
-     */
-    @Schema(description = "反馈ID")
-    /**
-     * sysfeedbackid
-    */
-    private Integer sysFeedbackId;
-
-    /**
-     * 回复内容
-     */
-    @Schema(description = "回复内容")
-    /**
-     * sysfeedbackrecover内容
-    */
-    private String sysFeedbackRecoverContent;
-
-    /**
-     * 回复图片
-     */
-    @Schema(description = "回复图片")
-    /**
-     * sysfeedbackrecoverimages
-    */
-    private String sysFeedbackRecoverImages;
+public record FeedbackIssueV1Request(
+        @Schema(description = "反馈ID") Integer sysFeedbackId,
+        @Schema(description = "回复内容") String sysFeedbackRecoverContent,
+        @Schema(description = "回复图片") String sysFeedbackRecoverImages
+) {
 }
