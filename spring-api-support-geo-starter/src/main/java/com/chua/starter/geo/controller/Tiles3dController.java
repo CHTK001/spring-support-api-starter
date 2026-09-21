@@ -70,8 +70,8 @@ public class Tiles3dController {
             @RequestBody @Valid Tiles3dTaskRequest request) {
         try {
             Tiles3dService.Download3dResult result = tiles3dService.download(
-                    request.getSource(), request.getPolygon(),
-                    request.getProxy(), request.getSavePath());
+                    request.source(), request.polygon(),
+                    request.proxy(), request.savePath());
             Map<String, Object> resp = new java.util.LinkedHashMap<>();
             resp.put("savePath", result.savePath());
             resp.put("contentCount", result.contentCount());

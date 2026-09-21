@@ -70,14 +70,14 @@ public class SysMessageAdminController {
     @Permission(value = "sys:message:save", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Integer> save(@RequestBody MessageBroadcastRequest request) {
         SysMessage message = new SysMessage();
-        message.setSysMessageTitle(request.getTitle());
-        message.setSysMessageContent(request.getContent());
-        message.setSysMessageType(request.getType());
-        message.setSysMessageLevel(request.getLevel());
-        message.setSysMessageUrl(request.getUrl());
+        message.setSysMessageTitle(request.title());
+        message.setSysMessageContent(request.content());
+        message.setSysMessageType(request.type());
+        message.setSysMessageLevel(request.level());
+        message.setSysMessageUrl(request.url());
         message.setSysMessageSenderId(0);
         message.setSysMessageSenderName("系统");
-        return sysMessageService.broadcast(message, request.getTargetUserIds());
+        return sysMessageService.broadcast(message, request.targetUserIds());
     }
 
     /**
