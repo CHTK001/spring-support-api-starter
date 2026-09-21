@@ -454,7 +454,7 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
      *
      * @param pageNum      页码
      * @param pageSize     每页大小
-     * @param beanName     处理器 名称模糊查询
+     * @param beanName     关键字: 匹配处理器 Bean 名、日志行的任务编号, 或台账名称命中的任务编号
      * @param executeCode  执行状态码
      * @param group        任务分组
      * @return 日志分页结果
@@ -466,10 +466,19 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         String normalizedBeanName = trimToNull(beanName);
         String normalizedExecuteCode = trimToNull(executeCode);
         String normalizedGroup = trimToNull(group);
+        List<String> keywordJobNos = StringUtils.hasText(normalizedBeanName)
+                ? selectJobNosByName(normalizedBeanName) : List.of();
 
         var wrapper = Wrappers.<JobLogEntity>lambdaQuery()
                 .eq(JobLogEntity::getSysJobLogIsDeleted, 0)
-                .like(StringUtils.hasText(normalizedBeanName), JobLogEntity::getSysJobLogTriggerBean, normalizedBeanName)
+                .and(StringUtils.hasText(normalizedBeanName), w -> {
+                    w.like(JobLogEntity::getSysJobLogTriggerBean, normalizedBeanName)
+                            .or()
+                            .like(JobLogEntity::getSysJobNo, normalizedBeanName);
+                    if (!keywordJobNos.isEmpty()) {
+                        w.or().in(JobLogEntity::getSysJobNo, keywordJobNos);
+                    }
+                })
                 .eq(StringUtils.hasText(normalizedExecuteCode), JobLogEntity::getSysJobLogExecuteCode,
                         normalizedExecuteCode == null ? null : normalizedExecuteCode.toUpperCase(java.util.Locale.ROOT))
                 .and(StringUtils.hasText(normalizedGroup), w -> w
@@ -479,6 +488,25 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
                                 schedulerJobMapper.selectJobNosByGroup(normalizedGroup)))
                 .orderByDesc(JobLogEntity::getSysJobLogId);
         return jobLogMapper.selectPage(new Page<>(safePageNum, safePageSize), wrapper);
+    }
+
+    /**
+     * 按台账名称模糊匹配任务编号, 供日志关键字过滤使用。
+     *
+     * <p>日志行只存处理器 Bean 名与任务编号, 用户在控制台搜的是台账名称, 因此先把名称
+     * 命中的编号查出来, 再用 {@code in} 回到日志表。</p>
+     *
+     * @param keyword 台账名称关键字
+     * @return 命中的任务编号列表
+     */
+    private List<String> selectJobNosByName(String keyword) {
+        return jobMapper.selectList(Wrappers.<JobEntity>lambdaQuery()
+                        .select(JobEntity::getSysJobNo)
+                        .like(JobEntity::getSysJobName, keyword))
+                .stream()
+                .map(JobEntity::getSysJobNo)
+                .filter(StringUtils::hasText)
+                .toList();
     }
 
     /**

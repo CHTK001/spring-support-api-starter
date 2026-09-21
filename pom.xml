@@ -14,6 +14,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>spring-api-support-common-parent</module>
+        <module>spring-api-support-collect-starter</module>
         <module>spring-api-support-geo-starter</module>
         <module>spring-api-support-monitor-starter</module>
         <module>spring-api-support-oauth-starter</module>
@@ -348,6 +349,12 @@
                 <version>${utils.version}</version>
             </dependency>
 
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-spider-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-datalake-starter</artifactId>
