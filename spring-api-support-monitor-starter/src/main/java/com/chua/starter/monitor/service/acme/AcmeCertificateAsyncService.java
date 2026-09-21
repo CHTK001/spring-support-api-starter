@@ -92,35 +92,35 @@ public class AcmeCertificateAsyncService {
                 .name("acme-async-" + certId)
                 .start(() -> {
                     log.info("[ACME-ASYNC] 开始异步申请证书: certId={}, domain={}, userId={}",
-                            certId, request.getPrimaryDomain(), userId);
+                            certId, request.primaryDomain(), userId);
 
                     MonitorAcmeCertificate cert = certificateMapper.selectById(certId);
                     if (cert == null) {
-                        pushMessage(userId, "证书申请失败", "证书记录不存在", "error", certId, request.getPrimaryDomain());
+                        pushMessage(userId, "证书申请失败", "证书记录不存在", "error", certId, request.primaryDomain());
                         return;
                     }
 
                     // 查询账户信息
-                    MonitorAcmeAccount account = accountMapper.selectById(request.getAcmeAccountId());
+                    MonitorAcmeAccount account = accountMapper.selectById(request.acmeAccountId());
                     if (account == null) {
                         updateCertStatus(cert, AcmeCertificateSupport.STATUS_FAILED, "ACME账户不存在");
-                        pushMessage(userId, "证书申请失败", "ACME账户不存在", "error", certId, request.getPrimaryDomain());
+                        pushMessage(userId, "证书申请失败", "ACME账户不存在", "error", certId, request.primaryDomain());
                         return;
                     }
 
                     // 推送开始消息
-                    pushMessage(userId, "证书申请中", "正在连接 ACME 服务器...", "info", certId, request.getPrimaryDomain());
+                    pushMessage(userId, "证书申请中", "正在连接 ACME 服务器...", "info", certId, request.primaryDomain());
 
                     // 组装域名列表（主域名 + SAN），与持久化的证书记录保持同一来源
                     List<String> domains = AcmeCertificateSupport.buildDomains(cert);
-                    String challenge = StringUtils.defaultString(request.getChallengeType(), AcmeCertificateSupport.CHALLENGE_HTTP_01);
+                    String challenge = StringUtils.defaultString(request.challengeType(), AcmeCertificateSupport.CHALLENGE_HTTP_01);
 
                     // 通过 SPI 获取 ACME 提供者（按账户服务商类型路由）
                     AcmeProvider provider = ServiceProvider.of(AcmeProvider.class)
                             .getNewExtension(AcmeCertificateSupport.providerName(account.getAcmeAccountProviderType()));
                     if (provider == null) {
                         updateCertStatus(cert, AcmeCertificateSupport.STATUS_FAILED, "ACME 服务提供者不可用");
-                        pushMessage(userId, "证书申请失败", "ACME 服务提供者不可用，请检查系统配置", "error", certId, request.getPrimaryDomain());
+                        pushMessage(userId, "证书申请失败", "ACME 服务提供者不可用，请检查系统配置", "error", certId, request.primaryDomain());
                         return;
                     }
 
@@ -136,7 +136,7 @@ public class AcmeCertificateAsyncService {
 
                         if (!connResult.isSuccess()) {
                             updateCertStatus(cert, AcmeCertificateSupport.STATUS_FAILED, connResult.getError());
-                            pushMessage(userId, "证书申请失败", "连接 ACME 服务器失败: " + connResult.getError(), "error", certId, request.getPrimaryDomain());
+                            pushMessage(userId, "证书申请失败", "连接 ACME 服务器失败: " + connResult.getError(), "error", certId, request.primaryDomain());
                             return;
                         }
 
@@ -149,7 +149,7 @@ public class AcmeCertificateAsyncService {
                         }
 
                         // 推送验证中消息
-                        pushMessage(userId, "证书申请中", "正在进行域名验证...", "info", certId, request.getPrimaryDomain());
+                        pushMessage(userId, "证书申请中", "正在进行域名验证...", "info", certId, request.primaryDomain());
 
                         // 获取验证信息（同一订单地址随验证信息返回，供跨请求恢复）
                         List<AcmeValidationInfo> validationInfos = provider.getValidationInfo(domains, challenge);
@@ -176,7 +176,7 @@ public class AcmeCertificateAsyncService {
                                 }
                             }
                             // 配置了 webroot 时同步写静态文件（尽力而为，失败不影响内置端点响应）
-                            AcmeCertificateSupport.writeHttpChallengeFiles(request.getWebrootPath(), validationInfos);
+                            AcmeCertificateSupport.writeHttpChallengeFiles(request.webrootPath(), validationInfos);
                             log.info("[ACME-ASYNC] 本机模式，验证信息已存储到缓存");
                         } else if (AcmeCertificateSupport.DEPLOY_MODE_SSH.equals(deployMode)
                                 && AcmeCertificateSupport.CHALLENGE_HTTP_01.equals(challenge)) {
@@ -187,11 +187,11 @@ public class AcmeCertificateAsyncService {
                                 cert.setAcmeCertLastError("SSH部署验证文件失败，请检查SSH连接信息");
                                 certificateMapper.updateById(cert);
                                 pushMessage(userId, "证书申请待验证",
-                                        String.format("域名 %s SSH部署验证文件失败，请检查SSH连接信息后重新验证", request.getPrimaryDomain()),
-                                        "warning", certId, request.getPrimaryDomain());
+                                        String.format("域名 %s SSH部署验证文件失败，请检查SSH连接信息后重新验证", request.primaryDomain()),
+                                        "warning", certId, request.primaryDomain());
                                 return;
                             }
-                            log.info("[ACME-ASYNC] SSH模式，验证文件已部署到远程服务器: {}", request.getSshHost());
+                            log.info("[ACME-ASYNC] SSH模式，验证文件已部署到远程服务器: {}", request.sshHost());
                         } else if (AcmeCertificateSupport.DEPLOY_MODE_MANUAL.equals(deployMode)) {
                             cert.setAcmeCertStatus(AcmeCertificateSupport.STATUS_VALIDATING);
                             cert.setAcmeCertLastError(null);
@@ -199,8 +199,8 @@ public class AcmeCertificateAsyncService {
                             log.info("[ACME-ASYNC] 手动模式，等待用户部署验证文件: certId={}", certId);
                             pushMessage(userId, "证书申请待验证",
                                     String.format("域名 %s 需要完成 %s 验证，请查看证书详情获取验证信息并手动部署",
-                                            request.getPrimaryDomain(), challenge),
-                                    "warning", certId, request.getPrimaryDomain());
+                                            request.primaryDomain(), challenge),
+                                    "warning", certId, request.primaryDomain());
                             return;
                         }
 
@@ -214,10 +214,10 @@ public class AcmeCertificateAsyncService {
                             order.setAcmeOrderStatus(AcmeCertificateSupport.ORDER_STATUS_VALID);
                             orderMapper.updateById(order);
 
-                            log.info("[ACME-ASYNC] 证书签发成功: certId={}, domain={}", certId, request.getPrimaryDomain());
+                            log.info("[ACME-ASYNC] 证书签发成功: certId={}, domain={}", certId, request.primaryDomain());
                             pushMessage(userId, "证书签发成功",
-                                    String.format("域名 %s 的 SSL 证书已成功签发", request.getPrimaryDomain()),
-                                    "success", certId, request.getPrimaryDomain());
+                                    String.format("域名 %s 的 SSL 证书已成功签发", request.primaryDomain()),
+                                    "success", certId, request.primaryDomain());
                         } else {
                             // 需要手动验证
                             cert.setAcmeCertStatus(AcmeCertificateSupport.STATUS_VALIDATING);
@@ -227,16 +227,16 @@ public class AcmeCertificateAsyncService {
                             log.warn("[ACME-ASYNC] 证书申请需要验证: certId={}, err={}", certId, certResult.getError());
                             pushMessage(userId, "证书申请待验证",
                                     String.format("域名 %s 需要完成 %s 验证，请查看证书详情获取验证信息",
-                                            request.getPrimaryDomain(), challenge),
-                                    "warning", certId, request.getPrimaryDomain());
+                                            request.primaryDomain(), challenge),
+                                    "warning", certId, request.primaryDomain());
                         }
 
                     } catch (Exception e) {
                         log.error("[ACME-ASYNC] 证书申请异常: certId={}", certId, e);
                         updateCertStatus(cert, AcmeCertificateSupport.STATUS_VALIDATING, AcmeCertificateSupport.shortMsg(e));
                         pushMessage(userId, "证书申请待验证",
-                                String.format("域名 %s 需要手动验证: %s", request.getPrimaryDomain(), AcmeCertificateSupport.shortMsg(e)),
-                                "warning", certId, request.getPrimaryDomain());
+                                String.format("域名 %s 需要手动验证: %s", request.primaryDomain(), AcmeCertificateSupport.shortMsg(e)),
+                                "warning", certId, request.primaryDomain());
                     } finally {
                         provider.close();
                     }
@@ -297,11 +297,11 @@ public class AcmeCertificateAsyncService {
      * @return 是否部署成功
      */
     private boolean deploySshChallengeFiles(AcmeApplyCertRequest request, List<AcmeValidationInfo> validationInfos) {
-        if (StringUtils.isEmpty(request.getSshHost()) || StringUtils.isEmpty(request.getSshUsername())) {
+        if (StringUtils.isEmpty(request.sshHost()) || StringUtils.isEmpty(request.sshUsername())) {
             log.error("[ACME-ASYNC] SSH连接信息不完整");
             return false;
         }
-        if (StringUtils.isEmpty(request.getWebrootPath())) {
+        if (StringUtils.isEmpty(request.webrootPath())) {
             log.error("[ACME-ASYNC] webroot路径未配置");
             return false;
         }
@@ -311,16 +311,16 @@ public class AcmeCertificateAsyncService {
         try {
             // 创建 SSH 连接
             ClientSetting setting = ClientSetting.builder()
-                    .host(request.getSshHost())
-                    .port(request.getSshPort() != null ? request.getSshPort() : 22)
-                    .username(request.getSshUsername())
-                    .password(request.getSshPassword())
+                    .host(request.sshHost())
+                    .port(request.sshPort() != null ? request.sshPort() : 22)
+                    .username(request.sshUsername())
+                    .password(request.sshPassword())
                     .connectTimeout(30000)
                     .build();
             sshClient = ProtocolClientSupport.create(clientId, SshClient.class, setting);
-            log.info("[ACME-ASYNC] SSH连接成功: {}@{}", request.getSshUsername(), request.getSshHost());
+            log.info("[ACME-ASYNC] SSH连接成功: {}@{}", request.sshUsername(), request.sshHost());
 
-            String webroot = request.getWebrootPath();
+            String webroot = request.webrootPath();
             // 创建验证目录
             String mkdirCmd = String.format("mkdir -p %s/.well-known/acme-challenge", webroot);
             sshClient.exec().command(mkdirCmd).execute();
