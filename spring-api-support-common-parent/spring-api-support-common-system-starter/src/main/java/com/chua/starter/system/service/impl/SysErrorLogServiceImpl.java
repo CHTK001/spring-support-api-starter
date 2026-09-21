@@ -54,11 +54,11 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
      * @return 保存report的结果
      */
     public ReturnResult<Boolean> saveReport(ErrorReportV1Request request) {
-        if (request == null || request.getRecords() == null || request.getRecords().isEmpty()) {
+        if (request == null || request.records() == null || request.records().isEmpty()) {
             return ReturnResult.illegal("异常记录列表不能为空");
         }
 
-        List<ErrorReportV1Item> records = request.getRecords();
+        List<ErrorReportV1Item> records = request.records();
         if (records.size() > MAX_BATCH_SIZE) {
             records = records.subList(0, MAX_BATCH_SIZE);
         }
@@ -68,7 +68,7 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
             if (item == null) {
                 continue;
             }
-            entityList.add(buildEntity(item, request.getTime()));
+            entityList.add(buildEntity(item, request.time()));
         }
 
         if (entityList.isEmpty()) {
