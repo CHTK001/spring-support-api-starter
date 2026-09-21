@@ -168,7 +168,7 @@ public interface SchedulerJobPlatformService {
      *
      * @param pageNum      页码
      * @param pageSize     每页大小
-     * @param beanName     处理器 名称模糊查询
+     * @param beanName     关键字: 处理器 Bean 名 / 任务编号 / 台账任务名称 模糊查询
      * @param executeCode  执行状态码
      * @param group        任务分组
      * @return 日志分页
