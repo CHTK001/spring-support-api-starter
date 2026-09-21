@@ -67,7 +67,7 @@ public class SysCacheServiceImpl implements SysCacheService {
         if (null == info) {
             return ReturnResult.illegal("不支持的缓存名称: " + cacheName);
         }
-        int cleared = deleteByPattern(toPattern(info.getCacheKey()));
+        int cleared = deleteByPattern(toPattern(info.cacheKey()));
         log.info("刷新缓存: cacheName={}, 删除Key数={}", cacheName, cleared);
         return ReturnResult.ok(true);
     }
@@ -78,8 +78,8 @@ public class SysCacheServiceImpl implements SysCacheService {
     */
     public ReturnResult<Boolean> refreshAll() {
         for (SysCacheInfo info : CACHE_MAP.values()) {
-            int cleared = deleteByPattern(toPattern(info.getCacheKey()));
-            log.info("刷新全部缓存: cacheName={}, 删除Key数={}", info.getCacheName(), cleared);
+            int cleared = deleteByPattern(toPattern(info.cacheKey()));
+            log.info("刷新全部缓存: cacheName={}, 删除Key数={}", info.cacheName(), cleared);
         }
         return ReturnResult.ok(true);
     }
