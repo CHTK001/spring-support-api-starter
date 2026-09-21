@@ -51,7 +51,7 @@ public class SmsLoginController {
     @ApiOperation("发送短信验证码")
     @Operation(summary = "发送短信验证码")
     public ReturnResult<Boolean> sendCode(@Valid @RequestBody SmsCodeRequest request) {
-        log.debug("发送短信验证码请求: phone={}, bizType={}", request.getPhone(), request.getBizType());
+        log.debug("发送短信验证码请求: phone={}, bizType={}", request.phone(), request.bizType());
         return smsCodeService.sendCode(request);
     }
 
@@ -70,7 +70,7 @@ public class SmsLoginController {
     public ReturnResult<LoginResult> login(@Valid @RequestBody SmsLoginRequest request,
                                            HttpServletRequest httpRequest,
                                            HttpServletResponse response) {
-        log.debug("短信验证码登录请求: phone={}", request.getPhone());
+        log.debug("短信验证码登录请求: phone={}", request.phone());
         return smsCodeService.login(request, httpRequest, response);
     }
 }

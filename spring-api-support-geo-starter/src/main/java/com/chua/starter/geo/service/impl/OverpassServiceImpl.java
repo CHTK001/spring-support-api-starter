@@ -47,8 +47,8 @@ public class OverpassServiceImpl implements OverpassService {
      */
     @Override
     public OverpassQueryResult query(OverpassQueryRequest request) {
-        Bounds bounds = request.getBounds();
-        String ql = buildQuery(request.getQuery(), bounds);
+        Bounds bounds = request.bounds();
+        String ql = buildQuery(request.query(), bounds);
         log.info("[Overpass] 执行查询: estimated elements ~{}", estimateElementCount(ql));
 
         try {
