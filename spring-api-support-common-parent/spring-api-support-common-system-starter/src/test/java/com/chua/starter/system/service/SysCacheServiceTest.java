@@ -34,9 +34,9 @@ class SysCacheServiceTest {
 
         assertNotNull(list);
         assertEquals(6, list.size(), "缓存定义固定为 role/dict/dept/setting/menu/user 共6项");
-        assertEquals("role", list.get(0).getCacheName());
+        assertEquals("role", list.get(0).cacheName());
         // 顺序与静态初始化块一致
-        assertEquals("user", list.get(5).getCacheName());
+        assertEquals("user", list.get(5).cacheName());
     }
 
     /**

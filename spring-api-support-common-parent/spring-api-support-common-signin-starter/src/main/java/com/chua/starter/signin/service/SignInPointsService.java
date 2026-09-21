@@ -153,6 +153,6 @@ public class SignInPointsService {
      * @return 积分总和
      */
     public int sumPoints(List<SignInPointDTO> points) {
-        return points.stream().mapToInt(SignInPointDTO::getPoints).sum();
+        return points.stream().mapToInt(SignInPointDTO::points).sum();
     }
 }
