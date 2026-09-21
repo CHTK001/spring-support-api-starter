@@ -178,29 +178,29 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
      */
     @Override
     public ReturnResult<Integer> applyCertificateForCert(AcmeApplyCertRequest request) {
-        if (request == null || request.getAcmeAccountId() == null || StringUtils.isNullOrEmpty(request.getPrimaryDomain())) {
+        if (request == null || request.acmeAccountId() == null || StringUtils.isNullOrEmpty(request.primaryDomain())) {
             return ReturnResult.illegal("参数错误: acmeAccountId/primaryDomain 不能为空");
         }
         // 查询账户信息
-        MonitorAcmeAccount account = accountMapper.selectById(request.getAcmeAccountId());
+        MonitorAcmeAccount account = accountMapper.selectById(request.acmeAccountId());
         if (account == null) {
-            return ReturnResult.illegal("ACME账户不存在: " + request.getAcmeAccountId());
+            return ReturnResult.illegal("ACME账户不存在: " + request.acmeAccountId());
         }
 
-        List<String> sans = request.getSanDomains() == null ? List.of() : request.getSanDomains();
+        List<String> sans = request.sanDomains() == null ? List.of() : request.sanDomains();
         String sanStr = String.join(",", sans.stream().filter(StringUtils::isNotEmpty).toList());
-        String challenge = StringUtils.defaultString(request.getChallengeType(), CHALLENGE_HTTP_01);
+        String challenge = StringUtils.defaultString(request.challengeType(), CHALLENGE_HTTP_01);
 
         // 新建证书记录（pending）
-        String deployMode = StringUtils.defaultString(request.getDeployMode(), DEPLOY_MODE_MANUAL);
+        String deployMode = StringUtils.defaultString(request.deployMode(), DEPLOY_MODE_MANUAL);
         MonitorAcmeCertificate cert = new MonitorAcmeCertificate();
-        cert.setAcmeAccountId(request.getAcmeAccountId());
-        cert.setAcmeCertPrimaryDomain(request.getPrimaryDomain());
+        cert.setAcmeAccountId(request.acmeAccountId());
+        cert.setAcmeCertPrimaryDomain(request.primaryDomain());
         cert.setAcmeCertSan(sanStr);
         cert.setAcmeCertChallengeType(challenge);
         cert.setAcmeCertStatus(STATUS_PENDING);
         cert.setAcmeCertDeployMode(deployMode);
-        cert.setAcmeCertWebrootPath(request.getWebrootPath());
+        cert.setAcmeCertWebrootPath(request.webrootPath());
         certificateMapper.insert(cert);
         int certId = cert.getAcmeCertId();
 
