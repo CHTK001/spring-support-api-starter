@@ -179,7 +179,7 @@ public class SchedulerJobConsoleApiController {
      * 清理过期日志。
      *
      * @param namespace     命名空间
-     * @param retentionDays 保留天数
+     * @param retentionDays 保留天数, 0 表示清空全部
      * @return 清理结果提示
      */
     @PostMapping("/{namespace}/job-log/cleanup")
