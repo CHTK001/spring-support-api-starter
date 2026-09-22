@@ -158,7 +158,7 @@ public interface SchedulerJobPlatformService {
     /**
      * 清理指定天数前的日志记录和对应的日志文件。
      *
-     * @param retentionDays 保留天数
+     * @param retentionDays 保留天数，0 表示清空全部
      * @return 清理的日志记录数
      */
     int cleanupLogs(int retentionDays);

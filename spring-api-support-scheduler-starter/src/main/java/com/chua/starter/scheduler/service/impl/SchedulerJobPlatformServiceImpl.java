@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.chua.common.support.task.scheduler.CronExpression;
 import com.chua.starter.job.support.JobProperties;
+import com.chua.starter.job.support.operate.JobOperator;
 import com.chua.starter.job.support.store.JobEntity;
 import com.chua.starter.job.support.store.JobLogEntity;
 import com.chua.starter.job.support.store.JobLogMapper;
@@ -15,6 +16,7 @@ import com.chua.starter.scheduler.vo.SchedulerTaskVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.stereotype.Service;
@@ -98,6 +100,11 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
      * 调度任务 映射器
      */
     private final SchedulerJobMapper schedulerJobMapper;
+
+    /**
+     * 任务治理操作器 (派发命令通道), 宿主未启用 job 自动配置时不可用
+     */
+    private final ObjectProvider<JobOperator> jobOperator;
 
     /**
      * 分页查询任务。
@@ -394,14 +401,16 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     /**
      * 清理指定天数前的日志记录和对应的日志文件。
      *
-     * @param retentionDays 保留天数
+     * <p>{@code retentionDays=0} 表示清空全部，与采集平台 {@code task/clean?days=0} 口径一致。</p>
+     *
+     * @param retentionDays 保留天数，0 表示全部清理
      * @return 清理的日志记录数
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int cleanupLogs(int retentionDays) {
-        if (retentionDays <= 0) {
-            throw new IllegalArgumentException("保留天数必须大于0");
+        if (retentionDays < 0) {
+            throw new IllegalArgumentException("保留天数不能为负数");
         }
         long cutoff = System.currentTimeMillis() - retentionDays * MILLIS_PER_DAY;
 
@@ -574,7 +583,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
     }
 
     /**
-     * 触发任务, 将下次执行时间置为当前时间以便立即调度。
+     * 触发任务: 先落执行参数, 再经 {@link JobOperator} 的命令通道投递一次立即派发。
+     *
+     * <p>调度循环按 cron 现算下次触发时刻, {@code sys_job_trigger_next_time} 只是回写的展示列,
+     * 单独改它不会让任务跑起来。</p>
      *
      * @param job   任务实体
      * @param param 执行参数
@@ -588,7 +600,18 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
         if (job.getSysJobTriggerLastTime() == null) {
             job.setSysJobTriggerLastTime(0L);
         }
-        return jobMapper.updateById(job) > 0;
+        boolean saved = jobMapper.updateById(job) > 0;
+        JobOperator operator = jobOperator.getIfAvailable();
+        if (operator == null) {
+            log.warn("[job] 宿主无 JobOperator, 立即派发退化为只刷新展示列 job={}", job.getSysJobNo());
+            return saved;
+        }
+        String jobKey = StringUtils.hasText(job.getSysJobExecuteBean())
+                ? job.getSysJobExecuteBean()
+                : job.getSysJobName();
+        boolean fired = operator.trigger(jobKey);
+        log.info("[job] 立即派发投递 job={} jobKey={} accepted={}", job.getSysJobNo(), jobKey, fired);
+        return fired || saved;
     }
 
     /**
@@ -1159,6 +1182,10 @@ public class SchedulerJobPlatformServiceImpl implements SchedulerJobPlatformServ
             return;
         }
         int retentionDays = jobProperties.getLog().getCleanupRetentionDays();
+        if (retentionDays <= 0) {
+            log.warn("[job] 定时清理跳过: retentionDays={} 无效 (0 只代表手动清空全部)", retentionDays);
+            return;
+        }
         log.info("[job] 定时清理日志开始 retentionDays={}", retentionDays);
         try {
             int deleted = cleanupLogs(retentionDays);
