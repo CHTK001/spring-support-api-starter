@@ -107,4 +107,18 @@ public class CollectEdge {
     public boolean allowWhenNormal() {
         return FLOW_ALWAYS.equals(exceptionFlow()) || FLOW_NORMAL.equals(exceptionFlow());
     }
+
+    /**
+     * 本边是否是显式声明的异常处理分支。
+     *
+     * <p>只有 {@link #FLOW_EXCEPTION}（仅上游异常时流转）代表「这条边就是用来接异常的」，
+     * 失败交到这里才算被处理；{@link #FLOW_ALWAYS} 只是「无论成败都往下走」的路由声明，
+     * 不代表下游有能力兜住异常，把它算作处理会让节点失败被静默吞掉、任务终态永远成功。
+     * {@link #FLOW_NORMAL} 上游异常时本就不放行，不参与判定。</p>
+     *
+     * @return 是异常处理分支返回 true
+     */
+    public boolean isExceptionBranch() {
+        return FLOW_EXCEPTION.equals(exceptionFlow());
+    }
 }
