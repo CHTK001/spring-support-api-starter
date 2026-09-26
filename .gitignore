@@ -55,8 +55,11 @@ target/**/com/
 
 
 # data directories
+# 锚定到仓库根：只排除顶层可能生成的 docs/ 输出目录。
+# 原来写的是 `docs/`，会连各模块自己的 docs/ 一起忽略，导致模块文档
+# （如 spring-api-support-collect-starter/docs/rest-api.md）无法入库。
 data/
-docs/
+/docs/
 
 # H2 database
 *.mv.db

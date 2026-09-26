@@ -1,5 +1,6 @@
 package com.chua.starter.collect.engine;
 
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.starter.collect.dto.CollectDslDTO;
 import com.chua.starter.collect.dto.CollectParamDTO;
 import com.chua.starter.collect.engine.model.CollectEdge;
@@ -420,6 +421,11 @@ public class CollectEngine {
     /**
      * 按边的异常流向与条件派发下游令牌。
      *
+     * <p>失败是否算「被接住」只看有没有显式的异常处理分支（{@code exceptionFlow=1}）：
+     * 默认的 {@code exceptionFlow=0} 只是「无论成败都往下走」的路由声明，下游并没有承诺兜住异常，
+     * 若把它也算作接住，节点失败会被静默吞掉——任务终态恒为 SUCCESS，
+     * 以 FAILURE 为条件的执行通知也永远不会投递。</p>
+     *
      * @param context 执行上下文
      * @param node    当前节点
      * @param vars    当前令牌作用域
@@ -435,7 +441,7 @@ public class CollectEngine {
                         node.name() + " → " + edge.getTarget().name()
                                 + (failed ? " 上游异常且本边不允许异常流转" : " 连线条件不成立: " + edge.condition()),
                         null);
-                rescued = rescued || failed && edge.allowWhenException();
+                rescued = rescued || failed && edge.isExceptionBranch();
                 continue;
             }
             Map<String, Object> child = new LinkedHashMap<>(context.getRootVariables());
@@ -443,7 +449,7 @@ public class CollectEngine {
                 child.putAll(vars);
             }
             schedule(context, edge.getTarget(), child);
-            rescued = rescued || failed;
+            rescued = rescued || failed && edge.isExceptionBranch();
         }
         if (failed && !rescued) {
             context.markFailure(String.valueOf(vars.get(VAR_EXCEPTION)));
@@ -480,10 +486,10 @@ public class CollectEngine {
             return items;
         }
         if (value.getClass().isArray()) {
-            int length = java.lang.reflect.Array.getLength(value);
+            int length = ReflectUtils.arrayLength(value);
             List<Object> items = new ArrayList<>(length);
             for (int i = 0; i < length; i++) {
-                items.add(java.lang.reflect.Array.get(value, i));
+                items.add(ReflectUtils.arrayGet(value, i));
             }
             return items;
         }
