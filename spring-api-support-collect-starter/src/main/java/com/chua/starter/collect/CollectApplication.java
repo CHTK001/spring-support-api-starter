@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * 数据采集平台启动器。
  *
  * <p>平台以 SINGLE 角色运行：定时能力由 job-starter 的调度循环驱动
- * {@code collect.scheduler.tick} 任务，采集能力由 utils-support-spider-starter 提供，
+ * {@code collect.scheduler.tick} 任务，采集能力由 utils-support-crawler-starter 提供，
  * 流程执行引擎与结果存储由本模块承担。</p>
  *
  * @author CH

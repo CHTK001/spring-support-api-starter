@@ -20,17 +20,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <!-- 调度平台以接口面并入本进程：/v1/job-platform/** 作业台账与 /job-console/** 会话由采集控制台统一登录 -->
-    <dependency>
-      <groupId>com.chua</groupId>
-      <artifactId>spring-api-support-scheduler-starter</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>com.chua</groupId>
-          <artifactId>utils-support-armeria-starter</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-support-mybatis-starter</artifactId>
@@ -39,17 +28,29 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-support-datasource-starter</artifactId>
     </dependency>
+    <!-- 数据源中心：SQL/入库节点统一从这里取数据源台账，不再自建 collect_datasource 台账 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-datasource-hub-starter</artifactId>
+      <version>${module.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-support-job-starter</artifactId>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>utils-support-spider-starter</artifactId>
+      <artifactId>utils-support-crawler-starter</artifactId>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>utils-support-common-starter</artifactId>
+      <version>${utils.version}</version>
+    </dependency>
+    <!-- 脚本任务引擎：提供 common-starter ScriptProvider SPI 的 groovy 实现（ScriptFlow） -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-groovy-starter</artifactId>
       <version>${utils.version}</version>
     </dependency>
     <dependency>
@@ -74,6 +75,7 @@
       <artifactId>mysql-connector-j</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <!-- 正式嵌入式数据库适配：默认 h2 配置支持采集平台免外部数据库启动 -->
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>

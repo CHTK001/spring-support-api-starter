@@ -1,11 +1,11 @@
 package com.chua.starter.collect.engine.executor;
 
 import com.chua.common.support.spi.ServiceProvider;
-import com.chua.spider.support.SpiderFetcher;
-import com.chua.spider.support.fetcher.HttpFetcher;
-import com.chua.spider.support.model.SpiderProxyConfig;
-import com.chua.spider.support.model.SpiderRequest;
-import com.chua.spider.support.model.SpiderResponse;
+import com.chua.crawler.support.SpiderFetcher;
+import com.chua.crawler.support.fetcher.HttpFetcher;
+import com.chua.crawler.support.model.SpiderProxyConfig;
+import com.chua.crawler.support.model.SpiderRequest;
+import com.chua.crawler.support.model.SpiderResponse;
 import com.chua.starter.collect.dto.CollectParamDTO;
 import com.chua.starter.collect.engine.CollectContext;
 import com.chua.starter.collect.engine.CollectExpression;
@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 抓取节点：调用 utils-support-spider-starter 的抓取器取回一页内容。
+ * 抓取节点：调用 utils-support-crawler-starter 的抓取器取回一页内容。
  *
  * <p>抓取器通过 SPI 按名字选取（默认 {@code http}，浏览器渲染等实现可零侵入注册进来），
  * 解析结果不可用时回退到内置 HTTP 抓取器，保证只依赖爬虫模块也能跑。</p>

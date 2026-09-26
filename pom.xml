@@ -18,7 +18,6 @@
         <module>spring-api-support-geo-starter</module>
         <module>spring-api-support-monitor-starter</module>
         <module>spring-api-support-oauth-starter</module>
-        <module>spring-api-support-scheduler-starter</module>
         <module>spring-api-support-system-starter</module>
         <module>spring-api-support-tenanted-starter</module>
     </modules>
@@ -74,6 +73,12 @@
             <artifactId>utils-support-geoip2-starter</artifactId>
             <version>${utils.version}</version>
         </dependency>
+        <!-- ip 归属地离线库：xdb 随 utils-support-resource-ip2region 打包 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-ip2region-starter</artifactId>
+            <version>${utils.version}</version>
+        </dependency>
         <!-- dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-storage-starter</artifactId>
@@ -120,6 +125,8 @@
             <dependency><groupId>io.netty</groupId><artifactId>netty-transport</artifactId><version>${netty.version}</version></dependency>
             <dependency><groupId>io.netty</groupId><artifactId>netty-transport-classes-epoll</artifactId><version>${netty.version}</version></dependency>
             <dependency><groupId>io.netty</groupId><artifactId>netty-transport-classes-kqueue</artifactId><version>${netty.version}</version></dependency>
+            <dependency><groupId>io.netty</groupId><artifactId>netty-transport-native-epoll</artifactId><version>${netty.version}</version></dependency>
+            <dependency><groupId>io.netty</groupId><artifactId>netty-transport-native-kqueue</artifactId><version>${netty.version}</version></dependency>
             <dependency><groupId>io.netty</groupId><artifactId>netty-transport-native-unix-common</artifactId><version>${netty.version}</version></dependency>
 
             
@@ -237,6 +244,14 @@
                 <version>${module.version}</version>
             </dependency>
 
+            <!-- 数据检索服务化（天气 / 定位 / 台风）：原在本 reactor 的 common-service-starter 内，
+                 已下沉到 spring 层共享模块，api 侧改为依赖它，保证与 ai 等 spring 侧宿主同一份实现 -->
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-datasearch-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-pay-client-starter</artifactId>
@@ -265,6 +280,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-email-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-filesystem-starter</artifactId>
                 <version>${module.version}</version>
             </dependency>
 
@@ -349,12 +370,12 @@
                 <version>${utils.version}</version>
             </dependency>
 
-
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>utils-support-spider-starter</artifactId>
+                <artifactId>utils-support-crawler-starter</artifactId>
                 <version>${utils.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-datalake-starter</artifactId>
@@ -823,12 +844,6 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-api-support-scheduler-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-datalake-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -898,7 +913,12 @@
     <build>
         <pluginManagement>
             <plugins>
-                
+                <!-- 构建期将各模块 db/init 下的脚本合并为一份完整 init.sql（输出到 target，不入库）——与 spring-support-datasource-starter 对齐 -->
+                <plugin>
+                    <groupId>com.chua</groupId>
+                    <artifactId>utils-support-flyway-maven-plugin</artifactId>
+                    <version>${project.version}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -971,6 +991,24 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <!-- 构建期合并本模块 db/init → target/db/init-all.sql（无 db/init 的模块跳过） -->
+            <plugin>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-flyway-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-module-init-sql</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>generate-init-sql</goal>
+                        </goals>
+                        <configuration>
+                            <mode>initdata</mode>
+                            <failIfNoScripts>false</failIfNoScripts>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
