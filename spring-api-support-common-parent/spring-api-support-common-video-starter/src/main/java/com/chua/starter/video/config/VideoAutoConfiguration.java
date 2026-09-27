@@ -2,6 +2,7 @@ package com.chua.starter.video.config;
 
 import com.chua.starter.video.controller.VideoConfigController;
 import com.chua.starter.video.controller.VideoSearchController;
+import com.chua.starter.video.job.VideoConfigSyncJob;
 import com.chua.starter.video.live.controller.LiveChannelController;
 import com.chua.starter.video.live.service.HlsProxyService;
 import com.chua.starter.video.live.service.LiveCatalogLoader;
@@ -9,6 +10,7 @@ import com.chua.starter.video.live.service.LiveChannelService;
 import com.chua.starter.video.properties.VideoProperties;
 import com.chua.starter.video.service.VideoPlatformService;
 import com.chua.starter.video.setting.SysSettingStore;
+import com.chua.starter.video.setting.VideoConfigSyncService;
 import com.chua.starter.video.setting.VideoSettingService;
 import com.chua.starter.video.setting.VideoSettingStore;
 import lombok.extern.slf4j.Slf4j;
@@ -72,6 +74,22 @@ public class VideoAutoConfiguration {
     public VideoPlatformService videoPlatformService(VideoProperties properties,
                                                      VideoSettingService videoSettingService) {
         return new VideoPlatformService(properties, videoSettingService);
+    }
+
+    /**
+     * 创建视频/直播配置同步服务。
+     *
+     * @param videoSettingService 视频配置数据库服务
+     * @param properties          视频服务配置
+     * @param liveChannelProvider 直播目录服务（可选）
+     * @return VideoConfigSyncService 实例
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public VideoConfigSyncService videoConfigSyncService(VideoSettingService videoSettingService,
+                                                         VideoProperties properties,
+                                                         ObjectProvider<LiveChannelService> liveChannelProvider) {
+        return new VideoConfigSyncService(videoSettingService, properties, liveChannelProvider.getIfAvailable());
     }
 
     /**
@@ -151,13 +169,16 @@ public class VideoAutoConfiguration {
      *
      * @param videoSettingService 视频配置数据库服务
      * @param liveChannelService  直播频道目录
+     * @param videoConfigSyncService 配置同步服务
      * @return 控制器
      */
     @Bean
     @ConditionalOnMissingBean
     public VideoConfigController videoConfigController(VideoSettingService videoSettingService,
-                                                       ObjectProvider<LiveChannelService> liveChannelService) {
-        return new VideoConfigController(videoSettingService, liveChannelService.getIfAvailable());
+                                                       ObjectProvider<LiveChannelService> liveChannelService,
+                                                       VideoConfigSyncService videoConfigSyncService) {
+        return new VideoConfigController(videoSettingService,
+                liveChannelService.getIfAvailable(), videoConfigSyncService);
     }
 
     /**
@@ -178,6 +199,28 @@ public class VideoAutoConfiguration {
         public VideoSettingStore sysSettingStore(
                 ObjectProvider<com.chua.starter.service.SysSettingService> provider) {
             return new SysSettingStore(provider);
+        }
+    }
+
+    /**
+     * 任务注册装配：仅当宿主引入 job-starter 时生效。
+     */
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(name = "com.chua.starter.job.support.annotation.Job")
+    static class JobConfiguration {
+
+        /**
+         * 注册视频/直播配置同步任务（job-starter 扫描 @Job 并调度）。
+         *
+         * @param syncService 配置同步服务
+         * @return VideoConfigSyncJob 实例
+         */
+        @Bean
+        @ConditionalOnMissingBean
+        @ConditionalOnProperty(prefix = VideoProperties.PRE, name = "config-sync-enabled",
+                havingValue = "true", matchIfMissing = true)
+        public VideoConfigSyncJob videoConfigSyncJob(VideoConfigSyncService syncService) {
+            return new VideoConfigSyncJob(syncService);
         }
     }
 }

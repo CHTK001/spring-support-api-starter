@@ -89,4 +89,19 @@ public class VideoProperties {
      * HLS 代理单次响应的最大字节数（默认 8MB），防止异常大文件。
      */
     private int liveProxyMaxBytes = 8 * 1024 * 1024;
+
+    /**
+     * 是否启用视频/直播配置同步任务（job-starter）。
+     */
+    private boolean configSyncEnabled = true;
+
+    /**
+     * 远程配置快照地址（{@code VideoConfigSnapshot} JSON）；置空则仅做本地重载。
+     */
+    private String configSyncUrl = "";
+
+    /**
+     * 配置同步是否覆盖已存在项。
+     */
+    private boolean configSyncOverwrite = true;
 }
