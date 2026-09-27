@@ -21,6 +21,7 @@
         <module>spring-api-support-scheduler-starter</module>
         <module>spring-api-support-system-starter</module>
         <module>spring-api-support-tenanted-starter</module>
+        <module>spring-api-support-video-starter</module>
     </modules>
 
     <properties>
