@@ -9,6 +9,7 @@
 - **视频详情**：优先命中最近浏览条目的内存缓存，其次走资源站 `ac=detail`，最后按 originId 回退聚合检索。
 - **电视直播**：内置央视 / 卫视 / 特色频道目录，多候选流自动回退；HLS 经后端反向代理（重写 m3u8 分片与密钥地址），规避公开源无 CORS、http 混合内容与 Referer 限制，并内置同根域白名单防 SSRF。
 - **配置数据库存储**：视频采集地址、兜底关键词、分类关键词与整套直播目录持久化到通用配置表 `sys_setting`（group=`video`），复用 `/v2/setting` 管理端、变更历史与导入导出；首次启动用内置 JSON 播种，存储不可用时自动回退内置 JSON。
+- **页面化配置**：前端 `vue-support-video-starter` 的配置页（路由 `/config`）直接读写上述配置（`/config`、`/config/export`、`/config/import`、`/config/reload`、`/config/sync`），无需改配置文件。
 - **统一信封**：所有接口返回 `ReturnResult`（成功码 `00000`）。
 
 ## 接口
