@@ -28,6 +28,12 @@
       <artifactId>spring-api-support-common-service-starter</artifactId>
       <optional>true</optional>
     </dependency>
+    <!-- 配置同步任务：job-starter（可选，缺失时仅保留手动 /config/sync） -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-job-starter</artifactId>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>

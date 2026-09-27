@@ -13,6 +13,8 @@ spring:
   video:
     live-enabled: true                        # 电视直播开关
     catalog-url: https://cj.lziapi.com/api.php/provide/vod/   # 资源站采集接口
+    config-sync-enabled: true                 # 配置同步任务（job-starter）
+    config-sync-url: ""                       # 远程配置快照地址，留空仅本地重载
 
 # ===========================================
 # 服务器配置（前端 Vite 代理 /video/api → 本端口，无 context-path）
@@ -42,7 +44,12 @@ plugin:
     server:
       enable: false
   job:
-    enable: false
+    enable: true                              # 启用 job-starter：配置同步任务
+    role: SINGLE                              # 单机自闭环（内置 Leader + 执行器）
+    sync:
+      in-memory: true
+    log:
+      enabled: false
   sync:
     server:
       enable: false

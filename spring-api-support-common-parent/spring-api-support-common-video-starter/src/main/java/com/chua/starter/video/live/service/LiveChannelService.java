@@ -71,20 +71,13 @@ public class LiveChannelService implements ApplicationListener<ApplicationReadyE
     }
 
     /**
-     * 启动加载（配置数据库不可用时回退文件/内置）。
+     * 启动预加载：仅用文件/内置目录占位，数据库初始化推迟到
+     * {@link ApplicationReadyEvent}（确保建表脚本已执行）。
      */
     @PostConstruct
     public void init() {
-        try {
-            if (settings.available()) {
-                settings.initialize(properties, resolveDefaults());
-            }
-            apply(resolveTarget(resolveDefaults()));
-        } catch (Exception e) {
-            log.warn("[Video] 直播目录初始化失败，回退内置目录: {}", e.getMessage());
-            apply(resolveDefaults());
-        }
-        log.info("[Video] 直播频道目录加载完成: 分组={}, 频道={}, 存储={}",
+        apply(resolveDefaults());
+        log.info("[Video] 直播频道目录预加载完成: 分组={}, 频道={}, 存储={}",
                 groups.size(), channels.size(), settings.available() ? "db" : "json");
     }
 
