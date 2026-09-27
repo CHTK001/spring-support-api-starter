@@ -179,7 +179,7 @@ CREATE TABLE sys_setting (
     sys_setting_id int NOT NULL AUTO_INCREMENT COMMENT '闁板秶鐤咺D - 娑撳鏁懛顏勵杻',
     sys_setting_name varchar(255)   NULL DEFAULT NULL COMMENT '闁板秶鐤嗛崥宥囆?- 闁板秶鐤嗘い鍦畱闁款喖鎮?,
     sys_setting_code varchar(255)   NULL DEFAULT NULL COMMENT '闁板秶鐤嗙紓鏍垳 - 閸烆垯绔撮弽鍥槕閻緤绱欐俊?login.title閿?,
-    sys_setting_value varchar(255)   NULL DEFAULT NULL COMMENT '闁板秶鐤嗛崐?- 闁板秶鐤嗘い鍦畱閸?,
+    sys_setting_value text NULL DEFAULT NULL COMMENT '闁板秶鐤嗛崐?- 闁板秶鐤嗘い鍦畱閸?,
     sys_setting_value_type varchar(255)   NULL DEFAULT NULL COMMENT '闁板秶鐤嗙猾璇茬€?- Boolean/String/Number/Color/Dict缁涘绱濋悽銊ょ艾閸撳秶顏紒鍕閸掋倖鏌?,
     sys_setting_group varchar(255)   NULL DEFAULT NULL COMMENT '閹碘偓鐏炵偛鍨庣紒?- 闁板秶鐤嗘い瑙勫鐏炵偟娈戦崚鍡欑矋缂傛牜鐖?,
     sys_setting_status int NULL DEFAULT 1 COMMENT '閺勵垰鎯侀崥顖滄暏 - 0:缁備胶鏁? 1:閸氼垳鏁?,

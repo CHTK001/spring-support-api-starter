@@ -67,7 +67,7 @@ public class SysSetting extends SysBase implements Serializable {
      */
     @TableField(value = "sys_setting_value")
     @Schema(description = "配置值")
-    @Size(max = 255, message = "配置值最大长度需小于255")
+    @Size(max = 65535, message = "配置值最大长度需小于65535")
     /**
      * SYS设置值
     */

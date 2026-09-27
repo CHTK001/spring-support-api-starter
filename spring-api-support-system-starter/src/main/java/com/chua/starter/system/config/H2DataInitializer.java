@@ -155,7 +155,7 @@ public class H2DataInitializer implements ApplicationRunner {
         // 建表脚本按 MySQL 语法写的这几张表在本库解析不过（DEFAULT 必须写在可空约束之前），在此按本库语法补齐
         jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS sys_setting (" +
             "sys_setting_id INT AUTO_INCREMENT PRIMARY KEY," +
-            "sys_setting_name VARCHAR(255), sys_setting_code VARCHAR(255), sys_setting_value VARCHAR(255)," +
+            "sys_setting_name VARCHAR(255), sys_setting_code VARCHAR(255), sys_setting_value TEXT," +
             "sys_setting_value_type VARCHAR(255), sys_setting_group VARCHAR(255)," +
             "sys_setting_status INT DEFAULT 1, sys_setting_sort INT DEFAULT 0," +
             "sys_setting_collect INT DEFAULT 0, sys_setting_in_system INT DEFAULT 0," +
