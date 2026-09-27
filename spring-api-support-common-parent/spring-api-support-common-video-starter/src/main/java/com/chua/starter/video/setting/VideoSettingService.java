@@ -222,6 +222,68 @@ public class VideoSettingService {
     }
 
     /**
+     * 导出视频配置快照（标量 + 整段直播目录）。
+     *
+     * @return 配置快照
+     */
+    public VideoConfigSnapshot exportConfig() {
+        return new VideoConfigSnapshot(
+                resolve(NAME_CATALOG_URL, null),
+                resolve(NAME_DEFAULT_KEYWORD, null),
+                resolveMap(NAME_BROWSE_KEYWORDS, Map.of()),
+                catalog());
+    }
+
+    /**
+     * 导入视频配置快照。
+     *
+     * @param snapshot  配置快照
+     * @param overwrite 是否覆盖已存在的配置项
+     * @return 是否导入成功
+     */
+    public synchronized boolean importConfig(VideoConfigSnapshot snapshot, boolean overwrite) {
+        if (!available() || snapshot == null) {
+            return false;
+        }
+        upsertIfAllowed(NAME_CATALOG_URL, snapshot.catalogUrl(),
+                "String", "视频资源站采集接口地址", 1, overwrite);
+        upsertIfAllowed(NAME_DEFAULT_KEYWORD, snapshot.defaultKeyword(),
+                "String", "兜底检索关键词", 2, overwrite);
+        if (snapshot.browseKeywords() != null) {
+            upsertIfAllowed(NAME_BROWSE_KEYWORDS, toJson(snapshot.browseKeywords()),
+                    "JSON", "分类浏览关键词映射", 3, overwrite);
+        }
+        if (snapshot.liveCatalog() != null && !snapshot.liveCatalog().isEmpty()) {
+            upsertIfAllowed(NAME_LIVE_CATALOG, toJson(snapshot.liveCatalog()),
+                    "JSON", "直播频道目录", 10, overwrite);
+        }
+        load();
+        log.info("[Video] 视频配置导入完成: overwrite={}", overwrite);
+        return true;
+    }
+
+    /**
+     * 按覆盖策略写入配置项。
+     *
+     * @param name      名称
+     * @param value     值
+     * @param valueType 值类型
+     * @param remark    备注
+     * @param sort      排序号
+     * @param overwrite 是否覆盖已存在项
+     */
+    private void upsertIfAllowed(String name, String value, String valueType,
+                                 String remark, int sort, boolean overwrite) {
+        if (value == null) {
+            return;
+        }
+        if (!overwrite && values.containsKey(name)) {
+            return;
+        }
+        store.upsert(GROUP, name, value, valueType, remark, sort);
+    }
+
+    /**
      * 播种默认配置（仅缺失时写入）。
      *
      * @param properties 视频配置
