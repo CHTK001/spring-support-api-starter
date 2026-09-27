@@ -26,6 +26,8 @@
 | GET | `/video/api/live/{id}/play.m3u8?src=N` | 频道主播放列表（经后端 HLS 代理，`src` 为候选源下标） |
 | GET | `/video/api/live/{id}/resource?src=N&u=...` | 代理子清单 / 分片（内部使用） |
 | GET | `/video/api/config` | 当前生效配置概览（存储模式、采集地址、关键词、直播频道数） |
+| GET | `/video/api/config/export` | 导出配置快照（标量 + 整段直播目录），用于备份/跨环境迁移 |
+| POST | `/video/api/config/import?overwrite=true` | 导入配置快照并热加载 |
 | POST | `/video/api/config/reload` | 从配置数据库热加载配置与直播目录 |
 
 ## 配置
@@ -70,6 +72,7 @@
 1. **首次启动播种**：`video` 分组尚无频道行时，用内置 `video/live-channels.json`（或 `live-channel-file`）写入数据库。
 2. **数据库优先**：之后目录与标量均以数据库为准；在 `/v2/setting` 修改后调用 `POST /video/api/config/reload` 热加载即时生效。
 3. **降级**：宿主未引入通用配置服务，或 `video` 分组为空时，回退 `spring.video.*` 与内置 JSON。
+4. **迁移/备份**：`GET /video/api/config/export` 导出领域化快照（标量 + 整段直播目录），在目标环境 `POST /video/api/config/import` 导入并自动热加载；`overwrite=false` 可只补缺失项。（与模块其他接口一致未内置鉴权，公网暴露时请置于网关鉴权之后。）
 
 ## 启用
 
