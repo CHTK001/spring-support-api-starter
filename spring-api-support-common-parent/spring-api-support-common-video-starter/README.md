@@ -28,6 +28,7 @@
 | GET | `/video/api/config` | 当前生效配置概览（存储模式、采集地址、关键词、直播频道数） |
 | GET | `/video/api/config/export` | 导出配置快照（标量 + 整段直播目录），用于备份/跨环境迁移 |
 | POST | `/video/api/config/import?overwrite=true` | 导入配置快照并热加载 |
+| POST | `/video/api/config/sync` | 手动触发配置同步（拉取远程快照 + 热加载） |
 | POST | `/video/api/config/reload` | 从配置数据库热加载配置与直播目录 |
 
 ## 配置
@@ -48,6 +49,9 @@
 | `live-channel-file` | 空 | 外部直播目录：`.json` 目录或 `.m3u/.m3u8` 播放列表；置空用内置 `video/live-channels.json` |
 | `live-allowed-hosts` | 空 | HLS 代理额外允许的主机后缀白名单（跨 CDN 分片时使用） |
 | `live-proxy-max-bytes` | `8388608` | HLS 代理单次响应最大字节数 |
+| `config-sync-enabled` | `true` | 是否注册配置同步任务（依赖 job-starter） |
+| `config-sync-url` | 空 | 远程配置快照（`VideoConfigSnapshot` JSON）地址；置空则仅本地重载 |
+| `config-sync-overwrite` | `true` | 配置同步是否覆盖已存在项 |
 
 ## 配置数据库存储
 
@@ -73,6 +77,17 @@
 2. **数据库优先**：之后目录与标量均以数据库为准；在 `/v2/setting` 修改后调用 `POST /video/api/config/reload` 热加载即时生效。
 3. **降级**：宿主未引入通用配置服务，或 `video` 分组为空时，回退 `spring.video.*` 与内置 JSON。
 4. **迁移/备份**：`GET /video/api/config/export` 导出领域化快照（标量 + 整段直播目录），在目标环境 `POST /video/api/config/import` 导入并自动热加载；`overwrite=false` 可只补缺失项。（与模块其他接口一致未内置鉴权，公网暴露时请置于网关鉴权之后。）
+
+### 配置同步（job-starter）
+
+宿主引入 `spring-support-job-starter` 时，模块自动注册任务 `video.config.sync`（`@Job` 注解，默认 cron `0 0/10 * * * ?`，每 10 分钟）：
+
+1. 若配置了 `spring.video.config-sync-url`，拉取远程 `VideoConfigSnapshot` 并导入配置库；
+2. 随后热加载配置与直播目录，使本节点即时生效（多实例亦可通过共享配置库收敛）。
+
+- 手动触发：`POST /video/api/config/sync`
+- 关闭任务：`spring.video.config-sync-enabled=false`
+- 调度时间可在 job-starter 治理端调整（`sys_job.sys_job_schedule_time`）
 
 ## 启用
 

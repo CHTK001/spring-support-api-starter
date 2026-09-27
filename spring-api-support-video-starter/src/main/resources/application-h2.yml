@@ -12,7 +12,7 @@ spring:
       enabled: true                           # /h2-console 可直接查看配置库
   sql:
     init:
-      mode: never                             # 建表交给 plugin.datasource.script
+      mode: never                             # H2 建表由 H2SchemaConfiguration 显式执行
 
 plugin:
   datasource:

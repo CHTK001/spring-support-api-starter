@@ -75,6 +75,7 @@ spring-support-api-starter/
 | **monitor-starter**   | 监控运维应用         | 8081  | -                                                           |
 | **tenanted-starter**  | 多租户应用           | 8082  | -                                                           |
 | **scheduler-starter** | 调度任务应用         | 8083  | -                                                           |
+| **video-starter**     | 视频平台应用（检索+直播） | 18172 | [📖 查看文档](./spring-api-support-video-starter/README.md) |
 
 ## 依赖关系
 

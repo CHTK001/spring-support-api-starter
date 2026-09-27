@@ -3,6 +3,7 @@ package com.chua.starter.video.controller;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.video.live.service.LiveChannelService;
 import com.chua.starter.video.setting.VideoConfigSnapshot;
+import com.chua.starter.video.setting.VideoConfigSyncService;
 import com.chua.starter.video.setting.VideoSettingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,6 +42,22 @@ public class VideoConfigController {
      * 直播频道目录（直播关闭时为空）。
      */
     private final LiveChannelService liveChannelService;
+
+    /**
+     * 配置同步服务。
+     */
+    private final VideoConfigSyncService videoConfigSyncService;
+
+    /**
+     * 手动触发配置同步（拉取远程快照 + 热加载）。
+     *
+     * @return 同步结果摘要
+     */
+    @Operation(summary = "Sync video config (pull remote snapshot + reload)")
+    @PostMapping("/sync")
+    public ReturnResult<Map<String, Object>> sync() {
+        return ReturnResult.ok(videoConfigSyncService.sync());
+    }
 
     /**
      * 当前生效配置概览。
