@@ -105,6 +105,7 @@
       sys_user su
         LEFT JOIN sys_user_grid sug ON sug.user_id = su.sys_user_id
     WHERE su.sys_user_username = #{accessKey}
+      AND su.sys_user_delete = 0
   </select>
   <select id="selectPageUser" resultType="com.chua.starter.entity.system.SysUser">
     SELECT
@@ -123,24 +124,28 @@
         )
       </if>
 
-      <if test="query.username != null and query.username != ''">
-        AND su.sys_user_username LIKE CONCAT('%', #{query.username}, '%')
+      <if test="query.sysUserName != null and query.sysUserName != ''">
+        AND su.sys_user_username LIKE CONCAT('%', #{query.sysUserName}, '%')
       </if>
 
-      <if test="query.nickname != null and query.nickname != ''">
-        AND su.sys_user_nickname LIKE CONCAT('%', #{query.nickname}, '%')
+      <if test="query.sysUserNickname != null and query.sysUserNickname != ''">
+        AND su.sys_user_nickname LIKE CONCAT('%', #{query.sysUserNickname}, '%')
       </if>
 
-      <if test="query.phone != null and query.phone != ''">
-        AND su.sys_user_phone LIKE CONCAT('%', #{query.phone}, '%')
+      <if test="query.sysUserPhone != null and query.sysUserPhone != ''">
+        AND su.sys_user_phone LIKE CONCAT('%', #{query.sysUserPhone}, '%')
       </if>
 
-      <if test="query.sex != null">
-        AND su.sys_user_sex = #{query.sex}
+      <if test="query.sysUserSex != null">
+        AND su.sys_user_sex = #{query.sysUserSex}
       </if>
 
-      <if test="query.status != null">
-        AND su.sys_user_status = #{query.status}
+      <if test="query.sysUserStatus != null">
+        AND su.sys_user_status = #{query.sysUserStatus}
+      </if>
+
+      <if test="query.sysRoleId != null">
+        AND su.sys_user_id IN (SELECT sur.sys_user_id FROM sys_user_role sur WHERE sur.sys_role_id = #{query.sysRoleId})
       </if>
 
       <if test="query.sysDeptId != null">
@@ -183,6 +188,7 @@
   <select id="selectOne" resultType="com.chua.starter.entity.system.SysUser">
     SELECT * FROM sys_user
       WHERE (sys_user_username = #{username} OR sys_user_phone = #{username})
+      AND sys_user_delete = 0
       <if test="tenantId != null and tenantId != ''">
         AND sys_tenant_id = #{tenantId}
       </if>
@@ -194,6 +200,7 @@
     FROM sys_user u
     INNER JOIN sys_tenant t ON u.sys_tenant_id = t.sys_tenant_id
     WHERE (u.sys_user_username = #{username} OR u.sys_user_phone = #{username})
+      AND u.sys_user_delete = 0
       <if test="tenantCode != null and tenantCode != ''">
         AND t.sys_tenant_code = #{tenantCode}
       </if>
@@ -202,6 +209,7 @@
   <select id="selectOneByTenant" resultType="com.chua.starter.entity.system.SysUser">
     SELECT * FROM sys_user
       WHERE (sys_user_username = #{tenant.sysTenantUsername} )
+      AND sys_user_delete = 0
       AND sys_tenant_id = #{tenant.sysTenantId}
   </select>
 
@@ -248,6 +256,15 @@
         #{roleId}
       </foreach>
   </select>
+
+  <!-- 绕过逻辑删除，按用户主键集合物理删除用户。 -->
+  <delete id="physicalDeleteBatchIds" parameterType="java.util.Map">
+    DELETE FROM sys_user
+    WHERE sys_user_id IN
+    <foreach collection="userIds" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </delete>
 </mapper>
 
 

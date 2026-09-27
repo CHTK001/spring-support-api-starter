@@ -122,11 +122,11 @@ public class SysUser extends SysBase implements Serializable {
     private String sysUserTotpCode;
 
     /**
-     * 是否删除; 0: 未删除
+     * 是否删除; 0: 未删除; 非0: 已删除(取值为该行主键，保证墓碑行之间不互相冲突)
      */
     @TableField(value = "sys_user_delete")
-    @Schema(description = "是否删除; 0: 未删除")
-    @TableLogic(value = "0", delval = "1")
+    @Schema(description = "是否删除; 0: 未删除; 非0: 已删除")
+    @TableLogic(value = "0", delval = "sys_user_id")
     /**
      * SYS用户删除
     */
@@ -300,26 +300,6 @@ public class SysUser extends SysBase implements Serializable {
     private Integer sysUserAvatarFrame;
 
     /**
-     * 账号锁定: 0-正常 1-锁定
-     */
-    @TableField(value = "sys_user_lock")
-    @Schema(description = "账号锁定: 0-正常 1-锁定")
-    /**
-     * SYS用户锁
-    */
-    private Integer sysUserLock = 0;
-
-    /**
-     * 锁定时间
-     */
-    @TableField(value = "sys_user_lock_time")
-    @Schema(description = "锁定时间")
-    /**
-     * SYS用户锁时间
-    */
-    private java.time.LocalDateTime sysUserLockTime;
-
-    /**
      * 最后登录时间
      */
     @TableField(value = "sys_user_last_login_time")
@@ -368,6 +348,26 @@ public class SysUser extends SysBase implements Serializable {
      * SYS用户avatarframeshow
     */
     private Integer sysUserAvatarFrameShow;
+
+    /**
+     * 邮箱是否已验证; 0:未验证 1:已验证
+     */
+    @TableField(value = "sys_user_email_verified")
+    @Schema(description = "邮箱是否已验证; 0:未验证 1:已验证")
+    /**
+     * SYS用户邮箱已验证
+    */
+    private Integer sysUserEmailVerified = 0;
+
+    /**
+     * 邮箱验证通过时间
+     */
+    @TableField(value = "sys_user_email_verify_time")
+    @Schema(description = "邮箱验证通过时间")
+    /**
+     * SYS用户邮箱验证时间
+    */
+    private java.time.LocalDateTime sysUserEmailVerifyTime;
 
     /**
      * 角色列表(系统生成)

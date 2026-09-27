@@ -27,9 +27,10 @@ public interface SysMiniMenuService extends IService<SysMiniMenu> {
      * 查询当前用户可见的小程序菜单列表。
      *
      * @param roles 用户角色集合
+     * @param username 当前登录账号；内置 admin 账号全部可见，其余账号按角色授权
      * @return 菜单列表结果
      */
-    ReturnResult<List<SysMiniMenuVO>> listUserMenus(Set<String> roles);
+    ReturnResult<List<SysMiniMenuVO>> listUserMenus(Set<String> roles, String username);
 
     /**
      * 保存小程序菜单。

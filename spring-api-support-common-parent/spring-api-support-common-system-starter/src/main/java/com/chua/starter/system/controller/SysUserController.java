@@ -15,17 +15,23 @@ import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.system.model.user.SysUserQuery;
 import com.chua.starter.entity.system.SysUser;
+import com.chua.starter.system.pojo.user.SysUserBatchUpdate;
 import com.chua.starter.system.pojo.user.SysUserPasswordUpdate;
 import com.chua.starter.system.pojo.user.SysUserUpdate;
 import com.chua.starter.system.pojo.user.SysUserVO;
 import com.chua.starter.system.pojo.user.UserLayout;
 import com.chua.starter.system.pojo.user.SysUserImportVO;
+import com.chua.starter.system.pojo.verify.VerifyCodeSendRequest;
+import com.chua.starter.system.pojo.verify.VerifyCodeSentVO;
+import com.chua.starter.system.pojo.verify.VerifyCodeVerifyRequest;
 import com.chua.starter.system.service.SysUserService;
+import com.chua.starter.system.service.UserVerifyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.validation.BindingResult;
@@ -34,8 +40,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
@@ -58,6 +62,11 @@ public class SysUserController {
      * SYS用户服务
     */
     private final SysUserService sysUserService;
+
+    /**
+     * 账号资料验证服务
+    */
+    private final UserVerifyService userVerifyService;
 
     /**
      * 用户分页列表查询。
@@ -167,7 +176,7 @@ public class SysUserController {
     /**
      * 删除批次。
      *
-     * @param sysUserIds sys用户Ids，不允许为 null
+     * @param sysUserBatchUpdate 批量操作入参，不允许为 null
      * @return Return结果 对象
      */
     @Operation(summary = "批量删除用户")
@@ -176,14 +185,14 @@ public class SysUserController {
     @UserLog
     @Transactional(rollbackFor = Exception.class)
     @Permission("sys:login:delete")
-    public ReturnResult<Boolean> deleteBatch(@RequestBody List<Long> sysUserIds) {
-        return sysUserService.deleteBatch(sysUserIds);
+    public ReturnResult<Boolean> deleteBatch(@RequestBody SysUserBatchUpdate sysUserBatchUpdate) {
+        return sysUserService.deleteBatch(null == sysUserBatchUpdate ? null : sysUserBatchUpdate.getSysUserIds());
     }
 
     /**
      * 更新状态批次。
      *
-     * @param body 请求体，不允许为 null
+     * @param sysUserBatchUpdate 批量操作入参，不允许为 null
      * @return Return结果 对象
      */
     @Operation(summary = "批量更新用户状态")
@@ -191,11 +200,10 @@ public class SysUserController {
     @SysLog
     @UserLog
     @Permission("sys:login:update")
-    public ReturnResult<Boolean> updateStatusBatch(@RequestBody Map<String, Object> body) {
-        @SuppressWarnings("unchecked")
-        List<Long> userIds = ((List<?>) body.get("sysUserIds")).stream().map(String::valueOf).map(Long::valueOf).toList();
-        Integer status = Integer.valueOf(String.valueOf(body.get("sysUserStatus")));
-        return sysUserService.updateStatusBatch(userIds, status);
+    public ReturnResult<Boolean> updateStatusBatch(@RequestBody SysUserBatchUpdate sysUserBatchUpdate) {
+        return null == sysUserBatchUpdate
+                ? ReturnResult.illegal("请选择要操作的用户")
+                : sysUserService.updateStatusBatch(sysUserBatchUpdate.getSysUserIds(), sysUserBatchUpdate.getSysUserStatus());
     }
 
     /**
@@ -277,6 +285,7 @@ public class SysUserController {
      * 管理员更新指定用户信息。
      *
      * @param roles       当前用户角色集合
+     * @param callerUsername 当前操作人账号
      * @param userId      当前管理员用户标识
      * @param sysUser     用户更新参数
      * @param bindingResult 校验结果
@@ -287,6 +296,7 @@ public class SysUserController {
     @SysLog
     public ReturnResult<SysUser> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Parameter(hidden = true) @UserValue("username") String callerUsername,
             @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
             @Parameter(hidden = true) @UserValue("token") String token,
             @Validated(UpdateGroup.class) @RequestBody SysUserUpdate sysUser,
@@ -295,7 +305,7 @@ public class SysUserController {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
-        ReturnResult<SysUser> result = sysUserService.updateUser(roles, userId, sysUser);
+        ReturnResult<SysUser> result = sysUserService.updateUser(roles, callerUsername, userId, sysUser);
         // 更新成功后，通知 oauth 刷新用户信息缓存
         if (result.isSuccess() && StringUtils.isNotBlank(token)) {
             try {
@@ -322,10 +332,60 @@ public class SysUserController {
             @Parameter(hidden = true) @UserValue("token") String token,
             @RequestBody SysUserUpdate sysUser) {
         // 目标行由令牌中的 userId 决定：清空请求体携带的 sysUserId，使其走"更新自己"分支，
-        // 同时杜绝借 body 指定他人 id
+        // 同时杜绝借 body 指定他人 id；roles 与操作人账号传 null，自助改资料这条路径不开放角色变更
         sysUser.setSysUserId(null);
-        ReturnResult<SysUser> result = sysUserService.updateUser(null, userId, sysUser);
+        ReturnResult<SysUser> result = sysUserService.updateUser(null, null, userId, sysUser);
         // 更新成功后，通知 oauth 刷新用户信息缓存
+        if (result.isSuccess() && StringUtils.isNotBlank(token)) {
+            try {
+                AuthClientExecute.getInstance().upgrade(token, UpgradeType.VERSION);
+            } catch (Exception ignored) {
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 向当前用户档案中的邮箱下发验证码
+     *
+     * <p>投递目标由服务端从自己的档案行取出，请求体不接受地址；服务器未配置邮箱发信通道时直接拒绝。</p>
+     *
+     * @param userId  当前登录用户标识
+     * @param request 验证渠道
+     * @return 有效期与脱敏目标
+     */
+    @Operation(summary = "发送本人资料验证的验证码")
+    @PostMapping("/verify-code/send")
+    @SysLog(module = "发送")
+    public ReturnResult<VerifyCodeSentVO> sendVerifyCode(
+            @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
+            @Valid @RequestBody VerifyCodeSendRequest request) {
+        if (null == userId) {
+            return ReturnResult.illegal("请重新登录或者联系管理员");
+        }
+        return userVerifyService.sendCode(userId, request.channel());
+    }
+
+    /**
+     * 校验验证码并标记本人邮箱已验证
+     *
+     * @param userId  当前登录用户标识
+     * @param token   当前token
+     * @param request 验证渠道与验证码
+     * @return 验证结果
+     */
+    @Operation(summary = "校验本人资料验证码")
+    @PostMapping("/verify-code/verify")
+    @SysLog(module = "校验")
+    public ReturnResult<Boolean> verifyVerifyCode(
+            @Parameter(hidden = true) @UserValue("sysUserId") Long userId,
+            @Parameter(hidden = true) @UserValue("token") String token,
+            @Valid @RequestBody VerifyCodeVerifyRequest request) {
+        if (null == userId) {
+            return ReturnResult.illegal("请重新登录或者联系管理员");
+        }
+        ReturnResult<Boolean> result = userVerifyService.verifyCode(userId, request.channel(), request.code());
+        // 验证状态变更后刷新 oauth 用户信息，个人中心立即看到已验证标记
         if (result.isSuccess() && StringUtils.isNotBlank(token)) {
             try {
                 AuthClientExecute.getInstance().upgrade(token, UpgradeType.VERSION);
@@ -393,27 +453,9 @@ public class SysUserController {
      */
     @Operation(summary = "导入用户")
     @PostMapping("/import")
-    @SysLog
+    @SysLog(module = "导入")
     @Permission(value = "sys:login:import", role = {ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<String> importUsers(@RequestParam("file") MultipartFile file) {
         return sysUserService.importUsers(file);
-    }
-
-    /**
-     * 锁定/解锁用户
-     *
-     * @param sysUserId 用户ID
-     * @param lock      锁定状态: 0-正常 1-锁定
-     * @return 操作结果
-     */
-    @Operation(summary = "锁定/解锁用户")
-    @PutMapping("/lock")
-    @SysLog
-    @Permission(value = "sys:user:lock", role = {ADMIN, AuthConstant.SUPER_ADMIN})
-    public ReturnResult<Boolean> lock(@RequestParam Long sysUserId, @RequestParam Integer lock) {
-        if (null == sysUserId) {
-            return ReturnResult.illegal("用户ID不能为空");
-        }
-        return sysUserService.lockUser(sysUserId, lock);
     }
 }

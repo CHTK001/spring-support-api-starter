@@ -142,6 +142,42 @@ public class SysMenuVO {
     private String isKeepAlive;
 
     /**
+     * 是否脱离菜单控制（koi 前端契约字段）; false:作为菜单处理 true:只注册路由不作菜单
+     */
+    @Schema(description = "是否脱离菜单控制; false:作为菜单处理 true:只注册路由不作菜单")
+    /**
+     * remind
+    */
+    private Boolean remind;
+
+    /**
+     * 是否开启菜单徽标; 0:否 1:是
+     */
+    @Schema(description = "是否开启菜单徽标; 0:否 1:是")
+    /**
+     * isTag
+    */
+    private Integer isTag;
+
+    /**
+     * 徽标类型; primary/success/info/warning/danger
+     */
+    @Schema(description = "徽标类型; primary/success/info/warning/danger")
+    /**
+     * tagType
+    */
+    private String tagType;
+
+    /**
+     * 徽标名称（留空则显示圆点徽标）
+     */
+    @Schema(description = "徽标名称（留空则显示圆点徽标）")
+    /**
+     * tagName
+    */
+    private String tagName;
+
+    /**
      * 菜单图标（koi 前端契约字段）
      */
     @Schema(description = "菜单图标")
@@ -167,6 +203,24 @@ public class SysMenuVO {
      * sysmenu标题
     */
     private String sysMenuTitle;
+
+    /**
+     * 菜单位置
+     */
+    @Schema(description = "菜单位置; standard:标准 top:顶部")
+    /**
+     * sysmenuposition
+    */
+    private String sysMenuPosition;
+
+    /**
+     * 单子菜单时是否显示父级菜单
+     */
+    @Schema(description = "单子菜单时是否显示父级菜单; 0:显示父级 1:隐藏父级(子菜单直接显示)")
+    /**
+     * sysmenushowparent
+    */
+    private Integer sysMenuShowParent;
 
     /**
      * 父菜单标识

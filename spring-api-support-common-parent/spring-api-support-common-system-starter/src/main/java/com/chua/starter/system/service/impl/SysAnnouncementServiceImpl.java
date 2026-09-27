@@ -7,9 +7,11 @@ import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.entity.system.SysAnnouncement;
+import com.chua.starter.entity.system.SysAnnouncementRead;
 import com.chua.starter.entity.system.SysRole;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.system.mapper.SysAnnouncementMapper;
+import com.chua.starter.system.mapper.SysAnnouncementReadMapper;
 import com.chua.starter.system.mapper.SysRoleMapper;
 import com.chua.starter.system.service.SysAnnouncementService;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +43,11 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
      * sysrolemapper
     */
     private final SysRoleMapper sysRoleMapper;
+
+    /**
+     * 公告已读记录 mapper（删除公告时级联清理）
+    */
+    private final SysAnnouncementReadMapper sysAnnouncementReadMapper;
 
     @Override
     /**
@@ -130,7 +137,10 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
             return ReturnResult.illegal("公告ID不能为空");
         }
         baseMapper.deleteById(announcementId);
-        log.info("删除公告: id={}", announcementId);
+        // 级联清理该公告的已读记录，避免产生孤儿数据
+        sysAnnouncementReadMapper.delete(new LambdaQueryWrapper<SysAnnouncementRead>()
+                .eq(SysAnnouncementRead::getSysAnnouncementId, announcementId));
+        log.info("删除公告及其已读记录: id={}", announcementId);
         return ReturnResult.ok(true);
     }
 

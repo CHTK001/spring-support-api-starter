@@ -60,4 +60,21 @@ public class SystemSecurityProperties {
      * <p>用于加密第三方登录回调时传递的登录信息，密钥长度必须为16位</p>
      */
     private String thirdPartyCallbackKey = "1234567890Oil#@1";
+
+    /**
+     * 租户口令落库加密密钥（AES/CBC/PKCS5Padding，长度必须为 16/24/32 字节）
+     *
+     * <p>租户口令与用户口令不同：用户口令存 {@code md5(明文+盐)}，不可逆；租户口令
+     * 需要下发给租户节点（{@code TenantServerSyncPublisher} → {@code TenantClientSyncHandler}），
+     * 所以不能哈希，只能落库时加密、读取时解密。为此这里用<b>可逆</b>加密而非摘要，
+     * 以保持同步线格式不变、租户端零改动。</p>
+     *
+     * <p><b>生产环境必须覆盖</b>：不同环境用不同密钥，且与 {@code thirdPartyCallbackKey} 区分开。
+     * 换密钥后旧密文无法解密，需同步重置租户口令。</p>
+     *
+     * <p>默认值刻意取 <b>32 字节</b>（AES-256）。{@code SecretKeySpec} 只接受 16/24/32 字节，
+     * 长度非法会在第一次加密时抛 {@code Invalid AES key length}，而不是启动时报错 ——
+     * 那意味着所有租户写接口 500 却查不出根因，故这里必须配成合法长度。</p>
+     */
+    private String tenantPasswordCipherKey = "ChuaTenantPwdCipherKey2026AbCdEf";
 }

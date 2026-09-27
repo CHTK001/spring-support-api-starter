@@ -12,9 +12,11 @@ import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
+import com.chua.starter.oauth.client.support.execute.AuthSessionUtils;
 import com.chua.starter.oauth.client.support.protocol.AbstractProtocol;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.system.pojo.RefreshToken;
 import com.chua.starter.system.pojo.LoginResult;
@@ -61,6 +63,7 @@ public class LoginController {
 
     final SysLoginService sysLoginService; // syslogin服务
     final SysUserService sysUserService; // sys用户服务
+    final com.chua.starter.system.support.OnlineStatusManager onlineStatusManager; // 在线状态管理
 
     /**
      * 登录
@@ -73,7 +76,7 @@ public class LoginController {
      */
     @Operation(summary = "登录")
     @PostMapping("/login")
-    @SysLog
+    @SysLog(module = "认证")
     @UserLog(module = "LOGIN",
             name = "用户登录",
             action = Action.LOGIN,
@@ -94,7 +97,7 @@ public class LoginController {
 
     @Operation(summary = "刷新token")
     @PostMapping("/refresh-token")
-    @SysLog
+    @SysLog(module = "认证")
     @TokenForIgnore
     public ReturnResult<LoginResult> refreshToken(@Valid @RequestBody RefreshToken refreshToken,
                                                   HttpServletRequest request,
@@ -110,7 +113,7 @@ public class LoginController {
     @Operation(summary = "注销")
     @UserLog(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
     @DeleteMapping("/logout")
-    @SysLog
+    @SysLog(module = "登出")
     public ReturnResult<String> logout(@UserValue("token") String uid, String loginType,
                                        @RequestHeader(name = "x-oauth-logout-type", required = false) String logoutTypeHeader,
                                        HttpServletRequest request, HttpServletResponse response) {
@@ -143,6 +146,9 @@ public class LoginController {
         }
 
         AuthClientExecute clientExecute = AuthClientExecute.getInstance();
+        // 吊销之后就取不到用户上下文了，登出日志的归属必须在吊销前取
+        long logoutStart = System.currentTimeMillis();
+        UserResume resume = AuthSessionUtils.getUserInfo(UserResume.class);
         LoginAuthResult accessToken = clientExecute.logout(uid, loginType, logoutType);
         if (null == accessToken) {
             return ReturnResult.error("退出失败请稍后重试");
@@ -150,6 +156,16 @@ public class LoginController {
 
         if (accessToken.getCode() != 200) {
             return ReturnResult.error(accessToken.getMessage());
+        }
+
+        sysLoginService.recordLogoutLog(request, loginType, logoutType, resume, System.currentTimeMillis() - logoutStart);
+
+        // 删除Redis在线状态, 用户列表据此把该账号显示为离线
+        if (resume != null && StringUtils.isNotBlank(resume.getUserId())) {
+            try {
+                onlineStatusManager.markOffline(Integer.parseInt(resume.getUserId().trim()));
+            } catch (NumberFormatException ignored) {
+            }
         }
 
  // 清除本地 Guava 缓存，防止登出后旧 令牌 仍命中缓存
@@ -182,6 +198,8 @@ public class LoginController {
                     userInfoVO.setSysUserNickname(sysUser.getSysUserNickname());
                     userInfoVO.setSysUserPhone(sysUser.getSysUserPhone());
                     userInfoVO.setSysUserEmail(sysUser.getSysUserEmail());
+                    userInfoVO.setSysUserEmailVerified(sysUser.getSysUserEmailVerified());
+                    userInfoVO.setSysUserEmailVerifyTime(sysUser.getSysUserEmailVerifyTime());
                     userInfoVO.setSysUserSex(sysUser.getSysUserSex());
                     userInfoVO.setSysUserBirthday(sysUser.getSysUserBirthday());
                     userInfoVO.setAvatar(sysUser.getSysUserAvatar());
@@ -216,15 +234,17 @@ public class LoginController {
     @GetMapping("/menu")
     public ReturnResult<List<SysMenuVO>> getUserMenu(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Parameter(hidden = true) @UserValue("username") String username,
             @RequestParam(required = false, defaultValue = "0") Integer sysMenuEngine) {
-        return sysUserService.getUserMenu(roles, sysMenuEngine);
+        return sysUserService.getUserMenu(roles, sysMenuEngine, username);
     }
 
     @Operation(summary = "获取当前登录用户小程序菜单")
     @GetMapping("/mini-menu")
     public ReturnResult<List<SysMiniMenuVO>> getUserMiniMenu(
-            @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return sysUserService.getUserMiniMenu(roles);
+            @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Parameter(hidden = true) @UserValue("username") String username) {
+        return sysUserService.getUserMiniMenu(roles, username);
     }
 
     /**
@@ -235,7 +255,7 @@ public class LoginController {
      */
     @Operation(summary = "创建临时令牌")
     @PostMapping("/temporary-token")
-    @SysLog
+    @SysLog(module = "认证")
     public ReturnResult<String> createTemporaryToken(
             @RequestBody(required = false) Map<String, Object> body) {
         int expireTime = 10;
@@ -280,7 +300,7 @@ public class LoginController {
      */
     @Operation(summary = "Token升级（VERSION刷新用户信息/TIMESTAMP续期）")
     @PostMapping("/upgrade")
-    @SysLog
+    @SysLog(module = "认证")
     public ReturnResult<LoginResult> upgrade(
             @RequestHeader(name = "x-oauth-upgrade-type", defaultValue = "VERSION") String upgradeType,
             @UserValue("token") String token,

@@ -64,10 +64,11 @@ public interface SysUserLogService extends IService<SysUserLog> {
      * @param query      查询对象，用于分页和排序设置
      * @param sysUserLogQuery 查询条件对象，用于筛选日志
      * @param sysUserId  账号标识
+     * @param username   当前登录名，失败登录无主键归属时按此匹配
      * @param roles      用户角色集合，用于根据角色筛选日志
      * @return 返回包含当前用户日志的分页数据对象
      */
-    IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Integer sysUserId, Set<String> roles);
+    IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Integer sysUserId, String username, Set<String> roles);
 
     /**
      * 异步保存用户日志

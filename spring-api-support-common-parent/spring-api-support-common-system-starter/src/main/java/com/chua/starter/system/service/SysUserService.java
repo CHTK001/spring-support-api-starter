@@ -75,12 +75,13 @@ public interface SysUserService extends IService<SysUser> {
     /**
      * 更新用户信息，包括角色等
      *
-     * @param roles 用户的新角色集合
-     * @param userId 用户标识，用于确定要更新的用户
+     * @param roles 当前操作人的角色集合
+     * @param callerUsername 当前操作人账号，用于识别内置 admin 账号与是否有权增删超管角色
+     * @param userId 当前登录用户标识，用于"更新自己"分支定位目标行
      * @param sysUser 更新的用户信息对象
      * @return 操作结果对象，包含操作是否成功和相关提示信息
      */
-    ReturnResult<SysUser> updateUser(Set<String> roles, Long userId, SysUserUpdate sysUser);
+    ReturnResult<SysUser> updateUser(Set<String> roles, String callerUsername, Long userId, SysUserUpdate sysUser);
 
     /**
      * 保存新用户信息
@@ -97,16 +98,18 @@ public interface SysUserService extends IService<SysUser> {
      * @param roles 用户的角色集合，用于筛选菜单
      * @return 菜单列表对象，包含当前登录用户可以访问的菜单信息
      * @param sysMenuEngine sysMenu引擎，不允许为 null
+     * @param username 当前登录账号；内置 admin 账号拥有全部菜单，其余账号按角色授权
      */
-    ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles, Integer sysMenuEngine);
+    ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles, Integer sysMenuEngine, String username);
 
     /**
      * 获取用户MiniMenu。
      *
      * @param roles 方法入参 roles
+     * @param username 当前登录账号；内置 admin 账号全部可见，其余账号按角色授权
      * @return Return结果 对象
      */
-    ReturnResult<List<SysMiniMenuVO>> getUserMiniMenu(Set<String> roles);
+    ReturnResult<List<SysMiniMenuVO>> getUserMiniMenu(Set<String> roles, String username);
 
     /**
      * 更新指定用户的登录密码
@@ -176,14 +179,5 @@ public interface SysUserService extends IService<SysUser> {
      * @return 操作结果
      */
     ReturnResult<Boolean> updateStatusBatch(List<Long> userIds, Integer status);
-
-    /**
-     * 锁定/解锁用户
-     *
-     * @param userId 用户ID
-     * @param lock   锁定状态: 0-正常 1-锁定
-     * @return 操作结果
-     */
-    ReturnResult<Boolean> lockUser(Long userId, Integer lock);
 
 }

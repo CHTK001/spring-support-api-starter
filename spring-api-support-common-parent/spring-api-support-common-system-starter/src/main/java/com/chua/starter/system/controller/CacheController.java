@@ -3,6 +3,7 @@ package com.chua.starter.system.controller;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
+import com.chua.starter.system.constant.PolicyCacheName;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +56,12 @@ public class CacheController {
         MODULES.put("dept", new String[]{"部门", "sys:dept:*", "部门树缓存"});
         MODULES.put("user", new String[]{"用户", "sys:user:*", "用户信息缓存"});
         MODULES.put("online", new String[]{"在线用户", "sys:online:*", "在线用户状态缓存"});
+        // 策略运行时缓存统一由 Spring Cache 管理，这里按缓存名登记便于运维查看
+        MODULES.put(PolicyCacheName.RATE_LIMIT, new String[]{"限流规则", PolicyCacheName.RATE_LIMIT + ":*", "策略限流规则缓存"});
+        MODULES.put(PolicyCacheName.IP_BLACKLIST, new String[]{"IP黑名单", PolicyCacheName.IP_BLACKLIST + ":*", "策略IP黑名单缓存"});
+        MODULES.put(PolicyCacheName.IP_WHITELIST, new String[]{"IP白名单", PolicyCacheName.IP_WHITELIST + ":*", "策略IP白名单缓存"});
+        MODULES.put(PolicyCacheName.ACCOUNT_BLACKLIST, new String[]{"账号黑名单", PolicyCacheName.ACCOUNT_BLACKLIST + ":*", "策略账号黑名单缓存"});
+        MODULES.put(PolicyCacheName.ACCOUNT_WHITELIST, new String[]{"账号白名单", PolicyCacheName.ACCOUNT_WHITELIST + ":*", "策略账号白名单缓存"});
         MODULES.put("all", new String[]{"全部", "*", "全部缓存"});
     }
 

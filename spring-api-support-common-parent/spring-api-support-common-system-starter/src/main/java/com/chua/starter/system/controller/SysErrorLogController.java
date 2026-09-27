@@ -107,6 +107,7 @@ public class SysErrorLogController {
      */
     @Operation(summary = "清理错误日志")
     @DeleteMapping("/error/clean")
+    @SysLog(module = "清理")
     @Permission(value = "sys:log:clean", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Integer> clean(@RequestParam(defaultValue = "30") int days) {
         return ReturnResult.ok(sysErrorLogService.cleanBefore(days));

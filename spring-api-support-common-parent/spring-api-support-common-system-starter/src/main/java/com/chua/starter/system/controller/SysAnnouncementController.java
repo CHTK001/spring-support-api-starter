@@ -1,15 +1,18 @@
 package com.chua.starter.system.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.starter.entity.system.SysAnnouncement;
 import com.chua.starter.entity.system.SysAnnouncementRead;
+import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.system.mapper.SysAnnouncementReadMapper;
 import com.chua.starter.system.mapper.SysUserMapper;
 import com.chua.starter.system.service.SysAnnouncementService;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,10 +30,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 系统公告接口
@@ -106,6 +112,7 @@ public class SysAnnouncementController {
      */
     @Operation(summary = "新增公告")
     @PostMapping("/save")
+    @SysLog
     public ReturnResult<SysAnnouncement> save(
             @RequestBody @Validated SysAnnouncement sysAnnouncement,
             BindingResult bindingResult,
@@ -127,6 +134,7 @@ public class SysAnnouncementController {
      */
     @Operation(summary = "更新公告")
     @PutMapping("/update")
+    @SysLog
     public ReturnResult<Boolean> update(
             @RequestBody @Validated SysAnnouncement sysAnnouncement,
             BindingResult bindingResult,
@@ -146,6 +154,7 @@ public class SysAnnouncementController {
      */
     @Operation(summary = "删除公告")
     @DeleteMapping("/delete")
+    @SysLog
     public ReturnResult<Boolean> delete(
             Long sysAnnouncementId,
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
@@ -163,6 +172,7 @@ public class SysAnnouncementController {
      */
     @Operation(summary = "发布公告")
     @PutMapping("/publish")
+    @SysLog(module = "发布")
     public ReturnResult<Boolean> publish(
             @RequestBody SysAnnouncement sysAnnouncement,
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -180,6 +190,7 @@ public class SysAnnouncementController {
      */
     @Operation(summary = "下架公告")
     @PutMapping("/unpublish")
+    @SysLog(module = "下架")
     public ReturnResult<Boolean> unpublish(
             @RequestBody SysAnnouncement sysAnnouncement,
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
@@ -239,9 +250,54 @@ public class SysAnnouncementController {
     @GetMapping("/read-users")
     public ReturnPageResult<SysAnnouncementRead> readUsers(@RequestParam Integer announcementId,
                                                            @ParameterObject Query<SysAnnouncementRead> query) {
-        return PageResultUtils.ok(sysAnnouncementReadMapper.selectPage(query.createPage(),
+        IPage<SysAnnouncementRead> page = sysAnnouncementReadMapper.selectPage(query.createPage(),
                 Wrappers.<SysAnnouncementRead>lambdaQuery()
                         .eq(SysAnnouncementRead::getSysAnnouncementId, announcementId)
-                        .orderByDesc(SysAnnouncementRead::getReadTime)));
+                        .orderByDesc(SysAnnouncementRead::getReadTime));
+        List<SysAnnouncementRead> records = page.getRecords();
+        if (records != null && !records.isEmpty()) {
+            Set<Integer> userIds = records.stream()
+                    .map(SysAnnouncementRead::getSysUserId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            Map<Integer, String> nameMap = new HashMap<>(userIds.size());
+            if (!userIds.isEmpty()) {
+                sysUserMapper.selectList(Wrappers.<SysUser>lambdaQuery().in(SysUser::getSysUserId, userIds))
+                        .forEach(u -> nameMap.put(u.getSysUserId(),
+                                u.getSysUserUsername() != null ? u.getSysUserUsername() : u.getSysUserNickname()));
+            }
+            records.forEach(r -> r.setSysUserName(nameMap.get(r.getSysUserId())));
+        }
+        return PageResultUtils.ok(page);
+    }
+
+    /**
+     * 标记公告已读（当前用户）
+     *
+     * @param announcementId 公告ID
+     * @param userId         当前用户标识
+     * @return 处理结果（幂等：已存在已读记录直接返回成功）
+     */
+    @Operation(summary = "标记公告已读")
+    @PutMapping("/read")
+    public ReturnResult<Boolean> markRead(
+            @RequestParam Integer announcementId,
+            @Parameter(hidden = true) @UserValue("sysUserId") Integer userId) {
+        if (announcementId == null || userId == null) {
+            return ReturnResult.illegal("参数不能为空");
+        }
+        long exists = sysAnnouncementReadMapper.selectCount(
+                Wrappers.<SysAnnouncementRead>lambdaQuery()
+                        .eq(SysAnnouncementRead::getSysAnnouncementId, announcementId)
+                        .eq(SysAnnouncementRead::getSysUserId, userId));
+        if (exists > 0) {
+            return ReturnResult.ok(Boolean.TRUE);
+        }
+        SysAnnouncementRead record = new SysAnnouncementRead();
+        record.setSysAnnouncementId(announcementId);
+        record.setSysUserId(userId);
+        record.setReadTime(LocalDateTime.now());
+        sysAnnouncementReadMapper.insert(record);
+        return ReturnResult.ok(Boolean.TRUE);
     }
 }

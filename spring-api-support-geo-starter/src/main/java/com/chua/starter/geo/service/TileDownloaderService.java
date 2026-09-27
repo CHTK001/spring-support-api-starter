@@ -4,6 +4,7 @@ import com.chua.starter.geo.model.Bounds;
 import com.chua.starter.geo.model.TileSource;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 瓦片下载服务，负责从指定图源下载瓦片图像。
@@ -33,5 +34,20 @@ public interface TileDownloaderService {
      * @param completed 成功完成数
      * @param failed    失败数
      */
-    record DownloadResult(Map<String, byte[]> tiles, int total, int completed, int failed) {}
+    record DownloadResult(Map<String, byte[]> tiles, int total, int completed, int failed) {
+        /**
+         * 规范构造器：对瓦片 映射 做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变；下载实现保证仅写入键 与 字节 均非空的条目，
+         * 故可使用 {@code Map.copyOf}。</p>
+         *
+         * @param tiles     下载成功的瓦片 映射，键 格式 "{z}_{x}_{y}"，值 为原始字节
+         * @param total     总瓦片数
+         * @param completed 成功完成数
+         * @param failed    失败数
+         */
+        public DownloadResult {
+            tiles = Map.copyOf(Objects.requireNonNull(tiles, "tiles 不能为 null"));
+        }
+    }
 }

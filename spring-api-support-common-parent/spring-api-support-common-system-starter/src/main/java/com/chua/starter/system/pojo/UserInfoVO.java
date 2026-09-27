@@ -86,6 +86,24 @@ public class UserInfoVO {
     private String sysUserEmail;
 
     /**
+     * 邮箱是否已验证: 0:未验证 1:已验证
+     */
+    @Schema(description = "邮箱是否已验证: 0:未验证 1:已验证")
+    /**
+     * SYS用户邮箱已验证
+    */
+    private Integer sysUserEmailVerified;
+
+    /**
+     * 邮箱验证通过时间
+     */
+    @Schema(description = "邮箱验证通过时间")
+    /**
+     * SYS用户邮箱验证时间
+    */
+    private java.time.LocalDateTime sysUserEmailVerifyTime;
+
+    /**
      * 身份证
      */
     @TableField(value = "sys_user_card")
@@ -168,7 +186,7 @@ public class UserInfoVO {
      */
     @Schema(description = "负责部门ID集合")
     /**
-     * manageddept标识
+     * managedDept标识
     */
     private List<Integer> managedDeptIds;
 

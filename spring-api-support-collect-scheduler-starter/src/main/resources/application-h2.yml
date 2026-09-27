@@ -1,0 +1,68 @@
+# ===========================================
+# H2 演示环境：文件库 + 启动期自动建表
+#
+# 【AUTO_SERVER=TRUE 是多节点部署的必需项，勿删】
+# 采集平台可拆成两个进程：一个跑采集业务（18190），一个供调度控制台使用
+# （18191）。两个节点必须看到同一份数据，否则调度端永远扫不到流程，表现为
+# 「任务一直不跑」而不是报错，很容易被误判成调度组件坏了。
+#
+# 但 H2 文件库默认是「单进程独占」：第一个进程打开 .mv.db 后，第二个进程
+# 打开同一文件会直接失败并抛
+#   JdbcSQLNonTransientConnectionException: Database may be already in use
+# 进而连锁触发 CannotGetJdbcConnectionException，最后连 job 的 Leader 选举
+# 与心跳一起挂掉。H2 报错信息里给的两个解法是「关掉其它连接」或「用服务
+# 端模式」——前者会退化成各节点独立库（见上段，等于把调度功能改坏），所以
+# 只能取后者：AUTO_SERVER 让首个进程充当服务端，其余进程走 TCP 连上来，
+# 既绕开文件锁又真正共享同一份数据。
+#
+# 注意角色配置：AUTO_SERVER 只解决「多进程能不能同库」，不解决「谁执行」。
+# 同组节点会互抢 Leader 租约（plugin.job.cluster.group 为键），抢到后能否真正
+# 执行取决于同组内有没有执行方：有 SINGLE 则本地执行，有连上的 EXECUTOR 则
+# 远程下发；若只有 SCHEDULER，到期的定时任务会被静默丢弃。
+# 标准三节点 SINGLE + SCHEDULER + EXECUTOR 是安全的，详见
+# application-prod.yml 的部署铁律 2。
+#
+# 生产环境请勿依赖 H2（Auto Server 官方明确不适用于生产），改用 prod
+# profile 指向真实 MySQL，见 application-prod.yml。
+#
+# 【URL 参数组合说明，改动前务必先读】
+# 不能加 DB_CLOSE_ON_EXIT=FALSE：H2 明确不支持该参数与 AUTO_SERVER 并用，
+# 同时出现会直接抛
+#   JdbcSQLFeatureNotSupportedException:
+#   Feature not supported: "AUTO_SERVER=TRUE && DB_CLOSE_ON_EXIT=FALSE" [50100-240]
+# 该异常同样会导致拿不到连接，现象与文件锁几乎一样，很容易误判成修复无效。
+# DB_CLOSE_DELAY=-1 与 AUTO_SERVER 不冲突，保留即可（进程存活期间库常开）。
+# ===========================================
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:${collect.h2.path:./data/collect_h2};MODE=MySQL;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true                            # /collect/api/h2-console 可直接看落库结果
+  sql:
+    init:
+      mode: never                              # 建表交给 plugin.datasource.script
+
+plugin:
+  datasource:
+    script:
+      enable: true                             # 扫描 classpath*:db/init/*.sql（含各 starter 自带脚本）
+      scan-mode: ONCE                          # 空库时建表
+      data-scan-mode: ONCE                     # 空库时执行 initdata
+      continue-on-error: true
+      verbose: true
+  redis:
+    server:
+      enable: false
+  sync:
+    client:
+      enable: false
+  user-agreement:
+    enable: false
+  system:
+    feedback:
+      menu:
+        enabled: false

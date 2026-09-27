@@ -3,6 +3,8 @@ package com.chua.starter.geo.model;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,4 +26,19 @@ public record Tiles3dTaskRequest(
         Integer concurrency,
         String proxy
 ) {
+    /**
+     * 规范构造器：对用户选区多边形做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变；多边形为 空 表示下载全部内容，
+     * 故保留 空 语义并采用可空安全包装。</p>
+     *
+     * @param source      数据源配置
+     * @param polygon     用户选区多边形
+     * @param savePath    保存路径
+     * @param concurrency 并发数
+     * @param proxy       代理地址
+     */
+    public Tiles3dTaskRequest {
+        polygon = polygon == null ? null : Collections.unmodifiableList(new ArrayList<>(polygon));
+    }
 }

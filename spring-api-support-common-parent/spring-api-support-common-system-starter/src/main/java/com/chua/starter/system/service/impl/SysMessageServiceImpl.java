@@ -104,6 +104,7 @@ public class SysMessageServiceImpl extends ServiceImpl<SysMessageMapper, SysMess
                 .eq(StringUtils.isNotBlank(c.getSysMessageType()), SysMessage::getSysMessageType, c.getSysMessageType())
                 .eq(null != c.getSysMessageStatus(), SysMessage::getSysMessageStatus, c.getSysMessageStatus())
                 .eq(null != c.getSysMessageReceiverId(), SysMessage::getSysMessageReceiverId, c.getSysMessageReceiverId())
+                .eq(StringUtils.isNotBlank(c.getSysMessageChannel()), SysMessage::getSysMessageChannel, c.getSysMessageChannel())
                 .orderByDesc(SysMessage::getSysMessageSendTime)
                 .orderByDesc(SysMessage::getSysMessageId));
     }

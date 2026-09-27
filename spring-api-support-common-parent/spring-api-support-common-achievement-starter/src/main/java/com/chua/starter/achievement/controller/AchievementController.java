@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("/achievement")
-@Tag(name = "Achievement System", description = "Achievement query and management API")
+@Tag(name = "成就系统", description = "成就查询与管理接口")
 @RequiredArgsConstructor
 public class AchievementController {
 
@@ -53,7 +53,7 @@ public class AchievementController {
      */
     private final UserAchievementMapper userAchievementMapper;
 
-    // ================== Admin CRUD ==================
+    // ================== 管理员增删改查 ==================
 
     /**
      * 分页查询成就段位定义列表（管理员端）。
@@ -63,7 +63,7 @@ public class AchievementController {
      * @param type     分组标识（可选）
      * @return 段位定义分页结果
      */
-    @Operation(summary = "Achievement tier page list")
+    @Operation(summary = "分页查询成就段位定义")
     @GetMapping("/tiers/page")
     public ReturnResult<Page<AchievementTier>> pageTiers(
             @RequestParam(defaultValue = "1") Integer page,
@@ -86,7 +86,7 @@ public class AchievementController {
      * @param tier 段位定义
      * @return 是否插入成功
      */
-    @Operation(summary = "Create achievement tier")
+    @Operation(summary = "新增成就段位定义")
     @PostMapping("/tiers/save")
     public ReturnResult<Boolean> saveTier(@RequestBody AchievementTier tier) {
         return ReturnResult.ok(tierMapper.insert(tier) > 0);
@@ -98,7 +98,7 @@ public class AchievementController {
      * @param tier 段位定义
      * @return 是否更新成功
      */
-    @Operation(summary = "Update achievement tier")
+    @Operation(summary = "更新成就段位定义")
     @PutMapping("/tiers/update")
     public ReturnResult<Boolean> updateTier(@RequestBody AchievementTier tier) {
         return ReturnResult.ok(tierMapper.updateById(tier) > 0);
@@ -110,7 +110,7 @@ public class AchievementController {
      * @param id 段位定义标识
      * @return 是否删除成功
      */
-    @Operation(summary = "Delete achievement tier")
+    @Operation(summary = "删除成就段位定义")
     @DeleteMapping("/tiers/delete")
     public ReturnResult<Boolean> deleteTier(@RequestParam Long id) {
         return ReturnResult.ok(tierMapper.deleteById(id) > 0);
@@ -121,7 +121,7 @@ public class AchievementController {
      *
      * @return 分组标识去重后的列表
      */
-    @Operation(summary = "List all achievement types")
+    @Operation(summary = "查询全部成就分组")
     @GetMapping("/tiers/types")
     public ReturnResult<List<String>> listTypes() {
         List<AchievementTier> all = tierMapper.selectList(null);
@@ -140,7 +140,7 @@ public class AchievementController {
      * @param type     分组标识（可选）
      * @return 用户成就记录分页结果
      */
-    @Operation(summary = "User achievement records page")
+    @Operation(summary = "分页查询用户成就记录")
     @GetMapping("/records/page")
     public ReturnResult<Page<UserAchievement>> pageRecords(
             @RequestParam Long userId,
@@ -157,7 +157,7 @@ public class AchievementController {
         return ReturnResult.ok(userAchievementMapper.selectPage(pageParam, wrapper));
     }
 
-    // ================== User side ==================
+    // ================== 用户端接口 ==================
 
     /**
      * 用户标识必填提示
@@ -172,7 +172,7 @@ public class AchievementController {
      * @param dto 上报统计值请求
      * @return 新解锁的成就列表
      */
-    @Operation(summary = "Report user stats and refresh achievements")
+    @Operation(summary = "上报用户统计并刷新成就")
     @PostMapping("/report")
     public ReturnResult<List<UnlockedAchievementDTO>> reportStats(@RequestBody ReportStatsDTO dto) {
         if (dto == null || dto.userId() == null) {
@@ -187,7 +187,7 @@ public class AchievementController {
      * @param userId 用户标识
      * @return 已解锁成就列表
      */
-    @Operation(summary = "Get user unlocked achievements")
+    @Operation(summary = "查询用户已解锁成就")
     @GetMapping("/my/{userId}")
     public ReturnResult<List<UnlockedAchievementDTO>> getMyAchievements(@PathVariable Long userId) {
         return ReturnResult.ok(achievementService.getUnlocked(userId));
@@ -199,7 +199,7 @@ public class AchievementController {
      * @param userId 用户标识
      * @return 成就统计概览
      */
-    @Operation(summary = "Get user achievement stats")
+    @Operation(summary = "查询用户成就统计")
     @GetMapping("/stats/{userId}")
     public ReturnResult<UserAchievementStatsDTO> getStats(@PathVariable Long userId) {
         List<UnlockedAchievementDTO> unlocked = achievementService.getUnlocked(userId);
@@ -208,13 +208,13 @@ public class AchievementController {
         stats.setTotalUnlocked(unlocked.size());
         Map<String, Optional<UnlockedAchievementDTO>> byType = unlocked.stream()
                 .collect(Collectors.groupingBy(
-                        UnlockedAchievementDTO::getType,
-                        Collectors.maxBy(Comparator.comparingInt(UnlockedAchievementDTO::getLevel))
+                        UnlockedAchievementDTO::type,
+                        Collectors.maxBy(Comparator.comparingInt(UnlockedAchievementDTO::level))
                 ));
         stats.setUnlockedByType(byType.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> e.getValue().map(UnlockedAchievementDTO::getLevel).orElse(0)
+                        e -> e.getValue().map(UnlockedAchievementDTO::level).orElse(0)
                 )));
         stats.setTotalAchievements((int) achievementService.countAllTiers());
         return ReturnResult.ok(stats);
@@ -226,7 +226,7 @@ public class AchievementController {
      * @param type 分组标识
      * @return 段位定义列表
      */
-    @Operation(summary = "Get tier list by type")
+    @Operation(summary = "按分组查询成就段位")
     @GetMapping("/tiers/{type}")
     public ReturnResult<List<AchievementTier>> getTierList(@PathVariable String type) {
         return ReturnResult.ok(achievementService.getTierListByType(type));
@@ -239,7 +239,7 @@ public class AchievementController {
      * @param type   分组标识
      * @return 未解锁段位列表
      */
-    @Operation(summary = "Get user uncompleted tiers")
+    @Operation(summary = "查询用户未完成的成就段位")
     @GetMapping("/uncompleted/{userId}/{type}")
     public ReturnResult<List<AchievementTier>> getUncompleted(@PathVariable Long userId, @PathVariable String type) {
         return ReturnResult.ok(achievementService.getUncompleted(userId, type));

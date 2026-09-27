@@ -221,15 +221,15 @@ public final class AcmeCertificateSupport {
         if (validationInfos != null) {
             for (AcmeValidationInfo info : validationInfos) {
                 Map<String, Object> item = new HashMap<>(10);
-                item.put("orderUrl", info.getOrderUrl());
-                item.put("domain", info.getDomain());
-                item.put("type", info.getChallengeType());
-                item.put("token", info.getToken());
-                item.put("keyAuthorization", info.getHttpContent());
-                item.put("httpPath", info.getHttpPath());
-                item.put("httpContent", info.getHttpContent());
-                item.put("dnsName", info.getDnsName());
-                item.put("dnsValue", info.getDnsValue());
+                item.put("orderUrl", info.orderUrl());
+                item.put("domain", info.domain());
+                item.put("type", info.challengeType());
+                item.put("token", info.token());
+                item.put("keyAuthorization", info.httpContent());
+                item.put("httpPath", info.httpPath());
+                item.put("httpContent", info.httpContent());
+                item.put("dnsName", info.dnsName());
+                item.put("dnsValue", info.dnsValue());
                 validations.add(item);
             }
         }
@@ -247,8 +247,8 @@ public final class AcmeCertificateSupport {
             return null;
         }
         for (AcmeValidationInfo info : validationInfos) {
-            if (StringUtils.isNotEmpty(info.getOrderUrl())) {
-                return info.getOrderUrl();
+            if (StringUtils.isNotEmpty(info.orderUrl())) {
+                return info.orderUrl();
             }
         }
         return null;
@@ -276,17 +276,17 @@ public final class AcmeCertificateSupport {
             Path challengeDir = Paths.get(webrootPath, ".well-known", "acme-challenge");
             Files.createDirectories(challengeDir);
             for (AcmeValidationInfo info : validationInfos) {
-                if (!CHALLENGE_HTTP_01.equalsIgnoreCase(info.getChallengeType())
-                        || StringUtils.isEmpty(info.getToken())) {
+                if (!CHALLENGE_HTTP_01.equalsIgnoreCase(info.challengeType())
+                        || StringUtils.isEmpty(info.token())) {
                     continue;
                 }
                 try {
-                    Path tokenFile = challengeDir.resolve(info.getToken());
-                    Files.writeString(tokenFile, info.getHttpContent(), StandardCharsets.UTF_8);
+                    Path tokenFile = challengeDir.resolve(info.token());
+                    Files.writeString(tokenFile, info.httpContent(), StandardCharsets.UTF_8);
                     log.info("[ACME] 已写入本机验证文件: {}", tokenFile);
                 } catch (IOException e) {
                     allSuccess = false;
-                    log.error("[ACME] 写入验证文件失败: token={}, error={}", info.getToken(), e.getMessage());
+                    log.error("[ACME] 写入验证文件失败: token={}, error={}", info.token(), e.getMessage());
                 }
             }
         } catch (IOException e) {

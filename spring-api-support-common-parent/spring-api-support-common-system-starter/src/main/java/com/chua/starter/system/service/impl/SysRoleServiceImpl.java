@@ -118,6 +118,36 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
 
     @Override
     /**
+     * 更新角色数据权限（只写数据权限两列）
+     * <p>数据权限属于角色配置项，管理员即可调整，不区分是否系统内置角色，也不需要超管。</p>
+     *
+     * @param sysRole 入参：sysRoleId / sysRoleDataScope / sysRoleDataScopeDeptIds
+     * @return 更新结果
+     */
+    public ReturnResult<Boolean> updateDataScope(SysRole sysRole) {
+        if (null == sysRole || null == sysRole.getSysRoleId()) {
+            return ReturnResult.error("角色ID不能为空");
+        }
+        SysRole exist = baseMapper.selectById(sysRole.getSysRoleId());
+        if (null == exist) {
+            return ReturnResult.error("角色不存在，请刷新后重试！");
+        }
+        Integer dataScope = sysRole.getSysRoleDataScope();
+        if (null == dataScope || dataScope < 1 || dataScope > 5) {
+            return ReturnResult.error("数据权限范围不合法");
+        }
+        // 只更新数据权限两列，其余字段（含实体默认值）不落库
+        SysRole patch = new SysRole();
+        patch.setSysRoleId(sysRole.getSysRoleId());
+        patch.setSysRoleDataScope(dataScope);
+        patch.setSysRoleDataScopeDeptIds(dataScope == 5
+                ? (null == sysRole.getSysRoleDataScopeDeptIds() ? "" : sysRole.getSysRoleDataScopeDeptIds())
+                : "");
+        return ReturnResult.of(baseMapper.updateById(patch) > 0);
+    }
+
+    @Override
+    /**
      * 保存角色
     */
     public ReturnResult<SysRole> saveRole(SysRole sysRole) {

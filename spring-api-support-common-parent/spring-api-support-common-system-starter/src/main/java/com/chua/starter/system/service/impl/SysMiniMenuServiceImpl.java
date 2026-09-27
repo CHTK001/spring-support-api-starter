@@ -47,13 +47,14 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
      * 查询当前用户可见的小程序菜单列表。
      *
      * @param roles 用户角色集合
+     * @param username 当前登录账号；内置 admin 账号全部可见，其余账号按角色授权
      * @return 菜单列表结果
      */
     @Override
-    public ReturnResult<List<SysMiniMenuVO>> listUserMenus(Set<String> roles) {
+    public ReturnResult<List<SysMiniMenuVO>> listUserMenus(Set<String> roles, String username) {
         List<SysMiniMenu> visibleMenus = listAllCached().stream()
                 .filter(menu -> !Objects.equals(ObjectUtils.defaultIfNull(menu.getSysMiniMenuHidden(), 0), 1))
-                .filter(menu -> matchesRoles(menu, roles))
+                .filter(menu -> matchesRoles(menu, roles, username))
                 .toList();
         if (CollectionUtils.isEmpty(visibleMenus)) {
             return ReturnResult.ok(Collections.emptyList());
@@ -135,14 +136,15 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
     }
 
     /**
-     * 判断菜单是否对指定角色可见。
+     * 判断菜单是否对指定账号可见。
      *
-     * @param menu  小程序菜单
-     * @param roles 用户角色集合
+     * @param menu     小程序菜单
+     * @param roles    用户角色集合
+     * @param username 当前登录账号
      * @return true 表示可见
      */
-    private boolean matchesRoles(SysMiniMenu menu, Set<String> roles) {
-        if (AuthConstant.isSuperAdmin(roles) || AuthConstant.isAdmin(roles)) {
+    private boolean matchesRoles(SysMiniMenu menu, Set<String> roles, String username) {
+        if (AuthConstant.isPrivileged(username, roles)) {
             return true;
         }
         String allowRoles = menu.getSysMiniMenuRole();

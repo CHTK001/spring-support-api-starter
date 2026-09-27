@@ -71,6 +71,14 @@ public class SysMessage extends SysBase implements Serializable {
     String sysMessageLevel; // sys消息级别
 
     /**
+     * 渠道类型: PLATFORM-站内 EMAIL-邮件 SMS-短信
+     */
+    @TableField(value = "sys_message_channel")
+    @Schema(description = "渠道类型: PLATFORM/EMAIL/SMS")
+    @Size(max = 32, message = "渠道类型最大长度需小于32")
+    String sysMessageChannel; // sys消息渠道类型
+
+    /**
      * 发送者标识(0表示系统发送)
      */
     @TableField(value = "sys_message_sender_id")

@@ -88,6 +88,76 @@ public class SysMessageTemplate extends SysBase implements Serializable {
     private String sysMessageTemplateContent;
 
     /**
+     * 消息渠道: EMAIL/SMS
+     */
+    @TableField(value = "sys_message_channel")
+    @Schema(description = "消息渠道: EMAIL/SMS")
+    /**
+     * sysmessagechannel
+    */
+    private String sysMessageChannel;
+
+    /**
+     * 模板类型: text/html/markdown
+     */
+    @TableField(value = "sys_message_template_type")
+    @Schema(description = "模板类型: text/html/markdown")
+    /**
+     * sysmessagetemplatetype
+    */
+    private String sysMessageTemplateType;
+
+    /**
+     * 外部/运营商模板码(短信必填，如阿里云SMS_xxx)
+     */
+    @TableField(value = "sys_message_external_code")
+    @Schema(description = "外部/运营商模板码(短信必填，如阿里云SMS_xxx)")
+    /**
+     * sysmessageexternalcode
+    */
+    private String sysMessageExternalCode;
+
+    /**
+     * 模板变量说明(逗号分隔的变量名，如 code,expireMinutes)
+     */
+    @TableField(value = "sys_message_param_schema")
+    @Schema(description = "模板变量说明(逗号分隔的变量名，如 code,expireMinutes)")
+    /**
+     * sysmessageparamschema
+    */
+    private String sysMessageParamSchema;
+
+    /**
+     * 回调地址
+     */
+    @TableField(value = "sys_message_template_callback_url")
+    @Schema(description = "回调地址")
+    /**
+     * sysmessagetemplate回调地址
+    */
+    private String sysMessageTemplateCallbackUrl;
+
+    /**
+     * 排序号
+     */
+    @TableField(value = "sys_message_template_sort")
+    @Schema(description = "排序号")
+    /**
+     * sysmessagetemplates排序
+    */
+    private Integer sysMessageTemplateSort;
+
+    /**
+     * 备注
+     */
+    @TableField(value = "sys_message_template_remark")
+    @Schema(description = "备注")
+    /**
+     * sysmessagetemplateremark
+    */
+    private String sysMessageTemplateRemark;
+
+    /**
      * 状态: 0-禁用 1-启用
      */
     @TableField(value = "sys_message_template_status")

@@ -147,6 +147,28 @@ public class SysUserVO extends SysBase implements Serializable {
     private String sysUserEmail;
 
     /**
+     * 邮箱是否已验证: 0:未验证 1:已验证
+     */
+    @TableField(value = "sys_user_email_verified")
+    @ApiModelProperty(value = "邮箱是否已验证: 0:未验证 1:已验证")
+    @Schema(description = "邮箱是否已验证: 0:未验证 1:已验证")
+    /**
+     * SYS用户邮箱已验证
+    */
+    private Integer sysUserEmailVerified;
+
+    /**
+     * 邮箱验证通过时间
+     */
+    @TableField(value = "sys_user_email_verify_time")
+    @ApiModelProperty(value = "邮箱验证通过时间")
+    @Schema(description = "邮箱验证通过时间")
+    /**
+     * SYS用户邮箱验证时间
+    */
+    private java.time.LocalDateTime sysUserEmailVerifyTime;
+
+    /**
      * 性别: 0:女 1:男 2:其他
      */
     @TableField(value = "sys_user_sex")
@@ -306,4 +328,23 @@ public class SysUserVO extends SysBase implements Serializable {
      * SYS用户avatarframeshow
     */
     private Integer sysUserAvatarFrameShow;
+
+    /**
+     * 登录次数
+     */
+    @TableField(value = "sys_user_login_count")
+    @ApiModelProperty(value = "登录次数")
+    @Schema(description = "登录次数")
+    private Integer sysUserLongCount;
+
+    /**
+     * 是否在线(系统生成, 依据 Redis 在线状态, 非数据库字段)
+     */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "是否在线")
+    @Schema(description = "是否在线")
+    /**
+     * 是否在线
+    */
+    private Boolean online;
 }

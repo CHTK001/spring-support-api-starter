@@ -94,6 +94,36 @@ public class SysLog extends SysBase implements Serializable {
     private String sysLogBrowser;
 
     /**
+     * 操作系统信息
+     */
+    @TableField(value = "sys_log_system")
+    @Schema(description = "操作系统信息")
+    /**
+     * SYS日志系统
+     */
+    private String sysLogSystem;
+
+    /**
+     * 原始浏览器 User-Agent
+     */
+    @TableField(value = "sys_log_ua")
+    @Schema(description = "原始浏览器 User-Agent")
+    /**
+     * SYS日志UA
+    */
+    private String sysLogUa;
+
+    /**
+     * 浏览器指纹
+     */
+    @TableField(value = "sys_log_fingerprint")
+    @Schema(description = "浏览器指纹")
+    /**
+     * SYS日志指纹
+    */
+    private String sysLogFingerprint;
+
+    /**
      * 请求描述
      */
     @TableField(value = "sys_log_content")

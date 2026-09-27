@@ -11,6 +11,8 @@ import com.chua.starter.system.annotations.PrivilegedVisibility;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -136,4 +138,14 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      */
     @DataScope(enabled = false)
     boolean hasAdminRole(@Param("userId") Integer userId, @Param("adminRoleIds") List<Integer> adminRoleIds);
+
+    /**
+     * 物理删除用户（绕过 {@code @TableLogic} 逻辑删除），用于用户管理的单删/批删，
+     * 调用方负责先清理角色、岗位等成员关系并完成内置账号保护校验。
+     *
+     * @param userIds 用户主键集合，不可为空
+     * @return 实际删除行数
+     */
+    @DataScope(enabled = false)
+    int physicalDeleteBatchIds(@Param("userIds") Collection<? extends Serializable> userIds);
 }

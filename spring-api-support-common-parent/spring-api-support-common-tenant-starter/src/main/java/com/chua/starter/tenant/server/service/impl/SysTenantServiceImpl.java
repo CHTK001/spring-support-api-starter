@@ -15,6 +15,7 @@ import com.chua.starter.tenant.server.mapper.SysTenantMapper;
 import com.chua.starter.tenant.server.mapper.SysTenantServiceMapper;
 import com.chua.starter.tenant.server.pojo.SysTenantBindServiceV1Request;
 import com.chua.starter.tenant.server.sync.TenantServerSyncPublisher;
+import com.chua.starter.tenant.server.support.TenantPasswordCipher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
      * systenant服务映射器
     */
     private final SysTenantServiceMapper sysTenantServiceMapper;
+
+    /**
+     * 租户口令落库加解密
+     */
+    private final TenantPasswordCipher tenantPasswordCipher;
 
     @Autowired(required = false)
     /**
@@ -134,6 +140,10 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
             sysTenant.setSysTenantGid(IdUtils.createSimpleUuid());
         }
 
+        // 落库前加密，避免新建租户时明文直接进库；
+        // 下发同步时由 TenantServerSyncPublisher 解密还原，线格式不变
+        sysTenant.setSysTenantPassword(tenantPasswordCipher.encrypt(sysTenant.getSysTenantPassword()));
+
         save(sysTenant);
         
  // 将 systenantid 同步到废弃的 systenant编码 字段以保持兼容
@@ -175,6 +185,13 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         }
 
         sysTenant.setSysTenantDelete(null);
+
+        // 口令非空才加密；空表示「不改口令」，置空让 MyBatis-Plus 跳过该列，
+        // 防止把已有密文覆盖成 null
+        if (StringUtils.isNotBlank(sysTenant.getSysTenantPassword())) {
+            sysTenant.setSysTenantPassword(tenantPasswordCipher.encrypt(sysTenant.getSysTenantPassword()));
+        }
+
         boolean result = updateById(sysTenant);
         log.info("租户更新结果: {}", result);
 
@@ -334,7 +351,9 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         }
 
         boolean result = update(Wrappers.<SysTenant>lambdaUpdate()
-                .set(SysTenant::getSysTenantPassword, sysTenantPassword)
+                // 落库存密文，不存明文；下发时由 TenantPasswordCipher 解密还原，
+                // 同步线格式仍是明文，租户端无需改动
+                .set(SysTenant::getSysTenantPassword, tenantPasswordCipher.encrypt(sysTenantPassword))
                 .eq(SysTenant::getSysTenantId, sysTenantId));
         log.info("租户密码重置结果: tenantId={}, result={}", sysTenantId, result);
 

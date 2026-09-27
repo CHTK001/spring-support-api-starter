@@ -45,6 +45,15 @@ public interface SysRoleService extends IService<SysRole> {
     ReturnResult<Boolean> updateRole(Set<String> roles, SysRole sysRole);
 
     /**
+     * 更新角色数据权限（只写数据权限两列）
+     * <p>数据权限属于角色配置项，管理员即可调整，不区分是否系统内置角色，也不需要超管。</p>
+     *
+     * @param sysRole 入参：sysRoleId / sysRoleDataScope / sysRoleDataScopeDeptIds
+     * @return 更新结果
+     */
+    ReturnResult<Boolean> updateDataScope(SysRole sysRole);
+
+    /**
      * 保存角色信息
      *
      * @param sysRole 待保存的角色信息

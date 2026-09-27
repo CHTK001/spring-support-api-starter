@@ -52,4 +52,34 @@ public class FeedbackV1Request extends Query<SysFeedback> {
      * sysfeedback优先级
     */
     private Integer sysFeedbackPriority;
+
+    /**
+     * 创建时间范围-开始（yyyy-MM-dd）
+     */
+    @Schema(description = "创建时间范围-开始(yyyy-MM-dd)")
+    private String createTimeStart;
+
+    /**
+     * 创建时间范围-结束（yyyy-MM-dd）
+     */
+    @Schema(description = "创建时间范围-结束(yyyy-MM-dd)")
+    private String createTimeEnd;
+
+    /**
+     * 反馈来源（小程序 / App / 平台）
+     */
+    @Schema(description = "反馈来源（小程序/App/平台）")
+    private String sysFeedbackPlatform;
+
+    /**
+     * 处理时间范围-开始（yyyy-MM-dd）
+     */
+    @Schema(description = "处理时间范围-开始(yyyy-MM-dd)")
+    private String recoverTimeStart;
+
+    /**
+     * 处理时间范围-结束（yyyy-MM-dd）
+     */
+    @Schema(description = "处理时间范围-结束(yyyy-MM-dd)")
+    private String recoverTimeEnd;
 }

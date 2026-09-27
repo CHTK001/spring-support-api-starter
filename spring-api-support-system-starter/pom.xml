@@ -89,9 +89,25 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-service-starter</artifactId>
     </dependency>
+    <!-- 文件存储唯一底座：sys_file_system* 那套无实现，收敛到本模块 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-filesystem-starter</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>utils-support-common-starter</artifactId>
+    </dependency>
+    <!-- 消息渠道 SPI 实现：email(SMTP) 与 webhook(钉钉/企业微信/自建网关) -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-email-starter</artifactId>
+      <version>${utils.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-webhook-starter</artifactId>
+      <version>${utils.version}</version>
     </dependency>
     <!-- 注释掉 eduai-starter，因为它需要 MessageTemplate bean，但我们不需要这个功能
     <dependency>
@@ -180,7 +196,8 @@
       <artifactId>spring-support-protocol-starter</artifactId>
     </dependency>
     -->
-      <dependency>
+    <!-- 正式嵌入式数据库适配：系统初始化器及数据脚本包含完整 H2 运行分支 -->
+    <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <version>2.2.224</version>
@@ -196,10 +213,10 @@
         <release>25</release>
         <proc>full</proc>
 <compilerArgs>
-          <arg>--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-          <arg>--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-          <arg>--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-          <arg>--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+          <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+          <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+          <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+          <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
         </compilerArgs>
         <annotationProcessorPaths>
           <path>

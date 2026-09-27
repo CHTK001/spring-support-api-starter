@@ -27,7 +27,6 @@
             sys_user_salt,
             sys_user_phone,
             sys_user_status,
-            sys_user_delete,
             sys_user_in_system,
             sys_tenant_id
         ) VALUES (
@@ -36,7 +35,6 @@
             #{sysUser.sysUserSalt},
             #{sysUser.sysUserPhone},
             #{sysUser.sysUserStatus},
-            #{sysUser.sysUserDelete},
             #{sysUser.sysUserInSystem},
             #{tenant.sysTenantId}
         )

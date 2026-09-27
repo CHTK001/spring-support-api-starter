@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.entity.system.SysPost;
+import java.util.List;
 import com.chua.starter.entity.system.SysUser;
 
 import java.util.List;
@@ -65,4 +66,12 @@ public interface SysPostService extends IService<SysPost> {
      * @return 用户列表
      */
     List<SysUser> getUsersByPostId(Integer postId);
+    /**
+     * 批量更新岗位排序值。
+     *
+     * @param list 待更新的岗位排序列表
+     * @return 是否更新成功
+     */
+    ReturnResult<Boolean> updateSortBatch(List<SysPost> list);
 }
+

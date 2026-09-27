@@ -1,4 +1,5 @@
 package com.chua.starter.system.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -67,6 +68,7 @@ public class SysMessageAdminController {
      */
     @Operation(summary = "发送消息(管理端)")
     @PostMapping("/save")
+    @SysLog
     @Permission(value = "sys:message:save", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Integer> save(@RequestBody MessageBroadcastRequest request) {
         SysMessage message = new SysMessage();
@@ -88,6 +90,7 @@ public class SysMessageAdminController {
      */
     @Operation(summary = "删除消息(管理端)")
     @DeleteMapping("/delete")
+    @SysLog
     @Permission(value = "sys:message:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(@RequestParam Integer sysMessageId) {
         if (null == sysMessageId) {

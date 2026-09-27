@@ -86,15 +86,39 @@
             <artifactId>utils-support-geoip2-starter</artifactId>
             <version>${utils.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-email-starter</artifactId>
+            <version>${utils.version}</version>
+        </dependency>
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-socket-starter</artifactId>
             </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <!-- 菜单注解注册器（MenuAnnotationRegistrar）需要 Spring MVC 的 HandlerMethod /
+             RequestMappingHandlerMapping。按同库模块（common-configuration-starter）的既有约定
+             以 provided 引入：编译期需要，运行时由宿主 Web 应用提供，不把 MVC 库强塞给
+             非 Web 场景的消费者。 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>6.8.0</version>
+        </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>

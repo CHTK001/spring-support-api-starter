@@ -17,6 +17,7 @@
             </otherwise>
         </choose>
         )
+        ORDER BY sdi.sys_dict_item_sort
     </select>
 
     <select id="selectListByCode" resultType="com.chua.starter.entity.service.SysDictItem">
@@ -26,6 +27,7 @@
                                   FROM sys_dict sd
                                   WHERE sd.sys_dict_status = 1
                                     AND sd.sys_dict_code = #{sysDictCode})
+        ORDER BY sdi.sys_dict_item_sort
     </select>
 
     <select id="selectPageForQuery" resultType="com.chua.starter.entity.service.SysDictItem">

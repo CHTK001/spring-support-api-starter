@@ -1,5 +1,7 @@
 package com.chua.starter.tenant.client;
 
+import com.chua.common.support.lang.datasource.dialect.SqlName;
+
  // 以下类已从 工具-通用 移除，改为直接使用 JDBC databasemeta数据 API：
  // 导入 com.chua.通用.支持.datasource.dialect.Dialect;
  // 导入 com.chua.通用.支持.datasource.dialect.dialect工厂;
@@ -200,21 +202,42 @@ public class TenantAutoAddColumnInitializer implements ApplicationRunner {
     }
 
     /**
-     * 为指定表添加租户字段
-     * <p>Dialect、TableMetadata、ColumnMetadata 已移除，使用简单 ALTER TABLE 语句实现。</p>
+     * 为指定表添加租户字段。
      *
-     * @param tableName 表名
+     * <p>DDL 标识符无法使用 JDBC 占位符。本方法采用中文豁免：表名必须来自
+     * {@link DatabaseMetaData}，再通过严格标识符白名单；列名与列类型来自模块常量，
+     * 不接受请求参数。</p>
+     *
+     * @param tableName 数据库元数据返回的表名
      */
     private void addTenantColumn(String tableName) {
         try {
-            // 使用简单的 ALTER TABLE 语句
-            String alterSql = "ALTER TABLE " + tableName + " ADD COLUMN " + TenantDbConstants.TENANT_ID_COLUMN + " VARCHAR(64) COMMENT '租户ID'";
+            String safeTable = requireSafeIdentifier(tableName);
+            String tenantColumn = requireSafeIdentifier(TenantDbConstants.TENANT_ID_COLUMN);
+            String alterSql = "ALTER TABLE " + safeTable + " ADD COLUMN " + tenantColumn
+                    + " VARCHAR(64) COMMENT '租户ID'";
             log.debug("[租户自动加字段] 生成的SQL: {}", alterSql);
 
             jdbcTemplate.execute(alterSql);
-            log.info("[租户自动加字段] 已补齐租户字段: table={}, column={}", tableName, TenantDbConstants.TENANT_ID_COLUMN);
+            log.info("[租户自动加字段] 已补齐租户字段: table={}, column={}",
+                    tableName, TenantDbConstants.TENANT_ID_COLUMN);
         } catch (Exception e) {
             log.error("[租户自动加字段] 补齐租户字段失败: table={}", tableName, e);
+        }
+    }
+
+    /**
+     * 校验数据库元数据中的 SQL 标识符。
+     *
+     * @param value 表名或列名
+     * @return 通过严格白名单校验的标识符
+     * @throws IllegalArgumentException 标识符不符合白名单时抛出
+     */
+    private String requireSafeIdentifier(String value) {
+        try {
+            return SqlName.checkSimple(value, "数据库元数据标识符");
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("数据库元数据标识符不合法: " + value, ex);
         }
     }
 }

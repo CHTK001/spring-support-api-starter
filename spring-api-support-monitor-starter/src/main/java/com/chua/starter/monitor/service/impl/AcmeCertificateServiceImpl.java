@@ -300,8 +300,8 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
 
                 // 本机模式：写入内存缓存，由内置 /.well-known/acme-challenge 端点响应 CA
                 for (AcmeValidationInfo info : validationInfos) {
-                    if (StringUtils.isNotEmpty(info.getToken())) {
-                        challengeService.put(info.getToken(), info.getHttpContent());
+                    if (StringUtils.isNotEmpty(info.token())) {
+                        challengeService.put(info.token(), info.httpContent());
                     }
                 }
 
@@ -424,23 +424,20 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
             return ReturnResult.illegal("证书不存在: " + certId);
         }
 
-        AcmeCertificateDetailVo vo = new AcmeCertificateDetailVo();
-        vo.setCertificate(cert);
-
-        // 查询关联账户
+        // VO 是不可变 record，只能一次装配，因此先算好各个分量再走规范构造器
+        MonitorAcmeAccount account = null;
         if (cert.getAcmeAccountId() != null) {
-            vo.setAccount(accountMapper.selectById(cert.getAcmeAccountId()));
+            account = accountMapper.selectById(cert.getAcmeAccountId());
         }
 
-        // 查询关联订单
         List<MonitorAcmeOrder> orders = orderMapper.selectList(new LambdaQueryWrapper<MonitorAcmeOrder>()
                 .eq(MonitorAcmeOrder::getAcmeCertId, certId)
                 .orderByDesc(MonitorAcmeOrder::getUpdateTime));
-        vo.setOrders(orders);
 
- // 生成cURL自检命令（仅对待验证状态且HTTP-01挑战类型）
+        // 仅待验证状态且 HTTP-01 挑战才生成 cURL 自检命令，其余情况保持为空
+        List<String> curlCommands = null;
         if (STATUS_VALIDATING.equals(cert.getAcmeCertStatus()) && CHALLENGE_HTTP_01.equals(cert.getAcmeCertChallengeType())) {
-            List<String> curlCommands = new ArrayList<>();
+            List<String> commands = new ArrayList<>();
             if (!orders.isEmpty()) {
                 MonitorAcmeOrder latestOrder = orders.get(0);
                 String authzUrlsJson = latestOrder.getAcmeAuthzUrls();
@@ -452,9 +449,9 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
                                 String domain = (String) v.get("domain");
                                 String httpPath = (String) v.get("httpPath");
                                 if (StringUtils.isNotEmpty(domain) && StringUtils.isNotEmpty(httpPath)) {
- // 生成cURL命令，使用-I检查响应头，使用-s静默模式
+                                    // 生成cURL命令，使用-I检查响应头，使用-s静默模式
                                     String curlCmd = String.format("curl -s -o /dev/null -w '%%{http_code}' http://%s%s", domain, httpPath);
-                                    curlCommands.add(curlCmd);
+                                    commands.add(curlCmd);
                                 }
                             }
                         }
@@ -463,44 +460,49 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
                     }
                 }
             }
-            vo.setCurlCommands(curlCommands);
+            curlCommands = commands;
         }
 
-        // 计算到期天数
+        // 解析不出到期时间就留空，不拿 0 冒充"今天到期"
+        Long daysUntilExpiry = null;
+        Boolean soonExpiring = null;
         if (StringUtils.isNotEmpty(cert.getAcmeCertNotAfter())) {
             try {
                 LocalDateTime notAfter = LocalDateTime.parse(cert.getAcmeCertNotAfter(), DATE);
                 long days = ChronoUnit.DAYS.between(LocalDateTime.now(), notAfter);
-                vo.setDaysUntilExpiry(days);
-                vo.setSoonExpiring(days <= SOON_EXPIRING_DAYS && days >= 0);
+                daysUntilExpiry = days;
+                soonExpiring = days <= SOON_EXPIRING_DAYS && days >= 0;
             } catch (Exception e) {
                 log.warn("[ACME] 解析证书到期时间失败: certId={}, notAfter={}", certId, cert.getAcmeCertNotAfter());
             }
         }
 
-        // 设置当前步骤信息（用于前端展示申请流程）
+        // 当前步骤（用于前端展示申请流程），未知状态留空
+        Integer currentStep = null;
+        String stepDescription = null;
         String status = cert.getAcmeCertStatus();
         if (STATUS_PENDING.equals(status)) {
-            vo.setCurrentStep(1);
-            vo.setStepDescription("第1步: 提交申请 - 正在连接 ACME 服务器...");
+            currentStep = 1;
+            stepDescription = "第1步: 提交申请 - 正在连接 ACME 服务器...";
         } else if (STATUS_VALIDATING.equals(status)) {
-            vo.setCurrentStep(2);
-            vo.setStepDescription("第2步: 等待验证 - 请部署验证文件后点击重新验证");
+            currentStep = 2;
+            stepDescription = "第2步: 等待验证 - 请部署验证文件后点击重新验证";
         } else if (STATUS_VALID.equals(status)) {
-            vo.setCurrentStep(3);
-            vo.setStepDescription("第3步: 签发完成 - 证书已成功签发");
+            currentStep = 3;
+            stepDescription = "第3步: 签发完成 - 证书已成功签发";
         } else if (STATUS_FAILED.equals(status)) {
-            vo.setCurrentStep(3);
-            vo.setStepDescription("第3步: 签发失败 - " + StringUtils.defaultString(cert.getAcmeCertLastError(), "未知错误"));
+            currentStep = 3;
+            stepDescription = "第3步: 签发失败 - " + StringUtils.defaultString(cert.getAcmeCertLastError(), "未知错误");
         } else if (STATUS_REVOKED.equals(status)) {
-            vo.setCurrentStep(3);
-            vo.setStepDescription("第3步: 证书已吐销");
+            currentStep = 3;
+            stepDescription = "第3步: 证书已吐销";
         } else if (STATUS_EXPIRED.equals(status)) {
-            vo.setCurrentStep(3);
-            vo.setStepDescription("第3步: 证书已过期");
+            currentStep = 3;
+            stepDescription = "第3步: 证书已过期";
         }
 
-        return ReturnResult.ok(vo);
+        return ReturnResult.ok(new AcmeCertificateDetailVo(cert, account, orders,
+                daysUntilExpiry, soonExpiring, curlCommands, currentStep, stepDescription));
     }
 
     /**

@@ -170,9 +170,9 @@ public class AcmeCertificateAsyncService {
                                 && AcmeCertificateSupport.CHALLENGE_HTTP_01.equals(challenge)) {
                             // 本机模式：通过内置 HTTP 端点响应验证请求
                             for (AcmeValidationInfo info : validationInfos) {
-                                if (AcmeCertificateSupport.CHALLENGE_HTTP_01.equals(info.getChallengeType())
-                                        && StringUtils.isNotEmpty(info.getToken())) {
-                                    challengeService.put(info.getToken(), info.getHttpContent());
+                                if (AcmeCertificateSupport.CHALLENGE_HTTP_01.equals(info.challengeType())
+                                        && StringUtils.isNotEmpty(info.token())) {
+                                    challengeService.put(info.token(), info.httpContent());
                                 }
                             }
                             // 配置了 webroot 时同步写静态文件（尽力而为，失败不影响内置端点响应）
@@ -328,12 +328,12 @@ public class AcmeCertificateAsyncService {
 
             // 写入验证文件
             for (AcmeValidationInfo info : validationInfos) {
-                if (AcmeCertificateSupport.CHALLENGE_HTTP_01.equals(info.getChallengeType())
-                        && StringUtils.isNotEmpty(info.getToken())) {
+                if (AcmeCertificateSupport.CHALLENGE_HTTP_01.equals(info.challengeType())
+                        && StringUtils.isNotEmpty(info.token())) {
                     String writeCmd = String.format("echo '%s' > %s/.well-known/acme-challenge/%s",
-                            info.getHttpContent(), webroot, info.getToken());
+                            info.httpContent(), webroot, info.token());
                     sshClient.exec().command(writeCmd).execute();
-                    log.info("[ACME-ASYNC] SSH写入验证文件: {}", info.getToken());
+                    log.info("[ACME-ASYNC] SSH写入验证文件: {}", info.token());
                 }
             }
             return true;

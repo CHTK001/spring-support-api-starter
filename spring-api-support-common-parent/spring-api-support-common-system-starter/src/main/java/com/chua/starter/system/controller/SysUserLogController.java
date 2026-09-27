@@ -58,8 +58,9 @@ public class SysUserLogController {
     public ReturnPageResult<SysUserLog> mineLogs(@ParameterObject Query<SysUserLog> query,
                                                  @ParameterObject SysUserLogQuery sysUserLogQuery,
                                                  @Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId,
+                                                 @Parameter(hidden = true) @UserValue("username") String username,
                                                  @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return PageResultUtils.ok(sysUserLogService.mineLogs(query, sysUserLogQuery, sysUserId, roles));
+        return PageResultUtils.ok(sysUserLogService.mineLogs(query, sysUserLogQuery, sysUserId, username, roles));
     }
 
     /**
@@ -137,10 +138,10 @@ public class SysUserLogController {
     }
 
     /**
-     * normalizemanageddept树标识
+     * normalizeManagedDept树标识
      *
-     * @param managedDeptTreeIds manageddept树标识
-     * @return normalizemanageddept树标识的结果
+     * @param managedDeptTreeIds managedDept树标识
+     * @return normalizeManagedDept树标识的结果
      */
     private List<String> normalizeManagedDeptTreeIds(Object managedDeptTreeIds) {
         if (managedDeptTreeIds == null) {
