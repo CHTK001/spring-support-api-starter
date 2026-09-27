@@ -1,0 +1,25 @@
+# ===========================================
+# H2 自包含环境：文件库 + 启动期自动建表
+# ===========================================
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:./data/video_h2;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true                           # /h2-console 可直接查看配置库
+  sql:
+    init:
+      mode: never                             # 建表交给 plugin.datasource.script
+
+plugin:
+  datasource:
+    script:
+      enable: true                            # 扫描 classpath*:db/init/*.sql（含各 starter 自带脚本）
+      scan-mode: ONCE                         # 空库时建表
+      data-scan-mode: ONCE                    # 空库时执行 initdata
+      migration-scan-mode: ALWAYS
+      continue-on-error: true
+      verbose: true
