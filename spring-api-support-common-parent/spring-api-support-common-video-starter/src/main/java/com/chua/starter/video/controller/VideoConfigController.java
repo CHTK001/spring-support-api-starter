@@ -2,13 +2,16 @@ package com.chua.starter.video.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.video.live.service.LiveChannelService;
+import com.chua.starter.video.setting.VideoConfigSnapshot;
 import com.chua.starter.video.setting.VideoSettingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.LinkedHashMap;
@@ -57,6 +60,38 @@ public class VideoConfigController {
         config.put("liveChannelCount",
                 liveChannelService == null ? 0 : liveChannelService.channels(null, null).size());
         return ReturnResult.ok(config);
+    }
+
+    /**
+     * 导出视频配置快照（标量 + 整段直播目录），用于备份或跨环境迁移。
+     *
+     * @return 配置快照
+     */
+    @Operation(summary = "Export video config snapshot")
+    @GetMapping("/export")
+    public ReturnResult<VideoConfigSnapshot> exportConfig() {
+        return ReturnResult.ok(videoSettingService.exportConfig());
+    }
+
+    /**
+     * 导入视频配置快照并热加载。
+     *
+     * @param snapshot  配置快照
+     * @param overwrite 是否覆盖已存在配置项，默认 true
+     * @return 是否成功
+     */
+    @Operation(summary = "Import video config snapshot")
+    @PostMapping("/import")
+    public ReturnResult<Boolean> importConfig(@RequestBody VideoConfigSnapshot snapshot,
+                                              @RequestParam(defaultValue = "true") boolean overwrite) {
+        if (!videoSettingService.available()) {
+            return ReturnResult.error("配置数据库不可用，无法导入");
+        }
+        boolean success = videoSettingService.importConfig(snapshot, overwrite);
+        if (success && liveChannelService != null) {
+            liveChannelService.reload();
+        }
+        return ReturnResult.ok(success);
     }
 
     /**

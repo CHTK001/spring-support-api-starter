@@ -144,4 +144,38 @@ class VideoSettingServiceTest {
         assertTrue(service.catalog().isEmpty());
         assertNull(service.resolve("catalogUrl", null));
     }
+
+    /**
+     * 导出快照 → 导入全新环境；overwrite 语义正确。
+     */
+    @Test
+    void shouldExportAndImport() {
+        LiveCatalog bundled = new LiveCatalogLoader().loadBundled();
+        VideoProperties properties = new VideoProperties();
+        properties.setCatalogUrl("http://a.example.com/api.php/provide/vod/");
+
+        InMemoryStore source = new InMemoryStore();
+        VideoSettingService src = new VideoSettingService(source);
+        src.initialize(properties, bundled);
+
+        VideoConfigSnapshot snapshot = src.exportConfig();
+        assertEquals("http://a.example.com/api.php/provide/vod/", snapshot.catalogUrl());
+        assertFalse(snapshot.liveCatalog().isEmpty());
+
+        // 导入全新环境
+        VideoSettingService target = new VideoSettingService(new InMemoryStore());
+        assertTrue(target.importConfig(snapshot, true));
+        assertEquals(snapshot.catalogUrl(), target.resolve(VideoSettingService.NAME_CATALOG_URL, null));
+        assertEquals(snapshot.liveCatalog().getChannels().size(), target.catalog().getChannels().size());
+
+        // overwrite=false 不覆盖既有项
+        target.importConfig(new VideoConfigSnapshot("http://b.example.com/vod/", null, null, null), false);
+        assertEquals("http://a.example.com/api.php/provide/vod/",
+                target.resolve(VideoSettingService.NAME_CATALOG_URL, null));
+
+        // overwrite=true 覆盖
+        target.importConfig(new VideoConfigSnapshot("http://b.example.com/vod/", null, null, null), true);
+        assertEquals("http://b.example.com/vod/",
+                target.resolve(VideoSettingService.NAME_CATALOG_URL, null));
+    }
 }
