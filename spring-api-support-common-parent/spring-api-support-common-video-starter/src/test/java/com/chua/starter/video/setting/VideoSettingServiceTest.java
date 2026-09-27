@@ -19,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * {@link VideoSettingService} 测试。
  *
- * <p>用内存存储验证：首次用内置目录播种、标量解析、目录组装、热加载，以及
- * 存储不可用时的降级，并确保所有值满足 {@code sys_setting_value} 的 255 长度约束。</p>
+ * <p>用内存存储验证：首次用内置目录播种（整段 JSON）、标量解析、目录组装、热加载，
+ * 以及存储不可用时的降级。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -100,11 +100,12 @@ class VideoSettingServiceTest {
         assertTrue(channel.isCctv());
         assertFalse(channel.getSources().isEmpty());
 
-        // sys_setting_value varchar(255) 约束
-        for (VideoSettingStore.Row row : store.list(VideoSettingService.GROUP)) {
-            assertTrue(row.value() == null || row.value().length() <= 255,
-                    "配置值超长: " + row.name());
-        }
+        // 目录以整段 JSON 存储于 sys_setting_value（TEXT），长度远超 255
+        String catalogJson = store.list(VideoSettingService.GROUP).stream()
+                .filter(r -> VideoSettingService.NAME_LIVE_CATALOG.equals(r.name()))
+                .map(VideoSettingStore.Row::value)
+                .findFirst().orElseThrow();
+        assertTrue(catalogJson.length() > 255, "目录 JSON 应超过 255 字符以验证 TEXT 放宽");
     }
 
     /**
@@ -118,14 +119,14 @@ class VideoSettingServiceTest {
         VideoSettingService service = new VideoSettingService(store);
         service.initialize(properties, bundled);
 
-        // 改掉第一个频道的名称行，重新加载应生效
-        String firstName = store.list(VideoSettingService.GROUP).stream()
-                .map(VideoSettingStore.Row::name)
-                .filter(n -> n.startsWith(VideoSettingService.PREFIX_CHANNEL))
-                .sorted()
+        // 改掉整段目录 JSON 中首个频道名称，重新加载应生效
+        String catalogJson = store.list(VideoSettingService.GROUP).stream()
+                .filter(r -> VideoSettingService.NAME_LIVE_CATALOG.equals(r.name()))
+                .map(VideoSettingStore.Row::value)
                 .findFirst().orElseThrow();
-        store.upsert(VideoSettingService.GROUP, firstName,
-                "{\"name\":\"改名频道\",\"group\":\"cctv\",\"sort\":1}", "JSON", "", 1);
+        String renamed = catalogJson.replaceFirst("\"name\":\"[^\"]*\"", "\"name\":\"改名频道\"");
+        store.upsert(VideoSettingService.GROUP, VideoSettingService.NAME_LIVE_CATALOG,
+                renamed, "JSON", "", 10);
 
         service.reload();
         assertTrue(service.catalog().getChannels().stream()
