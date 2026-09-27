@@ -1,0 +1,208 @@
+{
+  "groups": [
+    { "id": "cctv", "label": "央视", "cctv": true, "sort": 1 },
+    { "id": "satellite", "label": "卫视", "sort": 2 },
+    { "id": "special", "label": "特色", "sort": 3 }
+  ],
+  "channels": [
+    {
+      "id": "cctv1", "name": "CCTV-1 综合", "group": "cctv", "sort": 1,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv1_2/index.m3u8",
+        "http://ldncctvwbndtxy.liveplay.myqcloud.com/ldncctvwbnd/ldcctv1_2/index.m3u8",
+        "http://ldncctvwbndbd.a.bdydns.com/ldncctvwbnd/ldcctv1_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv1_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv1hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv2", "name": "CCTV-2 财经", "group": "cctv", "sort": 2,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv2_2/index.m3u8",
+        "http://ldncctvwbndtxy.liveplay.myqcloud.com/ldncctvwbnd/ldcctv2_2/index.m3u8",
+        "http://ldncctvwbndbd.a.bdydns.com/ldncctvwbnd/ldcctv2_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv2_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv2hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv3", "name": "CCTV-3 综艺", "group": "cctv", "sort": 3,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv3_2/index.m3u8",
+        "http://ldncctvwbndtxy.liveplay.myqcloud.com/ldncctvwbnd/ldcctv3_2/index.m3u8",
+        "http://ldncctvwbndbd.a.bdydns.com/ldncctvwbnd/ldcctv3_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv3_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv3hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv4", "name": "CCTV-4 中文国际", "group": "cctv", "sort": 4,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv4_2/index.m3u8",
+        "http://ldncctvwbndtxy.liveplay.myqcloud.com/ldncctvwbnd/ldcctv4_2/index.m3u8",
+        "http://ldncctvwbndbd.a.bdydns.com/ldncctvwbnd/ldcctv4_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv4_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv4hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv5", "name": "CCTV-5 体育", "group": "cctv", "sort": 5,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv5_2/index.m3u8",
+        "http://ldncctvwbndtxy.liveplay.myqcloud.com/ldncctvwbnd/ldcctv5_2/index.m3u8",
+        "http://ldncctvwbndbd.a.bdydns.com/ldncctvwbnd/ldcctv5_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv5_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv5hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv5plus", "name": "CCTV-5+ 体育赛事", "group": "cctv", "sort": 6,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv5p_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv5p_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv5plushd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv6", "name": "CCTV-6 电影", "group": "cctv", "sort": 7,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv6_2/index.m3u8",
+        "http://ldncctvwbndtxy.liveplay.myqcloud.com/ldncctvwbnd/ldcctv6_2/index.m3u8",
+        "http://ldncctvwbndbd.a.bdydns.com/ldncctvwbnd/ldcctv6_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv6_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv6hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv7", "name": "CCTV-7 国防军事", "group": "cctv", "sort": 8,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv7_2/index.m3u8",
+        "http://ldncctvwbndtxy.liveplay.myqcloud.com/ldncctvwbnd/ldcctv7_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv7_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv7hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv8", "name": "CCTV-8 电视剧", "group": "cctv", "sort": 9,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv8_2/index.m3u8",
+        "http://ldncctvwbndtxy.liveplay.myqcloud.com/ldncctvwbnd/ldcctv8_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv8_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv8hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv9", "name": "CCTV-9 纪录", "group": "cctv", "sort": 10,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv9_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv9_2/index.m3u8",
+        "https://xykt-fix.github.io/Y77.m3u8"
+      ]
+    },
+    {
+      "id": "cctv10", "name": "CCTV-10 科教", "group": "cctv", "sort": 11,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv10_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv10_2/index.m3u8",
+        "https://cdn4.skygo.mn/live/disk1/CCTV-10/HLSv3-FTA/CCTV-10.m3u8"
+      ]
+    },
+    {
+      "id": "cctv11", "name": "CCTV-11 戏曲", "group": "cctv", "sort": 12,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv11_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv11_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv11hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv12", "name": "CCTV-12 社会与法", "group": "cctv", "sort": 13,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv12_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv12_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv12hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv13", "name": "CCTV-13 新闻", "group": "cctv", "sort": 14,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv13_2/index.m3u8",
+        "http://ldncctvwbndtxy.liveplay.myqcloud.com/ldncctvwbnd/ldcctv13_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv13_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv13hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv14", "name": "CCTV-14 少儿", "group": "cctv", "sort": 15,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv14_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv14_2/index.m3u8",
+        "https://cdn4.skygo.mn/live/disk1/CCTV-14/HLSv3-FTA/CCTV-14.m3u8",
+        "http://74.91.26.218:82/live/cctv14hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv15", "name": "CCTV-15 音乐", "group": "cctv", "sort": 16,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv15_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv15_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv15hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv16", "name": "CCTV-16 奥林匹克", "group": "cctv", "sort": 17,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv16_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv16_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv16hd.m3u8"
+      ]
+    },
+    {
+      "id": "cctv17", "name": "CCTV-17 农业农村", "group": "cctv", "sort": 18,
+      "sources": [
+        "http://ldncctvwbndks.v.kcdnvip.com/ldncctvwbnd/ldcctv17_2/index.m3u8",
+        "http://ldncctvwbndhwy.cntv.myhwcdn.cn/ldncctvwbnd/ldcctv17_2/index.m3u8",
+        "http://74.91.26.218:82/live/cctv17hd.m3u8"
+      ]
+    },
+    {
+      "id": "cgtn", "name": "CGTN 英语", "group": "special", "sort": 1,
+      "sources": [
+        "https://english-livebkali.cgtn.com/live/encgtn.m3u8",
+        "https://0472.org/hls/cgtn.m3u8",
+        "https://hlspackager.akamaized.net/live/DB/CGTN_ENGLISH/HLS/CGTN_ENGLISH.m3u8"
+      ]
+    },
+    {
+      "id": "cgtn-doc", "name": "CGTN 纪录", "group": "special", "sort": 2,
+      "sources": [
+        "https://amg00405-rakutentv-cgtndocumentary-rakuten-0ql8j.amagi.tv/master.m3u8",
+        "https://hlspackager.akamaized.net/live/DB/CGTN_DOCUMENTARY/HLS/CGTN_DOCUMENTARY.m3u8"
+      ]
+    },
+    {
+      "id": "hunan", "name": "湖南卫视", "group": "satellite", "sort": 1,
+      "sources": [
+        "http://hlsal-ldvt.qing.mgtv.com/nn_live/nn_x64/dWlwPTEyNy4wLjAuMSZ1aWQ9cWluZy1jbXMmbm5fdGltZXpvbmU9OCZjZG5leF9pZD1hbF9obHNfbGR2dCZ1dWlkPTliODY4NmU5ZTM2YzYwMmMmZT02OTE0NjA0JnY9MSZpZD1ITldTWkdTVCZzPTcwN2RiYTc2YzJjNmJmMTQ4MmUyZGYzOWU2NWM3YWFi/HNWSZGST.m3u8"
+      ]
+    },
+    {
+      "id": "zhejiang", "name": "浙江卫视", "group": "satellite", "sort": 2,
+      "sources": [
+        "https://ali-m-l.cztv.com/channels/lantian/channel10/1080p.m3u8"
+      ]
+    },
+    {
+      "id": "shenzhen", "name": "深圳卫视", "group": "satellite", "sort": 3,
+      "sources": [
+        "https://livepull-tcms.sztv.com.cn/live/sz4Kpgm.m3u8"
+      ]
+    },
+    {
+      "id": "anhui", "name": "安徽卫视", "group": "satellite", "sort": 4,
+      "sources": [
+        "https://restream.pdtvhd.com/memfs/c1cd2ed0-3b2b-4c25-af98-a7fb0b1eb130.m3u8"
+      ]
+    }
+  ]
+}
