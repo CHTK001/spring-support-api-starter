@@ -1,0 +1,70 @@
+# ===========================================
+# 生产 / 服务器部署 profile
+#
+# 与 h2、dev 互斥，由 SPRING_PROFILES_ACTIVE 决定。h2 profile 说明见 application-h2.yml。
+#
+# 【部署铁律 1：两个节点必须连同一个库】
+# 采集与调度之间唯一的共享面是 job-starter 的 sys_job 台账：采集节点把流程登记成
+# 台账行（分组 collect-flow），调度节点靠扫这张表取活。分库的后果不是报错，而是
+# 调度端永远扫不到流程——任务一直不跑，很容易被误判成调度组件坏了。
+# 连接参数全部走环境变量，换库不必重新打包：
+#   COLLECT_DB_URL / COLLECT_DB_USER / COLLECT_DB_PASSWORD
+#
+# 【部署铁律 2：SCHEDULER 必须有配套 EXECUTOR，否则不要用这个角色】
+# job-starter 的 SCHEDULER 是「调度中心」角色：它只下发、不执行，且下发命令里
+# 不带脚本正文（JobLeaderLoop 中 glueSource 仅在 isSingle() 时回带），正文依赖
+# GlueSyncService 预先推给已连接的 EXECUTOR，EXECUTOR 再连回 SCHEDULER 的
+# SyncServer 消费命令。所以现场若只有 SCHEDULER 而没有 EXECUTOR，
+# SCHEDULER 抢到 Leader 租约后所有到期的定时任务都会静默丢弃——既不执行也不报错。
+#
+# Leader 租约以 plugin.job.cluster.group 为键（见 LeaderElectionResolver#tryAcquire），
+# 同组节点互抢，谁抢到是随机的。因此判定规则不是「能不能用 SCHEDULER」，
+# 而是「抢到租约后有没有执行方」：
+#   同组内有 SINGLE        -> 抢到即本地执行，安全
+#   同组内有连上的 EXECUTOR -> 抢到即远程下发，安全
+#   只有 SCHEDULER          -> 抢到即全部静默停摆
+# 标准三节点部署 SCHEDULER + EXECUTOR + SINGLE（见 deploy 目录 start-all.cmd）
+# 满足第二种，可放心使用。
+#
+# 本 profile 本身不设置 role，沿用 application.yml 的 SINGLE 作为单节点默认值；
+# 实际角色由启动参数 --plugin.job.role 指定。
+# 调度控制台走 /v2/job/** 治理接口，只依赖 plugin.job.manage.enable=true，
+# 与角色无关，各角色都能提供服务。
+#
+# 【部署铁律 3：Redis 要么共用，要么两边都关】
+# 两个节点各自带 Redis 会让令牌与分布式锁各持一份，表现为「A 节点登录、B 节点仍 401」。
+# 有统一 Redis 时用 COLLECT_REDIS_HOST 指向它并置 COLLECT_REDIS_ENABLE=true；
+# 没有就两边都关。
+# ===========================================
+spring:
+  datasource:
+    driver-class-name: ${COLLECT_DB_DRIVER:com.mysql.cj.jdbc.Driver}
+    url: ${COLLECT_DB_URL:jdbc:mysql://127.0.0.1:3306/serverdb?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
+    username: ${COLLECT_DB_USER:root}
+    password: ${COLLECT_DB_PASSWORD:root}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 2
+      connection-timeout: 5000
+      # 库侧 wait_timeout 断开后池里仍可能留着死连接，校验查询能让 Hikari
+      # 在借出时立刻丢弃重建，避免恢复后的首次请求直接失败。
+      connection-test-query: SELECT 1
+  sql:
+    init:
+      mode: never                             # 建表交给 plugin.datasource.script
+
+plugin:
+  datasource:
+    script:
+      enable: true
+      # 两个节点会先后连上同一个库，必须 ONCE：若为 ALWAYS，后启动的节点会反复
+      # 重跑建表脚本，在已有数据的库上既慢又危险。
+      scan-mode: ONCE
+      data-scan-mode: ONCE
+      continue-on-error: true
+  redis:
+    server:
+      enable: ${COLLECT_REDIS_ENABLE:false}
+  job:
+    manage:
+      enable: true                            # 调度控制台依赖此项，与角色无关

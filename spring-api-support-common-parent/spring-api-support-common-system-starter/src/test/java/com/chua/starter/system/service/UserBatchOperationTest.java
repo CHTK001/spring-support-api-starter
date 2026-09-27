@@ -48,7 +48,8 @@ class UserBatchOperationTest {
         // 参数校验路径(空列表/非法状态值)在触碰任何依赖前即提前返回, 构造器传 null
         sysUserService = new SysUserServiceImpl(
                 null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null,
+                null, null);
     }
 
     /**

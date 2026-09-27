@@ -119,7 +119,7 @@ public class SysMessageController {
      */
     @Operation(summary = "管理员-发送消息")
     @PostMapping("/admin/send")
-    @SysLog
+    @SysLog(module = "发送")
     @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:message:send", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysMessage> adminSend(
@@ -153,7 +153,7 @@ public class SysMessageController {
      */
     @Operation(summary = "管理员-撤回消息")
     @PutMapping("/admin/recall")
-    @SysLog
+    @SysLog(module = "撤回")
     @Permission(value = "sys:message:recall", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> adminRecall(@RequestParam Long sysMessageId) {
         return sysMessageService.recallMessage(sysMessageId);

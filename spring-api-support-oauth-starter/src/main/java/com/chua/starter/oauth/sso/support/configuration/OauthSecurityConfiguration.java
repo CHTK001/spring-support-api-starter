@@ -1,11 +1,13 @@
 package com.chua.starter.oauth.sso.support.configuration;
 
 import com.chua.starter.oauth.sso.support.properties.OauthSecurityProperties;
+import com.chua.starter.oauth.sso.support.admin.RateLimitManager;
 import com.chua.starter.oauth.sso.support.security.OauthCsrfFilter;
 import com.chua.starter.oauth.sso.support.security.OauthRateLimitFilter;
 import com.chua.starter.oauth.sso.support.security.OauthSecurityHeadersFilter;
 import com.chua.starter.oauth.sso.support.security.OauthSessionFixationFilter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -29,6 +31,22 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @EnableConfigurationProperties(OauthSecurityProperties.class)
 @ConditionalOnProperty(prefix = OauthSecurityProperties.PRE, name = "enabled", havingValue = "true", matchIfMissing = true)
 public class OauthSecurityConfiguration {
+
+    /**
+     * 注册全局限流管理器。
+     *
+     * <p>RateLimitManager 位于 {@code com.chua.starter.oauth.sso.support.admin} 包，
+     * 平台端组件扫描范围不覆盖该包，故在此显式声明 Bean，确保限流过滤器与
+     * 策略任务接口均可注入/按名获取；若独立 OAuth 服务端已通过组件扫描注册，
+     * 则 {@link ConditionalOnMissingBean} 避免重复定义。</p>
+     *
+     * @return 全局限流管理器
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public RateLimitManager rateLimitManager() {
+        return new RateLimitManager();
+    }
 
     /**
      * 注册安全响应头过滤器
@@ -71,9 +89,10 @@ public class OauthSecurityConfiguration {
      */
     public FilterRegistrationBean<OauthRateLimitFilter> oauthRateLimitFilterRegistration(
             OauthSecurityProperties securityProperties,
-            StringRedisTemplate stringRedisTemplate) {
+            StringRedisTemplate stringRedisTemplate,
+            RateLimitManager rateLimitManager) {
         FilterRegistrationBean<OauthRateLimitFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new OauthRateLimitFilter(securityProperties, stringRedisTemplate));
+        registration.setFilter(new OauthRateLimitFilter(securityProperties, stringRedisTemplate, rateLimitManager));
         registration.addUrlPatterns("/*");
         registration.setName("oauthRateLimitFilter");
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 5);

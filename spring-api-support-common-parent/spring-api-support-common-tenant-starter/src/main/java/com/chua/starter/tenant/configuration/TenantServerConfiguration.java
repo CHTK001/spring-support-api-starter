@@ -22,7 +22,11 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan(basePackages = {
         "com.chua.starter.tenant.server.controller",
         "com.chua.starter.tenant.server.service",
-        "com.chua.starter.tenant.server.sync"
+        "com.chua.starter.tenant.server.sync",
+        // support 包承载租户侧的支撑组件（租户口令可逆加解密 TenantPasswordCipher 等）。
+        // 漏扫不会报错在启动日志里，而是表现为 SysTenantServiceImpl 构造注入阶段
+        // 「No qualifying bean of type TenantPasswordCipher」，整个应用起不来，故必须列出。
+        "com.chua.starter.tenant.server.support"
 })
 /**
  * Tenant服务端配置类，提供相关能力。

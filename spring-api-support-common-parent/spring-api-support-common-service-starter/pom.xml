@@ -12,6 +12,11 @@
   <name>Spring API Support Common Service Starter</name>
   <dependencies>
     <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjweaver</artifactId>
+      <version>1.9.24</version>
+    </dependency>
+    <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-entity-starter</artifactId>
     </dependency>
@@ -23,9 +28,23 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-support-oauth-client-starter</artifactId>
     </dependency>
+    <!-- 顶栏天气 / 定位 / 台风（/v2/weather、/v2/location、/v2/typhoon）：
+         实现已下沉到 spring 层共享模块，本模块只做依赖引入（自动配置注册控制器）。
+         版本显式写出：本模块的 parent relativePath 指向的是 common-parent（坐标不匹配），
+         Maven 会回落到仓库里的 api-parent pom，依赖管理里的版本可能陈旧。 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-datasearch-starter</artifactId>
+      <version>${module.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-configuration-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-filesystem-starter</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>io.github.resilience4j</groupId>

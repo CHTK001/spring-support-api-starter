@@ -20,6 +20,16 @@ import java.util.Set;
  * @author CH
  */
 public interface SysSettingService extends IService<SysSetting> {
+    String HOT_RELOAD_GROUP = "hot_reload";
+
+    String SETTING_LIST_CACHE_KEY_LEGACY_PREFIX = "sys:setting:";
+    String SETTING_LIST_CACHE_KEY_PREFIX = "sys:setting:v2:";
+
+    /**
+     * 面向前端下发的"用户参数"分组：这些分组的配置通过 /default 接口返回给前端，
+     * 直接影响登录页与用户界面；其余分组为后端运行/运维使用的"系统参数"。
+     */
+    List<String> USER_FACING_GROUPS = List.of("default", "sso", "default-1", "config");
     /**
      * 根据条件查询系统设置列表
      *
@@ -53,7 +63,12 @@ public interface SysSettingService extends IService<SysSetting> {
      * @param roles 当前用户的角色集合，用于权限控制
      * @return 保存结果，包含成功与否的标志和消息以及保存的实体
      */
-    ReturnResult<SysSetting> saveForEntity(SysSetting sysSetting, Set<String> roles);
+    ReturnResult<SysSetting> saveForEntity(SysSetting sysSetting, Set<String> roles, String operatorId, String operatorName);
+
+    ReturnResult<Boolean> saveHotReload(SysSetting sysSetting);
+
+    ReturnResult<Boolean> saveHotReload(SysSetting sysSetting, Set<String> runtimeConsumers);
+
     /**
      * 清除缓存
      *
@@ -61,15 +76,19 @@ public interface SysSettingService extends IService<SysSetting> {
      * @return 清除结果，包含成功与否的标志和消息
      */
     SysSetting clearCache(SysSetting sysSetting);
+
+    void clearHotReloadCache();
+
     /**
      * 分页查询系统设置
      *
      * @param query 分页查询对象，包含分页参数和排序信息
      * @param sysSetting 查询条件对象，用于筛选系统设置
+     * @param scope 参数类别：user=仅用户参数(前端下发)，system=仅系统参数，null/空=全部
      * @param roles 当前用户的角色集合，用于权限控制
      * @return 分页结果，包含分页数据和相关分页信息
      */
-    IPage<SysSetting> pageForSetting(Query<SysSetting> query, SysSetting sysSetting, Set<String> roles);
+    IPage<SysSetting> pageForSetting(Query<SysSetting> query, SysSetting sysSetting, String scope, Set<String> roles);
 
     /**
      * 批量更新系统设置

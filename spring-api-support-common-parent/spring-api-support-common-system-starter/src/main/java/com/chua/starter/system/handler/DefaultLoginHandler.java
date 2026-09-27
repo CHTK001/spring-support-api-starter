@@ -32,48 +32,59 @@ import static com.chua.starter.common.support.utils.RequestUtils.getIpAddress;
 @Spi("WEB")
 public class DefaultLoginHandler implements LoginHandler {
 
-    /**
-     * 账号锁定错误码
-     */
-    private static final String ACCOUNT_LOCKED_CODE = "A0402";
-
     @Override
     /**
      * Login
     */
     public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
-        // OAuth 限流能力：登录前检查账号是否已被锁定
+        long startTime = System.currentTimeMillis();
+        // 锁定功能暂时下线：不再做登录前 isAccountLocked 拦截；仅保留失败计数
         RateLimitService rateLimitService = RateLimitService.getInstance();
-        if (rateLimitService.isAccountLocked(loginData.getUsername())) {
-            return ReturnResult.error(ACCOUNT_LOCKED_CODE, "账号已锁定，请稍后再试");
-        }
 
+        // 1) 图形验证码（若启用）
         ReturnResult<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
         if (null != check) {
+            sysLoginService.publishLoginLog(loginData, request, fingerprint, null, check.getMsg(), System.currentTimeMillis() - startTime);
             return check;
         }
-        long startTime = System.currentTimeMillis();
 
-        // 使用本地认证，绕过远程OAuth服务
-        LoginAuthResult accessToken = sysLoginService.authenticateLocal(loginData);
-
-        log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
-        if (null == accessToken) {
-            // 登录失败，记录失败次数（达到阈值触发账号锁定）
+        // 2) 先统一校验账号 / 口令（static 本地认证），不签发令牌
+        com.chua.starter.entity.system.SysUser user;
+        try {
+            user = sysLoginService.verifyLocalUser(loginData);
+        } catch (SysLoginServiceImpl.LoginRejectException e) {
+            sysLoginService.publishLoginLog(loginData, request, fingerprint, null, e.getMessage(), System.currentTimeMillis() - startTime);
+            return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), e.getMessage());
+        }
+        if (null == user) {
+            // 账号或口令不正确，记录失败次数（锁定功能暂时下线，不再镜像到 sys_user_lock）
             rateLimitService.recordLoginFailure(loginData.getUsername());
-            // 失败计数达阈值时, 将锁定状态镜像到数据库 sys_user_lock
-            sysLoginService.syncDbLoginLock(loginData.getUsername());
+            sysLoginService.publishLoginLog(loginData, request, fingerprint, null, "账号或者密码不正确", System.currentTimeMillis() - startTime);
             return ReturnResult.error(USERNAME_OR_PASSWORD_ERROR.getCode(), "账号或者密码不正确");
         }
 
-        if (accessToken.getCode() != SystemConstant.HTTP_STATUS_OK) {
+        // 3) 仅当该用户已绑定 TOTP 时才校验动态码（未绑定不拦截，与全局开关无关）
+        ReturnResult<LoginResult> totp = sysLoginService.verifyBoundTotp(user, loginData);
+        if (null != totp) {
+            // 口令已正确，缺 / 错动态码不计为密码失败
+            sysLoginService.publishLoginLog(loginData, request, fingerprint, null, totp.getMsg(), System.currentTimeMillis() - startTime);
+            return totp;
+        }
+
+        // 4) 校验全部通过，签发令牌
+        LoginAuthResult accessToken = sysLoginService.issueLocalToken(user);
+
+        log.info("登录耗时:{}ms", System.currentTimeMillis() - startTime);
+        if (null == accessToken || accessToken.getCode() != SystemConstant.HTTP_STATUS_OK) {
             rateLimitService.recordLoginFailure(loginData.getUsername());
-            sysLoginService.syncDbLoginLock(loginData.getUsername());
-            return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), accessToken.getMessage());
+            String reason = null != accessToken ? accessToken.getMessage() : "签发令牌失败";
+            sysLoginService.publishLoginLog(loginData, request, fingerprint, accessToken, reason, System.currentTimeMillis() - startTime);
+            return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), reason);
         }
 
         // 登录成功，清除失败计数与锁定状态
         rateLimitService.resetAccount(loginData.getUsername());
+        sysLoginService.publishLoginLog(loginData, request, fingerprint, accessToken, null, System.currentTimeMillis() - startTime);
 
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(accessToken.getUserResume() != null

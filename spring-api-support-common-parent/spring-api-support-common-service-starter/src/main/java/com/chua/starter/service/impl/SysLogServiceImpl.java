@@ -7,6 +7,9 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.ObjectUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.logger.SysLoggerInfo;
+import com.chua.starter.common.support.utils.RequestUtils;
+import com.chua.starter.oauth.client.support.execute.AuthSessionUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.service.SysLogService;
 import com.chua.starter.service.mapper.SysLogMapper;
@@ -27,6 +30,7 @@ import java.util.Set;
  */
 @Service
 public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> implements SysLogService, ApplicationListener<SysLoggerInfo> {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SysLogServiceImpl.class);
 
     /**
      * 分页查询系统日志信息
@@ -66,9 +70,29 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
     }
 
     /**
-     * CSV 导出时间格式化
-    */
+     * CSV导出时间格式化
+     */
     private static final DateTimeFormatter EXPORT_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    /**
+     * 建表中定长 255 的列宽
+     */
+    private static final int COLUMN_WIDTH_255 = 255;
+    /**
+     * 建表中定长 512 的列宽（原始浏览器 User-Agent）
+     */
+    private static final int COLUMN_WIDTH_512 = 512;
+    /**
+     * 建表中定长 64 的列宽（浏览器指纹）
+     */
+    private static final int COLUMN_WIDTH_64 = 64;
+    /**
+     * 建表中定长 2000 的列宽（请求描述）
+     */
+    private static final int COLUMN_WIDTH_2000 = 2000;
+    /**
+     * 定长列写入前的占位值
+     */
+    private static final String UNKNOWN = "UNKNOWN";
 
     @Override
     public byte[] exportLogs(SysLog sysLog, String startDate, String endDate) {
@@ -140,20 +164,110 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
      */
     @Override
     public void onApplicationEvent(SysLoggerInfo event) {
+        log.info("[SYSLOG] event received: name={}, module={}, status={}", event.getCreateName(), event.getLogModule(), event.getLogStatus());
         SysLog sysLog = new SysLog();
-        sysLog.setSysLogUsername(event.getCreateName());
-        sysLog.setSysLogFrom(event.getLogModule());
+        sysLog.setSysLogUsername(fitColumn(resolveUsername(event), COLUMN_WIDTH_255));
+        sysLog.setSysLogFrom(fitColumn(event.getLogModule(), COLUMN_WIDTH_255));
         sysLog.setSysLogCost(event.getLogCost());
-        sysLog.setSysLogAddress(event.getClientIp());
-        sysLog.setSysLogParam(event.getLogParam());
+        sysLog.setSysLogAddress(fitColumn(event.getClientIp(), COLUMN_WIDTH_255));
+        sysLog.setSysLogParam(fitColumn(event.getLogParam(), COLUMN_WIDTH_255));
         sysLog.setSysLogStatus(event.getLogStatus());
-        sysLog.setSysLogUrl(event.getLogMapping());
-        sysLog.setSysLogBrowser(event.getBrowser());
-        sysLog.setSysLogContent(event.getLogContent());
+        sysLog.setSysLogUrl(fitColumn(resolvePath(event), COLUMN_WIDTH_255));
+        sysLog.setSysLogBrowser(fitColumn(StringUtils.isBlank(event.getBrowser()) ? UNKNOWN : event.getBrowser(), COLUMN_WIDTH_255));
+        sysLog.setSysLogSystem(fitColumn(StringUtils.isBlank(event.getSystem()) ? UNKNOWN : event.getSystem(), COLUMN_WIDTH_255));
+        sysLog.setSysLogUa(fitColumn(event.getUa(), COLUMN_WIDTH_512));
+        sysLog.setSysLogFingerprint(fitColumn(event.getFingerprint(), COLUMN_WIDTH_64));
+        sysLog.setSysLogContent(fitColumn(StringUtils.isBlank(event.getLogContent()) ? event.getLogName() : event.getLogContent(),
+                COLUMN_WIDTH_2000));
 
         try {
             baseMapper.insert(sysLog);
+            log.info("[SYSLOG] insert OK id={}", sysLog.getSysLogId());
+        } catch (Exception e) {
+            log.error("[SYSLOG] insert failed", e);
+        }
+    }
+
+    /**
+     * 按建表声明的列宽裁剪写入值
+     *
+     * <p>{@code sys_log} 的定长列（255/512/64/2000）一旦超长，H2 与 MySQL 都会让整条 INSERT 失败，
+     * 导致操作日志整体丢失。请求体等字段的长度不受调用方控制（例如登录报文常超过 255），
+     * 因此写库前统一按列宽截断，宁可丢尾部也不丢整条审计记录。</p>
+     *
+     * @param value     原始值
+     * @param maxLength 建表声明的列宽
+     * @return 裁剪后的值；{@code value} 为 null 或未超长时原样返回
+     */
+    private String fitColumn(String value, int maxLength) {
+        if (value == null || value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength);
+    }
+
+    /**
+     * 解析操作人：依次回退 事件createName -> 请求头/属性 -> 会话 -> Servlet principal
+     *
+     * @param event 日志事件
+     * @return 操作人用户名，可能为 null
+     */
+    private String resolveUsername(SysLoggerInfo event) {
+        String username = event.getCreateName();
+        if (StringUtils.isNotBlank(username)) {
+            return username;
+        }
+        username = RequestUtils.getUsername();
+        if (StringUtils.isNotBlank(username)) {
+            return username;
+        }
+        username = AuthSessionUtils.getUsername();
+        if (StringUtils.isNotBlank(username)) {
+            return username;
+        }
+        try {
+            HttpServletRequest req = RequestUtils.getRequest();
+            if (req != null) {
+                if (StringUtils.isNotBlank(req.getRemoteUser())) {
+                    return req.getRemoteUser();
+                }
+                if (req.getUserPrincipal() != null && StringUtils.isNotBlank(req.getUserPrincipal().getName())) {
+                    return req.getUserPrincipal().getName();
+                }
+            }
         } catch (Exception ignored) {
         }
+        return username;
+    }
+
+    /**
+     * 解析请求地址：仅保留接口 path（去除协议/主机/端口及 context-path）
+     *
+     * @param event 日志事件
+     * @return 接口路径
+     */
+    private String resolvePath(SysLoggerInfo event) {
+        try {
+            HttpServletRequest req = RequestUtils.getRequest();
+            if (req != null) {
+                String uri = req.getRequestURI();
+                String ctx = req.getContextPath();
+                if (uri != null && ctx != null && !ctx.isEmpty() && uri.startsWith(ctx)) {
+                    uri = uri.substring(ctx.length());
+                }
+                if (uri != null && !uri.isEmpty()) {
+                    return uri;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        String mapping = event.getLogMapping();
+        if (mapping != null && mapping.startsWith("http")) {
+            try {
+                return java.net.URI.create(mapping).getRawPath();
+            } catch (Exception ignored) {
+            }
+        }
+        return mapping;
     }
 }

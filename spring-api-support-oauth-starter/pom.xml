@@ -15,26 +15,18 @@
     <protoc.version>3.24.4</protoc.version>
   </properties>
     <dependencies>
-      <!-- 强制统一 Netty 版本，解决 Armeria 引入的 4.1.130 与 4.2.7 冲突 -->
-      <dependency>
-        <groupId>io.netty</groupId>
-        <artifactId>netty-all</artifactId>
-        <version>4.2.9.Final</version>
-      </dependency>
+      <!-- Netty native 组件版本由父 BOM 统一管理 -->
       <dependency>
         <groupId>io.netty</groupId>
         <artifactId>netty-transport-native-epoll</artifactId>
-        <version>4.2.9.Final</version>
       </dependency>
       <dependency>
         <groupId>io.netty</groupId>
         <artifactId>netty-transport-native-kqueue</artifactId>
-        <version>4.2.9.Final</version>
       </dependency>
       <dependency>
         <groupId>io.netty</groupId>
         <artifactId>netty-transport-native-unix-common</artifactId>
-        <version>4.2.9.Final</version>
       </dependency>
     <dependency>
       <groupId>com.chua</groupId>
@@ -70,14 +62,6 @@
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>spring-api-support-common-system-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.chua</groupId>
-      <artifactId>spring-api-support-common-service-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.chua</groupId>
       <artifactId>spring-support-datasource-starter</artifactId>
     </dependency>
     <dependency>
@@ -92,6 +76,7 @@
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
     </dependency>
+    <!-- 正式嵌入式数据库适配：application-h2.yml 提供免外部数据库启动配置 -->
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
@@ -132,22 +117,6 @@
     
     
     
-    <!-- 排除旧版 netty epoll，Armeria 使用 4.2.x，与 4.1.x 的 native library 不兼容 -->
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-transport-native-epoll</artifactId>
-      <version>4.2.7.Final</version>
-    </dependency>
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-transport-native-kqueue</artifactId>
-      <version>4.2.7.Final</version>
-    </dependency>
-    <dependency>
-      <groupId>io.netty</groupId>
-      <artifactId>netty-transport-native-unix-common</artifactId>
-      <version>4.2.7.Final</version>
-    </dependency>
           <dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-protocol-starter</artifactId>

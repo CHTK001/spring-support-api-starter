@@ -27,7 +27,7 @@
      sys_menu_hidden, sys_menu_show_parent, sys_menu_hidden_tag, sys_menu_fixed_tag,
     sys_menu_redirect,    sys_menu_enter_transition, sys_menu_leave_transition, sys_menu_active_path,
     sys_menu_frame_src,     sys_menu_keep_alive ,sys_menu_role, sys_menu_home,
-    sys_menu_engine, sys_tenant_id)
+    sys_menu_engine, sys_menu_remind, sys_tenant_id)
     VALUES (#{sysMenu.sysMenuId},
     #{sysMenu.sysMenuName}, #{sysMenu.sysMenuPath}, #{sysMenu.sysMenuI18n}, #{sysMenu.sysMenuTitle},
     #{sysMenu.sysMenuPerm}, #{sysMenu.sysMenuPid}, #{sysMenu.sysMenuTreeId}, #{sysMenu.sysMenuComponent},
@@ -35,7 +35,7 @@
     #{sysMenu.sysMenuHidden}, #{sysMenu.sysMenuShowParent}, #{sysMenu.sysMenuHiddenTag}, #{sysMenu.sysMenuFixedTag},
     #{sysMenu.sysMenuRedirect}, #{sysMenu.sysMenuEnterTransition}, #{sysMenu.sysMenuLeaveTransition}, #{sysMenu.sysMenuActivePath},
     #{sysMenu.sysMenuFrameSrc}, #{sysMenu.sysMenuKeepAlive} ,#{sysMenu.sysMenuRole}, #{sysMenu.sysMenuHome},
-    #{sysMenu.sysMenuEngine}, #{sysTenantId}
+    #{sysMenu.sysMenuEngine}, #{sysMenu.sysMenuRemind}, #{sysTenantId}
     );
   </insert>
 

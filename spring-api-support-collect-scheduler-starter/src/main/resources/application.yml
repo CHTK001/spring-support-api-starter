@@ -1,0 +1,86 @@
+# ===========================================
+# 数据采集平台基础配置
+# 数据库相关放在 profile：h2 为内置演示库，dev 为开发库
+# ===========================================
+spring:
+  application:
+    name: collect                             # 应用名称（数据采集平台）
+  main:
+    allow-circular-references: true           # 兼容既有 ServiceImpl 自注入模式
+    allow-bean-definition-overriding: true    # 兼容多 starter 重复声明的同名 bean
+  profiles:
+    active: h2                                # 默认使用内置 H2，便于零依赖启动
+
+# ===========================================
+# 服务器配置
+# ===========================================
+server:
+  port: 18190                                 # 服务端口
+  servlet:
+    context-path: /collect/api                # 上下文路径
+  http2:
+    enabled: true
+
+# ===========================================
+# MyBatis-Plus
+# ===========================================
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+
+# ===========================================
+# 插件开关
+# ===========================================
+plugin:
+  cors:
+    enable: true
+  log:
+    enable: true
+  mybatis:
+    enable: true
+  # 采集与调度两组接口都受框架统一认证过滤器保护，登录凭据由本模块内嵌的
+  # common-system 登录服务签发（static 协议：本地校验 sys_user 并用 SM4 自签令牌，
+  # 不依赖外部认证服务器）。前端登录页因此直接走 /v2/user/login。
+  oauth:
+    enable: true
+    protocol: static
+    # static 协议不校验远端，这里只填框架自身的接口前缀，避免退化成"鉴权服务器异常"
+    address: http://127.0.0.1:18190/collect/api
+    auth-address: http://127.0.0.1:18190/collect/api
+    # 未认证请求走 HTML 分支时的回跳目标，采集前端是独立 SPA，这里指向其登录路由
+    login-address: /#/login
+    token-name: x-oauth-token
+    static-token-expire-seconds: 7200
+    # 收紧白名单：内置清单混有其它应用的历史路径，本应用只放行登录与文档
+    use-default-whitelist: false
+    whitelist:
+      - /v2/user/login
+      - /v2/user/logout
+      - /v2/user/refresh-token
+      - /**/captcha
+      - /v3/api-docs/**
+      - /doc.html
+      - /webjars/**
+      - /actuator/**
+  job:
+    enable: true
+    role: SINGLE                              # 单机闭环：自带 Leader 扫描与执行
+    cluster:
+      # Leader 单秒扫描只捞 sys_job_group = 本值的行，必须与采集登记的分组一致，
+      # 否则流程 cron 到期也扫不到。留空会退回 default，与 collect-flow 对不上。
+      group: collect-flow
+    manage:
+      enable: true                            # 开放 /v2/job/** 治理接口（要求管理员身份），调度工作台只用这一套
+  # 调度与采集是两个平级系统，只共用 job-starter 的 sys_job 台账：
+  # 采集把自己的流程登记成台账行（分组 collect-flow），调度工作台看到的就是这些行。
+  # 调度侧接口一律走 job-starter 的 /v2/job/**，不再并入 scheduler 的远程下发面。
+  collect:
+    enable: true
+    script:
+      enable: true                              # false 时脚本节点从设计器工具箱消失
+    notify:
+      enable: true                              # false 时不投递执行通知（配置仍可维护）
+    function:
+      enable: true                              # false 时自定义函数不参与解析，只剩内置函数
+    process:
+      enable: true                              # false 时子流程节点从设计器工具箱消失
+      max-depth: 5                              # 子流程嵌套层数上限，超过后节点直接失败

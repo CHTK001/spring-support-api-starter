@@ -7,6 +7,11 @@ spring:
     allow-bean-definition-overriding: true   # 允许 bean 定义覆盖
   autoconfigure:
     exclude: []
+  servlet:
+    multipart:
+      # 容器层上限必须 >= plugin.filesystem.upload.max-size-mb，否则分片在进入控制器前就被拒
+      max-file-size: 10MB
+      max-request-size: 12MB
   application:
     name: system                            # 应用名称（系统服务）
   profiles:
@@ -34,7 +39,44 @@ management:
         exclude: mybatis-extension
 
 plugin:
+  # ===========================================
+  # 文件存储（独立模块 spring-support-filesystem-starter 作为唯一底座）
+  # ===========================================
+  filesystem:
+    enable: true
+    # 未指定提供者时落到该提供者
+    default-provider: local
+    providers:
+      local:
+        type: local
+        bucket: system
+        base-path: ./oss
+    upload:
+      # 回显走本应用的 /v2/file/view/**，需带上上下文路径
+      view-prefix: /system/api/v2/file/view/
+      temp-dir: ./oss/.chunks
+    # 文件服务器（独立文件存储网关）：随应用自动启动，供"文件服务器"页面直连
+    storage-server:
+      enable: true
+      host: 0.0.0.0
+      port: 18080
+      # 对外可达地址（/v2/setting/default 下发的 other.filestorage.server）；留空回退 host
+      public-host: 127.0.0.1
+      # 私有桶（provider 名，逗号分隔；* 表示全部私有）。留空回退 plugin.oauth.file-storage.private-buckets；
+      # 运行期可在文件服务器页「系统配置」热更新，无需重启
+      private-buckets: ""
   mybatis:
     data:
       scope:
         enable: true
+  oauth:
+    # 登录页/整页刷新阶段的远程配置拉取不带 Bearer，必须匿名可达；该接口只回
+    # default/sso/default-1 分组且敏感项已脱敏。只放行这一个路径，勿扩到 /v2/setting/**。
+    # 声明在此而非 application-dev.yml：部署用 --spring.profiles.active=server 覆盖 profile，
+    # dev 专属配置不会被加载。
+    whitelist:
+      - /v2/setting/default
+      - /v2/sms/send
+      - /v2/sms/login
+      - /v2/email/send
+      - /v2/email/login

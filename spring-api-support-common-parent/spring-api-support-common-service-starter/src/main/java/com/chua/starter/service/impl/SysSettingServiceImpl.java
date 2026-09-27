@@ -29,6 +29,7 @@ import com.chua.starter.service.setting.VersionSetting;
 import com.chua.starter.service.dto.setting.AuthRequestFactory;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.entity.service.SysSetting;
+import com.chua.starter.service.event.HotReloadChangedEvent;
 import com.chua.starter.service.pojo.setting.SysSettingUpdate;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.cache.AuthDefaultStateCache;
@@ -43,10 +44,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.net.Inet4Address;
 import java.net.NetworkInterface;
@@ -65,8 +69,7 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 @Service
 @Lazy(false)
 public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean, ApplicationListener<ApplicationReadyEvent> {
-    private static final String SETTING_LIST_CACHE_KEY_LEGACY_PREFIX = "sys:setting:"; // setting列表缓存键legacy前缀
-    private static final String SETTING_LIST_CACHE_KEY_PREFIX = "sys:setting:v2:"; // setting列表缓存键前缀
+    private static final Set<String> HOT_RELOAD_VALUE_TYPES = Set.of("string", "number", "boolean", "json");
 
     @Autowired
     @Lazy
@@ -75,6 +78,10 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Autowired
     @Lazy
     private SysSettingHistoryService sysSettingHistoryService; // syssetting历史服务
+
+    @Autowired
+    @Lazy
+    private ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * 套接字服务是否启用
@@ -167,6 +174,16 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
      */
     private static final String SOCKET_REMARK_PROTOCOL = "socket.io协议类型";
 
+    /**
+     * 版本号配置项名称：与初始化种子中的行名一致
+     */
+    private static final String VERSION_SETTING_NAME = "Version";
+
+    /**
+     * 版本号配置项分组：config
+     */
+    private static final String VERSION_SETTING_GROUP = "config";
+
     @Override
     public List<SysSetting> list(SysSettingUpdate sysSettingUpdate, Set<String> roles) {
         String group = (sysSettingUpdate != null) ? sysSettingUpdate.getSysSettingGroup() : null;
@@ -250,14 +267,18 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         if (null != validateError) {
             return ReturnResult.error(validateError);
         }
-        SysSetting version = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSysSettingName, "version"));
+        SysSetting version = findVersionSetting();
         List<SysSetting> sysSettings = new LinkedList<>();
         sysSettings.add(sysSetting);
         if (null != version) {
             version.setSysSettingConfig(UUID.randomUUID().toString());
             sysSettings.add(version);
         }
-        sysSettingService.updateBatchById(sysSettings);
+        boolean updated = sysSettingService.updateBatchById(sysSettings);
+        if (!updated) {
+            // 乐观锁版本号不匹配（配置已被他人/其它会话修改），需明确报错而非静默成功
+            return ReturnResult.error("配置已被修改，请刷新后重试");
+        }
         // 记录更新历史
         try {
             String operatorId = RequestUtils.getUserId();
@@ -279,7 +300,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     @Override
-    public ReturnResult<SysSetting> saveForEntity(SysSetting sysSetting, Set<String> roles) {
+    public ReturnResult<SysSetting> saveForEntity(SysSetting sysSetting, Set<String> roles, String operatorId, String operatorName) {
         sysSetting.setSysSettingInSystem(0);
         if(!AuthConstant.isSuperAdmin(roles)) {
             sysSetting.setSysSettingAppInner(0);
@@ -300,14 +321,16 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             return ReturnResult.error("配置编码已存在");
         }
 
+        // 新建配置：当前运行值为空时以出厂默认值初始化
+        if (StringUtils.isEmpty(sysSetting.getSysSettingValue()) && !StringUtils.isEmpty(sysSetting.getSysSettingDefaultValue())) {
+            sysSetting.setSysSettingValue(sysSetting.getSysSettingDefaultValue());
+        }
         if(baseMapper.insert(sysSetting) > 0) {
             if(sysSetting.getSysSettingStatus() == 1) {
                 GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
             }
             // 记录新增历史
             try {
-                String operatorId = RequestUtils.getUserId();
-                String operatorName = RequestUtils.getUsername();
                 sysSettingHistoryService.recordCreate(sysSetting, operatorId, operatorName, UUID.randomUUID().toString().replace("-", ""));
             } catch (Exception e) {
                 log.warn("记录配置新增历史失败: {}", e.getMessage());
@@ -318,15 +341,103 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     @Override
-    public IPage<SysSetting> pageForSetting(Query<SysSetting> query, SysSetting sysSetting, Set<String> roles) {
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnResult<Boolean> saveHotReload(SysSetting sysSetting) {
+        return saveHotReload(sysSetting, Set.of());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnResult<Boolean> saveHotReload(SysSetting sysSetting, Set<String> runtimeConsumers) {
+        String validationError = normalizeAndValidateHotReloadSetting(sysSetting);
+        if (null != validationError) {
+            return ReturnResult.error(validationError);
+        }
+        boolean saved = saveOrUpdate(sysSetting);
+        if (saved) {
+            publishAfterCommit(new HotReloadChangedEvent(this, sysSetting.getSysSettingId(),
+                    sysSetting.getSysSettingName(), sysSetting.getSysSettingCode(), sysSetting.getSysSettingValue(),
+                    sysSetting.getSysSettingValueType(), sysSetting.getSysSettingStatus(), runtimeConsumers));
+        }
+        return ReturnResult.of(saved);
+    }
+
+    static String normalizeAndValidateHotReloadSetting(SysSetting setting) {
+        if (null == setting) {
+            return "配置不能为空";
+        }
+        setting.setSysSettingGroup(SysSettingService.HOT_RELOAD_GROUP);
+        if (null == setting.getSysSettingStatus()) {
+            setting.setSysSettingStatus(1);
+        }
+        if (StringUtils.isBlank(setting.getSysSettingName())) {
+            return "配置名称不能为空";
+        }
+        if (StringUtils.isBlank(setting.getSysSettingCode())) {
+            return "配置编码不能为空";
+        }
+        if (StringUtils.isBlank(setting.getSysSettingValueType())) {
+            return "配置值类型不能为空";
+        }
+        String valueType = setting.getSysSettingValueType().trim().toLowerCase(Locale.ROOT);
+        if (!HOT_RELOAD_VALUE_TYPES.contains(valueType)) {
+            return "配置值类型仅支持 string/number/boolean/json";
+        }
+        setting.setSysSettingName(setting.getSysSettingName().trim());
+        setting.setSysSettingCode(setting.getSysSettingCode().trim());
+        setting.setSysSettingValueType(valueType);
+        String value = setting.getSysSettingValue();
+        if ("string".equals(valueType)) {
+            return null;
+        }
+        if (StringUtils.isBlank(value)) {
+            return "配置值不能为空";
+        }
+        try {
+            switch (valueType) {
+                case "number" -> new java.math.BigDecimal(value.trim());
+                case "boolean" -> {
+                    if (!"true".equalsIgnoreCase(value.trim()) && !"false".equalsIgnoreCase(value.trim())) {
+                        return "配置值必须是 boolean 类型的 true 或 false";
+                    }
+                }
+                case "json" -> Json.fromJson(value, Object.class);
+                default -> throw new IllegalArgumentException();
+            }
+        } catch (Exception e) {
+            return "配置值不符合 " + valueType + " 类型";
+        }
+        return null;
+    }
+
+    private void publishAfterCommit(HotReloadChangedEvent event) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    applicationEventPublisher.publishEvent(event);
+                }
+            });
+            return;
+        }
+        applicationEventPublisher.publishEvent(event);
+    }
+
+    @Override
+    public IPage<SysSetting> pageForSetting(Query<SysSetting> query, SysSetting sysSetting, String scope, Set<String> roles) {
+        boolean userScope = "user".equalsIgnoreCase(scope);
+        boolean systemScope = "system".equalsIgnoreCase(scope);
         var queryWrapper = Wrappers.<SysSetting>lambdaQuery()
                 .like(StringUtils.isNotBlank(sysSetting.getSysSettingGroup()), SysSetting::getSysSettingGroup, sysSetting.getSysSettingGroup())
                 .like(StringUtils.isNotBlank(sysSetting.getSysSettingName()), SysSetting::getSysSettingName, sysSetting.getSysSettingName())
                 .like(StringUtils.isNotBlank(sysSetting.getSysSettingRemark()), SysSetting::getSysSettingRemark, sysSetting.getSysSettingRemark())
                 .eq(StringUtils.isNotBlank(sysSetting.getSysSettingValueType()), SysSetting::getSysSettingValueType, sysSetting.getSysSettingValueType())
                 .eq(null != sysSetting.getSysSettingInSystem(), SysSetting::getSysSettingInSystem, sysSetting.getSysSettingInSystem())
+                .in(userScope, SysSetting::getSysSettingGroup, USER_FACING_GROUPS)
+                .notIn(systemScope, SysSetting::getSysSettingGroup, USER_FACING_GROUPS)
                 .orderByDesc(SysSetting::getCreateTime);
-        log.debug("设置分页筛选参数: group={}, name={}, remark={}, valueType={}, inSystem={}, sqlSegment={}",
+        log.debug("设置分页筛选参数: scope={}, group={}, name={}, remark={}, valueType={}, inSystem={}, sqlSegment={}",
+                scope,
                 sysSetting.getSysSettingGroup(),
                 sysSetting.getSysSettingName(),
                 sysSetting.getSysSettingRemark(),
@@ -351,12 +462,15 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                 : baseMapper.selectBatchIds(updateIds).stream()
                         .collect(Collectors.toMap(SysSetting::getSysSettingId, it -> it, (a, b) -> a));
 
-        SysSetting version = baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery().eq(SysSetting::getSysSettingName, "version"));
+        SysSetting version = findVersionSetting();
         if (null != version) {
             version.setSysSettingConfig(UUID.randomUUID().toString());
             sysSettings.add(version);
         }
-        sysSettingService.updateBatchById(sysSettings);
+        boolean batchUpdated = sysSettingService.updateBatchById(sysSettings);
+        if (!batchUpdated) {
+            return ReturnResult.error("部分配置已被修改，请刷新后重试");
+        }
         for (SysSetting setting : sysSettings) {
             sysSettingService.clearCache(setting);
         }
@@ -372,7 +486,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                     continue;
                 }
                 // 内部 version 配置仅用于刷新版本号，不纳入业务变更历史
-                if ("version".equals(setting.getSysSettingName())) {
+                if (VERSION_SETTING_NAME.equals(setting.getSysSettingName())
+                        && VERSION_SETTING_GROUP.equals(setting.getSysSettingGroup())) {
                     continue;
                 }
                 SysSetting oldSetting = oldValueMap.get(setting.getSysSettingId());
@@ -444,11 +559,51 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     }
 
     /**
+     * 查询承载全局版本号的配置行。
+     *
+     * <p>必须限定分组：用户协议分组下同样存在 {@code version} 行，仅按名称查询在大小写不敏感的
+     * 排序规则下会命中两行。</p>
+     *
+     * @return 版本号配置行，未初始化时为空
+     */
+    private SysSetting findVersionSetting() {
+        return baseMapper.selectOne(Wrappers.<SysSetting>lambdaQuery()
+                .eq(SysSetting::getSysSettingName, VERSION_SETTING_NAME)
+                .eq(SysSetting::getSysSettingGroup, VERSION_SETTING_GROUP)
+                .last("limit 1"));
+    }
+
+    /**
      * upgrade版本。
      * @param version 版本
      */
     private void upgradeVersion(SysSetting version) {
         GlobalSettingFactory.getInstance().set("config", "version", version.getSysSettingVersion());
+    }
+
+    /**
+     * 确保 config/Version 版本行存在（缺失则创建），并将其乐观锁版本号注册为全局配置。
+     * 响应头 x-response-version 取自该值；任意配置更新时该行版本号 +1，驱动前端静默刷新配置缓存。
+     */
+    private void ensureVersionSetting() {
+        try {
+            SysSetting version = findVersionSetting();
+            if (null == version) {
+                version = new SysSetting();
+                version.setSysSettingName(VERSION_SETTING_NAME);
+                version.setSysSettingGroup(VERSION_SETTING_GROUP);
+                version.setSysSettingValue("1");
+                version.setSysSettingValueType("STRING");
+                version.setSysSettingVersion(1);
+                version.setSysSettingStatus(1);
+                version.setSysSettingInSystem(1);
+                version.setSysSettingSort(0);
+                baseMapper.insert(version);
+            }
+            upgradeVersion(version);
+        } catch (Exception e) {
+            log.warn("初始化版本配置失败: {}", e.getMessage());
+        }
     }
 
     /**
@@ -459,7 +614,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Override
     @Caching(evict = {
             @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_LEGACY_PREFIX + "' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator"),
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_PREFIX + "' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator")
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_PREFIX + "' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator"),
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingController).SETTING_DEFAULT_CACHE_KEY")
     })
     /**
      * 清空缓存。
@@ -469,6 +625,14 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
      */
     public SysSetting clearCache(SysSetting sysSetting) {
         return sysSetting;
+    }
+
+    @Override
+    @Caching(evict = {
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_LEGACY_PREFIX + "' + '" + HOT_RELOAD_GROUP + "'", keyGenerator = "customTenantedKeyGenerator"),
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_PREFIX + "' + '" + HOT_RELOAD_GROUP + "'", keyGenerator = "customTenantedKeyGenerator")
+    })
+    public void clearHotReloadCache() {
     }
 
 
@@ -514,6 +678,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
                                 .eq(SysSetting::getSysSettingStatus, 1)
                         );
                         register(globalSettingFactory, list);
+                        ensureVersionSetting();
  // 同步套接字配置
                         syncSocketConfig();
                         log.info("[系统配置][初始化] 系统配置加载完成，共 {} 条配置", list.size());

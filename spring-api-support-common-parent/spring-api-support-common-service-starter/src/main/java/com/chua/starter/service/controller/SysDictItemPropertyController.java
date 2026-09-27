@@ -1,4 +1,5 @@
 package com.chua.starter.service.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.service.SysDictItemPropertyService;
@@ -36,6 +37,7 @@ public class SysDictItemPropertyController {
      * @return 结果
      */
     @PutMapping("/saveOrUpdate")
+    @SysLog
     @Operation(summary = "保存或更新")
     public ReturnResult<Boolean> saveOrUpdate(@RequestBody @ParameterObject DictItemPropertyV1Request request) {
         return sysDictItemPropertyService.saveOrUpdate(request);

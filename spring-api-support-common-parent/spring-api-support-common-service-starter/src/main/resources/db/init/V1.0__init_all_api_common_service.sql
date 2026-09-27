@@ -1,6 +1,6 @@
 -- =====================================================================
 -- V1.0__init_all_api_common_service.sql - spring-api-support-common-service-starter 全量 DDL（合并自 1 个文件）
--- 通道: INIT 同步建表；老库缺列/缺表由 information_schema + PREPARE 段幂等补齐。
+-- 通道: INIT 同步建表；老库缺列/缺表由 INFORMATION_SCHEMA + PREPARE 段幂等补齐。
 -- 种子数据见 V1.0__initdata_all.sql（虚拟线程异步，不阻塞启动）。
 -- =====================================================================
 
@@ -35,9 +35,9 @@
  * @version 1.0
  */
 
-SET NAMES utf8;
+-- (H2-incompatible) SET NAMES utf8;
 
-SET FOREIGN_KEY_CHECKS = 0;
+-- (H2-incompatible) SET FOREIGN_KEY_CHECKS = 0;
 
 -- =====================================================
 -- 1. 银行BIN对照表 (sys_bank_bins)
@@ -63,8 +63,7 @@ CREATE TABLE IF NOT EXISTS `sys_bank_bins` (
     PRIMARY KEY (`sys_blank_bin_id`),
     INDEX `sys_bank_bins_idx_bin` (`sys_blank_bin_bin`),
     INDEX `sys_bank_bins_idx_bank_name` (`sys_blank_bin_bank_name`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci 
-COMMENT = '银行BIN对照表 - 根据银行卡前缀识别发卡银行';
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '银行BIN对照表 - 根据银行卡前缀识别发卡银行';
 
 -- =====================================================
 -- 3. 字典表 (sys_dict)
@@ -91,8 +90,7 @@ CREATE TABLE IF NOT EXISTS `sys_dict` (
     UNIQUE INDEX `sys_dict_uk_dict_code` (`sys_dict_code`),
     INDEX `sys_dict_idx_dict_pid` (`sys_dict_pid`),
     INDEX `sys_dict_idx_dict_status` (`sys_dict_status`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci 
-COMMENT = '字典表 - 系统数据字典，管理各类枚举值';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '字典表 - 系统数据字典，管理各类枚举值';
 
 -- =====================================================
 -- 4. 字典子项表 (sys_dict_item)
@@ -121,8 +119,7 @@ CREATE TABLE IF NOT EXISTS `sys_dict_item` (
     INDEX `sys_dict_item_idx_dict_id` (`sys_dict_id`),
     INDEX `sys_dict_item_idx_item_code` (`sys_dict_item_code`),
     INDEX `sys_dict_item_idx_item_status` (`sys_dict_item_status`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci 
-COMMENT = '字典子项表 - 字典的具体选项值';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '字典子项表 - 字典的具体选项值';
 
 -- =====================================================
 -- 5. 字典配置项表 (sys_dict_item_property)
@@ -145,8 +142,7 @@ CREATE TABLE IF NOT EXISTS `sys_dict_item_property` (
     PRIMARY KEY (`sys_dict_item_property_id`),
     INDEX `sys_dict_item_property_idx_dict_item_id` (`sys_dict_item_id`),
     INDEX `sys_dict_item_property_idx_property_group` (`sys_dict_item_property_group`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci 
-COMMENT = '字典配置项表 - 字典项的扩展属性配置';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '字典配置项表 - 字典项的扩展属性配置';
 
 -- =====================================================
 -- 6. 系统操作日志表 (sys_log)
@@ -169,6 +165,9 @@ CREATE TABLE IF NOT EXISTS `sys_log` (
     `update_name` varchar(255) NULL DEFAULT NULL COMMENT '更新人姓名',
     `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
     `sys_log_browser` varchar(255) NULL DEFAULT NULL COMMENT '浏览器信息',
+    `sys_log_system` varchar(255) NULL DEFAULT NULL COMMENT '操作系统信息',
+    `sys_log_ua` varchar(512) NULL DEFAULT NULL COMMENT '原始浏览器 User-Agent',
+    `sys_log_fingerprint` varchar(64) NULL DEFAULT NULL COMMENT '浏览器指纹',
     `sys_log_content` varchar(2000) NULL DEFAULT NULL COMMENT '请求描述',
     `sys_log_error` text NULL COMMENT '异常信息/堆栈(仅失败时存储)',
     PRIMARY KEY (`sys_log_id`),
@@ -176,8 +175,13 @@ CREATE TABLE IF NOT EXISTS `sys_log` (
     INDEX `sys_log_idx_status` (`sys_log_status`),
     INDEX `sys_log_idx_create_time` (`create_time`),
     INDEX `sys_log_idx_url` (`sys_log_url`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci 
-COMMENT = '系统操作日志表 - 记录API请求日志用于审计';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统操作日志表 - 记录API请求日志用于审计';
+
+-- 同上：客户端指纹三列在上面的 CREATE 里已声明，这里用独立短语句兜底补齐，
+-- 避免迁移器截断长建表语句时丢列。ADD COLUMN IF NOT EXISTS 保证幂等。
+ALTER TABLE `sys_log` ADD COLUMN IF NOT EXISTS `sys_log_system` varchar(255) NULL DEFAULT NULL COMMENT '操作系统';
+ALTER TABLE `sys_log` ADD COLUMN IF NOT EXISTS `sys_log_ua` varchar(512) NULL DEFAULT NULL COMMENT 'User-Agent';
+ALTER TABLE `sys_log` ADD COLUMN IF NOT EXISTS `sys_log_fingerprint` varchar(64) NULL DEFAULT NULL COMMENT '客户端指纹';
 
 -- =====================================================
 -- 7. 系统配置分组表 (sys_setting_group)
@@ -201,8 +205,7 @@ CREATE TABLE IF NOT EXISTS `sys_setting_group` (
     `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
     PRIMARY KEY (`sys_setting_group_id`),
     UNIQUE INDEX `sys_setting_group_uk_group_code` (`sys_setting_group_code`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci 
-COMMENT = '系统配置分组表 - 对系统配置项进行分组管理';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统配置分组表 - 对系统配置项进行分组管理';
 
 -- =====================================================
 -- 8. 系统全局配置表 (sys_setting)
@@ -214,6 +217,7 @@ CREATE TABLE IF NOT EXISTS `sys_setting` (
     `sys_setting_name` varchar(255) NULL DEFAULT NULL COMMENT '配置名称 - 配置项的键名',
     `sys_setting_code` varchar(255) NULL DEFAULT NULL COMMENT '配置编码 - 唯一标识码（如 login.title）',
     `sys_setting_value` varchar(255) NULL DEFAULT NULL COMMENT '配置值 - 配置项的值',
+    `sys_setting_default_value` varchar(255) NULL DEFAULT NULL COMMENT '出厂默认值 - 与当前值分离，用于恢复默认',
     `sys_setting_value_type` varchar(255) NULL DEFAULT NULL COMMENT '配置类型 - Boolean/String/Number/Color/Dict等，用于前端组件判断',
     `sys_setting_group` varchar(255) NULL DEFAULT NULL COMMENT '所属分组 - 配置项所属的分组编码',
     `sys_setting_status` int NULL DEFAULT 1 COMMENT '是否启用 - 0:禁用, 1:启用',
@@ -239,8 +243,13 @@ CREATE TABLE IF NOT EXISTS `sys_setting` (
     INDEX `sys_setting_idx_setting_code` (`sys_setting_code`),
     INDEX `sys_setting_idx_setting_group` (`sys_setting_group`),
     INDEX `sys_setting_idx_setting_status` (`sys_setting_status`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci 
-COMMENT = '系统全局配置表 - 存储系统全局配置参数';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统全局配置表 - 存储系统全局配置参数';
+
+-- 兜底补列：上面的 CREATE TABLE 里已含 sys_setting_default_value，但迁移器执行这条
+-- 较长的建表语句时偶发截断，导致该列缺失、后续任何 SELECT sys_setting 的地方直接
+-- 抛 Unknown column 而整站起不来。用一条独立短语句再补一次，ADD COLUMN IF NOT EXISTS
+-- 保证幂等，也让全新库不依赖运行期自愈就能开箱即用。
+ALTER TABLE `sys_setting` ADD COLUMN IF NOT EXISTS `sys_setting_default_value` varchar(255) NULL DEFAULT NULL COMMENT '出厂默认值 - 与当前值分离，用于恢复默认';
 
 -- =====================================================
 -- 10. 限流配置表 (sys_limit_configuration)
@@ -271,8 +280,7 @@ CREATE TABLE IF NOT EXISTS `sys_limit_configuration` (
     INDEX `sys_limit_configuration_idx_limit_path` (`sys_limit_path`),
     INDEX `sys_limit_configuration_idx_limit_status` (`sys_limit_status`),
     INDEX `sys_limit_configuration_idx_limit_dimension` (`sys_limit_dimension`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci 
-COMMENT = '限流配置表 - 配置API接口的限流规则';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '限流配置表 - 配置API接口的限流规则';
 
 -- =====================================================
 -- 11. 限流记录表 (sys_limit_record)
@@ -304,8 +312,7 @@ CREATE TABLE IF NOT EXISTS `sys_limit_record` (
     INDEX `sys_limit_record_idx_limit_time` (`sys_limit_time`),
     INDEX `sys_limit_record_idx_user_id` (`sys_user_id`),
     INDEX `sys_limit_record_idx_client_ip` (`client_ip`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci 
-COMMENT = '限流记录表 - 记录限流触发的详细信息';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '限流记录表 - 记录限流触发的详细信息';
 
 -- =====================================================
 -- 12. 节假日表 (sys_holiday)
@@ -327,8 +334,7 @@ CREATE TABLE IF NOT EXISTS `sys_holiday` (
     PRIMARY KEY (`sys_holiday_id`),
     UNIQUE INDEX `sys_holiday_uk_date` (`sys_holiday_date`),
     INDEX `sys_holiday_idx_year` (`sys_holiday_year`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci 
-COMMENT = '节假日表 - 存储法定节假日和调休工作日';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '节假日表 - 存储法定节假日和调休工作日';
 
 -- =====================================================
 -- 15. 文件系统分组表 (sys_file_system_group)
@@ -358,8 +364,7 @@ CREATE TABLE IF NOT EXISTS `sys_file_system_group` (
     PRIMARY KEY (`sys_file_system_group_id`),
     INDEX `sys_file_system_group_idx_parent_id` (`sys_file_system_group_parent_id`),
     INDEX `sys_file_system_group_idx_status` (`sys_file_system_group_status`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci 
-COMMENT = '文件系统分组表 - 对上传的文件进行分组管理';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '文件系统分组表 - 对上传的文件进行分组管理';
 
 -- =====================================================
 -- 16. 文件系统配置表 (sys_file_system_setting)
@@ -397,8 +402,7 @@ CREATE TABLE IF NOT EXISTS `sys_file_system_setting` (
     `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
     PRIMARY KEY (`sys_file_system_setting_id`),
     INDEX `sys_file_system_setting_idx_enabled` (`sys_file_system_setting_enabled`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci 
-COMMENT = '文件系统配置表 - 配置文件上传和存储的参数';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '文件系统配置表 - 配置文件上传和存储的参数';
 
 -- =====================================================
 -- 17. 文件系统主表 (sys_file_system)
@@ -441,8 +445,7 @@ CREATE TABLE IF NOT EXISTS `sys_file_system` (
     INDEX `sys_file_system_idx_group_id` (`sys_file_system_group_id`),
     INDEX `sys_file_system_idx_create_time` (`create_time`),
     INDEX `sys_file_system_idx_md5` (`sys_file_system_md5`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci 
-COMMENT = '文件系统主表 - 存储上传文件的元数据信息';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '文件系统主表 - 存储上传文件的元数据信息';
 
 -- =====================================================
 -- 18. 文件系统分片表 (sys_file_system_part)
@@ -472,8 +475,7 @@ CREATE TABLE IF NOT EXISTS `sys_file_system_part` (
     UNIQUE INDEX `sys_file_system_part_uk_file_seq` (`sys_file_system_part_file_id`, `sys_file_system_part_seq`),
     INDEX `sys_file_system_part_idx_file_id` (`sys_file_system_part_file_id`),
     INDEX `sys_file_system_part_idx_status` (`sys_file_system_part_status`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci 
-COMMENT = '文件系统分片表 - 存储分片上传的每个分片信息';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '文件系统分片表 - 存储分片上传的每个分片信息';
 
 -- =====================================================
 -- 19. 请求追踪原始记录表 (sys_request_trace_raw)
@@ -513,8 +515,7 @@ CREATE TABLE IF NOT EXISTS `sys_request_trace_raw` (
     INDEX `sys_request_trace_raw_idx_strategy_code` (`sys_request_trace_strategy_code`),
     INDEX `sys_request_trace_raw_idx_client_ip` (`sys_request_trace_client_ip`),
     INDEX `sys_request_trace_raw_idx_user_id` (`sys_request_trace_user_id`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci
-COMMENT = '请求追踪原始记录表 - 持久化行为分析原始事件';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '请求追踪原始记录表 - 持久化行为分析原始事件';
 
 -- =====================================================
 -- 20. 请求追踪行为分析结果表 (sys_request_trace_behavior)
@@ -556,8 +557,99 @@ CREATE TABLE IF NOT EXISTS `sys_request_trace_behavior` (
     INDEX `sys_request_trace_behavior_idx_behavior_trace_id` (`sys_request_trace_trace_id`),
     INDEX `sys_request_trace_behavior_idx_behavior_strategy` (`sys_request_trace_strategy_code`),
     INDEX `sys_request_trace_behavior_idx_behavior_risk_level` (`sys_request_trace_risk_level`)
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci
-COMMENT = '请求追踪行为分析结果表 - 持久化风险分析结论';
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '请求追踪行为分析结果表 - 持久化风险分析结论';
 
-SET FOREIGN_KEY_CHECKS = 1;
+-- (H2-incompatible) SET FOREIGN_KEY_CHECKS = 1;
 
+-- 根目录 data-h2.sql 中旧版/乱码系统表结构与重复种子已由 common-service、common-system、common-entity canonical 覆盖；本文件保留可执行的正式初始化定义。
+
+-- =====================================================================
+-- 以下表的 Mapper 位于本模块，建表语句随 Mapper 归置。
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS `sys_city` (
+    `sys_city_code` varchar(255) NOT NULL,
+    `sys_city_area_code` varchar(255) NULL DEFAULT NULL,
+    `sys_city_name` varchar(255) NULL DEFAULT NULL,
+    `sys_city_level` int NULL DEFAULT NULL,
+    `sys_city_parent_code` varchar(255) NULL DEFAULT NULL,
+    `sys_city_tree_path` varchar(255) NULL DEFAULT NULL,
+    `sys_city_short_name` varchar(255) NULL DEFAULT NULL,
+    `sys_city_merger_name` varchar(255) NULL DEFAULT NULL,
+    `sys_city_pinyin` varchar(255) NULL DEFAULT NULL,
+    `sys_city_lng` double NULL DEFAULT NULL,
+    `sys_city_lat` double NULL DEFAULT NULL,
+    `sys_city_sort` int NULL DEFAULT NULL,
+    `sys_city_car_plate` varchar(255) NULL DEFAULT NULL,
+    `sys_city_car_plate_no` varchar(255) NULL DEFAULT NULL,
+    PRIMARY KEY (`sys_city_code`)
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
+
+-- sys_city 旧版 sql/sys_city.sql 的非主键索引已归入本表定义。
+CREATE INDEX IF NOT EXISTS city_pcode_index ON sys_city (sys_city_parent_code);
+CREATE INDEX IF NOT EXISTS city_level_index ON sys_city (sys_city_level);
+
+CREATE TABLE IF NOT EXISTS `sys_request_statistics` (
+    `sys_request_statistics_id` bigint NOT NULL AUTO_INCREMENT,
+    `sys_request_statistics_time` datetime NULL DEFAULT NULL,
+    `sys_request_statistics_trace_id` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_route` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_method` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_path` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_status` int NULL DEFAULT NULL,
+    `sys_request_statistics_duration_ms` bigint NULL DEFAULT NULL,
+    `sys_request_statistics_client_ip` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_user_id` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_username` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_fingerprint` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_token_hash` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_browser` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_app_name` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_request_url` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_request_query` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_request_body_hash` varchar(1000) NULL DEFAULT NULL,
+    `sys_request_statistics_response_body_hash` varchar(1000) NULL DEFAULT NULL,
+    `sys_request_statistics_input_tokens` bigint NULL DEFAULT NULL,
+    `sys_request_statistics_output_tokens` bigint NULL DEFAULT NULL,
+    `sys_request_statistics_cached_tokens` bigint NULL DEFAULT NULL,
+    `sys_request_statistics_total_tokens` bigint NULL DEFAULT NULL,
+    `sys_request_statistics_prompt_characters` bigint NULL DEFAULT NULL,
+    `sys_request_statistics_completion_characters` bigint NULL DEFAULT NULL,
+    `sys_request_statistics_cache_hits` bigint NULL DEFAULT NULL,
+    `sys_request_statistics_cache_misses` bigint NULL DEFAULT NULL,
+    `sys_request_statistics_cost_cents` bigint NULL DEFAULT NULL,
+    `sys_request_statistics_cost_currency` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_model` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_provider` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_channel` varchar(255) NULL DEFAULT NULL,
+    `sys_request_statistics_status_text` varchar(1000) NULL DEFAULT NULL,
+    `sys_request_statistics_extra` varchar(1000) NULL DEFAULT NULL,
+    `create_name` varchar(255) NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
+    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`sys_request_statistics_id`)
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `sys_setting_history` (
+    `sys_setting_history_id` bigint NOT NULL AUTO_INCREMENT,
+    `sys_setting_id` int NULL DEFAULT NULL,
+    `sys_setting_name` varchar(255) NULL DEFAULT NULL,
+    `sys_setting_group` varchar(255) NULL DEFAULT NULL,
+    `sys_setting_old_value` varchar(255) NULL DEFAULT NULL,
+    `sys_setting_new_value` varchar(255) NULL DEFAULT NULL,
+    `sys_setting_operation` varchar(255) NULL DEFAULT NULL,
+    `sys_setting_operator_id` varchar(255) NULL DEFAULT NULL,
+    `sys_setting_operator_name` varchar(255) NULL DEFAULT NULL,
+    `sys_setting_remark` varchar(1000) NULL DEFAULT NULL,
+    `sys_setting_batch_no` varchar(255) NULL DEFAULT NULL,
+    `create_name` varchar(255) NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int NULL DEFAULT NULL COMMENT '创建人ID',
+    `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
+    PRIMARY KEY (`sys_setting_history_id`)
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;

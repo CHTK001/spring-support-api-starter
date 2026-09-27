@@ -152,22 +152,6 @@ public class MyController {
 }
 ```
 
-### 文件上传使用
-
-```java
-@RestController
-@RequiredArgsConstructor
-public class FileController {
-
-    private final SysFileSystemService fileSystemService;
-
-    @PostMapping("/upload")
-    public ReturnResult<String> upload(@RequestParam("file") MultipartFile file) {
-        return fileSystemService.upload(file);
-    }
-}
-```
-
 ### 消息推送使用
 
 ```java

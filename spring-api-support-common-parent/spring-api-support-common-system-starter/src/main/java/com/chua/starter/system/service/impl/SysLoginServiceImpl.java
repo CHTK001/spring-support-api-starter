@@ -19,9 +19,9 @@ import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.provider.LoginData;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
-import com.chua.starter.oauth.client.support.ratelimit.RateLimitService;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.oauth.client.support.execute.AuthSessionUtils;
+import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.entity.service.SysSetting;
@@ -38,7 +38,6 @@ import com.chua.starter.entity.system.SysUserRole;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.system.handler.LoginHandler;
 import com.chua.starter.system.constant.SystemConstant;
-import com.chua.starter.system.properties.SystemSecurityProperties;
 import com.chua.starter.system.service.SysLoginService;
 import com.chua.starter.system.service.SysUserLogService;
 import com.chua.starter.system.service.SysUserService;
@@ -64,6 +63,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.chua.starter.system.event.SysLoginLogEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -73,19 +74,21 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.chua.starter.common.support.logger.AbstractLoggerPointcutAdvisor.X_REQ_FINGERPRINT;
 import static com.chua.starter.oauth.client.support.contants.AuthConstant.CAPTCHA_SESSION_KEY;
 import static com.chua.common.support.lang.code.ReturnCode.RESOURCE_CAPTCHA_ERROR;
 
@@ -129,11 +132,6 @@ public class SysLoginServiceImpl implements SysLoginService {
      * 用户布局查询缓存，避免每次登录重复查询数据库
      */
     private static final Map<Long, CachedValue> USER_LAYOUT_CACHE = new ConcurrentHashMap<>();
-
-    /**
-     * 用户角色编码缓存（键 = "角色:用户id"），避免每次登录重复查询数据库
-     */
-    private static final Map<String, CachedValue> USER_ROLE_CACHE = new ConcurrentHashMap<>();
 
     /**
      * 查询缓存有效期（毫秒）
@@ -204,6 +202,10 @@ public class SysLoginServiceImpl implements SysLoginService {
     */
     private final SysUserRoleMapper sysUserRoleMapper;
     /**
+     * 登录角色编码缓存
+     */
+    private final com.chua.starter.system.support.UserRoleCache userRoleCache;
+    /**
      * sysrolemapper
     */
     private final SysRoleMapper sysRoleMapper;
@@ -216,9 +218,15 @@ public class SysLoginServiceImpl implements SysLoginService {
     */
     private final ObjectMapper objectMapper;
     /**
-     * 系统安全配置(失败次数/锁定时长)
+     * sys用户日志服务
     */
-    private final SystemSecurityProperties securityProperties;
+    private final SysUserLogService sysUserLogService;
+    /**
+     * 在线状态管理(登录写Redis在线键, 供用户列表呼吸灯)
+    */
+    private final com.chua.starter.system.support.OnlineStatusManager onlineStatusManager;
+    /** Spring 事件发布器（发布登录日志事件，解耦认证与日志存储） */
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     /**
@@ -256,20 +264,30 @@ public class SysLoginServiceImpl implements SysLoginService {
         }
         if (SystemConstant.USER_STATUS_ENABLED != user.getSysUserStatus()) {
             log.warn("本地登录失败: 账户已禁用 - {}", loginData.getUsername());
-            return new LoginAuthResult(403, "账号已被禁用");
+            return new LoginAuthResult(403, "账号已被禁用，请联系管理员");
         }
-        // 账号锁定校验: sysUserLock=1 时判断锁定期是否已过, 过期自动解锁, 未过拒绝登录
-        LoginAuthResult lockCheck = checkAndAutoUnlock(user, loginData.getUsername());
-        if (null != lockCheck) {
-            return lockCheck;
-        }
+        // 锁定功能暂时下线：不再校验 sysUserLock（checkAndAutoUnlock），账号状态仅由 启用/禁用 控制
         // 口令校验: 与 updateOwner/reset 写入端共用 PasswordUtils, 算法不一致会导致改密后无法登录
         if (!PasswordUtils.matches(loginData.getPassword(), user.getSysUserSalt(), user.getSysUserPassword())) {
             log.info("本地登录失败: 密码错误 - {}", loginData.getUsername());
             return null;
         }
 
- // 一次 连接 查询用户全部角色编码（带缓存），替代原来的两次 选择列表
+        return issueLocalToken(user);
+    }
+
+    /**
+     * 为已通过身份校验的本地用户签发访问令牌（static 协议）。
+     *
+     * <p>密码登录在口令校验通过后、短信 / 邮箱登录在验证码校验通过后复用本方法，
+     * 保证不同登录方式得到结构一致（角色 / 部门 / 数据权限 / 扩展信息）的令牌。</p>
+     *
+     * @param user 已认证用户
+     * @return 登录认证结果
+     */
+    @Override
+    public LoginAuthResult issueLocalToken(SysUser user) {
+        // 一次 连接 查询用户全部角色编码（带缓存），替代原来的两次 选择列表
         var roleCodes = getCachedRoleCodes(user.getSysUserId());
 
         var userResult = new UserResult();
@@ -328,7 +346,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         result.setUserResume(resume);
 
         AuthSessionUtils.setUserInfo(resume);
-        log.info("本地登录成功: user={}", loginData.getUsername());
+        log.info("本地登录成功: user={}", user.getSysUserUsername());
 
         // 更新最后登录时间和IP
         try {
@@ -341,71 +359,10 @@ public class SysLoginServiceImpl implements SysLoginService {
             log.warn("更新最后登录信息失败: {}", e.getMessage());
         }
 
+        // 写入Redis在线状态, 用户列表据此显示在线呼吸灯
+        onlineStatusManager.markOnline(user.getSysUserId());
+
         return result;
-    }
-
-    /**
-     * 账号锁定校验: 若用户 sysUserLock=1, 距 sysUserLockTime 未超过锁定时长则拒绝登录,
-     * 超过则自动解锁(sysUserLock=0)后放行。
-     *
-     * @param user     已查询到的用户
-     * @param username 登录账号(日志用)
-     * @return null 表示放行; 非 null 表示锁定错误结果
-     */
-    private LoginAuthResult checkAndAutoUnlock(SysUser user, String username) {
-        if (null == user.getSysUserLock() || user.getSysUserLock() != 1) {
-            return null;
-        }
-        int lockMinutes = securityProperties.getLockoutDurationMinutes();
-        LocalDateTime lockTime = user.getSysUserLockTime();
-        long lockedMinutes = (null == lockTime) ? lockMinutes : ChronoUnit.MINUTES.between(lockTime, LocalDateTime.now());
-        if (null == lockTime || lockedMinutes >= lockMinutes) {
-            // 锁定期已过, 自动解锁
-            SysUser unlock = new SysUser();
-            unlock.setSysUserId(user.getSysUserId());
-            unlock.setSysUserLock(0);
-            unlock.setSysUserLockTime(null);
-            simpleSysUserService.updateById(unlock);
-            user.setSysUserLock(0);
-            user.setSysUserLockTime(null);
-            log.info("账号锁定已到期, 自动解锁: {}", username);
-            return null;
-        }
-        long remain = lockMinutes - lockedMinutes;
-        log.warn("本地登录失败: 账号已锁定, 剩余{}分钟 - {}", remain, username);
-        return new LoginAuthResult(423, "账号已锁定，请" + remain + "分钟后再试");
-    }
-
-    /**
-     * 登录失败计数达到阈值后, 将 Redis 侧锁定镜像到数据库(sysUserLock=1, sysUserLockTime=now)。
-     * <p>由 DefaultLoginHandler 在 recordLoginFailure 后调用, 失败计数与 Redis 锁定仍由 RateLimitService 负责,
-     * 此处仅做 DB 持久化, 便于后台展示与登录时校验。</p>
-     *
-     * @param username 登录账号
-     */
-    public void syncDbLoginLock(String username) {
-        try {
-            if (StringUtils.isBlank(username)) {
-                return;
-            }
-            if (!RateLimitService.getInstance().isAccountLocked(username)) {
-                return;
-            }
-            SysUser user = simpleSysUserService.lambdaQuery()
-                    .eq(SysUser::getSysUserUsername, username)
-                    .one();
-            if (null == user || Integer.valueOf(1).equals(user.getSysUserLock())) {
-                return;
-            }
-            SysUser lock = new SysUser();
-            lock.setSysUserId(user.getSysUserId());
-            lock.setSysUserLock(1);
-            lock.setSysUserLockTime(LocalDateTime.now());
-            simpleSysUserService.updateById(lock);
-            log.warn("登录失败次数达阈值, 账号已锁定(DB): {}", username);
-        } catch (Exception e) {
-            log.warn("同步账号锁定状态失败: {}, {}", username, e.getMessage());
-        }
     }
 
     /**
@@ -448,38 +405,77 @@ public class SysLoginServiceImpl implements SysLoginService {
      * @return 检查环境的结果
      */
     public ReturnResult<LoginResult> checkEnvironment(LoginData loginData, HttpServletRequest request) {
+        // 这里仅处理图形验证码；TOTP 已移到口令校验通过之后、仅对已绑定用户生效（见 verifyBoundTotp）
         var code = loginData.getVerifyCodeKey();
-        var totpRequired = requiresTotp(loginData.getUsername());
-        var hasCaptchaContext = hasCaptchaContext(loginData, request);
-
-        if (totpRequired) {
-            var otp = loginData.getOtpCode();
-            if (StringUtils.isBlank(otp)) {
-                return ReturnResult.error(RESOURCE_CAPTCHA_ERROR.getCode(), "请输入动态验证码");
-            }
-
-            if (hasCaptchaContext) {
-                return checkVerifyCode(loginData, request);
-            }
-
-            var verifyResult = simpleSysUserService.verify(otp, loginData.getUsername());
-            if (verifyResult == null || !Boolean.TRUE.equals(verifyResult.getData())) {
-                return ReturnResult.error(
-                        RESOURCE_CAPTCHA_ERROR.getCode(),
-                        StringUtils.defaultString(verifyResult != null ? verifyResult.getMsg() : null, "动态验证码错误或已过期")
-                );
-            }
-            return null;
-        }
-
         if (StringUtils.isBlank(code)) {
             return null;
         }
-
-        if (hasCaptchaContext) {
+        if (hasCaptchaContext(loginData, request)) {
             return checkVerifyCode(loginData, request);
         }
+        return null;
+    }
 
+    /**
+     * 登录被拒绝（如账号禁用），携带面向用户的提示。
+     */
+    public static class LoginRejectException extends RuntimeException {
+        private final int code;
+
+        public LoginRejectException(int code, String message) {
+            super(message);
+            this.code = code;
+        }
+
+        public int getCode() {
+            return code;
+        }
+    }
+
+    /**
+     * 仅校验本地账号（存在 / 启用 / 口令正确），返回已认证用户；不签发令牌。
+     *
+     * @return 已认证用户；用户不存在或口令错误返回 null；账号禁用抛 {@link LoginRejectException}
+     */
+    public SysUser verifyLocalUser(LoginData loginData) {
+        SysUser user = simpleSysUserService.lambdaQuery()
+                .eq(SysUser::getSysUserUsername, loginData.getUsername())
+                .one();
+        if (user == null) {
+            log.warn("本地登录失败: 用户不存在 - {}", loginData.getUsername());
+            return null;
+        }
+        if (SystemConstant.USER_STATUS_ENABLED != user.getSysUserStatus()) {
+            log.warn("本地登录失败: 账户已禁用 - {}", loginData.getUsername());
+            throw new LoginRejectException(403, "账号已被禁用，请联系管理员");
+        }
+        if (!PasswordUtils.matches(loginData.getPassword(), user.getSysUserSalt(), user.getSysUserPassword())) {
+            log.info("本地登录失败: 密码错误 - {}", loginData.getUsername());
+            return null;
+        }
+        return user;
+    }
+
+    /**
+     * 口令校验通过后，对“已绑定 TOTP”的用户校验动态码。
+     *
+     * @return null 表示通过或无需校验；否则返回错误（缺少动态码时消息为“请输入动态验证码”）
+     */
+    public ReturnResult<LoginResult> verifyBoundTotp(SysUser user, LoginData loginData) {
+        if (user == null || StringUtils.isBlank(user.getSysUserTotpCode())) {
+            return null;
+        }
+        String otp = loginData.getOtpCode();
+        if (StringUtils.isBlank(otp)) {
+            return ReturnResult.error(RESOURCE_CAPTCHA_ERROR.getCode(), "请输入动态验证码");
+        }
+        var verifyResult = simpleSysUserService.verify(otp, user.getSysUserUsername());
+        if (verifyResult == null || !Boolean.TRUE.equals(verifyResult.getData())) {
+            return ReturnResult.error(
+                    RESOURCE_CAPTCHA_ERROR.getCode(),
+                    StringUtils.defaultString(verifyResult != null ? verifyResult.getMsg() : null, "动态验证码错误或已过期")
+            );
+        }
         return null;
     }
 
@@ -495,41 +491,6 @@ public class SysLoginServiceImpl implements SysLoginService {
         return StringUtils.isNotBlank(sessionKey) || StringUtils.isNotBlank(loginData.getVerifyCodeUlid());
     }
 
-    /**
-     * requirestotp
-     *
-     * @param username 用户名
-     * @return requiresTotp的结果
-     */
-    private boolean requiresTotp(String username) {
-        if (StringUtils.isBlank(username)) {
-            return false;
-        }
-
-        SysUser sysUser = simpleSysUserService.lambdaQuery()
-                .eq(SysUser::getSysUserUsername, username)
-                .select(SysUser::getSysUserId, SysUser::getSysUserTotpCode)
-                .one();
-        if (null == sysUser) {
-            return false;
-        }
-        // 用户自行开启过两步验证则必须校验，与全局开关无关
-        if (StringUtils.isNotBlank(sysUser.getSysUserTotpCode())) {
-            return true;
-        }
-        // 全局强制开启时，未绑定用户同样进入挑战（服务端对未绑定校验恒通过，引导其去个人中心开通）
-        return isTotpLoginEnabled();
-    }
-
-    /**
-     * 是否totplogin已启用
-     *
-     * @return 是否totplogin已启用的结果
-     */
-    private boolean isTotpLoginEnabled() {
-        GuestDefaultSetting gs = GLOBAL_SETTING_FACTORY.get("default", GuestDefaultSetting.class);
-        return null != gs && gs.isCheckTotpCodeOpen();
-    }
 
     @Override
     /**
@@ -605,6 +566,10 @@ public class SysLoginServiceImpl implements SysLoginService {
                     }
                     if (StringUtils.isBlank(userInfoVO.getSysUserEmail())) {
                         userInfoVO.setSysUserEmail(sysUser.getSysUserEmail());
+                    }
+                    if (userInfoVO.getSysUserEmailVerified() == null) {
+                        userInfoVO.setSysUserEmailVerified(sysUser.getSysUserEmailVerified());
+                        userInfoVO.setSysUserEmailVerifyTime(sysUser.getSysUserEmailVerifyTime());
                     }
                     if (StringUtils.isBlank(userInfoVO.getSysUserCard())) {
                         userInfoVO.setSysUserCard(sysUser.getSysUserCard());
@@ -724,20 +689,12 @@ public class SysLoginServiceImpl implements SysLoginService {
      * @return 角色编码集合
      */
     private Set<String> getCachedRoleCodes(Integer userId) {
-        String key = "role:" + userId;
-        CachedValue cached = USER_ROLE_CACHE.get(key);
-        if (cached != null && cached.expireAt > System.currentTimeMillis()) {
-            return (Set<String>) cached.value;
-        }
-        Set<String> roleCodes;
         try {
-            roleCodes = new java.util.HashSet<>(sysUserRoleMapper.selectRoleCodesByUserId(userId));
+            return userRoleCache.resolve(userId, () -> new java.util.HashSet<>(sysUserRoleMapper.selectRoleCodesByUserId(userId)));
         } catch (Exception e) {
             log.warn("加载用户角色失败: {}", e.getMessage());
-            roleCodes = new java.util.HashSet<>();
+            return new java.util.HashSet<>();
         }
-        USER_ROLE_CACHE.put(key, new CachedValue(roleCodes, System.currentTimeMillis() + CACHE_TTL_MILLIS));
-        return roleCodes;
     }
 
     /**
@@ -877,6 +834,157 @@ public class SysLoginServiceImpl implements SysLoginService {
             return ReturnResult.ok();
         }
         return ReturnResult.error("解绑失败");
+    }
+
+    /**
+     * 记录一次登录事件（成功与失败均落库），供个人中心「登录日志」按人查询
+     * <p>部署为 static 本地认证时认证服务器不在类路径，登录日志只能由客户端登录路径写入</p>
+     *
+     * @param loginData   登录请求
+     * @param request     HTTP 请求
+     * @param fingerprint 客户端指纹，为空时降级为 UA 生成
+     * @param accessToken 认证结果，失败时可为 null
+     * @param failMessage 失败原因，成功时忽略
+     * @param cost        本次登录耗时（毫秒）
+     */
+    public void recordLoginLog(LoginData loginData, HttpServletRequest request, String fingerprint,
+                               LoginAuthResult accessToken, String failMessage, long cost) {
+        boolean success = null != accessToken && accessToken.getCode() == SystemConstant.HTTP_STATUS_OK;
+        UserResume resume = success ? accessToken.getUserResume() : null;
+
+        SysUserLog userLog = new SysUserLog();
+        userLog.setSysLogUsername(loginData.getUsername());
+        userLog.setSysLogLoginType(StringUtils.defaultString(loginData.getLoginType(), AuthType.WEB.name()));
+        userLog.setSysLogFrom(success ? "LOGIN" : "LOGIN_FAIL");
+        userLog.setSysLogStatus(success ? 1 : 0);
+        userLog.setSysLogMessage(success ? "登录成功" : StringUtils.defaultString(failMessage, "登录失败"));
+        userLog.setSysLogUrl("/v2/user/login");
+        userLog.setSysLogCost(BigDecimal.valueOf(cost));
+        userLog.setSysLogIp(getClientIp(request));
+
+        String ua = request.getHeader("User-Agent");
+        userLog.setSysLogUa(ua);
+        userLog.setSysLogFingerprint(StringUtils.defaultString(fingerprint, IpUtils.fingerprintFromUserAgent(ua)));
+        try {
+            UserAgent userAgent = UserAgent.parseUserAgentString(StringUtils.nullToEmpty(ua));
+            userLog.setSysLogBrowser(userAgent.getBrowser().toString());
+            userLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
+        } catch (Exception e) {
+            log.debug("登录日志解析 UA 失败: {}", ua);
+        }
+
+        fillLoginLogPrincipal(userLog, resume, loginData.getUsername());
+        try {
+            sysUserLogService.asyncSaveUserLog(userLog);
+        } catch (Exception e) {
+            log.warn("登录日志写入失败: user={}, error={}", loginData.getUsername(), e.getMessage());
+        }
+    }
+
+    /**
+     * 发布登录日志事件（认证侧调用），由登录日志监听器统一消费落库。
+     *
+     * <p>同步事件：在当前请求线程内联执行，request 仍有效。</p>
+     *
+     * @param loginData   登录入参
+     * @param request     当前请求
+     * @param fingerprint 浏览器指纹
+     * @param accessToken 认证结果（成功非空，失败为 null）
+     * @param failMessage 失败原因（成功为 null）
+     * @param cost        本次登录耗时（毫秒）
+     */
+    public void publishLoginLog(LoginData loginData, HttpServletRequest request, String fingerprint,
+                                LoginAuthResult accessToken, String failMessage, long cost) {
+        eventPublisher.publishEvent(new SysLoginLogEvent(this, loginData, request,
+                fingerprint, accessToken, failMessage, cost));
+    }
+
+    @Override
+    /**
+     * 记录一次登出事件，字段口径与登录日志保持一致
+     */
+    public void recordLogoutLog(HttpServletRequest request, String loginType, LogoutType logoutType,
+                                UserResume resume, long cost) {
+        if (null == resume) {
+            return;
+        }
+
+        SysUserLog userLog = new SysUserLog();
+        userLog.setSysLogUsername(resume.getUsername());
+        userLog.setSysLogLoginType(StringUtils.defaultString(loginType, AuthType.WEB.name()));
+        userLog.setSysLogFrom("LOGOUT");
+        userLog.setSysLogStatus(1);
+        userLog.setSysLogMessage(null == logoutType ? "LOGOUT" : logoutType.name());
+        userLog.setSysLogUrl("/logout");
+        userLog.setSysLogCost(BigDecimal.valueOf(cost));
+        userLog.setSysLogIp(getClientIp(request));
+
+        String ua = request.getHeader("User-Agent");
+        userLog.setSysLogUa(ua);
+        userLog.setSysLogFingerprint(StringUtils.defaultString(request.getHeader(X_REQ_FINGERPRINT), IpUtils.fingerprintFromUserAgent(ua)));
+        try {
+            UserAgent userAgent = UserAgent.parseUserAgentString(StringUtils.nullToEmpty(ua));
+            userLog.setSysLogBrowser(userAgent.getBrowser().toString());
+            userLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
+        } catch (Exception e) {
+            log.debug("登出日志解析 UA 失败: {}", ua);
+        }
+
+        fillLoginLogPrincipal(userLog, resume, resume.getUsername());
+        try {
+            sysUserLogService.asyncSaveUserLog(userLog);
+        } catch (Exception e) {
+            log.warn("登出日志写入失败: user={}, error={}", resume.getUsername(), e.getMessage());
+        }
+    }
+
+    /**
+     * 回填登录日志的归属信息（用户ID/昵称/部门），失败登录按用户名反查，保证本人也能看到失败记录
+     *
+     * @param userLog  待回填的日志实体
+     * @param resume   认证成功时的用户上下文，失败为 null
+     * @param username 登录用户名
+     */
+    private void fillLoginLogPrincipal(SysUserLog userLog, UserResume resume, String username) {
+        if (null != resume) {
+            userLog.setCreateName(StringUtils.defaultString(resume.getUsername(), username));
+            parseLoginLogId(resume.getUserId()).ifPresent(userLog::setCreateBy);
+            Map<String, Object> ext = resume.getExt();
+            if (null != ext) {
+                parseLoginLogId(Objects.toString(ext.get("sysUserId"), null)).ifPresent(userLog::setCreateBy);
+                userLog.setSysDeptId(parseLoginLogId(Objects.toString(ext.get("sysDeptId"), null)).orElse(null));
+            }
+            return;
+        }
+        userLog.setCreateName(username);
+        try {
+            SysUser user = simpleSysUserService.lambdaQuery()
+                    .eq(SysUser::getSysUserUsername, username)
+                    .one();
+            if (null != user) {
+                userLog.setCreateBy(user.getSysUserId());
+                userLog.setSysDeptId(user.getSysDeptId());
+            }
+        } catch (Exception e) {
+            log.debug("登录日志反查用户失败: {}", username);
+        }
+    }
+
+    /**
+     * 解析登录日志中的整型标识
+     *
+     * @param value 原始值
+     * @return 解析结果，非数字时为空
+     */
+    private Optional<Integer> parseLoginLogId(String value) {
+        if (StringUtils.isBlank(value)) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(Integer.parseInt(value.trim()));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
     }
 
     /**

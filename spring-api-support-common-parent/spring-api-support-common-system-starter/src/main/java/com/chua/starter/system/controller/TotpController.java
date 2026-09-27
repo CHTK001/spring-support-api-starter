@@ -1,4 +1,5 @@
 package com.chua.starter.system.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
@@ -37,6 +38,7 @@ public class TotpController {
      */
     @Operation(summary = "绑定2fa密钥")
     @PutMapping("/bind")
+    @SysLog(module = "绑定")
     public ReturnResult<Boolean> bind(@Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId) {
         return simpleSysUserService.bind(sysUserId);
     }
@@ -50,6 +52,7 @@ public class TotpController {
      */
     @Operation(summary = "解绑2fa密钥")
     @PutMapping("/unbind")
+    @SysLog(module = "解绑")
     public ReturnResult<Boolean> unbind(@Parameter(hidden = true) @UserValue("sysUserId") Integer sysUserId) {
         return simpleSysUserService.unbind(sysUserId);
     }

@@ -35,14 +35,9 @@ public class DatalakeAutoConfiguration {
     public DatalakeServer datalakeServer() {
         this.datalakeServer = DatalakeServerBuilder.builder()
                 .build();
-        new Thread(() -> {
-            try {
-                datalakeServer.start();
-                log.info("[DatalakeAutoConfiguration] 数据中台启动完成 (API:58081, WS:58082, Collect:58080)");
-            } catch (Exception e) {
-                log.error("[DatalakeAutoConfiguration] 数据中台启动失败", e);
-            }
-        }, "datalake-server").start();
+        // 同步启动：交给裸线程只会把启动失败降级成一条 error 日志，Spring 上下文仍宣告健康
+        datalakeServer.start();
+        log.info("[DatalakeAutoConfiguration] 数据中台已启动（本装配未注入 API 服务端，不开设任何 HTTP 端口）");
         return datalakeServer;
     }
 

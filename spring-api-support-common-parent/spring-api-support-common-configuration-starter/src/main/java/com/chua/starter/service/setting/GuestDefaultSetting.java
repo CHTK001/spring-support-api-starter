@@ -26,10 +26,6 @@ public class GuestDefaultSetting implements Upgrade<GuestDefaultSetting> {
      */
     private boolean checkCodeOpen;
 
-    /**
-     * 是否开启 OTP 动态口令（对应 sys_setting_名称 = "检查totp编码打开"）
-     */
-    private boolean checkTotpCodeOpen;
 
     /**
      * 是否开启滑块验证（对应 sys_setting_名称 = "slidingblock打开"）
@@ -93,7 +89,6 @@ public class GuestDefaultSetting implements Upgrade<GuestDefaultSetting> {
     */
     public void upgrade(GuestDefaultSetting guestDefaultSetting) {
         this.checkCodeOpen = guestDefaultSetting.checkCodeOpen;
-        this.checkTotpCodeOpen = guestDefaultSetting.checkTotpCodeOpen;
         this.slidingBlockOpen = guestDefaultSetting.slidingBlockOpen;
         this.systemName = guestDefaultSetting.systemName;
         this.openSmsLogin = guestDefaultSetting.openSmsLogin;

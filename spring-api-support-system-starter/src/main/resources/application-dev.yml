@@ -53,14 +53,17 @@ plugin:
       enable: true
   oauth:
     address: http://localhost:19180/oauth
-    protocol: http-lite
+    protocol: static
     auth-address: http://localhost:19180/oauth
     whitelist:
       - /v2/setting/default
-      - /v2/setting/**
       - /captcha
       - /**/captcha
       - /**/users/loginCode
+      - /v2/sms/send
+      - /v2/sms/login
+      - /v2/email/send
+      - /v2/email/login
     rate-limit:
       enable: true
       api:

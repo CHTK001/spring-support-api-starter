@@ -3,13 +3,19 @@ package com.chua.agent;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -39,6 +45,11 @@ public class AgentMain {
     private static final String DEFAULT_BIND = "0.0.0.0";
 
     /**
+     * 本机传统编码缓存，首次使用时解析
+    */
+    private static volatile Charset NATIVE_CHARSET;
+
+    /**
      * HTTP 线程数：主机画像一次刷新会并发拉 /info、/metrics、/ports 等多个端点
     */
     private static final int HTTP_THREADS = 4;
@@ -64,6 +75,10 @@ public class AgentMain {
         server.createContext("/ports", ex -> AgentHttpHandlers.handlePorts(ex, sysInfo));
         server.createContext("/netproc", ex -> AgentHttpHandlers.handleNetProc(ex, sysInfo));
         server.createContext("/files", ex -> AgentHttpHandlers.handleFiles(ex));
+        server.createContext("/files/usage", ex -> AgentHttpHandlers.handleFileUsage(ex));
+        server.createContext("/files/mkdir", ex -> AgentHttpHandlers.handleFileMkdir(ex));
+        server.createContext("/files/delete", ex -> AgentHttpHandlers.handleFileDelete(ex));
+        server.createContext("/files/rename", ex -> AgentHttpHandlers.handleFileRename(ex));
         server.createContext("/upload", ex -> AgentHttpHandlers.handleUpload(ex));
         server.createContext("/download", ex -> AgentHttpHandlers.handleDownload(ex));
         server.createContext("/exec", ex -> AgentHttpHandlers.handleExec(ex, config));
@@ -147,6 +162,118 @@ public class AgentMain {
             System.err.println("[Agent] 读取流失败: " + e.getMessage());
         }
         return sb.toString();
+    }
+
+    /**
+     * 进程退出或被强杀后，等待抽取线程收尾的时间（毫秒）：拿到的部分输出仍有排查价值，
+     * 但不能让 HTTP 线程无限等一个被子孙进程握住的管道。
+     */
+    static final long PUMP_DRAIN_MILLIS = 300L;
+
+    /**
+     * 用守护线程把子进程输出抽进缓冲区：读取阻塞在流上，只有句柄全部关闭才会 EOF，
+     * 放到独立线程后调用方才能用自己的超时决定是否继续等待。
+     *
+     * @param in   子进程输出流
+     * @param sink 累积缓冲区
+     * @return 已启动的抽取线程
+     */
+    static Thread pumpOutput(InputStream in, final ByteArrayOutputStream sink) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                byte[] buf = new byte[8192];
+                try (InputStream stream = in) {
+                    int len;
+                    while ((len = stream.read(buf)) > 0) {
+                        synchronized (sink) {
+                            sink.write(buf, 0, len);
+                        }
+                    }
+                } catch (Exception e) {
+                    // 进程被强杀时流会抛异常，已读到的部分依然有效
+                }
+            }
+        }, "agent-output-pump");
+        thread.setDaemon(true);
+        thread.start();
+        return thread;
+    }
+
+    /**
+     * 线程安全地取抽取缓冲区当前已读到的字节。
+     *
+     * @param sink 累积缓冲区
+     * @return 字节快照，编码判定交给 {@link #decodeOutput(byte[])}
+     */
+    static byte[] snapshot(ByteArrayOutputStream sink) {
+        synchronized (sink) {
+            return sink.toByteArray();
+        }
+    }
+
+    /**
+     * 本机传统编码（系统 ANSI/OEM 码页）对应的字符集，仅解析一次并缓存。
+     *
+     * <p>JDK 18 起默认字符集是 UTF-8，还会给子进程设置 UTF-8 代码页，但 cmd 的内部消息
+     * （ver、找不到命令等）仍按系统 ANSI 码页输出。{@code native.encoding} 记录的正是后者，
+     * Java 8 没有该属性时 {@code file.encoding} 同义。</p>
+     *
+     * @return 本机传统字符集
+     */
+    static Charset nativeCharset() {
+        Charset cached = NATIVE_CHARSET;
+        if (cached != null) {
+            return cached;
+        }
+        Charset resolved = StandardCharsets.UTF_8;
+        String hint = System.getProperty("native.encoding");
+        if (hint == null || hint.trim().isEmpty()) {
+            hint = System.getProperty("file.encoding");
+        }
+        try {
+            if (hint != null && !hint.trim().isEmpty()) {
+                resolved = Charset.forName(hint.trim());
+            }
+        } catch (Exception e) {
+            resolved = Charset.defaultCharset();
+        }
+        NATIVE_CHARSET = resolved;
+        return resolved;
+    }
+
+    /**
+     * 解析外部进程输出：能按 UTF-8 完整解码的按 UTF-8，否则按本机传统编码。
+     *
+     * @param bytes 进程输出字节
+     * @return 解码后的文本
+     */
+    static String decodeOutput(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return "";
+        }
+        try {
+            return StandardCharsets.UTF_8.newDecoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .decode(ByteBuffer.wrap(bytes))
+                    .toString();
+        } catch (CharacterCodingException e) {
+            return new String(bytes, nativeCharset());
+        }
+    }
+
+    /**
+     * 生成 PowerShell 的 -EncodedCommand 参数（Base64 of UTF-16LE）。
+     *
+     * <p>PowerShell 5.1 会对 -Command 的命令行做二次解析，Java 传入的内层引号被吞后脚本报语法错误、
+     * 进程以 1 退出且无输出；传字节再解码则与引号无关。</p>
+     *
+     * @param script PowerShell 脚本
+     * @return -EncodedCommand 参数值
+     */
+    static String encodePowerShell(String script) {
+        return Base64.getEncoder().encodeToString(script.getBytes(StandardCharsets.UTF_16LE));
     }
 
     /**

@@ -1,4 +1,5 @@
 package com.chua.starter.system.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.system.validator.group.AddGroup;
@@ -75,6 +76,7 @@ public class SysDeptController {
      */
     @Operation(summary = "删除组织机构")
     @DeleteMapping("/delete")
+    @SysLog
     @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:dept:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
@@ -94,6 +96,7 @@ public class SysDeptController {
      */
     @Operation(summary = "更新组织机构")
     @PutMapping("/update")
+    @SysLog
     @Permission(value = "sys:dept:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<Boolean> update(
@@ -114,6 +117,7 @@ public class SysDeptController {
      */
     @Operation(summary = "新增组织机构")
     @PostMapping("/save")
+    @SysLog
     @Permission(value = "sys:dept:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<SysDept> save(

@@ -46,6 +46,16 @@ public class ManagedDeptAwareAuthServiceBeanPostProcessor implements BeanPostPro
     private static final String MANAGED_DEPT_TREE_IDS = "managedDeptTreeIds";
 
     /**
+     * 负责部门范围已解析标记扩展键，空集合同样视为已解析
+     */
+    private static final String MANAGED_DEPT_SCOPE_RESOLVED = "managedDeptScopeResolved";
+
+    /**
+     * 当前线程正在解析负责部门范围，用于打断与数据权限拦截器的相互递归
+     */
+    private static final ThreadLocal<Boolean> RESOLVING = new ThreadLocal<>();
+
+    /**
      * 部门负责人关系服务提供者
      */
     private final ObjectProvider<SysDeptPrincipalRelService> sysDeptPrincipalRelServiceProvider;
@@ -100,11 +110,25 @@ public class ManagedDeptAwareAuthServiceBeanPostProcessor implements BeanPostPro
             return currentUser;
         }
 
-        List<Integer> managedDeptIds = sysDeptPrincipalRelService.listManagedDeptIds(userId);
-        List<String> managedDeptTreeIds = sysDeptPrincipalRelService.listManagedDeptTreeIds(managedDeptIds);
+        // 查询会再次进入数据权限拦截器并回调本方法，重入时直接返回以打断递归
+        if (Boolean.TRUE.equals(RESOLVING.get())) {
+            return currentUser;
+        }
+
+        List<Integer> managedDeptIds;
+        List<String> managedDeptTreeIds;
+        RESOLVING.set(Boolean.TRUE);
+        try {
+            managedDeptIds = sysDeptPrincipalRelService.listManagedDeptIds(userId);
+            managedDeptTreeIds = sysDeptPrincipalRelService.listManagedDeptTreeIds(managedDeptIds);
+        } finally {
+            RESOLVING.remove();
+        }
+
         Map<String, Object> mergedExt = ext == null ? new LinkedHashMap<>() : new LinkedHashMap<>(ext);
         mergedExt.put(MANAGED_DEPT_IDS, managedDeptIds);
         mergedExt.put(MANAGED_DEPT_TREE_IDS, managedDeptTreeIds);
+        mergedExt.put(MANAGED_DEPT_SCOPE_RESOLVED, Boolean.TRUE);
         currentUser.setExt(mergedExt);
         syncSessionUserExt(mergedExt);
         return currentUser;
@@ -120,6 +144,9 @@ public class ManagedDeptAwareAuthServiceBeanPostProcessor implements BeanPostPro
         if (ext == null) {
             return false;
         }
+        if (isResolvedFlag(ext.get(MANAGED_DEPT_SCOPE_RESOLVED))) {
+            return true;
+        }
         Object managedDeptTreeIds = ext.get(MANAGED_DEPT_TREE_IDS);
         if (managedDeptTreeIds instanceof List<?> list) {
             return !list.isEmpty();
@@ -128,6 +155,16 @@ public class ManagedDeptAwareAuthServiceBeanPostProcessor implements BeanPostPro
             return !value.isBlank();
         }
         return managedDeptTreeIds != null;
+    }
+
+    /**
+     * 判断已解析标记是否生效，兼容会话与令牌回传的布尔/字符串形态。
+     *
+     * @param flag 标记值
+     * @return true 表示已解析
+     */
+    private boolean isResolvedFlag(Object flag) {
+        return Boolean.TRUE.equals(flag) || "true".equals(flag);
     }
 
     /**

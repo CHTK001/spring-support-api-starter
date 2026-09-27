@@ -38,6 +38,7 @@
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
     </dependency>
+    <!-- 正式嵌入式数据库适配：application-h2.yml 提供租户端免外部数据库启动配置 -->
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>

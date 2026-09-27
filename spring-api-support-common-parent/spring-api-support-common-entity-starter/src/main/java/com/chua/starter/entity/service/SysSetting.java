@@ -74,6 +74,12 @@ public class SysSetting extends SysBase implements Serializable {
     private String sysSettingValue;
 
     /**
+     * 出厂默认值（与当前运行值 sysSettingValue 分离，用于“恢复默认”）
+     */
+    @TableField(value = "sys_setting_default_value")
+    private String sysSettingDefaultValue;
+
+    /**
      * 配置参数
      */
     @TableField(value = "sys_setting_config")

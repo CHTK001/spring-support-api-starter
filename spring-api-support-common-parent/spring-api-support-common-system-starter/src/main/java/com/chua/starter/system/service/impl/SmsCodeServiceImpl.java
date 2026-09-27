@@ -17,6 +17,7 @@ import com.chua.starter.system.mapper.SysSmsLogMapper;
 import com.chua.starter.system.mapper.SysUserMapper;
 import com.chua.starter.oauth.client.support.enums.AuthType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
+import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
 import com.chua.starter.oauth.client.support.user.LoginAuthResult;
 import com.chua.starter.service.setting.SmsSetting;
 import com.chua.starter.system.pojo.LoginResult;
@@ -93,6 +94,10 @@ public class SmsCodeServiceImpl implements SmsCodeService {
      * SYSSMS日志映射器
     */
     private final SysSmsLogMapper sysSmsLogMapper;
+    /**
+     * 认证客户端配置（用于判断 static / 远程协议）
+    */
+    private final AuthClientProperties authClientProperties;
 
     @Override
     /**
@@ -220,14 +225,18 @@ public class SmsCodeServiceImpl implements SmsCodeService {
             return ReturnResult.error("该手机号未注册");
         }
 
- // 获取 access令牌
-        Map<String, Object> ext = new HashMap<>();
-        ext.put("loginType", "sms");
-        ext.put("phone", phone);
-        ext.put("address", RequestUtils.getIpAddress(httpRequest));
-
-        LoginAuthResult accessToken = AuthClientExecute.getInstance()
-                .getAccessToken(String.valueOf(user.getSysUserId()), "", AuthType.SMS, ext);
+ // 获取 access令牌：static 复用本地令牌构建；远程协议经 OAuth 按用户标识签发
+        LoginAuthResult accessToken;
+        if (authClientProperties != null && "static".equalsIgnoreCase(authClientProperties.getProtocol())) {
+            accessToken = sysLoginService.issueLocalToken(user);
+        } else {
+            Map<String, Object> ext = new HashMap<>();
+            ext.put("loginType", "sms");
+            ext.put("phone", phone);
+            ext.put("address", RequestUtils.getIpAddress(httpRequest));
+            accessToken = AuthClientExecute.getInstance()
+                    .getAccessToken(String.valueOf(user.getSysUserId()), "", AuthType.SMS, ext);
+        }
 
         if (accessToken == null || StringUtils.isEmpty(accessToken.getToken())) {
             log.error("获取 Token 失败: phone={}", phone);

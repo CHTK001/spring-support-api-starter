@@ -1,7 +1,9 @@
 package com.chua.starter.service.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.common.support.base.validator.group.AddGroup;
 import com.chua.common.support.base.validator.group.UpdateGroup;
+import com.chua.common.support.application.GlobalSettingFactory;
 import com.chua.common.support.spi.annotations.SpiIgnore;
 import com.chua.common.support.utils.BeanUtils;
 import com.chua.starter.common.support.lang.ReturnPageResult;
@@ -18,6 +20,7 @@ import com.chua.starter.entity.service.SysSetting;
 import com.chua.starter.entity.service.SysSettingHistory;
 import com.chua.starter.service.pojo.setting.SysSettingUpdate;
 import com.chua.starter.service.pojo.setting.SysSettingVO;
+import com.chua.starter.service.setting.SmtpSetting;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.chua.starter.service.impl.SysSettingServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,13 +28,16 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.env.Environment;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -53,6 +59,10 @@ public class SysSettingController {
     */
     public static final String SETTING_LIST_CACHE_KEY_PREFIX = "sys:setting:v2:";
     /**
+     * 默认设置聚合缓存键：跨 default、sso、default-1 三个分组，任一分组变更都需失效
+    */
+    public static final String SETTING_DEFAULT_CACHE_KEY = "sys:setting:default";
+    /**
      * Runtime_公共_codec_请求_键
     */
     private static final String RUNTIME_PUBLIC_CODEC_REQUEST_KEY = "CodecRequestKey";
@@ -65,10 +75,15 @@ public class SysSettingController {
      * SYS设置服务
     */
     private final SysSettingService sysSettingService;
-    /**
+/**
      * SYS设置历史服务
-    */
+     */
     private final SysSettingHistoryService sysSettingHistoryService;
+
+    /**
+     * 运行环境配置（下发 API 基础路径与文件服务器地址等运行期派生项）
+     */
+    private final Environment environment;
 
 
     /**
@@ -86,6 +101,7 @@ public class SysSettingController {
             @ParameterObject SysSetting sysSetting,
             @RequestParam(required = false) String sysSettingValueType,
             @RequestParam(required = false) Integer sysSettingInSystem,
+            @RequestParam(required = false) String scope,
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         if (null != sysSettingValueType && !sysSettingValueType.isBlank()) {
             sysSetting.setSysSettingValueType(sysSettingValueType);
@@ -93,7 +109,7 @@ public class SysSettingController {
         if (null != sysSettingInSystem) {
             sysSetting.setSysSettingInSystem(sysSettingInSystem);
         }
-        IPage<SysSetting> page = sysSettingService.pageForSetting(query, sysSetting, roles);
+        IPage<SysSetting> page = sysSettingService.pageForSetting(query, sysSetting, scope, roles);
         // 敏感配置掩码
         page.getRecords().forEach(this::maskSensitive);
         return PageResultUtils.ok(page);
@@ -105,11 +121,91 @@ public class SysSettingController {
      */
     @Operation(summary = "默认设置列表")
     @GetMapping("/default")
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:default'")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingController).SETTING_DEFAULT_CACHE_KEY")
     public ReturnResult<List<SysSettingVO>> listForDefault() {
-        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate("default,sso,default-1", null), Collections.emptySet());
+        List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate(String.join(",", SysSettingService.USER_FACING_GROUPS), null), Collections.emptySet());
         aDefault.forEach(this::maskSensitive);
-        return ReturnResult.ok(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));
+        List<SysSettingVO> records = new LinkedList<>(BeanUtils.copyPropertiesList(aDefault, SysSettingVO.class));
+        records.add(emailVerifyCapability());
+        records.add(apiBaseUrlConfig());
+        SysSettingVO fileServer = fileServerConfig();
+        if (null != fileServer) {
+            records.add(fileServer);
+        }
+        return ReturnResult.ok(records);
+    }
+
+    /**
+     * 派生运行期配置：API 基础路径（{@code http.baseUrl}）。
+     *
+     * <p>取当前应用 servlet 上下文路径，供前端 {@code http()} 解析请求地址（空串=同源相对路径）。</p>
+     *
+     * @return 配置项
+     */
+    private SysSettingVO apiBaseUrlConfig() {
+        String contextPath = environment.getProperty("server.servlet.context-path", "");
+        SysSettingVO vo = new SysSettingVO();
+        vo.setSysSettingName("ApiBaseUrl");
+        vo.setSysSettingCode("http.baseUrl");
+        vo.setSysSettingValue(contextPath);
+        vo.setSysSettingValueType("String");
+        vo.setSysSettingGroup("default");
+        vo.setSysSettingRemark("系统 API 基础路径（前端 http() 取此值，空=同源）");
+        return vo;
+    }
+
+    /**
+     * 派生运行期配置：文件服务器地址（{@code other.filestorage.server}）。
+     *
+     * <p>取 {@code plugin.filesystem.storage-server.*}；未启用或未配置端口时返回 空（前端回退当前地址）。
+     * 对外可达地址优先取 {@code public-host}，缺省回退绑定 {@code host}（0.0.0.0 归一为 127.0.0.1）。</p>
+     *
+     * @return 配置项；未启用文件服务器时返回 空
+     */
+    private SysSettingVO fileServerConfig() {
+        String enable = environment.getProperty("plugin.filesystem.storage-server.enable", "true");
+        if ("false".equalsIgnoreCase(enable)) {
+            return null;
+        }
+        String port = environment.getProperty("plugin.filesystem.storage-server.port");
+        if (null == port || port.isBlank()) {
+            return null;
+        }
+        String host = environment.getProperty("plugin.filesystem.storage-server.public-host");
+        if (null == host || host.isBlank()) {
+            host = environment.getProperty("plugin.filesystem.storage-server.host", "127.0.0.1");
+        }
+        if (null == host || host.isBlank() || "0.0.0.0".equals(host)) {
+            host = "127.0.0.1";
+        }
+        SysSettingVO vo = new SysSettingVO();
+        vo.setSysSettingName("FileStorageServer");
+        vo.setSysSettingCode("other.filestorage.server");
+        vo.setSysSettingValue("http://" + host + ":" + port);
+        vo.setSysSettingValueType("String");
+        vo.setSysSettingGroup("default");
+        vo.setSysSettingRemark("文件服务器地址（前端文件服务器页连接地址）");
+        return vo;
+    }
+
+    /**
+     * 派生能力开关：服务器邮箱发信通道是否已配置
+     *
+     * <p>smtp 分组本身不下发给普通用户，个人中心只需要一个"能不能验证邮箱"的结论。
+     * 该值不落 sys_setting，由运行期配置实时计算，配置写入后随本接口缓存失效而更新。</p>
+     *
+     * @return 能力开关配置项
+     */
+    private SysSettingVO emailVerifyCapability() {
+        SmtpSetting smtpSetting = GlobalSettingFactory.getInstance().get("smtp", SmtpSetting.class);
+        SysSettingVO capability = new SysSettingVO();
+        capability.setSysSettingName("EmailVerifyOpen");
+        capability.setSysSettingCode("other.emailVerify.enable");
+        capability.setSysSettingValue(String.valueOf(null != smtpSetting && smtpSetting.isValid()));
+        capability.setSysSettingValueType("Boolean");
+        capability.setSysSettingGroup("default");
+        capability.setSysSettingRemark("服务器邮箱发信通道是否已配置");
+        return capability;
     }
 
     /**
@@ -152,8 +248,10 @@ public class SysSettingController {
      */
     @Operation(summary = "删除设置")
     @DeleteMapping("/delete")
+    @SysLog
     @ApiPlatform("system")
     @Permission(value = "sys:setting:delete", role = {ADMIN, SUPER_ADMIN})
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<Boolean> delete(@Parameter(hidden = true) @UserValue("roles") Set<String> roles, Long sysSettingId) {
         if (null == sysSettingId) {
             return ReturnResult.illegal("设置信息不存在");
@@ -169,8 +267,10 @@ public class SysSettingController {
      */
     @Operation(summary = "更新设置")
     @PutMapping("/updateBatch")
+    @SysLog
     @ApiPlatform("system")
     @Permission(value = "sys:setting:update", role = {ADMIN, SUPER_ADMIN})
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<Boolean> updateBatch(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody List<SysSetting> sysSetting,
@@ -189,8 +289,10 @@ public class SysSettingController {
      */
     @Operation(summary = "更新设置")
     @PutMapping("/update")
+    @SysLog
     @ApiPlatform("system")
     @Permission(value = "sys:setting:update", role = {ADMIN, SUPER_ADMIN})
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
             @Validated(UpdateGroup.class) @RequestBody SysSetting sysSetting,
@@ -213,14 +315,19 @@ public class SysSettingController {
      */
     @Operation(summary = "新增设置")
     @PostMapping("/save")
+    @SysLog
     @ApiPlatform("system")
     @Permission(value = "sys:setting:add", role = {ADMIN, SUPER_ADMIN})
-    public ReturnResult<SysSetting> save( @Parameter(hidden = true) @UserValue("roles") Set<String> roles,@Validated(AddGroup.class) @RequestBody SysSetting sysSetting, BindingResult bindingResult) {
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, allEntries = true)
+    public ReturnResult<SysSetting> save( @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+            @Parameter(hidden = true) @UserValue("userId") String operatorId,
+            @Parameter(hidden = true) @UserValue("username") String operatorName,
+            @Validated(AddGroup.class) @RequestBody SysSetting sysSetting, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
-        return sysSettingService.saveForEntity(sysSetting, roles);
+        return sysSettingService.saveForEntity(sysSetting, roles, operatorId, operatorName);
     }
 
     /**
@@ -233,7 +340,7 @@ public class SysSettingController {
     @Operation(summary = "导出配置")
     @GetMapping("/export")
     @ApiPlatform("system")
-    @Permission(role = {SUPER_ADMIN})
+    @Permission(role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<String> exportSettings(@RequestParam(required = false) String group) {
         return sysSettingService.exportSettings(group);
     }
@@ -247,8 +354,10 @@ public class SysSettingController {
      */
     @Operation(summary = "导入配置")
     @PostMapping("/import")
+    @SysLog(module = "导入")
     @ApiPlatform("system")
-    @Permission(role = {SUPER_ADMIN})
+    @Permission(role = {ADMIN, SUPER_ADMIN})
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<String> importSettings(
             @RequestBody String json,
             @RequestParam(defaultValue = "false") boolean overwrite,
@@ -267,7 +376,7 @@ public class SysSettingController {
     @Operation(summary = "查询配置变更历史")
     @GetMapping("/history/page")
     @ApiPlatform("system")
-    @Permission(role = {SUPER_ADMIN})
+    @Permission(role = {ADMIN, SUPER_ADMIN})
     public ReturnPageResult<SysSettingHistory> pageHistory(
             @ParameterObject Query<SysSettingHistory> query,
             @RequestParam(required = false) Integer settingId,
@@ -284,7 +393,7 @@ public class SysSettingController {
     @Operation(summary = "根据批次号查询变更历史")
     @GetMapping("/history/batch")
     @ApiPlatform("system")
-    @Permission(role = {SUPER_ADMIN})
+    @Permission(role = {ADMIN, SUPER_ADMIN})
     public ReturnResult<List<SysSettingHistory>> listByBatchNo(@RequestParam String batchNo) {
         return ReturnResult.ok(sysSettingHistoryService.listByBatchNo(batchNo));
     }
@@ -297,8 +406,10 @@ public class SysSettingController {
      */
     @Operation(summary = "回滚到指定批次")
     @PostMapping("/history/rollback/batch")
+    @SysLog(module = "回滚")
     @ApiPlatform("system")
-    @Permission(role = {SUPER_ADMIN})
+    @Permission(role = {ADMIN, SUPER_ADMIN})
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<Boolean> rollbackToBatch(
             @RequestParam String batchNo,
             @Parameter(hidden = true) @UserValue("userId") String operatorId,
@@ -314,8 +425,10 @@ public class SysSettingController {
      */
     @Operation(summary = "回滚单条配置到指定历史记录")
     @PostMapping("/history/rollback/single")
+    @SysLog(module = "回滚")
     @ApiPlatform("system")
-    @Permission(role = {SUPER_ADMIN})
+    @Permission(role = {ADMIN, SUPER_ADMIN})
+    @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<Boolean> rollbackToHistory(
             @RequestParam Long historyId,
             @Parameter(hidden = true) @UserValue("userId") String operatorId,

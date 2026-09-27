@@ -15,6 +15,7 @@ import com.chua.starter.tenant.server.mapper.SysServiceModuleItemMapper;
 import com.chua.starter.tenant.server.mapper.SysServiceModuleMapper;
 import com.chua.starter.tenant.server.mapper.SysTenantMapper;
 import com.chua.starter.tenant.server.mapper.SysTenantServiceMapper;
+import com.chua.starter.tenant.server.support.TenantPasswordCipher;
 import com.chua.starter.tenant.sync.TenantSyncMessageSupport;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
@@ -140,6 +141,11 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
      * 同步acktracker
     */
     private final TenantSyncAckTracker syncAckTracker;
+
+    /**
+     * 租户口令落库加解密（下发前解密）
+     */
+    private final TenantPasswordCipher tenantPasswordCipher;
 
     private volatile SyncServer syncServer; // 同步服务端
     private volatile ScheduledExecutorService fullPushScheduler; // 完整push调度器
@@ -1023,7 +1029,8 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         map.put("sysTenantCode", tenant.getSysTenantCode());
         map.put("sysTenantName", tenant.getSysTenantName());
         map.put("sysTenantUsername", tenant.getSysTenantUsername());
-        map.put("sysTenantPassword", tenant.getSysTenantPassword());
+        // 库里存的是密文，下发时解密还原成明文，保持同步线格式不变、租户端零改动
+        map.put("sysTenantPassword", tenantPasswordCipher.decrypt(tenant.getSysTenantPassword()));
         map.put("sysTenantSign", tenant.getSysTenantSign());
         map.put("sysTenantCorporation", tenant.getSysTenantCorporation());
         map.put("sysTenantContact", tenant.getSysTenantContact());

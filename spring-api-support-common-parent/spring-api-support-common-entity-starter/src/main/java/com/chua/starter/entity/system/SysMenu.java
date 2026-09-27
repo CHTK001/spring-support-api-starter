@@ -326,4 +326,56 @@ public class SysMenu extends SysBase implements Serializable {
      * sysmenushow父级
     */
     private Integer sysMenuShowParent;
+
+    /**
+     * 是否脱离菜单控制; 0:作为菜单处理 1:只注册路由, 不被 router 当作菜单处理
+     */
+    @TableField(value = "sys_menu_remind")
+    @Schema(description = "是否脱离菜单控制; 0:作为菜单处理 1:只注册路由不作菜单")
+    /**
+     * sysmenuremind
+    */
+    private Integer sysMenuRemind;
+
+    /**
+     * 菜单位置; standard:标准(侧边栏) top:顶部(顶栏按钮, 强制 remind=1 且不可修改)
+     */
+    @TableField(value = "sys_menu_position")
+    @Schema(description = "菜单位置; standard:标准 top:顶部")
+    @Size(max = 20, message = "菜单位置最大长度需小于20")
+    /**
+     * sysmenuposition
+    */
+    private String sysMenuPosition;
+
+    /**
+     * 动态显示条件类型: ALWAYS/CLASS/SPEL/SWITCH/PROPERTY
+     */
+    @TableField(value = "sys_menu_show_type")
+    @Schema(description = "动态显示条件类型: ALWAYS/CLASS/SPEL/SWITCH/PROPERTY")
+    @Size(max = 20, message = "条件类型最大长度需小于20")
+    private String sysMenuShowType;
+
+    /**
+     * 动态显示条件值，含义随条件类型变化（类全名/SpEL/功能开关键/配置键）
+     */
+    @TableField(value = "sys_menu_show_value")
+    @Schema(description = "动态显示条件值")
+    @Size(max = 500, message = "条件值最大长度需小于500")
+    private String sysMenuShowValue;
+
+    /**
+     * 条件为开关型时是否放行; 0:否 1:是
+     */
+    @TableField(value = "sys_menu_show_switch")
+    @Schema(description = "条件为开关型时是否放行; 0:否 1:是")
+    private Integer sysMenuShowSwitch;
+
+    /**
+     * 条件为开关型时联动的功能键（sys_policy_config 中 type='FEATURE' 的 biz_key）
+     */
+    @TableField(value = "sys_menu_show_key")
+    @Schema(description = "条件为开关型时联动的功能键")
+    @Size(max = 255, message = "联动功能键最大长度需小于255")
+    private String sysMenuShowKey;
 }

@@ -4,6 +4,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -67,4 +69,29 @@ public record AcmeApplyCertRequest(
         @ApiModelProperty("SSH用户名") @Schema(description = "SSH用户名") String sshUsername,
         @ApiModelProperty("SSH密码") @Schema(description = "SSH密码") String sshPassword
 ) {
+    /**
+     * 规范构造器：对备用域名列表做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变；备用域名列表可 缺省 且元素可能为 空，
+     * 故保留 空 语义并采用可空安全包装。</p>
+     *
+     * <p>其余引用型组件均允许 缺省（服务层以 “参数错误” 统一兜底），
+     * 因此不在此处加非空断言，避免把业务级提示变成 500。</p>
+     *
+     * @param acmeAccountId ACME 账户 标识
+     * @param primaryDomain 主域名
+     * @param sanDomains    备用域名列表（SAN）
+     * @param challengeType 挑战类型
+     * @param deployMode    部署模式
+     * @param webrootPath   webroot 验证路径
+     * @param sshHost       SSH 主机地址
+     * @param sshPort       SSH 端口
+     * @param sshUsername   SSH 用户名
+     * @param sshPassword   SSH 密码
+     */
+    public AcmeApplyCertRequest {
+        sanDomains = sanDomains == null
+                ? null
+                : Collections.unmodifiableList(new ArrayList<>(sanDomains));
+    }
 }

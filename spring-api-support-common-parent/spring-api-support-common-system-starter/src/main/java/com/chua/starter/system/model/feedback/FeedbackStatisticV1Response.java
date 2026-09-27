@@ -130,5 +130,17 @@ public class FeedbackStatisticV1Response {
          * 数量
         */
         private Long count;
+
+        /**
+         * 未解决数量
+         */
+        @Schema(description = "未解决数量")
+        private Long pendingCount;
+
+        /**
+         * 已解决数量
+         */
+        @Schema(description = "已解决数量")
+        private Long resolvedCount;
     }
 }
