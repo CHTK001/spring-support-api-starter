@@ -44,17 +44,25 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     public String createTask(String name, String source, String sourceName, int zoom,
                              String format, String savePath, int total) {
         String taskId = UUID.randomUUID().toString().replace("-", "");
-        TaskInfo info = new TaskInfo();
-        info.setId(taskId);
-        info.setName(name);
-        info.setSource(source);
-        info.setSourceName(sourceName);
-        info.setZoom(zoom);
-        info.setFormat(format);
-        info.setSavePath(savePath);
-        info.setStatus(TaskStatus.PENDING);
-        info.setTotal(total);
-        info.setCreatedAt(LocalDateTime.now());
+        TaskInfo info = new TaskInfo(
+                taskId,
+                name,
+                source,
+                sourceName,
+                zoom,
+                format,
+                savePath,
+                TaskStatus.PENDING,
+                0.0,
+                0,
+                total,
+                0,
+                0,
+                0L,
+                null,
+                null,
+                LocalDateTime.now()
+        );
         tasks.put(taskId, info);
         log.info("[{}] 任务已创建, source={}, zoom={}, total={}", taskId, source, zoom, total);
         return taskId;
@@ -94,11 +102,10 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     public void updateProgress(String taskId, int completed, int failed, double progress, String message) {
         TaskInfo info = tasks.get(taskId);
         if (info != null) {
-            info.setCompleted(completed);
-            info.setFailedCount(failed);
-            info.setSuccessCount(Math.max(0, completed - failed));
-            info.setProgress(progress);
-            info.setMessage(message);
+            tasks.put(taskId, new TaskInfo(
+                    info.id(), info.name(), info.source(), info.sourceName(), info.zoom(), info.format(), info.savePath(),
+                    info.status(), progress, completed, info.total(), failed, Math.max(0, completed - failed),
+                    info.fileSize(), message, info.error(), info.createdAt()));
         }
     }
 
@@ -112,8 +119,10 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     public void setStatus(String taskId, TaskStatus status) {
         TaskInfo info = tasks.get(taskId);
         if (info != null) {
-            info.setStatus(status);
-            info.setMessage(status.name());
+            tasks.put(taskId, new TaskInfo(
+                    info.id(), info.name(), info.source(), info.sourceName(), info.zoom(), info.format(), info.savePath(),
+                    status, info.progress(), info.completed(), info.total(), info.failedCount(), info.successCount(),
+                    info.fileSize(), status.name(), info.error(), info.createdAt()));
         }
     }
 
@@ -125,11 +134,13 @@ public class TaskManagerServiceImpl implements TaskManagerService {
     @Override
     public void cancelTask(String taskId) {
         TaskInfo info = tasks.get(taskId);
-        if (info != null && info.getStatus() != TaskStatus.COMPLETED
-                && info.getStatus() != TaskStatus.FAILED
-                && info.getStatus() != TaskStatus.CANCELLED) {
-            info.setStatus(TaskStatus.CANCELLED);
-            info.setMessage("用户取消");
+        if (info != null && info.status() != TaskStatus.COMPLETED
+                && info.status() != TaskStatus.FAILED
+                && info.status() != TaskStatus.CANCELLED) {
+            tasks.put(taskId, new TaskInfo(
+                    info.id(), info.name(), info.source(), info.sourceName(), info.zoom(), info.format(), info.savePath(),
+                    TaskStatus.CANCELLED, info.progress(), info.completed(), info.total(), info.failedCount(), info.successCount(),
+                    info.fileSize(), "用户取消", info.error(), info.createdAt()));
             log.info("[{}] 任务已取消", taskId);
         }
     }
@@ -145,3 +156,4 @@ public class TaskManagerServiceImpl implements TaskManagerService {
         log.info("[{}] 任务记录已删除", taskId);
     }
 }
+

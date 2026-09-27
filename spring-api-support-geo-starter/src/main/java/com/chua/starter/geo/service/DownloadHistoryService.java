@@ -1,7 +1,10 @@
 package com.chua.starter.geo.service;
 
 import com.chua.starter.geo.model.DownloadHistoryRecord;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 下载历史记录服务，基于 JSON 文件持久化。
@@ -60,5 +63,19 @@ public interface DownloadHistoryService {
      * @param records 记录列表
      * @param total   总数
      */
-    record PageResult(List<DownloadHistoryRecord> records, long total) {}
+    record PageResult(List<DownloadHistoryRecord> records, long total) {
+        /**
+         * 规范构造器：对记录列表做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变；记录来自磁盘 JSON 文件，
+         * 可能携带 空 元素，故采用可空安全包装而非 {@code List.copyOf}。</p>
+         *
+         * @param records 记录列表
+         * @param total   总数
+         */
+        public PageResult {
+            records = Collections.unmodifiableList(
+                    new ArrayList<>(Objects.requireNonNull(records, "records 不能为 null")));
+        }
+    }
 }

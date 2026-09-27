@@ -1,4 +1,5 @@
 package com.chua.starter.tenant.server.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -93,6 +94,7 @@ public class SysTenantController {
      * @return 保存结果
      */
     @PostMapping("save")
+    @SysLog
     @Operation(summary = "保存租户")
     @Permission("sys:tenant:save")
     public ReturnResult<SysTenant> saveForSysTenant(@RequestBody @Validated(AddGroup.class) SysTenant sysTenant,
@@ -111,6 +113,7 @@ public class SysTenantController {
      * @return 更新结果
      */
     @PutMapping("update")
+    @SysLog
     @Operation(summary = "更新租户")
     @Permission("sys:tenant:update")
     public ReturnResult<Boolean> updateForSysTenant(@RequestBody @Validated(UpdateGroup.class) SysTenant sysTenant,
@@ -129,6 +132,7 @@ public class SysTenantController {
      * @param "租户ID" "租户ID"
      */
     @DeleteMapping("delete")
+    @SysLog
     @Operation(summary = "删除租户")
     @Permission("sys:tenant:delete")
     public ReturnResult<Boolean> deleteForSysTenant(@Parameter(description = "租户ID") String sysTenantId) {
@@ -142,6 +146,7 @@ public class SysTenantController {
      * @return 绑定结果
      */
     @PutMapping("bind/service")
+    @SysLog(module = "绑定")
     @Operation(summary = "绑定租户服务")
     @Permission("sys:tenant:bind")
     public ReturnResult<Boolean> bindServiceForSysTenant(@RequestBody SysTenantBindServiceV1Request request) {
@@ -156,6 +161,7 @@ public class SysTenantController {
      * @return 更新结果
      */
     @PutMapping("status")
+    @SysLog(module = "状态")
     @Operation(summary = "更新租户状态")
     @Permission("sys:tenant:status")
     public ReturnResult<Boolean> updateStatusForSysTenant(
@@ -183,6 +189,7 @@ public class SysTenantController {
      * @return 重置结果
      */
     @PutMapping("reset-password")
+    @SysLog
     @Operation(summary = "重置租户密码")
     @Permission("sys:tenant:update")
     public ReturnResult<Boolean> resetPasswordForSysTenant(
@@ -198,6 +205,7 @@ public class SysTenantController {
      * @return 重置结果
      */
     @PutMapping("reset-menu")
+    @SysLog
     @Operation(summary = "重置租户菜单")
     @Permission("sys:tenant:bind")
     public ReturnResult<Boolean> resetMenuForSysTenant(

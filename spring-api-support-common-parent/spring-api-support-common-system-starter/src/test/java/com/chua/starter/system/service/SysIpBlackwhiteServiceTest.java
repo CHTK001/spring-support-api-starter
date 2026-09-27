@@ -22,7 +22,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("IP黑白名单服务测试")
 class SysIpBlackwhiteServiceTest {
 
-    private final SysIpBlackwhiteServiceImpl sysIpBlackwhiteService = new SysIpBlackwhiteServiceImpl();
+    /**
+     * 实现类改为构造器注入统一表 Mapper 与缓存投影器；
+     * 依赖落库的用例均为 @Disabled，此处传 null 只为满足实例化。
+     */
+    private final SysIpBlackwhiteServiceImpl sysIpBlackwhiteService = new SysIpBlackwhiteServiceImpl(null, null);
 
     /**
      * 条目。
@@ -173,12 +177,40 @@ class SysIpBlackwhiteServiceTest {
     }
 
     /**
-     * 测试：列出。
+     * 测试：分页查询全量。
      */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
     @Test
-    @DisplayName("列表-返回数据")
+    @DisplayName("分页-不传条件时返回全量")
     void testList() {
-        assertEquals(2, sysIpBlackwhiteService.list().size());
+        IPage<SysIpBlackwhite> page = sysIpBlackwhiteService.page(new Query<>(), new SysIpBlackwhite());
+        assertEquals(2, page.getRecords().size());
+    }
+
+    @Test
+    @DisplayName("新增IP-CIDR前缀越界返回非法参数")
+    void testSaveInvalidCidrPrefix() {
+        ReturnResult<SysIpBlackwhite> result = sysIpBlackwhiteService.saveIp(entry(1, "10.0.0.0/33"));
+        assertFalse(result.isSuccess());
+    }
+
+    @Test
+    @DisplayName("新增IP-IPv6返回非法参数")
+    void testSaveIpv6() {
+        ReturnResult<SysIpBlackwhite> result = sysIpBlackwhiteService.saveIp(entry(1, "2001:db8::1"));
+        assertFalse(result.isSuccess());
+    }
+
+    @Test
+    @DisplayName("新增IP-非法策略类型返回非法参数")
+    void testSaveInvalidType() {
+        ReturnResult<SysIpBlackwhite> result = sysIpBlackwhiteService.saveIp(entry(2, "10.0.0.1"));
+        assertFalse(result.isSuccess());
+    }
+
+    @Test
+    @DisplayName("校验IP-非法客户端IP放行")
+    void testCheckInvalidClientIp() {
+        assertTrue(sysIpBlackwhiteService.checkIp("invalid-ip"));
     }
 }

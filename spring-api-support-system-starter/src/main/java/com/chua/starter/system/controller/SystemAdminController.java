@@ -1,4 +1,5 @@
 package com.chua.starter.system.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.system.properties.SystemProperties;
@@ -106,6 +107,7 @@ public class SystemAdminController {
      * @return 启用成功提示
      */
     @PostMapping("/debug/enable")
+    @SysLog(module = "调试")
     @Operation(summary = "启用调试模式")
     public ReturnResult<String> enableDebug() {
         debugMode = true;
@@ -120,6 +122,7 @@ public class SystemAdminController {
      * @return 关闭成功提示
      */
     @PostMapping("/debug/disable")
+    @SysLog(module = "调试")
     @Operation(summary = "关闭调试模式")
     public ReturnResult<String> disableDebug() {
         debugMode = false;
@@ -271,6 +274,7 @@ public class SystemAdminController {
      * @return GC 前后堆内存信息
      */
     @PostMapping("/gc")
+    @SysLog(module = "GC")
     @Operation(summary = "建议 JVM 进行 GC")
     public ReturnResult<Map<String, Object>> suggestGc() {
         RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
@@ -294,6 +298,7 @@ public class SystemAdminController {
      * @return 清理结果信息
      */
     @PostMapping("/temp/clear")
+    @SysLog(module = "清理")
     @Operation(summary = "清理临时文件目录(默认 java.io.tmpdir)")
     public ReturnResult<Map<String, Object>> clearTemp(
             @RequestParam(required = false) String path,
@@ -334,6 +339,7 @@ public class SystemAdminController {
      * @return 设置结果提示
      */
     @PostMapping("/log/{level}")
+    @SysLog(module = "配置")
     @Operation(summary = "动态设置日志级别(DEBUG/INFO/WARN/ERROR)")
     public ReturnResult<String> setLogLevelByPath(
             @PathVariable String level,

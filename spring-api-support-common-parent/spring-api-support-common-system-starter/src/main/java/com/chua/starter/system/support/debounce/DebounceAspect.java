@@ -15,7 +15,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -96,7 +95,6 @@ public class DebounceAspect {
 
         try {
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-            Method method = signature.getMethod();
             String[] paramNames = signature.getParameterNames();
             Object[] args = joinPoint.getArgs();
 

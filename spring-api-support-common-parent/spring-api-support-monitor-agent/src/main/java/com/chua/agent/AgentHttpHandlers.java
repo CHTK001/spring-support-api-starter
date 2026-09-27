@@ -3,6 +3,7 @@ package com.chua.agent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +11,7 @@ import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -55,6 +57,11 @@ public class AgentHttpHandlers {
      * 流复制缓冲区大小
     */
     private static final int COPY_BUFFER_BYTES = 8192;
+
+    /**
+     * 超时文案里附带多少字符的已捕获输出
+    */
+    private static final int ERROR_TAIL_CHARS = 500;
 
     /**
      * 输出 JSON 响应。
@@ -173,7 +180,7 @@ public class AgentHttpHandlers {
      * @throws IOException 响应写出失败
      */
     static void handleProcesses(HttpExchange ex, AgentSystemInfo si) throws IOException {
-        Map<String, String> query = parseQuery(ex.getRequestURI().getQuery());
+        Map<String, String> query = parseQuery(ex.getRequestURI().getRawQuery());
         int page = intParam(query, "page", 1, 0);
         int size = intParam(query, "pageSize", DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
         try {
@@ -191,7 +198,7 @@ public class AgentHttpHandlers {
      * @throws IOException 响应写出失败
      */
     static void handleServices(HttpExchange ex, AgentSystemInfo si) throws IOException {
-        Map<String, String> query = parseQuery(ex.getRequestURI().getQuery());
+        Map<String, String> query = parseQuery(ex.getRequestURI().getRawQuery());
         int page = intParam(query, "page", 1, 0);
         int size = intParam(query, "pageSize", DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
         try {
@@ -262,7 +269,7 @@ public class AgentHttpHandlers {
     }
 
     /**
-     * 处理 /netproc：返回网卡累计收发计数。
+     * 处理 /netproc：返回全量网络连接及其占用进程。
      *
      * @param ex HTTP 交换对象
      * @param si 系统信息采集器
@@ -283,9 +290,14 @@ public class AgentHttpHandlers {
      * @throws IOException 响应写出失败
      */
     static void handleFiles(HttpExchange ex) throws IOException {
-        Map<String, String> query = parseQuery(ex.getRequestURI().getQuery());
+        Map<String, String> query = parseQuery(ex.getRequestURI().getRawQuery());
         String path = query.get("path");
         File dir = new File(path == null || path.trim().isEmpty() ? "/" : path.trim());
+        // 空目录与「路径不存在/不是目录」是两回事：回空列表会让写错的路径在页面上显示成「空目录」
+        if (!dir.isDirectory()) {
+            sendError(ex, 404, "目录不存在或不是目录: " + dir);
+            return;
+        }
         List<Map<String, Object>> list = new ArrayList<>();
         File[] files = dir.listFiles();
         if (files != null) {
@@ -303,6 +315,127 @@ public class AgentHttpHandlers {
     }
 
     /**
+     * 处理 /files/mkdir：创建目录（含父目录）。
+     *
+     * @param ex HTTP 交换对象（读取 path 查询参数）
+     * @throws IOException 响应写出失败
+     */
+    static void handleFileMkdir(HttpExchange ex) throws IOException {
+        Map<String, String> query = parseQuery(ex.getRequestURI().getRawQuery());
+        String path = query.get("path");
+        if (path == null || path.trim().isEmpty()) {
+            sendError(ex, 400, "path 不能为空");
+            return;
+        }
+        File dir = new File(path.trim());
+        boolean ok = dir.exists() ? dir.isDirectory() : dir.mkdirs();
+        if (ok) {
+            okJson(ex);
+        } else {
+            sendError(ex, 500, "目录创建失败: " + path);
+        }
+    }
+
+    /**
+     * 处理 /files/delete：删除文件或递归删除目录，目标不存在按幂等成功处理。
+     *
+     * @param ex HTTP 交换对象（读取 path 查询参数）
+     * @throws IOException 响应写出失败
+     */
+    static void handleFileDelete(HttpExchange ex) throws IOException {
+        Map<String, String> query = parseQuery(ex.getRequestURI().getRawQuery());
+        String path = query.get("path");
+        if (path == null || path.trim().isEmpty()) {
+            sendError(ex, 400, "path 不能为空");
+            return;
+        }
+        File f = new File(path.trim());
+        // 幂等：不存在视为已删除
+        boolean ok = !f.exists() || (f.isDirectory() ? deleteRecursively(f) : f.delete());
+        if (ok) {
+            okJson(ex);
+        } else {
+            sendError(ex, 500, "删除失败: " + path);
+        }
+    }
+
+    /**
+     * 处理 /files/rename：重命名 / 移动，目标父目录必须已存在，覆盖已存在目标。
+     *
+     * @param ex HTTP 交换对象（读取 from / to 查询参数）
+     * @throws IOException 响应写出失败
+     */
+    static void handleFileRename(HttpExchange ex) throws IOException {
+        Map<String, String> query = parseQuery(ex.getRequestURI().getRawQuery());
+        String from = query.get("from");
+        String to = query.get("to");
+        if (from == null || from.trim().isEmpty() || to == null || to.trim().isEmpty()) {
+            sendError(ex, 400, "from/to 不能为空");
+            return;
+        }
+        File src = new File(from.trim());
+        File target = new File(to.trim());
+        File parent = target.getParentFile();
+        // 与上传同口径：移动到不存在的目录不是「成功顺带建目录」，而是失败；建目录请走 /files/mkdir
+        if (parent != null && !parent.isDirectory()) {
+            sendError(ex, 400, "目标目录不存在: " + parent);
+            return;
+        }
+        // renameTo 跨平台覆盖语义不一致；目标已存在先递归删除
+        if (target.exists() && !deleteQuietly(target)) {
+            sendError(ex, 500, "目标已存在且无法覆盖: " + to);
+            return;
+        }
+        if (src.renameTo(target)) {
+            okJson(ex);
+        } else {
+            sendError(ex, 500, "重命名失败: " + from + " -> " + to);
+        }
+    }
+
+    /**
+     * 回传统一的成功报文 {@code {"ok":true}}。
+     *
+     * @param ex HTTP 交换对象
+     * @throws IOException 响应写出失败
+     */
+    private static void okJson(HttpExchange ex) throws IOException {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("ok", true);
+        sendJson(ex, 200, JSON.writeValueAsString(body));
+    }
+
+    /**
+     * 递归删除目录及其全部子项。
+     *
+     * @param f 目录
+     * @return 全部删除成功返回 true
+     */
+    private static boolean deleteRecursively(File f) {
+        File[] children = f.listFiles();
+        if (children != null) {
+            for (int i = 0; i < children.length; i++) {
+                File c = children[i];
+                boolean r = c.isDirectory() ? deleteRecursively(c) : c.delete();
+                if (!r) {
+                    return false;
+                }
+            }
+        }
+        return f.delete();
+    }
+
+    /**
+     * 删除文件或目录（不抛异常）。
+     *
+     * @param f 目标
+     * @return 成功返回 true
+     */
+    private static boolean deleteQuietly(File f) {
+        return f.isDirectory() ? deleteRecursively(f) : f.delete();
+    }
+
+    /**
      * 处理 /exec：执行命令并返回输出。
      *
      * <p>配置了 {@code agent.token} 时必须在查询串带同值 token；不配置则保持原有的无校验行为。</p>
@@ -312,7 +445,7 @@ public class AgentHttpHandlers {
      * @throws IOException 响应写出失败
      */
     static void handleExec(HttpExchange ex, AgentConfig config) throws IOException {
-        Map<String, String> query = parseQuery(ex.getRequestURI().getQuery());
+        Map<String, String> query = parseQuery(ex.getRequestURI().getRawQuery());
         String required = config == null ? "" : config.token();
         if (!required.isEmpty() && !required.equals(query.get("token"))) {
             sendError(ex, 401, "缺少或错误的 token");
@@ -327,22 +460,42 @@ public class AgentHttpHandlers {
         Process process = null;
         try {
             process = new ProcessBuilder(splitCommand(cmd)).redirectErrorStream(true).start();
-            String out = AgentMain.readFully(process.getInputStream());
+            ByteArrayOutputStream sink = new ByteArrayOutputStream();
+            Thread pump = AgentMain.pumpOutput(process.getInputStream(), sink);
             if (!process.waitFor(timeout, TimeUnit.SECONDS)) {
-                process.destroy();
-                sendError(ex, 504, "命令执行超时(" + timeout + "s)，已终止");
+                process.destroyForcibly();
+                // 强杀后流会关闭，给抽取线程一点收尾时间，拿到的部分输出仍有排查价值
+                pump.join(AgentMain.PUMP_DRAIN_MILLIS);
+                sendError(ex, 504, "命令执行超时(" + timeout + "s)，已终止" + tail(sink));
                 return;
             }
+            // 命令自身已退出；被 start/nohup 派生的子孙仍可能握着输出句柄，只等一小段排空
+            pump.join(AgentMain.PUMP_DRAIN_MILLIS);
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("exitCode", process.exitValue());
-            body.put("output", out);
+            body.put("output", AgentMain.decodeOutput(AgentMain.snapshot(sink)));
             sendJson(ex, 200, JSON.writeValueAsString(body));
         } catch (Exception e) {
             if (process != null) {
-                process.destroy();
+                process.destroyForcibly();
             }
             sendError(ex, 500, e.getMessage());
         }
+    }
+
+    /**
+     * 把超时前已捕获的输出缀到错误文案里。
+     *
+     * @param sink 累积缓冲区
+     * @return 形如「；已捕获输出: ...」的后缀，无输出时为空串
+     */
+    private static String tail(ByteArrayOutputStream sink) {
+        String text = AgentMain.decodeOutput(AgentMain.snapshot(sink)).trim();
+        if (text.isEmpty()) {
+            return "";
+        }
+        int from = Math.max(0, text.length() - ERROR_TAIL_CHARS);
+        return "；已捕获输出: " + text.substring(from).replaceAll("\\s+", " ");
     }
 
     /**
@@ -357,10 +510,11 @@ public class AgentHttpHandlers {
         if (windows) {
             commands.add("cmd.exe");
             commands.add("/c");
-        } else {
-            commands.add("/bin/sh");
-            commands.add("-c");
+            commands.add(cmd);
+            return commands;
         }
+        commands.add("/bin/sh");
+        commands.add("-c");
         commands.add(cmd);
         return commands;
     }
@@ -389,16 +543,18 @@ public class AgentHttpHandlers {
      * @throws IOException 响应写出失败
      */
     static void handleUpload(HttpExchange ex) throws IOException {
-        Map<String, String> query = parseQuery(ex.getRequestURI().getQuery());
+        Map<String, String> query = parseQuery(ex.getRequestURI().getRawQuery());
         String path = query.get("path");
         if (path == null || path.trim().isEmpty()) {
             sendError(ex, 400, "path 不能为空");
             return;
         }
         File target = new File(path.trim());
+        // 不再自动补齐父目录：写进不存在的路径也算成功，会让用户在页面上凭空造出目录，
+        // 与本机/SSH/WinRM 三套通道的口径相反；建目录请走 /files/mkdir
         File parent = target.getParentFile();
-        if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            sendError(ex, 500, "目录创建失败: " + parent);
+        if (parent != null && !parent.isDirectory()) {
+            sendError(ex, 400, "目录不存在: " + parent);
             return;
         }
         long written = 0L;
@@ -427,7 +583,7 @@ public class AgentHttpHandlers {
      * @throws IOException 响应写出失败
      */
     static void handleDownload(HttpExchange ex) throws IOException {
-        Map<String, String> query = parseQuery(ex.getRequestURI().getQuery());
+        Map<String, String> query = parseQuery(ex.getRequestURI().getRawQuery());
         String path = query.get("path");
         File file = path == null ? null : new File(path.trim());
         if (file == null || !file.isFile()) {
@@ -461,5 +617,191 @@ public class AgentHttpHandlers {
         body.put("buildTime", config == null ? "" : config.buildTime());
         body.put("port", config == null ? 0 : config.port());
         sendJson(ex, 200, JSON.writeValueAsString(body));
+    }
+
+    /**
+     * 单次分析最多扫描的目录数（防止整盘递归无限放大）。
+     */
+    private static final int USAGE_MAX_DIRS = 100000;
+
+    /**
+     * 每个目录中拆成独立矩形块的最大文件数（按大小取 Top N，其余小文件合并为一个块）。
+     */
+    private static final int USAGE_TOP_FILES = 12;
+
+    /**
+     * 处理 /files/usage：在被监控主机本地递归统计目录大小，一次 HTTP 返回整棵 WizTree 风格占用树。
+     *
+     * <p>若由平台侧逐目录经 HTTP 递归，整盘会放大成数千次串行往返、长时间不返回；agent 直接遍历
+     * 本地文件系统（无网络往返），并在根节点回填卷总容量 / 可用容量。</p>
+     *
+     * @param ex HTTP 交换对象（读取 path / depth 查询参数）
+     * @throws IOException 响应写出失败
+     */
+    static void handleFileUsage(HttpExchange ex) throws IOException {
+        Map<String, String> query = parseQuery(ex.getRequestURI().getRawQuery());
+        String rawPath = query.get("path");
+        String path = rawPath == null || rawPath.trim().isEmpty() ? "/" : rawPath.trim();
+        int depth = intParam(query, "depth", 4, 8);
+        File root = new File(path);
+        if (!root.isDirectory()) {
+            sendError(ex, 404, "目录不存在或不是目录: " + root);
+            return;
+        }
+        boolean windows = System.getProperty("os.name", "").toLowerCase().contains("win");
+        char sep = windows ? '\\' : '/';
+        long[] scanned = {0L};
+        // Windows 盘符根：优先直读 MFT（WizTree 原理，能看到 ACL 隐藏文件），失败再回退普通递归
+        Map<String, Object> tree = null;
+        if (windows && path.matches("[A-Za-z]:[\\\\/]*")) {
+            try {
+                tree = NtfsMftReader.scan(path);
+            } catch (Throwable ignored) {
+                tree = null;
+            }
+        }
+        if (tree == null) {
+            tree = walkUsageLocal(root, path, depth, sep, scanned);
+        }
+        tree.put("totalSpace", root.getTotalSpace());
+        tree.put("freeSpace", root.getFreeSpace());
+        sendJson(ex, 200, JSON.writeValueAsString(tree));
+    }
+
+    /**
+     * 本地递归遍历并构建占用节点（镜像平台侧 walkUsage 的分块规则）。
+     *
+     * @param dir     当前目录
+     * @param path    当前目录完整路径
+     * @param remain  剩余递归深度
+     * @param sep     路径分隔符
+     * @param scanned 已扫描目录计数（可变）
+     * @return 节点 Map
+     */
+    private static Map<String, Object> walkUsageLocal(File dir, String path, int remain, char sep, long[] scanned) {
+        Map<String, Object> node = new LinkedHashMap<>();
+        node.put("directory", true);
+        node.put("path", path);
+        node.put("name", basenameLocal(path, sep));
+        File[] files = dir.listFiles();
+        scanned[0]++;
+        long total = 0L;
+        long fileCount = 0L;
+        long dirCount = 0L;
+        String latest = null;
+        List<Map<String, Object>> children = new ArrayList<>();
+        List<File> loose = new ArrayList<>();
+        if (files != null) {
+            for (File f : files) {
+                long len = f.length();
+                String mod = new Date(f.lastModified()).toString();
+                if (latest == null || mod.compareTo(latest) > 0) {
+                    latest = mod;
+                }
+                total += len;
+                String childPath = joinUsageLocal(path, f.getName(), sep);
+                if (f.isDirectory()) {
+                    dirCount++;
+                    if (remain > 1 && scanned[0] < USAGE_MAX_DIRS) {
+                        Map<String, Object> child = walkUsageLocal(f, childPath, remain - 1, sep, scanned);
+                        children.add(child);
+                        long childSize = ((Number) child.get("size")).longValue();
+                        total += Math.max(0L, childSize - len);
+                        fileCount += ((Number) child.get("fileCount")).longValue();
+                        dirCount += ((Number) child.get("dirCount")).longValue();
+                    } else {
+                        Map<String, Object> leaf = new LinkedHashMap<>();
+                        leaf.put("directory", true);
+                        leaf.put("name", f.getName());
+                        leaf.put("path", childPath);
+                        leaf.put("size", len);
+                        leaf.put("modified", mod);
+                        leaf.put("fileCount", 0L);
+                        leaf.put("dirCount", 1L);
+                        children.add(leaf);
+                    }
+                } else {
+                    fileCount++;
+                    loose.add(f);
+                }
+            }
+        }
+        loose.sort(new Comparator<File>() {
+            @Override
+            public int compare(File a, File b) {
+                return Long.compare(b.length(), a.length());
+            }
+        });
+        long restSize = 0L;
+        long restCount = 0L;
+        for (int i = 0; i < loose.size(); i++) {
+            File f = loose.get(i);
+            if (i < USAGE_TOP_FILES) {
+                Map<String, Object> leaf = new LinkedHashMap<>();
+                leaf.put("directory", false);
+                leaf.put("name", f.getName());
+                leaf.put("path", joinUsageLocal(path, f.getName(), sep));
+                leaf.put("size", f.length());
+                leaf.put("modified", new Date(f.lastModified()).toString());
+                leaf.put("fileCount", 1L);
+                leaf.put("dirCount", 0L);
+                children.add(leaf);
+            } else {
+                restSize += f.length();
+                restCount++;
+            }
+        }
+        if (restCount > 0) {
+            Map<String, Object> rest = new LinkedHashMap<>();
+            rest.put("directory", false);
+            rest.put("name", "__files__");
+            rest.put("path", path);
+            rest.put("size", restSize);
+            rest.put("fileCount", restCount);
+            rest.put("dirCount", 0L);
+            children.add(rest);
+        }
+        children.sort(new Comparator<Map<String, Object>>() {
+            @Override
+            public int compare(Map<String, Object> a, Map<String, Object> b) {
+                return Long.compare(((Number) b.get("size")).longValue(), ((Number) a.get("size")).longValue());
+            }
+        });
+        if (!children.isEmpty()) {
+            node.put("children", children);
+        }
+        node.put("size", total);
+        node.put("fileCount", fileCount);
+        node.put("dirCount", dirCount);
+        node.put("modified", latest == null ? "" : latest);
+        return node;
+    }
+
+    /**
+     * 拼接父路径与子名称。
+     *
+     * @param parent 父路径
+     * @param name   子名称
+     * @param sep    分隔符
+     * @return 完整路径
+     */
+    private static String joinUsageLocal(String parent, String name, char sep) {
+        if (parent == null || parent.isEmpty()) {
+            return name;
+        }
+        return parent.endsWith(String.valueOf(sep)) ? parent + name : parent + sep + name;
+    }
+
+    /**
+     * 取路径最后一段作为名称。
+     *
+     * @param path 完整路径
+     * @param sep  分隔符
+     * @return 名称
+     */
+    private static String basenameLocal(String path, char sep) {
+        int idx = path.lastIndexOf(sep);
+        String tail = idx >= 0 ? path.substring(idx + 1) : path;
+        return tail.isEmpty() ? path : tail;
     }
 }

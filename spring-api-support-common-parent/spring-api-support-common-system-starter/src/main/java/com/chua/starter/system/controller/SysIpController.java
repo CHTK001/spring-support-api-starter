@@ -1,4 +1,5 @@
 package com.chua.starter.system.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.lang.ReturnPageResult;
@@ -81,6 +82,7 @@ public class SysIpController {
      */
     @Operation(summary = "新增IP黑白名单")
     @PostMapping("/save")
+    @SysLog
     @Permission(value = "sys:ip:save", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysIpBlackwhite> save(@RequestBody SysIpBlackwhite entity) {
         return sysIpBlackwhiteService.saveIp(entity);
@@ -94,6 +96,7 @@ public class SysIpController {
      */
     @Operation(summary = "更新IP黑白名单")
     @PutMapping("/update")
+    @SysLog
     @Permission(value = "sys:ip:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(@RequestBody SysIpBlackwhite entity) {
         return sysIpBlackwhiteService.updateIp(entity);
@@ -107,6 +110,7 @@ public class SysIpController {
      */
     @Operation(summary = "删除IP黑白名单")
     @DeleteMapping("/delete")
+    @SysLog
     @Permission(value = "sys:ip:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Integer sysIpId) {
         if (null == sysIpId) {

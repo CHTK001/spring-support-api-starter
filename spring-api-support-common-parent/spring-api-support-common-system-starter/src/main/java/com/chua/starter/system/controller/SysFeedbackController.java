@@ -1,4 +1,5 @@
 package com.chua.starter.system.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.common.support.annotation.Ignore;
 import com.chua.starter.common.support.lang.ReturnPageResult;
@@ -54,6 +55,7 @@ public class SysFeedbackController {
      * @return 反馈结果
      */
     @PutMapping("/issue")
+    @SysLog(module = "处理")
     @Operation(summary = "处理反馈问题")
     public ReturnResult<Boolean> issue(@Validated(UpdateGroup.class) @ParameterObject @RequestBody FeedbackIssueV1Request request,
                                        @UserValue UserResume userResume,

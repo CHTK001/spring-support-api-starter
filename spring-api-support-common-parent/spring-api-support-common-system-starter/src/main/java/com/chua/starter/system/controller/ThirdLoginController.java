@@ -1,4 +1,5 @@
 package com.chua.starter.system.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.oauth.client.support.annotation.TokenForIgnore;
@@ -74,6 +75,7 @@ public class ThirdLoginController {
      */
     @Operation(summary = "第三方绑定码")
     @PostMapping("/third/bind/code")
+    @SysLog(module = "绑定")
     public ReturnResult<String> thirdBindCode(@Valid @RequestBody ThirdLoginData loginData,
                                               HttpServletRequest request,
                                               HttpServletResponse response,
@@ -106,6 +108,7 @@ public class ThirdLoginController {
      */
     @Operation(summary = "第三方绑定解绑")
     @PostMapping("/third/unbind")
+    @SysLog(module = "解绑")
     public ReturnResult<Boolean> thirdUnbindForLogin(@UserValue("userId") String userId, @RequestBody ThirdPartyUnbindRequest thirdPartyUnbindRequest) {
         return sysLoginService.thirdUnbind(userId, thirdPartyUnbindRequest);
     }

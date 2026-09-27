@@ -31,9 +31,9 @@ class CacheControllerTest {
     void testModules() {
         CacheController cacheController = new CacheController(null);
         ReturnResult<List<Map<String, Object>>> result = cacheController.modules();
-        // 原断言: 8个预定义模块, 首项 dict/字典/sys:dict:*/keyCount=1(redis异常兜底为0)
+        // 原断言: 13个预定义模块, 首项 dict/字典/sys:dict:*/keyCount=1(redis异常兜底为0)
         assertTrue(result.isSuccess());
-        assertEquals(8, result.getData().size());
+        assertEquals(13, result.getData().size());
     }
 
     /**
@@ -133,12 +133,30 @@ class CacheControllerTest {
      */
     @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需真实 Redis 连接")
     @Test
-    @DisplayName("清空全部-返回删除数量")
+    @DisplayName("清空全部-命中3个key, 返回删除数量3")
     void testClearAllOk() {
         CacheController cacheController = new CacheController(null);
         ReturnResult<Long> result = cacheController.clearAll();
-        // 原断言: * 命中3个key, 返回删除数量3
         assertTrue(result.isSuccess());
         assertEquals(3L, result.getData());
     }
+
+    @Test
+    @DisplayName("模块登记-策略缓存统一使用 Spring Cache 名称")
+    void testPolicyCacheModules() throws Exception {
+        var field = CacheController.class.getDeclaredField("MODULES");
+        field.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Map<String, String[]> modules = (Map<String, String[]>) field.get(null);
+        for (String name : List.of(
+                com.chua.starter.system.constant.PolicyCacheName.RATE_LIMIT,
+                com.chua.starter.system.constant.PolicyCacheName.IP_BLACKLIST,
+                com.chua.starter.system.constant.PolicyCacheName.IP_WHITELIST,
+                com.chua.starter.system.constant.PolicyCacheName.ACCOUNT_BLACKLIST,
+                com.chua.starter.system.constant.PolicyCacheName.ACCOUNT_WHITELIST)) {
+            assertTrue(modules.containsKey(name));
+            assertEquals(name + ":*", modules.get(name)[1]);
+        }
+    }
 }
+

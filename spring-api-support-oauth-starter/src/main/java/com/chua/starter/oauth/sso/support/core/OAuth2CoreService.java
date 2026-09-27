@@ -450,6 +450,20 @@ public class OAuth2CoreService {
             Set<String> grantedScopes
     ) {
         /**
+         * 规范构造器：对已授权 scope 集合做防御性拷贝。
+         *
+         * <p>value class 前置条件——集合组件必须深不可变；scope 解析过程已剔除 空 值，
+         * 故可使用 {@code Set.copyOf}。</p>
+         *
+         * @param valid         是否校验通过
+         * @param errorMessage  失败原因，通过时为 空
+         * @param grantedScopes 已授权 scope 集合
+         */
+        public ScopeValidationResult {
+            grantedScopes = Set.copyOf(Objects.requireNonNull(grantedScopes, "grantedScopes 不能为 null"));
+        }
+
+        /**
          * 成功
          *
          * @param scopes scopes

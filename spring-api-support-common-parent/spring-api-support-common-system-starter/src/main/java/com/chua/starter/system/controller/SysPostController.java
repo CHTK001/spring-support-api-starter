@@ -101,6 +101,20 @@ public class SysPostController {
     }
 
     /**
+     * 批量更新岗位排序
+     *
+     * @param list 岗位排序列表
+     * @return 更新结果
+     */
+    @Operation(summary = "批量更新岗位排序")
+    @PutMapping("/update-sort")
+    @SysLog
+    @Permission(value = "sys:post:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Boolean> updateSort(@RequestBody List<SysPost> list) {
+        return sysPostService.updateSortBatch(list);
+    }
+
+    /**
      * 删除岗位
      *
      * @param postId 岗位ID
@@ -133,3 +147,4 @@ public class SysPostController {
         return ReturnResult.ok(sysPostService.getUsersByPostId(postId));
     }
 }
+

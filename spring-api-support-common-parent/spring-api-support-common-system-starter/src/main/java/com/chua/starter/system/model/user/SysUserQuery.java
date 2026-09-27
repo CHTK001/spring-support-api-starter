@@ -17,57 +17,46 @@ import lombok.EqualsAndHashCode;
 public class SysUserQuery extends Query<SysUser> {
 
     /**
-     * 用户名
+     * 账号，模糊匹配 sys_user_username
      */
-    @Schema(description = "用户名")
-    /**
-     * 用户名
-    */
-    private String username;
+    @Schema(description = "账号")
+    private String sysUserName;
 
     /**
-     * 昵称
+     * 昵称，模糊匹配 sys_user_nickname
      */
     @Schema(description = "昵称")
-    /**
-     * Nickname
-    */
-    private String nickname;
+    private String sysUserNickname;
 
     /**
-     * 手机号
+     * 手机号，模糊匹配 sys_user_phone
      */
     @Schema(description = "手机号")
-    /**
-     * Phone
-    */
-    private String phone;
+    private String sysUserPhone;
 
     /**
      * 性别; 0:女;1:男; 2:其他
      */
     @Schema(description = "性别; 0:女;1:男; 2:其他")
-    /**
-     * SEX
-    */
-    private Integer sex;
+    private Integer sysUserSex;
 
     /**
      * 是否启用；0：禁用
      */
     @Schema(description = "是否启用；0：禁用")
-    /**
-     * 状态
-    */
-    private Integer status;
+    private Integer sysUserStatus;
+
     /**
      * 部门标识
      */
     @Schema(description = "部门id")
-    /**
-     * sysdeptid
-    */
     private Integer sysDeptId;
+
+    /**
+     * 角色标识，只返回拥有该角色的用户
+     */
+    @Schema(description = "角色id")
+    private Integer sysRoleId;
 
     /* ================== 数据权限过滤参数（由Service层注入，前端不传） ================== */
 

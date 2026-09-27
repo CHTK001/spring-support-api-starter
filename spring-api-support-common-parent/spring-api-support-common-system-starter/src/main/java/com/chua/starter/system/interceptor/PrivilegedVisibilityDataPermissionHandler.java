@@ -1,7 +1,7 @@
 package com.chua.starter.system.interceptor;
 
 import com.baomidou.mybatisplus.extension.plugins.handler.MultiDataPermissionHandler;
-import com.chua.common.support.utils.ClassUtils;
+import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.starter.common.support.oauth.AuthService;
 import com.chua.starter.common.support.oauth.CurrentUser;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
@@ -16,11 +16,11 @@ import net.sf.jsqlparser.schema.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -45,6 +45,11 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
      * 超级管理员用户名
      */
     private static final String SA_USERNAME = "sa";
+
+    /**
+     * 数据权限注解允许的表别名与列标识符白名单。
+     */
+    private static final Pattern SAFE_IDENTIFIER = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]{0,63}$");
 
     /**
      * 注解信息缓存
@@ -141,14 +146,16 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
             }
             String className = mappedStatementId.substring(0, lastDot);
             String methodName = normalizeMethodName(mappedStatementId.substring(lastDot + 1));
-            Class<?> mapperClass = ClassUtils.forName(className);
+            Class<?> mapperClass = ReflectUtils.forName(className);
 
-            PrivilegedVisibility methodAnnotation = findMethodAnnotation(mapperClass, methodName);
+            PrivilegedVisibility methodAnnotation = ReflectUtils.findMethodAnnotation(
+                    mapperClass, methodName, PrivilegedVisibility.class);
             if (methodAnnotation != null) {
                 return new PrivilegedVisibilityInfo(methodAnnotation);
             }
 
-            PrivilegedVisibility classAnnotation = mapperClass.getAnnotation(PrivilegedVisibility.class);
+            PrivilegedVisibility classAnnotation = ReflectUtils.findClassAnnotation(
+                    mapperClass, PrivilegedVisibility.class);
             if (classAnnotation != null) {
                 return new PrivilegedVisibilityInfo(classAnnotation);
             }
@@ -181,52 +188,39 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
     }
 
     /**
-     * 在 映射器 类中查找携带高权账号注解的方法。
-     *
-     * @param clazz     映射器 类
-     * @param methodName 方法名
-     * @return 方法上的注解，无注解时为 空
-     */
-    private PrivilegedVisibility findMethodAnnotation(Class<?> clazz, String methodName) {
-        for (Method method : clazz.getMethods()) {
-            if (!method.getName().equals(methodName)) {
-                continue;
-            }
-            PrivilegedVisibility annotation = method.getAnnotation(PrivilegedVisibility.class);
-            if (annotation != null) {
-                return annotation;
-            }
-        }
-        return null;
-    }
-
-    /**
      * 根据注解配置与当前用户构建条件 SQL。
+     *
+     * <p>MyBatis-Plus 数据权限接口仅接收表达式 AST，没有 JDBC 参数绑定上下文，无法安全改写为
+     * {@code PreparedStatement} 占位符。本方法因此采用中文豁免约束：注解中的表别名和列名必须通过
+     * 标识符白名单，SQL 值仅允许固定常量 {@code sa} 与经正整数校验的角色主键。</p>
      *
      * @param table       数据表
      * @param info        注解信息
      * @param currentUser 当前用户
-     * @return 条件 SQL 字符串，不适用时为 空
+     * @return 条件 SQL 字符串，不适用时为 null
      * @throws JSQLParserException SQL 解析异常
+     * @throws IllegalArgumentException 注解标识符不合法时抛出
      */
     private String buildConditionSql(Table table, PrivilegedVisibilityInfo info, CurrentUser currentUser) throws JSQLParserException {
         String currentAlias = currentTableAlias(table);
         if (info.userAlias != null && !info.userAlias.isBlank()) {
-            if (!matchesAlias(currentAlias, info.userAlias)) {
+            String safeUserAlias = requireSafeIdentifier(info.userAlias, "用户表别名");
+            if (!matchesAlias(currentAlias, safeUserAlias)) {
                 return null;
             }
-            return buildForUserAlias(info.userAlias, currentUser);
+            return buildForUserAlias(safeUserAlias, currentUser);
         }
 
         if (info.usernameColumn == null || info.usernameColumn.isBlank()) {
             return null;
         }
 
-        String usernameAlias = columnAlias(info.usernameColumn);
+        String safeUsernameColumn = requireSafeColumnExpression(info.usernameColumn);
+        String usernameAlias = columnAlias(safeUsernameColumn);
         if (usernameAlias != null && !matchesAlias(currentAlias, usernameAlias)) {
             return null;
         }
-        return buildForUsernameColumn(info.usernameColumn, currentUser);
+        return buildForUsernameColumn(safeUsernameColumn, currentUser);
     }
 
     /**
@@ -292,13 +286,19 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
     }
 
     /**
-     * 将整数列表格式化为 SQL 入 子句的值列表。
+     * 将整数列表格式化为 SQL 子句值列表。
+     *
+     * <p>角色主键来自数据库而非请求，但仍逐项校验为正整数，确保表达式构造器只能接收获取的安全数值。</p>
      *
      * @param ids 整数标识列表
      * @return 格式化后的字符串，如 "1,2,3"
+     * @throws IllegalArgumentException 列表包含空值或非正整数时抛出
      */
     private String formatIdList(List<Integer> ids) {
-        return ids.stream().map(Object::toString).collect(Collectors.joining(","));
+        if (ids.stream().anyMatch(id -> id == null || id <= 0)) {
+            throw new IllegalArgumentException("管理员角色标识必须为正整数");
+        }
+        return ids.stream().map(String::valueOf).collect(Collectors.joining(","));
     }
 
     /**
@@ -343,6 +343,40 @@ public class PrivilegedVisibilityDataPermissionHandler implements MultiDataPermi
      */
     private boolean matchesAlias(String currentAlias, String expectedAlias) {
         return currentAlias != null && expectedAlias != null && currentAlias.equalsIgnoreCase(expectedAlias);
+    }
+
+    /**
+     * 校验单个 SQL 标识符。
+     *
+     * @param value 标识符
+     * @param label 业务标签
+     * @return 去除首尾空白后的标识符
+     * @throws IllegalArgumentException 标识符不符合白名单时抛出
+     */
+    private String requireSafeIdentifier(String value, String label) {
+        String identifier = value == null ? "" : value.trim();
+        if (!SAFE_IDENTIFIER.matcher(identifier).matches()) {
+            throw new IllegalArgumentException(label + "不符合 SQL 标识符白名单: " + value);
+        }
+        return identifier;
+    }
+
+    /**
+     * 校验形如 {@code table.column} 的列表达式。
+     *
+     * @param expression 原始列表达式
+     * @return 去除首尾空白后的列表达式
+     * @throws IllegalArgumentException 表达式格式不合法时抛出
+     */
+    private String requireSafeColumnExpression(String expression) {
+        String value = expression == null ? "" : expression.trim();
+        int separator = value.indexOf('.');
+        if (separator <= 0 || separator != value.lastIndexOf('.') || separator == value.length() - 1) {
+            throw new IllegalArgumentException("用户名列必须使用 table.column 格式: " + expression);
+        }
+        requireSafeIdentifier(value.substring(0, separator), "用户名列表别名");
+        requireSafeIdentifier(value.substring(separator + 1), "用户名列");
+        return value;
     }
 
     /**

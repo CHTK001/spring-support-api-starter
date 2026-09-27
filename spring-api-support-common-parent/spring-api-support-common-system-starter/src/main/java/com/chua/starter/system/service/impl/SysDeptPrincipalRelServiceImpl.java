@@ -73,7 +73,7 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
 
     @Override
     /**
-     * 列表manageddeptscopes
+     * 列表managedDeptScopes
     */
     public List<SysDept> listManagedDeptScopes(Integer userId) {
         if (userId == null) {
@@ -84,7 +84,7 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
 
     @Override
     /**
-     * 列表manageddept标识
+     * 列表managedDept标识
     */
     public List<Integer> listManagedDeptIds(Integer userId) {
         return listManagedDeptScopes(userId).stream()
@@ -96,7 +96,7 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
 
     @Override
     /**
-     * 列表manageddept树标识
+     * 列表managedDept树标识
     */
     public List<String> listManagedDeptTreeIds(Integer userId) {
         return listManagedDeptScopes(userId).stream()
@@ -108,7 +108,7 @@ public class SysDeptPrincipalRelServiceImpl extends ServiceImpl<SysDeptPrincipal
 
     @Override
     /**
-     * 列表manageddept树标识
+     * 列表managedDept树标识
     */
     public List<String> listManagedDeptTreeIds(Collection<Integer> deptIds) {
         if (CollectionUtils.isEmpty(deptIds)) {

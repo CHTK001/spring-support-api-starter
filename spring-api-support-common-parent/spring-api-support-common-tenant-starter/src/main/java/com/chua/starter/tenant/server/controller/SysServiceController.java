@@ -1,4 +1,5 @@
 package com.chua.starter.tenant.server.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -120,6 +121,7 @@ public class SysServiceController {
      * @return 保存结果
      */
     @PostMapping("save")
+    @SysLog
     @Operation(summary = "保存服务")
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<SysService> saveForSysService(@RequestBody @Validated(AddGroup.class) SysService sysService,
@@ -145,6 +147,7 @@ public class SysServiceController {
      * @return 更新结果
      */
     @PutMapping("update")
+    @SysLog
     @Operation(summary = "更新服务")
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> updateForSysService(@RequestBody @Validated(UpdateGroup.class) SysService sysService,
@@ -170,6 +173,7 @@ public class SysServiceController {
      * @param "服务ID" "服务ID"
      */
     @DeleteMapping("delete")
+    @SysLog
     @Operation(summary = "删除服务")
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> deleteForSysService(@Parameter(description = "服务ID") Integer sysServiceId) {
@@ -192,6 +196,7 @@ public class SysServiceController {
      * @return 绑定结果
      */
     @PutMapping("bind")
+    @SysLog(module = "绑定")
     @Operation(summary = "绑定服务与模块")
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> bindModulesForSysService(@RequestBody SysService sysService) {
@@ -210,6 +215,7 @@ public class SysServiceController {
      * @return 更新结果
      */
     @PutMapping("status")
+    @SysLog(module = "状态")
     @Operation(summary = "更新服务状态")
     public ReturnResult<Boolean> updateStatusForSysService(
             @Parameter(description = "服务ID") Integer sysServiceId,

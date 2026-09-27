@@ -16,13 +16,12 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * 瓦片拼接服务实现，将瓦片 映射 按坐标顺序合并为单张图像。
+ * 瓦片拼接服务实现，将瓦片映射按坐标顺序合并为单张图像。
+ *
+ * <p>职责：依据地理范围和缩放级别计算瓦片网格，按行列顺序解码并绘制瓦片，同时处理单瓦片解码异常。</p>
  *
  * @author CH
  * @since 1.0.0
- * @param x x
- * @param data 数据
- * @return 瓷砖entry的结果
  */
 @Service
 @Slf4j
@@ -84,5 +83,34 @@ public class TileMergerServiceImpl implements TileMergerService {
         return merged;
     }
 
-    private record TileEntry(int x, byte[] data) {}
+    /**
+     * 瓷砖条目
+     *
+     * @param x    列坐标
+     * @param data 瓷砖字节
+     */
+    private record TileEntry(int x, byte[] data) {
+        /**
+         * 规范构造器：数组做防御性拷贝。
+         *
+         * <p>value class 前置条件——数组组件必须深不可变；此处保留 空 语义，
+         * 以免把原本被捕获并记日志的 解码 异常提前到构造期抛出。</p>
+         *
+         * @param x    列坐标
+         * @param data 瓷砖字节
+         */
+        private TileEntry {
+            data = data == null ? null : data.clone();
+        }
+
+        /**
+         * 访问器覆写：返回内部数组的副本。
+         *
+         * @return 瓷砖字节副本
+         */
+        @Override
+        public byte[] data() {
+            return data == null ? null : data.clone();
+        }
+    }
 }

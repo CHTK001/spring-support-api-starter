@@ -73,6 +73,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     final SysUserPostMapper sysUserPostMapper; // sys用户岗位映射器
     final SysPostMapper sysPostMapper; // syspost映射器
     final SystemSecurityProperties securityProperties; // 安全性属性
+    final com.chua.starter.system.support.UserRoleCache userRoleCache; // 登录角色缓存
+    final com.chua.starter.system.support.UserStateCache userStateCache; // 账号状态缓存
+    final com.chua.starter.system.support.OnlineStatusManager onlineStatusManager; // 在线状态管理
     private static final GlobalSettingFactory GLOBAL_SETTING_FACTORY = GlobalSettingFactory.getInstance(); // 全局setting工厂
 
     @Override
@@ -118,6 +121,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             for (SysUserVO sysUser : records) {
                 sysUser.setUserPosts(postByUser.getOrDefault(sysUser.getSysUserId(), Collections.emptyList()));
             }
+        }
+        // 批量填充在线状态, 供头像呼吸灯展示
+        Set<Integer> onlineIds = onlineStatusManager.resolveOnlineIds(
+                records.stream().map(SysUserVO::getSysUserId).collect(Collectors.toList()));
+        for (SysUserVO sysUser : records) {
+            sysUser.setOnline(onlineIds.contains(sysUser.getSysUserId()));
         }
         return result;
     }
@@ -217,7 +226,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ReturnResult.illegal("系统账号不能删除");
         }
 
-        return ReturnResult.of(removeById(userId));
+        return ReturnResult.of(transactionTemplate.execute(status -> {
+            removeUserRelations(Collections.singletonList(userId));
+            return baseMapper.physicalDeleteBatchIds(Collections.singletonList(userId)) > 0;
+        }));
     }
 
     @Override
@@ -271,7 +283,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public ReturnResult<SysUser> updateUser(Set<String> roles, Long userId, SysUserUpdate sysUser) {
+    public ReturnResult<SysUser> updateUser(Set<String> roles, String callerUsername, Long userId, SysUserUpdate sysUser) {
         Integer sysUserId = sysUser.getSysUserId();
         SysUser sysUser1;
         if (null == sysUserId) {
@@ -285,6 +297,34 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             sysUser1 = getById(sysUserId);
         }
 
+        // 内置 admin 超管账号：角色固定、拥有全部权限菜单，后端强制不允许修改其角色
+        boolean isProtectedAdmin = AuthConstant.isBuiltinAdmin(sysUser1.getSysUserUsername());
+        // 角色绑定只开放给"管理员编辑他人账号"这条路径；自助更新资料不得改动角色，避免自行提权
+        boolean mayChangeRole = null != sysUserId && AuthConstant.isAdmin(roles);
+        boolean roleBindingChanges = false;
+        if (mayChangeRole) {
+            Set<Integer> currentRoleIds = listRoleIds(sysUser1.getSysUserId());
+            Set<Integer> requestedRoleIds = parseRoleIds(sysUser.getRoleIds());
+            // updateRole=true 以请求集合整体替换（含清空），否则只在原绑定上追加
+            Set<Integer> targetRoleIds = new HashSet<>(requestedRoleIds);
+            if (!sysUser.isUpdateRole()) {
+                targetRoleIds.addAll(currentRoleIds);
+            }
+            roleBindingChanges = !targetRoleIds.equals(currentRoleIds);
+            if (roleBindingChanges) {
+                if (isProtectedAdmin) {
+                    return ReturnResult.illegal("内置管理员账号的角色不可修改");
+                }
+                Integer superAdminRoleId = superAdminRoleId();
+                if (null != superAdminRoleId
+                        && currentRoleIds.contains(superAdminRoleId) != targetRoleIds.contains(superAdminRoleId)
+                        && !AuthConstant.isPrivileged(callerUsername, roles)) {
+                    return ReturnResult.illegal("没有权限变更超级管理员角色");
+                }
+            }
+        }
+
+        String originalEmail = sysUser1.getSysUserEmail();
         BeanUtils.copyProperties(sysUser, sysUser1);
 
         if (StringUtils.isNotBlank(sysUser.getSysUserPassword())) {
@@ -293,14 +333,23 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         sysUser1.setSysUserUsername(null);
         sysUser1.setSysUserInSystem(null);
+        // 已验证结论只能由验证码接口写入：置空让 updateById 跳过，保留库中原状态
+        sysUser1.setSysUserEmailVerified(null);
+        sysUser1.setSysUserEmailVerifyTime(null);
+        // 换绑邮箱后旧邮箱的验证结论不再成立，回到未验证
+        if (StringUtils.isNotBlank(sysUser.getSysUserEmail())
+                && !sysUser.getSysUserEmail().equals(originalEmail)) {
+            sysUser1.setSysUserEmailVerified(0);
+        }
 //        sysUser1.setUpdateTime(LocalDateTime.now());
+        boolean writeRoleBinding = roleBindingChanges;
         try {
-            return ReturnResult.ok(transactionTemplate.execute(status -> {
+            SysUser updated = transactionTemplate.execute(status -> {
                 updateById(sysUser1);
-                if(sysUser.isUpdateRole()) {
+                if(writeRoleBinding && sysUser.isUpdateRole()) {
                     sysUserRoleService.remove(Wrappers.<SysUserRole>lambdaQuery().eq(SysUserRole::getSysUserId, sysUser1.getSysUserId()));
                 }
-                if (CollectionUtils.isNotEmpty(sysUser.getRoleIds())) {
+                if (writeRoleBinding && CollectionUtils.isNotEmpty(sysUser.getRoleIds())) {
                     sysUserRoleService.saveBatch(sysUser.getRoleIds().stream().map(role -> {
                         try {
                             SysUserRole rolsysUserRole = new SysUserRole();
@@ -329,10 +378,69 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     }
                 }
                 return sysUser1;
-            }));
+            });
+            userRoleCache.evict(sysUser1.getSysUserId());
+            userStateCache.evict(sysUser1.getSysUserId());
+            return ReturnResult.ok(updated);
         } finally {
             AuthClientExecute.getInstance().upgrade(null, UpgradeType.VERSION);
         }
+    }
+
+    /**
+     * 查询用户当前已绑定的角色标识集合。
+     *
+     * @param sysUserId 用户标识
+     * @return 角色标识集合，无绑定时为空集合
+     */
+    private Set<Integer> listRoleIds(Integer sysUserId) {
+        if (null == sysUserId) {
+            return Collections.emptySet();
+        }
+        return sysUserRoleService.list(Wrappers.<SysUserRole>lambdaQuery()
+                        .eq(SysUserRole::getSysUserId, sysUserId))
+                .stream()
+                .map(SysUserRole::getSysRoleId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * 解析请求携带的角色标识列表，非数字项按无效忽略。
+     *
+     * @param roleIds 请求角色标识列表
+     * @return 角色标识集合
+     */
+    private Set<Integer> parseRoleIds(List<String> roleIds) {
+        if (CollectionUtils.isEmpty(roleIds)) {
+            return Collections.emptySet();
+        }
+        Set<Integer> parsed = new HashSet<>();
+        for (String roleId : roleIds) {
+            if (null == roleId) {
+                continue;
+            }
+            try {
+                parsed.add(Integer.valueOf(roleId.trim()));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return parsed;
+    }
+
+    /**
+     * 解析超级管理员角色的标识。
+     *
+     * @return 超管角色标识，角色表中不存在时为 null
+     */
+    private Integer superAdminRoleId() {
+        return sysRoleMapper.selectList(Wrappers.<SysRole>lambdaQuery()
+                        .eq(SysRole::getSysRoleCode, AuthConstant.SUPER_ADMIN))
+                .stream()
+                .map(SysRole::getSysRoleId)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -360,6 +468,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUserUpdate.setSysUserInSystem(SystemConstant.IN_SYSTEM_NO);
         sysUserUpdate.setSysUserDelete(SystemConstant.NOT_DELETED);
         sysUserUpdate.setSysUserStatus(SystemConstant.USER_STATUS_ENABLED);
+        // 新建账号的邮箱一律未验证，只能由验证码接口改写
+        sysUserUpdate.setSysUserEmailVerified(0);
+        sysUserUpdate.setSysUserEmailVerifyTime(null);
         sysUserUpdate.setSysUserLongCount(0);
         sysUserUpdate.setSysUserRegisterIp(RequestUtils.getIpAddress(request));
         sysUserUpdate.setSysUserRegisterAddress(resolveGeoAddress(sysUserUpdate.getSysUserRegisterIp()));
@@ -394,15 +505,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles, Integer sysMenuEngine) {
+    public ReturnResult<List<SysMenuVO>> getUserMenu(Set<String> roles, Integer sysMenuEngine, String username) {
         SysMenu sysMenu = new SysMenu();
         sysMenu.setSysMenuEngine(null == sysMenuEngine ? 0 : sysMenuEngine);
-        return sysMenuService.list(sysMenu, roles, 3);
+        return sysMenuService.list(sysMenu, roles, 3, username);
     }
 
     @Override
-    public ReturnResult<List<SysMiniMenuVO>> getUserMiniMenu(Set<String> roles) {
-        return sysMiniMenuService.listUserMenus(roles);
+    public ReturnResult<List<SysMiniMenuVO>> getUserMiniMenu(Set<String> roles, String username) {
+        return sysMiniMenuService.listUserMenus(roles, username);
     }
 
     /**
@@ -802,15 +913,44 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (CollectionUtils.isEmpty(userIds)) {
             return ReturnResult.illegal("请选择要删除的用户");
         }
-        // 不允许删除超级管理员
+        // 不允许删除超级管理员与系统内置账号
         List<SysUser> users = listByIds(userIds);
         for (SysUser user : users) {
             if ("admin".equalsIgnoreCase(user.getSysUserUsername())) {
                 return ReturnResult.illegal("不允许删除超级管理员账号");
             }
+            if (isInSystem(user)) {
+                return ReturnResult.illegal("系统账号不能删除: " + user.getSysUserUsername());
+            }
         }
-        boolean success = removeByIds(userIds);
+        boolean success = transactionTemplate.execute(status -> {
+            removeUserRelations(userIds);
+            return baseMapper.physicalDeleteBatchIds(userIds) > 0;
+        });
         return success ? ReturnResult.ok(true) : ReturnResult.error("删除失败");
+    }
+
+    /**
+     * 是否为系统内置账号，内置账号不允许删除
+     *
+     * @param user 用户
+     * @return 内置账号返回 true
+     */
+    private boolean isInSystem(SysUser user) {
+        return null != user.getSysUserInSystem() && SystemConstant.IN_SYSTEM_YES == user.getSysUserInSystem();
+    }
+
+    /**
+     * 清理用户的成员关系（角色、岗位），避免删除用户后残留孤儿关联行
+     *
+     * @param userIds 用户主键集合
+     */
+    private void removeUserRelations(List<Long> userIds) {
+        sysUserRoleService.remove(Wrappers.<SysUserRole>lambdaQuery().in(SysUserRole::getSysUserId, userIds));
+        sysUserPostMapper.delete(Wrappers.<SysUserPost>lambdaQuery().in(SysUserPost::getSysUserId, userIds));
+        java.util.List<Integer> evictIds = userIds.stream().filter(Objects::nonNull).map(Long::intValue).collect(Collectors.toList());
+        userRoleCache.evict(evictIds);
+        userStateCache.evict(evictIds);
     }
 
     @Override
@@ -821,30 +961,24 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (status == null || (status != 0 && status != 1)) {
             return ReturnResult.illegal("状态值不合法");
         }
+        // 禁用会直接切断登录入口，内置账号必须与删除保护同等拦截，否则可把唯一管理账号锁在系统外
+        if (status == 0) {
+            for (SysUser user : listByIds(userIds)) {
+                if ("admin".equalsIgnoreCase(user.getSysUserUsername())) {
+                    return ReturnResult.illegal("不允许禁用超级管理员账号");
+                }
+                if (isInSystem(user)) {
+                    return ReturnResult.illegal("系统账号不能禁用: " + user.getSysUserUsername());
+                }
+            }
+        }
         boolean success = update(Wrappers.<SysUser>lambdaUpdate()
                 .set(SysUser::getSysUserStatus, status)
                 .in(SysUser::getSysUserId, userIds));
+        if (success) {
+            userStateCache.evict(userIds.stream().filter(Objects::nonNull).map(Long::intValue).collect(Collectors.toList()));
+        }
         return success ? ReturnResult.ok(true) : ReturnResult.error("更新失败");
-    }
-
-    @Override
-    /**
-     * 锁定用户
-    */
-    public ReturnResult<Boolean> lockUser(Long userId, Integer lock) {
-        if (null == userId) {
-            return ReturnResult.illegal("用户ID不能为空");
-        }
-        int lockValue = (null == lock || lock != 1) ? 0 : 1;
-        SysUser update = new SysUser();
-        update.setSysUserId(userId.intValue());
-        update.setSysUserLock(lockValue);
-        if (lockValue == 1) {
-            update.setSysUserLockTime(java.time.LocalDateTime.now());
-        } else {
-            update.setSysUserLockTime(null);
-        }
-        return updateById(update) ? ReturnResult.ok(true) : ReturnResult.error("操作失败");
     }
 }
 

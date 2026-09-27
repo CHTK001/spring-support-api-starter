@@ -107,6 +107,12 @@ public class SysMenuSettingVO {
     */
     private Integer sysMenuShowParent;
 
+    @Schema(description = "是否脱离菜单控制; 0:作为菜单处理 1:只注册路由不作菜单")
+    /**
+     * sysmenuremind
+    */
+    private Integer sysMenuRemind;
+
     @Schema(description = "是否隐藏标签页")
     /**
      * sysmenuhidden标签

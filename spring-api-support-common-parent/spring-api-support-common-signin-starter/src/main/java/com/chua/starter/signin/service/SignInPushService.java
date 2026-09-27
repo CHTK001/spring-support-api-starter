@@ -62,6 +62,6 @@ public class SignInPushService {
     public void pushSignInDone(Long userId, SignInResultDTO result) {
         SocketPushSupport.push(socketSessionTemplate, userId, MODULE, EVENT,
                 Map.of("event", "signin_done", "result", result));
-        log.info("用户 {} 签到成功，获得 {} 积分，连续 {} 天", userId, result.getTodayPoints(), result.getStreak());
+        log.info("用户 {} 签到成功，获得 {} 积分，连续 {} 天", userId, result.todayPoints(), result.streak());
     }
 }

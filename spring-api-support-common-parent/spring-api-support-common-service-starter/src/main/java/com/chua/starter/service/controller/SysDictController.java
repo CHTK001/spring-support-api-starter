@@ -1,4 +1,5 @@
 package com.chua.starter.service.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -89,6 +90,7 @@ public class SysDictController {
      */
     @Operation(summary = "删除字典")
     @DeleteMapping("/delete")
+    @SysLog
     @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:dict:delete", role = {"ADMIN", "SUPER_ADMIN"})
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true, beforeInvocation = false)
@@ -108,6 +110,7 @@ public class SysDictController {
      */
     @Operation(summary = "更新字典")
     @PutMapping("/update")
+    @SysLog
     @Permission(value = "sys:dict:update", role = {"ADMIN", "SUPER_ADMIN"})
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<Boolean> update(
@@ -128,6 +131,7 @@ public class SysDictController {
      */
     @Operation(summary = "新增字典")
     @PostMapping("/save")
+    @SysLog
     @Permission(value = "sys:dict:add", role = {"ADMIN", "SUPER_ADMIN"})
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<SysDict> save(
@@ -153,5 +157,21 @@ public class SysDictController {
     @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     public ReturnResult<Boolean> refreshCache() {
         return ReturnResult.ok(Boolean.TRUE);
+    }
+
+    /**
+     * 批量更新字典分类排序
+     */
+    @Operation(summary = "批量更新字典分类排序")
+    @PutMapping("/update-sort")
+    @SysLog
+    @Permission(value = "sys:dict:update", role = {"ADMIN", "SUPER_ADMIN"})
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
+    public ReturnResult<Boolean> updateSort(@RequestBody List<SysDict> list) {
+        if (null == list || list.isEmpty()) {
+            return ReturnResult.illegal("排序数据不能为空");
+        }
+        sysDictService.updateBatchById(list);
+        return ReturnResult.ok(true);
     }
 }

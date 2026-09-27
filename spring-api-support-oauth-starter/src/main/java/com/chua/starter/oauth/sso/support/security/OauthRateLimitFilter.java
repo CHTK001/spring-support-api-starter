@@ -1,6 +1,8 @@
 package com.chua.starter.oauth.sso.support.security;
 
+import com.chua.starter.oauth.sso.support.admin.RateLimitManager;
 import com.chua.starter.oauth.sso.support.properties.OauthSecurityProperties;
+import com.google.common.util.concurrent.RateLimiter;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,7 +10,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -19,33 +20,63 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * OAuth IP 级请求限流过滤器
  *
- * <p>基于 Redis 计数器按客户端 IP 限制单位时间窗口内的请求次数，防止接口被刷。</p>
- * <p>与 {@link LoginAttemptService} 互补：本过滤器按 IP 限流，登录锁定按用户名限流。</p>
+ * <p>限流链路: 全局令牌桶(RateLimitManager) → 按维度规则令牌桶(ip/account/interface,
+ * 规则来自 Redis {@code koiRateLimit:rule:{dimension}:{target}}) → 原有 Redis 窗口计数。</p>
  *
  * @since 2025/01/01
  * @author CH
  */
 @Slf4j
-@RequiredArgsConstructor
 public class OauthRateLimitFilter implements Filter, Ordered {
 
     /**
      * Rate_限制_前缀
-    */
+     */
     private static final String RATE_LIMIT_PREFIX = "oauth:security:rate:";
 
     /**
+     * 规则 key 前缀
+     */
+    private static final String RULE_KEY_PREFIX = "koiRateLimit:rule:";
+
+    /**
      * 安全性属性
-    */
+     */
     private final OauthSecurityProperties securityProperties;
     /**
      * 字符串Redis模板
-    */
+     */
     private final StringRedisTemplate stringRedisTemplate;
+    /**
+     * 全局限流管理器
+     */
+    private final RateLimitManager rateLimitManager;
+
+    /**
+     * 按规则缓存的令牌桶: ruleKey -> bucket
+     */
+    private final Map<String, RuleBucket> ruleBuckets = new ConcurrentHashMap<>();
+
+    /**
+     * 构造
+     *
+     * @param securityProperties 安全配置
+     * @param stringRedisTemplate Redis 模板
+     * @param rateLimitManager 全局限流管理器
+     */
+    public OauthRateLimitFilter(OauthSecurityProperties securityProperties,
+                                StringRedisTemplate stringRedisTemplate,
+                                RateLimitManager rateLimitManager) {
+        this.securityProperties = securityProperties;
+        this.stringRedisTemplate = stringRedisTemplate;
+        this.rateLimitManager = rateLimitManager;
+    }
 
     @Override
     /**
@@ -64,6 +95,22 @@ public class OauthRateLimitFilter implements Filter, Ordered {
         }
 
         String clientIp = resolveClientIp(request);
+
+        // 1. 全局令牌桶
+        if (!rateLimitManager.tryAcquire()) {
+            log.warn("全局限流触发: ip={}, uri={}", clientIp, request.getRequestURI());
+            writeTooManyRequests(response, securityProperties.getRateLimit());
+            return;
+        }
+
+        // 2. 按维度规则令牌桶(ip / interface / account)
+        if (!enforceRule("ip", clientIp, response)
+                || !enforceRule("interface", request.getRequestURI(), response)
+                || !enforceAccountRule(request, clientIp, response)) {
+            return;
+        }
+
+        // 3. 原有 Redis 窗口计数
         OauthSecurityProperties.RateLimit rateLimit = securityProperties.getRateLimit();
         String key = RATE_LIMIT_PREFIX + clientIp + ":" + request.getRequestURI();
 
@@ -88,6 +135,90 @@ public class OauthRateLimitFilter implements Filter, Ordered {
         }
 
         chain.doFilter(request, response);
+    }
+
+    /**
+     * 校验账号维度规则(尝试从请求头取当前账号, 取不到则跳过)
+     *
+     * @param request   请求
+     * @param clientIp  客户端IP
+     * @param response  响应
+     * @return true=放行, false=已拒绝
+     */
+    private boolean enforceAccountRule(HttpServletRequest request, String clientIp, HttpServletResponse response)
+            throws IOException {
+        String account = request.getHeader("X-Account");
+        if (!StringUtils.hasText(account)) {
+            account = request.getHeader("account");
+        }
+        if (!StringUtils.hasText(account)) {
+            return true;
+        }
+        return enforceRule("account", account, response);
+    }
+
+    /**
+     * 按单条规则做令牌桶检查
+     *
+     * @param dimension 维度
+     * @param target    目标
+     * @param response  响应
+     * @return true=放行, false=已拒绝
+     */
+    private boolean enforceRule(String dimension, String target, HttpServletResponse response)
+            throws IOException {
+        String ruleKey = RULE_KEY_PREFIX + dimension + ":" + target;
+        Integer qps;
+        try {
+            String val = stringRedisTemplate.opsForValue().get(ruleKey);
+            if (!StringUtils.hasText(val)) {
+                return true;
+            }
+            qps = Integer.parseInt(val.trim());
+        } catch (Exception e) {
+            // 规则读取失败不影响放行
+            return true;
+        }
+        if (qps == null || qps <= 0) {
+            return true;
+        }
+        RuleBucket bucket = ruleBuckets.compute(ruleKey, (k, old) -> {
+            if (null != old && old.qps == qps) {
+                return old;
+            }
+            return new RuleBucket(qps, RateLimiter.create(qps));
+        });
+        if (!bucket.limiter.tryAcquire()) {
+            log.warn("规则限流触发: dim={}, target={}, qps={}", dimension, target, qps);
+            writeTooManyRequests(response, securityProperties.getRateLimit());
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 规则令牌桶
+     */
+    private static final class RuleBucket {
+        /**
+         * qps
+         */
+        final int qps;
+        /**
+         * limiter
+         */
+        final RateLimiter limiter;
+
+        /**
+         * 构造
+         *
+         * @param qps qps
+         * @param limiter limiter
+         */
+        RuleBucket(int qps, RateLimiter limiter) {
+            this.qps = qps;
+            this.limiter = limiter;
+        }
     }
 
     /**

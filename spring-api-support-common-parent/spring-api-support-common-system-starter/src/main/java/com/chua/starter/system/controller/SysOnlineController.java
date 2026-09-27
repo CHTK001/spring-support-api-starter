@@ -1,4 +1,5 @@
 package com.chua.starter.system.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -84,6 +85,7 @@ public class SysOnlineController {
      */
     @Operation(summary = "强制下线用户")
     @DeleteMapping("/kick/{userId}")
+    @SysLog(module = "强制下线")
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> kickUser(
             @Parameter(description = "用户ID") @PathVariable String userId) {
@@ -98,6 +100,7 @@ public class SysOnlineController {
      */
     @Operation(summary = "批量强制下线用户")
     @DeleteMapping("/kick/batch")
+    @SysLog(module = "强制下线")
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Integer> kickUsers(@RequestBody List<String> userIds) {
         return sysOnlineService.kickUsers(userIds);

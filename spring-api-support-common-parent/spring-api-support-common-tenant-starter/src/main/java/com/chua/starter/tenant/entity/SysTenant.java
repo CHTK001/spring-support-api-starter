@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.chua.common.support.base.validator.group.AddGroup;
 import com.chua.common.support.base.validator.group.UpdateGroup;
 import com.chua.starter.mybatis.pojo.SysBase;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -63,14 +64,20 @@ public class SysTenant extends SysBase {
     private String sysTenantUsername;
 
     /**
-     * 密码
+     * 租户端登录口令
+     *
+     * <p>{@code WRITE_ONLY}：请求体里能读进来（save/update 要用），但<b>永远不会出现在响应里</b>。
+     * 库中存的是 {@code TenantPasswordCipher} 加密的密文，租户同步走
+     * {@code TenantServerSyncPublisher} 自己的 Map 转换（不经 Jackson），所以
+     * 这里屏蔽序列化不影响同步下发。</p>
+     *
+     * <p>不加这个注解时，{@code /v2/tenant/list}、{@code page}、{@code get} 会把口令原样回显，
+     * 哪怕值已是密文也不该外泄（密文可被拿去离线爆破，且暴露了密钥存在性）。</p>
      */
     @TableField(value = "sys_tenant_password")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ApiModelProperty(value = "密码")
     @Schema(description = "密码")
-    /**
-     * systenant密码
-    */
     private String sysTenantPassword;
 
     /**

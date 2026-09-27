@@ -113,10 +113,16 @@ public class SignInService {
         boolean locked = lockTemplate.tryLock(lockKey, Duration.ofMillis(LOCK_WAIT_MILLIS),
                 Duration.ofSeconds(LOCK_LEASE_SECONDS), () -> {});
         if (!locked) {
-            SignInResultDTO result = new SignInResultDTO();
-            result.setSuccess(false);
-            result.setAlreadySigned(true);
-            result.setMsg("请勿重复签到");
+            SignInResultDTO result = new SignInResultDTO(
+                    false,
+                    true,
+                    "请勿重复签到",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
             return result;
         }
 
@@ -124,14 +130,16 @@ public class SignInService {
             // 校验今日是否已签到
             SignInRecord existing = recordMapper.selectByUserIdAndDate(userId, today);
             if (existing != null) {
-                SignInResultDTO result = new SignInResultDTO();
-                result.setSuccess(false);
-                result.setAlreadySigned(true);
-                result.setMsg("今日已签到");
-                result.setTodayPoints(existing.getPoints());
-                result.setStreak(existing.getStreak());
-                result.setTotalPoints(recordMapper.selectTotalPointsByUserId(userId));
-                result.setTotalDays(recordMapper.selectByUserIdOrderByDateDesc(userId).size());
+                SignInResultDTO result = new SignInResultDTO(
+                        false,
+                        true,
+                        "今日已签到",
+                        existing.getPoints(),
+                        existing.getStreak(),
+                        recordMapper.selectTotalPointsByUserId(userId),
+                        recordMapper.selectByUserIdOrderByDateDesc(userId).size(),
+                        null
+                );
                 return result;
             }
 
@@ -161,15 +169,16 @@ public class SignInService {
             List<SignInRecord> allRecords = recordMapper.selectByUserIdOrderByDateDesc(userId);
 
             // 构建结果
-            SignInResultDTO result = new SignInResultDTO();
-            result.setSuccess(true);
-            result.setAlreadySigned(false);
-            result.setMsg("签到成功");
-            result.setTodayPoints(todayPoints);
-            result.setStreak(streak);
-            result.setTotalPoints(totalPoints);
-            result.setTotalDays(allRecords.size());
-            result.setPointsBreakdown(pointsBreakdown);
+            SignInResultDTO result = new SignInResultDTO(
+                    true,
+                    false,
+                    "签到成功",
+                    todayPoints,
+                    streak,
+                    totalPoints,
+                    allRecords.size(),
+                    pointsBreakdown
+            );
 
  // 写入成就上下文数据（前缀与成就模块一致，熔断中断 规则可引用）
             writeAchievementContext(userId, streak, totalPoints != null ? totalPoints : 0);
@@ -219,13 +228,9 @@ public class SignInService {
     public List<SignInDayDTO> getCalendar(Long userId, String yearMonth) {
         List<LocalDate> signedDates = recordMapper.selectDatesByUserIdAndMonth(userId, yearMonth);
         return signedDates.stream().map(date -> {
-            SignInDayDTO dto = new SignInDayDTO();
-            dto.setDate(date);
-            dto.setSigned(true);
             // 获取该日期的签到记录积分
             SignInRecord record = recordMapper.selectByUserIdAndDate(userId, date);
-            dto.setPoints(record != null ? record.getPoints() : 0);
-            return dto;
+            return new SignInDayDTO(date, true, record != null ? record.getPoints() : 0);
         }).collect(Collectors.toList());
     }
 
@@ -242,13 +247,14 @@ public class SignInService {
         LocalDate today = LocalDate.now();
         SignInRecord todayRecord = recordMapper.selectByUserIdAndDate(userId, today);
 
-        SignInStatsDTO stats = new SignInStatsDTO();
-        stats.setUserId(userId);
-        stats.setTotalDays(allRecords.size());
-        stats.setCurrentStreak(todayRecord != null ? todayRecord.getStreak() : 0);
-        stats.setMaxStreak(maxStreak != null ? maxStreak : 0);
-        stats.setTotalPoints(totalPoints != null ? totalPoints : 0);
-        stats.setSignedToday(todayRecord != null);
+        SignInStatsDTO stats = new SignInStatsDTO(
+                userId,
+                allRecords.size(),
+                todayRecord != null ? todayRecord.getStreak() : 0,
+                maxStreak != null ? maxStreak : 0,
+                totalPoints != null ? totalPoints : 0,
+                todayRecord != null
+        );
         return stats;
     }
 

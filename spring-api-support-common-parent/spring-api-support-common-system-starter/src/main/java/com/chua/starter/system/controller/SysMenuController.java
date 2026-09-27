@@ -42,6 +42,16 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.SUPER_
 public class SysMenuController {
 
     /**
+     * 菜单位置：标准（侧边栏）
+     */
+    private static final String POSITION_STANDARD = "standard";
+
+    /**
+     * 菜单位置：顶部（顶栏按钮，强制 remind=1）
+     */
+    private static final String POSITION_TOP = "top";
+
+    /**
      * sysmenu服务
     */
     private final SysMenuService sysMenuService;
@@ -69,8 +79,8 @@ public class SysMenuController {
      */
     @Operation(summary = "菜单列表")
     @GetMapping("/list")
-    public ReturnResult<List<SysMenuSettingVO>> list(@ParameterObject SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
-        return sysMenuService.listMenu(sysMenu, roles);
+    public ReturnResult<List<SysMenuSettingVO>> list(@ParameterObject SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("username") String username) {
+        return sysMenuService.listMenu(sysMenu, roles, username);
     }
 
     /**
@@ -96,6 +106,7 @@ public class SysMenuController {
      */
     @Operation(summary = "删除菜单")
     @DeleteMapping("/delete")
+    @SysLog
     @ApiPlatform("system")
     @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:menu:delete", role = {SUPER_ADMIN, ADMIN})
@@ -115,6 +126,7 @@ public class SysMenuController {
      */
     @Operation(summary = "更新菜单")
     @PutMapping("/update")
+    @SysLog
     @ApiPlatform("system")
     @Permission(value = "sys:menu:update", role = {SUPER_ADMIN, ADMIN})
     public ReturnResult<Boolean> update(
@@ -124,6 +136,7 @@ public class SysMenuController {
         if (bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
+        normalizeMenuPosition(sysMenu);
 
         return sysMenuService.update(roles, sysMenu);
     }
@@ -135,6 +148,7 @@ public class SysMenuController {
      */
     @Operation(summary = "新增菜单")
     @PostMapping("/save")
+    @SysLog
     @ApiPlatform("system")
     @Permission(value = "sys:menu:add", role = {SUPER_ADMIN, ADMIN})
     public ReturnResult<SysMenu> save(
@@ -144,8 +158,31 @@ public class SysMenuController {
         if (bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
+        normalizeMenuPosition(sysMenu);
 
         return sysMenuService.save(sysMenu, roles);
+    }
+
+    /**
+     * 归一化菜单位置：默认 standard；top(顶部) 强制脱离菜单控制（remind=1 且不可修改）
+     *
+     * @param sysMenu 菜单
+     */
+    private void normalizeMenuPosition(SysMenu sysMenu) {
+        if (null == sysMenu) {
+            return;
+        }
+        String position = sysMenu.getSysMenuPosition();
+        if (null == position || position.isBlank()) {
+            sysMenu.setSysMenuPosition(POSITION_STANDARD);
+            return;
+        }
+        if (POSITION_TOP.equalsIgnoreCase(position.trim())) {
+            sysMenu.setSysMenuPosition(POSITION_TOP);
+            sysMenu.setSysMenuRemind(1);
+            return;
+        }
+        sysMenu.setSysMenuPosition(POSITION_STANDARD);
     }
 
     /**
@@ -155,7 +192,7 @@ public class SysMenuController {
      */
     @Operation(summary = "刷新菜单缓存")
     @DeleteMapping("/cache/refresh")
-    @SysLog
+    @SysLog(module = "清缓存")
     @Permission(value = "sys:menu:edit", role = {SUPER_ADMIN, ADMIN})
     public ReturnResult<Boolean> refreshCache() {
         return sysMenuService.refreshCache();

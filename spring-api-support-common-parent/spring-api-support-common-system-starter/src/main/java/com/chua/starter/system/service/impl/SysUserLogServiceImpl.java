@@ -1,5 +1,6 @@
 package com.chua.starter.system.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -190,9 +191,25 @@ public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUser
     }
 
     @Override
-    public IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery, Integer sysUserId, Set<String> roles) {
-        return baseMapper.selectPage(query.createPage(), Wrappers.<SysUserLog>lambdaQuery()
-                .eq(SysUserLog::getCreateBy, sysUserId)
+    public IPage<SysUserLog> mineLogs(Query<SysUserLog> query, SysUserLogQuery sysUserLogQuery,
+                                      Integer sysUserId, String username, Set<String> roles) {
+        boolean hasUserId = null != sysUserId;
+        boolean hasUsername = StringUtils.isNotBlank(username);
+        if (!hasUserId && !hasUsername) {
+            Page<SysUserLog> empty = query.createPage();
+            empty.setRecords(List.of());
+            return empty;
+        }
+        LambdaQueryWrapper<SysUserLog> wrapper = Wrappers.<SysUserLog>lambdaQuery();
+        // 失败登录无令牌归属，只能按登录名归到本人
+        if (hasUserId && hasUsername) {
+            wrapper.and(w -> w.eq(SysUserLog::getCreateBy, sysUserId).or().eq(SysUserLog::getSysLogUsername, username));
+        } else if (hasUserId) {
+            wrapper.eq(SysUserLog::getCreateBy, sysUserId);
+        } else {
+            wrapper.eq(SysUserLog::getSysLogUsername, username);
+        }
+        return baseMapper.selectPage(query.createPage(), wrapper
                 .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogUsername()), SysUserLog::getSysLogUsername, sysUserLogQuery.getSysLogUsername())
                 .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogFrom()), SysUserLog::getSysLogFrom, sysUserLogQuery.getSysLogFrom())
                 .like(StringUtils.isNotBlank(sysUserLogQuery.getSysLogAddress()), SysUserLog::getSysLogAddress, sysUserLogQuery.getSysLogAddress())

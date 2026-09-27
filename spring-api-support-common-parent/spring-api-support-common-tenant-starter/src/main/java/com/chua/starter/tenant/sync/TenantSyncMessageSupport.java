@@ -18,8 +18,10 @@ import java.util.UUID;
 /**
  * 租户同步消息辅助类。
  *
- * @since 2026/03/24
+ * <p>职责：统一构造租户同步消息与确认消息，负责租户信息解析、消息签名校验、消息指纹计算及同步字段常量管理。</p>
+ *
  * @author CH
+ * @since 2026/03/24
  */
 public final class TenantSyncMessageSupport {
 

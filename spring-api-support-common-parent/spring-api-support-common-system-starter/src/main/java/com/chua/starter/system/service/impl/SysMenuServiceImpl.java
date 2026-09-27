@@ -20,6 +20,7 @@ import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.service.SysMenuService;
 import com.chua.starter.system.service.SysRoleMenuService;
+import com.chua.starter.system.support.MenuVisibilityEvaluator;
 import com.github.yulichang.toolkit.MPJWrappers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -51,11 +52,12 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     final SysRoleMenuService sysRoleMenuService; // sys角色menu服务
     final ApplicationEventPublisher eventPublisher; // 事件发布
+    final MenuVisibilityEvaluator menuVisibilityEvaluator; // 菜单动态显示条件求值器
     @Override
     /**
      * 列表menu
     */
-    public ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles) {
+    public ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles, String username) {
         List<SysRoleMenu> list;
         if(!roles.isEmpty()) {
             list = CollectionUtils.isEmpty(roles) ? Collections.emptyList() : sysRoleMenuService.list(
@@ -71,9 +73,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                 listAll(),
                 null == sysMenu ? null : sysMenu.getSysMenuEngine()
         );
+        sysMenus = filterMenusByVisibility(sysMenus);
 
         List<SysMenu> filterMenus = Collections.emptyList();
-        if (AuthConstant.isSuperAdmin(roles) || AuthConstant.isAdmin(roles)) {
+        if (AuthConstant.isPrivileged(username, roles)) {
             filterMenus = sysMenus;
         } else {
             filterMenus = sysMenus.stream()
@@ -81,7 +84,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                     .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == SystemConstant.NOT_DELETED)
                     .toList();
             if(CollectionUtils.isEmpty(filterMenus)) {
-                return ReturnResult.illegal("当前角色权限不足");
+                // 未被授权任何菜单是合法状态：返回空集合而非报错，前端据此渲染「无菜单」
+                return ReturnResult.ok(Collections.emptyList());
             }
         }
 
@@ -161,7 +165,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     /**
      * 列表
     */
-    public ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles, int ignoreType) {
+    public ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles, int ignoreType, String username) {
         List<SysRoleMenu> list = CollectionUtils.isEmpty(roles) ? Collections.emptyList() : sysRoleMenuService.list(
                 MPJWrappers.<SysRoleMenu>lambdaJoin()
                         .select(SysRoleMenu::getSysMenuId)
@@ -172,35 +176,36 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                 listAll(),
                 null == sysMenu ? null : sysMenu.getSysMenuEngine()
         );
+        sysMenus = filterMenusByVisibility(sysMenus);
         if(ignoreType > -1) {
-            sysMenus = sysMenus.stream().filter(sysMenu1 -> sysMenu1.getSysMenuType() != ignoreType).toList();
+            // sys_menu_type 建表允许为 NULL（DEFAULT NULL），直接用 != 比较会拆箱抛 NPE 导致整个菜单接口 500
+            sysMenus = sysMenus.stream()
+                    .filter(sysMenu1 -> !Objects.equals(sysMenu1.getSysMenuType(), ignoreType))
+                    .toList();
         }
 
+        // 内置 admin 账号（username='admin'）与超管一样拥有全部菜单；
+        // 其它账号（即使被授予 ADMIN 角色）一律按角色菜单关联(sys_role_menu)授权，受角色配置控制
+        boolean isBuiltinAdminAccount = AuthConstant.isBuiltinAdmin(username);
+
         List<SysMenu> filterMenus = Collections.emptyList();
-        if(AuthConstant.isSuperAdmin(roles)) {
+        if(AuthConstant.isSuperAdmin(roles) || isBuiltinAdminAccount) {
             filterMenus = sysMenus;
-        } else if(AuthConstant.isAdmin(roles)) {
-            filterMenus = sysMenus.stream().filter(it -> {
-                Integer sysMenuType = it.getSysMenuType();
-                if(null == sysMenuType || sysMenuType == SystemConstant.PERMISSION_ENABLED) {
-                    return true;
-                }
-                String sysMenuRole = it.getSysMenuRole();
-                return StringUtils.isEmpty(sysMenuRole) || ArrayUtils.containsIgnoreCase(it.getSysMenuRole().split(","), AuthConstant.ADMIN);
-            }).toList();
         } else {
             filterMenus = sysMenus.stream()
                     .filter(sysMenu1 -> list.stream().anyMatch(sysRoleMenu -> sysRoleMenu.getSysMenuId().equals(sysMenu1.getSysMenuId())))
                     .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == SystemConstant.NOT_DELETED)
                     .toList();
             if(CollectionUtils.isEmpty(filterMenus)) {
-                return ReturnResult.illegal("当前角色权限不足");
+                // 未被授权任何菜单是合法状态：返回空集合而非报错，前端据此渲染「无菜单」
+                return ReturnResult.ok(Collections.emptyList());
             }
         }
 
 
-        // 确定哪些节点是目录（被其他节点引用为父节点）
+        // 确定哪些节点是目录（被其他节点引用为父节点）；脱离菜单控制的行不参与目录判定，避免父级变成空目录
         Set<Integer> directoryIds = filterMenus.stream()
+                .filter(item -> !isDetachedFromMenu(item))
                 .map(SysMenu::getSysMenuPid)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
@@ -234,12 +239,33 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                     sysMenuVO.setMenuType(directory ? "1" : "0");
                     sysMenuVO.setIsVisible(Objects.equals(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuHidden(), 0), 0) ? "1" : "0");
                     sysMenuVO.setIsKeepAlive(Objects.equals(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuKeepAlive(), 0), 1) ? "1" : "0");
+                    sysMenuVO.setRemind(isDetachedFromMenu(sysMenu1));
+                    // 菜单位置透传：standard(侧边栏) / top(顶栏按钮)，布局据此渲染顶栏入口
+                    sysMenuVO.setSysMenuPosition(sysMenu1.getSysMenuPosition());
+                    // 单子菜单时是否显示父级菜单透传：0 显示父级；1/未配置 隐藏父级（子菜单直接显示）
+                    sysMenuVO.setSysMenuShowParent(sysMenu1.getSysMenuShowParent());
                     sysMenuVO.setIcon(sysMenu1.getSysMenuIcon());
+                    // 菜单徽标三字段透传（缺省不开启）
+                    sysMenuVO.setIsTag(ObjectUtils.defaultIfNull(sysMenu1.getSysMenuIsTag(), 0));
+                    sysMenuVO.setTagType(sysMenu1.getSysMenuTagType());
+                    sysMenuVO.setTagName(sysMenu1.getSysMenuTagName());
                     return sysMenuVO;
                 })
                 .toList();
 
         return ReturnResult.ok(result);
+    }
+
+    /**
+     * 该菜单行是否脱离菜单控制（sys_menu_remind = 1）
+     * <p>
+     * 脱离后仍会下发给前端注册路由，但不再被当作菜单处理（侧边栏/目录判定都不参与）。
+     *
+     * @param sysMenu 菜单行
+     * @return true 表示不作为菜单处理
+     */
+    private static boolean isDetachedFromMenu(SysMenu sysMenu) {
+        return null != sysMenu && Objects.equals(ObjectUtils.defaultIfNull(sysMenu.getSysMenuRemind(), 0), 1);
     }
 
     @Override
@@ -282,6 +308,24 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         }
         return sysMenus.stream()
                 .filter(menu -> Objects.equals(ObjectUtils.defaultIfNull(menu.getSysMenuEngine(), 0), sysMenuEngine))
+                .toList();
+    }
+
+    /**
+     * 按动态显示条件过滤菜单。
+     *
+     * <p>条件未配置（ALWAYS）的菜单恒显示；条件明确为假的菜单被剔除。
+     * 求值器内部对异常采取「放行」策略，所以这里不会因为一条脏配置把整棵树清空。</p>
+     *
+     * @param sysMenus 菜单
+     * @return 过滤后的菜单
+     */
+    private List<SysMenu> filterMenusByVisibility(List<SysMenu> sysMenus) {
+        if (null == sysMenus || sysMenus.isEmpty() || null == menuVisibilityEvaluator) {
+            return null == sysMenus ? Collections.emptyList() : sysMenus;
+        }
+        return sysMenus.stream()
+                .filter(menu -> menuVisibilityEvaluator.visible(menu))
                 .toList();
     }
 

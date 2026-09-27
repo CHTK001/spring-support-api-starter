@@ -1,4 +1,5 @@
 package com.chua.starter.service.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.Permission;
@@ -91,6 +92,7 @@ public class SysSettingGroupController {
      */
     @Operation(summary = "更新设置")
     @PostMapping("/saveOrUpdate")
+    @SysLog
     @ApiPlatform("system")
     @Permission(value = "sys:setting:group:add", role = {ADMIN, SUPER_ADMIN})
     @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'")
@@ -113,6 +115,7 @@ public class SysSettingGroupController {
      */
     @Operation(summary = "更新设置")
     @PostMapping("/batchUpdate")
+    @SysLog
     @ApiPlatform("system")
     @Permission(value = "sys:setting:group:batchUpdate", role = {ADMIN, SUPER_ADMIN})
     @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'")

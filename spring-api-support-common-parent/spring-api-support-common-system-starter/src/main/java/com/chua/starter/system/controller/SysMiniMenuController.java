@@ -1,4 +1,5 @@
 package com.chua.starter.system.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.starter.system.validator.group.AddGroup;
 import com.chua.starter.system.validator.group.UpdateGroup;
@@ -59,6 +60,7 @@ public class SysMiniMenuController {
      */
     @Operation(summary = "删除小程序菜单")
     @DeleteMapping("/delete")
+    @SysLog
     @ApiPlatform("system")
     @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:mini-menu:delete", role = {SUPER_ADMIN, ADMIN})
@@ -76,6 +78,7 @@ public class SysMiniMenuController {
      */
     @Operation(summary = "更新小程序菜单")
     @PutMapping("/update")
+    @SysLog
     @ApiPlatform("system")
     @Permission(value = "sys:mini-menu:update", role = {SUPER_ADMIN, ADMIN})
     public ReturnResult<Boolean> update(
@@ -98,6 +101,7 @@ public class SysMiniMenuController {
      */
     @Operation(summary = "新增小程序菜单")
     @PostMapping("/save")
+    @SysLog
     @ApiPlatform("system")
     @Permission(value = "sys:mini-menu:add", role = {SUPER_ADMIN, ADMIN})
     public ReturnResult<SysMiniMenu> save(

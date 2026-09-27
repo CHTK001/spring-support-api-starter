@@ -77,10 +77,22 @@ public class FeedbackMenuInitializer implements ApplicationRunner {
     /**
      * 应用启动后执行反馈菜单初始化。
      *
+     * <p>整段兜住异常：补一条反馈管理菜单属于「锦上添花」，失败只应让菜单暂时不出现，
+     * 不能让异常冒泡终止启动 —— 否则数据库瞬断（连接池尚未就绪、DB 正在重启）就会
+     * 整站起不来。这与 {@link UserAgreementSettingInitializer} 的处理一致。</p>
+     *
      * @param args 启动参数
      */
     @Override
     public void run(ApplicationArguments args) {
+        try {
+            doRun();
+        } catch (Exception e) {
+            log.warn("[反馈管理] 菜单初始化失败，已跳过（反馈菜单本次不出现，下次启动自动补建）", e);
+        }
+    }
+
+    private void doRun() {
         SysMenu parentMenu = sysMenuMapper.selectOne(
                 Wrappers.<SysMenu>lambdaQuery()
                         .eq(SysMenu::getSysMenuPath, PARENT_MENU_PATH)

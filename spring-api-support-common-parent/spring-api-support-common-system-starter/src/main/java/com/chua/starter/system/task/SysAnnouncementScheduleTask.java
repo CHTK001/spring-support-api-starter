@@ -3,10 +3,10 @@ package com.chua.starter.system.task;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.entity.system.SysAnnouncement;
 import com.chua.starter.system.service.SysAnnouncementService;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -14,18 +14,19 @@ import java.time.LocalDateTime;
 /**
  * 公告定时发布/下线任务
  * <p>
- * 每分钟扫描一次:
+ * 默认每分钟扫描一次:
  * <ul>
  *     <li>草稿(status=0) 且 发布时间 &lt;= 当前时间 的公告, 自动置为已发布(status=1)</li>
  *     <li>已发布(status=1) 且 过期时间 &lt;= 当前时间 的公告, 自动置为已下架(status=2)</li>
  * </ul>
- * 项目已通过 {@code @EnableScheduling} 开启定时任务支持, 本类直接生效。
+ * 任务注册到 {@link DynamicScheduleRegistry}, 支持在监控大屏运行期修改 cron 与启停,
+ * 配置持久化到 {@code sys_setting}。
  *
  * @author CH
  * @since 4.0.0.51
  */
 @Slf4j
-// @Component  // 暂时注释掉，因为有多个 CacheManager bean，Spring 不知道该注入哪个
+@Component
 /**
  * SysAnnouncementScheduleTask类，提供相关能力。
  *
@@ -52,9 +53,23 @@ public class SysAnnouncementScheduleTask {
     private CacheManager cacheManager;
 
     /**
+     * 动态调度注册中心
+    */
+    @Autowired
+    private DynamicScheduleRegistry scheduleRegistry;
+
+    /**
+     * 注册到动态调度中心（默认每分钟执行一次）
+     */
+    @PostConstruct
+    public void register() {
+        scheduleRegistry.register("announcement-status", "公告状态流转", "0 * * * * ?", true,
+                this::scheduleAnnouncementStatus);
+    }
+
+    /**
      * 每分钟执行一次公告状态流转
      */
-    @Scheduled(cron = "0 * * * * ?")
     public void scheduleAnnouncementStatus() {
         try {
             LocalDateTime now = LocalDateTime.now();

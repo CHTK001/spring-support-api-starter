@@ -1,5 +1,6 @@
 package com.chua.starter.tenant.spi;
 
+import com.chua.common.support.lang.datasource.dialect.SqlName;
 import com.chua.common.support.utils.MapUtils;
 import com.chua.starter.entity.system.SysMenu;
 import com.chua.starter.entity.system.SysUser;
@@ -10,6 +11,7 @@ import com.chua.starter.tenant.server.mapper.SysServiceModuleItemMapper;
 import com.chua.starter.tenant.server.mapper.SysServiceModuleMapper;
 import com.chua.starter.tenant.server.mapper.SysTenantServiceMapper;
 import com.chua.starter.tenant.server.mapper.TenantServiceMapper;
+import com.chua.starter.tenant.server.support.TenantPasswordCipher;
 import com.chua.starter.tenant.sync.TenantSyncMessageSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,6 +84,11 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
      * 租户服务删除 映射器
     */
     private final TenantServiceMapper tenantServiceMapper;
+
+    /**
+     * 租户口令落库加解密（下发前解密）
+     */
+    private final TenantPasswordCipher tenantPasswordCipher;
 
     /**
      * 合法的租户 标识 列名白名单，用于防止 SQL 注入
@@ -170,7 +177,8 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
         jdbcTemplate.update(insertSql,
                 tenant.getSysTenantName(),
                 tenant.getSysTenantUsername(),
-                tenant.getSysTenantPassword(),
+                // 库里是密文，这里下发明文，租户端按原逻辑存储，线格式不变
+                tenantPasswordCipher.decrypt(tenant.getSysTenantPassword()),
                 tenant.getSysTenantPhone(),
                 tenant.getSysTenantEmail(),
                 tenant.getSysTenantStatus() == null ? 0 : tenant.getSysTenantStatus(),
@@ -207,7 +215,8 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
 
         if (TenantSyncMessageSupport.hasText(tenant.getSysTenantPassword())) {
             updateSql.append(", sys_user_password = ?");
-            params.add(tenant.getSysTenantPassword());
+            // 库里是密文，这里下发明文，租户端按原逻辑存储，线格式不变
+            params.add(tenantPasswordCipher.decrypt(tenant.getSysTenantPassword()));
         }
 
         updateSql.append(", update_time = NOW() WHERE ").append(tenantIdColumn).append(" = ?");
@@ -654,8 +663,8 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
                     sys_menu_hidden, sys_menu_show_parent, sys_menu_hidden_tag, sys_menu_fixed_tag,
                     sys_menu_redirect, sys_menu_enter_transition, sys_menu_leave_transition, sys_menu_active_path,
                     sys_menu_frame_src, sys_menu_keep_alive, sys_menu_role, sys_menu_home,
-                    sys_menu_engine, %s, create_time, update_time
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+                    sys_menu_engine, sys_menu_remind, %s, create_time, update_time
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
                 """, tenantIdColumn);
 
         jdbcTemplate.update(insertSql,
@@ -665,7 +674,7 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
                 menu.getSysMenuHidden(), menu.getSysMenuShowParent(), menu.getSysMenuHiddenTag(), menu.getSysMenuFixedTag(),
                 menu.getSysMenuRedirect(), menu.getSysMenuEnterTransition(), menu.getSysMenuLeaveTransition(), menu.getSysMenuActivePath(),
                 menu.getSysMenuFrameSrc(), menu.getSysMenuKeepAlive(), menu.getSysMenuRole(), menu.getSysMenuHome(),
-                menu.getSysMenuEngine(), tenantId);
+                menu.getSysMenuEngine(), menu.getSysMenuRemind(), tenantId);
     }
 
     /**
@@ -746,10 +755,11 @@ public class DefaultTenantDataSyncProvider implements TenantDataSyncProvider {
      * @throws IllegalArgumentException 当列名不在白名单中时
      */
     private String sanitizeTenantColumn(String column) {
-        if (column == null || !ALLOWED_TENANT_COLUMNS.contains(column)) {
+        try {
+            return SqlName.checkAllowedSimple(column, "租户 ID 列名", ALLOWED_TENANT_COLUMNS);
+        } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException("非法的租户 ID 列名: " + column
-                    + "，允许的列名: " + ALLOWED_TENANT_COLUMNS);
+                    + "，允许的列名: " + ALLOWED_TENANT_COLUMNS, ex);
         }
-        return column;
     }
 }

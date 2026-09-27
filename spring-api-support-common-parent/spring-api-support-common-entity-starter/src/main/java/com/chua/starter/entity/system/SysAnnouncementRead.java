@@ -67,4 +67,11 @@ public class SysAnnouncementRead extends SysBase implements Serializable {
      * read时间
     */
     private LocalDateTime readTime;
+
+    /**
+     * 用户名（非持久化，已读用户列表展示用，由 Controller 关联 sys_user 回填）
+     */
+    @TableField(value = "sys_user_name", exist = false)
+    @Schema(description = "用户名")
+    private String sysUserName;
 }

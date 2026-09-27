@@ -1,4 +1,5 @@
 package com.chua.starter.service.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.starter.common.support.lang.ReturnPageResult;
 import com.chua.common.support.lang.code.ReturnResult;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -145,6 +147,7 @@ public class SysDictItemController {
      */
     @Operation(summary = "删除字典子项")
     @DeleteMapping("/delete")
+    @SysLog
     @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:dict:item:delete", role = {"ADMIN", AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> delete(Long sysDictItemId) {
@@ -163,6 +166,7 @@ public class SysDictItemController {
      */
     @Operation(summary = "更新字典子项")
     @PutMapping("/update")
+    @SysLog
     @Permission(value = "sys:dict:item:update", role = {"ADMIN", AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -182,6 +186,7 @@ public class SysDictItemController {
      */
     @Operation(summary = "新增字典子项")
     @PostMapping("/save")
+    @SysLog
     @Permission(value = "sys:dict:item:add", role = {"ADMIN", AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysDictItem> save(
                 @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -192,5 +197,21 @@ public class SysDictItemController {
         }
 
         return sysDictItemService.save(sysDictItem, roles);
+    }
+
+    /**
+     * 批量更新字典子项排序
+     */
+    @Operation(summary = "批量更新字典子项排序")
+    @PutMapping("/update-sort")
+    @SysLog
+    @Permission(value = "sys:dict:item:update", role = {"ADMIN", AuthConstant.SUPER_ADMIN})
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
+    public ReturnResult<Boolean> updateSort(@RequestBody List<SysDictItem> list) {
+        if (null == list || list.isEmpty()) {
+            return ReturnResult.illegal("排序数据不能为空");
+        }
+        sysDictItemService.updateBatchById(list);
+        return ReturnResult.ok(true);
     }
 }

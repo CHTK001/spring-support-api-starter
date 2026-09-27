@@ -47,10 +47,21 @@ public class UserAgreementSettingInitializer implements ApplicationRunner {
     /**
      * 应用启动后执行用户协议配置初始化。
      *
+     * <p>整段兜住异常：写协议配置属于「锦上添花」，失败只应让协议用前端静态兜底文案，
+     * 不能让异常冒泡终止启动 —— 否则 {@code sys_setting} 结构稍有偏差就会整站起不来。</p>
+     *
      * @param args 启动参数
      */
     @Override
     public void run(ApplicationArguments args) {
+        try {
+            doRun();
+        } catch (Exception e) {
+            log.warn("[用户协议配置] 初始化失败，已跳过（协议将使用前端静态兜底文案）: {}", e.getMessage());
+        }
+    }
+
+    private void doRun() {
         boolean changed = false;
         changed |= ensureGroup();
         changed |= ensureSetting("title", "用户协议", "协议标题", "String", 10);
@@ -127,7 +138,7 @@ public class UserAgreementSettingInitializer implements ApplicationRunner {
         setting.setSysSettingStatus(1);
         setting.setSysSettingAdmin(1);
         setting.setSysSettingCollect(0);
-        setting.setSysSettingInSystem(1);
+        setting.setSysSettingInSystem(0);
         setting.setSysSettingAppInner(0);
         sysSettingMapper.insert(setting);
         return true;

@@ -116,6 +116,15 @@ public class SysSettingVO {
     private String sysSettingValue;
 
     /**
+     * 出厂默认值（与当前运行值分离，用于“恢复默认”）
+     */
+    @TableField(value = "sys_setting_default_value")
+    @ApiModelProperty(value = "出厂默认值")
+    @Schema(description = "出厂默认值")
+    @Size(max = 255, message = "出厂默认值最大长度要小于 255")
+    private String sysSettingDefaultValue;
+
+    /**
      * 配置所属分组
      */
     @TableField(value = "sys_setting_group")

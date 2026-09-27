@@ -1,4 +1,5 @@
 package com.chua.starter.system.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.starter.common.support.lang.ReturnPageResult;
@@ -83,6 +84,7 @@ public class SysRoleController {
      */
     @Operation(summary = "删除角色")
     @DeleteMapping("/delete")
+    @SysLog
     @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
     @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:role:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
@@ -102,6 +104,7 @@ public class SysRoleController {
      */
     @Operation(summary = "给角色添加菜单")
     @PutMapping("/update_menu")
+    @SysLog
     @Permission(value = "sys:role:menu:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> updateMenu(
             @Parameter(hidden = true) @UserValue("roles") Set<String> roles,
@@ -140,6 +143,7 @@ public class SysRoleController {
      */
     @Operation(summary = "更新角色")
     @PutMapping("/update")
+    @SysLog
     @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
     @Permission(value = "sys:role:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
@@ -154,6 +158,22 @@ public class SysRoleController {
     }
 
     /**
+     * 更新角色数据权限（只写数据权限两列）
+     * <p>数据权限属于角色配置项，管理员即可调整（系统内置角色同样适用），不需要超管。</p>
+     *
+     * @param sysRole 入参：sysRoleId / sysRoleDataScope / sysRoleDataScopeDeptIds
+     * @return 更新结果
+     */
+    @Operation(summary = "更新角色数据权限")
+    @PutMapping("/update_data_scope")
+    @SysLog
+    @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
+    @Permission(value = "sys:role:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Boolean> updateDataScope(@RequestBody SysRole sysRole) {
+        return sysRoleService.updateDataScope(sysRole);
+    }
+
+    /**
      * 新增角色
      *
      * @return 新增角色
@@ -163,6 +183,7 @@ public class SysRoleController {
      */
     @Operation(summary = "新增角色")
     @PostMapping("/save")
+    @SysLog
     @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role'")
     @Permission(value = "sys:role:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysRole> save(@Validated(AddGroup.class) @RequestBody SysRole sysRole, BindingResult bindingResult) {

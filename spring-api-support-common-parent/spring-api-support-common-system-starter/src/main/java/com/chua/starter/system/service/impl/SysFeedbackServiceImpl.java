@@ -82,6 +82,49 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
         TYPE_NAME_MAP.put("OTHER", "其他问题");
     }
 
+    /**
+     * 列排序白名单：前端属性名 -> 数据库列名（防 SQL 注入，仅允许下列字段排序）
+     */
+    private static final Map<String, String> SORT_COLUMN_WHITELIST = new HashMap<>();
+    static {
+        SORT_COLUMN_WHITELIST.put("sysFeedbackPriority", "sys_feedback_priority");
+        SORT_COLUMN_WHITELIST.put("sysFeedbackRecoverTime", "sys_feedback_recover_time");
+        SORT_COLUMN_WHITELIST.put("createTime", "create_time");
+        SORT_COLUMN_WHITELIST.put("sysFeedbackId", "sys_feedback_id");
+    }
+
+    /**
+     * 构造完整 ORDER BY：用户点击的列排序（白名单）优先，默认业务排序兜底
+     */
+    private String buildOrderBy(FeedbackV1Request request) {
+        StringBuilder userOrder = new StringBuilder();
+        String order = request.getOrder();
+        if (StringUtils.isNotBlank(order)) {
+            for (String item : order.split(",")) {
+                String trimmed = item.trim();
+                String direction = null;
+                String attr = null;
+                if (trimmed.endsWith(" desc")) {
+                    direction = "DESC";
+                    attr = trimmed.substring(0, trimmed.length() - 5).trim();
+                } else if (trimmed.endsWith(" asc")) {
+                    direction = "ASC";
+                    attr = trimmed.substring(0, trimmed.length() - 4).trim();
+                }
+                String column = SORT_COLUMN_WHITELIST.get(attr);
+                if (null != column && null != direction) {
+                    userOrder.append(column).append(' ').append(direction).append(',');
+                }
+            }
+        }
+        return "ORDER BY " + userOrder
+                + "sys_feedback_status ASC,"
+                + "sys_feedback_priority DESC,"
+                + "CASE WHEN sys_feedback_type = 'BUG' THEN 0 ELSE 1 END ASC,"
+                + "create_time DESC,"
+                + "sys_feedback_id DESC";
+    }
+
     @Override
     /**
      * pagefor
@@ -89,7 +132,7 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     public ReturnPageResult<SysFeedback> pageFor(FeedbackV1Request feedbackV1Request) {
         FeedbackV1Request request =
                 feedbackV1Request == null ? new FeedbackV1Request() : feedbackV1Request;
-        Page<SysFeedback> page = request.createFullPage();
+        Page<SysFeedback> page = request.createPage();
         return PageResultUtils.ok(
                 page(
                         page,
@@ -114,10 +157,50 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
                                         SysFeedback::getSysFeedbackPriority,
                                         request.getSysFeedbackPriority()
                                 )
-                                .orderByDesc(SysFeedback::getCreateTime)
-                                .orderByDesc(SysFeedback::getSysFeedbackId)
+                                .eq(
+                                        StringUtils.isNotBlank(request.getSysFeedbackPlatform()),
+                                        SysFeedback::getSysFeedbackPlatform,
+                                        request.getSysFeedbackPlatform()
+                                )
+                                .ge(
+                                        StringUtils.isNotBlank(request.getCreateTimeStart()),
+                                        SysFeedback::getCreateTime,
+                                        dayStart(request.getCreateTimeStart())
+                                )
+                                .le(
+                                        StringUtils.isNotBlank(request.getCreateTimeEnd()),
+                                        SysFeedback::getCreateTime,
+                                        dayEnd(request.getCreateTimeEnd())
+                                )
+                                .ge(
+                                        StringUtils.isNotBlank(request.getRecoverTimeStart()),
+                                        SysFeedback::getSysFeedbackRecoverTime,
+                                        dayStart(request.getRecoverTimeStart())
+                                )
+                                .le(
+                                        StringUtils.isNotBlank(request.getRecoverTimeEnd()),
+                                        SysFeedback::getSysFeedbackRecoverTime,
+                                        dayEnd(request.getRecoverTimeEnd())
+                                )
+                                .last(buildOrderBy(request))
                 )
         );
+    }
+
+    /** 解析 yyyy-MM-dd 为当天起始 00:00:00 */
+    private static LocalDateTime dayStart(String day) {
+        if (StringUtils.isBlank(day)) {
+            return null;
+        }
+        return LocalDate.parse(day.trim()).atStartOfDay();
+    }
+
+    /** 解析 yyyy-MM-dd 为当天结束 23:59:59 */
+    private static LocalDateTime dayEnd(String day) {
+        if (StringUtils.isBlank(day)) {
+            return null;
+        }
+        return LocalDate.parse(day.trim()).atTime(23, 59, 59);
     }
 
     @Override
@@ -219,13 +302,22 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
             for (int i = 29; i >= 0; i--) {
                 LocalDate date = today.minusDays(i);
                 String dateStr = date.format(formatter);
-                long count = allFeedbacks.stream()
+                List<SysFeedback> dayFeedbacks = allFeedbacks.stream()
                         .filter(f -> f.getCreateTime() != null &&
                                 f.getCreateTime().toLocalDate().equals(date))
+                        .collect(Collectors.toList());
+                long count = dayFeedbacks.size();
+                long pendingCount = dayFeedbacks.stream()
+                        .filter(f -> f.getSysFeedbackStatus() == null || f.getSysFeedbackStatus() == 0)
+                        .count();
+                long resolvedCount = dayFeedbacks.stream()
+                        .filter(f -> f.getSysFeedbackStatus() != null && f.getSysFeedbackStatus() == 1)
                         .count();
                 FeedbackStatisticV1Response.TrendStatistic stat = new FeedbackStatisticV1Response.TrendStatistic();
                 stat.setDate(dateStr);
                 stat.setCount(count);
+                stat.setPendingCount(pendingCount);
+                stat.setResolvedCount(resolvedCount);
                 trendStatistics.add(stat);
             }
             response.setTrendStatistics(trendStatistics);

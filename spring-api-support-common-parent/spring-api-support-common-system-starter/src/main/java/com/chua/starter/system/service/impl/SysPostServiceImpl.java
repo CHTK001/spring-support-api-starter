@@ -8,6 +8,7 @@ import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.entity.system.SysPost;
+import java.util.List;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.entity.system.SysUserPost;
 import com.chua.starter.system.mapper.SysPostMapper;
@@ -172,5 +173,27 @@ public class SysPostServiceImpl extends ServiceImpl<SysPostMapper, SysPost> impl
         }
         List<Integer> userIds = rels.stream().map(SysUserPost::getSysUserId).collect(Collectors.toList());
         return sysUserMapper.selectBatchIds(userIds);
+    }
+    /**
+     * 批量更新岗位排序。
+     *
+     * @param list 待更新的岗位列表，不能为 null 或空集合
+     * @return 批量处理结果
+     */
+    @Override
+    public ReturnResult<Boolean> updateSortBatch(List<SysPost> list) {
+        if (list == null || list.isEmpty()) {
+            return ReturnResult.illegal("参数不能为空");
+        }
+        for (SysPost post : list) {
+            if (post.getSysPostId() == null) {
+                continue;
+            }
+            SysPost update = new SysPost();
+            update.setSysPostId(post.getSysPostId());
+            update.setSysPostSort(post.getSysPostSort());
+            this.updateById(update);
+        }
+        return ReturnResult.ok(true);
     }
 }

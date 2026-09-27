@@ -92,6 +92,24 @@ public class SysDeptVO {
     */
     private Integer memberCount;
 
+    @Schema(description = "联系方式")
+    private String sysDeptContact;
+
+    @Schema(description = "排序")
+    private Integer sysDeptSort;
+
+    @Schema(description = "备注")
+    private String sysDeptRemark;
+
+    @Schema(description = "数据权限类型")
+    private Integer sysDeptDataPermission;
+
+    @Schema(description = "数据权限可见部门ID")
+    private String sysDeptDataPermissionDeptId;
+
+    @Schema(description = "自定义数据权限可见部门ID列表")
+    private String sysDeptDataPermissionDeptIds;
+
     /**
      * 瀛愰儴闂"     */
     @Schema(description = "瀛愰儴闂")

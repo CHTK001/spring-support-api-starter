@@ -1,5 +1,7 @@
 package com.chua.starter.achievement.dto;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -17,4 +19,16 @@ public record ReportStatsDTO(
         Long userId,
         Map<String, Object> stats
 ) {
+
+    /**
+     * 规范构造器：统计值映射做防御性拷贝。
+     *
+     * <p>value class 前置条件——集合组件必须深不可变。该映射来自前端上报的 JSON，
+     * 键与值都允许为 null（服务层会显式跳过空值条目），因此不能使用会拒绝 null 的
+     * {@link java.util.Map#copyOf(Map)}；整体为 null 的语义也保持不变，服务层据此
+     * 判定为「本次无上报」。</p>
+     */
+    public ReportStatsDTO {
+        stats = stats == null ? null : Collections.unmodifiableMap(new LinkedHashMap<>(stats));
+    }
 }

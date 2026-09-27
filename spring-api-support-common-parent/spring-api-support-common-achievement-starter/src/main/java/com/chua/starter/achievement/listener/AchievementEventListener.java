@@ -121,7 +121,7 @@ public class AchievementEventListener {
             List<UnlockedAchievementDTO> unlocked = achievementService.onUserAction(userId, statKey, delta);
             if (!unlocked.isEmpty()) {
                 log.info("用户 {} 解锁 {} 个成就: {}", userId, unlocked.size(),
-                        unlocked.stream().map(UnlockedAchievementDTO::getName).toList());
+                        unlocked.stream().map(UnlockedAchievementDTO::name).toList());
             }
         } catch (Exception e) {
             log.error("处理用户行为事件失败: userId={}, action={}, error={}",

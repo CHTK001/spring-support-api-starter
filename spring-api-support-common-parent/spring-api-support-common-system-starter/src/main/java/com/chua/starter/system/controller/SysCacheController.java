@@ -52,7 +52,7 @@ public class SysCacheController {
      */
     @Operation(summary = "刷新指定缓存")
     @DeleteMapping("/refresh")
-    @SysLog
+    @SysLog(module = "清缓存")
     @Permission(value = "sys:cache:refresh", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> refresh(@RequestParam String cacheName) {
         return sysCacheService.refresh(cacheName);
@@ -65,7 +65,7 @@ public class SysCacheController {
      */
     @Operation(summary = "刷新全部缓存")
     @DeleteMapping("/refresh/all")
-    @SysLog
+    @SysLog(module = "清缓存")
     @Permission(value = "sys:cache:refresh", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> refreshAll() {
         return sysCacheService.refreshAll();

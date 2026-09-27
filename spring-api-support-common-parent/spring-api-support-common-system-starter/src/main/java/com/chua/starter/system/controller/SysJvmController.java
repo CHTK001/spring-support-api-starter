@@ -1,4 +1,5 @@
 package com.chua.starter.system.controller;
+import com.chua.starter.common.support.annotations.SysLog;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.reflection.ReflectUtils;
@@ -451,6 +452,7 @@ public class SysJvmController {
      * @return 执行结果
      */
     @PostMapping("/gc")
+    @SysLog(module = "GC")
     @Operation(summary = "手动执行 GC")
     public ReturnResult<String> triggerGc() {
         log.info("手动触发 GC");
