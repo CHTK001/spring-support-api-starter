@@ -56,11 +56,14 @@
 | `catalogUrl` | String | 资源站采集接口地址（覆盖 `spring.video.catalog-url`） |
 | `defaultKeyword` | String | 兜底检索关键词 |
 | `browseKeywords` | JSON | 分类码 → 关键词映射 |
-| `liveGroup.<id>` | JSON | 直播分组：`{"label":"央视","cctv":true,"sort":1}` |
-| `liveChannel.<id>` | JSON | 直播频道：`{"name":"CCTV-1 综合","group":"cctv","sort":1}` |
-| `liveSource.<id>.<n>` | String | 频道第 n 路候选流地址 |
+| `liveCatalog` | JSON | 直播目录整段：分组 + 频道 + 候选源 |
 
-> 受 `sys_setting_value`（`varchar(255)`）限制，配置值均 ≤255 字符，直播目录因此**按分组 / 频道 / 源逐行存储**。
+> `sys_setting_value` 已放宽为 `TEXT`，直播目录以整段 JSON 存于 `liveCatalog`，可直接在 `/v2/setting` 编辑。
+> 兼容早期按行存储的 `liveGroup.* / liveChannel.* / liveSource.*`：读取时优先整段 JSON，缺失则回退逐行组装。
+>
+> **已有库升级**：脚本模式为 `ONCE`，仅空库执行，存量库请手动执行
+> `ALTER TABLE sys_setting MODIFY COLUMN sys_setting_value TEXT NULL COMMENT '配置值 - 配置项的值';`
+> （未升级时写入超长目录会被数据库拒绝，模块自动回退内置 JSON，不影响启动）。
 
 行为说明：
 
