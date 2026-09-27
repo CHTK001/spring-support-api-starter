@@ -33,5 +33,6 @@
         <module>spring-api-support-common-system-starter</module>
         <module>spring-api-support-common-achievement-starter</module>
         <module>spring-api-support-common-signin-starter</module>
+        <module>spring-api-support-common-video-starter</module>
     </modules>
 </project>

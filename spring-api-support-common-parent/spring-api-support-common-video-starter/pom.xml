@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.chua</groupId>
+    <artifactId>spring-api-support-common-parent</artifactId>
+    <version>4.0.0.42</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <artifactId>spring-api-support-common-video-starter</artifactId>
+  <description>通用视频服务 - 多源聚合检索、分类浏览与在线播放（对接 utils-support-datasearch-starter 视频 SPI）</description>
+  <dependencies>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-common-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-swagger-starter</artifactId>
+    </dependency>
+    <!-- 配置数据库存储：复用 sys_setting / SysSettingService（可选，缺失时回退内置 JSON） -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-api-support-common-service-starter</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>src/main/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>
