@@ -177,15 +177,18 @@ CREATE TABLE IF NOT EXISTS `sys_log` (
     INDEX `sys_log_idx_url` (`sys_log_url`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统操作日志表 - 记录API请求日志用于审计';
 
--- 同上：客户端指纹三列在上面的 CREATE 里已声明，这里用独立短语句兜底补齐，
--- 避免迁移器截断长建表语句时丢列。ADD COLUMN IF NOT EXISTS 保证幂等。
-ALTER TABLE `sys_log` ADD COLUMN IF NOT EXISTS `sys_log_system` varchar(255) NULL DEFAULT NULL COMMENT '操作系统';
-ALTER TABLE `sys_log` ADD COLUMN IF NOT EXISTS `sys_log_ua` varchar(512) NULL DEFAULT NULL COMMENT 'User-Agent';
-ALTER TABLE `sys_log` ADD COLUMN IF NOT EXISTS `sys_log_fingerprint` varchar(64) NULL DEFAULT NULL COMMENT '客户端指纹';
 
 -- =====================================================
+-- 同上：客户端指纹三列在上面的 CREATE 里已声明，这里用独立短语句兜底补齐，
+-- 避免迁移器截断长建表语句时丢列。ADD COLUMN IF NOT EXISTS 保证幂等。
+-- [已折叠] 本处原有的幂等补列语句（sys_log_system）已移除：
+--           对应列/索引已在建表语句中声明，按「标准合并 SQL 不含 ALTER」的规约不再保留重复兜底。
 -- 7. 系统配置分组表 (sys_setting_group)
+-- [已折叠] 本处原有的幂等补列语句（sys_log_ua）已移除：
+--           对应列/索引已在建表语句中声明，按「标准合并 SQL 不含 ALTER」的规约不再保留重复兜底。
 -- 用途: 对系统配置项进行分组管理
+-- [已折叠] 本处原有的幂等补列语句（sys_log_fingerprint）已移除：
+--           对应列/索引已在建表语句中声明，按「标准合并 SQL 不含 ALTER」的规约不再保留重复兜底。
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS `sys_setting_group` (
@@ -216,7 +219,10 @@ CREATE TABLE IF NOT EXISTS `sys_setting` (
     `sys_setting_id` int NOT NULL AUTO_INCREMENT COMMENT '配置ID - 主键自增',
     `sys_setting_name` varchar(255) NULL DEFAULT NULL COMMENT '配置名称 - 配置项的键名',
     `sys_setting_code` varchar(255) NULL DEFAULT NULL COMMENT '配置编码 - 唯一标识码（如 login.title）',
-    `sys_setting_value` varchar(255) NULL DEFAULT NULL COMMENT '配置值 - 配置项的值',
+    -- 值列取 incoming 的 text：255 字节存不下富文本配置（有人撞过上限）。
+    -- text 在 MySQL 里不能带 DEFAULT，故此处不给默认值。
+    `sys_setting_value` text NULL COMMENT '配置值 - 配置项的值',
+    -- 出厂默认值列取 HEAD：与当前值分离，供前端「恢复默认」用，两侧都需要
     `sys_setting_default_value` varchar(255) NULL DEFAULT NULL COMMENT '出厂默认值 - 与当前值分离，用于恢复默认',
     `sys_setting_value_type` varchar(255) NULL DEFAULT NULL COMMENT '配置类型 - Boolean/String/Number/Color/Dict等，用于前端组件判断',
     `sys_setting_group` varchar(255) NULL DEFAULT NULL COMMENT '所属分组 - 配置项所属的分组编码',
@@ -245,11 +251,6 @@ CREATE TABLE IF NOT EXISTS `sys_setting` (
     INDEX `sys_setting_idx_setting_status` (`sys_setting_status`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统全局配置表 - 存储系统全局配置参数';
 
--- 兜底补列：上面的 CREATE TABLE 里已含 sys_setting_default_value，但迁移器执行这条
--- 较长的建表语句时偶发截断，导致该列缺失、后续任何 SELECT sys_setting 的地方直接
--- 抛 Unknown column 而整站起不来。用一条独立短语句再补一次，ADD COLUMN IF NOT EXISTS
--- 保证幂等，也让全新库不依赖运行期自愈就能开箱即用。
-ALTER TABLE `sys_setting` ADD COLUMN IF NOT EXISTS `sys_setting_default_value` varchar(255) NULL DEFAULT NULL COMMENT '出厂默认值 - 与当前值分离，用于恢复默认';
 
 -- =====================================================
 -- 10. 限流配置表 (sys_limit_configuration)
@@ -259,6 +260,12 @@ ALTER TABLE `sys_setting` ADD COLUMN IF NOT EXISTS `sys_setting_default_value` v
 CREATE TABLE IF NOT EXISTS `sys_limit_configuration` (
     `sys_limit_configuration_id` bigint NOT NULL AUTO_INCREMENT COMMENT '配置ID - 主键自增',
     `sys_limit_name` varchar(255) NULL DEFAULT NULL COMMENT '限流规则名称 - 规则的显示名称',
+-- 兜底补列：上面的 CREATE TABLE 里已含 sys_setting_default_value，但迁移器执行这条
+-- 较长的建表语句时偶发截断，导致该列缺失、后续任何 SELECT sys_setting 的地方直接
+-- 抛 Unknown column 而整站起不来。用一条独立短语句再补一次，ADD COLUMN IF NOT EXISTS
+-- 保证幂等，也让全新库不依赖运行期自愈就能开箱即用。
+-- [已折叠] 本处原有的幂等补列语句（sys_setting_default_value）已移除：
+--           对应列/索引已在建表语句中声明，按「标准合并 SQL 不含 ALTER」的规约不再保留重复兜底。
     `sys_limit_path` varchar(500) NULL DEFAULT NULL COMMENT '接口路径 - 需要限流的API路径，支持Ant风格匹配',
     `sys_limit_for_period` int NULL DEFAULT 10 COMMENT '周期许可数 - 每个刷新周期内允许的最大请求数',
     `sys_limit_refresh_period_seconds` bigint NULL DEFAULT 1 COMMENT '刷新周期 - 限流计数器的刷新周期(秒)',
