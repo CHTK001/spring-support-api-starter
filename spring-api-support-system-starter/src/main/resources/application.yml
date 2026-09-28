@@ -76,7 +76,12 @@ plugin:
         allow-credentials: true
         # 允许的来源，逗号分隔；* 表示任意来源
         allowed-origins: "*"
-        allowed-headers: "Content-Type,Authorization,X-Requested-With,X-Req-Fingerprint"
+        # 允许的请求头，逗号分隔。
+        # 必须与前端 axios 拦截器实际发出的第一方头一致（见前端 packages/utils/src/http.ts）：
+        # X-Trace-Id、X-Requested-With，加上加密管线的 X-Req-Fingerprint。
+        # 预检时浏览器逐个比对 Access-Control-Request-Headers，缺一个即整条预检失败，
+        # 业务请求根本发不出去（控制台报 xxx is not allowed by Access-Control-Allow-Headers）。
+        allowed-headers: "Content-Type,Authorization,X-Requested-With,X-Trace-Id,X-Req-Fingerprint"
         # 跨域下自定义响应头默认不可读，需显式暴露：
         # Content-Disposition（前端读文件名）与预览通道标识（前端据此选渲染器）
         expose-headers: "Content-Disposition,Content-Range,Accept-Ranges,X-FileStorage-Preview,X-FileStorage-Client-Renderer"
