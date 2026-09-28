@@ -65,6 +65,22 @@ plugin:
       # 私有桶（provider 名，逗号分隔；* 表示全部私有）。留空回退 plugin.oauth.file-storage.private-buckets；
       # 运行期可在文件服务器页「系统配置」热更新，无需重启
       private-buckets: ""
+      # 跨域（CORS）：文件服务器是独立端口网关，前端页面基本都跨源访问，故默认开启。
+      # 由框架 CorsFilter 统一生效（其 order 最小、最先执行），过滤器侧不再重复设置。
+      cors:
+        enable: true
+        # 允许携带凭据（Cookie / Authorization）。预览页以 credentials:'include' 发起跨域 fetch，
+        # 缺 Access-Control-Allow-Credentials 会让浏览器拦掉整个响应。
+        # 开启后即使 allowed-origins 为 * 也不会字面返回通配符，而是回显实际请求来源
+        # ——规范禁止「凭据 + 通配来源」并用。
+        allow-credentials: true
+        # 允许的来源，逗号分隔；* 表示任意来源
+        allowed-origins: "*"
+        allowed-headers: "Content-Type,Authorization,X-Requested-With,X-Req-Fingerprint"
+        # 跨域下自定义响应头默认不可读，需显式暴露：
+        # Content-Disposition（前端读文件名）与预览通道标识（前端据此选渲染器）
+        expose-headers: "Content-Disposition,Content-Range,Accept-Ranges,X-FileStorage-Preview,X-FileStorage-Client-Renderer"
+        allowed-methods: "GET,HEAD,POST,PUT,DELETE,PATCH,OPTIONS"
   mybatis:
     data:
       scope:
