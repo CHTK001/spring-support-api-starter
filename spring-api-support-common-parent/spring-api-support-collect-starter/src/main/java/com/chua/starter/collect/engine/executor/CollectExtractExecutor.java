@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 抽取节点：按字段声明从上游响应里取值。
@@ -87,6 +88,45 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
      */
     public static final String DEFAULT_SINGLE_OUTPUT = "row";
 
+    /**
+     * 合法的解析器类型。
+     *
+     * <p>留空或纯空白按 CSS 处理（见 {@link #extractField}），因此不在集合内的判据是
+     * 「显式写了但不认识的」—— 那种必须报错而不是兜底，见 {@link #checkParserTypes}。</p>
+     */
+    private static final Set<String> VALID_PARSER_TYPES = Set.of("CSS", "REGEX", "JSON", "TEXT", "HTML");
+
+    /**
+     * 校验字段声明里的解析器类型。
+     *
+     * <p><b>为什么显式不认识的类型必须让节点失败</b>：早期实现里
+     * {@link #extractField} 的 {@code switch} 有一个 {@code default} 分支，
+     * 于是任何拼错或被外部改坏的 {@code parserType}（实测见过被 init 脚本的方言转换
+     * 从 {@code JSON} 改成 {@code CLOB} 的）都会静默按 CSS 选择器去抽 JSON 文本 ——
+     * 结果是「抽取 N 行」全部成功、每一格却是 NULL，任务状态照样 SUCCESS。
+     * 采集结果表里躺着十行空数据却没有任何告警，是比直接失败更糟的结果。</p>
+     *
+     * <p>放在 {@link #execute} 里、且在逐字段抽取<b>之前</b>调用：
+     * {@link #extractRow} 内部对单个字段的异常是「记 warn + 该字段置 null」的容错，
+     * 校验写在那里会被一起吞掉。</p>
+     *
+     * @param fields 字段声明
+     */
+    private void checkParserTypes(List<CollectExtractFieldDTO> fields) {
+        for (CollectExtractFieldDTO field : fields) {
+            String raw = field.getParserType();
+            if (raw == null || raw.isBlank()) {
+                continue;
+            }
+            String type = raw.trim().toUpperCase(Locale.ROOT);
+            if (!VALID_PARSER_TYPES.contains(type)) {
+                String name = field.getName() == null ? "" : field.getName();
+                throw new IllegalStateException("字段 " + name + " 的解析器类型无法识别: " + raw
+                        + "，合法取值为 " + String.join("/", VALID_PARSER_TYPES) + "（留空按 CSS 处理）");
+            }
+        }
+    }
+
     @Override
     public String supportShape() {
         return "extract";
@@ -118,6 +158,8 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
         if (fields.isEmpty()) {
             throw new IllegalStateException("抽取节点没有声明字段");
         }
+        // 先校验解析器类型：放在这里而不是 extractRow 内，才能绕开逐字段的容错 catch
+        checkParserTypes(fields);
         String sourceExpr = node.param(SOURCE).isEmpty() ? "${" + DEFAULT_SOURCE + "}" : node.param(SOURCE);
         Object source = CollectExpression.eval(sourceExpr, variables);
         if (source == null) {
