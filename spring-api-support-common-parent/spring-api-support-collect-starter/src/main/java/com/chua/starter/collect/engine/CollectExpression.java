@@ -81,6 +81,41 @@ public final class CollectExpression {
     }
 
     /**
+     * 按「表达式」求值，不要求 {@code ${}} 包裹。
+     *
+     * <p>{@link #eval} 对不含 {@code ${}} 的文本会**原样返回字符串** —— 那是给「普通文本参数」
+     * 用的语义，但对判断节点是个陷阱：用户写 {@code 1 == 2}，{@code eval} 返回字符串
+     * {@code "1 == 2"}，{@link #truthy} 判非空串为真，于是**假条件走了真分支且没有任何提示**
+     * （验收实测：表达式 {@code 1 == 2} 的节点日志写着「真」）。</p>
+     *
+     * <p>本方法把裸文本也当表达式解析，因此 {@code 1 == 2} 与 {@code ${1 == 2}} 等价。
+     * 刻意**不改** {@link #evalCondition}：连线条件也在用它，把裸文本改成按表达式解析会
+     * 改变既有流程里「条件写普通文本」的语义。</p>
+     *
+     * @param raw       表达式文本；空或纯空白返回 null
+     * @param variables 变量作用域
+     * @return 求值结果
+     * @throws IllegalArgumentException 裸文本不是合法表达式时抛出，便于节点报出可读错误
+     */
+    public static Object evalExpr(String raw, Map<String, Object> variables) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        String single = singleExpression(raw);
+        if (single != null) {
+            return new Parser(single, variables).parseTop();
+        }
+        if (raw.contains(PREFIX)) {
+            return eval(raw, variables);
+        }
+        try {
+            return new Parser(raw, variables).parseTop();
+        } catch (RuntimeException ex) {
+            throw new IllegalArgumentException("判断表达式无法求值: " + raw + "（" + ex.getMessage() + "）", ex);
+        }
+    }
+
+    /**
      * 求值并转为文本。
      *
      * @param raw       原始文本

@@ -3,6 +3,7 @@ package com.chua.starter.collect.controller;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.collect.engine.spi.CollectShapeMeta;
 import com.chua.starter.collect.service.CollectDesignerService;
+import com.chua.starter.collect.vo.CollectPreviewVO;
 import com.chua.starter.collect.vo.CollectRuntimeVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -70,5 +71,22 @@ public class CollectDesignerController {
     public ReturnResult<List<LocalDateTime>> cronNext(@RequestParam String cron,
                                                       @RequestParam(defaultValue = "5") int times) {
         return ReturnResult.ok(designerService.cronPreview(cron, times));
+    }
+
+    /**
+     * 预览抓取：把 URL 抓回来给「元素拾取器」渲染与点选。
+     *
+     * <p>设计期拿不到运行期的抓取变量，所以单开这个只读出口。仅允许 http/https，
+     * 且拒绝内网与本机地址（见 {@code CollectDesignerServiceImpl#blockedHost}）。</p>
+     *
+     * @param url       目标地址
+     * @param timeoutMs 超时毫秒，可空
+     * @return 抓取结果（状态码、Content-Type、正文原文）
+     */
+    @Operation(summary = "预览抓取（元素拾取器用）")
+    @GetMapping("/fetch-preview")
+    public ReturnResult<CollectPreviewVO> fetchPreview(@RequestParam String url,
+                                                       @RequestParam(required = false) Integer timeoutMs) {
+        return ReturnResult.ok(designerService.previewFetch(url, timeoutMs));
     }
 }

@@ -1,6 +1,7 @@
 package com.chua.starter.collect.service;
 
 import com.chua.starter.collect.engine.spi.CollectShapeMeta;
+import com.chua.starter.collect.vo.CollectPreviewVO;
 import com.chua.starter.collect.vo.CollectRuntimeVO;
 
 import java.time.LocalDateTime;
@@ -39,4 +40,13 @@ public interface CollectDesignerService {
      * @return 触发时间列表
      */
     List<LocalDateTime> cronPreview(String cron, int times);
+
+    /**
+     * 设计期预览抓取：把 URL 抓回来供元素拾取器渲染与点选。
+     *
+     * @param url       目标地址，仅允许 http/https，且拒绝内网地址
+     * @param timeoutMs 超时毫秒；空或非正数时用采集配置的默认请求超时
+     * @return 抓取结果（状态码、Content-Type、正文原文）
+     */
+    CollectPreviewVO previewFetch(String url, Integer timeoutMs);
 }
