@@ -1,6 +1,6 @@
 package com.chua.starter.collect.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.spring.service.IService;
 import com.chua.starter.collect.entity.CollectCategory;
 import com.chua.starter.collect.vo.CollectCategoryVO;
 import com.chua.starter.collect.vo.CollectOptionVO;

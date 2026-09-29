@@ -1,6 +1,6 @@
 package com.chua.starter.collect.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.spring.service.IService;
 import com.chua.starter.collect.dto.CollectFunctionTestDTO;
 import com.chua.starter.collect.engine.spi.CollectFunctionDef;
 import com.chua.starter.collect.entity.CollectFunction;

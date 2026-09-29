@@ -217,7 +217,9 @@
 
 > **2026-09-26 校订**：原文标题写「共 14 个」，实测 `GET /v2/collect/designer/metas` 返回
 > **13 个**。原文把 `function` 也算成了节点 shape，但它不是节点——`function` 是自定义函数库
-> （`/v2/collect/function/**`），没有对应执行器，不会出现在 `metas` 里。下表 13 行即全量。
+> （`/v2/collect/function/**`），没有对应执行器，不会出现在 `metas` 里。
+>
+> **2026-09-28 补 `database`**：新增「数据库」节点后全量为 **14 个**，下表 14 行即全量。
 
 shape 值即 `nodes[].shape`；分组 `group` 只有 4 个：`来源`、`解析`、`控制`、`输出`。
 
@@ -229,6 +231,7 @@ shape 值即 `nodes[].shape`；分组 `group` 只有 4 个：`来源`、`解析`
 | `extract` | 抽取 | 解析 | `filter` | CSS/正则/JSON 抽取字段 |
 | `sql` | SQL | 输出 | `database` | 读写数据库 |
 | `output` | 输出 | 输出 | `database` | 落采集记录，可镜像业务表 |
+| `database` | 数据库 | 输出 | `database` | 整批写库，不产采集记录；表不存在自动建 |
 | `variable` | 变量 | 控制 | `sigma` | 表达式赋值 |
 | `dedup` | 去重 | 控制 | `shield` | 按业务主键跳过已采 |
 | `sleep` | 等待 | 控制 | `clock` | 毫秒等待/限速 |
@@ -314,6 +317,27 @@ shape 值即 `nodes[].shape`；分组 `group` 只有 4 个：`来源`、`解析`
 | `url` | 来源地址 | `text` | | 留空取 `${url}` |
 | `targetTable` | 业务表 | `text` | | 留空只进采集结果表；填表名则同时写入，缺列自动补 |
 | `datasource` | 业务表数据源 | `text` | | 留空/`app` 主库，其余填 ID 或名称 |
+
+**`database`**（整批写库，不产采集记录）
+| name | label | type | required | 说明 |
+|---|---|---|---|---|
+| `source` | 来源集合 | `textarea` | ✔ | 填集合表达式如 `${rows}`；也接受单条映射（按一行处理） |
+| `datasource` | 目标数据源 | `datasource` | | 默认 `app`（应用主库） |
+| `table` | 目标表 | `table` | | **允许填库里还不存在的表名**，首次运行时自动创建 |
+| `mode` | 写入方式 | `select` `["append","replace"]` | | `append` 追加；`replace` 先清空目标表再写 |
+| `column:目标列` | 字段映射 | `mapping` | ✔ | 每行一条，键为目标列名、值为来源字段或 `${}` 表达式 |
+| `batchSize` | 每批行数 | `text` | | 默认 `500` |
+
+表结构与字段归属一律委托数据源模块 `DatasourceSchemaService`（`TableDdlDTO` 策略 `APPEND`）：
+表不存在则建（自带自增主键 id），已存在只补缺失列。**列类型按这一批实际取值推断**——
+整数 `BIGINT`、小数 `DECIMAL`、布尔 `BOOLEAN`、字符串超过 200 字符按 `TEXT`、
+集合/对象按 `JSON`，所以批量入库的列能正常排序与聚合，不是一律大文本。
+
+> **来源集合为空时直接报错、且不动目标表**：覆盖写入拿空集合去清表，等于把
+> 「今天没抓到数据」变成「把昨天唯一可信的那份一起删了」。此时任务失败、原表保留。
+>
+> **不提供 upsert**：跨方言的 `ON DUPLICATE KEY UPDATE` / `ON CONFLICT` 无法统一拼装，
+> 要按业务主键去重请在流程里串一个 `dedup` 节点（`scope=global` 跨运行生效）。
 
 **`variable`**
 | name | label | type | options / 默认 |
@@ -597,7 +621,7 @@ shape 值即 `nodes[].shape`；分组 `group` 只有 4 个：`来源`、`解析`
 
 ---
 
-## 7. CollectDatasourceController — 数据源（6 个端点）
+## 7. CollectDatasourceController — 数据源（8 个端点）
 
 前缀 `/v2/collect/datasource`
 
@@ -609,6 +633,16 @@ shape 值即 `nodes[].shape`；分组 `group` 只有 4 个：`来源`、`解析`
 | 36 | PUT | `/v2/collect/datasource/update` | 修改（密码留掩码表示不改） | `@RequestBody CollectDatasource` | `Boolean` |
 | 37 | DELETE | `/v2/collect/datasource/delete` | 删除（被流程引用时拒绝） | `datasourceId` `@RequestParam` Integer **必填** | `Boolean` |
 | 38 | POST | `/v2/collect/datasource/test` | 测试连接（可用未保存配置） | `@RequestBody CollectDatasource` | `String`（数据库产品信息） |
+| 39 | GET | `/v2/collect/datasource/tables` | 表清单（`database` 节点目标表下拉） | `datasource` 可选 | `List<String>` |
+| 40 | GET | `/v2/collect/datasource/columns` | 列元数据（字段映射左列候选） | `datasource` 可选、`table` **必填** | `List<CollectColumnVO>` |
+
+> **`/tables` 与 `/columns` 的调用约定**（`FlowDesigner.vue` 依赖）：
+> 目标表**允许在库里还不存在**。前端不靠「读列报错」判断表不存在——读列失败还有数据源不可达、
+> 权限不足、连接超时等多种原因，一律当成"表不存在"会把真故障静默掉；
+> 而是用 `/tables` 的返回清单做集合判定：清单里没有就是新表，**前端据此跳过 `/columns`**。
+> 直接去读一张不存在的表必然失败，得到的只是一条红字报错，把"运行时会自动建表"这件
+> 正常事显示成故障。字段映射控件随之退化成自由输入列名（新建表模式），并停用
+> 「N 个字段在当前表里不存在」的告警——新列本来就不在库里。
 
 ### 请求体实体：`CollectDatasource`
 
@@ -763,9 +797,12 @@ shape 值即 `nodes[].shape`；分组 `group` 只有 4 个：`来源`、`解析`
 前缀 `/v2/collect/notice`。任务进入终态后按命中时机**异步**投递，投递失败只记在该配置的
 「最近结果」里，**不改任务终态**。可用渠道来自后端注册表（Spring Bean + SPI），前端不写死。
 
+> **通知已彻底全局化**：库里没有 `collect_notice_flow_id`，`/list` 也不再接 `flowId`，
+> 一条配置对每次执行都参与命中，只靠「时机」筛。
+
 | # | Method | Path | 摘要 | 参数 | 返回 |
 |---|---|---|---|---|---|
-| 1 | GET | `/v2/collect/notice/list` | 通知配置列表（`flowId` 为空返回全部） | `flowId` | `List<CollectNotice>` |
+| 1 | GET | `/v2/collect/notice/list` | 通知配置列表（全平台一份） | 无 | `List<CollectNotice>` |
 | 2 | GET | `/v2/collect/notice/channels` | 可用渠道注册表 | 无 | `List<CollectNotifyChannelVO>` |
 | 3 | POST | `/v2/collect/notice/save` | 新增 | `@RequestBody CollectNotice` | `CollectNotice` |
 | 4 | PUT | `/v2/collect/notice/update` | 修改 | `@RequestBody CollectNotice` | `Boolean` |
@@ -1011,13 +1048,13 @@ shape 值即 `nodes[].shape`；分组 `group` 只有 4 个：`来源`、`解析`
 | `CollectRecordController` | `/v2/collect/record` | 6 | §4 |
 | `CollectFieldController` | `/v2/collect/field` | 2 | §5 |
 | `CollectVariableController` | `/v2/collect/variable` | 4 | §6 |
-| `CollectDatasourceController` | `/v2/collect/datasource` | 6 | §7 |
+| `CollectDatasourceController` | `/v2/collect/datasource` | 8 | §7 |
 | `CollectCategoryController` | `/v2/collect/category` | 5 | §8 |
 | `CollectDesignerController` | `/v2/collect/designer` | 3 | §9 |
 | `CollectFunctionController` | `/v2/collect/function` | 5 | §10bis |
 | `CollectNoticeController` | `/v2/collect/notice` | 6 | §10ter |
 | `CollectSchedulerConsoleController` | `/v2/scheduler` | 12 | §10quater |
-| **合计** | | **69** | |
+| **合计** | | **71** | |
 
 分页接口共 **5 个**：`flow/page`、`task/page`、`record/page`、`scheduler/page`、`scheduler/log/page`
 （后两个走 `PageResult` 单层结构，见 §0.5 的采集分页双层规则**不适用**——实测

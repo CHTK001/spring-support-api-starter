@@ -2,6 +2,8 @@ package com.chua.starter.system.filter;
 
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.system.support.ApiRouteExecutor;
+import com.chua.starter.system.support.ClientIpResolver;
+import com.chua.starter.system.support.PolicyHitCollector;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -60,10 +62,35 @@ public class ApiRouteFilter extends OncePerRequestFilter {
             return;
         }
         if (decision.disabled()) {
+            recordHit(request, decision.ruleKey());
             writeDisabled(response, decision.status(), decision.message());
             return;
         }
+        recordHit(request, decision.ruleKey());
         chain.doFilter(new ForwardedRequestWrapper(request, decision.targetPath()), response);
+    }
+
+    /**
+     * 记一次规则命中。
+     *
+     * <p>只在规则真的生效时调用（停用被拦、转发被改写），放行不计 ——
+     * 「放行」的行恒为 0 才符合直觉：管理员关心的是这条规则有没有在拦人，
+     * 而不是有多少请求路过。</p>
+     *
+     * @param request 请求（用于取来源 IP）
+     * @param ruleKey 命中的规则键，为空时跳过
+     */
+    private void recordHit(HttpServletRequest request, String ruleKey) {
+        if (StringUtils.isBlank(ruleKey)) {
+            return;
+        }
+        try {
+            PolicyHitCollector.getInstance()
+                    .record(PolicyHitCollector.TYPE_API_ROUTE, ruleKey, ClientIpResolver.resolve(request));
+        } catch (Exception e) {
+            // 统计失败绝不能影响请求处理
+            log.debug("[ApiRoute] 命中统计失败: ruleKey={}", ruleKey, e);
+        }
     }
 
     private void writeDisabled(HttpServletResponse response, int status, String message) throws IOException {

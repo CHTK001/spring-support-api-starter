@@ -109,7 +109,7 @@ public class SysSettingVO {
     @TableField(value = "sys_setting_value")
     @ApiModelProperty(value = "配置值")
     @Schema(description = "配置值")
-    @Size(max = 255, message = "配置值最大长度要小于 255")
+    @Size(max = 65535, message = "配置值最大长度要小于 65535")
     /**
      * SYS设置值
     */

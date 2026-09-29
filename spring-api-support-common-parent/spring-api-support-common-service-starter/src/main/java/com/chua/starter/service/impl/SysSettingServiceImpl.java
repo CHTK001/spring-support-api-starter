@@ -3,7 +3,7 @@ package com.chua.starter.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.utils.StringUtils;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.chua.common.support.constant.CommonConstant;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonObject;
@@ -291,12 +291,42 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         Integer runtimeStatus = ObjectUtils.defaultIfNull(sysSetting.getSysSettingStatus(), sysSetting1.getSysSettingStatus());
         if (null != runtimeStatus && runtimeStatus == 1) {
             GlobalSettingFactory.getInstance().set(sysSetting.getSysSettingGroup(), sysSetting.getSysSettingName(), sysSetting.getSysSettingValue());
+            // 逐键 set 只改散表，不刷新启动时注册的强类型实例（SmtpSetting / SmsSetting …）：
+            // get(group, Class) 拿到的仍是旧字段值，表现为「系统设置里改完邮件账号，
+            // 任务失败告警仍报未配置」，必须整组重绑一次。
+            refreshGroupBinding(sysSetting.getSysSettingGroup());
             if (null != version) {
                 upgradeVersion(version);
             }
         }
         sysSettingService.clearCache(sysSetting);
         return ReturnResult.of(sysSetting);
+    }
+
+    /**
+     * 重新绑定某个分组的强类型配置对象。
+     *
+     * <p>系统配置启动时用 {@code register(group, new SmtpSetting())} 把分组绑成强类型 Bean，
+     * 之后在设置页改单个键走的是 {@code set(group, name, value)}——它只更新散表，
+     * 不会把新值写回那个已注册的 Bean。于是 {@code get("smtp", SmtpSetting.class)}
+     * 仍返回旧字段值：改了邮件账号，任务失败告警却继续报「未配置」。
+     * 保存后按分组重读一遍并重新注册，强类型 Bean 才会拿到新值，改配置立即生效、无需重启。</p>
+     *
+     * @param group 配置分组名
+     */
+    private void refreshGroupBinding(String group) {
+        if (StringUtils.isBlank(group)) {
+            return;
+        }
+        try {
+            List<SysSetting> rows = list(Wrappers.<SysSetting>lambdaQuery()
+                    .eq(SysSetting::getSysSettingGroup, group)
+                    .eq(SysSetting::getSysSettingStatus, 1));
+            register(GlobalSettingFactory.getInstance(), group, rows);
+            log.info("[系统配置] 分组 {} 已重新绑定强类型配置（{} 项）", group, rows.size());
+        } catch (Exception e) {
+            log.warn("[系统配置] 分组 {} 重新绑定失败: {}", group, e.getMessage());
+        }
     }
 
     @Override

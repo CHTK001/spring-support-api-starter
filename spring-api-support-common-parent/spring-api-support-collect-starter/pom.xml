@@ -52,6 +52,13 @@
         -->
         <optional>true</optional>
       </dependency>
+    <!-- 站内消息渠道（CollectStationNotifyChannel）走的是本模块已有的
+         spring-api-support-common-system-starter 消息中心（SysMessageService.broadcast
+         → sys_message），没有额外的消息中心依赖要引。
+         曾试过改接 spring-support-message-starter，已回退：它与 common-system-starter
+         各自带了一整套 SysMessage*（4 个 Mapper + 4 组 Service/Impl + 5 个 Controller 同名），
+         两者共存会让 Spring 上下文启动失败。渠道实现带 @ConditionalOnBean，
+         容器里没有消息中心时该渠道自动不出现在前端下拉里。 -->
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>utils-support-crawler-starter</artifactId>
@@ -82,7 +89,7 @@
     <dependency>
       <groupId>io.swagger.core.v3</groupId>
       <artifactId>swagger-annotations</artifactId>
-      <version>2.2.15</version>
+      <version>2.2.55</version>
     </dependency>
     <dependency>
       <groupId>com.mysql</groupId>

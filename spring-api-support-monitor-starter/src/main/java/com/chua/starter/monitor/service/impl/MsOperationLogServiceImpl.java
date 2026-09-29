@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.chua.starter.monitor.entity.MsOperationLog;
 import com.chua.starter.monitor.mapper.MsOperationLogMapper;
 import com.chua.starter.monitor.service.MsOperationLogService;

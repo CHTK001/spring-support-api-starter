@@ -44,9 +44,26 @@ public final class PolicyCacheName {
     public static final String API_ROUTE = "sys:policy:api-route";
 
     /**
+     * 消息头拦截规则
+     *
+     * <p>key = 消息头名（大小写不敏感，投影时统一转小写），value = 规则 JSON
+     * （matchType/patterns/action/status/message）。</p>
+     */
+    public static final String HEADER = "sys:policy:header";
+
+    /**
      * IP 缓存内部策略索引 key（value = 逗号分隔的精确 IP / CIDR）
      */
     public static final String IP_PATTERN_INDEX_KEY = "__pattern_index__";
+
+    /**
+     * 消息头缓存内部索引 key（value = 逗号分隔的、已启用规则的消息头名）
+     *
+     * <p>存在的意义：过滤器要决定「该检查哪些消息头」。若每请求回数据库或 Redis 扫全量，
+     * 就不叫热重载了。有了这个索引，每请求只需按索引里的名字逐个读规则；
+     * 索引随规则一起投影，保存即生效。</p>
+     */
+    public static final String HEADER_NAME_INDEX_KEY = "__header_name_index__";
 
     /**
      * 启用标记值

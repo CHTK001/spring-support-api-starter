@@ -1,6 +1,8 @@
 package com.chua.starter.system.filter;
 
+import com.chua.starter.system.support.ClientIpResolver;
 import com.chua.starter.system.support.PolicyCacheService;
+import com.chua.starter.system.support.PolicyHitCollector;
 import com.chua.starter.system.support.SystemRateLimitManager;
 import com.google.common.util.concurrent.RateLimiter;
 import jakarta.servlet.Filter;
@@ -74,32 +76,48 @@ public class PolicyRateLimitFilter implements Filter, Ordered {
             return;
         }
 
-        String clientIp = resolveClientIp(request);
+        String clientIp = ClientIpResolver.resolve(request);
         String account = resolveAccount(request);
         String interfaceTarget = stripContextPath(request);
 
         boolean whitelisted = false;
         try {
             // 1. 黑名单: IP / 账号
-            if (policyCacheService.matchesIp(IP_TYPE_BLACK, clientIp)) {
-                log.warn("IP 黑名单拦截: ip={}, uri={}", clientIp, interfaceTarget);
+            String hitIpBlack = policyCacheService.matchIp(IP_TYPE_BLACK, clientIp);
+            if (null != hitIpBlack) {
+                // 归因到命中的那一行（可能是精确 IP，也可能是 CIDR），而不是客户端 IP
+                PolicyHitCollector.getInstance().record(PolicyHitCollector.TYPE_IP_BLACK, hitIpBlack, clientIp);
+                log.warn("IP 黑名单拦截: ip={}, entry={}, uri={}", clientIp, hitIpBlack, interfaceTarget);
                 writeForbidden(response);
                 return;
             }
-            if (StringUtils.hasText(account) && policyCacheService.matchesAccount(ACCOUNT_TYPE_BLACK, account)) {
+            String hitAccountBlack = StringUtils.hasText(account)
+                    ? policyCacheService.matchAccount(ACCOUNT_TYPE_BLACK, account)
+                    : null;
+            if (null != hitAccountBlack) {
+                PolicyHitCollector.getInstance().record(PolicyHitCollector.TYPE_ACCOUNT_BLACK, hitAccountBlack, clientIp);
                 log.warn("账号黑名单拦截: account={}, uri={}", account, interfaceTarget);
                 writeForbidden(response);
                 return;
             }
 
-            // 2. 白名单: 存在则跳过限流
-            whitelisted = policyCacheService.matchesIp(IP_TYPE_WHITE, clientIp)
-                    || (StringUtils.hasText(account) && policyCacheService.matchesAccount(ACCOUNT_TYPE_WHITE, account));
+            // 2. 白名单: 存在则跳过限流（命中白名单也算策略生效，一并统计）
+            String hitIpWhite = policyCacheService.matchIp(IP_TYPE_WHITE, clientIp);
+            String hitAccountWhite = StringUtils.hasText(account)
+                    ? policyCacheService.matchAccount(ACCOUNT_TYPE_WHITE, account)
+                    : null;
+            if (null != hitIpWhite) {
+                PolicyHitCollector.getInstance().record(PolicyHitCollector.TYPE_IP_WHITE, hitIpWhite, clientIp);
+            }
+            if (null != hitAccountWhite) {
+                PolicyHitCollector.getInstance().record(PolicyHitCollector.TYPE_ACCOUNT_WHITE, hitAccountWhite, clientIp);
+            }
+            whitelisted = null != hitIpWhite || null != hitAccountWhite;
 
             if (!whitelisted
-                    && (!enforceRule("interface", interfaceTarget, response)
-                    || !enforceRule("ip", clientIp, response)
-                    || (StringUtils.hasText(account) && !enforceRule("account", account, response)))) {
+                    && (!enforceRule("interface", interfaceTarget, clientIp, response)
+                    || !enforceRule("ip", clientIp, clientIp, response)
+                    || (StringUtils.hasText(account) && !enforceRule("account", account, clientIp, response)))) {
                 return;
             }
         } catch (Exception e) {
@@ -108,6 +126,7 @@ public class PolicyRateLimitFilter implements Filter, Ordered {
         }
 
         if (!whitelisted && !systemRateLimitManager.tryAcquire()) {
+            PolicyHitCollector.getInstance().record(PolicyHitCollector.TYPE_RATE_LIMIT_GLOBAL, "global", clientIp);
             log.warn("全局限流触发: ip={}, account={}, uri={}", clientIp, account, interfaceTarget);
             writeTooManyRequests(response);
             return;
@@ -120,10 +139,12 @@ public class PolicyRateLimitFilter implements Filter, Ordered {
      *
      * @param dimension 维度
      * @param target    目标
+     * @param clientIp  来源 IP（仅用于命中统计归因）
      * @param response  响应
      * @return true=放行, false=已拒绝
      */
-    private boolean enforceRule(String dimension, String target, HttpServletResponse response) throws IOException {
+    private boolean enforceRule(String dimension, String target, String clientIp,
+                                HttpServletResponse response) throws IOException {
         if (!StringUtils.hasText(target)) {
             return true;
         }
@@ -148,6 +169,8 @@ public class PolicyRateLimitFilter implements Filter, Ordered {
             return new RuleBucket(qps, RateLimiter.create(qps));
         });
         if (!bucket.limiter.tryAcquire()) {
+            // 规则键与缓存一致（dimension:target），列表页据此归因到具体那一行
+            PolicyHitCollector.getInstance().record(PolicyHitCollector.TYPE_RATE_LIMIT, ruleKey, clientIp);
             log.warn("规则限流触发: dim={}, target={}, qps={}", dimension, target, qps);
             writeTooManyRequests(response);
             return false;
@@ -157,6 +180,15 @@ public class PolicyRateLimitFilter implements Filter, Ordered {
 
     /**
      * 是否需要过滤
+     *
+     * <p>放行两类路径：SSE 流端点与登录接口（否则长连接/登录风暴会被自己挡住）。</p>
+     *
+     * <p><b>已知未处理的自锁风险</b>：本方法不豁免策略管理面（{@code /v2/policy/**}）。
+     * 把限流规则的 target 配成 {@code /v2/policy/hit/counts} 或
+     * {@code /v2/policy/ratelimit/list} 之后，管理员会连命中统计都读不到、限流列表都打不开。
+     * 修法有两种取法 ——「管理面整体豁免」还是「只豁免读与撤销操作」—— 属于策略安全边界
+     * 的设计决策，需要单独立项评审后再改，<b>不要</b>在别的任务里顺手加一行放行判断。
+     * 详见 backups/self-lock-bypass-rollback-20260928/MANIFEST.md。</p>
      *
      * @param request 请求
      * @return true=需要过滤
@@ -220,32 +252,6 @@ public class PolicyRateLimitFilter implements Filter, Ordered {
             account = request.getHeader("account");
         }
         return account;
-    }
-
-    /**
-     * 解析客户端 IP
-     *
-     * @param request 请求
-     * @return ip
-     */
-    private String resolveClientIp(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (!StringUtils.hasText(ip) || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (!StringUtils.hasText(ip) || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (!StringUtils.hasText(ip) || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_CLIENT_IP");
-        }
-        if (!StringUtils.hasText(ip) || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        if (null != ip && ip.contains(",")) {
-            ip = ip.split(",")[0].trim();
-        }
-        return ip == null ? "unknown" : ip;
     }
 
     /**

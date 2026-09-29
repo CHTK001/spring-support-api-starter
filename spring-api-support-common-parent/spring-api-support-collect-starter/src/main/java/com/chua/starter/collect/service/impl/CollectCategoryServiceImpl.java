@@ -1,7 +1,7 @@
 package com.chua.starter.collect.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.chua.starter.collect.entity.CollectCategory;
 import com.chua.starter.collect.entity.CollectFlow;
 import com.chua.starter.collect.mapper.CollectCategoryMapper;

@@ -69,21 +69,21 @@ public class ApiRouteExecutor {
             String message = StringUtils.isNotBlank(rule.getMessage())
                     ? rule.getMessage() : ApiRouteRule.DEFAULT_DISABLE_MESSAGE;
             log.warn("[ApiRoute] 接口已停用: path={}, status={}", path, status);
-            return Decision.disabled(status, message);
+            return Decision.disabled(path, status, message);
         }
         if (rule.isForward()) {
             var target = RegisteredRouteIndex.resolve(rule.getTargetKey());
             if (null == target) {
                 // 目标不在已注册路由里 —— 拒绝而不是放行
                 log.warn("[ApiRoute] 转发目标未注册，拒绝转发: path={}, targetKey={}", path, rule.getTargetKey());
-                return Decision.disabled(ApiRouteRule.DEFAULT_DISABLE_STATUS,
+                return Decision.disabled(path, ApiRouteRule.DEFAULT_DISABLE_STATUS,
                         "转发目标不存在，接口已停用");
             }
             if (target.path().equals(path)) {
                 return Decision.allow();
             }
             log.info("[ApiRoute] 接口转发: {} -> {}", path, target.path());
-            return Decision.forward(target.path(), target.key());
+            return Decision.forward(path, target.path(), target.key());
         }
         return Decision.allow();
     }
@@ -97,9 +97,17 @@ public class ApiRouteExecutor {
      * @param message     停用提示
      * @param targetPath  转发目标路径
      * @param targetKey   转发目标注册 key
+     * @param ruleKey     命中的规则键，即触发本决策的请求路径，取自
+     *                     {@link #resolve(HttpServletRequest)} 里的
+     *                     {@code RequestUtils.getPathWithinApplication(request)}
+     *                     （应用内路径，不含 context path、不含查询串），也是
+     *                     {@code policyCacheService.getApiRoute(path)} 使用的缓存 key。
+     *                     允许为 {@code null}：只有 {@link Decision#allow()} 放行决策为 {@code null}；
+     *                     停用与转发决策一定非空（转发决策下它记录的是<b>源</b>路径，
+     *                     目标路径见 {@link #targetPath()}）
      */
     public record Decision(boolean passThrough, boolean disabled, int status, String message,
-                           String targetPath, String targetKey) {
+                           String targetPath, String targetKey, String ruleKey) {
 
         /**
          * 构造放行决策
@@ -107,29 +115,31 @@ public class ApiRouteExecutor {
          * @return 放行决策
          */
         public static Decision allow() {
-            return new Decision(true, false, 0, null, null, null);
+            return new Decision(true, false, 0, null, null, null, null);
         }
 
         /**
          * 构造停用决策
          *
+         * @param ruleKey 命中的规则键（应用内路径），用于命中统计归因
          * @param status  响应码
          * @param message 提示
          * @return 停用决策
          */
-        public static Decision disabled(int status, String message) {
-            return new Decision(false, true, status, message, null, null);
+        public static Decision disabled(String ruleKey, int status, String message) {
+            return new Decision(false, true, status, message, null, null, ruleKey);
         }
 
         /**
          * 构造转发决策
          *
+         * @param ruleKey    命中的规则键（应用内路径），用于命中统计归因
          * @param targetPath 目标路径
          * @param targetKey  目标注册 key
          * @return 转发决策
          */
-        public static Decision forward(String targetPath, String targetKey) {
-            return new Decision(false, false, 0, null, targetPath, targetKey);
+        public static Decision forward(String ruleKey, String targetPath, String targetKey) {
+            return new Decision(false, false, 0, null, targetPath, targetKey, ruleKey);
         }
     }
 

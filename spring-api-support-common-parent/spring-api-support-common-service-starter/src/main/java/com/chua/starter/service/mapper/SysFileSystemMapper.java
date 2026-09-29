@@ -1,0 +1,16 @@
+package com.chua.starter.service.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.chua.starter.entity.service.SysFileSystem;
+import org.apache.ibatis.annotations.Mapper;
+
+/**
+ * 文件系统映射器
+ *
+ * @since 2024/12/10
+ * @author CH
+ */
+@Mapper
+public interface SysFileSystemMapper extends BaseMapper<SysFileSystem> {
+
+}

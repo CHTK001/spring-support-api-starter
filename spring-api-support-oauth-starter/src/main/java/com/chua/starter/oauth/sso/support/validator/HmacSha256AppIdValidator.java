@@ -225,11 +225,6 @@ public class HmacSha256AppIdValidator implements AppIdValidator {
             }
         }
         
- // 尝试从 armeria请求 获取 主体（如果有）
-        if (requestObj instanceof com.chua.starter.oauth.sso.support.information.ArmeriaAuthInformation.ArmeriaRequest) {
- // armeria请求 可能需要特殊处理
-        }
-        
  // 最后尝试从 数据 字段获取（可能是原始 主体 或加密后的数据）
         String data = authInformation.getData();
         if (StringUtils.isNotBlank(data)) {

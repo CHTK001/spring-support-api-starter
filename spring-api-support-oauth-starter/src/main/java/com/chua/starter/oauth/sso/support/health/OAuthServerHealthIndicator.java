@@ -156,7 +156,7 @@ public class OAuthServerHealthIndicator extends AbstractHealthIndicator {
      */
     private void addServiceInfo(Map<String, Object> details) {
         Map<String, Object> serviceInfo = new LinkedHashMap<>();
-        serviceInfo.put("protocols", authServerProperties.getProtocols());
+        serviceInfo.put("protocols", authServerProperties.resolveEnabledProtocols());
         serviceInfo.put("tokenExpire", authServerProperties.getExpire() + "s");
         serviceInfo.put("refreshTokenExpire", authServerProperties.getRefreshExpire() + "s");
         serviceInfo.put("tokenManagement", authServerProperties.getTokenManagement());

@@ -22,6 +22,7 @@
         <module>spring-api-support-oauth-starter</module>
         <module>spring-api-support-system-starter</module>
         <module>spring-api-support-tenanted-starter</module>
+        <module>spring-api-support-video-starter</module>
     </modules>
 
     <properties>
@@ -31,7 +32,7 @@
         <maven.compiler.target>25</maven.compiler.target>
         <module.version>${project.version}</module.version>
         <utils.version>4.0.0.42</utils.version>
-        <lombok.version>1.18.44</lombok.version>
+        <lombok.version>1.18.48</lombok.version>
         <maven.compiler.proc>full</maven.compiler.proc>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
@@ -39,22 +40,22 @@
         <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <surefire.jvm.args></surefire.jvm.args>
-        <spring.boot.version>4.1.0</spring.boot.version>
+        <spring.boot.version>4.1.1</spring.boot.version>
         <spring-support-webrtc.version>4.0.0.41</spring-support-webrtc.version>
-        <netty.version>4.2.9.Final</netty.version>
+        <netty.version>4.2.18.Final</netty.version>
         <mysql.connector.version>8.0.33</mysql.connector.version>
         <jedis.version>7.4.1</jedis.version>
-        <justauth.version>1.16.6</justauth.version>
+        <justauth.version>1.16.7</justauth.version>
         <jjwt.version>0.12.5</jjwt.version>
-        <guava.version>33.2.1-jre</guava.version>
-        <commons.compress.version>1.26.2</commons.compress.version>
-        <guacamole.version>1.5.5</guacamole.version>
-        <jsoup.version>1.17.2</jsoup.version>
-        <zookeeper.version>3.9.2</zookeeper.version>
-        <fastjson2.version>2.0.52</fastjson2.version>
-        <resilience4j.version>2.2.0</resilience4j.version>
-        <swagger.annotations.version>1.6.14</swagger.annotations.version>
-        <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
+        <guava.version>33.7.1-jre</guava.version>
+        <commons.compress.version>1.28.0</commons.compress.version>
+        <guacamole.version>1.6.0</guacamole.version>
+        <jsoup.version>1.23.2</jsoup.version>
+        <zookeeper.version>3.9.6</zookeeper.version>
+        <fastjson2.version>2.0.65</fastjson2.version>
+        <resilience4j.version>2.4.0</resilience4j.version>
+        <swagger.annotations.version>1.6.16</swagger.annotations.version>
+        <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
         <gmavenplus-plugin.version>3.0.2</gmavenplus-plugin.version>
         <groovy.version>5.0.0</groovy.version>
         <snakeyaml.version>2.2</snakeyaml.version>
@@ -372,6 +373,12 @@
                 <version>${utils.version}</version>
             </dependency>
 
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>utils-support-spider-starter</artifactId>
+                <version>${utils.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>utils-support-crawler-starter</artifactId>
@@ -730,6 +737,12 @@
             <dependency>
                 <groupId>com.chua</groupId>
                 <artifactId>spring-support-job-starter</artifactId>
+                <version>${module.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.chua</groupId>
+                <artifactId>spring-support-message-starter</artifactId>
                 <version>${module.version}</version>
             </dependency>
 
