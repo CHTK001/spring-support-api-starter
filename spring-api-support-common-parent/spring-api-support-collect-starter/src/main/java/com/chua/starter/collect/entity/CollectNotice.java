@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * 采集执行通知配置。
  *
  * <p>一条配置对应一个渠道：任务落到终态后按 {@code timing} 决定是否推送。
- * {@code flowId} 为 0 表示对全部流程生效。</p>
+ * 通知是平台级配置，没有流程维度，库里的每一条都对该次执行生效。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -31,12 +31,6 @@ public class CollectNotice extends SysBase {
     @TableId(value = "collect_notice_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     private Integer collectNoticeId;
-
-    /**
-     * 所属流程ID，0 表示全部流程。
-     */
-    @Schema(description = "所属流程ID 0全部")
-    private Integer collectNoticeFlowId;
 
     /**
      * 通知名称。

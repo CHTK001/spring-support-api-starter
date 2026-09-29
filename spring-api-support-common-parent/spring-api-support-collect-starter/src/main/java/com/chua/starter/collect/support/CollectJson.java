@@ -154,6 +154,17 @@ public final class CollectJson {
     /**
      * 按点号下标路径取值，兼容 {@code $.a.b[0]} 与 {@code a.b} 两种写法。
      *
+     * <p>本方法是抽取节点 {@code JSON} 与 {@code JSONPATH} 两种解析器的共同实现口径，
+     * 只覆盖 JSONPath 的一个 <b>子集</b>，不支持的部分不假装支持：</p>
+     *
+     * <ul>
+     *   <li>支持：{@code $} 根前缀（可省略）、点号取属性 {@code a.b}、数字下标 {@code a[0]}、
+     *       连续下标 {@code a[0][1]}、前导点 {@code .a.b}</li>
+     *   <li>不支持：通配 {@code [*]}、递归下降 {@code ..}、过滤器 {@code [?(...)]}、
+     *       切片 {@code [0:2]}、并集 {@code ['a','b']}、负下标，以及函数与脚本表达式；
+     *       遇到这些写法只会按字面段解析并大多返回 null</li>
+     * </ul>
+     *
      * @param root       JSON 结构（映射、列表或标量）
      * @param expression 路径
      * @return 路径值，未命中返回 null

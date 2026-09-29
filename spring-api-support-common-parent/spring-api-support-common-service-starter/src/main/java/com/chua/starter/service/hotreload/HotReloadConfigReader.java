@@ -54,4 +54,25 @@ public class HotReloadConfigReader {
     public int accessPageSize() {
         return 20;
     }
+
+    /**
+     * 是否开启消息头拦截的第一方豁免。
+     *
+     * <p>默认拦截名单里含 curl / axios / okhttp 等通用 HTTP 客户端（用 UA 分不出
+     * 「脚本」与「爬虫」），全量启用后自家前端与运维脚本也会被 403。第一方靠双字段
+     * 标记豁免，但<b>是否允许这个豁免</b>应该在策略管理页面上可控，而不是只能改
+     * 配置文件重启。</p>
+     *
+     * <p>在「策略管理 → 热更新配置」里改这一项即时生效，无需重启。
+     * 不接受任何后门时置 false，规则对所有请求一视同仁。</p>
+     *
+     * <p>与配置文件里的 {@code plugin.system.header-policy.first-party-enabled} 是
+     * 「与」关系：配置文件是硬闸（关了谁都开不了），这里是运行期操作杆。</p>
+     *
+     * @return 是否开启第一方豁免
+     */
+    @HotReloadConfig("policy.header.first-party-enabled")
+    public boolean headerFirstPartyEnabled() {
+        return true;
+    }
 }

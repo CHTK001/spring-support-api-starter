@@ -40,25 +40,6 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
         super(authServerProperties, data, request, response, applicationContext, loginCheck);
     }
 
-    /**
-     * Armeria协议构造函数
-     *
-     * @param authServerProperties 认证服务器配置
-     * @param data                 请求数据
-     * @param request              Armeria请求
-     * @param response             Armeria响应
-     * @param applicationContext   Spring应用上下文
-     * @param loginCheck           登录检查器
-     */
-    public TemporaryTokenAuthInformation(AuthServerProperties authServerProperties,
-                                         String data,
-                                         ArmeriaAuthInformation.ArmeriaRequest request,
-                                         ArmeriaAuthInformation.ArmeriaResponse response,
-                                         ApplicationContext applicationContext,
-                                         LoginCheck loginCheck) {
-        super(authServerProperties, data, request, response, applicationContext, loginCheck);
-    }
-
     @Override
     /**
      * 获取请求头部
@@ -66,8 +47,6 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     protected String getRequestHeader(Object request, String headerName) {
         if (request instanceof HttpServletRequest httpRequest) {
             return httpRequest.getHeader(headerName);
-        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest armeriaRequest) {
-            return armeriaRequest.getHeader(headerName);
         }
         return null;
     }
@@ -79,8 +58,6 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     protected void setResponseHeader(Object response, String headerName, String headerValue) {
         if (response instanceof HttpServletResponse httpResponse) {
             httpResponse.setHeader(headerName, headerValue);
-        } else if (response instanceof ArmeriaAuthInformation.ArmeriaResponse armeriaResponse) {
-            armeriaResponse.setHeader(headerName, headerValue);
         }
     }
 
@@ -91,8 +68,6 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     protected String getRemoteAddress(Object request) {
         if (request instanceof HttpServletRequest httpRequest) {
             return httpRequest.getRemoteAddr();
-        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest armeriaRequest) {
-            return armeriaRequest.getRemoteAddr();
         }
         return null;
     }
@@ -104,8 +79,6 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     protected Object getRequestAttribute(Object request, String attributeName) {
         if (request instanceof HttpServletRequest httpRequest) {
             return httpRequest.getAttribute(attributeName);
-        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest armeriaRequest) {
-            return armeriaRequest.getAttribute(attributeName);
         }
         return null;
     }
@@ -117,8 +90,6 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
     protected void setRequestAttribute(Object request, String attributeName, Object attributeValue) {
         if (request instanceof HttpServletRequest httpRequest) {
             httpRequest.setAttribute(attributeName, attributeValue);
-        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest armeriaRequest) {
-            armeriaRequest.setAttribute(attributeName, attributeValue);
         }
     }
 

@@ -3,7 +3,7 @@ package com.chua.starter.system.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.entity.system.SysPolicyConfig;
@@ -12,6 +12,7 @@ import com.chua.starter.system.mapper.SysPolicyConfigMapper;
 import com.chua.starter.system.service.SysPolicyConfigService;
 import com.chua.starter.system.support.ApiRouteExecutor;
 import com.chua.starter.system.support.IpPolicyCacheProjector;
+import com.chua.starter.system.support.HeaderPolicyCacheProjector;
 import com.chua.starter.system.support.PolicyCacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,11 @@ public class SysPolicyConfigServiceImpl extends ServiceImpl<SysPolicyConfigMappe
      * IP 策略缓存投影器（自带 afterCommit 与启用态判定）
      */
     private final IpPolicyCacheProjector ipPolicyCacheProjector;
+
+    /**
+     * 消息头拦截规则投影器
+     */
+    private final HeaderPolicyCacheProjector headerPolicyCacheProjector;
 
     /**
      * 接口停用 / 转发执行器
@@ -257,6 +263,10 @@ public class SysPolicyConfigServiceImpl extends ServiceImpl<SysPolicyConfigMappe
             apiRouteExecutor.syncAfterCommit(previous, deleted ? null : current);
             return;
         }
+        if (SysPolicyConfig.TYPE_HEADER.equals(probe.getType())) {
+            headerPolicyCacheProjector.syncAfterCommit(current, previous, deleted);
+            return;
+        }
         String type = probe.getType();
         String bizKey = probe.getBizKey();
         runAfterCommit(() -> {
@@ -277,13 +287,14 @@ public class SysPolicyConfigServiceImpl extends ServiceImpl<SysPolicyConfigMappe
      * 该类型是否有运行时缓存投影
      *
      * @param type 策略类型
-     * @return IP/ACCOUNT/RATE_LIMIT 返回 true
+     * @return IP/ACCOUNT/RATE_LIMIT/API_ROUTE/HEADER 返回 true
      */
     private boolean isRuntimeCached(String type) {
         return SysPolicyConfig.TYPE_IP.equals(type)
                 || SysPolicyConfig.TYPE_ACCOUNT.equals(type)
                 || SysPolicyConfig.TYPE_RATE_LIMIT.equals(type)
-                || SysPolicyConfig.TYPE_API_ROUTE.equals(type);
+                || SysPolicyConfig.TYPE_API_ROUTE.equals(type)
+                || SysPolicyConfig.TYPE_HEADER.equals(type);
     }
 
     /**

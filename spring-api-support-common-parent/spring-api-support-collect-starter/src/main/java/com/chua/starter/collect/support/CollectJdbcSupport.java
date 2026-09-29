@@ -9,6 +9,7 @@ import com.chua.starter.datasourcehub.support.model.SchemaColumnVO;
 import com.chua.starter.datasourcehub.support.model.dto.DdlColumn;
 import com.chua.starter.datasourcehub.support.model.dto.TableDdlDTO;
 import com.chua.starter.datasourcehub.support.service.DatasourceSchemaService;
+import com.chua.starter.datasourcehub.support.support.JdbcDialectSupport;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
@@ -202,22 +203,232 @@ public class CollectJdbcSupport {
      * @return 受影响行数
      */
     public int insert(String reference, String table, Map<String, Object> row) {
-        String name = identifier(table);
         List<String> columns = new ArrayList<>(row.keySet());
         for (String column : columns) {
             identifier(column);
         }
-        StringBuilder sql = new StringBuilder("INSERT INTO ").append(name).append(" (");
-        sql.append(String.join(", ", columns)).append(") VALUES (");
-        sql.append(String.join(", ", columns.stream().map(column -> "?").toList())).append(")");
-        try (Connection connection = resolve(reference).getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql.toString())) {
-            for (int index = 0; index < columns.size(); index++) {
-                ps.setObject(index + 1, value(row.get(columns.get(index))));
+        try (Connection connection = resolve(reference).getConnection()) {
+            String name = quoted(connection, table);
+            StringBuilder sql = new StringBuilder("INSERT INTO ").append(name).append(" (");
+            sql.append(String.join(", ", quotedAll(connection, columns))).append(") VALUES (");
+            sql.append(String.join(", ", columns.stream().map(column -> "?").toList())).append(")");
+            try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+                for (int index = 0; index < columns.size(); index++) {
+                    ps.setObject(index + 1, value(row.get(columns.get(index))));
+                }
+                return ps.executeUpdate();
             }
+        } catch (SQLException ex) {
+            throw new IllegalStateException("写入 " + table + " 失败: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * 批量插入多行。
+     *
+     * <p>与单行插入同一套安全约束：表名与列名只能来自严格 ASCII 标识符白名单，
+     * 值全部通过 {@link PreparedStatement} 绑定。列集合以首行为准——上游集合各行
+     * 的键可能不齐，取首行会让后续多出来的列静默丢失，因此这里按所有行的键并集
+     * 建列，缺的填 {@code null}。</p>
+     *
+     * @param reference 数据源引用
+     * @param table     表名
+     * @param rows      行集合，按写入顺序
+     * @return 受影响行数
+     */
+    public int insertBatch(String reference, String table, List<Map<String, Object>> rows) {
+        if (rows == null || rows.isEmpty()) {
+            return 0;
+        }
+        List<String> columns = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        for (Map<String, Object> row : rows) {
+            for (String column : row.keySet()) {
+                if (seen.add(column)) {
+                    columns.add(column);
+                }
+            }
+        }
+        if (columns.isEmpty()) {
+            throw new IllegalArgumentException("没有可写入的列");
+        }
+        for (String column : columns) {
+            identifier(column);
+        }
+        try (Connection connection = resolve(reference).getConnection()) {
+            String name = quoted(connection, table);
+            StringBuilder sql = new StringBuilder("INSERT INTO ").append(name).append(" (");
+            sql.append(String.join(", ", quotedAll(connection, columns))).append(") VALUES (");
+            sql.append(String.join(", ", columns.stream().map(column -> "?").toList())).append(")");
+            try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
+                for (Map<String, Object> row : rows) {
+                    for (int index = 0; index < columns.size(); index++) {
+                        ps.setObject(index + 1, value(row.get(columns.get(index))));
+                    }
+                    ps.addBatch();
+                }
+                int[] results = ps.executeBatch();
+                int affected = 0;
+                for (int result : results) {
+                    // 驱动对成功批次可能返回 SUCCESS_NO_INFO(-2)，不能当失败计数
+                    if (result >= 0 || result == Statement.SUCCESS_NO_INFO) {
+                        affected++;
+                    }
+                }
+                return affected;
+            }
+        } catch (SQLException ex) {
+            throw new IllegalStateException("批量写入 " + table + " 失败: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * 按业务主键写入：命中主键的行做 UPDATE，未命中的行做 INSERT。
+     *
+     * <p>跨方言的 {@code ON DUPLICATE KEY UPDATE} 与 {@code ON CONFLICT} 没法用同一句
+     * SQL 拼出来，所以这里走通用两步法：先按主键 {@code SELECT} 探测某一行在不在，
+     * 再据此执行 {@code UPDATE} 或 {@code INSERT}。整套语句在同一个连接、同一个事务里
+     * 执行，任一行失败就整体回滚，不会留下"更新了一半"的中间状态。</p>
+     *
+     * <p>逐行探测而不是整批 {@code IN}：联合键要按行展开成
+     * {@code (k1=? AND k2=?) OR (k1=? AND k2=?)}，参数个数随主键列数成倍增长；
+     * 而且各驱动回读主键值的类型、大小写与空白填充规则并不一致，拿回读值做匹配
+     * 会把"没匹配上"误判成新增。批量单位仍由调用方的每批行数决定，探测语句复用
+     * 同一条预编译语句与同一个连接。</p>
+     *
+     * <p>表名与列名只能来自严格 ASCII 标识符白名单并统一加引用符；值全部经
+     * {@link PreparedStatement} 绑定，不做任何字符串拼接。主键值参与 {@code =} 比较，
+     * {@code null} 恒不命中、会退化成每次新增，因此这里遇到空主键直接报错。</p>
+     *
+     * @param reference 数据源引用
+     * @param table     目标表
+     * @param keys      业务主键列，必须都出现在待写入行的键里
+     * @param rows      待写入行，列集合取所有行的键并集
+     * @return 更新与新增的行数
+     * @throws IllegalStateException 执行失败，事务已回滚
+     */
+    public UpsertResult updateByKey(String reference, String table, List<String> keys,
+                                    List<Map<String, Object>> rows) {
+        if (rows == null || rows.isEmpty()) {
+            return new UpsertResult(0, 0);
+        }
+        if (keys == null || keys.isEmpty()) {
+            throw new IllegalArgumentException("按主键写入必须声明至少一个主键列");
+        }
+        List<String> columns = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        for (Map<String, Object> row : rows) {
+            for (String column : row.keySet()) {
+                if (seen.add(column)) {
+                    columns.add(column);
+                }
+            }
+        }
+        if (columns.isEmpty()) {
+            throw new IllegalArgumentException("没有可写入的列");
+        }
+        for (String key : keys) {
+            if (!seen.contains(key)) {
+                throw new IllegalArgumentException("主键列 " + key + " 不在待写入的列里");
+            }
+        }
+        for (String column : columns) {
+            identifier(column);
+        }
+        try (Connection connection = resolve(reference).getConnection()) {
+            boolean autoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                String name = quoted(connection, table);
+                List<String> predicates = new ArrayList<>(keys.size());
+                for (String key : keys) {
+                    predicates.add(quoted(connection, key) + " = ?");
+                }
+                String where = String.join(" AND ", predicates);
+                StringBuilder sets = new StringBuilder();
+                for (String column : columns) {
+                    if (sets.length() > 0) {
+                        sets.append(", ");
+                    }
+                    sets.append(quoted(connection, column)).append(" = ?");
+                }
+                String selectSql = "SELECT 1 FROM " + name + " WHERE " + where;
+                String insertSql = "INSERT INTO " + name + " ("
+                        + String.join(", ", quotedAll(connection, columns)) + ") VALUES ("
+                        + String.join(", ", columns.stream().map(column -> "?").toList()) + ")";
+                String updateSql = "UPDATE " + name + " SET " + sets + " WHERE " + where;
+                int updated = 0;
+                int inserted = 0;
+                try (PreparedStatement select = connection.prepareStatement(selectSql);
+                     PreparedStatement insert = connection.prepareStatement(insertSql);
+                     PreparedStatement update = connection.prepareStatement(updateSql)) {
+                    for (Map<String, Object> row : rows) {
+                        for (int index = 0; index < keys.size(); index++) {
+                            Object keyValue = row.get(keys.get(index));
+                            if (keyValue == null) {
+                                throw new IllegalStateException("主键列 " + keys.get(index)
+                                        + " 的值为空，无法定位已有行，请检查该列的取值表达式");
+                            }
+                            select.setObject(index + 1, value(keyValue));
+                        }
+                        boolean exists;
+                        try (ResultSet rs = select.executeQuery()) {
+                            exists = rs.next();
+                        }
+                        if (exists) {
+                            int index = 1;
+                            for (String column : columns) {
+                                update.setObject(index++, value(row.get(column)));
+                            }
+                            for (String key : keys) {
+                                update.setObject(index++, value(row.get(key)));
+                            }
+                            update.executeUpdate();
+                            updated++;
+                        } else {
+                            for (int index = 0; index < columns.size(); index++) {
+                                insert.setObject(index + 1, value(row.get(columns.get(index))));
+                            }
+                            insert.executeUpdate();
+                            inserted++;
+                        }
+                    }
+                    connection.commit();
+                }
+                return new UpsertResult(updated, inserted);
+            } catch (SQLException ex) {
+                rollbackQuietly(connection);
+                throw new IllegalStateException("按主键写入 " + table + " 失败: " + ex.getMessage(), ex);
+            } catch (RuntimeException ex) {
+                // 主键为空这类配置错误同样要把整批回滚，不能留下写了一半的数据
+                rollbackQuietly(connection);
+                throw ex;
+            } finally {
+                restoreAutoCommit(connection, autoCommit);
+            }
+        } catch (SQLException ex) {
+            throw new IllegalStateException("写入 " + table + " 失败: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * 清空目标表的全部数据，保留表结构。
+     *
+     * <p>用于「覆盖写入」：先删后插在同一个连接里没有跨语句事务保护，
+     * 中途失败会留下半张表，所以删完立刻插是最坏情况也只有数据不全，
+     * 不会把旧数据和新数据混在一起让下游读到脏数据。</p>
+     *
+     * @param reference 数据源引用
+     * @param table     表名
+     * @return 受影响行数
+     */
+    public int deleteAll(String reference, String table) {
+        identifier(table);
+        try (Connection connection = resolve(reference).getConnection();
+             PreparedStatement ps = connection.prepareStatement("DELETE FROM " + quoted(connection, table))) {
             return ps.executeUpdate();
         } catch (SQLException ex) {
-            throw new IllegalStateException("写入 " + name + " 失败: " + ex.getMessage(), ex);
+            throw new IllegalStateException("清空 " + table + " 失败: " + ex.getMessage(), ex);
         }
     }
 
@@ -242,6 +453,23 @@ public class CollectJdbcSupport {
         // 建表/补列的方言拼装与"表已存在"策略由数据源模块负责：表不存在则建（自带自增主键 id），
         // 已存在则只补缺失列——与原来 ensureTable 的语义一致，但类型与主键由数据源模块统一决定。
         schemaService.executeDdl(new TableDdlDTO(reference, name, targets, null, null, "APPEND", Boolean.TRUE));
+    }
+
+    /**
+     * 按给定列定义建表并补齐缺失列，列类型由列定义里的来源类型推断。
+     *
+     * <p>与 {@link #ensureTable(String, String, Collection)} 的区别只在列类型：
+     * 这里把「这一列是什么类型」交给数据源模块按来源类型推断，产出
+     * {@code BIGINT}/{@code DECIMAL(20,4)} 这类真实类型，而不是一律大文本。
+     * 批量入库的列往往有排序、聚合与数值运算需求，落到 TEXT 上就只能当字符串比对。</p>
+     *
+     * @param reference 数据源引用
+     * @param table     表名
+     * @param columns   列定义
+     */
+    public void ensureTypedTable(String reference, String table, List<DdlColumn> columns) {
+        String name = identifier(table);
+        schemaService.executeDdl(new TableDdlDTO(reference, name, columns, null, null, "APPEND", Boolean.FALSE));
     }
 
     /**
@@ -378,6 +606,72 @@ public class CollectJdbcSupport {
     }
 
     /**
+     * 按目标库方言给标识符加引用符。
+     *
+     * <p>建表走数据源中心的 DDL 通道（{@link JdbcDialectSupport#quote}），那里一定会
+     * 加引用符；DDL 里的 {@code "collect_github_repo"} 是「原样大小写」的标识符，而 DML
+     * 里的裸 {@code collect_github_repo} 会被内核折叠——H2 与 Oracle 折成大写、PostgreSQL
+     * 折成小写。于是建出来的小写表在 {@code DELETE} / {@code INSERT} 里查不到，报的还是
+     * 「表不存在」，极难定位。这里让 DML 与 DDL 用同一套引用规则，两侧天然对齐。</p>
+     *
+     * <p>调用前必须先经 {@link #identifier(String)} 校验：加引用符只解决大小写，
+     * 不提供任何转义，安全性仍由白名单保证。</p>
+     *
+     * @param connection 数据库连接，用于判定方言
+     * @param name       已校验的表名或列名
+     * @return 加引用符后的标识符
+     */
+    private static String quoted(Connection connection, String name) {
+        return JdbcDialectSupport.quote(connection, identifier(name));
+    }
+
+    /**
+     * 批量给标识符加引用符。
+     *
+     * @param connection 数据库连接，用于判定方言
+     * @param names      已校验的列名
+     * @return 加引用符后的列名列表
+     */
+    private static List<String> quotedAll(Connection connection, Collection<String> names) {
+        List<String> quoted = new ArrayList<>(names.size());
+        for (String name : names) {
+            quoted.add(quoted(connection, name));
+        }
+        return quoted;
+    }
+
+    /**
+     * 回滚当前事务，失败只记日志。
+     *
+     * <p>调用点在抛出原始异常之前，回滚本身再失败不能把原始原因覆盖掉。</p>
+     *
+     * @param connection 连接
+     */
+    private void rollbackQuietly(Connection connection) {
+        try {
+            connection.rollback();
+        } catch (SQLException ex) {
+            log.warn("[collect] 回滚失败: {}", ex.getMessage());
+        }
+    }
+
+    /**
+     * 还原连接的自动提交标记，失败只记日志。
+     *
+     * <p>连接随后会归还连接池，池本身也会重置该标记；这里显式还原是为了不依赖池实现。</p>
+     *
+     * @param connection 连接
+     * @param autoCommit 原自动提交标记
+     */
+    private void restoreAutoCommit(Connection connection, boolean autoCommit) {
+        try {
+            connection.setAutoCommit(autoCommit);
+        } catch (SQLException ex) {
+            log.warn("[collect] 还原自动提交失败: {}", ex.getMessage());
+        }
+    }
+
+    /**
      * 取已存在的列名集合，表不存在返回空集合。
      *
      * @param dataSource 数据源
@@ -425,5 +719,23 @@ public class CollectJdbcSupport {
             throw new IllegalArgumentException(query ? "查询节点只能执行 SELECT 语句" : "更新节点不能执行 SELECT 语句");
         }
         return statement;
+    }
+
+    /**
+     * 按主键写入的结果计数。
+     *
+     * @param updated  命中原键、被 UPDATE 的行数
+     * @param inserted 未命中原键、被 INSERT 的行数
+     */
+    public record UpsertResult(int updated, int inserted) {
+
+        /**
+         * 本次写入的总行数。
+         *
+         * @return 更新行数与新增行数之和
+         */
+        public int total() {
+            return updated + inserted;
+        }
     }
 }

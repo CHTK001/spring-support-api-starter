@@ -298,6 +298,13 @@ public class CollectDatabaseSink implements CollectSink {
      * 只改节点日志流程归属的视图。
      *
      * <p>采集记录与计量仍然交给宿主通道按宿主流程记账，因此这里只接管 nodeLog。</p>
+     *
+     * @param owner       宿主通道，被委托执行实际写库的 {@code CollectDatabaseSink} 实例（一次采集任务一个实例）。
+     *                    不允许为 {@code null}（规范构造器强制）。本视图不持有任何状态，{@code record} 与 {@code trace}
+     *                    全部原样转发给它，因此结果行与任务计量仍归属宿主自己的 flowId
+     * @param ownedFlowId 本视图归属的流程标识，即节点日志要写入的 {@code collect_task_log_flow_id}。不允许为 {@code null}
+     *                    （规范构造器强制）。由外层 {@code forFlow(Integer)} 在传入的 flowId 与宿主 flowId 不相等时创建本视图，
+     *                    相等时直接复用宿主本身不额外包装
      */
     private record FlowLabelledSink(CollectDatabaseSink owner, Integer ownedFlowId) implements CollectSink {
 

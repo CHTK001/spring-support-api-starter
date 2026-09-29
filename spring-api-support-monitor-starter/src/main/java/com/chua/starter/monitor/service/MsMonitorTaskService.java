@@ -1,6 +1,6 @@
 package com.chua.starter.monitor.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.spring.service.IService;
 import com.chua.starter.monitor.entity.MsMonitorTask;
 
 import java.util.List;

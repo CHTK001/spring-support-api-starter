@@ -21,7 +21,11 @@
         <agent.compiler.release>8</agent.compiler.release>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <oshi.version>6.8.0</oshi.version>
-        <jackson.agent.version>2.19.4</jackson.agent.version>
+        <!--
+          2026-09-28 移除 jackson.agent.version 属性：原先只用于本文件钉住
+          jackson-databind 2.19.4，该钉值已删除，版本改由 spring-boot-dependencies
+          BOM 统一提供（Boot 4.1.0 托管 2.21.4），属性随之成为死属性。
+        -->
     </properties>
 
     <dependencies>
@@ -36,7 +40,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.agent.version}</version>
         </dependency>
     </dependencies>
 

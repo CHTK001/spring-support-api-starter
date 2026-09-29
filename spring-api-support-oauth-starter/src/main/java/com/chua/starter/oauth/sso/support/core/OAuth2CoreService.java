@@ -433,6 +433,16 @@ public class OAuth2CoreService {
 
     /**
      * 授权码数据
+     *
+     * <p>授权码消费成功后回传给上层的业务身份信息，来源是
+     * {@link #generateAuthorizationCode(String, String, String, String, String, String, String, String)}
+     * 写入 Redis 哈希的那份快照。本记录不参与任何协议校验，
+     * {@code clientId} 已在 {@link #validateAndConsumeCode} 中比对通过。</p>
+     *
+     * @param userId   授权码对应的用户 ID，取自 Redis 字段 {@code user_id}；未登录态发码时为 null
+     * @param username 授权码对应的用户名，取自 Redis 字段 {@code username}；未登录态发码时为 null
+     * @param scope    发码时申请的权限范围原文，取自 Redis 字段 {@code scope}，多个 scope 以空格分隔；发码未指定 scope 时为空串，不会为 null
+     * @param clientId 客户端标识，取自调用方入参（已与 Redis 中存的值比对一致）；非空
      */
     public record AuthorizationCodeData(
             String userId,
@@ -443,6 +453,14 @@ public class OAuth2CoreService {
 
     /**
      * Scope 验证结果
+     *
+     * <p>由 {@link #validateScope(String, String)} 返回的三元组：是否通过、失败原因、实际授予的 scope 集合。
+     * 二者互斥——通过时 {@code errorMessage} 为 null 并携带授予集合，失败时携带错误文案且授予集合为空集。
+     * 本记录不可变，授予集合在规范构造器中已做防御性拷贝。</p>
+     *
+     * @param valid         是否校验通过；由 {@link #success(Set)} 置 {@code true}、{@link #failure(String)} 置 {@code false}
+     * @param errorMessage  失败原因文案（如「客户端不存在」「不允许的 scope: xxx」）；校验通过时为 null
+     * @param grantedScopes 实际授予的 scope 集合，统一小写；不允许为 null（null 会让规范构造器立即抛异常），校验失败时为不可变空集
      */
     public record ScopeValidationResult(
             boolean valid,

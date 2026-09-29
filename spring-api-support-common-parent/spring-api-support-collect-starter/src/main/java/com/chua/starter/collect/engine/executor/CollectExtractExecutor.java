@@ -94,7 +94,8 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
      * <p>留空或纯空白按 CSS 处理（见 {@link #extractField}），因此不在集合内的判据是
      * 「显式写了但不认识的」—— 那种必须报错而不是兜底，见 {@link #checkParserTypes}。</p>
      */
-    private static final Set<String> VALID_PARSER_TYPES = Set.of("CSS", "REGEX", "JSON", "TEXT", "HTML");
+    private static final Set<String> VALID_PARSER_TYPES =
+            Set.of("CSS", "REGEX", "JSON", "JSONPATH", "XPATH", "TEXT", "HTML");
 
     /**
      * 校验字段声明里的解析器类型。
@@ -135,7 +136,7 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
     @Override
     public CollectShapeMeta meta() {
         CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "抽取", "解析", "filter",
-                "按 CSS、正则、JSON 路径从上游响应抽取字段");
+                "按 CSS、XPath、正则、JSON 或 JSONPath 从上游响应抽取字段");
         meta.setFieldEditor(true);
         meta.setOutputVariable("单条模式写同名变量与 row，列表模式写 rows 集合");
         CollectParamMeta source = CollectShapeMetas.text(SOURCE, "抽取来源", "text",
@@ -231,6 +232,19 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
     /**
      * 按解析器抽取单个字段。
      *
+     * <p>解析器类型大小写与首尾空白不敏感，留空按 CSS 处理。支持下列取值：</p>
+     *
+     * <ul>
+     *   <li>{@code CSS}：jsoup 选择器（默认）</li>
+     *   <li>{@code REGEX}：正则取首个匹配</li>
+     *   <li>{@code JSON}：{@link CollectJson#path(Object, String)} 点号下标路径</li>
+     *   <li>{@code JSONPATH}：同 {@code JSON}，按 JSONPath 子集解析，
+     *       支持的子集与不支持的部分见 {@link CollectJson#path(Object, String)}</li>
+     *   <li>{@code XPATH}：{@link CollectDom#xpath(Object, String)}，jsoup 转 W3C DOM 后走 JDK XPath</li>
+     *   <li>{@code TEXT}：宿主可见文本</li>
+     *   <li>{@code HTML}：宿主 HTML</li>
+     * </ul>
+     *
      * @param field 字段声明
      * @param item  本行来源
      * @return 字段值，未命中返回 null
@@ -243,7 +257,10 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
             case "REGEX":
                 return CollectDom.regex(item, expression, field.getGroup());
             case "JSON":
+            case "JSONPATH":
                 return CollectJson.path(CollectDom.json(item), expression);
+            case "XPATH":
+                return CollectDom.xpath(item, expression);
             case "TEXT":
                 return CollectDom.text(item).trim();
             case "HTML":

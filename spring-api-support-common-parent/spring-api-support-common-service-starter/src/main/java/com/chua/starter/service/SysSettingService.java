@@ -1,7 +1,7 @@
 package com.chua.starter.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.spring.service.IService;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;

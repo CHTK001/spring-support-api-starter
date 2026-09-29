@@ -38,25 +38,6 @@ public class OauthAuthInformation extends BaseAuthInformation {
         super(authServerProperties, data, request, response, applicationContext, loginCheck);
     }
 
-    // Armeria协议构造函数
-    /**
-     * 创建 oauth认证信息 实例
-     * @param authServerProperties 认证服务端属性
-     * @param data 数据
-     * @param request 请求
-     * @param response 响应
-     * @param applicationContext application上下文
-     * @param loginCheck login检查
-     */
-    public OauthAuthInformation(AuthServerProperties authServerProperties,
-                               String data,
-                               ArmeriaAuthInformation.ArmeriaRequest request,
-                               ArmeriaAuthInformation.ArmeriaResponse response,
-                               ApplicationContext applicationContext,
-                               LoginCheck loginCheck) {
-        super(authServerProperties, data, request, response, applicationContext, loginCheck);
-    }
-
  // r套接字协议构造函数
     /**
      * 创建 oauth认证信息 实例
@@ -83,8 +64,6 @@ public class OauthAuthInformation extends BaseAuthInformation {
     public String getRequestHeader(Object request, String headerName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getHeader(headerName);
-        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest) {
-            return ((ArmeriaAuthInformation.ArmeriaRequest) request).getHeader(headerName);
         } else if (request instanceof RsocketAuthInformation.RsocketRequest) {
             return ((RsocketAuthInformation.RsocketRequest) request).getHeader(headerName);
         }
@@ -98,8 +77,6 @@ public class OauthAuthInformation extends BaseAuthInformation {
     protected void setResponseHeader(Object response, String headerName, String headerValue) {
         if (response instanceof HttpServletResponse) {
             ((HttpServletResponse) response).setHeader(headerName, headerValue);
-        } else if (response instanceof ArmeriaAuthInformation.ArmeriaResponse) {
-            ((ArmeriaAuthInformation.ArmeriaResponse) response).setHeader(headerName, headerValue);
         } else if (response instanceof RsocketAuthInformation.RsocketResponse) {
             ((RsocketAuthInformation.RsocketResponse) response).setHeader(headerName, headerValue);
         }
@@ -112,8 +89,6 @@ public class OauthAuthInformation extends BaseAuthInformation {
     protected String getRemoteAddress(Object request) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getRemoteAddr();
-        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest) {
-            return ((ArmeriaAuthInformation.ArmeriaRequest) request).getRemoteAddr();
         } else if (request instanceof RsocketAuthInformation.RsocketRequest) {
             return ((RsocketAuthInformation.RsocketRequest) request).getRemoteAddr();
         }
@@ -127,8 +102,6 @@ public class OauthAuthInformation extends BaseAuthInformation {
     protected Object getRequestAttribute(Object request, String attributeName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getAttribute(attributeName);
-        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest) {
-            return ((ArmeriaAuthInformation.ArmeriaRequest) request).getAttribute(attributeName);
         } else if (request instanceof RsocketAuthInformation.RsocketRequest) {
             return ((RsocketAuthInformation.RsocketRequest) request).getAttribute(attributeName);
         }
@@ -142,8 +115,6 @@ public class OauthAuthInformation extends BaseAuthInformation {
     protected void setRequestAttribute(Object request, String attributeName, Object attributeValue) {
         if (request instanceof HttpServletRequest) {
             ((HttpServletRequest) request).setAttribute(attributeName, attributeValue);
-        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest) {
-            ((ArmeriaAuthInformation.ArmeriaRequest) request).setAttribute(attributeName, attributeValue);
         } else if (request instanceof RsocketAuthInformation.RsocketRequest) {
             ((RsocketAuthInformation.RsocketRequest) request).setAttribute(attributeName, attributeValue);
         }

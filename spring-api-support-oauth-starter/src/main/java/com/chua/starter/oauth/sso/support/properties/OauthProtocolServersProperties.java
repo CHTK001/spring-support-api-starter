@@ -1,6 +1,7 @@
 package com.chua.starter.oauth.sso.support.properties;
 
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -55,6 +56,20 @@ public class OauthProtocolServersProperties {
      * 配置前缀
      */
     public static final String PRE = "plugin.oauth.protocol-server";
+
+    /**
+     * 绑定完成后把自身交给 {@code AuthServerProperties} 的静态持有者。
+     *
+     * <p>{@code AuthServerProperties} 是纯配置类、不注入 Bean，而本类是 Spring 管理的
+     * {@code @Component}；管理端状态 / 配置校验 / 健康检查需要读「实际启用的协议」，
+     * 由这里作为唯一的注入点把两者接起来，避免配置类依赖 Spring 容器。</p>
+     *
+     * @param bound 由 Spring 绑定并注入好的配置实例
+     */
+    @Autowired
+    public void setBoundInstance(OauthProtocolServersProperties bound) {
+        AuthServerProperties.OauthProtocolServersPropertiesHolder.set(bound);
+    }
 
     /**
      * 协议 服务端 配置列表

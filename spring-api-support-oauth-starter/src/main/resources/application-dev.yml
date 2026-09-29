@@ -52,24 +52,27 @@ plugin:
       # 是否开启 AK/SK 校验
       open-check-ak-sk: false
       # 多协议认证 Server(基于 common-starter network.Server,与 client 端协议一一对应)
-      # - http     : jdk 实现(19180 认证入口,client 调 http://172.16.0.40:19180/oauth/login)
-      # - armeria  : armeria-http 实现(对应 client ArmeriaProtocol)
+      # - tcp      : 默认协议(19180 认证入口)。type=aio-tcp 对应 AioTcpServer 的 SPI 名,
+      #               protocol=tcp 决定传输与帧格式(topic:body,如 login:{...});
+      #               OauthProtocolServerManager 对实现了 TcpServer 的实例会走专门的帧解析分支。
+      # - http     : jdk 实现(JdkHttpServer @Spi("jdk"))
       # - rsocket  : rsocket 实现(对应 client RSocketProtocol)
-      # - tcp/udp/ws/kcp : 可扩展(ProtocolType 已支持)
+      # armeria 已于 2026-09-29 移除(对应 client ArmeriaProtocol 与服务端
+      # ArmeriaOauthProtocol 一并退役)，原先占用的 19184 端口不再监听
     protocol-server:
       protocols:
-        - name: http
-          type: jdk
-          protocol: http
+        - name: tcp
+          type: aio-tcp
+          protocol: tcp
           host: 0.0.0.0
           port: 19180
           enable: true
           context-path: /
-        - name: armeria
-          type: armeria-http
+        - name: http
+          type: jdk
           protocol: http
           host: 0.0.0.0
-          port: 19184
+          port: 19182
           enable: true
           context-path: /
         - name: rsocket

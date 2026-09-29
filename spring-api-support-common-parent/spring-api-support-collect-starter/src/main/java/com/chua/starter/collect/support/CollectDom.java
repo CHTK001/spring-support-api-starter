@@ -1,8 +1,13 @@
 package com.chua.starter.collect.support;
 
 import org.jsoup.Jsoup;
+import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathException;
+import javax.xml.xpath.XPathFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -120,6 +125,39 @@ public final class CollectDom {
     public static Element selectFirst(Object item, String cssQuery) {
         Elements matched = select(item, cssQuery);
         return matched.isEmpty() ? null : matched.first();
+    }
+
+    /**
+     * XPath 取值。
+     *
+     * <p><b>实现口径</b>：用 jsoup 自带的 {@link W3CDom} 把宿主转成标准
+     * {@link org.w3c.dom.Document}，再用 JDK 内置的 {@link XPathFactory} 求值 ——
+     * 全程只依赖 jsoup 与 JDK，不引入任何第三方 XPath 库。</p>
+     *
+     * <p>固定按字符串求值（{@link XPathConstants#STRING}）：节点集表达式只取首个节点的
+     * 字符串值，属性表达式如 {@code //a/@href} 直接得到属性值。因此 XPath 取值不区分
+     * {@code text}/{@code html} 等取出方式，属性交给表达式自己写。</p>
+     *
+     * @param item       宿主
+     * @param expression XPath 表达式
+     * @return 取值结果；表达式为空或宿主无法解析成文档返回 null，表达式写法错误抛参数异常
+     */
+    public static String xpath(Object item, String expression) {
+        if (expression == null || expression.isBlank()) {
+            return null;
+        }
+        Element root = element(item);
+        if (root == null) {
+            return null;
+        }
+        var document = new W3CDom().fromJsoup(root);
+        try {
+            var evaluator = XPathFactory.newInstance().newXPath();
+            Object value = evaluator.evaluate(expression.trim(), document, XPathConstants.STRING);
+            return value == null ? null : value.toString();
+        } catch (XPathException ex) {
+            throw new IllegalArgumentException("XPath 写法错误: " + ex.getMessage(), ex);
+        }
     }
 
     /**

@@ -25,6 +25,10 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-support-job-starter</artifactId>
     </dependency>
+    <!-- 站内消息渠道说明：走的是采集模块传递依赖的 common-system-starter 消息中心，
+         本模块无需（也不该）再引 spring-support-message-starter —— 后者与
+         common-system-starter 各自带了一整套 SysMessage*，4 个 Mapper 与 4 组
+         Service/Impl 同名，共存会让 Spring 上下文启动失败。 -->
     <!-- 可部署形态自带驱动：外部库与零依赖演示两种启动方式都开箱可用 -->
     <dependency>
       <groupId>com.mysql</groupId>
