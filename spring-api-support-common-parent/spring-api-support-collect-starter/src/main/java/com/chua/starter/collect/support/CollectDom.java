@@ -2,12 +2,14 @@ package com.chua.starter.collect.support;
 
 import org.jsoup.Jsoup;
 import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathFactory;
+import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -150,14 +152,39 @@ public final class CollectDom {
         if (root == null) {
             return null;
         }
-        var document = new W3CDom().fromJsoup(root);
+        // 关键：item 本身是 jsoup Document 时必须走 fromJsoup(Document) 重载。
+        // element() 的返回类型是 Element，若直接把它交给 fromJsoup，编译期会选中
+        // fromJsoup(Element) —— 整个文档被当成「普通元素」转换，文档级结构被削掉。
+        // 症状很隐蔽：属性路径 //a/@href 能取到，元素与文本路径 //h1、//h1/text() 全是空。
+        // 验收实测过：同一页面上 //a/@href 有值而 //h1 为空。
+        var dom = new W3CDom().namespaceAware(false);
+        var document = item instanceof Document ? dom.fromJsoup((Document) item) : dom.fromJsoup(root);
+        String expr = expression.trim();
+        var evaluator = XPathFactory.newInstance().newXPath();
+        Object result;
         try {
-            var evaluator = XPathFactory.newInstance().newXPath();
-            Object value = evaluator.evaluate(expression.trim(), document, XPathConstants.STRING);
-            return value == null ? null : value.toString();
-        } catch (XPathException ex) {
-            throw new IllegalArgumentException("XPath 写法错误: " + ex.getMessage(), ex);
+            // 优先 NODESET：它对元素、文本、属性三种节点都能取到人要的那串字符，
+            // 于是 //h1、//h1/text()、//a/@href 三种写法统一有值。
+            // 不用 STRING 直接求：STRING 在「文本节点集」上取不到值（//h1/text() 实测返回空）。
+            result = evaluator.evaluate(expr, document, XPathConstants.NODESET);
+        } catch (XPathException nodeSetFail) {
+            // 表达式求的是标量（string(...)、count(...) 这类）时，转到 NODESET 会抛，退回 STRING。
+            try {
+                result = evaluator.evaluate(expr, document, XPathConstants.STRING);
+            } catch (XPathException ex) {
+                throw new IllegalArgumentException("XPath 写法错误: " + ex.getMessage(), ex);
+            }
         }
+        // 必须用 instanceof 判型而不是直接 (NodeList) 强转：某些实现对标量表达式
+        // 不抛异常、而是直接把 String 作为结果返回，强转会抛 ClassCastException —— 那不是
+        // XPathException，上面的 catch 抓不到，整条字段会莫名变成空（实测踩过 string(//a/@href)）。
+        if (result instanceof NodeList nodes) {
+            if (nodes.getLength() == 0 || nodes.item(0) == null) {
+                return null;
+            }
+            return nodes.item(0).getTextContent();
+        }
+        return result == null ? null : String.valueOf(result);
     }
 
     /**
