@@ -58,7 +58,9 @@ public class CollectConditionExecutor implements CollectShapeExecutor {
         output.setDefaultValue(DEFAULT_OUTPUT);
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.required(EXPRESSION, "判断表达式", "textarea",
-                        "布尔表达式，可用 ${} 引用变量，例如 ${status == 1}、${rows.size() > 0}"),
+                        "布尔表达式。裸写或 ${} 包裹都可以：1 == 2、${status == 1}、${rows.size() > 0}。"
+                                + "求值结果写入结果变量，出边条件用 ${结果变量名} 分流；"
+                                + "写不成表达式时会直接报错，不会静默判真"),
                 output);
     }
 
@@ -68,7 +70,10 @@ public class CollectConditionExecutor implements CollectShapeExecutor {
         if (raw.isEmpty()) {
             throw new IllegalStateException("判断节点没有填写判断表达式");
         }
-        Object value = CollectExpression.eval(raw, variables);
+        // 必须走 evalExpr 而不是 eval：eval 对不含 ${} 的文本原样返回字符串，
+        // 那样「1 == 2」会被当成非空串判为真 —— 假条件走真分支且毫无提示（验收实测过）。
+        // evalExpr 让裸表达式与 ${表达式} 等价；写不成表达式时它会抛可读错误，不静默给错分支。
+        Object value = CollectExpression.evalExpr(raw, variables);
         String name = node.param(OUTPUT).isEmpty() ? DEFAULT_OUTPUT : node.param(OUTPUT);
         variables.put(name, value);
     }
