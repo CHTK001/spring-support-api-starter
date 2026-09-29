@@ -38,6 +38,11 @@ public class IpPolicyStartupRebuilder implements ApplicationListener<Application
      */
     private final IpPolicyCacheProjector ipPolicyCacheProjector;
 
+    /**
+     * 消息头拦截规则投影器
+     */
+    private final HeaderPolicyCacheProjector headerPolicyCacheProjector;
+
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         try {
@@ -48,6 +53,17 @@ public class IpPolicyStartupRebuilder implements ApplicationListener<Application
             ipPolicyCacheProjector.rebuild(entries);
         } catch (Exception e) {
             log.error("启动时重建 IP 策略缓存失败", e);
+        }
+        // 消息头拦截规则同样只在内存/缓存里有投影，重启后必须重建，
+        // 否则「爬虫拦截」会在每次重启后静默失效
+        try {
+            List<SysPolicyConfig> headerEntries = sysPolicyConfigMapper.selectList(
+                    Wrappers.<SysPolicyConfig>lambdaQuery()
+                            .eq(SysPolicyConfig::getType, SysPolicyConfig.TYPE_HEADER)
+                            .eq(SysPolicyConfig::getStatus, SysPolicyConfig.STATUS_ENABLED));
+            headerPolicyCacheProjector.rebuild(headerEntries);
+        } catch (Exception e) {
+            log.error("启动时重建消息头拦截规则缓存失败", e);
         }
     }
 }

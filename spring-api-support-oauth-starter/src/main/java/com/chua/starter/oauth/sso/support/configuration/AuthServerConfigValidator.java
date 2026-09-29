@@ -164,10 +164,13 @@ public class AuthServerConfigValidator {
      * @param warnings 警告
      */
     private void validateProtocols(List<String> errors, List<String> warnings) {
-        List<String> protocols = authServerProperties.getProtocols();
-        
+        // 读「实际启用的协议」而不是 config.protocols：后者只被已删除的 *OauthProtocol
+        // 读取（其依赖的 Protocol SPI 全仓零实现），不再影响任何监听行为。
+        // 若真没配任何协议，应当在 protocol-server 那一层报错，而不是报一个不生效的字段。
+        List<String> protocols = authServerProperties.resolveEnabledProtocols();
+
         if (protocols == null || protocols.isEmpty()) {
-            errors.add("plugin.oauth.server.protocols 必须至少配置一个协议！");
+            errors.add("plugin.oauth.protocol-server.protocols 必须至少启用一个协议！");
             return;
         }
 

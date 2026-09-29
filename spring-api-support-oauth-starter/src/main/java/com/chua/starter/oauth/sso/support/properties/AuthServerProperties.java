@@ -1,5 +1,6 @@
 package com.chua.starter.oauth.sso.support.properties;
 
+import com.chua.common.support.utils.StringUtils;
 import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -182,12 +183,10 @@ public class AuthServerProperties {
      * 可选值：
      * </p>
      * <ul>
-     * <li><strong>armeria</strong> - Armeria协议，基于Netty的高性能异步框架，支持HTTP/2，【推荐】</li>
+     * <li><strong>tcp</strong> - TCP 帧协议，默认。帧格式 topic:body（如 login:{...}）</li>
      * <li><strong>http</strong> - HTTP协议，基于RESTful API，兼容性好</li>
      * <li><strong>oauth2</strong> - OAuth 2.0标准协议，符合RFC 6749规范</li>
-     * <li><strong>rsocket</strong> - RSocket协议，响应式流协议，支持双向通信</li>
      * <li><strong>ipc</strong> - IPC协议，基于Unix Domain Socket本地进程间通信，单机场景性能极高</li>
-     * <li><strong>tcp</strong> - TCP协议，二进制传输，高性能</li>
      * <li><strong>udp</strong> - UDP协议，无连接，极致性能</li>
      * <li><strong>custom</strong> - 自定义协议</li>
      * <li><strong>jwt</strong> - JWT令牌协议</li>
@@ -195,10 +194,14 @@ public class AuthServerProperties {
      * </ul>
      * <p>
      * <p>
-     * 默认值：[armeria, http] - 默认启用Armeria高性能协议，同时保留HTTP兼容
+     * 默认值：[tcp]。真正决定监听哪些协议的是 {@code plugin.oauth.protocol-server.protocols}
+     * （由 {@code OauthProtocolServerManager} 按 {@code type} + {@code protocol} 取 Server），
+     * 本列表只被各 {@code *OauthProtocol} 的 {@code contains()} 判断读取。
+     * armeria 已于 2026-09-29 整体移除（客户端 ArmeriaProtocol 与
+     * 服务端 ArmeriaOauthProtocol / ArmeriaAuthInformation 一并退役）。
      * </p>
      */
-    private List<String> protocols = Lists.newArrayList("armeria", "rsocket");
+    private List<String> protocols = Lists.newArrayList("tcp");
 
     /**
      * 是否启用AK/SK密钥校验
@@ -380,13 +383,31 @@ public class AuthServerProperties {
     /**
      * Armeria服务器端口
      * <p>
-     * Armeria协议服务器监听端口
+     * Armeria协议服务器监听端口。Armeria 已于 2026-09-29 移除，此字段仅保留占位以兼容
+     * 存量配置文件里的同名键；实际不再有协议读取它。
      * </p>
      * <p>
-     * 默认值：9091
+     * 注意：历史上 HTTP 与 OAuth2 协议都误用了这个字段当自己的监听端口，
+     * 现已改用 {@link #httpPort}。配置里若仍写 armeria-port，不会再影响任何协议。
+     * </p>
+     * <p>
+     * 默认值：19180
      * </p>
      */
+    @Deprecated
     private Integer armeriaPort = 19180;
+
+    /**
+     * HTTP / OAuth2 协议服务器监听端口
+     * <p>
+     * 原本 HTTP 与 OAuth2 协议读取的是 {@link #armeriaPort}（字段名与实际用途不符，
+     * 属于历史遗留）。Armeria 移除后改为本字段，语义与名字一致。
+     * </p>
+     * <p>
+     * 默认值：8080
+     * </p>
+     */
+    private Integer httpPort = 8080;
 
     /**
      * r套接字服务器端口
@@ -541,6 +562,71 @@ public class AuthServerProperties {
          * <p>超过限制时踢掉最早登录的设备</p>
          */
         LIMIT
+    }
+
+    /**
+     * 实际启用的认证协议（只读派生值，不参与配置绑定）。
+     *
+     * <p><b>为什么需要它</b>：真正决定 oauth 服务端监听什么的是
+     * {@code plugin.oauth.protocol-server.protocols[]}（由 {@code OauthProtocolServerManager}
+     * 按 {@code type} + {@code protocol} 取 {@code network.Server} 实现）。
+     * 而 {@link #protocols} 这个字段只被 {@code *OauthProtocol} 的 {@code contains()} 判断读取，
+     * 而那些类依赖的 {@code com.chua.protocol...Protocol} SPI 全仓零实现、已随本次改造删除，
+     * 因此它不再影响任何监听行为。管理端状态、配置校验与健康检查都改为读本方法，
+     * 避免对外显示一个与实际监听不一致的协议列表。</p>
+     *
+     * @return 实际启用的协议名列表；未配置 {@code protocol-server} 时返回 {@link #protocols}
+     */
+    public List<String> resolveEnabledProtocols() {
+        var serverProperties = OauthProtocolServersPropertiesHolder.get();
+        if (serverProperties == null || serverProperties.getProtocols() == null
+                || serverProperties.getProtocols().isEmpty()) {
+            return protocols;
+        }
+        var enabled = new ArrayList<String>();
+        for (OauthProtocolServersProperties.ProtocolServer each : serverProperties.getProtocols()) {
+            if (each != null && each.isEnable()) {
+                enabled.add(StringUtils.isNotBlank(each.getProtocol())
+                        ? each.getProtocol() : each.getType());
+            }
+        }
+        return enabled.isEmpty() ? protocols : enabled;
+    }
+
+    /**
+     * {@link OauthProtocolServersProperties} 的静态持有者。
+     *
+     * <p>{@code AuthServerProperties} 是纯配置类，不该为了读另一个配置而注入 Bean；
+     * 而 {@code OauthProtocolServersProperties} 是 {@code @Component}，由 Spring 管理。
+     * 这里用一个静态持有者把两者接起来，避免给配置类引入 Spring 依赖。</p>
+     */
+    public static final class OauthProtocolServersPropertiesHolder {
+
+        /**
+         * 实际持有的配置实例；由 Spring 在容器就绪后写入
+         */
+        private static volatile OauthProtocolServersProperties instance;
+
+        private OauthProtocolServersPropertiesHolder() {
+        }
+
+        /**
+         * 读取当前实例。
+         *
+         * @return 配置实例；Spring 尚未就绪时返回 {@code null}
+         */
+        public static OauthProtocolServersProperties get() {
+            return instance;
+        }
+
+        /**
+         * 写入当前实例。
+         *
+         * @param value {@code OauthProtocolServersProperties} Bean
+         */
+        public static void set(OauthProtocolServersProperties value) {
+            instance = value;
+        }
     }
 
 }

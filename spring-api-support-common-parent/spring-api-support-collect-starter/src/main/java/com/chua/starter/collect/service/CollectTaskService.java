@@ -1,7 +1,7 @@
 package com.chua.starter.collect.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.spring.service.IService;
 import com.chua.starter.collect.entity.CollectTask;
 import com.chua.starter.collect.vo.CollectTaskLogVO;
 import com.chua.starter.collect.vo.CollectTaskVO;

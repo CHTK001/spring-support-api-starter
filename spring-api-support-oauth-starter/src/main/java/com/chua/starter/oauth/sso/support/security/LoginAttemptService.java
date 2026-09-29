@@ -293,6 +293,17 @@ public class LoginAttemptService {
 
     /**
      * 锁定信息
+     *
+     * <p>由 {@link #getLockInfo(String)} 组装的登录防暴力破解快照，四个分量全部取自 Redis
+     * 或本地配置，读取失败时各方法各自回落到安全值（未锁定 / 0 次），因此本记录不会抛异常。
+     * {@link #remainingAttempts()} 与 {@link #formattedRemainingTime()} 是基于分量的派生视图，
+     * 分量本身由外部按各自口径归一。</p>
+     *
+     * @param locked           账户当前是否处于锁定期，依据 Redis 键 {@code oauth:login:locked:<username>} 是否存在；用户名空白时视为 false
+     * @param remainingSeconds 锁定剩余时长，单位秒，取自该键的 TTL；<strong>未锁定时为 -1</strong>（而非 0），用于与「已锁定但查询失败」区分
+     * @param failedAttempts   当前统计窗口内已累计的登录失败次数，取自 Redis 计数键 {@code oauth:login:attempt:<username>}
+     *                         （由 {@link #recordFailedAttempt(String)} 递增，窗口过期后自动清零），非负；无记录时为 0
+     * @param maxAttempts      触发锁定的失败次数阈值（正数），优先取 {@link OauthSecurityProperties#getLoginLock()} 的配置，未装配安全配置时回落到默认 5
      */
     public record LockInfo(
             boolean locked,

@@ -196,11 +196,10 @@ CREATE TABLE IF NOT EXISTS `collect_record` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据采集-结果记录';
 
 -- ---------------------------------------------------------------------
--- 执行通知（任务终态后按渠道推送，flow_id=0 表示对全部流程生效）
+-- 执行通知（任务终态后按渠道推送；平台级配置，没有流程维度）
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `collect_notice` (
     `collect_notice_id` INT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `collect_notice_flow_id` INT NULL DEFAULT 0 COMMENT '所属流程ID，0 表示全部流程',
     `collect_notice_name` varchar(64) NULL DEFAULT NULL COMMENT '通知名称',
     `collect_notice_channel` varchar(32) NULL DEFAULT 'webhook' COMMENT '渠道 - email/webhook，可由 CollectNotifyChannel SPI 扩展',
     `collect_notice_target` varchar(500) NULL DEFAULT NULL COMMENT '收件邮箱（逗号分隔）或回调地址',
@@ -216,8 +215,7 @@ CREATE TABLE IF NOT EXISTS `collect_notice` (
     `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
     `update_name` varchar(255) NULL DEFAULT NULL COMMENT '更新人姓名',
     `update_by` int NULL DEFAULT NULL COMMENT '更新人',
-    PRIMARY KEY (`collect_notice_id`),
-    INDEX `collect_notice_idx_flow` (`collect_notice_flow_id`)
+    PRIMARY KEY (`collect_notice_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据采集-执行通知';
 
 CREATE TABLE IF NOT EXISTS `collect_function` (

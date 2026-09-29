@@ -18,8 +18,12 @@ import com.chua.starter.system.service.SysPolicyConfigService;
 import com.chua.starter.system.service.SysRateLimitRuleService;
 import com.chua.starter.system.support.ApiRouteExecutor;
 import com.chua.starter.system.support.PolicyAnnotationBridge;
+import com.chua.starter.system.support.PolicyHitCollector;
 import com.chua.starter.system.support.RegisteredRouteIndex;
 import com.chua.starter.system.support.SystemRateLimitManager;
+import com.chua.starter.system.support.HeaderPolicyCacheProjector;
+import com.chua.starter.system.support.HeaderRule;
+import com.chua.starter.system.support.HeaderRulePresets;
 import com.chua.starter.system.configuration.ApiRouteStartupInitializer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -91,6 +95,11 @@ public class SysPolicyController {
      * 路由索引 / 策略装载初始化器
      */
     private final ApiRouteStartupInitializer apiRouteStartupInitializer;
+
+    /**
+     * 消息头拦截规则投影器
+     */
+    private final HeaderPolicyCacheProjector headerPolicyCacheProjector;
 
     // ==================== 限流规则 ====================
 
@@ -480,6 +489,113 @@ public class SysPolicyController {
             policyCount = rows.size();
         }
         return ReturnResult.ok(Map.of("routeCount", routeCount, "policyCount", policyCount));
+    }
+
+    // ==================== 消息头拦截 ====================
+
+    /**
+     * 消息头拦截规则列表（含已解析的规则体，便于前端直接展示与编辑）
+     *
+     * @return 规则行列表
+     */
+    @Operation(summary = "消息头拦截规则列表")
+    @GetMapping("/header/list")
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<List<Map<String, Object>>> headerList() {
+        List<SysPolicyConfig> rows = sysPolicyConfigService.listByType(SysPolicyConfig.TYPE_HEADER, null);
+        List<Map<String, Object>> out = new java.util.ArrayList<>();
+        if (null == rows) {
+            return ReturnResult.ok(out);
+        }
+        for (SysPolicyConfig row : rows) {
+            HeaderRule rule = HeaderRule.parse(row.getBizKey(), row.getConfig());
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("sysPolicyConfigId", row.getSysPolicyConfigId());
+            item.put("headerName", row.getBizKey());
+            item.put("status", row.getStatus());
+            item.put("remark", row.getRemark());
+            item.put("updateTime", row.getUpdateTime());
+            item.put("parsed", Boolean.TRUE.equals(null != rule));
+            if (null != rule) {
+                item.put("matchType", rule.matchType());
+                item.put("patterns", rule.patterns());
+                item.put("action", rule.action());
+                item.put("blockStatus", rule.status());
+                item.put("message", rule.message());
+            }
+            out.add(item);
+        }
+        return ReturnResult.ok(out);
+    }
+
+    /**
+     * 爬虫 / 自动化客户端的 UA 特征预设
+     *
+     * <p>「一键填入」用：管理员点一下就有内容，再自己删不要的，
+     * 避免从零写正则写成过宽规则把正常流量也拦掉。</p>
+     *
+     * @return 分组名 → 特征列表，以及展平后的全量列表
+     */
+    @Operation(summary = "爬虫/自动化 UA 特征预设")
+    @GetMapping("/header/presets")
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Map<String, Object>> headerPresets() {
+        return ReturnResult.ok(Map.of("groups", HeaderRulePresets.all(), "flat", HeaderRulePresets.flat()));
+    }
+
+    /**
+     * 重载全部消息头拦截规则
+     *
+     * <p>正常情况下保存/启停/删除即生效（事务提交后投影），这里用于
+     * 「改了库里的数据但缓存没跟上」这类手工改库后的补救。</p>
+     *
+     * @return 已装载的规则条数
+     */
+    @Operation(summary = "重载消息头拦截规则")
+    @PostMapping("/header/refresh")
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Map<String, Object>> headerRefresh() {
+        List<SysPolicyConfig> rows = sysPolicyConfigService.listByType(SysPolicyConfig.TYPE_HEADER, null);
+        headerPolicyCacheProjector.rebuild(rows);
+        return ReturnResult.ok(Map.of("policyCount", null == rows ? 0 : rows.size()));
+    }
+
+    // ==================== 策略命中统计 ====================
+
+    /**
+     * 全部策略的命中次数。
+     *
+     * <p>供列表页一次性取回「命中次数」列，避免每行发一次请求。返回的键是
+     * {@code 类型|策略键}（见 {@link PolicyHitCollector#compositeKey}），前端按
+     * 自己那一行的类型与键去取即可。</p>
+     *
+     * <p>只统计策略<b>真的生效</b>的次数：黑名单命中=被拦、限流命中=被拒、
+     * 接口停用/转发=规则触发。放行的行恒为 0，这是正确结果而非缺数据。</p>
+     *
+     * @return 键为 {@code type|key}、值为累计命中次数
+     */
+    @Operation(summary = "策略命中次数汇总")
+    @GetMapping("/hit/counts")
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Map<String, Long>> hitCounts() {
+        return ReturnResult.ok(PolicyHitCollector.getInstance().counts());
+    }
+
+    /**
+     * 单条策略的命中明细。
+     *
+     * <p>含累计次数、首末命中时间、来源 IP 排行（谁在打）与分钟级趋势（什么时候打的），
+     * 前端据此画 Top 榜与折线图。</p>
+     *
+     * @param type 策略类型，取 {@code PolicyHitCollector.TYPE_*}
+     * @param key  策略键：名单项、{@code 维度:目标} 或接口路径
+     * @return 命中明细；无数据时返回零值结构而非 null
+     */
+    @Operation(summary = "单条策略命中明细")
+    @GetMapping("/hit/detail")
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Map<String, Object>> hitDetail(@RequestParam String type, @RequestParam String key) {
+        return ReturnResult.ok(PolicyHitCollector.getInstance().detail(type, key));
     }
 
     // ==================== 反射工具 ====================

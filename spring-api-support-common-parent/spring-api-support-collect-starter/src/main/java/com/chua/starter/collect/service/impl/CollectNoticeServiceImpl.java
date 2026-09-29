@@ -1,7 +1,7 @@
 package com.chua.starter.collect.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.common.support.task.message.MessageResponse;
 import com.chua.starter.collect.dto.CollectNotifyMessage;
@@ -46,11 +46,6 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class CollectNoticeServiceImpl extends ServiceImpl<CollectNoticeMapper, CollectNotice>
         implements CollectNoticeService {
-
-    /**
-     * 全局通知的流程ID约定值。
-     */
-    private static final int ALL_FLOWS = 0;
 
     /**
      * 启用。
@@ -116,9 +111,8 @@ public class CollectNoticeServiceImpl extends ServiceImpl<CollectNoticeMapper, C
     }
 
     @Override
-    public List<CollectNotice> listNotices(Integer flowId) {
+    public List<CollectNotice> listNotices() {
         return list(Wrappers.<CollectNotice>lambdaQuery()
-                .eq(flowId != null, CollectNotice::getCollectNoticeFlowId, flowId)
                 .orderByDesc(CollectNotice::getCollectNoticeId));
     }
 
@@ -175,7 +169,7 @@ public class CollectNoticeServiceImpl extends ServiceImpl<CollectNoticeMapper, C
     @Override
     public void notifyTask(CollectTask task, CollectRunResult result) {
         try {
-            if (!properties.getNotify().isEnable() || task.getCollectTaskFlowId() == null) {
+            if (!properties.getNotify().isEnable()) {
                 return;
             }
             if (CollectTriggerType.TEST.equals(task.getCollectTaskTriggerType())) {
@@ -183,8 +177,7 @@ public class CollectNoticeServiceImpl extends ServiceImpl<CollectNoticeMapper, C
             }
             String status = result.getStatus();
             List<CollectNotice> matched = list(Wrappers.<CollectNotice>lambdaQuery()
-                    .eq(CollectNotice::getCollectNoticeEnabled, ENABLED)
-                    .in(CollectNotice::getCollectNoticeFlowId, ALL_FLOWS, task.getCollectTaskFlowId()));
+                    .eq(CollectNotice::getCollectNoticeEnabled, ENABLED));
             List<CollectNotice> targets = new ArrayList<>();
             for (CollectNotice notice : matched) {
                 if (CollectNotifyTiming.matches(notice.getCollectNoticeTiming(), status)) {
@@ -316,7 +309,8 @@ public class CollectNoticeServiceImpl extends ServiceImpl<CollectNoticeMapper, C
      */
     private Map<String, Object> testVariables(CollectNotice notice) {
         Map<String, Object> vars = new LinkedHashMap<>();
-        vars.put("flowId", notice.getCollectNoticeFlowId());
+        // 试发没有真实任务，flowId 只能给 0 占位，避免模板里引用 ${flowId} 时渲染成字面量 null
+        vars.put("flowId", 0);
         vars.put("flowName", blankToDefault(notice.getCollectNoticeName(), "通知试发"));
         vars.put("taskId", 0L);
         vars.put("taskNo", "TEST" + System.currentTimeMillis());
@@ -356,9 +350,6 @@ public class CollectNoticeServiceImpl extends ServiceImpl<CollectNoticeMapper, C
      * @param notice 通知配置
      */
     private void check(CollectNotice notice) {
-        if (notice.getCollectNoticeFlowId() == null) {
-            notice.setCollectNoticeFlowId(ALL_FLOWS);
-        }
         if (notice.getCollectNoticeEnabled() == null) {
             notice.setCollectNoticeEnabled(ENABLED);
         }

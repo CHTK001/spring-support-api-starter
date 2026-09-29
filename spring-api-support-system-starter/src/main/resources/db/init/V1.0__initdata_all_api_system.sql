@@ -146,6 +146,96 @@ INSERT IGNORE INTO `sys_menu` (
 ) VALUES
 (105, 'jobConsole', '/job/console', NULL, '调度管理', NULL, 1, '0,1,105', 'job/console/index', 'ep:timer', 0, 85, 0, 0, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL, 'CLASS', 'com.chua.starter.job.JobSchedulerApplication', 1, NULL);
 
+-- ---------------------------------------------------------------------
+-- 106 作业日志：调度页「任务详情 → 查看日志」的下钻目标，**不进侧边栏**。
+--
+-- 上面 105 的注释说了调度收敛成单一入口，所以这条刻意 sys_menu_hidden=1：
+-- 前端只有侧边栏那趟 generateRoutes(..., {visibleOnly:true}) 会过滤隐藏行，
+-- 注册路由用的 generateFlattenRoutes 不过滤，因此隐藏行照样有路由可达，
+-- 但不会在导航里多出一个入口。isVisible 由 sys_menu_hidden 取反下发。
+--
+-- 缺这条菜单的后果：/job/log 查无此路由，点「查看日志」落 404 —— 任务能跑、
+-- 日志也落了 sys_job_log，但从界面上看不到执行记录。
+-- component 同样不能带 views/ 前缀与 .vue 后缀（见 105 的说明）。
+-- ---------------------------------------------------------------------
+INSERT IGNORE INTO `sys_menu` (
+    `sys_menu_id`,
+    `sys_menu_name`,
+    `sys_menu_path`,
+    `sys_menu_i18n`,
+    `sys_menu_title`,
+    `sys_menu_perm`,
+    `sys_menu_pid`,
+    `sys_menu_tree_id`,
+    `sys_menu_component`,
+    `sys_menu_icon`,
+    `sys_menu_type`,
+    `sys_menu_sort`,
+    `sys_menu_hidden`,
+    `sys_menu_show_parent`,
+    `sys_menu_hidden_tag`,
+    `sys_menu_fixed_tag`,
+    `sys_menu_redirect`,
+    `sys_menu_keep_alive`,
+    `create_name`,
+    `create_by`,
+    `create_time`,
+    `update_time`,
+    `update_name`,
+    `update_by`,
+    `sys_menu_role`,
+    `sys_menu_home`,
+    `sys_menu_engine`,
+    `sys_menu_show_type`,
+    `sys_menu_show_value`,
+    `sys_menu_show_switch`,
+    `sys_menu_show_key`
+) VALUES
+(106, 'jobLog', '/job/log', NULL, '作业日志', NULL, 1, '0,1,106', 'job/log/index', 'ep:document', 0, 86, 1, 0, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL, 'CLASS', 'com.chua.starter.job.JobSchedulerApplication', 1, NULL);
+
+-- ---------------------------------------------------------------------
+-- 109 远程节点 / 110 调度总览：同为隐藏页，理由与 106 一致。
+--
+-- 这两页此前在本宿主连菜单行都没有，路由不存在 → 地址访问也 404，属于
+-- 「页面在包里、但完全够不着」。隐藏只影响侧边栏，不影响路由注册。
+-- 编号取 109/110 而非接着 106：106/107/108 是历史上一组已删除的明细页编号，复用易混。
+-- ---------------------------------------------------------------------
+INSERT IGNORE INTO `sys_menu` (
+    `sys_menu_id`,
+    `sys_menu_name`,
+    `sys_menu_path`,
+    `sys_menu_i18n`,
+    `sys_menu_title`,
+    `sys_menu_perm`,
+    `sys_menu_pid`,
+    `sys_menu_tree_id`,
+    `sys_menu_component`,
+    `sys_menu_icon`,
+    `sys_menu_type`,
+    `sys_menu_sort`,
+    `sys_menu_hidden`,
+    `sys_menu_show_parent`,
+    `sys_menu_hidden_tag`,
+    `sys_menu_fixed_tag`,
+    `sys_menu_redirect`,
+    `sys_menu_keep_alive`,
+    `create_name`,
+    `create_by`,
+    `create_time`,
+    `update_time`,
+    `update_name`,
+    `update_by`,
+    `sys_menu_role`,
+    `sys_menu_home`,
+    `sys_menu_engine`,
+    `sys_menu_show_type`,
+    `sys_menu_show_value`,
+    `sys_menu_show_switch`,
+    `sys_menu_show_key`
+) VALUES
+(109, 'jobRemote', '/job/remote', NULL, '远程节点', NULL, 1, '0,1,109', 'job/remote/index', 'ep:connection', 0, 87, 1, 0, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL, 'CLASS', 'com.chua.starter.job.JobSchedulerApplication', 1, NULL),
+(110, 'jobOverview', '/job/index', NULL, '调度总览', NULL, 1, '0,1,110', 'job/index', 'ep:data-line', 0, 88, 1, 0, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL, 'CLASS', 'com.chua.starter.job.JobSchedulerApplication', 1, NULL);
+
 INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu_id`) VALUES
 (164, 1, 20),
 (200, 1, 100),
@@ -154,6 +244,9 @@ INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu
 (203, 1, 103),
 (204, 1, 104),
 (210, 1, 105),
+(212, 1, 106),
+(214, 1, 109),
+(216, 1, 110),
 (82, 2, 4),
 (83, 2, 5),
 (84, 2, 6),
@@ -181,6 +274,9 @@ INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu
 (208, 2, 103),
 (209, 2, 104),
 (211, 2, 105),
+(213, 2, 106),
+(215, 2, 109),
+(217, 2, 110),
 (131, 3, 2),
 (132, 3, 4),
 (133, 3, 5),
@@ -239,3 +335,76 @@ INSERT IGNORE INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_
 (212, '亥猪', 'zodiac', '/assets/avatar-frames/zodiac-pig.apng', '#DE9CB0', '福猪上下慢晃', 'default', 212);
 
 -- 根目录 data-h2.sql 的系统重复种子已由本模块与 common-service/common-system canonical 覆盖；旧乱码方言专用 SQL 不重复执行。
+
+-- =====================================================
+-- 7. 默认消息头拦截规则（User-Agent 拦爬虫与自动化客户端）
+-- =====================================================
+-- 需求：开箱即用，不配任何规则也默认拦掉爬虫/自动化客户端。
+--
+-- 幂等：靠唯一键 sys_policy_config_uk_biz (type, dimension, list_type, biz_key)。
+--      本条是 (HEADER, '', 0, 'User-Agent')，重复执行只会覆盖成同一份配置，
+--      不会产生第二条规则；管理员改过之后重跑本脚本也会被还原成默认值。
+--
+-- 特征清单与 HeaderRulePresets（UI 的「一键填入」预设）保持同一份内容。
+--      ⚠ 两处会漂移：改这里必须同步改 HeaderRulePresets.GROUPS，反之亦然。
+--        本项目的 Flyway 是自定义实现（DefaultFlyway），按【文件名】记录已执行、
+--        不校验 checksum，所以往本文件追加内容不会让已部署的库重跑 ——
+--        存量库需要手工执行下面这条同样的 SQL。
+--
+-- 全部按子串匹配（CONTAINS），不用正则：UA 判别特征是行业惯例里的字面量，
+--      正则一旦写错会误伤正常浏览器，而「漏放一个爬虫」的代价远小于「拦死用户」。
+--
+-- ⚠ 清单里含 curl / Wget / axios / okhttp / aiohttp / Go-http-client /
+--   Java-http-client / node-fetch / undici 等【通用 HTTP 客户端】。
+--   它们不是爬虫，但用 UA 没法区分「脚本」与「爬虫」。默认全拦的后果是：
+--   服务器到服务器调用、健康探针、运维脚本、回归测试都会被 403。
+--   第一方（自家前端、自家脚本）靠【双字段】豁免：X-Trace-Id 与 X-Requested-With
+--   两个头的取值都要以标记结尾，两个都满足才算，见 HeaderPolicyFilter#isFirstParty
+--   与 HeaderPolicyProperties。这两个头都不是自创的私有头（前者本系统链路追踪
+--   本来就在用，后者是 AJAX 事实标准），藏标记不显眼。
+--   豁免是身份声明不是安全凭证 —— 两个头的取值都能伪造，凑齐即可整体绕过。
+--   不接受任何后门的部署把 plugin.system.header-policy.first-party-enabled 关掉。
+--   另：策略关闭（没有任何 HEADER 规则）时，豁免判断根本不执行。
+INSERT INTO `sys_policy_config`
+  (`type`, `dimension`, `list_type`, `biz_key`, `status`, `sort`, `config`, `remark`, `create_name`, `create_time`)
+VALUES
+  ('HEADER', '', 0, 'User-Agent', 1, 0,
+   '{"matchType":"CONTAINS","patterns":["Googlebot","Google-InspectionTool","bingbot","Baiduspider","YandexBot","Sogou","360Spider","DuckDuckBot","Applebot","PetalBot","Bytespider","AhrefsBot","SemrushBot","MJ12bot","DotBot","Scrapy","python-requests","aiohttp","curl","Wget","Go-http-client","okhttp","HeadlessChrome","PhantomJS","Puppeteer","Playwright","Selenium","webdriver","Chrome-Lighthouse","Electron","PostmanRuntime","Apifox","insomnia","HTTPie","Swagger-UI","OpenAPI","Java-http-client","axios","node-fetch","undici"],"action":"BLOCK","status":403,"message":"检测到爬虫或自动化客户端访问，已拒绝"}',
+   '默认·拦截爬虫与自动化客户端', 'system', NOW())
+ON DUPLICATE KEY UPDATE
+  `config` = VALUES(`config`),
+  `remark` = VALUES(`remark`),
+  `update_name` = 'system',
+  `update_time` = NOW();
+
+-- =====================================================
+-- 8. 第一方豁免开关（策略管理 → 热更新配置 页签可见可改）
+-- =====================================================
+-- 默认拦截含 curl / axios / okhttp 等通用 HTTP 客户端，自家前端与运维脚本也会被 403。
+-- 是否允许「带双字段标记的第一方」豁免，必须能在页面上控制 —— 改配置重启既慢又容易忘。
+--
+-- 落到 sys_setting 且 sys_setting_group='hot_reload'，就会出现在「热更新配置」页签；
+-- 保存后 HotReloadChangedEvent 会清缓存并发事件，HeaderPolicyFilter 下次调用即生效，
+-- 不需要重启。见 HotReloadConfigReader#headerFirstPartyEnabled。
+--
+-- 幂等：靠唯一键 uk_sys_setting_name_group (sys_setting_name, sys_setting_group)。
+-- 管理员在页面上改过之后重跑本脚本会被还原成默认值 —— 这是出厂种子的预期行为。
+--
+-- 与配置文件里的 plugin.system.header-policy.first-party-enabled 是「与」关系：
+-- 配置文件是硬闸（关了谁都开不了），这里是运行期操作杆。两层都默认 true。
+INSERT INTO `sys_setting`
+  (`sys_setting_name`, `sys_setting_code`, `sys_setting_value`, `sys_setting_value_type`,
+   `sys_setting_group`, `sys_setting_status`, `sys_setting_sort`, `sys_setting_default_value`,
+   `sys_setting_in_system`, `sys_setting_remark`, `create_name`, `create_time`)
+VALUES
+  ('消息头拦截·第一方豁免', 'policy.header.first-party-enabled', 'true', 'boolean',
+   'hot_reload', 1, 10, 'true', 1,
+   '是否允许带双字段标记的第一方客户端（自家前端/自家脚本）跳过消息头拦截规则。关掉后规则对所有请求一视同仁。',
+   'system', NOW())
+ON DUPLICATE KEY UPDATE
+  `sys_setting_code` = VALUES(`sys_setting_code`),
+  `sys_setting_value_type` = VALUES(`sys_setting_value_type`),
+  `sys_setting_default_value` = VALUES(`sys_setting_default_value`),
+  `sys_setting_remark` = VALUES(`sys_setting_remark`),
+  `update_name` = 'system',
+  `update_time` = NOW();

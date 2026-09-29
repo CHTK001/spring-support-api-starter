@@ -151,6 +151,20 @@ public class DemController {
 
     /**
      * DEM 估算请求体。
+     *
+     * <p>{@code POST /v1/geo/dem/estimate} 的 JSON 请求体，只做瓦片数量试算，
+     * 不落盘、不落任务。</p>
+     *
+     * @param bounds  下载区域的地理边界框（WGS84 经纬度，Web Mercator 投影），
+     *                含北/南/东/西四个边界值；不允许为 {@code null}（{@code @NotNull}），
+     *                非法地理范围会导致估算出的瓦片数为 0
+     * @param zoom    瓦片缩放级别（Web 墨卡托金字塔层级）；不允许为 {@code null}，
+     *                下界为 1（{@code @Min(1)}），上界由数据源决定，
+     *                当前唯一数据源 {@code DemSource.TERRARIUM} 最大为 15
+     * @param source  DEM 数据源标识，交给 {@code DemSource.fromString(String)} 解析，
+     *                取值为 {@code terrarium}（对应显示名 {@code AWS Terrain (Terrarium)}），
+     *                忽略大小写；不允许为 {@code null}（{@code @NotNull}）。
+     *                估算接口不校验该值，非法值仍返回 200，只是回显原串
      */
     public record DemEstimateRequest(
             /**
@@ -169,6 +183,33 @@ public class DemController {
 
     /**
      * DEM 下载请求体。
+     *
+     * <p>{@code POST /v1/geo/dem/download} 的 JSON 请求体。接口先按
+     * {@code bounds} 与 {@code zoom} 试算瓦片数，为 0 直接返回 400；
+     * 否则登记异步任务并立即返回 202，任务体在虚拟线程中执行下载、拼接与 GeoTIFF 导出。</p>
+     *
+     * @param bounds            下载区域的地理边界框（WGS84 经纬度，Web Mercator 投影），
+     *                          含北/南/东/西四个边界值；不允许为 {@code null}（{@code @NotNull}），
+     *                          落在该范围外的瓦片数为 0，会被下载接口判为 400
+     * @param zoom              瓦片缩放级别（Web 墨卡托金字塔层级）；不允许为 {@code null}，
+     *                          下界为 1（{@code @Min(1)}），上界受数据源限制
+     *                          （{@code DemSource.TERRARIUM} 最大 15）
+     * @param source            DEM 数据源标识，经 {@code DemSource.fromString(String)} 解析为枚举，
+     *                          当前支持 {@code terrarium}（忽略大小写，匹配 id 或显示名）；
+     *                          不允许为 {@code null}（{@code @NotNull}），
+     *                          解析失败返回 400 {@code Unknown DEM source: ...}
+     * @param savePath          导出文件的输出目录；允许为 {@code null} 或空白，
+     *                          此时回落到系统属性 {@code java.io.tmpdir}；
+     *                          目录不存在时由 {@code exportElevationTiff} 自动 {@code mkdirs} 创建
+     * @param proxy             下载 DEM 瓦片时使用的 HTTP 代理地址，构造
+     *                          {@code java.net.Proxy} 前会先经 {@code new URI(proxy)} 解析，
+     *                          因此必须带协议前缀且为合法 URI（如 {@code http://127.0.0.1:7890}）；
+     *                          允许为 {@code null} 或空串（表示直连）；注意天地图（tianditu）
+     *                          域名的请求会主动跳过代理
+     * @param generateSidecars  是否在导出 {@code .tif} 之外附带生成投影附属文件
+     *                          （当前实现写的是 Web Mercator / EPSG:3857 的 {@code .prj}）；
+     *                          允许为 {@code null}，以 {@code Boolean.TRUE.equals(...)} 判定，
+     *                          即只有显式传 {@code true} 才生成，传 {@code null} 或 {@code false} 均不生成
      */
     public record DemDownloadRequest(
             /**

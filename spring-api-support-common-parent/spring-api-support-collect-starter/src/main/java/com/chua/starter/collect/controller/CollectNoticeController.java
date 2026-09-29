@@ -23,8 +23,9 @@ import java.util.List;
 /**
  * 执行通知接口。
  *
- * <p>配置按流程或全局（flowId=0）生效，渠道清单来自注册表，第三方注册新的
- * {@code CollectNotifyChannel} 后这里与前端下拉都会自动出现。</p>
+ * <p>通知是平台级配置，库里没有流程维度，每条配置对每次执行都参与命中；
+ * 渠道清单来自注册表，第三方注册新的 {@code CollectNotifyChannel}
+ * 后这里与前端下拉都会自动出现。</p>
  *
  * @author CH
  * @since 4.0.0.42
@@ -42,15 +43,14 @@ public class CollectNoticeController {
     private final CollectNoticeService noticeService;
 
     /**
-     * 通知配置列表。
+     * 通知配置列表，全平台一份。
      *
-     * @param flowId 流程ID，为空返回全部
      * @return 通知配置列表
      */
     @Operation(summary = "通知配置列表")
     @GetMapping("/list")
-    public ReturnResult<List<CollectNotice>> list(@RequestParam(required = false) Integer flowId) {
-        return ReturnResult.ok(noticeService.listNotices(flowId));
+    public ReturnResult<List<CollectNotice>> list() {
+        return ReturnResult.ok(noticeService.listNotices());
     }
 
     /**

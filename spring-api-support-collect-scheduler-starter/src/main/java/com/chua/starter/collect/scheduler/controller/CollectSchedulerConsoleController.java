@@ -77,6 +77,17 @@ public class CollectSchedulerConsoleController {
     }
 
     /**
+     * 列出当前进程可用的脚本引擎（驱动前端「片段语言」下拉）。
+     *
+     * @return 引擎名列表
+     */
+    @Operation(summary = "列出可用脚本引擎")
+    @GetMapping("/glue/engines")
+    public ReturnResult<List<String>> glueEngines() {
+        return governance.glueEngines();
+    }
+
+    /**
      * 读取单个任务运行态。
      *
      * @param jobKey 任务键

@@ -1,0 +1,57 @@
+# ===========================================
+# 视频平台基础配置
+# 数据库相关放在 profile：h2 为内置演示库，mysql 为生产库
+# ===========================================
+spring:
+  application:
+    name: video                               # 应用名称（视频平台）
+  main:
+    allow-circular-references: true           # 兼容既有 ServiceImpl 自注入模式
+    allow-bean-definition-overriding: true    # 兼容多 starter 重复声明的同名 bean
+  profiles:
+    active: h2                                # 默认内置 H2，零依赖启动
+  video:
+    live-enabled: true                        # 电视直播开关
+    catalog-url: https://cj.lziapi.com/api.php/provide/vod/   # 资源站采集接口
+    config-sync-enabled: true                 # 配置同步任务（job-starter）
+    config-sync-url: ""                       # 远程配置快照地址，留空仅本地重载
+
+# ===========================================
+# 服务器配置（前端 Vite 代理 /video/api → 本端口，无 context-path）
+# ===========================================
+server:
+  port: 18172
+
+# ===========================================
+# MyBatis-Plus
+# ===========================================
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+
+# ===========================================
+# 插件开关（自包含运行：关闭 redis / oauth 客户端 / 同步）
+# ===========================================
+plugin:
+  cors:
+    enable: true
+  log:
+    enable: true
+  mybatis:
+    enable: true
+  oauth:
+    enable: false                           # 单机演示：关闭 oauth 客户端认证过滤（开放 /video/api）
+  redis:
+    server:
+      enable: false
+  job:
+    enable: true                              # 启用 job-starter：配置同步任务
+    role: SINGLE                              # 单机自闭环（内置 Leader + 执行器）
+    sync:
+      in-memory: true
+    log:
+      enabled: false
+  sync:
+    server:
+      enable: false
+    client:
+      enable: false

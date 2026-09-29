@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -88,20 +89,36 @@ public class PolicyCacheService {
      * @return 是否命中
      */
     public boolean matchesIp(int type, String clientIp) {
+        return null != matchIp(type, clientIp);
+    }
+
+    /**
+     * 找出实际命中的 IP 名单条目。
+     *
+     * <p>{@link #matchesIp} 只回答「有没有命中」，但命中统计要归因到<b>具体哪一行</b>
+     * （10.0.0.0/8 命中和 1.2.3.4 命中是两条不同的名单），所以需要把命中的条目返回出来。
+     * 匹配顺序与 {@code matchesIp} 完全一致（精确 IP 优先，再按 CIDR 顺序），
+     * 后者已改为委托本方法，两者不会分叉。</p>
+     *
+     * @param type     1 黑名单 0 白名单
+     * @param clientIp 客户端 IP
+     * @return 命中的条目原文（精确 IP 或 CIDR）；未命中返回 null
+     */
+    public String matchIp(int type, String clientIp) {
         String cacheName = ipCache(type);
         try {
             if (null != read(cacheName, clientIp)) {
-                return true;
+                return clientIp;
             }
             for (String pattern : patternIndex(cacheName)) {
                 if (IpCidrMatcher.matchesEntry(clientIp, pattern)) {
-                    return true;
+                    return pattern;
                 }
             }
-            return false;
+            return null;
         } catch (Exception e) {
             log.warn("[PolicyCache] 匹配 IP 策略失败: type={}, ip={}", type, clientIp, e);
-            return false;
+            return null;
         }
     }
 
@@ -182,14 +199,29 @@ public class PolicyCacheService {
      * @return 是否命中
      */
     public boolean matchesAccount(int type, String account) {
+        return null != matchAccount(type, account);
+    }
+
+    /**
+     * 找出实际命中的账号名单条目。
+     *
+     * <p>账号名单是精确匹配（无 CIDR 这类通配），所以命中条目就是账号本身；
+     * 返回账号而不是 boolean 是为了让调用方与 {@link #matchIp} 用同一种写法，
+     * 命中统计的归因逻辑不必区分两种名单。</p>
+     *
+     * @param type    1 黑名单 2 白名单
+     * @param account 账号
+     * @return 命中的账号；未命中返回 null
+     */
+    public String matchAccount(int type, String account) {
         if (null == account || account.isBlank()) {
-            return false;
+            return null;
         }
         try {
-            return null != read(accountCache(type), account);
+            return null != read(accountCache(type), account) ? account : null;
         } catch (Exception e) {
             log.warn("[PolicyCache] 匹配账号策略失败: type={}, account={}", type, account, e);
-            return false;
+            return null;
         }
     }
 
@@ -269,6 +301,74 @@ public class PolicyCacheService {
      */
     public void clearAllApiRoute() {
         clear(PolicyCacheName.API_ROUTE);
+    }
+
+    /* ==================== 消息头拦截 ==================== */
+
+    /**
+     * 读取某消息头的拦截规则 JSON。
+     *
+     * @param headerName 消息头名（内部统一小写）
+     * @return 规则 JSON；无规则时返回 null
+     */
+    public String getHeaderRule(String headerName) {
+        if (null == headerName || headerName.isEmpty()) {
+            return null;
+        }
+        return read(PolicyCacheName.HEADER, headerName.toLowerCase(Locale.ROOT));
+    }
+
+    /**
+     * 投影某消息头的拦截规则。
+     *
+     * @param headerName 消息头名
+     * @param ruleJson   规则 JSON
+     */
+    public void projectHeaderRule(String headerName, String ruleJson) {
+        if (null == headerName || headerName.isEmpty() || null == ruleJson) {
+            return;
+        }
+        write(PolicyCacheName.HEADER, headerName.toLowerCase(Locale.ROOT), ruleJson);
+        Set<String> names = new LinkedHashSet<>(headerNameIndex());
+        names.add(headerName.toLowerCase(Locale.ROOT));
+        write(PolicyCacheName.HEADER, PolicyCacheName.HEADER_NAME_INDEX_KEY, String.join(",", names));
+    }
+
+    /**
+     * 清理某消息头的拦截规则，并同步索引。
+     *
+     * @param headerName 消息头名
+     */
+    public void evictHeaderRule(String headerName) {
+        if (null == headerName || headerName.isEmpty()) {
+            return;
+        }
+        String lower = headerName.toLowerCase(Locale.ROOT);
+        evict(PolicyCacheName.HEADER, lower);
+        Set<String> names = new LinkedHashSet<>(headerNameIndex());
+        if (names.remove(lower)) {
+            write(PolicyCacheName.HEADER, PolicyCacheName.HEADER_NAME_INDEX_KEY, String.join(",", names));
+        }
+    }
+
+    /**
+     * 已启用规则覆盖的消息头名。
+     *
+     * @return 小写消息头名集合
+     */
+    public Set<String> headerNameIndex() {
+        String raw = read(PolicyCacheName.HEADER, PolicyCacheName.HEADER_NAME_INDEX_KEY);
+        if (null == raw || raw.isBlank()) {
+            return Set.of();
+        }
+        return new LinkedHashSet<>(Arrays.asList(raw.split(",")));
+    }
+
+    /**
+     * 清空全部消息头拦截规则。
+     */
+    public void clearAllHeader() {
+        clear(PolicyCacheName.HEADER);
     }
 
     /* ==================== 内部工具 ==================== */

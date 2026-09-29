@@ -63,7 +63,7 @@ public class AdminController {
         status.put("refreshExpire", authServerProperties.getRefreshExpire());
         status.put("renew", authServerProperties.isRenew());
         status.put("refreshTokenRotation", authServerProperties.isRefreshTokenRotation());
-        status.put("protocols", authServerProperties.getProtocols());
+        status.put("protocols", authServerProperties.resolveEnabledProtocols());
         status.put("rateLimit", rateLimitManager.getStatus());
         return ReturnResult.ok(status);
     }

@@ -27,7 +27,7 @@ server:
 
 logging:
   level:
-    com.linecorp.armeria.server.HttpServerHandler: ERROR
+    # armeria 已于 2026-09-29 移除，原先在此压制其 HttpServerHandler 的日志
 
 plugin:
   api:

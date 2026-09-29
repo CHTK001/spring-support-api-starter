@@ -1,6 +1,6 @@
 package com.chua.starter.collect.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.spring.service.IService;
 import com.chua.common.support.task.message.MessageResponse;
 import com.chua.starter.collect.engine.CollectRunResult;
 import com.chua.starter.collect.entity.CollectNotice;
@@ -23,10 +23,11 @@ public interface CollectNoticeService extends IService<CollectNotice> {
     /**
      * 通知配置列表。
      *
-     * @param flowId 流程ID，为空返回全部
+     * <p>通知已全局化，这里不接任何筛选维度，返回的就是全平台这一份清单。</p>
+     *
      * @return 通知配置列表
      */
-    List<CollectNotice> listNotices(Integer flowId);
+    List<CollectNotice> listNotices();
 
     /**
      * 已注册的通知渠道，供前端下拉与目标输入提示。

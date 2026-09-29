@@ -43,6 +43,69 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-support-job-starter</artifactId>
     </dependency>
+    <!--
+      脚本片段（GLUE_GROOVY）引擎：提供 ScriptProvider SPI 的 groovy 实现。
+      声明为 optional：job-starter 本身不含任何脚本引擎（缺引擎时任务会记可读的 FAILURE），
+      但本应用对外提供「调度管理」入口，不装引擎的话建了脚本任务也只能报
+      「脚本引擎 'groovy' 不可用」。optional 使下游依赖本模块的模块不会被动带上 groovy。
+    -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-groovy-starter</artifactId>
+      <version>${utils.version}</version>
+      <optional>true</optional>
+      <exclusions>
+        <!--
+          utils-support-groovy-starter 依赖的是 org.apache.groovy:groovy-all，
+          那是个全量聚合包，会把 Groovy 发布的一切都拖进来。其中 groovy-ant 与
+          groovy-test-junit5 是构建/测试工具，却以 compile 作用域进了 runtime，
+          连带 29 个 jar、约 8.5MB 进了生产的 lib/（ant、ivy、javaparser、qdox、
+          asm、jline、jansi、picocli、整套 junit）。运行期用不到，排除掉。
+        -->
+        <exclusion>
+          <groupId>org.apache.groovy</groupId>
+          <artifactId>groovy-ant</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.groovy</groupId>
+          <artifactId>groovy-test-junit5</artifactId>
+        </exclusion>
+        <!-- groovy-console 是 Swing REPL、groovy-groovydoc 是文档生成器、
+             groovy-cli-picocli 是命令行前端、groovy-swing 是 Swing 扩展：
+             同样只被 groovy-all 拖进来，生产服务运行期一个都用不到。
+             它们连带 19 个 jar、约 5.3MB（javaparser、asm、ivy、jline、jansi、picocli）。 -->
+        <exclusion>
+          <groupId>org.apache.groovy</groupId>
+          <artifactId>groovy-console</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.groovy</groupId>
+          <artifactId>groovy-groovydoc</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.groovy</groupId>
+          <artifactId>groovy-cli-picocli</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.groovy</groupId>
+          <artifactId>groovy-swing</artifactId>
+        </exclusion>
+        <!-- groovy-docgenerator 带出 qdox，groovy-groovysh 带出整套 jline/jansi，
+             合计还有 11 个 jar、约 2.3MB 的构建期依赖，同样排除。 -->
+        <exclusion>
+          <groupId>org.apache.groovy</groupId>
+          <artifactId>groovy-docgenerator</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.groovy</groupId>
+          <artifactId>groovy-groovysh</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.groovy</groupId>
+      <artifactId>groovy</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-system-starter</artifactId>
@@ -172,7 +235,7 @@
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
-      <version>3.6.0</version>
+      <version>3.8.7</version>
     </dependency>
     <dependency>
       <groupId>com.chua</groupId>
@@ -200,7 +263,7 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <version>2.2.224</version>
+      <version>2.5.252</version>
       <scope>runtime</scope>
     </dependency>
 </dependencies>

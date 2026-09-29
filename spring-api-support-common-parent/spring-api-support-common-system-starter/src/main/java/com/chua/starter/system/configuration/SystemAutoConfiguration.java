@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.chua.starter.common.support.oauth.AuthService;
 import com.chua.starter.common.support.serviceinfo.ServiceInfoContributor;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
+import com.chua.starter.system.properties.HeaderPolicyProperties;
 import com.chua.starter.system.properties.SystemSecurityProperties;
 import com.chua.starter.system.interceptor.PrivilegedVisibilityDataPermissionHandler;
 import com.chua.starter.system.interceptor.PrivilegedVisibilityInterceptor;
@@ -41,7 +42,7 @@ import java.util.function.Supplier;
  * @since 1.0.0
  */
 @MapperScan(basePackages = "com.chua.starter.system.mapper")
-@EnableConfigurationProperties(SystemSecurityProperties.class)
+@EnableConfigurationProperties({SystemSecurityProperties.class, HeaderPolicyProperties.class})
 public class SystemAutoConfiguration {
 
     /**

@@ -70,6 +70,14 @@ public class SysPolicyConfig extends SysBase implements Serializable {
      * 接口停用 / 转发
      */
     public static final String TYPE_API_ROUTE = "API_ROUTE";
+
+    /**
+     * 消息头拦截（爬虫 / 自动化客户端）
+     *
+     * <p>{@code bizKey} = 消息头名（主要是 {@code User-Agent}），
+     * {@code config} = 规则 JSON（matchType/patterns/action/status/message）。</p>
+     */
+    public static final String TYPE_HEADER = "HEADER";
     /**
      * 黑名单
      */

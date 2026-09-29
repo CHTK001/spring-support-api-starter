@@ -46,26 +46,6 @@ public class LoginAuthInformation extends BaseAuthInformation {
         this.sysUserLogService = applicationContext.getBean(SysUserLogService.class);
     }
 
-    // Armeria协议构造函数
-    /**
-     * 创建 login认证信息 实例
-     * @param authServerProperties 认证服务端属性
-     * @param data 数据
-     * @param request 请求
-     * @param response 响应
-     * @param applicationContext application上下文
-     * @param loginCheck login检查
-     */
-    public LoginAuthInformation(AuthServerProperties authServerProperties,
-                                String data,
-                                ArmeriaAuthInformation.ArmeriaRequest request,
-                                ArmeriaAuthInformation.ArmeriaResponse response,
-                                ApplicationContext applicationContext,
-                                LoginCheck loginCheck) {
-        super(authServerProperties, data, request, response, applicationContext, loginCheck);
-        this.sysUserLogService = applicationContext.getBean(SysUserLogService.class);
-    }
-
     @Override
     /**
      * 获取请求头部
@@ -73,8 +53,6 @@ public class LoginAuthInformation extends BaseAuthInformation {
     protected String getRequestHeader(Object request, String headerName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getHeader(headerName);
-        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest) {
-            return ((ArmeriaAuthInformation.ArmeriaRequest) request).getHeader(headerName);
         }
         return null;
     }
@@ -86,8 +64,6 @@ public class LoginAuthInformation extends BaseAuthInformation {
     protected void setResponseHeader(Object response, String headerName, String headerValue) {
         if (response instanceof HttpServletResponse) {
             ((HttpServletResponse) response).setHeader(headerName, headerValue);
-        } else if (response instanceof ArmeriaAuthInformation.ArmeriaResponse) {
-            ((ArmeriaAuthInformation.ArmeriaResponse) response).setHeader(headerName, headerValue);
         }
     }
 
@@ -98,8 +74,6 @@ public class LoginAuthInformation extends BaseAuthInformation {
     protected String getRemoteAddress(Object request) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getRemoteAddr();
-        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest) {
-            return ((ArmeriaAuthInformation.ArmeriaRequest) request).getRemoteAddr();
         }
         return null;
     }
@@ -111,8 +85,6 @@ public class LoginAuthInformation extends BaseAuthInformation {
     protected Object getRequestAttribute(Object request, String attributeName) {
         if (request instanceof HttpServletRequest) {
             return ((HttpServletRequest) request).getAttribute(attributeName);
-        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest) {
-            return ((ArmeriaAuthInformation.ArmeriaRequest) request).getAttribute(attributeName);
         }
         return null;
     }
@@ -124,8 +96,6 @@ public class LoginAuthInformation extends BaseAuthInformation {
     protected void setRequestAttribute(Object request, String attributeName, Object attributeValue) {
         if (request instanceof HttpServletRequest) {
             ((HttpServletRequest) request).setAttribute(attributeName, attributeValue);
-        } else if (request instanceof ArmeriaAuthInformation.ArmeriaRequest) {
-            ((ArmeriaAuthInformation.ArmeriaRequest) request).setAttribute(attributeName, attributeValue);
         }
     }
 
@@ -138,7 +108,7 @@ public class LoginAuthInformation extends BaseAuthInformation {
     @SuppressWarnings("unchecked")
     @Override
     public LoginAuthorization authorization() {
- // Armeria 协议下 响应 不是 httpservlet响应，安全转换，Cookie 由客户端自行处理
+ // 响应类型已收敛为 HttpServletResponse（Armeria 已于 2026-09-29 移除）
         HttpServletResponse httpResponse = (getResponse() instanceof HttpServletResponse)
                 ? (HttpServletResponse) getResponse() : null;
  // 安全转换 ext 映射：将所有 值 转为 字符串，避免 JSON 反序列化产生 Integer 等类型导致 类cast异常
