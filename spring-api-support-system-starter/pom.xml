@@ -157,6 +157,17 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-support-filesystem-starter</artifactId>
     </dependency>
+    <!--
+      Office → PDF 转换的 SPI 实现（Aspose）。
+      没有它时 FileConvertSystem 只有接口没有实现，?format=pdf 会静默无效
+      （实测：docx/xls 请求 format=pdf 仍回原字节，因为根本没有转换器可调）。
+      随 api jar 一起部署到 lib/。
+    -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>utils-support-aspose-starter</artifactId>
+      <version>${utils.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>utils-support-common-starter</artifactId>

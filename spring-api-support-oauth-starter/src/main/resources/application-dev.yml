@@ -1,9 +1,10 @@
 spring:
+  # 主数据源：本服务自己的库（sys_user / sys_role / 令牌等）
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/serverdb?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
-    username: root
-    password: root
+    url: jdbc:mysql://${OAUTH_DB_HOST:127.0.0.1}:${OAUTH_DB_PORT:3307}/oauth?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+    username: ${OAUTH_DB_USER:eduai}
+    password: ${OAUTH_DB_PASSWORD:eduai123}
   data:
     redis:
       host: 127.0.0.1
@@ -15,12 +16,33 @@ spring:
 # ===========================================
 plugin:
   api:
+    # TCP 协议链路不启用加密。
+    # 关键事实：是否加密由请求头 x-oauth-encode 决定（OauthProtocolDecoder 第 98 行，
+    # 缺省 false），HttpProtocol/RSocketProtocol 会显式带该头，
+    # 而 TcpProtocol 不带 —— 故 TCP 链路天然是明文。
+    # 这里必须保持 false：置 true 会让 writeResult 按加密回包，
+    # 而 TcpProtocol 直接把响应体当 JSON 解析（不做解密），
+    # 实测报 JsonParseException。
     encode:
       enable: false
   datasource:
     script:
       enable: false
       continue-on-error: true
+  # 学生登录用的跨库通道：edu_student 在 eduai 库，与本服务主库不同。
+  # 不并入主数据源的原因：两库表结构已各自演进（sys_setting 列已分叉），
+  # 合并有真实数据风险；独立数据源语义最直白，且不把这张表带进主库的 MyBatis 映射。
+  edu-auth:
+    datasource:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      # 键名必须是 jdbc-url 而非 url：@ConfigurationProperties 直接绑定到
+      # HikariDataSource 的属性名（HikariConfig#jdbcUrl），写 url 绑不上，
+      # 启动后首次取连接会报「jdbcUrl is required with driverClassName」。
+      # Spring Boot 自己的 spring.datasource.url 能用 url，是因为中间隔了一层
+      # DataSourceProperties 做映射，本处没有那一层。
+      jdbc-url: jdbc:mysql://${EDUAI_DB_HOST:127.0.0.1}:${EDUAI_DB_PORT:3307}/eduai?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+      username: ${EDUAI_DB_USER:eduai}
+      password: ${EDUAI_DB_PASSWORD:eduai123}
   oauth:
     whitelist:
       - /**/login
