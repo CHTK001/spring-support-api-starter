@@ -165,7 +165,7 @@ public class RedisTokenResolver implements TokenResolver {
         String redisRefreshKey = TOKEN_REFRESH_PRE + refreshToken;
 
  // 处理在线控制（单个模式踢掉旧设备）
-        handleOnlineControl(userResult, token);
+        handleOnlineControl(userResult, token, refreshToken);
 
         // 计算过期时间（用户配置 > 全局配置）
         long expire = calculateExpireTime(userResult);
@@ -294,12 +294,44 @@ public class RedisTokenResolver implements TokenResolver {
     }
 
     /**
+     * 读取用户级选项的字符串值。
+     *
+     * <p><b>为什么不能用 {@code String.valueOf(userResult.getOption(key))}</b>：
+     * 选项缺失时 {@code getOption} 返回 {@code null}，而
+     * {@code String.valueOf((Object) null)} 得到的是<b>字面量 {@code "null"}</b>
+     * —— 它既不是空串也不是 {@code null}，因此
+     * {@link StringUtils#isNotBlank(String)} 判定为「有值」，随后
+     * {@code Online.valueOf("NULL")} 抛
+     * {@code IllegalArgumentException: No enum constant
+     * ...AuthServerProperties.Online.NULL}，
+     * {@code Long.parseInt/parseLong("null")} 抛
+     * {@code NumberFormatException: For input string: "null"}。
+     * 这两个异常都被各自的 catch 兜住、不会导致登录失败，但<b>每次登录都会刷一整页异常栈</b>，
+     * 既污染日志，又把真实异常淹没在噪声里。</p>
+     *
+     * @param userResult 用户信息
+     * @param key        选项名
+     * @return 选项的字符串值（已去首尾空白）；选项不存在、值为 {@code null} 或全空白时返回 {@code null}
+     */
+    private String optionAsString(UserResult userResult, String key) {
+        if (userResult == null) {
+            return null;
+        }
+        var option = userResult.getOption(key);
+        if (option == null) {
+            return null;
+        }
+        var value = String.valueOf(option).trim();
+        return value.isEmpty() ? null : value;
+    }
+
+    /**
      * 获取在线模式（用户配置 > 全局配置）
      * @param userResult 用户结果
      * @return 获取onlinemode的结果
      */
     private AuthServerProperties.Online getOnlineMode(UserResult userResult) {
-        String userOnlineMode = String.valueOf(userResult.getOption("onlineMode"));
+        String userOnlineMode = optionAsString(userResult, "onlineMode");
         if (StringUtils.isNotBlank(userOnlineMode)) {
             try {
                 return AuthServerProperties.Online.valueOf(userOnlineMode.toUpperCase());
@@ -320,7 +352,7 @@ public class RedisTokenResolver implements TokenResolver {
      * @return 获取最大online数量的结果
      */
     private int getMaxOnlineCount(UserResult userResult) {
-        String maxOnlineCount = String.valueOf(userResult.getOption("maxOnlineCount"));
+        String maxOnlineCount = optionAsString(userResult, "maxOnlineCount");
         if (StringUtils.isNotBlank(maxOnlineCount)) {
             try {
                 int count = Integer.parseInt(maxOnlineCount);
@@ -384,16 +416,42 @@ public class RedisTokenResolver implements TokenResolver {
      * @param userId 用户标识
      */
     private void deleteUserAllTokens(String userId) {
+        deleteUserAllTokens(userId, null, null);
+    }
+
+    /**
+     * 删除用户所有令牌（基于 用户id，不区分登录方式），但保留指定的令牌。
+     *
+     * <p><b>为什么需要 保留 参数</b>：SINGLE 单点登录时，新令牌在
+     * {@link #createToken} 里<b>先</b>写入 Redis，<b>后</b>由
+     * {@link #handleOnlineControl} 异步踢旧设备。若这里无差别删除，
+     * 新签发的令牌会被自己删掉，表现为：登录接口返回
+     * {@code code=00000} 且带着一个看起来正常的 token，但该 token
+     * 立刻失效 —— Redis 里查不到 {@code oauth:token:*任何键}，
+     * 后续任何鉴权都返回「未认证」（表现为接口 403
+     * 「用户信息不存在，请重新登录」）。</p>
+     *
+     * @param userId           用户标识
+     * @param keepToken        需要保留的 access令牌；为 {@code null} 表示不保留
+     * @param keepRefreshToken 需要保留的 refresh令牌；为 {@code null} 表示不保留
+     */
+    private void deleteUserAllTokens(String userId, String keepToken, String keepRefreshToken) {
         if (StringUtils.isBlank(userId)) {
             return;
         }
- // 删除所有 access令牌
+ // 删除所有 access令牌（剔除本次登录新签发的那一枚）
         Set<String> tokenKeys = scanKeys(TOKEN_PRE + TokenBuilder.buildAccessTokenPattern(userId));
+        if (StringUtils.isNotBlank(keepToken)) {
+            tokenKeys.remove(TOKEN_PRE + keepToken);
+        }
         if (!tokenKeys.isEmpty()) {
             stringRedisTemplate.delete(tokenKeys);
         }
- // 删除所有 refresh令牌
+ // 删除所有 refresh令牌（剔除本次登录新签发的那一枚）
         Set<String> refreshKeys = scanKeys(TOKEN_REFRESH_PRE + TokenBuilder.buildRefreshTokenPattern(userId));
+        if (StringUtils.isNotBlank(keepRefreshToken)) {
+            refreshKeys.remove(TOKEN_REFRESH_PRE + keepRefreshToken);
+        }
         if (!refreshKeys.isEmpty()) {
             stringRedisTemplate.delete(refreshKeys);
         }
@@ -408,7 +466,7 @@ public class RedisTokenResolver implements TokenResolver {
      */
     private long calculateExpireTime(UserResult userResult) {
         // 用户级配置优先
-        String tokenExpire = String.valueOf(userResult.getOption("tokenExpire"));
+        String tokenExpire = optionAsString(userResult, "tokenExpire");
         if (StringUtils.isNotBlank(tokenExpire)) {
             try {
                 long expire = Long.parseLong(tokenExpire);
@@ -436,7 +494,7 @@ public class RedisTokenResolver implements TokenResolver {
      */
     private long calculateRefreshExpireTime(UserResult userResult) {
         // 用户级配置优先
-        String refreshTokenExpire = String.valueOf(userResult.getOption("refreshTokenExpire"));
+        String refreshTokenExpire = optionAsString(userResult, "refreshTokenExpire");
         if (StringUtils.isNotBlank(refreshTokenExpire)) {
             try {
                 long expire = Long.parseLong(refreshTokenExpire);
@@ -534,10 +592,16 @@ public class RedisTokenResolver implements TokenResolver {
      * 处理在线控制
      * <p>仅 SINGLE 模式需要踢掉旧设备，LIMIT 模式在 checkOnlineLimit 已拒绝</p>
      *
-     * @param userResult 用户信息
-     * @param newToken   新令牌
+     * <p><b>注意</b>：本方法在 {@link #createToken} 里于「新令牌写入 Redis 之前」被调用，
+     * 且踢出动作是异步的，因此实际删除发生在新令牌写入之后。
+     * 所以必须把新令牌（access 与 refresh）作为「保留项」传给
+     * {@link #deleteUserAllTokens}，否则新令牌会被自己的踢出动作删掉。</p>
+     *
+     * @param userResult    用户信息
+     * @param newToken      新签发的 access令牌
+     * @param newRefreshToken 新签发的 refresh令牌
      */
-    private void handleOnlineControl(UserResult userResult, String newToken) {
+    private void handleOnlineControl(UserResult userResult, String newToken, String newRefreshToken) {
         AuthServerProperties.Online onlineMode = getOnlineMode(userResult);
 
         // SINGLE 模式：踢掉该用户所有旧设备(异步执行,不阻塞登录返回)
@@ -547,8 +611,9 @@ public class RedisTokenResolver implements TokenResolver {
             Thread.ofVirtual().start(() -> {
                 try {
                     int before = countUserOnlineTokens(userId);
-                    deleteUserAllTokens(userId);
-                    log.info("[SINGLE][userId={}] 单点登录踢出旧设备: 踢出数量={}, 新token={}...",
+                    // 保留本次登录新签发的令牌，只踢旧设备
+                    deleteUserAllTokens(userId, newToken, newRefreshToken);
+                    log.info("[SINGLE][userId={}] 单点登录踢出旧设备: 踢出数量={}, 新token={}...(已保留)",
                             userId, before, newTokenPrefix);
                 } catch (Exception e) {
                     log.warn("[SINGLE] 异步踢出旧设备失败: userId={}", userId, e);
