@@ -92,7 +92,30 @@ public class CollectSqlExecutor implements CollectShapeExecutor {
             variables.put(output, rows);
             return;
         }
+        // 非查询语句：先过写开关，再执行。
+        // SQL 节点整段支持 ${} 插值且不做语句白名单，插值内容可能来自被抓取的页面 ——
+        // 写语句（含 DDL/DELETE）的破坏面远大于查询，所以给它一个部署侧开关，
+        // 需要写库时走 database 节点（PreparedStatement 绑定、无拼接、无注入面）。
+        if (!context.getProperties().isSqlAllowWrite()) {
+            throw new IllegalStateException(
+                    "SQL 节点的写语句已被配置禁用（plugin.collect.sql-allow-write=false）。"
+                            + "需要写库请改用 database 节点（字段映射、参数绑定），或由运维放开该配置。");
+        }
+        // 审计：写语句与执行脚本都留下可追溯的一条，注明流程/任务/节点与语句前 120 字
+        log.warn("[采集审计] SQL 写语句 flowId={} taskNo={} node={} 语句: {}",
+                context.getFlowId(), context.getTaskNo(), node.name(), abbreviate(sql));
         variables.put(VAR_AFFECTED, (long) jdbc.update(datasource, sql));
+    }
+
+    /**
+     * 截断语句用于审计日志，避免整条 DDL/DML 刷屏。
+     *
+     * @param sql 已求值语句
+     * @return 最多 120 字的单行摘要
+     */
+    private String abbreviate(String sql) {
+        String flat = sql == null ? "" : sql.replaceAll("\\s+", " ").trim();
+        return flat.length() > 120 ? flat.substring(0, 120) + "…" : flat;
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.chua.starter.collect.engine.spi.CollectParamMeta;
 import com.chua.starter.collect.engine.spi.CollectShapeExecutor;
 import com.chua.starter.collect.engine.spi.CollectShapeMeta;
 import com.chua.starter.collect.engine.spi.CollectShapeMetas;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,7 @@ import java.util.Map;
  * @author CH
  * @since 4.0.0.42
  */
+@Slf4j
 @Component
 @ConditionalOnProperty(prefix = "plugin.collect.script", name = "enable", havingValue = "true", matchIfMissing = true)
 public class CollectScriptExecutor implements CollectShapeExecutor {
@@ -101,7 +103,22 @@ public class CollectScriptExecutor implements CollectShapeExecutor {
         bindings.put("taskNo", context.getTaskNo());
         bindings.put("nodeId", node.id());
         Object value = CollectGroovyRuntime.evaluate(raw, bindings, node.longParam(TIMEOUT, DEFAULT_TIMEOUT));
+        // 审计：脚本节点等价于服务端任意代码执行，必须留下可追溯的一条（谁在哪个流程/任务里跑了脚本）。
+        // 类型开关是部署侧的 plugin.collect.script.enable=false；这里只做留痕，不改变行为。
+        log.warn("[采集审计] 脚本节点执行 flowId={} taskNo={} node={} 脚本首行: {}",
+                context.getFlowId(), context.getTaskNo(), node.name(), firstLine(raw));
         writeBack(variables, context, global, output.isBlank() ? DEFAULT_OUTPUT : output, value);
+    }
+
+    /**
+     * 取脚本首行作为审计摘要。
+     *
+     * @param script 脚本正文
+     * @return 最多 100 字的单行摘要
+     */
+    private String firstLine(String script) {
+        String first = script == null ? "" : script.lines().findFirst().orElse("").trim();
+        return first.length() > 100 ? first.substring(0, 100) + "…" : first;
     }
 
     @Override
