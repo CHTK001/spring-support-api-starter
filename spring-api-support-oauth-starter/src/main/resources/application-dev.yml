@@ -125,3 +125,25 @@ logging:
     com.baomidou.mybatisplus: debug
     com.chua.starter.oauth.sso: INFO
     com.chua.starter.oauth.sso.support.information.BaseAuthInformation: WARN
+
+# ===========================================
+# Actuator 暴露面（安全收紧）
+# ===========================================
+# 背景：框架的 DatabaseSettingEnvironmentPostProcessor 会把
+# management.endpoints.web.exposure.include 作为「启动期默认设置」种进 sys_setting，
+# 默认值是 "*" —— 即 env / beans / configprops / loggers / threaddump / mappings
+# 全部无鉴权对外暴露。其中 /actuator/loggers 允许 POST 修改运行期日志级别，
+# 可被用来刷 DEBUG 打满磁盘或关闭安全日志，属真实攻击面。
+#
+# 为什么必须在这里（而不是只改库）：本服务没有启用客户端的 AuthFilter
+# （它是认证服务端，不是被保护方），无法靠「白名单外即需鉴权」兜底，
+# 只能从暴露面上收紧。实测 yml 优先级高于该 DB 属性源，故此处显式收窄。
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      # 不对外暴露组件明细（DB / 磁盘等），避免信息泄露
+      show-details: never
