@@ -286,6 +286,9 @@ public class CollectDatabaseSink implements CollectSink {
      * 只改节点日志流程归属的视图。
      *
      * <p>采集记录与计量仍然交给宿主通道按宿主流程记账，因此这里只接管 nodeLog。</p>
+     *
+     * @param owner       外层 sink：未改写的写入一律转交给它
+     * @param ownedFlowId 这一层要把节点日志写进的流程 ID
      */
     private record FlowLabelledSink(CollectDatabaseSink owner, Integer ownedFlowId) implements CollectSink {
 
