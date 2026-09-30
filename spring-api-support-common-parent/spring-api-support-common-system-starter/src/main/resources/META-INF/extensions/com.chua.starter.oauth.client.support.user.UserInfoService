@@ -7,3 +7,4 @@ com.chua.starter.system.login.GoogleLoginService
 com.chua.starter.system.login.TemporaryTokenLoginService
 com.chua.starter.system.login.WechatEnterpriseLoginService
 com.chua.starter.system.login.WeixinMiniLoginService
+com.chua.starter.system.login.StudentLoginService

@@ -19,6 +19,11 @@ import com.chua.starter.oauth.sso.support.trace.ServerTraceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
+import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
+import org.springframework.beans.BeanUtils;
+
 import java.util.Map;
 
 import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants.AUTH_SCHEME_BEARER;
@@ -74,6 +79,14 @@ import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants
 @Slf4j
 @RequiredArgsConstructor
 public class OauthProtocolHandler implements ServerHandler {
+
+    /**
+     * 代入目标的 ext 键：客户端把已标记的目标身份放在该键下。
+     *
+     * <p>与客户端 {@code AuthClientExecute} 写入的键名必须一致，
+     * 改名需两端同步，否则代入会静默退化为「换自己」。</p>
+     */
+    private static final String EXT_IMPERSONATE = "impersonate";
 
     /**
      * 认证服务器属性
@@ -252,11 +265,63 @@ public class OauthProtocolHandler implements ServerHandler {
             writeResult(response, decoder, source);
             return;
         }
-        // 临时令牌:基于源用户创建短期令牌
-        var userResult = new com.chua.starter.oauth.client.support.user.UserResult();
-        org.springframework.beans.BeanUtils.copyProperties(source.getData(), userResult);
+        // 代入：ext 里带目标身份时按目标身份签发，否则沿用源用户（「换自己」的旧语义）。
+        // 客户端已校验过调用者是管理员，这里再加一道「不得提升为管理员」的护栏——
+        // 客户端一旦被绕过，提权就无法从服务端拦下。
+        UserResume effective = resolveImpersonateTarget(source.getData(), decoder);
+        if (effective == null) {
+            writeError(response, "代入目标非法: 不得代入为管理员身份");
+            return;
+        }
+        // 临时令牌:基于目标身份创建短期令牌
+        // 需转成 UserResult：createToken 的形参是子类（携带 token 等字段）
+        var userResult = new UserResult();
+        BeanUtils.copyProperties(effective, userResult);
         writeResult(response, decoder, resolver.createToken(
                 resolveAddress(request, decoder), userResult, "TEMPORARY"));
+    }
+
+    /**
+     * 解析代入目标身份。
+     *
+     * <p>ext 里带 {@value #EXT_IMPERSONATE} 时用它作为目标身份，否则返回源用户
+     * （保持「用 refreshToken/accessToken 换自己短期令牌」的既有语义不变）。</p>
+     *
+     * <p><b>为什么要把目标身份交给客户端决定</b>：代入是业务语义
+     * （「管理员要看某个学生看到什么」），服务端不认识学生表也不应认识。
+     * 客户端把已构造好的目标身份连同 {@code TemporaryToken} 标记一起送上来，
+     * 服务端只做两件事——校验来源凭据有效、拒绝提权——然后签发。
+     * 这与 static 协议下客户端本地签发的信任模型一致，且多了一道服务端护栏。</p>
+     *
+     * @param source  源令牌对应的用户
+     * @param decoder 已解码的请求
+     * @return 目标身份；入参非法或试图提权为管理员时返回 {@code null}
+     */
+    private UserResume resolveImpersonateTarget(UserResume source, OauthProtocolDecoder decoder) {
+        Object ext = decoder.getBodyData().get(FIELD_EXT);
+        if (!(ext instanceof Map<?, ?> extMap)) {
+            return source;
+        }
+        Object raw = extMap.get(EXT_IMPERSONATE);
+        if (raw == null) {
+            return source;
+        }
+        UserResult target;
+        try {
+            target = Json.fromJson(String.valueOf(raw), UserResult.class);
+        } catch (Exception e) {
+            log.warn("代入目标解析失败: {}", e.getMessage());
+            return null;
+        }
+        if (target == null || StringUtils.isBlank(target.getUserId())) {
+            log.warn("代入目标为空或缺少 userId");
+            return null;
+        }
+        if (AuthConstant.isAdmin(target.getRoles())) {
+            log.warn("拒绝代入为管理员身份: userId={}", target.getUserId());
+            return null;
+        }
+        return target;
     }
 
     // ==================== 工具方法 ====================
