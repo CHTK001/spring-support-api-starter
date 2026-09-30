@@ -95,6 +95,21 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
     public static final String MODE_UPDATE = "update";
 
     /**
+     * 批次失败策略参数名。
+     */
+    public static final String ON_BATCH_ERROR = "onBatchError";
+
+    /**
+     * 批次失败策略：整批失败即终止（默认，保持既有行为）。
+     */
+    public static final String BATCH_ERROR_STOP = "stop";
+
+    /**
+     * 批次失败策略：记录失败批次与原因，继续写后续批次。
+     */
+    public static final String BATCH_ERROR_CONTINUE = "continue";
+
+    /**
      * 默认每批行数。
      */
     private static final int DEFAULT_BATCH = 500;
@@ -126,6 +141,16 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
      * 本次按主键新增行数的暂存变量名，仅供摘要使用。
      */
     private static final String VAR_INSERTED = "_inserted";
+
+    /**
+     * 失败批次数变量名。
+     */
+    private static final String VAR_FAILED = "_failedBatches";
+
+    /**
+     * 最后一条批次失败原因变量名。
+     */
+    private static final String VAR_LAST_ERROR = "_lastBatchError";
 
     /**
      * JDBC 通道。
@@ -163,7 +188,12 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
                         "左列选目标表字段，右列填来源字段名或 ${} 表达式；行内键可直接当变量名引用"),
                 keyParam,
                 CollectShapeMetas.text(BATCH, "每批行数", "text", "默认 " + DEFAULT_BATCH
-                        + "；按批提交，值全部走预编译绑定；按主键更新时每批一个事务"));
+                        + "；按批提交，值全部走预编译绑定；按主键更新时每批一个事务"),
+                CollectShapeMetas.option(ON_BATCH_ERROR, "批次失败时", BATCH_ERROR_STOP,
+                        "选 stop：任一批写失败即让节点失败（该批事务回滚，后续批次不再写）；"
+                                + "选 continue：记录失败批次与原因、继续写后续批次，节点不失败，"
+                                + "失败批次数看节点摘要与 _failedBatches / _lastBatchError 变量",
+                        BATCH_ERROR_STOP, BATCH_ERROR_CONTINUE));
     }
 
     @Override
@@ -194,20 +224,40 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
         int written = 0;
         int updated = 0;
         int inserted = 0;
+        int failed = 0;
+        String lastError = null;
+        String onError = node.param(ON_BATCH_ERROR).trim();
         int batch = batchSize(node, variables);
+        int batchCount = (rows.size() + batch - 1) / batch;
         for (int start = 0; start < rows.size(); start += batch) {
             List<Map<String, Object>> slice = rows.subList(start, Math.min(start + batch, rows.size()));
-            if (MODE_UPDATE.equals(mode)) {
-                var result = jdbc.updateByKey(datasource, table, keys, slice);
-                updated += result.updated();
-                inserted += result.inserted();
-                written += result.total();
-            } else {
-                written += jdbc.insertBatch(datasource, table, slice);
+            try {
+                if (MODE_UPDATE.equals(mode)) {
+                    var result = jdbc.updateByKey(datasource, table, keys, slice);
+                    updated += result.updated();
+                    inserted += result.inserted();
+                    written += result.total();
+                } else {
+                    written += jdbc.insertBatch(datasource, table, slice);
+                }
+            } catch (RuntimeException ex) {
+                // 批次失败策略：默认 stop 保持既有行为（抛出即节点失败）；continue 记录后继续写后续批次。
+                // 只捕获这一批 —— 该批的事务由 CollectJdbcSupport 内部回滚，不会留下半写数据。
+                if (!BATCH_ERROR_CONTINUE.equals(onError)) {
+                    throw ex;
+                }
+                failed++;
+                lastError = ex.getMessage();
+                log.warn("[采集] 批次 {}/{} 写入 {} 失败，按 continue 策略继续: {}",
+                        (start / batch) + 1, batchCount, table, ex.getMessage());
             }
         }
         variables.put(VAR_WRITTEN, written);
         variables.put(VAR_CLEARED, cleared);
+        if (failed > 0) {
+            variables.put(VAR_FAILED, failed);
+            variables.put(VAR_LAST_ERROR, lastError);
+        }
         if (MODE_UPDATE.equals(mode)) {
             variables.put(VAR_UPDATED, updated);
             variables.put(VAR_INSERTED, inserted);
@@ -216,19 +266,29 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
 
     @Override
     public String summary(CollectNode node, Map<String, Object> variables) {
+        String result;
         Object updated = variables.get(VAR_UPDATED);
         if (updated != null) {
-            return "按主键更新 " + updated + " 行、新增 " + variables.get(VAR_INSERTED) + " 行";
+            result = "按主键更新 " + updated + " 行、新增 " + variables.get(VAR_INSERTED) + " 行";
+        } else {
+            Object written = variables.get(VAR_WRITTEN);
+            if (written == null) {
+                return null;
+            }
+            Object cleared = variables.get(VAR_CLEARED);
+            if (cleared instanceof Integer count && count > 0) {
+                result = "覆盖写入 " + written + " 行（先清空 " + count + " 行）";
+            } else {
+                result = "写入 " + written + " 行";
+            }
         }
-        Object written = variables.get(VAR_WRITTEN);
-        if (written == null) {
-            return null;
+        // 批次失败策略为 continue 时节点不失败，失败信息必须出现在摘要里 —— 否则「部分写入成功」
+        // 会被看成「全部成功」，这正是把失败信息藏起来最危险的地方。
+        Object failed = variables.get(VAR_FAILED);
+        if (failed instanceof Integer count && count > 0) {
+            result = result + "；有 " + count + " 批写入失败（按策略已继续）：" + variables.get(VAR_LAST_ERROR);
         }
-        Object cleared = variables.get(VAR_CLEARED);
-        if (cleared instanceof Integer count && count > 0) {
-            return "覆盖写入 " + written + " 行（先清空 " + count + " 行）";
-        }
-        return "写入 " + written + " 行";
+        return result;
     }
 
     /**
