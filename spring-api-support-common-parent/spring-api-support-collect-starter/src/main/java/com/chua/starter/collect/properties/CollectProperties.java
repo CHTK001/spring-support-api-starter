@@ -58,6 +58,15 @@ public class CollectProperties {
     private String userAgent = DEFAULT_USER_AGENT;
 
     /**
+     * SQL 节点是否允许执行写语句（非 SELECT/WITH/SHOW）。
+     *
+     * <p>SQL 节点整段支持 {@code ${}} 插值、且不做语句白名单，插值内容可能来自被抓取的页面，
+     * 因此写语句的注入面明显大于查询。默认 {@code true} 保持既有行为；置 {@code false} 后
+     * SQL 节点只放行查询，写库改走 database 节点（PreparedStatement 绑定、无字符串拼接）。</p>
+     */
+    private boolean sqlAllowWrite = true;
+
+    /**
      * 单任务最长执行毫秒，超时后置为失败并中断流程线程池。
      */
     private long taskTimeoutMs = 600000L;
