@@ -41,7 +41,8 @@ spring:
     driver-class-name: ${COLLECT_DB_DRIVER:com.mysql.cj.jdbc.Driver}
     url: ${COLLECT_DB_URL:jdbc:mysql://127.0.0.1:3306/serverdb?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
     username: ${COLLECT_DB_USER:root}
-    password: ${COLLECT_DB_PASSWORD:root}
+    # 生产不得带默认口令：缺 COLLECT_DB_PASSWORD 即启动失败
+    password: ${COLLECT_DB_PASSWORD}
     hikari:
       maximum-pool-size: 20
       minimum-idle: 2

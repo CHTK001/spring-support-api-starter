@@ -18,8 +18,8 @@ spring:
     url: jdbc:p6spy:mysql://172.16.0.40:3306/report?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     # 数据库用户名
     username: root
-    # 数据库密码
-    password: root@
+    # 数据库密码（不再写死 root@，需要时设 MONITOR_DB_PASSWORD）
+    password: ${MONITOR_DB_PASSWORD:}
     # HikariCP连接池配置
     hikari:
       # 连接池名称
