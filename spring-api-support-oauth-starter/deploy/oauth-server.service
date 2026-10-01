@@ -1,0 +1,35 @@
+[Unit]
+Description=OAuth SSO Server (spring-api-support-oauth-starter) tcp:19180 http:19181/19182 rsocket:19185
+Documentation=file:///home/kali/oauth/deploy/README.md
+After=network-online.target mariadb.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=kali
+Group=kali
+WorkingDirectory=/home/kali/oauth/app
+
+# 凭据不入仓库、不写进本文件：真实口令放 /etc/oauth/oauth.env（0600，属主 root）。
+# 该文件提供 OAUTH_DB_* / EDUAI_DB_* 两组变量，二者都必须存在——
+# 因为 application-dev.yml 里的口令是「无默认值的占位符」，
+# 缺失时 Spring 会抛 Could not resolve placeholder 直接启动失败（这是有意为之）。
+# 模板见 deploy/oauth.env.example。
+EnvironmentFile=/etc/oauth/oauth.env
+
+# -XX:+UseCompactObjectHeaders 为既定启动参数。
+# 堆上限刻意压到 512m：本机同时运行多个 java 服务，oauth 只做认证转发，
+# 给小堆即可，避免成为压垮内存的那一个（曾发生过 OOM 杀掉 eduai）。
+ExecStart=/usr/bin/java -XX:+UseCompactObjectHeaders -Xms160m -Xmx512m \
+    -XX:MaxMetaspaceSize=256m -XX:ReservedCodeCacheSize=128m \
+    -Dfile.encoding=UTF-8 \
+    -jar /home/kali/oauth/app/spring-api-support-oauth-starter-4.0.0.42.jar
+
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/home/kali/oauth/logs/oauth.out.log
+StandardError=append:/home/kali/oauth/logs/oauth.err.log
+
+[Install]
+WantedBy=multi-user.target
