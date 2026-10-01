@@ -3,7 +3,7 @@ spring:
     driverClassName: com.p6spy.engine.spy.P6SpyDriver
     url: jdbc:p6spy:mysql://172.16.0.40:3306/tenant?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
     username: root
-    password: root@
+    password: ${TENANTED_DB_PASSWORD:}
   data:
     redis:
       database: 6
