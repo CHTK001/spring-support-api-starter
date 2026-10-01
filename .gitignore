@@ -127,3 +127,8 @@ hs_err*
 thread-dump*
 __pycache__/
 *.orig
+
+# 部署脚本例外：package.ps1 是 Windows 开发机上跑打包的正式交付物
+# （本仓无 bash，package.sh 在 Windows 上不可用），故显式纳入版本控制，
+# 覆盖上面 *.ps1 的默认忽略。纯 ASCII，避免 PS 5.1 按 ANSI 解析中文报错。
+!spring-api-support-oauth-starter/deploy/package.ps1
