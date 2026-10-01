@@ -2,7 +2,9 @@ spring:
   datasource:
     url: jdbc:p6spy:mysql://127.0.0.1:3306/system?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: root@
+    # 本地开发默认不再写死口令：留空默认，需要时设 OAUTH_DB_PASSWORD
+    # （此前是 root@，等同于把本地库口令公开在仓库里）。
+    password: ${OAUTH_DB_PASSWORD:}
   data:
     redis:
       host: 127.0.0.1

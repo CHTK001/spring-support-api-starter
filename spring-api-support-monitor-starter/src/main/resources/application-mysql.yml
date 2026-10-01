@@ -10,7 +10,7 @@ spring:
     driver-class-name: com.p6spy.engine.spy.P6SpyDriver
     url: jdbc:p6spy:mysql://172.16.0.40:3306/report?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: root@
+    password: ${MONITOR_DB_PASSWORD:}
     hikari:
       maximum-pool-size: 16
       minimum-idle: 4

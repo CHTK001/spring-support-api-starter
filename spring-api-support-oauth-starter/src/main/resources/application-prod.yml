@@ -3,7 +3,9 @@ spring:
     driverClassName: com.p6spy.engine.spy.P6SpyDriver
     url: jdbc:p6spy:mysql://172.16.0.40:3306/system?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: root
+    # 口令不给默认值：写进仓库就不再是秘密；生产必须注入 OAUTH_DB_PASSWORD，
+    # 未注入时 Spring 会抛 Could not resolve placeholder 直接启动失败。
+    password: ${OAUTH_DB_PASSWORD}
 
   data:
     redis:

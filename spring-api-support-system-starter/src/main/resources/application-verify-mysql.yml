@@ -6,7 +6,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/db_verify_mysql?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=false
     username: root
-    password: root
+    password: ${SYSTEM_DB_PASSWORD:}
     hikari:
       maximum-pool-size: 10
 plugin:
