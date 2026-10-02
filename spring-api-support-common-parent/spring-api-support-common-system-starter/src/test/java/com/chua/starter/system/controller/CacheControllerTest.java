@@ -29,7 +29,7 @@ class CacheControllerTest {
     @Test
     @DisplayName("模块列表-返回预定义模块并统计key数")
     void testModules() {
-        CacheController cacheController = new CacheController(null);
+        CacheController cacheController = new CacheController(null, null);
         ReturnResult<List<Map<String, Object>>> result = cacheController.modules();
         // 原断言: 13个预定义模块, 首项 dict/字典/sys:dict:*/keyCount=1(redis异常兜底为0)
         assertTrue(result.isSuccess());
@@ -43,7 +43,7 @@ class CacheControllerTest {
     @Test
     @DisplayName("key列表-自定义pattern优先于模块前缀")
     void testKeysByPattern() {
-        CacheController cacheController = new CacheController(null);
+        CacheController cacheController = new CacheController(null, null);
         ReturnResult<List<String>> result = cacheController.keys(null, "my:*");
         // 原断言: pattern 优先, 返回2个key
         assertTrue(result.isSuccess());
@@ -57,7 +57,7 @@ class CacheControllerTest {
     @Test
     @DisplayName("key列表-按模块查询使用模块前缀")
     void testKeysByModule() {
-        CacheController cacheController = new CacheController(null);
+        CacheController cacheController = new CacheController(null, null);
         ReturnResult<List<String>> result = cacheController.keys("menu", null);
         // 原断言: 使用 sys:menu:* 前缀, 命中为空
         assertTrue(result.isSuccess());
@@ -70,7 +70,7 @@ class CacheControllerTest {
     @Test
     @DisplayName("删除key-key为空返回非法参数")
     void testDeleteKeyBlank() {
-        CacheController cacheController = new CacheController(null);
+        CacheController cacheController = new CacheController(null, null);
         ReturnResult<Boolean> result = cacheController.deleteKey("  ");
         assertFalse(result.isSuccess());
     }
@@ -82,7 +82,7 @@ class CacheControllerTest {
     @Test
     @DisplayName("删除key-合法key调用redis删除")
     void testDeleteKeyOk() {
-        CacheController cacheController = new CacheController(null);
+        CacheController cacheController = new CacheController(null, null);
         ReturnResult<Boolean> result = cacheController.deleteKey("sys:menu:1");
         // 原断言: 委托 StringRedisTemplate.delete(key)
         assertTrue(result.isSuccess());
@@ -94,7 +94,7 @@ class CacheControllerTest {
     @Test
     @DisplayName("删除模块-未知模块返回非法参数")
     void testDeleteModuleUnknown() {
-        CacheController cacheController = new CacheController(null);
+        CacheController cacheController = new CacheController(null, null);
         ReturnResult<Long> result = cacheController.deleteModule("not-exist");
         assertFalse(result.isSuccess());
         assertTrue(result.getMsg().contains("模块不存在"));
@@ -107,7 +107,7 @@ class CacheControllerTest {
     @Test
     @DisplayName("删除模块-命中前缀批量删除")
     void testDeleteModuleOk() {
-        CacheController cacheController = new CacheController(null);
+        CacheController cacheController = new CacheController(null, null);
         ReturnResult<Long> result = cacheController.deleteModule("role");
         // 原断言: sys:role:* 命中2个key, 返回删除数量2
         assertTrue(result.isSuccess());
@@ -121,7 +121,7 @@ class CacheControllerTest {
     @Test
     @DisplayName("清空全部-无key时返回0")
     void testClearAllEmpty() {
-        CacheController cacheController = new CacheController(null);
+        CacheController cacheController = new CacheController(null, null);
         ReturnResult<Long> result = cacheController.clearAll();
         // 原断言: * 无命中, 返回0
         assertTrue(result.isSuccess());
@@ -135,7 +135,7 @@ class CacheControllerTest {
     @Test
     @DisplayName("清空全部-命中3个key, 返回删除数量3")
     void testClearAllOk() {
-        CacheController cacheController = new CacheController(null);
+        CacheController cacheController = new CacheController(null, null);
         ReturnResult<Long> result = cacheController.clearAll();
         assertTrue(result.isSuccess());
         assertEquals(3L, result.getData());
