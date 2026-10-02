@@ -1,0 +1,42 @@
+# collect 调度中心的 nohup 日志（run-exec/run-sched/run-single 用 >> 重定向，
+# logback 管不到这些文件）。
+# copytruncate：进程持有 fd，不能靠 rename+reopen，否则必须重启。
+#
+# 两个必须同时满足的点（2026-10-02 实测踩坑，缺一即整份配置失效）：
+#
+#   1) 这里必须「显式列文件」，不能用 /opt/collect/logs/*.log。
+#      否则会与 collect-rss 里的 /opt/collect/logs/rss-sample.log 重复匹配，
+#      logrotate 报 `duplicate log entry for /opt/collect/logs/rss-sample.log`
+#      并 `found error in file collect-rss, skipping` —— 整份 collect-rss
+#      被跳过，rss 日志因此**从不轮转**。
+#
+#   2) 这些服务以 root 运行（`systemctl show collect-* -p User` 为空，
+#      进程属主 root:root），日志文件属主是 root:root。
+#      原配置写的 `su kali kali` 与属主不符，实跑报
+#      `error opening /opt/collect/logs/single_err.log: Permission denied`。
+#      改为 `su root root`。
+#      （注：`logrotate -d` 干跑不会真正打开文件，因此**看不出**这条权限错，
+#        必须实跑才能暴露。）
+#
+# 安装：
+#   sudo cp collect.logrotate      /etc/logrotate.d/collect
+#   sudo cp collect-rss.logrotate  /etc/logrotate.d/collect-rss
+#   sudo chmod 644 /etc/logrotate.d/collect /etc/logrotate.d/collect-rss
+#   sudo logrotate -d /etc/logrotate.conf      # 干跑，应无 error
+#   sudo logrotate -f /etc/logrotate.d/collect /etc/logrotate.d/collect-rss
+#   sudo systemctl start logrotate.service && sudo systemctl status logrotate.service --no-pager
+
+/opt/collect/logs/exec_err.log
+/opt/collect/logs/exec_out.log
+/opt/collect/logs/sched_err.log
+/opt/collect/logs/sched_out.log
+/opt/collect/logs/single_err.log
+/opt/collect/logs/single_out.log {
+    daily
+    rotate 7
+    compress
+    missingok
+    notifempty
+    copytruncate
+    su root root
+}
