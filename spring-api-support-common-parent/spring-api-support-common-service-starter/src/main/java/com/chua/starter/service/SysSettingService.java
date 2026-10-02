@@ -67,6 +67,14 @@ public interface SysSettingService extends IService<SysSetting> {
 
     ReturnResult<Boolean> saveHotReload(SysSetting sysSetting);
 
+    /**
+     * 删除热更新配置（限 {@code hot_reload} 分组，并清该编码的值缓存）。
+     *
+     * @param settingId 配置主键
+     * @return 是否成功
+     */
+    ReturnResult<Boolean> deleteHotReload(Long settingId);
+
     ReturnResult<Boolean> saveHotReload(SysSetting sysSetting, Set<String> runtimeConsumers);
 
     /**

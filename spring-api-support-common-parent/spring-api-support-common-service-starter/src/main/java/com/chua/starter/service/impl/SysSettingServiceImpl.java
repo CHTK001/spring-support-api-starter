@@ -30,6 +30,7 @@ import com.chua.starter.service.dto.setting.AuthRequestFactory;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.entity.service.SysSetting;
 import com.chua.starter.service.event.HotReloadChangedEvent;
+import com.chua.starter.service.hotreload.HotReloadConfigService;
 import com.chua.starter.service.pojo.setting.SysSettingUpdate;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.cache.AuthDefaultStateCache;
@@ -82,6 +83,17 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Autowired
     @Lazy
     private ApplicationEventPublisher applicationEventPublisher;
+
+    /**
+     * 热重载配置缓存服务。
+     *
+     * <p>删除热更新配置后必须清掉它的值缓存 —— 否则 Redis 里仍留着已删除的旧值，
+     * 运行时消费者的 {@code get(code)} 会继续命中缓存、读到一条数据库里已经不存在的配置。
+     * 用 {@code @Lazy}：{@code HotReloadConfigService} 反过来依赖本接口，直接注入会循环。</p>
+     */
+    @Autowired
+    @Lazy
+    private HotReloadConfigService hotReloadConfigService;
 
     /**
      * 套接字服务是否启用
@@ -374,6 +386,59 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> saveHotReload(SysSetting sysSetting) {
         return saveHotReload(sysSetting, Set.of());
+    }
+
+    /**
+     * 删除热更新配置。
+     *
+     * <p>与通用 {@code delete(settingId)} 的区别有两处，都是必要的：
+     * <ol>
+     *   <li><b>限分组</b>：只允许删 {@code hot_reload} 组的配置。通用删除对任何组都生效，
+     *       前端若把 settingId 传错，会删掉一条与策略无关的普通系统配置。</li>
+     *   <li><b>清值缓存</b>：删除后调 {@code hotReloadConfigService.evict(code)}，
+     *       否则 {@code sys:hot-reload:config} 里那条已删配置的旧值仍在，
+     *       运行时会继续按它生效（表现为「删了不生效」）。</li>
+     * </ol>
+     * 内置配置（{@code sysSettingInSystem=1}）沿用通用删除的保护，不允许删。</p>
+     *
+     * @param settingId 配置主键
+     * @return 是否成功
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnResult<Boolean> deleteHotReload(Long settingId) {
+        if (null == settingId) {
+            return ReturnResult.error("配置ID不能为空");
+        }
+        SysSetting existing = baseMapper.selectById(settingId);
+        if (null == existing) {
+            return ReturnResult.error("配置不存在, 请刷新后重试!");
+        }
+        if (!HOT_RELOAD_GROUP.equals(existing.getSysSettingGroup())) {
+            return ReturnResult.error("该配置不属于热更新分组, 不能在此删除");
+        }
+        Integer inSystem = existing.getSysSettingInSystem();
+        if (null != inSystem && inSystem == 1) {
+            return ReturnResult.error("内置配置不允许删除");
+        }
+        if (baseMapper.deleteById(settingId) <= 0) {
+            return ReturnResult.error("删除失败");
+        }
+        // 先清值缓存（按配置编码），再清列表缓存
+        if (null != hotReloadConfigService && StringUtils.hasText(existing.getSysSettingCode())) {
+            hotReloadConfigService.evict(existing.getSysSettingCode().trim());
+        }
+        clearHotReloadCache();
+        // 记录删除历史（与通用删除一致）
+        try {
+            String operatorId = RequestUtils.getUserId();
+            String operatorName = RequestUtils.getUsername();
+            sysSettingHistoryService.recordDelete(existing, operatorId, operatorName,
+                    UUID.randomUUID().toString().replace("-", ""));
+        } catch (Exception e) {
+            log.warn("记录热更新配置删除历史失败: {}", e.getMessage());
+        }
+        return ReturnResult.of(true);
     }
 
     @Override

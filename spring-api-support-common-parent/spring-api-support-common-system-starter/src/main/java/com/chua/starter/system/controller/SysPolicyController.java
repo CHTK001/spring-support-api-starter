@@ -289,6 +289,24 @@ public class SysPolicyController {
     }
 
     /**
+     * 删除热更新配置。
+     *
+     * <p>其余 5 个策略页签都有删除入口，只有热更新配置此前只能建、只能改，
+     * 配错了无法清理（2026-10-01 补齐）。服务层会限 {@code hot_reload} 分组
+     * 并清掉该编码的值缓存，避免「删了仍按旧值生效」。</p>
+     *
+     * @param id 配置主键
+     * @return 是否成功
+     */
+    @Operation(summary = "删除热更新配置")
+    @DeleteMapping("/hotreload/delete")
+    @SysLog
+    @Permission(value = "sys:policy:hotreload:save", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Boolean> hotreloadDelete(@RequestParam Long id) {
+        return sysSettingService.deleteHotReload(id);
+    }
+
+    /**
      * 主动热重载：清理全部热重载配置缓存，下一次业务访问按需回填。
      *
      * @return 重载结果
