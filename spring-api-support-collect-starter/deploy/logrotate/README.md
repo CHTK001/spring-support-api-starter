@@ -46,10 +46,17 @@ sudo systemctl start logrotate.service
 sudo systemctl status logrotate.service --no-pager | head -3      # 期望：active (exited) / 无 failed
 ```
 
-## 备注（不属本次修复范围）
+## 备注
 
-- `collect-exec` / `collect-sched` 的 unit 里
-  `StandardOutput=append:/opt/collect/logs/.log` —— 路径中的变量未替换，
-  多出一个隐藏文件 `.log`。glob `*.log` 不匹配点文件，故与轮转无关，但建议一并修正。
+- `collect-exec` / `collect-sched` 的 unit 原先
+  `StandardOutput=append:/opt/collect/logs/.log` —— 角色名变量未替换，
+  多出一个隐藏文件 `.log`，且**两个节点共用同一个文件**。
+  **已于 2026-10-02 一并修正**，见 `../systemd/`（改为各节点的
+  `exec_out.log`/`exec_err.log`、`sched_out.log`/`sched_err.log`）。
+  这些文件已在本目录 `collect.logrotate` 的显式列表内，**无需为它新增轮转项**。
+- `collect-rss-sample.service` 被 `systemd-analyze verify` 报
+  `Ignoring unknown escape sequences` —— 既有表面告警（`awk` 的 `\$2`、
+  `printf` 的 `%%`），**无功能影响**：该 oneshot 每分钟正常写入
+  `rss-sample.log`（实测日志格式与时间戳均正确）。不在本次修复范围。
 - 主配置 `/etc/logrotate.conf` 全局为 `weekly` + `rotate 4`；本目录两份配置
   各自 `daily` 覆盖，行为符合 collect 日志量预期。
