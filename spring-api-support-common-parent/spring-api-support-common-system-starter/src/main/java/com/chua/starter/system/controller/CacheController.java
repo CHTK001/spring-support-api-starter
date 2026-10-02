@@ -2,20 +2,29 @@ package com.chua.starter.system.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.Permission;
+import com.chua.starter.common.support.annotations.SysLog;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.constant.PolicyCacheName;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.cache.CacheManager;
+import org.springframework.data.redis.connection.DataType;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 缓存管理接口
@@ -42,6 +51,21 @@ public class CacheController {
      * stringRedisTemplate
     */
     private final StringRedisTemplate stringRedisTemplate;
+
+    /**
+     * Spring Cache 管理器（可选注入：未启用缓存时为 empty，统计退化为模块数）
+     */
+    private final ObjectProvider<CacheManager> cacheManagerProvider;
+
+    /**
+     * 多值类型（hash/list/set/zset）的摘要前缀
+     */
+    private static final String LENGTH_PREFIX = "length: ";
+
+    /**
+     * 1 KB
+     */
+    private static final long KB = 1024L;
 
     /**
      * 预定义缓存模块: key -> [模块名, key前缀, 描述]
@@ -173,6 +197,224 @@ public class CacheController {
         Long deleted = stringRedisTemplate.delete(keys);
         log.warn("清空全部缓存, 删除 key 数量: {}", deleted);
         return ReturnResult.ok(deleted == null ? 0L : deleted);
+    }
+
+    /**
+     * 缓存统计概览
+     *
+     * <p>供「缓存监控」页顶部的四张统计卡使用（缓存实例数 / 总键数 / 内存占用 / 命中率）。
+     * 内存与命中率取自 Redis {@code INFO}，不是估算：{@code used_memory} 给字节数，
+     * {@code keyspace_hits} 与 {@code keyspace_misses} 算命中率。
+     * 老版本 Redis 或代理不返回这些字段时把 {@code hitRateAvailable} 置 false，
+     * 前端据此显示「当前 Redis 不支持命中率统计」而不是显示一个假的 0%。</p>
+     *
+     * @return 统计概览
+     */
+    @Operation(summary = "缓存统计概览")
+    @GetMapping("/stats")
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Map<String, Object>> stats() {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("cacheCount", countCaches());
+        result.put("totalKeys", countKeys("*"));
+
+        Properties info = redisInfo();
+        long usedBytes = parseLong(info.getProperty("used_memory"), 0L);
+        result.put("usedMemoryBytes", usedBytes);
+        result.put("usedMemory", formatBytes(usedBytes));
+
+        long hits = parseLong(info.getProperty("keyspace_hits"), 0L);
+        long misses = parseLong(info.getProperty("keyspace_misses"), 0L);
+        boolean available = (hits + misses) > 0;
+        result.put("hitRateAvailable", available);
+        result.put("hitRate", available ? Math.round(hits * 10000.0 / (hits + misses)) / 100.0 : 0.0);
+        return ReturnResult.ok(result);
+    }
+
+    /**
+     * 读取单个缓存值
+     *
+     * <p>按 Redis 实际类型读取并转成可读文本展示；同时给出 TTL 与序列化长度。
+     * {@code editable} 只对 string 类型为 true —— 另外几种类型（hash/list/set/zset）
+     * 的「写入」语义不明确，允许多值编辑容易把结构写坏，故只读展示。</p>
+     *
+     * @param key    key
+     * @param module 模块标识（仅用于回显，读取按 key 精确匹配）
+     * @return 缓存值详情
+     */
+    @Operation(summary = "读取单个缓存值")
+    @GetMapping("/value")
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Map<String, Object>> value(@RequestParam String key,
+                                                   @RequestParam(required = false) String module) {
+        if (null == key || key.isBlank()) {
+            return ReturnResult.illegal("key不能为空");
+        }
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("key", key);
+        result.put("module", module);
+
+        String type = dataTypeOf(key);
+        if ("none".equals(type)) {
+            result.put("type", "none");
+            result.put("editable", false);
+            return ReturnResult.ok(result);
+        }
+        result.put("type", type);
+        result.put("editable", "string".equals(type));
+        result.put("ttl", stringRedisTemplate.getExpire(key));
+
+        String text;
+        if ("string".equals(type)) {
+            text = stringRedisTemplate.opsForValue().get(key);
+        } else if ("hash".equals(type)) {
+            Map<Object, Object> m = stringRedisTemplate.opsForHash().entries(key);
+            text = LENGTH_PREFIX + m.size() + " entries";
+        } else if ("list".equals(type)) {
+            text = LENGTH_PREFIX + stringRedisTemplate.opsForList().size(key) + " items";
+        } else if ("set".equals(type)) {
+            text = LENGTH_PREFIX + stringRedisTemplate.opsForSet().size(key) + " members";
+        } else if ("zset".equals(type)) {
+            text = LENGTH_PREFIX + stringRedisTemplate.opsForZSet().size(key) + " members";
+        } else {
+            text = LENGTH_PREFIX + "unsupported type";
+        }
+        String value = null == text ? "" : text;
+        result.put("value", value);
+        result.put("plainValue", value);
+        result.put("size", value.getBytes(StandardCharsets.UTF_8).length);
+        result.put("rootType", "string".equals(type) ? "java.lang.String" : type);
+        return ReturnResult.ok(result);
+    }
+
+    /**
+     * 修改缓存值（仅 string 类型）
+     *
+     * <p>只允许改 string：直接 SET 会覆盖原值但保留 TTL 语义由 {@code setIfPresent} 之外的
+     * 调用方决定，这里显式保留剩余 TTL，避免运维改一个值顺手把过期时间清成永久。</p>
+     *
+     * @param body 请求体，需含 module / key / value
+     * @return 是否成功
+     */
+    @Operation(summary = "修改缓存值")
+    @PutMapping("/value")
+    @SysLog(module = "缓存管理")
+    @Permission(value = "sys:cache:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<Boolean> updateValue(@RequestBody Map<String, String> body) {
+        String key = null == body ? null : body.get("key");
+        if (null == key || key.isBlank()) {
+            return ReturnResult.illegal("key不能为空");
+        }
+        String newValue = null == body.get("value") ? "" : body.get("value");
+        String type = dataTypeOf(key);
+        if (!"none".equals(type) && !"string".equals(type)) {
+            return ReturnResult.illegal("仅支持修改 string 类型的缓存值，当前类型: " + type);
+        }
+        Long ttl = "none".equals(type) ? null : stringRedisTemplate.getExpire(key);
+        if (null != ttl && ttl > 0) {
+            stringRedisTemplate.opsForValue().set(key, newValue, ttl, TimeUnit.SECONDS);
+        } else {
+            stringRedisTemplate.opsForValue().set(key, newValue);
+        }
+        log.info("[Cache] 缓存值已修改: key={}, size={}", key, newValue.getBytes(StandardCharsets.UTF_8).length);
+        return ReturnResult.ok(true);
+    }
+
+    /**
+     * 取 key 的 Redis 类型码
+     *
+     * <p>{@code StringRedisTemplate.type()} 返回的是 {@link DataType} 枚举而不是字符串，
+     * 用 {@code code()} 转成 redis 协议里的类型名（none/string/hash/list/set/zset），
+     * 与前端约定的取值一致。</p>
+     *
+     * @param key key
+     * @return 类型码
+     */
+    private String dataTypeOf(String key) {
+        DataType dataType = stringRedisTemplate.type(key);
+        return null == dataType ? "none" : dataType.code();
+    }
+
+    /**
+     * 统计 Spring Cache 管理的缓存实例数
+     *
+     * <p>取不到 CacheManager（如未启用缓存）时退化为已登记的模块数，
+     * 不抛异常 —— 统计接口不该因为环境差异把页面打挂。</p>
+     *
+     * @return 缓存实例数
+     */
+    private int countCaches() {
+        try {
+            CacheManager manager = cacheManagerProvider.getIfAvailable();
+            if (null == manager) {
+                return MODULES.size() - 1;
+            }
+            return manager.getCacheNames().size();
+        } catch (Exception e) {
+            log.warn("统计缓存实例数失败，退化为模块数", e);
+            return MODULES.size() - 1;
+        }
+    }
+
+    /**
+     * 读取 Redis INFO
+     *
+     * @return INFO 键值对；读取失败时返回空对象而不是 null
+     */
+    private Properties redisInfo() {
+        Properties properties = new Properties();
+        try {
+            RedisConnectionFactory factory = stringRedisTemplate.getConnectionFactory();
+            if (null == factory) {
+                return properties;
+            }
+            try (RedisConnection connection = factory.getConnection()) {
+                Properties info = connection.serverCommands().info();
+                if (null != info) {
+                    properties.putAll(info);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("读取 Redis INFO 失败", e);
+        }
+        return properties;
+    }
+
+    /**
+     * 解析数字，失败回退默认值
+     *
+     * @param text         文本
+     * @param defaultValue 默认值
+     * @return 解析结果
+     */
+    private long parseLong(String text, long defaultValue) {
+        if (null == text || text.isBlank()) {
+            return defaultValue;
+        }
+        try {
+            return Long.parseLong(text.trim());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * 字节数转可读字符串
+     *
+     * @param bytes 字节数
+     * @return 形如 "1.2 MB"
+     */
+    private String formatBytes(long bytes) {
+        if (bytes < KB) {
+            return bytes + " B";
+        }
+        if (bytes < KB * KB) {
+            return String.format("%.1f KB", bytes / (double) KB);
+        }
+        if (bytes < KB * KB * KB) {
+            return String.format("%.1f MB", bytes / (double) (KB * KB));
+        }
+        return String.format("%.2f GB", bytes / (double) (KB * KB * KB));
     }
 
     /**

@@ -42,10 +42,20 @@ public class HotReloadConfigService {
     /**
      * 按配置编码读取启用中的热重载配置值。
      *
+     * <p>⚠️ {@code unless = "#result == null"} 不能省：查不到配置时本方法返回 null，
+     * 而 {@code CacheProperties.cacheNullValues} 默认 false
+     * （见 {@code RedisCacheManagerConfiguration} 的 {@code disableCachingNullValues()}），
+     * Redis 缓存遇到 null 会抛
+     * {@code IllegalArgumentException: Cache 'sys:hot-reload:config' does not allow 'null' values}。
+     * 调用方（如 HeaderPolicyFilter）按「异常放行」处理，于是**规则静默失效**：
+     * 库里明明有爬虫拦截规则，请求却全部放行。全新库必现（配置行不存在就是 miss）。
+     * 这里显式声明「不缓存 null」，与全局「null 需显式开启」的设计口径一致。</p>
+     *
      * @param code 配置编码
      * @return 配置值，不存在或未启用时返回 {@code null}
      */
-    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CACHE_NAME, key = "#code")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CACHE_NAME,
+            key = "#code", unless = "#result == null")
     public String get(String code) {
         if (null == code || code.isBlank()) {
             return null;
