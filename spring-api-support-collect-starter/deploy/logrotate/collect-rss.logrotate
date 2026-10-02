@@ -1,0 +1,21 @@
+# 采集引擎的 RSS 采样日志（每分钟一行，量小但需长留，故 rotate 30）。
+# copytruncate：oneshot 写入的单元不响应信号，轮转瞬间可能少一行，可接受。
+#
+# 说明：本文件**只**负责 rss-sample.log，且该路径不得再出现在 /etc/logrotate.d/collect
+# 的通配里（见 collect.logrotate 注释第 1 点）——否则 logrotate 判重复、整份跳过。
+#
+# 服务以 root 运行，日志属主 root:root，故按 root 轮转。
+# 原文件无 su 指令（默认即 root）也能工作；此处显式写 su root root，
+# 以免将来主配置引入全局 su 时行为漂移。
+#
+# 安装：见 collect.logrotate 顶部说明。
+
+/opt/collect/logs/rss-sample.log {
+    daily
+    rotate 30
+    compress
+    missingok
+    notifempty
+    copytruncate
+    su root root
+}
