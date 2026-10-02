@@ -393,6 +393,32 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         if (null == sysMenu) {
             return ReturnResult.error("菜单不存在");
         }
+        // 必填校验放在 insert 之前。
+        //
+        // 为什么不靠 @Validated(AddGroup.class)：实体 SysMenu 在 entity-starter，
+        // 它引的分组是 utils 层的 com.chua.common.support.base.validator.group.AddGroup；
+        // 而控制器校验用的是 system 层的 com.chua.starter.system.validator.group.AddGroup
+        // —— 两者是不同的类，实体上的 groups 约束与 @Validated 永远匹配不上、静默失效。
+        // 这里改成与 update() 同款的服务层显式守卫（update 的 sysMenuId 守卫确实拦得住）。
+        //
+        // 触发过的真实后果（2026-10-01）：权限矩阵用空体 {} 探 POST /v2/menu/save，
+        // 因为没有任何必填校验，一次运行就 INSERT 出一条标题/路径/组件/名称全为 NULL 的菜单行。
+        // 这类行 parentId=0 且被判定为叶子菜单，前端侧边栏建树时渲染异常，
+        // 表现为**最高权限账号 admin 侧栏一个菜单都不显示**（而普通用户因接口返回空、
+        // 回落到静态路由反而正常）。见交付说明「P0 admin 侧栏空菜单」。
+        //
+        // 只校验 title/type/sort 三个字段：现有 35 条菜单（type=0 的 23 条、type=3 的 12 条）
+        // 这三个字段**全部非空**；而 path/name 在按钮类菜单（type=3）里本来就允许为空，
+        // 因此不能对它们加必填，否则会打断按钮菜单的创建。
+        if (StringUtils.isBlank(sysMenu.getSysMenuTitle())) {
+            return ReturnResult.error("菜单标题不能为空");
+        }
+        if (null == sysMenu.getSysMenuType()) {
+            return ReturnResult.error("菜单类型不能为空");
+        }
+        if (null == sysMenu.getSysMenuSort()) {
+            return ReturnResult.error("菜单排序不能为空");
+        }
         sysMenu.setSysMenuId(null);
         if (null == sysMenu.getSysMenuPid()) {
             sysMenu.setSysMenuPid(SystemConstant.ROOT_NODE_ID);
