@@ -33,13 +33,13 @@ INSERT IGNORE INTO `sys_user_role` (`sys_user_role_id`, `sys_user_id`, `sys_role
 (3, 3, 3);
 
 -- ---------------------------------------------------------------------
--- 策略配置归一：sys_ip_blackwhite / sys_rate_limit_rule / sys_account_blackwhite
---               → sys_policy_config（统一策略配置表，一行 = 一条配置）
+-- 策略配置归一：sys_firewall_ip_blackwhite / sys_firewall_rate_limit_rule / sys_firewall_account_blackwhite
+--               → sys_firewall_config（统一策略配置表，一行 = 一条配置）
 --
--- 三张旧表由 sys_policy_config 取代，数据按 type 判别列归位：
---   sys_ip_blackwhite      → type='IP'         biz_key=sys_ip_ip
---   sys_rate_limit_rule    → type='RATE_LIMIT' biz_key=target, dimension=dimension
---   sys_account_blackwhite → type='ACCOUNT'    biz_key=account
+-- 三张旧表由 sys_firewall_config 取代，数据按 type 判别列归位：
+--   sys_firewall_ip_blackwhite      → type='IP'         biz_key=sys_ip_ip
+--   sys_firewall_rate_limit_rule    → type='RATE_LIMIT' biz_key=target, dimension=dimension
+--   sys_firewall_account_blackwhite → type='ACCOUNT'    biz_key=account
 --
 -- 【语义归一，务必注意】IP 表与账号表的取值方向是相反的，不能直接搬：
 --   IP     : sys_ip_type   0=白名单 1=黑名单   → list_type 2=白名单 1=黑名单
@@ -57,7 +57,7 @@ INSERT IGNORE INTO `sys_user_role` (`sys_user_role_id`, `sys_user_id`, `sys_role
 -- ---------------------------------------------------------------------
 
 -- IP 黑白名单 → type='IP'（type/status 需反向归一）
-INSERT IGNORE INTO `sys_policy_config`
+INSERT IGNORE INTO `sys_firewall_config`
 (`type`, `dimension`, `list_type`, `biz_key`, `status`, `sort`, `remark`, `create_name`, `create_by`, `create_time`, `update_name`, `update_by`, `update_time`)
 SELECT 'IP', '',
        CASE WHEN `sys_ip_type` = 1 THEN 1 ELSE 2 END,
@@ -65,26 +65,26 @@ SELECT 'IP', '',
        CASE WHEN `sys_ip_status` = 0 THEN 1 ELSE 0 END,
        0, `sys_ip_remark`,
        `create_name`, `create_by`, `create_time`, `update_name`, `update_by`, `update_time`
-FROM `sys_ip_blackwhite`
+FROM `sys_firewall_ip_blackwhite`
 WHERE `sys_ip_ip` IS NOT NULL;
 
 -- 限流规则 → type='RATE_LIMIT'
-INSERT IGNORE INTO `sys_policy_config`
+INSERT IGNORE INTO `sys_firewall_config`
 (`type`, `dimension`, `list_type`, `biz_key`, `status`, `qps`, `burst_size`, `sort`, `remark`, `create_name`, `create_by`, `create_time`, `update_name`, `update_by`, `update_time`)
 SELECT 'RATE_LIMIT', `dimension`, 0, `target`, COALESCE(`enabled`, 1), `qps`, `burst_size`, 0, `remark`,
        `create_name`, `create_by`, `create_time`, `update_name`, `update_by`, `update_time`
-FROM `sys_rate_limit_rule`
+FROM `sys_firewall_rate_limit_rule`
 WHERE `target` IS NOT NULL;
 
 -- 账号黑白名单 → type='ACCOUNT'（type/status 与目标列同向，直搬）
-INSERT IGNORE INTO `sys_policy_config`
+INSERT IGNORE INTO `sys_firewall_config`
 (`type`, `dimension`, `list_type`, `biz_key`, `status`, `sort`, `remark`, `create_name`, `create_by`, `create_time`, `update_name`, `update_by`, `update_time`)
 SELECT 'ACCOUNT', '', COALESCE(`type`, 1), `account`, COALESCE(`status`, 1), 0, `remark`,
        `create_name`, `create_by`, `create_time`, `update_name`, `update_by`, `update_time`
-FROM `sys_account_blackwhite`
+FROM `sys_firewall_account_blackwhite`
 WHERE `account` IS NOT NULL;
 
--- 数据搬运完成后销毁遗留表。此后 sys_policy_config 是唯一的策略配置来源。
-DROP TABLE IF EXISTS `sys_ip_blackwhite`;
-DROP TABLE IF EXISTS `sys_rate_limit_rule`;
-DROP TABLE IF EXISTS `sys_account_blackwhite`;
+-- 数据搬运完成后销毁遗留表。此后 sys_firewall_config 是唯一的策略配置来源。
+DROP TABLE IF EXISTS `sys_firewall_ip_blackwhite`;
+DROP TABLE IF EXISTS `sys_firewall_rate_limit_rule`;
+DROP TABLE IF EXISTS `sys_firewall_account_blackwhite`;

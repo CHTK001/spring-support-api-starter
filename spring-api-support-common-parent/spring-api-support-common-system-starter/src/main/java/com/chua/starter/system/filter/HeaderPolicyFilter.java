@@ -35,7 +35,7 @@ import java.util.Set;
  * <p><b>整段兜住异常，任何未预期错误都放行</b>。这是策略层：它自己的 bug
  * 不该变成全站 500。黑名单「漏放几个爬虫」的代价，远小于「策略 bug 打挂整站」。</p>
  *
- * <p>规则来自统一策略表 {@code sys_policy_config}（{@code type=HEADER}），
+ * <p>规则来自统一策略表 {@code sys_firewall_config}（{@code type=HEADER}），
  * 保存/启停/删除后由 {@link com.chua.starter.system.support.HeaderPolicyCacheProjector} 投影进缓存，
  * <b>即时生效</b>，不需要重启。</p>
  *

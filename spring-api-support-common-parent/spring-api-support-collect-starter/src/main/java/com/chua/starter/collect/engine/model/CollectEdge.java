@@ -58,7 +58,7 @@ public class CollectEdge {
      * @return 连线ID
      */
     public String id() {
-        return source.getId();
+        return source.id();
     }
 
     /**
@@ -67,7 +67,7 @@ public class CollectEdge {
      * @return 条件表达式
      */
     public String condition() {
-        String condition = source.getCondition();
+        String condition = source.condition();
         return condition == null ? "" : condition.trim();
     }
 
@@ -77,7 +77,7 @@ public class CollectEdge {
      * @return 流向编码，未配置返回总是流转
      */
     public String exceptionFlow() {
-        String flow = source.getExceptionFlow();
+        String flow = source.exceptionFlow();
         return flow == null || flow.isBlank() ? FLOW_ALWAYS : flow.trim();
     }
 
@@ -87,7 +87,7 @@ public class CollectEdge {
      * @return 传递返回 true
      */
     public boolean transmitVariable() {
-        return source.getTransmitVariable() == null || source.getTransmitVariable();
+        return source.transmitVariable() == null || source.transmitVariable();
     }
 
     /**

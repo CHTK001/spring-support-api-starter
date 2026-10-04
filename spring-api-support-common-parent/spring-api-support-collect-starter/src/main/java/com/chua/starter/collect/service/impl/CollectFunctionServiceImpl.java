@@ -101,17 +101,17 @@ public class CollectFunctionServiceImpl extends ServiceImpl<CollectFunctionMappe
 
     @Override
     public CollectFunctionTestVO testFunction(CollectFunctionTestDTO dto) {
-        if (dto == null || dto.getCollectFunctionId() == null) {
+        if (dto == null || dto.collectFunctionId() == null) {
             throw new IllegalArgumentException("必须指定要试跑的函数");
         }
-        CollectFunction function = requireFunction(dto.getCollectFunctionId());
+        CollectFunction function = requireFunction(dto.collectFunctionId());
         CollectFunctionTestVO vo = new CollectFunctionTestVO();
         vo.setFunctionName(function.getCollectFunctionName());
         vo.setParameters(function.getCollectFunctionParameters());
         long begin = System.currentTimeMillis();
         try {
             List<Object> arguments = new ArrayList<>(
-                    dto.getArguments() == null ? List.of() : dto.getArguments());
+                    dto.arguments() == null ? List.of() : dto.arguments());
             CollectBuiltinInvoker.Outcome outcome =
                     registry.call(function.getCollectFunctionName(), arguments);
             vo.setCostMs(System.currentTimeMillis() - begin);

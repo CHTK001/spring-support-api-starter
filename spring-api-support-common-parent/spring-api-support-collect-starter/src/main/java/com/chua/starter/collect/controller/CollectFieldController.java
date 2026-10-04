@@ -58,7 +58,7 @@ public class CollectFieldController {
     @Operation(summary = "保存字段定义")
     @PostMapping("/replace")
     public ReturnResult<Boolean> replace(@RequestBody CollectFieldSaveDTO dto) {
-        return ReturnResult.ok(fieldService.replaceFields(dto.getCollectFlowId(),
-                dto.getCollectNodeId(), dto.getFields()));
+        return ReturnResult.ok(fieldService.replaceFields(dto.collectFlowId(),
+                dto.collectNodeId(), dto.fields()));
     }
 }
