@@ -64,7 +64,8 @@ public class StudentLoginService implements UserInfoService {
     private static final String SQL_BY_STUDENT_NO = """
             SELECT student_id, student_no, student_name, student_class_id,
                    student_grade_level, student_grade, student_parent_phone,
-                   student_password, student_pwd_salt, student_status, student_owner_user_id
+                   student_password, student_pwd_salt, student_pwd_must_change,
+                   student_status, student_owner_user_id
             FROM edu_student
             WHERE student_no = ?
             LIMIT 1
@@ -76,7 +77,8 @@ public class StudentLoginService implements UserInfoService {
     private static final String SQL_BY_PARENT_PHONE = """
             SELECT student_id, student_no, student_name, student_class_id,
                    student_grade_level, student_grade, student_parent_phone,
-                   student_password, student_pwd_salt, student_status, student_owner_user_id
+                   student_password, student_pwd_salt, student_pwd_must_change,
+                   student_status, student_owner_user_id
             FROM edu_student
             WHERE student_parent_phone = ?
             """;
@@ -147,10 +149,13 @@ public class StudentLoginService implements UserInfoService {
             return denied("该学生已离校，无法登录");
         }
         if (StringUtils.isBlank(student.getStudentPassword())) {
-            log.info("学生登录失败: 未设置口令 {}, IP: {}", account, address);
-            return denied("尚未设置登录密码，请联系班主任或管理员设置");
-        }
-        if (!passwordMatches(credential, student.getStudentPwdSalt(), student.getStudentPassword())) {
+            // 老数据可能没存口令：初始口令阶段直接允许用「学号」登录
+            if (!isInitialPasswordLogin(student, credential)) {
+                log.info("学生登录失败: 未设置口令 {}, IP: {}", account, address);
+                return denied("尚未设置登录密码，请联系班主任或管理员设置");
+            }
+        } else if (!passwordMatches(credential, student.getStudentPwdSalt(), student.getStudentPassword())
+                && !isInitialPasswordLogin(student, credential)) {
             log.warn("学生登录失败: 口令不匹配 - 学号: {}, IP: {}", student.getStudentNo(), address);
             return denied("密码错误");
         }
@@ -229,6 +234,26 @@ public class StudentLoginService implements UserInfoService {
         return MessageDigest.isEqual(
                 actual.getBytes(StandardCharsets.UTF_8),
                 stored.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * 判定是否属于「初始口令阶段用学号登录」。
+     *
+     * <p>建档默认口令 = 学号，但存量数据可能没存口令摘要、或摘要与学号不一致；
+     * 只要学生**尚未自助改密**（{@code student_pwd_must_change = 1}），
+     * 就允许用学号作为默认口令登录。学生一旦自行改密，标记置 0，默认口令立即失效。</p>
+     *
+     * @param student    学生档案
+     * @param credential 本次提交的口令明文
+     * @return 允许按默认口令放行时返回 true
+     */
+    private boolean isInitialPasswordLogin(EduStudentAuth student, String credential) {
+        Integer mustChange = student.getStudentPwdMustChange();
+        if (mustChange == null || mustChange != 1) {
+            return false;
+        }
+        String no = student.getStudentNo();
+        return StringUtils.isNotBlank(no) && no.equals(credential == null ? null : credential.trim());
     }
 
     /**

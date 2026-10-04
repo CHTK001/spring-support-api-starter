@@ -372,7 +372,7 @@ public class SysMenu extends SysBase implements Serializable {
     private Integer sysMenuShowSwitch;
 
     /**
-     * 条件为开关型时联动的功能键（sys_policy_config 中 type='FEATURE' 的 biz_key）
+     * 条件为开关型时联动的功能键（sys_firewall_config 中 type='FEATURE' 的 biz_key）
      */
     @TableField(value = "sys_menu_show_key")
     @Schema(description = "条件为开关型时联动的功能键")

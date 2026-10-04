@@ -29,7 +29,7 @@ public enum MenuShowType {
     SPEL,
 
     /**
-     * 功能开关闭联：条件值填 {@code sys_policy_config} 里 {@code type='FEATURE'} 的业务键，
+     * 功能开关闭联：条件值填 {@code sys_firewall_config} 里 {@code type='FEATURE'} 的业务键，
      * 该行启用则显示
      */
     SWITCH,

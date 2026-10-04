@@ -16,7 +16,7 @@ import java.io.Serializable;
  * IP 黑白名单传输对象
  *
  * <p><b>本类不再是数据库实体。</b>IP 黑白名单已并入统一策略配置表
- * {@code sys_policy_config}（{@code type='IP'}），本类仅作为策略接口的传输结构，
+ * {@code sys_firewall_config}（{@code type='IP'}），本类仅作为策略接口的传输结构，
  * 字段名保持与前端契约一致，由
  * {@code com.chua.starter.system.support.PolicyConfigConverter} 与统一表行互转。</p>
  *
@@ -37,7 +37,7 @@ public class SysIpBlackwhite extends SysBase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键标识（对应统一表 sys_policy_config_id）
+     * 主键标识（对应统一表 sys_firewall_config_id）
      */
     @Schema(description = "主键ID")
     @NotNull(message = "主键ID不能为空", groups = {UpdateGroup.class})

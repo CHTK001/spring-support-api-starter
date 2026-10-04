@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * 统一策略配置服务接口
  *
- * <p>{@code sys_policy_config} 是所有策略类型的唯一存储，本接口提供与类型无关的通用读写，
+ * <p>{@code sys_firewall_config} 是所有策略类型的唯一存储，本接口提供与类型无关的通用读写，
  * 供灰度(GRAY)、功能开关(FEATURE) 等新增类型直接使用；
  * IP/限流/账号名单因各自带有领域逻辑（CIDR 归一、缓存投影），
  * 仍由 {@link SysIpBlackwhiteService} / {@link SysRateLimitRuleService} /

@@ -126,14 +126,14 @@ public class CollectExecutionServiceImpl implements CollectExecutionService, App
 
     @Override
     public CollectTaskVO runFlow(CollectRunDTO dto) {
-        if (dto == null || dto.getCollectFlowId() == null) {
+        if (dto == null || dto.collectFlowId() == null) {
             throw new IllegalArgumentException("必须指定要运行的流程");
         }
-        CollectFlow flow = flowService.requireFlow(dto.getCollectFlowId());
+        CollectFlow flow = flowService.requireFlow(dto.collectFlowId());
         CollectDslDTO dsl = flowService.readDsl(flow);
-        boolean persist = dto.getPersist() == null || dto.getPersist();
+        boolean persist = dto.persist() == null || dto.persist();
         String trigger = persist ? CollectTriggerType.MANUAL : CollectTriggerType.TEST;
-        return start(flow, dsl, trigger, dto.getVariables(), persist);
+        return start(flow, dsl, trigger, dto.variables(), persist);
     }
 
     @Override

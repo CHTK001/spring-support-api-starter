@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * 账号黑白名单服务实现
  *
- * <p>读写统一策略配置表 {@code sys_policy_config}（{@code type='ACCOUNT'}），
+ * <p>读写统一策略配置表 {@code sys_firewall_config}（{@code type='ACCOUNT'}），
  * 不再使用独立的账号名单表。账号名单的取值方向与统一表一致，转换无需翻转。</p>
  *
  * @since 4.0.0.50

@@ -8,7 +8,7 @@ import com.chua.starter.entity.system.SysIpBlackwhite;
 /**
  * IP黑白名单服务接口
  *
- * <p>数据已并入统一策略配置表 {@code sys_policy_config}（{@code type='IP'}），
+ * <p>数据已并入统一策略配置表 {@code sys_firewall_config}（{@code type='IP'}），
  * 本接口只负责 IP 名单的领域逻辑（CIDR 归一、缓存投影、按 IP 判定放行），
  * 不再对应独立的物理表。</p>
  *

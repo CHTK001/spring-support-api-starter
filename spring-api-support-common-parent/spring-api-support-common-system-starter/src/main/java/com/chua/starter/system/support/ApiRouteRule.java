@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 接口停用 / 转发规则。
  *
- * <p>一条规则对应 {@code sys_policy_config} 里 {@code type=API_ROUTE} 的一行，
+ * <p>一条规则对应 {@code sys_firewall_config} 里 {@code type=API_ROUTE} 的一行，
  * {@code biz_key} 是去掉 context-path 的请求路径（如 {@code /v2/user/me}）。</p>
  *
  * <p>转发目标<b>不是配置来的字符串</b>，而是由

@@ -341,7 +341,7 @@ INSERT IGNORE INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_
 -- =====================================================
 -- 需求：开箱即用，不配任何规则也默认拦掉爬虫/自动化客户端。
 --
--- 幂等：靠唯一键 sys_policy_config_uk_biz (type, dimension, list_type, biz_key)。
+-- 幂等：靠唯一键 sys_firewall_config_uk_biz (type, dimension, list_type, biz_key)。
 --      本条是 (HEADER, '', 0, 'User-Agent')，重复执行只会覆盖成同一份配置，
 --      不会产生第二条规则；管理员改过之后重跑本脚本也会被还原成默认值。
 --
@@ -365,7 +365,7 @@ INSERT IGNORE INTO `sys_avatar_frame` (`sys_avatar_frame_id`, `sys_avatar_frame_
 --   豁免是身份声明不是安全凭证 —— 两个头的取值都能伪造，凑齐即可整体绕过。
 --   不接受任何后门的部署把 plugin.system.header-policy.first-party-enabled 关掉。
 --   另：策略关闭（没有任何 HEADER 规则）时，豁免判断根本不执行。
-INSERT INTO `sys_policy_config`
+INSERT INTO `sys_firewall_config`
   (`type`, `dimension`, `list_type`, `biz_key`, `status`, `sort`, `config`, `remark`, `create_name`, `create_time`)
 VALUES
   ('HEADER', '', 0, 'User-Agent', 1, 0,

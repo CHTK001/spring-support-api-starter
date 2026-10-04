@@ -9,7 +9,7 @@
 --                                             sys_wechat_user / sys_announcement /
 --                                             sys_avatar_frame / sys_message /
 --                                             sys_message_recipient / sys_post / sys_user_post /
---                                             sys_ip_blackwhite / sys_announcement_read /
+--                                             sys_firewall_ip_blackwhite / sys_announcement_read /
 --                                             sys_user_tripartite_bind / sys_error_log
 --   spring-api-support-common-service-starter sys_setting / sys_log / sys_file_system* 等
 --   spring-api-support-common-tenant-starter sys_tenant
