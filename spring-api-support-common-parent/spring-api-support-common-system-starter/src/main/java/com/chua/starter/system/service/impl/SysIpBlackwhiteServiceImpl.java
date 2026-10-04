@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * IP 黑白名单服务实现
  *
- * <p>读写统一策略配置表 {@code sys_policy_config}（{@code type='IP'}），
+ * <p>读写统一策略配置表 {@code sys_firewall_config}（{@code type='IP'}），
  * 不再使用独立的 IP 名单表。IP 名单的领域逻辑（CIDR 归一、缓存投影、按 IP 判定放行）保持不变。</p>
  *
  * @since 4.0.0.43

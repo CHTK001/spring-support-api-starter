@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * 消息头拦截规则的缓存投影器。
  *
- * <p>与 {@link IpPolicyCacheProjector} 同构：数据库（统一策略表 {@code sys_policy_config}）
+ * <p>与 {@link IpPolicyCacheProjector} 同构：数据库（统一策略表 {@code sys_firewall_config}）
  * 是权威数据源，Spring Cache 是运行时投影；<b>事务提交后</b>才写缓存，避免事务回滚
  * 造成缓存脏数据。保存 / 启停 / 删除后立即投影，即<b>热重载</b>，不需要重启。</p>
  *

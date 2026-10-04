@@ -252,8 +252,14 @@ CREATE TABLE IF NOT EXISTS `sys_announcement_read` (
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
 -- ---------------------------------------------------------------------
--- sys_policy_config：统一策略配置表（取代 sys_ip_blackwhite / sys_rate_limit_rule /
--- sys_account_blackwhite 三张表）。一行 = 一条策略配置。
+-- sys_firewall_config：统一策略配置表（取代 sys_firewall_ip_blackwhite /
+-- sys_firewall_rate_limit_rule / sys_firewall_account_blackwhite 三张表）。
+-- 一行 = 一条策略配置。
+--
+-- 命名说明（2026-09-30）：本表改名自策略命名（表名带 policy 前缀，旧列名同前缀 + _id）。
+-- 这批表承载的是「IP 名单 / 限流 / 消息头拦截 / 接口管控」这类请求侧准入控制，
+-- 实质是应用防火墙，故整体改名到 firewall 命名，列名与三个索引名同步。
+-- Java 侧实体类名（SysPolicyConfig 等）与 REST 路径未变，只是表名对齐。
 --
 -- 存储约定：type 判别列 + 通用宽列 + config JSON 兜底。
 --   type      策略类型，取值见 Java 侧 PolicyConfigType 常量
@@ -266,8 +272,8 @@ CREATE TABLE IF NOT EXISTS `sys_announcement_read` (
 -- 唯一键取 (type, dimension, list_type, biz_key)：限流靠 dimension 区分同 target 的不同维度，
 -- 黑白名单靠 list_type 允许同一 IP/账号同时存在于黑名单与白名单。
 -- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sys_policy_config` (
-    `sys_policy_config_id` bigint NOT NULL AUTO_INCREMENT COMMENT '统一策略配置ID',
+CREATE TABLE IF NOT EXISTS `sys_firewall_config` (
+    `sys_firewall_config_id` bigint NOT NULL AUTO_INCREMENT COMMENT '统一策略配置ID',
     `type` varchar(32) NOT NULL COMMENT '策略类型: IP/RATE_LIMIT/ACCOUNT/GRAY/FEATURE',
     `dimension` varchar(20) NOT NULL DEFAULT '' COMMENT '限流维度: interface/ip/account; 其它类型填空串',
     `list_type` int NOT NULL DEFAULT 0 COMMENT '名单方向: 1黑名单 2白名单; 其它类型填0',
@@ -286,29 +292,29 @@ CREATE TABLE IF NOT EXISTS `sys_policy_config` (
     `update_name` varchar(255) NULL DEFAULT NULL COMMENT '更新人姓名',
     `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
     `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    PRIMARY KEY (`sys_policy_config_id`),
+    PRIMARY KEY (`sys_firewall_config_id`),
     -- 不写前缀长度 biz_key(191)：H2 的解析器不认识 MySQL 的前缀索引语法，
     -- 会直接抛 parseIndexColumnList 导致整份 init 脚本建表中止。
     -- 前缀长度本是 MySQL 5.6 的索引长度变通，MySQL 8 默认 DYNAMIC 行格式下
     -- 唯一索引上限 3072 字节，本键四列合计约 1232 字节，整列索引足够。
     -- 去掉后 MySQL 8 与 H2 都能建出这张表。
-    UNIQUE KEY `sys_policy_config_uk_biz` (`type`, `dimension`, `list_type`, `biz_key`),
-    KEY `sys_policy_config_idx_type_status` (`type`, `status`),
-    KEY `sys_policy_config_idx_type_sort` (`type`, `sort`)
+    UNIQUE KEY `sys_firewall_config_uk_biz` (`type`, `dimension`, `list_type`, `biz_key`),
+    KEY `sys_firewall_config_idx_type_status` (`type`, `status`),
+    KEY `sys_firewall_config_idx_type_sort` (`type`, `sort`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '统一策略配置表';
 
 -- ---------------------------------------------------------------------
 -- 【遗留表 · 仅供一次性数据迁移使用】
 --
--- 下面三张表已被 sys_policy_config 取代。之所以仍在此建表，是因为 Flyway 的 init 与
+-- 下面三张表已被 sys_firewall_config 取代。之所以仍在此建表，是因为 Flyway 的 init 与
 -- initdata 是两个独立通道：init 跑完才开始跑 initdata，而「搬数据」必须发生在
 -- 「删表」之前。若 init 不建这三张表，initdata 里的 INSERT..SELECT 会因表不存在而报错，
 -- 且无法在纯 SQL 里做条件执行。
 --
 -- 因此：init 建空表 → initdata 搬数据 → initdata 末尾 DROP TABLE IF EXISTS。
--- 全新库最终不会残留这三张表；历史库数据会被完整搬进 sys_policy_config。
+-- 全新库最终不会残留这三张表；历史库数据会被完整搬进 sys_firewall_config。
 -- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `sys_ip_blackwhite` (
+CREATE TABLE IF NOT EXISTS `sys_firewall_ip_blackwhite` (
     `sys_ip_id` int NOT NULL AUTO_INCREMENT,
     `sys_ip_type` int NULL DEFAULT NULL,
     `sys_ip_ip` varchar(255) NULL DEFAULT NULL,
@@ -323,8 +329,8 @@ CREATE TABLE IF NOT EXISTS `sys_ip_blackwhite` (
     PRIMARY KEY (`sys_ip_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '遗留表, 迁移后删除';
 
-CREATE TABLE IF NOT EXISTS `sys_rate_limit_rule` (
-    `sys_rate_limit_rule_id` bigint NOT NULL AUTO_INCREMENT COMMENT '限流规则ID',
+CREATE TABLE IF NOT EXISTS `sys_firewall_rate_limit_rule` (
+    `sys_firewall_rate_limit_rule_id` bigint NOT NULL AUTO_INCREMENT COMMENT '限流规则ID',
     `dimension` varchar(20) NOT NULL COMMENT '限流维度: interface/ip/account',
     `target` varchar(500) NOT NULL COMMENT '匹配目标: 接口路径/IP/账号',
     `qps` int NULL DEFAULT 100 COMMENT '每秒允许请求数(QPS)',
@@ -337,10 +343,10 @@ CREATE TABLE IF NOT EXISTS `sys_rate_limit_rule` (
     `update_name` varchar(255) NULL DEFAULT NULL COMMENT '更新人姓名',
     `update_by` int NULL DEFAULT NULL COMMENT '更新人ID',
     `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-    PRIMARY KEY (`sys_rate_limit_rule_id`)
+    PRIMARY KEY (`sys_firewall_rate_limit_rule_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '遗留表, 迁移后删除';
 
-CREATE TABLE IF NOT EXISTS `sys_account_blackwhite` (
+CREATE TABLE IF NOT EXISTS `sys_firewall_account_blackwhite` (
     `sys_account_bw_id` bigint NOT NULL AUTO_INCREMENT COMMENT '账号黑白名单ID',
     `account` varchar(100) NOT NULL COMMENT '账号',
     `type` int NOT NULL COMMENT '类型: 1黑名单 2白名单',
@@ -495,7 +501,7 @@ CREATE TABLE IF NOT EXISTS `sys_menu` (
     `sys_menu_show_type` varchar(20) NOT NULL DEFAULT 'ALWAYS' COMMENT '动态显示条件类型: ALWAYS/CLASS/SPEL/SWITCH/PROPERTY',
     `sys_menu_show_value` varchar(500) NULL DEFAULT NULL COMMENT '条件值: 类全名/SpEL表达式/配置键',
     `sys_menu_show_switch` INT NULL DEFAULT 1 COMMENT '开关型条件放行值: 0否 1是',
-    `sys_menu_show_key` varchar(255) NULL DEFAULT NULL COMMENT '开关型条件联动的功能键(sys_policy_config type=FEATURE 的 biz_key)',
+    `sys_menu_show_key` varchar(255) NULL DEFAULT NULL COMMENT '开关型条件联动的功能键(sys_firewall_config type=FEATURE 的 biz_key)',
     `create_name` varchar(255)  NULL DEFAULT NULL COMMENT '创建人姓名',
     `create_by` INT NULL DEFAULT NULL COMMENT '创建人ID',
     `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',

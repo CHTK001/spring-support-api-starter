@@ -76,6 +76,14 @@ public class EduStudentAuth {
     private String studentPwdSalt;
 
     /**
+     * 是否仍在使用「初始口令」：1=是（教师建档/重置后学生尚未自行改密）。
+     *
+     * <p>初始口令阶段允许用「学号」作为默认口令登录（建档默认口令=学号）；
+     * 学生自助改密后该标记置 0，默认口令立即失效。</p>
+     */
+    private Integer studentPwdMustChange;
+
+    /**
      * 状态：0-离校 1-在读
      */
     private Integer studentStatus;

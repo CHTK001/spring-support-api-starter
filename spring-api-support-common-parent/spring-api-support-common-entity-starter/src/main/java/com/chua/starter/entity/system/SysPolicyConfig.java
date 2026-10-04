@@ -38,7 +38,7 @@ import java.io.Serializable;
 @Schema(description = "统一策略配置表")
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName(value = "sys_policy_config")
+@TableName(value = "sys_firewall_config")
 public class SysPolicyConfig extends SysBase implements Serializable {
     /**
      * 串行版本UID
@@ -102,7 +102,7 @@ public class SysPolicyConfig extends SysBase implements Serializable {
     /**
      * 主键标识
      */
-    @TableId(value = "sys_policy_config_id", type = IdType.AUTO)
+    @TableId(value = "sys_firewall_config_id", type = IdType.AUTO)
     @Schema(description = "主键ID")
     @NotNull(message = "主键ID不能为空", groups = {UpdateGroup.class})
     private Long sysPolicyConfigId;

@@ -17,7 +17,7 @@ import java.util.regex.PatternSyntaxException;
  * 消息头拦截规则。
  *
  * <p>一条规则 = 一个消息头（主要是 {@code User-Agent}）+ 一组匹配模式 + 一个处置动作。
- * 存在统一策略表 {@code sys_policy_config} 的 {@code config} 字段里，运行时投影进
+ * 存在统一策略表 {@code sys_firewall_config} 的 {@code config} 字段里，运行时投影进
  * {@link PolicyCacheService}，保存即生效（热重载），不需要重启。</p>
  *
  * <p><b>为什么默认匹配方式是「包含」而不是「正则」</b>：UA 串里识别爬虫/自动化的是

@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * 限流规则服务接口
  *
- * <p>数据已并入统一策略配置表 {@code sys_policy_config}（{@code type='RATE_LIMIT'}），
+ * <p>数据已并入统一策略配置表 {@code sys_firewall_config}（{@code type='RATE_LIMIT'}），
  * 本接口只负责限流规则的领域逻辑与策略缓存投影，不再对应独立的物理表。</p>
  *
  * @since 4.0.0.50

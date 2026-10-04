@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * IP 策略缓存投影器。
  *
- * <p>数据库（统一策略配置表 {@code sys_policy_config}）是权威数据源，Spring Cache 是运行时投影；
+ * <p>数据库（统一策略配置表 {@code sys_firewall_config}）是权威数据源，Spring Cache 是运行时投影；
  * 事务提交后再写入/清理缓存，避免事务回滚造成缓存脏数据。</p>
  *
  * <p>本类对外仍使用 IP 名单的旧口径（{@code type} 0白/1黑），与

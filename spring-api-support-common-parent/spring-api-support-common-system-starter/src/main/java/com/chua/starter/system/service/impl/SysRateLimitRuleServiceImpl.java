@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * 限流规则服务实现
  *
- * <p>读写统一策略配置表 {@code sys_policy_config}（{@code type='RATE_LIMIT'}），
+ * <p>读写统一策略配置表 {@code sys_firewall_config}（{@code type='RATE_LIMIT'}），
  * 不再使用独立的限流规则表。规则变更后仍按原语义投影/清理 Spring Cache。</p>
  *
  * @since 4.0.0.50

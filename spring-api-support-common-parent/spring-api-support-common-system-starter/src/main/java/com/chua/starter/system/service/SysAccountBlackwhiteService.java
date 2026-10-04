@@ -8,7 +8,7 @@ import com.chua.starter.entity.system.SysAccountBlackwhite;
 /**
  * 账号黑白名单服务接口
  *
- * <p>数据已并入统一策略配置表 {@code sys_policy_config}（{@code type='ACCOUNT'}），
+ * <p>数据已并入统一策略配置表 {@code sys_firewall_config}（{@code type='ACCOUNT'}），
  * 本接口只负责账号名单的领域逻辑与策略缓存投影，不再对应独立的物理表。</p>
  *
  * @since 4.0.0.50
