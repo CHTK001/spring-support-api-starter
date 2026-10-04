@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.chua</groupId>
-    <artifactId>spring-support-api-parent</artifactId>
+    <artifactId>spring-api-support-common-parent</artifactId>
     <version>4.0.0.42</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
@@ -44,6 +44,7 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-support-filesystem-starter</artifactId>
+      <version>${module.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>

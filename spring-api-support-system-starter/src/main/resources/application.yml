@@ -91,7 +91,7 @@ plugin:
         allowed-headers: "Content-Type,Authorization,x-oauth-token,X-Requested-With,X-Trace-Id,X-Req-Fingerprint"
         # 跨域下自定义响应头默认不可读，需显式暴露：
         # Content-Disposition（前端读文件名）与预览通道标识（前端据此选渲染器）
-        expose-headers: "Content-Disposition,Content-Range,Accept-Ranges,X-FileStorage-Preview,X-FileStorage-Client-Renderer"
+        expose-headers: "Content-Disposition,Content-Range,Accept-Ranges,X-FileStorage-Preview,X-FileStorage-Client-Renderer,X-FileStorage-Convert,X-FileStorage-ImageOp,X-FileStorage-ImageOp-Reason"
         allowed-methods: "GET,HEAD,POST,PUT,DELETE,PATCH,OPTIONS"
   mybatis:
     data:

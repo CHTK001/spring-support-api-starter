@@ -1,7 +1,7 @@
 -- ============================================================
 -- 视频平台 H2 专用 DDL（通用 MySQL DDL 在 H2 下不执行）
--- 路径 db/init/*/h2/*.sql 由 plugin.datasource.script 在 H2 环境加载
--- 仅创建视频配置数据库（sys_setting）所需表
+-- 由 H2SchemaConfiguration 在 h2 profile 下执行
+-- 创建/补全视频配置数据库（sys_setting）所需表
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS sys_setting (
@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS sys_setting (
     sys_setting_name varchar(255) NULL COMMENT '配置名称',
     sys_setting_code varchar(255) NULL COMMENT '配置编码',
     sys_setting_value text NULL COMMENT '配置值',
+    sys_setting_default_value text NULL COMMENT '默认值',
     sys_setting_value_type varchar(255) NULL COMMENT '配置类型',
     sys_setting_group varchar(255) NULL COMMENT '所属分组',
     sys_setting_status int NULL DEFAULT 1 COMMENT '是否启用',
@@ -30,6 +31,20 @@ CREATE TABLE IF NOT EXISTS sys_setting (
     sys_setting_validate varchar(512) NULL COMMENT '校验规则',
     PRIMARY KEY (sys_setting_id)
 );
+
+-- 兜底：若 sys_setting 已由其它 starter 的旧 DDL 建表，补齐缺失列
+ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_default_value text NULL;
+ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_is_sensitive int NULL DEFAULT 0;
+ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_validate varchar(512) NULL;
+ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_admin int NULL DEFAULT 0;
+ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_app_inner int NULL DEFAULT 0;
+ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_collect int NULL DEFAULT 0;
+ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_in_system int NULL DEFAULT 0;
+ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_value_type varchar(255) NULL;
+
+-- 兜底：值列放宽为 TEXT（直播目录整段 JSON），兼容被旧 DDL 建成的 varchar(255)
+ALTER TABLE sys_setting ALTER COLUMN sys_setting_value SET DATA TYPE TEXT;
+ALTER TABLE sys_setting ALTER COLUMN sys_setting_default_value SET DATA TYPE TEXT;
 
 CREATE UNIQUE INDEX IF NOT EXISTS sys_setting_uk_setting_name_group ON sys_setting (sys_setting_name, sys_setting_group);
 CREATE INDEX IF NOT EXISTS sys_setting_idx_setting_code ON sys_setting (sys_setting_code);
