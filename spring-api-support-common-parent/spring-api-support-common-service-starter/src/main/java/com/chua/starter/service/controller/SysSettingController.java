@@ -34,6 +34,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -157,8 +160,18 @@ public class SysSettingController {
     /**
      * 派生运行期配置：文件服务器地址（{@code other.filestorage.server}）。
      *
-     * <p>取 {@code plugin.filesystem.storage-server.*}；未启用或未配置端口时返回 空（前端回退当前地址）。
-     * 对外可达地址优先取 {@code public-host}，缺省回退绑定 {@code host}（0.0.0.0 归一为 127.0.0.1）。</p>
+     * <p>取 {@code plugin.filesystem.storage-server.*}；未启用或未配置端口时返回 空（前端回退当前地址）。</p>
+     *
+     * <p><b>对外可达地址的取法（2026-10-04 修正）</b>：显式配置 {@code public-host} 优先；
+     * 未配置、**或配成环回地址**（{@code 127.0.0.1} / {@code localhost}）时，
+     * <b>按当前请求的 Host 派生</b>。理由：文件服务器与应用是<b>同机部署</b>
+     * （{@code plugin.filesystem.storage-server} 的默认值就是如此），而环回地址作为
+     * 「对外可达地址」本身没有意义 —— 它会让<b>从别的机器访问页面</b>的浏览器去连
+     * <b>访问者自己的</b> {@code localhost:18080}，直接打不通。
+     * 实测就是这个问题：前端 {@code app.yaml} 里写对了 {@code 192.168.50.198:18080}，
+     * 却被这条运行期下发的 {@code http://127.0.0.1:18080} 盖掉（前端优先级更高）。
+     * 按请求 Host 派生后，dev（vite 代理 {@code changeOrigin:true}，后端看到的 Host 即目标机）
+     * 与生产（访问入口的 Host）都能得到与接口同机的正确地址。</p>
      *
      * @return 配置项；未启用文件服务器时返回 空
      */
@@ -172,8 +185,10 @@ public class SysSettingController {
             return null;
         }
         String host = environment.getProperty("plugin.filesystem.storage-server.public-host");
-        if (null == host || host.isBlank()) {
-            host = environment.getProperty("plugin.filesystem.storage-server.host", "127.0.0.1");
+        if (isLoopbackHost(host)) {
+            // 未配置或配成环回地址：按当前请求的 Host 派生（取不到再回落）
+            String derived = currentRequestHost();
+            host = (null == derived || derived.isBlank()) ? host : derived;
         }
         if (null == host || host.isBlank() || "0.0.0.0".equals(host)) {
             host = "127.0.0.1";
@@ -186,6 +201,52 @@ public class SysSettingController {
         vo.setSysSettingGroup("default");
         vo.setSysSettingRemark("文件服务器地址（前端文件服务器页连接地址）");
         return vo;
+    }
+
+    /**
+     * 判断主机名是否为环回地址（作为「对外可达地址」无意义）。
+     *
+     * @param host 主机名，可为 null
+     * @return true 表示未配置或为环回地址
+     */
+    private boolean isLoopbackHost(String host) {
+        if (null == host || host.isBlank()) {
+            return true;
+        }
+        String h = host.trim().toLowerCase();
+        return "127.0.0.1".equals(h) || "localhost".equals(h) || "::1".equals(h);
+    }
+
+    /**
+     * 取当前请求的 Host（不含端口），用于派生「与接口同机」的文件服务器地址。
+     *
+     * <p>优先 {@code X-Forwarded-Host}（反向代理场景），其次 {@code request.getServerName()}；
+     * 取不到或异常时返回 空，由调用方回落。用 {@code RequestContextHolder} 取当前请求，
+     * 避免为此改动接口签名。</p>
+     *
+     * @return 主机名；取不到返回 空
+     */
+    private String currentRequestHost() {
+        try {
+            RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
+            if (attrs instanceof ServletRequestAttributes sra) {
+                String h = sra.getRequest().getHeader("X-Forwarded-Host");
+                if (null == h || h.isBlank()) {
+                    h = sra.getRequest().getServerName();
+                }
+                if (null != h && !h.isBlank()) {
+                    // X-Forwarded-Host 可能是逗号分隔的链，取第一个
+                    int idx = h.indexOf(',');
+                    if (idx > 0) {
+                        h = h.substring(0, idx);
+                    }
+                    return h.trim();
+                }
+            }
+        } catch (Exception ignore) {
+            // 无请求上下文（如定时任务触发）时回落
+        }
+        return null;
     }
 
     /**
