@@ -85,10 +85,10 @@ public class CollectGraph {
         }
         List<CollectEdgeDTO> edges = dsl.getEdges() == null ? List.of() : dsl.getEdges();
         for (CollectEdgeDTO dto : edges) {
-            CollectNode from = graph.nodes.get(dto.getFrom());
-            CollectNode to = graph.nodes.get(dto.getTo());
+            CollectNode from = graph.nodes.get(dto.from());
+            CollectNode to = graph.nodes.get(dto.to());
             if (from == null || to == null) {
-                throw new CollectGraphException("连线 " + dto.getId() + " 的端点不存在");
+                throw new CollectGraphException("连线 " + dto.id() + " 的端点不存在");
             }
             if (from == to) {
                 throw new CollectGraphException("节点 " + from.id() + " 不允许自连");

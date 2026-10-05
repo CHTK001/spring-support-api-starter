@@ -115,13 +115,13 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
      */
     private void checkParserTypes(List<CollectExtractFieldDTO> fields) {
         for (CollectExtractFieldDTO field : fields) {
-            String raw = field.getParserType();
+            String raw = field.parserType();
             if (raw == null || raw.isBlank()) {
                 continue;
             }
             String type = raw.trim().toUpperCase(Locale.ROOT);
             if (!VALID_PARSER_TYPES.contains(type)) {
-                String name = field.getName() == null ? "" : field.getName();
+                String name = field.name() == null ? "" : field.name();
                 throw new IllegalStateException("字段 " + name + " 的解析器类型无法识别: " + raw
                         + "，合法取值为 " + String.join("/", VALID_PARSER_TYPES) + "（留空按 CSS 处理）");
             }
@@ -209,7 +209,7 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
                                            Map<String, Object> variables) {
         Map<String, Object> row = new LinkedHashMap<>();
         for (CollectExtractFieldDTO field : fields) {
-            String name = field.getName() == null ? "" : field.getName().trim();
+            String name = field.name() == null ? "" : field.name().trim();
             if (name.isEmpty()) {
                 continue;
             }
@@ -220,9 +220,9 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
                 log.warn("[collect] 字段 {} 抽取失败: {}", name, ex.getMessage());
                 value = null;
             }
-            if (CollectFunctions.stringify(value).isEmpty() && field.getDefaultValue() != null
-                    && !field.getDefaultValue().isBlank()) {
-                value = CollectExpression.eval(field.getDefaultValue(), variables);
+            if (CollectFunctions.stringify(value).isEmpty() && field.defaultValue() != null
+                    && !field.defaultValue().isBlank()) {
+                value = CollectExpression.eval(field.defaultValue(), variables);
             }
             row.put(name, value);
         }
@@ -250,12 +250,12 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
      * @return 字段值，未命中返回 null
      */
     private Object extractField(CollectExtractFieldDTO field, Object item) {
-        String type = field.getParserType() == null || field.getParserType().isBlank()
-                ? "CSS" : field.getParserType().trim().toUpperCase(Locale.ROOT);
-        String expression = field.getExpression() == null ? "" : field.getExpression().trim();
+        String type = field.parserType() == null || field.parserType().isBlank()
+                ? "CSS" : field.parserType().trim().toUpperCase(Locale.ROOT);
+        String expression = field.expression() == null ? "" : field.expression().trim();
         switch (type) {
             case "REGEX":
-                return CollectDom.regex(item, expression, field.getGroup());
+                return CollectDom.regex(item, expression, field.group());
             case "JSON":
             case "JSONPATH":
                 return CollectJson.path(CollectDom.json(item), expression);
@@ -284,11 +284,11 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
             return null;
         }
         Element first = elements.first();
-        String way = field.getAttribute() == null || field.getAttribute().isBlank()
-                ? "text" : field.getAttribute().trim().toLowerCase(Locale.ROOT);
+        String way = field.attribute() == null || field.attribute().isBlank()
+                ? "text" : field.attribute().trim().toLowerCase(Locale.ROOT);
         switch (way) {
             case "attr":
-                String attr = field.getAttrName() == null ? "" : field.getAttrName().trim();
+                String attr = field.attrName() == null ? "" : field.attrName().trim();
                 return first.hasAttr(attr) ? first.attr(attr) : null;
             case "html":
                 return first.html();
