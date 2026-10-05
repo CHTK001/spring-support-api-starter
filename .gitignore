@@ -22,6 +22,10 @@ target/
 **/environment
 panel/
 /rag-upload
+# 文件上传的默认本地存储根（FileStorageSupport.DEFAULT_LOCAL_ROOT /
+# SysFileUploadProperties.rootPath 均为 oss/system）：里面是运行时上传的
+# 用户文件，不是源码，入库等于把用户文档带进仓库。
+oss/
 org/
 *bak
 logs/!/patch/
