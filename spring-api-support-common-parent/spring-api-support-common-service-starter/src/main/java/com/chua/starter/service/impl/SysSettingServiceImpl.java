@@ -669,6 +669,58 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         return authRequest == null ? null : new SysSettingThirdPartyRequest<>(authRequest, authStateCache, state);
     }
 
+    @Override
+    public List<String> listEnabledThirdPartyProviders() {
+        try {
+            List<SysSetting> switches = baseMapper.selectList(Wrappers.<SysSetting>lambdaQuery()
+                    .eq(SysSetting::getSysSettingGroup, "sso")
+                    .eq(SysSetting::getSysSettingStatus, 1)
+            );
+            if (null == switches || switches.isEmpty()) {
+                return List.of();
+            }
+            Set<String> enabled = new LinkedHashSet<>();
+            for (SysSetting item : switches) {
+                if (null == item || StringUtils.isBlank(item.getSysSettingName())) {
+                    continue;
+                }
+                if (!StringUtils.equals("true", StringUtils.trimToEmpty(item.getSysSettingValue()))) {
+                    continue;
+                }
+                String loginType = item.getSysSettingName().trim().toLowerCase(Locale.ROOT);
+                // 仅返回工厂实际支持的平台，避免前端展示不可用的入口
+                if (isSupportedThirdPartyProvider(loginType)) {
+                    enabled.add(loginType);
+                }
+            }
+            return List.copyOf(enabled);
+        } catch (Exception e) {
+            log.warn("查询已开启三方登录来源失败: {}", e.getMessage());
+            return List.of();
+        }
+    }
+
+    /**
+     * 判断平台是否被工厂实际支持。
+     *
+     * <p>oidc 需 issuerUri 才能实例化，此处仅做平台白名单校验，避免返回打不开的入口。</p>
+     *
+     * @param loginType 小写平台标识
+     * @return 支持返回 true
+     */
+    private static boolean isSupportedThirdPartyProvider(String loginType) {
+        if (StringUtils.isBlank(loginType)) {
+            return false;
+        }
+        return switch (loginType) {
+            case "gitee", "github", "google", "oidc",
+                    "wechat", "wechat_mp", "wechat_enterprise",
+                    "qq", "alipay", "dingtalk", "weibo", "baidu",
+                    "microsoft", "taobao", "douyin", "feishu" -> true;
+            default -> false;
+        };
+    }
+
     /**
      * 取分组配置中首个匹配名称的值（大小写不敏感名称匹配，缺失时返回空串）。
      *

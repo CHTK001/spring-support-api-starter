@@ -116,6 +116,15 @@ public interface SysSettingService extends IService<SysSetting> {
     SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> getAuthRequest(ThirdLoginData loginData);
 
     /**
+     * 查询已开启的三方登录来源（登录页与绑定面板共用同一配置源）。
+     *
+     * <p>仅返回 {@code sso} 分组下值为 {@code true} 的开关名（小写 loginType），不含任何密钥。</p>
+     *
+     * @return 已开启的 loginType 列表（小写）
+     */
+    List<String> listEnabledThirdPartyProviders();
+
+    /**
      * 导出配置为JSON
      *
      * @param group 配置分组（可选，为空则导出全部）
