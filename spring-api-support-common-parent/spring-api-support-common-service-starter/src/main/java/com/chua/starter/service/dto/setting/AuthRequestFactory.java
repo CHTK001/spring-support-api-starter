@@ -29,6 +29,7 @@ import me.zhyd.oauth.request.*;
  *   <li>taobao → AuthTaobaoRequest</li>
  *   <li>douyin → AuthDouyinRequest</li>
  *   <li>feishu → AuthFeishuRequest</li>
+ *   <li>oidc → AuthOidcRequest（OIDC 通用身份提供方，需额外提供 issuerUri / scope）</li>
  * </ul>
  *
  * @author CH
@@ -51,6 +52,21 @@ public final class AuthRequestFactory {
      * @return 对应平台的 认证请求 实例，若平台不支持则返回 空
      */
     public static AuthRequest createAuthRequest(String platform, AuthConfig authConfig, AuthStateCache authStateCache) {
+        return createAuthRequest(platform, authConfig, authStateCache, null, null);
+    }
+
+    /**
+     * 创建指定平台的 认证请求 实例（支持 OIDC 额外参数）
+     *
+     * @param platform 平台标识（不区分大小写）
+     * @param authConfig 认证配置（包含 客户端id、客户端secret、redirecturi）
+     * @param authStateCache 认证状态缓存
+     * @param issuerUri OIDC IdP issuer；仅 oidc 平台使用
+     * @param scope OIDC 请求 scope；仅 oidc 平台使用，为空时使用默认 openid profile email
+     * @return 对应平台的 认证请求 实例；平台不支持或 OIDC 缺 issuerUri 时返回 空
+     */
+    public static AuthRequest createAuthRequest(String platform, AuthConfig authConfig, AuthStateCache authStateCache,
+                                                String issuerUri, String scope) {
         return switch (platform.toLowerCase()) {
             case "gitee" -> new AuthGiteeRequest(authConfig, authStateCache);
             case "github" -> new AuthGithubRequest(authConfig, authStateCache);
@@ -67,6 +83,9 @@ public final class AuthRequestFactory {
             case "taobao" -> new AuthTaobaoRequest(authConfig, authStateCache);
             case "douyin" -> new AuthDouyinRequest(authConfig, authStateCache);
             case "feishu" -> new AuthFeishuRequest(authConfig, authStateCache);
+            case "oidc" -> null == issuerUri || issuerUri.isBlank()
+                    ? null
+                    : new AuthOidcRequest(issuerUri, scope, authConfig, authStateCache);
             default -> null;
         };
     }

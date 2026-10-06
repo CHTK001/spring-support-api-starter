@@ -125,6 +125,10 @@ public class SysUserThirdParty extends SysBase implements Serializable {
         /**
          * 企业微信
          */
-        WECHAT_ENTERPRISE
+        WECHAT_ENTERPRISE,
+        /**
+         * OIDC 通用身份提供方
+         */
+        OIDC
     }
 }

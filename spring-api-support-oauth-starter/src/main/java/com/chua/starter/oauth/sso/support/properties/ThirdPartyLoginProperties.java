@@ -4,6 +4,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 第三方 OAuth2 登录配置
  * 
@@ -91,6 +94,34 @@ public class ThirdPartyLoginProperties {
      * </ul>
      */
     public static final String PRE = "plugin.oauth.third-party.login";
+
+    /**
+     * 允许的系统回调地址来源（scheme://host[:port] 前缀，忽略大小写与末尾斜杠）
+     *
+     * <p><b>存在的理由（修复开放重定向缺陷）</b>：{@code /oauth2/authorize/{platform}?callback=xxx}
+     * 的 {@code callback} 原样写入 state 缓存，回调时直接喂给
+     * {@code RedirectView#setUrl}。未校验的绝对 URL 会让 OAuth 服务成为开放重定向跳板：
+     * 攻击者构造 {@code ?callback=https://evil.tld}，受害者从
+     * {@code /oauth2/callback/gitee?code=..&state=..} 落地后即被弹到钓鱼站，
+     * 而此时登录 Cookie 已在可信域下发完毕，配合钓鱼页即可完成账号接管。</p>
+     *
+     * <p>默认<b>为空</b>：此时仅允许站内相对路径（必须以单个 {@code /} 开头，
+     * 拒绝 {@code //evil.tld}、{@code /\evil.tld}、{@code \\evil.tld} 这类协议相对 URL 与
+     * 反斜杠绕过）。要跳到其它域必须显式列出。</p>
+     *
+     * <p>示例：{@code allowed-system-callback-hosts: ["https://app.example.com", "http://localhost:5173"]}</p>
+     */
+    private List<String> allowedSystemCallbackHosts = new ArrayList<>();
+
+    /**
+     * 登录 Cookie 的域
+     *
+     * <p><b>存在的理由</b>：此前 Cookie 域是从用户可控的 {@code callback} 参数里
+     * {@code NetAddress.of(callback).getHost()} 取出来的，等于让请求方决定
+     * 「把令牌写到哪个域」。改为显式配置；留空表示不设置 Domain（浏览器按请求主机处理，
+     * 即默认行为，也是最安全的语义）。</p>
+     */
+    private String cookieDomain;
 
     /**
      * Gitee 码云配置

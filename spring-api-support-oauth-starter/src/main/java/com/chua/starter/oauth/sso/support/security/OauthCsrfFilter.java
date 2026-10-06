@@ -41,6 +41,19 @@ public class OauthCsrfFilter implements Filter, Ordered {
     private static final String CSRF_PREFIX = "oauth:security:csrf:";
 
     /**
+     * 「非 Cookie」服务凭据头
+     *
+     * <p>浏览器表单 / 跨站脚本无法设置这些自定义头，携带它们的请求天然不受 CSRF 约束。</p>
+     */
+    private static final String[] NON_COOKIE_CREDENTIAL_HEADERS = {
+            "x-oauth-ak",
+            "x-oauth-sign",
+            "x-oauth-token",
+            "x-oauth-user-code",
+            "Authorization",
+    };
+
+    /**
      * 安全性属性
     */
     private final OauthSecurityProperties securityProperties;
@@ -67,7 +80,7 @@ public class OauthCsrfFilter implements Filter, Ordered {
         }
 
         String method = request.getMethod();
-        if (requiresValidation(method, csrf)) {
+        if (requiresValidation(method, csrf) && !hasNonCookieCredential(request)) {
             if (!validateToken(request, csrf)) {
                 log.warn("CSRF校验失败: method={}, uri={}, ip={}",
                         method, request.getRequestURI(), request.getRemoteAddr());
@@ -84,29 +97,32 @@ public class OauthCsrfFilter implements Filter, Ordered {
     /**
      * 是否Ignored
      *
+     * <p><b>修复</b>：原实现用 {@code uri.contains(pattern)} 命中豁免，而
+     * {@code getRequestURI()} 恒含上下文路径 {@code /oauth}，默认 ignorePaths 中的
+     * {@code "/oauth"} 导致<b>所有</b>请求都被豁免，CSRF 校验实际从未生效。
+     * 现改为剥离上下文路径后的锚定 Ant 匹配（见 {@link OauthUriMatcher}）。</p>
+     *
      * @param request 请求
      * @param csrf csrf
      * @return 是否ignored的结果
      */
     private boolean isIgnored(HttpServletRequest request, OauthSecurityProperties.Csrf csrf) {
-        String uri = request.getRequestURI();
-        List<String> ignorePaths = csrf.getIgnorePaths();
-        if (ignorePaths == null || ignorePaths.isEmpty()) {
-            return false;
+        if (!csrf.isEnabled()) {
+            return true;
         }
-        for (String pattern : ignorePaths) {
-            if (!StringUtils.hasText(pattern)) {
-                continue;
-            }
-            if (uri.equals(pattern) || uri.endsWith(pattern) || uri.contains(pattern)) {
-                return true;
-            }
-        }
-        return false;
+        return OauthUriMatcher.matchesAny(OauthUriMatcher.logicalPath(request), csrf.getIgnorePaths());
     }
 
     /**
      * requires校验
+     *
+     * <p><b>修复</b>：本服务同时服务两类调用方——① 后端服务（oauth-client-starter），
+     * 用 {@code x-oauth-ak}/{@code x-oauth-sign} 签名或 {@code x-oauth-token}/{@code Authorization}
+     * 头认证；② 浏览器（第三方登录回调写入的 Cookie）。</p>
+     * <p>CSRF 威胁模型只针对「浏览器自动携带 Cookie」这一种情形：攻击者的表单 / 跨站
+     * 脚本无法设置自定义请求头，因此一旦请求带有上述任一凭据头，就不存在 CSRF 可利用面，
+     * 对其强制要求 double-submit 只会让所有服务间调用 403。故此处只对<b>依赖 Cookie 认证</b>
+     * 的请求校验 CSRF。</p>
      *
      * @param method 方法
      * @param csrf csrf
@@ -119,6 +135,22 @@ public class OauthCsrfFilter implements Filter, Ordered {
         }
         for (String m : methods) {
             if (m != null && m.equalsIgnoreCase(method)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 请求是否携带「非 Cookie」的服务凭据（这类请求不受 CSRF 威胁模型约束）
+     *
+     * @param request 请求
+     * @return true 表示是机器调用方，CSRF 校验不适用
+     */
+    private boolean hasNonCookieCredential(HttpServletRequest request) {
+        for (String header : NON_COOKIE_CREDENTIAL_HEADERS) {
+            String value = request.getHeader(header);
+            if (StringUtils.hasText(value) && !"unknown".equalsIgnoreCase(value)) {
                 return true;
             }
         }

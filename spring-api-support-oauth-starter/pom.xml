@@ -128,10 +128,20 @@
             <version>${utils.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-    </dependencies>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <!--
+      仅用于验证安全逻辑：路径匹配、回调白名单、state 绑定、默认密钥 fail-fast。
+      这些都是「配错了不会报错、只会静默失去防护」的逻辑，没有测试就只能靠人肉读代码，
+      极易在后续重构中被改回去。
+    -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
   <build>
     <plugins>
       <plugin>
