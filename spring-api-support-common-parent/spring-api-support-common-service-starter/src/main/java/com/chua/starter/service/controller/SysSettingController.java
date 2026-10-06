@@ -12,6 +12,7 @@ import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.api.annotations.ApiPlatform;
 import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.mybatis.utils.PageResultUtils;
+import com.chua.starter.oauth.client.support.annotation.TokenForIgnore;
 import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.service.SysSettingHistoryService;
@@ -136,6 +137,20 @@ public class SysSettingController {
             records.add(fileServer);
         }
         return ReturnResult.ok(records);
+    }
+
+    /**
+     * 已开启的三方登录来源（登录页与绑定面板共用同一配置源）。
+     *
+     * <p>未登录可调，仅返回小写 loginType 列表，不含任何密钥。</p>
+     *
+     * @return 已开启的 loginType 列表
+     */
+    @Operation(summary = "已开启的三方登录来源")
+    @GetMapping("/sso/providers")
+    @TokenForIgnore
+    public ReturnResult<List<String>> listEnabledThirdPartyProviders() {
+        return ReturnResult.ok(sysSettingService.listEnabledThirdPartyProviders());
     }
 
     /**
