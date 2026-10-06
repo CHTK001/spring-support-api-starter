@@ -389,7 +389,7 @@ public class CollectEngine {
             return;
         }
         context.getSink().nodeLog(node, iteration, CollectTaskStatus.SUCCESS, cost,
-                safeSummary(executor, node, scope), preview(context, vars, scope));
+                safeSummary(executor, node, scope), preview(node, context, vars, scope));
         if (CollectExpression.truthy(scope.get(VAR_STOP))) {
             context.getSink().nodeLog(node, iteration, CollectTaskStatus.SKIPPED, 0L,
                     "本节点已终止该分支，下游未执行", null);
@@ -524,12 +524,21 @@ public class CollectEngine {
     /**
      * 生成出参预览，只保留本令牌新增或改变的变量，避免整页 HTML 落库。
      *
+     * <p>数据库节点是特例：它的产出（目标表 / 写入行数 / 清空行数）只存在
+     * {@code _written} / {@code _cleared} 这类下划线暂存变量里，按上面的"只收新增变量"
+     * 通用规则会被整条跳过，出参预览恒为空（实测 GitHub 例子 n4）。所以这里对 shape=database
+     * 单独拼一段结构化出参，列名与行数都进预览 —— 采集日志"写了哪张表、写了多少行"才有处可查。
+     * 其他形状一行不动。</p>
+     *
      * @param context  执行上下文
      * @param incoming 令牌入参作用域
      * @param scope    本次迭代作用域
      * @return 预览文本
      */
-    private String preview(CollectContext context, Map<String, Object> incoming, Map<String, Object> scope) {
+    private String preview(CollectNode node, CollectContext context, Map<String, Object> incoming,
+                             Map<String, Object> scope) {
+        // 数据库节点特判：把目标表 / 写入方式 / 行数拼进预览，见方法 javadoc。
+        String database = databasePreview(node, scope);
         int limit = Math.max(32, context.getProperties().getPreviewLength());
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, Object> entry : scope.entrySet()) {
@@ -555,7 +564,63 @@ public class CollectEngine {
                 break;
             }
         }
-        return builder.length() > limit * 4 ? builder.substring(0, limit * 4) : builder.toString();
+        // 数据库节点的结构化出参拼在最前面：表名与行数是排查"数据去哪了"的第一信息，
+        // 通用变量预览（集合只记条数）反而在后。
+        String result = database == null || database.isEmpty()
+                ? builder.toString()
+                : (builder.length() == 0 ? database : database + "; " + builder);
+        return result.length() > limit * 4 ? result.substring(0, limit * 4) : result;
+    }
+
+    /**
+     * 数据库节点的结构化出参：目标表 / 写入方式 / 写入行数 / 清空行数 / 更新行数。
+     *
+     * <p>执行器只把行数写进 {@code _written} / {@code _cleared} / {@code _updated} /
+     * {@code _inserted} 下划线暂存变量，通用预览规则会整条跳过，这里直接读出来拼。
+     * 非 database 形状返回空串；表名取不到时也不编造，只给行数。</p>
+     *
+     * @param node  当前节点
+     * @param scope 本次迭代作用域
+     * @return 结构化出参，非 database 形状返回空串
+     */
+    private String databasePreview(CollectNode node, Map<String, Object> scope) {
+        if (node == null || !"database".equals(node.shape())) {
+            return "";
+        }
+        String table = "";
+        try {
+            table = CollectExpression.evalText(node.param("table"), scope).trim();
+        } catch (Exception ex) {
+            // 表名表达式求值失败不影响行数信息
+        }
+        StringBuilder preview = new StringBuilder("目标表=").append(table.isEmpty() ? "未知" : table);
+        // 写入方式读节点参数（执行器不往 scope 写这个值）：append / replace / update。
+        try {
+            String mode = CollectExpression.evalText(node.param("mode"), scope).trim();
+            if (!mode.isEmpty()) {
+                preview.append(" 方式=").append(mode);
+            }
+        } catch (Exception ex) {
+            // 方式读不到不影响行数信息
+        }
+        appendCount(preview, "清空", scope.get("_cleared"));
+        appendCount(preview, "写入", scope.get("_written"));
+        appendCount(preview, "更新", scope.get("_updated"));
+        appendCount(preview, "新增", scope.get("_inserted"));
+        return preview.toString();
+    }
+
+    /**
+     * 出参行数片段：只收整数，非数字一律跳过不编造。
+     *
+     * @param preview 出参拼接器
+     * @param label   行数含义
+     * @param value   暂存变量值
+     */
+    private void appendCount(StringBuilder preview, String label, Object value) {
+        if (value instanceof Number number) {
+            preview.append(' ').append(label).append('=').append(number.longValue()).append("行");
+        }
     }
 
     /**
