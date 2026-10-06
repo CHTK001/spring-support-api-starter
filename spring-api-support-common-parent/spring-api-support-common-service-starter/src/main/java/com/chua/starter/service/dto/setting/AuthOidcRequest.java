@@ -187,13 +187,17 @@ public class AuthOidcRequest implements AuthRequest {
                 log.warn("OIDC token 响应缺少 id_token, issuerUri={}", issuerUri);
                 throw new AuthException(AuthResponseStatus.ILLEGAL_TOKEN);
             }
-            // 强制校验 id_token：签名 / iss / aud / exp / nonce
+            // 强制校验 id_token：签名 / iss / aud / exp / nonce（nonce 缺失或错配直接失败）
             Nonce nonce = null;
             String nonceValue = authStateCache.get(state + NONCE_CACHE_SUFFIX);
             if (StringUtils.isNotBlank(nonceValue)) {
                 nonce = new Nonce(nonceValue);
             }
             IDTokenClaimsSet claims = validateIdToken(metadata, idToken, nonce);
+            if (null == claims.getNonce()) {
+                log.warn("OIDC id_token 缺少 nonce, issuerUri={}", issuerUri);
+                throw new AuthException(AuthResponseStatus.ILLEGAL_TOKEN);
+            }
             Subject subject = claims.getSubject();
             if (null == subject || StringUtils.isBlank(subject.getValue())) {
                 throw new AuthException(AuthResponseStatus.ILLEGAL_TOKEN);
