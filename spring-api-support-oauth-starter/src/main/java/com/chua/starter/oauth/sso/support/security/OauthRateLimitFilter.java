@@ -17,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
@@ -44,6 +46,17 @@ public class OauthRateLimitFilter implements Filter, Ordered {
      * 规则 key 前缀
      */
     private static final String RULE_KEY_PREFIX = "koiRateLimit:rule:";
+
+    /**
+     * 可采信的转发 IP 头（仅在直接连接方是可信代理时生效）
+     */
+    private static final String[] FORWARDED_IP_HEADERS = {
+            "X-Forwarded-For",
+            "Proxy-Client-IP",
+            "WL-Proxy-Client-IP",
+            "HTTP_CLIENT_IP",
+            "HTTP_X_FORWARDED_FOR",
+    };
 
     /**
      * 安全性属性
@@ -95,6 +108,7 @@ public class OauthRateLimitFilter implements Filter, Ordered {
         }
 
         String clientIp = resolveClientIp(request);
+        String logicalPath = OauthUriMatcher.logicalPath(request);
 
         // 1. 全局令牌桶
         if (!rateLimitManager.tryAcquire()) {
@@ -105,14 +119,17 @@ public class OauthRateLimitFilter implements Filter, Ordered {
 
         // 2. 按维度规则令牌桶(ip / interface / account)
         if (!enforceRule("ip", clientIp, response)
-                || !enforceRule("interface", request.getRequestURI(), response)
-                || !enforceAccountRule(request, clientIp, response)) {
+                || !enforceRule("interface", logicalPath, response)
+                || !enforceAccountRule(request, response)) {
             return;
         }
 
         // 3. 原有 Redis 窗口计数
+        //    <b>修复</b>：原 key 含 request.getRequestURI()，预算是 per-(IP, 完整URI)，
+        //    攻击者把同一类攻击分散到 6 个协议路径即可拿到 6 倍预算，且每个随机路径都会
+        //    在 Redis 里留下一条永不过期的垃圾 key。现只按 IP 计数。
         OauthSecurityProperties.RateLimit rateLimit = securityProperties.getRateLimit();
-        String key = RATE_LIMIT_PREFIX + clientIp + ":" + request.getRequestURI();
+        String key = RATE_LIMIT_PREFIX + clientIp;
 
         try {
             Long count = stringRedisTemplate.opsForValue().increment(key);
@@ -125,36 +142,67 @@ public class OauthRateLimitFilter implements Filter, Ordered {
 
             if (count > rateLimit.getMaxRequests()) {
                 log.warn("IP限流触发: ip={}, uri={}, count={}, max={}",
-                        clientIp, request.getRequestURI(), count, rateLimit.getMaxRequests());
+                        clientIp, logicalPath, count, rateLimit.getMaxRequests());
                 writeTooManyRequests(response, rateLimit);
                 return;
             }
         } catch (Exception e) {
-            log.error("限流检查异常, 放行请求: ip={}, uri={}, error={}",
-                    clientIp, request.getRequestURI(), e.getMessage());
+            // <b>修复</b>：原实现 Redis 异常时直接放行，等于给了一个「打满 Redis 即可无限撞库」的开关。
+            // 现在改为失败关闭：限流依赖 Redis，Redis 不可用时宁可拒绝。
+            log.error("限流检查异常, 拒绝请求: ip={}, uri={}, error={}",
+                    clientIp, logicalPath, e.getMessage());
+            writeServiceUnavailable(response);
+            return;
         }
 
         chain.doFilter(request, response);
     }
 
     /**
-     * 校验账号维度规则(尝试从请求头取当前账号, 取不到则跳过)
+     * 校验账号维度规则
      *
-     * @param request   请求
-     * @param clientIp  客户端IP
-     * @param response  响应
+     * <p><b>修复</b>：原实现直接信任请求头 {@code X-Account} / {@code account} 作为桶 key。
+     * 未认证调用方可以任意自选桶 key——既能让自己的攻击流量散落到无限多个桶（绕过账号限流），
+     * 也能反过来指定他人账号名把正常用户锁在限流门外。</p>
+     * <p>现改为只采信「本次请求声明要登录的主体」，且必须来自请求体参数而非请求头；
+     * 取不到则跳过该维度（真正的按账号锁定由 {@code LoginAttemptService} 在 Redis 里负责，
+     * 不依赖任何请求头）。</p>
+     *
+     * @param request  请求
+     * @param response 响应
      * @return true=放行, false=已拒绝
      */
-    private boolean enforceAccountRule(HttpServletRequest request, String clientIp, HttpServletResponse response)
+    private boolean enforceAccountRule(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        String account = request.getHeader("X-Account");
-        if (!StringUtils.hasText(account)) {
-            account = request.getHeader("account");
-        }
+        String account = resolveLoginPrincipal(request);
         if (!StringUtils.hasText(account)) {
             return true;
         }
         return enforceRule("account", account, response);
+    }
+
+    /**
+     * 从请求参数中解析登录主体（username / userName / account）
+     *
+     * <p>只读 body/form 参数，不读请求头——请求头可被跨站与脚本任意设置，参数至少
+     * 受 Content-Type 与业务签名约束。</p>
+     *
+     * @param request 请求
+     * @return 登录主体，取不到返回 null
+     */
+    private String resolveLoginPrincipal(HttpServletRequest request) {
+        for (String name : new String[]{"username", "userName", "account"}) {
+            try {
+                String value = request.getParameter(name);
+                if (StringUtils.hasText(value) && value.length() <= 128) {
+                    return value;
+                }
+            } catch (Exception e) {
+                // 非表单请求读参数可能抛异常，忽略即可
+                log.debug("读取登录参数失败: name={}", name);
+            }
+        }
+        return null;
     }
 
     /**
@@ -168,7 +216,7 @@ public class OauthRateLimitFilter implements Filter, Ordered {
     private boolean enforceRule(String dimension, String target, HttpServletResponse response)
             throws IOException {
         String ruleKey = RULE_KEY_PREFIX + dimension + ":" + target;
-        Integer qps;
+        int qps;
         try {
             String val = stringRedisTemplate.opsForValue().get(ruleKey);
             if (!StringUtils.hasText(val)) {
@@ -176,11 +224,23 @@ public class OauthRateLimitFilter implements Filter, Ordered {
             }
             qps = Integer.parseInt(val.trim());
         } catch (Exception e) {
-            // 规则读取失败不影响放行
+            // <b>修复</b>：原实现读取规则失败即放行。规则读取失败通常意味着 Redis 异常，
+            // 此时若继续放行，所有基于规则的限流（含按 IP / 按接口的细粒度限流）同时失效。
+            // 现改为失败关闭，并明确回 503——此前只 {@code return false} 而不写响应，
+            // 调用方会收到一个<b>空 200</b>，既不是 429 也不是 503，无法据此判断重试。
+            log.error("限流规则读取异常, 拒绝请求: rule={}, error={}", ruleKey, e.getMessage());
+            writeServiceUnavailable(response);
+            return false;
+        }
+        if (qps <= 0) {
             return true;
         }
-        if (qps == null || qps <= 0) {
-            return true;
+        // <b>修复</b>：原实现用无界 ConcurrentHashMap 缓存令牌桶，interface 维度的 key 是
+        // 请求路径，攻击者用随机路径即可无限撑大内存。现加上条目上限，超限后清空重建。
+        int maxBuckets = securityProperties.getRateLimit().getMaxRuleBuckets();
+        if (maxBuckets > 0 && ruleBuckets.size() >= maxBuckets && !ruleBuckets.containsKey(ruleKey)) {
+            log.warn("限流桶缓存达到上限({}), 重建以避免无界增长", maxBuckets);
+            ruleBuckets.clear();
         }
         RuleBucket bucket = ruleBuckets.compute(ruleKey, (k, old) -> {
             if (null != old && old.qps == qps) {
@@ -224,14 +284,17 @@ public class OauthRateLimitFilter implements Filter, Ordered {
     /**
      * 是否应该限制
      *
+     * <p><b>修复</b>：改用剥离上下文路径后的锚定 Ant 匹配（见 {@link OauthUriMatcher}），
+     * 消除原 {@code contains} 判定在上下文路径 {@code /oauth} 下的自匹配退化。</p>
+     *
      * @param request 请求
      * @return should限制的结果
      */
     private boolean shouldLimit(HttpServletRequest request) {
-        String uri = request.getRequestURI();
+        String logicalPath = OauthUriMatcher.logicalPath(request);
         OauthSecurityProperties.RateLimit rateLimit = securityProperties.getRateLimit();
 
-        if (matchesAny(uri, rateLimit.getIgnorePaths())) {
+        if (OauthUriMatcher.matchesAny(logicalPath, rateLimit.getIgnorePaths())) {
             return false;
         }
 
@@ -239,25 +302,70 @@ public class OauthRateLimitFilter implements Filter, Ordered {
         if (paths == null || paths.isEmpty()) {
             return true;
         }
-        return matchesAny(uri, paths);
+        return OauthUriMatcher.matchesAny(logicalPath, paths);
     }
 
     /**
-     * 匹配任意
+     * 解析客户端ip
      *
-     * @param uri uri
-     * @param patterns 模式
-     * @return 匹配任意的结果
+     * <p><b>修复</b>：原实现无条件信任 {@code X-Forwarded-For} / {@code Proxy-Client-IP} /
+     * {@code WL-Proxy-Client-IP} / {@code HTTP_CLIENT_IP} / {@code HTTP_X_FORWARDED_FOR}
+     * 并取第一个元素，且不校验直接连接方是否可信。攻击者只要轮换该头，就能让每次请求
+     * 落到不同的限流桶，IP 维度的窗口计数与令牌桶同时失效，等于无限次撞库。</p>
+     * <p>现改为：<b>只有当直接连接方命中 {@code rateLimit.trusted-proxies} 白名单时</b>
+     * 才采信转发头（并从右向左剥离可信跳数）；否则一律使用 {@code getRemoteAddr()}。</p>
+     *
+     * @param request 请求
+     * @return 客户端 ip
      */
-    private boolean matchesAny(String uri, List<String> patterns) {
-        if (patterns == null || patterns.isEmpty()) {
+    private String resolveClientIp(HttpServletRequest request) {
+        String remoteAddr = request.getRemoteAddr();
+        List<String> trustedProxies = securityProperties.getRateLimit().getTrustedProxies();
+        if (trustedProxies == null || trustedProxies.isEmpty()) {
+            // 未配置可信代理：直连部署，禁止采信任何可伪造的转发头
+            return StringUtils.hasText(remoteAddr) ? remoteAddr : "unknown";
+        }
+        if (!isTrustedProxy(remoteAddr, trustedProxies)) {
+            return StringUtils.hasText(remoteAddr) ? remoteAddr : "unknown";
+        }
+        for (String header : FORWARDED_IP_HEADERS) {
+            String forwarded = request.getHeader(header);
+            if (StringUtils.hasText(forwarded) && !"unknown".equalsIgnoreCase(forwarded)) {
+                // XFF 形如 "client, proxy1, proxy2"，最左侧才是原始客户端
+                String[] hops = forwarded.split(",");
+                for (String hop : hops) {
+                    String candidate = hop.trim();
+                    if (StringUtils.hasText(candidate) && !isTrustedProxy(candidate, trustedProxies)) {
+                        return candidate;
+                    }
+                }
+            }
+        }
+        return StringUtils.hasText(remoteAddr) ? remoteAddr : "unknown";
+    }
+
+    /**
+     * 判断 ip 是否命中可信代理白名单（支持精确 IP 与 CIDR）
+     *
+     * @param ip      待判断 ip
+     * @param trusted 白名单
+     * @return 命中返回 true
+     */
+    private boolean isTrustedProxy(String ip, List<String> trusted) {
+        if (!StringUtils.hasText(ip)) {
             return false;
         }
-        for (String pattern : patterns) {
-            if (!StringUtils.hasText(pattern)) {
+        for (String entry : trusted) {
+            if (!StringUtils.hasText(entry)) {
                 continue;
             }
-            if (uri.equals(pattern) || uri.endsWith(pattern) || uri.contains(pattern)) {
+            String candidate = entry.trim();
+            if (candidate.equals(ip)) {
+                return true;
+            }
+            int slash = candidate.indexOf('/');
+            if (slash > 0 && cidrMatches(ip, candidate.substring(0, slash),
+                    parsePrefixLength(candidate.substring(slash + 1)))) {
                 return true;
             }
         }
@@ -265,32 +373,59 @@ public class OauthRateLimitFilter implements Filter, Ordered {
     }
 
     /**
-     * 解析客户端ip
+     * 解析 CIDR 前缀长度，非法返回 -1
      *
-     * @param request 请求
-     * @return resolve客户端ip的结果
+     * @param raw 前缀字符串
+     * @return 前缀长度，非法返回 -1
      */
-    private String resolveClientIp(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (!StringUtils.hasText(ip) || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");
+    private int parsePrefixLength(String raw) {
+        if (!StringUtils.hasText(raw)) {
+            return -1;
         }
-        if (!StringUtils.hasText(ip) || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
+        try {
+            int bits = Integer.parseInt(raw.trim());
+            return (bits >= 0 && bits <= 128) ? bits : -1;
+        } catch (NumberFormatException e) {
+            return -1;
         }
-        if (!StringUtils.hasText(ip) || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_CLIENT_IP");
+    }
+
+    /**
+     * 判断 ip 是否落在给定网段内
+     *
+     * <p>不引入 spring-security-web（本模块刻意不依赖 Spring Security），
+     * 这里只处理 IPv4 / IPv6 的按位前缀比较。</p>
+     *
+     * @param ip      待判断 ip
+     * @param network 网段地址
+     * @param prefix  前缀长度
+     * @return 命中返回 true
+     */
+    private boolean cidrMatches(String ip, String network, int prefix) {
+        if (prefix < 0) {
+            return false;
         }
-        if (!StringUtils.hasText(ip) || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        try {
+            byte[] addr = InetAddress.getByName(ip).getAddress();
+            byte[] net = InetAddress.getByName(network).getAddress();
+            if (addr.length != net.length) {
+                return false;
+            }
+            int fullBytes = prefix / 8;
+            int remainingBits = prefix % 8;
+            for (int i = 0; i < fullBytes; i++) {
+                if (addr[i] != net[i]) {
+                    return false;
+                }
+            }
+            if (remainingBits == 0) {
+                return true;
+            }
+            int mask = (0xFF << (8 - remainingBits)) & 0xFF;
+            return (addr[fullBytes] & mask) == (net[fullBytes] & mask);
+        } catch (UnknownHostException e) {
+            return false;
         }
-        if (!StringUtils.hasText(ip) || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        if (ip != null && ip.contains(",")) {
-            ip = ip.split(",")[0].trim();
-        }
-        return ip == null ? "unknown" : ip;
     }
 
     /**
@@ -304,6 +439,23 @@ public class OauthRateLimitFilter implements Filter, Ordered {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setHeader("Retry-After", String.valueOf(rateLimit.getWindowSeconds()));
         String body = "{\"code\":429,\"msg\":\"请求过于频繁，请稍后再试\",\"data\":null}";
+        response.getWriter().write(body);
+    }
+
+    /**
+     * 写入ServiceUnavailable
+     *
+     * <p>限流依赖的 Redis 不可用时返回 503，而不是静默放行。</p>
+     *
+     * @param response 响应
+     * @throws IOException 写响应异常
+     */
+    private void writeServiceUnavailable(HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setHeader("Retry-After", "5");
+        String body = "{\"code\":503,\"msg\":\"认证服务暂时不可用，请稍后再试\",\"data\":null}";
         response.getWriter().write(body);
     }
 

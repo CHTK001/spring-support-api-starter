@@ -2,6 +2,7 @@ package com.chua.starter.oauth.sso.support.configuration;
 
 import com.chua.starter.oauth.sso.support.properties.OauthSecurityProperties;
 import com.chua.starter.oauth.sso.support.admin.RateLimitManager;
+import com.chua.starter.oauth.sso.support.security.OauthAdminAuthFilter;
 import com.chua.starter.oauth.sso.support.security.OauthCsrfFilter;
 import com.chua.starter.oauth.sso.support.security.OauthRateLimitFilter;
 import com.chua.starter.oauth.sso.support.security.OauthSecurityHeadersFilter;
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.util.StringUtils;
 
 /**
  * OAuth认证服务器安全配置
@@ -99,6 +101,39 @@ public class OauthSecurityConfiguration {
         log.info("已注册 OAuth IP 限流过滤器: maxRequests={}, windowSeconds={}",
                 securityProperties.getRateLimit().getMaxRequests(),
                 securityProperties.getRateLimit().getWindowSeconds());
+        return registration;
+    }
+
+    /**
+     * 注册管理控制台鉴权过滤器
+     *
+     * <p><b>修复</b>：{@code /admin/**} 此前完全无鉴权，未授权请求即可关闭全局签名校验、
+     * 把令牌有效期改成 {@code Long.MAX_VALUE}、解除单点登录限制。</p>
+     * <p>顺序排在限流(+5)之后、CSRF(+15)之前：管理面同样吃 IP 限流以抗令牌爆破。</p>
+     *
+     * @param securityProperties 安全配置
+     * @return 过滤器注册 Bean
+     */
+    @Bean
+    @ConditionalOnProperty(prefix = OauthSecurityProperties.PRE + ".admin", name = "enabled",
+            havingValue = "true", matchIfMissing = true)
+    /**
+     * oauth管理鉴权过滤Registration
+     * @param securityProperties 安全性属性
+     */
+    public FilterRegistrationBean<OauthAdminAuthFilter> oauthAdminAuthFilterRegistration(
+            OauthSecurityProperties securityProperties) {
+        FilterRegistrationBean<OauthAdminAuthFilter> registration = new FilterRegistrationBean<>();
+        registration.setFilter(new OauthAdminAuthFilter(securityProperties));
+        registration.addUrlPatterns("/*");
+        registration.setName("oauthAdminAuthFilter");
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
+        if (!StringUtils.hasText(securityProperties.getAdmin().getToken())) {
+            log.warn("已注册 OAuth 管理鉴权过滤器, 但未配置 plugin.oauth.security.admin.token —— "
+                    + "/oauth/admin/** 将拒绝一切访问, 请配置后使用");
+        } else {
+            log.info("已注册 OAuth 管理鉴权过滤器: 管理令牌已配置");
+        }
         return registration;
     }
 

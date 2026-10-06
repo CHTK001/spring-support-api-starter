@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +57,14 @@ public class AuthServerConfigValidator {
     private static final int MIN_KEY_LENGTH = 16;
 
     /**
+     * HMAC 系 JWT 密钥最小字节数
+     *
+     * <p>HS256 的名义输出是 256 位，密钥短于该长度只会降低强度而不会报错，
+     * 所以这里直接按 32 字节卡死。</p>
+     */
+    private static final int MIN_JWT_SECRET_BYTES = 32;
+
+    /**
      * 启动时执行配置校验
      */
     @PostConstruct
@@ -73,6 +82,8 @@ public class AuthServerConfigValidator {
 
         // 1. 校验服务密钥
         validateServiceKey(errors, warnings, isProduction);
+        // 1b. 校验 JWT 签名密钥（此前完全没有校验，是最致命的一处硬编码）
+        validateJwtSecret(errors, warnings, isProduction);
         
  // 2. 校验令牌过期时间
         validateTokenExpire(errors, warnings);
@@ -116,12 +127,12 @@ public class AuthServerConfigValidator {
         }
 
         // 检查是否使用危险的默认密钥
+        // <b>修复</b>：原实现仅在 prod/profile 名命中时才算错误，其它 profile 只打一条 warning。
+        // 但「用了出厂密钥」这件事与跑在哪个 profile 无关 —— 仓库里的默认值对所有人公开，
+        // 攻击者不需要知道你的 profile 就能用它签令牌。故一律视为错误。
         if (DANGEROUS_KEYS.stream().anyMatch(k -> k.equalsIgnoreCase(serviceKey))) {
-            if (isProduction) {
-                errors.add("plugin.oauth.server.service-key 使用了不安全的默认值！生产环境禁止使用默认密钥。");
-            } else {
-                warnings.add("plugin.oauth.server.service-key 使用了不安全的默认值，请在生产环境前修改。");
-            }
+            errors.add("plugin.oauth.server.service-key 使用了代码中已知的出厂默认值！"
+                    + "该值随源码公开，任何人都可伪造令牌。请立即更换为随机串（openssl rand -base64 48）。");
         }
 
         // 检查密钥长度
@@ -134,6 +145,61 @@ public class AuthServerConfigValidator {
         }
 
         log.info("【配置校验】服务密钥: 已配置, 长度: {}", serviceKey.length());
+    }
+
+    /**
+     * 校验 JWT 签名密钥
+     *
+     * <p><b>修复一个致命缺陷</b>：本方法此前<b>完全不存在</b>。也就是说
+     * {@code plugin.oauth.server.jwt.secret} 一直是代码里的出厂字面量
+     * {@code your-256-bit-secret-key-here-32b}，且校验器只检查了 serviceKey。
+     * 后果：HS256 是对称算法，签名密钥公开 = 任何人都能在本地离线伪造出
+     * 任意用户、任意权限的有效 JWT，认证体系直接失效，且无需接触服务器。</p>
+     *
+     * <p>HMAC 系算法（HS256/384/512）必须提供独立密钥，且：</p>
+     * <ul>
+     *   <li>为空 → 错误（无密钥即无法安全签发）；</li>
+     *   <li>命中出厂默认 / 弱口令 → 一律错误（与 profile 无关）；</li>
+     *   <li>长度不足 32 字节 → 错误（HS256 的强度下限）。</li>
+     * </ul>
+     * <p>RSA/ECDSA 系算法改用公私钥文件，不读本项，跳过。</p>
+     *
+     * @param errors       错误收集
+     * @param warnings     警告收集
+     * @param isProduction 是否生产环境（仅影响警告措辞）
+     */
+    private void validateJwtSecret(List<String> errors, List<String> warnings, boolean isProduction) {
+        AuthServerProperties.JwtConfig jwt = authServerProperties.getJwt();
+        if (jwt == null || !jwt.isEnabled()) {
+            log.info("【配置校验】JWT 未启用, 跳过密钥校验");
+            return;
+        }
+        String algorithm = StringUtils.defaultString(jwt.getAlgorithm(), "HS256").toUpperCase();
+        if (!algorithm.startsWith("HS")) {
+            log.info("【配置校验】JWT 算法为 {} (非 HMAC), 使用公私钥文件, 跳过 secret 校验", algorithm);
+            return;
+        }
+        String secret = jwt.getSecret();
+        if (StringUtils.isBlank(secret)) {
+            errors.add("plugin.oauth.server.jwt.secret 必须配置！当前算法 " + algorithm
+                    + " 为对称加密, 密钥缺失将无法安全签发令牌。请设置随机串(建议 openssl rand -base64 48)。");
+            return;
+        }
+        if (DANGEROUS_KEYS.stream().anyMatch(k -> k.equalsIgnoreCase(secret))) {
+            errors.add("plugin.oauth.server.jwt.secret 使用了代码中已知的出厂默认值！"
+                    + "HS256 是对称算法, 该值随源码公开 = 任何人都能离线伪造有效 JWT。请立即更换。");
+            return;
+        }
+        if (secret.getBytes(StandardCharsets.UTF_8).length < MIN_JWT_SECRET_BYTES) {
+            errors.add("plugin.oauth.server.jwt.secret 至少需要 " + MIN_JWT_SECRET_BYTES
+                    + " 字节 (当前 " + secret.getBytes(StandardCharsets.UTF_8).length + " 字节)。");
+            return;
+        }
+        if (secret.indexOf(' ') >= 0) {
+            warnings.add("plugin.oauth.server.jwt.secret 含空格, 请确认这是有意为之而非复制粘贴引入。");
+        }
+        log.info("【配置校验】JWT 算法: {}, 密钥长度: {} 字节", algorithm,
+                secret.getBytes(StandardCharsets.UTF_8).length);
     }
 
     /**

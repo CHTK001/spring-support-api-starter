@@ -4,7 +4,7 @@ spring:
     driverClassName: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${OAUTH_DB_HOST:127.0.0.1}:${OAUTH_DB_PORT:3307}/oauth?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
     username: ${OAUTH_DB_USER:eduai}
-    # 密码刻意<b>不给默认值</b>：默认值一旦写进仓库就不再是秘密，
+    # 密码刻意**不给默认值**：默认值一旦写进仓库就不再是秘密，
     # 而未设环境变量时 Spring 会直接抛
     # 「Could not resolve placeholder 'OAUTH_DB_PASSWORD'」使应用启动失败。
     # 这是有意为之 —— 宁可起不来，也不要用一个「人人都知道」的口令跑起来。
@@ -60,14 +60,22 @@ plugin:
       - /**/verify
       - /**/oauth
     server:
-      # 签名校验开关（默认 true，生产环境必须开启）
-      # 关闭后跳过 x-oauth-sign 验证，仅用于调试
-      sign-verify: false
+      # 服务主密钥。刻意不给默认值：源码进仓库即等于公开，
+      # 留一个出厂口令等于给所有人发一把能伪造令牌的万能钥匙。
+      # 未注入 OAUTH_SERVICE_KEY 时 Spring 直接抛
+      # 「Could not resolve placeholder」使启动失败 —— 这是有意为之。
+      service-key: ${OAUTH_SERVICE_KEY}
+      # 签名校验开关。代码默认即为 true；此处显式写出以免被误改。
+      # 关闭后 x-oauth-sign 完全不校验，任何人都能伪造协议请求。
+      # 关闭仅限本机调试，任何共享环境必须为 true。
+      sign-verify: true
       # JWT 配置
       jwt:
         enabled: true
         algorithm: HS256
-        secret: oauth-server-jwt-secret-key-256bit
+        # HS256 是对称算法，密钥公开 = 任何人都能离线伪造任意用户的有效 JWT。
+        # 刻意不给默认值，改为环境变量注入（openssl rand -base64 48）。
+        secret: ${OAUTH_JWT_SECRET}
         issuer: oauth-server
         expire-seconds: 3600
         jwks-enabled: true
@@ -80,7 +88,11 @@ plugin:
       # 用户在线模式：SINGLE / MULTIPLE / LIMIT
       online: SINGLE
       # 是否开启 AK/SK 校验
-      open-check-ak-sk: false
+      # 代码默认已改为 true（未显式配置时生效）。此处显式写出以便一眼看到。
+      # 置 true 时每个调用方都必须携带 x-oauth-ak，且该 AK 必须存在于 sys_app_key 表中，
+      # 否则请求被拒。共享/生产环境必须保持 true；
+      # 仅当你在本机独占一个没有任何外部流量的实例、且为了联调方便时才可临时置 false。
+      open-check-ak-sk: true
       # 多协议认证 Server(基于 common-starter network.Server,与 client 端协议一一对应)
       # - tcp      : 默认协议(19180 认证入口)。type=aio-tcp 对应 AioTcpServer 的 SPI 名,
       #               protocol=tcp 决定传输与帧格式(topic:body,如 login:{...});
@@ -121,7 +133,9 @@ plugin:
           context-path: /
   mybatis-plus:
     encryptor:
-      password: oauth-encrypt-key
+      # MyBatis-Plus 字段加密口令。与上面同理：写死的口令等于没有加密，
+      # 改为环境变量注入，未注入即启动失败。
+      password: ${OAUTH_ENCRYPT_KEY}
 
 soft:
   management:

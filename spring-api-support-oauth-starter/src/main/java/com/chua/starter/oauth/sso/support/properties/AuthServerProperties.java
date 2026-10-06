@@ -169,10 +169,18 @@ public class AuthServerProperties {
      * 用于令牌签名和加密的主密钥
      * </p>
      * <p>
-     * 【安全警告】生产环境必须配置此值！建议通过环境变量或配置中心注入
+     * 【安全警告】本项<b>刻意不提供默认值</b>。此前出厂值 {@code 1234567890oOlIi0}
+     * 写死在源码里，而源码进仓库即等于公开 —— 任何拿到这份代码的人都能用它签出
+     * 合法令牌。留空时 {@code AuthServerConfigValidator} 会在启动阶段直接抛
+     * IllegalStateException，使应用起不来；这是有意为之：宁可起不来，
+     * 也不要用一个「人人都知道」的主密钥跑起来。
+     * </p>
+     * <p>
+     * 部署时注入：{@code plugin.oauth.server.service-key=<随机串>}，或走环境变量
+     * {@code OAUTH_SERVICE_KEY}（dev profile 已按此约定占位）。
      * </p>
      */
-    private String serviceKey = "1234567890oOlIi0";
+    private String serviceKey;
 
     /**
      * 支持的认证协议列表
@@ -212,10 +220,13 @@ public class AuthServerProperties {
      * 适用于API接口的安全访问控制
      * </p>
      * <p>
-     * 默认值：false
+     * <b>修复</b>：默认值此前为 {@code false}，即「未配置即不校验」。
+     * 由于本服务的上下文路径把所有协议入口都收在同一 HTTP 端口上，
+     * 关闭 AK/SK 等于让任何匿名请求都能直接调用 /oauth/login、/oauth/verify 等接口。
+     * 现改为默认 {@code true}，需要放宽的部署必须显式写出 {@code open-check-ak-sk: false}。
      * </p>
      */
-    private boolean openCheckAkSk;
+    private boolean openCheckAkSk = true;
 
     /**
      * 是否启用响应加密
@@ -476,11 +487,16 @@ public class AuthServerProperties {
         /**
          * JWT 密钥（HS256/HS384/HS512 算法使用）
          * <p>
-         * 【安全警告】生产环境必须配置此值！
-         * 建议至少 256 位（32 字节）
+         * 【安全警告】本项<b>刻意不提供默认值</b>。此前出厂值
+         * {@code your-256-bit-secret-key-here-32b} 写死在源码里，攻击者拿到它即可
+         * 用 HS256 离线伪造任意用户的合法 JWT —— 这是整个令牌体系最致命的一处硬编码。
+         * 留空或使用出厂值时 {@code AuthServerConfigValidator} 会阻止应用启动。
+         * </p>
+         * <p>
+         * 生成方式：{@code openssl rand -base64 48}
          * </p>
          */
-        private String secret = "your-256-bit-secret-key-here-32b";
+        private String secret;
 
         /**
          * RSA/ECDSA 公钥文件路径 (R/ES 算法使用)
