@@ -129,6 +129,46 @@ public class SysUserThirdParty extends SysBase implements Serializable {
         /**
          * OIDC 通用身份提供方
          */
-        OIDC
+        OIDC,
+        /**
+         * Wechat
+         */
+        WECHAT,
+        /**
+         * Wechat MP
+         */
+        WECHAT_MP,
+        /**
+         * QQ
+         */
+        QQ,
+        /**
+         * Alipay
+         */
+        ALIPAY,
+        /**
+         * Weibo
+         */
+        WEIBO,
+        /**
+         * Baidu
+         */
+        BAIDU,
+        /**
+         * Microsoft
+         */
+        MICROSOFT,
+        /**
+         * Taobao
+         */
+        TAOBAO,
+        /**
+         * Douyin
+         */
+        DOUYIN,
+        /**
+         * Feishu
+         */
+        FEISHU
     }
 }
