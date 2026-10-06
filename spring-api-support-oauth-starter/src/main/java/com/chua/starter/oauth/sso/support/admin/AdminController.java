@@ -29,6 +29,24 @@ import java.util.Map;
 public class AdminController {
 
     /**
+     * 令牌有效期上限：365 天
+     *
+     * <p>防止被改成 {@code Long.MAX_VALUE} 从而产生事实上永不过期的令牌。</p>
+     */
+    private static final long MAX_EXPIRE_SECONDS = 365L * 24 * 60 * 60;
+
+    /**
+     * 单用户最大同时在线设备数上限
+     */
+    private static final int MAX_ONLINE_COUNT_LIMIT = 100;
+
+    /**
+     * 全局限流 QPS 上下限
+     */
+    private static final int MIN_GLOBAL_QPS = 1;
+    private static final int MAX_GLOBAL_QPS = 100_000;
+
+    /**
      * 认证服务器属性
     */
     private final AuthServerProperties authServerProperties;
@@ -108,10 +126,14 @@ public class AdminController {
                                                @RequestParam(required = false, defaultValue = "3") int maxCount) {
         try {
             AuthServerProperties.Online onlineMode = AuthServerProperties.Online.valueOf(mode.toUpperCase());
-            authServerProperties.setOnline(onlineMode);
+            // <b>修复</b>：maxCount 原先无任何校验，可被设为负数或超大值
             if (onlineMode == AuthServerProperties.Online.LIMIT) {
+                if (maxCount < 1 || maxCount > MAX_ONLINE_COUNT_LIMIT) {
+                    return ReturnResult.illegal("最大在线设备数必须在 1~" + MAX_ONLINE_COUNT_LIMIT + " 之间，当前: " + maxCount);
+                }
                 authServerProperties.setMaxOnlineCount(maxCount);
             }
+            authServerProperties.setOnline(onlineMode);
             log.info("[Admin] 在线模式已切换为: {}, maxCount: {}", onlineMode, maxCount);
             return ReturnResult.ok("在线模式已切换为: " + onlineMode);
         } catch (IllegalArgumentException e) {
@@ -128,6 +150,21 @@ public class AdminController {
     @PostMapping("/rate-limit")
     @Operation(summary = "配置限流")
     public ReturnResult<String> configRateLimit(@RequestBody RateLimitConfig config) {
+        // <b>修复</b>：原实现把 @RequestBody 全字段直接灌进 RateLimitManager：
+        //   ① qps 无上下界 —— qps=1 是自伤式 DoS，qps 极大则等于关闭限流；
+        //   ② RateLimiter.create(qps<=0) 抛 IllegalArgumentException 变成未捕获 500；
+        //   ③ burstSize / dimension 同样无约束（dimension 实际未被过滤器读取）。
+        if (config == null) {
+            return ReturnResult.illegal("限流配置不能为空");
+        }
+        if (config.getQps() < MIN_GLOBAL_QPS || config.getQps() > MAX_GLOBAL_QPS) {
+            return ReturnResult.illegal("限流 QPS 必须在 " + MIN_GLOBAL_QPS + "~" + MAX_GLOBAL_QPS + " 之间，当前: "
+                    + config.getQps());
+        }
+        if (config.getBurstSize() < 1 || config.getBurstSize() > MAX_GLOBAL_QPS * 10) {
+            return ReturnResult.illegal("限流突发容量必须在 1~" + (MAX_GLOBAL_QPS * 10) + " 之间，当前: "
+                    + config.getBurstSize());
+        }
         rateLimitManager.update(config);
         log.info("[Admin] 限流配置已更新: enabled={}, qps={}", config.isEnabled(), config.getQps());
         return ReturnResult.ok("限流配置已更新");
@@ -170,6 +207,18 @@ public class AdminController {
                                            @RequestParam(required = false, defaultValue = "0") long refreshExpire) {
         if (expire <= 0) {
             return ReturnResult.illegal("过期时间必须大于 0");
+        }
+        // <b>修复</b>：原实现只校验 expire > 0，传入 Long.MAX_VALUE 即可得到事实上
+        // 永不过期的令牌。现加上上限约束与 refresh/access 的先后关系校验。
+        if (expire > MAX_EXPIRE_SECONDS) {
+            return ReturnResult.illegal("过期时间不得超过 " + MAX_EXPIRE_SECONDS + " 秒（365 天），当前: " + expire);
+        }
+        if (refreshExpire > MAX_EXPIRE_SECONDS) {
+            return ReturnResult.illegal("refreshToken 过期时间不得超过 " + MAX_EXPIRE_SECONDS + " 秒（365 天），当前: "
+                    + refreshExpire);
+        }
+        if (refreshExpire > 0 && refreshExpire < expire) {
+            return ReturnResult.illegal("refreshToken 过期时间必须大于等于 accessToken 过期时间");
         }
         authServerProperties.setExpire(expire);
         if (refreshExpire > 0) {
@@ -362,8 +411,17 @@ async function loadStatus() {
     document.getElementById('rateLimitQps').value = d.rateLimit.qps;
     document.getElementById('rateLimitBurst').value = d.rateLimit.burstSize;
     document.getElementById('rateLimitDimension').value = d.rateLimit.dimension;
-    document.getElementById('protocolTags').innerHTML = d.protocols.map(p =>
-      `<span class="tag active">${p}</span>`).join('');
+    // <b>修复</b>：原先用 innerHTML 拼接协议名。protocols 来自服务端配置，
+    // 当前不可控，但只要配置里出现可注入内容就是一击即中的存储型 XSS。
+    // 改为 textContent 逐个追加，值永远不会被当作 HTML 解析。
+    const tagBox = document.getElementById('protocolTags');
+    tagBox.textContent = '';
+    (d.protocols || []).forEach(p => {
+      const span = document.createElement('span');
+      span.className = 'tag active';
+      span.textContent = String(p);
+      tagBox.appendChild(span);
+    });
     showStatus(`✅ 配置已加载 | signVerify=${d.signVerify} | online=${d.online} | rateLimit=${d.rateLimit.enabled}`);
   } catch(e) {
     showStatus('❌ 加载失败: ' + e.message);

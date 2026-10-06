@@ -1,7 +1,6 @@
 package com.chua.starter.oauth.sso.support.protocol;
 
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.protocol.support.network.net.NetAddress;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.oauth.client.support.user.LoginResult;
@@ -33,6 +32,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,6 +56,20 @@ import java.util.Map;
 @RequestMapping("${plugin.auth.server.context-path:}/oauth2")
 @Tag(name = "OAuth2 第三方登录", description = "提供多平台第三方 OAuth2 登录功能")
 public class OAuth2LoginController {
+
+    /**
+     * state 绑定 Cookie 名
+     *
+     * <p>用于把 OAuth2 {@code state} 与发起授权的浏览器绑定，防登录 CSRF。</p>
+     */
+    private static final String STATE_BIND_COOKIE = "OAUTH2_STATE_BIND";
+
+    /**
+     * state 绑定 Cookie 有效期（秒）
+     *
+     * <p>与 JustAuth state 缓存默认 5 分钟 TTL 对齐，超时后需重新发起授权。</p>
+     */
+    private static final int STATE_BIND_TTL_SECONDS = 300;
 
     private final ThirdPartyLoginProperties thirdPartyLoginProperties; // thirdpartylogin属性
     private final AuthServerProperties authServerProperties; // 认证服务端属性
@@ -239,7 +253,9 @@ public class OAuth2LoginController {
     @ApiResponse(responseCode = "200", description = "返回授权URL")
     public ReturnResult<String> getAuthorizeUrl(
             @Parameter(description = "平台标识", required = true) @PathVariable String platform,
-            @Parameter(description = "登录成功后的回调地址") @RequestParam(required = false) String callback) {
+            @Parameter(description = "登录成功后的回调地址") @RequestParam(required = false) String callback,
+            HttpServletRequest request,
+            HttpServletResponse response) {
 
         ThirdPartyLoginProperties.Base config = getPlatformConfig(platform);
         if (config == null || !config.isEnabled()) {
@@ -247,6 +263,17 @@ public class OAuth2LoginController {
             return ReturnResult.error("登录失败：" + platform + " 平台未启用。" +
                     "解决方法：在配置文件中设置 plugin.oauth.third-party.login." + platform + ".enabled=true，" +
                     "并配置相应的 client-id 和 client-secret");
+        }
+
+        // <b>修复开放重定向</b>：callback 原样回显并写入 state 缓存，回调时会被
+        // RedirectView 直接重定向。此处先行校验，绝对地址必须命中白名单。
+        String systemCallback = systemCallbackPolicy().sanitize(callback);
+        String rejectReason = systemCallbackPolicy().rejectReason(callback);
+        if (rejectReason != null) {
+            log.warn("拒绝非法系统回调地址: platform={}, callback={}, reason={}",
+                    platform, callback, rejectReason);
+            return ReturnResult.error("登录失败：" + rejectReason + "。" +
+                    "请使用站内相对路径，或联系系统管理员配置 allowed-system-callback-hosts 白名单");
         }
 
         AuthConfig authConfig = AuthConfig.builder()
@@ -264,18 +291,107 @@ public class OAuth2LoginController {
         }
 
         String state = AuthStateUtils.createState();
-        
+
         // 缓存配置信息供回调使用
         authStateCache.cache(state + "_platform", platform);
         authStateCache.cache(state + "_clientId", config.getClientId());
         authStateCache.cache(state + "_clientSecret", config.getClientSecret());
         authStateCache.cache(state + "_callback", config.getRedirectUri());
-        authStateCache.cache(state + "_system_callback", StringUtils.defaultString(callback, "/"));
+        authStateCache.cache(state + "_system_callback", systemCallback);
+
+        // <b>修复登录 CSRF（Login CSRF）</b>：此前 state 只是服务端缓存里的随机串，
+        // 与发起授权的浏览器毫无关联，攻击者可以自己在 A 站发起授权、把 A 站拿到的
+        // state 与 code 拼好，塞给受害者点击 —— 受害者浏览器完成授权后，
+        // 最终登录进的是攻击者的第三方账号（后续再由钓鱼页收割受害者的操作）。
+        // 现把 state 与一个存放在浏览器里的随机绑定值关联，回调时必须能取到同一个绑定值，
+        // 否则判定授权不是由本浏览器发起，直接拒绝。
+        String bind = AuthStateUtils.createState();
+        authStateCache.cache(state + "_bind", bind);
+        writeBindCookie(request, response, bind);
 
         String authorizeUrl = authRequest.authorize(state);
         log.info("生成 OAuth2 授权URL: platform={}, state={}", platform, state);
-        
+
         return ReturnResult.ok(authorizeUrl);
+    }
+
+    /**
+     * 写入 state 绑定 Cookie
+     *
+     * <p>{@code SameSite=Lax} 是关键：回调是第三方发起的<b>顶层 GET 跳转</b>，
+     * Lax 允许携带，而 Strict 会拦掉。同时 HttpOnly 避免被脚本读取，
+     * 固定 Path 到 oauth2 前缀，缩短作用面。</p>
+     *
+     * @param request  请求
+     * @param response 响应
+     * @param bind     绑定值
+     */
+    private void writeBindCookie(HttpServletRequest request, HttpServletResponse response, String bind) {
+        try {
+            Cookie cookie = new Cookie(STATE_BIND_COOKIE, bind);
+            cookie.setPath(contextPath + "/oauth2");
+            cookie.setMaxAge(STATE_BIND_TTL_SECONDS);
+            cookie.setHttpOnly(true);
+            // 仅在 HTTPS 下打 Secure，避免本地 HTTP 调试时浏览器拒收
+            cookie.setSecure(request.isSecure());
+            // Servlet 6.0+ 才支持属性式 SameSite；低版本容器上降级为不设置，
+            // 此时 CSRF 防护退化为「无 Cookie 绑定」→ 校验不通过 → 拒绝（fail-closed）
+            cookie.setAttribute("SameSite", "Lax");
+            response.addCookie(cookie);
+        } catch (Exception e) {
+            log.warn("写入 state 绑定 Cookie 失败（回调将被拒绝）: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 读取 state 绑定 Cookie
+     *
+     * @param request 请求
+     * @return 绑定值，取不到返回 null
+     */
+    private String readBindCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        for (Cookie cookie : cookies) {
+            if (STATE_BIND_COOKIE.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 校验 state 是否由当前浏览器发起（登录 CSRF 防护）
+     *
+     * @param state   state 参数
+     * @param request 请求
+     * @return 校验通过返回 true
+     */
+    private boolean verifyStateBinding(String state, HttpServletRequest request) {
+        if (!StringUtils.hasText(state)) {
+            return false;
+        }
+        String expected = authStateCache.get(state + "_bind");
+        String actual = readBindCookie(request);
+        if (!StringUtils.hasText(expected) || !StringUtils.hasText(actual)) {
+            return false;
+        }
+        return MessageDigest.isEqual(expected.getBytes(StandardCharsets.UTF_8),
+                actual.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * 获取系统回调地址校验策略
+     *
+     * <p>刻意每次新建：本类由 Lombok 构造器注入 {@code thirdPartyLoginProperties}，
+     * 字段初始化式执行早于构造器赋值，在初始化式里构造策略会拿到 null 依赖。</p>
+     *
+     * @return 校验策略
+     */
+    private SystemCallbackPolicy systemCallbackPolicy() {
+        return new SystemCallbackPolicy(thirdPartyLoginProperties);
     }
 
     /**
@@ -387,8 +503,25 @@ public class OAuth2LoginController {
 
         RedirectView view = new RedirectView();
         String state = authCallback.getState();
-        String systemCallback = authStateCache.get(state + "_system_callback");
-        view.setUrl(StringUtils.defaultString(systemCallback, "/"));
+
+        // <b>修复登录 CSRF</b>：state 必须由当前浏览器发起，否则攻击者可以把自己
+        // 账号的授权结果塞给受害者，使其登录进攻击者账号。校验不通过一律拒绝，
+        // 不做任何 token 签发与 Cookie 下发。
+        if (!verifyStateBinding(state, request)) {
+            log.warn("OAuth2 state 绑定校验失败（疑似登录 CSRF）: platform={}, state={}, ip={}",
+                    platform, state, RequestUtils.getIpAddress(request));
+            view.setUrl("/");
+            return view;
+        }
+
+        // <b>修复开放重定向</b>：缓存里的 systemCallback 仍按攻击者可能伪造的输入看待，
+        // 二次校验确保「即便 state 缓存被污染」也不会重定向到站外。
+        String systemCallback = systemCallbackPolicy().sanitize(authStateCache.get(state + "_system_callback"));
+        String rejectReason = systemCallbackPolicy().rejectReason(authStateCache.get(state + "_system_callback"));
+        if (rejectReason != null) {
+            log.warn("拒绝缓存中的非法系统回调地址: platform={}, reason={}", platform, rejectReason);
+        }
+        view.setUrl(systemCallback);
 
         try {
             // 获取缓存的配置
@@ -460,12 +593,24 @@ public class OAuth2LoginController {
                 // 设置 Cookie
                 Cookie cookie = new Cookie(authServerProperties.getCookieName(), loginResult.getToken());
                 cookie.setPath("/");
-                if (StringUtils.isNotBlank(systemCallback)) {
-                    NetAddress netAddress = NetAddress.of(systemCallback);
-                    cookie.setDomain(netAddress.getHost());
+                // <b>修复 Cookie 域注入</b>：原实现从用户可控的 callback 参数里
+                // NetAddress.of(callback).getHost() 取域名，等于让请求方决定
+                // 「把登录令牌写到哪个域」。改为只认显式配置，未配置则不设 Domain
+                // （浏览器按请求主机处理，也是最安全的语义）。
+                String cookieDomain = systemCallbackPolicy().cookieDomain();
+                if (StringUtils.isNotBlank(cookieDomain)) {
+                    cookie.setDomain(cookieDomain);
                 }
                 cookie.setMaxAge(Integer.MAX_VALUE);
                 cookie.setHttpOnly(true);
+                try {
+                    // 令牌 Cookie 必须限制为 Lax：回调是顶层 GET 跳转，需要携带；
+                    // Lax 之外的跨站请求（如第三方站点发起的 POST）不会带上它
+                    cookie.setAttribute("SameSite", "Lax");
+                    cookie.setSecure(true);
+                } catch (Exception e) {
+                    log.warn("设置 Cookie SameSite/Secure 属性失败: {}", e.getMessage());
+                }
                 response.addCookie(cookie);
                 
                 response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -1714,9 +1859,17 @@ public class OAuth2LoginController {
             Cookie cookie = new Cookie("Access-Message", 
                     URLEncoder.encode(URLEncoder.encode(message, StandardCharsets.UTF_8), StandardCharsets.UTF_8));
             cookie.setPath("/");
-            if (StringUtils.isNotBlank(callback)) {
-                NetAddress netAddress = NetAddress.of(callback);
-                cookie.setDomain(netAddress.getHost());
+            // <b>修复 Cookie 域注入</b>：不再从用户可控的 callback 参数派生 Cookie 域
+            String cookieDomain = systemCallbackPolicy().cookieDomain();
+            if (StringUtils.isNotBlank(cookieDomain)) {
+                cookie.setDomain(cookieDomain);
+            }
+            cookie.setHttpOnly(true);
+            try {
+                cookie.setAttribute("SameSite", "Lax");
+                cookie.setSecure(true);
+            } catch (Exception e) {
+                log.warn("设置 Cookie SameSite/Secure 属性失败: {}", e.getMessage());
             }
             cookie.setMaxAge(60);
             response.addCookie(cookie);

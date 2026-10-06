@@ -16,6 +16,12 @@
       <artifactId>aspectjweaver</artifactId>
       <version>1.9.25.1</version>
     </dependency>
+    <!-- OIDC 登录（Nimbus 官方 SDK：discovery / 授权 / token / id_token 校验 / userinfo） -->
+    <dependency>
+      <groupId>com.nimbusds</groupId>
+      <artifactId>oauth2-oidc-sdk</artifactId>
+      <version>11.38.2</version>
+    </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-entity-starter</artifactId>

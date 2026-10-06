@@ -48,6 +48,11 @@ public class OauthSecurityProperties {
     private Csrf csrf = new Csrf();
 
     /**
+     * 管理控制台鉴权配置
+     */
+    private Admin admin = new Admin();
+
+    /**
      * IP 级请求限流配置
      */
     private RateLimit rateLimit = new RateLimit();
@@ -118,6 +123,61 @@ public class OauthSecurityProperties {
     }
 
     /**
+     * 管理控制台鉴权配置
+     *
+     * <p><b>存在的理由（修复一个严重缺陷）</b>：{@code AdminController} 暴露了
+     * {@code /oauth/admin/**}（开关签名校验、改令牌有效期、切在线模式、改限流），
+     * 但此前<b>没有任何认证与授权</b>——本服务作为认证服务端，通过标记类
+     * {@code SsoServer} + {@code @ConditionalOnMissingClass} 主动关闭了自己的
+     * {@code AuthFilter}，且未引入 Spring Security。结果是一次未授权的 POST 就能
+     * 把 {@code signVerify} 置为 false，摘掉所有协议入口唯一的请求真实性控制。</p>
+     * <p>本过滤器用独立的管理令牌保护该路径，且令牌为空时<b>默认拒绝一切</b>
+     * （fail-closed），不会退化成「无令牌即放行」。</p>
+     *
+     * @since 4.0.0.51
+     * @author CH
+     */
+    @Data
+    public static class Admin {
+
+        /**
+         * 是否启用管理控制台鉴权
+         *
+         * <p>置 false 可整体关闭（仅限本地调试）。生产环境必须保持 true。</p>
+         */
+        private boolean enabled = true;
+
+        /**
+         * 受保护的管理路径（Ant 风格，相对上下文路径，锚定匹配）
+         */
+        private List<String> paths = new ArrayList<>(List.of(
+                "/admin/**",
+                "/oauth/admin/**"
+        ));
+
+        /**
+         * 管理令牌请求头名称
+         */
+        private String headerName = "X-OAuth-Admin-Token";
+
+        /**
+         * 管理令牌
+         *
+         * <p><b>故意不提供默认值</b>：留空即视为「未配置」，过滤器将拒绝所有管理请求，
+         * 逼迫部署方显式配置，避免出现「默认口令」这种一装即破的状态。</p>
+         * <p>生产环境请用环境变量注入，例如：{@code plugin.oauth.security.admin.token=${OAUTH_ADMIN_TOKEN}}。</p>
+         */
+        private String token;
+
+        /**
+         * 额外的来源 IP 白名单（可选，CIDR）
+         *
+         * <p>非空时，来源 IP 必须命中才放行——用于把管理面收敛到内网/跳板机。</p>
+         */
+        private List<String> ipWhitelist = new ArrayList<>();
+    }
+
+    /**
      * CSRF 防护配置
      *
      * @since 2025/01/01
@@ -157,12 +217,20 @@ public class OauthSecurityProperties {
         private List<String> methods = new ArrayList<>(List.of("POST", "PUT", "PATCH", "DELETE"));
 
         /**
-         * 免 CSRF 校验的路径（Ant 风格，按 结束with / equals 匹配）
+         * 免 CSRF 校验的路径（Ant 风格，<b>相对上下文路径</b>，锚定匹配）
+         *
+         * <p><b>修复</b>：原默认值含 {@code "/oauth"}，而 {@code getRequestURI()} 恒含上下文
+         * 路径 {@code /oauth}，配合原先的 {@code contains} 判定会让全部请求被豁免。
+         * 现在匹配器已改为剥离上下文路径后的锚定 Ant 匹配，因此这里只需书写<b>逻辑路径</b>。
+         * 三方平台回调（{@code /oauth2/callback/**}、{@code /gitee/**}）由第三方以
+         * 顶层跳转方式发起、无 Cookie 浏览器会话，不适用 double-submit，故豁免。</p>
          */
         private List<String> ignorePaths = new ArrayList<>(List.of(
-                "/oauth",
-                "/temporary-token",
-                "/actuator"
+                "/actuator/**",
+                "/oauth2/callback/**",
+                "/oauth2/**/callback",
+                "/gitee/**",
+                "/health"
         ));
     }
 
@@ -191,19 +259,41 @@ public class OauthSecurityProperties {
         private int windowSeconds = 60;
 
         /**
-         * 需要限流的路径，为空表示全部路径
+         * 需要限流的路径（Ant 风格，<b>相对上下文路径</b>，锚定匹配），为空表示全部路径
+         *
+         * <p><b>修复</b>：原默认值含 {@code "/oauth"}（其实是上下文路径本身，不是逻辑路径），
+         * 配合原先的 {@code contains} 判定会让「是否在限流范围内」退化成恒真/恒假的巧合。
+         * 现改为逻辑路径 + 锚定匹配。</p>
          */
         private List<String> paths = new ArrayList<>(List.of(
                 "/login",
-                "/oauth",
                 "/temporary-token",
-                "/upgrade"
+                "/upgrade",
+                "/verify",
+                "/admin/**"
         ));
 
         /**
-         * 免限流路径
+         * 免限流路径（Ant 风格，相对上下文路径，锚定匹配）
          */
         private List<String> ignorePaths = new ArrayList<>();
+
+        /**
+         * 可信反向代理 IP / CIDR 白名单
+         *
+         * <p><b>修复</b>：此前 {@code resolveClientIp} 无条件信任 {@code X-Forwarded-For}
+         * 等 5 个请求头且不校验来源，攻击者轮换该头即可让每个请求落到不同的限流桶，
+         * IP 限流形同虚设。现在只有当直接连接方命中本白名单时，才采信转发头。</p>
+         * <p>直连部署请保持为空（默认），此时只用 {@code getRemoteAddr()}。</p>
+         */
+        private List<String> trustedProxies = new ArrayList<>();
+
+        /**
+         * 限流桶缓存的最大条目数
+         *
+         * <p>{@code interface} 维度以请求路径为 key，攻击者可用大量随机路径撑爆内存。</p>
+         */
+        private int maxRuleBuckets = 10_000;
     }
 
     /**

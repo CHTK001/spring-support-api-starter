@@ -3,6 +3,7 @@ package com.chua.starter.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.utils.StringUtils;
+import com.chua.common.support.utils.ArrayUtils;
 import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.chua.common.support.constant.CommonConstant;
 import com.chua.common.support.lang.json.Json;
@@ -26,6 +27,7 @@ import com.chua.starter.service.setting.GuestDefaultSetting;
 import com.chua.starter.service.setting.SmsSetting;
 import com.chua.starter.service.setting.SmtpSetting;
 import com.chua.starter.service.setting.VersionSetting;
+import com.chua.starter.service.dto.setting.AuthOidcRequest;
 import com.chua.starter.service.dto.setting.AuthRequestFactory;
 import com.chua.starter.service.dto.setting.SysSettingThirdPartyRequest;
 import com.chua.starter.entity.service.SysSetting;
@@ -140,6 +142,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     static final String[] APP_KEY = new String[]{"appKey", "clientId"}; // app键
     static final String[] APP_SECRET = new String[]{"appSecret", "clientSecret"}; // APP_SECRET
     static final String[] APP_REDIRECT_URI = new String[]{"redirectUri"}; // APP_REDIRECT_URI
+    static final String[] APP_ISSUER_URI = new String[]{"issuerUri", "issuer"}; // OIDC 签发者地址
+    static final String[] APP_SCOPE = new String[]{"scope"}; // OIDC 请求范围
 
     /**
      * 套接字 配置项名称：套接字url
@@ -598,8 +602,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     public SysSettingThirdPartyRequest<AuthRequest, AuthStateCache> getAuthRequest(ThirdLoginData loginData) {
-        String loginType = StringUtils.trimToEmpty(loginData.loginType()).toLowerCase(Locale.ROOT);
-        if (StringUtils.isBlank(loginType)) {
+        String loginType = StringUtils.trimToEmpty(loginData.loginType()).toLowerCase(Locale.ROOT);        if (StringUtils.isBlank(loginType)) {
             log.warn("第三方登录类型为空");
             return null;
         }
@@ -648,9 +651,42 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         authStateCache.cache(state + "_clientSecret", authConfig.getClientSecret());
         authStateCache.cache(state + "_callback", authConfig.getRedirectUri());
         authStateCache.cache(state + "_system_callback", loginData.callback());
+        // OIDC 额外参数：issuer 与 scope 随 state 传递，供回调侧重建请求使用
+        String oidcIssuerUri = "";
+        String oidcScope = "";
+        if (StringUtils.equals(loginType, AuthOidcRequest.PLATFORM)) {
+            oidcIssuerUri = firstSettingValue(providerSettings, APP_ISSUER_URI);
+            oidcScope = firstSettingValue(providerSettings, APP_SCOPE);
+            if (StringUtils.isBlank(oidcIssuerUri)) {
+                log.warn("OIDC 登录配置不完整: loginType={}, issuerUri 为空", loginType);
+                return null;
+            }
+            authStateCache.cache(state + AuthOidcRequest.ISSUER_CACHE_SUFFIX, oidcIssuerUri);
+            authStateCache.cache(state + AuthOidcRequest.SCOPE_CACHE_SUFFIX, oidcScope);
+        }
  // TODO: 迁移到 服务提供者（第三方 just认证 OAuth 实现需先建立 SPI 扩展点）
-        AuthRequest authRequest = AuthRequestFactory.createAuthRequest(loginType, authConfig, authStateCache);
+        AuthRequest authRequest = AuthRequestFactory.createAuthRequest(loginType, authConfig, authStateCache, oidcIssuerUri, oidcScope);
         return authRequest == null ? null : new SysSettingThirdPartyRequest<>(authRequest, authStateCache, state);
+    }
+
+    /**
+     * 取分组配置中首个匹配名称的值（大小写不敏感名称匹配，缺失时返回空串）。
+     *
+     * @param providerSettings 平台分组配置
+     * @param names 候选配置名称
+     * @return 匹配值或空串
+     */
+    private static String firstSettingValue(List<SysSetting> providerSettings, String[] names) {
+        if (null == providerSettings || null == names) {
+            return "";
+        }
+        for (SysSetting item : providerSettings) {
+            if (null != item && ArrayUtils.containsIgnoreCase(names, item.getSysSettingName())
+                    && StringUtils.isNotBlank(item.getSysSettingValue())) {
+                return item.getSysSettingValue();
+            }
+        }
+        return "";
     }
 
     /**
