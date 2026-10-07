@@ -1,11 +1,18 @@
 package com.chua.starter.system.pojo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 登录响应对象
+ *
+ * <p>{@code @Builder} 生成全参构造后会抑制 {@code @Data} 的构造生成，类上没有无参构造，
+ * Jackson 反序列化（三方登录换票 {@code /v2/user/third/login/exchange} 解密
+ * {@code redirectParam}）必然失败；必须显式补齐 {@code @NoArgsConstructor}
+ * + {@code @AllArgsConstructor}（后者供 {@code @Builder} 使用）。</p>
  *
  * @since 2024/8/15
  * @author CH
@@ -13,6 +20,8 @@ import lombok.Data;
 @Schema(description = "登录响应对象")
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginResult {
 
     /**

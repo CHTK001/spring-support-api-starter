@@ -97,6 +97,20 @@ plugin:
     data:
       scope:
         enable: true
+  # ===========================================
+  # 三方登录「系统回调地址」白名单（开放重定向防护）
+  # callback 参数为绝对地址时，其 scheme://host[:port] 前缀必须命中本列表，
+  # 否则回调重定向被拒绝；默认空 = fail-closed（绝对地址一律拒绝）。
+  # 前端发送「绝对 origin + pathname」，故 dev/e2e/部署地址都必须列出。
+  # 声明在基线 application.yml 而非 profile 专属文件：部署用
+  # --spring.profiles.active=server 覆盖 profile，dev 配置不会被加载。
+  # ===========================================
+  system:
+    security:
+      allowed-system-callback-hosts:
+        - http://localhost:8096
+        - http://127.0.0.1:8096
+        - http://192.168.50.198:8096
   oauth:
     # 登录页/整页刷新阶段的远程配置拉取不带 Bearer，必须匿名可达；该接口只回
     # default/sso/default-1 分组且敏感项已脱敏。只放行这一个路径，勿扩到 /v2/setting/**。

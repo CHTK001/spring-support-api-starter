@@ -3,8 +3,6 @@ package com.chua.starter.system.controller.callback;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.annotation.Ignore;
 import com.chua.common.support.utils.StringUtils;
-import com.chua.common.support.lang.algorithm.cipher.AesCipher;
-import com.chua.common.support.lang.json.Json;
 import com.chua.starter.common.support.utils.CookieUtil;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.entity.service.SysSetting;
@@ -20,6 +18,7 @@ import com.chua.starter.system.properties.SystemSecurityProperties;
 import com.chua.starter.system.service.SysLoginCallbackService;
 import com.chua.starter.system.service.SysLoginService;
 import com.chua.starter.system.service.SysUserThirdPartyService;
+import com.chua.starter.system.support.ThirdPartyCallbackSupport;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +38,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -121,15 +119,16 @@ public class GoogleCallbackController {
         String userId = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_userId");
         RedirectView view = new RedirectView();
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
-        view.setUrl(StringUtils.defaultString(systemCallback, "/"));
+        // 读取点兜底：缓存里的回调地址过白名单（开放重定向读取点防线）
+        view.setUrl(ThirdPartyCallbackSupport.safeSystemCallback(systemCallback, securityProperties));
 
         if (!isThirdPartyEnabled()) {
-            attributes.addFlashAttribute("msg", "Google登录未开启，无法绑定");
+            ThirdPartyCallbackSupport.markFailure(attributes, view, "Google登录未开启，无法绑定");
             return view;
         }
 
         if (userId == null) {
-            attributes.addFlashAttribute("msg", "请重新登录重试");
+            ThirdPartyCallbackSupport.markFailure(attributes, view, "请重新登录重试");
             return view;
         }
 
@@ -137,13 +136,13 @@ public class GoogleCallbackController {
                 .eq(SysUserThirdParty::getSysUserId, userId)
                 .eq(SysUserThirdParty::getSysUserThirdPartyType, SysUserThirdParty.Type.GOOGLE.name()));
         if (count > 0) {
-            attributes.addFlashAttribute("msg", "已绑定Google，无需重复绑定");
+            ThirdPartyCallbackSupport.markFailure(attributes, view, "已绑定Google，无需重复绑定");
             return view;
         }
 
         AuthUser authUser = doAuthLogin(authCallback);
         if (authUser == null) {
-            attributes.addFlashAttribute("msg", "Google授权失败");
+            ThirdPartyCallbackSupport.markFailure(attributes, view, "Google授权失败");
             return view;
         }
 
@@ -186,10 +185,11 @@ public class GoogleCallbackController {
     public RedirectView callback(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
         RedirectView errorView = new RedirectView();
-        errorView.setUrl(StringUtils.defaultString(systemCallback, "/"));
+        // 读取点兜底：缓存里的回调地址过白名单（开放重定向读取点防线）
+        errorView.setUrl(ThirdPartyCallbackSupport.safeSystemCallback(systemCallback, securityProperties));
 
         if (!isThirdPartyEnabled()) {
-            attributes.addFlashAttribute("msg", "Google登录未开启");
+            ThirdPartyCallbackSupport.markFailure(attributes, errorView, "Google登录未开启");
             return errorView;
         }
 
@@ -200,7 +200,7 @@ public class GoogleCallbackController {
 
         AuthUser authUser = doAuthLogin(authCallback);
         if (authUser == null) {
-            attributes.addFlashAttribute("msg", "Google授权失败");
+            ThirdPartyCallbackSupport.markFailure(attributes, errorView, "Google授权失败");
             return errorView;
         }
 
@@ -210,7 +210,7 @@ public class GoogleCallbackController {
                         .eq(SysUserThirdParty::getSysUserThirdPartyType, SysUserThirdParty.Type.GOOGLE.name())
         );
         if (userThirdParty == null) {
-            attributes.addFlashAttribute("msg", "请先绑定Google账号后再登录");
+            ThirdPartyCallbackSupport.markFailure(attributes, errorView, "请先绑定Google账号后再登录");
             return errorView;
         }
 
@@ -220,6 +220,11 @@ public class GoogleCallbackController {
         ext.put("address", RequestUtils.getIpAddress(request));
         LoginAuthResult accessToken = AuthClientExecute.getInstance()
                 .getAccessToken(String.valueOf(userThirdParty.getSysUserId()), null, AuthType.THIRD_PARTY, ext);
+        if (null == accessToken || StringUtils.isBlank(accessToken.getToken())) {
+            log.warn("Google三方登录换取令牌失败");
+            ThirdPartyCallbackSupport.markFailure(attributes, errorView, "Google登录失败，请重试");
+            return errorView;
+        }
         LoginResult loginResult = LoginResult.builder()
                 .userInfo(accessToken.getUserResume() != null
                         ? sysLoginService.buildUserInfo(accessToken.getUserResume())
@@ -231,10 +236,11 @@ public class GoogleCallbackController {
 
         RedirectView view = new RedirectView();
         String nanoTime = StringUtils.padAfter(System.nanoTime() + "", 16, '0');
-        String encrypt = new AesCipher().encryptToString(securityProperties.getThirdPartyCallbackKey().getBytes(StandardCharsets.UTF_8), Json.toJson(loginResult));
+        // 加密登录结果 + 登记一次性 nonce（供 /v2/user/third/login/exchange 兑换）
+        String encrypt = ThirdPartyCallbackSupport.encryptRedirectParam(loginResult, securityProperties);
         response.setHeader("x-response-time", nanoTime);
         view.addStaticAttribute("redirectParam", encrypt);
-        view.setUrl(StringUtils.defaultString(systemCallback, "/"));
+        view.setUrl(ThirdPartyCallbackSupport.safeSystemCallback(systemCallback, securityProperties));
         return view;
     }
 
