@@ -117,6 +117,16 @@ public interface SysLoginService {
     ReturnResult<Boolean> thirdUnbind(String userId, ThirdPartyUnbindRequest thirdPartyUnbindRequest);
 
     /**
+     * 三方登录换票：用回调带回的 redirectParam（AES 密文 + 一次性 nonce）换取登录结果
+     *
+     * <p>凭证一次一用：兑换时先核销 nonce 再解密，失败或重复兑换均返回错误。</p>
+     *
+     * @param redirectParam 回调带回的加密凭证
+     * @return 登录结果
+     */
+    ReturnResult<LoginResult> thirdLoginExchange(String redirectParam);
+
+    /**
      * 记录一次登出事件，供个人中心「登录日志」按人查询
      *
      * @param request    HTTP 请求

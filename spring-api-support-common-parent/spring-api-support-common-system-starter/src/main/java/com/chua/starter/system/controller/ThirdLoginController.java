@@ -7,6 +7,8 @@ import com.chua.starter.oauth.client.support.annotation.UserValue;
 import com.chua.starter.oauth.client.support.provider.ThirdLoginData;
 import com.chua.starter.system.service.SysLoginService;
 import com.chua.starter.system.pojo.ThirdPartyUnbindRequest;
+import com.chua.starter.system.pojo.ThirdLoginExchangeRequest;
+import com.chua.starter.system.pojo.LoginResult;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -63,6 +65,28 @@ public class ThirdLoginController {
         }
 
         return sysLoginService.thirdLoginCode(loginData, request, response);
+    }
+
+    /**
+     * 三方登录换票：用回调带回的 redirectParam 一次性换取登录结果。
+     *
+     * <p>{@code redirectParam} 为服务端 AES 密文 + 一次性 nonce，兑换时先核销后解密；
+     * 凭证不可重放，重复兑换或伪造密文均返回错误。</p>
+     *
+     * @param exchangeRequest 换票请求（含 redirectParam）
+     * @param bindingResult   参数校验结果
+     * @return 登录结果，包含 access令牌 等信息
+     */
+    @Operation(summary = "三方登录换票", description = "用回调带回的 redirectParam 一次性换取登录结果")
+    @PostMapping("/third/login/exchange")
+    @TokenForIgnore
+    public ReturnResult<LoginResult> thirdLoginExchange(@Valid @RequestBody ThirdLoginExchangeRequest exchangeRequest,
+                                                        BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), bindingResult.getAllErrors().getFirst().getDefaultMessage());
+        }
+
+        return sysLoginService.thirdLoginExchange(exchangeRequest.getRedirectParam());
     }
     /**
      * 将第三方账号绑定到当前登录用户。

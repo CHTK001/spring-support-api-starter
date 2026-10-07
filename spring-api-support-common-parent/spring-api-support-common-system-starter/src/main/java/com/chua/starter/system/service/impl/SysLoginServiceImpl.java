@@ -30,6 +30,9 @@ import com.chua.starter.entity.system.SysDept;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.service.SysSettingService;
 import com.chua.starter.service.SimpleSysUserService;
+import com.chua.starter.service.utils.SystemCallbackPolicy;
+import com.chua.starter.system.properties.SystemSecurityProperties;
+import com.chua.starter.system.support.ThirdPartyCallbackSupport;
 import com.chua.starter.system.mapper.SysDeptMapper;
 import com.chua.starter.system.mapper.SysRoleMapper;
 import com.chua.starter.system.mapper.SysUserRoleMapper;
@@ -227,6 +230,8 @@ public class SysLoginServiceImpl implements SysLoginService {
     private final com.chua.starter.system.support.OnlineStatusManager onlineStatusManager;
     /** Spring 事件发布器（发布登录日志事件，解耦认证与日志存储） */
     private final ApplicationEventPublisher eventPublisher;
+    /** 系统安全配置（三方登录回调地址白名单等） */
+    private final SystemSecurityProperties securityProperties;
 
     @Override
     /**
@@ -760,7 +765,17 @@ public class SysLoginServiceImpl implements SysLoginService {
     */
     public ReturnResult<String> thirdLoginCode(ThirdLoginData loginData, HttpServletRequest request, HttpServletResponse response) {
         log.debug("第三方登录请求: loginType={}, thirdType={}", loginData.loginType(), loginData.thirdType());
-        
+
+        // 开放重定向入口防御：callback 为绝对地址时必须命中白名单，否则直接拒绝，
+        // 不进入 state 缓存（绑定 thirdBindCode 委托本方法，一并受保护）
+        String rejectReason = SystemCallbackPolicy.rejectReason(loginData.callback(),
+                securityProperties.getAllowedSystemCallbackHosts());
+        if (rejectReason != null) {
+            log.warn("第三方登录回调地址被拒绝: loginType={}, callback={}, reason={}",
+                    loginData.loginType(), loginData.callback(), rejectReason);
+            return ReturnResult.error("回调地址不合法：" + rejectReason);
+        }
+
         // 获取第三方登录配置
         var authRequest = sysSettingService.getAuthRequest(loginData);
         if (authRequest == null) {
@@ -819,10 +834,26 @@ public class SysLoginServiceImpl implements SysLoginService {
             return ReturnResult.error("登录类型不能为空");
         }
 
-        int deleteCount = sysUserThirdPartyMapper.delete(
+        // 大小写不敏感匹配：绑定写入端历史遗留既有小写（gitee/wechat）也有大写（DINGTALK/QQ），
+        // 入参统一按忽略大小写过滤，避免「查得到却解不掉」
+        String loginType = thirdPartyUnbindRequest.getLoginType();
+        List<SysUserThirdParty> bindings = sysUserThirdPartyMapper.selectList(
                 Wrappers.<SysUserThirdParty>lambdaQuery()
-                        .eq(SysUserThirdParty::getSysUserId, userId)
-                        .eq(SysUserThirdParty::getSysUserThirdPartyType, thirdPartyUnbindRequest.getLoginType()));
+                        .eq(SysUserThirdParty::getSysUserId, userId));
+        List<Integer> matchedIds = bindings.stream()
+                .filter(it -> StringUtils.isNotBlank(it.getSysUserThirdPartyType())
+                        && it.getSysUserThirdPartyType().equalsIgnoreCase(loginType))
+                .map(SysUserThirdParty::getSysUserThirdPartyId)
+                .filter(Objects::nonNull)
+                .toList();
+
+        int deleteCount = 0;
+        if (!matchedIds.isEmpty()) {
+            deleteCount = matchedIds.size();
+            for (Integer id : matchedIds) {
+                sysUserThirdPartyMapper.deleteById(id);
+            }
+        }
 
         if (THIRD_PARTY_TYPE_WECHAT.equalsIgnoreCase(thirdPartyUnbindRequest.getLoginType())) {
             sysWechatUserMapper.delete(
@@ -834,6 +865,25 @@ public class SysLoginServiceImpl implements SysLoginService {
             return ReturnResult.ok();
         }
         return ReturnResult.error("解绑失败");
+    }
+
+    @Override
+    /**
+     * 三方登录换票：用回调带回的 redirectParam（AES 密文 + 一次性 nonce）换取 LoginResult
+     *
+     * <p>密钥仅存在服务端，前端无法解密，只能原样回传兑换；nonce 在兑换时先置失效
+     * 再解密（fail-closed），同一凭证不可重复使用、伪造密文无法通过 nonce 校验。</p>
+     */
+    public ReturnResult<LoginResult> thirdLoginExchange(String redirectParam) {
+        if (StringUtils.isBlank(redirectParam)) {
+            return ReturnResult.error("登录凭证不能为空");
+        }
+        LoginResult loginResult = ThirdPartyCallbackSupport.redeemRedirectParam(redirectParam, securityProperties);
+        if (null == loginResult || StringUtils.isBlank(loginResult.getAccessToken())) {
+            log.warn("三方登录换票失败: 凭证缺失、已使用或已过期");
+            return ReturnResult.error("登录凭证已失效，请重新发起第三方登录");
+        }
+        return ReturnResult.ok(loginResult);
     }
 
     /**

@@ -34,6 +34,7 @@ import com.chua.starter.entity.service.SysSetting;
 import com.chua.starter.service.event.HotReloadChangedEvent;
 import com.chua.starter.service.hotreload.HotReloadConfigService;
 import com.chua.starter.service.pojo.setting.SysSettingUpdate;
+import com.chua.starter.service.utils.SystemCallbackPolicy;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.cache.AuthDefaultStateCache;
 import me.zhyd.oauth.cache.AuthStateCache;
@@ -650,7 +651,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         authStateCache.cache(state + "_clientId", authConfig.getClientId());
         authStateCache.cache(state + "_clientSecret", authConfig.getClientSecret());
         authStateCache.cache(state + "_callback", authConfig.getRedirectUri());
-        authStateCache.cache(state + "_system_callback", loginData.callback());
+        // 回调地址写缓存前做结构消毒（拒绝控制字符/协议相对 URL/非 http(s) 绝对地址），
+        // 白名单强校验在入口 thirdLoginCode 与回调读取点做（纵深防御）
+        authStateCache.cache(state + "_system_callback", SystemCallbackPolicy.sanitizeStructure(loginData.callback()));
         // OIDC 额外参数：issuer 与 scope 随 state 传递，供回调侧重建请求使用
         String oidcIssuerUri = "";
         String oidcScope = "";
