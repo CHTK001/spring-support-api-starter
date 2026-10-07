@@ -1,0 +1,36 @@
+# ===========================================
+# 数据采集平台 · 默认数据库 profile（MySQL / MariaDB）
+#
+# 2026-10-07 起为默认激活 profile（application.yml 的 active: mysql）。
+# 在此之前默认是 H2 文件库 —— H2 只留作显式演示（--spring.profiles.active=h2），
+# 生产/验收一律真实库：198 上为 MariaDB（127.0.0.1:3306/collect）。
+#
+# 与 scheduler-starter 包内同名文件同形：classpath 只取第一个命中，
+# 两份一致即可，不管哪个 jar 的 application.yml 生效都能落到真实库。
+#
+# 时区说明：serverTimezone 必须与主机系统时区一致，否则 timestamp 列
+# （sys_job_log_trigger_time 等）会整体偏移数小时。198 主机为 America/New_York，
+# 若部署主机时区不同，用外部 config 覆盖即可，不必重新打包。
+# ===========================================
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/collect?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/New_York
+    username: collect
+    password: Collect@2026
+    hikari:
+      maximum-pool-size: 16
+      minimum-idle: 2
+      connection-timeout: 10000
+  sql:
+    init:
+      # 结构由 flyway 统一编排（各模块 jar 内的 db/init/V1.0__init_all_*.sql），
+      # 这里关掉 Spring 自带的 schema/data 初始化，避免两套建表逻辑打架。
+      mode: never
+
+plugin:
+  datasource:
+    script:
+      enable: true
+      scan-mode: ONCE                          # 空库首次建表后不再动结构
+      data-scan-mode: ONCE

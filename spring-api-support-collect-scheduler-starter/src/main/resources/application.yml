@@ -1,6 +1,6 @@
 # ===========================================
 # 数据采集平台基础配置
-# 数据库相关放在 profile：h2 为内置演示库，dev 为开发库
+# 数据库相关放在 profile：默认 mysql（真实库）；h2 仅作显式演示、不再默认启用，dev 为开发库
 # ===========================================
 spring:
   application:
@@ -9,7 +9,7 @@ spring:
     allow-circular-references: true           # 兼容既有 ServiceImpl 自注入模式
     allow-bean-definition-overriding: true    # 兼容多 starter 重复声明的同名 bean
   profiles:
-    active: h2                                # 默认使用内置 H2，便于零依赖启动
+    active: mysql                             # 2026-10-07 拍板：默认不用 H2，走真实 MySQL/MariaDB（见 application-mysql.yml）
 
 # ===========================================
 # 服务器配置
