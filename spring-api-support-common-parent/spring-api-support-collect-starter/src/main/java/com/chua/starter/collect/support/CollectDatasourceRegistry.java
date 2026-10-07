@@ -78,6 +78,31 @@ public class CollectDatasourceRegistry {
     }
 
     /**
+     * 在数据源中心里按 ID 或名称找，供中间件类节点（InfluxDB / Neo4j 等）复用。
+     *
+     * <p>与 {@link #resolve} 分开是刻意的：SQL / 入库节点要的是「能建 JDBC 池的连接参数」，
+     * 中间件节点要的是「数据源行 + 类型」，两者校验口径不同，不该互相迁就。</p>
+     *
+     * @param key 数据源引用，全数字按 ID，其余按名称
+     * @return 数据源行
+     * @throws IllegalStateException 数据源中心未启用、数据源不存在或已停用
+     */
+    public DataSourceVO findRow(String key) {
+        DatasourceService service = hub.getIfAvailable();
+        if (service == null) {
+            throw new IllegalStateException("数据源中心未启用，无法解析数据源: " + key);
+        }
+        DataSourceVO row = find(service, key);
+        if (row == null) {
+            throw new IllegalStateException("找不到数据源: " + key);
+        }
+        if (row.status() != null && row.status() == 0) {
+            throw new IllegalStateException("数据源已停用: " + row.name());
+        }
+        return row;
+    }
+
+    /**
      * 从数据源中心解析。
      *
      * @param key 数据源引用
