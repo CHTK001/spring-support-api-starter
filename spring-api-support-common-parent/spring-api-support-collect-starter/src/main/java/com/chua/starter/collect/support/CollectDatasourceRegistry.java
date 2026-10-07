@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.collect.entity.CollectDatasource;
 import com.chua.starter.collect.mapper.CollectDatasourceMapper;
+import com.chua.starter.datasourcehub.support.constants.DatasourceHubConstants;
 import com.chua.starter.datasourcehub.support.model.DataSourceVO;
 import com.chua.starter.datasourcehub.support.service.DatasourceService;
 import com.zaxxer.hikari.HikariConfig;
@@ -105,8 +106,15 @@ public class CollectDatasourceRegistry {
     /**
      * 从数据源中心解析。
      *
+     * <p>数据源中心的 JDBC 卡常规存法是 host/port/库名（新增弹窗的「数据库/库名」
+     * 提示填库名），完整 {@code jdbc:} URL 只是可选写法——与 hub 侧
+     * {@code resolveJdbcUrl} 同口径：URL 形态直接用，否则按 host+port+库名拼
+     * {@code jdbc:mysql} URL。早先只认 URL 前缀，UI 建的卡全会被误判成
+     * 「不是 JDBC 类型」。</p>
+     *
      * @param key 数据源引用
-     * @return 连接参数，未找到或已停用返回 null
+     * @return 连接参数，未找到返回 null
+     * @throws IllegalStateException 数据源已停用、类型不是 jdbc 或缺少主机/库名
      */
     private Target fromHub(String key) {
         DatasourceService service = hub.getIfAvailable();
@@ -120,9 +128,21 @@ public class CollectDatasourceRegistry {
         if (row.status() != null && row.status() == 0) {
             throw new IllegalStateException("数据源已停用: " + row.name());
         }
-        String url = trim(row.database());
-        if (!url.regionMatches(true, 0, "jdbc:", 0, "jdbc:".length())) {
+        if (!"jdbc".equalsIgnoreCase(trim(row.type()))) {
             throw new IllegalStateException("数据源 " + row.name() + " 不是 JDBC 类型，无法被 SQL/入库节点使用");
+        }
+        String url = trim(row.database());
+        if (!url.regionMatches(true, 0, DatasourceHubConstants.JDBC_URL_PREFIX, 0,
+                DatasourceHubConstants.JDBC_URL_PREFIX.length())) {
+            String host = trim(row.host());
+            if (host.isEmpty() || url.isEmpty()) {
+                throw new IllegalStateException("JDBC 数据源缺少主机或库名: " + row.name());
+            }
+            int port = row.port() != null ? row.port()
+                    : DatasourceHubConstants.DS_DEFAULT_PORTS.getOrDefault("jdbc", 3306);
+            url = String.format(
+                    "jdbc:mysql://%s:%d/%s?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai",
+                    host, port, url);
         }
         return new Target(url, trim(row.username()),
                 CollectSecrets.decode(row.password()), trim(row.driverClassName()),
