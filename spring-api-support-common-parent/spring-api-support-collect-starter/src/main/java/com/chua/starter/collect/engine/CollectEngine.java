@@ -67,6 +67,25 @@ public class CollectEngine {
     public static final String PARAM_LOOP_PARALLEL = "loopParallel";
 
     /**
+     * 节点内部详情（入参 / 轮次）在出参列的硬上限。
+     *
+     * <p>{@code collect_task_log_output} 是 varchar(2000)，出参预览自身最多
+     * previewLength*4（默认 500*4=2000），拼上入参后必须整体截到 1990 以内，
+     * 否则 MySQL 严格模式下写日志直接报错、把节点执行拖成任务失败。</p>
+     */
+    private static final int OUTPUT_DETAIL_LIMIT = 1990;
+
+    /**
+     * 单节点入参详情预算：超出直接截断，保证出参列头部「这节点拿什么配置去执行」可读。
+     */
+    private static final int INPUT_DETAIL_LIMIT = 600;
+
+    /**
+     * 入参详情里单个参数值的截断长度（求值结果可能是整页 HTML）。
+     */
+    private static final int INPUT_VALUE_LIMIT = 120;
+
+    /**
      * 上游异常文本的变量名。
      */
     public static final String VAR_EXCEPTION = "ex";
@@ -309,7 +328,11 @@ public class CollectEngine {
         }
         List<Object> items = resolveLoopItems(node, vars);
         if (items.isEmpty()) {
-            context.getSink().nodeLog(node, 0, CollectTaskStatus.SKIPPED, 0L, "循环集合为空，本节点与下游不执行", null);
+            // 空在「哪」要能一眼看出：把循环参数的求值结果带上（循环集合=… → 0 项），
+            // 否则日志里只有一句「集合为空」，用户还得回设计器翻参数
+            String detail = inputDetail(node, vars, true);
+            context.getSink().nodeLog(node, 0, CollectTaskStatus.SKIPPED, 0L,
+                    "循环集合为空，本节点与下游不执行", detail.isEmpty() ? null : detail);
             return;
         }
         if (items.size() > 1 && node.boolParam(PARAM_LOOP_PARALLEL, false)) {
@@ -382,14 +405,17 @@ public class CollectEngine {
         }
         context.countNode();
         long cost = System.currentTimeMillis() - start;
+        // 节点内部详情：轮次（多轮时）+ 入参求值 —— 用户反馈「每个节点内部的也需要输出到日志」，
+        // 出参列原先只有本节点改写/新增的变量，「拿什么配置执行、循环跑到第几轮」不可见
+        String internal = internalDetail(node, scope, items.size() > 1, iteration, items.size());
         if (failed) {
             context.getSink().nodeLog(node, iteration, CollectTaskStatus.FAILURE, cost,
-                    String.valueOf(scope.get(VAR_EXCEPTION)), null);
+                    String.valueOf(scope.get(VAR_EXCEPTION)), internal.isEmpty() ? null : internal);
             dispatch(context, node, scope, failed);
             return;
         }
         context.getSink().nodeLog(node, iteration, CollectTaskStatus.SUCCESS, cost,
-                safeSummary(executor, node, scope), preview(node, context, vars, scope));
+                safeSummary(executor, node, scope), joinDetail(internal, preview(node, context, vars, scope)));
         if (CollectExpression.truthy(scope.get(VAR_STOP))) {
             context.getSink().nodeLog(node, iteration, CollectTaskStatus.SKIPPED, 0L,
                     "本节点已终止该分支，下游未执行", null);
@@ -621,6 +647,139 @@ public class CollectEngine {
         if (value instanceof Number number) {
             preview.append(' ').append(label).append('=').append(number.longValue()).append("行");
         }
+    }
+
+    /**
+     * 汇总节点内部详情：轮次（多轮时）+ 入参求值。
+     *
+     * <p>用户反馈「不详细，每个节点内部的也需要输出到日志」。出参列原先只展示节点
+     * 改写/新增的变量 —— 执行器内部（重试、分批）走不到这里，但引擎侧的上下文
+     * （这轮拿什么配置执行、循环跑到第几轮）是通用的、每个节点都该有：失败行
+     * 尤其依赖它（失败时没有出参预览，入参就是唯一的现场）。</p>
+     *
+     * @param node       节点
+     * @param scope      本次迭代作用域（已含循环下标与元素变量）
+     * @param multiRound 本次是否处于多轮循环
+     * @param iteration  当前轮次（0 起）
+     * @param total      轮次总数
+     * @return 详情文本；无内容时返回空串
+     */
+    private String internalDetail(CollectNode node, Map<String, Object> scope,
+                                  boolean multiRound, int iteration, int total) {
+        List<String> parts = new ArrayList<>();
+        if (multiRound) {
+            parts.add("round=" + (iteration + 1) + "/" + total);
+        }
+        String input = inputDetail(node, scope, false);
+        if (!input.isEmpty()) {
+            parts.add(input);
+        }
+        return String.join(" | ", parts);
+    }
+
+    /**
+     * 节点入参详情：本节点声明参数的求值结果压成 {@code in: a=1; b=2} 单行。
+     *
+     * <p>值求值后展示（而不是原样表达式）——「source=${projects}」看不出东西，
+     * 「source=[100 项]」才说明这节点实际拿到什么。循环四参数常规行省略
+     * （轮次由 round 提供），空集合跳过行传 includeLoop=true 把「空在哪」摊开。</p>
+     *
+     * @param node        节点
+     * @param scope       求值作用域
+     * @param includeLoop 是否连循环四参数一并列出
+     * @return 入参详情；没有任何可展示参数时返回空串
+     */
+    private String inputDetail(CollectNode node, Map<String, Object> scope, boolean includeLoop) {
+        StringBuilder builder = new StringBuilder("in: ");
+        for (CollectParamDTO param : node.params()) {
+            String name = param.getName();
+            String raw = param.getValue();
+            if (name == null || name.isBlank() || raw == null || raw.isBlank()) {
+                continue;
+            }
+            if (!includeLoop && isLoopParam(name)) {
+                continue;
+            }
+            if (builder.length() > INPUT_DETAIL_LIMIT) {
+                break;
+            }
+            if (builder.length() > 4) {
+                builder.append("; ");
+            }
+            builder.append(name).append('=');
+            Object value;
+            try {
+                value = CollectExpression.eval(raw, scope);
+            } catch (Exception ex) {
+                // 求值不了就展示原文：日志是排查现场，不能因为表达式解析失败整行消失
+                value = raw;
+            }
+            builder.append(describeValue(value));
+        }
+        if (builder.length() <= 4) {
+            return "";
+        }
+        return builder.length() > INPUT_DETAIL_LIMIT
+                ? builder.substring(0, INPUT_DETAIL_LIMIT) + "…" : builder.toString();
+    }
+
+    /**
+     * 判断是否循环四参数。
+     *
+     * @param name 参数名
+     * @return 是循环参数返回 true
+     */
+    private static boolean isLoopParam(String name) {
+        return PARAM_LOOP_COUNT.equals(name) || PARAM_LOOP_INDEX.equals(name)
+                || PARAM_LOOP_ITEM_VARIABLE.equals(name) || PARAM_LOOP_PARALLEL.equals(name);
+    }
+
+    /**
+     * 参数值压成单行可读文本：集合报项数、标量去空白并按 {@link #INPUT_VALUE_LIMIT} 截断。
+     *
+     * @param value 求值结果
+     * @return 可读文本
+     */
+    private String describeValue(Object value) {
+        if (value == null) {
+            return "null";
+        }
+        if (value instanceof Collection<?> collection) {
+            return "[" + collection.size() + " 项]";
+        }
+        if (value instanceof org.jsoup.select.Elements elements) {
+            return "[" + elements.size() + " 项]";
+        }
+        if (value.getClass().isArray()) {
+            return "[" + java.lang.reflect.Array.getLength(value) + " 项]";
+        }
+        String text = CollectFunctions.stringify(value).replaceAll("\\s+", " ");
+        return text.length() > INPUT_VALUE_LIMIT ? text.substring(0, INPUT_VALUE_LIMIT) + "…" : text;
+    }
+
+    /**
+     * 拼接内部详情与出参预览并按 {@link #OUTPUT_DETAIL_LIMIT} 截断。
+     *
+     * <p>入参在前：预览可能顶满 2000 字符（整页 HTML），放前面才能保证「拿什么配置
+     * 执行」始终可读；预览被截掉的尾部只是响应体残段，语义无损。</p>
+     *
+     * @param internal 内部详情（轮次 + 入参）
+     * @param produced 出参预览
+     * @return 拼接结果；两者都为空时返回空串
+     */
+    private String joinDetail(String internal, String produced) {
+        String joined;
+        if (internal.isEmpty()) {
+            joined = produced;
+        } else if (produced.isEmpty()) {
+            joined = internal;
+        } else {
+            joined = internal + " | " + produced;
+        }
+        if (joined.length() > OUTPUT_DETAIL_LIMIT) {
+            return joined.substring(0, OUTPUT_DETAIL_LIMIT) + "…";
+        }
+        return joined;
     }
 
     /**
