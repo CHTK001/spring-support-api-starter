@@ -1,6 +1,7 @@
 package com.chua.starter.collect.controller;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.collect.dto.CollectDslDTO;
 import com.chua.starter.collect.engine.spi.CollectShapeMeta;
 import com.chua.starter.collect.service.CollectDesignerService;
 import com.chua.starter.collect.vo.CollectPreviewVO;
@@ -10,12 +11,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 采集设计器接口。
@@ -88,5 +92,17 @@ public class CollectDesignerController {
     public ReturnResult<CollectPreviewVO> fetchPreview(@RequestParam String url,
                                                        @RequestParam(required = false) Integer timeoutMs) {
         return ReturnResult.ok(designerService.previewFetch(url, timeoutMs));
+    }
+
+    /**
+     * AI 生成流程：把自然语言描述生成流程 DSL（经图校验后返回）。
+     *
+     * @param body 入参：{@code input} 为自然语言描述
+     * @return 规范化后的流程 DSL
+     */
+    @Operation(summary = "AI 生成流程")
+    @PostMapping("/ai-generate")
+    public ReturnResult<CollectDslDTO> aiGenerate(@RequestBody Map<String, String> body) {
+        return ReturnResult.ok(designerService.aiGenerate(body == null ? null : body.get("input")));
     }
 }

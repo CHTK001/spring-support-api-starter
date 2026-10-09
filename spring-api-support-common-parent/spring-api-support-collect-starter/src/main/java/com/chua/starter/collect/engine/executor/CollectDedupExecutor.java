@@ -73,7 +73,7 @@ public class CollectDedupExecutor implements CollectShapeExecutor {
                 "本流程只在当前流程的结果里判重，跨流程用于多个流程共享同一份数据", SCOPE_FLOW, SCOPE_GLOBAL);
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.required(KEY, "主键表达式", "text",
-                        "例：${url} 或 ${item.id}，须与输出节点的主键写法一致"),
+                        "例：${url} 或 ${item.id}，须与采集平台节点的主键写法一致"),
                 scope);
     }
 
