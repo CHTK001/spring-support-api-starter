@@ -230,7 +230,7 @@ shape 值即 `nodes[].shape`；分组 `group` 只有 4 个：`来源`、`解析`
 | `link` | 链接 | 解析 | `link` | 从页面抽链接集合 |
 | `extract` | 抽取 | 解析 | `filter` | CSS/正则/JSON 抽取字段 |
 | `sql` | SQL | 输出 | `database` | 读写数据库 |
-| `output` | 输出 | 输出 | `database` | 落采集记录，可镜像业务表 |
+| `output` | 采集平台 | 输出 | `database` | 落采集平台自身结果表，可镜像业务表 |
 | `database` | 数据库 | 输出 | `database` | 整批写库，不产采集记录；表不存在自动建 |
 | `variable` | 变量 | 控制 | `sigma` | 表达式赋值 |
 | `dedup` | 去重 | 控制 | `shield` | 按业务主键跳过已采 |
@@ -982,7 +982,7 @@ shape 值即 `nodes[].shape`；分组 `group` 只有 4 个：`来源`、`解析`
         { "name": "title", "parserType": "CSS", "expression": "a", "attribute": "text", "attrName": "", "group": 1, "defaultValue": "" },
         { "name": "detailUrl", "parserType": "CSS", "expression": "a", "attribute": "attr", "attrName": "href", "group": 1, "defaultValue": "" }
       ] },
-    { "id": "n4", "shape": "output", "name": "输出", "x": 640, "y": 160,
+    { "id": "n4", "shape": "output", "name": "采集平台", "x": 640, "y": 160,
       "params": [
         { "name": "loopCount", "value": "${rows}", "description": "" },
         { "name": "loopVariableName", "value": "index", "description": "" },

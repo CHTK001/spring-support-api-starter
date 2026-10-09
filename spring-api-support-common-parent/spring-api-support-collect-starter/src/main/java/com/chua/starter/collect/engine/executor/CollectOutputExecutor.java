@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 输出节点：把抽取结果落成采集记录。
+ * 采集平台节点：把抽取结果落成采集平台自身的采集记录。
  *
  * <p>字段用可重复参数 {@code cell:字段名} 声明，每行一条。填了集合表达式时按集合逐条产出，
  * 集合的每一项若是映射，其键会直接成为字段表达式里的同名变量，因此抽取节点产出的
@@ -92,8 +92,8 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
 
     @Override
     public CollectShapeMeta meta() {
-        CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "输出", "输出", "database",
-                "把字段写成采集记录，可同时镜像到业务表");
+        CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "采集平台", "输出", "database",
+                "把字段写入采集平台自身的采集结果表，可同时镜像到业务表");
         meta.setOutputVariable("无出参；记录条数看任务详情的采集记录数");
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.text(EACH, "逐条集合", "text",
@@ -120,7 +120,7 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
             }
         }
         if (cells.isEmpty()) {
-            throw new IllegalStateException("输出节点没有声明字段，请用 cell:字段名 逐行填写");
+            throw new IllegalStateException("采集平台节点没有声明字段，请用 cell:字段名 逐行填写");
         }
         String table = CollectExpression.evalText(node.param(TABLE), variables).trim();
         if (!table.isEmpty()) {

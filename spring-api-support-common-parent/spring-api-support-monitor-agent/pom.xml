@@ -8,7 +8,7 @@
         <groupId>com.chua</groupId>
         <artifactId>spring-api-support-common-parent</artifactId>
         <version>4.0.0.42</version>
-        <relativePath>../spring-api-support-common-parent/pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>spring-api-support-monitor-agent</artifactId>

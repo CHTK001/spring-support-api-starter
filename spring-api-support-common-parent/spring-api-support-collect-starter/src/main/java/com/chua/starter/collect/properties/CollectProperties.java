@@ -102,6 +102,11 @@ public class CollectProperties {
     private Process process = new Process();
 
     /**
+     * AI 生成流程配置（设计器「AI 生成」）。
+     */
+    private Ai ai = new Ai();
+
+    /**
      * 脚本节点开关。
      *
      * <p>关闭后脚本执行器不再注册，工具箱里不会出现脚本节点，
@@ -163,6 +168,51 @@ public class CollectProperties {
          * 是否启用执行通知。
          */
         private boolean enable = true;
+    }
+
+    /**
+     * AI 生成流程配置。
+     *
+     * <p>设计器「AI 生成」把自然语言描述发给 ai-starter（OpenAI 兼容
+     * {@code /v2/v1/chat/completions}），由模型产出流程 DSL；生成的 DSL 走与保存
+     * 相同的图校验（{@code CollectFlowService#normalizeDsl}）后才返回给前端。</p>
+     *
+     * <p>ai-starter 的 {@code LocalTrustAuthFilter} 对回环来源放行
+     * {@code x-nomi-local-trust} 头，因此默认配置只在采集后端与 ai-starter
+     * 同机部署时可用（与 198 的实际部署形态一致）。</p>
+     */
+    @Data
+    public static class Ai {
+
+        /**
+         * 是否启用「AI 生成流程」。
+         */
+        private boolean enable = true;
+
+        /**
+         * ai-starter 服务地址（与采集后端同机时用回环）。
+         */
+        private String baseUrl = "http://127.0.0.1:8787";
+
+        /**
+         * 模型名，须为 ai-starter 中已启用的模型（见其 GET /v2/v1/models 与供应商模型清单）。
+         */
+        private String model = "deepseek-v4.1-flash";
+
+        /**
+         * 本地信任头名（ai-starter 约定）。
+         */
+        private String trustHeader = "x-nomi-local-trust";
+
+        /**
+         * 本地信任头的值（服务端只要求非空，内容不校验）。
+         */
+        private String trustValue = "collect-designer";
+
+        /**
+         * 单次生成总超时毫秒（整图 JSON 生成较慢，放宽）。
+         */
+        private int timeoutMs = 180000;
     }
 
 }
