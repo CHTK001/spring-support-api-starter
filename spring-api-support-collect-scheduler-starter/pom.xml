@@ -25,6 +25,15 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-support-job-starter</artifactId>
     </dependency>
+    <!-- datasource-hub（内嵌）新版 DbConsoleController 的构造参数泛型引用了
+         com.chua.starter.ai.support.service.AiChatFacadeService；hub 把 ai-starter
+         声明为 optional（不传递），不显式引入则 Spring 解析方法参数通用类型时抛
+         TypeNotPresentException，整个上下文启动失败。可部署形态必须自带 ai 模块，
+         与 8081 中心（app.jar 含 ai）口径一致。 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-ai-starter</artifactId>
+    </dependency>
     <!-- 站内消息渠道说明：走的是采集模块传递依赖的 common-system-starter 消息中心，
          本模块无需（也不该）再引 spring-support-message-starter —— 后者与
          common-system-starter 各自带了一整套 SysMessage*，4 个 Mapper 与 4 组
