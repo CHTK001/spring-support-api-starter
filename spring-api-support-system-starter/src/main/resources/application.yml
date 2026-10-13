@@ -122,3 +122,16 @@ plugin:
       - /v2/sms/login
       - /v2/email/send
       - /v2/email/login
+
+# ===========================================
+# ai-starter 缓存：系统后端已由 common-system-starter 的 DefaultCacheManagerConfiguration
+# 提供唯一 @Primary 的 primaryCacheManager；ai-starter 的 AiCacheAutoConfiguration 默认
+# （chua.ai.cache.enabled=true，matchIfMissing）也注册一个 @Primary 的 aiCacheManager，
+# 两个 @Primary 触发 NoUniqueBeanDefinitionException、上下文启动失败。此处显式关闭
+# ai-starter 缓存，令 primaryCacheManager 成为唯一 @Primary。系统平台的「AI 提供商管理」
+# 为 CRUD，不依赖 ai-starter 的 Caffeine 缓存，关闭不影响该页功能。
+# ===========================================
+chua:
+  ai:
+    cache:
+      enabled: false
