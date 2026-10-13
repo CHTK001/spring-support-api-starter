@@ -82,6 +82,25 @@ public class CollectProperties {
     private int previewLength = 500;
 
     /**
+     * 各节点产出留存条数上限（{@code ${nodes.<id>.字段} 的底表）。
+     *
+     * <p>节点产出存的是引用不是拷贝，单条不额外占内存，但一条采集动辄上万行、
+     * 支路又多时累计持有量仍可达几十 MB。默认 2000：超过后不再登记新的节点产出，
+     * 已登记的照常可引用；取不到与「变量未定义」同语义，求值得 null。
+     * 0 或负数表示不限。</p>
+     */
+    private int nodeOutputLimit = 2000;
+
+    /**
+     * 「查已存在」节点 IN 查询的每片条数。
+     *
+     * <p>中文成语这类数据，一个字面量就是几个字节，9429 条拼出来是几 MB SQL，
+     * 会顶到 {@code max_allowed_packet}（默认 4~64MB）。分片后每片走一次
+     * PreparedStatement 绑定，既不超包也无注入面。默认 500。</p>
+     */
+    private int existsBatchSize = 500;
+
+    /**
      * 脚本节点配置。
      */
     private Script script = new Script();

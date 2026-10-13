@@ -1,6 +1,7 @@
 package com.chua.starter.collect.engine;
 
 import com.chua.common.support.reflection.ReflectUtils;
+import com.chua.starter.collect.support.CollectJson;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -596,8 +597,26 @@ public final class CollectExpression {
             if ("size".equals(name)) {
                 return CollectFunctions.size(target);
             }
+            // ${data.toJson}：把当前数据转成 JSON 字符串（用户明确要求的变量写法）。
+            // 与引擎派生的 ${dataJson} 等价，这里让 .toJson 成员访问直接可用。
+            if ("toJson".equals(name)) {
+                return CollectJson.toJson(target);
+            }
             if (target instanceof Map) {
                 return ((Map<?, ?>) target).get(name);
+            }
+            // 行列表投影：${data.word} 把 List<Map> 里每行的 word 字段抽成扁平 List，
+            // 供 SQL 节点 IN (${data.word}) 批量化处理上游抽取出的成千上万个值。
+            if (target instanceof List<?> list) {
+                List<Object> projected = new ArrayList<>();
+                for (Object item : list) {
+                    if (item instanceof Map) {
+                        projected.add(((Map<?, ?>) item).get(name));
+                    } else {
+                        projected.add(member(item, name));
+                    }
+                }
+                return projected;
             }
             if (target instanceof Element) {
                 return elementProperty((Element) target, name);

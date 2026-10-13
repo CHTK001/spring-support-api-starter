@@ -171,7 +171,7 @@ public class CollectRequestExecutor implements CollectShapeExecutor {
                 CollectParamMeta.of(USER_AGENT, "User-Agent", "text"),
                 CollectShapeMetas.text(FETCHER, "抓取器", "text",
                         "SPI 名称，默认 http；注册了浏览器渲染抓取器后填其名称"),
-                CollectShapeMetas.option(OUTPUT, "出参变量名", DEFAULT_OUTPUT,
+                CollectShapeMetas.option(OUTPUT, "输出名", DEFAULT_OUTPUT,
                         "响应映射写入该变量，文档对象与 JSON 分别为其后缀 Doc、Json", DEFAULT_OUTPUT),
                 CollectShapeMetas.option(SAVE_DOCUMENT, "保留文档对象", "1",
                         "选 0 时不解析 jsoup 文档，下游 CSS 抽取与链接节点不可用", "1", "0"),
@@ -420,5 +420,10 @@ public class CollectRequestExecutor implements CollectShapeExecutor {
         }
         Map<?, ?> resp = (Map<?, ?>) output;
         return "HTTP " + resp.get("status") + " " + resp.get("length") + " 字符";
+    }
+
+    @Override
+    public String defaultOutput(CollectNode node) {
+        return DEFAULT_OUTPUT;
     }
 }

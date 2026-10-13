@@ -73,11 +73,11 @@ public class CollectDataEntryExecutor implements CollectShapeExecutor {
     public CollectShapeMeta meta() {
         CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "数据录入", "来源", "edit-pen",
                 "手工录入数据行作为流程的行数据源头，下游接数据库 / 输出等节点；可按录入列一键给目标数据源建表");
-        meta.setOutputVariable("默认写入 rows，下游用 ${rows} 引用整批行");
+        meta.setOutputVariable("默认 data，旧流程留空时按 ${rows} 兜底");
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.required(ROWS, "录入数据", "textarea",
                         "第一行表头（逗号分隔列名），之后每行一条；也支持 JSON 数组 [{\"列\": 值}]；支持 ${} 表达式"),
-                CollectParamMeta.of(OUTPUT, "集合变量名", "text"),
+                CollectShapeMetas.outputVariable("录入结果写入的变量名，默认 data"),
                 CollectShapeMetas.datasource(DATASOURCE, "建表数据源", "",
                         "「建表」按钮的目标数据源，仅建表用，不影响本节点出参"),
                 CollectShapeMetas.table(TABLE, "建表目标表", "",
@@ -96,6 +96,11 @@ public class CollectDataEntryExecutor implements CollectShapeExecutor {
         Object value = variables.get(outputOf(node));
         int size = value instanceof List ? ((List<?>) value).size() : 0;
         return "录入 " + size + " 行";
+    }
+
+    @Override
+    public String defaultOutput(CollectNode node) {
+        return DEFAULT_OUTPUT;
     }
 
     /**
