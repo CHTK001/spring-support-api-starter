@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -137,6 +138,55 @@ public class CollectJdbcSupport {
             return readRows(rs);
         } catch (SQLException ex) {
             throw new IllegalStateException("查询失败: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * 按单列批量查「已存在」的键。
+     *
+     * <p>「查已存在」节点的专用通道：表名与列名走严格 ASCII 标识符白名单，
+     * 值全部通过 {@link PreparedStatement} 绑定，不做任何字符串拼接 ——
+     * 9429 个中文成语若拼成字面量是几 MB SQL，会顶到 {@code max_allowed_packet}，
+     * 且拼接等于没有防注入。IN 列表由调用方按片拆分（每片默认 500），
+     * 本方法只负责单片：占位符数量与值数量一致、逐位绑定。</p>
+     *
+     * @param reference 数据源引用
+     * @param table     表名
+     * @param column    列名
+     * @param values    待查值集合（单片），内部去重
+     * @return 命中的值集合（去重），无命中返回空集合
+     */
+    public Set<Object> queryIn(String reference, String table, String column, Collection<?> values) {
+        if (values == null || values.isEmpty()) {
+            return new LinkedHashSet<>();
+        }
+        List<Object> distinct = new ArrayList<>(new LinkedHashSet<>(values));
+        StringBuilder placeholders = new StringBuilder(distinct.size() * 2);
+        for (int i = 0; i < distinct.size(); i++) {
+            if (i > 0) {
+                placeholders.append(", ");
+            }
+            placeholders.append('?');
+        }
+        try (Connection connection = resolve(reference).getConnection()) {
+            String sql = "SELECT " + quoted(connection, column)
+                    + " FROM " + quoted(connection, table)
+                    + " WHERE " + quoted(connection, column)
+                    + " IN (" + placeholders + ")";
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                for (int i = 0; i < distinct.size(); i++) {
+                    ps.setObject(i + 1, value(distinct.get(i)));
+                }
+                try (ResultSet rs = ps.executeQuery()) {
+                    Set<Object> found = new LinkedHashSet<>();
+                    while (rs.next()) {
+                        found.add(clean(rs.getObject(1)));
+                    }
+                    return found;
+                }
+            }
+        } catch (SQLException ex) {
+            throw new IllegalStateException("查询已存在失败: " + ex.getMessage(), ex);
         }
     }
 
@@ -697,6 +747,25 @@ public class CollectJdbcSupport {
     }
 
     /**
+     * 是否只读查询语句（SELECT / WITH / SHOW）。
+     *
+     * <p>判定口径跳过前导空白与**括号包裹的查询块**：MySQL/MariaDB 里
+     * {@code (select …) union all (select …)} 这类语句以左括号开头，只按首词判定会把它
+     * 误判成写语句 —— SQL 节点在 {@code plugin.collect.sql-allow-write=false} 下直接拒收，
+     * 走到 JDBC 支撑层又抛「查询节点只能执行 SELECT 语句」，两头都堵死合法的只读 UNION。</p>
+     *
+     * @param sql 原始语句，可为 null
+     * @return 是只读查询返回 true
+     */
+    public static boolean isReadOnlyStatement(String sql) {
+        String head = sql == null ? "" : sql.trim().toLowerCase(Locale.ROOT);
+        while (head.startsWith("(")) {
+            head = head.substring(1).trim();
+        }
+        return head.startsWith("select") || head.startsWith("with") || head.startsWith("show");
+    }
+
+    /**
      * 校验单条语句。
      *
      * @param sql     原始语句
@@ -714,8 +783,7 @@ public class CollectJdbcSupport {
         if (statement.contains(";")) {
             throw new IllegalArgumentException("一次只能执行一条 SQL 语句");
         }
-        String head = statement.toLowerCase(Locale.ROOT);
-        if (query != (head.startsWith("select") || head.startsWith("with") || head.startsWith("show"))) {
+        if (query != isReadOnlyStatement(statement)) {
             throw new IllegalArgumentException(query ? "查询节点只能执行 SELECT 语句" : "更新节点不能执行 SELECT 语句");
         }
         return statement;

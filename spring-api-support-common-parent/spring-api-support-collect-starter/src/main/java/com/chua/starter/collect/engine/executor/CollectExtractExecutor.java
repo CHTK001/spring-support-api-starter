@@ -138,7 +138,7 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
         CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "抽取", "解析", "filter",
                 "按 CSS、XPath、正则、JSON 或 JSONPath 从上游响应抽取字段");
         meta.setFieldEditor(true);
-        meta.setOutputVariable("单条模式写同名变量与 row，列表模式写 rows 集合");
+        meta.setOutputVariable("默认 data，旧流程留空时按单条 row / 列表 rows 兜底");
         CollectParamMeta source = CollectShapeMetas.text(SOURCE, "抽取来源", "text",
                 "默认 ${respDoc}；也可填 ${resp.html}、${respJson} 或任意 HTML 文本变量");
         source.setDefaultValue("${" + DEFAULT_SOURCE + "}");
@@ -149,8 +149,7 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
                 mode,
                 CollectShapeMetas.text(ROW_EXPRESSION, "行选择器", "text",
                         "列表模式用：HTML 填 CSS 选择器如 li.item，JSON 填路径如 data.items"),
-                CollectShapeMetas.text(OUTPUT, "出参变量名", "text",
-                        "列表模式默认 rows，单条模式默认 row"));
+                CollectShapeMetas.outputVariable("抽取结果写入的变量名，默认 data（单条模式是对象，列表模式是数组）"));
     }
 
     @Override
@@ -195,6 +194,11 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
             return "抽取 " + ((Map<?, ?>) value).size() + " 个字段";
         }
         return null;
+    }
+
+    @Override
+    public String defaultOutput(CollectNode node) {
+        return MODE_LIST.equals(node.param(MODE)) ? DEFAULT_OUTPUT : DEFAULT_SINGLE_OUTPUT;
     }
 
     /**

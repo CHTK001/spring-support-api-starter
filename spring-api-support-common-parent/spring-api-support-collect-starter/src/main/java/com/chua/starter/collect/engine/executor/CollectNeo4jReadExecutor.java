@@ -79,13 +79,13 @@ public class CollectNeo4jReadExecutor implements CollectShapeExecutor {
     public CollectShapeMeta meta() {
         CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "Neo4j查询", "来源", "share",
                 "执行 Cypher 查询 Neo4j，结果行写进出参集合，下游按集合消费（同抽取节点 list 模式）");
-        meta.setOutputVariable("默认写入 rows，下游用 ${rows} 引用");
+        meta.setOutputVariable("默认 data，旧流程留空时按 ${rows} 兜底");
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.datasource(DATASOURCE, "Neo4j 数据源", "",
                         "只接受 neo4j 类型数据源；应用主库 app 不适用"),
                 CollectShapeMetas.required(CYPHER, "Cypher 语句", "textarea",
                         "支持 ${} 表达式拼接，例 MATCH (n:Person) RETURN n LIMIT ${limit}；服务端返回行数有上限（超出截断）"),
-                CollectParamMeta.of(OUTPUT, "集合变量名", "text"));
+                CollectShapeMetas.outputVariable("查询结果写入的变量名，默认 data"));
     }
 
     @Override
@@ -111,6 +111,11 @@ public class CollectNeo4jReadExecutor implements CollectShapeExecutor {
     @Override
     public String summary(CollectNode node, Map<String, Object> variables) {
         return "查询 " + support.sizeOf(variables, outputOf(node)) + " 行";
+    }
+
+    @Override
+    public String defaultOutput(CollectNode node) {
+        return DEFAULT_OUTPUT;
     }
 
     /**

@@ -78,7 +78,7 @@ public class CollectScriptExecutor implements CollectShapeExecutor {
                 "执行 Groovy 脚本加工变量，返回 Map 即批量出参");
         CollectParamMeta script = CollectShapeMetas.required(SCRIPT, "脚本正文", "textarea",
                 "上游变量按名字直接引用，vars 可读写同一份变量表，fn 调内置函数；最后一条表达式即返回值");
-        CollectParamMeta output = CollectShapeMetas.text(OUTPUT, "输出变量名", "text",
+        CollectParamMeta output = CollectShapeMetas.text(OUTPUT, "输出名", "text",
                 "脚本返回标量时写入该变量，返回 Map 时忽略");
         output.setDefaultValue(DEFAULT_OUTPUT);
         return CollectShapeMetas.with(meta, script, output,
@@ -128,6 +128,11 @@ public class CollectScriptExecutor implements CollectShapeExecutor {
             first = first.substring(0, 80) + "…";
         }
         return first.isEmpty() ? null : first;
+    }
+
+    @Override
+    public String defaultOutput(CollectNode node) {
+        return DEFAULT_OUTPUT;
     }
 
     /**

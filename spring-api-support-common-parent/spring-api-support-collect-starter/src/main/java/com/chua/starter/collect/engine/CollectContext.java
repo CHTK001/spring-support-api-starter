@@ -56,6 +56,38 @@ public class CollectContext {
     private final Map<String, Object> rootVariables = new ConcurrentHashMap<>();
 
     /**
+     * 流程变量表（用户在「流程设置 → 流程变量」里声明的那些），以 {@code env} 之名暴露给表达式。
+     *
+     * <p>与 {@link #rootVariables} 分开是因为两者语义不同：rootVariables 是引擎运行期工作区，
+     * 混着 taskId / data / 各节点输出等一整套内部键；而 {@code ${env.xxx}} 是用户自己命名、
+     * 需要在设计期就能被「插入占位」列出来的那部分。混在一起会让流程变量和引擎内部键抢同一个
+     * 命名空间，用户变量名一旦撞上 data 或 taskNo 就会被悄悄顶掉。</p>
+     *
+     * <p>求值时把本 Map 本身以 {@code env} 为名注入作用域，{@code ${env.xxx}} 走表达式引擎
+     * 既有的「成员访问 Map」路径，解析器不需要加任何特判。</p>
+     */
+    private final Map<String, Object> envVariables = new ConcurrentHashMap<>();
+
+    /**
+     * 各节点产出留存表：{@code 节点ID → 该节点输出值}，流程结束才释放。
+     *
+     * <p>用途是跨节点、跨分支取值：多源分叉的各条支路各抽各的，汇总时要拿兄弟支路的抽结果
+     * 来比对，此前没有任何途径能引用到它们。以 {@code nodes} 之名注入作用域，
+     * {@code ${nodes.n3.word}} 即可取到 n3 抽取节点的 word 字段。</p>
+     *
+     * <p><b>内存</b>：存的是引用不是拷贝，单个值不额外占内存，但一条采集动辄上万行、支路又多时
+     * 累计持有量仍可达几十 MB。为此设 {@link #nodeOutputLimit}：超过上限后不再登记新的节点产出
+     * （已登记的照常可引用），避免百万级采集把堆打满。取不到返回 null，与「变量未定义」同语义，
+     * 表达式求值给 null 而不是抛异常。</p>
+     */
+    private final Map<String, Object> nodeOutputs = new ConcurrentHashMap<>();
+
+    /**
+     * 节点产出留存条数上限，0 或负数表示不限。
+     */
+    private volatile int nodeOutputLimit;
+
+    /**
      * 节点执行次数计量。
      */
     private final AtomicInteger nodeCount = new AtomicInteger();
@@ -258,6 +290,77 @@ public class CollectContext {
             return;
         }
         rootVariables.put(name.trim(), value == null ? "" : value);
+    }
+
+    /**
+     * 获取流程变量表（{@code ${env.xxx}} 的数据源）。
+     *
+     * @return 流程变量表，只读语义由调用方遵守
+     */
+    public Map<String, Object> getEnvVariables() {
+        return envVariables;
+    }
+
+    /**
+     * 写入流程变量，同时反映到 {@code env} 命名空间。
+     *
+     * @param name  变量名
+     * @param value 变量值，null 落成空串
+     */
+    public void putEnvVariable(String name, Object value) {
+        if (name == null || name.isBlank()) {
+            return;
+        }
+        envVariables.put(name.trim(), value == null ? "" : value);
+    }
+
+    /**
+     * 获取各节点产出留存表（{@code ${nodes.<id>.字段} 的数据源）。
+     *
+     * @return 节点产出表
+     */
+    public Map<String, Object> getNodeOutputs() {
+        return nodeOutputs;
+    }
+
+    /**
+     * 登记一个节点的产出，供跨节点、跨分支引用。
+     *
+     * <p>超过 {@link #nodeOutputLimit} 时直接丢弃新登记，但已登记的仍可引用，
+     * 取不到返回 null，与「变量未定义」同语义。</p>
+     *
+     * @param nodeId 节点ID
+     * @param value  该节点的输出值
+     * @return 已登记返回 true，因上限被丢弃返回 false
+     */
+    public boolean putNodeOutput(String nodeId, Object value) {
+        if (nodeId == null || nodeId.isBlank()) {
+            return false;
+        }
+        int limit = nodeOutputLimit;
+        if (limit > 0 && nodeOutputs.size() >= limit && !nodeOutputs.containsKey(nodeId.trim())) {
+            return false;
+        }
+        nodeOutputs.put(nodeId.trim(), value);
+        return true;
+    }
+
+    /**
+     * 设置节点产出留存条数上限，0 或负数表示不限。
+     *
+     * @param nodeOutputLimit 上限条数
+     */
+    public void setNodeOutputLimit(int nodeOutputLimit) {
+        this.nodeOutputLimit = nodeOutputLimit;
+    }
+
+    /**
+     * 获取节点产出留存条数上限。
+     *
+     * @return 上限条数，0 或负数表示不限
+     */
+    public int getNodeOutputLimit() {
+        return nodeOutputLimit;
     }
 
     /**

@@ -95,7 +95,7 @@ public class CollectLinkExecutor implements CollectShapeExecutor {
     public CollectShapeMeta meta() {
         CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "链接", "解析", "link",
                 "从页面抽出链接集合，供下游循环节点逐条抓取");
-        meta.setOutputVariable("链接集合写入出参变量，默认 linkList");
+        meta.setOutputVariable("默认 data，旧流程留空时按 ${linkList} 兜底");
         CollectParamMeta source = CollectShapeMetas.text(SOURCE, "页面来源", "text",
                 "默认 ${respDoc}，也可填 HTML 文本变量");
         source.setDefaultValue("${" + DEFAULT_SOURCE + "}");
@@ -111,7 +111,7 @@ public class CollectLinkExecutor implements CollectShapeExecutor {
                 CollectShapeMetas.text(PATTERN, "过滤正则", "text", "只保留整串匹配的链接，如 .*page=\\d+"),
                 absolute,
                 CollectShapeMetas.text(LIMIT, "最多条数", "number", "留空或 0 表示不限制"),
-                CollectShapeMetas.text(OUTPUT, "出参变量名", "text", "默认 linkList"));
+                CollectShapeMetas.outputVariable("链接集合写入的变量名，默认 data"));
     }
 
     @Override
@@ -162,6 +162,11 @@ public class CollectLinkExecutor implements CollectShapeExecutor {
             return "发现 " + ((Collection<?>) value).size() + " 个链接";
         }
         return null;
+    }
+
+    @Override
+    public String defaultOutput(CollectNode node) {
+        return DEFAULT_OUTPUT;
     }
 
     /**
