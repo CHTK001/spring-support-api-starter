@@ -47,18 +47,18 @@ public final class CollectShapeMetas {
      */
     public static List<CollectParamMeta> loopParams() {
         List<CollectParamMeta> params = new ArrayList<>();
-        params.add(text(CollectEngine.PARAM_LOOP_COUNT, "循环集合/次数", "textarea",
-                "填次数如 10，或填集合表达式如 ${urlList}、${rows}；留空只执行一次"));
-        CollectParamMeta index = text(CollectEngine.PARAM_LOOP_INDEX, "下标变量名", "text",
-                "循环下标写入的变量名，留空用 index");
+        params.add(text(CollectEngine.PARAM_LOOP_COUNT, "逐条处理的集合", "textarea",
+                "填次数如 10，或填集合表达式如 ${url}、${data}；留空只执行一次。填集合时每一项就是一轮的 ${item}"));
+        CollectParamMeta index = text(CollectEngine.PARAM_LOOP_INDEX, "轮次变量名", "text",
+                "当前是第几轮（从 0 起），写入的变量名，留空用 index");
         index.setDefaultValue("index");
         params.add(index);
-        CollectParamMeta item = text(CollectEngine.PARAM_LOOP_ITEM_VARIABLE, "元素变量名", "text",
-                "当前迭代元素写入的变量名，下游节点用 ${item} 引用");
+        CollectParamMeta item = text(CollectEngine.PARAM_LOOP_ITEM_VARIABLE, "当前条变量名", "text",
+                "本轮处理的那条数据写入的变量名，下游用 ${item} 引用");
         item.setDefaultValue("item");
         params.add(item);
-        CollectParamMeta parallel = option(CollectEngine.PARAM_LOOP_PARALLEL, "迭代并行", "0",
-                "选 1 时各迭代同时入池，由流程线程数限流；下游按迭代各自展开", "0", "1");
+        CollectParamMeta parallel = option(CollectEngine.PARAM_LOOP_PARALLEL, "并行逐条", "0",
+                "选 1 时各条同时入池，由流程线程数限流；下游按条各自展开", "0", "1");
         params.add(parallel);
         return params;
     }
@@ -107,6 +107,30 @@ public final class CollectShapeMetas {
      */
     public static CollectParamMeta required(String name, String label, String type, String tip) {
         CollectParamMeta meta = text(name, label, type, tip);
+        meta.setRequired(true);
+        return meta;
+    }
+
+    /**
+     * 构造「输出名」参数：必填、默认 {@code data}。
+     *
+     * <p>所有产出型节点共用。引擎在节点执行后会把该变量别名成统一的
+     * {@code ${data}}（即上一个节点的产出），并派生 {@code dataJson}、
+     * 登记跨节点留存 —— 所以输出名无论填什么，{@code ${data}} 恒可用。
+     * 默认 {@code data} 让新节点开箱即落在统一变量模型上，用户也可自定义
+     * 成别的名字（存量流程留空时引擎按执行器默认名兜底，引用不破坏）。</p>
+     *
+     * <p>注意：请求节点不用本方法 —— 它会派生 {@code 输出名+Json/Doc} 同伴
+     * 变量，若输出名填 {@code data} 会和引擎派生的 {@code dataJson} 撞名，
+     * 故请求节点输出名仍默认 {@code resp}。</p>
+     *
+     * @param tip 填写提示
+     * @return 参数元数据
+     */
+    public static CollectParamMeta outputVariable(String tip) {
+        CollectParamMeta meta = CollectParamMeta.of("outputVariable", "输出名", "text");
+        meta.setTip(tip);
+        meta.setDefaultValue("data");
         meta.setRequired(true);
         return meta;
     }

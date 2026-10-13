@@ -52,10 +52,8 @@ public class CollectConditionExecutor implements CollectShapeExecutor {
     public CollectShapeMeta meta() {
         CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "判断", "控制", "branch",
                 "按表达式求值写入变量，出边用条件表达式真假分流");
-        meta.setOutputVariable("求值结果写入结果变量，出边条件用 ${结果变量名} 判断真假");
-        CollectParamMeta output = CollectShapeMetas.text(OUTPUT, "结果变量名", "text",
-                "求值结果写入该变量，出边条件用 ${结果变量名} 判断真假，留空用 " + DEFAULT_OUTPUT);
-        output.setDefaultValue(DEFAULT_OUTPUT);
+        meta.setOutputVariable("默认 data，旧流程留空时按 ${conditionResult} 兜底");
+        CollectParamMeta output = CollectShapeMetas.outputVariable("求值结果写入该变量，出边条件用 ${输出名} 判断真假");
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.required(EXPRESSION, "判断表达式", "textarea",
                         "布尔表达式。裸写或 ${} 包裹都可以：1 == 2、${status == 1}、${rows.size() > 0}。"
@@ -87,5 +85,10 @@ public class CollectConditionExecutor implements CollectShapeExecutor {
         Object value = variables.get(name);
         return (CollectExpression.truthy(value) ? "真" : "假") + " · " + name + "="
                 + CollectFunctions.stringify(value);
+    }
+
+    @Override
+    public String defaultOutput(CollectNode node) {
+        return DEFAULT_OUTPUT;
     }
 }

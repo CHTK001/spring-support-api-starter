@@ -86,7 +86,7 @@ public class CollectInfluxdbReadExecutor implements CollectShapeExecutor {
     public CollectShapeMeta meta() {
         CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "InfluxDB查询", "来源", "search",
                 "执行 Flux 查询 InfluxDB，结果行写进出参集合，下游按集合消费（同抽取节点 list 模式）");
-        meta.setOutputVariable("默认写入 rows，下游用 ${rows} 引用");
+        meta.setOutputVariable("默认 data，旧流程留空时按 ${rows} 兜底");
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.datasource(DATASOURCE, "InfluxDB 数据源", "",
                         "只接受 influxdb 类型数据源；应用主库 app 不适用"),
@@ -94,7 +94,7 @@ public class CollectInfluxdbReadExecutor implements CollectShapeExecutor {
                         "供 Flux 里 ${bucket} 引用；不使用可留空"),
                 CollectShapeMetas.required(FLUX, "Flux 语句", "textarea",
                         "支持 ${} 表达式拼接；服务端返回行数有上限（超出截断，摘要会标注）"),
-                CollectParamMeta.of(OUTPUT, "集合变量名", "text"));
+                CollectShapeMetas.outputVariable("查询结果写入的变量名，默认 data"));
     }
 
     @Override
@@ -111,7 +111,7 @@ public class CollectInfluxdbReadExecutor implements CollectShapeExecutor {
         if (flux.isEmpty()) {
             throw new IllegalStateException("未填写 Flux 语句");
         }
-        InfluxdbQueryResultVO result = service.query(new InfluxdbQueryDTO(flux, datasource.id()));
+        InfluxdbQueryResultVO result = service.query(new InfluxdbQueryDTO(flux, datasource.id(), null));
         List<Map<String, Object>> rows = new ArrayList<>(result.rows());
         variables.put(outputOf(node), rows);
         if (Boolean.TRUE.equals(result.truncated())) {
@@ -123,6 +123,11 @@ public class CollectInfluxdbReadExecutor implements CollectShapeExecutor {
     @Override
     public String summary(CollectNode node, Map<String, Object> variables) {
         return "查询 " + support.sizeOf(variables, outputOf(node)) + " 行";
+    }
+
+    @Override
+    public String defaultOutput(CollectNode node) {
+        return DEFAULT_OUTPUT;
     }
 
     /**

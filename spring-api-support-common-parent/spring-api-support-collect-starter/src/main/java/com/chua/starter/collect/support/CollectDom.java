@@ -157,8 +157,10 @@ public final class CollectDom {
         // fromJsoup(Element) —— 整个文档被当成「普通元素」转换，文档级结构被削掉。
         // 症状很隐蔽：属性路径 //a/@href 能取到，元素与文本路径 //h1、//h1/text() 全是空。
         // 验收实测过：同一页面上 //a/@href 有值而 //h1 为空。
+        // 还要看 element() 的实际运行时类型：响应 Map（{html: "..."}）取出的也是
+        // jsoup Document，但静态类型是 Element，同样必须走 Document 重载。
         var dom = new W3CDom().namespaceAware(false);
-        var document = item instanceof Document ? dom.fromJsoup((Document) item) : dom.fromJsoup(root);
+        var document = root instanceof Document ? dom.fromJsoup((Document) root) : dom.fromJsoup(root);
         String expr = expression.trim();
         var evaluator = XPathFactory.newInstance().newXPath();
         Object result;

@@ -62,4 +62,23 @@ public interface CollectShapeExecutor {
     default List<String> loopParams() {
         return List.of();
     }
+
+    /**
+     * 节点「输出名」（{@code outputVariable}）为空时的兜底变量名。
+     *
+     * <p>引擎在节点执行后把这个变量别名成统一的 {@code data}（即
+     * {@code ${data}} 恒指向上一个节点的产出），并派生 {@code dataJson}、
+     * 登记跨节点留存。执行器用各自的产出变量名（{@code rows} / {@code resp} /
+     * {@code linkList}…）覆盖本方法，引擎就能在「输出名」留空时找到产出 ——
+     * 这样存量流程的 {@code ${rows}} 等引用继续可用，同时又都能用 {@code ${data}}。</p>
+     *
+     * <p>带 {@code node} 是因为部分执行器的产出变量名随节点参数变化
+     * （如抽取节点单条模式写 {@code row}、列表模式写 {@code rows}）。</p>
+     *
+     * @param node 当前节点
+     * @return 默认输出变量名，未覆盖返回 {@code data}
+     */
+    default String defaultOutput(CollectNode node) {
+        return "data";
+    }
 }

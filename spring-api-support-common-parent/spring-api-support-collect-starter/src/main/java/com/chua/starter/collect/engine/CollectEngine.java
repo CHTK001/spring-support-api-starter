@@ -8,6 +8,7 @@ import com.chua.starter.collect.engine.model.CollectGraph;
 import com.chua.starter.collect.engine.model.CollectNode;
 import com.chua.starter.collect.engine.spi.CollectShapeExecutor;
 import com.chua.starter.collect.properties.CollectProperties;
+import com.chua.starter.collect.support.CollectJson;
 import com.chua.starter.collect.support.CollectTaskStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +66,15 @@ public class CollectEngine {
      * 循环并行开关参数名。
      */
     public static final String PARAM_LOOP_PARALLEL = "loopParallel";
+
+    /**
+     * 节点输出名参数名（设计器「输出名」，默认 {@code data}）。
+     *
+     * <p>各执行器把自己的产出写进这个变量；引擎再按它派生 {@code data} 别名、
+     * {@code dataJson} 与节点产出留存，因此这里与执行器的 {@code DEFAULT_OUTPUT}
+     * 必须同名同义。改默认值时三处一起改。</p>
+     */
+    public static final String OUTPUT_VARIABLE = "outputVariable";
 
     /**
      * 节点内部详情（入参 / 轮次）在出参列的硬上限。
@@ -268,14 +278,27 @@ public class CollectEngine {
      */
     private void seedVariables(CollectContext context, CollectDslDTO dsl) {
         Map<String, Object> root = context.getRootVariables();
+        // 节点产出留存上限：超过后不再登记新的节点产出，已登记的照常可引用，
+        // 防止百万级采集把堆打满（古诗 52212 行 × 多支路时不设上限会 OOM）
+        context.setNodeOutputLimit(properties.getNodeOutputLimit());
         context.putRootVariable("taskNo", context.getTaskNo());
         context.putRootVariable("taskId", context.getTaskId());
         context.putRootVariable("flowId", context.getFlowId());
         if (dsl.getVariables() != null) {
             for (CollectParamDTO param : dsl.getVariables()) {
-                context.putRootVariable(param.getName(), CollectExpression.eval(param.getValue(), root));
+                Object value = CollectExpression.eval(param.getValue(), root);
+                // 流程变量双写：root 保留 ${xxx} 直引（存量兼容），env 供 ${env.xxx}。
+                // 两处指向同一值，改任一处另一处同步生效。
+                context.putRootVariable(param.getName(), value);
+                context.putEnvVariable(param.getName(), value);
             }
         }
+        // 内置命名空间（放在用户变量之后，env / nodes / data 成为保留字，不被同名流程变量顶掉）：
+        //   ${env.xxx}  → 流程变量表（${env.用户名} 取用户自己声明的变量）
+        //   ${nodes.n3.word} → 跨节点 / 跨分支取 n3 节点的产出
+        // 两张表本身是引用，注入作用域后表达式走既有的「成员访问 Map」路径，解析器零改动。
+        context.putRootVariable("env", context.getEnvVariables());
+        context.putRootVariable("nodes", context.getNodeOutputs());
         context.getGlobalHeaders().clear();
         context.getGlobalCookies().clear();
         if (dsl.getHeaders() != null) {
@@ -396,6 +419,8 @@ public class CollectEngine {
             executor.execute(node, context, scope);
             failed = false;
             scope.remove(VAR_EXCEPTION);
+            // 节点产出落地：${data} 别名、dataJson 派生、跨节点留存
+            bindOutput(context, executor, node, scope);
         } catch (Exception ex) {
             failed = true;
             String message = describe(ex);
@@ -442,6 +467,63 @@ public class CollectEngine {
         scope.put(nonDefault(node.param(PARAM_LOOP_INDEX), "index"), (long) iteration);
         scope.put(nonDefault(node.param(PARAM_LOOP_ITEM_VARIABLE), "item"), items.get(iteration));
         return scope;
+    }
+
+    /**
+     * 节点产出落地：写 {@code data} 别名、派生 {@code dataJson}、登记跨节点留存。
+     *
+     * <p>变量模型的核心。统一约定「{@code ${data}} 恒指向上一个节点的产出」，
+     * 与节点自己把产出命名成什么无关：</p>
+     * <ul>
+     *   <li>节点按「输出名」（{@code outputVariable}，默认 {@code data}）写产出；
+     *       引擎再把它别名到 {@code data}，所以下游不管上游输出名叫什么，
+     *       一律 {@code ${data}} 就能拿到。多源分叉下各令牌作用域是复制关系，
+     *       不会互相覆盖。</li>
+     *   <li>{@code dataJson} 是 {@code data} 的 JSON 形态：{@code data} 已是
+     *       Map/List 时就是它本身，是 JSON 字符串时解析成结构，解析不了落成原串。
+     *       由引擎派生、不占变量位，用户不用先写一句「转 JSON」。</li>
+     *   <li>产出同时登记进 {@link CollectContext#getNodeOutputs() 节点产出表}，
+     *       供 {@code ${nodes.节点ID.字段}} 跨节点、跨分支引用。</li>
+     * </ul>
+     *
+     * @param context 执行上下文
+     * @param node    节点
+     * @param scope   本次迭代作用域
+     */
+    private void bindOutput(CollectContext context, CollectShapeExecutor executor,
+                            CollectNode node, Map<String, Object> scope) {
+        // 输出名：优先用户配置（设计器「输出名」），为空时用执行器的兜底名
+        //（rows / resp / linkList…），引擎再统一别名成 data
+        String configured = node.param(OUTPUT_VARIABLE);
+        String outName = (configured == null || configured.isBlank())
+                ? executor.defaultOutput(node) : configured.trim();
+        Object value = scope.get(outName);
+        if (value == null) {
+            return;
+        }
+        scope.putIfAbsent("data", value);
+        scope.putIfAbsent("dataJson", toJsonValue(value));
+        context.putNodeOutput(node.id(), value);
+    }
+
+    /**
+     * 派生 {@code dataJson}：{@code data} 已是结构就原样，是字符串就尝试解析成结构。
+     *
+     * <p>解析失败落成原串而不是 null —— 下游 {@code ${dataJson.xxx}} 取不到时
+     * 求值给 null，与「变量未定义」同语义，不会把整条链拖崩。</p>
+     *
+     * @param value 节点产出
+     * @return JSON 形态值
+     */
+    private static Object toJsonValue(Object value) {
+        if (value instanceof Map || value instanceof List || value == null) {
+            return value;
+        }
+        if (value instanceof String text) {
+            Object parsed = CollectJson.parseAny(text);
+            return parsed == null ? value : parsed;
+        }
+        return value;
     }
 
     /**
