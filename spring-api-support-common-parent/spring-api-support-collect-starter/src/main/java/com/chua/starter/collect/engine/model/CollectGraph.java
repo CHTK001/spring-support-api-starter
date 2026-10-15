@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 可执行流程图。
@@ -101,7 +102,40 @@ public class CollectGraph {
             throw new CollectGraphException("流程缺少开始节点，且不存在入度为 0 的节点");
         }
         graph.checkStartEnd();
+        graph.checkOutputVariables();
         return graph;
+    }
+
+    /**
+     * 校验输出名唯一：每个产生数据的节点按输出名在上下文中独立保存，
+     * 同名输出会让下游引用失去节点归属，保存期直接拒绝。
+     *
+     * <p>只检查显式填写的 outputVariable；留空时由各执行器默认名兜底，
+     * 不在这里猜测后端默认值。</p>
+     *
+     * @throws CollectGraphException 输出名重复
+     */
+    private void checkOutputVariables() {
+        Map<String, List<CollectNode>> byOutput = new LinkedHashMap<>();
+        for (CollectNode node : nodes.values()) {
+            String output = node.param("outputVariable");
+            if (output == null || output.isBlank()) {
+                continue;
+            }
+            byOutput.computeIfAbsent(output.trim(), key -> new ArrayList<>()).add(node);
+        }
+        List<String> duplicates = new ArrayList<>();
+        for (Map.Entry<String, List<CollectNode>> entry : byOutput.entrySet()) {
+            if (entry.getValue().size() < 2) {
+                continue;
+            }
+            duplicates.add(entry.getKey() + " -> " + entry.getValue().stream()
+                    .map(node -> node.id() + "（" + node.name() + "）")
+                    .collect(Collectors.joining("、")));
+        }
+        if (!duplicates.isEmpty()) {
+            throw new CollectGraphException("输出名不允许重复: " + String.join("；", duplicates));
+        }
     }
 
     /**
