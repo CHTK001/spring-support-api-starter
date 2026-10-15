@@ -120,7 +120,7 @@ public final class CollectShapeMetas {
      * 默认 {@code data} 让新节点开箱即落在统一变量模型上，用户也可自定义
      * 成别的名字（存量流程留空时引擎按执行器默认名兜底，引用不破坏）。</p>
      *
-     * <p>注意：请求节点不用本方法 —— 它会派生 {@code 输出名+Json/Doc} 同伴
+     * <p>注意：请求节点不用本方法 —— 它会派生 {@code 输出名+Html/Doc/Json} 同伴
      * 变量，若输出名填 {@code data} 会和引擎派生的 {@code dataJson} 撞名，
      * 故请求节点输出名仍默认 {@code resp}。</p>
      *
