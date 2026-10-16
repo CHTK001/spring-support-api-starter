@@ -359,8 +359,42 @@ public class CollectJdbcSupport {
      */
     public UpsertResult updateByKey(String reference, String table, List<String> keys,
                                     List<Map<String, Object>> rows) {
+        KeyWriteResult result = writeByKey(reference, table, keys, rows, false);
+        return new UpsertResult(result.updated(), result.inserted());
+    }
+
+    /**
+     * 按业务键「跳过式」写入：命中原键的行整行跳过，未命中的插入。
+     *
+     * <p>与 {@link #updateByKey} 共用同一套「批量事务 + 业务键定位」骨架，
+     * 只把「命中则 UPDATE」换成「命中则跳过」。跳过模式下用户要的是
+     * 「已有数据不许被动」，所以命中时连一列都不更新 —— 那是语义越界。</p>
+     *
+     * @param reference 数据源引用
+     * @param table     表名
+     * @param keys      业务键列，必须都出现在待写入行的键里
+     * @param rows      待写入行
+     * @return 跳过与新增的行数
+     */
+    public SkipResult insertIfAbsent(String reference, String table, List<String> keys,
+                                     List<Map<String, Object>> rows) {
+        KeyWriteResult result = writeByKey(reference, table, keys, rows, true);
+        return new SkipResult(result.skipped(), result.inserted());
+    }
+
+    /**
+     * 按业务键写入的共用骨架：批量事务内逐行「定位 → 更新或跳过 → 插入」。
+     *
+     * <p>骨架只此一份：{@link #updateByKey} 与 {@link #insertIfAbsent} 的差别
+     * 只在命中分支走 UPDATE 还是直接跳过。两侧各写一份拼接 SQL 的实现，
+     * 以后改标识符白名单 / 参数绑定这类安全相关的代码必然漏改一边。</p>
+     *
+     * @param skipExisting true 表示命中即跳过（不更新）；false 表示命中即更新
+     */
+    private KeyWriteResult writeByKey(String reference, String table, List<String> keys,
+                                      List<Map<String, Object>> rows, boolean skipExisting) {
         if (rows == null || rows.isEmpty()) {
-            return new UpsertResult(0, 0);
+            return new KeyWriteResult(0, 0, 0);
         }
         if (keys == null || keys.isEmpty()) {
             throw new IllegalArgumentException("按主键写入必须声明至少一个主键列");
@@ -408,6 +442,7 @@ public class CollectJdbcSupport {
                         + String.join(", ", columns.stream().map(column -> "?").toList()) + ")";
                 String updateSql = "UPDATE " + name + " SET " + sets + " WHERE " + where;
                 int updated = 0;
+                int skipped = 0;
                 int inserted = 0;
                 try (PreparedStatement select = connection.prepareStatement(selectSql);
                      PreparedStatement insert = connection.prepareStatement(insertSql);
@@ -426,6 +461,11 @@ public class CollectJdbcSupport {
                             exists = rs.next();
                         }
                         if (exists) {
+                            if (skipExisting) {
+                                // 跳过模式：命中就整行放过，字段一个都不动
+                                skipped++;
+                                continue;
+                            }
                             int index = 1;
                             for (String column : columns) {
                                 update.setObject(index++, value(row.get(column)));
@@ -445,10 +485,10 @@ public class CollectJdbcSupport {
                     }
                     connection.commit();
                 }
-                return new UpsertResult(updated, inserted);
+                return new KeyWriteResult(updated, skipped, inserted);
             } catch (SQLException ex) {
                 rollbackQuietly(connection);
-                throw new IllegalStateException("按主键写入 " + table + " 失败: " + ex.getMessage(), ex);
+                throw new IllegalStateException("按业务键写入 " + table + " 失败: " + ex.getMessage(), ex);
             } catch (RuntimeException ex) {
                 // 主键为空这类配置错误同样要把整批回滚，不能留下写了一半的数据
                 rollbackQuietly(connection);
@@ -480,6 +520,57 @@ public class CollectJdbcSupport {
         } catch (SQLException ex) {
             throw new IllegalStateException("清空 " + table + " 失败: " + ex.getMessage(), ex);
         }
+    }
+
+    /**
+     * 清空目标表的全部数据（TRUNCATE），保留表结构。
+     *
+     * <p>与 {@link #deleteAll} 的差别不只是快：TRUNCATE 会把表回到"刚建好的样子"
+     * （自增列复位、不写行级日志），这正是「全覆盖」要的语义。
+     * TRUNCATE 本身不返回受影响行数，所以清空前的行数先 COUNT 出来 ——
+     * 节点摘要里的"清空 N 行"是用户判断"这次有没有把昨天的数据冲掉"的唯一依据。</p>
+     *
+     * @param reference 数据源引用
+     * @param table     表名
+     * @return 清空前的行数
+     */
+    public int truncate(String reference, String table) {
+        identifier(table);
+        try (Connection connection = resolve(reference).getConnection()) {
+            String name = quoted(connection, table);
+            int cleared;
+            try (PreparedStatement count = connection.prepareStatement("SELECT COUNT(*) FROM " + name);
+                 ResultSet rs = count.executeQuery()) {
+                cleared = rs.next() ? rs.getInt(1) : 0;
+            }
+            try (PreparedStatement ps = connection.prepareStatement("TRUNCATE TABLE " + name)) {
+                ps.executeUpdate();
+            }
+            return cleared;
+        } catch (SQLException ex) {
+            throw new IllegalStateException("清空(TRUNCATE) " + table + " 失败: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * 取目标表的主键列名。
+     *
+     * <p>「按主键更新」模式靠它自动定位 —— 用户不必手填主键，
+     * 也就不会把业务键误当主键填进去（两者混用时更新的是不同的行）。
+     * 表不存在或没有主键时返回空列表，由调用方决定是报错还是降级。</p>
+     *
+     * @param reference 数据源引用
+     * @param table     表名
+     * @return 主键列名，按列序号排序
+     */
+    public List<String> primaryKeys(String reference, String table) {
+        List<String> keys = new ArrayList<>();
+        for (CollectColumnVO column : listColumns(reference, table)) {
+            if (Boolean.TRUE.equals(column.getPrimaryKey())) {
+                keys.add(column.getName());
+            }
+        }
+        return keys;
     }
 
     /**
@@ -805,5 +896,33 @@ public class CollectJdbcSupport {
         public int total() {
             return updated + inserted;
         }
+    }
+
+    /**
+     * 跳过式写入的结果计数。
+     *
+     * @param skipped  命中原键、被整行跳过的行数
+     * @param inserted 未命中原键、被 INSERT 的行数
+     */
+    public record SkipResult(int skipped, int inserted) {
+
+        /**
+         * 本次处理的总行数。
+         *
+         * @return 跳过行数与新增行数之和
+         */
+        public int total() {
+            return skipped + inserted;
+        }
+    }
+
+    /**
+     * 按业务键写入的原始计数，供两个公开方法各自裁成对外形状。
+     *
+     * @param updated  命中并 UPDATE 的行数（跳过模式下恒为 0）
+     * @param skipped  命中并跳过的行数（更新模式下恒为 0）
+     * @param inserted 新增的行数
+     */
+    private record KeyWriteResult(int updated, int skipped, int inserted) {
     }
 }
