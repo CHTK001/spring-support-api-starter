@@ -95,6 +95,10 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
         CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "采集平台", "输出", "database",
                 "把字段写入采集平台自身的采集结果表，可同时镜像到业务表");
         meta.setOutputVariable("无出参；记录条数看任务详情的采集记录数");
+        // 已下线：写业务表这件事由「数据库」节点统一承接（追加 / 跳过 / 覆盖 / 按主键更新 / 全覆盖），
+        // 再摆一个平行的写库节点只会让人在两个语义重叠的节点之间反复犹豫。
+        // 这里只从调色板撤掉，存量流程里的该节点仍能正常渲染与运行。
+        meta.setHidden(true);
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.text(EACH, "逐条集合", "text",
                         "留空按当前令牌产出一条；填 ${rows} 则每条集合项产出一条"),
