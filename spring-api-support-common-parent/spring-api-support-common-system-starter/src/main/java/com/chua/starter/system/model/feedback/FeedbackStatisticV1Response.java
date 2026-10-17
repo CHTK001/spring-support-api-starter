@@ -1,146 +1,74 @@
 package com.chua.starter.system.model.feedback;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
 
 import java.util.List;
 
 /**
  * 统计反馈信息响应
  *
+ * @param typeStatistics  反馈类型统计（用于饼图）
+ * @param trendStatistics 反馈趋势统计（用于曲线图）
+ * @param total           总反馈数
+ * @param pending         待处理数
+ * @param resolved        已处理数
+ * @param todayCount      今日新增数
  * @since 2024/12/10
  * @author CH
  */
-@Data
 @Schema(description = "反馈统计响应")
-public class FeedbackStatisticV1Response {
-
-    /**
-     * 反馈类型统计（用于饼图）
-     */
-    @Schema(description = "反馈类型统计")
-    /**
-     * 类型统计
-    */
-    private List<TypeStatistic> typeStatistics;
-
-    /**
-     * 反馈趋势统计（用于曲线图）
-     */
-    @Schema(description = "反馈趋势统计")
-    /**
-     * Trend统计
-    */
-    private List<TrendStatistic> trendStatistics;
-
-    /**
-     * 总反馈数
-     */
-    @Schema(description = "总反馈数")
-    /**
-     * 总数
-    */
-    private Long total;
-
-    /**
-     * 待处理数
-     */
-    @Schema(description = "待处理数")
-    /**
-     * Pending
-    */
-    private Long pending;
-
-    /**
-     * 已处理数
-     */
-    @Schema(description = "已处理数")
-    /**
-     * Resolved
-    */
-    private Long resolved;
-
-    /**
-     * 今日新增数
-     */
-    @Schema(description = "今日新增数")
-    /**
-     * Today
-    */
-    private Long todayCount;
+public record FeedbackStatisticV1Response(
+        @Schema(description = "反馈类型统计")
+        List<TypeStatistic> typeStatistics,
+        @Schema(description = "反馈趋势统计")
+        List<TrendStatistic> trendStatistics,
+        @Schema(description = "总反馈数")
+        Long total,
+        @Schema(description = "待处理数")
+        Long pending,
+        @Schema(description = "已处理数")
+        Long resolved,
+        @Schema(description = "今日新增数")
+        Long todayCount) {
 
     /**
      * 类型统计
+     *
+     * @param name  类型名称
+     * @param type  类型编码
+     * @param value 数量
      * @author CH
      * @since 4.0.0
      */
-    @Data
     @Schema(description = "类型统计")
-    public static class TypeStatistic {
-        /**
-         * 类型名称
-         */
-        @Schema(description = "类型名称")
-        /**
-         * 名称
-        */
-        private String name;
-
-        /**
-         * 类型编码
-         */
-        @Schema(description = "类型编码")
-        /**
-         * 类型
-        */
-        private String type;
-
-        /**
-         * 数量
-         */
-        @Schema(description = "数量")
-        /**
-         * 值
-        */
-        private Long value;
+    public record TypeStatistic(
+            @Schema(description = "类型名称")
+            String name,
+            @Schema(description = "类型编码")
+            String type,
+            @Schema(description = "数量")
+            Long value) {
     }
 
     /**
      * 趋势统计
+     *
+     * @param date          日期
+     * @param count         数量
+     * @param pendingCount  未解决数量
+     * @param resolvedCount 已解决数量
      * @author CH
      * @since 4.0.0
      */
-    @Data
     @Schema(description = "趋势统计")
-    public static class TrendStatistic {
-        /**
-         * 日期
-         */
-        @Schema(description = "日期")
-        /**
-         * 日期
-        */
-        private String date;
-
-        /**
-         * 数量
-         */
-        @Schema(description = "数量")
-        /**
-         * 数量
-        */
-        private Long count;
-
-        /**
-         * 未解决数量
-         */
-        @Schema(description = "未解决数量")
-        private Long pendingCount;
-
-        /**
-         * 已解决数量
-         */
-        @Schema(description = "已解决数量")
-        private Long resolvedCount;
+    public record TrendStatistic(
+            @Schema(description = "日期")
+            String date,
+            @Schema(description = "数量")
+            Long count,
+            @Schema(description = "未解决数量")
+            Long pendingCount,
+            @Schema(description = "已解决数量")
+            Long resolvedCount) {
     }
 }
