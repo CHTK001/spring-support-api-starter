@@ -164,8 +164,14 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
         }
         if (!table.isEmpty() && !pending.isEmpty()) {
             int inserted = jdbcSupport.insertBatch(node.param(DATASOURCE), table, pending);
-            // 唯一键挡住的行没进库，摘要里要说清楚，否则「落库 989 条」与表里只多出 580 行对不上
-            variables.put(VAR_SKIPPED, Math.max(0, pending.size() - inserted));
+            int skipped = Math.max(0, pending.size() - inserted);
+            if (skipped > 0) {
+                // 唯一键挡住的行没进库：既不算本次产出，也要从流程累计里收回，
+                // 否则摘要写「落库 989 条」而表里只多出 580 行，总采集数量还会一路虚高
+                context.discardRecords(skipped);
+                emitted -= skipped;
+                variables.put(VAR_SKIPPED, skipped);
+            }
         }
         variables.put(AFFECTED, emitted);
         if (dropped > 0) {
