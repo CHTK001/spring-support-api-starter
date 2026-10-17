@@ -350,7 +350,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     sysUserRoleService.remove(Wrappers.<SysUserRole>lambdaQuery().eq(SysUserRole::getSysUserId, sysUser1.getSysUserId()));
                 }
                 if (writeRoleBinding && CollectionUtils.isNotEmpty(sysUser.getRoleIds())) {
-                    sysUserRoleService.saveBatch(sysUser.getRoleIds().stream().map(role -> {
+                    // distinct：请求体可携带重复角色编号，直接落库会给同一用户写入重复的
+                    // sys_user_role 行，进而让「角色 / 所属角色」按行数重复展示
+                    sysUserRoleService.saveBatch(sysUser.getRoleIds().stream().distinct().map(role -> {
                         try {
                             SysUserRole rolsysUserRole = new SysUserRole();
                             rolsysUserRole.setSysUserId(sysUser1.getSysUserId());

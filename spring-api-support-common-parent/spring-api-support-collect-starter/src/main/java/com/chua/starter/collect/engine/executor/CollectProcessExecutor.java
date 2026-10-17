@@ -247,9 +247,9 @@ public class CollectProcessExecutor implements CollectShapeExecutor {
             }
         }
         for (CollectParamDTO pair : node.pairsOf(PASS)) {
-            String name = pair.getName() == null ? "" : pair.getName().trim();
+            String name = pair.name() == null ? "" : pair.name().trim();
             if (callable(name)) {
-                seed.put(name, CollectExpression.eval(pair.getValue(), variables));
+                seed.put(name, CollectExpression.eval(pair.value(), variables));
             }
         }
         return seed;

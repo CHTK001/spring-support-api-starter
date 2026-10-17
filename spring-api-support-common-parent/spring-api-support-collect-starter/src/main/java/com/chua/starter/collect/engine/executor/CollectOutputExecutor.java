@@ -119,7 +119,7 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
     public void execute(CollectNode node, CollectContext context, Map<String, Object> variables) throws Exception {
         List<CollectParamDTO> cells = new ArrayList<>();
         for (CollectParamDTO cell : node.pairsOf(CELL)) {
-            if (cell.getName() != null && !cell.getName().isBlank()) {
+            if (cell.name() != null && !cell.name().isBlank()) {
                 cells.add(cell);
             }
         }
@@ -141,13 +141,10 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
             requireKeyWithinColumn(entry.getKey());
             Map<String, Object> row = new LinkedHashMap<>();
             for (CollectParamDTO cell : cells) {
-                String name = cell.getName().trim();
-                Object value = CollectExpression.eval(cell.getValue(), scope);
-                CollectParamDTO cellValue = new CollectParamDTO();
-                cellValue.setName(name);
-                cellValue.setValue(CollectFunctions.stringify(value));
-                cellValue.setDescription(cell.getDescription());
-                entry.getCells().add(cellValue);
+                String name = cell.name().trim();
+                Object value = CollectExpression.eval(cell.value(), scope);
+                entry.getCells().add(new CollectParamDTO(name,
+                        CollectFunctions.stringify(value), cell.description()));
                 row.put(name, value);
             }
             if (!context.offerRecord(entry)) {
@@ -251,7 +248,7 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
     private List<String> columnNames(List<CollectParamDTO> cells) {
         List<String> names = new ArrayList<>(cells.size());
         for (CollectParamDTO cell : cells) {
-            names.add(cell.getName().trim());
+            names.add(cell.name().trim());
         }
         return names;
     }

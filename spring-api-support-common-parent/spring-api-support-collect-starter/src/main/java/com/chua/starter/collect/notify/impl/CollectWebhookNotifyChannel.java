@@ -53,7 +53,7 @@ public class CollectWebhookNotifyChannel implements CollectNotifyChannel {
     @Override
     public MessageResponse send(CollectNotifyMessage message) {
         long start = System.currentTimeMillis();
-        String target = message.getTarget() == null ? "" : message.getTarget().trim();
+        String target = message.target() == null ? "" : message.target().trim();
         URI uri;
         try {
             uri = URI.create(target);
@@ -65,17 +65,17 @@ public class CollectWebhookNotifyChannel implements CollectNotifyChannel {
             return MessageResponse.failure("回调地址必须是 http/https，当前: " + target);
         }
         CollectNotifyPayloadVO payload = new CollectNotifyPayloadVO();
-        payload.setSubject(message.getSubject());
-        payload.setContent(message.getContent());
-        payload.setContentType(message.getContentType());
+        payload.setSubject(message.subject());
+        payload.setContent(message.content());
+        payload.setContentType(message.contentType());
         try {
             HttpRequest request = HttpRequest.newBuilder(uri)
-                    .timeout(Duration.ofMillis(Math.max(1000L, message.getTimeoutMs())))
+                    .timeout(Duration.ofMillis(Math.max(1000L, message.timeoutMs())))
                     .header("Content-Type", "application/json; charset=utf-8")
                     .POST(HttpRequest.BodyPublishers.ofString(CollectJson.toJson(payload), StandardCharsets.UTF_8))
                     .build();
             HttpResponse<String> response = HttpClient.newBuilder()
-                    .connectTimeout(Duration.ofMillis(Math.max(1000L, message.getTimeoutMs())))
+                    .connectTimeout(Duration.ofMillis(Math.max(1000L, message.timeoutMs())))
                     .followRedirects(HttpClient.Redirect.NEVER)
                     .build()
                     .send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
