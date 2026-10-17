@@ -156,8 +156,8 @@ public class CollectExecutionServiceImpl implements CollectExecutionService, App
         flowService.normalizeDsl(dsl);
         CollectFlow virtual = new CollectFlow();
         virtual.setCollectFlowId(NO_FLOW);
-        virtual.setCollectFlowName(dsl.getName() == null || dsl.getName().isBlank()
-                ? "未命名草稿" : dsl.getName());
+        virtual.setCollectFlowName(dsl.name() == null || dsl.name().isBlank()
+                ? "未命名草稿" : dsl.name());
         virtual.setCollectFlowThreadCount(properties.getDefaultThreadCount());
         virtual.setCollectFlowConcurrency(1);
         return start(virtual, dsl, CollectTriggerType.TEST, List.of(), false);
@@ -330,20 +330,18 @@ public class CollectExecutionServiceImpl implements CollectExecutionService, App
      * @return 可执行 DSL
      */
     private CollectDslDTO prepareDsl(CollectFlow flow, CollectDslDTO dsl, List<CollectParamDTO> overrides) {
-        dsl.setThreadCount(flow.getCollectFlowThreadCount() == null || flow.getCollectFlowThreadCount() <= 0
-                ? properties.getDefaultThreadCount() : flow.getCollectFlowThreadCount());
+        Integer threadCount = flow.getCollectFlowThreadCount() == null || flow.getCollectFlowThreadCount() <= 0
+                ? properties.getDefaultThreadCount() : flow.getCollectFlowThreadCount();
         List<CollectParamDTO> variables = new ArrayList<>();
         if (flow.getCollectFlowId() != null) {
             variables.addAll(variableService.runtimeVariables());
         }
-        if (dsl.getVariables() != null) {
-            variables.addAll(dsl.getVariables());
-        }
+        variables.addAll(dsl.variables());
         if (overrides != null) {
             variables.addAll(overrides);
         }
-        dsl.setVariables(variables);
-        return dsl;
+        return new CollectDslDTO(dsl.name(), threadCount, dsl.headers(), dsl.cookies(),
+                variables, dsl.nodes(), dsl.edges());
     }
 
     /**

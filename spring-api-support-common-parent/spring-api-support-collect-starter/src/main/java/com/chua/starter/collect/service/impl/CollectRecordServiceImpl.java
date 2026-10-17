@@ -130,7 +130,7 @@ public class CollectRecordServiceImpl extends ServiceImpl<CollectRecordMapper, C
         vo.setUpdateTime(record.getUpdateTime());
         List<CollectParamDTO> cells = new ArrayList<>();
         for (Map.Entry<String, Object> entry : CollectJson.parseMap(record.getCollectRecordPayload()).entrySet()) {
-            cells.add(new CollectParamDTO(entry.getKey(), text(entry.getValue())));
+            cells.add(new CollectParamDTO(entry.getKey(), text(entry.getValue()), null));
         }
         vo.setCells(cells);
         return vo;

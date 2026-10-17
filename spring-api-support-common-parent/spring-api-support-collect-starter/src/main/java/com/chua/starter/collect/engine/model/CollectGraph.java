@@ -65,26 +65,26 @@ public class CollectGraph {
      * @throws CollectGraphException 校验失败
      */
     public static CollectGraph build(CollectDslDTO dsl, Set<String> knownShapes) {
-        if (dsl == null || dsl.getNodes() == null || dsl.getNodes().isEmpty()) {
+        if (dsl == null || dsl.nodes() == null || dsl.nodes().isEmpty()) {
             throw new CollectGraphException("流程图没有任何节点");
         }
         CollectGraph graph = new CollectGraph(dsl);
-        for (CollectNodeDTO dto : dsl.getNodes()) {
-            if (dto.getId() == null || dto.getId().isBlank()) {
+        for (CollectNodeDTO dto : dsl.nodes()) {
+            if (dto.id() == null || dto.id().isBlank()) {
                 throw new CollectGraphException("存在缺少 ID 的节点");
             }
-            if (dto.getShape() == null || dto.getShape().isBlank()) {
-                throw new CollectGraphException("节点 " + dto.getId() + " 缺少类型");
+            if (dto.shape() == null || dto.shape().isBlank()) {
+                throw new CollectGraphException("节点 " + dto.id() + " 缺少类型");
             }
-            if (knownShapes != null && !knownShapes.isEmpty() && !knownShapes.contains(dto.getShape())) {
-                throw new CollectGraphException("节点 " + dto.getId() + " 的类型未注册: " + dto.getShape());
+            if (knownShapes != null && !knownShapes.isEmpty() && !knownShapes.contains(dto.shape())) {
+                throw new CollectGraphException("节点 " + dto.id() + " 的类型未注册: " + dto.shape());
             }
-            if (graph.nodes.containsKey(dto.getId())) {
-                throw new CollectGraphException("节点 ID 重复: " + dto.getId());
+            if (graph.nodes.containsKey(dto.id())) {
+                throw new CollectGraphException("节点 ID 重复: " + dto.id());
             }
-            graph.nodes.put(dto.getId(), new CollectNode(dto));
+            graph.nodes.put(dto.id(), new CollectNode(dto));
         }
-        List<CollectEdgeDTO> edges = dsl.getEdges() == null ? List.of() : dsl.getEdges();
+        List<CollectEdgeDTO> edges = dsl.edges() == null ? List.of() : dsl.edges();
         for (CollectEdgeDTO dto : edges) {
             CollectNode from = graph.nodes.get(dto.from());
             CollectNode to = graph.nodes.get(dto.to());

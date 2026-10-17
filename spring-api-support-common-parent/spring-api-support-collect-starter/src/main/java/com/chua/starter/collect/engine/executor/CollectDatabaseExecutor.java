@@ -339,7 +339,7 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
     private List<CollectParamDTO> mapping(CollectNode node) {
         List<CollectParamDTO> columns = new ArrayList<>();
         for (CollectParamDTO param : node.pairsOf(COLUMN)) {
-            if (param.getName() != null && !param.getName().isBlank()) {
+            if (param.name() != null && !param.name().isBlank()) {
                 columns.add(param);
             }
         }
@@ -369,14 +369,14 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
         String label = MODE_SKIP.equals(mode) ? "skip" : "update";
         List<String> targets = new ArrayList<>(columns.size());
         for (CollectParamDTO column : columns) {
-            targets.add(column.getName().trim());
+            targets.add(column.name().trim());
         }
         List<String> keys = new ArrayList<>();
         for (CollectParamDTO pair : node.pairsOf(KEY)) {
-            if (pair.getName() == null || pair.getName().isBlank()) {
+            if (pair.name() == null || pair.name().isBlank()) {
                 continue;
             }
-            String name = pair.getName().trim();
+            String name = pair.name().trim();
             if (!targets.contains(name)) {
                 throw new IllegalStateException(label + " 模式的主键列 " + name
                         + " 不在字段映射的目标列里，请先用 column:" + name + " 声明该列");
@@ -411,7 +411,7 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
         }
         List<String> targets = new ArrayList<>(columns.size());
         for (CollectParamDTO column : columns) {
-            targets.add(column.getName().trim());
+            targets.add(column.name().trim());
         }
         for (String key : keys) {
             if (!targets.contains(key)) {
@@ -450,7 +450,7 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
             Map<String, Object> scope = scopeOf(variables, item);
             Map<String, Object> row = new LinkedHashMap<>();
             for (CollectParamDTO column : columns) {
-                row.put(column.getName().trim(), CollectExpression.eval(column.getValue(), scope));
+                row.put(column.name().trim(), CollectExpression.eval(column.value(), scope));
             }
             rows.add(row);
         }
@@ -490,8 +490,8 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
         List<DdlColumn> definitions = new ArrayList<>(names.size());
         for (String name : names) {
             String comment = columns.stream()
-                    .filter(column -> column.getName() != null && column.getName().trim().equals(name))
-                    .map(CollectParamDTO::getValue)
+                    .filter(column -> column.name() != null && column.name().trim().equals(name))
+                    .map(CollectParamDTO::value)
                     .findFirst()
                     .orElse(null);
             definitions.add(new DdlColumn(CollectJdbcSupport.identifier(name), null, Boolean.TRUE,

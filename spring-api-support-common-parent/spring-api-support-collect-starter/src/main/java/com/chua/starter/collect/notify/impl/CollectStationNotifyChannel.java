@@ -108,7 +108,7 @@ public class CollectStationNotifyChannel implements CollectNotifyChannel {
         if (service == null) {
             return MessageResponse.failure("未接入平台消息中心（缺少 common-system-starter 依赖）");
         }
-        var targets = parseTargets(message.getTarget());
+        var targets = parseTargets(message.target());
         if (targets.ids().isEmpty()) {
             return MessageResponse.failure(targets.invalid().isEmpty()
                     ? "站内消息接收人不能为空，请填写用户 ID"
@@ -116,8 +116,8 @@ public class CollectStationNotifyChannel implements CollectNotifyChannel {
         }
 
         SysMessage entity = new SysMessage();
-        entity.setSysMessageTitle(message.getSubject());
-        entity.setSysMessageContent(message.getContent());
+        entity.setSysMessageTitle(message.subject());
+        entity.setSysMessageContent(message.content());
         entity.setSysMessageType(MESSAGE_TYPE);
         entity.setSysMessageLevel(MESSAGE_LEVEL);
         entity.setSysMessageChannel(MESSAGE_CHANNEL);
