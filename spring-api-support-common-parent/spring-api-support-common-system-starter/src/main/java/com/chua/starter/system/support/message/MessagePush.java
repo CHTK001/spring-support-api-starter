@@ -1,5 +1,6 @@
 package com.chua.starter.system.support.message;
 
+import com.chua.common.support.spi.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -52,6 +53,10 @@ public abstract class MessagePush {
         }
 
         String type = appType.toLowerCase().trim();
+        MessagePush spi = ServiceProvider.of(MessagePush.class).getExtension(type);
+        if (spi != null) {
+            return spi;
+        }
         return switch (type) {
             case "aliyun", "aliyun-sms", "ali" -> new AliyunSmsMessagePush();
             case "tencent", "tencent-sms", "tencent-cloud" -> new TencentSmsMessagePush();

@@ -1,5 +1,6 @@
 package com.chua.starter.system.support.message;
 
+import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
@@ -14,6 +15,7 @@ import java.util.UUID;
  * @since 2026/09/13
  */
 @Slf4j
+@Spi({"log", "default"})
 public class LogMessagePush extends MessagePush {
 
     @Override
