@@ -100,6 +100,12 @@ public class CollectFlowVO {
     private Integer collectFlowExecCount;
 
     /**
+     * 累计采集条数，随任务收尾累加，列表直接读这一列。
+     */
+    @Schema(description = "累计采集条数")
+    private Long collectFlowRecordCount;
+
+    /**
      * 节点数，来自 DSL 摘要。
      */
     @Schema(description = "节点数")

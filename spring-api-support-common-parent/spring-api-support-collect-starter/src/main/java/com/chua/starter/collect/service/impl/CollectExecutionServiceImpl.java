@@ -143,8 +143,7 @@ public class CollectExecutionServiceImpl implements CollectExecutionService, App
         String trigger = CollectTriggerType.MANUAL.equals(triggerType)
                 ? CollectTriggerType.MANUAL : CollectTriggerType.CRON;
         CollectTaskVO vo = start(flow, dsl, trigger, List.of(), true);
-        // 并发数达上限时 start 直接抛出，被跳过的触发不计入执行次数
-        flowService.markStarted(flowId);
+        // 执行次数已由 start() 统一记账，这里不再重复累加
         return vo;
     }
 
@@ -271,6 +270,16 @@ public class CollectExecutionServiceImpl implements CollectExecutionService, App
         CollectTask task = null;
         try {
             task = createTask(flow, trigger, overrides);
+            // 执行次数在这里记：手动、定时、外部触发都走同一个入口。
+            // 此前只写在 runScheduled 里，手动运行永远不计数（实测成语流程跑了 24 次仍为 0）。
+            // 记账失败只记日志 —— 累计次数是展示口径，不能因为它让一次运行起不来。
+            if (flowId != null && flowId > 0) {
+                try {
+                    flowService.markStarted(flowId);
+                } catch (Exception ex) {
+                    log.warn("[collect] 记录执行次数失败 flow={} err={}", flowId, ex.getMessage());
+                }
+            }
             CollectDslDTO runtime = prepareDsl(flow, dsl, overrides);
             CollectTask saved = task;
             CollectDatabaseSink sink = new CollectDatabaseSink(flowId, saved.getCollectTaskId(), persist,
@@ -387,6 +396,15 @@ public class CollectExecutionServiceImpl implements CollectExecutionService, App
         update.setCollectTaskRecordCount(result.getRecordCount());
         update.setCollectTaskError(cut(result.getErrorMessage(), 2000));
         taskMapper.updateById(update);
+        // 累计采集条数跟任务同一时刻落账：列表页只读 collect_flow 这一列，
+        // 不再对 collect_task 求和（任务表只会越来越长，临时聚合会越跑越慢）。
+        // 增量写，失败只记日志 —— 累计数是个展示口径，不能因为它让任务收尾失败。
+        try {
+            flowService.addRecords(task.getCollectTaskFlowId(), result.getRecordCount());
+        } catch (Exception ex) {
+            log.warn("[collect] 累计采集条数写入失败 flow={} delta={} err={}",
+                    task.getCollectTaskFlowId(), result.getRecordCount(), ex.getMessage());
+        }
     }
 
     /**
