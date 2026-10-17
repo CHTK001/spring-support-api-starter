@@ -309,6 +309,15 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
     }
 
     @Override
+    public void addRecords(Integer flowId, long delta) {
+        // 草稿运行（flowId 为负数）与 0 产出都不记账：前者没有流程行，后者写进去也没意义
+        if (flowId == null || flowId <= 0 || delta <= 0) {
+            return;
+        }
+        baseMapper.addRecordCount(flowId, delta);
+    }
+
+    @Override
     public int scheduledJobCount() {
         return jobRuntimes().size();
     }
@@ -670,6 +679,7 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
         vo.setCollectFlowRemark(flow.getCollectFlowRemark());
         vo.setCollectFlowLastExecTime(flow.getCollectFlowLastExecTime());
         vo.setCollectFlowExecCount(flow.getCollectFlowExecCount());
+        vo.setCollectFlowRecordCount(flow.getCollectFlowRecordCount());
         if (runtime != null && runtime.nextFireMs() > 0) {
             vo.setCollectFlowNextExecTime(LocalDateTime.ofInstant(
                     Instant.ofEpochMilli(runtime.nextFireMs()), ZoneId.systemDefault()));

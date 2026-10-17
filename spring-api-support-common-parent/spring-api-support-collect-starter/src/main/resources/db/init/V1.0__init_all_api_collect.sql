@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS `collect_flow` (
     `collect_flow_remark` varchar(500) NULL DEFAULT NULL COMMENT '备注',
     `collect_flow_last_exec_time` datetime(6) NULL DEFAULT NULL COMMENT '最近一次开始执行时间',
     `collect_flow_exec_count` INT NULL DEFAULT 0 COMMENT '累计执行次数',
+    `collect_flow_record_count` BIGINT NULL DEFAULT 0 COMMENT '累计采集条数',
     `collect_flow_is_deleted` INT NULL DEFAULT 0 COMMENT '逻辑删除 - 0:正常, 1:已删除',
     `create_name` varchar(255) NULL DEFAULT NULL COMMENT '创建人姓名',
     `create_by` int NULL DEFAULT NULL COMMENT '创建人',
