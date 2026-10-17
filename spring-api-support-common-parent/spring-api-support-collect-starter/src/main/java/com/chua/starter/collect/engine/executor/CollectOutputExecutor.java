@@ -79,7 +79,10 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
      * 本次产出条数的暂存变量名，仅供摘要使用。
      */
     private static final String AFFECTED = "_emitted";
-
+    /**
+     * 本次被唯一键挡下的重复行数，仅供摘要使用。
+     */
+    private static final String VAR_SKIPPED = "_skipped";
     /**
      * JDBC 通道。
      */
@@ -132,6 +135,9 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
         }
         int emitted = 0;
         int dropped = 0;
+        // 攒批写入：单条 insert 走一次连接 + 一次自动提交，1000 行要 50 多秒；
+        // 同一节点的行共用一条预编译语句，执行器一次 executeBatch 提交。
+        List<Map<String, Object>> pending = new ArrayList<>();
         for (Map<String, Object> scope : itemScopes(node, variables)) {
             CollectRecordEntry entry = new CollectRecordEntry();
             entry.setNodeId(node.id());
@@ -153,8 +159,13 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
             }
             emitted++;
             if (!table.isEmpty()) {
-                jdbcSupport.insert(node.param(DATASOURCE), table, row);
+                pending.add(row);
             }
+        }
+        if (!table.isEmpty() && !pending.isEmpty()) {
+            int inserted = jdbcSupport.insertBatch(node.param(DATASOURCE), table, pending);
+            // 唯一键挡住的行没进库，摘要里要说清楚，否则「落库 989 条」与表里只多出 580 行对不上
+            variables.put(VAR_SKIPPED, Math.max(0, pending.size() - inserted));
         }
         variables.put(AFFECTED, emitted);
         if (dropped > 0) {
@@ -169,6 +180,10 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
             return null;
         }
         String text = "落库 " + emitted + " 条";
+        Object skipped = variables.get(VAR_SKIPPED);
+        if (skipped instanceof Number number && number.intValue() > 0) {
+            text += "（唯一键重复 " + number.intValue() + " 条未写入）";
+        }
         if (CollectExpression.truthy(variables.get(CollectEngine.VAR_STOP))) {
             text += "，已达单任务记录上限，本分支停止";
         }
