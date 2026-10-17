@@ -310,26 +310,105 @@ public class CollectJdbcSupport {
             StringBuilder sql = new StringBuilder("INSERT INTO ").append(name).append(" (");
             sql.append(String.join(", ", quotedAll(connection, columns))).append(") VALUES (");
             sql.append(String.join(", ", columns.stream().map(column -> "?").toList())).append(")");
-            try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
-                for (Map<String, Object> row : rows) {
-                    for (int index = 0; index < columns.size(); index++) {
-                        ps.setObject(index + 1, value(row.get(columns.get(index))));
-                    }
-                    ps.addBatch();
-                }
-                int[] results = ps.executeBatch();
-                int affected = 0;
-                for (int result : results) {
-                    // 驱动对成功批次可能返回 SUCCESS_NO_INFO(-2)，不能当失败计数
-                    if (result >= 0 || result == Statement.SUCCESS_NO_INFO) {
-                        affected++;
-                    }
-                }
+            boolean autoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                int affected = executeBatch(connection, sql.toString(), columns, rows);
+                connection.commit();
                 return affected;
+            } catch (SQLException failure) {
+                connection.rollback();
+                if (!isDuplicateKey(failure)) {
+                    throw failure;
+                }
+                // 唯一键冲突是采集里的常态（同一首诗的标题+作者重复、重跑撞已有行），
+                // 不该让整批、进而整个任务失败：改成逐行写，只为重复行让路。
+                int inserted = insertSkippingDuplicates(connection, sql.toString(), columns, rows);
+                log.warn("[采集写库] {} 命中唯一键冲突，已跳过 {} 行重复数据",
+                        table, rows.size() - inserted);
+                connection.commit();
+                return inserted;
+            } finally {
+                connection.setAutoCommit(autoCommit);
             }
         } catch (SQLException ex) {
             throw new IllegalStateException("批量写入 " + table + " 失败: " + ex.getMessage(), ex);
         }
+    }
+
+    /**
+     * 执行一次预编译批处理并统计真正写入的行数。
+     */
+    private int executeBatch(Connection connection, String sql, List<String> columns,
+                             List<Map<String, Object>> rows) throws SQLException {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            for (Map<String, Object> row : rows) {
+                for (int index = 0; index < columns.size(); index++) {
+                    ps.setObject(index + 1, value(row.get(columns.get(index))));
+                }
+                ps.addBatch();
+            }
+            int[] results = ps.executeBatch();
+            int affected = 0;
+            for (int result : results) {
+                // 驱动对成功批次可能返回 SUCCESS_NO_INFO(-2)，不能当失败计数
+                if (result >= 0 || result == Statement.SUCCESS_NO_INFO) {
+                    affected++;
+                }
+            }
+            return affected;
+        }
+    }
+
+    /**
+     * 逐行补写：唯一键冲突的行跳过，其余错误照旧抛出。
+     *
+     * <p>批量失败后走这条路，行数通常只有几百到几千，逐行执行慢一些但语义清晰：
+     * 重复数据不写、也不报错，真正的异常（列不存在、类型不匹配）仍然让任务失败。</p>
+     */
+    private int insertSkippingDuplicates(Connection connection, String sql, List<String> columns,
+                                         List<Map<String, Object>> rows) throws SQLException {
+        int inserted = 0;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            for (Map<String, Object> row : rows) {
+                try {
+                    for (int index = 0; index < columns.size(); index++) {
+                        ps.setObject(index + 1, value(row.get(columns.get(index))));
+                    }
+                    inserted += ps.executeUpdate();
+                } catch (SQLException rowFailure) {
+                    if (!isDuplicateKey(rowFailure)) {
+                        throw rowFailure;
+                    }
+                }
+            }
+        }
+        return inserted;
+    }
+
+    /**
+     * 判断异常链里是否含唯一键/主键冲突。
+     *
+     * <p>各库的错误码不同：MySQL/MariaDB 1062、SQL Server 2601/2627、PostgreSQL/H2 23505；
+     * 另外 SQLState 23 段是完整性约束，再按消息里的 duplicate 兜一层。</p>
+     */
+    private static boolean isDuplicateKey(SQLException failure) {
+        for (SQLException ex = failure; ex != null; ex = ex.getNextException()) {
+            int code = ex.getErrorCode();
+            if (code == 1062 || code == 2601 || code == 2627) {
+                return true;
+            }
+            String state = ex.getSQLState();
+            if ("23505".equals(state)) {
+                return true;
+            }
+            String message = ex.getMessage();
+            if (state != null && state.startsWith("23") && message != null
+                    && message.toLowerCase(java.util.Locale.ROOT).contains("duplicate")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
