@@ -7,12 +7,14 @@ import java.util.function.Function;
 /**
  * 通用树形结构构建工具
  *
- * <p>原 com.chua.common.support.utils.TreeUtils 在当前 utils 版本中已移除，
- * 此处提供等价实现以保证部门树 / 菜单树功能可用。
+ * <p>委托 {@code com.chua.common.support.utils.TreeUtils#build} 组合实现；
+ * 退化输入（重复 ID / 环）回落本类遗留算法以保持原返回语义。
  *
- * @since 2026/08/02
+ * @since 4.0.0.43
  * @author CH
+ * @deprecated 使用 {@code com.chua.common.support.utils.TreeUtils}，本类仅为兼容保留
  */
+@Deprecated(since = "4.0.0.43", forRemoval = false)
 public class TreeUtils {
 
     /**
@@ -26,6 +28,7 @@ public class TreeUtils {
      *
      * <p>按节点 id / pid 建立父子关系，父节点构建完成后通过
      * {@link TreeNode#acceptChildren(List)} 把子节点回填到扩展对象。
+     * 根判定：pid 为空或父 id 不在集合中（孤儿归根），各层保持入参相对顺序。
      *
      * @param sources 源列表（平铺）
      * @param mapper  节点映射器（把源元素转为树节点）
@@ -44,7 +47,37 @@ public class TreeUtils {
                 nodes.add(node);
             }
         }
-        return buildTree(nodes);
+        if (nodes.isEmpty()) {
+            return new ArrayList<>();
+        }
+        try {
+            java.util.Set<TreeNode<T>> nonLeaf = java.util.Collections.newSetFromMap(
+                    new java.util.IdentityHashMap<>());
+            List<TreeNode<T>> roots = com.chua.common.support.utils.TreeUtils.build(
+                    nodes, TreeNode::getId, TreeNode::getPid,
+                    (node, kids) -> {
+                        nonLeaf.add(node);
+                        List<T> exts = new ArrayList<>(kids.size());
+                        for (TreeNode<T> kid : kids) {
+                            exts.add(kid.getExt());
+                        }
+                        node.acceptChildren(exts);
+                    });
+            // 遗留算法对叶子节点同样回填空列表，此处补齐以保持返回语义一致
+            for (TreeNode<T> node : nodes) {
+                if (!nonLeaf.contains(node)) {
+                    node.acceptChildren(new ArrayList<>());
+                }
+            }
+            List<T> result = new ArrayList<>(roots.size());
+            for (TreeNode<T> root : roots) {
+                result.add(root.getExt());
+            }
+            return result;
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            // 退化输入（重复 id / 环 / 自环）保持遗留算法的返回语义，不抛错
+            return buildTree(nodes);
+        }
     }
 
     /**
