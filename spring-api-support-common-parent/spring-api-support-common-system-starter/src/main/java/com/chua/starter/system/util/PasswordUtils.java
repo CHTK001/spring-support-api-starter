@@ -9,6 +9,7 @@ import com.chua.common.support.utils.StringUtils;
  * <p>写入与比对 {@code sys_user_password} 统一为 {@code md5Hex(客户端口令 + 盐)}。
  * 客户端口令指浏览器提交的原始字符串，登录与改密必须提交同一种表示，否则会出现
  * 已改密的账号无法登录。所有读写该字段的代码都必须经由本类，禁止各自拼接。
+ * 委托 utils：摘要经 {@code com.chua.common.support.utils.DigestUtils#md5Hex} 计算。
  *
  * @since 2026-09-18
  * @author CH
