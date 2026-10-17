@@ -259,7 +259,7 @@ public class CollectRequestExecutor implements CollectShapeExecutor {
      */
     private void applyPairs(Map<String, String> target, List<CollectParamDTO> pairs, Map<String, Object> variables) {
         for (CollectParamDTO pair : pairs) {
-            String name = pair.getName();
+            String name = pair.name();
             if (name == null || name.isBlank()) {
                 continue;
             }
@@ -267,7 +267,7 @@ public class CollectRequestExecutor implements CollectShapeExecutor {
                 log.warn("[collect] 请求头 {} 由 HTTP 客户端管理，已忽略", name);
                 continue;
             }
-            target.put(name.trim(), CollectExpression.evalText(pair.getValue(), variables));
+            target.put(name.trim(), CollectExpression.evalText(pair.value(), variables));
         }
     }
 
@@ -280,14 +280,14 @@ public class CollectRequestExecutor implements CollectShapeExecutor {
      */
     private void appendPairs(StringBuilder builder, List<CollectParamDTO> pairs, Map<String, Object> variables) {
         for (CollectParamDTO pair : pairs) {
-            if (pair.getName() == null || pair.getName().isBlank()) {
+            if (pair.name() == null || pair.name().isBlank()) {
                 continue;
             }
             if (builder.length() > 0) {
                 builder.append("; ");
             }
-            builder.append(pair.getName().trim()).append('=')
-                    .append(CollectExpression.evalText(pair.getValue(), variables));
+            builder.append(pair.name().trim()).append('=')
+                    .append(CollectExpression.evalText(pair.value(), variables));
         }
     }
 

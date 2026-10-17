@@ -386,8 +386,8 @@ public final class CollectFunctions {
         Map<String, String> map = new java.util.LinkedHashMap<>();
         if (params != null) {
             for (CollectParamDTO param : params) {
-                if (param.getName() != null && !param.getName().isBlank()) {
-                    map.put(param.getName().trim(), param.getValue() == null ? "" : param.getValue());
+                if (param.name() != null && !param.name().isBlank()) {
+                    map.put(param.name().trim(), param.value() == null ? "" : param.value());
                 }
             }
         }

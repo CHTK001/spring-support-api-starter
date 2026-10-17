@@ -259,8 +259,8 @@ public class CollectEngine {
      * @return 线程池
      */
     private ExecutorService createPool(CollectContext context, CollectDslDTO dsl) {
-        int threads = dsl.getThreadCount() == null || dsl.getThreadCount() <= 0
-                ? properties.getDefaultThreadCount() : dsl.getThreadCount();
+        int threads = dsl.threadCount() == null || dsl.threadCount() <= 0
+                ? properties.getDefaultThreadCount() : dsl.threadCount();
         int size = Math.max(1, Math.min(threads, 64));
         return Executors.newFixedThreadPool(size, runnable -> {
             Thread thread = new Thread(runnable);
@@ -284,13 +284,13 @@ public class CollectEngine {
         context.putRootVariable("taskNo", context.getTaskNo());
         context.putRootVariable("taskId", context.getTaskId());
         context.putRootVariable("flowId", context.getFlowId());
-        if (dsl.getVariables() != null) {
-            for (CollectParamDTO param : dsl.getVariables()) {
-                Object value = CollectExpression.eval(param.getValue(), root);
+        if (dsl.variables() != null) {
+            for (CollectParamDTO param : dsl.variables()) {
+                Object value = CollectExpression.eval(param.value(), root);
                 // 流程变量双写：root 保留 ${xxx} 直引（存量兼容），env 供 ${env.xxx}。
                 // 两处指向同一值，改任一处另一处同步生效。
-                context.putRootVariable(param.getName(), value);
-                context.putEnvVariable(param.getName(), value);
+                context.putRootVariable(param.name(), value);
+                context.putEnvVariable(param.name(), value);
             }
         }
         // 内置命名空间（放在用户变量之后，env / nodes / data 成为保留字，不被同名流程变量顶掉）：
@@ -301,11 +301,11 @@ public class CollectEngine {
         context.putRootVariable("nodes", context.getNodeOutputs());
         context.getGlobalHeaders().clear();
         context.getGlobalCookies().clear();
-        if (dsl.getHeaders() != null) {
-            context.getGlobalHeaders().addAll(dsl.getHeaders());
+        if (dsl.headers() != null) {
+            context.getGlobalHeaders().addAll(dsl.headers());
         }
-        if (dsl.getCookies() != null) {
-            context.getGlobalCookies().addAll(dsl.getCookies());
+        if (dsl.cookies() != null) {
+            context.getGlobalCookies().addAll(dsl.cookies());
         }
     }
 
@@ -774,8 +774,8 @@ public class CollectEngine {
     private String inputDetail(CollectNode node, Map<String, Object> scope, boolean includeLoop) {
         StringBuilder builder = new StringBuilder("in: ");
         for (CollectParamDTO param : node.params()) {
-            String name = param.getName();
-            String raw = param.getValue();
+            String name = param.name();
+            String raw = param.value();
             if (name == null || name.isBlank() || raw == null || raw.isBlank()) {
                 continue;
             }

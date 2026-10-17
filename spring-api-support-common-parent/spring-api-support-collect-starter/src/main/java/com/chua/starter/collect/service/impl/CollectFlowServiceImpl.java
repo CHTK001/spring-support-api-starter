@@ -152,8 +152,8 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
                 schedulePort.runtime(CollectFlowScheduleKeys.jobKeyOf(flowId)));
         vo.setDsl(readDsl(flow));
         CollectDslDTO dsl = vo.getDsl();
-        vo.setNodeCount(dsl.getNodes() == null ? 0 : dsl.getNodes().size());
-        vo.setEdgeCount(dsl.getEdges() == null ? 0 : dsl.getEdges().size());
+        vo.setNodeCount(dsl.nodes() == null ? 0 : dsl.nodes().size());
+        vo.setEdgeCount(dsl.edges() == null ? 0 : dsl.edges().size());
         return vo;
     }
 
@@ -173,7 +173,7 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CollectFlowVO editFlow(CollectFlowSaveDTO dto) {
-        CollectFlow exists = requireFlow(dto.getCollectFlowId());
+        CollectFlow exists = requireFlow(dto.collectFlowId());
         CollectFlow flow = new CollectFlow();
         flow.setCollectFlowId(exists.getCollectFlowId());
         apply(flow, dto);
@@ -268,16 +268,28 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
         if (parsed == null) {
             throw new IllegalArgumentException("流程图解析失败");
         }
-        parsed.setThreadCount(threadCountOf(flow));
-        if (parsed.getName() == null || parsed.getName().isBlank()) {
-            parsed.setName(flow.getCollectFlowName());
-        }
-        return parsed;
+        return withFlowMeta(parsed, flow);
+    }
+
+    /**
+     * 用流程表的名称与线程数覆盖 DSL 中的冗余字段。
+     *
+     * <p>DSL 与流程表都存名称/线程数，展示与执行一律以流程表为准，避免两处不一致。</p>
+     *
+     * @param parsed 解析后的 DSL
+     * @param flow   流程行
+     * @return 覆盖冗余字段后的 DSL
+     */
+    private CollectDslDTO withFlowMeta(CollectDslDTO parsed, CollectFlow flow) {
+        String name = parsed.name() == null || parsed.name().isBlank()
+                ? flow.getCollectFlowName() : parsed.name();
+        return new CollectDslDTO(name, threadCountOf(flow), parsed.headers(), parsed.cookies(),
+                parsed.variables(), parsed.nodes(), parsed.edges());
     }
 
     @Override
     public String normalizeDsl(CollectDslDTO dsl) {
-        if (dsl == null || dsl.getNodes() == null || dsl.getNodes().isEmpty()) {
+        if (dsl == null || dsl.nodes() == null || dsl.nodes().isEmpty()) {
             throw new IllegalArgumentException("流程图没有任何节点");
         }
         try {
@@ -313,10 +325,7 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
         String dsl = flow.getCollectFlowDsl();
         CollectDslDTO parsed = dsl == null || dsl.isBlank() ? null : CollectJson.parse(dsl, CollectDslDTO.class);
         if (parsed != null) {
-            parsed.setThreadCount(threadCountOf(flow));
-            if (parsed.getName() == null || parsed.getName().isBlank()) {
-                parsed.setName(flow.getCollectFlowName());
-            }
+            parsed = withFlowMeta(parsed, flow);
         }
         return new CollectFlowRef(flow.getCollectFlowId(), flow.getCollectFlowName(), parsed);
     }
@@ -331,24 +340,24 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
         if (dto == null) {
             throw new IllegalArgumentException("保存内容不能为空");
         }
-        flow.setCollectFlowName(requireText(dto.getCollectFlowName(), "流程名称", MAX_TEXT_LENGTH));
-        flow.setCollectFlowCategoryId(dto.getCollectFlowCategoryId() == null
-                ? UNCATEGORIZED : dto.getCollectFlowCategoryId());
-        String code = dto.getCollectFlowCode() == null ? "" : dto.getCollectFlowCode().trim();
+        flow.setCollectFlowName(requireText(dto.collectFlowName(), "流程名称", MAX_TEXT_LENGTH));
+        flow.setCollectFlowCategoryId(dto.collectFlowCategoryId() == null
+                ? UNCATEGORIZED : dto.collectFlowCategoryId());
+        String code = dto.collectFlowCode() == null ? "" : dto.collectFlowCode().trim();
         if (code.isEmpty()) {
             code = newCode();
         }
         flow.setCollectFlowCode(requireText(code, "流程编码", 64));
         checkCodeUnique(flow);
-        String cron = dto.getCollectFlowCron() == null ? "" : dto.getCollectFlowCron().trim();
+        String cron = dto.collectFlowCron() == null ? "" : dto.collectFlowCron().trim();
         CollectCronSupport.validate(cron);
         flow.setCollectFlowCron(cron);
-        flow.setCollectFlowConcurrency(requirePositive(dto.getCollectFlowConcurrency(), 1, 32, "并发任务数"));
-        flow.setCollectFlowThreadCount(requirePositive(dto.getCollectFlowThreadCount(),
+        flow.setCollectFlowConcurrency(requirePositive(dto.collectFlowConcurrency(), 1, 32, "并发任务数"));
+        flow.setCollectFlowThreadCount(requirePositive(dto.collectFlowThreadCount(),
                 properties.getDefaultThreadCount(), 64, "并行线程数"));
-        flow.setCollectFlowRemark(dto.getCollectFlowRemark());
-        flow.setCollectFlowDsl(normalizeDsl(dto.getDsl()));
-        checkSubflows(flow.getCollectFlowId(), flow.getCollectFlowName(), dto.getDsl());
+        flow.setCollectFlowRemark(dto.collectFlowRemark());
+        flow.setCollectFlowDsl(normalizeDsl(dto.dsl()));
+        checkSubflows(flow.getCollectFlowId(), flow.getCollectFlowName(), dto.dsl());
     }
 
     /**
@@ -418,19 +427,19 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
      */
     private List<Integer> referencedFlows(CollectDslDTO dsl) {
         List<Integer> ids = new ArrayList<>();
-        if (dsl == null || dsl.getNodes() == null) {
+        if (dsl == null || dsl.nodes() == null) {
             return ids;
         }
-        for (CollectNodeDTO node : dsl.getNodes()) {
-            if (node == null || !CollectProcessExecutor.SHAPE.equals(node.getShape()) || node.getParams() == null) {
+        for (CollectNodeDTO node : dsl.nodes()) {
+            if (node == null || !CollectProcessExecutor.SHAPE.equals(node.shape()) || node.params() == null) {
                 continue;
             }
-            for (CollectParamDTO param : node.getParams()) {
-                if (param == null || !CollectProcessExecutor.FLOW_ID.equals(param.getName())
-                        || param.getValue() == null || param.getValue().isBlank()) {
+            for (CollectParamDTO param : node.params()) {
+                if (param == null || !CollectProcessExecutor.FLOW_ID.equals(param.name())
+                        || param.value() == null || param.value().isBlank()) {
                     continue;
                 }
-                String raw = param.getValue().trim();
+                String raw = param.value().trim();
                 try {
                     Integer target = Integer.valueOf(raw);
                     if (!ids.contains(target)) {
