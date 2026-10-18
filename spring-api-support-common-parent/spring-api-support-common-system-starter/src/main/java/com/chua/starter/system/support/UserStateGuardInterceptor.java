@@ -2,6 +2,7 @@ package com.chua.starter.system.support;
 
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.entity.system.SysUser;
+import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.execute.AuthSessionUtils;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.service.SimpleSysUserService;
@@ -52,6 +53,13 @@ public class UserStateGuardInterceptor implements HandlerInterceptor {
         }
         UserResume resume = AuthSessionUtils.getUserInfo(UserResume.class);
         if (resume == null || StringUtils.isBlank(resume.getUserId())) {
+            return true;
+        }
+        // 非系统用户（如学生）放行：学生令牌的 userId 是学号，与
+        // edu_student.student_account 对齐，**不是** sys_user 主键（学生按设计不建系统用户）。
+        // 若仍按 sys_user 状态校验，getById(学号) 必查不到，全体学生会被误判为
+        // 「账号已被禁用」而 401。学生是否可登录由登录时的 student_status 决定。
+        if (resume.getRoles() != null && resume.getRoles().contains(AuthConstant.STUDENT)) {
             return true;
         }
         final Integer userId = parseUserId(resume.getUserId());
