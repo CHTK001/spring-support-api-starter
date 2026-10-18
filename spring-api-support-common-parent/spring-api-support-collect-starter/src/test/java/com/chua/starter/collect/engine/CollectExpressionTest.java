@@ -1,6 +1,7 @@
 package com.chua.starter.collect.engine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -143,5 +144,46 @@ class CollectExpressionTest {
         vars.put("data", Map.of("id", 1));
 
         assertNull(CollectExpression.eval("${data.notExist}", vars));
+    }
+
+    /**
+     * 古诗示例的正文表达式回归：换行必须是真正的换行符。
+     *
+     * <p>线上曾经把分隔符写成多重转义，求值器按 {@code \n} 的语义把反斜杠保留下来，
+     * 结果 54,422 行诗词正文里是可见的 {@code \\\\n} 而不是换行。这里的断言把
+     * 「{@code '\n'} 两个字符 = 换行」这个契约钉死：改动 readString 的转义规则会立刻红。</p>
+     */
+    @Test
+    @DisplayName("${join(paragraphs, '\\n')} 用真正的换行连接段落")
+    void joinsParagraphsWithRealNewline() {
+        Map<String, Object> vars = new LinkedHashMap<>();
+        vars.put("paragraphs", Arrays.asList("第一句", "第二句"));
+
+        // 反斜杠 + n 两个字符
+        String expression = "${join(paragraphs, '" + "\\" + "n')}";
+        String joined = CollectExpression.evalText(expression, vars);
+
+        assertEquals("第一句\n第二句", joined);
+        assertTrue(joined.contains("\n"), "正文里应当是换行符");
+        assertFalse(joined.contains("\\n"), "不应留下字面量反斜杠 n，实际: " + joined);
+    }
+
+    /**
+     * 反面例子：写成两个反斜杠时，求值结果就是字面量反斜杠 n。
+     *
+     * <p>这条断言说明「多一层转义」并不会被自动纠正，因此示例 SQL 里的写法必须与
+     * 上面那条测试一致，否则错误会安静地写进库。</p>
+     */
+    @Test
+    @DisplayName("多转义一层会留下字面量反斜杠 n")
+    void doubleEscapedSeparatorKeepsBackslash() {
+        Map<String, Object> vars = new LinkedHashMap<>();
+        vars.put("paragraphs", Arrays.asList("第一句", "第二句"));
+
+        String expression = "${join(paragraphs, '" + "\\\\" + "n')}";
+        String joined = CollectExpression.evalText(expression, vars);
+
+        assertEquals("第一句\\n第二句", joined);
+        assertFalse(joined.contains("\n"), "多转义一层不会产生换行");
     }
 }
