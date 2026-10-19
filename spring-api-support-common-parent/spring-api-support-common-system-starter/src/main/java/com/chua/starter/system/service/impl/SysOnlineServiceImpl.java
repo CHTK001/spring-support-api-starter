@@ -71,25 +71,25 @@ public class SysOnlineServiceImpl implements SysOnlineService {
         // 按角色编码过滤
         if (null != roleCode && !roleCode.trim().isEmpty()) {
             onlineUsers = onlineUsers.stream()
-                    .filter(vo -> matchRole(vo.getUserId(), roleCode.trim()))
+                    .filter(vo -> matchRole(vo.userId(), roleCode.trim()))
                     .collect(Collectors.toList());
         }
         // 按部门过滤
         if (null != deptId) {
             onlineUsers = onlineUsers.stream()
-                    .filter(vo -> matchDept(vo.getUserId(), deptId))
+                    .filter(vo -> matchDept(vo.userId(), deptId))
                     .collect(Collectors.toList());
         }
 
         // 按登录时间倒序排列
         onlineUsers.sort((a, b) -> {
-            if (a.getLoginTime() == null) {
+            if (a.loginTime() == null) {
                 return 1;
             }
-            if (b.getLoginTime() == null) {
+            if (b.loginTime() == null) {
                 return -1;
             }
-            return b.getLoginTime().compareTo(a.getLoginTime());
+            return b.loginTime().compareTo(a.loginTime());
         });
 
         return onlineUsers;
@@ -203,31 +203,28 @@ public class SysOnlineServiceImpl implements SysOnlineService {
      * @return 转换转为online用户vo的结果
      */
     private OnlineUserVO convertToOnlineUserVO(Protocol.OnlineUserInfo info) {
-        OnlineUserVO vo = new OnlineUserVO();
-        vo.setUserId(info.getUserId());
-        vo.setUsername(info.getUsername());
-        vo.setNickname(info.getNickname());
-        vo.setLoginIp(info.getLoginIp());
-        vo.setLoginAddress(info.getLoginAddress());
-        vo.setBrowser(info.getBrowser());
-        vo.setOs(info.getOs());
-        vo.setLoginType(info.getLoginType());
-        vo.setToken(info.getToken());
-
         // 解析登录时间
-        if (info.getLoginTime() != null) {
-            vo.setLoginTime(LocalDateTime.ofInstant(
-                    Instant.ofEpochMilli(info.getLoginTime()),
-                    ZoneId.systemDefault()));
-        }
+        LocalDateTime loginTime = info.getLoginTime() == null ? null : LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(info.getLoginTime()),
+                ZoneId.systemDefault());
 
         // 解析最后访问时间
-        if (info.getLastAccessTime() != null) {
-            vo.setLastAccessTime(LocalDateTime.ofInstant(
-                    Instant.ofEpochMilli(info.getLastAccessTime()),
-                    ZoneId.systemDefault()));
-        }
+        LocalDateTime lastAccessTime = info.getLastAccessTime() == null ? null : LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(info.getLastAccessTime()),
+                ZoneId.systemDefault());
 
-        return vo;
+        return new OnlineUserVO(
+                info.getUserId(),
+                info.getUsername(),
+                info.getNickname(),
+                null,
+                info.getLoginIp(),
+                info.getLoginAddress(),
+                info.getBrowser(),
+                info.getOs(),
+                loginTime,
+                lastAccessTime,
+                info.getToken(),
+                info.getLoginType());
     }
 }

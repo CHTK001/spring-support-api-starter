@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,6 @@ import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OperatingSystem;
-import org.springframework.core.env.Environment;
 
 import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.GarbageCollectorMXBean;
@@ -38,7 +38,6 @@ import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,19 +116,17 @@ public class SysServerController {
      * @return 服务监控信息
      */
     private ServerMonitorVO buildInfo() {
-        ServerMonitorVO vo = new ServerMonitorVO();
         SystemInfo si = new SystemInfo();
         HardwareAbstractionLayer hw = si.getHardware();
         OperatingSystem os = si.getOperatingSystem();
+        CentralProcessor cpu = hw.getProcessor();
+        GlobalMemory memory = hw.getMemory();
 
         // ---- CPU: 两次采样间隔 500ms ----
-        CentralProcessor cpu = hw.getProcessor();
         long[] ticks1 = cpu.getSystemCpuLoadTicks();
         long[][] procTicks1 = cpu.getProcessorCpuLoadTicks();
         sleepQuietly(500L);
         long[] ticks2 = cpu.getSystemCpuLoadTicks();
-        ServerMonitorVO.CpuInfo cpuInfo = new ServerMonitorVO.CpuInfo();
-        cpuInfo.setLogicalCores(cpu.getLogicalProcessorCount());
         long[] delta = new long[ticks2.length];
         long total = 0L;
         for (int i = 0; i < ticks2.length; i++) {
@@ -142,58 +139,48 @@ public class SysServerController {
         double user = pct(delta, CentralProcessor.TickType.USER, total);
         double system = pct(delta, CentralProcessor.TickType.SYSTEM, total);
         double idle = pct(delta, CentralProcessor.TickType.IDLE, total);
-        cpuInfo.setUserPercent(user);
-        cpuInfo.setSystemPercent(system);
-        cpuInfo.setIdlePercent(idle);
-        cpuInfo.setUsagePercent(round2(100d - idle));
-        vo.setCpu(cpuInfo);
+        ServerMonitorVO.CpuInfo cpuInfo = new ServerMonitorVO.CpuInfo(
+                cpu.getLogicalProcessorCount(), user, system, idle, round2(100d - idle));
 
-        // ---- 每核使用率(复用同一次 500ms 采样) + 系统负载 ----
+        // ---- 每核使用率 ----
+        List<Double> coreUsages = null;
         try {
             double[] perCore = cpu.getProcessorCpuLoadBetweenTicks(procTicks1);
             if (null != perCore) {
-                List<Double> coreUsages = new ArrayList<>(perCore.length);
+                coreUsages = new ArrayList<>(perCore.length);
                 for (double c : perCore) {
                     coreUsages.add(Double.isNaN(c) ? 0d : round2(c * 100d));
                 }
-                vo.setCoreUsages(coreUsages);
             }
         } catch (Exception e) {
             log.warn("采集每核 CPU 使用率失败", e);
         }
+
+        // ---- 系统负载 ----
+        Double systemLoadAverage = null;
         try {
             double[] loadAvg = cpu.getSystemLoadAverage(1);
             if (null != loadAvg && loadAvg.length > 0 && loadAvg[0] >= 0) {
-                vo.setSystemLoadAverage(round2(loadAvg[0]));
+                systemLoadAverage = round2(loadAvg[0]);
             }
         } catch (Exception e) {
             log.warn("采集系统负载失败", e);
         }
 
         // ---- 系统内存 ----
-        GlobalMemory memory = hw.getMemory();
         long memTotal = memory.getTotal();
         long memAvail = memory.getAvailable();
         long memUsed = memTotal - memAvail;
-        ServerMonitorVO.MemInfo sysMem = new ServerMonitorVO.MemInfo();
-        sysMem.setTotal(memTotal);
-        sysMem.setUsed(memUsed);
-        sysMem.setFree(memAvail);
-        sysMem.setUsagePercent(memTotal > 0 ? round2(memUsed * 100.0 / memTotal) : 0);
-        vo.setSystemMemory(sysMem);
+        ServerMonitorVO.MemInfo sysMem = new ServerMonitorVO.MemInfo(
+                memTotal, memUsed, memAvail, memTotal > 0 ? round2(memUsed * 100.0 / memTotal) : 0);
 
         // ---- JVM 内存 ----
         MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
         MemoryUsage heap = memoryMXBean.getHeapMemoryUsage();
         long jvmTotal = heap.getCommitted();
         long jvmUsed = heap.getUsed();
-        long jvmFree = jvmTotal - jvmUsed;
-        ServerMonitorVO.MemInfo jvmMem = new ServerMonitorVO.MemInfo();
-        jvmMem.setTotal(jvmTotal);
-        jvmMem.setUsed(jvmUsed);
-        jvmMem.setFree(jvmFree);
-        jvmMem.setUsagePercent(jvmTotal > 0 ? round2(jvmUsed * 100.0 / jvmTotal) : 0);
-        vo.setJvmMemory(jvmMem);
+        ServerMonitorVO.MemInfo jvmMem = new ServerMonitorVO.MemInfo(
+                jvmTotal, jvmUsed, jvmTotal - jvmUsed, jvmTotal > 0 ? round2(jvmUsed * 100.0 / jvmTotal) : 0);
 
         // ---- 磁盘 ----
         List<ServerMonitorVO.DiskInfo> disks = new ArrayList<>();
@@ -207,175 +194,120 @@ public class SysServerController {
             long usable = store.getUsableSpace();
             long usedSpace = totalSpace - usable;
             double usage = round2(usedSpace * 100.0 / totalSpace);
-            ServerMonitorVO.DiskInfo disk = new ServerMonitorVO.DiskInfo();
-            disk.setPath(store.getMount());
-            disk.setFsType(store.getType());
-            disk.setTotal(totalSpace);
-            disk.setUsed(usedSpace);
-            disk.setAvailable(usable);
-            disk.setUsagePercent(usage);
-            disks.add(disk);
+            disks.add(new ServerMonitorVO.DiskInfo(store.getMount(), usage, store.getType(),
+                    totalSpace, usedSpace, usable));
             if (usage > peak) {
                 peak = usage;
             }
         }
-        vo.setDisks(disks);
-        ServerMonitorVO.DiskPeak diskPeak = new ServerMonitorVO.DiskPeak();
-        diskPeak.setUsagePercent(peak);
-        diskPeak.setPartitionCount(disks.size());
-        vo.setDiskPeak(diskPeak);
+        ServerMonitorVO.DiskPeak diskPeak = new ServerMonitorVO.DiskPeak(peak, disks.size());
 
         // ---- 服务器信息 ----
-        ServerMonitorVO.ServerInfo server = new ServerMonitorVO.ServerInfo();
-        server.setHostname(os.getNetworkParams().getHostName());
-        server.setOsName(os.getFamily());
-        server.setOsVersion(System.getProperty("os.version"));
-        server.setArch(System.getProperty("os.arch"));
-        server.setIp(resolveLocalIp());
-        vo.setServer(server);
+        ServerMonitorVO.ServerInfo server = new ServerMonitorVO.ServerInfo(
+                os.getNetworkParams().getHostName(),
+                os.getFamily(),
+                System.getProperty("os.version"),
+                resolveLocalIp(),
+                System.getProperty("os.arch"));
 
         // ---- JVM 信息 ----
         RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-        ServerMonitorVO.JvmInfo jvm = new ServerMonitorVO.JvmInfo();
-        jvm.setName(runtimeMXBean.getVmName());
-        jvm.setVersion(System.getProperty("java.version"));
-        jvm.setStartTime(runtimeMXBean.getStartTime());
-        jvm.setUptime(runtimeMXBean.getUptime());
-        jvm.setJavaHome(System.getProperty("java.home"));
-        jvm.setProjectPath(System.getProperty("user.dir"));
-        jvm.setInputArgs(new ArrayList<>(runtimeMXBean.getInputArguments()));
-        vo.setJvm(jvm);
+        ServerMonitorVO.JvmInfo jvm = new ServerMonitorVO.JvmInfo(
+                runtimeMXBean.getVmName(),
+                System.getProperty("java.version"),
+                runtimeMXBean.getStartTime(),
+                runtimeMXBean.getUptime(),
+                System.getProperty("java.home"),
+                System.getProperty("user.dir"),
+                new ArrayList<>(runtimeMXBean.getInputArguments()));
 
-        // ---- 系统/进程运行信息 ----
-        collectRuntimeInfo(vo, os, cpu, runtimeMXBean);
-
-        // ---- JVM 内存池 ----
-        collectMemoryPools(vo);
-
-        // ---- GC ----
-        collectGc(vo);
-
-        // ---- 类加载 ----
-        collectClassLoading(vo);
-
-        // ---- 线程状态分析 ----
-        collectThreads(vo);
-
-        // ---- 网络接口 ----
-        collectNetwork(vo, hw);
-
-        // ---- Spring 核心参数 ----
-        collectSpringConfig(vo);
-
-        return vo;
-    }
-
-    /**
-     * 采集系统/进程运行信息
-     */
-    private void collectRuntimeInfo(ServerMonitorVO vo, OperatingSystem os, CentralProcessor cpu,
-                                    RuntimeMXBean runtimeMXBean) {
+        // ---- 运行时信息 ----
+        Long systemUptime = null;
+        Long processUptime = null;
+        Integer processCount = null;
+        Integer threadCount = null;
+        Integer peakThreadCount = null;
+        Integer daemonThreadCount = null;
         try {
-            long uptimeSec = os.getSystemUptime();
-            vo.setSystemUptime(uptimeSec);
+            systemUptime = os.getSystemUptime();
         } catch (Exception e) {
             log.warn("采集系统运行时长失败", e);
         }
         try {
-            vo.setProcessUptime(runtimeMXBean.getUptime() / 1000L);
+            processUptime = runtimeMXBean.getUptime() / 1000L;
         } catch (Exception e) {
             log.warn("采集进程运行时长失败", e);
         }
-        ThreadMXBean tmb = ManagementFactory.getThreadMXBean();
         try {
-            vo.setProcessCount(os.getProcessCount());
+            processCount = os.getProcessCount();
         } catch (Exception e) {
             log.warn("采集进程数失败", e);
         }
+        ThreadMXBean tmb = ManagementFactory.getThreadMXBean();
         try {
-            vo.setThreadCount(tmb.getThreadCount());
-            vo.setPeakThreadCount(tmb.getPeakThreadCount());
-            vo.setDaemonThreadCount(tmb.getDaemonThreadCount());
+            threadCount = tmb.getThreadCount();
+            peakThreadCount = tmb.getPeakThreadCount();
+            daemonThreadCount = tmb.getDaemonThreadCount();
         } catch (Exception e) {
             log.warn("采集线程数失败", e);
         }
-    }
 
-    /**
-     * 采集 JVM 内存池
-     */
-    private void collectMemoryPools(ServerMonitorVO vo) {
+        // ---- JVM 内存池 ----
+        List<ServerMonitorVO.MemoryPoolInfo> memoryPools = new ArrayList<>();
         try {
-            List<ServerMonitorVO.MemoryPoolInfo> pools = new ArrayList<>();
             for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
                 String name = pool.getName();
                 if (null == name || name.contains("Shenandoah")) {
                     continue;
                 }
-                ServerMonitorVO.MemoryPoolInfo p = new ServerMonitorVO.MemoryPoolInfo();
-                p.setName(name);
-                p.setType(pool.getType().name().equalsIgnoreCase("HEAP") ? "heap" : "non-heap");
                 MemoryUsage u = pool.getUsage();
-                if (null != u) {
-                    p.setInit(u.getInit());
-                    p.setUsed(u.getUsed());
-                    p.setCommitted(u.getCommitted());
-                    p.setMax(u.getMax());
-                }
-                pools.add(p);
+                memoryPools.add(new ServerMonitorVO.MemoryPoolInfo(
+                        name,
+                        pool.getType().name().equalsIgnoreCase("HEAP") ? "heap" : "non-heap",
+                        u == null ? null : u.getInit(),
+                        u == null ? null : u.getUsed(),
+                        u == null ? null : u.getCommitted(),
+                        u == null ? null : u.getMax()));
             }
-            vo.setMemoryPools(pools);
         } catch (Exception e) {
             log.warn("采集内存池失败", e);
         }
-    }
 
-    /**
-     * 采集 GC 收集器
-     */
-    private void collectGc(ServerMonitorVO vo) {
+        // ---- GC ----
+        List<ServerMonitorVO.GcInfo> gcCollectors = new ArrayList<>();
         try {
-            List<ServerMonitorVO.GcInfo> gcs = new ArrayList<>();
             for (GarbageCollectorMXBean gc : ManagementFactory.getGarbageCollectorMXBeans()) {
-                ServerMonitorVO.GcInfo g = new ServerMonitorVO.GcInfo();
-                g.setName(gc.getName());
                 long count = gc.getCollectionCount();
                 long time = gc.getCollectionTime();
-                g.setCollectionCount(count < 0 ? null : count);
-                g.setCollectionTime(time < 0 ? null : time);
-                gcs.add(g);
+                gcCollectors.add(new ServerMonitorVO.GcInfo(
+                        gc.getName(),
+                        count < 0 ? null : count,
+                        time < 0 ? null : time));
             }
-            vo.setGcCollectors(gcs);
         } catch (Exception e) {
             log.warn("采集 GC 信息失败", e);
         }
-    }
 
-    /**
-     * 采集类加载
-     */
-    private void collectClassLoading(ServerMonitorVO vo) {
+        // ---- 类加载 ----
+        Integer loadedClassCount = null;
+        Long totalLoadedClassCount = null;
+        Long unloadedClassCount = null;
         try {
             ClassLoadingMXBean cl = ManagementFactory.getClassLoadingMXBean();
-            vo.setLoadedClassCount(cl.getLoadedClassCount());
-            vo.setTotalLoadedClassCount(cl.getTotalLoadedClassCount());
-            vo.setUnloadedClassCount(cl.getUnloadedClassCount());
+            loadedClassCount = cl.getLoadedClassCount();
+            totalLoadedClassCount = cl.getTotalLoadedClassCount();
+            unloadedClassCount = cl.getUnloadedClassCount();
         } catch (Exception e) {
             log.warn("采集类加载信息失败", e);
         }
-    }
 
-    /**
-     * 采集线程状态分析
-     */
-    private void collectThreads(ServerMonitorVO vo) {
+        // ---- 线程状态分析 ----
+        Map<String, Integer> threadStates = new LinkedHashMap<>();
+        int deadlockedThreadCount = 0;
+        List<ServerMonitorVO.ThreadDetail> topThreads = new ArrayList<>();
         try {
-            ThreadMXBean tmb = ManagementFactory.getThreadMXBean();
-            // 状态分布
-            Map<String, Integer> states = new LinkedHashMap<>();
             boolean cpuSupported = tmb.isThreadCpuTimeSupported();
             int dumpCount = 0;
-            // 候选线程: (cpuTime, detail)
             List<Map.Entry<Long, ServerMonitorVO.ThreadDetail>> top = new ArrayList<>();
             ThreadInfo[] infos = tmb.dumpAllThreads(false, false);
             for (ThreadInfo info : infos) {
@@ -384,50 +316,41 @@ public class SysServerController {
                 }
                 Thread.State st = info.getThreadState();
                 if (null != st) {
-                    states.merge(st.name(), 1, Integer::sum);
+                    threadStates.merge(st.name(), 1, Integer::sum);
                 }
                 if (dumpCount++ >= 200) {
                     continue;
                 }
-                ServerMonitorVO.ThreadDetail d = new ServerMonitorVO.ThreadDetail();
-                d.setName(info.getThreadName());
-                d.setState(null == st ? null : st.name());
+                long cpuNanos = -1, userNanos = -1;
                 if (cpuSupported) {
                     long tid = info.getThreadId();
-                    long cpuNanos = tmb.getThreadCpuTime(tid);
-                    long userNanos = tmb.getThreadUserTime(tid);
-                    d.setCpuTime(cpuNanos < 0 ? null : cpuNanos / 1_000_000L);
-                    d.setUserTime(userNanos < 0 ? null : userNanos / 1_000_000L);
-                    long cpuMs = cpuNanos < 0 ? 0L : cpuNanos / 1_000_000L;
-                    top.add(Map.entry(cpuMs, d));
+                    cpuNanos = tmb.getThreadCpuTime(tid);
+                    userNanos = tmb.getThreadUserTime(tid);
                 }
+                long cpuMs = cpuNanos < 0 ? 0L : cpuNanos / 1_000_000L;
+                top.add(Map.entry(cpuMs,
+                        new ServerMonitorVO.ThreadDetail(info.getThreadName(),
+                                null == st ? null : st.name(),
+                                cpuNanos < 0 ? null : cpuNanos / 1_000_000L,
+                                userNanos < 0 ? null : userNanos / 1_000_000L)));
             }
-            vo.setThreadStates(states);
-            // 死锁
             try {
                 long[] dead = tmb.findDeadlockedThreads();
-                vo.setDeadlockedThreadCount(null == dead ? 0 : dead.length);
-            } catch (Exception e) {
-                vo.setDeadlockedThreadCount(0);
+                deadlockedThreadCount = (null == dead || dead.length == 0) ? 0 : dead.length;
+            } catch (Exception ignored) {
+                // ignore
             }
-            // 前10 CPU 时间
             top.sort((a, b) -> Long.compare(b.getKey(), a.getKey()));
-            List<ServerMonitorVO.ThreadDetail> topList = new ArrayList<>();
             for (int i = 0; i < Math.min(10, top.size()); i++) {
-                topList.add(top.get(i).getValue());
+                topThreads.add(top.get(i).getValue());
             }
-            vo.setTopThreads(topList);
         } catch (Exception e) {
             log.warn("采集线程分析失败", e);
         }
-    }
 
-    /**
-     * 采集网络接口
-     */
-    private void collectNetwork(ServerMonitorVO vo, HardwareAbstractionLayer hw) {
+        // ---- 网络接口 ----
+        List<ServerMonitorVO.NetworkInfo> networkInterfaces = new ArrayList<>();
         try {
-            List<ServerMonitorVO.NetworkInfo> nics = new ArrayList<>();
             List<NetworkIF> ifs = hw.getNetworkIFs();
             for (NetworkIF nif : ifs) {
                 long recv = nif.getBytesRecv();
@@ -435,16 +358,6 @@ public class SysServerController {
                 if (recv == 0 && sent == 0) {
                     continue;
                 }
-                ServerMonitorVO.NetworkInfo n = new ServerMonitorVO.NetworkInfo();
-                n.setName(nif.getName());
-                n.setDisplayName(nif.getDisplayName());
-                n.setBytesRecv(recv);
-                n.setBytesSent(sent);
-                n.setPacketsRecv(nif.getPacketsRecv());
-                n.setPacketsSent(nif.getPacketsSent());
-                n.setSpeed(nif.getSpeed());
-                n.setDropRecv(nif.getInErrors() + nif.getInDrops());
-                n.setDropSent(nif.getOutErrors());
                 List<String> addrs = new ArrayList<>();
                 try {
                     String[] v4 = nif.getIPv4addr();
@@ -460,43 +373,42 @@ public class SysServerController {
                             addrs.add(s);
                         }
                     }
-                } catch (Exception ignore) {
+                } catch (Exception ignored) {
                     // ignore
                 }
-                n.setAddresses(addrs);
-                nics.add(n);
-                if (nics.size() >= 5) {
+                networkInterfaces.add(new ServerMonitorVO.NetworkInfo(
+                        nif.getName(), nif.getDisplayName(),
+                        recv, sent,
+                        nif.getPacketsRecv(), nif.getPacketsSent(),
+                        nif.getSpeed(),
+                        addrs,
+                        nif.getInErrors() + nif.getInDrops(),
+                        nif.getOutErrors()));
+                if (networkInterfaces.size() >= 5) {
                     break;
                 }
             }
-            vo.setNetworkInterfaces(nics);
         } catch (Exception e) {
             log.warn("采集网络接口失败", e);
         }
-    }
 
-    /**
-     * 采集 Spring 核心参数（白名单前缀 + 常用键）。
-     */
-    private void collectSpringConfig(ServerMonitorVO vo) {
+        // ---- Spring 核心参数 ----
+        Map<String, String> springConfig = new LinkedHashMap<>();
         try {
-            Map<String, String> cfg = new LinkedHashMap<>();
             String[] active = environment.getActiveProfiles();
             if (null != active && active.length > 0) {
-                cfg.put("spring.profiles.active", String.join(",", active));
+                springConfig.put("spring.profiles.active", String.join(",", active));
             }
             String[] defaultProfiles = environment.getDefaultProfiles();
             if (null != defaultProfiles && defaultProfiles.length > 0) {
-                cfg.put("spring.profiles.default", String.join(",", defaultProfiles));
+                springConfig.put("spring.profiles.default", String.join(",", defaultProfiles));
             }
-            // 常用核心键
             String[] keys = {
                     "spring.application.name",
-                    "spring.application.index",
                     "server.port",
-                    "server.address",
-                    "server.servlet.context-path",
-                    "server.tomcat.max-threads",
+                    "spring.datasource.druid.enabled",
+                    "spring.redis.host",
+                    "spring.jpa.open-in-view",
                     "server.tomcat.min-spare-threads",
                     "management.endpoints.web.exposure.include",
                     "management.endpoint.health.show-details",
@@ -521,13 +433,21 @@ public class SysServerController {
             for (String key : keys) {
                 String v = environment.getProperty(key);
                 if (null != v && !v.isEmpty()) {
-                    cfg.put(key, v);
+                    springConfig.put(key, v);
                 }
             }
-            vo.setSpringConfig(cfg);
         } catch (Exception e) {
             log.warn("采集 Spring 核心参数失败", e);
         }
+
+        return new ServerMonitorVO(
+                cpuInfo, sysMem, jvmMem, diskPeak, disks, server, jvm,
+                systemUptime, processUptime, processCount, threadCount, peakThreadCount, daemonThreadCount,
+                systemLoadAverage, coreUsages,
+                memoryPools, gcCollectors,
+                loadedClassCount, totalLoadedClassCount, unloadedClassCount,
+                threadStates, deadlockedThreadCount, topThreads,
+                networkInterfaces, springConfig);
     }
 
     /**

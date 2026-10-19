@@ -432,8 +432,7 @@ public class Tiles3dServiceImpl implements Tiles3dService {
      * @return 摘要信息
      */
     private TilesetSummary buildSummary(JsonNode tileset) {
-        TilesetSummary summary = new TilesetSummary();
-        summary.setVersion(tileset.path("asset").path("version").asText("1.0"));
+        String version = tileset.path("asset").path("version").asText("1.0");
 
         // 统计节点数和深度
         AtomicInteger total = new AtomicInteger(0);
@@ -441,22 +440,18 @@ public class Tiles3dServiceImpl implements Tiles3dService {
         AtomicInteger maxDepth = new AtomicInteger(0);
         walkTile(tileset.path("root"), 0, total, content, maxDepth);
 
-        summary.setTotalTiles(total.get());
-        summary.setContentTiles(content.get());
-        summary.setMaxDepth(maxDepth.get());
-        summary.setLevels(maxDepth.get() + 1);
-
         // 提取 extent（region 包围体）
         JsonNode region = tileset.path("root").path("boundingVolume").path("region");
+        List<Double> extent = null;
         if (region.isArray() && region.size() >= 4) {
-            List<Double> extent = new ArrayList<>();
+            extent = new ArrayList<>();
             for (int i = 0; i < 4; i++) {
                 extent.add(region.get(i).asDouble() * 180.0 / Math.PI); // rad → deg
             }
-            summary.setExtent(extent);
         }
 
-        return summary;
+        return new TilesetSummary(version, extent, total.get(), content.get(),
+                maxDepth.get(), maxDepth.get() + 1, false);
     }
 
     /**
