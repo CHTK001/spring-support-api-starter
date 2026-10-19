@@ -189,15 +189,14 @@ public class SysMessageController {
      * @return 前端视图对象
      */
     private SysMessageVO toVO(SysMessage message) {
-        SysMessageVO vo = new SysMessageVO();
-        vo.setId(message.getSysMessageId() == null ? null : message.getSysMessageId().longValue());
-        vo.setSubject(message.getSysMessageTitle());
-        vo.setContent(message.getSysMessageContent());
-        vo.setSendTime(message.getSysMessageSendTime());
-        vo.setReadStatus(message.getSysMessageRead());
-        vo.setType(message.getSysMessageType());
-        vo.setLevel(message.getSysMessageLevel());
-        vo.setUrl(message.getSysMessageUrl());
-        return vo;
+        return new SysMessageVO(
+                message.getSysMessageId() == null ? null : message.getSysMessageId().longValue(),
+                message.getSysMessageTitle(),
+                message.getSysMessageContent(),
+                message.getSysMessageSendTime(),
+                message.getSysMessageRead(),
+                message.getSysMessageType(),
+                message.getSysMessageLevel(),
+                message.getSysMessageUrl());
     }
 }

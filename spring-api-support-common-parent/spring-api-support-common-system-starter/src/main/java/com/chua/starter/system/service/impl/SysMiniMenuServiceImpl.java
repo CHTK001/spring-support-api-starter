@@ -2,7 +2,6 @@ package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
-import com.chua.common.support.utils.BeanUtils;
 import com.chua.common.support.utils.ArrayUtils;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.ObjectUtils;
@@ -61,7 +60,23 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
         }
         return ReturnResult.ok(
                 visibleMenus.stream()
-                        .map(menu -> BeanUtils.copyProperties(menu, SysMiniMenuVO.class))
+                        .map(menu -> new SysMiniMenuVO(
+                                menu.getSysMiniMenuId(),
+                                menu.getSysMiniMenuTitle(),
+                                menu.getSysMiniMenuSubtitle(),
+                                menu.getSysMiniMenuCategory(),
+                                menu.getSysMiniMenuPath(),
+                                menu.getSysMiniMenuJumpMode(),
+                                menu.getSysMiniMenuIcon(),
+                                menu.getSysMiniMenuCover(),
+                                menu.getSysMiniMenuBadge(),
+                                menu.getSysMiniMenuBadgeType(),
+                                menu.getSysMiniMenuPerm(),
+                                menu.getSysMiniMenuRole(),
+                                menu.getSysMiniMenuSort(),
+                                menu.getSysMiniMenuKeepAlive(),
+                                menu.getSysMiniMenuHidden(),
+                                menu.getSysMiniMenuDescription()))
                         .toList()
         );
     }
