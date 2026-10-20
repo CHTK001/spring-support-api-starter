@@ -136,3 +136,6 @@ __pycache__/
 # ï¼ˆæœ¬ä»“æ—  bashï¼Œpackage.sh åœ¨ Windows ä¸Šä¸å¯ç”¨ï¼‰ï¼Œæ•…æ˜¾å¼çº³å…¥ç‰ˆæœ¬æ§åˆ¶ï¼Œ
 # è¦†ç›–ä¸Šé¢ *.ps1 çš„é»˜è®¤å¿½ç•¥ã€‚çº¯ ASCIIï¼Œé¿å… PS 5.1 æŒ‰ ANSI è§£æä¸­æ–‡æŠ¥é”™ã€‚
 !spring-api-support-oauth-starter/deploy/package.ps1
+
+# Maven ±¡ jar ´ò°üÔÚÄ£¿é¸ùÉú³ÉµÄÇåµ¥£¨¹¹½¨²úÎï£¬·ÇÔ´Âë£©
+spring-api-support-monitor-starter/META-INF/

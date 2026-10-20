@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 可执行流程图。
@@ -64,26 +65,26 @@ public class CollectGraph {
      * @throws CollectGraphException 校验失败
      */
     public static CollectGraph build(CollectDslDTO dsl, Set<String> knownShapes) {
-        if (dsl == null || dsl.getNodes() == null || dsl.getNodes().isEmpty()) {
+        if (dsl == null || dsl.nodes() == null || dsl.nodes().isEmpty()) {
             throw new CollectGraphException("流程图没有任何节点");
         }
         CollectGraph graph = new CollectGraph(dsl);
-        for (CollectNodeDTO dto : dsl.getNodes()) {
-            if (dto.getId() == null || dto.getId().isBlank()) {
+        for (CollectNodeDTO dto : dsl.nodes()) {
+            if (dto.id() == null || dto.id().isBlank()) {
                 throw new CollectGraphException("存在缺少 ID 的节点");
             }
-            if (dto.getShape() == null || dto.getShape().isBlank()) {
-                throw new CollectGraphException("节点 " + dto.getId() + " 缺少类型");
+            if (dto.shape() == null || dto.shape().isBlank()) {
+                throw new CollectGraphException("节点 " + dto.id() + " 缺少类型");
             }
-            if (knownShapes != null && !knownShapes.isEmpty() && !knownShapes.contains(dto.getShape())) {
-                throw new CollectGraphException("节点 " + dto.getId() + " 的类型未注册: " + dto.getShape());
+            if (knownShapes != null && !knownShapes.isEmpty() && !knownShapes.contains(dto.shape())) {
+                throw new CollectGraphException("节点 " + dto.id() + " 的类型未注册: " + dto.shape());
             }
-            if (graph.nodes.containsKey(dto.getId())) {
-                throw new CollectGraphException("节点 ID 重复: " + dto.getId());
+            if (graph.nodes.containsKey(dto.id())) {
+                throw new CollectGraphException("节点 ID 重复: " + dto.id());
             }
-            graph.nodes.put(dto.getId(), new CollectNode(dto));
+            graph.nodes.put(dto.id(), new CollectNode(dto));
         }
-        List<CollectEdgeDTO> edges = dsl.getEdges() == null ? List.of() : dsl.getEdges();
+        List<CollectEdgeDTO> edges = dsl.edges() == null ? List.of() : dsl.edges();
         for (CollectEdgeDTO dto : edges) {
             CollectNode from = graph.nodes.get(dto.from());
             CollectNode to = graph.nodes.get(dto.to());
@@ -101,7 +102,40 @@ public class CollectGraph {
             throw new CollectGraphException("流程缺少开始节点，且不存在入度为 0 的节点");
         }
         graph.checkStartEnd();
+        graph.checkOutputVariables();
         return graph;
+    }
+
+    /**
+     * 校验输出名唯一：每个产生数据的节点按输出名在上下文中独立保存，
+     * 同名输出会让下游引用失去节点归属，保存期直接拒绝。
+     *
+     * <p>只检查显式填写的 outputVariable；留空时由各执行器默认名兜底，
+     * 不在这里猜测后端默认值。</p>
+     *
+     * @throws CollectGraphException 输出名重复
+     */
+    private void checkOutputVariables() {
+        Map<String, List<CollectNode>> byOutput = new LinkedHashMap<>();
+        for (CollectNode node : nodes.values()) {
+            String output = node.param("outputVariable");
+            if (output == null || output.isBlank()) {
+                continue;
+            }
+            byOutput.computeIfAbsent(output.trim(), key -> new ArrayList<>()).add(node);
+        }
+        List<String> duplicates = new ArrayList<>();
+        for (Map.Entry<String, List<CollectNode>> entry : byOutput.entrySet()) {
+            if (entry.getValue().size() < 2) {
+                continue;
+            }
+            duplicates.add(entry.getKey() + " -> " + entry.getValue().stream()
+                    .map(node -> node.id() + "（" + node.name() + "）")
+                    .collect(Collectors.joining("、")));
+        }
+        if (!duplicates.isEmpty()) {
+            throw new CollectGraphException("输出名不允许重复: " + String.join("；", duplicates));
+        }
     }
 
     /**

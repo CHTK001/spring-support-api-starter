@@ -59,6 +59,16 @@ public class CollectShapeMeta {
     private boolean fieldEditor;
 
     /**
+     * 已下线节点：不出现在调色板里，但存量流程仍能渲染与编辑。
+     *
+     * <p>不能直接把它从元数据列表里删掉——存量流程的 DSL 里还写着这个 shape，
+     * 删了以后那些流程打开会认不出节点类型，节点变成一张没有图标没有名字的空卡片。
+     * 所以是「不新增」而不是「不能存在」：调色板里不再给入口，老流程照跑。</p>
+     */
+    @Schema(description = "是否已下线（不在调色板展示）")
+    private boolean hidden;
+
+    /**
      * 参数元数据列表。
      */
     @Schema(description = "参数元数据列表")

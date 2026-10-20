@@ -181,16 +181,16 @@ public class CollectDatasourceServiceImpl extends ServiceImpl<CollectDatasourceM
      */
     private boolean references(String dsl, String name, String id) {
         CollectDslDTO graph = CollectJson.parse(dsl, CollectDslDTO.class);
-        if (graph == null || graph.getNodes() == null) {
+        if (graph == null || graph.nodes() == null) {
             return false;
         }
-        for (CollectNodeDTO node : graph.getNodes()) {
-            if (node.getParams() == null) {
+        for (CollectNodeDTO node : graph.nodes()) {
+            if (node.params() == null) {
                 continue;
             }
-            for (CollectParamDTO param : node.getParams()) {
-                String value = param.getValue() == null ? "" : param.getValue().trim();
-                if (PARAM_DATASOURCE.equals(param.getName()) && (name.equals(value) || id.equals(value))) {
+            for (CollectParamDTO param : node.params()) {
+                String value = param.value() == null ? "" : param.value().trim();
+                if (PARAM_DATASOURCE.equals(param.name()) && (name.equals(value) || id.equals(value))) {
                     return true;
                 }
             }

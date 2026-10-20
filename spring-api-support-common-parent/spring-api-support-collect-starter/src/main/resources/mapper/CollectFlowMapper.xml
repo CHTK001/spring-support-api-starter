@@ -10,6 +10,13 @@
         WHERE collect_flow_id = #{flowId}
     </update>
 
+    <!-- 累加采集条数：增量写，不读旧值，避免并发收尾互相覆盖。 -->
+    <update id="addRecordCount" parameterType="java.util.Map">
+        UPDATE collect_flow
+        SET collect_flow_record_count = COALESCE(collect_flow_record_count, 0) + #{delta}
+        WHERE collect_flow_id = #{flowId}
+    </update>
+
     <!-- 原子占用一个跨节点并发名额，达到上限时更新行数为 0。 -->
     <update id="tryAcquireRunning" parameterType="java.util.Map">
         UPDATE collect_flow

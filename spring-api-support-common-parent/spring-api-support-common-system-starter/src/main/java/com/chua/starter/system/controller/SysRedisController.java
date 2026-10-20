@@ -69,13 +69,11 @@ public class SysRedisController {
             throw new IllegalStateException("Redis INFO 返回为空");
         }
 
-        // connection.info() 返回 Properties, key 为指标名, value 为指标值
         Map<String, String> flat = new LinkedHashMap<>();
         for (String name : info.stringPropertyNames()) {
             flat.put(name, info.getProperty(name, "").trim());
         }
 
-        // INFO 默认不返回 commandstats 段（旧版 / Windows Redis），单独请求一次补齐命令统计
         try {
             Properties commandInfo = stringRedisTemplate.execute(
                     (org.springframework.data.redis.core.RedisCallback<Properties>) connection -> connection.info("commandstats"));
@@ -90,51 +88,31 @@ public class SysRedisController {
             log.warn("获取 Redis commandstats 失败: {}", e.getMessage());
         }
 
-        RedisMonitorVO vo = new RedisMonitorVO();
-        vo.setVersion(flat.get("redis_version"));
-        vo.setMode(flat.get("redis_mode"));
-        vo.setPort(flat.get("tcp_port"));
-        vo.setConnectedClients(toInt(flat.get("connected_clients")));
-        vo.setUptimeDays(toLong(flat.get("uptime_in_days")));
+        String version = flat.get("redis_version");
+        String mode = flat.get("redis_mode");
+        String port = flat.get("tcp_port");
+        Integer connectedClients = toInt(flat.get("connected_clients"));
+        Long uptimeDays = toLong(flat.get("uptime_in_days"));
 
         long usedBytes = toLong(flat.get("used_memory"));
         long maxBytes = toLong(flat.get("maxmemory"));
-        vo.setUsedMemoryBytes(usedBytes);
-        vo.setUsedMemory(humanReadable(usedBytes));
-        vo.setMaxMemoryBytes(maxBytes);
-        vo.setMaxMemory(maxBytes > 0 ? humanReadable(maxBytes) : "无限制");
-
-        // 内存 RSS / 峰值 / 碎片率 / 分配器
         long rssBytes = toLong(flat.get("used_memory_rss"));
         long peakBytes = toLong(flat.get("used_memory_peak"));
-        vo.setUsedMemoryRssBytes(rssBytes);
-        vo.setUsedMemoryRss(flat.getOrDefault("used_memory_rss_human", humanReadable(rssBytes)));
-        vo.setUsedMemoryPeakBytes(peakBytes);
-        vo.setUsedMemoryPeak(flat.getOrDefault("used_memory_peak_human", humanReadable(peakBytes)));
-        vo.setMemFragmentationRatio(toDoubleOrNull(flat.get("mem_fragmentation_ratio")));
-        vo.setMemAllocator(flat.get("mem_allocator"));
 
-        // CPU: used_cpu_sys + used_cpu_user
+        String usedMemoryRss = flat.getOrDefault("used_memory_rss_human", humanReadable(rssBytes));
+        String usedMemoryPeak = flat.getOrDefault("used_memory_peak_human", humanReadable(peakBytes));
+        long uptimeSec = Math.max(1, toLong(flat.get("uptime_in_seconds")));
         double usedCpuSys = toDouble(flat.get("used_cpu_sys"));
         double usedCpuUser = toDouble(flat.get("used_cpu_user"));
-        long uptimeSec = Math.max(1, toLong(flat.get("uptime_in_seconds")));
-        vo.setUsedCpuPercent(round2((usedCpuSys + usedCpuUser) / uptimeSec * 100));
 
-        vo.setAofEnabled("yes".equalsIgnoreCase(flat.get("aof_enabled")));
-        vo.setRdbLastStatus(flat.get("rdb_last_bgsave_status"));
-        vo.setNetInputKps(toDouble(flat.get("total_net_input_bytes")) / 1024.0 / Math.max(1, toLong(flat.get("uptime_in_seconds"))));
-        vo.setNetOutputKps(toDouble(flat.get("total_net_output_bytes")) / 1024.0 / Math.max(1, toLong(flat.get("uptime_in_seconds"))));
-
-        // keyspace: db0:keys=10,expires=2,avg_ttl=3600
+        // keyspace
         List<RedisMonitorVO.KeyspaceDetail> keyspaceDetails = new ArrayList<>();
         long totalKeys = 0L;
         for (Map.Entry<String, String> e : flat.entrySet()) {
             if (!e.getKey().startsWith("db")) {
                 continue;
             }
-            RedisMonitorVO.KeyspaceDetail detail = new RedisMonitorVO.KeyspaceDetail();
-            detail.setDb(e.getKey());
-            long keys = 0L;
+            long keys = 0L, expires = 0L, avgTtl = 0L;
             for (String kv : e.getValue().split(",")) {
                 int eq = kv.indexOf('=');
                 if (eq <= 0) {
@@ -143,22 +121,17 @@ public class SysRedisController {
                 String k = kv.substring(0, eq);
                 long v = toLong(kv.substring(eq + 1));
                 switch (k) {
-                    case "keys" -> {
-                        keys = v;
-                        detail.setKeys(v);
-                    }
-                    case "expires" -> detail.setExpires(v);
-                    case "avg_ttl" -> detail.setAvgTtl(v);
+                    case "keys" -> keys = v;
+                    case "expires" -> expires = v;
+                    case "avg_ttl" -> avgTtl = v;
                     default -> { }
                 }
             }
             totalKeys += keys;
-            keyspaceDetails.add(detail);
+            keyspaceDetails.add(new RedisMonitorVO.KeyspaceDetail(e.getKey(), keys, expires, avgTtl));
         }
-        vo.setKeyCount(totalKeys);
-        vo.setKeyspaceDetails(keyspaceDetails);
 
-        // commandstats: cmdstat_get:calls=N,usec=M,usec_per_call=...
+        // commandstats
         List<RedisMonitorVO.CommandStat> commandStats = new ArrayList<>();
         long totalCalls = 0L;
         for (Map.Entry<String, String> e : flat.entrySet()) {
@@ -173,22 +146,36 @@ public class SysRedisController {
                     break;
                 }
             }
-            RedisMonitorVO.CommandStat stat = new RedisMonitorVO.CommandStat();
-            stat.setCommand(e.getKey().substring("cmdstat_".length()));
-            stat.setCalls(calls);
             totalCalls += calls;
-            commandStats.add(stat);
+            commandStats.add(new RedisMonitorVO.CommandStat(
+                    e.getKey().substring("cmdstat_".length()), calls, null));
         }
-        commandStats.sort((a, b) -> Long.compare(b.getCalls() == null ? 0 : b.getCalls(), a.getCalls() == null ? 0 : a.getCalls()));
-        if (commandStats.size() > 15) {
-            commandStats = new ArrayList<>(commandStats.subList(0, 15));
-        }
-        for (RedisMonitorVO.CommandStat stat : commandStats) {
-            stat.setPercentage(totalCalls > 0 ? round2((stat.getCalls() == null ? 0 : stat.getCalls()) * 100.0 / totalCalls) : 0.0);
-        }
-        vo.setCommandStats(commandStats);
+        commandStats.sort((a, b) -> Long.compare(b.calls() == null ? 0 : b.calls(), a.calls() == null ? 0 : a.calls()));
+        List<RedisMonitorVO.CommandStat> top15 = commandStats.size() > 15
+                ? new ArrayList<>(commandStats.subList(0, 15)) : commandStats;
+        long finalTotalCalls = totalCalls;
+        List<RedisMonitorVO.CommandStat> withPct = top15.stream()
+                .map(cs -> new RedisMonitorVO.CommandStat(
+                        cs.command(), cs.calls(),
+                        finalTotalCalls > 0 ? round2((cs.calls() == null ? 0 : cs.calls()) * 100.0 / finalTotalCalls) : 0.0))
+                .toList();
 
-        return vo;
+        return new RedisMonitorVO(
+                version, mode, port, connectedClients, uptimeDays,
+                humanReadable(usedBytes), usedBytes,
+                maxBytes > 0 ? humanReadable(maxBytes) : "无限制", maxBytes,
+                usedMemoryRss, rssBytes,
+                usedMemoryPeak, peakBytes,
+                toDoubleOrNull(flat.get("mem_fragmentation_ratio")),
+                flat.get("mem_allocator"),
+                round2((usedCpuSys + usedCpuUser) / uptimeSec * 100),
+                "yes".equalsIgnoreCase(flat.get("aof_enabled")),
+                flat.get("rdb_last_bgsave_status"),
+                totalKeys,
+                toDouble(flat.get("total_net_input_bytes")) / 1024.0 / Math.max(1, toLong(flat.get("uptime_in_seconds"))),
+                toDouble(flat.get("total_net_output_bytes")) / 1024.0 / Math.max(1, toLong(flat.get("uptime_in_seconds"))),
+                withPct,
+                keyspaceDetails);
     }
 
     /**

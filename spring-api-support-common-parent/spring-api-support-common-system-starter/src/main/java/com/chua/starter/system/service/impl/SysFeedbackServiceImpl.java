@@ -259,26 +259,25 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
     */
     public ReturnResult<FeedbackStatisticV1Response> statistic() {
         log.debug("开始获取反馈统计数据");
-        FeedbackStatisticV1Response response = new FeedbackStatisticV1Response();
 
         try {
             // 获取所有反馈数据
             List<SysFeedback> allFeedbacks = list();
 
             // 总数统计
-            response.setTotal((long) allFeedbacks.size());
-            response.setPending(allFeedbacks.stream()
+            long total = allFeedbacks.size();
+            long pending = allFeedbacks.stream()
                     .filter(f -> f.getSysFeedbackStatus() == null || f.getSysFeedbackStatus() == 0)
-                    .count());
-            response.setResolved(allFeedbacks.stream()
+                    .count();
+            long resolved = allFeedbacks.stream()
                     .filter(f -> f.getSysFeedbackStatus() != null && f.getSysFeedbackStatus() == 1)
-                    .count());
+                    .count();
 
             // 今日新增统计
             LocalDate today = LocalDate.now();
-            response.setTodayCount(allFeedbacks.stream()
+            long todayCount = allFeedbacks.stream()
                     .filter(f -> f.getCreateTime() != null && f.getCreateTime().toLocalDate().equals(today))
-                    .count());
+                    .count();
 
             // 类型统计（饼图数据）
             Map<String, Long> typeCountMap = allFeedbacks.stream()
@@ -287,14 +286,9 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
                             Collectors.counting()
                     ));
             List<FeedbackStatisticV1Response.TypeStatistic> typeStatistics = new ArrayList<>();
-            typeCountMap.forEach((type, count) -> {
-                FeedbackStatisticV1Response.TypeStatistic stat = new FeedbackStatisticV1Response.TypeStatistic();
-                stat.setType(type);
-                stat.setName(TYPE_NAME_MAP.getOrDefault(type, type));
-                stat.setValue(count);
-                typeStatistics.add(stat);
-            });
-            response.setTypeStatistics(typeStatistics);
+            typeCountMap.forEach((type, count) ->
+                    typeStatistics.add(new FeedbackStatisticV1Response.TypeStatistic(
+                            TYPE_NAME_MAP.getOrDefault(type, type), type, count)));
 
             // 趋势统计（最近30天，曲线图数据）
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd");
@@ -313,17 +307,15 @@ public class SysFeedbackServiceImpl extends ServiceImpl<SysFeedbackMapper, SysFe
                 long resolvedCount = dayFeedbacks.stream()
                         .filter(f -> f.getSysFeedbackStatus() != null && f.getSysFeedbackStatus() == 1)
                         .count();
-                FeedbackStatisticV1Response.TrendStatistic stat = new FeedbackStatisticV1Response.TrendStatistic();
-                stat.setDate(dateStr);
-                stat.setCount(count);
-                stat.setPendingCount(pendingCount);
-                stat.setResolvedCount(resolvedCount);
-                trendStatistics.add(stat);
+                trendStatistics.add(new FeedbackStatisticV1Response.TrendStatistic(
+                        dateStr, count, pendingCount, resolvedCount));
             }
-            response.setTrendStatistics(trendStatistics);
+
+            FeedbackStatisticV1Response response = new FeedbackStatisticV1Response(
+                    typeStatistics, trendStatistics, total, pending, resolved, todayCount);
 
             log.debug("反馈统计数据获取成功: 总数={}, 待处理={}, 已处理={}",
-                    response.getTotal(), response.getPending(), response.getResolved());
+                    total, pending, resolved);
             return ReturnResult.ok(response);
         } catch (Exception e) {
             log.error("获取反馈统计数据失败", e);

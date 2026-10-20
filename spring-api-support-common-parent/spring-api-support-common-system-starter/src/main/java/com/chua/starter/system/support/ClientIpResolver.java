@@ -1,7 +1,10 @@
 package com.chua.starter.system.support;
 
+import com.chua.common.support.network.net.IpCidrUtils;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.util.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 客户端真实 IP 解析。
@@ -14,6 +17,8 @@ import org.springframework.util.StringUtils;
  * → {@code HTTP_CLIENT_IP} → {@code request.getRemoteAddr()}；取到多值时只取第一个
  * （最靠近客户端的那个）。都没有时返回 {@code "unknown"} 而不是 null，
  * 让统计侧不必再判空。</p>
+ *
+ * <p>此前为自实现，现委托 utils IpCidrUtils（@since 4.0.0.43），行为一致。</p>
  *
  * @since 4.0.0.43
  * @author CH
@@ -38,37 +43,11 @@ public final class ClientIpResolver {
         if (null == request) {
             return UNKNOWN;
         }
-        String ip = firstNonBlank(
-                request.getHeader("X-Forwarded-For"),
-                request.getHeader("Proxy-Client-IP"),
-                request.getHeader("WL-Proxy-Client-IP"),
-                request.getHeader("HTTP_CLIENT_IP"));
-        if (!StringUtils.hasText(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        if (!StringUtils.hasText(ip)) {
-            return UNKNOWN;
-        }
-        int comma = ip.indexOf(',');
-        if (comma >= 0) {
-            ip = ip.substring(0, comma);
-        }
-        ip = ip.trim();
-        return ip.isEmpty() || "unknown".equalsIgnoreCase(ip) ? UNKNOWN : ip;
-    }
-
-    /**
-     * 取第一个有效值。
-     *
-     * @param values 候选值
-     * @return 第一个非空白值；都没有返回 null
-     */
-    private static String firstNonBlank(String... values) {
-        for (String v : values) {
-            if (StringUtils.hasText(v) && !"unknown".equalsIgnoreCase(v)) {
-                return v;
-            }
-        }
-        return null;
+        Map<String, String> headers = new HashMap<>(4);
+        headers.put("X-Forwarded-For", request.getHeader("X-Forwarded-For"));
+        headers.put("Proxy-Client-IP", request.getHeader("Proxy-Client-IP"));
+        headers.put("WL-Proxy-Client-IP", request.getHeader("WL-Proxy-Client-IP"));
+        headers.put("HTTP_CLIENT_IP", request.getHeader("HTTP_CLIENT_IP"));
+        return IpCidrUtils.resolveClientIp(headers, request.getRemoteAddr());
     }
 }

@@ -160,7 +160,7 @@ public class PolicyAnnotationBridge implements ApplicationListener<ApplicationRe
         if (null == manager) {
             return ids;
         }
-        manager.getAllFeatures().forEach(info -> ids.add(info.getFeatureId()));
+        manager.getAllFeatures().forEach(info -> ids.add(info.featureId()));
         return ids;
     }
 }
