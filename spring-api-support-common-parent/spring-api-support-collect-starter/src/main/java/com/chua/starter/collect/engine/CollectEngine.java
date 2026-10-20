@@ -22,8 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * 采集流程执行引擎。
@@ -104,6 +108,26 @@ public class CollectEngine {
      * 令牌终止变量名，执行器写入 true 后本令牌不再向下游派发。
      */
     public static final String VAR_STOP = "_stop";
+
+    /**
+     * 节点级超时毫秒参数名。
+     */
+    public static final String PARAM_NODE_TIMEOUT = "timeout";
+
+    /**
+     * 节点超时策略参数名。
+     */
+    public static final String PARAM_NODE_TIMEOUT_POLICY = "timeoutPolicy";
+
+    /**
+     * 节点超时策略：自动延长一次。
+     */
+    public static final String TIMEOUT_POLICY_EXTEND = "extend";
+
+    /**
+     * 节点超时策略：直接结束。
+     */
+    public static final String TIMEOUT_POLICY_END = "end";
 
     /**
      * 引擎按流程身份注入的变量，跨子流程边界时不继承。
@@ -416,7 +440,7 @@ public class CollectEngine {
         long start = System.currentTimeMillis();
         boolean failed;
         try {
-            executor.execute(node, context, scope);
+            executeNode(executor, node, context, scope);
             failed = false;
             scope.remove(VAR_EXCEPTION);
             // 节点产出落地：${data} 别名、dataJson 派生、跨节点留存
@@ -447,6 +471,61 @@ public class CollectEngine {
             return;
         }
         dispatch(context, node, scope, false);
+    }
+
+    /**
+     * 执行单个节点，支持节点级超时与超时策略。
+     *
+     * <p>节点配了 {@code timeout} 时放入独立线程等待；超时后：
+     * {@code timeoutPolicy=extend} 自动延长一次相同时长，{@code timeoutPolicy=end}
+     * 直接抛错结束该分支。执行器自身有 timeout 参数时二者共用同一个值。</p>
+     *
+     * @param executor 节点执行器
+     * @param node     节点
+     * @param context  执行上下文
+     * @param scope    本次迭代作用域
+     * @throws Exception 节点执行失败或超时
+     */
+    private void executeNode(CollectShapeExecutor executor, CollectNode node, CollectContext context,
+                             Map<String, Object> scope) throws Exception {
+        long timeout = node.longParam(PARAM_NODE_TIMEOUT, 0L);
+        if (timeout <= 0L) {
+            executor.execute(node, context, scope);
+            return;
+        }
+        String policy = node.param(PARAM_NODE_TIMEOUT_POLICY);
+        ExecutorService single = Executors.newSingleThreadExecutor();
+        try {
+            Future<?> future = single.submit(() -> {
+                try {
+                    executor.execute(node, context, scope);
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+            try {
+                future.get(timeout, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException timeoutEx) {
+                future.cancel(true);
+                if (TIMEOUT_POLICY_EXTEND.equalsIgnoreCase(policy)) {
+                    try {
+                        future.get(timeout, TimeUnit.MILLISECONDS);
+                    } catch (TimeoutException second) {
+                        throw new IllegalStateException("节点执行超时（已自动延长一次）: " + node.id());
+                    }
+                } else {
+                    throw new IllegalStateException("节点执行超时，已结束该分支: " + node.id());
+                }
+            }
+        } catch (ExecutionException ex) {
+            Throwable cause = ex.getCause();
+            if (cause instanceof Exception e) {
+                throw e;
+            }
+            throw new IllegalStateException(cause == null ? "节点执行失败" : cause.getMessage(), cause);
+        } finally {
+            single.shutdownNow();
+        }
     }
 
     /**
