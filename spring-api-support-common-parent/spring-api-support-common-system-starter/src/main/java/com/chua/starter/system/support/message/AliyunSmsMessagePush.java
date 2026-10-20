@@ -1,5 +1,6 @@
 package com.chua.starter.system.support.message;
 
+import com.chua.common.support.spi.annotations.Spi;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2026/09/13
  */
 @Slf4j
+@Spi({"aliyun", "aliyun-sms", "ali"})
 public class AliyunSmsMessagePush extends MessagePush {
 
     @Override

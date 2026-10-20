@@ -1,9 +1,7 @@
 package com.chua.starter.collect.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,52 +9,41 @@ import java.util.List;
  *
  * <p>序列化后存入 collect_flow.collect_flow_dsl，是可视化设计器与执行引擎之间的唯一契约。</p>
  *
+ * @param name        流程名称，与流程表冗余一致，以 DSL 为准展示在设计器标题
+ * @param threadCount 流程内并行线程数，0 或空取平台默认
+ * @param headers     全局请求头，所有抓取节点共享
+ * @param cookies     全局 Cookie，所有抓取节点共享
+ * @param variables   全局变量，执行前注入变量上下文
+ * @param nodes       节点集合
+ * @param edges       连线集合
  * @author CH
  * @since 4.0.0.42
  */
-@Data
 @Schema(description = "流程图DSL")
-public class CollectDslDTO {
+public record CollectDslDTO(
+        @Schema(description = "流程名称")
+        String name,
+        @Schema(description = "并行线程数")
+        Integer threadCount,
+        @Schema(description = "全局请求头")
+        List<CollectParamDTO> headers,
+        @Schema(description = "全局Cookie")
+        List<CollectParamDTO> cookies,
+        @Schema(description = "全局变量")
+        List<CollectParamDTO> variables,
+        @Schema(description = "节点集合")
+        List<CollectNodeDTO> nodes,
+        @Schema(description = "连线集合")
+        List<CollectEdgeDTO> edges) {
 
     /**
-     * 流程名称，与流程表冗余一致，以 DSL 为准展示在设计器标题。
+     * 规范化集合组件：空值按空列表处理（与原字段初始值一致），并阻断外部别名写入。
      */
-    @Schema(description = "流程名称")
-    private String name;
-
-    /**
-     * 流程内并行线程数，0 或空取平台默认。
-     */
-    @Schema(description = "并行线程数")
-    private Integer threadCount;
-
-    /**
-     * 全局请求头，所有抓取节点共享。
-     */
-    @Schema(description = "全局请求头")
-    private List<CollectParamDTO> headers = new ArrayList<>();
-
-    /**
-     * 全局 Cookie，所有抓取节点共享。
-     */
-    @Schema(description = "全局Cookie")
-    private List<CollectParamDTO> cookies = new ArrayList<>();
-
-    /**
-     * 全局变量，执行前注入变量上下文。
-     */
-    @Schema(description = "全局变量")
-    private List<CollectParamDTO> variables = new ArrayList<>();
-
-    /**
-     * 节点集合。
-     */
-    @Schema(description = "节点集合")
-    private List<CollectNodeDTO> nodes = new ArrayList<>();
-
-    /**
-     * 连线集合。
-     */
-    @Schema(description = "连线集合")
-    private List<CollectEdgeDTO> edges = new ArrayList<>();
+    public CollectDslDTO {
+        headers = headers == null ? List.of() : List.copyOf(headers);
+        cookies = cookies == null ? List.of() : List.copyOf(cookies);
+        variables = variables == null ? List.of() : List.copyOf(variables);
+        nodes = nodes == null ? List.of() : List.copyOf(nodes);
+        edges = edges == null ? List.of() : List.copyOf(edges);
+    }
 }

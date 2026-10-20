@@ -108,7 +108,7 @@ public class CollectVariableServiceImpl extends ServiceImpl<CollectVariableMappe
             String value = isCipher(variable)
                     ? CollectSecrets.decode(variable.getCollectVariableValue())
                     : blankToEmpty(variable.getCollectVariableValue());
-            list.add(new CollectParamDTO(name.trim(), value));
+            list.add(new CollectParamDTO(name.trim(), value, null));
         }
         return list;
     }

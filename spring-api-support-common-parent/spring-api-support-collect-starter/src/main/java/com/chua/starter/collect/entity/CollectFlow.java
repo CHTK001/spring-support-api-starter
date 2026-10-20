@@ -107,6 +107,14 @@ public class CollectFlow extends SysBase {
     private Integer collectFlowExecCount;
 
     /**
+     * 累计采集条数（每次任务收尾时按本次产出行数累加）。
+     *
+     * <p>用 BIGINT 而非 INT：单流程累计条数会长期增长，INT 上限 21 亿在日更场景下并非遥不可及。</p>
+     */
+    @Schema(description = "累计采集条数")
+    private Long collectFlowRecordCount;
+
+    /**
      * 逻辑删除标记，0 正常 1 已删除。
      */
     @Schema(description = "逻辑删除 0正常 1已删除")

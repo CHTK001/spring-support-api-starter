@@ -43,6 +43,15 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-support-job-starter</artifactId>
     </dependency>
+    <!-- AI 提供商管理内嵌：引入 ai-starter，其 /v2/ai/**、/v2/models 等端点随本后端一并暴露
+         （context-path /system/api 下即 /system/api/v2/**）。系统平台「AI 提供商管理」菜单
+         以内嵌 pages/ai 的模型管理页呈现，页面 apiService 以 /v2 为基址（前端 dev 已把 /v2
+         代理到本后端并补 context-path），故后端必须自带 ai 模块，与采集调度系统口径一致。
+         注意：需配套 AI 表（ai-starter 的 db/init/V1.0__init_all_ai.sql）。 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-ai-starter</artifactId>
+    </dependency>
     <!--
       脚本片段（GLUE_GROOVY）引擎：提供 ScriptProvider SPI 的 groovy 实现。
       声明为 optional：job-starter 本身不含任何脚本引擎（缺引擎时任务会记可读的 FAILURE），

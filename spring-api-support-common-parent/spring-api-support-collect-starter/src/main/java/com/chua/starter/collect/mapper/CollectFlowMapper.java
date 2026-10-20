@@ -30,6 +30,18 @@ public interface CollectFlowMapper extends BaseMapper<CollectFlow> {
     int markStarted(@Param("flowId") Integer flowId, @Param("begin") LocalDateTime begin);
 
     /**
+     * 累加采集条数。
+     *
+     * <p>任务收尾时调用。用增量更新而不是「读-改-写」，是为了并发收尾时互不覆盖；
+     * 累计值也只是个展示口径，允许短暂落后于任务表。</p>
+     *
+     * @param flowId 流程ID
+     * @param delta  本次新增条数（负数会被调用方挡掉）
+     * @return 影响行数
+     */
+    int addRecordCount(@Param("flowId") Integer flowId, @Param("delta") long delta);
+
+    /**
      * 原子占用一个跨节点并发名额。
      *
      * @param flowId 流程ID

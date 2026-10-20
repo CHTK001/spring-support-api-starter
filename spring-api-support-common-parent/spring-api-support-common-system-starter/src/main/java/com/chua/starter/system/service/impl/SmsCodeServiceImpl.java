@@ -147,9 +147,9 @@ public class SmsCodeServiceImpl implements SmsCodeService {
                     .content("您的验证码是：" + code + "，5分钟内有效。")
                     .build());
             saveSmsLog(phone, code, bizType, smsSetting, result);
-            if (!result.isSuccess()) {
-                log.error("短信发送失败: phone={}, msg={}", phone, result.getErrorMessage());
-                return ReturnResult.error("短信发送失败: " + result.getErrorMessage());
+            if (!result.success()) {
+                log.error("短信发送失败: phone={}, msg={}", phone, result.errorMessage());
+                return ReturnResult.error("短信发送失败: " + result.errorMessage());
             }
 
             log.info("短信发送成功: phone={}", phone);
@@ -284,8 +284,8 @@ public class SmsCodeServiceImpl implements SmsCodeService {
             sysSmsLog.setSysSmsAppId(smsSetting.getAppId());
             sysSmsLog.setSysSmsAppSign(smsSetting.getAppSign());
             if (result != null) {
-                sysSmsLog.setSysSmsCode(result.isSuccess() ? "SUCCESS" : "FAILURE");
-                sysSmsLog.setSysSmsMessage(truncate(result.getErrorMessage(), LOG_MESSAGE_MAX_LENGTH));
+                sysSmsLog.setSysSmsCode(result.success() ? "SUCCESS" : "FAILURE");
+                sysSmsLog.setSysSmsMessage(truncate(result.errorMessage(), LOG_MESSAGE_MAX_LENGTH));
             } else {
                 sysSmsLog.setSysSmsCode("FAILURE");
                 sysSmsLog.setSysSmsMessage("短信发送失败");

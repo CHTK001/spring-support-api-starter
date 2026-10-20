@@ -512,38 +512,37 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
      */
     @Override
     public ReturnResult<CertStats> getCertStatsForCert() {
-        CertStats stats = new CertStats();
-
         // 账户总数
-        stats.setAccountCount(accountMapper.selectCount(null));
+        Long accountCount = accountMapper.selectCount(null);
 
         // 证书总数
-        stats.setCertCount(certificateMapper.selectCount(null));
+        Long certCount = certificateMapper.selectCount(null);
 
         // 按状态统计
-        stats.setValidCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
-                .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_VALID)));
-        stats.setPendingCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
-                .in(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_PENDING, STATUS_VALIDATING)));
-        stats.setRevokedCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
-                .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_REVOKED)));
-        stats.setFailedCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
-                .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_FAILED)));
+        Long validCount = certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_VALID));
+        Long pendingCount = certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
+                .in(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_PENDING, STATUS_VALIDATING));
+        Long revokedCount = certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_REVOKED));
+        Long failedCount = certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
+                .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_FAILED));
 
         // 统计即将到期和已过期的证书
         String now = LocalDateTime.now().format(DATE);
         String soon = LocalDateTime.now().plusDays(SOON_EXPIRING_DAYS).format(DATE);
 
-        stats.setExpiringCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
+        Long expiringCount = certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
                 .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_VALID)
                 .ge(MonitorAcmeCertificate::getAcmeCertNotAfter, now)
-                .le(MonitorAcmeCertificate::getAcmeCertNotAfter, soon)));
+                .le(MonitorAcmeCertificate::getAcmeCertNotAfter, soon));
 
-        stats.setExpiredCount(certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
+        Long expiredCount = certificateMapper.selectCount(new LambdaQueryWrapper<MonitorAcmeCertificate>()
                 .eq(MonitorAcmeCertificate::getAcmeCertStatus, STATUS_VALID)
-                .lt(MonitorAcmeCertificate::getAcmeCertNotAfter, now)));
+                .lt(MonitorAcmeCertificate::getAcmeCertNotAfter, now));
 
-        return ReturnResult.ok(stats);
+        return ReturnResult.ok(new CertStats(accountCount, certCount, validCount, pendingCount,
+                expiringCount, expiredCount, revokedCount, failedCount));
     }
 
     /**

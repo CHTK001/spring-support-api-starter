@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.google.common.base.Joiner;
 import com.chua.common.support.function.SafeConsumer;
 import com.chua.common.support.lang.code.ReturnResult;
-import com.chua.common.support.utils.BeanUtils;
 import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.system.util.TreeNode;
 import com.chua.starter.system.util.TreeUtils;
@@ -61,10 +60,10 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         sysDepts.forEach(item -> item.setMemberCount(memberCountMap.getOrDefault(item.getSysDeptId(), 0)));
 
         List<SysDeptVO> tree = TreeUtils.toTree(sysDepts, sysDept1 -> {
-            SysDeptVO sysDeptVO = BeanUtils.copyProperties(sysDept1, SysDeptVO.class);
+            SysDeptVO sysDeptVO = toVO(sysDept1);
             TreeNode<SysDeptVO> treeNode = new TreeNode<>();
-            treeNode.setId(String.valueOf(sysDeptVO.getSysDeptId()));
-            treeNode.setPid(String.valueOf(sysDeptVO.getSysDeptPid()));
+            treeNode.setId(String.valueOf(sysDeptVO.sysDeptId()));
+            treeNode.setPid(String.valueOf(sysDeptVO.sysDeptPid()));
             treeNode.setExt(sysDeptVO);
             treeNode.setChildrenConsumer(new SafeConsumer<List<SysDeptVO>>() {
                 @Override
@@ -72,7 +71,7 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
                  * safeaccept
                 */
                 public void safeAccept(List<SysDeptVO> sysDeptVOS) throws Throwable {
-                    sysDeptVO.setChildren(sysDeptVOS);
+                    treeNode.setExt(sysDeptVO.withChildren(sysDeptVOS));
                 }
             });
             return treeNode;
@@ -222,14 +221,39 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
      * @return 过滤器树节点的结果
      */
     private SysDeptVO filterTreeNode(SysDeptVO node, String keyword) {
-        List<SysDeptVO> matchedChildren = filterTreeByName(node.getChildren(), keyword);
-        boolean selfMatched = startsWithIgnoreCase(node.getSysDeptName(), keyword);
+        List<SysDeptVO> matchedChildren = filterTreeByName(node.children(), keyword);
+        boolean selfMatched = startsWithIgnoreCase(node.sysDeptName(), keyword);
         if (!selfMatched && matchedChildren.isEmpty()) {
             return null;
         }
-        SysDeptVO copy = BeanUtils.copyProperties(node, SysDeptVO.class);
-        copy.setChildren(matchedChildren);
-        return copy;
+        return node.withChildren(matchedChildren);
+    }
+
+    /**
+     * 实体转视图。
+     *
+     * @param item 部门实体
+     * @return 视图对象
+     */
+    private static SysDeptVO toVO(SysDept item) {
+        return new SysDeptVO(
+                item.getSysDeptId(),
+                item.getSysDeptName(),
+                item.getSysDeptCode(),
+                item.getSysDeptPid(),
+                item.getSysDeptTreeId(),
+                item.getSysDeptStatus(),
+                item.getSysDeptPrincipal(),
+                item.getPrincipalUserIds(),
+                item.getPrincipalUserNames(),
+                item.getMemberCount(),
+                item.getSysDeptContact(),
+                item.getSysDeptSort(),
+                item.getSysDeptRemark(),
+                item.getSysDeptDataPermission(),
+                item.getSysDeptDataPermissionDeptId(),
+                item.getSysDeptDataPermissionDeptIds(),
+                null);
     }
 
     /**

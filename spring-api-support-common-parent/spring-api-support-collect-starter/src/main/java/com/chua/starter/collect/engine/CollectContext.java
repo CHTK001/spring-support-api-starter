@@ -415,6 +415,25 @@ public class CollectContext {
     }
 
     /**
+     * 收回已计入的记录条数。
+     *
+     * <p>产出计数在 {@link #offerRecord} 里先记后写，而唯一键挡下的重复行最终没有进库；
+     * 不收回就会让「总采集数量」大于结果表的真实行数（古诗流程就出现过 86,939 对 55,593）。
+     * 与产出一样，子流程收回的记录同步从父任务扣除。</p>
+     *
+     * @param count 未写入的条数，小于等于 0 时忽略
+     */
+    public void discardRecords(int count) {
+        if (count <= 0) {
+            return;
+        }
+        recordCount.addAndGet(-count);
+        if (parent != null) {
+            parent.discardRecords(count);
+        }
+    }
+
+    /**
      * 累加节点执行计量，子流程的节点计入父任务总数。
      */
     public void countNode() {

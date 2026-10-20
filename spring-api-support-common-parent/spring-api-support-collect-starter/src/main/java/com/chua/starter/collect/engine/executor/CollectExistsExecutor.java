@@ -87,6 +87,8 @@ public class CollectExistsExecutor implements CollectShapeExecutor {
     public CollectShapeMeta meta() {
         CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "查已存在", "过滤", "check",
                 "批量查上游数据里哪些主键已在目标表存在，避免重复入库");
+        // 已下线：数据库节点 mode=skip/update 已覆盖查重，单独查已存在节点不再进入调色板。
+        meta.setHidden(true);
         meta.setOutputVariable("结果写入出参变量，默认 data：{ exists: 已存在键, fresh: 全新行, existsCount, freshCount, total }");
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.datasource(DATASOURCE, "数据源", CollectJdbcSupport.APP_DATASOURCE,

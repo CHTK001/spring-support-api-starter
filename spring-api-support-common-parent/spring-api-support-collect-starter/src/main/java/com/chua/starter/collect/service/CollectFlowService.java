@@ -119,6 +119,17 @@ public interface CollectFlowService extends IService<CollectFlow> {
     void markStarted(Integer flowId);
 
     /**
+     * 累加一次执行产出的条数。
+     *
+     * <p>在任务收尾时调用：列表页直接读 {@code collect_flow_record_count}，
+     * 不再临时对 {@code collect_task} 求和（任务表会一直长，聚合会越来越慢）。</p>
+     *
+     * @param flowId 流程ID，空或非正数（草稿运行）时忽略
+     * @param delta  本次产出条数，0 或负数时忽略
+     */
+    void addRecords(Integer flowId, long delta);
+
+    /**
      * 调度台账里已登记的采集流程数，读不到台账时为 0。
      *
      * @return 登记数

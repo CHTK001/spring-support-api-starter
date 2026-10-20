@@ -9,7 +9,8 @@ import java.util.Date;
  *
  * <p>流程的 {@code collect_flow_cron} 使用 6 字段表达式（秒 分 时 日 月 周），
  * 与 job-starter、调度平台保持同一套解析器。真正决定何时触发的是 job-starter 的
- * {@code sys_job} 台账，本类只负责保存前校验和页面上的排期预览。</p>
+ * {@code sys_job} 台账，本类只负责保存前校验和页面上的排期预览。
+ * 委托 utils：解析经 {@code com.chua.common.support.task.scheduler.CronExpression} 计算。</p>
  *
  * @author CH
  * @since 4.0.0.42

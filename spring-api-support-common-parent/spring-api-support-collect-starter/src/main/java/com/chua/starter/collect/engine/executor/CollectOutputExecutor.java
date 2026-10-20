@@ -79,7 +79,10 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
      * 本次产出条数的暂存变量名，仅供摘要使用。
      */
     private static final String AFFECTED = "_emitted";
-
+    /**
+     * 本次被唯一键挡下的重复行数，仅供摘要使用。
+     */
+    private static final String VAR_SKIPPED = "_skipped";
     /**
      * JDBC 通道。
      */
@@ -95,6 +98,10 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
         CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "采集平台", "输出", "database",
                 "把字段写入采集平台自身的采集结果表，可同时镜像到业务表");
         meta.setOutputVariable("无出参；记录条数看任务详情的采集记录数");
+        // 已下线：写业务表这件事由「数据库」节点统一承接（追加 / 跳过 / 覆盖 / 按主键更新 / 全覆盖），
+        // 再摆一个平行的写库节点只会让人在两个语义重叠的节点之间反复犹豫。
+        // 这里只从调色板撤掉，存量流程里的该节点仍能正常渲染与运行。
+        meta.setHidden(true);
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.text(EACH, "逐条集合", "text",
                         "留空按当前令牌产出一条；填 ${rows} 则每条集合项产出一条"),
@@ -115,7 +122,7 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
     public void execute(CollectNode node, CollectContext context, Map<String, Object> variables) throws Exception {
         List<CollectParamDTO> cells = new ArrayList<>();
         for (CollectParamDTO cell : node.pairsOf(CELL)) {
-            if (cell.getName() != null && !cell.getName().isBlank()) {
+            if (cell.name() != null && !cell.name().isBlank()) {
                 cells.add(cell);
             }
         }
@@ -128,6 +135,9 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
         }
         int emitted = 0;
         int dropped = 0;
+        // 攒批写入：单条 insert 走一次连接 + 一次自动提交，1000 行要 50 多秒；
+        // 同一节点的行共用一条预编译语句，执行器一次 executeBatch 提交。
+        List<Map<String, Object>> pending = new ArrayList<>();
         for (Map<String, Object> scope : itemScopes(node, variables)) {
             CollectRecordEntry entry = new CollectRecordEntry();
             entry.setNodeId(node.id());
@@ -137,13 +147,10 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
             requireKeyWithinColumn(entry.getKey());
             Map<String, Object> row = new LinkedHashMap<>();
             for (CollectParamDTO cell : cells) {
-                String name = cell.getName().trim();
-                Object value = CollectExpression.eval(cell.getValue(), scope);
-                CollectParamDTO cellValue = new CollectParamDTO();
-                cellValue.setName(name);
-                cellValue.setValue(CollectFunctions.stringify(value));
-                cellValue.setDescription(cell.getDescription());
-                entry.getCells().add(cellValue);
+                String name = cell.name().trim();
+                Object value = CollectExpression.eval(cell.value(), scope);
+                entry.getCells().add(new CollectParamDTO(name,
+                        CollectFunctions.stringify(value), cell.description()));
                 row.put(name, value);
             }
             if (!context.offerRecord(entry)) {
@@ -152,7 +159,18 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
             }
             emitted++;
             if (!table.isEmpty()) {
-                jdbcSupport.insert(node.param(DATASOURCE), table, row);
+                pending.add(row);
+            }
+        }
+        if (!table.isEmpty() && !pending.isEmpty()) {
+            int inserted = jdbcSupport.insertBatch(node.param(DATASOURCE), table, pending);
+            int skipped = Math.max(0, pending.size() - inserted);
+            if (skipped > 0) {
+                // 唯一键挡住的行没进库：既不算本次产出，也要从流程累计里收回，
+                // 否则摘要写「落库 989 条」而表里只多出 580 行，总采集数量还会一路虚高
+                context.discardRecords(skipped);
+                emitted -= skipped;
+                variables.put(VAR_SKIPPED, skipped);
             }
         }
         variables.put(AFFECTED, emitted);
@@ -168,6 +186,10 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
             return null;
         }
         String text = "落库 " + emitted + " 条";
+        Object skipped = variables.get(VAR_SKIPPED);
+        if (skipped instanceof Number number && number.intValue() > 0) {
+            text += "（唯一键重复 " + number.intValue() + " 条未写入）";
+        }
         if (CollectExpression.truthy(variables.get(CollectEngine.VAR_STOP))) {
             text += "，已达单任务记录上限，本分支停止";
         }
@@ -247,7 +269,7 @@ public class CollectOutputExecutor implements CollectShapeExecutor {
     private List<String> columnNames(List<CollectParamDTO> cells) {
         List<String> names = new ArrayList<>(cells.size());
         for (CollectParamDTO cell : cells) {
-            names.add(cell.getName().trim());
+            names.add(cell.name().trim());
         }
         return names;
     }

@@ -140,7 +140,7 @@ public class CollectExtractExecutor implements CollectShapeExecutor {
         meta.setFieldEditor(true);
         meta.setOutputVariable("默认 data，旧流程留空时按单条 row / 列表 rows 兜底");
         CollectParamMeta source = CollectShapeMetas.text(SOURCE, "抽取来源", "text",
-                "默认 ${respDoc}；也可填 ${resp.html}、${respJson} 或任意 HTML 文本变量");
+                "默认 ${respDoc}；正文变量建议用 ${respHtml}，兼容 ${resp.html}、${respJson} 或任意 HTML 文本变量");
         source.setDefaultValue("${" + DEFAULT_SOURCE + "}");
         CollectParamMeta mode = CollectShapeMetas.option(MODE, "抽取模式", MODE_SINGLE,
                 "单条取一页里的一个结果，列表把行选择器命中的每一项抽成一行", MODE_SINGLE, MODE_LIST);

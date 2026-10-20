@@ -245,15 +245,12 @@ public class CollectNoticeServiceImpl extends ServiceImpl<CollectNoticeMapper, C
     private CollectNotifyMessage buildMessage(CollectNotice notice, Map<String, Object> vars) {
         String subject = notice.getCollectNoticeSubject();
         String content = notice.getCollectNoticeContent();
-        CollectNotifyMessage message = new CollectNotifyMessage();
-        message.setTarget(notice.getCollectNoticeTarget());
-        message.setSubject(CollectExpression.evalText(
-                blankToDefault(subject, DEFAULT_SUBJECT), vars));
-        message.setContent(CollectExpression.evalText(
-                blankToDefault(content, DEFAULT_CONTENT), vars));
-        message.setContentType("html");
-        message.setTimeoutMs(properties.getRequestTimeoutMs());
-        return message;
+        return new CollectNotifyMessage(
+                notice.getCollectNoticeTarget(),
+                CollectExpression.evalText(blankToDefault(subject, DEFAULT_SUBJECT), vars),
+                CollectExpression.evalText(blankToDefault(content, DEFAULT_CONTENT), vars),
+                "html",
+                properties.getRequestTimeoutMs());
     }
 
     /**
