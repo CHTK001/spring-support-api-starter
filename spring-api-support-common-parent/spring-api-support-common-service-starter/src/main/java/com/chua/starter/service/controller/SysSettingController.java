@@ -119,12 +119,16 @@ public class SysSettingController {
         return PageResultUtils.ok(page);
     }
     /**
-     * 设置分页列表
+     * 默认设置列表。
      *
-     * @return 设置分页列表
+     * <p>未登录可调：登录页需要它渲染品牌、三方登录、API 基础路径与文件服务器地址等配置，
+     * 因此不加令牌校验；返回值已对敏感项做掩码（{@link #maskSensitive}）。</p>
+     *
+     * @return 设置列表
      */
     @Operation(summary = "默认设置列表")
     @GetMapping("/default")
+    @TokenForIgnore
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingController).SETTING_DEFAULT_CACHE_KEY")
     public ReturnResult<List<SysSettingVO>> listForDefault() {
         List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate(String.join(",", SysSettingService.USER_FACING_GROUPS), null), Collections.emptySet());
@@ -135,6 +139,10 @@ public class SysSettingController {
         SysSettingVO fileServer = fileServerConfig();
         if (null != fileServer) {
             records.add(fileServer);
+        }
+        SysSettingVO fileStorageMode = fileStorageModeConfig();
+        if (null != fileStorageMode) {
+            records.add(fileStorageMode);
         }
         return ReturnResult.ok(records);
     }
@@ -173,9 +181,19 @@ public class SysSettingController {
     }
 
     /**
-     * 派生运行期配置：文件服务器地址（{@code other.filestorage.server}）。
+     * 派生运行期配置：文件服务器地址（{@code other.filestorage.server}）与部署形态。
      *
-     * <p>取 {@code plugin.filesystem.storage-server.*}；未启用或未配置端口时返回 空（前端回退当前地址）。</p>
+     * <p>取 {@code plugin.filesystem.storage-server.*}；未启用时返回 {@code null}（前端按嵌入式回退）。</p>
+     *
+     * <p><b>部署形态与下发模型（2026-10-20 修正）</b>：默认嵌入启动，只有需要独立端口的业务
+     * 才配置 {@code mode=standalone}。</p>
+     * <ul>
+     *   <li><b>embedded（默认）</b>：文件服务器挂在应用端口 {@code contextPath + path-prefix}
+     *       （默认 {@code /fs}）之下，<b>不下发端口</b>；下发相对路径，由前端拼当前页面
+     *       的 origin。另外下发 {@code other.filestorage.mode=embedded}，供前端明确分支。</li>
+     *   <li><b>standalone</b>：下发 {@code http://host:port} 完整地址（含端口），
+     *       并下发 {@code other.filestorage.mode=standalone}。</li>
+     * </ul>
      *
      * <p><b>对外可达地址的取法（2026-10-04 修正）</b>：显式配置 {@code public-host} 优先；
      * 未配置、**或配成环回地址**（{@code 127.0.0.1} / {@code localhost}）时，
@@ -188,34 +206,130 @@ public class SysSettingController {
      * 按请求 Host 派生后，dev（vite 代理 {@code changeOrigin:true}，后端看到的 Host 即目标机）
      * 与生产（访问入口的 Host）都能得到与接口同机的正确地址。</p>
      *
-     * @return 配置项；未启用文件服务器时返回 空
+     * @return 配置项；未启用文件服务器时返回 {@code null}
      */
     private SysSettingVO fileServerConfig() {
         String enable = environment.getProperty("plugin.filesystem.storage-server.enable", "true");
         if ("false".equalsIgnoreCase(enable)) {
             return null;
         }
-        String port = environment.getProperty("plugin.filesystem.storage-server.port");
-        if (null == port || port.isBlank()) {
+        String mode = environment.getProperty("plugin.filesystem.storage-server.mode", "embedded");
+        boolean standalone = "standalone".equalsIgnoreCase(mode);
+        String contextPath = environment.getProperty("server.servlet.context-path", "");
+        String pathPrefix = environment.getProperty("plugin.filesystem.storage-server.path-prefix", "/fs");
+        String host = null;
+        String port = null;
+        if (standalone) {
+            port = environment.getProperty("plugin.filesystem.storage-server.port");
+            if (null == port || port.isBlank()) {
+                return null;
+            }
+            host = environment.getProperty("plugin.filesystem.storage-server.public-host");
+            if (isLoopbackHost(host)) {
+                // 未配置或配成环回地址：按当前请求的 Host 派生（取不到再回落）
+                String derived = currentRequestHost();
+                host = (null == derived || derived.isBlank()) ? host : derived;
+            }
+        }
+        String server = resolveFileStorageServer(mode, contextPath, pathPrefix, port, host);
+        if (server == null || server.isEmpty()) {
             return null;
         }
-        String host = environment.getProperty("plugin.filesystem.storage-server.public-host");
-        if (isLoopbackHost(host)) {
-            // 未配置或配成环回地址：按当前请求的 Host 派生（取不到再回落）
-            String derived = currentRequestHost();
-            host = (null == derived || derived.isBlank()) ? host : derived;
-        }
-        if (null == host || host.isBlank() || "0.0.0.0".equals(host)) {
-            host = "127.0.0.1";
-        }
+        String remark = standalone
+                ? "文件服务器地址（独立服务，前端文件服务器页连接地址）"
+                : "文件服务器内置地址（挂载在应用端口，相对路径，由前端拼 origin）";
         SysSettingVO vo = new SysSettingVO();
         vo.setSysSettingName("FileStorageServer");
         vo.setSysSettingCode("other.filestorage.server");
-        vo.setSysSettingValue("http://" + host + ":" + port);
+        vo.setSysSettingValue(server);
         vo.setSysSettingValueType("String");
         vo.setSysSettingGroup("default");
-        vo.setSysSettingRemark("文件服务器地址（前端文件服务器页连接地址）");
+        vo.setSysSettingRemark(remark);
         return vo;
+    }
+
+    /**
+     * 派生运行期配置：文件服务器部署形态（{@code other.filestorage.mode}）。
+     *
+     * <p>默认 embedded；与 {@link #fileServerConfig()} 配套，供前端决定
+     * 嵌入式用相对路径、独立用绝对地址。</p>
+     *
+     * @return 配置项
+     */
+    private SysSettingVO fileStorageModeConfig() {
+        String enable = environment.getProperty("plugin.filesystem.storage-server.enable", "true");
+        if ("false".equalsIgnoreCase(enable)) {
+            return null;
+        }
+        String mode = environment.getProperty("plugin.filesystem.storage-server.mode", "embedded");
+        SysSettingVO vo = new SysSettingVO();
+        vo.setSysSettingName("FileStorageMode");
+        vo.setSysSettingCode("other.filestorage.mode");
+        vo.setSysSettingValue(mode);
+        vo.setSysSettingValueType("String");
+        vo.setSysSettingGroup("default");
+        vo.setSysSettingRemark("文件服务器部署形态：embedded（应用端口+路径前缀）/ standalone（独立端口）");
+        return vo;
+    }
+
+    /**
+     * 推导文件服务器返回模型（核心纯逻辑，供单元测试）。
+     *
+     * @param mode        部署形态（embedded / standalone）
+     * @param contextPath 应用上下文路径
+     * @param pathPrefix  内置形态路径前缀
+     * @param port        独立形态端口（standalone 必填）
+     * @param host        独立形态对外主机
+     * @return server 配置值：embedded=相对路径，standalone=http://host:port；返回空串表示不适用
+     */
+    static String resolveFileStorageServer(String mode, String contextPath, String pathPrefix,
+                                           String port, String host) {
+        boolean standalone = "standalone".equalsIgnoreCase(mode);
+        if (standalone) {
+            if (null == port || port.isBlank()) {
+                return "";
+            }
+            String h = host;
+            if (null == h || h.isBlank() || "0.0.0.0".equals(h)) {
+                h = "127.0.0.1";
+            }
+            return "http://" + h + ":" + port;
+        }
+        return normalizePath(contextPath, pathPrefix);
+    }
+
+    /**
+     * 拼接 contextPath 与 pathPrefix，保证只有一个斜杠边界。
+     *
+     * @param base 上下文路径（可能为空）
+     * @param tail 路径前缀（可能为空、{@code /} 或 {@code /fs}）
+     * @return 拼接后的路径；均为空时返回空串
+     */
+    static String normalizePath(String base, String tail) {
+        String b = base == null ? "" : base.trim();
+        String t = tail == null ? "" : tail.trim();
+        if (t.equals("/")) {
+            t = "";
+        }
+        while (b.startsWith("/")) {
+            b = b.substring(1);
+        }
+        while (b.endsWith("/")) {
+            b = b.substring(0, b.length() - 1);
+        }
+        while (t.startsWith("/")) {
+            t = t.substring(1);
+        }
+        while (t.endsWith("/")) {
+            t = t.substring(0, t.length() - 1);
+        }
+        if (b.isEmpty() && t.isEmpty()) {
+            return "/";
+        }
+        if (t.isEmpty()) {
+            return "/" + b;
+        }
+        return "/" + (b.isEmpty() ? "" : b + "/") + t;
     }
 
     /**
