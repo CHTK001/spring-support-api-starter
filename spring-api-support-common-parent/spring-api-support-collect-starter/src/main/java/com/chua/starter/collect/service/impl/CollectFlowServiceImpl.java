@@ -27,6 +27,7 @@ import com.chua.starter.collect.schedule.CollectFlowScheduleSpec;
 import com.chua.starter.collect.schedule.CollectFlowScheduleState;
 import com.chua.starter.collect.service.CollectExecutionService;
 import com.chua.starter.collect.service.CollectFlowService;
+import com.chua.starter.collect.service.CollectFlowVersionService;
 import com.chua.starter.collect.support.CollectCronSupport;
 import com.chua.starter.collect.support.CollectJson;
 import com.chua.starter.collect.support.CollectTaskStatus;
@@ -114,6 +115,11 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
      */
     private final ObjectProvider<CollectExecutionService> executionServiceProvider;
 
+    /**
+     * 流程版本服务，保存/编辑流程后自动落版本快照。
+     */
+    private final CollectFlowVersionService versionService;
+
     @Override
     public IPage<CollectFlowVO> pageFlows(IPage<CollectFlow> page, CollectFlow condition) {
         Map<Integer, String> categories = categoryNames();
@@ -167,6 +173,7 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
         flow.setCollectFlowIsDeleted(0);
         save(flow);
         ensureJob(flow);
+        saveVersionSnapshot(flow);
         return detail(flow.getCollectFlowId());
     }
 
@@ -179,6 +186,7 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
         apply(flow, dto);
         updateById(flow);
         ensureJob(requireFlow(exists.getCollectFlowId()));
+        saveVersionSnapshot(flow);
         return detail(exists.getCollectFlowId());
     }
 
@@ -337,6 +345,19 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
             parsed = withFlowMeta(parsed, flow);
         }
         return new CollectFlowRef(flow.getCollectFlowId(), flow.getCollectFlowName(), parsed);
+    }
+
+    /**
+     * 保存流程版本快照。
+     *
+     * @param flow 已写入 DSL 的流程实体
+     */
+    private void saveVersionSnapshot(CollectFlow flow) {
+        if (flow == null || flow.getCollectFlowId() == null || flow.getCollectFlowDsl() == null
+                || flow.getCollectFlowDsl().isBlank()) {
+            return;
+        }
+        versionService.saveVersion(flow.getCollectFlowId(), flow.getCollectFlowDsl(), null);
     }
 
     /**
