@@ -76,6 +76,8 @@ public class CollectScriptExecutor implements CollectShapeExecutor {
     public CollectShapeMeta meta() {
         CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "脚本", "控制", "code",
                 "执行 Groovy 脚本加工变量，返回 Map 即批量出参");
+        // 已下线：安全与维护考虑，脚本节点不再进入调色板，存量流程仍可读但建议迁移。
+        meta.setHidden(true);
         CollectParamMeta script = CollectShapeMetas.required(SCRIPT, "脚本正文", "textarea",
                 "上游变量按名字直接引用，vars 可读写同一份变量表，fn 调内置函数；最后一条表达式即返回值");
         CollectParamMeta output = CollectShapeMetas.text(OUTPUT, "输出名", "text",
