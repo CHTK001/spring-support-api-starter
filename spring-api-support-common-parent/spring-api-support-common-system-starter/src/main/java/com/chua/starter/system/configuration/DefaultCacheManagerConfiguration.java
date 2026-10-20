@@ -27,6 +27,17 @@ public class DefaultCacheManagerConfiguration {
 
     /**
      * h2 档位：内存库通常不伴生 Redis，用空实现避免缓存注解触发真实连接。
+     *
+     * <p>必须带 {@code @Primary}：redis-starter 无条件注册 7 个 CacheManager 且都不带
+     * {@code @Primary}，本档不给主的话，按类型注入 {@code CacheManager} 的地方
+     * （如 {@code sysAnnouncementScheduleTask}）会因"找不到唯一候选"而启动失败
+     * （实测 2026-10-14：去掉 {@code @Primary} 后报 expected single matching bean
+     * but found 8）。</p>
+     *
+     * <p>代价是本档要求容器里**没有第二个** {@code @Primary} 的 CacheManager：
+     * {@code AiCacheAutoConfiguration.aiCacheManager}（本地 Caffeine）也带
+     * {@code @Primary}，两者同时在场就变成 more than one 'primary'（同一位置实测）。
+     * 采集平台本地跑 h2 时不引 AI 模块（见该模块 pom 中的本地说明）正是为了避开它。</p>
      */
     @Configuration
     @Profile("h2")
