@@ -65,7 +65,7 @@ public class CollectEmailNotifyChannel implements CollectNotifyChannel {
         if (mailSender == null) {
             return MessageResponse.failure("未配置邮件账号（spring.mail.host），邮件渠道不可用");
         }
-        String[] to = recipients(message.getTarget());
+        String[] to = recipients(message.target());
         if (to.length == 0) {
             return MessageResponse.failure("收件邮箱为空");
         }
@@ -75,17 +75,17 @@ public class CollectEmailNotifyChannel implements CollectNotifyChannel {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, StandardCharsets.UTF_8.name());
             helper.setFrom(System.getProperty("spring.mail.from", DEFAULT_FROM));
             helper.setTo(to);
-            helper.setSubject(message.getSubject());
-            helper.setText(message.getContent(), true);
+            helper.setSubject(message.subject());
+            helper.setText(message.content(), true);
             mailSender.send(mimeMessage);
             long cost = System.currentTimeMillis() - start;
             return MessageResponse.builder()
                     .success(true)
-                    .messageId(message.getTarget())
+                    .messageId(message.target())
                     .durationMillis(cost)
                     .build();
         } catch (Exception ex) {
-            log.warn("[collect] 邮件通知发送失败 target={} cause={}", message.getTarget(), ex.getMessage());
+            log.warn("[collect] 邮件通知发送失败 target={} cause={}", message.target(), ex.getMessage());
             return MessageResponse.builder()
                     .success(false)
                     .errorMessage("邮件发送失败: " + ex.getMessage())

@@ -37,7 +37,26 @@ public final class CollectShapeMetas {
         meta.setIcon(icon);
         meta.setDescription(description);
         meta.setParams(loopParams());
+        addTimeoutParams(meta);
         return meta;
+    }
+
+    /**
+     * 给所有节点补统一的节点级超时参数。
+     *
+     * <p>执行器已有同名 {@code timeout} 时不重复添加，由 CollectEngine 统一读取该参数做超时控制；
+     * 策略只影响超时后的行为：自动延长一次等待时间，或直接结束该分支。</p>
+     */
+    private static void addTimeoutParams(CollectShapeMeta meta) {
+        if (meta.getParams().stream().anyMatch(param -> "timeout".equals(param.getName()))) {
+            return;
+        }
+        CollectParamMeta timeout = text("timeout", "超时毫秒", "number",
+                "0/留空表示不限制；超过后按「超时策略」自动延长一次或结束该分支");
+        timeout.setDefaultValue("0");
+        meta.getParams().add(timeout);
+        meta.getParams().add(option("timeoutPolicy", "超时策略", "end",
+                "超时后自动延长一次相同时长继续等待，或直接结束该分支", "extend", "end"));
     }
 
     /**
@@ -120,7 +139,7 @@ public final class CollectShapeMetas {
      * 默认 {@code data} 让新节点开箱即落在统一变量模型上，用户也可自定义
      * 成别的名字（存量流程留空时引擎按执行器默认名兜底，引用不破坏）。</p>
      *
-     * <p>注意：请求节点不用本方法 —— 它会派生 {@code 输出名+Json/Doc} 同伴
+     * <p>注意：请求节点不用本方法 —— 它会派生 {@code 输出名+Html/Doc/Json} 同伴
      * 变量，若输出名填 {@code data} 会和引擎派生的 {@code dataJson} 撞名，
      * 故请求节点输出名仍默认 {@code resp}。</p>
      *
@@ -198,7 +217,11 @@ public final class CollectShapeMetas {
      */
     public static CollectShapeMeta with(CollectShapeMeta meta, CollectParamMeta... params) {
         for (CollectParamMeta param : params) {
-            if (param != null) {
+            if (param == null) {
+                continue;
+            }
+            boolean exists = meta.getParams().stream().anyMatch(p -> param.getName().equals(p.getName()));
+            if (!exists) {
                 meta.getParams().add(param);
             }
         }

@@ -185,12 +185,12 @@ public class CollectDatabaseSink implements CollectSink {
         Set<String> names = fieldNames.computeIfAbsent(nodeId, key -> ConcurrentHashMap.newKeySet());
         Map<String, Object> payload = new LinkedHashMap<>();
         for (CollectParamDTO cell : entry.getCells()) {
-            if (cell.getName() == null || cell.getName().isBlank()) {
+            if (cell.name() == null || cell.name().isBlank()) {
                 continue;
             }
-            String name = cell.getName().trim();
+            String name = cell.name().trim();
             names.add(name);
-            payload.put(name, cell.getValue());
+            payload.put(name, cell.value());
         }
         if (!persist) {
             return;

@@ -29,7 +29,8 @@ import java.util.Map;
  *   <li>{@link CollectOutputExecutor} 逐条产出采集记录，可选镜像一张业务表，
  *       表结构一律按大文本建——它面向"把这一条记录留下来"，不是批量搬数据；</li>
  *   <li>本节点面向"把这一批数据搬进这张表"：不产采集记录，按批提交，
- *       列类型由数据源模块按来源值推断，写入方式可选追加、覆盖或按主键更新。</li>
+ *       列类型由数据源模块按来源值推断，写入方式可选追加、跳过、覆盖、
+ *       按主键更新或全覆盖（TRUNCATE 后全量写入）。</li>
  * </ul>
  *
  * <p>表结构与字段归属一律委托数据源模块（{@code DatasourceSchemaService}）：
@@ -85,14 +86,25 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
     public static final String MODE_APPEND = "append";
 
     /**
-     * 覆盖写入：先清空目标表再写入。
+     * 覆盖写入：先清空目标表再写入（TRUNCATE）。
      */
     public static final String MODE_REPLACE = "replace";
 
     /**
-     * 按主键更新：命中原键的行改写，未命中的行新增。
+     * 覆盖更新：命中原键的行改写，未命中的行新增。键由流程作者声明。
      */
     public static final String MODE_UPDATE = "update";
+
+    /**
+     * 跳过写入：命中原键的行整行跳过，未命中的行新增。键由流程作者声明。
+     */
+    public static final String MODE_SKIP = "skip";
+
+    /**
+     * 按主键更新：与 {@link #MODE_UPDATE} 行为相同，区别是键直接取目标表的真实主键，
+     * 不由流程声明。
+     */
+    public static final String MODE_PK = "pk";
 
     /**
      * 批次失败策略参数名。
@@ -143,6 +155,11 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
     private static final String VAR_INSERTED = "_inserted";
 
     /**
+     * 本次因命中业务键而整行跳过的行数暂存变量名，仅供摘要使用。
+     */
+    private static final String VAR_SKIPPED = "_skipped";
+
+    /**
      * 失败批次数变量名。
      */
     private static final String VAR_FAILED = "_failedBatches";
@@ -170,8 +187,9 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
         // 主键列同样取自目标表的真实列，因此复用字段映射控件；
         // 但只有 update 模式用得上，append / replace 下不置必填，避免给旧流程标上无谓的红星
         var keyParam = CollectShapeMetas.mapping(KEY + ":主键列", "主键列", TABLE,
-                "仅 update 模式需要：一条填一个业务键列，列名必须是上面字段映射里已声明的目标列，"
-                        + "联合键填多条；右侧无需填写");
+                "「跳过」与「覆盖」两种方式需要：一条填一个业务键列，列名必须是上面字段映射里已声明的目标列，"
+                        + "联合键填多条；右侧无需填写。"
+                        + "「按主键更新」不用填这里，它直接取目标表的主键");
         keyParam.setRequired(false);
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.required(SOURCE, "来源集合", "textarea",
@@ -181,9 +199,13 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
                 CollectShapeMetas.table(TABLE, "目标表", "",
                         "表不存在自动建，缺列自动补；列类型按这一批实际取值推断"),
                 CollectShapeMetas.option(MODE, "写入方式", MODE_APPEND,
-                        "覆盖写入会先清空目标表；来源集合为空时直接报错并保留原表，不会把表清空；"
-                                + "按主键更新需要配合下面的主键列",
-                        MODE_APPEND, MODE_REPLACE, MODE_UPDATE),
+                        "追加：不判断，直接插入；"
+                                + "跳过：按下面的主键列命中已有行就整行跳过（已有数据不动）；"
+                                + "覆盖：按下面的主键列命中已有行就更新、未命中就新增；"
+                                + "按主键更新：同「覆盖」，但主键取目标表的真实主键，不用手填；"
+                                + "全覆盖：先 TRUNCATE 清空目标表再全量写入（自增列复位）。"
+                                + "来源集合解析不出任何行时直接报错并保留原表，不会把表清空",
+                        MODE_APPEND, MODE_SKIP, MODE_UPDATE, MODE_PK, MODE_REPLACE),
                 CollectShapeMetas.mapping(COLUMN + ":目标列", "字段映射", TABLE,
                         "左列选目标表字段，右列填来源字段名或 ${} 表达式；行内键可直接当变量名引用"),
                 keyParam,
@@ -217,13 +239,18 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
             throw new IllegalStateException("来源集合没有解析出任何行，已中止，目标表未做任何改动");
         }
         jdbc.ensureTypedTable(datasource, table, columnsOf(rows, columns));
+        if (MODE_PK.equals(mode)) {
+            // 建表之后才取主键：表不存在时 ensureTypedTable 刚把它建出来，这时才读得到主键
+            keys = pkKeys(datasource, table, columns);
+        }
         int cleared = 0;
         if (MODE_REPLACE.equals(mode)) {
-            cleared = jdbc.deleteAll(datasource, table);
+            cleared = jdbc.truncate(datasource, table);
         }
         int written = 0;
         int updated = 0;
         int inserted = 0;
+        int skipped = 0;
         int failed = 0;
         String lastError = null;
         String onError = node.param(ON_BATCH_ERROR).trim();
@@ -232,9 +259,14 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
         for (int start = 0; start < rows.size(); start += batch) {
             List<Map<String, Object>> slice = rows.subList(start, Math.min(start + batch, rows.size()));
             try {
-                if (MODE_UPDATE.equals(mode)) {
+                if (MODE_UPDATE.equals(mode) || MODE_PK.equals(mode)) {
                     var result = jdbc.updateByKey(datasource, table, keys, slice);
                     updated += result.updated();
+                    inserted += result.inserted();
+                    written += result.total();
+                } else if (MODE_SKIP.equals(mode)) {
+                    var result = jdbc.insertIfAbsent(datasource, table, keys, slice);
+                    skipped += result.skipped();
                     inserted += result.inserted();
                     written += result.total();
                 } else {
@@ -258,8 +290,12 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
             variables.put(VAR_FAILED, failed);
             variables.put(VAR_LAST_ERROR, lastError);
         }
-        if (MODE_UPDATE.equals(mode)) {
+        if (MODE_UPDATE.equals(mode) || MODE_PK.equals(mode)) {
             variables.put(VAR_UPDATED, updated);
+            variables.put(VAR_INSERTED, inserted);
+        }
+        if (MODE_SKIP.equals(mode)) {
+            variables.put(VAR_SKIPPED, skipped);
             variables.put(VAR_INSERTED, inserted);
         }
     }
@@ -267,8 +303,11 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
     @Override
     public String summary(CollectNode node, Map<String, Object> variables) {
         String result;
+        Object skipped = variables.get(VAR_SKIPPED);
         Object updated = variables.get(VAR_UPDATED);
-        if (updated != null) {
+        if (skipped != null) {
+            result = "跳过已存在 " + skipped + " 行、新增 " + variables.get(VAR_INSERTED) + " 行";
+        } else if (updated != null) {
             result = "按主键更新 " + updated + " 行、新增 " + variables.get(VAR_INSERTED) + " 行";
         } else {
             Object written = variables.get(VAR_WRITTEN);
@@ -277,7 +316,7 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
             }
             Object cleared = variables.get(VAR_CLEARED);
             if (cleared instanceof Integer count && count > 0) {
-                result = "覆盖写入 " + written + " 行（先清空 " + count + " 行）";
+                result = "全覆盖写入 " + written + " 行（先清空 " + count + " 行）";
             } else {
                 result = "写入 " + written + " 行";
             }
@@ -300,7 +339,7 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
     private List<CollectParamDTO> mapping(CollectNode node) {
         List<CollectParamDTO> columns = new ArrayList<>();
         for (CollectParamDTO param : node.pairsOf(COLUMN)) {
-            if (param.getName() != null && !param.getName().isBlank()) {
+            if (param.name() != null && !param.name().isBlank()) {
                 columns.add(param);
             }
         }
@@ -308,34 +347,38 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
     }
 
     /**
-     * 读按主键更新模式的主键声明。
+     * 读需要业务键的写入方式（跳过 / 覆盖）的键声明。
      *
-     * <p>主键是 update 的唯一定位依据，缺省时绝不能退化成追加：同一批数据每跑一次
-     * 就多一份，错误要到对账时才会暴露，所以这里直接报错。主键列还必须已经出现在
-     * 字段映射的目标列里，否则没有来源值可绑定，更新条件会恒为同一个值。</p>
+     * <p>键是这两种模式的唯一定位依据，缺省时绝不能退化成追加：同一批数据每跑一次
+     * 就多一份，错误要到对账时才会暴露，所以这里直接报错。键列还必须已经出现在
+     * 字段映射的目标列里，否则没有来源值可绑定，定位条件会恒为同一个值。</p>
+     *
+     * <p>「按主键更新」（{@link #MODE_PK}）不走这里：它的键取自目标表元数据，
+     * 不由流程声明，见 {@link #pkKeys}。</p>
      *
      * @param node    节点
      * @param columns 字段映射声明
      * @param mode    写入方式
-     * @return 主键列名，非 update 模式返回空列表
-     * @throws IllegalStateException 未声明主键，或主键列不在字段映射的目标列里
+     * @return 键列名，不需要键的模式返回空列表
+     * @throws IllegalStateException 未声明键，或键列不在字段映射的目标列里
      */
     private List<String> updateKeys(CollectNode node, List<CollectParamDTO> columns, String mode) {
-        if (!MODE_UPDATE.equals(mode)) {
+        if (!MODE_UPDATE.equals(mode) && !MODE_SKIP.equals(mode)) {
             return List.of();
         }
+        String label = MODE_SKIP.equals(mode) ? "skip" : "update";
         List<String> targets = new ArrayList<>(columns.size());
         for (CollectParamDTO column : columns) {
-            targets.add(column.getName().trim());
+            targets.add(column.name().trim());
         }
         List<String> keys = new ArrayList<>();
         for (CollectParamDTO pair : node.pairsOf(KEY)) {
-            if (pair.getName() == null || pair.getName().isBlank()) {
+            if (pair.name() == null || pair.name().isBlank()) {
                 continue;
             }
-            String name = pair.getName().trim();
+            String name = pair.name().trim();
             if (!targets.contains(name)) {
-                throw new IllegalStateException("update 模式的主键列 " + name
+                throw new IllegalStateException(label + " 模式的主键列 " + name
                         + " 不在字段映射的目标列里，请先用 column:" + name + " 声明该列");
             }
             if (!keys.contains(name)) {
@@ -343,7 +386,38 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
             }
         }
         if (keys.isEmpty()) {
-            throw new IllegalStateException("update 模式需要声明主键，请用 key:列名 逐行填写（联合键填多条）");
+            throw new IllegalStateException(label + " 模式需要声明主键，请用 key:列名 逐行填写（联合键填多条）");
+        }
+        return keys;
+    }
+
+    /**
+     * 「按主键更新」模式的键：直接取目标表的真实主键列。
+     *
+     * <p>表还没有主键时直接报错而不是退回「覆盖」：这两种模式定位的是不同的行，
+     * 悄悄换一种会让"更新失败"变成"数据被改坏"，比报错难查得多。</p>
+     *
+     * @param datasource 目标数据源
+     * @param table      目标表
+     * @param columns    字段映射声明
+     * @return 主键列名
+     * @throws IllegalStateException 表无主键，或主键列不在字段映射的目标列里
+     */
+    private List<String> pkKeys(String datasource, String table, List<CollectParamDTO> columns) {
+        List<String> keys = jdbc.primaryKeys(datasource, table);
+        if (keys.isEmpty()) {
+            throw new IllegalStateException("按主键更新需要目标表 " + table
+                    + " 有主键；这张表没有，请改用「覆盖」并在下面声明主键列");
+        }
+        List<String> targets = new ArrayList<>(columns.size());
+        for (CollectParamDTO column : columns) {
+            targets.add(column.name().trim());
+        }
+        for (String key : keys) {
+            if (!targets.contains(key)) {
+                throw new IllegalStateException("按主键更新时主键列 " + key
+                        + " 不在字段映射的目标列里，请先用 column:" + key + " 声明该列");
+            }
         }
         return keys;
     }
@@ -376,7 +450,7 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
             Map<String, Object> scope = scopeOf(variables, item);
             Map<String, Object> row = new LinkedHashMap<>();
             for (CollectParamDTO column : columns) {
-                row.put(column.getName().trim(), CollectExpression.eval(column.getValue(), scope));
+                row.put(column.name().trim(), CollectExpression.eval(column.value(), scope));
             }
             rows.add(row);
         }
@@ -416,8 +490,8 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
         List<DdlColumn> definitions = new ArrayList<>(names.size());
         for (String name : names) {
             String comment = columns.stream()
-                    .filter(column -> column.getName() != null && column.getName().trim().equals(name))
-                    .map(CollectParamDTO::getValue)
+                    .filter(column -> column.name() != null && column.name().trim().equals(name))
+                    .map(CollectParamDTO::value)
                     .findFirst()
                     .orElse(null);
             definitions.add(new DdlColumn(CollectJdbcSupport.identifier(name), null, Boolean.TRUE,

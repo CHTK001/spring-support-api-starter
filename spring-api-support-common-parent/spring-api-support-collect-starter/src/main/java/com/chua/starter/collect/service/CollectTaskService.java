@@ -3,6 +3,8 @@ package com.chua.starter.collect.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.spring.service.IService;
 import com.chua.starter.collect.entity.CollectTask;
+import com.chua.starter.collect.vo.CollectQualityVO;
+import com.chua.starter.collect.vo.CollectStatsVO;
 import com.chua.starter.collect.vo.CollectTaskLogVO;
 import com.chua.starter.collect.vo.CollectTaskVO;
 
@@ -79,4 +81,29 @@ public interface CollectTaskService extends IService<CollectTask> {
     default int cleanTasks(Integer flowId, int days) {
         return cleanTasks(flowId, LocalDateTime.now().minusDays(Math.max(days, 0)));
     }
+
+    /**
+     * 任务质量报告：从节点日志聚合质量指标。
+     *
+     * @param taskId 任务ID
+     * @return 质量报告
+     */
+    CollectQualityVO quality(Long taskId);
+
+    /**
+     * 流程执行历史统计。
+     *
+     * @param flowId 流程ID
+     * @param days   统计天数
+     * @return 统计结果
+     */
+    CollectStatsVO stats(Integer flowId, int days);
+
+    /**
+     * 运行中任务的实时节点状态（供前端轮询）。
+     *
+     * @param taskId 任务ID
+     * @return 最新节点状态列表
+     */
+    List<CollectTaskLogVO> liveNodes(Long taskId);
 }

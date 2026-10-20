@@ -144,14 +144,15 @@ public class SysMessageTemplateServiceImpl extends ServiceImpl<SysMessageTemplat
         if (null != request.getParams()) {
             renderParams.putAll(request.getParams());
         }
-        TemplatePreviewResponse response = new TemplatePreviewResponse();
-        response.setSysMessageTemplateId(template.getSysMessageTemplateId());
-        response.setTitle(render(template.getSysMessageTemplateTitle(), renderParams));
-        response.setContent(render(template.getSysMessageTemplateContent(), renderParams));
-        response.setUnresolvedParams(findUnresolved(renderParams, template.getSysMessageTemplateTitle(),
-                template.getSysMessageTemplateContent()));
-        response.setComplete(response.getUnresolvedParams().isEmpty());
-        response.setBuiltInVars(List.of("date", "time"));
+        List<String> unresolvedParams = findUnresolved(renderParams, template.getSysMessageTemplateTitle(),
+                template.getSysMessageTemplateContent());
+        TemplatePreviewResponse response = new TemplatePreviewResponse(
+                template.getSysMessageTemplateId(),
+                render(template.getSysMessageTemplateTitle(), renderParams),
+                render(template.getSysMessageTemplateContent(), renderParams),
+                unresolvedParams,
+                unresolvedParams.isEmpty(),
+                List.of("date", "time"));
         return ReturnResult.ok(response);
     }
 

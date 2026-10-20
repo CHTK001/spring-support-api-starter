@@ -784,8 +784,8 @@ public class SysLoginServiceImpl implements SysLoginService {
         }
         
         // 获取授权 URL
-        var request1 = authRequest.getRequest();
-        var authorizeUrl = request1.authorize(authRequest.getState());
+        var request1 = authRequest.request();
+        var authorizeUrl = request1.authorize(authRequest.state());
         log.info("第三方登录授权URL生成成功: loginType={}", loginData.loginType());
         
         return ReturnResult.ok(authorizeUrl);

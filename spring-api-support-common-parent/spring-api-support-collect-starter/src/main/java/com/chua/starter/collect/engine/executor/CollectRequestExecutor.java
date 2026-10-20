@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 解析结果不可用时回退到内置 HTTP 抓取器，保证只依赖爬虫模块也能跑。</p>
  *
  * <p>出参写成本令牌作用域的普通值而不是响应对象：{@code resp} 是含 status/html/url 等键的映射，
- * {@code respDoc} 是已绑定 base 的 jsoup 文档，内容像 JSON 时再给出 {@code respJson}。
+ * {@code respHtml} 是正文 HTML，{@code respDoc} 是已绑定 base 的 jsoup 文档，内容像 JSON 时再给出 {@code respJson}。
  * 这样抽取节点的 CSS、下游节点的 {@code ${resp.status}} 都不需要感知抓取实现。</p>
  *
  * <p>HTTP 4xx/5xx 与传输失败都算本令牌失败，异常文本写入 {@code ex}，
@@ -149,8 +149,8 @@ public class CollectRequestExecutor implements CollectShapeExecutor {
     @Override
     public CollectShapeMeta meta() {
         CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "抓取", "来源", "globe",
-                "请求网页或接口，产出 resp/respDoc 供下游抽取");
-        meta.setOutputVariable("resp 为响应映射，respDoc 为文档对象，可在出参变量名里改");
+                "请求网页或接口，产出 resp/respHtml/respDoc 供下游抽取");
+        meta.setOutputVariable("resp 为响应映射，respHtml 为正文 HTML，respDoc 为文档对象，可在出参变量名里改");
         CollectParamMeta headers = CollectParamMeta.of(HEADER + ":名称", "请求头", "pairs");
         headers.setTip("每行一条，存成参数 header:名称；Host、Content-Length 等受限头会被丢弃");
         CollectParamMeta cookies = CollectParamMeta.of(COOKIE + ":名称", "Cookie", "pairs");
@@ -172,7 +172,7 @@ public class CollectRequestExecutor implements CollectShapeExecutor {
                 CollectShapeMetas.text(FETCHER, "抓取器", "text",
                         "SPI 名称，默认 http；注册了浏览器渲染抓取器后填其名称"),
                 CollectShapeMetas.option(OUTPUT, "输出名", DEFAULT_OUTPUT,
-                        "响应映射写入该变量，文档对象与 JSON 分别为其后缀 Doc、Json", DEFAULT_OUTPUT),
+                        "响应映射写入该变量，HTML、文档对象与 JSON 分别为其后缀 Html、Doc、Json", DEFAULT_OUTPUT),
                 CollectShapeMetas.option(SAVE_DOCUMENT, "保留文档对象", "1",
                         "选 0 时不解析 jsoup 文档，下游 CSS 抽取与链接节点不可用", "1", "0"),
                 headers, cookies);
@@ -259,7 +259,7 @@ public class CollectRequestExecutor implements CollectShapeExecutor {
      */
     private void applyPairs(Map<String, String> target, List<CollectParamDTO> pairs, Map<String, Object> variables) {
         for (CollectParamDTO pair : pairs) {
-            String name = pair.getName();
+            String name = pair.name();
             if (name == null || name.isBlank()) {
                 continue;
             }
@@ -267,7 +267,7 @@ public class CollectRequestExecutor implements CollectShapeExecutor {
                 log.warn("[collect] 请求头 {} 由 HTTP 客户端管理，已忽略", name);
                 continue;
             }
-            target.put(name.trim(), CollectExpression.evalText(pair.getValue(), variables));
+            target.put(name.trim(), CollectExpression.evalText(pair.value(), variables));
         }
     }
 
@@ -280,14 +280,14 @@ public class CollectRequestExecutor implements CollectShapeExecutor {
      */
     private void appendPairs(StringBuilder builder, List<CollectParamDTO> pairs, Map<String, Object> variables) {
         for (CollectParamDTO pair : pairs) {
-            if (pair.getName() == null || pair.getName().isBlank()) {
+            if (pair.name() == null || pair.name().isBlank()) {
                 continue;
             }
             if (builder.length() > 0) {
                 builder.append("; ");
             }
-            builder.append(pair.getName().trim()).append('=')
-                    .append(CollectExpression.evalText(pair.getValue(), variables));
+            builder.append(pair.name().trim()).append('=')
+                    .append(CollectExpression.evalText(pair.value(), variables));
         }
     }
 
@@ -396,6 +396,7 @@ public class CollectRequestExecutor implements CollectShapeExecutor {
         resp.put("length", (long) html.length());
         resp.put("costMs", response.getFetchTimeMs());
         variables.put(output, resp);
+        variables.put(output + "Html", html);
         variables.put("url", request.getUrl());
         String trimmed = html.trim();
         if (trimmed.startsWith("{") || trimmed.startsWith("[")) {

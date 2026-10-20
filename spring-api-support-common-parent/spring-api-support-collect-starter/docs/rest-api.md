@@ -723,7 +723,8 @@ shape 值即 `nodes[].shape`；分组 `group` 只有 4 个：`来源`、`解析`
 `enable` Boolean、`executorId` String（`主机名:pid`）、`runningTasks` Integer、`flowCount` Long、`enabledFlowCount` Long、
 `taskCount` Long、`recordCount` Long、`schedulerGroup` String（`collect-flow`，即 job-starter `sys_job` 的分组）、
 `scheduledJobCount` Long（该分组下已登记的流程数，正常应等于 `flowCount`）、
-`taskTimeoutMs` Long（`plugin.collect.task-timeout-ms`，默认 600000）、`maxRecordPerTask` Integer（默认 100000）、
+`taskTimeoutMs` Long（`plugin.collect.task-timeout-ms`，默认 1800000，即 30 分钟；
+分片型采集常在 10 分钟以上，旧默认 600000 会把正常任务判成超时失败）、`maxRecordPerTask` Integer（默认 100000）、
 `defaultThreadCount` Integer（默认 4）、`requestTimeoutMs` Integer（默认 30000）、`shapes` `CollectShapeMeta[]`。
 
 ### VO：`CollectShapeMeta`（`engine/spi/CollectShapeMeta.java`）— `/metas` 的元素

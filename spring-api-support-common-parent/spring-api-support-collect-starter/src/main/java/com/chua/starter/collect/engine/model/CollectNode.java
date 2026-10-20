@@ -49,7 +49,7 @@ public class CollectNode {
      * @return 节点ID
      */
     public String id() {
-        return source.getId();
+        return source.id();
     }
 
     /**
@@ -58,7 +58,7 @@ public class CollectNode {
      * @return 节点类型
      */
     public String shape() {
-        return source.getShape();
+        return source.shape();
     }
 
     /**
@@ -67,9 +67,9 @@ public class CollectNode {
      * @return 节点名称
      */
     public String name() {
-        String name = source.getName();
+        String name = source.name();
         if (name == null || name.isBlank()) {
-            return source.getShape() + "-" + source.getId();
+            return source.shape() + "-" + source.id();
         }
         return name;
     }
@@ -82,8 +82,8 @@ public class CollectNode {
      */
     public String param(String name) {
         for (CollectParamDTO param : params()) {
-            if (name.equals(param.getName()) && param.getValue() != null && !param.getValue().isBlank()) {
-                return param.getValue().trim();
+            if (name.equals(param.name()) && param.value() != null && !param.value().isBlank()) {
+                return param.value().trim();
             }
         }
         return "";
@@ -98,7 +98,7 @@ public class CollectNode {
     public List<CollectParamDTO> paramsOf(String name) {
         List<CollectParamDTO> list = new ArrayList<>();
         for (CollectParamDTO param : params()) {
-            if (name.equals(param.getName()) && param.getValue() != null && !param.getValue().isBlank()) {
+            if (name.equals(param.name()) && param.value() != null && !param.value().isBlank()) {
                 list.add(param);
             }
         }
@@ -118,15 +118,12 @@ public class CollectNode {
         String prefix = group + ":";
         List<CollectParamDTO> list = new ArrayList<>();
         for (CollectParamDTO param : params()) {
-            String name = param.getName();
+            String name = param.name();
             if (name == null || !name.startsWith(prefix)) {
                 continue;
             }
-            CollectParamDTO pair = new CollectParamDTO();
-            pair.setName(name.substring(prefix.length()).trim());
-            pair.setValue(param.getValue());
-            pair.setDescription(param.getDescription());
-            list.add(pair);
+            list.add(new CollectParamDTO(name.substring(prefix.length()).trim(),
+                    param.value(), param.description()));
         }
         return list;
     }
@@ -190,7 +187,7 @@ public class CollectNode {
      * @return 字段声明列表
      */
     public List<CollectExtractFieldDTO> fields() {
-        return source.getFields() == null ? List.of() : source.getFields();
+        return source.fields() == null ? List.of() : source.fields();
     }
 
     /**
@@ -199,7 +196,7 @@ public class CollectNode {
      * @return 参数列表
      */
     public List<CollectParamDTO> params() {
-        return source.getParams() == null ? List.of() : source.getParams();
+        return source.params() == null ? List.of() : source.params();
     }
 
     /**
