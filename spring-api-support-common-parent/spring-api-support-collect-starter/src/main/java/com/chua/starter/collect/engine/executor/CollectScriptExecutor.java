@@ -83,6 +83,7 @@ public class CollectScriptExecutor implements CollectShapeExecutor {
         CollectParamMeta output = CollectShapeMetas.text(OUTPUT, "输出名", "text",
                 "脚本返回标量时写入该变量，返回 Map 时忽略");
         output.setDefaultValue(DEFAULT_OUTPUT);
+        output.setRequired(true);
         return CollectShapeMetas.with(meta, script, output,
                 CollectParamMeta.select(SCOPE, "作用域", "branch", SCOPE_GLOBAL),
                 CollectShapeMetas.text(TIMEOUT, "超时毫秒", "number", "留空按 30000"));

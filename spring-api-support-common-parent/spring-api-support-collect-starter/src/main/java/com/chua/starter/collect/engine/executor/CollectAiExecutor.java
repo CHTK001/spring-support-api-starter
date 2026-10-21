@@ -87,6 +87,7 @@ public class CollectAiExecutor implements CollectShapeExecutor {
         CollectParamMeta output = CollectShapeMetas.text(OUTPUT, "输出名", "text",
                 "模型回答写入的变量名，留空用 aiResult");
         output.setDefaultValue(DEFAULT_OUTPUT);
+        output.setRequired(true);
         return CollectShapeMetas.with(meta, prompt, model, system, output);
     }
 
