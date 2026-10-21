@@ -10,6 +10,7 @@ import com.chua.starter.collect.engine.spi.CollectShapeMetas;
 import com.chua.starter.collect.support.CollectJson;
 import com.chua.starter.collect.support.CollectMiddlewareSupport;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -22,12 +23,9 @@ import java.util.Set;
 /**
  * 数据录入节点：手工录行，作为流程的行数据源头。
  *
- * <p>录入文本两种形态，解析口径写死在 {@link #parseRows}：</p>
- * <ul>
- *   <li>CSV / TSV：首行表头、其后每行一条，单元格支持双引号包裹（内嵌分隔符与
- *       转义双引号都按 CSV 规则走）；</li>
- *   <li>JSON 数组：{@code [{"列": 值}, ...]}，元素是标量时收进 {@code value} 列。</li>
- * </ul>
+ * <p>录入文本按 {@code format} 参数解析（CSV / JSONL / HTTP JSON / 纯文本），
+ * 解析口径写死在 {@link #parseRows}。CSV 按首行表头、其后每行一条；JSONL 每行一条
+ * JSON 对象；HTTP JSON 是 JSON 数组或对象；纯文本每行收进 {@code value} 列。</p>
  *
  * <p>文本先过 {@link CollectExpression#evalText}，所以和开始节点一样支持 {@code ${}} 拼接。
  * 出参是 {@code List<Map>}（默认变量名 {@code rows}），下游数据库 / 输出节点按集合整批消费 ——
@@ -50,19 +48,34 @@ public class CollectDataEntryExecutor implements CollectShapeExecutor {
     public static final String OUTPUT = "outputVariable";
 
     /**
-     * 「建表」按钮的目标数据源参数名。
+     * 数据格式参数名。
      */
-    public static final String DATASOURCE = "datasource";
-
-    /**
-     * 「建表」按钮的目标表参数名。
-     */
-    public static final String TABLE = "table";
+    public static final String FORMAT = "format";
 
     /**
      * 出参集合默认名。
      */
     public static final String DEFAULT_OUTPUT = "rows";
+
+    /**
+     * CSV：首行表头 + 其后每行一条。
+     */
+    public static final String FORMAT_CSV = "csv";
+
+    /**
+     * JSONL：每行一条 JSON 对象。
+     */
+    public static final String FORMAT_JSONL = "jsonl";
+
+    /**
+     * HTTP JSON：JSON 数组或对象（接口响应的常见形态）。
+     */
+    public static final String FORMAT_HTTP_JSON = "http-json";
+
+    /**
+     * 纯文本：每行收进 {@code value} 列。
+     */
+    public static final String FORMAT_TEXT = "text";
 
     @Override
     public String supportShape() {
@@ -72,22 +85,22 @@ public class CollectDataEntryExecutor implements CollectShapeExecutor {
     @Override
     public CollectShapeMeta meta() {
         CollectShapeMeta meta = CollectShapeMetas.of(supportShape(), "数据录入", "来源", "edit-pen",
-                "手工录入数据行作为流程的行数据源头，下游接数据库 / 输出等节点；可按录入列一键给目标数据源建表");
-        meta.setOutputVariable("默认 data，旧流程留空时按 ${rows} 兜底");
+                "手工录入数据行作为流程的行数据源头，下游接数据库 / 输出等节点；按选择的数据格式解析");
+        meta.setOutputVariable("采集结果写入的变量名，默认 data");
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.required(ROWS, "录入数据", "textarea",
-                        "第一行表头（逗号分隔列名），之后每行一条；也支持 JSON 数组 [{\"列\": 值}]；支持 ${} 表达式"),
-                CollectShapeMetas.outputVariable("录入结果写入的变量名，默认 data"),
-                CollectShapeMetas.datasource(DATASOURCE, "建表数据源", "",
-                        "「建表」按钮的目标数据源，仅建表用，不影响本节点出参"),
-                CollectShapeMetas.table(TABLE, "建表目标表", "",
-                        "配合「建表」按钮把录入列落成实际表；下游数据库节点选同一数据源与表即可写入"));
+                        "CSV：首行表头、其后每行一条；JSONL：每行一条 JSON；HTTP JSON：JSON 数组或对象；纯文本：每行一条，收进 value 列；支持 ${} 表达式"),
+                CollectShapeMetas.option(FORMAT, "数据格式", FORMAT_CSV,
+                        "CSV 按首行表头解析；JSONL 每行一条 JSON；HTTP JSON 提供 JSON 数组或对象；纯文本每行一条、收进 value 列",
+                        FORMAT_CSV, FORMAT_JSONL, FORMAT_HTTP_JSON, FORMAT_TEXT),
+                CollectShapeMetas.outputVariable("录入结果写入的变量名，默认 data"));
     }
 
     @Override
     public void execute(CollectNode node, CollectContext context, Map<String, Object> variables) {
         String raw = CollectExpression.evalText(node.param(ROWS), variables);
-        List<Map<String, Object>> rows = parseRows(raw);
+        String format = node.param(FORMAT);
+        List<Map<String, Object>> rows = parseRows(raw, format);
         variables.put(outputOf(node), rows);
     }
 
@@ -115,21 +128,38 @@ public class CollectDataEntryExecutor implements CollectShapeExecutor {
     }
 
     /**
-     * 解析录入文本：JSON 数组优先，其余按 CSV / TSV（首行表头）。
+     * 解析录入文本。
      *
-     * @param raw 录入文本
+     * <p>格式由参数决定，四选一：CSV（首行表头）、JSONL（每行一条 JSON）、
+     * HTTP JSON（JSON 数组或对象）、纯文本（每行收进 value 列）。</p>
+     *
+     * @param raw    录入文本
+     * @param format 数据格式（空按 csv 兜底）
      * @return 行列表
      * @throws IllegalArgumentException 结构不合法（非数组 JSON、缺表头、列数超出表头等）
      */
-    private List<Map<String, Object>> parseRows(String raw) {
+    private List<Map<String, Object>> parseRows(String raw, String format) {
         String text = raw == null ? "" : raw.trim();
         List<Map<String, Object>> rows = new ArrayList<>();
         if (text.isEmpty()) {
             return rows;
         }
-        if (text.startsWith("[")) {
-            return parseJsonRows(text);
-        }
+        String code = StringUtils.hasText(format) ? format.trim() : FORMAT_CSV;
+        return switch (code) {
+            case FORMAT_JSONL -> parseJsonLines(text);
+            case FORMAT_HTTP_JSON -> parseHttpJson(text);
+            case FORMAT_TEXT -> parseTextLines(text);
+            default -> parseCsv(text);
+        };
+    }
+
+    /**
+     * CSV / TSV 解析：首行表头、其后每行一条。
+     *
+     * @param text 录入文本
+     * @return 行列表
+     */
+    private List<Map<String, Object>> parseCsv(String text) {
         // 分隔符看首行：有制表符按 TSV，否则按 CSV
         String firstLine = text.lines().filter(line -> !line.isBlank()).findFirst().orElse("");
         char delimiter = firstLine.indexOf('\t') >= 0 ? '\t' : ',';
@@ -140,7 +170,7 @@ public class CollectDataEntryExecutor implements CollectShapeExecutor {
             }
         }
         if (table.size() <= 1) {
-            return rows;
+            throw new IllegalArgumentException("CSV 录入至少需要表头与一行数据");
         }
         List<String> headers = new ArrayList<>();
         Set<String> seen = new HashSet<>();
@@ -154,6 +184,7 @@ public class CollectDataEntryExecutor implements CollectShapeExecutor {
             }
             headers.add(header);
         }
+        List<Map<String, Object>> rows = new ArrayList<>();
         for (int r = 1; r < table.size(); r++) {
             List<String> cells = table.get(r);
             if (cells.size() > headers.size()) {
@@ -170,25 +201,71 @@ public class CollectDataEntryExecutor implements CollectShapeExecutor {
     }
 
     /**
-     * 解析 JSON 数组录入。
+     * JSONL 解析：每行一条 JSON 对象。
      *
-     * @param text JSON 数组文本
+     * @param text 录入文本
      * @return 行列表
      */
-    private List<Map<String, Object>> parseJsonRows(String text) {
-        Object parsed = CollectJson.parseAny(text);
-        if (!(parsed instanceof List<?> list)) {
-            throw new IllegalArgumentException("录入数据以 [ 开头但不是合法 JSON 数组");
-        }
-        List<Map<String, Object>> rows = new ArrayList<>(list.size());
-        for (Object item : list) {
+    private List<Map<String, Object>> parseJsonLines(String text) {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (String line : text.split("\\r?\\n")) {
+            if (line.isBlank()) {
+                continue;
+            }
+            Object parsed = CollectJson.parseAny(line.trim());
             Map<String, Object> row = new LinkedHashMap<>();
-            if (item instanceof Map<?, ?> map) {
-                map.forEach((cellKey, cellValue) -> row.put(String.valueOf(cellKey), cellValue));
+            if (parsed instanceof Map<?, ?> map) {
+                map.forEach((key, value) -> row.put(String.valueOf(key), value));
             } else {
-                row.put(CollectMiddlewareSupport.VALUE_COLUMN, item);
+                row.put(CollectMiddlewareSupport.VALUE_COLUMN, parsed);
             }
             rows.add(row);
+        }
+        return rows;
+    }
+
+    /**
+     * HTTP JSON 解析：JSON 数组或对象。
+     *
+     * @param text 录入文本
+     * @return 行列表
+     */
+    private List<Map<String, Object>> parseHttpJson(String text) {
+        Object parsed = CollectJson.parseAny(text);
+        List<Map<String, Object>> rows = new ArrayList<>();
+        if (parsed instanceof List<?> list) {
+            for (Object item : list) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                if (item instanceof Map<?, ?> map) {
+                    map.forEach((key, value) -> row.put(String.valueOf(key), value));
+                } else {
+                    row.put(CollectMiddlewareSupport.VALUE_COLUMN, item);
+                }
+                rows.add(row);
+            }
+            return rows;
+        }
+        if (parsed instanceof Map<?, ?> map) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            map.forEach((key, value) -> row.put(String.valueOf(key), value));
+            rows.add(row);
+            return rows;
+        }
+        throw new IllegalArgumentException("HTTP JSON 格式要求 JSON 数组或对象，当前不是");
+    }
+
+    /**
+     * 纯文本解析：每行一条收进 value 列。
+     *
+     * @param text 录入文本
+     * @return 行列表
+     */
+    private List<Map<String, Object>> parseTextLines(String text) {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (String line : text.split("\\r?\\n")) {
+            if (!line.isBlank()) {
+                rows.add(Map.of(CollectMiddlewareSupport.VALUE_COLUMN, line.trim()));
+            }
         }
         return rows;
     }
