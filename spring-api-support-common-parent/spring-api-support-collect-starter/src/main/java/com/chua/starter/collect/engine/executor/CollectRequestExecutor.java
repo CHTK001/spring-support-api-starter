@@ -155,6 +155,9 @@ public class CollectRequestExecutor implements CollectShapeExecutor {
         headers.setTip("每行一条，存成参数 header:名称；Host、Content-Length 等受限头会被丢弃");
         CollectParamMeta cookies = CollectParamMeta.of(COOKIE + ":名称", "Cookie", "pairs");
         cookies.setTip("每行一条，存成参数 cookie:名称；与流程全局 Cookie 合并为一个 Cookie 头发送");
+        CollectParamMeta outputName = CollectShapeMetas.option(OUTPUT, "输出名", DEFAULT_OUTPUT,
+                "响应映射写入该变量，HTML、文档对象与 JSON 分别为其后缀 Html、Doc、Json", DEFAULT_OUTPUT);
+        outputName.setRequired(true);
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.required(URL, "URL", "text", "支持 ${}，例：${item} 或 https://x.com/list?p=${index}"),
                 CollectShapeMetas.option(METHOD, "请求方法", "GET", "留空按 GET 发送",
@@ -171,8 +174,7 @@ public class CollectRequestExecutor implements CollectShapeExecutor {
                 CollectParamMeta.of(USER_AGENT, "User-Agent", "text"),
                 CollectShapeMetas.text(FETCHER, "抓取器", "text",
                         "SPI 名称，默认 http；注册了浏览器渲染抓取器后填其名称"),
-                CollectShapeMetas.option(OUTPUT, "输出名", DEFAULT_OUTPUT,
-                        "响应映射写入该变量，HTML、文档对象与 JSON 分别为其后缀 Html、Doc、Json", DEFAULT_OUTPUT),
+                outputName,
                 CollectShapeMetas.option(SAVE_DOCUMENT, "保留文档对象", "1",
                         "选 0 时不解析 jsoup 文档，下游 CSS 抽取与链接节点不可用", "1", "0"),
                 headers, cookies);

@@ -191,13 +191,17 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
                         + "联合键填多条；右侧无需填写。"
                         + "「按主键更新」不用填这里，它直接取目标表的主键");
         keyParam.setRequired(false);
+        var datasource = CollectShapeMetas.datasource(DATASOURCE, "目标数据库", CollectJdbcSupport.APP_DATASOURCE,
+                "默认应用主库；下拉里是数据源中心已启用的数据源");
+        datasource.setRequired(true);
+        var table = CollectShapeMetas.table(TABLE, "目标表", "",
+                "表不存在自动建，缺列自动补；列类型按这一批实际取值推断");
+        table.setRequired(true);
         return CollectShapeMetas.with(meta,
                 CollectShapeMetas.required(SOURCE, "来源集合", "textarea",
                         "填集合表达式，例 ${rows}；也接受单条映射（按一行处理）"),
-                CollectShapeMetas.datasource(DATASOURCE, "目标数据源", CollectJdbcSupport.APP_DATASOURCE,
-                        "默认应用主库；下拉里是数据源中心已启用的数据源"),
-                CollectShapeMetas.table(TABLE, "目标表", "",
-                        "表不存在自动建，缺列自动补；列类型按这一批实际取值推断"),
+                datasource,
+                table,
                 CollectShapeMetas.option(MODE, "写入方式", MODE_APPEND,
                         "追加：不判断，直接插入；"
                                 + "跳过：按下面的主键列命中已有行就整行跳过（已有数据不动）；"
