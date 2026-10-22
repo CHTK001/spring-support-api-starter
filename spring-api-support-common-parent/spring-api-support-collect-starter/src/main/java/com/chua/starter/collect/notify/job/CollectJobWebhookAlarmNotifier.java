@@ -45,7 +45,7 @@ public class CollectJobWebhookAlarmNotifier implements JobAlarmNotifier {
 
     @Override
     public void notify(JobAlarmMessage message) throws Exception {
-        String target = message.getTarget() == null ? "" : message.getTarget().trim();
+        String target = message.target() == null ? "" : message.target().trim();
         URI uri;
         try {
             uri = URI.create(target);
@@ -57,12 +57,12 @@ public class CollectJobWebhookAlarmNotifier implements JobAlarmNotifier {
             throw new IllegalStateException("回调地址必须是 http/https，当前: " + target);
         }
         Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("type", message.getAlarmType());
-        payload.put("jobName", message.getJobName());
-        payload.put("costMs", message.getCostMs());
-        payload.put("exception", message.getException());
-        payload.put("nodeId", message.getNodeId());
-        payload.put("occurredAt", message.getOccurredAtMs());
+        payload.put("type", message.alarmType());
+        payload.put("jobName", message.jobName());
+        payload.put("costMs", message.costMs());
+        payload.put("exception", message.exception());
+        payload.put("nodeId", message.nodeId());
+        payload.put("occurredAt", message.occurredAtMs());
         HttpRequest request = HttpRequest.newBuilder(uri)
                 .timeout(Duration.ofMillis(TIMEOUT_MS))
                 .header("Content-Type", "application/json; charset=utf-8")
@@ -78,7 +78,7 @@ public class CollectJobWebhookAlarmNotifier implements JobAlarmNotifier {
             throw new IllegalStateException("Webhook HTTP " + status + " " + brief(response.body()));
         }
         log.info("[collect] 调度任务 Webhook 告警已投递 job={} url={} status={}",
-                message.getJobName(), target, status);
+                message.jobName(), target, status);
     }
 
     /**

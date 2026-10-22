@@ -65,7 +65,7 @@ public class SystemJobWebhookAlarmNotifier implements JobAlarmNotifier {
 
     @Override
     public void notify(JobAlarmMessage message) throws Exception {
-        String target = message == null || message.getTarget() == null ? "" : message.getTarget().trim();
+        String target = message == null || message.target() == null ? "" : message.target().trim();
         URI uri;
         try {
             uri = URI.create(target);
@@ -77,11 +77,11 @@ public class SystemJobWebhookAlarmNotifier implements JobAlarmNotifier {
             throw new IllegalStateException("回调地址必须是 http/https，当前: " + target);
         }
         Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("type", JobAlarmMessage.normalizeType(message.getAlarmType()));
-        payload.put("jobName", message.getJobName());
-        payload.put("costMs", message.getCostMs());
-        payload.put("exception", message.getException());
-        payload.put("nodeId", message.getNodeId());
+        payload.put("type", JobAlarmMessage.normalizeType(message.alarmType()));
+        payload.put("jobName", message.jobName());
+        payload.put("costMs", message.costMs());
+        payload.put("exception", message.exception());
+        payload.put("nodeId", message.nodeId());
         payload.put("occurredAt", occurredAt(message));
         payload.put("occurredAtText", TIME_FORMAT.format(Instant.ofEpochMilli(occurredAt(message))));
 
@@ -100,7 +100,7 @@ public class SystemJobWebhookAlarmNotifier implements JobAlarmNotifier {
             throw new IllegalStateException("Webhook HTTP " + status + " " + brief(response.body()));
         }
         log.info("[system] 调度任务 Webhook 告警已投递 job={} url={} status={}",
-                message.getJobName(), target, status);
+                message.jobName(), target, status);
     }
 
     /**
@@ -110,7 +110,7 @@ public class SystemJobWebhookAlarmNotifier implements JobAlarmNotifier {
      * @return 毫秒时间戳
      */
     private long occurredAt(JobAlarmMessage message) {
-        return message.getOccurredAtMs() > 0 ? message.getOccurredAtMs() : System.currentTimeMillis();
+        return message.occurredAtMs() > 0 ? message.occurredAtMs() : System.currentTimeMillis();
     }
 
     /**
