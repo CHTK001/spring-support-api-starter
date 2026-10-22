@@ -70,7 +70,7 @@ public class SystemJobEmailAlarmNotifier implements JobAlarmNotifier {
 
     @Override
     public void notify(JobAlarmMessage message) throws Exception {
-        String[] targets = recipients(message == null ? null : message.getTarget());
+        String[] targets = recipients(message == null ? null : message.target());
         if (targets.length == 0) {
             throw new IllegalStateException("告警目标里没有有效的收件邮箱");
         }
@@ -91,7 +91,7 @@ public class SystemJobEmailAlarmNotifier implements JobAlarmNotifier {
             String reason = response == null ? "邮件渠道无返回" : response.getErrorMessage();
             throw new IllegalStateException("邮件告警发送失败: " + reason);
         }
-        log.info("[system] 调度任务邮件告警已发送 job={} target={}", message.getJobName(), message.getTarget());
+        log.info("[system] 调度任务邮件告警已发送 job={} target={}", message.jobName(), message.target());
     }
 
     /**
@@ -161,7 +161,7 @@ public class SystemJobEmailAlarmNotifier implements JobAlarmNotifier {
      * @return 标题
      */
     private String subject(JobAlarmMessage message) {
-        return "【调度任务失败】" + safe(message.getJobName());
+        return "【调度任务失败】" + safe(message.jobName());
     }
 
     /**
@@ -171,12 +171,12 @@ public class SystemJobEmailAlarmNotifier implements JobAlarmNotifier {
      * @return 正文
      */
     private String content(JobAlarmMessage message) {
-        long occurredAt = message.getOccurredAtMs() > 0 ? message.getOccurredAtMs() : System.currentTimeMillis();
-        return "任务: " + safe(message.getJobName()) + "\n"
-                + "节点: " + safe(message.getNodeId()) + "\n"
-                + "耗时: " + message.getCostMs() + "ms\n"
+        long occurredAt = message.occurredAtMs() > 0 ? message.occurredAtMs() : System.currentTimeMillis();
+        return "任务: " + safe(message.jobName()) + "\n"
+                + "节点: " + safe(message.nodeId()) + "\n"
+                + "耗时: " + message.costMs() + "ms\n"
                 + "时刻: " + TIME_FORMAT.format(Instant.ofEpochMilli(occurredAt)) + "\n"
-                + "原因:\n" + safe(message.getException()) + "\n";
+                + "原因:\n" + safe(message.exception()) + "\n";
     }
 
     /**
