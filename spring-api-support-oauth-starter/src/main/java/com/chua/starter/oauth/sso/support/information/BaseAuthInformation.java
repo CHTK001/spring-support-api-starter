@@ -191,6 +191,43 @@ public abstract class BaseAuthInformation implements AuthInformation {
     }
 
     /**
+     * 标准令牌校验。
+     *
+     * <p>统一走 {@code AuthCoreService}；Spring 上下文不可用时回退到
+     * 「LoginCheck 解析 + SPI 兜底」的旧路径，保证单测/特殊容器下仍可用。</p>
+     *
+     * @param cookie 会话 Cookie，可为空
+     * @param token  访问令牌，可为空
+     * @return 用户信息
+     */
+    public com.chua.common.support.lang.code.ReturnResult<com.chua.starter.oauth.client.support.user.UserResume> verifyToken(
+            String cookie, String token) {
+        if (applicationContext != null) {
+            try {
+                com.chua.starter.oauth.sso.support.core.AuthCoreService core =
+                        applicationContext.getBean(com.chua.starter.oauth.sso.support.core.AuthCoreService.class);
+                if (core != null) {
+                    return core.verify(cookie, token);
+                }
+            } catch (Exception ignored) {
+                // 容器里没有该 Bean 时走下面的兜底逻辑
+            }
+        }
+        String tokenManagement = authServerProperties.getTokenManagement();
+        com.chua.starter.oauth.sso.support.token.TokenResolver resolver =
+                loginCheck == null ? null : loginCheck.resolveTokenResolver(tokenManagement);
+        if (resolver == null) {
+            resolver = com.chua.common.support.spi.ServiceProvider
+                    .of(com.chua.starter.oauth.sso.support.token.TokenResolver.class)
+                    .getExtension(tokenManagement);
+        }
+        if (resolver == null) {
+            return com.chua.common.support.lang.code.ReturnResult.error("认证服务器无法认证");
+        }
+        return resolver.resolve(cookie, token);
+    }
+
+    /**
      * 注册数据
      */
     private void decodeData() {
@@ -360,10 +397,8 @@ public abstract class BaseAuthInformation implements AuthInformation {
         if (!success.get()) {
             return false;
         }
-        if (!authServerProperties.isSignVerify()) {
-            return true;
-        }
-        return SignUtils.verifyMd5Sign(this.bodyData, this.sign);
+        return com.chua.starter.oauth.sso.support.security.AuthSignVerifier
+                .verify(authServerProperties, this.bodyData, this.sign);
     }
 
     @Override

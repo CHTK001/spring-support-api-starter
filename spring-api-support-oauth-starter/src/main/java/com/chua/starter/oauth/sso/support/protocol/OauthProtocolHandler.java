@@ -230,7 +230,7 @@ public class OauthProtocolHandler implements ServerHandler {
             writeError(response, "解析失败!");
             return;
         }
-        writeResult(response, decoder, authCoreService.tokenResolver().resolve(
+        writeResult(response, decoder, authCoreService.verify(
                 decoder.getString(FIELD_COOKIE), resolveToken(request, decoder)));
     }
 

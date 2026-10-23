@@ -74,6 +74,31 @@ class AuthCoreServiceTest {
     }
 
     /**
+     * 标准令牌校验走统一入口。
+     */
+    @Test
+    @DisplayName("verify: 委托令牌解析器")
+    void shouldVerifyToken() {
+        UserResume resume = new UserResume();
+        when(loginCheck.resolveTokenResolver("redis")).thenReturn(tokenResolver);
+        when(tokenResolver.resolve("cookie", "token")).thenReturn(ReturnResult.ok(resume));
+
+        assertSame(resume, authCoreService.verify("cookie", "token").getData());
+        verify(tokenResolver).resolve("cookie", "token");
+    }
+
+    /**
+     * 解析器缺失时 verify 返回错误而不是 NPE。
+     */
+    @Test
+    @DisplayName("verify: 解析器缺失返回错误")
+    void shouldFailVerifyWhenResolverMissing() {
+        when(loginCheck.resolveTokenResolver("redis")).thenReturn(null);
+
+        assertFalse(authCoreService.verify("cookie", "token").isOk());
+    }
+
+    /**
      * refresh 升级。
      */
     @Test
