@@ -2,6 +2,7 @@ package com.chua.starter.collect.engine;
 
 import com.chua.common.support.reflection.ReflectUtils;
 import com.chua.starter.collect.dto.CollectDslDTO;
+import com.chua.starter.collect.dto.CollectNodeDTO;
 import com.chua.starter.collect.dto.CollectParamDTO;
 import com.chua.starter.collect.engine.model.CollectEdge;
 import com.chua.starter.collect.engine.model.CollectGraph;
@@ -168,12 +169,18 @@ public class CollectEngine {
         context.attachPool(pool);
         running.put(context.getTaskId(), context);
         try {
+            // 流程显式声明了「采集平台(output)」节点时关闭默认落记录，避免双写；
+            // 否则引擎默认把行集合产出落成采集记录（历史与界面数据不依赖编排加节点）。
+            context.setAutoRecord(!hasOutputNode(dsl));
             seedVariables(context, dsl);
             for (CollectNode node : graph.entryNodes()) {
                 schedule(context, node, new LinkedHashMap<>(context.getRootVariables()));
             }
-            return settle(context, begin, context.awaitFinish(properties.getTaskTimeoutMs()),
-                    properties.getTaskTimeoutMs());
+            // 流程级运行超时：DSL 显式配置优先，0/未配置退回平台全局默认。
+            // 分片型大采集（如 GitHub 全量分片 1140 个请求）默认 30 分钟会在收尾被杀，
+            // 设计器「流程属性 → 运行超时」里可单独调大，不影响其他流程。
+            long limit = effectiveTimeoutMs(dsl);
+            return settle(context, begin, context.awaitFinish(limit), limit);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             context.cancel();
@@ -182,6 +189,37 @@ public class CollectEngine {
             running.remove(context.getTaskId());
             pool.shutdownNow();
         }
+    }
+
+    /**
+     * 判断流程 DSL 中是否声明了「采集平台(output)」节点。
+     *
+     * @param dsl 流程 DSL
+     * @return 含 output 节点返回 true
+     */
+    private static boolean hasOutputNode(CollectDslDTO dsl) {
+        if (dsl == null || dsl.nodes() == null) {
+            return false;
+        }
+        for (CollectNodeDTO node : dsl.nodes()) {
+            if ("output".equals(node.shape())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 取本次任务实际生效的超时毫秒：流程 DSL 显式配置优先，否则用平台全局默认。
+     *
+     * @param dsl 流程 DSL
+     * @return 本次任务超时毫秒（恒大于 0）
+     */
+    private long effectiveTimeoutMs(CollectDslDTO dsl) {
+        if (dsl != null && dsl.timeoutMs() != null && dsl.timeoutMs() > 0L) {
+            return dsl.timeoutMs();
+        }
+        return properties.getTaskTimeoutMs();
     }
 
     /**
@@ -583,6 +621,38 @@ public class CollectEngine {
         scope.putIfAbsent("data", value);
         scope.putIfAbsent("dataJson", toJsonValue(value));
         context.putNodeOutput(node.id(), value);
+        // 默认落采集记录：流程没有「采集平台(output)」节点时，
+        // 把行集合产出（List<Map>，如 extract/sql 的 rows）逐条写入采集结果表，
+        // 使运行记录「产出 N 条」与采集结果页不依赖编排期加节点。非行集合产出不落。
+        if (context.isAutoRecord() && value instanceof List<?> rows && !rows.isEmpty()
+                && rows.get(0) instanceof Map<?, ?>) {
+            for (Object row : rows) {
+                if (!(row instanceof Map<?, ?> rowMap) || rowMap.isEmpty()) {
+                    continue;
+                }
+                CollectRecordEntry entry = new CollectRecordEntry();
+                entry.setNodeId(node.id());
+                entry.setUrl(text(scope.get("url")));
+                for (Map.Entry<?, ?> cell : rowMap.entrySet()) {
+                    entry.getCells().add(new CollectParamDTO(String.valueOf(cell.getKey()),
+                            CollectFunctions.stringify(cell.getValue()), null));
+                }
+                if (!context.offerRecord(entry)) {
+                    // 达到单任务记录上限：不再继续落，但不中断流程主体
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * 转字符串，空值返回空串。
+     *
+     * @param value 值
+     * @return 字符串
+     */
+    private static String text(Object value) {
+        return value == null ? "" : String.valueOf(value);
     }
 
     /**

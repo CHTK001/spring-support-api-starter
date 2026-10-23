@@ -36,10 +36,12 @@ CREATE TABLE IF NOT EXISTS `collect_flow` (
     `collect_flow_cron` varchar(64) NULL DEFAULT NULL COMMENT '定时表达式，空表示不定时',
     `collect_flow_status` INT NULL DEFAULT 0 COMMENT '调度状态 - 0:停用, 1:启用',
     `collect_flow_concurrency` INT NULL DEFAULT 1 COMMENT '同一流程允许并发运行的任务数',
+    `collect_flow_running` INT NOT NULL DEFAULT 0 COMMENT '当前运行中的任务数（跨节点并发计数）',
     `collect_flow_thread_count` INT NULL DEFAULT 4 COMMENT '流程内并行线程数',
     `collect_flow_remark` varchar(500) NULL DEFAULT NULL COMMENT '备注',
     `collect_flow_last_exec_time` datetime(6) NULL DEFAULT NULL COMMENT '最近一次开始执行时间',
     `collect_flow_exec_count` INT NULL DEFAULT 0 COMMENT '累计执行次数',
+    `collect_flow_record_count` BIGINT NULL DEFAULT 0 COMMENT '累计采集条数',
     `collect_flow_is_deleted` INT NULL DEFAULT 0 COMMENT '逻辑删除 - 0:正常, 1:已删除',
     `create_name` varchar(255) NULL DEFAULT NULL COMMENT '创建人姓名',
     `create_by` int NULL DEFAULT NULL COMMENT '创建人',
@@ -120,7 +122,8 @@ CREATE TABLE IF NOT EXISTS `collect_task` (
     `update_by` int NULL DEFAULT NULL COMMENT '更新人',
     PRIMARY KEY (`collect_task_id`),
     UNIQUE INDEX `collect_task_uk_no` (`collect_task_no`),
-    INDEX `collect_task_idx_flow_begin` (`collect_task_flow_id`, `collect_task_begin_time`)
+    INDEX `collect_task_idx_flow_begin` (`collect_task_flow_id`, `collect_task_begin_time`),
+    INDEX `collect_task_idx_flow_status_id` (`collect_task_flow_id`, `collect_task_status`, `collect_task_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据采集-执行任务';
 
 -- ---------------------------------------------------------------------
@@ -145,7 +148,8 @@ CREATE TABLE IF NOT EXISTS `collect_task_log` (
     `update_name` varchar(255) NULL DEFAULT NULL COMMENT '更新人姓名',
     `update_by` int NULL DEFAULT NULL COMMENT '更新人',
     PRIMARY KEY (`collect_task_log_id`),
-    INDEX `collect_task_log_idx_task` (`collect_task_log_task_id`)
+    INDEX `collect_task_log_idx_task` (`collect_task_log_task_id`),
+    INDEX `collect_task_log_idx_task_id` (`collect_task_log_task_id`, `collect_task_log_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据采集-节点执行日志';
 
 -- ---------------------------------------------------------------------
@@ -191,15 +195,17 @@ CREATE TABLE IF NOT EXISTS `collect_record` (
     `update_by` int NULL DEFAULT NULL COMMENT '更新人',
     PRIMARY KEY (`collect_record_id`),
     INDEX `collect_record_idx_flow_node_key` (`collect_record_flow_id`, `collect_record_node_id`, `collect_record_key`),
-    INDEX `collect_record_idx_task` (`collect_record_task_id`)
+    INDEX `collect_record_idx_task` (`collect_record_task_id`),
+    INDEX `collect_record_idx_flow_id` (`collect_record_flow_id`, `collect_record_id`),
+    INDEX `collect_record_idx_task_id` (`collect_record_task_id`, `collect_record_id`),
+    INDEX `collect_record_idx_flow_time` (`collect_record_flow_id`, `create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据采集-结果记录';
 
 -- ---------------------------------------------------------------------
--- 执行通知（任务终态后按渠道推送，flow_id=0 表示对全部流程生效）
+-- 执行通知（任务终态后按渠道推送；平台级配置，没有流程维度）
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `collect_notice` (
     `collect_notice_id` INT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `collect_notice_flow_id` INT NULL DEFAULT 0 COMMENT '所属流程ID，0 表示全部流程',
     `collect_notice_name` varchar(64) NULL DEFAULT NULL COMMENT '通知名称',
     `collect_notice_channel` varchar(32) NULL DEFAULT 'webhook' COMMENT '渠道 - email/webhook，可由 CollectNotifyChannel SPI 扩展',
     `collect_notice_target` varchar(500) NULL DEFAULT NULL COMMENT '收件邮箱（逗号分隔）或回调地址',
@@ -215,8 +221,7 @@ CREATE TABLE IF NOT EXISTS `collect_notice` (
     `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
     `update_name` varchar(255) NULL DEFAULT NULL COMMENT '更新人姓名',
     `update_by` int NULL DEFAULT NULL COMMENT '更新人',
-    PRIMARY KEY (`collect_notice_id`),
-    INDEX `collect_notice_idx_flow` (`collect_notice_flow_id`)
+    PRIMARY KEY (`collect_notice_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据采集-执行通知';
 
 CREATE TABLE IF NOT EXISTS `collect_function` (
@@ -237,3 +242,46 @@ CREATE TABLE IF NOT EXISTS `collect_function` (
     PRIMARY KEY (`collect_function_id`),
     UNIQUE INDEX `collect_function_uk_name` (`collect_function_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据采集-自定义函数';
+
+-- ---------------------------------------------------------------------
+-- 采集告警规则（失败次数/零产出/数据量骤降/节点超时/错误率）
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `collect_alert_rule` (
+    `collect_alert_rule_id` INT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `collect_flow_id` INT NULL DEFAULT NULL COMMENT '所属流程ID，空表示全局规则',
+    `collect_alert_rule_name` varchar(128) NULL DEFAULT NULL COMMENT '规则名称',
+    `alert_type` varchar(32) NULL DEFAULT 'FAILURE_COUNT' COMMENT '条件类型 - FAILURE_COUNT/ZERO_OUTPUT/RECORDS_DROP/NODE_TIMEOUT/ERROR_RATE',
+    `threshold` INT NULL DEFAULT 0 COMMENT '阈值，含义随 alert_type 而定',
+    `alert_timing` varchar(16) NULL DEFAULT 'ALWAYS' COMMENT '告警时机 - ALWAYS/ONCE',
+    `alert_enabled` INT NULL DEFAULT 1 COMMENT '是否启用 - 0:停用, 1:启用',
+    `last_alert_time` datetime(6) NULL DEFAULT NULL COMMENT '最近触发时间',
+    `last_alert_result` varchar(500) NULL DEFAULT NULL COMMENT '最近触发结果',
+    `create_name` varchar(255) NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+    `create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`collect_alert_rule_id`),
+    INDEX `collect_alert_rule_idx_flow` (`collect_flow_id`),
+    INDEX `collect_alert_rule_idx_enabled` (`alert_enabled`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据采集-告警规则';
+
+-- ---------------------------------------------------------------------
+-- 流程版本快照（保存/回滚 DSL）
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `collect_flow_version` (
+    `collect_flow_version_id` INT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `collect_flow_id` INT NULL DEFAULT NULL COMMENT '流程ID',
+    `version_no` INT NULL DEFAULT 0 COMMENT '版本号，从1开始递增',
+    `flow_dsl` longtext NULL DEFAULT NULL COMMENT '流程 DSL 快照（JSON）',
+    `version_remark` varchar(255) NULL DEFAULT NULL COMMENT '版本说明',
+    `create_name` varchar(255) NULL DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int NULL DEFAULT NULL COMMENT '创建人',
+    `create_time` datetime(6) NULL DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime(6) NULL DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) NULL DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int NULL DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`collect_flow_version_id`),
+    INDEX `collect_flow_version_idx_flow_no` (`collect_flow_id`, `version_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数据采集-流程版本';

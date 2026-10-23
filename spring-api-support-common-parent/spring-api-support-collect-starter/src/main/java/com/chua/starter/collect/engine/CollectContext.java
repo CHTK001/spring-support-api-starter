@@ -83,6 +83,34 @@ public class CollectContext {
     private final Map<String, Object> nodeOutputs = new ConcurrentHashMap<>();
 
     /**
+     * 是否在流程没有「采集平台(output)」节点时，把行集合产出默认落成采集记录。
+     *
+     * <p>默认记录是为了让「运行记录 → 产出 N 条 / 采集结果」不依赖编排期手动加 output 节点：
+     * 流程里若没有 output 节点，引擎把每个产出 {@code List<Map>} 行集合的节点（extract/sql 等）
+     * 的每行自动写入采集结果表；流程显式声明了 output 节点时关闭本开关，避免双写。
+     * 回放参数走 {@code collect_task_log}，引擎本就逐节点自动记录，与此开关无关。</p>
+     */
+    private volatile boolean autoRecord = true;
+
+    /**
+     * 是否默认把行集合产出落成采集记录。
+     *
+     * @return 无 output 节点时返回 true
+     */
+    public boolean isAutoRecord() {
+        return autoRecord;
+    }
+
+    /**
+     * 设置默认落记录开关（流程含 output 节点时由引擎置 false，避免双写）。
+     *
+     * @param autoRecord 是否默认落记录
+     */
+    public void setAutoRecord(boolean autoRecord) {
+        this.autoRecord = autoRecord;
+    }
+
+    /**
      * 节点产出留存条数上限，0 或负数表示不限。
      */
     private volatile int nodeOutputLimit;
