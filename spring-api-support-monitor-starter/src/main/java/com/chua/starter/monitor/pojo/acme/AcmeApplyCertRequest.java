@@ -67,7 +67,11 @@ public record AcmeApplyCertRequest(
         @Schema(description = "SSH端口，默认22")
         Integer sshPort,
         @ApiModelProperty("SSH用户名") @Schema(description = "SSH用户名") String sshUsername,
-        @ApiModelProperty("SSH密码") @Schema(description = "SSH密码") String sshPassword
+        @ApiModelProperty("SSH密码") @Schema(description = "SSH密码") String sshPassword,
+        @ApiModelProperty("部署目标主机ID（主机资产），传入时由后端解析 SSH 凭据，无需前端再填地址/端口/用户名/密码")
+        @Schema(description = "部署目标主机ID（主机资产）。传入时后端按主机绑定的登录身份解析 SSH 地址、端口、用户名与密码/密钥，"
+                + "请求中的 sshHost/sshPort/sshUsername/sshPassword 仅在主机凭据缺失时作为兜底。")
+        Long sshHostId
 ) {
     /**
      * 规范构造器：对备用域名列表做防御性拷贝。
@@ -88,6 +92,7 @@ public record AcmeApplyCertRequest(
      * @param sshPort       SSH 端口
      * @param sshUsername   SSH 用户名
      * @param sshPassword   SSH 密码
+     * @param sshHostId     部署目标主机 ID（主机资产），非空时后端据此解析 SSH 凭据
      */
     public AcmeApplyCertRequest {
         sanDomains = sanDomains == null

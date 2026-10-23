@@ -122,4 +122,14 @@ public class MonitorAcmeAccount extends SysBase {
      * acmeaccounteabhmac密钥
     */
     private String acmeAccountEabHmacKey;
+
+    /**
+     * ACME 网络请求超时（秒），默认 60。
+     * <p>原 acme4j 默认 10 秒，公网 CA TLS 握手慢时申请/续签会 Network error；
+     * 用于该账户连接 ACME 服务商时放宽请求超时。</p>
+     */
+    @TableField("acme_account_timeout_seconds")
+    @ApiModelProperty("ACME 网络请求超时（秒）")
+    @Schema(description = "ACME 网络请求超时（秒），默认 60")
+    private Integer acmeAccountTimeoutSeconds;
 }

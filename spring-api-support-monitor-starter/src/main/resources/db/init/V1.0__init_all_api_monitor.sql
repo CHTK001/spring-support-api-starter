@@ -196,6 +196,7 @@ CREATE TABLE IF NOT EXISTS `monitor_acme_account` (
   `acme_account_private_key_pem` text NULL DEFAULT NULL COMMENT '账户私钥（PEM）',
   `acme_account_eab_kid` varchar(255) NULL DEFAULT NULL COMMENT 'EAB Key ID (ZeroSSL 等需要)',
   `acme_account_eab_hmac_key` varchar(512) NULL DEFAULT NULL COMMENT 'EAB HMAC Key (Base64 编码)',
+  `acme_account_timeout_seconds` int NULL DEFAULT 60 COMMENT 'ACME 网络请求超时（秒）',
   `acme_account_remark` varchar(255) NULL DEFAULT NULL COMMENT '备注',
   `create_name` varchar(255) NULL DEFAULT NULL COMMENT '创建人姓名',
   `create_by` int NULL DEFAULT NULL COMMENT '创建人',

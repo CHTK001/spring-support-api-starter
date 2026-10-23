@@ -66,9 +66,20 @@ public final class AcmeCertificateSupport {
     public static final String STATUS_VALIDATING = "validating";
 
     /**
+     * ACME 网络请求默认超时（秒）：acme4j 默认 10s 在公网 CA 慢握手时申请/续签会超时，
+     * 账户未配置超时时使用该默认值（60s）。
+     */
+    public static final int DEFAULT_TIMEOUT_SECONDS = 60;
+
+    /**
      * 订单状态：已完成
      */
     public static final String ORDER_STATUS_VALID = "valid";
+
+    /**
+     * 订单状态：已失效（历史订单不可恢复，如授权过期/订单作废，需重新下单）
+     */
+    public static final String ORDER_STATUS_INVALID = "invalid";
 
     /**
      * 证书状态：已签发

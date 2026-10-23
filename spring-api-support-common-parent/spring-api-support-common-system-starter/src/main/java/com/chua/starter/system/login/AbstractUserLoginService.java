@@ -163,20 +163,17 @@ public abstract class AbstractUserLoginService implements UserInfoService {
                 .setDataPermissionRule(dataPermissionRule);
 
         Map<String, Object> ext = BeanUtils.objectToMap(user);
+        // 实体属性名是 sysUserPassword / sysUserSalt / sysUserTotpCode 这类带前缀的写法，
+        // 早期按 "password"/"salt" 删除一个都命中不了，等于把密码哈希、盐、TOTP 密钥
+        // 随登录/verify 响应下发并写进 Redis。统一走按片段匹配的脱敏。
+        LoginExtSanitizer.sanitize(ext);
         ext.put(AUTH_VERSION, authVersion(user));
         ext.put("sysDeptId", user.getSysDeptId());
         ext.put("managedDeptIds", managedDeptIds);
         ext.put("managedDeptTreeIds", managedDeptTreeIds);
         ext.put("userDashboardGrid", userDashboardGrid);
         ext.put("userDashboard", userDashboard);
-        ext.remove("password");
-        ext.remove("salt");
-        ext.remove("userEnable");
-        ext.remove("address");
-        ext.remove("lastArea");
-        ext.remove("lastLatitude");
-        ext.remove("lastIp");
-        ext.remove("lastLongitude");
+        // 凭据类字段已由 LoginExtSanitizer 统一剔除，此处不再逐个 remove
         result.setExt(ext);
 
         // 子类扩展点

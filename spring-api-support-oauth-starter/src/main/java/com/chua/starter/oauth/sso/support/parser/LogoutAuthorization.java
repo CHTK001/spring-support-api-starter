@@ -4,6 +4,7 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
+import com.chua.starter.oauth.sso.support.core.AuthCoreService;
 import com.chua.starter.oauth.sso.support.information.LogoutAuthInformation;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
@@ -44,7 +45,7 @@ public final class LogoutAuthorization implements Authorization {
     */
     private final AuthServerProperties authServerProperties;
     final ApplicationContext applicationContext; // application上下文
-    final LoginCheck loginCheck; // login检查
+    private final AuthCoreService authCoreService; // 认证核心服务
     /**
      * Authinformation
     */
@@ -60,7 +61,7 @@ public final class LogoutAuthorization implements Authorization {
      * @param response 响应
      * @param authServerProperties 认证服务端属性
      * @param applicationContext application上下文
-     * @param loginCheck login检查
+     * @param authCoreService 认证核心服务
      */
     public LogoutAuthorization(LogoutAuthInformation authInformation,
                                String token,
@@ -70,7 +71,7 @@ public final class LogoutAuthorization implements Authorization {
                                HttpServletResponse response,
                                AuthServerProperties authServerProperties,
                                ApplicationContext applicationContext,
-                               LoginCheck loginCheck) {
+                               AuthCoreService authCoreService) {
         this.authInformation = authInformation;
         this.token = token;
         this.cookie = cookie;
@@ -79,7 +80,7 @@ public final class LogoutAuthorization implements Authorization {
         this.response = response;
         this.authServerProperties = authServerProperties;
         this.applicationContext = applicationContext;
-        this.loginCheck = loginCheck;
+        this.authCoreService = authCoreService;
     }
 
     @Override
@@ -93,16 +94,9 @@ public final class LogoutAuthorization implements Authorization {
         log.info("[LOGOUT][traceId={}] 开始: uid={}, logoutType={}", traceId,
                 uid != null && uid.length() > 8 ? uid.substring(0, 8) + "..." : uid, logoutType);
 
-        String tokenManagement = authInformation.getAuthServerProperties().getTokenManagement();
-        TokenResolver tokenResolver = loginCheck.resolveTokenResolver(tokenManagement);
-        if (null == tokenResolver) {
-            log.error("[LOGOUT][traceId={}] 失败: 认证服务器无法认证, tokenManagement={}", traceId, tokenManagement);
-            return ReturnResult.error("认证服务器无法认证");
-        }
-
         LogoutType type;
         try {
-            type = LogoutType.valueOf(logoutType);
+            type = LogoutType.valueOf(logoutType == null ? "" : logoutType.trim().toUpperCase());
         } catch (Exception e) {
             log.warn("[LOGOUT][traceId={}] 非法 logoutType={}, 使用默认 LOGOUT", traceId, logoutType);
             type = LogoutType.LOGOUT;
@@ -133,7 +127,11 @@ public final class LogoutAuthorization implements Authorization {
             return ReturnResult.error("登出失败: 缺少用户标识");
         }
 
-        tokenResolver.logout(actualUid, type);
+        ReturnResult<String> logoutResult = authCoreService.logout(actualUid, type, token);
+        if (!logoutResult.isSuccess()) {
+            log.error("[LOGOUT][traceId={}] 失败: {}", traceId, logoutResult.getMsg());
+            return ReturnResult.error(logoutResult.getMsg());
+        }
 
         long cost = System.currentTimeMillis() - startTime;
         log.info("[LOGOUT][traceId={}] 成功: uid={}, type={}, 耗时={}ms", traceId,

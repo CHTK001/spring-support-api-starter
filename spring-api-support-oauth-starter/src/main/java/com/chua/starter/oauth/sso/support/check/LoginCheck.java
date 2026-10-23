@@ -68,8 +68,22 @@ public class LoginCheck {
      * @param applicationContext application上下文
      */
     public LoginCheck(AuthServerProperties authServerProperties, ApplicationContext applicationContext) {
+        this(authServerProperties, applicationContext, null);
+    }
+
+    /**
+     * 创建 login检查 实例。
+     *
+     * @param authServerProperties 认证服务端属性
+     * @param applicationContext   application上下文
+     * @param loginAttemptService   登录尝试服务，可为空
+     */
+    public LoginCheck(AuthServerProperties authServerProperties,
+                      ApplicationContext applicationContext,
+                      LoginAttemptService loginAttemptService) {
         this.authServerProperties = authServerProperties;
         this.applicationContext = applicationContext;
+        this.loginAttemptService = loginAttemptService;
     }
 
     /**
@@ -91,6 +105,14 @@ public class LoginCheck {
         long totalNanosStart = System.nanoTime();
         log.debug("========== 登录检测开始 ==========");
         log.debug("用户标识: {}, 认证类型: {}, 客户端地址: {}", principal, authType, address);
+
+        // 来源 IP 维度的失败限流：只对可信地址生效（消息型协议拿不到对端 IP 时为 null）。
+        // 用于阻断「跨账号密码喷洒」——按账号锁定对每个账号只失败一次的攻击无效。
+        if (loginAttemptService != null
+                && loginAttemptService.isIpBlocked(address, authServerProperties.getLoginIpFailureMaxPerMinute())) {
+            log.warn("登录被拒绝: 来源 IP 失败次数过多, ip={}", address);
+            return ReturnResult.error("登录失败次数过多，请稍后再试");
+        }
 
         // 检查账户是否被锁定
         if (loginAttemptService != null && loginAttemptService.isAccountLocked(principal)) {
@@ -144,7 +166,7 @@ public class LoginCheck {
 
         if (null == userResume) {
             // 记录登录失败
-            recordLoginFailure(principal);
+            recordLoginFailure(principal, address);
             log.warn("登录失败: 未找到匹配的认证服务或用户不存在, 用户: {}, 类型: {}, 耗时: {}ms", 
                     principal, authType, System.currentTimeMillis() - startTime);
             return buildLoginFailureResult(principal);
@@ -152,7 +174,7 @@ public class LoginCheck {
 
         if (!Strings.isNullOrEmpty(userResume.getMessage())) {
             // 记录登录失败
-            recordLoginFailure(principal);
+            recordLoginFailure(principal, address);
             log.warn("登录失败: {}, 用户: {}, 类型: {}, 耗时: {}ms", 
                     userResume.getMessage(), principal, authType, System.currentTimeMillis() - startTime);
             return buildLoginFailureResult(principal, userResume.getMessage());
@@ -179,7 +201,7 @@ public class LoginCheck {
                 userResume.setExpireTime(userResult.getExpireTime());
             }
             // 登录成功，清除失败记录
-            clearLoginFailure(principal);
+            clearLoginFailure(principal, address);
             log.debug("登录成功: 用户={}, 类型={}, 总耗时={}ms", principal, authType, System.currentTimeMillis() - startTime);
             // 埋点:认证链分段耗时(纳秒→毫秒),用于定位 DB/Redis/JWT 各环节瓶颈
             long totalNs = System.nanoTime() - totalNanosStart;
@@ -246,23 +268,35 @@ public class LoginCheck {
     }
 
     /**
-     * 记录登录失败
+     * 记录登录失败（账号维度 + 可信来源 IP 维度）。
+     *
      * @param username 用户名
+     * @param address  可信来源地址，可为空
      */
-    private void recordLoginFailure(String username) {
-        if (loginAttemptService != null && StringUtils.isNotBlank(username)) {
+    private void recordLoginFailure(String username, String address) {
+        if (loginAttemptService == null) {
+            return;
+        }
+        if (StringUtils.isNotBlank(username)) {
             loginAttemptService.recordFailedAttempt(username);
         }
+        loginAttemptService.recordIpFailure(address);
     }
 
     /**
-     * 清除登录失败记录
+     * 清除登录失败记录（账号维度 + 可信来源 IP 维度）。
+     *
      * @param username 用户名
+     * @param address  可信来源地址，可为空
      */
-    private void clearLoginFailure(String username) {
-        if (loginAttemptService != null && StringUtils.isNotBlank(username)) {
+    private void clearLoginFailure(String username, String address) {
+        if (loginAttemptService == null) {
+            return;
+        }
+        if (StringUtils.isNotBlank(username)) {
             loginAttemptService.clearFailedAttempts(username);
         }
+        loginAttemptService.clearIpFailures(address);
     }
 
     /**

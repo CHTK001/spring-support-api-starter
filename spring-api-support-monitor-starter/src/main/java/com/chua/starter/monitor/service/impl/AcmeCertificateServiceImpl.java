@@ -501,8 +501,264 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
             stepDescription = "第3步: 证书已过期";
         }
 
+        // 证书合法性校验
+        AcmeCertificateDetailVo.CertificateVerification verification = buildCertificateVerification(cert);
+
         return ReturnResult.ok(new AcmeCertificateDetailVo(cert, account, orders,
-                daysUntilExpiry, soonExpiring, curlCommands, currentStep, stepDescription));
+                daysUntilExpiry, soonExpiring, curlCommands, currentStep, stepDescription, verification));
+    }
+
+    /**
+     * 校验证书合法性：PEM 是否可解析、有效期窗口、域名覆盖、私钥/公钥匹配、链完整性、吊销状态。
+     *
+     * @param cert 证书实体
+     * @return 校验结果
+     */
+    private AcmeCertificateDetailVo.CertificateVerification buildCertificateVerification(MonitorAcmeCertificate cert) {
+        boolean pemParsable = false;
+        boolean inValidWindow = false;
+        boolean domainsCovered = false;
+        boolean privateKeyMatches = false;
+        boolean chainComplete = false;
+        boolean revoked = STATUS_REVOKED.equals(cert.getAcmeCertStatus());
+        List<String> messages = new ArrayList<>();
+
+        // 1) 证书链 PEM 可解析（chain_pem 含完整链；key_pem 为私钥）
+        List<java.security.cert.X509Certificate> chain = parsePemCertificates(cert.getAcmeCertChainPem());
+        if (chain == null || chain.isEmpty()) {
+            messages.add("证书链 PEM 为空或无法解析");
+        } else {
+            pemParsable = true;
+            chainComplete = chain.size() >= 1;
+        }
+
+        // 2) 有效期窗口：当前时间在 notBefore ~ notAfter 之间（同时校验业务字段与 PEM 内的有效期）
+        String notBefore = cert.getAcmeCertNotBefore();
+        String notAfter = cert.getAcmeCertNotAfter();
+        if (StringUtils.isNotEmpty(notBefore) && StringUtils.isNotEmpty(notAfter)) {
+            try {
+                LocalDateTime nb = LocalDateTime.parse(notBefore, DATE);
+                LocalDateTime na = LocalDateTime.parse(notAfter, DATE);
+                LocalDateTime now = LocalDateTime.now();
+                inValidWindow = !now.isBefore(nb) && !now.isAfter(na);
+            } catch (Exception e) {
+                messages.add("有效期字段格式异常");
+            }
+        }
+        if (!inValidWindow) {
+            messages.add("当前时间不在证书有效期窗口内");
+        }
+
+        // 3) 域名覆盖：证书 CN/SAN 是否覆盖主域名 + 备用域名
+        if (chain != null && !chain.isEmpty()) {
+            try {
+                java.security.cert.X509Certificate leaf = chain.get(0);
+                List<String> certDomains = new ArrayList<>();
+                String cn = extractCn(leaf.getSubjectX500Principal().getName());
+                if (StringUtils.isNotEmpty(cn)) {
+                    certDomains.add(stripWildcard(cn));
+                }
+                try {
+                    java.util.Collection<List<?>> sans = leaf.getSubjectAlternativeNames();
+                    if (sans != null) {
+                        for (List<?> san : sans) {
+                            if (san != null && san.size() >= 2 && san.get(1) != null) {
+                                certDomains.add(stripWildcard(String.valueOf(san.get(1))));
+                            }
+                        }
+                    }
+                } catch (Exception ignored) {
+                    // SAN 不存在或不适用（如自签名单域）不视为失败
+                }
+                List<String> required = new ArrayList<>();
+                if (StringUtils.isNotEmpty(cert.getAcmeCertPrimaryDomain())) {
+                    required.add(stripWildcard(cert.getAcmeCertPrimaryDomain()));
+                }
+                if (StringUtils.isNotEmpty(cert.getAcmeCertSan())) {
+                    for (String d : cert.getAcmeCertSan().split(",")) {
+                        if (StringUtils.isNotEmpty(d.trim())) {
+                            required.add(stripWildcard(d.trim()));
+                        }
+                    }
+                }
+                domainsCovered = !required.isEmpty() && required.stream().allMatch(d -> certDomains.stream()
+                        .anyMatch(cd -> cd.equals(d) || cd.endsWith("." + d) || d.endsWith("." + cd)));
+            } catch (Exception e) {
+                messages.add("域名覆盖解析失败");
+            }
+        }
+        if (StringUtils.isNotEmpty(cert.getAcmeCertPrimaryDomain()) && !domainsCovered) {
+            messages.add("证书域名未覆盖申请域名");
+        }
+
+        // 4) 私钥与证书公钥匹配：从 key_pem 提取密钥，与证书公钥比对
+        if (StringUtils.isNotEmpty(cert.getAcmeCertKeyPem())) {
+            try {
+                java.security.PrivateKey privateKey = parsePrivateKey(cert.getAcmeCertKeyPem());
+                if (privateKey != null && chain != null && !chain.isEmpty()) {
+                    privateKeyMatches = publicKeysMatch(privateKey, chain.get(0).getPublicKey());
+                } else {
+                    messages.add("私钥 PEM 无法解析");
+                }
+            } catch (Exception e) {
+                messages.add("私钥解析失败: " + e.getMessage());
+            }
+        } else {
+            messages.add("缺少私钥 PEM");
+        }
+        if (!pemParsable || !inValidWindow || !domainsCovered || !privateKeyMatches) {
+            messages.add(0, "证书合法性校验未通过");
+        }
+        // 吊销即视为不合法
+        if (revoked) {
+            messages.add("证书已吊销");
+        }
+
+        String fullMessage = String.join("；", messages);
+        boolean overallValid = pemParsable && inValidWindow && domainsCovered && privateKeyMatches && chainComplete && !revoked;
+        return new AcmeCertificateDetailVo.CertificateVerification(
+                pemParsable, inValidWindow, domainsCovered, privateKeyMatches, chainComplete, revoked,
+                fullMessage.isEmpty() ? "证书合法" : fullMessage);
+    }
+
+    /**
+     * 解析 PEM 格式的证书链，返回证书列表（首个为叶子证书）。
+     */
+    private List<java.security.cert.X509Certificate> parsePemCertificates(String pem) {
+        if (StringUtils.isEmpty(pem)) {
+            return null;
+        }
+        List<java.security.cert.X509Certificate> result = new ArrayList<>();
+        try {
+            java.security.cert.CertificateFactory factory = java.security.cert.CertificateFactory.getInstance("X.509");
+            byte[] der = pemToDer(pem, "-----BEGIN CERTIFICATE-----", "-----END CERTIFICATE-----");
+            if (der == null) {
+                return null;
+            }
+            java.util.Collection<? extends java.security.cert.Certificate> certs = factory.generateCertificates(new java.io.ByteArrayInputStream(der));
+            for (java.security.cert.Certificate c : certs) {
+                if (c instanceof java.security.cert.X509Certificate x) {
+                    result.add(x);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("[ACME] 解析证书链失败: {}", e.getMessage());
+            return null;
+        }
+        return result;
+    }
+
+    /**
+     * 解析 PEM 格式的私钥（支持 PKCS#8 / PKCS#1 RSA / EC）。
+     */
+    private java.security.PrivateKey parsePrivateKey(String pem) {
+        try {
+            byte[] der = pemToDer(pem,
+                    "-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----");
+            if (der == null) {
+                byte[] pkcs1 = pemToDer(pem,
+                        "-----BEGIN RSA PRIVATE KEY-----", "-----END RSA PRIVATE KEY-----");
+                if (pkcs1 == null) {
+                    byte[] ec = pemToDer(pem,
+                            "-----BEGIN EC PRIVATE KEY-----", "-----END EC PRIVATE KEY-----");
+                    if (ec == null) {
+                        return null;
+                    }
+                    try {
+                        java.security.KeyFactory kf = java.security.KeyFactory.getInstance("EC");
+                        return kf.generatePrivate(new java.security.spec.PKCS8EncodedKeySpec(ec));
+                    } catch (Exception e) {
+                        org.bouncycastle.openssl.PEMParser parser = new org.bouncycastle.openssl.PEMParser(
+                                new java.io.StringReader(pem));
+                        Object obj = parser.readObject();
+                        if (obj instanceof org.bouncycastle.asn1.pkcs.PrivateKeyInfo pki) {
+                            return java.security.KeyFactory.getInstance("EC")
+                                    .generatePrivate(new java.security.spec.PKCS8EncodedKeySpec(pki.getEncoded()));
+                        }
+                        return null;
+                    }
+                }
+                java.security.KeyFactory kf = java.security.KeyFactory.getInstance("RSA");
+                try {
+                    java.security.spec.PKCS8EncodedKeySpec spec = new java.security.spec.PKCS8EncodedKeySpec(pkcs1);
+                    return kf.generatePrivate(spec);
+                } catch (Exception e) {
+                    // PKCS#1 直接转 PKCS#8
+                    org.bouncycastle.asn1.pkcs.RSAPrivateKey rsa = org.bouncycastle.asn1.pkcs.RSAPrivateKey
+                            .getInstance(org.bouncycastle.asn1.ASN1Primitive.fromByteArray(pkcs1));
+                    org.bouncycastle.asn1.pkcs.PrivateKeyInfo pki = new org.bouncycastle.asn1.pkcs.PrivateKeyInfo(
+                            new org.bouncycastle.asn1.x509.AlgorithmIdentifier(
+                                    org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers.rsaEncryption),
+                            rsa);
+                    return kf.generatePrivate(new java.security.spec.PKCS8EncodedKeySpec(pki.getEncoded()));
+                }
+            }
+            return java.security.KeyFactory.getInstance("RSA").generatePrivate(new java.security.spec.PKCS8EncodedKeySpec(der));
+        } catch (Exception e) {
+            log.warn("[ACME] 解析私钥失败: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 校验私钥对应公钥与证书公钥是否匹配：用私钥对固定消息签名、再由证书公钥验签。
+     * <p>对 RSA / EC 都成立（SHA256withRSA / SHA256withECDSA），避免解析 EC 公钥点时的
+     * 编解码脆弱性。</p>
+     */
+    private boolean publicKeysMatch(java.security.PrivateKey privateKey, java.security.PublicKey certPublicKey) {
+        try {
+            String alg = privateKey.getAlgorithm();
+            String sigAlg = "EC".equalsIgnoreCase(alg) ? "SHA256withECDSA" : "SHA256withRSA";
+            byte[] data = "acme-cert-key-match-check".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            java.security.Signature signer = java.security.Signature.getInstance(sigAlg);
+            signer.initSign(privateKey);
+            signer.update(data);
+            byte[] signature = signer.sign();
+
+            java.security.Signature verifier = java.security.Signature.getInstance(sigAlg);
+            verifier.initVerify(certPublicKey);
+            verifier.update(data);
+            return verifier.verify(signature);
+        } catch (Exception e) {
+            log.warn("[ACME] 私钥/证书公钥匹配校验失败: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 提取证书 CN。
+     */
+    private String extractCn(String dn) {
+        if (StringUtils.isEmpty(dn)) {
+            return null;
+        }
+        for (String part : dn.split(",")) {
+            String t = part.trim();
+            if (t.regionMatches(true, 0, "CN=", 0, 3)) {
+                return t.substring(3).trim();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 去除通配符前缀（*.example.com -> example.com），用于域名匹配。
+     */
+    private String stripWildcard(String domain) {
+        return domain != null && domain.startsWith("*.") ? domain.substring(2) : domain;
+    }
+
+    /**
+     * 从 PEM 文本中提取 Base64 DER 块。
+     */
+    private byte[] pemToDer(String pem, String begin, String end) {
+        int b = pem.indexOf(begin);
+        int e = pem.indexOf(end, b + begin.length());
+        if (b < 0 || e < 0) {
+            return null;
+        }
+        String base64 = pem.substring(b + begin.length(), e).replaceAll("\\s+", "");
+        return java.util.Base64.getDecoder().decode(base64);
     }
 
     /**

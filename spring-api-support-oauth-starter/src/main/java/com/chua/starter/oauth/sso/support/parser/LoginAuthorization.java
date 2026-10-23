@@ -9,6 +9,7 @@ import com.chua.starter.common.support.utils.IpUtils;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.system.service.SysUserLogService;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
+import com.chua.starter.oauth.sso.support.core.AuthCoreService;
 import com.chua.starter.oauth.sso.support.information.LoginAuthInformation;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.entity.system.SysUserLog;
@@ -38,7 +39,7 @@ public final class LoginAuthorization implements Authorization {
     private final SysUserLogService sysUserLogService; // sys用户日志服务
     private final IptablesService iptablesService; // iptables服务
     final ApplicationContext applicationContext; // application上下文
-    final LoginCheck loginCheck; // login检查
+    private final AuthCoreService authCoreService; // 认证核心服务
     private final LoginAuthInformation authInformation; // 认证信息
 
     public LoginAuthorization(LoginAuthInformation authInformation,
@@ -51,7 +52,7 @@ public final class LoginAuthorization implements Authorization {
                               AuthServerProperties authServerProperties,
                               SysUserLogService sysUserLogService,
                               ApplicationContext applicationContext,
-                              LoginCheck loginCheck) {
+                              AuthCoreService authCoreService) {
         this.authInformation = authInformation;
         this.username = username;
         this.password = password;
@@ -62,7 +63,7 @@ public final class LoginAuthorization implements Authorization {
         this.authServerProperties = authServerProperties;
         this.sysUserLogService = sysUserLogService;
         this.applicationContext = applicationContext;
-        this.loginCheck = loginCheck;
+        this.authCoreService = authCoreService;
  // 可选注入 iptables服务（用于 IP 归属地解析）
         IptablesService iptSvc = null;
         try {
@@ -75,12 +76,16 @@ public final class LoginAuthorization implements Authorization {
     public ReturnResult<String> authentication() {
         long startTime = System.currentTimeMillis();
         String traceId = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16);
-        String clientAddress = MapUtils.getString(this.ext, "address");
+        // 优先使用传输层/可信代理解析出的地址；ext.address 由调用方自填，仅作兜底
+        String clientAddress = authInformation.resolveTrustedClientAddress();
+        if (com.chua.common.support.utils.StringUtils.isBlank(clientAddress)) {
+            clientAddress = MapUtils.getString(this.ext, "address");
+        }
 
         log.info("[LOGIN][traceId={}] 开始: user={}, type={}, app={}, ip={}",
                 traceId, username, loginType, appName, clientAddress);
 
-        ReturnResult<LoginResult> returnResult = loginCheck.doLogin(clientAddress,
+        ReturnResult<LoginResult> returnResult = authCoreService.login(clientAddress,
                 username,
                 password,
                 loginType,

@@ -52,6 +52,15 @@ public class SysMenuController {
     private static final String POSITION_TOP = "top";
 
     /**
+     * 菜单位置：底部（侧边栏底部入口，强制 remind=1）
+     *
+     * <p>与 top 同一机制：都靠 {@code sys_menu_remind=1} 脱离侧边栏菜单树
+     * （前端 generateRoutes 的 visibleOnly 会把这类节点连同子树一起剪掉），
+     * 只是由主题分别渲染到顶栏 / 侧边栏底部。</p>
+     */
+    private static final String POSITION_FOOTER = "footer";
+
+    /**
      * sysmenu服务
     */
     private final SysMenuService sysMenuService;
@@ -164,7 +173,11 @@ public class SysMenuController {
     }
 
     /**
-     * 归一化菜单位置：默认 standard；top(顶部) 强制脱离菜单控制（remind=1 且不可修改）
+     * 归一化菜单位置：默认 standard；
+     * top(顶部) / footer(侧边栏底部) 强制脱离菜单控制（remind=1 且不可修改）。
+     *
+     * <p>注意：这里是位置取值的<strong>唯一白名单</strong>。不在白名单里的值会被改写回
+     * standard，所以新增位置（如本方法的 footer）必须同步加分支，否则前端传来也会被吞掉。</p>
      *
      * @param sysMenu 菜单
      */
@@ -177,8 +190,15 @@ public class SysMenuController {
             sysMenu.setSysMenuPosition(POSITION_STANDARD);
             return;
         }
-        if (POSITION_TOP.equalsIgnoreCase(position.trim())) {
+        String normalized = position.trim();
+        if (POSITION_TOP.equalsIgnoreCase(normalized)) {
             sysMenu.setSysMenuPosition(POSITION_TOP);
+            sysMenu.setSysMenuRemind(1);
+            return;
+        }
+        if (POSITION_FOOTER.equalsIgnoreCase(normalized)) {
+            sysMenu.setSysMenuPosition(POSITION_FOOTER);
+            // 与 top 同理：脱离侧边栏菜单树，否则底部入口会在侧边栏里重复出现
             sysMenu.setSysMenuRemind(1);
             return;
         }

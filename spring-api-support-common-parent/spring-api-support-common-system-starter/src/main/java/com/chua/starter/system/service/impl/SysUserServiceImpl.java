@@ -18,6 +18,7 @@ import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.properties.AuthClientProperties;
+import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.system.mapper.SysUserMapper;
 import com.chua.starter.system.mapper.SysUserLogMapper;
 import com.chua.starter.system.mapper.SysUserPostMapper;
@@ -226,10 +227,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             return ReturnResult.illegal("系统账号不能删除");
         }
 
-        return ReturnResult.of(transactionTemplate.execute(status -> {
+        boolean removed = Boolean.TRUE.equals(transactionTemplate.execute(status -> {
             removeUserRelations(Collections.singletonList(userId));
             return baseMapper.physicalDeleteBatchIds(Collections.singletonList(userId)) > 0;
         }));
+        if (removed) {
+            // 删除后账号不再存在，按禁用处理：写黑名单并吊销全部会话
+            notifyOauthUserState(userId.intValue(), SystemConstant.USER_STATUS_DISABLED);
+        }
+        return ReturnResult.of(removed);
     }
 
     @Override
@@ -244,6 +250,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUser1.setSysUserPassword(PasswordUtils.encrypt(newPassword, sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
+        kickOauthUserSessions(userId.intValue());
         return ReturnResult.ok();
     }
 
@@ -259,6 +266,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUser1.setSysUserPassword(PasswordUtils.encrypt(password, sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
+        kickOauthUserSessions(userId.intValue());
         return ReturnResult.ok(password);
     }
 
@@ -279,6 +287,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUser1.setSysUserPassword(PasswordUtils.encrypt(password, sysUser1.getSysUserSalt()));
 
         updateById(sysUser1);
+        kickOauthUserSessions(userId.intValue());
         return ReturnResult.ok("密码重置成功");
     }
 
@@ -299,6 +308,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         // 内置 admin 超管账号：角色固定、拥有全部权限菜单，后端强制不允许修改其角色
         boolean isProtectedAdmin = AuthConstant.isBuiltinAdmin(sysUser1.getSysUserUsername());
+        // 禁用保护必须后置到服务端：前端的「不允许禁用自己」只是本地拦截，
+        // 绕过前端直接调 /v2/user/update 就能把唯一的管理账号锁在系统外。
+        if (null != sysUser.getSysUserStatus()
+                && sysUser.getSysUserStatus() == SystemConstant.USER_STATUS_DISABLED) {
+            if (isProtectedAdmin || isInSystem(sysUser1)) {
+                return ReturnResult.illegal("内置账号不允许禁用");
+            }
+            if (null != userId && Objects.equals(userId.intValue(), sysUser1.getSysUserId())) {
+                return ReturnResult.illegal("不允许禁用当前登录账号");
+            }
+        }
         // 角色绑定只开放给"管理员编辑他人账号"这条路径；自助更新资料不得改动角色，避免自行提权
         boolean mayChangeRole = null != sysUserId && AuthConstant.isAdmin(roles);
         boolean roleBindingChanges = false;
@@ -325,6 +345,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
 
         String originalEmail = sysUser1.getSysUserEmail();
+        // 记录变更前的状态/是否改密：用于更新成功后同步 OAuth 会话
+        Integer originalStatus = sysUser1.getSysUserStatus();
+        boolean passwordChanged = StringUtils.isNotBlank(sysUser.getSysUserPassword());
         BeanUtils.copyProperties(sysUser, sysUser1);
 
         if (StringUtils.isNotBlank(sysUser.getSysUserPassword())) {
@@ -383,6 +406,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             });
             userRoleCache.evict(sysUser1.getSysUserId());
             userStateCache.evict(sysUser1.getSysUserId());
+            // 状态翻转：同步 OAuth（禁用 = 黑名单 + 吊销全部会话；启用 = 移出黑名单）
+            if (!Objects.equals(originalStatus, sysUser1.getSysUserStatus())) {
+                notifyOauthUserState(sysUser1.getSysUserId(), sysUser1.getSysUserStatus());
+            }
+            // 管理员在编辑弹窗里改密：吊销该用户全部会话，旧令牌立即失效
+            if (passwordChanged) {
+                kickOauthUserSessions(sysUser1.getSysUserId());
+            }
             return ReturnResult.ok(updated);
         } finally {
             AuthClientExecute.getInstance().upgrade(null, UpgradeType.VERSION);
@@ -650,6 +681,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         try {
             updateById(sysUser);
+            // 改密后其它设备的旧令牌必须失效；当前会话保留（服务端按 token 剔除）
+            kickOauthOtherSessions();
             return ReturnResult.ok(sysUser);
         } finally {
             // 刷新OAuth用户会话信息
@@ -929,6 +962,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             removeUserRelations(userIds);
             return baseMapper.physicalDeleteBatchIds(userIds) > 0;
         });
+        if (success) {
+            userIds.stream()
+                    .filter(Objects::nonNull)
+                    .forEach(id -> notifyOauthUserState(id.intValue(), SystemConstant.USER_STATUS_DISABLED));
+        }
         return success ? ReturnResult.ok(true) : ReturnResult.error("删除失败");
     }
 
@@ -978,9 +1016,77 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .set(SysUser::getSysUserStatus, status)
                 .in(SysUser::getSysUserId, userIds));
         if (success) {
-            userStateCache.evict(userIds.stream().filter(Objects::nonNull).map(Long::intValue).collect(Collectors.toList()));
+            List<Integer> evictIds = userIds.stream()
+                    .filter(Objects::nonNull)
+                    .map(Long::intValue)
+                    .collect(Collectors.toList());
+            userStateCache.evict(evictIds);
+            // 同步 OAuth：禁用要吊销已签发令牌并写黑名单，否则旧 token 在其它服务仍可用
+            evictIds.forEach(userId -> notifyOauthUserState(userId, status));
         }
         return success ? ReturnResult.ok(true) : ReturnResult.error("更新失败");
+    }
+
+    /**
+     * 同步账号状态到 OAuth。
+     *
+     * <p>禁用 = 写入用户级黑名单 + 吊销该用户全部 access/refresh 令牌；启用 = 移出黑名单。
+     * 这样即使某个业务服务没有引入账号状态守卫拦截器，也无法继续使用被禁用账号的旧令牌，
+     * 且该账号无法靠 refreshToken 续期。</p>
+     *
+     * <p>认证服务不可用时只记日志、不回滚业务：账号状态已经落库，本服务的
+     * {@code UserStateGuardInterceptor} 仍会按库中状态拦截请求。</p>
+     *
+     * @param userId 用户标识
+     * @param status 目标状态：1 启用 / 0 禁用
+     */
+    private void notifyOauthUserState(Integer userId, Integer status) {
+        if (userId == null || status == null) {
+            return;
+        }
+        try {
+            if (status == SystemConstant.USER_STATUS_ENABLED) {
+                AuthClientExecute.getInstance().enableUser(String.valueOf(userId));
+            } else {
+                AuthClientExecute.getInstance().disableUser(String.valueOf(userId));
+            }
+        } catch (Exception e) {
+            log.warn("[SysUser] 同步 OAuth 账号状态失败: userId={}, status={}", userId, status, e);
+        }
+    }
+
+    /**
+     * 吊销指定用户的全部 OAuth 会话（管理员重置密码、删除账号等场景）。
+     *
+     * @param userId 用户标识
+     */
+    private void kickOauthUserSessions(Integer userId) {
+        if (userId == null) {
+            return;
+        }
+        try {
+            AuthClientExecute.getInstance().kickUserSessions(String.valueOf(userId));
+        } catch (Exception e) {
+            log.warn("[SysUser] 吊销 OAuth 会话失败: userId={}", userId, e);
+        }
+    }
+
+    /**
+     * 吊销当前用户除本令牌外的其它会话（用户自助改密场景）。
+     *
+     * <p>保留当前令牌是刻意的：改密成功后用户应该继续留在页面上，
+     * 只有其它设备需要重新登录。</p>
+     */
+    private void kickOauthOtherSessions() {
+        try {
+            UserResult current = AuthClientExecute.getInstance().getUserResult();
+            if (current == null || StringUtils.isBlank(current.getToken())) {
+                return;
+            }
+            AuthClientExecute.getInstance().kickOtherSessions(current.getToken());
+        } catch (Exception e) {
+            log.warn("[SysUser] 吊销其它设备会话失败", e);
+        }
     }
 }
 
