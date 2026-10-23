@@ -207,10 +207,8 @@ public class OauthProtocolDecoder {
         if (!success) {
             return false;
         }
-        if (!authServerProperties.isSignVerify()) {
-            return true;
-        }
-        return SignUtils.verifyMd5Sign(this.bodyData, this.sign);
+        return com.chua.starter.oauth.sso.support.security.AuthSignVerifier
+                .verify(authServerProperties, this.bodyData, this.sign);
     }
 
     /**

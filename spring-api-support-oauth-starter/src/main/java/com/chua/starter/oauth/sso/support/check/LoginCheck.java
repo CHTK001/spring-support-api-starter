@@ -55,6 +55,19 @@ public class LoginCheck {
     private LoginAttemptService loginAttemptService;
 
     /**
+     * 用户信息服务解析结果缓存（按 authType）
+     *
+     * <p>每次登录都遍历 Spring 容器里的 UserInfoService 是 O(n) 的，且结果在运行期稳定，
+     * 这里缓存首次解析结果。</p>
+     */
+    private final java.util.Map<String, UserInfoService> userInfoServiceCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * 令牌解析器解析结果缓存（按 tokenManagement）
+     */
+    private final java.util.Map<String, TokenResolver> tokenResolverCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
      * 创建 login检查 实例
      * @param authServerProperties 认证服务端属性
      */
@@ -226,6 +239,27 @@ public class LoginCheck {
      * @return 用户信息服务实现
      */
     private UserInfoService resolveUserInfoService(String authType) {
+        if (StringUtils.isBlank(authType)) {
+            return null;
+        }
+        UserInfoService cached = userInfoServiceCache.get(authType);
+        if (cached != null) {
+            return cached;
+        }
+        UserInfoService resolved = doResolveUserInfoService(authType);
+        if (resolved != null) {
+            userInfoServiceCache.put(authType, resolved);
+        }
+        return resolved;
+    }
+
+    /**
+     * 从 Spring 容器 / SPI 解析用户信息服务。
+     *
+     * @param authType 认证类型
+     * @return 用户信息服务实现
+     */
+    private UserInfoService doResolveUserInfoService(String authType) {
         if (applicationContext != null) {
             for (UserInfoService service : applicationContext.getBeansOfType(UserInfoService.class).values()) {
                 Spi spi = service.getClass().getAnnotation(Spi.class);
@@ -251,6 +285,27 @@ public class LoginCheck {
      * @return 令牌解析器实现
      */
     public TokenResolver resolveTokenResolver(String tokenManagement) {
+        if (StringUtils.isBlank(tokenManagement)) {
+            return null;
+        }
+        TokenResolver cached = tokenResolverCache.get(tokenManagement);
+        if (cached != null) {
+            return cached;
+        }
+        TokenResolver resolved = doResolveTokenResolver(tokenManagement);
+        if (resolved != null) {
+            tokenResolverCache.put(tokenManagement, resolved);
+        }
+        return resolved;
+    }
+
+    /**
+     * 从 Spring 容器 / SPI 解析令牌解析器。
+     *
+     * @param tokenManagement 令牌管理类型
+     * @return 令牌解析器实现
+     */
+    private TokenResolver doResolveTokenResolver(String tokenManagement) {
         if (applicationContext != null) {
             for (TokenResolver resolver : applicationContext.getBeansOfType(TokenResolver.class).values()) {
                 Spi spi = resolver.getClass().getAnnotation(Spi.class);
@@ -452,14 +507,14 @@ public class LoginCheck {
                 return null;
             }
 
-            UserInfoService userInfoService = ServiceProvider.of(UserInfoService.class).getExtension(loginType);
+            UserInfoService userInfoService = resolveUserInfoService(loginType);
             if (null == userInfoService) {
                 log.warn("未找到匹配的 UserInfoService: loginType={}", loginType);
                 return null;
             }
 
-            Object value = ReflectUtils.invoke(userInfoService, "authVersion", Object.class, UserResult.class, userResult);
-            return value == null ? null : value.toString();
+            // 契约方法，不再用反射探测（实现类漏写方法时编译期即可发现）
+            return userInfoService.authVersion(userResult);
         } catch (Exception e) {
             log.error("获取认证版本异常", e);
             return null;
