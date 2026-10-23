@@ -12,6 +12,7 @@ import com.chua.common.support.utils.ThreadUtils;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.socketio.support.constant.SocketTopics;
 import com.chua.ssh.support.client.SshClient;
+import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.monitor.entity.MonitorAcmeAccount;
 import com.chua.starter.monitor.entity.MonitorAcmeCertificate;
 import com.chua.starter.monitor.entity.MonitorAcmeOrder;
@@ -21,6 +22,10 @@ import com.chua.starter.monitor.mapper.MonitorAcmeOrderMapper;
 import com.chua.starter.monitor.pojo.acme.AcmeApplyCertRequest;
 import com.chua.starter.monitor.properties.AcmeProperties;
 import com.chua.starter.monitor.service.acme.support.AcmeCertificateSupport;
+import com.chua.starter.server.support.entity.MsServerHost;
+import com.chua.starter.server.support.mapper.MsServerHostMapper;
+import com.chua.starter.server.support.model.SshCredential;
+import com.chua.starter.server.support.service.ServerHostService;
 import com.chua.starter.service.utils.ProtocolClientSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,6 +80,16 @@ public class AcmeCertificateAsyncService {
     private final AcmeChallengeService challengeService;
 
     /**
+     * 主机资产服务：SSH 部署时按 sshHostId 解析主机凭据（地址/端口/用户名/密码或密钥）
+     */
+    private final ServerHostService serverHostService;
+
+    /**
+     * 主机资产映射器：取主机地址与端口补充解析结果
+     */
+    private final MsServerHostMapper hostMapper;
+
+    /**
      * 时间格式化器
      */
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -123,6 +138,12 @@ public class AcmeCertificateAsyncService {
                         pushMessage(userId, "证书申请失败", "ACME 服务提供者不可用，请检查系统配置", "error", certId, request.primaryDomain());
                         return;
                     }
+
+                    // 应用账户级网络请求超时（默认 60s），避免 acme4j 默认 10s 在公网 CA 慢握手时超时
+                    provider.setTimeout(java.time.Duration.ofSeconds(
+                            account.getAcmeAccountTimeoutSeconds() == null
+                                    ? AcmeCertificateSupport.DEFAULT_TIMEOUT_SECONDS
+                                    : account.getAcmeAccountTimeoutSeconds()));
 
                     try {
                         // 连接 ACME 服务器
@@ -297,8 +318,11 @@ public class AcmeCertificateAsyncService {
      * @return 是否部署成功
      */
     private boolean deploySshChallengeFiles(AcmeApplyCertRequest request, List<AcmeValidationInfo> validationInfos) {
-        if (StringUtils.isEmpty(request.sshHost()) || StringUtils.isEmpty(request.sshUsername())) {
-            log.error("[ACME-ASYNC] SSH连接信息不完整");
+        // 优先按主机资产解析凭据：前端只需选主机，地址/端口/用户名/密码由后端取自主机绑定的登录身份
+        SshTarget target = resolveSshTarget(request);
+        if (target == null) {
+            log.error("[ACME-ASYNC] SSH连接信息不完整: sshHostId={}, sshHost={}, sshUsername={}",
+                    request.sshHostId(), request.sshHost(), request.sshUsername());
             return false;
         }
         if (StringUtils.isEmpty(request.webrootPath())) {
@@ -311,14 +335,15 @@ public class AcmeCertificateAsyncService {
         try {
             // 创建 SSH 连接
             ClientSetting setting = ClientSetting.builder()
-                    .host(request.sshHost())
-                    .port(request.sshPort() != null ? request.sshPort() : 22)
-                    .username(request.sshUsername())
-                    .password(request.sshPassword())
+                    .host(target.host())
+                    .port(target.port())
+                    .username(target.username())
+                    .password(target.password())
                     .connectTimeout(30000)
                     .build();
             sshClient = ProtocolClientSupport.create(clientId, SshClient.class, setting);
-            log.info("[ACME-ASYNC] SSH连接成功: {}@{}", request.sshUsername(), request.sshHost());
+            log.info("[ACME-ASYNC] SSH连接成功: {}@{}{}", target.username(), target.host(),
+                    request.sshHostId() != null ? " (主机 #" + request.sshHostId() + ")" : "");
 
             String webroot = request.webrootPath();
             // 创建验证目录
@@ -349,6 +374,74 @@ public class AcmeCertificateAsyncService {
                 }
             }
         }
+    }
+
+    /**
+     * 解析 SSH 部署目标。
+     *
+     * <p>优先按 {@code sshHostId}（主机资产）取凭据：主机记录里已经绑定了登录身份
+     * （用户名 + 密码/密钥）与端口，前端选了主机就不该再让用户重复填写一遍，
+     * 更不该把密码明文塞进请求体。仅当未传主机 ID、或主机凭据解析失败时，
+     * 才回落到请求里显式给出的字段（兼容旧调用方与「手填一台临时机器」的场景）。</p>
+     *
+     * @param request 申请请求
+     * @return 可用于建连的目标；信息不足返回 null
+     */
+    private SshTarget resolveSshTarget(AcmeApplyCertRequest request) {
+        Long hostId = request.sshHostId();
+        if (hostId != null) {
+            try {
+                ReturnResult<SshCredential> resolved = serverHostService.resolveCredential(hostId, null);
+                if (resolved != null && resolved.isOk() && resolved.getData() != null) {
+                    SshCredential credential = resolved.getData();
+                    MsServerHost host = hostMapper.selectById(hostId);
+                    String address = request.sshHost();
+                    if (StringUtils.isEmpty(address) && host != null) {
+                        address = host.getServerHostAddress();
+                    }
+                    Integer port = request.sshPort();
+                    if (port == null && host != null && host.getServerHostPort() != null) {
+                        port = host.getServerHostPort();
+                    }
+                    String username = StringUtils.isNotEmpty(credential.username())
+                            ? credential.username() : request.sshUsername();
+                    String password = StringUtils.isNotEmpty(credential.password())
+                            ? credential.password() : request.sshPassword();
+                    if (StringUtils.isEmpty(password) && credential.hasKey()) {
+                        // 当前 SSH 客户端仅支持口令认证，密钥身份无法在此通道使用，提前给出明确原因
+                        log.error("[ACME-ASYNC] 主机 #{} 使用密钥认证，SSH 部署验证文件仅支持口令身份", hostId);
+                        return null;
+                    }
+                    if (StringUtils.isNotEmpty(address) && StringUtils.isNotEmpty(username)) {
+                        return new SshTarget(address, port == null ? 22 : port, username, password);
+                    }
+                    log.warn("[ACME-ASYNC] 主机 #{} 凭据解析结果不完整: address={}, username={}", hostId, address, username);
+                } else if (resolved != null) {
+                    log.warn("[ACME-ASYNC] 解析主机 #{} 凭据失败: {}", hostId, resolved.getMsg());
+                }
+            } catch (Exception e) {
+                log.warn("[ACME-ASYNC] 解析主机 #{} 凭据异常: {}", hostId, e.getMessage());
+            }
+        }
+        // 回落到请求里显式给出的 SSH 字段
+        if (StringUtils.isNotEmpty(request.sshHost()) && StringUtils.isNotEmpty(request.sshUsername())) {
+            return new SshTarget(request.sshHost(),
+                    request.sshPort() == null ? 22 : request.sshPort(),
+                    request.sshUsername(),
+                    request.sshPassword());
+        }
+        return null;
+    }
+
+    /**
+     * 解析后的 SSH 部署目标。
+     *
+     * @param host     主机地址
+     * @param port     端口
+     * @param username 用户名
+     * @param password 口令
+     */
+    private record SshTarget(String host, int port, String username, String password) {
     }
 
     /**
@@ -419,6 +512,40 @@ public class AcmeCertificateAsyncService {
                         AcmeCertificateResult certResult;
                         if (latestOrder != null && StringUtils.isNotEmpty(latestOrder.getAcmeOrderUrl())) {
                             certResult = provider.resumeCertificate(latestOrder.getAcmeOrderUrl(), domains, challenge);
+                            // 历史订单已失效（如授权过期 Authorization expired、订单已作废），恢复必然失败，
+                            // 改为重新下单，否则订单永远无法推进，证书会一直卡在「验证中」
+                            if (!certResult.isSuccess() && isOrderUnrecoverable(certResult.getError())) {
+                                log.warn("[ACME-ASYNC] 历史订单不可恢复，改为重新下单: certId={}, orderUrl={}, err={}",
+                                        certId, latestOrder.getAcmeOrderUrl(), certResult.getError());
+                                pushMessage(userId, "正在重新验证", "历史订单已失效，正在重新下单...", "info", certId, cert.getAcmeCertPrimaryDomain());
+
+                                // 旧订单标记失效，保留历史记录
+                                latestOrder.setAcmeOrderStatus(AcmeCertificateSupport.ORDER_STATUS_INVALID);
+                                orderMapper.updateById(latestOrder);
+
+                                // 重新下单：先取验证信息（会创建新订单），落库新订单后再提交
+                                List<AcmeValidationInfo> validationInfos = provider.getValidationInfo(domains, challenge);
+                                MonitorAcmeOrder newOrder = new MonitorAcmeOrder();
+                                newOrder.setAcmeAccountId(account.getAcmeAccountId());
+                                newOrder.setAcmeCertId(certId);
+                                newOrder.setAcmeOrderStatus(AcmeCertificateSupport.STATUS_VALIDATING);
+                                newOrder.setAcmeOrderUrl(AcmeCertificateSupport.resolveOrderUrl(validationInfos));
+                                newOrder.setAcmeAuthzUrls(AcmeCertificateSupport.toValidationJson(validationInfos));
+                                orderMapper.insert(newOrder);
+                                latestOrder = newOrder;
+
+                                // 本机模式下重新下单的 token 需重新写入缓存，否则 CA 回查验证文件会 404
+                                String deployMode = StringUtils.defaultString(cert.getAcmeCertDeployMode(), AcmeCertificateSupport.DEPLOY_MODE_MANUAL);
+                                if (AcmeCertificateSupport.DEPLOY_MODE_LOCAL.equals(deployMode)) {
+                                    for (AcmeValidationInfo info : validationInfos) {
+                                        if (AcmeCertificateSupport.CHALLENGE_HTTP_01.equals(info.challengeType())
+                                                && StringUtils.isNotEmpty(info.token())) {
+                                            challengeService.put(info.token(), info.httpContent());
+                                        }
+                                    }
+                                }
+                                certResult = provider.requestCertificate(domains, challenge);
+                            }
                         } else {
                             log.warn("[ACME-ASYNC] 未找到历史订单地址，回退为重新下单: certId={}", certId);
                             certResult = provider.requestCertificate(domains, challenge);
@@ -439,9 +566,15 @@ public class AcmeCertificateAsyncService {
                                     String.format("域名 %s 的 SSL 证书已成功签发", cert.getAcmeCertPrimaryDomain()),
                                     "success", certId, cert.getAcmeCertPrimaryDomain());
                         } else {
-                            cert.setAcmeCertStatus(AcmeCertificateSupport.STATUS_VALIDATING);
+                            // 无法完成时置为失败，避免停留在「验证中」造成永远等待的假象
+                            cert.setAcmeCertStatus(AcmeCertificateSupport.STATUS_FAILED);
                             cert.setAcmeCertLastError(AcmeCertificateSupport.shortMsg(certResult.getError()));
                             certificateMapper.updateById(cert);
+
+                            if (latestOrder != null && AcmeCertificateSupport.STATUS_VALIDATING.equals(latestOrder.getAcmeOrderStatus())) {
+                                latestOrder.setAcmeOrderStatus(AcmeCertificateSupport.ORDER_STATUS_INVALID);
+                                orderMapper.updateById(latestOrder);
+                            }
 
                             log.warn("[ACME-ASYNC] 重新验证失败: certId={}, err={}", certId, certResult.getError());
                             pushMessage(userId, "重新验证失败",
@@ -450,7 +583,7 @@ public class AcmeCertificateAsyncService {
                         }
                     } catch (Exception e) {
                         log.error("[ACME-ASYNC] 重新验证异常: certId={}", certId, e);
-                        updateCertStatus(cert, AcmeCertificateSupport.STATUS_VALIDATING, AcmeCertificateSupport.shortMsg(e));
+                        updateCertStatus(cert, AcmeCertificateSupport.STATUS_FAILED, AcmeCertificateSupport.shortMsg(e));
                         pushMessage(userId, "重新验证失败",
                                 String.format("验证异常: %s", AcmeCertificateSupport.shortMsg(e)),
                                 "error", certId, cert.getAcmeCertPrimaryDomain());
@@ -458,5 +591,26 @@ public class AcmeCertificateAsyncService {
                         provider.close();
                     }
                 });
+    }
+
+    /**
+     * 判断历史订单错误是否属于「订单已不可恢复」——此类错误继续恢复同一订单永远不会成功，
+     * 必须重新下单才能推进流程。
+     *
+     * @param error 恢复订单返回的错误信息
+     * @return true 表示订单已失效，需要重新下单
+     */
+    private boolean isOrderUnrecoverable(String error) {
+        if (StringUtils.isEmpty(error)) {
+            return false;
+        }
+        String msg = error.toLowerCase();
+        return msg.contains("authorization expired")
+                || msg.contains("order not found")
+                || msg.contains("no such order")
+                || msg.contains("expired")
+                || msg.contains("already final")
+                || msg.contains("order is not pending")
+                || msg.contains("malformed");
     }
 }

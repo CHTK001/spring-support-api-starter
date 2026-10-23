@@ -14,6 +14,7 @@ import com.chua.common.support.spi.ServiceProvider;
 import com.chua.kcp.support.server.KcpServer;
 import com.chua.rsocket.support.server.RSocketServer;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
+import com.chua.starter.oauth.sso.support.core.AuthCoreService;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.properties.OauthProtocolServersProperties;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +70,11 @@ public class OauthProtocolServerManager implements AutoCloseable {
     private final LoginCheck loginCheck;
 
     /**
+     * 认证核心服务（登录/升级/登出统一入口）
+     */
+    private final AuthCoreService authCoreService;
+
+    /**
      * 创建 oauth协议服务端管理器 实例
      * @param properties 属性
      * @param authServerProperties 认证服务端属性
@@ -76,10 +82,12 @@ public class OauthProtocolServerManager implements AutoCloseable {
      */
     public OauthProtocolServerManager(OauthProtocolServersProperties properties,
                                       AuthServerProperties authServerProperties,
-                                      LoginCheck loginCheck) {
+                                      LoginCheck loginCheck,
+                                      AuthCoreService authCoreService) {
         this.properties = properties;
         this.authServerProperties = authServerProperties;
         this.loginCheck = loginCheck;
+        this.authCoreService = authCoreService;
         log.info("[OauthProtocolServer] 配置绑定: protocols={}",
                 properties != null && properties.getProtocols() != null
                         ? properties.getProtocols().size() : 0);
@@ -89,6 +97,10 @@ public class OauthProtocolServerManager implements AutoCloseable {
      * 启动所有启用的协议 服务端
      */
     public void startAll() {
+        if (!properties.isEnabled()) {
+            log.warn("[OauthProtocolServer] plugin.oauth.protocol-server.enabled=false，跳过所有协议 Server 启动");
+            return;
+        }
         var protocols = properties.getProtocols();
         if (protocols == null || protocols.isEmpty()) {
             log.info("[OauthProtocolServer] 未配置 protocols,使用默认 HTTP Server");
@@ -127,7 +139,13 @@ public class OauthProtocolServerManager implements AutoCloseable {
 
         var server = createServer(config.getType(), setting);
         // 注册 OAuth 认证路由(独立 UrlMappingServerFilter,避免依赖 Server 内部 urlMappingFilter 的初始化顺序)
-        var handler = new OauthProtocolHandler(authServerProperties, loginCheck);
+        boolean requireSign = resolveRequireSign(config);
+        if (!requireSign && !isLoopback(config.getHost())) {
+            log.warn("[OauthProtocolServer] {} 监听 {}:{} 但未要求请求签名（TCP/KCP/RSocket 暂无签名头），"
+                            + "认证入口缺少请求真实性校验，请用网络 ACL 限制来源，或补齐签名后开启 require-sign",
+                    config.getName(), config.getHost(), config.getPort());
+        }
+        var handler = new OauthProtocolHandler(authServerProperties, loginCheck, authCoreService, requireSign);
         // TCP 帧协议(TcpServer 接口):帧格式为 topic:body(如 login:{...} 或 verify:{...}),
  // 无 topic 前缀时默认 login,兼容旧版纯 主体 帧
         if (server instanceof com.chua.common.support.network.tcp.TcpServer tcpServer) {
@@ -313,7 +331,40 @@ public class OauthProtocolServerManager implements AutoCloseable {
         config.setPort(DEFAULT_PORT);
         config.setEnable(true);
         config.setContextPath(DEFAULT_CONTEXT_PATH);
+        // 默认 HTTP 入口必须校验签名：客户端 HttpProtocol 本来就带 x-oauth-sign
+        config.setRequireSign(Boolean.TRUE);
         return config;
+    }
+
+    /**
+     * 解析该协议是否强制校验签名。
+     *
+     * <p>未显式配置时：HTTP 默认要求（客户端本来就带签名），
+     * TCP/KCP/RSocket 默认不要求（当前没有承载签名头的通道）。</p>
+     *
+     * @param config 协议配置
+     * @return 是否要求签名
+     */
+    private boolean resolveRequireSign(OauthProtocolServersProperties.ProtocolServer config) {
+        if (null != config.getRequireSign()) {
+            return config.getRequireSign();
+        }
+        String protocol = config.getProtocol();
+        return "http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol);
+    }
+
+    /**
+     * 是否回环地址。
+     *
+     * @param host 主机
+     * @return 回环返回 true
+     */
+    private boolean isLoopback(String host) {
+        if (null == host) {
+            return false;
+        }
+        String value = host.trim();
+        return "127.0.0.1".equals(value) || "localhost".equalsIgnoreCase(value) || "::1".equals(value);
     }
 
     /**
@@ -411,7 +462,9 @@ public class OauthProtocolServerManager implements AutoCloseable {
          * 获取远程地址
         */
         public String getRemoteAddress() {
-            return LOCALHOST;
+            // 消息型协议在这一层拿不到对端 IP；返回 null 表示「地址不可信/不可用」，
+            // 避免把所有人当成 127.0.0.1 落进同一个限流桶（那会变成全局限流）
+            return null;
         }
 
         @Override

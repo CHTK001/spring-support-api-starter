@@ -102,6 +102,6 @@ public class UpgradeAuthInformation extends BaseAuthInformation {
                 MapUtils.getString(this.getBodyData(), "x-oauth-refresh-token"),
                 MapUtils.getString(this.getBodyData(), "x-oauth-upgrade-type"),
                 applicationContext,
-                loginCheck);
+                applicationContext.getBean(com.chua.starter.oauth.sso.support.core.AuthCoreService.class));
     }
 }

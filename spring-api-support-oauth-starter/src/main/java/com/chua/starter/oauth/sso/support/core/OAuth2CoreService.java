@@ -73,15 +73,21 @@ public class OAuth2CoreService {
     private static final String PKCE_METHOD_PLAIN = "plain";
 
     /**
-     * 默认允许的所有 scope
+     * 默认允许的 scope
+     *
+     * <p><b>不含 admin/write</b>：客户端未显式配置 scope 时，默认授予最小读权限。
+     * 早期默认集合包含 {@code admin}，等于「没配置 = 默认给管理权限」。</p>
      */
-    private static final Set<String> DEFAULT_SCOPES = Set.of("read", "write", "admin", "openid", "profile", "email");
+    private static final Set<String> DEFAULT_SCOPES = Set.of("read", "openid", "profile", "email");
 
     /**
-     * 默认允许的所有 grant_类型
+     * 默认允许的 grant_type
+     *
+     * <p><b>不含 password</b>：资源所有者密码模式已不推荐，且会把用户口令暴露给客户端。
+     * 需要兼容老客户端时应在具体 appId/appKey 上显式配置。</p>
      */
     private static final Set<String> DEFAULT_GRANT_TYPES = Set.of(
-            "client_credentials", "password", "authorization_code", "refresh_token"
+            "client_credentials", "authorization_code", "refresh_token"
     );
 
     /**
@@ -355,15 +361,25 @@ public class OAuth2CoreService {
             allowedUris = appKey.getSysAppKeyRedirectUris();
         }
         if (StringUtils.isBlank(allowedUris)) {
-            // 未配置回调地址限制，默认允许（兼容旧客户端）
-            log.warn("客户端未配置回调地址限制: clientId={}", clientId);
-            return true;
+            // fail-closed：没配置回调地址就等于「不知道允许回哪」，不能默认放行，
+            // 否则任何 client 都能把授权码带回自己的域名
+            log.warn("客户端未配置回调地址限制，拒绝授权码回调: clientId={}", clientId);
+            return false;
         }
 
-        Set<String> uriSet = parseScopes(allowedUris);
+        Set<String> uriSet = parseUriSet(allowedUris);
         for (String uri : uriSet) {
-            if (redirectUri.equals(uri) || redirectUri.startsWith(uri)) {
+            // 精确匹配优先：早期用 startsWith，https://app/cb 会放行 https://app/cb.evil.com
+            if (redirectUri.equals(uri)) {
                 return true;
+            }
+            // 仅支持显式通配：以 /* 结尾表示允许该路径前缀下的地址
+            if (uri.endsWith("/*")) {
+                String prefix = uri.substring(0, uri.length() - 1);
+                String remainder = redirectUri.startsWith(prefix) ? redirectUri.substring(prefix.length()) : null;
+                if (remainder != null && !remainder.contains("..")) {
+                    return true;
+                }
             }
         }
 
@@ -380,6 +396,29 @@ public class OAuth2CoreService {
         byte[] bytes = new byte[AUTH_CODE_LENGTH];
         secureRandom.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
+    /**
+     * 解析地址列表（逗号或空白分隔）。
+     *
+     * <p>与 {@link #parseScopes(String)} 分开：scope 统一小写没问题，
+     * 但回调地址的 path 大小写敏感，不能一起 lowerCase。</p>
+     *
+     * @param uriStr 原始配置
+     * @return 地址集合（保持原始大小写）
+     */
+    private Set<String> parseUriSet(String uriStr) {
+        if (StringUtils.isBlank(uriStr)) {
+            return Collections.emptySet();
+        }
+        Set<String> result = new LinkedHashSet<>();
+        for (String uri : uriStr.split("[,\\s]+")) {
+            String trimmed = uri.trim();
+            if (!trimmed.isEmpty()) {
+                result.add(trimmed);
+            }
+        }
+        return result;
     }
 
     /**

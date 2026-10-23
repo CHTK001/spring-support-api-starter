@@ -133,6 +133,6 @@ public class LoginAuthInformation extends BaseAuthInformation {
                 getAuthServerProperties(),
                 sysUserLogService,
                 applicationContext,
-                loginCheck);
+                applicationContext.getBean(com.chua.starter.oauth.sso.support.core.AuthCoreService.class));
     }
 }

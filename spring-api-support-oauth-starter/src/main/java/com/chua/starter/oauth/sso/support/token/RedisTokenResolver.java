@@ -70,6 +70,15 @@ public class RedisTokenResolver implements TokenResolver {
     private static final long DEFAULT_EXPIRE_SECONDS = 86400L;
 
     /**
+     * 在线用户列表单次最多读取的令牌数
+     *
+     * <p>在线列表目前是「SCAN 全量令牌 + 逐个 GET」实现的，成本随在线会话数线性增长。
+     * 这里加一个硬上限，避免管理页刷新把 Redis 打满；超过上限时结果会被截断并打 WARN。
+     * 根本解是维护 userId → token 索引，见后续改造项。</p>
+     */
+    private static final int ONLINE_USER_SCAN_LIMIT = 20_000;
+
+    /**
      * 令牌 解析结果本地缓存（Guava 缓存）
      * <p>
      * 用于减少高并发场景下对 Redis 的重复查询，缓存热点 令牌 的解析结果。
@@ -749,6 +758,34 @@ public class RedisTokenResolver implements TokenResolver {
      * @param type 类型
      */
     public void logout(String uid, LogoutType type) {
+        if (StringUtils.isBlank(uid)) {
+            return;
+        }
+        // 账号禁用/启用：uid = 用户 id。必须优先于令牌相关分支处理，
+        // 否则一个纯数字用户 id 会被当成「不存在的令牌」而静默成功。
+        if (type == LogoutType.DISABLE) {
+            disableUser(uid);
+            return;
+        }
+        if (type == LogoutType.ENABLE) {
+            enableUser(uid);
+            return;
+        }
+        // 改密后踢掉其它设备：uid = 当前令牌，保留它、吊销同用户的其它会话
+        if (type == LogoutType.KICK_OTHERS) {
+            kickOtherSessions(uid);
+            return;
+        }
+        if (type == LogoutType.KICK) {
+            // 兼容两种历史语义：老调用方传令牌，新调用方传用户 id
+            if (TokenBuilder.isAccessToken(uid) || TokenBuilder.isRefreshToken(uid)) {
+                kickByToken(uid);
+            } else {
+                kickAllSessions(uid);
+            }
+            return;
+        }
+
         if (type == LogoutType.UN_REGISTER || type == LogoutType.LOGOUT_ALL) {
  // uid 实际上是 令牌，优先从 令牌 结构中提取 用户id哈希（即使 令牌 已从 Redis 删除也能工作）
             String userIdHash = TokenBuilder.extractUserIdHash(uid);
@@ -777,19 +814,100 @@ public class RedisTokenResolver implements TokenResolver {
             } else {
                 deleteUserAllTokens(realUserId);
             }
+            // resolve 的本地缓存按令牌键存放：只删 Redis 不清这里，
+            // 本实例 15 秒内仍会把已注销的令牌判为「认证通过」
+            TOKEN_RESOLVE_CACHE.invalidateAll();
             return;
         }
 
         if (type == LogoutType.LOGOUT) {
  // 单个登出：uid 实际上是 令牌
             logout(uid);
+        }
+    }
+
+    /**
+     * 禁用账号：写入用户级黑名单并吊销其全部会话。
+     *
+     * <p>黑名单会被 {@code resolve} 与 {@code upgradeForRefresh} 读取，
+     * 因此被禁用账号即使还持有旧 refreshToken 也无法续出新令牌。
+     * 删除令牌是「立即失效」的主力，黑名单是「新令牌也签不出来」的兜底。</p>
+     *
+     * @param userId 用户标识（sys_user 主键）
+     */
+    private void disableUser(String userId) {
+        if (tokenBlacklistService != null) {
+            tokenBlacklistService.addUserToBlacklist(userId, "账号被禁用");
+        }
+        kickAllSessions(userId);
+        log.info("[DISABLE][userId={}] 已加入用户黑名单并吊销全部会话", userId);
+    }
+
+    /**
+     * 启用账号：移出用户级黑名单。
+     *
+     * @param userId 用户标识（sys_user 主键）
+     */
+    private void enableUser(String userId) {
+        if (tokenBlacklistService != null) {
+            tokenBlacklistService.removeUserFromBlacklist(userId);
+        }
+        log.info("[ENABLE][userId={}] 已移出用户黑名单", userId);
+    }
+
+    /**
+     * 按用户标识吊销全部会话。
+     *
+     * <p>令牌格式为 {@code AT{md5(userId)}{uidHash}{random}}，因此拿到用户 id
+     * 就能用 SCAN 前缀定位该用户的全部 access/refresh 令牌，不需要先持有其中任意一枚。</p>
+     *
+     * @param userId 用户标识（sys_user 主键）
+     */
+    private void kickAllSessions(String userId) {
+        deleteUserAllTokens(userId);
+        // resolve 的本地缓存按令牌键存放，删除令牌后必须整体失效，
+        // 否则 15 秒内 /verify 仍会返回缓存里的「认证通过」。
+        TOKEN_RESOLVE_CACHE.invalidateAll();
+        recordLogoutLogByUid(userId, DEFAULT_LOGIN_TYPE, LogoutType.KICK);
+        log.info("[KICK][userId={}] 已吊销该用户全部会话", userId);
+    }
+
+    /**
+     * 踢掉除当前令牌外的其它会话（改密场景）。
+     *
+     * @param keepToken 需要保留的当前 access 令牌
+     */
+    private void kickOtherSessions(String keepToken) {
+        Object s = stringRedisTemplate.opsForValue().get(TOKEN_PRE + keepToken);
+        UserResult userResult = toUserResult(s);
+        if (userResult == null || StringUtils.isBlank(userResult.getUserId())) {
+            log.warn("[KICK_OTHERS] 当前令牌不存在，跳过: token={}",
+                    keepToken.length() > 8 ? keepToken.substring(0, 8) : keepToken);
             return;
         }
-        
-        if (type == LogoutType.KICK) {
- // 踢下线：uid 实际上是 令牌
-            kickByToken(uid);
+        TOKEN_RESOLVE_CACHE.invalidateAll();
+        deleteUserAllTokens(userResult.getUserId(), keepToken, userResult.getRefreshToken());
+        recordLogoutLogByUid(userResult.getUserId(), DEFAULT_LOGIN_TYPE, LogoutType.KICK_OTHERS);
+        log.info("[KICK_OTHERS][userId={}] 已吊销其它设备会话，保留当前令牌", userResult.getUserId());
+    }
+
+    /**
+     * 把 Redis 中的令牌记录转换为 {@link UserResult}。
+     *
+     * @param value Redis 读出的原始值
+     * @return 用户结果，无法解析时返回 {@code null}
+     */
+    private UserResult toUserResult(Object value) {
+        if (value == null) {
+            return null;
         }
+        if (value instanceof UserResult userResult) {
+            return userResult;
+        }
+        if (value instanceof Map<?, ?> map) {
+            return BeanUtils.copyProperties((Object) map, UserResult.class);
+        }
+        return BeanUtils.copyProperties(value, UserResult.class);
     }
     
     /**
@@ -917,7 +1035,8 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         if (authServerProperties.isRenew()) {
-            resetExpire(userResult, token);
+            // 必须传 cv：cookie 认证时 token 参数为 null，传 token 会让续期静默失效
+            resetExpire(userResult, cv);
         }
 
         ReturnResult<UserResume> result = ReturnResult.ok(userResult);
@@ -971,6 +1090,10 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         UserResult userResult = BeanUtils.copyProperties(s, UserResult.class);
+        // 被禁用账号的会话即使还在缓存里也不允许再升级
+        if (tokenBlacklistService != null && tokenBlacklistService.isUserBlacklisted(userResult.getUserId())) {
+            return ReturnResult.error("账号已被禁用");
+        }
         String currentAuthVersion = resolveAuthVersion(userResult);
         String latestAuthVersion = loginCheck.getAuthVersion(userResult);
         if (StringUtils.isNotBlank(currentAuthVersion)
@@ -987,11 +1110,19 @@ public class RedisTokenResolver implements TokenResolver {
         }
 
         UserResume newUserResult = loginCheck.getUserInfo(userResult);
-        if (null == newUserResult || null == newUserResult.getUserId()) {
- // 无法获取新用户信息时，返回原有 用户结果（保持 令牌 不变）
+        if (null == newUserResult) {
+            // 认证服务不可用/异常：保留旧会话，优先保证可用性
             userResult.setToken(token);
             userResult.setRefreshToken(refreshToken);
             return ReturnResult.ok(userResult);
+        }
+        if (StringUtils.isNotBlank(newUserResult.getMessage()) || null == newUserResult.getUserId()) {
+            // 账号被禁用/删除时，UserInfoService.upgrade 返回的是「带 message、userId 为空」的结果，
+            // 早期这里当作临时失败回落到旧 userResult，等于让被禁用的会话继续有效。
+            String message = StringUtils.isNotBlank(newUserResult.getMessage())
+                    ? newUserResult.getMessage() : "账号状态异常，请重新登录";
+            log.warn("[Upgrade][VERSION] 拒绝已失效账号: userId={}, message={}", userResult.getUserId(), message);
+            return ReturnResult.error(message);
         }
 
  // 确保 令牌 字段被设置（无论 新用户结果 是 用户结果 还是 用户resume 子类）
@@ -1071,6 +1202,10 @@ public class RedisTokenResolver implements TokenResolver {
         }
         if (oldUserResult == null || StringUtils.isBlank(oldUserResult.getUserId())) {
             return ReturnResult.error("未认证");
+        }
+        // 账号被禁用后，旧 refreshToken 不得再续出新 accessToken
+        if (tokenBlacklistService != null && tokenBlacklistService.isUserBlacklisted(oldUserResult.getUserId())) {
+            return ReturnResult.error("账号已被禁用");
         }
 
  // 使用 令牌构建器 生成新的 access令牌（保持相同的 uid哈希）
@@ -1207,7 +1342,17 @@ public class RedisTokenResolver implements TokenResolver {
         long expire = userResume.getExpireTime() == null ? authServerProperties.getExpire() : userResume.getExpireTime();
         userResume.setExpireTime(expire);
         if (expire > 0) {
-            stringRedisTemplate.expire(token, Duration.ofSeconds(expire));
+            // 令牌在 Redis 中的键是 oauth:token:{token}，早期这里漏了 TOKEN_PRE 前缀，
+            // 续期永远打在一个不存在的键上，表现为「renew=true 也不续期」
+            String redisKey = TOKEN_PRE + token;
+            stringRedisTemplate.expire(redisKey, Duration.ofSeconds(expire));
+            // 同步刷新记录里的 expireTime，避免 /verify 返回的过期时间与实际 TTL 不一致
+            Object stored = stringRedisTemplate.opsForValue().get(redisKey);
+            UserResult userResult = toUserResult(stored);
+            if (userResult != null) {
+                userResult.setExpireTime(expire);
+                stringRedisTemplate.opsForValue().set(redisKey, userResult, Duration.ofSeconds(expire));
+            }
         }
     }
 
@@ -1441,7 +1586,14 @@ public class RedisTokenResolver implements TokenResolver {
 
             java.util.List<OnlineUserInfo> allUsers = new java.util.ArrayList<>();
             
+            int loaded = 0;
             for (String tokenKey : allTokenKeys) {
+                if (loaded >= ONLINE_USER_SCAN_LIMIT) {
+                    log.warn("[在线用户] 令牌数超过 {}，本次结果已截断；建议改为维护 userId→token 索引",
+                            ONLINE_USER_SCAN_LIMIT);
+                    break;
+                }
+                loaded++;
                 try {
                     Object value = stringRedisTemplate.opsForValue().get(tokenKey);
                     if (value == null) {

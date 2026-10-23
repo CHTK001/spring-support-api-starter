@@ -1,5 +1,6 @@
 package com.chua.starter.monitor.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -148,7 +149,7 @@ public class MonitorAcmeCertificate extends SysBase {
     /**
      * 最近错误
     */
-    @TableField("acme_cert_last_error")
+    @TableField(value = "acme_cert_last_error", updateStrategy = FieldStrategy.ALWAYS)
     @ApiModelProperty("最近错误")
     @Schema(description = "最近错误")
     /**

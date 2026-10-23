@@ -3,10 +3,14 @@ package com.chua.starter.oauth.sso.support.token;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -209,22 +213,50 @@ public class RedisTokenBlacklistService implements TokenBlacklistService {
      */
     public void clearAll() {
         try {
- // 删除所有 令牌 黑名单
-            Set<String> tokenKeys = stringRedisTemplate.keys(BLACKLIST_TOKEN_PREFIX + "*");
-            if (tokenKeys != null && !tokenKeys.isEmpty()) {
-                stringRedisTemplate.delete(tokenKeys);
-            }
-
-            // 删除所有用户黑名单
-            Set<String> userKeys = stringRedisTemplate.keys(BLACKLIST_USER_PREFIX + "*");
-            if (userKeys != null && !userKeys.isEmpty()) {
-                stringRedisTemplate.delete(userKeys);
-            }
-
-            log.warn("[BLACKLIST] 所有黑名单记录已清空");
+            // 不能再用 KEYS：它会阻塞整个 Redis 实例，黑名单量一大就把认证链路拖死
+            int deleted = deleteByPrefix(BLACKLIST_TOKEN_PREFIX);
+            deleted += deleteByPrefix(BLACKLIST_USER_PREFIX);
+            log.warn("[BLACKLIST] 黑名单记录已清空, count={}", deleted);
         } catch (Exception e) {
             log.error("[BLACKLIST] 清空黑名单失败: error={}", e.getMessage());
         }
+    }
+
+    /**
+     * 按前缀分批删除（SCAN 游标，不阻塞 Redis）。
+     *
+     * @param prefix 键前缀
+     * @return 删除数量
+     */
+    private int deleteByPrefix(String prefix) {
+        ScanOptions options = ScanOptions.scanOptions().match(prefix + "*").count(1000).build();
+        List<String> batch = new ArrayList<>(1000);
+        int deleted = 0;
+        try (Cursor<String> cursor = stringRedisTemplate.scan(options)) {
+            while (cursor.hasNext()) {
+                batch.add(cursor.next());
+                if (batch.size() >= 1000) {
+                    deleted += deleteBatch(batch);
+                }
+            }
+        }
+        deleted += deleteBatch(batch);
+        return deleted;
+    }
+
+    /**
+     * 删除一批键。
+     *
+     * @param batch 键集合，删除后清空
+     * @return 删除数量
+     */
+    private int deleteBatch(List<String> batch) {
+        if (batch.isEmpty()) {
+            return 0;
+        }
+        Long removed = stringRedisTemplate.delete(batch);
+        batch.clear();
+        return removed == null ? 0 : removed.intValue();
     }
 
     /**

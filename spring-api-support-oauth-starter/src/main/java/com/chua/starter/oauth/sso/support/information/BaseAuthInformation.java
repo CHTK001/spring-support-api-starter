@@ -176,6 +176,21 @@ public abstract class BaseAuthInformation implements AuthInformation {
     protected abstract void setRequestAttribute(Object request, String attributeName, Object attributeValue);
 
     /**
+     * 解析可信客户端地址（登录限流与审计依赖）。
+     *
+     * <p>直接取传输层地址；只有传输层是回环/配置在
+     * {@code plugin.oauth.server.trusted-proxies} 中时才采信 X-Forwarded-For。
+     * 请求体里的 {@code address} 由调用方任意填写，不能用于安全判定。</p>
+     *
+     * @return 可信地址，无法确定时返回 {@code null}
+     */
+    public String resolveTrustedClientAddress() {
+        String forwarded = getRequestHeader(request, com.chua.starter.oauth.sso.support.protocol.ClientAddressResolver.FORWARDED_FOR);
+        return com.chua.starter.oauth.sso.support.protocol.ClientAddressResolver.resolve(
+                forwarded, getRemoteAddress(request), authServerProperties.getTrustedProxies());
+    }
+
+    /**
      * 注册数据
      */
     private void decodeData() {

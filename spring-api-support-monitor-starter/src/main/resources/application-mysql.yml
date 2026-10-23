@@ -17,9 +17,9 @@ spring:
       connection-timeout: 10000
   sql:
     init:
-      enabled: false
-      continue-on-error: true
-      mode: always
+      # 建表与种子数据统一走 datasource-starter 的 FlywayLike 机制
+      # （plugin.datasource.script），这里关掉 Spring 自带的 schema/data 初始化。
+      mode: never
 
   data:
     redis:

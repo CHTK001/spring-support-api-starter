@@ -29,8 +29,11 @@ public final class OauthProtocolConstants {
 
     /**
      * 默认监听主机
+     *
+     * <p><b>回环地址</b>：该 Server 是独立 HTTP 服务，不经过 Spring 的限流/CSRF/管理鉴权过滤器，
+     * 默认不应暴露到所有网卡。跨机部署请显式配置 host 并加网络 ACL。</p>
      */
-    public static final String DEFAULT_HOST = "0.0.0.0";
+    public static final String DEFAULT_HOST = "127.0.0.1";
 
     /**
      * 默认监听端口

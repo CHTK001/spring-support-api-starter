@@ -9,11 +9,13 @@ spring:
       database: 6
       host: 172.16.0.40
       port: 16379
+  # 建表与种子数据统一走 datasource-starter 的 FlywayLike 机制
+  # （plugin.datasource.script），这里关掉 Spring 自带的 schema/data 初始化，
+  # 避免两套建表逻辑打架 —— FlywayLike 会自动扫描 classpath*:db/init/*.sql，
+  # 各模块 jar 里的脚本一并纳入，无需逐个列举 schema-locations。
   sql:
     init:
-      continue-on-error: true
-      #      data-locations: classpath*:db/*.db
-      mode: always
+      mode: never
 logging:
   level:
     com.chua.starter.tenant.server.mapper: debug
@@ -23,6 +25,13 @@ plugin:
   control:
     platform:
       name: tenant
+  datasource:
+    script:
+      # 建表与种子数据统一走 FlywayLike（扫 classpath*:db/init/*.sql）
+      enable: true
+      scan-mode: ALWAYS
+      data-scan-mode: ONCE
+      continue-on-error: true
   mybatis-plus:
     tenant:
       enable: true

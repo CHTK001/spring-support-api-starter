@@ -95,6 +95,10 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
      * 更新
     */
     public ReturnResult<Boolean> update(Set<String> roles, SysDept sysDept) {
+        String permissionError = validateDataPermission(sysDept);
+        if (null != permissionError) {
+            return ReturnResult.illegal(permissionError);
+        }
         if (null != sysDept.getSysDeptPid() && sysDept.getSysDeptPid() != SystemConstant.ROOT_NODE_ID) {
             SysDept parentSysDept = baseMapper.selectById(sysDept.getSysDeptPid());
             if(null == parentSysDept) {
@@ -153,6 +157,10 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
      * 保存
     */
     public ReturnResult<SysDept> save(SysDept sysDept, Set<String> roles) {
+        String permissionError = validateDataPermission(sysDept);
+        if (null != permissionError) {
+            return ReturnResult.illegal(permissionError);
+        }
         String menuTreeId = "";
         String parentTreeId = "";
         if (null == sysDept.getSysDeptPid() || sysDept.getSysDeptPid() == SystemConstant.ROOT_NODE_ID) {
@@ -190,6 +198,34 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         baseMapper.updateById(sysDept);
         sysDeptPrincipalRelService.syncDeptPrincipals(sysDept.getSysDeptId(), sysDept.getPrincipalUserIds());
         return ReturnResult.of(sysDept);
+    }
+
+    /**
+     * 校验机构数据权限取值。
+     *
+     * <p>取值必须与 {@code DataFilterTypeEnum}、{@code sys_dept.sys_dept_data_permission}
+     * 建表注释一致：1 全部 / 2 本人 / 3 本部门 / 4 本部门及子级 / 5 选定部门 / 6 自定义。
+     * 其中 5（选定部门）必须有配套的机构列表，否则登录时 {@code dataPermissionRule}
+     * 为空，{@code TableDeptRegister} 会直接注入 {@code NO_DATA}，表现为「谁都看不到」。</p>
+     *
+     * @param sysDept 机构信息
+     * @return 校验失败的错误信息，通过校验返回 {@code null}
+     */
+    private String validateDataPermission(SysDept sysDept) {
+        if (null == sysDept) {
+            return null;
+        }
+        Integer permission = sysDept.getSysDeptDataPermission();
+        if (null == permission) {
+            return null;
+        }
+        if (permission < 1 || permission > 6) {
+            return "数据权限类型不合法: " + permission;
+        }
+        if (permission == 5 && StringUtils.isBlank(sysDept.getSysDeptDataPermissionDeptId())) {
+            return "数据权限为「选定部门」时必须指定可见机构";
+        }
+        return null;
     }
 
     /**

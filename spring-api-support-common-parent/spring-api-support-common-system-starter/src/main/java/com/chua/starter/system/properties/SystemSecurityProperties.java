@@ -104,4 +104,21 @@ public class SystemSecurityProperties {
      * 那意味着所有租户写接口 500 却查不出根因，故这里必须配成合法长度。</p>
      */
     private String tenantPasswordCipherKey = "ChuaTenantPwdCipherKey2026AbCdEf";
+
+    /**
+     * 账号状态守卫的进程内缓存有效期（秒）
+     *
+     * <p>对应 {@code com.chua.starter.system.support.UserStateCache} 的 L1 缓存。
+     * 越小则禁用越及时，但 Redis 访问越多；设为 0 表示关闭 L1、每次请求都读 Redis。
+     * 禁用/启用操作会主动失效本实例的 L1，因此该值主要影响<b>其它</b>实例的生效延迟。</p>
+     */
+    private int userStateLocalTtlSeconds = 5;
+
+    /**
+     * 账号状态守卫的 Redis 缓存有效期（秒）
+     *
+     * <p>多实例共享的状态缓存 TTL。禁用/启用操作会直接删除该键，正常情况下不会等到过期；
+     * 这里只是兜底，避免异常路径下脏状态长期滞留。</p>
+     */
+    private int userStateRedisTtlSeconds = 30;
 }

@@ -39,6 +39,16 @@ public class LoginAttemptService {
     private static final String ACCOUNT_LOCKED_PREFIX = "oauth:login:locked:";
 
     /**
+     * Redis 键前缀 - 按来源 IP 的登录失败次数
+     */
+    private static final String LOGIN_IP_FAILURE_PREFIX = "oauth:login:ip-failure:";
+
+    /**
+     * 来源 IP 失败计数窗口（秒）
+     */
+    private static final long IP_FAILURE_WINDOW_SECONDS = 60L;
+
+    /**
      * 默认最大失败次数
      */
     private static final int DEFAULT_MAX_ATTEMPTS = 5;
@@ -333,6 +343,74 @@ public class LoginAttemptService {
                 return minutes + "分" + seconds + "秒";
             }
             return seconds + "秒";
+        }
+    }
+
+    /**
+     * 记录一次「来源 IP」维度的登录失败。
+     *
+     * <p>按账号锁定挡不住跨账号的密码喷洒，这里用 60 秒滑动窗口给每个可信来源 IP
+     * 单独计数。地址为空（消息型协议拿不到对端 IP）时直接跳过。</p>
+     *
+     * @param ip 可信来源地址，允许为空
+     * @return 当前窗口内的失败次数
+     */
+    public long recordIpFailure(String ip) {
+        if (StringUtils.isBlank(ip)) {
+            return 0L;
+        }
+        try {
+            String key = LOGIN_IP_FAILURE_PREFIX + ip;
+            Long count = stringRedisTemplate.opsForValue().increment(key);
+            if (count != null && count == 1L) {
+                stringRedisTemplate.expire(key, Duration.ofSeconds(IP_FAILURE_WINDOW_SECONDS));
+            }
+            return count == null ? 0L : count;
+        } catch (Exception e) {
+            log.error("记录来源 IP 登录失败异常: ip={}, error={}", ip, e.getMessage());
+            return 0L;
+        }
+    }
+
+    /**
+     * 来源 IP 是否已达到失败次数上限。
+     *
+     * <p>Redis 异常时返回 {@code false}（fail-open）：登录限流是防喷洒的辅助手段，
+     * 不能因为缓存故障把所有正常用户挡在门外；限流过滤器另有 fail-closed 兜底。</p>
+     *
+     * @param ip           可信来源地址，允许为空
+     * @param maxPerMinute 每分钟失败上限，{@code <=0} 表示不限制
+     * @return 达到上限返回 true
+     */
+    public boolean isIpBlocked(String ip, int maxPerMinute) {
+        if (StringUtils.isBlank(ip) || maxPerMinute <= 0) {
+            return false;
+        }
+        try {
+            String value = stringRedisTemplate.opsForValue().get(LOGIN_IP_FAILURE_PREFIX + ip);
+            if (StringUtils.isBlank(value)) {
+                return false;
+            }
+            return Long.parseLong(value) >= maxPerMinute;
+        } catch (Exception e) {
+            log.error("检查来源 IP 登录失败次数异常: ip={}, error={}", ip, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 登录成功后清空来源 IP 的失败计数。
+     *
+     * @param ip 可信来源地址，允许为空
+     */
+    public void clearIpFailures(String ip) {
+        if (StringUtils.isBlank(ip)) {
+            return;
+        }
+        try {
+            stringRedisTemplate.delete(LOGIN_IP_FAILURE_PREFIX + ip);
+        } catch (Exception e) {
+            log.error("清空来源 IP 登录失败次数异常: ip={}, error={}", ip, e.getMessage());
         }
     }
 }

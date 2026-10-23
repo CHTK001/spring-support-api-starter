@@ -52,14 +52,13 @@ spring:
   # -------------------------------------------
   # SQL初始化配置
   # -------------------------------------------
+  # 建表与种子数据统一走 datasource-starter 的 FlywayLike 机制
+  # （plugin.datasource.script），这里关掉 Spring 自带的 schema/data 初始化，
+  # 避免两套建表逻辑打架 —— FlywayLike 会自动扫描 classpath*:db/init/*.sql，
+  # 各模块 jar 里的脚本一并纳入，无需逐个列举 schema-locations。
   sql:
     init:
-      # 初始化失败时继续执行
-      continue-on-error: true
-      # 数据脚本位置（如需要）
-      # data-locations: classpath*:db/*.db
-      # 初始化模式（always-总是执行，embedded-仅嵌入式数据库，never-从不）
-      mode: always
+      mode: never
 
 # ===========================================
 # 日志配置
