@@ -61,6 +61,26 @@ public class AuthCoreService {
     }
 
     /**
+     * 令牌校验（标准令牌 / Bearer 共用）。
+     *
+     * <p>MVC 侧原先在 {@code DefaultAuthorizationHandler} 与
+     * {@code BearerAuthorizationHandler} 里各写了一遍「取解析器 + resolve」，
+     * 协议侧又写了一遍；收敛后只有这里一份。JWT / AppKey / AppId 等附加校验
+     * 仍由各自的 {@code AuthorizationHandler} 负责。</p>
+     *
+     * @param cookie 会话 Cookie，可为空
+     * @param token  访问令牌，可为空
+     * @return 用户信息
+     */
+    public ReturnResult<UserResume> verify(String cookie, String token) {
+        TokenResolver resolver = tokenResolver();
+        if (resolver == null) {
+            return ReturnResult.error("认证服务器无法认证");
+        }
+        return resolver.resolve(cookie, token);
+    }
+
+    /**
      * 令牌升级。
      *
      * <p>类型字符串大小写不敏感：早期协议入口用 {@code getUpgradeType} 精确匹配

@@ -166,6 +166,7 @@ public class TemporaryTokenAuthInformation extends BaseAuthInformation {
      */
     @Override
     public TemporaryTokenAuthorization authorization() {
-        return new TemporaryTokenAuthorization(this, applicationContext);
+        return new TemporaryTokenAuthorization(this, applicationContext,
+                applicationContext.getBean(com.chua.starter.oauth.sso.support.core.AuthCoreService.class));
     }
 }

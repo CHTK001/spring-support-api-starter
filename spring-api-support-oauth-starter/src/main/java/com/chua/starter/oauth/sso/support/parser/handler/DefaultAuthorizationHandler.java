@@ -40,21 +40,8 @@ public class DefaultAuthorizationHandler implements AuthorizationHandler {
                                             String cookie,
                                             String userCode) {
         log.info("使用Token标准认证方式");
-        
-        String tokenManagement = authInformation.getAuthServerProperties().getTokenManagement();
-        TokenResolver tokenResolver = null;
-        LoginCheck loginCheck = authInformation.getLoginCheck();
-        if (loginCheck != null) {
-            tokenResolver = loginCheck.resolveTokenResolver(tokenManagement);
-        }
-        if (null == tokenResolver) {
-            tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
-        }
-        if (null == tokenResolver) {
-            return ReturnResult.error("认证服务器无法认证");
-        }
-        
-        ReturnResult<UserResume> resolve = tokenResolver.resolve(cookie, token);
+
+        ReturnResult<UserResume> resolve = authInformation.verifyToken(cookie, token);
         if (!resolve.isSuccess()) {
             return ReturnResult.error(resolve.getMsg());
         }

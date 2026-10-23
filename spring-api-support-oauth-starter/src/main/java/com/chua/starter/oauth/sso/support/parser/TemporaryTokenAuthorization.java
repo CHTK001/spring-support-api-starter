@@ -6,6 +6,7 @@ import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.information.TemporaryTokenAuthInformation;
+import com.chua.starter.oauth.sso.support.core.AuthCoreService;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
@@ -34,15 +35,22 @@ public final class TemporaryTokenAuthorization implements Authorization {
     private final ApplicationContext applicationContext;
 
     /**
+     * 认证核心服务
+     */
+    private final AuthCoreService authCoreService;
+
+    /**
      * 构造函数
      *
      * @param authInformation    认证信息
      * @param applicationContext Spring应用上下文
      */
     public TemporaryTokenAuthorization(TemporaryTokenAuthInformation authInformation,
-                                       ApplicationContext applicationContext) {
+                                       ApplicationContext applicationContext,
+                                       AuthCoreService authCoreService) {
         this.authInformation = authInformation;
         this.applicationContext = applicationContext;
+        this.authCoreService = authCoreService;
     }
 
     /**
@@ -65,30 +73,10 @@ public final class TemporaryTokenAuthorization implements Authorization {
             return ReturnResult.illegal("源令牌不能为空");
         }
 
- // 获取 令牌解析器（优先 Spring 容器，回退 SPI）
-        String tokenManagement = authInformation.getAuthServerProperties().getTokenManagement();
-        TokenResolver tokenResolver = null;
-        if (applicationContext != null) {
-            for (TokenResolver resolver : applicationContext.getBeansOfType(TokenResolver.class).values()) {
-                com.chua.common.support.spi.annotations.Spi spi = resolver.getClass().getAnnotation(com.chua.common.support.spi.annotations.Spi.class);
-                if (spi != null) {
-                    for (String value : spi.value()) {
-                        if (tokenManagement.equalsIgnoreCase(value)) {
-                            tokenResolver = resolver;
-                            break;
-                        }
-                    }
-                }
-                if (tokenResolver != null) {
-                    break;
-                }
-            }
-        }
+        // 令牌解析器统一由 AuthCoreService 解析（与登录/升级/登出共用同一套选择逻辑）
+        TokenResolver tokenResolver = authCoreService.tokenResolver();
         if (tokenResolver == null) {
-            tokenResolver = ServiceProvider.of(TokenResolver.class).getExtension(tokenManagement);
-        }
-        if (tokenResolver == null) {
-            log.error("临时令牌创建失败: TokenResolver 不可用, tokenManagement: {}", tokenManagement);
+            log.error("临时令牌创建失败: TokenResolver 不可用");
             return ReturnResult.error("令牌服务不可用");
         }
 
