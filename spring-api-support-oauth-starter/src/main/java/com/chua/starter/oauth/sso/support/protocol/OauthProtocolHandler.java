@@ -13,6 +13,7 @@ import com.chua.starter.oauth.client.support.enums.UpgradeType;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
+import com.chua.starter.oauth.sso.support.core.AuthCoreService;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.token.TokenResolver;
 import com.chua.starter.oauth.sso.support.trace.ServerTraceContext;
@@ -77,7 +78,6 @@ import static com.chua.starter.oauth.sso.support.protocol.OauthProtocolConstants
  * @author CH
  */
 @Slf4j
-@RequiredArgsConstructor
 public class OauthProtocolHandler implements ServerHandler {
 
     /**
@@ -96,6 +96,38 @@ public class OauthProtocolHandler implements ServerHandler {
      * Logincheck
     */
     private final LoginCheck loginCheck;
+
+    /**
+     * 是否强制校验请求签名。
+     *
+     * <p>HTTP 协议默认开启（客户端 {@code HttpProtocol} 会给每个请求带
+     * {@code x-oauth-sign}）；TCP/KCP/RSocket 目前没有承载签名头，默认关闭，
+     * 由监听地址（默认回环）与网络 ACL 兜底。</p>
+     */
+    private final boolean requireSign;
+
+    /**
+     * 认证核心服务（登录/升级/登出统一入口）
+     */
+    private final AuthCoreService authCoreService;
+
+    /**
+     * 创建 OAuth 协议处理器。
+     *
+     * @param authServerProperties 认证服务端属性
+     * @param loginCheck           登录检查
+     * @param authCoreService      认证核心服务
+     * @param requireSign          是否强制校验请求签名
+     */
+    public OauthProtocolHandler(AuthServerProperties authServerProperties,
+                                LoginCheck loginCheck,
+                                AuthCoreService authCoreService,
+                                boolean requireSign) {
+        this.authServerProperties = authServerProperties;
+        this.loginCheck = loginCheck;
+        this.authCoreService = authCoreService;
+        this.requireSign = requireSign;
+    }
 
     @Override
     /**
@@ -156,8 +188,11 @@ public class OauthProtocolHandler implements ServerHandler {
             writeError(response, "解析失败!");
             return;
         }
-        var result = loginCheck.doLogin(
-                resolveAddress(request, decoder),
+        if (rejectIfSignInvalid(PATH_LOGIN, decoder, response)) {
+            return;
+        }
+        var result = authCoreService.login(
+                resolveAddress(request),
                 decoder.getString(FIELD_USERNAME),
                 decoder.getString(FIELD_PASSWORD),
                 decoder.getString(FIELD_AUTH_TYPE),
@@ -167,10 +202,16 @@ public class OauthProtocolHandler implements ServerHandler {
             return;
         }
         var loginResult = result.getData();
-        // 写 Cookie(协议响应头)
+        // 写 Cookie(协议响应头)：HttpOnly 防脚本读取，SameSite=Lax 降低跨站携带风险，
+        // Secure 由配置控制（内网 HTTP 下强制 Secure 会让浏览器直接丢弃 Cookie）
         if (loginResult != null && loginResult.getToken() != null) {
-            response.setHeader("Set-Cookie", authServerProperties.getCookieName() + "="
-                    + loginResult.getToken() + "; Path=/; HttpOnly");
+            StringBuilder cookie = new StringBuilder(authServerProperties.getCookieName())
+                    .append('=').append(loginResult.getToken())
+                    .append("; Path=/; HttpOnly; SameSite=Lax");
+            if (authServerProperties.isCookieSecure()) {
+                cookie.append("; Secure");
+            }
+            response.setHeader("Set-Cookie", cookie.toString());
         }
         writeResult(response, decoder, result);
     }
@@ -189,7 +230,7 @@ public class OauthProtocolHandler implements ServerHandler {
             writeError(response, "解析失败!");
             return;
         }
-        writeResult(response, decoder, resolveTokenResolver().resolve(
+        writeResult(response, decoder, authCoreService.tokenResolver().resolve(
                 decoder.getString(FIELD_COOKIE), resolveToken(request, decoder)));
     }
 
@@ -207,15 +248,13 @@ public class OauthProtocolHandler implements ServerHandler {
             writeError(response, "解析失败!");
             return;
         }
-        var resolver = resolveTokenResolver();
+        if (rejectIfSignInvalid(PATH_UPGRADE, decoder, response)) {
+            return;
+        }
         var token = resolveToken(request, decoder);
         var refreshToken = decoder.getString(FIELD_REFRESH_TOKEN);
-        var upgradeType = UpgradeType.getUpgradeType(decoder.getString(FIELD_UPGRADE_TYPE));
-        writeResult(response, decoder, switch (upgradeType) {
-            case TIMESTAMP -> resolver.upgradeForTimestamp(token, refreshToken);
-            case VERSION -> resolver.upgradeForVersion(token, refreshToken);
-            case REFRESH -> resolver.upgradeForRefresh(token, refreshToken);
-        });
+        writeResult(response, decoder, authCoreService.upgrade(
+                decoder.getString(FIELD_UPGRADE_TYPE), token, refreshToken));
     }
 
     // ==================== 登出 ====================
@@ -232,17 +271,21 @@ public class OauthProtocolHandler implements ServerHandler {
             writeError(response, "解析失败!");
             return;
         }
-        var resolver = resolveTokenResolver();
+        if (rejectIfSignInvalid(PATH_LOGOUT, decoder, response)) {
+            return;
+        }
         var uid = decoder.getString(FIELD_UID);
         var token = resolveToken(request, decoder);
-        if (StringUtils.isNotBlank(uid)) {
-            var type = StringUtils.isNotBlank(decoder.getString(FIELD_LOGOUT_TYPE))
-                    ? LogoutType.valueOf(decoder.getString(FIELD_LOGOUT_TYPE)) : LogoutType.LOGOUT;
-            resolver.logout(uid, type);
-        } else if (StringUtils.isNotBlank(token)) {
-            resolver.logout(token);
+        LogoutType type = LogoutType.LOGOUT;
+        String rawType = decoder.getString(FIELD_LOGOUT_TYPE);
+        if (StringUtils.isNotBlank(rawType)) {
+            try {
+                type = LogoutType.valueOf(rawType.trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("[OauthProtocolHandler] 非法登出类型，按 LOGOUT 处理: {}", rawType);
+            }
         }
-        writeResult(response, decoder, ReturnResult.ok("登出成功"));
+        writeResult(response, decoder, authCoreService.logout(uid, type, token));
     }
 
     // ==================== 临时令牌 ====================
@@ -259,7 +302,10 @@ public class OauthProtocolHandler implements ServerHandler {
             writeError(response, "解析失败!");
             return;
         }
-        var resolver = resolveTokenResolver();
+        if (rejectIfSignInvalid(PATH_TEMPORARY_TOKEN, decoder, response)) {
+            return;
+        }
+        var resolver = authCoreService.tokenResolver();
         var source = resolver.resolve(null, decoder.getString(FIELD_SOURCE_TOKEN));
         if (!ReturnCode.OK.getCode().equals(source.getCode())) {
             writeResult(response, decoder, source);
@@ -278,7 +324,7 @@ public class OauthProtocolHandler implements ServerHandler {
         var userResult = new UserResult();
         BeanUtils.copyProperties(effective, userResult);
         writeResult(response, decoder, resolver.createToken(
-                resolveAddress(request, decoder), userResult, "TEMPORARY"));
+                resolveAddress(request), userResult, "TEMPORARY"));
     }
 
     /**
@@ -325,6 +371,37 @@ public class OauthProtocolHandler implements ServerHandler {
     }
 
     // ==================== 工具方法 ====================
+
+    /**
+     * 强制校验请求签名。
+     *
+     * <p>MVC 入口的 {@code BaseAuthInformation} 一直有这层校验，协议服务器此前漏掉了：
+     * {@code OauthProtocolDecoder#isSignValid()} 定义了却从没被调用，等于
+     * {@code plugin.oauth.server.sign-verify} 对协议服务器完全无效。</p>
+     *
+     * <p>{@code /verify} 刻意不校验：令牌本身就是凭据，且调试时常用 curl 直接验 token；
+     * {@code /login}、{@code /upgrade}、{@code /logout}、{@code /temporary-token}
+     * 会签发/销毁凭据，必须带签名。</p>
+     *
+     * @param path     当前路径，仅用于日志
+     * @param decoder  已解码的请求
+     * @param response 响应
+     * @return 已拒绝返回 {@code true}
+     */
+    private boolean rejectIfSignInvalid(String path, OauthProtocolDecoder decoder, ServerResponse response) {
+        if (!requireSign || !authServerProperties.isSignVerify()) {
+            return false;
+        }
+        if (decoder == null || !decoder.isSuccessful()) {
+            return false;
+        }
+        if (decoder.isSignValid()) {
+            return false;
+        }
+        log.warn("[OauthProtocolHandler] 签名校验失败，拒绝请求: path={}", path);
+        writeError(response, "签名校验失败");
+        return true;
+    }
 
     /**
      * 解码报文体(取外层 数据 字段,再解析/解密认证参数)
@@ -386,22 +463,21 @@ public class OauthProtocolHandler implements ServerHandler {
     }
 
     /**
-     * 解析客户端地址(优先请求头 x-OAuth-参数-地址)
+     * 解析可信客户端地址。
+     *
+     * <p>只采信传输层地址；只有当传输层地址是回环或配置在
+     * {@code plugin.oauth.server.trusted-proxies} 中时，才采用
+     * {@code X-Forwarded-For} 的最左端地址。请求体里的
+     * {@code x-oauth-param-address} 由调用方任意填写，不参与安全判定。</p>
+     *
      * @param request 请求
-     * @param decoder 解码器
-     * @return resolve地址的结果
+     * @return 可信客户端地址；消息型协议（无 IP 概念）返回 {@code null}
      */
-    private String resolveAddress(ServerRequest request, OauthProtocolDecoder decoder) {
-        var address = header(request.getHeaders(), HEADER_ADDRESS);
-        return decoder.resolveClientAddress(address != null ? address : request.getRemoteAddress());
-    }
-
-    /**
-     * 解析 令牌解析器(与 login检查 一致)
-     * @return resolve令牌解析器的结果
-     */
-    private TokenResolver resolveTokenResolver() {
-        return loginCheck.resolveTokenResolver(authServerProperties.getTokenManagement());
+    private String resolveAddress(ServerRequest request) {
+        return ClientAddressResolver.resolve(
+                header(request.getHeaders(), ClientAddressResolver.FORWARDED_FOR),
+                request.getRemoteAddress(),
+                authServerProperties.getTrustedProxies());
     }
 
     /**

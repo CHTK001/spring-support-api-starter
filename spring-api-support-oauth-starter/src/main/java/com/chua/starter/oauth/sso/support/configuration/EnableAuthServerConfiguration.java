@@ -132,8 +132,10 @@ public class EnableAuthServerConfiguration implements BeanDefinitionRegistryPost
     @Bean
     public OauthProtocolServerManager oauthProtocolServerManager(
             OauthProtocolServersProperties oauthProtocolServersProperties,
-            LoginCheck loginCheck) {
-        return new OauthProtocolServerManager(oauthProtocolServersProperties, authServerProperties, loginCheck);
+            LoginCheck loginCheck,
+            com.chua.starter.oauth.sso.support.core.AuthCoreService authCoreService) {
+        return new OauthProtocolServerManager(oauthProtocolServersProperties, authServerProperties,
+                loginCheck, authCoreService);
     }
 
     /**

@@ -12,19 +12,18 @@ import com.chua.starter.mybatis.entity.Query;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.system.constant.SystemConstant;
 import com.chua.starter.entity.system.SysMenu;
-import com.chua.starter.entity.system.SysRole;
-import com.chua.starter.entity.system.SysRoleMenu;
 import com.chua.starter.system.event.SysMenuChangeEvent;
 import com.chua.starter.system.mapper.SysMenuMapper;
+import com.chua.starter.system.mapper.SysRoleMenuMapper;
+import com.chua.starter.system.pojo.menu.RoleMenuBinding;
 import com.chua.starter.system.pojo.menu.SysMenuSettingVO;
 import com.chua.starter.system.pojo.menu.SysMenuVO;
 import com.chua.starter.system.service.SysMenuService;
-import com.chua.starter.system.service.SysRoleMenuService;
 import com.chua.starter.system.support.MenuVisibilityEvaluator;
-import com.github.yulichang.toolkit.MPJWrappers;
+import com.chua.starter.system.support.SysMenuSnapshotService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,40 +50,41 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService{
 
-    final SysRoleMenuService sysRoleMenuService; // sys角色menu服务
+    final SysRoleMenuMapper sysRoleMenuMapper; // 菜单权限过滤用（一次联表取全部绑定）
+    final SysMenuSnapshotService sysMenuSnapshotService; // 带缓存的菜单全量快照
     final ApplicationEventPublisher eventPublisher; // 事件发布
     final MenuVisibilityEvaluator menuVisibilityEvaluator; // 菜单动态显示条件求值器
+
+    /**
+     * 「未绑定任何角色的菜单」是否对所有登录用户可见。
+     *
+     * <p>默认 {@code true}：按约定「菜单没配角色 = 公共」。</p>
+     *
+     * <p>给一条安全退路：历史库里如果存在「建了但忘了勾角色、本意又不该公开」的菜单，
+     * 直接上线会让它们对所有人可见。此时把配置改成
+     * {@code system.menu.unbound-visible=false} 即可回到旧的严格白名单语义，
+     * <b>不用回滚代码</b>。配合 {@code deploy/check-menu-permission.sql} 先核查再决定。</p>
+     */
+    @Value("${system.menu.unbound-visible:true}")
+    private boolean unboundMenuVisible = true;
+
     @Override
     /**
      * 列表menu
     */
     public ReturnResult<List<SysMenuSettingVO>> listMenu(SysMenu sysMenu, Set<String> roles, String username) {
-        List<SysRoleMenu> list;
-        if(!roles.isEmpty()) {
-            list = CollectionUtils.isEmpty(roles) ? Collections.emptyList() : sysRoleMenuService.list(
-                    MPJWrappers.<SysRoleMenu>lambdaJoin()
-                            .select(SysRoleMenu::getSysMenuId)
-                            .leftJoin(SysRole.class, SysRole::getSysRoleId, SysRole::getSysRoleId)
-                            .in(SysRole::getSysRoleCode, roles)
-            );
-        } else {
-            list = Collections.emptyList();
-        }
         List<SysMenu> sysMenus = filterMenusByEngine(
                 listAll(),
                 null == sysMenu ? null : sysMenu.getSysMenuEngine()
         );
         sysMenus = filterMenusByVisibility(sysMenus);
 
-        List<SysMenu> filterMenus = Collections.emptyList();
+        List<SysMenu> filterMenus;
         if (AuthConstant.isPrivileged(username, roles)) {
             filterMenus = sysMenus;
         } else {
-            filterMenus = sysMenus.stream()
-                    .filter(sysMenu1 -> list.stream().anyMatch(sysRoleMenu -> sysRoleMenu.getSysMenuId().equals(sysMenu1.getSysMenuId())))
-                    .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == SystemConstant.NOT_DELETED)
-                    .toList();
-            if(CollectionUtils.isEmpty(filterMenus)) {
+            filterMenus = filterMenusByRole(sysMenus, roles);
+            if (CollectionUtils.isEmpty(filterMenus)) {
                 // 未被授权任何菜单是合法状态：返回空集合而非报错，前端据此渲染「无菜单」
                 return ReturnResult.ok(Collections.emptyList());
             }
@@ -166,12 +167,6 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
      * 列表
     */
     public ReturnResult<List<SysMenuVO>> list(SysMenu sysMenu, Set<String> roles, int ignoreType, String username) {
-        List<SysRoleMenu> list = CollectionUtils.isEmpty(roles) ? Collections.emptyList() : sysRoleMenuService.list(
-                MPJWrappers.<SysRoleMenu>lambdaJoin()
-                        .select(SysRoleMenu::getSysMenuId)
-                        .leftJoin(SysRole.class, SysRole::getSysRoleId, SysRole::getSysRoleId)
-                        .in(SysRole::getSysRoleCode, roles)
-        );
         List<SysMenu> sysMenus = filterMenusByEngine(
                 listAll(),
                 null == sysMenu ? null : sysMenu.getSysMenuEngine()
@@ -188,14 +183,11 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         // 其它账号（即使被授予 ADMIN 角色）一律按角色菜单关联(sys_role_menu)授权，受角色配置控制
         boolean isBuiltinAdminAccount = AuthConstant.isBuiltinAdmin(username);
 
-        List<SysMenu> filterMenus = Collections.emptyList();
+        List<SysMenu> filterMenus;
         if(AuthConstant.isSuperAdmin(roles) || isBuiltinAdminAccount) {
             filterMenus = sysMenus;
         } else {
-            filterMenus = sysMenus.stream()
-                    .filter(sysMenu1 -> list.stream().anyMatch(sysRoleMenu -> sysRoleMenu.getSysMenuId().equals(sysMenu1.getSysMenuId())))
-                    .filter(sysMenu1 -> null != sysMenu1.getSysMenuHidden() && sysMenu1.getSysMenuHidden() == SystemConstant.NOT_DELETED)
-                    .toList();
+            filterMenus = filterMenusByRole(sysMenus, roles);
             if(CollectionUtils.isEmpty(filterMenus)) {
                 // 未被授权任何菜单是合法状态：返回空集合而非报错，前端据此渲染「无菜单」
                 return ReturnResult.ok(Collections.emptyList());
@@ -269,15 +261,16 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all'")
     /**
      * 列表全部
+     *
+     * <p>缓存必须走 {@link SysMenuSnapshotService}：同类内部调用 {@code this.listAll()}
+     * 不会经过 Spring 代理，本方法上的 {@code @Cacheable} 对内层调用是失效的。</p>
      *
      * @return 列表全部的结果
      */
     public List<SysMenu> listAll() {
-        return baseMapper.selectList(Wrappers.<SysMenu>lambdaQuery()
-                .orderByAsc(SysMenu::getSysMenuSort));
+        return sysMenuSnapshotService.listAll();
     }
 
 
@@ -326,6 +319,69 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         }
         return sysMenus.stream()
                 .filter(menu -> menuVisibilityEvaluator.visible(menu))
+                .toList();
+    }
+
+    /**
+     * 按角色过滤菜单：**已授权菜单 + 公共菜单**。
+     *
+     * <p>语义：</p>
+     * <ul>
+     *   <li>菜单在 {@code sys_role_menu} 里没有任何绑定 → 视为<strong>公共菜单</strong>，
+     *       对所有登录用户可见；</li>
+     *   <li>一旦被任意角色绑定 → 只对该角色可见（白名单）。</li>
+     * </ul>
+     *
+     * <p>为什么这么改：原来的实现是纯白名单（"必须在 sys_role_menu 里出现"），
+     * 于是"新建菜单忘了勾角色"或"SQL/接口直接插入的菜单"只有超管与内置 admin 能看到，
+     * 其余角色一律看不到 —— 表现为"菜单配了却不显示"，且没有任何报错可循。</p>
+     *
+     * <p>同时修掉一个 {@code NULL} 陷阱：{@code sys_menu_hidden} 建表默认是 {@code NULL}
+     * （不是 0），旧判断写成"等于显示(=0)"，会把所有未显式写 hidden 的行误判为隐藏。
+     * 这里改成"不等于隐藏"。</p>
+     *
+     * @param sysMenus 已按引擎/可见性过滤过的菜单
+     * @param roles    当前用户角色码
+     * @return 过滤后的菜单
+     */
+    private List<SysMenu> filterMenusByRole(List<SysMenu> sysMenus, Set<String> roles) {
+        if (CollectionUtils.isEmpty(sysMenus)) {
+            return Collections.emptyList();
+        }
+        // 一次联表查询同时拿到两样东西：谁被绑过（anyBound）、我的角色绑了谁（granted）。
+        // 不要拆成两条 SQL —— 菜单过滤在每次进页面时都会走，多一次全表扫描没有意义。
+        List<RoleMenuBinding> bindings = sysRoleMenuMapper.selectRoleMenuBindings();
+
+        // 任何角色绑定过即视为"已分配"；没被绑定过的菜单是公共菜单
+        Set<Integer> anyBound = new HashSet<>(bindings.size());
+        Set<Integer> granted = new HashSet<>(bindings.size());
+        // 角色码大小写不敏感（登录态里给的是大写常量，库里存的是配置值）
+        Set<String> myRoles = CollectionUtils.isEmpty(roles)
+                ? Collections.emptySet()
+                : roles.stream()
+                        .filter(Objects::nonNull)
+                        .map(role -> role.trim().toUpperCase())
+                        .collect(Collectors.toSet());
+        for (RoleMenuBinding binding : bindings) {
+            Integer menuId = binding.getMenuId();
+            if (null == menuId) {
+                continue;
+            }
+            anyBound.add(menuId);
+            String roleCode = binding.getRoleCode();
+            if (null != roleCode && !myRoles.isEmpty()
+                    && myRoles.contains(roleCode.trim().toUpperCase())) {
+                granted.add(menuId);
+            }
+        }
+
+        return sysMenus.stream()
+                // 未绑定任何角色的菜单是否算公共，由 system.menu.unbound-visible 控制；
+                // 设 false 时退回"必须在 sys_role_menu 里出现"的严格白名单（可安全上线）
+                .filter(menu -> granted.contains(menu.getSysMenuId())
+                        || (unboundMenuVisible && !anyBound.contains(menu.getSysMenuId())))
+                // hidden: 0=显示, 1=隐藏, NULL=未设置（建表默认）。只排除明确隐藏的行。
+                .filter(menu -> !Objects.equals(menu.getSysMenuHidden(), SystemConstant.MENU_HIDDEN))
                 .toList();
     }
 

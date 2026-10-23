@@ -87,6 +87,12 @@ public class AuthServerConfigValidator {
         
  // 2. 校验令牌过期时间
         validateTokenExpire(errors, warnings);
+
+        // 2b. 生产环境建议开启 Cookie Secure
+        if (isProduction && !authServerProperties.isCookieSecure()) {
+            warnings.add("plugin.oauth.server.cookie-secure 未开启：生产环境（HTTPS）建议设为 true，"
+                    + "避免会话 Cookie 通过明文 HTTP 回传。");
+        }
         
         // 3. 校验协议配置
         validateProtocols(errors, warnings);
@@ -213,8 +219,11 @@ public class AuthServerConfigValidator {
         
         if (expire <= 0) {
             errors.add("plugin.oauth.server.expire 必须大于0！当前值: " + expire);
-        } else if (expire > 86400 * 30) {
-            warnings.add("plugin.oauth.server.expire 设置过长（超过30天），建议缩短Token有效期。当前值: " + expire + "秒");
+        } else if (expire > 24 * 3600) {
+            // 默认值就是 30 天，原来的阈值（>30天）永远触发不到，等于没有告警
+            warnings.add("plugin.oauth.server.expire 设置过长（" + expire + " 秒 ≈ " + (expire / 3600)
+                    + " 小时）。SSO 建议 access token 30–120 分钟，配 refresh 轮换；"
+                    + "过长的 access token 会放大令牌泄露后的可利用窗口。");
         }
 
         if (refreshExpire <= expire) {

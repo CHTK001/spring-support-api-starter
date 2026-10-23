@@ -77,6 +77,14 @@ public class OauthProtocolServersProperties {
     private List<ProtocolServer> protocols = new ArrayList<>();
 
     /**
+     * 是否启用多协议认证服务端
+     *
+     * <p>默认 {@code true} 以保持既有部署行为；关闭后不会监听任何协议端口，
+     * 仅保留 Spring MVC 的 {@code /oauth/**} 入口。</p>
+     */
+    private boolean enabled = true;
+
+    /**
      * 单个协议 服务端 配置
      *
      * @since 4.0.0.42
@@ -102,8 +110,12 @@ public class OauthProtocolServersProperties {
 
         /**
          * 监听主机
+         *
+         * <p><b>默认回环地址</b>：该端口没有任何 Servlet 过滤器（限流/CSRF/管理鉴权）兜底，
+         * 直接暴露到 0.0.0.0 等于把认证入口开放给任何可达主机。跨机部署请显式配置，
+         * 并用网络 ACL 限制来源。</p>
          */
-        private String host = "0.0.0.0";
+        private String host = "127.0.0.1";
 
         /**
          * 监听端口
@@ -124,5 +136,14 @@ public class OauthProtocolServersProperties {
          * 认证路由路径列表(为空时使用默认路径 /login /验证 等)
          */
         private List<String> authRoutes = new ArrayList<>();
+
+        /**
+         * 是否强制校验请求签名（{@code x-oauth-sign}）
+         *
+         * <p>为 {@code null} 时按协议取默认值：HTTP 默认 {@code true}（客户端本来就带签名），
+         * TCP / KCP / RSocket 默认 {@code false}（这些协议目前没有承载签名头，
+         * 只能靠监听回环/内网 ACL 保护）。跨机暴露消息型协议时请先补签名能力再置为 true。</p>
+         */
+        private Boolean requireSign;
     }
 }

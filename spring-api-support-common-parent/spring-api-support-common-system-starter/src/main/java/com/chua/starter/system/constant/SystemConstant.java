@@ -68,6 +68,22 @@ public final class SystemConstant {
      */
     public static final int DELETED = 1;
 
+    // ==================== 菜单显示标识（sys_menu_hidden） ====================
+
+    /**
+     * 菜单显示。
+     *
+     * <p>注意：该列建表默认是 {@code NULL}（不是 0）。判断"是否隐藏"时必须用
+     * {@link #MENU_HIDDEN} 取反（即"不等于隐藏"），不能写成"等于显示"，
+     * 否则所有 {@code NULL} 行都会被误判为隐藏。</p>
+     */
+    public static final int MENU_VISIBLE = 0;
+
+    /**
+     * 菜单隐藏
+     */
+    public static final int MENU_HIDDEN = 1;
+
     // ==================== 权限标识 ====================
     
     /**

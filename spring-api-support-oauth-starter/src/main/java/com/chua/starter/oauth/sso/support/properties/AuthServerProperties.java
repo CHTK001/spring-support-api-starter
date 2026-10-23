@@ -147,6 +147,44 @@ public class AuthServerProperties {
     private boolean renew;
 
     /**
+     * 可信代理地址列表
+     *
+     * <p>只有当传输层来源地址命中该列表（或为回环地址）时，才信任
+     * {@code X-Forwarded-For} 里声明的客户端地址；否则一律以传输层地址为准。
+     * 直接采信请求头会让调用方随意伪造来源 IP，从而绕过按 IP 的登录限流、
+     * 污染登录审计日志。</p>
+     *
+     * <p>示例：{@code trusted-proxies: [10.0.0.10, 10.0.0.11]}</p>
+     */
+    private List<String> trustedProxies = new ArrayList<>();
+
+    /**
+     * 同一来源 IP 每分钟允许的登录失败次数上限
+     *
+     * <p>达到上限后该 IP 的登录请求会被直接拒绝，用于阻断跨账号的密码喷洒
+     * （按账号锁定挡不住这种攻击）。{@code <=0} 表示关闭该维度。</p>
+     *
+     * <p><b>默认关闭（0）</b>：如果 oauth 前面有反向代理而没配置
+     * {@link #trustedProxies}，所有用户会共享代理 IP 的计数桶，攻击者刷满阈值
+     * 就能把整个出口封掉。确认来源地址可信（直连，或代理地址已写入
+     * {@code trusted-proxies}）后再开启。</p>
+     *
+     * <p>只对「可信任来源地址」生效：HTTP 直连或可信代理之后的真实 IP；
+     * TCP/KCP/RSocket 拿不到传输层客户端 IP，不会启用该维度。</p>
+     */
+    private int loginIpFailureMaxPerMinute = 0;
+
+    /**
+     * 协议服务器下发的登录 Cookie 是否带 {@code Secure}
+     *
+     * <p>默认 {@code false} 以兼容内网 HTTP 调试；对外/HTTPS 部署必须置为
+     * {@code true}，否则浏览器可能通过明文 HTTP 回传会话 Cookie。</p>
+     *
+     * <p>无论该值如何，Cookie 始终带 {@code HttpOnly} 与 {@code SameSite=Lax}。</p>
+     */
+    private boolean cookieSecure = false;
+
+    /**
      * 刷新令牌轮换
      * <p>
      * 使用 refresh令牌 换取新 access令牌 时，是否同时生成新的 refresh令牌（旧的失效）

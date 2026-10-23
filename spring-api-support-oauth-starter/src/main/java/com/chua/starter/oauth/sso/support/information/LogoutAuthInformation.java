@@ -107,6 +107,6 @@ public class LogoutAuthInformation extends BaseAuthInformation {
                 httpResponse,
                 getAuthServerProperties(),
                 applicationContext,
-                loginCheck);
+                applicationContext.getBean(com.chua.starter.oauth.sso.support.core.AuthCoreService.class));
     }
 }

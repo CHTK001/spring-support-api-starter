@@ -87,6 +87,67 @@ INSERT IGNORE INTO `sys_menu` (
 (104, 'policy', '/monitor/policy', NULL, '策略任务', NULL, 100, '0,100,104', 'system/monitor/policy/index', 'ep:set-up', 0, 40, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL);
 
 -- ---------------------------------------------------------------------
+-- 监控管理 → 系统指标（@pages/hotsport）。
+--
+-- 宿主应用 route.mode=remote：侧边栏与路由全由后端 /v2/user/menu 下发，
+-- main.ts 里的 registerStaticMenu(systemMenus) 只在后端菜单不可用时兜底。
+-- 这组菜单不加种子，生产环境（后端 /v2/user/menu 有返回）就看不到这批页面，
+-- 只剩「URL 直达 + 404 兜底」——所以必须与本地兜底菜单同源。
+--
+-- component 写法与 105 调度同一约定：core 的 resolveRouteComponent 把
+-- sys_menu_component 拼成 `views/{component}.vue` 去查 @pages/hotsport 的
+-- registerMenuViewModules 映射表，因此字段既不能带 views/ 前缀也不能带
+-- .vue 后缀（见本文件 101-105 行说明）。详情页（链路瀑布 / 服务详情）
+-- 由页面内 router.push 直达、不占侧边栏，不在此注册菜单行。
+--
+-- 本组挂在「监控管理(100)」下，构成 系统指标(111) 分组 + 13 个可见叶子，
+-- 角色 1(SUPER_ADMIN) / 2(ADMIN) 可见，与 100-104 监控行一致。
+-- ---------------------------------------------------------------------
+INSERT IGNORE INTO `sys_menu` (
+    `sys_menu_id`,
+    `sys_menu_name`,
+    `sys_menu_path`,
+    `sys_menu_i18n`,
+    `sys_menu_title`,
+    `sys_menu_perm`,
+    `sys_menu_pid`,
+    `sys_menu_tree_id`,
+    `sys_menu_component`,
+    `sys_menu_icon`,
+    `sys_menu_type`,
+    `sys_menu_sort`,
+    `sys_menu_hidden`,
+    `sys_menu_show_parent`,
+    `sys_menu_hidden_tag`,
+    `sys_menu_fixed_tag`,
+    `sys_menu_redirect`,
+    `sys_menu_keep_alive`,
+    `create_name`,
+    `create_by`,
+    `create_time`,
+    `update_time`,
+    `update_name`,
+    `update_by`,
+    `sys_menu_role`,
+    `sys_menu_home`,
+    `sys_menu_engine`
+) VALUES
+(111, 'hotsport', '/hotsport', NULL, '系统指标', NULL, 100, '0,100,111', '/hotsport', 'ep:data-line', 0, 5, 0, 1, 0, 0, '/hotsport/dashboard', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(112, 'dashboard', '/hotsport/dashboard', NULL, '总览看板', NULL, 111, '0,100,111,112', 'hotsport/dashboard/index', 'ep:data-line', 1, 10, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(113, 'traces', '/hotsport/traces', NULL, '调用链路', NULL, 111, '0,100,111,113', 'hotsport/traces/index', 'ep:document', 1, 20, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(114, 'dependencies', '/hotsport/dependencies', NULL, '依赖拓扑', NULL, 111, '0,100,111,114', 'hotsport/dependencies/index', 'ep:share', 1, 30, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(115, 'topology', '/hotsport/topology', NULL, '系统拓扑', NULL, 111, '0,100,111,115', 'hotsport/topology/index', 'ep:connection', 1, 40, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(116, 'services', '/hotsport/services', NULL, '服务列表', NULL, 111, '0,100,111,116', 'hotsport/services/index', 'ep:list', 1, 50, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(117, 'endpoints', '/hotsport/endpoints', NULL, '端点分析', NULL, 111, '0,100,111,117', 'hotsport/endpoints/index', 'ep:aim', 1, 60, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(118, 'errors', '/hotsport/errors', NULL, '错误排行', NULL, 111, '0,100,111,118', 'hotsport/errors/index', 'ep:circle-close', 1, 70, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(119, 'leaks', '/hotsport/leaks', NULL, '资源泄漏', NULL, 111, '0,100,111,119', 'hotsport/leaks/index', 'ep:warning', 1, 80, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(120, 'jvm', '/hotsport/jvm', NULL, 'JVM 指标', NULL, 111, '0,100,111,120', 'hotsport/jvm/index', 'ep:cpu', 1, 90, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(121, 'logs', '/hotsport/logs', NULL, '日志', NULL, 111, '0,100,111,121', 'hotsport/logs/index', 'ep:tickets', 1, 100, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(122, 'alerts', '/hotsport/alerts', NULL, '告警中心', NULL, 111, '0,100,111,122', 'hotsport/alerts/index', 'ep:bell', 1, 110, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(123, 'agent', '/hotsport/agent', NULL, 'Agent 中心', NULL, 111, '0,100,111,123', 'hotsport/agent/index', 'ep:monitor', 1, 120, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(124, 'injector', '/hotsport/injector', NULL, '数据注入器', NULL, 111, '0,100,111,124', 'hotsport/injector/index', 'ep:magic-stick', 1, 130, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL);
+
+-- ---------------------------------------------------------------------
 -- 调度（@pages/job）。单独一条 INSERT：条件四列是后续新增的，
 -- 不必回头给上面 30 条历史菜单补默认值（缺失时后端按 ALWAYS 处理）。
 --
@@ -290,6 +351,40 @@ INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu
 (141, 3, 11),
 (142, 3, 15),
 (143, 3, 1);
+
+-- ---------------------------------------------------------------------
+-- 系统指标(111) 与 13 个叶子(112-124)：SUPER_ADMIN(1) / ADMIN(2) 可见，
+-- 与 100-104 监控管理子菜单的角色范围保持一致。
+-- ---------------------------------------------------------------------
+INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu_id`) VALUES
+(218, 1, 111),
+(219, 1, 112),
+(220, 1, 113),
+(221, 1, 114),
+(222, 1, 115),
+(223, 1, 116),
+(224, 1, 117),
+(225, 1, 118),
+(226, 1, 119),
+(227, 1, 120),
+(228, 1, 121),
+(229, 1, 122),
+(230, 1, 123),
+(231, 1, 124),
+(232, 2, 111),
+(233, 2, 112),
+(234, 2, 113),
+(235, 2, 114),
+(236, 2, 115),
+(237, 2, 116),
+(238, 2, 117),
+(239, 2, 118),
+(240, 2, 119),
+(241, 2, 120),
+(242, 2, 121),
+(243, 2, 122),
+(244, 2, 123),
+(245, 2, 124);
 
 -- =====================================================
 -- 3. 默认系统账号
