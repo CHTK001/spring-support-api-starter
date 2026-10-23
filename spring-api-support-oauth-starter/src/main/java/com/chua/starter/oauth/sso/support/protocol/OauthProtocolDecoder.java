@@ -4,7 +4,6 @@ import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.json.JsonObject;
 import com.chua.starter.common.support.algorithm.crypto.Codec;
 import com.chua.starter.common.support.network.UserAgent;
-import com.chua.starter.common.support.utils.SignUtils;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.chua.starter.oauth.sso.support.resolver.AkSkDecryptor;
 import com.chua.starter.oauth.sso.support.trace.ServerTraceContext;

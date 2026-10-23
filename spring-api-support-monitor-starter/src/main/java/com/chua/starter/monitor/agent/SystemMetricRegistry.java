@@ -29,8 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *   <li>转发失败时在自动模式下立即重探测并回退（最终 none），避免后端临时抖动打穿页面。</li>
  * </ul>
  *
- * <p>实例由 {@code SystemMetricConfiguration} 显式声明，这里不标 {@code @Component}，
- * 避免与 {@code @Bean} 同名冲突。</p>
+ * <p>实例由 {@code SystemMetricAutoConfiguration} 显式声明为 Bean，这里不标
+ * {@code @Component}，避免与 {@code @Bean} 同名冲突，也避免宿主整体扫描本包时重复注册。</p>
  *
  * @author CH
  * @since 4.0.0.42

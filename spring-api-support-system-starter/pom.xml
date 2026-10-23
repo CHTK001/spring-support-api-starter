@@ -203,6 +203,15 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-tenant-starter</artifactId>
     </dependency>
+    <!-- 系统指标（/api/apm/**）：控制器与数据源路由由 monitor 模块的
+         SystemMetricAutoConfiguration 自动装配提供，本模块只需引入依赖，
+         无需在 SystemApplication 的 scanBasePackages 里补扫其包。
+         版本未纳入父 POM 的 dependencyManagement，故显式声明 ${project.version}。 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-api-support-monitor-starter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
