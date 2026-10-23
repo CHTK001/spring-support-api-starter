@@ -11,6 +11,8 @@ import java.util.List;
  *
  * @param name        流程名称，与流程表冗余一致，以 DSL 为准展示在设计器标题
  * @param threadCount 流程内并行线程数，0 或空取平台默认
+ * @param timeoutMs   流程级单次运行最长毫秒；0 或空取平台全局 task-timeout-ms（默认 30 分钟）。
+ *                   分片型大采集（如 GitHub 全量分片）可按需调大，避免在收尾阶段被超时强制结束
  * @param headers     全局请求头，所有抓取节点共享
  * @param cookies     全局 Cookie，所有抓取节点共享
  * @param variables   全局变量，执行前注入变量上下文
@@ -25,6 +27,8 @@ public record CollectDslDTO(
         String name,
         @Schema(description = "并行线程数")
         Integer threadCount,
+        @Schema(description = "流程级运行超时毫秒，0/空取全局默认")
+        Long timeoutMs,
         @Schema(description = "全局请求头")
         List<CollectParamDTO> headers,
         @Schema(description = "全局Cookie")
