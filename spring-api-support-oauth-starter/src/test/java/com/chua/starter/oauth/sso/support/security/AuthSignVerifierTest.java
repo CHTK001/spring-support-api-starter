@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.security;
 
-import com.chua.starter.common.support.utils.SignUtils;
+import com.chua.common.support.utils.SignUtils;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@ class AuthSignVerifierTest {
         AuthServerProperties properties = new AuthServerProperties();
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("a", "1");
-        String sign = SignUtils.calculateMd5Sign(data);
+        String sign = SignUtils.signDirectKey(data, null);
 
         assertTrue(AuthSignVerifier.verify(properties, data, sign));
     }

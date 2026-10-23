@@ -1,6 +1,6 @@
 package com.chua.starter.oauth.sso.support.security;
 
-import com.chua.starter.common.support.utils.SignUtils;
+import com.chua.common.support.utils.SignUtils;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 
 import java.util.Map;
@@ -38,6 +38,6 @@ public final class AuthSignVerifier {
         if (properties == null || !properties.isSignVerify()) {
             return true;
         }
-        return SignUtils.verifyMd5Sign(bodyData, sign);
+        return SignUtils.verifyDirectKey(bodyData, sign, null);
     }
 }

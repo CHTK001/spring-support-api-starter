@@ -1,7 +1,10 @@
 package com.chua.starter.system.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -38,7 +41,7 @@ public class TreeUtils {
      */
     public static <S, T> List<T> toTree(List<S> sources, Function<S, TreeNode<T>> mapper) {
         if (sources == null || sources.isEmpty()) {
-            return new ArrayList<>();
+            return new ArrayList<>(0);
         }
         List<TreeNode<T>> nodes = new ArrayList<>(sources.size());
         for (S source : sources) {
@@ -48,11 +51,10 @@ public class TreeUtils {
             }
         }
         if (nodes.isEmpty()) {
-            return new ArrayList<>();
+            return new ArrayList<>(0);
         }
         try {
-            java.util.Set<TreeNode<T>> nonLeaf = java.util.Collections.newSetFromMap(
-                    new java.util.IdentityHashMap<>());
+            Set<TreeNode<T>> nonLeaf = Collections.newSetFromMap(new IdentityHashMap<>(nodes.size()));
             List<TreeNode<T>> roots = com.chua.common.support.utils.TreeUtils.build(
                     nodes, TreeNode::getId, TreeNode::getPid,
                     (node, kids) -> {
@@ -66,7 +68,7 @@ public class TreeUtils {
             // 遗留算法对叶子节点同样回填空列表，此处补齐以保持返回语义一致
             for (TreeNode<T> node : nodes) {
                 if (!nonLeaf.contains(node)) {
-                    node.acceptChildren(new ArrayList<>());
+                    node.acceptChildren(new ArrayList<>(0));
                 }
             }
             List<T> result = new ArrayList<>(roots.size());
@@ -88,7 +90,7 @@ public class TreeUtils {
      * @return 根节点扩展对象列表
      */
     private static <T> List<T> buildTree(List<TreeNode<T>> nodes) {
-        List<T> roots = new ArrayList<>();
+        List<T> roots = new ArrayList<>(nodes.size());
         for (TreeNode<T> node : nodes) {
             boolean hasParent = false;
             for (TreeNode<T> candidate : nodes) {
@@ -129,7 +131,7 @@ public class TreeUtils {
      * @return collectChildren的结果
      */
     private static <T> void collectChildren(TreeNode<T> node, List<TreeNode<T>> nodes) {
-        List<T> children = new ArrayList<>();
+        List<T> children = new ArrayList<>(nodes.size());
         for (TreeNode<T> candidate : nodes) {
             if (isChildOf(candidate, node)) {
                 collectChildren(candidate, nodes);
