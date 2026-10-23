@@ -349,7 +349,7 @@ public class CollectExecutionServiceImpl implements CollectExecutionService, App
         if (overrides != null) {
             variables.addAll(overrides);
         }
-        return new CollectDslDTO(dsl.name(), threadCount, dsl.headers(), dsl.cookies(),
+        return new CollectDslDTO(dsl.name(), threadCount, dsl.timeoutMs(), dsl.headers(), dsl.cookies(),
                 variables, dsl.nodes(), dsl.edges());
     }
 

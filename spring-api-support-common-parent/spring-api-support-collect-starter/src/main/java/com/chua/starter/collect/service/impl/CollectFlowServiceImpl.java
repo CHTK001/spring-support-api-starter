@@ -291,7 +291,8 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
     private CollectDslDTO withFlowMeta(CollectDslDTO parsed, CollectFlow flow) {
         String name = parsed.name() == null || parsed.name().isBlank()
                 ? flow.getCollectFlowName() : parsed.name();
-        return new CollectDslDTO(name, threadCountOf(flow), parsed.headers(), parsed.cookies(),
+        // 运行超时是 DSL 级配置：展示与执行都以 DSL 为准（流程表没有该列），原样透传。
+        return new CollectDslDTO(name, threadCountOf(flow), parsed.timeoutMs(), parsed.headers(), parsed.cookies(),
                 parsed.variables(), parsed.nodes(), parsed.edges());
     }
 
