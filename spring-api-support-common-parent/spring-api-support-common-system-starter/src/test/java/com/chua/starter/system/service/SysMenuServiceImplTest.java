@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <h3>为什么依赖能传 null</h3>
  * <p>守卫全部在 {@code baseMapper.insert(sysMenu)} <b>之前</b> return，
- * 所以 {@code new SysMenuServiceImpl(null, null, null)} 就足以覆盖全部拒绝路径 ——
+ * 所以 {@code new SysMenuServiceImpl(null, null, null, null)} 就足以覆盖全部拒绝路径 ——
  * 依赖为 null 恰好保证了「一旦守卫失效就会立刻 NPE」，不会静默通过。
  * 反过来说：如果哪天有人把守卫挪到 insert 之后，本类会立刻变红，这正是想要的。</p>
  */
@@ -45,7 +45,9 @@ class SysMenuServiceImplTest {
      * @return service
      */
     private SysMenuServiceImpl service() {
-        return new SysMenuServiceImpl(null, null, null);
+        // 构造器新增了 MenuVisibilityEvaluator；守卫仍在 insert 之前返回，
+        // 依赖传 null 可继续保证「守卫失效即 NPE」
+        return new SysMenuServiceImpl(null, null, null, null);
     }
 
     /**
