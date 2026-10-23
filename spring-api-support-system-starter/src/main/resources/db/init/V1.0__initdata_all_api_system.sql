@@ -100,7 +100,7 @@ INSERT IGNORE INTO `sys_menu` (
 -- .vue 后缀（见本文件 101-105 行说明）。详情页（链路瀑布 / 服务详情）
 -- 由页面内 router.push 直达、不占侧边栏，不在此注册菜单行。
 --
--- 本组挂在「监控管理(100)」下，构成 系统指标(111) 分组 + 13 个可见叶子，
+-- 本组挂在「监控管理(100)」下，构成 系统指标(111) 分组 + 14 个可见叶子，
 -- 角色 1(SUPER_ADMIN) / 2(ADMIN) 可见，与 100-104 监控行一致。
 -- ---------------------------------------------------------------------
 INSERT IGNORE INTO `sys_menu` (
@@ -145,7 +145,8 @@ INSERT IGNORE INTO `sys_menu` (
 (121, 'logs', '/hotsport/logs', NULL, '日志', NULL, 111, '0,100,111,121', 'hotsport/logs/index', 'ep:tickets', 1, 100, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (122, 'alerts', '/hotsport/alerts', NULL, '告警中心', NULL, 111, '0,100,111,122', 'hotsport/alerts/index', 'ep:bell', 1, 110, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (123, 'agent', '/hotsport/agent', NULL, 'Agent 中心', NULL, 111, '0,100,111,123', 'hotsport/agent/index', 'ep:monitor', 1, 120, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(124, 'injector', '/hotsport/injector', NULL, '数据注入器', NULL, 111, '0,100,111,124', 'hotsport/injector/index', 'ep:magic-stick', 1, 130, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL);
+(124, 'injector', '/hotsport/injector', NULL, '数据注入器', NULL, 111, '0,100,111,124', 'hotsport/injector/index', 'ep:magic-stick', 1, 130, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+(125, 'settings', '/hotsport/settings', NULL, '接口设置', NULL, 111, '0,100,111,125', 'hotsport/settings/index', 'ep:setting', 1, 140, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL);
 
 -- ---------------------------------------------------------------------
 -- 调度（@pages/job）。单独一条 INSERT：条件四列是后续新增的，
@@ -353,7 +354,7 @@ INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu
 (143, 3, 1);
 
 -- ---------------------------------------------------------------------
--- 系统指标(111) 与 13 个叶子(112-124)：SUPER_ADMIN(1) / ADMIN(2) 可见，
+-- 系统指标(111) 与 14 个叶子(112-125)：SUPER_ADMIN(1) / ADMIN(2) 可见，
 -- 与 100-104 监控管理子菜单的角色范围保持一致。
 -- ---------------------------------------------------------------------
 INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu_id`) VALUES
@@ -371,6 +372,7 @@ INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu
 (229, 1, 122),
 (230, 1, 123),
 (231, 1, 124),
+(246, 1, 125),
 (232, 2, 111),
 (233, 2, 112),
 (234, 2, 113),
@@ -384,7 +386,8 @@ INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu
 (242, 2, 121),
 (243, 2, 122),
 (244, 2, 123),
-(245, 2, 124);
+(245, 2, 124),
+(247, 2, 125);
 
 -- =====================================================
 -- 3. 默认系统账号
