@@ -6,7 +6,8 @@
 
 - **多源聚合检索**：携带关键词时，委托 [`utils-support-datasearch-starter`](../../../utils-support-parent-starter) 的视频 SPI（`VideoSearchService` + `ResourceProvider`）并发检索 MacCMS / 豆瓣 / B 站 / 网盘等全部已注册数据源。
 - **分类浏览**：无关键词时（首页、频道页），通过 MacCMS 兼容资源站采集协议拉取最新资源，并按前端分类码（`movie/tv/anime/variety/documentary`）过滤。
-- **视频详情**：优先命中最近浏览条目的内存缓存，其次走资源站 `ac=detail`，最后按 originId 回退聚合检索。
+- **本地索引**：资源站目录由 job-starter 的 `@Job` 增量落进 `video_info`，列表、筛选、排序、分页与详情改查本地库；库空、未引入 MyBatis-Plus 或查询异常时自动回落资源站直查（与改造前行为一致）。
+- **视频详情**：优先命中详情缓存，其次取本地索引的 `video_payload` 快照（含播放线路与下载资源），再走资源站 `ac=detail`，最后按 originId 回退聚合检索。
 - **电视直播**：内置央视 / 卫视 / 特色频道目录，多候选流自动回退；HLS 经后端反向代理（重写 m3u8 分片与密钥地址），规避公开源无 CORS、http 混合内容与 Referer 限制，并内置同根域白名单防 SSRF。
 - **配置数据库存储**：视频采集地址、兜底关键词、分类关键词与整套直播目录持久化到通用配置表 `sys_setting`（group=`video`），复用 `/v2/setting` 管理端、变更历史与导入导出；首次启动用内置 JSON 播种，存储不可用时自动回退内置 JSON。
 - **页面化配置**：前端 `vue-support-video-starter` 的配置页（路由 `/config`）直接读写上述配置（`/config`、`/config/export`、`/config/import`、`/config/reload`、`/config/sync`），无需改配置文件。
@@ -31,6 +32,8 @@
 | POST | `/video/api/config/import?overwrite=true` | 导入配置快照并热加载 |
 | POST | `/video/api/config/sync` | 手动触发配置同步（拉取远程快照 + 热加载） |
 | POST | `/video/api/config/reload` | 从配置数据库热加载配置与直播目录 |
+| POST | `/video/api/config/catalog/sync` | 手动触发目录同步（资源站 → `video_info`），返回 `pages/fetched/upserted/total` |
+| POST | `/video/api/config/catalog/detail/refresh` | 手动刷新连载剧集详情快照（集数 / 网盘地址） |
 
 ## 配置
 
@@ -40,6 +43,10 @@
 | --- | --- | --- |
 | `enabled` | `true` | 是否启用视频服务模块 |
 | `catalog-url` | `https://cj.lziapi.com/api.php/provide/vod/` | MacCMS 兼容采集接口，置空则关闭分类浏览 |
+| `catalog-store-enabled` | `true` | 是否用本地索引承接列表/详情（关闭或未引入 MyBatis-Plus 时全部直连资源站） |
+| `catalog-sync-enabled` | `true` | 是否注册目录同步任务（依赖 job-starter） |
+| `catalog-sync-pages` | `3` | 每轮目录同步拉取的页数 |
+| `catalog-detail-refresh-limit` | `20` | 每轮连载详情刷新的条数上限 |
 | `default-keyword` | 空 | 分类浏览不可用时的兜底检索关键词 |
 | `max-results` | `60` | 单次返回的最大条目数 |
 | `detail-cache-size` | `500` | 详情缓存容量（LRU） |
@@ -89,6 +96,42 @@
 - 手动触发：`POST /video/api/config/sync`
 - 关闭任务：`spring.video.config-sync-enabled=false`
 - 调度时间可在 job-starter 治理端调整（`sys_job.sys_job_schedule_time`）
+
+## 本地索引（video_info）
+
+列表与详情不再每次直连第三方：资源站目录同步进 `video_info` 后，检索读本地库、详情读快照。
+
+### 表结构
+
+一张表：标量列承接筛选 / 排序 / 分页，详情（播放线路 + 剧集 + 网盘/直链）整体以 JSON 存 `video_payload`，不为线路和下载再拆子表；`video_origin_id` 唯一键保证同一资源站条目只保留一行。
+
+建表脚本随模块交付，无需手工执行：
+
+| 环境 | 脚本 |
+| --- | --- |
+| MySQL | `src/main/resources/db/init/V1.0__init_all_api_common_video.sql`（随宿主脚本模式执行） |
+| H2（`h2` profile） | `spring-api-support-video-starter/src/main/resources/db/h2/V1.0__init_video_h2.sql` |
+
+### 读路径
+
+1. `GET /video/list`：本地库有数据 → 按 `keyword/videoType/year/district/tag` 过滤 + 排序 + 分页；
+2. 库空、库未装配（未引入 MyBatis-Plus）或查询抛错 → 回落资源站直查，行为与改造前一致；
+3. **纯筛选查空即为空**（不回落，避免跨条件串数据）；带关键词时库里没命中才回落上游，避免本地库偏小导致搜不到；
+4. `GET /video/{id}`：详情缓存 → 本地 `video_payload`（含线路/下载）→ 资源站 `ac=detail` → 聚合检索兜底。
+
+上游直查的结果会顺手回写本地库（写入失败只告警，不影响本次返回），首次访问的热数据会自然入库。列表行只是标量索引，不含线路与网盘，因此**不写入详情缓存**。
+
+### 同步任务
+
+| 任务 | cron | 说明 |
+| --- | --- | --- |
+| `video.catalog.sync` | `0 0/5 * * * ?` | 拉取最新 `catalog-sync-pages` 页并按 originId upsert |
+| `video.catalog.detail` | `0 0 0/6 * * ?` | 刷新连载详情（集数、网盘地址随更新变化），每轮最多 `catalog-detail-refresh-limit` 条 |
+
+- 依赖 job-starter：多实例由 leader election 保证单节点执行，结果写入 job 日志。
+- 手动触发：`POST /video/api/config/catalog/sync`、`POST /video/api/config/catalog/detail/refresh`。
+- 关闭任务：`catalog-sync-enabled=false`（不注册定时任务，手动接口仍可用）；整体停用本地索引：`catalog-store-enabled=false`。
+- 采集站点不可达时同步记录 WARN 并返回 `fetched=0`，既有库数据继续对外服务。
 
 ## 启用
 

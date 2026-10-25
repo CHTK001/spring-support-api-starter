@@ -51,6 +51,47 @@ CREATE INDEX IF NOT EXISTS sys_setting_idx_setting_code ON sys_setting (sys_sett
 CREATE INDEX IF NOT EXISTS sys_setting_idx_setting_group ON sys_setting (sys_setting_group);
 
 -- ============================================================
+-- 视频本地索引表（video_info）
+-- 资源站目录同步落库后的查询表；列表/筛选/分页读本表，
+-- 详情快照（线路 + 下载）以 JSON 存在 video_payload。
+-- H2 语法：索引独立创建，不使用 MySQL 内联 KEY
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS video_info (
+    video_info_id       BIGINT        NOT NULL AUTO_INCREMENT COMMENT '主键',
+    video_origin_id     VARCHAR(64)   NOT NULL COMMENT '资源站条目ID',
+    video_source        VARCHAR(32)   DEFAULT 'maccms' COMMENT '来源标识',
+    video_name          VARCHAR(255)  NULL COMMENT '名称',
+    video_alias_name    VARCHAR(255)  NULL COMMENT '别名',
+    video_category      VARCHAR(32)   NULL COMMENT '分类码',
+    video_type_name     VARCHAR(64)   NULL COMMENT '资源站分类名',
+    video_year          INT           NULL COMMENT '年份',
+    video_district      VARCHAR(64)   NULL COMMENT '地区',
+    video_language      VARCHAR(32)   NULL COMMENT '语言',
+    video_tags          VARCHAR(255)  NULL COMMENT '标签',
+    video_score         DECIMAL(4, 1) NULL COMMENT '评分',
+    video_views         DECIMAL(18, 0) NULL COMMENT '播放量',
+    video_cover         VARCHAR(512)  NULL COMMENT '封面地址',
+    video_actor         VARCHAR(512)  NULL COMMENT '主演',
+    video_director      VARCHAR(255)  NULL COMMENT '导演',
+    video_description   TEXT          NULL COMMENT '简介',
+    video_remark        VARCHAR(128)  NULL COMMENT '更新状态',
+    video_quality       VARCHAR(32)   NULL COMMENT '清晰度',
+    video_publish_time  TIMESTAMP     NULL COMMENT '资源站更新时间',
+    video_payload       TEXT          NULL COMMENT '详情快照 JSON',
+    video_status        INT           DEFAULT 1 COMMENT '1 上架 0 下架',
+    video_sync_time     TIMESTAMP     NULL COMMENT '最近同步时间',
+    create_time         TIMESTAMP     NULL,
+    update_time         TIMESTAMP     NULL,
+    PRIMARY KEY (video_info_id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uk_video_info_origin ON video_info (video_origin_id);
+CREATE INDEX IF NOT EXISTS idx_video_info_cat_time ON video_info (video_category, video_publish_time);
+CREATE INDEX IF NOT EXISTS idx_video_info_score ON video_info (video_score);
+CREATE INDEX IF NOT EXISTS idx_video_info_year ON video_info (video_year);
+
+-- ============================================================
 -- job-starter 表（sys_job / sys_job_log / sys_job_cluster）
 -- H2 语法：索引独立创建，不使用 MySQL 内联 KEY
 -- ============================================================
