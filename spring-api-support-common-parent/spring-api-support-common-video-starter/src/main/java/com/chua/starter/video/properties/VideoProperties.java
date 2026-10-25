@@ -104,4 +104,27 @@ public class VideoProperties {
      * 配置同步是否覆盖已存在项。
      */
     private boolean configSyncOverwrite = true;
+
+    /**
+     * 是否启用视频本地索引（{@code video_info}）。
+     *
+     * <p>开启后列表与详情优先读本地库，库中尚无数据时自动回落到资源站直查；
+     * 宿主未引入数据库/MyBatis-Plus 时该项自动失效，行为与旧版一致。</p>
+     */
+    private boolean catalogStoreEnabled = true;
+
+    /**
+     * 是否启用目录同步任务（job-starter 扫描 {@code @Job} 注册）。
+     */
+    private boolean catalogSyncEnabled = true;
+
+    /**
+     * 每次增量同步拉取的资源站页数（每页条数由资源站决定）。
+     */
+    private int catalogSyncPages = 3;
+
+    /**
+     * 每轮连载详情刷新条数（连载剧集的集数与网盘地址会变）。
+     */
+    private int catalogDetailRefreshLimit = 20;
 }
