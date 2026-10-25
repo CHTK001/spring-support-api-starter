@@ -8,6 +8,7 @@ import com.chua.common.support.datasearch.network.lang.code.ReturnPageResult;
 import com.chua.common.support.lang.code.PageResult;
 import com.chua.common.support.spi.ServiceProvider;
 import com.chua.starter.video.properties.VideoProperties;
+import com.chua.starter.video.repository.VideoIndex;
 import com.chua.starter.video.setting.VideoSettingService;
 import com.chua.starter.video.setting.VideoSettingStore;
 import lombok.extern.slf4j.Slf4j;
@@ -67,6 +68,11 @@ public class VideoPlatformService {
     private final Map<String, VideoInfoResult> detailCache;
 
     /**
+     * 本地索引（未引入数据库时为 null，检索退回资源站直查）。
+     */
+    private final VideoIndex repository;
+
+    /**
      * 构造视频平台业务服务（不接入配置数据库，使用本地配置）。
      *
      * @param properties 视频服务配置
@@ -82,6 +88,19 @@ public class VideoPlatformService {
      * @param settings   视频配置数据库服务
      */
     public VideoPlatformService(VideoProperties properties, VideoSettingService settings) {
+        this(properties, settings, null);
+    }
+
+    /**
+     * 构造视频平台业务服务（接入本地索引）。
+     *
+     * @param properties 视频服务配置
+     * @param settings   视频配置数据库服务
+     * @param repository 本地索引仓储，可为空（为空时退化为资源站直查）
+     */
+    public VideoPlatformService(VideoProperties properties, VideoSettingService settings,
+                                VideoIndex repository) {
+        this.repository = repository;
         this.properties = properties;
         this.settings = settings == null ? new VideoSettingService(new VideoSettingStore.Noop()) : settings;
         this.videoSearchService = new VideoSearchService();
@@ -114,6 +133,13 @@ public class VideoPlatformService {
         int safeSize = pageSize > 0 ? pageSize : 24;
         boolean searching = hasText(keyword);
 
+        // 本地索引优先：同步过就查本地库，库空/未装配时才直连资源站
+        List<VideoInfoResult> indexed = queryIndex(keyword, videoType, year, district, tag, safePage, safeSize);
+        if (indexed != null) {
+            // 列表行只是索引标量，不含线路/网盘，不能写进详情缓存，否则详情页会拿到残缺数据
+            return indexed;
+        }
+
         List<VideoInfoResult> raw = searching
                 ? aggregate(keyword, videoType, safePage, safeSize)
                 : browse(videoType, safePage);
@@ -135,12 +161,13 @@ public class VideoPlatformService {
         if (filtered.size() > maxResults) {
             filtered = new ArrayList<>(filtered.subList(0, maxResults));
         }
-        filtered.forEach(this::cache);
+        // 资源站直查的结果顺手回写本地索引，下次即可走库
+        persist(filtered);
         return filtered;
     }
 
     /**
-     * 视频详情（优先命中缓存，其次资源站详情，最后按 id 检索匹配）。
+     * 视频详情（缓存 → 本地索引 → 资源站 → 聚合检索兜底）。
      *
      * @param id 视频 originId
      * @return 视频详情，未找到返回 null
@@ -153,9 +180,17 @@ public class VideoPlatformService {
         if (cached != null) {
             return cached;
         }
+        VideoInfoResult indexed = findIndexed(id);
+        if (indexed != null) {
+            cache(indexed);
+            return indexed;
+        }
         VideoInfoResult fromCatalog = catalogClient.detail(id);
         if (fromCatalog != null) {
             cache(fromCatalog);
+            List<VideoInfoResult> one = new ArrayList<>(1);
+            one.add(fromCatalog);
+            persist(one);
             return fromCatalog;
         }
         // 已配置采集站点时以其为详情权威来源，避免再触发全网多源检索；
@@ -183,6 +218,87 @@ public class VideoPlatformService {
             return List.of();
         }
         return providers.keySet().stream().sorted().collect(Collectors.toList());
+    }
+
+    /**
+     * 拉取资源站最新目录（同步任务用）。
+     *
+     * @param page 页码，从 1 开始
+     * @return 条目列表
+     */
+    public List<VideoInfoResult> fetchCatalogPage(int page) {
+        List<VideoInfoResult> items = catalogClient.list(null, page);
+        return items == null ? List.of() : items;
+    }
+
+    /**
+     * 拉取资源站详情（同步任务用）。
+     *
+     * @param id 视频 originId
+     * @return 详情，未命中返回 null
+     */
+    public VideoInfoResult fetchCatalogDetail(String id) {
+        return catalogClient.detail(id);
+    }
+
+    /**
+     * 查本地索引。
+     *
+     * @return 命中返回结果（可能为空列表）；无法回答时返回 null，由调用方回落资源站
+     */
+    private List<VideoInfoResult> queryIndex(String keyword, String videoType, String year,
+                                             String district, String tag, int page, int pageSize) {
+        if (repository == null || !repository.available()) {
+            return null;
+        }
+        try {
+            if (repository.countAll() <= 0) {
+                return null;
+            }
+            List<VideoInfoResult> rows = repository.query(keyword, videoType, year, district, tag, page, pageSize);
+            if (!rows.isEmpty()) {
+                return rows;
+            }
+            // 纯筛选无结果时如实返回空；关键词检索未命中则回落上游，避免本地库偏小导致搜不到
+            return hasText(keyword) ? null : List.of();
+        } catch (Exception e) {
+            log.warn("[Video] 本地索引查询失败，回落资源站: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 按 id 查本地索引详情。
+     *
+     * @param id 视频 originId
+     * @return 详情；未命中或异常返回 null
+     */
+    private VideoInfoResult findIndexed(String id) {
+        if (repository == null || !repository.available()) {
+            return null;
+        }
+        try {
+            return repository.find(id);
+        } catch (Exception e) {
+            log.warn("[Video] 本地索引详情查询失败 id={}: {}", id, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 回写本地索引（失败只告警，不影响本次返回）。
+     *
+     * @param items 条目
+     */
+    private void persist(List<VideoInfoResult> items) {
+        if (repository == null || !repository.available() || items == null || items.isEmpty()) {
+            return;
+        }
+        try {
+            repository.upsertAll(items);
+        } catch (Exception e) {
+            log.warn("[Video] 本地索引写入失败: {}", e.getMessage());
+        }
     }
 
     /**
