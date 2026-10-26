@@ -5,6 +5,7 @@ import com.chua.starter.video.live.service.LiveChannelService;
 import com.chua.starter.video.setting.VideoConfigSnapshot;
 import com.chua.starter.video.setting.VideoConfigSyncService;
 import com.chua.starter.video.setting.VideoSettingService;
+import com.chua.starter.video.service.VideoCatalogSyncService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,11 @@ public class VideoConfigController {
     private final VideoConfigSyncService videoConfigSyncService;
 
     /**
+     * 目录同步服务（本地索引未装配时为空）。
+     */
+    private final VideoCatalogSyncService catalogSyncService;
+
+    /**
      * 手动触发配置同步（拉取远程快照 + 热加载）。
      *
      * @return 同步结果摘要
@@ -57,6 +63,34 @@ public class VideoConfigController {
     @PostMapping("/sync")
     public ReturnResult<Map<String, Object>> sync() {
         return ReturnResult.ok(videoConfigSyncService.sync());
+    }
+
+    /**
+     * 手动触发目录同步（资源站最新目录 → 本地索引）。
+     *
+     * @return 同步结果摘要
+     */
+    @Operation(summary = "Sync video catalog into local index")
+    @PostMapping("/catalog/sync")
+    public ReturnResult<Map<String, Object>> syncCatalog() {
+        if (catalogSyncService == null) {
+            return ReturnResult.error("本地索引不可用（未引入数据库或 MyBatis-Plus）");
+        }
+        return ReturnResult.ok(catalogSyncService.sync());
+    }
+
+    /**
+     * 手动触发连载详情刷新（集数与网盘地址）。
+     *
+     * @return 刷新结果摘要
+     */
+    @Operation(summary = "Refresh series detail snapshots")
+    @PostMapping("/catalog/detail/refresh")
+    public ReturnResult<Map<String, Object>> refreshCatalogDetails() {
+        if (catalogSyncService == null) {
+            return ReturnResult.error("本地索引不可用（未引入数据库或 MyBatis-Plus）");
+        }
+        return ReturnResult.ok(catalogSyncService.refreshDetails());
     }
 
     /**
