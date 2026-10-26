@@ -57,6 +57,11 @@ import java.nio.charset.StandardCharsets;
 @Tag(name = "Gitee账号绑定", description = "提供将Gitee账号与系统账号绑定的功能")
 public class GiteeBinderProvider implements InitializingBean, ApplicationContextAware {
 
+    /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(GiteeBinderProvider.class.getName());
+
     final CasProperties casProperties; // cas属性
     final ThirdPartyBinderProperties thirdPartyBinderProperties; // thirdpartybinder属性
     final LoginCheck loginCheck; // login检查
@@ -165,7 +170,8 @@ public class GiteeBinderProvider implements InitializingBean, ApplicationContext
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         try {
             giteeService = applicationContext.getBean(GiteeService.class);
-        } catch (BeansException ignored) {
+        } catch (BeansException e) {
+            LOG.log(System.Logger.Level.DEBUG, "[gitee] 获取 GiteeService 失败，已忽略: " + e.getMessage(), e);
         }
     }
 }

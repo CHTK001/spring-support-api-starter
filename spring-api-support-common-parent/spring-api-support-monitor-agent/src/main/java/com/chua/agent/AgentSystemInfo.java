@@ -24,6 +24,12 @@ import java.util.regex.Pattern;
 public class AgentSystemInfo {
 
     /**
+     * 日志
+     */
+    private static final java.util.logging.Logger LOG =
+            java.util.logging.Logger.getLogger(AgentSystemInfo.class.getName());
+
+    /**
      * OSHI 入口
     */
     private final SystemInfo si = new SystemInfo();
@@ -162,7 +168,9 @@ public class AgentSystemInfo {
                     return nif.getIPv4addr()[0];
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            LOG.log(java.util.logging.Level.WARNING, "[AgentSystemInfo] Failed to get primary IP", e);
+        }
         return "127.0.0.1";
     }
 
@@ -178,7 +186,9 @@ public class AgentSystemInfo {
                     return nif.getMacaddr();
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            LOG.log(java.util.logging.Level.WARNING, "[AgentSystemInfo] Failed to get primary MAC", e);
+        }
         return "";
     }
 

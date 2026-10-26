@@ -117,7 +117,8 @@ public final class EmailProbe {
             if (null != store) {
                 try {
                     store.close();
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    log.debug("[email] 关闭存储失败，已忽略: {}", e.getMessage());
                 }
             }
         }

@@ -111,7 +111,8 @@ public class MsMonitorController {
             if (ctx != null && StringUtils.isNotEmpty(ctx.getClientAppName())) {
                 return ctx.getClientAppName();
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[monitor] 读取客户端应用名失败，已忽略: {}", e.getMessage());
         }
         return "default";
     }

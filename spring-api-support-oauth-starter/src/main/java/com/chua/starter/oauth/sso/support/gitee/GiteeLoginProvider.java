@@ -59,6 +59,11 @@ import java.nio.charset.StandardCharsets;
 @Tag(name = "Gitee登录", description = "提供Gitee第三方账号登录功能")
 public class GiteeLoginProvider implements InitializingBean, ApplicationContextAware {
 
+    /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(GiteeLoginProvider.class.getName());
+
     final CasProperties casProperties; // cas属性
     final ThirdPartyLoginProperties thirdPartyLoginProperties; // thirdpartylogin属性
     final LoginCheck loginCheck; // login检查
@@ -159,7 +164,8 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         try {
             giteeService = applicationContext.getBean(GiteeService.class);
-        } catch (BeansException ignored) {
+        } catch (BeansException e) {
+            LOG.log(System.Logger.Level.DEBUG, "[gitee] 获取 GiteeService 失败，已忽略: " + e.getMessage(), e);
         }
     }
 }

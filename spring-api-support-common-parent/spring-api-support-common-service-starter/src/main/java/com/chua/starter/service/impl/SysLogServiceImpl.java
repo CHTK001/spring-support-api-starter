@@ -235,7 +235,8 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
                     return req.getUserPrincipal().getName();
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[syslog] 操作失败，已忽略: {}", e.getMessage());
         }
         return username;
     }
@@ -259,13 +260,15 @@ public class SysLogServiceImpl extends ServiceImpl<SysLogMapper, SysLog> impleme
                     return uri;
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[syslog] 操作失败，已忽略: {}", e.getMessage());
         }
         String mapping = event.getLogMapping();
         if (mapping != null && mapping.startsWith("http")) {
             try {
                 return java.net.URI.create(mapping).getRawPath();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[syslog] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return mapping;

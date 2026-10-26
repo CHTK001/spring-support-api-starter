@@ -17,6 +17,11 @@ public final class ProtocolClientSupport {
     /**
      * 缓存已创建的客户端，用于 销毁
     */
+    private static final System.Logger LOG = System.getLogger(ProtocolClientSupport.class.getName());
+
+    /**
+     * 缓存已创建的客户端，用于 销毁
+     */
     private static final Map<String, Object> CLIENTS = new ConcurrentHashMap<>();
 
     /**
@@ -76,7 +81,8 @@ public final class ProtocolClientSupport {
         if (client instanceof AutoCloseable ac) {
             try {
                 ac.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[protocol] 关闭客户端失败，已忽略: " + e.getMessage(), e);
             }
         }
     }
@@ -95,7 +101,8 @@ public final class ProtocolClientSupport {
         if (client instanceof AutoCloseable ac) {
             try {
                 ac.close();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                LOG.log(System.Logger.Level.DEBUG, "[protocol] 关闭客户端失败，已忽略: " + e.getMessage(), e);
             }
         }
     }

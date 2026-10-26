@@ -455,7 +455,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             }
             try {
                 parsed.add(Integer.valueOf(roleId.trim()));
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException e) {
+                log.debug("[user] 解析角色 ID 失败，已忽略: {}", e.getMessage());
             }
         }
         return parsed;
