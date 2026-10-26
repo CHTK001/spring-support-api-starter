@@ -1,6 +1,10 @@
 spring:
   datasource:
+    # dev profile 用 P6Spy 驱动包装 MySQL；H2 场景必须换回原生驱动，
+    # 否则 P6Spy 会拒绝 jdbc:h2: 的 URL。两种写法都写上：本仓库不同模块
+    # 对 driver-class-name / driverClassName 的绑定习惯不一致。
     driver-class-name: org.h2.Driver
+    driverClassName: org.h2.Driver
     url: jdbc:h2:file:D:/ch/project/.tmp/verify_h2/system_verify;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     username: sa
     password:
@@ -42,3 +46,22 @@ plugin:
     feedback:
       menu:
         enabled: false
+
+# ---------------------------------------------------------------------
+# 监控管理 → 系统指标（/api/apm/**）的数据源
+#
+# provider 只选择数据源，接口本身由 system.metric.enable 控制：
+#   auto —— 按 hotsport → skywalker → none 顺序探测，第一个可达的胜出；
+#   none —— 直接返回零值降级数据。
+# 这里默认指向本机 hotsport 观测后端（独立进程，端口 8582）。没部署
+# hotsport 的机器上探测失败会自动落到 none，接口照常可用、只是数据为零，
+# 因此不需要为「装没装 hotsport」分别写配置。
+# ---------------------------------------------------------------------
+system:
+  metric:
+    enable: true
+    provider: auto
+    hotsport:
+      base-url: ${HOTSPORT_BASE_URL:http://127.0.0.1:8582}
+    skywalking:
+      oap-url: ${SKYWALKING_OAP_URL:}

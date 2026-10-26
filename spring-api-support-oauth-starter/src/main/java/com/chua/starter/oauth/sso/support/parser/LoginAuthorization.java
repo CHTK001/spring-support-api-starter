@@ -68,7 +68,9 @@ public final class LoginAuthorization implements Authorization {
         IptablesService iptSvc = null;
         try {
             iptSvc = applicationContext.getBean(IptablesService.class);
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            log.warn("[LoginAuthorization] Failed to get IptablesService", e);
+        }
         this.iptablesService = iptSvc;
     }
 
@@ -156,7 +158,8 @@ public final class LoginAuthorization implements Authorization {
             if (userId != null) {
                 try {
                     sysUserLog.setCreateBy(Integer.parseInt(userId));
-                } catch (NumberFormatException ignored) {
+                } catch (NumberFormatException e) {
+                    log.debug("[login] 解析数字失败，已忽略: {}", e.getMessage());
                 }
             }
             Map<String, Object> userExt = returnResult.getData().getUserResume().getExt();
@@ -165,14 +168,16 @@ public final class LoginAuthorization implements Authorization {
                 if (createBy != null) {
                     try {
                         sysUserLog.setCreateBy(Integer.parseInt(createBy.toString()));
-                    } catch (NumberFormatException ignored) {
+                    } catch (NumberFormatException e) {
+                        log.debug("[login] 解析 createBy 失败，已忽略: {}", e.getMessage());
                     }
                 }
                 Object sysDeptId = userExt.get("sysDeptId");
                 if (sysDeptId != null) {
                     try {
                         sysUserLog.setSysDeptId(Integer.parseInt(sysDeptId.toString()));
-                    } catch (NumberFormatException ignored) {
+                    } catch (NumberFormatException e) {
+                        log.debug("[login] 解析 createBy 失败，已忽略: {}", e.getMessage());
                     }
                 }
             }
@@ -188,7 +193,9 @@ public final class LoginAuthorization implements Authorization {
                     sysUserLog.setSysLogAddress(city.toString());
                     sysUserLog.setSysLogIsp(city.getIsp());
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+            log.warn("[LoginAuthorization] Failed to get geo info", e);
+        }
         }
 
         return sysUserLog;

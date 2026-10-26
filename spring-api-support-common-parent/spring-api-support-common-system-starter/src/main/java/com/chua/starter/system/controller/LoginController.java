@@ -141,7 +141,8 @@ public class LoginController {
         if (StringUtils.isNotBlank(logoutTypeHeader)) {
             try {
                 logoutType = LogoutType.valueOf(logoutTypeHeader);
-            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException e) {
+                log.debug("[login] 登出类型非法，使用默认值: {}", e.getMessage());
             }
         }
 
@@ -164,7 +165,8 @@ public class LoginController {
         if (resume != null && StringUtils.isNotBlank(resume.getUserId())) {
             try {
                 onlineStatusManager.markOffline(Integer.parseInt(resume.getUserId().trim()));
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException e) {
+                log.debug("[login] 解析数字失败，已忽略: {}", e.getMessage());
             }
         }
 
@@ -210,14 +212,16 @@ public class LoginController {
                     userInfoVO.setSysUserAvatarFrame(effectiveFrame[0]);
                     userInfoVO.setSysUserAvatarFrameShow(effectiveFrame[1]);
                 }
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException e) {
+                log.debug("[login] 解析数字失败，已忽略: {}", e.getMessage());
             }
         }
         // 角色信息从 oauth 上下文获取（角色不常变，保留缓存）
         try {
             Set<String> roles = AuthClientExecute.getInstance().getUserResult().getRoles();
             userInfoVO.setRoles(roles);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            log.debug("[login] 操作失败，已忽略: {}", e.getMessage());
         }
         return ReturnResult.ok(userInfoVO);
     }

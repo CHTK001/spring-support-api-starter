@@ -183,7 +183,8 @@ public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSe
         if (fileHttpServer != null) {
             try {
                 fileHttpServer.stop();
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[sys-fs] 停止文件服务失败，已忽略: {}", e.getMessage());
             }
         }
     }

@@ -31,6 +31,11 @@ final class NtfsMftReader {
     private static final long MFT_ROOT_FRN = 5L;
     private static final long FILETIME_EPOCH_DELTA = 116444736000000000L;
     private static final int TOP_FILES = 12;
+    /**
+     * 日志
+     */
+    private static final java.util.logging.Logger LOG =
+            java.util.logging.Logger.getLogger(NtfsMftReader.class.getName());
 
     /** Seek 原点：FILE_BEGIN */
     private static final int FILE_BEGIN = 0;
@@ -230,13 +235,14 @@ final class NtfsMftReader {
                     letter + ":/", childAdj, state, ownAlloc, names, sumAlloc, sumReal, fileCnt, dirCnt, modFt);
             return root;
         } catch (Throwable t) {
-            t.printStackTrace();
+            LOG.log(java.util.logging.Level.WARNING, "NTFS MFT 扫描失败，回退普通遍历", t);
             return null;
         } finally {
             if (handle != null) {
                 try {
                     Kernel32.INSTANCE.CloseHandle(handle);
-                } catch (Throwable ignored) {
+                } catch (Throwable closeEx) {
+                    LOG.log(java.util.logging.Level.FINE, "关闭句柄失败，已忽略", closeEx);
                 }
             }
         }

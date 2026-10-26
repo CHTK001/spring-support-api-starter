@@ -183,7 +183,9 @@ public class CollectTaskServiceImpl extends ServiceImpl<CollectTaskMapper, Colle
                 else if ("FAILURE".equals(st)) f++;
                 else if ("SKIPPED".equals(st)) sk++;
             }
-            if (s > 0) successNodes++;
+            if (s > 0) {
+                successNodes++;
+            }
             else if (f > 0) failedNodes++;
             else skippedNodes++;
 
@@ -287,7 +289,9 @@ public class CollectTaskServiceImpl extends ServiceImpl<CollectTaskMapper, Colle
             if ("SUCCESS".equals(s)) success++;
             else if ("FAILURE".equals(s)) failure++;
             else if ("SKIPPED".equals(s)) skipped++;
-            if (t.getCollectTaskRecordCount() != null) totalRecords += t.getCollectTaskRecordCount();
+            if (t.getCollectTaskRecordCount() != null) {
+                totalRecords += t.getCollectTaskRecordCount();
+            }
             if (t.getCollectTaskCost() != null) {
                 totalCost += t.getCollectTaskCost();
                 minCost = Math.min(minCost, t.getCollectTaskCost());
@@ -330,8 +334,12 @@ public class CollectTaskServiceImpl extends ServiceImpl<CollectTaskMapper, Colle
             for (CollectTask t : dayTasks) {
                 if ("SUCCESS".equals(t.getCollectTaskStatus())) ds++;
                 else if ("FAILURE".equals(t.getCollectTaskStatus())) df++;
-                if (t.getCollectTaskRecordCount() != null) dr += t.getCollectTaskRecordCount();
-                if (t.getCollectTaskCost() != null) dc += t.getCollectTaskCost();
+                if (t.getCollectTaskRecordCount() != null) {
+                    dr += t.getCollectTaskRecordCount();
+                }
+                if (t.getCollectTaskCost() != null) {
+                    dc += t.getCollectTaskCost();
+                }
             }
             dt.setSuccessCount(ds);
             dt.setFailureCount(df);

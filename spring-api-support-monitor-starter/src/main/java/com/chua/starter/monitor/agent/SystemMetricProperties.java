@@ -25,6 +25,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class SystemMetricProperties {
 
     /**
+     * 是否启用系统指标接口（{@code /api/apm/**}）。
+     *
+     * <p>缺省为 {@code true}：引入监控模块即生效。设为 {@code false} 可整体关闭接口，
+     * 与 {@link #provider} 不同——后者只切换数据源，接口始终存在。</p>
+     */
+    private boolean enable = true;
+
+    /**
      * 数据源模式：auto / none / hotsport / skywalker。
      */
     private String provider = "auto";
