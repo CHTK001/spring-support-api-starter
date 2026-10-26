@@ -36,7 +36,5 @@
         <!-- 采集调度一体化平台：业务应用模块，非系统级组件，故归入本聚合而非根 POM 直挂 -->
         <module>spring-api-support-collect-starter</module>
         <module>spring-api-support-common-video-starter</module>
-        
-        <module>spring-api-support-common-face-reid-starter</module>
     </modules>
 </project>

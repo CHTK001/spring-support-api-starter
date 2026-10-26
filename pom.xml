@@ -194,12 +194,6 @@
 
             <dependency>
                 <groupId>com.chua</groupId>
-                <artifactId>spring-api-support-common-face-reid-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.chua</groupId>
                 <artifactId>spring-api-support-common-system-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
