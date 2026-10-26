@@ -299,7 +299,8 @@ public abstract class AbstractUserLoginService implements UserInfoService {
         if (parts.length >= 3 && !parts[2].isEmpty()) {
             try {
                 p.dataPermission = DataFilterTypeEnum.valueOf(parts[2]);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[login] 解析数据权限类型失败，已忽略: {}", e.getMessage());
             }
         }
         if (parts.length >= 4) {

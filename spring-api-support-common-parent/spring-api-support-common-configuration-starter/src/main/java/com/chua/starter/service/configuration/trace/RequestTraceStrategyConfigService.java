@@ -20,6 +20,11 @@ import java.util.Set;
 public class RequestTraceStrategyConfigService {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(RequestTraceStrategyConfigService.class.getName());
+
+    /**
      * 配置_storage_默认
     */
     private static final List<String> CONFIG_STORAGE_DEFAULTS = List.of("database", "redis", "memory");
@@ -215,7 +220,8 @@ public class RequestTraceStrategyConfigService {
                     .map(this::lowerCase)
                     .filter(item -> item != null && !item.isBlank())
                     .forEach(values::add);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            LOG.log(System.Logger.Level.DEBUG, "[trace] 加载 SPI 策略失败，已忽略: " + e.getMessage(), e);
         }
         return List.copyOf(values);
     }

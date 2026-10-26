@@ -19,6 +19,11 @@ import java.util.UUID;
 public class ServerTraceContext {
 
     /**
+     * 日志
+     */
+    private static final System.Logger LOG = System.getLogger(ServerTraceContext.class.getName());
+
+    /**
      * 上下文_holder
     */
     private static final ThreadLocal<ServerTraceContext> CONTEXT_HOLDER = new ThreadLocal<>();
@@ -81,7 +86,8 @@ public class ServerTraceContext {
         if (timestampStr != null && !timestampStr.isEmpty()) {
             try {
                 clientTimestamp = Long.parseLong(timestampStr);
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException e) {
+                LOG.log(System.Logger.Level.DEBUG, "[trace] 解析时间戳失败，已忽略: " + e.getMessage(), e);
             }
         }
         

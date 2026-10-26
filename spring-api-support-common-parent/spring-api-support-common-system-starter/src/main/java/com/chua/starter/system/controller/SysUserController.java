@@ -59,6 +59,11 @@ import static com.chua.starter.oauth.client.support.contants.AuthConstant.ADMIN;
 public class SysUserController {
 
     /**
+     * 日志
+     */
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SysUserController.class);
+
+    /**
      * SYS用户服务
     */
     private final SysUserService sysUserService;
@@ -276,7 +281,8 @@ public class SysUserController {
         if (result.isSuccess() && StringUtils.isNotBlank(token)) {
             try {
                 AuthClientExecute.getInstance().upgrade(token, UpgradeType.VERSION);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[user] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return result;
@@ -310,7 +316,8 @@ public class SysUserController {
         if (result.isSuccess() && StringUtils.isNotBlank(token)) {
             try {
                 AuthClientExecute.getInstance().upgrade(token, UpgradeType.VERSION);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[user] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return result;
@@ -339,7 +346,8 @@ public class SysUserController {
         if (result.isSuccess() && StringUtils.isNotBlank(token)) {
             try {
                 AuthClientExecute.getInstance().upgrade(token, UpgradeType.VERSION);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[user] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return result;
@@ -389,7 +397,8 @@ public class SysUserController {
         if (result.isSuccess() && StringUtils.isNotBlank(token)) {
             try {
                 AuthClientExecute.getInstance().upgrade(token, UpgradeType.VERSION);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[user] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         return result;

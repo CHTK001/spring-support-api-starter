@@ -554,7 +554,8 @@ public class SysLoginServiceImpl implements SysLoginService {
         if (userInfoVO.getSysUserId() == null && StringUtils.isNotBlank(userLoginInfo.getUserId())) {
             try {
                 userInfoVO.setSysUserId(Integer.parseInt(userLoginInfo.getUserId()));
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException e) {
+                log.debug("[login] 解析用户 ID 失败，已忽略: {}", e.getMessage());
             }
         }
 
@@ -628,7 +629,8 @@ public class SysLoginServiceImpl implements SysLoginService {
             } else if (null != mustChange) {
                 try {
                     userInfoVO.setMustChangePassword(Integer.valueOf(String.valueOf(mustChange)));
-                } catch (NumberFormatException ignored) {
+                } catch (NumberFormatException e) {
+                    log.debug("[login] 解析强制改密标志失败，已忽略: {}", e.getMessage());
                 }
             }
         }

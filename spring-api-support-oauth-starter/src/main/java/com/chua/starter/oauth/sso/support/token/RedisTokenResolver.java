@@ -368,7 +368,8 @@ public class RedisTokenResolver implements TokenResolver {
                 if (count > 0) {
                     return count;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[token] 操作失败，已忽略: {}", e.getMessage());
             }
         }
  // 未注入配置时，回退到默认的在线数量限制（与 认证服务端属性 默认值保持一致）
@@ -510,7 +511,8 @@ public class RedisTokenResolver implements TokenResolver {
                 if (expire > 0) {
                     return expire;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.debug("[token] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         // 全局配置
@@ -657,7 +659,8 @@ public class RedisTokenResolver implements TokenResolver {
         if (!tokenKeys.isEmpty()) {
             try {
                 stringRedisTemplate.delete(tokenKeys);
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                log.debug("[token] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         
@@ -666,7 +669,8 @@ public class RedisTokenResolver implements TokenResolver {
         if (!refreshKeys.isEmpty()) {
             try {
                 stringRedisTemplate.delete(refreshKeys);
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                log.debug("[token] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         
@@ -675,14 +679,16 @@ public class RedisTokenResolver implements TokenResolver {
         if (!oldTokenKeys.isEmpty()) {
             try {
                 stringRedisTemplate.delete(oldTokenKeys);
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                log.debug("[token] 操作失败，已忽略: {}", e.getMessage());
             }
         }
         Set<String> oldRefreshKeys = scanKeys(TOKEN_REFRESH_PRE + uid + "*");
         if (!oldRefreshKeys.isEmpty()) {
             try {
                 stringRedisTemplate.delete(oldRefreshKeys);
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
+                log.debug("[token] 操作失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -1384,7 +1390,8 @@ public class RedisTokenResolver implements TokenResolver {
             if (userResult.getUserId() != null) {
                 try {
                     userLog.setCreateBy(Integer.parseInt(userResult.getUserId()));
-                } catch (NumberFormatException ignored) {
+                } catch (NumberFormatException e) {
+                    log.debug("[token] 解析数字失败，已忽略: {}", e.getMessage());
                 }
             }
 
@@ -1395,14 +1402,16 @@ public class RedisTokenResolver implements TokenResolver {
                 if (createBy != null) {
                     try {
                         userLog.setCreateBy(Integer.parseInt(createBy.toString()));
-                    } catch (NumberFormatException ignored) {
+                    } catch (NumberFormatException e) {
+                        log.debug("[token] 解析数字失败，已忽略: {}", e.getMessage());
                     }
                 }
                 Object sysDeptId = ext.get("sysDeptId");
                 if (sysDeptId != null) {
                     try {
                         userLog.setSysDeptId(Integer.parseInt(sysDeptId.toString()));
-                    } catch (NumberFormatException ignored) {
+                    } catch (NumberFormatException e) {
+                        log.debug("[token] 解析数字失败，已忽略: {}", e.getMessage());
                     }
                 }
                 Object ua = ext.get("ua");
@@ -1413,7 +1422,9 @@ public class RedisTokenResolver implements TokenResolver {
                                 com.chua.starter.common.support.network.UserAgent.parseUserAgentString(ua.toString());
                         userLog.setSysLogBrowser(userAgent.getBrowser().toString());
                         userLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        log.warn("[RedisTokenResolver] Failed to parse user agent", e);
+                    }
                 }
                 Object fingerprint = ext.get("fingerprint");
                 if (fingerprint != null) {
@@ -1474,7 +1485,9 @@ public class RedisTokenResolver implements TokenResolver {
                         }
                     }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                log.warn("[RedisTokenResolver] Failed to update user log", e);
+            }
 
             SysUserLog userLog = new SysUserLog();
             userLog.setSysLogUsername(username != null ? username : uid);
@@ -1485,7 +1498,8 @@ public class RedisTokenResolver implements TokenResolver {
             userLog.setSysLogUrl("/logout");
             try {
                 userLog.setCreateBy(Integer.parseInt(uid));
-            } catch (NumberFormatException ignored) {
+            } catch (NumberFormatException e) {
+                log.debug("[token] 解析数字失败，已忽略: {}", e.getMessage());
             }
 
             // 从 ext 补充浏览器/系统信息
@@ -1494,7 +1508,8 @@ public class RedisTokenResolver implements TokenResolver {
                 if (sysDeptId != null) {
                     try {
                         userLog.setSysDeptId(Integer.parseInt(sysDeptId.toString()));
-                    } catch (NumberFormatException ignored) {
+                    } catch (NumberFormatException e) {
+                        log.debug("[token] 解析数字失败，已忽略: {}", e.getMessage());
                     }
                 }
                 Object ua = ext.get("ua");
@@ -1505,7 +1520,9 @@ public class RedisTokenResolver implements TokenResolver {
                                 com.chua.starter.common.support.network.UserAgent.parseUserAgentString(ua.toString());
                         userLog.setSysLogBrowser(userAgent.getBrowser().toString());
                         userLog.setSysLogSystem(userAgent.getOperatingSystem().getName());
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        log.warn("[RedisTokenResolver] Failed to parse user agent", e);
+                    }
                 }
                 Object fingerprint = ext.get("fingerprint");
                 if (fingerprint != null) {

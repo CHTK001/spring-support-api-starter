@@ -83,7 +83,8 @@ public class H2DataInitializer implements ApplicationRunner {
         for (String t : tables) {
             try {
                 jdbcTemplate.execute("DROP TABLE IF EXISTS " + t);
-            } catch (Exception ignore) {
+            } catch (Exception e) {
+                log.warn("[H2] 初始化数据失败，已忽略: {}", e.getMessage());
             }
         }
     }
@@ -210,66 +211,81 @@ public class H2DataInitializer implements ApplicationRunner {
         // 反馈扩展列（data-h2.sql 的 sys_feedback 可能缺这些，补齐）
         try {
             jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_images VARCHAR(1000)");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         try {
             jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_deal_by INT");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         try {
             jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_deal_name VARCHAR(100)");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         try {
             jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_recover_content TEXT");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         try {
             jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_recover_time datetime");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         try {
             jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_recover_images VARCHAR(1000)");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         try {
             jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_user_agent VARCHAR(500)");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         try {
             jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_platform VARCHAR(100)");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         try {
             jdbcTemplate.execute("ALTER TABLE sys_feedback ADD COLUMN IF NOT EXISTS sys_feedback_priority INT DEFAULT 1");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         // sys_user 补列
         try {
             jdbcTemplate.execute("ALTER TABLE sys_user ADD COLUMN IF NOT EXISTS sys_user_lock INT DEFAULT 0");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         // sys_setting 补列
         try {
             jdbcTemplate.execute("ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_config VARCHAR(255)");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         try {
             jdbcTemplate.execute("ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_collect INT DEFAULT 0");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         try {
             jdbcTemplate.execute("ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_is_sensitive INT DEFAULT 0");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         try {
             jdbcTemplate.execute("ALTER TABLE sys_setting ADD COLUMN IF NOT EXISTS sys_setting_validate VARCHAR(255)");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         // sys_announcement 补列
         try {
             jdbcTemplate.execute("ALTER TABLE sys_announcement ADD COLUMN IF NOT EXISTS sys_announcement_expire_time datetime");
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("[H2] 执行 ALTER TABLE 补列失败，已忽略: {}", e.getMessage());
         }
         // 趣味模块配置表
         jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS edu_fun_config (" +

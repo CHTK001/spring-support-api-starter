@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +17,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 
 /**
  * 系统指标接口（统一前缀 {@code /api/apm}）。
@@ -73,15 +79,74 @@ public class SystemMetricController {
             return ResponseEntity.ok(ReturnResult.ok(registry.providerInfo()));
         }
 
-        SystemMetricRequest metricRequest = new SystemMetricRequest();
-        metricRequest.setMethod(HttpMethod.valueOf(request.getMethod()));
+        SystemMetricRequest metricRequest = toMetricRequest(request);
         metricRequest.setPath(path);
-        metricRequest.setQuery(request.getQueryString());
-        metricRequest.setBody(readBody(request));
-        metricRequest.setHeaders(readAllowedHeaders(request));
 
         SystemMetricResponse response = registry.forward(metricRequest);
         return toResponseEntity(response);
+    }
+
+    /**
+     * SSE 实时流入口（{@code /api/apm/stream}）。
+     *
+     * <p><b>为什么单独成一个方法</b>：统一入口返回 {@code ResponseEntity<Object>}，
+     * 泛型解析出 {@code Object}，SSE 帧会被当成普通响应体交给 Jackson 序列化，
+     * 报 {@code No converter for [...] with preset Content-Type 'text/event-stream'}
+     * （HTTP 500 “系统繁忙”）。所以流式响应单独一个方法写。</p>
+     *
+     * <p><b>为什么直接写 {@code ServletOutputStream} 而不用
+     * {@code ResponseEntity<StreamingResponseBody>}</b>：后者要走 Spring 的异步
+     * 分发，实测在本工程里有两个副作用 —— 一是异步请求受
+     * {@code spring.mvc.async.request-timeout}（默认 30s）约束，长连接会被
+     * {@code AsyncRequestTimeoutException} 掐断；二是帧虽然被 {@code flush()}，
+     * 客户端却一直接不到（响应迟迟不提交）。直接同步写输出流并逐帧 flush，
+     * 行为与浏览器 EventSource 的期待一致，不依赖异步分发的任何配置。</p>
+     *
+     * <p>路径映射为精确 {@code /stream}，比统一入口的 {@code /**} 更具体，
+     * Spring 会优先匹配本方法，因此不会与之冲突。</p>
+     *
+     * @param request  原始 HTTP 请求
+     * @param response 原始 HTTP 响应（流式写出）
+     * @throws IOException 取输出流或数据源转发失败
+     */
+    @RequestMapping(value = "/stream", method = {RequestMethod.GET, RequestMethod.POST})
+    public void stream(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        SystemMetricRequest metricRequest = toMetricRequest(request);
+        metricRequest.setPath("/stream");
+
+        SystemMetricResponse metricResponse = registry.forward(metricRequest);
+
+        Consumer<OutputStream> streamBody = metricResponse.getStreamBody();
+        if (streamBody == null) {
+            // 数据源未提供流（降级/异常）：回一帧后正常关闭，EventSource 会按 retry 重连，
+            // 页面保持空态而不是一直转圈
+            byte[] body = metricResponse.getBody();
+            streamBody = out -> {
+                try {
+                    if (body != null && body.length > 0) {
+                        out.write("data: ".getBytes(StandardCharsets.UTF_8));
+                        out.write(body);
+                        out.write("\n\n".getBytes(StandardCharsets.UTF_8));
+                        out.flush();
+                    }
+                } catch (IOException ignored) {
+                    // 客户端断开时静默结束
+                }
+            };
+        }
+
+        String contentType = metricResponse.getHeaders().get("Content-Type");
+        response.setStatus(metricResponse.getStatus());
+        response.setContentType(contentType == null ? "text/event-stream;charset=UTF-8" : contentType);
+        // 关掉各级缓存与反代缓冲，否则 SSE 帧会被攒着不下发
+        response.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-transform");
+        response.setHeader("X-Accel-Buffering", "no");
+        response.setHeader("Connection", "keep-alive");
+
+        ServletOutputStream out = response.getOutputStream();
+        log.info("[system-metric] SSE 开始写入: out={}, resp={}", out.getClass().getName(), response.getClass().getName());
+        streamBody.accept(out);
+        out.flush();
     }
 
     /**
@@ -95,6 +160,22 @@ public class SystemMetricController {
     }
 
     // ---- 内部工具 ----
+
+    /**
+     * 把原始 HTTP 请求翻译成数据源无关的请求对象（不含 path，由调用方补齐）。
+     *
+     * @param request 原始 HTTP 请求
+     * @return 指标请求
+     * @throws IOException 请求体读取失败
+     */
+    private SystemMetricRequest toMetricRequest(HttpServletRequest request) throws IOException {
+        SystemMetricRequest metricRequest = new SystemMetricRequest();
+        metricRequest.setMethod(HttpMethod.valueOf(request.getMethod()));
+        metricRequest.setQuery(request.getQueryString());
+        metricRequest.setBody(readBody(request));
+        metricRequest.setHeaders(readAllowedHeaders(request));
+        return metricRequest;
+    }
 
     private String extractPath(HttpServletRequest request) {
         String uri = request.getRequestURI();
@@ -132,12 +213,32 @@ public class SystemMetricController {
             builder.header(header.getKey(), header.getValue());
         }
         if (response.getStreamBody() != null) {
-            builder.contentType(MediaType.TEXT_EVENT_STREAM);
-            return builder.body((StreamingResponseBody) out -> response.getStreamBody().accept(out));
+            // 统一入口返回 ResponseEntity<Object>，泛型解析不到 StreamingResponseBody，
+            // Spring 不会走流式处理器（会报 No converter）。SSE 已由上面的 stream()
+            // 独占 /stream，这里只可能是「一次性可结束」的导出类流，直接缓冲成字节后返回。
+            log.warn("[系统指标] 非 /stream 路径返回流式响应，已缓冲为普通响应");
+            return builder.body(bufferStream(response.getStreamBody()));
         }
         if (response.getBody() == null) {
             return builder.build();
         }
         return builder.body(response.getBody());
+    }
+
+    /**
+     * 把一次性流式响应缓冲成字节数组。
+     *
+     * @param stream 流写入逻辑
+     * @return 缓冲结果，失败时返回空数组
+     */
+    private byte[] bufferStream(Consumer<OutputStream> stream) {
+        java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+        try {
+            stream.accept(buffer);
+            return buffer.toByteArray();
+        } catch (Exception e) {
+            log.warn("[系统指标] 缓冲流式响应失败: {}", e.getMessage());
+            return new byte[0];
+        }
     }
 }
