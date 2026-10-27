@@ -1,5 +1,9 @@
 package com.chua.starter.system;
 
+import com.chua.starter.oauth.sso.support.configuration.AuthServerConfigValidator;
+import com.chua.starter.oauth.sso.support.configuration.DefaultAuthService;
+import com.chua.starter.oauth.sso.support.configuration.OAuthTraceConfiguration;
+import com.chua.starter.oauth.sso.support.configuration.SsoRedisConfiguration;
 import com.chua.starter.system.properties.SystemProperties;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -9,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -23,10 +28,28 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "com.chua.starter.system.mapper",
         "com.chua.starter.service.mapper",
         "com.chua.starter.system.achievement.mapper",
-        "com.chua.starter.job.support.store"
+        "com.chua.starter.job.support.store",
+        "com.chua.starter.oauth.sso.support.mapper"
 })
 @ConditionalOnProperty(prefix = "plugin.system.server", name = "enable", havingValue = "true", matchIfMissing = true)
-@SpringBootApplication(scanBasePackages = {"com.chua.starter.system", "com.chua.starter.service"})
+@SpringBootApplication(scanBasePackages = {
+        "com.chua.starter.system",
+        "com.chua.starter.service",
+        "com.chua.starter.oauth.sso.support.properties",
+        "com.chua.starter.oauth.sso.support.check",
+        "com.chua.starter.oauth.sso.support.core",
+        "com.chua.starter.oauth.sso.support.token",
+        "com.chua.starter.oauth.sso.support.admin",
+        "com.chua.starter.oauth.sso.support.health",
+        "com.chua.starter.oauth.sso.support.service",
+        "com.chua.starter.oauth.sso.support.security"
+})
+@Import({
+        AuthServerConfigValidator.class,
+        OAuthTraceConfiguration.class,
+        SsoRedisConfiguration.class,
+        DefaultAuthService.class
+})
 @OpenAPIDefinition(
         info = @Info(
                 title = "系统管理服务API",
