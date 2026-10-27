@@ -4,9 +4,11 @@ import com.chua.common.support.utils.StringUtils;
 import com.chua.starter.entity.system.SysUser;
 import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.execute.AuthSessionUtils;
+import com.chua.starter.oauth.client.support.protocol.AbstractProtocol;
 import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.service.SimpleSysUserService;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
@@ -55,6 +57,17 @@ public class UserStateGuardInterceptor implements HandlerInterceptor {
         if (isPublicEndpoint(request.getRequestURI())) {
             return true;
         }
+        // 令牌吊销拦截：被强制下线 / 登出 / 账号停用 的旧令牌立即失效。
+        // 认证服务器应用上客户端 AuthFilter 不注册（见 oauth-client-starter 的
+        // @ConditionalOnMissingClass("com.chua.starter.oauth.server.support.SsoServer")），
+        // 吊销名单（oauth:revoked:*）无人消费，旧 token 仍会带着过期会话进入 Controller，
+        // 表现为「踢出后旧 token 仍能访问接口（HTTP 200）」。这里在请求进入 Controller 前
+        // 消费吊销名单，命中即 401，与账号禁用保持同一语义（前端收到 401 跳回登录页）。
+        String token = resolveToken(request);
+        if (StringUtils.isNotBlank(token) && AbstractProtocol.isTokenRevoked(token)) {
+            AuthSessionUtils.removeUserInfo();
+            return reject(response, "登录状态已失效，请重新登录");
+        }
         UserResume resume = AuthSessionUtils.getUserInfo(UserResume.class);
         if (resume == null || StringUtils.isBlank(resume.getUserId())) {
             return true;
@@ -84,6 +97,40 @@ public class UserStateGuardInterceptor implements HandlerInterceptor {
             return reject(response, "账号已被禁用，请重新登录");
         }
         return true;
+    }
+
+    /**
+     * 解析请求携带的访问令牌。
+     *
+     * <p>取值优先级与 {@code WebRequest#getToken()} 保持一致，
+     * 保证与吊销名单写入（{@link AbstractProtocol#revokeTokenHash}）使用的摘要同源：
+     * {@code x-oauth-token} 请求头 → {@code Authorization: Bearer} → 查询参数 → {@code x-oauth-cookie}。</p>
+     *
+     * @param request 当前请求
+     * @return 令牌，未携带时返回 null
+     */
+    private String resolveToken(HttpServletRequest request) {
+        String token = request.getHeader("x-oauth-token");
+        if (StringUtils.isNotBlank(token)) {
+            return token;
+        }
+        String authorization = request.getHeader("Authorization");
+        if (StringUtils.isNotBlank(authorization) && authorization.startsWith("Bearer ")) {
+            return authorization.substring(7).trim();
+        }
+        token = request.getParameter("x-oauth-token");
+        if (StringUtils.isNotBlank(token)) {
+            return token;
+        }
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("x-oauth-cookie".equals(cookie.getName()) && StringUtils.isNotBlank(cookie.getValue())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     /**
