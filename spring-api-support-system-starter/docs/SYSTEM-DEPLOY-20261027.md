@@ -200,7 +200,73 @@ curl -s -o /dev/null -w '%{http_code}' https://18170-agqwy5qu7aattthjw7rgsmp7xe.
 
 ---
 
-## 9. 已知事项 / 排障
+## 9. 旧 token 失效修复（2026-10-28）
+
+### 现象
+被强制下线的会话，旧 token 打受保护接口（`/v2/user/me`、`/v2/user/menu`、`/v2/online/list`）仍返回
+`HTTP 200 code:00000`，只是数据残缺（`user/me` → `data:{}`、`user/menu` → `data:[]`），不符合
+「踢出后旧 token 应立即失效（401）」的预期。
+
+### 根因（SsoServer 标记类导致 AuthFilter 未注册）
+system 应用是 **OAuth 认证服务器 + 客户端一体**（`spring-api-support-oauth-starter` 在依赖中，
+日志「OAuth 认证服务器模式 [开启]」）。oauth-client-starter 的 `AuthFilter`（唯一会消费吊销名单并
+`doFailureChain(401)` 的 servlet 过滤器）注册条件为：
+
+```java
+@ConditionalOnMissingClass("com.chua.starter.oauth.server.support.SsoServer")
+```
+
+认证服务器 jar 中 `SsoServer` 标记类存在 → **AuthFilter 不注册**（设计意图：避免认证协议入口
+`/login`、`/upgrade` 等被客户端认证过滤器二次拦截）。于是：
+
+- 踢出/登出写入的吊销名单 `oauth:revoked:*`（进程内 `MemoryCacheProvider`）**无人消费**；
+- 日志里的「鉴权失败 403 用户信息不存在」来自 `UserRequestHandlerMethodArgumentResolver` 为
+  `@UserValue` 参数解析而调用的 `WebRequest.authentication()` —— **只影响参数取值，不拦截请求**，
+  Controller 照常执行返回 200，仅数据残缺（旧 token 拿不到 userId/roles）。
+
+### 修复
+在 **`UserStateGuardInterceptor`**（system-starter，已注册拦截全部路径 `/**`、Controller 前执行、
+本就有 401 拒绝器 `reject()`、语义与「会话失效立即 401」同构）追加**令牌吊销校验**：
+
+```java
+// 认证 / 公开端点直接放行后：
+String token = resolveToken(request);
+if (StringUtils.isNotBlank(token) && AbstractProtocol.isTokenRevoked(token)) {
+    AuthSessionUtils.removeUserInfo();
+    return reject(response, "登录状态已失效，请重新登录");
+}
+```
+
+- `resolveToken()` 取值优先级与 `WebRequest#getToken()` 一致：`x-oauth-token` 头 →
+  `Authorization: Bearer` → 查询参数 → `x-oauth-cookie` Cookie，保证与吊销写入
+  （`DigestUtils.sha256(token)`）同源；
+- 公开端点（登录/登出/验证码/注册等）仍直接放行，被踢用户可重新登录；
+- 与账号禁用共用同一 401 语义，前端收到 401 跳回登录页。
+
+### 部署产物
+- 替换 `lib/spring-api-support-common-system-starter-4.0.0.42.jar`（975246 → **975839** 字节，
+  旧 jar 备份 `.bak.174307`）；
+- 构建基线：git worktree 干净 HEAD（`dd9344c9`）+ 本修复，**未卷入工作区 38 个未提交的
+  record 迁移文件**；
+- 进程重启：PID 295202 → **300011**（启动约 90s，端口 18170 就绪）。
+
+### 端到端验证（远程实测 01:49:14 日志）
+| 步骤 | 结果 |
+|---|---|
+| 登录 admin/ops + 在线登记 | ✅ `鉴权成功` |
+| `DELETE /v2/online/kick/3` | ✅ 日志「令牌已吊销 - 摘要: 85dd6555」「强制下线 - 用户: 3, 会话数: 1」 |
+| 踢后旧 token（带 cookie）→ `user/me` | ✅ **HTTP 401** `{"code":"401","msg":"登录状态已失效，请重新登录"}` |
+| 踢后旧 token（带 cookie）→ `user/menu` | ✅ **HTTP 401** |
+| 踢后旧 token（纯 Bearer 无 cookie）→ `user/me` | ✅ **HTTP 401** |
+| 踢后旧 token（纯 Bearer）→ `online/list` | ✅ **HTTP 401** |
+| 重新登录 ops → `user/me` | ✅ HTTP 200 code:00000 完整用户（账号未锁） |
+
+### 提交记录
+- 后端 `spring-support-api-starter`：`77e00e7`（UserStateGuardInterceptor 消费令牌吊销名单）
+
+---
+
+## 10. 已知事项 / 排障
 
 - **Cassandra 无浏览器**：远程无法起浏览器渲染前端，验收用本地 dev（`http://localhost:8096/system/`，代理指向公网地址）+ agent-browser 完成。
 - **curl 直连 403「检测到爬虫」**：后端反爬虫按 UA 拦截自动化客户端，非故障；浏览器/代理带第一方豁免头（`x-trace-id`/`x-requested-with` 以 `-7f3a` 结尾）即通过。
