@@ -428,25 +428,24 @@ public class CollectTaskServiceImpl extends ServiceImpl<CollectTaskMapper, Colle
      * @return 出参
      */
     private CollectTaskVO toVo(CollectTask task) {
-        CollectTaskVO vo = new CollectTaskVO();
-        vo.setCollectTaskId(task.getCollectTaskId());
-        vo.setCollectTaskNo(task.getCollectTaskNo());
-        vo.setCollectTaskFlowId(task.getCollectTaskFlowId());
-        vo.setCollectTaskFlowName(task.getCollectTaskFlowName());
-        vo.setCollectTaskStatus(task.getCollectTaskStatus());
-        vo.setCollectTaskTriggerType(task.getCollectTaskTriggerType());
-        vo.setCollectTaskParams(task.getCollectTaskParams());
-        vo.setCollectTaskBeginTime(task.getCollectTaskBeginTime());
-        vo.setCollectTaskEndTime(task.getCollectTaskEndTime());
-        vo.setCollectTaskCost(task.getCollectTaskCost());
-        vo.setCollectTaskNodeCount(task.getCollectTaskNodeCount());
-        vo.setCollectTaskRequestCount(task.getCollectTaskRequestCount());
-        vo.setCollectTaskRecordCount(task.getCollectTaskRecordCount());
-        vo.setCollectTaskError(task.getCollectTaskError());
-        vo.setCollectTaskExecutorId(task.getCollectTaskExecutorId());
-        vo.setRunning(engine.isRunning(task.getCollectTaskId()));
-        vo.setCreateName(task.getCreateName());
-        return vo;
+        return new CollectTaskVO(
+                task.getCollectTaskId(),
+                task.getCollectTaskNo(),
+                task.getCollectTaskFlowId(),
+                task.getCollectTaskFlowName(),
+                task.getCollectTaskStatus(),
+                task.getCollectTaskTriggerType(),
+                task.getCollectTaskParams(),
+                task.getCollectTaskBeginTime(),
+                task.getCollectTaskEndTime(),
+                task.getCollectTaskCost(),
+                task.getCollectTaskNodeCount(),
+                task.getCollectTaskRequestCount(),
+                task.getCollectTaskRecordCount(),
+                task.getCollectTaskError(),
+                task.getCollectTaskExecutorId(),
+                engine.isRunning(task.getCollectTaskId()),
+                task.getCreateName());
     }
 
     /**
@@ -456,19 +455,18 @@ public class CollectTaskServiceImpl extends ServiceImpl<CollectTaskMapper, Colle
      * @return 出参
      */
     private CollectTaskLogVO toLogVo(CollectTaskLog row) {
-        CollectTaskLogVO vo = new CollectTaskLogVO();
-        vo.setCollectTaskLogId(row.getCollectTaskLogId());
-        vo.setCollectTaskLogTaskId(row.getCollectTaskLogTaskId());
-        vo.setCollectTaskLogFlowId(row.getCollectTaskLogFlowId());
-        vo.setCollectTaskLogNodeId(row.getCollectTaskLogNodeId());
-        vo.setCollectTaskLogNodeName(row.getCollectTaskLogNodeName());
-        vo.setCollectTaskLogNodeShape(row.getCollectTaskLogNodeShape());
-        vo.setCollectTaskLogIteration(row.getCollectTaskLogIteration());
-        vo.setCollectTaskLogStatus(row.getCollectTaskLogStatus());
-        vo.setCollectTaskLogCost(row.getCollectTaskLogCost());
-        vo.setCollectTaskLogMessage(row.getCollectTaskLogMessage());
-        vo.setCollectTaskLogOutput(row.getCollectTaskLogOutput());
-        vo.setCreateTime(row.getCreateTime());
-        return vo;
+        return new CollectTaskLogVO(
+                row.getCollectTaskLogId(),
+                row.getCollectTaskLogTaskId(),
+                row.getCollectTaskLogFlowId(),
+                row.getCollectTaskLogNodeId(),
+                row.getCollectTaskLogNodeName(),
+                row.getCollectTaskLogNodeShape(),
+                row.getCollectTaskLogIteration(),
+                row.getCollectTaskLogStatus(),
+                row.getCollectTaskLogCost(),
+                row.getCollectTaskLogMessage(),
+                row.getCollectTaskLogOutput(),
+                row.getCreateTime());
     }
 }

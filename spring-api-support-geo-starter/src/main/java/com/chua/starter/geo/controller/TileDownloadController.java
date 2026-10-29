@@ -96,22 +96,22 @@ public class TileDownloadController {
     @Operation(summary = "估算瓦片数量与大小")
     public ResponseEntity<TileEstimate> estimate(@RequestBody @Valid DownloadRequest request) {
         Objects.requireNonNull(request, "请求体不能为空");
-        Objects.requireNonNull(request.getBounds(), "bounds不能为空");
-        Objects.requireNonNull(request.getZoom(), "zoom不能为空");
-        Objects.requireNonNull(request.getSource(), "source不能为空");
-        Objects.requireNonNull(request.getFormat(), "format不能为空");
+        Objects.requireNonNull(request.bounds(), "bounds不能为空");
+        Objects.requireNonNull(request.zoom(), "zoom不能为空");
+        Objects.requireNonNull(request.source(), "source不能为空");
+        Objects.requireNonNull(request.format(), "format不能为空");
 
-        TileSource source = tileSources.getByName(request.getSource(), request.getTiandituToken());
+        TileSource source = tileSources.getByName(request.source(), request.tiandituToken());
         if (source == null) {
             TileEstimate error = new TileEstimate();
             error.setTileCount(-1);
-            error.setMessage("Unknown source: " + request.getSource());
+            error.setMessage("Unknown source: " + request.source());
             return ResponseEntity.badRequest().body(error);
         }
-        long count = TileMathUtils.estimateTileCount(request.getBounds(), request.getZoom());
+        long count = TileMathUtils.estimateTileCount(request.bounds(), request.zoom());
         TileEstimate estimate = new TileEstimate();
         estimate.setTileCount((int) Math.min(count, Integer.MAX_VALUE));
-        estimate.setZoom(request.getZoom());
+        estimate.setZoom(request.zoom());
         estimate.setEstimatedOutputMb(count * 0.08);
         return ResponseEntity.ok(estimate);
     }
@@ -126,22 +126,22 @@ public class TileDownloadController {
     @Operation(summary = "创建瓦片下载任务")
     public ResponseEntity<Map<String, Object>> createTask(@RequestBody @Valid DownloadRequest request) {
         Objects.requireNonNull(request, "请求体不能为空");
-        Objects.requireNonNull(request.getBounds(), "bounds不能为空");
-        Objects.requireNonNull(request.getZoom(), "zoom不能为空");
-        Objects.requireNonNull(request.getSource(), "source不能为空");
-        Objects.requireNonNull(request.getFormat(), "format不能为空");
+        Objects.requireNonNull(request.bounds(), "bounds不能为空");
+        Objects.requireNonNull(request.zoom(), "zoom不能为空");
+        Objects.requireNonNull(request.source(), "source不能为空");
+        Objects.requireNonNull(request.format(), "format不能为空");
 
-        TileSource source = tileSources.getByName(request.getSource(), request.getTiandituToken());
+        TileSource source = tileSources.getByName(request.source(), request.tiandituToken());
         if (source == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Unknown source: " + request.getSource()));
+            return ResponseEntity.badRequest().body(Map.of("error", "Unknown source: " + request.source()));
         }
-        long count = TileMathUtils.estimateTileCount(request.getBounds(), request.getZoom());
+        long count = TileMathUtils.estimateTileCount(request.bounds(), request.zoom());
         int total = (int) Math.min(count, Integer.MAX_VALUE);
         String taskId = taskManager.createTask(
-                request.getSourceName() != null ? request.getSourceName() : "download_task",
-                request.getSource(), source.getName(), request.getZoom(),
-                request.getFormat(),
-                request.getSavePath() != null ? request.getSavePath() : "/tmp",
+                request.sourceName() != null ? request.sourceName() : "download_task",
+                request.source(), source.getName(), request.zoom(),
+                request.format(),
+                request.savePath() != null ? request.savePath() : "/tmp",
                 total);
         executor.submit(() -> runDownload(taskId, request, source));
         Map<String, Object> result = new LinkedHashMap<>();
@@ -161,8 +161,8 @@ public class TileDownloadController {
         try {
             taskManager.setStatus(taskId, TaskStatus.DOWNLOADING);
             TileDownloaderService.DownloadResult result = downloaderService.downloadTiles(
-                    source, request.getBounds(), request.getZoom(),
-                    request.getProxy(), true);
+                    source, request.bounds(), request.zoom(),
+                    request.proxy(), true);
             taskManager.updateProgress(taskId, result.completed(), result.failed(),
                     result.total() > 0 ? (double) result.completed() / result.total() * 100 : 0,
                     "瓦片下载完成: " + result.completed() + "/" + result.total());
@@ -173,16 +173,16 @@ public class TileDownloadController {
             }
 
             taskManager.setStatus(taskId, TaskStatus.MERGING);
-            BufferedImage image = mergerService.mergeTiles(result.tiles(), request.getBounds(), request.getZoom());
+            BufferedImage image = mergerService.mergeTiles(result.tiles(), request.bounds(), request.zoom());
 
             taskManager.setStatus(taskId, TaskStatus.EXPORTING);
-            String outputPath = request.getSavePath() != null ? request.getSavePath() : "/tmp";
-            String fileName = request.getSourceName() != null ? request.getSourceName() : "output";
-            String compression = request.getCompression() != null ? request.getCompression() : "lzw";
-            boolean buildPyramid = Boolean.TRUE.equals(request.getBuildPyramid());
-            boolean generateSidecars = Boolean.TRUE.equals(request.getGenerateSidecars());
+            String outputPath = request.savePath() != null ? request.savePath() : "/tmp";
+            String fileName = request.sourceName() != null ? request.sourceName() : "output";
+            String compression = request.compression() != null ? request.compression() : "lzw";
+            boolean buildPyramid = Boolean.TRUE.equals(request.buildPyramid());
+            boolean generateSidecars = Boolean.TRUE.equals(request.generateSidecars());
             String finalPath = exporter.export(image,
-                    OutputFormat.fromString(request.getFormat()),
+                    OutputFormat.fromString(request.format()),
                     outputPath + "/" + fileName,
                     compression, buildPyramid, generateSidecars);
 

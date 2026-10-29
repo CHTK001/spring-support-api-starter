@@ -10,7 +10,7 @@
 
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>4.0.0.42</version>
+    <version>4.0.0.43</version>
     <packaging>pom</packaging>
     <modules>
         <module>spring-api-support-common-parent</module>
@@ -31,7 +31,7 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <module.version>${project.version}</module.version>
-        <utils.version>4.0.0.42</utils.version>
+        <utils.version>4.0.0.43</utils.version>
         <lombok.version>1.18.48</lombok.version>
         <maven.compiler.proc>full</maven.compiler.proc>
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>

@@ -86,7 +86,7 @@ public class ThirdLoginController {
             return ReturnResult.error(REQUEST_PARAM_ERROR.getCode(), bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
 
-        return sysLoginService.thirdLoginExchange(exchangeRequest.getRedirectParam());
+        return sysLoginService.thirdLoginExchange(exchangeRequest.redirectParam());
     }
     /**
      * 将第三方账号绑定到当前登录用户。

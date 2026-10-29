@@ -221,17 +221,17 @@ public class SysErrorLogServiceImpl extends ServiceImpl<SysErrorLogMapper, SysEr
      */
     private SysErrorLog buildEntity(ErrorReportV1Item item, Long reportTime) {
         SysErrorLog entity = new SysErrorLog();
-        entity.setSysErrorKey(truncate(item.getKey()));
-        entity.setSysErrorSource(truncate(item.getSource()));
-        entity.setSysErrorMessage(truncate(item.getMessage()));
-        entity.setSysErrorStack(truncate(item.getStack()));
-        entity.setSysErrorFilename(truncate(item.getFilename()));
-        entity.setSysErrorLineno(item.getLineno());
-        entity.setSysErrorColno(item.getColno());
-        entity.setSysErrorResourceUrl(truncate(item.getResourceUrl()));
-        entity.setSysErrorTagName(truncate(item.getTagName()));
-        entity.setSysErrorFirstAt(item.getFirstAt());
-        entity.setSysErrorCount(item.getCount() == null ? 1 : item.getCount());
+        entity.setSysErrorKey(truncate(item.key()));
+        entity.setSysErrorSource(truncate(item.source()));
+        entity.setSysErrorMessage(truncate(item.message()));
+        entity.setSysErrorStack(truncate(item.stack()));
+        entity.setSysErrorFilename(truncate(item.filename()));
+        entity.setSysErrorLineno(item.lineno());
+        entity.setSysErrorColno(item.colno());
+        entity.setSysErrorResourceUrl(truncate(item.resourceUrl()));
+        entity.setSysErrorTagName(truncate(item.tagName()));
+        entity.setSysErrorFirstAt(item.firstAt());
+        entity.setSysErrorCount(item.count() == null ? 1 : item.count());
         entity.setSysErrorReportTime(reportTime);
         return entity;
     }

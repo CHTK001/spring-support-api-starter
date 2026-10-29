@@ -64,10 +64,8 @@ public class CollectWebhookNotifyChannel implements CollectNotifyChannel {
         if (!scheme.startsWith(HTTP_SCHEME) || uri.getHost() == null) {
             return MessageResponse.failure("回调地址必须是 http/https，当前: " + target);
         }
-        CollectNotifyPayloadVO payload = new CollectNotifyPayloadVO();
-        payload.setSubject(message.subject());
-        payload.setContent(message.content());
-        payload.setContentType(message.contentType());
+        CollectNotifyPayloadVO payload = new CollectNotifyPayloadVO(
+                message.subject(), message.content(), message.contentType());
         try {
             HttpRequest request = HttpRequest.newBuilder(uri)
                     .timeout(Duration.ofMillis(Math.max(1000L, message.timeoutMs())))

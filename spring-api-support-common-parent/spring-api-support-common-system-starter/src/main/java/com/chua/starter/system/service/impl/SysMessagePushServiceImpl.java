@@ -181,20 +181,20 @@ public class SysMessagePushServiceImpl implements SysMessagePushService {
      * 按模板ID发送
      */
     public ReturnResult<List<MessageResponse>> send(MessageSendRequest request) {
-        if (null == request || null == request.getSysMessageTemplateId()) {
+        if (null == request || null == request.sysMessageTemplateId()) {
             return ReturnResult.illegal("模板ID不能为空");
         }
-        if (CollectionUtils_isEmpty(request.getTarget())) {
+        if (CollectionUtils_isEmpty(request.target())) {
             return ReturnResult.illegal("接收人不能为空");
         }
-        SysMessageTemplate template = sysMessageTemplateMapper.selectById(request.getSysMessageTemplateId());
+        SysMessageTemplate template = sysMessageTemplateMapper.selectById(request.sysMessageTemplateId());
         if (null == template) {
             return ReturnResult.error("模板不存在");
         }
         if (isDisabled(template.getSysMessageTemplateStatus())) {
             return ReturnResult.error("模板已停用");
         }
-        return doSendByTemplate(template, request.getTarget(), request.getSubject(), request.getParams());
+        return doSendByTemplate(template, request.target(), request.subject(), request.params());
     }
 
     @Override
@@ -202,11 +202,11 @@ public class SysMessagePushServiceImpl implements SysMessagePushService {
      * 按模板编码发送
      */
     public ReturnResult<List<MessageResponse>> sendByCode(SendByCodeRequest request) {
-        if (null == request || StringUtils.isBlank(request.getTemplateCode())) {
+        if (null == request || StringUtils.isBlank(request.templateCode())) {
             return ReturnResult.illegal("模板编码不能为空");
         }
         SysMessageTemplate template = sysMessageTemplateMapper.selectOne(Wrappers.<SysMessageTemplate>lambdaQuery()
-                .eq(SysMessageTemplate::getSysMessageTemplateCode, request.getTemplateCode().trim())
+                .eq(SysMessageTemplate::getSysMessageTemplateCode, request.templateCode().trim())
                 .last("limit 1"));
         if (null == template) {
             return ReturnResult.error("模板不存在");
@@ -216,12 +216,12 @@ public class SysMessagePushServiceImpl implements SysMessagePushService {
         }
         // 解析接收人：角色解析 + 手工兜底合并去重
         String channel = trimToNull(template.getSysMessageChannel());
-        List<String> targets = resolveRecipients(channel, request.getRoleKeys(), request.getTargets(), request.getTarget());
+        List<String> targets = resolveRecipients(channel, request.roleKeys(), request.targets(), request.target());
         if (CollectionUtils_isEmpty(targets)) {
             return ReturnResult.illegal("未解析到有效接收人(请选择角色或填写接收人)");
         }
-        Map<String, Object> params = null == request.getParams()
-                ? new LinkedHashMap<>() : new LinkedHashMap<>(request.getParams());
+        Map<String, Object> params = null == request.params()
+                ? new LinkedHashMap<>() : new LinkedHashMap<>(request.params());
         return doSendByTemplate(template, targets, null, params);
     }
 
@@ -277,17 +277,17 @@ public class SysMessagePushServiceImpl implements SysMessagePushService {
      * 按内容发送
      */
     public ReturnResult<List<MessageResponse>> sendContent(MessageContentSendRequest request) {
-        if (null == request || StringUtils.isBlank(request.getChannel())) {
+        if (null == request || StringUtils.isBlank(request.channel())) {
             return ReturnResult.illegal("消息渠道不能为空");
         }
-        if (CollectionUtils_isEmpty(request.getTarget())) {
+        if (CollectionUtils_isEmpty(request.target())) {
             return ReturnResult.illegal("接收人不能为空");
         }
-        if (StringUtils.isBlank(request.getContent())) {
+        if (StringUtils.isBlank(request.content())) {
             return ReturnResult.illegal("消息内容不能为空");
         }
         // 邮件与短信必须走模板下发（运营商侧模板/签名需登记），不允许自由内容直连
-        if (CHANNEL_EMAIL.equalsIgnoreCase(request.getChannel()) || CHANNEL_SMS.equalsIgnoreCase(request.getChannel())) {
+        if (CHANNEL_EMAIL.equalsIgnoreCase(request.channel()) || CHANNEL_SMS.equalsIgnoreCase(request.channel())) {
             return ReturnResult.error("邮件和短信必须通过模板发送，不支持自由内容");
         }
         // 其余渠道(机器人/自定义)在移除供应商后不再支持自由内容直发

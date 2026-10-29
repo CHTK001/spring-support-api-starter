@@ -203,20 +203,22 @@ public class AchievementController {
     @GetMapping("/stats/{userId}")
     public ReturnResult<UserAchievementStatsDTO> getStats(@PathVariable Long userId) {
         List<UnlockedAchievementDTO> unlocked = achievementService.getUnlocked(userId);
-        UserAchievementStatsDTO stats = new UserAchievementStatsDTO();
-        stats.setUserId(userId);
-        stats.setTotalUnlocked(unlocked.size());
         Map<String, Optional<UnlockedAchievementDTO>> byType = unlocked.stream()
                 .collect(Collectors.groupingBy(
                         UnlockedAchievementDTO::type,
                         Collectors.maxBy(Comparator.comparingInt(UnlockedAchievementDTO::level))
                 ));
-        stats.setUnlockedByType(byType.entrySet().stream()
+        Map<String, Integer> unlockedByType = byType.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         e -> e.getValue().map(UnlockedAchievementDTO::level).orElse(0)
-                )));
-        stats.setTotalAchievements((int) achievementService.countAllTiers());
+                ));
+        UserAchievementStatsDTO stats = new UserAchievementStatsDTO(
+                userId,
+                unlocked.size(),
+                (int) achievementService.countAllTiers(),
+                unlockedByType
+        );
         return ReturnResult.ok(stats);
     }
 

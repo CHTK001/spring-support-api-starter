@@ -345,19 +345,18 @@ public class CollectDatasourceServiceImpl extends ServiceImpl<CollectDatasourceM
      * @return 出参
      */
     private CollectDatasourceVO toVo(CollectDatasource datasource) {
-        CollectDatasourceVO vo = new CollectDatasourceVO();
-        vo.setCollectDatasourceId(datasource.getCollectDatasourceId());
-        vo.setCollectDatasourceName(datasource.getCollectDatasourceName());
-        vo.setCollectDatasourceType(datasource.getCollectDatasourceType());
-        vo.setCollectDatasourceDriverClassName(datasource.getCollectDatasourceDriverClassName());
-        vo.setCollectDatasourceJdbcUrl(datasource.getCollectDatasourceJdbcUrl());
-        vo.setCollectDatasourceUsername(datasource.getCollectDatasourceUsername());
-        vo.setPasswordSet(!isBlank(datasource.getCollectDatasourcePassword()));
-        vo.setCollectDatasourceStatus(datasource.getCollectDatasourceStatus());
-        vo.setCollectDatasourceRemark(datasource.getCollectDatasourceRemark());
-        vo.setCreateTime(datasource.getCreateTime());
-        vo.setUpdateTime(datasource.getUpdateTime());
-        return vo;
+        return new CollectDatasourceVO(
+                datasource.getCollectDatasourceId(),
+                datasource.getCollectDatasourceName(),
+                datasource.getCollectDatasourceType(),
+                datasource.getCollectDatasourceDriverClassName(),
+                datasource.getCollectDatasourceJdbcUrl(),
+                datasource.getCollectDatasourceUsername(),
+                !isBlank(datasource.getCollectDatasourcePassword()),
+                datasource.getCollectDatasourceStatus(),
+                datasource.getCollectDatasourceRemark(),
+                datasource.getCreateTime(),
+                datasource.getUpdateTime());
     }
 
     /**
