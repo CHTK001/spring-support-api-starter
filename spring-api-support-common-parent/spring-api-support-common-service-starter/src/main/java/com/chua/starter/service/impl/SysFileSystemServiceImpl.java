@@ -189,11 +189,11 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
             sysFileSystemPartService.saveBatch(partList);
 
             // 构建响应
-            SysFileUploadTaskResponse response = new SysFileUploadTaskResponse();
-            response.setTaskId(taskUid);
-            response.setSetSysTaskSsoNumber(chunkCount);
-            response.setSysTaskSsoChuck(chunkSize);
-            response.setUrl(UrlUtils.normalize(request.getFileBucket(), sysFileSystem.getSysFileSystemName()));
+            SysFileUploadTaskResponse response = new SysFileUploadTaskResponse(
+                    taskUid,
+                    chunkCount,
+                    chunkSize,
+                    UrlUtils.normalize(request.getFileBucket(), sysFileSystem.getSysFileSystemName()));
             log.info("分片上传任务创建成功: taskId={}, chunkCount={}, chunkSize={}MB", taskUid, chunkCount, chunkSize / 1024 / 1024);
             return ReturnResult.ok(response);
         });

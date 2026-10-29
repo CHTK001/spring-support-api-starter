@@ -74,7 +74,6 @@ public class MockRedisConfiguration {
      * @return 字符串Redis模板 对象
      */
     @Bean
-    @Primary
     public StringRedisTemplate mockStringRedisTemplate(RedisConnectionFactory factory) {
         return new StringRedisTemplate(factory);
     }

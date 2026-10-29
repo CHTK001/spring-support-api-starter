@@ -487,18 +487,24 @@ public class CollectExecutionServiceImpl implements CollectExecutionService, App
      * @return 出参
      */
     private CollectTaskVO toVo(CollectTask task, boolean running) {
-        CollectTaskVO vo = new CollectTaskVO();
-        vo.setCollectTaskId(task.getCollectTaskId());
-        vo.setCollectTaskNo(task.getCollectTaskNo());
-        vo.setCollectTaskFlowId(task.getCollectTaskFlowId());
-        vo.setCollectTaskFlowName(task.getCollectTaskFlowName());
-        vo.setCollectTaskStatus(task.getCollectTaskStatus());
-        vo.setCollectTaskTriggerType(task.getCollectTaskTriggerType());
-        vo.setCollectTaskParams(task.getCollectTaskParams());
-        vo.setCollectTaskBeginTime(task.getCollectTaskBeginTime());
-        vo.setCollectTaskExecutorId(task.getCollectTaskExecutorId());
-        vo.setRunning(running);
-        return vo;
+        return new CollectTaskVO(
+                task.getCollectTaskId(),
+                task.getCollectTaskNo(),
+                task.getCollectTaskFlowId(),
+                task.getCollectTaskFlowName(),
+                task.getCollectTaskStatus(),
+                task.getCollectTaskTriggerType(),
+                task.getCollectTaskParams(),
+                task.getCollectTaskBeginTime(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                running,
+                task.getCreateName());
     }
 
     /**

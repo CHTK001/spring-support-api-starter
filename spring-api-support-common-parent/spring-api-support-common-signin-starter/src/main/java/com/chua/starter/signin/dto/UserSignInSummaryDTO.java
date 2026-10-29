@@ -1,7 +1,5 @@
 package com.chua.starter.signin.dto;
 
-import lombok.Data;
-
 /**
  * 用户签到汇总 DTO（管理员端）
  *
@@ -10,21 +8,18 @@ import lombok.Data;
  * @since 4.0.0.42
  * @author CH
  */
-@Data
-public class UserSignInSummaryDTO {
-
-    /**
-     * 用户标识
-     */
-    private Long userId;
-
-    /**
-     * 签到天数
-     */
-    private Integer signInDays;
-
-    /**
-     * 累计总积分
-     */
-    private Integer totalPoints;
+public record UserSignInSummaryDTO(
+        /**
+         * 用户标识
+         */
+        Long userId,
+        /**
+         * 签到天数
+         */
+        Integer signInDays,
+        /**
+         * 累计总积分
+         */
+        Integer totalPoints
+) {
 }

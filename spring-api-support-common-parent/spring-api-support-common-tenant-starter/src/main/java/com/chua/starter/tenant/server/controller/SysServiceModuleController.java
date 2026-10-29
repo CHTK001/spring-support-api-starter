@@ -203,25 +203,24 @@ public class SysServiceModuleController {
     @GetMapping("stats")
     @Operation(summary = "获取服务模块统计数据")
     public ReturnResult<SysServiceModuleStats> statsForSysServiceModule() {
-        SysServiceModuleStats stats = new SysServiceModuleStats();
-        // 总数
-        stats.setTotal(sysServiceModuleMapper.selectCount(Wrappers.emptyWrapper()));
+        Long total = sysServiceModuleMapper.selectCount(Wrappers.emptyWrapper());
         // 启用数 (status = 0 表示启用)
-        stats.setEnabled(sysServiceModuleMapper.selectCount(
+        Long enabled = sysServiceModuleMapper.selectCount(
                 Wrappers.<SysServiceModule>lambdaQuery().eq(SysServiceModule::getSysServiceModuleStatus, 0)
-        ));
+        );
         // 禁用数 (status = 1 表示禁用)
-        stats.setDisabled(sysServiceModuleMapper.selectCount(
+        Long disabled = sysServiceModuleMapper.selectCount(
                 Wrappers.<SysServiceModule>lambdaQuery().eq(SysServiceModule::getSysServiceModuleStatus, 1)
-        ));
+        );
         // API类型模块数
-        stats.setApiCount(sysServiceModuleMapper.selectCount(
+        Long apiCount = sysServiceModuleMapper.selectCount(
                 Wrappers.<SysServiceModule>lambdaQuery().eq(SysServiceModule::getSysServiceModuleType, "API")
-        ));
+        );
         // 服务类型模块数
-        stats.setServiceCount(sysServiceModuleMapper.selectCount(
+        Long serviceCount = sysServiceModuleMapper.selectCount(
                 Wrappers.<SysServiceModule>lambdaQuery().ne(SysServiceModule::getSysServiceModuleType, "API")
-        ));
+        );
+        SysServiceModuleStats stats = new SysServiceModuleStats(total, enabled, disabled, apiCount, serviceCount);
         return ReturnResult.ok(stats);
     }
 
