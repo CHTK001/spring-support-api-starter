@@ -129,10 +129,10 @@ public class SysMessageTemplateServiceImpl extends ServiceImpl<SysMessageTemplat
      * 预览模板
      */
     public ReturnResult<TemplatePreviewResponse> previewTemplate(TemplatePreviewRequest request) {
-        if (null == request || null == request.getSysMessageTemplateId()) {
+        if (null == request || null == request.sysMessageTemplateId()) {
             return ReturnResult.illegal("模板ID不能为空");
         }
-        SysMessageTemplate template = getById(request.getSysMessageTemplateId());
+        SysMessageTemplate template = getById(request.sysMessageTemplateId());
         if (null == template) {
             return ReturnResult.error("模板不存在");
         }
@@ -141,8 +141,8 @@ public class SysMessageTemplateServiceImpl extends ServiceImpl<SysMessageTemplat
                 .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         renderParams.put("time", java.time.LocalDateTime.now()
                 .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")));
-        if (null != request.getParams()) {
-            renderParams.putAll(request.getParams());
+        if (null != request.params()) {
+            renderParams.putAll(request.params());
         }
         List<String> unresolvedParams = findUnresolved(renderParams, template.getSysMessageTemplateTitle(),
                 template.getSysMessageTemplateContent());

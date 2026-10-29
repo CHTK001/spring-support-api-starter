@@ -156,11 +156,31 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
         CollectFlow flow = requireFlow(flowId);
         CollectFlowVO vo = toVo(flow, categoryNames(),
                 schedulePort.runtime(CollectFlowScheduleKeys.jobKeyOf(flowId)));
-        vo.setDsl(readDsl(flow));
-        CollectDslDTO dsl = vo.getDsl();
-        vo.setNodeCount(dsl.nodes() == null ? 0 : dsl.nodes().size());
-        vo.setEdgeCount(dsl.edges() == null ? 0 : dsl.edges().size());
-        return vo;
+        CollectDslDTO dsl = readDsl(flow);
+        CollectFlowVO full = new CollectFlowVO(
+                vo.collectFlowId(),
+                vo.collectFlowName(),
+                vo.collectFlowCategoryId(),
+                vo.collectFlowCategoryName(),
+                vo.collectFlowCode(),
+                vo.collectFlowCron(),
+                vo.collectFlowStatus(),
+                vo.collectFlowConcurrency(),
+                vo.collectFlowThreadCount(),
+                vo.collectFlowRemark(),
+                vo.collectFlowLastExecTime(),
+                vo.collectFlowNextExecTime(),
+                vo.collectFlowExecCount(),
+                vo.collectFlowRecordCount(),
+                dsl.nodes() == null ? 0 : dsl.nodes().size(),
+                dsl.edges() == null ? 0 : dsl.edges().size(),
+                vo.running(),
+                vo.scheduled(),
+                dsl,
+                vo.createName(),
+                vo.createTime(),
+                vo.updateTime());
+        return full;
     }
 
     @Override
@@ -687,35 +707,40 @@ public class CollectFlowServiceImpl extends ServiceImpl<CollectFlowMapper, Colle
      * @return 出参
      */
     private CollectFlowVO toVo(CollectFlow flow, Map<Integer, String> categories, CollectFlowScheduleState runtime) {
-        CollectFlowVO vo = new CollectFlowVO();
-        vo.setCollectFlowId(flow.getCollectFlowId());
-        vo.setCollectFlowName(flow.getCollectFlowName());
-        vo.setCollectFlowCategoryId(flow.getCollectFlowCategoryId());
-        vo.setCollectFlowCategoryName(categories.getOrDefault(
-                flow.getCollectFlowCategoryId() == null ? UNCATEGORIZED : flow.getCollectFlowCategoryId(), "未分类"));
-        vo.setCollectFlowCode(flow.getCollectFlowCode());
-        vo.setCollectFlowCron(flow.getCollectFlowCron());
-        vo.setCollectFlowStatus(flow.getCollectFlowStatus());
-        vo.setCollectFlowConcurrency(flow.getCollectFlowConcurrency());
-        vo.setCollectFlowThreadCount(threadCountOf(flow));
-        vo.setCollectFlowRemark(flow.getCollectFlowRemark());
-        vo.setCollectFlowLastExecTime(flow.getCollectFlowLastExecTime());
-        vo.setCollectFlowExecCount(flow.getCollectFlowExecCount());
-        vo.setCollectFlowRecordCount(flow.getCollectFlowRecordCount());
+        LocalDateTime nextExec = null;
         if (runtime != null && runtime.nextFireMs() > 0) {
-            vo.setCollectFlowNextExecTime(LocalDateTime.ofInstant(
-                    Instant.ofEpochMilli(runtime.nextFireMs()), ZoneId.systemDefault()));
+            nextExec = LocalDateTime.ofInstant(
+                    Instant.ofEpochMilli(runtime.nextFireMs()), ZoneId.systemDefault());
         }
-        if (runtime != null && runtime.lastFireMs() > 0 && vo.getCollectFlowLastExecTime() == null) {
-            vo.setCollectFlowLastExecTime(LocalDateTime.ofInstant(
-                    Instant.ofEpochMilli(runtime.lastFireMs()), ZoneId.systemDefault()));
+        LocalDateTime lastExec = flow.getCollectFlowLastExecTime();
+        if (lastExec == null && runtime != null && runtime.lastFireMs() > 0) {
+            lastExec = LocalDateTime.ofInstant(
+                    Instant.ofEpochMilli(runtime.lastFireMs()), ZoneId.systemDefault());
         }
-        vo.setScheduled(runtime != null && runtime.handlerRegistered());
-        vo.setRunning(engine.isFlowRunning(flow.getCollectFlowId()));
-        vo.setCreateName(flow.getCreateName());
-        vo.setCreateTime(flow.getCreateTime());
-        vo.setUpdateTime(flow.getUpdateTime());
-        return vo;
+        return new CollectFlowVO(
+                flow.getCollectFlowId(),
+                flow.getCollectFlowName(),
+                flow.getCollectFlowCategoryId(),
+                categories.getOrDefault(
+                        flow.getCollectFlowCategoryId() == null ? UNCATEGORIZED : flow.getCollectFlowCategoryId(), "未分类"),
+                flow.getCollectFlowCode(),
+                flow.getCollectFlowCron(),
+                flow.getCollectFlowStatus(),
+                flow.getCollectFlowConcurrency(),
+                threadCountOf(flow),
+                flow.getCollectFlowRemark(),
+                lastExec,
+                nextExec,
+                flow.getCollectFlowExecCount(),
+                flow.getCollectFlowRecordCount(),
+                null,
+                null,
+                engine.isFlowRunning(flow.getCollectFlowId()),
+                runtime != null && runtime.handlerRegistered(),
+                null,
+                flow.getCreateName(),
+                flow.getCreateTime(),
+                flow.getUpdateTime());
     }
 
     /**

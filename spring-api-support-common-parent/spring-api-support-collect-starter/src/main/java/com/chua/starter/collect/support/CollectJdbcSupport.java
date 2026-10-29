@@ -217,10 +217,8 @@ public class CollectJdbcSupport {
         List<SchemaColumnVO> columns = schemaService.listColumns(reference, table);
         List<CollectColumnVO> result = new ArrayList<>(columns.size());
         for (SchemaColumnVO column : columns) {
-            CollectColumnVO item = new CollectColumnVO(column.name(), column.label(), column.position(),
-                    column.typeName(), column.size(), column.nullable());
-            item.setPrimaryKey(column.primaryKey());
-            result.add(item);
+            result.add(new CollectColumnVO(column.name(), column.label(), column.position(),
+                    column.typeName(), column.size(), column.nullable(), column.primaryKey()));
         }
         return result;
     }
@@ -645,8 +643,8 @@ public class CollectJdbcSupport {
     public List<String> primaryKeys(String reference, String table) {
         List<String> keys = new ArrayList<>();
         for (CollectColumnVO column : listColumns(reference, table)) {
-            if (Boolean.TRUE.equals(column.getPrimaryKey())) {
-                keys.add(column.getName());
+            if (Boolean.TRUE.equals(column.primaryKey())) {
+                keys.add(column.name());
             }
         }
         return keys;

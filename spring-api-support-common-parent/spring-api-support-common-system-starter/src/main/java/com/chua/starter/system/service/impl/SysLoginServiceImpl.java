@@ -832,13 +832,13 @@ public class SysLoginServiceImpl implements SysLoginService {
      * Third解绑
     */
     public ReturnResult<Boolean> thirdUnbind(String userId, ThirdPartyUnbindRequest thirdPartyUnbindRequest) {
-        if (StringUtils.isBlank(thirdPartyUnbindRequest.getLoginType())) {
+        if (StringUtils.isBlank(thirdPartyUnbindRequest.loginType())) {
             return ReturnResult.error("登录类型不能为空");
         }
 
         // 大小写不敏感匹配：绑定写入端历史遗留既有小写（gitee/wechat）也有大写（DINGTALK/QQ），
         // 入参统一按忽略大小写过滤，避免「查得到却解不掉」
-        String loginType = thirdPartyUnbindRequest.getLoginType();
+        String loginType = thirdPartyUnbindRequest.loginType();
         List<SysUserThirdParty> bindings = sysUserThirdPartyMapper.selectList(
                 Wrappers.<SysUserThirdParty>lambdaQuery()
                         .eq(SysUserThirdParty::getSysUserId, userId));
@@ -857,7 +857,7 @@ public class SysLoginServiceImpl implements SysLoginService {
             }
         }
 
-        if (THIRD_PARTY_TYPE_WECHAT.equalsIgnoreCase(thirdPartyUnbindRequest.getLoginType())) {
+        if (THIRD_PARTY_TYPE_WECHAT.equalsIgnoreCase(thirdPartyUnbindRequest.loginType())) {
             sysWechatUserMapper.delete(
                     Wrappers.<SysWechatUser>lambdaQuery()
                             .eq(SysWechatUser::getSysUserId, userId));

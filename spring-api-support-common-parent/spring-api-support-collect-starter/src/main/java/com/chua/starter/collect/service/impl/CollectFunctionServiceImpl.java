@@ -105,33 +105,39 @@ public class CollectFunctionServiceImpl extends ServiceImpl<CollectFunctionMappe
             throw new IllegalArgumentException("必须指定要试跑的函数");
         }
         CollectFunction function = requireFunction(dto.collectFunctionId());
-        CollectFunctionTestVO vo = new CollectFunctionTestVO();
-        vo.setFunctionName(function.getCollectFunctionName());
-        vo.setParameters(function.getCollectFunctionParameters());
+        String functionName = function.getCollectFunctionName();
+        Integer parameters = function.getCollectFunctionParameters();
         long begin = System.currentTimeMillis();
         try {
             List<Object> arguments = new ArrayList<>(
                     dto.arguments() == null ? List.of() : dto.arguments());
             CollectBuiltinInvoker.Outcome outcome =
                     registry.call(function.getCollectFunctionName(), arguments);
-            vo.setCostMs(System.currentTimeMillis() - begin);
             if (!outcome.hit()) {
-                vo.setSuccess(false);
-                vo.setErrorMessage("函数未生效：可能已停用，或与内置函数同名被遮蔽");
+                CollectFunctionTestVO vo = new CollectFunctionTestVO(
+                        false, functionName, parameters, null, null,
+                        System.currentTimeMillis() - begin,
+                        "函数未生效：可能已停用，或与内置函数同名被遮蔽");
                 markResult(function, vo);
                 return vo;
             }
             Object value = outcome.value();
-            vo.setSuccess(true);
-            vo.setResult(CollectFunctions.stringify(value));
-            vo.setResultType(value == null ? "null" : value.getClass().getName());
+            CollectFunctionTestVO vo = new CollectFunctionTestVO(
+                    true, functionName, parameters,
+                    CollectFunctions.stringify(value),
+                    value == null ? "null" : value.getClass().getName(),
+                    System.currentTimeMillis() - begin,
+                    null);
+            markResult(function, vo);
+            return vo;
         } catch (Exception ex) {
-            vo.setCostMs(System.currentTimeMillis() - begin);
-            vo.setSuccess(false);
-            vo.setErrorMessage(ex.getMessage() == null ? ex.getClass().getSimpleName() : ex.getMessage());
+            CollectFunctionTestVO vo = new CollectFunctionTestVO(
+                    false, functionName, parameters, null, null,
+                    System.currentTimeMillis() - begin,
+                    ex.getMessage() == null ? ex.getClass().getSimpleName() : ex.getMessage());
+            markResult(function, vo);
+            return vo;
         }
-        markResult(function, vo);
-        return vo;
     }
 
     @Override
@@ -231,9 +237,9 @@ public class CollectFunctionServiceImpl extends ServiceImpl<CollectFunctionMappe
      * @param vo       试跑结果
      */
     private void markResult(CollectFunction function, CollectFunctionTestVO vo) {
-        String text = Boolean.TRUE.equals(vo.getSuccess())
-                ? "成功 " + vo.getCostMs() + "ms " + vo.getResult()
-                : "失败: " + vo.getErrorMessage();
+        String text = Boolean.TRUE.equals(vo.success())
+                ? "成功 " + vo.costMs() + "ms " + vo.result()
+                : "失败: " + vo.errorMessage();
         CollectFunction update = new CollectFunction();
         update.setCollectFunctionId(function.getCollectFunctionId());
         update.setCollectFunctionLastResult(cut(text));

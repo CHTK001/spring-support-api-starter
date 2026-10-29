@@ -1,7 +1,6 @@
 package com.chua.starter.system.pojo.message;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
 
 import java.util.List;
 import java.util.Map;
@@ -15,37 +14,32 @@ import java.util.Map;
  * @since 4.0.0.50
  * @author CH
  */
-@Data
 @Schema(description = "按内容发送消息请求")
-public class MessageContentSendRequest {
-
-    /**
-     * 消息渠道: EMAIL/SMS
-     */
-    @Schema(description = "消息渠道: EMAIL/SMS")
-    private String channel;
-
-    /**
-     * 接收人列表
-     */
-    @Schema(description = "接收人列表")
-    private List<String> target;
-
-    /**
-     * 消息主题
-     */
-    @Schema(description = "消息主题")
-    private String subject;
-
-    /**
-     * 消息内容
-     */
-    @Schema(description = "消息内容")
-    private String content;
-
-    /**
-     * 消息变量(替换内容中的 {key} 占位符)
-     */
-    @Schema(description = "消息变量(替换内容中的 {key} 占位符)")
-    private Map<String, Object> params;
+public record MessageContentSendRequest(
+        /**
+         * 消息渠道: EMAIL/SMS
+         */
+        @Schema(description = "消息渠道: EMAIL/SMS")
+        String channel,
+        /**
+         * 接收人列表
+         */
+        @Schema(description = "接收人列表")
+        List<String> target,
+        /**
+         * 消息主题
+         */
+        @Schema(description = "消息主题")
+        String subject,
+        /**
+         * 消息内容
+         */
+        @Schema(description = "消息内容")
+        String content,
+        /**
+         * 消息变量(替换内容中的 {key} 占位符)
+         */
+        @Schema(description = "消息变量(替换内容中的 {key} 占位符)")
+        Map<String, Object> params
+) {
 }

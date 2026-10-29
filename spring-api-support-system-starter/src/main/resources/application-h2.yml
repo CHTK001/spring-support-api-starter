@@ -34,6 +34,16 @@ plugin:
     # 登录页在拿到令牌之前就要读取品牌与验证方式开关，只放行这一个只读分组
     whitelist:
       - /v2/setting/default
+    server:
+      # H2 本地开发环境：随机生成的密钥，非生产用途
+      service-key: mi5yws8p7brq6gztlxofnkae
+      sign-verify: true
+      jwt:
+        enabled: true
+        algorithm: HS256
+        secret: rbpa18zwjv5e3tsg2iymqu0lx4cdf7khon96
+        issuer: oauth-server
+        expire-seconds: 3600
   user-agreement:
     enable: false
   system:

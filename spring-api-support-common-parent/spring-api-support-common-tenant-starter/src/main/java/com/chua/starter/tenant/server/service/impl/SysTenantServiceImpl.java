@@ -251,20 +251,20 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     */
     public ReturnResult<Boolean> bindServiceForSysTenant(SysTenantBindServiceV1Request request) {
         log.debug("绑定租户服务, 租户ID: {}, 服务数量: {}",
-                request.getSysTenantId(),
-                request.getServiceBindItems() != null ? request.getServiceBindItems().size() : 0);
+                request.sysTenantId(),
+                request.serviceBindItems() != null ? request.serviceBindItems().size() : 0);
 
         return transactionTemplate.execute(status -> {
             sysTenantServiceMapper.delete(Wrappers.<SysTenantService>lambdaQuery()
-                    .eq(SysTenantService::getSysTenantId, request.getSysTenantId()));
+                    .eq(SysTenantService::getSysTenantId, request.sysTenantId()));
 
-            if (CollectionUtils.isNotEmpty(request.getServiceBindItems())) {
-                List<SysTenantService> tenantServices = request.getServiceBindItems().stream()
+            if (CollectionUtils.isNotEmpty(request.serviceBindItems())) {
+                List<SysTenantService> tenantServices = request.serviceBindItems().stream()
                         .map(item -> {
                             SysTenantService tenantService = new SysTenantService();
-                            tenantService.setSysTenantId(request.getSysTenantId());
-                            tenantService.setSysServiceId(item.getSysServiceId());
-                            tenantService.setSysTenantServiceValidTime(item.getValidTime());
+                            tenantService.setSysTenantId(request.sysTenantId());
+                            tenantService.setSysServiceId(item.sysServiceId());
+                            tenantService.setSysTenantServiceValidTime(item.validTime());
                             return tenantService;
                         })
                         .toList();
@@ -277,8 +277,8 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
             }
 
             if (syncPublisher != null) {
-                List<Integer> menuIds = sysTenantServiceMapper.getMenuByTenantId(request.getSysTenantId());
-                syncPublisher.publishServiceUpdate(request.getSysTenantId(), menuIds);
+                List<Integer> menuIds = sysTenantServiceMapper.getMenuByTenantId(request.sysTenantId());
+                syncPublisher.publishServiceUpdate(request.sysTenantId(), menuIds);
             }
             return ReturnResult.ok();
         });
@@ -312,14 +312,12 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     */
     public ReturnResult<SysTenantStats> statsForSysTenant() {
         log.debug("获取租户统计数据");
-        SysTenantStats stats = new SysTenantStats();
-
         // 总数
-        stats.setTotal(count());
+        Long total = count();
         // 启用数 (status = 0 表示启用)
-        stats.setEnabled(count(Wrappers.<SysTenant>lambdaQuery().eq(SysTenant::getSysTenantStatus, 0)));
+        Long enabled = count(Wrappers.<SysTenant>lambdaQuery().eq(SysTenant::getSysTenantStatus, 0));
         // 禁用数 (status = 1 表示禁用)
-        stats.setDisabled(count(Wrappers.<SysTenant>lambdaQuery().eq(SysTenant::getSysTenantStatus, 1)));
+        Long disabled = count(Wrappers.<SysTenant>lambdaQuery().eq(SysTenant::getSysTenantStatus, 1));
         // 订阅服务数（有订阅服务的租户数）
         List<SysTenantService> allTenantServices = sysTenantServiceMapper.selectList(
                 Wrappers.<SysTenantService>lambdaQuery().select(SysTenantService::getSysTenantId)
@@ -328,8 +326,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
                 .map(SysTenantService::getSysTenantId)
                 .distinct()
                 .count();
-        stats.setSubscribed(subscribedCount);
-
+        SysTenantStats stats = new SysTenantStats(total, enabled, disabled, subscribedCount);
         return ReturnResult.ok(stats);
     }
 

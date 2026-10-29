@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>4.0.0.42</version>
+    <version>4.0.0.43</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>spring-api-support-system-starter</artifactId>
@@ -244,6 +244,12 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- 数据源中心（含 DbConsoleController /ms/monitor/db/**）：让系统端自带数据库管理器 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-datasource-hub-starter</artifactId>
+      <version>${module.version}</version>
+    </dependency>
     <dependency>
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
@@ -269,11 +275,11 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-achievement-starter</artifactId>
-      <version>4.0.0.42</version></dependency>
+      <version>4.0.0.43</version></dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-signin-starter</artifactId>
-      <version>4.0.0.42</version></dependency>
+      <version>4.0.0.43</version></dependency>
     <!-- utils-support-smtp-starter does not exist yet, commented out -->
     <!--
     <dependency>
