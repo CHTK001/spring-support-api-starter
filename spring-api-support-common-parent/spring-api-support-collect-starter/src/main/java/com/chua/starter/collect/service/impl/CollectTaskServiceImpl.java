@@ -179,15 +179,21 @@ public class CollectTaskServiceImpl extends ServiceImpl<CollectTaskMapper, Colle
             int s = 0, f = 0, sk = 0;
             for (CollectTaskLog l : logs) {
                 String st = l.getCollectTaskLogStatus();
-                if ("SUCCESS".equals(st)) s++;
-                else if ("FAILURE".equals(st)) f++;
-                else if ("SKIPPED".equals(st)) sk++;
+                if ("SUCCESS".equals(st)) {
+                    s++;
+                } else if ("FAILURE".equals(st)) {
+                    f++;
+                } else if ("SKIPPED".equals(st)) {
+                    sk++;
+                }
             }
             if (s > 0) {
                 successNodes++;
+            } else if (f > 0) {
+                failedNodes++;
+            } else {
+                skippedNodes++;
             }
-            else if (f > 0) failedNodes++;
-            else skippedNodes++;
 
             if (nodeTotalCost > slowestCost) {
                 slowestCost = nodeTotalCost;
@@ -215,8 +221,11 @@ public class CollectTaskServiceImpl extends ServiceImpl<CollectTaskMapper, Colle
         int reqSuccess = 0, reqFailed = 0;
         for (CollectTaskLog l : allLogs) {
             if ("request".equals(l.getCollectTaskLogNodeShape())) {
-                if ("SUCCESS".equals(l.getCollectTaskLogStatus())) reqSuccess++;
-                else if ("FAILURE".equals(l.getCollectTaskLogStatus())) reqFailed++;
+                if ("SUCCESS".equals(l.getCollectTaskLogStatus())) {
+                    reqSuccess++;
+                } else if ("FAILURE".equals(l.getCollectTaskLogStatus())) {
+                    reqFailed++;
+                }
             }
         }
         vo.setRequestCount(reqSuccess + reqFailed);
@@ -286,9 +295,13 @@ public class CollectTaskServiceImpl extends ServiceImpl<CollectTaskMapper, Colle
 
         for (CollectTask t : tasks) {
             String s = t.getCollectTaskStatus();
-            if ("SUCCESS".equals(s)) success++;
-            else if ("FAILURE".equals(s)) failure++;
-            else if ("SKIPPED".equals(s)) skipped++;
+            if ("SUCCESS".equals(s)) {
+                success++;
+            } else if ("FAILURE".equals(s)) {
+                failure++;
+            } else if ("SKIPPED".equals(s)) {
+                skipped++;
+            }
             if (t.getCollectTaskRecordCount() != null) {
                 totalRecords += t.getCollectTaskRecordCount();
             }
@@ -332,8 +345,11 @@ public class CollectTaskServiceImpl extends ServiceImpl<CollectTaskMapper, Colle
             int ds = 0, df = 0;
             long dr = 0, dc = 0;
             for (CollectTask t : dayTasks) {
-                if ("SUCCESS".equals(t.getCollectTaskStatus())) ds++;
-                else if ("FAILURE".equals(t.getCollectTaskStatus())) df++;
+                if ("SUCCESS".equals(t.getCollectTaskStatus())) {
+                    ds++;
+                } else if ("FAILURE".equals(t.getCollectTaskStatus())) {
+                    df++;
+                }
                 if (t.getCollectTaskRecordCount() != null) {
                     dr += t.getCollectTaskRecordCount();
                 }
