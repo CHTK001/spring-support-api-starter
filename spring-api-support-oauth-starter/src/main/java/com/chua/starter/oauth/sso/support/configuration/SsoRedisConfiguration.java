@@ -27,6 +27,7 @@ public class SsoRedisConfiguration {
      * @param factory 工厂
      * @return ssoRedisTemplate的结果
      */
+    @Primary
     public RedisTemplate<String, Object> ssoRedisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
