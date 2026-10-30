@@ -1,6 +1,7 @@
 package com.chua.starter.system.service;
 
 import com.chua.common.support.lang.code.ReturnResult;
+import com.chua.starter.system.pojo.online.OnlineLoginHistoryVO;
 import com.chua.starter.system.pojo.online.OnlineUserVO;
 
 import java.util.List;
@@ -30,6 +31,15 @@ public interface SysOnlineService {
      * @return 在线用户数量
      */
     Integer getOnlineCount();
+
+    /**
+     * 获取用户最近 N 天登录时间轴（按天补零）与全部登录 IP
+     *
+     * @param username 用户名
+     * @param days     统计窗口天数，为空默认 30，最大 90
+     * @return 登录时间轴，用户名为空时返回 null
+     */
+    OnlineLoginHistoryVO getLoginHistory(String username, Integer days);
 
     /**
      * 强制下线指定用户

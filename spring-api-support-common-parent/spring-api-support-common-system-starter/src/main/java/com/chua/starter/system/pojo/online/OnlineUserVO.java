@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 在线用户视图对象
@@ -20,6 +21,8 @@ import java.time.LocalDateTime;
  * @param lastAccessTime 最后访问时间
  * @param token          令牌
  * @param loginType      登录类型
+ * @param loginIps       全部登录 IP（最近使用倒序，首项为当前会话 IP）
+ * @param loginDays      最近 30 天登录情况（只含有登录记录的日期）
  * @since 2024/12/15
  * @author CH
  */
@@ -36,5 +39,7 @@ public record OnlineUserVO(
         @Schema(description = "登录时间") LocalDateTime loginTime,
         @Schema(description = "最后访问时间") LocalDateTime lastAccessTime,
         @Schema(description = "Token") String token,
-        @Schema(description = "登录类型") String loginType) {
+        @Schema(description = "登录类型") String loginType,
+        @Schema(description = "全部登录IP") List<OnlineLoginIpVO> loginIps,
+        @Schema(description = "最近30天登录情况") List<OnlineLoginDayVO> loginDays) {
 }
