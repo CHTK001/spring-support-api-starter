@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.chua.starter.entity.system.SysRoleMenu;
 import com.chua.starter.system.pojo.menu.RoleMenuBinding;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -29,8 +28,5 @@ public interface SysRoleMenuMapper extends BaseMapper<SysRoleMenu> {
      *
      * @return 绑定行列表
      */
-    @Select("SELECT rm.sys_menu_id AS menuId, r.sys_role_code AS roleCode "
-            + "FROM sys_role_menu rm "
-            + "LEFT JOIN sys_role r ON r.sys_role_id = rm.sys_role_id")
     List<RoleMenuBinding> selectRoleMenuBindings();
 }

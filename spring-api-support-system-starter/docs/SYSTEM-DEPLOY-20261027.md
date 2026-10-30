@@ -273,3 +273,30 @@ if (StringUtils.isNotBlank(token) && AbstractProtocol.isTokenRevoked(token)) {
 - **`eduAuthDataSource` 空 jdbcUrl 报错非致命**：仅学生登录链才走该数据源，WEB 管理登录不受影响；如启用需配置 `plugin.edu-auth.datasource`。
 - **SSH 偶发 `Permission denied (publickey)`**：本机 `ssh-agent` 服务停止导致；`Start-Service ssh-agent` 后恢复。
 - **在线用户列表来源**：复用 `SysOnlineController`（`/v2/online/*`，`@Permission(role={ADMIN,SUPER_ADMIN})`）+ `SysOnlineServiceImpl` 走 AuthClientExecute 拉 oauth，非本地表。
+
+---
+
+## 11. 在线用户增强功能端对端验收（2026-10-30，浏览器纯前端链路）
+
+> 测试约束：仅通过 dev 代理 `http://127.0.0.1:8096/` + agent-browser 操作，不碰接口。
+> dev vite 配置 `SYSTEM_API_TARGET=https://18170-agqwy5qu7aattthjw7rgsmp7xe.instabox.tech` + 第一方豁免头，
+> 登录需先完成滑块验证（"向右滑动完成验证"），否则登录按钮无响应。
+
+| 验收项 | 结果 |
+|---|---|
+| 登录 `admin/admin123`（滑块验证 + 点击登录） | ✅ `#/login` → `#/home` |
+| 菜单 监控管理 → 在线用户 | ✅ 路由 `#/monitor/online`，面包屑 监控管理 / 在线用户 |
+| 表格数据来源 | ✅ 2 条 admin 会话（IP/浏览器/系统/登录时间/最后访问），分页 `20 条/页` 共 2 条 |
+| IP 折叠 | ✅ 列 `IP / 归属地` 只显示 2 个 IP（`115.201.196.66, 127.0.0.1`）+ `+2` 气泡 |
+| 点击「展开全部 4 个登录IP」 | ✅ 浮层列出 4 个 IP + 归属地/登录次数/最近时间 |
+| 近 30 天登录 — 稀疏网格 | ✅ 列显示 30 次登录的 30 条柱状 CSS 网格 |
+| 点击「查看 admin 最近 30 天登录时间轴」 | ✅ 右侧抽屉「登录时间轴 · admin」，统计 `30 近30天登录 / 30 成功 / 0 失败` |
+| 时间轴节点 | ✅ 拉到最后（2026-10-27），显示 2026-10-30（13 次）、2026-10-28（1 次）、2026-10-27（16 次）及各自 IP 列表 |
+| 抽屉关闭 | ✅ 点击关闭按钮后表格恢复，无残留 |
+
+### 凭证
+- 登录页滑块验证元素 ref=e10（"向右滑动完成验证"），登录按钮 ref=e7
+- 在线用户页表格 IP 折叠按钮 ref=e69/e71（`展开全部 4 个登录IP`）
+- 时间轴抽屉按钮 ref=e70/e72（`查看 admin 最近 30 天登录时间轴 30 条`），抽屉关闭按钮 ref=e34
+- 已截屏：`login.png`、`online-page.png`、`ip-popover.png`（IP 浮层）、`timeline.png`（时间轴抽屉）
+- 远程 jar：PID 441579，port 18170，context-path `/system/api`
