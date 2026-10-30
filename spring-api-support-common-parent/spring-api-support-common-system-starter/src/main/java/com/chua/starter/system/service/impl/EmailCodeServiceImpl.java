@@ -33,6 +33,8 @@ import java.util.Map;
  * 登录场景额外校验邮箱已注册且账号启用，随后按协议签发令牌。</p>
  *
  * @since 4.0.0.50
+ *
+ * @author CH
  */
 @Slf4j
 @Service

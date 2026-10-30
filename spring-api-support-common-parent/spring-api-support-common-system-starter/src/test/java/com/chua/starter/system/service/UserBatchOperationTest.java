@@ -35,6 +35,9 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * <p>P3C40 去mockito改造: 参数校验类测试使用真实 {@link SysUserServiceImpl};
  * 参数校验路径(空列表/非法状态值)不触碰任何依赖, 构造器传 null 即可。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("用户批量操作测试")
 class UserBatchOperationTest {

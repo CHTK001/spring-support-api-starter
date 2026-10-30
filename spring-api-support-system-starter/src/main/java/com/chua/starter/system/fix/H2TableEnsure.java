@@ -18,6 +18,9 @@ import java.util.Map;
  * 确保 AI 模块的表（sys_ai_global_setting / sys_ai_requirement 等）在 mapper 查询前存在。
  * 使用 ApplicationReadyEvent 前的 earliest hook 不现实，因此改为在首个 mapper bean 初始化时
  * 通过 BeanPostProcessor 触发（见 EarlyH2DdlRunner），并在此处做兜底。
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @Profile("h2")
 @Component

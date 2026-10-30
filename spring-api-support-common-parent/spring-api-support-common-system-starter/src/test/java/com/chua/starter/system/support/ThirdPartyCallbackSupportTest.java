@@ -24,6 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li>篡改、错密钥、未签发的伪造凭证一律兑换失败；</li>
  *   <li>错误提示双写：flash {@code msg} + 静态 {@code thirdMsg}（跨域回跳不丢）。</li>
  * </ol>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("ThirdPartyCallbackSupport: 三方登录换票凭证")
 class ThirdPartyCallbackSupportTest {

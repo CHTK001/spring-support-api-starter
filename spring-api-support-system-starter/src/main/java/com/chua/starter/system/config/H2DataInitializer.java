@@ -18,6 +18,9 @@ import javax.sql.DataSource;
  * H2 数据库初始化器：
  * 1) 清理旧表；2) 执行项目自带完整 DDL data-h2.sql（列与实体对齐）；
  * 3) 补建 data-h2.sql 未覆盖的扩展表；4) 写入演示种子数据。
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @Profile("h2")
 @Component

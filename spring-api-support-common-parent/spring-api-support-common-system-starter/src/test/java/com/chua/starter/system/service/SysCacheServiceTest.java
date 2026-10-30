@@ -19,6 +19,9 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * <p>P3C40 去mockito改造: 未接入 Redis 时刷新/刷新全部走兜底逻辑(直接返回成功),
  * 参数校验与固定列表测试保留真实断言; 依赖真实 Redis 连接的用例加 @Disabled。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("缓存管理服务测试")
 class SysCacheServiceTest {

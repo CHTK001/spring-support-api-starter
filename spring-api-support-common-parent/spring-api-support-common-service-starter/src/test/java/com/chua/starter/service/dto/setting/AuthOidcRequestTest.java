@@ -45,6 +45,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>Mock IdP 提供 discovery / token / userinfo / jwks 四个端点，
  * id_token 使用 RS256 签发，覆盖成功登录、签名伪造、nonce 错配、工厂分支。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("OIDC 登录测试")
 class AuthOidcRequestTest {

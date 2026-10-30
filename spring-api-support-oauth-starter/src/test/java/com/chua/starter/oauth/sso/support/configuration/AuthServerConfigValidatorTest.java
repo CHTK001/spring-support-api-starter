@@ -17,6 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@code your-256-bit-secret-key-here-32b} 直接生效；且 serviceKey 命中危险默认值时
  * 只在 prod profile 下才算错误，dev profile 仅仅打一条 warning。
  * HS256 是对称算法，密钥公开 = 任何人可离线伪造有效 JWT。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("AuthServerConfigValidator: 密钥 fail-fast")
 class AuthServerConfigValidatorTest {

@@ -18,6 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>守护 P0-1：{@code /oauth/admin/**} 此前完全无鉴权，一次未授权的 POST 就能
  * {@code sign-verify=false} 摘掉所有协议入口的请求真实性控制。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("OauthAdminAuthFilter: 管理控制台鉴权")
 class OauthAdminAuthFilterTest {
