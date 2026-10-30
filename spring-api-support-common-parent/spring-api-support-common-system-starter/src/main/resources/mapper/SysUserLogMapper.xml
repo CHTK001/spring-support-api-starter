@@ -139,4 +139,70 @@
     FROM sys_user_log sul
     <include refid="UserLogWhereSql" />
   </delete>
+
+  <!-- ==================== 在线用户：登录 IP / 登录时间轴 ==================== -->
+
+  <resultMap id="LoginIpStatMap" type="com.chua.starter.system.pojo.online.OnlineLoginIpStat">
+    <constructor>
+      <arg column="username" javaType="java.lang.String" />
+      <arg column="ip" javaType="java.lang.String" />
+      <arg column="address" javaType="java.lang.String" />
+      <arg column="last_time" javaType="java.time.LocalDateTime" />
+      <arg column="total" javaType="java.lang.Long" />
+    </constructor>
+  </resultMap>
+
+  <resultMap id="LoginDayStatMap" type="com.chua.starter.system.pojo.online.OnlineLoginDayStat">
+    <constructor>
+      <arg column="username" javaType="java.lang.String" />
+      <arg column="login_date" javaType="java.time.LocalDate" />
+      <arg column="total" javaType="java.lang.Integer" />
+      <arg column="success" javaType="java.lang.Integer" />
+      <arg column="fail" javaType="java.lang.Integer" />
+      <arg column="last_time" javaType="java.time.LocalDateTime" />
+      <arg column="ips" javaType="java.lang.String" />
+    </constructor>
+  </resultMap>
+
+  <!-- 成功登录的 IP 维度聚合：给「全部登录 IP」折叠展示用，按最近登录倒序 -->
+  <select id="listLoginIpStats" resultMap="LoginIpStatMap">
+    SELECT
+      sul.sys_log_username AS username,
+      sul.sys_log_ip AS ip,
+      MAX(sul.sys_log_address) AS address,
+      MAX(sul.create_time) AS last_time,
+      COUNT(*) AS total
+    FROM sys_user_log sul
+    WHERE sul.sys_log_from = 'LOGIN'
+      AND sul.sys_log_status = 1
+      AND sul.sys_log_ip IS NOT NULL
+      AND sul.sys_log_ip &lt;&gt; ''
+      AND sul.sys_log_username IN
+      <foreach collection="usernames" item="username" open="(" close=")" separator=",">
+        #{username}
+      </foreach>
+    GROUP BY sul.sys_log_username, sul.sys_log_ip
+    ORDER BY last_time DESC
+  </select>
+
+  <!-- 用户 + 日期维度聚合：给「最近 N 天登录」时间轴用，登录成功与失败都计入 -->
+  <select id="listLoginDayStats" resultMap="LoginDayStatMap">
+    SELECT
+      sul.sys_log_username AS username,
+      CAST(sul.create_time AS DATE) AS login_date,
+      COUNT(*) AS total,
+      SUM(CASE WHEN sul.sys_log_status = 1 THEN 1 ELSE 0 END) AS success,
+      SUM(CASE WHEN sul.sys_log_status = 0 THEN 1 ELSE 0 END) AS fail,
+      MAX(sul.create_time) AS last_time,
+      GROUP_CONCAT(DISTINCT sul.sys_log_ip SEPARATOR ',') AS ips
+    FROM sys_user_log sul
+    WHERE sul.sys_log_from IN ('LOGIN', 'LOGIN_FAIL')
+      AND sul.create_time &gt;= #{startTime}
+      AND sul.sys_log_username IN
+      <foreach collection="usernames" item="username" open="(" close=")" separator=",">
+        #{username}
+      </foreach>
+    GROUP BY sul.sys_log_username, CAST(sul.create_time AS DATE)
+    ORDER BY login_date ASC
+  </select>
 </mapper>
