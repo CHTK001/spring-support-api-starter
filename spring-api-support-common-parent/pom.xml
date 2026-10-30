@@ -6,7 +6,7 @@
     继承根 POM（spring-support-api-parent）的全部依赖管理、属性与插件配置。
 
     @author CH
-    @version 4.0.0.43
+    @version 4.0.0.51
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -16,7 +16,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>spring-support-api-parent</artifactId>
-        <version>4.0.0.43</version>
+        <version>4.0.0.51</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

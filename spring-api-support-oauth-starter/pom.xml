@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>4.0.0.43</version>
+    <version>4.0.0.51</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>spring-api-support-oauth-starter</artifactId>
@@ -107,7 +107,7 @@
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>utils-support-network-starter</artifactId>
-      <version>4.0.0.43</version>
+      <version>4.0.0.50</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
