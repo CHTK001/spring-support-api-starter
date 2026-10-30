@@ -42,7 +42,7 @@ public class DefaultCacheManagerConfiguration {
      * @return aiCacheManager
      */
     @Bean("aiCacheManager")
-    @ConditionalOnMissingBean("aiCacheManager")
+    @ConditionalOnMissingBean(name = {"aiCacheManager"})
     public CacheManager aiCacheManager(ObjectProvider<CacheManager> primary) {
         CacheManager delegate = primary.getIfAvailable();
         return delegate != null ? delegate : new NoOpCacheManager();
