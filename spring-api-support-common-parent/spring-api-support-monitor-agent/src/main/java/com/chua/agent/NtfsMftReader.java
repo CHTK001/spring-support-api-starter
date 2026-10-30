@@ -25,6 +25,9 @@ import java.util.Map;
  * {@link #scan(String)} 都返回 {@code null}，由调用方回退到普通递归遍历，不影响既有功能。</p>
  *
  * <p>字节码钉在 Java 8，仅使用 JNA（Agent 已随 OSHI 打包）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 final class NtfsMftReader {
 

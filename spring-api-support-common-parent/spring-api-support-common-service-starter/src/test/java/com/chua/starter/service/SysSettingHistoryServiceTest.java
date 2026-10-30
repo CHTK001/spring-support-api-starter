@@ -21,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * <p>P3C40 去mockito改造: 参数校验类测试保留; 依赖mapper落库/回滚的测试方法
  * 加 @Disabled, 待完整Spring环境(H2 + 真实MyBatis mapper)补齐。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("设置历史与回滚测试")
 class SysSettingHistoryServiceTest {

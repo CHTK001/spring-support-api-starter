@@ -35,6 +35,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 所以 {@code new SysMenuServiceImpl(null, null, null, null)} 就足以覆盖全部拒绝路径 ——
  * 依赖为 null 恰好保证了「一旦守卫失效就会立刻 NPE」，不会静默通过。
  * 反过来说：如果哪天有人把守卫挪到 insert 之后，本类会立刻变红，这正是想要的。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("菜单新增必填守卫（P0 回归网）")
 class SysMenuServiceImplTest {

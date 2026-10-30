@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * <p>P3C40 去mockito改造: 参数校验类测试使用真实 {@link SysPostServiceImpl};
  * 依赖mapper落库/查询的测试方法加 @Disabled, 待完整Spring环境(H2 + 真实MyBatis mapper)补齐。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("岗位服务测试")
 class SysPostServiceTest {

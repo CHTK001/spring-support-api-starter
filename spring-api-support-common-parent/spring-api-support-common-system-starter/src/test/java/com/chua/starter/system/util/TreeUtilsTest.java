@@ -14,6 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>toTree 委托 {@code com.chua.common.support.utils.TreeUtils#build} 组合实现，
  * 本类锁定：平铺成树、孤儿归根、空输入、入参顺序保持。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("TreeUtils.toTree 行为锁定")
 class TreeUtilsTest {

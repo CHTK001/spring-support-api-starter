@@ -13,6 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>既有 {@link IpCidrMatcherTest} 已覆盖规范化、前缀校验、基础匹配；
  * 本类只补缺口：掩码 0/32 边界、非法输入回 false、matchesEntry 口径。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("IPv4 CIDR 边界补充")
 class IpCidrMatcherBoundaryTest {

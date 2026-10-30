@@ -21,6 +21,9 @@ import org.junit.jupiter.api.Test;
  * <p>回归背景：古诗示例的种子在库里曾被写成「反斜杠 + n」两个字面量，而不是真正的换行。
  * 开始节点按 {@code \r?\n} 切分，切不开就把 58 个分片当成 1 条 URL，抓取节点直接以
  * {@code Illegal character in path} 失败。这里把两种输入的差别固化成测试。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 class CollectStartExecutorTest {
 

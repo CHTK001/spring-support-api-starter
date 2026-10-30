@@ -17,6 +17,8 @@ import org.springframework.context.ApplicationEvent;
  * 跨进程需借助 webhook / 消息队列。</p>
  *
  * @since 4.0.0.42
+ *
+ * @author CH
  */
 @Getter
 public class SysLoginLogEvent extends ApplicationEvent {

@@ -16,6 +16,9 @@ import org.springframework.cache.CacheManager;
  * <p>P3C40 去mockito改造: 本类测试逻辑依赖对 {@link SysAnnouncementService}
  * 与 {@link CacheManager} 的桩行为(更新返回条数/异常), 真实测试需
  * Spring 环境下的公告服务与缓存管理器, 整类 @Disabled 待补齐。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @Disabled("[P3C40] 待完整 Spring 环境补真实测试：需 H2 + 真实 MyBatis mapper")
 @DisplayName("公告定时发布任务测试")

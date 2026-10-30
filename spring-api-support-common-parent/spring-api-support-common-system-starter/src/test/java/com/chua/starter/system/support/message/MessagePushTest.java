@@ -11,6 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * MessagePush.create SPI 接入锁定。
  *
  * <p>注册存在时走 SPI，别名大小写不敏感；未注册时回落原默认分支（日志模式）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("MessagePush.create SPI 接入")
 class MessagePushTest {
