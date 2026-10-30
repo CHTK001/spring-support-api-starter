@@ -3,6 +3,8 @@ package com.chua.starter.system.configuration;
 import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.system.constant.SystemConstant;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +26,27 @@ import org.springframework.context.annotation.Profile;
  */
 @Configuration
 public class DefaultCacheManagerConfiguration {
+
+    /**
+     * {@code aiCacheManager} 兜底 Bean。
+     *
+     * <p>ai-starter 的 {@code AiCacheAutoConfiguration} 受 {@code chua.ai.cache.enabled=true}
+     * 控制：开关关闭时该类不注册，但 {@code WorldSimServiceImpl} 的构造器用
+     * {@code @Qualifier("aiCacheManager")} 强依赖它（== {@code NoSuchBeanDefinitionException}，
+     * 整个应用起不来），所以由本模块按平台注销条件（{@code @ConditionalOnMissingBean}）
+     * 补上一个与主管理器同等的 {@code aiCacheManager} Bean：不创建 Caffeine，直接用框架
+     * 给的主缓存管理器，系统平台的描述则是「.ai 缓存不进 Caffeine，走 primary 统一管理」。</p>
+     *
+     * @param primary 框架级 @Primary 缓存管理器（非 h2 档是 Redis 1 小时过期的
+     *                {@code defaultCacheManager}，h2 档是 {@code primaryCacheManager}）
+     * @return aiCacheManager
+     */
+    @Bean("aiCacheManager")
+    @ConditionalOnMissingBean("aiCacheManager")
+    public CacheManager aiCacheManager(ObjectProvider<CacheManager> primary) {
+        CacheManager delegate = primary.getIfAvailable();
+        return delegate != null ? delegate : new NoOpCacheManager();
+    }
 
     /**
      * h2 档位：内存库通常不伴生 Redis，用空实现避免缓存注解触发真实连接。
