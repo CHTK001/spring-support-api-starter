@@ -17,6 +17,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * H2 环境下，在 mapper bean 初始化之前，直接在所有 DataSource 上创建 AI 模块所需的最小表。
  * 不依赖外部 SQL 文件，避免语法兼容性问题。
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @Profile("h2")
 @Component

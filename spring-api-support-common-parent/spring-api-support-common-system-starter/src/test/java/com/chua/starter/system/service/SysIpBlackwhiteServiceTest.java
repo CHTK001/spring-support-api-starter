@@ -18,6 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * 黑名单命中拒绝、白名单存在时未命中拒绝、命中放行、CIDR 段匹配。</p>
  *
  * <p>P3C40 去mockito改造: 需落库/依赖mapper的测试方法加 @Disabled, 待完整Spring环境补齐。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("IP黑白名单服务测试")
 class SysIpBlackwhiteServiceTest {

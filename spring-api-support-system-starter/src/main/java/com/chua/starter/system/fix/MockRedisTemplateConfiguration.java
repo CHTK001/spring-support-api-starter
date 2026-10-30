@@ -10,6 +10,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
  * 提供缺失的 redisTemplate bean（H2 配置下 MockRedisConnectionFactory 不会自动创建 RedisTemplate）
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @Profile("h2")
 @Configuration

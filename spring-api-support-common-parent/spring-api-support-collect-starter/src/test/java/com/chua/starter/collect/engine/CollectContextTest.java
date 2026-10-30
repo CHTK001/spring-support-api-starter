@@ -17,6 +17,9 @@ import org.junit.jupiter.api.Test;
  * {@link CollectContext#offerRecord} 里先记后写，唯一键挡下的重复行没有进库；
  * 因此 {@link CollectContext#discardRecords(int)} 负责把没写成的条数收回来，
  * 否则流程累计会一路虚高（古诗流程实测 86,939 对表内 55,593）。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 class CollectContextTest {
 

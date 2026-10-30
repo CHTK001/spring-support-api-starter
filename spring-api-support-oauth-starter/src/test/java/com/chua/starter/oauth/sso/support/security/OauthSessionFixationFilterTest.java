@@ -26,6 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>因此这里用「记录调用顺序」的 spy 直接断言换 ID 发生在业务处理<b>之前</b>，
  * 这正是修复的全部要害；其余用例守住开关、路径匹配与顺序契约不被改坏。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("OauthSessionFixationFilter: 换 SessionId 必须早于业务处理")
 class OauthSessionFixationFilterTest {

@@ -30,6 +30,9 @@ import static org.mockito.Mockito.when;
  * <p>同时守护一条硬约束：本服务同时服务浏览器（依赖 Cookie 认证）与后端服务
  * （{@code x-oauth-ak}/{@code x-oauth-sign} 等自定义头），CSRF 只对前者生效，
  * <b>绝不能</b>把服务端到服务端调用打成 403。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("OauthCsrfFilter: CSRF 校验豁免范围")
 class OauthCsrfFilterTest {

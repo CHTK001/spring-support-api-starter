@@ -33,6 +33,9 @@ import static org.mockito.Mockito.when;
  * {@code /oauth} 让判定退化；② 无条件信任 {@code X-Forwarded-For} 等 5 个可伪造头，
  * 攻击者轮换该头即可让每个请求落到不同的限流桶；③ Redis 异常时放行；
  * ④ 窗口计数 key 含完整 URI，同类攻击分散到多个协议路径即可拿到 N 倍预算。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("OauthRateLimitFilter: IP 限流范围与客户端 IP 解析")
 class OauthRateLimitFilterTest {

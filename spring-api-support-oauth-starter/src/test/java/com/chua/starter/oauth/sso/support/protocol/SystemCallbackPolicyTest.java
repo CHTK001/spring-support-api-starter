@@ -16,6 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>守护 P0-3 的开放重定向修复。每条「拒绝」断言都对应一种真实可用的绕过手法，
  * 只要有人把白名单判定改回「以 / 开头就算相对路径」或「不校验域名」，测试立刻红。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("SystemCallbackPolicy: 系统回调地址白名单")
 class SystemCallbackPolicyTest {

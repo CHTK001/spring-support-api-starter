@@ -14,6 +14,8 @@ import jakarta.servlet.http.HttpServletResponse;
  * 本服务负责登录场景的账号校验与令牌签发。</p>
  *
  * @since 4.0.0.50
+ *
+ * @author CH
  */
 public interface EmailCodeService {
 

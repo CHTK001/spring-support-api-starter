@@ -40,6 +40,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>原写法把 {@code stringRedisTemplate} 传 null，于是每个真正要读 Redis 的分支都会 NPE，
  * 只能靠 @Disabled 躲开 —— 也就是说那些断言从未真正验证过任何行为。
  * 现在依赖是可观测的桩，断言的是「传了哪个 pattern」「删了哪些 key」这类真实契约。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("缓存管理接口测试")
 class CacheControllerTest {

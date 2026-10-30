@@ -14,6 +14,9 @@ import com.chua.starter.system.util.PasswordUtils;
  * 在原始 H2DataInitializer（ApplicationRunner）建表并插入基础数据之后，
  * 补充演示数据。监听 ApplicationReadyEvent 确保一定在所有 Runner 之后执行。
  * 每条 SQL 独立 try/catch，失败不阻断启动与登录。
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @Profile("h2")
 @Component

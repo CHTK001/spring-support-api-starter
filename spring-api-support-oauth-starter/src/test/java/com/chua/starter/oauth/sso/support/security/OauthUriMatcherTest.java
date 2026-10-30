@@ -17,6 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>本类守护的是 P0-2 的修复：原实现用 {@code uri.contains(pattern)} 判定豁免，
  * 而服务上下文路径恰为 {@code /oauth}，导致默认豁免项 {@code "/oauth"} 命中所有请求，
  * CSRF 校验被整体短路。下面每一条断言都是针对这一失效模式的反例。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("OauthUriMatcher: 剥离上下文路径后的锚定 Ant 匹配")
 class OauthUriMatcherTest {

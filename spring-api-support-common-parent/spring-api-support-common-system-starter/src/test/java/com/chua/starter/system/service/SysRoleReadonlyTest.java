@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * <p>P3C40 去mockito改造: 实体默认值与只读语义断言保留;
  * 依赖mapper落库/回查的测试方法加 @Disabled, 待完整Spring环境补齐。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("角色只读测试")
 class SysRoleReadonlyTest {

@@ -18,6 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * 数据权限单元测试
  *
  * 测试角色数据权限范围的计算逻辑和查询参数注入
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("数据权限测试")
 class DataScopeTest {

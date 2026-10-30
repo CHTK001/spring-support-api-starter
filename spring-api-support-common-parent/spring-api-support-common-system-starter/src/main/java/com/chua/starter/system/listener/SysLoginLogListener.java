@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
  * 因此可安全读取事件携带的 HttpServletRequest。</p>
  *
  * @since 4.0.0.42
+ *
+ * @author CH
  */
 @Slf4j
 @Component

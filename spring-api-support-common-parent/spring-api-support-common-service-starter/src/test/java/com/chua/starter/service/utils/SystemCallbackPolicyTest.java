@@ -15,6 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * <p>守护 {@code /v2/third/login/*} 链路的开放重定向修复。每条「拒绝」断言都对应
  * 一种真实可用的绕过手法（协议相对 URL、后缀域名、端口跨源、控制字符注入），
  * 只要有人放宽判定，测试立刻红。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("SystemCallbackPolicy: 系统回调地址白名单")
 class SystemCallbackPolicyTest {

@@ -15,6 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *
  * <p>沿用 {@code PolicyRateLimitFilterTest.TestRequest} 的 Proxy 风格构造
  * {@link HttpServletRequest}，只覆盖头链语义：顺序、多值首段、unknown 跳过、回退。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @DisplayName("ClientIpResolver 头链语义")
 class ClientIpResolverTest {

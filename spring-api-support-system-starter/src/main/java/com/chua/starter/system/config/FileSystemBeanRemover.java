@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * 移除文件系统模块的循环依赖 bean
+ *
+ * @author CH
+ * @since 4.0.0.51
  */
 @Component
 public class FileSystemBeanRemover implements BeanFactoryPostProcessor {
