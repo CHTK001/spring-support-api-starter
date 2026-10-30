@@ -215,6 +215,73 @@ public class SysTenant extends SysBase {
     private String sysTenantRemark;
 
     /**
+     * 主库地址（租户专属数据库实例地址）
+     */
+    @TableField(value = "sys_tenant_host")
+    @ApiModelProperty(value = "主库地址")
+    @Schema(description = "主库地址")
+    /**
+     * systenanthost
+     */
+    private String sysTenantHost;
+
+    /**
+     * 主库端口（租户专属数据库实例端口）
+     */
+    @TableField(value = "sys_tenant_port")
+    @ApiModelProperty(value = "主库端口")
+    @Schema(description = "主库端口")
+    /**
+     * systenantport
+     */
+    private Integer sysTenantPort;
+
+    /**
+     * 主库账号（租户专属数据库登录账号）
+     */
+    @TableField(value = "sys_tenant_username_sql")
+    @ApiModelProperty(value = "数据库账号")
+    @Schema(description = "数据库账号")
+    /**
+     * systenantsqlusername
+     */
+    private String sysTenantSqlUsername;
+
+    /**
+     * 主库口令（租户专属数据库登录口令，密文落库）
+     */
+    @TableField(value = "sys_tenant_password_sql")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @ApiModelProperty(value = "数据库口令")
+    @Schema(description = "数据库口令")
+    /**
+     * systenantsqlpassword
+     */
+    private String sysTenantSqlPassword;
+
+    /**
+     * 数据库名（租户专属数据库名）
+     */
+    @TableField(value = "sys_tenant_dbname")
+    @ApiModelProperty(value = "数据库名")
+    @Schema(description = "数据库名")
+    /**
+     * systenantdbname
+     */
+    private String sysTenantDbname;
+
+    /**
+     * 主库IP（租户专属数据库实例 IP）
+     */
+    @TableField(value = "sys_tenant_ip")
+    @ApiModelProperty(value = "主库IP")
+    @Schema(description = "主库IP")
+    /**
+     * systenantip
+     */
+    private String sysTenantIp;
+
+    /**
      * 租户 - 服务标识列表
      */
     @TableField(exist = false)

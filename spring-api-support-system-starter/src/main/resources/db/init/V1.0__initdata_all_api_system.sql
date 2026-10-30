@@ -2,6 +2,7 @@
 -- V1.0__initdata_all_api_system.sql - spring-api-support-system-starter 全量种子（合并自 initdata 文件 + init 内嵌种子）
 -- 通道: INITDATA 虚拟线程异步；全部幂等（INSERT IGNORE / WHERE NOT EXISTS）。
 -- =====================================================================
+-- 已合并 V1.2__initdata_online_user_menu.sql（126 号菜单 pid=1 系统管理 + 角色 248/249）
 
 -- ---------------------------------------------------------------------
 -- 来源: V1.0__initdata_system.sql
@@ -84,7 +85,16 @@ INSERT IGNORE INTO `sys_menu` (
 (101, 'redis', '/monitor/redis', NULL, 'Redis监控', NULL, 100, '0,100,101', 'system/monitor/redis/index', 'ep:coin', 0, 20, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (102, 'cache', '/monitor/cache', NULL, '缓存监控', NULL, 100, '0,100,102', 'system/monitor/cache/index', 'ep:files', 0, 30, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
 (103, 'server', '/monitor/server', NULL, '监控大盘', NULL, 100, '0,100,103', 'system/monitor/server/index', 'ep:cpu', 0, 10, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
-(104, 'policy', '/monitor/policy', NULL, '策略任务', NULL, 100, '0,100,104', 'system/monitor/policy/index', 'ep:set-up', 0, 40, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL);
+(104, 'policy', '/monitor/policy', NULL, '策略任务', NULL, 100, '0,100,104', 'system/monitor/policy/index', 'ep:set-up', 0, 40, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL),
+-- ---------------------------------------------------------------------
+-- 系统管理 → 在线用户。
+--
+-- 来自 V1.2__initdata_online_user_menu.sql（补丁迁移），该文件已合并到此文件并
+-- 删除：在线用户（126）与 hotsport 同属后端 /v2/user/menu 的下发菜单，
+-- 老的补丁文件把 pid 设为 100（监控管理），这里按需求改为 pid=1（系统管理），
+-- 组件、路径、sort、角色授权（SUPER_ADMIN/ADMIN）与原补丁完全一致。
+-- ---------------------------------------------------------------------
+(126, 'online', '/monitor/online', NULL, '在线用户', NULL, 1, '0,1,126', 'system/online/index', 'ep:user', 1, 15, 0, 1, 0, 0, '', 0, 'sa', 1, NOW(), NOW(), 'sa', 1, 'SUPER_ADMIN,ADMIN', NULL, NULL);
 
 -- ---------------------------------------------------------------------
 -- 监控管理 → 系统指标（@pages/hotsport）。
@@ -387,7 +397,10 @@ INSERT IGNORE INTO `sys_role_menu` (`sys_role_menu_id`, `sys_role_id`, `sys_menu
 (243, 2, 122),
 (244, 2, 123),
 (245, 2, 124),
-(247, 2, 125);
+(247, 2, 125),
+-- 248/249: 在线用户(126) — pid=1 系统管理，角色范围 SUPER_ADMIN/ADMIN（来自 V1.2 补丁）。
+(248, 1, 126),
+(249, 2, 126);
 
 -- =====================================================
 -- 3. 默认系统账号
