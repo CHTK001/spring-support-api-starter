@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.chua</groupId>
         <artifactId>spring-api-support-common-parent</artifactId>
-        <version>4.0.0.43</version>
+        <version>4.0.0.51</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

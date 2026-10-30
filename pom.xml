@@ -10,7 +10,7 @@
 
     <groupId>com.chua</groupId>
     <artifactId>spring-support-api-parent</artifactId>
-    <version>4.0.0.43</version>
+    <version>4.0.0.51</version>
     <packaging>pom</packaging>
     <modules>
         <module>spring-api-support-common-parent</module>
@@ -31,7 +31,7 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <module.version>${project.version}</module.version>
-        <utils.version>4.0.0.43</utils.version>
+        <utils.version>4.0.0.50</utils.version>
         <lombok.version>1.18.48</lombok.version>
         <maven.compiler.proc>full</maven.compiler.proc>
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
@@ -41,7 +41,7 @@
         <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
         <surefire.jvm.args></surefire.jvm.args>
         <spring.boot.version>4.1.1</spring.boot.version>
-        <spring-support-webrtc.version>4.0.0.41</spring-support-webrtc.version>
+        <spring-support-webrtc.version>4.0.0.51</spring-support-webrtc.version>
         <netty.version>4.2.18.Final</netty.version>
         <mysql.connector.version>8.0.33</mysql.connector.version>
         <jedis.version>7.4.1</jedis.version>
