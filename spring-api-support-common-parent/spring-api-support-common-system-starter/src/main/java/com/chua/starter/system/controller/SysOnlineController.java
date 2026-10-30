@@ -8,6 +8,7 @@ import com.chua.starter.oauth.client.support.contants.AuthConstant;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.execute.AuthClientExecute;
 import com.chua.starter.oauth.client.support.protocol.Protocol;
+import com.chua.starter.system.pojo.online.OnlineLoginHistoryVO;
 import com.chua.starter.system.pojo.online.OnlineUserVO;
 import com.chua.starter.system.service.SysOnlineService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,6 +62,25 @@ public class SysOnlineController {
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Integer> getOnlineCount() {
         return ReturnResult.ok(sysOnlineService.getOnlineCount());
+    }
+
+    /**
+     * 获取用户最近 N 天登录时间轴与全部登录 IP
+     *
+     * @param username 用户名
+     * @param days     统计窗口天数（默认 30，最大 90）
+     * @return 登录时间轴
+     */
+    @Operation(summary = "获取用户登录时间轴")
+    @GetMapping("/login-history")
+    @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
+    public ReturnResult<OnlineLoginHistoryVO> getLoginHistory(
+            @Parameter(description = "用户名") @RequestParam String username,
+            @Parameter(description = "统计窗口天数") @RequestParam(required = false, defaultValue = "30") Integer days) {
+        if (null == username || username.trim().isEmpty()) {
+            return ReturnResult.error("用户名不能为空");
+        }
+        return ReturnResult.ok(sysOnlineService.getLoginHistory(username.trim(), days));
     }
 
     /**
