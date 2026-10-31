@@ -229,7 +229,16 @@ public abstract class AbstractUserLoginService implements UserInfoService {
             }
             return version;
         } catch (Exception e) {
-            return sysUserMapper.selectAuthVersion(userId);
+            // Redis 不可用时的降级路径：直接查库。
+            // 认证版本是可选能力（UserInfoService#authVersion 默认返回 null，调用方按
+            // 「无版本信息」处理），因此这里必须再兜一层：H2 等方言没有 MD5/DATE_FORMAT，
+            // 或查询瞬时失败时，不能把整个登录打成 500。
+            try {
+                return sysUserMapper.selectAuthVersion(userId);
+            } catch (Exception dbError) {
+                log.warn("获取认证版本失败,userId={},已降级为无版本: {}", userId, dbError.getMessage());
+                return null;
+            }
         }
     }
 
