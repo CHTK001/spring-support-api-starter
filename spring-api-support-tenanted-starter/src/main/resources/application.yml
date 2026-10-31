@@ -6,7 +6,7 @@ spring:
     include: mybatis,swagger,socket,control,codec,api,ip,discovery,tenant
 
 server:
-  port: 18171
+  port: 18172
   servlet:
     context-path: /tenant/api
   http2:

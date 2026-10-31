@@ -12,8 +12,8 @@ plugin:
         auto-add-column: false
         # 是否启用同步接收
         sync-enable: true
-        # 通信协议: rsocket, websocket
-        protocol: rsocket
+        # 通信协议: websocket（与平台端 sync.server.protocol 一致，使用 19380 端口）
+        protocol: websocket
         # 服务端地址
         server-host: localhost
         # 服务端端口
