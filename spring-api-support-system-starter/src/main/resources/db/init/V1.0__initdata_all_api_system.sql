@@ -2,7 +2,7 @@
 -- V1.0__initdata_all_api_system.sql - spring-api-support-system-starter 全量种子（合并自 initdata 文件 + init 内嵌种子）
 -- 通道: INITDATA 虚拟线程异步；全部幂等（INSERT IGNORE / WHERE NOT EXISTS）。
 -- =====================================================================
-已合并 V1.2__initdata_online_user_menu.sql（126 号菜单 pid=1 系统管理 + 角色 248/249）、监控管理模块菜单（111–125）已从本文件移出 — 由 V1.1 patch 单独、密等地提供.
+-- 已合并 V1.2__initdata_online_user_menu.sql（126 号菜单 pid=1 系统管理 + 角色 248/249）、监控管理模块菜单（111–125）已从本文件移出 — 由 V1.1 patch 单独、密等地提供.
 
 -- ---------------------------------------------------------------------
 -- 来源: V1.0__initdata_system.sql
