@@ -11,6 +11,7 @@ import com.chua.starter.system.configuration.EduAuthDataSourceConfiguration;
 import com.chua.starter.system.entity.EduStudentAuth;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -44,12 +45,22 @@ import java.util.Set;
  * {@link EduAuthDataSourceConfiguration} 提供的独立 JdbcTemplate 访问，
  * 不占用主库连接池、也不把该表纳入主库的 MyBatis 映射。</p>
  *
+ * <p><b>条件装配</b>：本类只在安装了 {@code plugin.edu-auth.datasource}
+ * 时才创建 Bean（与 {@link EduAuthDataSourceConfiguration}
+ * 的 {@code @ConditionalOnProperty} 条件一致）。租户端 / 平台端 server 专度
+ * 不配 {@code plugin.edu-auth}，故学生登录不创建 Bean——这反而保护了容器：
+ * 学生登录强依赖 {@code @Qualifier("eduAuthJdbcTemplate")} 注入，
+ * 如果创造 Bean 时容器里只有 Spring Boot 默认的 {@code jdbcTemplate}，
+ * {@code UnsatisfiedDependencyException} 会发生（文档见
+ * {@link EduAuthDataSourceConfiguration}）。</p>
+ *
  * @author CH
  * @since 4.0.0.43
  */
 @Slf4j
 @Service
 @Spi("STUDENT")
+@ConditionalOnProperty(prefix = "plugin.edu-auth", name = "datasource.url", matchIfMissing = false)
 public class StudentLoginService implements UserInfoService {
 
     /**
