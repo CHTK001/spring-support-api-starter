@@ -2,6 +2,7 @@ package com.chua.starter.system.configuration;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +14,7 @@ import javax.sql.DataSource;
 /**
  * 学生档案数据源配置：为「学生登录」提供一条通往 eduai 库的只读通道。
  *
- * <p><b>为什么不把 edu_student 并进主数据源</b>：两库的表结构已各自演进
+ * <p><b>为什么把 edu_student 并进主数据源</b>：两库的表结构已各自演进
  * （实测 {@code sys_setting} 列已分叉、行数也不同），合并到同一个库有真实的数据风险；
  * 而临时切换数据源又依赖多数据源框架的具体注解与配置约定。
  * 这里改用<b>独立数据源</b>：语义最直白，与主库完全隔离，
@@ -29,17 +30,26 @@ import javax.sql.DataSource;
  *       password: eduai123
  * </pre>
  *
- * <p><b>未配置或不连通时的行为</b>：本配置不做条件装配，而是由使用方的 yml
- * 提供默认值（见 {@code application-dev.yml} 的 {@code plugin.edu-auth.datasource}），
- * 因此 Bean 总会创建。Hikari 是<b>懒连接</b>——池在首次 {@code getConnection}
- * 时才建连接，所以即便 eduai 库暂时不可达，本服务仍能正常启动，
- * 只在学生登录那一刻失败；WEB 等其它登录方式完全不受影响。
- * 这比「启动即失败」更符合「一种登录方式出问题不该拖垮整个认证服务」的取舍。</p>
+ * <p><b>条件装配</b>：当使用方没有提供 {@code plugin.edu-auth} 配置时（比如
+ * 租户端），本配置不创建任何 Bean — 这很关键：如果没有 {@code eduAuthJdbcTemplate}，
+ * Spring Boot 默认的 {@code JdbcTemplateAutoConfiguration}
+ * 会创建默认的 {@code jdbcTemplate}（走 {@code spring.datasource}），
+ * 注意这条与 {@code DefaultTenantDataSyncProvider} 这类类
+ * （它们 {@code @RequiredArgsConstructor} 注入未限定名的 {@code JdbcTemplate}）
+ * 直接相关；而 {@code @ConditionalOnMissingBean} 在此时才能通过——因此只用 {@code plugin.edu-auth}
+ * 配置时的 Hikari 池会在首次 {@code getConnection} 时
+ * 抛出 {@code IllegalArgumentException: dataSource or dataSourceClassName or jdbcUrl is required}，
+ * 回到「所有同步数据落库都失败」的故障上。</p>
+ *
+ * <p><b>未配置时的行为</b>：没有 {@code eduAuthDataSource}/{@code eduAuthJdbcTemplate}，
+ * 因此 {@code StudentLoginService}（{@link #StudentLoginService}）也不会出现，学生登录
+ * （学号/家长手机号）不可用；WEB / TENANT / WECHAT 等其余登录方式完全不受影响。</p>
  *
  * @author CH
  * @since 4.0.0.43
  */
 @Configuration
+@ConditionalOnProperty(prefix = "plugin.edu-auth", name = "datasource.url", matchIfMissing = false)
 public class EduAuthDataSourceConfiguration {
 
     /**
