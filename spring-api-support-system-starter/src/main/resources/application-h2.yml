@@ -31,6 +31,11 @@ plugin:
     client:
       enable: false
   oauth:
+    # H2 单机环境没有独立的 OAuth 服务进程：令牌由本应用内置的 oauth-starter 签发，
+    # 因此客户端必须走 static 协议本地验签。缺这一项时客户端按默认 http 协议去连
+    # 不存在的鉴权地址（鉴权地址不存在 → 500），@Permission 拿不到角色（owned=[]），
+    # /v2/** 的受限接口会一律 403。
+    protocol: static
     # 登录页在拿到令牌之前就要读取品牌与验证方式开关，只放行这一个只读分组
     whitelist:
       - /v2/setting/default
