@@ -2,23 +2,27 @@ package com.chua.starter.oauth.sso.support.security;
 
 import com.chua.starter.oauth.sso.support.properties.OauthSecurityProperties;
 import jakarta.servlet.FilterChain;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * {@link OauthCsrfFilter} 回归测试
@@ -45,7 +49,7 @@ class OauthCsrfFilterTest {
     /**
      * 有效 CSRF 令牌
      */
-    private static final String GOOD_TOKEN = "good-csrf-token";
+    private static final String GOOD_VALID = "good-csrf-token";
 
     /**
      * 安全配置
@@ -53,15 +57,125 @@ class OauthCsrfFilterTest {
     private OauthSecurityProperties properties;
 
     /**
-     * Redis 模板（mock）
+     * 可观测的 Redis 桩：逐条录制 {@code get/set/hasKey/expire/delete} 及其 key；
+     * 键不在 store 中时回返回 {@link #defaultValue}（null 表示 Redis 未命中）。
      */
-    private StringRedisTemplate redis;
+    private static class RecordingStringRedisTemplate extends StringRedisTemplate {
 
-    /**
-     * ValueOperations（mock）
-     */
-    @SuppressWarnings("unchecked")
-    private ValueOperations<String, String> valueOps;
+        /** 按键名录制的 String 型值 */
+        private final Map<String, String> store = new ConcurrentHashMap<>();
+
+        /** 记录收到过的操作 */
+        private final List<String> recorded = new ArrayList<>();
+
+        /** 未命中键时的值（默认 null） */
+        private String defaultValue = null;
+
+        /** 不再执行有参调用的 Redis 异常（让 fail-closed 路径可测） */
+        private boolean throwOnGet = false;
+
+        /** 是否认为 Redis 中一定存在 */
+        private boolean hasKeyAlways = false;
+
+        RecordingStringRedisTemplate store(String key, String value) {
+            store.put(key, value);
+            recorded.add("set " + key + " -> " + value);
+            return this;
+        }
+
+        String getStoredValue(String key) {
+            return store.get(key);
+        }
+
+        List<String> getRecorded() {
+            return recorded;
+        }
+
+        /** 关闭有参调用（用于 Redis 故障场景） */
+        void setThrowOnGet(boolean throwOnGet) {
+            this.throwOnGet = throwOnGet;
+        }
+
+        /** 强制 hasKey 始终返回 true（久已有效的令牌 Cookie） */
+        void setHasKeyAlways(boolean hasKeyAlways) {
+            this.hasKeyAlways = hasKeyAlways;
+        }
+
+        @Override
+        public ValueOperations<String, String> opsForValue() {
+            return (ValueOperations<String, String>) Proxy.newProxyInstance(
+                    getClass().getClassLoader(), new Class<?>[]{ValueOperations.class},
+                    new RecordingInvocation());
+        }
+
+        @Override
+        public Boolean hasKey(String key) {
+            recorded.add("hasKey " + key + " -> " + store.containsKey(key));
+            return hasKeyAlways ? Boolean.TRUE : store.containsKey(key);
+        }
+
+        @Override
+        public Boolean expire(String key, Duration timeout) {
+            recorded.add("expire " + key + " ttl=" + timeout);
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Boolean delete(String key) {
+            recorded.add("delete " + key);
+            return store.remove(key) != null;
+        }
+
+        /**
+         * 逐操作录制的 InvocationHandler。
+         */
+        private class RecordingInvocation implements InvocationHandler {
+
+            RecordingInvocation() {
+            }
+
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) {
+                if ("get".equals(method.getName()) && (args.length == 1)) {
+                    String key = String.valueOf(args[0]);
+                    if (throwOnGet) {
+                        throw new RuntimeException("redis down");
+                    }
+                    String value = store.get(key);
+                    if (value == null) {
+                        value = defaultValue;
+                    }
+                    recorded.add("get " + key + " -> " + value);
+                    return value;
+                }
+                if ("set".equals(method.getName()) && (args.length >= 2)) {
+                    String key = String.valueOf(args[0]);
+                    String value = String.valueOf(args[1]);
+                    store.put(key, value);
+                    recorded.add("set " + key + " -> " + value);
+                    return null;
+                }
+                if ("increment".equals(method.getName()) && (args.length == 1)) {
+                    String key = String.valueOf(args[0]);
+                    String current = store.containsKey(key)
+                            ? store.get(key) : "0";
+                    long next = Long.parseLong(current) + 1L;
+                    store.put(key, String.valueOf(next));
+                    recorded.add("increment " + key + " -> " + next);
+                    return next;
+                }
+                if ("delete".equals(method.getName()) && (args.length == 1)) {
+                    String key = String.valueOf(args[0]);
+                    recorded.add("delete " + key);
+                    return store.remove(key) != null;
+                }
+                recorded.add(method.getName() + " " + String.join(",", String.valueOf(args)));
+                return null;
+            }
+        }
+    }
+
+    private RecordingStringRedisTemplate redis;
 
     /**
      * 记录是否被放行
@@ -78,11 +192,9 @@ class OauthCsrfFilterTest {
     @BeforeEach
     void setUp() {
         properties = new OauthSecurityProperties();
-        redis = mock(StringRedisTemplate.class);
-        valueOps = mock(ValueOperations.class);
-        when(redis.opsForValue()).thenReturn(valueOps);
+        redis = new RecordingStringRedisTemplate();
         // 默认：Redis 中存在 GOOD_TOKEN
-        when(valueOps.get(anyString())).thenReturn("1");
+        redis.store("oauth:security:csrf:" + GOOD_VALID, "1");
     }
 
     /**
@@ -236,11 +348,12 @@ class OauthCsrfFilterTest {
     @DisplayName("请求头与 Cookie 令牌一致且 Redis 命中则放行（double-submit 正常工作）")
     void matchingDoubleSubmitTokenIsAccepted() throws Exception {
         MockHttpServletRequest request = cookieRequest("/user/info");
-        request.addHeader("X-CSRF-TOKEN", GOOD_TOKEN);
+        request.addHeader("X-CSRF-TOKEN", GOOD_VALID);
         request.setCookies(new jakarta.servlet.http.Cookie("SESSION", "sess-1"),
-                new jakarta.servlet.http.Cookie("XSRF-TOKEN", GOOD_TOKEN));
+                new jakarta.servlet.http.Cookie("XSRF-TOKEN", GOOD_VALID));
 
         assertTrue(run(request).passed(), "合法的 double-submit 不得被误杀");
+        assertEquals("1", redis.getStoredValue("oauth:security:csrf:" + GOOD_VALID));
     }
 
     @Test
@@ -248,7 +361,7 @@ class OauthCsrfFilterTest {
     void mismatchedDoubleSubmitTokenIsForbidden() throws Exception {
         MockHttpServletRequest request = cookieRequest("/user/info");
         request.addHeader("X-CSRF-TOKEN", "attacker-token");
-        request.setCookies(new jakarta.servlet.http.Cookie("XSRF-TOKEN", GOOD_TOKEN));
+        request.setCookies(new jakarta.servlet.http.Cookie("XSRF-TOKEN", GOOD_VALID));
 
         FilterOutcome outcome = run(request);
         assertFalse(outcome.passed());
@@ -259,7 +372,7 @@ class OauthCsrfFilterTest {
     @DisplayName("只有请求头没有 Cookie（Cookie 被剥掉）时 403")
     void headerOnlyWithoutCookieIsForbidden() throws Exception {
         MockHttpServletRequest request = request("POST", "/user/info");
-        request.addHeader("X-CSRF-TOKEN", GOOD_TOKEN);
+        request.addHeader("X-CSRF-TOKEN", GOOD_VALID);
 
         assertFalse(run(request).passed(), "缺 Cookie 的请求不构成 double-submit");
     }
@@ -267,21 +380,26 @@ class OauthCsrfFilterTest {
     @Test
     @DisplayName("Redis 中无该令牌（已过期/已注销）时 403")
     void tokenMissingInRedisIsForbidden() throws Exception {
-        when(valueOps.get(anyString())).thenReturn(null);
+        RecordingStringRedisTemplate expiredRedis = new RecordingStringRedisTemplate();
+        OauthSecurityProperties expiredProperties = new OauthSecurityProperties();
         MockHttpServletRequest request = cookieRequest("/user/info");
-        request.addHeader("X-CSRF-TOKEN", GOOD_TOKEN);
-        request.setCookies(new jakarta.servlet.http.Cookie("XSRF-TOKEN", GOOD_TOKEN));
+        request.addHeader("X-CSRF-TOKEN", GOOD_VALID);
+        request.setCookies(new jakarta.servlet.http.Cookie("XSRF-TOKEN", GOOD_VALID));
 
-        assertFalse(run(request).passed());
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        RecordingChain chain = new RecordingChain();
+        new OauthCsrfFilter(expiredProperties, expiredRedis).doFilter(request, response, chain);
+
+        assertFalse(chain.invoked, "Redis 击穿时不予放行");
     }
 
     @Test
     @DisplayName("Redis 异常时 fail-closed（拒绝而非放行）")
     void redisFailureFailsClosed() throws Exception {
-        when(valueOps.get(anyString())).thenThrow(new RuntimeException("redis down"));
+        redis.setThrowOnGet(true);
         MockHttpServletRequest request = cookieRequest("/user/info");
-        request.addHeader("X-CSRF-TOKEN", GOOD_TOKEN);
-        request.setCookies(new jakarta.servlet.http.Cookie("XSRF-TOKEN", GOOD_TOKEN));
+        request.addHeader("X-CSRF-TOKEN", GOOD_VALID);
+        request.setCookies(new jakarta.servlet.http.Cookie("XSRF-TOKEN", GOOD_VALID));
 
         FilterOutcome outcome = run(request);
         assertFalse(outcome.passed(), "Redis 不可用时不得放行");
@@ -352,9 +470,9 @@ class OauthCsrfFilterTest {
     @Test
     @DisplayName("已有有效令牌 Cookie 时不重复下发")
     void existingValidCookieIsNotReissued() throws Exception {
-        when(redis.hasKey(anyString())).thenReturn(Boolean.TRUE);
+        redis.setHasKeyAlways(true);
         MockHttpServletRequest request = request("GET", "/authorize");
-        request.setCookies(new jakarta.servlet.http.Cookie("XSRF-TOKEN", GOOD_TOKEN));
+        request.setCookies(new jakarta.servlet.http.Cookie("XSRF-TOKEN", GOOD_VALID));
 
         FilterOutcome outcome = run(request);
 
@@ -368,11 +486,11 @@ class OauthCsrfFilterTest {
     void forbiddenResponseDoesNotLeakToken() throws Exception {
         MockHttpServletRequest request = cookieRequest("/user/info");
         request.addHeader("X-CSRF-TOKEN", "attacker-token");
-        request.setCookies(new jakarta.servlet.http.Cookie("XSRF-TOKEN", GOOD_TOKEN));
+        request.setCookies(new jakarta.servlet.http.Cookie("XSRF-TOKEN", GOOD_VALID));
 
         FilterOutcome outcome = run(request);
 
         assertFalse(outcome.response().getContentAsString().contains("attacker-token"));
-        assertFalse(outcome.response().getContentAsString().contains(GOOD_TOKEN));
+        assertFalse(outcome.response().getContentAsString().contains(GOOD_VALID));
     }
 }
