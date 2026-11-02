@@ -15,6 +15,8 @@ import com.chua.starter.tenant.server.mapper.SysTenantMapper;
 import com.chua.starter.tenant.server.mapper.SysTenantServiceMapper;
 import com.chua.starter.tenant.server.pojo.SysTenantBindServiceV1Request;
 import com.chua.starter.tenant.server.sync.TenantServerSyncPublisher;
+import com.chua.starter.tenant.server.support.TenantDatabaseProvisioner;
+import com.chua.starter.tenant.server.support.TenantDataSourceRegistry;
 import com.chua.starter.tenant.server.support.TenantPasswordCipher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +53,16 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
      * 租户口令落库加解密
      */
     private final TenantPasswordCipher tenantPasswordCipher;
+
+    /**
+     * 租户独立库自动开通器
+     */
+    private final TenantDatabaseProvisioner tenantDatabaseProvisioner;
+
+    /**
+     * 租户数据源注册器
+     */
+    private final TenantDataSourceRegistry tenantDataSourceRegistry;
 
     @Autowired(required = false)
     /**
@@ -143,6 +155,10 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         // 落库前加密，避免新建租户时明文直接进库；
         // 下发同步时由 TenantServerSyncPublisher 解密还原，线格式不变
         sysTenant.setSysTenantPassword(tenantPasswordCipher.encrypt(sysTenant.getSysTenantPassword()));
+        // 租户独立库口令同样密文落库，供 TenantDataSourceRegistry 建池时还原
+        // 明文先留一份给建库用，落库后再拿不回来（库里是密文）
+        String plainSqlPassword = sysTenant.getSysTenantSqlPassword();
+        sysTenant.setSysTenantSqlPassword(tenantPasswordCipher.encrypt(sysTenant.getSysTenantSqlPassword()));
 
         save(sysTenant);
         
@@ -151,6 +167,9 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         updateById(sysTenant);
         
         log.info("租户保存成功, ID: {}", sysTenant.getSysTenantId());
+
+        // 独立库开通：配置了管理连接才执行，失败只记日志，不回滚租户
+        provisionTenantDatabase(sysTenant, plainSqlPassword);
 
         // 发布同步消息：推送给租户端租户信息，并按当前订阅重置租户端菜单
         if (syncPublisher != null) {
@@ -191,9 +210,17 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         if (StringUtils.isNotBlank(sysTenant.getSysTenantPassword())) {
             sysTenant.setSysTenantPassword(tenantPasswordCipher.encrypt(sysTenant.getSysTenantPassword()));
         }
+        if (StringUtils.isNotBlank(sysTenant.getSysTenantSqlPassword())) {
+            sysTenant.setSysTenantSqlPassword(tenantPasswordCipher.encrypt(sysTenant.getSysTenantSqlPassword()));
+        }
 
         boolean result = updateById(sysTenant);
         log.info("租户更新结果: {}", result);
+
+        // 库地址可能被改：先释放旧连接池，下次请求按新地址重建
+        if (result) {
+            tenantDataSourceRegistry.evict(sysTenant.getSysTenantId());
+        }
 
         // 发布同步消息：推送给租户端租户信息，并按当前订阅重置租户端菜单
         if (result && syncPublisher != null) {
@@ -220,6 +247,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
 
             boolean result = removeById(sysTenantId);
             log.info("租户删除结果: {}", result);
+
+            // 连接池随租户一起释放，避免删除后仍持有已废弃库的连接
+            if (result) {
+                tenantDataSourceRegistry.evict(sysTenantId);
+            }
 
             // 发布同步消息
             if (result && syncPublisher != null) {
@@ -377,6 +409,27 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         syncPublisher.publishServiceUpdate(sysTenantId, menuIds);
         log.info("租户菜单重置完成并推送, tenantId={}, menuCount={}", sysTenantId,
                 menuIds == null ? 0 : menuIds.size());
+    }
+
+    /**
+     * 开通租户独立库。
+     *
+     * <p>只在 {@code datasource-routing-auto-provision=true} 且配好管理连接时才会真正建库；
+     * 其它情况直接跳过。任何失败都只记日志——租户记录已经落库，不能因为建库失败让接口报错。</p>
+     *
+     * @param tenant            租户记录（{@code sqlPassword} 已是密文）
+     * @param plainSqlPassword  落库前捕获的明文库口令，用于建账号
+     */
+    private void provisionTenantDatabase(SysTenant tenant, String plainSqlPassword) {
+        if (!tenantDatabaseProvisioner.isAvailable()) {
+            return;
+        }
+        try {
+            tenantDatabaseProvisioner.provision(tenant, plainSqlPassword);
+        } catch (Exception e) {
+            log.error("[租户建库] 租户 {} 开通独立库异常，不影响租户记录: {}",
+                    tenant.getSysTenantId(), e.getMessage(), e);
+        }
     }
 
     /**
