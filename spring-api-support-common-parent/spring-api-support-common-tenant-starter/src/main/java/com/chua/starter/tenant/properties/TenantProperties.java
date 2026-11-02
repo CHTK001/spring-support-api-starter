@@ -271,6 +271,104 @@ public class TenantProperties {
         private String protocol = "rsocket-sync";
 
         /**
+         * 是否启用「按租户切换数据源」。
+         * <p>
+         * 开启后，平台端请求携带 {@code X-Tenant-Id} 时会路由到该租户在 {@code sys_tenant}
+         * 中登记的独立数据库（{@code sys_tenant_host/port/dbname/sql_username/sql_password}）；
+         * 未携带或租户未登记数据库时回退主库。默认关闭，不影响现有共享库行为。
+         * </p>
+         */
+        private boolean datasourceRoutingEnable = false;
+
+        /**
+         * 租户数据源在 {@link com.chua.starter.datasource.support.DataSourceContextSupport}
+         * 中的注册前缀，实际注册名为 {@code prefix + tenantId}。
+         *
+         * <p>默认用 {@code tenant-} 而不是 {@code tenant_}：{@code DataSourceGroupRegistry}
+         * 会把「{@code 前缀_数字}」当成负载均衡分组（{@code slave_1}/{@code slave_2} → {@code slave}），
+         * 而租户标识恰好是雪花数字，用下划线会让所有租户被收进同一个 {@code tenant} 组，
+         * 导致 {@code @DS("tenant")} 随机串到别的租户库，且删除租户后组里仍留着已关闭的池。</p>
+         */
+        private String datasourceRoutingPrefix = "tenant-";
+
+        /**
+         * 租户数据源连接池最大连接数。
+         */
+        private int datasourceRoutingMaxPoolSize = 10;
+
+        /**
+         * 租户数据源连接池最小空闲连接数。
+         */
+        private int datasourceRoutingMinIdle = 1;
+
+        /**
+         * 租户数据源连接超时（毫秒）。
+         */
+        private long datasourceRoutingConnectionTimeoutMillis = 30000L;
+
+        /**
+         * 建池失败后的冷却时长（毫秒）。
+         * <p>租户库宕机期间，每个请求都会尝试建池并等满连接超时，把请求线程逐个拖住。
+         * 失败后进入冷却期，冷却期内直接回退主库，冷却结束才重试。</p>
+         */
+        private long datasourceRoutingFailureCooldownMillis = 30000L;
+
+        /**
+         * 租户数据源 JDBC 驱动类名；留空则按租户库 URL 交给驱动管理器自动识别。
+         */
+        private String datasourceRoutingDriverClassName;
+
+        /**
+         * 租户库 JDBC URL 模板。
+         *
+         * <p>占位符：{@code {host}} / {@code {port}} / {@code {dbname}}，端口为空时 {@code {port}}
+         * 会被替换成空串。默认值是 MySQL 模板；主库是 PostgreSQL/H2 等其它库时改这里即可，
+         * 无需改代码。</p>
+         */
+        private String datasourceRoutingUrlTemplate =
+                "jdbc:mysql://{host}{port}/{dbname}"
+                        + "?useUnicode=true&characterEncoding=utf8&useSSL=false"
+                        + "&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai";
+
+        /**
+         * 租户标识的可信来源，决定「按哪个值切库」。
+         *
+         * <ul>
+         *   <li>{@code session}（默认）——只认登录会话里的 {@code tenantId}。
+         *       {@code X-Tenant-Id} 请求头<b>完全忽略</b>，因为请求头由客户端控制，
+         *       改一个头就能读到别的租户库，等于没隔离。</li>
+         *   <li>{@code header}——只认 {@code X-Tenant-Id} 请求头。仅供「平台管理员跨租户查询」
+         *       这类场景使用，<b>必须</b>同时在接口层做租户授权校验，否则任何人都能切库。</li>
+         *   <li>{@code session-or-header}——优先会话，会话无租户时才用请求头。</li>
+         * </ul>
+         */
+        private String datasourceRoutingTenantSource = "session";
+
+        /**
+         * 建租户时是否自动建库/建账号。
+         * <p>需要同时在下面配置具备 CREATE DATABASE / CREATE USER / GRANT 权限的管理连接；
+         * 未配置管理连接时自动跳过，仅记录告警，不影响租户创建。</p>
+         */
+        private boolean datasourceRoutingAutoProvision = false;
+
+        /**
+         * 建库用的管理连接 URL（连到实例而非某个租户库，例如
+         * {@code jdbc:mysql://127.0.0.1:3306/mysql}）。
+         */
+        private String datasourceRoutingAdminUrl;
+
+        /**
+         * 建库用的管理连接账号。
+         */
+        private String datasourceRoutingAdminUsername;
+
+        /**
+         * 建库用的管理连接口令（支持 {@code ENC:} 前缀密文）。
+         */
+        private String datasourceRoutingAdminPassword;
+
+
+        /**
          * 绑定地址
          */
         private String host = "0.0.0.0";
@@ -407,6 +505,123 @@ public class TenantProperties {
         }
 
         /**
+         * 是否启用按租户切换数据源
+         *
+         * @return 启用时返回 true
+         */
+        public boolean isDatasourceRoutingEnable() {
+            return datasourceRoutingEnable;
+        }
+
+        /**
+         * 获取租户数据源注册前缀
+         *
+         * @return 注册前缀
+         */
+        public String getDatasourceRoutingPrefix() {
+            return datasourceRoutingPrefix;
+        }
+
+        /**
+         * 获取租户数据源连接池最大连接数
+         *
+         * @return 最大连接数
+         */
+        public int getDatasourceRoutingMaxPoolSize() {
+            return datasourceRoutingMaxPoolSize;
+        }
+
+        /**
+         * 获取租户数据源连接池最小空闲连接数
+         *
+         * @return 最小空闲连接数
+         */
+        public int getDatasourceRoutingMinIdle() {
+            return datasourceRoutingMinIdle;
+        }
+
+        /**
+         * 获取租户数据源连接超时（毫秒）
+         *
+         * @return 连接超时毫秒数
+         */
+        public long getDatasourceRoutingConnectionTimeoutMillis() {
+            return datasourceRoutingConnectionTimeoutMillis;
+        }
+
+        /**
+         * 获取建池失败冷却时长（毫秒）
+         *
+         * @return 冷却毫秒数
+         */
+        public long getDatasourceRoutingFailureCooldownMillis() {
+            return datasourceRoutingFailureCooldownMillis;
+        }
+
+        /**
+         * 获取租户数据源 JDBC 驱动类名
+         *
+         * @return 驱动类名，未配置时为 null
+         */
+        public String getDatasourceRoutingDriverClassName() {
+            return datasourceRoutingDriverClassName;
+        }
+
+        /**
+         * 获取租户库 JDBC URL 模板
+         *
+         * @return URL 模板，含 {host}/{port}/{dbname} 占位符
+         */
+        public String getDatasourceRoutingUrlTemplate() {
+            return datasourceRoutingUrlTemplate;
+        }
+
+        /**
+         * 获取租户标识来源
+         *
+         * @return session / header / session-or-header
+         */
+        public String getDatasourceRoutingTenantSource() {
+            return datasourceRoutingTenantSource;
+        }
+
+        /**
+         * 建租户时是否自动建库/建账号
+         *
+         * @return 启用时返回 true
+         */
+        public boolean isDatasourceRoutingAutoProvision() {
+            return datasourceRoutingAutoProvision;
+        }
+
+        /**
+         * 获取建库管理连接 URL
+         *
+         * @return 管理连接 URL
+         */
+        public String getDatasourceRoutingAdminUrl() {
+            return datasourceRoutingAdminUrl;
+        }
+
+        /**
+         * 获取建库管理连接账号
+         *
+         * @return 管理连接账号
+         */
+        public String getDatasourceRoutingAdminUsername() {
+            return datasourceRoutingAdminUsername;
+        }
+
+        /**
+         * 获取建库管理连接口令
+         *
+         * @return 管理连接口令
+         */
+        public String getDatasourceRoutingAdminPassword() {
+            return datasourceRoutingAdminPassword;
+        }
+
+        /**
          * 获取协议
          *
          * @return 获取协议的结果
@@ -454,6 +669,19 @@ public class TenantProperties {
             copy.syncAckCompensationCooldownSeconds = this.syncAckCompensationCooldownSeconds;
             copy.syncAckMaxPending = this.syncAckMaxPending;
             copy.ignoreTable = new HashSet<>(this.ignoreTable);
+            copy.datasourceRoutingEnable = this.datasourceRoutingEnable;
+            copy.datasourceRoutingPrefix = this.datasourceRoutingPrefix;
+            copy.datasourceRoutingMaxPoolSize = this.datasourceRoutingMaxPoolSize;
+            copy.datasourceRoutingMinIdle = this.datasourceRoutingMinIdle;
+            copy.datasourceRoutingConnectionTimeoutMillis = this.datasourceRoutingConnectionTimeoutMillis;
+            copy.datasourceRoutingFailureCooldownMillis = this.datasourceRoutingFailureCooldownMillis;
+            copy.datasourceRoutingDriverClassName = this.datasourceRoutingDriverClassName;
+            copy.datasourceRoutingUrlTemplate = this.datasourceRoutingUrlTemplate;
+            copy.datasourceRoutingTenantSource = this.datasourceRoutingTenantSource;
+            copy.datasourceRoutingAutoProvision = this.datasourceRoutingAutoProvision;
+            copy.datasourceRoutingAdminUrl = this.datasourceRoutingAdminUrl;
+            copy.datasourceRoutingAdminUsername = this.datasourceRoutingAdminUsername;
+            copy.datasourceRoutingAdminPassword = this.datasourceRoutingAdminPassword;
             copy.protocol = this.protocol;
             copy.host = this.host;
             copy.port = this.port;

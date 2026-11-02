@@ -35,9 +35,32 @@
       <groupId>com.chua</groupId>
       <artifactId>utils-support-mysql-starter</artifactId>
     </dependency>
+    <!-- 动态数据源路由：租户按库切换依赖 DataSourceContextSupport / DynamicDataSource。
+         该模块此前只经 common-system 的 optional 依赖间接可见，编译期拿不到，故显式声明。 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-datasource-starter</artifactId>
+    </dependency>
+    <!-- 租户数据源过滤器需要 Servlet API（common-system 里是 provided，不会传递） -->
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>io.swagger</groupId>
       <artifactId>swagger-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- MockHttpServletRequest/Response：过滤器是 servlet 层行为，用真实 mock 对象比自造桩更可靠 -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>

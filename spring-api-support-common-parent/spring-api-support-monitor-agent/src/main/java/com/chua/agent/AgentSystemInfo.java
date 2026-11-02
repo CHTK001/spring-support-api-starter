@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -312,7 +314,7 @@ public class AgentSystemInfo {
     public String processes(int page, int pageSize) throws Exception {
         List<OSProcess> procs = os.getProcesses(null, OperatingSystem.ProcessSorting.CPU_DESC, Integer.MAX_VALUE);
         List<Map<String, Object>> list = new ArrayList<>();
-        java.text.SimpleDateFormat start = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter start = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         int from = (page - 1) * pageSize;
         int to = Math.min(from + pageSize, procs.size());
         for (int i = from; i < to; i++) {
@@ -327,7 +329,7 @@ public class AgentSystemInfo {
             m.put("user", nullToEmpty(p.getUser()));
             m.put("threads", p.getThreadCount());
             m.put("path", nullToEmpty(p.getPath()));
-            m.put("startTime", p.getStartTime() > 0 ? start.format(new Date(p.getStartTime())) : "");
+            m.put("startTime", p.getStartTime() > 0 ? start.format(new Date(p.getStartTime()).toInstant().atZone(ZoneId.systemDefault())) : "");
             m.put("args", p.getCommandLine());
             list.add(m);
         }

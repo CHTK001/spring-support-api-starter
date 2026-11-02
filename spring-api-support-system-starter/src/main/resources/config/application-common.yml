@@ -30,10 +30,40 @@ plugin:
   # 租户管理（平台端）
   # 说明: server 模式默认不启用租户行级拦截器(tenant-line-enable)，平台端为全局管理视角，
   #       不会给现有无 sys_tenant_id 列的表追加租户条件。sync-enable 需配合 sync-server 使用。
+  #
+  # datasource-routing-enable: 按租户切库总开关，默认 false（共享库行为不变）。
+  #   开启后，命中已登记库的租户时整条请求路由到该租户的独立库；
+  #   租户未填库地址 / 库连不上 都回退主库，不影响平台可用性。
+  # datasource-routing-tenant-source: 租户标识从哪取。默认 session 只认登录会话，
+  #   X-Tenant-Id 请求头在默认配置下【不生效】——请求头可被客户端伪造，改个头就能读到别的租户库。
+  #   需要「管理员跨租户查询」时才配 header/session-or-header，并自行校验租户归属。
+  # datasource-routing-auto-provision: 建租户时自动建库建账号，默认 false。
+  #   开启后必须同时配置 admin-url/username/password（需 CREATE DATABASE / CREATE USER / GRANT 权限），
+  #   admin-url 要连实例而不是某个库，例如 jdbc:mysql://127.0.0.1:3306/mysql
   # ===========================================
   mybatis-plus:
     tenant:
       server:
         enable: true
         sync-enable: true
+        # 按租户切库（默认关闭）
+        datasource-routing-enable: false
+        # 租户标识可信来源: session（默认，只认登录会话）/ header / session-or-header。
+        # header 与 session-or-header 允许客户端用请求头指定租户，必须自行校验租户归属。
+        datasource-routing-tenant-source: session
+        # 租户数据源注册名前缀，实际注册名为 prefix + sysTenantId
+        datasource-routing-prefix: tenant-
+        # 租户库连接池
+        datasource-routing-max-pool-size: 10
+        datasource-routing-min-idle: 1
+        datasource-routing-connection-timeout-millis: 30000
+        # 建池失败后的冷却时长，期间该租户直接走主库，避免每个请求都等满连接超时
+        datasource-routing-failure-cooldown-millis: 30000
+        # 租户库 JDBC URL 模板，占位符 {host} {port} {dbname}
+        datasource-routing-url-template: "jdbc:mysql://{host}{port}/{dbname}?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai"
+        # 建租户时自动建库建账号（默认关闭，需配管理连接；仅支持 MySQL）
+        datasource-routing-auto-provision: false
+        # datasource-routing-admin-url: jdbc:mysql://127.0.0.1:3306/mysql
+        # datasource-routing-admin-username: root
+        # datasource-routing-admin-password: ENC(xxx)
 
