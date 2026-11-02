@@ -3,28 +3,28 @@ package com.chua.starter.oauth.sso.support.security;
 import com.chua.starter.oauth.sso.support.admin.RateLimitManager;
 import com.chua.starter.oauth.sso.support.properties.OauthSecurityProperties;
 import jakarta.servlet.FilterChain;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * {@link OauthRateLimitFilter} 回归测试
@@ -33,6 +33,9 @@ import static org.mockito.Mockito.when;
  * {@code /oauth} 让判定退化；② 无条件信任 {@code X-Forwarded-For} 等 5 个可伪造头，
  * 攻击者轮换该头即可让每个请求落到不同的限流桶；③ Redis 异常时放行；
  * ④ 窗口计数 key 含完整 URI，同类攻击分散到多个协议路径即可拿到 N 倍预算。</p>
+ *
+ * <p>所有对 {@code ValueOperations} 的模拟都改为一个可观测的 RealRedis 桩：调用序列、
+ * 回填值、异常行为都由测试显式装配，而不是 mockito 的 "any → 返回一个值"。</p>
  *
  * @author CH
  * @since 4.0.0.51
@@ -51,25 +54,174 @@ class OauthRateLimitFilterTest {
     private OauthSecurityProperties properties;
 
     /**
-     * Redis 模板
+     * 可观测的 Redis 桩：逐操作录制，计数、查询、过期、删除全部可断言。
      */
-    private StringRedisTemplate redis;
+    private static class RecordingStringRedisTemplate extends StringRedisTemplate {
 
-    /**
-     * ValueOperations
-     */
-    @SuppressWarnings("unchecked")
-    private ValueOperations<String, String> valueOps;
+        /** 按键名录制的 String 型值 */
+        private final ConcurrentHashMap<String, String> store = new ConcurrentHashMap<>();
 
-    /**
-     * 计数器
-     */
-    private AtomicLong counter;
+        /** 记录收到过的操作 */
+        private final List<String> recorded = new ArrayList<>();
 
-    /**
-     * 被测过滤器（全测试共享同一实例，以便断言桶缓存大小）
-     */
-    private OauthRateLimitFilter filter;
+        /** 未命中键时返回的值（null 表示 Redis 空） */
+        private String defaultValue = null;
+
+        /** 回填器：key 的 "无值" 结果向上应用一层规则 */
+        private final List<BiFunction<String, String, String>> fallbacks = new ArrayList<>();
+
+        /** 不再执行有参调用的 Redis 异常开关（字面查询） */
+        private boolean throwOnGet = false;
+
+        /** 不再执行有参调用的 Redis 异常开关（增量计数） */
+        private boolean throwOnIncrement = false;
+
+        /**
+         * 记录键值对，暴露给断言使用。
+         *
+         * @return this
+         */
+        RecordingStringRedisTemplate store(String key, String value) {
+            store.put(key, value);
+            recorded.add("set " + key + " -> " + value);
+            return this;
+        }
+
+        /**
+         * 给 key 升一升档：每次未命中时尝试回填（首个匹配的重合规则优先）。
+         *
+         * @return this
+         */
+        RecordingStringRedisTemplate defaultBy(Predicate<String> keyMatcher, String value) {
+            fallbacks.add((key, resolved) -> keyMatcher.test(key) ? value : resolved);
+            return this;
+        }
+
+        List<String> getRecorded() {
+            return recorded;
+        }
+
+        String getStoredValue(String key) {
+            return store.get(key);
+        }
+
+        /** 关闭字面查询（让 Redis 故障场景可测） */
+        void setThrowOnGet(boolean throwOnGet) {
+            this.throwOnGet = throwOnGet;
+        }
+
+        /** 关闭增量计数（让 Redis 故障场景可测） */
+        void setThrowOnIncrement(boolean throwOnIncrement) {
+            this.throwOnIncrement = throwOnIncrement;
+        }
+
+        @Override
+        public ValueOperations<String, String> opsForValue() {
+            return (ValueOperations<String, String>) Proxy.newProxyInstance(
+                    getClass().getClassLoader(), new Class<?>[]{ValueOperations.class},
+                    new RecordingHandler());
+        }
+
+        /**
+         * 逐操作录制的 InvocationHandler
+         */
+        private class RecordingHandler implements InvocationHandler {
+
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) {
+                if ("get".equals(method.getName()) && args.length == 1) {
+                    if (throwOnGet) {
+                        throw new RuntimeException("redis down");
+                    }
+                    String key = String.valueOf(args[0]);
+                    // 先取真实 store，unset 时再问回填规则（后者只在 defaultBy 注册时生效）
+                    String value = store.get(key);
+                    if (value == null) {
+                        value = resolveFallbacks(key);
+                    }
+                    if (value == null) {
+                        value = defaultValue;
+                    }
+                    recorded.add("get " + key + " -> " + value);
+                    return value;
+                }
+                if ("increment".equals(method.getName()) && args.length == 1) {
+                    if (throwOnIncrement) {
+                        throw new RuntimeException("redis down");
+                    }
+                    String key = String.valueOf(args[0]);
+                    String current = store.containsKey(key) ? store.get(key) : "0";
+                    long next = Long.parseLong(current) + 1L;
+                    store.put(key, String.valueOf(next));
+                    recorded.add("increment " + key + " -> " + next);
+                    return next;
+                }
+                if ("set".equals(method.getName()) && args.length >= 2) {
+                    recorded.add("set " + String.valueOf(args[0]) + " -> " + String.valueOf(args[1]));
+                    return null;
+                }
+                if ("delete".equals(method.getName()) && args.length == 1) {
+                    String key = String.valueOf(args[0]);
+                    recorded.add("delete " + key);
+                    return store.remove(key) != null;
+                }
+                recorded.add(method.getName() + " " + String.join(",", String.valueOf(args)));
+                return null;
+            }
+
+            private String resolveFallbacks(String key) {
+                if (!fallbacks.isEmpty()) {
+                    for (BiFunction<String, String, String> f : fallbacks) {
+                        try {
+                            String resolved = f.apply(key, null);
+                            if (resolved != null) {
+                                return resolved;
+                            }
+                        } catch (RuntimeException e) {
+                            return null;
+                        }
+                    }
+                }
+                return null;
+            }
+        }
+
+        @Override
+        public Boolean expire(String key, Duration timeout) {
+            recorded.add("expire " + key + " ttl=" + timeout);
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Boolean expire(String key, long timeout, TimeUnit unit) {
+            recorded.add("expire " + key + " ttl=" + timeout + " " + unit);
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Boolean hasKey(String key) {
+            recorded.add("hasKey " + key + " -> " + store.containsKey(key));
+            return store.containsKey(key);
+        }
+
+        @Override
+        public Long getExpire(String key) {
+            recorded.add("getExpire " + key);
+            return 1L;
+        }
+
+        @Override
+        public Boolean delete(String key) {
+            recorded.add("delete " + key);
+            return store.remove(key) != null;
+        }
+
+        private String fallback(String resolved) {
+            return resolved;
+        }
+    }
+
+    private RecordingStringRedisTemplate redis;
 
     /**
      * 记录是否被放行
@@ -88,14 +240,14 @@ class OauthRateLimitFilterTest {
         properties = new OauthSecurityProperties();
         properties.getRateLimit().setMaxRequests(100);
         properties.getRateLimit().setWindowSeconds(60);
-        redis = mock(StringRedisTemplate.class);
-        valueOps = mock(ValueOperations.class);
-        when(redis.opsForValue()).thenReturn(valueOps);
-        counter = new AtomicLong();
-        when(valueOps.increment(anyString())).thenAnswer(inv -> counter.incrementAndGet());
-        when(valueOps.get(anyString())).thenReturn(null);
+        redis = new RecordingStringRedisTemplate();
         filter = new OauthRateLimitFilter(properties, redis, new RateLimitManager());
     }
+
+    /**
+     * 被测过滤器（全测试共享同一实例，以便断言桶缓存大小）
+     */
+    private OauthRateLimitFilter filter;
 
     /**
      * 构造请求
@@ -135,6 +287,38 @@ class OauthRateLimitFilterTest {
     private record FilterOutcome(boolean passed, MockHttpServletResponse response) {
     }
 
+    /**
+     * 录制的增量 key 清单
+     *
+     * @return 增量的 key 列表
+     */
+    private List<String> recordedIncrementKeys() {
+        List<String> result = new ArrayList<>();
+        for (String r : redis.getRecorded()) {
+            if (r.startsWith("increment ")) {
+                int end = r.indexOf(" -> ");
+                result.add(end > 0 ? r.substring("increment ".length(), end) : r.substring("increment ".length()));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 录制的字面查询 key 清单
+     *
+     * @return 查询的 key 列表
+     */
+    private List<String> recordedGetKeys() {
+        List<String> result = new ArrayList<>();
+        for (String r : redis.getRecorded()) {
+            if (r.startsWith("get ")) {
+                int end = r.indexOf(" -> ");
+                result.add(end > 0 ? r.substring("get ".length(), end) : r.substring("get ".length()));
+            }
+        }
+        return result;
+    }
+
     // ------------------------------------------------------------------
     // 限流范围判定
     // ------------------------------------------------------------------
@@ -145,17 +329,18 @@ class OauthRateLimitFilterTest {
         // 修复前的默认值
         properties.getRateLimit().setPaths(List.of("/oauth"));
 
-        FilterOutcome outcome = run(request("POST", "/user/info", "10.0.0.5"));
+        run(request("POST", "/user/info", "10.0.0.5"));
 
-        assertTrue(outcome.passed(), "不在限流逻辑路径内的请求不应被计入限流");
-        verify(valueOps, never()).increment(anyString());
+        assertTrue(redis.getRecorded().stream().noneMatch(r -> r.startsWith("increment ")),
+                "不在限流逻辑路径内的请求不得计数: " + redis.getRecorded());
     }
 
     @Test
     @DisplayName("逻辑路径命中 paths 时进入限流")
     void logicalPathHitEntersRateLimit() throws Exception {
         assertTrue(run(request("POST", "/login", "10.0.0.5")).passed());
-        verify(valueOps).increment(eq("oauth:security:rate:10.0.0.5"));
+        assertTrue(redis.getRecorded().contains("increment oauth:security:rate:10.0.0.5 -> 1"),
+                "预期记录: " + redis.getRecorded());
     }
 
     @Test
@@ -164,7 +349,8 @@ class OauthRateLimitFilterTest {
         properties.getRateLimit().setIgnorePaths(List.of("/login"));
 
         assertTrue(run(request("POST", "/login", "10.0.0.5")).passed());
-        verify(valueOps, never()).increment(anyString());
+        assertTrue(redis.getRecorded().stream().noneMatch(r -> r.startsWith("increment ")),
+                "豁免路径不得计数");
     }
 
     @Test
@@ -173,7 +359,8 @@ class OauthRateLimitFilterTest {
         properties.getRateLimit().setPaths(List.of());
 
         assertTrue(run(request("POST", "/anything", "10.0.0.5")).passed());
-        verify(valueOps).increment(eq("oauth:security:rate:10.0.0.5"));
+        assertTrue(redis.getRecorded().contains("increment oauth:security:rate:10.0.0.5 -> 1"),
+                "空 paths 等价全量");
     }
 
     // ------------------------------------------------------------------
@@ -191,10 +378,9 @@ class OauthRateLimitFilterTest {
         run(a);
         run(b);
 
-        ArgumentCaptor<String> keys = ArgumentCaptor.forClass(String.class);
-        verify(valueOps, org.mockito.Mockito.times(2)).increment(keys.capture());
-        assertTrue(keys.getAllValues().stream().allMatch("oauth:security:rate:10.0.0.5"::equals),
-                "伪造的转发头不得改变限流桶: " + keys.getAllValues());
+        assertTrue(recordedIncrementKeys().stream()
+                        .allMatch("oauth:security:rate:10.0.0.5"::equals),
+                "伪造的转发头不得改变限流桶: " + recordedIncrementKeys());
     }
 
     @Test
@@ -209,7 +395,8 @@ class OauthRateLimitFilterTest {
             MockHttpServletRequest req = request("POST", "/login", "10.0.0.5");
             req.addHeader(header, "9.9.9.9");
             run(req);
-            verify(valueOps).increment(eq("oauth:security:rate:10.0.0.5"));
+            assertTrue(redis.getRecorded().contains("increment oauth:security:rate:10.0.0.5 -> 1"),
+                    "同一个桶: " + header + " " + recordedIncrementKeys());
         }
     }
 
@@ -223,7 +410,8 @@ class OauthRateLimitFilterTest {
 
         run(req);
 
-        verify(valueOps).increment(eq("oauth:security:rate:203.0.113.9"));
+        assertTrue(redis.getRecorded().contains("increment oauth:security:rate:203.0.113.9 -> 1"),
+                "可信代理的转发头取代直连地址: " + recordedIncrementKeys());
     }
 
     @Test
@@ -236,7 +424,8 @@ class OauthRateLimitFilterTest {
 
         run(req);
 
-        verify(valueOps).increment(eq("oauth:security:rate:192.168.9.9"));
+        assertTrue(redis.getRecorded().contains("increment oauth:security:rate:192.168.9.9 -> 1"),
+                "直连地址不可信时不采用转发头: " + recordedIncrementKeys());
     }
 
     @Test
@@ -251,7 +440,8 @@ class OauthRateLimitFilterTest {
         run(req);
 
         // 10.0.0.7 在可信段内 → 跳过；203.0.113.9 非可信 → 采用
-        verify(valueOps).increment(eq("oauth:security:rate:203.0.113.9"));
+        assertTrue(redis.getRecorded().contains("increment oauth:security:rate:203.0.113.9 -> 1"),
+                "多跳 XFF 取最左侧非可信地址: " + recordedIncrementKeys());
     }
 
     @Test
@@ -264,7 +454,8 @@ class OauthRateLimitFilterTest {
 
         run(req);
 
-        verify(valueOps).increment(eq("oauth:security:rate:10.0.0.5"));
+        assertTrue(redis.getRecorded().contains("increment oauth:security:rate:10.0.0.5 -> 1"),
+                "全部可信回退到直连地址: " + recordedIncrementKeys());
     }
 
     @Test
@@ -277,7 +468,8 @@ class OauthRateLimitFilterTest {
 
         run(req);
 
-        verify(valueOps).increment(eq("oauth:security:rate:10.0.0.5"));
+        assertTrue(redis.getRecorded().contains("increment oauth:security:rate:10.0.0.5 -> 1"),
+                "unknown 占位值像没写一样被忽略: " + recordedIncrementKeys());
     }
 
     @Test
@@ -290,10 +482,9 @@ class OauthRateLimitFilterTest {
 
         assertTrue(run(hit).passed());
         assertTrue(run(miss).passed());
-        ArgumentCaptor<String> keys = ArgumentCaptor.forClass(String.class);
-        verify(valueOps, org.mockito.Mockito.times(2)).increment(keys.capture());
-        assertTrue(keys.getAllValues().contains("oauth:security:rate:10.255.255.254"));
-        assertTrue(keys.getAllValues().contains("oauth:security:rate:11.0.0.1"));
+        List<String> keys = recordedIncrementKeys();
+        assertTrue(keys.contains("oauth:security:rate:10.255.255.254"), "CIDR 前缀命中" + keys);
+        assertTrue(keys.contains("oauth:security:rate:11.0.0.1"), "CIDR 前缀不生效" + keys);
     }
 
     @Test
@@ -306,7 +497,8 @@ class OauthRateLimitFilterTest {
 
         run(req);
 
-        verify(valueOps).increment(eq("oauth:security:rate:10.0.0.5"));
+        assertTrue(redis.getRecorded().contains("increment oauth:security:rate:10.0.0.5 -> 1"),
+                "非法 CIDR 前缀长度不生效: " + recordedIncrementKeys());
     }
 
     @Test
@@ -320,7 +512,8 @@ class OauthRateLimitFilterTest {
 
         run(req);
 
-        verify(valueOps).increment(eq("oauth:security:rate:203.0.113.9"));
+        assertTrue(redis.getRecorded().contains("increment oauth:security:rate:203.0.113.9 -> 1"),
+                "IPv6 可信代理同样生效: " + recordedIncrementKeys());
     }
 
     @Test
@@ -333,7 +526,8 @@ class OauthRateLimitFilterTest {
 
         assertTrue(run(req).passed());
         // IPv6 白名单不得让 IPv4 的直接连接方变成可信代理
-        verify(valueOps).increment(eq("oauth:security:rate:10.0.0.5"));
+        assertTrue(redis.getRecorded().contains("increment oauth:security:rate:10.0.0.5 -> 1"),
+                "IPv4 直连地址与 IPv6 白名单不互: " + recordedIncrementKeys());
     }
 
     // ------------------------------------------------------------------
@@ -347,11 +541,10 @@ class OauthRateLimitFilterTest {
         run(request("POST", "/temporary-token", "10.0.0.5"));
         run(request("POST", "/verify", "10.0.0.5"));
 
-        ArgumentCaptor<String> keys = ArgumentCaptor.forClass(String.class);
-        verify(valueOps, org.mockito.Mockito.times(3)).increment(keys.capture());
-        assertTrue(keys.getAllValues().stream()
-                        .allMatch("oauth:security:rate:10.0.0.5"::equals),
-                "同一 IP 的不同路径必须共享同一限流桶: " + keys.getAllValues());
+        List<String> keys = recordedIncrementKeys();
+        assertTrue(keys.stream().allMatch("oauth:security:rate:10.0.0.5"::equals),
+                "同一 IP 的不同路径必须共享同一限流桶: " + keys);
+        assertEquals(3, keys.size(), "三次窗口计数都必须落在同一 key");
     }
 
     @Test
@@ -374,13 +567,16 @@ class OauthRateLimitFilterTest {
     void firstIncrementSetsExpiry() throws Exception {
         run(request("POST", "/login", "10.0.0.5"));
 
-        verify(redis).expire(eq("oauth:security:rate:10.0.0.5"), any(java.time.Duration.class));
+        List<String> expiries = redis.getRecorded().stream().filter(r -> r.startsWith("expire "))
+                .toList();
+        assertTrue(expiries.contains("expire oauth:security:rate:10.0.0.5 ttl=PT1M"),
+                "首次计数必须设置窗口过期时间: " + expiries);
     }
 
     @Test
     @DisplayName("Redis 计数异常时 fail-closed 返回 503")
     void redisFailureFailsClosedWith503() throws Exception {
-        when(valueOps.increment(anyString())).thenThrow(new RuntimeException("redis down"));
+        redis.setThrowOnIncrement(true);
 
         FilterOutcome outcome = run(request("POST", "/login", "10.0.0.5"));
 
@@ -393,7 +589,7 @@ class OauthRateLimitFilterTest {
     @Test
     @DisplayName("限流规则读取异常时 fail-closed 返回 503 且不返回空 200")
     void ruleReadFailureFailsClosedWith503() throws Exception {
-        when(valueOps.get(anyString())).thenThrow(new RuntimeException("redis down"));
+        redis.setThrowOnGet(true);
 
         FilterOutcome outcome = run(request("POST", "/login", "10.0.0.5"));
 
@@ -413,7 +609,9 @@ class OauthRateLimitFilterTest {
 
         run(req);
 
-        verify(valueOps, never()).get("koiRateLimit:rule:account:victim");
+        assertTrue(redis.getRecorded().stream().noneMatch(r ->
+                        r.contains("koiRateLimit:rule:account:victim")),
+                "X-Account 头不得参与账号限流: " + recordedGetKeys());
     }
 
     @Test
@@ -424,7 +622,8 @@ class OauthRateLimitFilterTest {
 
         run(req);
 
-        verify(valueOps).get(eq("koiRateLimit:rule:account:victim"));
+        assertTrue(recordedGetKeys().contains("koiRateLimit:rule:account:victim"),
+                "参数驱动的账号维度查询: " + recordedGetKeys());
     }
 
     @Test
@@ -433,11 +632,12 @@ class OauthRateLimitFilterTest {
         MockHttpServletRequest req = request("POST", "/login", "10.0.0.5");
         req.addParameter("username", "alice");
         // 只有 ip 维度无规则，username 维度有规则
-        when(valueOps.get(eq("koiRateLimit:rule:account:alice"))).thenReturn("5");
+        redis.store("koiRateLimit:rule:account:alice", "5");
 
         run(req);
 
-        verify(valueOps).get(eq("koiRateLimit:rule:account:alice"));
+        assertTrue(redis.getRecorded().contains("get koiRateLimit:rule:account:alice -> 5"),
+                "username 查询命中参数维度的限流: " + redis.getRecorded());
     }
 
     @Test
@@ -448,7 +648,9 @@ class OauthRateLimitFilterTest {
 
         run(req);
 
-        verify(valueOps, never()).get(org.mockito.ArgumentMatchers.startsWith("koiRateLimit:rule:account:"));
+        assertTrue(redis.getRecorded().stream().noneMatch(r ->
+                        r.startsWith("get koiRateLimit:rule:account:")),
+                "超长 username 不参与账号限流: " + recordedGetKeys());
     }
 
     // ------------------------------------------------------------------
@@ -458,7 +660,7 @@ class OauthRateLimitFilterTest {
     @Test
     @DisplayName("按 IP 维度规则存在时超 QPS 返回 429")
     void ipRuleQpsExceededReturns429() throws Exception {
-        when(valueOps.get(eq("koiRateLimit:rule:ip:10.0.0.5"))).thenReturn("1");
+        redis.store("koiRateLimit:rule:ip:10.0.0.5", "1");
 
         // RateLimiter.create(1) 允许首个令牌，第二次触发
         assertTrue(run(request("POST", "/login", "10.0.0.5")).passed());
@@ -471,7 +673,7 @@ class OauthRateLimitFilterTest {
     @Test
     @DisplayName("规则 qps<=0 视为不限流")
     void nonPositiveRuleQpsMeansUnlimited() throws Exception {
-        when(valueOps.get(eq("koiRateLimit:rule:ip:10.0.0.5"))).thenReturn("0");
+        redis.store("koiRateLimit:rule:ip:10.0.0.5", "0");
 
         for (int i = 0; i < 20; i++) {
             assertTrue(run(request("POST", "/login", "10.0.0.5")).passed());
@@ -481,12 +683,14 @@ class OauthRateLimitFilterTest {
     @Test
     @DisplayName("interface 维度按逻辑路径而非完整 URI 建桶")
     void interfaceRuleUsesLogicalPath() throws Exception {
-        when(valueOps.get(eq("koiRateLimit:rule:interface:/login"))).thenReturn("100");
+        redis.store("koiRateLimit:rule:interface:/login", "100");
 
         run(request("POST", "/login", "10.0.0.5"));
 
-        verify(valueOps).get(eq("koiRateLimit:rule:interface:/login"));
-        verify(valueOps, never()).get(eq("koiRateLimit:rule:interface:" + CONTEXT + "/login"));
+        assertTrue(redis.getRecorded().contains("get koiRateLimit:rule:interface:/login -> 100"),
+                "逻辑路径是 interface 维度建桶的 key");
+        assertTrue(recordedGetKeys().stream().noneMatch("koiRateLimit:rule:interface:/oauth/login"::startsWith),
+                "不拼接上下文路径作为 key");
     }
 
     @Test
@@ -494,10 +698,8 @@ class OauthRateLimitFilterTest {
     void ruleBucketCacheIsBounded() throws Exception {
         properties.getRateLimit().setMaxRuleBuckets(5);
         // 任意 interface 路径都有规则 → 制造大量不同桶
-        when(valueOps.get(anyString())).thenAnswer(inv -> {
-            String key = inv.getArgument(0);
-            return key.startsWith("koiRateLimit:rule:interface:") ? "1000" : null;
-        });
+        redis.defaultBy(k -> k.startsWith("koiRateLimit:rule:interface:interface-"), "1000");
+        redis.defaultBy(k -> k.startsWith("koiRateLimit:rule:interface:"), "1000");
 
         for (int i = 0; i < 50; i++) {
             run(request("POST", "/random-path-" + i, "10.0.0.5"));

@@ -3,6 +3,7 @@ package com.chua.starter.oauth.sso.support.token;
 import com.chua.starter.oauth.client.support.enums.LogoutType;
 import com.chua.starter.oauth.client.support.user.LoginResult;
 import com.chua.starter.oauth.client.support.user.UserResult;
+import com.chua.starter.oauth.client.support.user.UserResume;
 import com.chua.starter.oauth.sso.support.check.LoginCheck;
 import com.chua.starter.oauth.sso.support.properties.AuthServerProperties;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -14,11 +15,7 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -29,15 +26,16 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * {@link RedisTokenResolver} 的 Redis 契约测试。
@@ -45,13 +43,15 @@ import static org.mockito.Mockito.when;
  * <p>这是重构前的「安全网」：令牌签发、解析、刷新轮换、登出、禁用拉黑都走真实 Redis
  * （默认 127.0.0.1:16379），确保后续拆 {@code TokenStore} 时行为不变。</p>
  *
- * <p>没有可用 Redis 时自动跳过：{@code -Doauth.test.redis.port=16379} 可改端口。</p>
+ * <p>没有可用 Redis 时自动跳过：-Doauth.test.redis.port=16379 可改端口。</p>
+ *
+ * <p>P3C40 去 mockito 改造：{@code LoginCheck} / {@code TokenBlacklistService} 不再用
+ * {@code @Mock} + {@code verify}，改为手写的记录桩——断言真实执行了哪个调用，而不是
+ * Mockito 的应声回音。</p>
  *
  * @since 4.0.0.42
  * @author CH
  */
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("RedisTokenResolver: 真实 Redis 契约")
 class RedisTokenResolverIntegrationTest {
 
@@ -66,16 +66,119 @@ class RedisTokenResolverIntegrationTest {
     private static final String USER_ID = "1001";
 
     /**
-     * 登录检查
+     * 手写的 {@link LoginCheck} 记录桩。
+     *
+     * <p>{@code RedisTokenResolver} 在升级/解析时只用到 {@code getAuthVersion} 与
+     * {@code getUserInfo}；SPI 无缘测试环境，所以直接返回记录的值，不再透掉
+     * {@code ServiceProvider} 和 {@code UserInfoService}。</p>
      */
-    @Mock
-    private LoginCheck loginCheck;
+    private static class FakeLoginCheck extends LoginCheck {
+
+        /** 逐笔录制的调用 */
+        private final List<String> recorded = new ArrayList<>();
+
+        FakeLoginCheck(AuthServerProperties properties) {
+            super(properties);
+        }
+
+        @Override
+        public String getAuthVersion(UserResult userResult) {
+            recorded.add("getAuthVersion(" + userResult.getUserId() + ")");
+            return null;
+        }
+
+        @Override
+        public UserResume getUserInfo(UserResult userResult) {
+            recorded.add("getUserInfo(" + userResult.getUserId() + ")");
+            UserResume resume = new UserResume();
+            BeanUtils.copyProperties(userResult, resume);
+            return resume;
+        }
+
+        void assertRecorded(String name) {
+            assertTrue(recorded.contains(name), "LoginCheck 未记录期望调用：recorded=" + recorded);
+        }
+
+        List<String> recorded() {
+            return recorded;
+        }
+    }
 
     /**
-     * 黑名单
+     * 手写的 {@link TokenBlacklistService} 记录桩。
+     *
+     * <p>令牌、用户两级黑名单都在本地写读，`addUserToBlacklist` 时会询问当前场景：
+     * 断言以「为什么调用」——而不是 mockito 的 `verify`。</p>
      */
-    @Mock
-    private TokenBlacklistService tokenBlacklistService;
+    private static class FakeTokenBlacklistService implements TokenBlacklistService {
+
+        /** 逐笔录制的调用 */
+        private final List<String> recorded = new ArrayList<>();
+
+        /** 失效力令牌 */
+        private final Set<String> tokens = ConcurrentHashMap.newKeySet();
+
+        /** 被全局禁用的用户 */
+        private final Set<String> users = ConcurrentHashMap.newKeySet();
+
+        @Override
+        public void addToBlacklist(String token, BlacklistReason reason) {
+            recorded.add("addToBlacklist(" + token + ", " + reason + ")");
+            tokens.add(token);
+        }
+
+        @Override
+        public void addToBlacklist(String token, BlacklistReason reason, long expireTime, String userId,
+                                   String username) {
+            recorded.add("addToBlacklist(" + token + ", " + reason + ", expire=" + expireTime + ")");
+            tokens.add(token);
+        }
+
+        @Override
+        public boolean isBlacklisted(String token) {
+            recorded.add("isBlacklisted(" + token + ")");
+            return tokens.contains(token);
+        }
+
+        @Override
+        public void addUserToBlacklist(String userId, String reason) {
+            recorded.add("addUserToBlacklist(" + userId + ", " + reason + ")");
+            users.add(userId);
+        }
+
+        @Override
+        public void removeUserFromBlacklist(String userId) {
+            recorded.add("removeUserFromBlacklist(" + userId + ")");
+            users.remove(userId);
+        }
+
+        @Override
+        public boolean isUserBlacklisted(String userId) {
+            recorded.add("isUserBlacklisted(" + userId + ")");
+            return users.contains(userId);
+        }
+
+        @Override
+        public void removeFromBlacklist(String token) {
+            recorded.add("removeFromBlacklist(" + token + ")");
+            tokens.remove(token);
+        }
+
+        @Override
+        public void clearAll() {
+            recorded.add("clearAll()");
+            tokens.clear();
+            users.clear();
+        }
+
+        void assertRecorded(String name) {
+            assertTrue(recorded.contains(name), "黑名单未记录期望调用：recorded=" + recorded);
+        }
+
+        List<String> recorded() {
+            return recorded;
+        }
+    }
 
     /**
      * 连接工厂
@@ -93,7 +196,20 @@ class RedisTokenResolverIntegrationTest {
     private RedisTokenResolver resolver;
 
     /**
+     * 记录桩：登录检查
+     */
+    private FakeLoginCheck loginCheck;
+
+    /**
+     * 记录桩：黑名单
+     */
+    private FakeTokenBlacklistService tokenBlacklistService;
+
+    /**
      * 建连并准备依赖。
+     *
+     * <p>没有可连接的 Redis 时直接跳过，不抛错——这些路径在 Redis 不到位时
+     * 无法形成「签发→解析→续期→登出」的闭环。</p>
      */
     @BeforeEach
     void setUp() {
@@ -107,8 +223,8 @@ class RedisTokenResolverIntegrationTest {
             connection.serverCommands().flushDb();
         }
 
-        when(tokenBlacklistService.isBlacklisted(anyString())).thenReturn(false);
-        when(tokenBlacklistService.isUserBlacklisted(anyString())).thenReturn(false);
+        tokenBlacklistService = new FakeTokenBlacklistService();
+        loginCheck = new FakeLoginCheck(properties());
 
         resolver = new RedisTokenResolver();
         ReflectionTestUtils.setField(resolver, "stringRedisTemplate", template);
@@ -195,6 +311,9 @@ class RedisTokenResolverIntegrationTest {
 
         assertFalse(resolver.resolve(null, login.getToken()).isOk(), "旧令牌必须失效");
         assertTrue(resolver.resolve(null, newToken).isOk(), "新令牌必须可用");
+
+        tokenBlacklistService.assertRecorded("addToBlacklist(" + login.getToken() + ", " +
+                TokenBlacklistService.BlacklistReason.REVOKED + ")");
     }
 
     /**
@@ -223,7 +342,7 @@ class RedisTokenResolverIntegrationTest {
         assertFalse(resolver.resolve(null, login.getToken()).isOk(), "禁用后旧令牌必须失效");
         assertFalse(resolver.upgradeForRefresh(null, login.getRefreshToken()).isOk(),
                 "禁用后 refreshToken 不得再续期");
-        verify(tokenBlacklistService).addUserToBlacklist(org.mockito.ArgumentMatchers.eq(USER_ID), anyString());
+        tokenBlacklistService.assertRecorded("addUserToBlacklist(" + USER_ID + ", 账号被禁用)");
     }
 
     /**
@@ -233,7 +352,7 @@ class RedisTokenResolverIntegrationTest {
     @DisplayName("用户黑名单: 令牌存在也拒绝")
     void shouldRejectBlacklistedUser() {
         LoginResult login = create();
-        when(tokenBlacklistService.isUserBlacklisted(USER_ID)).thenReturn(true);
+        tokenBlacklistService.addUserToBlacklist(USER_ID, "测试拉黑");
 
         assertFalse(resolver.resolve(null, login.getToken()).isOk());
     }
