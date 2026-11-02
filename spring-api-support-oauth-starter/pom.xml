@@ -135,10 +135,25 @@
       仅用于验证安全逻辑：路径匹配、回调白名单、state 绑定、默认密钥 fail-fast。
       这些都是「配错了不会报错、只会静默失去防护」的逻辑，没有测试就只能靠人肉读代码，
       极易在后续重构中被改回去。
+
+      不含 mockito：规约四十禁止非 Example 模块的 pom 引入 mockito/easymock/jmock
+      （含 test scope）；测试通过 JUnit 5 + Spring Test 的真实接口完成，
+      不用桩和 @MockBean，被拦截器不能 mock，就测它自己的真实逻辑。
+      见父 pom 的 junit.jupiter.version 托管。
     -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

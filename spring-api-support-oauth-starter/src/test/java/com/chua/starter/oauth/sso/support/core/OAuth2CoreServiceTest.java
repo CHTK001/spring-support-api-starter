@@ -6,14 +6,16 @@ import com.chua.starter.system.service.SysAppKeyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.StringRedisTemplate;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 /**
  * OAuth2 授权码流程的放行边界测试。
@@ -28,7 +30,6 @@ import static org.mockito.Mockito.when;
  * @since 4.0.0.42
  * @author CH
  */
-@ExtendWith(MockitoExtension.class)
 @DisplayName("OAuth2CoreService: 回调地址与默认授权范围")
 class OAuth2CoreServiceTest {
 
@@ -40,19 +41,16 @@ class OAuth2CoreServiceTest {
     /**
      * AppId 服务
      */
-    @Mock
     private SysAppIdService sysAppIdService;
 
     /**
      * AppKey 服务
      */
-    @Mock
     private SysAppKeyService sysAppKeyService;
 
     /**
      * Redis 模板
      */
-    @Mock
     private StringRedisTemplate stringRedisTemplate;
 
     /**
@@ -65,9 +63,8 @@ class OAuth2CoreServiceTest {
      */
     @BeforeEach
     void setUp() {
-        service = new OAuth2CoreService(sysAppKeyService, sysAppIdService, stringRedisTemplate);
-    }
 
+    }
     /**
      * 构造 AppKey 配置。
      *
@@ -85,12 +82,45 @@ class OAuth2CoreServiceTest {
     }
 
     /**
+     * 手写的「轻量桩」：用 {@link Proxy} 实现需要注定的服务接口，
+     * 未显式配置的方法返回 {@code null}，只记录调用过的方法名。
+     */
+    private static class ProxyStub implements InvocationHandler {
+        private final Map<String, Object> stubs = new ConcurrentHashMap<>();
+        /** 逐笔录制的调用 */
+        private final java.util.List<String> recorded = new java.util.ArrayList<>();
+
+        ProxyStub(Map<String, Object> stubs) {
+            this.stubs.putAll(stubs);
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) {
+            recorded.add(method.getName());
+            return stubs.get(method.getName());
+        }
+
+        void assertRecorded(String name) {
+            assertTrue(stubs.containsKey(name), "未记录到期望调用");
+        }
+    }
+
+    private <T> T stubOf(Class<T> type, Map<String, Object> stubs) {
+        ProxyStub stub = new ProxyStub(stubs);
+        return (T) Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[]{type}, stub);
+    }
+
+    /**
      * 未配置回调地址时必须拒绝，而不是默认放行。
      */
     @Test
     @DisplayName("未配置回调地址: fail-closed")
     void shouldRejectWhenRedirectUriNotConfigured() {
-        when(sysAppKeyService.getByAppKey(CLIENT_ID)).thenReturn(appKey(null, null, null));
+        sysAppIdService = stubOf(SysAppIdService.class, Map.of());
+        sysAppKeyService = stubOf(SysAppKeyService.class,
+                Map.of("getByAppKey", appKey(null, null, null)));
+        stringRedisTemplate = new StringRedisTemplate();
+        service = new OAuth2CoreService(sysAppKeyService, sysAppIdService, stringRedisTemplate);
 
         assertFalse(service.isRedirectUriValid(CLIENT_ID, "https://app.example.com/cb"));
     }
@@ -101,8 +131,11 @@ class OAuth2CoreServiceTest {
     @Test
     @DisplayName("精确匹配放行")
     void shouldAllowExactMatch() {
-        when(sysAppKeyService.getByAppKey(CLIENT_ID))
-                .thenReturn(appKey("https://app.example.com/cb", null, null));
+        sysAppIdService = stubOf(SysAppIdService.class, Map.of());
+        sysAppKeyService = stubOf(SysAppKeyService.class,
+                Map.of("getByAppKey", appKey("https://app.example.com/cb", null, null)));
+        stringRedisTemplate = new StringRedisTemplate();
+        service = new OAuth2CoreService(sysAppKeyService, sysAppIdService, stringRedisTemplate);
 
         assertTrue(service.isRedirectUriValid(CLIENT_ID, "https://app.example.com/cb"));
     }
@@ -113,8 +146,11 @@ class OAuth2CoreServiceTest {
     @Test
     @DisplayName("前缀形近地址必须拒绝")
     void shouldRejectPrefixLookalike() {
-        when(sysAppKeyService.getByAppKey(CLIENT_ID))
-                .thenReturn(appKey("https://app.example.com/cb", null, null));
+        sysAppIdService = stubOf(SysAppIdService.class, Map.of());
+        sysAppKeyService = stubOf(SysAppKeyService.class,
+                Map.of("getByAppKey", appKey("https://app.example.com/cb", null, null)));
+        stringRedisTemplate = new StringRedisTemplate();
+        service = new OAuth2CoreService(sysAppKeyService, sysAppIdService, stringRedisTemplate);
 
         assertFalse(service.isRedirectUriValid(CLIENT_ID, "https://app.example.com/cb.evil.com"));
         assertFalse(service.isRedirectUriValid(CLIENT_ID, "https://app.example.com/cb/extra"));
@@ -126,8 +162,11 @@ class OAuth2CoreServiceTest {
     @Test
     @DisplayName("显式 /* 通配: 只放行子路径")
     void shouldAllowWildcardSuffixOnly() {
-        when(sysAppKeyService.getByAppKey(CLIENT_ID))
-                .thenReturn(appKey("https://app.example.com/cb/*", null, null));
+        sysAppIdService = stubOf(SysAppIdService.class, Map.of());
+        sysAppKeyService = stubOf(SysAppKeyService.class,
+                Map.of("getByAppKey", appKey("https://app.example.com/cb/*", null, null)));
+        stringRedisTemplate = new StringRedisTemplate();
+        service = new OAuth2CoreService(sysAppKeyService, sysAppIdService, stringRedisTemplate);
 
         assertTrue(service.isRedirectUriValid(CLIENT_ID, "https://app.example.com/cb/callback"));
         assertFalse(service.isRedirectUriValid(CLIENT_ID, "https://app.example.com/cb/../admin"));
@@ -140,7 +179,11 @@ class OAuth2CoreServiceTest {
     @Test
     @DisplayName("默认 scope 不含 admin")
     void shouldNotGrantAdminScopeByDefault() {
-        when(sysAppKeyService.getByAppKey(CLIENT_ID)).thenReturn(appKey(null, null, null));
+        sysAppIdService = stubOf(SysAppIdService.class, Map.of());
+        sysAppKeyService = stubOf(SysAppKeyService.class,
+                Map.of("getByAppKey", appKey(null, null, null)));
+        stringRedisTemplate = new StringRedisTemplate();
+        service = new OAuth2CoreService(sysAppKeyService, sysAppIdService, stringRedisTemplate);
 
         OAuth2CoreService.ScopeValidationResult admin =
                 service.validateScope(CLIENT_ID, "admin");
@@ -159,9 +202,63 @@ class OAuth2CoreServiceTest {
     @Test
     @DisplayName("默认 grant_type 不含 password")
     void shouldNotAllowPasswordGrantByDefault() {
-        when(sysAppKeyService.getByAppKey(CLIENT_ID)).thenReturn(appKey(null, null, null));
+        sysAppIdService = stubOf(SysAppIdService.class, Map.of());
+        sysAppKeyService = stubOf(SysAppKeyService.class,
+                Map.of("getByAppKey", appKey(null, null, null)));
+        stringRedisTemplate = new StringRedisTemplate();
+        service = new OAuth2CoreService(sysAppKeyService, sysAppIdService, stringRedisTemplate);
 
         assertFalse(service.isGrantTypeAllowed(CLIENT_ID, "password"));
         assertTrue(service.isGrantTypeAllowed(CLIENT_ID, "authorization_code"));
+    }
+
+    /**
+     * 显式配置 scope 时放行已授权的 scope。
+     */
+    @Test
+    @DisplayName("显式 scope 放行已授权范围")
+    void shouldAllowConfiguredScopes() {
+        sysAppIdService = stubOf(SysAppIdService.class, Map.of());
+        sysAppKeyService = stubOf(SysAppKeyService.class,
+                Map.of("getByAppKey", appKey(null, "read,openid", "authorization_code")));
+        stringRedisTemplate = new StringRedisTemplate();
+        service = new OAuth2CoreService(sysAppKeyService, sysAppIdService, stringRedisTemplate);
+
+        assertTrue(service.validateScope(CLIENT_ID, "read").valid());
+        assertTrue(service.validateScope(CLIENT_ID, "openid").valid());
+        assertFalse(service.validateScope(CLIENT_ID, "admin").valid(), "未授权的 scope 拒绝了");
+    }
+
+    /**
+     * 显式配置 grant_type 时放行已授权的授权类型。
+     */
+    @Test
+    @DisplayName("显式 grant_type 放行已授权类型")
+    void shouldAllowConfiguredGrantTypes() {
+        sysAppIdService = stubOf(SysAppIdService.class, Map.of());
+        sysAppKeyService = stubOf(SysAppKeyService.class,
+                Map.of("getByAppKey", appKey(null, null, "client_credentials,refresh_token")));
+        stringRedisTemplate = new StringRedisTemplate();
+        service = new OAuth2CoreService(sysAppKeyService, sysAppIdService, stringRedisTemplate);
+
+        assertTrue(service.isGrantTypeAllowed(CLIENT_ID, "client_credentials"));
+        assertTrue(service.isGrantTypeAllowed(CLIENT_ID, "refresh_token"));
+        assertFalse(service.isGrantTypeAllowed(CLIENT_ID, "password"), "未配置的授权类型拒绝了");
+    }
+
+    /**
+     * 不记录 Redis 调用（本测试不涉及授权码的生成/消费）
+     */
+    @Test
+    @DisplayName("Redis 操作不应参与回调地址与 scope 判定")
+    void redisNotUsedForValidation() {
+        sysAppIdService = stubOf(SysAppIdService.class, Map.of());
+        sysAppKeyService = stubOf(SysAppKeyService.class,
+                Map.of("getByAppKey", appKey("https://app.example.com/cb", null, null)));
+        stringRedisTemplate = new StringRedisTemplate();
+        service = new OAuth2CoreService(sysAppKeyService, sysAppIdService, stringRedisTemplate);
+
+        assertTrue(service.isRedirectUriValid(CLIENT_ID, "https://app.example.com/cb"));
+        assertTrue(service.validateScope(CLIENT_ID, null).valid());
     }
 }
