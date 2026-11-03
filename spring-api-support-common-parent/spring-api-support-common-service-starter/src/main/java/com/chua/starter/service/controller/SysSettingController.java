@@ -86,7 +86,7 @@ public class SysSettingController {
      *
      * @return 租户键段，形如 {@code 1950000000000000001:}；非租户上下文返回空串
      */
-    private static String tenantCacheSegment() {
+    public static String tenantCacheSegment() {
         String dbType;
         try {
             dbType = com.chua.starter.datasource.support.DataSourceContextSupport.getDbType();
