@@ -187,8 +187,10 @@ public class SysMessageTemplateServiceImpl extends ServiceImpl<SysMessageTemplat
         for (Map.Entry<String, ?> entry : params.entrySet()) {
             String value = null == entry.getValue() ? "" : String.valueOf(entry.getValue());
             // 先替换 ${key}，再替换 {key}，避免残留美元符号
-            result = result.replace("${" + entry.getKey() + "}", value)
-                    .replace("{" + entry.getKey() + "}", value);
+            String left = new StringBuilder().append("${").append(entry.getKey()).append("}").toString();
+            String right = new StringBuilder().append("{").append(entry.getKey()).append("}").toString();
+            result = result.replace(left, value)
+                    .replace(right, value);
         }
         return result;
     }

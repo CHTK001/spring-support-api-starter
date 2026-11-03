@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.starter.service.controller;
 import com.chua.starter.common.support.annotations.SysLog;
 
@@ -67,6 +68,47 @@ public class SysSettingController {
     */
     public static final String SETTING_DEFAULT_CACHE_KEY = "sys:setting:default";
     /**
+     * 默认设置聚合缓存键中「按租户隔离」的键值。
+     *
+     * <p><b>为什么必须带租户维度</b>：开启按租户切库后 {@code /v2/setting} 会路由到租户库读
+     * {@code sys_setting}，但 Redis 缓存是全局的。键里不含租户时，第一个访问的租户会把结果
+     * 写进同一个键，其它租户读到的就是<b>别人库里的配置</b>——接口地址、三方登录密钥、
+     * 功能开关全部串台，且不会报错。</p>
+     *
+     * <p>取值来自线程上的数据源上下文（租户库名为 {@code tenant-<id>}），平台请求为空串，
+     * 因此平台与各租户的键天然分开。刻意不用会话：{@code /default} 未登录可调，此时无会话可用。</p>
+     *
+     * <p><b>为什么整段用 try/catch 兜住</b>：数据源模块在本模块是 {@code provided}，
+     * 只用本模块而未引入 {@code spring-support-datasource-starter} 的应用里该类不存在，
+     * 直接调用会抛 {@code NoClassDefFoundError}，且发生在缓存键求值阶段——
+     * 会让 {@code /v2/setting/default} 整体 500，连登录页都打不开。
+     * 这种部署下本来也没有租户切库，退化成平台维度即可。</p>
+     *
+     * @return 租户键段，形如 {@code 1950000000000000001:}；非租户上下文返回空串
+     */
+    private static String tenantCacheSegment() {
+        String dbType;
+        try {
+            dbType = com.chua.starter.datasource.support.DataSourceContextSupport.getDbType();
+        } catch (Throwable notAvailable) {
+            // 未引入数据源模块：无租户切库能力，全部按平台维度缓存
+            return "";
+        }
+        if (dbType == null || dbType.isBlank()) {
+            return "";
+        }
+        // 只认租户库前缀：主库名/负载均衡组等其它上下文不该改变全局配置缓存
+        int index = dbType.indexOf(TENANT_DB_PREFIX);
+        if (index < 0) {
+            return "";
+        }
+        return dbType.substring(index + TENANT_DB_PREFIX.length()) + ":";
+    }
+    /**
+     * 租户库注册名前缀，与 TenantProperties.ServerConfig 默认 datasource-routing-prefix 一致
+     */
+    private static final String TENANT_DB_PREFIX = "tenant-";
+    /**
      * Runtime_公共_codec_请求_键
     */
     private static final String RUNTIME_PUBLIC_CODEC_REQUEST_KEY = "CodecRequestKey";
@@ -129,7 +171,7 @@ public class SysSettingController {
     @Operation(summary = "默认设置列表")
     @GetMapping("/default")
     @TokenForIgnore
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingController).SETTING_DEFAULT_CACHE_KEY")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingController).SETTING_DEFAULT_CACHE_KEY + T(com.chua.starter.service.controller.SysSettingController).tenantCacheSegment()")
     public ReturnResult<List<SysSettingVO>> listForDefault() {
         List<SysSetting> aDefault = sysSettingService.list(new SysSettingUpdate(String.join(",", SysSettingService.USER_FACING_GROUPS), null), Collections.emptySet());
         aDefault.forEach(this::maskSensitive);
@@ -409,7 +451,7 @@ public class SysSettingController {
     @Operation(summary = "设置列表")
     @GetMapping("/list")
     @Permission(role = {ADMIN, SUPER_ADMIN})
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingController).SETTING_LIST_CACHE_KEY_PREFIX + #sysSettingUpdate.sysSettingGroup")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingController).SETTING_LIST_CACHE_KEY_PREFIX + T(com.chua.starter.service.controller.SysSettingController).tenantCacheSegment() + #sysSettingUpdate.sysSettingGroup")
     public ReturnResult<List<SysSettingVO>> list(@ParameterObject SysSettingUpdate sysSettingUpdate, @Parameter(hidden = true) @UserValue("roles") HashSet<String> roles) {
         Set<String> safeRoles = null == roles ? Collections.emptySet() : roles;
         List<SysSetting> list = sysSettingService.list(sysSettingUpdate, roles);

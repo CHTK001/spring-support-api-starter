@@ -113,6 +113,7 @@ class CollectContextTest {
         AtomicInteger dropped = new AtomicInteger();
         Thread[] workers = new Thread[threads];
         for (int t = 0; t < threads; t++) {
+// [P3C C1 豁免] 测试代码，验证线程行为，不必走线程池
             workers[t] = new Thread(() -> {
                 for (int i = 0; i < perThread; i++) {
                     if (!context.offerRecord(new CollectRecordEntry())) {

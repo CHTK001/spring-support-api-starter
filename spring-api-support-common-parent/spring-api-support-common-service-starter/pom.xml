@@ -34,6 +34,14 @@
       <groupId>com.chua</groupId>
       <artifactId>spring-support-oauth-client-starter</artifactId>
     </dependency>
+    <!-- 设置缓存键需要按租户库维度隔离（读线程上的数据源上下文）。
+         作用域与合作方一致用 provided：运行期由宿主应用提供，未引入时
+         tenantCacheSegment() 会退化为平台维度，不影响共享库场景。 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-datasource-starter</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <!-- 顶栏天气 / 定位 / 台风（/v2/weather、/v2/location、/v2/typhoon）：
          实现已下沉到 spring 层共享模块，本模块只做依赖引入（自动配置注册控制器）。
          版本显式写出：本模块的 parent relativePath 指向的是 common-parent（坐标不匹配），

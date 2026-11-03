@@ -345,6 +345,19 @@ public class TenantProperties {
         private String datasourceRoutingTenantSource = "session";
 
         /**
+         * 有租户身份但拿不到该租户库时，是否拒绝请求（失败关闭）。
+         *
+         * <p><b>为什么默认开启</b>：租户库未登记、连不上、口令错时如果静默回退主库，
+         * 租户用户的查询会读到平台共享库的数据，写操作更会直接落到主库——
+         * 这是数据越权访问，而不是可用性降级，且全程没有任何报错。开启后这类请求返回
+         * HTTP 503，故障只在受影响的租户身上可见。</p>
+         *
+         * <p>关闭（{@code false}）恢复旧行为：回退主库并打 WARN。仅适用于
+         * 「部分租户已切库、存量租户仍在共享库」的迁移期，<b>不能</b>在已完成切库的环境里使用。</p>
+         */
+        private boolean datasourceRoutingFailClosed = true;
+
+        /**
          * 建租户时是否自动建库/建账号。
          * <p>需要同时在下面配置具备 CREATE DATABASE / CREATE USER / GRANT 权限的管理连接；
          * 未配置管理连接时自动跳过，仅记录告警，不影响租户创建。</p>
@@ -366,6 +379,38 @@ public class TenantProperties {
          * 建库用的管理连接口令（支持 {@code ENC:} 前缀密文）。
          */
         private String datasourceRoutingAdminPassword;
+
+        /**
+         * 建库后是否自动初始化业务表结构。
+         *
+         * <p>只建库建账号得到的是一张空库：切过去之后第一条业务 SQL 就会报表不存在。
+         * 开启后会用租户自己的账号连上该库，执行与平台主库同一批
+         * {@code db/init} 迁移脚本（{@code Flyway} SPI，版本记录写进租户库的
+         * {@code sys_database_version}），因此重复执行幂等、后续增量脚本也能补上。</p>
+         *
+         * <p>需要 {@link #datasourceRoutingAutoProvision} 一起开启；关闭时只建库不建表，
+         * 由租户应用自行迁移。默认开启，避免「库建好了但没人建表」这种静默半成品。</p>
+         */
+        private boolean datasourceRoutingAutoInitScripts = true;
+
+        /**
+         * 租户库初始化脚本位置。
+         *
+         * <p>默认与平台自身的 {@code plugin.datasource.script.script-path} 保持一致 ——
+         * 租户库和主库的表结构本来就是同一套，分叉只会让以后每次改表漏掉一边。
+         * 支持逗号、分号、换行分隔的多个位置。</p>
+         */
+        private String datasourceRoutingInitScriptLocations =
+                "classpath*:db/init/*.sql,classpath*:db/migration/*.sql";
+
+        /**
+         * 租户库初始化时是否同时执行种子数据脚本（{@code __initdata_}）。
+         *
+         * <p>默认开启：没有 {@code sys_role}/{@code sys_user} 这类基础数据的租户库
+         * 连登录都做不到，比空库更难排查。已有数据的库由
+         * {@code INSERT IGNORE} 与版本记录共同保证不重复插入。</p>
+         */
+        private boolean datasourceRoutingInitDataEnable = true;
 
 
         /**
@@ -586,6 +631,15 @@ public class TenantProperties {
         }
 
         /**
+         * 有租户身份但拿不到租户库时是否拒绝请求（失败关闭）
+         *
+         * @return 拒绝时返回 true
+         */
+        public boolean isDatasourceRoutingFailClosed() {
+            return datasourceRoutingFailClosed;
+        }
+
+        /**
          * 建租户时是否自动建库/建账号
          *
          * @return 启用时返回 true
@@ -619,6 +673,33 @@ public class TenantProperties {
          */
         public String getDatasourceRoutingAdminPassword() {
             return datasourceRoutingAdminPassword;
+        }
+
+        /**
+         * 建库后是否自动初始化业务表结构
+         *
+         * @return 启用时返回 true
+         */
+        public boolean isDatasourceRoutingAutoInitScripts() {
+            return datasourceRoutingAutoInitScripts;
+        }
+
+        /**
+         * 获取租户库初始化脚本位置
+         *
+         * @return 逗号分隔的脚本位置
+         */
+        public String getDatasourceRoutingInitScriptLocations() {
+            return datasourceRoutingInitScriptLocations;
+        }
+
+        /**
+         * 租户库初始化时是否同时执行种子数据脚本
+         *
+         * @return 启用时返回 true
+         */
+        public boolean isDatasourceRoutingInitDataEnable() {
+            return datasourceRoutingInitDataEnable;
         }
 
         /**
@@ -678,10 +759,14 @@ public class TenantProperties {
             copy.datasourceRoutingDriverClassName = this.datasourceRoutingDriverClassName;
             copy.datasourceRoutingUrlTemplate = this.datasourceRoutingUrlTemplate;
             copy.datasourceRoutingTenantSource = this.datasourceRoutingTenantSource;
+            copy.datasourceRoutingFailClosed = this.datasourceRoutingFailClosed;
             copy.datasourceRoutingAutoProvision = this.datasourceRoutingAutoProvision;
             copy.datasourceRoutingAdminUrl = this.datasourceRoutingAdminUrl;
             copy.datasourceRoutingAdminUsername = this.datasourceRoutingAdminUsername;
             copy.datasourceRoutingAdminPassword = this.datasourceRoutingAdminPassword;
+            copy.datasourceRoutingAutoInitScripts = this.datasourceRoutingAutoInitScripts;
+            copy.datasourceRoutingInitScriptLocations = this.datasourceRoutingInitScriptLocations;
+            copy.datasourceRoutingInitDataEnable = this.datasourceRoutingInitDataEnable;
             copy.protocol = this.protocol;
             copy.host = this.host;
             copy.port = this.port;
@@ -711,6 +796,15 @@ public class TenantProperties {
          * 当前租户标识
          */
         private String tenantId;
+
+        /**
+         * 租户端对外访问基地址（平台侧解析「该租户在哪」时使用）。
+         *
+         * <p>例如 {@code https://t1.example.com} 或 {@code http://10.0.0.8:8080/api}。
+         * 留空时按「本机首选 IPv4 + server.port + context-path」自动推导，
+         * 这在容器或反向代理后面通常是错的，生产环境建议显式配置。</p>
+         */
+        private String tenantBaseUrl;
 
         /**
          * 租户同步消息签名密钥。
@@ -822,6 +916,15 @@ public class TenantProperties {
          */
         public String getTenantId() {
             return tenantId;
+        }
+
+        /**
+         * 获取租户端对外访问基地址
+         *
+         * @return 基地址，未配置时为 null
+         */
+        public String getTenantBaseUrl() {
+            return tenantBaseUrl;
         }
 
         /**
@@ -969,6 +1072,7 @@ public class TenantProperties {
             copy.enable = this.enable;
             copy.syncEnable = this.syncEnable;
             copy.tenantId = this.tenantId;
+            copy.tenantBaseUrl = this.tenantBaseUrl;
             copy.syncSignSecret = this.syncSignSecret;
             copy.syncSignAllowedClockSkewSeconds = this.syncSignAllowedClockSkewSeconds;
             copy.syncAckEnabled = this.syncAckEnabled;
