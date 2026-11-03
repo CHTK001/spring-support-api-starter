@@ -17,7 +17,8 @@ import org.springframework.context.annotation.Import;
         TenantMybatisConfiguration.class,
         TenantServerConfiguration.class,
         TenantClientConfiguration.class,
-        TenantDataSourceFilterConfiguration.class
+        TenantDataSourceFilterConfiguration.class,
+        TenantEndpointConfiguration.class
 })
 /**
  * TenantAuto配置类，提供相关能力。

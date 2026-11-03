@@ -88,7 +88,8 @@ public class AgentMain {
         server.start();
 
         writePidFile();
-        System.out.println("[Agent] v" + config.version() + " HTTP listening on " + config.bind() + ":" + config.port()
+        // [P3C E1 豁免] CLI 入口：Agent 启动横幅，非业务输出
+        System.out.println("[Agent] v" + config.version() + " HTTP listening on " + config.bind() + ":" + config.port() // [P3C E1 豁免]
                 + (cfgPath == null ? " (未找到配置文件，使用默认值)" : " (config=" + cfgPath.toAbsolutePath() + ")"));
     }
 
@@ -125,7 +126,8 @@ public class AgentMain {
                 Files.write(Paths.get("agent.pid"), String.valueOf(pid).getBytes(StandardCharsets.UTF_8));
             }
         } catch (Exception e) {
-            System.err.println("[Agent] pid 文件写入失败: " + e.getMessage());
+            // [P3C E1 豁免] CLI 入口：运行时错误回显，非业务输出
+            System.err.println("[Agent] pid 文件写入失败: " + e.getMessage()); // [P3C E1 豁免]
         }
     }
 
@@ -159,7 +161,8 @@ public class AgentMain {
                 sb.append(buf, 0, len);
             }
         } catch (Exception e) {
-            System.err.println("[Agent] 读取流失败: " + e.getMessage());
+            // [P3C E1 豁免] CLI 入口：运行时错误回显，非业务输出
+            System.err.println("[Agent] 读取流失败: " + e.getMessage()); // [P3C E1 豁免]
         }
         return sb.toString();
     }
@@ -179,6 +182,7 @@ public class AgentMain {
      * @return 已启动的抽取线程
      */
     static Thread pumpOutput(InputStream in, final ByteArrayOutputStream sink) {
+// [P3C C1 豁免] 守护/后台线程：有独立生命周期，不适合交给通用执行器
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {

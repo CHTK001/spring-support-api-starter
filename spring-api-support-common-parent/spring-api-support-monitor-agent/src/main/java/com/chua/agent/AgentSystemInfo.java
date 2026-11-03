@@ -404,14 +404,14 @@ public class AgentSystemInfo {
             if (!process.waitFor(60, TimeUnit.SECONDS)) {
                 process.destroyForcibly();
                 pump.join(AgentMain.PUMP_DRAIN_MILLIS);
-                System.err.println("[Agent] Win32_Service 枚举超时，回落 OSHI");
+                LOG.severe("[Agent] Win32_Service 枚举超时，回落 OSHI");
                 return null;
             }
             pump.join(AgentMain.PUMP_DRAIN_MILLIS);
             String out = AgentMain.decodeOutput(AgentMain.snapshot(sink));
             String payload = longestBase64Line(out);
             if (payload == null) {
-                System.err.println("[Agent] Win32_Service 枚举失败 exit=" + process.exitValue()
+                LOG.severe("[Agent] Win32_Service 枚举失败 exit=" + process.exitValue()
                         + " out=" + abbreviate(out) + "，回落 OSHI");
                 return null;
             }
@@ -432,7 +432,7 @@ public class AgentSystemInfo {
             }
             return rows.isEmpty() ? null : rows;
         } catch (Exception e) {
-            System.err.println("[Agent] Win32_Service 枚举异常，回落 OSHI: " + e);
+            LOG.severe("[Agent] Win32_Service 枚举异常，回落 OSHI: " + e);
             return null;
         } finally {
             if (process != null) {

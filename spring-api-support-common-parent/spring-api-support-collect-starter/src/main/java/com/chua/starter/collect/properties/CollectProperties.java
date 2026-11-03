@@ -64,7 +64,8 @@ public class CollectProperties {
      * 因此写语句的注入面明显大于查询。默认 {@code true} 保持既有行为；置 {@code false} 后
      * SQL 节点只放行查询，写库改走 database 节点（PreparedStatement 绑定、无字符串拼接）。</p>
      */
-    private boolean sqlAllowWrite = true;
+    /** SQL 写操作开关：采集约定强暗示，默认必须禁止写入，关闭时才允许。 */
+    private boolean sqlAllowWrite = false;
 
     /**
      * 单任务最长执行毫秒，超时后置为失败并中断流程线程池。

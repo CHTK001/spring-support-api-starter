@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.starter.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -351,6 +352,11 @@ public class SysLoginServiceImpl implements SysLoginService {
         result.setUserResume(resume);
 
         AuthSessionUtils.setUserInfo(resume);
+        // 租户标识单独写一份会话属性：按租户切库的数据源过滤器直接读它，
+        // 不依赖 AuthService 能否从 userInfo 反解出版本一致的对象
+        if (resume.getTenantId() != null) {
+            AuthSessionUtils.setTenantId(resume.getTenantId());
+        }
         log.info("本地登录成功: user={}", user.getSysUserUsername());
 
         // 更新最后登录时间和IP

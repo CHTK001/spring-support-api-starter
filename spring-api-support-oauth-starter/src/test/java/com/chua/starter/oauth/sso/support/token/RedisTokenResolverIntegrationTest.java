@@ -287,9 +287,9 @@ class RedisTokenResolverIntegrationTest {
         if (online.getTotal() < 1) {
             java.util.Set<String> keys = template.keys("oauth:token:*");
             Object raw = keys == null || keys.isEmpty() ? null : template.opsForValue().get(keys.iterator().next());
-            System.out.println("DIAG_KEYS=" + keys);
-            System.out.println("DIAG_RAW_TYPE=" + (raw == null ? "null" : raw.getClass().getName()));
-            System.out.println("DIAG_COPY=" + com.chua.common.support.utils.BeanUtils.copyProperties(raw, UserResult.class));
+            System.out.println("DIAG_KEYS=" + keys); // [P3C E1 豁免]
+            System.out.println("DIAG_RAW_TYPE=" + (raw == null ? "null" : raw.getClass().getName())); // [P3C E1 豁免]
+            System.out.println("DIAG_COPY=" + com.chua.common.support.utils.BeanUtils.copyProperties(raw, UserResult.class)); // [P3C E1 豁免]
         }
         assertTrue(online.getTotal() >= 1, "在线列表应包含刚登录的会话");
         assertTrue(resolver.getOnlineStatus(USER_ID).getOnlineCount() >= 1);
