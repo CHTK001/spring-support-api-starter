@@ -34,6 +34,13 @@ public final class TenantSyncMessageSupport {
     */
     public static final String METADATA_SYNC_ROLE = "syncRole";
     /**
+     * Metadata_tenant_基地址：租户端自报的业务访问地址（含协议、端口、context-path）。
+     *
+     * <p>同步通道的 IP/端口是通信端口，不一定等于业务 HTTP 端口，也可能在反向代理之后。
+     * 由租户端主动把「别的服务该用什么地址访问我」写进来，平台侧解析时就不必靠猜。</p>
+     */
+    public static final String METADATA_TENANT_BASE_URL = "tenantBaseUrl";
+    /**
      * 角色_tenant_客户端
     */
     public static final String ROLE_TENANT_CLIENT = "tenant-client";

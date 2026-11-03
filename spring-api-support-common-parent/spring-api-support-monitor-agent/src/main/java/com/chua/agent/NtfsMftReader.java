@@ -81,7 +81,7 @@ final class NtfsMftReader {
                     0,
                     null);
             if (handle == null || !isValid(handle)) {
-                System.err.println("[mft] open fail device=" + device + " err=" + Native.getLastError());
+                LOG.severe("[mft] open fail device=" + device + " err=" + Native.getLastError());
                 return null;
             }
 
@@ -121,7 +121,7 @@ final class NtfsMftReader {
                 totalMftBytes += r.clusters * (long) clusterBytes;
             }
             int n = (int) ((totalMftBytes + recordSize - 1) / recordSize);
-            System.err.println("[mft] runs=" + runs.size() + " n=" + n + " totalMftBytes=" + totalMftBytes);
+            LOG.severe("[mft] runs=" + runs.size() + " n=" + n + " totalMftBytes=" + totalMftBytes);
 
             // 每记录数组
             long[] parent = new long[n];
@@ -552,7 +552,7 @@ final class NtfsMftReader {
 
     private static byte[] readVolume(HANDLE handle, long offset, int len) {
         if (!VolumeApi.INSTANCE.SetFilePointerEx(handle, offset, null, FILE_BEGIN)) {
-            System.err.println("[mft] seek fail offset=" + offset + " err=" + Native.getLastError());
+            LOG.severe("[mft] seek fail offset=" + offset + " err=" + Native.getLastError());
             return null;
         }
         byte[] buf = new byte[len];
@@ -560,7 +560,7 @@ final class NtfsMftReader {
         if (!Kernel32.INSTANCE.ReadFile(handle, buf, len, read, null)) {
             // 读到卷末尾附近可能失败并返回部分字节，按已读长度处理；否则视为失败
             if (read.getValue() <= 0) {
-                System.err.println("[mft] read fail offset=" + offset + " len=" + len
+                LOG.severe("[mft] read fail offset=" + offset + " len=" + len
                         + " err=" + Native.getLastError());
                 return null;
             }
@@ -584,7 +584,7 @@ final class NtfsMftReader {
     }
 
     private static Map<String, Object> fail(String why) {
-        System.err.println("[mft] " + why);
+        LOG.severe("[mft] " + why);
         return null;
     }
 

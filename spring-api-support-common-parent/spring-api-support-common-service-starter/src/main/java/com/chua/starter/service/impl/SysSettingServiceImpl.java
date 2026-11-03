@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.starter.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -801,7 +802,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     @Caching(evict = {
             @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_LEGACY_PREFIX + "' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator"),
             @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_PREFIX + "' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator"),
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingController).SETTING_DEFAULT_CACHE_KEY")
+            // 键里带了租户段，逐个 pattern 精确清理做不到（注解不支持通配），
+            // 这里退化为清空该 cacheName 全部条目：配置变更是低频操作，正确性优先于缓存命中率。
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, allEntries = true)
     })
     /**
      * 清空缓存。
@@ -815,8 +818,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
     @Override
     @Caching(evict = {
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_LEGACY_PREFIX + "' + '" + HOT_RELOAD_GROUP + "'", keyGenerator = "customTenantedKeyGenerator"),
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_PREFIX + "' + '" + HOT_RELOAD_GROUP + "'", keyGenerator = "customTenantedKeyGenerator")
+            // 热重载分组同理：键含租户段后无法按 key 精确清理，整体失效更安全
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, allEntries = true)
     })
     public void clearHotReloadCache() {
     }

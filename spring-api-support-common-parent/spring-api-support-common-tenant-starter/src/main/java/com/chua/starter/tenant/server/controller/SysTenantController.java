@@ -12,6 +12,8 @@ import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.entity.SysTenantStats;
 import com.chua.starter.tenant.server.pojo.SysTenantBindServiceV1Request;
 import com.chua.starter.tenant.server.service.SysTenantService;
+import com.chua.starter.tenant.server.support.TenantEndpoint;
+import com.chua.starter.tenant.server.support.TenantEndpointResolver;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -44,6 +46,11 @@ public class SysTenantController {
      * systenant服务
     */
     private final SysTenantService sysTenantService;
+
+    /**
+     * 租户服务器地址解析器
+     */
+    private final TenantEndpointResolver tenantEndpointResolver;
 
     /**
      * 查询租户列表
@@ -182,6 +189,23 @@ public class SysTenantController {
     }
 
     /**
+     * 查询租户服务器地址。
+     *
+     * <p>回答「这个租户的请求该打到哪台服务器」。优先返回租户端当前在线实例自报的地址，
+     * 没有在线实例时退回 {@code sys_tenant_home_url}。两者都没有则返回 {@code null}。</p>
+     *
+     * @param sysTenantId 租户标识
+     * @return 地址信息；解析不到时为 {@code null}
+     */
+    @GetMapping("endpoint")
+    @Operation(summary = "查询租户服务器地址")
+    @Permission("sys:tenant:get")
+    public ReturnResult<TenantEndpoint> endpointForSysTenant(
+            @Parameter(description = "租户ID") String sysTenantId) {
+        return ReturnResult.ok(tenantEndpointResolver.resolve(sysTenantId));
+    }
+
+    /**
      * 重置租户密码（推送给租户端）
      *
      * @param sysTenantId       租户标识
@@ -215,5 +239,24 @@ public class SysTenantController {
         }
         sysTenantService.resetMenuForSysTenant(sysTenantId);
         return ReturnResult.ok(true);
+    }
+
+    /**
+     * 初始化（或补齐）租户独立库的业务表。
+     *
+     * <p>与平台主库执行同一批 {@code db/init} 迁移脚本，版本记录写在租户库自己的
+     * {@code sys_database_version} 里，因此可以重复调用：只跑没执行过的脚本。
+     * 用于建租户时脚本失败的补做，以及存量租户库升级后补跑新增迁移。</p>
+     *
+     * @param sysTenantId 租户标识
+     * @return 执行摘要
+     */
+    @PutMapping("init-database")
+    @SysLog
+    @Operation(summary = "初始化租户库业务表（幂等，可重复执行）")
+    @Permission("sys:tenant:update")
+    public ReturnResult<String> initDatabaseForSysTenant(
+            @Parameter(description = "租户ID") String sysTenantId) {
+        return sysTenantService.initTenantDatabase(sysTenantId);
     }
 }

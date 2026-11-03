@@ -33,13 +33,24 @@ plugin:
   #
   # datasource-routing-enable: 按租户切库总开关，默认 false（共享库行为不变）。
   #   开启后，命中已登记库的租户时整条请求路由到该租户的独立库；
-  #   租户未填库地址 / 库连不上 都回退主库，不影响平台可用性。
+  #   租户未填库地址的走主库（存量共享库租户），已填地址但连不上则按 fail-closed 拒 503。
+  # datasource-routing-fail-closed: 有租户身份却拿不到租户库时是否拒绝请求，默认 true。
+  #   关掉会回退主库，租户用户将读到平台共享库的数据（数据越权），仅迁移期可用。
   # datasource-routing-tenant-source: 租户标识从哪取。默认 session 只认登录会话，
   #   X-Tenant-Id 请求头在默认配置下【不生效】——请求头可被客户端伪造，改个头就能读到别的租户库。
   #   需要「管理员跨租户查询」时才配 header/session-or-header，并自行校验租户归属。
   # datasource-routing-auto-provision: 建租户时自动建库建账号，默认 false。
   #   开启后必须同时配置 admin-url/username/password（需 CREATE DATABASE / CREATE USER / GRANT 权限），
   #   admin-url 要连实例而不是某个库，例如 jdbc:mysql://127.0.0.1:3306/mysql
+  # datasource-routing-auto-init-scripts: 建库后是否初始化业务表，默认 true。
+  #   用租户自己的账号连上刚建好的库，执行与平台主库同一批 db/init 脚本（Flyway SPI），
+  #   版本记录写在租户库自己的 sys_database_version —— 因此重复执行幂等、新增增量脚本也能补上。
+  #   关掉只得到空库：切库后第一条业务 SQL 就会报表不存在，且平台侧看不出是少了一步。
+  #   建表失败不会让建租户接口报错，可调 PUT /v2/tenant/init-database 补做。
+  # datasource-routing-init-data-enable: 初始化时是否执行 __initdata_ 种子脚本，默认 true。
+  #   没有 sys_role/sys_user 的租户库连登录都做不到，比空库更难排查。
+  # datasource-routing-init-script-locations: 初始化脚本位置，默认与 platform 的
+  #   plugin.datasource.script.script-path 同源，避免两边表结构分叉。
   # ===========================================
   mybatis-plus:
     tenant:
@@ -51,6 +62,10 @@ plugin:
         # 租户标识可信来源: session（默认，只认登录会话）/ header / session-or-header。
         # header 与 session-or-header 允许客户端用请求头指定租户，必须自行校验租户归属。
         datasource-routing-tenant-source: session
+        # 有租户身份但拿不到该租户库时是否拒绝请求（默认 true）。
+        # true: 返回 503，避免租户用户读到平台主库数据（数据越权）。
+        # false: 回退主库并告警——仅用于「部分租户切库、存量仍共享库」的迁移期。
+        datasource-routing-fail-closed: true
         # 租户数据源注册名前缀，实际注册名为 prefix + sysTenantId
         datasource-routing-prefix: tenant-
         # 租户库连接池
@@ -63,7 +78,21 @@ plugin:
         datasource-routing-url-template: "jdbc:mysql://{host}{port}/{dbname}?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai"
         # 建租户时自动建库建账号（默认关闭，需配管理连接；仅支持 MySQL）
         datasource-routing-auto-provision: false
+        # 建库后自动初始化业务表：用租户账号连上该库，执行与平台主库同一批 db/init 脚本，
+        # 版本记录写进租户库自己的 sys_database_version，重复执行幂等。
+        # 关闭后只建空库，业务表交给租户应用自行迁移（第一条业务 SQL 才会暴露表不存在）。
+        datasource-routing-auto-init-scripts: true
+        # 初始化时是否一并执行 __initdata_ 种子脚本（sys_role/sys_user 等基础数据）。
+        datasource-routing-init-data-enable: true
+        # 初始化脚本位置，默认与 plugin.datasource.script.script-path 同源
+        # datasource-routing-init-script-locations: "classpath*:db/init/*.sql,classpath*:db/migration/*.sql"
         # datasource-routing-admin-url: jdbc:mysql://127.0.0.1:3306/mysql
         # datasource-routing-admin-username: root
         # datasource-routing-admin-password: ENC(xxx)
+      # 租户端（被平台托管的业务应用）填这项，上报「别的服务该用什么地址访问我」。
+      # 平台侧 /v2/tenant/endpoint 与后续按租户转发都用它；留空时按
+      # 「本机首选非回环 IPv4 + server.port + context-path」自动推导，
+      # 在容器 / 反向代理后面通常不准，生产环境建议显式配置。
+      # client:
+      #   tenant-base-url: https://t1.example.com
 

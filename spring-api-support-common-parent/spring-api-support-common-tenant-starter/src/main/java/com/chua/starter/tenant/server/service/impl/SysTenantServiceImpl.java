@@ -15,6 +15,7 @@ import com.chua.starter.tenant.server.mapper.SysTenantMapper;
 import com.chua.starter.tenant.server.mapper.SysTenantServiceMapper;
 import com.chua.starter.tenant.server.pojo.SysTenantBindServiceV1Request;
 import com.chua.starter.tenant.server.sync.TenantServerSyncPublisher;
+import com.chua.starter.tenant.server.support.TenantDatabaseInitializer;
 import com.chua.starter.tenant.server.support.TenantDatabaseProvisioner;
 import com.chua.starter.tenant.server.support.TenantDataSourceRegistry;
 import com.chua.starter.tenant.server.support.TenantPasswordCipher;
@@ -58,6 +59,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
      * 租户独立库自动开通器
      */
     private final TenantDatabaseProvisioner tenantDatabaseProvisioner;
+
+    /**
+     * 租户独立库业务表初始化器
+     */
+    private final TenantDatabaseInitializer tenantDatabaseInitializer;
 
     /**
      * 租户数据源注册器
@@ -412,10 +418,14 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     /**
-     * 开通租户独立库。
+     * 开通租户独立库并初始化业务表。
      *
      * <p>只在 {@code datasource-routing-auto-provision=true} 且配好管理连接时才会真正建库；
      * 其它情况直接跳过。任何失败都只记日志——租户记录已经落库，不能因为建库失败让接口报错。</p>
+     *
+     * <p>建库成功后紧接着初始化业务表：只建空库等于把「表不存在」推迟到租户第一次请求时才暴露，
+     * 而且从平台这边看不出是建库漏了一步。初始化同样只记录结果，不回滚租户记录；
+     * 需要补做时调 {@code PUT /v2/tenant/init-database}。</p>
      *
      * @param tenant            租户记录（{@code sqlPassword} 已是密文）
      * @param plainSqlPassword  落库前捕获的明文库口令，用于建账号
@@ -424,12 +434,73 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         if (!tenantDatabaseProvisioner.isAvailable()) {
             return;
         }
+        boolean created;
         try {
-            tenantDatabaseProvisioner.provision(tenant, plainSqlPassword);
+            created = tenantDatabaseProvisioner.provision(tenant, plainSqlPassword);
         } catch (Exception e) {
             log.error("[租户建库] 租户 {} 开通独立库异常，不影响租户记录: {}",
                     tenant.getSysTenantId(), e.getMessage(), e);
+            return;
         }
+        if (!created) {
+            // 建库失败/跳过时不去连库：既没有库也可能是地址写错，硬连只会多留一条误导性错误
+            return;
+        }
+        initializeTenantDatabase(tenant, plainSqlPassword);
+    }
+
+    /**
+     * 初始化租户库业务表。
+     *
+     * <p>失败只记日志：库与租户记录都已就绪，初始化是可重做的补充动作。</p>
+     *
+     * @param tenant           租户记录
+     * @param plainSqlPassword 明文库口令，可为空（空则从记录解密）
+     */
+    private void initializeTenantDatabase(SysTenant tenant, String plainSqlPassword) {
+        try {
+            TenantDatabaseInitializer.InitResult result =
+                    tenantDatabaseInitializer.initialize(tenant, plainSqlPassword);
+            if (result.isSuccess()) {
+                log.info("[租户建表] 租户 {} 业务表就绪: {}", tenant.getSysTenantId(), result.message());
+            } else {
+                log.warn("[租户建表] 租户 {} 业务表未初始化[{}]: {}",
+                        tenant.getSysTenantId(), result.status(), result.message());
+            }
+        } catch (Exception e) {
+            log.error("[租户建表] 租户 {} 初始化业务表异常，不影响租户记录: {}",
+                    tenant.getSysTenantId(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 初始化（或补齐）租户独立库的业务表。
+     *
+     * <p>两种情况都要走这里：建租户时脚本失败（库建好了但表没建全），以及存量租户库升级后
+     * 需要补跑新增的 {@code V1.x__alter_xxx.sql}。租户库自己的 {@code sys_database_version}
+     * 记录了已执行版本，所以重复调用只会执行没跑过的脚本。</p>
+     *
+     * @param sysTenantId 租户标识
+     * @return 初始化结果说明
+     */
+    @Override
+    public ReturnResult<String> initTenantDatabase(String sysTenantId) {
+        if (StringUtils.isBlank(sysTenantId)) {
+            return ReturnResult.illegal("租户ID不能为空");
+        }
+        SysTenant tenant = getById(sysTenantId);
+        if (tenant == null) {
+            return ReturnResult.error("租户不存在: " + sysTenantId);
+        }
+        log.info("[租户建表] 手工触发业务表初始化: tenantId={}", sysTenantId);
+        TenantDatabaseInitializer.InitResult result = tenantDatabaseInitializer.initialize(tenant);
+        if (result.isSuccess()) {
+            return ReturnResult.ok(result.message());
+        }
+        if (result.status() == TenantDatabaseInitializer.InitResult.Status.SKIPPED) {
+            return ReturnResult.error(result.message());
+        }
+        return ReturnResult.error(result.message());
     }
 
     /**

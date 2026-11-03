@@ -110,4 +110,16 @@ public interface SysTenantService extends IService<SysTenant> {
      * @param sysTenantId 租户标识
      */
     void resetMenuForSysTenant(String sysTenantId);
+
+    /**
+     * 初始化（或补齐）租户独立库的业务表。
+     *
+     * <p>给两类场景用：建租户时脚本执行失败、以及存量租户库需要补跑新增的迁移脚本。
+     * 走的是与平台主库同一批 {@code db/init} 脚本，租户库的 {@code sys_database_version}
+     * 记录已执行版本，因此重复调用是安全的。</p>
+     *
+     * @param sysTenantId 租户标识
+     * @return 初始化结果
+     */
+    ReturnResult<String> initTenantDatabase(String sysTenantId);
 }
