@@ -127,14 +127,6 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
     private static final int DEFAULT_BATCH = 500;
 
     /**
-     * 字符串超过该长度按大文本建列。
-     *
-     * <p>再长就落 TEXT 而不是 VARCHAR：VARCHAR 超长在 MySQL 上是静默截断、
-     * 在标准 SQL 上直接报错，两种表现都会让数据在没报错的那条路上丢。</p>
-     */
-    private static final int TEXT_THRESHOLD = 200;
-
-    /**
      * 本次写入行数的暂存变量名，仅供摘要使用。
      */
     private static final String VAR_WRITTEN = "_written";
@@ -243,6 +235,9 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
             throw new IllegalStateException("来源集合没有解析出任何行，已中止，目标表未做任何改动");
         }
         jdbc.ensureTypedTable(datasource, table, columnsOf(rows, columns));
+        // 建表只补缺失列、不会放宽已存在的窄列：老表遇到本批更长的值时先放宽，
+        // 否则整批写入会以「值超出列长度」失败（见 widenTextColumns 的说明）
+        jdbc.widenTextColumns(datasource, table, rows);
         if (MODE_PK.equals(mode)) {
             // 建表之后才取主键：表不存在时 ensureTypedTable 刚把它建出来，这时才读得到主键
             keys = pkKeys(datasource, table, columns);
@@ -482,8 +477,16 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
     /**
      * 按这一批实际取值推断列定义。
      *
-     * <p>只看抽样而不是全量：列类型是建表时一次性决定的，取前若干行足以区分
-     * 数字、布尔与文本，再往下扫几十万行只是在做重复的字符串比较。</p>
+     * <p>只看抽样而不是全量：列类型是建表时一次性决定的，取若干行足以区分
+     * 数字与布尔，再往下扫几十万行只是在做重复的类型判断。</p>
+     *
+     * <p>但**文本长度不能按抽样定**：抽样命中长值只说明这一批里有长值，
+     * 抽样没命中长值也不代表后续批次没有。列宽是建表时一次性钉死的，
+     * 一旦按短值落成 {@code VARCHAR(255)}，后续批次里更长的值就会写入报错
+     * （2026-11-04 实测：GitHub 的 description 混有 120 与 343 两档，
+     * 首批抽样最长 ≤200 落成 VARCHAR(255)，第二批 343 字符那条直接
+     * {@code Value too long for column "description CHARACTER VARYING(255)"}）。
+     * 因此文本列一律落大文本，不参与长度推断。</p>
      *
      * @param rows    待写入行
      * @param columns 字段映射声明，用于补列注释
@@ -507,12 +510,16 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
     /**
      * 推断某一列的来源类型。
      *
+     * <p>只区分「数值 / 布尔 / JSON / 文本」四类，文本类的具体长度不在这里定：
+     * 采到的字符串有多长只有写进去那一刻才知道，而列宽是建表时就钉死的，
+     * 按抽样长度定列宽必然会在后续批次上翻车（见 {@link #columnsOf} 的说明）。
+     * 文本一律返回 {@code TEXT}，由数据源模块落成能容纳任意长度的大文本列。</p>
+     *
      * @param rows 待写入行
      * @param name 列名
      * @return 数据源模块认识的来源类型标识
      */
     private String sourceType(List<Map<String, Object>> rows, String name) {
-        int longest = 0;
         boolean integer = false;
         boolean decimal = false;
         boolean bool = false;
@@ -532,9 +539,7 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
                 } else {
                     integer = true;
                 }
-            } else if (value instanceof CharSequence text) {
-                longest = Math.max(longest, text.length());
-            } else {
+            } else if (!(value instanceof CharSequence)) {
                 other = true;
             }
         }
@@ -551,7 +556,7 @@ public class CollectDatabaseExecutor implements CollectShapeExecutor {
         if (decimal) {
             return "DECIMAL";
         }
-        return longest > TEXT_THRESHOLD ? "TEXT" : "STRING";
+        return "TEXT";
     }
 
     /**
