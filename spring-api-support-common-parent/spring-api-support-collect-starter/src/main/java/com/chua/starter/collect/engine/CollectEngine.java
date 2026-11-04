@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -759,7 +758,8 @@ public class CollectEngine {
         try {
             return rounds(Integer.parseInt(text));
         } catch (NumberFormatException ex) {
-            return new ArrayList<>(Arrays.asList(text.split("\\r?\\n")));
+            // 多行文本当循环集合：同样先归一「字面换行」，否则整段文本只会得到一个循环项
+            return new ArrayList<>(CollectText.lines(text));
         }
     }
 
