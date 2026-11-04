@@ -2,6 +2,7 @@ package com.chua.starter.collect.engine.executor;
 
 import com.chua.starter.collect.engine.CollectContext;
 import com.chua.starter.collect.engine.CollectExpression;
+import com.chua.starter.collect.engine.CollectText;
 import com.chua.starter.collect.engine.model.CollectNode;
 import com.chua.starter.collect.engine.spi.CollectParamMeta;
 import com.chua.starter.collect.engine.spi.CollectShapeExecutor;
@@ -64,7 +65,9 @@ public class CollectStartExecutor implements CollectShapeExecutor {
     @Override
     public void execute(CollectNode node, CollectContext context, Map<String, Object> variables) {
         List<Object> urls = new ArrayList<>();
-        for (String line : node.param(URLS).split("\\r?\\n")) {
+        // 逐行切分前先归一「字面换行」：种子值若被写成一串字面 \n，切不开就会把
+        // 上千条 URL 当成一条超长 URL 交给抓取节点（CollectText 里有现场记录）
+        for (String line : CollectText.lines(node.param(URLS))) {
             String url = CollectExpression.evalText(line, variables).trim();
             if (!url.isEmpty()) {
                 urls.add(url);

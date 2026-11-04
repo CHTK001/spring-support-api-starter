@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -63,18 +62,44 @@ public class EduAuthDataSourceConfiguration {
     public static final String JDBC_TEMPLATE_NAME = "eduAuthJdbcTemplate";
 
     /**
+     * 学生档案数据源参数（ {@code plugin.edu-auth.datasource.*} ）。
+     *
+     * <p>单独暴露为一个 Bean 再传给 {@link #eduAuthDataSource(EduAuthDataSourceProperties)}：
+     * {@code plugin.edu-auth.datasource} 只能绑定到这个属性对象上（它有 {@code setUrl}），
+     * 直接绑定到 {@code HikariDataSource} 上则没有 {@code setUrl} 可以接收（Spring Boot 4.1
+     * 的 {@code HikariConfig} 只提供 {@code setJdbcUrl}），参数因此被静默忽略。</p>
+     *
+     * @return 数据源参数
+     */
+    @Bean
+    @ConfigurationProperties(prefix = "plugin.edu-auth.datasource")
+    public EduAuthDataSourceProperties eduAuthDataSourceProperties() {
+        return new EduAuthDataSourceProperties();
+    }
+
+    /**
      * 创建学生档案数据源。
      *
-     * <p>用 Hikari 而非默认的简单池：登录是高频操作，
-     * 每次请求新建连接会成为瓶颈；池大小对「只读单表查询」而言不需要大，
-     * 默认值即可。</p>
+     * <p>参数从 {@code plugin.edu-auth.datasource} 读回，显式装入 {@code HikariDataSource}：
+     * Spring Boot 4.1 起 {@code HikariConfig} 只提供 {@code setJdbcUrl}（没有 {@code setUrl}），
+     * 之前把 {@code plugin.edu-auth.datasource} 直接绑定给 {@code DataSourceBuilder} 产出的
+     * {@code HikariDataSource}， {@code url} 找不到 setter，结果 {@code jdbcUrl} 为空，
+     * 启动时报 {@code HikariPool-2 - jdbcUrl is required}（{@code /actuator/health} 因此 DOWN），
+     * 还连带让 {@code DataSourceScriptBeanPostProcessor} 没有这个数据源可执行建表脚本。
+     * 现在读回参数后通过 {@code setJdbcUrl}/{@code setUsername}/{@code setPassword}/{@code setDriverClassName}
+     * 拼装，确保池能正常建立连接。</p>
      *
+     * @param props 学生档案数据源参数
      * @return 数据源
      */
     @Bean(name = DATA_SOURCE_NAME)
-    @ConfigurationProperties(prefix = "plugin.edu-auth.datasource")
-    public DataSource eduAuthDataSource() {
-        return DataSourceBuilder.create().type(HikariDataSource.class).build();
+    public DataSource eduAuthDataSource(EduAuthDataSourceProperties props) {
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(props.getUrl());
+        dataSource.setUsername(props.getUsername());
+        dataSource.setPassword(props.getPassword());
+        dataSource.setDriverClassName(props.getDriverClassName());
+        return dataSource;
     }
 
     /**
@@ -87,5 +112,63 @@ public class EduAuthDataSourceConfiguration {
     public JdbcTemplate eduAuthJdbcTemplate(
             @Qualifier(DATA_SOURCE_NAME) DataSource dataSource) {
         return new JdbcTemplate(dataSource);
+    }
+
+    /**
+     * 学生档案数据源参数，对应 {@code plugin.edu-auth.datasource} 下的属性。
+     */
+    public static class EduAuthDataSourceProperties {
+
+        /**
+         * 数据库连接地址（如 {@code jdbc:mysql://127.0.0.1:3306/eduai?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true}）。
+         */
+        private String url;
+
+        /**
+         * 数据库用户名。
+         */
+        private String username;
+
+        /**
+         * 数据库密码。
+         */
+        private String password;
+
+        /**
+         * 数据库驱动类名（如 {@code com.mysql.cj.jdbc.Driver}）。
+         */
+        private String driverClassName;
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getDriverClassName() {
+            return driverClassName;
+        }
+
+        public void setDriverClassName(String driverClassName) {
+            this.driverClassName = driverClassName;
+        }
     }
 }
