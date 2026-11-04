@@ -72,6 +72,14 @@ public class CollectJdbcSupport {
     private static final String COLUMN_TYPE = "TEXT";
 
     /**
+     * 视为「无长度上限」的列宽阈值。
+     *
+     * <p>大文本列的 {@code size} 在驱动里报成 {@link Integer#MAX_VALUE} 或接近它的值，
+     * 比这个阈值大的列一律当作已经能装下任意长度，不再参与放宽判断。</p>
+     */
+    private static final int UNBOUNDED_TEXT_SIZE = 65535;
+
+    /**
      * 连接池缓存，数据源引用到连接池。
      */
     private final Map<String, DataSource> pools = new ConcurrentHashMap<>();
@@ -688,6 +696,83 @@ public class CollectJdbcSupport {
     public void ensureTypedTable(String reference, String table, List<DdlColumn> columns) {
         String name = identifier(table);
         schemaService.executeDdl(new TableDdlDTO(reference, name, columns, null, null, "APPEND", Boolean.FALSE));
+    }
+
+    /**
+     * 把「装不下本批取值」的已有文本列放宽成大文本。
+     *
+     * <p>为什么建表口径已经改成「文本一律大文本」之后还要再放宽一次：表是上一轮
+     * 建好的，列宽在那一刻就钉死在 {@code VARCHAR(255)} 上，而数据源模块的
+     * {@code APPEND} 策略只补缺失列、不比对类型差异（2026-11-04 实测：已存在的
+     * VARCHAR 列不会被后续更长的值自动加宽），于是老表遇到长文本仍然整批写入失败，
+     * 报 {@code Value too long for column "description CHARACTER VARYING(255)"}。</p>
+     *
+     * <p>判定只看「本批真的写不进去的列」：本批该列最长值超过声明长度才放宽。
+     * 用户按业务自己定的短列（例如手机号 {@code VARCHAR(20)}）不会因为一次采集
+     * 就被改成大文本 —— 放宽的依据是这一批真的有值超过它。</p>
+     *
+     * @param reference 数据源引用
+     * @param table     表名
+     * @param rows      本批待写入行
+     */
+    public void widenTextColumns(String reference, String table, List<Map<String, Object>> rows) {
+        if (rows == null || rows.isEmpty()) {
+            return;
+        }
+        Map<String, Integer> longest = new LinkedHashMap<>();
+        for (Map<String, Object> row : rows) {
+            for (Map.Entry<String, Object> entry : row.entrySet()) {
+                if (entry.getValue() instanceof CharSequence text) {
+                    longest.merge(entry.getKey().toLowerCase(Locale.ROOT), text.length(), Math::max);
+                }
+            }
+        }
+        if (longest.isEmpty()) {
+            return;
+        }
+        List<SchemaColumnVO> columns = schemaService.listColumns(reference, table);
+        List<SchemaColumnVO> narrow = new ArrayList<>();
+        for (SchemaColumnVO column : columns) {
+            Integer needed = longest.get(String.valueOf(column.name()).toLowerCase(Locale.ROOT));
+            if (needed == null || !isBoundedText(column)) {
+                continue;
+            }
+            if (needed > column.size()) {
+                narrow.add(column);
+                log.warn("[采集写库] {}.{} 声明长度 {} 小于本批最长值 {}，放宽为大文本",
+                        table, column.name(), column.size(), needed);
+            }
+        }
+        if (narrow.isEmpty()) {
+            return;
+        }
+        String name = identifier(table);
+        try (Connection connection = resolve(reference).getConnection()) {
+            for (SchemaColumnVO column : narrow) {
+                // 跨方言的 ALTER 语句由数据源模块拼：MySQL 走 MODIFY COLUMN，其余方言依次
+                // 尝试 ALTER COLUMN <类型> / TYPE / MODIFY，只有全部失败才抛错。
+                JdbcDialectSupport.alterColumn(connection, name, identifier(String.valueOf(column.name())),
+                        COLUMN_TYPE, "LONGTEXT", Boolean.TRUE.equals(column.nullable()), null, null);
+            }
+        } catch (SQLException ex) {
+            throw new IllegalStateException("放宽 " + table + " 的文本列失败: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * 是否「有长度上限的字符列」。
+     *
+     * <p>只看字符族：数值列同样带 size（{@code BIGINT} 是 64），把它们的 size 当长度
+     * 比会误判。已经是大文本的列 size 是 {@code Integer.MAX_VALUE} 一类的值，
+     * 也不再参与放宽。</p>
+     *
+     * @param column 列元数据
+     * @return 需要按取值长度判断是否放宽返回 true
+     */
+    private static boolean isBoundedText(SchemaColumnVO column) {
+        String type = column.typeName() == null ? "" : column.typeName().toUpperCase(Locale.ROOT);
+        Integer size = column.size();
+        return type.contains("CHAR") && size != null && size > 0 && size < UNBOUNDED_TEXT_SIZE;
     }
 
     /**
