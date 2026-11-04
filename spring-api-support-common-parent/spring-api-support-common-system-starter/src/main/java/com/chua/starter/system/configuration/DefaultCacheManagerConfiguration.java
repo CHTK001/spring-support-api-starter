@@ -80,19 +80,28 @@ public class DefaultCacheManagerConfiguration {
 
     /**
      * 非 h2 档位：复用一小时过期的 Redis 缓存管理器作为主管理器。
+     *
+     * <p>注意：此处不再标注 {@code @Primary}。框架级缓存模块（cache-starter）已经注册了
+     * {@code multiLevelCacheManager} 并标记为 {@code @Primary}（按配置的层级顺序组合
+     * Caffeine、Redis 等），框架级是唯一主管理器。两者同时标记 {@code @Primary} 时，Spring 启动
+     * 解析引用 {@code CacheManager} 的注入点（如 {@code sysAnnouncementScheduleTask}）会报
+     * {@code NoUniqueBeanDefinitionException（more than one 'primary' bean found）}，
+     * 导致应用起不来。</p>
+     *
+     * <p>本 Bean 仍然是 {@code redis-cache-3600} 的一个别称；按 {@code @Qualifier("redis-cache-3600")}
+     * 或 {@code CACHE_WITH_REDIS} 显式调用的场景不受影响。</p>
      */
     @Configuration
     @Profile("!h2")
     public static class RedisCacheManagerConfiguration {
 
         /**
-         * primary缓存Manager，复用一小时过期的 redis 缓存管理器。
+         * redis-cache-3600 缓存Manager 别称，复用一小时过期的 redis 缓存管理器。
          *
          * @param cacheManager redis 缓存管理器
          * @return 缓存Manager 对象
          */
         @Bean
-        @Primary
         public CacheManager defaultCacheManager(@Qualifier(CacheConstant.REDIS_CACHE_HOUR) CacheManager cacheManager) {
             return cacheManager;
         }
