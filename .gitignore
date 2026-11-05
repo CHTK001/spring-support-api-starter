@@ -137,7 +137,7 @@ __pycache__/
 # è¦†ç›–ä¸Šé¢ *.ps1 çš„é»˜è®¤å¿½ç•¥ã€‚çº¯ ASCIIï¼Œé¿å… PS 5.1 æŒ‰ ANSI è§£æä¸­æ–‡æŠ¥é”™ã€‚
 !spring-api-support-oauth-starter/deploy/package.ps1
 
-# Maven ±¡ jar ´ò°üÔÚÄ£¿é¸ùÉú³ÉµÄÇåµ¥£¨¹¹½¨²úÎï£¬·ÇÔ´Âë£©
+# Maven è–„ jar æ‰“åŒ…åœ¨æ¨¡å—æ ¹ç”Ÿæˆçš„æ¸…å•ï¼ˆæ„å»ºäº§ç‰©ï¼Œéæºç ï¼‰
 spring-api-support-monitor-starter/META-INF/
 
 # block: added by cleanup script 2026-11-04 10:30
