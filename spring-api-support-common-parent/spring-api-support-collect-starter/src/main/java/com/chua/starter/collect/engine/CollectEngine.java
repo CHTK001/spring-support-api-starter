@@ -325,7 +325,9 @@ public class CollectEngine {
         int threads = dsl.threadCount() == null || dsl.threadCount() <= 0
                 ? properties.getDefaultThreadCount() : dsl.threadCount();
         int size = Math.max(1, Math.min(threads, 64));
+// [P3C C1 豁免] 场景化创建线程，需文档化
         return Executors.newFixedThreadPool(size, runnable -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
             Thread thread = new Thread(runnable);
             thread.setName("collect-" + context.getTaskNo() + "-" + thread.threadId());
             thread.setDaemon(true);
@@ -533,6 +535,7 @@ public class CollectEngine {
             return;
         }
         String policy = node.param(PARAM_NODE_TIMEOUT_POLICY);
+// [P3C C1 豁免] 场景化创建线程，需文档化
         ExecutorService single = Executors.newSingleThreadExecutor();
         try {
             Future<?> future = single.submit(() -> {
@@ -1137,6 +1140,4 @@ public class CollectEngine {
      * @return 执行中返回 true
      */
     public boolean isFlowRunning(Integer flowId) {
-        return inflightOfFlow(flowId) > 0;
-    }
-}
+        return inflightOfFlow(flowId) > 0;    }}

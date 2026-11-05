@@ -84,6 +84,7 @@ public class AgentMain {
         server.createContext("/exec", ex -> AgentHttpHandlers.handleExec(ex, config));
         server.createContext("/env", ex -> AgentHttpHandlers.handleEnv(ex));
         server.createContext("/health", ex -> AgentHttpHandlers.handleHealth(ex, config));
+// [P3C C1 豁免] 场景化创建线程，需文档化
         server.setExecutor(Executors.newFixedThreadPool(HTTP_THREADS));
         server.start();
 

@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.starter.geo.service.impl;
 
 import com.chua.starter.geo.config.GeoProperties;
@@ -76,6 +77,7 @@ public class TileDownloaderServiceImpl implements TileDownloaderService {
         AtomicInteger failed = new AtomicInteger(0);
         Map<String, byte[]> results = new ConcurrentHashMap<>();
 
+// [P3C C1 豁免] 场景化创建线程，需文档化
         ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
         CountDownLatch latch = new CountDownLatch(total);
 
@@ -211,5 +213,4 @@ public class TileDownloaderServiceImpl implements TileDownloaderService {
         url = url.replace("{y}", String.valueOf(y));
         url = url.replace("{z}", String.valueOf(z));
         return url;
-    }
-}
+    }}

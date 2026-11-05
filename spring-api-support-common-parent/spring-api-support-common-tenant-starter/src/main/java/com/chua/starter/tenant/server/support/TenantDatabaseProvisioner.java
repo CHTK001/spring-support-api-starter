@@ -99,26 +99,79 @@ public class TenantDatabaseProvisioner {
         }
 
         try {
-            JdbcTemplate admin = new JdbcTemplate(adminDataSource());
-
-            admin.execute("CREATE DATABASE IF NOT EXISTS `" + dbName + "` "
-                    + "DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
-            log.info("[租户建库] 数据库就绪: {}", dbName);
-
-            String literal = escapeLiteral(plainSqlPassword);
-            admin.execute("CREATE USER IF NOT EXISTS '" + username + "'@'%' IDENTIFIED BY '" + literal + "'");
-            // 已存在时 CREATE USER 不生效，口令可能与平台记录不一致，必须显式覆盖
-            admin.execute("ALTER USER '" + username + "'@'%' IDENTIFIED BY '" + literal + "'");
-            admin.execute("GRANT ALL PRIVILEGES ON `" + dbName + "`.* TO '" + username + "'@'%'");
-            admin.execute("FLUSH PRIVILEGES");
-            log.info("[租户建库] 账号与授权就绪: user={}, db={}", username, dbName);
-
+            createDatabase(dbName);
+            createAccount(tenant, dbName, plainSqlPassword);
             verifyConnectivity(tenant, dbName, plainSqlPassword);
             return true;
         } catch (Exception e) {
             log.error("[租户建库] 租户 {} 自动建库失败: {}", tenant.getSysTenantId(), e.getMessage(), e);
             return false;
         }
+    }
+
+    /**
+     * 只建库（{@code CREATE DATABASE IF NOT EXISTS}）。
+     *
+     * <p>拆出来是给「创建进度」用的：建库与建账号是两个可观察的步骤，进度弹窗要分别显示
+     * 「正在建库」「正在建账号授权」，合并成一步会让人以为卡住。</p>
+     *
+     * @param dbName 库名（调用方已按白名单校验）
+     * @throws Exception 执行失败
+     */
+    public void createDatabase(String dbName) throws Exception {
+        JdbcTemplate admin = new JdbcTemplate(adminDataSource());
+        admin.execute("CREATE DATABASE IF NOT EXISTS `" + dbName + "` "
+                + "DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+        log.info("[租户建库] 数据库就绪: {}", dbName);
+    }
+
+    /**
+     * 只建账号并授权（{@code CREATE USER / ALTER USER / GRANT}）。
+     *
+     * @param tenant           租户记录
+     * @param dbName           库名（调用方已按白名单校验）
+     * @param plainSqlPassword 明文库口令
+     * @throws Exception 执行失败
+     */
+    public void createAccount(SysTenant tenant, String dbName, String plainSqlPassword) throws Exception {
+        JdbcTemplate admin = new JdbcTemplate(adminDataSource());
+        String username = tenant.getSysTenantSqlUsername();
+        String literal = escapeLiteral(plainSqlPassword);
+        admin.execute("CREATE USER IF NOT EXISTS '" + username + "'@'%' IDENTIFIED BY '" + literal + "'");
+        // 已存在时 CREATE USER 不生效，口令可能与平台记录不一致，必须显式覆盖
+        admin.execute("ALTER USER '" + username + "'@'%' IDENTIFIED BY '" + literal + "'");
+        admin.execute("GRANT ALL PRIVILEGES ON `" + dbName + "`.* TO '" + username + "'@'%'");
+        admin.execute("FLUSH PRIVILEGES");
+        log.info("[租户建库] 账号与授权就绪: user={}, db={}", username, dbName);
+    }
+
+    /**
+     * 校验库名/账号是否满足标识符白名单。
+     *
+     * @param value 待校验值
+     * @return 合法返回 true
+     */
+    public boolean isSafeIdentifier(String value) {
+        return hasText(value) && value.matches(SAFE_IDENTIFIER);
+    }
+
+    /**
+     * 建库是否可用（同 {@link #isAvailable()} 的语义，供进度步骤判断）。
+     *
+     * @return 可用返回 true
+     */
+    public boolean isProvisionEnabled() {
+        return isAvailable();
+    }
+
+    /**
+     * 连通性校验（供进度步骤在建账号后单独调用）。
+     *
+     * @param tenant           租户记录
+     * @param plainSqlPassword 明文库口令
+     */
+    public void verify(SysTenant tenant, String plainSqlPassword) {
+        verifyConnectivity(tenant, tenant.getSysTenantDbname(), plainSqlPassword);
     }
 
     /**

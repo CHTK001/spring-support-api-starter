@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.starter.collect.service.impl;
 
 import com.chua.starter.collect.dto.CollectDslDTO;
@@ -117,6 +118,7 @@ public class CollectExecutionServiceImpl implements CollectExecutionService, App
      * 每次执行占一个虚拟线程，引擎内部再按流程线程数建池。
      */
     private final ExecutorService launcher =
+// [P3C C1 豁免] 场景化创建线程，需文档化
             Executors.newThreadPerTaskExecutor(Thread.ofVirtual().name("collect-run-", 0).factory());
 
     /**
@@ -534,5 +536,4 @@ public class CollectExecutionServiceImpl implements CollectExecutionService, App
             host = "local";
         }
         return host + ":" + ProcessHandle.current().pid();
-    }
-}
+    }}
