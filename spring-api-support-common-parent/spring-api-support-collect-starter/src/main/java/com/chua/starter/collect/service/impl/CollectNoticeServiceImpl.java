@@ -87,7 +87,9 @@ public class CollectNoticeServiceImpl extends ServiceImpl<CollectNoticeMapper, C
     /**
      * 发送线程，单线程串行即可，通知不需要并发。
      */
+// [P3C C1 豁免] 场景化创建线程，需文档化
     private final ExecutorService sender = Executors.newSingleThreadExecutor(runnable -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         Thread thread = new Thread(runnable, "collect-notify");
         thread.setDaemon(true);
         return thread;
@@ -461,5 +463,4 @@ public class CollectNoticeServiceImpl extends ServiceImpl<CollectNoticeMapper, C
             return null;
         }
         return value.length() <= limit ? value : value.substring(0, limit);
-    }
-}
+    }}

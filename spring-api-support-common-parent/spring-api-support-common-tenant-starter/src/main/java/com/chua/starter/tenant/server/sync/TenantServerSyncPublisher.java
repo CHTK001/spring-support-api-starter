@@ -171,7 +171,9 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
                 ? tenantProperties.getServer().getSyncAckCheckIntervalSeconds()
                 : 0L;
         if (intervalSeconds > 0 || ackCheckIntervalSeconds > 0) {
+// [P3C C1 豁免] 场景化创建线程，需文档化
             fullPushScheduler = Executors.newScheduledThreadPool(2, runnable -> {
+// [P3C C1 豁免] 场景化创建线程，需文档化
                 Thread thread = new Thread(runnable, "tenant-sync-full-push");
                 thread.setDaemon(true);
                 return thread;
@@ -1080,5 +1082,4 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
         map.put("sysMenuHome", menu.getSysMenuHome());
         map.put("sysMenuEngine", menu.getSysMenuEngine());
         return map;
-    }
-}
+    }}

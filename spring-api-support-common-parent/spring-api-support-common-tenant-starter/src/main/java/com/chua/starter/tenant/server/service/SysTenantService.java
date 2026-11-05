@@ -44,6 +44,17 @@ public interface SysTenantService extends IService<SysTenant> {
     ReturnResult<SysTenant> saveForSysTenant(SysTenant sysTenant);
 
     /**
+     * 只保存租户记录（校验 + 口令加密落库 + 编码兼容），不建库、不建表、不推菜单。
+     *
+     * <p>给「创建进度」分步编排用：进度弹窗要逐步显示保存记录 / 建库 / 建表 /
+     * 同步管理员 / 推送菜单，合并成一次调用就说不清进行到哪一步。</p>
+     *
+     * @param sysTenant 租户对象
+     * @return 保存结果（含生成的租户标识）
+     */
+    ReturnResult<SysTenant> saveRecordForSysTenant(SysTenant sysTenant);
+
+    /**
      * 更新租户
      *
      * @param sysTenant 租户对象
@@ -122,4 +133,15 @@ public interface SysTenantService extends IService<SysTenant> {
      * @return 初始化结果
      */
     ReturnResult<String> initTenantDatabase(String sysTenantId);
+
+    /**
+     * 把平台租户账号同步成租户库管理员（建租户时自动做，这里给存量租户补做）。
+     *
+     * <p>租户库里能登录的账号 {@code sys_user} 由本动作维护：没有就建、有就覆盖口令并重新启用，
+     * 因此重复调用安全。</p>
+     *
+     * @param sysTenantId 租户标识
+     * @return 同步结果说明
+     */
+    ReturnResult<String> syncTenantDatabaseAdmin(String sysTenantId);
 }

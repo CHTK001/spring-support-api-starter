@@ -259,4 +259,22 @@ public class SysTenantController {
             @Parameter(description = "租户ID") String sysTenantId) {
         return sysTenantService.initTenantDatabase(sysTenantId);
     }
+
+    /**
+     * 把平台租户账号同步成租户库管理员。
+     *
+     * <p>建租户时已自动执行；这里给三类场景补做：历史租户（建的时候还没有这一步）、
+     * 建库/建表当时失败、以及人工在租户库里改坏了管理员账号。重复调用安全（有则覆盖口令，无则新建）。</p>
+     *
+     * @param sysTenantId 租户标识
+     * @return 同步结果说明
+     */
+    @PutMapping("sync-admin")
+    @SysLog
+    @Operation(summary = "同步租户库管理员（幂等，可重复执行）")
+    @Permission("sys:tenant:update")
+    public ReturnResult<String> syncAdminForSysTenant(
+            @Parameter(description = "租户ID") String sysTenantId) {
+        return sysTenantService.syncTenantDatabaseAdmin(sysTenantId);
+    }
 }

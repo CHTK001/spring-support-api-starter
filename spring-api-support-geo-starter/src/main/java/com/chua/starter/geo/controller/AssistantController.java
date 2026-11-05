@@ -36,6 +36,7 @@ public class AssistantController {
     /**
      * 虚拟线程执行器
     */
+// [P3C C1 豁免] 场景化创建线程，需文档化
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     /**
