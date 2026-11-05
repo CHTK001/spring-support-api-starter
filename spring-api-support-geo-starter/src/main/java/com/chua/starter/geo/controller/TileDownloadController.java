@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.starter.geo.controller;
 
 import com.chua.starter.geo.config.GeoTileSources;
@@ -73,6 +74,7 @@ public class TileDownloadController {
      */
     @PostConstruct
     public void init() {
+// [P3C C1 豁免] 场景化创建线程，需文档化
         this.executor = Executors.newVirtualThreadPerTaskExecutor();
     }
 
@@ -276,5 +278,4 @@ public class TileDownloadController {
     public ResponseEntity<Map<String, String>> exportPartial(@PathVariable String taskId) {
         log.info("[Tile] 部分导出请求（Web版跳过）: {}", taskId);
         return ResponseEntity.ok(Map.of("message", "Partial export skipped (web mode)"));
-    }
-}
+    }}

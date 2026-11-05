@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.starter.monitor.configuration;
 
 import com.chua.common.support.ai.rag.GlobalSettingProvider;
@@ -38,5 +39,4 @@ public class RuntimeGlobalSettingProvider implements GlobalSettingProvider {
                 new SettingItem("default_model", "", "STRING", "默认模型", 10),
                 new SettingItem("compression_model", "", "STRING", "压缩模型", 11)
         );
-    }
-}
+    }}

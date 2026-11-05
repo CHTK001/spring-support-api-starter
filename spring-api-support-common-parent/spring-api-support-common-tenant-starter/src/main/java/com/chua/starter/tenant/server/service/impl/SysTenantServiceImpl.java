@@ -16,6 +16,7 @@ import com.chua.starter.tenant.server.mapper.SysTenantServiceMapper;
 import com.chua.starter.tenant.server.pojo.SysTenantBindServiceV1Request;
 import com.chua.starter.tenant.server.sync.TenantServerSyncPublisher;
 import com.chua.starter.tenant.server.support.TenantDatabaseInitializer;
+import com.chua.starter.tenant.server.support.TenantDatabaseAdminSynchronizer;
 import com.chua.starter.tenant.server.support.TenantDatabaseProvisioner;
 import com.chua.starter.tenant.server.support.TenantDataSourceRegistry;
 import com.chua.starter.tenant.server.support.TenantPasswordCipher;
@@ -64,6 +65,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
      * 租户独立库业务表初始化器
      */
     private final TenantDatabaseInitializer tenantDatabaseInitializer;
+
+    /**
+     * 租户库管理员同步器：把平台租户账号写进租户库的 {@code sys_user}
+     */
+    private final TenantDatabaseAdminSynchronizer tenantDatabaseAdminSynchronizer;
 
     /**
      * 租户数据源注册器
@@ -136,6 +142,48 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     public ReturnResult<SysTenant> saveForSysTenant(SysTenant sysTenant) {
         log.debug("保存租户: {}", sysTenant);
 
+        ReturnResult<SysTenant> saved = saveRecordForSysTenant(sysTenant);
+        if (!saved.isOk()) {
+            return saved;
+        }
+        SysTenant record = saved.getData();
+
+        // 明文口令在这里从落库密文还原：建库建账号、建租户库管理员都要明文，
+        // 又不能让明文在库里存在，所以「加密落库 → 需要时解密」是唯一安全的取法
+        String plainSqlPassword = tenantPasswordCipher.decrypt(record.getSysTenantSqlPassword());
+        String plainTenantPassword = tenantPasswordCipher.decrypt(record.getSysTenantPassword());
+
+        // 独立库开通：配置了管理连接才执行，失败只记日志，不回滚租户
+        provisionTenantDatabase(record, plainSqlPassword);
+
+        // 租户库管理员：把平台租户账号同步进租户库的 sys_user。
+        // 与建库分开调用 —— 手工登记库地址（不自动建库）的租户同样需要这条账号
+        provisionTenantDatabaseAdmin(record, plainTenantPassword);
+
+        // 发布同步消息：推送给租户端租户信息，并按当前订阅重置租户端菜单
+        if (syncPublisher != null) {
+            syncPublisher.publishTenantUpdate(record);
+        }
+        resetMenuForSysTenant(record.getSysTenantId());
+
+        return ReturnResult.ok(record);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    /**
+     * 只保存租户记录（校验 + 口令加密落库 + 编码兼容），不做建库/建表/管理员/菜单。
+     *
+     * <p>拆出来是给「创建进度」编排用的：进度弹窗要把「保存记录」「建库」「建表」
+     * 「同步管理员」「推送菜单」分别显示成一个步骤，合并成一次调用就只能显示「进行中」
+     * 而说不出进行到哪一步。</p>
+     *
+     * @param sysTenant 租户对象
+     * @return 保存结果（含生成的租户标识）
+     */
+    public ReturnResult<SysTenant> saveRecordForSysTenant(SysTenant sysTenant) {
+        log.debug("保存租户记录: {}", sysTenant);
+
  // systenantid 使用 ASSIGN_标识 策略自动生成，同时兼容旧的 systenant编码 字段
  // 保存后将 systenantid 同步到废弃的 systenant编码 字段以保持兼容
 
@@ -162,27 +210,15 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         // 下发同步时由 TenantServerSyncPublisher 解密还原，线格式不变
         sysTenant.setSysTenantPassword(tenantPasswordCipher.encrypt(sysTenant.getSysTenantPassword()));
         // 租户独立库口令同样密文落库，供 TenantDataSourceRegistry 建池时还原
-        // 明文先留一份给建库用，落库后再拿不回来（库里是密文）
-        String plainSqlPassword = sysTenant.getSysTenantSqlPassword();
         sysTenant.setSysTenantSqlPassword(tenantPasswordCipher.encrypt(sysTenant.getSysTenantSqlPassword()));
 
         save(sysTenant);
-        
+
  // 将 systenantid 同步到废弃的 systenant编码 字段以保持兼容
         sysTenant.setSysTenantCode(sysTenant.getSysTenantId());
         updateById(sysTenant);
-        
-        log.info("租户保存成功, ID: {}", sysTenant.getSysTenantId());
 
-        // 独立库开通：配置了管理连接才执行，失败只记日志，不回滚租户
-        provisionTenantDatabase(sysTenant, plainSqlPassword);
-
-        // 发布同步消息：推送给租户端租户信息，并按当前订阅重置租户端菜单
-        if (syncPublisher != null) {
-            syncPublisher.publishTenantUpdate(sysTenant);
-        }
-        resetMenuForSysTenant(sysTenant.getSysTenantId());
-
+        log.info("租户记录已保存, ID: {}", sysTenant.getSysTenantId());
         return ReturnResult.ok(sysTenant);
     }
 
@@ -213,8 +249,10 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
 
         // 口令非空才加密；空表示「不改口令」，置空让 MyBatis-Plus 跳过该列，
         // 防止把已有密文覆盖成 null
+        String plainTenantPassword = null;
         if (StringUtils.isNotBlank(sysTenant.getSysTenantPassword())) {
-            sysTenant.setSysTenantPassword(tenantPasswordCipher.encrypt(sysTenant.getSysTenantPassword()));
+            plainTenantPassword = sysTenant.getSysTenantPassword();
+            sysTenant.setSysTenantPassword(tenantPasswordCipher.encrypt(plainTenantPassword));
         }
         if (StringUtils.isNotBlank(sysTenant.getSysTenantSqlPassword())) {
             sysTenant.setSysTenantSqlPassword(tenantPasswordCipher.encrypt(sysTenant.getSysTenantSqlPassword()));
@@ -232,6 +270,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         if (result && syncPublisher != null) {
             SysTenant updated = getById(sysTenant.getSysTenantId());
             syncPublisher.publishTenantUpdate(updated);
+        }
+        // 平台侧改了口令就必须同步租户库管理员，否则「平台改完、租户库还是旧密码」
+        if (result && plainTenantPassword != null) {
+            SysTenant updated = getById(sysTenant.getSysTenantId());
+            provisionTenantDatabaseAdmin(updated, plainTenantPassword);
         }
         if (result) {
             resetMenuForSysTenant(sysTenant.getSysTenantId());
@@ -398,6 +441,13 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
             syncPublisher.publishTenantUpdate(updated);
         }
 
+        // 同一个口令还要落进租户库的管理员账号：租户端登录比对的是租户库 sys_user，
+        // 只改平台这张表会表现为「平台显示已重置、租户还是登不上」
+        if (result) {
+            SysTenant updated = getById(sysTenantId);
+            provisionTenantDatabaseAdmin(updated, sysTenantPassword);
+        }
+
         return (result) ? ReturnResult.ok(true) : ReturnResult.error("操作失败");
     }
 
@@ -474,6 +524,34 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     /**
+     * 同步租户库管理员账号。
+     *
+     * <p>失败只记日志：租户记录与库都已就绪，管理员账号是可重做的补充动作，
+     * 不能因为「租户库还没就绪」把建租户接口打成 500。</p>
+     *
+     * @param tenant          租户记录
+     * @param plainPassword   租户明文口令
+     */
+    private void provisionTenantDatabaseAdmin(SysTenant tenant, String plainPassword) {
+        if (tenant == null) {
+            return;
+        }
+        try {
+            TenantDatabaseAdminSynchronizer.Result result =
+                    tenantDatabaseAdminSynchronizer.sync(tenant, plainPassword);
+            if (result.isSynced()) {
+                log.info("[租户库管理员] 租户 {} {}", tenant.getSysTenantId(), result.message());
+            } else {
+                log.warn("[租户库管理员] 租户 {} 未同步[{}]: {}",
+                        tenant.getSysTenantId(), result.status(), result.message());
+            }
+        } catch (Exception e) {
+            log.error("[租户库管理员] 租户 {} 同步异常，不影响租户记录: {}",
+                    tenant.getSysTenantId(), e.getMessage(), e);
+        }
+    }
+
+    /**
      * 初始化（或补齐）租户独立库的业务表。
      *
      * <p>两种情况都要走这里：建租户时脚本失败（库建好了但表没建全），以及存量租户库升级后
@@ -495,10 +573,34 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         log.info("[租户建表] 手工触发业务表初始化: tenantId={}", sysTenantId);
         TenantDatabaseInitializer.InitResult result = tenantDatabaseInitializer.initialize(tenant);
         if (result.isSuccess()) {
-            return ReturnResult.ok(result.message());
+            // 表就绪后顺手补一次管理员账号：存量租户库绝大多数就是「表有了、管理员没有」
+            TenantDatabaseAdminSynchronizer.Result admin = tenantDatabaseAdminSynchronizer.sync(tenant);
+            return ReturnResult.ok(result.message() + "；租户库管理员：" + admin.message());
         }
         if (result.status() == TenantDatabaseInitializer.InitResult.Status.SKIPPED) {
             return ReturnResult.error(result.message());
+        }
+        return ReturnResult.error(result.message());
+    }
+
+    /**
+     * 同步租户库管理员（给存量租户补做 / 运维手工修复用）。
+     *
+     * @param sysTenantId 租户标识
+     * @return 同步结果说明
+     */
+    @Override
+    public ReturnResult<String> syncTenantDatabaseAdmin(String sysTenantId) {
+        if (StringUtils.isBlank(sysTenantId)) {
+            return ReturnResult.illegal("租户ID不能为空");
+        }
+        SysTenant tenant = getById(sysTenantId);
+        if (tenant == null) {
+            return ReturnResult.error("租户不存在: " + sysTenantId);
+        }
+        TenantDatabaseAdminSynchronizer.Result result = tenantDatabaseAdminSynchronizer.sync(tenant);
+        if (result.isSynced()) {
+            return ReturnResult.ok(result.message());
         }
         return ReturnResult.error(result.message());
     }

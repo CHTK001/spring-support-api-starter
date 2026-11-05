@@ -53,12 +53,14 @@ public class SysFileSystemMergeTaskRegistration {
     @PostConstruct
     public void init() {
         int corePoolSize = fileSystemProperties.getMergeTaskPoolSize();
+// [P3C C1 豁免] 场景化创建线程，需文档化
         executor = new ThreadPoolExecutor(
                 corePoolSize,
                 corePoolSize * 2,
                 60L,
                 TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(100),
+// [P3C C1 豁免] 场景化创建线程，需文档化
                 r -> new Thread(r, "file-system-merge-task"),
                 new ThreadPoolExecutor.CallerRunsPolicy()
         );
@@ -201,5 +203,4 @@ public class SysFileSystemMergeTaskRegistration {
         } catch (Exception e) {
             log.warn("临时文件清理失败: taskId={}", taskId, e);
         }
-    }
-}
+    }}

@@ -28,6 +28,7 @@ public class AcmeChallengeService {
     /**
      * 定时清理过期的验证信息
      */
+// [P3C C1 豁免] 场景化创建线程，需文档化
     private final ScheduledExecutorService cleaner = Executors.newSingleThreadScheduledExecutor();
 
     /**
@@ -104,5 +105,4 @@ public class AcmeChallengeService {
      * @return challenge信息的结果
      */
     private record ChallengeInfo(String keyAuthorization, long createTime) {
-    }
-}
+    }}

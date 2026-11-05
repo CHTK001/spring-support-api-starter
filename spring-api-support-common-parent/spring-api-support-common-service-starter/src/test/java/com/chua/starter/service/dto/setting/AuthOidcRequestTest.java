@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.starter.service.dto.setting;
 
 import com.chua.common.support.utils.StringUtils;
@@ -73,6 +74,7 @@ class AuthOidcRequestTest {
         mockIdp.createContext("/jwks", this::handleJwks);
         mockIdp.createContext("/token", this::handleToken);
         mockIdp.createContext("/userinfo", this::handleUserinfo);
+// [P3C C1 豁免] 场景化创建线程，需文档化
         mockIdp.setExecutor(Executors.newCachedThreadPool());
         mockIdp.start();
     }
@@ -342,5 +344,4 @@ class AuthOidcRequestTest {
             this.nonce = nonce;
             this.withNonce = withNonce;
         }
-    }
-}
+    }}

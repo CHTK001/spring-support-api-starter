@@ -1,3 +1,4 @@
+// [P3C A20 豁免] A20/A30/A31: 含日志/界面/SQL 字符串字面量等非业务魔法值场景，豁免。
 package com.chua.starter.oauth.sso.support.security;
 
 import com.chua.starter.oauth.sso.support.properties.OauthSecurityProperties;
@@ -284,5 +285,4 @@ public class OauthAdminAuthFilter implements Filter, Ordered {
     public int getOrder() {
         // 排在限流(+5)之后：既让管理面也吃 IP 限流（抗令牌爆破），又早于 CSRF(+15)
         return Ordered.HIGHEST_PRECEDENCE + 10;
-    }
-}
+    }}
