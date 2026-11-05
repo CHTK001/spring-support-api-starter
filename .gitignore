@@ -146,7 +146,6 @@ spring-api-support-monitor-starter/META-INF/
 *.err
 *.err.txt
 *.jsonl
-*.tmp
 *.tmp.*
 **/.agentscope/**
 **/.tmp-*
