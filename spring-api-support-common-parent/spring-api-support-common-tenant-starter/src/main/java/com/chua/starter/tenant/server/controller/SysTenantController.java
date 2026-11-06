@@ -14,6 +14,7 @@ import com.chua.starter.tenant.server.pojo.SysTenantBindServiceV1Request;
 import com.chua.starter.tenant.server.service.SysTenantService;
 import com.chua.starter.tenant.server.support.TenantEndpoint;
 import com.chua.starter.tenant.server.support.TenantEndpointResolver;
+import com.chua.starter.tenant.server.support.TenantServiceExpiryJob;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -51,6 +52,11 @@ public class SysTenantController {
      * 租户服务器地址解析器
      */
     private final TenantEndpointResolver tenantEndpointResolver;
+
+    /**
+     * 到期服务清理器
+     */
+    private final TenantServiceExpiryJob tenantServiceExpiryJob;
 
     /**
      * 查询租户列表
@@ -276,5 +282,21 @@ public class SysTenantController {
     public ReturnResult<String> syncAdminForSysTenant(
             @Parameter(description = "租户ID") String sysTenantId) {
         return sysTenantService.syncTenantDatabaseAdmin(sysTenantId);
+    }
+
+    /**
+     * 清理已到期的租户服务订阅。
+     *
+     * <p>定时任务每 10 分钟跑一次；本接口用于立刻执行（验收、排障），
+     * 语义与定时任务完全一致：删绑定 → 重写租户库服务目录 → 重推菜单。</p>
+     *
+     * @return 本次删除的绑定条数
+     */
+    @PutMapping("services/expire")
+    @SysLog
+    @Operation(summary = "清理已到期的租户服务（幂等）")
+    @Permission("sys:tenant:update")
+    public ReturnResult<Integer> expireServicesForSysTenant() {
+        return ReturnResult.ok(tenantServiceExpiryJob.purgeExpired());
     }
 }

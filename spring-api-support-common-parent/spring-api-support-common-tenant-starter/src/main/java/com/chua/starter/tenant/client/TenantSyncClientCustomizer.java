@@ -70,10 +70,26 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
      * Customize
     */
     public void customize(SyncClient syncClient) {
-        if (!tenantProperties.isClientMode() || !tenantProperties.getClient().isSyncEnable()) {
+        if (!tenantProperties.isClientMode()) {
             return;
         }
 
+        // 上报与租户数据同步是两件事：即使关掉 syncEnable，租户端启动时也必须连上平台，
+        // 否则平台侧永远拿不到这个租户的在线地址，只会退化到人工登记的 home-url
+        if (tenantProperties.getClient().isSyncEnable()) {
+            prepareDataSync(syncClient);
+        }
+
+        // 发起底层连接（幂等），平台端接受后完成租户客户端注册
+        syncClient.connect();
+    }
+
+    /**
+     * 准备租户数据同步：注册主题处理器，并在连接建立后按需补偿一次全量同步。
+     *
+     * @param syncClient 同步客户端
+     */
+    private void prepareDataSync(SyncClient syncClient) {
         if (tenantProperties.getClient().isSyncAutoSubscribeTopics()) {
             subscribe(syncClient, TenantClientSyncHandler.TOPIC_TENANT_UPDATE);
             subscribe(syncClient, TenantClientSyncHandler.TOPIC_TENANT_DELETE);
@@ -91,9 +107,6 @@ public class TenantSyncClientCustomizer implements SyncClientCustomizer, Disposa
                 scheduleFullSyncRequest(syncClient);
             }
         });
-
- // 发起底层连接（幂等），等待平台端 同步-服务端 接受后触发全量同步
-        syncClient.connect();
     }
 
     /**

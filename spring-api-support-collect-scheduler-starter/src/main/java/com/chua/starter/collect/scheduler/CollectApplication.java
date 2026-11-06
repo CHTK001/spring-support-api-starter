@@ -18,7 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * 流程执行引擎与结果存储由本模块承担。</p>
  *
  * <p>扫描范围只保留本应用自己的包：采集侧能力（service/mapper/controller/engine 等）
- * 已由 {@code spring-api-support-collect-starter} 的 CollectAutoConfiguration 自动装配，
+ * 已由 {@code spring-support-collect-starter} 的 CollectAutoConfiguration 自动装配，
  * 消费方加依赖即可生效，这里不再重复扫描，也就避免了两处扫描同一批类。</p>
  *
  * <p>Mapper 只显式声明 job-starter 的包：job 的自动装配约定是由消费方自行
