@@ -38,7 +38,7 @@ public class SysMenuSnapshotService {
      */
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS,
             cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
-            key = "'sys:menu:list:all'")
+            key = "'sys:menu:list:all:' + T(com.chua.starter.system.support.TenantCacheScope).scope()")
     public List<SysMenu> listAll() {
         return sysMenuMapper.selectList(Wrappers.<SysMenu>lambdaQuery()
                 .orderByAsc(SysMenu::getSysMenuSort));

@@ -20,6 +20,7 @@ import com.chua.starter.tenant.server.support.TenantDatabaseAdminSynchronizer;
 import com.chua.starter.tenant.server.support.TenantDatabaseProvisioner;
 import com.chua.starter.tenant.server.support.TenantDataSourceRegistry;
 import com.chua.starter.tenant.server.support.TenantPasswordCipher;
+import com.chua.starter.tenant.server.support.TenantServiceCatalogSynchronizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +45,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant>
         implements com.chua.starter.tenant.server.service.SysTenantService {
+
+    /**
+     * 租户编码合法形态：字母数字开头，允许下划线/中划线，长度 2-32。
+     *
+     * <p>限制成这个形状是为了它同时能当 URL 片段、Redis key 片段、日志里的检索词，
+     * 不出现需要转义的字符。</p>
+     */
+    private static final Pattern TENANT_CODE_PATTERN = Pattern.compile("^[a-zA-Z0-9][a-zA-Z0-9_-]{1,31}$");
+
+    /**
+     * 平台保留的租户编码：登录时这些词要表达「平台自身」，不能让某个租户占掉
+     */
+    private static final Set<String> TENANT_CODE_RESERVED =
+            Set.of("master", "platform", "system", "admin", "root", "default", "public", "tenant");
 
     /**
      * Transaction模板
@@ -75,6 +93,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
      * 租户数据源注册器
      */
     private final TenantDataSourceRegistry tenantDataSourceRegistry;
+
+    /**
+     * 租户库服务目录同步器：绑定变化后把有效服务写进租户自己的库
+     */
+    private final TenantServiceCatalogSynchronizer tenantServiceCatalogSynchronizer;
 
     @Autowired(required = false)
     /**
@@ -132,7 +155,6 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     /**
      * 保存forsystenant
      *
@@ -170,9 +192,8 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     /**
-     * 只保存租户记录（校验 + 口令加密落库 + 编码兼容），不做建库/建表/管理员/菜单。
+     * 只保存租户记录（校验 + 口令加密落库），不做建库/建表/管理员/菜单。
      *
      * <p>拆出来是给「创建进度」编排用的：进度弹窗要把「保存记录」「建库」「建表」
      * 「同步管理员」「推送菜单」分别显示成一个步骤，合并成一次调用就只能显示「进行中」
@@ -184,8 +205,13 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     public ReturnResult<SysTenant> saveRecordForSysTenant(SysTenant sysTenant) {
         log.debug("保存租户记录: {}", sysTenant);
 
- // systenantid 使用 ASSIGN_标识 策略自动生成，同时兼容旧的 systenant编码 字段
- // 保存后将 systenantid 同步到废弃的 systenant编码 字段以保持兼容
+        // 租户编码由前端填写：它是登录时要人肉输入的短码，不能再拿雪花主键顶替
+        String tenantCodeError = validateTenantCode(sysTenant.getSysTenantCode(), null);
+        if (tenantCodeError != null) {
+            log.warn("租户编码不可用: code={}, reason={}", sysTenant.getSysTenantCode(), tenantCodeError);
+            return ReturnResult.error(tenantCodeError);
+        }
+        sysTenant.setSysTenantCode(normalizeTenantCode(sysTenant.getSysTenantCode()));
 
         // 检查账号是否已存在
         if (StringUtils.isNotBlank(sysTenant.getSysTenantUsername())) {
@@ -214,16 +240,47 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
 
         save(sysTenant);
 
- // 将 systenantid 同步到废弃的 systenant编码 字段以保持兼容
-        sysTenant.setSysTenantCode(sysTenant.getSysTenantId());
-        updateById(sysTenant);
-
-        log.info("租户记录已保存, ID: {}", sysTenant.getSysTenantId());
+        log.info("租户记录已保存, ID: {}, 编码: {}", sysTenant.getSysTenantId(), sysTenant.getSysTenantCode());
         return ReturnResult.ok(sysTenant);
     }
 
+    /**
+     * 归一化租户编码：去掉首尾空白并转小写。
+     *
+     * <p>登录页是人工输入，大小写与空格不该成为「密码对了但登不进去」的原因。</p>
+     *
+     * @param tenantCode 原始编码
+     * @return 归一化后的编码，入参为空时返回 {@code null}
+     */
+    private String normalizeTenantCode(String tenantCode) {
+        return (tenantCode == null) ? null : tenantCode.trim().toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * 校验租户编码是否可用。
+     *
+     * @param tenantCode     原始编码
+     * @param excludeTenantId 更新场景下要排除的租户标识，新增传 {@code null}
+     * @return 不可用时返回给用户看的原因，可用时返回 {@code null}
+     */
+    private String validateTenantCode(String tenantCode, String excludeTenantId) {
+        String code = normalizeTenantCode(tenantCode);
+        if (StringUtils.isBlank(code)) {
+            return "租户编码不能为空";
+        }
+        if (!TENANT_CODE_PATTERN.matcher(code).matches()) {
+            return "租户编码只能用字母、数字、下划线和中划线，长度 2-32";
+        }
+        if (TENANT_CODE_RESERVED.contains(code)) {
+            return "租户编码「" + code + "」是平台保留字，请换一个";
+        }
+        boolean exists = exists(Wrappers.<SysTenant>lambdaQuery()
+                .eq(SysTenant::getSysTenantCode, code)
+                .ne(StringUtils.isNotBlank(excludeTenantId), SysTenant::getSysTenantId, excludeTenantId));
+        return exists ? "租户编码「" + code + "」已被占用" : null;
+    }
+
     @Override
-    @SuppressWarnings("deprecation")
     /**
      * 更新forsystenant
      *
@@ -233,8 +290,15 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     public ReturnResult<Boolean> updateForSysTenant(SysTenant sysTenant) {
         log.debug("更新租户: {}", sysTenant);
 
- // 租户标识不可修改，systenant编码 废弃字段也置空
-        sysTenant.setSysTenantCode(null);
+        // 编码允许修改（写错字的租户要能纠正），但必须重新校验唯一性
+        sysTenant.setSysTenantCode(normalizeTenantCode(sysTenant.getSysTenantCode()));
+        if (sysTenant.getSysTenantCode() != null) {
+            String tenantCodeError = validateTenantCode(sysTenant.getSysTenantCode(), sysTenant.getSysTenantId());
+            if (tenantCodeError != null) {
+                log.warn("租户编码不可用: code={}, reason={}", sysTenant.getSysTenantCode(), tenantCodeError);
+                return ReturnResult.error(tenantCodeError);
+            }
+        }
 
         if (StringUtils.isNotBlank(sysTenant.getSysTenantUsername())) {
             if (exists(Wrappers.<SysTenant>lambdaQuery()
@@ -289,26 +353,35 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     */
     public ReturnResult<Boolean> deleteForSysTenant(String sysTenantId) {
         log.debug("删除租户, ID: {}", sysTenantId);
+        // 独立库信息只在删除前拿得到：记录被逻辑删除后仍能查，但读一下更直观
+        SysTenant deleting = getById(sysTenantId);
 
-        return transactionTemplate.execute(status -> {
+        ReturnResult<Boolean> result = transactionTemplate.execute(status -> {
             sysTenantServiceMapper.delete(Wrappers.<SysTenantService>lambdaQuery()
                     .eq(SysTenantService::getSysTenantId, sysTenantId));
 
-            boolean result = removeById(sysTenantId);
-            log.info("租户删除结果: {}", result);
+            boolean removed = removeById(sysTenantId);
+            log.info("租户删除结果: {}", removed);
 
             // 连接池随租户一起释放，避免删除后仍持有已废弃库的连接
-            if (result) {
+            if (removed) {
                 tenantDataSourceRegistry.evict(sysTenantId);
             }
 
             // 发布同步消息
-            if (result && syncPublisher != null) {
+            if (removed && syncPublisher != null) {
                 syncPublisher.publishTenantDelete(sysTenantId);
             }
 
-            return (result) ? ReturnResult.ok(true) : ReturnResult.error("操作失败");
+            return (removed) ? ReturnResult.ok(true) : ReturnResult.error("操作失败");
         });
+
+        // 物理删库必须在事务提交之后：DROP DATABASE 是隐式提交的 DDL，
+        // 放进事务里会出现「库删了、平台记录因回滚还在」的错位
+        if (result != null && Boolean.TRUE.equals(result.getData()) && deleting != null) {
+            tenantDatabaseProvisioner.destroy(deleting);
+        }
+        return result;
     }
 
     @Override
@@ -335,7 +408,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
                 request.sysTenantId(),
                 request.serviceBindItems() != null ? request.serviceBindItems().size() : 0);
 
-        return transactionTemplate.execute(status -> {
+        ReturnResult<Boolean> result = transactionTemplate.execute(status -> {
             sysTenantServiceMapper.delete(Wrappers.<SysTenantService>lambdaQuery()
                     .eq(SysTenantService::getSysTenantId, request.sysTenantId()));
 
@@ -363,6 +436,14 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
             }
             return ReturnResult.ok();
         });
+
+        // 绑定关系提交后再动租户库：独立库写失败不能回滚已经确认的绑定，
+        // 同步失败只记日志，下一次绑定/到期清理会再对齐一次
+        SysTenant boundTenant = getById(request.sysTenantId());
+        if (boundTenant != null) {
+            tenantServiceCatalogSynchronizer.sync(boundTenant);
+        }
+        return result;
     }
 
     @Override

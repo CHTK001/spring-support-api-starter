@@ -33,6 +33,7 @@ import com.chua.starter.service.SysSettingService;
 import com.chua.starter.service.SimpleSysUserService;
 import com.chua.starter.service.utils.SystemCallbackPolicy;
 import com.chua.starter.system.properties.SystemSecurityProperties;
+import com.chua.starter.system.login.TenantLoginSupport;
 import com.chua.starter.system.support.ThirdPartyCallbackSupport;
 import com.chua.starter.system.mapper.SysDeptMapper;
 import com.chua.starter.system.mapper.SysRoleMapper;
@@ -233,6 +234,23 @@ public class SysLoginServiceImpl implements SysLoginService {
     private final ApplicationEventPublisher eventPublisher;
     /** 系统安全配置（三方登录回调地址白名单等） */
     private final SystemSecurityProperties securityProperties;
+    /**
+     * 租户独立库登录扩展点。
+     *
+     * <p>平台主库查不到账号时，按用户名在 {@code sys_tenant} 定位租户并切库认证。
+     * 用 {@link ObjectProvider} 而不是直接依赖实现：没有引入租户模块的工程里没有该 Bean，
+     * 取不到即保持改动前的行为（只认平台主库账号）。</p>
+     */
+    private final org.springframework.beans.factory.ObjectProvider<TenantLoginSupport> tenantLoginSupportProvider;
+
+    /**
+     * 本次登录已切入的租户标识。
+     *
+     * <p>登录入口在 {@link #verifyLocalUser} 里切库，签发令牌在 {@link #issueLocalToken}，
+     * 两者之间隔着 TOTP 校验；令牌里要写入租户标识才能让后续请求按租户路由，
+     * 因此用线程内变量把它带过去，登录处理器在 finally 里调 {@link #clearLoginTenantContext()} 清掉。</p>
+     */
+    private static final ThreadLocal<String> LOGIN_TENANT_ID = new ThreadLocal<>();
 
     @Override
     /**
@@ -343,6 +361,13 @@ public class SysLoginServiceImpl implements SysLoginService {
         userResult.setDataPermission(dataPermission);
         userResult.setDataPermissionRule(dataPermissionRule);
 
+        // 租户用户：把租户标识写进令牌与会话，后续请求由租户数据源过滤器按它切库。
+        // 平台账号没有该值，保持原有单库行为。
+        String loginTenantId = LOGIN_TENANT_ID.get();
+        if (loginTenantId != null) {
+            userResult.setTenantId(loginTenantId);
+        }
+
         var sm4Token = TokenCipher.encrypt(userResult);
         var resume = (UserResume) userResult;
 
@@ -449,9 +474,20 @@ public class SysLoginServiceImpl implements SysLoginService {
      * @return 已认证用户；用户不存在或口令错误返回 null；账号禁用抛 {@link LoginRejectException}
      */
     public SysUser verifyLocalUser(LoginData loginData) {
-        SysUser user = simpleSysUserService.lambdaQuery()
-                .eq(SysUser::getSysUserUsername, loginData.getUsername())
-                .one();
+        // 每次进入登录校验都先清掉上一次同线程遗留的租户上下文，避免线程复用时串库
+        LOGIN_TENANT_ID.remove();
+        String tenantCode = normalizeTenantCode(loginData.getTenantCode());
+        SysUser user;
+        if (tenantCode != null) {
+            // 用户在登录页填了租户编码：以编码为准定位租户，再决定查主库还是切库
+            user = verifyTenantLocalUserByCode(tenantCode, loginData.getUsername());
+        } else {
+            user = findByUsername(loginData.getUsername());
+            if (user == null) {
+                // 平台主库没有这个账号：可能是独立库租户的用户，切到租户库再查一次
+                user = verifyTenantLocalUser(loginData.getUsername());
+            }
+        }
         if (user == null) {
             log.warn("本地登录失败: 用户不存在 - {}", loginData.getUsername());
             return null;
@@ -465,6 +501,124 @@ public class SysLoginServiceImpl implements SysLoginService {
             return null;
         }
         return user;
+    }
+
+    /**
+     * 归一化登录页填的租户编码：去空白、转小写；空串按「未填」处理。
+     *
+     * @param tenantCode 原始编码
+     * @return 归一化后的编码；未填返回 {@code null}
+     */
+    private String normalizeTenantCode(String tenantCode) {
+        if (StringUtils.isBlank(tenantCode)) {
+            return null;
+        }
+        String code = tenantCode.trim();
+        return code.isEmpty() ? null : code.toLowerCase(java.util.Locale.ROOT);
+    }
+
+    /**
+     * 在平台主库按用户名查账号。
+     *
+     * @param username 登录账号
+     * @return 账号；不存在返回 null
+     */
+    private SysUser findByUsername(String username) {
+        return simpleSysUserService.lambdaQuery()
+                .eq(SysUser::getSysUserUsername, username)
+                .one();
+    }
+
+    /**
+     * 租户独立库账号认证：按用户名定位租户、切库、再查账号。
+     *
+     * <p>只有「切库成功且账号存在」才算命中，此时数据源上下文仍停在租户库，
+     * 后续的角色 / 部门 / 令牌签发都读租户库——这正是租户用户该看到的数据。
+     * 未命中时立刻恢复主库，不把上下文留给调用方。</p>
+     *
+     * @param username 登录账号
+     * @return 租户库里的账号；不属于独立库租户或租户库不可用返回 null
+     */
+    private SysUser verifyTenantLocalUser(String username) {
+        TenantLoginSupport support = tenantLoginSupportProvider.getIfAvailable();
+        if (support == null) {
+            return null;
+        }
+        String tenantId = support.resolveTenantIdByUsername(username);
+        if (tenantId == null) {
+            return null;
+        }
+        if (!support.switchTo(tenantId)) {
+            log.warn("本地登录失败: 租户库不可用 - tenantId={}, user={}", tenantId, username);
+            return null;
+        }
+        LOGIN_TENANT_ID.set(tenantId);
+        log.info("本地登录: 账号 {} 属于租户 {}，已切换到租户库认证", username, tenantId);
+        SysUser user = findByUsername(username);
+        if (user == null) {
+            // 租户登记了独立库却没有这个账号：恢复主库，避免后续查询读到租户库
+            clearLoginTenantContext();
+        }
+        return user;
+    }
+
+    /**
+     * 按租户编码认证账号：编码 → 租户 → （独立库则切库）→ 查账号。
+     *
+     * <p>编码是用户在登录页显式选的，所以这里对「编码不存在 / 租户停用 / 租户库连不上」
+     * 都要给明确文案，而不是笼统的「账号或者密码不正确」——否则用户会一直怀疑密码。</p>
+     *
+     * <p>共享库租户不切库：它的 {@code sys_user} 就在平台主库，切过去反而查空。</p>
+     *
+     * @param tenantCode 已归一化的租户编码
+     * @param username   登录账号
+     * @return 账号；账号在该租户下不存在返回 {@code null}（按口令错误处理，避免枚举账号）
+     */
+    private SysUser verifyTenantLocalUserByCode(String tenantCode, String username) {
+        TenantLoginSupport support = tenantLoginSupportProvider.getIfAvailable();
+        if (support == null) {
+            // 单库部署没有租户模块：填了编码说明用户想进租户，直接说清楚
+            throw new LoginRejectException(400, "当前部署未启用租户登录，请留空租户编码");
+        }
+        TenantLoginSupport.TenantLoginTarget target = support.resolveByCode(tenantCode);
+        if (target == null) {
+            log.warn("本地登录失败: 租户编码不存在 - {}", tenantCode);
+            throw new LoginRejectException(400, "租户编码「" + tenantCode + "」不存在");
+        }
+        if (!target.enabled()) {
+            log.warn("本地登录失败: 租户已停用 - code={}, tenantId={}", tenantCode, target.tenantId());
+            throw new LoginRejectException(403, "租户已停用，请联系平台管理员");
+        }
+        if (!target.dedicated()) {
+            log.info("本地登录: 租户 {} 使用平台共享库，按主库账号认证 - user={}", tenantCode, username);
+            return findByUsername(username);
+        }
+        if (!support.switchTo(target.tenantId())) {
+            log.warn("本地登录失败: 租户库不可用 - code={}, tenantId={}", tenantCode, target.tenantId());
+            throw new LoginRejectException(503, "租户数据库暂时不可用，请联系平台管理员");
+        }
+        LOGIN_TENANT_ID.set(target.tenantId());
+        log.info("本地登录: 租户 {} 已切库认证 - user={}, tenantId={}", tenantCode, username, target.tenantId());
+        SysUser user = findByUsername(username);
+        if (user == null) {
+            // 该租户库里没有这个账号：恢复主库，不要把上下文留给调用方
+            clearLoginTenantContext();
+        }
+        return user;
+    }
+
+    /**
+     * 清理登录期间建立的租户上下文（租户标识与数据源切换）。
+     *
+     * <p>登录处理器必须在 finally 里调用：线程会被后续请求复用，
+     * 残留的租户数据源会让别人的请求读到租户库。</p>
+     */
+    public void clearLoginTenantContext() {
+        LOGIN_TENANT_ID.remove();
+        TenantLoginSupport support = tenantLoginSupportProvider.getIfAvailable();
+        if (support != null) {
+            support.clear();
+        }
     }
 
     /**

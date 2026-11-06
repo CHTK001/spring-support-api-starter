@@ -53,7 +53,7 @@ public class SysDeptController {
     @Operation(summary = "组织机构列表")
     @GetMapping("/list")
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
-            key = "'sys:dept:list:' + #userId + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDept.sysDeptName,'')",
+            key = "'sys:dept:list:' + T(com.chua.starter.system.support.TenantCacheScope).scope() + ':' + #userId + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDept.sysDeptName,'')",
             unless = "#result == null || #result.data == null || #result.data.isEmpty()")
     /**
      * 列表

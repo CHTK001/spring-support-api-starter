@@ -9,14 +9,14 @@
   </parent>
   <artifactId>spring-api-support-collect-scheduler-starter</artifactId>
   <description>采集调度系统：采集与调度两个平级系统的可部署载体（启动类 + 调度控制台出口），
-    依赖采集模块 spring-api-support-collect-starter 与调度模块 spring-support-job-starter。
+    依赖采集模块 spring-support-collect-starter 与调度模块 spring-support-job-starter。
     采集能力与调度台账分别由两个被依赖模块提供，本模块只做装配与打包，不含业务实现。</description>
 
   <dependencies>
     <!-- 采集模块：流程编排 / 执行引擎 / 任务与结果 / 变量与函数 / 通知 -->
     <dependency>
       <groupId>com.chua</groupId>
-      <artifactId>spring-api-support-collect-starter</artifactId>
+      <artifactId>spring-support-collect-starter</artifactId>
       <version>${project.version}</version>
     </dependency>
     <!-- 调度模块：@Job + Scheduler/Executor/SINGLE 多模式，提供 sys_job 台账与治理服务。

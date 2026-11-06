@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.SysLog;
+import com.chua.starter.common.support.constant.CacheConstant;
 import com.chua.starter.entity.system.SysAnnouncement;
 import com.chua.starter.entity.system.SysAnnouncementRead;
 import com.chua.starter.entity.system.SysRole;
@@ -75,7 +76,7 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
         return baseMapper.selectPage(query.createPage(), wrapper);
     }
 
-    @CacheEvict(value = "announcement:active", allEntries = true)
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     @Override
     @SysLog
     @Transactional(rollbackFor = Exception.class)
@@ -97,7 +98,7 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
         return ReturnResult.ok(sysAnnouncement);
     }
 
-    @CacheEvict(value = "announcement:active", allEntries = true)
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     @Override
     @SysLog
     @Transactional(rollbackFor = Exception.class)
@@ -121,7 +122,7 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
         return ReturnResult.ok(true);
     }
 
-    @CacheEvict(value = "announcement:active", allEntries = true)
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     @Override
     @SysLog
     @Transactional(rollbackFor = Exception.class)
@@ -151,7 +152,7 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
      * @param userId 用户id
      * @return 发布announcement的结果
      */
-    @CacheEvict(value = "announcement:active", allEntries = true)
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     @Override
     @SysLog
     @Transactional(rollbackFor = Exception.class)
@@ -176,7 +177,7 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
      * @param roles 角色
      * @return unpublishAnnouncement的结果
      */
-    @CacheEvict(value = "announcement:active", allEntries = true)
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, allEntries = true)
     @Override
     @SysLog
     @Transactional(rollbackFor = Exception.class)
@@ -197,7 +198,8 @@ public class SysAnnouncementServiceImpl extends ServiceImpl<SysAnnouncementMappe
     /**
      * 获取当前用户可见的活跃公告列表（缓存30秒）
      */
-    @Cacheable(value = "announcement:active", key = "#userId")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
+            key = "'announcement:active:' + T(com.chua.starter.system.support.TenantCacheScope).scope() + ':' + #userId")
     @Override
     public List<SysAnnouncement> getActiveAnnouncements(Integer userId, Set<String> roles) {
         LocalDateTime now = LocalDateTime.now();

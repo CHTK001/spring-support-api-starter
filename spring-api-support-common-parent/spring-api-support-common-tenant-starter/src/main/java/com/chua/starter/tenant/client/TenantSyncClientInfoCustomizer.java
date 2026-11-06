@@ -45,6 +45,11 @@ public class TenantSyncClientInfoCustomizer implements SyncClientInfoCustomizer 
     private static final String PROPERTY_CONTEXT_PATH = "server.servlet.context-path";
 
     /**
+     * 应用名配置键
+     */
+    private static final String PROPERTY_APPLICATION_NAME = "spring.application.name";
+
+    /**
      * Tenant属性
      */
     private final TenantProperties tenantProperties;
@@ -95,6 +100,26 @@ public class TenantSyncClientInfoCustomizer implements SyncClientInfoCustomizer 
             capabilities.add("tenant-sync-ack");
         }
         clientInfo.setClientCapabilities(capabilities.toArray(String[]::new));
+        fillApplicationName(clientInfo);
+    }
+
+    /**
+     * 补全租户端应用名。
+     *
+     * <p>HTTP 同步客户端的元数据里没有应用名，注册消息会带一个 {@code null}，
+     * 平台侧「租户服务地址」弹窗就只能显示一串无意义的空值。这里用 {@code spring.application.name}
+     * 填上，让运维一眼看出地址背后是哪套服务。</p>
+     *
+     * @param clientInfo 客户端信息
+     */
+    private void fillApplicationName(ClientInfo clientInfo) {
+        if (clientInfo.getClientApplicationName() != null && !clientInfo.getClientApplicationName().isBlank()) {
+            return;
+        }
+        String configured = environment.getProperty(PROPERTY_APPLICATION_NAME);
+        if (configured != null && !configured.isBlank()) {
+            clientInfo.setClientApplicationName(configured.trim());
+        }
     }
 
     /**

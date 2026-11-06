@@ -120,6 +120,13 @@ public class TenantEndpointResolver {
             return null;
         }
         Set<String> connected = clientDirectory.connectedSessions();
+        if (log.isDebugEnabled()) {
+            // 排查「租户端明明报了地址却解析不到」时，先看注册表的真实内容：
+            // metadata 为空说明注册消息没被解析成结构化数据，online 为 false 说明会话不在连接集合里
+            clients.forEach((id, info) -> log.debug("[租户服务器] 已注册客户端 id={}, online={}, metadata={}",
+                    id, connected != null && connected.contains(id) || (info != null && info.isClientOnline()),
+                    info == null ? null : info.getClientMetadata()));
+        }
         List<TenantEndpoint> candidates = new ArrayList<>();
         for (Map.Entry<String, ClientInfo> entry : clients.entrySet()) {
             ClientInfo clientInfo = entry.getValue();
@@ -138,7 +145,7 @@ public class TenantEndpointResolver {
             }
             candidates.add(new TenantEndpoint(tenantId, url, SOURCE_SYNC, true,
                     entry.getKey(),
-                    clientInfo == null ? null : clientInfo.getClientApplicationName()));
+                    normalizeApplicationName(clientInfo == null ? null : clientInfo.getClientApplicationName())));
         }
         if (candidates.isEmpty()) {
             return null;
@@ -241,6 +248,26 @@ public class TenantEndpointResolver {
         }
         // "http://" 本身合法但不可用，去掉斜杠后长度为协议前缀长度
         if (value.length() <= HTTP_PREFIX.length()) {
+            return null;
+        }
+        return value;
+    }
+
+    /**
+     * 规范化应用名。
+     *
+     * <p>注册消息里缺失的字段经 JSON 序列化后会变成字符串 {@code "null"}，
+     * 直接展示等于告诉运维这台机器叫 null。空白与 {@code "null"} 一律视为未上报。</p>
+     *
+     * @param applicationName 原始应用名
+     * @return 规范化后的应用名；无有效值时返回 {@code null}
+     */
+    private static String normalizeApplicationName(String applicationName) {
+        if (applicationName == null) {
+            return null;
+        }
+        String value = applicationName.trim();
+        if (value.isEmpty() || "null".equalsIgnoreCase(value)) {
             return null;
         }
         return value;

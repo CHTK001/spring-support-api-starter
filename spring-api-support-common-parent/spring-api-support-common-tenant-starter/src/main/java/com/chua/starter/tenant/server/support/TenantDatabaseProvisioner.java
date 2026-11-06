@@ -146,6 +146,60 @@ public class TenantDatabaseProvisioner {
     }
 
     /**
+     * 删除租户库并回收数据库账号。
+     *
+     * <p>租户删除是逻辑删除（{@code sys_tenant_delete=1}），库是物理对象，必须显式清理，
+     * 否则平台会持续占着一堆没人用的库和账号。放在事务提交之后调用：DDL 在 MySQL 里隐式提交，
+     * 混进业务事务会出现「库删了、记录回滚了」的错位。</p>
+     *
+     * <p>失败只记日志，不向调用方抛——租户记录已经删掉，不应因为一个落单的库把删除接口变成 500；
+     * 但日志必须留下库名，运维按它手工清理。</p>
+     *
+     * @param tenant 租户记录
+     * @return 库已删除（或本来就没有独立库）返回 true
+     */
+    public boolean destroy(SysTenant tenant) {
+        if (tenant == null) {
+            return false;
+        }
+        String dbName = tenant.getSysTenantDbname();
+        if (!hasText(dbName)) {
+            return true;
+        }
+        if (!isAvailable()) {
+            log.warn("[租户建库] 自动建库未启用，跳过删除租户库: db={}", dbName);
+            return false;
+        }
+        if (!dbName.matches(SAFE_IDENTIFIER)) {
+            log.error("[租户建库] 库名含非法字符，已拒绝删除: db={}", dbName);
+            return false;
+        }
+        if (!isMysqlAdmin(tenantProperties.getServer().getDatasourceRoutingAdminUrl())) {
+            log.warn("[租户建库] 管理连接不是 MySQL，自动删库仅支持 MySQL，已跳过: {}", dbName);
+            return false;
+        }
+        String username = tenant.getSysTenantSqlUsername();
+        JdbcTemplate admin = new JdbcTemplate(adminDataSource());
+        try {
+            admin.execute("DROP DATABASE IF EXISTS `" + dbName + "`");
+            log.info("[租户建库] 租户库已删除: db={}", dbName);
+        } catch (Exception e) {
+            log.error("[租户建库] 删除租户库失败，需人工清理: db={}, {}", dbName, e.getMessage(), e);
+            return false;
+        }
+        if (hasText(username) && username.matches(SAFE_IDENTIFIER)) {
+            try {
+                admin.execute("DROP USER IF EXISTS '" + username + "'@'%'");
+                log.info("[租户建库] 数据库账号已删除: user={}", username);
+            } catch (Exception e) {
+                // 账号删除失败不影响库已删的事实，留日志即可
+                log.warn("[租户建库] 删除数据库账号失败，需人工清理: user={}, {}", username, e.getMessage());
+            }
+        }
+        return true;
+    }
+
+    /**
      * 校验库名/账号是否满足标识符白名单。
      *
      * @param value 待校验值

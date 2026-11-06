@@ -29,11 +29,14 @@ import java.util.List;
 public class SysTenant extends SysBase {
 
     /**
-     * 租户标识（同时作为租户编码使用）
+     * 租户标识（内部雪花主键）
+     *
+     * <p>只用于内部：数据源名、库名、令牌里的 {@code tenantId}。给人看的短码是
+     * {@link #sysTenantCode}，两者不再混用。</p>
      */
     @TableId(value = "sys_tenant_id", type = IdType.ASSIGN_ID)
-    @ApiModelProperty(value = "租户ID/租户编码")
-    @Schema(description = "租户ID/租户编码")
+    @ApiModelProperty(value = "租户ID")
+    @Schema(description = "租户ID")
     @NotBlank(message = "租户ID不能为空", groups = {UpdateGroup.class})
     /**
      * systenantid
@@ -170,12 +173,19 @@ public class SysTenant extends SysBase {
     private String sysTenantEmail;
 
     /**
-     * 唯一编码（已废弃，使用 systenantid 代替）
+     * 租户编码（登录时输入的可读短码，全平台唯一）
+     *
+     * <p>与 {@link #sysTenantId} 的分工：{@code sysTenantId} 是内部主键（雪花值，
+     * 出现在令牌、数据源名、库名里，不该给人看也不该给人输）；本字段是给人用的短码，
+     * 例如 {@code acme}、{@code t-001}。登录页的「租户编码」输入的就是它，
+     * 平台据此定位租户并决定请求该路由到哪个租户库。</p>
+     *
+     * <p>编码一经使用就会被用户记住，改名会让这些人登不进来，所以修改时要在页面上明确提示。</p>
      */
-    @Deprecated
     @TableField(value = "sys_tenant_code")
-    @ApiModelProperty(value = "唯一编码（已废弃）")
-    @Schema(description = "唯一编码（已废弃，使用 sysTenantId 代替）")
+    @ApiModelProperty(value = "租户编码")
+    @Schema(description = "租户编码（登录时输入的可读短码，全平台唯一）")
+    @NotBlank(message = "租户编码不能为空", groups = {AddGroup.class, UpdateGroup.class})
     /**
      * systenant代码
     */

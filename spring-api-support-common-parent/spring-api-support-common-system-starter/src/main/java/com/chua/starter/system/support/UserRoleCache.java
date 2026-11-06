@@ -31,7 +31,20 @@ public class UserRoleCache {
     /**
      * 缓存条目
      */
-    private final Map<Integer, Entry> entries = new ConcurrentHashMap<>();
+    private final Map<String, Entry> entries = new ConcurrentHashMap<>();
+
+    /**
+     * 缓存键：数据源作用域 + 用户主键。
+     *
+     * <p>只按用户主键做键会串租户：租户库和平台库各有一个 {@code sys_user_id=1}，
+     * 两人角色不同却共用一个缓存条目。作用域取当前数据源名，平台为 {@code master}。</p>
+     *
+     * @param userId 用户主键
+     * @return 缓存键
+     */
+    private String cacheKey(Integer userId) {
+        return TenantCacheScope.scope() + ':' + userId;
+    }
 
     /**
      * 读取角色编码，未命中或已过期时回源。
@@ -44,12 +57,12 @@ public class UserRoleCache {
         if (userId == null) {
             return loader.get();
         }
-        Entry entry = entries.get(userId);
+        Entry entry = entries.get(cacheKey(userId));
         if (entry != null && entry.expireAt() > System.currentTimeMillis()) {
             return entry.roleCodes();
         }
         Set<String> roleCodes = new HashSet<>(loader.get());
-        entries.put(userId, new Entry(roleCodes, System.currentTimeMillis() + TTL_MILLIS));
+        entries.put(cacheKey(userId), new Entry(roleCodes, System.currentTimeMillis() + TTL_MILLIS));
         return roleCodes;
     }
 
@@ -64,7 +77,7 @@ public class UserRoleCache {
         }
         userIds.stream()
                 .filter(Objects::nonNull)
-                .forEach(entries::remove);
+                .forEach(userId -> entries.remove(cacheKey(userId)));
     }
 
     /**
@@ -74,7 +87,7 @@ public class UserRoleCache {
      */
     public void evict(Integer userId) {
         if (userId != null) {
-            entries.remove(userId);
+            entries.remove(cacheKey(userId));
         }
     }
 
