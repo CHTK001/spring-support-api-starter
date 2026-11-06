@@ -68,6 +68,11 @@ data/
 # H2 database
 *.mv.db
 *.trace.db
+*.lock.db
+*.db.old
+*.db.bak
+*.db.tmp
+*.db.corrupt
 
 # datalake test pipelines
 **/crud-test-pipe
