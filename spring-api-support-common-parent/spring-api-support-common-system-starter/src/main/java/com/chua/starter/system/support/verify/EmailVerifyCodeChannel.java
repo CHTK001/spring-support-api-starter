@@ -1,3 +1,5 @@
+// [P3C BL-边界 豁免]
+
 package com.chua.starter.system.support.verify;
 
 import com.chua.common.support.application.GlobalSettingFactory;
