@@ -37,13 +37,21 @@ public class DefaultCacheManagerConfiguration {
      * 补上一个与主管理器同等的 {@code aiCacheManager} Bean：不创建 Caffeine，直接用框架
      * 给的主缓存管理器，系统平台的描述则是「.ai 缓存不进 Caffeine，走 primary 统一管理」。</p>
      *
-     * @param primary 框架级 @Primary 缓存管理器（非 h2 档是 Redis 1 小时过期的
-     *                {@code defaultCacheManager}，h2 档是 {@code primaryCacheManager}）
+     * <p>必须按名字取 {@code multiLevelCacheManager}，不能按类型取 {@code CacheManager}：
+     * 类型注入会走 {@code determinePrimaryCandidate}，而 Redis 缓存配置的执行顺序在部分实例里
+     * 晚于本 Bean（2026-11-07 租户实例 8083：本 Bean 在构造 {@code feedbackMenuInitializer} 时
+     * 被急切创建，此时 {@code multiLevelCacheManager} 尚未注册，候选里有
+     * {@code defaultCacheManager}/{@code cacheWithRedis}/{@code redis-cache-*} 而没有一个
+     * {@code @Primary}，直接抛 more than one 'primary'；同一套 jar 起平台实例却正常，
+     * 说明这是时序问题而不是装配冲突）。主管理器存在时就是它，不存在时才退回空实现。</p>
+     *
+     * @param primary 框架级 {@code @Primary} 缓存管理器（按名称 {@code multiLevelCacheManager} 解析）
      * @return aiCacheManager
      */
     @Bean("aiCacheManager")
     @ConditionalOnMissingBean(name = {"aiCacheManager"})
-    public CacheManager aiCacheManager(ObjectProvider<CacheManager> primary) {
+    public CacheManager aiCacheManager(
+            @Qualifier("multiLevelCacheManager") ObjectProvider<CacheManager> primary) {
         CacheManager delegate = primary.getIfAvailable();
         return delegate != null ? delegate : new NoOpCacheManager();
     }
