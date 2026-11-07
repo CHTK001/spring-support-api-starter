@@ -23,7 +23,8 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class SysDictItemPropertyServiceImpl extends ServiceImpl<SysDictItemPropertyMapper, SysDictItemProperty> implements SysDictItemPropertyService {
+public class SysDictItemPropertyServiceImpl extends ServiceImpl<SysDictItemPropertyMapper,
+    SysDictItemProperty> implements SysDictItemPropertyService {
 
     /**
      * 字典项服务接口，用于获取和操作字典项数据

@@ -25,5 +25,6 @@ public interface LoginHandler {
      * @param fingerprint     设备指纹
      * @return 登录结果
      */
-    ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint);
+    ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request,
+        HttpServletResponse response, String fingerprint);
 }

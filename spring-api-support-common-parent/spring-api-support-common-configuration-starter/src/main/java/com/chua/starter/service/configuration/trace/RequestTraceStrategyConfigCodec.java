@@ -123,7 +123,8 @@ public final class RequestTraceStrategyConfigCodec {
         config.setTokenReuseWindowMinutes(parseInteger(values.get("tokenReuseWindowMinutes"), config.getTokenReuseWindowMinutes()));
         config.setTokenReuseMinEvents(parseInteger(values.get("tokenReuseMinEvents"), config.getTokenReuseMinEvents()));
         config.setFingerprintDriftEnabled(parseBoolean(values.get("fingerprintDriftEnabled"), config.getFingerprintDriftEnabled()));
-        config.setFingerprintDriftWindowMinutes(parseInteger(values.get("fingerprintDriftWindowMinutes"), config.getFingerprintDriftWindowMinutes()));
+        config.setFingerprintDriftWindowMinutes(parseInteger(values.get("fingerprintDriftWindowMinutes"),
+            config.getFingerprintDriftWindowMinutes()));
         config.setFingerprintDriftMinEvents(parseInteger(values.get("fingerprintDriftMinEvents"), config.getFingerprintDriftMinEvents()));
         config.setUserPreferenceDriftEnabled(parseBoolean(values.get("userPreferenceDriftEnabled"), config.getUserPreferenceDriftEnabled()));
         config.setUserPreferenceWindowMinutes(parseInteger(values.get("userPreferenceWindowMinutes"), config.getUserPreferenceWindowMinutes()));

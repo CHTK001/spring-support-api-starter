@@ -53,7 +53,8 @@ public class SysDeptController {
     @Operation(summary = "组织机构列表")
     @GetMapping("/list")
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
-            key = "'sys:dept:list:' + T(com.chua.starter.system.support.TenantCacheScope).scope() + ':' + #userId + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDept.sysDeptName,'')",
+            key = "'sys:dept:list:' + T(com.chua.starter.system.support.TenantCacheScope).scope() + ':' + #userId + ':' + T(com.chua.common." +
+                "support.utils.ObjectUtils).defaultIfNull(#sysDept.sysDeptName,'')",
             unless = "#result == null || #result.data == null || #result.data.isEmpty()")
     /**
      * 列表
@@ -64,7 +65,8 @@ public class SysDeptController {
      * @param roles 方法入参 roles
      * @param userId 用户ID，不允许为 null
      */
-    public ReturnResult<List<SysDeptVO>> list(@ParameterObject SysDept sysDept, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
+    public ReturnResult<List<SysDeptVO>> list(@ParameterObject SysDept sysDept,
+        @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("sysUserId") Long userId) {
         return ReturnResult.ok(sysDeptService.list(sysDept, roles));
     }
 

@@ -93,14 +93,20 @@ public class DataSeeder implements ApplicationListener<ApplicationReadyEvent> {
         alter("ALTER TABLE sys_tenant_service ADD COLUMN IF NOT EXISTS update_name VARCHAR(100)");
 
         // 角色（id=1 已是 SuperAdmin，补 2/3）
-        safe("INSERT INTO sys_role (sys_role_name, sys_role_code, sys_role_status, sys_role_in_system, sys_role_sort, sys_role_data_scope, sys_role_remark) VALUES ('运营管理员','OPERATOR',1,0,2,2,'日常运营')");
-        safe("INSERT INTO sys_role (sys_role_name, sys_role_code, sys_role_status, sys_role_in_system, sys_role_sort, sys_role_data_scope, sys_role_readonly, sys_role_remark) VALUES ('只读用户','READ_ONLY',1,0,3,1,1,'只读权限')");
+        safe("INSERT INTO sys_role (sys_role_name, sys_role_code, sys_role_status, sys_role_in_system, sys_role_sort, sys_role_data_scope, s" +
+            "ys_role_remark) VALUES ('运营管理员','OPERATOR',1,0,2,2,'日常运营')");
+        safe("INSERT INTO sys_role (sys_role_name, sys_role_code, sys_role_status, sys_role_in_system, sys_role_sort, sys_role_data_scope, s" +
+            "ys_role_readonly, sys_role_remark) VALUES ('只读用户','READ_ONLY',1,0,3,1,1,'只读权限')");
 
         // 用户（admin 口令兜底 + 三个演示用户，盐值需与摘要配对）
-        safe("UPDATE sys_user SET sys_user_password=" + adminPwd + ", sys_user_salt='" + DEMO_SALT + "', sys_user_status=1 WHERE sys_user_username='admin'");
-        safe("INSERT INTO sys_user (sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id, sys_user_email, sys_user_phone) VALUES ('zhangsan'," + adminPwd + ",'" + DEMO_SALT + "','张三',1,2,'zhangsan@example.com','13800000001')");
-        safe("INSERT INTO sys_user (sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id, sys_user_email, sys_user_phone) VALUES ('lisi'," + adminPwd + ",'" + DEMO_SALT + "','李四',1,2,'lisi@example.com','13800000002')");
-        safe("INSERT INTO sys_user (sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id, sys_user_email, sys_user_phone) VALUES ('wangwu'," + adminPwd + ",'" + DEMO_SALT + "','王五',1,3,'wangwu@example.com','13800000003')");
+        safe("UPDATE sys_user SET sys_user_password=" + adminPwd + ", sys_user_salt='" + DEMO_SALT +
+            "', sys_user_status=1 WHERE sys_user_username='admin'");
+        safe("INSERT INTO sys_user (sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id, sy" +
+            "s_user_email, sys_user_phone) VALUES ('zhangsan'," + adminPwd + ",'" + DEMO_SALT + "','张三',1,2,'zhangsan@example.com','13800000001')");
+        safe("INSERT INTO sys_user (sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id, sy" +
+            "s_user_email, sys_user_phone) VALUES ('lisi'," + adminPwd + ",'" + DEMO_SALT + "','李四',1,2,'lisi@example.com','13800000002')");
+        safe("INSERT INTO sys_user (sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id, sy" +
+            "s_user_email, sys_user_phone) VALUES ('wangwu'," + adminPwd + ",'" + DEMO_SALT + "','王五',1,3,'wangwu@example.com','13800000003')");
         safe("INSERT INTO sys_user_role (sys_user_id, sys_role_id) VALUES (1,1),(2,2),(3,3),(4,2)");
 
         // 部门（id=1 已是 Root Dept，补 2/3）
@@ -108,19 +114,23 @@ public class DataSeeder implements ApplicationListener<ApplicationReadyEvent> {
         safe("INSERT INTO sys_dept (sys_dept_name, sys_dept_pid, sys_dept_sort, sys_dept_status, sys_dept_code) VALUES ('市场部',1,2,1,'MARKET')");
 
         // 岗位
-        safe("INSERT INTO sys_post (sys_post_name, sys_post_code, sys_post_status, sys_post_sort, remark) VALUES ('产品经理','PM',1,1,'产品规划'),('开发工程师','DEV',1,2,'研发'),('测试工程师','QA',1,3,'质量保障')");
+        safe("INSERT INTO sys_post (sys_post_name, sys_post_code, sys_post_status, sys_post_sort, remark) VALUES ('产品经理','PM',1,1,'产品规划'),('" +
+            "开发工程师','DEV',1,2,'研发'),('测试工程师','QA',1,3,'质量保障')");
         safe("INSERT INTO sys_user_post (sys_user_id, sys_post_id) VALUES (2,2),(3,3),(4,1)");
 
         // 字典项
         // 字典（列名以建表脚本为准：名称/编码，不是 label/value）
-        safe("INSERT INTO sys_dict (sys_dict_id, sys_dict_name, sys_dict_code, sys_dict_status, sys_dict_sort, sys_dict_remark) VALUES (1,'优先级','priority',1,1,'任务优先级')");
-        safe("INSERT INTO sys_dict_item (sys_dict_id, sys_dict_item_name, sys_dict_item_code, sys_dict_item_sort, sys_dict_item_status) VALUES (1,'高','high',1,1),(1,'中','medium',2,1),(1,'低','low',3,1)");
+        safe("INSERT INTO sys_dict (sys_dict_id, sys_dict_name, sys_dict_code, sys_dict_status, sys_dict_sort, sys_dict_remark) VALUES (1,'优" +
+            "先级','priority',1,1,'任务优先级')");
+        safe("INSERT INTO sys_dict_item (sys_dict_id, sys_dict_item_name, sys_dict_item_code, sys_dict_item_sort, sys_dict_item_status) VALU" +
+            "ES (1,'高','high',1,1),(1,'中','medium',2,1),(1,'低','low',3,1)");
 
         // 公告
         safe("INSERT INTO sys_announcement (sys_announcement_title, sys_announcement_content, sys_announcement_type, sys_announcement_status, sys_announcement_level, sys_announcement_sort, sys_announcement_publish_time, sys_announcement_publisher_name) VALUES ('安全提醒','请妥善保管账号密码。','global',1,2,1,CURRENT_TIMESTAMP,'admin'),('V2.0发布','系统已升级。','global',1,1,2,CURRENT_TIMESTAMP,'admin')");
 
         // 反馈
-        safe("INSERT INTO sys_feedback (sys_feedback_content, sys_feedback_type, sys_feedback_status, sys_feedback_priority, sys_feedback_user_id) VALUES ('列表删除按钮无响应','bug',0,2,1),('大数据量分页较慢','performance',0,1,1)");
+        safe("INSERT INTO sys_feedback (sys_feedback_content, sys_feedback_type, sys_feedback_status, sys_feedback_priority, sys_feedback_us" +
+            "er_id) VALUES ('列表删除按钮无响应','bug',0,2,1),('大数据量分页较慢','performance',0,1,1)");
 
         // 消息
         safe("INSERT INTO sys_message (sys_message_title, sys_message_content, sys_message_type, sys_message_sender_id, sys_message_receiver_id, sys_message_status, sys_message_read, sys_message_level, sys_message_send_time, sys_message_sender_name) VALUES ('安全警告','检测到异地登录','warning',1,1,1,0,'high',CURRENT_TIMESTAMP,'admin'),('任务提醒','待处理审批工单','notice',1,1,1,0,'normal',CURRENT_TIMESTAMP,'admin')");

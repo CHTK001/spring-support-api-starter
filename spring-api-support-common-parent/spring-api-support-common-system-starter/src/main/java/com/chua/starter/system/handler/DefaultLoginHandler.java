@@ -36,7 +36,8 @@ public class DefaultLoginHandler implements LoginHandler {
     /**
      * Login
     */
-    public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
+    public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request,
+        HttpServletResponse response, String fingerprint) {
         long startTime = System.currentTimeMillis();
         // 锁定功能暂时下线：不再做登录前 isAccountLocked 拦截；仅保留失败计数
         RateLimitService rateLimitService = RateLimitService.getInstance();

@@ -116,7 +116,8 @@ public class GithubCallbackController {
      * @param response 响应
      * @return binder的结果
      */
-    public RedirectView binder(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
+    public RedirectView binder(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request,
+        HttpServletResponse response) {
         String userId = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_userId");
         RedirectView view = new RedirectView();
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
@@ -183,7 +184,8 @@ public class GithubCallbackController {
      * @param response 响应
      * @return callback的结果
      */
-    public RedirectView callback(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
+    public RedirectView callback(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request,
+        HttpServletResponse response) {
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
         RedirectView errorView = new RedirectView();
         // 读取点兜底：缓存里的回调地址过白名单（开放重定向读取点防线）

@@ -17,7 +17,8 @@ import java.util.Objects;
 @Schema(description = "验证码校验请求")
 public record VerifyCodeVerifyRequest(
         @NotBlank(message = "验证渠道不能为空") @Schema(description = "验证渠道(EMAIL/SMS)", example = "EMAIL") String channel,
-        @NotBlank(message = "验证码不能为空") @Pattern(regexp = "^\\d{4,8}$", message = "验证码为4-8位数字") @Schema(description = "验证码", example = "123456") String code
+        @NotBlank(message = "验证码不能为空") @Pattern(regexp = "^\\d{4,8}$", message = "验证码为4-8位数字") @Schema(description = "验证码",
+            example = "123456") String code
 ) {
     /**
      * 规范构造器：校验必填组件非空。

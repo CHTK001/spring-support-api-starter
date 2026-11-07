@@ -29,7 +29,8 @@ public class SysSettingGroupServiceImpl extends ServiceImpl<SysSettingGroupMappe
      * 保存或更新For分组
     */
     public ReturnResult<Boolean> saveOrUpdateForGroup(@NonNull SysSettingGroup sysSettingGroup, @NonNull Set<String> roles) {
-        Errors errors = JakartaValidationUtils.validate(sysSettingGroup, it -> it.getSysSettingGroupId() != null, UpdateGroup.class, AddGroup.class);
+        Errors errors = JakartaValidationUtils.validate(sysSettingGroup, it -> it.getSysSettingGroupId() != null, UpdateGroup.class,
+            AddGroup.class);
         if (errors.hasErrors()) {
             return JakartaValidationUtils.toReturnResult(errors);
         }

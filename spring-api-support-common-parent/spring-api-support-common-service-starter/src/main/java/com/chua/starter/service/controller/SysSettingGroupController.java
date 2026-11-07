@@ -55,7 +55,8 @@ public class SysSettingGroupController {
     @ApiPlatform("system")
     @Permission(role = {ADMIN, SUPER_ADMIN})
     @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'")
-    public ReturnResult<List<SysSettingGroup>> listForSettingGroup(@ParameterObject SysSettingGroup sysSettingGroup, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnResult<List<SysSettingGroup>> listForSettingGroup(@ParameterObject SysSettingGroup sysSettingGroup,
+        @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return ReturnResult.ok(sysSettingGroupService.listForSettingGroup(sysSettingGroup, roles));
     }
 
@@ -96,7 +97,8 @@ public class SysSettingGroupController {
     @ApiPlatform("system")
     @Permission(value = "sys:setting:group:add", role = {ADMIN, SUPER_ADMIN})
     @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'")
-    public ReturnResult<Boolean> saveOrUpdate(@Parameter(hidden = true) @UserValue("roles") Set<String> roles, @RequestBody SysSettingGroup sysSettingGroup, BindingResult bindingResult) {
+    public ReturnResult<Boolean> saveOrUpdate(@Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+        @RequestBody SysSettingGroup sysSettingGroup, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }
@@ -119,7 +121,8 @@ public class SysSettingGroupController {
     @ApiPlatform("system")
     @Permission(value = "sys:setting:group:batchUpdate", role = {ADMIN, SUPER_ADMIN})
     @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'sys:setting:group'")
-    public ReturnResult<Boolean> batchUpdate(@Parameter(hidden = true) @UserValue("roles") Set<String> roles, @RequestBody List<SysSettingGroup> sysSettingGroups, BindingResult bindingResult) {
+    public ReturnResult<Boolean> batchUpdate(@Parameter(hidden = true) @UserValue("roles") Set<String> roles,
+        @RequestBody List<SysSettingGroup> sysSettingGroups, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }

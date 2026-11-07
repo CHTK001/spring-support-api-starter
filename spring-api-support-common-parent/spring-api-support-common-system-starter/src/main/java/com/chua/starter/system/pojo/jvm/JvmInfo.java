@@ -2335,7 +2335,8 @@ public class JvmInfo implements Serializable {
     public void setClassLoaders(List<ClassLoaderInfo> classLoaders) { this.classLoaders = classLoaders; }
     public void setMemoryPoolDetails(List<MemoryPoolDetail> memoryPoolDetails) { this.memoryPoolDetails = memoryPoolDetails; }
     public void setSystemProperties(java.util.Map<String, String> systemProperties) { this.systemProperties = systemProperties; }
-    public void setEnvironmentVariables(java.util.Map<String, String> environmentVariables) { this.environmentVariables = environmentVariables; }
+    public void setEnvironmentVariables(java.util.Map<String,
+        String> environmentVariables) { this.environmentVariables = environmentVariables; }
     }
 
     /**

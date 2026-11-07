@@ -60,11 +60,13 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
             }
 
             if (metaObject.hasGetter("createName")) {
-                registerField(metaObject, "createName",  StringUtils.defaultString(option(userLoginInfo, "userRealName"), userLoginInfo.getUsername()), CREATE);
+                registerField(metaObject, "createName",  StringUtils.defaultString(option(userLoginInfo, "userRealName"),
+                    userLoginInfo.getUsername()), CREATE);
             }
 
             if (metaObject.hasGetter("operationUser")) {
-                registerField(metaObject, "operationUser", StringUtils.defaultString(option(userLoginInfo, "userRealName"), userLoginInfo.getUsername()), CREATE);
+                registerField(metaObject, "operationUser", StringUtils.defaultString(option(userLoginInfo, "userRealName"),
+                    userLoginInfo.getUsername()), CREATE);
             }
 
             if (metaObject.hasGetter("sysDeptId")) {
@@ -99,10 +101,12 @@ public class IbatisMetaObjectHandler implements MetaObjectHandler {
                 registerField(metaObject, "updateBy", option(userLoginInfo, "sysUserId", userLoginInfo.getUserId()), UPDATE);
             }
             if (metaObject.hasGetter("updateName")) {
-                registerField(metaObject, "updateName",  StringUtils.defaultString(option(userLoginInfo, "userRealName"), userLoginInfo.getUsername()), UPDATE);
+                registerField(metaObject, "updateName",  StringUtils.defaultString(option(userLoginInfo, "userRealName"),
+                    userLoginInfo.getUsername()), UPDATE);
             }
             if (metaObject.hasGetter("operationUser")) {
-                registerField(metaObject, "operationUser", StringUtils.defaultString(option(userLoginInfo, "userRealName"), userLoginInfo.getUsername()), UPDATE);
+                registerField(metaObject, "operationUser", StringUtils.defaultString(option(userLoginInfo, "userRealName"),
+                    userLoginInfo.getUsername()), UPDATE);
             }
         }
     }

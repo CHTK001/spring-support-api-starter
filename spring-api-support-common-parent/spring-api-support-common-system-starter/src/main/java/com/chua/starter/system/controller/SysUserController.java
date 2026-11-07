@@ -417,7 +417,8 @@ public class SysUserController {
     @PostMapping("/save")
     @SysLog
     @Permission(value = "sys:login:add", role = {ADMIN, AuthConstant.SUPER_ADMIN})
-    public ReturnResult<SysUser> save(@Validated(AddGroup.class) @RequestBody SysUserUpdate sysUserUpdate, BindingResult bindingResult, @Parameter(hidden = true) HttpServletRequest request) {
+    public ReturnResult<SysUser> save(@Validated(AddGroup.class) @RequestBody SysUserUpdate sysUserUpdate, BindingResult bindingResult,
+        @Parameter(hidden = true) HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());
         }

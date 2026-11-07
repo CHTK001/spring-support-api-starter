@@ -112,7 +112,8 @@ public class LoginController {
     }
 
     @Operation(summary = "注销")
-    @UserLog(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.code}(#{#result.msg})]")
+    @UserLog(module = "LOGIN", name = "用户登出", action = Action.LOGOUT, content = "#{#now} #{#args[0].username} 退出系统, 登录返回[状态:#{#result.c" +
+        "ode}(#{#result.msg})]")
     @DeleteMapping("/logout")
     @SysLog(module = "登出")
     public ReturnResult<String> logout(@UserValue("token") String uid, String loginType,

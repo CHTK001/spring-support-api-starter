@@ -94,7 +94,8 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
         try (FileStorage fileStorage = fileStorageSupport.createStorage(request.getOssType(), bucketSetting)) {
             return ReturnResult.ok(fileStorage.putObject(PutObjectRequest.builder()
                     .content(multipartFile.getInputStream().readAllBytes())
-                    .fileName(StringUtils.defaultString(request.getFileName(), IdUtils.createSimpleUuid() + "." + FileUtils.getExtension(multipartFile.getOriginalFilename())))
+                    .fileName(StringUtils.defaultString(request.getFileName(), IdUtils.createSimpleUuid() + "." +
+                        FileUtils.getExtension(multipartFile.getOriginalFilename())))
                     .build()));
         } catch (Exception e) {
             log.error("上传文件失败", e);
@@ -162,7 +163,8 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
 
         SysFileSystem sysFileSystem = new SysFileSystem();
         sysFileSystem.setSysFileSystemTid(taskUid);
-        sysFileSystem.setSysFileSystemName(StringUtils.defaultString(request.getFileName(), IdUtils.createSimpleUuid() + "." + FileUtils.getExtension(request.getFileType())));
+        sysFileSystem.setSysFileSystemName(StringUtils.defaultString(request.getFileName(), IdUtils.createSimpleUuid() + "." +
+            FileUtils.getExtension(request.getFileType())));
         sysFileSystem.setSysFileSystemOriginalName(request.getFileName());
         sysFileSystem.setSysFileSystemChunkTotal(chunkCount);
         sysFileSystem.setSysFileSystemChunkUploaded(0);
@@ -215,7 +217,8 @@ public class SysFileSystemServiceImpl extends ServiceImpl<SysFileSystemMapper, S
     }
 
     @Override
-    public ReturnResult<SysFileUploadTaskPartResponse> uploadTaskForFileSystem(SysFileUploadTaskPartRequest request, MultipartFile multipartFile) {
+    public ReturnResult<SysFileUploadTaskPartResponse> uploadTaskForFileSystem(SysFileUploadTaskPartRequest request,
+        MultipartFile multipartFile) {
         log.info("上传分片: taskId={}, seq={}", request.taskId(), request.taskSeq());
 
         SysFileSystem sysFileSystem = getOne(Wrappers.<SysFileSystem>lambdaQuery()

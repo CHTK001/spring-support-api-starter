@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
  * 热重载配置切面值转换测试。
  *
  * @author CH
+ * @since 4.0.0.51
  */
 class HotReloadConfigAspectTest {
 

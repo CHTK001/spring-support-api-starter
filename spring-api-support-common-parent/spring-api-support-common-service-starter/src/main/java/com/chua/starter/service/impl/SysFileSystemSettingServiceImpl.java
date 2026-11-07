@@ -34,7 +34,8 @@ import java.net.ServerSocket;
  * @author CH
  * @since 1.0.0
  */
-public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSettingMapper, SysFileSystemSetting> implements SysFileSystemSettingService {
+public class SysFileSystemSettingServiceImpl extends ServiceImpl<SysFileSystemSettingMapper,
+    SysFileSystemSetting> implements SysFileSystemSettingService {
 
     private volatile FileHttpServer fileHttpServer; // 文件http服务端
 

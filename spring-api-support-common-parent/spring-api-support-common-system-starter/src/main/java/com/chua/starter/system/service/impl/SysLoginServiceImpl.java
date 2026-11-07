@@ -258,7 +258,8 @@ public class SysLoginServiceImpl implements SysLoginService {
     */
     public ReturnResult<LoginResult> login(LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
         log.info("\n登录信息包含 \n登录账号 -> {}\n登陆方式 -> {}", loginData.getUsername(), loginData.getLoginType());
-        return ServiceProvider.of(LoginHandler.class).getNewExtension(Joiner.on("-").skipNulls().join(loginData.getLoginType(), loginData.getAccountType()))
+        return ServiceProvider.of(LoginHandler.class).getNewExtension(Joiner.on("-").skipNulls().join(loginData.getLoginType(),
+            loginData.getAccountType()))
                 .login(this, loginData, request, response, fingerprint);
     }
 
@@ -706,7 +707,8 @@ public class SysLoginServiceImpl implements SysLoginService {
             userInfoVO.setSysUserUsername(userLoginInfo.getUsername());
         }
         if (userInfoVO.getSysUserNickname() == null) {
-            userInfoVO.setSysUserNickname(StringUtils.isNotBlank(userLoginInfo.getNickName()) ? userLoginInfo.getNickName() : userLoginInfo.getUsername());
+            userInfoVO.setSysUserNickname(StringUtils.isNotBlank(userLoginInfo.getNickName()) ?
+                userLoginInfo.getNickName() : userLoginInfo.getUsername());
         }
         if (userInfoVO.getSysUserPhone() == null) {
             userInfoVO.setSysUserPhone(userLoginInfo.getPhone());

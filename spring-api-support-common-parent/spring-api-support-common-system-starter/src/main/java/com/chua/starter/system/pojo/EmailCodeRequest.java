@@ -13,6 +13,7 @@ import java.util.Objects;
  * @param bizType 业务类型 <p>login-登录, bind-绑定, reset-重置密码</p>
  *
  * @since 4.0.0.50
+ * @author CH
  */
 @Schema(description = "邮箱验证码请求")
 public record EmailCodeRequest(

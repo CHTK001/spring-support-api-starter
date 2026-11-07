@@ -39,7 +39,8 @@ import java.util.Set;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUserLog> implements SysUserLogService, ApplicationListener<UserLoggerInfo> {
+public class SysUserLogServiceImpl extends ServiceImpl<SysUserLogMapper, SysUserLog> implements SysUserLogService,
+    ApplicationListener<UserLoggerInfo> {
 
     final IptablesService iptablesService; // iptables服务
 

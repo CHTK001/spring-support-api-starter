@@ -88,7 +88,8 @@ public class SysMenuController {
      */
     @Operation(summary = "菜单列表")
     @GetMapping("/list")
-    public ReturnResult<List<SysMenuSettingVO>> list(@ParameterObject SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("username") String username) {
+    public ReturnResult<List<SysMenuSettingVO>> list(@ParameterObject SysMenu sysMenu,
+        @Parameter(hidden = true) @UserValue("roles") Set<String> roles, @Parameter(hidden = true) @UserValue("username") String username) {
         return sysMenuService.listMenu(sysMenu, roles, username);
     }
 
@@ -103,7 +104,8 @@ public class SysMenuController {
      */
     @Operation(summary = "菜单分页列表")
     @GetMapping("/page")
-    public ReturnPageResult<SysMenu> pageForRole(@ParameterObject Query<SysMenu> query, @ParameterObject SysMenu sysMenu, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnPageResult<SysMenu> pageForRole(@ParameterObject Query<SysMenu> query, @ParameterObject SysMenu sysMenu,
+        @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysMenuService.pageForMenu(query, sysMenu, roles));
     }
 

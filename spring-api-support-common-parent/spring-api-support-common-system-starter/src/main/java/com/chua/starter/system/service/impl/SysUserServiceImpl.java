@@ -694,7 +694,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public UserLayout getUserLayout(Long userId, Set<String> roles) {
-        SysUserLayout sysUserLayout = sysUserLayoutMapper.selectOne(Wrappers.<SysUserLayout>lambdaQuery().eq(SysUserLayout::getSysLayoutUserId, userId));
+        SysUserLayout sysUserLayout = sysUserLayoutMapper.selectOne(Wrappers.<SysUserLayout>lambdaQuery().eq(SysUserLayout::getSysLayoutUserId,
+            userId));
         UserLayout userLayout = new UserLayout();
         if(null != sysUserLayout) {
             userLayout.setLayout(sysUserLayout.getSysLayoutLayout());
@@ -708,7 +709,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public UserLayout saveUserLayout(Long userId, UserLayout userLayout) {
-        SysUserLayout sysUserLayout = sysUserLayoutMapper.selectOne(Wrappers.<SysUserLayout>lambdaQuery().eq(SysUserLayout::getSysLayoutUserId, userId));
+        SysUserLayout sysUserLayout = sysUserLayoutMapper.selectOne(Wrappers.<SysUserLayout>lambdaQuery().eq(SysUserLayout::getSysLayoutUserId,
+            userId));
         if(null == sysUserLayout) {
             sysUserLayout = new SysUserLayout();
         }
@@ -758,7 +760,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 String roleNames = user.getUserRoles() != null ? 
                         user.getUserRoles().stream().map(SysRole::getSysRoleName).collect(Collectors.joining(";")) : "";
                 line.append(escapeCsv(roleNames)).append(",");
-                line.append(user.getSysUserStatus() == null ? "" : (user.getSysUserStatus() == SystemConstant.USER_STATUS_ENABLED ? "启用" : "禁用")).append(",");
+                line.append(user.getSysUserStatus() == null ? "" : (user.getSysUserStatus() == SystemConstant.USER_STATUS_ENABLED ?
+                    "启用" : "禁用")).append(",");
                 line.append(escapeCsv(user.getSysUserRemark()));
                 writer.println(line.toString());
             }

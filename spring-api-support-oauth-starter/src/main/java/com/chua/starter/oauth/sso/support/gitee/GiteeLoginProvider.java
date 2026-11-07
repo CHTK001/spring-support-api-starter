@@ -117,7 +117,8 @@ public class GiteeLoginProvider implements InitializingBean, ApplicationContextA
             view.setUrl(StringUtils.defaultString(callback, "/"));
         } else {
             Cookie cookie = null;
-            cookie = new Cookie("Access-Message", URLEncoder.encode(URLEncoder.encode(LocaleUtils.getMessage("message.login.binder"), StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            cookie = new Cookie("Access-Message", URLEncoder.encode(URLEncoder.encode(LocaleUtils.getMessage("message.login.binder"),
+                StandardCharsets.UTF_8), StandardCharsets.UTF_8));
             cookie.setPath("/");
             NetAddress netAddress = NetAddress.of(callback);
             cookie.setDomain(netAddress.getHost());

@@ -27,7 +27,8 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGroupMapper, SysFileSystemGroup> implements SysFileSystemGroupService {
+public class SysFileSystemGroupServiceImpl extends ServiceImpl<SysFileSystemGroupMapper,
+    SysFileSystemGroup> implements SysFileSystemGroupService {
 
     /**
      * 应用启动完成后自动初始化默认分组

@@ -89,7 +89,8 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
      * @return 保存结果
      */
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all:' + T(com.chua.starter.system.support.TenantCacheScope).scope()")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all:' + T(com.chua.s" +
+        "tarter.system.support.TenantCacheScope).scope()")
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<SysMiniMenu> saveMenu(SysMiniMenu sysMiniMenu, Set<String> roles) {
         if (null == sysMiniMenu) {
@@ -111,7 +112,8 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
      * @return 更新结果
      */
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all:' + T(com.chua.starter.system.support.TenantCacheScope).scope()")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all:' + T(com.chua.s" +
+        "tarter.system.support.TenantCacheScope).scope()")
     @Transactional(rollbackFor = Exception.class)
     public ReturnResult<Boolean> updateMenu(Set<String> roles, SysMiniMenu sysMiniMenu) {
         if (null == sysMiniMenu || null == sysMiniMenu.getSysMiniMenuId()) {
@@ -128,7 +130,8 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
      * @return 删除结果
      */
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all:' + T(com.chua.starter.system.support.TenantCacheScope).scope()")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all:' + T(com.chua.s" +
+        "tarter.system.support.TenantCacheScope).scope()")
     public ReturnResult<Boolean> deleteMenu(Long sysMiniMenuId) {
         if (null == sysMiniMenuId) {
             return ReturnResult.illegal("小程序菜单不存在");
@@ -141,7 +144,8 @@ public class SysMiniMenuServiceImpl extends ServiceImpl<SysMiniMenuMapper, SysMi
      *
      * @return 小程序菜单列表
      */
-    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all:' + T(com.chua.starter.system.support.TenantCacheScope).scope()")
+    @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:mini-menu:list:all:' + T(com.chua.s" +
+        "tarter.system.support.TenantCacheScope).scope()")
     public List<SysMiniMenu> listAllCached() {
         return baseMapper.selectList(
                 Wrappers.<SysMiniMenu>lambdaQuery()

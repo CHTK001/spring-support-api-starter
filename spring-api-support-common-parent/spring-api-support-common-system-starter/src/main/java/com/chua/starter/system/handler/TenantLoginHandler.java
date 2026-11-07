@@ -36,7 +36,8 @@ public class TenantLoginHandler extends DefaultLoginHandler {
     /**
      * Login
     */
-    public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request, HttpServletResponse response, String fingerprint) {
+    public ReturnResult<LoginResult> login(SysLoginServiceImpl sysLoginService, LoginData loginData, HttpServletRequest request,
+        HttpServletResponse response, String fingerprint) {
         ReturnResult<LoginResult> check = checkEnvironment(sysLoginService, loginData, request);
         if (null != check) {
             return check;
