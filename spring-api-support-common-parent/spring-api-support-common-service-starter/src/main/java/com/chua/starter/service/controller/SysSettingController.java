@@ -453,7 +453,11 @@ public class SysSettingController {
     @Operation(summary = "设置列表")
     @GetMapping("/list")
     @Permission(role = {ADMIN, SUPER_ADMIN})
-    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingController).SETTING_LIST_CACHE_KEY_PREFIX + T(com.chua.starter.service.controller.SysSettingController).tenantCacheSegment() + #sysSettingUpdate.sysSettingGroup")
+    @Cacheable(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "T(com.chua.starter.service.controller.SysSettingCo" +
+        "ntroller).SETTING_LIST_CACHE_KEY_PREFIX + T(com.ch" +
+        "ua.starter.service.controller.SysSettingController" +
+        ").tenantCacheSegment() + #sysSettingUpdate.sysSett" +
+        "ingGroup")
     public ReturnResult<List<SysSettingVO>> list(@ParameterObject SysSettingUpdate sysSettingUpdate,
         @Parameter(hidden = true) @UserValue("roles") HashSet<String> roles) {
         Set<String> safeRoles = null == roles ? Collections.emptySet() : roles;

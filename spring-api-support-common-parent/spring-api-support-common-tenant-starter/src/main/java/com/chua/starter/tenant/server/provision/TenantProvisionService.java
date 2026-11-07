@@ -58,6 +58,11 @@ public class TenantProvisionService {
     public static final String SOCKET_EVENT = "message";
 
     /**
+     * 进度百分比：100 表示全部完成
+     */
+    private static final int PERCENTAGE_COMPLETE = 100;
+
+    /**
      * 套接字所属模块；前端按它过滤消息
      */
     public static final String SOCKET_MODULE = "system";
@@ -336,7 +341,7 @@ public class TenantProvisionService {
             done(task, index, "租户创建完成");
             synchronized (task) {
                 task.setStatus(TenantProvisionTask.Status.SUCCESS);
-                task.setPercentage(100);
+                task.setPercentage(PERCENTAGE_COMPLETE);
                 task.setCurrentKey("done");
                 task.setCurrentTitle("创建完成");
                 task.setCurrentDescription("租户「" + safe(saved.getSysTenantName()) + "」已就绪");

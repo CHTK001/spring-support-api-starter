@@ -417,6 +417,7 @@ public class SkywalkingSystemMetricProvider implements SystemMetricProvider {
 
     // ---- 工具 ----
 
+    /** traceIdFromPath 方法 */
     private String traceIdFromPath(String path) {
         int start = "/trace/".length();
         String tail = path.substring(start);
@@ -426,6 +427,7 @@ public class SkywalkingSystemMetricProvider implements SystemMetricProvider {
         return tail;
     }
 
+    /** escape 方法 */
     private String escape(String value) {
         if (value == null) {
             return "";
@@ -486,6 +488,7 @@ public class SkywalkingSystemMetricProvider implements SystemMetricProvider {
         return true;
     }
 
+    /** json 方法 */
     private SystemMetricResponse json(Object data) {
         JSONObject wrapper = new JSONObject(new LinkedHashMap<>());
         wrapper.set("code", 200);
@@ -495,6 +498,7 @@ public class SkywalkingSystemMetricProvider implements SystemMetricProvider {
                 wrapper.toString().getBytes(StandardCharsets.UTF_8));
     }
 
+    /** jsonEmpty 方法 */
     private SystemMetricResponse jsonEmpty(SystemMetricRequest request) {
         Object data = "GET".equalsIgnoreCase(request.getMethod().name())
                 ? JSONUtil.createArray()

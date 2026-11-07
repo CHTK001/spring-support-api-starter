@@ -148,6 +148,7 @@ public class SystemMetricRegistry {
 
     // ---- 内部实现 ----
 
+    /** isAutoMode 方法 */
     private boolean isAutoMode() {
         return "auto".equalsIgnoreCase(String.valueOf(properties.getProvider()));
     }
@@ -216,6 +217,7 @@ public class SystemMetricRegistry {
         log.info("[system-metric] 可用数据源: {}", providers.keySet());
     }
 
+    /** probe 方法 */
     private boolean probe(SystemMetricProvider provider) {
         try {
             return provider.probe(properties);

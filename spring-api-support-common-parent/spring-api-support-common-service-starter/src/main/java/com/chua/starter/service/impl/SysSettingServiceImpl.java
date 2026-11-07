@@ -512,6 +512,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         return null;
     }
 
+    /** publishAfterCommit 方法 */
     private void publishAfterCommit(HotReloadChangedEvent event) {
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {

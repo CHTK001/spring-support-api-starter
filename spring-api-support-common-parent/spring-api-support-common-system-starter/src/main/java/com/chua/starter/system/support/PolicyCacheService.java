@@ -396,6 +396,7 @@ public class PolicyCacheService {
         }
     }
 
+    /** clear 方法 */
     private void clear(String name) {
         Cache cache = cache(name);
         if (null != cache) {

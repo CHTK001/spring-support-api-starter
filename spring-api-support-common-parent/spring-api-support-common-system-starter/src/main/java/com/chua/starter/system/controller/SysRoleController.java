@@ -69,7 +69,8 @@ public class SysRoleController {
      */
     @Operation(summary = "角色列表")
     @GetMapping("list")
-    @Cacheable(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role:' + T(com.chua.starter.syste" +
+    @Cacheable(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS,
+        key = "'cache:role:' + T(com.chua.starter.syste" +
         "m.support.TenantCacheScope).scope()")
     public ReturnResult<List<SysRole>> list() {
         return ReturnResult.ok(sysRoleService.list(
@@ -87,7 +88,8 @@ public class SysRoleController {
     @Operation(summary = "删除角色")
     @DeleteMapping("/delete")
     @SysLog
-    @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role:' + T(com.chua.starter.syste" +
+    @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS,
+        key = "'cache:role:' + T(com.chua.starter.syste" +
         "m.support.TenantCacheScope).scope()")
     @Transactional(rollbackFor = Exception.class)
     @Permission(value = "sys:role:delete", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
@@ -147,7 +149,8 @@ public class SysRoleController {
     @Operation(summary = "更新角色")
     @PutMapping("/update")
     @SysLog
-    @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role:' + T(com.chua.starter.syste" +
+    @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS,
+        key = "'cache:role:' + T(com.chua.starter.syste" +
         "m.support.TenantCacheScope).scope()")
     @Permission(value = "sys:role:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> update(
@@ -171,7 +174,8 @@ public class SysRoleController {
     @Operation(summary = "更新角色数据权限")
     @PutMapping("/update_data_scope")
     @SysLog
-    @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role:' + T(com.chua.starter.syste" +
+    @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS,
+        key = "'cache:role:' + T(com.chua.starter.syste" +
         "m.support.TenantCacheScope).scope()")
     @Permission(value = "sys:role:update", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<Boolean> updateDataScope(@RequestBody SysRole sysRole) {
@@ -189,7 +193,8 @@ public class SysRoleController {
     @Operation(summary = "新增角色")
     @PostMapping("/save")
     @SysLog
-    @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS, key = "'cache:role:' + T(com.chua.starter.syste" +
+    @CacheEvict(cacheManager = SystemConstant.CACHE_WITH_REDIS, cacheNames = SystemConstant.CACHE_WITH_REDIS,
+        key = "'cache:role:' + T(com.chua.starter.syste" +
         "m.support.TenantCacheScope).scope()")
     @Permission(value = "sys:role:add", role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
     public ReturnResult<SysRole> save(@Validated(AddGroup.class) @RequestBody SysRole sysRole, BindingResult bindingResult) {

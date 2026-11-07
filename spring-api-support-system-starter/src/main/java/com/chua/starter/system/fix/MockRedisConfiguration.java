@@ -180,6 +180,7 @@ public class MockRedisConfiguration {
             return defaultValue(method);
         }
 
+        /** command 方法 */
         private Object command(String name, Object[] args) {
             switch (name) {
                 case "get":
@@ -285,6 +286,7 @@ public class MockRedisConfiguration {
 
     // ------------------------------------------------------------------ 字符串与键
 
+    /** key 方法 */
     private static String key(Object raw) {
         return raw instanceof byte[] ? new String((byte[]) raw, StandardCharsets.UTF_8) : String.valueOf(raw);
     }
@@ -298,6 +300,7 @@ public class MockRedisConfiguration {
         return STORE.get(key) instanceof byte[] ? (byte[]) STORE.get(key) : null;
     }
 
+    /** save 方法 */
     private static Boolean save(String key, byte[] value, Long deadline, String condition) {
         boolean present = readString(key) != null || !hashOf(key, false).isEmpty();
         if (condition.contains("ABSENT") && present) {
@@ -310,6 +313,7 @@ public class MockRedisConfiguration {
         return true;
     }
 
+    /** save 方法 */
     private static void save(String key, byte[] value, Long deadline) {
         STORE.put(key, value);
         if (deadline != null) {
@@ -317,6 +321,7 @@ public class MockRedisConfiguration {
         }
     }
 
+    /** prune 方法 */
     private static void prune(String key) {
         Long deadline = EXPIRES.get(key);
         if (deadline != null && deadline <= System.currentTimeMillis()) {
@@ -415,6 +420,7 @@ public class MockRedisConfiguration {
         return merged;
     }
 
+    /** saveAll 方法 */
     private static Boolean saveAll(Map<byte[], byte[]> values, String condition) {
         boolean done = false;
         for (Map.Entry<byte[], byte[]> entry : values.entrySet()) {
@@ -437,6 +443,7 @@ public class MockRedisConfiguration {
         return values;
     }
 
+    /** countExists 方法 */
     private static Long countExists(byte[][] keys) {
         long count = 0;
         for (byte[] item : keys) {
@@ -445,6 +452,7 @@ public class MockRedisConfiguration {
         return count;
     }
 
+    /** removeKeys 方法 */
     private static Long removeKeys(Object arg) {
         long count = 0;
         for (String key : flatten(arg)) {
@@ -470,6 +478,7 @@ public class MockRedisConfiguration {
         return keys;
     }
 
+    /** moveKey 方法 */
     private static Boolean moveKey(String from, String to, boolean force) {
         prune(from);
         Object value = STORE.get(from);
@@ -480,6 +489,7 @@ public class MockRedisConfiguration {
         return true;
     }
 
+    /** moveEntry 方法 */
     private static void moveEntry(String from, String to) {
         STORE.put(to, STORE.remove(from));
         Long deadline = EXPIRES.remove(from);
@@ -488,6 +498,7 @@ public class MockRedisConfiguration {
         }
     }
 
+    /** typeOf 方法 */
     private static DataType typeOf(String key) {
         prune(key);
         Object value = STORE.get(key);
@@ -509,6 +520,7 @@ public class MockRedisConfiguration {
         return matched;
     }
 
+    /** matches 方法 */
     private static boolean matches(String glob, String value) {
         StringBuilder regex = new StringBuilder();
         for (int i = 0; i < glob.length(); i++) {
@@ -524,6 +536,7 @@ public class MockRedisConfiguration {
         return value.matches(regex.toString());
     }
 
+    /** moveCounter 方法 */
     private static Object moveCounter(Object[] args, int sign) {
         String key = key(args[0]);
         byte[] current = readString(key);
@@ -581,6 +594,7 @@ public class MockRedisConfiguration {
         return names;
     }
 
+    /** removeHashFields 方法 */
     private static Long removeHashFields(String key, Object[] args) {
         Map<String, byte[]> hash = hashOf(key, false);
         long count = 0;
@@ -592,6 +606,7 @@ public class MockRedisConfiguration {
         return count;
     }
 
+    /** moveHashCounter 方法 */
     private static Object moveHashCounter(String key, String field, Object stepArg) {
         Map<String, byte[]> hash = hashOf(key, true);
         byte[] current = hash.get(field);

@@ -9,6 +9,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * {@link IpCidrMatcher} 的匹配口径测试。
+ *
+ * <p>覆盖 IPv4 规范化、CIDR 网段命中、边界掩码与非法输入的处理。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
+ */
 @DisplayName("IPv4 CIDR 匹配工具测试")
 class IpCidrMatcherTest {
 

@@ -9,6 +9,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * 热更新配置落库前的校验与归一化测试。
+ *
+ * <p>覆盖分组强制、默认状态补齐、类型规范与名称/编码去空格等口径，
+ * 保证异常配置在入库前就被拦下或纠正。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
+ */
 @DisplayName("热更新配置校验测试")
 class HotReloadSettingValidationTest {
 

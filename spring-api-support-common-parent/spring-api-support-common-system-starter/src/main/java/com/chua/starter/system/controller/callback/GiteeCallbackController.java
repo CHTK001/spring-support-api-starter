@@ -202,8 +202,9 @@ public class GiteeCallbackController {
             ThirdPartyCallbackSupport.markFailure(attributes, errorView, "Gitee授权失败，请重试");
             return errorView;
         }
-        SysUserThirdParty userThirdParty = sysUserThirdPartyService.getOne(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserThirdPartyUid,
-            authUser.getUuid()));
+        SysUserThirdParty userThirdParty = sysUserThirdPartyService.getOne(
+            Wrappers.<SysUserThirdParty>lambdaQuery()
+                .eq(SysUserThirdParty::getSysUserThirdPartyUid, authUser.getUuid()));
         if(null == userThirdParty) {
             ThirdPartyCallbackSupport.markFailure(attributes, errorView, "第三方登录失败，请重试");
             return errorView;

@@ -79,7 +79,9 @@ public class DataSeeder implements ApplicationListener<ApplicationReadyEvent> {
         alter("ALTER TABLE sys_message ADD COLUMN IF NOT EXISTS sys_message_url VARCHAR(500)");
         alter("ALTER TABLE sys_error_log ADD COLUMN IF NOT EXISTS sys_error_status INT DEFAULT 0");
         // tenant_service 关联表
-        alter("CREATE TABLE IF NOT EXISTS sys_tenant_service (sys_tenant_service_id BIGINT AUTO_INCREMENT PRIMARY KEY, sys_tenant_id BIGINT, sys_service_id BIGINT, sys_service_name VARCHAR(200), sys_service_code VARCHAR(100), sys_service_status INT DEFAULT 1, create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+        alter("CREATE TABLE IF NOT EXISTS sys_tenant_service (sys_tenant_service_id BIGINT AUTO_INCREMENT PRIMARY KEY, sys_tenant_id BIGINT," +
+            " sys_service_id BIGINT, sys_service_name VARCHAR(200), sys_service_code VARCHAR(100), sys_service_status INT DEFAULT 1, creat" +
+            "e_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
         alter("ALTER TABLE sys_tenant_service ADD COLUMN IF NOT EXISTS create_name VARCHAR(100)");
         alter("ALTER TABLE sys_tenant_service ADD COLUMN IF NOT EXISTS sys_tenant_service_valid_time TIMESTAMP");
         alter("ALTER TABLE sys_message ADD COLUMN IF NOT EXISTS sys_message_extra VARCHAR(500)");
@@ -126,26 +128,39 @@ public class DataSeeder implements ApplicationListener<ApplicationReadyEvent> {
             "ES (1,'高','high',1,1),(1,'中','medium',2,1),(1,'低','low',3,1)");
 
         // 公告
-        safe("INSERT INTO sys_announcement (sys_announcement_title, sys_announcement_content, sys_announcement_type, sys_announcement_status, sys_announcement_level, sys_announcement_sort, sys_announcement_publish_time, sys_announcement_publisher_name) VALUES ('安全提醒','请妥善保管账号密码。','global',1,2,1,CURRENT_TIMESTAMP,'admin'),('V2.0发布','系统已升级。','global',1,1,2,CURRENT_TIMESTAMP,'admin')");
+        safe("INSERT INTO sys_announcement (sys_announcement_title, sys_announcement_content, sys_announcement_type, sys_announcement_status" +
+            ", sys_announcement_level, sys_announcement_sort, sys_announcement_publish_time, sys_announcement_publisher_name) VALUES ('安全提醒" +
+            "','请妥善保管账号密码。','global',1,2,1,CURRENT_TIMESTAMP,'admin'),('V2.0发布','系统已升级。','global',1,1,2,CURRENT_TIMESTAMP,'admin')");
 
         // 反馈
         safe("INSERT INTO sys_feedback (sys_feedback_content, sys_feedback_type, sys_feedback_status, sys_feedback_priority, sys_feedback_us" +
             "er_id) VALUES ('列表删除按钮无响应','bug',0,2,1),('大数据量分页较慢','performance',0,1,1)");
 
         // 消息
-        safe("INSERT INTO sys_message (sys_message_title, sys_message_content, sys_message_type, sys_message_sender_id, sys_message_receiver_id, sys_message_status, sys_message_read, sys_message_level, sys_message_send_time, sys_message_sender_name) VALUES ('安全警告','检测到异地登录','warning',1,1,1,0,'high',CURRENT_TIMESTAMP,'admin'),('任务提醒','待处理审批工单','notice',1,1,1,0,'normal',CURRENT_TIMESTAMP,'admin')");
+        safe("INSERT INTO sys_message (sys_message_title, sys_message_content, sys_message_type, sys_message_sender_id, sys_message_receiver" +
+            "_id, sys_message_status, sys_message_read, sys_message_level, sys_message_send_time, sys_message_sender_name) VALUES ('安全警告','" +
+            "检测到异地登录','warning',1,1,1,0,'high',CURRENT_TIMESTAMP,'admin'),('任务提醒','待处理审批工单','notice',1,1,1,0,'normal',CURRENT_TIMESTAMP,'ad" +
+            "min')");
 
         // 异常日志
-        safe("INSERT INTO sys_error_log (sys_error_log_title, sys_error_log_content, sys_error_log_stack, sys_error_log_source, sys_error_log_status, sys_error_key, sys_error_message, sys_error_filename, sys_error_count) VALUES ('支付网关超时','支付接口调用超时3000ms','SocketTimeoutException','rejection',0,'pay-timeout','支付超时','pay.js',3),('数据库连接超时','获取连接失败','SQLTransientConnectionException','js',1,'db-conn','连接超时','db.js',1)");
+        safe("INSERT INTO sys_error_log (sys_error_log_title, sys_error_log_content, sys_error_log_stack, sys_error_log_source, sys_error_lo" +
+            "g_status, sys_error_key, sys_error_message, sys_error_filename, sys_error_count) VALUES ('支付网关超时','支付接口调用超时3000ms','SocketTime" +
+            "outException','rejection',0,'pay-timeout','支付超时','pay.js',3),('数据库连接超时','获取连接失败','SQLTransientConnectionException','js',1,'db-" +
+            "conn','连接超时','db.js',1)");
 
         // 租户
-        safe("INSERT INTO sys_tenant (sys_tenant_name, sys_tenant_code, sys_tenant_status, sys_tenant_contact, sys_tenant_phone, sys_tenant_email, sys_tenant_remark, sys_tenant_username) VALUES ('字节跳动','T001',0,'张管理','13900000001','bd@example.com','总部','bytetech'),('阿里巴巴','T002',1,'李管理','13900000002','ali@example.com','已到期','aligroup')");
+        safe("INSERT INTO sys_tenant (sys_tenant_name, sys_tenant_code, sys_tenant_status, sys_tenant_contact, sys_tenant_phone, sys_tenant_" +
+            "email, sys_tenant_remark, sys_tenant_username) VALUES ('字节跳动','T001',0,'张管理','13900000001','bd@example.com','总部','bytetech'),(" +
+            "'阿里巴巴','T002',1,'李管理','13900000002','ali@example.com','已到期','aligroup')");
 
         // 系统菜单种子（SUPER_ADMIN 自动可见）。目录 pid=0，子菜单 pid=100。
         // 仅当 sys_menu 为空时插入，避免重复。
         Integer menuCount = queryForInt("SELECT COUNT(*) FROM sys_menu");
         if (menuCount == null || menuCount == 0) {
-            safe("INSERT INTO sys_menu (sys_menu_id, sys_menu_name, sys_menu_title, sys_menu_path, sys_menu_component, sys_menu_icon, sys_menu_type, sys_menu_sort, sys_menu_pid, sys_menu_hidden, sys_menu_home, sys_menu_engine, sys_menu_keep_alive, sys_menu_is_tag, sys_menu_show_parent, create_time) VALUES (100,'System','系统管理','/system','Layout','system',0,1,0,0,0,0,0,0,1,CURRENT_TIMESTAMP)");
+            safe("INSERT INTO sys_menu (sys_menu_id, sys_menu_name, sys_menu_title, sys_menu_path, sys_menu_component, sys_menu_icon, sys_me" +
+                "nu_type, sys_menu_sort, sys_menu_pid, sys_menu_hidden, sys_menu_home, sys_menu_engine, sys_menu_keep_alive, sys_menu_is_ta" +
+                "g, sys_menu_show_parent, create_time) VALUES (100,'System','系统管理','/system','Layout','system',0,1,0,0,0,0,0,0,1,CURRENT_TI" +
+                "MESTAMP)");
             String[][] menus = {
                 {"101","UserManage","用户管理","/user","users","1","system/user/index"},
                 {"102","RoleManage","角色管理","/role","shield","2","system/role/index"},
@@ -162,7 +177,9 @@ public class DataSeeder implements ApplicationListener<ApplicationReadyEvent> {
                 {"113","CacheManage","缓存监控","/cache","cache","13","system/cache/index"},
             };
             for (String[] m : menus) {
-                safe("INSERT INTO sys_menu (sys_menu_id, sys_menu_name, sys_menu_title, sys_menu_path, sys_menu_component, sys_menu_icon, sys_menu_type, sys_menu_sort, sys_menu_pid, sys_menu_hidden, sys_menu_home, sys_menu_engine, sys_menu_keep_alive, sys_menu_is_tag, sys_menu_show_parent, create_time) VALUES ("
+                safe("INSERT INTO sys_menu (sys_menu_id, sys_menu_name, sys_menu_title, sys_menu_path, sys_menu_component, sys_menu_icon, sy" +
+                    "s_menu_type, sys_menu_sort, sys_menu_pid, sys_menu_hidden, sys_menu_home, sys_menu_engine, sys_menu_keep_alive, sys_me" +
+                    "nu_is_tag, sys_menu_show_parent, create_time) VALUES ("
                     + m[0] + ",'" + m[1] + "','" + m[2] + "','" + m[3] + "','" + m[6] + "','" + m[4] + "',0," + m[5] + ",100,0,0,0,1,0,1,CURRENT_TIMESTAMP)");
             }
             log.info("[DataSeeder] 菜单种子已插入（目录1 + 13个子菜单）");
