@@ -58,7 +58,8 @@ public class ResponseAdviceMethodProcessor extends RequestResponseBodyMethodProc
     /**
      * 处理返回值
     */
-    public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
+    public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer,
+        NativeWebRequest webRequest) throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
         AdviceView adviceView = (AdviceView) returnValue;
         Object data = adviceView.getData();
 

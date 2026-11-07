@@ -192,9 +192,11 @@ public class AcmeCertificateController {
         return PageResultUtils.ok(certificateService.page(page.createPage(),
                 Wrappers.<MonitorAcmeCertificate>lambdaQuery()
                         .eq(entity.getAcmeAccountId() != null, MonitorAcmeCertificate::getAcmeAccountId, entity.getAcmeAccountId())
-                        .like(StringUtils.isNotEmpty(entity.getAcmeCertPrimaryDomain()), MonitorAcmeCertificate::getAcmeCertPrimaryDomain, entity.getAcmeCertPrimaryDomain())
+                        .like(StringUtils.isNotEmpty(entity.getAcmeCertPrimaryDomain()),
+                            MonitorAcmeCertificate::getAcmeCertPrimaryDomain, entity.getAcmeCertPrimaryDomain())
                         .eq(StringUtils.isNotEmpty(entity.getAcmeCertStatus()), MonitorAcmeCertificate::getAcmeCertStatus, entity.getAcmeCertStatus())
-                        .eq(StringUtils.isNotEmpty(entity.getAcmeCertChallengeType()), MonitorAcmeCertificate::getAcmeCertChallengeType, entity.getAcmeCertChallengeType())
+                        .eq(StringUtils.isNotEmpty(entity.getAcmeCertChallengeType()), MonitorAcmeCertificate::getAcmeCertChallengeType,
+                            entity.getAcmeCertChallengeType())
                         .orderByDesc(MonitorAcmeCertificate::getUpdateTime)));
     }
 

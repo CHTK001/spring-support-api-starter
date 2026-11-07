@@ -340,19 +340,25 @@ public class H2DataInitializer implements ApplicationRunner {
 
         // 角色（data-h2.sql 可能已建 SUPER_ADMIN，这里补两个业务角色）
         jdbcTemplate.update("DELETE FROM sys_role WHERE sys_role_code IN ('OPERATOR','READ_ONLY')");
-        jdbcTemplate.update("INSERT INTO sys_role (sys_role_id, sys_role_name, sys_role_code, sys_role_status, sys_role_in_system, sys_role_sort, sys_role_data_scope, sys_role_remark) " +
+        jdbcTemplate.update("INSERT INTO sys_role (sys_role_id, sys_role_name, sys_role_code, sys_role_status, sys_role_in_system, sys_role_" +
+            "sort, sys_role_data_scope, sys_role_remark) " +
             "VALUES (2,'运营管理员','OPERATOR',1,0,2,2,'日常运营')");
-        jdbcTemplate.update("INSERT INTO sys_role (sys_role_id, sys_role_name, sys_role_code, sys_role_status, sys_role_in_system, sys_role_sort, sys_role_data_scope, sys_role_readonly, sys_role_remark) " +
+        jdbcTemplate.update("INSERT INTO sys_role (sys_role_id, sys_role_name, sys_role_code, sys_role_status, sys_role_in_system, sys_role_" +
+            "sort, sys_role_data_scope, sys_role_readonly, sys_role_remark) " +
             "VALUES (3,'只读用户','READ_ONLY',1,0,3,1,1,'只读权限')");
 
         // 用户（覆盖口令，确保 admin123 可登录）
-        jdbcTemplate.update("UPDATE sys_user SET sys_user_password=" + adminPwd + ", sys_user_salt='" + salt + "', sys_user_status=1 WHERE sys_user_username='admin'");
+        jdbcTemplate.update("UPDATE sys_user SET sys_user_password=" + adminPwd + ", sys_user_salt='" + salt +
+            "', sys_user_status=1 WHERE sys_user_username='admin'");
         jdbcTemplate.update("DELETE FROM sys_user WHERE sys_user_username IN ('zhangsan','lisi','wangwu')");
-        jdbcTemplate.update("INSERT INTO sys_user (sys_user_id, sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id) " +
+        jdbcTemplate.update("INSERT INTO sys_user (sys_user_id, sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_" +
+            "user_status, sys_dept_id) " +
             "VALUES (2,'zhangsan'," + adminPwd + ",'" + salt + "','张三',1,2)");
-        jdbcTemplate.update("INSERT INTO sys_user (sys_user_id, sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id) " +
+        jdbcTemplate.update("INSERT INTO sys_user (sys_user_id, sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_" +
+            "user_status, sys_dept_id) " +
             "VALUES (3,'lisi'," + adminPwd + ",'" + salt + "','李四',1,2)");
-        jdbcTemplate.update("INSERT INTO sys_user (sys_user_id, sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_user_status, sys_dept_id) " +
+        jdbcTemplate.update("INSERT INTO sys_user (sys_user_id, sys_user_username, sys_user_password, sys_user_salt, sys_user_nickname, sys_" +
+            "user_status, sys_dept_id) " +
             "VALUES (4,'wangwu'," + adminPwd + ",'" + salt + "','王五',1,3)");
         // 用户-角色
         jdbcTemplate.update("DELETE FROM sys_user_role");
@@ -375,9 +381,11 @@ public class H2DataInitializer implements ApplicationRunner {
         // 字典（列名以建表脚本为准：名称/编码，不是 label/value）
         jdbcTemplate.update("DELETE FROM sys_dict_item");
         jdbcTemplate.update("DELETE FROM sys_dict");
-        jdbcTemplate.update("INSERT INTO sys_dict (sys_dict_id, sys_dict_name, sys_dict_code, sys_dict_status, sys_dict_sort, sys_dict_remark) VALUES " +
+        jdbcTemplate.update("INSERT INTO sys_dict (sys_dict_id, sys_dict_name, sys_dict_code, sys_dict_status, sys_dict_sort, sys" +
+            "_dict_remark) VALUES " +
             "(1,'优先级','priority',1,1,'任务优先级'),(2,'状态','status',1,2,'通用启用状态')");
-        jdbcTemplate.update("INSERT INTO sys_dict_item (sys_dict_id, sys_dict_item_name, sys_dict_item_code, sys_dict_item_sort, sys_dict_item_status) VALUES " +
+        jdbcTemplate.update("INSERT INTO sys_dict_item (sys_dict_id, sys_dict_item_name, sys_dict_item_code, sys_dict_item_sort, sys_dict" +
+            "_item_status) VALUES " +
             "(1,'高','high',1,1),(1,'中','medium',2,1),(1,'低','low',3,1)," +
             "(2,'启用','enabled',1,1),(2,'禁用','disabled',2,1)");
 
@@ -390,42 +398,48 @@ public class H2DataInitializer implements ApplicationRunner {
 
         // 反馈
         jdbcTemplate.update("DELETE FROM sys_feedback");
-        jdbcTemplate.update("INSERT INTO sys_feedback (sys_feedback_content, sys_feedback_type, sys_feedback_status, sys_feedback_priority) VALUES " +
+        jdbcTemplate.update("INSERT INTO sys_feedback (sys_feedback_content, sys_feedback_type, sys_feedback_status, sys_feedb" +
+            "ack_priority) VALUES " +
             "('用户管理列表删除按钮点击无响应','bug',0,2)," +
             "('大数据量下列表加载较慢，建议优化分页','performance',0,1)," +
             "('希望增加导出为 Excel 的功能','feature',1,1)");
 
         // 消息
         jdbcTemplate.update("DELETE FROM sys_message");
-        jdbcTemplate.update("INSERT INTO sys_message (sys_message_title, sys_message_content, sys_message_type, sys_message_sender_id, sys_message_receiver_id, sys_message_status, sys_message_read, sys_message_level, sys_message_send_time) VALUES " +
+        jdbcTemplate.update("INSERT INTO sys_message (sys_message_title, sys_message_content, sys_message_type, sys_message_sender_id, sys_m" +
+            "essage_receiver_id, sys_message_status, sys_message_read, sys_message_level, sys_message_send_time) VALUES " +
             "('安全警告','检测到您的账号在异地登录','warning',1,1,1,0,'high',CURRENT_TIMESTAMP)," +
             "('任务提醒','您有一份待处理的审批工单','notice',1,1,1,0,'normal',CURRENT_TIMESTAMP)," +
             "('系统通知','系统将于本周日凌晨进行维护','notice',1,1,1,1,'low',CURRENT_TIMESTAMP)");
 
         // 异常日志
         jdbcTemplate.update("DELETE FROM sys_error_log");
-        jdbcTemplate.update("INSERT INTO sys_error_log (sys_error_key, sys_error_source, sys_error_message, sys_error_stack, sys_error_filename, sys_error_first_at, sys_error_count, sys_error_report_time, sys_error_status) VALUES " +
+        jdbcTemplate.update("INSERT INTO sys_error_log (sys_error_key, sys_error_source, sys_error_message, sys_error_stack, sys_error_filen" +
+            "ame, sys_error_first_at, sys_error_count, sys_error_report_time, sys_error_status) VALUES " +
             "('pay-timeout','rejection','支付网关超时 3000ms','SocketTimeoutException','pay.js',1750000000000,3,1750000000000,0)," +
             "('db-conn','js','数据库连接超时','SQLTransientConnectionException','db.js',1750000000000,1,1750000000000,1)," +
             "('user-null','js','用户ID不能为空','IllegalArgumentException','user.js',1750000000000,5,1750000000000,0)");
 
         // 租户
         jdbcTemplate.update("DELETE FROM sys_tenant");
-        jdbcTemplate.update("INSERT INTO sys_tenant (sys_tenant_id, sys_tenant_name, sys_tenant_username, sys_tenant_status, sys_tenant_contact, sys_tenant_phone, sys_tenant_email, sys_tenant_remark) VALUES " +
+        jdbcTemplate.update("INSERT INTO sys_tenant (sys_tenant_id, sys_tenant_name, sys_tenant_username, sys_tenant_status, sys_tenant_cont" +
+            "act, sys_tenant_phone, sys_tenant_email, sys_tenant_remark) VALUES " +
             "('T001','字节跳动','bytetech',0,'张管理','13900000001','bd@example.com','总部')," +
             "('T002','阿里巴巴集团','aligroup',1,'李管理','13900000002','ali@example.com','已到期')," +
             "('T003','腾讯科技','tencent',1,'王管理','13900000003','tencent@example.com','已禁用')");
 
         // 操作日志
         jdbcTemplate.update("DELETE FROM sys_log");
-        jdbcTemplate.update("INSERT INTO sys_log (sys_log_username, sys_log_from, sys_log_url, sys_log_status, sys_log_cost, sys_log_address, sys_log_content) VALUES " +
+        jdbcTemplate.update("INSERT INTO sys_log (sys_log_username, sys_log_from, sys_log_url, sys_log_status, sys_log_cost, sys_log_address" +
+            ", sys_log_content) VALUES " +
             "('admin','系统设置','/v2/setting/update',1,35,'127.0.0.1','更新系统设置')," +
             "('admin','公告','/v2/announcement/delete',1,12,'127.0.0.1','删除公告')," +
             "('admin','角色','/v2/role/update',1,28,'127.0.0.1','更新角色')");
 
         // 登录日志
         jdbcTemplate.update("DELETE FROM sys_user_log");
-        jdbcTemplate.update("INSERT INTO sys_user_log (sys_log_username, sys_log_login_type, sys_log_status, sys_log_message, sys_log_ip, sys_log_address, sys_log_browser, sys_log_system) VALUES " +
+        jdbcTemplate.update("INSERT INTO sys_user_log (sys_log_username, sys_log_login_type, sys_log_status, sys_log_message, sys_log_ip, sy" +
+            "s_log_address, sys_log_browser, sys_log_system) VALUES " +
             "('admin','WEB',1,'登录成功','127.0.0.1','内网','Chrome','Windows')," +
             "('zhangsan','WEB',1,'登录成功','127.0.0.1','内网','Chrome','Windows')," +
             "('lisi','WEB',1,'登录成功','127.0.0.1','内网','Edge','Windows')," +
@@ -433,14 +447,17 @@ public class H2DataInitializer implements ApplicationRunner {
 
         // 趣味模块配置
         jdbcTemplate.update("DELETE FROM edu_fun_config");
-        jdbcTemplate.update("INSERT INTO edu_fun_config (module_code, module_name, module_desc, module_icon, module_path, enabled, sort_order, config_json) VALUES " +
-            "('INSECT', '昆虫识图', '交互式3D昆虫图鉴，认识63种昆虫的身体构造', 'Bug', '/edu/fun/insect', 1, 1, '{\"url\":\"https://insect-world.pages.dev\",\"width\":\"100%\",\"height\":\"800px\"}')," +
+        jdbcTemplate.update("INSERT INTO edu_fun_config (module_code, module_name, module_desc, module_icon, module_path, enabled, sort_orde" +
+            "r, config_json) VALUES " +
+            "('INSECT', '昆虫识图', '交互式3D昆虫图鉴，认识63种昆虫的身体构造', 'Bug', '/edu/fun/insect', 1, 1, '{\"url\":\"https://insect-world.pages.dev\",\"wid" +
+                "th\":\"100%\",\"height\":\"800px\"}')," +
             "('IDIOM_GAME', '成语消消乐', '根据学段生成的成语配对游戏', 'Trophy', '/edu/fun/idiom', 1, 2, '{\"defaultCount\":10,\"showPinyin\":true}')," +
             "('IDIOM_BANK', '成语库', '管理成语数据和学段映射', 'Collection', '/edu/fun/idiom-bank', 1, 3, '{}')");
 
         // 成语数据（按学段）
         jdbcTemplate.update("DELETE FROM edu_idiom");
-        jdbcTemplate.update("INSERT INTO edu_idiom (idiom_content, idiom_pinyin, idiom_meaning, idiom_source, idiom_example, idiom_difficulty, idiom_tags) VALUES " +
+        jdbcTemplate.update("INSERT INTO edu_idiom (idiom_content, idiom_pinyin, idiom_meaning, idiom_source, idiom_example, idiom_difficult" +
+            "y, idiom_tags) VALUES " +
             "('守株待兔', 'shou zhu dai tu', '比喻死守狭隘经验，不知变通', '韩非子·五蠹', '我们不能守株待兔，要主动出击。', 1, '寓言,动物')," +
             "('画蛇添足', 'hua she tian zu', '比喻做多余的事，反而弄巧成拙', '战国策·齐策二', '这样做简直是画蛇添足。', 1, '寓言,动物')," +
             "('亡羊补牢', 'wang yang bu lao', '比喻出了差错后及时补救', '战国策·楚策四', '亡羊补牢，为时未晚。', 1, '寓言,动物')," +

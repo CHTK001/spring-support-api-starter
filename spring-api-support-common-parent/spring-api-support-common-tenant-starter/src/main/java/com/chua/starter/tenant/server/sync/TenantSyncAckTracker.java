@@ -421,7 +421,8 @@ public class TenantSyncAckTracker {
          * @param ackAt ACKat
          * @return ACKrecord的结果
          */
-        public AckRecord(String sessionId, String tenantId, String topic, String sourceMessageId, boolean success, String status, String message, long ackAt) {
+        public AckRecord(String sessionId, String tenantId, String topic, String sourceMessageId, boolean success, String status,
+            String message, long ackAt) {
             this.sessionId = sessionId;
             this.tenantId = tenantId;
             this.topic = topic;

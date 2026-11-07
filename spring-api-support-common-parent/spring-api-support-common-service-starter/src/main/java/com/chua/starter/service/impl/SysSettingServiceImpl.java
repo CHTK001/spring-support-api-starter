@@ -73,7 +73,8 @@ import static com.chua.starter.common.support.constant.CacheConstant.REDIS_CACHE
 @Slf4j
 @Service
 @Lazy(false)
-public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean, ApplicationListener<ApplicationReadyEvent> {
+public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSetting> implements SysSettingService, InitializingBean,
+    ApplicationListener<ApplicationReadyEvent> {
     private static final Set<String> HOT_RELOAD_VALUE_TYPES = Set.of("string", "number", "boolean", "json");
 
     @Autowired
@@ -630,9 +631,12 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         AuthStateCache authStateCache = AuthDefaultStateCache.INSTANCE;
 
         AuthConfig authConfig = AuthConfig.builder()
-                .clientId(ObjectUtils.firstNonNull(providerSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_KEY, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
-                .clientSecret(ObjectUtils.firstNonNull(providerSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_SECRET, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
-                .redirectUri(ObjectUtils.firstNonNull(providerSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_REDIRECT_URI, item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
+                .clientId(ObjectUtils.firstNonNull(providerSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_KEY,
+                    item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
+                .clientSecret(ObjectUtils.firstNonNull(providerSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_SECRET,
+                    item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
+                .redirectUri(ObjectUtils.firstNonNull(providerSettings.stream().filter(item -> ArrayUtils.containsIgnoreCase(APP_REDIRECT_URI,
+                    item.getSysSettingName())).map(SysSetting::getSysSettingValue).findFirst(), "").toString())
                 .build();
         if (StringUtils.isBlank(authConfig.getClientId())
                 || StringUtils.isBlank(authConfig.getClientSecret())
@@ -800,8 +804,10 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
      */
     @Override
     @Caching(evict = {
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_LEGACY_PREFIX + "' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator"),
-            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_PREFIX + "' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator"),
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" +
+                SETTING_LIST_CACHE_KEY_LEGACY_PREFIX + "' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator"),
+            @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, key = "'" + SETTING_LIST_CACHE_KEY_PREFIX +
+                "' + #sysSetting.sysSettingGroup", keyGenerator = "customTenantedKeyGenerator"),
             // 键里带了租户段，逐个 pattern 精确清理做不到（注解不支持通配），
             // 这里退化为清空该 cacheName 全部条目：配置变更是低频操作，正确性优先于缓存命中率。
             @CacheEvict(cacheManager = REDIS_CACHE_ALWAYS, cacheNames = REDIS_CACHE_ALWAYS, allEntries = true)
@@ -1182,7 +1188,8 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         Map<String, Object> map = new LinkedHashMap<>();
         for (SysSetting sysSetting : value) {
             String sysSettingName = sysSetting.getSysSettingName();
-            map.put(sysSettingName, ObjectUtils.equalsIgnore("version", sysSettingName) ? sysSetting.getSysSettingVersion() : sysSetting.getSysSettingValue());
+            map.put(sysSettingName, ObjectUtils.equalsIgnore("version", sysSettingName) ?
+                sysSetting.getSysSettingVersion() : sysSetting.getSysSettingValue());
         }
         globalSettingFactory.set(key, map);
     }

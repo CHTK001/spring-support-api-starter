@@ -55,7 +55,8 @@ public class SysLogController {
     @Operation(summary = "系统日志分页列表")
     @GetMapping("/page")
     @Permission(role = {AuthConstant.ADMIN, AuthConstant.SUPER_ADMIN})
-    public ReturnPageResult<SysLog> pageForRole(@ParameterObject Query<SysLog> query, @ParameterObject SysLog sysLog, @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
+    public ReturnPageResult<SysLog> pageForRole(@ParameterObject Query<SysLog> query, @ParameterObject SysLog sysLog,
+        @Parameter(hidden = true) @UserValue("roles") Set<String> roles) {
         return PageResultUtils.ok(sysLogService.pageForLog(query, sysLog, roles));
     }
 

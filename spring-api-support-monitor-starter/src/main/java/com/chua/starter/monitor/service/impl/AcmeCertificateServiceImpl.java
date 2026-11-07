@@ -159,7 +159,8 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         if (StringUtils.isNullOrEmpty(account.getAcmeAccountProviderType())) {
             account.setAcmeAccountProviderType(AcmeCertificateSupport.PROVIDER_TYPE_ACME);
         }
-        log.info("[ACME] 保存账户: email={}, server={}, providerType={}", account.getAcmeAccountEmail(), account.getAcmeAccountServer(), account.getAcmeAccountProviderType());
+        log.info("[ACME] 保存账户: email={}, server={}, providerType={}", account.getAcmeAccountEmail(), account.getAcmeAccountServer(),
+            account.getAcmeAccountProviderType());
         if (account.getAcmeAccountId() == null) {
             accountMapper.insert(account);
         } else {
@@ -817,7 +818,8 @@ public class AcmeCertificateServiceImpl implements AcmeCertificateService {
         );
         for (MonitorAcmeCertificate it : list) {
             try {
-                log.info("[ACME] 到期前{}天自动续签: id={}, domain={}, notAfter={}", days, it.getAcmeCertId(), it.getAcmeCertPrimaryDomain(), it.getAcmeCertNotAfter());
+                log.info("[ACME] 到期前{}天自动续签: id={}, domain={}, notAfter={}", days, it.getAcmeCertId(), it.getAcmeCertPrimaryDomain(),
+                    it.getAcmeCertNotAfter());
                 renewCertificateForCert(it.getAcmeCertId());
             } catch (Exception e) {
                 log.error("[ACME] 自动续签失败, id={}", it.getAcmeCertId(), e);

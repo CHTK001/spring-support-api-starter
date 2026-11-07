@@ -19,7 +19,8 @@ import java.util.List;
  * @author CH
  */
 @Service
-public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyMapper, SysUserThirdParty> implements SysUserThirdPartyService {
+public class SysUserThirdPartyServiceImpl extends ServiceImpl<SysUserThirdPartyMapper,
+    SysUserThirdParty> implements SysUserThirdPartyService {
 
     @Override
     /**

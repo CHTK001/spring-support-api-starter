@@ -21,7 +21,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  * @since 4.0.0
  */
 @Slf4j
-@ConditionalOnProperty(prefix = "plugin.oauth.server", name = {"tokenManagement", "token-management"}, havingValue = "redis", matchIfMissing = false)
+@ConditionalOnProperty(prefix = "plugin.oauth.server", name = {"tokenManagement", "token-management"}, havingValue = "redis",
+    matchIfMissing = false)
 public class EnableRedisTokenManagerConfiguration {
 
 

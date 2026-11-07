@@ -133,7 +133,8 @@ public class ThirdLoginController {
     @Operation(summary = "第三方绑定解绑")
     @PostMapping("/third/unbind")
     @SysLog(module = "解绑")
-    public ReturnResult<Boolean> thirdUnbindForLogin(@UserValue("userId") String userId, @RequestBody ThirdPartyUnbindRequest thirdPartyUnbindRequest) {
+    public ReturnResult<Boolean> thirdUnbindForLogin(@UserValue("userId") String userId,
+        @RequestBody ThirdPartyUnbindRequest thirdPartyUnbindRequest) {
         return sysLoginService.thirdUnbind(userId, thirdPartyUnbindRequest);
     }
 }

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * 策略限流过滤器测试（基于 Spring Cache 内存实现，不依赖 Redis）。
  *
  * @author CH
+ * @since 4.0.0.51
  */
 class PolicyRateLimitFilterTest {
 

@@ -89,7 +89,8 @@ public class GiteeCallbackController {
      */
     @Ignore
     @GetMapping("binder")
-    public RedirectView binder(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
+    public RedirectView binder(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request,
+        HttpServletResponse response) {
         String userId = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_userId");
         RedirectView view = new RedirectView();
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
@@ -165,7 +166,8 @@ public class GiteeCallbackController {
      */
     @Ignore
     @GetMapping("callback")
-    public RedirectView callback(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request, HttpServletResponse response) {
+    public RedirectView callback(AuthCallback authCallback, RedirectAttributes attributes, HttpServletRequest request,
+        HttpServletResponse response) {
         String systemCallback = AuthDefaultStateCache.INSTANCE.get(authCallback.getState() + "_system_callback");
         RedirectView errorView = new RedirectView();
         // 读取点兜底：缓存里的回调地址过白名单（开放重定向读取点防线）
@@ -200,7 +202,8 @@ public class GiteeCallbackController {
             ThirdPartyCallbackSupport.markFailure(attributes, errorView, "Gitee授权失败，请重试");
             return errorView;
         }
-        SysUserThirdParty userThirdParty = sysUserThirdPartyService.getOne(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserThirdPartyUid, authUser.getUuid()));
+        SysUserThirdParty userThirdParty = sysUserThirdPartyService.getOne(Wrappers.<SysUserThirdParty>lambdaQuery().eq(SysUserThirdParty::getSysUserThirdPartyUid,
+            authUser.getUuid()));
         if(null == userThirdParty) {
             ThirdPartyCallbackSupport.markFailure(attributes, errorView, "第三方登录失败，请重试");
             return errorView;
@@ -210,7 +213,8 @@ public class GiteeCallbackController {
         ext.put("loginType", THIRD_PARTY_TYPE);
         ext.put("thirdPartyType", THIRD_PARTY_TYPE);
         ext.put("address", RequestUtils.getIpAddress(request));
-        LoginAuthResult accessToken = AuthClientExecute.getInstance().getAccessToken(String.valueOf(userThirdParty.getSysUserId()), null, AuthType.THIRD_PARTY, ext);
+        LoginAuthResult accessToken = AuthClientExecute.getInstance().getAccessToken(String.valueOf(userThirdParty.getSysUserId()),
+            null, AuthType.THIRD_PARTY, ext);
         if (null == accessToken || StringUtils.isBlank(accessToken.getToken())) {
             log.warn("Gitee三方登录换取令牌失败");
             ThirdPartyCallbackSupport.markFailure(attributes, errorView, "第三方登录失败，请重试");

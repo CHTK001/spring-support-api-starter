@@ -34,3 +34,14 @@ plugin:
       enable: true
       scan-mode: ONCE                          # 空库首次建表后不再动结构
       data-scan-mode: ONCE
+
+  # 多级缓存：本机不跑 Redis，必须显式声明只启用 caffeine 级别。
+  # 不声明时 plugin.cache.enabled 默认 false，multiLevelCacheManager 不会被创建，
+  # 于是容器里剩下 10 个无 @Primary 的 CacheManager（redis-cache-* / aiCacheManager 等），
+  # SysAnnouncementScheduleTask 按类型注入 CacheManager 时直接
+  # 「required a single bean, but 10 were found」启动失败。
+  # 部署机若启用 Redis，把 redis 加回 levels 即可，无需改代码。
+  cache:
+    enabled: true
+    levels:
+      - caffeine

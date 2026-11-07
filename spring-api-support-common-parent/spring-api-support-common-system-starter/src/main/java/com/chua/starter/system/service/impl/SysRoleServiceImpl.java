@@ -210,7 +210,8 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
      * 获取Menu
     */
     public ReturnResult<Set<Integer>> getMenu(RoleMenuUpdate roleMenuUpdate) {
-        List<SysRoleMenu> list = sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery().eq(SysRoleMenu::getSysRoleId, roleMenuUpdate.getRoleId()));
+        List<SysRoleMenu> list = sysRoleMenuService.list(Wrappers.<SysRoleMenu>lambdaQuery().eq(SysRoleMenu::getSysRoleId,
+            roleMenuUpdate.getRoleId()));
         return ReturnResult.ok(list.stream().map(SysRoleMenu::getSysMenuId).collect(Collectors.toUnmodifiableSet()));
     }
 }

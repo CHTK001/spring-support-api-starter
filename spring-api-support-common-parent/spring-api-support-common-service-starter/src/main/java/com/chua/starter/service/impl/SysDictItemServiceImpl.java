@@ -71,7 +71,8 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
         IPage<SysDictItem> sysDictItemIPage = baseMapper.selectPageForQuery(query.createPage(), sysDictId);
         List<SysDictItem> records = sysDictItemIPage.getRecords();
         if (!CollectionUtils.isEmpty(records)) {
-            Map<Integer, SysDictItem> itemMap = records.stream().collect(Collectors.toMap(SysDictItem::getSysDictItemId, Function.identity(), (a, b) -> a));
+            Map<Integer, SysDictItem> itemMap = records.stream().collect(Collectors.toMap(SysDictItem::getSysDictItemId,
+                Function.identity(), (a, b) -> a));
             Map<Integer, List<SysDictItemProperty>> collect = sysDictItemPropertyMapper.selectList(
                             Wrappers.<SysDictItemProperty>lambdaQuery()
                                     .in(SysDictItemProperty::getSysDictItemId, itemMap.keySet())
@@ -188,7 +189,8 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * 例如：sysdictitem.构建器().sysdictid(1).构建()
      */
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:id:' + #sysDictItem.sysDictId")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
+        key = "'sys:dict:id:' + #sysDictItem.sysDictId")
     public void deleteCacheId(SysDictItem sysDictItem) {
         //NOTHING
     }
@@ -200,7 +202,8 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * 例如：sysdictitem.构建器().sysdict编码("dict_编码").构建()
      */
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:code:' + #sysDictItem.sysDictCode")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
+        key = "'sys:dict:code:' + #sysDictItem.sysDictCode")
     public void deleteCacheCode(SysDictItem sysDictItem) {
         //NOTHING
     }
@@ -212,7 +215,8 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * 例如：sysdictitem.构建器().sysdictid(1).构建()
      */
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:pid:' + #sysDictItem.sysDictId")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
+        key = "'sys:dict:pid:' + #sysDictItem.sysDictId")
     public void deleteCachePid(SysDictItem sysDictItem) {
         //NOTHING
     }
@@ -224,7 +228,8 @@ public class SysDictItemServiceImpl extends ServiceImpl<SysDictItemMapper, SysDi
      * 例如：sysdictitem.构建器().sysdict编码("父_dict_编码").构建()
      */
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:dict:pcode:' + #sysDictItem.sysDictCode")
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
+        key = "'sys:dict:pcode:' + #sysDictItem.sysDictCode")
     public void deleteCachePcode(SysDictItem sysDictItem) {
         //NOTHING
     }

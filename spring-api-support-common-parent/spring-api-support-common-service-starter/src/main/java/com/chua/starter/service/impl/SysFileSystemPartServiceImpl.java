@@ -22,7 +22,8 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartMapper, SysFileSystemPart> implements SysFileSystemPartService {
+public class SysFileSystemPartServiceImpl extends ServiceImpl<SysFileSystemPartMapper,
+    SysFileSystemPart> implements SysFileSystemPartService {
 
     @Override
     /**

@@ -14,11 +14,13 @@ import java.util.Objects;
  * @param code  验证码
  *
  * @since 4.0.0.50
+ * @author CH
  */
 @Schema(description = "邮箱验证码登录请求")
 public record EmailLoginRequest(
         @NotBlank(message = "邮箱不能为空") @Email(message = "邮箱格式不正确") @Schema(description = "邮箱", example = "user@example.com") String email,
-        @NotBlank(message = "验证码不能为空") @Pattern(regexp = "^\\d{4,6}$", message = "验证码格式不正确") @Schema(description = "验证码", example = "123456") String code
+        @NotBlank(message = "验证码不能为空") @Pattern(regexp = "^\\d{4,6}$", message = "验证码格式不正确") @Schema(description = "验证码",
+            example = "123456") String code
 ) {
 
     /**
