@@ -13,6 +13,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * {@link HotReloadChangedListener} 的分发口径测试。
+ *
+ * <p>覆盖无消费者时只清缓存、按 consumerId 精确分发、以及未知标识不唤醒任何消费者。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
+ */
 @DisplayName("热更新事件监听测试")
 class HotReloadChangedListenerTest {
 

@@ -54,7 +54,10 @@ public class SysDictController {
     @Operation(summary = "字典分页列表")
     @GetMapping("/page")
     @Cacheable(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
-            key = "'sys:dict:page:' + #userId + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDict.sysDictCode,'') + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDict.sysDictName,'') + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#query.page,1) + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#query.pageSize,10)",
+            key = "'sys:dict:page:' + #userId + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDict.sysDictCode,'') + " +
+                "':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#sysDict.sysDictName,'') + ':' + T(com.chua.common.suppo" +
+                "rt.utils.ObjectUtils).defaultIfNull(#query.page,1) + ':' + T(com.chua.common.support.utils.ObjectUtils).defaultIfNull(#qu" +
+                "ery.pageSize,10)",
             unless = "#result == null || #result.data == null || #result.data.data == null || #result.data.data.isEmpty()")
     /**
      * pagefor角色

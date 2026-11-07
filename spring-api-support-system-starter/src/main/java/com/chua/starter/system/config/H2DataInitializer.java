@@ -391,7 +391,9 @@ public class H2DataInitializer implements ApplicationRunner {
 
         // 公告
         jdbcTemplate.update("DELETE FROM sys_announcement");
-        jdbcTemplate.update("INSERT INTO sys_announcement (sys_announcement_title, sys_announcement_content, sys_announcement_type, sys_announcement_status, sys_announcement_level, sys_announcement_position, sys_announcement_sort, sys_announcement_publish_time, sys_announcement_publisher_name) VALUES " +
+        jdbcTemplate.update("INSERT INTO sys_announcement (sys_announcement_title, sys_announcement_content, sys_announcement_type, sys_anno" +
+            "uncement_status, sys_announcement_level, sys_announcement_position, sys_announcement_sort, sys_announcement_pub" +
+            "lish_time, sys_announcement_publisher_name) VALUES " +
             "('安全提醒','请妥善保管账号密码，不要在公共设备登录。','global',1,2,'default',1,CURRENT_TIMESTAMP,'admin')," +
             "('V2.0版本发布','系统已升级至 V2.0，新增岗位、消息、缓存管理等模块。','global',1,1,'fixed-top',2,CURRENT_TIMESTAMP,'admin')," +
             "('系统维护通知','本周日凌晨 2:00-4:00 进行系统维护。','global',0,0,'default',3,CURRENT_TIMESTAMP,'admin')");

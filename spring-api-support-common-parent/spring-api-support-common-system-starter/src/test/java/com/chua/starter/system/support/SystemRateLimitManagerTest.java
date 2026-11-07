@@ -9,6 +9,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * {@link SystemRateLimitManager} 的限流开关口径测试。
+ *
+ * <p>覆盖启用但 QPS 非正时降级为不限流、正常限流窗口内的放行与拒绝。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
+ */
 class SystemRateLimitManagerTest {
 
     @Test

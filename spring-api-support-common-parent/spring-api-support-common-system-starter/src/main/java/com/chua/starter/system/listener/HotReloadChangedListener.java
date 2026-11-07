@@ -10,6 +10,15 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * 热更新配置变更监听器。
+ *
+ * <p>接收 {@link HotReloadChangedEvent}，按事件声明的消费者标识分发给对应的
+ * {@link HotReloadRuntimeConsumer}，并清理配置缓存，使下一次读取拿到新值。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

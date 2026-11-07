@@ -163,10 +163,12 @@ public class EduAuthDataSourceConfiguration {
             this.password = password;
         }
 
+        /** getDriverClassName 方法 */
         public String getDriverClassName() {
             return driverClassName;
         }
 
+        /** setDriverClassName 方法 */
         public void setDriverClassName(String driverClassName) {
             this.driverClassName = driverClassName;
         }

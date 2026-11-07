@@ -5,6 +5,15 @@ import org.springframework.context.ApplicationEvent;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * 热更新配置变更事件。
+ *
+ * <p>配置中心某个设置项落库并提交事务后发布，携带变更项的标识、值与需要感知的运行时消费者集合，
+ * 由 {@code HotReloadChangedListener} 负责分发给对应的消费者。</p>
+ *
+ * @author CH
+ * @since 4.0.0.51
+ */
 public class HotReloadChangedEvent extends ApplicationEvent {
 
     private final String group;
@@ -34,30 +43,37 @@ public class HotReloadChangedEvent extends ApplicationEvent {
                 .collect(Collectors.toUnmodifiableSet());
     }
 
+    /** getGroup 方法 */
     public String getGroup() {
         return group;
     }
 
+    /** getSettingId 方法 */
     public Integer getSettingId() {
         return settingId;
     }
 
+    /** getName 方法 */
     public String getName() {
         return name;
     }
 
+    /** getCode 方法 */
     public String getCode() {
         return code;
     }
 
+    /** getValue 方法 */
     public String getValue() {
         return value;
     }
 
+    /** getValueType 方法 */
     public String getValueType() {
         return valueType;
     }
 
+    /** getStatus 方法 */
     public Integer getStatus() {
         return status;
     }
@@ -66,6 +82,7 @@ public class HotReloadChangedEvent extends ApplicationEvent {
         return runtimeConsumers;
     }
 
+    /** isForConsumer 方法 */
     public boolean isForConsumer(String consumerId) {
         return runtimeConsumers.contains(consumerId);
     }

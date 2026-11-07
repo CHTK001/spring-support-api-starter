@@ -137,6 +137,7 @@ class PolicyRateLimitFilterTest {
         return (request, response) -> calls.incrementAndGet();
     }
 
+    /** defaultValue 方法 */
     private static Object defaultValue(Class<?> type) {
         if (!type.isPrimitive()) {
             return null;
@@ -214,6 +215,7 @@ class PolicyRateLimitFilterTest {
         private final StringWriter body = new StringWriter();
         private final PrintWriter writer = new PrintWriter(body);
 
+        /** request 方法 */
         private HttpServletResponse request() {
             return (HttpServletResponse) Proxy.newProxyInstance(
                     HttpServletResponse.class.getClassLoader(),
@@ -228,10 +230,12 @@ class PolicyRateLimitFilterTest {
                     });
         }
 
+        /** status 方法 */
         private int status() {
             return status.get();
         }
 
+        /** body 方法 */
         private String body() {
             writer.flush();
             return body.toString();

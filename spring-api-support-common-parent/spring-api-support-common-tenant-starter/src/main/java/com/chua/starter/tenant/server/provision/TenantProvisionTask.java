@@ -19,6 +19,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TenantProvisionTask {
 
     /**
+     * 明细保留上限：超出淘汰最早的那条
+     */
+    private static final int MAX_DETAILS = 200;
+
+    /**
+     * 进度百分比下限
+     */
+    private static final int MIN_PERCENTAGE = 0;
+
+    /**
+     * 进度百分比上限（最后一步才置 100，99 防止用户认为已完成）
+     */
+    private static final int MAX_PERCENTAGE = 99;
+
+    /**
+     * 快照 Map 默认容量
+     */
+    private static final int DEFAULT_CAPACITY = 16;
+
+    /**
      * 任务标识
      */
     private final String taskId;
@@ -112,7 +132,7 @@ public class TenantProvisionTask {
             return;
         }
         details.add(detail);
-        while (details.size() > 200) {
+        while (details.size() > MAX_DETAILS) {
             details.remove(0);
         }
     }
@@ -149,7 +169,7 @@ public class TenantProvisionTask {
             return;
         }
         int next = (int) Math.round((double) index * 100.0 / (double) total);
-        this.percentage = Math.max(0, Math.min(99, next));
+        this.percentage = Math.max(MIN_PERCENTAGE, Math.min(MAX_PERCENTAGE, next));
     }
 
     /**
@@ -158,7 +178,7 @@ public class TenantProvisionTask {
      * @return 可直接序列化的快照
      */
     public synchronized Map<String, Object> toMap() {
-        Map<String, Object> map = new LinkedHashMap<>(16);
+        Map<String, Object> map = new LinkedHashMap<>(DEFAULT_CAPACITY);
         map.put("taskId", taskId);
         map.put("tenantId", tenantId);
         map.put("tenantName", tenantName);

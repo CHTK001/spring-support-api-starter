@@ -119,9 +119,10 @@ public class SysFileSystemController {
     @Operation(summary = "上传分片任务")
     @PostMapping("/task/upload")
     @SysLog
-    public ReturnResult<SysFileUploadTaskPartResponse> uploadTask(@ParameterObject @Validated(UploadGroup.class) SysFileUploadTaskPartRequest request,
-                                                                  @RequestPart@RequestParam("file") @Parameter(name= "file", description = "文件") MultipartFile multipartFile,
-                                                                  BindingResult bindingResult
+    public ReturnResult<SysFileUploadTaskPartResponse> uploadTask(
+            @ParameterObject @Validated(UploadGroup.class) SysFileUploadTaskPartRequest request,
+            @RequestPart@RequestParam("file") @Parameter(name= "file", description = "文件") MultipartFile multipartFile,
+            BindingResult bindingResult
     ) {
         if(bindingResult.hasErrors()) {
             return ReturnResult.illegal(bindingResult.getAllErrors().getFirst().getDefaultMessage());

@@ -933,7 +933,9 @@ public class JvmInfo implements Serializable {
     // === Manually generated setters ===
     public void setName(String name) { this.name = name; }
     public void setTotalCompilationTime(Long totalCompilationTime) { this.totalCompilationTime = totalCompilationTime; }
-    public void setCompilationTimeMonitoringSupported(Boolean compilationTimeMonitoringSupported) { this.compilationTimeMonitoringSupported = compilationTimeMonitoringSupported; }
+    public void setCompilationTimeMonitoringSupported(Boolean compilationTimeMonitoringSupported) {
+        this.compilationTimeMonitoringSupported = compilationTimeMonitoringSupported;
+    }
     }
 
     /**
@@ -2610,7 +2612,9 @@ public class JvmInfo implements Serializable {
     // === Manually generated setters ===
     public void setCompilerName(String compilerName) { this.compilerName = compilerName; }
     public void setTotalCompilationTime(Long totalCompilationTime) { this.totalCompilationTime = totalCompilationTime; }
-    public void setCompilationTimeMonitoringSupported(Boolean compilationTimeMonitoringSupported) { this.compilationTimeMonitoringSupported = compilationTimeMonitoringSupported; }
+    public void setCompilationTimeMonitoringSupported(Boolean compilationTimeMonitoringSupported) {
+        this.compilationTimeMonitoringSupported = compilationTimeMonitoringSupported;
+    }
     public void setCompiledMethodCount(Long compiledMethodCount) { this.compiledMethodCount = compiledMethodCount; }
     public void setAvgCompilationTime(Double avgCompilationTime) { this.avgCompilationTime = avgCompilationTime; }
     }
@@ -2826,9 +2830,13 @@ public class JvmInfo implements Serializable {
     public void setMax(Long max) { this.max = max; }
     public void setUsagePercent(Double usagePercent) { this.usagePercent = usagePercent; }
     public void setCompressedClassSpaceUsed(Long compressedClassSpaceUsed) { this.compressedClassSpaceUsed = compressedClassSpaceUsed; }
-    public void setCompressedClassSpaceCommitted(Long compressedClassSpaceCommitted) { this.compressedClassSpaceCommitted = compressedClassSpaceCommitted; }
+    public void setCompressedClassSpaceCommitted(Long compressedClassSpaceCommitted) {
+        this.compressedClassSpaceCommitted = compressedClassSpaceCommitted;
+    }
     public void setCompressedClassSpaceMax(Long compressedClassSpaceMax) { this.compressedClassSpaceMax = compressedClassSpaceMax; }
-    public void setCompressedClassSpaceUsagePercent(Double compressedClassSpaceUsagePercent) { this.compressedClassSpaceUsagePercent = compressedClassSpaceUsagePercent; }
+    public void setCompressedClassSpaceUsagePercent(Double compressedClassSpaceUsagePercent) {
+        this.compressedClassSpaceUsagePercent = compressedClassSpaceUsagePercent;
+    }
     }
 
     /**
@@ -3101,19 +3109,35 @@ public class JvmInfo implements Serializable {
     public void setClassLoadingInfo(ClassLoadingInfo classLoadingInfo) { this.classLoadingInfo = classLoadingInfo; }
     public void setGarbageCollectors(List<GarbageCollectorInfo> garbageCollectors) { this.garbageCollectors = garbageCollectors; }
     public void setOsInfo(OsInfo osInfo) { this.osInfo = osInfo; }
+    /** setCpuInfo 方法 */
     public void setCpuInfo(CpuInfo cpuInfo) { this.cpuInfo = cpuInfo; }
+    /** setCompilationInfo 方法 */
     public void setCompilationInfo(CompilationInfo compilationInfo) { this.compilationInfo = compilationInfo; }
+    /** setRuntimeInfo 方法 */
     public void setRuntimeInfo(RuntimeInfo runtimeInfo) { this.runtimeInfo = runtimeInfo; }
+    /** setBufferPools 方法 */
     public void setBufferPools(List<BufferPoolInfo> bufferPools) { this.bufferPools = bufferPools; }
+    /** setFileDescriptorInfo 方法 */
     public void setFileDescriptorInfo(FileDescriptorInfo fileDescriptorInfo) { this.fileDescriptorInfo = fileDescriptorInfo; }
-    public void setThreadStateDistribution(ThreadStateDistribution threadStateDistribution) { this.threadStateDistribution = threadStateDistribution; }
+    /** setThreadStateDistribution 方法 */
+    public void setThreadStateDistribution(ThreadStateDistribution threadStateDistribution) {
+        this.threadStateDistribution = threadStateDistribution;
+    }
+    /** setJitCompilationStats 方法 */
     public void setJitCompilationStats(JitCompilationStats jitCompilationStats) { this.jitCompilationStats = jitCompilationStats; }
+    /** setCodeCacheInfo 方法 */
     public void setCodeCacheInfo(CodeCacheInfo codeCacheInfo) { this.codeCacheInfo = codeCacheInfo; }
+    /** setGcStats 方法 */
     public void setGcStats(GcStats gcStats) { this.gcStats = gcStats; }
+    /** setMetaspaceInfo 方法 */
     public void setMetaspaceInfo(MetaspaceInfo metaspaceInfo) { this.metaspaceInfo = metaspaceInfo; }
+    /** setDirectMemoryInfo 方法 */
     public void setDirectMemoryInfo(DirectMemoryInfo directMemoryInfo) { this.directMemoryInfo = directMemoryInfo; }
+    /** setMemoryAllocationRate 方法 */
     public void setMemoryAllocationRate(MemoryAllocationRate memoryAllocationRate) { this.memoryAllocationRate = memoryAllocationRate; }
+    /** setClassLoadingDetail 方法 */
     public void setClassLoadingDetail(ClassLoadingDetail classLoadingDetail) { this.classLoadingDetail = classLoadingDetail; }
+    /** setSecurityInfo 方法 */
     public void setSecurityInfo(SecurityInfo securityInfo) { this.securityInfo = securityInfo; }
 }
 

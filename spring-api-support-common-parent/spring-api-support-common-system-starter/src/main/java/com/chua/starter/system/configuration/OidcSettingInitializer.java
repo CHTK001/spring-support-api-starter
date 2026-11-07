@@ -94,6 +94,7 @@ public class OidcSettingInitializer implements ApplicationRunner {
         return true;
     }
 
+    /** ensureSsoSwitch 方法 */
     private boolean ensureSsoSwitch() {
         SysSetting existed = sysSettingMapper.selectOne(
                 Wrappers.<SysSetting>lambdaQuery()
@@ -109,6 +110,7 @@ public class OidcSettingInitializer implements ApplicationRunner {
         return true;
     }
 
+    /** ensureSetting 方法 */
     private boolean ensureSetting(String group, String name, String value, String remark, String valueType, int sort) {
         SysSetting existed = sysSettingMapper.selectOne(
                 Wrappers.<SysSetting>lambdaQuery()
@@ -123,6 +125,7 @@ public class OidcSettingInitializer implements ApplicationRunner {
         return true;
     }
 
+    /** newSetting 方法 */
     private static SysSetting newSetting(String group, String name, String value, String remark, String valueType, int sort) {
         SysSetting setting = new SysSetting();
         setting.setSysSettingName(name);
@@ -139,6 +142,7 @@ public class OidcSettingInitializer implements ApplicationRunner {
         return setting;
     }
 
+    /** clearCache 方法 */
     private void clearCache() {
         cacheManagers.forEach((cacheName, manager) -> {
             Cache namedCache = manager.getCache(cacheName);

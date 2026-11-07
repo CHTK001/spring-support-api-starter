@@ -404,10 +404,12 @@ public class AuthOidcRequest implements AuthRequest {
         }
     }
 
+    /** stringOf 方法 */
     private static String stringOf(Object value) {
         return null == value ? null : String.valueOf(value);
     }
 
+    /** firstNotBlank 方法 */
     private static String firstNotBlank(String... values) {
         for (String value : values) {
             if (StringUtils.isNotBlank(value)) {

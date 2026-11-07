@@ -202,6 +202,7 @@ class AuthOidcRequestTest {
         return new AuthOidcRequest(issuer, "openid profile email", config, AuthDefaultStateCache.INSTANCE);
     }
 
+    /** issueCode 方法 */
     private String issueCode(String state) {
         String code = "code-" + UUID.randomUUID().toString().replace("-", "");
         String nonce = AuthDefaultStateCache.INSTANCE.get(state + AuthOidcRequest.NONCE_CACHE_SUFFIX);
@@ -209,12 +210,14 @@ class AuthOidcRequestTest {
         return code;
     }
 
+    /** issueCodeWithoutNonce 方法 */
     private String issueCodeWithoutNonce(String state) {
         String code = "code-" + UUID.randomUUID().toString().replace("-", "");
         codes.put(code, new IssuedCode(state, null, true));
         return code;
     }
 
+    /** handleDiscovery 方法 */
     private void handleDiscovery(HttpExchange exchange) throws IOException {
         String body = "{"
                 + "\"issuer\":\"" + issuer + "\","
@@ -229,10 +232,12 @@ class AuthOidcRequestTest {
         writeJson(exchange, 200, body);
     }
 
+    /** handleJwks 方法 */
     private void handleJwks(HttpExchange exchange) throws IOException {
         writeJson(exchange, 200, "{\"keys\":[" + rsaKey.toPublicJWK().toJSONString() + "]}");
     }
 
+    /** handleToken 方法 */
     private void handleToken(HttpExchange exchange) throws IOException {
         if (!tokenEndpointEnabled) {
             writeJson(exchange, 500, "{\"error\":\"server_error\"}");
@@ -264,6 +269,7 @@ class AuthOidcRequestTest {
         }
     }
 
+    /** handleUserinfo 方法 */
     private void handleUserinfo(HttpExchange exchange) throws IOException {
         java.util.List<String> auth = exchange.getRequestHeaders().get("Authorization");
         if (null == auth || auth.isEmpty() || !auth.get(0).startsWith("Bearer mock-access-")) {
@@ -281,6 +287,7 @@ class AuthOidcRequestTest {
         writeJson(exchange, 200, body);
     }
 
+    /** issueIdToken 方法 */
     private String issueIdToken(String nonce) throws Exception {
         Date now = new Date();
         JWTClaimsSet.Builder builder = new JWTClaimsSet.Builder()
@@ -316,6 +323,7 @@ class AuthOidcRequestTest {
         return params;
     }
 
+    /** decode 方法 */
     private static String decode(String value) {
         try {
             return java.net.URLDecoder.decode(value, StandardCharsets.UTF_8);
@@ -324,6 +332,7 @@ class AuthOidcRequestTest {
         }
     }
 
+    /** writeJson 方法 */
     private static void writeJson(HttpExchange exchange, int status, String body) throws IOException {
         byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", "application/json");

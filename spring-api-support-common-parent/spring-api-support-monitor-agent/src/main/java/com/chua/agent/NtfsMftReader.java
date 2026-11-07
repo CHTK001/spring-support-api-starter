@@ -328,6 +328,7 @@ final class NtfsMftReader {
         return node;
     }
 
+    /** sortBySize 方法 */
     private static void sortBySize(List<Integer> list, final long[] sizeArr) {
         list.sort(new java.util.Comparator<Integer>() {
             @Override
@@ -535,6 +536,7 @@ final class NtfsMftReader {
         return clusters * (long) clusterBytes;
     }
 
+    /** readSized 方法 */
     private static long readSized(byte[] buf, int p, int bytes, boolean signed) {
         long v = 0L;
         for (int i = 0; i < bytes; i++) {
@@ -578,6 +580,7 @@ final class NtfsMftReader {
         return trimmed;
     }
 
+    /** isValid 方法 */
     private static boolean isValid(HANDLE handle) {
         HANDLE invalid = WinBase.INVALID_HANDLE_VALUE;
         return handle.getPointer() != null
@@ -591,6 +594,7 @@ final class NtfsMftReader {
 
     // ==================== 工具 ====================
 
+    /** driveLetter 方法 */
     private static char driveLetter(String path) {
         if (path == null) {
             return 0;
@@ -605,6 +609,7 @@ final class NtfsMftReader {
         return 0;
     }
 
+    /** pow2 方法 */
     private static long pow2(int exp) {
         long v = 1L;
         for (int i = 0; i < exp; i++) {
@@ -613,6 +618,7 @@ final class NtfsMftReader {
         return v;
     }
 
+    /** modTimeString 方法 */
     private static String modTimeString(long filetime) {
         if (filetime <= 0L) {
             return "";
@@ -624,6 +630,7 @@ final class NtfsMftReader {
         return new java.util.Date(ms).toString();
     }
 
+    /** utf16 方法 */
     private static String utf16(byte[] buf, int p, int chars) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < chars; i++) {
@@ -634,6 +641,7 @@ final class NtfsMftReader {
         return sb.toString();
     }
 
+    /** hex 方法 */
     private static String hex(byte[] buf, int n) {
         StringBuilder sb = new StringBuilder();
         int m = Math.min(n, buf.length);
@@ -643,22 +651,27 @@ final class NtfsMftReader {
         return sb.toString().trim();
     }
 
+    /** u8 方法 */
     private static int u8(byte[] buf, int p) {
         return p >= 0 && p < buf.length ? buf[p] & 0xFF : 0;
     }
 
+    /** u16 方法 */
     private static int u16(byte[] buf, int p) {
         return u8(buf, p) | (u8(buf, p + 1) << 8);
     }
 
+    /** u32 方法 */
     private static long u32(byte[] buf, int p) {
         return u8(buf, p) | (u8(buf, p + 1) << 8) | (u8(buf, p + 2) << 16) | ((long) u8(buf, p + 3) << 24);
     }
 
+    /** i64 方法 */
     private static long i64(byte[] buf, int p) {
         return u64(buf, p);
     }
 
+    /** u64 方法 */
     private static long u64(byte[] buf, int p) {
         long v = 0L;
         for (int i = 0; i < 8; i++) {

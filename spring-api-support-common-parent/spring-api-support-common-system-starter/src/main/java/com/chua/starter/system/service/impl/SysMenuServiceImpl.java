@@ -386,7 +386,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all:' + T(com.chua.starte" +
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
+        key = "'sys:menu:list:all:' + T(com.chua.starte" +
         "r.system.support.TenantCacheScope).scope()")
     /**
      * 删除
@@ -403,7 +404,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all:' + T(com.chua.starte" +
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
+        key = "'sys:menu:list:all:' + T(com.chua.starte" +
         "r.system.support.TenantCacheScope).scope()")
     @Transactional(rollbackFor = Exception.class)
     /**
@@ -438,7 +440,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all:' + T(com.chua.starte" +
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
+        key = "'sys:menu:list:all:' + T(com.chua.starte" +
         "r.system.support.TenantCacheScope).scope()")
     @Transactional(rollbackFor = Exception.class)
     /**
@@ -524,7 +527,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS, key = "'sys:menu:list:all:' + T(com.chua.starte" +
+    @CacheEvict(cacheManager = CacheConstant.REDIS_CACHE_ALWAYS, cacheNames = CacheConstant.REDIS_CACHE_ALWAYS,
+        key = "'sys:menu:list:all:' + T(com.chua.starte" +
         "r.system.support.TenantCacheScope).scope()")
     public ReturnResult<Boolean> refreshCache() {
         return ReturnResult.ok(true);
