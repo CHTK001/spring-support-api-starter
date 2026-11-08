@@ -292,6 +292,26 @@ public class SysTenant extends SysBase {
     private String sysTenantIp;
 
     /**
+     * 引用的数据源台账 id（{@code ms_datasource.id}）。
+     *
+     * <p>三种取值：</p>
+     * <ul>
+     *   <li>{@code null} / {@code 0}——用本租户自填的 host/port/username_sql/password_sql（存量行为）；</li>
+     *   <li>{@code -1}——用平台自身实例（{@code datasource-routing-admin-url}），只填库名即可；</li>
+     *   <li>{@code > 0}——用数据源中心台账里的那条实例，只填库名即可。</li>
+     * </ul>
+     *
+     * <p>库名始终取 {@link #sysTenantDbname}：台账负责实例，租户负责库。</p>
+     */
+    @TableField(value = "sys_tenant_datasource_id")
+    @ApiModelProperty(value = "引用的数据源 id，-1=平台自身实例")
+    @Schema(description = "引用的数据源 id，-1=平台自身实例")
+    /**
+     * systenantdatasourceid
+     */
+    private Long sysTenantDatasourceId;
+
+    /**
      * 租户 - 服务标识列表
      */
     @TableField(exist = false)

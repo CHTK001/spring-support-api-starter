@@ -63,6 +63,10 @@ public class TenantDatabaseInitializer {
      */
     private final TenantProperties tenantProperties;
     /**
+     * 租户库连接信息解析器（自填字段 / 数据源台账 / 平台自身实例）
+     */
+    private final TenantDataSourceResolver tenantDataSourceResolver;
+    /**
      * 租户数据库口令加解密
      */
     private final TenantPasswordCipher tenantPasswordCipher;
@@ -94,18 +98,19 @@ public class TenantDatabaseInitializer {
             return InitResult.failed("租户记录为空");
         }
         String tenantId = tenant.getSysTenantId();
-        String jdbcUrl = TenantJdbcUrlBuilder.build(tenant, tenantProperties);
+        TenantDatasourceInfo info = tenantDataSourceResolver.resolve(tenant);
+        String jdbcUrl = TenantJdbcUrlBuilder.build(info, tenantProperties);
         if (jdbcUrl == null) {
             log.debug("[租户建表] 租户 {} 未登记库地址或库名，跳过初始化", tenantId);
             return InitResult.failed("租户未登记库地址或库名，无法初始化业务表");
         }
-        if (!hasText(tenant.getSysTenantSqlUsername())) {
+        if (!hasText(info.username())) {
             log.warn("[租户建表] 租户 {} 未登记数据库账号，跳过初始化", tenantId);
             return InitResult.failed("租户未登记数据库账号，无法初始化业务表");
         }
         String password = hasText(plainSqlPassword)
                 ? plainSqlPassword
-                : tenantPasswordCipher.decrypt(tenant.getSysTenantSqlPassword());
+                : tenantPasswordCipher.decrypt(info.password());
         if (!hasText(password)) {
             log.warn("[租户建表] 租户 {} 未登记数据库口令，跳过初始化", tenantId);
             return InitResult.failed("租户未登记数据库口令，无法初始化业务表");
@@ -116,7 +121,7 @@ public class TenantDatabaseInitializer {
             return InitResult.failed("未配置初始化脚本位置（datasource-routing-init-script-locations）");
         }
 
-        DataSource dataSource = buildDataSource(jdbcUrl, tenant.getSysTenantSqlUsername(), password);
+        DataSource dataSource = buildDataSource(jdbcUrl, info.username(), password);
         String protocol = resolveProtocol(jdbcUrl);
         boolean withData = server.isDatasourceRoutingInitDataEnable();
         try {

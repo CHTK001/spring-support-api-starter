@@ -12,6 +12,9 @@ import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.entity.SysTenantStats;
 import com.chua.starter.tenant.server.pojo.SysTenantBindServiceV1Request;
 import com.chua.starter.tenant.server.service.SysTenantService;
+import com.chua.starter.tenant.server.support.TenantDataSourceResolver;
+import com.chua.starter.tenant.server.support.TenantDatasourceOption;
+import com.chua.starter.tenant.server.support.TenantDatasourceView;
 import com.chua.starter.tenant.server.support.TenantEndpoint;
 import com.chua.starter.tenant.server.support.TenantEndpointResolver;
 import com.chua.starter.tenant.server.support.TenantServiceExpiryJob;
@@ -57,6 +60,11 @@ public class SysTenantController {
      * 到期服务清理器
      */
     private final TenantServiceExpiryJob tenantServiceExpiryJob;
+
+    /**
+     * 租户库连接信息解析器（下拉项与只读回显）
+     */
+    private final TenantDataSourceResolver tenantDataSourceResolver;
 
     /**
      * 查询租户列表
@@ -209,6 +217,39 @@ public class SysTenantController {
     public ReturnResult<TenantEndpoint> endpointForSysTenant(
             @Parameter(description = "租户ID") String sysTenantId) {
         return ReturnResult.ok(tenantEndpointResolver.resolve(sysTenantId));
+    }
+
+    /**
+     * 数据库来源下拉项。
+     *
+     * <p>租户表单要选「用哪个实例」，但租户管理员角色通常没有数据源中心的权限。
+     * 这里代理一层：只返回实例级信息（名称/地址/端口），<b>不含口令</b>，
+     * 依赖 {@code sys:tenant:get} 而不是数据源中心的权限点。</p>
+     *
+     * @return 可选项：「自填」+「平台自身实例」+ 数据源中心里可用的 jdbc 数据源
+     */
+    @GetMapping("datasource/options")
+    @Operation(summary = "租户库来源下拉项")
+    @Permission("sys:tenant:get")
+    public ReturnResult<List<TenantDatasourceOption>> datasourceOptionsForSysTenant() {
+        return ReturnResult.ok(tenantDataSourceResolver.options());
+    }
+
+    /**
+     * 租户库连接信息只读回显。
+     *
+     * @param sysTenantId 租户标识
+     * @return 摘要；租户未登记独立库时为 {@code null}
+     */
+    @GetMapping("datasource/current")
+    @Operation(summary = "租户库连接信息回显")
+    @Permission("sys:tenant:get")
+    public ReturnResult<TenantDatasourceView> datasourceCurrentForSysTenant(
+            @Parameter(description = "租户ID") String sysTenantId) {
+        if (sysTenantId == null || sysTenantId.isBlank()) {
+            return ReturnResult.illegal("租户ID不能为空");
+        }
+        return ReturnResult.ok(tenantDataSourceResolver.describe(sysTenantService.getById(sysTenantId)));
     }
 
     /**

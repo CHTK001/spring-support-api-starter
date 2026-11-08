@@ -371,7 +371,12 @@ class TenantDataSourceFilterTest {
     private TenantDataSourceFilter filter(StubRegistry registry, AuthService authService, boolean withDatabase) {
         SysTenantMapper mapper = withDatabase ? tenantMapperStub() : tenantMapperStubWithoutDatabase();
         ObjectProvider<AuthService> provider = new FixedAuthServiceProvider(authService);
-        return new TenantDataSourceFilter(properties, mapper, registry, provider);
+        // 判定「是否登记独立库」与建池同源：这里给一个没有台账实现的解析器，
+        // 桩租户只走自填字段路径，行为与改动前一致
+        TenantDataSourceResolver resolver = new TenantDataSourceResolver(properties,
+                new org.springframework.beans.factory.support.StaticListableBeanFactory()
+                        .getBeanProvider(TenantDatasourceLookup.class));
+        return new TenantDataSourceFilter(properties, mapper, registry, resolver, provider);
     }
 
     /**

@@ -72,6 +72,11 @@ public class TenantDatabaseAdminSynchronizer {
     private final TenantPasswordCipher tenantPasswordCipher;
 
     /**
+     * 租户库连接信息解析器（自填字段 / 数据源台账 / 平台自身实例）
+     */
+    private final TenantDataSourceResolver tenantDataSourceResolver;
+
+    /**
      * 是否具备「同步租户库管理员」的前提条件。
      *
      * <p>只要求：开了按库路由总开关 + 租户记录里登记了库地址与账号口令。
@@ -87,10 +92,20 @@ public class TenantDatabaseAdminSynchronizer {
         if (!tenantProperties.getServer().isDatasourceRoutingEnable()) {
             return false;
         }
-        String jdbcUrl = TenantJdbcUrlBuilder.build(tenant, tenantProperties);
-        return jdbcUrl != null
-                && hasText(tenant.getSysTenantUsername())
-                && hasText(tenant.getSysTenantSqlUsername());
+        return separateDb(tenant) && hasText(tenant.getSysTenantUsername());
+    }
+
+    /**
+     * 租户是否配置了「独立库」。
+     *
+     * <p>自填型看库名 + 地址；引用型（台账 / 平台自身实例）看库名 + 解析出的实例。</p>
+     *
+     * @param tenant 租户记录
+     * @return 配置了独立库返回 true
+     */
+    private boolean separateDb(SysTenant tenant) {
+        TenantDatasourceInfo info = tenantDataSourceResolver.resolve(tenant);
+        return info != null && hasText(info.dbName());
     }
 
     /**
@@ -127,7 +142,8 @@ public class TenantDatabaseAdminSynchronizer {
         if (!tenantProperties.getServer().isDatasourceRoutingEnable()) {
             return Result.skipped("未开启按租户切库（datasource-routing-enable=false）");
         }
-        String jdbcUrl = TenantJdbcUrlBuilder.build(tenant, tenantProperties);
+        TenantDatasourceInfo info = tenantDataSourceResolver.resolve(tenant);
+        String jdbcUrl = TenantJdbcUrlBuilder.build(info, tenantProperties);
         if (jdbcUrl == null) {
             return Result.skipped("租户未登记库地址或库名，共享主库租户无需同步租户库管理员");
         }
@@ -137,7 +153,7 @@ public class TenantDatabaseAdminSynchronizer {
         if (!hasText(plainPassword)) {
             return Result.skipped("租户口令为空，无法创建租户库管理员");
         }
-        String plainSqlPassword = tenantPasswordCipher.decrypt(tenant.getSysTenantSqlPassword());
+        String plainSqlPassword = tenantPasswordCipher.decrypt(info.password());
         if (!hasText(plainSqlPassword)) {
             return Result.skipped("租户库口令为空，无法连接租户库同步管理员");
         }
@@ -145,7 +161,7 @@ public class TenantDatabaseAdminSynchronizer {
         String username = tenant.getSysTenantUsername().trim();
         try {
             JdbcTemplate jdbc = new JdbcTemplate(buildDataSource(jdbcUrl,
-                    tenant.getSysTenantSqlUsername(), plainSqlPassword));
+                    info.username(), plainSqlPassword));
             List<java.util.Map<String, Object>> rows = jdbc.queryForList(
                     "SELECT sys_user_id, sys_user_salt FROM sys_user "
                             + "WHERE sys_user_username = ? AND sys_user_delete = 0", username);

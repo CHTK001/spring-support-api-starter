@@ -6,6 +6,7 @@ import com.chua.starter.tenant.properties.TenantProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.support.StaticListableBeanFactory;
 
 import java.util.List;
 
@@ -38,7 +39,38 @@ class TenantDatabaseInitializerTest {
     @BeforeEach
     void setUp() {
         properties = new TenantProperties();
-        initializer = new TenantDatabaseInitializer(properties, new TenantPasswordCipherStub());
+        TenantDataSourceResolverStub resolverStub = new TenantDataSourceResolverStub(properties);
+        initializer = new TenantDatabaseInitializer(properties, resolverStub, new TenantPasswordCipherStub());
+    }
+
+    /**
+     * 解析器桩：按租户自填字段拼出连接信息，等价于 {@code datasource_id} 为空时的存量行为。
+     *
+     * <p>初始化的前置条件（账号/口令非空、库名已登记）由初始化器自己判，
+     * 所以桩在字段不全时返回 {@code null}，与真实解析器一致。</p>
+     */
+    private static final class TenantDataSourceResolverStub extends TenantDataSourceResolver {
+
+        /**
+         * 构造桩。
+         *
+         * @param properties 租户配置
+         */
+        TenantDataSourceResolverStub(TenantProperties properties) {
+            super(properties, new StaticListableBeanFactory().getBeanProvider(TenantDatasourceLookup.class));
+        }
+
+        @Override
+        public TenantDatasourceInfo resolve(SysTenant tenant) {
+            if (tenant == null) {
+                return null;
+            }
+            TenantDatasourceInfo info = new TenantDatasourceInfo(
+                    tenant.getSysTenantHost(), tenant.getSysTenantPort(), tenant.getSysTenantDbname(),
+                    tenant.getSysTenantSqlUsername(), tenant.getSysTenantSqlPassword(),
+                    TenantDatasourceInfo.Origin.TENANT_FIELDS);
+            return info.complete() ? info : null;
+        }
     }
 
     @Test
