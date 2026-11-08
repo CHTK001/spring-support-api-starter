@@ -27,6 +27,8 @@ import org.springframework.context.annotation.Configuration;
         // 漏扫不会报错在启动日志里，而是表现为 SysTenantServiceImpl 构造注入阶段
         // 「No qualifying bean of type TenantPasswordCipher」，整个应用起不来，故必须列出。
         "com.chua.starter.tenant.server.support",
+        // 数据源台账的查询口在 support 包（TenantDatasourceLookup），其实现由装了数据源中心的
+        // 应用提供；tenant 侧只 `getIfAvailable` 取用，未装时引用型租户会显式失败而非回退主库。
         // provision 包承载「带进度的租户创建」：TenantProvisionService 是 @Service，
         // 漏扫时创建接口 404、进度弹窗永远停在第一步，且不会有任何启动期报错。
         "com.chua.starter.tenant.server.provision"

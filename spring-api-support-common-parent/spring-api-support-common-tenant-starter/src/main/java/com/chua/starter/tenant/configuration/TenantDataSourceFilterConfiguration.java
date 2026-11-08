@@ -6,6 +6,7 @@ import com.chua.starter.tenant.properties.TenantProperties;
 import com.chua.starter.tenant.server.mapper.SysTenantMapper;
 import com.chua.starter.tenant.server.support.TenantDataSourceFilter;
 import com.chua.starter.tenant.server.support.TenantDataSourceRegistry;
+import com.chua.starter.tenant.server.support.TenantDataSourceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -54,6 +55,7 @@ public class TenantDataSourceFilterConfiguration {
      * @param tenantProperties         租户配置
      * @param sysTenantMapper          租户查询
      * @param tenantDataSourceRegistry 租户数据源注册器
+     * @param tenantDataSourceResolver 连接信息解析器（与建池同源判定「是否登记独立库」）
      * @param authServiceProvider      认证服务（用于从会话解析租户）
      * @param dynamicDataSource        动态数据源（用于启动期自检，可为空）
      * @return 过滤器注册对象
@@ -64,6 +66,7 @@ public class TenantDataSourceFilterConfiguration {
             TenantProperties tenantProperties,
             SysTenantMapper sysTenantMapper,
             TenantDataSourceRegistry tenantDataSourceRegistry,
+            TenantDataSourceResolver tenantDataSourceResolver,
             ObjectProvider<AuthService> authServiceProvider,
             ObjectProvider<DynamicDataSource> dynamicDataSource) {
 
@@ -88,7 +91,8 @@ public class TenantDataSourceFilterConfiguration {
         }
 
         TenantDataSourceFilter filter = new TenantDataSourceFilter(
-                tenantProperties, sysTenantMapper, tenantDataSourceRegistry, authServiceProvider);
+                tenantProperties, sysTenantMapper, tenantDataSourceRegistry, tenantDataSourceResolver,
+                authServiceProvider);
 
         FilterRegistrationBean<TenantDataSourceFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setName("tenantDataSourceFilter");

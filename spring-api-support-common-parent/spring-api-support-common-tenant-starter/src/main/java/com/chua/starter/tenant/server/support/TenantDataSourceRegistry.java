@@ -8,6 +8,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.support.StaticListableBeanFactory;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -21,9 +22,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * sql_username/sql_password}）转换成 {@link HikariDataSource}，并注册到
  * {@link DataSourceContextSupport} 供 {@code DynamicDataSource} 按名路由。</p>
  *
- * <p><b>口令来源</b>：{@code sys_tenant_password_sql} 落库是 {@code ENC:} 前缀密文，
+ * <p><b>口令来源</b>：租户自填字段的 {@code sys_tenant_password_sql} 落库是 {@code ENC:} 前缀密文，
  * 这里经 {@link TenantPasswordCipher#decrypt(String)} 还原成明文再交给连接池；
- * 存量明文没有前缀，解密器原样返回，因此不需要数据迁移。</p>
+ * 存量明文没有前缀，解密器原样返回，因此不需要数据迁移。台账与平台自身实例的口令
+ * 由各自模块保管，这里不重复解密（见 {@code resolvePassword}）。</p>
+ *
+ * <p><b>连接信息来源</b>：不再只读 {@code sys_tenant} 字段，统一经
+ * {@link TenantDataSourceResolver} 解析——租户可以引用数据源中心台账里的实例，
+ * 或直接选「平台自身实例」只填库名。</p>
  *
  * <p><b>为什么不用 {@code @DS} 注解</b>：注解只能在编译期写死数据源名，租户是运行期新增的，
  * 必须在请求到达时按 header 动态切换，故走 {@link DataSourceContextSupport#setDbType(String)}。</p>
@@ -73,6 +79,27 @@ public class TenantDataSourceRegistry implements DisposableBean {
     private final TenantPasswordCipher tenantPasswordCipher;
 
     /**
+     * 租户库连接信息解析器（三路来源：自填字段 / 数据源台账 / 平台自身实例）
+     */
+    private final TenantDataSourceResolver tenantDataSourceResolver;
+
+    /**
+     * 兼容两参构造：旧测试与外部调用方只需租户字段来源。
+     *
+     * <p>背后仍装配一个「没有台账实现」的解析器——引用型租户在这条路径上解析不出实例，
+     * 与生产环境未装台账模块时的行为一致（显式失败，不回退主库）。</p>
+     *
+     * @param tenantProperties     租户配置
+     * @param tenantPasswordCipher 口令加解密
+     */
+    public TenantDataSourceRegistry(TenantProperties tenantProperties,
+                                    TenantPasswordCipher tenantPasswordCipher) {
+        this(tenantProperties, tenantPasswordCipher,
+                new TenantDataSourceResolver(tenantProperties,
+                        new StaticListableBeanFactory().getBeanProvider(TenantDatasourceLookup.class)));
+    }
+
+    /**
      * 获取（必要时创建）租户数据源。
      *
      * @param tenant 租户记录，必须带 {@code sysTenantId}
@@ -88,9 +115,11 @@ public class TenantDataSourceRegistry implements DisposableBean {
             return existing;
         }
 
-        String jdbcUrl = TenantJdbcUrlBuilder.build(tenant, tenantProperties);
+        TenantDatasourceInfo info = tenantDataSourceResolver.resolve(tenant);
+        String jdbcUrl = TenantJdbcUrlBuilder.build(info, tenantProperties);
         if (jdbcUrl == null) {
-            log.debug("[租户数据源] 租户 {} 未登记库地址，跳过按库路由", tenantId);
+            log.debug("[租户数据源] 租户 {} 未登记可用库地址（来源={}），跳过按库路由", tenantId,
+                    info == null ? "无" : info.origin());
             return null;
         }
         if (inCooldown(tenantId)) {
@@ -108,7 +137,7 @@ public class TenantDataSourceRegistry implements DisposableBean {
             if (inCooldown(tenantId)) {
                 return null;
             }
-            HikariDataSource created = createDataSource(tenantId, jdbcUrl, tenant);
+            HikariDataSource created = createDataSource(tenantId, jdbcUrl, info);
             if (created == null) {
                 markFailure(tenantId);
                 return null;
@@ -116,8 +145,8 @@ public class TenantDataSourceRegistry implements DisposableBean {
             registered.put(tenantId, created);
             DataSourceContextSupport.addDatasource(dataSourceName(tenantId), created);
             failureCooldownUntil.remove(tenantId);
-            log.info("[租户数据源] 已注册: tenantId={}, name={}, url={}",
-                    tenantId, dataSourceName(tenantId), TenantJdbcUrlBuilder.mask(jdbcUrl));
+            log.info("[租户数据源] 已注册: tenantId={}, name={}, url={}, 来源={}",
+                    tenantId, dataSourceName(tenantId), TenantJdbcUrlBuilder.mask(jdbcUrl), info.origin());
             return created;
         }
     }
@@ -188,12 +217,12 @@ public class TenantDataSourceRegistry implements DisposableBean {
      *
      * @param tenantId 租户标识
      * @param jdbcUrl  JDBC URL
-     * @param tenant   租户记录
+     * @param info     连接信息
      * @return 连接池；创建失败时返回 {@code null}
      */
-    private HikariDataSource createDataSource(String tenantId, String jdbcUrl, SysTenant tenant) {
+    private HikariDataSource createDataSource(String tenantId, String jdbcUrl, TenantDatasourceInfo info) {
         TenantProperties.ServerConfig server = tenantProperties.getServer();
-        if (!hasText(tenant.getSysTenantSqlUsername())) {
+        if (!hasText(info.username())) {
             log.warn("[租户数据源] 租户 {} 未配置数据库账号，跳过按库路由", tenantId);
             return null;
         }
@@ -201,8 +230,8 @@ public class TenantDataSourceRegistry implements DisposableBean {
         HikariConfig config = new HikariConfig();
         config.setPoolName("tenant-" + tenantId);
         config.setJdbcUrl(jdbcUrl);
-        config.setUsername(tenant.getSysTenantSqlUsername());
-        config.setPassword(tenantPasswordCipher.decrypt(tenant.getSysTenantSqlPassword()));
+        config.setUsername(info.username());
+        config.setPassword(resolvePassword(info));
         config.setMaximumPoolSize(Math.max(1, server.getDatasourceRoutingMaxPoolSize()));
         config.setMinimumIdle(Math.max(0, server.getDatasourceRoutingMinIdle()));
         config.setConnectionTimeout(Math.max(1000L, server.getDatasourceRoutingConnectionTimeoutMillis()));
@@ -227,6 +256,23 @@ public class TenantDataSourceRegistry implements DisposableBean {
             log.warn("[租户数据源] 租户 {} 建池失败，回退主库: {}", tenantId, e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * 还原连接口令。
+     *
+     * <p><b>只对租户自填字段解密</b>：那条路径落库的是 {@code ENC:} 前缀密文。台账与平台自身实例
+     * 的口令由各自模块保管（台账自己有加密口径），在这里再解一次会把明文当密文送进去，
+     * 表现为「口令里没有 ENC: 前缀，解密器原样返回」这种看似无害、实则依赖实现细节的行为。</p>
+     *
+     * @param info 连接信息
+     * @return 明文口令；无需解密时原样返回
+     */
+    private String resolvePassword(TenantDatasourceInfo info) {
+        if (info.origin() != TenantDatasourceInfo.Origin.TENANT_FIELDS) {
+            return info.password();
+        }
+        return tenantPasswordCipher.decrypt(info.password());
     }
 
     /**

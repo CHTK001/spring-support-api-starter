@@ -7,6 +7,8 @@ import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.properties.TenantProperties;
 import com.chua.starter.tenant.server.service.SysTenantService;
+import com.chua.starter.tenant.server.support.TenantDataSourceResolver;
+import com.chua.starter.tenant.server.support.TenantDatasourceInfo;
 import com.chua.starter.tenant.server.support.TenantDatabaseAdminSynchronizer;
 import com.chua.starter.tenant.server.support.TenantDatabaseInitializer;
 import com.chua.starter.tenant.server.support.TenantDatabaseProvisioner;
@@ -111,6 +113,11 @@ public class TenantProvisionService {
      * 租户配置
      */
     private final TenantProperties tenantProperties;
+
+    /**
+     * 租户库连接信息解析器（自填字段 / 数据源台账 / 平台自身实例）
+     */
+    private final TenantDataSourceResolver tenantDataSourceResolver;
 
     /**
      * 租户端同步发布器；未接入同步服务时为空
@@ -255,8 +262,9 @@ public class TenantProvisionService {
 
             String sqlPassword = tenantPasswordCipher.decrypt(saved.getSysTenantSqlPassword());
             String adminPassword = tenantPasswordCipher.decrypt(saved.getSysTenantPassword());
-            boolean separateDb = hasText(saved.getSysTenantDbname())
-                    && (hasText(saved.getSysTenantHost()) || hasText(saved.getSysTenantIp()));
+            // 引用型租户（台账 / 平台自身实例）的实例信息由解析器给出；自填型沿用旧字段口径
+            TenantDatasourceInfo dbInfo = tenantDataSourceResolver.resolve(saved);
+            boolean separateDb = dbInfo != null;
 
             index = 2;
             if (!begin(task, index, total)) {
@@ -479,9 +487,16 @@ public class TenantProvisionService {
      * @param sysTenant 租户信息
      */
     private void applyDefaultDbHost(SysTenant sysTenant) {
-        if (sysTenant == null
-                || !hasText(sysTenant.getSysTenantDbname())
-                || !hasText(sysTenant.getSysTenantSqlUsername())
+        if (sysTenant == null || !hasText(sysTenant.getSysTenantDbname())) {
+            return;
+        }
+        Long datasourceId = sysTenant.getSysTenantDatasourceId();
+        if (datasourceId != null && datasourceId != 0L) {
+            // 引用型：实例地址与账号口令由解析器按台账 / 平台自身实例给出，
+            // 不回填自填字段，避免在租户记录里留一份与实例现状脱节的旧地址
+            return;
+        }
+        if (!hasText(sysTenant.getSysTenantSqlUsername())
                 || !hasText(sysTenant.getSysTenantSqlPassword())) {
             return;
         }
@@ -539,7 +554,14 @@ public class TenantProvisionService {
         boolean allSql = hasText(sysTenant.getSysTenantDbname())
                 && hasText(sysTenant.getSysTenantSqlUsername())
                 && hasText(sysTenant.getSysTenantSqlPassword());
-        if (anySql && !allSql) {
+        // 引用型（台账 / 平台自身实例）：实例地址与账号口令都由实例提供，
+        // 租户只需给库名，不该再要求填账号口令（否则等于让用户重复录入一遍实例凭据）
+        Long datasourceId = sysTenant.getSysTenantDatasourceId();
+        boolean sharedInstance = datasourceId != null && datasourceId != 0L;
+        if (sharedInstance && !hasText(sysTenant.getSysTenantDbname()) && anySql) {
+            return "选择了共享数据库实例：只需填写该租户要用的库名";
+        }
+        if (anySql && !allSql && !sharedInstance) {
             return "独立库信息不完整：库名、数据库账号、数据库密码必须同时填写（留空表示与平台共用主库）";
         }
         return null;
