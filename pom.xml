@@ -932,7 +932,7 @@
                 <plugin>
                     <groupId>com.chua</groupId>
                     <artifactId>utils-support-flyway-maven-plugin</artifactId>
-                    <version>${project.version}</version>
+                    <version>4.0.0.50</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
