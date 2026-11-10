@@ -29,10 +29,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class TenantDataSourceResolverTest {
 
+    /** MySQL 默认端口。 */
+    private static final int PORT_MYSQL = 3306;
+
+    /** PostgreSQL 默认端口。 */
+    private static final int PORT_POSTGRES = 5432;
+
+    /** 测试租户 A 的非标准 MySQL 端口。 */
+    private static final int PORT_TENANT_A = 3307;
+
+    /** 测试租户 C 的测试端口。 */
+    private static final int PORT_TENANT_C = 1234;
+
     @Test
     @DisplayName("自填字段：host 优先于 ip，整段作为连接信息")
     void resolvesFromTenantFields() {
-        SysTenant tenant = tenant("10.0.0.8", 3307, "tenant_a");
+        SysTenant tenant = tenant("10.0.0.8", PORT_TENANT_A, "tenant_a");
         tenant.setSysTenantIp("192.168.1.9");
         tenant.setSysTenantSqlUsername("u");
         tenant.setSysTenantSqlPassword("p");
@@ -42,7 +54,7 @@ class TenantDataSourceResolverTest {
         assertNotNull(info);
         assertEquals(TenantDatasourceInfo.Origin.TENANT_FIELDS, info.origin());
         assertEquals("10.0.0.8", info.host());
-        assertEquals(Integer.valueOf(3307), info.port());
+        assertEquals(Integer.valueOf(PORT_TENANT_A), info.port());
         assertEquals("tenant_a", info.dbName());
         assertEquals("u", info.username());
     }
@@ -50,7 +62,7 @@ class TenantDataSourceResolverTest {
     @Test
     @DisplayName("自填字段：host 为空时回退 ip（与 TenantJdbcUrlBuilder 口径一致）")
     void fallsBackToIp() {
-        SysTenant tenant = tenant(null, 3306, "tenant_a");
+        SysTenant tenant = tenant(null, PORT_MYSQL, "tenant_a");
         tenant.setSysTenantIp("192.168.1.9");
 
         TenantDatasourceInfo info = resolver(null, properties()).resolve(tenant);
@@ -64,8 +76,8 @@ class TenantDataSourceResolverTest {
     void tenantFieldsIncomplete() {
         TenantDataSourceResolver resolver = resolver(null, properties());
 
-        assertNull(resolver.resolve(tenant("h", 3306, null)));
-        assertNull(resolver.resolve(tenant(null, 3306, "db")));
+        assertNull(resolver.resolve(tenant("h", PORT_MYSQL, null)));
+        assertNull(resolver.resolve(tenant(null, PORT_MYSQL, "db")));
         assertNull(resolver.resolve(null));
     }
 
@@ -74,7 +86,7 @@ class TenantDataSourceResolverTest {
     void resolvesFromHub() {
         SysTenant tenant = tenant(null, null, "tenant_b");
         tenant.setSysTenantDatasourceId(42L);
-        TenantDatasourceInfo hub = new TenantDatasourceInfo("db.internal", 5432, "模板库",
+        TenantDatasourceInfo hub = new TenantDatasourceInfo("db.internal", PORT_POSTGRES, "模板库",
                 "hub_user", "hub_pwd", TenantDatasourceInfo.Origin.DATASOURCE_HUB);
 
         TenantDatasourceInfo info = resolver(hub, properties()).resolve(tenant);
@@ -82,7 +94,7 @@ class TenantDataSourceResolverTest {
         assertNotNull(info);
         assertEquals(TenantDatasourceInfo.Origin.DATASOURCE_HUB, info.origin());
         assertEquals("db.internal", info.host());
-        assertEquals(Integer.valueOf(5432), info.port());
+        assertEquals(Integer.valueOf(PORT_POSTGRES), info.port());
         assertEquals("tenant_b", info.dbName(), "库名必须取租户自己的，防止串库");
         assertEquals("hub_user", info.username());
     }
@@ -90,7 +102,7 @@ class TenantDataSourceResolverTest {
     @Test
     @DisplayName("引用台账但应用没装台账模块：返回 null，绝不回退旧字段")
     void hubMissingLookupDoesNotFallBack() {
-        SysTenant tenant = tenant("10.0.0.8", 3306, "tenant_a");
+        SysTenant tenant = tenant("10.0.0.8", PORT_MYSQL, "tenant_a");
         tenant.setSysTenantSqlUsername("u");
         tenant.setSysTenantDatasourceId(42L);
 
@@ -112,7 +124,7 @@ class TenantDataSourceResolverTest {
     void hubWithoutDbName() {
         SysTenant tenant = tenant(null, null, "  ");
         tenant.setSysTenantDatasourceId(42L);
-        TenantDatasourceInfo hub = new TenantDatasourceInfo("db.internal", 3306, null,
+        TenantDatasourceInfo hub = new TenantDatasourceInfo("db.internal", PORT_MYSQL, null,
                 "u", "p", TenantDatasourceInfo.Origin.DATASOURCE_HUB);
 
         assertNull(resolver(hub, properties()).resolve(tenant));
@@ -128,7 +140,7 @@ class TenantDataSourceResolverTest {
         server.setDatasourceRoutingAdminPassword("root");
         properties.setServer(server);
 
-        SysTenant tenant = tenant("10.9.9.9", 1234, "tenant_c");
+        SysTenant tenant = tenant("10.9.9.9", PORT_TENANT_C, "tenant_c");
         tenant.setSysTenantDatasourceId(TenantDataSourceResolver.PLATFORM_SELF);
 
         TenantDatasourceInfo info = resolver(null, properties).resolve(tenant);
@@ -136,7 +148,7 @@ class TenantDataSourceResolverTest {
         assertNotNull(info);
         assertEquals(TenantDatasourceInfo.Origin.PLATFORM_SELF, info.origin());
         assertEquals("127.0.0.1", info.host());
-        assertEquals(Integer.valueOf(3306), info.port());
+        assertEquals(Integer.valueOf(PORT_MYSQL), info.port());
         assertEquals("tenant_c", info.dbName());
         assertEquals("root", info.username());
     }
@@ -153,7 +165,7 @@ class TenantDataSourceResolverTest {
     @Test
     @DisplayName("管理连接地址解析：端口可缺省，参数串与库名被丢弃")
     void parsesAdminUrl() {
-        assertEquals(new TenantDataSourceResolver.AdminEndpoint("h", 3306),
+        assertEquals(new TenantDataSourceResolver.AdminEndpoint("h", PORT_MYSQL),
                 TenantDataSourceResolver.parseAdminUrl("jdbc:mysql://h:3306/db?x=1"));
         assertEquals(new TenantDataSourceResolver.AdminEndpoint("h", null),
                 TenantDataSourceResolver.parseAdminUrl("jdbc:mysql://h/db"));
@@ -168,9 +180,9 @@ class TenantDataSourceResolverTest {
     void isDedicatedMatchesResolve() {
         TenantDataSourceResolver resolver = resolver(null, properties());
 
-        assertTrue(resolver.isDedicated(tenant("h", 3306, "db")));
-        assertFalse(resolver.isDedicated(tenant("h", 3306, null)));
-        assertFalse(resolver.isDedicated(tenant("h", 3306, "  ")));
+        assertTrue(resolver.isDedicated(tenant("h", PORT_MYSQL, "db")));
+        assertFalse(resolver.isDedicated(tenant("h", PORT_MYSQL, null)));
+        assertFalse(resolver.isDedicated(tenant("h", PORT_MYSQL, "  ")));
     }
 
     @Test
@@ -189,7 +201,7 @@ class TenantDataSourceResolverTest {
             @Override
             public java.util.List<TenantDatasourceOption> options() {
                 return java.util.List.of(new TenantDatasourceOption(42L, "生产库", "jdbc",
-                        "10.0.0.8", 3306, "template", Boolean.TRUE));
+                        "10.0.0.8", PORT_MYSQL, "template", Boolean.TRUE));
             }
         };
         StaticListableBeanFactory factory = new StaticListableBeanFactory();
@@ -204,7 +216,7 @@ class TenantDataSourceResolverTest {
         assertNull(options.get(0).host(), "自填项没有实例地址");
         assertEquals(TenantDataSourceResolver.PLATFORM_SELF, options.get(1).id());
         assertEquals("127.0.0.1", options.get(1).host());
-        assertEquals(Integer.valueOf(3306), options.get(1).port());
+        assertEquals(Integer.valueOf(PORT_MYSQL), options.get(1).port());
         assertEquals(42L, options.get(2).id());
         assertEquals("10.0.0.8", options.get(2).host());
     }
@@ -227,7 +239,7 @@ class TenantDataSourceResolverTest {
     void describeResult() {
         SysTenant tenant = tenant(null, null, "tenant_b");
         tenant.setSysTenantDatasourceId(42L);
-        TenantDatasourceInfo hub = new TenantDatasourceInfo("db.internal", 3306, null,
+        TenantDatasourceInfo hub = new TenantDatasourceInfo("db.internal", PORT_MYSQL, null,
                 "hub_user", "hub_pwd", TenantDatasourceInfo.Origin.DATASOURCE_HUB);
 
         TenantDatasourceView view = resolver(hub, properties()).describe(tenant);
