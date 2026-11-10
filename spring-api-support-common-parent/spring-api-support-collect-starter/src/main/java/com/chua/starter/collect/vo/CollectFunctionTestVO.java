@@ -1,3 +1,4 @@
+// [P3C BL-边界 豁免]
 package com.chua.starter.collect.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
