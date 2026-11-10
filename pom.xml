@@ -932,7 +932,9 @@
                 <plugin>
                     <groupId>com.chua</groupId>
                     <artifactId>utils-support-flyway-maven-plugin</artifactId>
-                    <version>${project.version}</version>
+                    <!-- 该插件是 utils 侧模块，版本必须跟随 utils.version；
+                         用 ${project.version}(4.0.0.51) 会解析不到（utils 只发到 4.0.0.50） -->
+                    <version>${utils.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
