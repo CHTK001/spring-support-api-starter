@@ -145,15 +145,26 @@ public class TenantDatabaseProvisioner {
         }
         String dbName = tenant.getSysTenantDbname();
         String username = tenant.getSysTenantSqlUsername();
-        if (!hasText(dbName) || !hasText(username)) {
-            log.warn("[租户建库] 租户 {} 未填写库名或数据库账号，跳过自动建库", tenant.getSysTenantId());
+        // 台账实例自带账号：只需要建库，不需要也不应该再建一个库账号
+        boolean sharedInstance = tenant.getSysTenantDatasourceId() != null
+                && tenant.getSysTenantDatasourceId() > 0;
+        if (!hasText(dbName)) {
+            log.warn("[租户建库] 租户 {} 未填写库名，跳过自动建库", tenant.getSysTenantId());
             return false;
         }
-        if (!dbName.matches(SAFE_IDENTIFIER) || !username.matches(SAFE_IDENTIFIER)) {
-            log.error("[租户建库] 库名/账号含非法字符，已拒绝: db={}, user={}", dbName, username);
+        if (!dbName.matches(SAFE_IDENTIFIER)) {
+            log.error("[租户建库] 库名含非法字符，已拒绝: db={}", dbName);
             return false;
         }
-        if (!hasText(plainSqlPassword)) {
+        if (!sharedInstance && !hasText(username)) {
+            log.warn("[租户建库] 租户 {} 未填写数据库账号，跳过自动建库", tenant.getSysTenantId());
+            return false;
+        }
+        if (hasText(username) && !username.matches(SAFE_IDENTIFIER)) {
+            log.error("[租户建库] 数据库账号含非法字符，已拒绝: user={}", username);
+            return false;
+        }
+        if (!sharedInstance && !hasText(plainSqlPassword)) {
             log.warn("[租户建库] 租户 {} 未填写数据库口令，跳过自动建库", tenant.getSysTenantId());
             return false;
         }
@@ -168,8 +179,12 @@ public class TenantDatabaseProvisioner {
 
         try {
             createDatabase(tenant, dbName);
-            createAccount(tenant, dbName, plainSqlPassword);
-            verifyConnectivity(tenant, dbName, plainSqlPassword);
+            if (sharedInstance) {
+                log.info("[租户建库] 使用数据源台账实例账号，跳过建账号: db={}", dbName);
+            } else {
+                createAccount(tenant, dbName, plainSqlPassword);
+                verifyConnectivity(tenant, dbName, plainSqlPassword);
+            }
             return true;
         } catch (Exception e) {
             log.error("[租户建库] 租户 {} 自动建库失败: {}", tenant.getSysTenantId(), e.getMessage(), e);
@@ -255,10 +270,6 @@ public class TenantDatabaseProvisioner {
         if (!hasText(dbName)) {
             return true;
         }
-        if (!isAvailable(tenant)) {
-            log.warn("[租户建库] 自动建库不可用，跳过删除租户库: db={}", dbName);
-            return false;
-        }
         if (!dbName.matches(SAFE_IDENTIFIER)) {
             log.error("[租户建库] 库名含非法字符，已拒绝删除: db={}", dbName);
             return false;
@@ -268,7 +279,11 @@ public class TenantDatabaseProvisioner {
             return false;
         }
         String username = tenant.getSysTenantSqlUsername();
-        JdbcTemplate admin = requireAdmin(tenant, null);
+        JdbcTemplate admin = adminJdbc(tenant, null);
+        if (admin == null) {
+            log.warn("[租户建库] 无法解析管理连接，跳过删除租户库: db={}", dbName);
+            return false;
+        }
         try {
             admin.execute("DROP DATABASE IF EXISTS `" + dbName + "`");
             log.info("[租户建库] 租户库已删除: db={}", dbName);
@@ -277,6 +292,12 @@ public class TenantDatabaseProvisioner {
             return false;
         }
         if (hasText(username) && username.matches(SAFE_IDENTIFIER)) {
+            // 只回收平台生成（t_ 前缀）的专用账号。自填/台账账号很可能被其它库或
+            // 其它租户共用，DROP USER 会直接断掉别人的连接。
+            if (!username.startsWith("t_")) {
+                log.info("[租户建库] 账号 {} 不是平台生成，保留不删（可能被其它库共用）", username);
+                return true;
+            }
             try {
                 admin.execute("DROP USER IF EXISTS '" + username + "'@'%'");
                 log.info("[租户建库] 数据库账号已删除: user={}", username);
@@ -328,12 +349,18 @@ public class TenantDatabaseProvisioner {
      * @param plainSqlPassword 明文库口令
      */
     private void verifyConnectivity(SysTenant tenant, String dbName, String plainSqlPassword) {
-        String url = TenantJdbcUrlBuilder.build(tenant, tenantProperties);
+        // 与建池同源：台账租户的地址在台账里，只读租户自填字段会直接跳过校验
+        TenantDatasourceInfo info = resolveInfo(tenant);
+        String url = TenantJdbcUrlBuilder.build(info, tenantProperties);
+        if (url == null) {
+            url = TenantJdbcUrlBuilder.build(tenant, tenantProperties);
+        }
         if (url == null) {
             return;
         }
-        DriverManagerDataSource probe = new DriverManagerDataSource(url,
-                tenant.getSysTenantSqlUsername(), plainSqlPassword);
+        String username = info != null && hasText(info.username())
+                ? info.username() : tenant.getSysTenantSqlUsername();
+        DriverManagerDataSource probe = new DriverManagerDataSource(url, username, plainSqlPassword);
         try (var ignored = probe.getConnection()) {
             log.info("[租户建库] 连通性校验通过: {}", dbName);
         } catch (Exception e) {

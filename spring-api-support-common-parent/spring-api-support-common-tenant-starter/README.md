@@ -153,6 +153,7 @@ public class CustomTenantDataSyncProvider implements TenantDataSyncProvider {
 | PUT | `/v2/tenant/status` | 更新租户状态 |
 | GET | `/v2/tenant/endpoint` | 查询租户服务器地址 |
 | PUT | `/v2/tenant/init-database` | 初始化/补齐租户库业务表（幂等） |
+| PUT | `/v2/tenant/drop-database` | 物理删除租户独立数据库（不可逆，需 confirmCode） |
 
 ### 按租户切库
 
@@ -217,6 +218,11 @@ plugin:
 - **`/v2/setting` 的缓存键带租户维度**：切库后它会读租户库的 `sys_setting`，
   若缓存键不含租户，先访问的租户会把配置写进全局键，其它租户读到别人的配置。
   因此配置变更时该 cacheName 整体失效（`allEntries`），而不是按 key 精确清理。
+
+- **删除租户只做逻辑删除**：`DELETE /v2/tenant/delete` 不碰数据库与库账号，记录可恢复；
+  物理删库是独立接口 `PUT /v2/tenant/drop-database?sysTenantId=&confirmCode=<租户编码>`，
+  前端做三次确认（最后一次要求输入租户编码）。删库成功后清空该租户的独立库登记，请求回落主库；
+  只回收平台生成的 `t_` 前缀账号，自填/台账账号保留。
 
 ### 租户服务器地址解析
 

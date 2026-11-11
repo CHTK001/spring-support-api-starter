@@ -31,6 +31,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -214,6 +215,13 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         }
         sysTenant.setSysTenantCode(normalizeTenantCode(sysTenant.getSysTenantCode()));
 
+        // 同一实例下库名不能重复：两个租户指向同一库会直接串库，且建库时后一个会静默复用前一个的库
+        String dbNameError = validateDbName(sysTenant, null);
+        if (dbNameError != null) {
+            log.warn("租户库名不可用: db={}, reason={}", sysTenant.getSysTenantDbname(), dbNameError);
+            return ReturnResult.error(dbNameError);
+        }
+
         // 检查账号是否已存在
         if (StringUtils.isNotBlank(sysTenant.getSysTenantUsername())) {
             if (exists(Wrappers.<SysTenant>lambdaQuery()
@@ -244,6 +252,72 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
 
         log.info("租户记录已保存, ID: {}, 编码: {}", sysTenant.getSysTenantId(), sysTenant.getSysTenantCode());
         return ReturnResult.ok(sysTenant);
+    }
+
+    /**
+     * 校验库名在同一实例内不重复。
+     *
+     * <p>只比较「同一个实例」：不同实例上同名库是正常的，不能一刀切禁止。
+     * 实例按数据源 id 判定；自填型按 host/port 比较（端口为空按数据库默认端口处理）。</p>
+     *
+     * @param tenant          当前租户
+     * @param excludeTenantId 更新场景下排除自己
+     * @return 冲突时返回给用户看的原因，可用时返回 {@code null}
+     */
+    private String validateDbName(SysTenant tenant, String excludeTenantId) {
+        String dbName = StringUtils.isBlank(tenant.getSysTenantDbname())
+                ? null : tenant.getSysTenantDbname().trim();
+        if (dbName == null) {
+            return null;
+        }
+        List<SysTenant> sameName = list(Wrappers.<SysTenant>lambdaQuery()
+                .eq(SysTenant::getSysTenantDbname, dbName)
+                .ne(StringUtils.isNotBlank(excludeTenantId), SysTenant::getSysTenantId, excludeTenantId));
+        for (SysTenant other : sameName) {
+            if (sameInstance(tenant, other)) {
+                return "数据库名「" + dbName + "」已被租户「" + other.getSysTenantName()
+                        + "」使用，同一实例下不能共用";
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 两个租户是否指向同一个数据库实例。
+     *
+     * @param left  租户 A
+     * @param right 租户 B
+     * @return 同一实例返回 true
+     */
+    private boolean sameInstance(SysTenant left, SysTenant right) {
+        long leftId = left.getSysTenantDatasourceId() == null ? 0L : left.getSysTenantDatasourceId();
+        long rightId = right.getSysTenantDatasourceId() == null ? 0L : right.getSysTenantDatasourceId();
+        if (leftId > 0 || rightId > 0) {
+            return leftId == rightId;
+        }
+        if (leftId == TenantDataSourceResolver.PLATFORM_SELF
+                && rightId == TenantDataSourceResolver.PLATFORM_SELF) {
+            return true;
+        }
+        String leftHost = StringUtils.isNotBlank(left.getSysTenantHost())
+                ? left.getSysTenantHost() : left.getSysTenantIp();
+        String rightHost = StringUtils.isNotBlank(right.getSysTenantHost())
+                ? right.getSysTenantHost() : right.getSysTenantIp();
+        if (StringUtils.isBlank(leftHost) || StringUtils.isBlank(rightHost)
+                || !leftHost.trim().equalsIgnoreCase(rightHost.trim())) {
+            return false;
+        }
+        return Objects.equals(normalizePort(left.getSysTenantPort()), normalizePort(right.getSysTenantPort()));
+    }
+
+    /**
+     * 端口归一化：空值按 MySQL 默认 3306 处理，避免「不填端口」与「填 3306」被当成两个实例。
+     *
+     * @param port 端口
+     * @return 归一化后的端口
+     */
+    private int normalizePort(Integer port) {
+        return port == null || port <= 0 ? 3306 : port;
     }
 
     /**
@@ -300,6 +374,12 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
                 log.warn("租户编码不可用: code={}, reason={}", sysTenant.getSysTenantCode(), tenantCodeError);
                 return ReturnResult.error(tenantCodeError);
             }
+        }
+
+        String dbNameError = validateDbName(sysTenant, sysTenant.getSysTenantId());
+        if (dbNameError != null) {
+            log.warn("租户库名不可用: db={}, reason={}", sysTenant.getSysTenantDbname(), dbNameError);
+            return ReturnResult.error(dbNameError);
         }
 
         if (StringUtils.isNotBlank(sysTenant.getSysTenantUsername())) {

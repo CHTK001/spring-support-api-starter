@@ -5,6 +5,7 @@ import com.chua.starter.datasource.support.DataSourceContextSupport;
 import com.chua.starter.system.login.TenantLoginSupport;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.server.mapper.SysTenantMapper;
+import com.chua.starter.tenant.server.support.TenantDataSourceResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -45,6 +46,12 @@ public class TenantLoginDatasourceSupport implements TenantLoginSupport {
      */
     private final TenantDataSourceRegistry tenantDataSourceRegistry;
 
+    /**
+     * 租户库连接信息解析器：判定「是否独立库」与切库共用同一口径，
+     * 避免登录说「独立库」而过滤器说「未登记」两边不一致。
+     */
+    private final TenantDataSourceResolver tenantDataSourceResolver;
+
     @Override
     public TenantLoginTarget resolveByCode(String tenantCode) {
         if (tenantCode == null || tenantCode.isBlank()) {
@@ -61,8 +68,7 @@ public class TenantLoginDatasourceSupport implements TenantLoginSupport {
             }
             boolean enabled = tenant.getSysTenantStatus() == null
                     || tenant.getSysTenantStatus() == TENANT_STATUS_ENABLED;
-            boolean dedicated = tenant.getSysTenantDbname() != null
-                    && !tenant.getSysTenantDbname().isBlank();
+            boolean dedicated = tenantDataSourceResolver.isDedicated(tenant);
             log.debug("[租户登录] 编码 {} 命中租户 {}（独立库={}, 启用={}）",
                     code, tenant.getSysTenantId(), dedicated, enabled);
             return new TenantLoginTarget(tenant.getSysTenantId(), code, dedicated, enabled);
@@ -91,7 +97,7 @@ public class TenantLoginDatasourceSupport implements TenantLoginSupport {
                         tenant.getSysTenantId(), username);
                 return null;
             }
-            if (tenant.getSysTenantDbname() == null || tenant.getSysTenantDbname().isBlank()) {
+            if (!tenantDataSourceResolver.isDedicated(tenant)) {
                 log.debug("[租户登录] 租户 {} 使用共享库，按主库登录处理", tenant.getSysTenantId());
                 return null;
             }

@@ -2,6 +2,7 @@ package com.chua.starter.tenant.server.provision;
 
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.starter.common.support.annotations.SysLog;
+import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.tenant.entity.SysTenant;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -62,6 +63,7 @@ public class TenantProvisionController {
      */
     @PostMapping("/create")
     @SysLog(module = "创建")
+    @Permission("sys:tenant:save")
     @Operation(summary = "启动租户创建")
     public ReturnResult<Map<String, Object>> create(@RequestBody SysTenant sysTenant) {
         return ReturnResult.ok(tenantProvisionService.start(sysTenant));
@@ -87,6 +89,7 @@ public class TenantProvisionController {
      */
     @PutMapping("/cancel")
     @SysLog(module = "取消")
+    @Permission("sys:tenant:save")
     @Operation(summary = "取消租户创建")
     public ReturnResult<Boolean> cancel(@RequestParam String taskId) {
         return ReturnResult.ok(tenantProvisionService.cancel(taskId));
