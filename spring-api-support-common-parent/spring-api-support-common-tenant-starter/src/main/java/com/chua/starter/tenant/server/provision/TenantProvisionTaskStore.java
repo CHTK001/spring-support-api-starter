@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,6 +41,21 @@ public class TenantProvisionTaskStore {
      * 取消请求键前缀
      */
     private static final String CANCEL_PREFIX = "tenant:provision:cancel:";
+
+    /**
+     * 已被判定为执行节点失联的任务标记前缀
+     */
+    private static final String REAPED_PREFIX = "tenant:provision:reaped:";
+
+    /**
+     * 运行中状态字面量
+     */
+    private static final String STATUS_RUNNING = "RUNNING";
+
+    /**
+     * 失败状态字面量
+     */
+    private static final String STATUS_FAILED = "FAILED";
 
     /**
      * 与内存任务的保留时长保持一致：30 分钟
@@ -84,6 +100,10 @@ public class TenantProvisionTaskStore {
         }
         String taskId = stringValue(snapshot.get("taskId"));
         if (StringUtils.isBlank(taskId)) {
+            return;
+        }
+        // 已经被其它节点收尾的任务，不能被恢复执行的旧线程用 RUNNING/SUCCESS 覆盖。
+        if (isReaped(taskId) && !STATUS_FAILED.equals(stringValue(snapshot.get("status")))) {
             return;
         }
         try {
@@ -155,6 +175,150 @@ public class TenantProvisionTaskStore {
         } catch (Exception e) {
             log.warn("[租户创建进度] 取消标记读取失败: taskId={}, {}", taskId, e.getMessage());
             return false;
+        }
+    }
+
+    /**
+     * 标记任务已被判定为失联并收尾。
+     *
+     * @param taskId 任务标识
+     */
+    public void markReaped(String taskId) {
+        if (kvEngine == null || StringUtils.isBlank(taskId)) {
+            return;
+        }
+        try {
+            put(REAPED_PREFIX + taskId, "1");
+        } catch (Exception e) {
+            log.warn("[租户创建进度] 失联标记写入失败: taskId={}, {}", taskId, e.getMessage());
+        }
+    }
+
+    /**
+     * 任务是否已被判定为执行节点失联。
+     *
+     * @param taskId 任务标识
+     * @return 已收尾返回 true
+     */
+    public boolean isReaped(String taskId) {
+        if (kvEngine == null || StringUtils.isBlank(taskId)) {
+            return false;
+        }
+        try {
+            return StringUtils.isNotBlank(kvEngine.get(REAPED_PREFIX + taskId));
+        } catch (Exception e) {
+            log.warn("[租户创建进度] 失联标记读取失败: taskId={}, {}", taskId, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 收尾心跳超时的 RUNNING 任务。
+     *
+     * <p>由任意节点定期执行：扫描任务快照，把超过阈值未刷新 {@code heartbeatTime}
+     * 的 RUNNING 任务改成 FAILED，并把当前步骤标成失败。写入“已收尾”标记，
+     * 防止原执行节点恢复后覆盖终态。</p>
+     *
+     * @param staleBeforeMillis 心跳早于该时间点视为失联
+     * @return 本次收尾的任务数
+     */
+    public int reapOrphaned(long staleBeforeMillis) {
+        if (kvEngine == null) {
+            return 0;
+        }
+        Map<String, String> snapshots;
+        try {
+            snapshots = kvEngine.findAllByPrefix(TASK_PREFIX);
+        } catch (Exception e) {
+            log.warn("[租户创建进度] 扫描失联任务失败: {}", e.getMessage());
+            return 0;
+        }
+        int count = 0;
+        for (String json : snapshots.values()) {
+            try {
+                Map<String, Object> snapshot = Json.fromJson(json);
+                if (snapshot == null || !STATUS_RUNNING.equals(stringValue(snapshot.get("status")))) {
+                    continue;
+                }
+                long heartbeat = longValue(snapshot.get("heartbeatTime"));
+                if (heartbeat <= 0 || heartbeat >= staleBeforeMillis) {
+                    continue;
+                }
+                String taskId = stringValue(snapshot.get("taskId"));
+                if (StringUtils.isBlank(taskId)) {
+                    continue;
+                }
+                markReaped(taskId);
+                markOrphaned(snapshot);
+                save(snapshot);
+                count++;
+                log.warn("[租户创建进度] 任务心跳超时，已标记失败: taskId={}, heartbeat={}",
+                        taskId, heartbeat);
+            } catch (Exception e) {
+                log.warn("[租户创建进度] 收尾失联任务失败: {}", e.getMessage());
+            }
+        }
+        return count;
+    }
+
+    /**
+     * 把快照改成失联失败终态。
+     *
+     * @param snapshot 任务快照
+     */
+    private void markOrphaned(Map<String, Object> snapshot) {
+        long now = System.currentTimeMillis();
+        String reason = "执行节点心跳超时，任务已终止；已创建的库/账号/记录需人工核对";
+        snapshot.put("status", STATUS_FAILED);
+        snapshot.put("finished", true);
+        snapshot.put("cancellable", false);
+        snapshot.put("finishTime", now);
+        snapshot.put("currentTitle", "执行中断");
+        snapshot.put("currentDescription", reason);
+        snapshot.put("message", reason);
+        Object stepsValue = snapshot.get("steps");
+        if (stepsValue instanceof List<?> steps) {
+            for (Object stepValue : steps) {
+                if (stepValue instanceof Map<?, ?> rawStep) {
+                    for (Map.Entry<?, ?> entry : rawStep.entrySet()) {
+                        if ("status".equals(String.valueOf(entry.getKey()))
+                                && STATUS_RUNNING.equals(stringValue(entry.getValue()))) {
+                            @SuppressWarnings("unchecked")
+                            Map<String, Object> step = (Map<String, Object>) rawStep;
+                            step.put("status", "ERROR");
+                            step.put("statusLabel", "失败");
+                            step.put("detail", reason);
+                            step.put("endTime", now);
+                        }
+                    }
+                }
+            }
+        }
+        Object detailsValue = snapshot.get("details");
+        if (detailsValue instanceof List<?> details) {
+            @SuppressWarnings("unchecked")
+            List<Object> mutableDetails = (List<Object>) details;
+            mutableDetails.add(reason);
+            while (mutableDetails.size() > 200) {
+                mutableDetails.remove(0);
+            }
+        }
+    }
+
+    /**
+     * 安全读取长整型。
+     *
+     * @param value 原始值
+     * @return 长整型；无法解析返回 0
+     */
+    private long longValue(Object value) {
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        try {
+            return value == null ? 0L : Long.parseLong(String.valueOf(value));
+        } catch (NumberFormatException e) {
+            return 0L;
         }
     }
 

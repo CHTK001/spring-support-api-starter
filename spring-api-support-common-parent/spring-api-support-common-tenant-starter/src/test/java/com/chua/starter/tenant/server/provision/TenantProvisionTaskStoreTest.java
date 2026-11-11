@@ -57,6 +57,40 @@ class TenantProvisionTaskStoreTest {
     }
 
     @Test
+    void reapsStaleRunningTaskAndProtectsTerminalState() {
+        InMemoryKvEngine kvEngine = new InMemoryKvEngine();
+        TenantProvisionTaskStore store = storeWith(kvEngine);
+        long now = System.currentTimeMillis();
+
+        TenantProvisionTask stale = task("task-stale");
+        stale.getSteps().get(0).setStatus(TenantProvisionTask.StepStatus.RUNNING);
+        Map<String, Object> staleSnapshot = stale.toMap();
+        staleSnapshot.put("heartbeatTime", now - 10L * 60 * 1000);
+        store.save(staleSnapshot);
+
+        TenantProvisionTask fresh = task("task-fresh");
+        Map<String, Object> freshSnapshot = fresh.toMap();
+        freshSnapshot.put("heartbeatTime", now);
+        store.save(freshSnapshot);
+
+        assertEquals(1, store.reapOrphaned(now - 3L * 60 * 1000));
+
+        Map<String, Object> reaped = store.find("task-stale");
+        assertNotNull(reaped);
+        assertEquals("FAILED", reaped.get("status"));
+        assertEquals(Boolean.TRUE, reaped.get("finished"));
+        assertEquals(Boolean.FALSE, reaped.get("cancellable"));
+        assertTrue(store.isReaped("task-stale"));
+        assertEquals("ERROR", ((Map<?, ?>) ((java.util.List<?>) reaped.get("steps")).get(0)).get("status"));
+
+        // 旧执行线程恢复后写入 RUNNING，也不能覆盖已经收尾的终态。
+        staleSnapshot.put("status", "RUNNING");
+        store.save(staleSnapshot);
+        assertEquals("FAILED", store.find("task-stale").get("status"));
+        assertEquals("RUNNING", store.find("task-fresh").get("status"));
+    }
+
+    @Test
     void withoutKvEngineFallsBackToNoOp() {
         TenantProvisionTaskStore store = new TenantProvisionTaskStore();
 

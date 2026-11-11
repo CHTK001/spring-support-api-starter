@@ -3,7 +3,6 @@ package com.chua.starter.tenant.server.provision;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.utils.IdUtils;
-import com.chua.common.support.utils.StringUtils;
 import com.chua.socket.support.session.SocketSessionTemplate;
 import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.tenant.entity.SysTenant;
@@ -83,6 +82,14 @@ public class TenantProvisionService {
     private static final long TASK_TTL_MILLIS = 30L * 60 * 1000;
 
     /**
+     * 超过该心跳间隔未刷新的 RUNNING 任务视为执行节点已失联。
+     *
+     * <p>执行节点每 30 秒刷新一次心跳，3 分钟足以跨过短暂 GC/网络抖动，
+     * 又不会让异常退出的任务长时间悬挂。</p>
+     */
+    private static final long ORPHAN_HEARTBEAT_MILLIS = 3L * 60 * 1000;
+
+    /**
      * 内存中最多保留的任务数；超出时先淘汰最早结束的
      */
     private static final int MAX_TASKS = 200;
@@ -140,6 +147,11 @@ public class TenantProvisionService {
     private final TenantProvisionTaskStore taskStore;
 
     /**
+     * 跨节点进度分发总线
+     */
+    private final TenantProvisionProgressBus progressBus;
+
+    /**
      * 任务表
      */
     private final Map<String, TenantProvisionTask> tasks = new ConcurrentHashMap<>();
@@ -159,6 +171,7 @@ public class TenantProvisionService {
         map.put("socketModule", SOCKET_MODULE);
         map.put("socketTopic", SOCKET_TOPIC);
         map.put("taskPersistence", taskStore.isPersistent() ? "redis" : "memory");
+        map.put("socketCluster", progressBus.isClusterReady());
         map.put("cancellable", true);
         map.put("statusApi", "/v2/tenant/provision/status");
         map.put("cancelApi", "/v2/tenant/provision/cancel");
@@ -220,6 +233,10 @@ public class TenantProvisionService {
         if (task.isFinished()) {
             return false;
         }
+        // 任务已被其它节点判定为执行节点失联并收尾，不再接受取消。
+        if (taskStore.isReaped(taskId)) {
+            return false;
+        }
         boolean accepted = task.requestCancel();
         if (accepted) {
             taskStore.requestCancel(taskId);
@@ -239,7 +256,22 @@ public class TenantProvisionService {
     public Map<String, Object> statusOf(String taskId) {
         TenantProvisionTask task = tasks.get(taskId);
         if (task != null) {
-            Map<String, Object> snapshot = task.toMap();
+            // 任务已被其它节点判定为执行节点失联：Redis 里的 FAILED 是最终状态，
+            // 即使本地线程恢复，也不能再让前端看到 RUNNING/SUCCESS。
+            if (taskStore.isReaped(taskId)) {
+                Map<String, Object> reaped = taskStore.find(taskId);
+                if (reaped != null) {
+                    return reaped;
+                }
+            }
+            // 执行节点被判定失联后，Redis 里可能已经是 FAILED；本机快照可能还没来得及收尾，
+            // 先以持久化的终态为准，避免前端一直看到 RUNNING。
+            Map<String, Object> persisted = taskStore.find(taskId);
+            if (persisted != null && Boolean.TRUE.equals(persisted.get("finished"))
+                    && !task.isFinished()) {
+                return persisted;
+            }
+            Map<String, Object> snapshot = snapshot(task);
             // 另一个节点写入的取消标记可能尚未被执行节点消费，状态接口先按标记修正。
             if (taskStore.isCancelRequested(taskId)) {
                 snapshot.put("cancellable", false);
@@ -412,7 +444,8 @@ public class TenantProvisionService {
      * @return 继续执行返回 true；已请求取消返回 false
      */
     private boolean begin(TenantProvisionTask task, int index, int total) {
-        if (task.isCancelRequested() || taskStore.isCancelRequested(task.getTaskId())) {
+        if (task.isCancelRequested() || taskStore.isCancelRequested(task.getTaskId())
+                || taskStore.isReaped(task.getTaskId())) {
             // 共享标记可能来自其它节点；同步回本地标记，后续 cancelled() 会正确收尾。
             task.requestCancel();
             return false;
@@ -610,37 +643,60 @@ public class TenantProvisionService {
      * @param task 任务
      */
     private void publish(TenantProvisionTask task) {
-        // 快照先落持久化存储：即使套接字未接入或当前节点稍后宕机，
-        // 另一台节点仍能通过 status 接口拿到同一份进度。
-        Map<String, Object> snapshot = task.toMap();
-        taskStore.save(snapshot);
-        if (socketSessionTemplate == null) {
-            log.debug("[租户创建进度] 未接入套接字，跳过推送: taskId={}", task.getTaskId());
+        // 任务已被判定失联并收尾：不再把旧线程的 RUNNING 帧推给前端。
+        if (taskStore.isReaped(task.getTaskId())) {
             return;
         }
-        try {
-            Map<String, Object> payload = new LinkedHashMap<>(snapshot);
-            // module / event 放到顶层：前端按模块过滤消息，放在 data 里会收不到
-            payload.put("module", SOCKET_MODULE);
-            payload.put("event", SOCKET_TOPIC);
-            payload.put("timestamp", System.currentTimeMillis());
-            String message = Json.toJSONString(payload);
-            // 有可信用户身份时只推给发起人：广播会把租户名、账号、步骤明细
-            // 发给同一节点上的所有登录用户。没有鉴权能力时保持广播，前端仍可用轮询兜底。
-            String targetUserId = task.getInitiatorUserId();
-            if (socketSessionTemplate.supportsUserTargeting()) {
-                // 已启用鉴权但拿不到发起人：宁可不推，也不能退回广播把进度发给其他管理员。
-                // 前端仍会用 status 接口轮询同一份快照。
-                if (StringUtils.isBlank(targetUserId)) {
-                    log.debug("[租户创建进度] 缺少发起人，跳过定向推送: taskId={}", task.getTaskId());
-                    return;
-                }
-                socketSessionTemplate.sendToUser(targetUserId, SOCKET_EVENT, message);
-            } else {
-                socketSessionTemplate.broadcast(SOCKET_EVENT, message);
+        // 快照先落持久化存储：即使套接字未接入或当前节点稍后宕机，
+        // 另一台节点仍能通过 status 接口拿到同一份进度。
+        Map<String, Object> snapshot = snapshot(task);
+        taskStore.save(snapshot);
+        // 本机推送 + Redis 跨节点分发都在总线内完成；Redis 不可用时只推本机。
+        progressBus.publish(snapshot, task.getInitiatorUserId());
+    }
+
+    /**
+     * 生成带执行节点心跳的任务快照。
+     *
+     * <p>{@code heartbeatTime} 由定时任务刷新；其它节点据此识别“执行节点已经消失”的
+     * RUNNING 任务，而不是让它一直挂在进度弹窗里。</p>
+     *
+     * @param task 任务
+     * @return 带节点元数据的快照
+     */
+    private Map<String, Object> snapshot(TenantProvisionTask task) {
+        Map<String, Object> snapshot = task.toMap();
+        snapshot.put("ownerNode", progressBus.nodeId());
+        snapshot.put("heartbeatTime", System.currentTimeMillis());
+        return snapshot;
+    }
+
+    /**
+     * 刷新本节点正在执行任务的心跳。
+     *
+     * <p>只写持久化存储，不再重复推套接字：前端不需要因为心跳收到额外的进度帧。</p>
+     */
+    @Scheduled(fixedDelay = 30_000L, initialDelay = 30_000L)
+    public void heartbeatActiveTasks() {
+        for (TenantProvisionTask task : tasks.values()) {
+            if (!task.isFinished() && !taskStore.isReaped(task.getTaskId())) {
+                taskStore.save(snapshot(task));
             }
-        } catch (Exception e) {
-            log.warn("[租户创建进度] 套接字推送失败: taskId={}, {}", task.getTaskId(), e.getMessage());
+        }
+    }
+
+    /**
+     * 清理执行节点已经失联的 RUNNING 任务。
+     *
+     * <p>每个节点都会执行本检查；快照里的 {@code ownerNode} 和 {@code heartbeatTime}
+     * 由执行节点持续刷新。超过阈值没有心跳的任务会被标记为失败，避免进程异常退出后
+     * 前端一直停在“进行中”。</p>
+     */
+    @Scheduled(fixedDelay = 60_000L, initialDelay = 120_000L)
+    public void reapOrphanedTasks() {
+        int reaped = taskStore.reapOrphaned(System.currentTimeMillis() - ORPHAN_HEARTBEAT_MILLIS);
+        if (reaped > 0) {
+            log.warn("[租户创建进度] 已收尾失联任务 {} 个", reaped);
         }
     }
 
