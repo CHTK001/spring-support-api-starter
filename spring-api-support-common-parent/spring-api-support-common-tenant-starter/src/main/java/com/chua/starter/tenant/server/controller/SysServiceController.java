@@ -1,4 +1,5 @@
 package com.chua.starter.tenant.server.controller;
+import com.chua.starter.common.support.annotations.Permission;
 import com.chua.starter.common.support.annotations.SysLog;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -121,6 +122,7 @@ public class SysServiceController {
      * @return 保存结果
      */
     @PostMapping("save")
+    @Permission("sys:tenant:bind")
     @SysLog
     @Operation(summary = "保存服务")
     @Transactional(rollbackFor = Exception.class)
@@ -147,6 +149,7 @@ public class SysServiceController {
      * @return 更新结果
      */
     @PutMapping("update")
+    @Permission("sys:tenant:bind")
     @SysLog
     @Operation(summary = "更新服务")
     @Transactional(rollbackFor = Exception.class)
@@ -173,6 +176,7 @@ public class SysServiceController {
      * @param "服务ID" "服务ID"
      */
     @DeleteMapping("delete")
+    @Permission("sys:tenant:bind")
     @SysLog
     @Operation(summary = "删除服务")
     @Transactional(rollbackFor = Exception.class)
@@ -196,6 +200,7 @@ public class SysServiceController {
      * @return 绑定结果
      */
     @PutMapping("bind")
+    @Permission("sys:tenant:bind")
     @SysLog(module = "绑定")
     @Operation(summary = "绑定服务与模块")
     @Transactional(rollbackFor = Exception.class)
@@ -215,6 +220,7 @@ public class SysServiceController {
      * @return 更新结果
      */
     @PutMapping("status")
+    @Permission("sys:tenant:bind")
     @SysLog(module = "状态")
     @Operation(summary = "更新服务状态")
     public ReturnResult<Boolean> updateStatusForSysService(

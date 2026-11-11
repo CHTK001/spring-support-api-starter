@@ -20,6 +20,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,11 +31,11 @@ import java.util.Objects;
  * {@code sys_service_module_item} 三张表在租户库里是空的：菜单同步只推菜单，
  * 服务目录一直停留在平台库，租户端看不到"自己买了哪些服务"，服务到期也没有可删的记录。</p>
  *
- * <p>本类按「当前有效绑定」全量重写租户库里的这三张表：</p>
+ * <p>本类按「当前有效绑定」增量同步租户库里的这三张表：</p>
  * <ul>
- *   <li>绑定新增 → 服务行出现在租户库；</li>
- *   <li>绑定取消 / 服务到期 → 对应服务行从租户库消失；</li>
- *   <li>重复调用安全：先清空再写入，结果只取决于当前绑定。</li>
+ *   <li>绑定新增 → 服务行写入租户库（按主键 upsert，重复调用不会重复插入）；</li>
+ *   <li>绑定取消 / 服务到期 → 只删除平台维护且已不再绑定的服务行及其模块关联；</li>
+ *   <li>租户自建的服务行不在平台服务 ID 集合内，不会被同步清理。</li>
  * </ul>
  *
  * <p><b>共享库租户</b>（未登记库地址）：服务目录本来就与平台同一份数据，
@@ -109,11 +110,24 @@ public class TenantServiceCatalogSynchronizer {
                 ? List.of()
                 : sysServiceModuleMapper.selectBatchIds(moduleIds);
 
+        // 平台维护的全部服务（含逻辑删除），用于判定哪些行可以由同步任务清理
+        List<Integer> managedServiceIds = sysServiceMapper.selectAllServiceIdsIncludingDeleted();
+
         try {
             JdbcTemplate jdbc = new JdbcTemplate(dataSource);
-            jdbc.execute("DELETE FROM sys_service_module_item");
-            jdbc.execute("DELETE FROM sys_service_module");
-            jdbc.execute("DELETE FROM sys_service");
+            List<Integer> desiredServiceIds = services.stream()
+                    .map(SysService::getSysServiceId)
+                    .toList();
+            List<Integer> removedServiceIds = managedServiceIds.stream()
+                    .filter(id -> !desiredServiceIds.contains(id))
+                    .toList();
+            // 先记下被移除服务占用的模块，删完关联后再清理没人引用的模块
+            List<Integer> removedModuleIds = loadModuleIds(jdbc, removedServiceIds);
+            deleteItems(jdbc, removedServiceIds);
+            deleteServices(jdbc, removedServiceIds);
+            deleteOrphanModules(jdbc, removedModuleIds);
+            // 本次要同步的服务先清掉旧关联，服务行本身用 upsert，避免删除重建
+            deleteItems(jdbc, desiredServiceIds);
 
             Timestamp now = Timestamp.valueOf(LocalDateTime.now());
             List<Object[]> serviceRows = new ArrayList<>(services.size());
@@ -133,7 +147,14 @@ public class TenantServiceCatalogSynchronizer {
                 jdbc.batchUpdate("INSERT INTO sys_service "
                         + "(sys_service_id, sys_service_name, sys_service_code, sys_service_desc, "
                         + "sys_service_sort, sys_service_delete, sys_service_status, create_time) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)", serviceRows);
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?) "
+                        + "ON DUPLICATE KEY UPDATE "
+                        + "sys_service_name = VALUES(sys_service_name), "
+                        + "sys_service_code = VALUES(sys_service_code), "
+                        + "sys_service_desc = VALUES(sys_service_desc), "
+                        + "sys_service_sort = VALUES(sys_service_sort), "
+                        + "sys_service_delete = VALUES(sys_service_delete), "
+                        + "sys_service_status = VALUES(sys_service_status)", serviceRows);
             }
 
             List<Object[]> moduleRows = new ArrayList<>(modules.size());
@@ -156,7 +177,16 @@ public class TenantServiceCatalogSynchronizer {
                         + "(sys_service_module_id, sys_service_module_name, sys_service_module_code, "
                         + "sys_service_module_desc, sys_service_module_sort, sys_service_module_delete, "
                         + "sys_service_module_status, sys_service_module_type, sys_menu_id, create_time) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", moduleRows);
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+                        + "ON DUPLICATE KEY UPDATE "
+                        + "sys_service_module_name = VALUES(sys_service_module_name), "
+                        + "sys_service_module_code = VALUES(sys_service_module_code), "
+                        + "sys_service_module_desc = VALUES(sys_service_module_desc), "
+                        + "sys_service_module_sort = VALUES(sys_service_module_sort), "
+                        + "sys_service_module_delete = VALUES(sys_service_module_delete), "
+                        + "sys_service_module_status = VALUES(sys_service_module_status), "
+                        + "sys_service_module_type = VALUES(sys_service_module_type), "
+                        + "sys_menu_id = VALUES(sys_menu_id)", moduleRows);
             }
 
             // 只保留「服务与模块都在本次同步集合内」的关联，避免孤立行
@@ -226,5 +256,78 @@ public class TenantServiceCatalogSynchronizer {
      */
     private int defaultInt(Integer value) {
         return value == null ? 0 : value;
+    }
+
+    /**
+     * 按服务 ID 删除模块关联。
+     *
+     * @param jdbc JDBC 操作器
+     * @param serviceIds 服务 ID 列表
+     */
+    private void deleteItems(JdbcTemplate jdbc, List<Integer> serviceIds) {
+        if (serviceIds.isEmpty()) {
+            return;
+        }
+        jdbc.update("DELETE FROM sys_service_module_item WHERE sys_service_id IN ("
+                + placeholders(serviceIds.size()) + ")", serviceIds.toArray());
+    }
+
+    /**
+     * 按服务 ID 删除服务行。
+     *
+     * @param jdbc JDBC 操作器
+     * @param serviceIds 服务 ID 列表
+     */
+    private void deleteServices(JdbcTemplate jdbc, List<Integer> serviceIds) {
+        if (serviceIds.isEmpty()) {
+            return;
+        }
+        jdbc.update("DELETE FROM sys_service WHERE sys_service_id IN ("
+                + placeholders(serviceIds.size()) + ")", serviceIds.toArray());
+    }
+
+    /**
+     * 生成 IN 子句占位符。
+     *
+     * @param size 参数个数
+     * @return 以逗号分隔的 {@code ?} 串
+     */
+    private String placeholders(int size) {
+        return String.join(",", Collections.nCopies(size, "?"));
+    }
+
+    /**
+     * 查询一批服务在租户库里关联的模块 ID。
+     *
+     * @param jdbc JDBC 操作器
+     * @param serviceIds 服务 ID 列表
+     * @return 模块 ID 列表
+     */
+    private List<Integer> loadModuleIds(JdbcTemplate jdbc, List<Integer> serviceIds) {
+        if (serviceIds.isEmpty()) {
+            return List.of();
+        }
+        List<Integer> moduleIds = jdbc.queryForList(
+                "SELECT DISTINCT sys_service_module_id FROM sys_service_module_item "
+                        + "WHERE sys_service_id IN (" + placeholders(serviceIds.size()) + ")",
+                Integer.class, serviceIds.toArray());
+        return moduleIds == null ? List.of() : moduleIds;
+    }
+
+    /**
+     * 删除已无任何服务引用的模块。
+     *
+     * @param jdbc JDBC 操作器
+     * @param moduleIds 候选模块 ID 列表
+     */
+    private void deleteOrphanModules(JdbcTemplate jdbc, List<Integer> moduleIds) {
+        if (moduleIds.isEmpty()) {
+            return;
+        }
+        jdbc.update("DELETE FROM sys_service_module WHERE sys_service_module_id IN ("
+                        + placeholders(moduleIds.size()) + ")"
+                        + " AND sys_service_module_id NOT IN "
+                        + "(SELECT sys_service_module_id FROM sys_service_module_item)",
+                moduleIds.toArray());
     }
 }

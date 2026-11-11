@@ -33,6 +33,15 @@ public interface SysTenantServiceMapper extends BaseMapper<SysTenantService> {
     List<String> findTenantIdsByMenuId(@Param("menuId") Integer menuId);
 
     /**
+     * 统计有订阅服务的租户数（去重）。
+     *
+     * <p>交给数据库做 {@code COUNT(DISTINCT)}：租户量大时不用把绑定行全部捞到内存。</p>
+     *
+     * @return 有订阅的租户数
+     */
+    long countSubscribedTenants();
+
+    /**
      * 按租户标识删除租户-服务绑定关系
      *
      * @param tenantId 租户标识

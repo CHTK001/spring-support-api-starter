@@ -22,6 +22,11 @@
         AND (ts.sys_tenant_service_valid_time IS NULL OR ts.sys_tenant_service_valid_time > CURDATE())
     </select>
 
+    <!-- 统计有订阅服务的租户数（去重） -->
+    <select id="countSubscribedTenants" resultType="java.lang.Long">
+        SELECT COUNT(DISTINCT sys_tenant_id) FROM sys_tenant_service
+    </select>
+
     <!-- 按租户ID删除租户-服务绑定关系 -->
     <delete id="deleteByTenantId">
         DELETE FROM sys_tenant_service WHERE sys_tenant_id = #{tenantId}

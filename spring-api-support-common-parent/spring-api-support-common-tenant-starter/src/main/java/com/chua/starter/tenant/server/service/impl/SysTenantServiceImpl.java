@@ -8,9 +8,11 @@ import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.utils.CollectionUtils;
 import com.chua.common.support.utils.IdUtils;
 import com.chua.starter.mybatis.entity.Query;
+import com.chua.starter.tenant.entity.SysService;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.entity.SysTenantService;
 import com.chua.starter.tenant.entity.SysTenantStats;
+import com.chua.starter.tenant.server.mapper.SysServiceMapper;
 import com.chua.starter.tenant.server.mapper.SysTenantMapper;
 import com.chua.starter.tenant.server.mapper.SysTenantServiceMapper;
 import com.chua.starter.tenant.server.pojo.SysTenantBindServiceV1Request;
@@ -70,6 +72,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
      * systenant服务映射器
     */
     private final SysTenantServiceMapper sysTenantServiceMapper;
+
+    /**
+     * 服务目录查询：绑定前校验服务是否真实存在，避免留下悬空绑定
+     */
+    private final SysServiceMapper sysServiceMapper;
 
     /**
      * 租户口令落库加解密
@@ -539,12 +546,45 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
                 request.sysTenantId(),
                 request.serviceBindItems() != null ? request.serviceBindItems().size() : 0);
 
+        if (StringUtils.isBlank(request.sysTenantId()) || getById(request.sysTenantId()) == null) {
+            return ReturnResult.error("租户不存在: " + request.sysTenantId());
+        }
+        if (request.serviceBindItems() != null
+                && request.serviceBindItems().stream()
+                        .anyMatch(item -> item == null || item.sysServiceId() == null)) {
+            return ReturnResult.error("服务绑定项中存在空的服务ID");
+        }
+        // 服务 id 先校验存在：否则先删后插会把租户原有绑定清掉，再写入一批悬空 id
+        List<Integer> requestedServiceIds = request.serviceBindItems() == null
+                ? List.of()
+                : request.serviceBindItems().stream()
+                        .filter(Objects::nonNull)
+                        .map(SysTenantBindServiceV1Request.ServiceBindItem::sysServiceId)
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .toList();
+        if (!requestedServiceIds.isEmpty()) {
+            List<Integer> existingIds = sysServiceMapper.selectList(Wrappers.<SysService>lambdaQuery()
+                            .select(SysService::getSysServiceId)
+                            .in(SysService::getSysServiceId, requestedServiceIds))
+                    .stream()
+                    .map(SysService::getSysServiceId)
+                    .toList();
+            List<Integer> missingIds = requestedServiceIds.stream()
+                    .filter(id -> !existingIds.contains(id))
+                    .toList();
+            if (!missingIds.isEmpty()) {
+                return ReturnResult.error("服务不存在或已删除: " + missingIds);
+            }
+        }
+
         ReturnResult<Boolean> result = transactionTemplate.execute(status -> {
             sysTenantServiceMapper.delete(Wrappers.<SysTenantService>lambdaQuery()
                     .eq(SysTenantService::getSysTenantId, request.sysTenantId()));
 
             if (CollectionUtils.isNotEmpty(request.serviceBindItems())) {
                 List<SysTenantService> tenantServices = request.serviceBindItems().stream()
+                        .filter(Objects::nonNull)
                         .map(item -> {
                             SysTenantService tenantService = new SysTenantService();
                             tenantService.setSysTenantId(request.sysTenantId());
@@ -612,13 +652,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         // 禁用数 (status = 1 表示禁用)
         Long disabled = count(Wrappers.<SysTenant>lambdaQuery().eq(SysTenant::getSysTenantStatus, 1));
         // 订阅服务数（有订阅服务的租户数）
-        List<SysTenantService> allTenantServices = sysTenantServiceMapper.selectList(
-                Wrappers.<SysTenantService>lambdaQuery().select(SysTenantService::getSysTenantId)
-        );
-        long subscribedCount = allTenantServices.stream()
-                .map(SysTenantService::getSysTenantId)
-                .distinct()
-                .count();
+        long subscribedCount = sysTenantServiceMapper.countSubscribedTenants();
         SysTenantStats stats = new SysTenantStats(total, enabled, disabled, subscribedCount);
         return ReturnResult.ok(stats);
     }
