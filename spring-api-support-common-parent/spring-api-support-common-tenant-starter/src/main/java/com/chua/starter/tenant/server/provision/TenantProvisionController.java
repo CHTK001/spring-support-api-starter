@@ -76,6 +76,7 @@ public class TenantProvisionController {
      * @return 任务快照
      */
     @GetMapping("/status")
+    @Permission({"sys:tenant:save", "sys:tenant:get"})
     @Operation(summary = "查询租户创建进度")
     public ReturnResult<Map<String, Object>> status(@RequestParam String taskId) {
         return ReturnResult.ok(tenantProvisionService.statusOf(taskId));

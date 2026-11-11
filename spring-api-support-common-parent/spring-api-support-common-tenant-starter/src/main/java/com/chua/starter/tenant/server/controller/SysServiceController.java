@@ -15,9 +15,11 @@ import com.chua.starter.mybatis.utils.PageResultUtils;
 import com.chua.starter.tenant.entity.SysService;
 import com.chua.starter.tenant.entity.SysServiceModule;
 import com.chua.starter.tenant.entity.SysServiceModuleItem;
+import com.chua.starter.tenant.entity.SysTenantService;
 import com.chua.starter.tenant.server.mapper.SysServiceMapper;
 import com.chua.starter.tenant.server.mapper.SysServiceModuleItemMapper;
 import com.chua.starter.tenant.server.mapper.SysServiceModuleMapper;
+import com.chua.starter.tenant.server.mapper.SysTenantServiceMapper;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,6 +33,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -59,6 +62,11 @@ public class SysServiceController {
      * SYS服务modulemapper
     */
     private final SysServiceModuleMapper sysServiceModuleMapper;
+
+    /**
+     * 租户 - 服务绑定：删除服务前检查是否仍有租户在用
+     */
+    private final SysTenantServiceMapper sysTenantServiceMapper;
 
     /**
      * 分页查询服务
@@ -135,6 +143,10 @@ public class SysServiceController {
         if (isCodeExists(sysService.getSysServiceCode(), null)) {
             return ReturnResult.error("服务编码已存在");
         }
+        String moduleError = validateModules(sysService.getSysServiceTags());
+        if (moduleError != null) {
+            return ReturnResult.error(moduleError);
+        }
         sysServiceMapper.insert(sysService);
         // 保存关联的模块
         saveServiceModuleItems(sysService);
@@ -162,6 +174,10 @@ public class SysServiceController {
         if (isCodeExists(sysService.getSysServiceCode(), sysService.getSysServiceId())) {
             return ReturnResult.error("服务编码已存在");
         }
+        String moduleError = validateModules(sysService.getSysServiceTags());
+        if (moduleError != null) {
+            return ReturnResult.error(moduleError);
+        }
         sysServiceMapper.updateById(sysService);
         // 更新关联的模块
         saveServiceModuleItems(sysService);
@@ -183,6 +199,13 @@ public class SysServiceController {
     public ReturnResult<Boolean> deleteForSysService(@Parameter(description = "服务ID") Integer sysServiceId) {
         if (sysServiceId == null) {
             return ReturnResult.error("服务ID不能为空");
+        }
+        Long bound = sysTenantServiceMapper.selectCount(
+                Wrappers.<SysTenantService>lambdaQuery()
+                        .eq(SysTenantService::getSysServiceId, sysServiceId)
+        );
+        if (bound != null && bound > 0) {
+            return ReturnResult.error("该服务仍有 " + bound + " 个租户绑定，请先解绑后再删除");
         }
         // 删除关联的模块关系
         sysServiceModuleItemMapper.delete(
@@ -207,6 +230,10 @@ public class SysServiceController {
     public ReturnResult<Boolean> bindModulesForSysService(@RequestBody SysService sysService) {
         if (sysService.getSysServiceId() == null) {
             return ReturnResult.error("服务ID不能为空");
+        }
+        String moduleError = validateModules(sysService.getSysServiceTags());
+        if (moduleError != null) {
+            return ReturnResult.error(moduleError);
         }
         saveServiceModuleItems(sysService);
         return ReturnResult.ok(true);
@@ -299,6 +326,29 @@ public class SysServiceController {
             wrapper.ne(SysService::getSysServiceId, excludeId);
         }
         return sysServiceMapper.selectCount(wrapper) > 0;
+    }
+
+    /**
+     * 校验模块 ID 是否真实存在。
+     *
+     * <p>绑定入口直接接收前端传来的 ID 列表，不校验会插入一条
+     * {@code sys_menu_id = null} 的悬空关联，菜单推送时拿不到菜单。</p>
+     *
+     * @param tags 模块 ID 列表
+     * @return 错误提示；通过返回 {@code null}
+     */
+    private String validateModules(List<Integer> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return null;
+        }
+        List<Integer> ids = tags.stream().filter(Objects::nonNull).distinct().toList();
+        if (ids.isEmpty()) {
+            return "服务模块ID不能为空";
+        }
+        if (sysServiceModuleMapper.selectBatchIds(ids).size() != ids.size()) {
+            return "存在无效的服务模块ID，请刷新后重试";
+        }
+        return null;
     }
 
     /**

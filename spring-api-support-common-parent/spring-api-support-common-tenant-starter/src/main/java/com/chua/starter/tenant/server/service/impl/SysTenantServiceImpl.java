@@ -228,6 +228,10 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
             log.warn("租户库名不可用: db={}, reason={}", sysTenant.getSysTenantDbname(), dbNameError);
             return ReturnResult.error(dbNameError);
         }
+        String datasourceError = validateDatasourceSelection(sysTenant);
+        if (datasourceError != null) {
+            return ReturnResult.error(datasourceError);
+        }
 
         // 检查账号是否已存在
         if (StringUtils.isNotBlank(sysTenant.getSysTenantUsername())) {
@@ -277,6 +281,9 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         if (dbName == null) {
             return null;
         }
+        if (tenantDatabaseProvisioner.isProtectedDatabase(dbName)) {
+            return "数据库名「" + dbName + "」是平台主库或系统库，不能用于租户";
+        }
         List<SysTenant> sameName = list(Wrappers.<SysTenant>lambdaQuery()
                 .eq(SysTenant::getSysTenantDbname, dbName)
                 .ne(StringUtils.isNotBlank(excludeTenantId), SysTenant::getSysTenantId, excludeTenantId));
@@ -287,6 +294,132 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
             }
         }
         return null;
+    }
+
+    /**
+     * 选了数据库实例就必须填库名。
+     *
+     * <p>「本机 / 台账」租户的地址与账号由实例提供，库名是唯一还需要人工填的字段；
+     * 留空会保存成功，但后续路由会按「配置了独立库却解析不出」拒绝整个租户的请求。</p>
+     *
+     * @param tenant 租户记录
+     * @return 错误提示；通过返回 {@code null}
+     */
+    private String validateDatasourceSelection(SysTenant tenant) {
+        if (tenant == null) {
+            return null;
+        }
+        Long datasourceId = tenant.getSysTenantDatasourceId();
+        boolean selected = datasourceId != null && datasourceId != 0L;
+        if (selected && StringUtils.isBlank(tenant.getSysTenantDbname())) {
+            return "选择了数据库实例：必须填写该租户要用的库名";
+        }
+        return null;
+    }
+
+    /**
+     * 部分更新时合并库字段：null 表示「本次没传」，沿用原值。
+     *
+     * <p>不能把 null 当成「清空」：否则一个只改名称的请求会被误判为换库，
+     * 进而触发建库/初始化。库口令不在此合并：null 仍表示「不改口令」，
+     * 若合并成原密文会被二次加密。</p>
+     *
+     * @param target   本次提交的记录
+     * @param existing 库中现有记录
+     */
+    private void mergeDbFields(SysTenant target, SysTenant existing) {
+        if (target.getSysTenantDbname() == null) {
+            target.setSysTenantDbname(existing.getSysTenantDbname());
+        }
+        if (target.getSysTenantSqlUsername() == null) {
+            target.setSysTenantSqlUsername(existing.getSysTenantSqlUsername());
+        }
+        if (target.getSysTenantHost() == null) {
+            target.setSysTenantHost(existing.getSysTenantHost());
+        }
+        if (target.getSysTenantIp() == null) {
+            target.setSysTenantIp(existing.getSysTenantIp());
+        }
+        if (target.getSysTenantPort() == null) {
+            target.setSysTenantPort(existing.getSysTenantPort());
+        }
+        if (target.getSysTenantDatasourceId() == null) {
+            target.setSysTenantDatasourceId(existing.getSysTenantDatasourceId());
+        }
+    }
+
+    /**
+     * 判断本次更新是否更换了数据库实例或库名。
+     *
+     * @param target   本次提交的记录
+     * @param existing 库中现有记录
+     * @return 库配置发生变化返回 true
+     */
+    private boolean dbConfigChanged(SysTenant target, SysTenant existing) {
+        return !Objects.equals(trim(target.getSysTenantDbname()), trim(existing.getSysTenantDbname()))
+                || defaultLong(target.getSysTenantDatasourceId()) != defaultLong(existing.getSysTenantDatasourceId())
+                || !Objects.equals(trim(target.getSysTenantHost()), trim(existing.getSysTenantHost()))
+                || !Objects.equals(trim(target.getSysTenantIp()), trim(existing.getSysTenantIp()))
+                || normalizePort(target.getSysTenantPort()) != normalizePort(existing.getSysTenantPort())
+                || !Objects.equals(trim(target.getSysTenantSqlUsername()), trim(existing.getSysTenantSqlUsername()));
+    }
+
+    /**
+     * 换库前先开通目标库，开通失败就不落新配置。
+     *
+     * @param tenant           本次提交的记录
+     * @param existing         库中现有记录（用于取未修改的口令）
+     * @param plainSqlPassword 明文库口令
+     * @return 失败原因；成功返回 {@code null}
+     */
+    private String provisionChangedDatabase(SysTenant tenant, SysTenant existing, String plainSqlPassword) {
+        if (!tenantDatabaseProvisioner.isAvailable(tenant)) {
+            return "目标库无法自动开通（自动建库未启用或实例账号不可用），请先在目标实例建库并初始化后再修改配置";
+        }
+        try {
+            if (!tenantDatabaseProvisioner.provision(tenant, plainSqlPassword)) {
+                return "目标数据库创建或授权失败，请查看服务端日志";
+            }
+            TenantDatabaseInitializer.InitResult init =
+                    tenantDatabaseInitializer.initialize(tenant, plainSqlPassword);
+            if (!init.isSuccess()
+                    && init.status() != TenantDatabaseInitializer.InitResult.Status.SKIPPED) {
+                return "目标数据库业务表初始化失败：" + init.message();
+            }
+            String adminPassword = StringUtils.isNotBlank(tenant.getSysTenantPassword())
+                    ? tenant.getSysTenantPassword()
+                    : tenantPasswordCipher.decrypt(existing.getSysTenantPassword());
+            TenantDatabaseAdminSynchronizer.Result admin =
+                    tenantDatabaseAdminSynchronizer.sync(tenant, adminPassword);
+            if (!admin.isSynced()
+                    && admin.status() != TenantDatabaseAdminSynchronizer.Result.Status.SKIPPED) {
+                return "目标数据库管理员同步失败：" + admin.message();
+            }
+            return null;
+        } catch (Exception e) {
+            log.error("[租户建库] 换库开通异常: tenantId={}", tenant.getSysTenantId(), e);
+            return "目标数据库开通失败：" + e.getMessage();
+        }
+    }
+
+    /**
+     * 去首尾空白，便于比较。
+     *
+     * @param value 原值
+     * @return 去空白后的值；null 原样返回
+     */
+    private String trim(String value) {
+        return value == null ? null : value.trim();
+    }
+
+    /**
+     * null 按 0 处理。
+     *
+     * @param value 原值
+     * @return 非空原值或 0
+     */
+    private long defaultLong(Long value) {
+        return value == null ? 0L : value;
     }
 
     /**
@@ -373,6 +506,16 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     public ReturnResult<Boolean> updateForSysTenant(SysTenant sysTenant) {
         log.debug("更新租户: {}", sysTenant);
 
+        if (sysTenant == null || StringUtils.isBlank(sysTenant.getSysTenantId())) {
+            return ReturnResult.illegal("租户ID不能为空");
+        }
+        SysTenant existing = getById(sysTenant.getSysTenantId());
+        if (existing == null) {
+            return ReturnResult.error("租户不存在: " + sysTenant.getSysTenantId());
+        }
+        // 部分更新：库相关字段为 null 表示“没传”，不能当成“清空”，否则会被误判为换库
+        mergeDbFields(sysTenant, existing);
+
         // 编码允许修改（写错字的租户要能纠正），但必须重新校验唯一性
         sysTenant.setSysTenantCode(normalizeTenantCode(sysTenant.getSysTenantCode()));
         if (sysTenant.getSysTenantCode() != null) {
@@ -381,6 +524,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
                 log.warn("租户编码不可用: code={}, reason={}", sysTenant.getSysTenantCode(), tenantCodeError);
                 return ReturnResult.error(tenantCodeError);
             }
+        }
+
+        String datasourceError = validateDatasourceSelection(sysTenant);
+        if (datasourceError != null) {
+            return ReturnResult.error(datasourceError);
         }
 
         String dbNameError = validateDbName(sysTenant, sysTenant.getSysTenantId());
@@ -395,6 +543,35 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
                     .ne(SysTenant::getSysTenantId, sysTenant.getSysTenantId()))) {
                 log.warn("租户账号已存在: {}", sysTenant.getSysTenantUsername());
                 return ReturnResult.error("租户账号已存在");
+            }
+        }
+
+        // 从共享库切到「平台自身实例」时，实例账号还没生成：先补专用账号，
+        // 否则解析器会因缺账号判定实例不可用，换库直接被拒
+        boolean becomingPlatformSelf = sysTenant.getSysTenantDatasourceId() != null
+                && sysTenant.getSysTenantDatasourceId() == TenantDataSourceResolver.PLATFORM_SELF
+                && (existing.getSysTenantDatasourceId() == null
+                || existing.getSysTenantDatasourceId() != TenantDataSourceResolver.PLATFORM_SELF
+                || StringUtils.isBlank(existing.getSysTenantSqlUsername()));
+        if (becomingPlatformSelf) {
+            applyDedicatedAccountDefaults(sysTenant);
+        }
+
+        // 换库必须先开通成功再落配置：否则记录指向一个不存在的库，
+        // 该租户所有请求都会按 fail-closed 拒绝，且没有入口自动补建
+        String plainSqlPassword = StringUtils.isNotBlank(sysTenant.getSysTenantSqlPassword())
+                ? sysTenant.getSysTenantSqlPassword()
+                : tenantPasswordCipher.decrypt(existing.getSysTenantSqlPassword());
+        if (StringUtils.isNotBlank(plainSqlPassword)) {
+            // 解析器要看到明文口令才能判定实例是否完整；落库前会重新加密
+            sysTenant.setSysTenantSqlPassword(plainSqlPassword);
+        }
+        if (dbConfigChanged(sysTenant, existing) && StringUtils.isNotBlank(sysTenant.getSysTenantDbname())) {
+            String provisionError = provisionChangedDatabase(sysTenant, existing, plainSqlPassword);
+            if (provisionError != null) {
+                log.warn("租户换库失败，未更新配置: tenantId={}, reason={}",
+                        sysTenant.getSysTenantId(), provisionError);
+                return ReturnResult.error(provisionError);
             }
         }
 
@@ -494,6 +671,9 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         if (StringUtils.isBlank(tenant.getSysTenantDbname())) {
             return ReturnResult.error("该租户未登记独立数据库，无需删除");
         }
+        if (tenantDatabaseProvisioner.isProtectedDatabase(tenant.getSysTenantDbname())) {
+            return ReturnResult.error("库名「" + tenant.getSysTenantDbname() + "」是平台主库或系统库，已拒绝删除");
+        }
         if (StringUtils.isBlank(confirmCode)
                 || !confirmCode.trim().equalsIgnoreCase(tenant.getSysTenantCode())) {
             return ReturnResult.error("确认失败：请输入租户编码「" + tenant.getSysTenantCode() + "」后再执行");
@@ -517,6 +697,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
                 .set(SysTenant::getSysTenantPort, null)
                 .set(SysTenant::getSysTenantDatasourceId, 0L)
                 .eq(SysTenant::getSysTenantId, sysTenantId));
+        // 通知租户端刷新租户信息：库已删，继续按旧地址连只会失败
+        SysTenant cleared = getById(sysTenantId);
+        if (cleared != null && syncPublisher != null) {
+            syncPublisher.publishTenantUpdate(cleared);
+        }
         log.info("[租户建库] 已物理删除租户库并清空登记: tenantId={}, db={}",
                 sysTenantId, tenant.getSysTenantDbname());
         return ReturnResult.ok(true);

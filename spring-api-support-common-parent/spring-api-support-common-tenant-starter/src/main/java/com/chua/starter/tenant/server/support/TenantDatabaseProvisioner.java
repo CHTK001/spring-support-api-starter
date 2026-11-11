@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * 租户独立库自动开通器。
@@ -42,6 +44,12 @@ public class TenantDatabaseProvisioner {
      * 标识符白名单：库名/账号只允许字母数字下划线
      */
     private static final String SAFE_IDENTIFIER = "^[A-Za-z0-9_]{1,64}$";
+
+    /**
+     * MySQL 系统库：任何情况下都不允许作为租户库创建或删除
+     */
+    private static final Set<String> RESERVED_DATABASES = Set.of(
+            "mysql", "information_schema", "performance_schema", "sys");
 
     /**
      * 租户配置
@@ -202,6 +210,7 @@ public class TenantDatabaseProvisioner {
      * @throws Exception 执行失败
      */
     public void createDatabase(String dbName) throws Exception {
+        refuseProtectedDatabase(dbName);
         JdbcTemplate admin = new JdbcTemplate(adminDataSource());
         admin.execute("CREATE DATABASE IF NOT EXISTS `" + dbName + "` "
                 + "DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
@@ -216,6 +225,7 @@ public class TenantDatabaseProvisioner {
      * @throws Exception 执行失败
      */
     public void createDatabase(SysTenant tenant, String dbName) throws Exception {
+        refuseProtectedDatabase(dbName);
         JdbcTemplate admin = requireAdmin(tenant, null);
         admin.execute("CREATE DATABASE IF NOT EXISTS `" + dbName + "` "
                 + "DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
@@ -274,6 +284,10 @@ public class TenantDatabaseProvisioner {
             log.error("[租户建库] 库名含非法字符，已拒绝删除: db={}", dbName);
             return false;
         }
+        if (isProtectedDatabase(dbName)) {
+            log.error("[租户建库] 库名是平台主库或系统库，已拒绝删除: db={}", dbName);
+            return false;
+        }
         if (!isMysqlAdmin(tenant)) {
             log.warn("[租户建库] 管理连接不是 MySQL，自动删库仅支持 MySQL，已跳过: {}", dbName);
             return false;
@@ -317,6 +331,82 @@ public class TenantDatabaseProvisioner {
      */
     public boolean isSafeIdentifier(String value) {
         return hasText(value) && value.matches(SAFE_IDENTIFIER);
+    }
+
+    /**
+     * 是否是平台主库或 MySQL 系统库。
+     *
+     * <p>建库与删库都必须先过这一关：租户库名是人工填写的，一旦填成平台主库名，
+     * {@code CREATE DATABASE IF NOT EXISTS} 会把平台库当成租户库复用，
+     * {@code DROP DATABASE} 则会直接删掉平台数据。</p>
+     *
+     * @param dbName 库名
+     * @return 平台主库或系统库返回 true
+     */
+    public boolean isProtectedDatabase(String dbName) {
+        if (!hasText(dbName)) {
+            return false;
+        }
+        String normalized = dbName.trim().toLowerCase(Locale.ROOT);
+        if (RESERVED_DATABASES.contains(normalized)) {
+            return true;
+        }
+        String platform = platformDatabaseName();
+        return platform != null && platform.toLowerCase(Locale.ROOT).equals(normalized);
+    }
+
+    /**
+     * 取平台主库名：优先从主数据源连接元数据读，取不到再解析 YAML 管理连接 URL。
+     *
+     * @return 平台主库名；无法确定时返回 {@code null}
+     */
+    private String platformDatabaseName() {
+        DataSource primary = primaryDataSource();
+        if (primary != null) {
+            try (Connection connection = primary.getConnection()) {
+                String catalog = connection.getCatalog();
+                if (hasText(catalog)) {
+                    return catalog;
+                }
+            } catch (Exception e) {
+                log.debug("[租户建库] 读取平台主库名失败，尝试解析管理连接 URL: {}", e.getMessage());
+            }
+        }
+        return databaseFromUrl(tenantProperties.getServer().getDatasourceRoutingAdminUrl());
+    }
+
+    /**
+     * 从 JDBC URL 中取库名。
+     *
+     * @param url JDBC URL
+     * @return 库名；URL 未带库名时返回 {@code null}
+     */
+    private String databaseFromUrl(String url) {
+        if (!hasText(url)) {
+            return null;
+        }
+        String clean = url.trim();
+        int query = clean.indexOf('?');
+        if (query >= 0) {
+            clean = clean.substring(0, query);
+        }
+        int slash = clean.lastIndexOf('/');
+        if (slash < 0 || slash == clean.length() - 1) {
+            return null;
+        }
+        String database = clean.substring(slash + 1).trim();
+        return database.isEmpty() ? null : database;
+    }
+
+    /**
+     * 拒绝把平台主库/系统库当成租户库。
+     *
+     * @param dbName 库名
+     */
+    private void refuseProtectedDatabase(String dbName) {
+        if (isProtectedDatabase(dbName)) {
+            throw new IllegalStateException("库名「" + dbName + "」是平台主库或系统库，已拒绝执行");
+        }
     }
 
     /**
@@ -378,26 +468,23 @@ public class TenantDatabaseProvisioner {
      * @return 管理连接是 MySQL 返回 true
      */
     private boolean isMysqlAdmin(SysTenant tenant) {
-        TenantProperties.ServerConfig server = tenantProperties.getServer();
-        if (hasText(server.getDatasourceRoutingAdminUrl())) {
-            return isMysqlAdmin(server.getDatasourceRoutingAdminUrl());
-        }
         TenantDatasourceInfo info = resolveInfo(tenant);
-        if (info == null) {
-            return false;
-        }
-        if (info.origin() == TenantDatasourceInfo.Origin.PLATFORM_SELF) {
-            DataSource primary = primaryDataSource();
-            if (primary != null) {
-                try (Connection connection = primary.getConnection()) {
-                    return isMysqlAdmin(connection.getMetaData().getURL());
-                } catch (Exception e) {
-                    log.debug("[租户建库] 读取平台主数据源元数据失败: {}", e.getMessage());
-                    return false;
+        if (info != null) {
+            if (info.origin() == TenantDatasourceInfo.Origin.PLATFORM_SELF) {
+                DataSource primary = primaryDataSource();
+                if (primary != null) {
+                    try (Connection connection = primary.getConnection()) {
+                        return isMysqlAdmin(connection.getMetaData().getURL());
+                    } catch (Exception e) {
+                        log.debug("[租户建库] 读取平台主数据源元数据失败: {}", e.getMessage());
+                        return false;
+                    }
                 }
             }
+            return isMysqlAdmin(TenantJdbcUrlBuilder.buildInstanceUrl(info, tenantProperties));
         }
-        return isMysqlAdmin(TenantJdbcUrlBuilder.buildInstanceUrl(info, tenantProperties));
+        TenantProperties.ServerConfig server = tenantProperties.getServer();
+        return hasYamlAdmin() && isMysqlAdmin(server.getDatasourceRoutingAdminUrl());
     }
 
     /**
@@ -440,36 +527,47 @@ public class TenantDatabaseProvisioner {
      * @return 管理 JdbcTemplate；无法解析时返回 {@code null}
      */
     private JdbcTemplate adminJdbc(SysTenant tenant, String plainSqlPassword) {
-        TenantProperties.ServerConfig server = tenantProperties.getServer();
-        if (hasText(server.getDatasourceRoutingAdminUrl())
-                && hasText(server.getDatasourceRoutingAdminUsername())) {
+        TenantDatasourceInfo info = resolveInfo(tenant);
+        // 租户显式选择的实例优先：可视化配置是唯一真源，
+        // YAML 管理连接只在租户没有可解析实例（存量部署）时兜底
+        if (info != null) {
+            if (info.origin() == TenantDatasourceInfo.Origin.PLATFORM_SELF) {
+                DataSource primary = primaryDataSource();
+                if (primary != null) {
+                    return new JdbcTemplate(primary);
+                }
+            }
+            if (!hasText(info.username())) {
+                return null;
+            }
+            String url = TenantJdbcUrlBuilder.buildInstanceUrl(info, tenantProperties);
+            if (url == null) {
+                return null;
+            }
+            String password;
+            if (info.origin() == TenantDatasourceInfo.Origin.DATASOURCE_HUB) {
+                // 台账自带实例口令；租户自己的口令不是这个账号的，用错会认证失败
+                password = decrypt(info.password());
+            } else {
+                password = hasText(plainSqlPassword) ? plainSqlPassword : decrypt(info.password());
+            }
+            return new JdbcTemplate(new DriverManagerDataSource(url, info.username(), password));
+        }
+        if (hasYamlAdmin()) {
             return new JdbcTemplate(adminDataSource());
         }
-        TenantDatasourceInfo info = resolveInfo(tenant);
-        if (info == null) {
-            return null;
-        }
-        if (info.origin() == TenantDatasourceInfo.Origin.PLATFORM_SELF) {
-            DataSource primary = primaryDataSource();
-            if (primary != null) {
-                return new JdbcTemplate(primary);
-            }
-        }
-        if (!hasText(info.username())) {
-            return null;
-        }
-        String url = TenantJdbcUrlBuilder.buildInstanceUrl(info, tenantProperties);
-        if (url == null) {
-            return null;
-        }
-        String password;
-        if (info.origin() == TenantDatasourceInfo.Origin.DATASOURCE_HUB) {
-            // 台账自带实例口令；租户自己的口令不是这个账号的，用错会认证失败
-            password = decrypt(info.password());
-        } else {
-            password = hasText(plainSqlPassword) ? plainSqlPassword : decrypt(info.password());
-        }
-        return new JdbcTemplate(new DriverManagerDataSource(url, info.username(), password));
+        return null;
+    }
+
+    /**
+     * 是否配置了 YAML 管理连接（存量部署口径）。
+     *
+     * @return 配置完整返回 true
+     */
+    private boolean hasYamlAdmin() {
+        TenantProperties.ServerConfig server = tenantProperties.getServer();
+        return hasText(server.getDatasourceRoutingAdminUrl())
+                && hasText(server.getDatasourceRoutingAdminUsername());
     }
 
     /**

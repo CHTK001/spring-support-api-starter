@@ -13,7 +13,9 @@ import com.chua.starter.tenant.server.mapper.SysTenantServiceMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import java.sql.Timestamp;
@@ -114,6 +116,10 @@ public class TenantServiceCatalogSynchronizer {
         List<Integer> managedServiceIds = sysServiceMapper.selectAllServiceIdsIncludingDeleted();
 
         try {
+            // 多条 DML 必须在同一个事务里：中途失败不能留下「关联已删、服务未插」的半成品
+            TransactionTemplate transaction =
+                    new TransactionTemplate(new DataSourceTransactionManager(dataSource));
+            Integer written = transaction.execute(status -> {
             JdbcTemplate jdbc = new JdbcTemplate(dataSource);
             List<Integer> desiredServiceIds = services.stream()
                     .map(SysService::getSysServiceId)
@@ -214,6 +220,8 @@ public class TenantServiceCatalogSynchronizer {
             log.info("[租户服务目录] 已同步到租户库: tenantId={}, services={}, modules={}, items={}",
                     tenant.getSysTenantId(), serviceRows.size(), moduleRows.size(), itemRows.size());
             return serviceRows.size();
+            });
+            return written == null ? -1 : written;
         } catch (Exception e) {
             // 租户库还没建表、连不上、表结构不一致都不该让绑定接口失败
             log.warn("[租户服务目录] 同步租户库失败，已跳过: tenantId={}, error={}",

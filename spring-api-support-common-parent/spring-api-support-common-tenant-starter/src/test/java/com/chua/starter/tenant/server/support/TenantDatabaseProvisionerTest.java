@@ -131,6 +131,35 @@ class TenantDatabaseProvisionerTest {
         assertFalse(provisioner.provision(tenant, "plain"));
     }
 
+    @Test
+    @DisplayName("平台主库与 MySQL 系统库不允许作为租户库")
+    void protectedDatabases() {
+        updateServer(server -> server.setDatasourceRoutingAdminUrl(
+                "jdbc:mysql://127.0.0.1:3306/platform_db?useUnicode=true"));
+
+        assertTrue(provisioner.isProtectedDatabase("platform_db"));
+        assertTrue(provisioner.isProtectedDatabase("PLATFORM_DB"));
+        assertTrue(provisioner.isProtectedDatabase("mysql"));
+        assertTrue(provisioner.isProtectedDatabase("information_schema"));
+        assertTrue(provisioner.isProtectedDatabase("performance_schema"));
+        assertTrue(provisioner.isProtectedDatabase("sys"));
+        assertFalse(provisioner.isProtectedDatabase("tenant_db"));
+    }
+
+    @Test
+    @DisplayName("库名是平台主库时 provision 拒绝执行，不发出任何 DDL")
+    void provisionRejectsPlatformDatabase() {
+        enableAvailable();
+        updateServer(server -> server.setDatasourceRoutingAdminUrl(
+                "jdbc:mysql://127.0.0.1:3306/platform_db"));
+        SysTenant tenant = new SysTenant();
+        tenant.setSysTenantId("1");
+        tenant.setSysTenantDbname("platform_db");
+        tenant.setSysTenantSqlUsername("u1");
+
+        assertFalse(provisioner.provision(tenant, "plain"));
+    }
+
     /**
      * 打开路由与自动建库开关。
      */

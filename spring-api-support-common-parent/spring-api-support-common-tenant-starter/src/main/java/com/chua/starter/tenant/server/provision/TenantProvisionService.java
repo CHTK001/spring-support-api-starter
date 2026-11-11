@@ -282,7 +282,7 @@ public class TenantProvisionService {
                     fail(task, index, "库名或数据库账号含非法字符（只允许字母、数字、下划线）");
                     return;
                 }
-                tenantDatabaseProvisioner.createDatabase(saved.getSysTenantDbname());
+                tenantDatabaseProvisioner.createDatabase(saved, saved.getSysTenantDbname());
                 done(task, index, "已创建数据库 " + saved.getSysTenantDbname());
             }
 
@@ -561,11 +561,11 @@ public class TenantProvisionService {
         // 引用型（台账 / 平台自身实例）：实例地址与账号口令都由实例提供，
         // 租户只需给库名，不该再要求填账号口令（否则等于让用户重复录入一遍实例凭据）
         Long datasourceId = sysTenant.getSysTenantDatasourceId();
-        boolean sharedInstance = datasourceId != null && datasourceId != 0L;
-        if (sharedInstance && !hasText(sysTenant.getSysTenantDbname()) && anySql) {
-            return "选择了共享数据库实例：只需填写该租户要用的库名";
+        boolean selectedInstance = datasourceId != null && datasourceId != 0L;
+        if (selectedInstance && !hasText(sysTenant.getSysTenantDbname())) {
+            return "选择了数据库实例：必须填写该租户要用的库名";
         }
-        if (anySql && !allSql && !sharedInstance) {
+        if (anySql && !allSql && !selectedInstance) {
             return "独立库信息不完整：库名、数据库账号、数据库密码必须同时填写（留空表示与平台共用主库）";
         }
         return null;
