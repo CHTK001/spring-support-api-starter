@@ -8,7 +8,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>spring-api-support-monitor-starter</artifactId>
-    <description>SSL璇佷功鑷姩鍖栫鐞?(ACME)</description>
+    <description>SSL证书自动化管理(ACME)</description>
     <dependencies>
         <dependency>
             <groupId>com.chua</groupId>
