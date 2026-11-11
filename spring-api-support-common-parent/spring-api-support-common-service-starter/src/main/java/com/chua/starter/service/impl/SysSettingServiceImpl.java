@@ -981,11 +981,17 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             }
 
             if (!toUpdate.isEmpty()) {
-                // updateBatchById 走的是 MP 的 update 批量语句，乐观锁拦截器不会写入
-                // MP_OPTLOCK_VERSION_ORIGINAL，带版本号的配置会同步失败；逐条 updateById 可正常带上版本条件。
+                // 启动同步只覆盖 Socket 配置值，不应参与乐观锁版本比较；使用显式 UpdateWrapper
+                // 可避开 MyBatis-Plus 批量/实体更新对 MP_OPTLOCK_VERSION_ORIGINAL 的参数依赖。
                 for (var item : toUpdate) {
-                    if (!updateById(item)) {
-                        log.warn("[系统配置][Socket同步] 配置已被修改，跳过本次同步: {}", item.getSysSettingName());
+                    var update = Wrappers.<SysSetting>lambdaUpdate()
+                            .eq(SysSetting::getSysSettingId, item.getSysSettingId())
+                            .set(SysSetting::getSysSettingValue, item.getSysSettingValue());
+                    if (StringUtils.isNotBlank(item.getSysSettingCode())) {
+                        update.set(SysSetting::getSysSettingCode, item.getSysSettingCode());
+                    }
+                    if (baseMapper.update(null, update) <= 0) {
+                        log.warn("[系统配置][Socket同步] 配置同步未命中，跳过本次同步: {}", item.getSysSettingName());
                         break;
                     }
                     sysSettingService.clearCache(item);
