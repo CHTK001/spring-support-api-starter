@@ -981,8 +981,13 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             }
 
             if (!toUpdate.isEmpty()) {
-                updateBatchById(toUpdate);
+                // updateBatchById 走的是 MP 的 update 批量语句，乐观锁拦截器不会写入
+                // MP_OPTLOCK_VERSION_ORIGINAL，带版本号的配置会同步失败；逐条 updateById 可正常带上版本条件。
                 for (var item : toUpdate) {
+                    if (!updateById(item)) {
+                        log.warn("[系统配置][Socket同步] 配置已被修改，跳过本次同步: {}", item.getSysSettingName());
+                        break;
+                    }
                     sysSettingService.clearCache(item);
                 }
             }
