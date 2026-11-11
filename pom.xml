@@ -82,6 +82,14 @@
             <artifactId>utils-support-ip2region-starter</artifactId>
             <version>${utils.version}</version>
         </dependency>
+        <!-- qqwry 纯真 IP 库：纯资源制品（jar 内只有 qqwry.dat），无代码、无传递依赖。
+             版本跟 utils-support-qqwry-starter 里引用的一致（该制品独立于 utils 主线版本号）。
+             原先各 starter 各自拷一份 10~26MB 的 qqwry.dat，现统一由此依赖提供。 -->
+        <dependency>
+            <groupId>com.chua</groupId>
+            <artifactId>utils-support-resource-qqwry</artifactId>
+            <version>4.0.0.43</version>
+        </dependency>
         <!-- dependency>
             <groupId>com.chua</groupId>
             <artifactId>utils-support-storage-starter</artifactId>
