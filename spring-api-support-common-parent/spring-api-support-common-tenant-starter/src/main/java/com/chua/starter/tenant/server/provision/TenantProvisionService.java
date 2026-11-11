@@ -3,7 +3,9 @@ package com.chua.starter.tenant.server.provision;
 import com.chua.common.support.lang.code.ReturnResult;
 import com.chua.common.support.lang.json.Json;
 import com.chua.common.support.utils.IdUtils;
+import com.chua.common.support.utils.StringUtils;
 import com.chua.socket.support.session.SocketSessionTemplate;
+import com.chua.starter.common.support.utils.RequestUtils;
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.properties.TenantProperties;
 import com.chua.starter.tenant.server.service.SysTenantService;
@@ -17,6 +19,7 @@ import com.chua.starter.tenant.server.sync.TenantServerSyncPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -145,8 +148,9 @@ public class TenantProvisionService {
      */
     public Map<String, Object> capabilities() {
         Map<String, Object> map = new LinkedHashMap<>(8);
-        map.put("socket", socketSessionTemplate != null);
-        map.put("socketProtocol", socketSessionTemplate == null ? null : "socketio");
+        boolean socketReady = socketSessionTemplate != null && socketSessionTemplate.isReady();
+        map.put("socket", socketReady);
+        map.put("socketProtocol", socketReady ? socketSessionTemplate.protocol() : null);
         map.put("socketModule", SOCKET_MODULE);
         map.put("socketTopic", SOCKET_TOPIC);
         map.put("cancellable", true);
@@ -167,6 +171,7 @@ public class TenantProvisionService {
         TenantProvisionTask task = new TenantProvisionTask(IdUtils.createSimpleUuid());
         task.setTenantName(sysTenant.getSysTenantName());
         task.setTenantUsername(sysTenant.getSysTenantUsername());
+        task.setInitiatorUserId(RequestUtils.getUserId());
         for (Map<String, Object> definition : stepDefinitions()) {
             task.getSteps().add(new TenantProvisionTask.Step(
                     String.valueOf(definition.get("key")),
@@ -587,7 +592,21 @@ public class TenantProvisionService {
             payload.put("module", SOCKET_MODULE);
             payload.put("event", SOCKET_TOPIC);
             payload.put("timestamp", System.currentTimeMillis());
-            socketSessionTemplate.broadcast(SOCKET_EVENT, Json.toJSONString(payload));
+            String message = Json.toJSONString(payload);
+            // 有可信用户身份时只推给发起人：广播会把租户名、账号、步骤明细
+            // 发给同一节点上的所有登录用户。没有鉴权能力时保持广播，前端仍可用轮询兜底。
+            String targetUserId = task.getInitiatorUserId();
+            if (socketSessionTemplate.supportsUserTargeting()) {
+                // 已启用鉴权但拿不到发起人：宁可不推，也不能退回广播把进度发给其他管理员。
+                // 前端仍会用 status 接口轮询同一份快照。
+                if (StringUtils.isBlank(targetUserId)) {
+                    log.debug("[租户创建进度] 缺少发起人，跳过定向推送: taskId={}", task.getTaskId());
+                    return;
+                }
+                socketSessionTemplate.sendToUser(targetUserId, SOCKET_EVENT, message);
+            } else {
+                socketSessionTemplate.broadcast(SOCKET_EVENT, message);
+            }
         } catch (Exception e) {
             log.warn("[租户创建进度] 套接字推送失败: taskId={}, {}", task.getTaskId(), e.getMessage());
         }
@@ -637,6 +656,11 @@ public class TenantProvisionService {
     /**
      * 清理过期与超量的任务。
      */
+    @Scheduled(fixedDelay = 60_000L, initialDelay = 60_000L)
+    public void cleanExpiredTask() {
+        cleanExpired();
+    }
+
     private void cleanExpired() {
         long deadline = System.currentTimeMillis() - TASK_TTL_MILLIS;
         tasks.entrySet().removeIf(entry -> entry.getValue().getFinishTime() != null

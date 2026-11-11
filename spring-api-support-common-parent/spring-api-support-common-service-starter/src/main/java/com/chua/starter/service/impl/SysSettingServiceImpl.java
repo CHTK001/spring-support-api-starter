@@ -137,6 +137,15 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     private int socketPublishPort; // 套接字发布端口
 
     /**
+     * 套接字对外发布地址（完整 origin，可选）
+     *
+     * <p>HTTPS 反向代理 / NAT 场景下 publish-host + publish-port 拼不出正确地址，
+     * 需显式配置，例如 {@code https://example.com}；留空保持旧行为。</p>
+     */
+    @Value("${plugin.socket.public-url:}")
+    private String socketPublicUrl; // 套接字发布URL
+
+    /**
      * 套接字服务协议类型
      */
     @Value("${plugin.socket.protocol:socketio}")
@@ -915,7 +924,9 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
  // 构建套接字 URL
             var publishHost = resolveSocketPublishHost();
             var publishPort = resolveSocketPublishPort();
-            var socketUrl = String.format("http://%s:%d", publishHost, publishPort);
+            var socketUrl = StringUtils.isNotBlank(socketPublicUrl)
+                    ? socketPublicUrl.trim()
+                    : String.format("http://%s:%d", publishHost, publishPort);
 
             var desired = new LinkedHashMap<String, SysSettingDesiredValue>(4);
             desired.put(SOCKET_SETTING_URL, new SysSettingDesiredValue(socketUrl, SOCKET_REMARK_URL));

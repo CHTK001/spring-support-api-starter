@@ -59,6 +59,11 @@ public class TenantProvisionTask {
     private String tenantUsername;
 
     /**
+     * 发起创建的用户标识；用于把进度只推给发起人
+     */
+    private String initiatorUserId;
+
+    /**
      * 任务状态
      */
     private Status status = Status.RUNNING;
@@ -272,6 +277,24 @@ public class TenantProvisionTask {
      */
     public void setTenantUsername(String tenantUsername) {
         this.tenantUsername = tenantUsername;
+    }
+
+    /**
+     * 获取发起创建的用户标识。
+     *
+     * @return 用户标识
+     */
+    public String getInitiatorUserId() {
+        return initiatorUserId;
+    }
+
+    /**
+     * 设置发起创建的用户标识。
+     *
+     * @param initiatorUserId 用户标识
+     */
+    public void setInitiatorUserId(String initiatorUserId) {
+        this.initiatorUserId = initiatorUserId;
     }
 
     /**

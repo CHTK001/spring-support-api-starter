@@ -5,6 +5,12 @@ plugin:
     # 前端只能退化为轮询。
     enable: true
     protocol: socketio
+    # 握手鉴权：TokenSocketAuthFactory 校验 x-oauth-token / Bearer / token 查询参数。
+    # 配置后连接无有效令牌会被拒绝；定向推送也才具备可信 userId。
+    auth-factory: com.chua.starter.system.support.socket.TokenSocketAuthFactory
+    # 对外发布地址（可选）。HTTPS 经反向代理时必须显式配置，例如 https://example.com；
+    # 留空则回退 publish-host + publish-port 拼 http://。
+    public-url: ${SYSTEM_SOCKET_PUBLIC_URL:}
     room:
       - client-id: system
         # HTTP 端口是 18170，Socket.IO 用相邻端口；前端 vite 把 /socket.io 代理到这里。
