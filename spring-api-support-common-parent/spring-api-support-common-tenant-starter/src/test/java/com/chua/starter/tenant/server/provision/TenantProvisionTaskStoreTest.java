@@ -91,6 +91,32 @@ class TenantProvisionTaskStoreTest {
     }
 
     @Test
+    void heartbeatSkipsTaskWhenWorkerIsGone() throws InterruptedException {
+        InMemoryKvEngine kvEngine = new InMemoryKvEngine();
+        TenantProvisionTaskStore store = storeWith(kvEngine);
+        TenantProvisionService service = new TenantProvisionService(
+                null, null, null, null, null, null, null, store, new TenantProvisionProgressBus());
+
+        TenantProvisionTask task = task("task-dead-worker");
+        task.setStatus(TenantProvisionTask.Status.RUNNING);
+        Thread worker = new Thread(() -> { });
+        worker.start();
+        worker.join();
+
+        Map<String, TenantProvisionTask> tasks = (Map<String, TenantProvisionTask>)
+                ReflectionTestUtils.getField(service, "tasks");
+        Map<String, Thread> workers = (Map<String, Thread>)
+                ReflectionTestUtils.getField(service, "workers");
+        tasks.put(task.getTaskId(), task);
+        workers.put(task.getTaskId(), worker);
+
+        service.heartbeatActiveTasks();
+
+        // 执行线程已退出：不能再刷新心跳，否则失联任务永远达不到收尾阈值。
+        assertNull(store.find(task.getTaskId()));
+    }
+
+    @Test
     void withoutKvEngineFallsBackToNoOp() {
         TenantProvisionTaskStore store = new TenantProvisionTaskStore();
 

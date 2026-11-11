@@ -102,14 +102,17 @@ public class TenantProvisionTaskStore {
         if (StringUtils.isBlank(taskId)) {
             return;
         }
-        // 已经被其它节点收尾的任务，不能被恢复执行的旧线程用 RUNNING/SUCCESS 覆盖。
-        if (isReaped(taskId) && !STATUS_FAILED.equals(stringValue(snapshot.get("status")))) {
-            return;
-        }
-        try {
-            put(TASK_PREFIX + taskId, Json.toJSONString(snapshot));
-        } catch (Exception e) {
-            log.warn("[租户创建进度] 任务快照持久化失败: taskId={}, {}", taskId, e.getMessage());
+        // 与 markReaped 共用一把锁：同一 JVM 内“检查已收尾 → 写入”必须原子，
+        // 否则旧线程可能在 reaper 写入 FAILED 之后又把 RUNNING 覆盖回去。
+        synchronized (this) {
+            if (isReaped(taskId) && !STATUS_FAILED.equals(stringValue(snapshot.get("status")))) {
+                return;
+            }
+            try {
+                put(TASK_PREFIX + taskId, Json.toJSONString(snapshot));
+            } catch (Exception e) {
+                log.warn("[租户创建进度] 任务快照持久化失败: taskId={}, {}", taskId, e.getMessage());
+            }
         }
     }
 
@@ -188,7 +191,9 @@ public class TenantProvisionTaskStore {
             return;
         }
         try {
-            put(REAPED_PREFIX + taskId, "1");
+            synchronized (this) {
+                put(REAPED_PREFIX + taskId, "1");
+            }
         } catch (Exception e) {
             log.warn("[租户创建进度] 失联标记写入失败: taskId={}, {}", taskId, e.getMessage());
         }

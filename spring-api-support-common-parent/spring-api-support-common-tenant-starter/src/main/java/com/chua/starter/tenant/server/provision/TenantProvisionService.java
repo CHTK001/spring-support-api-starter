@@ -157,6 +157,15 @@ public class TenantProvisionService {
     private final Map<String, TenantProvisionTask> tasks = new ConcurrentHashMap<>();
 
     /**
+     * 任务 → 执行线程。
+     *
+     * <p>心跳不能只看任务状态：执行线程若因未捕获的 Error 退出，任务对象仍停在
+     * RUNNING，JVM 也还活着。只有线程仍存活时才刷新心跳，失联任务才会在阈值后
+     * 被其它节点/本节点收尾。</p>
+     */
+    private final Map<String, Thread> workers = new ConcurrentHashMap<>();
+
+    /**
      * 创建进度能力说明。
      *
      * <p>前端据此决定是否订阅套接字、是否渲染「取消创建」。</p>
@@ -203,8 +212,19 @@ public class TenantProvisionService {
                 + safe(sysTenant.getSysTenantUsername()));
         tasks.put(task.getTaskId(), task);
         publish(task);
-        // 虚拟线程：建库、建表、建账号都是阻塞 IO，不能占用 Tomcat 请求线程
-        Thread.startVirtualThread(() -> execute(task, sysTenant));
+        // 虚拟线程：建库、建表、建账号都是阻塞 IO，不能占用 Tomcat 请求线程。
+        // 先登记线程再启动，避免线程瞬间结束才 put 导致 workers 里留下死线程。
+        Thread worker = Thread.ofVirtual()
+                .name("tenant-provision-" + task.getTaskId())
+                .unstarted(() -> {
+                    try {
+                        execute(task, sysTenant);
+                    } finally {
+                        workers.remove(task.getTaskId());
+                    }
+                });
+        workers.put(task.getTaskId(), worker);
+        worker.start();
         Map<String, Object> result = new LinkedHashMap<>(4);
         result.put("taskId", task.getTaskId());
         result.put("status", task.getStatus().name());
@@ -679,7 +699,11 @@ public class TenantProvisionService {
     @Scheduled(fixedDelay = 30_000L, initialDelay = 30_000L)
     public void heartbeatActiveTasks() {
         for (TenantProvisionTask task : tasks.values()) {
-            if (!task.isFinished() && !taskStore.isReaped(task.getTaskId())) {
+            Thread worker = workers.get(task.getTaskId());
+            if (!task.isFinished()
+                    && worker != null
+                    && worker.isAlive()
+                    && !taskStore.isReaped(task.getTaskId())) {
                 taskStore.save(snapshot(task));
             }
         }
