@@ -1,3 +1,12 @@
 plugin:
   socket:
+    # 全局 Socket.IO：租户开通进度、在线状态等实时消息共用这一条连接。
+    # 只开 enable 而不配 room 时，SocketIOSessionTemplate 虽会创建，但不会启动任何监听端口，
+    # 前端只能退化为轮询。
     enable: true
+    protocol: socketio
+    room:
+      - client-id: system
+        # HTTP 端口是 18170，Socket.IO 用相邻端口；前端 vite 把 /socket.io 代理到这里。
+        port: ${SYSTEM_SOCKET_PORT:18171}
+        context-path: /socket.io

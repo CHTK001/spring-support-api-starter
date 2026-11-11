@@ -19,7 +19,7 @@ spring:
     group:
       dev-static:
         - dev
-    include: common,mybatis,swagger,api,ip,actuator  # 引入的公共配置模块
+    include: common,mybatis,swagger,api,ip,actuator,socket  # 引入的公共配置模块（socket：租户开通等长任务进度）
 
 # ===========================================
 # 服务器配置

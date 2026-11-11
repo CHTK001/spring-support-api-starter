@@ -212,6 +212,13 @@
       <artifactId>spring-api-support-monitor-starter</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- 租户开通等长任务的实时进度：TenantProvisionService 按 SocketSessionTemplate
+         广播；缺 socket-io 实现时该 bean 为空，前端只能退化为轮询。monitor 虽已传递
+         引入，这里显式声明，避免以后调整 monitor 依赖时静默失去实时推送。 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-socket-io-starter</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
