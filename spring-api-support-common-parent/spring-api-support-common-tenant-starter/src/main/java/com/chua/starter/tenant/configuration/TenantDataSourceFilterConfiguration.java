@@ -20,9 +20,11 @@ import org.springframework.core.Ordered;
 /**
  * 租户数据源路由配置。
  *
- * <p>只在 {@code plugin.mybatis-plus.tenant.server.enable=true} 且
- * {@code plugin.mybatis-plus.tenant.server.datasource-routing-enable=true} 时装配，
- * 默认不装配，存量共享库行为完全不变。</p>
+ * <p>只要 {@code plugin.mybatis-plus.tenant.server.enable=true} 就装配：是否切库由租户记录
+ * 自己决定（前端已把实例来源做成可视化配置），不再需要额外的
+ * {@code datasource-routing-enable}——那个 YAML 开关默认 false，会让前端配好的独立库
+ * 静默不生效。存量部署若确实要关掉路由，把 {@code datasource-routing-enable} 设为 false
+ * 仍然有效（显式 false 才关）。</p>
  *
  * <p><b>为什么用 {@link FilterRegistrationBean} 而不是把过滤器标 {@code @Component}</b>：
  * 需要显式设置注册顺序，保证在任何业务逻辑拿到连接之前完成切换；
@@ -39,7 +41,7 @@ import org.springframework.core.Ordered;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(
         prefix = TenantProperties.PRE + ".server",
-        name = {"enable", "datasource-routing-enable"},
+        name = {"enable"},
         havingValue = "true"
 )
 public class TenantDataSourceFilterConfiguration {

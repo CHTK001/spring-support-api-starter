@@ -86,6 +86,33 @@ public final class TenantJdbcUrlBuilder {
     }
 
     /**
+     * 构造「实例级」JDBC URL（库名留空），用于建库/建账号的管理连接。
+     *
+     * <p>建库必须连到实例而不是某个租户库：MySQL 的 {@code CREATE DATABASE} 不依赖当前库，
+     * 但连到一个尚不存在的库会直接连接失败。这里把模板里的 {@code {dbname}} 替成空串，
+     * 得到 {@code jdbc:mysql://host:3306/?...}，由驱动落到实例默认库。</p>
+     *
+     * @param info       连接信息（只需 host/port）
+     * @param properties 租户配置（提供 URL 模板）
+     * @return 实例级 JDBC URL；地址缺失时返回 {@code null}
+     */
+    public static String buildInstanceUrl(TenantDatasourceInfo info, TenantProperties properties) {
+        if (info == null || properties == null || !hasText(info.host())) {
+            return null;
+        }
+        Integer port = info.port();
+        String portPart = port == null || port <= 0 ? "" : ":" + port;
+        String template = properties.getServer().getDatasourceRoutingUrlTemplate();
+        if (!hasText(template)) {
+            return null;
+        }
+        return template
+                .replace(PLACEHOLDER_HOST, info.host().trim())
+                .replace(PLACEHOLDER_PORT, portPart)
+                .replace(PLACEHOLDER_DBNAME, "");
+    }
+
+    /**
      * 把租户自填字段包装成连接信息。
      *
      * <p>地址优先 {@code sys_tenant_host}，为空回退 {@code sys_tenant_ip}。</p>

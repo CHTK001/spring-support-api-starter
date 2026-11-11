@@ -269,7 +269,9 @@ public class TenantDataSourceRegistry implements DisposableBean {
      * @return 明文口令；无需解密时原样返回
      */
     private String resolvePassword(TenantDatasourceInfo info) {
-        if (info.origin() != TenantDatasourceInfo.Origin.TENANT_FIELDS) {
+        // 台账口令由数据源中心自己保管（可能是明文）；其余来源（租户自填、平台自身实例上的专用账号）
+        // 落库时是 ENC: 前缀密文，必须还原后才能建池。
+        if (info.origin() == TenantDatasourceInfo.Origin.DATASOURCE_HUB) {
             return info.password();
         }
         return tenantPasswordCipher.decrypt(info.password());

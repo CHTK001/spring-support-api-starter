@@ -273,9 +273,9 @@ public class TenantProvisionService {
             }
             if (!separateDb) {
                 skip(task, index, "未登记独立库（与平台共用主库），无需建库");
-            } else if (!tenantDatabaseProvisioner.isAvailable()) {
-                skip(task, index, "自动建库未启用（datasource-routing-auto-provision=false），跳过建库；"
-                        + "请先自动创建，或通过平台库配置管理。");
+            } else if (!tenantDatabaseProvisioner.isAvailable(saved)) {
+                skip(task, index, "未解析到可用的建库实例（检查实例来源、库名与数据库账号），跳过建库；"
+                        + "可在租户库配置里补齐后重试。");
             } else {
                 if (!tenantDatabaseProvisioner.isSafeIdentifier(saved.getSysTenantDbname())
                         || !tenantDatabaseProvisioner.isSafeIdentifier(saved.getSysTenantSqlUsername())) {
@@ -291,10 +291,14 @@ public class TenantProvisionService {
                 cancelled(task, index);
                 return;
             }
-            if (!separateDb || !tenantDatabaseProvisioner.isAvailable()) {
-                skip(task, index, separateDb
-                        ? "自动建库未启用（数据库账号权限不足或关闭为租户建账号）"
-                        : "沿用租户自带数据库账号");
+            boolean sharedInstance = saved.getSysTenantDatasourceId() != null
+                    && saved.getSysTenantDatasourceId() > 0;
+            if (!separateDb) {
+                skip(task, index, "沿用租户自带数据库账号");
+            } else if (sharedInstance) {
+                skip(task, index, "使用数据源台账实例自带的账号，无需新建数据库账号");
+            } else if (!tenantDatabaseProvisioner.isAvailable(saved)) {
+                skip(task, index, "无法解析管理连接（实例来源 / 管理权限不可用），跳过建账号");
             } else {
                 tenantDatabaseProvisioner.createAccount(saved, saved.getSysTenantDbname(), sqlPassword);
                 tenantDatabaseProvisioner.verify(saved, sqlPassword);

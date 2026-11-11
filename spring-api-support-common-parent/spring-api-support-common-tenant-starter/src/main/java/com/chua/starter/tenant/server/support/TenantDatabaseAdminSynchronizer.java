@@ -89,9 +89,9 @@ public class TenantDatabaseAdminSynchronizer {
         if (tenant == null) {
             return false;
         }
-        if (!tenantProperties.getServer().isDatasourceRoutingEnable()) {
-            return false;
-        }
+        // 是否同步只取决于租户记录本身：实例来源在前端选，库名/账号齐备即可。
+        // 不再要求 datasource-routing-enable——那个 YAML 开关默认 false，会把
+        // 「可视化配了独立库」的租户误判成共享库租户。
         return separateDb(tenant) && hasText(tenant.getSysTenantUsername());
     }
 
@@ -138,9 +138,6 @@ public class TenantDatabaseAdminSynchronizer {
     public Result sync(SysTenant tenant, String plainPassword) {
         if (tenant == null) {
             return Result.failed("租户记录为空");
-        }
-        if (!tenantProperties.getServer().isDatasourceRoutingEnable()) {
-            return Result.skipped("未开启按租户切库（datasource-routing-enable=false）");
         }
         TenantDatasourceInfo info = tenantDataSourceResolver.resolve(tenant);
         String jdbcUrl = TenantJdbcUrlBuilder.build(info, tenantProperties);

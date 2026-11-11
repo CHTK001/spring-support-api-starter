@@ -19,6 +19,7 @@ import com.chua.starter.tenant.server.support.TenantDatabaseInitializer;
 import com.chua.starter.tenant.server.support.TenantDatabaseAdminSynchronizer;
 import com.chua.starter.tenant.server.support.TenantDatabaseProvisioner;
 import com.chua.starter.tenant.server.support.TenantDataSourceRegistry;
+import com.chua.starter.tenant.server.support.TenantDataSourceResolver;
 import com.chua.starter.tenant.server.support.TenantPasswordCipher;
 import com.chua.starter.tenant.server.support.TenantServiceCatalogSynchronizer;
 import lombok.RequiredArgsConstructor;
@@ -234,6 +235,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
 
         // 落库前加密，避免新建租户时明文直接进库；
         // 下发同步时由 TenantServerSyncPublisher 解密还原，线格式不变
+        applyDedicatedAccountDefaults(sysTenant);
         sysTenant.setSysTenantPassword(tenantPasswordCipher.encrypt(sysTenant.getSysTenantPassword()));
         // 租户独立库口令同样密文落库，供 TenantDataSourceRegistry 建池时还原
         sysTenant.setSysTenantSqlPassword(tenantPasswordCipher.encrypt(sysTenant.getSysTenantSqlPassword()));
@@ -562,7 +564,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
      * @param plainSqlPassword  落库前捕获的明文库口令，用于建账号
      */
     private void provisionTenantDatabase(SysTenant tenant, String plainSqlPassword) {
-        if (!tenantDatabaseProvisioner.isAvailable()) {
+        if (!tenantDatabaseProvisioner.isAvailable(tenant)) {
             return;
         }
         boolean created;
@@ -684,6 +686,50 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
             return ReturnResult.ok(result.message());
         }
         return ReturnResult.error(result.message());
+    }
+
+    /**
+     * 为「平台自身实例」租户准备专用数据库账号。
+     *
+     * <p>前端选「本机」时只填库名：实例地址取自平台主数据源，账号由平台生成
+     * （{@code t_<租户编码>} + 随机口令），落库后由建库步骤创建并授权，路由与租户库
+     * 登录都用这个账号。这样就不再需要 YAML 里预先配一套管理员口令。</p>
+     *
+     * <p>只在新增时生成；更新时留空仍表示「不改口令」，避免把已有账号的密码重置掉。</p>
+     *
+     * @param tenant 租户记录
+     */
+    private void applyDedicatedAccountDefaults(SysTenant tenant) {
+        Long datasourceId = tenant.getSysTenantDatasourceId();
+        if (datasourceId == null || datasourceId != TenantDataSourceResolver.PLATFORM_SELF) {
+            return;
+        }
+        if (StringUtils.isBlank(tenant.getSysTenantDbname())) {
+            return;
+        }
+        if (StringUtils.isBlank(tenant.getSysTenantSqlUsername())) {
+            tenant.setSysTenantSqlUsername(generateDbUsername(tenant));
+        }
+        if (StringUtils.isBlank(tenant.getSysTenantSqlPassword())) {
+            tenant.setSysTenantSqlPassword(IdUtils.createSimpleUuid().substring(0, 24));
+        }
+    }
+
+    /**
+     * 生成库账号名：{@code t_<tenantCode>}，只保留小写字母/数字/下划线，最长 32 位。
+     *
+     * @param tenant 租户记录
+     * @return 可安全拼进 DDL 的账号名
+     */
+    private String generateDbUsername(SysTenant tenant) {
+        String base = StringUtils.isBlank(tenant.getSysTenantCode())
+                ? "tenant" : tenant.getSysTenantCode().toLowerCase(Locale.ROOT);
+        String normalized = base.replaceAll("[^a-z0-9_]", "_");
+        if (normalized.isEmpty() || !Character.isLetter(normalized.charAt(0))) {
+            normalized = "t_" + normalized;
+        }
+        String name = "t_" + normalized;
+        return name.length() > 32 ? name.substring(0, 32) : name;
     }
 
     /**

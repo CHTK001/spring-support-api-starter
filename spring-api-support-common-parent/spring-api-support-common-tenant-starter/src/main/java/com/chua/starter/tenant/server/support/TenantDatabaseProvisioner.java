@@ -2,13 +2,15 @@ package com.chua.starter.tenant.server.support;
 
 import com.chua.starter.tenant.entity.SysTenant;
 import com.chua.starter.tenant.properties.TenantProperties;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 
 /**
  * 租户独立库自动开通器。
@@ -34,7 +36,6 @@ import javax.sql.DataSource;
  */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class TenantDatabaseProvisioner {
 
     /**
@@ -46,6 +47,47 @@ public class TenantDatabaseProvisioner {
      * 租户配置
      */
     private final TenantProperties tenantProperties;
+
+    /**
+     * 租户库连接信息解析器；用于按可视化选择的实例来源取管理连接
+     */
+    private final TenantDataSourceResolver tenantDataSourceResolver;
+
+    /**
+     * 租户口令加解密；台账与平台自身实例的口令无需解密（无 ENC: 前缀时原样返回）
+     */
+    private final TenantPasswordCipher tenantPasswordCipher;
+
+    /**
+     * 平台主数据源；选「本机」时直接复用，不再要求 YAML 另配管理连接
+     */
+    @Autowired(required = false)
+    private ObjectProvider<DataSource> primaryDataSourceProvider;
+
+    /**
+     * 兼容旧构造：没有解析器时只支持 YAML 管理连接（存量单元测试与外部直接 new 的场景）。
+     *
+     * @param tenantProperties 租户配置
+     */
+    public TenantDatabaseProvisioner(TenantProperties tenantProperties) {
+        this(tenantProperties, null, null);
+    }
+
+    /**
+     * 构造开通器。
+     *
+     * @param tenantProperties       租户配置
+     * @param tenantDataSourceResolver 连接信息解析器
+     * @param tenantPasswordCipher   口令加解密
+     */
+    @Autowired
+    public TenantDatabaseProvisioner(TenantProperties tenantProperties,
+                                     TenantDataSourceResolver tenantDataSourceResolver,
+                                     TenantPasswordCipher tenantPasswordCipher) {
+        this.tenantProperties = tenantProperties;
+        this.tenantDataSourceResolver = tenantDataSourceResolver;
+        this.tenantPasswordCipher = tenantPasswordCipher;
+    }
 
     /**
      * 是否为「租户库自动开通」可用状态。
@@ -62,6 +104,32 @@ public class TenantDatabaseProvisioner {
     }
 
     /**
+     * 按租户记录判断「这个租户能不能自动建库」。
+     *
+     * <p>前端已把实例来源做成可视化配置（自填 URL / 平台自身实例 / 数据源台账），
+     * 因此是否建库只取决于租户记录本身：登记了库名、能解析出实例账号，就应当建库。
+     * YAML 里的 {@code datasource-routing-admin-url} 只在存量部署里作为首选管理连接，
+     * <b>不再作为建库的前置开关</b>。</p>
+     *
+     * @param tenant 租户记录
+     * @return 可以自动建库返回 true
+     */
+    public boolean isAvailable(SysTenant tenant) {
+        if (tenant == null || !tenantProperties.getServer().isDatasourceRoutingAutoProvision()) {
+            return false;
+        }
+        if (!hasText(tenant.getSysTenantDbname())) {
+            return false;
+        }
+        TenantDatasourceInfo info = resolveInfo(tenant);
+        if (info == null || !hasText(info.username())) {
+            // 没有解析器（存量构造）或实例账号缺失时，退回 YAML 管理连接口径
+            return isAvailable() && hasText(tenant.getSysTenantSqlUsername());
+        }
+        return true;
+    }
+
+    /**
      * 开通租户库。
      *
      * <p>失败只记录错误并返回 {@code false}，不抛异常打断建租户——租户记录已落库，
@@ -72,7 +140,7 @@ public class TenantDatabaseProvisioner {
      * @return 库已就绪返回 true；未启用或失败返回 false
      */
     public boolean provision(SysTenant tenant, String plainSqlPassword) {
-        if (!isAvailable() || tenant == null) {
+        if (!isAvailable(tenant)) {
             return false;
         }
         String dbName = tenant.getSysTenantDbname();
@@ -92,14 +160,14 @@ public class TenantDatabaseProvisioner {
         // 下面的 DDL 是 MySQL 语法（CREATE USER ...@'%' / GRANT ... ON db.*）。
         // 主库或租户库换成 PostgreSQL 之类必须先实现对应方言，否则会在这里静默失败，
         // 表现为「租户建了、库没建」，故显式挡在入口。
-        if (!isMysqlAdmin(tenantProperties.getServer().getDatasourceRoutingAdminUrl())) {
-            log.warn("[租户建库] 管理连接不是 MySQL，自动建库仅支持 MySQL，已跳过: {}",
-                    tenantProperties.getServer().getDatasourceRoutingAdminUrl());
+        if (!isMysqlAdmin(tenant)) {
+            log.warn("[租户建库] 管理连接不是 MySQL，自动建库仅支持 MySQL，已跳过: tenantId={}",
+                    tenant.getSysTenantId());
             return false;
         }
 
         try {
-            createDatabase(dbName);
+            createDatabase(tenant, dbName);
             createAccount(tenant, dbName, plainSqlPassword);
             verifyConnectivity(tenant, dbName, plainSqlPassword);
             return true;
@@ -126,6 +194,20 @@ public class TenantDatabaseProvisioner {
     }
 
     /**
+     * 只建库（按租户所选实例的管理连接）。
+     *
+     * @param tenant 租户记录（提供实例来源）
+     * @param dbName 库名（调用方已按白名单校验）
+     * @throws Exception 执行失败
+     */
+    public void createDatabase(SysTenant tenant, String dbName) throws Exception {
+        JdbcTemplate admin = requireAdmin(tenant, null);
+        admin.execute("CREATE DATABASE IF NOT EXISTS `" + dbName + "` "
+                + "DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+        log.info("[租户建库] 数据库就绪: {}", dbName);
+    }
+
+    /**
      * 只建账号并授权（{@code CREATE USER / ALTER USER / GRANT}）。
      *
      * @param tenant           租户记录
@@ -134,8 +216,15 @@ public class TenantDatabaseProvisioner {
      * @throws Exception 执行失败
      */
     public void createAccount(SysTenant tenant, String dbName, String plainSqlPassword) throws Exception {
-        JdbcTemplate admin = new JdbcTemplate(adminDataSource());
         String username = tenant.getSysTenantSqlUsername();
+        // 共享实例（台账）沿用实例自己的账号，不需要也不应该再建一个库账号：
+        // 之前这里没判空，会在「只填库名」的租户上拼出 CREATE USER 'null'@'%'。
+        if (!hasText(username)) {
+            log.warn("[租户建库] 租户 {} 未登记数据库账号，跳过建账号（沿用所选实例账号）",
+                    tenant.getSysTenantId());
+            return;
+        }
+        JdbcTemplate admin = requireAdmin(tenant, plainSqlPassword);
         String literal = escapeLiteral(plainSqlPassword);
         admin.execute("CREATE USER IF NOT EXISTS '" + username + "'@'%' IDENTIFIED BY '" + literal + "'");
         // 已存在时 CREATE USER 不生效，口令可能与平台记录不一致，必须显式覆盖
@@ -166,20 +255,20 @@ public class TenantDatabaseProvisioner {
         if (!hasText(dbName)) {
             return true;
         }
-        if (!isAvailable()) {
-            log.warn("[租户建库] 自动建库未启用，跳过删除租户库: db={}", dbName);
+        if (!isAvailable(tenant)) {
+            log.warn("[租户建库] 自动建库不可用，跳过删除租户库: db={}", dbName);
             return false;
         }
         if (!dbName.matches(SAFE_IDENTIFIER)) {
             log.error("[租户建库] 库名含非法字符，已拒绝删除: db={}", dbName);
             return false;
         }
-        if (!isMysqlAdmin(tenantProperties.getServer().getDatasourceRoutingAdminUrl())) {
+        if (!isMysqlAdmin(tenant)) {
             log.warn("[租户建库] 管理连接不是 MySQL，自动删库仅支持 MySQL，已跳过: {}", dbName);
             return false;
         }
         String username = tenant.getSysTenantSqlUsername();
-        JdbcTemplate admin = new JdbcTemplate(adminDataSource());
+        JdbcTemplate admin = requireAdmin(tenant, null);
         try {
             admin.execute("DROP DATABASE IF EXISTS `" + dbName + "`");
             log.info("[租户建库] 租户库已删除: db={}", dbName);
@@ -255,6 +344,38 @@ public class TenantDatabaseProvisioner {
     /**
      * 管理连接是否为 MySQL。
      *
+     * <p>按「这个租户实际会用的管理连接」判断：显式配置优先；否则看可视化选择的实例；
+     * 选「本机」且无配置时看平台主数据源的连接元数据。</p>
+     *
+     * @param tenant 租户记录
+     * @return 管理连接是 MySQL 返回 true
+     */
+    private boolean isMysqlAdmin(SysTenant tenant) {
+        TenantProperties.ServerConfig server = tenantProperties.getServer();
+        if (hasText(server.getDatasourceRoutingAdminUrl())) {
+            return isMysqlAdmin(server.getDatasourceRoutingAdminUrl());
+        }
+        TenantDatasourceInfo info = resolveInfo(tenant);
+        if (info == null) {
+            return false;
+        }
+        if (info.origin() == TenantDatasourceInfo.Origin.PLATFORM_SELF) {
+            DataSource primary = primaryDataSource();
+            if (primary != null) {
+                try (Connection connection = primary.getConnection()) {
+                    return isMysqlAdmin(connection.getMetaData().getURL());
+                } catch (Exception e) {
+                    log.debug("[租户建库] 读取平台主数据源元数据失败: {}", e.getMessage());
+                    return false;
+                }
+            }
+        }
+        return isMysqlAdmin(TenantJdbcUrlBuilder.buildInstanceUrl(info, tenantProperties));
+    }
+
+    /**
+     * 管理连接是否为 MySQL。
+     *
      * @param adminUrl 管理连接 URL
      * @return 是 MySQL 协议返回 true
      */
@@ -263,7 +384,98 @@ public class TenantDatabaseProvisioner {
     }
 
     /**
-     * 构造管理连接。
+     * 取管理连接；取不到时抛异常，由调用方转成可读的失败原因。
+     *
+     * @param tenant           租户记录
+     * @param plainSqlPassword 租户库明文口令（台账来源可为空）
+     * @return 管理 JdbcTemplate
+     */
+    private JdbcTemplate requireAdmin(SysTenant tenant, String plainSqlPassword) {
+        JdbcTemplate admin = adminJdbc(tenant, plainSqlPassword);
+        if (admin == null) {
+            throw new IllegalStateException("无法解析到这个租户的管理连接：请检查实例来源、库名与数据库账号");
+        }
+        return admin;
+    }
+
+    /**
+     * 按租户所选实例构造管理连接。
+     *
+     * <p>三种来源对应三条连接路径：</p>
+     * <ul>
+     *   <li><b>显式管理连接</b>（{@code datasource-routing-admin-url}）——存量部署不变，优先使用；</li>
+     *   <li><b>平台自身实例</b>——直接复用平台主数据源，不需要 YAML 再配一套口令；</li>
+     *   <li><b>台账 / 自填</b>——用该实例自己的账号连到实例级 URL（库名留空），再建库建账号。</li>
+     * </ul>
+     *
+     * @param tenant           租户记录
+     * @param plainSqlPassword 租户库明文口令；台账来源忽略它
+     * @return 管理 JdbcTemplate；无法解析时返回 {@code null}
+     */
+    private JdbcTemplate adminJdbc(SysTenant tenant, String plainSqlPassword) {
+        TenantProperties.ServerConfig server = tenantProperties.getServer();
+        if (hasText(server.getDatasourceRoutingAdminUrl())
+                && hasText(server.getDatasourceRoutingAdminUsername())) {
+            return new JdbcTemplate(adminDataSource());
+        }
+        TenantDatasourceInfo info = resolveInfo(tenant);
+        if (info == null) {
+            return null;
+        }
+        if (info.origin() == TenantDatasourceInfo.Origin.PLATFORM_SELF) {
+            DataSource primary = primaryDataSource();
+            if (primary != null) {
+                return new JdbcTemplate(primary);
+            }
+        }
+        if (!hasText(info.username())) {
+            return null;
+        }
+        String url = TenantJdbcUrlBuilder.buildInstanceUrl(info, tenantProperties);
+        if (url == null) {
+            return null;
+        }
+        String password;
+        if (info.origin() == TenantDatasourceInfo.Origin.DATASOURCE_HUB) {
+            // 台账自带实例口令；租户自己的口令不是这个账号的，用错会认证失败
+            password = decrypt(info.password());
+        } else {
+            password = hasText(plainSqlPassword) ? plainSqlPassword : decrypt(info.password());
+        }
+        return new JdbcTemplate(new DriverManagerDataSource(url, info.username(), password));
+    }
+
+    /**
+     * 解析租户的连接信息。
+     *
+     * @param tenant 租户记录
+     * @return 连接信息；无解析器或未登记时返回 {@code null}
+     */
+    private TenantDatasourceInfo resolveInfo(SysTenant tenant) {
+        return tenantDataSourceResolver == null ? null : tenantDataSourceResolver.resolve(tenant);
+    }
+
+    /**
+     * 平台主数据源；容器里有多个候选时返回 {@code null}，避免注入歧义。
+     *
+     * @return 平台主数据源
+     */
+    private DataSource primaryDataSource() {
+        return primaryDataSourceProvider == null ? null : primaryDataSourceProvider.getIfUnique();
+    }
+
+    /**
+     * 还原口令（{@code ENC:} 前缀才是密文，历史明文原样返回）。
+     *
+     * @param stored 库中或台账里的口令
+     * @return 明文口令
+     */
+    private String decrypt(String stored) {
+        return tenantPasswordCipher == null ? stored : tenantPasswordCipher.decrypt(stored);
+    }
+
+    /**
+     * 构造 YAML 管理连接（存量口径）。
      *
      * @return 管理数据源
      */

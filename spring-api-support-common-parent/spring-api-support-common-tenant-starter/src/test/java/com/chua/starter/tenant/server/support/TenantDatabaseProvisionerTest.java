@@ -39,7 +39,7 @@ class TenantDatabaseProvisionerTest {
     }
 
     @Test
-    @DisplayName("默认配置下不可用：路由开关和自动建库都是关闭的")
+    @DisplayName("默认配置下没有管理连接：按租户逐个开通时不可用（默认已开路由与自动建库）")
     void unavailableByDefault() {
         assertFalse(provisioner.isAvailable());
     }
@@ -72,9 +72,10 @@ class TenantDatabaseProvisionerTest {
     }
 
     @Test
-    @DisplayName("路由总开关关闭时，即使自动建库和连接都配好也不可用")
+    @DisplayName("路由总开关显式关闭时，即使自动建库和连接都配好也不可用")
     void unavailableWhenRoutingDisabled() {
         updateServer(server -> {
+            server.setDatasourceRoutingEnable(false);
             server.setDatasourceRoutingAutoProvision(true);
             server.setDatasourceRoutingAdminUrl("jdbc:mysql://127.0.0.1:3306/mysql");
             server.setDatasourceRoutingAdminUsername("root");

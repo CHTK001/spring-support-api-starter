@@ -157,7 +157,7 @@ public class CustomTenantDataSyncProvider implements TenantDataSyncProvider {
 ### 按租户切库
 
 平台可以为每个租户登记一套独立数据库（`sys_tenant_host/port/ip/dbname/sql_username/sql_password`），
-请求命中租户时整条链路路由到该库。默认关闭，不改变现有共享库行为。
+请求命中租户时整条链路路由到该库。租户是否使用独立库由租户记录（前端「实例来源 + 库名」）决定，默认开启；显式设为 `false` 可整体关闭。
 
 ```yaml
 plugin:
@@ -170,7 +170,7 @@ plugin:
         datasource-routing-fail-closed: true     # 有租户身份但拿不到租户库时拒绝（默认 true）
         datasource-routing-prefix: "tenant-"     # 注册名前缀，不能带下划线数字（会被当作负载均衡组）
         datasource-routing-url-template: "jdbc:mysql://{host}{port}/{dbname}?useUnicode=true"
-        datasource-routing-auto-provision: false  # 建租户时自动建库建账号（仅 MySQL）
+        datasource-routing-auto-provision: true   # 建租户时自动建库建账号（仅 MySQL，默认开启）
         datasource-routing-auto-init-scripts: true # 建库后用同一批 db/init 脚本初始化业务表
         datasource-routing-init-data-enable: true  # 初始化时一并执行 __initdata_ 种子脚本
         # datasource-routing-init-script-locations: "classpath*:db/init/*.sql,classpath*:db/migration/*.sql"

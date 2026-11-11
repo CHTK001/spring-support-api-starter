@@ -273,12 +273,12 @@ public class TenantProperties {
         /**
          * 是否启用「按租户切换数据源」。
          * <p>
-         * 开启后，平台端请求携带 {@code X-Tenant-Id} 时会路由到该租户在 {@code sys_tenant}
-         * 中登记的独立数据库（{@code sys_tenant_host/port/dbname/sql_username/sql_password}）；
-         * 未携带或租户未登记数据库时回退主库。默认关闭，不影响现有共享库行为。
+         * 默认开启：租户是否使用独立库由前端可视化配置（实例来源 + 库名）决定，
+         * 未登记库的租户仍然走主库，行为不变。显式设置为 {@code false} 可整体关掉切库
+         * （仅建议在排障时临时使用）。
          * </p>
          */
-        private boolean datasourceRoutingEnable = false;
+        private boolean datasourceRoutingEnable = true;
 
         /**
          * 租户数据源在 {@link com.chua.starter.datasource.support.DataSourceContextSupport}
@@ -359,10 +359,11 @@ public class TenantProperties {
 
         /**
          * 建租户时是否自动建库/建账号。
-         * <p>需要同时在下面配置具备 CREATE DATABASE / CREATE USER / GRANT 权限的管理连接；
-         * 未配置管理连接时自动跳过，仅记录告警，不影响租户创建。</p>
+         * <p>默认开启：管理连接按租户所选的实例来源解析（自填 URL / 平台自身实例 / 数据源台账），
+         * 不再要求额外配置 {@code datasource-routing-admin-url}。显式设为 {@code false} 可关闭
+         * 自动建库（库与账号由 DBA 预先准备好）。</p>
          */
-        private boolean datasourceRoutingAutoProvision = false;
+        private boolean datasourceRoutingAutoProvision = true;
 
         /**
          * 建库用的管理连接 URL（连到实例而非某个租户库，例如

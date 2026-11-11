@@ -172,6 +172,10 @@ public class TenantDataSourceFilter extends OncePerRequestFilter implements Orde
      * @return 处理结果；拒绝时带状态码与提示
      */
     private SwitchOutcome switchIfNecessary(HttpServletRequest request) {
+        if (!tenantProperties.getServer().isDatasourceRoutingEnable()) {
+            // 显式关闭（排障用）：完全不参与路由，请求全部走主库
+            return SwitchOutcome.passThrough();
+        }
         if (isPlatformPath(request.getRequestURI())) {
             return SwitchOutcome.passThrough();
         }
