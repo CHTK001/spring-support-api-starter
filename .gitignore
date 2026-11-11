@@ -167,3 +167,11 @@ site-builder/
 pmt_proxy/
 node_modules/.tmp/
 
+# ===== 本地启动/临时脚本（2026-11-11 从仓库移除，仅在本地保留）=====
+/.github/workflows/collect-api-gate.yml
+/config/oauth.whitelist
+/rdp-backend.args
+/scripts/pre-commit.sh
+/start-backend.bat
+/tools/start-api-safe.bat
+
