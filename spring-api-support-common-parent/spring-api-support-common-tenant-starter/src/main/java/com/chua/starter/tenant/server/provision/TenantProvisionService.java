@@ -135,6 +135,11 @@ public class TenantProvisionService {
     private SocketSessionTemplate socketSessionTemplate;
 
     /**
+     * 任务快照持久化（Redis 可用时）
+     */
+    private final TenantProvisionTaskStore taskStore;
+
+    /**
      * 任务表
      */
     private final Map<String, TenantProvisionTask> tasks = new ConcurrentHashMap<>();
@@ -153,6 +158,7 @@ public class TenantProvisionService {
         map.put("socketProtocol", socketReady ? socketSessionTemplate.protocol() : null);
         map.put("socketModule", SOCKET_MODULE);
         map.put("socketTopic", SOCKET_TOPIC);
+        map.put("taskPersistence", taskStore.isPersistent() ? "redis" : "memory");
         map.put("cancellable", true);
         map.put("statusApi", "/v2/tenant/provision/status");
         map.put("cancelApi", "/v2/tenant/provision/cancel");
@@ -201,11 +207,22 @@ public class TenantProvisionService {
      */
     public boolean cancel(String taskId) {
         TenantProvisionTask task = tasks.get(taskId);
-        if (task == null || task.isFinished()) {
+        if (task == null) {
+            // 多节点：任务可能由另一台节点执行，快照在 Redis 里；终端状态以快照为准。
+            Map<String, Object> snapshot = taskStore.find(taskId);
+            if (snapshot == null || Boolean.TRUE.equals(snapshot.get("finished"))) {
+                return false;
+            }
+            boolean accepted = taskStore.requestCancel(taskId);
+            log.info("[租户创建进度] 收到跨节点取消请求: taskId={}, accepted={}", taskId, accepted);
+            return accepted;
+        }
+        if (task.isFinished()) {
             return false;
         }
         boolean accepted = task.requestCancel();
         if (accepted) {
+            taskStore.requestCancel(taskId);
             task.appendDetail("已收到取消请求，将在当前步骤结束后停止");
             publish(task);
         }
@@ -221,7 +238,16 @@ public class TenantProvisionService {
      */
     public Map<String, Object> statusOf(String taskId) {
         TenantProvisionTask task = tasks.get(taskId);
-        return task == null ? null : task.toMap();
+        if (task != null) {
+            Map<String, Object> snapshot = task.toMap();
+            // 另一个节点写入的取消标记可能尚未被执行节点消费，状态接口先按标记修正。
+            if (taskStore.isCancelRequested(taskId)) {
+                snapshot.put("cancellable", false);
+            }
+            return snapshot;
+        }
+        // 本节点没有执行这个任务：从 Redis 读取其它节点写的快照。
+        return taskStore.find(taskId);
     }
 
     /**
@@ -386,7 +412,9 @@ public class TenantProvisionService {
      * @return 继续执行返回 true；已请求取消返回 false
      */
     private boolean begin(TenantProvisionTask task, int index, int total) {
-        if (task.isCancelRequested()) {
+        if (task.isCancelRequested() || taskStore.isCancelRequested(task.getTaskId())) {
+            // 共享标记可能来自其它节点；同步回本地标记，后续 cancelled() 会正确收尾。
+            task.requestCancel();
             return false;
         }
         TenantProvisionTask.Step step = task.getSteps().get(index);
@@ -582,12 +610,16 @@ public class TenantProvisionService {
      * @param task 任务
      */
     private void publish(TenantProvisionTask task) {
+        // 快照先落持久化存储：即使套接字未接入或当前节点稍后宕机，
+        // 另一台节点仍能通过 status 接口拿到同一份进度。
+        Map<String, Object> snapshot = task.toMap();
+        taskStore.save(snapshot);
         if (socketSessionTemplate == null) {
             log.debug("[租户创建进度] 未接入套接字，跳过推送: taskId={}", task.getTaskId());
             return;
         }
         try {
-            Map<String, Object> payload = new LinkedHashMap<>(task.toMap());
+            Map<String, Object> payload = new LinkedHashMap<>(snapshot);
             // module / event 放到顶层：前端按模块过滤消息，放在 data 里会收不到
             payload.put("module", SOCKET_MODULE);
             payload.put("event", SOCKET_TOPIC);
