@@ -174,6 +174,27 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
     private static final String SOCKET_SETTING_GROUP = "config";
 
     /**
+     * 设置名 → 前端配置点号编码。
+     *
+     * <p>前端 {@code flattenSettingToConfig} 只认 {@code sysSettingCode}；
+     * 历史数据里这一列是空的，会让 SocketUrl/SocketOpen 等配置被静默丢弃。</p>
+     */
+    private static String socketSettingCode(String name) {
+        switch (name) {
+            case SOCKET_SETTING_URL:
+                return "socket.urls";
+            case SOCKET_SETTING_OPEN:
+                return "socket.enable";
+            case SOCKET_SETTING_PATH:
+                return "socket.context";
+            case SOCKET_SETTING_PROTOCOL:
+                return "socket.protocol";
+            default:
+                return null;
+        }
+    }
+
+    /**
      * 套接字url 配置备注
      */
     private static final String SOCKET_REMARK_URL = "socket.io服务器地址";
@@ -917,8 +938,20 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
                 var exist = existMap.get(name);
                 if (exist != null) {
+                    boolean changed = false;
                     if (!StringUtils.equals(expected.value(), exist.getSysSettingValue())) {
                         exist.setSysSettingValue(expected.value());
+                        changed = true;
+                    }
+                    // 只修空编码，不覆盖管理员自定义过的编码
+                    if (StringUtils.isBlank(exist.getSysSettingCode())) {
+                        String code = socketSettingCode(name);
+                        if (StringUtils.isNotBlank(code)) {
+                            exist.setSysSettingCode(code);
+                            changed = true;
+                        }
+                    }
+                    if (changed) {
                         toUpdate.add(exist);
                     }
                     continue;
@@ -926,6 +959,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
 
                 var newSetting = new SysSetting();
                 newSetting.setSysSettingName(name);
+                newSetting.setSysSettingCode(socketSettingCode(name));
                 newSetting.setSysSettingGroup(SOCKET_SETTING_GROUP);
                 newSetting.setSysSettingValue(expected.value());
                 newSetting.setSysSettingRemark(expected.remark());
