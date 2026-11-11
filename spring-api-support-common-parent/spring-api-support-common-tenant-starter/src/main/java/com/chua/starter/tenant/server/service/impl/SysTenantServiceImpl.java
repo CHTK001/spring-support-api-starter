@@ -351,21 +351,26 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
 
     @Override
     /**
-     * 删除forsystenant
-    */
+     * 删除租户（逻辑删除）。
+     *
+     * <p><b>不删数据库、不删库账号</b>：逻辑删除可恢复，而 DROP DATABASE 不可逆；
+     * 库还可能被其它系统引用，或落在共享实例上。物理删库是独立操作，
+     * 走 {@link #dropTenantDatabase(String, String)}，需要输入租户编码确认。</p>
+     *
+     * @param sysTenantId 租户标识
+     * @return 删除结果
+     */
     public ReturnResult<Boolean> deleteForSysTenant(String sysTenantId) {
         log.debug("删除租户, ID: {}", sysTenantId);
-        // 独立库信息只在删除前拿得到：记录被逻辑删除后仍能查，但读一下更直观
-        SysTenant deleting = getById(sysTenantId);
 
-        ReturnResult<Boolean> result = transactionTemplate.execute(status -> {
+        return transactionTemplate.execute(status -> {
             sysTenantServiceMapper.delete(Wrappers.<SysTenantService>lambdaQuery()
                     .eq(SysTenantService::getSysTenantId, sysTenantId));
 
             boolean removed = removeById(sysTenantId);
-            log.info("租户删除结果: {}", removed);
+            log.info("租户逻辑删除结果: {}", removed);
 
-            // 连接池随租户一起释放，避免删除后仍持有已废弃库的连接
+            // 连接池随租户一起释放，避免删除后仍持有已废弃库的连接；库本身保留
             if (removed) {
                 tenantDataSourceRegistry.evict(sysTenantId);
             }
@@ -377,13 +382,57 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
 
             return (removed) ? ReturnResult.ok(true) : ReturnResult.error("操作失败");
         });
+    }
 
-        // 物理删库必须在事务提交之后：DROP DATABASE 是隐式提交的 DDL，
-        // 放进事务里会出现「库删了、平台记录因回滚还在」的错位
-        if (result != null && Boolean.TRUE.equals(result.getData()) && deleting != null) {
-            tenantDatabaseProvisioner.destroy(deleting);
+    @Override
+    /**
+     * 物理删除租户独立数据库（不可逆，需输入租户编码确认）。
+     *
+     * <p>与逻辑删除分开：这是唯一会执行 {@code DROP DATABASE} 的入口。执行前先释放
+     * 该租户的连接池，成功后清空租户记录上的独立库登记，使后续请求回落主库；
+     * 平台自动生成的库账号（{@code t_} 前缀）一并回收，自填账号保留。</p>
+     *
+     * @param sysTenantId 租户标识
+     * @param confirmCode 租户编码，必须与记录一致
+     * @return 删除结果
+     */
+    public ReturnResult<Boolean> dropTenantDatabase(String sysTenantId, String confirmCode) {
+        if (StringUtils.isBlank(sysTenantId)) {
+            return ReturnResult.illegal("租户ID不能为空");
         }
-        return result;
+        SysTenant tenant = getById(sysTenantId);
+        if (tenant == null) {
+            return ReturnResult.error("租户不存在");
+        }
+        if (StringUtils.isBlank(tenant.getSysTenantDbname())) {
+            return ReturnResult.error("该租户未登记独立数据库，无需删除");
+        }
+        if (StringUtils.isBlank(confirmCode)
+                || !confirmCode.trim().equalsIgnoreCase(tenant.getSysTenantCode())) {
+            return ReturnResult.error("确认失败：请输入租户编码「" + tenant.getSysTenantCode() + "」后再执行");
+        }
+
+        // 先摘连接池再删库：反过来会有请求在窗口期拿到已删库的连接
+        tenantDataSourceRegistry.evict(sysTenantId);
+        boolean dropped = tenantDatabaseProvisioner.destroy(tenant);
+        if (!dropped) {
+            return ReturnResult.error("删除数据库失败，请查看服务端日志（库名："
+                    + tenant.getSysTenantDbname() + "）");
+        }
+
+        // 清空独立库登记，后续请求回落主库；租户记录本身保留
+        update(Wrappers.<SysTenant>lambdaUpdate()
+                .set(SysTenant::getSysTenantDbname, null)
+                .set(SysTenant::getSysTenantSqlUsername, null)
+                .set(SysTenant::getSysTenantSqlPassword, null)
+                .set(SysTenant::getSysTenantHost, null)
+                .set(SysTenant::getSysTenantIp, null)
+                .set(SysTenant::getSysTenantPort, null)
+                .set(SysTenant::getSysTenantDatasourceId, 0L)
+                .eq(SysTenant::getSysTenantId, sysTenantId));
+        log.info("[租户建库] 已物理删除租户库并清空登记: tenantId={}, db={}",
+                sysTenantId, tenant.getSysTenantDbname());
+        return ReturnResult.ok(true);
     }
 
     @Override

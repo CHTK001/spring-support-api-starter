@@ -63,12 +63,24 @@ public interface SysTenantService extends IService<SysTenant> {
     ReturnResult<Boolean> updateForSysTenant(SysTenant sysTenant);
 
     /**
-     * 删除租户
+     * 删除租户（逻辑删除，保留独立数据库与库账号）
      *
      * @param sysTenantId 租户标识
      * @return 删除结果
      */
     ReturnResult<Boolean> deleteForSysTenant(String sysTenantId);
+
+    /**
+     * 物理删除租户独立数据库（不可逆，需输入租户编码确认）
+     *
+     * <p>与逻辑删除分开：只有这个入口会执行 {@code DROP DATABASE}。
+     * 成功后清空租户记录上的独立库登记，租户本身保留。</p>
+     *
+     * @param sysTenantId 租户标识
+     * @param confirmCode 租户编码，必须与记录一致
+     * @return 删除结果
+     */
+    ReturnResult<Boolean> dropTenantDatabase(String sysTenantId, String confirmCode);
 
     /**
      * 根据标识获取租户详情

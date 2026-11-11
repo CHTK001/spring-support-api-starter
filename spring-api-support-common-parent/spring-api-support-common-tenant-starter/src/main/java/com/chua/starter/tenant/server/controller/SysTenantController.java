@@ -154,10 +154,30 @@ public class SysTenantController {
      */
     @DeleteMapping("delete")
     @SysLog
-    @Operation(summary = "删除租户")
+    @Operation(summary = "删除租户（逻辑删除，保留数据库）")
     @Permission("sys:tenant:delete")
     public ReturnResult<Boolean> deleteForSysTenant(@Parameter(description = "租户ID") String sysTenantId) {
         return sysTenantService.deleteForSysTenant(sysTenantId);
+    }
+
+    /**
+     * 物理删除租户独立数据库。
+     *
+     * <p>与「删除租户」分开：删除租户只做逻辑删除，库与账号保留；本接口是唯一会执行
+     * {@code DROP DATABASE} 的入口，必须同时给出租户编码作为二次确认（前端另有三次弹窗）。</p>
+     *
+     * @param sysTenantId 租户标识
+     * @param confirmCode 租户编码，必须与记录一致
+     * @return 删除结果
+     */
+    @PutMapping("drop-database")
+    @SysLog
+    @Operation(summary = "物理删除租户独立数据库（不可逆，需租户编码确认）")
+    @Permission("sys:tenant:delete")
+    public ReturnResult<Boolean> dropDatabaseForSysTenant(
+            @Parameter(description = "租户ID") String sysTenantId,
+            @Parameter(description = "租户编码，用于二次确认") String confirmCode) {
+        return sysTenantService.dropTenantDatabase(sysTenantId, confirmCode);
     }
 
     /**
