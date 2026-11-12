@@ -323,7 +323,13 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             version.setSysSettingConfig(UUID.randomUUID().toString());
             sysSettings.add(version);
         }
-        boolean updated = sysSettingService.updateBatchById(sysSettings);
+        boolean updated = true;
+        for (SysSetting setting : sysSettings) {
+            if (!updateExplicit(setting)) {
+                updated = false;
+                break;
+            }
+        }
         if (!updated) {
             // 乐观锁版本号不匹配（配置已被他人/其它会话修改），需明确报错而非静默成功
             return ReturnResult.error("配置已被修改，请刷新后重试");
@@ -350,6 +356,75 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         }
         sysSettingService.clearCache(sysSetting);
         return ReturnResult.of(sysSetting);
+    }
+
+    /**
+     * 以显式 UpdateWrapper 更新单条配置。
+     *
+     * <p>MyBatis-Plus 的 {@code updateBatchById} 在设置实体上会生成
+     * {@code MP_OPTLOCK_VERSION_ORIGINAL} 参数，但当前 Mapper 没有该参数，
+     * 导致保存配置直接抛 BindingException。这里按 id（有版本号时同时按版本号）
+     * 显式写入非空字段，并递增版本号；未命中说明版本已被其它会话修改。</p>
+     */
+    private boolean updateExplicit(SysSetting setting) {
+        if (null == setting || null == setting.getSysSettingId()) {
+            return false;
+        }
+        var update = Wrappers.<SysSetting>lambdaUpdate()
+                .eq(SysSetting::getSysSettingId, setting.getSysSettingId());
+        if (null != setting.getSysSettingVersion()) {
+            update.eq(SysSetting::getSysSettingVersion, setting.getSysSettingVersion());
+        }
+        if (null != setting.getSysSettingName()) {
+            update.set(SysSetting::getSysSettingName, setting.getSysSettingName());
+        }
+        if (null != setting.getSysSettingCode()) {
+            update.set(SysSetting::getSysSettingCode, setting.getSysSettingCode());
+        }
+        if (null != setting.getSysSettingValue()) {
+            update.set(SysSetting::getSysSettingValue, setting.getSysSettingValue());
+        }
+        if (null != setting.getSysSettingDefaultValue()) {
+            update.set(SysSetting::getSysSettingDefaultValue, setting.getSysSettingDefaultValue());
+        }
+        if (null != setting.getSysSettingConfig()) {
+            update.set(SysSetting::getSysSettingConfig, setting.getSysSettingConfig());
+        }
+        if (null != setting.getSysSettingRemark()) {
+            update.set(SysSetting::getSysSettingRemark, setting.getSysSettingRemark());
+        }
+        if (null != setting.getSysSettingSort()) {
+            update.set(SysSetting::getSysSettingSort, setting.getSysSettingSort());
+        }
+        if (null != setting.getSysSettingStatus()) {
+            update.set(SysSetting::getSysSettingStatus, setting.getSysSettingStatus());
+        }
+        if (null != setting.getSysSettingAdmin()) {
+            update.set(SysSetting::getSysSettingAdmin, setting.getSysSettingAdmin());
+        }
+        if (null != setting.getSysSettingValueType()) {
+            update.set(SysSetting::getSysSettingValueType, setting.getSysSettingValueType());
+        }
+        if (null != setting.getSysSettingGroup()) {
+            update.set(SysSetting::getSysSettingGroup, setting.getSysSettingGroup());
+        }
+        if (null != setting.getSysSettingCollect()) {
+            update.set(SysSetting::getSysSettingCollect, setting.getSysSettingCollect());
+        }
+        if (null != setting.getSysSettingInSystem()) {
+            update.set(SysSetting::getSysSettingInSystem, setting.getSysSettingInSystem());
+        }
+        if (null != setting.getSysSettingAppInner()) {
+            update.set(SysSetting::getSysSettingAppInner, setting.getSysSettingAppInner());
+        }
+        if (null != setting.getSysSettingIsSensitive()) {
+            update.set(SysSetting::getSysSettingIsSensitive, setting.getSysSettingIsSensitive());
+        }
+        if (null != setting.getSysSettingValidate()) {
+            update.set(SysSetting::getSysSettingValidate, setting.getSysSettingValidate());
+        }
+        update.setSql("sys_setting_version = sys_setting_version + 1");
+        return baseMapper.update(null, update) > 0;
     }
 
     /**
@@ -485,6 +560,18 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         if (null != validationError) {
             return ReturnResult.error(validationError);
         }
+        // 乐观锁版本号必须取库里的当前值。请求体通常不带 version，而 MyBatis-Plus 的
+        // updateById 在 version 为空时仍会拼出
+        // `AND sys_setting_version = #{MP_OPTLOCK_VERSION_ORIGINAL}`，却不会填充该参数，
+        // 参数绑定阶段直接抛 BindingException: Parameter 'MP_OPTLOCK_VERSION_ORIGINAL'
+        // not found. Available parameters are [et] —— 表现为保存配置 500，而不是乐观锁冲突。
+        if (null != sysSetting.getSysSettingId() && null == sysSetting.getSysSettingVersion()) {
+            SysSetting existing = baseMapper.selectById(sysSetting.getSysSettingId());
+            if (null == existing) {
+                return ReturnResult.error("配置不存在, 请刷新后重试!");
+            }
+            sysSetting.setSysSettingVersion(existing.getSysSettingVersion());
+        }
         boolean saved = saveOrUpdate(sysSetting);
         if (saved) {
             publishAfterCommit(new HotReloadChangedEvent(this, sysSetting.getSysSettingId(),
@@ -600,7 +687,13 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
             version.setSysSettingConfig(UUID.randomUUID().toString());
             sysSettings.add(version);
         }
-        boolean batchUpdated = sysSettingService.updateBatchById(sysSettings);
+        boolean batchUpdated = true;
+        for (SysSetting setting : sysSettings) {
+            if (!updateExplicit(setting)) {
+                batchUpdated = false;
+                break;
+            }
+        }
         if (!batchUpdated) {
             return ReturnResult.error("部分配置已被修改，请刷新后重试");
         }
