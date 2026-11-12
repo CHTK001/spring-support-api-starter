@@ -88,3 +88,39 @@ WHERE `account` IS NOT NULL;
 DROP TABLE IF EXISTS `sys_firewall_ip_blackwhite`;
 DROP TABLE IF EXISTS `sys_firewall_rate_limit_rule`;
 DROP TABLE IF EXISTS `sys_firewall_account_blackwhite`;
+
+-- ============================================================
+-- V6.3 壁纸目录种子数据（内置 6 套）
+--
+-- 全部是 CSS 渐变 / 图案，不依赖图片资源：
+-- 一套位图壁纸动辄数 MB，塞进发行包不划算；渐变的任意分辨率都不糊，
+-- 也方便部署侧后续在库里换成照片（kind 改 image、填 url 即可）。
+--
+-- 幂等：按 code 判重，重复执行不会插入第二份。
+-- 与前端 builtinWallpapers.ts 的兜底清单保持一致。
+-- ============================================================
+
+INSERT INTO `sys_wallpaper` (`sys_wallpaper_code`, `sys_wallpaper_name`, `sys_wallpaper_group`, `sys_wallpaper_kind`, `sys_wallpaper_css`, `sys_wallpaper_css_dark`, `sys_wallpaper_tile`, `sys_wallpaper_opacity`, `sys_wallpaper_blur`, `sys_wallpaper_dim`, `sys_wallpaper_sort`, `sys_wallpaper_status`)
+SELECT 'paper', '素纸', '素雅', 'css', 'repeating-linear-gradient(0deg, rgba(120,96,64,0.045) 0 1px, transparent 1px 28px), linear-gradient(180deg, #fbf8f2 0%, #f3ede1 100%)', 'repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 28px), linear-gradient(180deg, #1b1a18 0%, #121110 100%)', 'none', 1.00, 0, 0.00, 10, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_wallpaper` WHERE `sys_wallpaper_code` = 'paper');
+
+INSERT INTO `sys_wallpaper` (`sys_wallpaper_code`, `sys_wallpaper_name`, `sys_wallpaper_group`, `sys_wallpaper_kind`, `sys_wallpaper_css`, `sys_wallpaper_css_dark`, `sys_wallpaper_tile`, `sys_wallpaper_opacity`, `sys_wallpaper_blur`, `sys_wallpaper_dim`, `sys_wallpaper_sort`, `sys_wallpaper_status`)
+SELECT 'bamboo', '青竹', '雅致', 'css', 'repeating-linear-gradient(94deg, rgba(74,124,89,0.10) 0 2px, transparent 2px 46px), radial-gradient(120% 90% at 12% 0%, #eaf4ea 0%, #dcecdf 45%, #cfe4d5 100%)', 'repeating-linear-gradient(94deg, rgba(140,200,160,0.10) 0 2px, transparent 2px 46px), radial-gradient(120% 90% at 12% 0%, #10201a 0%, #0c1712 55%, #091210 100%)', 'none', 1.00, 0, 0.00, 20, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_wallpaper` WHERE `sys_wallpaper_code` = 'bamboo');
+
+INSERT INTO `sys_wallpaper` (`sys_wallpaper_code`, `sys_wallpaper_name`, `sys_wallpaper_group`, `sys_wallpaper_kind`, `sys_wallpaper_css`, `sys_wallpaper_css_dark`, `sys_wallpaper_tile`, `sys_wallpaper_opacity`, `sys_wallpaper_blur`, `sys_wallpaper_dim`, `sys_wallpaper_sort`, `sys_wallpaper_status`)
+SELECT 'distant-hills', '远山', '雅致', 'css', 'radial-gradient(120% 62% at 18% 100%, rgba(109,93,252,0.16) 0%, transparent 62%), radial-gradient(90% 50% at 82% 100%, rgba(47,191,113,0.14) 0%, transparent 60%), linear-gradient(180deg, #f6f7fb 0%, #eef1f8 60%, #e7ebf6 100%)', 'radial-gradient(120% 62% at 18% 100%, rgba(125,109,255,0.20) 0%, transparent 62%), radial-gradient(90% 50% at 82% 100%, rgba(47,191,113,0.16) 0%, transparent 60%), linear-gradient(180deg, #14151f 0%, #101119 60%, #0c0d14 100%)', 'none', 1.00, 0, 0.00, 30, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_wallpaper` WHERE `sys_wallpaper_code` = 'distant-hills');
+
+INSERT INTO `sys_wallpaper` (`sys_wallpaper_code`, `sys_wallpaper_name`, `sys_wallpaper_group`, `sys_wallpaper_kind`, `sys_wallpaper_css`, `sys_wallpaper_css_dark`, `sys_wallpaper_tile`, `sys_wallpaper_opacity`, `sys_wallpaper_blur`, `sys_wallpaper_dim`, `sys_wallpaper_sort`, `sys_wallpaper_status`)
+SELECT 'ink', '墨痕', '雅致', 'css', 'radial-gradient(42% 34% at 24% 18%, rgba(31,36,48,0.10) 0%, transparent 70%), radial-gradient(38% 30% at 78% 76%, rgba(31,36,48,0.08) 0%, transparent 70%), linear-gradient(160deg, #f7f7f9 0%, #eceef3 100%)', 'radial-gradient(42% 34% at 24% 18%, rgba(255,255,255,0.06) 0%, transparent 70%), radial-gradient(38% 30% at 78% 76%, rgba(255,255,255,0.05) 0%, transparent 70%), linear-gradient(160deg, #1a1b22 0%, #111219 100%)', 'none', 1.00, 0, 0.00, 40, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_wallpaper` WHERE `sys_wallpaper_code` = 'ink');
+
+INSERT INTO `sys_wallpaper` (`sys_wallpaper_code`, `sys_wallpaper_name`, `sys_wallpaper_group`, `sys_wallpaper_kind`, `sys_wallpaper_css`, `sys_wallpaper_css_dark`, `sys_wallpaper_tile`, `sys_wallpaper_opacity`, `sys_wallpaper_blur`, `sys_wallpaper_dim`, `sys_wallpaper_sort`, `sys_wallpaper_status`)
+SELECT 'warm-dusk', '暖霞', '暖色', 'css', 'radial-gradient(90% 70% at 80% 0%, rgba(245,165,36,0.20) 0%, transparent 60%), radial-gradient(80% 60% at 10% 10%, rgba(240,74,93,0.14) 0%, transparent 58%), linear-gradient(180deg, #fdf7f2 0%, #f7eef0 100%)', 'radial-gradient(90% 70% at 80% 0%, rgba(245,165,36,0.16) 0%, transparent 60%), radial-gradient(80% 60% at 10% 10%, rgba(240,74,93,0.12) 0%, transparent 58%), linear-gradient(180deg, #1f1913 0%, #161014 100%)', 'none', 1.00, 0, 0.00, 50, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_wallpaper` WHERE `sys_wallpaper_code` = 'warm-dusk');
+
+INSERT INTO `sys_wallpaper` (`sys_wallpaper_code`, `sys_wallpaper_name`, `sys_wallpaper_group`, `sys_wallpaper_kind`, `sys_wallpaper_css`, `sys_wallpaper_css_dark`, `sys_wallpaper_tile`, `sys_wallpaper_opacity`, `sys_wallpaper_blur`, `sys_wallpaper_dim`, `sys_wallpaper_sort`, `sys_wallpaper_status`)
+SELECT 'starry', '星野', '夜色', 'css', 'radial-gradient(circle at 22% 28%, rgba(255,255,255,0.92) 0 1.2px, transparent 1.8px), radial-gradient(circle at 68% 62%, rgba(255,255,255,0.70) 0 1px, transparent 1.6px), radial-gradient(120% 90% at 50% 0%, #2b3a5e 0%, #182238 60%, #0b0f1a 100%)', 'radial-gradient(circle at 22% 28%, rgba(255,255,255,0.92) 0 1.2px, transparent 1.8px), radial-gradient(circle at 68% 62%, rgba(255,255,255,0.70) 0 1px, transparent 1.6px), radial-gradient(120% 90% at 50% 0%, #1a2440 0%, #0e1526 60%, #070a12 100%)', 'none', 0.95, 0, 0.25, 60, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_wallpaper` WHERE `sys_wallpaper_code` = 'starry');
+

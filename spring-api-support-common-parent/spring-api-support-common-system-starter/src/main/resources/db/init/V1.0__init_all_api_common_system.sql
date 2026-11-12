@@ -668,3 +668,77 @@ CREATE TABLE IF NOT EXISTS `sys_avatar_frame` (
     KEY `sys_avatar_frame_idx_type` (`sys_avatar_frame_type`),
     KEY `sys_avatar_frame_idx_status` (`sys_avatar_frame_status`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='头像框定义表';
+
+-- ============================================================
+-- V6.2 壁纸：目录 / 用户设置 / 上传记录
+--
+-- 三张表的分工：
+--   sys_wallpaper              → 服务端下发的内置壁纸（管理员维护）
+--   sys_user_wallpaper         → 每人当前佩戴的那一张（唯一键 userId，upsert）
+--   sys_user_wallpaper_upload  → 用户上传过的图片记录（文件本体在文件存储）
+--
+-- 文件本体不入库：上传复用 /v2/file/upload（bucket=wallpaper），
+-- 这里只存回显地址，避免把二进制塞进业务库。
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `sys_wallpaper` (
+    `sys_wallpaper_id` INT NOT NULL AUTO_INCREMENT COMMENT '壁纸ID',
+    `sys_wallpaper_code` varchar(64) NOT NULL COMMENT '壁纸编码（唯一）',
+    `sys_wallpaper_name` varchar(64) NOT NULL COMMENT '壁纸名称',
+    `sys_wallpaper_group` varchar(32) DEFAULT NULL COMMENT '分组标题',
+    `sys_wallpaper_kind` varchar(16) DEFAULT 'css' COMMENT '类型: css-渐变/图案 image-位图',
+    `sys_wallpaper_css` text COMMENT 'CSS 背景值（kind=css）',
+    `sys_wallpaper_css_dark` text COMMENT '暗色 CSS 背景值（缺省沿用亮色）',
+    `sys_wallpaper_url` varchar(512) DEFAULT NULL COMMENT '位图地址（kind=image）',
+    `sys_wallpaper_tile` varchar(16) DEFAULT 'none' COMMENT '推荐平铺: none/cover/contain/repeat/repeat-x/repeat-y',
+    `sys_wallpaper_opacity` decimal(4,2) DEFAULT 1.00 COMMENT '推荐不透明度 0~1',
+    `sys_wallpaper_blur` int DEFAULT 0 COMMENT '推荐模糊半径 0~24',
+    `sys_wallpaper_dim` decimal(4,2) DEFAULT 0.00 COMMENT '推荐压暗 0~0.8',
+    `sys_wallpaper_sort` int DEFAULT 0 COMMENT '排序',
+    `sys_wallpaper_status` int DEFAULT 1 COMMENT '状态: 0-禁用 1-启用',
+    `create_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int DEFAULT NULL COMMENT '创建人',
+    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_wallpaper_id`),
+    UNIQUE KEY `uk_sys_wallpaper_code` (`sys_wallpaper_code`),
+    KEY `idx_sys_wallpaper_status` (`sys_wallpaper_status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='壁纸目录表';
+
+CREATE TABLE IF NOT EXISTS `sys_user_wallpaper` (
+    `sys_user_wallpaper_id` INT NOT NULL AUTO_INCREMENT COMMENT '用户壁纸ID',
+    `sys_user_id` int NOT NULL COMMENT '用户ID',
+    `source` varchar(16) NOT NULL DEFAULT 'default' COMMENT '来源: default-不铺图 builtin-内置 upload-自己上传',
+    `preset_id` int DEFAULT NULL COMMENT '内置壁纸ID（source=builtin）',
+    `url` varchar(512) DEFAULT NULL COMMENT '位图地址（source=upload）',
+    `tile` varchar(16) DEFAULT 'none' COMMENT '平铺方式',
+    `opacity` decimal(4,2) DEFAULT 1.00 COMMENT '不透明度 0~1',
+    `blur` int DEFAULT 0 COMMENT '模糊半径 0~24',
+    `dim` decimal(4,2) DEFAULT 0.00 COMMENT '压暗 0~0.8',
+    `create_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int DEFAULT NULL COMMENT '创建人',
+    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_user_wallpaper_id`),
+    UNIQUE KEY `uk_sys_user_wallpaper_user` (`sys_user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户壁纸设置表';
+
+CREATE TABLE IF NOT EXISTS `sys_user_wallpaper_upload` (
+    `sys_user_wallpaper_upload_id` INT NOT NULL AUTO_INCREMENT COMMENT '上传记录ID',
+    `sys_user_id` int NOT NULL COMMENT '用户ID',
+    `url` varchar(512) NOT NULL COMMENT '图片地址',
+    `name` varchar(64) DEFAULT NULL COMMENT '展示名',
+    `create_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int DEFAULT NULL COMMENT '创建人',
+    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_user_wallpaper_upload_id`),
+    KEY `idx_sys_user_wallpaper_upload_user` (`sys_user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户上传壁纸记录表';
+

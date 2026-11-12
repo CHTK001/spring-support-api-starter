@@ -467,3 +467,65 @@ CREATE TABLE IF NOT EXISTS sys_ai_conversation_message (
   sys_ai_conversation_message_create_time BIGINT,
   PRIMARY KEY (sys_ai_conversation_message_id)
 );
+
+-- ===== sys_wallpaper (壁纸目录) =====
+CREATE TABLE IF NOT EXISTS sys_wallpaper (
+  sys_wallpaper_id INT NOT NULL AUTO_INCREMENT,
+  sys_wallpaper_code VARCHAR(64) NOT NULL,
+  sys_wallpaper_name VARCHAR(64) NOT NULL,
+  sys_wallpaper_group VARCHAR(32),
+  sys_wallpaper_kind VARCHAR(16) DEFAULT 'css',
+  sys_wallpaper_css TEXT,
+  sys_wallpaper_css_dark TEXT,
+  sys_wallpaper_url VARCHAR(512),
+  sys_wallpaper_tile VARCHAR(16) DEFAULT 'none',
+  sys_wallpaper_opacity DECIMAL(4,2) DEFAULT 1.00,
+  sys_wallpaper_blur INT DEFAULT 0,
+  sys_wallpaper_dim DECIMAL(4,2) DEFAULT 0.00,
+  sys_wallpaper_sort INT DEFAULT 0,
+  sys_wallpaper_status INT DEFAULT 1,
+  create_name VARCHAR(255),
+  create_by INT,
+  create_time TIMESTAMP,
+  update_time TIMESTAMP,
+  update_name VARCHAR(255),
+  update_by INT,
+  PRIMARY KEY (sys_wallpaper_id),
+  UNIQUE (sys_wallpaper_code)
+);
+
+-- ===== sys_user_wallpaper (用户壁纸设置) =====
+CREATE TABLE IF NOT EXISTS sys_user_wallpaper (
+  sys_user_wallpaper_id INT NOT NULL AUTO_INCREMENT,
+  sys_user_id INT NOT NULL,
+  source VARCHAR(16) NOT NULL DEFAULT 'default',
+  preset_id INT,
+  url VARCHAR(512),
+  tile VARCHAR(16) DEFAULT 'none',
+  opacity DECIMAL(4,2) DEFAULT 1.00,
+  blur INT DEFAULT 0,
+  dim DECIMAL(4,2) DEFAULT 0.00,
+  create_name VARCHAR(255),
+  create_by INT,
+  create_time TIMESTAMP,
+  update_time TIMESTAMP,
+  update_name VARCHAR(255),
+  update_by INT,
+  PRIMARY KEY (sys_user_wallpaper_id),
+  UNIQUE (sys_user_id)
+);
+
+-- ===== sys_user_wallpaper_upload (用户上传壁纸记录) =====
+CREATE TABLE IF NOT EXISTS sys_user_wallpaper_upload (
+  sys_user_wallpaper_upload_id INT NOT NULL AUTO_INCREMENT,
+  sys_user_id INT NOT NULL,
+  url VARCHAR(512) NOT NULL,
+  name VARCHAR(64),
+  create_name VARCHAR(255),
+  create_by INT,
+  create_time TIMESTAMP,
+  update_time TIMESTAMP,
+  update_name VARCHAR(255),
+  update_by INT,
+  PRIMARY KEY (sys_user_wallpaper_upload_id)
+);

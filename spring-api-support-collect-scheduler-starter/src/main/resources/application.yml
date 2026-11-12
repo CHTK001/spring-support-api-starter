@@ -70,6 +70,16 @@ plugin:
       group: collect-flow
     manage:
       enable: true                            # 开放 /v2/job/** 治理接口（要求管理员身份），调度工作台只用这一套
+  # OSGi 插件框架：/osgi/** 的清单与上传安装/升级/启停/卸载/下载。
+  # endpoint 默认关闭，这里显式打开；/osgi/** 受框架统一认证保护。
+  osgi:
+    enabled: true
+    storage: ./osgi-cache                     # Felix 框架持久化目录
+    endpoint:
+      enabled: true
+      manage-enabled: true                    # 允许变更类操作；设为 false 则界面只能看不能改
+    deploy:
+      directory: ./osgi-deploy                # 上传的插件 jar 落盘目录，下载也从这里取
   # 调度与采集是两个平级系统，只共用 job-starter 的 sys_job 台账：
   # 采集把自己的流程登记成台账行（分组 collect-flow），调度工作台看到的就是这些行。
   # 调度侧接口一律走 job-starter 的 /v2/job/**，不再并入 scheduler 的远程下发面。

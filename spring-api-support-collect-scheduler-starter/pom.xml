@@ -19,11 +19,29 @@
       <artifactId>spring-support-collect-starter</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- OSGi 插件框架：/osgi/** 提供 bundle 清单与上传安装/升级/启停/卸载/下载，
+         前端「插件中心」直接使用。Felix 启动失败只记日志、不阻断采集与调度。 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-osgi-starter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!-- 调度模块：@Job + Scheduler/Executor/SINGLE 多模式，提供 sys_job 台账与治理服务。
          显式声明而非依赖传递：调度是本系统与采集平级的另一半，不是采集的附属能力。 -->
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-support-job-starter</artifactId>
+    </dependency>
+    <!-- 租户契约：datasource-hub 的 DatasourceTenantLookupAdapter 实现
+         TenantDatasourceLookup，而 hub 把 tenant-starter 声明为 optional，不随依赖传递。
+         本应用内嵌 hub，必须自带 tenant 的类，否则 Spring 解析该适配器时会因
+         TenantDatasourceLookup 缺失而启动失败。
+         注意：这里只提供契约类，不扫描 com.chua.starter.tenant，也不启用租户服务端；
+         采集应用没有租户管理面，扫描后反而会要求 SysServiceMapper 等租户专属 Bean。 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-api-support-common-tenant-starter</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <!-- datasource-hub（内嵌）新版 DbConsoleController 的构造参数泛型引用了
          com.chua.starter.ai.support.service.AiChatFacadeService；hub 把 ai-starter

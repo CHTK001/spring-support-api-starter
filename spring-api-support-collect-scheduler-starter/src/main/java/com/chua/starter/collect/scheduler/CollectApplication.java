@@ -25,6 +25,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * {@code @MapperScan}（见 JobAutoConfiguration.MAPPER_PACKAGE）；采集的 mapper 归
  * CollectAutoConfiguration 负责。</p>
  *
+ * <p>租户模块只作为 datasource-hub 的契约依赖打包：hub 的
+ * {@code DatasourceTenantLookupAdapter} 实现 {@code TenantDatasourceLookup}，
+ * 但 hub 把 tenant-starter 声明为 optional，不会传递到本应用。
+ * 本应用不提供租户管理面，故不扫描 {@code com.chua.starter.tenant}；
+ * 否则会注册租户控制器，并因其 {@code @MapperScan} 条件未开启而缺少 Mapper。</p>
+ *
  * @author CH
  * @since 4.0.0.42
  */
@@ -35,7 +41,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication(scanBasePackages = {
         "com.chua.starter.collect.scheduler",
         "com.chua.starter.system",
-        "com.chua.starter.tenant",
         "com.chua.starter.service.impl",
         "com.chua.starter.service.configuration"
 })
