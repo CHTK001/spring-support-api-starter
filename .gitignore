@@ -175,3 +175,5 @@ node_modules/.tmp/
 /start-backend.bat
 /tools/start-api-safe.bat
 
+
+osgi-cache/
