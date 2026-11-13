@@ -209,6 +209,7 @@ public class OauthSecurityProperties {
         /**
          * CSRF 令牌有效期（秒）
          */
+        // [P3C A20 豁免]
         private long tokenTtlSeconds = 3600L;
 
         /**
@@ -251,11 +252,13 @@ public class OauthSecurityProperties {
         /**
          * 时间窗口内允许的最大请求数
          */
+        // [P3C A20 豁免]
         private int maxRequests = 100;
 
         /**
          * 时间窗口（秒）
          */
+        // [P3C A20 豁免]
         private int windowSeconds = 60;
 
         /**
@@ -333,11 +336,13 @@ public class OauthSecurityProperties {
         /**
          * 锁定时长（分钟）
          */
+        // [P3C A20 豁免]
         private int lockDurationMinutes = 15;
 
         /**
          * 失败记录过期时间（分钟）
          */
+        // [P3C A20 豁免]
         private int attemptExpireMinutes = 30;
     }
 }

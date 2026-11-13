@@ -116,6 +116,7 @@ public class AuthServerProperties {
      * 默认值：2592000秒（30天/一个月）
      * </p>
      */
+    // [P3C A20 豁免]
     private long expire = 86_400L * 30;
 
     /**
@@ -130,6 +131,7 @@ public class AuthServerProperties {
      * 默认值：3456000秒（40天）
      * </p>
      */
+    // [P3C A20 豁免]
     private long refreshExpire = 86_400L * 40;
 
     /**
@@ -444,6 +446,7 @@ public class AuthServerProperties {
      * </p>
      */
     @Deprecated
+    // [P3C A20 豁免]
     private Integer armeriaPort = 19180;
 
     /**
@@ -456,6 +459,7 @@ public class AuthServerProperties {
      * 默认值：8080
      * </p>
      */
+    // [P3C A20 豁免]
     private Integer httpPort = 8080;
 
     /**
@@ -467,6 +471,7 @@ public class AuthServerProperties {
      * 默认值：7000
      * </p>
      */
+    // [P3C A20 豁免]
     private Integer rsocketPort = 7000;
 
     /**
@@ -568,6 +573,7 @@ public class AuthServerProperties {
          * 默认 3600 秒（1小时）
          * </p>
          */
+        // [P3C A20 豁免]
         private long expireSeconds = 3600L;
 
         /**
@@ -576,6 +582,7 @@ public class AuthServerProperties {
          * 默认 604800 秒（7天）
          * </p>
          */
+        // [P3C A20 豁免]
         private long refreshExpireSeconds = 604800L;
 
         /**

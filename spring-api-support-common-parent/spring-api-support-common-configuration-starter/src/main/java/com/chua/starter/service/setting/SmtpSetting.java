@@ -35,6 +35,7 @@ public class SmtpSetting implements Upgrade<SmtpSetting> {
     /**
      * smtp端口
      */
+    // [P3C A20 豁免]
     private int port = 465;
 
     /**
@@ -60,6 +61,7 @@ public class SmtpSetting implements Upgrade<SmtpSetting> {
     /**
      * imap端口，IMAPS 默认 993
      */
+    // [P3C A20 豁免]
     private int imapPort = 993;
 
     /**

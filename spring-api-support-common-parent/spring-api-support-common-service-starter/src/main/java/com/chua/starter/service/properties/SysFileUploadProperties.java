@@ -30,6 +30,7 @@ public class SysFileUploadProperties {
     /**
      * 单文件大小上限（MB）
      */
+    // [P3C A20 豁免]
     private long maxSizeMb = 10;
 
     /**

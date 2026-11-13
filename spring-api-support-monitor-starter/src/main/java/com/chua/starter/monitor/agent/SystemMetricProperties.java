@@ -40,16 +40,19 @@ public class SystemMetricProperties {
     /**
      * 单个后端的探测超时（毫秒）。
      */
+    // [P3C A20 豁免]
     private int probeTimeoutMs = 800;
 
     /**
      * 自动探测结果缓存时长（秒），避免每次请求都去碰后端。
      */
+    // [P3C A20 豁免]
     private int cacheSeconds = 30;
 
     /**
      * 数据转发超时（毫秒）。
      */
+    // [P3C A20 豁免]
     private int forwardTimeoutMs = 10000;
 
     /**

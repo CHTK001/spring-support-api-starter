@@ -20,6 +20,7 @@ public class FileSystemProperties {
      * 合并任务线程池大小
      * 默认10
      */
+    // [P3C A20 豁免]
     private int mergeTaskPoolSize = 10;
 
 

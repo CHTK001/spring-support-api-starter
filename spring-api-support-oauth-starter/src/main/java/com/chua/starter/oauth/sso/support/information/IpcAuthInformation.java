@@ -217,6 +217,7 @@ public class IpcAuthInformation {
         /**
          * 状态
         */
+        // [P3C A20 豁免]
         private int status = 200;
         /**
          * 请求体

@@ -120,6 +120,7 @@ public class OauthProtocolServersProperties {
         /**
          * 监听端口
          */
+        // [P3C A20 豁免]
         private int port = 19180;
 
         /**

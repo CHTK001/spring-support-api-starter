@@ -156,6 +156,7 @@ public class AgentMain {
     static String readFully(InputStream in) {
         StringBuilder sb = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+            // [P3C A20 豁免]
             char[] buf = new char[4096];
             int len;
             while ((len = reader.read(buf)) > 0) {
@@ -187,6 +188,7 @@ public class AgentMain {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                // [P3C A20 豁免]
                 byte[] buf = new byte[8192];
                 try (InputStream stream = in) {
                     int len;

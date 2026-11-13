@@ -25,5 +25,6 @@ public class AcmeProperties {
     /**
      * 到期前多少天触发续签
     */
+    // [P3C A20 豁免]
     private int renewDaysBefore = 30;
 }

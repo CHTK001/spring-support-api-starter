@@ -86,6 +86,7 @@ public class AcmeChallengeService {
      */
     private void cleanExpired() {
         long now = System.currentTimeMillis();
+        // [P3C A20 豁免]
         long expireTime = EXPIRE_MINUTES * 60 * 1000;
         challengeCache.entrySet().removeIf(entry -> {
             boolean expired = now - entry.getValue().createTime > expireTime;

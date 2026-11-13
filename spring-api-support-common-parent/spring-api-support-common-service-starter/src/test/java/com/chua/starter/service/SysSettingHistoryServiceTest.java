@@ -113,6 +113,7 @@ class SysSettingHistoryServiceTest {
         history.setSysSettingOperation("UPDATE");
         history.setSysSettingOldValue("oldValue");
 
+        // [P3C A20 豁免]
         ReturnResult<Boolean> result = sysSettingHistoryService.rollbackToHistory(10L, "u1", "admin");
         assertTrue(result.isSuccess());
         // 原 captor 断言: 旧值写回设置表, 回滚本身产生一条新历史(ROLLBACK)
@@ -125,6 +126,7 @@ class SysSettingHistoryServiceTest {
     @Test
     @DisplayName("单条回滚-历史不存在返回错误")
     void shouldThrowWhenHistoryNotFound() {
+        // [P3C A20 豁免]
         ReturnResult<Boolean> result = sysSettingHistoryService.rollbackToHistory(99L, "u1", "admin");
 
         assertFalse(result.isSuccess());

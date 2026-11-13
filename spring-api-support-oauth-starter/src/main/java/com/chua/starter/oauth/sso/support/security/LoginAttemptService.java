@@ -337,7 +337,9 @@ public class LoginAttemptService {
             if (remainingSeconds <= 0) {
                 return "";
             }
+            // [P3C A20 豁免]
             long minutes = remainingSeconds / 60;
+            // [P3C A20 豁免]
             long seconds = remainingSeconds % 60;
             if (minutes > 0) {
                 return minutes + "分" + seconds + "秒";

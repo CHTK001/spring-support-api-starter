@@ -198,6 +198,7 @@ public class MockRedisConfiguration {
                 case "setNX":
                     return save(key(args[0]), (byte[]) args[1], null, "ABSENT");
                 case "setEx":
+                    // [P3C A20 豁免]
                     return save(key(args[0]), (byte[]) args[2], deadline(args[1], 1000L), "UPSERT");
                 case "pSetEx":
                     return save(key(args[0]), (byte[]) args[2], deadline(args[1], 1L), "UPSERT");
@@ -230,16 +231,19 @@ public class MockRedisConfiguration {
                 case "unlink":
                     return removeKeys(args[0]);
                 case "expire":
+                    // [P3C A20 豁免]
                     return applyExpire(key(args[0]), deadline(args[1], 1000L));
                 case "pExpire":
                     return applyExpire(key(args[0]), deadline(args[1], 1L));
                 case "expireAt":
+                    // [P3C A20 豁免]
                     return applyExpire(key(args[0]), timestamp(args[1], 1000L));
                 case "pExpireAt":
                     return applyExpire(key(args[0]), timestamp(args[1], 1L));
                 case "persist":
                     return EXPIRES.remove(key(args[0])) != null;
                 case "ttl":
+                    // [P3C A20 豁免]
                     return remaining(key(args[0]), 1000L);
                 case "pTtl":
                     return remaining(key(args[0]), 1L);

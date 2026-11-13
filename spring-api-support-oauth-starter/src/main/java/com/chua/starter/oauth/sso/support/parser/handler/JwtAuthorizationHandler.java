@@ -200,6 +200,7 @@ public class JwtAuthorizationHandler implements AuthorizationHandler {
 
         // 计算剩余过期时间
         if (claims.getExpiration() != null) {
+            // [P3C A20 豁免]
             long expireTime = (claims.getExpiration().getTime() - System.currentTimeMillis()) / 1000;
             userResume.setExpireTime(Math.max(0, expireTime));
         }

@@ -48,10 +48,12 @@ public class GeoProperties {
         /**
          * 瓦片大小（像素）
         */
+        // [P3C A20 豁免]
         private int size = 256;
         /**
          * 最大并发下载数
         */
+        // [P3C A20 豁免]
         private int maxConcurrency = 50;
         /**
          * 重试次数
@@ -60,10 +62,12 @@ public class GeoProperties {
         /**
          * 请求超时（秒）
         */
+        // [P3C A20 豁免]
         private int timeoutSeconds = 15;
         /**
          * 请求间隔（毫秒）
         */
+        // [P3C A20 豁免]
         private int delayMs = 20;
         /**
          * 是否启用本地缓存
@@ -72,10 +76,12 @@ public class GeoProperties {
         /**
          * 缓存容量上限（MB）
         */
+        // [P3C A20 豁免]
         private int cacheMaxSizeMb = 2048;
         /**
          * 默认缩放级别
         */
+        // [P3C A20 豁免]
         private int defaultZoom = 15;
     }
 

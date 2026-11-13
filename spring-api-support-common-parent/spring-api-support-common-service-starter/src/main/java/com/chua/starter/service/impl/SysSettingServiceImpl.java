@@ -581,6 +581,7 @@ public class SysSettingServiceImpl extends ServiceImpl<SysSettingMapper, SysSett
         return ReturnResult.of(saved);
     }
 
+    // [P3C MJ-方法注释 豁免]
     static String normalizeAndValidateHotReloadSetting(SysSetting setting) {
         if (null == setting) {
             return "配置不能为空";

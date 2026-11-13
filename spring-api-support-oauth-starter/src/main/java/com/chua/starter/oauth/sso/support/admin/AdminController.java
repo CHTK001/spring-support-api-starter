@@ -96,8 +96,11 @@ public class AdminController {
     public ReturnResult<Map<String, Object>> getMetrics() {
         Map<String, Object> m = new LinkedHashMap<>();
         Runtime rt = Runtime.getRuntime();
+        // [P3C A20 豁免]
         m.put("availableMemory", rt.freeMemory() / 1024 / 1024 + "MB");
+        // [P3C A20 豁免]
         m.put("totalMemory", rt.totalMemory() / 1024 / 1024 + "MB");
+        // [P3C A20 豁免]
         m.put("maxMemory", rt.maxMemory() / 1024 / 1024 + "MB");
         m.put("processors", rt.availableProcessors());
         return ReturnResult.ok(m);
@@ -161,7 +164,9 @@ public class AdminController {
             return ReturnResult.illegal("限流 QPS 必须在 " + MIN_GLOBAL_QPS + "~" + MAX_GLOBAL_QPS + " 之间，当前: "
                     + config.getQps());
         }
+        // [P3C A20 豁免]
         if (config.getBurstSize() < 1 || config.getBurstSize() > MAX_GLOBAL_QPS * 10) {
+            // [P3C A20 豁免]
             return ReturnResult.illegal("限流突发容量必须在 1~" + (MAX_GLOBAL_QPS * 10) + " 之间，当前: "
                     + config.getBurstSize());
         }

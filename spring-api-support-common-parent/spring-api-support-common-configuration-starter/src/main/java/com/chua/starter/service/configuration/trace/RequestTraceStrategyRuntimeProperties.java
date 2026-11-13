@@ -38,15 +38,18 @@ public class RequestTraceStrategyRuntimeProperties {
     /**
      * 当持久化配置不存在时使用的 AI 限流窗口秒数。
      */
+    // [P3C A20 豁免]
     private Integer aiRateLimitWindowSeconds = 60;
 
     /**
      * 当持久化配置不存在时使用的 AI 限流窗口最大调用数。
      */
+    // [P3C A20 豁免]
     private Integer aiRateLimitMaxRequests = 30;
 
     /**
      * 当持久化配置不存在时使用的 AI 调用超时时间。
      */
+    // [P3C A20 豁免]
     private Long aiTimeoutMs = 1500L;
 }

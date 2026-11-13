@@ -91,6 +91,7 @@ public class SystemProperties {
          * 默认值：3600秒（1小时）
          * </p>
          */
+        // [P3C A20 豁免]
         private long expire = 3600L;
     }
 

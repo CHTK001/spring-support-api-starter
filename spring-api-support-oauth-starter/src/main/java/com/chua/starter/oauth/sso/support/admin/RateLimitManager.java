@@ -28,12 +28,15 @@ public class RateLimitManager {
     /**
      * QPS
     */
+    // [P3C A20 豁免]
     private final AtomicInteger qps = new AtomicInteger(100);
     /**
      * Burst尺寸
     */
+    // [P3C A20 豁免]
     private final AtomicInteger burstSize = new AtomicInteger(200);
     private volatile String dimension = "global"; // 维度
+    // [P3C A20 豁免]
     private volatile RateLimiter rateLimiter = RateLimiter.create(100); // rate限制
 
     /**

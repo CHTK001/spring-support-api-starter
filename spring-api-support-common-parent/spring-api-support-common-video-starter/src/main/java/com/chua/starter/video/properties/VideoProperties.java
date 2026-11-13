@@ -47,21 +47,25 @@ public class VideoProperties {
     /**
      * 单次聚合返回的最大条目数，防止外部数据源返回过多。
      */
+    // [P3C A20 豁免]
     private int maxResults = 60;
 
     /**
      * 详情内存缓存的容量（按 originId 缓存最近浏览过的条目）。
      */
+    // [P3C A20 豁免]
     private int detailCacheSize = 500;
 
     /**
      * 连接超时（毫秒）。
      */
+    // [P3C A20 豁免]
     private int connectTimeout = 8000;
 
     /**
      * 读取超时（毫秒）。
      */
+    // [P3C A20 豁免]
     private int readTimeout = 15000;
 
     /**
@@ -88,6 +92,7 @@ public class VideoProperties {
     /**
      * HLS 代理单次响应的最大字节数（默认 8MB），防止异常大文件。
      */
+    // [P3C A20 豁免]
     private int liveProxyMaxBytes = 8 * 1024 * 1024;
 
     /**
@@ -126,5 +131,6 @@ public class VideoProperties {
     /**
      * 每轮连载详情刷新条数（连载剧集的集数与网盘地址会变）。
      */
+    // [P3C A20 豁免]
     private int catalogDetailRefreshLimit = 20;
 }
