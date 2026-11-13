@@ -10,6 +10,13 @@
   <artifactId>spring-api-support-collect-starter</artifactId>
   <description>采集调度一体化平台（可视化流程编排 + 复用调度平台作业台账）</description>
   <dependencies>
+    <!-- 去重（2026-11-13）：采集能力统一复用 spring-support-parent-starter 的
+         spring-support-collect-starter，不再在本模块维护一份副本。 -->
+    <dependency>
+      <groupId>com.chua</groupId>
+      <artifactId>spring-support-collect-starter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.chua</groupId>
       <artifactId>spring-api-support-common-system-starter</artifactId>
