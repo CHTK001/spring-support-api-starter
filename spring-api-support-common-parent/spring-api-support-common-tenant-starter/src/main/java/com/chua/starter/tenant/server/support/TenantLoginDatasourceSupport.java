@@ -69,6 +69,14 @@ public class TenantLoginDatasourceSupport implements TenantLoginSupport {
             boolean enabled = tenant.getSysTenantStatus() == null
                     || tenant.getSysTenantStatus() == TENANT_STATUS_ENABLED;
             boolean dedicated = tenantDataSourceResolver.isDedicated(tenant);
+            if (!dedicated && tenantDataSourceResolver.referencesInstance(tenant)) {
+                // 选了实例却解析不出来：按「独立库但不可用」处理。
+                // 若按 isDedicated=false 当成共享库，登录会拿平台主库的账号认证，
+                // 等于让这个租户读到平台数据——这是越权，不是降级。
+                log.warn("[租户登录] 租户 {} 声明了实例来源却无法解析，按独立库不可用处理（将拒绝登录）",
+                        tenant.getSysTenantId());
+                dedicated = true;
+            }
             log.debug("[租户登录] 编码 {} 命中租户 {}（独立库={}, 启用={}）",
                     code, tenant.getSysTenantId(), dedicated, enabled);
             return new TenantLoginTarget(tenant.getSysTenantId(), code, dedicated, enabled);
@@ -97,10 +105,13 @@ public class TenantLoginDatasourceSupport implements TenantLoginSupport {
                         tenant.getSysTenantId(), username);
                 return null;
             }
-            if (!tenantDataSourceResolver.isDedicated(tenant)) {
+            if (!tenantDataSourceResolver.isDedicated(tenant)
+                    && !tenantDataSourceResolver.referencesInstance(tenant)) {
                 log.debug("[租户登录] 租户 {} 使用共享库，按主库登录处理", tenant.getSysTenantId());
                 return null;
             }
+            // 声明了实例（即使暂时解析不出来）也要返回租户 id：由 switchTo 失败给出
+            // 「租户库不可用」，而不是落到主库按平台账号认证
             return tenant.getSysTenantId();
         } catch (Exception e) {
             log.warn("[租户登录] 按账号解析租户失败: username={}, {}", username, e.getMessage());

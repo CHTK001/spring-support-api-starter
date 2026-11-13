@@ -129,12 +129,16 @@ public class TenantDatabaseProvisioner {
         if (!hasText(tenant.getSysTenantDbname())) {
             return false;
         }
-        TenantDatasourceInfo info = resolveInfo(tenant);
-        if (info == null || !hasText(info.username())) {
-            // 没有解析器（存量构造）或实例账号缺失时，退回 YAML 管理连接口径
-            return isAvailable() && hasText(tenant.getSysTenantSqlUsername());
+        // 建库要连实例、建账号要用租户专用账号；缺任一项都无法按 A 方案完成开通
+        if (!hasText(tenant.getSysTenantSqlUsername())) {
+            return false;
         }
-        return true;
+        TenantDatasourceInfo info = resolveInfo(tenant);
+        if (info == null) {
+            // 没有解析器（存量构造）或未登记独立库时，退回 YAML 管理连接口径
+            return isAvailable();
+        }
+        return hasText(info.username());
     }
 
     /**
@@ -153,9 +157,8 @@ public class TenantDatabaseProvisioner {
         }
         String dbName = tenant.getSysTenantDbname();
         String username = tenant.getSysTenantSqlUsername();
-        // 台账实例自带账号：只需要建库，不需要也不应该再建一个库账号
-        boolean sharedInstance = tenant.getSysTenantDatasourceId() != null
-                && tenant.getSysTenantDatasourceId() > 0;
+        // 引用台账的租户同样要建专用账号（t_<code>）：实例账号只在建库/建账号时用，
+        // 日常路由走租户自己的账号，DB 层才有租户级最小权限。
         if (!hasText(dbName)) {
             log.warn("[租户建库] 租户 {} 未填写库名，跳过自动建库", tenant.getSysTenantId());
             return false;
@@ -164,15 +167,15 @@ public class TenantDatabaseProvisioner {
             log.error("[租户建库] 库名含非法字符，已拒绝: db={}", dbName);
             return false;
         }
-        if (!sharedInstance && !hasText(username)) {
+        if (!hasText(username)) {
             log.warn("[租户建库] 租户 {} 未填写数据库账号，跳过自动建库", tenant.getSysTenantId());
             return false;
         }
-        if (hasText(username) && !username.matches(SAFE_IDENTIFIER)) {
+        if (!username.matches(SAFE_IDENTIFIER)) {
             log.error("[租户建库] 数据库账号含非法字符，已拒绝: user={}", username);
             return false;
         }
-        if (!sharedInstance && !hasText(plainSqlPassword)) {
+        if (!hasText(plainSqlPassword)) {
             log.warn("[租户建库] 租户 {} 未填写数据库口令，跳过自动建库", tenant.getSysTenantId());
             return false;
         }
@@ -187,17 +190,26 @@ public class TenantDatabaseProvisioner {
 
         try {
             createDatabase(tenant, dbName);
-            if (sharedInstance) {
-                log.info("[租户建库] 使用数据源台账实例账号，跳过建账号: db={}", dbName);
-            } else {
-                createAccount(tenant, dbName, plainSqlPassword);
-                verifyConnectivity(tenant, dbName, plainSqlPassword);
-            }
+            createAccount(tenant, dbName, plainSqlPassword);
+            verifyConnectivity(tenant, dbName, plainSqlPassword);
             return true;
         } catch (Exception e) {
             log.error("[租户建库] 租户 {} 自动建库失败: {}", tenant.getSysTenantId(), e.getMessage(), e);
             return false;
         }
+    }
+
+    /**
+     * 该实例是否支持自动创建专用数据库账号。
+     *
+     * <p>目前只有 MySQL 方言实现了 {@code CREATE USER}/{@code GRANT}；其它实例上
+     * 生成专用账号会得到一个「建不出来」的账号，租户反而连不上，所以必须先问这一句。</p>
+     *
+     * @param tenant 租户记录
+     * @return 支持返回 true
+     */
+    public boolean supportsDedicatedAccount(SysTenant tenant) {
+        return tenant != null && isMysqlAdmin(tenant);
     }
 
     /**
@@ -242,10 +254,10 @@ public class TenantDatabaseProvisioner {
      */
     public void createAccount(SysTenant tenant, String dbName, String plainSqlPassword) throws Exception {
         String username = tenant.getSysTenantSqlUsername();
-        // 共享实例（台账）沿用实例自己的账号，不需要也不应该再建一个库账号：
-        // 之前这里没判空，会在「只填库名」的租户上拼出 CREATE USER 'null'@'%'。
+        // 引用型租户也必须有自己的账号：没有账号时这里不能拼出 CREATE USER 'null'@'%'，
+        // 也不能默默沿用实例账号——那样 DB 层就没有租户级隔离了。
         if (!hasText(username)) {
-            log.warn("[租户建库] 租户 {} 未登记数据库账号，跳过建账号（沿用所选实例账号）",
+            log.warn("[租户建库] 租户 {} 未登记专用数据库账号，跳过建账号（该租户暂时无法按专用账号路由）",
                     tenant.getSysTenantId());
             return;
         }
@@ -527,7 +539,8 @@ public class TenantDatabaseProvisioner {
      * @return 管理 JdbcTemplate；无法解析时返回 {@code null}
      */
     private JdbcTemplate adminJdbc(SysTenant tenant, String plainSqlPassword) {
-        TenantDatasourceInfo info = resolveInfo(tenant);
+        // 管理连接用「实例账号」，不能用租户刚生成的专用账号：建账号那一刻它还不存在
+        TenantDatasourceInfo info = resolveAdminInfo(tenant);
         // 租户显式选择的实例优先：可视化配置是唯一真源，
         // YAML 管理连接只在租户没有可解析实例（存量部署）时兜底
         if (info != null) {
@@ -571,7 +584,7 @@ public class TenantDatabaseProvisioner {
     }
 
     /**
-     * 解析租户的连接信息。
+     * 解析租户的连接信息（路由口径：引用型租户优先用专用账号）。
      *
      * @param tenant 租户记录
      * @return 连接信息；无解析器或未登记时返回 {@code null}
@@ -581,11 +594,30 @@ public class TenantDatabaseProvisioner {
     }
 
     /**
-     * 平台主数据源；容器里有多个候选时返回 {@code null}，避免注入歧义。
+     * 解析实例管理连接（建库/建账号/删库口径）。
      *
-     * @return 平台主数据源
+     * @param tenant 租户记录
+     * @return 管理用连接信息；无解析器或未登记时返回 {@code null}
+     */
+    private TenantDatasourceInfo resolveAdminInfo(SysTenant tenant) {
+        return tenantDataSourceResolver == null ? null : tenantDataSourceResolver.resolveAdmin(tenant);
+    }
+
+    /**
+     * 平台主数据源：优先取动态数据源里名为 {@code master} 的那条。
+     *
+     * <p>装了数据源中心/读写分离的应用里容器内会有多个 {@link DataSource}，
+     * 直接 {@code getIfUnique()} 会返回 {@code null}，表现为「平台自身实例」建库时
+     * 反而拿租户刚生成的账号去连——那个账号还不存在，第一步就失败。</p>
+     *
+     * @return 平台主数据源；取不到返回 {@code null}
      */
     private DataSource primaryDataSource() {
+        DataSource master = com.chua.starter.datasource.support.DataSourceContextSupport
+                .getDatasource(com.chua.starter.datasource.support.DataSourceContextSupport.DEFAULT_DATASOURCE);
+        if (master != null) {
+            return master;
+        }
         return primaryDataSourceProvider == null ? null : primaryDataSourceProvider.getIfUnique();
     }
 

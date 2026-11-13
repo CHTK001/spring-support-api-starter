@@ -964,7 +964,9 @@ public class TenantServerSyncPublisher implements InitializingBean, DisposableBe
             return;
         }
 
+        // [P3C A20 豁免]
         long timeoutMillis = Math.max(1L, tenantProperties.getServer().getSyncAckTimeoutSeconds()) * 1000L;
+        // [P3C A20 豁免]
         long cooldownMillis = Math.max(0L, tenantProperties.getServer().getSyncAckCompensationCooldownSeconds()) * 1000L;
         List<TenantSyncAckTracker.PendingAck> expiredAcks = syncAckTracker.drainExpired(timeoutMillis);
         if (expiredAcks.isEmpty()) {

@@ -235,6 +235,7 @@ public class TenantDataSourceRegistry implements DisposableBean {
         config.setPassword(resolvePassword(info));
         config.setMaximumPoolSize(Math.max(1, server.getDatasourceRoutingMaxPoolSize()));
         config.setMinimumIdle(Math.max(0, server.getDatasourceRoutingMinIdle()));
+        // [P3C A20 豁免]
         config.setConnectionTimeout(Math.max(1000L, server.getDatasourceRoutingConnectionTimeoutMillis()));
         config.setAutoCommit(true);
         if (hasText(server.getDatasourceRoutingDriverClassName())) {
@@ -262,17 +263,16 @@ public class TenantDataSourceRegistry implements DisposableBean {
     /**
      * 还原连接口令。
      *
-     * <p><b>只对租户自填字段解密</b>：那条路径落库的是 {@code ENC:} 前缀密文。台账与平台自身实例
-     * 的口令由各自模块保管（台账自己有加密口径），在这里再解一次会把明文当密文送进去，
-     * 表现为「口令里没有 ENC: 前缀，解密器原样返回」这种看似无害、实则依赖实现细节的行为。</p>
+     * <p><b>只对「租户记录自己保管的口令」解密</b>：自填字段、平台自身实例上的专用账号、
+     * 以及引用台账但已建专用账号的租户，落库都是 {@code ENC:} 前缀密文；
+     * 台账实例账号的口令由数据源中心自己保管（解码后即明文），再解一次属于
+     * 「碰巧没前缀所以原样返回」，是把正确性寄托在实现细节上。</p>
      *
      * @param info 连接信息
      * @return 明文口令；无需解密时原样返回
      */
     private String resolvePassword(TenantDatasourceInfo info) {
-        // 台账口令由数据源中心自己保管（可能是明文）；其余来源（租户自填、平台自身实例上的专用账号）
-        // 落库时是 ENC: 前缀密文，必须还原后才能建池。
-        if (info.origin() == TenantDatasourceInfo.Origin.DATASOURCE_HUB) {
+        if (info.origin() == TenantDatasourceInfo.Origin.DATASOURCE_HUB && !info.tenantCredentials()) {
             return info.password();
         }
         return tenantPasswordCipher.decrypt(info.password());
@@ -302,6 +302,7 @@ public class TenantDataSourceRegistry implements DisposableBean {
      * @param tenantId 租户标识
      */
     private void markFailure(String tenantId) {
+        // [P3C A20 豁免]
         long cooldownMillis = Math.max(1000L,
                 tenantProperties.getServer().getDatasourceRoutingFailureCooldownMillis());
         failureCooldownUntil.put(tenantId, System.currentTimeMillis() + cooldownMillis);

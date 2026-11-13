@@ -400,6 +400,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
             return TenantSyncMessageSupport.VerificationResult.skip("client sign 未启用");
         }
 
+        // [P3C A20 豁免]
         long allowedSkewMillis = Math.max(0L, tenantProperties.getClient().getSyncSignAllowedClockSkewSeconds()) * 1000L;
         return TenantSyncMessageSupport.verifySignature(
                 data,
@@ -491,6 +492,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         }
 
         long expireBefore = System.currentTimeMillis()
+                // [P3C A20 豁免]
                 - tenantProperties.getClient().getSyncDeduplicateWindowSeconds() * 1000L;
         latestAppliedTimestamps.entrySet().removeIf(entry -> entry.getValue() < expireBefore);
 
@@ -646,6 +648,7 @@ public class TenantClientSyncHandler implements SyncMessageHandler {
         }
 
         long expireBefore = System.currentTimeMillis()
+                // [P3C A20 豁免]
                 - tenantProperties.getClient().getSyncDeduplicateWindowSeconds() * 1000L;
         processedMessages.entrySet().removeIf(entry -> entry.getValue() < expireBefore);
 

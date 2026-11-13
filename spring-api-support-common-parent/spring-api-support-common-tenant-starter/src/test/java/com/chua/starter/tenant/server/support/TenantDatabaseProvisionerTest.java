@@ -160,6 +160,21 @@ class TenantDatabaseProvisionerTest {
         assertFalse(provisioner.provision(tenant, "plain"));
     }
 
+    @Test
+    @DisplayName("只有 MySQL 管理连接支持自动创建专用账号")
+    void supportsDedicatedAccountOnlyForMysql() {
+        enableAvailable();
+        SysTenant tenant = new SysTenant();
+        tenant.setSysTenantId("1");
+        tenant.setSysTenantDbname("t1");
+
+        assertTrue(provisioner.supportsDedicatedAccount(tenant));
+
+        updateServer(server -> server.setDatasourceRoutingAdminUrl("jdbc:postgresql://127.0.0.1:5432/postgres"));
+        assertFalse(provisioner.supportsDedicatedAccount(tenant),
+                "非 MySQL 实例建不出账号，不能生成专用账号把租户弄成不可用");
+    }
+
     /**
      * 打开路由与自动建库开关。
      */

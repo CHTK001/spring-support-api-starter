@@ -15,6 +15,7 @@ import com.chua.starter.tenant.server.service.SysTenantService;
 import com.chua.starter.tenant.server.support.TenantDataSourceResolver;
 import com.chua.starter.tenant.server.support.TenantDatasourceOption;
 import com.chua.starter.tenant.server.support.TenantDatasourceView;
+import com.chua.starter.tenant.server.support.TenantDedicatedAccountBackfill;
 import com.chua.starter.tenant.server.support.TenantEndpoint;
 import com.chua.starter.tenant.server.support.TenantEndpointResolver;
 import com.chua.starter.tenant.server.support.TenantServiceExpiryJob;
@@ -65,6 +66,11 @@ public class SysTenantController {
      * 租户库连接信息解析器（下拉项与只读回显）
      */
     private final TenantDataSourceResolver tenantDataSourceResolver;
+
+    /**
+     * 存量引用型租户的专用账号补齐任务
+     */
+    private final TenantDedicatedAccountBackfill tenantDedicatedAccountBackfill;
 
     /**
      * 查询租户列表
@@ -250,7 +256,7 @@ public class SysTenantController {
      */
     @GetMapping("datasource/options")
     @Operation(summary = "租户库来源下拉项")
-    @Permission("sys:tenant:get")
+    @Permission({"sys:tenant:get", "sys:tenant:page", "sys:tenant:save", "sys:tenant:update"})
     public ReturnResult<List<TenantDatasourceOption>> datasourceOptionsForSysTenant() {
         return ReturnResult.ok(tenantDataSourceResolver.options());
     }
@@ -263,13 +269,33 @@ public class SysTenantController {
      */
     @GetMapping("datasource/current")
     @Operation(summary = "租户库连接信息回显")
-    @Permission("sys:tenant:get")
+    @Permission({"sys:tenant:get", "sys:tenant:page", "sys:tenant:save", "sys:tenant:update"})
     public ReturnResult<TenantDatasourceView> datasourceCurrentForSysTenant(
             @Parameter(description = "租户ID") String sysTenantId) {
         if (sysTenantId == null || sysTenantId.isBlank()) {
             return ReturnResult.illegal("租户ID不能为空");
         }
         return ReturnResult.ok(tenantDataSourceResolver.describe(sysTenantService.getById(sysTenantId)));
+    }
+
+    /**
+     * 为存量引用型租户补专用数据库账号。
+     *
+     * <p>默认只演练（{@code dryRun=true}）：返回每个租户将执行的账号名与跳过原因，
+     * 不改库也不改记录。确认后带 {@code dryRun=false} 再调一次才真正建账号并落库。</p>
+     *
+     * @param dryRun 是否只演练
+     * @param limit  本次最多处理多少个
+     * @return 逐租户结果与剩余数量
+     */
+    @PutMapping("datasource/backfill-accounts")
+    @SysLog
+    @Operation(summary = "为存量引用型租户补专用库账号（幂等，默认仅演练）")
+    @Permission("sys:tenant:update")
+    public ReturnResult<TenantDedicatedAccountBackfill.Result> backfillDedicatedAccounts(
+            @Parameter(description = "只演练不落库，默认 true") @RequestParam(defaultValue = "true") boolean dryRun,
+            @Parameter(description = "本次最多处理多少个，1-200") @RequestParam(defaultValue = "20") int limit) {
+        return ReturnResult.ok(tenantDedicatedAccountBackfill.run(dryRun, limit));
     }
 
     /**

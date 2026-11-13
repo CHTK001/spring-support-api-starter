@@ -374,12 +374,8 @@ public class TenantProvisionService {
                 cancelled(task, index);
                 return;
             }
-            boolean sharedInstance = saved.getSysTenantDatasourceId() != null
-                    && saved.getSysTenantDatasourceId() > 0;
             if (!separateDb) {
                 skip(task, index, "沿用租户自带数据库账号");
-            } else if (sharedInstance) {
-                skip(task, index, "使用数据源台账实例自带的账号，无需新建数据库账号");
             } else if (!tenantDatabaseProvisioner.isAvailable(saved)) {
                 skip(task, index, "无法解析管理连接（实例来源 / 管理权限不可用），跳过建账号");
             } else {
@@ -650,6 +646,11 @@ public class TenantProvisionService {
         boolean selectedInstance = datasourceId != null && datasourceId != 0L;
         if (selectedInstance && !hasText(sysTenant.getSysTenantDbname())) {
             return "选择了数据库实例：必须填写该租户要用的库名";
+        }
+        // 配置期就把「引用的实例根本不可用」挡住：否则租户会创建成功，
+        // 之后每个请求都被 fail-closed 拒绝（503），问题要到用户登录时才暴露。
+        if (selectedInstance && tenantDataSourceResolver.resolve(sysTenant) == null) {
+            return "所选数据库实例不可用（数据源不存在、已停用，或平台实例地址未配置），请重新选择实例来源";
         }
         if (anySql && !allSql && !selectedInstance) {
             return "独立库信息不完整：库名、数据库账号、数据库密码必须同时填写（留空表示与平台共用主库）";

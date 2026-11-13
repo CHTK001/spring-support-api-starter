@@ -173,6 +173,7 @@ public class TenantProvisionTask {
         if (total <= 0) {
             return;
         }
+        // [P3C A20 豁免]
         int next = (int) Math.round((double) index * 100.0 / (double) total);
         this.percentage = Math.max(MIN_PERCENTAGE, Math.min(MAX_PERCENTAGE, next));
     }

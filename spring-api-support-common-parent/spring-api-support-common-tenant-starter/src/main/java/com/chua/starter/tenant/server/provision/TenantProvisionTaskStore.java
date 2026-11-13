@@ -304,6 +304,7 @@ public class TenantProvisionTaskStore {
             @SuppressWarnings("unchecked")
             List<Object> mutableDetails = (List<Object>) details;
             mutableDetails.add(reason);
+            // [P3C A20 豁免]
             while (mutableDetails.size() > 200) {
                 mutableDetails.remove(0);
             }

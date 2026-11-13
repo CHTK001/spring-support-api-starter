@@ -58,7 +58,7 @@ public class TenantPasswordCipher {
             return plainText;
         }
         try {
-            return PREFIX + new AesCipher().encryptToString(key(), plainText);
+            return PREFIX + AesCipher.create("jdk").encryptToString(key(), plainText);
         } catch (Exception e) {
             // 加密失败绝不能回落成明文落库，否则等于没改
             throw new IllegalStateException("租户口令加密失败，已中止写入（拒绝明文落库）", e);
@@ -76,7 +76,7 @@ public class TenantPasswordCipher {
             return stored;
         }
         try {
-            return new AesCipher().decryptToString(key(), stored.substring(PREFIX.length()));
+            return AesCipher.create("jdk").decryptToString(key(), stored.substring(PREFIX.length()));
         } catch (Exception e) {
             throw new IllegalStateException("租户口令解密失败，请检查 plugin.system.security.tenant-password-cipher-key 是否被改动", e);
         }

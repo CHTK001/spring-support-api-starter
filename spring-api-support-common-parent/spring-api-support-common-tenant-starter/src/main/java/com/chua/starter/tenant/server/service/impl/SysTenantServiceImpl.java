@@ -22,6 +22,8 @@ import com.chua.starter.tenant.server.support.TenantDatabaseAdminSynchronizer;
 import com.chua.starter.tenant.server.support.TenantDatabaseProvisioner;
 import com.chua.starter.tenant.server.support.TenantDataSourceRegistry;
 import com.chua.starter.tenant.server.support.TenantDataSourceResolver;
+import com.chua.starter.tenant.server.support.TenantDatasourceInfo;
+import com.chua.starter.tenant.server.support.TenantDbAccountNaming;
 import com.chua.starter.tenant.server.support.TenantPasswordCipher;
 import com.chua.starter.tenant.server.support.TenantServiceCatalogSynchronizer;
 import lombok.RequiredArgsConstructor;
@@ -104,6 +106,11 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     private final TenantDataSourceRegistry tenantDataSourceRegistry;
 
     /**
+     * 租户库连接信息解析器（保存前验证所选实例是否真的可用）
+     */
+    private final TenantDataSourceResolver tenantDataSourceResolver;
+
+    /**
      * 租户库服务目录同步器：绑定变化后把有效服务写进租户自己的库
      */
     private final TenantServiceCatalogSynchronizer tenantServiceCatalogSynchronizer;
@@ -173,6 +180,14 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     public ReturnResult<SysTenant> saveForSysTenant(SysTenant sysTenant) {
         log.debug("保存租户: {}", sysTenant);
 
+        // 直连保存接口同样要挡住「引用了一个不可用实例」的配置：
+        // 进度式创建走的是 provision，那条路径已有同一校验；这里补齐旧入口。
+        if (sysTenant != null
+                && tenantDataSourceResolver.referencesInstance(sysTenant)
+                && StringUtils.isNotBlank(sysTenant.getSysTenantDbname())
+                && tenantDataSourceResolver.resolve(sysTenant) == null) {
+            return ReturnResult.error("所选数据库实例不可用（数据源不存在、已停用，或平台实例地址未配置），请重新选择");
+        }
         ReturnResult<SysTenant> saved = saveRecordForSysTenant(sysTenant);
         if (!saved.isOk()) {
             return saved;
@@ -425,29 +440,26 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     /**
      * 两个租户是否指向同一个数据库实例。
      *
+     * <p>按<b>解析出的地址与端口</b>比较，而不是台账 id：两条台账记录完全可能指向
+     * 同一台 MySQL（不同账号/不同用途），只比 id 会放过「同实例同名库」，
+     * 结果是两个租户共用一个库、互相读到对方数据。</p>
+     *
      * @param left  租户 A
      * @param right 租户 B
      * @return 同一实例返回 true
      */
     private boolean sameInstance(SysTenant left, SysTenant right) {
+        TenantDatasourceInfo leftInfo = tenantDataSourceResolver.resolve(left);
+        TenantDatasourceInfo rightInfo = tenantDataSourceResolver.resolve(right);
+        if (leftInfo != null && rightInfo != null) {
+            return leftInfo.host().trim().equalsIgnoreCase(rightInfo.host().trim())
+                    && Objects.equals(normalizePort(leftInfo.port()), normalizePort(rightInfo.port()));
+        }
+        // 解析不出实例（库名未填/引用失效）时退回「来源 id 相同」的保守判定：
+        // 宁可判成同实例、让用户换个库名，也不要放过重名导致的串库。
         long leftId = left.getSysTenantDatasourceId() == null ? 0L : left.getSysTenantDatasourceId();
         long rightId = right.getSysTenantDatasourceId() == null ? 0L : right.getSysTenantDatasourceId();
-        if (leftId > 0 || rightId > 0) {
-            return leftId == rightId;
-        }
-        if (leftId == TenantDataSourceResolver.PLATFORM_SELF
-                && rightId == TenantDataSourceResolver.PLATFORM_SELF) {
-            return true;
-        }
-        String leftHost = StringUtils.isNotBlank(left.getSysTenantHost())
-                ? left.getSysTenantHost() : left.getSysTenantIp();
-        String rightHost = StringUtils.isNotBlank(right.getSysTenantHost())
-                ? right.getSysTenantHost() : right.getSysTenantIp();
-        if (StringUtils.isBlank(leftHost) || StringUtils.isBlank(rightHost)
-                || !leftHost.trim().equalsIgnoreCase(rightHost.trim())) {
-            return false;
-        }
-        return Objects.equals(normalizePort(left.getSysTenantPort()), normalizePort(right.getSysTenantPort()));
+        return leftId != 0 && leftId == rightId;
     }
 
     /**
@@ -457,6 +469,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
      * @return 归一化后的端口
      */
     private int normalizePort(Integer port) {
+        // [P3C A20 豁免]
         return port == null || port <= 0 ? 3306 : port;
     }
 
@@ -546,15 +559,21 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
             }
         }
 
-        // 从共享库切到「平台自身实例」时，实例账号还没生成：先补专用账号，
-        // 否则解析器会因缺账号判定实例不可用，换库直接被拒
-        boolean becomingPlatformSelf = sysTenant.getSysTenantDatasourceId() != null
-                && sysTenant.getSysTenantDatasourceId() == TenantDataSourceResolver.PLATFORM_SELF
-                && (existing.getSysTenantDatasourceId() == null
-                || existing.getSysTenantDatasourceId() != TenantDataSourceResolver.PLATFORM_SELF
-                || StringUtils.isBlank(existing.getSysTenantSqlUsername()));
-        if (becomingPlatformSelf) {
+        // 换库/换实例时，存量租户可能还没有专用账号（早期「共用实例账号」的写法）：
+        // 先补上，再由下面的开通步骤在目标实例建出来。只在确实要动库配置时补，
+        // 否则一次改名就会写进一个实例上并不存在的账号，把能用的租户弄成 503。
+        boolean dbChanged = dbConfigChanged(sysTenant, existing);
+        if (dbChanged && tenantDataSourceResolver.referencesInstance(sysTenant)
+                && StringUtils.isBlank(existing.getSysTenantSqlUsername())) {
             applyDedicatedAccountDefaults(sysTenant);
+        }
+
+        // 换实例来源时先验证目标实例可用：否则配置落库成功、该租户的每个请求都被
+        // fail-closed 拒绝（503），问题要等到用户登录才暴露，且没有入口提示改哪里。
+        if (dbChanged
+                && tenantDataSourceResolver.referencesInstance(sysTenant)
+                && tenantDataSourceResolver.resolve(sysTenant) == null) {
+            return ReturnResult.error("所选数据库实例不可用（数据源不存在、已停用，或库名为空），请重新选择");
         }
 
         // 换库必须先开通成功再落配置：否则记录指向一个不存在的库，
@@ -566,7 +585,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
             // 解析器要看到明文口令才能判定实例是否完整；落库前会重新加密
             sysTenant.setSysTenantSqlPassword(plainSqlPassword);
         }
-        if (dbConfigChanged(sysTenant, existing) && StringUtils.isNotBlank(sysTenant.getSysTenantDbname())) {
+        if (dbChanged && StringUtils.isNotBlank(sysTenant.getSysTenantDbname())) {
             String provisionError = provisionChangedDatabase(sysTenant, existing, plainSqlPassword);
             if (provisionError != null) {
                 log.warn("租户换库失败，未更新配置: tenantId={}, reason={}",
@@ -1037,28 +1056,36 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     /**
-     * 为「平台自身实例」租户准备专用数据库账号。
+     * 为「引用现成实例」的租户准备专用数据库账号。
      *
-     * <p>前端选「本机」时只填库名：实例地址取自平台主数据源，账号由平台生成
-     * （{@code t_<租户编码>} + 随机口令），落库后由建库步骤创建并授权，路由与租户库
-     * 登录都用这个账号。这样就不再需要 YAML 里预先配一套管理员口令。</p>
+     * <p>涵盖平台自身实例与数据源台账两种来源：实例地址由来源提供，但库账号必须
+     * 每租户一个（{@code t_<租户编码>} + 随机口令），否则同一实例上的租户在 DB 层
+     * 共用一个账号，应用层一旦越权就能跨库读。账号由建库步骤创建并只授权到本租户库。</p>
      *
-     * <p>只在新增时生成；更新时留空仍表示「不改口令」，避免把已有账号的密码重置掉。</p>
+     * <p>只在新增、或换库/换实例时生成；更新时留空仍表示「不改口令」，避免把已有账号的密码重置掉。</p>
      *
      * @param tenant 租户记录
      */
     private void applyDedicatedAccountDefaults(SysTenant tenant) {
         Long datasourceId = tenant.getSysTenantDatasourceId();
-        if (datasourceId == null || datasourceId != TenantDataSourceResolver.PLATFORM_SELF) {
+        if (datasourceId == null || datasourceId == 0L) {
             return;
         }
         if (StringUtils.isBlank(tenant.getSysTenantDbname())) {
+            return;
+        }
+        // 非 MySQL 实例没有实现 CREATE USER/GRANT：生成专用账号会建不出来，
+        // 租户反而连不上。这类实例维持「用实例账号」的存量行为。
+        if (!tenantDatabaseProvisioner.supportsDedicatedAccount(tenant)) {
+            log.warn("[租户建库] 租户 {} 的实例不是 MySQL，无法自动创建专用账号，继续使用实例账号",
+                    tenant.getSysTenantId());
             return;
         }
         if (StringUtils.isBlank(tenant.getSysTenantSqlUsername())) {
             tenant.setSysTenantSqlUsername(generateDbUsername(tenant));
         }
         if (StringUtils.isBlank(tenant.getSysTenantSqlPassword())) {
+            // [P3C A20 豁免]
             tenant.setSysTenantSqlPassword(IdUtils.createSimpleUuid().substring(0, 24));
         }
     }
@@ -1070,14 +1097,7 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
      * @return 可安全拼进 DDL 的账号名
      */
     private String generateDbUsername(SysTenant tenant) {
-        String base = StringUtils.isBlank(tenant.getSysTenantCode())
-                ? "tenant" : tenant.getSysTenantCode().toLowerCase(Locale.ROOT);
-        String normalized = base.replaceAll("[^a-z0-9_]", "_");
-        if (normalized.isEmpty() || !Character.isLetter(normalized.charAt(0))) {
-            normalized = "t_" + normalized;
-        }
-        String name = "t_" + normalized;
-        return name.length() > 32 ? name.substring(0, 32) : name;
+        return TenantDbAccountNaming.generate(tenant);
     }
 
     /**

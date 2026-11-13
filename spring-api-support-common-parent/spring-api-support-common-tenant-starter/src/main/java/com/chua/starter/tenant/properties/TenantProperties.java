@@ -207,6 +207,7 @@ public class TenantProperties {
         /**
          * 全量同步校正间隔（秒），小于等于 0 表示关闭
          */
+        // [P3C A20 豁免]
         private long syncFullPushIntervalSeconds = 300L;
 
         /**
@@ -233,6 +234,7 @@ public class TenantProperties {
         /**
          * 租户同步签名允许的时钟偏移秒数。
          */
+        // [P3C A20 豁免]
         private long syncSignAllowedClockSkewSeconds = 300L;
 
         /**
@@ -243,21 +245,25 @@ public class TenantProperties {
         /**
          * 等待租户客户端 ACK 的超时秒数。
          */
+        // [P3C A20 豁免]
         private long syncAckTimeoutSeconds = 45L;
 
         /**
          * ACK 超时检查周期（秒）。
          */
+        // [P3C A20 豁免]
         private long syncAckCheckIntervalSeconds = 15L;
 
         /**
          * 同一租户会话发生 ACK 超时后，触发全量补偿的冷却时间（秒）。
          */
+        // [P3C A20 豁免]
         private long syncAckCompensationCooldownSeconds = 60L;
 
         /**
          * ACK 跟踪缓存上限。
          */
+        // [P3C A20 豁免]
         private int syncAckMaxPending = 8192;
 
         /**
@@ -294,6 +300,7 @@ public class TenantProperties {
         /**
          * 租户数据源连接池最大连接数。
          */
+        // [P3C A20 豁免]
         private int datasourceRoutingMaxPoolSize = 10;
 
         /**
@@ -304,6 +311,7 @@ public class TenantProperties {
         /**
          * 租户数据源连接超时（毫秒）。
          */
+        // [P3C A20 豁免]
         private long datasourceRoutingConnectionTimeoutMillis = 30000L;
 
         /**
@@ -311,6 +319,7 @@ public class TenantProperties {
          * <p>租户库宕机期间，每个请求都会尝试建池并等满连接超时，把请求线程逐个拖住。
          * 失败后进入冷却期，冷却期内直接回退主库，冷却结束才重试。</p>
          */
+        // [P3C A20 豁免]
         private long datasourceRoutingFailureCooldownMillis = 30000L;
 
         /**
@@ -422,6 +431,7 @@ public class TenantProperties {
         /**
          * 监听端口
          */
+        // [P3C A20 豁免]
         private int port = 19380;
 
         /**
@@ -818,6 +828,7 @@ public class TenantProperties {
         /**
          * 租户同步签名允许的时钟偏移秒数。
          */
+        // [P3C A20 豁免]
         private long syncSignAllowedClockSkewSeconds = 300L;
 
         /**
@@ -833,11 +844,13 @@ public class TenantProperties {
         /**
          * 消息去重窗口（秒）
          */
+        // [P3C A20 豁免]
         private long syncDeduplicateWindowSeconds = 3600L;
 
         /**
          * 消息去重缓存上限
          */
+        // [P3C A20 豁免]
         private int syncDeduplicateMaxSize = 4096;
 
         /**
@@ -860,6 +873,7 @@ public class TenantProperties {
          * 用于给服务端注册后的首轮推送留出时间，避免重复补偿。
          * </p>
          */
+        // [P3C A20 豁免]
         private long syncRequestFullPushDelayMillis = 3000L;
 
         /**
@@ -890,6 +904,7 @@ public class TenantProperties {
         /**
          * 服务端端口
          */
+        // [P3C A20 豁免]
         private int serverPort = 19380;
 
         /**

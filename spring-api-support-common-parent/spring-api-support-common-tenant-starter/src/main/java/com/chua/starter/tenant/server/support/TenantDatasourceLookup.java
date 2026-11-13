@@ -37,4 +37,22 @@ public interface TenantDatasourceLookup {
     default java.util.List<TenantDatasourceOption> options() {
         return java.util.List.of();
     }
+
+    /**
+     * 按主键取台账数据源名称，仅用于前端只读回显与日志。
+     *
+     * <p>默认实现退化为扫一遍 {@link #options()}：只实现 {@code options()} 的部署
+     * 不必再写一遍。装了台账的应用应覆盖成按主键查，避免为一个名字拉全表。</p>
+     *
+     * @param datasourceId 台账主键
+     * @return 展示名；不存在或未实现时返回 {@code null}
+     */
+    default String name(long datasourceId) {
+        for (TenantDatasourceOption option : options()) {
+            if (option.id() == datasourceId) {
+                return option.name();
+            }
+        }
+        return null;
+    }
 }

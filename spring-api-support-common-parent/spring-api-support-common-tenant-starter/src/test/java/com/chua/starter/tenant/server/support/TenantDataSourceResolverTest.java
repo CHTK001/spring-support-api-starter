@@ -85,6 +85,7 @@ class TenantDataSourceResolverTest {
     @DisplayName("引用台账：地址端口账号口令取台账，库名取租户自己的")
     void resolvesFromHub() {
         SysTenant tenant = tenant(null, null, "tenant_b");
+        // [P3C A20 豁免]
         tenant.setSysTenantDatasourceId(42L);
         TenantDatasourceInfo hub = new TenantDatasourceInfo("db.internal", PORT_POSTGRES, "模板库",
                 "hub_user", "hub_pwd", TenantDatasourceInfo.Origin.DATASOURCE_HUB);
@@ -104,6 +105,7 @@ class TenantDataSourceResolverTest {
     void hubMissingLookupDoesNotFallBack() {
         SysTenant tenant = tenant("10.0.0.8", PORT_MYSQL, "tenant_a");
         tenant.setSysTenantSqlUsername("u");
+        // [P3C A20 豁免]
         tenant.setSysTenantDatasourceId(42L);
 
         assertNull(resolver(null, properties()).resolve(tenant));
@@ -123,6 +125,7 @@ class TenantDataSourceResolverTest {
     @DisplayName("引用台账但租户没填库名：视为未登记")
     void hubWithoutDbName() {
         SysTenant tenant = tenant(null, null, "  ");
+        // [P3C A20 豁免]
         tenant.setSysTenantDatasourceId(42L);
         TenantDatasourceInfo hub = new TenantDatasourceInfo("db.internal", PORT_MYSQL, null,
                 "u", "p", TenantDatasourceInfo.Origin.DATASOURCE_HUB);
@@ -200,6 +203,7 @@ class TenantDataSourceResolverTest {
 
             @Override
             public java.util.List<TenantDatasourceOption> options() {
+                // [P3C A20 豁免]
                 return java.util.List.of(new TenantDatasourceOption(42L, "生产库", "jdbc",
                         "10.0.0.8", PORT_MYSQL, "template", Boolean.TRUE));
             }
@@ -217,6 +221,7 @@ class TenantDataSourceResolverTest {
         assertEquals(TenantDataSourceResolver.PLATFORM_SELF, options.get(1).id());
         assertEquals("127.0.0.1", options.get(1).host());
         assertEquals(Integer.valueOf(PORT_MYSQL), options.get(1).port());
+        // [P3C A20 豁免]
         assertEquals(42L, options.get(2).id());
         assertEquals("10.0.0.8", options.get(2).host());
     }
@@ -235,9 +240,64 @@ class TenantDataSourceResolverTest {
     }
 
     @Test
+    @DisplayName("引用台账且已有专用账号：路由用租户账号，台账账号只留给建库/建账号")
+    void resolvesHubWithTenantDedicatedAccount() {
+        SysTenant tenant = tenant(null, null, "tenant_b");
+        // [P3C A20 豁免]
+        tenant.setSysTenantDatasourceId(42L);
+        tenant.setSysTenantSqlUsername("t_tenant_b");
+        tenant.setSysTenantSqlPassword("ENC:cipher");
+        TenantDatasourceInfo hub = new TenantDatasourceInfo("db.internal", PORT_MYSQL, null,
+                "hub_user", "hub_pwd", TenantDatasourceInfo.Origin.DATASOURCE_HUB);
+
+        TenantDatasourceInfo info = resolver(hub, properties()).resolve(tenant);
+
+        assertNotNull(info);
+        assertEquals("t_tenant_b", info.username(), "有专用账号时必须用它，否则 DB 层没有租户级隔离");
+        assertEquals("ENC:cipher", info.password());
+        assertTrue(info.tenantCredentials(), "口令是租户记录的密文，建池前要解密");
+        assertEquals("tenant_b", info.dbName());
+    }
+
+    @Test
+    @DisplayName("管理连接解析：引用台账时始终用实例账号，哪怕租户已有专用账号")
+    void adminResolutionKeepsInstanceAccount() {
+        SysTenant tenant = tenant(null, null, "tenant_b");
+        // [P3C A20 豁免]
+        tenant.setSysTenantDatasourceId(42L);
+        tenant.setSysTenantSqlUsername("t_tenant_b");
+        tenant.setSysTenantSqlPassword("ENC:cipher");
+        TenantDatasourceInfo hub = new TenantDatasourceInfo("db.internal", PORT_MYSQL, null,
+                "hub_user", "hub_pwd", TenantDatasourceInfo.Origin.DATASOURCE_HUB);
+
+        TenantDatasourceInfo admin = resolver(hub, properties()).resolveAdmin(tenant);
+
+        assertNotNull(admin, "建账号时专用账号还不存在，必须用实例账号连");
+        assertEquals("hub_user", admin.username());
+        assertEquals("hub_pwd", admin.password());
+        assertFalse(admin.tenantCredentials());
+        assertNull(admin.dbName(), "管理连接连到实例，不连具体租户库");
+    }
+
+    @Test
+    @DisplayName("管理连接解析：自填型就是租户自己的账号")
+    void adminResolutionForSelfFilled() {
+        SysTenant tenant = tenant("10.0.0.8", PORT_MYSQL, "tenant_a");
+        tenant.setSysTenantSqlUsername("u");
+        tenant.setSysTenantSqlPassword("p");
+
+        TenantDatasourceInfo admin = resolver(null, properties()).resolveAdmin(tenant);
+
+        assertNotNull(admin);
+        assertEquals("u", admin.username());
+        assertEquals("10.0.0.8", admin.host());
+    }
+
+    @Test
     @DisplayName("只读回显：台账来源带数据源名称，租户自填不带")
     void describeResult() {
         SysTenant tenant = tenant(null, null, "tenant_b");
+        // [P3C A20 豁免]
         tenant.setSysTenantDatasourceId(42L);
         TenantDatasourceInfo hub = new TenantDatasourceInfo("db.internal", PORT_MYSQL, null,
                 "hub_user", "hub_pwd", TenantDatasourceInfo.Origin.DATASOURCE_HUB);
@@ -250,7 +310,90 @@ class TenantDataSourceResolverTest {
         assertEquals("db.internal", view.host());
         assertEquals("tenant_b", view.dbName());
         assertEquals("hub_user", view.username());
+        assertTrue(view.available(), "能解析出连接信息就是可用");
+        assertNull(view.problem());
         assertNull(view.datasourceName(), "台账桩没实现 options()，名称可为空");
+    }
+
+    @Test
+    @DisplayName("只读回显：有地址与库名但没账号，仍判不可用（建池会失败）")
+    void describeWithoutAccountIsUnavailable() {
+        SysTenant tenant = tenant("10.0.0.8", PORT_MYSQL, "tenant_a");
+
+        TenantDatasourceView view = resolver(null, properties()).describe(tenant);
+
+        assertNotNull(view);
+        assertFalse(view.available(), "账号缺失时 getOrCreate 必然失败，不能报可用");
+        assertTrue(view.problem().contains("账号"), view.problem());
+    }
+
+    @Test
+    @DisplayName("只读回显：引用的数据源查不到时返回可用性=false 与原因，不能只是 null")
+    void describeBrokenHubReference() {
+        SysTenant tenant = tenant(null, null, "tenant_b");
+        tenant.setSysTenantDatasourceId(7L);
+        StaticListableBeanFactory factory = new StaticListableBeanFactory();
+        // 台账模块在，但这条记录不存在（被删/停用）
+        factory.addBean("lookup", (TenantDatasourceLookup) id -> null);
+        TenantDataSourceResolver resolver = new TenantDataSourceResolver(properties(),
+                factory.getBeanProvider(TenantDatasourceLookup.class));
+
+        TenantDatasourceView view = resolver.describe(tenant);
+
+        assertNotNull(view, "配置坏了也要回显，否则页面分不清「没配」和「配错」");
+        assertFalse(view.available());
+        assertEquals("配置不可用", view.originLabel());
+        assertTrue(view.problem().contains("不存在或已停用"), "原因应能直接指导排查: " + view.problem());
+    }
+
+    @Test
+    @DisplayName("只读回显：没装台账模块时说明是部署不完整")
+    void describeWithoutHubModule() {
+        SysTenant tenant = tenant(null, null, "tenant_b");
+        tenant.setSysTenantDatasourceId(7L);
+
+        TenantDatasourceView view = resolver(null, properties()).describe(tenant);
+
+        assertNotNull(view);
+        assertFalse(view.available());
+        assertTrue(view.problem().contains("未安装数据源台账模块"), view.problem());
+    }
+
+    @Test
+    @DisplayName("只读回显：共用主库的存量租户返回 null，不算配置错误")
+    void describeSharedTenant() {
+        assertNull(resolver(null, properties()).describe(tenant(null, null, null)));
+    }
+
+    @Test
+    @DisplayName("下拉项：平台实例地址解析不到时仍保留「平台自身实例」项")
+    void optionsKeepPlatformSelfWithoutEndpoint() {
+        java.util.List<TenantDatasourceOption> options = resolver(null, properties()).options();
+
+        assertEquals(2, options.size());
+        assertEquals(TenantDataSourceResolver.PLATFORM_SELF, options.get(1).id());
+        assertNull(options.get(1).host(), "地址未知时不编造地址");
+    }
+
+    @Test
+    @DisplayName("referencesInstance 只看 id：0/null 是自填，其余都算「声明了实例」")
+    void referencesInstanceByDeclaredId() {
+        TenantDataSourceResolver resolver = resolver(null, properties());
+
+        SysTenant manual = tenant("h", PORT_MYSQL, "db");
+        manual.setSysTenantDatasourceId(0L);
+        assertFalse(resolver.referencesInstance(manual));
+        assertFalse(resolver.referencesInstance(tenant("h", PORT_MYSQL, "db")));
+
+        SysTenant self = tenant("h", PORT_MYSQL, "db");
+        self.setSysTenantDatasourceId(TenantDataSourceResolver.PLATFORM_SELF);
+        assertTrue(resolver.referencesInstance(self));
+
+        SysTenant hub = tenant("h", PORT_MYSQL, "db");
+        // [P3C A20 豁免]
+        hub.setSysTenantDatasourceId(42L);
+        assertTrue(resolver.referencesInstance(hub));
+        assertFalse(resolver.referencesInstance(null));
     }
 
     /**

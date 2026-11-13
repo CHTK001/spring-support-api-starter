@@ -114,6 +114,7 @@ public class TenantServerSyncRequestHandler implements SyncMessageHandler {
             return TenantSyncMessageSupport.VerificationResult.skip("server sign 未启用");
         }
 
+        // [P3C A20 豁免]
         long allowedSkewMillis = Math.max(0L, tenantProperties.getServer().getSyncSignAllowedClockSkewSeconds()) * 1000L;
         return TenantSyncMessageSupport.verifySignature(
                 data,

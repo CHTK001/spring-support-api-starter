@@ -192,14 +192,23 @@ public class TenantDataSourceFilter extends OncePerRequestFilter implements Orde
                 return rejectOrPass(request, tenantId, "租户不存在或已注销",
                         "租户 {} 在平台库不存在（会话里的租户可能已被删除）");
             }
-            if (isBrokenDedicated(tenant)) {
-                // 填了独立库配置却解析不出实例：这是配置错误，绝不能放行到主库
-                return rejectOrPass(request, tenantId, "租户数据库配置不可用，请联系管理员",
-                        "租户 {} 配置了独立库但无法解析连接信息（引用的数据源不存在或库名为空）");
-            }
-            if (!hasDatasourceConfig(tenant)) {
-                // 未登记库地址：这是「仍在共享库」的存量租户，属于正常配置而非故障。
-                log.debug("[租户数据源] 租户 {} 未登记独立库，走主库", tenantId);
+            // 只解析一次：引用型租户每解析一次就要查一遍台账，判定分散在三处时
+            // 一个请求会打三次台账库，还可能因台账状态并发变化得出互相矛盾的结论。
+            TenantDatasourceInfo info = tenantDataSourceResolver.resolve(tenant);
+            if (info == null) {
+                if (tenantDataSourceResolver.referencesInstance(tenant)) {
+                    // 填了实例来源却解析不出实例：这是配置错误，绝不能放行到主库
+                    return rejectOrPass(request, tenantId, "租户数据库配置不可用，请联系管理员",
+                            "租户 {} 引用的数据源不可用（不存在/已停用/库名为空）");
+                }
+                if (hasText(tenant.getSysTenantDbname())) {
+                    // 只填了库名、没填地址与账号：有人开始配独立库却没配完。按存量语义仍走主库，
+                    // 但必须留告警——否则「配置做了一半」会长期静默读平台数据，没人发现。
+                    log.warn("[租户数据源] 租户 {} 填了库名 {} 但缺少实例地址或账号，按未登记处理，走主库",
+                            tenantId, tenant.getSysTenantDbname());
+                } else {
+                    log.debug("[租户数据源] 租户 {} 未登记独立库，走主库", tenantId);
+                }
                 return SwitchOutcome.passThrough();
             }
             if (tenantDataSourceRegistry.getOrCreate(tenant) == null) {
@@ -238,39 +247,6 @@ public class TenantDataSourceFilter extends OncePerRequestFilter implements Orde
         log.warn("[租户数据源] " + warnFormat + "，已按 fail-closed 拒绝请求: {} {}",
                 tenantId, request.getMethod(), request.getRequestURI());
         return SwitchOutcome.rejected(503, message);
-    }
-
-    /**
-     * 租户是否登记了独立库。
-     *
-     * <p>与建池共用 {@link TenantDataSourceResolver#resolve} 的口径：解析得出连接信息才算
-     * 「已登记」。两者都缺视为该租户仍使用共享库，不是故障。</p>
-     *
-     * <p><b>引用型租户的失效必须走 fail-closed</b>：{@code datasource_id > 0} 但台账查不到时
-     * {@code resolve} 返回 null，这里判定为「未登记」→ 放行到主库，等于让租户读到平台数据。
-     * 因此引用型租户单独判定：只要填了 id，就必须解析成功。</p>
-     *
-     * @param tenant 租户记录
-     * @return 登记了库地址返回 true
-     */
-    private boolean hasDatasourceConfig(SysTenant tenant) {
-        return tenantDataSourceResolver.isDedicated(tenant);
-    }
-
-    /**
-     * 租户是否「声称」要独立库但实际解析失败。
-     *
-     * <p>覆盖两种情况：引用了台账里的数据源却查不到（台账模块缺失 / 记录被删 / 已停用），
-     * 或选了「平台自身实例」但没填库名。这类配置错误不能静默走主库。</p>
-     *
-     * @param tenant 租户记录
-     * @return 配置了独立库但不可用返回 true
-     */
-    private boolean isBrokenDedicated(SysTenant tenant) {
-        Long datasourceId = tenant.getSysTenantDatasourceId();
-        boolean referencesHub = datasourceId != null && datasourceId > 0;
-        boolean platformSelf = datasourceId != null && datasourceId == TenantDataSourceResolver.PLATFORM_SELF;
-        return (referencesHub || platformSelf) && !tenantDataSourceResolver.isDedicated(tenant);
     }
 
     /**

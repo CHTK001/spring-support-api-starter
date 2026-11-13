@@ -213,6 +213,48 @@ class TenantDataSourceFilterTest {
     }
 
     @Test
+    @DisplayName("引用台账却解析不出实例：按配置错误拒绝，绝不回退主库")
+    void rejectsBrokenHubReference() throws Exception {
+        StubRegistry registry = new StubRegistry(properties, false);
+        TenantDataSourceFilter filter = filter(registry, null, tenant -> {
+            tenant.setSysTenantDbname("tenant_b");
+            // 引用台账：本用例的解析器没有台账实现，等价于「台账模块缺失/记录被删」
+            tenant.setSysTenantDatasourceId(42L);
+        });
+
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/v2/sys/user/page");
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("tenantId", SESSION_TENANT);
+        request.setSession(session);
+
+        AtomicBoolean reached = new AtomicBoolean(false);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        filter.doFilter(request, response, (req, res) -> reached.set(true));
+
+        assertFalse(reached.get(), "引用的实例不可用时不能读平台库");
+        assertEquals(503, response.getStatus());
+    }
+
+    @Test
+    @DisplayName("只填库名没填地址：按存量语义走主库（同时留告警），不锁死租户")
+    void halfConfiguredTenantFallsThrough() throws Exception {
+        StubRegistry registry = new StubRegistry(properties, false);
+        TenantDataSourceFilter filter = filter(registry, null, tenant -> tenant.setSysTenantDbname("tenant_half"));
+
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/v2/sys/user/page");
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("tenantId", SESSION_TENANT);
+        request.setSession(session);
+
+        AtomicBoolean reached = new AtomicBoolean(false);
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        filter.doFilter(request, response, (req, res) -> reached.set(true));
+
+        assertTrue(reached.get(), "半配置不是引用型配置错误，保持原有放行语义");
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
     @DisplayName("关掉 fail-closed 后恢复旧行为：回退主库并放行")
     void fallsBackWhenFailClosedDisabled() throws Exception {
         updateServer(server -> server.setDatasourceRoutingFailClosed(false));
@@ -369,7 +411,26 @@ class TenantDataSourceFilterTest {
      * @return 过滤器
      */
     private TenantDataSourceFilter filter(StubRegistry registry, AuthService authService, boolean withDatabase) {
-        SysTenantMapper mapper = withDatabase ? tenantMapperStub() : tenantMapperStubWithoutDatabase();
+        return filter(registry, authService, withDatabase
+                ? tenant -> {
+                    tenant.setSysTenantHost("127.0.0.1");
+                    tenant.setSysTenantDbname("tenant_db");
+                }
+                : tenant -> {
+                });
+    }
+
+    /**
+     * 构造被测过滤器，并按需改写桩租户。
+     *
+     * @param registry   注册器桩
+     * @param authService 认证服务，可为空
+     * @param customizer 租户字段改写
+     * @return 过滤器
+     */
+    private TenantDataSourceFilter filter(StubRegistry registry, AuthService authService,
+                                          java.util.function.Consumer<SysTenant> customizer) {
+        SysTenantMapper mapper = tenantMapperStub(customizer);
         ObjectProvider<AuthService> provider = new FixedAuthServiceProvider(authService);
         // 判定「是否登记独立库」与建池同源：这里给一个没有台账实现的解析器，
         // 桩租户只走自填字段路径，行为与改动前一致
@@ -455,31 +516,10 @@ class TenantDataSourceFilterTest {
      * <p>不手写实现类：{@code BaseMapper} 的默认方法在各版本间会增删，
      * 手写实现类在升级 MyBatis-Plus 时会直接编译失败，而这个桩本身与业务无关。</p>
      *
-     * <p>返回的租户记录<b>带库地址</b>（host + dbname），以便走到「已登记但建池失败」
-     * 这条分支；{@link #tenantMapperStubWithoutDatabase()} 则模拟未登记的存量租户。</p>
-     *
+     * @param customizer 按用例改写租户字段（是否带库地址、是否引用台账等）
      * @return 租户查询桩
      */
-    private SysTenantMapper tenantMapperStub() {
-        return tenantMapperStub(true);
-    }
-
-    /**
-     * 模拟未登记独立库的存量租户。
-     *
-     * @return 租户查询桩
-     */
-    private SysTenantMapper tenantMapperStubWithoutDatabase() {
-        return tenantMapperStub(false);
-    }
-
-    /**
-     * 构造租户查询桩。
-     *
-     * @param withDatabase 是否带库地址
-     * @return 租户查询桩
-     */
-    private SysTenantMapper tenantMapperStub(boolean withDatabase) {
+    private SysTenantMapper tenantMapperStub(java.util.function.Consumer<SysTenant> customizer) {
         return (SysTenantMapper) java.lang.reflect.Proxy.newProxyInstance(
                 SysTenantMapper.class.getClassLoader(),
                 new Class<?>[]{SysTenantMapper.class},
@@ -487,10 +527,7 @@ class TenantDataSourceFilterTest {
                     if ("selectById".equals(method.getName()) && args != null && args.length == 1) {
                         SysTenant tenant = new SysTenant();
                         tenant.setSysTenantId(String.valueOf(args[0]));
-                        if (withDatabase) {
-                            tenant.setSysTenantHost("127.0.0.1");
-                            tenant.setSysTenantDbname("tenant_db");
-                        }
+                        customizer.accept(tenant);
                         return tenant;
                     }
                     if ("toString".equals(method.getName())) {

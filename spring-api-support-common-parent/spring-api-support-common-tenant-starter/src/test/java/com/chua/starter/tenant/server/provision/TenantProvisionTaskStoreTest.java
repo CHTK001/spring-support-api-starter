@@ -65,6 +65,7 @@ class TenantProvisionTaskStoreTest {
         TenantProvisionTask stale = task("task-stale");
         stale.getSteps().get(0).setStatus(TenantProvisionTask.StepStatus.RUNNING);
         Map<String, Object> staleSnapshot = stale.toMap();
+        // [P3C A20 豁免]
         staleSnapshot.put("heartbeatTime", now - 10L * 60 * 1000);
         store.save(staleSnapshot);
 
@@ -73,6 +74,7 @@ class TenantProvisionTaskStoreTest {
         freshSnapshot.put("heartbeatTime", now);
         store.save(freshSnapshot);
 
+        // [P3C A20 豁免]
         assertEquals(1, store.reapOrphaned(now - 3L * 60 * 1000));
 
         Map<String, Object> reaped = store.find("task-stale");
@@ -99,6 +101,7 @@ class TenantProvisionTaskStoreTest {
 
         TenantProvisionTask task = task("task-dead-worker");
         task.setStatus(TenantProvisionTask.Status.RUNNING);
+        // [P3C C1 豁免]
         Thread worker = new Thread(() -> { });
         worker.start();
         worker.join();

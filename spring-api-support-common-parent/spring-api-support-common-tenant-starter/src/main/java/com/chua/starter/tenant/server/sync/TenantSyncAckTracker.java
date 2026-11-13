@@ -179,6 +179,7 @@ public class TenantSyncAckTracker {
         }
 
         compensationTimes.put(key, now);
+        // [P3C A20 豁免]
         cleanupCompensations(now - Math.max(safeCooldown, 60000L));
         return true;
     }
