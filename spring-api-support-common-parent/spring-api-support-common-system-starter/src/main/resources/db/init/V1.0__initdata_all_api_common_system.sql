@@ -124,3 +124,56 @@ INSERT INTO `sys_wallpaper` (`sys_wallpaper_code`, `sys_wallpaper_name`, `sys_wa
 SELECT 'starry', '星野', '夜色', 'css', 'radial-gradient(circle at 22% 28%, rgba(255,255,255,0.92) 0 1.2px, transparent 1.8px), radial-gradient(circle at 68% 62%, rgba(255,255,255,0.70) 0 1px, transparent 1.6px), radial-gradient(120% 90% at 50% 0%, #2b3a5e 0%, #182238 60%, #0b0f1a 100%)', 'radial-gradient(circle at 22% 28%, rgba(255,255,255,0.92) 0 1.2px, transparent 1.8px), radial-gradient(circle at 68% 62%, rgba(255,255,255,0.70) 0 1px, transparent 1.6px), radial-gradient(120% 90% at 50% 0%, #1a2440 0%, #0e1526 60%, #070a12 100%)', 'none', 0.95, 0, 0.25, 60, 1 FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM `sys_wallpaper` WHERE `sys_wallpaper_code` = 'starry');
 
+-- ---------------------------------------------------------------------
+-- 在线图片壁纸（需要联网）
+-- 前端会监听网络状态：离线时这两条在面板里隐藏、图层暂时撤下，联网后自动恢复。
+-- 用 Unsplash 固定图片 id，避免每次加载随机换图。
+-- ---------------------------------------------------------------------
+INSERT INTO `sys_wallpaper` (`sys_wallpaper_code`, `sys_wallpaper_name`, `sys_wallpaper_group`, `sys_wallpaper_kind`, `sys_wallpaper_css`, `sys_wallpaper_css_dark`, `sys_wallpaper_url`, `sys_wallpaper_tile`, `sys_wallpaper_opacity`, `sys_wallpaper_blur`, `sys_wallpaper_dim`, `sys_wallpaper_sort`, `sys_wallpaper_status`)
+SELECT 'online-lake', '远山湖', '在线', 'image', NULL, NULL, 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1920&q=80&auto=format&fit=crop', 'cover', 1.00, 0, 0.15, 70, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_wallpaper` WHERE `sys_wallpaper_code` = 'online-lake');
+
+INSERT INTO `sys_wallpaper` (`sys_wallpaper_code`, `sys_wallpaper_name`, `sys_wallpaper_group`, `sys_wallpaper_kind`, `sys_wallpaper_css`, `sys_wallpaper_css_dark`, `sys_wallpaper_url`, `sys_wallpaper_tile`, `sys_wallpaper_opacity`, `sys_wallpaper_blur`, `sys_wallpaper_dim`, `sys_wallpaper_sort`, `sys_wallpaper_status`)
+SELECT 'online-forest', '雾林', '在线', 'image', NULL, NULL, 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80&auto=format&fit=crop', 'cover', 1.00, 0, 0.15, 80, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_wallpaper` WHERE `sys_wallpaper_code` = 'online-forest');
+
+INSERT INTO `sys_wallpaper` (`sys_wallpaper_code`, `sys_wallpaper_name`, `sys_wallpaper_group`, `sys_wallpaper_kind`, `sys_wallpaper_css`, `sys_wallpaper_css_dark`, `sys_wallpaper_url`, `sys_wallpaper_tile`, `sys_wallpaper_opacity`, `sys_wallpaper_blur`, `sys_wallpaper_dim`, `sys_wallpaper_sort`, `sys_wallpaper_status`)
+SELECT 'online-snow', '雪峰', '在线', 'image', NULL, NULL, 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80&auto=format&fit=crop', 'cover', 1.00, 0, 0.15, 90, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_wallpaper` WHERE `sys_wallpaper_code` = 'online-snow');
+
+-- ---------------------------------------------------------------------
+-- 饰品：头像挂件（字符）+ 昵称牌（CSS 背景）
+-- 只放「不依赖图片资源」的种子，部署后即可佩戴；后续限定款再补 image。
+-- ---------------------------------------------------------------------
+INSERT INTO `sys_ornament` (`sys_ornament_code`, `sys_ornament_name`, `sys_ornament_slot`, `sys_ornament_kind`, `sys_ornament_glyph`, `sys_ornament_css`, `sys_ornament_color`, `sys_ornament_sort`, `sys_ornament_status`)
+SELECT 'avatar-star', '星芒', 'avatar', 'glyph', '★', NULL, '#f59e0b', 10, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_ornament` WHERE `sys_ornament_code` = 'avatar-star');
+
+INSERT INTO `sys_ornament` (`sys_ornament_code`, `sys_ornament_name`, `sys_ornament_slot`, `sys_ornament_kind`, `sys_ornament_glyph`, `sys_ornament_css`, `sys_ornament_color`, `sys_ornament_sort`, `sys_ornament_status`)
+SELECT 'avatar-sakura', '樱瓣', 'avatar', 'glyph', '❀', NULL, '#f472b6', 20, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_ornament` WHERE `sys_ornament_code` = 'avatar-sakura');
+
+INSERT INTO `sys_ornament` (`sys_ornament_code`, `sys_ornament_name`, `sys_ornament_slot`, `sys_ornament_kind`, `sys_ornament_glyph`, `sys_ornament_css`, `sys_ornament_color`, `sys_ornament_sort`, `sys_ornament_status`)
+SELECT 'avatar-spark', '星辉', 'avatar', 'glyph', '✦', NULL, '#38bdf8', 30, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_ornament` WHERE `sys_ornament_code` = 'avatar-spark');
+
+INSERT INTO `sys_ornament` (`sys_ornament_code`, `sys_ornament_name`, `sys_ornament_slot`, `sys_ornament_kind`, `sys_ornament_glyph`, `sys_ornament_css`, `sys_ornament_color`, `sys_ornament_sort`, `sys_ornament_status`)
+SELECT 'avatar-moon', '月华', 'avatar', 'glyph', '☾', NULL, '#818cf8', 40, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_ornament` WHERE `sys_ornament_code` = 'avatar-moon');
+
+INSERT INTO `sys_ornament` (`sys_ornament_code`, `sys_ornament_name`, `sys_ornament_slot`, `sys_ornament_kind`, `sys_ornament_glyph`, `sys_ornament_css`, `sys_ornament_color`, `sys_ornament_sort`, `sys_ornament_status`)
+SELECT 'plate-gold', '鎏金', 'nameplate', 'css', NULL, 'linear-gradient(135deg, rgba(245,158,11,0.30), rgba(245,158,11,0.08))', NULL, 110, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_ornament` WHERE `sys_ornament_code` = 'plate-gold');
+
+INSERT INTO `sys_ornament` (`sys_ornament_code`, `sys_ornament_name`, `sys_ornament_slot`, `sys_ornament_kind`, `sys_ornament_glyph`, `sys_ornament_css`, `sys_ornament_color`, `sys_ornament_sort`, `sys_ornament_status`)
+SELECT 'plate-ocean', '海盐', 'nameplate', 'css', NULL, 'linear-gradient(135deg, rgba(56,189,248,0.28), rgba(56,189,248,0.06))', NULL, 120, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_ornament` WHERE `sys_ornament_code` = 'plate-ocean');
+
+INSERT INTO `sys_ornament` (`sys_ornament_code`, `sys_ornament_name`, `sys_ornament_slot`, `sys_ornament_kind`, `sys_ornament_glyph`, `sys_ornament_css`, `sys_ornament_color`, `sys_ornament_sort`, `sys_ornament_status`)
+SELECT 'plate-rose', '玫瑰', 'nameplate', 'css', NULL, 'linear-gradient(135deg, rgba(244,114,182,0.28), rgba(244,114,182,0.06))', NULL, 130, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_ornament` WHERE `sys_ornament_code` = 'plate-rose');
+
+INSERT INTO `sys_ornament` (`sys_ornament_code`, `sys_ornament_name`, `sys_ornament_slot`, `sys_ornament_kind`, `sys_ornament_glyph`, `sys_ornament_css`, `sys_ornament_color`, `sys_ornament_sort`, `sys_ornament_status`)
+SELECT 'plate-ink', '墨玉', 'nameplate', 'css', NULL, 'linear-gradient(135deg, rgba(148,163,184,0.30), rgba(148,163,184,0.06))', NULL, 140, 1 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM `sys_ornament` WHERE `sys_ornament_code` = 'plate-ink');
+

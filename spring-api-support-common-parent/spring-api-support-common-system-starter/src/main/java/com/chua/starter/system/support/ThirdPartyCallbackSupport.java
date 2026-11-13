@@ -68,7 +68,7 @@ public final class ThirdPartyCallbackSupport {
      * @return AES 密文凭证，通过重定向属性 {@code redirectParam} 下发
      */
     public static String encryptRedirectParam(LoginResult loginResult, SystemSecurityProperties props) {
-        String encrypt = new AesCipher().encryptToString(
+        String encrypt = AesCipher.create("jdk").encryptToString(
                 props.getThirdPartyCallbackKey().getBytes(StandardCharsets.UTF_8),
                 Json.toJson(loginResult));
         AuthDefaultStateCache.INSTANCE.cache(nonceKey(encrypt), NONCE_ACTIVE);
@@ -96,7 +96,7 @@ public final class ThirdPartyCallbackSupport {
         }
         AuthDefaultStateCache.INSTANCE.cache(nonceKey, NONCE_CONSUMED);
         try {
-            String json = new AesCipher().decryptToString(
+            String json = AesCipher.create("jdk").decryptToString(
                     props.getThirdPartyCallbackKey().getBytes(StandardCharsets.UTF_8), redirectParam);
             LoginResult loginResult = Json.fromJson(json, LoginResult.class);
             if (null == loginResult || StringUtils.isBlank(loginResult.getAccessToken())) {

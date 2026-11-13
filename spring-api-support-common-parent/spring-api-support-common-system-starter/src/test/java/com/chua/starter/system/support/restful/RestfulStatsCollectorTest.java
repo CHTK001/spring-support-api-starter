@@ -45,6 +45,7 @@ class RestfulStatsCollectorTest {
     @Test
     @DisplayName("带IP记录会进入IP排行")
     void testIpRecordedIntoRanking() {
+        // [P3C A20 豁免]
         collector.record("/v2/ip-check", "GET", 12L, true, "203.0.113.7");
         List<Map<String, Object>> topIps = ips(collector);
         assertTrue(topIps.stream().anyMatch(m -> "203.0.113.7".equals(m.get("ip"))),
@@ -98,6 +99,7 @@ class RestfulStatsCollectorTest {
     @Test
     @DisplayName("快照结构包含 trend/summary/topUrls/topIps")
     void testSnapshotShape() {
+        // [P3C A20 豁免]
         collector.record("/v2/shape", "PUT", 20L, false, "203.0.113.99");
         Map<String, Object> snapshot = collector.snapshot();
         assertTrue(snapshot.containsKey("trend"));

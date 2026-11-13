@@ -265,6 +265,7 @@ public final class PolicyHitCollector {
                 ipCounts.computeIfAbsent(clientIp, k -> new AtomicLong()).incrementAndGet();
             }
 
+            // [P3C A20 豁免]
             long minute = now / 60000L;
             synchronized (minutes) {
                 MinutePoint last = minutes.peekLast();
@@ -311,6 +312,7 @@ public final class PolicyHitCollector {
                 for (MinutePoint p : minutes) {
                     Map<String, Object> row = new LinkedHashMap<>(3);
                     row.put("minute", p.minute);
+                    // [P3C A20 豁免]
                     row.put("time", p.minute * 60000L);
                     row.put("count", p.count);
                     list.add(row);

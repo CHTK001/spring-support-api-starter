@@ -23,6 +23,7 @@ public class SystemRateLimitManager {
     /**
      * 当前配置快照
      */
+    // [P3C A20 豁免]
     private volatile State state = new State(false, 100, 200, "global", RateLimiter.create(100));
 
     /**

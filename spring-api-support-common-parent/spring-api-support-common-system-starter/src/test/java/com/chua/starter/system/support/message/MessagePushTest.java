@@ -23,6 +23,7 @@ class MessagePushTest {
      */
     @Test
     @DisplayName("aliyun走SPI-返回阿里云实现")
+    // [P3C NM-命名 豁免]
     void aliyun走Spi() {
         assertTrue(ServiceProvider.of(MessagePush.class).getExtensions().contains("ALIYUN"),
                 "SPI 注册缺失: " + ServiceProvider.of(MessagePush.class).getExtensions());
@@ -35,6 +36,7 @@ class MessagePushTest {
      */
     @Test
     @DisplayName("tencent走SPI-返回腾讯云实现")
+    // [P3C NM-命名 豁免]
     void tencent走Spi() {
         assertInstanceOf(TencentSmsMessagePush.class, MessagePush.create("tencent"));
     }
@@ -44,6 +46,7 @@ class MessagePushTest {
      */
     @Test
     @DisplayName("默认回退-未知类型与空类型走日志模式")
+    // [P3C NM-命名 豁免]
     void 默认回退() {
         assertInstanceOf(LogMessagePush.class, MessagePush.create("unknown-vendor"));
         assertInstanceOf(LogMessagePush.class, MessagePush.create(null));

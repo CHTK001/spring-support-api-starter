@@ -101,6 +101,7 @@ class SysPostServiceTest {
     @DisplayName("更新岗位-记录不存在返回非法参数")
     void testUpdateNotExists() {
         SysPost post = buildPost();
+        // [P3C A20 豁免]
         post.setSysPostId(999L);
 
         ReturnResult<Boolean> result = sysPostService.updatePost(post);

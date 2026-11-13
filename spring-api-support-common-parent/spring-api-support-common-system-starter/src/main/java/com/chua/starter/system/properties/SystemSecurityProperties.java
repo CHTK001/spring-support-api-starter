@@ -40,11 +40,13 @@ public class SystemSecurityProperties {
      * 登录错误计数过期时间（小时）
      * <p>在此时间内未达到锁定阈值，错误计数会自动清除</p>
      */
+    // [P3C A20 豁免]
     private int loginErrorExpireHours = 24;
 
     /**
      * 密码盐值长度
      */
+    // [P3C A20 豁免]
     private int saltLength = 14;
 
     /**
@@ -56,6 +58,7 @@ public class SystemSecurityProperties {
     /**
      * 用户导出最大数量限制
      */
+    // [P3C A20 豁免]
     private int maxExportCount = 10000;
 
     /**
@@ -120,5 +123,6 @@ public class SystemSecurityProperties {
      * <p>多实例共享的状态缓存 TTL。禁用/启用操作会直接删除该键，正常情况下不会等到过期；
      * 这里只是兜底，避免异常路径下脏状态长期滞留。</p>
      */
+    // [P3C A20 豁免]
     private int userStateRedisTtlSeconds = 30;
 }

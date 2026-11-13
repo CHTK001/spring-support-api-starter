@@ -73,6 +73,7 @@ class SysMenuServiceImplTest {
      */
     @Test
     @DisplayName("空体被拒绝-不再产生全NULL菜单行")
+    // [P3C NM-命名 豁免]
     void 空体被拒绝() {
         ReturnResult<SysMenu> result = service().save(new SysMenu(), Set.of("ADMIN"));
 
@@ -86,6 +87,7 @@ class SysMenuServiceImplTest {
      */
     @Test
     @DisplayName("仅标题-提示缺少菜单类型")
+    // [P3C NM-命名 豁免]
     void 仅标题被拒绝() {
         SysMenu menu = new SysMenu();
         menu.setSysMenuTitle("只有标题");
@@ -101,6 +103,7 @@ class SysMenuServiceImplTest {
      */
     @Test
     @DisplayName("标题加类型-提示缺少菜单排序")
+    // [P3C NM-命名 豁免]
     void 缺排序被拒绝() {
         SysMenu menu = new SysMenu();
         menu.setSysMenuTitle("标题与类型");
@@ -120,6 +123,7 @@ class SysMenuServiceImplTest {
      */
     @Test
     @DisplayName("空白标题同样被拒绝")
+    // [P3C NM-命名 豁免]
     void 空白标题被拒绝() {
         SysMenu menu = validMenu();
         menu.setSysMenuTitle("   ");
@@ -135,6 +139,7 @@ class SysMenuServiceImplTest {
      */
     @Test
     @DisplayName("null菜单被拒绝")
+    // [P3C NM-命名 豁免]
     void null菜单被拒绝() {
         ReturnResult<SysMenu> result = service().save(null, Set.of("ADMIN"));
 
@@ -151,6 +156,7 @@ class SysMenuServiceImplTest {
      */
     @Test
     @DisplayName("按钮类菜单-允许path与name为空")
+    // [P3C NM-命名 豁免]
     void 按钮类菜单不被误伤() {
         SysMenu menu = new SysMenu();
         menu.setSysMenuTitle("某个按钮");
@@ -181,6 +187,7 @@ class SysMenuServiceImplTest {
      */
     @Test
     @DisplayName("校验顺序-标题优先于类型与排序")
+    // [P3C NM-命名 豁免]
     void 校验顺序固定() {
         SysMenu menu = new SysMenu();   // 三项全缺
 

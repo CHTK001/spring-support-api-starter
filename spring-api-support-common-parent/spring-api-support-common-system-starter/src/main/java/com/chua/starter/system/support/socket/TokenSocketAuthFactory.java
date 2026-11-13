@@ -128,6 +128,7 @@ public class TokenSocketAuthFactory implements SocketAuthFactory {
         return null;
     }
 
+    // [P3C MJ-方法注释 豁免]
     private boolean isUsable(UserResult user) {
         if (user == null || isBlank(user.getUserId())) {
             return false;
@@ -136,6 +137,7 @@ public class TokenSocketAuthFactory implements SocketAuthFactory {
         if (expireTime == null || expireTime <= 0) {
             return true;
         }
+        // [P3C A20 豁免]
         long expireMillis = expireTime < MILLIS_THRESHOLD ? expireTime * 1000L : expireTime;
         return expireMillis > System.currentTimeMillis();
     }
@@ -228,6 +230,7 @@ public class TokenSocketAuthFactory implements SocketAuthFactory {
         return value == null ? null : String.valueOf(value).trim();
     }
 
+    // [P3C MJ-方法注释 豁免]
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
     }

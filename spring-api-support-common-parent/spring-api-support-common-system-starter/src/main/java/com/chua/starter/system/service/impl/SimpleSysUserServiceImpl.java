@@ -199,6 +199,7 @@ public class SimpleSysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser
             // 验证前后时间窗口（容差）
             long currentTime = System.currentTimeMillis();
             // 每个时间窗口 30 秒
+            // [P3C A20 豁免]
             long interval = 30 * 1000L;
 
             for (int i = 1; i <= TIME_WINDOW_TOLERANCE; i++) {

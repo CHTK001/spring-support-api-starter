@@ -43,6 +43,7 @@ class TreeUtilsTest {
      */
     @Test
     @DisplayName("平铺成树-父子三层挂载正确")
+    // [P3C NM-命名 豁免]
     void 平铺成树() {
         List<Slot> slots = List.of(new Slot("root"), new Slot("child"), new Slot("grand"));
         List<Slot> tree = TreeUtils.toTree(
@@ -63,6 +64,7 @@ class TreeUtilsTest {
      */
     @Test
     @DisplayName("孤儿归根-父缺失时成为根")
+    // [P3C NM-命名 豁免]
     void 孤儿归根() {
         Slot root = new Slot("root");
         Slot orphan = new Slot("orphan");
@@ -81,6 +83,7 @@ class TreeUtilsTest {
      */
     @Test
     @DisplayName("空输入-返回空列表")
+    // [P3C NM-命名 豁免]
     void 空输入() {
         assertTrue(TreeUtils.<String[], Slot>toTree(null, pair -> null).isEmpty());
         assertTrue(TreeUtils.<String[], Slot>toTree(List.of(), pair -> null).isEmpty());
@@ -95,6 +98,7 @@ class TreeUtilsTest {
      */
     @Test
     @DisplayName("排序-保持入参相对顺序")
+    // [P3C NM-命名 豁免]
     void 保持顺序() {
         List<String[]> pairs = new ArrayList<>();
         pairs.add(new String[]{"b", null});

@@ -229,6 +229,7 @@ public class UserStateCache {
         }
         SystemSecurityProperties properties = properties();
         int seconds = properties == null ? 5 : properties.getUserStateLocalTtlSeconds();
+        // [P3C A20 豁免]
         return Math.max(0, seconds) * 1000L;
     }
 
@@ -239,6 +240,7 @@ public class UserStateCache {
      */
     private long redisTtlSeconds() {
         SystemSecurityProperties properties = properties();
+        // [P3C A20 豁免]
         int seconds = properties == null ? 30 : properties.getUserStateRedisTtlSeconds();
         return Math.max(1, seconds);
     }

@@ -742,3 +742,51 @@ CREATE TABLE IF NOT EXISTS `sys_user_wallpaper_upload` (
     KEY `idx_sys_user_wallpaper_upload_user` (`sys_user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户上传壁纸记录表';
 
+-- ============================================================
+-- V6.3 饰品：目录 / 佩戴记录
+--
+-- 与头像框同一套思路：目录由服务端下发，用户只存「当前佩戴」。
+-- 每个槽位（avatar / nameplate）每人最多一件：佩戴即 upsert，取下即删行。
+-- 素材优先用字符（★ / ❀）或 CSS，避免为了几个小件再拉一套图片资源。
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `sys_ornament` (
+    `sys_ornament_id` INT NOT NULL AUTO_INCREMENT COMMENT '饰品ID',
+    `sys_ornament_code` varchar(64) NOT NULL COMMENT '饰品编码（唯一）',
+    `sys_ornament_name` varchar(64) NOT NULL COMMENT '饰品名称',
+    `sys_ornament_slot` varchar(32) NOT NULL COMMENT '槽位: avatar-头像挂件 nameplate-昵称牌',
+    `sys_ornament_kind` varchar(16) NOT NULL DEFAULT 'glyph' COMMENT '类型: glyph-字符 css-样式',
+    `sys_ornament_glyph` varchar(16) DEFAULT NULL COMMENT '字符（kind=glyph）',
+    `sys_ornament_image` varchar(512) DEFAULT NULL COMMENT '位图地址（可选，优先于字符）',
+    `sys_ornament_css` varchar(512) DEFAULT NULL COMMENT 'CSS 背景（nameplate）',
+    `sys_ornament_color` varchar(64) DEFAULT NULL COMMENT '前景色（字符色 / 昵称文字色）',
+    `sys_ornament_sort` int DEFAULT 0 COMMENT '排序',
+    `sys_ornament_status` int DEFAULT 1 COMMENT '状态: 0-禁用 1-启用',
+    `create_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int DEFAULT NULL COMMENT '创建人',
+    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_ornament_id`),
+    UNIQUE KEY `uk_sys_ornament_code` (`sys_ornament_code`),
+    KEY `idx_sys_ornament_slot` (`sys_ornament_slot`),
+    KEY `idx_sys_ornament_status` (`sys_ornament_status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='饰品目录表';
+
+CREATE TABLE IF NOT EXISTS `sys_user_ornament` (
+    `sys_user_ornament_id` INT NOT NULL AUTO_INCREMENT COMMENT '佩戴记录ID',
+    `sys_user_id` int NOT NULL COMMENT '用户ID',
+    `sys_ornament_slot` varchar(32) NOT NULL COMMENT '槽位: avatar / nameplate',
+    `sys_ornament_id` int NOT NULL COMMENT '饰品ID',
+    `create_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
+    `create_by` int DEFAULT NULL COMMENT '创建人',
+    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+    `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+    `update_name` varchar(255) DEFAULT NULL COMMENT '更新人姓名',
+    `update_by` int DEFAULT NULL COMMENT '更新人',
+    PRIMARY KEY (`sys_user_ornament_id`),
+    UNIQUE KEY `uk_sys_user_ornament_slot` (`sys_user_id`, `sys_ornament_slot`),
+    KEY `idx_sys_user_ornament_ornament` (`sys_ornament_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户饰品佩戴表';
+
